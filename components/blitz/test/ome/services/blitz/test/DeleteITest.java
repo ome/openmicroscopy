@@ -6,6 +6,7 @@
 package ome.services.blitz.test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,13 +22,15 @@ import omero.RLong;
 import omero.RType;
 import omero.ServerError;
 import omero.api.AMD_IDelete_queueDelete;
-import omero.api.IDeletePrx;
 import omero.api.delete.DeleteCommand;
 import omero.api.delete.DeleteHandlePrx;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.AnnotationAnnotationLinkI;
 import omero.model.Dataset;
 import omero.model.DatasetI;
+import omero.model.FileAnnotation;
+import omero.model.FileAnnotationI;
+import omero.model.IObject;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
 import omero.model.ImageI;
@@ -35,8 +38,14 @@ import omero.model.Plate;
 import omero.model.PlateI;
 import omero.model.Project;
 import omero.model.ProjectI;
+import omero.model.Screen;
+import omero.model.ScreenAnnotationLink;
+import omero.model.ScreenAnnotationLinkI;
+import omero.model.ScreenI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
+import omero.model.TermAnnotation;
+import omero.model.TermAnnotationI;
 import omero.model.Well;
 import omero.model.WellI;
 import omero.model.WellSample;
@@ -179,7 +188,7 @@ public class DeleteITest extends AbstractServantTest {
 
     /**
      * Uses the /Image delete specification to remove an Image and attempts to
-     * remove its annotations. If those annotations are mutiply linked,
+     * remove its annotations. If those annotations are multiply linked,
      * however, the attempted delete is rolled back (via a savepoint)
      */
     @Test(groups = {"ticket:2769", "ticket:2780"})
@@ -478,6 +487,141 @@ public class DeleteITest extends AbstractServantTest {
                 + cid, null);
         assertEquals(1, l.size());
 
+    }
+
+    /**
+     * Tests overriding the {@link DeleteEntry.Op#KEEP} setting by a hard-code
+     * value in spec.xml. These are well-known "unshared" annotations, that should
+     * be deleted, regardless of KEEP.
+     */
+    @SuppressWarnings("rawtypes")
+    public void testDontKeepImageAnnotationIfUnsharedNS() throws Exception {
+
+        // Create test data
+        FileAnnotation file = new FileAnnotationI();
+        file.setNs(omero.rtypes.rstring("openmicroscopy.org/omero/import/companionFile"));
+
+        long iid = makeImage();
+        ImageAnnotationLink link = new ImageAnnotationLinkI();
+        link.link(new ImageI(iid, false), file);
+        link = assertSaveAndReturn(link);
+
+        long lid = link.getId().getValue();
+        long pid = link.getParent().getId().getValue();
+        long cid = link.getChild().getId().getValue();
+
+        // Do Delete
+        Map<String, String> options = new HashMap<String, String>();
+        options.put("/FileAnnotation", "KEEP");
+        DeleteCommand dc = new DeleteCommand("/Image", pid, options);
+        doDelete(dc);
+
+        // Make sure the parent annotation still exists, but both the annotation
+        // link and the annotation that was linked to (the child) are gone.
+        List l;
+        l = assertProjection("select p.id from Image p where p.id = " + pid,
+                null);
+        assertEquals(0, l.size());
+        l = assertProjection("select l.id from ImageAnnotationLink l where l.id = " + lid,
+                null);
+        assertEquals(0, l.size());
+        l = assertProjection("select c.id from Annotation c where c.id = "
+                + cid, null);
+        assertEquals(0, l.size());
+
+    }
+
+    /**
+     * Tests overriding the {@link DeleteEntry.Op#KEEP} setting by setting
+     * a namespace which should always be deleted (an "unshared" annotation).
+     */
+    @SuppressWarnings("rawtypes")
+    public void testDontKeepImageAnnotationIfRequestedNS() throws Exception {
+
+        // Create test data
+        FileAnnotation file = new FileAnnotationI();
+        file.setNs(omero.rtypes.rstring("keepme"));
+
+        long iid = makeImage();
+        ImageAnnotationLink link = new ImageAnnotationLinkI();
+        link.link(new ImageI(iid, false), file);
+        link = assertSaveAndReturn(link);
+
+        long lid = link.getId().getValue();
+        long pid = link.getParent().getId().getValue();
+        long cid = link.getChild().getId().getValue();
+
+        // Do Delete
+        Map<String, String> options = new HashMap<String, String>();
+        options.put("/FileAnnotation", "KEEP;excludes=keepme");
+        DeleteCommand dc = new DeleteCommand("/Image", pid, options);
+        doDelete(dc);
+
+        // Make sure the parent annotation still exists, but both the annotation
+        // link and the annotation that was linked to (the child) are gone.
+        List l;
+        l = assertProjection("select p.id from Image p where p.id = " + pid,
+                null);
+        assertEquals(0, l.size());
+        l = assertProjection("select l.id from ImageAnnotationLink l where l.id = " + lid,
+                null);
+        assertEquals(0, l.size());
+        l = assertProjection("select c.id from Annotation c where c.id = "
+                + cid, null);
+        assertEquals(0, l.size());
+
+    }
+
+    /**
+     * This method is copied from DeleteServiceTest to reproduce an issue
+     * in which KEEP;excludes= is not being taken into acount.
+     */
+    @Test
+    public void testDeleteObjectWithAnnotationWithoutNS()
+        throws Exception
+    {
+        Screen obj = new ScreenI();
+        obj.setName(omero.rtypes.rstring("testDelete"));
+        obj = assertSaveAndReturn(obj);
+        String type = "/Screen";
+        long id = obj.getId().getValue();
+
+        List<Long> annotationIds = createNonSharableAnnotation(obj, null);
+        List<Long> annotationIdsNS = createNonSharableAnnotation(obj, "TEST");
+
+        Map<String, String> options = new HashMap<String, String>();
+        options.put("/Annotation", "KEEP;excludes=TEST");
+        doDelete(new DeleteCommand(type, id, options));
+
+        ParametersI param = new ParametersI();
+        param.addId(obj.getId().getValue());
+        String sql = "select s from Screen s where id = :id";
+        assertEquals(0, assertFindByQuery(sql, param).size());
+        param = new ParametersI();
+        param.addIds(annotationIds);
+        assertTrue(annotationIds.size() > 0);
+
+        sql = "select i from Annotation as i where i.id in (:ids)";
+        List<IObject> l = assertFindByQuery(sql, param);
+        assertEquals(obj + "-->" + l.toString(), annotationIds.size(), l.size());
+        param = new ParametersI();
+        param.addIds(annotationIdsNS);
+        assertTrue(annotationIdsNS.size() > 0);
+        sql = "select i from Annotation as i where i.id in (:ids)";
+        l = assertFindByQuery(sql, param);
+        assertEquals(obj + "-->" + l.toString(), 0, l.size());
+
+    }
+
+    List<Long> createNonSharableAnnotation(Screen obj, String ns) throws Exception {
+        TermAnnotation ta = new TermAnnotationI();
+        if (ns != null) {
+            ta.setNs(omero.rtypes.rstring(ns));
+        }
+        ScreenAnnotationLink link = new ScreenAnnotationLinkI();
+        link.link((Screen) obj.proxy(), ta);
+        link = assertSaveAndReturn(link);
+        return Arrays.asList(link.getChild().getId().getValue());
     }
 
     //

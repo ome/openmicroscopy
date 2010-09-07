@@ -127,8 +127,8 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
             Op op, boolean hasSubSpec) {
         DeleteEntry de = new DeleteEntry(spec, string);
         de.postProcess(specXml);
-        assertEquals(name, de.name);
-        assertEquals(op, de.op);
+        assertEquals(name, de.getName());
+        assertEquals(op, de.getOp());
         // assertEquals(hasSubSpec, de.getSubSpec() != null);
     }
 
@@ -255,19 +255,50 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
         options = new HashMap<String, String>();
         options.put("/Image", "KEEP");
         spec.initialize(1, "", options);
-        assertEquals(Op.KEEP, spec.entries.get(0).op);
+        assertEquals(Op.KEEP, spec.entries.get(0).getOp());
 
         spec = new BaseDeleteSpec(Arrays.asList("/Project/Dataset/Image;SOFT"));
         options = new HashMap<String, String>();
         options.put("/Project/Dataset/Image", "KEEP");
         spec.initialize(1, "", options);
-        assertEquals(Op.KEEP, spec.entries.get(0).op);
+        assertEquals(Op.KEEP, spec.entries.get(0).getOp());
 
         spec = new BaseDeleteSpec(Arrays.asList("/Project/Dataset/Image;SOFT"));
         options = new HashMap<String, String>();
         options.put("/", "KEEP");
         spec.initialize(1, "", options);
-        assertEquals(Op.KEEP, spec.entries.get(0).op);
+        assertEquals(Op.KEEP, spec.entries.get(0).getOp());
+
+        // check that values get applied to subclasses
+        AnnotationDeleteSpec ads = specXml.getBean("/Annotation", AnnotationDeleteSpec.class);
+        options = new HashMap<String, String>();
+        options.put("/Annotation", "KEEP");
+        ads.initialize(1, "", options);
+        DeleteEntry de = ads.entries().get(0);
+        assertEquals(de.getName(), "/FileAnnotation");
+        assertEquals(Op.KEEP, de.getOp());
+
+        // Now check that something between /Annotation and the concrete
+        // class /FileAnnotation takes precedence
+        ads = specXml.getBean("/Annotation", AnnotationDeleteSpec.class);
+        options = new HashMap<String, String>();
+        options.put("/Annotation", "KEEP");
+        options.put("/TypeAnnotation", "SOFT");
+        ads.initialize(1, "", options);
+        de = ads.entries().get(0);
+        assertEquals(de.getName(), "/FileAnnotation");
+        assertEquals(Op.SOFT, de.getOp());
+
+        // Now test whether or not we can correctly parse off the "excludes"
+        // statement
+        ads = specXml.getBean("/Annotation", AnnotationDeleteSpec.class);
+        options = new HashMap<String, String>();
+        options.put("/FileAnnotation", "KEEP;excludes=keepme");
+        ads.initialize(1, "", options);
+        de = ads.entries().get(0);
+        assertEquals(de.getName(), "/FileAnnotation");
+        assertEquals(Op.KEEP, de.getOp());
+        assertEquals("keepme", ads.getExclude(0));
 
     }
 

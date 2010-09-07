@@ -79,6 +79,12 @@ public interface DeleteSpec {
             throws DeleteException;
 
     /**
+     * Returns true if this particular step should be skipped, as is usually
+     * the case when dealing with {@link DeleteEntry.Op#KEEP}.
+     */
+    boolean skip(int step);
+
+    /**
      *
      * @param session
      *            non-null, active Hibernate session that will be used to delete

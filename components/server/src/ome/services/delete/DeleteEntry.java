@@ -62,21 +62,21 @@ public class DeleteEntry {
     final private static Pattern opRegex = Pattern
             .compile("^([^;]+?)(;([^;]*?))?(;([^;]*?))?$");
 
-    final protected DeleteSpec self;
+    final private DeleteSpec self;
 
-    final protected String name;
+    final private String name;
 
-    final protected String[] parts;
+    final private String[] parts;
 
-    final protected String path;
+    final private String path;
 
     /**
      * Operation which should be performed for this entry.
      *
-     * No longer protected since the {@link #initialize(String, Map)} phase
-     * can change the operation based on the options map.
+     * No longer protected since the {@link #initialize(String, Map)} phase can
+     * change the operation based on the options map.
      */
-    protected Op op;
+    private Op op;
 
     /* final */private DeleteSpec subSpec;
 
@@ -90,12 +90,20 @@ public class DeleteEntry {
         this.parts = split(name);
     }
 
-    public DeleteEntry(DeleteSpec self, String name, Op op, String path) {
+    public DeleteEntry(DeleteSpec self, String name, DeleteEntry entry) {
         this.self = self;
         this.name = name;
-        this.op = op;
-        this.path = path;
+        this.op = entry.op;
+        this.path = entry.path;
         this.parts = split(name);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Op getOp() {
+        return op;
     }
 
     /**
@@ -211,38 +219,42 @@ public class DeleteEntry {
 
     /**
      * Called during {@link DeleteSpec#initialize(long, String, Map)} to give
-     * the entry a chance to modify its {@link #op} based on the options.
-     * The superspec is passed in so that both the absolute path as well as
-     * the last path element can be checked. Further, a key of "/"
-     * apply to all entries.
+     * the entry a chance to modify its {@link #op} based on the options and to
+     * initialize subspecs.
+     *
+     * The superspec is passed in so that both the absolute path as well as the
+     * last path element can be checked. Further, a key of "/" apply to all
+     * entries.
      */
-    public void initialize(String superspec, Map<String, String> options) {
+    public int initialize(long id, String superspec, Map<String, String> options) throws DeleteException {
 
-        if (options == null) {
-            return;
+        if (options != null) {
+            final String[] path = path(superspec);
+            final String absolute = "/" + StringUtils.join(path, "/");
+            final String last = "/" + path[path.length - 1];
+
+            String option = null;
+            for (String string : Arrays.asList(absolute, last, "/")) {
+                option = options.get(string);
+                if (option != null) {
+                    String[] parts = option.split(";"); // Just in case
+                    op = Op.valueOf(parts[0]);
+                    break;
+                }
+
+            }
         }
 
-        final String[] path = path(superspec);
-        final String absolute = "/" + StringUtils.join(path, "/");
-        final String last = "/" + path[path.length-1];
-
-        String option = options.get(absolute);
-        if (option != null) {
-            op = Op.valueOf(option);
-            return;
+        int subStepCount = 0;
+        if (subSpec != null) {
+            if (subSpec == this) {
+                throw new DeleteException(true, "Self-reference subspec:"
+                        + this);
+            }
+            subStepCount = subSpec.initialize(id, superspec + this.path,
+                    options);
         }
-
-        option = options.get(last);
-        if (option != null) {
-            op = Op.valueOf(option);
-            return;
-        }
-
-        option = options.get("/");
-        if (option != null) {
-            op = Op.valueOf(option);
-            return;
-        }
+        return subStepCount;
 
     }
 

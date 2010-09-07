@@ -73,6 +73,11 @@ plus test REAP
         Indentation and order represent the hierarchy, from bottom to type.
         </description>
         <constructor-arg>
+            <map>
+                <entry key="/FileAnnotation" value="openmicroscopy.org/omero/import/companionFile,openmicroscopy.org/omero/measurement"/>
+            </map>
+        </constructor-arg>
+        <constructor-arg>
             <list>
                         <value>/FileAnnotation</value>
                     <value>/TypeAnnotation</value>

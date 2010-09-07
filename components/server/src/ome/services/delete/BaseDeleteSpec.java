@@ -146,17 +146,7 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
 
         for (int i = 0; i < entries.size(); i++) {
             DeleteEntry entry = entries.get(i);
-            entry.initialize(superspec, options);
-            DeleteSpec subSpec = entry.getSubSpec();
-            int subStepCount = 0;
-            if (subSpec != null) {
-                if (subSpec == this) {
-                    throw new DeleteException(true, "Self-reference subspec:"
-                            + this);
-                }
-                subStepCount = subSpec.initialize(id, superspec + entry.path,
-                        options);
-            }
+            int subStepCount = entry.initialize(id, superspec, options);
             substeps.put(i, subStepCount);
         }
 
@@ -174,18 +164,21 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
         return new ArrayList<DeleteEntry>(entries);
     }
 
+    public boolean skip(int step) {
+        DeleteEntry entry = entries.get(step);
+        if (Op.KEEP.equals(entry.getOp())) {
+            return true;
+        }
+        return false;
+    }
+
     public String delete(Session session, int step, DeleteIds deleteIds)
             throws DeleteException {
 
+        DeleteEntry entry = entries.get(step);
+
         try {
             StringBuilder sb = new StringBuilder();
-            DeleteEntry entry = entries.get(step);
-            if (Op.KEEP.equals(entry.op)) {
-                if (log.isDebugEnabled()) {
-                    log.debug("KEEP'ing " + entry);
-                }
-                return ""; // EARLY EXIT!
-            }
 
             DeleteSpec subSpec = entry.getSubSpec();
             int subStep = substeps.get(step);
@@ -199,7 +192,7 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
                     try {
                         cause = subSpec.delete(session, i, deleteIds);
                     } catch (ConstraintViolationException cve) {
-                        if (Op.SOFT.equals(entry.op)) {
+                        if (Op.SOFT.equals(entry.getOp())) {
                             sb.append(cause);
                         } else {
                             throw cve;
@@ -207,6 +200,16 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
                     }
                 }
             } else {
+                // Only applying KEEP at the entry level since the
+                // /Annotation=KEEP applies both at the spec and
+                // the entry level. Rather than trying to push the
+                // spec value down to the entry, we just delegate.
+                if (skip(step)) {
+                    if (log.isDebugEnabled()) {
+                        log.debug("skipping " + entry);
+                    }
+                    return ""; // EARLY EXIT!
+                }
                 List<Long> ids = deleteIds.get(this, step);
                 sb.append(execute(session, entry, ids));
             }
@@ -266,7 +269,7 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
             String cause = "ConstraintViolation: " + cve.getConstraintName();
             log.info(String.format("Failed to delete %s: %s due to %s",
                     str, which, cause));
-            if (DeleteEntry.Op.SOFT.equals(entry.op)) {
+            if (DeleteEntry.Op.SOFT.equals(entry.getOp())) {
                 return cause;
             } else {
                 throw cve;
@@ -298,31 +301,8 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
         List<List<Long>> rv = new ArrayList<List<Long>>();
 
         for (int s = 0; s < entries.size(); s++) {
-
-            // initially set to null
-            rv.add(null);
-
-            // currentPath is the value which if it starts testPath (below),
-            // we should store its ids. In the example above, /Well/Image
-            // and /Well.
-            final DeleteEntry current = entries.get(s);
-            final List<Long> allIds = queryBackupIds(session, current, null);
-            rv.set(s, allIds);
-
-            /*
-             * // DISABLED final String[] currentPath = current.path(superspec);
-             * for (int i = 0; i < 0; i++) {
-             *
-             * // the test path is the longer of the two entries, i.e. // the
-             * entry which will detach the next one. for example, //
-             * /Well/Image/WellSample will detach /Well/Image and /Well String[]
-             * testPath = paths.get(i); boolean cmp = startsWith(currentPath,
-             * testPath); if (!cmp) { continue; } else if (currentPath.length ==
-             * testPath.length) { throw new DeleteException(true,
-             * "Two should never be equals " +
-             * "since the loop only goes to s!"); } else { final List<Long> ids
-             * = queryBackupIds(session, current); rv.set(s, ids); break; } }
-             */
+            final List<Long> allIds = queryBackupIds(session, s, entries.get(s), null);
+            rv.add(allIds);
         }
 
         return rv;
@@ -404,7 +384,7 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
      * where ROOT0.id = :id
      * </pre>
      */
-    protected List<Long> queryBackupIds(Session session, DeleteEntry subpath, QueryBuilder and)
+    protected List<Long> queryBackupIds(Session session, int step, DeleteEntry subpath, QueryBuilder and)
             throws DeleteException {
 
         final String[] sub = subpath.path(superspec);
@@ -442,7 +422,7 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
         String msg = String.format("Found %s id(s) for %s (%s)",
                 (results == null ? "null" : results.size()),
                 Arrays.asList(subpath.path(superspec)),
-                subpath.op);
+                subpath.getOp());
         return msg;
     }
 

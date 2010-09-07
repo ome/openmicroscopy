@@ -11,9 +11,11 @@ import static omero.rtypes.rint;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 import omero.ApiUsageException;
@@ -283,6 +285,11 @@ public class DeleteServiceTest
     private List<Long> createNonSharableAnnotation(IObject parent, String ns)
     	throws Exception 
     {
+
+        // Copying to a proxy to prevent issues with parent.annotationLinks
+        // becoming stale on multiple copies.
+        parent = parent.proxy();
+
     	//creation already tested in UpdateServiceTest
     	List<Long> ids = new ArrayList<Long>();
     	CommentAnnotation c = new CommentAnnotationI();
@@ -431,6 +438,14 @@ public class DeleteServiceTest
     		IObject parent2)
     	throws Exception 
     {
+
+        // Copying to a proxy to prevent issues with parent.annotationLinks
+        // becoming stale on multiple copies.
+        parent1 = parent1.proxy();
+        if (parent2 != null) {
+            parent2 = parent2.proxy();
+        }
+
     	//creation already tested in UpdateServiceTest
     	List<Long> ids = new ArrayList<Long>();
     	TagAnnotation c = new TagAnnotationI();
@@ -1620,7 +1635,6 @@ public class DeleteServiceTest
     public void testDeleteObjectWithSharableAnnotations() 
     	throws Exception
     {
-    	Map<IObject, String> objects = createIObjects();
     	Boolean[] values = {Boolean.valueOf(false), Boolean.valueOf(true)};
     	IObject obj = null;
     	String type = null;
@@ -1629,8 +1643,9 @@ public class DeleteServiceTest
     	ParametersI param;
     	String sql;
     	List l;
-    	for (Map.Entry<IObject, String> entry : objects.entrySet()) {
-    		for (int j = 0; j < values.length; j++) {
+	for (int j = 0; j < values.length; j++) {
+	    Map<IObject, String> objects = createIObjects();
+	    for (Map.Entry<IObject, String> entry : objects.entrySet()) {
     			obj = entry.getKey();
     			type = entry.getValue();
     			id = obj.getId().getValue();
@@ -1759,7 +1774,7 @@ public class DeleteServiceTest
      * measurements.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false, groups = "ticket:2797") // NS TBD
+    @Test
     public void testPlateWithROIMeasurements() 
 		throws Exception
 	{
@@ -1844,7 +1859,7 @@ public class DeleteServiceTest
 		ParametersI param;
 		List<Long> wellSampleIds;
 		List<Long> imageIds;
-		List<Long> annotationIds = new ArrayList<Long>();
+		Set<Long> annotationIds = new HashSet<Long>();
 		List<Long> r;
 		List l;
 
@@ -1879,7 +1894,7 @@ public class DeleteServiceTest
     				}
     			}
     	        if (pa != null && b) {
-    	        	r = createNonSharableAnnotation(pa, null);
+			r = createSharableAnnotation(pa, null);
     				if (r.size() > 0) annotationIds.addAll(r);
     	        }
     	        if (annotations[k]) 
@@ -2104,7 +2119,7 @@ public class DeleteServiceTest
      * The <code>queueDelete</code> method is tested.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false, groups = "ticket:2797") // NS TBD
+    @Test
     public void testImportedImage() 
     	throws Exception
     {
@@ -2609,50 +2624,110 @@ public class DeleteServiceTest
     }
     
     /**
-     * Test to delete an object with annotations with namespace.
+     * Test to delete an object with annotations with namespace. All annotations
+     * matching the given namespace should be deleted, but all others not.
+     *
+     * Example usage: delete everything except for the movies.
+     *
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test(enabled = false, groups = "ticket:2837")
     public void testDeleteObjectWithAnnotationWithNS()
-    	throws Exception
+        throws Exception
     {
-    	Map<IObject, String> objects = createIObjects();
-    	IObject obj = null;
-    	Long id = null;
-    	String type = null;
-    	List<Long> annotationIds;
-    	List<Long> annotationIdsNS;
-    	ParametersI param;
-    	String sql;
-    	List<IObject> l;
-    	for (Map.Entry<IObject, String> entry : objects.entrySet()) {
-    		obj = entry.getKey();
-    		type = entry.getValue();
-    		id = obj.getId().getValue();
-    		annotationIds = createNonSharableAnnotation(obj, null);	
-    		annotationIdsNS = createNonSharableAnnotation(obj, NAMESPACE);
-    		delete(new DeleteCommand(type, id, null));
+        Map<IObject, String> objects = createIObjects();
+        IObject obj = null;
+        Long id = null;
+        String type = null;
+        List<Long> annotationIds;
+        List<Long> annotationIdsNS;
+        ParametersI param;
+        String sql;
+        List<IObject> l;
+        for (Map.Entry<IObject, String> entry : objects.entrySet()) {
+            obj = entry.getKey();
+            type = entry.getValue();
+            id = obj.getId().getValue();
+            annotationIds = createNonSharableAnnotation(obj, null);
+            annotationIdsNS = createNonSharableAnnotation(obj, NAMESPACE);
 
-    		param = new ParametersI();
-    		param.addId(obj.getId().getValue());
-    		sql = createBasicContainerQuery(obj.getClass());
-    		assertNull(iQuery.findByQuery(sql, param));
-    		param = new ParametersI();
-    		param.addIds(annotationIds);
-    		assertTrue(annotationIds.size() > 0);
-    		sql = "select i from Annotation as i where i.id in (:ids)";
-			l = iQuery.findAllByQuery(sql, param);
-			assertEquals(obj + "-->" + l.toString(), 0, l.size());
-			param = new ParametersI();
-    		param.addIds(annotationIdsNS);
-    		assertTrue(annotationIdsNS.size() > 0);
-    		sql = "select i from Annotation as i where i.id in (:ids)";
-			l = iQuery.findAllByQuery(sql, param);
-			assertEquals(obj + "-->" + l.toString(), annotationIdsNS.size(), 
-					l.size());
+            Map<String, String> options = new HashMap<String, String>();
+            options.put("/Annotation", "KEEP;includes="+NAMESPACE);
+            delete(new DeleteCommand(type, id, options));
 
-			
-    	}
+            param = new ParametersI();
+            param.addId(obj.getId().getValue());
+            sql = createBasicContainerQuery(obj.getClass());
+            assertNull(iQuery.findByQuery(sql, param));
+            param = new ParametersI();
+            param.addIds(annotationIds);
+            assertTrue(annotationIds.size() > 0);
+            sql = "select i from Annotation as i where i.id in (:ids)";
+            l = iQuery.findAllByQuery(sql, param);
+            assertEquals(obj + "-->" + l.toString(), 0, l.size());
+            param = new ParametersI();
+            param.addIds(annotationIdsNS);
+            assertTrue(annotationIdsNS.size() > 0);
+            sql = "select i from Annotation as i where i.id in (:ids)";
+            l = iQuery.findAllByQuery(sql, param);
+            assertEquals(obj + "-->" + l.toString(), annotationIdsNS.size(),
+                    l.size());
+
+
+        }
     }
     
+    /**
+     * Test to delete an object with annotations with namespace. All tags
+     * which do not have the given namespace should be deleted; others should
+     * be kept.
+     *
+     * Example usage: keep all annotations except for comments.
+     *
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testDeleteObjectWithAnnotationWithoutNS()
+        throws Exception
+    {
+        Map<IObject, String> objects = createIObjects();
+        IObject obj = null;
+        Long id = null;
+        String type = null;
+        List<Long> annotationIds;
+        List<Long> annotationIdsNS;
+        ParametersI param;
+        String sql;
+        List<IObject> l;
+        for (Map.Entry<IObject, String> entry : objects.entrySet()) {
+            obj = entry.getKey();
+            type = entry.getValue();
+            id = obj.getId().getValue();
+            annotationIds = createNonSharableAnnotation(obj, null);
+            annotationIdsNS = createNonSharableAnnotation(obj, NAMESPACE);
+
+            Map<String, String> options = new HashMap<String, String>();
+            options.put("/Annotation", "KEEP;excludes="+NAMESPACE);
+            delete(new DeleteCommand(type, id, options));
+
+            param = new ParametersI();
+            param.addId(obj.getId().getValue());
+            sql = createBasicContainerQuery(obj.getClass());
+            assertNull(iQuery.findByQuery(sql, param));
+            param = new ParametersI();
+            param.addIds(annotationIds);
+            assertTrue(annotationIds.size() > 0);
+            sql = "select i from Annotation as i where i.id in (:ids)";
+            l = iQuery.findAllByQuery(sql, param);
+            assertEquals(obj + "-->" + l.toString(), annotationIds.size(), l.size());
+            param = new ParametersI();
+            param.addIds(annotationIdsNS);
+            assertTrue(annotationIdsNS.size() > 0);
+            sql = "select i from Annotation as i where i.id in (:ids)";
+            l = iQuery.findAllByQuery(sql, param);
+            assertEquals(obj + "-->" + l.toString(), 0, l.size());
+
+
+        }
+    }
 }
