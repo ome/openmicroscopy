@@ -1043,9 +1043,9 @@ public class ImporterTest
     	ome.xml.model.LightSourceSettings xmlLs = 
     		xml.createLightSourceSettings(0);
     	
-    	ome.xml.model.MicrobeamManipulation xmlMM = 
-    		xml.createMicrobeamManipulation(0);
-    	ome.xml.model.Experiment xmlExp = ome.getExperiment(0);
+    	//ome.xml.model.MicrobeamManipulation xmlMM = 
+    	//	xml.createMicrobeamManipulation(0);
+    	//ome.xml.model.Experiment xmlExp = ome.getExperiment(0);
     	ome.xml.model.OTF xmlOTF = ome.getInstrument(0).getOTF(0);
     	
     	LightPath path;
@@ -1054,7 +1054,7 @@ public class ImporterTest
 			lc = k.next();
 			validateChannel(lc, xmlChannel);
 			assertNotNull(lc.getOtf());
-			//validateOTF(lc.getOtf(), xmlOTF);
+			validateOTF(lc.getOtf(), xmlOTF);
 			ds = lc.getDetectorSettings();
 			assertNotNull(ds);
 			assertNotNull(ds.getDetector());
@@ -1065,11 +1065,12 @@ public class ImporterTest
 			assertNotNull(ls.getLightSource());
 			assertTrue(lights.contains(ls.getLightSource().getId().getValue()));
 			validateLightSourceSettings(ls, xmlLs);
+			/*
 			assertNotNull(ls.getMicrobeamManipulation());
 			validateMicrobeamManipulation(ls.getMicrobeamManipulation(), xmlMM);
 			assertNotNull(ls.getMicrobeamManipulation().getExperiment());
 			validateExperiment(ls.getMicrobeamManipulation().getExperiment(), 
-					xmlExp);
+			*/
 			path = lc.getLightPath();
 			assertNotNull(lc);
 			assertNotNull(path.getDichroic());

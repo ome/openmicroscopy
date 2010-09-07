@@ -27,7 +27,6 @@ import omero.model.AcquisitionMode;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLinkI;
 import omero.model.Arc;
-import omero.model.ArcType;
 import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;
 import omero.model.Channel;
@@ -619,6 +618,52 @@ public class MetadataServiceTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
+    public void testLoadInstrumentNewQuery() 
+    	throws Exception
+    {
+    	Instrument instrument = mmFactory.createInstrument(
+				ModelMockFactory.LIGHT_SOURCES[0]);
+    	instrument = (Instrument) iUpdate.saveAndReturnObject(instrument);
+    	//instrument.co
+    	assertNotNull(instrument);
+    	StringBuilder sb = new StringBuilder();
+    	sb.append("select inst from Instrument as inst ");
+    	sb.append("left outer join fetch inst.microscope as m ");
+    	sb.append("left outer join fetch m.type as mt ");
+    	//objective
+    	sb.append("left outer join fetch inst.objective as o ");
+    	sb.append("join fetch o.immersion as oi ");
+    	sb.append("join fetch o.correction as oc ");
+    	//detector
+    	sb.append("left outer join fetch inst.detector as d ");
+    	sb.append("left outer join fetch d.type as dt ");
+    	//filter
+    	sb.append("left outer join fetch inst.filter as f ");
+    	sb.append("left outer join fetch f.type as ft ");
+    	sb.append("left outer join fetch f.transmittanceRange as trans ");
+    	//filterset
+    	sb.append("left outer join fetch inst.filterSet as fs ");
+    	sb.append("left outer join fetch fs.dichroic as dichroic ");
+    	//dichroic
+    	sb.append("left outer join fetch inst.dichroic as di ");
+    	//OTF
+    	sb.append("left outer join fetch inst.otf as otf ");
+    	sb.append("join fetch otf.pixelsType as type ");
+    	sb.append("join fetch otf.objective as obj ");
+    	sb.append("join fetch obj.immersion ");
+    	sb.append("join fetch obj.correction");
+    	sb.append("left outer join fetch o.filterSet ");
+    	
+    	sb.append("where instrument.id = :id");
+    	ParametersI param = new ParametersI();
+    	param.addId(instrument.getId().getValue());
+    }
+    
+    /**
+     * Tests the retrieval of an instrument light sources of different types.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
     public void testLoadInstrument() 
     	throws Exception
     {
@@ -651,6 +696,7 @@ public class MetadataServiceTest
     		instrument = mmFactory.createInstrument(
     				ModelMockFactory.LIGHT_SOURCES[i]);
         	instrument = (Instrument) iUpdate.saveAndReturnObject(instrument);
+        	//instrument.co
         	assertNotNull(instrument);
     		param = new ParametersI();
         	param.addLong("iid", instrument.getId().getValue());
@@ -742,10 +788,8 @@ public class MetadataServiceTest
     				assertTrue(o.getId().getValue() == 
     					light.getId().getValue());
     			} else if (o instanceof OTF) {
-    				assertNotNull(otf);
+    				otf = (OTF) o;
     				otfFound = true;
-    				assertTrue(o.getId().getValue() == 
-    					otf.getId().getValue());
     			}
     		}
         	assertTrue(instrumentFound);
@@ -756,7 +800,7 @@ public class MetadataServiceTest
         	assertTrue(lightFound);
         	assertTrue(filterSetFound);
         	//not yet implemented
-        	//assertTrue(otfFound);
+        	assertTrue(otfFound);
         	//make sure everything is loaded properly
         	//objective
         	assertNotNull(objective.getCorrection());
@@ -787,43 +831,6 @@ public class MetadataServiceTest
         			filterSet.getId().getValue());
         	}
 		}
-    }
-    
-    /**
-     * Tests the retrieval of an instrument several light sources.
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testLoadInstrumentWithSimilarLightSources() 
-    	throws Exception
-    {
-    	Instrument instrument;
-    	String light;
-    	instrument = mmFactory.createInstrument(
-    			ModelMockFactory.LIGHT_SOURCES[0]);
-    	for (int i = 0; i < ModelMockFactory.LIGHT_SOURCES.length; i++) {
-    		light = ModelMockFactory.LIGHT_SOURCES[i];
-    		if (ModelMockFactory.LASER.equals(light))
-        		instrument.addLightSource(mmFactory.createLaser());
-        	else if (ModelMockFactory.FILAMENT.equals(light))
-        		instrument.addLightSource(mmFactory.createFilament());
-        	else if (ModelMockFactory.ARC.equals(light))
-        		instrument.addLightSource(mmFactory.createArc());
-        	else if (ModelMockFactory.LIGHT_EMITTING_DIODE.equals(light))
-        		instrument.addLightSource(mmFactory.createLightEmittingDiode());
-    	}
-    	instrument = (Instrument) iUpdate.saveAndReturnObject(instrument);
-    	assertNotNull(instrument);
-    	List<IObject> result = iMetadata.loadInstrument(
-    			instrument.getId().getValue());
-    	Iterator<IObject> i = result.iterator();
-    	IObject object;
-    	int count = 0;
-    	while (i.hasNext()) {
-    		object = i.next();
-			if (object instanceof LightSource) count++;
-		}
-    	assertTrue(count == (ModelMockFactory.LIGHT_SOURCES.length+1));
     }
     
     /**
@@ -868,6 +875,7 @@ public class MetadataServiceTest
     	
     	sql = "select d from OTF as d where d.instrument.id = :iid";
     	OTF otf = (OTF) iQuery.findByQuery(sql, param);
+    	assertNotNull(otf);
     	LogicalChannel lc;
     	Channel channel;
     	ContrastMethod cm;
@@ -927,7 +935,7 @@ public class MetadataServiceTest
         	assertNotNull(data.getIllumination());
         	assertNotNull(data.getMode());
         	//OTF support
-        	/*
+        	
         	assertTrue(data.getOTF().getId() == otf.getId().getValue());
         	assertNotNull(loaded.getOtf());
         	assertTrue(loaded.getOtf().getId().getValue() 
@@ -938,7 +946,7 @@ public class MetadataServiceTest
         		filterSet.getId().getValue());
         	assertTrue(loaded.getOtf().getObjective().getId().getValue() ==
         		objective.getId().getValue());
-        		*/
+        	assertNotNull(loaded.getOtf().getPixelsType());
 		}
     }
     
