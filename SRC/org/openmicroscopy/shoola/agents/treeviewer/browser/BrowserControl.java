@@ -229,9 +229,14 @@ class BrowserControl
 	
         		//view.setLeavesViews(l, (TreeImageSet) display);
         	//} else {
-        		if (view.isFirstChildMessage(display)) {
-        			view.setLeavesViews(l, (TreeImageSet) display);
-        		}
+        	if (view.isFirstChildMessage(display)) {
+        		List<Object> list = new ArrayList<Object>(l.size());
+        		Iterator i = l.iterator();
+        		while (i.hasNext()) {
+        			list.add(i.next());
+				}
+        		view.setLeavesViews(list, (TreeImageSet) display);
+        	}
         	//}
         	return;
         }
