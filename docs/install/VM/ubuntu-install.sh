@@ -123,8 +123,9 @@ then
         sudo -u omero java build clean
     else
         sudo -u omero svn co http://svn.openmicroscopy.org.uk/svn/shoola/trunk /Client/Insight
-        sudo -u omero java build
     fi
+    cd /Client/Insight/build
+    sudo -u omero java build
     cd $HOME
 
     ##
