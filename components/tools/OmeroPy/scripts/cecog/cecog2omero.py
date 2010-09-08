@@ -60,15 +60,11 @@ import omero.util.script_utils as scriptUtil
 import re
 
 from EMAN2 import EMData, EMNumPy
-import Image
 
-# declare the global services here, so we don't have to pass them around so much
-gateway = None
-queryService= None
-pixelsService= None
-rawPixelStore= None
-renderingEngine = None
-updateService= None
+try:
+    import Image
+except:
+    from PIL import Image
 
 newImageMap = {}
 
@@ -104,7 +100,7 @@ def getPlaneFromImage(imagePath):
     return a
                 
                 
-def uploadDirAsImages(path, dataset = None):
+def uploadDirAsImages(services, path, dataset = None):
     """
     Reads all the images in the directory specified by 'path' and uploads them to OMERO as a single
     multi-dimensional image, placed in the specified 'dataset'
@@ -114,6 +110,11 @@ def uploadDirAsImages(path, dataset = None):
     @param path     the path to the directory containing images. 
     @param dataset  the OMERO dataset, if we want to put images somewhere. omero.model.DatasetI
     """
+    queryService = services["queryService"]
+    gateway = services["gateway"]
+    renderingEngine = services["renderingEngine"]
+    pixelsService = services["pixelsService"]
+    rawPixelStore = services["rawPixelStore"]
     
     t = re.compile(regex_time)
     c = re.compile(regex_channel)
@@ -250,20 +251,16 @@ def cecogToOmero(commandArgs):
     client = omero.client(commandArgs["host"])
     session = client.createSession(commandArgs["username"], commandArgs["password"])
     
-    # create the services we need as global variables, to save passing them all as arguments. 
-    global gateway
-    global renderingEngine
-    global queryService
-    global pixelsService
-    global rawPixelStore
-    global updateService
+    # create the services we need 
+    services = {}
+    services["gateway"] = session.createGateway()
+    services["renderingEngine"] = session.createRenderingEngine()
+    services["queryService"] = session.getQueryService()
+    services["pixelsService"] = session.getPixelsService()
+    services["rawPixelStore"] = session.createRawPixelsStore()
+    services["updateService"] = session.getUpdateService()
     
-    gateway = session.createGateway()
-    renderingEngine = session.createRenderingEngine()
-    queryService = session.getQueryService()
-    pixelsService = session.getPixelsService()
-    rawPixelStore = session.createRawPixelsStore()
-    updateService = session.getUpdateService()
+    gateway = services["gateway"]
     
     # if we don't have any folders in the 'dir' E.g. CecogPackage/Data/Demo_data/0037/
     # then 'Demo_data' becomes a dataset 
@@ -305,12 +302,12 @@ def cecogToOmero(commandArgs):
     if len(subDirs) > 0:
         for subDir in subDirs:
             print "Processing images in ", subDir
-            uploadDirAsImages(subDir, dataset)
+            uploadDirAsImages(services, subDir, dataset)
     
     # if there are no sub-directories, just put all the images in the dir
     else:
         print "Processing images in ", path
-        uploadDirAsImages(path, dataset)
+        uploadDirAsImages(services, path, dataset)
     
     
 def readCommandArgs():
