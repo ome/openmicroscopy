@@ -450,6 +450,7 @@ class BlitzObjectWrapper (object):
         """
         
         for ann in self._getAnnotationLinks(ns):
+            print type(ann.child), ann.child.id.val
             yield AnnotationWrapper._wrap(self._conn, ann.child, link=ann)
 
 
@@ -2481,6 +2482,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
 
     @classmethod
     def _wrap (klass, conn, obj, link=None):
+        print klass
         if obj.__class__ in klass.registry:
             kwargs = dict()
             if link is not None:
@@ -2633,7 +2635,7 @@ class TagAnnotationWrapper (AnnotationWrapper):
         return self._obj.textValue.val
 
     def setValue (self, val):
-        self._obj.tectValue = rbool(not not val)
+        self._obj.textValue = rbool(not not val)
     
 AnnotationWrapper._register(TagAnnotationWrapper)
 
@@ -2669,6 +2671,48 @@ class LongAnnotationWrapper (AnnotationWrapper):
         self._obj.longValue = rlong(val)
 
 AnnotationWrapper._register(LongAnnotationWrapper)
+
+from omero_model_DoubleAnnotationI import DoubleAnnotationI
+
+class DoubleAnnotationWrapper (AnnotationWrapper):
+    """
+    omero_model_DoubleAnnotationI class wrapper extends AnnotationWrapper.
+    """
+    OMERO_TYPE = DoubleAnnotationI
+
+    def getValue (self):
+        return self._obj.doubleValue.val
+
+    def setValue (self, val):
+        self._obj.doubleValue = rdouble(val)
+
+AnnotationWrapper._register(DoubleAnnotationWrapper)
+
+from omero_model_TermAnnotationI import TermAnnotationI
+
+class TermAnnotationWrapper (AnnotationWrapper):
+    """
+    omero_model_TermAnnotationI class wrapper extends AnnotationWrapper.
+    """
+    OMERO_TYPE = TermAnnotationI
+
+    def getValue (self):
+        return self._obj.termValue.val
+
+    def setValue (self, val):
+        self._obj.termValue = rstring(val)
+
+AnnotationWrapper._register(TermAnnotationWrapper)
+
+from omero_model_XmlAnnotationI import XmlAnnotationI
+
+class XmlAnnotationWrapper (CommentAnnotationWrapper):
+    """
+    omero_model_XmlAnnotationI class wrapper extends CommentAnnotationWrapper.
+    """
+    OMERO_TYPE = XmlAnnotationI
+    
+AnnotationWrapper._register(XmlAnnotationWrapper)
 
 class _EnumerationWrapper (BlitzObjectWrapper):
     
