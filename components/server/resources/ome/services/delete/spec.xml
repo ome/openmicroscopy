@@ -18,11 +18,11 @@ TODO:
 /Roi/RoiAnnotationLink;ORPHAN
 How to handle more than one path:
 
- * how to handle backupids of sub items.
+ * how to handle back-up identifiers of sub-items.
 
- * would subitems ever take a diferent ID??
+ * would sub-items ever take a different ID??
 
- * introduce breaks between substeps? (iterator perhaps)
+ * introduce breaks between sub-steps? (iterator perhaps)
 
 /Image:
  /Image does this even exist?
@@ -79,19 +79,19 @@ plus test REAP
         </constructor-arg>
         <constructor-arg>
             <list>
-                        <value>/FileAnnotation</value>
+                    <value>/FileAnnotation</value>
                     <value>/TypeAnnotation</value>
                     <value>/ListAnnotation</value>
-                        <value>/XmlAnnotation</value>
-                        <value>/TagAnnotation</value>
-                        <value>/CommentAnnotation</value>
+                    <value>/XmlAnnotation</value>
+                    <value>/TagAnnotation</value>
+                    <value>/CommentAnnotation</value>
                     <value>/TextAnnotation</value>
-                        <value>/TimestampAnnotation</value>
-                        <value>/TermAnnotation</value>
-                            <value>/LongAnnotation</value>
-                            <value>/DoubleAnnotation</value>
-                        <value>/NumericAnnotation</value>
-                        <value>/BooleanAnnotation</value>
+                    <value>/TimestampAnnotation</value>
+                    <value>/TermAnnotation</value>
+                    <value>/LongAnnotation</value>
+                    <value>/DoubleAnnotation</value>
+                    <value>/NumericAnnotation</value>
+                    <value>/BooleanAnnotation</value>
                     <value>/BasicAnnotation</value>
                 <value>/Annotation</value>
             </list>
@@ -160,6 +160,7 @@ plus test REAP
                 <value>/Instrument/Filter</value>
                 <value>/Instrument/FilterSet</value>
                 <value>/Instrument/LightSource</value>
+                <!-- value>/Instrument/OTF</value--><!--  related to filterSet and Objective -->
                 <!-- value>/Instrument/Objective</value-->
                 <value>/Instrument</value>
                 <value>/Instrument/Microscope</value>
@@ -248,6 +249,20 @@ plus test REAP
         </constructor-arg>
     </bean>
 
+    <bean parent="delSpec" name="/PlateAcquisition">
+        <constructor-arg>
+            <list>
+                <value>/PlateAcquisition/PlateAcquisitionAnnotationLink</value>
+                <value>/Annotation;SOFT;/PlateAcquisition/PlateAcquisitionAnnotationLink</value>
+                <value>/PlateAcquisition/WellSample/WellSampleAnnotationLink</value>
+                <value>/Annotation;SOFT;/PlateAcquisition/WellSample/WellSampleAnnotationLink</value>
+                <value>/Image;;/Well/WellSample</value>
+                <value>/PlateAcquisition/WellSample</value>
+                <value>/PlateAcquisition</value>
+            </list>
+        </constructor-arg>
+    </bean>
+    
     <bean parent="delSpec" name="/Screen">
         <constructor-arg>
             <list>
