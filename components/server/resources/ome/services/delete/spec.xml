@@ -158,10 +158,11 @@ plus test REAP
                 <value>/Instrument/Detector</value>
                 <value>/Instrument/Dichroic</value>
                 <value>/Instrument/Filter</value>
-                <value>/Instrument/FilterSet</value>
+                <!-- value>/Instrument/FilterSet</value -->
                 <value>/Instrument/LightSource</value>
-                <!-- value>/Instrument/OTF</value--><!--  related to filterSet and Objective -->
-                <!-- value>/Instrument/Objective</value-->
+                <value>/Instrument/OTF</value> <!--  related to filterSet and Objective -->
+                <value>/Instrument/Objective</value>
+                <value>/Instrument/FilterSet</value> 
                 <value>/Instrument</value>
                 <value>/Instrument/Microscope</value>
             </list>
@@ -188,7 +189,7 @@ plus test REAP
                 <value>/Image</value>
                 <value>/Image/ImagingEnvironment</value>
                 <value>/Image/ObjectiveSettings</value>
-                <value>/Image/ObjectiveSettings/Objective</value>
+                <!-- value>/Image/ObjectiveSettings/Objective</value-->
                 <value>/Image/StageLabel</value>
                 <value>/Image/Experiment</value><!--  used by microbeam also -->
                 <value>/Instrument;;/Image</value>
