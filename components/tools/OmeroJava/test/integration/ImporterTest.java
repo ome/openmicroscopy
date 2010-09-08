@@ -1277,9 +1277,7 @@ public class ImporterTest
 		param = new ParametersI();
 		param.addId(plate.getId().getValue());
 		assertEquals(fields*n, iQuery.findAllByQuery(sql, param).size());
-		
-		
-		
+
 		sql = "select pa from PlateAcquisition as pa ";
 		sql += "where pa.plate.id = :id";
 		List<IObject> pas = iQuery.findAllByQuery(sql, param);
