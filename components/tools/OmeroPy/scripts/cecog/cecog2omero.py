@@ -59,8 +59,6 @@ import omero_api_Gateway_ice    # see http://tinyurl.com/icebuserror
 import omero.util.script_utils as scriptUtil
 import re
 
-from EMAN2 import EMData, EMNumPy
-
 try:
     import Image
 except:
@@ -76,18 +74,7 @@ regex_time = r'T(?P<T>\d+)'
 regex_channel = r'_C(?P<C>.+?)(_|$)'
 regex_zslice = r'_Z(?P<Z>\d+)'
 #continuous_frames = 1
-
-
-def getPlaneFromLocalImage(imagePath):
-    """
-    Don't use this method! - Causes "Segmentation Fault"
-    TODO: Fix this so it can be used as an alternative to PIL for reading Images -> numpy
-    """
-    d = EMData()
-    d.read_image(imagePath)
-    plane2D = EMNumPy.em2numpy(d)
-    return plane2D
-    
+  
 
 def getPlaneFromImage(imagePath):
     """
