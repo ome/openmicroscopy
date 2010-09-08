@@ -27,6 +27,10 @@ package integration;
 //Third-party libraries
 
 //Application-internal dependencies
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import ome.xml.model.Arc;
 import ome.xml.model.BinData;
 import ome.xml.model.Channel;
@@ -246,6 +250,9 @@ public class XMLMockObjects
 	
 	/** Points used to create Polyline and Polygon shape. */
 	public static final String POINTS = "0,0 10,10";
+	
+	/** The default time. */
+	public static final String TIME = "2006-05-04T18:13:51.0Z";
 	
 	/** The default cut-in. */
 	public static final int CUT_IN = 200;
@@ -766,13 +773,13 @@ public class XMLMockObjects
 	 * Creates a default plate
 	 * 
 	 * @param index The index of the plate.
-	 * @param plateAcquisition  Pass <code>true</code> to create a 
-	 * plate acquisition, <code>false</code> otherwise.
+	 * @param numberOfPlateAcquisition  The number of plate acquisition to add.
 	 * @return See above.
 	 */
-	protected Plate createPlate(int index, boolean plateAcquisition)
+	protected Plate createPlate(int index, int numberOfPlateAcquisition)
 	{
-		return createPlate(index, ROWS, COLUMNS, FIELDS, plateAcquisition);
+		return createPlate(index, ROWS, COLUMNS, FIELDS, 
+				numberOfPlateAcquisition);
 	}
 	
 	/**
@@ -782,13 +789,14 @@ public class XMLMockObjects
 	 * @param rows  The number of rows.
 	 * @param columns The number of columns.
 	 * @param fields  The number of fields.
-	 * @param plateAcquisition Pass <code>true</code> to create a 
-	 * plate acquisition, <code>false</code> otherwise.
+	 * @param numberOfPlateAcquisition  The number of plate acquisition to add.
 	 * @return See above.
 	 */
 	protected Plate createPlate(int index, int rows, int columns, int fields, 
-			boolean plateAcquisition)
+			int numberOfPlateAcquisition)
 	{
+		if (numberOfPlateAcquisition < 0)
+			numberOfPlateAcquisition = 0;
 		Plate plate = new Plate();
 		plate.setID("Plate:"+index);
 		plate.setName("Plate Name "+index);
@@ -802,20 +810,26 @@ public class XMLMockObjects
 		plate.setWellOriginY(1.0);
 		plate.setStatus("Plate status");
 		PlateAcquisition pa = null;
-		if (plateAcquisition) {
-			pa = new PlateAcquisition();
-			pa.setID("PlateAcquistion:"+index);
-			pa.setName("PlateAcquistion Name "+index);
-			pa.setDescription("PlateAcquistion Description "+index);
-			pa.setEndTime("2006-05-04T18:13:51.0Z");
-			pa.setStartTime("2006-05-04T18:13:51.0Z");
-			plate.addPlateAcquisition(pa);
+		List<PlateAcquisition> pas = new ArrayList<PlateAcquisition>();
+		if (numberOfPlateAcquisition > 0) {
+			for (int i = 0; i < numberOfPlateAcquisition; i++) {
+				pa = new PlateAcquisition();
+				pa.setID("PlateAcquistion:"+i);
+				pa.setName("PlateAcquistion Name "+i);
+				pa.setDescription("PlateAcquistion Description "+i);
+				pa.setEndTime(TIME);
+				pa.setStartTime(TIME);
+				plate.addPlateAcquisition(pa);
+				pas.add(pa);
+			}
 		}
 		//now populate the plate
 		Well well;
 		WellSample sample;
 		Image image;
 		int i = 0;
+		Iterator<PlateAcquisition> k;
+		int kk = 0;
 		for (int row = 0; row < rows; row++) {
 			for (int column = 0; column < columns; column++) {
 				well = new Well();
@@ -826,24 +840,50 @@ public class XMLMockObjects
 				well.setExternalDescription("External Description");
 				well.setExternalIdentifier("External Identifier");
 				well.setColor(255);
-				for (int field = 0; field < fields; field++) {
-					sample = new WellSample();
-					sample.setPositionX(0.0);
-					sample.setPositionY(1.0);
-					sample.setTimepoint("2006-05-04T18:13:51.0Z");
-					sample.setID(String.format("WellSample:%d_%d_%d", 
-							row, column, field));
-					sample.setIndex(new NonNegativeInteger(i));
-					//create an image. and register it
-					image = createImage(i, true);
-					ome.addImage(image);
-					sample.linkImage(image);
-					if (pa != null) {
-						pa.linkWellSample(sample);
+				if (pas.size() == 0) {
+					for (int field = 0; field < fields; field++) {
+						sample = new WellSample();
+						sample.setPositionX(0.0);
+						sample.setPositionY(1.0);
+						sample.setTimepoint(TIME);
+						sample.setID(String.format("WellSample:%d_%d_%d", 
+								row, column, field));
+						sample.setIndex(new NonNegativeInteger(i));
+						//create an image. and register it
+						image = createImage(i, true);
+						ome.addImage(image);
+						sample.linkImage(image);
+						if (pa != null) {
+							pa.linkWellSample(sample);
+						}
+						well.addWellSample(sample);
+						i++;
 					}
-					well.addWellSample(sample);
-					i++;
+				} else {
+					k = pas.iterator();
+					kk = 0;
+					while (k.hasNext()) {
+						pa = k.next();
+						for (int field = 0; field < fields; field++) {
+							sample = new WellSample();
+							sample.setPositionX(0.0);
+							sample.setPositionY(1.0);
+							sample.setTimepoint(TIME);
+							sample.setID(String.format("WellSample:%d_%d_%d_%d", 
+									row, column, field, kk));
+							sample.setIndex(new NonNegativeInteger(i));
+							//create an image. and register it
+							image = createImage(i, true);
+							ome.addImage(image);
+							sample.linkImage(image);
+							pa.linkWellSample(sample);
+							well.addWellSample(sample);
+							i++;
+						}
+						kk++;
+					}
 				}
+				
 				plate.addWell(well);
 			}
 		}
@@ -1281,28 +1321,35 @@ public class XMLMockObjects
 	 * Creates a plate with <code>1</code> row, <code>1</code> column
 	 * and <code>1</code>field. 
 	 * The plate will have images with acquisition data but no plate acquisition
-	 * data.
+	 * data if the passed value is <code>0</code> otherwise will have 
+	 * <code>n</code> plate acquisitions.
 	 * 
+	 * @param n The number of plate acquisition.
 	 * @return See above
 	 */
-	public OME createBasicPlate()
+	public OME createPopulatedPlate(int n)
 	{
 		populateInstrument();
-		ome.addPlate(createPlate(0, 1, 1, 1, false));
+		ome.addPlate(createPlate(0, 1, 1, 1, n));
 		return ome;
 	}
 	
 	/**
 	 * Creates a plate with <code>1</code> row, <code>1</code> column
-	 * and <code>1</code> field.  The plate will have images with acquisition data.
-	 * This plate will have one plate acquisition.
+	 * and <code>fields</code>field. 
+	 * The plate will have images with acquisition data but no plate acquisition
+	 * data if the passed value is <code>0</code> otherwise will have 
+	 * <code>n</code> plate acquisitions.
 	 * 
+	 * @param n The number of plate acquisition.
+	 * @param fields The number of fields.
 	 * @return See above
 	 */
-	public OME createBasicPlateWithPlateAcquisition()
+	public OME createPopulatedPlate(int n, int fields)
 	{
+		if (fields < 1) fields = 1;
 		populateInstrument();
-		ome.addPlate(createPlate(0, 1, 1, 1, true));
+		ome.addPlate(createPlate(0, 1, 1, fields, n));
 		return ome;
 	}
 	
@@ -1316,7 +1363,7 @@ public class XMLMockObjects
 	public OME createBasicPlateWithReagent()
 	{
 		populateInstrument();
-		Plate plate = createPlate(0, 1, 1, 1, false);
+		Plate plate = createPlate(0, 1, 1, 1, 0);
 		Reagent r = createReagent(0);
 		plate.getWell(0).linkReagent(r);
 		Screen screen = createScreen(0);
@@ -1333,12 +1380,13 @@ public class XMLMockObjects
 	 * The plate will have images with acquisition data but no plate acquisition
 	 * data.
 	 * 
+	 * @param n The number of plate acquisition.
 	 * @return See above
 	 */
-	public OME createFullPlate()
+	public OME createFullPopulatedPlate(int n)
 	{
 		populateInstrument();
-		ome.addPlate(createPlate(0, false));
+		ome.addPlate(createPlate(0, n));
 		return ome;
 	}
 	

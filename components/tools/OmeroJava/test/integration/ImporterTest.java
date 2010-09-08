@@ -1161,7 +1161,7 @@ public class ImporterTest
 		files.add(f);
 		XMLMockObjects xml = new XMLMockObjects();
 		XMLWriter writer = new XMLWriter();
-		OME ome = xml.createBasicPlate();
+		OME ome = xml.createPopulatedPlate(0);
 		writer.writeFile(f, ome, true);
 		List<Pixels> pixels = null;
 		try {
@@ -1196,15 +1196,15 @@ public class ImporterTest
      * @throws Exception Thrown if an error occurred.
      */
 	@Test
-	public void testImportPlateWithPlateAcquisition()
+	public void testImportPlateOnePlateAcquisition()
 		throws Exception
 	{
-		File f = File.createTempFile("testImportPlateWithPlateAcquisition", 
+		File f = File.createTempFile("testImportPlateOnePlateAcquisition", 
 				"."+OME_FORMAT);
 		files.add(f);
 		XMLMockObjects xml = new XMLMockObjects();
 		XMLWriter writer = new XMLWriter();
-		OME ome =  xml.createBasicPlateWithPlateAcquisition();
+		OME ome =  xml.createPopulatedPlate(1);
 		writer.writeFile(f, ome, true);
 		List<Pixels> pixels = null;
 		try {
@@ -1231,6 +1231,72 @@ public class ImporterTest
 		validatePlateAcquisition(pa, ome.getPlate(0).getPlateAcquisition(0));
 	}
 
+	/**
+     * Tests the import of an OME-XML file with a fully populated plate
+     * with a plate acquisition.
+     * @throws Exception Thrown if an error occurred.
+     */
+	@Test
+	public void testImportPlateMultiplePlateAcquisitions()
+		throws Exception
+	{
+		File f = File.createTempFile("testImportPlateMultiplePlateAcquisitions", 
+				"."+OME_FORMAT);
+		files.add(f);
+		int n = 2;
+		int fields = 3;
+		XMLMockObjects xml = new XMLMockObjects();
+		XMLWriter writer = new XMLWriter();
+		OME ome =  xml.createPopulatedPlate(n, fields);
+		writer.writeFile(f, ome, true);
+		List<Pixels> pixels = null;
+		try {
+			pixels = importFile(f, OME_FORMAT);
+		} catch (Throwable e) {
+			throw new Exception("cannot import the plate", e);
+		}
+		Pixels p = pixels.get(0);
+		long id = p.getImage().getId().getValue();
+		String sql = "select ws from WellSample as ws ";
+		sql += "join fetch ws.plateAcquisition as pa ";
+		sql += "join fetch ws.well as w ";
+		sql += "join fetch w.plate as p ";
+		sql += "where ws.image.id = :id";
+		ParametersI param = new ParametersI();
+		param.addId(id);
+		List<IObject> results = iQuery.findAllByQuery(sql, param);
+		
+		WellSample ws = (WellSample) results.get(0);
+		assertNotNull(ws.getWell());
+		Plate plate = ws.getWell().getPlate();
+		sql = "select ws from WellSample as ws ";
+		sql += "join fetch ws.plateAcquisition as pa ";
+		sql += "join fetch ws.well as w ";
+		sql += "join fetch w.plate as p ";
+		sql += "where p.id = :id";
+		param = new ParametersI();
+		param.addId(plate.getId().getValue());
+		assertEquals(fields*n, iQuery.findAllByQuery(sql, param).size());
+		
+		
+		
+		sql = "select pa from PlateAcquisition as pa ";
+		sql += "where pa.plate.id = :id";
+		List<IObject> pas = iQuery.findAllByQuery(sql, param);
+		assertEquals(n, pas.size());
+		Iterator<IObject> j = pas.iterator();
+		sql = "select ws from WellSample as ws ";
+		sql += "join fetch ws.plateAcquisition as pa ";
+		sql += "where pa.id = :id";
+		IObject obj;
+		while (j.hasNext()) {
+			obj = j.next();
+			param = new ParametersI();
+			param.addId(obj.getId().getValue());
+			assertEquals(fields, iQuery.findAllByQuery(sql, param).size());
+		}
+	}
+	
 	/**
      * Tests the import of an OME-XML file with a plate
      * with wells linked to a reagent.
