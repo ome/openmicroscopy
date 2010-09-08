@@ -13,7 +13,7 @@
 
 import os
 import sys
-import Ice
+import Ice, Glacier2
 import time
 import traceback
 import exceptions
@@ -221,18 +221,28 @@ class SessionsControl(BaseControl):
                     continue
 
         if not rv:
-            if not pasw:
-                pasw = self.ctx.input("Password:", hidden = True, required = True)
-            try:
-                rv = store.create(name, pasw, props)
-            except Ice.ConnectionRefusedException:
-                self.ctx.die(554, "Ice.ConnectionRefusedException: %s isn't running" % server)
-            except Ice.DNSException:
-                self.ctx.die(555, "Ice.DNSException: bad host name: '%s'" % server)
-            except exceptions.Exception, e:
-                exc = traceback.format_exc()
-                self.ctx.dbg(exc)
-                self.ctx.die(556, "InternalException: Failed to connect: %s" % e)
+            tries = 3
+            while True:
+                try:
+                    if not pasw:
+                        pasw = self.ctx.input("Password:", hidden = True, required = True)
+                    rv = store.create(name, pasw, props)
+                    break
+                except Glacier2.PermissionDeniedException, pde:
+                    tries -= 1
+                    if not tries:
+                        self.ctx.die(524, "3 incorrect password attempts")
+                    else:
+                        self.ctx.err(pde.reason)
+                        pasw = None
+                except Ice.ConnectionRefusedException:
+                    self.ctx.die(554, "Ice.ConnectionRefusedException: %s isn't running" % server)
+                except Ice.DNSException:
+                    self.ctx.die(555, "Ice.DNSException: bad host name: '%s'" % server)
+                except exceptions.Exception, e:
+                    exc = traceback.format_exc()
+                    self.ctx.dbg(exc)
+                    self.ctx.die(556, "InternalException: Failed to connect: %s" % e)
             action = "Created"
 
         return self.handle(rv, action)

@@ -330,7 +330,11 @@ class ScriptControl(BaseControl):
         import omero.scripts
         import omero.rtypes
         svc = client.sf.getScriptService()
-        params = svc.getParams(script_id)
+        try:
+            params = svc.getParams(script_id)
+        except omero.ValidationException, ve:
+            self.ctx.die(502, "ValidationException: %s" % ve.message)
+
         m = self._parse_inputs(args, params)
 
         try:

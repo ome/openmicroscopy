@@ -51,10 +51,11 @@ import omero_api_Gateway_ice    # see http://tinyurl.com/icebuserror
 import omero_api_IRoi_ice
 import omero.util.script_utils as scriptUtil
 
+# for saving as tiff.
 try:
-    import Image # for saving as tiff. 
-except:
-    from PIL import Image
+    from PIL import Image # see ticket:2597
+except ImportError:
+    import Image # see ticket:2597
 
 # from http://blake.bcm.edu/emanwiki/EMAN2/BoxSize
 goodBoxSizes = [32, 33, 36, 40, 42, 44, 48, 50, 52, 54, 56, 60, 64, 66, 70, 72, 81, 84, 96, 98, 100, 104, 105, 112, 120, 128,
