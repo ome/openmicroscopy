@@ -450,7 +450,6 @@ class BlitzObjectWrapper (object):
         """
         
         for ann in self._getAnnotationLinks(ns):
-            print type(ann.child), ann.child.id.val
             yield AnnotationWrapper._wrap(self._conn, ann.child, link=ann)
 
 
@@ -2482,7 +2481,6 @@ class AnnotationWrapper (BlitzObjectWrapper):
 
     @classmethod
     def _wrap (klass, conn, obj, link=None):
-        print klass
         if obj.__class__ in klass.registry:
             kwargs = dict()
             if link is not None:
