@@ -2996,7 +2996,7 @@ public class DeleteServiceTest
     	sql = "select d from ImagingEnvironment as d where d.id = :id";
     	assertNull(iQuery.findByQuery(sql, param));
     	
-    	param.addId(env.getId().getValue());
+    	param.addId(label.getId().getValue());
     	sql = "select d from StageLabel as d where d.id = :id";
     	assertNull(iQuery.findByQuery(sql, param));
     }
