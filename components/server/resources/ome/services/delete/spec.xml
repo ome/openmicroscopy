@@ -256,8 +256,8 @@ plus test REAP
                 <value>/Annotation;SOFT;/PlateAcquisition/PlateAcquisitionAnnotationLink</value>
                 <value>/PlateAcquisition/WellSample/WellSampleAnnotationLink</value>
                 <value>/Annotation;SOFT;/PlateAcquisition/WellSample/WellSampleAnnotationLink</value>
-                <value>/Image;;/Well/WellSample</value>
                 <value>/PlateAcquisition/WellSample</value>
+                 <value>/Image;;/PlateAcquisition/WellSample</value>
                 <value>/PlateAcquisition</value>
             </list>
         </constructor-arg>
