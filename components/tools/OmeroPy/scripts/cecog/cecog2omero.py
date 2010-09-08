@@ -76,7 +76,7 @@ regex_zslice = r'_Z(?P<Z>\d+)'
 #continuous_frames = 1
   
 
-def getPlaneFromImage(imagePath):
+def getPlaneFromImage(imagePath, rgbIndex=None):
     """
     Reads a local image (E.g. single plane tiff) and returns it as a numpy 2D array.
     
@@ -84,7 +84,10 @@ def getPlaneFromImage(imagePath):
     """
     i = Image.open(imagePath)
     a = numpy.asarray(i)
-    return a
+    if rgbIndex == None:
+        return a
+    else:
+        return a[:,:,rgbIndex]
                 
                 
 def uploadDirAsImages(services, path, dataset = None):
@@ -123,42 +126,62 @@ def uploadDirAsImages(services, path, dataset = None):
     
     fullpath = None
     
+    rgb = False
     # process the names and populate our imagemap
     for f in os.listdir(path):
+        fullpath = os.path.join(path, f)
         tSearch = t.search(f)
         cSearch = c.search(f)
         zSearch = z.search(f)
         tokSearch = token.search(f)
-        if tSearch == None or cSearch == None or zSearch == None: continue
-        cName = cSearch.group('C')
-        theT = int(tSearch.group('T'))
-        theZ = int(zSearch.group('Z'))
+        if f.endswith(".jpg"): 
+            rgb = True
+        if tSearch == None: theT = 0
+        else: theT = int(tSearch.group('T'))
+        if cSearch == None: cName = "0"
+        else:cName = cSearch.group('C')
+        if zSearch == None: theZ = 0
+        else: theZ = int(zSearch.group('Z'))
+
         channelSet.add(cName)
         sizeZ = max(sizeZ, theZ)
         zStart = min(zStart, theZ)
         sizeT = max(sizeT, theT)
         tStart = min(tStart, theT)
-        fullpath = os.path.join(path, f)
         if tokSearch != None: tokens.append(tokSearch.group('Token'))
         # print fullpath, theZ, cName, theT
         imageMap[(theZ,cName,theT)] = fullpath 
     
-    channels = list(channelSet)
+    colourMap = {}
+    if not rgb:
+        channels = list(channelSet)
+        # see if we can guess what colour the channels should be, based on name. 
+        for i, c in enumerate(channels):
+            if c == 'rfp': colourMap[i] = (255,0,0,255)
+            if c == 'gfp': colourMap[i] = (0,255,0,255)
+    else:
+        channels = ("red", "green", "blue")
+        colourMap[0] = (255,0,0,255)
+        colourMap[1] = (0,255,0,255)
+        colourMap[2] = (0,0,255,255)
+        
     sizeC = len(channels)
+    
+    print channels
+    print colourMap
+    print fullpath
+    print imageMap
     
     # use the common stem as the image name
     imageName =  os.path.commonprefix(tokens).strip('0T_')
     description = "Imported from images in %s" % path
     print "Creating image: ", imageName
-    
-    # see if we can guess what colour the channels should be, based on name. 
-    colourMap = {}
-    for i, c in enumerate(channels):
-        if c == 'rfp': colourMap[i] = (255,0,0,255)
-        if c == 'gfp': colourMap[i] = (0,255,0,255)
         
     # use the last image to get X, Y sizes and pixel type
-    plane = getPlaneFromImage(fullpath)
+    if rgb:
+        plane = getPlaneFromImage(fullpath, 0)
+    else:
+        plane = getPlaneFromImage(fullpath)
     pType = plane.dtype.name
     # look up the PixelsType object from DB
     pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
@@ -189,10 +212,18 @@ def uploadDirAsImages(services, path, dataset = None):
             zIndex = theZ + zStart
             for theT in range(sizeT):
                 tIndex = theT + tStart
-                if (zIndex, channels[theC], tIndex) in imageMap:
-                    imagePath = imageMap[(zIndex, channels[theC], tIndex)]
-                    print "Getting plane from:" , imagePath
-                    plane2D = getPlaneFromImage(imagePath)
+                if rgb:
+                    c = "0"
+                else:
+                    c = channels[theC]
+                if (zIndex, c, tIndex) in imageMap:
+                    imagePath = imageMap[(zIndex, c, tIndex)]
+                    print "Getting rgb plane from:" , imagePath
+                    if rgb:
+                        plane2D = getPlaneFromImage(imagePath, theC)
+                        print plane2D.shape
+                    else:
+                        plane2D = getPlaneFromImage(imagePath)
                 else:
                     print "Creating blank plane for .", theZ, channels[theC], theT
                     plane2D = zeros((sizeY, sizeX))
