@@ -82,6 +82,7 @@ import omero.model.RoiI;
 import omero.model.Screen;
 import omero.model.ScreenAnnotationLink;
 import omero.model.ScreenAnnotationLinkI;
+import omero.model.ScreenI;
 import omero.model.ScreenPlateLink;
 import omero.model.ScreenPlateLinkI;
 import omero.model.Shape;
@@ -3244,4 +3245,114 @@ public class DeleteServiceTest
 		assertEquals(iQuery.findAllByQuery(sql, param).size(), 0);
     }
 
+    /**
+     * Test to delete a project but not the datasets.
+     * The <code>deletePlate</code> is tested and the <code>KEEP</code>
+     * option.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testDeleteProjectNotContent() 
+    	throws Exception
+    {
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleDatasetData().asIObject());
+    	Project p = (Project) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleProjectData().asIObject());
+    	ProjectDatasetLink pl = new ProjectDatasetLinkI();
+    	pl.link(new ProjectI(p.getId().getValue(), false), 
+    			new DatasetI(d.getId().getValue(), false));
+    	iUpdate.saveAndReturnObject(pl);
+    	
+    	//Now delete the project
+    	Map<String, String> options = new HashMap<String, String>();
+    	options.put(REF_DATASET, KEEP);
+    	long id = p.getId().getValue();
+    	delete(new DeleteCommand(REF_PROJECT, id, options));
+    	String sql = "select p from Project as p ";
+    	sql += "where p.id = id";
+    	ParametersI param = new ParametersI();
+		param.addId(id);
+		assertNull(iQuery.findByQuery(sql, param));
+		sql = "select p from Dataset as p ";
+    	sql += "where p.id = id";
+    	param = new ParametersI();
+		param.addId(d.getId().getValue());
+		assertNotNull(iQuery.findByQuery(sql, param));
+    }
+    
+    /**
+     * Test to delete a screen but not the plates.
+     * The <code>deletePlate</code> is tested and the <code>KEEP</code>
+     * option.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testDeleteScreenNotContent() 
+    	throws Exception
+    {
+    	Screen s = (Screen) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleScreenData().asIObject());
+    	Plate p = (Plate) iUpdate.saveAndReturnObject(
+    			mmFactory.simplePlateData().asIObject());
+    	ScreenPlateLink l = new ScreenPlateLinkI();
+    	l.link(new ScreenI(s.getId().getValue(), false), p);
+    	iUpdate.saveAndReturnObject(l);
+    	
+    	
+    	//Now delete the screen
+    	Map<String, String> options = new HashMap<String, String>();
+    	options.put(REF_PLATE, KEEP);
+    	long id = s.getId().getValue();
+    	delete(new DeleteCommand(REF_SCREEN, id, options));
+    	String sql = "select p from Screen as p ";
+    	sql += "where p.id = id";
+    	ParametersI param = new ParametersI();
+		param.addId(id);
+		assertNull(iQuery.findByQuery(sql, param));
+		
+		sql = "select p from Plate as p ";
+    	sql += "where p.id = id";
+    	param = new ParametersI();
+		param.addId(p.getId().getValue());
+		assertNotNull(iQuery.findByQuery(sql, param));
+    }
+    
+    /**
+     * Test to delete a dataset but not the images.
+     * The <code>deletePlate</code> is tested and the <code>KEEP</code>
+     * option.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testDeleteDatasetNotContent() 
+    	throws Exception
+    {
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleDatasetData().asIObject());
+    	Image img = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.createImage());
+    	DatasetImageLink l = new DatasetImageLinkI();
+    	l.link(new DatasetI(d.getId().getValue(), false), img);
+    	iUpdate.saveAndReturnObject(l);
+    	
+    	
+    	//Now delete the dataset
+    	Map<String, String> options = new HashMap<String, String>();
+    	options.put(REF_IMAGE, KEEP);
+    	long id = d.getId().getValue();
+    	delete(new DeleteCommand(REF_DATASET, id, options));
+    	String sql = "select p from Dataset as p ";
+    	sql += "where p.id = id";
+    	ParametersI param = new ParametersI();
+		param.addId(id);
+		assertNull(iQuery.findByQuery(sql, param));
+		
+		sql = "select p from Image as p ";
+    	sql += "where p.id = id";
+    	param = new ParametersI();
+		param.addId(img.getId().getValue());
+		assertNotNull(iQuery.findByQuery(sql, param));
+    }
+    
 }
