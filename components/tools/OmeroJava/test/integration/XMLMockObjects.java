@@ -814,9 +814,9 @@ public class XMLMockObjects
 		if (numberOfPlateAcquisition > 0) {
 			for (int i = 0; i < numberOfPlateAcquisition; i++) {
 				pa = new PlateAcquisition();
-				pa.setID("PlateAcquistion:"+i);
-				pa.setName("PlateAcquistion Name "+i);
-				pa.setDescription("PlateAcquistion Description "+i);
+				pa.setID("PlateAcquisition:"+i);
+				pa.setName("PlateAcquisition Name "+i);
+				pa.setDescription("PlateAcquisition Description "+i);
 				pa.setEndTime(TIME);
 				pa.setStartTime(TIME);
 				plate.addPlateAcquisition(pa);
