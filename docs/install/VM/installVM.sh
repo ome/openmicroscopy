@@ -34,6 +34,6 @@ $SCP installDaemon.sh omero@localhost:~/
 echo "ssh : exec ubuntu-install.sh"
 $SSH omero@localhost 'yes ome | sudo -S sh /home/omero/ubuntu-install.sh'
 echo "ssh : exec web_install.sh"
-$SSH omero@localhost 'yes ome | sudo -S sh /home/omero/web_install.sh'
+$SSH omero@localhost 'yes ome | sudo -S sh /home/omero/web-install.sh'
 echo "ssh : exec installDaemon.sh"
 $SSH omero@localhost 'yes ome | sudo -S sh /home/omero/installDaemon.sh'

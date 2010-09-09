@@ -120,3 +120,5 @@ EOF
 cd /Server/omero/dist
 sudo -u omero bin/omero web syncmedia
 sudo -u omero bin/omero web start &
+
+sudo /etc/init.d/apache2 restart

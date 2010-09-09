@@ -184,3 +184,5 @@ sudo -u postgres createdb -O  $OMERO_DB_USER $OMERO_DB_NAME && {
     sudo -u omero bin/omero db script -f DB.sql $OMERO_VERSION $OMERO_PATCH $PGPASSWORD
     psql -h localhost -U $OMERO_DB_USER $OMERO_DB_NAME < DB.sql
 } || echo DB Exists
+
+sudo -u omero bin/omero admin start
