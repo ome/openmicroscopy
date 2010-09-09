@@ -73,7 +73,7 @@ public class WellSampleData extends DataObject {
      */
     public WellSampleData(WellSample wellSample) {
         if (wellSample == null) {
-            throw new IllegalArgumentException("Object cannot null.");
+            throw new IllegalArgumentException("Object cannot be null.");
         }
         setValue(wellSample);
     }
