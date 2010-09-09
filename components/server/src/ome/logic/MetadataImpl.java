@@ -507,6 +507,7 @@ public class MetadataImpl
         sb.append("left outer join fetch channel.contrastMethod as cm ");
 		sb.append("left outer join fetch channel.detectorSettings as ds ");
         sb.append("left outer join fetch channel.lightSourceSettings as lss ");
+        sb.append("left outer join fetch lss.microbeamManipulation ");
         
         //
         sb.append("left outer join fetch channel.otf as otf ");

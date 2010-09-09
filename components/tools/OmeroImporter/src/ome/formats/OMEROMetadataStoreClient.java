@@ -3490,7 +3490,6 @@ public class OMEROMetadataStoreClient
         addAuthoritativeContainer(Ellipse.class, id, o); 
     }
 
-
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setEllipseDescription(java.lang.String, int, int)
      */
@@ -3674,8 +3673,7 @@ public class OMEROMetadataStoreClient
     public void setExperimentExperimenterRef(String experimenter,
             int experimentIndex)
     {
-        //LSID key = new LSID(Experiment.class, experimentIndex);
-        //addReference(key, new LSID(experimenter));  
+        // XXX: Not handled by OMERO.
     }
 
     /* (non-Javadoc)
@@ -3704,8 +3702,7 @@ public class OMEROMetadataStoreClient
     public void setExperimenterAnnotationRef(String annotation,
             int experimenterIndex, int annotationRefIndex)
     {
-        //LSID key = new LSID(Experimenter.class, experimenterIndex);
-        //addReference(key, new LSID(annotation));   
+        // XXX: Not handled by OMERO.
     }
 
     /* (non-Javadoc)
@@ -5183,7 +5180,7 @@ public class OMEROMetadataStoreClient
         LinkedHashMap<Index, Integer> indexes =
             new LinkedHashMap<Index, Integer>();
         indexes.put(Index.EXPERIMENT_INDEX, experimentIndex);
-        indexes.put(Index.MICROBEAM_MANIPULATION_INDEX, microbeamManipulationIndex);        
+        indexes.put(Index.MICROBEAM_MANIPULATION_INDEX, microbeamManipulationIndex);
         return getSourceObject(MicrobeamManipulation.class, indexes); 
     }
     
@@ -5220,8 +5217,8 @@ public class OMEROMetadataStoreClient
     public void setMicrobeamManipulationROIRef(String roi, int experimentIndex,
             int microbeamManipulationIndex, int ROIRefIndex)
     {
-        //LSID key = new LSID(MicrobeamManipulation.class, experimentIndex, microbeamManipulationIndex);
-        //addReference(key, new LSID(roi));
+        LSID key = new LSID(MicrobeamManipulation.class, experimentIndex, microbeamManipulationIndex);
+        addReference(key, new LSID(roi));
     }
 
     /* (non-Javadoc)
@@ -5233,8 +5230,7 @@ public class OMEROMetadataStoreClient
         MicrobeamManipulation o = getMicrobeamManipulation(experimentIndex, microbeamManipulationIndex);
         o.setType((MicrobeamManipulationType) getEnumeration(MicrobeamManipulationType.class, type.toString()));
     }
-    
-    
+
     ////////Microbeam Manipulation Light Source Settings /////////
 
     public LightSettings getMicrobeamManipulationLightSourceSettings(int experimentIndex, int microbeamManipulationIndex,
@@ -5255,25 +5251,11 @@ public class OMEROMetadataStoreClient
             int experimentIndex, int microbeamManipulationIndex,
             int lightSourceSettingsIndex)
     {
-    	
         LSID key = new LSID(LightSettings.class, experimentIndex, 
         		microbeamManipulationIndex, lightSourceSettingsIndex);
         addReference(key, new LSID(id));
-        
-        
-    	/*
-        checkDuplicateLSID(LightSettings.class, id);
-        LinkedHashMap<Index, Integer> indexes =
-            new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.EXPERIMENT_INDEX, experimentIndex);
-        indexes.put(Index.MICROBEAM_MANIPULATION_INDEX, microbeamManipulationIndex); 
-        indexes.put(Index.LIGHT_SOURCE_SETTINGS_INDEX, lightSourceSettingsIndex); 
-        IObjectContainer o = getIObjectContainer(LightSettings.class, indexes);
-        o.LSID = id;
-        addAuthoritativeContainer(LightSettings.class, id, o);
-        */
     }
-    
+
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setMicrobeamManipulationLightSourceSettingsAttenuation(ome.xml.model.primitives.PercentFraction, int, int, int)
      */
@@ -5297,8 +5279,7 @@ public class OMEROMetadataStoreClient
                 microbeamManipulationIndex, lightSourceSettingsIndex);
         o.setWavelength(toRType(wavelength.getValue()));
     }
-    
-    
+
     //////// Microscope ////////
     /**
      * @param instrumentIndex

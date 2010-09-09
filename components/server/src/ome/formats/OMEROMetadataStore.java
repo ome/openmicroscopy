@@ -26,6 +26,7 @@ package ome.formats;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,6 +61,7 @@ import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.model.core.PlaneInfo;
 import ome.model.experiment.Experiment;
+import ome.model.experiment.MicrobeamManipulation;
 import ome.model.roi.Roi;
 import ome.model.roi.Shape;
 import ome.model.screen.Plate;
@@ -263,12 +265,16 @@ public class OMEROMetadataStore
         }
     	else if (sourceObject instanceof Annotation)
     	{
-    		handle(lsid, (Annotation) sourceObject, indexes); 
+    		handle(lsid, (Annotation) sourceObject, indexes);
     	}
     	else if (sourceObject instanceof Experiment)
     	{
-    		handle(lsid, (Experiment) sourceObject, indexes); 
+    		handle(lsid, (Experiment) sourceObject, indexes);
     	}
+        else if (sourceObject instanceof MicrobeamManipulation)
+        {
+            handle(lsid, (MicrobeamManipulation) sourceObject, indexes);
+        }
     	else if (sourceObject instanceof Roi)
     	{
     	    handle(lsid, (Roi) sourceObject, indexes);
@@ -790,9 +796,30 @@ public class OMEROMetadataStore
     private void handle(String LSID, LightSettings sourceObject,
     		            Map<String, Integer> indexes)
     {
-    	LogicalChannel lc = getLogicalChannel(indexes.get("imageIndex"),
-    			                              indexes.get("channelIndex"));
-    	lc.setLightSourceSettings(sourceObject);
+        Integer imageIndex = indexes.get("imageIndex");
+        Integer channelIndex = indexes.get("channelIndex");
+        Integer experimentIndex = indexes.get("experimentIndex");
+        Integer microbeamManipulationIndex = 
+            indexes.get("microbeamManipulationIndex");
+        if (experimentIndex != null)
+        {
+            Experiment e = experimentList.get(experimentIndex);
+            Iterator<MicrobeamManipulation> iter = 
+                e.iterateMicrobeamManipulation();
+            for (int i = 0; i < e.sizeOfMicrobeamManipulation(); i++)
+            {
+                MicrobeamManipulation mm = iter.next();
+                if (i == microbeamManipulationIndex)
+                {
+                    mm.addLightSettings(sourceObject);
+                }
+            }
+        }
+        else
+        {
+            LogicalChannel lc = getLogicalChannel(imageIndex, channelIndex);
+            lc.setLightSourceSettings(sourceObject);
+        }
     }
 
     /**
@@ -963,7 +990,7 @@ public class OMEROMetadataStore
     {
         // No-op.
     }
-    
+
     /**
      * Handles inserting a specific type of model object into our object graph.
      * @param LSID LSID of the model object.
@@ -977,7 +1004,22 @@ public class OMEROMetadataStore
     	int experimentIndex = indexes.get("experimentIndex");
     	experimentList.put(experimentIndex, sourceObject);
     }
- 
+
+    /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, MicrobeamManipulation sourceObject,
+                        Map<String, Integer> indexes)
+    {
+        int experimentIndex = indexes.get("experimentIndex");
+        Experiment e = experimentList.get(experimentIndex);
+        e.addMicrobeamManipulation(sourceObject);
+    }
+
     /**
      * Handles inserting a specific type of model object into our object graph.
      * @param LSID LSID of the model object.

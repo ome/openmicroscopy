@@ -569,7 +569,7 @@ public class ImporterTest
 		assertEquals(mm.getType().getValue().getValue(), 
 				xml.getType().getValue());
 	}
-	
+
 	/**
 	 * Validates if the inserted object corresponds to the XML object.
 	 * 
@@ -1074,10 +1074,13 @@ public class ImporterTest
     	ome.xml.model.LightSourceSettings xmlLs = 
     		xml.createLightSourceSettings(0);
     	
-    	//ome.xml.model.MicrobeamManipulation xmlMM = 
-    	//	xml.createMicrobeamManipulation(0);
-    	//ome.xml.model.Experiment xmlExp = ome.getExperiment(0);
+    	ome.xml.model.MicrobeamManipulation xmlMM = 
+    		xml.createMicrobeamManipulation(0);
+    	ome.xml.model.Experiment xmlExp = ome.getExperiment(0);
     	ome.xml.model.OTF xmlOTF = ome.getInstrument(0).getOTF(0);
+    	
+    	// Validate experiment (initial checks)
+    	assertNotNull(image.getExperiment());
     	
     	LightPath path;
     	Iterator<LogicalChannel> k = l.iterator();
@@ -1098,12 +1101,10 @@ public class ImporterTest
 			assertTrue(lightIds.contains(
 					ls.getLightSource().getId().getValue()));
 			validateLightSourceSettings(ls, xmlLs);
-			/*
-			assertNotNull(ls.getMicrobeamManipulation());
-			validateMicrobeamManipulation(ls.getMicrobeamManipulation(), xmlMM);
-			assertNotNull(ls.getMicrobeamManipulation().getExperiment());
-			validateExperiment(ls.getMicrobeamManipulation().getExperiment(), 
-			*/
+			//assertNotNull(ls.getMicrobeamManipulation());
+			//validateMicrobeamManipulation(ls.getMicrobeamManipulation(), xmlMM);
+			//assertNotNull(ls.getMicrobeamManipulation().getExperiment());
+			//validateExperiment(ls.getMicrobeamManipulation().getExperiment(), xmlExp); 
 			path = lc.getLightPath();
 			assertNotNull(lc);
 			assertNotNull(path.getDichroic());

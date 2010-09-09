@@ -517,7 +517,7 @@ public class XMLMockObjects
 		settings.setWavelength(new PositiveInteger(200));
 		return settings;
 	}
-	
+
 	/**
 	 * Creates a microbeam manipulation.
 	 * 
@@ -528,11 +528,10 @@ public class XMLMockObjects
 	{
 		MicrobeamManipulation mm = new MicrobeamManipulation();
 		mm.setID("MicrobeamManipulation:"+index);
-		
 		mm.setType(MICROBEAM_MANIPULATION_TYPE);
 		return mm;
 	}
-	
+
 	/**
 	 * Creates an experiment.
 	 * 
@@ -543,10 +542,11 @@ public class XMLMockObjects
 	{
 		Experiment exp = new Experiment();
 		exp.setDescription("Experiment");
+		exp.setType(ExperimentType.PHOTOBLEACHING);
 		exp.setID("Experiment:"+index);
 		return exp;
 	}
-	
+
 	/**
 	 * Creates a detector settings.
 	 * 
@@ -1279,20 +1279,18 @@ public class XMLMockObjects
 		instrument.addOTF(otf);
 
 		//Add microbeam
-		/*
 		Experiment exp = createExperiment(0);
 		ome.addExperiment(exp);
 		MicrobeamManipulation mm = createMicrobeamManipulation(0);
 		exp.addMicrobeamManipulation(mm);
-		*/
 		Pixels pixels = image.getPixels();
 		Channel c;
 		for (int i = 0; i < pixels.getSizeC().getValue().intValue(); i++) {
 			c = pixels.getChannel(i);
-			//mm.addLightSourceSettings(c.getLightSourceSettings());
+			mm.addLightSourceSettings(c.getLightSourceSettings());
 			c.linkOTF(otf);
 		}
-		
+		image.linkExperiment(exp);
 		image.linkInstrument(instrument);
 		ome.addImage(image);
 		return ome;
