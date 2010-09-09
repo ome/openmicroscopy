@@ -926,21 +926,12 @@ public class ImporterTest
 		validateObjectiveSettings(image.getObjectiveSettings(), 
 				xml.createObjectiveSettings(0));
 		
-		long objectiveID = settings.getObjective().getId().getValue();
 		Instrument instrument = image.getInstrument();
 		assertNotNull(instrument);
 		//check the instrument
 		instrument = factory.getMetadataService().loadInstrument(
 				instrument.getId().getValue());
 		assertNotNull(instrument);
-		IObject o;
-    	int objective = 0;
-    	int detector = 0;
-    	int filter = 0;
-    	int dichroic = 0;
-    	int light = 0;
-    	int filterSet = 0;
-    	int otf = 0;
     	ome.xml.model.Laser xmlLaser = (ome.xml.model.Laser) 
     		xml.createLightSource(ome.xml.model.Laser.class.getName(), 0);
     	ome.xml.model.Arc xmlArc = (ome.xml.model.Arc) 
@@ -957,51 +948,6 @@ public class ImporterTest
     	ome.xml.model.Filter xmlFilter = xml.createFilter(0, 
     			XMLMockObjects.CUT_IN, XMLMockObjects.CUT_OUT);
     	ome.xml.model.Dichroic xmlDichroic = xml.createDichroic(0);
-    	/*
-    	while (j.hasNext()) {
-			o = j.next();
-			if (o instanceof Detector) {
-				detectors.add(((Detector) o).getId().getValue());
-				validateDetector((Detector) o, xmlDetector);
-				detector++;
-			} else if (o instanceof Filter) {
-				validateFilter((Filter) o, xmlFilter);
-				filters.add(((Filter) o).getId().getValue());
-				filter++;
-			} else if (o instanceof FilterSet) {
-				filterSet++;
-			} else if (o instanceof Dichroic) {
-				validateDichroic((Dichroic) o, xmlDichroic);
-				dichroics.add(((Dichroic) o).getId().getValue());
-				dichroic++;
-			} else if (o instanceof Objective) {
-				objectives.add(((Objective) o).getId().getValue());
-				validateObjective((Objective) o, xmlObjective);
-				objective++;
-			} else if (o instanceof Laser) {
-				validateLaser((Laser) o, xmlLaser);
-				lights.add(((Laser) o).getId().getValue());
-				light++;
-			} else if (o instanceof Filament) {
-				validateFilament((Filament) o, xmlFilament);
-				lights.add(((Filament) o).getId().getValue());
-				light++;
-			} else if (o instanceof Arc) {
-				validateArc((Arc) o, xmlArc);
-				lights.add(((Arc) o).getId().getValue());
-				light++;
-			} else if (o instanceof LightEmittingDiode) {
-				validateLightEmittingDiode((LightEmittingDiode) o, xmlDiode);
-				lights.add(((LightEmittingDiode) o).getId().getValue());
-				light++; 
-			} else if (o instanceof OTF) {
-				otf++;
-			} else if (o instanceof Microscope) {
-				validateMicroscope((Microscope) o, xml.createMicroscope());
-			}
-		}
-    	*/
-    	//assertTrue(objectives.contains(objectiveID));
     	assertEquals(XMLMockObjects.NUMBER_OF_OBJECTIVES, 
     			instrument.sizeOfObjective());
     	assertEquals(XMLMockObjects.NUMBER_OF_DECTECTORS, 
@@ -1041,8 +987,17 @@ public class ImporterTest
     	List<LightSource> lights = instrument.copyLightSource();
     	j = lights.iterator();
     	List<Long> lightIds = new ArrayList<Long>();
+    	LightSource src;
     	while (j.hasNext()) {
-    		lightIds.add(((LightSource) j.next()).getId().getValue());
+    		src = (LightSource) j.next();
+    		if (src instanceof Laser)
+    			validateLaser((Laser) src, xmlLaser);
+    		else if (src instanceof Arc)
+    			validateArc((Arc) src, xmlArc);
+    		else if (src instanceof Filament)
+    			validateFilament((Filament) src, xmlFilament);
+    		
+    		lightIds.add(src.getId().getValue());	
 		}
     	
     	p = factory.getPixelsService().retrievePixDescription(
@@ -1241,10 +1196,9 @@ public class ImporterTest
 	public void testImportPlateMultiplePlateAcquisitions()
 		throws Exception
 	{
-		File f = File.createTempFile("testImportPlateMultiplePlateAcquisitions", 
-				"."+OME_FORMAT);
-		files.add(f);
-		int n = 2;
+		File f = new File("/OMERO/pa.ome");// File.createTempFile("testImportPlateMultiplePlateAcquisitions", "."+OME_FORMAT);
+		//files.add(f);
+		int n = 3;
 		int fields = 3;
 		XMLMockObjects xml = new XMLMockObjects();
 		XMLWriter writer = new XMLWriter();
@@ -1283,6 +1237,8 @@ public class ImporterTest
 		sql += "where pa.plate.id = :id";
 		List<IObject> pas = iQuery.findAllByQuery(sql, param);
 		assertEquals(n, pas.size());
+		
+		
 		Iterator<IObject> j = pas.iterator();
 		sql = "select ws from WellSample as ws ";
 		sql += "join fetch ws.plateAcquisition as pa ";
