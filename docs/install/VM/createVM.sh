@@ -8,11 +8,11 @@ export MEMORY=${MEMORY:-"1024"}
 export SSH_PF=${SSH_PF:-"2222"}
 export OMERO_PORT=${OMERO_PORT:-"4063"}
 export OMERO_PF=${OMERO_PF:-"4063"}
-export OMEROS_PORT=${OMERO_PORT:-"4064"}
-export OMEROS_PF=${OMERO_PF:-"4064"}
+export OMEROS_PORT=${OMEROS_PORT:-"4064"}
+export OMEROS_PF=${OMEROS_PF:-"4064"}
 
-export OMEROWEB_PORT=${OMERO_PORT:-"8080"}
-export OMEROWEB_PF=${OMERO_PF:-"8080"}
+export OMEROWEB_PORT=${OMEROWEB_PORT:-"80"}
+export OMEROWEB_PF=${OMEROWEB_PF:-"8080"}
 export HARDDISKS=${HARDDISKS:-"$HOME/Library/VirtualBox/HardDisks/"}
 
 set -e
@@ -36,7 +36,7 @@ VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/ome
 VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/omeroservers/HostPort" $OMEROS_PF
 VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/omeroservers/GuestPort" $OMEROS_PORT
 VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/omeroserver/Protocol" TCP
-VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/omeroweb/HostPort" $OMERO_PF
-VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/omeroweb/GuestPort" $OMERO_PORT
+VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/omeroweb/HostPort" $OMEROWEB_PF
+VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/omeroweb/GuestPort" $OMEROWEB_PORT
 VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/omeroweb/Protocol" TCP
 
