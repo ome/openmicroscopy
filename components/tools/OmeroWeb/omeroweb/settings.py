@@ -43,6 +43,13 @@ except ImportError:
         "it's causing an ImportError somehow.)\n") 
     sys.exit(1)
 
+
+# EMDB CUSTOM CONFIG
+try:
+    from emdb_settings import *
+except ImportError:
+    sys.stderr.write("'omero/var/lib/emdb_settings.py' not found. If you wish to add EMDB settings, do bin/omero web emdb")
+
     
 # LOGS
 # NEVER DEPLOY a site into production with DEBUG turned on.
@@ -168,16 +175,9 @@ INSTALLED_APPS = (
     'omeroweb.webclient',
     'omeroweb.webgateway',
     'omeroweb.webtest',
-    'omeroweb.webemdb',
+    #'omeroweb.webemdb',
     'omeroweb.webmobile',
 )
-
-# EMAN2 functionality is used in some features of the webemdb application. E.g. see webemdb.views.py eman()
-# Do the import here since EMAN2 import fails if it happens for the first time in views.py "signal only works in main thread"
-#try:
-#    from EMAN2 import *
-#except:
-#    logger.warning("Failed to import EMAN2. Some features of webemdb will not be supported.")
     
 
 FEEDBACK_URL = "qa.openmicroscopy.org.uk:80"
@@ -189,7 +189,6 @@ SESSION_ENGINE = "django.contrib.sessions.backends.file"
 SESSION_FILE_PATH = tempfile.gettempdir()
 
 # Cache
-CACHE_BACKEND = 'locmem://'
 #CACHE_BACKEND = 'file:///var/tmp/django_cache'
 #CACHE_TIMEOUT = 86400
 
