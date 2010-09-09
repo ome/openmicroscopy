@@ -87,8 +87,9 @@ apt-get --assume-yes install xinit
 # Install Apache, Django and webclient apps
 #
 apt-get --assume-yes install apache2
-apt-get --assume-yes install python-django
-apt-get --assume-yes install libapache2-mod-python
+#apt-get --assume-yes install python-django
+apt-get --assume-yes install libapache2-mod-fastcgi
+apt-get --assume-yes install links
 
 ##
 # Install OMERO
@@ -174,6 +175,7 @@ echo "CREATE USER $OMERO_DB_USER PASSWORD '$PGPASSWORD'" | sudo -u postgres psql
 ###
 ### FREEZES SOMEWHERE HERE
 ###
+export PGPASSWORD=$PGPASSWORD
 sudo -u postgres createdb -O  $OMERO_DB_USER $OMERO_DB_NAME && {
     sudo -u postgres createlang plpgsql $OMERO_DB_NAME
     sudo -u omero bin/omero config set omero.db.name $OMERO_DB_NAME
@@ -182,53 +184,3 @@ sudo -u postgres createdb -O  $OMERO_DB_USER $OMERO_DB_NAME && {
     sudo -u omero bin/omero db script -f DB.sql $OMERO_VERSION $OMERO_PATCH $PGPASSWORD
     psql -h localhost -U $OMERO_DB_USER $OMERO_DB_NAME < DB.sql
 } || echo DB Exists
-
-
-##
-# Set up apache
-#
-mkdir -p /Server/logs/weblog
-chown -R www-data:www-data /Server/logs/weblog/
-chmod -R 770 /Server/logs/weblog
-cd /etc/apache2/sites-available
-sudo sed 's/<\/VirtualHost>/\t<Location \/> \n\t\tSetHandler python-program\n\t\tPythonHandler django.core.handlers.modpython\n\t\tSetEnv DJANGO_SETTINGS_MODULE omeroweb.setting\n\t\tSetEnv MPLCONFIGDIR \/Server\/logs\/matplotlib \n\t\tPythonDebug On\n\t\tPythonPath "['\''\/Server\/omero\/dist\/lib\/python'\'', '\''\/Server\/omero\/dist\/var\/lib'\'', '\''\/Server\/omero\/dist\/lib\/python\/omeroweb'\''] + sys.path"\n\t<\/Location>\n<\/VirtualHost>/' < default > default
-
-##
-# Setup Matplotlib
-#
-mkdir -p /Server/logs/matplotlib
-sudo echo "backend: Agg" > /Server/logs/matplotlib/matplotlibrc
-sudo chown -R www-data:www-data /Server/logs/matplotlib/
-
-##
-# Setup Webclient
-#
-sudo -u omero mkdir -p /Server/omero/dist/var
-sudo -u omero mkdir -p /Server/omero/dist/var/lib
-sudo -u omero chmod +rx /Server/omero/dist/var/
-cd /Server/omero/dist/var/lib
-
-FILE=custom_settings.py
-sudo -u omero cat > ${FILE} << EOF
-# custom_settings.py
-LOGDIR = '/Server/logs/weblog/'
-SERVER_LIST = (
-    ('localhost', 4064, 'omero'),
-)
-
-#ADMINS = (
-#    ('username', 'emailaddress'),
-#)
-
-SERVER_EMAIL = 'omero@localhost'
-EMAIL_HOST = 'localhost'
-
-APPLICATION_HOST='http://localhost:8000/'
-
-EMDB_USER = ('emdb', 'ome')
-EOF
-
-cd /Server/omero/dist
-sudo -u omero bin/omero web syncmedia
-sudo /etc/init.d/apache2 restart
-
