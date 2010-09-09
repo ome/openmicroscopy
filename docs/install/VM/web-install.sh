@@ -47,7 +47,7 @@ FastCGIExternalServer "/var/www/omero.fcgi" -host 127.0.0.1:8000
         Allow from 127.0.0.0/255.0.0.0 ::1/128
     </Directory>
 
-
+    Alias /appmedia /Server/omero/dist/lib/python/omeroweb/media
     Alias / "/var/www/omero.fcgi/"
 
 </VirtualHost>
