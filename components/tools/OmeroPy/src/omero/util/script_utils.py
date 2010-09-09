@@ -391,7 +391,8 @@ def readFlimImageFile(rawPixelsStore, pixels):
     
 def downloadPlane(rawPixelsStore, pixels, z, c, t):
     """
-    Download the plane [z,c,t] for image pixels.
+    Download the plane [z,c,t] for image pixels. Pixels must have pixelsType loaded. 
+    N.B. The rawPixelsStore must have already been initialised by setPixelsId()
     @param rawPixelsStore The rawPixelStore service to get the image.
     @param pixels The pixels of the image.
     @param z The Z-Section to retrieve.
@@ -411,6 +412,66 @@ def downloadPlane(rawPixelsStore, pixels, z, c, t):
     remappedPlane.resize(sizeY, sizeX);
     return remappedPlane;
 
+
+def split_image(client, imageId, dir, unformattedImageName = "tubulin_P037_T%05d_C%s_Z%d_S1.tif", dims = ('T', 'C', 'Z')):
+    """
+    Splits the image into component planes, which are saved as local tiffs according to unformattedImageName.
+    E.g. myLocalDir/tubulin_P037_T%05d_C%s_Z%d_S1.tif which will be formatted according to dims, E.g. ('T', 'C', 'Z')
+    Channel will be formatted according to channel name, not index. 
+    @param rawPixelsStore The rawPixelStore
+    @param queryService
+    @param c The C-Section to retrieve.
+    @param t The T-Section to retrieve.
+    @param imageName  the local location to save the image. 
+    """
+
+    unformattedImageName = os.path.join(dir, unformattedImageName)
+
+    session = client.getSession()
+    queryService = session.getQueryService()
+    rawPixelsStore = session.createRawPixelsStore()
+    pixelsService = session.getPixelsService()
+
+    try:
+        from PIL import Image
+    except:
+        import Image
+
+    query_string = "select p from Pixels p join fetch p.image as i join fetch p.pixelsType where i.id='%s'" % imageId
+    pixels = queryService.findByQuery(query_string, None)
+    sizeX = pixels.getSizeX().getValue()
+    sizeY = pixels.getSizeY().getValue()
+    sizeZ = pixels.getSizeZ().getValue()
+    sizeC = pixels.getSizeC().getValue()
+    sizeT = pixels.getSizeT().getValue()
+    rawPixelsStore.setPixelsId(pixels.getId().getValue(), True)
+
+    channelMap = {}
+    cIndex = 0
+    pixels = pixelsService.retrievePixDescription(pixels.id.val)    # load channels
+    for c in pixels.iterateChannels():
+        lc = c.getLogicalChannel()
+        channelMap[cIndex] = lc.getName().getValue()
+        cIndex += 1
+    print channelMap
+
+    def formatName(unformatted, z, c, t):
+        # need to turn dims E.g. ('T', 'C', 'Z') into tuple, E.g. (t, c, z)
+        dimMap = {'T': t, 'C':channelMap[c], 'Z': z}
+        dd = tuple([dimMap[d] for d in dims])
+        print dd
+        return unformatted % dd
+
+    for z in range(sizeZ):
+        for c in range(sizeC):
+            for t in range(sizeT):
+                imageName = formatName(unformattedImageName, z, c, t)
+                print "downloading plane z: %s c: %s t: %s  to  %s" % (z, c, t, imageName)
+                plane = downloadPlane(rawPixelsStore, pixels, z, c, t)
+                i = Image.fromarray(plane)
+                i.save(imageName)
+    
+    
 def createFileFromData(updateService, queryService, filename, data):
     """
     Create a file from the data of type format, setting sha1, ..
