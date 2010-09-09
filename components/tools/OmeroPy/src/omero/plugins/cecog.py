@@ -10,22 +10,14 @@
 import os
 import re
 import sys
-import numpy
-from numpy import zeros
 
 from omero.cli import BaseControl, CLI, OMERODIR
 from omero_ext.argparse import FileType
 
 import omero
 import omero.constants
-import omero.util.script_utils as scriptUtil
 
 from omero.rtypes import *
-
-try:
-    from PIL import Image # see ticket:2597
-except ImportError:
-    import Image # see ticket:2597
 
 
 class CecogControl(BaseControl):
@@ -187,6 +179,12 @@ bin/omero cecog rois -f Data/Demo_output/analyzed/0037/statistics/P0037__object_
 
         @param imagePath   Path to image.
         """
+        import numpy
+        try:
+             from PIL import Image # see ticket:2597
+        except ImportError:
+             import Image # see ticket:2597
+
         i = Image.open(imagePath)
         a = numpy.asarray(i)
         if rgbIndex == None:
@@ -204,6 +202,7 @@ bin/omero cecog rois -f Data/Demo_output/analyzed/0037/statistics/P0037__object_
         @param path     the path to the directory containing images.
         @param dataset  the OMERO dataset, if we want to put images somewhere. omero.model.DatasetI
         """
+        import omero.util.script_utils as scriptUtil
 
         # assume 1 image in this folder for now.
         # Make a single map of all images. key is (z,c,t). Value is image path.
