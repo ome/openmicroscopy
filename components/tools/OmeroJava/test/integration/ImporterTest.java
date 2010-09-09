@@ -1196,8 +1196,9 @@ public class ImporterTest
 	public void testImportPlateMultiplePlateAcquisitions()
 		throws Exception
 	{
-		File f = new File("/OMERO/pa.ome");// File.createTempFile("testImportPlateMultiplePlateAcquisitions", "."+OME_FORMAT);
-		//files.add(f);
+		File f = File.createTempFile("testImportPlateMultiplePlateAcquisitions",
+				"."+OME_FORMAT);
+		files.add(f);
 		int n = 3;
 		int fields = 3;
 		XMLMockObjects xml = new XMLMockObjects();
