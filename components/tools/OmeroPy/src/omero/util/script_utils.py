@@ -462,10 +462,15 @@ def split_image(client, imageId, dir, unformattedImageName = "tubulin_P037_T%05d
         print dd
         return unformatted % dd
 
+    # cecog does this, but other formats may want to start at 0
+    zStart = 1
+    tStart = 1
+    
+    # loop through dimensions, saving planes as tiffs. 
     for z in range(sizeZ):
         for c in range(sizeC):
             for t in range(sizeT):
-                imageName = formatName(unformattedImageName, z, c, t)
+                imageName = formatName(unformattedImageName, z+zStart, c, t+tStart)
                 print "downloading plane z: %s c: %s t: %s  to  %s" % (z, c, t, imageName)
                 plane = downloadPlane(rawPixelsStore, pixels, z, c, t)
                 i = Image.fromarray(plane)

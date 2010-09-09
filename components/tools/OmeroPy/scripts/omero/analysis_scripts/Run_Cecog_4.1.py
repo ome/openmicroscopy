@@ -48,9 +48,6 @@ def download(client, img_id, cf_id):
     import omero
     import fileinput
 
-    # from omero.util.script_utils import split_image
-    # NYI: split_image(client, img_id, dir="")
-
     cwd = os.getcwd()
     conf = os.path.sep.join([cwd, "conf"])
     data = os.path.sep.join([cwd, "Data"])
@@ -60,6 +57,9 @@ def download(client, img_id, cf_id):
     os.makedirs(din)
     os.makedirs(dout)
     os.makedirs(pos)
+    
+    from omero.util.script_utils import split_image
+    split_image(client, img_id, data)
 
     client.download(omero.model.OriginalFileI(cf_id, False), filename=conf)
     for line in fileinput.input([conf], inplace=True):
