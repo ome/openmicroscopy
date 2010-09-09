@@ -54,7 +54,6 @@ import omero.model.Image;
 import omero.model.ImageAnnotationLinkI;
 import omero.model.Instrument;
 import omero.model.Laser;
-import omero.model.LightEmittingDiode;
 import omero.model.LightSource;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
@@ -641,7 +640,7 @@ public class MetadataServiceTest
     	InstrumentData data;
     	for (int i = 0; i < ModelMockFactory.LIGHT_SOURCES.length; i++) {
     		instrument = mmFactory.createInstrument(
-    				ModelMockFactory.LIGHT_SOURCES[0]);
+    				ModelMockFactory.LIGHT_SOURCES[i]);
     		instrument = (Instrument) iUpdate.saveAndReturnObject(instrument);
     		data = new InstrumentData(instrument);
     		instrument = iMetadata.loadInstrument(
@@ -726,6 +725,42 @@ public class MetadataServiceTest
     	} 	
     }
 
+    /**
+     * Tests the retrieval of an instrument light sources of different types.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadInstrumentWithMultipleLightSources() 
+    	throws Exception
+    {
+    	Instrument instrument = mmFactory.createInstrument(
+				ModelMockFactory.LASER);
+    	instrument.addLightSource(mmFactory.createFilament());
+    	instrument.addLightSource(mmFactory.createArc());
+		instrument = (Instrument) iUpdate.saveAndReturnObject(instrument);
+		instrument = iMetadata.loadInstrument(instrument.getId().getValue());
+		assertNotNull(instrument);
+		List<LightSource> lights = instrument.copyLightSource();
+		assertEquals(3, lights.size());
+		Iterator<LightSource> i = lights.iterator();
+		LightSource src;
+		Laser laser;
+		while (i.hasNext()) {
+			src = i.next();
+			if (src instanceof Laser) {
+				laser = (Laser) src;
+				assertNotNull(laser.getType());
+				assertNotNull(laser.getLaserMedium());
+				assertNotNull(laser.getPulse());
+			} else if (src instanceof Filament) {
+				assertNotNull(((Filament) src).getType());
+			} else if (src instanceof Arc) {
+				assertNotNull(((Arc) src).getType());
+			}
+		}
+		
+    }
+    
     /**
      * Tests the retrieval of channel acquisition data.
      * @throws Exception Thrown if an error occurred.
