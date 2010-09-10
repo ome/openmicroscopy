@@ -221,7 +221,7 @@ def download(client, img_id, cf_id):
     data = os.path.sep.join([cwd, "Data"])
     din  = os.path.sep.join([data, "In"])
     dout = os.path.sep.join([data, "Out"])
-    pos  = os.path.sep.join([din, "Positions"])
+    pos  = os.path.sep.join([din, "0037"])
     os.makedirs(din)
     os.makedirs(dout)
     os.makedirs(pos)
@@ -231,7 +231,6 @@ def download(client, img_id, cf_id):
     params = omero.sys.ParametersI()
     params.addId(img_id)
     image_name = client.sf.getQueryService().projection("select i.name from Image i where i.id = :id", params)[0][0]
-
 
     if cf_id is not None:
         client.download(omero.model.OriginalFileI(cf_id, False), filename=conf)
@@ -243,6 +242,7 @@ def download(client, img_id, cf_id):
     for line in fileinput.input([conf], inplace=True):
         if line.startswith("pathin"):
             print "pathin = %s" % din
+            #print "pathin = /opt/CecogPackage/Data/Demo_data/"
         elif line.startswith("pathout"):
             print "pathout = %s" % dout
         elif line.startswith("positions"):
@@ -256,7 +256,7 @@ def download(client, img_id, cf_id):
         else:
             print line,
 
-    return conf
+    return (conf, dout)
 
 
 def execute(conf, debug=False):
@@ -293,11 +293,40 @@ def execute(conf, debug=False):
         raise exceptions.Exception("cecog exited with rc=%s" % rc)
 
 
+def upload(client, dout):
+    """
+    Uploads the images in the dout folder to OMERO, creating a new Project / Dataset. 
+    """
+    from omero.util.script_utils import uploadDirAsImages
+    sf = client.getSession()
+    queryService = sf.getQueryService()
+    updateService = sf.getUpdateService()
+    pixelsService = sf.getPixelsService()
+    
+    # create dataset
+    import omero.model
+    from omero.rtypes import rstring
+    dataset = omero.model.DatasetI()
+    dataset.name = rstring("Cecog-Analysis-Results")
+    dataset = updateService.saveAndReturnObject(dataset)
+    
+    # upload segmentation and classification jpegs as new movies
+    import os
+    contoursDir = os.path.join(dout, "analyzed", "0037", "images", "primary_contours")
+    print "Uploading images from %s" % contoursDir
+    uploadDirAsImages(sf, queryService, updateService, pixelsService, contoursDir, dataset)
+    
+    classDir = os.path.join(dout, "analyzed", "0037", "images", "primary_classification")
+    print "Uploading images from %s" % classDir
+    uploadDirAsImages(sf, queryService, updateService, pixelsService, classDir, dataset)
+
+
 if __name__ == "__main__":
     client = setup()
     inputs = client.getInputs(True)
     debug = inputs["Debug"]
     ds_id = inputs["Image_ID"]
     cf_id = inputs.get("Settings_ID", None)
-    conf = download(client, ds_id, cf_id)
+    conf, dout = download(client, ds_id, cf_id)
     execute(conf, debug)
+    upload(client, dout)
