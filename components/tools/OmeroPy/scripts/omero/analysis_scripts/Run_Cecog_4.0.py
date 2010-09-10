@@ -50,7 +50,8 @@ primary_latlimit = 3
 primary_lat2 = True
 primary_latwindowsize2 = 150
 primary_latlimit2 = 10
-primary_shapewatershed = True
+# Faster demo
+primary_shapewatershed = False
 primary_shapewatershed_gausssize = 10
 primary_shapewatershed_maximasize = 24
 primary_shapewatershed_minmergesize = 300
@@ -90,11 +91,11 @@ secondary_regions_rim_expansionsize = 0
 secondary_regions_rim_shrinkingsize = 0
 
 [Classification]
-primary_classification_envpath = Data/Classifier/H2B
+primary_classification_envpath = %(CECOG_PKG)sData/Classifier/H2B
 primary_simplefeatures_texture = True
 primary_simplefeatures_shape = True
 primary_classification_regionname = primary
-secondary_classification_envpath = Data/Classifier/aTubulin
+secondary_classification_envpath = %(CECOG_PKG)sData/Classifier/aTubulin
 secondary_simplefeatures_texture = True
 secondary_simplefeatures_shape = False
 secondary_classification_regionname = expanded
@@ -128,10 +129,10 @@ tracking_compressiontrackfeatures = raw
 [ErrorCorrection]
 filename_to_r =
 constrain_graph = False
-primary_graph = Data/Cecog_settings/graph_primary.txt
-secondary_graph = Data/Cecog_settings/graph_secondary.txt
+primary_graph = %(CECOG_PKG)sData/Cecog_settings/graph_primary.txt
+secondary_graph = %(CECOG_PKG)sData/Cecog_settings/graph_secondary.txt
 position_labels = False
-mappingfile = Data/Cecog_settings/position_labels.txt
+mappingfile = %(CECOG_PKG)sData/Cecog_settings/position_labels.txt
 groupby_position = True
 groupby_oligoid = False
 groupby_genesymbol = False
@@ -151,13 +152,14 @@ export_object_details = True
 export_track_data = True
 
 [Processing]
-primary_classification = True
-tracking = True
-tracking_synchronize_trajectories = True
-primary_errorcorrection = False
-secondary_processchannel = True
-secondary_classification = True
+# Values for demo
+tracking = False
 secondary_errorcorrection = False
+secondary_processchannel = True
+primary_errorcorrection = False
+primary_classification = False
+tracking_synchronize_trajectories = False
+secondary_classification = False
 
 [Cluster]
 primary_classification = False
@@ -176,8 +178,35 @@ secondary_errorcorrection = False
 # PYTHONPATH=.:lib/python2.6/ ../MacOS/python lib/python2.6/cecog/batch/batch.py -s conf
 CECOG_PKG = "/opt/CecogPackage/"
 CECOG_DIR = CECOG_PKG + "CecogAnalyzer.app/Contents/Resources/"
-CECOG_PARAMS = ["../MacOS/python", "lib/python2.6/cecog/batch/batch.py", "-s"]
+CECOG_PARAMS = ["time", "../MacOS/python", "lib/python2.6/cecog/batch/batch.py", "-s"]
 CECOG_PYTHONPATH = ".:lib/python2.6"
+
+import re
+POS_REGEX = re.compile(".*?_P(\d+)")
+PSC_REGEX = re.compile("^\s*(primary|secondary)_classification_envpath\s*=\s*(.*?)\s*$")
+
+class Dirs(object):
+    """
+    Utility for tracking the package layout for cecog integration.
+    """
+
+    def __init__(self):
+        import os
+        self.cwd = os.getcwd()
+        self.conf = os.path.sep.join([self.cwd, "conf"])
+        self.data = os.path.sep.join([self.cwd, "Data"])
+        self.din  = os.path.sep.join([self.data, "In"])
+        self.dout = os.path.sep.join([self.data, "Out"])
+        self.pos = os.path.sep.join([self.data, "Pos"])
+        os.makedirs(self.din)
+        os.makedirs(self.dout)
+        os.makedirs(self.pos)
+
+    def setPosition(self, pos_name):
+        self.pos_name = pos_name
+        newpos  = os.path.sep.join([self.din, self.pos_name])
+        os.rename(str(self.pos), str(newpos))
+        self.pos = newpos
 
 
 def setup():
@@ -206,69 +235,65 @@ def setup():
     return client
 
 
-def download(client, img_id, cf_id):
+def download(client, img_id, cfg_id, debug=False):
     """
     Downloads the binary data as CeCog is
     expecting it, as well as the settings file.
     """
-    import re
     import os
     import omero
     import fileinput
 
-    cwd = os.getcwd()
-    conf = os.path.sep.join([cwd, "conf"])
-    data = os.path.sep.join([cwd, "Data"])
-    din  = os.path.sep.join([data, "In"])
-    dout = os.path.sep.join([data, "Out"])
-    pos  = os.path.sep.join([din, "Positions"])
-    os.makedirs(din)
-    os.makedirs(dout)
-    os.makedirs(pos)
+    dirs = Dirs()
+    conf = dirs.conf
+    dout = dirs.dout
+    pos  = dirs.pos
 
     from omero.util.script_utils import split_image
     split_image(client, img_id, pos)
+
+    # Find, and the position name
     params = omero.sys.ParametersI()
     params.addId(img_id)
     image_name = client.sf.getQueryService().projection("select i.name from Image i where i.id = :id", params)[0][0].val
     # tubulin_P037
-    pat = re.compile(".*?_P(\d+)")
-    m = pat.match(image_name)
-    pos_name = m.group(1)
-
-    # Now move the Positions directory
-    newpos  = os.path.sep.join([din, pos_name])
-    os.rename(str(pos), str(newpos))
-    pos = newpos
+    match = POS_REGEX.match(image_name)
+    pos_name = match.group(1)
 
 
-    if cf_id is not None:
-        client.download(omero.model.OriginalFileI(cf_id, False), filename=conf)
+    if cfg_id is not None:
+        client.download(omero.model.OriginalFileI(cfg_id, False), filename=conf)
     else:
         print "Using default settings file"
         f = open(conf, "w")
-        f.write(DEMO_CONF)
+        f.write(DEMO_CONF % {"CECOG_PKG": CECOG_PKG})
         f.close()
+
+    if debug:
+        f = open(conf, "r")
+        print f.read()
+        f.close()
+
     for line in fileinput.input([conf], inplace=True):
-        if line.startswith("pathin"):
-            print "pathin = %s" % din
+
+        # Appending CecogPackage's location
+        match = PSC_REGEX.match(line)
+        if match:
+            print "%s_classification_envpath = %s" % (match.group(1), os.path.sep.join([CECOG_PKG, match.group(2)])),
+        # Full absolute path changes
+        elif line.startswith("pathin"):
+            print "pathin = %s" % dirs.din
         elif line.startswith("pathout"):
-            print "pathout = %s" % dout
+            print "pathout = %s" % dirs.dout
         elif line.startswith("positions"):
-            print "positions = %s" % pos
-        elif line.startswith("primary_classification_envpath"):
-            # FIXME
-            print "primary_classification_envpath = %s/Data/Classifier/H2B" % CECOG_PKG
-        elif line.startswith("secondary_classification_envpath"):
-            # FIXME
-            print "secondary_classification_envpath = %s/Data/Classifier/aTubulin" % CECOG_PKG
+            print "positions = %s" % dirs.pos
         else:
             print line,
 
-    return conf
+    return dirs
 
 
-def execute(conf, debug=False):
+def execute(dirs, debug=False):
     """
     Launches CeCog using the given configuration file.
     """
@@ -276,7 +301,7 @@ def execute(conf, debug=False):
     import exceptions
     from subprocess import Popen
     popen = Popen(
-        CECOG_PARAMS + [conf],
+        CECOG_PARAMS + [dirs.conf],
         cwd=CECOG_DIR,
         env={"PYTHONPATH": CECOG_PYTHONPATH},
         stdout=sys.stdout,
@@ -288,13 +313,6 @@ def execute(conf, debug=False):
     #
     if debug:
         import os
-        cwd = os.getcwd()
-        conf = os.path.sep.join([cwd, "conf"])
-        data = os.path.sep.join([cwd, "Data"])
-        din  = os.path.sep.join([data, "In"])
-        dout = os.path.sep.join([data, "Out"])
-        from path import path
-        p = path(dout)
         os.system("ls -lR")
 
     rc = popen.poll()
@@ -302,11 +320,33 @@ def execute(conf, debug=False):
         raise exceptions.Exception("cecog exited with rc=%s" % rc)
 
 
+def upload(client, img_id, dirs):
+    """
+    Uploads the output of execution.
+    """
+    from path import path
+    import omero
+    import omero.cli
+
+    cli = omero.cli.CLI() # Currently using cli for simplicity
+    cli.loadplugins()
+    cli._client = client
+    cecog = cli.controls["cecog"]
+    args = object()
+    args.path = str(path(dirs.pos) / "images" / "primary_contours")
+    image_id = cecog.merge(args)
+    image = client.sf.getQueryService().get("Image", image_id)
+    image.description = omero.rtypes.rstring("Generated by Cecog Analyzer 1.0.7 from Image ID: %s" % img_id)
+    client.sf.getUpdateService().saveObject(image)
+    print "Uploaded primary contours as image %s" % image_id
+
+
 if __name__ == "__main__":
     client = setup()
     inputs = client.getInputs(True)
     debug = inputs["Debug"]
-    ds_id = inputs["Image_ID"]
-    cf_id = inputs.get("Settings_ID", None)
-    conf = download(client, ds_id, cf_id)
-    execute(conf, debug)
+    img_id = inputs["Image_ID"]
+    cfg_id = inputs.get("Settings_ID", None)
+    dirs = download(client, img_id, cfg_id, debug)
+    execute(dirs, debug)
+    upload(client, img_id)

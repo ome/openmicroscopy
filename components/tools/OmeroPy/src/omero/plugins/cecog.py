@@ -55,8 +55,8 @@ script.
         merge.add_argument("path", help="Path to image files")
 
         rois = Action("rois")
-        rois.add_argument("-f", "--file", required=True, help="Path to image file")
-        rois.add_argument("-i", "--image", required=True, help="")
+        rois.add_argument("-f", "--file", required=True, help="Details file to be parsed")
+        rois.add_argument("-i", "--image", required=True, help="Image id which should have ids attached")
 
     ##
     ## Public methods
@@ -363,6 +363,8 @@ bin/omero cecog rois -f Data/Demo_output/analyzed/0037/statistics/P0037__object_
             link.parent = omero.model.DatasetI(dataset.id.val, False)
             link.child = omero.model.ImageI(imageId, False)
             updateService.saveAndReturnObject(link)
+
+        return imageId
 
     def addRoi(self, updateService, imageId, x, y, theT, theZ, roiText=None):
         """
