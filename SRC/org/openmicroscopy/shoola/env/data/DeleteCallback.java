@@ -24,12 +24,11 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import java.util.List;
-
 import omero.ServerError;
 import omero.client;
 import omero.api.delete.DeleteHandlePrx;
@@ -82,11 +81,11 @@ public class DeleteCallback
 	
 	/**
 	 * Overridden to handle the end of the process.
-	 * @see DeleteCallbackI#finished()
+	 * @see DeleteCallbackI#finished(int)
 	 */
-	public void finished()
+	public void finished(int value)
 	{
-		super.finished();
+		super.finished(value);
 		if (adapter == null) return;
 		try {
 			if (adapter != null) {
