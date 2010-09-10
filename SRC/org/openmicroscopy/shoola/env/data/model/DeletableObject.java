@@ -31,6 +31,8 @@ import java.util.List;
 //Application-internal dependencies
 import pojos.DatasetData;
 import pojos.ImageData;
+import pojos.PlateAcquisitionData;
+import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ROIData;
 import pojos.ScreenData;
@@ -174,6 +176,10 @@ public class DeletableObject
 			return ((TagAnnotationData) objectToDelete).getTagValue();
 		} else if (objectToDelete instanceof TermAnnotationData) {
 			return ((TermAnnotationData) objectToDelete).getTerm();
+		} else if (objectToDelete instanceof PlateData) {
+			return ((PlateData) objectToDelete).getName();
+		} else if (objectToDelete instanceof PlateAcquisitionData) {
+			return ((PlateAcquisitionData) objectToDelete).getLabel();
 		}
 		return "";
 	}

@@ -82,7 +82,7 @@ class LightSourceComponent
 	private static final String FILAMENT_TYPE = "Filament";
 	
 	/** Identifies the Emitting Diode type. */
-	private static final String EMITTING_DIODE_TYPE = "Emitting Diode";
+	private static final String EMITTING_DIODE_TYPE = "Light Emitting Diode";
 	
 	/** The fields displaying the metadata. */
 	private Map<String, DataComponent> 			fieldsLight;

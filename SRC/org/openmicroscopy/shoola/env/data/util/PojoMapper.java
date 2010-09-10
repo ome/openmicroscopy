@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.data.util;
 //Java imports
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -189,6 +190,28 @@ public class PojoMapper
     {
     	if (objects == null) return new HashSet<DataObject>();
         Set<DataObject> set = new HashSet<DataObject>(objects.size());
+        Iterator i = objects.iterator();
+        DataObject data;
+        while (i.hasNext()) {
+        	data = asDataObject((IObject) i.next());
+        	if (data != null) set.add(data);
+        }
+        return set;
+    }
+    
+    /**
+     * Converts each {@link IObject element} of the collection into its 
+     * corresponding {@link DataObject}.
+     * 
+     * @param objects   The set of objects to convert.
+     * @return          A set of {@link DataObject}s.
+     * @throws IllegalArgumentException If the set is <code>null</code>, doesn't
+     * contain {@link IObject} or if the type {@link IObject} is unknown.
+     */
+    public static List asDataObjectsAsList(Collection objects)
+    {
+    	if (objects == null) return new ArrayList<DataObject>();
+        List<DataObject> set = new ArrayList<DataObject>(objects.size());
         Iterator i = objects.iterator();
         DataObject data;
         while (i.hasNext()) {

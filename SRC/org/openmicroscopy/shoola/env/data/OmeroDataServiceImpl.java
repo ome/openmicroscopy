@@ -936,6 +936,23 @@ class OmeroDataServiceImpl
 							OMEROGateway.KEEP);
 				}
 			}
+			if (object.deleteContent()) {
+				if (options == null) 
+					options = new HashMap<String, String>();
+				if (data instanceof DatasetData) {
+					options.put(gateway.createDeleteCommand(
+							ImageData.class.getName()), 
+							OMEROGateway.KEEP);
+				} else if (data instanceof ProjectData) {
+					options.put(gateway.createDeleteCommand(
+							DatasetData.class.getName()), 
+							OMEROGateway.KEEP);
+				} else if (data instanceof ScreenData) {
+					options.put(gateway.createDeleteCommand(
+							PlateData.class.getName()), 
+							OMEROGateway.KEEP);
+				}
+			}
 			data = object.getObjectToDelete();
 			cmd = new DeleteCommand(gateway.createDeleteCommand(
 					data.getClass().getName()), 

@@ -107,9 +107,7 @@ public class LoginServiceImpl
             Thread.sleep(config.getRetryInterval());
         } catch (InterruptedException e) {}
     }
-
-    
-    
+ 
     /**
      * Attempts to log onto <i>OMERO</i> using the current user's 
      * credentials.

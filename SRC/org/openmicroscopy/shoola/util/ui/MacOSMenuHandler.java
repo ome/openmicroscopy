@@ -26,8 +26,6 @@ package org.openmicroscopy.shoola.util.ui;
 //Java imports
 import java.awt.Frame;
 
-import javax.swing.JFrame;
-
 //Third-party libraries
 
 //Application-internal dependencies

@@ -36,6 +36,7 @@ import java.util.Map;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -46,14 +47,15 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -84,6 +86,13 @@ public class DeleteBox
 	private static final String		DEFAULT_TEXT = "Are you sure you want to " +
 			"delete the selected ";
 
+	private static final String    TOOL_TIP = "The annotations will " +
+			"be deleted if they are only linked to one of the objects"+
+			" you wish to delete.";
+		
+	/** The button to display the tool tip. */
+	private JButton					infoButton;
+	
 	/** Delete the objects and the contents. */
 	private JRadioButton 			withContent;
 	
@@ -136,8 +145,12 @@ public class DeleteBox
 	 */
 	private void initComponents(String annotationText)
 	{
+		IconManager icons = IconManager.getInstance();
+		infoButton = new JButton(icons.getIcon(IconManager.INFO));
+		infoButton.setToolTipText(TOOL_TIP);
 		withAnnotation = new JCheckBox("Also delete the annotations " +
 				"linked to the objects.");
+		withAnnotation.setToolTipText(TOOL_TIP);
 		withContent = new JRadioButton("Also delete contents.");
 		withoutContent = new JRadioButton("Do not delete contents.");
 		ButtonGroup group = new ButtonGroup();
@@ -147,8 +160,8 @@ public class DeleteBox
 		annotationTypes = new LinkedHashMap<JCheckBox, Class>();
 		annotationTypes.put(createBox("Tag"), TagAnnotationData.class);
 		annotationTypes.put(createBox("Attachment"), FileAnnotationData.class);
-		annotationTypes.put(createBox("Ontology Terms"), 
-				TermAnnotationData.class);
+		//annotationTypes.put(createBox("Ontology Terms"), 
+		//		TermAnnotationData.class);
 		withAnnotation.addChangeListener(new ChangeListener() {
 		
 			public void stateChanged(ChangeEvent e) {
@@ -205,7 +218,8 @@ public class DeleteBox
 		} else if (DatasetData.class.equals(type) || 
 				ProjectData.class.equals(type) ||
 				PlateData.class.equals(type) || 
-				ScreenData.class.equals(type)) {
+				ScreenData.class.equals(type) || 
+				PlateAcquisitionData.class.equals(type)) {
 			add = true;
 			if (children) {
 				p.add(withContent);
@@ -253,6 +267,8 @@ public class DeleteBox
 			return "Screen"+end;
 		else if (PlateData.class.equals(type))
 			return "Plate"+end;
+		else if (PlateAcquisitionData.class.equals(type))
+			return "Plate Run"+end;
 		else if (ExperimenterData.class.equals(type))
 			return "Experimenter"+end;
 		else if (GroupData.class.equals(type))
@@ -293,7 +309,8 @@ public class DeleteBox
 					DatasetData.class.equals(type) || 
 					ProjectData.class.equals(type) ||
 					ScreenData.class.equals(type) || 
-					PlateData.class.equals(type)) {
+					PlateData.class.equals(type) ||
+					PlateAcquisitionData.class.equals(type)) {
 				if (annotation || children) buffer.append("If yes, ");
 			} else if (TagAnnotationData.class.equals(type) &&
 						TagAnnotationData.INSIGHT_TAGSET_NS.equals(nameSpace)) {

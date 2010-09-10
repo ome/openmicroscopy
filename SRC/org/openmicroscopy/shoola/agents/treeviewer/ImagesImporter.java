@@ -139,8 +139,8 @@ public class ImagesImporter
      */
     public void load()
     {
-    	handle = ivView.importImages(container, files, getCurrentUserID(), -1, 
-    			archived, this);
+    	//handle = ivView.importImages(container, files, getCurrentUserID(), -1, 
+    	//		archived, this);
     }
 
     /**

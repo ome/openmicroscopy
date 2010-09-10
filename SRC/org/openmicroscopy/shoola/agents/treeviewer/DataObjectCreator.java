@@ -78,6 +78,7 @@ public class DataObjectCreator
             throw new IllegalArgumentException("No object to create.");
         this.parent = parent;
         this.userObject = userObject;
+        ome.xml.model.OME r = new ome.xml.model.OME();
     }
     
     /** 
