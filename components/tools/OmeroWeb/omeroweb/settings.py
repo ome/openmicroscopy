@@ -48,7 +48,9 @@ except ImportError:
 try:
     from emdb_settings import *
 except ImportError:
-    sys.stderr.write("'omero/var/lib/emdb_settings.py' not found. If you wish to add EMDB settings, do bin/omero web emdb")
+    pass
+    # most users will not be interested in emdb - Don't show message
+    #sys.stderr.write("'omero/var/lib/emdb_settings.py' not found. If you wish to add EMDB settings, do bin/omero web emdb_settings")
 
     
 # LOGS
