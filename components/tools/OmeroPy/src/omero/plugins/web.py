@@ -45,6 +45,8 @@ class WebControl(BaseControl):
         start = parser.add(sub, self.start, "Primary start for webserver")
         start.add_argument("host", nargs="?")
         start.add_argument("port", nargs="?")
+        
+        emdb_settings = parser.add(sub, self.emdb_settings, "Configure settings for the web EMDB client")
 
         server = parser.add(sub, self.server, "Advanced use: Set to 'default' for django internal webserver or 'fastcfgi'")
         server.add_argument("server")
@@ -73,6 +75,21 @@ class WebControl(BaseControl):
     def help(self, args = None):
         self.ctx.out(HELP)
 
+
+    def _setup_emdb(self):
+        settings = dict()
+        
+        set_cache = self.ctx.input("Allow Django to use local memory caching? (yes/no) (default yes):")
+        if not set_cache == "no":
+            settings["CACHE_BACKEND"] = 'locmem://'
+        
+        use_eman = self.ctx.input("Allow Django to use EMAN2 if installed? (yes/no):")
+        if not use_eman == "no":
+            settings["EMAN2"] = True
+        
+        return settings
+            
+        
     def _setup_server(self, email_server=None, app_host=None, sender_address=None, smtp_server=None):
         settings = dict()
 
@@ -120,6 +137,61 @@ class WebControl(BaseControl):
             settings["EMAIL_USE_TLS"] = smtp_tls
 
         return settings
+
+
+    def _update_emdb_settings(self, location, settings=None):
+        output = open(location, 'w')
+
+        try:
+            output.write("""#!/usr/bin/env python
+# 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# #         Django custom settings for OMERO.web EMDB project.          # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# 
+# 
+# Copyright (c) 2009 University of Dundee. 
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+# 
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# 
+# Author: Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>, 2010.
+# Author: Will Moore <will(at)lifesci(dot)dundee(dot)ac(dot)uk>, 2010.
+# 
+# Version: 1.0
+
+""")
+            if settings.has_key('CACHE_BACKEND'):
+                output.write("""CACHE_BACKEND = '%s'
+""" % settings["CACHE_BACKEND"])
+
+            if settings.has_key('EMAN2') and settings["EMAN2"]:
+                output.write("""
+# EMAN2 functionality is used in some features of the webemdb application. E.g. see webemdb.views.py eman()
+# Do the import here since EMAN2 import fails if it happens for the first time in views.py "signal only works in main thread"
+try:
+    from EMAN2 import *
+except:
+    pass
+""")
+        finally:
+            output.flush()
+            output.close()
+
+        self.ctx.out("Saved to " + location)
+        sys.path_importer_cache.pop(self.ctx.dir / "var" / "lib", None)
+        self.ctx.out("PYTHONPATH updated.")
+
 
     def _update_settings(self, location, settings=None):
         output = open(location, 'w')
@@ -223,6 +295,26 @@ APPLICATION_HOST='%s'
             
         settings = self._setup_server()
         self._update_settings(location, settings)
+        
+
+    def emdb_settings(self, args):
+        location = self.ctx.dir / "var" / "lib" / "emdb_settings.py"
+
+        if location.exists():
+            if self._get_yes_or_no("%s" % location) == 'no':
+                if hasattr(args, "no_exit") and args.no_exit:
+                    return
+                else:
+                    sys.exit()
+        else:
+            self.ctx.out("You don't have emdb_settings configured in OMERO.web. ")
+        
+        if not os.path.exists(self.ctx.dir / "var" / "lib"):
+            os.mkdir(self.ctx.dir / "var" / "lib")
+            
+        settings = self._setup_emdb()
+        self._update_emdb_settings(location, settings)
+        
 
     def settings(self, args):
         args.no_exit = True
@@ -231,6 +323,7 @@ APPLICATION_HOST='%s'
             sys.getwindowsversion()
         except:
             self.syncmedia(args)
+            
 
     def server(self, args):
         if not args.server:
