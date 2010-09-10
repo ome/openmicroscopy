@@ -128,6 +128,7 @@ import omero.grid.StringColumn;
 import omero.grid.TablePrx;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
+import omero.model.Arc;
 import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;
 import omero.model.CommentAnnotation;
@@ -139,12 +140,17 @@ import omero.model.DetailsI;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
+import omero.model.Filament;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.GroupExperimenterMap;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
+import omero.model.Instrument;
+import omero.model.Laser;
+import omero.model.LightEmittingDiode;
+import omero.model.LightSource;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
 import omero.model.NamespaceI;
@@ -245,6 +251,9 @@ class OMEROGateway
 	/** Identifies the ROI as root. */
 	private static final String REF_ROI = "/Roi";
 	
+	/** Identifies the PlateAcquisition as root. */
+	private static final String REF_PLATE_ACQUISITION = "/PlateAcquisition";
+
 	/** Identifies the Tag. */
 	private static final String REF_ANNOTATION = "/Annotation";
 	
@@ -520,6 +529,27 @@ class OMEROGateway
 		if (systemGroups != null) return systemGroups;
 		isSessionAlive();
 		try {
+			List<RType> names = new ArrayList<RType>();
+			Iterator<String> j = SYSTEM_GROUPS.iterator();
+			while (j.hasNext()) {
+				names.add(omero.rtypes.rstring(j.next()));
+			}
+			systemGroups = new ArrayList<ExperimenterGroup>();
+			ParametersI params = new ParametersI();
+			params.map.put("names", omero.rtypes.rlist(names));
+			String sql = "select g from ExperimenterGroup as g ";
+			sql += "where g.name in (:names)";
+			List<IObject> l = getQueryService().findAllByQuery(sql, params);
+			Iterator<IObject> i = l.iterator();
+			ExperimenterGroup group;
+			String name;
+			while (i.hasNext()) {
+				group = (ExperimenterGroup) i.next();
+				name = group.getName().getValue();
+				if (SYSTEM_GROUPS.contains(name)) //to be on the save side
+					systemGroups.add(group);
+			}
+			/*
 			IAdminPrx svc = getAdminService();
 			List<ExperimenterGroup> groups = svc.lookupGroups();
 			Iterator<ExperimenterGroup> i = groups.iterator();
@@ -531,6 +561,7 @@ class OMEROGateway
 				if (SYSTEM_GROUPS.contains(name))
 					systemGroups.add(group);
 			}
+			*/
 		} catch (Exception e) {
 			handleException(e, "Cannot retrieve the system groups.");
 		}
@@ -1942,14 +1973,12 @@ class OMEROGateway
 		else if (ScreenData.class.getName().equals(data)) return REF_SCREEN;
 		else if (PlateData.class.getName().equals(data)) return REF_PLATE;
 		else if (ROIData.class.getName().equals(data)) return REF_ROI;
+		else if (PlateAcquisitionData.class.getName().equals(data)) 
+			return REF_PLATE_ACQUISITION;
 		else if (TagAnnotationData.class.getName().equals(data) || 
 				TermAnnotationData.class.getName().equals(data) ||
 				FileAnnotationData.class.getName().equals(data)) 
 			return REF_ANNOTATION;
-		else if (TermAnnotationData.class.getName().equals(data)) 
-			return REF_TERM;
-		else if (FileAnnotationData.class.getName().equals(data)) 
-			return REF_FILE;
 		throw new IllegalArgumentException("Cannot delete the speficied type.");
 	}
 	
@@ -5002,27 +5031,19 @@ class OMEROGateway
 			sb.append("select well from Well as well ");
 			sb.append("left outer join fetch well.plate as pt ");
 			sb.append("left outer join fetch well.wellSamples as ws ");
+			sb.append("left outer join fetch ws.plateAcquisition as pa ");
 			sb.append("left outer join fetch ws.image as img ");
 			sb.append("left outer join fetch img.pixels as pix ");
             sb.append("left outer join fetch pix.pixelsType as pt ");
             sb.append("where well.plate.id = :plateID");
             if (acquisitionID > 0) {
-            	 sb.append(" and ws.plateAcquisition.id = :acquisitionID");
-            	 param.addLong("acquisitionID", plateID);
-            }
+            	 sb.append(" and pa.id = :acquisitionID");
+            	 param.addLong("acquisitionID", acquisitionID);
+            } 
             results = service.findAllByQuery(sb.toString(), param);
-
 			i = results.iterator();
-			
-			Map<Long, List<WellSampleData>> 
-				map = new HashMap<Long, List<WellSampleData>>();
-			Iterator<WellSample> j;
-			WellSample ws;
-			//List<WellSampleData> list;
-			Well well;
 			while (i.hasNext()) {
-				well = (Well) i.next();
-				wells.add((WellData) PojoMapper.asDataObject(well));
+				wells.add((WellData) PojoMapper.asDataObject((Well) i.next()));
 			}
 			return wells;
 		} catch (Exception e) {
@@ -5084,9 +5105,9 @@ class OMEROGateway
 				LogicalChannel lc = (LogicalChannel) l.get(0);
 				return new ChannelAcquisitionData(lc);
 			}
-			
 			return null;
 		} catch (Exception e) {
+			e.printStackTrace();
 			handleException(e, "Cannot load channel acquisition data.");
 		}
 		return null;
@@ -6034,10 +6055,83 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
+		  	StringBuilder sb = new StringBuilder();
+	    	sb.append("select inst from Instrument as inst ");
+	    	sb.append("left outer join fetch inst.microscope as m ");
+	    	sb.append("left outer join fetch m.type ");
+	    	//objective
+	    	sb.append("left outer join fetch inst.objective as o ");
+	    	sb.append("left outer join fetch o.immersion ");
+	    	sb.append("left outer join fetch o.correction ");
+	    	//detector
+	    	sb.append("left outer join fetch inst.detector as d ");
+	    	sb.append("left outer join fetch d.type ");
+	    	//filter
+	    	sb.append("left outer join fetch inst.filter as f ");
+	    	sb.append("left outer join fetch f.type ");
+	    	sb.append("left outer join fetch f.transmittanceRange as trans ");
+	    	//filterset
+	    	sb.append("left outer join fetch inst.filterSet as fs ");
+	    	sb.append("left outer join fetch fs.dichroic as dichroic ");
+	    	//dichroic
+	    	sb.append("left outer join fetch inst.dichroic as di ");
+	    	//OTF
+	    	sb.append("left outer join fetch inst.otf as otf ");
+	    	sb.append("left outer join fetch otf.pixelsType as type ");
+	    	sb.append("left outer join fetch otf.objective as obj ");
+	    	sb.append("left outer join fetch obj.immersion ");
+	    	sb.append("left outer join fetch obj.correction ");
+	    	sb.append("left outer join fetch otf.filterSet ");
+	    	
+	    	//light source
+	    	sb.append("left outer join fetch inst.lightSource as ls ");
+	    	sb.append("where inst.id = :id ");
+	    	
+	    	ParametersI params = new ParametersI(); 
+	    	params.addId(id);
+	    	Instrument value = (Instrument) getQueryService().findByQuery(sb.toString(), params);
+	    	if (value == null) return null;
+	    	LightSource ls;
+	    	List<LightSource> ll = value.copyLightSource();
+	    	Laser laser;
+	    	if (ll != null) {
+	    		Iterator<LightSource> i = ll.iterator();
+	    		List<String> names = new ArrayList<String>();
+	    		String name;
+	    		List<IObject> list = new ArrayList<IObject>();
+	    		while (i.hasNext()) {
+	    			ls = i.next();
+	    			name = ls.getClass().getName();
+	    			if (ls instanceof LightEmittingDiode) {
+	    				list.add(ls);
+	    			} else {
+	    				if (!names.contains(name)) {
+	        				names.add(name);
+	        				sb = createLightQuery(ls);
+	        				if (sb != null) {
+	        					params.addLong("instrumentId", id);
+	        					list.addAll(
+	        							getQueryService().findAllByQuery(sb.toString(), params));
+	        				} 
+	        			}
+	    			}
+	    		}
+	    		value.clearLightSource();
+	    		List<LightSource> srcs = new ArrayList<LightSource>(); 
+	    		Iterator<IObject> j = list.iterator();
+	    		while (j.hasNext()) {
+					srcs.add((LightSource) j.next());
+					
+				}value.addAllLightSourceSet(srcs);
+	    		//value.addLightSourceSet(srcs);
+	    	}
+	    	//return new InstrumentData(value);
+	    	
 			IMetadataPrx service = getMetadataService();
-			List<IObject> list = service.loadInstrument(id);
-			if (list == null || list.size() < 1) return null;
-			return new InstrumentData(list);
+			Instrument instrument = service.loadInstrument(id);
+			if (instrument == null) return null;
+			return new InstrumentData(instrument);
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			handleException(e, "Cannot load the instrument: "+id);
@@ -6045,6 +6139,35 @@ class OMEROGateway
 		return null;
 	}
 	
+	/**
+     * Builds the <code>StringBuilder</code> corresponding to the passed 
+     * light source.
+     * 
+     * @param src The light source to handle.
+     * @return See above.
+     */
+    private StringBuilder createLightQuery(LightSource src)
+    {
+    	if (src == null) return null;
+    	StringBuilder sb = new StringBuilder();
+    	if (src instanceof Laser) {
+			sb.append("select l from Laser as l ");
+			sb.append("left outer join fetch l.type ");
+			sb.append("left outer join fetch l.laserMedium ");
+			sb.append("left outer join fetch l.pulse as pulse ");
+	        sb.append("where l.instrument.id = :instrumentId");
+		} else if (src instanceof Filament) {
+			sb.append("select l from Filament as l ");
+			sb.append("left outer join fetch l.type ");
+	        sb.append("where l.instrument.id = :instrumentId");
+		} else if (src instanceof Arc) {
+			sb.append("select l from Arc as l ");
+			sb.append("left outer join fetch l.type ");
+	        sb.append("where l.instrument.id = :instrumentId");
+		}
+    	return sb;
+    }
+    
 	/**
 	 * Loads the ROI related to the specified image.
 	 * 
