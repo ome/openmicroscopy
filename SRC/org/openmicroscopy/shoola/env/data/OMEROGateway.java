@@ -2098,14 +2098,6 @@ class OMEROGateway
 					*/
 				}
 			}
-			IPixelsPrx svc = getPixelsService();
-
-	    	List<IObject> types = 
-	    		svc.getAllEnumerations(PixelsType.class.getName());
-	    	List<Integer> channels = new ArrayList<Integer>();
-	    	for (int i = 0; i < 1; i++) {
-				channels.add(i);
-			}
 			return exp;
 		} catch (Throwable e) {
 			e.printStackTrace();
