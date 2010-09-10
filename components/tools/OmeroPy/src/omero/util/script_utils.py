@@ -34,6 +34,8 @@
 # </small>
 # @since 3.0-Beta4
 #
+
+import logging
 import getopt, sys, os, subprocess
 import numpy;
 from struct import *
@@ -49,22 +51,23 @@ from omero.util.OmeroPopo import WorkflowData as WorkflowData
 from omero.util.OmeroPopo import ROIData as ROIData
 
 
-try: 
-    import hashlib 
-    hash_sha1 = hashlib.sha1 
-except: 
-    import sha 
-    hash_sha1 = sha.new 
-    
-# r,g,b,a colours for use in scripts. 
-COLOURS = {'Red': (255,0,0,255), 'Green': (0,255,0,255), 'Blue': (0,0,255,255), 'Yellow': (255,255,0,255), 
+try:
+    import hashlib
+    hash_sha1 = hashlib.sha1
+except:
+    import sha
+    hash_sha1 = sha.new
+
+# r,g,b,a colours for use in scripts.
+COLOURS = {'Red': (255,0,0,255), 'Green': (0,255,0,255), 'Blue': (0,0,255,255), 'Yellow': (255,255,0,255),
     'White': (255,255,255,255), }
-    
+
 EXTRA_COLOURS = {'Violet': (238,133,238,255), 'Indigo': (79,6,132,255),
     'Black': (0,0,0,255), 'Orange': (254,200,6,255), 'Gray': (130,130,130,255),}
 
 CSV_NS = 'text/csv';
 CSV_FORMAT = 'text/csv';
+SU_LOG = logging.getLogger("omero.util.script_utils")
 
 def drawTextOverlay(draw, x, y, text, colour='0xffffff'):
     """
@@ -99,7 +102,7 @@ def rgbToRGBInt(red, green, blue):
     """
     RGBInt = (red<<16)+(green<<8)+blue;
     return int(RGBInt);
-    
+
 def RGBToPIL(RGB):
     """
     Convert an RGB value to a PIL colour value.
@@ -453,30 +456,28 @@ def split_image(client, imageId, dir, unformattedImageName = "tubulin_P037_T%05d
         lc = c.getLogicalChannel()
         channelMap[cIndex] = lc.getName().getValue()
         cIndex += 1
-    print channelMap
 
     def formatName(unformatted, z, c, t):
         # need to turn dims E.g. ('T', 'C', 'Z') into tuple, E.g. (t, c, z)
         dimMap = {'T': t, 'C':channelMap[c], 'Z': z}
         dd = tuple([dimMap[d] for d in dims])
-        print dd
         return unformatted % dd
 
     # cecog does this, but other formats may want to start at 0
     zStart = 1
     tStart = 1
-    
-    # loop through dimensions, saving planes as tiffs. 
+
+    # loop through dimensions, saving planes as tiffs.
     for z in range(sizeZ):
         for c in range(sizeC):
             for t in range(sizeT):
                 imageName = formatName(unformattedImageName, z+zStart, c, t+tStart)
-                print "downloading plane z: %s c: %s t: %s  to  %s" % (z, c, t, imageName)
+                SU_LOG.debug("downloading plane z: %s c: %s t: %s  to  %s" % (z, c, t, imageName))
                 plane = downloadPlane(rawPixelsStore, pixels, z, c, t)
                 i = Image.fromarray(plane)
                 i.save(imageName)
-    
-    
+
+
 def createFileFromData(updateService, queryService, filename, data):
     """
     Create a file from the data of type format, setting sha1, ..

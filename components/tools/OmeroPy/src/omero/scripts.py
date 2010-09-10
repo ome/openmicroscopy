@@ -476,7 +476,7 @@ def parse_input(input_string, params):
     if param is None:
         return {}
     elif isinstance(param.prototype,\
-        (omero.RLong, omero.RString, omero.RInt,\
+        (omero.RLong, omero.RString, omero.RInt, omero.RBool,\
             omero.RTime, omero.RDouble, omero.RFloat)):
         val = param.prototype.__class__(val)
     elif isinstance(param.prototype, omero.RList):

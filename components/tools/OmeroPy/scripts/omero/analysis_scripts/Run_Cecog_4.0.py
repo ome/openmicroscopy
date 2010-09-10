@@ -230,7 +230,16 @@ def download(client, img_id, cf_id):
     split_image(client, img_id, pos)
     params = omero.sys.ParametersI()
     params.addId(img_id)
-    image_name = client.sf.getQueryService().projection("select i.name from Image i where i.id = :id", params)[0][0]
+    image_name = client.sf.getQueryService().projection("select i.name from Image i where i.id = :id", params)[0][0].val
+    # tubulin_P037
+    pat = re.compile(".*?_P(\d+)")
+    m = pat.match(image_name)
+    pos_name = m.group(1)
+
+    # Now move the Positions directory
+    newpos  = os.path.sep.join([din, pos_name])
+    os.rename(str(pos), str(newpos))
+    pos = newpos
 
 
     if cf_id is not None:
