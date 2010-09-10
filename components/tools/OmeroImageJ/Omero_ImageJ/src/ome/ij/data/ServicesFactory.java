@@ -28,6 +28,8 @@ package ome.ij.data;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import org.openmicroscopy.shoola.util.ui.login.LoginCredentials;
+
 //Third-party libraries
 import ij.IJ;
 import Glacier2.PermissionDeniedException;
@@ -35,7 +37,7 @@ import Ice.ConnectionRefusedException;
 import Ice.DNSException;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.ui.login.LoginCredentials;
+import omero.SecurityViolation;
 import pojos.ExperimenterData;
 
 /** 
@@ -86,6 +88,18 @@ public class ServicesFactory
 	
 	/** Indicates that the passed name if not valid. */
 	public static final int		NAME_FAILURE_INDEX = 105;
+	
+	/** 
+	 * Indicates that the client couldn't connect b/c the user is no longer 
+	 * active
+	 */
+	public static final int		ACTIVE_INDEX = 106;
+	
+	/** 
+	 * Indicates that the client couldn't connect b/c a 
+	 * <code>Ice.FileException</code> was thrown by the server.
+	 */
+	public static final int		CONFIGURATION_INDEX = 107;
 	
 	/** The sole instance. */
 	private static ServicesFactory	singleton;
@@ -166,7 +180,7 @@ public class ServicesFactory
     		return PASSWORD_FAILURE_INDEX;
 		try {
 			gateway.login(lc.getUserName(), lc.getPassword(), lc.getHostName(), 
-					lc.getPort());
+					lc.getPort(), lc.getGroup(), lc.isEncrypted());
 			
 			KeepClientAlive kca = new KeepClientAlive(gateway);
 	        executor = new ScheduledThreadPoolExecutor(1);
@@ -181,7 +195,11 @@ public class ServicesFactory
 	        		return DNS_INDEX;
 	        	} else if (cause instanceof PermissionDeniedException) {
 	        		return PERMISSION_INDEX;
-	        	}
+	        	} else if (cause instanceof Ice.FileException) {
+	        		return CONFIGURATION_INDEX;
+	        	} else if (cause.getCause() instanceof SecurityViolation) {
+            		return ACTIVE_INDEX;
+            	}
 			}
 			return PERMISSION_INDEX;
 		}

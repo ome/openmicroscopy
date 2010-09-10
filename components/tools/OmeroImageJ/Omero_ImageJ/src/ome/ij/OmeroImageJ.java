@@ -37,6 +37,7 @@ import ij.plugin.PlugIn;
 //Application-internal dependencies
 import ome.ij.data.ServicesFactory;
 import org.openmicroscopy.shoola.util.ui.MacOSMenuHandler;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Entry point of the <code>OMERO ImageJ</code> plugin.
@@ -73,8 +74,7 @@ public class OmeroImageJ
 				onImageJClosing();
 			}
 		});
-		String osName = System.getProperty("os.name").toLowerCase();
-		if (osName.startsWith("mac os")) {
+		if (UIUtilities.isMacOS()) {
 			try {
 				MacOSMenuHandler handler = new MacOSMenuHandler(view);
 				handler.initialize();
