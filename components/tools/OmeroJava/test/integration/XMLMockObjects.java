@@ -23,14 +23,13 @@
 package integration;
 
 //Java imports
-
-//Third-party libraries
-
-//Application-internal dependencies
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+//Third-party libraries
+
+//Application-internal dependencies
 import ome.xml.model.Arc;
 import ome.xml.model.BinData;
 import ome.xml.model.Channel;

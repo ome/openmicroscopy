@@ -21,6 +21,7 @@ import java.util.UUID;
 import omero.ApiUsageException;
 import omero.ServerError;
 import omero.api.IDeletePrx;
+import omero.api.IPixelsPrx;
 import omero.api.IRenderingSettingsPrx;
 import omero.api.delete.DeleteCommand;
 import omero.api.delete.DeleteHandlePrx;
@@ -40,6 +41,7 @@ import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.Detector;
+import omero.model.DetectorSettings;
 import omero.model.Dichroic;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
@@ -51,6 +53,9 @@ import omero.model.ImageAnnotationLinkI;
 import omero.model.ImagingEnvironment;
 import omero.model.Instrument;
 import omero.model.Laser;
+import omero.model.LightPath;
+import omero.model.LightSettings;
+import omero.model.LightSource;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
 import omero.model.LongAnnotationI;
@@ -1155,15 +1160,13 @@ public class DeleteServiceTest
     	StringBuilder sb = new StringBuilder();
     	sb.append("select i from Image i ");
     	sb.append("where i.id = :id");
-    	img = (Image) iQuery.findByQuery(sb.toString(), param);
-    	assertNull(img);
+    	assertNull(iQuery.findByQuery(sb.toString(), param));
     	sb = new StringBuilder();
     	param = new ParametersI();
     	param.addId(pixId);
     	sb.append("select i from Pixels i ");
     	sb.append("where i.id = :id");
-    	pixels = (Pixels) iQuery.findByQuery(sb.toString(), param);
-    	assertNull(img);
+    	assertNull(iQuery.findByQuery(sb.toString(), param));
     	Iterator<Long> i = channels.iterator();
     	while (i.hasNext()) {
 			id =  i.next();
@@ -1172,8 +1175,7 @@ public class DeleteServiceTest
 	    	sb = new StringBuilder();
 	    	sb.append("select i from Channel i ");
 	    	sb.append("where i.id = :id");
-	    	channel = (Channel) iQuery.findByQuery(sb.toString(), param);
-	    	assertNull(channel);
+	    	assertNull(iQuery.findByQuery(sb.toString(), param));
 		}
     	i = infos.iterator();
     	while (i.hasNext()) {
@@ -1183,8 +1185,7 @@ public class DeleteServiceTest
 	    	sb = new StringBuilder();
 	    	sb.append("select i from StatsInfo i ");
 	    	sb.append("where i.id = :id");
-	    	info = (StatsInfo) iQuery.findByQuery(sb.toString(), param);
-	    	assertNull(info);
+	    	assertNull(iQuery.findByQuery(sb.toString(), param));
 		}
     	i = logicalChannels.iterator();
     	while (i.hasNext()) {
@@ -1194,8 +1195,7 @@ public class DeleteServiceTest
 	    	sb = new StringBuilder();
 	    	sb.append("select i from LogicalChannel i ");
 	    	sb.append("where i.id = :id");
-	    	lc = (LogicalChannel) iQuery.findByQuery(sb.toString(), param);
-	    	assertNull(lc);
+	    	assertNull(iQuery.findByQuery(sb.toString(), param));
 		}
     }
     
@@ -1244,15 +1244,13 @@ public class DeleteServiceTest
     	StringBuilder sb = new StringBuilder();
     	sb.append("select i from Image i ");
     	sb.append("where i.id = :id");
-    	img = (Image) iQuery.findByQuery(sb.toString(), param);
-    	assertNull(img);
+    	assertNull(iQuery.findByQuery(sb.toString(), param));
     	sb = new StringBuilder();
     	param = new ParametersI();
     	param.addId(pixId);
     	sb.append("select i from Pixels i ");
     	sb.append("where i.id = :id");
-    	pixels = (Pixels) iQuery.findByQuery(sb.toString(), param);
-    	assertNull(img);
+    	assertNull(iQuery.findByQuery(sb.toString(), param));
     	Iterator<Long> i = channels.iterator();
     	while (i.hasNext()) {
 			id =  i.next();
@@ -1261,8 +1259,7 @@ public class DeleteServiceTest
 	    	sb = new StringBuilder();
 	    	sb.append("select i from Channel i ");
 	    	sb.append("where i.id = :id");
-	    	channel = (Channel) iQuery.findByQuery(sb.toString(), param);
-	    	assertNull(channel);
+	    	assertNull(iQuery.findByQuery(sb.toString(), param));
 		}
     	i = infos.iterator();
     	while (i.hasNext()) {
@@ -1272,8 +1269,7 @@ public class DeleteServiceTest
 	    	sb = new StringBuilder();
 	    	sb.append("select i from StatsInfo i ");
 	    	sb.append("where i.id = :id");
-	    	info = (StatsInfo) iQuery.findByQuery(sb.toString(), param);
-	    	assertNull(info);
+	    	assertNull(iQuery.findByQuery(sb.toString(), param));
 		}
     	i = logicalChannels.iterator();
     	while (i.hasNext()) {
@@ -1283,8 +1279,7 @@ public class DeleteServiceTest
 	    	sb = new StringBuilder();
 	    	sb.append("select i from LogicalChannel i ");
 	    	sb.append("where i.id = :id");
-	    	lc = (LogicalChannel) iQuery.findByQuery(sb.toString(), param);
-	    	assertNull(lc);
+	    	assertNull(iQuery.findByQuery(sb.toString(), param));
 		}
     }
 
@@ -1323,8 +1318,7 @@ public class DeleteServiceTest
 			param.addId(o.getId().getValue());
 			sql = "select rdef from RenderingDef as rdef " +
 			"where rdef.id = :id";
-			o = iQuery.findByQuery(sql, param);
-			assertNull(o);
+			assertNull(iQuery.findByQuery(sql, param));
 		}
     }
     
@@ -1363,8 +1357,7 @@ public class DeleteServiceTest
 			param.addId(o.getId().getValue());
 			sql = "select rdef from RenderingDef as rdef " +
 			"where rdef.id = :id";
-			o = iQuery.findByQuery(sql, param);
-			assertNull(o);
+			assertNull(iQuery.findByQuery(sql, param));
 		}
     }
     
@@ -3160,7 +3153,6 @@ public class DeleteServiceTest
     /**
      * Test to delete the plate acquisition of a plate with 2 plate 
      * acquisitions.
-     * The <code>deletePlate</code> is tested.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -3247,8 +3239,7 @@ public class DeleteServiceTest
 
     /**
      * Test to delete a project but not the datasets.
-     * The <code>deletePlate</code> is tested and the <code>KEEP</code>
-     * option.
+     * The method tests the <code>KEEP</code> option.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -3283,8 +3274,7 @@ public class DeleteServiceTest
     
     /**
      * Test to delete a screen but not the plates.
-     * The <code>deletePlate</code> is tested and the <code>KEEP</code>
-     * option.
+     * The method tests the <code>KEEP</code> option.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -3320,8 +3310,7 @@ public class DeleteServiceTest
     
     /**
      * Test to delete a dataset but not the images.
-     * The <code>deletePlate</code> is tested and the <code>KEEP</code>
-     * option.
+     * Test the <code>KEEP</code> option.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -3353,6 +3342,387 @@ public class DeleteServiceTest
     	param = new ParametersI();
 		param.addId(img.getId().getValue());
 		assertNotNull(iQuery.findByQuery(sql, param));
+    }
+    
+    /**
+     * Test to delete images sharing instrument, detector, objective, light
+     * etc.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testDeleteImagesSharingAcquisitionData() 
+    	throws Exception
+    {
+    	Image img1 = mmFactory.createImage();
+    	img1 = (Image) iUpdate.saveAndReturnObject(img1);
+    	Pixels pixels = img1.getPrimaryPixels();
+    	long pixId1 = pixels.getId().getValue();
+    	
+    	Image img2 = mmFactory.createImage();
+    	img2 = (Image) iUpdate.saveAndReturnObject(img2);
+    	
+    	pixels = img2.getPrimaryPixels();
+    	long pixId2 = pixels.getId().getValue();
+    	
+    	//create an instrument.
+    	Instrument instrument = mmFactory.createInstrument(
+    			ModelMockFactory.LASER);
+    	instrument = (Instrument) iUpdate.saveAndReturnObject(instrument);
+    	assertNotNull(instrument);
+    	long instrumentID = instrument.getId().getValue();
+    	List<Detector> detectors = instrument.copyDetector();
+    	List<Objective> objectives = instrument.copyObjective();
+    	List<LightSource> lights = instrument.copyLightSource();
+    	List<FilterSet> filterSets = instrument.copyFilterSet();
+    	List<Dichroic> dichroics = instrument.copyDichroic();
+
+    	assertTrue(detectors.size() > 0);
+    	assertTrue(objectives.size() > 0);
+    	assertTrue(lights.size() > 0);
+    	assertTrue(filterSets.size() > 0);
+    	//Objective objective = instrument.c
+    	img1.setInstrument(instrument);
+    	img1.setObjectiveSettings(mmFactory.createObjectiveSettings(
+    			objectives.get(0)));
+    	img1 = (Image) iUpdate.saveAndReturnObject(img1);
+    	img2.setInstrument(instrument);
+    	img2.setObjectiveSettings(mmFactory.createObjectiveSettings(
+    			objectives.get(0)));
+    	img2 = (Image) iUpdate.saveAndReturnObject(img2);
+    	//method already tested in PixelsServiceTest
+    	//make sure objects are loaded.
+    	IPixelsPrx prx = factory.getPixelsService();
+    	Pixels pixels1 = prx.retrievePixDescription(pixId1);
+    	Pixels pixels2 = prx.retrievePixDescription(pixId2);
+
+    	LogicalChannel lc;
+    	Channel channel;
+    	List<IObject> lcs = new ArrayList<IObject>();
+    	for (int i = 0; i < pixels1.getSizeC().getValue(); i++) {
+			channel = pixels1.getChannel(i);
+			lc = channel.getLogicalChannel();
+	    	lc.setDetectorSettings(mmFactory.createDetectorSettings(
+	    			detectors.get(0)));
+	    	lc.setFilterSet(filterSets.get(0));
+	    	lc.setLightSourceSettings(mmFactory.createLightSettings(
+	    			lights.get(0)));
+	    	lc.setLightPath(mmFactory.createLightPath(null, dichroics.get(0), 
+	    			null));
+	    	lcs.add(lc);
+		}
+    	
+    	for (int i = 0; i < pixels2.getSizeC().getValue(); i++) {
+			channel = pixels2.getChannel(i);
+			lc = channel.getLogicalChannel();
+	    	lc.setDetectorSettings(mmFactory.createDetectorSettings(
+	    			detectors.get(0)));
+	    	lc.setFilterSet(filterSets.get(0));
+	    	lc.setLightSourceSettings(mmFactory.createLightSettings(
+	    			lights.get(0)));
+	    	lc.setLightPath(mmFactory.createLightPath(null, dichroics.get(0), 
+	    			null));
+	    	lcs.add(lc);
+		}
+    	iUpdate.saveAndReturnArray(lcs);
+    	delete(new DeleteCommand(REF_IMAGE, img1.getId().getValue(), null));
+    	delete(new DeleteCommand(REF_IMAGE, img2.getId().getValue(), null));
+    	//Now delete the image.
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(img1.getId().getValue());
+    	ids.add(img2.getId().getValue());
+    	ParametersI param = new ParametersI();
+    	param.addIds(ids);
+
+    	StringBuilder sb = new StringBuilder();
+    	sb.append("select i from Image i ");
+    	sb.append("where i.id in (:ids)");
+    	assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
+    	
+    	
+    	//check detectors
+    	ids.clear();
+    	Iterator<Detector> d = detectors.iterator();
+    	while (d.hasNext()) {
+			ids.add(d.next().getId().getValue());
+		}
+    	param = new ParametersI();
+    	param.addIds(ids);
+    	sb = new StringBuilder();
+    	sb.append("select i from Detector i ");
+    	sb.append("where i.id in (:ids)");
+    	assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
+    	
+    	ids.clear();
+    	Iterator<Objective> o = objectives.iterator();
+    	while (o.hasNext()) {
+			ids.add(o.next().getId().getValue());
+		}
+    	param = new ParametersI();
+    	param.addIds(ids);
+    	sb = new StringBuilder();
+    	sb.append("select i from Objective i ");
+    	sb.append("where i.id in (:ids)");
+    	assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
+    	
+    	Iterator<FilterSet> fs = filterSets.iterator();
+    	while (fs.hasNext()) {
+			ids.add(fs.next().getId().getValue());
+		}
+    	param = new ParametersI();
+    	param.addIds(ids);
+    	sb = new StringBuilder();
+    	sb.append("select i from FilterSet i ");
+    	sb.append("where i.id in (:ids)");
+    	assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
+    	
+    	Iterator<Dichroic> di = dichroics.iterator();
+    	while (di.hasNext()) {
+			ids.add(di.next().getId().getValue());
+		}
+    	param = new ParametersI();
+    	param.addIds(ids);
+    	sb = new StringBuilder();
+    	sb.append("select i from Dichroic i ");
+    	sb.append("where i.id in (:ids)");
+    	assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
+    	
+    	Iterator<LightSource> l = lights.iterator();
+    	while (l.hasNext()) {
+			ids.add(l.next().getId().getValue());
+		}
+    	param = new ParametersI();
+    	param.addIds(ids);
+    	sb = new StringBuilder();
+    	sb.append("select i from LightSource i ");
+    	sb.append("where i.id in (:ids)");
+    	assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
+    	param = new ParametersI();
+    	param.addId(instrumentID);
+    	sb = new StringBuilder();
+    	sb.append("select i from Instrument i ");
+    	sb.append("where i.id = :id");
+    	assertNull(iQuery.findByQuery(sb.toString(), param));
+    }
+    
+    /**
+     * Test to delete images sharing detector settings, objective settings, etc.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testDeleteImagesSharingAcquisitionSettings() 
+    	throws Exception
+    {
+    	Image img1 = mmFactory.createImage();
+    	img1 = (Image) iUpdate.saveAndReturnObject(img1);
+    	Pixels pixels = img1.getPrimaryPixels();
+    	long pixId1 = pixels.getId().getValue();
+    	
+    	Image img2 = mmFactory.createImage();
+    	img2 = (Image) iUpdate.saveAndReturnObject(img2);
+    	
+    	pixels = img2.getPrimaryPixels();
+    	long pixId2 = pixels.getId().getValue();
+    	
+    	//create an instrument.
+    	Instrument instrument = mmFactory.createInstrument(
+    			ModelMockFactory.LASER);
+    	instrument = (Instrument) iUpdate.saveAndReturnObject(instrument);
+    	assertNotNull(instrument);
+    	long instrumentID = instrument.getId().getValue();
+    	List<Detector> detectors = instrument.copyDetector();
+    	List<Objective> objectives = instrument.copyObjective();
+    	List<LightSource> lights = instrument.copyLightSource();
+    	List<FilterSet> filterSets = instrument.copyFilterSet();
+    	List<Dichroic> dichroics = instrument.copyDichroic();
+
+    	assertTrue(detectors.size() > 0);
+    	assertTrue(objectives.size() > 0);
+    	assertTrue(lights.size() > 0);
+    	assertTrue(filterSets.size() > 0);
+    	//Objective objective = instrument.
+    	ObjectiveSettings os = mmFactory.createObjectiveSettings(
+    			objectives.get(0)); 
+    	img1.setInstrument(instrument);
+    	img1.setObjectiveSettings(os);
+    	img1 = (Image) iUpdate.saveAndReturnObject(img1);
+    	img2.setInstrument(instrument);
+    	img2.setObjectiveSettings(os);
+    	img2 = (Image) iUpdate.saveAndReturnObject(img2);
+    	//method already tested in PixelsServiceTest
+    	//make sure objects are loaded.
+    	IPixelsPrx prx = factory.getPixelsService();
+    	Pixels pixels1 = prx.retrievePixDescription(pixId1);
+    	Pixels pixels2 = prx.retrievePixDescription(pixId2);
+
+    	LogicalChannel lc;
+    	Channel channel;
+    	DetectorSettings ds = mmFactory.createDetectorSettings(
+    			detectors.get(0));
+    	LightSettings ls = mmFactory.createLightSettings(lights.get(0));
+    	LightPath lp = mmFactory.createLightPath(null, dichroics.get(0), null);
+    	List<IObject> lcs = new ArrayList<IObject>();
+    	for (int i = 0; i < pixels1.getSizeC().getValue(); i++) {
+			channel = pixels1.getChannel(i);
+			lc = channel.getLogicalChannel();
+	    	lc.setDetectorSettings(ds);
+	    	lc.setFilterSet(filterSets.get(0));
+	    	lc.setLightSourceSettings(ls);
+	    	lc.setLightPath(lp);
+	    	lcs.add(lc);
+		}
+    	
+    	for (int i = 0; i < pixels2.getSizeC().getValue(); i++) {
+			channel = pixels2.getChannel(i);
+			lc = channel.getLogicalChannel();
+	    	lc.setDetectorSettings(ds);
+	    	lc.setFilterSet(filterSets.get(0));
+	    	lc.setLightSourceSettings(ls);
+	    	lc.setLightPath(lp);
+	    	lcs.add(lc);
+		}
+    	iUpdate.saveAndReturnArray(lcs);
+    	delete(new DeleteCommand(REF_IMAGE, img1.getId().getValue(), null));
+    	delete(new DeleteCommand(REF_IMAGE, img2.getId().getValue(), null));
+    	//Now delete the image.
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(img1.getId().getValue());
+    	ids.add(img2.getId().getValue());
+    	ParametersI param = new ParametersI();
+    	param.addIds(ids);
+
+    	StringBuilder sb = new StringBuilder();
+    	sb.append("select i from Image i ");
+    	sb.append("where i.id in (:ids)");
+    	assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
+    	
+    	
+    	//check detectors
+    	ids.clear();
+    	Iterator<Detector> d = detectors.iterator();
+    	while (d.hasNext()) {
+			ids.add(d.next().getId().getValue());
+		}
+    	param = new ParametersI();
+    	param.addIds(ids);
+    	sb = new StringBuilder();
+    	sb.append("select i from Detector i ");
+    	sb.append("where i.id in (:ids)");
+    	assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
+    	
+    	ids.clear();
+    	Iterator<Objective> o = objectives.iterator();
+    	while (o.hasNext()) {
+			ids.add(o.next().getId().getValue());
+		}
+    	param = new ParametersI();
+    	param.addIds(ids);
+    	sb = new StringBuilder();
+    	sb.append("select i from Objective i ");
+    	sb.append("where i.id in (:ids)");
+    	assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
+    	
+    	Iterator<FilterSet> fs = filterSets.iterator();
+    	while (fs.hasNext()) {
+			ids.add(fs.next().getId().getValue());
+		}
+    	param = new ParametersI();
+    	param.addIds(ids);
+    	sb = new StringBuilder();
+    	sb.append("select i from FilterSet i ");
+    	sb.append("where i.id in (:ids)");
+    	assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
+    	
+    	Iterator<Dichroic> di = dichroics.iterator();
+    	while (di.hasNext()) {
+			ids.add(di.next().getId().getValue());
+		}
+    	param = new ParametersI();
+    	param.addIds(ids);
+    	sb = new StringBuilder();
+    	sb.append("select i from Dichroic i ");
+    	sb.append("where i.id in (:ids)");
+    	assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
+    	
+    	Iterator<LightSource> l = lights.iterator();
+    	while (l.hasNext()) {
+			ids.add(l.next().getId().getValue());
+		}
+    	param = new ParametersI();
+    	param.addIds(ids);
+    	sb = new StringBuilder();
+    	sb.append("select i from LightSource i ");
+    	sb.append("where i.id in (:ids)");
+    	assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
+    	param = new ParametersI();
+    	param.addId(instrumentID);
+    	sb = new StringBuilder();
+    	sb.append("select i from Instrument i ");
+    	sb.append("where i.id = :id");
+    	assertNull(iQuery.findByQuery(sb.toString(), param));
+    }
+    
+    /**
+     * Test to delete images sharing logical channels. This case may happen
+     * when handling Plate.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testDeleteImagesSharingLogicalChannels() 
+    	throws Exception
+    {
+    	Image img1 = mmFactory.createImage();
+    	img1 = (Image) iUpdate.saveAndReturnObject(img1);
+    	Pixels pixels = img1.getPrimaryPixels();
+    	long pixId1 = pixels.getId().getValue();
+    	
+    	Image img2 = mmFactory.createImage();
+    	img2 = (Image) iUpdate.saveAndReturnObject(img2);
+    	
+    	pixels = img2.getPrimaryPixels();
+    	long pixId2 = pixels.getId().getValue();
+    	
+    	IPixelsPrx prx = factory.getPixelsService();
+    	Pixels pixels1 = prx.retrievePixDescription(pixId1);
+    	Pixels pixels2 = prx.retrievePixDescription(pixId2);
+
+    	Channel channel;
+    	LogicalChannel lc;
+    	List<LogicalChannel> list = new ArrayList<LogicalChannel>();
+    	
+    	for (int i = 0; i < pixels1.getSizeC().getValue(); i++) {
+			channel = pixels1.getChannel(i);
+			lc = channel.getLogicalChannel();
+			list.add(lc);
+		}
+    	List<IObject> l = new ArrayList<IObject>();
+    	for (int i = 0; i < pixels2.getSizeC().getValue(); i++) {
+			channel = pixels1.getChannel(i);
+			channel.setLogicalChannel(list.get(i));
+			l.add(channel);
+		}
+    	iUpdate.saveAndReturnArray(l);
+    	delete(new DeleteCommand(REF_IMAGE, img1.getId().getValue(), null));
+    	delete(new DeleteCommand(REF_IMAGE, img2.getId().getValue(), null));
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(img1.getId().getValue());
+    	ids.add(img2.getId().getValue());
+    	ParametersI param = new ParametersI();
+    	param.addIds(ids);
+
+    	StringBuilder sb = new StringBuilder();
+    	sb.append("select i from Image i ");
+    	sb.append("where i.id in (:ids)");
+    	assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
+    	
+    	ids.clear();
+    	Iterator<LogicalChannel> j = list.iterator();
+    	while (j.hasNext()) {
+			ids.add(j.next().getId().getValue());
+		}
+    	sb = new StringBuilder();
+    	sb.append("select i from LogicalChannel i ");
+    	sb.append("where i.id in (:ids)");
+    	assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
     }
     
 }
