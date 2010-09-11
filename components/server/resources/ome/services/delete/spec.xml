@@ -135,19 +135,19 @@ plus test REAP
             <list>
                 <value>/Image/Pixels/Channel</value>
                 <value>/Image/Pixels/Channel/StatsInfo</value>
-                <value>/Image/Pixels/Channel/LogicalChannel;REAP</value>
-                <value>/Image/Pixels/Channel/LogicalChannel/OTF;REAP</value>
-                <value>/Image/Pixels/Channel/LogicalChannel/LightSettings</value>
-                <value>/Image/Pixels/Channel/LogicalChannel/LightSettings/LightSource</value>
+                <value>/Image/Pixels/Channel/LogicalChannel;SOFT</value> <!-- REAP -->
+                <!-- value>/Image/Pixels/Channel/LogicalChannel/OTF;REAP</value -->
+                <value>/Image/Pixels/Channel/LogicalChannel/LightSettings;SOFT</value>
+                <!-- value>/Image/Pixels/Channel/LogicalChannel/LightSettings/LightSource;SOFT</value -->
                 <value>/Image/Pixels/Channel/LogicalChannel/LightSettings/MicrobeamManipulation</value>
-                <value>/Image/Pixels/Channel/LogicalChannel/DetectorSettings</value>
-                <value>/Image/Pixels/Channel/LogicalChannel/DetectorSettings/Detector</value>
+                <value>/Image/Pixels/Channel/LogicalChannel/DetectorSettings;SOFT</value>
+                <!-- value>/Image/Pixels/Channel/LogicalChannel/DetectorSettings/Detector;SOFT</value -->
                 <value>/Image/Pixels/Channel/LogicalChannel/LightPath/LightPathEmissionFilterLink</value>
-                <value>/Image/Pixels/Channel/LogicalChannel/LightPath/LightPathEmissionFilterLink/Filter</value>
+                <!-- value>/Image/Pixels/Channel/LogicalChannel/LightPath/LightPathEmissionFilterLink/Filter;SOFT</value -->
                 <value>/Image/Pixels/Channel/LogicalChannel/LightPath/LightPathExcitationFilterLink</value>
-                <value>/Image/Pixels/Channel/LogicalChannel/LightPath/LightPathExcitationFilterLink/Filter</value>
-                <value>/Image/Pixels/Channel/LogicalChannel/LightPath</value>
-                <value>/Image/Pixels/Channel/LogicalChannel/LightPath/Dichroic</value>
+                <!-- value>/Image/Pixels/Channel/LogicalChannel/LightPath/LightPathExcitationFilterLink/Filter;SOFT</value -->
+                <value>/Image/Pixels/Channel/LogicalChannel/LightPath;SOFT</value>
+                <!-- value>/Image/Pixels/Channel/LogicalChannel/LightPath/Dichroic;SOFT</value -->
             </list>
         </constructor-arg>
     </bean>
@@ -188,11 +188,11 @@ plus test REAP
                 <value>/Image/DatasetImageLink</value>
                 <value>/Image</value>
                 <value>/Image/ImagingEnvironment</value>
-                <value>/Image/ObjectiveSettings</value>
-                <!-- value>/Image/ObjectiveSettings/Objective</value-->
+                <value>/Image/ObjectiveSettings;SOFT</value>
+                <!-- value>/Image/ObjectiveSettings/Objective;SOFT</value -->
                 <value>/Image/StageLabel</value>
                 <value>/Image/Experiment</value><!--  used by microbeam also -->
-                <value>/Instrument;;/Image</value>
+                <value>/Instrument;SOFT;/Image</value>
             </list>
         </constructor-arg>
     </bean>
