@@ -203,7 +203,6 @@ class AnnotationDataUI
 	/** The document of reference. */
 	private JComponent docRef;
 	
-	
 	/**
 	 * Creates and displays the menu 
 	 * @param src The invoker.
