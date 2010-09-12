@@ -30,6 +30,7 @@ import java.util.List;
 
 //Application-internal dependencies
 import omero.RString;
+import omero.model.Namespace;
 import omero.model.NamespaceI;
 import omero.rtypes;
 import pojos.DataObject;
@@ -65,10 +66,8 @@ public class WorkflowData
 	{
 		List<String> list = new ArrayList<String>();
 		String[] valueString = str.split(",");
-		for(String keyword : valueString)
-			if(!keyword.equals("[]"))
-			{
-                System.err.println(keyword);
+		for (String keyword : valueString)
+			if (!keyword.equals("[]"))  {
                 list.add(keyword);
             }
 		return list;
@@ -79,7 +78,7 @@ public class WorkflowData
 	 * 
 	 * @param workflow The workflow object.
 	 */
-	public WorkflowData(NamespaceI workflow)
+	public WorkflowData(Namespace workflow)
 	{
 		if (workflow == null)
             throw new IllegalArgumentException("Object cannot null.");
@@ -97,7 +96,7 @@ public class WorkflowData
 		setDirty(true);
 		setValue(new NamespaceI());
 		
-		NamespaceI workflow = (NamespaceI) asIObject();
+		Namespace workflow = (Namespace) asIObject();
 		if (workflow == null) 
 			throw new IllegalArgumentException("No workflow specified.");
    		workflow.setName(rtypes.rstring(nameSpace));
@@ -114,14 +113,14 @@ public class WorkflowData
 	{
 		setDirty(true);
 		setValue(new NamespaceI());
-		NamespaceI workflow = (NamespaceI) asIObject();
+		Namespace workflow = (Namespace) asIObject();
 		if (workflow == null) 
 			throw new IllegalArgumentException("No workflow specified.");
    		workflow.setName(rtypes.rstring(nameSpace));
 		workflow.setKeywords((String[]) CSVToList(keywords).toArray());
 	}
 	
-	/**Creates a new instance. */
+	/** Creates a new instance. */
 	public WorkflowData()
 	{
 		setDirty(true);
@@ -135,7 +134,7 @@ public class WorkflowData
 	 */
 	public String getNameSpace()
 	{
-		NamespaceI workflow = (NamespaceI) asIObject();
+		Namespace workflow = (Namespace) asIObject();
 		if (workflow == null) 
 			throw new IllegalArgumentException("No workflow specified.");
   		RString namespace = workflow.getName();
@@ -151,7 +150,7 @@ public class WorkflowData
 	 */
 	public String getKeywords()
 	{
-		NamespaceI workflow = (NamespaceI) asIObject();
+		Namespace workflow = (Namespace) asIObject();
 		String keywordString = "";
 		if (workflow == null) 
 			throw new IllegalArgumentException("No workflow specified.");
@@ -172,7 +171,7 @@ public class WorkflowData
 	 */
 	public List<String> getKeywordsAsList()
 	{
-		NamespaceI workflow = (NamespaceI) asIObject();
+		Namespace workflow = (Namespace) asIObject();
 		List<String> keywordList = new ArrayList<String>();
 		if (workflow == null) 
 			throw new IllegalArgumentException("No workflow specified.");
@@ -190,7 +189,7 @@ public class WorkflowData
 	 */
 	public void addKeyword(String keyword)
 	{
-		NamespaceI workflow = (NamespaceI) asIObject();
+		Namespace workflow = (Namespace) asIObject();
 		if (workflow == null) 
 			throw new IllegalArgumentException("No workflow specified.");
   		if (contains(keyword))
@@ -207,7 +206,7 @@ public class WorkflowData
 	 */
 	public void setKeywords(String keywords)
 	{
-		NamespaceI workflow = (NamespaceI) asIObject();
+		Namespace workflow = (Namespace) asIObject();
 		if (workflow == null) 
 			throw new IllegalArgumentException("No workflow specified.");
 		setDirty(true);
@@ -226,7 +225,7 @@ public class WorkflowData
 	 */
 	public void setKeywords(List<String> keywords)
 	{
-		NamespaceI workflow = (NamespaceI) asIObject();
+		Namespace workflow = (Namespace) asIObject();
 		if (workflow == null) 
 			throw new IllegalArgumentException("No workflow specified.");
 		setDirty(true);
@@ -245,7 +244,7 @@ public class WorkflowData
 	 */
 	public boolean contains(String value)
 	{
-		NamespaceI workflow = (NamespaceI) asIObject();
+		Namespace workflow = (Namespace) asIObject();
 		if (workflow == null) 
 			throw new IllegalArgumentException("No workflow specified.");
 		String[] keywords = workflow.getKeywords();
@@ -266,7 +265,7 @@ public class WorkflowData
 	 */
 	public void setNamespace(String namespace)
 	{
-		NamespaceI workflow = (NamespaceI) asIObject();
+		Namespace workflow = (Namespace) asIObject();
 		if (workflow == null) 
 			throw new IllegalArgumentException("No workflow specified.");
 		setDirty(true);

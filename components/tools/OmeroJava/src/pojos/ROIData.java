@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.TreeMap;
 import java.util.Map;
 import java.lang.Math;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -45,9 +46,6 @@ import omero.model.Roi;
 import omero.model.RoiI;
 import omero.model.Shape;
 import omero.model.Label;
-import omero.RString;
-
-import omero.rtypes;
 
 /**
  * Converts the ROI object.
