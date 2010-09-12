@@ -508,6 +508,7 @@ class EditorUI
 		if (file == null) return;
 		//Check if valid file
 		//file w/o extension
+		/*
 		String name = file.getName();
 		int dot = name.lastIndexOf(".")+1;
 		String extension = name.substring(dot);
@@ -518,7 +519,7 @@ class EditorUI
 			un.notifyInfo("Attachment Selection", "The selected file " +
 					"has no extension. It is not possible to upload it.");
 			return;
-		}
+		}*/
 		generalPane.attachFile(file);
 	}
 

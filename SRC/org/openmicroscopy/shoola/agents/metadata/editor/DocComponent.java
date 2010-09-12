@@ -322,6 +322,11 @@ class DocComponent
 			}
 			if (annotation.getId() > 0) {
 				buf.append("<b>");
+				buf.append("ID: ");
+				buf.append("</b>");
+				buf.append(annotation.getId());
+				buf.append("<br>");
+				buf.append("<b>");
 				buf.append("Date Added: ");
 				buf.append("</b>");
 				buf.append(UIUtilities.formatWDMYDate(
