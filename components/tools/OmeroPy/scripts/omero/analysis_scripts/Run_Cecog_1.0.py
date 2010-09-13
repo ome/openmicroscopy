@@ -213,6 +213,8 @@ class Dirs(object):
         self.pos = newpos
         for x in ("primary_contours", "primary_classification"):
             setattr(self, x, os.path.sep.join([self.dout, "analyzed", "%0s" % pos_name, "images", x]))
+        self.statistics = os.path.sep.join([self.dout, "analyzed", "%0s" % pos_name, "statistics"])
+
 
 def setup():
     """
@@ -371,6 +373,26 @@ def upload(client, img_id, ds_id, dirs):
         val = newImage.description and ("%s\n\n" % newImage.description.val) or ""
         newImage.description = rstring("%sCreated from Image ID: %s by %s" % (val, img_id, SCRIPT_NAME))
         updateService.saveObject(newImage)
+
+    import time
+    import omero.cli
+    start = time.time()
+    cli = omero.cli.CLI()
+    cli.loadplugins()
+    cli._client = client
+
+    stats = path(dirs.statistics)
+    print stats.listdir()
+    details = stats.glob("*_object_details.txt")
+
+    for file in details:
+        print "Saving rois from %s..." % file
+        args = omero.cli.WriteOnceNamespace()
+        args.image = img_id
+        args.file = str(file.abspath())
+        cli.controls["cecog"].rois(args)
+    stop = time.time()
+    print "Saving rois took %s secs." % (stop-start)
 
 
 if __name__ == "__main__":
