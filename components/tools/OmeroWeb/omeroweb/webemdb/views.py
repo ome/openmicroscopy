@@ -109,6 +109,7 @@ def script_run(request, scriptId):
     for key, param in params.inputs.items():
         if key in request.POST:
             value = request.POST[key]
+            if len(value) == 0: continue
             print key, value
             prototype = param.prototype
             pclass = prototype.__class__
@@ -473,8 +474,10 @@ def image(request, imageId):
     
     scriptService = conn.getScriptService()
     scripts = []
-    scriptNames = {"/EMAN2/Nonlinear_Anisotropic_Diffusion.py": "Nonlinear Anisotropic Diffusion",
-            "/omero/figure_scripts/Movie_ROI_Figure.py": "Movie_ROI_Figure"}
+    scriptNames = {"/EMAN2/Nonlinear_Anisotropic_Diffusion.py": "IMOD: Nonlinear Anisotropic Diffusion",
+            "/EMAN2/Segger_Segmentation.py": "Segger: Segmentation",
+            "/EMAN2/Eman_Filters.py": "EMAN2: Filtering",
+            "/EMAN2/Run_Spider_Procedure.py": "Spider: Run Procedure"}
     for path, display in scriptNames.items():
          scriptId = scriptService.getScriptID(path)
          if scriptId and scriptId > 0:

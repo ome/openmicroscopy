@@ -46,8 +46,9 @@ $(document).ready(function() {
 {% block content %}
 {% if dataset %}
 
-{% if entryId %}
+
 <div class="pageTable">
+    {% if entryId %}
     <a href="{% url webemdb_entry entryId %}">
         <img id="gif" border='0' src="{% url webemdb.views.gif entryId %}" />
     </a>
@@ -56,6 +57,7 @@ $(document).ready(function() {
         <a href="{% url webemdb_entry entryId %}">Entry {{ entryId }}</a> |
         <a href="{% url webemdb_data entryId %}">Data {{ entryId }}</a>
     </div>
+    {% endif %}
     <div id="script_pane">
         <form>
             <select name="scripts" id="script_chooser">
@@ -68,13 +70,14 @@ $(document).ready(function() {
     </div>
     <div class="clear"></div>
 </div>
-{% endif %}
       
 <div class="pageTable">  
 
     <div style="padding:10px">
         <div class="entryTitle">{{ dataset.getName }}</div>
-       <p>{{ dataset.description|linebreaks }}</p>
+        {% if dataset.description %}
+            <p>{{ dataset.description|linebreaks }}</p>
+        {% endif %}
        
     {% for img in dataset.listChildren %}
         <a href="{% url webemdb_image img.id %}">

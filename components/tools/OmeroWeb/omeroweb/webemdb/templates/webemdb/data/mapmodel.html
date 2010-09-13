@@ -48,6 +48,9 @@ function openPopup(url) {
         <a href="{% url webemdb.views.entry entryId %}">
             <img src="{% url webemdb_gif entryId %}" border='0' />
         </a>
+        <a href="{% url webemdb.views.entry entryId %}">
+            EMDB {{ entryId }}
+        </a>
     {% endif %}
         
     <p>

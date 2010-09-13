@@ -191,7 +191,10 @@ $(document).ready(function() {
                         <!-- <div class="oavControl" id='red'>Red</div> -->
                         Rotate: Click + Drag<br />
                         Zoom: Shift + Drag Up/Down<br />
-                        
+                        <div>
+                            <input type="checkbox" id="toggleMap" value="map" checked="true" /> Map |
+                            <input type="checkbox" id="toggleSolid" value="solid" checked="true" /> Solid
+                        </div>
                         {% if not sizeWarning %} <!-- should be viewable -->
                         <p>If the map fails to display, try restarting your browser</p>
                         {% endif %}
@@ -199,6 +202,11 @@ $(document).ready(function() {
                         {% for pdb in pdbs %}
                             <div>
                             Load pdb:<a href="{% url webemdb_pdb pdb.id %}" class="oavLoadPdb">{{ pdb.getFileName }}</a>
+                            </div>
+                        {% endfor %}
+                        {% for seg in segFiles %}
+                            <div>
+                            Load Segger File:<a href="{% url webemdb_seg seg.id %}" class="oavLoadSeg">{{ seg.getFileName }}</a>
                             </div>
                         {% endfor %}
                     </div>

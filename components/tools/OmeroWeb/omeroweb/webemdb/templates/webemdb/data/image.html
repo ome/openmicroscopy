@@ -51,9 +51,11 @@ function openPopup(url) {
     
     <div class="entryTitle">Image: {{ image.getName }}</div>
     <div>ID: {{ image.getId }}</div>
-    <p>
-        {{ image.getDescription|linebreaks }}
-    </p>
+    {% if image.getDescription %}
+        <p>
+            {{ image.getDescription|linebreaks }}
+        </p>
+    {% endif %}
         
     <p>
     Datasets: 

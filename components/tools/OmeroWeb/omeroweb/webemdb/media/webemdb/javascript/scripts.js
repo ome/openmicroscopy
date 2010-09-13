@@ -14,7 +14,6 @@ jQuery.fn.runScript = function() {
     var actionUrl = $form.attr('action');
     $.post(actionUrl, postData, function(resultsUrl) {
         // set the url of the results window - will only update when script completes
-        alert(resultsUrl);
         newWindow.location = resultsUrl;
     });
     return false;

@@ -329,6 +329,14 @@ $(document).ready(function() {
         var command = "map mapA contour 0 '" + eId + "';";
         execute_oav_command(command);
     });
+    $(".oavLoadSeg").click(function(event) {
+        var $a = $(this);
+        var segUrl = $a.attr('href');
+        // map segment mapName seggerFile level;
+        var command = "map segment segA '" + segUrl + "' -1;";
+        execute_oav_command(command);
+        return false;
+    });
     $(".oavLoadPdb").click(function(event) {
         var $a = $(this);
         //var pdbId = $a.text; 
@@ -337,6 +345,24 @@ $(document).ready(function() {
         var command = "molecule load " + pdbId + " '" + pdbUrl + "';";
         execute_oav_command(command);
         return false;
+    });
+    $("#toggleMap").click(function(event) {
+        var on = $(this).attr('checked');
+        var onOff = "on"
+        if (!on) {
+            onOff = "off"
+        }
+        var command = "map mapA contour 0 "+ onOff + ";";
+        execute_oav_command(command);
+    });
+    $("#toggleSolid").click(function(event) {
+        var on = $(this).attr('checked');
+        var onOff = "solid"
+        if (!on) {
+            onOff = "wire"
+        }
+        var command = "map mapA contour 0 '"+ onOff + "';";
+        execute_oav_command(command);
     });
     
  });
