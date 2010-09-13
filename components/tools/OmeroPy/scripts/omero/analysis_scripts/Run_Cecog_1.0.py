@@ -226,9 +226,14 @@ def setup():
             optional = False,
             description = "ID of a valid dataset"),
         scripts.Long(
+            "Dataset_ID",
+            optional = True,
+            description = "ID of a dataset to which output images should be added. If not provided,"+\
+"the latest dataset which the image is contained in will be used. If the image is not in a dataset, one will be created."),
+        scripts.Long(
             "Settings_ID",
             optional = True,
-            description = "ID of a CeCog configuration file. If not provided, a default value will be used."),
+            description = "ID of a CeCog configuration file. If not provided, a default configuration will be used."),
         scripts.Bool(
             "Debug",
             optional = False,
@@ -323,24 +328,33 @@ def execute(dirs, debug=False):
         raise exceptions.Exception("cecog exited with rc=%s" % rc)
 
 
-def upload(client, img_id, dirs):
+def upload(client, img_id, ds_id, dirs):
     """
     Uploads the images in the dout folder to OMERO, creating a new Project / Dataset.
     """
     from path import path
-    from omero.rtypes import unwrap
+
+    import omero
+    from omero.rtypes import rstring, unwrap
     from omero.util.script_utils import uploadDirAsImages
+
     sf = client.getSession()
     queryService = sf.getQueryService()
     updateService = sf.getUpdateService()
     pixelsService = sf.getPixelsService()
 
-    # create dataset
-    import omero.model
-    from omero.rtypes import rstring
-    dataset = omero.model.DatasetI()
-    dataset.name = rstring("Cecog-Analysis-Results")
-    dataset = updateService.saveAndReturnObject(dataset)
+    if ds_id is None:
+        params = omero.sys.ParametersI()
+        params.page(0, 1)
+        params.addId(img_id)
+        ds = queryService.findByQuery("select l.parent from DatasetImageLink l where l.child.id = :id order by l.details.updateEvent.id desc", params)
+        if ds is None:
+            ds = omero.model.DatasetI()
+            ds.linkImage(omero.model.ImageI(img_id, False))
+            ds = updateService.saveAndReturnObject(ds)
+        ds_id = ds.id.val
+    dataset = omero.model.DatasetI(ds_id, False)
+    print "Linking images to dataset %s" % ds_id
 
     # upload segmentation and classification jpegs as new movies
     newImageIds = []
@@ -364,7 +378,8 @@ if __name__ == "__main__":
     inputs = client.getInputs(True)
     debug = inputs["Debug"]
     img_id = inputs["Image_ID"]
+    ds_id = inputs.get("Dataset_ID", None)
     cfg_id = inputs.get("Settings_ID", None)
     dirs = download(client, img_id, cfg_id, debug)
     execute(dirs, debug)
-    upload(client, img_id, dirs)
+    upload(client, img_id, ds_id, dirs)
