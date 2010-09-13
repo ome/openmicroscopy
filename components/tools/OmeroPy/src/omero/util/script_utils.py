@@ -434,8 +434,8 @@ def getPlaneFromImage(imagePath, rgbIndex=None):
         return a
     else:
         return a[:, :, rgbIndex]
-        
-        
+
+
 def uploadDirAsImages(sf, queryService, updateService, pixelsService, path, dataset = None):
     """
     Reads all the images in the directory specified by 'path' and uploads them to OMERO as a single
@@ -446,14 +446,14 @@ def uploadDirAsImages(sf, queryService, updateService, pixelsService, path, data
     @param path     the path to the directory containing images.
     @param dataset  the OMERO dataset, if we want to put images somewhere. omero.model.DatasetI
     """
-    
+
     import re
-    
+
     regex_token = re.compile(r'(?P<Token>.+)\.')
     regex_time = re.compile(r'T(?P<T>\d+)')
     regex_channel = re.compile(r'_C(?P<C>.+?)(_|$)')
     regex_zslice = re.compile(r'_Z(?P<Z>\d+)')
-    
+
     # assume 1 image in this folder for now.
     # Make a single map of all images. key is (z,c,t). Value is image path.
     imageMap = {}
@@ -525,7 +525,7 @@ def uploadDirAsImages(sf, queryService, updateService, pixelsService, path, data
     # use the common stem as the image name
     imageName = os.path.commonprefix(tokens).strip('0T_')
     description = "Imported from images in %s" % path
-    print "Creating image: %s" % imageName
+    SU_LOG.info("Creating image: %s" % imageName)
 
     # use the last image to get X, Y sizes and pixel type
     if rgb:
@@ -540,11 +540,11 @@ def uploadDirAsImages(sf, queryService, updateService, pixelsService, path, data
         pixelsType = queryService.findByQuery(\
             "from PixelsType as p where p.value='%s'" % "float", None) # omero::model::PixelsType
     if pixelsType == None:
-        print "Unknown pixels type for: %s" % pType
+        SU_LOG.warn("Unknown pixels type for: %s" % pType)
         return
     sizeY, sizeX = plane.shape
 
-    print "sizeX: %s  sizeY: %s sizeZ: %s  sizeC: %s  sizeT: %s" % (sizeX, sizeY, sizeZ, sizeC, sizeT)
+    SU_LOG.debug("sizeX: %s  sizeY: %s sizeZ: %s  sizeC: %s  sizeT: %s" % (sizeX, sizeY, sizeZ, sizeC, sizeT))
 
     # code below here is very similar to combineImages.py
     # create an image in OMERO and populate the planes with numpy 2D arrays
@@ -573,16 +573,16 @@ def uploadDirAsImages(sf, queryService, updateService, pixelsService, path, data
                     if (zIndex, c, tIndex) in imageMap:
                         imagePath = imageMap[(zIndex, c, tIndex)]
                         if rgb:
-                            print "Getting rgb plane from: %s" % imagePath
+                            SU_LOG.debug("Getting rgb plane from: %s" % imagePath)
                             plane2D = getPlaneFromImage(imagePath, theC)
                         else:
-                            print "Getting plane from: %s" % imagePath
+                            SU_LOG.debug("Getting plane from: %s" % imagePath)
                             plane2D = getPlaneFromImage(imagePath)
                     else:
-                        print "Creating blank plane for .", theZ, channels[theC], theT
+                        SU_LOG.debug("Creating blank plane for .", theZ, channels[theC], theT)
                         plane2D = zeros((sizeY, sizeX))
-                    print "Uploading plane: theZ: %s, theC: %s, theT: %s" % (theZ, theC, theT)
-                    
+                    SU_LOG.debug("Uploading plane: theZ: %s, theC: %s, theT: %s" % (theZ, theC, theT))
+
                     uploadPlane(rawPixelStore, plane2D, theZ, theC, theT)
                     minValue = min(minValue, plane2D.min())
                     maxValue = max(maxValue, plane2D.max())
@@ -614,7 +614,7 @@ def uploadDirAsImages(sf, queryService, updateService, pixelsService, path, data
         link.child = omero.model.ImageI(imageId, False)
         updateService.saveAndReturnObject(link)
 
-    return imageId                
+    return imageId
 
 
 def split_image(client, imageId, dir, unformattedImageName = "tubulin_P037_T%05d_C%s_Z%d_S1.tif", dims = ('T', 'C', 'Z')):
@@ -1031,11 +1031,11 @@ def registerNamespace(iQuery, iUpdate, namespace, keywords):
     else:
         workflowData.setNamespace(namespace.val);
     splitKeywords = keywords.val.split(',');
-    print 
-    print workflowData.asIObject()
+
+    SU_LOG.debug(workflowData.asIObject())
     for keyword in splitKeywords:
         workflowData.addKeyword(keyword);
-    print workflowData.asIObject()
+    SU_LOG.debug(workflowData.asIObject())
     workflow = iUpdate.saveAndReturnObject(workflowData.asIObject());
     return WorkflowData(workflow);
 
