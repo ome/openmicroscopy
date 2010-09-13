@@ -207,6 +207,7 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
                 	List<Long> idList = new ArrayList<Long>();
                 	for(Map<String, Object> idMap : mapList)
                 		 idList.add((Long)idMap.get("id"));
+                    if (idList.size() == 0) return new ArrayList();
                 	String hqlQuery = "select distinct r from Roi r join " +
                 			"r.image i join fetch r.shapes where r.id in (:ids)";
                 	hqlQuery = hqlQuery + " order by r.id";
