@@ -43,6 +43,7 @@ import loci.formats.MinMaxCalculator;
 import loci.formats.in.LeicaReader;
 import loci.formats.in.MetadataLevel;
 import loci.formats.in.MetadataOptions;
+import loci.formats.in.ZipReader;
 import loci.formats.meta.MetadataStore;
 import omero.model.Channel;
 import omero.model.Pixels;
@@ -82,26 +83,33 @@ public class OMEROWrapper extends MinMaxCalculator {
     public OMEROWrapper(ImportConfig config)
     {
         if (config == null) {
-            throw new IllegalArgumentException("An ImportConfig must be instantitated \n " +
-            		"in order to properly configure all readers.");
+            throw new IllegalArgumentException(
+                    "An ImportConfig must be instantitated \n " +
+                    "in order to properly configure all readers.");
         }
 
         this.config = config;
         try
         {
-            String readers = config.readersPath.get();
-            Class<?> k = getClass();
-            if (new File(readers).exists()) {
-                k = null;
+            String readersPath = config.readersPath.get();
+            // Since we now use all readers apart from the ZipReader, just
+            // initialize in this manner which helps us by not requiring
+            // us to keep up with all changes in readers.txt and removes
+            // the requirement for importer_readers.txt (See #2859).
+            // Chris Allan <callan@blackcat.ca> -- Fri 10 Sep 2010 17:24:49 BST
+            ClassList<IFormatReader> readers =
+                ImageReader.getDefaultReaderClasses();
+            readers.removeClass(ZipReader.class);
+            if (readersPath != null)
+            {
+                Class<?> k = getClass();
+                if (new File(readersPath).exists()) {
+                    k = null;
+                }
+                readers = new ClassList<IFormatReader>(
+                        readersPath, IFormatReader.class, k);
             }
-            iReader = new ImageReader(new ClassList(readers, IFormatReader.class, k));
-            
-//            // Now we apply the invocation handler
-//            iReader =  (ImageReader) Proxy.newProxyInstance(
-//                    getClass().getClassLoader(),
-//                    new Class[]{IFormatReader.class},
-//                    new ReaderInvocationHandler(iReader));
-            
+            iReader = new ImageReader(readers);
             filler = new ChannelFiller(iReader);
         }
         catch (IOException e)
@@ -109,8 +117,7 @@ public class OMEROWrapper extends MinMaxCalculator {
             throw new RuntimeException("Unable to load readers.txt.");
         }
         reader = separator  = new ChannelSeparator(filler);
-        //reader = separator = new ChannelSeparator(iReader);
-        
+
         // Force unreadable characters to be removed from metadata key/value pairs 
         iReader.setMetadataFiltered(true);
         filler.setMetadataFiltered(true);

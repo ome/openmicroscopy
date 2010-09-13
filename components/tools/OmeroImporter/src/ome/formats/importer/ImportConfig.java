@@ -83,8 +83,8 @@ public class ImportConfig {
     /**
      * Stores the omeroVersion from omero.properties
      */
-    private String omeroVersion = "Unknown";    
-    
+    private String omeroVersion = "Unknown";
+
     //
     // MUTABLE STATE : To prevent every class from having it's own
     // username/password/port/etc field, all are available here. On save, these
@@ -236,33 +236,7 @@ public class ImportConfig {
         annotations = new AnnotationListValue(
         		"annotations", this, new ArrayList<Annotation>());
 
-        readersPath = new StrValue("readersPath", this) {
-            @Override
-            public String get() {
-
-                if (super.get() == null) {
-                    set(System.getProperty(READERS_KEY));
-                }
-
-                if (super.get() == null) {
-
-                    if (ini != null) {
-                        String readersFile = ini.getUserSettingsDirectory()
-                                + File.separator + "importer_readers.txt";
-                        File rFile = new File(readersFile);
-                        if (rFile.exists()) {
-                            set(rFile.getAbsolutePath());
-                        }
-                    }
-
-                    if (super.get() == null) {
-                        set("importer_readers.txt");
-                    }
-                }
-                return super.get();
-            }
-        };
-
+        readersPath = new StrValue("readersPath", this);
     }
 
     /**
