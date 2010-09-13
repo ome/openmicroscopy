@@ -338,7 +338,7 @@ def upload(client, img_id, ds_id, dirs):
 
     import omero
     from omero.rtypes import rstring, unwrap
-    from omero.util.script_utils import uploadDirAsImages
+    from omero.util.script_utils import uploadDirAsImages, uploadCecogObjectDetails
 
     sf = client.getSession()
     queryService = sf.getQueryService()
@@ -375,22 +375,21 @@ def upload(client, img_id, ds_id, dirs):
         updateService.saveObject(newImage)
 
     import time
-    import omero.cli
     start = time.time()
-    cli = omero.cli.CLI()
-    cli.loadplugins()
-    cli._client = client
 
     stats = path(dirs.statistics)
-    print stats.listdir()
     details = stats.glob("*_object_details.txt")
 
     for file in details:
         print "Saving rois from %s..." % file
-        args = omero.cli.WriteOnceNamespace()
-        args.image = img_id
-        args.file = str(file.abspath())
-        cli.controls["cecog"].rois(args)
+        uploadCecogObjectDetails(updateService, img_id, file)
+        of = client.upload(filename=file)
+        fa = omero.model.FileAnnotationI()
+        fa.setFile(of)
+        link = omero.model.ImageAnnotationLinkI()
+        link.link(omero.model.ImageI(img_id, False), fa)
+        updateService.saveObject(link)
+
     stop = time.time()
     print "Saving rois took %s secs." % (stop-start)
 

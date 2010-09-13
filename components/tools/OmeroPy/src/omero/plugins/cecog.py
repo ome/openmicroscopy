@@ -162,6 +162,7 @@ bin/omero cecog rois -f Data/Demo_output/analyzed/0037/statistics/P0037__object_
         """
         Processes the command args, parses the object_details.txt file and creates ROIs on the image specified in OMERO
         """
+        from omero.util.script_utils import uploadCecogObjectDetails
         filePath = args.file
         imageId = args.image
         if not os.path.exists(filePath):
@@ -169,81 +170,9 @@ bin/omero cecog rois -f Data/Demo_output/analyzed/0037/statistics/P0037__object_
 
         client = self.ctx.conn(args)
         updateService = client.sf.getUpdateService()
-        object_details = open(filePath, 'r')
+        ids = uploadCecogObjectDetails(updateService, imageId, filePath)
+        self.ctx.out("Rois created: %s" % len(ids))
 
-        try:
-            for line in object_details:
-                self.parseObject(updateService, imageId, line)
-        finally:
-            object_details.close()
-
-
-    ##
-    ## Internal methods
-    ##
-    def addRoi(self, updateService, imageId, x, y, theT, theZ, roiText=None, roiDescription=None):
-
-        # create an ROI, add the point and save
-        roi = omero.model.RoiI()
-        roi.setImage(omero.model.ImageI(imageId, False))
-        roi.setDescription(omero.rtypes.rstring(roiDescription))
-        r = updateService.saveAndReturnObject(roi)
-
-        # create and save a point
-        point = omero.model.PointI()
-        point.cx = rdouble(x)
-        point.cy = rdouble(y)
-        point.theZ = rint(theT)
-        point.theT = rint(theZ)
-        if roiText:
-            point.textValue = rstring(roiText)    # for display only
-
-        # link the point to the ROI and save it
-        point.setRoi(r)
-        r.addShape(point)
-        updateService.saveAndReturnObject(point)
-
-        return r.id.val
-
-
-    def parseObject(self, updateService, imageId, line):
-        """
-        Parses a single line of cecog output and saves as a roi.
-
-        Adds a Rectangle (particle) to the current OMERO image, at point x, y.
-        Uses the self.image (OMERO image) and self.updateService
-        """
-        theZ = 0
-        theT = None
-        x = None
-        y = None
-
-        parts = line.split("\t")
-        names = ("frame", "objID", "primaryClassLabel", "primaryClassName", "centerX", "centerY", "mean", "sd", "secondaryClassabel", "secondaryClassName", "secondaryMean", "secondarySd")
-        values = {}
-        for idx, name in enumerate(names):
-            if len(parts) >= idx:
-                values[name] = parts[idx]
-
-        frame = values["frame"]
-        try:
-            frame = long(frame)
-        except ValueError:
-            self.ctx.dbg("Non-roi line: %s " % line)
-            return
-
-        theT = frame - 1
-        className = values["primaryClassName"]
-        x = float(values["centerX"])
-        y = float(values["centerY"])
-
-        description = ""
-        for name in names:
-            description += ("%s=%s\n" % (name, values.get(name, "(missing)")))
-
-        if theT and x and y:
-            self.ctx.err("Adding point '%s' to frame: %s, x: %s, y: %s" % (className, theT, x, y))
-            self.ctx.out(self.addRoi(updateService, imageId, x, y, theT, theZ, className, description))
 
 try:
     register("cecog", CecogControl, CecogControl.__doc__)
