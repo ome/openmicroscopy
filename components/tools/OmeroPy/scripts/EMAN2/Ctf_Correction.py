@@ -185,7 +185,7 @@ def downloadImages(services, imageIds, local2dStack):
     """
     # get services
     queryService = services["queryService"]
-    rawPixelStore = services["rawPixelStore"]
+    rawPixelsStore = services["rawPixelsStore"]
 
     d = EMData()
     for imageId in imageIds:
@@ -197,11 +197,14 @@ def downloadImages(services, imageIds, local2dStack):
         theZ, theC, theT = (0,0,0)
         pixelsId = pixels.getId().getValue()
         bypassOriginalFile = True
-        rawPixelStore.setPixelsId(pixelsId, bypassOriginalFile)
-        plane2D = scriptUtil.downloadPlane(rawPixelStore, pixels, theZ, theC, theT)
+        rawPixelsStore.setPixelsId(pixelsId, bypassOriginalFile)
+        plane2D = scriptUtil.downloadPlane(rawPixelsStore, pixels, theZ, theC, theT)
         
         # convert to EMData and add to stack. See e2proc2d.py  approx line 500. 
-        EMNumPy.numpy2em(plane2D, d)
+        try:    # method seems to depend which version of EMAN2 you have
+            EMNumPy.numpy2em(plane2D, d)
+        except:
+            d = EMNumPy.numpy2em(plane2D)
         d.write_image(local2dStack, -1, EMUtil.get_image_ext_type("hdf"), False, None, EMUtil.EMDataType.EM_FLOAT, True)
     
 
@@ -213,6 +216,7 @@ def runCtf(session, parameterMap):
     images into a new dataset. 
     """
     
+    services = {}
     services["gateway"] = session.createGateway()
     services["renderingEngine"] = session.createRenderingEngine()
     services["queryService"] = session.getQueryService()
@@ -226,13 +230,13 @@ def runCtf(session, parameterMap):
     
     imageIds = []
     
-    dataType = commandArgs["Data_Type"]
+    dataType = parameterMap["Data_Type"]
     if dataType == "Image":
-        for imageId in commandArgs["IDs"]:
+        for imageId in parameterMap["IDs"]:
             iId = long(imageId.getValue())
             imageIds.append(iId)
     else:   # Dataset
-        for datasetId in commandArgs["IDs"]:
+        for datasetId in parameterMap["IDs"]:
             datasetIds = []
             try:
                 dId = long(datasetId.getValue())
@@ -297,11 +301,17 @@ def runCtf(session, parameterMap):
     
     # hopefully by this point, we have a folder called 'particles' containing a bdb for each image.
     # also have several files in the current folder, with useful info. 
-    dbg = open("dbg")
-    lastline = dbg.readlines()[-1]      # E.g.  5.146454	234.796172	1.624790	1.862878	3.015170	43
-    cols = lastline.split("\t")
-    ctfInfo = "Best DF = %s   B-factor = %s" % (cols[0], cols[1])
+    ctfInfo = ""
+    if os.path.exists("dbg"):
+        dbg = open("dbg")
+        lastline = dbg.readlines()[-1]      # E.g.  5.146454	234.796172	1.624790	1.862878	3.015170	43
+        cols = lastline.split("\t")
+        ctfInfo = "Best DF = %s   B-factor = %s" % (cols[0], cols[1])
+    else:
+        print "dbg file not created"
+    
     uploadBdbsAsDataset(services, 'particles', imageIds, project, ctfInfo)
+    
 
 
 def runAsScript():
@@ -323,12 +333,12 @@ See http://trac.openmicroscopy.org.uk/omero/wiki/EmPreviewFunctionality""",
         description="The data you want to work with.", values=dataTypes, default="Dataset"),
     scripts.List("IDs", optional=False, grouping="2",
         description="List of Dataset IDs or Image IDs").ofType(rlong(0)),
-    scripts.String("voltage", description="Voltage in Kv", optional=False), 
-    scripts.String("cs", description="Coefficient of Spherical abherration", optional=False),
-    scripts.String("apix", description="Angstroms per pixel", optional=False),
-    scripts.String("oversamp", description="optional argument to pass to ctf command. E.g. --oversamp=1"),
-    scripts.String("ac", description="optional argument to pass to ctf command. E.g. --ac=10.0"),
-    scripts.Bool("autohp", description="if true, add --autohp to command arg"))
+    scripts.String("voltage", grouping="3", description="Voltage in Kv", optional=False), 
+    scripts.String("cs", grouping="4", description="Coefficient of Spherical abherration", optional=False),
+    scripts.String("apix", grouping="5", description="Angstroms per pixel", optional=False),
+    scripts.String("oversamp", grouping="6", description="optional argument to pass to ctf command. E.g. --oversamp=1"),
+    scripts.String("ac", grouping="7", description="optional argument to pass to ctf command. E.g. --ac=10.0"),
+    scripts.Bool("autohp", grouping="8", description="if true, add --autohp to command arg"))
     
     session = client.getSession()
     

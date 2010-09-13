@@ -23,9 +23,9 @@
 This script allows users to call Segger functionality within Chimera, without using GUI. 
 
 An Image, identified by ID, is downloaded as an mrc file, using EMAN2. 
-
 A python file, to specify functionality and parameters, is created by this script and passed to Chimera 
 as a command line argument. 
+Many thanks to Greg Pintilie for providing the chimera script. 
 
 The results of the script (seg.file) can then be uploaded back to OMERO as an attachment to the Image.
     
@@ -203,10 +203,10 @@ def runSegger(session, parameterMap):
     threshold = parameterMap["Threshold"]
     
     # optional parameters
-    numit = 6
+    numit = 3
     if "Smoothing_Steps" in parameterMap:
         numit = parameterMap["Smoothing_Steps"]
-    sdev = 7
+    sdev = 1
     if "Standard_Deviation" in parameterMap:
         sdev = parameterMap["Standard_Deviation"]
     targNRegs = 1   # not sure what this default should be
@@ -214,7 +214,7 @@ def runSegger(session, parameterMap):
         targNRegs = parameterMap["Target_Region_Count"]
     
     # local file names - indicate parameters
-    name = "thr%sss%ssd%strc%s" % (threshold, numit, sdev, tagNRegs)
+    name = "thr%.2fss%ssd%strc%s" % (threshold, numit, sdev, targNRegs)
     inputName = "%s.mrc" % name
     outputName = "%s.seg" % name
     
@@ -250,16 +250,20 @@ def runAsScript():
 See http://people.csail.mit.edu/gdp/segger/docs_segmenting.html""", 
     scripts.Long("Image_ID", optional=False, grouping="1",
         description="The OMERO Image we want to segment"),
+        
     scripts.Float("Threshold", optional=False, grouping="2",
         description="The threshold to apply - only voxels above this threshold will appear in the segmentation"), 
+        
     scripts.Int("Smoothing_Steps", grouping="3", 
         description="""The number of smoothing iterations - at each iteration, the number
 of segmented regions typically decreases; hence the more iterations,
-the fewer regions that will result""", default=6),
+the fewer regions that will result""", default=3),
+
     scripts.Int("Standard_Deviation", grouping="4",
         description="""The initial standard deviation of the smoothing filter
 the higher this number, the more smoothing that occurs at each step, and
-hence also the fewer the regions that will be obtained after each step""", default=7),
+hence also the fewer the regions that will be obtained after each step""", default=1),
+
     scripts.Int("Target_Region_Count", grouping="5",
         description="""The number of regions we are aiming for.
 If, while smoothing and grouping, the number of regions becomes lower

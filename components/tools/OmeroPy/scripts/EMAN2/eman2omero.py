@@ -126,7 +126,7 @@ def uploadBdbAsDataset(infile, dataset):
     fileName = "original_metadata.txt"
     
     # loop through all the images.
-    nimg = min(5, nimg) 
+    nimg = min(50, nimg) 
     for i in range(nimg):
         description = "Imported from EMAN2 bdb: %s" % infile
         newImageName = ""
