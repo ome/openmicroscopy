@@ -7,22 +7,11 @@
 
 package ome.services.blitz.impl;
 
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Point;
-import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.awt.image.WritableRaster;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
-import java.sql.Array;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -39,7 +28,6 @@ import ome.api.IQuery;
 import ome.api.IUpdate;
 import ome.model.IObject;
 import ome.model.core.OriginalFile;
-import ome.model.meta.Event;
 import ome.parameters.Filter;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
@@ -49,16 +37,7 @@ import ome.services.throttling.Adapter;
 import ome.services.util.Executor.SimpleWork;
 import ome.system.ServiceFactory;
 import ome.tools.hibernate.QueryBuilder;
-import ome.util.Filterable;
-import omero.InternalException;
-import omero.RBool;
-import omero.RDouble;
-import omero.RFloat;
-import omero.RInt;
-import omero.RLong;
-import omero.RString;
 import omero.ServerError;
-import omero.rtypes;
 import omero.api.AMD_IRoi_findByAnyIntersection;
 import omero.api.AMD_IRoi_findByImage;
 import omero.api.AMD_IRoi_findByIntersection;
@@ -73,13 +52,10 @@ import omero.api.AMD_IRoi_getShapeStats;
 import omero.api.AMD_IRoi_getShapeStatsList;
 import omero.api.AMD_IRoi_getTable;
 import omero.api.AMD_IRoi_uploadMask;
-import omero.api.IQueryPrx;
 import omero.api.RoiOptions;
 import omero.api.RoiResult;
 import omero.api._IRoiOperations;
 import omero.constants.namespaces.NSMEASUREMENT;
-import omero.model.Mask;
-import omero.model.MaskI;
 import omero.model.OriginalFileI;
 import omero.model.Roi;
 import omero.model.Shape;
@@ -87,15 +63,8 @@ import omero.util.IceMapper;
 
 import org.apache.commons.collections.MultiMap;
 import org.apache.commons.collections.map.MultiValueMap;
-import org.hibernate.Hibernate;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.PreparedStatementSetter;
-import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.transaction.annotation.Transactional;
 import Ice.Current;
@@ -198,7 +167,7 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
             	if(opts!=null)
             		if(opts.namespace!=null)
             			ns=true;
-            	if(ns)
+            	if (ns)
             	{
                 	String queryString;
                 	queryString = "select id from roi where image = " + imageId+
@@ -207,6 +176,7 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
                 	List<Long> idList = new ArrayList<Long>();
                 	for(Map<String, Object> idMap : mapList)
                 		 idList.add((Long)idMap.get("id"));
+                	if (idList.size() == 0) return new ArrayList();
                 	String hqlQuery = "select distinct r from Roi r join " +
                 			"r.image i join fetch r.shapes where r.id in (:ids)";
                 	hqlQuery = hqlQuery + " order by r.id";
