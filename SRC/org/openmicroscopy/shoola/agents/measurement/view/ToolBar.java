@@ -441,7 +441,7 @@ class ToolBar
 		{
 			model.resetWorkflows(newWorkflows);
 			model.saveWorkflowToServer(false);
-			model.getWorkflowsFromServer();
+			model.retrieveWorkflowsFromServer();
 		}
 	}
 

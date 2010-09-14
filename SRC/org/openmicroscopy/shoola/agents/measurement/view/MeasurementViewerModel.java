@@ -890,7 +890,10 @@ class MeasurementViewerModel
 		currentLoader.load();
 	}
 	
-	void getWorkflowsFromServer()
+	/**
+	 * Retrieves the workflows saved.
+	 */
+	void retrieveWorkflowsFromServer()
 	{
 		ExperimenterData exp = 
 			(ExperimenterData) MeasurementAgent.getUserDetails();
@@ -903,14 +906,15 @@ class MeasurementViewerModel
 			component.setWorkflowList(result);
 		} catch (DSAccessException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Logger log = MeasurementAgent.getRegistry().getLogger();
+			log.error(this, "Cannot load workflows");
 		} catch (DSOutOfServiceException e)
 		{
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Logger log = MeasurementAgent.getRegistry().getLogger();
+			log.error(this, "Cannot load workflows");
 		}
 	}
+	
 	/** 
 	 * Fires an asynchronous retrieval of the ROI related to the pixels set. 
 	 * 
@@ -1404,13 +1408,13 @@ class MeasurementViewerModel
 		if (WorkflowData.DEFAULTWORKFLOW.equals(workflowNamespace))
 		{
 			this.workflowNamespace = workflowNamespace;
-			this.keyword = new ArrayList<String>();
+			keyword = new ArrayList<String>();
 		} else {
 			if (!workflows.containsKey(workflowNamespace))
 				throw new IllegalArgumentException("Workflow " + 
 						workflowNamespace + " does not exist");
 			this.workflowNamespace = workflowNamespace;
-			this.keyword = new ArrayList<String>();
+			keyword = getWorkflow().getKeywordsAsList();
 		}
 	}
 	
@@ -1446,8 +1450,9 @@ class MeasurementViewerModel
 		for(WorkflowData workflow : workflowList)
 			workflows.put(workflow.getNameSpace(), workflow);
 	}
+	
 	/** 
-	 * Get all the workflow namespaces in the model, as an array list
+	 * Returns all the workflow namespaces in the model, as an array list
 	 * @return See above.
 	 */
 	List<String> getWorkflows()
@@ -1461,7 +1466,8 @@ class MeasurementViewerModel
 	}
 	
 	/** 
-	 * Get all the workflow namespaces in the model, as an array list
+	 * Returns all the workflow namespaces in the model, as an array list.
+	 * 
 	 * @return See above.
 	 */
 	List<WorkflowData> getWorkflowDataList()
@@ -1476,6 +1482,7 @@ class MeasurementViewerModel
 	/**
 	 * Sets the keyword of the workflow to keyword, the keyword must exist in 
 	 * the workflow to be set.
+	 * 
 	 * @param keyword See above.
 	 */
 	void setKeyword(List<String> keywords)

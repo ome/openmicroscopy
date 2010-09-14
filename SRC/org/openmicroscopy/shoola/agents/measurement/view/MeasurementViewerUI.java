@@ -39,8 +39,10 @@ import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 import javax.swing.AbstractButton;
@@ -212,6 +214,9 @@ class MeasurementViewerUI
     /** Buttong group of exisitng workflows. */
     private ButtonGroup					workflows;
     
+    /** The map holding the work-flow objects. */
+    private Map<String, String>			workflowsUIMap;
+    
     /**
      * Scrolls to the passed figure.
      * 
@@ -327,12 +332,15 @@ class MeasurementViewerUI
         List<String> workFlows = model.getWorkflows();
         MeasurementViewerAction a;
         JCheckBoxMenuItem workflowItem;
+        String uiWorkFlow;
         for (String workFlow : workFlows)
         {
         	a = controller.getAction(MeasurementViewerControl.SELECT_WORKFLOW);
         	workflowItem = new JCheckBoxMenuItem(a);
-        	workflowItem.setSelected(workFlow == WorkflowData.DEFAULTWORKFLOW);
-        	workflowItem.setText(workFlow);
+        	workflowItem.setSelected(WorkflowData.DEFAULTWORKFLOW.equals(
+        			workFlow));
+        	uiWorkFlow = getWorkflowDisplay(workFlow);
+        	workflowItem.setText(uiWorkFlow);
         	workflows.add(workflowItem);
         	existingWorkflow.add(workflowItem);
         }
@@ -345,11 +353,11 @@ class MeasurementViewerUI
        	menu.add(createWorkflow);
         return menu;
     }
-    
-    
+
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
+		workflowsUIMap = new HashMap<String, String>();
 		roiTables = new ArrayList<ServerROITable>();
 		statusBar = new StatusBar();
 		toolBar = new ToolBar(component, this, controller, model);
@@ -489,10 +497,10 @@ class MeasurementViewerUI
 		{
 			model.nofityDataChanged(true);
 			ROI newROI = model.cloneROI(idList.get(0));
+			ROIShape newShape;
 			for (ROIShape shape : shapeList)
 			{
-				ROIShape newShape = new ROIShape(newROI, shape.getCoord3D(), 
-						shape);
+				newShape = new ROIShape(newROI, shape.getCoord3D(), shape);
 				if (getDrawing().contains(shape.getFigure()))
 				{
 					shape.getFigure().removeFigureListener(controller);
@@ -717,7 +725,7 @@ class MeasurementViewerUI
      * Selects the current figure based on ROIid, t and z sections.
      * 
      * @param ROIid     The id of the selected ROI.
-     * @param t 	The corresponding timepoint.
+     * @param t 	The corresponding time-point.
      * @param z 	The corresponding z-section.
      */
     void selectFigure(long ROIid, int t, int z)
@@ -1275,12 +1283,11 @@ class MeasurementViewerUI
 		model.calculateStats(shapeList);
 	}
 
-    /**
-     * Update the workflow in the toolbar.
-     */
+    /** Updates the workflow in the toolbar. */
 	void addedWorkflow()
 	{
-		if (workflowMenu != null && mainMenu != null && existingWorkflow != null)
+		if (workflowMenu != null && mainMenu != null 
+				&& existingWorkflow != null)
 		{
 			 Enumeration<AbstractButton> buttons = workflows.getElements();
 			 List<AbstractButton> buttonList = new ArrayList<AbstractButton>();
@@ -1288,25 +1295,31 @@ class MeasurementViewerUI
 				 buttonList.add(buttons.nextElement());
 			 
 			ActionListener[] l = existingWorkflow.getActionListeners();
-			for(ActionListener a :l )
+			for (ActionListener a :l )
 				existingWorkflow.removeActionListener(a);
-			for(AbstractButton button : buttonList)
+			for (AbstractButton button : buttonList)
 				workflows.remove(button);
 			existingWorkflow.removeAll();
 			workflows = new ButtonGroup();
 			List<String> workFlows = model.getWorkflows();
 		    JCheckBoxMenuItem workflowItem;
+		    MeasurementViewerAction action;
+		    String uiWorkFlow;
 		    for (String workFlow : workFlows)
 		    {
-		    	MeasurementViewerAction a = controller.getAction(MeasurementViewerControl.SELECT_WORKFLOW);
-		    	workflowItem = new JCheckBoxMenuItem(a);
-		    	workflowItem.setSelected(workFlow == WorkflowData.DEFAULTWORKFLOW);
-		    	workflowItem.setText(workFlow);
+		    	action = controller.getAction(
+		    			MeasurementViewerControl.SELECT_WORKFLOW);
+		    	workflowItem = new JCheckBoxMenuItem(action);
+		    	uiWorkFlow = getWorkflowDisplay(workFlow);
+		    	workflowsUIMap.put(uiWorkFlow, workFlow);
+		    	workflowItem.setSelected(
+		    			WorkflowData.DEFAULTWORKFLOW.equals(workFlow));
+		    	workflowItem.setText(uiWorkFlow);
 		    	workflows.add(workflowItem);
 		    	existingWorkflow.add(workflowItem);
 		    	workflowItem.setEnabled(true);
 		    }
-		    for(ActionListener a :l )
+		    for (ActionListener a :l )
 				existingWorkflow.addActionListener(a);
 		    toolBar.addedWorkflow();
 		}
@@ -1318,6 +1331,36 @@ class MeasurementViewerUI
  	/** Adds the workflow to the toolbar.  */
 	void createWorkflow() { toolBar.createWorkflow(); }
 	
+	/**
+	 * Returns The UI representations of the workflow.
+	 * 
+	 * @param value The value to convert.
+	 * @return See above.
+	 */
+	String getWorkflowDisplay(String value)
+	{
+		String result = value;
+		if (value.contains("/")) {
+			String[] list = value.split("/");
+			result = list[list.length-1];
+		}
+		if (!workflowsUIMap.containsKey(result))
+			workflowsUIMap.put(result, value);
+		return result;
+	}
+	
+	/**
+	 * Returns the workflow corresponding to the specified UI value.
+	 * 
+	 * @param value The value to convert.
+	 * @return See above.
+	 */
+	String getWorkflowFromDisplay(String value)
+	{
+		if (value == null) return null;
+		return workflowsUIMap.get(value);
+	}
+	
     /** 
      * Overridden to the set the location of the {@link MeasurementViewer}.
      * @see TopWindow#setOnScreen() 
@@ -1326,7 +1369,6 @@ class MeasurementViewerUI
     {
         if (model != null) { //Shouldn't happen
         	setSize(DEFAULT_SIZE);
-        	
             UIUtilities.setLocationRelativeToAndSizeToWindow(
             		model.getRequesterBounds(), this, MAXIMUM_SIZE);
         } else {
@@ -1341,7 +1383,7 @@ class MeasurementViewerUI
      */
  	public void setVisible(boolean value)
 	{
-		if(value==false)
+		if (!value)
 			toolBar.getWorkflowPanel().setVisible(false);
 		super.setVisible(value);
 	}

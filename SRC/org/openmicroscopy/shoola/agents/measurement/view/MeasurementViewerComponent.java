@@ -916,6 +916,7 @@ class MeasurementViewerComponent
      */
 	public void setWorkflow(String workflowNamespace)
 	{
+		workflowNamespace = view.getWorkflowFromDisplay(workflowNamespace);
 		model.setWorkflow(workflowNamespace);
 		view.updateWorkflow();
 	}
