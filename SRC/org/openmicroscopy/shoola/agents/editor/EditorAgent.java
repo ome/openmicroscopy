@@ -202,6 +202,7 @@ public class EditorAgent
 			if (event.getFileAnnotationID() > 0)
 				editor = EditorFactory.getEditor(event.getFileAnnotationID());
 		} else {
+			if (data.getId() <= 0) return;
 			String name = data.getFileName();
 			String ns = data.getNameSpace();
 			if (name == null) return;
