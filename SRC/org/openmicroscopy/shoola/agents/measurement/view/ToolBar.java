@@ -182,6 +182,7 @@ class ToolBar
      */
     private WorkflowPanel				workflowPanel;
     
+    /** Dialog used to create the workflow. */
     private CreateWorkflowDialog 		createWorkflowDialog;
    
     /**
@@ -433,19 +434,19 @@ class ToolBar
 	/** Shows the create workflow menu. */
 	void createWorkflow() 
 	{ 
-		createWorkflowDialog = new CreateWorkflowDialog(model.getWorkflowDataList());
+		createWorkflowDialog = 
+			new CreateWorkflowDialog(model.getWorkflowDataList());
 		List<WorkflowData> newWorkflows = createWorkflowDialog.show();
-		if(newWorkflows!=null)
+		if (newWorkflows != null)
 		{
 			model.resetWorkflows(newWorkflows);
 			model.saveWorkflowToServer(false);
 			model.getWorkflowsFromServer();
 		}
 	}
-		
-	
+
 	/** Adds the workflows. */
-	public void addedWorkflow() { workflowPanel.addedWorkflow(); }
+	void addedWorkflow() { workflowPanel.addedWorkflow(); }
 	
 	/**
 	 * Sets the selected flag of the source of the event to 

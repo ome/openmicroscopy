@@ -124,6 +124,9 @@ class DocComponent
 	/** Action id to open the annotation. */
 	private static final int MENU = 5;
 	
+	/** Action id to open the annotation. */
+	private static final int PLOT = 6;
+	
 	/** Collection of filters supported. */
 	private static final List<CustomizedFileFilter> FILTERS;
 		
@@ -152,6 +155,9 @@ class DocComponent
 	
 	/** Button to open the file linked to the annotation. */
 	private JMenuItem		openButton;
+	
+	/** Button to plot the results. */
+	private JMenuItem		plotButton;
 	
 	/** Button to delete the file annotation. */
 	private JMenuItem		deleteButton;
@@ -221,9 +227,16 @@ class DocComponent
 			if (link) count++;
 		}
 		if (openButton != null) {
-			openButton.setEnabled(enabled);
-			openButton.setVisible(enabled);
+			//openButton.setEnabled(enabled);
+			//openButton.setVisible(enabled);
+			downloadButton.setEnabled(link);
+			downloadButton.setVisible(link);
 			if (enabled) count++;
+		}
+		if (plotButton != null) {
+			plotButton.setEnabled(link);
+			plotButton.setVisible(link);
+			if (link) count++;
 		}
 		if (deleteButton != null) {
 			deleteButton.setEnabled(b);
@@ -255,6 +268,7 @@ class DocComponent
 			if (unlinkButton != null) popMenu.add(unlinkButton);
 			if (downloadButton != null) popMenu.add(downloadButton);
 			if (openButton != null) popMenu.add(openButton);
+			if (plotButton != null) popMenu.add(plotButton);
 			if (deleteButton != null) popMenu.add(deleteButton);
 		}
 		popMenu.show(invoker, p.x, p.y);
@@ -324,9 +338,10 @@ class DocComponent
 			}
 			if (annotation.getId() > 0) {
 				buf.append("<b>");
-				buf.append("ID: ");
+				buf.append("File ID: ");
 				buf.append("</b>");
-				buf.append(annotation.getId());
+				FileAnnotationData fa = (FileAnnotationData) data;
+				buf.append(fa.getFileID());
 				buf.append("<br>");
 				buf.append("<b>");
 				buf.append("Date Added: ");
@@ -401,27 +416,29 @@ class DocComponent
 				downloadButton = new JMenuItem(icons.getIcon(
 						IconManager.DOWNLOAD_12));
 				downloadButton.setText("Download...");
-				//downloadButton.setOpaque(false);
-				//UIUtilities.unifiedButtonLookAndFeel(downloadButton);
-				//downloadButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 				downloadButton.setToolTipText("Download the selected file.");
 				downloadButton.setActionCommand(""+DOWNLOAD);
 				downloadButton.addActionListener(this);
 				
 				String ns = fa.getNameSpace();
-				if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(ns) ||
-						FileAnnotationData.EDITOR_PROTOCOL_NS.equals(ns) ||
-						FileAnnotationData.COMPANION_FILE_NS.equals(ns)) {
+				//if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(ns) ||
+					//	FileAnnotationData.EDITOR_PROTOCOL_NS.equals(ns) ||
+					//	FileAnnotationData.COMPANION_FILE_NS.equals(ns)) {
 					openButton = new JMenuItem(icons.getIcon(
 							IconManager.EDITOR_12));
-					openButton.setText("Open");
-					//openButton.setOpaque(false);
-					//UIUtilities.unifiedButtonLookAndFeel(openButton);
-					//openButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-					openButton.setToolTipText("Open the file in the editor.");
+					openButton.setText("View");
+					openButton.setToolTipText("View the file.");
 					openButton.setActionCommand(""+OPEN);
 					openButton.addActionListener(this);
-				} 
+				//} 
+				if (FileAnnotationData.FLIM_NS.equals(ns)) {
+					plotButton = new JMenuItem(icons.getIcon(
+							IconManager.PLOT_12));
+					plotButton.setText("Plot");
+					plotButton.setToolTipText("Plot the results.");
+					plotButton.setActionCommand(""+PLOT);
+					plotButton.addActionListener(this);
+				}
 				if (FileAnnotationData.COMPANION_FILE_NS.equals(ns) ||
 					FileAnnotationData.MEASUREMENT_NS.equals(ns))
 					unlinkButton = null;
@@ -553,6 +570,7 @@ class DocComponent
 		if (editButton != null) count++;
 		if (unlinkButton != null) count++;
 		if (downloadButton != null) count++;
+		if (plotButton != null) count++;
 		if (openButton != null) count++;
 		if (deleteButton != null) count++;
 		if (count > 0) {
@@ -611,6 +629,12 @@ class DocComponent
 		chooser.setApproveButtonText("Download");
 		chooser.addPropertyChangeListener(this);
 		chooser.centerDialog();
+	}
+	
+	/** Plots the analysis results. */
+	private void plotResults()
+	{
+		
 	}
 	
 	/**
@@ -720,6 +744,9 @@ class DocComponent
 				break;
 			case OPEN:
 				openFile();
+				break;
+			case PLOT:
+				plotResults();
 		}
 	}
 

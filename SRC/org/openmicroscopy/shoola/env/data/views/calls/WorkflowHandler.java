@@ -29,16 +29,13 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
-
 import pojos.WorkflowData;
-import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
-import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
 /**
- *
+ * Loads the workflows.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -53,6 +50,7 @@ import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 public class WorkflowHandler
 	extends BatchCallTree
 {
+	
 	/** The result of the call. */
     private Object				result;
     
@@ -84,7 +82,8 @@ public class WorkflowHandler
      * @param index  One of the constants defined by the script.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeCall(final List<WorkflowData> workflows, final long userID)
+    private BatchCall makeCall(final List<WorkflowData> workflows, 
+    		final long userID)
     {
     	return new BatchCall("Run the script") {
     		public void doCall() throws Exception
@@ -134,4 +133,5 @@ public class WorkflowHandler
     		throw new IllegalArgumentException("Invalid workflows specified."); 
 		loadCall = makeCall(workflows, userID);
     }
+    
 }

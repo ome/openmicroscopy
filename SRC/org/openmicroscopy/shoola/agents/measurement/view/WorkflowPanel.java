@@ -30,7 +30,6 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -233,7 +232,7 @@ class WorkflowPanel
 	void updateWorkflow()
 	{
 		WorkflowData workflow = model.getWorkflow();
-		if(workflow == null)
+		if (workflow == null)
 		{
 			namespaceCombobox.removeActionListener(this.controller.getAction(
 					MeasurementViewerControl.SELECT_WORKFLOW));

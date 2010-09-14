@@ -47,6 +47,7 @@ import pojos.WorkflowData;
  */
 public class CreateWorkflowDialog
 {
+	
 	/** The Model for the UI, manages the workflows in the system. */
 	private WorkflowModel workflowModel;
 
@@ -57,17 +58,8 @@ public class CreateWorkflowDialog
 	private boolean cancelled;
 	
 	/**
-	 * Instantiate the workflow dialog with the list of workflows.
-	 * @param workflowList See above.
-	 */
-	public CreateWorkflowDialog(List<WorkflowData> workflowList)
-	{
-		init(workflowList);
-		buildUI(workflowModel);
-	}
-	
-	/**
-	 * Initialise the variables in the model from the provided workflows.
+	 * Initializes the variables in the model from the provided workflows.
+	 * 
 	 * @param workflowList See above.
 	 */
 	private void init(List<WorkflowData> workflowList)
@@ -86,8 +78,20 @@ public class CreateWorkflowDialog
 	}
 	
 	/**
-	 * Show the dialog and return the new workflows when complete, returns
+	 * Instantiates the workflow dialog with the list of workflows.
+	 * 
+	 * @param workflowList See above.
+	 */
+	public CreateWorkflowDialog(List<WorkflowData> workflowList)
+	{
+		init(workflowList);
+		buildUI(workflowModel);
+	}
+	
+	/**
+	 * Shows the dialog and return the new workflows when complete, returns
 	 * <code>null</code> if cancelled. 
+	 * 
 	 * @return See above.
 	 */
 	public List<WorkflowData> show()
@@ -105,4 +109,5 @@ public class CreateWorkflowDialog
 	{
 		cancelled = true;
 	}
+	
 }

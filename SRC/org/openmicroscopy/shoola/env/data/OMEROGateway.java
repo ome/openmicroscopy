@@ -153,7 +153,7 @@ import omero.model.LightEmittingDiode;
 import omero.model.LightSource;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
-import omero.model.NamespaceI;
+import omero.model.Namespace;
 import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.model.Permissions;
@@ -5604,6 +5604,7 @@ class OMEROGateway
 			script = new ScriptObject(scriptID, "", "");
 			script.setJobParams(svc.getParams(scriptID));
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new ProcessException("Cannot load the script: "+scriptID, 
 					e);
 		}
@@ -7248,14 +7249,10 @@ class OMEROGateway
 		{
 			ParametersI param = new ParametersI();
 			param.map.put("userID", omero.rtypes.rlong(userID));
-			List<NamespaceI> serverWorkflows = 
-				(List)svc.findAllByQuery("from Namespace as n", param);
-			List<WorkflowData> mappedWorkflows = new ArrayList<WorkflowData>();
-			for(NamespaceI serverWorkflow : serverWorkflows)
-				mappedWorkflows.add(new WorkflowData(serverWorkflow));
-			return mappedWorkflows;
-		}
-		catch(Throwable t)
+			List<Namespace> serverWorkflows = 
+				(List) svc.findAllByQuery("from Namespace as n", param);
+			return PojoMapper.asDataObjectsAsList(serverWorkflows);
+		} catch(Throwable t)
 		{
 			return new ArrayList<WorkflowData>();
 		}

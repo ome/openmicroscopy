@@ -69,9 +69,10 @@ import pojos.WorkflowData;
  * </small>
  * @since OME3.0
  */
-public class WorkflowView 
+class WorkflowView 
 	implements ActionListener, ListSelectionListener
 {
+	
 	/** Title of the Dialog */
 	private static String DIALOGTITLE = "New Workflow Dialog"; 
 	
@@ -91,62 +92,53 @@ public class WorkflowView
 	private static String CREATEACTION = "Create"; 
 	
 	/** The parent dialog of the dialog. */
-	CreateWorkflowDialog parent;
+	private CreateWorkflowDialog parent;
 	
-	/** The swind UI dialog that will display the workflow dialogs. */
-	JDialog dialog;
+	/** The UI dialog that will display the workflow dialogs. */
+	private JDialog dialog;
 	
 	/** The model of the UI. */
-	WorkflowModel model;
+	private WorkflowModel model;
 	
-	/** The list UI shwoing the workflow names. */
-	JList workflowList;
+	/** The list UI showing the workflow names. */
+	private JList workflowList;
 	
 	/** The Save Button. */
-	JButton saveButton;
+	private JButton saveButton;
 
 	/** The create Button, clicking will create a new workflow. */
-	JButton createButton;
+	private JButton createButton;
 
 	/** The cancel Button, this will close the dialog and dismiss all changes. */
-	JButton cancelButton;
+	private JButton cancelButton;
 	
 	/** The Delete Button, this will delete a workflow from the system. */
-	JButton deleteButton;
+	private JButton deleteButton;
 
 	/** The close Button. */
-	JButton closeButton;
+	private JButton closeButton;
 	
 	/** 
-	 * The text field that hold the name of the namespace, should only be editable
-	 * for newly created workflows. 
+	 * The text field that hold the name of the namespace, should only be 
+	 * editable for newly created workflows. 
 	 */
-	JTextField namespaceText;
+	private JTextField namespaceText;
 	
-	/** The text field holding all the csv separated keywords. */
-	JTextArea keywordsText;
+	/** The text field holding all the CSV separated keywords. */
+	private JTextArea keywordsText;
 	
 	/** The currently selected workflow. */
-	WorkflowData currentWorkflow;
+	private WorkflowData currentWorkflow;
 	
-	/** <code>true</code> if this is a newly created workflow. */
-	boolean newWorkflow;
-	
-	/**
-	 * Instantiate the new workflow view. 
-	 * @param parent The dialog that is the entry point for creating a workflow.
-	 * @param model The model for the view, amnipulates the WorkflowData elements.
-	 */
-	public WorkflowView(CreateWorkflowDialog parent, WorkflowModel model)
-	{
-		init(parent, model);
-		buildUI(model);
-	}
+	/** Flag indicating if it is or not a newly created workflow. */
+	private boolean newWorkflow;
 	
 	/**
-	 * Initialise all the parameters.
+	 * Initializes all the parameters.
+	 * 
 	 * @param parent The dialog that is the entry point for creating a workflow.
-	 * @param model The model for the view, amnipulates the WorkflowData elements.
+	 * @param model The model for the view, manipulates the WorkflowData 
+	 * elements.
 	 */
 	private void init(CreateWorkflowDialog parent, WorkflowModel model)
 	{
@@ -316,7 +308,7 @@ public class WorkflowView
 	private void saveAction()
 	{
 		currentWorkflow.setKeywords(CSVToList(keywordsText.getText()));
-		if(newWorkflow)
+		if (newWorkflow)
 		{
 			currentWorkflow.setNamespace(namespaceText.getText());
 			model.addItem(currentWorkflow);
@@ -340,6 +332,36 @@ public class WorkflowView
 	{
 		dialog.setVisible(false);
 	}
+
+	/**
+	 * Converts a CSV string to a list of strings.
+	 *
+	 * @param str The CSV string to convert.
+	 * @return See above.
+	 */
+	private List<String> CSVToList(String str)
+	{
+		List<String> list = new ArrayList<String>();
+		String[] valueString = str.split(",");
+		for(String keyword : valueString)
+			if(!keyword.equals("[]"))
+                list.add(keyword);
+		return list;
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param parent The dialog that is the entry point for creating a workflow.
+	 * @param model The model for the view, manipulates the WorkflowData 
+	 * elements.
+	 */
+	WorkflowView(CreateWorkflowDialog parent, WorkflowModel model)
+	{
+		init(parent, model);
+		buildUI(model);
+	}
+	
 	
 	/** Show the dialog. */
 	public void show()
@@ -353,7 +375,7 @@ public class WorkflowView
 	 */
 	private void createAction()
 	{
-		clearNamespaceKeywordsFields();
+		//clearNamespaceKeywordsFields();
 		currentWorkflow = new WorkflowData();
 		newWorkflow = true;
 	}
@@ -369,7 +391,7 @@ public class WorkflowView
 	/** Clear the namespaces and keywords fields. */
 	private void clearNamespaceKeywordsFields()
 	{
-		currentWorkflow=null;
+		currentWorkflow = null;
 		newWorkflow = false;
 		namespaceText.setText("");
 		keywordsText.setText("");
@@ -378,13 +400,12 @@ public class WorkflowView
 	/** Clear the selected workflows, and set namespaces, keywords to empty. */
 	private void clearWorkflowSelection()
 	{
-		if(currentWorkflow!=null)
-			if(currentWorkflow.isDirty())
+		if (currentWorkflow != null)
+			if (currentWorkflow.isDirty())
 			{
 				String action = checkToClear();
-				if(action == CANCELACTION)
-					return;
-				if(action == SAVEACTION)
+				if (action == CANCELACTION) return;
+				if (action == SAVEACTION)
 					saveAction();
 			}
 		clearNamespaceKeywordsFields();
@@ -406,32 +427,33 @@ public class WorkflowView
 	 */
 	private String checkToClear()
 	{
-		int result = JOptionPane.showConfirmDialog(dialog, "Do you want to save workflow?", "Save confirmation", JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.QUESTION_MESSAGE);
-		if(result==JOptionPane.CANCEL_OPTION)
+		//Review that code.
+		int result = JOptionPane.showConfirmDialog(dialog, 
+				"Do you want to save the workflow?", 
+				"Save confirmation", 
+				JOptionPane.YES_NO_CANCEL_OPTION,
+				JOptionPane.QUESTION_MESSAGE);
+		if (result == JOptionPane.CANCEL_OPTION)
 			return CANCELACTION;
-		else if(result==JOptionPane.YES_OPTION)
+		else if (result == JOptionPane.YES_OPTION)
 			return SAVEACTION;
 		else
 			return DELETEACTION;
 	}
 	
-	
 	/**
-	 * Call the different actions based on buttons pressed.
+	 * Calls the different actions based on buttons pressed.
 	 * @param e The action event.
+	 * @see ActionListener#actionPerformed(ActionEvent)
 	 */
 	public void actionPerformed(ActionEvent e)
 	{
-		if(e.getActionCommand()==SAVEACTION)
-			saveAction();
-		else if(e.getActionCommand()==DELETEACTION)
-			deleteAction();
-		else if(e.getActionCommand()==CANCELACTION)
-			cancelAction();
-		else if(e.getActionCommand()==CLOSEACTION)
-			closeAction();
-		else if(e.getActionCommand()==CREATEACTION)
-			createAction();
+		String cmd = e.getActionCommand();
+		if (cmd == SAVEACTION) saveAction();
+		else if (cmd == DELETEACTION) deleteAction();
+		else if (cmd == CANCELACTION) cancelAction();
+		else if (cmd == CLOSEACTION) closeAction();
+		else if (cmd == CREATEACTION) createAction();
 	}
 
 	/**
@@ -440,26 +462,11 @@ public class WorkflowView
 	 */
 	public void valueChanged(ListSelectionEvent e)
 	{
-	  if (e.getValueIsAdjusting() == false) 
+	  if (!e.getValueIsAdjusting()) 
 	        if (workflowList.getSelectedIndex() == -1) 
 	        	clearWorkflowSelection();
 	        else 
 	        	setWorkflowSelection(workflowList.getSelectedIndex());    	
 	}
 	
-	/**
-	* Converts a CSV string to a list of strings.
-	*
-	* @param str The CSV string to convert.
-	* @return See above.
-	*/
-	private List<String> CSVToList(String str)
-	{
-		List<String> list = new ArrayList<String>();
-		String[] valueString = str.split(",");
-		for(String keyword : valueString)
-			if(!keyword.equals("[]"))
-                list.add(keyword);
-		return list;
-	}
 }

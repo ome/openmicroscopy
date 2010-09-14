@@ -68,12 +68,12 @@ public class WorkflowLoader
 	}
 	
 	/**
-     * Loads the ROI.
+     * Loads the workflows.
      * @see MeasurementViewerLoader#load()
      */
     public void load()
     {
-    	handle = this.idView.retrieveWorkflows(userID, this);
+    	handle = idView.retrieveWorkflows(userID, this);
     }
     
     /**

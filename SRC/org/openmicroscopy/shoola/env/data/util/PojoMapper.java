@@ -52,6 +52,7 @@ import omero.model.FileAnnotation;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.LongAnnotation;
+import omero.model.Namespace;
 import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.Project;
@@ -83,6 +84,7 @@ import pojos.TextualAnnotationData;
 import pojos.TimeAnnotationData;
 import pojos.WellData;
 import pojos.WellSampleData;
+import pojos.WorkflowData;
 
 /** 
  * Helper methods to convert {@link IObject}s into their corresponding
@@ -174,6 +176,9 @@ public class PojoMapper
         	return new WellSampleData((WellSample) object);
         else if (object instanceof Roi)
         	return new ROIData((Roi) object);
+        else if (object instanceof Namespace) {
+        	return new WorkflowData((Namespace) object);
+        }
         return null;
     }
     

@@ -27,11 +27,7 @@ package org.openmicroscopy.shoola.agents.measurement.util.workflow;
 
 //Java imports
 import java.util.List;
-
-import javax.swing.AbstractListModel;
 import javax.swing.DefaultListModel;
-import javax.swing.ListModel;
-import javax.swing.event.ListDataListener;
 
 //Third-party libraries
 
@@ -52,25 +48,18 @@ import pojos.WorkflowData;
  * </small>
  * @since OME3.0
  */
-public class WorkflowModel
+class WorkflowModel
 {
+	
 	/** This is the list of the current workflows. */
-	List<WorkflowData> workflowList;
+	private List<WorkflowData> workflowList;
 	
 	/** The model for the JList box. */
-	DefaultListModel listModel;
+	private DefaultListModel listModel;
 	
 	/**
-	 * Instantiate the workflowModel, with the workflows in worklflowList.
-	 * @param workflowList See above.
-	 */
-	public WorkflowModel(List<WorkflowData> workflowList)
-	{
-		init(workflowList);
-	}
-	
-	/**
-	 * Intialise the variables in WorkflowModel.
+	 * Initializes the variables in WorkflowModel.
+	 * 
 	 * @param workflowList The workflows in the workflow list.
 	 */
 	private void init(List<WorkflowData> workflowList)
@@ -81,71 +70,78 @@ public class WorkflowModel
 			listModel.addElement(workflow.getNameSpace());
 	}
 	
+	/**
+	 * Instantiates the workflowModel, with the workflows in worklflowList.
+	 * @param workflowList See above.
+	 */
+	public WorkflowModel(List<WorkflowData> workflowList)
+	{
+		init(workflowList);
+	}
+	
 	/** 
-	 * Add a new item to the workflowModel. 
+	 * Adds a new item to the workflowModel. 
+	 * 
 	 * @param workflow See above.
 	 */
-	public void addItem(WorkflowData workflow)
+	void addItem(WorkflowData workflow)
 	{
 		workflowList.add(workflow);
 		listModel.addElement(workflow.getNameSpace());
 	}
 
 	/**
-	 * Remove the workflow from the list. 
+	 * Removes the workflow from the list. 
+	 * 
 	 * @param workflow See above.
 	 */
-	public void removeItem(WorkflowData workflow)
+	void removeItem(WorkflowData workflow)
 	{
 		workflowList.remove(workflow);
 		listModel.removeElement(workflow.getNameSpace());
 	}
 	
 	/**
-	 * Get the workflow at position <code>index</code>.
+	 * Returns the workflow at position <code>index</code>.
+	 * 
 	 * @param index See above.
 	 * @return See above.
 	 */
-	public WorkflowData getItem(int index)
+	WorkflowData getItem(int index)
 	{
 		return workflowList.get(index);
 	}
 	
 	/**
-	 * Get the index for the workflow toFind.
+	 * Returns the index for the workflow toFind.
+	 * 
 	 * @param toFind See above.
 	 * @return See above.
 	 */
-	public int getIndex(WorkflowData toFind)
+	int getIndex(WorkflowData toFind)
 	{
 		int index = -1;
 		for(WorkflowData workflow : workflowList)
 		{
 			index = index+1;
-			if(workflow==toFind)
+			if (workflow == toFind)
 				return index;
 		}
 		return index;
 	}
 	
 	/**
-	 * Return the model as a default list.
+	 * Returns the model as a default list.
+	 * 
 	 * @return See above.
 	 */
-	public DefaultListModel getListModel()
-	{
-		return listModel;
-	}
+	DefaultListModel getListModel() { return listModel; }
 	
 	/**
-	 * Get the workflows as a list. 
+	 * Returns the workflows as a list. 
+	 * 
 	 * @return See above.
 	 */
-	public List<WorkflowData> getWorkflowList()
-	{
-		return workflowList;
-	}
-	
-	
+	List<WorkflowData> getWorkflowList() { return workflowList; }
 
 }

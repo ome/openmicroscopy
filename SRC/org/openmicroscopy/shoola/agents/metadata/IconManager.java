@@ -394,11 +394,14 @@ public class IconManager
     /** The 32x32 <code>Script with UI</code> icon. */
     public static final int         PREVIEW_THUMBNAILS_32 = 112;
     
+    /** The <code>Plot 12x12</code> icon. */
+    public static final int         PLOT_12 = 113;
+    
     /** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static final int          MAX_ID = 112;
+	private static final int          MAX_ID = 113;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -517,6 +520,7 @@ public class IconManager
         relPaths[SCRIPT_WITH_UI_22] = "nuvola_script_ui22.png";
         relPaths[PREVIEW_THUMBNAILS_32] = "preview_thumbs32.png";
         relPaths[TAGS_48] = "nuvola_knotes48.png";
+        relPaths[PLOT_12] = "nuvola_kmplot12.png";
 	}
    
 	/** The sole instance. */

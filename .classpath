@@ -60,5 +60,7 @@
 	<classpathentry kind="lib" path="build/tools/xerces-2.6.2.jar"/>
 	<classpathentry kind="lib" path="build/tools/xerces-xml-apis-2.6.2.jar"/>
 	<classpathentry kind="lib" path="LIB/commons-lang-2.5.jar"/>
+	<classpathentry kind="lib" path="LIB/slf4j-api-1.5.8.jar"/>
+	<classpathentry kind="lib" path="LIB/slf4j-log4j12-1.5.8.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

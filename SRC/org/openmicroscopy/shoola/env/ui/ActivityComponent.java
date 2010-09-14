@@ -132,6 +132,9 @@ public abstract class ActivityComponent
 	/** ID to display the standard error. */
 	private static final int	EXCEPTION = 7;
 	
+	/** ID to plot the result. */
+	private static final int 	PLOT = 8;
+	
 	/** The key to look for to display the output message. */
 	private static final String MESSAGE = "Message";
 	
@@ -191,6 +194,9 @@ public abstract class ActivityComponent
 	
 	/** Button to show the error. */
 	protected JButton					errorButton;
+	
+	/** Button to cancel the activity. */
+	private JButton						plotButton;
 	
 	/** The label displaying the type of activity. */
 	protected JLabel					type;
@@ -288,6 +294,8 @@ public abstract class ActivityComponent
 		//if (index == ADVANCED)
 		downloadButton = createButton("Download", DOWNLOAD, this);
 		downloadButton.setVisible(false);
+		plotButton = createButton("Plot", PLOT, this);
+		plotButton.setVisible(false);
 		viewButton = createButton(VIEW_TEXT, VIEW, this);
 		viewButton.setVisible(false);
 		infoButton = createButton("Info", INFO, this);
