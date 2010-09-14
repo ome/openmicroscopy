@@ -23,17 +23,21 @@ $VBOX list runningvms | grep "$VMNAME" || {
     sleep 30
 }
 
-echo "Copying ubuntu-install"
-$SCP ubuntu-install.sh omero@localhost:~/
+echo "Copying ubuntu-root-install"
+$SCP ubuntu-root-install.sh omero@localhost:~/
+echo "Copying ubuntu-omero-install"
+$SCP ubuntu-omero-install.sh omero@localhost:~/
 echo "Copying omero.sh"
 $SCP omero.sh omero@localhost:~/omero.sh
 echo "Copying web-install"
 $SCP web-install.sh omero@localhost:~/
-echo "Copying installDaemon.sh"
-$SCP installDaemon.sh omero@localhost:~/
-echo "ssh : exec ubuntu-install.sh"
-$SSH omero@localhost 'yes ome | sudo -S sh /home/omero/ubuntu-install.sh'
+echo "Copying daemon-install.sh"
+$SCP daemon-install.sh omero@localhost:~/
+echo "ssh : exec ubuntu-root-install.sh"
+$SSH omero@localhost 'yes ome | sudo -S sh /home/omero/ubuntu-root-install.sh'
+echo "ssh : exec ubuntu-omero-install.sh"
+$SSH omero@localhost 'sh /home/omero/ubuntu-omero-install.sh'
 echo "ssh : exec web_install.sh"
 $SSH omero@localhost 'yes ome | sudo -S sh /home/omero/web-install.sh'
-echo "ssh : exec installDaemon.sh"
-$SSH omero@localhost 'yes ome | sudo -S sh /home/omero/installDaemon.sh'
+echo "ssh : exec daemon-install.sh"
+$SSH omero@localhost 'yes ome | sudo -S sh /home/omero/daemon-install.sh'
