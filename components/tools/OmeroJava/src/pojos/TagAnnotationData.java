@@ -59,7 +59,7 @@ public class TagAnnotationData extends AnnotationData {
      * The name space used to indicate that the tag is used a tag set.
      */
     public static final String INSIGHT_TAGSET_NS = 
-    	"openmicroscopy.org/omero/insight/tagset";
+    	omero.constants.metadata.NSINSIGHTTAGSET.value;
     
     /** The descriptions of the tag. */
     private List<TextualAnnotationData> descriptions;

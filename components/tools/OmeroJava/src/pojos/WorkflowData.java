@@ -53,9 +53,8 @@ public class WorkflowData
 {
 	
 	/** The default workflow, i.e. nothing .*/
-	public static String DEFAULTWORKFLOW = "Default Workflow";
-	
-	
+	public static String DEFAULTWORKFLOW = "Default";
+
 	/**
 	 * Converts a CSV string to a list of strings.
 	 *

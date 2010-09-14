@@ -46,7 +46,8 @@ public class RatingAnnotationData extends AnnotationData {
      * The name space used to identify the archived annotation linked to a set
      * of pixels.
      */
-    public static final String INSIGHT_RATING_NS = "openmicroscopy.org/omero/insight/rating";
+    public static final String INSIGHT_RATING_NS = 
+    	omero.constants.metadata.NSINSIGHTRATING.value;
 
     /** Indicates the object is not rated. */
     public static final int LEVEL_ZERO = 0;

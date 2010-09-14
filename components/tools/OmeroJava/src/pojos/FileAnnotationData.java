@@ -50,41 +50,46 @@ public class FileAnnotationData extends AnnotationData {
 
 	/**  The name space used to identify the experimenter photo. */
     public static final String EXPERIMENTER_PHOTO_NS = 
-    	"openmicroscopy.org/omero/experimenter/photo";
+    	omero.constants.namespaces.NSEXPERIMENTERPHOTO.value;
     	
 	/** 
      * The name space used to indicate that the <code>FileAnnotation</code> 
      * is a companion file.
      */
     public static final String COMPANION_FILE_NS = 
-    	"openmicroscopy.org/omero/import/companionFile";
+    	omero.constants.namespaces.NSCOMPANIONFILE.value;
     
     /** 
      * The name space used to indicate that the <code>FileAnnotation</code> 
      * is a protocol.
      */
     public static final String EDITOR_PROTOCOL_NS = 
-    	"openmicroscopy.org/omero/editor/protocol";
+    	omero.constants.metadata.NSEDITORPROTOCOL.value;
     
     /** 
      * The name space used to indicate that the <code>FileAnnotation</code> 
      * is an experiment.
      */
     public static final String EDITOR_EXPERIMENT_NS = 
-    	"openmicroscopy.org/omero/editor/experiment";
+    	omero.constants.metadata.NSEDITOREXPERIMENT.value;
     
     /** 
      * The name space used to indicate that the <code>FileAnnotation</code> 
      * is a movie.
      */
-    public static final String MOVIE_NS = "openmicroscopy.org/omero/movie";
+    public static final String MOVIE_NS = 
+    	omero.constants.metadata.NSMOVIE.value;
     
     /** 
      * The name space used to indicate that the <code>FileAnnotation</code> 
      * is a <code>Measurement</code> file.
      */
     public static final String MEASUREMENT_NS = 
-    	"openmicroscopy.org/omero/measurement";
+    	omero.constants.namespaces.NSMEASUREMENT.value;
+    
+    /** Identifies the FLIM namespace. */
+    public static final String FLIM_NS = 
+    	omero.constants.analysis.flim.NSFLIM.value;
     
     /** Identifies the <code>PDF</code> file formats. */
     public static final String PDF = "pdf";
