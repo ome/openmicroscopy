@@ -1,0 +1,50 @@
+{% load i18n %}
+{% load markup %}
+{% load custom_tags %}
+
+<script>
+    $(document).ready(function() {
+        $.getJSON("{% url progress %}", function(data) {
+            if (data == null) {
+                clearInterval(i);
+                //location.reload(true);
+                $("#progress").hide();
+                $("#jobs").html('');
+                return;
+            }
+
+            $("#progress").show();
+        });
+        var i = setInterval(function (){
+            $.getJSON("{% url progress %}", function(data) {
+                if (data == null) {
+                    clearInterval(i);
+                    //location.reload(true);
+                    $("#progress").hide();
+                    $("#jobs").html('');
+                    return;
+                }
+
+                $("#progress").show();
+            });
+        }, 2000);
+    });
+</script>
+
+
+
+<div id="path">
+    
+    <div id="actionWrapper">
+        <div id="basket"><a href="{% url basket_action %}"><img src="{% url webstatic "images/basket.png" %}" /> {% trans "BASKET" %}</a> {% trans "contains" %} <span id="cartTotal">{{ nav.basket }} {% plural nav.basket 'item' 'items' %}</span></div>
+        <div id="queue"><a>QUEUE</a> <img src="{% url webstatic "images/spinner.gif" %}" id="progress" style="display: none;"/></div>
+    </div>
+    
+    <div id="logout">
+        | {% for field in form_active_group %} {% trans "current group" %}: {{ field }} {% if field.errors %}{{ field.errors }}{% endif %}{% endfor %}
+        | <a href="{% url weblogout %}">{% trans "logout" %}</a> |
+    </div>
+    
+</div>
+
+<div class="clear"> </div>
