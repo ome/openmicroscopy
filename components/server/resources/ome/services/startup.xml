@@ -30,6 +30,14 @@
      <constructor-arg ref="executor"/>
   </bean>
 
+  <bean id="namespaceCheck"
+     class="ome.services.util.NamespaceCheck"
+     lazy-init="false"><!--  Listens for ContextRefreshedEvent  -->
+     <constructor-arg ref="executor"/>
+     <constructor-arg ref="uuid"/>
+     <constructor-arg ref="roles"/>
+  </bean>
+
   <bean id="dbEnumerationCheck"
      class="ome.services.util.DBEnumCheck"
      init-method="start" lazy-init="false">
