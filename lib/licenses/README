@@ -214,9 +214,14 @@ http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/s
   Web Site:     http://www.unidata.ucar.edu/software/netcdf-java/
   License:      Lesser General Public License (LGPL) v2.1
   License File: lgpl-v2.1.txt
+  
+  Artifacts:    java-image-scaling*.jar
+  Web Site:     http://code.google.com/p/java-image-scaling/
+  License:      Lesser General Public License (LGPL) v3.0
+  License File: lgpl-v3.0.txt
 
-  Artifacts:    gtkjfilechooser.jar
-  Web Site:     https://code.google.com/p/gtkjfilechooser/
+  Artifacts:    jfilechooser.jar
+  Web Site:     https://code.google.com/p/jfilechooser/
   License:      Lesser General Public License (LGPL) v2.1
   License File: lgpl-v2.1.txt
 
