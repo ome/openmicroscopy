@@ -115,12 +115,12 @@
 	<classpathentry exported="true" kind="lib" path="lib/repository/velocity-tools-generic-1.1.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/xercesImpl-2.6.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/repository/xml-apis-1.3.02.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/repository/bio-formats-r6464.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/repository/jai_imageio-r6464.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/repository/loci-common-r6464.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/repository/mdbtools-java-r6464.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/repository/ome-xml-r6464.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/repository/poi-loci-r6464.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/bio-formats-r6921.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/jai_imageio-r6921.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/loci-common-r6921.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/mdbtools-java-r6921.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/ome-xml-r6921.jar"/>
+	<classpathentry exported="true" kind="lib" path="lib/repository/poi-loci-r6921.jar"/>
 	<classpathentry kind="lib" path="lib/repository/batik-1.7.jar"/>
 	<classpathentry kind="lib" path="lib/repository/batik-parser-1.7.jar"/>
 	<classpathentry kind="lib" path="lib/repository/batik-util-1.7.jar"/>
