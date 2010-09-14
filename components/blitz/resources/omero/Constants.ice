@@ -142,6 +142,21 @@ module omero {
         const string NSVIEW = "openmicroscopy.org/omero/scripts/results/view";
     };
 
+    /**
+     * Namespaces for analysis.
+     **/
+    module analysis {
+    
+       /** namespaces related to the FLIM analysis. **/
+       module flim {
+         const string NSFLIM = "openmicroscopy.org/omero/analysis/flim";
+         
+         //keywords associated to the namespace.
+         const string KEYWORDFLIMCELL = "Cell";
+         const string KEYWORDFLIMBACKGROUND = "Background";
+       };
+    };
+    
     module jobs {
 
       /**
