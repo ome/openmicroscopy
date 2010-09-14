@@ -7,7 +7,6 @@
 {% block link %}
     <link rel="stylesheet" href="{% url webstatic "css/container.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% url webstatic "css/images.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/ui-1.7.2.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% url webstatic "css/tooltip.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% url webstatic "css/table.css" %}" type="text/css" media="screen"/>
 {% endblock %}
@@ -76,6 +75,27 @@
                     $("div#content_details").load('{% url load_searching "form" %}?'+url);
                     return false;
                 });
+                
+                $("#batch_search_button").click(function() {
+                    var batch_query = $("textarea[name='batch_query']").val();
+                    if (batch_query == "") {
+                        alert("No query entered");
+                        return false;
+                    }
+                    var delimiter = $("input[name='delimiter']:checked").val();
+                    var lines = batch_query.split('\n');
+                    var regex = new RegExp("\\w+D\\d+D\\d+".replace(/D/g, delimiter));
+                    for (i in lines) {
+                        if (!regex.test(lines[i])) {
+                            alert("Format error at line " + i + ": \n\"" + lines[i] + "\"\n\nDid you select the correct delimiter?");
+                            return false;
+                        }
+                    }
+                    var data = $("#batch_searching_form").serialize();
+                    $("div#content_details").html('<p>{% trans "Loading data... please wait" %} <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+                    $("div#content_details").load('{% url load_searching %}', data);
+                    return false;
+                });
         })
     </script>
 
@@ -111,6 +131,25 @@
         </table>
         <input id="search_button" type="button" value="Search" /> 
     </form>    
+    </p>
+    <div>
+        <h1>{% trans "Batch searching" %}</h1>
+        <p>{% trans "The batch searching feature enables you to search for multiple images stored on the server." %}</p>
+    </div>
+    <p>
+    <form id="batch_searching_form">
+        <table>
+            <tr><th>{% trans "Search for" %}</th>
+            <td><textarea name="batch_query" cols="35" rows="8" wrap="hard"></textarea><span id="searching" title="Batch search - <small>Each line of the textbox should consist of exactly 3 elements(/columns). The elements should contain the following information in order: plate name, row, column. The columns are separated by a delimiter which can be selected below the textbox.<br/><br/>
+    +</small><b>Example search:</b><small><pre>
+    +Foo	0	0
+    +Bar	2	3
+    +</pre> The above searches for images in two wells. The first well is located in row 0, column 0 (=well A01) of a plate with name Foo. The second well is located in row 2, column 3 (=well C04) of a plate with name Bar.</small>"><img src="{% url webstatic "images/help16.png" %}" /></span></td>
+        </table>
+        {% trans "Delimiter:" %}
+        <input type="radio" name="delimiter" value="," />{% trans "comma (,)"  %} <input type="radio" name="delimiter" value=";" />{% trans "semi-colon (;)" %} <input type="radio" name="delimiter" value="\t" checked="yes" />{% trans "horizontal tab" %} <input type="radio" name="delimiter" value="|" />{% trans "vertical bar (|)" %}
+        <br/><input id="batch_search_button" type="button" value="Search"/>
+    </form>
     </p>
 </div>
 

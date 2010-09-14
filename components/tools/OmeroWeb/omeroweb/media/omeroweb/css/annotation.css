@@ -60,10 +60,10 @@ div.lnfiles{
 #annotation_tabs {
     margin: 5px 0 0 ;
     width: 100%;
+    background:none repeat scroll 0 0 #F3F3F3;
+    border: 0;
 }
-#annotation_tabs.ui-tabs-nav {
 
-}
 #annotation_tabs ul {
     position:relative;
     float:left;
@@ -72,29 +72,7 @@ div.lnfiles{
     margin: 4px 0 ;
     list-style:none;
 }
-.ui-tabs-nav { padding: 0;  position: relative; }
-.ui-tabs-nav li { 
-    float: left; 
-    
-}
-.ui-tabs-nav li a { 
-    /*display:block;*/
-    text-decoration: none;
-    padding: 0 1px;
-}
-.ui-tabs-nav li.ui-tabs-selected a{  
-    font-weight: bold;
-    padding: 0;
-}
-.ui-tabs-panel {
-    display: block;
-    border: 0;
-    padding: 0;
-    margin-top: 10px;
-}
-.ui-tabs-hide {
-    display: none !important;
-}
+
 
 /* comment display page */
 #comment_wrapper {

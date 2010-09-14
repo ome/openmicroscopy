@@ -89,11 +89,11 @@
     <div id="annotation_tabs" class="ui-tabs">
         <ul>
             {% if manager.tag %}
-                <li><a href="#metadata_tab">{% trans "Metadata" %}</a>&nbsp;</li>
+                <li><a href="#metadata_tab">{% trans "Metadata" %}</a></li>
             {% else %}
-                {% if manager.image or manager.well %}<li>|&nbsp;<a href="#preview_tab">{% trans "Preview" %}</a>&nbsp;</li>{% endif %}
-                <li>|&nbsp;<a href="#metadata_tab">{% trans "Metadata" %}</a>&nbsp;</li>
-                <li>|&nbsp;<a href="#annotation_tab">{% trans "Annotation" %}</a>&nbsp;</li>
+                {% if manager.image or manager.well %}<li><a href="#preview_tab">{% trans "Preview" %}</a></li>{% endif %}
+                <li><a href="#metadata_tab">{% trans "Metadata" %}</a></li>
+                <li><a href="#annotation_tab">{% trans "Annotation" %}</a></li>
             {% endif %}
         </ul>
         <div class="clear"></div>        

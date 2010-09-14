@@ -265,6 +265,29 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             return "Version is not available"
 
 
+    #########################################################
+    ##  From Bram b(dot)gerritsen(at)nki(dot)nl            ##
+    
+    def searchWellFromPlate (self, plate_name, row, column):
+        q = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map['pname'] = rstring(str(plate_name))
+        p.map['row'] = rint(int(row))
+        p.map['column'] = rint(int(column))
+    
+        sql = "select well from Well as well "\
+              "left outer join fetch well.plate as pt "\
+              "left outer join fetch well.wellSamples as ws " \
+              "inner join fetch ws.image as img "\
+              "where well.plate.name = :pname and well.row = :row and well.column = :column"
+        well = q.findByQuery(sql, p)
+        if well is None:
+            return None
+        else:
+            return WellWrapper(self, well, None)
+    
+    
     ##############################################
     ##   DATA RETRIVAL                          ##
 

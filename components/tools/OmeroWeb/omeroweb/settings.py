@@ -95,7 +95,6 @@ if not os.path.isdir(LOGDIR):
 import logconfig
 logger = logconfig.get_logger(os.path.join(LOGDIR, LOGFILE), LOGLEVEL)
     
-    
 try:
     ADMINS
 except:
@@ -148,7 +147,6 @@ TEMPLATE_LOADERS = (
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.doc.XViewMiddleware',
 )
 
@@ -180,7 +178,6 @@ INSTALLED_APPS = (
     #'omeroweb.webemdb',
     'omeroweb.webmobile',
 )
-    
 
 FEEDBACK_URL = "qa.openmicroscopy.org.uk:80"
 
@@ -189,10 +186,6 @@ IGNORABLE_404_ENDS = ('*.ico')
 # Other option: "django.contrib.sessions.backends.cache_db"; "django.contrib.sessions.backends.cache"; "django.contrib.sessions.backends.file"
 SESSION_ENGINE = "django.contrib.sessions.backends.file" 
 SESSION_FILE_PATH = tempfile.gettempdir()
-
-# Cache
-#CACHE_BACKEND = 'file:///var/tmp/django_cache'
-#CACHE_TIMEOUT = 86400
 
 # Cookies config
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True # False

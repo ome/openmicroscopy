@@ -43,6 +43,31 @@ class BaseSearch(BaseController):
         BaseController.__init__(self, conn)
         self.eContext['breadcrumb'] = ['Search']
 
+    def batch_search(self, query_list):
+       	im_list = list()
+        well_list = list()
+        for (plate_name, row, column) in query_list:
+            row = int(row)
+            column = int(column)
+            well = self.conn.searchWellFromPlate(plate_name, row, column)
+            if well is not None:
+                well_list.append(well)
+        for well in well_list:
+            img=well.selectedWellSample().image()
+            im_list.append(img)
+    
+        im_ids = [im.id for im in im_list]
+        im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
+    
+        im_list_with_counters = list()
+        for im in im_list:
+            im.annotation_counter = im_annotation_counter.get(im.id)
+            im_list_with_counters.append(im)
+    
+        self.containers = {'projects': list(), 'datasets': list(), 'images': im_list_with_counters, 'screens': list(), 'plates': list()}
+        self.c_size = len(im_list_with_counters)
+
+    
     def search(self, query, onlyTypes, date=None):
         created = None
         if date is not None:

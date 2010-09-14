@@ -41,7 +41,7 @@ body.zoom {
     height:90px;
 }
 #header2 {
-    margin: 0 10px;
+    margin: 0;
     height: 25px;
 }
 
@@ -119,7 +119,24 @@ table.contentWrapper {
     padding: 2px 0;
     top: 0;
     right: 0;
+    margin: 0 10px;
 }
+#actionWrapper {
+    position: absolute;
+    padding: 2px 0;
+    top: 0;
+    left: 0;
+    width: 400px;
+}
+#basket {
+    margin: 0 10px;
+    float:left;
+}
+#queue, #jobs {
+    margin: 0 10px;
+    float:left;
+}
+
 
 #logo {
     position: absolute;

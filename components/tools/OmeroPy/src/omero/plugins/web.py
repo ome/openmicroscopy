@@ -226,6 +226,7 @@ except:
 # Notification
 # Application allows to notify user about new shares
 
+#DEBUG = False
 SERVER_LIST = (
     ('localhost', 4064, 'omero'),
 )

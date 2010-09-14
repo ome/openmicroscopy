@@ -726,6 +726,15 @@ def load_searching(request, form=None, **kwargs):
     else:
         template = "webclient/search/search.html"
     
+    batch_query = request.REQUEST.get('batch_query')
+    if batch_query is not None:
+        delimiter = request.REQUEST.get('delimiter')
+    	delimiter = delimiter.decode("string_escape")
+        batch_query = batch_query.split("\n")
+        batch_query = [query.split(delimiter) for query in batch_query]
+        template = "webclient/search/search_details.html"
+        manager.batch_search(batch_query)
+    
     context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager}
         
     t = template_loader.get_template(template)
@@ -926,7 +935,7 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
             image = manager.well.selectedWellSample().image()
         except:
             image = manager.image
-                
+        
         if image.getObjectiveSettings() is not None:
             form_objective = MetadataObjectiveForm(initial={'objectiveSettings': image.getObjectiveSettings(), 
                                     'mediums': list(conn.getEnumerationEntries("MediumI")), 
@@ -937,24 +946,25 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
         if image.getStageLabel() is not None:
             form_stageLabel = MetadataStageLabelForm(initial={'image': image })
 
-        if image.getInstrument() is not None:
-            if image.getInstrument().getMicroscope() is not None:
-                form_microscope = MetadataMicroscopeForm(initial={'microscopeTypes':list(conn.getEnumerationEntries("MicroscopeTypeI")), 'microscope': image.getInstrument().getMicroscope()})
+        instrument = image.getInstrument()
+        if instrument is not None:
+            if instrument.getMicroscope() is not None:
+                form_microscope = MetadataMicroscopeForm(initial={'microscopeTypes':list(conn.getEnumerationEntries("MicroscopeTypeI")), 'microscope': instrument.getMicroscope()})
 
-            if len(image.getInstrument().getFilters()) > 0:
-                filters = list(image.getInstrument().getFilters())    
+            filters = list(instrument.getFilters())            
+            if len(filters) > 0:
                 for f in filters:
                     form_filter = MetadataFilterForm(initial={'filter': f, 'types':list(conn.getEnumerationEntries("FilterTypeI"))})
                     form_filters.append(form_filter)
             
-            if len(image.getInstrument().getDetectors()) > 0:
-                detectors = list(image.getInstrument().getDetectors())    
+            detectors = list(instrument.getDetectors())
+            if len(detectors) > 0:
                 for d in detectors:
                     form_detector = MetadataDetectorForm(initial={'detectorSettings':None, 'detector': d, 'types':list(conn.getEnumerationEntries("DetectorTypeI"))})
                     form_detectors.append(form_detector)
         
-            if len(image.getInstrument().getLightSources()) > 0:
-                lasers = list(image.getInstrument().getLightSources())
+            lasers = list(instrument.getLightSources())
+            if len(lasers) > 0:
                 for l in lasers:
                     form_laser = MetadataLightSourceForm(initial={'lightSource': l, 
                                     'types':list(conn.getEnumerationEntries("FilterTypeI")), 
@@ -2140,6 +2150,26 @@ def load_history(request, year, month, day, **kwargs):
     logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
 
+########################################
+# Progressbar
+
+@isUserConnected
+def progress(request, **kwargs):
+    data = request.session.get('jobs', None)    
+    if data is not None:
+        data -= 1
+        if int(data)<=0:
+            try:
+                del request.session['jobs']
+            except KeyError:
+                logger.error(traceback.format_exc())
+            data = None
+    else:
+        data = 5
+    request.session['jobs'] = data
+    return HttpResponse(simplejson.dumps(data),mimetype='application/json')
+            
+    
 ####################################################################################
 # User Photo
 
@@ -2189,7 +2219,7 @@ def render_thumbnail (request, iid, share_id=None, **kwargs):
     if conn is None:
         raise Exception("Share connection not available")
     img = conn.getImage(iid)
-
+    
     if img is None:
         jpeg_data = conn.defaultThumbnail(80)
         logger.error("Image %s not found..." % (str(iid)))

@@ -95,9 +95,9 @@
 <div id="annotation_form" >
     <div id="annotation_tabs" class="ui-tabs">
         <ul>
-            {% if manager.image or manager.well %}<li>|&nbsp;<a href="#preview_tab">{% trans "Preview" %}</a>&nbsp;</li>{% endif %}
-            <li>|&nbsp;<a href="#metadata_tab">{% trans "Metadata" %}</a>&nbsp;</li>
-            {% if manager.share %}<li>|&nbsp;<a href="#annotation_tab">{% trans "Annotation" %}</a>&nbsp;</li>{% endif %}
+            {% if manager.image or manager.well %}<li><a href="#preview_tab">{% trans "Preview" %}</a></li>{% endif %}
+            <li><a href="#metadata_tab">{% trans "Metadata" %}</a></li>
+            {% if manager.share %}<li><a href="#annotation_tab">{% trans "Annotation" %}</a></li>{% endif %}
         </ul>
         <div class="clear"></div>        
         

@@ -565,7 +565,7 @@ class BlitzObjectWrapper (object):
             tattr = attr[3].lower() + attr[4:]
             attrs = filter(lambda x: tattr in x, self._attrs)
             for a in attrs:
-                if a.startswith('#') and a[1:] == tattr:
+                if a.startswith('#') and a[1:] == tattr:  
                     v = getattr(self, tattr)
                     if v is not None:
                         v = v._value
@@ -2498,8 +2498,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
         target.linkAnnotation(this)
 
     def getNs (self):
-        if self._obj.ns == None: return
-        return self._obj.ns.val
+        return self._obj.ns is not None and self._obj.ns.val or None
 
     def setNs (self, val):
         self._obj.ns = omero_type(val)
@@ -3318,25 +3317,23 @@ class _ImageWrapper (BlitzObjectWrapper):
             self._obj.instrument = self._conn.getQueryService().find('Instrument', i.id.val)
             i = self._obj.instrument
             meta_serv = self._conn.getMetadataService()
-            for e in meta_serv.loadInstrument(i.id.val):
-                if isinstance(e, omero.model.DetectorI):
-                    i._detectorSeq.append(e)
-                elif isinstance(e, omero.model.ObjectiveI):
-                    i._objectiveSeq.append(e)
-                elif isinstance(e, omero.model.LightSource):
-                    i._lightSourceSeq.append(e)
-                elif isinstance(e, omero.model.FilterI):
-                    i._filterSeq.append(e)
-                elif isinstance(e, omero.model.DichroicI):
-                    i._dichroicSeq.append(e)
-                elif isinstance(e, omero.model.FilterSetI):
-                    i._filterSetSeq.append(e)
-                elif isinstance(e, omero.model.OTFI):
-                    i._otfSeq.append(e)
-                elif isinstance(e, omero.model.InstrumentI):
-                    pass
-                else:
-                    logger.info("Unknown instrument entry: %s" % str(e))
+            instruments = meta_serv.loadInstrument(i.id.val)
+
+            if instruments._detectorLoaded:
+                i._detectorSeq.extend(instruments._detectorSeq)
+            if instruments._objectiveLoaded:
+                i._objectiveSeq.extend(instruments._objectiveSeq)
+            if instruments._lightSourceLoaded:
+                i._lightSourceSeq.extend(instruments._lightSourceSeq)
+            if instruments._filterLoaded:
+                i._filterSeq.extend(instruments._filterSeq)
+            if instruments._dichroicLoaded:
+                i._dichroicSeq.extend(instruments._dichroicSeq)
+            if instruments._filterSetLoaded:
+                i._filterSetSeq.extend(instruments._filterSetSeq)
+            if instruments._otfLoaded:
+                i._otfSeq.extend(instruments._otfSeq)
+
         return InstrumentWrapper(self._conn, i)
 
     def _loadPixels (self):
@@ -4074,6 +4071,14 @@ class _DetectorWrapper (BlitzObjectWrapper):
     def __bstrap__ (self):
         self.OMERO_CLASS = 'Detector'
 
+    def getDetectorType(self):
+        rv = self.type
+        if self.type is not None:
+            rv = EnumerationWrapper(self._conn, self.type)
+            if not self.type.loaded:
+                self.type = rv._obj
+            return rv
+        
 DetectorWrapper = _DetectorWrapper
 
 class _ObjectiveWrapper (BlitzObjectWrapper):
@@ -4089,11 +4094,35 @@ class _ObjectiveWrapper (BlitzObjectWrapper):
               '#immersion',
               '#correction',
               'workingDistance',
-              'iris',
+              '#iris',
               'version')
 
     def __bstrap__ (self):
         self.OMERO_CLASS = 'Objective'
+
+    def getImmersion(self):
+        rv = self.immersion
+        if self.immersion is not None:
+            rv = EnumerationWrapper(self._conn, self.immersion)
+            if not self.immersion.loaded:
+                self.immersion = rv._obj
+            return rv
+    
+    def getCorrection(self):
+        rv = self.correction
+        if self.correction is not None:
+            rv = EnumerationWrapper(self._conn, self.correction)
+            if not self.correction.loaded:
+                self.correction = rv._obj
+            return rv
+
+    def getIris(self):
+        rv = self.iris
+        if self.iris is not None:
+            rv = EnumerationWrapper(self._conn, self.iris)
+            if not self.iris.loaded:
+                self.iris = rv._obj
+            return rv
 
 ObjectiveWrapper = _ObjectiveWrapper
 
@@ -4102,7 +4131,7 @@ class _ObjectiveSettingsWrapper (BlitzObjectWrapper):
     omero_model_ObjectiveSettingsI class wrapper extends BlitzObjectWrapper.
     """
     _attrs = ('correctionCollar',
-              'medium',
+              '#medium',
               'refractiveIndex',
               'objective|ObjectiveWrapper',
               'version')
@@ -4117,6 +4146,14 @@ class _ObjectiveSettingsWrapper (BlitzObjectWrapper):
             if not self.objective.loaded:
                 self.objective = rv._obj
         return rv
+    
+    def getMedium(self):
+        rv = self.medium
+        if self.medium is not None:
+            rv = EnumerationWrapper(self._conn, self.medium)
+            if not self.medium.loaded:
+                self.medium = rv._obj
+            return rv
 
 ObjectiveSettingsWrapper = _ObjectiveSettingsWrapper
 
@@ -4129,13 +4166,21 @@ class _FilterWrapper (BlitzObjectWrapper):
               'model',
               'lotNumber',
               'filterWheel',
-              'type;filterType',
+              '#type;filterType',
               'transmittanceRange|TransmittanceRangeWrapper',
               'version')
 
     def __bstrap__ (self):
         self.OMERO_CLASS = 'Filter'
-
+    
+    def getFilterType(self):
+        rv = self.type
+        if self.type is not None:
+            rv = EnumerationWrapper(self._conn, self.type)
+            if not self.type.loaded:
+                self.type = rv._obj
+            return rv
+    
 FilterWrapper = _FilterWrapper
 
 class _DichroicWrapper (BlitzObjectWrapper):
@@ -4216,8 +4261,16 @@ class _LightSourceWrapper (BlitzObjectWrapper):
               'model',
               'power',
               'serialNumber',
-              '#type;lightsourceType',
+              '#type;lightSourceType',
               'version')
+    
+    def getLightSourceType(self):
+        rv = self.type
+        if self.type is not None:
+            rv = EnumerationWrapper(self._conn, self.type)
+            if not self.type.loaded:
+                self.type = rv._obj
+            return rv
 
 _LightSourceClasses = {}
 def LightSourceWrapper (conn, obj, **kwargs):
@@ -4266,6 +4319,14 @@ class _LaserWrapper (_LightSourceWrapper):
             'pump',
             'repetitionRate')
 
+    def getLaserMedium(self):
+        rv = self.laserMedium
+        if self.laserMedium is not None:
+            rv = EnumerationWrapper(self._conn, self.laserMedium)
+            if not self.laserMedium.loaded:
+                self.laserMedium = rv._obj
+            return rv
+    
 LaserWrapper = _LaserWrapper
 _LightSourceClasses[omero.model.LaserI] = 'LaserWrapper'
 
@@ -4292,6 +4353,14 @@ class _MicroscopeWrapper (BlitzObjectWrapper):
 
     def __bstrap__ (self):
         self.OMERO_CLASS = 'Microscope'
+    
+    def getMicroscopeType(self):
+        rv = self.type
+        if self.type is not None:
+            rv = EnumerationWrapper(self._conn, self.type)
+            if not self.type.loaded:
+                self.type = rv._obj
+            return rv
 
 MicroscopeWrapper = _MicroscopeWrapper
 

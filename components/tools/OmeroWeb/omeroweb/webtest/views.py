@@ -48,7 +48,6 @@ def metadata (request, iid):
                         MetadataLightSourceForm, MetadataDichroicForm, MetadataMicroscopeForm
                         
     conn = getBlitzConnection(request, useragent="OMERO.webtest")
-    print type(conn), conn._sessionUuid
     if conn is None or not conn.isConnected():
         return HttpResponseRedirect(reverse('webtest_login'))
     
