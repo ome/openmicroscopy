@@ -22,27 +22,28 @@
  */
 package org.openmicroscopy.shoola.agents.fsimporter.view;
 
+//Java imports
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-
-import org.openmicroscopy.shoola.agents.fsimporter.DataImporterLoader;
-import org.openmicroscopy.shoola.agents.fsimporter.DirectoryMonitor;
-import org.openmicroscopy.shoola.agents.fsimporter.ImagesImporter;
-import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
-
-import pojos.DataObject;
-
-
-//Java imports
+import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.fsimporter.DataImporterLoader;
+import org.openmicroscopy.shoola.agents.fsimporter.DirectoryMonitor;
+import org.openmicroscopy.shoola.agents.fsimporter.ImagesImporter;
+import org.openmicroscopy.shoola.agents.fsimporter.TagsLoader;
+import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportableObject;
+import org.openmicroscopy.shoola.env.data.model.ImportContext;
+
+import pojos.DataObject;
 
 /** 
- * The Model component in the <code>FSImporter</code> MVC triad.
- * This class tracks the <code>FSImporter</code>'s state and knows how to
+ * The Model component in the <code>Importer</code> MVC triad.
+ * This class tracks the <code>Importer</code>'s state and knows how to
  * initiate data retrievals. It also knows how to store and manipulate
  * the results. This class  provide  a suitable data loader. 
  * The {@link ImporterComponent} intercepts the 
@@ -77,6 +78,9 @@ class ImporterModel
 	 */
 	private DataImporterLoader 	currentLoader;
 	
+	/** The collection of exiting tags. */
+	private Collection			tags;
+	
 	/** Creates a new instance. */
 	ImporterModel()
 	{
@@ -102,7 +106,7 @@ class ImporterModel
 	int getState() { return state; }    
 
 	/**
-	 * Sets the staof the component.
+	 * Sets the state of the component.
 	 * 
 	 * @param state The value to set.
 	 */
@@ -146,18 +150,38 @@ class ImporterModel
 	DataObject getContainer() { return container; }
 
 	/**
-	 * Fires an asynchronous call to import the images.
+	 * Returns the list of the supported file formats.
+	 * 
+	 * @return See above.
+	 */
+	List<FileFilter> getSupportedFormats()
+	{
+		return new ArrayList<FileFilter>();
+		
+		//OmeroImageService svc = ImporterAgent.getRegistry().getImageService();
+		//return svc.getSupportedFileFilters();
+	}
+	
+	/**
+	 * Fires an asynchronous call to import the files in the object.
 	 * 
 	 * @param data The file to import.
 	 */
-	void fireImportData(File[] data)
+	void fireImportData(ImportableObject data)
 	{
+		//ImportContext metadata = new ImportContext();
+		//metadata.setTags(data.getTags());
+		//metadata.setPixelsSize(data.getPixelsSize());
+		
+		
+		/*
 		List<Object> files = new ArrayList<Object>(data.length);
 		for (int i = 0; i < data.length; i++)
 			files.add(data[i]);
 		currentLoader = new ImagesImporter(component, container, files);
 		currentLoader.load();
 		state = Importer.IMPORTING;
+		*/
 	}
 	
 	/**
@@ -171,6 +195,31 @@ class ImporterModel
 		currentLoader = new DirectoryMonitor(component, directory, container);
 		currentLoader.load();
 		state = Importer.IMPORTING;
+	}
+	
+	/**
+	 * Returns the collection of the existing tags.
+	 * 
+	 * @return See above.
+	 */
+	Collection getTags() { return tags; }
+	
+	/**
+	 * Sets the collection of the existing tags.
+	 * 
+	 * @param The value to set.
+	 */
+	void setTags(Collection tags)
+	{ 
+		this.tags = tags; 
+	}
+	
+	/** Starts an asynchronous call to load the tags. */
+	void fireTagsLoading()
+	{
+		if (tags != null) return; //already loading tags
+		TagsLoader loader = new TagsLoader(component);
+		loader.load();
 	}
 	
 }

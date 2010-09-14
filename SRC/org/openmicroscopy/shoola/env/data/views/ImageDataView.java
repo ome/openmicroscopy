@@ -35,7 +35,7 @@ import java.util.Map;
 //Application-internal dependencies
 import omero.romio.PlaneDef;
 import pojos.WorkflowData;
-import org.openmicroscopy.shoola.env.data.model.ImportObject;
+import org.openmicroscopy.shoola.env.data.model.ImportContext;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
@@ -243,19 +243,15 @@ public interface ImageDataView
 	/**
 	 * Imports the collection of images into the specified container.
 	 *  
-	 * @param container The container where to import the images into or 
+	 * @param context   The container where to import the images into or 
 	 * 					<code>null</code>.
-	 * @param images	The images to import. Mustn't be <code>null</code>.
 	 * @param userID	The id of the user.
 	 * @param groupID	The id of the group.
-	 * @param archived 	Pass <code>true</code> to archived the files, 
-	 * 					<code>false</code> otherwise.
 	 * @param observer	Call-back handler.
 	 * @return See above.
 	 */
-	public CallHandle importImages(DataObject container, List<ImportObject>
-		images, long userID, long groupID, boolean archived,
-		AgentEventListener observer);
+	public CallHandle importFiles(ImportContext context, long userID, 
+			long groupID, AgentEventListener observer);
 
 	/**
 	 * Monitors the passed directory.

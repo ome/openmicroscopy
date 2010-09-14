@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.fsimporter.ImagesImporter 
+ * org.openmicroscopy.shoola.agents.fsimporter.TagsLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -11,7 +11,7 @@
  *  (at your option) any later version.
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details.
  *  
  *  You should have received a copy of the GNU General Public License along
@@ -23,25 +23,22 @@
 package org.openmicroscopy.shoola.agents.fsimporter;
 
 
-
 //Java imports
-import java.util.List;
+import java.util.Collection;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
-import org.openmicroscopy.shoola.env.data.model.ImportContext;
-import org.openmicroscopy.shoola.env.data.model.ImportObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.DataObject;
+import pojos.TagAnnotationData;
 
 /** 
- * Imports the images.
+ * Loads the available Tags
  * This class calls one of the <code>importImages</code> methods in the
- * <code>ImageDataView</code>.
+ * <code>ImageDataView</code>
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
@@ -51,55 +48,48 @@ import pojos.DataObject;
  * </small>
  * @since 3.0-Beta4
  */
-public class ImagesImporter 
+public class TagsLoader
 	extends DataImporterLoader
 {
 
-	/** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle	handle; 
+    /** Handle to the asynchronous call so that we can cancel it. */
+    private CallHandle	handle;
     
-    /** The object hosting the information for the import. */
-    private ImportContext context;
-    
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param viewer	The Importer this data loader is for.
-     * 					Mustn't be <code>null</code>.
-	 * @param context	The container where to import the image to.
-	 * @param images	The images to import.
-	 */
-	public ImagesImporter(Importer viewer, ImportContext context)
+    /**
+     * Creates a new instance.
+     * 
+     * @param viewer The viewer this data loader is for.
+     *               Mustn't be <code>null</code>.
+     */
+	public TagsLoader(Importer viewer)
 	{
 		super(viewer);
-		if (context == null || context.getFiles() == null ||
-				context.getFiles().size() == 0)
-			throw new IllegalArgumentException("No Files to import.");
-		this.context = context;
-	}
-
-	/** 
-	 * Starts the import.
-	 * @see DataImporterLoader#load()
-	 */
-	public void load()
-	{
-		//handle = ivView.importImages(context, getCurrentUserID(), -1L, this);
 	}
 	
 	/** 
-	 * Cancels the import.
-	 * @see DataImporterLoader#load()
+	 * Loads the tags. 
+	 * @see DataImporterLoader#cancel()
+	 */
+	public void load()
+	{
+		handle = mhView.loadExistingAnnotations(TagAnnotationData.class, 
+				userID, groupID, this);
+	}
+	
+	/** 
+	 * Cancels the data loading. 
+	 * @see DataImporterLoader#cancel()
 	 */
 	public void cancel() { handle.cancel(); }
-
-	/** 
+	
+	/**
      * Feeds the result back to the viewer.
      * @see DataImporterLoader#handleResult(Object)
      */
-    public void handleResult(Object result)
+    public void handleResult(Object result) 
     {
-        if (viewer.getState() == Importer.DISCARDED) return;  //Async cancel.
-    }
-
+    	//if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
+    	viewer.setExistingTags((Collection) result);
+    } 
+	
 }

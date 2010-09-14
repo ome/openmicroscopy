@@ -1054,12 +1054,13 @@ class OmeroImageServiceImpl
 	 * @see OmeroImageService#retrieveWorkflows(long)
 	 */
 	public List<WorkflowData> retrieveWorkflows(long userID) 
-	throws DSAccessException, DSOutOfServiceException
+		throws DSAccessException, DSOutOfServiceException
 	{
-		List<WorkflowData> workflows = gateway.retrieveWorkflows(userID);
-		return workflows;
+		ExperimenterData exp = (ExperimenterData) context.lookup(
+					LookupNames.CURRENT_USER_DETAILS);
+		if (userID < 0) userID = exp.getId();
+		return gateway.retrieveWorkflows(userID);
 	}
-
 	
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.

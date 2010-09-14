@@ -25,16 +25,18 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 //Java imports
 import java.io.File;
+import java.util.Collection;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportableObject;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
 /** 
- * Defines the interface provided by the fs importer component. 
+ * Defines the interface provided by the importer component. 
  * The Viewer provides a top-level window hosting UI components to interact 
- * with the fs instance.
+ * with the instance.
  *
  * When the user quits the window, the {@link #discard() discard} method is
  * invoked and the object transitions to the {@link #DISCARDED} state.
@@ -55,6 +57,12 @@ public interface Importer
 	extends ObservableComponent
 {
 
+	/** Indicates that the type is for project. */
+	public static final int		PROJECT_TYPE = 0;
+	
+	/** Indicates that the type is for Screening data. */
+	public static final int		SCREEN_TYPE = 1;
+	
 	/** Flag to denote the <i>New</i> state. */
 	public static final int     NEW = 1;
 
@@ -73,9 +81,10 @@ public interface Importer
 	 * If the state is not {@link #NEW}, then this method simply moves the
 	 * window to front.
 	 * 
+	 * @param type One of the types constants defined by this class. 
 	 * @throws IllegalStateException If the current state is {@link #DISCARDED}.  
 	 */
-	public void activate();
+	public void activate(int type);
 	
 	/**
 	 * Transitions the viewer to the {@link #DISCARDED} state.
@@ -98,7 +107,7 @@ public interface Importer
 	 * 
 	 * @param data The data to import.
 	 */
-	public void importData(File[] data);
+	public void importData(ImportableObject data);
 
 	/**
 	 * Monitors the passed directory.
@@ -106,5 +115,16 @@ public interface Importer
 	 * @param dir The directory to monitor.
 	 */
 	public void monitorDirectory(File dir);
+
+	/**
+	 * Sets the collection of existing tags if any.
+	 * 
+	 * @param tags The collection of tags.
+	 */
+	public void setExistingTags(Collection tags);
+	
+	/** Invokes to load the existing tags if not already loaded. */
+	public void loadExistingTags();
+	
 	
 }

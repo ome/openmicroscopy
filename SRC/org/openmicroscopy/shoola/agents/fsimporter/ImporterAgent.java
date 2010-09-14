@@ -88,7 +88,17 @@ public class ImporterAgent
     {
     	if (evt == null) return;
     	Importer importer = ImporterFactory.getImporter(evt.getContainer());
-    	if (importer != null) importer.activate();
+    	if (importer != null) {
+    		int type = evt.getType();
+    		switch (evt.getType()) {
+				case LoadImporter.PROJECT_TYPE:
+					type = Importer.PROJECT_TYPE;
+					break;
+				case LoadImporter.SCREEN_TYPE:
+					type = Importer.SCREEN_TYPE;
+			}
+    		importer.activate(type);
+    	}
     }
     
 	/** Creates a new instance. */

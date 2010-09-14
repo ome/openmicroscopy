@@ -30,14 +30,10 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 
-import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
-import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImporterChooserDialog;
-import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
 
 /** 
  * The {@link Importer}'s controller. 
@@ -65,10 +61,6 @@ class ImporterControl
 	/** Reference to the View. */
 	private ImporterUI		view;
 
-	/** The chooser. */
-	private ImporterChooserDialog	chooser;
-	
-	
 	/**
 	 * Creates a new instance.
 	 * The {@link #initialize(FSImportUI) initialize} method 
@@ -83,21 +75,6 @@ class ImporterControl
 	{
 		if (model == null) throw new NullPointerException("No model.");
 		this.model = model;
-	}
-	
-	/** Creates or recycles a <code>FSChooserDialog</code>. */
-	void setDialogOnScreen()
-	{
-		/*
-		if (chooser == null) {
-			Registry reg = ImporterAgent.getRegistry();
-			chooser = new ImporterChooserDialog(view, 
-					reg.getImageService().getFSFileSystemView());
-			chooser.addPropertyChangeListener(this);
-			chooser.pack();
-		}
-		UIUtilities.centerAndShow(chooser);
-		*/
 	}
 	
 	/**
@@ -118,12 +95,19 @@ class ImporterControl
 	public void propertyChange(PropertyChangeEvent evt)
 	{
 		String name = evt.getPropertyName();
+		/*
 		if (ImporterChooserDialog.IMPORT_PROPERTY.equals(name)) {
 			File[] data = (File[]) evt.getNewValue();
 			model.importData(data);
 		} else if (ImporterChooserDialog.MONITOR_PROPERTY.equals(name)) {
 			File dir = (File) evt.getNewValue();
 			model.monitorDirectory(dir);
+		}
+		*/
+		if (ImportDialog.IMPORT_PROPERTY.equals(name)) {
+			
+		} else if (ImportDialog.LOAD_TAGS_PROPERTY.equals(name)) {
+			model.loadExistingTags();
 		}
 	}
 	

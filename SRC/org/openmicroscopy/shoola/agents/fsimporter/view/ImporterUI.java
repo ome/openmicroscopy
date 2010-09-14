@@ -28,11 +28,11 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImporterChooserDialog;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 
 /** 
- * The {@link Importer}'s View.
+ * The {@link Importer}'s View. Displays the on-going import and the finished
+ * ones.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -54,9 +54,6 @@ class ImporterUI
 	/** Reference to the control. */
 	private ImporterControl			controller;
 	
-	/** The chooser. */
-	private ImporterChooserDialog	chooser;
-	
 	/** Creates a new instance. */
 	ImporterUI()
 	{
@@ -74,7 +71,5 @@ class ImporterUI
 		this.model = model;
 		this.controller = controller;
 	}
-	
 
-	
 }
