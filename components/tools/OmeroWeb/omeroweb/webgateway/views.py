@@ -517,7 +517,7 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
     else:
         try:
             img_ids = '+'.join((str(x.getId()) for x in imgs))
-            key = '_'.join((str(x.getId()) for x in imgs[0].getAncestry())) + '_' + hashlib.md5(img_ids).hexdigest() + '_ome_tiff_zip'
+            key = '_'.join((str(x.getId()) for x in imgs[0].getAncestry())) + '_' + md5(img_ids).hexdigest() + '_ome_tiff_zip'
             fpath, rpath, fobj = webgateway_tempfile.new(name + '.zip', key=key)
             if fobj is True:
                 return HttpResponseRedirect('/appmedia/tfiles/' + rpath)
