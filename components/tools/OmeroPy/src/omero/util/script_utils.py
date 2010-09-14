@@ -780,11 +780,12 @@ def createFileFromData(updateService, queryService, filename, data):
     
 def attachArrayToImage(updateService, image, file, nameSpace):
     """
-    Attach an array, stored as a csv file to an image.
+    Attach an array, stored as a csv file to an image. Returns the annotation.
     @param updateService The updateService to create the annotation link.
     @param image The image to attach the data to.
     @param filename The name of the file.
     @param namespace The namespace of the file.
+    @return 
     """
     fa = omero.model.FileAnnotationI();
     fa.setFile(file);
@@ -793,15 +794,18 @@ def attachArrayToImage(updateService, image, file, nameSpace):
     l.setParent(image);
     l.setChild(fa);
     l = updateService.saveAndReturnObject(l);
+    return l.getChild();
 
-def uploadArray(rawFileStore, updateService, queryService, image, filename, array):
+def uploadArray(rawFileStore, updateService, queryService, image, filename, namespace, array):
     """
     Upload the data to the server, creating the OriginalFile Object and attaching it to the image.
     @param rawFileStore The rawFileStore used to create the file.
     @param updateService The updateService to create the annotation link.
     @param image The image to attach the data to.
     @param filename The name of the file.
+    @param namespace The name space associated to the annotation.
     @param data The data to save.
+    @return The newly created file.
     """
     data = arrayToCSV(array);
     file = createFileFromData(updateService, queryService, filename, data);
@@ -819,7 +823,7 @@ def uploadArray(rawFileStore, updateService, queryService, image, filename, arra
         block = data[cnt:cnt+blockSize];
         rawFileStore.write(block, cnt, blockSize);
         cnt = cnt+blockSize;
-    attachArrayToImage(updateService, image, file, CSV_NS)    
+    return attachArrayToImage(updateService, image, file, namespace);
 
 def arrayToCSV(data):
     """
@@ -1122,6 +1126,13 @@ def registerNamespace(iQuery, iUpdate, namespace, keywords):
     return WorkflowData(workflow);
 
 def findROIByImage(roiService, image, namespace):
+    """
+    Finds the ROI with the given namespace linked to the image. Returns a collection of ROIs.
+    @param roiService The ROI service.
+    @param image The image the ROIs are linked to .
+    @param namespace The namespace of the ROI.
+    @return see above.
+    """
     roiOptions = omero.api.RoiOptions();
     roiOptions.namespace = omero.rtypes.rstring(namespace);
     results = roiService.findByImage(image, roiOptions);
