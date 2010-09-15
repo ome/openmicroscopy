@@ -230,7 +230,8 @@ public class DownloadActivity
 	{ 
 		type.setText(DESCRIPTION); 
 		if (parameters.getResults() != null) {
-			plotResult(file, parameters.getResults());
+			plotResult(file, parameters.getResults(), 
+					parameters.getOriginalFileName());
 			return;
 		}
 		if (parameters.getApplicationData() != null) {

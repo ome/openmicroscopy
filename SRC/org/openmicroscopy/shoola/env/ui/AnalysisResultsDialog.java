@@ -138,8 +138,12 @@ class AnalysisResultsDialog
 		return file.getName();
 	}
 	
-	/** Initializes the components composing the display. */
-	private void initComponents()
+	/** 
+	 * Initializes the components composing the display.
+	 * 
+	 *  @param name The name to display in the legend.
+	 */
+	private void initComponents(String name)
 	{
 		closeButton = new JButton("Close");
 		closeButton.setActionCommand(""+CLOSE);
@@ -153,6 +157,8 @@ class AnalysisResultsDialog
 			 l.setText("Cannot display the results");
 			 body = l;
 		} else {
+			if (name == null || name.trim().length() == 0)
+				name = getLegend();
 			switch (parameters.getIndex()) {
 				case AnalysisResultsHandlingParam.HISTOGRAM:
 					HistogramPlot hp = new HistogramPlot();
@@ -165,7 +171,7 @@ class AnalysisResultsDialog
 						values[index] = i.next().doubleValue();
 						index++;
 					}
-					hp.addSeries(getLegend(), values, DEFAULT_COLOR, BINS);
+					hp.addSeries(name, values, DEFAULT_COLOR, BINS);
 					body = hp.getChart();
 					chartObject = hp;
 					break;
@@ -271,9 +277,10 @@ class AnalysisResultsDialog
 	 * @param owner The owner the dialog.
 	 * @param icon  The icon to display in the header.
 	 * @param file  The file to handle.
+	 * @param name  The name to display in the legend
 	 * @param parameters The parameters describing.
 	 */
-	AnalysisResultsDialog(JFrame owner, Icon icon, File file,
+	AnalysisResultsDialog(JFrame owner, Icon icon, File file, String name,
 			AnalysisResultsHandlingParam parameters)
 	{
 		super(owner);
@@ -284,7 +291,7 @@ class AnalysisResultsDialog
 		this.file = file;
 		this.parameters = parameters;
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-		initComponents();
+		initComponents(name);
 		buildGUI(icon);
 	}
 
@@ -321,7 +328,17 @@ class AnalysisResultsDialog
 				type = ChartObject.SAVE_AS_JPEG;
 				extension = JPEGFilter.JPEG;
 			} 
-			f = new File(f.getAbsolutePath()+"."+extension);
+			Iterator<FileFilter> i = FILTERS.iterator();
+			boolean accept = false;
+			while (i.hasNext()) {
+				filter = i.next();
+				if (filter.accept(f)) {
+					accept = true;
+					break;
+				}
+			}
+			if (!accept)
+				f = new File(f.getAbsolutePath()+"."+extension);
 			boolean b = true;
 			try {
 				chartObject.saveAs(f, type);

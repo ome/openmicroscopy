@@ -794,14 +794,16 @@ public abstract class ActivityComponent
 	 * 
 	 * @param result The object to handle.
 	 * @param parameters The parameters indicating how to handle the results
+	 * @param name The name of
 	 */
-	void plotResult(Object result, AnalysisResultsHandlingParam parameters)
+	void plotResult(Object result, AnalysisResultsHandlingParam parameters, 
+			String name)
 	{
 		if (result instanceof File) {
 			IconManager icons = IconManager.getInstance(registry);
 			AnalysisResultsDialog d = new AnalysisResultsDialog(
 				registry.getTaskBar().getFrame(), 
-				icons.getIcon(IconManager.PLOT_48), (File) result, 
+				icons.getIcon(IconManager.PLOT_48), (File) result, name,
 				parameters);
 			d.addPropertyChangeListener(new PropertyChangeListener() {
 				
