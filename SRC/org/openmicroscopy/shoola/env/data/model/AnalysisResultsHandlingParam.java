@@ -22,13 +22,13 @@
  */
 package org.openmicroscopy.shoola.env.data.model;
 
-import org.openmicroscopy.shoola.util.ui.graphutils.HistogramPlot;
 
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.graphutils.ChartObject;
 
 /** 
  * Hosts the parameters necessary to display the results.
@@ -86,9 +86,9 @@ public class AnalysisResultsHandlingParam
 		checkIndex(index);
 		this.index = index;
 		if (nameXaxis == null || nameXaxis.trim().length() == 0)
-			nameXaxis = HistogramPlot.X_AXIS;
+			nameXaxis = ChartObject.X_AXIS;
 		if (nameYaxis == null || nameYaxis.trim().length() == 0)
-			nameYaxis = HistogramPlot.Y_AXIS;
+			nameYaxis = ChartObject.Y_AXIS;
 		this.nameYaxis = nameYaxis;
 		this.nameXaxis = nameXaxis;
 	}
