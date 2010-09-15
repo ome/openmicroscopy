@@ -561,7 +561,7 @@ public class InputStrategy
 	private void addAnnotation(IXMLElement annotationElement, ROI roi)
 	{
 		String key=annotationElement.getName();
-		AnnotationKey annotation=new AnnotationKey(key);
+		AnnotationKey annotation = new AnnotationKey(key);
 		roi.setAnnotation(annotation, createAnnotationData(annotationElement));
 	}
 		

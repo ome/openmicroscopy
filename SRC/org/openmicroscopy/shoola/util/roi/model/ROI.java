@@ -365,7 +365,7 @@ public class ROI
         if (forbiddenAnnotations == null
                 || ! forbiddenAnnotations.contains(key)) {
             Object oldValue = annotations.get(key);
-            if (! annotations.containsKey(key) || oldValue != newValue
+            if (!annotations.containsKey(key) || oldValue != newValue
                     || oldValue != null && newValue != null &&
                     ! oldValue.equals(newValue)) {
                 basicSetAnnotation(key, newValue);

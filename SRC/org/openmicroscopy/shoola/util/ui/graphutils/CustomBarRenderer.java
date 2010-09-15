@@ -24,12 +24,11 @@ package org.openmicroscopy.shoola.util.ui.graphutils;
 
 
 //Java imports
-
-//Third-party libraries
 import java.awt.Color;
 import java.awt.Paint;
 import java.util.List;
 
+//Third-party libraries
 import org.jfree.chart.renderer.category.BarRenderer;
 
 //Application-internal dependencies
