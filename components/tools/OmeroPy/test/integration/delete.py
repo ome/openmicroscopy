@@ -34,6 +34,31 @@ class TestDelete(lib.ITest):
             count -= 1
             self.assert_( count != 0 )
         self.assertEquals(0, errors)
+    
+    def testDeleteMany(self):
+        images = list()
+        for i in range(0,5):
+            img = omero.model.ImageI()
+            img.name = omero.rtypes.rstring("delete test")
+            img.acquisitionDate = omero.rtypes.rtime(0)
+            tag = omero.model.TagAnnotationI()
+            img.linkAnnotation( tag )
+
+            images.append(self.client.sf.getUpdateService().saveAndReturnObject( img ))
+        
+        commands = list()
+        for img in images:
+            commands.append(omero.api.delete.DeleteCommand("/Image", img.id.val, None))
+        
+        handle = self.client.sf.getDeleteService().queueDelete(commands)
+        callback = omero.callbacks.DeleteCallbackI(self.client, handle)
+        errors = None
+        count = 10
+        while errors is None:
+            errors = callback.block(500)
+            count -= 1
+            self.assert_( count != 0 )
+        self.assertEquals(0, errors)
 
 if __name__ == '__main__':
     unittest.main()
