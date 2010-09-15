@@ -1008,6 +1008,8 @@ def copy_image_rdef_json (request, server_id, _conn=None, **kwargs):
             frompid = newConn.getImage(fromid).getPixelsId()
             rsettings = newConn.getRenderingSettingsService()
             json_data = rsettings.applySettingsToImages(frompid, list(toids))
+            if fromid in json_data[True]:
+                del json_data[True][json_data[True].index(fromid)]
             for iid in json_data[True]:
                 img = newConn.getImage(iid)
                 img is not None and webgateway_cache.invalidateObject(server_id, img)
