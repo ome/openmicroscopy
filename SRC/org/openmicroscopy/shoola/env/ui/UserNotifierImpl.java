@@ -331,7 +331,8 @@ public class UserNotifierImpl
 			comp = new ExportActivity(this, manager.getRegistry(), p);
 		} else if (activity instanceof DownloadActivityParam) {
 			DownloadActivityParam p = (DownloadActivityParam) activity;
-			register = (p.getApplicationData() == null);
+			if (p.getResults() != null) register = false;
+			else register = (p.getApplicationData() == null);
 			comp = new DownloadActivity(this, manager.getRegistry(), p);
 		} else if (activity instanceof FigureActivityParam) {
 			FigureActivityParam p = (FigureActivityParam) activity;
@@ -353,7 +354,7 @@ public class UserNotifierImpl
 			comp = new DeleteActivity(this, manager.getRegistry(),
 					p);
 			
-		}
+		} 
 		if (comp != null) {
 			UserNotifierLoader loader = comp.createLoader();
 			if (loader == null) return;

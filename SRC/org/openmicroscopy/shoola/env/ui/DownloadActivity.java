@@ -229,6 +229,10 @@ public class DownloadActivity
 	protected void notifyActivityEnd()
 	{ 
 		type.setText(DESCRIPTION); 
+		if (parameters.getResults() != null) {
+			plotResult(file, parameters.getResults());
+			return;
+		}
 		if (parameters.getApplicationData() != null) {
 			viewer.openApplication(
 					(ApplicationData) parameters.getApplicationData(), 

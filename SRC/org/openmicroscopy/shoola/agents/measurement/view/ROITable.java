@@ -116,7 +116,7 @@ public class ROITable
 	}
 	
 	/**
-	 * Get the id that the roishapes in the shapelist contain, if they
+	 * Returns the id that the shapes in the list contain, if they
 	 * do not contain the same id return -1;
 	 * 
 	 * @param shapeList The list to handle.
@@ -170,10 +170,10 @@ public class ROITable
 	 * table to the shape selected. 
 	 * @param shape
 	 */
-	public void selectROIShape(ROIShape shape)
+	void selectROIShape(ROIShape shape)
 	{
 		ROINode parent = findParent(shape.getROI());
-		if(parent == null)
+		if (parent == null)
 			return;
 		expandROIRow(parent);
 		ROINode child = parent.findChild(shape);
@@ -186,7 +186,7 @@ public class ROITable
 	 * Scroll to the selected ROIShape. 
 	 * @param shape see above.
 	 */
-	public void scrollToROIShape(ROIShape shape)
+	void scrollToROIShape(ROIShape shape)
 	{
 		ROINode parent = findParent(shape.getROI());
 		if(parent == null)
@@ -194,17 +194,6 @@ public class ROITable
 		expandROIRow(parent);
 		ROINode child = parent.findChild(shape);
 		this.scrollPathToVisible(child.getPath());
-	}
-	
-	/**
-	 * Extending the mouse pressed event to show menu. 
-	 * 
-	 * @param e mouse event.
-	 */
-	protected void onMousePressed(MouseEvent e)
-	{
-		if (MeasurementViewerControl.isRightClick(e)) 
-			showROIManagementMenu(this, e.getX(), e.getY());
 	}
 
     /** 
@@ -744,6 +733,17 @@ public class ROITable
 		else
 			manager.showMessage("Calculate: ROIs must be from the same ROI " +
 					"and on separate planes.");
+	}
+	
+	/**
+	 * Extending the mouse pressed event to show menu. 
+	 * 
+	 * @param e mouse event.
+	 */
+	protected void onMousePressed(MouseEvent e)
+	{
+		if (MeasurementViewerControl.isRightClick(e)) 
+			showROIManagementMenu(this, e.getX(), e.getY());
 	}
 	
 }

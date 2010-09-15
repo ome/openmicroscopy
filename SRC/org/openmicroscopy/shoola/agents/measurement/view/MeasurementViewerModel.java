@@ -1493,6 +1493,7 @@ class MeasurementViewerModel
 		else
 		{
 			WorkflowData workflow = getWorkflow();
+			if (workflow == null) return;
 			for (String word : keywords)
 				if (!workflow.contains(word) && word != "")
 					throw new IllegalArgumentException(

@@ -248,11 +248,14 @@ public class IconManager
     /** ID of the <code>Log File</code> icon. */
     static final int        LOG_FILE = 20;
     
+    /** ID of the <code>Plot</code> icon. */
+    static final int        PLOT_48 = 21;
+    
 	/** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static int      MAX_ID = 20;
+	private static int      MAX_ID = 21;
 	
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -266,7 +269,7 @@ public class IconManager
 		relPaths[CONNECT_DS_BIG] = "nuvola_server48.png";
 		relPaths[WELCOME] = "nuvola_background16.png";
 		relPaths[HOW_TO] = "nuvola_artscontrol16.png";
-		relPaths[SW_UPDATES] = "nuvola_messagebox_info16.png";//"nuvola_download_manager16.png";
+		relPaths[SW_UPDATES] = "nuvola_messagebox_info16.png";
         relPaths[QUESTION] = "nuvola_filetypes48.png";
         relPaths[COMMENT] = "nuvola_mail_send16.png";
         relPaths[DOCUMENT_12] = "nuvola_fileexport12.png";
@@ -278,6 +281,7 @@ public class IconManager
         relPaths[FORUM] = "nuvola_chat16.png";
         relPaths[ACTIVITY] = "nuvola_kbounce16.png";
         relPaths[LOG_FILE] = "nuvola_kaddressbook16.png";
+        relPaths[PLOT_48] = "nuvola_kmplot48.png";
 	}
 	
 	/** The sole instance. */

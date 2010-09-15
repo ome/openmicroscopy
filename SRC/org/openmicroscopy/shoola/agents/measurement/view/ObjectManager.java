@@ -106,14 +106,14 @@ class ObjectManager
 	static{
 		columnWidths= new HashMap<String, Integer>();
         columnWidths.put(columnNames.get(0), 80);
-        columnWidths.put(columnNames.get(1),36);
-        columnWidths.put(columnNames.get(2),36);
-        columnWidths.put(columnNames.get(3),36);
-        columnWidths.put(columnNames.get(4),36);
-        columnWidths.put(columnNames.get(5),36);
-        columnWidths.put(columnNames.get(6),96);
-        columnWidths.put(columnNames.get(7),96);
-        columnWidths.put(columnNames.get(8),36);
+        columnWidths.put(columnNames.get(1), 36);
+        columnWidths.put(columnNames.get(2), 36);
+        columnWidths.put(columnNames.get(3), 36);
+        columnWidths.put(columnNames.get(4), 36);
+        columnWidths.put(columnNames.get(5), 36);
+        columnWidths.put(columnNames.get(6), 96);
+        columnWidths.put(columnNames.get(7), 96);
+        columnWidths.put(columnNames.get(8), 36);
 	}
 	
 	/** Index to identify tab */
@@ -172,10 +172,10 @@ class ObjectManager
 				}
 				else
 				{
+					ROIShape shape;
 					for (int i = 0; i < index.length; i++)
 					{
-						ROIShape shape = objectsTable.getROIShapeAtRow(
-								index[i]);
+						shape = objectsTable.getROIShapeAtRow(index[i]);
 						if (shape != null)
 						{
 							view.selectFigure(shape.getFigure());
@@ -259,12 +259,8 @@ class ObjectManager
 			shapeList = roi.getShapes();
 			shapeIterator = shapeList.values().iterator();
 			while (shapeIterator.hasNext())
-			{
-				ROIShape shape = shapeIterator.next();
-				objectsTable.addROIShape(shape);
-			}
+				objectsTable.addROIShape(shapeIterator.next());
 		}
-
 	}
 	
 	/**
@@ -300,9 +296,7 @@ class ObjectManager
 			roi = (ROI) i.next();
 			j = roi.getShapes().values().iterator();
 			while (j.hasNext())
-			{
 				objectsTable.addROIShape(j.next());
-			}
 		}
 	}
 
@@ -341,7 +335,7 @@ class ObjectManager
 				objectsTable.selectROIShape(figure.getROIShape());
 			}
 			objectsTable.repaint();
-			if(figure != null)
+			if (figure != null)
 				objectsTable.scrollToROIShape(figure.getROIShape());
 		} 
 		catch (Exception e) {
@@ -365,7 +359,8 @@ class ObjectManager
 	}
 	
 	/**
-	 * Delete the ROI shapes in the shapelist and belonging 
+	 * Deletes the ROI shapes in the list.
+	 * 
 	 * @param shapeList see above.
 	 */
 	void deleteROIShapes(List<ROIShape> shapeList)
@@ -375,7 +370,7 @@ class ObjectManager
 	}
 		
 	/**
-	 * Duplicate the ROI shapes in the shapelist and belonging to the ROI with
+	 * Duplicates the ROI shapes in the list and belonging to the ROI with
 	 * id.
 	 * @param id see above.
 	 * @param shapeList see above.
@@ -387,7 +382,7 @@ class ObjectManager
 	}
 	
 	/**
-	 * Calculates the stats for the roi in the shapelist
+	 * Calculates the statistics for the roi in the list.
 	 * 
 	 * @param shapeList The collection of shapes.
 	 */
@@ -397,7 +392,7 @@ class ObjectManager
 	}
 	
 	/**
-	 * Merge the ROI shapes in the shapelist and belonging to the ROI with
+	 * Merges the ROI shapes in the list and belonging to the ROI with
 	 * id in idList into a single new ROI. The ROI in the shape list should 
 	 * all be on separate planes.
 	 * 
@@ -411,17 +406,17 @@ class ObjectManager
 	}
 	
 	/**
-	 * Split the ROI shapes in the shapelist and belonging to the ROI with
+	 * Split the ROI shapes in the list and belonging to the ROI with
 	 * id into a single new ROI. The ROI in the shape list should 
 	 * all be on separate planes.
+	 * 
 	 * @param id see above. see above.
 	 * @param shapeList see above.
 	 */
 	void splitROI(long id, List<ROIShape> shapeList)
 	{
-			view.splitROI(id, shapeList);
-			this.rebuildTable();
-		
+		view.splitROI(id, shapeList);
+		this.rebuildTable();
 	}
 	
 	/** Repaints the table. */
@@ -433,10 +428,11 @@ class ObjectManager
 	}
 
 	/**
-	 * Show the roi assistant for the roi.
+	 * Shows the roi assistant for the roi.
+	 * 
 	 * @param roi see above.
 	 */
-	public void propagateROI(ROI roi)
+	void propagateROI(ROI roi)
 	{
 		view.showROIAssistant(roi);
 	}

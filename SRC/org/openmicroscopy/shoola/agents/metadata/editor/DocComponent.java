@@ -626,6 +626,7 @@ class DocComponent
 		String value = MetadataViewerAgent.getOmeroFilesHome();
 		FileAnnotationData fa = (FileAnnotationData) data;
 		OriginalFile of = (OriginalFile) fa.getContent();
+		value += File.separator+fa.getFileName();
 		DownloadActivityParam activity = new DownloadActivityParam(of,
 				new File(value), null);
 		AnalysisResultsHandlingParam p = new AnalysisResultsHandlingParam(

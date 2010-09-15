@@ -58,9 +58,9 @@ import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
+import org.jhotdraw.draw.Figure;
 
 //Application-internal dependencies
-import org.jhotdraw.draw.Figure;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.util.file.ExcelWriter;

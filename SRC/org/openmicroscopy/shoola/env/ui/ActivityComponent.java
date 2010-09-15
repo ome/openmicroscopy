@@ -60,9 +60,11 @@ import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.AnalysisResultsHandlingParam;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.util.filter.file.CSVFilter;
 import org.openmicroscopy.shoola.util.filter.file.GIFFilter;
 import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
 import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
@@ -220,8 +222,9 @@ public abstract class ActivityComponent
 	 * Opens the passed object. Downloads it first.
 	 * 
 	 * @param object The object to open.
+	 * @param parameters Either Analysis parameters or Application data.
 	 */
-	private void open(Object object)
+	private void open(Object object, Object parameters)
 	{
 		if (!(object instanceof FileAnnotationData || 
 				object instanceof OriginalFile)) return;
@@ -275,7 +278,11 @@ public abstract class ActivityComponent
 			activity = new DownloadActivityParam(id, index, f, null);
 		else 
 			activity = new DownloadActivityParam(of, f, null);
-		activity.setApplicationData(new ApplicationData(""));
+		if (parameters instanceof ApplicationData) {
+			activity.setApplicationData((ApplicationData) parameters);
+		} else if (parameters instanceof AnalysisResultsHandlingParam) {
+			activity.setResults((AnalysisResultsHandlingParam) parameters);
+		}
 		viewer.notifyActivity(activity);
 	}
 	
@@ -638,6 +645,24 @@ public abstract class ActivityComponent
 	}
 	
 	/**
+	 * Returns <code>true</code> if the result can be displayed, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param object The object to handle.
+	 * @return See above.
+	 */
+	boolean canPlotResult(Object object)
+	{
+		if (object instanceof FileAnnotationData) {
+			FileAnnotationData fa = (FileAnnotationData) object;
+			if (fa.isLoaded()) {
+				return fa.getFileName().endsWith("."+CSVFilter.CSV);
+			}
+		}
+		return false;
+	}
+	
+	/**
 	 * Returns <code>true</code> if the object can be downloaded, 
 	 * <code>false</code> otherwise.
 	 * 
@@ -649,53 +674,6 @@ public abstract class ActivityComponent
 		return (object instanceof FileAnnotationData || 
 				object instanceof OriginalFile);
 	}
-	
-	/** 
-	 * Invokes when the activity end. 
-	 * 
-	 * @param result The result of the activity.
-	 */ 
-	public void endActivity(Object result)
-	{
-		this.result = result;
-		boolean busy = status.isBusy();
-		reset();
-		if (result instanceof Map) {
-			Map<String, Object> m = convertResult((Map<String, Object>) result);
-			int size = m.size();
-			if (size == 1) {
-				Entry entry;
-				Iterator i = m.entrySet().iterator();
-				while (i.hasNext()) {
-					entry = (Entry) i.next();
-					this.result = entry.getValue();
-				}
-			} else this.result = m;
-		}
-		downloadButton.setVisible(isDownloadable(this.result));
-		if (isViewable(this.result)) {
-			viewButton.setText(getViewText(this.result));
-			viewButton.setVisible(true);
-		} else viewButton.setVisible(false);
-		
-		if (!viewButton.isVisible() && !downloadButton.isVisible()) {
-			if (this.result instanceof Collection) {
-				Collection l = (Collection) this.result;
-				resultButton.setVisible(l.size() > 0);
-			} else if (this.result instanceof Map) {
-				Map l = (Map) this.result;
-				resultButton.setVisible(l.size() > 0);
-			}
-		}
-		notifyActivityEnd();
-		firePropertyChange(UNREGISTER_ACTIVITY_PROPERTY, null, this);
-		//Post an event to 
-		//if (busy) {
-		EventBus bus = registry.getEventBus();
-		bus.post(new ActivityProcessEvent(this, busy));
-		//}
-	}
-
 	
 	/** 
 	 * Downloads the passed object is supported.
@@ -788,12 +766,63 @@ public abstract class ActivityComponent
 	{
 		if (object instanceof FileAnnotationData || 
 				object instanceof OriginalFile) {
-			open(object);
+			open(object, new ApplicationData(""));
 		} else if (object instanceof File) {
 			viewer.openApplication(null, ((File) object).getAbsolutePath());
 		} else {
 			EventBus bus = registry.getEventBus();
 			bus.post(new ViewObjectEvent(object));
+		}
+	}
+
+	/**
+	 * Plots the results.
+	 * 
+	 * @param result The result to plot
+	 */
+	void plotResult(Object result)
+	{
+		if (result instanceof FileAnnotationData || 
+				result instanceof OriginalFile) {
+			open(result, new AnalysisResultsHandlingParam(
+					AnalysisResultsHandlingParam.HISTOGRAM));
+		}
+	}
+	
+	/**
+	 * The results to plot.
+	 * 
+	 * @param result The object to handle.
+	 * @param parameters The parameters indicating how to handle the results
+	 */
+	void plotResult(Object result, AnalysisResultsHandlingParam parameters)
+	{
+		if (result instanceof File) {
+			IconManager icons = IconManager.getInstance(registry);
+			AnalysisResultsDialog d = new AnalysisResultsDialog(
+				registry.getTaskBar().getFrame(), 
+				icons.getIcon(IconManager.PLOT_48), (File) result, 
+				parameters);
+			d.addPropertyChangeListener(new PropertyChangeListener() {
+				
+				public void propertyChange(PropertyChangeEvent evt) {
+					String name = evt.getPropertyName();
+					if (AnalysisResultsDialog.SAVED_CHART_PROPERTY.equals(
+							name)){
+						boolean b = (
+								(Boolean) evt.getNewValue()).booleanValue();
+						UserNotifier un = registry.getUserNotifier();
+						if (b) {
+							un.notifyInfo("Saving Chart", "The file has " +
+									"successfully been saved.");
+						} else {
+							un.notifyInfo("Saving Chart", "An error " +
+							"occurred while saving the chart.");
+						}
+					}
+				}
+			});
+			UIUtilities.centerAndShow(d);
 		}
 	}
 	
@@ -825,6 +854,53 @@ public abstract class ActivityComponent
 		EventBus bus = registry.getEventBus();
 		bus.post(new ActivityProcessEvent(this, false));
 	}
+	
+	/** 
+	 * Invokes when the activity end. 
+	 * 
+	 * @param result The result of the activity.
+	 */ 
+	public void endActivity(Object result)
+	{
+		this.result = result;
+		boolean busy = status.isBusy();
+		reset();
+		if (result instanceof Map) {
+			Map<String, Object> m = convertResult((Map<String, Object>) result);
+			int size = m.size();
+			if (size == 1) {
+				Entry entry;
+				Iterator i = m.entrySet().iterator();
+				while (i.hasNext()) {
+					entry = (Entry) i.next();
+					this.result = entry.getValue();
+				}
+			} else this.result = m;
+		}
+		downloadButton.setVisible(isDownloadable(this.result));
+		if (isViewable(this.result)) {
+			viewButton.setText(getViewText(this.result));
+			viewButton.setVisible(true);
+		} else viewButton.setVisible(false);
+		
+		if (!viewButton.isVisible() && !downloadButton.isVisible()) {
+			if (this.result instanceof Collection) {
+				Collection l = (Collection) this.result;
+				resultButton.setVisible(l.size() > 0);
+			} else if (this.result instanceof Map) {
+				Map l = (Map) this.result;
+				resultButton.setVisible(l.size() > 0);
+			}
+		}
+		notifyActivityEnd();
+		firePropertyChange(UNREGISTER_ACTIVITY_PROPERTY, null, this);
+		//Post an event to 
+		//if (busy) {
+		EventBus bus = registry.getEventBus();
+		bus.post(new ActivityProcessEvent(this, busy));
+		//}
+	}
+
 	
 	/**
 	 * Returns the type of activity.

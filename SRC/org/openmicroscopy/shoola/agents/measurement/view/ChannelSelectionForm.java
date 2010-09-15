@@ -56,10 +56,12 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 class ChannelSelectionForm
 	extends JPanel
 {	
-	public static int SUMMARYVALUE = -10;
+	
+	/** Value for summary. */
+	static int SUMMARYVALUE = -10;
 	
 	/** The map of channel number to name. */
-	Map<Integer, String>		 	channelNames;
+	private Map<Integer, String>		 	channelNames;
 	
 	/** The list of checkboxes referring to channels.*/
 	private List<JCheckBox> 		checkBox;
