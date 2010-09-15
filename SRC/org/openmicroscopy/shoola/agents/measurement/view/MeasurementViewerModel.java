@@ -65,7 +65,6 @@ import pojos.WorkflowData;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.DSAccessException;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
-import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -1490,12 +1489,11 @@ class MeasurementViewerModel
 		if (keywords == null) return;
 		if (keywords.size() == 0)
 			this.keyword = keywords;
-		else
-		{
+		else {
 			WorkflowData workflow = getWorkflow();
 			if (workflow == null) return;
 			for (String word : keywords)
-				if (!workflow.contains(word) && word != "")
+				if (!workflow.contains(word) && word.trim().length() != 0)
 					throw new IllegalArgumentException(
 							"Workflow does not contain keyword '" +
 							keyword +"'");
