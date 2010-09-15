@@ -84,6 +84,9 @@ public class DownloadActivityParam
     /** The third party application. */
     private ApplicationData data;
     
+    /** The component hosting the results to plot. */
+    private AnalysisResultsHandlingParam results;
+    
     /** 
      * Checks if the index is valid.
      * 
@@ -246,5 +249,22 @@ public class DownloadActivityParam
 	 * @return See above.
 	 */
 	public int getIndex() { return index; }
+	
+	/**
+	 * Returns the parameters hosting the results. 
+	 * 
+	 * @return See above.
+	 */
+	public AnalysisResultsHandlingParam getResults() { return results; }
+	
+	/**
+	 * Sets the parameters to display the results.
+	 * 
+	 * @param results The value to set.
+	 */
+	public void setResults(AnalysisResultsHandlingParam results)
+	{
+		this.results = results;
+	}
 	
 }

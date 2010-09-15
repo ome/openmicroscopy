@@ -31,7 +31,7 @@ import javax.swing.Icon;
 //Application-internal dependencies
 
 /** 
- * Parameters required to analyse images.
+ * Parameters required to analyze images.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
