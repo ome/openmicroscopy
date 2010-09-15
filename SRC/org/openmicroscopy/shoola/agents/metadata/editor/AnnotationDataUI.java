@@ -69,6 +69,7 @@ import info.clearthought.layout.TableLayout;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.util.ui.RatingComponent;
+import org.openmicroscopy.shoola.util.ui.ScrollablePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.border.SeparatorOneLineBorder;
 import pojos.AnnotationData;
@@ -205,6 +206,9 @@ class AnnotationDataUI
 	
 	/** The constraints related to the layout of the attachments. */
 	private String							docConstraints;
+	
+	/** The index indicating the location of the attachments. */
+	private int docIndex = 0;
 	
 	/** The document of reference. */
 	private JComponent docRef;
@@ -445,7 +449,7 @@ class AnnotationDataUI
 		int size = f.getSize()-1;
 		
     	double[] columns = {TableLayout.PREFERRED, 5,
-    			TableLayout.PREFERRED, 5, TableLayout.PREFERRED};//DEFAULT_WIDTH};
+    			TableLayout.PREFERRED, 5, TableLayout.FILL};//DEFAULT_WIDTH};
     	TableLayout layout = new TableLayout();
     	content.setLayout(layout);
     	layout.setColumn(columns);
@@ -481,6 +485,7 @@ class AnnotationDataUI
 		content.add(tagsPane, "2, "+i);
 		tagRow = i;
 		i++;
+		docIndex = i;
 		layout.insertRow(i, TableLayout.PREFERRED);
 		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -520,6 +525,7 @@ class AnnotationDataUI
 		filesDocList.clear();
 		DocComponent doc;
 		int h = 0;
+		int v;
 		if (list != null && list.size() > 0) {
 			Iterator i = list.iterator();
 			Map<FileAnnotationData, Object> 
@@ -540,7 +546,8 @@ class AnnotationDataUI
 							}
 							filesDocList.add(doc);
 							docPane.add(doc);
-							h = doc.getPreferredSize().height;
+							v = doc.getPreferredSize().height;
+							if (h < v) h = v;
 						}
 					}
 					break;
@@ -558,7 +565,8 @@ class AnnotationDataUI
 											(FileAnnotationData) data, doc);
 								}
 								docPane.add(doc);
-								h = doc.getPreferredSize().height;
+								v = doc.getPreferredSize().height;
+								if (h < v) h = v;
 							}
 						}
 					}
@@ -577,7 +585,8 @@ class AnnotationDataUI
 											(FileAnnotationData) data, doc);
 								}
 								docPane.add(doc);
-								h = doc.getPreferredSize().height;
+								v = doc.getPreferredSize().height;
+								if (h < v) h = v;
 							}
 						}
 					}
@@ -598,9 +607,11 @@ class AnnotationDataUI
 		int n = docPane.getComponentCount();
 		docRef = docPane;
 		if (n >= MAX) {
+			TableLayout layout = (TableLayout) content.getLayout();
+			layout.setRow(docIndex, h*2*MAX);
 			Dimension d = docPane.getPreferredSize();
 			JScrollPane sp = new JScrollPane(docPane);
-			sp.setPreferredSize(new Dimension(d.width, h*2*MAX));
+			docPane.setPreferredSize(new Dimension(d.width+d.width/2, h*2*MAX));
 			docRef = sp;	
 		}
 		content.add(docRef, docConstraints);
