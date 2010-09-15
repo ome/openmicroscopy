@@ -3811,4 +3811,36 @@ public class DeleteServiceTest
     	assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
     }
     
+    /**
+     * Test to delete images sharing logical channels. This case may happen
+     * when handling Plate.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = false, groups = "ticket:2877")
+    public void testDeleteMultiplesObjects() 
+    	throws Exception
+    {
+    	Image img1 = mmFactory.createImage();
+    	img1 = (Image) iUpdate.saveAndReturnObject(img1);
+    	Pixels pixels = img1.getPrimaryPixels();
+    	Image img2 = mmFactory.createImage();
+    	img2 = (Image) iUpdate.saveAndReturnObject(img2);
+    	DeleteCommand[] commands = new DeleteCommand[2];
+    	commands[0] = new DeleteCommand(REF_IMAGE, img1.getId().getValue(), 
+    			null);
+    	commands[1] = new DeleteCommand(REF_IMAGE, img1.getId().getValue(), 
+    			null);
+    	delete(commands);
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(img1.getId().getValue());
+    	ids.add(img2.getId().getValue());
+    	ParametersI param = new ParametersI();
+    	param.addIds(ids);
+
+    	StringBuilder sb = new StringBuilder();
+    	sb.append("select i from Image i ");
+    	sb.append("where i.id in (:ids)");
+    	assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
+    }
+    
 }
