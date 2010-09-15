@@ -148,5 +148,33 @@ class TestISession(lib.ITest):
         # Service is now closed, should be ok
         self.client.sf.setSecurityContext(grp1)
 
+    def testManageMySessions(self):
+        import os
+        adminCtx = self.client.sf.getAdminService().getEventContext()
+        username = adminCtx.userName
+        group = adminCtx.groupName
+        
+        e = self.root.sf.getAdminService().lookupExperimenter(username)
+        p = omero.sys.Principal()
+        p.name = username
+        p.group = group
+        p.eventType = "User"
+        newConnId = self.root.sf.getSessionService().createSessionWithTimeout(p, 60000)
+        
+        c = omero.client(pmap=['--Ice.Config='+(os.environ.get("ICE_CONFIG"))])
+        host = c.ic.getProperties().getProperty('omero.host')
+        port = int(c.ic.getProperties().getProperty('omero.port'))
+        c = omero.client(host=host, port=port)
+        s = c.joinSession(newConnId.getUuid().val)
+        s.detachOnDestroy()
+        
+        svc = self.client.sf.getSessionService()
+        for s in svc.getMyOpenSessions():
+            print s.id.val, s.uuid.val
+            svc.closeSession(s)
+        
+        print len(svc.getMyOpenSessions())
+        
+            
 if __name__ == '__main__':
     unittest.main()
