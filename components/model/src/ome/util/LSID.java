@@ -179,6 +179,12 @@ public class LSID
 			if (comparatorClass.equals(klass))
 			{
 				int[] comparatorIndexes = comparator.getIndexes();
+				if (indexes.length != comparatorIndexes.length)
+				{
+					// Handle cases where a given LSID class may have
+					// multiple paths with different index counts.
+					return false;
+				}
 				for (int i = 0; i < indexes.length; i++)
 				{
 					if (indexes[i] != comparatorIndexes[i])

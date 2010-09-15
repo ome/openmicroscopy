@@ -5416,14 +5416,9 @@ public class OMEROMetadataStoreClient
         o.setPixelsType((PixelsType) getEnumeration(PixelsType.class, type.toString()));
     }
 
-    
     ////////OTF Objective Settings /////////
-    
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setOTFObjectiveSettingsID(java.lang.String, int, int)
-     */
-    
-    public ObjectiveSettings getOTFObjectiveSettings(int instrumentIndex, int OTFIndex)
+
+    private ObjectiveSettings getOTFObjectiveSettings(int instrumentIndex, int OTFIndex)
     {
         LinkedHashMap<Index, Integer> indexes =
             new LinkedHashMap<Index, Integer>();
@@ -5431,24 +5426,17 @@ public class OMEROMetadataStoreClient
         indexes.put(Index.OTF_INDEX, OTFIndex);
         return getSourceObject(ObjectiveSettings.class, indexes); 
     }
-    
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setOTFObjectiveSettingsID(java.lang.String, int, int)
+     */
     public void setOTFObjectiveSettingsID(String id, int instrumentIndex,
             int OTFIndex)
     {
         LSID key = new LSID(OTF.class, instrumentIndex, OTFIndex);
         addReference(key, new LSID(id));
-        /*
-        checkDuplicateLSID(ObjectiveSettings.class, id);
-        LinkedHashMap<Index, Integer> indexes =
-            new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
-        indexes.put(Index.OTF_INDEX, OTFIndex);
-        IObjectContainer o = getIObjectContainer(ObjectiveSettings.class, indexes);
-        o.LSID = id;
-        addAuthoritativeContainer(ObjectiveSettings.class, id, o);
-        */
     }
-    
+
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setOTFObjectiveSettingsCorrectionCollar(java.lang.Double, int, int)
      */
@@ -5628,11 +5616,11 @@ public class OMEROMetadataStoreClient
 
     private Path getPath(int ROIIndex, int shapeIndex)
     {
-      LinkedHashMap<Index, Integer> indexes =
-          new LinkedHashMap<Index, Integer>();
-      indexes.put(Index.ROI_INDEX, ROIIndex);
-      indexes.put(Index.SHAPE_INDEX, shapeIndex);
-      return getSourceObject(Path.class, indexes);
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.ROI_INDEX, ROIIndex);
+        indexes.put(Index.SHAPE_INDEX, shapeIndex);
+        return getSourceObject(Path.class, indexes);
     }
 
     /* (non-Javadoc)
