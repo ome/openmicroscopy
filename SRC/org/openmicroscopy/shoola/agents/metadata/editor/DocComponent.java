@@ -64,6 +64,7 @@ import org.openmicroscopy.shoola.agents.util.DataObjectListCellRenderer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.AnalysisResultsHandlingParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -578,18 +579,6 @@ class DocComponent
 			if (!b) bar.add(Box.createHorizontalStrut(8));
 			add(bar);
 		}
-		/*
-		if (editButton != null) bar.add(editButton);
-		if (unlinkButton != null) bar.add(unlinkButton);
-		if (downloadButton != null) bar.add(downloadButton);
-		if (openButton != null) bar.add(openButton);
-		if (deleteButton != null) bar.add(deleteButton);
-		boolean b = setControlsEnabled(data != null);
-		if (bar.getComponentCount() > 0) {
-			if (!b) bar.add(Box.createHorizontalStrut(8));
-			add(bar);
-		}
-		*/
 	}
 	
 	/** Adds or edits the description of the tag. */
@@ -634,7 +623,16 @@ class DocComponent
 	/** Plots the analysis results. */
 	private void plotResults()
 	{
-		
+		String value = MetadataViewerAgent.getOmeroFilesHome();
+		FileAnnotationData fa = (FileAnnotationData) data;
+		OriginalFile of = (OriginalFile) fa.getContent();
+		DownloadActivityParam activity = new DownloadActivityParam(of,
+				new File(value), null);
+		AnalysisResultsHandlingParam p = new AnalysisResultsHandlingParam(
+				AnalysisResultsHandlingParam.HISTOGRAM);
+		activity.setResults(p);
+		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
+		un.notifyActivity(activity);
 	}
 	
 	/**
@@ -699,6 +697,18 @@ class DocComponent
 	 * @return See above.
 	 */
 	boolean isImageLoaded() { return thumbnail != null; }
+	
+	/**
+	 * Returns <code>true</code> if the object can be unlinked,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean canUnlink()
+	{
+		if (unlinkButton == null) return false;
+		return unlinkButton.isVisible();
+	}
 	
 	/**
 	 * Sets the image representing the file.

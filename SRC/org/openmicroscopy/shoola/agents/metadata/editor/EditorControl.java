@@ -112,7 +112,7 @@ class EditorControl
 	/** Action id indicating to upload attach documents. */
 	static final int	ADD_UPLOADED_DOCS = 1;
 	
-	/** Action id indicating to attach documents. */
+	/** Action id indicating to attach tags. */
 	static final int	ADD_TAGS = 2;
 	
 	/** Action ID to save the data. */
@@ -165,6 +165,12 @@ class EditorControl
 	
 	/** Action ID to upload a script to the server. */
 	static final int	RELOAD_SCRIPT = 18;
+	
+	/** Action id indicating to remove tags. */
+	static final int	REMOVE_TAGS = 19;
+	
+	/** Action id indicating to remove documents. */
+	static final int	REMOVE_DOCS = 20;
 	
     /** Reference to the Model. */
     private Editor		model;
@@ -607,6 +613,12 @@ class EditorControl
 				break;
 			case RELOAD_SCRIPT:
 				view.reloadScript();
+				break;
+			case REMOVE_TAGS:
+				view.removeTags();
+				break;
+			case REMOVE_DOCS:
+				view.removeAttachedFiles();
 		}
 	}
 	

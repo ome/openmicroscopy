@@ -572,6 +572,26 @@ class GeneralPaneUI
 	}
 	
 	/**
+	 * Returns the collection of attachments.
+	 * 
+	 * @return See above.
+	 */
+	List<FileAnnotationData> removeAttachedFiles()
+	{
+		return annotationUI.removeAttachedFiles();
+	}
+	
+	/**
+	 * Returns the collection of tags.
+	 * 
+	 * @return See above.
+	 */
+	List<TagAnnotationData> removeTags()
+	{
+		return annotationUI.removeTags();
+	}
+	
+	/**
 	 * Removes a tag from the view.
 	 * 
 	 * @param tag The tag to remove.

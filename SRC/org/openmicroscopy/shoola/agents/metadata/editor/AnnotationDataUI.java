@@ -149,6 +149,12 @@ class AnnotationDataUI
 	/** Button to add documents. */
 	private JButton							addDocsButton;
 	
+	/** Button to remove all documents. */
+	private JButton							removeDocsButton;
+	
+	/** Button to remove all tags. */
+	private JButton							removeTagsButton;
+	
 	/** Button to remove the rate of the object. */
 	private JButton							unrateButton;
 	
@@ -358,6 +364,20 @@ class AnnotationDataUI
 		
 		});
 		UIUtilities.unifiedButtonLookAndFeel(addDocsButton);
+		
+		removeTagsButton = new JButton(icons.getIcon(IconManager.MINUS_12));
+		UIUtilities.unifiedButtonLookAndFeel(removeTagsButton);
+		removeTagsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+		removeTagsButton.setToolTipText("Unlink Tags.");
+		removeTagsButton.addActionListener(controller);
+		removeTagsButton.setActionCommand(""+EditorControl.REMOVE_TAGS);
+		removeDocsButton = new JButton(icons.getIcon(IconManager.MINUS_12));
+		UIUtilities.unifiedButtonLookAndFeel(removeDocsButton);
+		removeDocsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+		removeDocsButton.setToolTipText("Unlink Attachments.");
+		removeDocsButton.addActionListener(controller);
+		removeDocsButton.setActionCommand(""+EditorControl.REMOVE_DOCS);
+		
 		selectedValue = 0;
 		initialValue = selectedValue;
 		rating = new RatingComponent(selectedValue, 
@@ -396,18 +416,23 @@ class AnnotationDataUI
 	}
 	
 	/**
-	 * Creates a tool bar and adds the passed button to it.
+	 * Creates a tool bar and adds the passed buttons to it.
 	 * 
-	 * @param button The button to add.
+	 * @param addButton The button to add.
+	 * @param removeButton The button to add.
 	 * @return See above.
 	 */
-	private JToolBar createBar(JButton button)
+	private JToolBar createBar(JButton addButton, JButton removeButton)
 	{
 		JToolBar bar = new JToolBar();
 		bar.setFloatable(false);
 		bar.setBorder(null);
 		bar.setBackground(UIUtilities.BACKGROUND_COLOR);
-		bar.add(button);
+		bar.add(addButton);
+		if (removeButton != null) {
+			//bar.add(Box.createHorizontalStrut(2));
+			bar.add(removeButton);
+		}
 		return bar;
 	}
 	
@@ -429,7 +454,7 @@ class AnnotationDataUI
 		
 		JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		p.add(createBar(filterButton));
+		p.add(createBar(filterButton, null));
 		content.add(p, "0, "+i+", 4, "+i);
 		i++;
 		
@@ -437,7 +462,7 @@ class AnnotationDataUI
 		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.add(UIUtilities.setTextFont("rate", Font.BOLD, size));
-		p.add(createBar(unrateButton));
+		p.add(createBar(unrateButton, null));
 		content.add(p, "0, "+i);
 		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -450,7 +475,7 @@ class AnnotationDataUI
 		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.add(UIUtilities.setTextFont("tag", Font.BOLD, size));
-		p.add(createBar(addTagsButton));
+		p.add(createBar(addTagsButton, removeTagsButton));
 		
 		content.add(p, "0, "+i+", LEFT, TOP");
 		content.add(tagsPane, "2, "+i);
@@ -460,7 +485,7 @@ class AnnotationDataUI
 		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.add(UIUtilities.setTextFont("attachment", Font.BOLD, size));
-		p.add(createBar(addDocsButton));
+		p.add(createBar(addDocsButton, removeDocsButton));
 		content.add(p, "0, "+i+", LEFT, TOP");
 		docConstraints = "2, "+i;
 		docRef = docPane;
@@ -747,6 +772,8 @@ class AnnotationDataUI
 		addTagsButton.setEnabled(enabled);
 		addDocsButton.setEnabled(enabled);
 		unrateButton.setEnabled(enabled);
+		removeTagsButton.setEnabled(enabled);
+		removeDocsButton.setEnabled(enabled);
 		layout.setRow(tagRow, hTag);
 		content.revalidate();
 		content.repaint();
@@ -962,6 +989,68 @@ class AnnotationDataUI
 					list.add(data);
 			}
 		}
+		return list;
+	}
+	
+	/**
+	 * Returns the collection of attachments.
+	 * 
+	 * @return See above.
+	 */
+	List<FileAnnotationData> removeAttachedFiles()
+	{
+		List<FileAnnotationData> list = new ArrayList<FileAnnotationData>();
+		if (filesDocList.size() == 0)  return list;
+		List<FileAnnotationData> toKeep = new ArrayList<FileAnnotationData>();
+		FileAnnotationData data;
+		DocComponent doc;
+		Object object;
+		Iterator<DocComponent> i = filesDocList.iterator();
+		while (i.hasNext()) {
+			doc = i.next();
+			object = doc.getData();
+			if (doc.canUnlink()) {
+				if (object instanceof FileAnnotationData) {
+					data = (FileAnnotationData) object;
+					if (data.getId() > 0)
+						list.add(data);
+				}
+			} else {
+				toKeep.add((FileAnnotationData) object);
+			}
+		}
+		handleObjectsSelection(FileAnnotationData.class, toKeep);
+		return list;
+	}
+	
+	/**
+	 * Returns the collection of tags.
+	 * 
+	 * @return See above.
+	 */
+	List<TagAnnotationData> removeTags()
+	{
+		List<TagAnnotationData> list = new ArrayList<TagAnnotationData>();
+		if (tagsDocList.size() == 0)  return list;
+		List<TagAnnotationData> toKeep = new ArrayList<TagAnnotationData>();
+		TagAnnotationData data;
+		DocComponent doc;
+		Object object;
+		Iterator<DocComponent> i = tagsDocList.iterator();
+		while (i.hasNext()) {
+			doc = i.next();
+			object = doc.getData();
+			if (doc.canUnlink()) {
+				if (object instanceof TagAnnotationData) {
+					data = (TagAnnotationData) object;
+					if (data.getId() > 0)
+						list.add(data);
+				} 
+			} else {
+				toKeep.add((TagAnnotationData) object);
+			}
+		}
+		handleObjectsSelection(TagAnnotationData.class, toKeep);
 		return list;
 	}
 	

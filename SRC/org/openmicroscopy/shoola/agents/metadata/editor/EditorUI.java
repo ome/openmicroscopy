@@ -51,7 +51,6 @@ import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
 import pojos.DataObject;
@@ -537,6 +536,13 @@ class EditorUI
 			saveData(true);
 	}
 	
+	/** Removes the tags. */
+	void removeTags()
+	{
+		List<TagAnnotationData> list = generalPane.removeTags();
+		if (list.size() > 0) saveData(true);
+	}
+	
 	/**
 	 * Handles the selection of objects via the selection wizard.
 	 * 
@@ -566,6 +572,17 @@ class EditorUI
 		}
 	}
 
+	/**
+	 * Returns the collection of attachments.
+	 * 
+	 * @return See above.
+	 */
+	void removeAttachedFiles()
+	{
+		List<FileAnnotationData> list = generalPane.removeAttachedFiles();
+		if (list.size() > 0) saveData(true);
+	}
+	
 	/**
 	 * Adds the annotation to the collection of objects to be deleted.
 	 * 
