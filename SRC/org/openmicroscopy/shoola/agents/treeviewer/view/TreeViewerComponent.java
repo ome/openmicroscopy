@@ -56,6 +56,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.treeviewer.CopyItems;
+import org.openmicroscopy.shoola.agents.events.treeviewer.DeleteObjectEvent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
@@ -2347,6 +2348,55 @@ class TreeViewerComponent
 	}
 	
 	/**
+	 * Checks for the images if loaded.
+	 * 
+	 * @param object The object to handle.
+	 * @param objects The list to add the found image if any.
+	 */
+	private void checkForImages(TreeImageDisplay object, 
+				List<DataObject> objects)
+	{
+		List list = object.getChildrenDisplay();
+		Iterator i, j;
+		TreeImageDisplay child, child2;
+		List children;
+		DataObject ho = (DataObject) object.getUserObject();
+		if (ho instanceof ImageData) {
+			objects.add(ho);
+		} else if (ho instanceof DatasetData) {
+			if (object.isChildrenLoaded()) {
+				i = list.iterator();
+				while (i.hasNext()) {
+					child = (TreeImageDisplay) i.next();
+					if (child.getUserObject() instanceof ImageData) {
+						objects.add((DataObject) child.getUserObject());
+					}
+				}
+			}
+		} else if (ho instanceof ProjectData) {
+			if (object.isChildrenLoaded()) {
+				i = list.iterator();
+				while (i.hasNext()) {
+					child = (TreeImageDisplay) i.next();
+					if (child.getUserObject() instanceof DatasetData) {
+						if (child.isChildrenLoaded()) {
+							children = child.getChildrenDisplay();
+							j = children.iterator();
+							while (j.hasNext()) {
+								child2 =  (TreeImageDisplay) j.next();
+								objects.add((DataObject) child2.getUserObject());
+								
+							}
+						}
+					}
+				}
+			}
+		} else if (ho instanceof PlateData) {
+			
+		}
+	}
+	
+	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#deleteObjects(List)
 	 */
@@ -2380,18 +2430,21 @@ class TreeViewerComponent
 			List<DeletableObject> l = new ArrayList<DeletableObject>();
 			List<TreeImageDisplay> toRemove = new ArrayList<TreeImageDisplay>();
 			DeletableObject d;
+			List<DataObject> objects = new ArrayList<DataObject>();
 			while (i.hasNext()) {
 				node = (TreeImageDisplay) i.next();
 				obj = node.getUserObject();
 				if (obj instanceof DataObject) {
 					d = new DeletableObject((DataObject) obj, content);
 					d.setAttachmentTypes(types);
+					checkForImages(node, objects);
 					l.add(d);
 					toRemove.add(node);
 				}
 			}
-			//TODO: decide of strategy during delete.
 			if (l.size() > 0) {
+				EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+				bus.post(new DeleteObjectEvent(objects));
 				model.getSelectedBrowser().removeTreeNodes(toRemove);
 				view.removeAllFromWorkingPane();
 				DataBrowserFactory.discardAll();

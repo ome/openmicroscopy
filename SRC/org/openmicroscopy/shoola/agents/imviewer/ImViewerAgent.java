@@ -25,7 +25,9 @@ package org.openmicroscopy.shoola.agents.imviewer;
 
 //Java imports
 import java.awt.Rectangle;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -40,6 +42,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
 import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
+import org.openmicroscopy.shoola.agents.events.treeviewer.DeleteObjectEvent;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
@@ -52,6 +55,7 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.ViewObjectEvent;
 import pojos.DataObject;
+import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.PixelsData;
@@ -297,6 +301,41 @@ public class ImViewerAgent
     	viewer.discard();
     }
     
+    /**
+     * Checks the files to delete and see if a viewer is opened.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleDeleteObjectEvent(DeleteObjectEvent evt)
+    {
+    	if (evt == null) return;
+    	List<DataObject> objects = evt.getObjects();
+    	if (objects == null) return;
+    	Iterator<DataObject> i = objects.iterator();
+    	DataObject object;
+    	while (i.hasNext()) {
+    		object = i.next();
+			if (object instanceof ImageData) {
+				checkImageForDelete((ImageData) object);
+			} 
+		}
+    }
+    
+    /**
+     * Checks if the passed image is actually opened in the viewer.
+     * 
+     * @param image The image to handle.
+     */
+    private void checkImageForDelete(ImageData image)
+    {
+    	
+    	if (image.getId() < 0) return;
+    	PixelsData pixels = image.getDefaultPixels();
+    	ImViewer viewer = ImViewerFactory.getImageViewer(pixels.getId());
+    	if (viewer != null) viewer.discard();
+    }
+    
+    
     /** Creates a new instance. */
     public ImViewerAgent() {}
     
@@ -331,6 +370,7 @@ public class ImViewerAgent
         bus.register(this, UserGroupSwitched.class);
         bus.register(this, ViewObjectEvent.class);
         bus.register(this, RendererUnloadedEvent.class);
+        bus.register(this, DeleteObjectEvent.class);
     }
 
     /**
@@ -386,6 +426,8 @@ public class ImViewerAgent
         	handleViewObjectEvent((ViewObjectEvent) e);
         else if (e instanceof RendererUnloadedEvent)
         	handleRendererUnloadedEvent((RendererUnloadedEvent) e);
+        else if (e instanceof DeleteObjectEvent)
+        	handleDeleteObjectEvent((DeleteObjectEvent) e);
     }
 
 }
