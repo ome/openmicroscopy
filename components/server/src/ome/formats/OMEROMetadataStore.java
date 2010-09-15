@@ -396,6 +396,15 @@ public class OMEROMetadataStore
     					continue;
     				}
     			}
+                else if (targetObject instanceof Channel)
+                {
+                    if (referenceObject instanceof OTF)
+                    {
+                        handleReference((Channel) targetObject, 
+                                (OTF) referenceObject);
+                        continue;
+                    }
+                }
     			else if (targetObject instanceof OTF)
     			{
     				if (referenceObject instanceof Objective)
@@ -1062,9 +1071,20 @@ public class OMEROMetadataStore
      */
     private void handleReference(LogicalChannel target, OTF reference)
     {
-    	target.setOtf(reference);
+        target.setOtf(reference);
     }
-    
+
+    /**
+     * Handles linking a specific reference object to a target object in our
+     * object graph.
+     * @param target Target model object.
+     * @param reference Reference model object.
+     */
+    private void handleReference(Channel target, OTF reference)
+    {
+        target.getLogicalChannel().setOtf(reference);
+    }
+
     /**
      * Handles linking a specific reference object to a target object in our
      * object graph.
