@@ -20,11 +20,15 @@ import java.util.UUID;
 
 import omero.ApiUsageException;
 import omero.ServerError;
+import omero.api.IAdminPrx;
 import omero.api.IDeletePrx;
 import omero.api.IPixelsPrx;
+import omero.api.IQueryPrx;
 import omero.api.IRenderingSettingsPrx;
+import omero.api.IUpdatePrx;
 import omero.api.delete.DeleteCommand;
 import omero.api.delete.DeleteHandlePrx;
+import omero.api.ServiceFactoryPrx;
 import omero.grid.Column;
 import omero.grid.DeleteCallbackI;
 import omero.grid.LongColumn;
@@ -43,6 +47,10 @@ import omero.model.DatasetImageLinkI;
 import omero.model.Detector;
 import omero.model.DetectorSettings;
 import omero.model.Dichroic;
+import omero.model.Experimenter;
+import omero.model.ExperimenterI;
+import omero.model.ExperimenterGroup;
+import omero.model.ExperimenterGroupI;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.FilterSet;
@@ -63,6 +71,7 @@ import omero.model.OTF;
 import omero.model.Objective;
 import omero.model.ObjectiveSettings;
 import omero.model.OriginalFile;
+import omero.model.PermissionsI;
 import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
@@ -707,6 +716,83 @@ public class DeleteServiceTest
     	} 
     	if (links.size() > 0) iUpdate.saveAndReturnArray(links);
     	return ids;
+    }
+    
+    /**
+     * Test to delete an image tagged collaboratively by another user.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = false, groups = "ticket:2881")
+    public void testDeleteTaggedImage() 
+    	throws Exception
+    {
+        // set up collaborative group with 2 users
+        String uuid1 = UUID.randomUUID().toString();
+		ExperimenterGroup g1 = new ExperimenterGroupI();
+		g1.setName(omero.rtypes.rstring(uuid1));
+		g1.getDetails().setPermissions(new PermissionsI("rwrw--"));
+		IAdminPrx svc = root.getSession().getAdminService();
+		IQueryPrx query = root.getSession().getQueryService();
+		long id1 = svc.createGroup(g1);
+		ParametersI p = new ParametersI();
+		p.addId(id1);
+		ExperimenterGroup eg1 = (ExperimenterGroup) query.findByQuery(
+				"select distinct g from ExperimenterGroup g where g.id = :id", 
+				p);
+		 
+		Experimenter owner = new ExperimenterI();
+		owner.setOmeName(omero.rtypes.rstring(uuid1 + "owner"));
+		owner.setFirstName(omero.rtypes.rstring("owner"));
+		owner.setLastName(omero.rtypes.rstring("owner")); 
+		 
+		Experimenter tagger = new ExperimenterI();
+		tagger.setOmeName(omero.rtypes.rstring(uuid1 + "tagger"));
+		tagger.setFirstName(omero.rtypes.rstring("tagger"));
+		tagger.setLastName(omero.rtypes.rstring("tagger"));
+		 
+		List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
+		ExperimenterGroup userGroup = svc.lookupGroup(USER_GROUP);
+		groups.add(eg1);
+		groups.add(userGroup);
+		
+		svc.createExperimenter(owner, eg1, groups);
+		svc.createExperimenter(tagger, eg1, groups);
+    		
+    	omero.client client = new omero.client();
+    	// owner creates the image
+        ServiceFactoryPrx f = client.createSession(uuid1 + "owner", uuid1); // user, group
+        IUpdatePrx update = f.getUpdateService();
+        Image img = (Image) update.saveAndReturnObject(
+        		mmFactory.simpleImage(0));
+        
+        // tagger creates tag and tags the image
+        omero.client clientTag = new omero.client();
+        ServiceFactoryPrx sf = clientTag.createSession(uuid1 + "tagger", uuid1); // user, group
+        IUpdatePrx tagUpdate = sf.getUpdateService();
+        
+        TagAnnotation c = new TagAnnotationI();
+    	c.setTextValue(omero.rtypes.rstring("tag"));
+    	c = (TagAnnotation) tagUpdate.saveAndReturnObject(c);
+    	ImageAnnotationLink link = new ImageAnnotationLinkI();
+    	link.setParent(img);
+    	link.setChild(new TagAnnotationI(c.getId().getValue(), false));		
+    	link = (ImageAnnotationLink) tagUpdate.saveAndReturnObject(link);
+    	
+    	// try to delete image. 
+    	long id = img.getId().getValue();
+    	iDelete.deleteImage(id, false); //do not force.
+
+        // check it has been deleted 
+        ParametersI param = new ParametersI();
+    	param.addId(id);
+    	img = (Image) iQuery.findByQuery("select i from Image i where i.id = :id", param);
+    	assertNull(img);
+    	
+    	// check that the tag hasn't been deleted
+    	param = new ParametersI();
+    	param.addId(c.getId().getValue());
+    	c = (TagAnnotation) iQuery.findByQuery("select c from Annotation c where c.id = :id", param);
+    	assertNotNull(c);
     }
     
     /**
