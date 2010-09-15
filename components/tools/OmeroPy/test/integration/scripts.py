@@ -348,6 +348,8 @@ client.closeSession()
         self.assertTrue(wait_time < 60, "wait_time over 1 min for TbFig!")
         results = process.getResults(0)
         results = omero.scripts.unwrap(results)
+        # Test passes for me locally (Will) but not on hudson. Committing to test there
+        print results
         self.assertEquals("Thumbnail-Figure Created", results["Message"])
 
 if __name__ == '__main__':
