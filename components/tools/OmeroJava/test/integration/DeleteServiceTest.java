@@ -3822,7 +3822,6 @@ public class DeleteServiceTest
     {
     	Image img1 = mmFactory.createImage();
     	img1 = (Image) iUpdate.saveAndReturnObject(img1);
-    	Pixels pixels = img1.getPrimaryPixels();
     	Image img2 = mmFactory.createImage();
     	img2 = (Image) iUpdate.saveAndReturnObject(img2);
     	DeleteCommand[] commands = new DeleteCommand[2];
