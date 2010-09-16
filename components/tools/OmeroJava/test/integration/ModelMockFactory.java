@@ -86,6 +86,7 @@ import omero.model.Objective;
 import omero.model.ObjectiveI;
 import omero.model.ObjectiveSettings;
 import omero.model.ObjectiveSettingsI;
+import omero.model.OriginalFile;
 import omero.model.OriginalFileI;
 import omero.model.Pixels;
 import omero.model.PixelsI;
@@ -103,6 +104,8 @@ import omero.model.StageLabel;
 import omero.model.StageLabelI;
 import omero.model.StatsInfo;
 import omero.model.StatsInfoI;
+import omero.model.Thumbnail;
+import omero.model.ThumbnailI;
 import omero.model.TransmittanceRangeI;
 import omero.model.Well;
 import omero.model.WellI;
@@ -271,7 +274,7 @@ class ModelMockFactory
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
-    OriginalFileI createOriginalFile()
+    OriginalFile createOriginalFile()
     	throws Exception
     {
     	OriginalFileI oFile = new OriginalFileI();
@@ -283,6 +286,19 @@ class ModelMockFactory
 		return oFile;
     }
     
+    /**
+     * Creates and returns a thumbnail.
+     * 
+     * @return See above.
+     */
+    Thumbnail createThumbnail()
+    {
+    	ThumbnailI thumbnail = new ThumbnailI();
+    	thumbnail.setMimeType(omero.rtypes.rstring("application/octet-stream"));
+    	thumbnail.setSizeX(omero.rtypes.rint(10));
+    	thumbnail.setSizeY(omero.rtypes.rint(11));
+    	return thumbnail;
+    }
 
     /**
      * Creates and returns a detector. 

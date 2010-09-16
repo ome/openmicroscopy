@@ -110,6 +110,7 @@ import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.model.TermAnnotation;
 import omero.model.TermAnnotationI;
+import omero.model.Thumbnail;
 import omero.model.Well;
 import omero.model.WellAnnotationLink;
 import omero.model.WellAnnotationLinkI;
@@ -3092,7 +3093,7 @@ public class DeleteServiceTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testDeleteImageWithIntrument() 
+    public void testDeleteImageWithInstrument() 
     	throws Exception
     {
     	Image img = mmFactory.createImage();
@@ -3940,7 +3941,7 @@ public class DeleteServiceTest
      * Test to delete an image and make sure the original files are removed.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test(enabled = true)
     public void testDeleteImageAndOriginalFile() 
     	throws Exception
     {
@@ -3964,7 +3965,7 @@ public class DeleteServiceTest
     	param.addId(fileID);
     	f = (OriginalFile) iQuery.findByQuery(sql, param);
     	//upload file, method tested in RawFileStore
-    	
+    	assertNotNull(f);
     	PixelsOriginalFileMapI m = new PixelsOriginalFileMapI();
     	m.setChild(new PixelsI(pixels.getId().getValue(), false));
     	m.setParent(f);
@@ -3973,6 +3974,11 @@ public class DeleteServiceTest
     	
     	long imageID = image.getId().getValue();
     	delete(new DeleteCommand(REF_IMAGE, imageID, null));
+    	sql = "select i from Pixels i where i.id = :id";
+    	param = new ParametersI();
+    	param.addId(pixels.getId().getValue());
+    	assertNull(iQuery.findByQuery(sql, param));
+    	
     	sql = "select i from OriginalFile i where i.id = :id";
     	param = new ParametersI();
     	param.addId(fileID);
@@ -3980,14 +3986,27 @@ public class DeleteServiceTest
     }
     
     /**
-     * Test to delete an image and make sure the original files are removed.
+     * Test to delete an image and make sure the thumbnail is deleted.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false, groups = "ticket:2884")
+    @Test
     public void testDeleteImageWithThumbnail() 
     	throws Exception
     {
-    	//import image
+    	Image image = mmFactory.createImage();
+    	image = (Image) iUpdate.saveAndReturnObject(image);
+    	Pixels pixels = image.getPrimaryPixels();
+    	Thumbnail thumbnail = mmFactory.createThumbnail();
+    	thumbnail.setPixels(pixels);
+    	thumbnail = (Thumbnail) iUpdate.saveAndReturnObject(thumbnail);
+    	assertNotNull(thumbnail);
+    	long imageID = image.getId().getValue();
+    	long thumbnailID = thumbnail.getId().getValue();
+    	delete(new DeleteCommand(REF_IMAGE, imageID, null));
+    	String sql = "select i from Thumbnail i where i.id = :id";
+    	ParametersI param = new ParametersI();
+    	param.addId(thumbnailID);
+    	assertNull(iQuery.findByQuery(sql, param));
     }
     
 }
