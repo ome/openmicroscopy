@@ -60,11 +60,13 @@ plus test REAP
 
     <bean parent="delSpec" name="/Annotation" class="ome.services.delete.AnnotationDeleteSpec">
         <description>
-        Lists all abstract and concrete annotation types as steps with their default operations.
+        Lists all abstract and concrete annotation types as steps with their 
+        default operations.
 
-        This list is checked at startup to make sure that no values have been omitted.
-        In the implementation, the type hierarchy is used to apply user options to
-        the given type and all subtypes.
+        This list is checked at startup to make sure that no values have been 
+        omitted.
+        In the implementation, the type hierarchy is used to apply user options 
+        to the given type and all sub-types.
 
         For example, if /BasicAnnotation=KEEP is applied,
         then boolean, double, long, term, and timestamp
@@ -79,21 +81,21 @@ plus test REAP
         </constructor-arg>
         <constructor-arg>
             <list>
-                    <value>/FileAnnotation</value>
-                    <value>/TypeAnnotation</value>
-                    <value>/ListAnnotation</value>
-                    <value>/XmlAnnotation</value>
-                    <value>/TagAnnotation</value>
-                    <value>/CommentAnnotation</value>
-                    <value>/TextAnnotation</value>
-                    <value>/TimestampAnnotation</value>
-                    <value>/TermAnnotation</value>
-                    <value>/LongAnnotation</value>
-                    <value>/DoubleAnnotation</value>
-                    <value>/NumericAnnotation</value>
-                    <value>/BooleanAnnotation</value>
-                    <value>/BasicAnnotation</value>
-                <value>/Annotation</value>
+               <value>/FileAnnotation</value>
+               <value>/TypeAnnotation</value>
+               <value>/ListAnnotation</value>
+               <value>/XmlAnnotation</value>
+               <value>/TagAnnotation</value>
+               <value>/CommentAnnotation</value>
+               <value>/TextAnnotation</value>
+               <value>/TimestampAnnotation</value>
+               <value>/TermAnnotation</value>
+               <value>/LongAnnotation</value>
+               <value>/DoubleAnnotation</value>
+               <value>/NumericAnnotation</value>
+               <value>/BooleanAnnotation</value>
+               <value>/BasicAnnotation</value>
+               <value>/Annotation</value>
             </list>
         </constructor-arg>
     </bean>
@@ -178,6 +180,7 @@ plus test REAP
             <list>
                 <value>/Roi;ORPHAN;/Image</value>
                 <value>/Image/Pixels/PixelsOriginalFileMap;REAP</value>
+                 <value>/OriginalFile;;/Image/Pixels/PixelsOriginalFileMap</value>
                 <value>/Image/Pixels/PlaneInfo</value>
                 <value>/Image/Pixels/RenderingDef</value><!-- FORCE, for admins? -->
                 <value>/Image/Pixels/Channel</value>
@@ -193,6 +196,16 @@ plus test REAP
                 <value>/Image/StageLabel</value>
                 <value>/Image/Experiment</value><!--  used by microbeam also -->
                 <value>/Instrument;SOFT;/Image</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean parent="delSpec" name="/OriginalFile">
+        <constructor-arg>
+            <list>
+                <value>/OriginalFile/OriginalFileAnnotationLink;REAP</value>
+                 <value>/Annotation;SOFT;/OriginalFile/OriginalFileAnnotationLink</value>
+                <value>/OriginalFile</value>
             </list>
         </constructor-arg>
     </bean>
