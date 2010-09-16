@@ -145,7 +145,7 @@ class OMEEditPane
 				selectAll();
 			else {
 				setText(text);
-				int n = text.length();//-1;
+				int n = getDocument().getLength();
 				if (n >= 0) setCaretPosition(n);
 			}
 		}
