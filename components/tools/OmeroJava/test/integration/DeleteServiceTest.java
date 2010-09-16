@@ -3817,7 +3817,7 @@ public class DeleteServiceTest
      * Test to delete multiple images at the same time.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false, groups = "ticket:2877")
+    @Test(enabled = true, groups = "ticket:2877")
     public void testDeleteMultiplesObjects() 
     	throws Exception
     {
@@ -3828,7 +3828,7 @@ public class DeleteServiceTest
     	DeleteCommand[] commands = new DeleteCommand[2];
     	commands[0] = new DeleteCommand(REF_IMAGE, img1.getId().getValue(), 
     			null);
-    	commands[1] = new DeleteCommand(REF_IMAGE, img1.getId().getValue(), 
+    	commands[1] = new DeleteCommand(REF_IMAGE, img2.getId().getValue(), 
     			null);
     	delete(commands);
     	List<Long> ids = new ArrayList<Long>();
