@@ -153,15 +153,15 @@ public class DeleteI extends AbstractAmdServant implements _IDeleteOperations,
     }
 
     public DeleteHandleI makeAndLaunchHandle(final Ice.Identity id, final DeleteCommand...commands) {
-        DeleteSpecFactory factory = sf.context.getBean("deleteSpecFactory", DeleteSpecFactory.class);
-        DeleteHandleI handle = new DeleteHandleI(id, sf, factory, commands, cancelTimeoutMs);
+        //DeleteSpecFactory factory = sf.context.getBean("deleteSpecFactory", DeleteSpecFactory.class);
+        DeleteHandleI handle = new DeleteHandleI(id, sf, commands, cancelTimeoutMs);
         threadPool.getExecutor().execute(handle);
         return handle;
     }
 
     public void makeAndRun(final Ice.Identity id, final DeleteCommand...commands) {
-        DeleteSpecFactory factory = sf.context.getBean("deleteSpecFactory", DeleteSpecFactory.class);
-        DeleteHandleI handle = new DeleteHandleI(id, sf, factory, commands, cancelTimeoutMs);
+        //DeleteSpecFactory factory = sf.context.getBean("deleteSpecFactory", DeleteSpecFactory.class);
+        DeleteHandleI handle = new DeleteHandleI(id, sf, commands, cancelTimeoutMs);
         handle.run();
     }
 

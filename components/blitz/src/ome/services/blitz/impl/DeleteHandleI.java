@@ -98,7 +98,7 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
 
     /**
      * Executor which will be used to provide access to the Hibernate
-     * {@link Session} in a backgrond thread.
+     * {@link Session} in a background thread.
      */
     private final Executor executor;
 
@@ -139,7 +139,8 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
      * @param cancelTimeoutMs
      */
     public DeleteHandleI(final Ice.Identity id, final ServiceFactoryI sf,
-            final DeleteSpecFactory factory, final DeleteCommand[] commands,
+            //final DeleteSpecFactory factory, 
+            final DeleteCommand[] commands,
             int cancelTimeoutMs) {
         this.id = id;
         this.sf = sf;
@@ -147,19 +148,18 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
         this.executor = sf.getExecutor();
         this.cancelTimeoutMs = cancelTimeoutMs;
         this.state.set(State.CREATED);
-
+        
         if (commands == null || commands.length == 0) {
             this.commands = new DeleteCommand[0];
             this.state.set(State.FINISHED);
         } else {
             this.commands = new DeleteCommand[commands.length];
             System.arraycopy(commands, 0, this.commands, 0, commands.length);
-
             for (int i = 0; i < commands.length; i++) {
+            	final DeleteSpecFactory factory = sf.context.getBean("deleteSpecFactory", DeleteSpecFactory.class);
                 Integer idx = Integer.valueOf(i);
                 Report report = new Report();
                 reports.put(idx, report);
-
                 report.command = commands[i];
                 if (report.command == null) {
                     report.error = "Command is null";
@@ -178,7 +178,7 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
 
                 try {
                     report.steps = report.spec.initialize(
-                            report.command.id,
+                            report.command.id, 
                             "",
                             report.command.options);
                     report.stepStarts = new long[report.steps];
