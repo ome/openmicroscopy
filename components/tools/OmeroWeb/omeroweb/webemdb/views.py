@@ -756,7 +756,9 @@ def index (request):
     # truncate. 
     lastIds = entryIds[:5]
     
-    randomIds = [random.choice(entryIds) for i in range(10)]
+    if len(entryIds) > 0:
+        randomIds = [random.choice(entryIds) for i in range(10)]
+    else: randomIds = []
     
     projects = []
     for entryName in lastIds:
@@ -985,31 +987,30 @@ def getEntriesByPub (request, publicationId):
     
     return HttpResponse(simplejson.dumps(pData), mimetype='application/javascript')
     
-    
+
 def getConnection(request):
-    #print request.session.session_key
-    #emdb_conn_key = "S:emdb#%s" % (request.session.get('server'))
-    conn = getBlitzConnection(request, useragent="OMERO.webemdb")    
-    if conn is None or not conn.isConnected() and request.REQUEST['server']:
-        blitz = settings.SERVER_LIST.get(pk=1)
+    if request.session.get('username', None):
+        conn = getBlitzConnection(request, useragent="OMERO.webemdb")  
+        if not request.session.has_key('processors'):
+            request.session['processors'] = {}
+    else:
+        server_id = request.REQUEST.get('server',None) 
+        if server_id is not None:
+            blitz = settings.SERVER_LIST.get(pk=int(server_id))
+        else:
+            blitz = settings.SERVER_LIST.get(pk=1)
         request.session['server'] = blitz.id
         request.session['host'] = blitz.host
         request.session['port'] = blitz.port
         request.session['password'] = "ome"
         request.session['username'] = "emdb"
         request.session['processors'] = {}
-        #request.session['server'] = 'localhost'
         request.session.modified = True
         conn = getBlitzConnection (request, useragent="OMERO.webemdb")
-    else:
-        if not request.session.has_key('processors'):
-            request.session['processors'] = {}
-    logger.debug('emdb connection: %s' % (conn._sessionUuid))
-    print conn._sessionUuid #, emdb_conn_key
-    #session = conn.getSession()
-    ss = conn.getSessionService()
-    print len(ss._sf.activeServices())
+        
+        logger.debug('emdb connection: %s server %s' % (conn._sessionUuid, blitz.host))
     return conn
+
 
 def image_viewer (request, iid, **kwargs):
     """ This view is responsible for showing pixel data as images """
