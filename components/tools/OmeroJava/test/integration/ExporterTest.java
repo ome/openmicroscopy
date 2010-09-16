@@ -45,13 +45,14 @@ public class ExporterTest
 {
 	
     /**
-     * Tests to export an image as OME-TIFF.
+     * Tests to export an image as OME-TIFF. The image has an annotation
+     * linked to it.
      * 
      * @throws Exception Thrown if an error occurred.
      * @see RawFileStoreTest#testUploadFile()
      */
     @Test
-    public void testExportAsOMETIFF() 
+    public void testExportAsOMETIFFWithAnnotation() 
     	throws Exception 
     {
     	//First create an image
@@ -67,6 +68,54 @@ public class ExporterTest
     	l.setChild(a);
     	l.setParent(new ImageI(image.getId().getValue(), false));
     	iUpdate.saveAndReturnObject(l);
+    	OriginalFile f = mmFactory.createOriginalFile();
+    	f = (OriginalFile) iUpdate.saveAndReturnObject(f);
+    	
+    	RawFileStorePrx svc = factory.createRawFileStore();
+    	svc.setFileId(f.getId().getValue());
+    	byte[] data = new byte[]{1};
+    	svc.write(data, 0, data.length);
+    	svc.close();
+    	
+    	ParametersI param = new ParametersI();
+    	param.addId(f.getId().getValue());
+    	f = (OriginalFile) iQuery.findByQuery(
+    			"select i from OriginalFile i where i.id = :id", param);
+    	//upload file, method tested in RawFileStore
+    	
+    	PixelsOriginalFileMapI m = new PixelsOriginalFileMapI();
+    	m.setChild(new PixelsI(pixels.getId().getValue(), false));
+    	m.setParent(f);
+    	m = (PixelsOriginalFileMapI) iUpdate.saveAndReturnObject(m);
+    	
+    	//now export
+    	ExporterPrx exporter = factory.createExporter();
+    	exporter.addImage(image.getId().getValue());
+    	long size = exporter.generateTiff();
+    	assertTrue(size > 0);
+    	//now read
+    	byte[] values = exporter.read(0, (int) size);
+    	assertNotNull(values);
+    	assertTrue(values.length == size);
+    	exporter.close();
+    }
+    
+    /**
+     * Tests to export an image as OME-TIFF. The image has an annotation
+     * linked to it.
+     * 
+     * @throws Exception Thrown if an error occurred.
+     * @see RawFileStoreTest#testUploadFile()
+     */
+    @Test
+    public void testExportAsOMETIFFWithoutAnnotation() 
+    	throws Exception 
+    {
+    	//First create an image
+    	Image image = mmFactory.createImage();
+    	image = (Image) iUpdate.saveAndReturnObject(image);
+    	Pixels pixels = image.getPrimaryPixels();
+    	
     	OriginalFile f = mmFactory.createOriginalFile();
     	f = (OriginalFile) iUpdate.saveAndReturnObject(f);
     	
