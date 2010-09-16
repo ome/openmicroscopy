@@ -33,6 +33,7 @@ import omero.grid.Column;
 import omero.grid.DeleteCallbackI;
 import omero.grid.LongColumn;
 import omero.grid.TablePrx;
+import omero.model.Annotation;
 import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;
 import omero.model.Channel;
@@ -3868,6 +3869,36 @@ public class DeleteServiceTest
     			ids.size());
     }
     
+    /**
+	 * Tests to delete a file annotation and make sure that the
+	 * original file is deleted to.
+	 * 
+	 * @throws Exception  Thrown if an error occurred.
+	 */
+    @Test(enabled = false, groups = {"ticket:2705"})
+    public void testDeleteFileAnnotation() 
+    	throws Exception
+    {
+    	//creation and linkage have already been tested
+    	//File 
+    	OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
+    			mmFactory.createOriginalFile());
+		FileAnnotation fa = new FileAnnotationI();
+		fa.setFile(of);
+		long ofId = of.getId().getValue();
+		Annotation data = (Annotation) iUpdate.saveAndReturnObject(fa);
+		long id = data.getId().getValue();
+		delete(new DeleteCommand(REF_ANN, id, null));
+    	
+		ParametersI param = new ParametersI();
+    	param.addId(id);
+    	String sql = "select a from Annotation as a where a.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	param = new ParametersI();
+    	param.addId(ofId);
+    	sql = "select a from OriginalFile as a where a.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    }
     
     /**
      * Test to delete an image and make sure the original files are removed.
