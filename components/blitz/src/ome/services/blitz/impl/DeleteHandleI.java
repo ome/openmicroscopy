@@ -8,11 +8,15 @@
 package ome.services.blitz.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import ome.conditions.InternalException;
+import ome.io.nio.OriginalFilesService;
+import ome.io.nio.PixelsService;
+import ome.io.nio.ThumbnailService;
 import ome.services.delete.DeleteException;
 import ome.services.delete.DeleteIds;
 import ome.services.delete.DeleteSpec;
@@ -24,6 +28,7 @@ import omero.LockTimeout;
 import omero.ServerError;
 import omero.api.delete.DeleteCommand;
 import omero.api.delete._DeleteHandleDisp;
+import omero.ValidationException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -65,7 +70,7 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
 
         DeleteCommand command;
         DeleteSpec spec;
-
+        
         long start;
         int steps;
         long[] stepStarts;
@@ -122,6 +127,9 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
      */
     private final AtomicReference<State> state = new AtomicReference<State>();
 
+	private final ServiceFactoryI sf;
+
+
     /**
      * Create and
      *
@@ -135,6 +143,7 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
             final DeleteSpecFactory factory, final DeleteCommand[] commands,
             int cancelTimeoutMs) {
         this.id = id;
+        this.sf = sf;
         this.principal = sf.getPrincipal();
         this.executor = sf.getExecutor();
         this.cancelTimeoutMs = cancelTimeoutMs;
@@ -326,7 +335,13 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                 return null;
             }
         });
-
+        
+        /*
+         * If the delete has succeeded try to delete the associated files.
+         */
+        if (state.get() == State.FINISHED) {
+        	deleteFiles();
+        }
     }
 
     public void doRun(Session session) throws Cancel {
@@ -364,7 +379,7 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                     ids = new DeleteIds(session, report.spec);
                 }
                 report.warning = report.spec.delete(session, j, ids);
-            } catch (DeleteException de) {
+             } catch (DeleteException de) {
                 report.error = de.message;
                 if (de.cancel) {
                     Cancel cancel = new Cancel("Cancelled by DeleteException");
@@ -388,6 +403,86 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
             }
         }
 
+    }
+    
+    /**
+     * For each Report use the map of tables to deleted ids
+     * to remove the files under Files, Pixels and Thumbnails
+     * if the ids no longer exist in the db
+     */
+    public void deleteFiles() {
+    	HashMap<String, List<Long>> idMap;
+    	
+     	for(Report report : reports.values()) {
+       		log.info("specstring: " + report.spec.toString());
+       		idMap = (HashMap<String, List<Long>>) report.spec.getTableIds();
+            if (log.isDebugEnabled()) {
+            	for(String table : idMap.keySet()) {
+       				List<Long> ids = idMap.get(table);
+       				log.debug("    Deleted " + table + ":" + ids.toString());
+       			}
+            }
+       		if (idMap.containsKey("OriginalFile")) {
+       			log.info("Trying to delete OriginalFiles : " + idMap.get("OriginalFile").toString());
+       			List<Long> deletedIds = new ArrayList<Long>();
+       			for(Long id : idMap.get("OriginalFile")) {
+       				try {
+       					ome.model.IObject obj = (ome.model.IObject) sf.getQueryService().find("OriginalFile", id);
+       					if(obj == null) {
+       						deletedIds.add(id);
+       					} else {
+       						log.info("OriginalFile " + id.toString() + " not deleted, still in database");
+       					}
+       				} catch (ServerError se) {
+       					log.error("OriginalFile "  + id.toString() + " not deleted: ServerError: " + se.toString());
+       				}
+       			}
+       			if(!deletedIds.isEmpty()) {
+       				OriginalFilesService os = new OriginalFilesService("/OMERO");
+       				os.removeFiles(deletedIds);
+       			}
+       		}
+       		if (idMap.containsKey("Pixels")) {
+       			log.info("Trying to delete Pixels : " + idMap.get("Pixels").toString());
+       			List<Long> deletedIds = new ArrayList<Long>();
+      			for(Long id : idMap.get("Pixels")) {
+       				try {
+       					ome.model.IObject obj = (ome.model.IObject) sf.getQueryService().find("Pixels", id);
+       					if(obj == null) {
+       						deletedIds.add(id);
+       					} else {
+       						log.info("Pixels " + id.toString() + " not deleted, still in database");
+       					}
+       				} catch (ServerError se) {
+       					log.error("Pixels "  + id.toString() + " not deleted: ServerError: " + se.toString());
+       				}
+      			}
+       			if(!deletedIds.isEmpty()) {
+       				PixelsService ps = new PixelsService("/OMERO");
+       				ps.removePixels(deletedIds);
+       			}
+       		}
+       		if (idMap.containsKey("Thumbnail")) {
+       			log.info("Trying to delete Thumbnails : " + idMap.get("Thumbnail").toString());
+       			List<Long> deletedIds = new ArrayList<Long>();
+       			for(Long id : idMap.get("Thumbnail")) {
+       				try {
+       					ome.model.IObject obj = (ome.model.IObject) sf.getQueryService().find("Thumbnail", id);
+       					if(obj == null) {
+       						deletedIds.add(id);
+       					} else {
+       						log.info("Thumbnail " + id.toString() + " not deleted, still in database");
+       					}
+       				} catch (ServerError se) {
+       					log.error("Thumbnail "  + id.toString() + " not deleted: ServerError: " + se.toString());
+       				}
+       			}
+       			if(!deletedIds.isEmpty()) {
+       				ThumbnailService ts = new ThumbnailService("/OMERO");
+       				ts.removeThumbnails(deletedIds);
+       			}
+      		}
+       	}
     }
 
     /**

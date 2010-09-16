@@ -95,6 +95,11 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
     private Map<Integer, Integer> substeps = new HashMap<Integer, Integer>();
 
     /**
+     * Map of db table names to the ids deleted from that table.
+     */
+    private Map<String, List<Long>> tableIds  = new HashMap<String, List<Long>>();
+    
+    /**
      * Simplified constructor, primarily used for testing.
      */
     public BaseDeleteSpec(String name, String... entries) {
@@ -164,6 +169,11 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
         return new ArrayList<DeleteEntry>(entries);
     }
 
+    public Map<String, List<Long>> getTableIds() {
+		return tableIds;
+    }
+
+
     public boolean skip(int step) {
         DeleteEntry entry = entries.get(step);
         if (Op.KEEP.equals(entry.getOp())) {
@@ -191,6 +201,26 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
                     String cause = null;
                     try {
                         cause = subSpec.delete(session, i, deleteIds);
+                        /* 
+                         * Add ids from subspec to this spec's ids
+                         * 
+                         * This might be adequate...
+                         */ 
+                        tableIds.putAll(subSpec.getTableIds());
+                        /* 
+                         * But maybe a more cautious approach 
+                         * with Sets instead of Lists as values...
+                         *
+                        for(String table : subSpec.getTableIds().keySet()) {
+                        	if(tableIds.containsKey(table)) {
+                        		tableIds.get(table).addAll(subSpec.getTableIds().get(table));
+                        	} else {
+                        		tableIds.put(table, subSpec.getTableIds().get(table));
+                        	}
+                        }
+                        *
+                        * ...could be needed.
+                        */
                     } catch (ConstraintViolationException cve) {
                         if (Op.SOFT.equals(entry.getOp())) {
                             sb.append(cause);
@@ -258,7 +288,7 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
             int count = q.executeUpdate();
             saveLogs(table, ids);
             release(session, sp);
-
+            tableIds.put(table, ids);
             if (log.isDebugEnabled()) {
                 log.debug(String.format("Deleted %s from %s: %s", count, str, which));
             }
@@ -299,7 +329,7 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
             throws DeleteException {
 
         List<List<Long>> rv = new ArrayList<List<Long>>();
-
+        
         for (int s = 0; s < entries.size(); s++) {
             final List<Long> allIds = queryBackupIds(session, s, entries.get(s), null);
             rv.add(allIds);

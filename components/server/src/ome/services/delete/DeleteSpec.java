@@ -42,7 +42,7 @@ public interface DeleteSpec {
      * {@link DeleteEntry#getSubSpec()}.
      */
     String getSuperSpec();
-
+    
     /**
      * Gives all specs a chance to reference subspecs.
      */
@@ -157,4 +157,11 @@ public interface DeleteSpec {
      * this {@link DeleteSpec}
      */
     List<DeleteEntry> entries();
+    
+    /**
+     * Returns the map of tables to potentially deleted ids
+     */
+    Map<String, List<Long>> getTableIds();
+
+
 }
