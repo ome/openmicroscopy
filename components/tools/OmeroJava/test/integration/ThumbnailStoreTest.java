@@ -76,6 +76,8 @@ public class ThumbnailStoreTest
     
 	/**
      * Test to retrieve the newly created image.
+     * Tests thumbnailService methods: getThumbnail(rint, rint) 
+     * and getThumbnailByLongestSide(rint)
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -107,10 +109,15 @@ public class ThumbnailStoreTest
 				omero.rtypes.rint(sizeY));
 		assertNotNull(values);
 		assertTrue(values.length > 0);
+		
+		byte[] lsValues = svc.getThumbnailByLongestSide(omero.rtypes.rint(sizeX));
+		assertNotNull(lsValues);
+		assertTrue(lsValues.length > 0);
     }
     
     /**
-     * Test to retrieve the newly created image.
+     * Tests thumbnailService methods: getThumbnailSet(rint, rint, list<long>) 
+     * and getThumbnailByLongestSideSet(rint, list<long>)
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -138,12 +145,25 @@ public class ThumbnailStoreTest
 		int sizeX = 48;
 		int sizeY = 48;
 		Map<Long, byte[]> thmbs = svc.getThumbnailSet(omero.rtypes.rint(sizeX), omero.rtypes.rint(sizeY), pixelsIds);
+		Map<Long, byte[]> lsThmbs = svc.getThumbnailByLongestSideSet(omero.rtypes.rint(sizeX), pixelsIds);
 		Iterator it = thmbs.entrySet().iterator();
 		byte[] t = null;
 		int tnCount = 0;
+		Map.Entry keyValue;
 		while (it.hasNext()) {
-		    Map.Entry pairs = (Map.Entry)it.next();
-		    t = (byte[])pairs.getValue();
+		    keyValue = (Map.Entry)it.next();
+		    t = (byte[])keyValue.getValue();
+		    assertNotNull(t);
+		    assertNotNull(t.length > 0);
+		    tnCount++;
+		}
+		assertEquals(tnCount, thumbNailCount);
+		
+		Iterator lit = lsThmbs.entrySet().iterator();
+		tnCount = 0;
+		while (lit.hasNext()) {
+		    keyValue = (Map.Entry)lit.next();
+		    t = (byte[])keyValue.getValue();
 		    assertNotNull(t);
 		    assertNotNull(t.length > 0);
 		    tnCount++;
