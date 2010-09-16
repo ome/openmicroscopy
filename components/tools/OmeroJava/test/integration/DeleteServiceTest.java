@@ -723,7 +723,7 @@ public class DeleteServiceTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test(enabled = false, groups = "ticket:2881")
-    public void testDeleteTaggedImage() 
+    public void testDeleteTaggedImageTagOwnedByOther() 
     	throws Exception
     {
         // set up collaborative group with 2 users
@@ -760,14 +760,14 @@ public class DeleteServiceTest
     		
     	omero.client client = new omero.client();
     	// owner creates the image
-        ServiceFactoryPrx f = client.createSession(uuid1 + "owner", uuid1); // user, group
+        ServiceFactoryPrx f = client.createSession(uuid1 + "owner", uuid1); 
         IUpdatePrx update = f.getUpdateService();
         Image img = (Image) update.saveAndReturnObject(
         		mmFactory.simpleImage(0));
         
         // tagger creates tag and tags the image
         omero.client clientTag = new omero.client();
-        ServiceFactoryPrx sf = clientTag.createSession(uuid1 + "tagger", uuid1); // user, group
+        ServiceFactoryPrx sf = clientTag.createSession(uuid1 + "tagger", uuid1);
         IUpdatePrx tagUpdate = sf.getUpdateService();
         
         TagAnnotation c = new TagAnnotationI();
@@ -780,18 +780,19 @@ public class DeleteServiceTest
     	
     	// try to delete image. 
     	long id = img.getId().getValue();
-    	iDelete.deleteImage(id, false); //do not force.
-
+    	delete(new DeleteCommand(REF_PLATE, id, null));
         // check it has been deleted 
         ParametersI param = new ParametersI();
     	param.addId(id);
-    	img = (Image) iQuery.findByQuery("select i from Image i where i.id = :id", param);
+    	img = (Image) iQuery.findByQuery(
+    			"select i from Image i where i.id = :id", param);
     	assertNull(img);
     	
     	// check that the tag hasn't been deleted
     	param = new ParametersI();
     	param.addId(c.getId().getValue());
-    	c = (TagAnnotation) iQuery.findByQuery("select c from Annotation c where c.id = :id", param);
+    	c = (TagAnnotation) iQuery.findByQuery(
+    			"select c from Annotation c where c.id = :id", param);
     	assertNotNull(c);
     }
     
@@ -3812,8 +3813,7 @@ public class DeleteServiceTest
     }
     
     /**
-     * Test to delete images sharing logical channels. This case may happen
-     * when handling Plate.
+     * Test to delete multiple images at the same time.
      * @throws Exception Thrown if an error occurred.
      */
     @Test(enabled = false, groups = "ticket:2877")
@@ -3840,6 +3840,54 @@ public class DeleteServiceTest
     	sb.append("select i from Image i ");
     	sb.append("where i.id in (:ids)");
     	assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
+    }
+
+    /**
+     * Test to delete a tagged image. The tag is also linked to another image.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = false)
+    public void testDeleteTaggedImages() 
+    	throws Exception
+    {
+    	Image img1 = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleImage(0));
+    	Image img2 = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleImage(0));
+    	List<Long> ids = createSharableAnnotation(img1, img2);
+    	assertTrue(ids.size() > 0);
+    	delete(new DeleteCommand(REF_IMAGE, img1.getId().getValue(), null));
+    	
+    	ParametersI param = new ParametersI();
+    	param.addIds(ids);
+
+    	StringBuilder sb = new StringBuilder();
+    	sb.append("select i from Annotation i ");
+    	sb.append("where i.id in (:ids)");
+    	assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 
+    			ids.size());
+    }
+    
+    
+    /**
+     * Test to delete an image and make sure the original files are removed.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = false)
+    public void testDeleteImageAndOriginalFile() 
+    	throws Exception
+    {
+    }
+    
+    /**
+     * Test to delete an image and make sure the original files are removed.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = false, groups = "ticket:2884")
+    public void testDeleteImageWithThumbnail() 
+    	throws Exception
+    {
+    	//import image
     }
     
 }
