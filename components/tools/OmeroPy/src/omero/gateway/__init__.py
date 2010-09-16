@@ -929,6 +929,7 @@ class _BlitzGateway (object):
             self._proxies['rendsettings'] = ProxyObjectWrapper(self, 'getRenderingSettingsService')
             self._proxies['rawfile'] = ProxyObjectWrapper(self, 'createRawFileStore')
             self._proxies['repository'] = ProxyObjectWrapper(self, 'getRepositoryInfoService')
+            self._proxies['roi'] = ProxyObjectWrapper(self, 'getRoiService')
             self._proxies['script'] = ProxyObjectWrapper(self, 'getScriptService')
             self._proxies['search'] = ProxyObjectWrapper(self, 'createSearchService')
             self._proxies['session'] = ProxyObjectWrapper(self, 'getSessionService')
@@ -1331,6 +1332,15 @@ class _BlitzGateway (object):
         
         return self._proxies['metadata']
     
+    def getRoiService (self):
+        """
+        Gets ROI service.
+        
+        @return:    omero.gateway.ProxyObjectWrapper
+        """
+        
+        return self._proxies['roi']
+        
     def getScriptService (self):
         """
         Gets script service.
