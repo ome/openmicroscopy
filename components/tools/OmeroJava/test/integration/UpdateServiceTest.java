@@ -1733,7 +1733,7 @@ public class UpdateServiceTest
 	 * 
 	 * @throws Exception  Thrown if an error occurred.
 	 */
-    @Test(groups = {"ticket:2705"})
+    @Test(enabled = false, groups = {"ticket:2705"})
     public void testDeleteAnnotation() 
     	throws Exception
     {
@@ -1793,10 +1793,10 @@ public class UpdateServiceTest
     	sql = "select a from Annotation as a where a.id = :id";
     	assertNull(iQuery.findByQuery(sql, param));
     	param = new ParametersI();
-    	param.addId(id);
+    	param.addId(ofId);
     	//See ticket #2705
-    	//sql = "select a from OriginalFile as a where a.id = :id";
-    	//assertNull(iQuery.findByQuery(sql, param));
+    	sql = "select a from OriginalFile as a where a.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
     	
     	//Term
     	TermAnnotation term = new TermAnnotationI();
