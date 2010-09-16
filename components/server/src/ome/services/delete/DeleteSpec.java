@@ -20,7 +20,7 @@ import org.springframework.beans.factory.ListableBeanFactory;
  * Specification of a delete operation. These instances are defined in
  * ome/services/delete/spec.xml as non-singletons, i.e each time a request is
  * made for a new {@link DeleteSpecFactory} one of each {@link DeleteSpec} is
- * initalized and gathered into the factory. A single thread, then, can
+ * initialized and gathered into the factory. A single thread, then, can
  * repeatedly call {@link #initialize(long, Map)} on the {@link DeleteSpec}
  * instances.
  *
@@ -54,7 +54,7 @@ public interface DeleteSpec {
      * reached, {@link #delete(Session, int)} can take clean up actions.
      *
      * @param id
-     *            identifer of the root object which defines the graph to be
+     *            identifier of the root object which defines the graph to be
      *            deleted.
      * @param supersec
      *            points to the relationship between the root object and the
@@ -107,12 +107,12 @@ public interface DeleteSpec {
             throws DeleteException;
 
     /**
-     * If a given path is deleted before its subpath, this points to a
+     * If a given path is deleted before its sub-path, this points to a
      * one-to-one relationship. If the first object is deleted without having
      * loaded the later one, then there will be no way to find the dangling
      * object. Therefore, we load those objects first.
      *
-     * In the case of superspecs, we also store the root ids for the subspec to
+     * In the case of superspecs, we also store the root ids for the sub-spec to
      * handle cases such as links, etc.
      *
      * Returns a list of ids per step which should be deleted. These are
@@ -162,6 +162,5 @@ public interface DeleteSpec {
      * Returns the map of tables to potentially deleted ids
      */
     Map<String, List<Long>> getTableIds();
-
 
 }

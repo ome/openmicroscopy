@@ -8,7 +8,6 @@
 package ome.services.delete;
 
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -65,7 +64,8 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
     private final boolean[] isAbstract;
 
     /**
-     * Type of each substep. Annotation.class.isAssignableFrom(types[i]) is true.
+     * Type of each sub-step. Annotation.class.isAssignableFrom(types[i]) is 
+     * <code>true</code>.
      */
     private final Class<?>[] types;
 
@@ -90,7 +90,7 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
     private final String[] optSource;
 
     /**
-     * exclude values parsed outfrom the user options.
+     * exclude values parsed out from the user options.
      */
     private final String[] excludes;
 
@@ -104,11 +104,23 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
     // Initialization-time values
     //
 
+    /**
+     * Creates a new instance.
+     * 
+     * @param entries The entries to handle.
+     */
     public AnnotationDeleteSpec(List<String> entries) {
         this(null, entries);
     }
 
-    public AnnotationDeleteSpec(Map<String, String> excludeMap, List<String> entries) {
+    /**
+     * Creates a new instance.
+     * 
+     * @param excludeMap The namespaces to exclude.
+     * @param entries The entries to handle.
+     */
+    public AnnotationDeleteSpec(Map<String, String> excludeMap, 
+    		List<String> entries) {
         super(entries);
         isAbstract = new boolean[entries.size()];
         types = new Class[entries.size()];
@@ -131,9 +143,10 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
     }
 
     /**
-     * Performs sanity checks on the annotation entries found in {@link ExtendedMetadata}.
-     * Primarily, this prevents new annotation types from not being properly specified
-     * in spec.xml.
+     * Performs sanity checks on the annotation entries found in 
+     * {@link ExtendedMetadata}.
+     * Primarily, this prevents new annotation types from not being properly 
+     * specified in spec.xml.
      */
     @Override
     public void setExtendedMetadata(ExtendedMetadata em) {
@@ -238,7 +251,9 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
                             if (!"KEEP".equals(parts[0])) {
                                 // Currently only supporting KEEP;excludes=
                                 // see queryBackupIds if this changes.
-                                throw new FatalBeanException("Currently excludes only compatible with KEEP:" + raw);
+                                throw new FatalBeanException("Currently " +
+                                		"excludes only compatible with KEEP:" 
+                                		+ raw);
                             }
                             int idx = parts[j].indexOf("=");
                             excludes[i] = parts[j].substring(idx+1);
@@ -334,7 +349,8 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
 
         if (ids != null && ids.size() > 0) {
             Query q = session
-                    .createQuery("delete ome.model.IAnnotationLink where child.id in (:ids)");
+                    .createQuery("delete ome.model.IAnnotationLink where " +
+                    		"child.id in (:ids)");
             q.setParameterList("ids", ids);
             int count = q.executeUpdate();
             log.info("Deleted " + count + " annotation links.");
@@ -343,4 +359,5 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
             return "";
         }
     }
+    
 }
