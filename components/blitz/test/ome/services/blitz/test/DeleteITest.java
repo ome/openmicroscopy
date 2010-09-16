@@ -711,8 +711,8 @@ public class DeleteITest extends AbstractServantTest {
 
     private DeleteHandleI doDelete(DeleteCommand... dc) throws Exception {
         Ice.Identity id = new Ice.Identity("handle", "delete");
-        DeleteSpecFactory factory = specFactory();
-        DeleteHandleI handle = new DeleteHandleI(id, user_sf, factory, dc, 1000);
+        //DeleteSpecFactory factory = specFactory();
+        DeleteHandleI handle = new DeleteHandleI(id, user_sf, dc, 1000);
         handle.run();
         assertEquals(handle.report().toString(), 0, handle.errors());
         return handle;
