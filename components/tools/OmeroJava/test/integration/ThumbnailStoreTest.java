@@ -26,6 +26,9 @@ package integration;
 //Java imports
 import java.io.File;
 import java.util.List;
+import java.util.Map;
+import java.util.Iterator;
+import java.util.ArrayList;
 
 //Third-party libraries
 import org.testng.annotations.BeforeClass;
@@ -105,5 +108,47 @@ public class ThumbnailStoreTest
 		assertNotNull(values);
 		assertTrue(values.length > 0);
     }
+    
+    /**
+     * Test to retrieve the newly created image.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testGetThumbnailSet() 
+    	throws Exception
+    {
+    	ThumbnailStorePrx svc = factory.createThumbnailStore();
+    	//first import an image already tested see ImporterTest
+    	String format = ModelMockFactory.FORMATS[0];
+    	File f = File.createTempFile("testImportGraphicsImages"+format, 
+				"."+format);
+    	mmFactory.createImageFile(f, format);
+    	List<Long> pixelsIds = new ArrayList<Long>();
+    	int thumbNailCount = 20;
+		try {
+		    for (int i=0; i<thumbNailCount; i++) {
+			    List<Pixels> pxls = importFile(importer, f, format, false);
+			    pixelsIds.add(pxls.get(0).getId().getValue());
+			}
+		} catch (Throwable e) {
+			throw new Exception("cannot import image", e);
+		}
+		f.delete();
+		
+		int sizeX = 48;
+		int sizeY = 48;
+		Map<Long, byte[]> thmbs = svc.getThumbnailSet(omero.rtypes.rint(sizeX), omero.rtypes.rint(sizeY), pixelsIds);
+		Iterator it = thmbs.entrySet().iterator();
+		byte[] t = null;
+		int tnCount = 0;
+		while (it.hasNext()) {
+		    Map.Entry pairs = (Map.Entry)it.next();
+		    t = (byte[])pairs.getValue();
+		    assertNotNull(t);
+		    assertNotNull(t.length > 0);
+		    tnCount++;
+		}
+		assertEquals(tnCount, thumbNailCount);
+	}
     
 }
