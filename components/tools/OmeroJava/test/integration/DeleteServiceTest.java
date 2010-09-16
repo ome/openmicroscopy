@@ -26,6 +26,7 @@ import omero.api.IPixelsPrx;
 import omero.api.IQueryPrx;
 import omero.api.IRenderingSettingsPrx;
 import omero.api.IUpdatePrx;
+import omero.api.RawFileStorePrx;
 import omero.api.delete.DeleteCommand;
 import omero.api.delete.DeleteHandlePrx;
 import omero.api.ServiceFactoryPrx;
@@ -74,6 +75,8 @@ import omero.model.ObjectiveSettings;
 import omero.model.OriginalFile;
 import omero.model.PermissionsI;
 import omero.model.Pixels;
+import omero.model.PixelsI;
+import omero.model.PixelsOriginalFileMapI;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.PlateAcquisitionAnnotationLink;
@@ -3818,7 +3821,7 @@ public class DeleteServiceTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test(enabled = true, groups = "ticket:2877")
-    public void testDeleteMultiplesObjects() 
+    public void testDeleteMultipleObjectsOfSameType() 
     	throws Exception
     {
     	Image img1 = mmFactory.createImage();
@@ -3843,6 +3846,39 @@ public class DeleteServiceTest
     	assertEquals(iQuery.findAllByQuery(sb.toString(), param).size(), 0);
     }
 
+    /**
+     * Test to delete multiple images at the same time.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testDeleteMultipleObjectsOfDifferentTypes() 
+    	throws Exception
+    {
+    	Image img1 = mmFactory.createImage();
+    	img1 = (Image) iUpdate.saveAndReturnObject(img1);
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleDatasetData().asIObject());
+    	DeleteCommand[] commands = new DeleteCommand[2];
+    	commands[0] = new DeleteCommand(REF_IMAGE, img1.getId().getValue(), 
+    			null);
+    	commands[1] = new DeleteCommand(REF_DATASET, d.getId().getValue(), 
+    			null);
+    	delete(commands);
+    	ParametersI param = new ParametersI();
+    	param.addId(img1.getId().getValue());
+
+    	StringBuilder sb = new StringBuilder();
+    	sb.append("select i from Image i ");
+    	sb.append("where i.id = :id");
+    	assertNull(iQuery.findByQuery(sb.toString(), param));
+    	param = new ParametersI();
+    	param.addId(d.getId().getValue());
+    	 sb = new StringBuilder();
+     	sb.append("select i from Dataset i ");
+     	sb.append("where i.id = :id");
+     	assertNull(iQuery.findByQuery(sb.toString(), param));
+    }
+    
     /**
      * Test to delete a tagged image. The tag is also linked to another image.
      * @throws Exception Thrown if an error occurred.
@@ -3908,6 +3944,39 @@ public class DeleteServiceTest
     public void testDeleteImageAndOriginalFile() 
     	throws Exception
     {
+    	//First create an image
+    	Image image = mmFactory.createImage();
+    	image = (Image) iUpdate.saveAndReturnObject(image);
+    	Pixels pixels = image.getPrimaryPixels();
+    	
+    	OriginalFile f = mmFactory.createOriginalFile();
+    	f = (OriginalFile) iUpdate.saveAndReturnObject(f);
+    	
+    	RawFileStorePrx svc = factory.createRawFileStore();
+    	svc.setFileId(f.getId().getValue());
+    	byte[] data = new byte[]{1, 2};
+    	svc.write(data, 0, data.length);
+    	svc.close();
+    	
+    	long fileID = f.getId().getValue();
+    	String sql = "select i from OriginalFile i where i.id = :id";
+    	ParametersI param = new ParametersI();
+    	param.addId(fileID);
+    	f = (OriginalFile) iQuery.findByQuery(sql, param);
+    	//upload file, method tested in RawFileStore
+    	
+    	PixelsOriginalFileMapI m = new PixelsOriginalFileMapI();
+    	m.setChild(new PixelsI(pixels.getId().getValue(), false));
+    	m.setParent(f);
+    	m = (PixelsOriginalFileMapI) iUpdate.saveAndReturnObject(m);
+    	
+    	
+    	long imageID = image.getId().getValue();
+    	delete(new DeleteCommand(REF_IMAGE, imageID, null));
+    	sql = "select i from OriginalFile i where i.id = :id";
+    	param = new ParametersI();
+    	param.addId(fileID);
+    	assertNull(iQuery.findByQuery(sql, param));
     }
     
     /**
