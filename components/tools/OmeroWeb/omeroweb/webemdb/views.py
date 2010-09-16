@@ -519,7 +519,8 @@ def dataset(request, datasetId):
     scripts = []
     scriptNames = {"/EMAN2/Run_Spider_Procedure.py": "Run Spider Procedure",
             "/EMAN2/Eman_Filters.py": "Process with EMAN2 Filter",
-            "/EMAN2/Ctf_Correction.py": "EMAN2 CTF Correction"}
+            "/EMAN2/Ctf_Correction.py": "EMAN2 CTF Correction",
+            "/EMAN2/Nonlinear_Anisotropic_Diffusion.py": "IMOD Nonlinear Anisotropic Diffusion"}
     for path, display in scriptNames.items():
          scriptId = scriptService.getScriptID(path)
          if scriptId and scriptId > 0:
@@ -747,7 +748,8 @@ def index (request):
     for p in conn.listProjects():
         try:
             # make sure we only list projects that are emdb entries "1001" etc
-            entryIds.append(int(p.getName()))
+            int(p.getName())
+            entryIds.append(p.getName())
         except: pass
     entryIds.sort()
     entryIds.reverse()
@@ -758,8 +760,11 @@ def index (request):
     
     projects = []
     for entryName in lastIds:
-        p = conn.findProject(str(entryName))
-        title, sample = p.getDescription().split("\n")
+        p = conn.findProject(entryName)
+        rows = p.getDescription().split("\n")
+        title = rows[0]
+        if len(rows) > 1: sample = rows[1]
+        else:  sample = ""
         e = {"id": entryName, "title": title, "sample": sample }
         projects.append(e)
     
@@ -1000,7 +1005,10 @@ def getConnection(request):
         if not request.session.has_key('processors'):
             request.session['processors'] = {}
     logger.debug('emdb connection: %s' % (conn._sessionUuid))
-    #print type(conn), conn._sessionUuid #, emdb_conn_key
+    print conn._sessionUuid #, emdb_conn_key
+    #session = conn.getSession()
+    ss = conn.getSessionService()
+    print len(ss._sf.activeServices())
     return conn
 
 def image_viewer (request, iid, **kwargs):

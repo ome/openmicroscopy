@@ -26,6 +26,12 @@
     padding: 5px;
     margin: 5px;
 }
+.clear {
+    clear: both;
+}
+#script_pane {
+    float: right;
+}
 </style>
 {% endblock %}
 
@@ -48,31 +54,44 @@ function openPopup(url) {
 
 
 <div class="pageTable">
-    
-    <div class="entryTitle">Image: {{ image.getName }}</div>
-    <div>ID: {{ image.getId }}</div>
-    {% if image.getDescription %}
-        <p>
-            {{ image.getDescription|linebreaks }}
-        </p>
-    {% endif %}
+    <div style="padding:5px">
+        <div class="entryTitle">Image: {{ image.getName }}</div>
+        <div>ID: {{ image.getId }}</div>
+        {% if image.getDescription %}
+            <p>
+                {{ image.getDescription|linebreaks }}
+            </p>
+        {% endif %}
         
-    <p>
-    Datasets: 
-    {% for d in image.showAllParents %}
-        <a href="{% url webemdb_dataset d.getId %}">{{ d.getName }}</a> |
-    {% endfor %}
-    </p>
-    <p>
-        Open <a href="#" onclick="return openPopup('{% url web_image_viewer image.getId %}')"> Full viewer </a> |
-        <a href="{% url webemdb_mapmodel image.getId %}">Map Model</a>
-    </p>
-    <div id="dataHeader"></div>
+        <p>
+        Datasets: 
+        {% for d in image.showAllParents %}
+            <a href="{% url webemdb_dataset d.getId %}">{{ d.getName }}</a> |
+        {% endfor %}
+        </p>
+        <p>
+            Open <a href="#" onclick="return openPopup('{% url web_image_viewer image.getId %}')"> Full viewer </a> |
+            <a href="{% url webemdb_mapmodel image.getId %}">Map Model</a>
+        </p>
+        <div id="dataHeader"></div>
+    
+        <div id="script_pane">
+            <form>
+                <select name="scripts" id="script_chooser">
+                    <option value="">Run Script...</option>
+                    {% for s in scripts %}
+                        <option value="{% url webemdb_script_form s.id %}">{{ s.name }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+        </div>
+    </div>
+    <div class="clear"></div>
 </div>
 
       
 <div class="pageTable">  
-    
+
     <img class="original" src="{% url webgateway.views.render_image image.getId default_z 0 %}" />
 
     <div class="eman_menu">
@@ -81,13 +100,6 @@ function openPopup(url) {
     <a class="eman" href="{% url webemdb_eman_median image.getId %}">median</a> <br />
     <a class="eman" href="{% url webemdb_eman_median image.getId 2 %}">median 2</a> <br />
     <a class="eman" href="{% url webemdb_eman_log image.getId %}">log</a> <br />
-    </div>
-    
-    <div id="scriptMenu">
-        Process with IMOD: <br />
-    {% for s in scripts %}
-        <a class="script" href="{% url webemdb_script_form s.id %}">{{ s.name }}</a> <br />
-    {% endfor %}
     </div>
     
     <div>

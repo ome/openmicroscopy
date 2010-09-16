@@ -8,6 +8,7 @@ jQuery.fn.runScript = function() {
     newWindow.document.write('<p>Waiting for results...</p>');
     newWindow.document.write('</html>');
     newWindow.document.close();
+    newWindow.opener = self.opener;
     if (window.focus) {newWindow.focus()}
       
     var postData = $form.serialize();

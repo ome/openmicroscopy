@@ -16,6 +16,9 @@
 .caption {
     text-align: center
 }
+h3 {
+    padding: 5px;
+}
 </style>
 {% endblock %}
 
@@ -40,9 +43,11 @@ function openPopup(url) {
     
     <div class="entryTitle">Image: {{ image.getName }}</div>
     <div>ID: {{ image.getId }}</div>
+    {% if image.getDescription %}
     <p>
         {{ image.getDescription|linebreaks }}
     </p>
+    {% endif %}
     
     {% if entryId %}
         <a href="{% url webemdb.views.entry entryId %}">
@@ -54,12 +59,15 @@ function openPopup(url) {
     {% endif %}
         
     <p>
-        Open <a href="#" onclick="return openPopup('{% url web_image_viewer image.getId %}')"> Full viewer </a>
+        <a href="#" onclick="return openPopup('{% url web_image_viewer image.getId %}')"> Full viewer </a>|
+        <a href="{% url webemdb_image image.getId %}">Image</a>
     </p>
+    
     <div id="dataHeader"></div>
 </div>
 
 <div class="pageTable">  
+    <h3>Custom X,Y,Z projections</h3>
     <table>
         <tr>
             <td>
@@ -89,6 +97,10 @@ function openPopup(url) {
                 <div class='caption'>Slice x</div>
             </td>
         </tr>
+        </table>
+        
+        <h3>OMERO Z-projections</h3>
+        <table>
         <tr>
             <td>
                 <img class="plane" src="{% url webemdb_maxprojection image.getId %}" />

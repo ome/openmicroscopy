@@ -54,9 +54,15 @@ $(document).ready(function() {
                     <div id="entrySub">Aggregation State: <span id="aggregationState"></span></div>
                     Download: 
                     {% if xml %}<a id="emdbxml" href="{% url webemdb_file xml.id %}">{{ xml.getFileName }}</a> | {% endif %}
-                    {% if img and map %}<a id="emdbmap" href="{% url webemdb_file map.id %}">{{ map.getFileName }}</a> | {% endif %}
+                    {% if img and map %}
+                        <a id="emdbmap" href="{% url webemdb_file map.id %}">{{ map.getFileName }}</a> | 
+                        <a href="{% url webemdb_oa_viewer map.id %}">OA Viewer</a> |
+                    {% endif %}
+                    {% if smallMap %}
+                        <a href="{% url webemdb_oa_viewer smallMap.id %}">OA Viewer</a> |
+                    {% endif %}
                     {% if img %}
-                        <a href="#" onclick="return openPopup('{% url web_image_viewer img.id %}')">Viewer</a> |
+                        <a href="#" onclick="return openPopup('{% url web_image_viewer img.id %}')">Image Viewer</a> |
                         <a href="{% url webemdb_image img.id %}">Map</a> |
                         <a href="{% url webemdb_mapmodelemdb project.name %}">Map Model</a> |
                     {% endif %}
@@ -132,7 +138,7 @@ $(document).ready(function() {
                         <div>
                             <div class="visIcon"><img width='75' src="{% url webemdb_file gif.id %}" /> </div>
                             <div class="visText">
-                                Open Astex Viewer - Preview
+                                Open Astex Viewer - Mask Preview
                                 {% if sizeWarning %} <!-- display warning if necessary -->
                                 <div id="sizeWarning">This is a large/complex map. The viewer may not have enough memory to view it</div>
                                 {% endif %}
