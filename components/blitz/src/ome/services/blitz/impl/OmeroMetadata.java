@@ -41,6 +41,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.text.SimpleDateFormat;
 
 import loci.formats.meta.DummyMetadata;
 import loci.formats.meta.MetadataRetrieve;
@@ -97,6 +98,10 @@ import org.apache.commons.logging.LogFactory;
 public class OmeroMetadata extends DummyMetadata {
 
     private final static Log log = LogFactory.getLog(OmeroMetadata.class);
+
+    /** The base format string for xsd:dateTime. */
+    private SimpleDateFormat xsdDateTimeFormat =
+            new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
 
     // -- State --
 
@@ -166,6 +171,9 @@ public class OmeroMetadata extends DummyMetadata {
         if (obj.getId() != null) {
 
             Class k = obj.getClass();
+            if (Annotation.class.isAssignableFrom(k)) {
+                k = Annotation.class;
+            }
             long id = obj.getId().getValue();
             Long v = (ue == null) ? null : ue.getId().getValue();
             if (v == null) {
@@ -188,7 +196,11 @@ public class OmeroMetadata extends DummyMetadata {
         }
 
         String uuid = UUID.randomUUID().toString();
-        String lsid = obj.getClass().getSimpleName() + ":" + uuid;
+        String prefix = obj.getClass().getSimpleName();
+        if (Annotation.class.isAssignableFrom(obj.getClass())) {
+            prefix = Annotation.class.getSimpleName();
+        }
+        String lsid = prefix + ":" + uuid;
         ei.setLsid(rstring(lsid));
 
         log.warn("Assigned temporary LSID: " + lsid);
@@ -216,7 +228,7 @@ public class OmeroMetadata extends DummyMetadata {
                 qb.join("i.details.group",    "i_g",      false, true);
                 qb.join("i.pixels",           "p",        false, true);
                 qb.join("i.annotationLinks",  "i_a_link", true, true);
-                qb.join("i_a_link.child",     "i_a",      false, true);
+                qb.join("i_a_link.child",     "i_a",      true, true);
                 qb.join("p.details.owner",    "p_o",      false, true);
                 qb.join("p.details.group",    "p_g",      false, true);
                 qb.join("p.pixelsType",       "pt",       false, true);
@@ -321,13 +333,13 @@ public class OmeroMetadata extends DummyMetadata {
         }
     }
 
-    private String millis2time(Long millis)
+    private String millisToXsdDateTime(Long millis)
     {
         if (millis == null)
         {
             return null;
         }
-        return new Timestamp(millis).toString();
+        return xsdDateTimeFormat.format(new Timestamp(millis));
     }
 
     private Image _getImage(int imageIndex)
@@ -376,7 +388,8 @@ public class OmeroMetadata extends DummyMetadata {
     public String getImageAcquiredDate(int imageIndex)
     {
         Image o = _getImage(imageIndex);
-        return o != null? millis2time(fromRType(o.getAcquisitionDate())) : null;
+        return o != null? millisToXsdDateTime(
+                fromRType(o.getAcquisitionDate())) : null;
     }
 
     @Override
@@ -1102,7 +1115,8 @@ public class OmeroMetadata extends DummyMetadata {
     {
         TimestampAnnotation o = getAnnotation(
                 TimestampAnnotation.class, timestampAnnotationIndex);
-        return o != null? millis2time(fromRType(o.getTimeValue())) : null;
+        return o != null? 
+                millisToXsdDateTime(fromRType(o.getTimeValue())) : null;
     }
 
     @Override
