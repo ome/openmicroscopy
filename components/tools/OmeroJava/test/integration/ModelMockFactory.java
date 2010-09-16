@@ -7,10 +7,16 @@
 package integration;
 
 //Java imports
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+
+import javax.imageio.ImageIO;
+import javax.imageio.ImageWriter;
+import javax.imageio.stream.ImageOutputStream;
 
 //Third-party libraries
 
@@ -122,7 +128,16 @@ import pojos.ScreenData;
  */
 class ModelMockFactory 
 {
-
+	
+	/** The default width of an image. */
+	static final int WIDTH = 100;
+	
+	/** The default height of an image. */
+	static final int HEIGHT = 100;
+	
+	/** The basic formats tested. */
+	static final String[] FORMATS = {"jpeg", "png"};
+	
 	/** Identifies the laser light source. */
 	static String LASER = Laser.class.getName();
 	
@@ -966,5 +981,26 @@ class ModelMockFactory
     			omero.rtypes.rstring("Reagent Identifier"));
     	return reagent;
     }
+    
+    
+    //imaging
+	/**
+	 * Creates an image file of the specified format.
+	 * 
+	 * @param file The file where to write the image.
+	 * @param format One of the follow types: jpeg, png.
+	 * @throws Exception Thrown if an error occurred while encoding the image.
+	 */
+	void createImageFile(File file, String format)
+		throws Exception
+	{
+		Iterator writers = ImageIO.getImageWritersByFormatName(format);
+        ImageWriter writer = (ImageWriter) writers.next();
+        ImageOutputStream ios = ImageIO.createImageOutputStream(file);
+        writer.setOutput(ios);
+        writer.write(new BufferedImage(WIDTH, HEIGHT, 
+        		BufferedImage.TYPE_INT_RGB));
+        ios.close();
+	}
     
 }

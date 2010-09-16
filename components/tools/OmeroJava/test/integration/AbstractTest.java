@@ -6,11 +6,16 @@
  */
 package integration;
 
+import java.io.File;
 import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
 import junit.framework.TestCase;
+import ome.formats.OMEROMetadataStoreClient;
+import ome.formats.importer.ImportConfig;
+import ome.formats.importer.ImportLibrary;
+import ome.formats.importer.OMEROWrapper;
 import omero.api.IAdminPrx;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
@@ -35,7 +40,7 @@ import org.testng.annotations.Test;
 public class AbstractTest
 	extends TestCase
 {
-
+	
 	/** Identifies the <code>system</code> group. */
 	public String SYSTEM_GROUP = "system";
 	
@@ -235,6 +240,49 @@ public class AbstractTest
         sb.append("left outer join fetch pix.pixelsType as pt ");
         sb.append("where well.plate.id = :plateID");
         return iQuery.findAllByQuery(sb.toString(), param);
+	}
+	
+	/**
+	 * Imports the specified OME-XML file and returns the pixels set
+	 * if successfully imported.
+	 * 
+	 * @param importer The metadataStore to use.
+	 * @param file The file to import.
+	 * @param format The format of the file to import.
+	 * @return The collection of imported pixels set.
+	 * @throws Exception Thrown if an error occurred while encoding the image.
+	 */
+	List<Pixels> importFile(OMEROMetadataStoreClient importer, 
+			File file, String format)
+		throws Throwable
+	{
+		return importFile(importer, file, format, false);
+	}
+	
+	/**
+	 * Imports the specified OME-XML file and returns the pixels set
+	 * if successfully imported.
+	 * 
+	 * @param importer The metadataStore to use.
+	 * @param file The file to import.
+	 * @param format The format of the file to import.
+	 * @param metadata Pass <code>true</code> to only import the metadata,
+	 *                 <code>false</code> otherwise.
+	 * @return The collection of imported pixels set.
+	 * @throws Exception Thrown if an error occurred while encoding the image.
+	 */
+	List<Pixels> importFile(OMEROMetadataStoreClient importer,
+			File file, String format, boolean metadata)
+		throws Throwable
+	{
+		ImportLibrary library = new ImportLibrary(importer, 
+				new OMEROWrapper(new ImportConfig()));
+		library.setMetadataOnly(metadata);
+		List<Pixels> pixels = library.importImage(file, 0, 0, 1, format, null, 
+				false, true, null, null);
+		assertNotNull(pixels);
+		assertTrue(pixels.size() > 0);
+		return pixels;
 	}
 	
 }

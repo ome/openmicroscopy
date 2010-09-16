@@ -25,7 +25,6 @@ package integration;
 
 //Java imports
 import java.awt.Color;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.sql.Timestamp;
 import java.text.ParseException;
@@ -33,9 +32,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import javax.imageio.ImageIO;
-import javax.imageio.ImageWriter;
-import javax.imageio.stream.ImageOutputStream;
 
 //Third-party libraries
 import org.testng.annotations.AfterClass;
@@ -44,9 +40,6 @@ import org.testng.annotations.Test;
 
 //Application-internal dependencies
 import ome.formats.OMEROMetadataStoreClient;
-import ome.formats.importer.ImportConfig;
-import ome.formats.importer.ImportLibrary;
-import ome.formats.importer.OMEROWrapper;
 import ome.xml.model.OME;
 import omero.api.IRoiPrx;
 import omero.api.RoiOptions;
@@ -112,15 +105,6 @@ import omero.sys.ParametersI;
 public class ImporterTest 
 	extends AbstractTest
 {
-
-	/** The default width of an image. */
-	private static final int WIDTH = 100;
-	
-	/** The default height of an image. */
-	private static final int HEIGHT = 100;
-	
-	/** The basic formats tested. */
-	private static final String[] FORMATS = {"jpeg", "png"};
 	
 	/** The OME-XML format. */
 	private static final String OME_FORMAT = "ome";
@@ -608,34 +592,6 @@ public class ImporterTest
 	}
 	
 	/**
-	 * Creates a basic buffered image.
-	 * 
-	 * @return See above.
-	 */
-	private BufferedImage createBasicImage()
-	{
-		return new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_RGB);
-	}
-	
-	/**
-	 * Creates an image file of the specified format.
-	 * 
-	 * @param file The file where to write the image.
-	 * @param format One of the follow types: jpeg, png.
-	 * @throws Exception Thrown if an error occurred while encoding the image.
-	 */
-	private void createImageFile(File file, String format)
-		throws Exception
-	{
-		Iterator writers = ImageIO.getImageWritersByFormatName(format);
-        ImageWriter writer = (ImageWriter) writers.next();
-        ImageOutputStream ios = ImageIO.createImageOutputStream(file);
-        writer.setOutput(ios);
-        writer.write(createBasicImage());
-        ios.close();
-	}
-	
-	/**
 	 * Imports the specified OME-XML file and returns the pixels set
 	 * if successfully imported.
 	 * 
@@ -647,32 +603,22 @@ public class ImporterTest
 	private List<Pixels> importFile(File file, String format)
 		throws Throwable
 	{
-		return importFile(file, format, false);
+		return importFile(importer, file, format, false);
 	}
-	
+
 	/**
 	 * Imports the specified OME-XML file and returns the pixels set
 	 * if successfully imported.
 	 * 
 	 * @param file The file to import.
 	 * @param format The format of the file to import.
-	 * @param metadata Pass <code>true</code> to only import the metadata,
-	 *                 <code>false</code> otherwise.
 	 * @return The collection of imported pixels set.
 	 * @throws Exception Thrown if an error occurred while encoding the image.
 	 */
-	private List<Pixels> importFile(File file, String format, boolean
-			metadata)
+	private List<Pixels> importFile(File file, String format, boolean metadata)
 		throws Throwable
 	{
-		ImportLibrary library = new ImportLibrary(importer, 
-				new OMEROWrapper(new ImportConfig()));
-		library.setMetadataOnly(metadata);
-		List<Pixels> pixels = library.importImage(file, 0, 0, 1, format, null, 
-				false, true, null, null);
-		assertNotNull(pixels);
-		assertTrue(pixels.size() > 0);
-		return pixels;
+		return importFile(importer, file, format, metadata);
 	}
 	
 	/**
@@ -716,15 +662,16 @@ public class ImporterTest
 	{
 		File f;
 		List<String> failures = new ArrayList<String>();
-		for (int i = 0; i < FORMATS.length; i++) {
-			f = File.createTempFile("testImportGraphicsImages"+FORMATS[i], 
-					"."+FORMATS[i]);
-			createImageFile(f, FORMATS[i]);
+		for (int i = 0; i < ModelMockFactory.FORMATS.length; i++) {
+			f = File.createTempFile("testImportGraphicsImages"
+					+ModelMockFactory.FORMATS[i], 
+					"."+ModelMockFactory.FORMATS[i]);
+			mmFactory.createImageFile(f, ModelMockFactory.FORMATS[i]);
 			files.add(f);
 			try {
-				importFile(f, FORMATS[i]);
+				importFile(f, ModelMockFactory.FORMATS[i]);
 			} catch (Throwable e) {
-				failures.add(FORMATS[i]);
+				failures.add(ModelMockFactory.FORMATS[i]);
 			}
 		}
 		if (failures.size() > 0) {
@@ -737,7 +684,6 @@ public class ImporterTest
 			fail("Cannot import the following formats:"+s);
 		}
 		assertTrue("File Imported", failures.size() == 0);
-			
 	}
 	
 	/**
