@@ -258,28 +258,14 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
                     blitzcon.user.logIn()
 
     if blitzcon and not blitzcon.keepAlive() and not ckey.startswith('C:'):
-        # TEMPORARY: session could expire or be closed by another client. webclient needs to recreate connection with new uuid
+        # session could expire or be closed by another client. webclient needs to recreate connection with new uuid
         # otherwise it will forward user to login screen.
         logger.info("Failed keepalive for connection %s" % ckey)
+        del request.session[browsersession_connection_key]
         del connectors[ckey]
-        if blitzcon.connect():
-            if ckey.startswith('S:'):
-                ckey = 'S:' + blitzcon._sessionUuid + '#' + str(server_id)
-            else:
-                ckey = 'C:' + str(server_id)
-            _purge()
-            connectors[ckey] = blitzcon
-            logger.debug(str(connectors.items()))
-            ####
-            # Because it was a login, store some data
-            request.session[browsersession_connection_key] = blitzcon._sessionUuid
-            logger.debug('blitz session key: ' + blitzcon._sessionUuid)
-            logger.debug('stored as session.' + ckey)
-            blitzcon.user.logIn()
-        else:
-            _session_logout(request, server_id)
-        return blitzcon
-        #return getBlitzConnection(request, server_id, with_session, retry=False, group=group, try_super=try_super, useragent=useragent)
+        #_session_logout(request, server_id)
+        #return blitzcon
+        return getBlitzConnection(request, server_id, with_session, retry=False, group=group, try_super=try_super, useragent=useragent)
     if blitzcon and ckey.startswith('C:') and not blitzcon.isConnected():
         logger.info("Something killed the base connection, recreating")
         del connectors[ckey]
