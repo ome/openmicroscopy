@@ -214,13 +214,16 @@ class WorkflowView
 	{
 		JPanel workflowListPanel = new JPanel();
 		JPanel namespacePanel = new JPanel();
-		namespacePanel.setLayout(new BoxLayout(namespacePanel, BoxLayout.X_AXIS));
+		namespacePanel.setLayout(
+				new BoxLayout(namespacePanel, BoxLayout.X_AXIS));
 		JLabel namespaceLabel = new JLabel("Namespace");
 		namespacePanel.add(namespaceLabel);
 		namespacePanel.add(Box.createHorizontalGlue());
 		workflowListPanel.setSize(new Dimension(150,400));
-		workflowListPanel.setLayout(new BoxLayout(workflowListPanel, BoxLayout.Y_AXIS));
-		workflowListPanel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+		workflowListPanel.setLayout(new BoxLayout(workflowListPanel, 
+				BoxLayout.Y_AXIS));
+		workflowListPanel.setBorder(
+				BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		workflowList = new JList();
 		workflowList.setBorder(BorderFactory.createLoweredBevelBorder());
 		workflowList.setModel(model.getListModel());
@@ -244,9 +247,10 @@ class WorkflowView
 		keywordsText = new JTextArea();
 		keywordsText.setBorder(BorderFactory.createLoweredBevelBorder());
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-		panel.setBorder(BorderFactory.createEmptyBorder(10,10,10,10));
+		panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 		JPanel namespacePanel = new JPanel();
-		namespacePanel.setLayout(new BoxLayout(namespacePanel, BoxLayout.X_AXIS));
+		namespacePanel.setLayout(new BoxLayout(namespacePanel, 
+				BoxLayout.X_AXIS));
 		namespacePanel.add(namespaceLabel);
 		namespacePanel.add(Box.createHorizontalGlue());
 		JPanel keywordsPanel = new JPanel();
@@ -307,6 +311,7 @@ class WorkflowView
 	 */
 	private void saveAction()
 	{
+		if (currentWorkflow == null) return;
 		currentWorkflow.setKeywords(CSVToList(keywordsText.getText()));
 		if (newWorkflow)
 		{
