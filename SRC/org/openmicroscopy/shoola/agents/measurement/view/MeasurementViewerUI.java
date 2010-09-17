@@ -67,6 +67,8 @@ import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
+
 import pojos.WorkflowData;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
@@ -926,7 +928,6 @@ class MeasurementViewerUI
     			roiResults.refreshResults();
     		}
 		} catch (Exception e) {
-			e.printStackTrace();
 			handleROIException(e, DELETE_MSG);
 		}
     }
@@ -1118,7 +1119,7 @@ class MeasurementViewerUI
 				for (int i = 0; i < l.length; i++)
 					canvas.removeKeyListener(l[i]);
 			}
-		} else {
+		} else { //non HCS data
 			try {
 				list = model.getShapeList();
 			} catch (Exception e) {
@@ -1339,11 +1340,14 @@ class MeasurementViewerUI
 	 */
 	String getWorkflowDisplay(String value)
 	{
+		/*
 		String result = value;
 		if (value.contains("/")) {
 			String[] list = value.split("/");
 			result = list[list.length-1];
 		}
+		*/
+		String result = EditorUtil.getWorkflowForDisplay(value);
 		if (!workflowsUIMap.containsKey(result))
 			workflowsUIMap.put(result, value);
 		return result;

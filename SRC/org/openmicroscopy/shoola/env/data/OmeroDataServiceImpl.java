@@ -953,10 +953,8 @@ class OmeroDataServiceImpl
 							OMEROGateway.KEEP);
 				}
 			}
-			data = object.getObjectToDelete();
 			cmd = new DeleteCommand(gateway.createDeleteCommand(
-					data.getClass().getName()), 
-					data.getId(), options);
+					data.getClass().getName()), data.getId(), options);
 			commands[index] = cmd;
 			index++;
 		}

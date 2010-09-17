@@ -142,9 +142,8 @@ class ObjectManager
 	{
 		ROINode root = new ROINode("root");
         Vector cName = (Vector) columnNames;
-        ROITableModel tableModel = new ROITableModel(root, cName);
-        	   
-	    objectsTable = new ROITable(tableModel, cName, this);
+
+	    objectsTable = new ROITable(new ROITableModel(root, cName), cName, this);
 	    objectsTable.setRootVisible(false);
 	    objectsTable.setColumnSelectionAllowed(true);
 	    objectsTable.setRowSelectionAllowed(true);
@@ -187,24 +186,17 @@ class ObjectManager
 		};
 	    
 	    objectsTable.addTreeSelectionListener(treeSelectionListener);
-		
-	     ColumnFactory columnFactory = new ColumnFactory() {
-            @Override
-            public void configureTableColumn(TableModel model, 
-            		TableColumnExt columnExt) {
-                super.configureTableColumn(model, columnExt);
-                if (columnExt.getModelIndex() == 1) {
-                	
-                }
-            }
- 
-            public void configureColumnWidths(JXTable table, 
-            		TableColumnExt columnExt) 
-            {
-            	columnExt.setPreferredWidth(
-            			columnWidths.get(columnExt.getHeaderValue()));
-            }
-        };
+
+	    ColumnFactory columnFactory = new ColumnFactory() {
+
+
+	    	public void configureColumnWidths(JXTable table, 
+	    			TableColumnExt columnExt) 
+	    	{
+	    		columnExt.setPreferredWidth(
+	    				columnWidths.get(columnExt.getHeaderValue()));
+	    	}
+	    };
     	objectsTable.setHorizontalScrollEnabled(true);
 	    objectsTable.setColumnControlVisible(true);
 	    objectsTable.setColumnFactory(columnFactory);

@@ -34,8 +34,10 @@ import org.jhotdraw.draw.Figure;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 
 /** 
  * The model associated to the table displaying the figures.
@@ -117,6 +119,8 @@ public class FigureTableModel
 				{
 					keys.add(key);
 					values.add(figure.getAttribute(key));
+					
+					
 					found = true;
 					break;
 				}
@@ -127,10 +131,15 @@ public class FigureTableModel
 				if (figure.getROI().hasAnnotation(key.getKey()))
 				{
 					keys.add(key);
-					values.add(figure.getROI().getAnnotation(
-							(AnnotationKey) key));
-				} else
-				{
+					if (key.equals(AnnotationKeys.NAMESPACE)) {
+						values.add(EditorUtil.getWorkflowForDisplay(
+								(String) figure.getROI().getAnnotation(
+										(AnnotationKey) key)));
+					} else {
+						values.add(figure.getROI().getAnnotation(
+								(AnnotationKey) key));
+					}
+				} else {
 					keys.add(key);
 					values.add(NA);
 				}

@@ -66,7 +66,7 @@ public class DataObjectRemover
      */
     protected void onException(String message, Throwable ex)
     { 
-    	activity.notifyError("Unable to run the script", message, ex);
+    	activity.notifyError("Unable to delete the object", message, ex);
     }
     
     /**

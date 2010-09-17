@@ -785,7 +785,6 @@ class MeasurementViewerComponent
 				model.setServerROI(result, true);
 			} 	
 		} catch (Exception e) {
-			e.printStackTrace();
 			String s = "Cannot convert server ROI into UI objects:";
 			MeasurementAgent.getRegistry().getLogger().error(this, s+e);
 		}
@@ -794,7 +793,6 @@ class MeasurementViewerComponent
 		//view.rebuildManagerTable();
 		
 		view.updateDrawingArea();
-		view.setReadyStatus();
 		fireStateChange();
 		//Now we are ready to go. We can post an event to add component to
 		//Viewer

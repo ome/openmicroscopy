@@ -1973,4 +1973,22 @@ public class EditorUtil
     	}
     	return UIUtilities.setTextFont(value);
     }
+    
+    /**
+     * Formats the workflow.
+     * 
+     * @param value The value to handle.
+     * @return See above.
+     */
+    public static String getWorkflowForDisplay(String value)
+    {
+    	if (value == null) return value;
+    	String result = value;
+		if (value.contains("/")) {
+			String[] list = value.split("/");
+			result = list[list.length-1];
+		}
+		return result;
+    }
+    
 }

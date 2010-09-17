@@ -189,7 +189,7 @@ public class ROITable
 	void scrollToROIShape(ROIShape shape)
 	{
 		ROINode parent = findParent(shape.getROI());
-		if(parent == null)
+		if (parent == null)
 			return;
 		expandROIRow(parent);
 		ROINode child = parent.findChild(shape);
@@ -238,12 +238,12 @@ public class ROITable
 	 */
 	public void setValueAt(Object obj, int row, int column)
 	{
-		ROINode node = (ROINode)getNodeAtRow(row);
+		ROINode node = (ROINode) getNodeAtRow(row);
 		super.setValueAt(obj, row, column);
 		ROINode expandNode;
 		if (node.getUserObject() instanceof ROI)
 		{
-			ROI roi = (ROI)node.getUserObject();
+			ROI roi = (ROI) node.getUserObject();
 			expandNode = node;
 			if (roi.isVisible())
 				expandROIRow(expandNode);
@@ -252,8 +252,8 @@ public class ROITable
 		}
 		else
 		{
-			expandNode = (ROINode)node.getParent();
-			ROIShape roiShape = (ROIShape)node.getUserObject();
+			expandNode = (ROINode) node.getParent();
+			ROIShape roiShape = (ROIShape) node.getUserObject();
 			if (roiShape.getROI().isVisible())
 				expandROIRow(expandNode);
 			else
@@ -264,7 +264,7 @@ public class ROITable
 	/**
 	 * Adds the ROIShape to the table, placing it under the ROI the ROIShape
 	 * belongs to. This method will create the ROI if it does not exist 
-	 * already. This method will also collapse all the ROI in the treetable
+	 * already. This method will also collapse all the ROI in the table
 	 * and expand the ROI of the ROIShape, moving the viewport to 
 	 * the ROIShape.
 	 *  
@@ -281,7 +281,7 @@ public class ROITable
 	 * Adds the ROIShapes in the shapeList to the table, placing it under the 
 	 * ROI the ROIShape belongs to. This method will create the ROI if it does 
 	 * not exist already. This method will also collapse all the ROI in the 
-	 * treetable  and expand the ROI of the ROIShape, moving the viewport to 
+	 * table  and expand the ROI of the ROIShape, moving the viewport to 
 	 * the ROIShape. 
 	 * 
 	 * @param shapeList The collection to add.
@@ -296,13 +296,13 @@ public class ROITable
 		for (ROIShape shape : shapeList)
 		{
 			parent = findParent(shape.getROI());
-			if(parent == null)
+			if (parent == null)
 			{
 				parent = new ROINode(shape.getROI());
 				parent.setExpanded(true);
 				ROIMap.put(shape.getROI(), parent);
 				childCount = root.getChildCount();
-				root.insert(parent,childCount);
+				root.insert(parent, childCount);
 			}
 			roiShapeNode = parent.findChild(shape.getCoord3D());
 			newNode = new ROINode(shape);
@@ -317,7 +317,8 @@ public class ROITable
 				parent.insert(newNode, 
 						parent.getInsertionPoint(shape.getCoord3D()));
 		}
-		this.setTreeTableModel(new ROITableModel(root, columnNames));
+		model = new ROITableModel(root, columnNames);
+		this.setTreeTableModel(model);
 		if (parent != null) expandROIRow(parent);
 	}
 

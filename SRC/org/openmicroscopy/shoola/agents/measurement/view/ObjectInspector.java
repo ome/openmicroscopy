@@ -99,8 +99,8 @@ class ObjectInspector
 		l.add(new AttributeField(MeasurementAttributes.TEXT, "Text", true));
 		l.add(new AttributeField(MeasurementAttributes.WIDTH, "Width", true));
 		l.add(new AttributeField(MeasurementAttributes.HEIGHT, "Height", true));
-		l.add(new AttributeField(AnnotationKeys.NAMESPACE, "Namespace", true));
-		l.add(new AttributeField(AnnotationKeys.KEYWORDS, "Keywords", true));
+		l.add(new AttributeField(AnnotationKeys.NAMESPACE, "Namespace", false));
+		l.add(new AttributeField(AnnotationKeys.KEYWORDS, "Keywords", false));
 		l.add(new AttributeField(MeasurementAttributes.SHOWTEXT, "Show Text", 
 				false));
 		l.add(new AttributeField(MeasurementAttributes.SHOWMEASUREMENT, 
@@ -132,17 +132,14 @@ class ObjectInspector
 		{
 			public void mouseClicked(MouseEvent e) {
 				
+				int col = fieldTable.getSelectedColumn();
+				int row = fieldTable.getSelectedRow();
+				Object value = fieldTable.getValueAt(row, col);
 				if (e.getClickCount() == 1) {
-					int col = fieldTable.getSelectedColumn();
-					int row = fieldTable.getSelectedRow();
-					Object value = fieldTable.getValueAt(row, col);
 					if (value instanceof Boolean) toggleValue();
 					
 				} else if (e.getClickCount() > 1) {
 					e.consume();
-					int col = fieldTable.getSelectedColumn();
-					int row = fieldTable.getSelectedRow();
-					Object value = fieldTable.getValueAt(row, col);
 					if (value instanceof Color)
 						controller.showColorPicker((Color) value);
 					if (value instanceof Boolean)
@@ -286,7 +283,7 @@ class ObjectInspector
 			}
 		} catch (Exception e) {
 			MeasurementAgent.getRegistry().getLogger().info(this, 
-													"Figures selection"+e);;
+													"Figures selection"+e);
 		}
 	}
 	
