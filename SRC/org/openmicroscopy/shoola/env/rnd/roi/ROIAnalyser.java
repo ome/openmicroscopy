@@ -56,45 +56,53 @@ public class ROIAnalyser
 
 	 /** 
      * Iterates an {@link ROIShape} over our pixels set.
-     * Observers compute the stats as the iteration moves forward. 
+     * Observers compute the statistics as the iteration moves forward. 
      */
 	private PointIterator 		runner;
 	
 	/** The number of z-sections. */
 	private int					sizeZ;   
 	
-	/** The number of timepoints. */
+	/** The number of time-points. */
 	private int					sizeT;   
 	
 	/** The number of channels. */
 	private int					sizeC;   
     
 	/**
-	 * Controls if the specified coordinates are valid.
+	 * Controls if the specified coordinates are valid. 
+	 * Returns <code>true</code> if the passed values are in the correct ranges,
+	 * <code>false</code> otherwise.
 	 * 
 	 * @param z The z coordinate. Must be in the range <code>[0, sizeZ)</code>.
 	 * @param t The t coordinate. Must be in the range <code>[0, sizeT)</code>.
+	 * @return See above.
 	 */
-	private void checkPlane(int z, int t)
+	private boolean checkPlane(int z, int t)
 	{
-		if (z < 0 || sizeZ <= z) 
-            throw new IllegalArgumentException(
-                    "z out of range [0, "+sizeZ+"): "+z+".");
-		if (t < 0 || sizeT <= t) 
-            throw new IllegalArgumentException(
-                    "t out of range [0, "+sizeT+"): "+t+".");
+		if (z < 0 || sizeZ <= z) return false;
+            //throw new IllegalArgumentException(
+            //        "z out of range [0, "+sizeZ+"): "+z+".");
+		if (t < 0 || sizeT <= t) return false;
+            //throw new IllegalArgumentException(
+            //        "t out of range [0, "+sizeT+"): "+t+".");
+		return true;
 	}
 	
 	/**
 	 * Controls if the specified channel is valid. 
+	 * Returns <code>true</code> if the passed value is in the correct range,
+	 * <code>false</code> otherwise.
 	 * 
 	 * @param w The w coordinate. Must be in the range <code>[0, sizeW)</code>.
+	 * @return See above.
 	 */
-	private void checkChannel(int w)
+	private boolean checkChannel(int w)
 	{
-		 if (w < 0 || sizeC <= w) 
-	            throw new IllegalArgumentException(
-	                    "w out of range [0, "+sizeC+"): "+w+".");
+		 if (w < 0 || sizeC <= w) return false;
+	            //throw new IllegalArgumentException(
+	             //       "w out of range [0, "+sizeC+"): "+w+".");
+		 return true;
 	}
 	
     /**
@@ -149,20 +157,22 @@ public class ROIAnalyser
         ROIShape shape;
         for (int i = 0; i < shapes.length; ++i) {
         	shape = shapes[i];
-        	checkPlane(shape.getZ(), shape.getT());
-        	stats = new HashMap<Integer, ROIShapeStats>(n);
-        	j = channels.iterator();
-        	List<Point> points = shape.getFigure().getPoints();
-        	while (j.hasNext()) {
-				w = (Integer) j.next();
-				checkChannel(w.intValue());
-				computer =  new ROIShapeStats();
-				runner.register(computer);
-				runner.iterate(shape, points, w.intValue());
-				runner.remove(computer);
-				stats.put(w, computer);
-			}
-            r.put(shape, stats);
+        	if (checkPlane(shape.getZ(), shape.getT())) {
+        		stats = new HashMap<Integer, ROIShapeStats>(n);
+            	j = channels.iterator();
+            	List<Point> points = shape.getFigure().getPoints();
+            	while (j.hasNext()) {
+    				w = (Integer) j.next();
+    				if (checkChannel(w.intValue())) {
+    					computer =  new ROIShapeStats();
+        				runner.register(computer);
+        				runner.iterate(shape, points, w.intValue());
+        				runner.remove(computer);
+        				stats.put(w, computer);
+    				}
+    			}
+                r.put(shape, stats);
+        	}
         }
         return r;
     }
