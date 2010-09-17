@@ -197,8 +197,9 @@ class ScriptComponent
 			label = UIUtilities.setTextFont(name.replace(
 					ScriptObject.PARAMETER_SEPARATOR, 
 					ScriptObject.PARAMETER_UI_SEPARATOR));
+		} else {
+			label = UIUtilities.setTextFont(name);
 		}
-		
 		label.setToolTipText(component.getToolTipText());
 		required = false;
 	}
