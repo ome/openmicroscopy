@@ -883,6 +883,7 @@ class BrowserUI
 			else if (uo instanceof ScreenData) top2.add(object);
 			else if (uo instanceof DatasetData) bottom.add(object);
 			else if (uo instanceof PlateData) bottom2.add(object);
+			else if (uo instanceof PlateAcquisitionData) bottom2.add(object);
 			else if (uo instanceof TagAnnotationData) {
 				if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(
 					((TagAnnotationData) uo).getNameSpace()))
