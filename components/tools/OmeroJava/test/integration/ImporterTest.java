@@ -553,7 +553,8 @@ public class ImporterTest
 		assertEquals(mm.getType().getValue().getValue(), 
 				xml.getType().getValue());
 		List<LightSettings> settings = mm.copyLightSourceSettings();
-		assertEquals(settings.size(), 0);
+		assertEquals(1, mm.sizeOfLightSourceSettings());
+		assertEquals(1, settings.size());
 		validateLightSourceSettings(settings.get(0), 
 				xml.getLightSourceSettings(0));
 	}
@@ -966,11 +967,11 @@ public class ImporterTest
 			assertEquals(channel.getRed().getValue(), xmlColor.getRed());
 			assertEquals(channel.getGreen().getValue(), xmlColor.getGreen());
 			assertEquals(channel.getBlue().getValue(), xmlColor.getBlue());
-			ids.add(channel.getId().getValue());
+			ids.add(channel.getLogicalChannel().getId().getValue());
 		}
     	List<LogicalChannel> l = 
     		factory.getMetadataService().loadChannelAcquisitionData(ids);
-    	assertEquals(l.size(), channels.size());
+    	assertEquals(channels.size(), l.size());
     	
     	LogicalChannel lc;
     	DetectorSettings ds;
@@ -986,7 +987,21 @@ public class ImporterTest
     	
     	// Validate experiment (initial checks)
     	assertNotNull(image.getExperiment());
-    	
+    	Experiment exp = (Experiment) factory.getQueryService().findByQuery(
+    			"select e from Experiment as e " +
+    			"join fetch e.type " +
+    			"left outer join fetch e.microbeamManipulation as mm " +
+    			"join fetch mm.type " +
+    			"left outer join fetch mm.lightSourceSettings as lss " +
+    			"left outer join fetch lss.lightSource " +
+    			"where e.id = :id", new ParametersI().addId(
+    					image.getExperiment().getId().getValue()));
+    	assertNotNull(exp);
+    	assertEquals(1, exp.sizeOfMicrobeamManipulation());
+    	MicrobeamManipulation mm = exp.copyMicrobeamManipulation().get(0);
+    	validateExperiment(exp, xmlExp);
+    	validateMicrobeamManipulation(mm, xmlMM);
+
     	LightPath path;
     	Iterator<LogicalChannel> k = l.iterator();
     	while (k.hasNext()) {
@@ -1006,13 +1021,6 @@ public class ImporterTest
 			assertTrue(lightIds.contains(
 					ls.getLightSource().getId().getValue()));
 			validateLightSourceSettings(ls, xmlLs);
-			/*
-			assertNotNull(ls.getMicrobeamManipulation());
-			validateMicrobeamManipulation(ls.getMicrobeamManipulation(), xmlMM);
-			assertNotNull(ls.getMicrobeamManipulation().getExperiment());
-			validateExperiment(ls.getMicrobeamManipulation().getExperiment(), 
-					xmlExp); 
-					*/
 			path = lc.getLightPath();
 			assertNotNull(lc);
 			assertNotNull(path.getDichroic());

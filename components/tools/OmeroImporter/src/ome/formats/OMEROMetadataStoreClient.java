@@ -3015,21 +3015,11 @@ public class OMEROMetadataStoreClient
     public void setChannelLightSourceSettingsID(String id, int imageIndex,
             int channelIndex)
     {
-    	LSID key = new LSID(LightSettings.class, imageIndex, channelIndex);
-    	addReference(key, new LSID(id));
-    	
-    	/*
-        checkDuplicateLSID(LightSettings.class, id);
-        LinkedHashMap<Index, Integer> indexes =
-            new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.IMAGE_INDEX, imageIndex);
-        indexes.put(Index.CHANNEL_INDEX, channelIndex);
-        IObjectContainer o = getIObjectContainer(LightSettings.class, indexes);
-        o.LSID = id;
-        addAuthoritativeContainer(LightSettings.class, id, o);
-        */
+        getChannelLightSourceSettings(imageIndex, channelIndex);
+        LSID key = new LSID(LightSettings.class, imageIndex, channelIndex);
+        addReference(key, new LSID(id));
     }
-    
+
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setChannelLightSourceSettingsAttenuation(ome.xml.model.primitives.PercentFraction, int, int)
      */
@@ -3290,6 +3280,7 @@ public class OMEROMetadataStoreClient
     public void setDetectorSettingsID(String id, int imageIndex,
             int channelIndex)
     {
+        getDetectorSettings(imageIndex, channelIndex);
         LSID key = new LSID(DetectorSettings.class, imageIndex, channelIndex);
         addReference(key, new LSID(id));
     }
@@ -4305,26 +4296,17 @@ public class OMEROMetadataStoreClient
         indexes.put(Index.IMAGE_INDEX, imageIndex);
         return getSourceObject(ObjectiveSettings.class, indexes);   
     }
-    
+
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setImageObjectiveSettingsID(java.lang.String, int)
      */
     public void setImageObjectiveSettingsID(String id, int imageIndex)
     {
+        getImageObjectiveSettings(imageIndex);
         LSID key = new LSID(ObjectiveSettings.class, imageIndex);
         addReference(key, new LSID(id));
-        
-        /*
-        checkDuplicateLSID(ObjectiveSettings.class, id);
-        LinkedHashMap<Index, Integer> indexes =
-            new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.IMAGE_INDEX, imageIndex);
-        IObjectContainer o = getIObjectContainer(ObjectiveSettings.class, indexes);
-        o.LSID = id;
-        addAuthoritativeContainer(ObjectiveSettings.class, id, o);
-        */
     }
-    
+
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setImageObjectiveSettingsCorrectionCollar(java.lang.Double, int)
      */
@@ -5251,6 +5233,9 @@ public class OMEROMetadataStoreClient
             int experimentIndex, int microbeamManipulationIndex,
             int lightSourceSettingsIndex)
     {
+        getMicrobeamManipulationLightSourceSettings(
+                experimentIndex, microbeamManipulationIndex,
+                lightSourceSettingsIndex);
         LSID key = new LSID(LightSettings.class, experimentIndex, 
         		microbeamManipulationIndex, lightSourceSettingsIndex);
         addReference(key, new LSID(id));
@@ -5478,6 +5463,7 @@ public class OMEROMetadataStoreClient
     public void setOTFObjectiveSettingsID(String id, int instrumentIndex,
             int OTFIndex)
     {
+        getOTFObjectiveSettings(instrumentIndex, OTFIndex);
         LSID key = new LSID(OTF.class, instrumentIndex, OTFIndex);
         addReference(key, new LSID(id));
     }

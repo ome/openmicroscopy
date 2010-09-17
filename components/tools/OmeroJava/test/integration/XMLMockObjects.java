@@ -207,7 +207,7 @@ public class XMLMockObjects
 	/** The light sources to handle. */
 	public static final String[] LIGHT_SOURCES = {Laser.class.getName(), 
 		Arc.class.getName(), Filament.class.getName(), 
-		LightEmittingDiode.class.getName()};
+		LightEmittingDiode.class.getName(), Laser.class.getName()};
 	
 	/** The shapes to handle. */
 	public static final String[] SHAPES = {Line.class.getName(), 
@@ -525,9 +525,11 @@ public class XMLMockObjects
 	 */
 	protected MicrobeamManipulation createMicrobeamManipulation(int index)
 	{
+		LightSourceSettings lss = createLightSourceSettings(4);
 		MicrobeamManipulation mm = new MicrobeamManipulation();
 		mm.setID("MicrobeamManipulation:"+index);
 		mm.setType(MICROBEAM_MANIPULATION_TYPE);
+		mm.addLightSourceSettings(lss);
 		return mm;
 	}
 
@@ -1286,7 +1288,6 @@ public class XMLMockObjects
 		Channel c;
 		for (int i = 0; i < pixels.getSizeC().getValue().intValue(); i++) {
 			c = pixels.getChannel(i);
-			mm.addLightSourceSettings(c.getLightSourceSettings());
 			c.linkOTF(otf);
 		}
 		image.linkExperiment(exp);
