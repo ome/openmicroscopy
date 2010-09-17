@@ -990,6 +990,7 @@ def getEntriesByPub (request, publicationId):
 
 def getConnection(request):
     
+    conn = None
     if request.session.get('username', None):
         logger.debug('attempting to retrieve emdb connection with username:  %s' % request.session.get('username', None))
         conn = getBlitzConnection(request, useragent="OMERO.webemdb")  
