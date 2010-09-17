@@ -258,8 +258,12 @@ class WorkflowPanel
 			namespaceCombobox.addActionListener(controller.getAction(
 					MeasurementViewerControl.SELECT_WORKFLOW));
 			
+			List<String> list = workflow.getKeywordsAsList();
+			//tmp
+			if (list.contains("Background"))
+				list.remove("Background");
 			CheckBoxModel tableModel = new CheckBoxModel(
-					workflow.getKeywordsAsList());
+					list);
 			keywords.setModel(tableModel);
 			List<String> words = model.getKeywords();
 			keywords.setTrueValues(words);

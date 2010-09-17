@@ -352,7 +352,8 @@ class MeasurementViewerUI
        	JMenuItem createWorkflow = new JMenuItem();
         createWorkflow.setText(a.getName());
     	createWorkflow.addActionListener(a);
-       	menu.add(createWorkflow);
+    	//tmp
+       	//menu.add(createWorkflow);
         return menu;
     }
 

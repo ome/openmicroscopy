@@ -78,7 +78,7 @@ public class CheckBoxModel
 	{
 		this.list = list;
 		this.selected = selected;	
-		if(selected == null)
+		if (selected == null)
 		{
 			this.selected = new HashMap<Integer, Boolean>();
 			for(int i = 0 ; i < list.size() ; i++)
@@ -93,7 +93,7 @@ public class CheckBoxModel
 	 */
 	public CheckBoxModel(List<String> list)
 	{
-		this(list,null);
+		this(list, null);
 	}
 	
 	/**

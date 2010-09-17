@@ -69,7 +69,6 @@ import info.clearthought.layout.TableLayout;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.util.ui.RatingComponent;
-import org.openmicroscopy.shoola.util.ui.ScrollablePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.border.SeparatorOneLineBorder;
 import pojos.AnnotationData;
@@ -522,6 +521,8 @@ class AnnotationDataUI
 	private void layoutAttachments(Collection list)
 	{
 		docPane.removeAll();
+		TableLayout layout = (TableLayout) content.getLayout();
+		layout.setRow(docIndex, TableLayout.PREFERRED);
 		filesDocList.clear();
 		DocComponent doc;
 		int h = 0;
@@ -607,15 +608,16 @@ class AnnotationDataUI
 		int n = docPane.getComponentCount();
 		docRef = docPane;
 		if (n >= MAX) {
-			TableLayout layout = (TableLayout) content.getLayout();
+			layout = (TableLayout) content.getLayout();
 			layout.setRow(docIndex, h*2*MAX);
 			Dimension d = docPane.getPreferredSize();
 			JScrollPane sp = new JScrollPane(docPane);
-			docPane.setPreferredSize(new Dimension(d.width+d.width/2, h*2*MAX));
+			//docPane.setPreferredSize(new Dimension(d.width+15, h*2*MAX));
 			docRef = sp;	
+		} else {
+			//docPane.setPreferredSize(docPane.getPreferredSize());
 		}
 		content.add(docRef, docConstraints);
-		
 		docPane.revalidate();
 		docPane.repaint();
 		content.revalidate();
@@ -868,7 +870,7 @@ class AnnotationDataUI
 				}
 			}
 		}
-		handleObjectsSelection(FileAnnotationData.class, toKeep);
+		handleObjectsSelection(FileAnnotationData.class, toKeep, true);
 	}
 	
 	/**
@@ -888,7 +890,7 @@ class AnnotationDataUI
 			if (data.getId() != tag.getId())
 				toKeep.add(data);
 		}
-		handleObjectsSelection(TagAnnotationData.class, toKeep);
+		handleObjectsSelection(TagAnnotationData.class, toKeep, true);
 	}
 	
 	/**
@@ -896,8 +898,10 @@ class AnnotationDataUI
 	 * 
 	 * @param type	  The type of objects to handle.
 	 * @param objects The objects to handle.
+	 * @param fire 	  Pass <code>true</code> to notify, <code>false</code>
+	 * 				  otherwise.
 	 */
-	void handleObjectsSelection(Class type, Collection objects)
+	void handleObjectsSelection(Class type, Collection objects, boolean fire)
 	{
 		if (objects == null) return;
 		if (TagAnnotationData.class.equals(type)) {
@@ -949,8 +953,9 @@ class AnnotationDataUI
 				}
 			}
 		}
-		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false), 
-				Boolean.valueOf(true));
+		if (fire)
+			firePropertyChange(EditorControl.SAVE_PROPERTY, 
+					Boolean.valueOf(false), Boolean.valueOf(true));
 	}
 	
 	/**
@@ -1011,7 +1016,10 @@ class AnnotationDataUI
 	List<FileAnnotationData> removeAttachedFiles()
 	{
 		List<FileAnnotationData> list = new ArrayList<FileAnnotationData>();
-		if (filesDocList.size() == 0)  return list;
+		if (filesDocList.size() == 0) {
+			docFlag = false;
+			return list;
+		}
 		List<FileAnnotationData> toKeep = new ArrayList<FileAnnotationData>();
 		FileAnnotationData data;
 		DocComponent doc;
@@ -1030,7 +1038,8 @@ class AnnotationDataUI
 				toKeep.add((FileAnnotationData) object);
 			}
 		}
-		handleObjectsSelection(FileAnnotationData.class, toKeep);
+		handleObjectsSelection(FileAnnotationData.class, toKeep, false);
+		if (list.size() == 0) docFlag = false;
 		return list;
 	}
 	
@@ -1042,7 +1051,10 @@ class AnnotationDataUI
 	List<TagAnnotationData> removeTags()
 	{
 		List<TagAnnotationData> list = new ArrayList<TagAnnotationData>();
-		if (tagsDocList.size() == 0)  return list;
+		if (tagsDocList.size() == 0)  {
+			tagFlag = false;
+			return list;
+		}
 		List<TagAnnotationData> toKeep = new ArrayList<TagAnnotationData>();
 		TagAnnotationData data;
 		DocComponent doc;
@@ -1061,7 +1073,8 @@ class AnnotationDataUI
 				toKeep.add((TagAnnotationData) object);
 			}
 		}
-		handleObjectsSelection(TagAnnotationData.class, toKeep);
+		handleObjectsSelection(TagAnnotationData.class, toKeep, false);
+		if (list.size() == 0) tagFlag = false;
 		return list;
 	}
 	

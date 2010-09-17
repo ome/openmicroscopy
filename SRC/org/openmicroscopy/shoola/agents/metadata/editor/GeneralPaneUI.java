@@ -611,7 +611,7 @@ class GeneralPaneUI
 	void handleObjectsSelection(Class type, Collection objects)
 	{
 		if (objects == null) return;
-		annotationUI.handleObjectsSelection(type, objects);
+		annotationUI.handleObjectsSelection(type, objects, true);
 	}
 	
 }
