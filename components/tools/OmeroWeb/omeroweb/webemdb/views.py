@@ -989,16 +989,27 @@ def getEntriesByPub (request, publicationId):
     
 
 def getConnection(request):
+    
     if request.session.get('username', None):
+        logger.debug('attempting to retrieve emdb connection with username:  %s' % request.session.get('username', None))
         conn = getBlitzConnection(request, useragent="OMERO.webemdb")  
         if not request.session.has_key('processors'):
             request.session['processors'] = {}
-    else:
+        if conn != None:
+            logger.debug('emdb connection:  %s' % conn._sessionUuid)
+    if conn == None:
+        # session has timed out. Need to logout and log in again. 
+        try:
+            _session_logout(request, request.session['server'])
+        except:
+            import traceback
+            logger.debug("Failed to log out %s" % traceback.format_exc())
         server_id = request.REQUEST.get('server',None) 
         if server_id is not None:
             blitz = settings.SERVER_LIST.get(pk=int(server_id))
         else:
             blitz = settings.SERVER_LIST.get(pk=1)
+        logger.debug('attempting to connect emdb with blitz:  %s' % blitz)
         request.session['server'] = blitz.id
         request.session['host'] = blitz.host
         request.session['port'] = blitz.port
