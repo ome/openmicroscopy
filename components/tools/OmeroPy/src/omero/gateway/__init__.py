@@ -566,6 +566,7 @@ class BlitzObjectWrapper (object):
             attrs = filter(lambda x: tattr in x, self._attrs)
             for a in attrs:
                 if a.startswith('#') and a[1:] == tattr:  
+                    # Broken code here
                     v = getattr(self, tattr)
                     if v is not None:
                         v = v._value
@@ -874,6 +875,8 @@ class _BlitzGateway (object):
         if self.c:
             try:
                 self.c.sf.closeOnDestroy()
+            except Ice.ObjectNotExistException: 
+                pass
             except Ice.ConnectionLostException:
                 pass 
             except Glacier2.SessionNotExistException:
