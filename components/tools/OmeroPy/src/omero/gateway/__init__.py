@@ -875,13 +875,7 @@ class _BlitzGateway (object):
         if self.c:
             try:
                 self.c.sf.closeOnDestroy()
-            except Ice.ObjectNotExistException: 
-                pass
-            except Ice.ConnectionLostException:
-                pass 
-            except Glacier2.SessionNotExistException:
-                pass
-            except AttributeError:
+            except:
                 pass
             try:
                 if softclose:
@@ -894,9 +888,7 @@ class _BlitzGateway (object):
                         self.c.closeSession()
                 else:
                     self._closeSession()
-            except Glacier2.SessionNotExistException:
-                pass
-            except Ice.ConnectionLostException:
+            except:
                 pass 
             self.c = None
         self._proxies = NoProxies()
