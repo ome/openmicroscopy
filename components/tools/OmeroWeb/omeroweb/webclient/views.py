@@ -172,6 +172,9 @@ def isUserConnected (f):
                 except Exception, x:
                     logger.error(traceback.format_exc())
         
+        #logger.debug('Active Services for the session: %s' % conn._sessionUuid)
+        #logger.debug(conn.c.sf.activeServices())
+            
         sessionHelper(request)
         kwargs["error"] = request.REQUEST.get('error')
         kwargs["conn"] = conn
@@ -182,8 +185,10 @@ def isUserConnected (f):
 
 def sessionHelper(request):
     request.session.modified = True
+    if request.session.get('callback') is None:
+        request.session['callback'] = dict()
     if request.session.get('clipboard') is None:
-        request.session['clipboard'] = []
+        request.session['clipboard'] = list()
     if request.session.get('shares') is None:
         request.session['shares'] = dict()
     if request.session.get('imageInBasket') is None:
@@ -231,12 +236,12 @@ def login(request):
         request.session['port'] = blitz.port
         request.session['username'] = request.REQUEST.get('username').encode('utf-8').strip()
         request.session['password'] = request.REQUEST.get('password').encode('utf-8').strip()
-        request.session['ssl'] = request.REQUEST.get('ssl') is None and True or False
+        request.session['ssl'] = (True, False)[request.REQUEST.get('ssl') is None]
         request.session['clipboard'] = {'images': None, 'datasets': None, 'plates': None}
         request.session['shares'] = dict()
         request.session['imageInBasket'] = set()
         blitz_host = "%s:%s" % (blitz.host, blitz.port)
-        request.session['nav']={"blitz": blitz_host, "menu": "start", "view": "icon", "basket": 0, "experimenter":None}
+        request.session['nav']={"blitz": blitz_host, "menu": "start", "view": "icon", "basket": 0, "experimenter":None, 'callback':dict()}
         
     error = request.REQUEST.get('error')
     
@@ -1221,7 +1226,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             manager.remove(parent,source)
         except Exception, x:
             logger.error(traceback.format_exc())
-            rv = "Error: %s" % x.message
+            rv = "Error: %s" % x
             return HttpResponse(rv)
         return HttpResponseRedirect(url)
     elif action == 'removemany':
@@ -1233,7 +1238,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 manager.removemany(parent,source)
             except Exception, x:
                 logger.error(traceback.format_exc())
-                rv = "Error: %s" % x.message
+                rv = "Error: %s" % x
                 return HttpResponse(rv)
             return HttpResponse()
         else:
@@ -1244,7 +1249,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             manager.removeImage(image_id)
         except Exception, x:
             logger.error(traceback.format_exc())
-            rv = "Error: %s" % x.message
+            rv = "Error: %s" % x
             return HttpResponse(rv)
         return HttpResponseRedirect(url)    
     elif action == 'save':
@@ -1463,22 +1468,28 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             template = "webclient/annotations/annotation_new_form.html"
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_files':form_files}
     elif action == 'delete':
-        allitems = request.REQUEST.get('all')
+        child = request.REQUEST.get('child')
+        anns = request.REQUEST.get('anns')
         try:
-            manager.deleteItem(allitems)
+            callback = manager.deleteItem(child, anns)
+            request.session['callback'][str(callback)] = str(callback)
         except Exception, x:
             logger.error(traceback.format_exc())
-            rv = "Error: %s" % x.message
+            rv = "Error: %s" % x
             return HttpResponse(rv)
+        request.session.modified = True
         return HttpResponse()
     elif action == 'deletemany':
         ids = request.REQUEST.getlist('image')
+        anns = request.REQUEST.get('anns')
         try:
-            manager.deleteImages(ids)
+            callback = manager.deleteImages(ids, anns)
+            request.session['callback'][str(callback)] = str(callback)
         except Exception, x:
             logger.error(traceback.format_exc())
-            rv = "Error: %s" % x.message
+            rv = "Error: %s" % x
             return HttpResponse(rv)
+        request.session.modified = True
         return HttpResponse()
     
     t = template_loader.get_template(template)
@@ -2154,20 +2165,35 @@ def load_history(request, year, month, day, **kwargs):
 # Progressbar
 
 @isUserConnected
-def progress(request, **kwargs):
-    data = request.session.get('jobs', None)    
-    if data is not None:
-        data -= 1
-        if int(data)<=0:
-            try:
-                del request.session['jobs']
-            except KeyError:
-                logger.error(traceback.format_exc())
-            data = None
-    else:
-        data = 5
-    request.session['jobs'] = data
-    return HttpResponse(simplejson.dumps(data),mimetype='application/json')
+def progress(request, **kwargs): 
+    import omero, omero.scripts 
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+    
+    removed = list()
+    for cbString in request.session.get('callback'):
+        handle = omero.api.delete.DeleteHandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
+        res = None
+        try:
+            cb = omero.callbacks.DeleteCallbackI(conn.c, handle)
+            if cb.block(500) is not None: # ms.
+                cb.close()
+                res = handle.report()
+        except:
+            logger.error(traceback.format_exc())
+        
+        if res is not None and len("".join(res)) == 0:
+            removed.append(request.session['callback'][cbString])
+    
+    for cbString in removed:
+        del request.session['callback'][cbString]
+
+    request.session.modified = True
+    return HttpResponse(simplejson.dumps(len(request.session['callback'])),mimetype='application/json')
             
     
 ####################################################################################

@@ -197,7 +197,7 @@ class GroupOwnerForm(forms.Form):
         #('2', 'Public ')
     )
 
-    access_controll = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True)
+    access_controll = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions")
     readonly = forms.BooleanField(required=False, label="(read-only)")  
 
 class ScriptForm(forms.Form):

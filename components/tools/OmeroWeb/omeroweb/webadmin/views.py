@@ -292,7 +292,7 @@ def login(request):
         request.session['port'] = blitz.port
         request.session['username'] = request.REQUEST.get('username').encode('utf-8').strip()
         request.session['password'] = request.REQUEST.get('password').encode('utf-8').strip()
-        request.session['ssl'] = request.REQUEST.get('ssl') is None and True or False
+        request.session['ssl'] = (True, False)[request.REQUEST.get('ssl') is None]
     
     error = request.REQUEST.get('error')
     
@@ -628,7 +628,7 @@ def manage_group(request, action, gid=None, **kwargs):
                 description = request.REQUEST.get('description').encode('utf-8')
                 owners = request.POST.getlist('owners')
                 permissions = request.REQUEST.get('access_controll')                
-                readonly = request.REQUEST.get('readonly') is None and True or False  
+                readonly = (False, True)[request.REQUEST.get('readonly') is None]
                 controller.createGroup(name, owners, permissions, readonly, description)
                 return HttpResponseRedirect(reverse("wagroups"))
             context = {'info':info, 'eventContext':eventContext, 'form':form}
@@ -649,7 +649,7 @@ def manage_group(request, action, gid=None, **kwargs):
                 description = request.REQUEST.get('description').encode('utf-8')
                 owners = request.POST.getlist('owners')
                 permissions = request.REQUEST.get('access_controll').encode('utf-8')
-                readonly = request.REQUEST.get('readonly') is None and True or False
+                readonly = (False, True)[request.REQUEST.get('readonly') is None]
                 controller.updateGroup(name, owners, permissions, readonly, description)
                 return HttpResponseRedirect(reverse("wagroups"))
             context = {'info':info, 'eventContext':eventContext, 'form':form, 'gid': gid}
@@ -703,7 +703,7 @@ def manage_group_owner(request, action, gid, **kwargs):
             form = GroupOwnerForm(data=request.POST.copy())
             if form.is_valid():
                 permissions = request.REQUEST.get('access_controll')                
-                readonly = request.REQUEST.get('readonly') is None and True or False
+                readonly = (False, True)[request.REQUEST.get('readonly') is None]
                 controller.updatePermissions(permissions, readonly)
                 return HttpResponseRedirect(reverse("wamyaccount"))
             context = {'info':info, 'eventContext':eventContext, 'form':form, 'gid': gid}

@@ -1102,18 +1102,20 @@ class BaseContainer(BaseController):
     ##########################################################
     # Delete
     
-    def deleteItem(self, allitems=None):
+    def deleteItem(self, child=None, anns=None):
         if self.image:
-            self.conn.deleteImage(self.image.id)
+            rv = self.conn.deleteImage(self.image.id, anns)
         elif self.dataset:
-            self.conn.deleteDataset(self.dataset, allitems)
+            rv = self.conn.deleteDataset(self.dataset, child, anns)
         elif self.project:
-            self.conn.deleteProject(self.project, allitems)
+            rv = self.conn.deleteProject(self.project, child, anns)
         elif self.screen:
-            self.conn.deleteScreen(self.screen, allitems)
+            rv = self.conn.deleteScreen(self.screen, child, anns)
         elif self.plate:
-            self.conn.deletePlate(self.plate.id)
+            rv = self.conn.deletePlate(self.plate.id, anns)
+        return rv
     
-    def deleteImages(self, ids):
-        self.conn.deleteImages(ids)
+    def deleteImages(self, ids, anns=None):
+        rv = self.conn.deleteImages(ids, anns)
+        return rv
         

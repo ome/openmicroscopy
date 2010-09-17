@@ -45,6 +45,7 @@ from types import IntType, ListType, TupleType, UnicodeType, StringType
 import Ice
 import Glacier2
 import omero.gateway
+import omero.scripts
 
 import omero_api_IScript_ice
 
@@ -1211,6 +1212,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         # Should we update updateGroup so this would be atomic?
         admin_serv.updateGroup(group)
         if perm is not None:
+            logger.warning("WARNING: changePermissions was called!!!")
             admin_serv.changePermissions(group, perm)
         self._user = self.getExperimenter(self._userid)
         admin_serv.addGroupOwners(group, add_exps)
@@ -1227,6 +1229,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     def updatePermissions(self, obj, perm):
         admin_serv = self.getAdminService()
         if perm is not None:
+            logger.warning("WARNING: changePermissions was called!!!")
             admin_serv.changePermissions(obj, perm)
             self._user = self.getExperimenter(self._userid)
     
@@ -1267,65 +1270,67 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         u = self.getUpdateService()
         u.deleteObject(obj)
     
-    def deleteImage(self, oid):
-        d = self.getDeleteService()
-        d.deleteImage(long(oid), True)
-    
-    def deleteImages(self, ids):
-        d = self.getDeleteService()
-        for i in ids:
-            d.deleteImage(long(i), True)
-    
-    def deletePlate(self, oid):
-        d = self.getDeleteService()
-        d.deletePlate(long(oid))
-    
-    def deleteDataset(self, obj, allitems=None):
-        d = self.getDeleteService()
-        if allitems is not None:
-            d.deleteImagesByDataset(long(obj.id), True)
-            self.deleteObject(obj._obj)
-        else:
-            q = self.getQueryService()
-            query = "select c from %s as c where c.parent.id=:oid" % obj.LINK_CLASS
-            p = omero.sys.Parameters()
-            p.map = {}
-            p.map["oid"] = rlong(obj.id)
-            for l in q.findAllByQuery(query, p):
-                self.deleteObject(l)
-            self.deleteObject(obj._obj)
-    
-    def deleteProject(self, obj, allitems=None):
-        d = self.getDeleteService()
+    def deleteImage(self, oid, anns):
+        op = dict()
+        op["/TagAnnotation"] = "KEEP"
+        op["/TermAnnotation"] = "KEEP"
+        op["/FileAnnotation"] = "KEEP"
+        dc = omero.api.delete.DeleteCommand('/Image', long(oid), op)
+        handle = self.getDeleteService().queueDelete([dc])
+        return handle
         
-        if allitems is not None:
-            for c in obj.listChildren():
-                self.deleteDataset(c, allitems=True)                
-        else:
-            q = self.getQueryService()
-            p = omero.sys.Parameters()
-            p.map = {}
-            p.map["oid"] = rlong(obj.id)
-            query = "select c from %s as c where c.parent.id=:oid" % obj.LINK_CLASS
-            for l in q.findAllByQuery(query, p):
-                self.deleteObject(l)
-        self.deleteObject(obj._obj)           
+    def deleteImages(self, ids, anns):
+        op = dict()
+        if anns is None:
+            op["/TagAnnotation"] = "KEEP"
+            op["/TermAnnotation"] = "KEEP"
+            op["/FileAnnotation"] = "KEEP"
+        dcs = list()
+        for i in ids:            
+            dcs.append(omero.api.delete.DeleteCommand('/Image', long(i), op))
+        handle = self.getDeleteService().queueDelete(dcs)
+        return handle
     
-    def deleteScreen(self, obj, allitems=None):
-        d = self.getDeleteService()
+    def deletePlate(self, oid, anns=None):
+        dc = omero.api.delete.DeleteCommand('/Plate', long(oid))
+        handle = self.getDeleteService().queueDelete([dc])
+        return handle
         
-        if allitems is not None:
-            for c in obj.listChildren():
-                self.deletePlate(c.id)                
-        else:
-            q = self.getQueryService()
-            p = omero.sys.Parameters()
-            p.map = {}
-            p.map["oid"] = rlong(obj.id)
-            query = "select c from %s as c where c.parent.id=:oid" % obj.LINK_CLASS
-            for l in q.findAllByQuery(query, p):
-                self.deleteObject(l)
-        self.deleteObject(obj._obj)
+    def deleteDataset(self, obj, child=None, anns=None):
+        op = dict()
+        if anns is None:            
+            op["/TagAnnotation"] = "KEEP"
+            op["/TermAnnotation"] = "KEEP"
+            op["/FileAnnotation"] = "KEEP"
+        if child is None:
+            op["/Image"] = "KEEP"
+        dc = omero.api.delete.DeleteCommand('/Dataset', long(obj.id))
+        handle = self.getDeleteService().queueDelete([dc])
+        return handle
+    
+    def deleteProject(self, obj, child=None, anns=None):
+        op = dict()
+        if anns is None:            
+            op["/TagAnnotation"] = "KEEP"
+            op["/TermAnnotation"] = "KEEP"
+            op["/FileAnnotation"] = "KEEP"
+        if child is None:
+            op["/Dataset"] = "KEEP"
+        dc = omero.api.delete.DeleteCommand('/Project', long(obj.id))
+        handle = self.getDeleteService().queueDelete([dc])
+        return handle
+    
+    def deleteScreen(self, obj, child=None, anns=None):
+        op = dict()
+        if anns is None:            
+            op["/TagAnnotation"] = "KEEP"
+            op["/TermAnnotation"] = "KEEP"
+            op["/FileAnnotation"] = "KEEP"
+        if child is None:
+            op["/Plate"] = "KEEP"
+        dc = omero.api.delete.DeleteCommand('/Screen', long(obj.id))
+        handle = self.getDeleteService().queueDelete([dc])
+        return handle
     
     def prepareRecipients(self, recipients):
         recps = list()

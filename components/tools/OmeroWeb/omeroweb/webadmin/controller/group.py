@@ -137,7 +137,6 @@ class BaseGroup(BaseController):
         perm = int(perm)
         if self.getActualPermissions() != perm or self.isReadOnly()==r:
             permissions = self.setActualPermissions(perm, r)
-        
         # old list of groups
         old_owners = list()
         for oex in up_gr.copyGroupExperimenterMap():
@@ -246,5 +245,5 @@ class BaseGroup(BaseController):
             permissions.setGroupRead(True)
             permissions.setGroupWrite(r)
             permissions.setWorldRead(True)
-            permissions.setWorldWrite(r)     
+            permissions.setWorldWrite(r)
         return permissions

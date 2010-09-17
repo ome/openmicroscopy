@@ -161,10 +161,12 @@ function unlink (productArray, parent) {
 };
 
 function manyDelete() { 
-    if (!isCheckedById("image") && !isCheckedById("plate")) {
-        alert ("Please select at least one object"); 
-    } else { 
-        deleteItems($("input[type='checkbox']:checked"), parent);
+    if (confirm('Delete selected objects?')) {
+        if (!isCheckedById("image") && !isCheckedById("plate")) {
+            alert ("Please select at least one object"); 
+        } else { 
+            deleteItems($("input[type='checkbox']:checked"), parent);
+        }
     }
 };
 
@@ -175,6 +177,9 @@ function deleteItems (productArray, parent) {
             productListQuery += "&"+this.name+"="+this.id;
         }
     });
+    if (confirm('Also delete annotations?')) {
+        productListQuery += '&anns=on';
+    } 
     $.ajax({
         type: "POST",
         url: "/webclient/action/deletemany/", //this.href,
@@ -184,7 +189,28 @@ function deleteItems (productArray, parent) {
             if(responce.match(/(Error: ([A-z]+))/gi)) {
                 alert(responce)
             } else {
-                window.location.replace("");
+                //window.location.replace("");
+                var i = setInterval(function (){
+                    $.getJSON("/webclient/progress/", function(data) {
+                        if (data == 0 || data == null) {
+                            clearInterval(i);
+                            $("#progress").hide();
+                            $("#jobs").html('');
+                            return;
+                        }
+
+                        $("#progress").show();
+                    });
+                }, 1000);
+                productArray.each(function() {
+                    if(this.checked) {
+                        $('li#'+this.id).remove();
+                        a = simpleTreeCollection.find('li#img-'+this.id);
+                        a.prev('li.line').remove();
+                        a.remove();
+                    }
+                });
+                
             }
         },
         error: function(responce) {
@@ -196,21 +222,62 @@ function deleteItems (productArray, parent) {
 function deleteItem(productType, productId) {
     if ((productType == 'project' || productType == 'dataset' || productType == 'image' || productType == 'screen' || productType == 'plate' || productType == 'share') && productId > 0){
         if (confirm('Delete '+productType+'?')) {
+            var productListQuery = null;
             if ((productType == 'project' || productType == 'dataset' || productType == 'screen') && confirm('Also delete content?')) {
-                all = 'all=on';
-            } else {
-                all = null;
+                productListQuery += 'child=on';
+            }
+            if (confirm('Also delete annotations?')) {
+                if(productListQuery!=null){
+                    productListQuery = 'anns=on';
+                } else {
+                    productListQuery += '&anns=on';
+                } 
             }
             $.ajax({
                 type: "POST",
                 url: "/webclient/action/delete/"+productType+"/"+productId+"/", //this.href,
-                data: all,
+                data: productListQuery,
                 contentType:'html',
                 success: function(responce){
                     if(responce.match(/(Error: ([A-z]+))/gi)) {
                         alert(responce)
                     } else {
-                        window.location.replace("");
+                        //window.location.replace("");
+                        if ((productType == 'image') && productId > 0) {
+                            $("div#metadata_details").empty();
+                        } else if ((productType == 'dataset' || productType == 'plate') && productId > 0) {
+                            $("div#metadata_details").empty();
+                            $("div#content_details").removeAttr('rel').children().remove();
+                        } else if ((productType == 'project' || productType == 'screen') && productId > 0) {
+                            $("div#metadata_details").empty();
+                        }
+                        
+                        a = simpleTreeCollection.find('span.active').parents('li:first');
+                        if (a.attr('class').indexOf('last')>=0) {  
+                            a.prev().prev().attr('class', a.prev().prev().attr('class')+'-last');
+                        }
+                        if ((productType == 'image') && productId > 0) {
+                            if ($('#dataIcons').length != 0) {
+                                $('#dataIcons').find('li#'+a.attr('id').split("-")[1]).remove();
+                            } else if ($('#dataTable').length != 0) {
+                                $('#dataTable').find('tr#'+a.attr('id').split("-")[1]).remove();
+                            }
+                        }
+                        a.prev('li.line').remove();
+                        a.remove();
+                        
+                        var i = setInterval(function (){
+                            $.getJSON("/webclient/progress/", function(data) {
+                                if (data == 0 || data == null) {
+                                    clearInterval(i);
+                                    $("#progress").hide();
+                                    $("#jobs").html('');
+                                    return;
+                                }
+
+                                $("#progress").show();
+                            });
+                        }, 1000);
                     }
                 },
                 error: function(responce) {
