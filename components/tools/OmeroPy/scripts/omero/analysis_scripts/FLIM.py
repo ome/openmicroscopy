@@ -73,7 +73,7 @@ except ImportError:
 CELL = omero.constants.analysis.flim.KEYWORDFLIMCELL;
 NAMESPACE = omero.constants.analysis.flim.NSFLIM;
 BACKGROUND = omero.constants.analysis.flim.KEYWORDFLIMBACKGROUND;
-
+DEFAULT_THRESHOLD = 5000;
 
 # A functions to locate the index of the maximum value in an array 
 argmax = lambda a: max(IT.izip(a, xrange(len(a))))[1]
@@ -164,7 +164,9 @@ def runfret(session, commandArgs):
     #fretPixelsId = commandArgs['Image_ID_Fret'];
    
     instrumentResponseFileId = commandArgs['IRF_ID'];
-    
+    threshold = commandArgs['Threshold'];
+    if (threshold <= 0):
+         threshold = DEFAULT_THRESHOLD;
     #noFretPixels = iPixels.retrievePixDescription(noFretPixelsId);
     #fretPixels = iPixels.retrievePixDescription(fretPixelsId);
     #fretImage = fretPixels.getImage().getId().getValue();
@@ -290,7 +292,7 @@ def runfret(session, commandArgs):
             pxy = fxy+1
             sigf = nofret[:,pxy,pxx]
             #  5000 is threshold pixel count not to fit below
-            if NP.sum(sigf)>5000 :
+            if NP.sum(sigf) > threshold :
                 # while nstarted < nthread: pass 
                 # thread.start_new_thread(fitpixary,(sigf,t,i,shift,sigmax,params,pxy,pxx))
                 sumsqr = pow(sum(sigf*sigf),0.5)
@@ -302,7 +304,7 @@ def runfret(session, commandArgs):
                 subary = nofret[:,pxy-1:pxy+2,pxx-1:pxx+2]
                 if subary.size == sizeC*9:
                     sigf = NP.sum(subary.reshape(sizeC,9),axis=1)
-                    if NP.sum(sigf)>5000 :
+                    if NP.sum(sigf) > threshold :
                         # while nstarted < nthread: pass 
                         # thread.start_new_thread(fitpixary,(sigf,t,i,shift,sigmax,params,pxy,pxx))
                         sigf = sigf/9.0
@@ -381,7 +383,7 @@ def runfret(session, commandArgs):
             pxy = fxy+1
             sigf = fret[:,pxy,pxx]
             #  5000 is threshold pixel count not to fit below
-            if NP.sum(sigf)>5000 :
+            if NP.sum(sigf)>threshold :
                 # while nstarted < nthread: pass 
                 # thread.start_new_thread(fitpixary,(sigf,t,i,shift,sigmax,params,pxy,pxx))
                 sumsqr = pow(sum(sigf*sigf),0.5)
@@ -394,7 +396,7 @@ def runfret(session, commandArgs):
                 subary = fret[:,pxy-1:pxy+2,pxx-1:pxx+2]
                 if subary.size == sizeC*9:
                     sigf = NP.sum(subary.reshape(sizeC,9),axis=1)
-                    if NP.sum(sigf)>5000 :
+                    if NP.sum(sigf)>threshold :
                         # while nstarted < nthread: pass 
                         # thread.start_new_thread(fitpixary,(sigf,t,i,shift,sigmax,params,pxy,pxx))
                         sigf = sigf/9.0
@@ -422,6 +424,7 @@ The images must have ROI with the following keywords: Cell.""",
     scripts.Long("Image_ID_No_Fret", optional=False, description="The image to analysis with no fret condition."),
     scripts.Long("Image_ID_Fret", optional=False, description="The image to analysis under fret condition."),
     scripts.Long("IRF_ID", optional=False, description="The file containing the Instrument Response Function (IRF)."),
+    scripts.Int("Threshold", optional=True, description="The threshold pixel count not to fit below.", default=DEFAULT_THRESHOLD),
     version = "4.2.0",
     authors = ["Donald MacDonald", "Pieta Schofield", "OME Team"],
     institutions = ["University of Dundee"],
