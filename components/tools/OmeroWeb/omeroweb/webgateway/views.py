@@ -51,7 +51,7 @@ def _session_logout (request, server_id, force_key=None):
         if request.session.has_key(browsersession_connection_key):
             logger.debug('logout: removing "%s"' % (request.session[browsersession_connection_key]))
             del request.session[browsersession_connection_key]
-    for k in ('username', 'password', 'server', 'host', 'port'):
+    for k in ('username', 'password', 'server', 'host', 'port', 'ssl'):
         if request.session.has_key(k):
             del request.session[k]
     if connectors.has_key(session_key):

@@ -4,7 +4,6 @@
 .tagcontent {
     max-height: 650px;
     width:515px;
-    overflow: scroll;
     overflow: auto;
 }
 

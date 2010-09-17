@@ -451,41 +451,7 @@ def logout(request, **kwargs):
     except KeyError:
         pass
     
-    try:
-        del request.session['shares']
-    except KeyError:
-        logger.error(traceback.format_exc())
-    
-    try:
-        del request.session['server']
-    except KeyError:
-        logger.error(traceback.format_exc())
-    try:
-        del request.session['host']
-    except KeyError:
-        logger.error(traceback.format_exc())
-    try:
-        del request.session['port']
-    except KeyError:
-        logger.error(traceback.format_exc())
-    try:
-        del request.session['username']
-    except KeyError:
-        logger.error(traceback.format_exc())
-    try:
-        del request.session['password']
-    except KeyError:
-        logger.error(traceback.format_exc())
-    try:
-        del request.session['imageInBasket']
-    except KeyError:
-        logger.error(traceback.format_exc())
-    try:
-        del request.session['nav']
-    except KeyError:
-        logger.error(traceback.format_exc())
     request.session.set_expiry(1)
-
     return HttpResponseRedirect(reverse("webindex"))
 
 

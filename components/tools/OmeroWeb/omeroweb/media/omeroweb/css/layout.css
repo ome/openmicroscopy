@@ -106,6 +106,7 @@ table.contentWrapper {
 }
 #searching {
     padding: 10px;
+    overflow: auto;
 }
 #view_grey  {
     height:20px;
