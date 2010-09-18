@@ -73,7 +73,7 @@ public class CacheServiceFactory
 		
 		//Ok we have to cache, so try and read the config file.
 		InputStream config = loadConfig(
-								container.resolveConfigFile(CACHE_CONFIG_FILE));
+			container.resolveFilePath(CACHE_CONFIG_FILE, Container.CONFIG_DIR));
 		if (config == null)	return makeNoOpCache();
 		
 		//We have a config file, set up ehcache.

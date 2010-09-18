@@ -24,6 +24,9 @@
 package org.openmicroscopy.shoola.env.init;
 
 //Java imports
+import java.io.File;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.Iterator;
 import java.util.List;
 
@@ -31,6 +34,7 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.Agent;
+import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -75,7 +79,6 @@ public final class AgentsInit
 		Object agentInstance;
 		Registry reg;
 		try {
-			//Load agent's class.
 			agentClass = Class.forName(info.getAgentClass());
 			
 			//Make sure it implements the Agent I/F.
@@ -93,6 +96,7 @@ public final class AgentsInit
 			info.setAgent((Agent) agentInstance);
 			info.setRegistry(reg);
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new StartupException("Couldn't create agent: "+
 										info.getName(), e);
 		}
@@ -113,7 +117,8 @@ public final class AgentsInit
 	private Registry createAgentRegistry(String configFile)
 		throws Exception
 	{
-		String absPathName = container.resolveConfigFile(configFile);
+		String absPathName = container.resolveFilePath(configFile, 
+				Container.CONFIG_DIR);
 		Registry agentReg = RegistryFactory.makeNew(absPathName),
 					containerReg = container.getRegistry();
 		RegistryFactory.linkEventBus(containerReg.getEventBus(), agentReg);

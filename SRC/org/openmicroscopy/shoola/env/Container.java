@@ -225,34 +225,22 @@ public final class Container
 	 * 
 	 * @return	See above.
 	 */
-	public String getConfigFile() { return resolveConfigFile(configFile); }
+	public String getConfigFile()
+	{ 
+		return resolveFilePath(configFile, CONFIG_DIR);
+	}
 	
 	/**
 	 * Resolves <code>fileName</code> against the configuration directory.
 	 * 
 	 * @param fileName The name of a configuration file.
+	 * @param directory The directory of reference.
 	 * @return	Returns the absolute path to the specified file.
 	 */
-	public String resolveConfigFile(String fileName)
+	public String resolveFilePath(String fileName, String directory)
 	{
 		//if (fileName == null)	throw new NullPointerException();
-		StringBuffer relPath = new StringBuffer(CONFIG_DIR);
-		relPath.append(File.separatorChar);
-		relPath.append(fileName);
-		File f = new File(homeDir, relPath.toString());
-		return f.getAbsolutePath();
-	}
-
-	/**
-	 * Resolves <code>fileName</code> against the documentation directory.
-	 * 
-	 * @param fileName The name of a documentation file.
-	 * @return	Returns the absolute path to the specified file.
-	 */
-	public String resolveDocFile(String fileName)
-	{
-		if (fileName == null)	throw new NullPointerException();
-		StringBuffer relPath = new StringBuffer(DOC_DIR);
+		StringBuffer relPath = new StringBuffer(directory);
 		relPath.append(File.separatorChar);
 		relPath.append(fileName);
 		File f = new File(homeDir, relPath.toString());

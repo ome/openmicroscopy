@@ -181,7 +181,8 @@ public class DataServicesFactory
         
         
         //fs stuff
-        fsConfig = loadConfig(c.resolveConfigFile(FS_CONFIG_FILE));
+        fsConfig = loadConfig(c.resolveFilePath(FS_CONFIG_FILE, 
+        		Container.CONFIG_DIR));
         //Initialize the Views Factory.
         DataViewsFactory.initialize(c);
         if (omeroGateway.isUpgradeRequired()) {
