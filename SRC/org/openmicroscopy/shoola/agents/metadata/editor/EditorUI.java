@@ -501,6 +501,7 @@ class EditorUI
 	 * Attaches the specified file.
 	 * 
 	 * @param file The file to attach.
+	 * @return See above
 	 */
 	void attachFile(File file)
 	{
@@ -520,7 +521,9 @@ class EditorUI
 			return;
 		}
 		*/
-		generalPane.attachFile(file);
+		if (generalPane.attachFile(file))
+			saveData(true);
+			
 	}
 
 	/**

@@ -1899,6 +1899,23 @@ public class FigureDialog
 	}
 	
 	/**
+	 * Returns <code>true</code> if the dialog required a set of pixels
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param index One of the constants identifying the dialog.
+	 * @return See above.
+	 */
+	public static boolean needPixels(int index)
+	{
+		switch (index) {
+			case THUMBNAILS:
+				return false;
+			default:
+				return true;
+		}
+	}
+	
+	/**
 	 * Creates a new instance.
 	 * 
 	 * @param owner The owner of the dialog.

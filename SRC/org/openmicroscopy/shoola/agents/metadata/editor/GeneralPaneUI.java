@@ -556,10 +556,13 @@ class GeneralPaneUI
 
 	/**
 	 * Attaches the passed file.
+	 * Returns <code>true</code> if the file
+	 * does not already exist, <code>false</code> otherwise.
 	 * 
 	 * @param file The file to attach.
+	 * @return See above
 	 */
-	void attachFile(File file) { annotationUI.attachFile(file); }
+	boolean attachFile(File file) { return annotationUI.attachFile(file); }
 
 	/**
 	 * Removes the passed file from the display.

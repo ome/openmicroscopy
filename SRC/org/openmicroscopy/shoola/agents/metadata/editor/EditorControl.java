@@ -65,6 +65,7 @@ import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.filter.file.HTMLFilter;
@@ -378,6 +379,13 @@ class EditorControl
 	FigureDialog createFigureDialog(String name, PixelsData pixels, int index)
 	{
 		if (figureDialog != null) return figureDialog;
+		if (FigureDialog.needPixels(index) && pixels == null) {
+			UserNotifier un = 
+				MetadataViewerAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Figure", "The image is not valid," +
+					" cannot create the figure.");
+			return null;
+		}
 		JFrame f = 
 			MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
 		figureDialog = new FigureDialog(f, name, pixels, index, 

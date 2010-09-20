@@ -795,11 +795,13 @@ class AnnotationDataUI
 	}
 
 	/**
-	 * Attaches the passed file.
+	 * Attaches the passed file. Returns <code>true</code> if the file
+	 * does not already exist, <code>false</code> otherwise.
 	 * 
 	 * @param file The file to attach.
+	 * @return See above
 	 */
-	void attachFile(File file)
+	boolean attachFile(File file)
 	{
 		List<FileAnnotationData> list = getCurrentAttachmentsSelection();
 		DocComponent doc;
@@ -835,6 +837,7 @@ class AnnotationDataUI
 					Boolean.TRUE);
 		}
 		layoutAttachments(list);
+		return !exist;
 	}
 	
 	/**

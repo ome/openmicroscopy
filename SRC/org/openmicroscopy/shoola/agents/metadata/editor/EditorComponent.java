@@ -835,6 +835,7 @@ class EditorComponent
 			String name = model.getRefObjectName();
 			FigureDialog dialog = controller.createFigureDialog(name, 
 					pixels, index);
+			if (dialog == null) return;
 			dialog.setROIs(rois);
 			if (!model.isRendererLoaded()) {
 				loadRenderingControl(RenderingControlLoader.LOAD);
