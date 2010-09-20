@@ -53,6 +53,8 @@ FastCGIExternalServer "/var/www/omero.fcgi" -host 127.0.0.1:8080
 </VirtualHost>
 EOF
 
+echo "/etc/apache2/sites-available/default updated!"
+
 ##
 # Setup Matplotlib
 #
@@ -121,7 +123,10 @@ APPLICATION_SERVER='fastcgi-tcp'
 
 EOF
 
+echo "/Server/omero/dist/var/lib/custom_settings.py updated!"
+
 cd /Server/omero/dist
 sudo -u omero bin/omero web syncmedia
 sudo -u omero bin/omero web start localhost 8080 &
 
+echo "Web server started!"
