@@ -379,9 +379,8 @@ class EditorControl
 	FigureDialog createFigureDialog(String name, PixelsData pixels, int index)
 	{
 		if (figureDialog != null) return figureDialog;
+		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
 		if (FigureDialog.needPixels(index) && pixels == null) {
-			UserNotifier un = 
-				MetadataViewerAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Figure", "The image is not valid," +
 					" cannot create the figure.");
 			return null;

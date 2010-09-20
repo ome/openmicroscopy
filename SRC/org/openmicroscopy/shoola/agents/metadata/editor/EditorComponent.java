@@ -744,11 +744,18 @@ class EditorComponent
 				MetadataViewerAgent.getRegistry().getUserNotifier();
 			FigureDialog dialog;
 			PixelsData pixels = model.getPixels();
+			boolean b = view.isNumerousChannel();
 			switch (index) {
 				case FigureDialog.SPLIT:
 					if (pixels == null) {
 						un.notifyInfo("Split View Figure", 
 								"Image not valid. Cannot create figure.");
+						return;
+					}
+					if (b) {
+						un.notifyInfo("Split View Figure", 
+								"The selected type of figure " +
+						"is not available for the image.");
 						return;
 					}
 					dialog = controller.createFigureDialog(name, pixels, 
@@ -761,6 +768,12 @@ class EditorComponent
 					dialog.centerDialog();
 					break;
 				case FigureDialog.SPLIT_ROI:
+					if (b) {
+						un.notifyInfo("ROI Split Figure", 
+								"The selected type of figure " +
+						"is not available for the image.");
+						return;
+					}
 					model.fireROILoading(FigureDialog.SPLIT_ROI);
 					break;
 				case FigureDialog.THUMBNAILS:

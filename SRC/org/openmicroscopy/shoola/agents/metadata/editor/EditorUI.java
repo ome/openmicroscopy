@@ -521,9 +521,9 @@ class EditorUI
 			return;
 		}
 		*/
-		if (generalPane.attachFile(file))
-			saveData(true);
-			
+		//if (generalPane.attachFile(file))
+		generalPane.attachFile(file);
+		saveData(true);
 	}
 
 	/**
@@ -837,5 +837,13 @@ class EditorUI
     { 
     	return model.getScriptFromName(name);
     }
+    
+	/**
+	 * Returns <code>true</code> if it is an image with a lot of channels.
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isNumerousChannel() { return model.isNumerousChannel(); }
     
 }
