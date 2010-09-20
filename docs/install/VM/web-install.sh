@@ -127,6 +127,12 @@ echo "/Server/omero/dist/var/lib/custom_settings.py updated!"
 
 cd /Server/omero/dist
 sudo -u omero bin/omero web syncmedia
-sudo -u omero bin/omero web start localhost 8080 &
+sudo -u omero bin/omero web start localhost 8080
+sleep 5 
 
-echo "Web server started!"
+pid=$(ps ux | awk "/omero web start/ && !/awk/ {print \$2}")
+
+echo "Web server started! $pid"
+
+exit
+
