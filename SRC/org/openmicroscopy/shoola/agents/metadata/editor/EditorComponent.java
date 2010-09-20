@@ -568,14 +568,25 @@ class EditorComponent
 	public void setRenderingControl(RenderingControl rndControl)
 	{
 		boolean loaded = model.isRendererLoaded();
+		
 		setStatus(false);
 		if (rndControl == null) { //exception
 			setSelectedTab(GENERAL_TAB);
 			return;
 		}
+		//is the rendering control for the correct pixels set
+		FigureDialog d = controller.getFigureDialog();
+		PixelsData data = model.getPixels();
+		if (data == null) {
+			setSelectedTab(GENERAL_TAB);
+			return;
+		}
+		if (data.getId() != rndControl.getPixelsID()) {
+			setSelectedTab(GENERAL_TAB);
+			return;
+		}
 		model.setRenderingControl(rndControl);
 		if (loaded) view.onSettingsApplied(false);
-		FigureDialog d = controller.getFigureDialog();
 		if (d == null) view.setRenderer();
 		if (model.getRndIndex() == MetadataViewer.RND_SPECIFIC)
 			loadChannelData();
