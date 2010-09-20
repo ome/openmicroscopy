@@ -5,7 +5,7 @@
 # Setup FastCGI
 cd /etc/apache2/sites-available
 cat > default << EOF
-FastCGIExternalServer "/var/www/omero.fcgi" -host 127.0.0.1:8000
+FastCGIExternalServer "/var/www/omero.fcgi" -host 127.0.0.1:8080
 
 <VirtualHost *:80>
         ServerAdmin webmaster@localhost
@@ -60,6 +60,10 @@ mkdir -p /Server/logs/matplotlib
 sudo echo "backend: Agg" > /Server/logs/matplotlib/matplotlibrc
 #sudo chown -R www-data:www-data /Server/logs/matplotlib/
 
+
+sudo /etc/init.d/apache2 restart
+
+
 ##
 # Setup Webclient
 #
@@ -112,13 +116,12 @@ SERVER_LIST = (
 SERVER_EMAIL = 'omero@localhost'
 EMAIL_HOST = 'localhost'
 
-APPLICATION_HOST='http://localhost/'
+APPLICATION_HOST='http://localhost:8080/'
 APPLICATION_SERVER='fastcgi-tcp'
 
 EOF
 
 cd /Server/omero/dist
 sudo -u omero bin/omero web syncmedia
-sudo -u omero bin/omero web start &
+sudo -u omero bin/omero web start localhost 8080 &
 
-sudo /etc/init.d/apache2 restart

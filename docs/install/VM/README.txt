@@ -1,7 +1,7 @@
 # INSTALL #
 
 1) Install VirtualBox from http://www.virtualbox.org/wiki/Downloads
-2) Import vdi file 'File/Import Appliance' from smb://squig.openmicroscopy.org.uk/ome/team/VM/OMERO-SSH.vdi
+2) Copy vdi file from smb://squig.openmicroscopy.org.uk/ome/team/VM/OMERO-SSH.vdi to /YOUR_PATH/VirtualBox/HardDisks/OMERO-SSH.vdi
 3) Check out scripts 'co svn+ssh://your_username@svn.openmicroscopy.org.uk/home/svn/omero/trunk/docs/install/VM installVM'
 4) Run by the following commands:
 
