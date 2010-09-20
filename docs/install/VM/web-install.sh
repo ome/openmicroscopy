@@ -63,9 +63,6 @@ sudo echo "backend: Agg" > /Server/logs/matplotlib/matplotlibrc
 #sudo chown -R www-data:www-data /Server/logs/matplotlib/
 
 
-sudo /etc/init.d/apache2 restart
-
-
 ##
 # Setup Webclient
 #
@@ -125,6 +122,8 @@ EOF
 
 echo "/Server/omero/dist/var/lib/custom_settings.py updated!"
 
+sudo /etc/init.d/apache2 restart
+
 cd /Server/omero/dist
 sudo -u omero bin/omero web syncmedia
 sudo -u omero bin/omero web start localhost 8080
@@ -133,6 +132,3 @@ sleep 5
 pid=$(ps ux | awk "/omero web start/ && !/awk/ {print \$2}")
 
 echo "Web server started! $pid"
-
-exit
-
