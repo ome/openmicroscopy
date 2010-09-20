@@ -41,6 +41,7 @@ class WebControl(BaseControl):
         parser.add(sub, self.help, "Print extended help")
         parser.add(sub, self.settings, "Primary configuration for web")
         parser.add(sub, self.custom_settings, "Advanced use: Creates only a a custom_settings.py")
+        parser.add(sub, self.stop, "Stop the server")
 
         start = parser.add(sub, self.start, "Primary start for webserver")
         start.add_argument("host", nargs="?")
@@ -486,8 +487,23 @@ APPLICATION_HOST='%s'
                              'port':port}).split()
         else:
             django = ["python","manage.py","runserver", link, "--noreload"]
-        rv = self.ctx.call(django, cwd = location)
-
+        #rv = self.ctx.call(django, cwd = location)
+        self.ctx.popen(args=django, cwd=location) # popen
+    
+    def stop(self, args):
+        self.ctx.out("Stopping django development webserver... \n")
+        import omeroweb.settings as settings
+        deploy = getattr(settings, 'APPLICATION_SERVER', 'default')
+        if deploy == 'fastcgi' or deploy == 'fastcgi-tcp':
+            f=open(self.ctx.dir / "var" / "django.pid", 'r')
+            pid = f.read()
+            import signal
+            os.kill(pid, signal.SIGTERM) #kill whole group
+            self.ctx.out("Process %i was killed. Webserver was shut down!\n")
+        else:
+            self.ctx.err("DEVELOPMENT WARNING: Not ready yet. Kill it by hand! \n")
+        
+    
 try:
     register("web", WebControl, HELP)
 except NameError:
