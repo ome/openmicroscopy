@@ -524,7 +524,7 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
             logger.debug(fpath)
             if fobj is None:
                 fobj = StringIO()
-            zobj = zipfile.ZipFile(fobj, 'w')
+            zobj = zipfile.ZipFile(fobj, 'w', zipfile.ZIP_STORED)
             for obj in imgs:
                 tiff_data = webgateway_cache.getOmeTiffImage(request, server_id, obj)
                 if tiff_data is None:

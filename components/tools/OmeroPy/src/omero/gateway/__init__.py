@@ -1918,7 +1918,12 @@ class ProxyObjectWrapper (object):
         @return:    obj
         """
         if not self._obj:
-            self._obj = self._create_func()
+            try:
+                self._obj = self._create_func()
+            except Ice.ConnectionLostException:
+                logger.debug('... lost, reconnecting (_getObj)')
+                self._connect()
+                #self._obj = self._create_func()
         else:
             self._ping()
         return self._obj
@@ -1942,7 +1947,7 @@ class ProxyObjectWrapper (object):
         except Ice.ConnectionLostException:
             # The connection was lost. This shouldn't happen, as we keep pinging it, but does so...
             logger.debug(traceback.format_stack())
-            logger.debug("... lost, reconnecting")
+            logger.debug("... lost, reconnecting (_ping)")
             self._conn._connected = False
             self._connect()
             return False

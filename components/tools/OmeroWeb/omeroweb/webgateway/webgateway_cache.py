@@ -20,7 +20,7 @@ import datetime
 
 logger = logging.getLogger('cache')
 
-import struct, time, os, re, shutil
+import struct, time, os, re, shutil, stat
 size_of_double = len(struct.pack('d',0))
 string_type = type('')
 
@@ -534,10 +534,19 @@ class WebGatewayTempFile (object):
         fn = os.path.join(dn, name)
         rn = os.path.join(stamp, name)
         lf = os.path.join(dn, '.lock')
-        cnt = 60
+        cnt = 30
+        fsize = 0
         while os.path.exists(lf) and cnt > 0:
             time.sleep(1)
-            cnt -= 1
+            t = os.stat(fn)[stat.ST_SIZE]
+            if (t == fsize):
+                cnt -= 1
+                logger.debug('countdown %d' % cnt)
+            else:
+                fsize = t
+                cnt = 30
+        if cnt == 0:
+            return None, None, None
         if os.path.exists(fn):
             return fn, rn, True
         return fn, rn, AutoLockFile(fn, 'wb')
