@@ -72,6 +72,12 @@ apt-get --assume-yes install libapache2-mod-fastcgi
 apt-get --assume-yes install links
 
 ##
+# Add commented option for shared folder to fstab 
+#
+echo "# OMERODIR $OMERODIR vboxsf user=omero,rw" | sudo tee -a /etc/fstab
+
+
+##
 # Install OMERO
 #
 

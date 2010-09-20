@@ -89,7 +89,6 @@ fi
 cd /Server/omero/dist
 
 bin/omero config set omero.data.dir $OMERODIR
-echo "# OMERODIR $OMERODIR vboxsf user=omero,rw" | sudo tee -a /etc/fstab
 
 echo "CREATE USER $OMERO_DB_USER PASSWORD '$PGPASSWORD'" | sudo -u postgres psql
 ###
