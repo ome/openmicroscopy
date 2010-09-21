@@ -129,6 +129,6 @@ sudo -u omero bin/omero web syncmedia
 sudo -u omero bin/omero web start localhost 8080
 sleep 5 
 
-pid=$(ps ux | awk "/omero web start/ && !/awk/ {print \$2}")
+cat /Server/omero/dist/var/django.pid
 
-echo "Web server started! $pid"
+echo "Web server started!"
