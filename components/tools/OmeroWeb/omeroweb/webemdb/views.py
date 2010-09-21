@@ -477,6 +477,7 @@ def image(request, imageId):
     scriptNames = {"/EMAN2/Nonlinear_Anisotropic_Diffusion.py": "IMOD: Nonlinear Anisotropic Diffusion",
             "/EMAN2/Segger_Segmentation.py": "Segger: Segmentation",
             "/EMAN2/Eman_Filters.py": "EMAN2: Filtering",
+            "/EMAN2/Ctf_Correction.py": "EMAN2: CTF Correction",
             "/EMAN2/Run_Spider_Procedure.py": "Spider: Run Procedure"}
     for path, display in scriptNames.items():
          scriptId = scriptService.getScriptID(path)
@@ -517,10 +518,11 @@ def dataset(request, datasetId):
     # add some scripts that we can run on a dataset
     scriptService = conn.getScriptService()
     scripts = []
-    scriptNames = {"/EMAN2/Run_Spider_Procedure.py": "Run Spider Procedure",
-            "/EMAN2/Eman_Filters.py": "Process with EMAN2 Filter",
-            "/EMAN2/Ctf_Correction.py": "EMAN2 CTF Correction",
-            "/EMAN2/Nonlinear_Anisotropic_Diffusion.py": "IMOD Nonlinear Anisotropic Diffusion"}
+    scriptNames = {"/EMAN2/Nonlinear_Anisotropic_Diffusion.py": "IMOD: Nonlinear Anisotropic Diffusion",
+            "/EMAN2/Segger_Segmentation.py": "Segger: Segmentation",
+            "/EMAN2/Eman_Filters.py": "EMAN2: Filtering",
+            "/EMAN2/Ctf_Correction.py": "EMAN2: CTF Correction",
+            "/EMAN2/Run_Spider_Procedure.py": "Spider: Run Procedure"}
     for path, display in scriptNames.items():
          scriptId = scriptService.getScriptID(path)
          if scriptId and scriptId > 0:
@@ -529,7 +531,10 @@ def dataset(request, datasetId):
              s["id"] = scriptId
              scripts.append(s)
 
-    return render_to_response('webemdb/data/dataset.html', {'dataset': dataset, 'entryId': entryId, 'scripts': scripts})
+    # gets list of {"id":annotationId, "name":fileName, "text":fileText} for .spf files
+    spfFiles = getSpfFiles(conn.getQueryService(), conn.createRawFileStore())
+    
+    return render_to_response('webemdb/data/dataset.html', {'dataset': dataset, 'entryId': entryId, 'scripts': scripts, 'spfFiles':spfFiles})
 
 
 def data(request, entryId):
@@ -839,7 +844,26 @@ def search(request):
     
     
     return render_to_response('webemdb/browse/search.html', {'searchString': searchTerm, 'results': results, 'nextPage': page+1 })
+
+
+def getSpfFiles(queryService, rawFileService):
+    """ list original files ending with .spf and get text for each, but provide the annotation ID (same as Insight) 
+        returns a list of (id, name, text)"""
     
+    query = "select a from Annotation a join fetch a.file as f where f.name like '%.spf'"
+    
+    annotations = queryService.findAllByQuery(query, None)
+    
+    spfFiles = []
+    
+    for a in annotations:
+        aId = a.getId().getValue()
+        fileName = a.file.getName().getValue()
+        fileId = a.file.getId().getValue()
+        text = scriptUtil.readFromOriginalFile(rawFileService, queryService, fileId)
+        spfFiles.append({"id": aId, "name": fileName, "text": text})
+        
+    return spfFiles
 
 def entries (request):
     

@@ -12,6 +12,29 @@ $(document).ready(function() {
             var newWindow=window.open(url,'','height=550,width=600,right=50');
         }
     });
+    
+    $("#spf_files").hide();
+    $("#spfFilesToggle").click(function() {
+        $("#spf_files").toggle();
+        var txt = $(this).text();
+        if (txt == "show") $(this).text("hide");
+        else $(this).text("show");
+        
+        return false;
+    })
+    
+    $(".spfLink").click(function() {
+        var html = $(this).children("div").html();
+        var idName = $(this).children("span").text();
+        var newWindow=window.open('','name','height=600,width=500,scrollbars=yes');
+        newWindow.document.write('<html><title>' + idName + '</title>');
+        newWindow.document.write('<p><a href="javascript:self.close()">Close window</a> </p>');
+        newWindow.document.write('<h3>'+ idName +'</h3>');
+        newWindow.document.write(html + '</html>');
+        newWindow.document.close();
+
+        return false;
+    });
 });
 </script>
 {% endblock %}
@@ -40,6 +63,12 @@ $(document).ready(function() {
 #script_pane {
     float: right;
 }
+#spf_files {
+    font-size: 80%;
+}
+#spfFilesToggle {
+    font-size: 90%;
+}
 </style>
 {% endblock %}
 
@@ -59,6 +88,15 @@ $(document).ready(function() {
     </div>
     {% endif %}
     <div id="script_pane">
+        <div>spf files: <a href="" id="spfFilesToggle">show</a></div>
+        <div id="spf_files">
+            {% for spf in spfFiles %}
+            <div>
+                <a class="spfLink" href="">
+                    <span>{{spf.id}}: {{spf.name}}</span> <div style="display:none">{{spf.text|linebreaks}}</div></a>
+            </div>
+            {% endfor %}
+        </div>
         <form>
             <select name="scripts" id="script_chooser">
                 <option value="">Run Script...</option>

@@ -40,6 +40,41 @@
 <script type="text/javascript" src="{% url webemdb 'javascript/scripts.js' %}"></script>
 
 <script type="text/javascript">
+$(document).ready(function() {
+    $("#script_chooser").change(function() {
+        var $chooser = $(this);
+        var url = $chooser.val();  // the value attribute of the chosen option (url)
+        if (url.length > 0) {
+            var newWindow=window.open(url,'','height=550,width=600,right=50');
+        }
+    });
+    
+    // regex function for identifying parameter refs [[id]] in the step descriptions.
+    // replaces with <a class='param' href='[[id]]'>param</a>
+    var makeIdLinks = function() {
+        var desc = $(this).text();
+        alert(desc);
+        var regexp = /(Image ID:([0-9]+))/gi;
+        this.each(function(j) {
+
+            $(this).text(
+                desc.replace(regexp,"<a href='webemdb/image/$1'>$1</a>")
+            );
+        });
+        return $(this);
+    }
+    
+    // Create links in the Image Description. E.g. "Image ID: 123" should create a link to "webemdb/image/123"
+    $("#imgDesc").each(function() {
+        var $desc = $(this);
+        var html = $desc.html();
+        var regexp = /\Image ID: ([0-9]+)/gi;   // regex recognises "Image ID: 123" and captures '123'
+        var edit = html.replace(regexp,"<a href='/webemdb/image/$1'>Image ID: $1</a>");
+        $desc.html(edit);
+    });
+    
+});
+
 function openPopup(url) {
     owindow = window.open(url, 'anew', config='height=600,width=850,left=50,top=50,toolbar=no,menubar=no,scrollbars=yes,resizable=yes,location=no,directories=no,status=no');
     if(!owindow.closed) owindow.focus();
@@ -58,9 +93,9 @@ function openPopup(url) {
         <div class="entryTitle">Image: {{ image.getName }}</div>
         <div>ID: {{ image.getId }}</div>
         {% if image.getDescription %}
-            <p>
+            <div id="imgDesc">
                 {{ image.getDescription|linebreaks }}
-            </p>
+            </div>
         {% endif %}
         
         <p>

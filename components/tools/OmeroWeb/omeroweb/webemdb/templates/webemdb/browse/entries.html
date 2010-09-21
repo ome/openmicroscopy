@@ -50,9 +50,9 @@ th .colHeader {
             </div>
         </form>
 
-        <div>
+        <div>Page:
             {% for page in pageLinks %}
-                <a href="?{{ searchString }}{{ sortString }}&page={{ page }}">Page {{ page }}</a> |
+                <a href="?{{ searchString }}{{ sortString }}&page={{ page }}"> {{ page }} </a> |
             {% endfor %}
             Total results: {{ totalResults }} / {{ totalEntries }} 
                 {% ifnotequal totalResults totalEntries %}
