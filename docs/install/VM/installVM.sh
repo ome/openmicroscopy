@@ -29,8 +29,9 @@ echo "Copying ubuntu-omero-install"
 $SCP ubuntu-omero-install.sh omero@localhost:~/
 echo "Copying omero.sh"
 $SCP omero.sh omero@localhost:~/omero.sh
-echo "Copying web-install"
-$SCP web-install.sh omero@localhost:~/
+echo "Copying web-root-install and web-start.sh"
+$SCP web-root-install.sh omero@localhost:~/
+$SCP web-start.sh omero@localhost:~/
 echo "Copying daemon-install.sh"
 $SCP daemon-install.sh omero@localhost:~/
 echo "ssh : exec ubuntu-root-install.sh"
