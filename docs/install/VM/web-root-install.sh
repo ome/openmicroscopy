@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -e
+set -u
+set -x
 
 ##
 # Setup FastCGI
@@ -124,11 +127,4 @@ echo "/Server/omero/dist/var/lib/custom_settings.py updated!"
 
 sudo /etc/init.d/apache2 restart
 
-cd /Server/omero/dist
-sudo -u omero bin/omero web syncmedia
-sudo -u omero bin/omero web start localhost 8080
-sleep 5 
-
-cat /Server/omero/dist/var/django.pid
-
-echo "Web server started!"
+at -f /home/omero/web-start.sh now

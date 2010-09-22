@@ -37,7 +37,7 @@ echo "ssh : exec ubuntu-root-install.sh"
 $SSH omero@localhost 'yes ome | sudo -S sh /home/omero/ubuntu-root-install.sh'
 echo "ssh : exec ubuntu-omero-install.sh"
 $SSH omero@localhost 'sh /home/omero/ubuntu-omero-install.sh'
-echo "ssh : exec web_install.sh"
-$SSH omero@localhost 'yes ome | sudo -S sh /home/omero/web-install.sh'
+echo "ssh : exec web-root-install.sh"
+$SSH omero@localhost 'yes ome | sudo -S bash -s < /home/omero/web-root-install.sh'
 echo "ssh : exec daemon-install.sh"
 $SSH omero@localhost 'yes ome | sudo -S sh /home/omero/daemon-install.sh'
