@@ -247,15 +247,21 @@ public class FileQueueHandler extends JPanel
             for (File file: fileChooser.getSelectedFiles())
             {
                 String fileStr = file.toString();
-                String fileExt = fileStr.substring(fileStr.lastIndexOf('.')+1, fileStr.length());
-                if (fileExt.equals("flex".toLowerCase()) 
-                        || fileExt.equals("xdce".toLowerCase())
-                        || fileExt.equals("mea".toLowerCase())
-                        || fileExt.equals("res".toLowerCase()))
+                String fileExt = fileStr.substring(
+                        fileStr.lastIndexOf('.') + 1, fileStr.length());
+                fileExt = fileExt.toLowerCase();
+                if (fileExt.equals("flex")
+                    || fileExt.equals("xdce")
+                    || fileExt.equals("mea")
+                    || fileExt.equals("res")
+                    || fileExt.equals("htd")
+                    || fileExt.equals("pnl"))
                 {
                     isSPW = true;
                 } 
-                else if (fileExt.equals("txt".toLowerCase()) || fileExt.equals("xml".toLowerCase())) 
+                else if (fileExt.equals("txt")
+                         || fileExt.equals("xml")
+                         || fileExt.equals("log"))
                 { // arbitrary file extension so we must do candidates
                     runCandidates = true;
                     break;
