@@ -332,7 +332,7 @@ class BaseClient(object):
         try:
             sf = self.__sf
             if not sf:
-                raise omero.ClientError("No session avaliable")
+                raise omero.ClientError("No session available")
             return sf
         finally:
             self.__lock.release()
