@@ -7,16 +7,16 @@
 
 package ome.services.blitz.impl;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 import ome.conditions.InternalException;
-import ome.io.nio.OriginalFilesService;
-import ome.io.nio.PixelsService;
-import ome.io.nio.ThumbnailService;
+import ome.io.nio.AbstractFileSystemService;
 import ome.services.delete.DeleteException;
 import ome.services.delete.DeleteIds;
 import ome.services.delete.DeleteSpec;
@@ -407,83 +407,89 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
     /**
      * For each Report use the map of tables to deleted ids
      * to remove the files under Files, Pixels and Thumbnails
-     * if the ids no longer exist in the db
+     * if the ids no longer exist in the db. Create a map of
+     * failed ids (not yet passed back to client).
+     * 
      */
-    public void deleteFiles() {
-    	
+    private void deleteFiles() {
     	
     	try {
 			String omeroDataDir = sf.getConfigService().getConfigValue("omero.data.dir");
+			AbstractFileSystemService afs = new AbstractFileSystemService(omeroDataDir);
+			
+			// This saves code replication but maybe there's a neater solution.
+			String[] fileTypes = { "OriginalFile", "Pixels", "Thumbnail" };
+			List<String> fileTypeList = Arrays.asList(fileTypes);
+			
 			HashMap<String, List<Long>> idMap;
+			File file;
+			String filePath;
+			
+			/* 
+			 * This map could be passed back out somehow (via reports?)
+			 * for an external clean-up of files that may have been locked
+			 * or otherwise inaccessible.
+			 * 
+			 */
+			HashMap<String, ArrayList<Long>> failedMap = new HashMap<String, ArrayList<Long>>();
+			
 	     	for(Report report : reports.values()) {
 	       		log.info("specstring: " + report.spec.toString());
 	       		idMap = (HashMap<String, List<Long>>) report.spec.getTableIds();
 	            if (log.isDebugEnabled()) {
 	            	for(String table : idMap.keySet()) {
-	       				List<Long> ids = idMap.get(table);
-	       				log.debug("    Deleted " + table + ":" + ids.toString());
+	       				log.debug("Deleted IDs : " + table + ":" + idMap.get(table).toString());
 	       			}
 	            }
-	       		if (idMap.containsKey("OriginalFile")) {
-	       			log.info("Trying to delete OriginalFiles : " + idMap.get("OriginalFile").toString());
-	       			List<Long> deletedIds = new ArrayList<Long>();
-	       			for(Long id : idMap.get("OriginalFile")) {
-	       				try {
-	       					ome.model.IObject obj = (ome.model.IObject) sf.getQueryService().find("OriginalFile", id);
-	       					if(obj == null) {
-	       						deletedIds.add(id);
-	       					} else {
-	       						log.info("OriginalFile " + id.toString() + " not deleted, still in database");
-	       					}
-	       				} catch (ServerError se) {
-	       					log.error("OriginalFile "  + id.toString() + " not deleted: ServerError: " + se.toString());
-	       				}
+	            
+	     		for(String fileType: fileTypeList) {
+	     			if (idMap.containsKey(fileType)) {
+	     				log.info("Trying to delete " + fileType + " files : " + idMap.get(fileType).toString());
+	     				List<Long> deletedIds = new ArrayList<Long>();
+	     				for(Long id : idMap.get(fileType)) {
+	     					try {
+	     						ome.model.IObject obj = (ome.model.IObject) sf.getQueryService().find(fileType, id);
+	     						if(obj == null) {
+	     							deletedIds.add(id);
+	     						} else {
+	     							log.info(fileType + " " + id.toString() + " not deleted, still in database");
+	     						}
+	     					} catch (ServerError se) {
+	     						log.error(fileType + " "  + id.toString() + " unable to query: ServerError: " + se.toString());
+	     					}
+	     				}
+	     				if(!deletedIds.isEmpty()) {
+	     					failedMap.put(fileType, new ArrayList<Long>());
+	     					for (Long id : deletedIds) {
+	     						if(fileType.equals("OriginalFile")){
+	     							filePath = afs.getFilesPath(id);
+	     						} else if(fileType.equals("Pixels")) {
+	     							filePath = afs.getPixelsPath(id);
+	     						} else { // Thumbnail
+	     							filePath = afs.getThumbnailPath(id);
+	     						}
+	     						
+	     						file = new File(filePath);
+	     						if (file.exists()) {
+	     							if (file.delete()) {
+	     								log.info("DELETED: " + fileType + " " + file.getAbsolutePath());
+	     							} else {
+	     								failedMap.get(fileType).add(id);
+	     								log.info("Failed to delete " + fileType + " " + file.getAbsolutePath());
+	     							}
+	     						} else {
+	     							log.info(fileType + " " + file.getAbsolutePath() + " does not exist.");
+	     						}
+	     					}
+	     				}
+	     			}
+	     		}
+	            if (log.isDebugEnabled()) {
+	            	for(String table : failedMap.keySet()) {
+	       				log.debug("Failed to delete files : " + table + ":" + failedMap.get(table).toString());
 	       			}
-	       			if(!deletedIds.isEmpty()) {
-	       				OriginalFilesService os = new OriginalFilesService(omeroDataDir);
-	       				os.removeFiles(deletedIds);
-	       			}
-	       		}
-	       		if (idMap.containsKey("Pixels")) {
-	       			log.info("Trying to delete Pixels : " + idMap.get("Pixels").toString());
-	       			List<Long> deletedIds = new ArrayList<Long>();
-	      			for(Long id : idMap.get("Pixels")) {
-	       				try {
-	       					ome.model.IObject obj = (ome.model.IObject) sf.getQueryService().find("Pixels", id);
-	       					if(obj == null) {
-	       						deletedIds.add(id);
-	       					} else {
-	       						log.info("Pixels " + id.toString() + " not deleted, still in database");
-	       					}
-	       				} catch (ServerError se) {
-	       					log.error("Pixels "  + id.toString() + " not deleted: ServerError: " + se.toString());
-	       				}
-	      			}
-	       			if(!deletedIds.isEmpty()) {
-	       				PixelsService ps = new PixelsService(omeroDataDir);
-	       				ps.removePixels(deletedIds);
-	       			}
-	       		}
-	       		if (idMap.containsKey("Thumbnail")) {
-	       			log.info("Trying to delete Thumbnails : " + idMap.get("Thumbnail").toString());
-	       			List<Long> deletedIds = new ArrayList<Long>();
-	       			for(Long id : idMap.get("Thumbnail")) {
-	       				try {
-	       					ome.model.IObject obj = (ome.model.IObject) sf.getQueryService().find("Thumbnail", id);
-	       					if(obj == null) {
-	       						deletedIds.add(id);
-	       					} else {
-	       						log.info("Thumbnail " + id.toString() + " not deleted, still in database");
-	       					}
-	       				} catch (ServerError se) {
-	       					log.error("Thumbnail "  + id.toString() + " not deleted: ServerError: " + se.toString());
-	       				}
-	       			}
-	       			if(!deletedIds.isEmpty()) {
-	       				ThumbnailService ts = new ThumbnailService(omeroDataDir);
-	       				ts.removeThumbnails(deletedIds);
-	       			}
-	      		}
+	            }
+
 	       	}
 		} catch (ServerError e) {
 			log.error("Failed to find omero.data.dir" + e.toString());	
