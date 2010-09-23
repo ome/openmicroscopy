@@ -226,21 +226,25 @@ def setup():
         scripts.Long(
             "Image_ID",
             optional = False,
-            description = "ID of a valid dataset"),
+            description = "ID of a valid dataset",
+            grouping = "1"),
         scripts.Long(
             "Dataset_ID",
             optional = True,
             description = "ID of a dataset to which output images should be added. If not provided,"+\
-"the latest dataset which the image is contained in will be used. If the image is not in a dataset, one will be created."),
+"the latest dataset which the image is contained in will be used. If the image is not in a dataset, one will be created.",
+            grouping = "2"),
         scripts.Long(
             "Settings_ID",
             optional = True,
-            description = "ID of a CeCog configuration file. If not provided, a default configuration will be used."),
+            description = "ID of a CeCog configuration file. If not provided, a default configuration will be used.",
+            grouping = "3"),
         scripts.Bool(
             "Debug",
             optional = False,
             default = False,
-            description = "Whether or not to print debugging text"),
+            description = "Whether or not to print debugging text",
+            grouping = "4"),
         version = "4.2.1",
         contact = "ome-users@lists.openmicroscopy.org.uk",
         description = """Executes CeCog via the batch interface.""")
