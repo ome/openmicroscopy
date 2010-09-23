@@ -25,6 +25,10 @@
 module omero {
 
 
+    module api {
+        interface ServiceFactory;
+    };
+
     module grid {
 
     //
@@ -266,9 +270,13 @@ module omero {
 
             /**
              * Returns the Table service for the given "OMERO.tables" file.
+             * This service will open the file locally to access the data.
+             * After any modification, the file will be saved locally and
+             * the server asked to update the database record. This is done
+             * via services in the [omero::api::ServiceFactory].
              */
             Table*
-                getTable(omero::model::OriginalFile file)
+                getTable(omero::model::OriginalFile file, omero::api::ServiceFactory* sf)
                 throws omero::ServerError;
 
 

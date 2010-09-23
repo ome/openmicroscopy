@@ -86,6 +86,8 @@ import omero.api.RenderingEnginePrx;
 import omero.api.RenderingEnginePrxHelper;
 import omero.api.SearchPrx;
 import omero.api.SearchPrxHelper;
+import omero.api.ServiceFactoryPrx;
+import omero.api.ServiceFactoryPrxHelper;
 import omero.api.ServiceInterfacePrx;
 import omero.api.ServiceInterfacePrxHelper;
 import omero.api.StatefulServiceInterfacePrx;
@@ -263,6 +265,11 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
     public Executor getExecutor() {
         return this.executor;
+    }
+
+    public ServiceFactoryPrx proxy() {
+        return ServiceFactoryPrxHelper.uncheckedCast(
+            adapter.createDirectProxy(sessionId()));
     }
 
     // ~ Security Context

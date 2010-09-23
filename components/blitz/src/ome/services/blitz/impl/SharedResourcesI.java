@@ -122,15 +122,15 @@ public class SharedResourcesI extends AbstractAmdServant implements
     protected void preClose() {
         synchronized (tableIds) {
             for (String id : tableIds) {
-                TablePrx table = 
+                TablePrx table =
                     TablePrxHelper.uncheckedCast(
-                            sf.adapter.getCommunicator().stringToProxy(id).ice_oneway());
+                            sf.adapter.getCommunicator().stringToProxy(id));
                 try {
                     table.close();
                 } catch (Exception e) {
-                    log.warn("Exception while closing table oneway: "+e);
+                    log.error("Exception while closing table " + id, e);
                 }
-                
+
             }
             tableIds.clear();
         }
@@ -359,10 +359,10 @@ public class SharedResourcesI extends AbstractAmdServant implements
                             public void ice_exception(UserException ex) {
                                 holder.set(null);
                             }
-                        }, file);
+                        }, file, sf.proxy());
                     }
                 });
-        
+
         sf. allow(tablePrx);
         register(tablePrx);
         return tablePrx;

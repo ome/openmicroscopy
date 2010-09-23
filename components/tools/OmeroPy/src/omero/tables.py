@@ -461,12 +461,14 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     Spreadsheet implementation based on pytables.
     """
 
-    def __init__(self, ctx, file_obj, storage, uuid = "unknown"):
+    def __init__(self, ctx, file_obj, factory, storage, uuid = "unknown"):
         self.uuid = uuid
         self.file_obj = file_obj
-        self.stamp = time.time()
+        self.factory = factory
         self.storage = storage
         omero.util.SimpleServant.__init__(self, ctx)
+
+        self.stamp = time.time()
         self.storage.incr(self)
 
     def check(self):
@@ -515,15 +517,15 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
                 gid = self.file_obj.details.group.id.val
                 ctx = {"omero.group": str(gid)}
                 try:
-                    rfs = self.ctx.getSession().createRawFileStore()
+                    rfs = self.factory.createRawFileStore(ctx)
                     rfs.setFileId(fid, ctx)
                     if size:
                         rfs.truncate(size)     # May do nothing
-                        rfs.write([], size, 0) # Force an update
+                        rfs.write([], size, 0, ctx) # Force an update
                     else:
-                        rfs.write([], 0, 0)    # No-op
+                        rfs.write([], 0, 0, ctx)    # No-op
                     file_obj = rfs.save(ctx)
-                    rfs.close()
+                    rfs.close(ctx)
                     self.logger.info("Updated file object %s to sha1=%s (%s bytes)",\
                         self.file_obj.id.val, file_obj.sha1.val, file_obj.size.val)
                 except:
@@ -726,7 +728,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
 
     @remoted
     @perf
-    def getTable(self, file_obj, current = None):
+    def getTable(self, file_obj, factory, current = None):
         """
         Create and/or register a table servant.
         """
@@ -735,7 +737,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         file_id = None
         if file_obj is not None and file_obj.id is not None:
             file_id = file_obj.id.val
-        self.logger.info("getTable: %s", file_id)
+        self.logger.info("getTable: %s %s", file_id, current.ctx)
 
         file_path = self.repo_mgr.getFilePath(file_obj)
         p = path(file_path).dirname()
@@ -745,7 +747,7 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         storage = HDFLIST.getOrCreate(file_path)
         id = Ice.Identity()
         id.name = Ice.generateUUID()
-        table = TableI(self.ctx, file_obj, storage, uuid = id.name)
+        table = TableI(self.ctx, file_obj, factory, storage, uuid = id.name)
         self.resources.add(table)
 
         prx = current.adapter.add(table, id)
