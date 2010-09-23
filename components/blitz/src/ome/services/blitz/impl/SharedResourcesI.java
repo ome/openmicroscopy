@@ -275,119 +275,39 @@ public class SharedResourcesI extends AbstractAmdServant implements
     public TablePrx newTable(final long repo, String path, Current __current)
             throws ServerError {
 
-        if (true) {
-            // Overriding repository logic for creation. As long as the
-            // security system is still in charge, we need to have the files
-            // being created for the proper user.
-            final OriginalFile file = new OriginalFileI();
-            RTime time = omero.rtypes.rtime(System.currentTimeMillis());
-            file.setAtime(time);
-            file.setMtime(time);
-            file.setCtime(time);
-            file.setSha1(omero.rtypes.rstring("UNKNOWN"));
-            file.setMimetype(omero.rtypes.rstring("OMERO.tables"));
-            file.setSize(omero.rtypes.rlong(0));
-            file.setPath(omero.rtypes.rstring(path));
-            file.setName(omero.rtypes.rstring(path));
-            Long id = (Long) sf.executor.execute(sf.principal, new Executor.SimpleWork(this, "newTable", repo, path) {
-                @Transactional(readOnly = false)
-                public Object doWork(Session session, ServiceFactory sf) {
-                    try {
-                        IObject obj = (IObject) new IceMapper().reverse(file);
-                        return sf.getUpdateService().saveAndReturnObject(obj).getId();
-                    } catch (Exception e) {
-                        log.error(e);
-                        return null;
-                    }
+        // Overriding repository logic for creation. As long as the
+        // security system is still in charge, we need to have the files
+        // being created for the proper user.
+        final OriginalFile file = new OriginalFileI();
+        RTime time = omero.rtypes.rtime(System.currentTimeMillis());
+        file.setAtime(time);
+        file.setMtime(time);
+        file.setCtime(time);
+        file.setSha1(omero.rtypes.rstring("UNKNOWN"));
+        file.setMimetype(omero.rtypes.rstring("OMERO.tables"));
+        file.setSize(omero.rtypes.rlong(0));
+        file.setPath(omero.rtypes.rstring(path));
+        file.setName(omero.rtypes.rstring(path));
+
+        IObject obj = (IObject) sf.executor.execute(sf.principal, new Executor.SimpleWork(this, "newTable", repo, path) {
+            @Transactional(readOnly = false)
+            public Object doWork(Session session, ServiceFactory sf) {
+                try {
+                    IObject obj = (IObject) new IceMapper().reverse(file);
+                    return sf.getUpdateService().saveAndReturnObject(obj);
+                } catch (Exception e) {
+                    log.error(e);
+                    return null;
                 }
-                
-            });
-            if (id == null) {
-                throw new InternalException(null, null, "Failed to save file");
             }
-            file.setId(omero.rtypes.rlong(id));
-            file.unload();
-            return openTable(file, __current);
-        }
+
+        });
         
-        // NEVER REACHED IN CURRENT CODE.
-        
-        // Okay. All's valid.
-        InternalRepositoryPrx[] repos = registry.lookupRepositories();
-
-        RepositoryPrx repoPrx = (RepositoryPrx) lookup(waitMillis,
-                Arrays.<Ice.ObjectPrx> asList(repos),
-                new RepeatTask<RepositoryPrx>() {
-                    public void requestService(Ice.ObjectPrx prx,
-                            final ResultHolder holder) {
-
-                        final InternalRepositoryPrx server = InternalRepositoryPrxHelper
-                                .uncheckedCast(prx);
-
-                        server
-                                .getDescription_async(new AMI_InternalRepository_getDescription() {
-
-                                    @Override
-                                    public void ice_exception(LocalException ex) {
-                                        holder.set(null);
-                                    }
-
-                                    @Override
-                                    public void ice_exception(UserException ex) {
-                                        holder.set(null);
-                                    }
-
-                                    @Override
-                                    public void ice_response(
-                                            OriginalFile description) {
-                                        /*
-                                        if (description != null
-                                                && description.getId()
-                                                        .getValue() == repo) {
-                                                        */
-                                        // At the moment there are no non-LegacyRepositoryI
-                                        // repository implementations, and legacy ones are restricted
-                                        // to being a singleton in the grid, so ignore the repo
-                                        // number for the moment and return;
-                                        if (true) {
-                                            server
-                                                    .getProxy_async(new AMI_InternalRepository_getProxy() {
-
-                                                        @Override
-                                                        public void ice_exception(
-                                                                LocalException ex) {
-                                                            holder.set(null);
-                                                        }
-
-                                                        @Override
-                                                        public void ice_exception(
-                                                                UserException ex) {
-                                                            holder.set(null);
-                                                        }
-
-                                                        @Override
-                                                        public void ice_response(
-                                                                RepositoryPrx __ret) {
-                                                            holder.set(__ret);
-                                                        }
-                                                    });
-                                        }
-                                    }
-                                });
-                    }
-                });
-
-        if (repoPrx == null) {
-            return null;
-        } else {
-            // Attempt to fix an odd timeout exception during register()
-            repoPrx = RepositoryPrxHelper.checkedCast(__current.adapter
-                    .getCommunicator().stringToProxy(repoPrx.ice_toString()));
+        OriginalFile saved = (OriginalFile) new IceMapper().map(obj);
+        if (saved == null) {
+            throw new InternalException(null, null, "Failed to save file");
         }
-
-        Format omero_tables = new FormatI();
-        OriginalFile file = repoPrx.register(path, rstring("OMERO.tables"));
-        return openTable(file, __current);
+        return openTable(saved, __current);
 
     }
 
@@ -413,7 +333,6 @@ public class SharedResourcesI extends AbstractAmdServant implements
 
             }
         });
-        file.unload();
 
         // Okay. All's valid.
         TablesPrx[] tables = registry.lookupTables();

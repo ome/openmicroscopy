@@ -8,6 +8,7 @@
 
 """
 
+import path
 import unittest, os
 import omero, omero.tables
 
@@ -95,6 +96,36 @@ class TestTables(lib.ITest):
         y = arr(test.bytes[1])
         for i in range(len(x)):
             self.assertEquals(x[i], y[i])
+
+
+    def test2098(self):
+        """
+        Creates and downloads an HDF file and checks
+        that its size and sha1 match whats in the db
+        """
+        grid = self.client.sf.sharedResources()
+        table = grid.newTable(1, "/test")
+        self.assert_( table )
+
+        lc = omero.columns.LongColumnI('lc', 'desc', [1])
+
+        file = None
+        try:
+            file = table.getOriginalFile()
+            self.assert_( file )
+            table.initialize([lc])
+            table.addData([lc])
+        finally:
+            table.close()
+
+        # Reload the file
+        file = self.client.sf.getQueryService().get("OriginalFile", file.id.val)
+
+        # Check values
+        p = path.path(self.tmpfile())
+        self.client.download(file, str(p))
+        self.assertEquals(p.size, file.size.val)
+        self.assertEquals(self.client.sha1(p), file.sha1.val)
 
 def test_suite():
     return 1

@@ -184,6 +184,9 @@ class HdfStorage(object):
     # Non-locked methods
     #
 
+    def size(self):
+        return self.__hdf_path.size
+
     def openfile(self, mode):
         try:
             if self.__hdf_path.exists() and self.__hdf_path.size == 0:
@@ -491,11 +494,40 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     @remoted
     @perf
     def close(self, current = None):
+
+        size = None
+        if self.storage is not None:
+            size = self.storage.size() # Size to reset the server object to
+
         try:
             self.cleanup()
             self.logger.info("Closed %s", self)
         except:
             self.logger.warn("Closed %s with errors", self)
+
+        if self.file_obj is not None:
+            fid = self.file_obj.id.val
+            if not self.file_obj.isLoaded() or\
+                self.file_obj.getDetails() is None or\
+                self.file_obj.details.group is None:
+                self.logger.warn("Cannot update file object %s since group is none", fid)
+            else:
+                gid = self.file_obj.details.group.id.val
+                ctx = {"omero.group": str(gid)}
+                try:
+                    rfs = self.ctx.getSession().createRawFileStore()
+                    rfs.setFileId(fid, ctx)
+                    if size:
+                        rfs.truncate(size)     # May do nothing
+                        rfs.write([], size, 0) # Force an update
+                    else:
+                        rfs.write([], 0, 0)    # No-op
+                    file_obj = rfs.save(ctx)
+                    rfs.close()
+                    self.logger.info("Updated file object %s to sha1=%s (%s bytes)",\
+                        self.file_obj.id.val, file_obj.sha1.val, file_obj.size.val)
+                except:
+                    self.logger.warn("Failed to update file object %s", self.file_obj.id.val, exc_info=1)
 
     # TABLES READ API ============================
 
@@ -700,7 +732,11 @@ class TablesI(omero.grid.Tables, omero.util.Servant):
         """
 
         # Will throw an exception if not allowed.
-        self.logger.info("getTable: %s", (file_obj and file_obj.id and file_obj.id.val))
+        file_id = None
+        if file_obj is not None and file_obj.id is not None:
+            file_id = file_obj.id.val
+        self.logger.info("getTable: %s", file_id)
+
         file_path = self.repo_mgr.getFilePath(file_obj)
         p = path(file_path).dirname()
         if not p.exists():
