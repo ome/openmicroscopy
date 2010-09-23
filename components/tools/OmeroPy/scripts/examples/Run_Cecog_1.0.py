@@ -226,7 +226,7 @@ def setup():
         scripts.Long(
             "Image_ID",
             optional = False,
-            description = "ID of a valid dataset",
+            description = "ID of a valid image",
             grouping = "1"),
         scripts.Long(
             "Dataset_ID",
