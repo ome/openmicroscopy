@@ -97,8 +97,8 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
     /**
      * Map of db table names to the ids deleted from that table.
      */
-    private Map<String, List<Long>> tableIds  = new HashMap<String, List<Long>>();
-    
+    private Map<String, List<Long>> tableIds = new HashMap<String, List<Long>>();
+
     /**
      * Simplified constructor, primarily used for testing.
      */
@@ -170,9 +170,8 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
     }
 
     public Map<String, List<Long>> getTableIds() {
-		return tableIds;
+        return tableIds;
     }
-
 
     public boolean skip(int step) {
         DeleteEntry entry = entries.get(step);
@@ -201,26 +200,25 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
                     String cause = null;
                     try {
                         cause = subSpec.delete(session, i, deleteIds);
-                        /* 
+                        /*
                          * Add ids from subspec to this spec's ids
                          * 
                          * This might be adequate...
-                         */ 
+                         */
                         tableIds.putAll(subSpec.getTableIds());
-                        /* 
-                         * But maybe a more cautious approach 
-                         * with Sets instead of Lists as values...
+                        /*
+                         * But maybe a more cautious approach with Sets instead
+                         * of Lists as values...
                          *
-                        for(String table : subSpec.getTableIds().keySet()) {
-                        	if(tableIds.containsKey(table)) {
-                        		tableIds.get(table).addAll(subSpec.getTableIds().get(table));
-                        	} else {
-                        		tableIds.put(table, subSpec.getTableIds().get(table));
-                        	}
-                        }
-                        *
-                        * ...could be needed.
-                        */
+                         * for(String table : subSpec.getTableIds().keySet()) {
+                         * if(tableIds.containsKey(table)) {
+                         * tableIds.get(table).
+                         * addAll(subSpec.getTableIds().get(table)); } else {
+                         * tableIds.put(table,
+                         * subSpec.getTableIds().get(table)); } }
+                         *
+                         * ...could be needed.
+                         */
                     } catch (ConstraintViolationException cve) {
                         if (Op.SOFT.equals(entry.getOp())) {
                             sb.append(cause);
@@ -257,7 +255,6 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
         }
     }
 
-
     /**
      * If ids are non-empty, then calls a simple
      * "delete TABLE where id in (:ids)"; otherwise, generates a query via
@@ -266,7 +263,7 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
      * Originally copied from DeleteBean.
      */
     protected String execute(final Session session, DeleteEntry entry, List<Long> ids)
-            throws DeleteException {
+        throws DeleteException {
 
         Query q;
         final String[] path = entry.path(superspec);
@@ -329,7 +326,7 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
             throws DeleteException {
 
         List<List<Long>> rv = new ArrayList<List<Long>>();
-        
+
         for (int s = 0; s < entries.size(); s++) {
             final List<Long> allIds = queryBackupIds(session, s, entries.get(s), null);
             rv.add(allIds);
@@ -415,7 +412,7 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
      * </pre>
      */
     protected List<Long> queryBackupIds(Session session, int step, DeleteEntry subpath, QueryBuilder and)
-            throws DeleteException {
+        throws DeleteException {
 
         final String[] sub = subpath.path(superspec);
         final QueryBuilder qb = new QueryBuilder();

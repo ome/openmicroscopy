@@ -64,21 +64,23 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
     private final boolean[] isAbstract;
 
     /**
-     * Type of each sub-step. Annotation.class.isAssignableFrom(types[i]) is 
+     * Type of each sub-step. Annotation.class.isAssignableFrom(types[i]) is
      * <code>true</code>.
      */
     private final Class<?>[] types;
 
     /**
-     * Original string contained in the options {@link Map} before parsing.
-     * The value may come from one of several sources, e.g. for a FileAnnotation
-     * the keys checked are:
-     *    /abspath/FileAnnotation
-     *    /FileAnnotation
-     *    /abspath/TypeAnnotation
-     *    /TypeAnnotation
-     *    /abspath/Annotation
-     *    /Annotation
+     * Original string contained in the options {@link Map} before parsing. The
+     * value may come from one of several sources, e.g. for a FileAnnotation the
+     * keys checked are:
+     * <pre>
+     *     /abspath/FileAnnotation
+     *     /FileAnnotation
+     *     /abspath/TypeAnnotation
+     *     /TypeAnnotation
+     *     /abspath/Annotation
+     *     Gq/Annotation
+     * </pre>
      */
     private final String[] rawOption;
 
@@ -106,8 +108,9 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
 
     /**
      * Creates a new instance.
-     * 
-     * @param entries The entries to handle.
+     *
+     * @param entries
+     *            The entries to handle.
      */
     public AnnotationDeleteSpec(List<String> entries) {
         this(null, entries);
@@ -115,12 +118,14 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
 
     /**
      * Creates a new instance.
-     * 
-     * @param excludeMap The namespaces to exclude.
-     * @param entries The entries to handle.
+     *
+     * @param excludeMap
+     *            The namespaces to exclude.
+     * @param entries
+     *            The entries to handle.
      */
-    public AnnotationDeleteSpec(Map<String, String> excludeMap, 
-    		List<String> entries) {
+    public AnnotationDeleteSpec(Map<String, String> excludeMap,
+            List<String> entries) {
         super(entries);
         isAbstract = new boolean[entries.size()];
         types = new Class[entries.size()];
@@ -143,10 +148,9 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
     }
 
     /**
-     * Performs sanity checks on the annotation entries found in 
-     * {@link ExtendedMetadata}.
-     * Primarily, this prevents new annotation types from not being properly 
-     * specified in spec.xml.
+     * Performs sanity checks on the annotation entries found in {@link ExtendedMetadata}.
+     * Primarily, this prevents new annotation types from not being properly specified
+     * in spec.xml.
      */
     @Override
     public void setExtendedMetadata(ExtendedMetadata em) {
@@ -176,7 +180,7 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
 
     @Override
     public int initialize(long id, String superspec, Map<String, String> dontmodify)
-            throws DeleteException {
+        throws DeleteException {
 
         Map<String, String> options = null;
         if (dontmodify != null) {
@@ -251,12 +255,10 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
                             if (!"KEEP".equals(parts[0])) {
                                 // Currently only supporting KEEP;excludes=
                                 // see queryBackupIds if this changes.
-                                throw new FatalBeanException("Currently " +
-                                		"excludes only compatible with KEEP:" 
-                                		+ raw);
+                                throw new FatalBeanException("Currently excludes only compatible with KEEP:" + raw);
                             }
                             int idx = parts[j].indexOf("=");
-                            excludes[i] = parts[j].substring(idx+1);
+                            excludes[i] = parts[j].substring(idx + 1);
                         }
                     }
                 }
@@ -349,8 +351,7 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
 
         if (ids != null && ids.size() > 0) {
             Query q = session
-                    .createQuery("delete ome.model.IAnnotationLink where " +
-                    		"child.id in (:ids)");
+                    .createQuery("delete ome.model.IAnnotationLink where child.id in (:ids)");
             q.setParameterList("ids", ids);
             int count = q.executeUpdate();
             log.info("Deleted " + count + " annotation links.");
@@ -359,5 +360,5 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
             return "";
         }
     }
-    
+
 }

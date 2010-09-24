@@ -180,7 +180,7 @@ plus test REAP
             <list>
                 <value>/Roi;ORPHAN;/Image</value>
                 <value>/Image/Pixels/PixelsOriginalFileMap;REAP</value>
-                 <value>/OriginalFile;;/Image/Pixels/PixelsOriginalFileMap</value>
+                <value>/OriginalFile;;/Image/Pixels/PixelsOriginalFileMap</value>
                 <value>/Image/Pixels/PlaneInfo</value>
                 <value>/Image/Pixels/RenderingDef</value><!-- FORCE, for admins? -->
                 <value>/Image/Pixels/Channel</value>

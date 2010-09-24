@@ -42,7 +42,7 @@ public interface DeleteSpec {
      * {@link DeleteEntry#getSubSpec()}.
      */
     String getSuperSpec();
-    
+
     /**
      * Gives all specs a chance to reference subspecs.
      */
@@ -79,8 +79,8 @@ public interface DeleteSpec {
             throws DeleteException;
 
     /**
-     * Returns true if this particular step should be skipped, as is usually
-     * the case when dealing with {@link DeleteEntry.Op#KEEP}.
+     * Returns true if this particular step should be skipped, as is usually the
+     * case when dealing with {@link DeleteEntry.Op#KEEP}.
      */
     boolean skip(int step);
 
@@ -157,7 +157,7 @@ public interface DeleteSpec {
      * this {@link DeleteSpec}
      */
     List<DeleteEntry> entries();
-    
+
     /**
      * Returns the map of tables to potentially deleted ids
      */
