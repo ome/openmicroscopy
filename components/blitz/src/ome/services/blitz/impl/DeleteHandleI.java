@@ -441,23 +441,7 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                 if (idMap.containsKey(fileType)) {
                     log.info("Trying to delete " + fileType + " files : "
                             + idMap.get(fileType).toString());
-                    List<Long> deletedIds = new ArrayList<Long>();
-                    for (Long id : idMap.get(fileType)) {
-                        try {
-                            ome.model.IObject obj = (ome.model.IObject) sf
-                                    .getQueryService().find(fileType, id);
-                            if (obj == null) {
-                                deletedIds.add(id);
-                            } else {
-                                log.info(fileType + " " + id.toString()
-                                        + " not deleted, still in database");
-                            }
-                        } catch (ServerError se) {
-                            log.error(fileType + " " + id.toString()
-                                    + " unable to query: ServerError: "
-                                    + se.toString());
-                        }
-                    }
+                    List<Long> deletedIds = idMap.get(fileType);
                     if (!deletedIds.isEmpty()) {
                         failedMap.put(fileType, new ArrayList<Long>());
                         for (Long id : deletedIds) {
