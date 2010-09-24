@@ -37,7 +37,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.table.TableModel;
 import javax.swing.tree.TreeSelectionModel;
 
 
@@ -253,6 +252,7 @@ class ObjectManager
 			while (shapeIterator.hasNext())
 				objectsTable.addROIShape(shapeIterator.next());
 		}
+		objectsTable.collapseAll();
 	}
 	
 	/**

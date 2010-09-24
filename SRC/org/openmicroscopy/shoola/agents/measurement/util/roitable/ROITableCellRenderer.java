@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.agents.measurement.util.roitable;
 
 //Java imports
 import java.awt.Component;
+
+import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JTree;
 import javax.swing.tree.TreeCellRenderer;
@@ -54,9 +56,21 @@ public class ROITableCellRenderer
 	implements TreeCellRenderer
 {
 
+	/** Reference to the shape icon. */
+	private static Icon SHAPE_ICON;
+	
+	/** Reference to the shape icon. */
+	private static Icon ROI_ICON;
+	
+	static {
+		IconManager icons = IconManager.getInstance();
+		SHAPE_ICON = icons.getIcon(IconManager.ROISHAPE);
+		ROI_ICON = icons.getIcon(IconManager.ROISTACK);
+	}
+	
 	/**
 	 * Creates a new instance. Sets the opacity of the label to 
-	 * <code>true</code>.
+	 * <code>false</code>.
 	 */
 	public ROITableCellRenderer()
 	{
@@ -73,17 +87,10 @@ public class ROITableCellRenderer
 			Object value, boolean selected, boolean expanded, 
 			boolean leaf, int row, boolean hasFocus)
 	{
+		Object thisObject = ((ROINode) value).getUserObject();
 		
-		Object thisObject = ((ROINode)value).getUserObject();
-		
-		if (thisObject instanceof ROI)
-    	{
-    		setIcon(IconManager.getInstance().getIcon(IconManager.ROISTACK));
-    	}
-    	else if( thisObject instanceof ROIShape)
-    	{
-    		setIcon(IconManager.getInstance().getIcon(IconManager.ROISHAPE));
-    	}
+		if (thisObject instanceof ROI) setIcon(ROI_ICON);
+		else if( thisObject instanceof ROIShape) setIcon(SHAPE_ICON);
 		return this;
 	}
 	
