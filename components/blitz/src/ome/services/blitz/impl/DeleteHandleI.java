@@ -412,98 +412,89 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
       */
     private void deleteFiles() {
 
-        try {
-            String omeroDataDir = sf.getConfigService().getConfigValue(
-                    "omero.data.dir");
-            AbstractFileSystemService afs = new AbstractFileSystemService(
-                    omeroDataDir);
+        // This saves code replication but maybe there's a neater solution.
+        String[] fileTypes = { "OriginalFile", "Pixels", "Thumbnail" };
+        List<String> fileTypeList = Arrays.asList(fileTypes);
 
-            // This saves code replication but maybe there's a neater solution.
-            String[] fileTypes = { "OriginalFile", "Pixels", "Thumbnail" };
-            List<String> fileTypeList = Arrays.asList(fileTypes);
+        HashMap<String, List<Long>> idMap;
+        File file;
+        String filePath;
 
-            HashMap<String, List<Long>> idMap;
-            File file;
-            String filePath;
+        /*
+         * This map could be passed back out somehow (via reports?) for an
+         * external clean-up of files that may have been locked or otherwise
+         * inaccessible.
+         */
+        HashMap<String, ArrayList<Long>> failedMap = new HashMap<String, ArrayList<Long>>();
 
-            /*
-             * This map could be passed back out somehow (via reports?) for an
-             * external clean-up of files that may have been locked or otherwise
-             * inaccessible.
-             */
-            HashMap<String, ArrayList<Long>> failedMap = new HashMap<String, ArrayList<Long>>();
-
-            for (Report report : reports.values()) {
-                log.info("specstring: " + report.spec.toString());
-                idMap = (HashMap<String, List<Long>>) report.spec.getTableIds();
-                if (log.isDebugEnabled()) {
-                    for (String table : idMap.keySet()) {
-                        log.debug("Deleted IDs : " + table + ":"
-                                + idMap.get(table).toString());
-                    }
+        for (Report report : reports.values()) {
+            log.info("specstring: " + report.spec.toString());
+            idMap = (HashMap<String, List<Long>>) report.spec.getTableIds();
+            if (log.isDebugEnabled()) {
+                for (String table : idMap.keySet()) {
+                    log.debug("Deleted IDs : " + table + ":"
+                            + idMap.get(table).toString());
                 }
-
-                for (String fileType : fileTypeList) {
-                    if (idMap.containsKey(fileType)) {
-                        log.info("Trying to delete " + fileType + " files : "
-                                + idMap.get(fileType).toString());
-                        List<Long> deletedIds = new ArrayList<Long>();
-                        for (Long id : idMap.get(fileType)) {
-                            try {
-                                ome.model.IObject obj = (ome.model.IObject) sf
-                                        .getQueryService().find(fileType, id);
-                                if (obj == null) {
-                                    deletedIds.add(id);
-                                } else {
-                                    log.info(fileType + " " + id.toString()
-                                            + " not deleted, still in database");
-                                }
-                            } catch (ServerError se) {
-                                log.error(fileType + " " + id.toString()
-                                        + " unable to query: ServerError: "
-                                        + se.toString());
-                            }
-                        }
-                        if (!deletedIds.isEmpty()) {
-                            failedMap.put(fileType, new ArrayList<Long>());
-                            for (Long id : deletedIds) {
-                                if (fileType.equals("OriginalFile")) {
-                                    filePath = afs.getFilesPath(id);
-                                } else if (fileType.equals("Pixels")) {
-                                    filePath = afs.getPixelsPath(id);
-                                } else { // Thumbnail
-                                    filePath = afs.getThumbnailPath(id);
-                                }
-
-                                file = new File(filePath);
-                                if (file.exists()) {
-                                    if (file.delete()) {
-                                        log.info("DELETED: " + fileType + " "
-                                                + file.getAbsolutePath());
-                                    } else {
-                                        failedMap.get(fileType).add(id);
-                                        log.info("Failed to delete " + fileType
-                                                + " " + file.getAbsolutePath());
-                                    }
-                                } else {
-                                    log.info(fileType + " "
-                                            + file.getAbsolutePath()
-                                            + " does not exist.");
-                                }
-                            }
-                        }
-                    }
-                }
-                if (log.isDebugEnabled()) {
-                    for (String table : failedMap.keySet()) {
-                        log.debug("Failed to delete files : " + table + ":"
-                                + failedMap.get(table).toString());
-                    }
-                }
-
             }
-        } catch (ServerError e) {
-            log.error("Failed to find omero.data.dir" + e.toString());
+
+            for (String fileType : fileTypeList) {
+                if (idMap.containsKey(fileType)) {
+                    log.info("Trying to delete " + fileType + " files : "
+                            + idMap.get(fileType).toString());
+                    List<Long> deletedIds = new ArrayList<Long>();
+                    for (Long id : idMap.get(fileType)) {
+                        try {
+                            ome.model.IObject obj = (ome.model.IObject) sf
+                                    .getQueryService().find(fileType, id);
+                            if (obj == null) {
+                                deletedIds.add(id);
+                            } else {
+                                log.info(fileType + " " + id.toString()
+                                        + " not deleted, still in database");
+                            }
+                        } catch (ServerError se) {
+                            log.error(fileType + " " + id.toString()
+                                    + " unable to query: ServerError: "
+                                    + se.toString());
+                        }
+                    }
+                    if (!deletedIds.isEmpty()) {
+                        failedMap.put(fileType, new ArrayList<Long>());
+                        for (Long id : deletedIds) {
+                            if (fileType.equals("OriginalFile")) {
+                                filePath = afs.getFilesPath(id);
+                            } else if (fileType.equals("Pixels")) {
+                                filePath = afs.getPixelsPath(id);
+                            } else { // Thumbnail
+                                filePath = afs.getThumbnailPath(id);
+                            }
+
+                            file = new File(filePath);
+                            if (file.exists()) {
+                                if (file.delete()) {
+                                    log.info("DELETED: " + fileType + " "
+                                            + file.getAbsolutePath());
+                                } else {
+                                    failedMap.get(fileType).add(id);
+                                    log.info("Failed to delete " + fileType
+                                            + " " + file.getAbsolutePath());
+                                }
+                            } else {
+                                log.info(fileType + " "
+                                        + file.getAbsolutePath()
+                                        + " does not exist.");
+                            }
+                        }
+                    }
+                }
+            }
+            if (log.isDebugEnabled()) {
+                for (String table : failedMap.keySet()) {
+                    log.debug("Failed to delete files : " + table + ":"
+                            + failedMap.get(table).toString());
+                }
+            }
+
         }
     }
 

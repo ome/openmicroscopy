@@ -277,32 +277,44 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
             }
             return ""; // Early exit!
         }
-        q = session.createQuery("delete " + table + " where id in (:ids)");
-        q.setParameterList("ids", ids);
+        q = session.createQuery("delete " + table + " where id = :id");
 
-        String sp = savepoint(session);
-        try {
-            int count = q.executeUpdate();
-            saveLogs(table, ids);
-            release(session, sp);
-            tableIds.put(table, ids);
-            if (log.isDebugEnabled()) {
-                log.debug(String.format("Deleted %s from %s: %s", count, str, which));
-            }
+        final StringBuilder rv = new StringBuilder();
+        final List<Long> actualDeletes = new ArrayList<Long>();
 
-            return "";
-        } catch (ConstraintViolationException cve) {
-            rollback(session, sp);
-            String cause = "ConstraintViolation: " + cve.getConstraintName();
-            log.info(String.format("Failed to delete %s: %s due to %s",
-                    str, which, cause));
-            if (DeleteEntry.Op.SOFT.equals(entry.getOp())) {
-                return cause;
-            } else {
-                throw cve;
+        for (Long id : ids) {
+            String sp = savepoint(session);
+            try {
+                q.setParameter("id", id);
+                int count = q.executeUpdate();
+                if (count > 0) {
+                    actualDeletes.add(id);
+                    tableIds.put(table, ids);
+                    if (log.isDebugEnabled()) {
+                        log.debug(String.format("Deleted %s from %s: %s", id, str, which));
+                    }
+                } else {
+                    if (log.isInfoEnabled()) {
+                        log.info(String.format("Failed to delete %s from %s: %s", id, str, which));
+                    }
+                }
+                release(session, sp);
+                rv.append("");
+            } catch (ConstraintViolationException cve) {
+                rollback(session, sp);
+                String cause = "ConstraintViolation: " + cve.getConstraintName();
+                log.info(String.format("Failed to delete %s: %s due to %s",
+                        str, which, cause));
+                if (DeleteEntry.Op.SOFT.equals(entry.getOp())) {
+                    rv.append(cause);
+                } else {
+                    throw cve;
+                }
             }
         }
 
+        saveLogs(table, actualDeletes);
+        return rv.toString();
     }
 
     //
