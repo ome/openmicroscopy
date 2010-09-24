@@ -128,6 +128,8 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
 
     private final ServiceFactoryI sf;
 
+    private final AbstractFileSystemService afs;
+
     /**
      * Create and
      *
@@ -138,9 +140,10 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
      * @param cancelTimeoutMs
      */
     public DeleteHandleI(final Ice.Identity id, final ServiceFactoryI sf,
-            final DeleteCommand[] commands, int cancelTimeoutMs) {
+            final AbstractFileSystemService afs, final DeleteCommand[] commands, int cancelTimeoutMs) {
         this.id = id;
         this.sf = sf;
+        this.afs = afs;
         this.principal = sf.getPrincipal();
         this.executor = sf.getExecutor();
         this.cancelTimeoutMs = cancelTimeoutMs;

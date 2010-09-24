@@ -12,6 +12,7 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 
 import ome.api.IDelete;
+import ome.io.nio.AbstractFileSystemService;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ServiceFactoryAware;
@@ -49,12 +50,15 @@ public class DeleteI extends AbstractAmdServant implements _IDeleteOperations,
 
     private final int cancelTimeoutMs;
 
+    private final AbstractFileSystemService afs;
+
     private/* final */ServiceFactoryI sf;
 
-    public DeleteI(IDelete service, BlitzExecutor be, ThreadPool threadPool, int cancelTimeoutMs) {
+    public DeleteI(IDelete service, BlitzExecutor be, ThreadPool threadPool, int cancelTimeoutMs, String omeroDataDir) {
         super(service, be);
         this.threadPool = threadPool;
         this.cancelTimeoutMs = cancelTimeoutMs;
+        this.afs = new AbstractFileSystemService(omeroDataDir);
     }
 
     public void setServiceFactory(ServiceFactoryI sf) throws ServerError {
@@ -153,15 +157,13 @@ public class DeleteI extends AbstractAmdServant implements _IDeleteOperations,
     }
 
     public DeleteHandleI makeAndLaunchHandle(final Ice.Identity id, final DeleteCommand...commands) {
-        //DeleteSpecFactory factory = sf.context.getBean("deleteSpecFactory", DeleteSpecFactory.class);
-        DeleteHandleI handle = new DeleteHandleI(id, sf, commands, cancelTimeoutMs);
+        DeleteHandleI handle = new DeleteHandleI(id, sf, afs, commands, cancelTimeoutMs);
         threadPool.getExecutor().execute(handle);
         return handle;
     }
 
     public void makeAndRun(final Ice.Identity id, final DeleteCommand...commands) {
-        //DeleteSpecFactory factory = sf.context.getBean("deleteSpecFactory", DeleteSpecFactory.class);
-        DeleteHandleI handle = new DeleteHandleI(id, sf, commands, cancelTimeoutMs);
+        DeleteHandleI handle = new DeleteHandleI(id, sf, afs, commands, cancelTimeoutMs);
         handle.run();
     }
 
