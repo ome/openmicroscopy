@@ -1115,10 +1115,8 @@ class SearchPanel
 	void setSomeValues(List<String> values)
 	{
 		if (values == null || values.size() == 0) return;
-		String text;
+		String text = "";
 		Iterator<String> i = values.iterator();
-		if (!advancedSearch) text = fullTextArea.getText();
-		else text = atLeastTermsArea.getText();
 		if (text != null) {
 			while (i.hasNext())
 				text += i.next()+SearchUtil.SPACE_SEPARATOR;

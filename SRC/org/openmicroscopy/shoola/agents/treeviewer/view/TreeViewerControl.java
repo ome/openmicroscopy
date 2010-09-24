@@ -413,7 +413,10 @@ class TreeViewerControl
 					TaskPaneBrowser p = (TaskPaneBrowser) pane;
 					if (p.getBrowser() != null)
 						model.setSelectedBrowser(p.getBrowser());
-					else model.showSearch();
+					else {
+						model.setSelectedBrowser(null);
+						model.showSearch();
+					}
 				} else {
 					model.setSelectedBrowser(null);
 				}

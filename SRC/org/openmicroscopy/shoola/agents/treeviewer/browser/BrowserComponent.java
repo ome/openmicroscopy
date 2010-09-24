@@ -336,6 +336,9 @@ class BrowserComponent
             case NEW:
             	view.loadExperimenterData();
                 break;
+            case READY:
+            	refreshBrowser();
+            	break;
             case DISCARDED:
                 throw new IllegalStateException(
                         "This method can't be invoked in the DISCARDED state.");
@@ -814,7 +817,7 @@ class BrowserComponent
 	public void onOrphanDataObjectCreated(DataObject data) 
 	{
 		int type = model.getBrowserType();
-		if ((data instanceof DatasetData) || (data instanceof DatasetData)) {
+		if (data instanceof DatasetData) {
 			if (type != PROJECT_EXPLORER) return;
 		} else if (data instanceof TagAnnotationData) {
 			if (type != TAGS_EXPLORER) return;

@@ -388,21 +388,21 @@ public class AdvancedFinder
 	 */
 	private void handleTagsSelection(Collection selected)
 	{
-		if (selected == null || selected.size() == 0) return;
-		Iterator i = selected.iterator();
-		List<String> some = getSome();
-		TagAnnotationData tag;
 		List<String> toAdd = new ArrayList<String>();
+		if (selected == null || selected.size() == 0) {
+			setSomeValues(toAdd);
+			return;
+		}
+		Iterator i = selected.iterator();
+		TagAnnotationData tag;
 		String value;
 		while (i.hasNext()) {
 			tag = (TagAnnotationData) i.next();
 			value = tag.getTagValue();
-			if (!some.contains(value)) {
-				if (value.contains(SearchUtil.SPACE_SEPARATOR)) {
-					toAdd.add(SearchUtil.QUOTE_SEPARATOR+value+
-							SearchUtil.QUOTE_SEPARATOR);
-				} else toAdd.add(value);
-			}
+			if (value.contains(SearchUtil.SPACE_SEPARATOR)) {
+				toAdd.add(SearchUtil.QUOTE_SEPARATOR+value+
+						SearchUtil.QUOTE_SEPARATOR);
+			} else toAdd.add(value);
 		}	
 		setSomeValues(toAdd);
 	}

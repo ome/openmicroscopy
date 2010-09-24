@@ -400,19 +400,6 @@ public interface TreeViewer
 	 */
 	public void onDataObjectSave(List data, int operation);
 
-	/**
-	 * 
-	 * Updates the view when the image has been classified or declassified.
-	 * 
-	 * @param images        The image classified or declassified. Mustn't 
-	 *                      be <code>null</code>.
-	 * @param categories    The categories the image was added to or 
-	 *                      removed from. Mustn't be <code>null</code>.
-	 * @param mode          The type of operation i.e. classification or 
-	 *                      declassification.
-	 */
-	public void onImageClassified(ImageData[] images, Set categories, int mode);
-
 	/** Clears the result of a previous find action. */
 	public void clearFoundResults();
 

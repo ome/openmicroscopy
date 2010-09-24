@@ -1024,7 +1024,8 @@ class TreeViewerComponent
 	{
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		Browser browser = model.getSelectedBrowser();
-		browser.onOrphanDataObjectCreated(data);
+		if (browser != null)
+			browser.onOrphanDataObjectCreated(data);
 		
 		setStatus(false, "", true);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -1090,45 +1091,6 @@ class TreeViewerComponent
 			browser.accept(new ClearVisitor());
 			browser.setFoundInBrowser(null); 
 		}
-		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-	}
-
-	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#onImageClassified(ImageData[], Set, int)
-	 */
-	public void onImageClassified(ImageData[] images, Set categories, int mode)
-	{
-		switch (model.getState()) {
-		case DISCARDED:
-			throw new IllegalStateException("This method cannot be " +
-					"invoked in the DISCARDED, SAVE or LOADING_THUMBNAIL " +
-			"state");
-		}
-		if (categories == null)
-			throw new IllegalArgumentException("Categories shouln't be null.");
-		if (images == null)
-			throw new IllegalArgumentException("No image.");
-		if (images.length == 0)
-			throw new IllegalArgumentException("No image.");
-		/*
-		if (mode != Classifier.CLASSIFY_MODE && 
-				mode != Classifier.DECLASSIFY_MODE)
-			throw new IllegalArgumentException("Classification mode not " +
-			"supported.");
-			*/
-		TreeImageDisplay d = getSelectedBrowser().getLastSelectedDisplay();
-		Map browsers = model.getBrowsers();
-		Iterator b = browsers.keySet().iterator();
-		Browser browser;
-		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-		while (b.hasNext()) {
-			browser = (Browser) browsers.get(b.next());
-			browser.refreshTree();
-			//browser.refreshClassification(images, categories, mode);
-		}
-		getSelectedBrowser().setSelectedDisplay(d);
-
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
 
