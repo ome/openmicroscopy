@@ -515,7 +515,9 @@ class DataBrowserComponent
 	 */
 	public void loadExistingTags()
 	{
-		model.fireTagsLoading();
+		if (model.getExistingTags() == null)
+			model.fireTagsLoading();
+		//else view.setFilterStatus(false);
 	}
 
 	/**

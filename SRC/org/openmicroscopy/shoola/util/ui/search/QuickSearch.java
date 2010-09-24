@@ -354,44 +354,6 @@ public class QuickSearch
 		add(searchPanel);
 	}
 	
-	/** Fires a property change to search for some tags. */
-	private void handleKeyEnter()
-	{
-		List<String> l = SearchUtil.splitTerms(searchArea.getText(), 
-											SearchUtil.COMMA_SEPARATOR);
-		if (selectedNode == null) return;
-		//if (selectedNode == null) selectedNode = showAll;
-		selectedNode.setResult(l);
-		firePropertyChange(QUICK_SEARCH_PROPERTY, null, selectedNode);
-	}
-	
-	/** Removes the text from the display. */
-	private void clear()
-	{
-		searchArea.getDocument().removeDocumentListener(this);
-		searchArea.setText("");
-		searchArea.getDocument().addDocumentListener(this);
-		//layoutManager.setColumn(3, 0);
-		searchPanel.validate();
-		searchPanel.repaint();
-		cleanBar.setVisible(false);
-		/*
-		switch (selectedNode.getIndex()) {
-			case RATED_ONE_OR_BETTER:
-			case RATED_TWO_OR_BETTER:
-			case RATED_THREE_OR_BETTER:
-			case RATED_FOUR_OR_BETTER:
-			case UNRATED:
-			case UNTAGGED:
-			case UNCOMMENTED:
-			case TAGGED:
-			case COMMENTED:
-				setSearchContext(SHOW_ALL);
-		}
-		firePropertyChange(QUICK_SEARCH_PROPERTY, null, showAll);
-		*/
-	}
-	
 	/** 
 	 * Displays the context of the search.
 	 * 
@@ -519,6 +481,18 @@ public class QuickSearch
 		buildGUI(label);
 	}
 	
+	
+	/** Selects the node. */
+	protected void onNodeSelection()
+	{
+		List<String> l = SearchUtil.splitTerms(searchArea.getText(), 
+				SearchUtil.COMMA_SEPARATOR);
+		if (selectedNode == null) return;
+		//if (selectedNode == null) selectedNode = showAll;
+		selectedNode.setResult(l);
+		firePropertyChange(QUICK_SEARCH_PROPERTY, null, selectedNode);
+	}
+	
 	/** 
 	 * Sets to <code>true</code> if only one context can be selected at a time
 	 * to <code>false</code> otherwise.
@@ -628,12 +602,15 @@ public class QuickSearch
 	 * Sets the value of the {@link #searchArea}.
 	 * 
 	 * @param text The value to set.
+	 * @param removeLast Pass <code>true</code> to remove the last item,
+	 * 					 <code>false</code> otherwise.
 	 */
-	public void setSearchValue(String text)
+	public void setSearchValue(String text, boolean removeLast)
 	{
 		if (text == null) return;
     	List<String> l = SearchUtil.splitTerms(getSearchValue(), 
 				SearchUtil.COMMA_SEPARATOR);
+    	if (removeLast && l.size() > 0) l.remove(l.size()-1);
     	String result = SearchUtil.formatString(text, l);
     	searchArea.getDocument().removeDocumentListener(this);
     	searchArea.setText(result);
@@ -650,12 +627,15 @@ public class QuickSearch
 		//searchArea.setEnabled(enabled);
 		searchArea.setEditable(enabled);
 	}
+	
 	/**
 	 * Sets the value of the {@link #searchArea}.
 	 * 
 	 * @param text The value to set.
+	 * @param removeLast Pass <code>true</code> to remove the last item,
+	 * 					 <code>false</code> otherwise.
 	 */
-	public void setSearchValue(List<String> text)
+	public void setSearchValue(List<String> text, boolean removeLast)
 	{
 		if (text == null || text.size() == 0) return;
     	List<String> l = SearchUtil.splitTerms(getSearchValue(), 
@@ -663,15 +643,19 @@ public class QuickSearch
     	Iterator<String> i = text.iterator();
     	String value;
     	List<String> values = new ArrayList<String>();
+    	String term = "";
     	while (i.hasNext()) {
     		value = i.next();
 			if (value != null) {
 				value = value.trim();
-				if (!l.contains(value)) values.add(value);
+				if (!l.contains(value)) 
+					values.add(value);
+				else term += value;
 			}
 		}
+    	
     	i = values.iterator();
-    	String term = "";
+    	
     	int index = 0;
     	int n = text.size()-1;
     	while (i.hasNext()) {
@@ -680,7 +664,10 @@ public class QuickSearch
 				term += SearchUtil.COMMA_SEPARATOR+SearchUtil.SPACE_SEPARATOR;
 			index++;
 		}
-    	setSearchValue(term);
+    	searchArea.getDocument().removeDocumentListener(this);
+    	searchArea.setText(term);
+    	searchArea.getDocument().addDocumentListener(this);
+    	//setSearchValue(term, removeLast);
 	}
 	
 	/**
@@ -752,12 +739,45 @@ public class QuickSearch
 		}
 	}
 	
+	/** Removes the text from the display. */
+	public void clear()
+	{
+		searchArea.getDocument().removeDocumentListener(this);
+		searchArea.setText("");
+		searchArea.getDocument().addDocumentListener(this);
+		//layoutManager.setColumn(3, 0);
+		searchPanel.validate();
+		searchPanel.repaint();
+		cleanBar.setVisible(false);
+		/*
+		switch (selectedNode.getIndex()) {
+			case RATED_ONE_OR_BETTER:
+			case RATED_TWO_OR_BETTER:
+			case RATED_THREE_OR_BETTER:
+			case RATED_FOUR_OR_BETTER:
+			case UNRATED:
+			case UNTAGGED:
+			case UNCOMMENTED:
+			case TAGGED:
+			case COMMENTED:
+				setSearchContext(SHOW_ALL);
+		}
+		firePropertyChange(QUICK_SEARCH_PROPERTY, null, showAll);
+		*/
+	}
+	
 	/** 
 	 * Class extending this class should override that method for 
 	 * code completion.
 	 */
 	protected void handleTextInsert() {}
 	
+	/** 
+	 * Class extending this class should override that method for 
+	 * code completion.
+	 */
+	protected void handleKeyEnter() {}
+
 	/** 
      * Shows or hides the {@link #clearButton} when some text is entered.
      * @see DocumentListener#insertUpdate(DocumentEvent)
@@ -825,7 +845,7 @@ public class QuickSearch
 			searchButton.setBorder(null);
 			searchArea.setToolTipText(selectedNode.getDescription());
 			setSearchContext(oldNode);
-			handleKeyEnter();
+			onNodeSelection();
 		} else if (QUICK_SEARCH_PROPERTY.equals(name)) search();
 	}
 	

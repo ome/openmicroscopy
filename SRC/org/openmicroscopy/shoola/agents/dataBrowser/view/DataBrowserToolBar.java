@@ -31,10 +31,17 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
@@ -61,6 +68,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutUtils;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.FilteringDialog;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.QuickFiltering;
+import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
@@ -71,6 +79,7 @@ import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
 import org.openmicroscopy.shoola.util.ui.search.SearchComponent;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
+import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
 import pojos.DatasetData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
@@ -90,7 +99,7 @@ import pojos.TextualAnnotationData;
  */
 class DataBrowserToolBar 
 	extends JPanel
-	implements ActionListener
+	implements ActionListener, PropertyChangeListener
 {
 
 	/** The text of the menu. */
@@ -121,6 +130,9 @@ class DataBrowserToolBar
 	/** ID to select an existing dataset. */
 	private static final int	EXISTING_OBJECT = 16;
 	
+	/** ID to load the tags to filter by. */
+	private static final int	TAG_FILTER = 17;
+	
 	/** Reference to the control. */
 	private DataBrowserControl 	controller;
 	
@@ -135,6 +147,9 @@ class DataBrowserToolBar
 	
 	/** Button to bring up the filtering dialog. */
 	private JButton				filterButton;
+	
+	/** Button to bring up menu. */
+	private JButton				filterByMenuButton;
 	
 	/** The filtering dialog. */
 	private FilteringDialog		filteringDialog;
@@ -195,6 +210,67 @@ class DataBrowserToolBar
 	
 	/** The menu displaying options to create objects. */
 	private JPopupMenu			createMenu;
+	
+	/** The menu displaying options to filter by. */
+	private JPopupMenu			filterByMenu;
+	
+	/** 
+	 * Flag indicating that the loading of the tags was done via the code
+	 * completion or not.
+	 */
+	private boolean				codeCompletion;
+	
+	/** 
+	 * Displays the available tags and allows the users to select them. 
+	 * 
+	 * @param existingTags The tags already saved. 
+	 */
+	private void showTagsWizard(Collection existingTags)
+	{
+		if (existingTags == null) return;
+		IconManager icons = IconManager.getInstance();
+		String title = "Filter By Tags";
+		String text = "Select the Tags to filter by.";
+		Collection selected = new ArrayList<TagAnnotationData>();
+		Iterator i = existingTags.iterator();
+		TagAnnotationData tag;
+		List<String> l = SearchUtil.splitTerms(search.getSearchValue(), 
+				SearchUtil.COMMA_SEPARATOR);
+		Collection available = new ArrayList<TagAnnotationData>();
+		
+		while (i.hasNext()) {
+			tag = (TagAnnotationData) i.next();
+			if (l.contains(tag.getTagValue()))
+				selected.add(tag);
+			else available.add(tag);
+		}
+		long id = DataBrowserAgent.getUserDetails().getId();
+		SelectionWizard wizard = new SelectionWizard(
+				DataBrowserAgent.getRegistry().getTaskBar().getFrame(), 
+				available, selected, TagAnnotationData.class, false, id);
+		wizard.setTitle(title, text, icons.getIcon(IconManager.TAG_FILTER_48));
+		wizard.addPropertyChangeListener(this);
+		UIUtilities.centerAndShow(wizard);
+	}
+	
+	/**
+	 * Creates the menu displaying the options to load existing objects.
+	 * 
+	 * @return See above.
+	 */
+	private JPopupMenu createFilterByMenu()
+	{
+		if (filterByMenu != null) return filterByMenu;
+		filterByMenu = new JPopupMenu();
+		IconManager icons = IconManager.getInstance();
+		JMenuItem menuItem = new JMenuItem("Load Tags to filter by");
+		menuItem.setToolTipText("Load the existing Tags to filter by.");
+		menuItem.setIcon(icons.getIcon(IconManager.TAG_FILTER));
+		menuItem.addActionListener(this);
+		menuItem.setActionCommand(""+TAG_FILTER);
+		filterByMenu.add(menuItem);
+		return filterByMenu;
+	}
 	
 	/**
 	 * Creates the menu displaying various create options.
@@ -333,7 +409,7 @@ class DataBrowserToolBar
 			Registry reg = DataBrowserAgent.getRegistry();
 			filteringDialog = new FilteringDialog(reg.getTaskBar().getFrame());
 			filteringDialog.addPropertyChangeListener(controller);
-			filteringDialog.setTags(view.getExistingTags());
+			filteringDialog.setTags(view.getExistingTags(), false);
 		}
 		setFilteringValue();
 		SwingUtilities.convertPointToScreen(location, filterButton);
@@ -355,6 +431,7 @@ class DataBrowserToolBar
 		search = new QuickFiltering(text);
 		search.setDefaultText(text);
 		search.addPropertyChangeListener(controller);
+		
 		filterButton = new JButton(icons.getIcon(IconManager.FILTERING));
 		filterButton.setToolTipText("Filter elements displayed in " +
 				"the Workspace.");
@@ -371,6 +448,23 @@ class DataBrowserToolBar
 		});
 		filterButton.addPropertyChangeListener(controller);
 		UIUtilities.unifiedButtonLookAndFeel(filterButton);
+		
+		filterByMenuButton = new JButton(icons.getIcon(
+				IconManager.FILTER_BY_MENU));
+		filterByMenuButton.addMouseListener(new MouseAdapter() {
+			
+			/**
+			 * Brings up the filtering dialog.
+			 * @see MouseAdapter#mouseReleased(MouseEvent)
+			 */
+			public void mouseReleased(MouseEvent e) {
+				createFilterByMenu();
+				Point p = e.getPoint();
+				filterByMenu.show(filterByMenuButton, p.x, p.y);
+			}
+		
+		});
+		UIUtilities.unifiedButtonLookAndFeel(filterByMenuButton);
 		
 		ButtonGroup group = new ButtonGroup();
 		int index = view.getSelectedView();
@@ -485,6 +579,8 @@ class DataBrowserToolBar
 		reportButton.setActionCommand(""+REPORT);
 		reportButton.setEnabled(model.isParentWritable());
 		UIUtilities.unifiedButtonLookAndFeel(reportButton);
+		addPropertyChangeListener(controller);
+		codeCompletion = true;
 	}
 	
 	/**
@@ -542,6 +638,7 @@ class DataBrowserToolBar
 		bar.setBorder(null);
 		bar.setRollover(true);
 		bar.add(filterButton);
+		bar.add(filterByMenuButton);
 		p.add(bar);
 		p.add(search);
 		p.add(buildViewsBar());
@@ -656,10 +753,15 @@ class DataBrowserToolBar
 	 */
 	void setTags(Collection tags)
 	{
-		if (filteringDialog != null && filteringDialog.isVisible()) 
-			filteringDialog.setTags(tags);
-		//else 
 		search.setTags(tags);
+		if (filteringDialog != null && filteringDialog.isVisible()) 
+			filteringDialog.setTags(tags, true);
+		else {
+			if (!codeCompletion) {
+				codeCompletion = false;
+				showTagsWizard(tags);
+			}
+		}
 	}
 
 	/** Invokes when the parent has been set. */
@@ -778,13 +880,18 @@ class DataBrowserToolBar
 				setFilterLabel(SearchComponent.NAME_TAGS);
 				search.setSearchContext(QuickSearch.TAGS);
 				terms = context.getAnnotation(TagAnnotationData.class);
-				if (terms != null) search.setSearchValue(terms);
+				if (terms != null) {
+					search.setSearchValue(terms, codeCompletion);
+					//reset
+					codeCompletion = true;
+				}
+					
 			    break;
 			case FilterContext.COMMENT:
 				setFilterLabel(SearchComponent.NAME_COMMENTS);
 				search.setSearchContext(QuickSearch.COMMENTS);
 				terms = context.getAnnotation(TextualAnnotationData.class);
-				if (terms != null) search.setSearchValue(terms);
+				if (terms != null) search.setSearchValue(terms, true);
 				break;
 			case FilterContext.NAME:
 				setFilterLabel(SearchComponent.NAME_TEXT);
@@ -835,6 +942,41 @@ class DataBrowserToolBar
 				break;
 			case EXISTING_OBJECT:
 				controller.loadExistingDatasets();
+				break;
+			case TAG_FILTER:
+				codeCompletion = false;
+				if (search.getTags() == null) {
+					firePropertyChange(QuickFiltering.TAG_LOADING_PROPERTY, 
+							Boolean.valueOf(false), Boolean.valueOf(true));
+				} else 
+					showTagsWizard(search.getTags());
+		}
+	}
+
+	/**
+	 * Listens to properties this component listened to.
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (SelectionWizard.SELECTED_ITEMS_PROPERTY.equals(name)) {
+			Map m = (Map) evt.getNewValue();
+			if (m == null || m.size() != 1) return;
+			Set set = m.entrySet();
+			Entry entry;
+			Iterator i = set.iterator();
+			Class type;
+			codeCompletion = false;
+			search.setSearchContext(QuickFiltering.TAGS);
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				type = (Class) entry.getKey();
+				search.setSelectedTags((Collection) entry.getValue());
+			}
+		} else if (SelectionWizard.CANCEL_SELECTION_PROPERTY.equals(name)) {
+			codeCompletion = false;
+			search.setFilteringStatus(false);
 		}
 	}
 	

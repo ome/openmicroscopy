@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.util.finder;
 //Java imports
 import java.awt.Cursor;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -198,9 +199,16 @@ public class QuickFinder
 		setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
 
-	public void setResult(Object result) {
-		// TODO Auto-generated method stub
-		
-	}
+	/** 
+	 * Implemented as specified by {@link Finder} I/F
+	 * @see Finder#setResult(Object)
+	 */
+	public void setResult(Object result) {}
+
+	/** 
+	 * Implemented as specified by {@link Finder} I/F
+	 * @see Finder#setExistingTags(Collection)
+	 */
+	public void setExistingTags(Collection tags) {}
 	
 }

@@ -767,25 +767,25 @@ class TreeViewerControl
 	{
 		String name = pce.getPropertyName();
 		if (name == null) return;
-		if (name.equals(TreeViewer.CANCEL_LOADING_PROPERTY)) {
+		if (TreeViewer.CANCEL_LOADING_PROPERTY.equals(name)) {
 			Browser browser = model.getSelectedBrowser();
 			if (browser != null) browser.cancel();
-		} else if (name.equals(Browser.POPUP_MENU_PROPERTY)) {
+		} else if (Browser.POPUP_MENU_PROPERTY.equals(name)) {
 			Integer c = (Integer) pce.getNewValue();
 			Browser browser = model.getSelectedBrowser();
 			if (browser != null)
 				view.showPopup(c.intValue(), browser.getClickComponent(), 
 						browser.getClickPoint());
-		} else if (name.equals(Browser.CLOSE_PROPERTY)) {
+		} else if (Browser.CLOSE_PROPERTY.equals(name)) {
 			Browser browser = (Browser) pce.getNewValue();
 			if (browser != null) view.removeBrowser(browser);
-		} else if (name.equals(TreeViewer.FINDER_VISIBLE_PROPERTY)) {
+		} else if (TreeViewer.FINDER_VISIBLE_PROPERTY.equals(name)) {
 			Boolean b = (Boolean) pce.getNewValue();
 			if (!b.booleanValue()) {
 				model.clearFoundResults();
 				model.onComponentStateChange(true);
 			}
-		} else if (name.equals(TreeViewer.SELECTED_BROWSER_PROPERTY)) {
+		} else if (TreeViewer.SELECTED_BROWSER_PROPERTY.equals(name)) {
 			Browser  b = model.getSelectedBrowser();
 			Iterator i = model.getBrowsers().values().iterator();
 			Browser browser;
@@ -793,10 +793,10 @@ class TreeViewerControl
 				browser = (Browser) i.next();
 				browser.setSelected(browser.equals(b));
 			}
-		} else if (name.equals(Browser.SELECTED_TREE_NODE_DISPLAY_PROPERTY)) {
+		} else if (Browser.SELECTED_TREE_NODE_DISPLAY_PROPERTY.equals(name)) {
 			model.onSelectedDisplay();
 			view.updateMenuItems();
-		} else if (name.equals(TreeViewer.HIERARCHY_ROOT_PROPERTY)) {
+		} else if (TreeViewer.HIERARCHY_ROOT_PROPERTY.equals(name)) {
 			/*
           Map browsers = model.getBrowsers();
           Iterator i = browsers.values().iterator();
@@ -807,8 +807,8 @@ class TreeViewerControl
           	//browser.switchUser();
           }
 			 */
-		} else if (name.equals(
-				AddExistingObjectsDialog.EXISTING_ADD_PROPERTY)) {
+		} else if (AddExistingObjectsDialog.EXISTING_ADD_PROPERTY.equals(
+				name)) {
 			model.addExistingObjects((Set) pce.getNewValue());
 		} else if (UserManagerDialog.USER_SWITCH_PROPERTY.equals(name)) {
 			Map m = (Map) pce.getNewValue();

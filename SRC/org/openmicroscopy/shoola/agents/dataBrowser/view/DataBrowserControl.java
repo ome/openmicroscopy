@@ -210,8 +210,7 @@ class DataBrowserControl
 				if (values != null && values.size() > 0)
 					model.filterByTags(values);
 				else {
-					view.setFilterLabel("");
-					model.showAll();
+					showAll();
 				}
 				break;
 			case QuickSearch.COMMENTS:
@@ -269,6 +268,13 @@ class DataBrowserControl
 		}
 	}
 	
+	/** Shows all the nodes. */
+	private void showAll()
+	{ 
+		view.setFilterLabel("");
+		model.showAll(); 
+	}
+	
 	/** Creates a new instance. */
 	DataBrowserControl() {}
 	
@@ -314,7 +320,7 @@ class DataBrowserControl
 	
 	/** Loads the existing datasets. */
 	void loadExistingDatasets() { model.loadExistingDatasets(); }
-
+	
 	/**
 	 * Returns the external application previously used to open 
 	 * the selected document.
@@ -351,6 +357,8 @@ class DataBrowserControl
 			model.setUnselectedDisplay(node);
 		} else if (QuickFiltering.FILTER_DATA_PROPERTY.equals(name)) {
 			filterNodes((SearchObject) evt.getNewValue());
+		} else if (QuickFiltering.DISPLAY_ALL_NODES_PROPERTY.equals(name)) {
+			showAll();
 		} else if (FilteringDialog.FILTER_PROPERTY.equals(name) ||
 				QuickFiltering.FILTER_TAGS_PROPERTY.equals(name)) {
 			model.filterByContext((FilterContext) evt.getNewValue());
@@ -411,7 +419,7 @@ class DataBrowserControl
 			if (p == null) return;
 			model.viewFieldsFor(p.getRow(), p.getColumn(), 
 					p.isMultipleSelection());
-		}
+		} 
 	}
 	
 }

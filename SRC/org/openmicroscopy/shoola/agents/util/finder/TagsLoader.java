@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.dataBrowser.TagsLoader 
+ * org.openmicroscopy.shoola.agents.util.finder.TagsLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -11,7 +11,7 @@
  *  (at your option) any later version.
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details.
  *  
  *  You should have received a copy of the GNU General Public License along
@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.dataBrowser;
+package org.openmicroscopy.shoola.agents.util.finder;
 
 
 //Java imports
@@ -29,18 +29,16 @@ import java.util.Collection;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+
 import pojos.ExperimenterData;
 import pojos.TagAnnotationData;
 
 /** 
- * Loads the available tags owned by the currently logged in user.
- * This class calls the <code>loadExistingAnnotations</code> method in the
- * <code>MetadataHandlerView</code>.
+ * Loads the existing tags.
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
@@ -48,46 +46,37 @@ import pojos.TagAnnotationData;
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME3.0
+ * @since 3.0-Beta4
  */
-public class TagsLoader 	
-	extends DataBrowserLoader
+public class TagsLoader 
+	extends FinderLoader
 {
-    
-    /** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle				handle;
+
+	 /** Handle to the asynchronous call so that we can cancel it. */
+    private CallHandle	handle;
     
     /**
      * Creates a new instance.
      * 
-     * @param viewer The viewer this data loader is for.
-     *               Mustn't be <code>null</code>.
+     * @param viewer 		The viewer this data loader is for.
+     *               		Mustn't be <code>null</code>.
      */
-	public TagsLoader(DataBrowser viewer)
-	{
-		super(viewer);
-	}
-
-	/** 
-	 * Cancels the data loading. 
-	 * @see DataBrowserLoader#cancel()
-	 */
-	public void cancel() { handle.cancel(); }
-
-	/** Overridden so the status is not displayed. */
-	public void onEnd() {}
-	
-	/** 
-	 * Loads the tags for the specified nodes.
-	 * @see DataBrowserLoader#load()
-	 */
-	public void load()
-	{
-		ExperimenterData exp = DataBrowserAgent.getUserDetails();
+    public TagsLoader(Finder viewer)
+    {
+    	super(viewer);
+    }
+    
+    /**
+     * Searches for values.
+     * @see FinderLoader#load()
+     */
+    public void load()
+    {
+    	ExperimenterData exp = FinderFactory.getUserDetails();
 		long userID = exp.getId();//viewer.getUserID();
 		long groupID = -1;
 		int level = 
-		DataBrowserAgent.getRegistry().getAdminService().getPermissionLevel();
+			FinderFactory.getRegistry().getAdminService().getPermissionLevel();
 		switch (level) {
 				case AdminObject.PERMISSIONS_GROUP_READ_LINK:
 					groupID = exp.getDefaultGroup().getId();
@@ -99,16 +88,22 @@ public class TagsLoader
 		
 		handle = mhView.loadExistingAnnotations(TagAnnotationData.class,
 												userID, groupID, this);
-	}
-	
-	/**
-     * Feeds the result back to the viewer.
-     * @see DataBrowserLoader#handleResult(Object)
+    }
+
+    /**
+     * Cancels the ongoing data retrieval.
+     * @see FinderLoader#cancel()
      */
-    public void handleResult(Object result) 
+    public void cancel() { handle.cancel(); }
+    
+    /** 
+     * Feeds the result back to the viewer. 
+     * @see FinderLoader#handleResult(Object)
+     */
+    public void handleResult(Object result)
     {
-    	if (viewer.getState() == DataBrowser.DISCARDED) return;  //Async cancel.
-    	viewer.setExistingTags((Collection) result);
+    	if (viewer.getState() == Finder.DISCARDED) return;  //Async cancel.
+        viewer.setExistingTags((Collection) result);
     }
     
 }

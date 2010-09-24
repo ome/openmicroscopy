@@ -32,6 +32,7 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.DataHandlerView;
+import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
 import org.openmicroscopy.shoola.env.log.LogMessage;
 import pojos.AnnotationData;
 import pojos.DatasetData;
@@ -84,6 +85,9 @@ public abstract class FinderLoader
 	/** Convenience reference for subclasses. */
     protected final DataHandlerView		dhView;
 	
+    /** Convenience reference for subclasses. */
+    protected final MetadataHandlerView	mhView;
+    
     /** 
      * Checks if the passed type is supported and returns the 
      * class corresponding to the passed value.
@@ -134,6 +138,8 @@ public abstract class FinderLoader
         this.viewer = viewer;
         dhView = (DataHandlerView) 
 					registry.getDataServicesView(DataHandlerView.class);
+        mhView = (MetadataHandlerView) 
+			registry.getDataServicesView(MetadataHandlerView.class);
     }
     
     /**

@@ -158,7 +158,7 @@ class TreeViewerWin
 	/** Flag indicating that the metadata view is visible or hidden. */
 	private boolean				metadataVisible;
 	
-	/** The location of the right splia pane. */
+	/** The location of the right split pane. */
 	private int					dividerRightLocation;
 
 	/** The first selected pane. */
@@ -169,9 +169,6 @@ class TreeViewerWin
 
     /** The pane displaying the viewer. */
     private JSplitPane			viewerPane;
-    
-    /** Indicate how the browser is displayed. */
-    private int					browsingType;
     
     /**
      * Returns <code>true</code> if the Screening data are displayed first,

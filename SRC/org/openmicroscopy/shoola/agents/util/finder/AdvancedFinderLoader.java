@@ -58,16 +58,10 @@ public class AdvancedFinderLoader
 	/**
      * Creates a new instance.
      * 
-     * @param viewer 		The viewer this data loader is for.
-     *               		Mustn't be <code>null</code>.
-     * @param values		Collection of terms to search for.
-     * @param users			Collection of users' data.
-     * @param context		Collection of constants defined by this class.
-     * @param start			The start of a time interval.
-     * @param end			The end of a time interval.
-     * @param separator		The term used between the terms to search.
-     * @param caseSensitive	Pass <code>true</code> to be case sensitive,
-     * 						<code>false</code> otherwise.
+     * @param viewer	The viewer this data loader is for.
+     *               	Mustn't be <code>null</code>.
+     * @param context	The context of the search.
+     * 					Mustn't be <code>null</code>.
      */
     public AdvancedFinderLoader(Finder viewer, SearchDataContext context)
     {

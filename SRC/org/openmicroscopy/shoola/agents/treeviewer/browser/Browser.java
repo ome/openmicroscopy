@@ -82,12 +82,6 @@ public interface Browser
      */
     static final int                IN_DATASET_FILTER = 201;
     
-    /**
-     * Indicates that the images contained in the selected categories are 
-     * retrieved if the view is {@link #IMAGES_EXPLORER}.
-     */
-    static final int                IN_CATEGORY_FILTER = 202;
-    
     /** Flag to denote the <i>New</i> state. */
     public static final int     	NEW = 10;
     

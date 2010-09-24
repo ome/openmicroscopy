@@ -183,10 +183,14 @@ public class SearchComponent
 	/** The UI component hosting the result if any. */
 	private JComponent				resultPane;
 	
-	/** Initializes the components composing the display. */
-	private void initComponents()
+	/** 
+	 * Initializes the components composing the display. 
+	 * 
+	 * @param controls The collection of controls to add.
+	 */
+	private void initComponents(List<JButton> controls)
 	{
-		uiDelegate = new SearchPanel(this);
+		uiDelegate = new SearchPanel(this, controls);
 		cancelButton = new JButton();
 		cancelButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		cancelButton.setToolTipText("Cancel the search");
@@ -307,21 +311,67 @@ public class SearchComponent
 	 * Creates a new instance.
 	 * 
 	 * @param context		The context of the search.
-	 * @param showControl	Pass <code>true</code> to display the buttons,
-	 * 						<code>false</code> otherwise.
 	 */
-	public SearchComponent(SearchContext context, boolean showControl)
+	public SearchComponent(SearchContext context)
 	{
 		searchContext = context;
-		setDefaultContext();
-		initComponents();
-		buildGUI(showControl);
 	}
 	
 	/** Creates a new instance. */
 	public SearchComponent()
 	{
-		this(null, true);
+		this(null);
+	}
+	
+	/**
+	 * Initializes the component. Displays the controls buttons.
+	 * 
+	 * @param controls The collection of controls to add.
+	 */
+	public void initialize(List<JButton> controls)
+	{
+		initialize(true, controls);
+	}
+	
+	/**
+	 * Initializes the component.
+	 * 
+	 * @param showControl	Pass <code>true</code> to display the buttons,
+	 * 						<code>false</code> otherwise.
+	 * @param controls The collection of controls to add.
+	 */
+	public void initialize(boolean showControl, List<JButton> controls)
+	{
+		setDefaultContext();
+		initComponents(controls);
+		buildGUI(showControl);
+	}
+	
+	/**
+	 * Returns the terms that may be in the document.
+	 * 
+	 * @return See above.
+	 */
+	protected List<String> getSome()
+	{ 
+		String[] some = uiDelegate.getSome();
+		List<String> l = new ArrayList<String>();
+		if (some != null) {
+			for (int i = 0; i < some.length; i++) {
+				l.add(some[i]);
+			}
+		}
+		return l; 
+	}
+	
+	/** 
+	 * Sets the values to add. 
+	 * 
+	 * @param values The values to add.
+	 */
+	protected void setSomeValues(List<String> values)
+	{
+		uiDelegate.setSomeValues(values);
 	}
 	
 	/**

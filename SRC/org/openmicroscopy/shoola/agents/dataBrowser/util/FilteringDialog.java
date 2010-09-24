@@ -37,10 +37,15 @@ import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -51,6 +56,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
@@ -60,7 +67,10 @@ import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXDatePicker;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
+import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.tagging.util.TagCellRenderer;
 import org.openmicroscopy.shoola.agents.util.tagging.util.TagItem;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
@@ -108,6 +118,9 @@ public class FilteringDialog
 	
 	/** Action id indicating to filter the data. */
 	private static final int	FILTER = 1;
+	
+	/** Action id indicating to load the tags. */
+	private static final int	LOAD_TAGS = 2;
 	
 	/** ID to filter by higher rate. */
 	private static final int	HIGHER_RATING = 0;
@@ -173,22 +186,81 @@ public class FilteringDialog
 	/** Button to filter the data. */
 	private JButton			filterButton;
 	
+	/** Button to load the existing tags. */
+	private JButton			loadTagsButton;
+	
     /** The dialog displaying the existing tags. */
     private HistoryDialog	tagsDialog;
 
     /** The collection of existing tags. */
     private Collection		existingTags;
     
+    /** 
+     * Flag indicating that the tags loading was happening using the
+     * code completion mechanism.
+     */
+    private boolean 		codeCompletion;
+    
+	/** Displays the available tags and allows the users to select them. */
+	private void showTagsWizard()
+	{
+		IconManager icons = IconManager.getInstance();
+		String title = "Filter By Tags";
+		String text = "Select the Tags to filter by.";
+		Collection selected = new ArrayList<TagAnnotationData>();
+		Iterator i = existingTags.iterator();
+		TagAnnotationData tag;
+		List<String> l = SearchUtil.splitTerms(tagsArea.getText(), 
+				SearchUtil.COMMA_SEPARATOR);
+		Collection available = new ArrayList<TagAnnotationData>();
+		
+		while (i.hasNext()) {
+			tag = (TagAnnotationData) i.next();
+			if (l.contains(tag.getTagValue()))
+				selected.add(tag);
+			else available.add(tag);
+		}
+		long id = DataBrowserAgent.getUserDetails().getId();
+		SelectionWizard wizard = new SelectionWizard(
+				DataBrowserAgent.getRegistry().getTaskBar().getFrame(), 
+				available, selected, TagAnnotationData.class, false, id);
+		wizard.setTitle(title, text, icons.getIcon(IconManager.TAG_FILTER_48));
+		wizard.addPropertyChangeListener(this);
+		UIUtilities.centerAndShow(wizard);
+	}
+	
+	/**
+	 * Handles the selection.
+	 * 
+	 * @param tags The selected tags.
+	 */
+	private void handleTagsSelection(Collection tags)
+	{
+		if (tags == null || tags.size() == 0) return;
+		tagsArea.getDocument().removeDocumentListener(this);
+    	tagsArea.setText("");
+    	tagsArea.getDocument().addDocumentListener(this);
+		Iterator i = tags.iterator();
+		TagAnnotationData tag;
+		while (i.hasNext()) {
+			tag = (TagAnnotationData) i.next();
+			enterTag(tag, false);
+		}
+	}
+	
     /**
      * Enters the tag.
      * 
      * @param tag The tag value to enter.
+     * @param removeLast Pass <code>true</code> to remove the last item,
+     *                   <code>false</code> otherwise.
      */
-    private void enterTag(TagAnnotationData tag)
+    private void enterTag(TagAnnotationData tag, boolean removeLast)
     {
     	String text = tag.getTagValue();
     	List<String> l = SearchUtil.splitTerms(tagsArea.getText(), 
 				SearchUtil.COMMA_SEPARATOR);
+    	if (removeLast && l.size() > 0) l.remove(l.size()-1);
     	String result = SearchUtil.formatString(text, l);
     	tagsArea.getDocument().removeDocumentListener(this);
     	tagsArea.setText(result);
@@ -198,6 +270,7 @@ public class FilteringDialog
     /** Loads the tags and adds code completion. */
     private void handleTagInsert()
     {
+    	codeCompletion = true;
     	if (existingTags == null) {
     		firePropertyChange(LOAD_TAG_PROPERTY, Boolean.valueOf(false), 
     				Boolean.valueOf(true));
@@ -263,7 +336,7 @@ public class FilteringDialog
 		if (o == null) return;
 		DataObject ho = o.getDataObject();
 		if (ho instanceof TagAnnotationData) {
-			enterTag((TagAnnotationData) ho);
+			enterTag((TagAnnotationData) ho, true);
 		}
 	}
 	
@@ -276,10 +349,23 @@ public class FilteringDialog
 		commentsBox = new JCheckBox("Comments");
 		nameBox = new JCheckBox("Name");
 		tagsBox = new JCheckBox("Tags");
+		tagsBox.addChangeListener(new ChangeListener() {
+			
+			public void stateChanged(ChangeEvent e) {
+				loadTagsButton.setEnabled(tagsBox.isSelected());
+			}
+		});
 		ratingOptions = new JComboBox(RATING);
 		rating = new RatingComponent(5, RatingComponent.HIGH_SIZE);
 		fromDate = UIUtilities.createDatePicker(false);
 		toDate = UIUtilities.createDatePicker(false);
+		IconManager icons = IconManager.getInstance();
+		loadTagsButton = new JButton(icons.getIcon(IconManager.TAG_FILTER));
+		UIUtilities.unifiedButtonLookAndFeel(loadTagsButton);
+		loadTagsButton.setToolTipText("Load existing Tags for filtering.");
+		loadTagsButton.setEnabled(false);
+		loadTagsButton.setActionCommand(""+LOAD_TAGS);
+		loadTagsButton.addActionListener(this);
 		tagsArea = new JTextField();
 		tagsArea.setColumns(15);
 		tagsArea.getDocument().addDocumentListener(this);
@@ -429,6 +515,8 @@ public class FilteringDialog
 		c.gridx = 0;
 		c.gridy = 0;
 		p.add(tagsBox, c);
+		c.gridx++;
+		p.add(loadTagsButton, c);
 		c.gridx++;
 		p.add(Box.createHorizontalStrut(5), c);
 		c.gridx++;
@@ -583,15 +671,20 @@ public class FilteringDialog
 	 * Sets the collection of tags and brings up the completion dialog 
 	 * if any.
 	 * 
-	 * @param tags The value to set.
+	 * @param tags 	The value to set.
+	 * @param notify Pass <code>true</code> to display the code completion 
+	 * 				 dialog or the selection wizard.
 	 */
-	public void setTags(Collection tags)
+	public void setTags(Collection tags, boolean notify)
 	{
 		if (tags == null) return;
 		existingTags = tags;
-		codeCompletion();
+		if (notify) {
+			if (codeCompletion) codeCompletion();
+			else showTagsWizard();
+		}
 	}
-	
+
 	/**
 	 * Reacts to various controls.
 	 * @see ActionListener#actionPerformed(ActionEvent)
@@ -605,6 +698,15 @@ public class FilteringDialog
 				break;
 			case FILTER:
 				filter();
+				break;
+			case LOAD_TAGS:
+				if (existingTags != null)
+					showTagsWizard();
+				else {
+					codeCompletion = false;
+					firePropertyChange(LOAD_TAG_PROPERTY, 
+							Boolean.valueOf(false),  Boolean.valueOf(true));
+				}
 		}
 	}
 
@@ -620,7 +722,20 @@ public class FilteringDialog
 			if (!(item instanceof TagItem)) return;
 			DataObject ho = ((TagItem) item).getDataObject();
 			if (ho instanceof TagAnnotationData) {
-				enterTag((TagAnnotationData) ho);
+				enterTag((TagAnnotationData) ho, true);
+			}
+		} else if (SelectionWizard.SELECTED_ITEMS_PROPERTY.equals(name)) {
+			Map m = (Map) evt.getNewValue();
+			if (m == null || m.size() != 1) return;
+			Set set = m.entrySet();
+			Entry entry;
+			Iterator i = set.iterator();
+			Class type;
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				type = (Class) entry.getKey();
+				handleTagsSelection(
+						(Collection) entry.getValue());
 			}
 		}
 	}
