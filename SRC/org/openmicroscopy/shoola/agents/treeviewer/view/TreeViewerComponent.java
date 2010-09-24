@@ -2436,7 +2436,9 @@ class TreeViewerComponent
 				obj = node.getUserObject();
 				if (obj instanceof DataObject) {
 					d = new DeletableObject((DataObject) obj, content);
-					d.setAttachmentTypes(types);
+					if (!(obj instanceof TagAnnotationData || 
+							obj instanceof FileAnnotationData)) 
+						d.setAttachmentTypes(types);
 					checkForImages(node, objects);
 					l.add(d);
 					toRemove.add(node);

@@ -194,51 +194,28 @@ class OmeroDataServiceImpl
 		return null;
 	}
 	
-	private List<DeletableObject> deleteTagSet(DeletableObject object)
+	private List<DataObject> deleteTagSet(long id)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		DataObject data = object.getObjectToDelete();
-		long id = data.getId();
-		boolean content = object.deleteContent();
-		List<DeletableObject> resuls = new ArrayList<DeletableObject>();
 		List l = gateway.findAnnotationLinks(Annotation.class.getName(), id,
 											null);
 		
 		List<Long> tagIds = new ArrayList<Long>();
-		List<IObject> tags = new ArrayList<IObject>(); 
-		if (content) {
-			Iterator i = l.iterator();
-			AnnotationAnnotationLink link;
-			long tagID;
-			while (i.hasNext()) {
-				link =  (AnnotationAnnotationLink) i.next();
-				tagID = link.getChild().getId().getValue();
-				if (!tagIds.contains(tagID)) {
-					tagIds.add(tagID);
-					tags.add(link.getChild());
-				}
+		List<DataObject> tags = new ArrayList<DataObject>(); 
+		Iterator i = l.iterator();
+		AnnotationAnnotationLink link;
+		long tagID;
+		while (i.hasNext()) {
+			link =  (AnnotationAnnotationLink) i.next();
+			tagID = link.getChild().getId().getValue();
+			if (!tagIds.contains(tagID)) {
+				tagIds.add(tagID);
+				tags.add(PojoMapper.asDataObject(link.getChild()));
 			}
 		}
-		//Delete Tag Set-Tag links
+		//delete the links
 		gateway.deleteObjects(l);
-		
-		//Delete tag links 
-		if (tags.size() > 0) {
-			Iterator<IObject> i = tags.iterator();
-			IObject child;
-			while (i.hasNext()) {
-				child = i.next();
-				deleteTagLinks(child);
-			}
-			//Delete the tags
-			gateway.deleteObjects(tags);
-		}
-		//Delete Tag Set
-		//Clear other type of linkages
-		context.getMetadataService().clearAnnotation(TagAnnotationData.class, 
-				data.getId(), null);
-		gateway.deleteObject(gateway.findIObject(data.asIObject()));
-		return resuls;	
+		return tags;
 	}
 	
 	/**
@@ -916,14 +893,18 @@ class OmeroDataServiceImpl
 		if (objects == null || objects.size() == 0) return null;
 		Iterator<DeletableObject> i = objects.iterator();
 		DeletableObject object;
-		DeleteCommand[] commands = new DeleteCommand[objects.size()];
+		List<DeleteCommand> commands = new ArrayList<DeleteCommand>();
 		DeleteCommand cmd;
 		Map<String, String> options;
 		DataObject data;
 		int index = 0;
 		List<Class> annotations;
 		Iterator<Class> j;
+		List<DataObject> contents;
+		String ns;
+		Iterator<DataObject> k;
 		while (i.hasNext()) {
+			contents = null;
 			object = i.next();
 			data = object.getObjectToDelete();
 			annotations = object.getAnnotations();
@@ -951,27 +932,30 @@ class OmeroDataServiceImpl
 					options.put(gateway.createDeleteCommand(
 							PlateData.class.getName()), 
 							OMEROGateway.KEEP);
+				} else if (data instanceof TagAnnotationData) {
+					ns = ((TagAnnotationData) data).getNameSpace();
+					if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
+						contents = deleteTagSet(data.getId());
+					}
 				}
 			}
 			cmd = new DeleteCommand(gateway.createDeleteCommand(
 					data.getClass().getName()), data.getId(), options);
-			commands[index] = cmd;
-			index++;
+			commands.add(cmd);
+			if (contents != null && contents.size() > 0) {
+				k = contents.iterator();
+				DataObject d;
+				while (k.hasNext()) {
+					d = k.next();
+					cmd = new DeleteCommand(gateway.createDeleteCommand(
+							d.getClass().getName()), d.getId(), options);
+					commands.add(cmd);
+				}
+			}
 		}
 		
-		/*
-		List<DeletableObject> l = new ArrayList<DeletableObject>();
-		Iterator<DeletableObject> i = objects.iterator();
-		List<DeletableObject> r; 
-		while (i.hasNext()) {
-			r = delete(i.next());
-			if (r.size() != 0)
-				l.addAll(r);
-		}
-		//Clean repository.
-		return l;
-		*/
-		return gateway.deleteObject(commands);
+		
+		return gateway.deleteObject(commands.toArray(new DeleteCommand[] {}));
 	}
 
 	/**
