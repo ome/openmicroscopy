@@ -1477,14 +1477,15 @@ class OMEROGateway
 		throws DSAccessException, DSOutOfServiceException
 	{ 
 		try {
-			if (exporterService == null) {
+			ExporterPrx store = null;
+			//if (exporterService == null) {
 				if (entryUnencrypted != null)
-					exporterService = entryUnencrypted.createExporter();
+					store = entryUnencrypted.createExporter();
 				else 
-					exporterService = entryEncrypted.createExporter();
+					store = entryEncrypted.createExporter();
 				//services.add(exporterService);
-			}
-			return exporterService; 
+			//}
+			return store;//exporterService; 
 		} catch (Throwable e) {
 			handleException(e, "Cannot access Exporter service.");
 		}
@@ -6455,13 +6456,44 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	synchronized File exportImageAsOMETiff(File f, long imageID)
+	File exportImageAsOMETiff(File f, long imageID)
 		throws DSAccessException, DSOutOfServiceException
 	{
 		isSessionAlive();
 		FileOutputStream stream = null;
 		try {
+			ExporterPrx store = null;
 			stream = new FileOutputStream(f);
+			try {
+				synchronized(new Object()) {
+					store = getExporterService();
+					store.addImage(imageID);
+					long size = store.generateTiff();
+					int offset = 0;
+					int length = (int) size;
+					try {
+						try {
+							for (offset = 0; (offset+INC) < size;) {
+								stream.write(store.read(offset, INC));
+								offset += INC;
+							}	
+						} finally {
+							stream.write(store.read(offset, length-offset)); 
+							stream.close();
+						}
+					} catch (Exception e) {
+						if (stream != null) stream.close();
+						if (f != null) f.delete();
+					}
+				}
+				
+			} finally {
+				try {
+					if (store != null) store.close();
+				} catch (Exception e) {}
+				return f;
+			}
+			/*
 			ExporterPrx store = getExporterService();
 			store.addImage(imageID);
 			long size = store.generateTiff();
@@ -6481,51 +6513,20 @@ class OMEROGateway
 				if (stream != null) stream.close();
 				if (f != null) f.delete();
 			}
-			/*
-			int offset = 0;
-			int length = (int) size;
-			int read = 0;
-			while (read < length) {
-				offset = INC;
-				if (read+offset > length) {
-					offset = length-read;
-					read = length;
-				} else read += offset;
-				stream.write(service.getBytes(offset));
-			}
-			try {
-				if (stream != null) stream.close();
-				//exporterService.close();
-				exporterService = null;
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
 			*/
+			/*
 			try {
 				exporterService.close();
 				exporterService = null;
-			} catch (Exception e) {
-			}
-			return f;
-		} catch (Throwable t) {
-			
-			/*
-			if (exporterService != null) {
-				try {
-					exporterService.close();
-				} catch (Exception e) {
-					handleException(t, "Cannot export the image");
-				}
-			}
+			} catch (Exception e) {}
 			*/
+		} catch (Throwable t) {
 			exporterService = null;
 			if (f != null) f.delete();
 			try {
 				exporterService.close();
 				exporterService = null;
-				//if (stream != null) stream.close();
 			} catch (Exception e) {}
-			t.printStackTrace();
 			handleException(t, "Cannot export the image as an OME-TIFF");
 			return null;
 		}
