@@ -3912,7 +3912,7 @@ public class DeleteServiceTest
 	 * 
 	 * @throws Exception  Thrown if an error occurred.
 	 */
-    @Test(enabled = false, groups = {"ticket:2705"})
+    @Test(enabled = false, groups = {"ticket:#2884"})
     public void testDeleteFileAnnotation() 
     	throws Exception
     {
@@ -3941,7 +3941,7 @@ public class DeleteServiceTest
      * Test to delete an image and make sure the original files are removed.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = true)
+    @Test(enabled = true, groups = {"ticket:#2884"})
     public void testDeleteImageAndOriginalFile() 
     	throws Exception
     {
