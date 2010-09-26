@@ -151,22 +151,6 @@ public class ScriptingDialog
 	/** Menu offering the ability to download or view the script. */
 	private JButton menuButton;
 	
-	/** Component used to enter the author of the script. */
-	private JTextField	author;
-	
-	/** Component used to enter the author's e-mail address. */
-	private JTextField	eMail;
-	
-	/** Component used to enter the author's institution. */
-	private JTextField	institution;
-	
-	/** Component used to enter the description of the script. */
-	private JTextField	description;
-	
-	/** Component used to enter where the script was published if 
-	 * published. */
-	private JTextField	journalRef;
-	
 	/** The object to handle. */
 	private ScriptObject script;
 	
@@ -296,34 +280,6 @@ public class ScriptingDialog
 	private void initComponents()
 	{
 		sorter = new ViewerSorter();
-		List<ExperimenterData> experimenters = script.getAuthors();
-		Iterator<ExperimenterData> j;
-		author = new JTextField();
-		author.setEnabled(false);
-		if (experimenters != null && experimenters.size() > 0) {
-			StringBuffer buffer = new StringBuffer();
-			j = experimenters.iterator();
-			ExperimenterData exp;
-			int index = experimenters.size();
-			while (j.hasNext()) {
-				exp = j.next();
-				buffer.append(exp.getLastName());
-				if (index > 1) buffer.append(","); 
-			}
-			author.setText(buffer.toString());
-		}
-	    eMail = new JTextField();
-	    eMail.setEnabled(false);
-	    eMail.setText(script.getContact());
-	    institution = new JTextField();
-	    institution.setEnabled(false);
-		//if (exp != null) {
-			//institution.setText(exp.getInstitution());
-		//}
-	    journalRef = new JTextField(script.getJournalRef()); 
-	    journalRef.setEnabled(false);
-	    description = new JTextField(script.getDescription());
-	    description.setEnabled(false);
 		cancelButton = new JButton("Cancel");
 		cancelButton.setToolTipText("Close the dialog.");
 		cancelButton.setActionCommand(""+CANCEL);
@@ -510,42 +466,6 @@ public class ScriptingDialog
 	}
 	
 	/**
-	 * Builds and lays out the details of the script.
-	 * 
-	 * @return See above.
-	 */
-	private JPanel buildScriptDetails()
-	{
-		double[][] size = {{TableLayout.PREFERRED, 5, TableLayout.FILL},
-				{TableLayout.PREFERRED, TableLayout.PREFERRED, 
-			TableLayout.PREFERRED, TableLayout.PREFERRED, 50}};
-		JPanel details = new JPanel();
-		details.setLayout(new TableLayout(size));
-		int row = 0;
-		JLabel l = UIUtilities.setTextFont("Author (First, Last):");
-		details.add(l, "0, "+row+", LEFT, CENTER");
-		details.add(author, "2, "+row);
-		row++;
-		l = UIUtilities.setTextFont("E-mail:");
-		details.add(l, "0, "+row+", LEFT, CENTER");
-		details.add(eMail, "2, "+row);
-		row++;
-		l = UIUtilities.setTextFont("Institution:");
-		details.add(l, "0, "+row+", LEFT, CENTER");
-		details.add(institution, "2, "+row);
-		row++;
-		l = UIUtilities.setTextFont("Journal Ref:");
-		details.add(l, "0, "+row+", LEFT, CENTER");
-		details.add(journalRef, "2, "+row);
-		row++;
-		l = UIUtilities.setTextFont("Script's Description:");
-		details.add(l, "0, "+row+", LEFT, TOP");
-		details.add(description, "2, "+row);
-		
-		return details;
-	}
-	
-	/**
 	 * Builds the panel hosting the components.
 	 * 
 	 * @return See above.
@@ -588,6 +508,47 @@ public class ScriptingDialog
 		area.setBackground(BG_COLOR);
 		return p;
 	}
+	
+	private JPanel buildAuthorsAndContact()
+	{
+		String[] authors = script.getAuthors();
+		String contact = script.getContact();
+		if (authors == null && contact == null) 
+			return null;
+		JPanel p = new JPanel();
+		p.setBackground(BG_COLOR);
+		double[] columns = {TableLayout.PREFERRED, 5, TableLayout.FILL};
+		TableLayout layout = new TableLayout();
+		layout.setColumn(columns);
+		p.setLayout(layout);
+		int row = 0;
+		JLabel l;
+		if (authors != null && authors.length > 0) {
+			l = UIUtilities.setTextFont("Authors:");
+			String v = "";
+			int n = authors.length-1;
+			for (int i = 0; i < authors.length; i++) {
+				v += authors[i];
+				if (i < n) v += ", ";
+			}
+			layout.insertRow(row, TableLayout.PREFERRED);
+			p.add(l, "0,"+row);
+			l = new JLabel();
+			l.setText(v);
+			p.add(l, "2,"+row);
+			row++;
+		}
+		if (contact != null && contact.trim().length() != 0) {
+			l = UIUtilities.setTextFont("Contact:");
+			layout.insertRow(row, TableLayout.PREFERRED);
+			p.add(l, "0,"+row);
+			l = new JLabel();
+			l.setText(contact);
+			p.add(l, "2,"+row);
+		}
+		return p;
+	}
+	
 	/** 
 	 * Builds the component displaying the parameters.
 	 * 
@@ -603,15 +564,26 @@ public class ScriptingDialog
 		p.setLayout(layout);
 		int row = 0;
 		JComponent area = buildDescriptionPane();
+		JComponent authorsPane = buildAuthorsAndContact();
 		if (area != null) {
 			layout.insertRow(row, TableLayout.PREFERRED);
 			p.add(area, "0,"+row+", 2, "+row);
+			row++;
+			if (authorsPane == null) {
+				layout.insertRow(row, TableLayout.PREFERRED);
+				p.add(new JSeparator(), "0,"+row+", 2, "+row);
+				row++;
+			}
+		}
+		
+		if (authorsPane != null) {
+			layout.insertRow(row, TableLayout.PREFERRED);
+			p.add(authorsPane, "0,"+row+", 2, "+row);
 			row++;
 			layout.insertRow(row, TableLayout.PREFERRED);
 			p.add(new JSeparator(), "0,"+row+", 2, "+row);
 			row++;
 		}
-		
 		Entry entry;
 		Iterator i = components.entrySet().iterator();
 		ScriptComponent comp;
@@ -635,17 +607,8 @@ public class ScriptingDialog
 			p.add(UIUtilities.buildComponentPanel(label), "0,"+row+",2, "+row);
 		}
 		
-		JXTaskPane pane = null;
-		if (script.hasDetails()) {
-			pane = new JXTaskPane();
-			pane.setCollapsed(true);
-			pane.setTitle("Script details");
-			pane.add(buildScriptDetails());
-		}
-		
 		JPanel controls = new JPanel();
 		controls.setLayout(new BorderLayout(0, 0));
-		if (pane != null) controls.add(pane, BorderLayout.NORTH);
 		controls.add(new JScrollPane(p), BorderLayout.CENTER);
 		controls.add(buildControlPanel(), BorderLayout.SOUTH);
 		return controls;

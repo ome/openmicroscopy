@@ -121,10 +121,7 @@ public class ScriptObject
 	
 	/** The version of the script. */
 	private String version;
-	
-	/** The owners of the script. */
-	private List<ExperimenterData> authors;
-	
+
 	/** The parameters of the script. */
 	private Map<String, Class> parameterTypes;
 	
@@ -294,31 +291,6 @@ public class ScriptObject
 	}
 	
 	/**
-	 * Returns <code>true</code> if the script has ownership information,
-	 * description etc, <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean hasDetails()
-	{
-		if (authors != null && authors.size() > 0) return true;
-		if (description != null && description.length() > 0) return true;
-		if (journalRef != null && journalRef.length() > 0) return true;
-		return false;
-	}
-	
-	/**
-	 * Sets the author of the script.
-	 * 
-	 * @param author The author of the script.
-	 */
-	public void setAuthor(ExperimenterData author)
-	{ 
-		if (authors == null) authors = new ArrayList<ExperimenterData>();
-		if (author != null) authors.add(author);
-	}
-	
-	/**
 	 * Sets the description of the script.
 	 * 
 	 * @param description The value to set.
@@ -344,7 +316,11 @@ public class ScriptObject
 	 * 
 	 * @return See above
 	 */
-	public List<ExperimenterData> getAuthors() { return authors; }
+	public String[] getAuthors()
+	{ 
+		if (parameters != null) return parameters.authors; 
+		return null;
+	}
 	
 	/**
 	 * Returns the description of the script.
