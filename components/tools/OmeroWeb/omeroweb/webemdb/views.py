@@ -721,7 +721,7 @@ def getFile (request, fileId):
         rsp['Content-Type'] = mimetype
         rsp['Content-Length'] = ann.getFileSize()
         # this tells the browser to give the user a 'download' dialog
-        #rsp['Content-Disposition'] = 'attachment; filename=%s' % (ann.getFileName().replace(" ","_"))
+        rsp['Content-Disposition'] = 'attachment; filename=%s' % (ann.getFileName().replace(" ","_"))
             
         return rsp
         

@@ -54,11 +54,12 @@ $(document).ready(function() {
                     <div id="entrySub">Aggregation State: <span id="aggregationState"></span></div>
                     Download: 
                     {% if xml %}<a id="emdbxml" href="{% url webemdb_file xml.id %}">{{ xml.getFileName }}</a> | {% endif %}
-                    {% if img and map %}
+                    {% if map %}
                         <a id="emdbmap" href="{% url webemdb_file map.id %}">{{ map.getFileName }}</a> | 
                         <a href="{% url webemdb_oa_viewer map.id %}">OA Viewer</a> |
                     {% endif %}
                     {% if smallMap %}
+                        <a id="emdbmap" href="{% url webemdb_file smallMap.id %}">{{ smallMap.getFileName }}</a> (subsampled) | 
                         <a href="{% url webemdb_oa_viewer smallMap.id %}">OA Viewer</a> |
                     {% endif %}
                     {% if img %}
