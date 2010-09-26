@@ -64,8 +64,6 @@ import javax.swing.event.DocumentListener;
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
-import org.jdesktop.swingx.JXTaskPane;
-
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
@@ -78,7 +76,6 @@ import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
-import pojos.ExperimenterData;
 
 /** 
  * Dialog to run the selected script. The UI is created on the fly.

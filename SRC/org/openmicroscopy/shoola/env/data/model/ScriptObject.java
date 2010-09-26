@@ -25,19 +25,17 @@ package org.openmicroscopy.shoola.env.data.model;
 
 //Java imports
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.swing.Icon;
 
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import omero.RType;
 import omero.grid.JobParams;
 import omero.grid.Param;
