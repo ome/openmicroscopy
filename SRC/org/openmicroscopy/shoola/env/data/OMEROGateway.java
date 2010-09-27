@@ -2986,16 +2986,20 @@ class OMEROGateway
 	 * @param pixelsID	The collection of pixels set.
 	 * @param maxLength	The maximum length of the thumbnail width or height
 	 * 					depending on the pixel size.
+	 * @param reset     Pass <code>true</code> to reset the thumbnail store,
+	 *                  <code>false</code> otherwise.
 	 * @return See above.
 	 * @throws RenderingServiceException If an error occurred while trying to 
 	 *              retrieve data from the service. 
 	 * @throws DSOutOfServiceException If the connection is broken.
 	 */
-	synchronized Map getThumbnailSet(List<Long> pixelsID, int maxLength)
+	synchronized Map getThumbnailSet(List<Long> pixelsID, int maxLength, boolean
+			reset)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		isSessionAlive();
 		try {
+			if (reset) thumbRetrieval = MAX_RETRIEVAL;
 			ThumbnailStorePrx service = getThumbService();
 			return service.getThumbnailByLongestSideSet(
 					omero.rtypes.rint(maxLength), pixelsID);

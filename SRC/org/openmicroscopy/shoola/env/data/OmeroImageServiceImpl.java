@@ -248,7 +248,7 @@ class OmeroImageServiceImpl
 			if (max < h) max = h;
 			if (max > RenderingControl.MAX_SIZE_THREE) 
 				max = RenderingControl.MAX_SIZE_THREE;
-			Map m = gateway.getThumbnailSet(ids, max);
+			Map m = gateway.getThumbnailSet(ids, max, true);
 			byte[] values = (byte[]) m.get(pixelsID);
 			if (asTexture) {
 				return PixelsServicesFactory.createTexture(
@@ -351,7 +351,7 @@ class OmeroImageServiceImpl
 			}
 			if (ids.size() == 0) return r;
 			
-			Map m = gateway.getThumbnailSet(ids, max);
+			Map m = gateway.getThumbnailSet(ids, max, false);
 			if (m == null || m.size() == 0) {
 				i = ids.iterator();
 				while (i.hasNext()) 
@@ -391,7 +391,6 @@ class OmeroImageServiceImpl
 					r.put((Long) i.next(), null);
 			} 
 			return r;
-			//throw new RenderingServiceException("Get Thumbnail set", e);
 		}
 	}
 	
