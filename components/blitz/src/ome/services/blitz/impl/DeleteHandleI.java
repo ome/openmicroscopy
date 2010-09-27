@@ -388,6 +388,9 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                 }
             } catch (ConstraintViolationException cve) {
                 report.error = "ConstraintViolation: " + cve.getConstraintName();
+                Cancel cancel = new Cancel("Cancelled by " + report.error);
+                cancel.initCause(cve);
+                throw cancel;
             } catch (Throwable t) {
                 String msg = "Failure during DeleteHandle.steps :";
                 report.error = (msg + t);

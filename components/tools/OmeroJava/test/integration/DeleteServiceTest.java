@@ -18,6 +18,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+import junit.framework.AssertionFailedError;
+import ome.services.delete.BaseDeleteSpec;
 import omero.ApiUsageException;
 import omero.ServerError;
 import omero.api.IAdminPrx;
@@ -27,9 +29,9 @@ import omero.api.IQueryPrx;
 import omero.api.IRenderingSettingsPrx;
 import omero.api.IUpdatePrx;
 import omero.api.RawFileStorePrx;
+import omero.api.ServiceFactoryPrx;
 import omero.api.delete.DeleteCommand;
 import omero.api.delete.DeleteHandlePrx;
-import omero.api.ServiceFactoryPrx;
 import omero.grid.Column;
 import omero.grid.DeleteCallbackI;
 import omero.grid.LongColumn;
@@ -50,9 +52,9 @@ import omero.model.Detector;
 import omero.model.DetectorSettings;
 import omero.model.Dichroic;
 import omero.model.Experimenter;
-import omero.model.ExperimenterI;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
+import omero.model.ExperimenterI;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.FilterSet;
@@ -4008,5 +4010,74 @@ public class DeleteServiceTest
     	param.addId(thumbnailID);
     	assertNull(iQuery.findByQuery(sql, param));
     }
+
+    @Test(groups = "ticket:2776")
+    public void testPixelsRelatedTo() throws Exception {
+        Image img = (Image) iUpdate.saveAndReturnObject(
+                mmFactory.createImage());
+
+
+    }
+
+    /**
+     * Use of the savepoint/release/rollback methods in {@link BaseDeleteSpec}
+     * seem to prevent transactions from being properly rolled back.
+     */
+    @Test(groups = "ticket:2917")
+    public void testTxIntegrity() throws Exception {
+        List<IObject> images = new ArrayList<IObject>();
+        images.add(mmFactory.createImage());
+        images.add(mmFactory.createImage());
+        StageLabel sl = mmFactory.createStageLabel();
+        ((Image)images.get(0)).setStageLabel(sl);
+        ((Image)images.get(1)).setStageLabel(sl);
+        List<IObject> objs = iUpdate.saveAndReturnArray(images);
+
+        Image image0 = (Image) objs.get(0);
+        Image image1 = (Image) objs.get(1);
+
+        sl = image0.getStageLabel();
+        assertEquals(sl, image1.getStageLabel());
+
+        try {
+            delete(new DeleteCommand(REF_IMAGE, image0.getId().getValue(), null));
+            fail("Should throw on constraint violation");
+        } catch (AssertionFailedError e) {
+            // ok. constraint violation was thrown, there for the delete()
+            // method failed, so now we can test that the tx was actually
+            // rolled back.
+        }
+
+        // Now check that everything still exists.
+        assertExists(image0);
+        assertExists(image0.getPrimaryPixels());
+        assertExists(image1);
+        assertExists(image1.getPrimaryPixels());
+        assertExists(sl);
+
+    }
     
+    //
+    // Helpers
+    //
+
+    private void assertExists(IObject obj) throws Exception {
+        IObject copy = iQuery.find(
+                obj.getClass().getSimpleName(), obj.getId().getValue());
+        assertNotNull(obj.toString() + " is missing!", copy);
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<Well> getWellsForPlate(long value) throws ServerError {
+        ParametersI param = new ParametersI();
+        param.addLong("plateID", value);
+        StringBuilder sb = new StringBuilder();
+        sb.append("select well from Well as well ");
+        sb.append("left outer join fetch well.plate as pt ");
+        sb.append("left outer join fetch well.wellSamples as ws ");
+        sb.append("left outer join fetch ws.image as img ");
+        sb.append("where pt.id = :plateID");
+        return (List<Well>) (List<?>) iQuery.findAllByQuery(sb.toString(), param);
+    }
+
 }
