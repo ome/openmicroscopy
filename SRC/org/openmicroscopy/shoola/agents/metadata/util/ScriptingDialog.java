@@ -506,11 +506,18 @@ public class ScriptingDialog
 		return p;
 	}
 	
-	private JPanel buildAuthorsAndContact()
+	/** 
+	 * Builds and lays out the details of the script e.g.
+	 * authors, contact, version.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel buildScriptDetails()
 	{
 		String[] authors = script.getAuthors();
 		String contact = script.getContact();
-		if (authors == null && contact == null) 
+		String version = script.getVersion();
+		if (authors == null && contact == null && version == null) 
 			return null;
 		JPanel p = new JPanel();
 		p.setBackground(BG_COLOR);
@@ -542,7 +549,17 @@ public class ScriptingDialog
 			l = new JLabel();
 			l.setText(contact);
 			p.add(l, "2,"+row);
+			row++;
 		}
+		if (version != null && version.trim().length() != 0) {
+			l = UIUtilities.setTextFont("Version:");
+			layout.insertRow(row, TableLayout.PREFERRED);
+			p.add(l, "0,"+row);
+			l = new JLabel();
+			l.setText(version);
+			p.add(l, "2,"+row);
+		}
+		if (p.getComponentCount() == 0) return null;
 		return p;
 	}
 	
@@ -561,7 +578,7 @@ public class ScriptingDialog
 		p.setLayout(layout);
 		int row = 0;
 		JComponent area = buildDescriptionPane();
-		JComponent authorsPane = buildAuthorsAndContact();
+		JComponent authorsPane = buildScriptDetails();
 		if (area != null) {
 			layout.insertRow(row, TableLayout.PREFERRED);
 			p.add(area, "0,"+row+", 2, "+row);
