@@ -239,6 +239,10 @@ class UserProfile
     /** Initializes the components composing this display. */
     private void initComponents()
     {
+		admin = false;
+		active = false;
+		groupOwner = false;
+
     	userPicture = new UserProfileCanvas();
     	userPicture.setBackground(UIUtilities.BACKGROUND_COLOR);
     	userPicture.setToolTipText("Click to upload your picture.");
@@ -275,16 +279,27 @@ class UserProfile
     	ExperimenterData user = (ExperimenterData) model.getRefObject();
     	List userGroups = user.getGroups();
     	GroupData defaultGroup = user.getDefaultGroup();
+
     	permissionsPane = new PermissionsPane(defaultGroup.getPermissions(), 
     			UIUtilities.BACKGROUND_COLOR);
     	permissionsPane.disablePermissions();
     	groupLabel = new JLabel(defaultGroup.getName());
     	groupLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
     	
+    	
 		long groupID = defaultGroup.getId();
+		boolean owner = false;
+		
+		if (defaultGroup.getLeaders() != null)
+			owner = setGroupOwner(defaultGroup);
+		else {
+			GroupData g = model.loadGroup(groupID);
+			if (g != null)
+				owner = setGroupOwner(g);
+		}
 		//Build the array for box.
+		/*
 		Iterator i = userGroups.iterator();
-		//Remove not visible group
 		GroupData g;
 		
 		List<GroupData> validGroups = new ArrayList<GroupData>();
@@ -294,7 +309,6 @@ class UserProfile
 				validGroups.add(g);
 		}
 		groupData = new GroupData[validGroups.size()];
-		groupOwner = false;
 		admin = false;
 		active = false;
 		int selectedIndex = 0;
@@ -305,19 +319,21 @@ class UserProfile
 			g = (GroupData) i.next();
 			groupData[index] = g;
 			if (g.getId() == groupID) {
-				owner = setGroupOwner(g);
-				originalIndex = index;
+				if (g.getLeaders() != null) {
+					owner = setGroupOwner(g);
+					originalIndex = index;
+				}
 			}
 			index++;
 		}
 		selectedIndex = originalIndex;
-		//sort by name
-		
 		groups = EditorUtil.createComboBox(groupData, 0);
 		groups.setEnabled(false);
 		groups.setRenderer(new GroupsRenderer());
 		if (groupData.length != 0)
 			groups.setSelectedIndex(selectedIndex);
+		*/
+		
 		
 		if (MetadataViewerAgent.isAdministrator()) {
 			oldPassword.setVisible(false);
@@ -391,7 +407,6 @@ class UserProfile
 			 */
 			public void changedUpdate(DocumentEvent e) {}
 		});
-		
 		ownerBox.setEnabled(owner);
 		ownerBox.addChangeListener(this);
 		ExperimenterData logUser = MetadataViewerAgent.getUserDetails();
