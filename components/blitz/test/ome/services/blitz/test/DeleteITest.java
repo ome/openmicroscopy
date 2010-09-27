@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ome.io.nio.AbstractFileSystemService;
 import ome.services.blitz.impl.DeleteHandleI;
 import ome.services.delete.BaseDeleteSpec;
 import ome.services.delete.DeleteEntry;
@@ -22,6 +23,7 @@ import omero.RLong;
 import omero.RType;
 import omero.ServerError;
 import omero.api.AMD_IDelete_queueDelete;
+import omero.api.IDeletePrx;
 import omero.api.delete.DeleteCommand;
 import omero.api.delete.DeleteHandlePrx;
 import omero.model.AnnotationAnnotationLink;
@@ -71,6 +73,7 @@ import org.testng.annotations.Test;
 public class DeleteITest extends AbstractServantTest {
 
     Mock adapterMock;
+    AbstractFileSystemService afs;
 
     @Override
     @BeforeClass
@@ -78,6 +81,7 @@ public class DeleteITest extends AbstractServantTest {
         super.setUp();
         adapterMock = (Mock) user.ctx.getBean("adapterMock");
         adapterMock.setDefaultStub(new FakeAdapter());
+        afs = new AbstractFileSystemService(user.ctx.getProperty("omero.data.dir"));
     }
 
     /**
@@ -712,7 +716,7 @@ public class DeleteITest extends AbstractServantTest {
     private DeleteHandleI doDelete(DeleteCommand... dc) throws Exception {
         Ice.Identity id = new Ice.Identity("handle", "delete");
         //DeleteSpecFactory factory = specFactory();
-        DeleteHandleI handle = new DeleteHandleI(id, user_sf, dc, 1000);
+        DeleteHandleI handle = new DeleteHandleI(id, user_sf, afs, dc, 1000);
         handle.run();
         assertEquals(handle.report().toString(), 0, handle.errors());
         return handle;
