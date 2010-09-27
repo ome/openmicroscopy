@@ -273,7 +273,7 @@ class BrowserComponent
     	addComponent(null);
     	if (exp != null) model.setSelectedDisplay(exp, single);
     	else model.setSelectedDisplay(display, single);
-    	if (display == null) view.setNullSelectedNode();
+    	//if (display == null) view.setNullSelectedNode();
     	if (oldDisplay != null && oldDisplay.equals(display)) {
     		ho = oldDisplay.getUserObject();
     		if (ho instanceof PlateData)
