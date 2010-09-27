@@ -99,7 +99,7 @@ public class BrowserImportAction
         	setEnabled(false);
             return;
         }
-        setEnabled(true);
+        setEnabled(false);
     }
     
     /**

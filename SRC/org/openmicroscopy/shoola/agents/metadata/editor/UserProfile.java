@@ -69,7 +69,6 @@ import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.util.UploadPictureDialog;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.agents.util.ui.GroupsRenderer;
 import org.openmicroscopy.shoola.agents.util.ui.PermissionsPane;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -786,7 +785,7 @@ class UserProfile
 		text = text.trim();
 		ExperimenterData original = (ExperimenterData) model.getRefObject();
 		if (!text.equals(original.getUserName())) return true;
-		if (selectedIndex != originalIndex) return true;
+		//if (selectedIndex != originalIndex) return true;
 		if (details == null) return false;
 		Entry entry;
 		Iterator i = details.entrySet().iterator();
@@ -850,8 +849,20 @@ class UserProfile
     	if (v == null) v = "";
     	original.setFirstName(v.trim());
     	
+    	f = items.get(EditorUtil.FIRST_NAME);
+    	v = f.getText();
+    	if (v == null) v = "";
+    	original.setFirstName(v.trim());
+    	
+    	f = items.get(EditorUtil.MIDDLE_NAME);
+    	v = f.getText();
+    	if (v == null) v = "";
+    	original.setMiddleName(v.trim());
+    	
     	//set the groups
     	GroupData g = null;
+    	/*
+    	
     	if (selectedIndex != originalIndex) {
     		if (selectedIndex < groupData.length)
     			g = groupData[selectedIndex];
@@ -871,6 +882,7 @@ class UserProfile
     		//Need to see what to do b/c no ExperimenterGroupMap
     		original.setGroups(newGroups);
     	}
+    	*/
     	String value = loginArea.getText().trim();
     	UserCredentials uc = new UserCredentials(value, "");
     	Boolean b = ownerBox.isSelected();
