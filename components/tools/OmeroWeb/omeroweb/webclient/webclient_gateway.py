@@ -259,11 +259,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     
     def getServerVersion(self):
         conf = self.getConfigService()
-        try:
-            return conf.getVersion()
-        except:
-            logger.error(traceback.format_exc())
-            return "Version is not available"
+        return conf.getVersion()
 
 
     #########################################################
@@ -1304,7 +1300,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             op["/FileAnnotation"] = "KEEP"
         if child is None:
             op["/Image"] = "KEEP"
-        dc = omero.api.delete.DeleteCommand('/Dataset', long(obj.id))
+        dc = omero.api.delete.DeleteCommand('/Dataset', long(obj.id), op)
         handle = self.getDeleteService().queueDelete([dc])
         return handle
     
@@ -1316,7 +1312,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             op["/FileAnnotation"] = "KEEP"
         if child is None:
             op["/Dataset"] = "KEEP"
-        dc = omero.api.delete.DeleteCommand('/Project', long(obj.id))
+        dc = omero.api.delete.DeleteCommand('/Project', long(obj.id), op)
         handle = self.getDeleteService().queueDelete([dc])
         return handle
     

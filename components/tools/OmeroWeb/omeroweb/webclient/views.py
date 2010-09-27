@@ -86,7 +86,7 @@ from forms import ShareForm, BasketShareForm, ShareCommentForm, \
 
 from omeroweb.webadmin.forms import MyAccountForm, MyAccountLdapForm, UploadPhotoForm, LoginForm
 
-from omeroweb.webadmin.views import _session_logout, _checkVersion
+from omeroweb.webadmin.views import _session_logout, _checkVersion, _isServerOn
 from omeroweb.webgateway.views import getBlitzConnection
 from omeroweb.webgateway import views as webgateway_views
 
@@ -262,7 +262,9 @@ def login(request):
             return HttpResponseRedirect(reverse("webindex"))
     else:
         if request.method == 'POST' and request.REQUEST.get('server'):
-            if not _checkVersion(request.session.get('host'), request.session.get('port')):
+            if not _isServerOn(request.session.get('host'), request.session.get('port')):
+                error = "Server is not responding, please contact administrator."
+            elif not _checkVersion(request.session.get('host'), request.session.get('port')):
                 error = "Client version does not match server, please contact administrator."
             else:
                 error = "Connection not available, please check your user name and password."

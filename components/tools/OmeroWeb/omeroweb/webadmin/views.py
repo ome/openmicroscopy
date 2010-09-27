@@ -112,9 +112,19 @@ def _checkVersion(host, port):
             logger.debug("Client version: '%s'; Server version: '%s'"% (omero_version, agent))
         except Exception, x:
             logger.error(traceback.format_exc())
-            error = str(x)
     return rv
 
+def _isServerOn(host, port):
+    import re
+    conn = getGuestConnection(host, port)
+    if conn is not None:
+        try:
+            conn.getServerVersion()
+            return True
+        except Exception, x:
+            logger.error(traceback.format_exc())
+    return False
+    
 ################################################################################
 # decorators
 
@@ -308,7 +318,9 @@ def login(request):
         return HttpResponseRedirect(reverse("waindex"))
     else:
         if request.method == 'POST' and request.REQUEST.get('server'):
-            if not _checkVersion(request.session.get('host'), request.session.get('port')):
+            if not _isServerOn(request.session.get('host'), request.session.get('port')):
+                error = "Server is not responding, please contact administrator."
+            elif not _checkVersion(request.session.get('host'), request.session.get('port')):
                 error = "Client version does not match server, please contact administrator."
             else:
                 error = "Connection not available, please check your user name and password."

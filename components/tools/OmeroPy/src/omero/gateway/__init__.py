@@ -835,7 +835,8 @@ class _BlitzGateway (object):
             # The connection was lost. This shouldn't happen, as we keep pinging it, but does so...
             logger.debug(traceback.format_exc())
             logger.debug("... lost, reconnecting")
-            return self.connect()
+            #return self.connect()
+            return False
         except Ice.ConnectionRefusedException: #pragma: no cover
             # The connection was refused. We lost contact with glacier2router...
             logger.debug(traceback.format_exc())
