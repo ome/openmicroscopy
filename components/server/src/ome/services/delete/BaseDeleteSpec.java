@@ -269,7 +269,6 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
         final String[] path = entry.path(superspec);
         final String table = path[path.length - 1];
         final String str = StringUtils.join(path, "/");
-        final String which = ids != null ? ids.toString() : ("root id=" + id);
 
         if (ids.size() == 0) {
             if (log.isDebugEnabled()) {
@@ -291,11 +290,11 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
                     actualDeletes.add(id);
                     tableIds.put(table, ids);
                     if (log.isDebugEnabled()) {
-                        log.debug(String.format("Deleted %s from %s: %s", id, str, which));
+                        log.debug(String.format("Deleted %s from %s: root=%s", id, str, this.id));
                     }
                 } else {
                     if (log.isInfoEnabled()) {
-                        log.info(String.format("Failed to delete %s from %s: %s", id, str, which));
+                        log.warn(String.format("Missing delete %s from %s: root=%s", id, str, this.id));
                     }
                 }
                 release(session, sp);
@@ -303,11 +302,13 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
             } catch (ConstraintViolationException cve) {
                 rollback(session, sp);
                 String cause = "ConstraintViolation: " + cve.getConstraintName();
-                log.info(String.format("Failed to delete %s: %s due to %s",
-                        str, which, cause));
                 if (DeleteEntry.Op.SOFT.equals(entry.getOp())) {
+                    log.debug(String.format("Could not delete softly %s: %s due to %s",
+                            str, this.id, cause));
                     rv.append(cause);
                 } else {
+                    log.info(String.format("Failed to delete %s: %s due to %s",
+                            str, this.id, cause));
                     throw cve;
                 }
             }
