@@ -897,7 +897,6 @@ class OmeroDataServiceImpl
 		DeleteCommand cmd;
 		Map<String, String> options;
 		DataObject data;
-		int index = 0;
 		List<Class> annotations;
 		Iterator<Class> j;
 		List<DataObject> contents;
@@ -917,7 +916,7 @@ class OmeroDataServiceImpl
 							OMEROGateway.KEEP);
 				}
 			}
-			if (object.deleteContent()) {
+			if (!object.deleteContent()) {
 				if (options == null) 
 					options = new HashMap<String, String>();
 				if (data instanceof DatasetData) {
@@ -953,8 +952,6 @@ class OmeroDataServiceImpl
 				}
 			}
 		}
-		
-		
 		return gateway.deleteObject(commands.toArray(new DeleteCommand[] {}));
 	}
 
