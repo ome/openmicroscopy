@@ -2650,6 +2650,8 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     _pr = None # projection
 
+    _invertedAxis = False
+
     PROJECTIONS = {
         'normal': -1,
         'intmax': omero.constants.projection.ProjectionType.MAXIMUMINTENSITY,
@@ -3069,6 +3071,12 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     def setProjection (self, proj):
         self._pr = proj
+
+    def isInvertedAxis (self):
+        return self._invertedAxis
+
+    def setInvertedAxis (self, inverted):
+        self._invertedAxis = inverted
 
     LINE_PLOT_DTYPES = {
         (4, True, True): 'f', # signed float
@@ -3564,11 +3572,17 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     @assert_pixels
     def z_count (self):
-        return self._obj.getPrimaryPixels().getSizeZ().val
+        if self.isInvertedAxis():
+            return self._obj.getPrimaryPixels().getSizeT().val
+        else:
+            return self._obj.getPrimaryPixels().getSizeZ().val
 
     @assert_pixels
     def t_count (self):
-        return self._obj.getPrimaryPixels().getSizeT().val
+        if self.isInvertedAxis():
+            return self._obj.getPrimaryPixels().getSizeZ().val
+        else:
+            return self._obj.getPrimaryPixels().getSizeT().val
 
     @assert_pixels
     def c_count (self):
@@ -3599,6 +3613,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
         rv = {}
         rv['p'] = self.getProjection()
+        rv['ia'] = self.isInvertedAxis() and "1" or "0"
         return rv
 
     def _loadRenderOptions (self):
@@ -3613,6 +3628,7 @@ class _ImageWrapper (BlitzObjectWrapper):
     def loadRenderOptions (self):
         opts = self._loadRenderOptions()
         self.setProjection(opts.get('p', None))
+        self.setInvertedAxis(opts.get('ia', "0") == "1")
         return True
 
     @assert_re

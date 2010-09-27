@@ -155,6 +155,7 @@
     /* Sync inputs with initial values */
 
     $('#wblitz-rmodel').attr('checked', !viewport.isGreyModel());
+    $('#wblitz-invaxis').attr('checked', viewport.loadedImg.rdefs.invertAxis);
     //$('#rd-wblitz-rmodel').attr('checked', !viewport.isGreyModel());
 
     var q = viewport.getQuality();
@@ -179,8 +180,6 @@
     }
 
     /* Image details */
-    $('#wblitz-t-count').html(viewport.getTCount());
-    $('#wblitz-z-count').html(viewport.getZCount());
     var tmp = getMetadata();
     $('#wblitz-image-name').html(tmp.imageName);
     $('#wblitz-image-description-content').html(tmp.imageDescription.replace(/\n/g, '<br />'));
@@ -315,6 +314,7 @@
       }
       $('#wblitz-lp-enable').attr('disabled', p != 'normal');
       //$('#wblitz-channels-box button').attr('disabled', p == 'split');
+        $('[name="wblitz-proj"][value=intmax]').attr('disabled', viewport.loadedImg.rdefs.invertAxis);
     }
     
     //nosync || syncRDCW();
@@ -398,6 +398,8 @@
   var imageChange = function (ev, obj) {
     $('#wblitz-t-curr').html(viewport.getTPos());
     $('#wblitz-z-curr').html(viewport.getZPos());
+    $('#wblitz-t-count').html(viewport.getTCount());
+    $('#wblitz-z-count').html(viewport.getZCount());
     if (viewport.hasLinePlot() || $('#wblitz-lp-enable').attr('checked')) {
       viewport.refreshPlot();
     }
@@ -635,7 +637,7 @@
         <div id="rdef-active-area">
         <a id="rdef-postit-help" href="#" onclick="return showChannelWindowHelp();"><img src="/appmedia/webgateway/img/question.png" alt="Show help on channel window ranges" /></a>
         <label for="rd-wblitz-rmodel">Render as Color</label>
-        <input id="rd-wblitz-rmodel" type="checkbox" onchange="return rdChanSelHelper(this); viewport.setModel(this.checked?'c':'g');" />
+        <input id="rd-wblitz-rmodel" type="checkbox" onchange="return rdChanSelHelper(this);" />
         <table cellspacing="0">
           <tr>
             <th>Visible</th>
@@ -736,6 +738,11 @@
           <div class="even row">
             <label for="wblitz-rmodel">Color</label>
             <input id="wblitz-rmodel" type="checkbox" onclick="viewport.setModel(this.checked?'c':'g');" />
+	    {% if not blitzcon.isAnonymous and image.canWrite %}
+	    <br />
+            <label for="wblitz-invaxis">Invert Z/T Axis</label>
+            <input id="wblitz-invaxis" type="checkbox" onchange="viewport.setInvertedAxis(this.checked);" />
+	    {% endif %}
             <br />
           </div>
             <h1>Current Image</h1>

@@ -415,6 +415,7 @@ def _get_prepared_image (request, iid, server_id=None, _conn=None, with_session=
     elif r.get('m', None) == 'c':
         img.setColorRenderingModel()
     img.setProjection(r.get('p', None))
+    img.setInvertedAxis(bool(r.get('ia', "0") == "1"))
     compress_quality = r.get('q', None)
     if saveDefs:
         r.has_key('z') and img._re.setDefaultZ(long(r['z'])-1)
@@ -718,6 +719,7 @@ def channelMarshal (channel):
 def imageMarshal (image, key=None):
     """ return a dict with pretty much everything we know and care about an image,
     all wrapped in a pretty structure."""
+    image.loadRenderOptions()
     pr = image.getProject()
     ds = image.getDataset()
     try:
@@ -750,13 +752,14 @@ def imageMarshal (image, key=None):
             rv['rdefs'] = {'model': image.isGreyscaleRenderingModel() and 'greyscale' or 'color',
                            'projection': image.getProjection(),
                            'defaultZ': image._re.getDefaultZ(),
-                           'defaultT': image._re.getDefaultT()}
+                           'defaultT': image._re.getDefaultT(),
+                           'invertAxis': image.isInvertedAxis()}
         except TypeError:
             # Will happen if an image has bad or missing pixel data
             rv['pixel_range'] = (0, 0)
             rv['channels'] = ()
             rv['split_channel'] = ()
-            rv['rdefs'] = {'model': 'color', 'projection': image.getProjection(),}
+            rv['rdefs'] = {'model': 'color', 'projection': image.getProjection(), 'invertAxis': image.isInvertedAxis()}
     except AttributeError:
         rv = None
         raise
