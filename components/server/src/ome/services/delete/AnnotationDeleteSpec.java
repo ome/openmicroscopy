@@ -8,6 +8,7 @@
 package ome.services.delete;
 
 import java.lang.reflect.Modifier;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -155,8 +156,20 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
     @Override
     public void setExtendedMetadata(ExtendedMetadata em) {
         super.setExtendedMetadata(em);
+
+        // First calculate the number of unique top-level paths
+        List<String> uniquePaths = new ArrayList<String>();
+        for (DeleteEntry entry : entries) {
+            String topLevel = entry.path("")[0];
+            if (!uniquePaths.contains(topLevel)) {
+                uniquePaths.add(topLevel);
+            }
+        }
+
+        // Now we check if this represents all the annotation types
+        // in the system.
         Set<Class<Annotation>> types = em.getAnnotationTypes();
-        if (types.size() != entries.size()) {
+        if (types.size() != uniquePaths.size()) {
             throw new FatalBeanException(
                     "Mismatch between anntotations defined and those found: "
                             + entries + "<> " + em.getAnnotationTypes());
@@ -166,6 +179,11 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
             String simpleName = type.getSimpleName();
             for (int i = 0; i < entries.size(); i++) {
                 DeleteEntry entry = entries.get(i);
+                if (entry.path("").length > 1) {
+                    // This not an annotation, but some subpath
+                    // ignore it.
+                    continue;
+                }
                 if (simpleName.equals(entry.getName().substring(1))) {
                     this.types[i] = type;
                     if (Modifier.isAbstract(type.getModifiers())) {
@@ -196,6 +214,14 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
             for (int i = 0; i < types.length; i++) {
                 DeleteEntry entry = entries.get(i);
                 Class<?> type = types[i];
+
+                // If the type is null, then this is not an annotation but
+                // but object under an annotation,like
+                // /FileAnnotation/OriginalFile.
+                if (type == null) {
+                    continue;
+                }
+
                 String simpleName = type.getSimpleName();
                 String last = "/" + simpleName;
                 String[] path = entry.path(superspec);
@@ -222,11 +248,17 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
             // superclass
             for (int i = 0; i < types.length; i++) {
                 Class<?> type = types[i];
+
+                if (type == null) {
+                    continue;
+                }
+
+
                 NULLCHECK: while (rawOption[i] == null
                         && !Annotation.class.equals(type)) {
                     type = type.getSuperclass();
                     for (int j = 0; j < types.length; j++) {
-                        if (types[j].equals(type)) {
+                        if (type.equals(types[j])) {
                             rawOption[i] = rawOption[j]; // May also be null
                             continue NULLCHECK;
                         }
@@ -239,7 +271,7 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
 
             // Now that we've parsed out the raw options based on the
             // annotation hierarchy, we break off the first item and if not
-            // empty, that becomes the Op which is passed on the to
+            // empty, that becomes the Op which is passed onto
             // super.initialize
             for (int i = 0; i < rawOption.length; i++) {
                 String raw = rawOption[i];
@@ -265,9 +297,11 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
             }
 
             for (int i = 0; i < excludes.length; i++) {
-                String defaultExclude = excludeMap.get("/" + types[i].getSimpleName());
-                if (excludes[i] == null && defaultExclude != null) {
-                    excludes[i] = defaultExclude;
+                if (types[i] != null) {
+                    String defaultExclude = excludeMap.get("/" + types[i].getSimpleName());
+                    if (excludes[i] == null && defaultExclude != null) {
+                        excludes[i] = defaultExclude;
+                    }
                 }
             }
 
@@ -291,12 +325,16 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
         // Copying the entry since we cannot currently find relationships
         // to subclasses, i.e. getRelationship(ImageAnnotationLink,
         // LongAnnotation)==null.
-        final DeleteEntry copy = new DeleteEntry(this, "/Annotation", subpath);
+        final DeleteEntry dontuseentry = entries.get(step);
+        final String[] dontuse = dontuseentry.path("");
+        final String klass = dontuse[0];
+        dontuse[0] = "/Annotation"; // Reset the value.
+        final String newpath = StringUtils.join(dontuse, "/");
+        final DeleteEntry copy = new DeleteEntry(this, newpath, subpath);
 
         final String[] sub = copy.path(superspec);
-        final int which = sub.length - 1;
+        final int which = sub.length - dontuse.length;
         final String alias = "ROOT" + which;
-        final String klass = subpath.getName().substring(1);
 
         and = new QueryBuilder();
         and.skipFrom();

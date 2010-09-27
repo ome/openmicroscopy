@@ -10,6 +10,7 @@ import static omero.rtypes.rdouble;
 import static omero.rtypes.rint;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -255,7 +256,7 @@ public class DeleteServiceTest
      * @throws ServerError
      * @throws InterruptedException
      */
-    private void delete(DeleteCommand...dc) 
+    private String delete(DeleteCommand...dc)
     	throws ApiUsageException, ServerError,
         InterruptedException
     {
@@ -270,6 +271,7 @@ public class DeleteServiceTest
         }
         String report = handle.report().toString();
         assertEquals(report, 0, handle.errors());
+        return report;
     }
 
     /**
@@ -874,18 +876,12 @@ public class DeleteServiceTest
 		int n;
     	for (int i = 0; i < values.length; i++) {
 			n = values[i];
-			p = (Plate) iUpdate.saveAndReturnObject(
-					mmFactory.createPlate(1, 1, 1, n, false));
+            p = (Plate) iUpdate.saveAndReturnObject(
+                    mmFactory.createPlate(1, 1, 1, n, false));
+			results = getWellsForPlate(p.getId().getValue());
+
 			param = new ParametersI();
 			param.addLong("plateID", p.getId().getValue());
-			sb = new StringBuilder();
-			sb.append("select well from Well as well ");
-			sb.append("left outer join fetch well.plate as pt ");
-			sb.append("left outer join fetch well.wellSamples as ws ");
-			sb.append("left outer join fetch ws.image as img ");
-	        sb.append("where pt.id = :plateID");
-	        results = iQuery.findAllByQuery(sb.toString(), param);
-	        
 	        sb = new StringBuilder();
 	        sb.append("select pa from PlateAcquisition as pa " +
 	        		"where pa.plate.id = :plateID"); 
@@ -3388,12 +3384,12 @@ public class DeleteServiceTest
     	Map<String, String> options = new HashMap<String, String>();
     	options.put(REF_PLATE, KEEP);
     	long id = s.getId().getValue();
-    	delete(new DeleteCommand(REF_SCREEN, id, options));
+	String report = delete(new DeleteCommand(REF_SCREEN, id, options));
     	String sql = "select p from Screen as p ";
     	sql += "where p.id = id";
     	ParametersI param = new ParametersI();
 		param.addId(id);
-		assertNull(iQuery.findByQuery(sql, param));
+		assertNull(report, iQuery.findByQuery(sql, param));
 		
 		sql = "select p from Plate as p ";
     	sql += "where p.id = id";
@@ -3820,6 +3816,49 @@ public class DeleteServiceTest
     }
     
     /**
+     * After a discussion Sept. 2010, this is expected to fail. An Image in
+     * a Well can only be deleted via the Well or the Plate.
+     */
+    @Test(groups = "ticket:2768")
+    public void testDeleteImageThatsInAWell()
+        throws Exception
+    {
+
+        Plate p = (Plate) iUpdate.saveAndReturnObject(
+                mmFactory.createPlate(1, 1, 1, 0, false));
+        List<Well> wells = getWellsForPlate(p.getId().getValue());
+        List<Image> images = new ArrayList<Image>();
+        for (Well well : wells) {
+            for (WellSample ws : well.copyWellSamples()) {
+                images.add(ws.getImage());
+            }
+        }
+        assertTrue(images.size() > 0);
+        DeleteCommand dc = new DeleteCommand("/Image", images.get(0).getId().getValue(), null);
+        try {
+            delete(dc);
+            fail("Should not be allowed.");
+        } catch (AssertionFailedError afe) {
+            // Ok.
+        }
+
+        assertExists(wells.get(0));
+        assertExists(images.get(0));
+
+    }
+
+    /**
+     * Tagset is a collection tags. If you select a tagset for deletion, you'd
+     * expect all the tagsets to go away if they are not shared. Need an option
+     * to allow users to delete images as well. Similar to dataset delete content.
+     */
+    @Test(groups = "ticket:XXX")
+    public void testDeleteTagSet() {
+
+    }
+
+
+    /**
      * Test to delete multiple images at the same time.
      * @throws Exception Thrown if an error occurred.
      */
@@ -3914,36 +3953,104 @@ public class DeleteServiceTest
 	 * 
 	 * @throws Exception  Thrown if an error occurred.
 	 */
-    @Test(enabled = false, groups = {"ticket:#2884"})
+    @Test(groups = {"ticket:2884"})
     public void testDeleteFileAnnotation() 
-    	throws Exception
+        throws Exception
     {
-    	//creation and linkage have already been tested
-    	//File 
-    	OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
-    			mmFactory.createOriginalFile());
-		FileAnnotation fa = new FileAnnotationI();
-		fa.setFile(of);
-		long ofId = of.getId().getValue();
-		Annotation data = (Annotation) iUpdate.saveAndReturnObject(fa);
-		long id = data.getId().getValue();
-		delete(new DeleteCommand(REF_ANN, id, null));
-    	
-		ParametersI param = new ParametersI();
-    	param.addId(id);
-    	String sql = "select a from Annotation as a where a.id = :id";
-    	assertNull(iQuery.findByQuery(sql, param));
-    	param = new ParametersI();
-    	param.addId(ofId);
-    	sql = "select a from OriginalFile as a where a.id = :id";
-    	assertNull(iQuery.findByQuery(sql, param));
+        //creation and linkage have already been tested
+        //File
+        OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
+                mmFactory.createOriginalFile());
+        FileAnnotation fa = new FileAnnotationI();
+        fa.setFile(of);
+        long ofId = of.getId().getValue();
+        Annotation data = (Annotation) iUpdate.saveAndReturnObject(fa);
+        long id = data.getId().getValue();
+        delete(new DeleteCommand(REF_ANN, id, null));
+
+        ParametersI param = new ParametersI();
+        param.addId(id);
+        String sql = "select a from Annotation as a where a.id = :id";
+        assertNull(iQuery.findByQuery(sql, param));
+        param = new ParametersI();
+        param.addId(ofId);
+        sql = "select a from OriginalFile as a where a.id = :id";
+        assertNull(iQuery.findByQuery(sql, param));
     }
+
+    @Test(groups = {"ticket:2884"})
+    public void testDeleteFileAnnotationMultiplyLinked()
+        throws Exception
+    {
+        //
+        // Create two images
+        //
+        Image image0 = (Image) iUpdate.saveAndReturnObject(
+                mmFactory.createImage());
+        Image image1 = (Image)  iUpdate.saveAndReturnObject(
+                mmFactory.createImage());
+        OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
+                mmFactory.createOriginalFile());
+        of.unload();
+
+        //
+        // Create an annotation with a dummy file.
+        //
+        FileAnnotation fa = new FileAnnotationI();
+        fa.setFile(of);
+        long ofId = of.getId().getValue();
+        Annotation data = (Annotation) iUpdate.saveAndReturnObject(fa);
+        long id = data.getId().getValue();
+        RawFileStorePrx prx = factory.createRawFileStore();
+        try {
+            prx.setFileId(ofId);
+            prx.write(new byte[]{1,2,3,4}, 0, 4);
+        } finally {
+            prx.close();
+        }
+
+
+        //
+        // Link annotation to both images
+        //
+        ImageAnnotationLink link0 = new ImageAnnotationLinkI();
+        link0.link(image0, fa);
+        link0 = (ImageAnnotationLink) iUpdate.saveAndReturnObject(link0);
+
+        ImageAnnotationLink link1 = new ImageAnnotationLinkI();
+        link1.link(image1, fa);
+        link1 = (ImageAnnotationLink) iUpdate.saveAndReturnObject(link1);
+
+
+        delete(new DeleteCommand(REF_IMAGE, image0.getId().getValue(), null));
+
+
+        //
+        // Check results
+        //
+        assertExists(of);
+        assertExists(data);
+        assertExists(image1);
+        assertExists(link1);
+        prx = factory.createRawFileStore();
+        byte[] buf = null;
+        try {
+            prx.setFileId(ofId);
+            buf = prx.read(0, 4);
+        } finally {
+            prx.close();
+        }
+        assertTrue(Arrays.equals(new byte[]{1,2,3,4}, buf));
+
+    }
+
+
     
     /**
      * Test to delete an image and make sure the original files are removed.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = true, groups = {"ticket:#2884"})
+    @Test(groups = {"ticket:2884"})
     public void testDeleteImageAndOriginalFile() 
     	throws Exception
     {
@@ -3981,10 +4088,7 @@ public class DeleteServiceTest
     	param.addId(pixels.getId().getValue());
     	assertNull(iQuery.findByQuery(sql, param));
     	
-    	sql = "select i from OriginalFile i where i.id = :id";
-    	param = new ParametersI();
-    	param.addId(fileID);
-    	assertNull(iQuery.findByQuery(sql, param));
+	assertDoesNotExist(f);
     }
     
     /**
@@ -4064,7 +4168,17 @@ public class DeleteServiceTest
     private void assertExists(IObject obj) throws Exception {
         IObject copy = iQuery.find(
                 obj.getClass().getSimpleName(), obj.getId().getValue());
-        assertNotNull(obj.toString() + " is missing!", copy);
+        assertNotNull(String.format("%s:%s",
+                obj.getClass().getName(), obj.getId().getValue())
+                + " is missing!", copy);
+    }
+
+    private void assertDoesNotExist(IObject obj) throws Exception {
+        IObject copy = iQuery.find(
+                obj.getClass().getSimpleName(), obj.getId().getValue());
+        assertNull(String.format("%s:%s",
+                obj.getClass().getName(), obj.getId().getValue())
+                + " still exists!", copy);
     }
 
     @SuppressWarnings("unchecked")

@@ -62,6 +62,17 @@ public class ExtendedMetadataTest extends AbstractManagedContextTest {
     }
 
     /**
+     * Where a superclass has a relationship to a class (Annotation to some link type),
+     * it is also necessary to be able to find the same relationship from a subclass
+     * (e.g. FileAnnotation).
+     */
+    @Test
+    public void testLinkFromSubclassToSuperClassRel() {
+       assertNotNull(
+               metadata.getRelationship("ImageAnnotationLink", "FileAnnotation"));
+    }
+
+    /**
      * For simplicity, the relationship map currently holds only the short
      * class names. Here we are adding a test which checks for the full ones
      * under "broken" to remember to re-evaluate.

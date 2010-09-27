@@ -72,7 +72,7 @@ plus test REAP
         then boolean, double, long, term, and timestamp
         annotations will all be marked KEEP.
 
-        Indentation and order represent the hierarchy, from bottom to type.
+        Order represents the hierarchy, from bottom to type.
         </description>
         <constructor-arg>
             <map>
@@ -82,6 +82,7 @@ plus test REAP
         <constructor-arg>
             <list>
                <value>/FileAnnotation</value>
+               <value>/FileAnnotation/OriginalFile</value>
                <value>/TypeAnnotation</value>
                <value>/ListAnnotation</value>
                <value>/XmlAnnotation</value>

@@ -223,8 +223,12 @@ public static class Impl implements ExtendedMetadata, ApplicationListener {
 
         for (String key : m.keySet()) {
             Map<String, String> value = new HashMap<String, String>();
-            Locks locks = locksHolder.get(key);
-            locks.fillRelationships(sfi, value);
+            ClassMetadata cm = m.get(key);
+            for (Class<?> c : hierarchy(m, key)) {
+                Locks locks = locksHolder.get(c.getName());
+                locks.fillRelationships(sfi, value);
+            }
+
             // FIXME: using simple name rather than FQN
             Map<String, String> value2 = new HashMap<String, String>();
             for (Map.Entry<String, String> i : value.entrySet()) {
@@ -457,6 +461,38 @@ public static class Impl implements ExtendedMetadata, ApplicationListener {
 
         return queries;
     }
+
+    /**
+     * Takes a class name as a string and find that class and all of its
+     * subclasses (transitively) returns them as a list.
+     */
+    private static List<Class<?>> hierarchy(Map<String, ClassMetadata> m, String key) {
+
+        final List<Class<?>> h = new ArrayList<Class<?>>();
+
+        ClassMetadata cm = m.get(key);
+        Class<?> c = cm.getMappedClass(EntityMode.POJO);
+        h.add(c);
+
+        int index = 0;
+
+        while (index < h.size()) {
+            for (String key2 : m.keySet()) {
+                if (key.equals(key2)) {
+                    continue;
+                } else {
+                    cm = m.get(key2);
+                    c = cm.getMappedClass(EntityMode.POJO);
+                    if (c.getSuperclass().equals(h.get(index))) {
+                        h.add(c);
+                    }
+                }
+            }
+            index++;
+        }
+        return h;
+    }
+
 }
 
 /**
@@ -563,6 +599,11 @@ class Locks {
     // ~ Main method
     // =========================================================================
 
+    /**
+     * For each of the fields contained in this {@link Locks} object, parse
+     * out the type and the field name and store those as the key and value
+     * in the "value" argument.
+     */
     public void fillRelationships(SessionFactoryImplementor sfi,
             Map<String, String> value) {
 
@@ -572,11 +613,13 @@ class Locks {
             final Type type = types[t];
             final String name = type.getName();
 
+            String to = null;
+            String field = null;
             if (type instanceof EntityType) {
                 final EntityType entType = (EntityType) type;
-                final String to = entType.getAssociatedEntityName();
+                to = entType.getAssociatedEntityName();
+                field = cm.getPropertyNames()[t];
 
-                value.put(to, cm.getPropertyNames()[t]);
 
             } else if (types[t] instanceof CollectionType) {
                 final CollectionType colType = (CollectionType)types[t];
@@ -584,15 +627,20 @@ class Locks {
                 if (!elemType.isEntityType()) {
                     continue; // The case for count maps and other primitives.
                 }
-                final String to = elemType.getName();
+                to = elemType.getName();
 
                 int open = name.indexOf("(");
                 int close = name.lastIndexOf(")");
                 String role = name.substring(open + 1, close);
                 int dot = role.lastIndexOf(".");
-                String field = role.substring(dot+1);
+                field = role.substring(dot+1);
 
-                value.put(to, field);
+            }
+
+            if (to != null && field != null) {
+                for (Class<?> c : Impl.hierarchy(sfi.getAllClassMetadata(), to)) {
+                    value.put(c.getName(), field);
+                }
             }
         }
     }
