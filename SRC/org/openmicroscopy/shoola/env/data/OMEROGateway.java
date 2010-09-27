@@ -50,6 +50,7 @@ import java.util.Map.Entry;
 import loci.formats.FormatException;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
@@ -67,6 +68,7 @@ import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+import Ice.ConnectionLostException;
 import Ice.ConnectionRefusedException;
 import ome.conditions.ResourceError;
 import ome.formats.OMEROMetadataStoreClient;
@@ -230,9 +232,9 @@ class OMEROGateway
 	/** Indicates that the connection has been lost. */
 	static final int LOST_CONNECTION = 0;
 	
-	/** Indicates that the server is out of service.. */
+	/** Indicates that the server is out of service. */
 	static final int SERVER_OUT_OF_SERVICE = 1;
-	 
+	
 	/** Identifies the image as root. */
 	private static final String REF_IMAGE = "/Image";
 	
@@ -787,6 +789,11 @@ class OMEROGateway
 				t instanceof ConnectionRefusedException) {
 			connected = false;
 			dsFactory.sessionExpiredExit(SERVER_OUT_OF_SERVICE);
+			return;
+		} else if (cause instanceof ConnectionLostException ||
+				t instanceof ConnectionLostException) {
+			connected = false;
+			dsFactory.sessionExpiredExit(LOST_CONNECTION);
 			return;
 		}
 		throw new DSAccessException("Cannot access data. \n"+message, t);
@@ -2291,30 +2298,35 @@ class OMEROGateway
 	}
 	
 	/** 
-	 * Tries to reconnect to the server.
+	 * Tries to reconnect to the server. Returns <code>true</code>
+	 * if it was possible to reconnect, <code>false</code>
+	 * otherwise.
 	 * 
 	 * @param userName	The user name to be used for login.
 	 * @param password	The password to be used for login.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @return See above.
 	 */
-	void reconnect(String userName, String password)
-		throws DSOutOfServiceException
+	boolean reconnect(String userName, String password)
 	{
+		clear();
 		try {
-			logout();
-			thumbnailService = null;
-			thumbRetrieval = 0;
-			fileStore = null;
-			if (port > 0) secureClient = new client(hostName, port);
-			else secureClient = new client(hostName);
-			entryEncrypted = secureClient.createSession(userName, password);
+			//first to rejoin the session.
+			secureClient.joinSession(secureClient.getSessionId());
 			connected = true;
-		} catch (Throwable e) {
+		} catch (Throwable t) {
+			Throwable cause = t.getCause();
 			connected = false;
-			String s = "Can't connect to OMERO. OMERO info not valid.\n\n";
-			s += printErrorText(e);
-			throw new DSOutOfServiceException(s, e);  
+			//joining the session did not work so trying to create a session
+			if (cause instanceof ConnectionLostException ||
+					t instanceof ConnectionLostException) {
+				try {
+					secureClient.createSession(userName, password);
+				} catch (Throwable e) {
+					connected = false;
+				}
+			}
 		} 
+		return connected;
 	}
 	
 	/** Logs out. */

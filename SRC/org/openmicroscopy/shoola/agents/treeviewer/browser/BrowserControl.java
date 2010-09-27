@@ -224,12 +224,8 @@ class BrowserControl
         } 
         
         if (display.isChildrenLoaded()) {
-        	List l = display.getChildrenDisplay();
-			//if (display.getChildCount() != l.size()) {
-	
-        		//view.setLeavesViews(l, (TreeImageSet) display);
-        	//} else {
         	if (view.isFirstChildMessage(display)) {
+        		List l = display.getChildrenDisplay();
         		List<Object> list = new ArrayList<Object>(l.size());
         		Iterator i = l.iterator();
         		while (i.hasNext()) {
@@ -237,7 +233,6 @@ class BrowserControl
 				}
         		view.setLeavesViews(list, (TreeImageSet) display);
         	}
-        	//}
         	return;
         }
         if (ho instanceof ProjectData || ho instanceof ScreenData ||

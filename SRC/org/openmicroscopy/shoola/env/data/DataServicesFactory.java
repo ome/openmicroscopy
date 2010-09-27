@@ -50,6 +50,7 @@ import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
 
 import pojos.ExperimenterData;
@@ -287,31 +288,42 @@ public class DataServicesFactory
 	 */
 	void sessionExpiredExit(int index)
 	{
+		String message;
 		UserNotifier un = registry.getUserNotifier();
-		String message = "The server is no longer " +
-			"running. \nPlease contact your system administrator.";
-		if (index == OMEROGateway.LOST_CONNECTION) {
-			message = "The connection has been lost. \nThe application will " +
-					"exit.";
-			//Need to reconnect.
+		switch (index) {
+			case OMEROGateway.LOST_CONNECTION:
+				message = "The connection has been lost. \nDo you want " +
+						"to reconnect? If no, the application will exit.";
+				MessageBox box = new MessageBox(
+						registry.getTaskBar().getFrame(), "Lost Connection", 
+						message);
+				int v = box.centerMsgBox();
+				if (v == MessageBox.NO_OPTION) exitApplication();
+				else if (v == MessageBox.YES_OPTION) {
+					UserCredentials uc = (UserCredentials) 
+					registry.lookup(LookupNames.USER_CREDENTIALS);
+					boolean b =  omeroGateway.reconnect(uc.getUserName(), 
+            				uc.getPassword());
+					if (b) {
+						message = "You are reconnected to the server.";
+						un.notifyInfo("Reconnection Success", message);
+					} else {
+						message = "A failure occurred while attempting to " +
+								"reconnect.\nThe application will exit.";
+						un.notifyInfo("Reconnection Failure", message);
+						exitApplication();
+					}
+				}
+				break;
+			case OMEROGateway.SERVER_OUT_OF_SERVICE:
+				message = "The server is no longer " +
+				"running. \nPlease contact your system administrator.";
+				un.notifyInfo("Connection Refused", message);
+				exitApplication();
+				break;	
 		}
-		un.notifyInfo("Connection Refused", message);
-		exitApplication();
 	}
 	
-	/**
-	 * Checks if the session is still alive.
-	 * 
-	 * @param reg Reference to the container registry.
-	 */
-	/*
-	public static void isSessionAlive(Registry reg)
-	{
-		if (!(reg.equals(registry)))
-			throw new IllegalArgumentException("Not allow to access method.");
-		//omeroGateway.isSessionAlive();
-	}
-	*/
     /**
      * Returns the {@link OmeroDataService}.
      * 
@@ -450,21 +462,7 @@ public class DataServicesFactory
         	registry.bind(LookupNames.USER_ADMINISTRATOR, uc.isAdministrator());
 		} catch (DSAccessException e) {
 			throw new DSOutOfServiceException("Cannot retrieve groups", e);
-		}
-		/*
-        try {
-        	registry.getAdminService().reloadPIGroups(exp);
-		} catch (Exception e) {
-			throw new DSOutOfServiceException("Cannot retrieve groups", e);
-		}
-		 Set<GroupData> available = (Set) registry.lookup(
-        		LookupNames.USER_GROUP_DETAILS);
-        List<ExperimenterData> exps = (List) registry.lookup(
-        		LookupNames.USERS_DETAILS);
-		*/
-        
-       
-        
+		} 
         //Bind user details to all agents' registry.
         List agents = (List) registry.lookup(LookupNames.AGENTS);
 		Iterator i = agents.iterator();
