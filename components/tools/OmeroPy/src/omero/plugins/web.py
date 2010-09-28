@@ -464,37 +464,37 @@ APPLICATION_HOST='%s'
             import traceback
             print traceback.print_exc()
     
-    def server(self, *args):
-        if not len(args[0]):
-            self.ctx.out("OMERO.web application is served by 'default'")
-        else:
-            location = self.ctx.dir / "lib" / "python" / "omeroweb" / "custom_settings.py"
-            settings = file(location, 'rb').read().split('\n')
-            if settings[-1] == '':
-                settings = settings[:-1]
-            cserver = 'default'
-            for l in settings:
-                if l.startswith('APPLICATION_SERVER'):
-                    cserver = l.split('=')[-1].strip().replace("'",'').replace('"','')
-            server = args[0][0]
-            if server == cserver:
-                self.ctx.out("OMERO.web was already configured to be served by '%s'" % server)
-            elif server in ('default', 'fastcgi'):
-                if server == 'fastcgi':
-                    import flup
-                out = file(location, 'wb')
-                wrote = False
-                for l in settings:
-                    if l.startswith('APPLICATION_SERVER'):
-                        wrote = True
-                        out.write("APPLICATION_SERVER = '%s'\n" % server)
-                    else:
-                        out.write(l + '\n')
-                if not wrote:
-                    out.write("APPLICATION_SERVER = '%s'\n" % server)
-                self.ctx.out("OMERO.web has been configured to be served by '%s'" % server)
-            else:
-                self.ctx.err("Unknown server '%s'" % server)
+    #def server(self, *args):
+    #    if not len(args[0]):
+    #        self.ctx.out("OMERO.web application is served by 'default'")
+    #    else:
+    #        location = self.ctx.dir / "lib" / "python" / "omeroweb" / "custom_settings.py"
+    #        settings = file(location, 'rb').read().split('\n')
+    #        if settings[-1] == '':
+    #            settings = settings[:-1]
+    #        cserver = 'default'
+    #        for l in settings:
+    #            if l.startswith('APPLICATION_SERVER'):
+    #                cserver = l.split('=')[-1].strip().replace("'",'').replace('"','')
+    #        server = args[0][0]
+    #        if server == cserver:
+    #            self.ctx.out("OMERO.web was already configured to be served by '%s'" % server)
+    #        elif server in ('default', 'fastcgi'):
+    #            if server == 'fastcgi':
+    #                import flup
+    #            out = file(location, 'wb')
+    #            wrote = False
+    #            for l in settings:
+    #                if l.startswith('APPLICATION_SERVER'):
+    #                    wrote = True
+    #                    out.write("APPLICATION_SERVER = '%s'\n" % server)
+    #                else:
+    #                    out.write(l + '\n')
+    #            if not wrote:
+    #                out.write("APPLICATION_SERVER = '%s'\n" % server)
+    #            self.ctx.out("OMERO.web has been configured to be served by '%s'" % server)
+    #        else:
+    #            self.ctx.err("Unknown server '%s'" % server)
     
     def start(self, args):
         host = args.host is not None and args.host or "0.0.0.0"
@@ -510,6 +510,7 @@ APPLICATION_HOST='%s'
             cmd += " pidfile=%(base)s/var/django.pid daemonize=true"
             cmd += " maxchildren=5 minspare=1 maxspare=5 maxrequests=400"
             django = (cmd % {'base': self.ctx.dir}).split()
+            rv = self.ctx.popen(args=django, cwd=location) # popen
         elif deploy == 'fastcgi-tcp':
             cmd = "python manage.py runfcgi workdir=./"
             cmd += " method=prefork host=%(host)s port=%(port)s"
@@ -517,11 +518,11 @@ APPLICATION_HOST='%s'
             cmd += " maxchildren=5 minspare=1 maxspare=5 maxrequests=400"
             django = (cmd % {'base': self.ctx.dir, 'host': host,
                              'port':port}).split()
+            rv = self.ctx.popen(args=django, cwd=location) # popen
         else:
             django = ["python","manage.py","runserver", link, "--noreload"]
-        #rv = self.ctx.call(django, cwd = location)
-        self.ctx.popen(args=django, cwd=location) # popen
-    
+            rv = self.ctx.call(django, cwd = location)
+        
     def stop(self, args):
         self.ctx.out("Stopping django development webserver... \n")
         import omeroweb.settings as settings
