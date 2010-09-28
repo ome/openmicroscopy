@@ -3373,6 +3373,12 @@ public class DeleteServiceTest
     	param = new ParametersI();
 		param.addId(image.getId().getValue());
 		assertNotNull(iQuery.findByQuery(sql, param));
+		
+		param = new ParametersI();
+		param.addId(image.getId().getValue());
+		sql = "select p from DatasetImageLink as p ";
+    	sql += "where p.child.id = id";
+    	assertNotNull(iQuery.findByQuery(sql, param));
     }
     
     /**
@@ -3397,7 +3403,7 @@ public class DeleteServiceTest
     	Map<String, String> options = new HashMap<String, String>();
     	options.put(REF_PLATE, KEEP);
     	long id = s.getId().getValue();
-	String report = delete(new DeleteCommand(REF_SCREEN, id, options));
+    	String report = delete(new DeleteCommand(REF_SCREEN, id, options));
     	String sql = "select p from Screen as p ";
     	sql += "where p.id = id";
     	ParametersI param = new ParametersI();
