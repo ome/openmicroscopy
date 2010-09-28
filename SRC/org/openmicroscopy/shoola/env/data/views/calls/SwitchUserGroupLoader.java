@@ -51,7 +51,7 @@ import pojos.ExperimenterData;
  * </small>
  * @since 3.0-Beta4
  */
-public class SwitchUserLoader 
+public class SwitchUserGroupLoader 
 	extends BatchCallTree
 {
 
@@ -80,7 +80,7 @@ public class SwitchUserLoader
 	}
 	
 	/** Switches the user group. */
-	private void switchUser()
+	private void switchUserGroup()
 	{
 		try {
 			context.getAdminService().changeExperimenterGroup(experimenter, 
@@ -119,15 +119,15 @@ public class SwitchUserLoader
     		description = "Switching the user's group.";
     		add(new BatchCall(description) {
         		public void doCall() { 
-        			switchUser();
+        			switchUserGroup();
         		}
         	}); 
     	}
     }
     
     /**
-     * 
-     * @return 
+     * Returns the result.
+     * @see BatchCallTree#getPartialResult()
      */
     protected Object getPartialResult() { return result; }
     
@@ -137,7 +137,14 @@ public class SwitchUserLoader
      */
     protected Object getResult() { return null; }
     
-    public SwitchUserLoader(Map<Agent, AgentSaveInfo> toSave, 
+    /**
+     * Creates a new instance.
+     * 
+     * @param toSave The information for each agent.
+     * @param experimenter The experimenter to handle.
+     * @param groupID The identifier of the group
+     */
+    public SwitchUserGroupLoader(Map<Agent, AgentSaveInfo> toSave, 
     		ExperimenterData experimenter, long groupID)
     {
     	if (toSave == null && experimenter == null)

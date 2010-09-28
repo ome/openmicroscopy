@@ -255,6 +255,9 @@ class OMEROGateway
 	/** Identifies the PlateAcquisition as root. */
 	private static final String REF_PLATE_ACQUISITION = "/PlateAcquisition";
 
+	/** Identifies the PlateAcquisition as root. */
+	private static final String REF_WELL = "/Well";
+	
 	/** Identifies the Tag. */
 	private static final String REF_ANNOTATION = "/Annotation";
 	
@@ -1982,6 +1985,10 @@ class OMEROGateway
 		else if (ROIData.class.getName().equals(data)) return REF_ROI;
 		else if (PlateAcquisitionData.class.getName().equals(data)) 
 			return REF_PLATE_ACQUISITION;
+		else if (WellData.class.getName().equals(data)) 
+			return REF_WELL;
+		else if (PlateAcquisitionData.class.getName().equals(data)) 
+			return REF_PLATE_ACQUISITION;
 		else if (TagAnnotationData.class.getName().equals(data) || 
 				TermAnnotationData.class.getName().equals(data) ||
 				FileAnnotationData.class.getName().equals(data)) 
@@ -2166,7 +2173,7 @@ class OMEROGateway
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	private void changeCurrentGroup(ExperimenterData exp, long groupID)
+	void changeCurrentGroup(ExperimenterData exp, long groupID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		List<GroupData> groups = exp.getGroups();
@@ -2185,7 +2192,6 @@ class OMEROGateway
 			throw new DSOutOfServiceException(s);  
 		}
 		try {
-			
 			getAdminService().setDefaultGroup(exp.asExperimenter(), 
 					group.asGroup());
 			entryEncrypted.setSecurityContext(
@@ -2204,6 +2210,7 @@ class OMEROGateway
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
+	/*
 	void changeCurrentGroup(ExperimenterData exp, long groupID, 
 			String userName, String password)
 		throws DSOutOfServiceException, DSAccessException
@@ -2238,7 +2245,7 @@ class OMEROGateway
 			handleException(e, s);
 		} 
 	}
-
+*/
 	/**
 	 * Returns the version of the server.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in.

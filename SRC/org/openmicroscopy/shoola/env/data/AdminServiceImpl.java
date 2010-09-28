@@ -175,8 +175,8 @@ class AdminServiceImpl
 		if (exp.getDefaultGroup().getId() != groupID) {
 			UserCredentials uc = (UserCredentials) 
 			context.lookup(LookupNames.USER_CREDENTIALS);
-			gateway.changeCurrentGroup(exp, groupID, uc.getUserName(), 
-					uc.getPassword());
+			gateway.changeCurrentGroup(exp, groupID);//, uc.getUserName(), 
+					//uc.getPassword());
 		}
 		UserCredentials uc = (UserCredentials) 
 			context.lookup(LookupNames.USER_CREDENTIALS);
@@ -215,8 +215,7 @@ class AdminServiceImpl
 		gateway.updateExperimenter(exp.asExperimenter());
 		ExperimenterData data;
 		if (group != null && exp.getDefaultGroup().getId() != group.getId()) {
-			gateway.changeCurrentGroup(exp, group.getId(), 
-					uc.getUserName(), uc.getPassword());
+			gateway.changeCurrentGroup(exp, group.getId());//uc.getUserName(), uc.getPassword());
 		}
 		data = gateway.getUserDetails(uc.getUserName());
 		if (currentUser.getId() != exp.getId()) 

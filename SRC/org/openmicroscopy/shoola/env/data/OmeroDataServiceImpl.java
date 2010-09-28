@@ -80,6 +80,7 @@ import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.RatingAnnotationData;
@@ -647,8 +648,8 @@ class OmeroDataServiceImpl
 		gateway.updateExperimenter(exp.asExperimenter());
 		ExperimenterData data;
 		if (group != null && exp.getDefaultGroup().getId() != group.getId()) {
-			gateway.changeCurrentGroup(exp, group.getId(), uc.getUserName(), 
-					uc.getPassword());
+			gateway.changeCurrentGroup(exp, group.getId());//, uc.getUserName(), 
+					//uc.getPassword());
 			/*
 			data = gateway.login(uc.getUserName(), uc.getPassword(), 
 					uc.getHostName(), 1, group.getId());
@@ -927,9 +928,21 @@ class OmeroDataServiceImpl
 					options.put(gateway.createDeleteCommand(
 							DatasetData.class.getName()), 
 							OMEROGateway.KEEP);
+					options.put(gateway.createDeleteCommand(
+							ImageData.class.getName()), 
+							OMEROGateway.KEEP);
 				} else if (data instanceof ScreenData) {
 					options.put(gateway.createDeleteCommand(
 							PlateData.class.getName()), 
+							OMEROGateway.KEEP);
+					options.put(gateway.createDeleteCommand(
+							WellData.class.getName()), 
+							OMEROGateway.KEEP);
+					options.put(gateway.createDeleteCommand(
+							PlateAcquisitionData.class.getName()), 
+							OMEROGateway.KEEP);
+					options.put(gateway.createDeleteCommand(
+							ImageData.class.getName()), 
 							OMEROGateway.KEEP);
 				} else if (data instanceof TagAnnotationData) {
 					ns = ((TagAnnotationData) data).getNameSpace();

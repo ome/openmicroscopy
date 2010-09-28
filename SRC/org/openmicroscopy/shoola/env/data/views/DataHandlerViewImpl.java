@@ -39,7 +39,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.FilesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ObjectFinder;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsSaver;
-import org.openmicroscopy.shoola.env.data.views.calls.SwitchUserLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.SwitchUserGroupLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 
 import pojos.ExperimenterData;
@@ -202,7 +202,7 @@ public class DataHandlerViewImpl
 			ExperimenterData experimenter, long groupID,
 			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new SwitchUserLoader(toSave, experimenter, groupID);
+		BatchCallTree cmd = new SwitchUserGroupLoader(toSave, experimenter, groupID);
 		return cmd.exec(observer);
 	}
 
