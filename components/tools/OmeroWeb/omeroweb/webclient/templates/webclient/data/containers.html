@@ -152,8 +152,7 @@
                                     var parobj = par.split("-");
                                     if(parobj[0] == "orphaned") {
                                         parobj[1] = "orphaned";
-                                        $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" type="image" src="{% url webstatic "images/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href=\'{% url load_template "usertags" %}\'"> | <input class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket" title="Add to basket" onclick="toBasket(\'plate\', \''+obj[1]+'\');"/> <input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" onclick="treeCopyToClipboard(\'plate\', \''+obj[1]+'\');" />');
-                                        <input class="button" type="image" src="{% url webstatic "images/block.png" %}" alt="Delete" title="Delete" onclick="deleteItem(\'plate\', \''+obj[1]+'\');" />
+                                        $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" type="image" src="{% url webstatic "images/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href=\'{% url load_template "usertags" %}\'"> | <input class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket" title="Add to basket" onclick="toBasket(\'plate\', \''+obj[1]+'\');"/> <input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" onclick="treeCopyToClipboard(\'plate\', \''+obj[1]+'\');" /> <input class="button" type="image" src="{% url webstatic "images/block.png" %}" alt="Delete" title="Delete" onclick="deleteItem(\'plate\', \''+obj[1]+'\');" />');                                        
                                     } else if (ro=='readonly') {
                                         $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" type="image" src="{% url webstatic "images/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href=\'{% url load_template "usertags" %}\'"> | {% if not eContext.isEditable %}<input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" onclick="treeCopyToClipboard(\'plate\', \''+obj[1]+'\');" />{% endif %}');
                                     } else if (ro=='linkonly') {
@@ -202,9 +201,13 @@
             } else {
                 url = '{% url manage_action_containers "new" %}';
             }
+            var h = $(window).height()-200;
+            
             $("#right_panel").show();
             $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
-            $("div#metadata_details iframe").attr('src',url);
+            $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" id="metadata_details" src="'+url+'"name="metadata_details"></iframe>');
+            $('iframe#metadata_details').load();
+            
         }     
         
     </script>
@@ -224,10 +227,7 @@
         </div>
         {% endif %}
     </div>
-    
-    
 
-</div>
 <div class="clear"> </div>
 
 <div id="tree_details"> </div>
@@ -235,9 +235,6 @@
 {% endblock %}
 
 {% block center %}
-
-<!--<div id="content_action"></div>
-<div class="clear"> </div>-->
 
 <div id="content_details"> </div>
 

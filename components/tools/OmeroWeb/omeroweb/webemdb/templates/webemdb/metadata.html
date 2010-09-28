@@ -249,7 +249,6 @@
                 {% for fileann in file_annotations %}
                 <p>{{ fileann.getFileName }} ({{ fileann.getFileSize|default_if_none:0|filesizeformat }}) by {{ fileann.getDetails.getOwner.getNameWithInitial }} at {{ fileann.creationEventDate|date:"Y-m-d H:i:s" }}</p>
                 {% endfor %}
-            </ol>
             </div>
             {% else %}
                 <p>No file has been attached yet.</p>

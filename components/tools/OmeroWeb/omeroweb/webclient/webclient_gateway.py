@@ -1312,6 +1312,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             op["/FileAnnotation"] = "KEEP"
         if child is None:
             op["/Dataset"] = "KEEP"
+            op["/Image"] = "KEEP"
         dc = omero.api.delete.DeleteCommand('/Project', long(obj.id), op)
         handle = self.getDeleteService().queueDelete([dc])
         return handle
