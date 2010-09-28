@@ -3355,6 +3355,7 @@ public class DeleteServiceTest
     	//Now delete the project
     	Map<String, String> options = new HashMap<String, String>();
     	options.put(REF_DATASET, KEEP);
+    	options.put(REF_IMAGE, KEEP);
     	long id = p.getId().getValue();
     	delete(new DeleteCommand(REF_PROJECT, id, options));
     	String sql = "select p from Project as p ";
