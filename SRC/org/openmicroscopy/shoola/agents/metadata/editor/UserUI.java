@@ -25,7 +25,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
-import java.awt.FlowLayout;
+import java.awt.BorderLayout;
 import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
@@ -105,8 +105,8 @@ class UserUI
 		}
 		container.add(pane);
 		container.add(diskTask);
-		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		add(container);
+		setLayout(new BorderLayout());
+		add(container, BorderLayout.NORTH);
 	}
 	
 	/**
