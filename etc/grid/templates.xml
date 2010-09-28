@@ -245,7 +245,7 @@
       <server id="Web" exe="python" activation="${act}" pwd="${OMEROPY_HOME}omeroweb"> 
         <option>manage.py</option> 
         <option>runserver</option> 
-        <option>--noreload</option> 
+        <option>noreload</option> 
         <option>0.0.0.0:8000</option>
         <env>${PYTHONPATH}</env> 
         <adapter name="WebAdapter" register-process="true" endpoints="tcp" server-lifetime="false"/>
