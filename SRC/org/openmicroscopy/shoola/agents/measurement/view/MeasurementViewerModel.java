@@ -1506,14 +1506,7 @@ class MeasurementViewerModel
 	 * selected.
 	 * @return See above.
 	 */
-	List<String> getKeywords() { 
-		
-		if (keyword != null) {
-			if (keyword.contains("Background"))
-				keyword.remove("Background"); //tmp	
-		}
-		return keyword; 
-	}
+	List<String> getKeywords() { return keyword; }
 	
 	/**
 	 * Returns <code>true</code> if the tool is for HCS data, <code>false</code>
