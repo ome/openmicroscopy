@@ -223,10 +223,13 @@ public class AbstractTest
 	 * Helper method to the wells the wells.
 	 * 
 	 * @param plateID The identifier of the plate.
+	 * @param pixels  Pass <code>true</code> to load the pixels, 
+	 * 					<code>false</code> otherwise.
 	 * @return See above.
 	 * @throws Exception  Thrown if an error occurred.
 	 */
-	List<IObject> loadWells(long plateID)
+    @SuppressWarnings("unchecked")
+	List<Well> loadWells(long plateID, boolean pixels)
 		throws Exception 
 	{
 		StringBuilder sb = new StringBuilder();
@@ -236,12 +239,47 @@ public class AbstractTest
 		sb.append("left outer join fetch well.plate as pt ");
 		sb.append("left outer join fetch well.wellSamples as ws ");
 		sb.append("left outer join fetch ws.image as img ");
-		sb.append("left outer join fetch img.pixels as pix ");
-        sb.append("left outer join fetch pix.pixelsType as pt ");
-        sb.append("where well.plate.id = :plateID");
-        return iQuery.findAllByQuery(sb.toString(), param);
+		if (pixels) {
+			sb.append("left outer join fetch img.pixels as pix ");
+	        sb.append("left outer join fetch pix.pixelsType as pixType ");
+		}
+        sb.append("where pt.id = :plateID");
+        return (List<Well>) (List<?>) 
+        	iQuery.findAllByQuery(sb.toString(), param);
 	}
 	
+    /**
+     * Makes sure that the passed object exists.
+     * 
+     * @param obj The object to handle.
+     *  @throws Exception  Thrown if an error occurred.
+     */
+    void assertExists(IObject obj) 
+    	throws Exception
+    {
+    	IObject copy = iQuery.find(
+    			obj.getClass().getSimpleName(), obj.getId().getValue());
+    	assertNotNull(String.format("%s:%s",
+    			obj.getClass().getName(), obj.getId().getValue())
+    			+ " is missing!", copy);
+    }
+
+    /**
+     * Makes sure that the passed object does not exist.
+     * 
+     * @param obj The object to handle.
+     *  @throws Exception  Thrown if an error occurred.
+     */
+    void assertDoesNotExist(IObject obj) 
+    	throws Exception
+    {
+    	IObject copy = iQuery.find(
+    			obj.getClass().getSimpleName(), obj.getId().getValue());
+    	assertNull(String.format("%s:%s",
+    			obj.getClass().getName(), obj.getId().getValue())
+    			+ " still exists!", copy);
+    }
+    
 	/**
 	 * Imports the specified OME-XML file and returns the pixels set
 	 * if successfully imported.

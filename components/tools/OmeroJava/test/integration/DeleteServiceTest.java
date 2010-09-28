@@ -879,7 +879,7 @@ public class DeleteServiceTest
 			n = values[i];
             p = (Plate) iUpdate.saveAndReturnObject(
                     mmFactory.createPlate(1, 1, 1, n, false));
-			results = getWellsForPlate(p.getId().getValue());
+			results = loadWells(p.getId().getValue(), false);
 
 			param = new ParametersI();
 			param.addLong("plateID", p.getId().getValue());
@@ -1786,7 +1786,7 @@ public class DeleteServiceTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testPlateWithNonSharableAnnotations() 
+    public void testDeletePlateWithNonSharableAnnotations() 
     	throws Exception
     {
     	Plate p;
@@ -1881,12 +1881,12 @@ public class DeleteServiceTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testPlateWithROIMeasurements() 
+    public void testDeletePlateWithROIMeasurements() 
 		throws Exception
 	{
     	Plate p = (Plate) iUpdate.saveAndReturnObject(
 				mmFactory.createPlate(1, 1, 1, 0, false));
-    	List<IObject> results = loadWells(p.getId().getValue());
+    	List<Well> results = loadWells(p.getId().getValue(), true);
     	Well well = (Well) results.get(0);
     	//create the roi.
     	Image image = well.getWellSample(0).getImage();
@@ -1939,8 +1939,7 @@ public class DeleteServiceTest
         StringBuilder sb = new StringBuilder();
 		sb.append("select a from Annotation as a ");
 		sb.append("where a.id = :id");
-		results = iQuery.findAllByQuery(sb.toString(), param);
-		assertTrue(results.size() == 0);
+		assertTrue(iQuery.findAllByQuery(sb.toString(), param).size() == 0);
 	}
     
     /**
@@ -1949,7 +1948,7 @@ public class DeleteServiceTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testPlateWithSharableAnnotations() 
+    public void testDeletePlateWithSharableAnnotations() 
     	throws Exception
     {
     	int[] values = {0, 1};
@@ -1975,7 +1974,7 @@ public class DeleteServiceTest
     			annotationIds.clear();
     			p = (Plate) iUpdate.saveAndReturnObject(
     					mmFactory.createPlate(1, 1, 1, b, false));
-    	        results = loadWells(p.getId().getValue());
+    	        results = loadWells(p.getId().getValue(), true);
     	        sb = new StringBuilder();
     	        param = new ParametersI();
     			param.addLong("plateID", p.getId().getValue());
@@ -2226,7 +2225,7 @@ public class DeleteServiceTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testImportedImage() 
+    public void testDeleteImportedImage() 
     	throws Exception
     {
     	Image img = (Image) iUpdate.saveAndReturnObject(
@@ -2703,7 +2702,7 @@ public class DeleteServiceTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testPlateAcquisitionWithNonSharableAnnotations() 
+    public void testDeletePlateAcquisitionWithNonSharableAnnotations() 
     	throws Exception
     {
     	Plate p;
@@ -3853,7 +3852,7 @@ public class DeleteServiceTest
 
         Plate p = (Plate) iUpdate.saveAndReturnObject(
                 mmFactory.createPlate(1, 1, 1, 0, false));
-        List<Well> wells = getWellsForPlate(p.getId().getValue());
+        List<Well> wells = loadWells(p.getId().getValue(), false);
         List<Image> images = new ArrayList<Image>();
         for (Well well : wells) {
             for (WellSample ws : well.copyWellSamples()) {
@@ -3861,7 +3860,8 @@ public class DeleteServiceTest
             }
         }
         assertTrue(images.size() > 0);
-        DeleteCommand dc = new DeleteCommand("/Image", images.get(0).getId().getValue(), null);
+        DeleteCommand dc = new DeleteCommand("/Image", 
+        		images.get(0).getId().getValue(), null);
         try {
             delete(dc);
             fail("Should not be allowed.");
@@ -3977,7 +3977,6 @@ public class DeleteServiceTest
     /**
 	 * Tests to delete a file annotation and make sure that the
 	 * original file is deleted to.
-	 * 
 	 * @throws Exception  Thrown if an error occurred.
 	 */
     @Test(groups = {"ticket:2884"})
@@ -4005,6 +4004,11 @@ public class DeleteServiceTest
         assertNull(iQuery.findByQuery(sql, param));
     }
 
+    /**
+     * Test to make sure that the file annotation linked to several images
+     * is kept when one of the images is deleted.
+     * @throws Exception Thrown if an error occurred.
+     */
     @Test(groups = {"ticket:2884"})
     public void testDeleteFileAnnotationMultiplyLinked()
         throws Exception
@@ -4050,8 +4054,6 @@ public class DeleteServiceTest
 
 
         delete(new DeleteCommand(REF_IMAGE, image0.getId().getValue(), null));
-
-
         //
         // Check results
         //
@@ -4071,8 +4073,6 @@ public class DeleteServiceTest
 
     }
 
-
-    
     /**
      * Test to delete an image and make sure the original files are removed.
      * @throws Exception Thrown if an error occurred.
@@ -4115,7 +4115,7 @@ public class DeleteServiceTest
     	param.addId(pixels.getId().getValue());
     	assertNull(iQuery.findByQuery(sql, param));
     	
-	assertDoesNotExist(f);
+    	assertDoesNotExist(f);
     }
     
     /**
@@ -4142,26 +4142,21 @@ public class DeleteServiceTest
     	assertNull(iQuery.findByQuery(sql, param));
     }
 
-    @Test(groups = "ticket:2776")
-    public void testPixelsRelatedTo() throws Exception {
-        Image img = (Image) iUpdate.saveAndReturnObject(
-                mmFactory.createImage());
-
-
-    }
-
     /**
      * Use of the savepoint/release/rollback methods in {@link BaseDeleteSpec}
      * seem to prevent transactions from being properly rolled back.
+     * @throws Exception Thrown if an error occurred.
      */
     @Test(groups = "ticket:2917")
-    public void testTxIntegrity() throws Exception {
+    public void testTxIntegrity() 
+    	throws Exception
+    {
         List<IObject> images = new ArrayList<IObject>();
         images.add(mmFactory.createImage());
         images.add(mmFactory.createImage());
         StageLabel sl = mmFactory.createStageLabel();
-        ((Image)images.get(0)).setStageLabel(sl);
-        ((Image)images.get(1)).setStageLabel(sl);
+        ((Image) images.get(0)).setStageLabel(sl);
+        ((Image) images.get(1)).setStageLabel(sl);
         List<IObject> objs = iUpdate.saveAndReturnArray(images);
 
         Image image0 = (Image) objs.get(0);
@@ -4171,7 +4166,8 @@ public class DeleteServiceTest
         assertEquals(sl, image1.getStageLabel());
 
         try {
-            delete(new DeleteCommand(REF_IMAGE, image0.getId().getValue(), null));
+            delete(new DeleteCommand(REF_IMAGE, image0.getId().getValue(), 
+            		null));
             fail("Should throw on constraint violation");
         } catch (AssertionFailedError e) {
             // ok. constraint violation was thrown, there for the delete()
@@ -4185,40 +4181,44 @@ public class DeleteServiceTest
         assertExists(image1);
         assertExists(image1.getPrimaryPixels());
         assertExists(sl);
+    }
 
+    /**
+     * Test to control if the related pixels set is to <code>null</code>
+     * when deleted.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = false, groups = "ticket:2776")
+    public void testPixelsRelatedTo() 
+    	throws Exception
+    {
+        Image img1 = (Image) iUpdate.saveAndReturnObject(
+                mmFactory.createImage());
+        Image img2 = (Image) iUpdate.saveAndReturnObject(
+                mmFactory.createImage());
+        Pixels pixels1 = img1.getPrimaryPixels();
+        Pixels pixels2 = img2.getPrimaryPixels();
+        pixels1.setRelatedTo(pixels2);
+        pixels1 = (Pixels) iUpdate.saveAndReturnObject(pixels1);
+        Pixels pixels = pixels1.getRelatedTo();
+        assertNotNull(pixels);
+        assertTrue(pixels.getId().getValue() == pixels2.getId().getValue());
+        delete(new DeleteCommand(REF_IMAGE, img2.getId().getValue(), null));
+        
+        String sql = "select i from Image i where i.id = :id";
+    	ParametersI param = new ParametersI();
+    	param.addId(img2.getId().getValue());
+    	assertNull(iQuery.findByQuery(sql, param));
+    	sql = "select i from Pixels i where i.id = :id";
+    	param = new ParametersI();
+    	param.addId(pixels2.getId().getValue());
+    	assertNull(iQuery.findByQuery(sql, param));
+    	
+    	sql = "select i from Pixels i where i.id = :id";
+    	param = new ParametersI();
+    	param.addId(pixels1.getId().getValue());
+    	pixels1 = (Pixels) iQuery.findByQuery(sql, param);
+    	assertNull(pixels1.getRelatedTo());
     }
     
-    //
-    // Helpers
-    //
-
-    private void assertExists(IObject obj) throws Exception {
-        IObject copy = iQuery.find(
-                obj.getClass().getSimpleName(), obj.getId().getValue());
-        assertNotNull(String.format("%s:%s",
-                obj.getClass().getName(), obj.getId().getValue())
-                + " is missing!", copy);
-    }
-
-    private void assertDoesNotExist(IObject obj) throws Exception {
-        IObject copy = iQuery.find(
-                obj.getClass().getSimpleName(), obj.getId().getValue());
-        assertNull(String.format("%s:%s",
-                obj.getClass().getName(), obj.getId().getValue())
-                + " still exists!", copy);
-    }
-
-    @SuppressWarnings("unchecked")
-    private List<Well> getWellsForPlate(long value) throws ServerError {
-        ParametersI param = new ParametersI();
-        param.addLong("plateID", value);
-        StringBuilder sb = new StringBuilder();
-        sb.append("select well from Well as well ");
-        sb.append("left outer join fetch well.plate as pt ");
-        sb.append("left outer join fetch well.wellSamples as ws ");
-        sb.append("left outer join fetch ws.image as img ");
-        sb.append("where pt.id = :plateID");
-        return (List<Well>) (List<?>) iQuery.findAllByQuery(sb.toString(), param);
-    }
-
 }
