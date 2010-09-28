@@ -73,7 +73,7 @@ class TestDelete(lib.ITest):
             img.acquisitionDate = omero.rtypes.rtime(0)
             tag = omero.model.TagAnnotationI()
             img.linkAnnotation( tag )
-            images.append(self.client.sf.getUpdateService().saveAndReturnObject( img ).id.val)
+            images.append(update.saveAndReturnObject( img ).id.val)
             
         # create dataset
         dataset = omero.model.DatasetI()
