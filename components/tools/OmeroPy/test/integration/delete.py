@@ -60,5 +60,71 @@ class TestDelete(lib.ITest):
             self.assert_( count != 0 )
         self.assertEquals(0, errors)
 
+    def testDeleteProjectWithoutContent(self):
+        uuid = self.client.sf.getAdminService().getEventContext().sessionUuid
+        query = self.client.sf.getQueryService()
+        update = self.client.sf.getUpdateService()
+        delete = self.client.sf.getDeleteService()
+        
+        images = list()
+        for i in range(0,5):
+            img = omero.model.ImageI()
+            img.name = omero.rtypes.rstring("test-delete-image-%i" % i)
+            img.acquisitionDate = omero.rtypes.rtime(0)
+            tag = omero.model.TagAnnotationI()
+            img.linkAnnotation( tag )
+            images.append(self.client.sf.getUpdateService().saveAndReturnObject( img ).id.val)
+            
+        # create dataset
+        dataset = omero.model.DatasetI()
+        dataset.name = omero.rtypes.rstring('DS-test-2936-%s' % (uuid))
+        dataset = update.saveAndReturnObject(dataset)
+        # create project
+        project = omero.model.ProjectI()
+        project.name = omero.rtypes.rstring('PR-test-2936-%s' % (uuid))
+        project = update.saveAndReturnObject(project)
+        # put dataset in project 
+        link = omero.model.ProjectDatasetLinkI()
+        link.parent = omero.model.ProjectI(project.id.val, False)
+        link.child = omero.model.DatasetI(dataset.id.val, False)
+        update.saveAndReturnObject(link)
+        # put image in dataset
+        for iid in images:
+            dlink = omero.model.DatasetImageLinkI()
+            dlink.parent = omero.model.DatasetI(dataset.id.val, False)
+            dlink.child = omero.model.ImageI(iid, False)
+            update.saveAndReturnObject(dlink)
+                
+        op = dict()
+        op["/TagAnnotation"] = "KEEP"
+        op["/TermAnnotation"] = "KEEP"
+        op["/FileAnnotation"] = "KEEP"
+        op["/Dataset"] = "KEEP"
+        op["/Image"] = "KEEP"
+        dc = omero.api.delete.DeleteCommand('/Project', long(project.id.val), op)
+        handle = delete.queueDelete([dc])
+        
+        cb = omero.callbacks.DeleteCallbackI(self.client, handle)
+        while cb.block(500) is None:
+            pass
+        
+        self.assertEquals(None, query.find('Project', project.id.val))        
+        self.assertEquals(dataset.id.val, query.find('Dataset', dataset.id.val).id.val)
+        
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["oid"] = dataset.id
+        
+        sql = "select im from Image im "\
+                "left outer join fetch im.datasetLinks dil "\
+                "left outer join fetch dil.parent d " \
+                "where d.id = :oid " \
+                "order by im.id asc"
+        res = query.findAllByQuery(sql, p)
+        self.assertEquals(5, len(res))       
+        for e in res:
+            if e.id.val not in images:
+                self.assertRaises('Image %i is not in the [%s]' % (e.id.val, ",".join(images)))
+            
 if __name__ == '__main__':
     unittest.main()
