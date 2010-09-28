@@ -504,25 +504,26 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/UtilScripts#CombineImages""",
     )
     
     try:
-        session = client.getSession()
-    
-        # process the list of args above. 
-        parameterMap = {}
-        for key in client.getInputKeys():
-            if client.getInput(key):
-                parameterMap[key] = client.getInput(key).getValue()
-    
-        print parameterMap
+        try:
+            session = client.getSession()
         
-        # create the combined image
-        image = combineImages(session, parameterMap)        
+            # process the list of args above. 
+            parameterMap = {}
+            for key in client.getInputKeys():
+                if client.getInput(key):
+                    parameterMap[key] = client.getInput(key).getValue()
         
-        if image:
-            client.setOutput("Message", rstring("Script Ran OK. New Image created ID: %s" % image.id.val))
-            client.setOutput("Combined_Image",robject(image))
-        else:
-            print "No image created."
-    except: raise
+            print parameterMap
+            
+            # create the combined image
+            image = combineImages(session, parameterMap)        
+            
+            if image:
+                client.setOutput("Message", rstring("Script Ran OK. New Image created ID: %s" % image.id.val))
+                client.setOutput("Combined_Image",robject(image))
+            else:
+                print "No image created."
+        except: raise
     finally:
         client.closeSession()
         printDuration()
