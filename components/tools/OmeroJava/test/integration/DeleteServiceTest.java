@@ -3430,6 +3430,8 @@ public class DeleteServiceTest
     			mmFactory.simpleDatasetData().asIObject());
     	Image img = (Image) iUpdate.saveAndReturnObject(
     			mmFactory.createImage());
+    	Pixels pixels = img.getPrimaryPixels();
+    	assertNotNull(pixels);
     	DatasetImageLink l = new DatasetImageLinkI();
     	l.link(new DatasetI(d.getId().getValue(), false), img);
     	iUpdate.saveAndReturnObject(l);
@@ -3450,6 +3452,12 @@ public class DeleteServiceTest
     	sql += "where p.id = id";
     	param = new ParametersI();
 		param.addId(img.getId().getValue());
+		assertNotNull(iQuery.findByQuery(sql, param));
+		
+		sql = "select p from Pixels as p ";
+    	sql += "where p.id = id";
+    	param = new ParametersI();
+		param.addId(pixels.getId().getValue());
 		assertNotNull(iQuery.findByQuery(sql, param));
     }
     
