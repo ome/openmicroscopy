@@ -63,6 +63,7 @@ import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
+import omero.model.ImageI;
 import omero.model.ImagingEnvironment;
 import omero.model.Instrument;
 import omero.model.Laser;
@@ -3345,6 +3346,12 @@ public class DeleteServiceTest
     			new DatasetI(d.getId().getValue(), false));
     	iUpdate.saveAndReturnObject(pl);
     	
+    	Image image = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleImage(0));
+    	DatasetImageLink dl = new DatasetImageLinkI();
+    	dl.link(new DatasetI(d.getId().getValue(), false), 
+    			new ImageI(image.getId().getValue(), false));
+    	iUpdate.saveAndReturnObject(dl);
     	//Now delete the project
     	Map<String, String> options = new HashMap<String, String>();
     	options.put(REF_DATASET, KEEP);
@@ -3359,6 +3366,11 @@ public class DeleteServiceTest
     	sql += "where p.id = id";
     	param = new ParametersI();
 		param.addId(d.getId().getValue());
+		assertNotNull(iQuery.findByQuery(sql, param));
+		sql = "select p from Image as p ";
+    	sql += "where p.id = id";
+    	param = new ParametersI();
+		param.addId(image.getId().getValue());
 		assertNotNull(iQuery.findByQuery(sql, param));
     }
     
