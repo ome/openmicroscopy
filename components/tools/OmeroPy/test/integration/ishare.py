@@ -519,5 +519,33 @@ class TestIShare(lib.ITest):
         c2 = len(share2.getComments(sid))
         self.assertEquals(2, c2)
 
+    def test2733(self):
+        ### create two users in two groups
+        client_share1, user1 = self.new_client_and_user()
+        client_share2, user2 = self.new_client_and_user()
+    
+        ## login as user1
+        share1 = client_share1.sf.getShareService()
+        update1 = client_share1.sf.getUpdateService()
+
+        # create image
+        img = ImageI()
+        img.setName(rstring('test2327'))
+        img.setAcquisitionDate(rtime(0))
+        img = update1.saveAndReturnObject(img)
+        img.unload()
+
+        # create share
+        description = "my description"
+        timeout = None
+        objects = [img]
+        experimenters = [user2]
+        guests = []
+        enabled = True
+        sid = share1.createShare(description, timeout, objects, experimenters, guests, enabled)
+        
+        share2 = client_share2.sf.getShareService()  
+        share = share2.getShare(sid)
+        
 if __name__ == '__main__':
     unittest.main()
