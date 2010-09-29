@@ -110,7 +110,7 @@ import ome.xml.model.primitives.PercentFraction;
 import ome.xml.model.primitives.PositiveInteger;
 
 /** 
- * Creates XML objects.
+ * Creates XML objects for the 2010-06 schema.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -122,7 +122,7 @@ import ome.xml.model.primitives.PositiveInteger;
  * </small>
  * @since 3.0-Beta4
  */
-public class XMLMockObjects 
+public class XMLMockObjects201006 
 {
 
 	/** The default power of a light source. */
@@ -705,7 +705,7 @@ public class XMLMockObjects
 	}
 	
 	/** Creates a new instance. */
-	public XMLMockObjects()
+	public XMLMockObjects201006()
 	{
 		ome = new OME();
 	}

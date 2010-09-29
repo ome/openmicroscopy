@@ -692,7 +692,7 @@ public class ImporterTest
      * @throws Exception Thrown if an error occurred.
      */
 	@Test
-	public void testImportSimpleImage()
+	public void testImportSimpleImage201006()
 		throws Exception
 	{
 		File f = File.createTempFile("testImportSimpleImage", "."+OME_FORMAT);
@@ -750,8 +750,8 @@ public class ImporterTest
      * Tests the import of an OME-XML file with one image w/o binary data.
      * @throws Exception Thrown if an error occurred.
      */
-	@Test(enabled = true)
-	public void testImportSimpleImageMetadataOnly()
+	@Test
+	public void testImportSimpleImageMetadataOnly201006()
 		throws Exception
 	{
 		File f = File.createTempFile("testImportSimpleImage", "."+OME_FORMAT);
@@ -791,7 +791,7 @@ public class ImporterTest
      * @throws Exception Thrown if an error occurred.
      */
 	@Test
-	public void testImportAnnotatedImage()
+	public void testImportAnnotatedImage201006()
 		throws Exception
 	{
 		File f = File.createTempFile("testImportAnnotatedImage", "."+OME_FORMAT);
@@ -837,7 +837,7 @@ public class ImporterTest
      * @throws Exception Thrown if an error occurred.
      */
 	@Test
-	public void testImportImageWithAcquisitionData()
+	public void testImportImageWithAcquisitionData201006()
 		throws Exception
 	{
 		File f = File.createTempFile("testImportImageWithAcquisitionData", 
@@ -1031,7 +1031,7 @@ public class ImporterTest
      * Tests the import of an OME-XML file with an image with ROI.
      * @throws Exception Thrown if an error occurred.
      */
-	public void testImportImageWithROI()
+	public void testImportImageWithROI201006()
 		throws Exception
 	{
 		File f = File.createTempFile("testImportImageWithROI", "."+OME_FORMAT);
@@ -1071,7 +1071,7 @@ public class ImporterTest
      * @throws Exception Thrown if an error occurred.
      */
 	@Test
-	public void testImportPlate()
+	public void testImportPlate201006()
 		throws Exception
 	{
 		File f = File.createTempFile("testImportPlate", "."+OME_FORMAT);
@@ -1113,7 +1113,7 @@ public class ImporterTest
      * @throws Exception Thrown if an error occurred.
      */
 	@Test
-	public void testImportPlateOnePlateAcquisition()
+	public void testImportPlateOnePlateAcquisition201006()
 		throws Exception
 	{
 		File f = File.createTempFile("testImportPlateOnePlateAcquisition", 
@@ -1154,7 +1154,7 @@ public class ImporterTest
      * @throws Exception Thrown if an error occurred.
      */
 	@Test
-	public void testImportPlateMultiplePlateAcquisitions()
+	public void testImportPlateMultiplePlateAcquisitions201006()
 		throws Exception
 	{
 		File f = File.createTempFile("testImportPlateMultiplePlateAcquisitions",
@@ -1220,7 +1220,7 @@ public class ImporterTest
      * @throws Exception Thrown if an error occurred.
      */
 	@Test
-	public void testImportPlateWithReagent()
+	public void testImportPlateWithReagent201006()
 		throws Exception
 	{
 		File f = File.createTempFile("testImportPlateWithReagent", 

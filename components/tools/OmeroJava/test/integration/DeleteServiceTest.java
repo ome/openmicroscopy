@@ -25,14 +25,10 @@ import ome.formats.OMEROMetadataStoreClient;
 import ome.services.delete.BaseDeleteSpec;
 import omero.ApiUsageException;
 import omero.ServerError;
-import omero.api.IAdminPrx;
 import omero.api.IDeletePrx;
 import omero.api.IPixelsPrx;
-import omero.api.IQueryPrx;
 import omero.api.IRenderingSettingsPrx;
-import omero.api.IUpdatePrx;
 import omero.api.RawFileStorePrx;
-import omero.api.ServiceFactoryPrx;
 import omero.api.ThumbnailStorePrx;
 import omero.api.delete.DeleteCommand;
 import omero.api.delete.DeleteHandlePrx;
@@ -55,10 +51,6 @@ import omero.model.DatasetImageLinkI;
 import omero.model.Detector;
 import omero.model.DetectorSettings;
 import omero.model.Dichroic;
-import omero.model.Experimenter;
-import omero.model.ExperimenterGroup;
-import omero.model.ExperimenterGroupI;
-import omero.model.ExperimenterI;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.FilterSet;
@@ -80,7 +72,6 @@ import omero.model.OTF;
 import omero.model.Objective;
 import omero.model.ObjectiveSettings;
 import omero.model.OriginalFile;
-import omero.model.PermissionsI;
 import omero.model.Pixels;
 import omero.model.PixelsI;
 import omero.model.PixelsOriginalFileMapI;
@@ -157,25 +148,25 @@ public class DeleteServiceTest
 	private static final String NAMESPACE_2 = "omero.test.namespace2";
 	
 	/** Identifies the image as root. */
-	private static final String REF_IMAGE = "/Image";
+	static final String REF_IMAGE = "/Image";
 	
 	/** Identifies the dataset as root. */
-	private static final String REF_DATASET = "/Dataset";
+	static final String REF_DATASET = "/Dataset";
 	
 	/** Identifies the project as root. */
-	private static final String REF_PROJECT = "/Project";
+	static final String REF_PROJECT = "/Project";
 	
 	/** Identifies the screen as root. */
-	private static final String REF_SCREEN = "/Screen";
+	static final String REF_SCREEN = "/Screen";
 	
 	/** Identifies the plate as root. */
-	private static final String REF_PLATE = "/Plate";
+	static final String REF_PLATE = "/Plate";
 	
 	/** Identifies the ROI as root. */
-	private static final String REF_ROI = "/Roi";
+	static final String REF_ROI = "/Roi";
 	
 	/** Identifies the Plate Acquisition as root. */
-	private static final String REF_PLATE_ACQUISITION = "/PlateAcquisition";
+	static final String REF_PLATE_ACQUISITION = "/PlateAcquisition";
 
    /** 
     * Identifies annotation paths. 
@@ -183,39 +174,39 @@ public class DeleteServiceTest
     * string, while the other paths can be used in for 
     * {@link DeleteCommand#options} keys.
     */
-    private static final String REF_ANN = "/Annotation";
+    static final String REF_ANN = "/Annotation";
 
     /** Identifies the Tag. */
-    private static final String REF_TAG = "/TagAnnotation";
+    static final String REF_TAG = "/TagAnnotation";
 	
 	/** Identifies the Term. */
-	private static final String REF_TERM = "/TermAnnotation";
+	static final String REF_TERM = "/TermAnnotation";
 	
 	/** Identifies the File. */
-	private static final String REF_FILE= "/FileAnnotation";
+	static final String REF_FILE= "/FileAnnotation";
 	
 	/** Indicates to keep a certain type of annotations. */
-	private static final String KEEP = "KEEP";
+	static final String KEEP = "KEEP";
 	
 	/** Indicates to exclude name space. */
-	private static final String EXCLUDE = "excludes=";
+	static final String EXCLUDE = "excludes=";
 	
 	/** Indicates to exclude name space. */
-	private static final String INCLUDE = "includes=";
+	static final String INCLUDE = "includes=";
 	
 	/** Separator between option and include/exclude condition. */
-	private static final String SEPARATOR = ";";
+	static final String SEPARATOR = ";";
 	
 	/** Separator between option NS. */
-	private static final String NS_SEPARATOR = ",";
+	static final String NS_SEPARATOR = ",";
 	
 	/** 
 	 * Indicates to delete the annotation even if it is linked
 	 * to another object. */
-	private static final String HARD = "HARD";
+	static final String HARD = "HARD";
 	
 	/** The options to keep the sharable annotations. */
-	private static final Map<String, String> SHARABLE_TO_KEEP;
+	static final Map<String, String> SHARABLE_TO_KEEP;
 	
 	static {
 		SHARABLE_TO_KEEP = new HashMap<String, String>();
@@ -233,7 +224,9 @@ public class DeleteServiceTest
      * group.
      */
     @BeforeMethod
-    public void createNewUser() throws Exception {
+    public void createNewUser() 
+    	throws Exception
+    {
         newUserAndGroup("rw----");
         iDelete = factory.getDeleteService();
     }
@@ -244,8 +237,10 @@ public class DeleteServiceTest
      * not the very last invocation.
      */
     @AfterMethod
-    public void close() throws Exception {
-        if (client == null) {
+    public void close() 
+    	throws Exception
+    {
+        if (client != null) {
             client.__del__();
             client = null;
         }
@@ -730,85 +725,7 @@ public class DeleteServiceTest
     	if (links.size() > 0) iUpdate.saveAndReturnArray(links);
     	return ids;
     }
-    
-    /**
-     * Test to delete an image tagged collaboratively by another user.
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test(enabled = false, groups = "ticket:2881")
-    public void testDeleteTaggedImageTagOwnedByOther() 
-    	throws Exception
-    {
-        // set up collaborative group with 2 users
-        String uuid1 = UUID.randomUUID().toString();
-		ExperimenterGroup g1 = new ExperimenterGroupI();
-		g1.setName(omero.rtypes.rstring(uuid1));
-		g1.getDetails().setPermissions(new PermissionsI("rwrw--"));
-		IAdminPrx svc = root.getSession().getAdminService();
-		IQueryPrx query = root.getSession().getQueryService();
-		long id1 = svc.createGroup(g1);
-		ParametersI p = new ParametersI();
-		p.addId(id1);
-		ExperimenterGroup eg1 = (ExperimenterGroup) query.findByQuery(
-				"select distinct g from ExperimenterGroup g where g.id = :id", 
-				p);
-		 
-		Experimenter owner = new ExperimenterI();
-		owner.setOmeName(omero.rtypes.rstring(uuid1 + "owner"));
-		owner.setFirstName(omero.rtypes.rstring("owner"));
-		owner.setLastName(omero.rtypes.rstring("owner")); 
-		 
-		Experimenter tagger = new ExperimenterI();
-		tagger.setOmeName(omero.rtypes.rstring(uuid1 + "tagger"));
-		tagger.setFirstName(omero.rtypes.rstring("tagger"));
-		tagger.setLastName(omero.rtypes.rstring("tagger"));
-		 
-		List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
-		ExperimenterGroup userGroup = svc.lookupGroup(USER_GROUP);
-		groups.add(eg1);
-		groups.add(userGroup);
-		
-		svc.createExperimenter(owner, eg1, groups);
-		svc.createExperimenter(tagger, eg1, groups);
-    		
-    	omero.client client = new omero.client();
-    	// owner creates the image
-        ServiceFactoryPrx f = client.createSession(uuid1 + "owner", uuid1); 
-        IUpdatePrx update = f.getUpdateService();
-        Image img = (Image) update.saveAndReturnObject(
-        		mmFactory.simpleImage(0));
-        
-        // tagger creates tag and tags the image
-        omero.client clientTag = new omero.client();
-        ServiceFactoryPrx sf = clientTag.createSession(uuid1 + "tagger", uuid1);
-        IUpdatePrx tagUpdate = sf.getUpdateService();
-        
-        TagAnnotation c = new TagAnnotationI();
-    	c.setTextValue(omero.rtypes.rstring("tag"));
-    	c = (TagAnnotation) tagUpdate.saveAndReturnObject(c);
-    	ImageAnnotationLink link = new ImageAnnotationLinkI();
-    	link.setParent(img);
-    	link.setChild(new TagAnnotationI(c.getId().getValue(), false));		
-    	link = (ImageAnnotationLink) tagUpdate.saveAndReturnObject(link);
-    	
-    	// try to delete image. 
-    	long id = img.getId().getValue();
-    	delete(new DeleteCommand(REF_PLATE, id, null));
-        // check it has been deleted 
-        ParametersI param = new ParametersI();
-    	param.addId(id);
-    	img = (Image) iQuery.findByQuery(
-    			"select i from Image i where i.id = :id", param);
-    	assertNull(img);
-    	
-    	// check that the tag hasn't been deleted
-    	param = new ParametersI();
-    	param.addId(c.getId().getValue());
-    	c = (TagAnnotation) iQuery.findByQuery(
-    			"select c from Annotation c where c.id = :id", param);
-    	assertNotNull(c);
-    }
-    
+
     /**
      * Test to delete an image w/o pixels.
      * The <code>deleteImage</code> method is tested.
@@ -3878,17 +3795,6 @@ public class DeleteServiceTest
     }
 
     /**
-     * Tagset is a collection tags. If you select a tagset for deletion, you'd
-     * expect all the tagsets to go away if they are not shared. Need an option
-     * to allow users to delete images as well. Similar to dataset delete content.
-     */
-    @Test(groups = "ticket:XXX")
-    public void testDeleteTagSet() {
-
-    }
-
-
-    /**
      * Test to delete multiple images at the same time.
      * @throws Exception Thrown if an error occurred.
      */
@@ -3955,7 +3861,7 @@ public class DeleteServiceTest
      * Test to delete a tagged image. The tag is also linked to another image.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test(enabled = true)
     public void testDeleteTaggedImages() 
     	throws Exception
     {
