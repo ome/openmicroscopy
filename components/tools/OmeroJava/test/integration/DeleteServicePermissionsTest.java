@@ -140,8 +140,8 @@ public class DeleteServicePermissionsTest
     }
     
     /**
-     * Test to try to delete a image owned by another user in a private group
-     * i.e. RW----
+     * Test to try to delete an (top) object owned by another user in a 
+     * private group i.e. RW----.
      * @throws Exception Thrown if an error occurred.     
      */
     @Test
@@ -229,12 +229,12 @@ public class DeleteServicePermissionsTest
     }
     
     /**
-     * Test to try to delete a image owned by another user in a private group
+     * Test to try to delete an image owned by another user in a private group
      * i.e. RWR---
      * @throws Exception Thrown if an error occurred.     
      */
-    @Test
-    public void testDeleteObjectOwnedByOtherRWR()
+    @Test(enabled = false)
+    public void testDeleteImageOwnedByOtherRWR()
     	throws Exception
     {
     	IAdminPrx svc = root.getSession().getAdminService();
@@ -294,7 +294,20 @@ public class DeleteServicePermissionsTest
 			throw e;
 		}
     }
-    
+
+    /**
+     * Test to try to delete an object by the administrator.
+     * @throws Exception Thrown if an error occurred.     
+     */
+    @Test
+    public void testDeleteObjectByAdmin()
+    	throws Exception
+    {
+    	//Image
+		Image img = (Image) iUpdate.saveAndReturnObject(
+				mmFactory.createImage());
+		
+    }
     
 	/**
      * Test to delete an image tagged collaboratively by another user.
