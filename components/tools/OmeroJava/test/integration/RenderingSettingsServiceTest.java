@@ -238,8 +238,8 @@ public class RenderingSettingsServiceTest
     	iUpdate.saveAndReturnObject(link);
     	
     	//load the well
-    	List<IObject> results = loadWells(p.getId().getValue());
-    	Well well = (Well) results.get(0);
+    	List<Well> results = loadWells(p.getId().getValue(), true);
+    	Well well = results.get(0);
     	Image image = well.getWellSample(0).getImage();
     	Pixels pixels = image.getPrimaryPixels();
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
@@ -484,8 +484,8 @@ public class RenderingSettingsServiceTest
     	Plate p = mmFactory.createPlate(1, 1, 1, 0, true);
     	p = (Plate) iUpdate.saveAndReturnObject(p);
     	//load the well
-    	List<IObject> results = loadWells(p.getId().getValue());
-    	Well well = (Well) results.get(0);
+    	List<Well> results = loadWells(p.getId().getValue(), true);
+    	Well well = results.get(0);
     	
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	Image image = well.getWellSample(0).getImage();
@@ -505,7 +505,7 @@ public class RenderingSettingsServiceTest
     	//Create a second plate
     	p = mmFactory.createPlate(1, 1, 1, 0, true);
     	p = (Plate) iUpdate.saveAndReturnObject(p);
-    	results = loadWells(p.getId().getValue());
+    	results = loadWells(p.getId().getValue(), true);
     	well = (Well) results.get(0);
     	Image image2 = well.getWellSample(0).getImage();
     	ids = new ArrayList<Long>();
@@ -546,8 +546,8 @@ public class RenderingSettingsServiceTest
     	link = (ScreenPlateLink) iUpdate.saveAndReturnObject(link);
     	screen = link.getParent();
     	//load the well
-    	List<IObject> results = loadWells(p.getId().getValue());
-    	Well well = (Well) results.get(0);
+    	List<Well> results = loadWells(p.getId().getValue(), true);
+    	Well well = results.get(0);
     	
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	Image image = well.getWellSample(0).getImage();
@@ -573,8 +573,8 @@ public class RenderingSettingsServiceTest
     	link.setParent(screen);
     	link = (ScreenPlateLink) iUpdate.saveAndReturnObject(link);
     	
-    	results = loadWells(p.getId().getValue());
-    	well = (Well) results.get(0);
+    	results = loadWells(p.getId().getValue(), true);
+    	well = results.get(0);
     	Image image2 = well.getWellSample(0).getImage();
     	ids = new ArrayList<Long>();
     	ids.add(screen.getId().getValue());
@@ -607,8 +607,8 @@ public class RenderingSettingsServiceTest
     	Plate p = mmFactory.createPlate(1, 1, 1, 0, true);
     	p = (Plate) iUpdate.saveAndReturnObject(p);
     	//load the well
-    	List<IObject> results = loadWells(p.getId().getValue());
-    	Well well = (Well) results.get(0);
+    	List<Well> results = loadWells(p.getId().getValue(), true);
+    	Well well = results.get(0);
     	Image image = well.getWellSample(0).getImage();
     	Pixels pixels = image.getPrimaryPixels();
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
@@ -840,8 +840,8 @@ public class RenderingSettingsServiceTest
     	Plate plate = mmFactory.createPlate(1, 1, 1, 0, true);
     	plate = (Plate) iUpdate.saveAndReturnObject(plate);
     	//load the well
-    	List<IObject> results = loadWells(plate.getId().getValue());
-    	Well well = (Well) results.get(0);
+    	List<Well> results = loadWells(plate.getId().getValue(), true);
+    	Well well = results.get(0);
     	
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	Image image = well.getWellSample(0).getImage();
@@ -905,8 +905,8 @@ public class RenderingSettingsServiceTest
     	link = (ScreenPlateLink) iUpdate.saveAndReturnObject(link);
     	screen = link.getParent();
     	//load the well
-    	List<IObject> results = loadWells(plate.getId().getValue());
-    	Well well = (Well) results.get(0);
+    	List<Well> results = loadWells(plate.getId().getValue(), true);
+    	Well well = results.get(0);
     	
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	Image image = well.getWellSample(0).getImage();

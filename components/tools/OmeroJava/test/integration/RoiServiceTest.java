@@ -148,8 +148,8 @@ public class RoiServiceTest
     {
     	Plate p = mmFactory.createPlate(1, 1, 1, 0, true);
     	p = (Plate) iUpdate.saveAndReturnObject(p);
-    	List<IObject> results = loadWells(p.getId().getValue());
-    	Well well = (Well) results.get(0);
+    	List<Well> results = loadWells(p.getId().getValue(), true);
+    	Well well = results.get(0);
     	//create the roi.
     	Image image = well.getWellSample(0).getImage();
         Roi roi = new RoiI();
@@ -237,8 +237,8 @@ public class RoiServiceTest
     {
     	Plate p = mmFactory.createPlate(1, 1, 1, 0, true);
     	p = (Plate) iUpdate.saveAndReturnObject(p);
-    	List<IObject> results = loadWells(p.getId().getValue());
-    	Well well = (Well) results.get(0);
+    	List<Well> results = loadWells(p.getId().getValue(), true);
+    	Well well = results.get(0);
     	//create the roi.
     	Image image = well.getWellSample(0).getImage();
         Roi roi = new RoiI();
@@ -318,8 +318,8 @@ public class RoiServiceTest
     {
     	Plate p = mmFactory.createPlate(1, 1, 1, 0, true);
     	p = (Plate) iUpdate.saveAndReturnObject(p);
-    	List<IObject> results = loadWells(p.getId().getValue());
-    	Well well = (Well) results.get(0);
+    	List<Well> results = loadWells(p.getId().getValue(), true);
+    	Well well = results.get(0);
     	//create the roi.
     	Image image = well.getWellSample(0).getImage();
         Roi roi = new RoiI();
