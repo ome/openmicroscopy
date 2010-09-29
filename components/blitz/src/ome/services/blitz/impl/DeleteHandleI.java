@@ -69,7 +69,8 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
 
         DeleteCommand command;
         DeleteSpec spec;
-
+        HashMap<String, ArrayList<Long>> undeletedFiles;
+        
         long start;
         int steps;
         long[] stepStarts;
@@ -423,11 +424,6 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
         File file;
         String filePath;
 
-        /*
-         * This map could be passed back out somehow (via reports?) for an
-         * external clean-up of files that may have been locked or otherwise
-         * inaccessible.
-         */
         HashMap<String, ArrayList<Long>> failedMap = new HashMap<String, ArrayList<Long>>();
 
         for (Report report : reports.values()) {
@@ -439,7 +435,6 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                             + idMap.get(table).toString());
                 }
             }
-
             for (String fileType : fileTypeList) {
                 if (idMap.containsKey(fileType)) {
                     log.info("Trying to delete " + fileType + " files : "
@@ -475,6 +470,7 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                     }
                 }
             }
+            report.undeletedFiles = failedMap;
             if (log.isDebugEnabled()) {
                 for (String table : failedMap.keySet()) {
                     log.debug("Failed to delete files : " + table + ":"
