@@ -290,13 +290,14 @@ public class DeleteServicePermissionsTest
         	p.addId(imageID);
         	assertNotNull(iQuery.findByQuery(
         			"select i from Image i where i.id = :id", p));
+        	newClient.__del__();
 		} catch (Exception e) {
 			throw e;
 		}
     }
 
     /**
-     * Test to try to delete an object by the administrator.
+     * Test to try to delete an object by the administrator in a private group.
      * @throws Exception Thrown if an error occurred.     
      */
     @Test
@@ -306,9 +307,15 @@ public class DeleteServicePermissionsTest
     	//Image
 		Image img = (Image) iUpdate.saveAndReturnObject(
 				mmFactory.createImage());
-		
+		IDeletePrx delete = root.getSession().getDeleteService();
+		delete(delete, root, new DeleteCommand(
+    			DeleteServiceTest.REF_IMAGE, img.getId().getValue(), null));
+		ParametersI p = new ParametersI();
+    	p.addId(img.getId().getValue());
+    	assertNotNull(iQuery.findByQuery(
+    			"select i from Image i where i.id = :id", p));
     }
-    
+
 	/**
      * Test to delete an image tagged collaboratively by another user.
      * @throws Exception Thrown if an error occurred.
