@@ -697,7 +697,7 @@ public class ImporterTest
 	{
 		File f = File.createTempFile("testImportSimpleImage", "."+OME_FORMAT);
 		files.add(f);
-		XMLMockObjects xml = new XMLMockObjects();
+		XMLMockObjects201006 xml = new XMLMockObjects201006();
 		XMLWriter writer = new XMLWriter();
 		writer.writeFile(f, xml.createImage(), true);
 		List<Pixels> pixels = null;
@@ -756,7 +756,7 @@ public class ImporterTest
 	{
 		File f = File.createTempFile("testImportSimpleImage", "."+OME_FORMAT);
 		files.add(f);
-		XMLMockObjects xml = new XMLMockObjects();
+		XMLMockObjects201006 xml = new XMLMockObjects201006();
 		XMLWriter writer = new XMLWriter();
 		writer.writeFile(f, xml.createImage(), true);
 		try {
@@ -776,7 +776,7 @@ public class ImporterTest
 	{
 		File f = File.createTempFile("testImportSimpleImage", "."+OME_FORMAT);
 		files.add(f);
-		XMLMockObjects xml = new XMLMockObjects();
+		XMLMockObjects201006 xml = new XMLMockObjects201006();
 		XMLWriter writer = new XMLWriter();
 		writer.writeFile(f, xml.createImage(), false);
 		try {
@@ -796,7 +796,7 @@ public class ImporterTest
 	{
 		File f = File.createTempFile("testImportAnnotatedImage", "."+OME_FORMAT);
 		files.add(f);
-		XMLMockObjects xml = new XMLMockObjects();
+		XMLMockObjects201006 xml = new  XMLMockObjects201006();
 		XMLWriter writer = new XMLWriter();
 		writer.writeFile(f, xml.createAnnotatedImage(), true);
 		List<Pixels> pixels = null;
@@ -843,7 +843,7 @@ public class ImporterTest
 		File f = File.createTempFile("testImportImageWithAcquisitionData", 
 				"."+OME_FORMAT);
 		files.add(f);
-		XMLMockObjects xml = new XMLMockObjects();
+		XMLMockObjects201006 xml = new XMLMockObjects201006();
 		XMLWriter writer = new XMLWriter();
 		OME ome = xml.createImageWithAcquisitionData();
 		writer.writeFile(f, ome, true);
@@ -1036,7 +1036,7 @@ public class ImporterTest
 	{
 		File f = File.createTempFile("testImportImageWithROI", "."+OME_FORMAT);
 		files.add(f);
-		XMLMockObjects xml = new XMLMockObjects();
+		XMLMockObjects201006 xml = new XMLMockObjects201006();
 		XMLWriter writer = new XMLWriter();
 		writer.writeFile(f, xml.createImageWithROI(), true);
 		List<Pixels> pixels = null;
@@ -1076,7 +1076,7 @@ public class ImporterTest
 	{
 		File f = File.createTempFile("testImportPlate", "."+OME_FORMAT);
 		files.add(f);
-		XMLMockObjects xml = new XMLMockObjects();
+		XMLMockObjects201006 xml = new XMLMockObjects201006();
 		XMLWriter writer = new XMLWriter();
 		OME ome = xml.createPopulatedPlate(0);
 		writer.writeFile(f, ome, true);
@@ -1119,7 +1119,7 @@ public class ImporterTest
 		File f = File.createTempFile("testImportPlateOnePlateAcquisition", 
 				"."+OME_FORMAT);
 		files.add(f);
-		XMLMockObjects xml = new XMLMockObjects();
+		XMLMockObjects201006 xml = new XMLMockObjects201006();
 		XMLWriter writer = new XMLWriter();
 		OME ome =  xml.createPopulatedPlate(1);
 		writer.writeFile(f, ome, true);
@@ -1162,7 +1162,7 @@ public class ImporterTest
 		files.add(f);
 		int n = 3;
 		int fields = 3;
-		XMLMockObjects xml = new XMLMockObjects();
+		XMLMockObjects201006 xml = new XMLMockObjects201006();
 		XMLWriter writer = new XMLWriter();
 		OME ome =  xml.createPopulatedPlate(n, fields);
 		writer.writeFile(f, ome, true);
@@ -1226,7 +1226,7 @@ public class ImporterTest
 		File f = File.createTempFile("testImportPlateWithReagent", 
 				"."+OME_FORMAT);
 		files.add(f);
-		XMLMockObjects xml = new XMLMockObjects();
+		XMLMockObjects201006 xml = new XMLMockObjects201006();
 		XMLWriter writer = new XMLWriter();
 		OME ome =  xml.createBasicPlateWithReagent();
 		writer.writeFile(f, ome, true);
