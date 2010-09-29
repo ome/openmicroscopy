@@ -9,6 +9,7 @@ package integration;
 import static omero.rtypes.rdouble;
 import static omero.rtypes.rint;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -20,6 +21,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import junit.framework.AssertionFailedError;
+import ome.formats.OMEROMetadataStoreClient;
 import ome.services.delete.BaseDeleteSpec;
 import omero.ApiUsageException;
 import omero.ServerError;
@@ -31,6 +33,7 @@ import omero.api.IRenderingSettingsPrx;
 import omero.api.IUpdatePrx;
 import omero.api.RawFileStorePrx;
 import omero.api.ServiceFactoryPrx;
+import omero.api.ThumbnailStorePrx;
 import omero.api.delete.DeleteCommand;
 import omero.api.delete.DeleteHandlePrx;
 import omero.grid.Column;
@@ -4119,7 +4122,7 @@ public class DeleteServiceTest
     }
     
     /**
-     * Test to delete an image and make sure the thumbnail is deleted.
+     * Test to delete an image and make sure the thumbnail object is deleted.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
@@ -4222,12 +4225,14 @@ public class DeleteServiceTest
     }
     
     /**
-     * Test to delete an image and make sure the companionfile 
+     * Test to delete an image and make sure the companion file 
      * and pixels file is deleted.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(groups = "deletefiles")
-    public void testDeleteImageWithAssociatedFiles() throws Exception {
+    @Test(groups = "ticket:2880")
+    public void testDeleteImageWithAssociatedFiles() 
+    	throws Exception 
+    {
         Image img = (Image) iUpdate.saveAndReturnObject(
                 mmFactory.createImage());
         Pixels pixels = img.getPrimaryPixels();
@@ -4240,15 +4245,9 @@ public class DeleteServiceTest
         List<Long> ids = new ArrayList<Long>();
         ids.add(pixId);
         rsPrx.resetDefaultsInSet(Pixels.class.getName(), ids);
-
-/*      // How do I create a Thumbnail file? cgb
-        Thumbnail thumbnail = mmFactory.createThumbnail();
-        thumbnail.setPixels(pixels);
-        thumbnail = (Thumbnail) iUpdate.saveAndReturnObject(thumbnail);
-        long tnId = thumbnail.getId().getValue();
-*/      
+  
         // This creates an attached OriginalFle and a subsequent Files file.
-        // Is there a more concise way to achive the same thing? cgb
+        // Is there a more concise way to achieve the same thing? cgb
         OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
                 mmFactory.createOriginalFile());
         FileAnnotation fa = new FileAnnotationI();
@@ -4271,7 +4270,7 @@ public class DeleteServiceTest
         //Now check that the files have been created and then deleted.
         assertFileExists(pixId, "Pixels");
         assertFileExists(ofId, "OriginalFile");
-        iDelete.deleteImage(img.getId().getValue(), false); 
+        delete(new DeleteCommand(REF_IMAGE, img.getId().getValue(), null));
         assertFileDoesNotExist(pixId, "Pixels");
         assertFileDoesNotExist(ofId, "OriginalFile");
     }
@@ -4281,8 +4280,10 @@ public class DeleteServiceTest
      * No exceptions should arise if the files don't exist.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(groups = "deletefiles")
-    public void testDeleteImageWithoutAssociatedFiles() throws Exception {
+    @Test(groups = "ticket:2880")
+    public void testDeleteImageWithoutAssociatedFiles() 
+    	throws Exception
+    {
         Image img = (Image) iUpdate.saveAndReturnObject(
                 mmFactory.createImage());
         Pixels pixels = img.getPrimaryPixels();
@@ -4303,6 +4304,52 @@ public class DeleteServiceTest
         //Now check that the files have NOT been created and then deleted.
         assertFileDoesNotExist(pixId, "Pixels");
         assertFileDoesNotExist(ofId, "OriginalFile");
-        iDelete.deleteImage(img.getId().getValue(), false); 
+        delete(new DeleteCommand(REF_IMAGE, img.getId().getValue(), null));
     }
+    
+    /**
+     * Test to delete an image and make sure the thumbnail on disk is deleted.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(groups = "ticket:2880")
+    public void testDeleteImageWithThumbnailOnDisk() 
+    	throws Exception
+    {
+    	File f = File.createTempFile("testDeleteImageWithThumbnailOnDisk"
+				+ModelMockFactory.FORMATS[0], 
+				"."+ModelMockFactory.FORMATS[0]);
+    	mmFactory.createImageFile(f, ModelMockFactory.FORMATS[0]);
+    	OMEROMetadataStoreClient importer = new OMEROMetadataStoreClient();
+    	importer.initialize(factory);
+    	
+    	List<Pixels> list;
+    	try {
+			list = importFile(importer, f, ModelMockFactory.FORMATS[0], false);
+		} catch (Throwable e) {
+			throw new Exception("cannot import image", e);
+		}
+    	Pixels pixels = list.get(0);
+    	long id = pixels.getId().getValue();
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(id);
+    	long imageID = pixels.getImage().getId().getValue();
+
+    	ThumbnailStorePrx svc = factory.createThumbnailStore();
+    	//make sure we have a thumbnail on disk
+    	Map<Long, byte[]> thumbnails = svc.getThumbnailSet(omero.rtypes.rint(96), 
+				omero.rtypes.rint(96), ids);
+    	byte[] values = thumbnails.get(id);
+    	assertNotNull(values);
+    	assertTrue(values.length > 0);
+    	String sql = "select i from Thumbnail i where i.pixels.id = :id";
+    	ParametersI param = new ParametersI();
+    	param.addId(id);
+    	assertNotNull(iQuery.findByQuery(sql, param));
+    	
+    	//delete the image.
+    	delete(new DeleteCommand(REF_IMAGE, imageID, null));
+    	assertFileDoesNotExist(id, "Pixels");
+    	assertNull(iQuery.findByQuery(sql, param));
+    }
+    
 }

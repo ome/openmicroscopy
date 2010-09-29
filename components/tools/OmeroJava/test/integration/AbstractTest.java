@@ -289,7 +289,8 @@ public class AbstractTest
      *  @throws Exception  Thrown if an error occurred.
      */
     void assertFileExists(Long id, String klass) throws Exception {
-        AbstractFileSystemService afs = new AbstractFileSystemService(root.getProperty("omero.data.dir"));
+        AbstractFileSystemService afs = new AbstractFileSystemService(
+        		root.getProperty("omero.data.dir"));
         File file;
         if (klass.equals("OriginalFile")) {
             file = new File(afs.getFilesPath(id));
@@ -298,7 +299,8 @@ public class AbstractTest
         } else { // Thumbnail
             file = new File(afs.getThumbnailPath(id));
         }
-        assertTrue(String.format("File %s:%s does not exist!", klass, id.toString()), file.exists());
+        assertTrue(String.format("File %s:%s does not exist!", 
+        		klass, id.toString()), file.exists());
     }
     
     /**
@@ -306,10 +308,12 @@ public class AbstractTest
      * 
      * @param id The object id corresponding to the filename.
      * @param klass The class (table name) of the object.
-     *  @throws Exception  Thrown if an error occurred.
+     * @throws Exception  Thrown if an error occurred.
      */
-    void assertFileDoesNotExist(Long id, String klass) throws Exception {
-        AbstractFileSystemService afs = new AbstractFileSystemService(root.getProperty("omero.data.dir"));
+    void assertFileDoesNotExist(Long id, String klass) 
+    	throws Exception {
+        AbstractFileSystemService afs = new AbstractFileSystemService(
+        		root.getProperty("omero.data.dir"));
         File file;
         if (klass.equals("OriginalFile")) {
             file = new File(afs.getFilesPath(id));
@@ -318,7 +322,8 @@ public class AbstractTest
         } else { // Thumbnail
             file = new File(afs.getThumbnailPath(id));
         }
-        assertFalse(String.format("File %s:%s still exists!", klass, id.toString()), file.exists());
+        assertFalse(String.format("File %s:%s still exists!", klass, 
+        		id.toString()), file.exists());
     }
 
 	/**

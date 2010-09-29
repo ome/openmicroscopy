@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Iterator;
 import java.util.ArrayList;
+import java.util.Map.Entry;
 
 //Third-party libraries
 import org.testng.annotations.BeforeClass;
@@ -110,9 +111,11 @@ public class ThumbnailStoreTest
 		assertNotNull(values);
 		assertTrue(values.length > 0);
 		
-		byte[] lsValues = svc.getThumbnailByLongestSide(omero.rtypes.rint(sizeX));
+		byte[] lsValues = svc.getThumbnailByLongestSide(
+				omero.rtypes.rint(sizeX));
 		assertNotNull(lsValues);
 		assertTrue(lsValues.length > 0);
+		svc.close();
     }
     
     /**
@@ -133,7 +136,7 @@ public class ThumbnailStoreTest
     	List<Long> pixelsIds = new ArrayList<Long>();
     	int thumbNailCount = 20;
 		try {
-		    for (int i=0; i<thumbNailCount; i++) {
+		    for (int i = 0; i < thumbNailCount; i++) {
 			    List<Pixels> pxls = importFile(importer, f, format, false);
 			    pixelsIds.add(pxls.get(0).getId().getValue());
 			}
@@ -144,15 +147,17 @@ public class ThumbnailStoreTest
 		
 		int sizeX = 48;
 		int sizeY = 48;
-		Map<Long, byte[]> thmbs = svc.getThumbnailSet(omero.rtypes.rint(sizeX), omero.rtypes.rint(sizeY), pixelsIds);
-		Map<Long, byte[]> lsThmbs = svc.getThumbnailByLongestSideSet(omero.rtypes.rint(sizeX), pixelsIds);
+		Map<Long, byte[]> thmbs = svc.getThumbnailSet(omero.rtypes.rint(sizeX), 
+				omero.rtypes.rint(sizeY), pixelsIds);
+		Map<Long, byte[]> lsThmbs = svc.getThumbnailByLongestSideSet(
+				omero.rtypes.rint(sizeX), pixelsIds);
 		Iterator it = thmbs.entrySet().iterator();
 		byte[] t = null;
 		int tnCount = 0;
-		Map.Entry keyValue;
+		Entry keyValue;
 		while (it.hasNext()) {
-		    keyValue = (Map.Entry)it.next();
-		    t = (byte[])keyValue.getValue();
+		    keyValue = (Entry) it.next();
+		    t = (byte[]) keyValue.getValue();
 		    assertNotNull(t);
 		    assertNotNull(t.length > 0);
 		    tnCount++;
@@ -162,13 +167,14 @@ public class ThumbnailStoreTest
 		Iterator lit = lsThmbs.entrySet().iterator();
 		tnCount = 0;
 		while (lit.hasNext()) {
-		    keyValue = (Map.Entry)lit.next();
-		    t = (byte[])keyValue.getValue();
+		    keyValue = (Entry)lit.next();
+		    t = (byte[]) keyValue.getValue();
 		    assertNotNull(t);
 		    assertNotNull(t.length > 0);
 		    tnCount++;
 		}
 		assertEquals(tnCount, thumbNailCount);
+		svc.close();
 	}
     
 }
