@@ -59,7 +59,7 @@ from django.utils.translation import ugettext_lazy as _
 from webclient_http import HttpJavascriptRedirect, HttpJavascriptResponse
 from webclient.webclient_gateway import OmeroWebGateway
 
-from controller import sortByAttr
+from controller import sortByAttr, BaseController
 from controller.index import BaseIndex
 from controller.annotation import BaseAnnotation
 from controller.basket import BaseBasket
@@ -2162,8 +2162,52 @@ def progress(request, **kwargs):
 
     request.session.modified = True
     return HttpResponse(simplejson.dumps(len(request.session['callback'])),mimetype='application/json')
-            
+
+@isUserConnected
+def status_action (request, action=None, **kwargs):
+    request.session.modified = True
+    request.session['nav']['menu'] = 'status'
     
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+    
+    template = "webclient/status/status.html"
+    
+    jobs = list()
+    removed = list()
+    for cbString in request.session.get('callback'):
+        handle = omero.api.delete.DeleteHandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
+        res = None
+        try:
+            cb = omero.callbacks.DeleteCallbackI(conn.c, handle)
+            if cb.block(500) is not None: # ms.
+                cb.close()
+                res = handle.report()
+        except:
+            logger.error(traceback.format_exc())
+        
+        if res is not None and len("".join(res)) == 0:
+            removed.append(request.session['callback'][cbString])
+        else:
+            jobs.append(cbString)
+            
+    for cbString in removed:
+        del request.session['callback'][cbString]
+                
+    controller = BaseController(conn)    
+    form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['allGroups']})
+        
+    context = {'nav':request.session['nav'], 'eContext':controller.eContext, 'sizeOfJobs':len(jobs), 'jobs':jobs, 'form_active_group':form_active_group }
+
+    t = template_loader.get_template(template)
+    c = Context(request,context)
+    logger.debug('TEMPLATE: '+template)
+    return HttpResponse(t.render(c))
+
 ####################################################################################
 # User Photo
 

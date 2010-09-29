@@ -195,11 +195,12 @@ function deleteItems (productArray, parent) {
                         if (data == 0 || data == null) {
                             clearInterval(i);
                             $("#progress").hide();
-                            $("#jobs").html('');
+                            $("#jobstatus").html('');
                             return;
                         }
 
                         $("#progress").show();
+                        $("#jobstatus").html('<a class="align_left">STATUS&nbsp;</a>' + data + 'job(s) in progress');
                     });
                 }, 1000);
                 productArray.each(function() {
@@ -271,11 +272,12 @@ function deleteItem(productType, productId) {
                                 if (data == 0 || data == null) {
                                     clearInterval(i);
                                     $("#progress").hide();
-                                    $("#jobs").html('');
+                                    $("#jobstatus").html('');
                                     return;
                                 }
 
                                 $("#progress").show();
+                                $("#jobstatus").html('<a class="align_left">STATUS&nbsp;</a>' + data + 'job(s) in progress');
                             });
                         }, 1000);
                     }

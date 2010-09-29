@@ -129,12 +129,12 @@ table.contentWrapper {
     left: 0;
     width: 400px;
 }
-#basket {
+#baskets {
     margin: 0 10px;
     float:left;
 }
-#queue, #jobs {
-    margin: 0 10px;
+#queue, #jobstatus {
+    margin: 0 5px;
     float:left;
 }
 

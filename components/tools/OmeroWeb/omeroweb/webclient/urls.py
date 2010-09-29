@@ -53,6 +53,7 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^basket/(?:(?P<action>[a-zA-Z]+)/)?$', views.basket_action, name="basket_action"),
     
     url( r'^progress/', views.progress, name="progress"),
+    url( r'^status/', views.status_action, name="status"),
     
     # loading data
     url( r'^load_data/(?P<o1_type>((?i)orphaned))/$', views.load_data, name="load_data_ajax" ),

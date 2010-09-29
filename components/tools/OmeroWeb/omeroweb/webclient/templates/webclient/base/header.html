@@ -9,11 +9,12 @@
                 if (data == 0 || data == null) {
                     clearInterval(i);
                     $("#progress").hide();
-                    $("#jobs").html('');
+                    $("#jobstatus").html('');
                     return;
                 }
 
                 $("#progress").show();
+                $("#jobstatus").html('<a class="align_left">STATUS&nbsp;</a>' + data + 'job(s) in progress');
             });
         }, 2000);
     });
@@ -24,8 +25,8 @@
 <div id="path">
     
     <div id="actionWrapper">
-        <div id="basket"><a href="{% url basket_action %}"><img src="{% url webstatic "images/basket.png" %}" /> {% trans "BASKET" %}</a> {% trans "contains" %} <span id="cartTotal">{{ nav.basket }} {% plural nav.basket 'item' 'items' %}</span></div>
-        <div id="queue"><a>QUEUE</a> <img src="{% url webstatic "images/spinner.gif" %}" id="progress" style="display: none;"/></div>
+        <div id="baskets"><a href="{% url basket_action %}"><img src="{% url webstatic "images/basket.png" %}" /> {% trans "BASKET" %}</a> {% trans "contains" %} <span id="cartTotal">{{ nav.basket }} {% plural nav.basket 'item' 'items' %}</span></div>
+        <div id="queue"><div id="jobstatus"></div><img src="{% url webstatic "images/spinner.gif" %}" id="progress" style="display: none;"/></div>
     </div>
     
     <div id="logout">
