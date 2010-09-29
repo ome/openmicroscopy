@@ -181,10 +181,10 @@ fileLog = logging.handlers.TimedRotatingFileHandler(os.path.join(LOGDIR, LOGFILE
 
 # Windows will not allow renaming (or deleting) a file that's open. 
 # There's nothing the logging package can do about that.
-try:
-    sys.getwindowsversion()
-except:
-    fileLog.doRollover()
+#try:
+#    sys.getwindowsversion()
+#except:
+#    fileLog.doRollover()
 
 fileLog.setLevel(LEVEL)
 formatter = logging.Formatter('%(asctime)s %(name)-12s: %(levelname)-8s %(message)s')
