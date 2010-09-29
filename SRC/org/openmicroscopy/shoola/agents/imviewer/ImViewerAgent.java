@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.agents.imviewer;
 import java.awt.Rectangle;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 //Third-party libraries
 
@@ -55,7 +54,6 @@ import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.ViewObjectEvent;
 import pojos.DataObject;
-import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.PixelsData;

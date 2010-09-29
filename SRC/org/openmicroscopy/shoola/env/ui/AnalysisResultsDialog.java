@@ -26,7 +26,9 @@ package org.openmicroscopy.shoola.env.ui;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
@@ -40,6 +42,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -59,6 +62,7 @@ import org.openmicroscopy.shoola.util.filter.file.CSVFilter;
 import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
 import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
+import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
@@ -92,6 +96,9 @@ class AnalysisResultsDialog
 	/** Action ID indicating to save the result. */
 	private static final int SAVE = 1;
 	
+	/** Action ID indicating to plot the result again. */
+	private static final int PLOT = 2;
+	
 	/** The default color. */
 	private static final Color DEFAULT_COLOR = Color.RED;
 	
@@ -116,8 +123,17 @@ class AnalysisResultsDialog
 	/** Button to close the dialog. */
 	private JButton closeButton;
 	
-	/** Button to close the dialog. */
+	/** Button to save the graphics as <code>PNG</code> or <code>JPEG</code>. */
 	private JButton saveButton;
+	
+	/** Button to plot the result */
+	private JButton plotButton;
+	
+	/** The threshold for the maximum value. */
+	private NumericalTextField maxThreshold;
+	
+	/** The threshold for the minimum value. */
+	private NumericalTextField minThreshold;
 	
 	/** The main component displaying the results. */
 	private JComponent body;
@@ -128,15 +144,49 @@ class AnalysisResultsDialog
 	/** The chooser. */
 	private FileChooser chooser;
 	
+	/** The values extracted from the file. */
+	private List<Double> parseValues;
+	
+	/** The name of the graph. */
+	private String 		name;
+	
+	/** 
+	 * Creates the chart. 
+	 * 
+	 * @param values The values to plot.
+	 */
+	private void createChart(double[] values)
+	{
+		switch (parameters.getIndex()) {
+			case AnalysisResultsHandlingParam.HISTOGRAM:
+				HistogramPlot hp = new HistogramPlot();
+				hp.setXAxisName(parameters.getNameXaxis());
+				hp.setYAxisName(parameters.getNameYaxis());
+				if (values == null) {
+					values = new double[parseValues.size()];
+					Iterator<Double> i = parseValues.iterator();
+					int index = 0;
+					while (i.hasNext()) {
+						values[index] = i.next();
+						index++;
+					}
+				}
+				if (values.length > 0)
+					hp.addSeries(name, values, DEFAULT_COLOR, BINS);
+				body = hp.getChart();
+				chartObject = hp;
+				break;
+				default:
+					break;
+			}
+	}
+	
 	/**
 	 * Returns the legend to link to the display.
 	 * 
 	 * @return See above.
 	 */
-	private String getLegend()
-	{
-		return file.getName();
-	}
+	private String getLegend() { return file.getName(); }
 	
 	/** 
 	 * Initializes the components composing the display.
@@ -145,40 +195,36 @@ class AnalysisResultsDialog
 	 */
 	private void initComponents(String name)
 	{
+		minThreshold = new NumericalTextField();
+		minThreshold.setToolTipText("Plot only values greater than the " +
+				"value entered.");
+		minThreshold.setNumberType(Double.class);
+		minThreshold.setColumns(3);
+		maxThreshold = new NumericalTextField();
+		maxThreshold.setColumns(3);
+		maxThreshold.setNumberType(Double.class);
+		maxThreshold.setToolTipText("Plot only values lower than the " +
+		"value entered.");
+		plotButton = new JButton("Plot");
+		plotButton.setActionCommand(""+PLOT);
+		plotButton.addActionListener(this);
+		
 		closeButton = new JButton("Close");
 		closeButton.setActionCommand(""+CLOSE);
 		closeButton.addActionListener(this);
 		saveButton = new JButton("Save");
 		saveButton.setActionCommand(""+SAVE);
 		saveButton.addActionListener(this);
-		List<Double> results = parseFile();
-		if (results == null || results.size() == 0) {
+		parseValues = parseFile();
+		if (parseValues == null || parseValues.size() == 0) {
 			 JLabel l = new JLabel();
 			 l.setText("Cannot display the results");
 			 body = l;
 		} else {
 			if (name == null || name.trim().length() == 0)
 				name = getLegend();
-			switch (parameters.getIndex()) {
-				case AnalysisResultsHandlingParam.HISTOGRAM:
-					HistogramPlot hp = new HistogramPlot();
-					hp.setXAxisName(parameters.getNameXaxis());
-					hp.setYAxisName(parameters.getNameYaxis());
-					double[] values = new double[results.size()];
-					Iterator<Double> i = results.iterator();
-					int index = 0;
-					while (i.hasNext()) {
-						values[index] = i.next().doubleValue();
-						index++;
-					}
-					hp.addSeries(name, values, DEFAULT_COLOR, BINS);
-					body = hp.getChart();
-					chartObject = hp;
-					break;
-	
-				default:
-					break;
-			}
+			this.name = name;
+			createChart(null);
 		}
 		saveButton.setEnabled(chartObject != null);
 	}
@@ -197,8 +243,87 @@ class AnalysisResultsDialog
 		chooser = new FileChooser((JFrame) getOwner(), FileChooser.SAVE, 
 				"Save Chart", "Saves the chart", FILTERS);
 		chooser.setCurrentDirectory(UIUtilities.getDefaultFolder());
+		int index = name.lastIndexOf(".");
+		String value = name;
+		if (index > 0) value = name.substring(0, index);
+		chooser.setSelectedFile(value);
 		chooser.addPropertyChangeListener(this);
 		chooser.centerDialog();
+	}
+	
+	/** Plots the results again. */
+	private void plot()
+	{
+		if (parseValues == null || parseValues.size() == 0) return;
+		Number nMin = minThreshold.getValueAsNumber();
+		Number nMax = maxThreshold.getValueAsNumber();
+		Iterator<Double> i = parseValues.iterator();
+		double[] results;
+		int index = 0;
+		double min;
+		double max;
+		double v;
+		List<Double> values;
+		if (nMin == null && nMax == null) {
+			results = new double[parseValues.size()];
+			i = parseValues.iterator();
+			while (i.hasNext()) {
+				results[index] = i.next();
+				index++;
+			}
+		} else if (nMin == null && nMax != null) {
+			max = nMax.doubleValue();
+			values = new ArrayList<Double>();
+			while (i.hasNext()) {
+				v = i.next();
+				if (v < max) values.add(v);
+			}
+			results = new double[values.size()];
+			i = values.iterator();
+			while (i.hasNext()) {
+				results[index] = i.next();
+				index++;
+			}	
+		} else if (nMax == null && nMin != null) {
+			min = nMin.doubleValue();
+			values = new ArrayList<Double>();
+			while (i.hasNext()) {
+				v = i.next();
+				if (v > min) values.add(v);
+			}
+			results = new double[values.size()];
+			i = values.iterator();
+			while (i.hasNext()) {
+				results[index] = i.next();
+				index++;
+			}
+		} else {
+			min = nMin.doubleValue();
+			max = nMax.doubleValue();
+			values = new ArrayList<Double>();
+			while (i.hasNext()) {
+				v = i.next();
+				if (v > min && v < max) values.add(v);
+			}
+			results = new double[values.size()];
+			i = values.iterator();
+			while (i.hasNext()) {
+				results[index] = i.next();
+				index++;
+			}
+		}
+		
+		//repaint
+		createChart(results);
+		Container container = getContentPane();
+		Component c = container.getComponent(0);
+		container.removeAll();
+		container.add(c, BorderLayout.NORTH);
+		if (body != null)
+			container.add(body, BorderLayout.CENTER);
+		container.add(buildControlsBar(), BorderLayout.SOUTH);
+		container.validate();
+		container.repaint();
 	}
 	
 	/**
@@ -215,14 +340,15 @@ class AnalysisResultsDialog
 			StringTokenizer st;
 			while ((line = reader.readLine()) != null) {
 				st = new StringTokenizer(line, ",");
-				list.add(Double.parseDouble(st.nextToken()));
+				while (st.hasMoreTokens()) {
+					list.add(Double.parseDouble(st.nextToken()));
+				}
 			}
 			reader.close();
 			return list;
 		} catch (Exception e) {
-			
+			//ignore
 		}
-		
 		return null;
 	}
 	
@@ -246,11 +372,31 @@ class AnalysisResultsDialog
 	 */
 	private JComponent buildControlsBar()
 	{
+		JPanel content = new JPanel();
+		content.setLayout(new FlowLayout());
+		JLabel l = new JLabel();
+		l.setText("Min Threshold:");
+		l.setToolTipText(minThreshold.getToolTipText());
+		content.add(l);
+		content.add(minThreshold);
+		l = new JLabel();
+		l.setText("Max Threshold:");
+		l.setToolTipText(maxThreshold.getToolTipText());
+		content.add(l);
+		content.add(maxThreshold);
+		
 		JPanel p = new JPanel();
+		p.add(plotButton);
+		p.add(Box.createHorizontalStrut(10));
 		p.add(saveButton);
 		p.add(Box.createHorizontalStrut(10));
 		p.add(closeButton);
-		return UIUtilities.buildComponentPanelRight(p);
+		JPanel bar = new JPanel();
+		bar.setLayout(new BoxLayout(bar, BoxLayout.X_AXIS));
+		bar.add(UIUtilities.buildComponentPanel(content));
+		bar.add(Box.createHorizontalGlue());
+		bar.add(UIUtilities.buildComponentPanelRight(p));
+		return UIUtilities.buildComponentPanel(bar);
 	}
 	
 	/** Builds and lays out the UI. 
@@ -308,6 +454,9 @@ class AnalysisResultsDialog
 				break;
 			case SAVE:
 				save();
+				break;
+			case PLOT:
+				plot();
 		}
 	}
 

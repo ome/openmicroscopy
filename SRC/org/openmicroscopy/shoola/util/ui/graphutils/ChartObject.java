@@ -167,8 +167,7 @@ public abstract class ChartObject
 			axisName = X_AXIS;
 		domainAxis = new NumberAxis(axisName);
 	}
-	
-	
+
 	/**
 	 * Saves the chart as a <code>JPEG</code> or <code>PNG</code>.
 	 * 
