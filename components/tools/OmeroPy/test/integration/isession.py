@@ -169,12 +169,18 @@ class TestISession(lib.ITest):
         s.detachOnDestroy()
         
         svc = self.client.sf.getSessionService()
+        
         for s in svc.getMyOpenSessions():
-            print s.id.val, s.uuid.val
-            svc.closeSession(s)
+            if adminCtx.sessionUuid != s.uuid.val and s.defaultEventType.val not in ('Internal', 'Sessions'):
+                try:
+                    cc = omero.client(host,port)
+                    cc.joinSession(s.uuid.val)
+                    cc.killSession()
+                except:
+                    self.assertRaises(traceback.format_exc())
         
-        print len(svc.getMyOpenSessions())
-        
+        for s in svc.getMyOpenSessions():
+            self.assertNotEquals(s.uuid.val, newConnId.getUuid().val)
             
 if __name__ == '__main__':
     unittest.main()
