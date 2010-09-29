@@ -4221,4 +4221,88 @@ public class DeleteServiceTest
     	assertNull(pixels1.getRelatedTo());
     }
     
+    /**
+     * Test to delete an image and make sure the companionfile 
+     * and pixels file is deleted.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(groups = "deletefiles")
+    public void testDeleteImageWithAssociatedFiles() throws Exception {
+        Image img = (Image) iUpdate.saveAndReturnObject(
+                mmFactory.createImage());
+        Pixels pixels = img.getPrimaryPixels();
+        long pixId = pixels.getId().getValue();
+        
+        
+        // Is this the only way to cause a Pixels file to be written?
+        // Touching the renering settings seems a little odd. cgb
+        IRenderingSettingsPrx rsPrx = factory.getRenderingSettingsService();
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(pixId);
+        rsPrx.resetDefaultsInSet(Pixels.class.getName(), ids);
+
+/*      // How do I create a Thumbnail file? cgb
+        Thumbnail thumbnail = mmFactory.createThumbnail();
+        thumbnail.setPixels(pixels);
+        thumbnail = (Thumbnail) iUpdate.saveAndReturnObject(thumbnail);
+        long tnId = thumbnail.getId().getValue();
+*/      
+        // This creates an attached OriginalFle and a subsequent Files file.
+        // Is there a more concise way to achive the same thing? cgb
+        OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
+                mmFactory.createOriginalFile());
+        FileAnnotation fa = new FileAnnotationI();
+        fa.setNs(omero.rtypes.rstring(FileAnnotationData.COMPANION_FILE_NS));
+        fa.setFile(of);
+        fa = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
+        ImageAnnotationLink l = new ImageAnnotationLinkI();
+        l.setChild(fa);
+        l.setParent(img);
+        iUpdate.saveAndReturnObject(l);
+        long ofId = of.getId().getValue();
+        RawFileStorePrx rfPrx = factory.createRawFileStore();
+        try {
+            rfPrx.setFileId(ofId);
+            rfPrx.write(new byte[]{1,2,3,4}, 0, 4);
+        } finally {
+            rfPrx.close();
+        }
+
+        //Now check that the files have been created and then deleted.
+        assertFileExists(pixId, "Pixels");
+        assertFileExists(ofId, "OriginalFile");
+        iDelete.deleteImage(img.getId().getValue(), false); 
+        assertFileDoesNotExist(pixId, "Pixels");
+        assertFileDoesNotExist(ofId, "OriginalFile");
+    }
+    
+    /**
+     * Test to delete an image with no files associated.
+     * No exceptions should arise if the files don't exist.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(groups = "deletefiles")
+    public void testDeleteImageWithoutAssociatedFiles() throws Exception {
+        Image img = (Image) iUpdate.saveAndReturnObject(
+                mmFactory.createImage());
+        Pixels pixels = img.getPrimaryPixels();
+        long pixId = pixels.getId().getValue();
+        
+        OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
+                mmFactory.createOriginalFile());
+        FileAnnotation fa = new FileAnnotationI();
+        fa.setNs(omero.rtypes.rstring(FileAnnotationData.COMPANION_FILE_NS));
+        fa.setFile(of);
+        fa = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
+        ImageAnnotationLink l = new ImageAnnotationLinkI();
+        l.setChild(fa);
+        l.setParent(img);
+        iUpdate.saveAndReturnObject(l);
+        long ofId = of.getId().getValue();
+
+        //Now check that the files have NOT been created and then deleted.
+        assertFileDoesNotExist(pixId, "Pixels");
+        assertFileDoesNotExist(ofId, "OriginalFile");
+        iDelete.deleteImage(img.getId().getValue(), false); 
+    }
 }

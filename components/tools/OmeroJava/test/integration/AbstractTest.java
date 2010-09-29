@@ -16,6 +16,7 @@ import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
+import ome.io.nio.AbstractFileSystemService;
 import omero.api.IAdminPrx;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
@@ -279,7 +280,47 @@ public class AbstractTest
     			obj.getClass().getName(), obj.getId().getValue())
     			+ " still exists!", copy);
     }
+
+    /**
+     * Makes sure that the omero file exists of the given type and id
+     * 
+     * @param id The object id corresponding to the filename.
+     * @param klass The class (table name) of the object.
+     *  @throws Exception  Thrown if an error occurred.
+     */
+    void assertFileExists(Long id, String klass) throws Exception {
+        AbstractFileSystemService afs = new AbstractFileSystemService(root.getProperty("omero.data.dir"));
+        File file;
+        if (klass.equals("OriginalFile")) {
+            file = new File(afs.getFilesPath(id));
+        } else if (klass.equals("Pixels")) {
+            file = new File(afs.getPixelsPath(id));
+        } else { // Thumbnail
+            file = new File(afs.getThumbnailPath(id));
+        }
+        assertTrue(String.format("File %s:%s does not exist!", klass, id.toString()), file.exists());
+    }
     
+    /**
+     * Makes sure that the omero file does not exist of the given type and id
+     * 
+     * @param id The object id corresponding to the filename.
+     * @param klass The class (table name) of the object.
+     *  @throws Exception  Thrown if an error occurred.
+     */
+    void assertFileDoesNotExist(Long id, String klass) throws Exception {
+        AbstractFileSystemService afs = new AbstractFileSystemService(root.getProperty("omero.data.dir"));
+        File file;
+        if (klass.equals("OriginalFile")) {
+            file = new File(afs.getFilesPath(id));
+        } else if (klass.equals("Pixels")) {
+            file = new File(afs.getPixelsPath(id));
+        } else { // Thumbnail
+            file = new File(afs.getThumbnailPath(id));
+        }
+        assertFalse(String.format("File %s:%s still exists!", klass, id.toString()), file.exists());
+    }
+
 	/**
 	 * Imports the specified OME-XML file and returns the pixels set
 	 * if successfully imported.
