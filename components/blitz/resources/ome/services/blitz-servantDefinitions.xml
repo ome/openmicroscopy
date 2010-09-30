@@ -80,7 +80,7 @@
         </bean>
     </constructor-arg>
   </bean>
-  <bean id="scriptRepoHelper" class="ome.services.scripts.ScriptRepoHelper">
+  <bean id="scriptRepoHelper" class="ome.services.scripts.ScriptRepoHelper" depends-on="sessionManager">
       <constructor-arg ref="executor"/>
       <constructor-arg ref="roles"/>
       <constructor-arg ref="uuid"/>
