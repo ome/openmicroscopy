@@ -9,7 +9,6 @@ package integration;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Formatter;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,8 +20,6 @@ import omero.api.IRenderingSettingsPrx;
 import omero.api.RawFileStorePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.api.delete.DeleteCommand;
-import omero.api.delete.DeleteHandlePrx;
-import omero.grid.DeleteCallbackI;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
 import omero.model.FileAnnotation;

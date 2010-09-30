@@ -13,16 +13,11 @@ package integration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-import omero.ApiUsageException;
-import omero.ServerError;
 import omero.api.IAdminPrx;
 import omero.api.IDeletePrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.api.delete.DeleteCommand;
-import omero.api.delete.DeleteHandlePrx;
-import omero.grid.DeleteCallbackI;
 import omero.model.Dataset;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
