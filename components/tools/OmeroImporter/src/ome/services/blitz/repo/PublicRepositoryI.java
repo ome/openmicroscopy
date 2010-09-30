@@ -585,6 +585,20 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return tnPath;
     }
 
+    /**
+     * Return true if a file exists in the repository.
+     * 
+     * @param path
+     *            A path on a repository.
+     * @param __current
+     *            ice context.
+     * @return The existence of the file
+     *
+     */
+    public boolean fileExists(String path, Current __current) throws ServerError {
+        File file = checkPath(path);
+        return file.exists();
+    }
 
 
 
