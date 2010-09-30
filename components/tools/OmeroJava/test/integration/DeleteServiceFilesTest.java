@@ -159,7 +159,7 @@ public class DeleteServiceFilesTest
        RepositoryPrx legacy = null;
        RepositoryMap rm = factory.sharedResources().repositories();
        int repoCount = 0;
-       String dataDir = root.getProperty("omero.data.dir");
+       String dataDir = root.getSession().getConfigService().getConfigValue("omero.data.dir");
        for (OriginalFile desc: rm.descriptions) {
            String repoPath = desc.getPath().getValue() + 
            desc.getName().getValue() + File.separator;
