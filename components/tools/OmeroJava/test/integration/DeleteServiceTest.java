@@ -3861,7 +3861,7 @@ public class DeleteServiceTest
      * Test to delete a tagged image. The tag is also linked to another image.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = true)
+    @Test(enabled = false, groups = {"ticket:2945"})
     public void testDeleteTaggedImages() 
     	throws Exception
     {
