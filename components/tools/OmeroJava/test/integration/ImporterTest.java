@@ -692,12 +692,13 @@ public class ImporterTest
      * @throws Exception Thrown if an error occurred.
      */
 	@Test
-	public void testImportSimpleImage201006()
+	public void testImportSimpleImage()
 		throws Exception
 	{
-		File f = File.createTempFile("testImportSimpleImage", "."+OME_FORMAT);
+		File f = File.createTempFile("testImportSimpleImage", 
+				"."+OME_FORMAT);
 		files.add(f);
-		XMLMockObjects201006 xml = new XMLMockObjects201006();
+		XMLMockObjects xml = new XMLMockObjects();
 		XMLWriter writer = new XMLWriter();
 		writer.writeFile(f, xml.createImage(), true);
 		List<Pixels> pixels = null;
@@ -751,12 +752,13 @@ public class ImporterTest
      * @throws Exception Thrown if an error occurred.
      */
 	@Test
-	public void testImportSimpleImageMetadataOnly201006()
+	public void testImportSimpleImageMetadataOnly()
 		throws Exception
 	{
-		File f = File.createTempFile("testImportSimpleImage", "."+OME_FORMAT);
+		File f = File.createTempFile("testImportSimpleImageMetadataOnly", 
+				"."+OME_FORMAT);
 		files.add(f);
-		XMLMockObjects201006 xml = new XMLMockObjects201006();
+		XMLMockObjects xml = new XMLMockObjects();
 		XMLWriter writer = new XMLWriter();
 		writer.writeFile(f, xml.createImage(), true);
 		try {
@@ -774,9 +776,11 @@ public class ImporterTest
 	public void testImportSimpleImageMetadataOnlyNoBinaryInFile()
 		throws Exception
 	{
-		File f = File.createTempFile("testImportSimpleImage", "."+OME_FORMAT);
+		File f = File.createTempFile(
+				"testImportSimpleImageMetadataOnlyNoBinaryInFile", 
+				"."+OME_FORMAT);
 		files.add(f);
-		XMLMockObjects201006 xml = new XMLMockObjects201006();
+		XMLMockObjects xml = new XMLMockObjects();
 		XMLWriter writer = new XMLWriter();
 		writer.writeFile(f, xml.createImage(), false);
 		try {
@@ -791,12 +795,13 @@ public class ImporterTest
      * @throws Exception Thrown if an error occurred.
      */
 	@Test
-	public void testImportAnnotatedImage201006()
+	public void testImportAnnotatedImage()
 		throws Exception
 	{
-		File f = File.createTempFile("testImportAnnotatedImage", "."+OME_FORMAT);
+		File f = File.createTempFile("testImportAnnotatedImage", 
+				"."+OME_FORMAT);
 		files.add(f);
-		XMLMockObjects201006 xml = new  XMLMockObjects201006();
+		XMLMockObjects xml = new  XMLMockObjects();
 		XMLWriter writer = new XMLWriter();
 		writer.writeFile(f, xml.createAnnotatedImage(), true);
 		List<Pixels> pixels = null;
@@ -837,13 +842,13 @@ public class ImporterTest
      * @throws Exception Thrown if an error occurred.
      */
 	@Test
-	public void testImportImageWithAcquisitionData201006()
+	public void testImportImageWithAcquisitionData()
 		throws Exception
 	{
 		File f = File.createTempFile("testImportImageWithAcquisitionData", 
 				"."+OME_FORMAT);
 		files.add(f);
-		XMLMockObjects201006 xml = new XMLMockObjects201006();
+		XMLMockObjects xml = new XMLMockObjects();
 		XMLWriter writer = new XMLWriter();
 		OME ome = xml.createImageWithAcquisitionData();
 		writer.writeFile(f, ome, true);
@@ -1031,12 +1036,13 @@ public class ImporterTest
      * Tests the import of an OME-XML file with an image with ROI.
      * @throws Exception Thrown if an error occurred.
      */
-	public void testImportImageWithROI201006()
+	public void testImportImageWithROI()
 		throws Exception
 	{
-		File f = File.createTempFile("testImportImageWithROI", "."+OME_FORMAT);
+		File f = File.createTempFile("testImportImageWithROI", 
+				"."+OME_FORMAT);
 		files.add(f);
-		XMLMockObjects201006 xml = new XMLMockObjects201006();
+		XMLMockObjects xml = new XMLMockObjects();
 		XMLWriter writer = new XMLWriter();
 		writer.writeFile(f, xml.createImageWithROI(), true);
 		List<Pixels> pixels = null;
@@ -1071,12 +1077,12 @@ public class ImporterTest
      * @throws Exception Thrown if an error occurred.
      */
 	@Test
-	public void testImportPlate201006()
+	public void testImportPlate()
 		throws Exception
 	{
 		File f = File.createTempFile("testImportPlate", "."+OME_FORMAT);
 		files.add(f);
-		XMLMockObjects201006 xml = new XMLMockObjects201006();
+		XMLMockObjects xml = new XMLMockObjects();
 		XMLWriter writer = new XMLWriter();
 		OME ome = xml.createPopulatedPlate(0);
 		writer.writeFile(f, ome, true);
@@ -1113,13 +1119,13 @@ public class ImporterTest
      * @throws Exception Thrown if an error occurred.
      */
 	@Test
-	public void testImportPlateOnePlateAcquisition201006()
+	public void testImportPlateOnePlateAcquisition()
 		throws Exception
 	{
 		File f = File.createTempFile("testImportPlateOnePlateAcquisition", 
 				"."+OME_FORMAT);
 		files.add(f);
-		XMLMockObjects201006 xml = new XMLMockObjects201006();
+		XMLMockObjects xml = new XMLMockObjects();
 		XMLWriter writer = new XMLWriter();
 		OME ome =  xml.createPopulatedPlate(1);
 		writer.writeFile(f, ome, true);
@@ -1154,15 +1160,16 @@ public class ImporterTest
      * @throws Exception Thrown if an error occurred.
      */
 	@Test
-	public void testImportPlateMultiplePlateAcquisitions201006()
+	public void testImportPlateMultiplePlateAcquisitions()
 		throws Exception
 	{
-		File f = File.createTempFile("testImportPlateMultiplePlateAcquisitions",
+		File f = File.createTempFile(
+				"testImportPlateMultiplePlateAcquisitions",
 				"."+OME_FORMAT);
 		files.add(f);
 		int n = 3;
 		int fields = 3;
-		XMLMockObjects201006 xml = new XMLMockObjects201006();
+		XMLMockObjects xml = new XMLMockObjects();
 		XMLWriter writer = new XMLWriter();
 		OME ome =  xml.createPopulatedPlate(n, fields);
 		writer.writeFile(f, ome, true);
@@ -1220,13 +1227,13 @@ public class ImporterTest
      * @throws Exception Thrown if an error occurred.
      */
 	@Test
-	public void testImportPlateWithReagent201006()
+	public void testImportPlateWithReagent()
 		throws Exception
 	{
 		File f = File.createTempFile("testImportPlateWithReagent", 
 				"."+OME_FORMAT);
 		files.add(f);
-		XMLMockObjects201006 xml = new XMLMockObjects201006();
+		XMLMockObjects xml = new XMLMockObjects();
 		XMLWriter writer = new XMLWriter();
 		OME ome =  xml.createBasicPlateWithReagent();
 		writer.writeFile(f, ome, true);
@@ -1275,5 +1282,5 @@ public class ImporterTest
 		assertEquals(wr.getChild().getId().getValue(),
 				screen.copyReagent().get(0).getId().getValue());
 	}
-
+	
 }
