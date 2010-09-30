@@ -267,7 +267,14 @@ public class SharedResourcesI extends AbstractAmdServant implements
                             final ResultHolder<TablesPrx> holder) {
                         final TablesPrx server = TablesPrxHelper
                                 .checkedCast(prx);
-                        holder.set(server);
+                        try {
+                            if (server != null && server.getRepository() != null) {
+                                holder.set(server);
+                            }
+                        } catch (Exception e) {
+                            log.debug("Exception on getRepository: " + e);
+                            holder.set(null);
+                        }
                     }
                 });
     }
