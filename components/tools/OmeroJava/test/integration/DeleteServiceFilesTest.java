@@ -186,7 +186,7 @@ public class DeleteServiceFilesTest
    void assertFileExists(Long id, String klass)
    throws Exception
    {   
-       String path = getPath(root.getProperty("omero.data.dir"), klass, id);
+       String path = getPath(root.getSession().getConfigService().getConfigValue("omero.data.dir"), klass, id);
        RepositoryPrx legacy = getLegacyRepository();
        assertTrue(legacy.fileExists(path));
    }
@@ -201,7 +201,7 @@ public class DeleteServiceFilesTest
    void assertFileDoesNotExist(Long id, String klass) 
    throws Exception 
    {  
-       String path = getPath(root.getProperty("omero.data.dir"), klass, id);
+       String path = getPath(root.getSession().getConfigService().getConfigValue("omero.data.dir"), klass, id);
        RepositoryPrx legacy = getLegacyRepository();
        assertFalse(legacy.fileExists(path));
    }  
