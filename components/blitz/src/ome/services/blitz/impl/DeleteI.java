@@ -16,7 +16,6 @@ import ome.io.nio.AbstractFileSystemService;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ServiceFactoryAware;
-import ome.services.delete.DeleteSpecFactory;
 import ome.services.scheduler.ThreadPool;
 import omero.ApiUsageException;
 import omero.SecurityViolation;

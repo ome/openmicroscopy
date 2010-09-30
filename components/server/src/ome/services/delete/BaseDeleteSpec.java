@@ -31,6 +31,8 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
+import org.perf4j.StopWatch;
+import org.perf4j.commonslog.CommonsLogStopWatch;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.ListableBeanFactory;
@@ -281,6 +283,7 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
         final StringBuilder rv = new StringBuilder();
         final List<Long> actualDeletes = new ArrayList<Long>();
 
+        StopWatch sw = new CommonsLogStopWatch();
         for (Long id : ids) {
             String sp = savepoint(session);
             try {
@@ -311,6 +314,8 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
                             str, this.id, cause));
                     throw cve;
                 }
+            } finally {
+                sw.stop("omero.delete." + table + "." + id);
             }
         }
 

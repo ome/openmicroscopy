@@ -42,7 +42,6 @@ public class DeleteCallbackI {
     @SuppressWarnings("unused")
     private final Ice.Identity id;
 
-    @SuppressWarnings("unused")
     private final BlockingQueue<Integer> q = new LinkedBlockingQueue<Integer>();
 
     private final boolean poll;

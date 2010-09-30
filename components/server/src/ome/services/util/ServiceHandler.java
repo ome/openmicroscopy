@@ -111,7 +111,7 @@ public class ServiceHandler implements MethodInterceptor, ApplicationListener {
             o = arg0.proceed();
             finalOutput.append(" Rslt:\t");
             finalOutput.append(getResultsString(o, null));
-            stopWatch.stop("omero.call.success");
+            stopWatch.stop("omero.call.success." + implClass.getName() + "." + mthd.getName());
             return o;
         } catch (Throwable t) {
             finalOutput.append(" Excp:\t");

@@ -17,6 +17,8 @@ import java.util.Map;
 import ome.api.IDelete;
 
 import org.hibernate.Session;
+import org.perf4j.StopWatch;
+import org.perf4j.commonslog.CommonsLogStopWatch;
 
 /**
  * Wrapper around a map from {@link DeleteSpec} to lists of ids which will be
@@ -36,7 +38,7 @@ public class DeleteIds {
     private final Map<DeleteSpec, List<List<Long>>> ids = new HashMap<DeleteSpec, List<List<Long>>>();
 
     public DeleteIds(Session session, DeleteSpec spec) throws DeleteException {
-
+        StopWatch sw = new CommonsLogStopWatch();
         List<String[]> paths = new ArrayList<String[]>();
         load(spec, paths);
         paths = Collections.unmodifiableList(paths);
@@ -47,6 +49,7 @@ public class DeleteIds {
             List<List<Long>> ids = subSpec.backupIds(session, paths);
             this.ids.put(subSpec, ids);
         }
+        sw.stop("omero.delete.ids");
     }
 
     private void load(DeleteSpec spec, List<String[]> paths) {

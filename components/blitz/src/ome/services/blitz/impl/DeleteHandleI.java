@@ -33,13 +33,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
+import org.perf4j.StopWatch;
+import org.perf4j.commonslog.CommonsLogStopWatch;
 import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
 
 /**
  * Servant for the handle proxy from the IDelete service. This is also a
- * {@link Runnable} and is passed to a {@link ThreadPool} instance
+ * {@link Runnable} and is passed to a ThreadPool instance
  *
  * <pre>
  * Transitions:
@@ -322,26 +324,37 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
             return; // EARLY EXIT!
         }
 
-        executor.execute(principal, new Executor.SimpleWork(this, "run",
-                Ice.Util.identityToString(id), "size=" + commands.length) {
-            @Transactional(readOnly = false)
-            public Object doWork(Session session, ServiceFactory sf) {
-                try {
-                    doRun(session);
-                    state.compareAndSet(State.READY, State.FINISHED);
-                } catch (Cancel c) {
-                    state.set(State.CANCELLED);
-                    throw c;
+        StopWatch sw = new CommonsLogStopWatch();
+        try {
+            executor.execute(principal, new Executor.SimpleWork(this, "run",
+                    Ice.Util.identityToString(id), "size=" + commands.length) {
+                @Transactional(readOnly = false)
+                public Object doWork(Session session, ServiceFactory sf) {
+                    try {
+                        doRun(session);
+                        state.compareAndSet(State.READY, State.FINISHED);
+                    } catch (Cancel c) {
+                        state.set(State.CANCELLED);
+                        throw c; // Exception intended to rollback transaction
+                    }
+                    return null;
                 }
-                return null;
-            }
-        });
+            });
 
-        /*
-         * If the delete has succeeded try to delete the associated files.
-         */
+        } catch (Exception e) {
+            // tx rolled back.
+        } finally {
+            sw.stop("omero.delete.tx");
+        }
+
+        // If the delete has succeeded try to delete the associated files.
         if (state.get() == State.FINISHED) {
-            deleteFiles();
+            sw = new CommonsLogStopWatch();
+            try {
+                deleteFiles();
+            } finally {
+                sw.stop("omero.delete.binary");
+            }
         }
     }
 
@@ -352,22 +365,29 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
 
             // Handled during initialization.
             if (report.error != null) {
+                log.info("Initialization cancelled " + report.command.type
+                        + ":" + report.command.id + " -- " + report.error);
                 continue;
+            } else {
+                log.info("Deleting " + report.command.type
+                        + ":" + report.command.id);
             }
 
-            report.start = System.currentTimeMillis();
+            StopWatch sw = new CommonsLogStopWatch();
             try {
                 steps(session, report);
             } finally {
-                report.stop = System.currentTimeMillis();
+                sw.stop("omero.delete.command." + i);
+                report.start = sw.getStartTime();
+                report.stop = sw.getElapsedTime();
             }
         }
     }
 
     public void steps(Session session, Report report) throws Cancel {
         DeleteIds ids = null;
+        StopWatch sw = null;
         for (int j = 0; j < report.steps; j++) {
-            report.stepStarts[j] = System.currentTimeMillis();
             try {
 
                 if (!state.compareAndSet(State.READY, State.RUNNING)) {
@@ -379,6 +399,7 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                 if (ids == null) {
                     ids = new DeleteIds(session, report.spec);
                 }
+                sw = new CommonsLogStopWatch();
                 report.warning = report.spec.delete(session, j, ids);
             } catch (DeleteException de) {
                 report.error = de.message;
@@ -400,7 +421,9 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                 cancel.initCause(t);
                 throw cancel;
             } finally {
-                report.stepStops[j] = System.currentTimeMillis();
+                sw.stop("omero.delete.step." + j);
+                report.stepStarts[j] = sw.getStartTime();
+                report.stepStops[j] = sw.getElapsedTime();
                 // If cancel was thrown, then this value will be overwritten
                 // by the try/catch handler
                 state.compareAndSet(State.RUNNING, State.READY);
