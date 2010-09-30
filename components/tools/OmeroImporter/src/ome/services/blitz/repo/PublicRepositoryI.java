@@ -468,6 +468,13 @@ public class PublicRepositoryI extends _RepositoryDisp {
     public List<OriginalFile> listFiles(String path, RepositoryListConfig config, Current __current) throws ServerError {
         Principal currentUser = currentUser(__current);
         File file = checkPath(path);
+        if (!file.exists()) {
+            throw new ValidationException(null, null, "Path does not exist");
+        }
+        if (!file.isDirectory()) {
+            throw new ValidationException(null, null, "Path is not a directory");
+        }
+        
         List<File> files;
         List<OriginalFile> oFiles;
         RepositoryListConfig conf;
@@ -504,6 +511,12 @@ public class PublicRepositoryI extends _RepositoryDisp {
             throws ServerError {
         Principal currentUser = currentUser(__current);
         File file = checkPath(path);
+        if (!file.exists()) {
+            throw new ValidationException(null, null, "Path does not exist");
+        }
+        if (!file.isDirectory()) {
+            throw new ValidationException(null, null, "Path is not a directory");
+        }
         RepositoryListConfig conf;
         
         if(config == null) {
@@ -536,6 +549,9 @@ public class PublicRepositoryI extends _RepositoryDisp {
      */
     public String mimetype(String path, Current __current) throws ServerError {
         File file = checkPath(path);
+        if (!file.exists()) {
+            throw new ValidationException(null, null, "Path does not exist");
+        }
         return getMimetype(file);
     }
 
@@ -552,6 +568,12 @@ public class PublicRepositoryI extends _RepositoryDisp {
     public String getThumbnail(String path, Current __current)  throws ServerError {
         Principal currentUser = currentUser(__current);
         File file = checkPath(path);
+        if (!file.exists()) {
+            throw new ValidationException(null, null, "Path does not exist");
+        }
+        if (!file.isFile()) {
+            throw new ValidationException(null, null, "Path is not a file");
+        }
         String tnPath;
         try {
             tnPath = createThumbnail(file);   
@@ -576,6 +598,12 @@ public class PublicRepositoryI extends _RepositoryDisp {
     public String getThumbnailByIndex(String path, int imageIndex, Current __current)  throws ServerError {
         Principal currentUser = currentUser(__current);
         File file = checkPath(path);
+        if (!file.exists()) {
+            throw new ValidationException(null, null, "Path does not exist");
+        }
+        if (!file.isFile()) {
+            throw new ValidationException(null, null, "Path is not a file");
+        }
         String tnPath;
         try {
             tnPath = createThumbnail(file, imageIndex);   
