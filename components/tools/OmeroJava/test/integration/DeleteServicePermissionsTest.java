@@ -1,24 +1,8 @@
 /*
- * integration.DeleteServicePermissionsTest 
+ * $Id$
  *
- *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
- *
- *
- * 	This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- *  GNU General Public License for more details.
- *  
- *  You should have received a copy of the GNU General Public License along
- *  with this program; if not, write to the Free Software Foundation, Inc.,
- *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
- *
- *------------------------------------------------------------------------------
+ *   Copyright 2006-2010 University of Dundee. All rights reserved.
+ *   Use is subject to license terms supplied in LICENSE.txt
  */
 package integration;
 
@@ -34,7 +18,6 @@ import omero.ApiUsageException;
 import omero.ServerError;
 import omero.api.IAdminPrx;
 import omero.api.IDeletePrx;
-import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.api.delete.DeleteCommand;
@@ -80,37 +63,6 @@ public class DeleteServicePermissionsTest
 	extends AbstractTest
 {
 
-    /** Helper reference to the <code>IDelete</code> service. */
-    private IDeletePrx iDelete;
-
-    /**
-     * Basic asynchronous delete command. Used in order to reduce the number
-     * of places that we do the same thing in case the API changes.
-     * 
-     * @param dc The command to handle.
-     * @throws ApiUsageException
-     * @throws ServerError
-     * @throws InterruptedException
-     */
-    private String delete(IDeletePrx proxy, omero.client client, 
-    		DeleteCommand...dc)
-    	throws ApiUsageException, ServerError,
-        InterruptedException
-    {
-        DeleteHandlePrx handle = proxy.queueDelete(dc);
-        DeleteCallbackI cb = new DeleteCallbackI(client, handle);
-        int count = 10;
-        while (null == cb.block(500)) {
-            count--;
-            if (count == 0) {
-                throw new RuntimeException("Waiting on delete timed out");
-            }
-        }
-        String report = handle.report().toString();
-        assertEquals(report, 0, handle.errors());
-        return report;
-    }
-   
     /**
      * Since so many tests rely on counting the number of objects present
      * globally, we're going to start each method with a new user in 
@@ -121,7 +73,6 @@ public class DeleteServicePermissionsTest
     	throws Exception
     {
         newUserAndGroup("rw----");
-        iDelete = factory.getDeleteService();
     }
 
     /**
@@ -149,23 +100,20 @@ public class DeleteServicePermissionsTest
     	throws Exception
     {
     	IAdminPrx svc = root.getSession().getAdminService();
-		IQueryPrx query = root.getSession().getQueryService();
-    	String uuid1 = UUID.randomUUID().toString();
-    	long id = factory.getAdminService().getEventContext().groupId;
+    	String uuid = UUID.randomUUID().toString();
+    	String name = factory.getAdminService().getEventContext().groupName;
     	Experimenter user = new ExperimenterI();
-    	user.setOmeName(omero.rtypes.rstring(uuid1));
+    	user.setOmeName(omero.rtypes.rstring(uuid));
     	user.setFirstName(omero.rtypes.rstring("user"));
     	user.setLastName(omero.rtypes.rstring("user")); 
-		ParametersI param = new ParametersI();
-		param.addId(id);
-		ExperimenterGroup group = (ExperimenterGroup) query.findByQuery(
-				"select distinct g from ExperimenterGroup g where g.id = :id", 
-				param);
+		ExperimenterGroup group = svc.lookupGroup(name);
 		List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
 		ExperimenterGroup userGroup = svc.lookupGroup(USER_GROUP);
 		groups.add(group);
 		groups.add(userGroup);
-		long userID = svc.createExperimenter(user, group, groups);
+		
+		svc.createExperimenter(user, group, groups);
+		
 		//Image
 		Image img = (Image) iUpdate.saveAndReturnObject(
 				mmFactory.createImage());
@@ -187,7 +135,7 @@ public class DeleteServicePermissionsTest
     	
     	omero.client newClient = new omero.client();
     	// owner creates the image
-        ServiceFactoryPrx f = newClient.createSession(uuid1, uuid1); 
+        ServiceFactoryPrx f = newClient.createSession(uuid, uuid); 
         IDeletePrx delete = f.getDeleteService();
         try {
         	DeleteCommand[] dcs = new DeleteCommand[5];
@@ -202,7 +150,9 @@ public class DeleteServicePermissionsTest
         	dcs[4] = new DeleteCommand(DeleteServiceTest.REF_PLATE, 
 					plate.getId().getValue(), null);
         	delete(delete, newClient, dcs);
-        	param = new ParametersI();
+        	newClient.__del__();
+        	
+        	ParametersI param = new ParametersI();
         	param.addId(img.getId().getValue());
         	assertNotNull(iQuery.findByQuery(
         			"select i from Image i where i.id = :id", param));
@@ -222,15 +172,15 @@ public class DeleteServicePermissionsTest
         	param.addId(plate.getId().getValue());
         	assertNotNull(iQuery.findByQuery(
         			"select i from Plate i where i.id = :id", param));
-        	newClient.__del__();
+        	
 		} catch (Exception e) {
 			throw e;
 		}
     }
     
     /**
-     * Test to try to delete an image owned by another user in a private group
-     * i.e. RWR---
+     * Test to try to delete an image owned by another user in a collaborative
+     * group i.e. RWR---
      * @throws Exception Thrown if an error occurred.     
      */
     @Test(enabled = false)
@@ -238,26 +188,21 @@ public class DeleteServicePermissionsTest
     	throws Exception
     {
     	IAdminPrx svc = root.getSession().getAdminService();
-		IQueryPrx query = root.getSession().getQueryService();
 		// set up collaborative group with 2 users
-        String uuid1 = UUID.randomUUID().toString();
+        String uuid = UUID.randomUUID().toString();
 		ExperimenterGroup group = new ExperimenterGroupI();
-		group.setName(omero.rtypes.rstring(uuid1));
+		group.setName(omero.rtypes.rstring(uuid));
 		group.getDetails().setPermissions(new PermissionsI("rwr---"));
-		long id1 = svc.createGroup(group);
-		ParametersI p = new ParametersI();
-		p.addId(id1);
-		group = (ExperimenterGroup) query.findByQuery(
-				"select distinct g from ExperimenterGroup g where g.id = :id", 
-				p);
+		svc.createGroup(group);
+		group = svc.lookupGroup(uuid);
 		 
 		Experimenter owner = new ExperimenterI();
-		owner.setOmeName(omero.rtypes.rstring(uuid1));
+		owner.setOmeName(omero.rtypes.rstring(uuid));
 		owner.setFirstName(omero.rtypes.rstring("owner"));
 		owner.setLastName(omero.rtypes.rstring("owner")); 
 		 
 		Experimenter other = new ExperimenterI();
-		other.setOmeName(omero.rtypes.rstring(uuid1+"other"));
+		other.setOmeName(omero.rtypes.rstring(uuid+"other"));
 		other.setFirstName(omero.rtypes.rstring("other"));
 		other.setLastName(omero.rtypes.rstring("other"));
 		
@@ -268,39 +213,41 @@ public class DeleteServicePermissionsTest
 		
 		svc.createExperimenter(owner, group, groups);
 		svc.createExperimenter(other, group, groups);
-		
-		
+
 		omero.client newClient = new omero.client();
     	// owner creates the image
-        ServiceFactoryPrx f = newClient.createSession(uuid1, uuid1); 
+        ServiceFactoryPrx f = newClient.createSession(uuid, uuid); 
         IUpdatePrx update = f.getUpdateService();
+        ModelMockFactory mmFactory = new ModelMockFactory(f.getPixelsService());
         Image img = (Image) update.saveAndReturnObject(
         		mmFactory.simpleImage(0));
         long imageID = img.getId().getValue();
         
-        newClient.__del__();
-        newClient = new omero.client();
-        f = newClient.createSession(uuid1+"other", uuid1); 
-        IDeletePrx delete = f.getDeleteService();
+        
+        omero.client otherClient = new omero.client();
+        ServiceFactoryPrx of = otherClient.createSession(uuid+"other", uuid); 
+        IDeletePrx delete = of.getDeleteService();
         try {
-        	
-        	delete(delete, newClient, new DeleteCommand(
+        	delete(delete, otherClient, new DeleteCommand(
         			DeleteServiceTest.REF_IMAGE, imageID, null));
-        	p = new ParametersI();
+
+        	ParametersI p = new ParametersI();
         	p.addId(imageID);
-        	assertNotNull(iQuery.findByQuery(
+        	assertNotNull(f.getQueryService().findByQuery(
         			"select i from Image i where i.id = :id", p));
         	newClient.__del__();
+        	otherClient.__del__();
 		} catch (Exception e) {
 			throw e;
 		}
     }
 
     /**
-     * Test to try to delete an object by the administrator in a private group.
+     * Test to try to delete an object by the administrator in a private group
+     * i.e. RW----
      * @throws Exception Thrown if an error occurred.     
      */
-    @Test
+    @Test(enabled = false)
     public void testDeleteObjectByAdmin()
     	throws Exception
     {
@@ -312,39 +259,128 @@ public class DeleteServicePermissionsTest
     			DeleteServiceTest.REF_IMAGE, img.getId().getValue(), null));
 		ParametersI p = new ParametersI();
     	p.addId(img.getId().getValue());
-    	assertNotNull(iQuery.findByQuery(
+    	assertNull(iQuery.findByQuery(
     			"select i from Image i where i.id = :id", p));
     }
 
+    /**
+     * Test to try to delete an object by the owner of a private group
+     * i.e. RW----
+     * @throws Exception Thrown if an error occurred.     
+     */
+    @Test(enabled = false)
+    public void testDeleteObjectByGroupOwner()
+    	throws Exception
+    {
+    	IAdminPrx svc = root.getSession().getAdminService();
+    	String uuid = UUID.randomUUID().toString();
+    	
+    	String name = factory.getAdminService().getEventContext().groupName;
+    	//add a new user to the group
+    	Experimenter user = new ExperimenterI();
+    	user.setOmeName(omero.rtypes.rstring(uuid));
+    	user.setFirstName(omero.rtypes.rstring("user"));
+    	user.setLastName(omero.rtypes.rstring("user")); 
+		ExperimenterGroup group = svc.lookupGroup(name);
+		List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
+		ExperimenterGroup userGroup = svc.lookupGroup(USER_GROUP);
+		groups.add(group);
+		groups.add(userGroup);
+		svc.createExperimenter(user, group, groups);
+    	user = svc.lookupExperimenter(uuid);
+    	svc.setGroupOwner(userGroup, user);
+
+    	//owner creates the image
+		Image img = (Image) iUpdate.saveAndReturnObject(
+				mmFactory.createImage());
+		omero.client newClient = new omero.client();
+		
+    	//group owner deletes it
+        ServiceFactoryPrx f = newClient.createSession(uuid, name); 
+		IDeletePrx delete = f.getDeleteService();
+		delete(delete, newClient, new DeleteCommand(
+    			DeleteServiceTest.REF_IMAGE, img.getId().getValue(), null));
+		newClient.__del__();
+		//Image should be deleted.
+		ParametersI p = new ParametersI();
+    	p.addId(img.getId().getValue());
+    	assertNull(iQuery.findByQuery(
+    			"select i from Image i where i.id = :id", p));
+    }
+    
+    /**
+     * Test to try to delete an object by the administrator in a read-only
+     * collaborative group i.e. RWR---
+     * @throws Exception Thrown if an error occurred.     
+     */
+    @Test(enabled = false)
+    public void testDeleteObjectByAdminRWR()
+    	throws Exception
+    {
+    	IAdminPrx svc = root.getSession().getAdminService();
+		// set up collaborative group with 2 users
+        String uuid = UUID.randomUUID().toString();
+		ExperimenterGroup group = new ExperimenterGroupI();
+		group.setName(omero.rtypes.rstring(uuid));
+		group.getDetails().setPermissions(new PermissionsI("rwr---"));
+		svc.createGroup(group);
+
+		group = svc.lookupGroup(uuid);
+		Experimenter user = new ExperimenterI();
+    	user.setOmeName(omero.rtypes.rstring(uuid));
+    	user.setFirstName(omero.rtypes.rstring("user"));
+    	user.setLastName(omero.rtypes.rstring("user")); 
+		group = svc.lookupGroup(uuid);
+		List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
+		ExperimenterGroup userGroup = svc.lookupGroup(USER_GROUP);
+		groups.add(group);
+		groups.add(userGroup);
+		svc.createExperimenter(user, group, groups);
+		
+		omero.client newClient = new omero.client();
+    	// owner creates the image
+        ServiceFactoryPrx f = newClient.createSession(uuid, uuid); 
+        ModelMockFactory mmFactory = new ModelMockFactory(f.getPixelsService());
+    	//Image
+		Image img = (Image) f.getUpdateService().saveAndReturnObject(
+				mmFactory.createImage());
+		
+		//admin delete the object.
+		IDeletePrx delete = root.getSession().getDeleteService();
+		delete(delete, root, new DeleteCommand(
+    			DeleteServiceTest.REF_IMAGE, img.getId().getValue(), null));
+		ParametersI p = new ParametersI();
+    	p.addId(img.getId().getValue());
+    	//it should be deleted
+    	assertNull(f.getQueryService().findByQuery(
+    			"select i from Image i where i.id = :id", p));
+    	newClient.__del__();
+    }
+    
 	/**
      * Test to delete an image tagged collaboratively by another user.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false, groups = "ticket:2881")
+    @Test(enabled = false, groups = {"ticket:2881"})
     public void testDeleteTaggedImageTagOwnedByOther() 
     	throws Exception
     {
         // set up collaborative group with 2 users
-        String uuid1 = UUID.randomUUID().toString();
+        String uuid = UUID.randomUUID().toString();
 		ExperimenterGroup g1 = new ExperimenterGroupI();
-		g1.setName(omero.rtypes.rstring(uuid1));
+		g1.setName(omero.rtypes.rstring(uuid));
 		g1.getDetails().setPermissions(new PermissionsI("rwrw--"));
 		IAdminPrx svc = root.getSession().getAdminService();
-		IQueryPrx query = root.getSession().getQueryService();
-		long id1 = svc.createGroup(g1);
-		ParametersI p = new ParametersI();
-		p.addId(id1);
-		ExperimenterGroup eg1 = (ExperimenterGroup) query.findByQuery(
-				"select distinct g from ExperimenterGroup g where g.id = :id", 
-				p);
+		svc.createGroup(g1);
+		ExperimenterGroup eg1 = svc.lookupGroup(uuid);
 		 
 		Experimenter owner = new ExperimenterI();
-		owner.setOmeName(omero.rtypes.rstring(uuid1 + "owner"));
+		owner.setOmeName(omero.rtypes.rstring(uuid + "owner"));
 		owner.setFirstName(omero.rtypes.rstring("owner"));
 		owner.setLastName(omero.rtypes.rstring("owner")); 
 		 
 		Experimenter tagger = new ExperimenterI();
-		tagger.setOmeName(omero.rtypes.rstring(uuid1 + "tagger"));
+		tagger.setOmeName(omero.rtypes.rstring(uuid + "tagger"));
 		tagger.setFirstName(omero.rtypes.rstring("tagger"));
 		tagger.setLastName(omero.rtypes.rstring("tagger"));
 		 
@@ -356,16 +392,18 @@ public class DeleteServicePermissionsTest
 		svc.createExperimenter(owner, eg1, groups);
 		svc.createExperimenter(tagger, eg1, groups);
     		
-    	omero.client client = new omero.client();
+    	omero.client newClient = new omero.client();
     	// owner creates the image
-        ServiceFactoryPrx f = client.createSession(uuid1 + "owner", uuid1); 
+        ServiceFactoryPrx f = newClient.createSession(uuid + "owner", uuid); 
         IUpdatePrx update = f.getUpdateService();
+        
+        ModelMockFactory mmFactory = new ModelMockFactory(f.getPixelsService());
         Image img = (Image) update.saveAndReturnObject(
         		mmFactory.simpleImage(0));
-        client.__del__();
+        
         // tagger creates tag and tags the image
         omero.client clientTag = new omero.client();
-        ServiceFactoryPrx sf = clientTag.createSession(uuid1 + "tagger", uuid1);
+        ServiceFactoryPrx sf = clientTag.createSession(uuid + "tagger", uuid);
         IUpdatePrx tagUpdate = sf.getUpdateService();
         
         TagAnnotation c = new TagAnnotationI();
@@ -376,24 +414,29 @@ public class DeleteServicePermissionsTest
     	link.setChild(new TagAnnotationI(c.getId().getValue(), false));		
     	link = (ImageAnnotationLink) tagUpdate.saveAndReturnObject(link);
     	
-    	// try to delete image. 
+    	
+    	
+    	// owner tries to delete image. 
     	long id = img.getId().getValue();
-    	delete(iDelete, client, 
+    	delete(f.getDeleteService(), newClient, 
     			new DeleteCommand(DeleteServiceTest.REF_IMAGE, id, null));
         // check it has been deleted 
         ParametersI param = new ParametersI();
     	param.addId(id);
-    	img = (Image) iQuery.findByQuery(
+    	img = (Image) f.getQueryService().findByQuery(
     			"select i from Image i where i.id = :id", param);
     	assertNull(img);
     	
     	// check that the tag hasn't been deleted
     	param = new ParametersI();
     	param.addId(c.getId().getValue());
-    	c = (TagAnnotation) iQuery.findByQuery(
+    	c = (TagAnnotation) f.getQueryService().findByQuery(
     			"select c from Annotation c where c.id = :id", param);
     	assertNotNull(c);
-    	clientTag.__del__();
+    	
+    	clientTag.__del__(); //tagger 
+    	newClient.__del__();
+    	
     }
     
 }

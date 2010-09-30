@@ -1,3 +1,9 @@
+/*
+ * $Id$
+ *
+ *   Copyright 2006-2010 University of Dundee. All rights reserved.
+ *   Use is subject to license terms supplied in LICENSE.txt
+ */
 package integration;
 
 import java.io.File;
@@ -54,32 +60,7 @@ import pojos.FileAnnotationData;
 public class DeleteServiceFilesTest 
    extends AbstractTest
 {
-
-   /** Identifies the image as root. */
-   private static final String REF_IMAGE = "/Image";
-   
-   /** Identifies the Tag. */
-   private static final String REF_TAG = "/TagAnnotation";
-   
-   /** Identifies the Term. */
-   private static final String REF_TERM = "/TermAnnotation";
-   
-   /** Identifies the File. */
-   private static final String REF_FILE= "/FileAnnotation";
-   
-   /** Indicates to keep a certain type of annotations. */
-   private static final String KEEP = "KEEP";
-   
-   /** The options to keep the sharable annotations. */
-   private static final Map<String, String> SHARABLE_TO_KEEP;
-   
-   static {
-       SHARABLE_TO_KEEP = new HashMap<String, String>();
-       SHARABLE_TO_KEEP.put(REF_TAG, KEEP);
-       SHARABLE_TO_KEEP.put(REF_TERM, KEEP);
-       SHARABLE_TO_KEEP.put(REF_FILE, KEEP);
-   }
-   
+	
    /** Helper reference to the <code>IDelete</code> service. */
    private IDeletePrx iDelete;
  
@@ -121,25 +102,19 @@ public class DeleteServiceFilesTest
        throws ApiUsageException, ServerError,
        InterruptedException
    {
-       DeleteHandlePrx handle = iDelete.queueDelete(dc);
-       DeleteCallbackI cb = new DeleteCallbackI(client, handle);
-       int count = 10;
-       while (null == cb.block(500)) {
-           count--;
-           if (count == 0) {
-               throw new RuntimeException("Waiting on delete timed out");
-           }
-       }
-       String report = handle.report().toString();
-       assertEquals(report, 0, handle.errors());
-       return report;
+	   return delete(iDelete, client, dc);
    }
 
-   /*
-    * Form a path depending on the type of file to be deleted
+   /**
+    * Forms a path depending on the type of file to be deleted
     * and its id.
+    * 
+    * @param dataDir The path to the directory
+    * @param klass The type of object to handle.
+    * @param id The identifier of the object.
     */
-   private String getPath(String dataDir, String klass, Long id) throws Exception {
+   private String getPath(String dataDir, String klass, Long id) 
+   throws Exception {
        String suffix = "";
        String prefix = "";
        Long remaining = id;
@@ -174,58 +149,69 @@ public class DeleteServiceFilesTest
        return path;
    }
 
-   /*
-    * Get a public repository on the omero data directory
-    * if one exists.
+   /**
+    * Gets a public repository on the OMERO data directory if one exists.
+    * 
+    * @return See above.
+    * @throws Exception  Thrown if an error occurred.
     */
-   RepositoryPrx getLegacyRepository() throws Exception {
+   RepositoryPrx getLegacyRepository()
+   throws Exception
+   {
        RepositoryPrx legacy = null;
        RepositoryMap rm = factory.sharedResources().repositories();
        int repoCount = 0;
        String dataDir = root.getProperty("omero.data.dir");
-       for(OriginalFile desc: rm.descriptions ){
-           String repoPath = desc.getPath().getValue() + desc.getName().getValue() + File.separator;
-           if(repoPath.equals(dataDir)) {
+       for (OriginalFile desc: rm.descriptions) {
+           String repoPath = desc.getPath().getValue() + 
+           desc.getName().getValue() + File.separator;
+           if (repoPath.equals(dataDir)) {
                legacy = rm.proxies.get(repoCount);
                break;
            }
            repoCount++;
        }
-       if(legacy == null) {
+       if (legacy == null) {
            throw(new Exception("Unable to find legacy repository"));
        }
        return legacy;
    }
    
    /**
-    * Makes sure that the omero file exists of the given type and id
+    * Makes sure that the OMERO file exists of the given type and id
     * 
     * @param id The object id corresponding to the filename.
     * @param klass The class (table name) of the object.
     * @throws Exception  Thrown if an error occurred.
     */
-   void assertFileExists(Long id, String klass) throws Exception {   
+   void assertFileExists(Long id, String klass)
+   throws Exception
+   {   
        String path = getPath(root.getProperty("omero.data.dir"), klass, id);
        RepositoryPrx legacy = getLegacyRepository();
        assertTrue(legacy.fileExists(path));
    }
 
-    /**
-    * Makes sure that the omero file exists of the given type and id
+   /**
+    * Makes sure that the OMERO file exists of the given type and id
     * 
     * @param id The object id corresponding to the filename.
     * @param klass The class (table name) of the object.
     * @throws Exception  Thrown if an error occurred.
     */
-   void assertFileDoesNotExist(Long id, String klass) throws Exception {  
+   void assertFileDoesNotExist(Long id, String klass) 
+   throws Exception 
+   {  
        String path = getPath(root.getProperty("omero.data.dir"), klass, id);
        RepositoryPrx legacy = getLegacyRepository();
        assertFalse(legacy.fileExists(path));
-   }  /**
-     * Test to delete an image and make sure the companion file 
-     * and pixels file is deleted.
-     * @throws Exception Thrown if an error occurred.
-     */
+   }  
+   
+   /**
+    * Test to delete an image and make sure the companion file 
+    * and pixels file is deleted.
+    * @throws Exception Thrown if an error occurred.
+    */
     @Test(groups = "ticket:2880")
     public void testDeleteImageWithPixelsOnDisk() 
         throws Exception 
@@ -241,7 +227,8 @@ public class DeleteServiceFilesTest
 
         //Now check that the files have been created and then deleted.
         assertFileExists(pixId, "Pixels");
-        delete(new DeleteCommand(REF_IMAGE, img.getId().getValue(), null));
+        delete(new DeleteCommand(DeleteServiceTest.REF_IMAGE, 
+        		img.getId().getValue(), null));
         assertFileDoesNotExist(pixId, "Pixels");
     }
 
@@ -280,7 +267,8 @@ public class DeleteServiceFilesTest
 
         //Now check that the files have been created and then deleted.
         assertFileExists(ofId, "OriginalFile");
-        delete(new DeleteCommand(REF_IMAGE, img.getId().getValue(), null));
+        delete(new DeleteCommand(DeleteServiceTest.REF_IMAGE, 
+        		img.getId().getValue(), null));
         assertFileDoesNotExist(ofId, "OriginalFile");
     }
     
@@ -313,7 +301,8 @@ public class DeleteServiceFilesTest
         //Now check that the files have NOT been created and then deleted.
         assertFileDoesNotExist(pixId, "Pixels");
         assertFileDoesNotExist(ofId, "OriginalFile");
-        delete(new DeleteCommand(REF_IMAGE, img.getId().getValue(), null));
+        delete(new DeleteCommand(DeleteServiceTest.REF_IMAGE,
+        		img.getId().getValue(), null));
     }
     
     /**
@@ -356,7 +345,7 @@ public class DeleteServiceFilesTest
         assertNotNull(iQuery.findByQuery(sql, param));
         
         //delete the image.
-        delete(new DeleteCommand(REF_IMAGE, imageID, null));
+        delete(new DeleteCommand(DeleteServiceTest.REF_IMAGE, imageID, null));
         assertFileDoesNotExist(id, "Pixels");
         assertNull(iQuery.findByQuery(sql, param));
     }

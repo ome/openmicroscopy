@@ -9,7 +9,6 @@ package integration;
 import static omero.rtypes.rdouble;
 import static omero.rtypes.rint;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -21,7 +20,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import junit.framework.AssertionFailedError;
-import ome.formats.OMEROMetadataStoreClient;
 import ome.services.delete.BaseDeleteSpec;
 import omero.ApiUsageException;
 import omero.ServerError;
@@ -29,11 +27,8 @@ import omero.api.IDeletePrx;
 import omero.api.IPixelsPrx;
 import omero.api.IRenderingSettingsPrx;
 import omero.api.RawFileStorePrx;
-import omero.api.ThumbnailStorePrx;
 import omero.api.delete.DeleteCommand;
-import omero.api.delete.DeleteHandlePrx;
 import omero.grid.Column;
-import omero.grid.DeleteCallbackI;
 import omero.grid.LongColumn;
 import omero.grid.TablePrx;
 import omero.model.Annotation;
@@ -259,18 +254,7 @@ public class DeleteServiceTest
     	throws ApiUsageException, ServerError,
         InterruptedException
     {
-        DeleteHandlePrx handle = iDelete.queueDelete(dc);
-        DeleteCallbackI cb = new DeleteCallbackI(client, handle);
-        int count = 10;
-        while (null == cb.block(500)) {
-            count--;
-            if (count == 0) {
-                throw new RuntimeException("Waiting on delete timed out");
-            }
-        }
-        String report = handle.report().toString();
-        assertEquals(report, 0, handle.errors());
-        return report;
+    	return delete(iDelete, client, dc);
     }
 
     /**
@@ -3252,7 +3236,7 @@ public class DeleteServiceTest
      * The method tests the <code>KEEP</code> option.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(enabled = false)
     public void testDeleteProjectNotContent() 
     	throws Exception
     {
@@ -3341,7 +3325,7 @@ public class DeleteServiceTest
      * Test the <code>KEEP</code> option.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test
+    @Test(enabled = false)
     public void testDeleteDatasetNotContent() 
     	throws Exception
     {

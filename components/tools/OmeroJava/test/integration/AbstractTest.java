@@ -17,10 +17,16 @@ import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.io.nio.AbstractFileSystemService;
+import omero.ApiUsageException;
+import omero.ServerError;
 import omero.api.IAdminPrx;
+import omero.api.IDeletePrx;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
+import omero.api.delete.DeleteCommand;
+import omero.api.delete.DeleteHandlePrx;
+import omero.grid.DeleteCallbackI;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
 import omero.model.*;
@@ -321,8 +327,37 @@ public class AbstractTest
 		library.setMetadataOnly(metadata);
 		List<Pixels> pixels = library.importImage(file, 0, 0, 1, format, null, 
 				false, true, null, null);
+		
 		assertNotNull(pixels);
 		assertTrue(pixels.size() > 0);
 		return pixels;
 	} 
+	
+	/**
+	 * Basic asynchronous delete command. Used in order to reduce the number
+	 * of places that we do the same thing in case the API changes.
+	 * 
+	 * @param dc The command to handle.
+	 * @throws ApiUsageException
+	 * @throws ServerError
+	 * @throws InterruptedException
+	 */
+	String delete(IDeletePrx proxy, omero.client c, DeleteCommand...dc)
+		throws ApiUsageException, ServerError,
+		InterruptedException
+	{
+		DeleteHandlePrx handle = proxy.queueDelete(dc);
+		DeleteCallbackI cb = new DeleteCallbackI(c, handle);
+		int count = 10;
+		while (null == cb.block(500)) {
+			count--;
+			if (count == 0) {
+				throw new RuntimeException("Waiting on delete timed out");
+			}
+		}
+		String report = handle.report().toString();
+		assertEquals(report, 0, handle.errors());
+		return report;
+	}
+	   
 }
