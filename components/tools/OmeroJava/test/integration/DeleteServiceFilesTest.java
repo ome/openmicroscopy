@@ -154,15 +154,16 @@ public class DeleteServiceFilesTest
     * @throws Exception  Thrown if an error occurred.
     */
    RepositoryPrx getLegacyRepository()
-   throws Exception
+       throws Exception
    {
        RepositoryPrx legacy = null;
        RepositoryMap rm = factory.sharedResources().repositories();
        int repoCount = 0;
        String dataDir = root.getSession().getConfigService().getConfigValue("omero.data.dir");
+       String s = dataDir;
        for (OriginalFile desc: rm.descriptions) {
-           String repoPath = desc.getPath().getValue() + 
-           desc.getName().getValue() + File.separator;
+           String repoPath = desc.getPath().getValue() + desc.getName().getValue() + File.separator;
+           s += "\nFound repository:" + desc.getPath().getValue() + desc.getName().getValue();
            if (repoPath.equals(dataDir)) {
                legacy = rm.proxies.get(repoCount);
                break;
@@ -170,7 +171,7 @@ public class DeleteServiceFilesTest
            repoCount++;
        }
        if (legacy == null) {
-           throw(new Exception("Unable to find legacy repository"));
+           throw new Exception("Unable to find legacy repository: " + s);
        }
        return legacy;
    }
