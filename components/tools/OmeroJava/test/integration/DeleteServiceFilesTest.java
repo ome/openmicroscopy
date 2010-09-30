@@ -9,9 +9,9 @@ package integration;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Formatter;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import ome.formats.OMEROMetadataStoreClient;
 import omero.ApiUsageException;
 import omero.ServerError;
@@ -24,6 +24,7 @@ import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
+import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
@@ -224,6 +225,7 @@ public class DeleteServiceFilesTest
 
         //Now check that the files have been created and then deleted.
         assertFileExists(pixId, "Pixels");
+        
         delete(new DeleteCommand(DeleteServiceTest.REF_IMAGE, 
         		img.getId().getValue(), null));
         assertFileDoesNotExist(pixId, "Pixels");
@@ -257,7 +259,7 @@ public class DeleteServiceFilesTest
         RawFileStorePrx rfPrx = factory.createRawFileStore();
         try {
             rfPrx.setFileId(ofId);
-            rfPrx.write(new byte[]{1,2,3,4}, 0, 4);
+            rfPrx.write(new byte[]{1, 2, 3, 4}, 0, 4);
         } finally {
             rfPrx.close();
         }
@@ -294,7 +296,6 @@ public class DeleteServiceFilesTest
         l.setParent(img);
         iUpdate.saveAndReturnObject(l);
         long ofId = of.getId().getValue();
-
         //Now check that the files have NOT been created and then deleted.
         assertFileDoesNotExist(pixId, "Pixels");
         assertFileDoesNotExist(ofId, "OriginalFile");
@@ -331,20 +332,34 @@ public class DeleteServiceFilesTest
 
         ThumbnailStorePrx svc = factory.createThumbnailStore();
         //make sure we have a thumbnail on disk
-        Map<Long, byte[]> thumbnails = svc.getThumbnailSet(omero.rtypes.rint(96), 
-                omero.rtypes.rint(96), ids);
+        //request a different size to make sure all thumbnails are deleted.
+        Map<Long, byte[]> thumbnails = svc.getThumbnailSet(
+        		omero.rtypes.rint(40),  omero.rtypes.rint(40), ids);
         byte[] values = thumbnails.get(id);
         assertNotNull(values);
         assertTrue(values.length > 0);
         String sql = "select i from Thumbnail i where i.pixels.id = :id";
         ParametersI param = new ParametersI();
         param.addId(id);
-        assertNotNull(iQuery.findByQuery(sql, param));
+        List<IObject> objects = iQuery.findAllByQuery(sql, param);
+        assertNotNull(objects);
+        assertTrue(objects.size() > 0);
         
+        List<Long> thumbIds = new ArrayList<Long>();
+        Iterator<IObject> i = objects.iterator();
+        long thumbId;
+        while (i.hasNext()) {
+        	thumbId = i.next().getId().getValue();
+        	 assertFileExists(thumbId, "Thumbnail");
+		}
+       
         //delete the image.
         delete(new DeleteCommand(DeleteServiceTest.REF_IMAGE, imageID, null));
         assertFileDoesNotExist(id, "Pixels");
-        assertNull(iQuery.findByQuery(sql, param));
+        Iterator<Long> j = thumbIds.iterator();
+        while (j.hasNext()) {
+			 assertFileDoesNotExist(j.next(), "Thumbnail");
+		}
     }
 
 }
