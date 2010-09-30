@@ -19,6 +19,7 @@ import ome.services.blitz.impl.ConfigI;
 import ome.services.blitz.impl.DeleteI;
 import ome.services.blitz.impl.QueryI;
 import ome.services.blitz.impl.ServiceFactoryI;
+import ome.services.blitz.impl.ShareI;
 import ome.services.blitz.impl.UpdateI;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.sessions.SessionManager;
@@ -55,6 +56,7 @@ public abstract class AbstractServantTest extends TestCase {
     protected QueryI user_query, root_query;
     protected AdminI user_admin, root_admin;
     protected ConfigI user_config, root_config;
+    protected ShareI user_share, root_share;
 
     public class RV {
         public Exception ex;
@@ -103,11 +105,13 @@ public abstract class AbstractServantTest extends TestCase {
         user_query = new QueryI(sf.getQueryService(), be);
         user_admin = new AdminI(sf.getAdminService(), be);
         user_config = new ConfigI(sf.getConfigService(), be);
+        user_share = new ShareI(sf.getShareService(), be);
         configure(user_delete, user_initializer);
         configure(user_update, user_initializer);
         configure(user_query, user_initializer);
         configure(user_admin, user_initializer);
         configure(user_config, user_initializer);
+        configure(user_share, user_initializer);
 
         root = new ManagedContextFixture(ctx);
         root.setCurrentUserAndGroup("root", "system");
@@ -121,11 +125,13 @@ public abstract class AbstractServantTest extends TestCase {
         root_query = new QueryI(sf.getQueryService(), be);
         root_admin = new AdminI(sf.getAdminService(), be);
         root_config = new ConfigI(sf.getConfigService(), be);
+        root_share = new ShareI(sf.getShareService(), be);
         configure(root_delete, root_initializer);
         configure(root_update, root_initializer);
         configure(root_query, root_initializer);
         configure(root_admin, root_initializer);
         configure(root_config, root_initializer);
+        configure(root_share, root_initializer);
     }
 
     protected void configure(AbstractAmdServant servant,
