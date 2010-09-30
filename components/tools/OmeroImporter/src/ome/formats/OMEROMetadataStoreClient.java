@@ -276,13 +276,19 @@ public class OMEROMetadataStoreClient
     
     /** Annotations from the user for use by model processors. */
     private List<Annotation> userSpecifiedAnnotations;
-    
+  
     /** Image name the user specified for use by model processors. */
     private String userSpecifiedImageName;
-    
+
     /** Image description the user specified for use by model processors. */
     private String userSpecifiedImageDescription;
-    
+
+    /** Plate name the user specified for use by model processors. */
+    private String userSpecifiedPlateName;
+
+    /** Plate description the user specified for use by model processors. */
+    private String userSpecifiedPlateDescription;
+
     /** Linkage target for all Images/Plates for use by model processors. */
     private IObject userSpecifiedTarget;
     
@@ -1024,7 +1030,47 @@ public class OMEROMetadataStoreClient
     {
     	this.userSpecifiedAnnotations = annotations;
     }
-    
+
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#getUserSpecifiedPlateName()
+     */
+    public String getUserSpecifiedPlateName()
+    {
+        return userSpecifiedPlateName;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#setUserSpecifiedPlateName(java.lang.String)
+     */
+    public void setUserSpecifiedPlateName(String name)
+    {
+        if (log.isDebugEnabled())
+        {
+            log.debug("Using user specified plate name: " + name);
+        }
+        userSpecifiedPlateName = name;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#getUserSpecifiedPlateDescription()
+     */
+    public String getUserSpecifiedPlateDescription()
+    {
+        return userSpecifiedPlateDescription;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#setUserSpecifiedPlateDescription(java.lang.String)
+     */
+    public void setUserSpecifiedPlateDescription(String description)
+    {
+        if (log.isDebugEnabled())
+        {
+            log.debug("Using user specified plate description: " + description);
+        }
+        userSpecifiedPlateDescription = description;
+    }
+
     /* (non-Javadoc)
      * @see ome.formats.model.IObjectContainerStore#getUserSpecifiedImageName()
      */
@@ -1038,6 +1084,10 @@ public class OMEROMetadataStoreClient
      */
     public void setUserSpecifiedImageName(String name)
     {
+        if (log.isDebugEnabled())
+        {
+            log.debug("Using user specified image name: " + name);
+        }
         this.userSpecifiedImageName = name;
     }
     
@@ -1054,9 +1104,13 @@ public class OMEROMetadataStoreClient
      */
     public void setUserSpecifiedImageDescription(String description)
     {
+        if (log.isDebugEnabled())
+        {
+            log.debug("Using user specified image description: " + description);
+        }
         this.userSpecifiedImageDescription = description;
     }
-    
+
     /* (non-Javadoc)
      * @see ome.formats.model.IObjectContainerStore#getUserSpecifiedTarget()
      */

@@ -192,11 +192,13 @@ public class CommandLineImporter {
                                         + "  -p\tOMERO server port [defaults to 4064]\n"
                                         + "  -h\tDisplay this help and exit\n"
                                         + "\n"
+                                        + "  --plate_name\t\tPlate name to use\n"
+                                        + "  --plate_description\tPlate description to use\n"
                                         + "  --debug[=ALL|DEBUG|ERROR|FATAL|INFO|TRACE|WARN]\tTurn debug logging on (optional level)\n"
-                                        + "  --report\tReport errors to the OME team\n"
-                                        + "  --upload\tUpload broken files with report\n"
-                                        + "  --logs\tUpload log file with report\n"
-                                        + "  --email=...\tEmail for reported errors\n "
+                                        + "  --report\t\tReport errors to the OME team\n"
+                                        + "  --upload\t\tUpload broken files with report\n"
+                                        + "  --logs\t\tUpload log file with report\n"
+                                        + "  --email=...\t\tEmail for reported errors\n "
                                         + "\n"
                                         + "ex. %s -s localhost -u bart -w simpson -d 50 foo.tiff\n"
                                         + "\n"
@@ -235,13 +237,20 @@ public class CommandLineImporter {
         config.debug.set(false);
         config.encryptedConnection.set(false);
 
-        LongOpt debug = new LongOpt("debug", LongOpt.OPTIONAL_ARGUMENT, null, 1);
+        LongOpt debug = new LongOpt(
+                "debug", LongOpt.OPTIONAL_ARGUMENT, null, 1);
         LongOpt report = new LongOpt("report", LongOpt.NO_ARGUMENT, null, 2);
         LongOpt upload = new LongOpt("upload", LongOpt.NO_ARGUMENT, null, 3);
         LongOpt logs = new LongOpt("logs", LongOpt.NO_ARGUMENT, null, 4);
-        LongOpt email = new LongOpt("email", LongOpt.REQUIRED_ARGUMENT, null, 5);
+        LongOpt email = new LongOpt(
+                "email", LongOpt.REQUIRED_ARGUMENT, null, 5);
+        LongOpt plateName = new LongOpt(
+                "plate_name", LongOpt.REQUIRED_ARGUMENT, null, 6);
+        LongOpt plateDescription = new LongOpt(
+                "plate_description", LongOpt.REQUIRED_ARGUMENT, null, 7);
         Getopt g = new Getopt(APP_NAME, args, "acfl:s:u:w:d:r:k:x:n:p:h",
-                new LongOpt[] { debug, report, upload, logs, email });
+                new LongOpt[] { debug, report, upload, logs, email,
+                                plateName, plateDescription});
         int a;
 
         boolean getUsedFiles = false;
@@ -266,6 +275,14 @@ public class CommandLineImporter {
             }
             case 5: {
                 config.email.set(g.getOptarg());
+                break;
+            }
+            case 6: {
+                config.plateName.set(g.getOptarg());
+                break;
+            }
+            case 7: {
+                config.plateDescription.set(g.getOptarg());
                 break;
             }
             case 's': {
@@ -334,10 +351,6 @@ public class CommandLineImporter {
         // Let the user know at what level we're logging
         log.info(String.format(
                 "Log levels -- Bio-Formats: %s OMERO.importer: %s",
-                Logger.getLogger("loci").getLevel(),
-                Logger.getLogger("ome.formats").getLevel()));
-        System.out.println(String.format(                
-        		"Log levels -- Bio-Formats: %s OMERO.importer: %s",
                 Logger.getLogger("loci").getLevel(),
                 Logger.getLogger("ome.formats").getLevel()));
 

@@ -414,7 +414,13 @@ public class ImportCandidates extends DirectoryWalker
                 ic.setBfImageCount(reader.getSeriesCount());
                 ic.setBfPixels(getPixelsWithDimensions());
                 ic.setBfImageNames(getImageNames());
+                ic.setCustomImageName(config.imageName.get());
+                ic.setCustomImageDescription(config.imageDescription.get());
+                ic.setCustomPlateName(config.plateName.get());
+                ic.setCustomPlateDescription(config.plateDescription.get());
                 ic.setArchive(config.archiveImage.get());
+                ic.setCustomAnnotationList(config.annotations.get());
+                ic.setUseMetadataFile(config.companionFile.get());
                 return ic;
             } finally 
             {
