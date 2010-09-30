@@ -34,6 +34,7 @@ import omero.sys.ParametersI;
 
 import org.apache.commons.io.FilenameUtils;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -61,7 +62,19 @@ public class DeleteServiceFilesTest
 	
    /** Helper reference to the <code>IDelete</code> service. */
    private IDeletePrx iDelete;
+   
+   private String dataDir; 
  
+   /**
+    * Since so many tests rely on counting the number of objects present
+    * globally, we're going to start each method with a new user in a new
+    * group.
+    */
+   @BeforeClass
+   public void setDataDir() throws Exception {
+       dataDir = root.getSession().getConfigService().getConfigValue("omero.data.dir");
+   }
+
    /**
     * Since so many tests rely on counting the number of objects present
     * globally, we're going to start each method with a new user in a new
@@ -71,7 +84,6 @@ public class DeleteServiceFilesTest
    public void createNewUser() throws Exception {
        newUserAndGroup("rw----");
        iDelete = factory.getDeleteService();
-       
    }
 
    /**
@@ -111,7 +123,7 @@ public class DeleteServiceFilesTest
     * @param klass The type of object to handle.
     * @param id The identifier of the object.
     */
-   private String getPath(String dataDir, String klass, Long id) 
+   private String getPath(String klass, Long id) 
    throws Exception {
        String suffix = "";
        String prefix = "";
@@ -123,11 +135,11 @@ public class DeleteServiceFilesTest
        }
 
        if (klass.equals("OriginalFile")) {
-           prefix = dataDir + "Files";
+           prefix = FilenameUtils.concat(dataDir,"Files");
        } else if (klass.equals("Pixels")) {
-           prefix = dataDir + "Pixels";
+           prefix = FilenameUtils.concat(dataDir,"Pixels");
        } else if (klass.equals("Thumbnail")) { 
-           prefix = dataDir + "Thumbnails";
+           prefix = FilenameUtils.concat(dataDir,"Thumbnails");
        } else {
            throw new Exception("Unknown class: " + klass);
        }
@@ -159,12 +171,12 @@ public class DeleteServiceFilesTest
        RepositoryPrx legacy = null;
        RepositoryMap rm = factory.sharedResources().repositories();
        int repoCount = 0;
-       String dataDir = root.getSession().getConfigService().getConfigValue("omero.data.dir");
        String s = dataDir;
        for (OriginalFile desc: rm.descriptions) {
            String repoPath = desc.getPath().getValue() + desc.getName().getValue();
            s += "\nFound repository:" + desc.getPath().getValue() + desc.getName().getValue();
-           if (dataDir.equals(repoPath) || dataDir.equals(repoPath + File.separator)) {
+           if (FilenameUtils.equals(FilenameUtils.normalizeNoEndSeparator(dataDir),
+                   FilenameUtils.normalizeNoEndSeparator(repoPath))) {
                legacy = rm.proxies.get(repoCount);
                break;
            }
@@ -186,7 +198,7 @@ public class DeleteServiceFilesTest
    void assertFileExists(Long id, String klass)
    throws Exception
    {   
-       String path = getPath(root.getSession().getConfigService().getConfigValue("omero.data.dir"), klass, id);
+       String path = getPath(klass, id);
        RepositoryPrx legacy = getLegacyRepository();
        assertTrue(legacy.fileExists(path));
    }
@@ -201,7 +213,7 @@ public class DeleteServiceFilesTest
    void assertFileDoesNotExist(Long id, String klass) 
    throws Exception 
    {  
-       String path = getPath(root.getSession().getConfigService().getConfigValue("omero.data.dir"), klass, id);
+       String path = getPath(klass, id);
        RepositoryPrx legacy = getLegacyRepository();
        assertFalse(legacy.fileExists(path));
    }  
