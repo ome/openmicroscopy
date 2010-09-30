@@ -162,9 +162,9 @@ public class DeleteServiceFilesTest
        String dataDir = root.getSession().getConfigService().getConfigValue("omero.data.dir");
        String s = dataDir;
        for (OriginalFile desc: rm.descriptions) {
-           String repoPath = desc.getPath().getValue() + desc.getName().getValue() + File.separator;
+           String repoPath = desc.getPath().getValue() + desc.getName().getValue();
            s += "\nFound repository:" + desc.getPath().getValue() + desc.getName().getValue();
-           if (repoPath.equals(dataDir)) {
+           if (dataDir.equals(repoPath) || dataDir.equals(repoPath + File.separator)) {
                legacy = rm.proxies.get(repoCount);
                break;
            }
