@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 
 import omero.ServerError;
 import omero.api.delete.DeleteHandlePrx;
+import Ice.ObjectNotExistException;
 
 /**
  * Callback used for waiting until {@link DeleteHandlePrx} will return true on
@@ -109,6 +110,10 @@ public class DeleteCallbackI {
                         e.printStackTrace();
                     }
                 }
+            } catch (ObjectNotExistException onee) {
+                omero.ClientError ce = new omero.ClientError("Handle is gone!");
+                ce.initCause(onee);
+                throw ce;
             } catch (Exception e) {
                 System.err.println("Error polling DeleteHandle:" + handle);
                 e.printStackTrace();
