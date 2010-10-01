@@ -43,6 +43,7 @@ class mock_communicator(object):
 class mock_current(object):
     def __init__(self, communicator):
         self.adapter = mock_adapter(communicator)
+        self.ctx = {}
 
 class mock_adapter(object):
     def __init__(self, communicator):
@@ -68,6 +69,8 @@ class mocked_service_factory(object):
     def __init__(self):
         self.db_uuid = str(uuid4())
         self.return_values = []
+    def keepAlive(self, *args):
+        pass
     def getConfigService(self):
         return mocked_config_service(self.db_uuid, self.return_values)
     def getQueryService(self):
@@ -218,7 +221,7 @@ class TestTables(lib.TestCase):
         f = omero.model.OriginalFileI( 1, False)
         self.sf.return_values.append( f )
         tables = self.tablesI()
-        table = tables.getTable(f, self.current)
+        table = tables.getTable(f, None, self.current)
         self.assert_( table )
         self.assert_( table.table )
         self.assert_( table.table.storage )
@@ -226,7 +229,7 @@ class TestTables(lib.TestCase):
 
     def testTableIncrDecr(self):
         storage = mock_storage()
-        table = omero.tables.TableI(self.ctx, omero.model.OriginalFileI(1,None), storage)
+        table = omero.tables.TableI(self.ctx, omero.model.OriginalFileI(1,None), None, storage)
         self.assertTrue(storage.up)
         table.cleanup()
         self.assertTrue(storage.down)
@@ -236,7 +239,7 @@ class TestTables(lib.TestCase):
         table1 = mocktable.table
         storage = table1.storage
         storage.initialize([LongColumnI("a",None,[])])
-        table2 = omero.tables.TableI(self.ctx, omero.model.OriginalFileI(1, None), storage)
+        table2 = omero.tables.TableI(self.ctx, omero.model.OriginalFileI(1, None), None, storage)
         table2.cleanup()
         table1.cleanup()
 
@@ -297,14 +300,14 @@ class TestTables(lib.TestCase):
         f.close()
 
         tables = self.tablesI(internal_repo)
-        self.assertRaises(omero.ValidationException, tables.getTable, of, self.current)
+        self.assertRaises(omero.ValidationException, tables.getTable, of, None, self.current)
 
     def testErrorInGet(self):
         self.repofile(self.sf.db_uuid)
         f = omero.model.OriginalFileI( 1, False)
         self.sf.return_values.append( f )
         tables = self.tablesI()
-        table = tables.getTable(f, self.current).table # From mock
+        table = tables.getTable(f, None, self.current).table # From mock
         cols = [ omero.columns.LongColumnI('name','desc',None) ]
         table.initialize(cols)
         cols[0].values = [1,2,3,4]
