@@ -19,6 +19,8 @@ import java.util.Set;
 
 import ome.api.IDelete;
 import ome.model.annotations.Annotation;
+import ome.security.basic.CurrentDetails;
+import ome.system.EventContext;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.QueryBuilder;
 
@@ -386,8 +388,49 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
             }
             return "";
         }
+        
+        // If this is a top-level annotation delete then the first thing we
+        // do is delete all the links to it.
+        if (superspec == null || superspec.length() == 0) {
+            List<Long> foundIds = deleteIds.getFoundIds(this, step);
+            if (foundIds != null && foundIds.size() > 0) {
+                QueryBuilder qb = new QueryBuilder();
+                qb.delete("ome.model.IAnnotationLink");
+                qb.where();
+                qb.and("child.id in (:ids)");
+                qb.paramList("ids", foundIds);
+                permissionsClause(qb);
+                
+                Query q = qb.query(session);
+                int count = q.executeUpdate();
+                log.info("Deleted " + count + " annotation links");
+            }
+        }
+
         return super.delete(session, step, deleteIds);
 
     }
-
+    
+    /**
+     * Appends a clause to the {@link QueryBuilder} based on the current user.
+     * 
+     * If the user is an admin like root, then nothing is appened, and any
+     * delete is permissible. If the user is a leader of the current group,
+     * then the object must be in the current group. Otherwise, the object
+     * must belong to the current user.
+     */
+    protected void permissionsClause(QueryBuilder qb) {
+        EventContext ec = getCurrentDetails().getCurrentEventContext();
+        if (!ec.isCurrentUserAdmin()) {
+            if (ec.getLeaderOfGroupsList().contains(ec.getCurrentGroupId())) {
+                qb.and("details.group.id = :gid");
+                qb.param("gid", ec.getCurrentGroupId());
+            } else {
+                // This is only a regular user, then the object must belong to
+                // him/her
+                qb.and("details.owner.id = :oid");
+                qb.param("oid", ec.getCurrentUserId());
+            }
+        }
+    }
 }

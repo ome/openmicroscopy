@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import ome.api.IDelete;
+import ome.security.basic.CurrentDetails;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.QueryBuilder;
 
@@ -50,6 +51,12 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
 
     private/* final */ExtendedMetadata em;
 
+    /**
+     * Current user information for determining if the current caller
+     * is an admin or the owner of an object.
+     */
+    private /*final*/ CurrentDetails details;
+    
     private/* final */String beanName = null;
 
     //
@@ -94,6 +101,14 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
 
     public void setExtendedMetadata(ExtendedMetadata em) {
         this.em = em;
+    }
+    
+    public void setCurrentDetails(CurrentDetails details) {
+        this.details = details;
+    }
+    
+    public CurrentDetails getCurrentDetails() {
+        return this.details;
     }
 
     //

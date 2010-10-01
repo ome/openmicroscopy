@@ -53,6 +53,7 @@ plus test REAP
         Delete specification which takes a single id as the identifier for where
         the graph of objects to be deleted starts.
         </description>
+        <property name="currentDetails"   ref="currentDetails"/>
         <property name="extendedMetadata" ref="extendedMetadata"/>
     </bean>
 
