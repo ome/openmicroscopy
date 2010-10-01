@@ -63,9 +63,19 @@ public class DeleteEntry {
         SOFT,
 
         /**
-         * Prevents the delete from being carried out.
+         * Prevents the delete from being carried out. If an entry has a subspec,
+         * then the entire subgraph will not be deleted. In some cases,
+         * specifically {@link AnnotationDeleteSpec} this value may be
+         * vetoed by {@link DeleteSpec#overrideKeep()}.
          */
         KEEP,
+
+        /**
+         * Permits the use of force to remove objects even against the
+         * permission system. (This option cannot override low-level
+         * DB constraints)
+         */
+        FORCE,
 
         REAP,
 
@@ -383,7 +393,9 @@ public class DeleteEntry {
         qb.delete(table);
         qb.where();
         qb.and("id = :id");
-        permissionsClause(details, qb);
+        if (!Op.FORCE.equals(getOp())) {
+            permissionsClause(details, qb);
+        }
 
         final StringBuilder rv = new StringBuilder();
         final List<Long> actualDeletes = new ArrayList<Long>();

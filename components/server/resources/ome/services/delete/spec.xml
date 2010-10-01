@@ -104,12 +104,12 @@ plus test REAP
 
     <bean parent="delSpec" name="/Roi">
         <description>
-        Deletes a
+        Deletes a Region of interest, its shapes, and any attached annotations.
         </description>
         <constructor-arg>
             <list>
                 <value>/Roi/Shape</value>
-                <value>/Roi/RoiAnnotationLink</value>
+                <value>/Roi/RoiAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Roi/RoiAnnotationLink/</value>
                 <value>/Roi</value>
             </list>
@@ -188,7 +188,7 @@ plus test REAP
                 <value>/Image/Pixels/Channel</value>
                 <value>/Image/Pixels/Thumbnail;REAP</value><!-- HARD -->
                 <value>/Image/Pixels</value>
-                <value>/Image/ImageAnnotationLink;REAP</value>
+                <value>/Image/ImageAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Image/ImageAnnotationLink</value>
                 <value>/Image/DatasetImageLink</value>
                 <value>/Image</value>
@@ -208,7 +208,7 @@ plus test REAP
                 <value>/Image;;/Dataset/DatasetImageLink</value><!-- assumes you can get in one jump with a link -->
                 <value>/Dataset/DatasetImageLink</value><!-- Adding in case image is set to KEEP -->
                 <value>/Dataset/ProjectDatasetLink</value>
-                <value>/Dataset/DatasetAnnotationLink;REAP</value>
+                <value>/Dataset/DatasetAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Dataset/DatasetAnnotationLink</value>
                 <value>/Dataset</value>
             </list>
@@ -220,7 +220,7 @@ plus test REAP
             <list>
                 <value>/Dataset;;/Project/ProjectDatasetLink</value>
                 <value>/Project/ProjectDatasetLink</value><!-- Adding in case dataset is set to KEEP -->
-                <value>/Project/ProjectAnnotationLink</value>
+                <value>/Project/ProjectAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Project/ProjectAnnotationLink</value>
                 <value>/Project</value>
             </list>
@@ -230,11 +230,11 @@ plus test REAP
     <bean parent="delSpec" name="/Well">
         <constructor-arg>
             <list>
-                <value>/Well/WellSample/WellSampleAnnotationLink</value>
+                <value>/Well/WellSample/WellSampleAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Well/WellSample/WellSampleAnnotationLink</value>
                 <value>/Well/WellSample</value>
                 <value>/Image;;/Well/WellSample</value>
-                <value>/Well/WellAnnotationLink</value>
+                <value>/Well/WellAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Well/WellAnnotationLink</value>
                 <value>/Well/WellReagentLink</value>
                 <value>/Well</value>
@@ -246,10 +246,10 @@ plus test REAP
         <constructor-arg>
             <list>
                 <value>/Well;;/Plate</value>
-                <value>/Plate/PlateAcquisition/PlateAcquisitionAnnotationLink</value>
+                <value>/Plate/PlateAcquisition/PlateAcquisitionAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Plate/PlateAcquisition/PlateAcquisitionAnnotationLink</value>
                 <value>/Plate/PlateAcquisition</value>
-                <value>/Plate/PlateAnnotationLink</value>
+                <value>/Plate/PlateAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Plate/PlateAnnotationLink</value>
                 <value>/Plate/ScreenPlateLink</value><!-- TODO: or do we need Plate+SPL -->
                 <value>/Plate</value>
@@ -260,9 +260,9 @@ plus test REAP
     <bean parent="delSpec" name="/PlateAcquisition">
         <constructor-arg>
             <list>
-                <value>/PlateAcquisition/PlateAcquisitionAnnotationLink</value>
+                <value>/PlateAcquisition/PlateAcquisitionAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/PlateAcquisition/PlateAcquisitionAnnotationLink</value>
-                <value>/PlateAcquisition/WellSample/WellSampleAnnotationLink</value>
+                <value>/PlateAcquisition/WellSample/WellSampleAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/PlateAcquisition/WellSample/WellSampleAnnotationLink</value>
                 <value>/PlateAcquisition/WellSample</value>
                  <value>/Image;;/PlateAcquisition/WellSample</value>
@@ -276,9 +276,9 @@ plus test REAP
             <list>
                 <value>/Plate;;/Screen/ScreenPlateLink</value>
                 <value>/Screen/ScreenPlateLink</value><!-- Adding in case plate is set to KEEP -->
-                <value>/Screen/ScreenAnnotationLink</value>
+                <value>/Screen/ScreenAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Screen/ScreenAnnotationLink</value>
-                <value>/Screen/Reagent/ReagentAnnotationLink</value>
+                <value>/Screen/Reagent/ReagentAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Screen/Reagent/ReagentAnnotationLink</value>
                 <value>/Screen/Reagent</value>
                 <value>/Screen</value>
@@ -290,7 +290,7 @@ plus test REAP
         <constructor-arg>
             <list>
                 <value>/OriginalFile</value>
-                <value>/OriginalFile/OriginalFileAnnotationLink</value>
+                <value>/OriginalFile/OriginalFileAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/OriginalFile/OriginalFileAnnotationLink</value>
             </list>
         </constructor-arg>
