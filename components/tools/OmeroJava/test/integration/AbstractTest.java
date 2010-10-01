@@ -7,8 +7,10 @@
 package integration;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import junit.framework.TestCase;
@@ -68,7 +70,7 @@ public class AbstractTest
 	public String GUEST_GROUP = "guest";
 	
 	/** Holds the error, info, warning. */
-    protected Log log = LogFactory.getLog(getClass());
+	protected Log log = LogFactory.getLog(getClass());
 
 	/** The client object, this is the entry point to the Server. */
     protected omero.client client;
@@ -94,7 +96,37 @@ public class AbstractTest
     /** Helper class creating mock object. */
     protected ModelMockFactory mmFactory;
     
-	/**
+    protected String rootpass;
+
+    /**
+     * {@link omero.client} instances which are created via the newUser* methods.
+     * These will be forcifully closed at the end of the test. "new omero.client(...)"
+     * should be strictly avoided except for in the method {@link #newOmeroClient()}.
+     *
+     * @see #newUserAndGroup(Permissions)
+     * @see #newUserAndGroup(String)
+     * @see #newUserInGroup()
+     * @see #newUserInGroup(EventContext)
+     * @see #newUserInGroup(ExperimenterGroup)
+     */
+    private final Set<omero.client> clients = new HashSet<omero.client>();
+
+    /**
+     * Sole location where {@link omero.client#client()} or any other {@link omero.client}
+     * constructor should be called.
+     */
+    protected omero.client newOmeroClient() {
+        omero.client client = new omero.client(); // OK
+        clients.add(client);
+        return client;
+    }
+
+    protected omero.client newRootOmeroClient() throws Exception {
+        omero.client client = newOmeroClient();
+        client.createSession("root", rootpass);
+        return client;
+    }
+    /**
      * Initializes the various services.
      * @throws Exception Thrown if an error occurred.
      */
@@ -104,10 +136,9 @@ public class AbstractTest
     	throws Exception
     {
         // administrator client
-        omero.client tmp = new omero.client();
-        String rootpass = tmp.getProperty("omero.rootpass");
-        root = new omero.client();
-        root.createSession("root", rootpass);
+        omero.client tmp = newOmeroClient();
+        rootpass = tmp.getProperty("omero.rootpass");
+        root = newRootOmeroClient();
         tmp.__del__();
 
         newUserAndGroup("rw----");
@@ -122,12 +153,10 @@ public class AbstractTest
     public void tearDown() 
     	throws Exception
     {
-        if (client != null) {
-            client.__del__();
-        }
-
-        if (root != null) {
-            root.__del__();
+        for (omero.client c : clients) {
+            if (c != null) {
+                c.__del__();
+            }
         }
     }
 
@@ -162,9 +191,29 @@ public class AbstractTest
         g = new ExperimenterGroupI(rootAdmin.createGroup(g), false);
         return newUserInGroup(g);
     }
+
+    /**
+     * Creates a new user in the current group.
+     * @return
+     */
+    protected EventContext newUserInGroup() throws Exception {
+        EventContext ec = client.getSession().getAdminService().getEventContext();
+        return newUserInGroup(ec);
+    }
+
+    /**
+     * Takes the {@link EventContext} from another user and creates a new user
+     * in the same group as that user is currently logged in to.
+     */
+    protected EventContext newUserInGroup(EventContext previousUser)
+    throws Exception
+    {
+        ExperimenterGroup eg = new ExperimenterGroupI(previousUser.groupId, false);
+        return newUserInGroup(eg);
+    }
     
     protected EventContext newUserInGroup(ExperimenterGroup group)
-        throws Exception
+    throws Exception
     {
         
         IAdminPrx rootAdmin = root.getSession().getAdminService();
@@ -177,16 +226,71 @@ public class AbstractTest
         e.setLastName(omero.rtypes.rstring("tester"));
         rootAdmin.createUser(e, group.getName().getValue());
 
-        omero.client client = new omero.client();
+        omero.client client = newOmeroClient();
         client.createSession(uuid, uuid);
         return init(client);
     }
+
+    protected void loginUser(EventContext ownerEc) throws Exception {
+        omero.client client = newOmeroClient();
+        client.createSession(ownerEc.userName, "dummy");
+        init(client);
+    }
+
+
     
+    /**
+     * Changes the {@link ServiceFactoryPrx#setSecurityContext(IObject) security context}
+     * for the root user to the current group.
+     */
+    protected void logRootIntoGroup() throws Exception {
+        EventContext ec = iAdmin.getEventContext();
+        omero.client rootClient = newRootOmeroClient();
+        rootClient.getSession().setSecurityContext(new ExperimenterGroupI(ec.groupId, false));
+        init(rootClient);
+    }
+
+    /**
+     * Makes the current user an owner of the current group.
+     */
+    protected void makeGroupOwner() throws Exception {
+        EventContext ec = client.getSession().getAdminService().getEventContext();
+        IAdminPrx rootAdmin = root.getSession().getAdminService();
+        rootAdmin.setGroupOwner(new ExperimenterGroupI(ec.groupId, false),
+                new ExperimenterI(ec.userId, false));
+    }
+
+    /**
+     * Saves the current client before calling {@link #clean()} and returns
+     * it to the user.
+     */
+    protected omero.client disconnect() throws Exception {
+        omero.client oldClient = client;
+        client = null;
+        clean();
+        return oldClient;
+    }
+
+    /**
+     * If {@link #client} is non-null, destroys the client and nulls all
+     * fields which were set on creation.
+     */
+    protected void clean() throws Exception {
+        if (client != null) {
+            client.__del__();
+        }
+        client = null;
+        factory = null;
+        iQuery = null;
+        iUpdate = null;
+        iAdmin = null;
+        iDelete = null;
+        mmFactory = null;
+    }
+
     protected EventContext init(omero.client client) throws Exception {
 
-        if (this.client != null) {
-            this.client.__del__();
-        }
+        clean();
         
         this.client = client;
         factory = client.getSession();
@@ -363,19 +467,44 @@ public class AbstractTest
 		return pixels;
 	} 
 	
+    String delete(omero.client c, DeleteCommand...dc)
+    throws ApiUsageException, ServerError,
+    InterruptedException
+    {
+        return delete(true, c.getSession().getDeleteService(), c, dc);
+    }
+
 	/**
-	 * Basic asynchronous delete command. Used in order to reduce the number
-	 * of places that we do the same thing in case the API changes.
-	 * 
-	 * @param dc The command to handle.
-	 * @throws ApiUsageException
-	 * @throws ServerError
-	 * @throws InterruptedException
-	 */
-	String delete(IDeletePrx proxy, omero.client c, DeleteCommand...dc)
-		throws ApiUsageException, ServerError,
-		InterruptedException
-	{
+     * Basic asynchronous delete command. Used in order to reduce the number
+     * of places that we do the same thing in case the API changes.
+     *
+     * @param dc The command to handle.
+     * @throws ApiUsageException
+     * @throws ServerError
+     * @throws InterruptedException
+     */
+    String delete(IDeletePrx proxy, omero.client c, DeleteCommand...dc)
+    throws ApiUsageException, ServerError,
+    InterruptedException
+    {
+        return delete(true, proxy, c, dc);
+    }
+
+    /**
+     * Basic asynchronous delete command. Used in order to reduce the number
+     * of places that we do the same thing in case the API changes.
+     *
+     * @param dc The command to handle.
+     * @param strict whether or not the method should succeed.
+     * @throws ApiUsageException
+     * @throws ServerError
+     * @throws InterruptedException
+     */
+    String delete(boolean passes, IDeletePrx proxy, omero.client c, DeleteCommand...dc)
+    throws ApiUsageException, ServerError,
+    InterruptedException
+    {
+
 		DeleteHandlePrx handle = proxy.queueDelete(dc);
 		DeleteCallbackI cb = new DeleteCallbackI(c, handle);
 		int count = 10;
@@ -386,7 +515,11 @@ public class AbstractTest
 			}
 		}
 		String report = handle.report().toString();
-		assertEquals(report, 0, handle.errors());
+		if (passes) {
+		    assertEquals(report, 0, handle.errors());
+		} else {
+		    assertTrue(report, 0 < handle.errors());
+		}
 		return report;
 	}
 	   

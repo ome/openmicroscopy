@@ -234,10 +234,7 @@ public class DeleteServiceTest
     public void close() 
     	throws Exception
     {
-        if (client != null) {
-            client.__del__();
-            client = null;
-        }
+        clean();
     }
 
     /**
@@ -717,51 +714,35 @@ public class DeleteServiceTest
     	throws Exception
     {
         //
-        // set up collaborative group with 2 users
+        // set up collaborative group with an owner user
         //
-        final EventContext ownerCtx = newUserAndGroup("rwrw--");
-        final omero.client owner = client;
-        final ServiceFactoryPrx ownerSf = client.getSession();
-        client = null;
+        EventContext ownerEc = newUserAndGroup("rwrw--");
         
-        newUserInGroup(new ExperimenterGroupI(ownerCtx.groupId, false));
-        final omero.client tagger = client;
-        final ServiceFactoryPrx taggerSf = client.getSession();
-        client = null;
+        //
+        // owner creates the image
+        //
+        Image img = (Image) iUpdate.saveAndReturnObject(
+			mmFactory.simpleImage(0));
+        
+        //
+        // tagger creates tag and tags the image
+        //
+        newUserInGroup(ownerEc); // Tagger
+        TagAnnotation c = new TagAnnotationI();
+	c = (TagAnnotation) iUpdate.saveAndReturnObject(c).proxy();
+	ImageAnnotationLink link = new ImageAnnotationLinkI();
+	link.link(img, c);
+	link = (ImageAnnotationLink) iUpdate.saveAndReturnObject(link);
+	c = (TagAnnotation) link.getChild();
 
-        try {
-            //
-            // owner creates the image
-            //
-            IUpdatePrx update = ownerSf.getUpdateService();
-            Image img = (Image) update.saveAndReturnObject(
-            		mmFactory.simpleImage(0));
-            
-            //
-            // tagger creates tag and tags the image
-            //
-            IUpdatePrx tagUpdate = taggerSf.getUpdateService();
-            
-            TagAnnotation c = new TagAnnotationI();
-        	c = (TagAnnotation) tagUpdate.saveAndReturnObject(c).proxy();
-        	ImageAnnotationLink link = new ImageAnnotationLinkI();
-        	link.link(img, c);
-        	link = (ImageAnnotationLink) tagUpdate.saveAndReturnObject(link);
-        	c = (TagAnnotation) link.getChild();
-    
-        	//
-        	// test delete
-        	//
-        	init(owner);
-        	long id = img.getId().getValue();
-        	delete(new DeleteCommand(REF_PLATE, id, null));
-        	assertDoesNotExist(img);
-        	assertExists(c);
-        
-        } finally {
-            owner.__del__();
-            tagger.__del__();
-        }
+	//
+	// test delete
+	//
+	loginUser(ownerEc);
+	long id = img.getId().getValue();
+	delete(client, new DeleteCommand(REF_IMAGE, id, null));
+	assertDoesNotExist(img);
+	assertExists(c);
 
     }
     
