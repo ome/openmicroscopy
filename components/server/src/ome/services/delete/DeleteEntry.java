@@ -17,7 +17,10 @@ import java.util.regex.Pattern;
 
 import ome.api.IDelete;
 import ome.model.IObject;
+import ome.security.basic.CurrentDetails;
+import ome.system.EventContext;
 import ome.tools.hibernate.ExtendedMetadata;
+import ome.tools.hibernate.QueryBuilder;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -315,7 +318,8 @@ public class DeleteEntry {
         return false;
     }
     
-    public String delete(Session session, ExtendedMetadata em, String superspec, DeleteIds deleteIds, List<Long> ids)
+    public String delete(Session session, CurrentDetails details,
+            ExtendedMetadata em, String superspec, DeleteIds deleteIds, List<Long> ids)
         throws DeleteException {
         
         if (skip()) {
@@ -330,7 +334,7 @@ public class DeleteEntry {
 
         DeleteSpec subSpec = getSubSpec();
         if (subSpec == null) {
-            sb.append(execute(session, em, deleteIds, ids));
+            sb.append(execute(session, details, em, deleteIds, ids));
         } else {
             for (int i = 0; i < subStepCount; i++) {
                 // TODO refactor this into a single location with
@@ -360,10 +364,10 @@ public class DeleteEntry {
      *
      * Originally copied from DeleteBean.
      */
-    protected String execute(final Session session, final ExtendedMetadata em, final DeleteIds deleteIds, final List<Long> ids)
+    protected String execute(final Session session, final CurrentDetails details, 
+            final ExtendedMetadata em, final DeleteIds deleteIds, final List<Long> ids)
         throws DeleteException {
 
-        Query q;
         final String[] path = this.path(superspec);
         final String table = path[path.length - 1];
         final String str = StringUtils.join(path, "/");
@@ -374,7 +378,12 @@ public class DeleteEntry {
             }
             return ""; // Early exit!
         }
-        q = session.createQuery("delete " + table + " where id = :id");
+        
+        final QueryBuilder qb = new QueryBuilder();
+        qb.delete(table);
+        qb.where();
+        qb.and("id = :id");
+        permissionsClause(details, qb);
 
         final StringBuilder rv = new StringBuilder();
         final List<Long> actualDeletes = new ArrayList<Long>();
@@ -383,7 +392,8 @@ public class DeleteEntry {
         for (Long id : ids) {
             String sp = savepoint(session);
             try {
-                q.setParameter("id", id);
+                qb.param("id", id);
+                Query q = qb.query(session);
                 int count = q.executeUpdate();
                 if (count > 0) {
                     if (log.isDebugEnabled()) {
@@ -455,6 +465,30 @@ public class DeleteEntry {
                 + Arrays.toString(parts) + ", op=" + op + ", path=" + path
                 + (subSpec == null ? "" : ", subSpec=" + subSpec.getName())
                 + "]";
+    }
+    
+    
+    /**
+     * Appends a clause to the {@link QueryBuilder} based on the current user.
+     * 
+     * If the user is an admin like root, then nothing is appened, and any
+     * delete is permissible. If the user is a leader of the current group,
+     * then the object must be in the current group. Otherwise, the object
+     * must belong to the current user.
+     */
+    public static void permissionsClause(CurrentDetails details, QueryBuilder qb) {
+        EventContext ec = details.getCurrentEventContext();
+        if (!ec.isCurrentUserAdmin()) {
+            if (ec.getLeaderOfGroupsList().contains(ec.getCurrentGroupId())) {
+                qb.and("details.group.id = :gid");
+                qb.param("gid", ec.getCurrentGroupId());
+            } else {
+                // This is only a regular user, then the object must belong to
+                // him/her
+                qb.and("details.owner.id = :oid");
+                qb.param("oid", ec.getCurrentUserId());
+            }
+        }
     }
 
 }

@@ -162,7 +162,8 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
         
         try {
             List<Long> foundIds = deleteIds.getFoundIds(this, step);
-            return entry.delete(session, em, superspec, deleteIds, foundIds);
+            return entry.delete(session, getCurrentDetails(), 
+                    em, superspec, deleteIds, foundIds);
         } finally {
 
             // If this is the final step, free memory.
