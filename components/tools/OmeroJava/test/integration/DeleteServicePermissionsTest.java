@@ -243,13 +243,51 @@ public class DeleteServicePermissionsTest
     	disconnect();
     	init(owner);
     	long id = img.getId().getValue();
-
-
-    	delete(client, new DeleteCommand(DeleteServiceTest.REF_IMAGE, id, null));
+    	delete(client, new DeleteCommand(DeleteServiceTest.REF_IMAGE, id, 
+    			null));
 
     	assertDoesNotExist(img);
     	assertExists(c);
+    }
+    
+	/**
+     * Test to delete a tag used by another user.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = false)
+    public void testDeleteTagUsedByOther() 
+    	throws Exception
+    {
+    	// set up collaborative group with an "owner" user
+        EventContext ec = newUserAndGroup("rwrw--");
 
+        // owner creates the image
+        Image img = (Image) iUpdate.saveAndReturnObject(
+        		mmFactory.simpleImage(0));
+        
+        
+        omero.client owner = disconnect();
+        
+        // tagger creates tag and tags the image
+        newUserInGroup(ec);
+        
+        TagAnnotation c = new TagAnnotationI();
+    	c.setTextValue(omero.rtypes.rstring("tag"));
+    	c = (TagAnnotation) iUpdate.saveAndReturnObject(c);
+    	omero.client tagger = disconnect();
+    	init(owner);
+    	
+    	ImageAnnotationLink link = new ImageAnnotationLinkI();
+    	link.setParent(img);
+    	link.setChild(new TagAnnotationI(c.getId().getValue(), false));		
+    	link = (ImageAnnotationLink) iUpdate.saveAndReturnObject(link);
+    	
+    	//now delete the tag.
+    	init(tagger);
+    	delete(client, new DeleteCommand(DeleteServiceTest.REF_ANN, 
+    			c.getId().getValue(), null));
+    	assertDoesNotExist(c);
+    	assertExists(img);
     }
     
 }

@@ -197,7 +197,8 @@ public class AbstractTest
      * @return
      */
     protected EventContext newUserInGroup() throws Exception {
-        EventContext ec = client.getSession().getAdminService().getEventContext();
+        EventContext ec = 
+        	client.getSession().getAdminService().getEventContext();
         return newUserInGroup(ec);
     }
 
@@ -208,7 +209,8 @@ public class AbstractTest
     protected EventContext newUserInGroup(EventContext previousUser)
     throws Exception
     {
-        ExperimenterGroup eg = new ExperimenterGroupI(previousUser.groupId, false);
+        ExperimenterGroup eg = new ExperimenterGroupI(previousUser.groupId, 
+        		false);
         return newUserInGroup(eg);
     }
     
@@ -237,8 +239,6 @@ public class AbstractTest
         init(client);
     }
 
-
-    
     /**
      * Changes the {@link ServiceFactoryPrx#setSecurityContext(IObject) security context}
      * for the root user to the current group.
@@ -246,7 +246,8 @@ public class AbstractTest
     protected void logRootIntoGroup() throws Exception {
         EventContext ec = iAdmin.getEventContext();
         omero.client rootClient = newRootOmeroClient();
-        rootClient.getSession().setSecurityContext(new ExperimenterGroupI(ec.groupId, false));
+        rootClient.getSession().setSecurityContext(new ExperimenterGroupI(
+        		ec.groupId, false));
         init(rootClient);
     }
 
