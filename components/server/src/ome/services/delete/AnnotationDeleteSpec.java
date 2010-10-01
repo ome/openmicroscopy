@@ -350,20 +350,32 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
                 and.appendSpace();
                 and.and(alias + ".ns in (:excludes)");
                 and.paramList("excludes", Arrays.asList(parts));
+                log.debug("Exclude statement: " + and.toString());
+            } else {
+                // If there is no excludes, then none of this type should
+                // be loaded.
+                return Arrays.asList(); // EARLY EXIT!
             }
         }
         return super.queryBackupIds(session, step, copy, and);
     }
 
+    /**
+     * Returns true to prevent skipping of the entire subspec if there were any
+     * "excludes" passed in with the options. These namespaces must be deleted
+     * anyway.
+     */
     @Override
-    public boolean skip(int step) {
-        if (excludes[step] != null && excludes[step].length() > 0) {
-            // If we have an exclude, we have to perform the delete anyway
-            return false;
+    public boolean overrideKeep() {
+        for (int step = 0; step < excludes.length; step++) {
+            if (excludes[step] != null && excludes[step].length() > 0) {
+                // If we have an exclude, we have to perform the delete anyway
+                return true;
+            }
         }
-        return super.skip(step);
+        return false;
     }
-
+    
     @Override
     public String delete(Session session, int step, DeleteIds deleteIds)
             throws DeleteException {

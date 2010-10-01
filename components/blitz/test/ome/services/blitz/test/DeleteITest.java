@@ -673,11 +673,11 @@ public class DeleteITest extends AbstractServantTest {
                                     ServiceFactory sf) {
 
                                 try {
-                                    DeleteIds ids = new DeleteIds(session, spec);
+                                    DeleteIds ids = new DeleteIds(ctx, session, spec);
                                     List<List<Long>> rv = new ArrayList<List<Long>>();
-                                    rv.add(ids.get(spec, 0));
-                                    rv.add(ids.get(spec, 1));
-                                    rv.add(ids.get(spec, 2));
+                                    rv.add(ids.getFoundIds(spec, 0));
+                                    rv.add(ids.getFoundIds(spec, 1));
+                                    rv.add(ids.getFoundIds(spec, 2));
                                     return rv;
                                 } catch (Exception e) {
                                     throw new RuntimeException(e);

@@ -7,14 +7,26 @@
 
 package ome.services.delete;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import ome.api.IDelete;
+import ome.model.IObject;
+import ome.tools.hibernate.ExtendedMetadata;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.exception.ConstraintViolationException;
+import org.perf4j.StopWatch;
+import org.perf4j.commonslog.CommonsLogStopWatch;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.ListableBeanFactory;
 
@@ -29,6 +41,8 @@ import org.springframework.beans.factory.ListableBeanFactory;
  */
 public class DeleteEntry {
 
+    private final static Log log = LogFactory.getLog(DeleteEntry.class);
+    
     public enum Op {
 
         /**
@@ -78,7 +92,31 @@ public class DeleteEntry {
      */
     private Op op;
 
+    /**
+     * {@link DeleteSpec Subspec} found by looking for the {@link #name} of this
+     * {@link DeleteEntry} during {@link #postProcess(ListableBeanFactory)}. If
+     * this is non-null, then many actions will have to iterate over all the
+     * {@link #subStepCount} steps of the {@link #subSpec}.
+     */
     /* final */private DeleteSpec subSpec;
+    
+    /**
+     * Number of steps in the {@link #subSpec}, calculated during
+     * {@link #initialize(long, String, Map)}.
+     */
+    /* final */private int subStepCount = 0;
+    
+    /**
+     * Value of the superspec passed in during {@link #initialize(long, String, Map)}.
+     * This will be used to determine where this entry is in the overall graph,
+     * as opposed to just within its own {@link #self DeleteSpec}.
+     */
+    /* final */private String superspec;
+
+    /**
+     * Value of the target id passed in during {@link #initialize(long, String, Map)}.
+     */
+    /* final */private long id;
 
     public DeleteEntry(DeleteSpec self, String value) {
         checkArgs(self, value);
@@ -227,7 +265,10 @@ public class DeleteEntry {
      * entries.
      */
     public int initialize(long id, String superspec, Map<String, String> options) throws DeleteException {
-
+        
+        this.id = id;
+        this.superspec = superspec;
+        
         if (options != null) {
             final String[] path = path(superspec);
             final String absolute = "/" + StringUtils.join(path, "/");
@@ -245,7 +286,6 @@ public class DeleteEntry {
             }
         }
 
-        int subStepCount = 0;
         if (subSpec != null) {
             if (subSpec == this) {
                 throw new DeleteException(true, "Self-reference subspec:"
@@ -257,6 +297,157 @@ public class DeleteEntry {
         return subStepCount;
 
     }
+
+
+    /**
+     * A KEEP setting is a way of putting a KEEP suggestion to vote. If there is
+     * a subspec, however, that vote must be passed down. If the KEEP is vetoed,
+     * it is the responsiblity of the subspec to make sure that only the proper
+     * parts are kept or not kept.
+     */
+    public boolean skip() {
+        if (Op.KEEP.equals(this.getOp())) {
+            DeleteSpec spec = this.getSubSpec();
+            if (spec != null) {
+                return ! spec.overrideKeep();
+            }
+        }
+        return false;
+    }
+    
+    public String delete(Session session, ExtendedMetadata em, String superspec, DeleteIds deleteIds, List<Long> ids)
+        throws DeleteException {
+        
+        if (skip()) {
+            if (log.isDebugEnabled()) {
+                log.debug("skipping " + this);
+            }
+            return ""; // EARLY EXIT!
+        }
+        
+        
+        StringBuilder sb = new StringBuilder();
+
+        DeleteSpec subSpec = getSubSpec();
+        if (subSpec == null) {
+            sb.append(execute(session, em, deleteIds, ids));
+        } else {
+            for (int i = 0; i < subStepCount; i++) {
+                // TODO refactor this into a single location with
+                // execute below. This may require setting the
+                // "superOp" on subSpecs. Is there a need for
+                // handling longer chains of ops??
+                String cause = null;
+                try {
+                    cause = subSpec.delete(session, i, deleteIds);
+                } catch (ConstraintViolationException cve) {
+                    if (Op.SOFT.equals(this.getOp())) {
+                        sb.append(cause);
+                    } else {
+                        throw cve;
+                    }
+                }
+            }
+        }
+
+        return sb.toString();
+    }
+
+    /**
+     * If ids are non-empty, then calls a simple
+     * "delete TABLE where id in (:ids)"; otherwise, generates a query via
+     * {@link #buildQuery(DeleteEntry)} and uses the root "id"
+     *
+     * Originally copied from DeleteBean.
+     */
+    protected String execute(final Session session, final ExtendedMetadata em, final DeleteIds deleteIds, final List<Long> ids)
+        throws DeleteException {
+
+        Query q;
+        final String[] path = this.path(superspec);
+        final String table = path[path.length - 1];
+        final String str = StringUtils.join(path, "/");
+
+        if (ids.size() == 0) {
+            if (log.isDebugEnabled()) {
+                log.debug("No ids found for " + str);
+            }
+            return ""; // Early exit!
+        }
+        q = session.createQuery("delete " + table + " where id = :id");
+
+        final StringBuilder rv = new StringBuilder();
+        final List<Long> actualDeletes = new ArrayList<Long>();
+
+        StopWatch sw = new CommonsLogStopWatch();
+        for (Long id : ids) {
+            String sp = savepoint(session);
+            try {
+                q.setParameter("id", id);
+                int count = q.executeUpdate();
+                if (count > 0) {
+                    if (log.isDebugEnabled()) {
+                        log.debug(String.format("Deleted %s from %s: root=%s", id, str, this.id));
+                    }
+                } else {
+                    if (log.isInfoEnabled()) {
+                        log.warn(String.format("Missing delete %s from %s: root=%s", id, str, this.id));
+                    }
+                }
+                release(session, sp);
+                actualDeletes.add(id); // After release!
+                rv.append("");
+            } catch (ConstraintViolationException cve) {
+                rollback(session, sp);
+                String cause = "ConstraintViolation: " + cve.getConstraintName();
+                if (DeleteEntry.Op.SOFT.equals(this.getOp())) {
+                    log.debug(String.format("Could not delete softly %s: %s due to %s",
+                            str, this.id, cause));
+                    rv.append(cause);
+                } else {
+                    log.info(String.format("Failed to delete %s: %s due to %s",
+                            str, this.id, cause));
+                    throw cve;
+                }
+            } finally {
+                sw.stop("omero.delete." + table + "." + id);
+            }
+        }
+
+        Class<IObject> k = em.getHibernateClass(table);
+        deleteIds.addDeletedIds(table, k, actualDeletes);
+        return rv.toString();
+    }
+
+    void call(Session session, String call, String savepoint) {
+        try {
+            session.connection().prepareCall(call + savepoint).execute();
+        } catch (Exception e) {
+            RuntimeException re = new RuntimeException("Failed to '" + call
+                    + savepoint + "'");
+            re.initCause(e);
+            throw re;
+        }
+    }
+
+    String savepoint(Session session) {
+        String savepoint = UUID.randomUUID().toString();
+        savepoint = savepoint.replaceAll("-", "");
+        call(session, "SAVEPOINT DEL", savepoint);
+        return savepoint;
+    }
+
+    void release(Session session, String savepoint) {
+        call(session, "RELEASE SAVEPOINT DEL", savepoint);
+    }
+
+    void rollback(Session session, String savepoint) {
+        call(session, "ROLLBACK TO SAVEPOINT DEL", savepoint);
+    }
+
+    //
+    // MISC
+    //
 
     @Override
     public String toString() {

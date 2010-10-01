@@ -10,34 +10,21 @@ package ome.services.delete;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.UUID;
 
 import ome.api.IDelete;
-import ome.model.IObject;
-import ome.services.delete.DeleteEntry.Op;
-import ome.services.messages.EventLogMessage;
-import ome.system.OmeroContext;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.QueryBuilder;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.hibernate.exception.ConstraintViolationException;
-import org.perf4j.StopWatch;
-import org.perf4j.commonslog.CommonsLogStopWatch;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.ListableBeanFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 
 /**
  * {@link DeleteSpec} which takes the id of some id as the root of deletion.
@@ -46,7 +33,7 @@ import org.springframework.context.ApplicationContextAware;
  * @since Beta4.2.1
  * @see IDelete
  */
-public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationContextAware {
+public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
 
     private final static Log log = LogFactory.getLog(BaseDeleteSpec.class);
 
@@ -60,8 +47,6 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
      * {@link #delete(Session, int)}
      */
     protected final List<DeleteEntry> entries;
-
-    private/* final */OmeroContext ctx;
 
     private/* final */ExtendedMetadata em;
 
@@ -92,16 +77,6 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
     protected Map<String, String> options;
 
     /**
-     * Map of step numbers to the number of substeps for that step.
-     */
-    private Map<Integer, Integer> substeps = new HashMap<Integer, Integer>();
-
-    /**
-     * Map of db table names to the ids deleted from that table.
-     */
-    private Map<String, List<Long>> tableIds = new HashMap<String, List<Long>>();
-
-    /**
      * Simplified constructor, primarily used for testing.
      */
     public BaseDeleteSpec(String name, String... entries) {
@@ -119,11 +94,6 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
 
     public void setExtendedMetadata(ExtendedMetadata em) {
         this.em = em;
-    }
-
-    public void setApplicationContext(ApplicationContext ctx)
-            throws BeansException {
-        this.ctx = (OmeroContext) ctx;
     }
 
     //
@@ -153,8 +123,7 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
 
         for (int i = 0; i < entries.size(); i++) {
             DeleteEntry entry = entries.get(i);
-            int subStepCount = entry.initialize(id, superspec, options);
-            substeps.put(i, subStepCount);
+            entry.initialize(id, superspec, options);
         }
 
         this.id = id;
@@ -171,77 +140,14 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
         return new ArrayList<DeleteEntry>(entries);
     }
 
-    public Map<String, List<Long>> getTableIds() {
-        return tableIds;
-    }
-
-    public boolean skip(int step) {
-        DeleteEntry entry = entries.get(step);
-        if (Op.KEEP.equals(entry.getOp())) {
-            return true;
-        }
-        return false;
-    }
-
     public String delete(Session session, int step, DeleteIds deleteIds)
             throws DeleteException {
 
-        DeleteEntry entry = entries.get(step);
-
-        if (skip(step)) {
-            if (log.isDebugEnabled()) {
-                log.debug("skipping " + entry);
-            }
-            return ""; // EARLY EXIT!
-        }
+        final DeleteEntry entry = entries.get(step);
         
         try {
-            StringBuilder sb = new StringBuilder();
-
-            DeleteSpec subSpec = entry.getSubSpec();
-            int subStep = substeps.get(step);
-            if (subSpec != null) {
-                for (int i = 0; i < subStep; i++) {
-                    // TODO refactor this into a single location with
-                    // execute below. This may require setting the
-                    // "superOp" on subSpecs. Is there a need for
-                    // handling longer chains of ops??
-                    String cause = null;
-                    try {
-                        cause = subSpec.delete(session, i, deleteIds);
-                        /*
-                         * Add ids from subspec to this spec's ids
-                         * 
-                         * This might be adequate...
-                         */
-                        tableIds.putAll(subSpec.getTableIds());
-                        /*
-                         * But maybe a more cautious approach with Sets instead
-                         * of Lists as values...
-                         *
-                         * for(String table : subSpec.getTableIds().keySet()) {
-                         * if(tableIds.containsKey(table)) {
-                         * tableIds.get(table).
-                         * addAll(subSpec.getTableIds().get(table)); } else {
-                         * tableIds.put(table,
-                         * subSpec.getTableIds().get(table)); } }
-                         *
-                         * ...could be needed.
-                         */
-                    } catch (ConstraintViolationException cve) {
-                        if (Op.SOFT.equals(entry.getOp())) {
-                            sb.append(cause);
-                        } else {
-                            throw cve;
-                        }
-                    }
-                }
-            } else {
-                List<Long> ids = deleteIds.get(this, step);
-                sb.append(execute(session, entry, ids));
-            }
-
-            return sb.toString();
+            List<Long> foundIds = deleteIds.getFoundIds(this, step);
+            return entry.delete(session, em, superspec, deleteIds, foundIds);
         } finally {
 
             // If this is the final step, free memory.
@@ -254,71 +160,7 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
         }
     }
 
-    /**
-     * If ids are non-empty, then calls a simple
-     * "delete TABLE where id in (:ids)"; otherwise, generates a query via
-     * {@link #buildQuery(DeleteEntry)} and uses the root "id"
-     *
-     * Originally copied from DeleteBean.
-     */
-    protected String execute(final Session session, DeleteEntry entry, List<Long> ids)
-        throws DeleteException {
 
-        Query q;
-        final String[] path = entry.path(superspec);
-        final String table = path[path.length - 1];
-        final String str = StringUtils.join(path, "/");
-
-        if (ids.size() == 0) {
-            if (log.isDebugEnabled()) {
-                log.debug("No ids found for " + str);
-            }
-            return ""; // Early exit!
-        }
-        q = session.createQuery("delete " + table + " where id = :id");
-
-        final StringBuilder rv = new StringBuilder();
-        final List<Long> actualDeletes = new ArrayList<Long>();
-
-        StopWatch sw = new CommonsLogStopWatch();
-        for (Long id : ids) {
-            String sp = savepoint(session);
-            try {
-                q.setParameter("id", id);
-                int count = q.executeUpdate();
-                if (count > 0) {
-                    actualDeletes.add(id);
-                    tableIds.put(table, ids);
-                    if (log.isDebugEnabled()) {
-                        log.debug(String.format("Deleted %s from %s: root=%s", id, str, this.id));
-                    }
-                } else {
-                    if (log.isInfoEnabled()) {
-                        log.warn(String.format("Missing delete %s from %s: root=%s", id, str, this.id));
-                    }
-                }
-                release(session, sp);
-                rv.append("");
-            } catch (ConstraintViolationException cve) {
-                rollback(session, sp);
-                String cause = "ConstraintViolation: " + cve.getConstraintName();
-                if (DeleteEntry.Op.SOFT.equals(entry.getOp())) {
-                    log.debug(String.format("Could not delete softly %s: %s due to %s",
-                            str, this.id, cause));
-                    rv.append(cause);
-                } else {
-                    log.info(String.format("Failed to delete %s: %s due to %s",
-                            str, this.id, cause));
-                    throw cve;
-                }
-            } finally {
-                sw.stop("omero.delete." + table + "." + id);
-            }
-        }
-
-        saveLogs(table, actualDeletes);
-        return rv.toString();
-    }
 
     //
     // Helpers
@@ -350,6 +192,13 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
         return rv;
     }
 
+    /**
+     * Always returns false. See interface for documentation.
+     */
+    public boolean overrideKeep() {
+        return false;
+    }
+    
     /**
      * Returns true iff lhs[i] == rhs[i] for all i in rhs. For example,
      *
@@ -530,44 +379,6 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
         qb.and("id in ");
         qb.subselect(sub);
         return qb;
-    }
-
-    void saveLogs(String table, List<Long> ids) throws DeleteException {
-        Class<IObject> k = em.getHibernateClass(table);
-        EventLogMessage elm = new EventLogMessage(this, "DELETE", k, ids);
-        try {
-            ctx.publishMessage(elm);
-        } catch (Throwable t) {
-            DeleteException de = new DeleteException(true, "EventLogMessage failed.");
-            de.initCause(t);
-            throw de;
-        }
-    }
-
-    void call(Session session, String call, String savepoint) {
-        try {
-            session.connection().prepareCall(call + savepoint).execute();
-        } catch (Exception e) {
-            RuntimeException re = new RuntimeException("Failed to '" + call
-                    + savepoint + "'");
-            re.initCause(e);
-            throw re;
-        }
-    }
-
-    String savepoint(Session session) {
-        String savepoint = UUID.randomUUID().toString();
-        savepoint = savepoint.replaceAll("-", "");
-        call(session, "SAVEPOINT DEL", savepoint);
-        return savepoint;
-    }
-
-    void release(Session session, String savepoint) {
-        call(session, "RELEASE SAVEPOINT DEL", savepoint);
-    }
-
-    void rollback(Session session, String savepoint) {
-        call(session, "ROLLBACK TO SAVEPOINT DEL", savepoint);
     }
 
     @Override

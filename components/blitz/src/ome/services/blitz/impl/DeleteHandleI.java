@@ -10,8 +10,10 @@ package ome.services.blitz.impl;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -71,6 +73,7 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
 
         DeleteCommand command;
         DeleteSpec spec;
+        DeleteIds ids;
         HashMap<String, ArrayList<Long>> undeletedFiles;
         
         long start;
@@ -87,6 +90,10 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
 
     private static final Log log = LogFactory.getLog(DeleteHandleI.class);
 
+    private static final List<String> fileTypeList = Collections.unmodifiableList(
+            Arrays.asList( "OriginalFile", "Pixels", "Thumbnail"));
+
+    
     /**
      * The identity of this servant, used during logging and similar operations.
      */
@@ -129,9 +136,9 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
      */
     private final AtomicReference<State> state = new AtomicReference<State>();
 
-    private final ServiceFactoryI sf;
-
     private final AbstractFileSystemService afs;
+
+    private final ServiceFactoryI sf;
 
     /**
      * Create and
@@ -385,7 +392,6 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
     }
 
     public void steps(Session session, Report report) throws Cancel {
-        DeleteIds ids = null;
         StopWatch sw = null;
         for (int j = 0; j < report.steps; j++) {
             try {
@@ -396,11 +402,11 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
 
                 // Initialize on the first. Any exceptions should
                 // cancel the whole process.
-                if (ids == null) {
-                    ids = new DeleteIds(session, report.spec);
+                if (report.ids == null) {
+                    report.ids = new DeleteIds(sf.context, session, report.spec);
                 }
                 sw = new CommonsLogStopWatch();
-                report.warning = report.spec.delete(session, j, ids);
+                report.warning = report.spec.delete(session, j, report.ids);
             } catch (DeleteException de) {
                 report.error = de.message;
                 if (de.cancel) {
@@ -439,56 +445,43 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
       */
     private void deleteFiles() {
 
-        // This saves code replication but maybe there's a neater solution.
-        String[] fileTypes = { "OriginalFile", "Pixels", "Thumbnail" };
-        List<String> fileTypeList = Arrays.asList(fileTypes);
-
-        HashMap<String, List<Long>> idMap;
         File file;
         String filePath;
 
         HashMap<String, ArrayList<Long>> failedMap = new HashMap<String, ArrayList<Long>>();
 
         for (Report report : reports.values()) {
-            log.info("specstring: " + report.spec.toString());
-            idMap = (HashMap<String, List<Long>>) report.spec.getTableIds();
-            if (log.isDebugEnabled()) {
-                for (String table : idMap.keySet()) {
-                    log.debug("Deleted IDs : " + table + ":"
-                            + idMap.get(table).toString());
-                }
-            }
+            
             for (String fileType : fileTypeList) {
-                if (idMap.containsKey(fileType)) {
-                    log.info("Trying to delete " + fileType + " files : "
-                            + idMap.get(fileType).toString());
-                    List<Long> deletedIds = idMap.get(fileType);
-                    if (!deletedIds.isEmpty()) {
-                        failedMap.put(fileType, new ArrayList<Long>());
-                        for (Long id : deletedIds) {
-                            if (fileType.equals("OriginalFile")) {
-                                filePath = afs.getFilesPath(id);
-                            } else if (fileType.equals("Pixels")) {
-                                filePath = afs.getPixelsPath(id);
-                            } else { // Thumbnail
-                                filePath = afs.getThumbnailPath(id);
-                            }
+                Set<Long> deletedIds = report.ids.getDeletedsIds(fileType);
+                if (deletedIds != null && deletedIds.size() > 0) {
+                    log.info(String.format("Binary delete of %s for %s:%s: %s",
+                            fileType, report.command.type, report.command.id,
+                            deletedIds));
+                    failedMap.put(fileType, new ArrayList<Long>());
+                    for (Long id : deletedIds) {
+                        if (fileType.equals("OriginalFile")) {
+                            filePath = afs.getFilesPath(id);
+                        } else if (fileType.equals("Pixels")) {
+                            filePath = afs.getPixelsPath(id);
+                        } else { // Thumbnail
+                            filePath = afs.getThumbnailPath(id);
+                        }
 
-                            file = new File(filePath);
-                            if (file.exists()) {
-                                if (file.delete()) {
-                                    log.info("DELETED: " + fileType + " "
-                                            + file.getAbsolutePath());
-                                } else {
-                                    failedMap.get(fileType).add(id);
-                                    log.info("Failed to delete " + fileType
-                                            + " " + file.getAbsolutePath());
-                                }
+                        file = new File(filePath);
+                        if (file.exists()) {
+                            if (file.delete()) {
+                                log.debug("DELETED: " + fileType + " "
+                                        + file.getAbsolutePath());
                             } else {
-                                log.info(fileType + " "
-                                        + file.getAbsolutePath()
-                                        + " does not exist.");
+                                failedMap.get(fileType).add(id);
+                                log.warn("Failed to delete " + fileType
+                                        + " " + file.getAbsolutePath());
                             }
+                        } else {
+                            log.warn(fileType + " "
+                                    + file.getAbsolutePath()
+                                    + " does not exist.");
                         }
                     }
                 }
@@ -509,6 +502,9 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
      * {@link DeleteHandleI#state} wants a cancallation.
      */
     private static class Cancel extends InternalException {
+
+        private static final long serialVersionUID = 1L;
+
         public Cancel(String message) {
             super(message);
         }

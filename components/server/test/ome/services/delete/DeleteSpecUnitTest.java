@@ -300,6 +300,49 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
         assertEquals(Op.KEEP, de.getOp());
         assertEquals("keepme", ads.getExclude(0));
 
+        // and check that skipping will not take place, if there are
+        // excludes since then its necessary to perform the query
+        // anyway.
+        ads = specXml.getBean("/Annotation", AnnotationDeleteSpec.class);
+        options = new HashMap<String, String>();
+        options.put("/FileAnnotation", "KEEP;excludes=keepme");
+        ads.initialize(1, "", options);
+        assertFalse(ads.skip(0));
+        
+        // And check the same thing for the case where we have an annotation
+        // attached to another object
+        spec = specXml.getBean("/Image", BaseDeleteSpec.class);
+        options = new HashMap<String, String>();
+        options.put("/Annotation", "KEEP;excludes=keepme");
+        spec.initialize(1, "", options);
+        // Find the right entry for /Annotation
+        Integer idx = null;
+        for (int i = 0; i < spec.entries.size(); i++) {
+            DeleteEntry entry = spec.entries.get(i);
+            if (entry.getName().equals("/Annotation")) {
+                idx = i;
+            }
+        }
+        assertNotNull(idx);
+        assertFalse(spec.skip(idx));
+        
+        // And THEN check that the recursive check of KEEP/skip() doesn't
+        // go too far
+        spec = specXml.getBean("/Dataset", BaseDeleteSpec.class);
+        options = new HashMap<String, String>();
+        options.put("/Annotation", "KEEP;excludes=keepme");
+        spec.initialize(1, "", options);
+        // Find the right entry for /Image
+        idx = null;
+        for (int i = 0; i < spec.entries.size(); i++) {
+            DeleteEntry entry = spec.entries.get(i);
+            if (entry.getName().equals("/Image")) {
+                idx = i;
+            }
+        }
+        assertNotNull(idx);
+        assertFalse(spec.skip(idx));
+        
     }
 
 }

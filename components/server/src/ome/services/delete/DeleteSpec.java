@@ -79,12 +79,6 @@ public interface DeleteSpec {
             throws DeleteException;
 
     /**
-     * Returns true if this particular step should be skipped, as is usually the
-     * case when dealing with {@link DeleteEntry.Op#KEEP}.
-     */
-    boolean skip(int step);
-
-    /**
      *
      * @param session
      *            non-null, active Hibernate session that will be used to delete
@@ -153,14 +147,17 @@ public interface DeleteSpec {
     Iterator<DeleteSpec> walk();
 
     /**
+     * For some {@link DeleteSpec} type/option combinations, a "KEEP" setting
+     * may need to be overridden. This method allows implementors to say that
+     * KEEPing must be performed on a per {@link DeleteEntry} basis as opposed
+     * to for the whole {@link DeleteSpec subspec}.
+     */
+    boolean overrideKeep();
+    
+    /**
      * Returns a copy of the list of {@link DeleteEntry} instances contained in
      * this {@link DeleteSpec}
      */
     List<DeleteEntry> entries();
-
-    /**
-     * Returns the map of tables to potentially deleted ids
-     */
-    Map<String, List<Long>> getTableIds();
 
 }
