@@ -188,6 +188,13 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
 
         DeleteEntry entry = entries.get(step);
 
+        if (skip(step)) {
+            if (log.isDebugEnabled()) {
+                log.debug("skipping " + entry);
+            }
+            return ""; // EARLY EXIT!
+        }
+        
         try {
             StringBuilder sb = new StringBuilder();
 
@@ -230,16 +237,6 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware, ApplicationCon
                     }
                 }
             } else {
-                // Only applying KEEP at the entry level since the
-                // /Annotation=KEEP applies both at the spec and
-                // the entry level. Rather than trying to push the
-                // spec value down to the entry, we just delegate.
-                if (skip(step)) {
-                    if (log.isDebugEnabled()) {
-                        log.debug("skipping " + entry);
-                    }
-                    return ""; // EARLY EXIT!
-                }
                 List<Long> ids = deleteIds.get(this, step);
                 sb.append(execute(session, entry, ids));
             }

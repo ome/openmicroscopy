@@ -3315,26 +3315,15 @@ public class DeleteServiceTest
     	options.put(REF_IMAGE, KEEP);
     	long id = p.getId().getValue();
     	delete(new DeleteCommand(REF_PROJECT, id, options));
-    	String sql = "select p from Project as p ";
-    	sql += "where p.id = id";
-    	ParametersI param = new ParametersI();
-		param.addId(id);
-		assertNull(iQuery.findByQuery(sql, param));
-		sql = "select p from Dataset as p ";
-    	sql += "where p.id = id";
-    	param = new ParametersI();
-		param.addId(d.getId().getValue());
-		assertNotNull(iQuery.findByQuery(sql, param));
-		sql = "select p from Image as p ";
-    	sql += "where p.id = id";
-    	param = new ParametersI();
+    	
+    	assertDoesNotExist(p);
+    	assertExists(d);
+    	assertExists(image);
+    			
+		ParametersI param = new ParametersI();
 		param.addId(image.getId().getValue());
-		assertNotNull(iQuery.findByQuery(sql, param));
-		
-		param = new ParametersI();
-		param.addId(image.getId().getValue());
-		sql = "select p from DatasetImageLink as p ";
-    	sql += "where p.child.id = id";
+		String sql = "select p from DatasetImageLink as p ";
+    	sql += "where p.child.id = :id";
     	assertNotNull(iQuery.findByQuery(sql, param));
     }
     
@@ -3361,17 +3350,10 @@ public class DeleteServiceTest
     	options.put(REF_PLATE, KEEP);
     	long id = s.getId().getValue();
     	String report = delete(new DeleteCommand(REF_SCREEN, id, options));
-    	String sql = "select p from Screen as p ";
-    	sql += "where p.id = id";
-    	ParametersI param = new ParametersI();
-		param.addId(id);
-		assertNull(report, iQuery.findByQuery(sql, param));
 		
-		sql = "select p from Plate as p ";
-    	sql += "where p.id = id";
-    	param = new ParametersI();
-		param.addId(p.getId().getValue());
-		assertNotNull(iQuery.findByQuery(sql, param));
+		assertDoesNotExist(s);
+		assertExists(p);
+
     }
     
     /**
@@ -3393,29 +3375,16 @@ public class DeleteServiceTest
     	l.link(new DatasetI(d.getId().getValue(), false), img);
     	iUpdate.saveAndReturnObject(l);
     	
-    	
     	//Now delete the dataset
     	Map<String, String> options = new HashMap<String, String>();
     	options.put(REF_IMAGE, KEEP);
     	long id = d.getId().getValue();
     	delete(new DeleteCommand(REF_DATASET, id, options));
-    	String sql = "select p from Dataset as p ";
-    	sql += "where p.id = id";
-    	ParametersI param = new ParametersI();
-		param.addId(id);
-		assertNull(iQuery.findByQuery(sql, param));
-		
-		sql = "select p from Image as p ";
-    	sql += "where p.id = id";
-    	param = new ParametersI();
-		param.addId(img.getId().getValue());
-		assertNotNull(iQuery.findByQuery(sql, param));
-		
-		sql = "select p from Pixels as p ";
-    	sql += "where p.id = id";
-    	param = new ParametersI();
-		param.addId(pixels.getId().getValue());
-		assertNotNull(iQuery.findByQuery(sql, param));
+
+		assertDoesNotExist(d);
+		assertExists(img);
+		assertExists(pixels);
+
     }
     
     /**

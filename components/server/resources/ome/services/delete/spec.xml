@@ -215,6 +215,7 @@ plus test REAP
         <constructor-arg>
             <list>
                 <value>/Image;;/Dataset/DatasetImageLink</value><!-- assumes you can get in one jump with a link -->
+                <value>/Dataset/DatasetImageLink</value><!-- Adding in case image is set to KEEP -->
                 <value>/Dataset/ProjectDatasetLink</value>
                 <value>/Dataset/DatasetAnnotationLink;REAP</value>
                 <value>/Annotation;SOFT;/Dataset/DatasetAnnotationLink</value>
@@ -227,6 +228,7 @@ plus test REAP
         <constructor-arg>
             <list>
                 <value>/Dataset;;/Project/ProjectDatasetLink</value>
+                <value>/Project/ProjectDatasetLink</value><!-- Adding in case dataset is set to KEEP -->
                 <value>/Project/ProjectAnnotationLink</value>
                 <value>/Annotation;SOFT;/Project/ProjectAnnotationLink</value>
                 <value>/Project</value>
@@ -282,6 +284,7 @@ plus test REAP
         <constructor-arg>
             <list>
                 <value>/Plate;;/Screen/ScreenPlateLink</value>
+                <value>/Screen/ScreenPlateLink</value><!-- Adding in case plate is set to KEEP -->
                 <value>/Screen/ScreenAnnotationLink</value>
                 <value>/Annotation;SOFT;/Screen/ScreenAnnotationLink</value>
                 <value>/Screen/Reagent/ReagentAnnotationLink</value>
