@@ -4122,5 +4122,22 @@ public class DeleteServiceTest
     	assertNull(pixels1.getRelatedTo());
     }
     
+    @Test
+    public void testSlowDeleteOfOriginalFile() throws Exception {
+        OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
+                mmFactory.createOriginalFile());
+        delete(new DeleteCommand("/OriginalFile", of.getId().getValue(), null));
+        assertDoesNotExist(of);
+    }
+    
+    @Test
+    public void testSlowDeleteOfOriginalFileWithAnnotation() throws Exception {
+        OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
+                mmFactory.createOriginalFile());
+        createSharableAnnotation(of, null);
+        delete(new DeleteCommand("/OriginalFile", of.getId().getValue(), null));
+        assertDoesNotExist(of);
+    }
+    
  }
 
