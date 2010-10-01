@@ -66,9 +66,8 @@ public class DeleteServiceFilesTest
    private String dataDir; 
  
    /**
-    * Since so many tests rely on counting the number of objects present
-    * globally, we're going to start each method with a new user in a new
-    * group.
+    * Set the data directory for the tests. This is needed to find the 
+    * correct repository to test whether deletes have been successful.
     */
    @BeforeClass
    public void setDataDir() throws Exception {
@@ -124,7 +123,8 @@ public class DeleteServiceFilesTest
     * @param id The identifier of the object.
     */
    private String getPath(String klass, Long id) 
-   throws Exception {
+       throws Exception 
+   {
        String suffix = "";
        String prefix = "";
        Long remaining = id;
@@ -196,7 +196,7 @@ public class DeleteServiceFilesTest
     * @throws Exception  Thrown if an error occurred.
     */
    void assertFileExists(Long id, String klass)
-   throws Exception
+       throws Exception
    {   
        String path = getPath(klass, id);
        RepositoryPrx legacy = getLegacyRepository();
@@ -211,7 +211,7 @@ public class DeleteServiceFilesTest
     * @throws Exception  Thrown if an error occurred.
     */
    void assertFileDoesNotExist(Long id, String klass) 
-   throws Exception 
+       throws Exception 
    {  
        String path = getPath(klass, id);
        RepositoryPrx legacy = getLegacyRepository();
@@ -363,8 +363,8 @@ public class DeleteServiceFilesTest
         long thumbId;
         while (i.hasNext()) {
         	thumbId = i.next().getId().getValue();
-        	 assertFileExists(thumbId, "Thumbnail");
-		}
+        	assertFileExists(thumbId, "Thumbnail");
+        }
        
         //delete the image.
         delete(new DeleteCommand(DeleteServiceTest.REF_IMAGE, imageID, null));
