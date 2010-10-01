@@ -79,6 +79,9 @@ public class AbstractTest
 
     /** Helper reference to the <code>IAdmin</code> service. */
     protected IAdminPrx iAdmin;
+    
+    /** Helper reference to the <code>IDelete</code> service. */
+    protected IDeletePrx iDelete;
 
     /** Helper class creating mock object. */
     protected ModelMockFactory mmFactory;
@@ -145,25 +148,44 @@ public class AbstractTest
     {
         IAdminPrx rootAdmin = root.getSession().getAdminService();
         String uuid = UUID.randomUUID().toString();
+        ExperimenterGroup g = new ExperimenterGroupI();
+        g.setName(omero.rtypes.rstring(uuid));
+        g.getDetails().setPermissions(perms);
+        g = new ExperimenterGroupI(rootAdmin.createGroup(g), false);
+        return newUserInGroup(g);
+    }
+    
+    protected EventContext newUserInGroup(ExperimenterGroup group)
+        throws Exception
+    {
+        
+        IAdminPrx rootAdmin = root.getSession().getAdminService();
+        group = rootAdmin.getGroup(group.getId().getValue());
+
+        String uuid = UUID.randomUUID().toString();
         Experimenter e = new ExperimenterI();
         e.setOmeName(omero.rtypes.rstring(uuid));
         e.setFirstName(omero.rtypes.rstring("integeration"));
         e.setLastName(omero.rtypes.rstring("tester"));
-        ExperimenterGroup g = new ExperimenterGroupI();
-        g.setName(omero.rtypes.rstring(uuid));
-        g.getDetails().setPermissions(perms);
-        rootAdmin.createGroup(g);
-        rootAdmin.createUser(e, uuid);
+        rootAdmin.createUser(e, group.getName().getValue());
 
-        if (client != null) {
-            client.__del__();
+        omero.client client = new omero.client();
+        client.createSession(uuid, uuid);
+        return init(client);
+    }
+    
+    protected EventContext init(omero.client client) throws Exception {
+
+        if (this.client != null) {
+            this.client.__del__();
         }
         
-        client = new omero.client();
-        factory = client.createSession(uuid, uuid);
+        this.client = client;
+        factory = client.getSession();
         iQuery = factory.getQueryService();
         iUpdate = factory.getUpdateService();
         iAdmin = factory.getAdminService();
+        iDelete = factory.getDeleteService();
         mmFactory = new ModelMockFactory(factory.getPixelsService());
         return iAdmin.getEventContext();
     }

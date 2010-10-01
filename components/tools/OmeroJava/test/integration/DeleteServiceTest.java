@@ -46,6 +46,7 @@ import omero.model.DatasetImageLinkI;
 import omero.model.Detector;
 import omero.model.DetectorSettings;
 import omero.model.Dichroic;
+import omero.model.ExperimenterGroupI;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.FilterSet;
@@ -110,6 +111,7 @@ import omero.model.WellAnnotationLinkI;
 import omero.model.WellSample;
 import omero.model.WellSampleAnnotationLink;
 import omero.model.WellSampleAnnotationLinkI;
+import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
 import org.testng.annotations.AfterMethod;
@@ -209,9 +211,6 @@ public class DeleteServiceTest
 		SHARABLE_TO_KEEP.put(REF_TERM, KEEP);
 		SHARABLE_TO_KEEP.put(REF_FILE, KEEP);
 	}
-	
-    /** Helper reference to the <code>IDelete</code> service. */
-    private IDeletePrx iDelete;
 
     /**
      * Since so many tests rely on counting the number of objects present
@@ -223,7 +222,6 @@ public class DeleteServiceTest
     	throws Exception
     {
         newUserAndGroup("rw----");
-        iDelete = factory.getDeleteService();
     }
 
     /**
@@ -709,7 +707,63 @@ public class DeleteServiceTest
     	if (links.size() > 0) iUpdate.saveAndReturnArray(links);
     	return ids;
     }
+    
+    /**
+     * Test to delete an image tagged collaboratively by another user.
+     */
+    @Test(groups = "ticket:2881")
+    public void testDeleteTaggedImageTagOwnedByOther() 
+    	throws Exception
+    {
+        //
+        // set up collaborative group with 2 users
+        //
+        final EventContext ownerCtx = newUserAndGroup("rwrw--");
+        final omero.client owner = client;
+        final ServiceFactoryPrx ownerSf = client.getSession();
+        client = null;
+        
+        newUserInGroup(new ExperimenterGroupI(ownerCtx.groupId, false));
+        final omero.client tagger = client;
+        final ServiceFactoryPrx taggerSf = client.getSession();
+        client = null;
 
+        try {
+            //
+            // owner creates the image
+            //
+            IUpdatePrx update = ownerSf.getUpdateService();
+            Image img = (Image) update.saveAndReturnObject(
+            		mmFactory.simpleImage(0));
+            
+            //
+            // tagger creates tag and tags the image
+            //
+            IUpdatePrx tagUpdate = taggerSf.getUpdateService();
+            
+            TagAnnotation c = new TagAnnotationI();
+        	c = (TagAnnotation) tagUpdate.saveAndReturnObject(c).proxy();
+        	ImageAnnotationLink link = new ImageAnnotationLinkI();
+        	link.link(img, c);
+        	link = (ImageAnnotationLink) tagUpdate.saveAndReturnObject(link);
+        	c = (TagAnnotation) link.getChild();
+    
+        	//
+        	// test delete
+        	//
+        	init(owner);
+        	long id = img.getId().getValue();
+        	delete(new DeleteCommand(REF_PLATE, id, null));
+        	assertDoesNotExist(img);
+        	assertExists(c);
+        
+        } finally {
+            owner.__del__();
+            tagger.__del__();
+        }
+
+    }
+    
     /**
      * Test to delete an image w/o pixels.
      * The <code>deleteImage</code> method is tested.
