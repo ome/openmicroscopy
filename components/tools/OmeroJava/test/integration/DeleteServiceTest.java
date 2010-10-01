@@ -4189,5 +4189,24 @@ public class DeleteServiceTest
          
     }
     
+    /**
+     * Tests to delete an image with  annotation
+     * using the <code>deleteImage</code> method.
+     * @throws Exception Thrown if an error occurred.
+     */
+    public void testDeleteFullImage()
+    	throws Exception
+    {
+    	Image image = (Image) iUpdate.saveAndReturnObject(
+                mmFactory.createImage());
+    	
+    	List<Long> ids = createNonSharableAnnotation(image, null);
+    	iDelete.deleteImage(image.getId().getValue(), true);
+    	String sql = "select a from Annotation as a where a.id in (:ids)";
+    	ParametersI p = new ParametersI();
+    	p.addIds(ids);
+    	assertEquals(iQuery.findAllByQuery(sql, p).size(), 0);
+    }
+ 
  }
 
