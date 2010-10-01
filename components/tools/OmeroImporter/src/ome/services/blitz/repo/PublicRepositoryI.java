@@ -1345,6 +1345,8 @@ public class PublicRepositoryI extends _RepositoryDisp {
         int thumbSizeX = reader.getThumbSizeX();
         int thumbSizeY = reader.getThumbSizeY();  
         meta.createRoot();
+        meta.setImageID("Image:0", 0);
+        meta.setPixelsID("Pixels:0", 0);
         meta.setPixelsBinDataBigEndian(Boolean.TRUE, 0, 0);
         meta.setPixelsDimensionOrder(ome.xml.model.enums.DimensionOrder.XYZCT, 0);
         meta.setPixelsType(ome.xml.model.enums.PixelType.UINT8, 0);
@@ -1353,6 +1355,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         meta.setPixelsSizeZ(new PositiveInteger(1), 0);
         meta.setPixelsSizeC(new PositiveInteger(1), 0);
         meta.setPixelsSizeT(new PositiveInteger(1), 0);
+        meta.setChannelID("Channel:0:0", 0, 0);
         meta.setChannelSamplesPerPixel(new PositiveInteger(1), 0, 0);
         
         // Finally try to create the jpeg file abd return the path.  
@@ -1360,14 +1363,14 @@ public class PublicRepositoryI extends _RepositoryDisp {
         writer.setMetadataRetrieve(meta);
         try {
             writer.setId(tnFile.getAbsolutePath());
-            writer.saveBytes(thumb, true);
+            writer.saveBytes(0, thumb);
             writer.close();  
         } catch (FormatException exc) { 
             throw new ServerError(null, stackTraceAsString(exc), 
-                    "Thumbnail error, write failed."); 
+                    "Thumbnail error, write failed.\n File id: " + tnFile.getAbsolutePath()); 
         } catch (IOException exc) { 
             throw new ServerError(null, stackTraceAsString(exc), 
-                    "Thumbnail error, write failed."); 
+                    "Thumbnail error, write failed.\n File id: " + tnFile.getAbsolutePath()); 
         }
         
         return tnFile.getAbsolutePath();
