@@ -307,7 +307,7 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
         options = new HashMap<String, String>();
         options.put("/FileAnnotation", "KEEP;excludes=keepme");
         ads.initialize(1, "", options);
-        assertFalse(ads.skip(0));
+        assertTrue(ads.overrideKeep());
         
         // And check the same thing for the case where we have an annotation
         // attached to another object
@@ -324,7 +324,7 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
             }
         }
         assertNotNull(idx);
-        assertFalse(spec.skip(idx));
+        assertTrue(spec.overrideKeep());
         
         // And THEN check that the recursive check of KEEP/skip() doesn't
         // go too far
@@ -341,7 +341,7 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
             }
         }
         assertNotNull(idx);
-        assertFalse(spec.skip(idx));
+        assertTrue(spec.overrideKeep());
         
     }
 
