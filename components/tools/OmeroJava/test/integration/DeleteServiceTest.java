@@ -23,10 +23,11 @@ import junit.framework.AssertionFailedError;
 import ome.services.delete.BaseDeleteSpec;
 import omero.ApiUsageException;
 import omero.ServerError;
-import omero.api.IDeletePrx;
 import omero.api.IPixelsPrx;
 import omero.api.IRenderingSettingsPrx;
+import omero.api.IUpdatePrx;
 import omero.api.RawFileStorePrx;
+import omero.api.ServiceFactoryPrx;
 import omero.api.delete.DeleteCommand;
 import omero.grid.Column;
 import omero.grid.LongColumn;
@@ -961,12 +962,8 @@ public class DeleteServiceTest
 	        //Now delete the plate
 	        delete(new DeleteCommand(REF_PLATE, p.getId().getValue(), null));
 	        
-	        param = new ParametersI();
-	        param.addId(p.getId().getValue());
-	        sb = new StringBuilder();
 	        //check the plate
-	        sb.append("select p from Plate as p where p.id = :id");
-	        assertNull(iQuery.findByQuery(sb.toString(), param));
+	        assertDoesNotExist(p);
 	        
 	        //check the well
 	        param = new ParametersI();
@@ -1675,10 +1672,8 @@ public class DeleteServiceTest
 
     		delete(new DeleteCommand(type, id, null));
 
-    		param = new ParametersI();
-    		param.addId(obj.getId().getValue());
-    		sql = createBasicContainerQuery(obj.getClass());
-    		assertNull(iQuery.findByQuery(sql, param));
+    		assertDoesNotExist(obj);
+
     		param = new ParametersI();
     		param.addIds(annotationIds);
     		assertTrue(annotationIds.size() > 0);
@@ -2831,10 +2826,8 @@ public class DeleteServiceTest
             options.put(REF_ANN, KEEP+SEPARATOR+EXCLUDE+NAMESPACE);
             delete(new DeleteCommand(type, id, options));
 
-            param = new ParametersI();
-            param.addId(obj.getId().getValue());
-            sql = createBasicContainerQuery(obj.getClass());
-            assertNull(iQuery.findByQuery(sql, param));
+            assertDoesNotExist(obj);
+            
             param = new ParametersI();
             param.addIds(annotationIds);
             assertTrue(annotationIds.size() > 0);
@@ -2887,10 +2880,8 @@ public class DeleteServiceTest
             		KEEP+SEPARATOR+EXCLUDE+NAMESPACE+NS_SEPARATOR+NAMESPACE_2);
             delete(new DeleteCommand(type, id, options));
 
-            param = new ParametersI();
-            param.addId(obj.getId().getValue());
-            sql = createBasicContainerQuery(obj.getClass());
-            assertNull(iQuery.findByQuery(sql, param));
+            assertDoesNotExist(obj);
+            
             param = new ParametersI();
             param.addIds(annotationIds);
             assertTrue(annotationIds.size() > 0);
@@ -3905,19 +3896,13 @@ public class DeleteServiceTest
                 mmFactory.createOriginalFile());
         FileAnnotation fa = new FileAnnotationI();
         fa.setFile(of);
-        long ofId = of.getId().getValue();
         Annotation data = (Annotation) iUpdate.saveAndReturnObject(fa);
         long id = data.getId().getValue();
         delete(new DeleteCommand(REF_ANN, id, null));
 
-        ParametersI param = new ParametersI();
-        param.addId(id);
-        String sql = "select a from Annotation as a where a.id = :id";
-        assertNull(iQuery.findByQuery(sql, param));
-        param = new ParametersI();
-        param.addId(ofId);
-        sql = "select a from OriginalFile as a where a.id = :id";
-        assertNull(iQuery.findByQuery(sql, param));
+        assertDoesNotExist(data);
+        assertDoesNotExist(of);
+        
     }
 
     /**
@@ -4035,7 +4020,7 @@ public class DeleteServiceTest
     }
     
     /**
-     * Test to delete an image and make sure the thumbnail object is deleted.
+     * Test to delete an image and make sure the thumbnail is deleted.
      * @throws Exception Thrown if an error occurred.
      */
     @Test
