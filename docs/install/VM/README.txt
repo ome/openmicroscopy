@@ -25,13 +25,13 @@ OMERO.web is available on http://localhost:8080/webclient
 
 1) To start please use the following command:
 
-VBoxManage --nologo startvm SEPT1 --type headless
+VBoxManage --nologo startvm OMERO42 --type headless
 
 OMERO.webadmin is available on http://localhost:8080/webadmin. OMERO.web is available on http://localhost:8080/webclient
 
 2) To stop please use the following command:
 
-VBoxManage controlvm SEPT1 poweroff
+VBoxManage controlvm OMERO42 poweroff
 
 
 # DOCUMENTATION #

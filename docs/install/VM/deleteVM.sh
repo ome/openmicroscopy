@@ -2,7 +2,7 @@
 # delete VM
 
 export VMNAME=${VMNAME:-"$1"}
-export VMNAME=${VMNAME:-"SEPT1"}
+export VMNAME=${VMNAME:-"OMERO42"}
 export HARDDISKS=${HARDDISKS:-"$HOME/Library/VirtualBox/HardDisks/"}
 
 set -e

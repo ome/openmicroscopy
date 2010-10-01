@@ -2,7 +2,7 @@
 # install VM from snapshot
 
 export VMNAME=${VMNAME:-"$1"}
-export VMNAME=${VMNAME:-"SEPT1"}
+export VMNAME=${VMNAME:-"OMERO42"}
 
 export MEMORY=${MEMORY:-"1024"}
 export SSH_PF=${SSH_PF:-"2222"}
@@ -14,6 +14,7 @@ export OMEROS_PF=${OMEROS_PF:-"4064"}
 export OMEROWEB_PORT=${OMEROWEB_PORT:-"80"}
 export OMEROWEB_PF=${OMEROWEB_PF:-"8080"}
 export HARDDISKS=${HARDDISKS:-"$HOME/Library/VirtualBox/HardDisks/"}
+#export HARDDISKS=${HARDDISKS:-"$HOME/.VirtualBox/HardDisks/"}
 
 set -e
 set -u
@@ -40,3 +41,4 @@ VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/ome
 VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/omeroweb/GuestPort" $OMEROWEB_PORT
 VBoxManage setextradata "$VMNAME" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/omeroweb/Protocol" TCP
 
+#VBoxManage getextradata $VMNAME enumerate

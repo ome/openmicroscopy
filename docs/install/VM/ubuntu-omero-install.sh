@@ -90,7 +90,7 @@ cd /Server/omero/dist
 
 bin/omero config set omero.data.dir $OMERODIR
 
-echo "CREATE USER $OMERO_DB_USER PASSWORD '$PGPASSWORD'" | sudo -u postgres psql
+echo "CREATE USER $OMERO_DB_USER PASSWORD '$PGPASSWORD'" | yes "ome" | sudo -u postgres psql
 ###
 ### FREEZES SOMEWHERE HERE
 ###

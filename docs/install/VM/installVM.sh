@@ -1,7 +1,7 @@
 #!/bin/bash
 
 export VMNAME=${VMNAME:-"$1"}
-export VMNAME=${VMNAME:-"SEPT1"}
+export VMNAME=${VMNAME:-"OMERO42"}
 
 export SSH_PF=${SSH_PF:-"$2"}
 export SSH_PF=${SSH_PF:-"2222"}
@@ -22,6 +22,9 @@ $VBOX list runningvms | grep "$VMNAME" || {
     $VBOX startvm "$VMNAME" --type headless
     sleep 30
 }
+
+
+sh setupkey.sh
 
 echo "Copying ubuntu-root-install"
 $SCP ubuntu-root-install.sh omero@localhost:~/
