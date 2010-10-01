@@ -56,54 +56,54 @@ public class DeleteServicePermissionsTest
     	throws Exception
     {
 
-        EventContext user1Ctx = newUserAndGroup("rwrw--");
-        omero.client user1 = client;
+    	EventContext user1Ctx = newUserAndGroup("rwrw--");
+    	omero.client user1 = client;
 
-		//Image
-		Image img = (Image) iUpdate.saveAndReturnObject(
-				mmFactory.createImage());
+    	//Image
+    	Image img = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.createImage());
     	//Dataset
-		Dataset d = (Dataset) iUpdate.saveAndReturnObject(
-				mmFactory.simpleDatasetData().asDataset());
-		
-		//Project
-		Project p = (Project) iUpdate.saveAndReturnObject(
-				mmFactory.simpleProjectData().asProject());
-		
-		//Dataset
-		Screen s = (Screen) iUpdate.saveAndReturnObject(
-				mmFactory.simpleScreenData().asScreen());
-		
-		//Dataset
-		Plate plate = (Plate) iUpdate.saveAndReturnObject(
-				mmFactory.simplePlateData().asPlate());
-    	
-	// other user tries to delete
-		disconnect();
-		newUserInGroup(user1Ctx);
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleDatasetData().asDataset());
 
-	DeleteCommand[] dcs = new DeleteCommand[5];
-	dcs[0] = new DeleteCommand(DeleteServiceTest.REF_IMAGE,
-				img.getId().getValue(), null);
-	dcs[1] = new DeleteCommand(DeleteServiceTest.REF_DATASET,
-				d.getId().getValue(), null);
-	dcs[2] = new DeleteCommand(DeleteServiceTest.REF_PROJECT,
-				p.getId().getValue(), null);
-	dcs[3] = new DeleteCommand(DeleteServiceTest.REF_SCREEN,
-				s.getId().getValue(), null);
-	dcs[4] = new DeleteCommand(DeleteServiceTest.REF_PLATE,
-				plate.getId().getValue(), null);
-	delete(iDelete, client, dcs);
+    	//Project
+    	Project p = (Project) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleProjectData().asProject());
 
-	// Now log the original user back in
-	disconnect();
-	init(user1);
+    	//Dataset
+    	Screen s = (Screen) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleScreenData().asScreen());
 
-	assertExists(img);
-	assertExists(d);
-	assertExists(p);
-	assertExists(s);
-	assertExists(plate);
+    	//Dataset
+    	Plate plate = (Plate) iUpdate.saveAndReturnObject(
+    			mmFactory.simplePlateData().asPlate());
+
+    	// other user tries to delete
+    	disconnect();
+    	newUserInGroup(user1Ctx);
+
+    	DeleteCommand[] dcs = new DeleteCommand[5];
+    	dcs[0] = new DeleteCommand(DeleteServiceTest.REF_IMAGE,
+    			img.getId().getValue(), null);
+    	dcs[1] = new DeleteCommand(DeleteServiceTest.REF_DATASET,
+    			d.getId().getValue(), null);
+    	dcs[2] = new DeleteCommand(DeleteServiceTest.REF_PROJECT,
+    			p.getId().getValue(), null);
+    	dcs[3] = new DeleteCommand(DeleteServiceTest.REF_SCREEN,
+    			s.getId().getValue(), null);
+    	dcs[4] = new DeleteCommand(DeleteServiceTest.REF_PLATE,
+    			plate.getId().getValue(), null);
+    	delete(iDelete, client, dcs);
+
+    	// Now log the original user back in
+    	disconnect();
+    	init(user1);
+
+    	assertExists(img);
+    	assertExists(d);
+    	assertExists(p);
+    	assertExists(s);
+    	assertExists(plate);
         	
     }
     
@@ -117,21 +117,21 @@ public class DeleteServicePermissionsTest
     	throws Exception
     {
 
-		// set up collaborative group and one user, "the owner"
-	newUserAndGroup("rwr---");
+    	// set up collaborative group and one user, "the owner"
+    	newUserAndGroup("rwr---");
 
-	// create an owner who then creates the image
-        Image img = (Image) iUpdate.saveAndReturnObject(
-        		mmFactory.simpleImage(0));
-        long imageID = img.getId().getValue();
-        
-        // create another user and try to delete the image
-        newUserInGroup();
-	delete(client, new DeleteCommand(
-			DeleteServiceTest.REF_IMAGE, imageID, null));
+    	// create an owner who then creates the image
+    	Image img = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleImage(0));
+    	long imageID = img.getId().getValue();
 
-	// check the image exists as the owner
-	assertExists(img);
+    	// create another user and try to delete the image
+    	newUserInGroup();
+    	delete(client, new DeleteCommand(
+    			DeleteServiceTest.REF_IMAGE, imageID, null));
+
+    	// check the image exists as the owner
+    	assertExists(img);
 
     }
 
@@ -232,23 +232,23 @@ public class DeleteServicePermissionsTest
         
         TagAnnotation c = new TagAnnotationI();
     	c.setTextValue(omero.rtypes.rstring("tag"));
-	c = (TagAnnotation) iUpdate.saveAndReturnObject(c);
+    	c = (TagAnnotation) iUpdate.saveAndReturnObject(c);
     	ImageAnnotationLink link = new ImageAnnotationLinkI();
     	link.setParent(img);
     	link.setChild(new TagAnnotationI(c.getId().getValue(), false));		
-	link = (ImageAnnotationLink) iUpdate.saveAndReturnObject(link);
+    	link = (ImageAnnotationLink) iUpdate.saveAndReturnObject(link);
 
-    	
-	// owner tries to delete image.
-	disconnect();
-	init(owner);
+
+    	// owner tries to delete image.
+    	disconnect();
+    	init(owner);
     	long id = img.getId().getValue();
-    	
-    	
-	delete(client, new DeleteCommand(DeleteServiceTest.REF_IMAGE, id, null));
-    	
-	assertDoesNotExist(img);
-	assertExists(c);
+
+
+    	delete(client, new DeleteCommand(DeleteServiceTest.REF_IMAGE, id, null));
+
+    	assertDoesNotExist(img);
+    	assertExists(c);
 
     }
     

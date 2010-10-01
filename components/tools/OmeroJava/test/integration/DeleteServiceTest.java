@@ -25,9 +25,7 @@ import omero.ApiUsageException;
 import omero.ServerError;
 import omero.api.IPixelsPrx;
 import omero.api.IRenderingSettingsPrx;
-import omero.api.IUpdatePrx;
 import omero.api.RawFileStorePrx;
-import omero.api.ServiceFactoryPrx;
 import omero.api.delete.DeleteCommand;
 import omero.grid.Column;
 import omero.grid.LongColumn;
@@ -166,6 +164,9 @@ public class DeleteServiceTest
 	/** Identifies the Plate Acquisition as root. */
 	static final String REF_PLATE_ACQUISITION = "/PlateAcquisition";
 
+	/** Identifies the Original file as root. */
+	static final String REF_ORIGINAL_FILE = "/OriginalFile";
+	
    /** 
     * Identifies annotation paths. 
     * This should be used in the {@link DeleteCommand#type}
@@ -4103,21 +4104,89 @@ public class DeleteServiceTest
     	assertNull(pixels1.getRelatedTo());
     }
     
+    /**
+     * Test to control if the related pixels set is to <code>null</code>
+     * when deleted.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = false, groups = "ticket:2776")
+    public void testPixelsRelatedToUsingDeleteImage() 
+    	throws Exception
+    {
+        Image img1 = (Image) iUpdate.saveAndReturnObject(
+                mmFactory.createImage());
+        Image img2 = (Image) iUpdate.saveAndReturnObject(
+                mmFactory.createImage());
+        Pixels pixels1 = img1.getPrimaryPixels();
+        Pixels pixels2 = img2.getPrimaryPixels();
+        pixels1.setRelatedTo(pixels2);
+        pixels1 = (Pixels) iUpdate.saveAndReturnObject(pixels1);
+        Pixels pixels = pixels1.getRelatedTo();
+        assertNotNull(pixels);
+        assertTrue(pixels.getId().getValue() == pixels2.getId().getValue());
+        iDelete.deleteImage(img2.getId().getValue(), true);
+        
+        String sql = "select i from Image i where i.id = :id";
+    	ParametersI param = new ParametersI();
+    	param.addId(img2.getId().getValue());
+    	assertNull(iQuery.findByQuery(sql, param));
+    	sql = "select i from Pixels i where i.id = :id";
+    	param = new ParametersI();
+    	param.addId(pixels2.getId().getValue());
+    	assertNull(iQuery.findByQuery(sql, param));
+    	
+    	sql = "select i from Pixels i where i.id = :id";
+    	param = new ParametersI();
+    	param.addId(pixels1.getId().getValue());
+    	pixels1 = (Pixels) iQuery.findByQuery(sql, param);
+    	assertNull(pixels1.getRelatedTo());
+    }
+    
+    /**
+     * Tests to delete the original file not linked to anything.
+     * @throws Exception Thrown if an error occurred.
+     */
     @Test
-    public void testSlowDeleteOfOriginalFile() throws Exception {
+    public void testSlowDeleteOfOriginalFile()
+    	throws Exception
+    {
         OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
                 mmFactory.createOriginalFile());
-        delete(new DeleteCommand("/OriginalFile", of.getId().getValue(), null));
+        delete(new DeleteCommand(REF_ORIGINAL_FILE, 
+        		of.getId().getValue(), null));
         assertDoesNotExist(of);
     }
     
+    /**
+     * Tests to delete the original file linked to file annotation.
+     * @throws Exception Thrown if an error occurred.
+     */
     @Test
-    public void testSlowDeleteOfOriginalFileWithAnnotation() throws Exception {
+    public void testSlowDeleteOfOriginalFileWithAnnotation() 
+    	throws Exception
+    {
         OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
                 mmFactory.createOriginalFile());
         createSharableAnnotation(of, null);
-        delete(new DeleteCommand("/OriginalFile", of.getId().getValue(), null));
+        delete(new DeleteCommand(REF_ORIGINAL_FILE, 
+        		of.getId().getValue(), null));
         assertDoesNotExist(of);
+    }
+    
+    /**
+     * Tests to delete an object already deleted.
+     * @throws Exception Thrown if an error occurred.
+     */
+    public void testDeleteTwice()
+    	throws Exception
+    {
+    	 Image img = (Image) iUpdate.saveAndReturnObject(
+                 mmFactory.createImage());
+    	 long id = img.getId().getValue();
+    	 delete(new DeleteCommand(REF_IMAGE, id, null));
+         
+    	 delete(new DeleteCommand(REF_IMAGE, id, null));
+         
     }
     
  }
