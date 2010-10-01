@@ -313,7 +313,7 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
         int steps = super.initialize(id, superspec, options);
         return steps;
     }
-
+    
     @Override
     protected List<Long> queryBackupIds(Session session, int step, DeleteEntry subpath,
             QueryBuilder and) throws DeleteException {
@@ -376,27 +376,6 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
         }
         return super.delete(session, step, deleteIds);
 
-    }
-
-    /**
-     * Overrides {@link BaseDeleteSpec#execute(Session, DeleteEntry, List) in
-     * order to delete only those ids which match the {@link #options} passed by
-     * the user.
-     */
-    @Override
-    protected String execute(Session session, DeleteEntry entry, List<Long> ids)
-            throws DeleteException {
-
-        if (ids != null && ids.size() > 0) {
-            Query q = session
-                    .createQuery("delete ome.model.IAnnotationLink where child.id in (:ids)");
-            q.setParameterList("ids", ids);
-            int count = q.executeUpdate();
-            log.info("Deleted " + count + " annotation links.");
-            return super.execute(session, entry, ids);
-        } else {
-            return "";
-        }
     }
 
 }
