@@ -3281,7 +3281,7 @@ public class DeleteServiceTest
      * The method tests the <code>KEEP</code> option.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test
     public void testDeleteProjectNotContent() 
     	throws Exception
     {
@@ -3352,7 +3352,7 @@ public class DeleteServiceTest
      * Test the <code>KEEP</code> option.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test
     public void testDeleteDatasetNotContent() 
     	throws Exception
     {
@@ -3796,7 +3796,7 @@ public class DeleteServiceTest
      * Test to delete multiple images at the same time.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = true, groups = "ticket:2877")
+    @Test(groups = "ticket:2877")
     public void testDeleteMultipleObjectsOfSameType() 
     	throws Exception
     {
@@ -3859,7 +3859,7 @@ public class DeleteServiceTest
      * Test to delete a tagged image. The tag is also linked to another image.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false, groups = {"ticket:2945"})
+    @Test(groups = {"ticket:2945"})
     public void testDeleteTaggedImages() 
     	throws Exception
     {
