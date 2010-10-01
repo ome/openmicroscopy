@@ -202,16 +202,6 @@ plus test REAP
         </constructor-arg>
     </bean>
 
-    <bean parent="delSpec" name="/OriginalFile">
-        <constructor-arg>
-            <list>
-                <value>/OriginalFile/OriginalFileAnnotationLink;REAP</value>
-                 <value>/Annotation;SOFT;/OriginalFile/OriginalFileAnnotationLink</value>
-                <value>/OriginalFile</value>
-            </list>
-        </constructor-arg>
-    </bean>
-
     <bean parent="delSpec" name="/Dataset">
         <constructor-arg>
             <list>

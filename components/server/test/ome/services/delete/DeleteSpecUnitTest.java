@@ -43,7 +43,6 @@ import org.jmock.core.stub.DefaultResultStub;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.config.ConstructorArgumentValues;
 import org.springframework.beans.factory.support.RootBeanDefinition;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.context.support.StaticApplicationContext;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -51,7 +50,7 @@ import org.testng.annotations.Test;
 @Test
 public class DeleteSpecUnitTest extends MockObjectTestCase {
 
-    private ClassPathXmlApplicationContext specXml;
+    private OmeroContext specXml;
 
     private Mock emMock;
 
@@ -175,7 +174,7 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
                 .will(returnValue("annotationLinks"));
 
         DeleteSpec roi = specXml.getBean("/Roi", BaseDeleteSpec.class);
-        DeleteIds ids = new DeleteIds(session, roi);
+        DeleteIds ids = new DeleteIds(specXml, session, roi);
         roi.initialize(1, null, null);
         // roi.delete(session, 0, ids); // Requires mock setup
     }
