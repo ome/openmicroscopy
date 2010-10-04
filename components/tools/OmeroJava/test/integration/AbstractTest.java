@@ -16,6 +16,7 @@ import java.util.UUID;
 import junit.framework.TestCase;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportConfig;
+import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import omero.ApiUsageException;
@@ -495,9 +496,11 @@ public class AbstractTest
 		ImportLibrary library = new ImportLibrary(importer, 
 				new OMEROWrapper(new ImportConfig()));
 		library.setMetadataOnly(metadata);
-		List<Pixels> pixels = library.importImage(file, 0, 0, 1, format, null, 
-				false, true, null, null);
-		
+		ImportContainer container = new ImportContainer(
+                file, null, null, false, null, null, null, null);
+		container.setUseMetadataFile(true);
+		container.setCustomImageName(format);
+		List<Pixels> pixels = library.importImage(container, 0, 0, 1);
 		assertNotNull(pixels);
 		assertTrue(pixels.size() > 0);
 		return pixels;
