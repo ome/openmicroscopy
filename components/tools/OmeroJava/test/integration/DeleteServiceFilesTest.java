@@ -30,6 +30,7 @@ import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
+import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
 import org.apache.commons.io.FilenameUtils;
@@ -158,7 +159,7 @@ public class DeleteServiceFilesTest
        String path = FilenameUtils.concat(prefix, suffix + id);
        return path;
    }
-
+   
    /**
     * Gets a public repository on the OMERO data directory if one exists.
     * 
@@ -173,8 +174,10 @@ public class DeleteServiceFilesTest
        int repoCount = 0;
        String s = dataDir;
        for (OriginalFile desc: rm.descriptions) {
-           String repoPath = desc.getPath().getValue() + desc.getName().getValue();
-           s += "\nFound repository:" + desc.getPath().getValue() + desc.getName().getValue();
+           String repoPath = desc.getPath().getValue() + 
+           desc.getName().getValue();
+           s += "\nFound repository:" + desc.getPath().getValue() + 
+           desc.getName().getValue();
            if (FilenameUtils.equals(FilenameUtils.normalizeNoEndSeparator(dataDir),
                    FilenameUtils.normalizeNoEndSeparator(repoPath))) {
                legacy = rm.proxies.get(repoCount);
@@ -375,4 +378,81 @@ public class DeleteServiceFilesTest
 		}
     }
 
+    /**
+     * Test to delete an image and make sure the thumbnail on disk is deleted.
+     * The image has been viewed another member of the group.
+     * 
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = false)
+    public void testDeleteImageViewedByOtherWithThumbnailOnDiskRWRW() 
+        throws Exception
+    {
+    	EventContext ownerCtx = newUserAndGroup("rwrw--");
+ 	   File f = File.createTempFile("testDeleteImageWithThumbnailOnDisk"
+ 			   +ModelMockFactory.FORMATS[0], 
+ 			   "."+ModelMockFactory.FORMATS[0]);
+ 	   mmFactory.createImageFile(f, ModelMockFactory.FORMATS[0]);
+ 	   OMEROMetadataStoreClient importer = new OMEROMetadataStoreClient();
+ 	   importer.initialize(factory);
+
+ 	   List<Pixels> list;
+ 	   try {
+ 		   list = importFile(importer, f, ModelMockFactory.FORMATS[0], false);
+ 	   } catch (Throwable e) {
+ 		   throw new Exception("cannot import image", e);
+ 	   }
+ 	   Pixels pixels = list.get(0);
+ 	   long id = pixels.getId().getValue();
+ 	   List<Long> ids = new ArrayList<Long>();
+ 	   ids.add(id);
+
+ 	   long imageID = pixels.getImage().getId().getValue();
+ 	   ThumbnailStorePrx svc = factory.createThumbnailStore();
+ 	   //make sure we have a thumbnail on disk
+ 	   //request a different size to make sure all thumbnails are deleted.
+ 	   int sizeX = 96;
+ 	   int sizeY = 96;
+ 	   Map<Long, byte[]> thumbnails = svc.getThumbnailSet(
+ 			   omero.rtypes.rint(sizeX),  omero.rtypes.rint(sizeY), ids);
+ 	   assertNotNull(thumbnails.get(id));
+ 	   String sql = "select i from Thumbnail i where i.pixels.id = :id";
+ 	   ParametersI param = new ParametersI();
+ 	   param.addId(id);
+ 	   List<IObject> objects = iQuery.findAllByQuery(sql, param);
+ 	   assertNotNull(objects);
+ 	   assertTrue(objects.size() > 0);
+
+ 	   List<Long> thumbIds = new ArrayList<Long>();
+ 	   Iterator<IObject> i = objects.iterator();
+ 	   while (i.hasNext()) {
+ 		   thumbIds.add(i.next().getId().getValue());
+ 	   }
+
+ 	   newUserInGroup(ownerCtx);
+ 	   svc = factory.createThumbnailStore();
+ 	   thumbnails = svc.getThumbnailSet(
+ 			   omero.rtypes.rint(sizeX),  omero.rtypes.rint(sizeY), ids);
+ 	   assertNotNull(thumbnails.get(id));
+
+ 	   objects = iQuery.findAllByQuery(sql, param);
+ 	   assertTrue(objects.size() > 0);
+ 	   i = objects.iterator();
+ 	   long thumbId;
+ 	   while (i.hasNext()) {
+ 		   thumbId = i.next().getId().getValue();
+ 		   if (!thumbIds.contains(thumbId))
+ 			   thumbIds.add(thumbId);
+ 	   }        
+ 	   disconnect();
+ 	   loginUser(ownerCtx);
+ 	   //Now try to delete the image.
+ 	   delete(client, new DeleteCommand(
+ 			   DeleteServiceTest.REF_IMAGE, imageID, null));
+ 	   Iterator<Long> j = thumbIds.iterator();
+ 	   while (j.hasNext()) {
+ 		   assertFileDoesNotExist(j.next(), "Thumbnail");
+ 	   }
+    }
+    
 }

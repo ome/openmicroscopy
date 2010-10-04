@@ -112,16 +112,26 @@ public class AbstractTest
     private final Set<omero.client> clients = new HashSet<omero.client>();
 
     /**
-     * Sole location where {@link omero.client#client()} or any other {@link omero.client}
+     * Sole location where {@link omero.client#client()} 
+     * or any other {@link omero.client}
      * constructor should be called.
      */
-    protected omero.client newOmeroClient() {
+    protected omero.client newOmeroClient()
+    {
         omero.client client = new omero.client(); // OK
         clients.add(client);
         return client;
     }
 
-    protected omero.client newRootOmeroClient() throws Exception {
+    /**
+     * Creates a client for the root user.
+     * 
+     * @return See above.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected omero.client newRootOmeroClient() 
+    	throws Exception
+    {
         omero.client client = newOmeroClient();
         client.createSession("root", rootpass);
         return client;
@@ -205,6 +215,9 @@ public class AbstractTest
     /**
      * Takes the {@link EventContext} from another user and creates a new user
      * in the same group as that user is currently logged in to.
+     * 
+     * @param previousUser The context of the previous user.
+     * @throws Exception Thrown if an error occurred.
      */
     protected EventContext newUserInGroup(EventContext previousUser)
     throws Exception
@@ -214,8 +227,15 @@ public class AbstractTest
         return newUserInGroup(eg);
     }
     
+    /**
+     * Creates a new user in the specified group.
+     * 
+     * @param group The group to add the user to.
+     * @return The context.
+     * @throws Exception Thrown if an error occurred.
+     */
     protected EventContext newUserInGroup(ExperimenterGroup group)
-    throws Exception
+    	throws Exception
     {
         
         IAdminPrx rootAdmin = root.getSession().getAdminService();
@@ -233,7 +253,15 @@ public class AbstractTest
         return init(client);
     }
 
-    protected void loginUser(EventContext ownerEc) throws Exception {
+    /**
+     * Logs in the user.
+     * 
+     * @param ownerEc The context of the user.
+     * @throws Exception Thrown if an error occurred.
+     */
+    protected void loginUser(EventContext ownerEc) 
+    	throws Exception
+    {
         omero.client client = newOmeroClient();
         client.createSession(ownerEc.userName, "dummy");
         init(client);
@@ -289,6 +317,13 @@ public class AbstractTest
         mmFactory = null;
     }
 
+    /**
+     * Resets the client and return the event context.
+     * 
+     * @param client The client to handle.
+     * @return The event context to handle.
+     * @throws Exception
+     */
     protected EventContext init(omero.client client) throws Exception {
 
         clean();
@@ -494,14 +529,17 @@ public class AbstractTest
     /**
      * Basic asynchronous delete command. Used in order to reduce the number
      * of places that we do the same thing in case the API changes.
-     *
+     * 
+     * @param passes Pass <code>true</code> to indicate that no error
+     * 				 found in report, <code>false</code> otherwise.
      * @param dc The command to handle.
      * @param strict whether or not the method should succeed.
      * @throws ApiUsageException
      * @throws ServerError
      * @throws InterruptedException
      */
-    protected String delete(boolean passes, IDeletePrx proxy, omero.client c, DeleteCommand...dc)
+    protected String delete(boolean passes, IDeletePrx proxy, omero.client c, 
+    		DeleteCommand...dc)
     throws ApiUsageException, ServerError,
     InterruptedException
     {

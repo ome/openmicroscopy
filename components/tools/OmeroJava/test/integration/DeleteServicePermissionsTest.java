@@ -6,20 +6,29 @@
  */
 package integration;
 
+//Java imports
+import java.util.ArrayList;
+import java.util.List;
+//Third-party libraries
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.Test;
+
+//Application-internal dependencies
+import omero.api.IRenderingSettingsPrx;
 import omero.api.delete.DeleteCommand;
 import omero.model.Dataset;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
+import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.Project;
+import omero.model.RenderingDef;
 import omero.model.Screen;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.sys.EventContext;
-
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.Test;
+import omero.sys.ParametersI;
 
 
 /** 
@@ -103,8 +112,7 @@ public class DeleteServicePermissionsTest
     	assertExists(d);
     	assertExists(p);
     	assertExists(s);
-    	assertExists(plate);
-        	
+    	assertExists(plate);	
     }
     
     /**
@@ -132,7 +140,6 @@ public class DeleteServicePermissionsTest
 
     	// check the image exists as the owner
     	assertExists(img);
-
     }
 
     /**
@@ -183,7 +190,6 @@ public class DeleteServicePermissionsTest
     			DeleteServiceTest.REF_IMAGE, img.getId().getValue(), null));
 
 		assertDoesNotExist(img);
-
     }
     
     /**
@@ -239,7 +245,7 @@ public class DeleteServicePermissionsTest
 
 
     	// owner tries to delete image.
-	loginUser(ec);
+    	loginUser(ec);
     	long id = img.getId().getValue();
     	delete(client, new DeleteCommand(DeleteServiceTest.REF_IMAGE, id, 
     			null));
@@ -282,11 +288,57 @@ public class DeleteServicePermissionsTest
     	
     	//now delete the tag.
     	init(tagger);
-	delete(false, iDelete, client, new DeleteCommand(DeleteServiceTest.REF_ANN,
+    	delete(false, iDelete, client, new DeleteCommand(
+    			DeleteServiceTest.REF_ANN,
     			c.getId().getValue(), null));
-	assertExists(c);
-	assertExists(link);
+    	assertExists(c);
+    	assertExists(link);
     	assertExists(img);
+    }
+    
+	/**
+     * Test to delete an image viewed by another user in a RWRW-- group.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = false)
+    public void testDeleteImageViewedByOtherRenderingSettingsOnlyRWRW()
+    	throws Exception	
+    {
+    	EventContext ownerCtx = newUserAndGroup("rwrw--");
+    	//owner creates the image
+    	Image image = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.createImage());
+    	//create rendering settings for that user.
+    	Pixels pixels = image.getPrimaryPixels();
+    	long id = pixels.getId().getValue();
+    	long imageID = image.getId().getValue();
+    	//Image
+    	List<Long> ids = new ArrayList<Long>();
+    	ids.add(imageID);
+    	//method already tested 
+    	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
+    	prx.resetDefaultsInSet(Image.class.getName(), ids);
+    	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+
+    	List<Long> defs = new ArrayList<Long>();
+    	defs.add(def.getId().getValue());
+    	newUserInGroup(ownerCtx);
+    	prx = factory.getRenderingSettingsService();
+    	prx.resetDefaultsInSet(Image.class.getName(), ids);
+    	def = factory.getPixelsService().retrieveRndSettings(id);
+    	defs.add(def.getId().getValue());
+    	String sql = "select r from RenderingDef as r where r.id in (:ids)";
+    	ParametersI p = new ParametersI();
+    	p.addIds(defs);
+    	assertEquals(iQuery.findAllByQuery(sql, p).size(), defs.size());
+    	disconnect();
+    	loginUser(ownerCtx);
+    	//Delete the image.
+    	delete(client, new DeleteCommand(
+    			DeleteServiceTest.REF_IMAGE, imageID, null));
+    	assertDoesNotExist(image);
+    	//make sure not settings.
+    	assertEquals(iQuery.findAllByQuery(sql, p).size(), 0);
     }
     
 }
