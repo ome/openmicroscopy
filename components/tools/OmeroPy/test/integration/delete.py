@@ -125,6 +125,64 @@ class TestDelete(lib.ITest):
         for e in res:
             if e.id.val not in images:
                 self.assertRaises('Image %i is not in the [%s]' % (e.id.val, ",".join(images)))
+    
+    def testCheckIfDeleted(self):
+        uuid = self.client.sf.getAdminService().getEventContext().sessionUuid
+        userName = self.client.sf.getAdminService().getEventContext().userName
+        query = self.client.sf.getQueryService()
+        update = self.client.sf.getUpdateService()
+        delete = self.client.sf.getDeleteService()
+        
+        img = omero.model.ImageI()
+        img.name = omero.rtypes.rstring("to delete - test")
+        img.acquisitionDate = omero.rtypes.rtime(0)
+        tag = omero.model.TagAnnotationI()
+        img.linkAnnotation( tag )
+        
+        iid = update.saveAndReturnObject( img ).id.val
+        
+        cmd = omero.api.delete.DeleteCommand("/Image", iid, None)
+        
+        handle = delete.queueDelete([cmd])
+        cbString = str(handle)
+        callback = omero.callbacks.DeleteCallbackI(self.client, handle)
+        while callback.block(500) is not None: # ms.
+            callback.close()
+        
+        err = handle.errors()
+        self.assertEquals(0, err)
+        self.assertEquals(None, query.find("Image", iid))
+        
+        
+        # create new session and double check
+        import os
+        import Ice
+        c = omero.client(pmap=['--Ice.Config='+(os.environ.get("ICE_CONFIG"))])
+        host = c.ic.getProperties().getProperty('omero.host')
+        port = int(c.ic.getProperties().getProperty('omero.port'))
+        cl1 = omero.client(host=host, port=port)
+        sf1 = cl1.createSession(userName,userName)
+        
+        try:
+            handle1 = omero.api.delete.DeleteHandlePrx.checkedCast(cl1.ic.stringToProxy(cbString))
+        except Ice.ObjectNotExistException:
+            pass
+        else:
+            raise ("exception Ice.ObjectNotExistException was not thrown")
+        
+        # join session and double check
+        cl2 = omero.client(host=host, port=port)
+        sf2 = cl2.joinSession(uuid)
+        
+        try:
+            handle2 = omero.api.delete.DeleteHandlePrx.checkedCast(cl2.ic.stringToProxy(cbString))
+        except Ice.ObjectNotExistException:
+            pass
+        else:
+            raise ("exception Ice.ObjectNotExistException was not thrown")
             
+        
+        
+      
 if __name__ == '__main__':
     unittest.main()
