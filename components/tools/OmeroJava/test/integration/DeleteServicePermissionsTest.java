@@ -215,7 +215,7 @@ public class DeleteServicePermissionsTest
      * Test to delete an image tagged collaboratively by another user.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false, groups = {"ticket:2881"})
+    @Test(groups = {"ticket:2881"})
     public void testDeleteTaggedImageTagOwnedByOther() 
     	throws Exception
     {
@@ -225,7 +225,6 @@ public class DeleteServicePermissionsTest
         // owner creates the image
         Image img = (Image) iUpdate.saveAndReturnObject(
         		mmFactory.simpleImage(0));
-        omero.client owner = disconnect();
         
         // tagger creates tag and tags the image
         newUserInGroup(ec);
@@ -240,8 +239,7 @@ public class DeleteServicePermissionsTest
 
 
     	// owner tries to delete image.
-    	disconnect();
-    	init(owner);
+	loginUser(ec);
     	long id = img.getId().getValue();
     	delete(client, new DeleteCommand(DeleteServiceTest.REF_IMAGE, id, 
     			null));
