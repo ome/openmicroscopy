@@ -95,7 +95,6 @@ public class QueryBuilder {
      */
     public QueryBuilder append(String string) {
         sb.append(string);
-        appendSpace();
         return this;
     }
 

@@ -410,7 +410,7 @@ public class DeleteEntry {
             // being raised as a delete event. TODO: refactor out to Op
             nullOp = new QueryBuilder();
             nullOp.update(table);
-            nullOp.append("set relatedTo = null");
+            nullOp.append("set relatedTo = null ");
             nullOp.where();
             nullOp.and("relatedTo.id = :id");
         }
