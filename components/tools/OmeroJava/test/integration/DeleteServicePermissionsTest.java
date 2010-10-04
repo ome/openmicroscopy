@@ -254,7 +254,7 @@ public class DeleteServicePermissionsTest
      * Test to delete a tag used by another user.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test(groups = "ticket:2962")
     public void testDeleteTagUsedByOther() 
     	throws Exception
     {
@@ -284,9 +284,10 @@ public class DeleteServicePermissionsTest
     	
     	//now delete the tag.
     	init(tagger);
-    	delete(client, new DeleteCommand(DeleteServiceTest.REF_ANN, 
+	delete(false, iDelete, client, new DeleteCommand(DeleteServiceTest.REF_ANN,
     			c.getId().getValue(), null));
-    	assertDoesNotExist(c);
+	assertExists(c);
+	assertExists(link);
     	assertExists(img);
     }
     

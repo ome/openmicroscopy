@@ -399,6 +399,7 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
                 qb.where();
                 qb.and("child.id in (:ids)");
                 qb.paramList("ids", foundIds);
+                // ticket:2962
                 DeleteEntry.permissionsClause(getCurrentDetails(), qb);
                 
                 Query q = qb.query(session);
