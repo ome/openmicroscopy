@@ -129,7 +129,7 @@ import pojos.ScreenData;
  * </small>
  * @since 3.0-Beta4
  */
-class ModelMockFactory 
+public class ModelMockFactory
 {
 	
 	/** The default width of an image. */
@@ -852,7 +852,7 @@ class ModelMockFactory
 	 * @return See above.
 	 * @throws Exception Thrown if an error occurred.
 	 */
-	Image createImage()
+	public Image createImage()
 		throws Exception
 	{
 		return createImage(1, 1, 1, 1, 1);

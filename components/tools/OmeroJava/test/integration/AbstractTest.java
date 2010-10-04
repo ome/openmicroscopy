@@ -373,7 +373,7 @@ public class AbstractTest
 	 * @throws Exception  Thrown if an error occurred.
 	 */
     @SuppressWarnings("unchecked")
-	List<Well> loadWells(long plateID, boolean pixels)
+	protected List<Well> loadWells(long plateID, boolean pixels)
 		throws Exception 
 	{
 		StringBuilder sb = new StringBuilder();
@@ -398,7 +398,7 @@ public class AbstractTest
      * @param obj The object to handle.
      *  @throws Exception  Thrown if an error occurred.
      */
-    void assertExists(IObject obj) 
+    protected void assertExists(IObject obj)
     	throws Exception
     {
     	IObject copy = iQuery.find(
@@ -414,7 +414,7 @@ public class AbstractTest
      * @param obj The object to handle.
      *  @throws Exception  Thrown if an error occurred.
      */
-    void assertDoesNotExist(IObject obj) 
+    protected void assertDoesNotExist(IObject obj)
     	throws Exception
     {
     	IObject copy = iQuery.find(
@@ -434,7 +434,7 @@ public class AbstractTest
 	 * @return The collection of imported pixels set.
 	 * @throws Exception Thrown if an error occurred while encoding the image.
 	 */
-	List<Pixels> importFile(OMEROMetadataStoreClient importer, 
+	protected List<Pixels> importFile(OMEROMetadataStoreClient importer,
 			File file, String format)
 		throws Throwable
 	{
@@ -453,7 +453,7 @@ public class AbstractTest
 	 * @return The collection of imported pixels set.
 	 * @throws Exception Thrown if an error occurred while encoding the image.
 	 */
-	List<Pixels> importFile(OMEROMetadataStoreClient importer,
+	protected List<Pixels> importFile(OMEROMetadataStoreClient importer,
 			File file, String format, boolean metadata)
 		throws Throwable
 	{
@@ -468,7 +468,7 @@ public class AbstractTest
 		return pixels;
 	} 
 	
-    String delete(omero.client c, DeleteCommand...dc)
+    protected String delete(omero.client c, DeleteCommand...dc)
     throws ApiUsageException, ServerError,
     InterruptedException
     {
@@ -484,7 +484,7 @@ public class AbstractTest
      * @throws ServerError
      * @throws InterruptedException
      */
-    String delete(IDeletePrx proxy, omero.client c, DeleteCommand...dc)
+    protected String delete(IDeletePrx proxy, omero.client c, DeleteCommand...dc)
     throws ApiUsageException, ServerError,
     InterruptedException
     {
@@ -501,7 +501,7 @@ public class AbstractTest
      * @throws ServerError
      * @throws InterruptedException
      */
-    String delete(boolean passes, IDeletePrx proxy, omero.client c, DeleteCommand...dc)
+    protected String delete(boolean passes, IDeletePrx proxy, omero.client c, DeleteCommand...dc)
     throws ApiUsageException, ServerError,
     InterruptedException
     {

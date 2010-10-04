@@ -81,6 +81,14 @@ public class DeleteEntry {
 
         ORPHAN,
 
+        /**
+         * Nulls a particular field of the target rather than deleting it.
+         * This is useful for situations where one user has generated data
+         * from another user, as with projections.
+         *
+         * <em>WARNING:</em>Currently, NULL can only be used for the
+         * Pixels.relatedTo relationship.
+         */
         NULL;
     }
 
@@ -389,6 +397,24 @@ public class DeleteEntry {
             return ""; // Early exit!
         }
         
+
+        // Hardcoded nulling of references to the given Pixels
+        // The NULL operation should actually be set on
+        // /Image/Pixels/Pixels not /Image/Pixels
+        // BUT requires reversing the relationship:
+        // /Image/Pixels/<>/Pixels
+        QueryBuilder nullOp = null;
+        if (Op.NULL.equals(getOp())) {
+            // If this is a null operation, we don't want to delete the row,
+            // but just modify a value. NB: below we also prevent this from
+            // being raised as a delete event. TODO: refactor out to Op
+            nullOp = new QueryBuilder();
+            nullOp.update(table);
+            nullOp.append("set relatedTo = null");
+            nullOp.where();
+            nullOp.and("relatedTo.id = :id");
+        }
+
         final QueryBuilder qb = new QueryBuilder();
         qb.delete(table);
         qb.where();
@@ -400,12 +426,21 @@ public class DeleteEntry {
         final StringBuilder rv = new StringBuilder();
         final List<Long> actualDeletes = new ArrayList<Long>();
 
-        StopWatch sw = new CommonsLogStopWatch();
+        Query q;
+        final StopWatch sw = new CommonsLogStopWatch();
         for (Long id : ids) {
             String sp = savepoint(session);
             try {
+
+                if (nullOp != null) {
+                    nullOp.param("id", id);
+                    log.fatal(nullOp.toString());
+                    q = nullOp.query(session);
+                    q.executeUpdate();
+                }
+
                 qb.param("id", id);
-                Query q = qb.query(session);
+                q = qb.query(session);
                 int count = q.executeUpdate();
                 if (count > 0) {
                     if (log.isDebugEnabled()) {
@@ -436,8 +471,16 @@ public class DeleteEntry {
             }
         }
 
+        // When full NULL operation is activated, the following if statement
+        // will be necessary.
+        // if (!Op.NULL.equals(getOp())) {
+        // Since this isn't a delete operation, we don't want
+        // to pass this ID out.
+        // }
+
         Class<IObject> k = em.getHibernateClass(table);
         deleteIds.addDeletedIds(table, k, actualDeletes);
+
         return rv.toString();
     }
 

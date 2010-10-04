@@ -24,13 +24,9 @@ How to handle more than one path:
 
  * introduce breaks between sub-steps? (iterator perhaps)
 
-/Image:
- /Image does this even exist?
-
  * delete project with cross-linked dataset!
 
-                 <value>/Image/Pixels/RelatedTo;NULL</value>
-plus test REAP
+ * test REAP
 -->
 
 <beans>
@@ -187,7 +183,7 @@ plus test REAP
                 <value>/Image/Pixels/RenderingDef</value><!-- FORCE, for admins? -->
                 <value>/Image/Pixels/Channel</value>
                 <value>/Image/Pixels/Thumbnail;REAP</value><!-- HARD -->
-                <value>/Image/Pixels</value>
+                <value>/Image/Pixels;NULL</value>
                 <value>/Image/ImageAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Image/ImageAnnotationLink</value>
                 <value>/Image/DatasetImageLink</value>

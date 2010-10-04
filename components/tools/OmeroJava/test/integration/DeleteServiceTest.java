@@ -138,34 +138,34 @@ public class DeleteServiceTest
 {
 
 	/** The namespace. */
-	private static final String NAMESPACE = "omero.test.namespace";
+	public static final String NAMESPACE = "omero.test.namespace";
 	
 	/** The namespace. */
-	private static final String NAMESPACE_2 = "omero.test.namespace2";
+	public static final String NAMESPACE_2 = "omero.test.namespace2";
 	
 	/** Identifies the image as root. */
-	static final String REF_IMAGE = "/Image";
+	public static final String REF_IMAGE = "/Image";
 	
 	/** Identifies the dataset as root. */
-	static final String REF_DATASET = "/Dataset";
+	public static final String REF_DATASET = "/Dataset";
 	
 	/** Identifies the project as root. */
-	static final String REF_PROJECT = "/Project";
+	public static final String REF_PROJECT = "/Project";
 	
 	/** Identifies the screen as root. */
-	static final String REF_SCREEN = "/Screen";
+	public static final String REF_SCREEN = "/Screen";
 	
 	/** Identifies the plate as root. */
-	static final String REF_PLATE = "/Plate";
+	public static final String REF_PLATE = "/Plate";
 	
 	/** Identifies the ROI as root. */
-	static final String REF_ROI = "/Roi";
+	public static final String REF_ROI = "/Roi";
 	
 	/** Identifies the Plate Acquisition as root. */
-	static final String REF_PLATE_ACQUISITION = "/PlateAcquisition";
+	public static final String REF_PLATE_ACQUISITION = "/PlateAcquisition";
 
 	/** Identifies the Original file as root. */
-	static final String REF_ORIGINAL_FILE = "/OriginalFile";
+	public static final String REF_ORIGINAL_FILE = "/OriginalFile";
 	
    /** 
     * Identifies annotation paths. 
@@ -4066,82 +4066,6 @@ public class DeleteServiceTest
         assertExists(sl);
     }
 
-    /**
-     * Test to control if the related pixels set is to <code>null</code>
-     * when deleted.
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test(enabled = false, groups = "ticket:2776")
-    public void testPixelsRelatedTo() 
-    	throws Exception
-    {
-        Image img1 = (Image) iUpdate.saveAndReturnObject(
-                mmFactory.createImage());
-        Image img2 = (Image) iUpdate.saveAndReturnObject(
-                mmFactory.createImage());
-        Pixels pixels1 = img1.getPrimaryPixels();
-        Pixels pixels2 = img2.getPrimaryPixels();
-        pixels1.setRelatedTo(pixels2);
-        pixels1 = (Pixels) iUpdate.saveAndReturnObject(pixels1);
-        Pixels pixels = pixels1.getRelatedTo();
-        assertNotNull(pixels);
-        assertTrue(pixels.getId().getValue() == pixels2.getId().getValue());
-        delete(new DeleteCommand(REF_IMAGE, img2.getId().getValue(), null));
-        
-        String sql = "select i from Image i where i.id = :id";
-    	ParametersI param = new ParametersI();
-    	param.addId(img2.getId().getValue());
-    	assertNull(iQuery.findByQuery(sql, param));
-    	sql = "select i from Pixels i where i.id = :id";
-    	param = new ParametersI();
-    	param.addId(pixels2.getId().getValue());
-    	assertNull(iQuery.findByQuery(sql, param));
-    	
-    	sql = "select i from Pixels i where i.id = :id";
-    	param = new ParametersI();
-    	param.addId(pixels1.getId().getValue());
-    	pixels1 = (Pixels) iQuery.findByQuery(sql, param);
-    	assertNull(pixels1.getRelatedTo());
-    }
-    
-    /**
-     * Test to control if the related pixels set is to <code>null</code>
-     * when deleted.
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test(enabled = false, groups = "ticket:2776")
-    public void testPixelsRelatedToUsingDeleteImage() 
-    	throws Exception
-    {
-        Image img1 = (Image) iUpdate.saveAndReturnObject(
-                mmFactory.createImage());
-        Image img2 = (Image) iUpdate.saveAndReturnObject(
-                mmFactory.createImage());
-        Pixels pixels1 = img1.getPrimaryPixels();
-        Pixels pixels2 = img2.getPrimaryPixels();
-        pixels1.setRelatedTo(pixels2);
-        pixels1 = (Pixels) iUpdate.saveAndReturnObject(pixels1);
-        Pixels pixels = pixels1.getRelatedTo();
-        assertNotNull(pixels);
-        assertTrue(pixels.getId().getValue() == pixels2.getId().getValue());
-        iDelete.deleteImage(img2.getId().getValue(), true);
-        
-        String sql = "select i from Image i where i.id = :id";
-    	ParametersI param = new ParametersI();
-    	param.addId(img2.getId().getValue());
-    	assertNull(iQuery.findByQuery(sql, param));
-    	sql = "select i from Pixels i where i.id = :id";
-    	param = new ParametersI();
-    	param.addId(pixels2.getId().getValue());
-    	assertNull(iQuery.findByQuery(sql, param));
-    	
-    	sql = "select i from Pixels i where i.id = :id";
-    	param = new ParametersI();
-    	param.addId(pixels1.getId().getValue());
-    	pixels1 = (Pixels) iQuery.findByQuery(sql, param);
-    	assertNull(pixels1.getRelatedTo());
-    }
-    
     /**
      * Tests to delete the original file not linked to anything.
      * @throws Exception Thrown if an error occurred.
