@@ -105,8 +105,8 @@ function openPopup(url) {
         {% endfor %}
         </p>
         <p>
-            Open <a href="#" onclick="return openPopup('{% url web_image_viewer image.getId %}')"> Full viewer </a> |
-            <a href="{% url webemdb_mapmodel image.getId %}">Map Model</a>
+            Open <a href="#" onclick="return openPopup('{% url web_image_viewer image.getId %}')"> Image Viewer </a> |
+            <a href="{% url webemdb_mapmodel image.getId %}">Projections</a>
         </p>
         <div id="dataHeader"></div>
     

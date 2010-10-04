@@ -53,21 +53,24 @@ $(document).ready(function() {
                 <div class="entrySubtitle">
                     <div id="entrySub">Aggregation State: <span id="aggregationState"></span></div>
                     Download: 
-                    {% if xml %}<a id="emdbxml" href="{% url webemdb_file xml.id %}">{{ xml.getFileName }}</a> | {% endif %}
+                    {% if xml %}<a id="emdbxml" href="{% url webemdb_file xml.id %}">.xml</a> | {% endif %}
                     {% if map %}
-                        <a id="emdbmap" href="{% url webemdb_file map.id %}">{{ map.getFileName }}</a> | 
-                        <a href="{% url webemdb_oa_viewer map.id %}">OA Viewer</a> |
+                        <a id="emdbmap" href="{% url webemdb_file map.id %}">.map</a>
                     {% endif %}
                     {% if smallMap %}
-                        <a id="emdbmap" href="{% url webemdb_file smallMap.id %}">{{ smallMap.getFileName }}</a> (subsampled) | 
-                        <a href="{% url webemdb_oa_viewer smallMap.id %}">OA Viewer</a> |
+                        <a id="emdbmap" href="{% url webemdb_file smallMap.id %}">.map</a> (subsampled)
+                    {% endif %}
+                    <br />
+                    View:
+                    {% if bit %}
+                        <a href="#" onclick="return openPopup('{% url webemdb_oa_viewer bit.id %}')">Map</a> |
                     {% endif %}
                     {% if img %}
-                        <a href="#" onclick="return openPopup('{% url web_image_viewer img.id %}')">Image Viewer</a> |
-                        <a href="{% url webemdb_image img.id %}">Map</a> |
-                        <a href="{% url webemdb_mapmodelemdb project.name %}">Map Model</a> |
+                        <a href="#" onclick="return openPopup('{% url web_image_viewer img.id %}')">Image Data</a> |
+                        <!-- <a href="{% url webemdb_image img.id %}">Filters</a> | -->
+                        <a href="{% url webemdb_mapmodelemdb project.name %}">Projections</a> |
                     {% endif %}
-                    {% if data %} View: <a href="{% url webemdb_data project.name %}">Associated data</a>{% endif %}
+                    {% if data %}<a href="{% url webemdb_data project.name %}">Associated data</a>{% endif %}
                 </div>
             </td>
         </tr>
@@ -230,6 +233,7 @@ $(document).ready(function() {
                     </div>
                     <div class="visViewer" id="visOmeroPane" height="100%" width="100%">
                         <iframe id="visOmeroIframe" scrolling="no" height="100%" width="100%"></iframe>
+                        <a href="#" onclick="return openPopup('{% url web_image_viewer img.id %}')">Open Full Viewer</a>
                     </div>
                     <div class="visViewer" id="visAstexPane">
                         <div id="oav" height='500px'>

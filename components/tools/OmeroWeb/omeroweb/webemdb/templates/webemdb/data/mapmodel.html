@@ -59,8 +59,8 @@ function openPopup(url) {
     {% endif %}
         
     <p>
-        <a href="#" onclick="return openPopup('{% url web_image_viewer image.getId %}')"> Full viewer </a>|
-        <a href="{% url webemdb_image image.getId %}">Image</a>
+        <a href="#" onclick="return openPopup('{% url web_image_viewer image.getId %}')"> Image Viewer </a>
+        <!-- <a href="{% url webemdb_image image.getId %}">Filters</a> -->
     </p>
     
     <div id="dataHeader"></div>
