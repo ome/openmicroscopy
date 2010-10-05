@@ -1211,12 +1211,13 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
      * a removed user session, then a {@link RemovedSessionException} is thrown.
      */
     private long executeLookupUser(ServiceFactory sf, Principal p) {
-        try {
-            return sf.getAdminService().lookupExperimenter(p.getName()).getId();
-        } catch (ApiUsageException aue) {
+        List<Object[]> rv = sf.getQueryService().projection("select e.id from Experimenter e where e.omeName = :name",
+                new Parameters().addString("name", p.getName()));
+        if (rv.size() == 0) {
             throw new RemovedSessionException("Cannot find a user with name "
                     + p.getName());
         }
+        return (Long) rv.get(0)[0];
     }
 
     /**
