@@ -233,7 +233,9 @@ $(document).ready(function() {
                     </div>
                     <div class="visViewer" id="visOmeroPane" height="100%" width="100%">
                         <iframe id="visOmeroIframe" scrolling="no" height="100%" width="100%"></iframe>
-                        <a href="#" onclick="return openPopup('{% url web_image_viewer img.id %}')">Open Full Viewer</a>
+                        {% if img %}
+                            <a href="#" onclick="return openPopup('{% url web_image_viewer img.id %}')">Open Full Viewer</a>
+                        {% endif %}
                     </div>
                     <div class="visViewer" id="visAstexPane">
                         <div id="oav" height='500px'>
