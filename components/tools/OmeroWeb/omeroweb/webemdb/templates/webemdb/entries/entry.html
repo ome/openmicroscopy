@@ -68,9 +68,9 @@ $(document).ready(function() {
                     {% if img %}
                         <a href="#" onclick="return openPopup('{% url web_image_viewer img.id %}')">Image Data</a> |
                         <!-- <a href="{% url webemdb_image img.id %}">Filters</a> | -->
-                        <a href="{% url webemdb_mapmodelemdb project.name %}">Projections</a> |
+                        <a href="{% url webemdb_mapmodelemdb project.name %}">Projections</a>
                     {% endif %}
-                    {% if data %}<a href="{% url webemdb_data project.name %}">Associated data</a>{% endif %}
+                    {% if data %} | <a href="{% url webemdb_data project.name %}">Associated data</a>{% endif %}
                 </div>
             </td>
         </tr>

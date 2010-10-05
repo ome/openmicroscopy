@@ -84,7 +84,8 @@ $(document).ready(function() {
     <div class="entryTitle">Dataset associated with EMDB {{ entryId }}</div>
     <div> 
         <a href="{% url webemdb_entry entryId %}">Entry {{ entryId }}</a> |
-        <a href="{% url webemdb_data entryId %}">Data {{ entryId }}</a>
+        <a href="{% url webemdb_data entryId %}">Data {{ entryId }}</a> |
+        <a href="{% url webemdb_dataset_stack dataset.id %}">Download as mrc stack</a>
     </div>
     {% endif %}
     <div id="script_pane">

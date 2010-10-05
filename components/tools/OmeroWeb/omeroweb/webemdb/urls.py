@@ -17,6 +17,8 @@ urlpatterns = patterns('',
     url( r'^file/(?P<fileId>[0-9]+)\.pdb\.gz$', views.getFile, name='webemdb_pdb' ),
     url( r'^file/(?P<fileId>[0-9]+)\.map$', views.getFile, name='webemdb_map' ),
     url( r'^file/(?P<fileId>[0-9]+)\.seg$', views.getFile, name='webemdb_seg' ),
+    # download a dataset of single-plane images as an mrc stack
+    url( r'^dataset_stack/(?P<datasetId>[0-9]+)\.mrc$', views.dataset_stack, name='webemdb_dataset_stack' ),
     
     # look up the preview gif file for an entry based on name
     url( r'^entry/(?P<entryId>[0-9]+)/gif/$', views.gif, name='webemdb_gif' ),

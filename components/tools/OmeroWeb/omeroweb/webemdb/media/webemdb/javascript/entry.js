@@ -272,6 +272,8 @@ $(document).ready(function() {
     $("#oavControls").hide();   // show these when OAV is displayed 
     
     // map load mapA '{% url webemdb_bit fileId %}'; 
+    // use this command to render new maps correctly
+    var configureCmd = "\ncenter map mapA;\nmap mapA contour 0 'solid';\nmap mapA contour 0 'green';"
     // on first click of Astex view option, load OA-viewer
     $("#oavBitLink").hide();
     var oavLoaded = false;
@@ -280,7 +282,7 @@ $(document).ready(function() {
             // just get the url of the map we want to view, and load it. 
             // TODO: Don't do this if we're already looking at it! 
             var bitUrl = $("#oavBitLink").attr('href');
-            var command = "map replace mapA '"+ bitUrl +"';"; 
+            var command = "map replace mapA '"+ bitUrl +"';"+ configureCmd;
             // command = "map mapA contour 0 'red';";   // bug-fixing
             execute_oav_command(command);
         } else {
@@ -297,7 +299,7 @@ $(document).ready(function() {
             // just get the url of the map we want to view, and load it. 
             // TODO: Don't do this if we're already looking at it! 
             var bitUrl = $("#oavMapLink").attr('href');
-            var command = "map replace mapA '"+ bitUrl +"';"; 
+            var command = "map replace mapA '"+ bitUrl +"';"+ configureCmd;
             // command = "map mapA contour 0 'blue';";   // bug-fixing
             execute_oav_command(command);
         } else {
@@ -313,7 +315,7 @@ $(document).ready(function() {
             // just get the url of the map we want to view, and load it. 
             // TODO: Don't do this if we're already looking at it! 
             var bitUrl = $("#oavSmallMapLink").attr('href');
-            var command = "map replace mapA '"+ bitUrl +"';"; 
+            var command = "map replace mapA '"+ bitUrl +"';"+ configureCmd;
             //command = "map mapA contour 0 'blue';";   // bug-fixing
             execute_oav_command(command);
         } else {

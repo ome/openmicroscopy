@@ -283,6 +283,51 @@ def script_form(request, scriptId):
     return render_to_response('webemdb/scripts/script_form.html', {'paramData': paramData})
 
 
+def dataset_stack(request, datasetId):
+    """
+    Downloads a dataset of single-plane images as a .mrc file
+    """
+    conn = getConnection(request)
+    
+    queryService = conn.getQueryService()
+    rawPixelStore = conn.createRawPixelsStore()
+    
+    def getImagePlane(imageId):
+        query_string = "select p from Pixels p join fetch p.image as i join fetch p.pixelsType where i.id='%s'" % imageId
+        pixels = queryService.findByQuery(query_string, None)
+        theZ, theC, theT = (0,0,0)
+        bypassOriginalFile = True
+        rawPixelStore.setPixelsId(pixels.getId().getValue(), bypassOriginalFile)
+        plane2D = scriptUtil.downloadPlane(rawPixelStore, pixels, theZ, theC, theT)
+        return plane2D
+        
+    dataset = conn.getDataset(datasetId)
+    
+    em = None
+    for z, i in enumerate(dataset.listChildren()):
+        plane =  getImagePlane(i.getId())
+        e = EMNumPy.numpy2em(plane)
+        
+        if em == None:
+            sizeY, sizeX = plane.shape
+            sizeZ = dataset.countChildren()
+            print "creating EMData ", sizeY, sizeX, sizeZ
+            em = EMData(sizeY, sizeX, sizeZ)    # x,y,z or y,x,z ?
+            
+        em.insert_clip(e,(0,0,z))
+     
+    tempdir = settings.FILE_UPLOAD_TEMP_DIR
+    tempMrc = os.path.join(tempdir, ('%sdataset_stack.mrc' % (conn._sessionUuid))).replace('\\','/')
+    em.write_image(tempMrc)
+    
+    originalFile_data = FileWrapper(file(tempMrc))
+    rsp = HttpResponse(originalFile_data)
+    rsp['Content-Type'] = 'application/octet-stream'
+    # this tells the browser to give the user a 'download' dialog
+    rsp['Content-Disposition'] = 'attachment; filename=%s.mrc' % (dataset.getName().replace(" ","_"))
+    return rsp
+    
+    
 def projection(request, imageId, projkey):
     """ Simply add the projkey (intmean, intsum or intmax) to the request and delegate to webgateway render_image() """
     

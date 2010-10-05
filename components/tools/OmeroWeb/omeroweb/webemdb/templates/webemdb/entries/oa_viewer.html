@@ -9,6 +9,7 @@
          {% else %}
          map load mapA '{% url webemdb_map fileId %}'; 
          {% endifequal %}
+         center map mapA;
          map mapA contour 0 on;
          background '0xDDDDDD';
          map mapA contour 0 'solid';
