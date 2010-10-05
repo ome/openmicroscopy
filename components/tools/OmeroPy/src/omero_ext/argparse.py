@@ -129,7 +129,7 @@ if _sys.version_info[:2] == (2, 6):
         action='ignore',
         message='BaseException.message has been deprecated as of Python 2.6',
         category=DeprecationWarning,
-        module='argparse')
+        module='omero_ext.argparse')
 
 
 SUPPRESS = '==SUPPRESS=='
