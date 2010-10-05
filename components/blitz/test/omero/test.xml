@@ -19,6 +19,9 @@
 
 <beans default-lazy-init="false">
 
+ <bean id="uuid_object" class="java.util.UUID" factory-method="randomUUID"/>
+ <bean id="uuid" factory-bean="uuid_object" factory-method="toString"/>
+
  <bean id="mockDeclarer" class="ome.services.blitz.test.mock.MockDeclarer">
    <constructor-arg>
      <map>
