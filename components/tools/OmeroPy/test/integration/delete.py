@@ -186,7 +186,7 @@ class TestDelete(lib.ITest):
         query = self.client.sf.getQueryService()
         update = self.client.sf.getUpdateService()
         delete = self.client.sf.getDeleteService()
-        
+
         #dataset with many images
         images = list()
         for i in range(0,50):
@@ -196,7 +196,7 @@ class TestDelete(lib.ITest):
             tag = omero.model.TagAnnotationI()
             img.linkAnnotation( tag )
             images.append(update.saveAndReturnObject( img ))
-            
+
         # create dataset
         dataset = omero.model.DatasetI()
         dataset.name = omero.rtypes.rstring('DS-test-%s' % (uuid))
@@ -207,21 +207,25 @@ class TestDelete(lib.ITest):
             dlink.parent = omero.model.DatasetI(dataset.id.val, False)
             dlink.child = omero.model.ImageI(img.id.val, False)
             update.saveAndReturnObject(dlink)
-        
+
         commands = list()
         for img in images:
             commands.append(omero.api.delete.DeleteCommand("/Image", img.id.val, None))
-        
+
         handle = delete.queueDelete(commands)
         cbString = str(handle)
         callback = omero.callbacks.DeleteCallbackI(self.client, handle)
-        
+
         count = 0
-        while callback.block(500) is not None:
-            count+=1
-        print count
+        while True:
+            count += 1
+            rv = callback.block(500)
+            if rv is not None:
+                break
+            elif count > 50:
+                self.fail("Too many loops")
         callback.close()
-        
+
         p = omero.sys.Parameters()
         p.map = {}
         p.map["oid"] = dataset.id
@@ -232,7 +236,7 @@ class TestDelete(lib.ITest):
                 "where d.id = :oid " \
                 "order by im.id asc"
         self.assertEquals(0, len(query.findAllByQuery(sql, p)))
-            
+
 
 if __name__ == '__main__':
     unittest.main()
