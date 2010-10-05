@@ -520,6 +520,7 @@ class WebGatewayTempFile (object):
                 stamp = str(time.time())
                 dn = os.path.join(self._dir, stamp)
             key = stamp
+        key = key.replace('/','_').decode('utf8').encode('ascii','ignore')
         dn = os.path.join(self._dir, key)
         if not os.path.isdir(dn):
             os.makedirs(dn)
@@ -530,7 +531,7 @@ class WebGatewayTempFile (object):
         if not self._dir:
             return None, None, None
         dn, stamp = self.newdir(key)
-        name = name.decode('utf8').encode('ascii', 'ignore')
+        name = name.replace('/','_').decode('utf8').encode('ascii', 'ignore')
         fn = os.path.join(dn, name)
         rn = os.path.join(stamp, name)
         lf = os.path.join(dn, '.lock')
