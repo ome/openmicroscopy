@@ -62,9 +62,9 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
 {
 	private static boolean DEBUG = false;
 	
-	private static String SERVER = "warlock.openmicroscopy.org.uk";
-	private static String USER = "root";
-	private static String PASS = "omero";
+	private static String SERVER = "server";
+	private static String USER = "user";
+	private static String PASS = "pass";
 	
 	private static String baseDBNAME = "baseFile";
 	private static String itemDBNAME = "itemFile";
