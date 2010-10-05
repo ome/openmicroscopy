@@ -168,7 +168,9 @@ class TestDelete(lib.ITest):
         except Ice.ObjectNotExistException:
             pass
         else:
-            raise ("exception Ice.ObjectNotExistException was not thrown")
+            callback1 = omero.callbacks.DeleteCallbackI(cl1, handle1)
+            self.assertEquals(None, callback1.block(500))
+        
         
         # join session and double check
         cl2 = omero.client(host=host, port=port)
@@ -179,10 +181,8 @@ class TestDelete(lib.ITest):
         except Ice.ObjectNotExistException:
             pass
         else:
-            raise ("exception Ice.ObjectNotExistException was not thrown")
-            
-        
-        
+            callback2 = omero.callbacks.DeleteCallbackI(cl2, handle2)
+            self.assertEquals(None, callback2.block(500))
       
 if __name__ == '__main__':
     unittest.main()
