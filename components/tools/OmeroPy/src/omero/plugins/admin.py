@@ -351,7 +351,7 @@ Examples:
         then registers the action: "node HOST start"
         """
 
-        self.check_access()
+        self.check_access(config=config)
         self.check_ice()
         self.check_node(args)
         if self._isWindows():
@@ -507,7 +507,7 @@ Examples:
         """
         Returns true if the server was already stopped
         """
-        self.check_access()
+        self.check_access(config=config)
         self.check_node(args)
         if 0 != self.status(args, node_only=True):
             self.ctx.err("Server not running")
@@ -546,8 +546,15 @@ Examples:
         else:
             rv = self.ctx.call(command)
 
-    def diagnostics(self, args):
-        self.check_access(os.R_OK)
+    @with_config
+    def diagnostics(self, args, config):
+        self.check_access()
+        config = config.as_map()
+        omero_data_dir = '/OMERO'
+        try:
+            omero_data_dir = config['omero.data.dir']
+        except KeyError:
+            pass
         self.ctx.out("""
 %s
 OMERO Diagnostics %s
@@ -736,6 +743,12 @@ OMERO Diagnostics %s
         env_val("LD_LIBRARY_PATH")
         env_val("DYLD_LIBRARY_PATH")
 
+        self.ctx.out("")
+        exists = os.path.exists(omero_data_dir)
+        is_writable = os.access(omero_data_dir, os.R_OK|os.W_OK)
+        self.ctx.out("OMERO data dir: '%s'\tExists? %s\tIs writable? %s" % \
+            (omero_data_dir, exists, is_writable))
+
     def session_manager(self, communicator):
         import IceGrid, Glacier2
         iq = communicator.stringToProxy("IceGrid/Query")
@@ -760,13 +773,21 @@ OMERO Diagnostics %s
             sys.exit(1)
         else:
             if not os.access(path, mask):
-                print "FATAL: Cannot access %s, a required directory for OMERO" % path
+                print "FATAL: Cannot access %s, a required file/directory for OMERO" % path
                 sys.exit(1)
 
-    def check_access(self, mask=os.R_OK|os.W_OK):
+    def check_access(self, mask=os.R_OK|os.W_OK, config=None):
         """Check that 'var' is accessible by the current user."""
         var = self.ctx.dir / 'var'
         self.can_access(var, mask)
+        if config is not None:
+            omero_data_dir = '/OMERO'
+            config = config.as_map()
+            try:
+                omero_data_dir = config['omero.data.dir']
+            except KeyError:
+                pass
+            self.can_access(omero_data_dir)
         for p in os.listdir(var):
             subpath = os.path.join(var, p)
             if os.path.isdir(subpath):
@@ -805,11 +826,11 @@ OMERO Diagnostics %s
         Callers are responsible for closing the
         returned ConfigXml object.
         """
-        self.check_access()
         cfg_xml = self.ctx.dir / "etc" / "grid" / "config.xml"
         cfg_tmp = self.ctx.dir / "etc" / "grid" / "config.xml.tmp"
-        if not cfg_xml.exists():
-            if cfg_tmp.exists():
+        grid_dir = self.ctx.dir / "etc" / "grid"
+        if not cfg_xml.exists() and self.can_access(grid_dir):
+            if cfg_tmp.exists() and self.can_access(cfg_tmp):
                 self.ctx.dbg("Removing old config.xml.tmp")
                 cfg_tmp.remove()
             config = omero.config.ConfigXml(str(cfg_tmp))
@@ -830,7 +851,7 @@ OMERO Diagnostics %s
 
     @with_config
     def reindex(self, args, config):
-        self.check_access()
+        self.check_access(config=config)
         import omero.java
         server_dir = self.ctx.dir / "lib" / "server"
         log4j = "-Dlog4j.configuration=log4j-cli.properties"
