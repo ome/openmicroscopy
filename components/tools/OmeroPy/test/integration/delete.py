@@ -180,6 +180,59 @@ class TestDelete(lib.ITest):
         except Ice.ObjectNotExistException:
             pass
 
+    def testCheckIfDeleted2(self):
+        uuid = self.client.sf.getAdminService().getEventContext().sessionUuid
+        userName = self.client.sf.getAdminService().getEventContext().userName
+        query = self.client.sf.getQueryService()
+        update = self.client.sf.getUpdateService()
+        delete = self.client.sf.getDeleteService()
+        
+        #dataset with many images
+        images = list()
+        for i in range(0,50):
+            img = omero.model.ImageI()
+            img.name = omero.rtypes.rstring("test-delete-image-%i" % i)
+            img.acquisitionDate = omero.rtypes.rtime(0)
+            tag = omero.model.TagAnnotationI()
+            img.linkAnnotation( tag )
+            images.append(update.saveAndReturnObject( img ))
+            
+        # create dataset
+        dataset = omero.model.DatasetI()
+        dataset.name = omero.rtypes.rstring('DS-test-%s' % (uuid))
+        dataset = update.saveAndReturnObject(dataset)
+        # put image in dataset
+        for img in images:
+            dlink = omero.model.DatasetImageLinkI()
+            dlink.parent = omero.model.DatasetI(dataset.id.val, False)
+            dlink.child = omero.model.ImageI(img.id.val, False)
+            update.saveAndReturnObject(dlink)
+        
+        commands = list()
+        for img in images:
+            commands.append(omero.api.delete.DeleteCommand("/Image", img.id.val, None))
+        
+        handle = delete.queueDelete(commands)
+        cbString = str(handle)
+        callback = omero.callbacks.DeleteCallbackI(self.client, handle)
+        
+        count = 0
+        while callback.block(500) is not None:
+            count+=1
+        print count
+        callback.close()
+        
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["oid"] = dataset.id
+
+        sql = "select im from Image im "\
+                "left outer join fetch im.datasetLinks dil "\
+                "left outer join fetch dil.parent d " \
+                "where d.id = :oid " \
+                "order by im.id asc"
+        self.assertEquals(0, len(query.findAllByQuery(sql, p)))
+            
 
 if __name__ == '__main__':
     unittest.main()

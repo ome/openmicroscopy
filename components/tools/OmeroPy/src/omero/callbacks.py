@@ -126,7 +126,7 @@ class DeleteCallbackI(object):
                     except exceptions.Exception, e:
                         DEL_LOG.warn("Error calling DeleteCallbackI.finished: %s" % e, exc_info=True)
             except:
-                DEL_LOG.warn("Error polling DeleteHandle:" + handle, exc_info=True)
+                DEL_LOG.warn("Error polling DeleteHandle:" + str(self.handle), exc_info=True)
 
         self.event.wait(float(ms) / 1000)
         if self.event.isSet():
