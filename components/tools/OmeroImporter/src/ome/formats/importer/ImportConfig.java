@@ -220,10 +220,10 @@ public class ImportConfig {
 
         debug        = new BoolValue("debug", this, false);
         contOnError  = new BoolValue("contOnError", this, false);
-        sendReport   = new BoolValue("sendFiles", this, false);
-        sendFiles    = new BoolValue("sendFiles", this, false);
+        sendReport   = new BoolValue("sendReport", this, false);
+        sendFiles    = new BoolValue("sendFiles", this, true);
         companionFile = new BoolValue("companionFile", this, true);
-        sendLogFile  = new BoolValue("sendFiles", this, false);
+        sendLogFile  = new BoolValue("sendLogFile", this, true);
 
         archiveImage = new BoolValue("archive", this, false);
         useFullPath  = new BoolValue("useFullPath", this, true);
@@ -645,6 +645,10 @@ public class ImportConfig {
         numOfDirectories.load();
         savedDirectory.load();
         companionFile.load();
+        
+        sendLogFile.load();
+        sendFiles.load();
+        sendReport.load();
 
         port.load();
     }
@@ -669,6 +673,10 @@ public class ImportConfig {
         numOfDirectories.store();
         savedDirectory.store();
         companionFile.store();
+        
+        sendLogFile.store();
+        sendFiles.store();
+        sendReport.store();
 
         try {
             prefs.flush();

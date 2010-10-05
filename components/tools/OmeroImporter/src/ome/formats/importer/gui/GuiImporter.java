@@ -158,8 +158,8 @@ WindowStateListener, WindowFocusListener
     private JPanel              historyPanel;
     private JPanel              errorPanel;
 
-    private JTabbedPane         tPane;
-    private static final int historyTabIndex = 1;
+    JTabbedPane         tPane;
+    final int historyTabIndex = 1;
 
     private boolean errors_pending = false; // used to change error icon on tab
 	private boolean error_notification = false; // used if unsent errors on quit
@@ -365,11 +365,6 @@ WindowStateListener, WindowFocusListener
         tPane.setMnemonicAt(0, KeyEvent.VK_5);
 
         tPane.setSelectedIndex(0);
-
-        if (historyTable.db.historyEnabled == false)
-        	tPane.setEnabledAt(historyTabIndex,false);
-        
-        checkHistoryEnable();
         
         // Add the tabbed pane to this panel.
         add(tPane);
@@ -377,6 +372,7 @@ WindowStateListener, WindowFocusListener
         this.setVisible(false);
 
         historyPanel.add(historyHandler, BorderLayout.CENTER);
+        tPane.setEnabledAt(historyTabIndex,false);
 
         loginHandler = new LoginHandler(this, historyTable);
 
@@ -390,7 +386,7 @@ WindowStateListener, WindowFocusListener
         errorHandler = new ErrorHandler(importEx, config);
         errorHandler.addObserver(this);
         errorPanel.add(errorHandler, BorderLayout.CENTER);
-
+        
         macMenuFix();
 
         //displayLoginDialog(this, true);
@@ -400,7 +396,7 @@ WindowStateListener, WindowFocusListener
      * Check if the history table is enabled, disabling the history tab 
      * if it is not.
      */
-    private void checkHistoryEnable() {
+    void checkHistoryEnable() {
         tPane.addMouseListener(new MouseAdapter() {
         	
         	public void mouseClicked(MouseEvent e) {
@@ -410,7 +406,6 @@ WindowStateListener, WindowFocusListener
         		if (pane.indexAtLocation(e.getX(), e.getY()) == historyTabIndex 
         				&& historyTable.db.historyEnabled == false)
 				{
-					log.error("Could not start history DB.");
 					if (HistoryDB.alertOnce == false)
 					{
 						JOptionPane.showMessageDialog(null,
