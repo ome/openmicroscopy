@@ -15,6 +15,8 @@
 import re
 import os
 import sys
+import stat
+import platform
 import exceptions
 import portalocker
 
@@ -306,7 +308,7 @@ Examples:
         Checks that the templates file as defined in etc\Windows.cfg
         can be found.
         """
-
+        self.check_access(os.R_OK)
         if not self._isWindows():
             self.ctx.die(123, "Not Windows")
 
@@ -349,6 +351,7 @@ Examples:
         then registers the action: "node HOST start"
         """
 
+        self.check_access()
         self.check_ice()
         self.check_node(args)
         if self._isWindows():
@@ -411,6 +414,7 @@ Examples:
 
     @with_config
     def deploy(self, args, config):
+        self.check_access()
         self.check_ice()
         descript = self._descript(args)
 
@@ -421,6 +425,7 @@ Examples:
         self.ctx.call(command)
 
     def status(self, args, node_only = False):
+        self.check_access(os.R_OK)
         self.check_node(args)
         command = self._cmd("-e","node ping %s" % args.node)
         self.ctx.rv = self.ctx.popen(command).wait() # popen
@@ -464,6 +469,7 @@ Examples:
         self.startasync(args, config)
 
     def waitup(self, args):
+        self.check_access(os.R_OK)
         self.ctx.out("Waiting on startup. Use CTRL-C to exit")
         count = 30
         while True:
@@ -480,6 +486,7 @@ Examples:
         """
         Returns true if the server went down
         """
+        self.check_access(os.R_OK)
         self.ctx.out("Waiting on shutdown. Use CTRL-C to exit")
         count = 30
         while True:
@@ -500,6 +507,7 @@ Examples:
         """
         Returns true if the server was already stopped
         """
+        self.check_access()
         self.check_node(args)
         if 0 != self.status(args, node_only=True):
             self.ctx.err("Server not running")
@@ -530,6 +538,7 @@ Examples:
         pass
 
     def ice(self, args):
+        self.check_access()
         command = self._cmd()
         if len(args.argument) > 0:
             command.extend(["-e", " ".join(args.argument)])
@@ -538,6 +547,7 @@ Examples:
             rv = self.ctx.call(command)
 
     def diagnostics(self, args):
+        self.check_access(os.R_OK)
         self.ctx.out("""
 %s
 OMERO Diagnostics %s
@@ -734,6 +744,34 @@ OMERO Diagnostics %s
         sm = Glacier2.SessionManagerPrx.checkedCast(sm)
         return sm
 
+    def can_access(self, path, mask=os.R_OK|os.W_OK):
+        """
+        Check that the given path belongs to
+        or is accessible by the current user
+        on Linux systems.
+        """
+        if "Windows" == platform.system():
+            return
+
+        owner = os.stat(path)[stat.ST_UID]
+        if owner == 0:
+            print "FATAL: OMERO directory which needs to be writeable belongs to root: %s" % path
+            print "Please use \"chown -R NEWUSER %s\" and run as then run %s as NEWUSER" % (path, sys.argv[0])
+            sys.exit(1)
+        else:
+            if not os.access(path, mask):
+                print "FATAL: Cannot access %s, a required directory for OMERO" % path
+                sys.exit(1)
+
+    def check_access(self, mask=os.R_OK|os.W_OK):
+        """Check that 'var' is accessible by the current user."""
+        var = self.ctx.dir / 'var'
+        self.can_access(var, mask)
+        for p in os.listdir(var):
+            subpath = os.path.join(var, p)
+            if os.path.isdir(subpath):
+                self.can_access(subpath, mask)
+
     def check_node(self, args):
         """
         If the args argparse.Namespace argument has no "node" attribute,
@@ -767,6 +805,7 @@ OMERO Diagnostics %s
         Callers are responsible for closing the
         returned ConfigXml object.
         """
+        self.check_access()
         cfg_xml = self.ctx.dir / "etc" / "grid" / "config.xml"
         cfg_tmp = self.ctx.dir / "etc" / "grid" / "config.xml.tmp"
         if not cfg_xml.exists():
@@ -791,6 +830,7 @@ OMERO Diagnostics %s
 
     @with_config
     def reindex(self, args, config):
+        self.check_access()
         import omero.java
         server_dir = self.ctx.dir / "lib" / "server"
         log4j = "-Dlog4j.configuration=log4j-cli.properties"
@@ -830,6 +870,7 @@ OMERO Diagnostics %s
         self.ctx.rv = p.wait()
 
     def ports(self, args):
+        self.check_access()
         from omero.install.change_ports import change_ports
         if args.prefix:
             for x in ("registry", "tcp", "ssl"):
@@ -837,6 +878,7 @@ OMERO Diagnostics %s
         change_ports(args.ssl, args.tcp, args.registry, args.revert)
 
     def cleanse(self, args):
+        self.check_access()
         from omero.util.cleanse import cleanse
         client = self.ctx.conn(args)
         key = client.getSessionId()
