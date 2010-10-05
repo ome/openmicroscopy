@@ -39,7 +39,9 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.StringTokenizer;
+import java.util.Map.Entry;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -50,6 +52,9 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
+import javax.swing.JTable;
 import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileFilter;
 
@@ -150,35 +155,98 @@ class AnalysisResultsDialog
 	/** The name of the graph. */
 	private String 		name;
 	
+	/** The table displaying the values plotted. */
+	private Double[][] data;
+	
+	/**
+	 * Creates the table displaying the plotted values.
+	 * 
+	 * @param values The values to display.
+	 */
+	private void createTable(Map<Double, Double> values)
+	{
+		data = new Double[values.size()+1][2];
+		Iterator v = values.entrySet().iterator();
+		Entry entry;
+		int index = 0;
+		double totalY = 0;
+		Double[] numbers;
+		while (v.hasNext()) {
+			entry = (Entry) v.next();
+			numbers = new Double[2];
+			numbers[0] = (Double) entry.getKey();
+			numbers[1] = (Double) entry.getValue();
+			data[index] = numbers;
+			totalY += ((Double) entry.getValue()).doubleValue();
+			index++;
+		}
+		numbers = new Double[2];
+		numbers[0] = null;
+		numbers[1] = totalY;
+		data[index] = numbers;
+	}
+	
 	/** 
 	 * Creates the chart. 
 	 * 
 	 * @param values The values to plot.
+	 * @param bins The number of bins.
 	 */
-	private void createChart(double[] values)
+	private void createChart(double[] values, int bins)
 	{
 		switch (parameters.getIndex()) {
 			case AnalysisResultsHandlingParam.HISTOGRAM:
 				HistogramPlot hp = new HistogramPlot();
 				hp.setXAxisName(parameters.getNameXaxis());
 				hp.setYAxisName(parameters.getNameYaxis());
+				
 				if (values == null) {
+					double min = Double.MAX_VALUE;
+					double max = Double.MIN_VALUE;
+					double v;
+					
 					values = new double[parseValues.size()];
 					Iterator<Double> i = parseValues.iterator();
 					int index = 0;
 					while (i.hasNext()) {
-						values[index] = i.next();
+						v = i.next();
+						
+						if (v < min) min = v;
+						if (v > max) max = v;
+						values[index] = v;
 						index++;
 					}
 				}
 				if (values.length > 0)
 					hp.addSeries(name, values, DEFAULT_COLOR, BINS);
+				
+				createTable(hp.getYValues(0));
 				body = hp.getChart();
 				chartObject = hp;
 				break;
 				default:
 					break;
 			}
+	}
+	
+	/** 
+	 * Lays out the graph and the table if any.
+	 * 
+	 * @param container The container hosting the various components. 
+	 */
+	private void layoutBody(Container container)
+	{
+		if (body == null) return;
+		if (data != null) {
+			String[] columns = {parameters.getNameXaxis(), 
+					parameters.getNameYaxis()};
+			JSplitPane pane = new JSplitPane();
+			pane.setLeftComponent(body);
+			pane.setRightComponent(new JScrollPane(new JTable(data, columns)));
+			container.add(pane, BorderLayout.CENTER);
+		} else {
+			container.add(body, BorderLayout.CENTER);
+		}
 	}
 	
 	/**
@@ -224,7 +292,7 @@ class AnalysisResultsDialog
 			if (name == null || name.trim().length() == 0)
 				name = getLegend();
 			this.name = name;
-			createChart(null);
+			createChart(null, BINS);
 		}
 		saveButton.setEnabled(chartObject != null);
 	}
@@ -264,11 +332,16 @@ class AnalysisResultsDialog
 		double max;
 		double v;
 		List<Double> values;
+		double binMin = Double.MAX_VALUE;
+		double binMax = Double.MIN_VALUE;
 		if (nMin == null && nMax == null) {
 			results = new double[parseValues.size()];
 			i = parseValues.iterator();
 			while (i.hasNext()) {
-				results[index] = i.next();
+				v = i.next();
+				if (v < binMin) binMin = v;
+				if (v > binMax) binMax = v;
+				results[index] = v;
 				index++;
 			}
 		} else if (nMin == null && nMax != null) {
@@ -276,7 +349,11 @@ class AnalysisResultsDialog
 			values = new ArrayList<Double>();
 			while (i.hasNext()) {
 				v = i.next();
-				if (v < max) values.add(v);
+				if (v < max) {
+					if (v < binMin) binMin = v;
+					if (v > binMax) binMax = v;
+					values.add(v);
+				}
 			}
 			results = new double[values.size()];
 			i = values.iterator();
@@ -289,7 +366,11 @@ class AnalysisResultsDialog
 			values = new ArrayList<Double>();
 			while (i.hasNext()) {
 				v = i.next();
-				if (v > min) values.add(v);
+				if (v > min) {
+					if (v < binMin) binMin = v;
+					if (v > binMax) binMax = v;
+					values.add(v);
+				}
 			}
 			results = new double[values.size()];
 			i = values.iterator();
@@ -303,7 +384,11 @@ class AnalysisResultsDialog
 			values = new ArrayList<Double>();
 			while (i.hasNext()) {
 				v = i.next();
-				if (v > min && v < max) values.add(v);
+				if (v > min && v < max) {
+					if (v < binMin) binMin = v;
+					if (v > binMax) binMax = v;
+					values.add(v);
+				}
 			}
 			results = new double[values.size()];
 			i = values.iterator();
@@ -312,15 +397,14 @@ class AnalysisResultsDialog
 				index++;
 			}
 		}
-		
+		int bins = (int) (binMax-binMin);
 		//repaint
-		createChart(results);
+		createChart(results, bins);
 		Container container = getContentPane();
 		Component c = container.getComponent(0);
 		container.removeAll();
 		container.add(c, BorderLayout.NORTH);
-		if (body != null)
-			container.add(body, BorderLayout.CENTER);
+		layoutBody(container);
 		container.add(buildControlsBar(), BorderLayout.SOUTH);
 		container.validate();
 		container.repaint();
@@ -411,8 +495,7 @@ class AnalysisResultsDialog
 		Container container = getContentPane();
 		container.setLayout(new BorderLayout());
 		container.add(tp, BorderLayout.NORTH);
-		if (body != null)
-			container.add(body, BorderLayout.CENTER);
+		layoutBody(container);
 		container.add(buildControlsBar(), BorderLayout.SOUTH);
 		pack();
 	}

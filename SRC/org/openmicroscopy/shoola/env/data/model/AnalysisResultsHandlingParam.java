@@ -88,7 +88,7 @@ public class AnalysisResultsHandlingParam
 		if (nameXaxis == null || nameXaxis.trim().length() == 0)
 			nameXaxis = ChartObject.X_AXIS;
 		if (nameYaxis == null || nameYaxis.trim().length() == 0)
-			nameYaxis = ChartObject.Y_AXIS;
+			nameYaxis = "Number of Pixels";//ChartObject.Y_AXIS;
 		this.nameYaxis = nameYaxis;
 		this.nameXaxis = nameXaxis;
 	}

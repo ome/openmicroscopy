@@ -26,7 +26,9 @@ package org.openmicroscopy.shoola.util.ui.graphutils;
 //Java imports
 import java.awt.Color;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 import org.jfree.chart.JFreeChart;
@@ -152,6 +154,30 @@ public class HistogramPlot
 		return dataset.getSeriesCount();
 	}
 
+	/**
+	 * Returns a map whose keys are the value along the X-axis and the number 
+	 * of items along the Y-axis greater than the passed value. 
+	 * 
+	 * @param threshold The threshold value.
+	 * @return 
+	 */
+	public Map<Double, Double> getYValues(int threshold)
+	{
+		Map<Double, Double> map = new LinkedHashMap<Double, Double>();
+		int n;
+		double y;
+		for (int i = 0; i < dataset.getSeriesCount(); i++) {
+			n = dataset.getItemCount(i);
+			for (int j = 0; j < n; j++) {
+				y = dataset.getEndYValue(i, j);
+				if (y > threshold) {
+					map.put(dataset.getEndXValue(i, j), y);
+				}
+			}
+		}
+		return map;
+	}
+	
 	/** 
 	 * Creates the chart.
 	 * @see ChartObject#createChar()
@@ -162,6 +188,7 @@ public class HistogramPlot
 		for (int i = 0 ; i < colours.size(); i++)
 			renderer.setSeriesPaint(i, colours.get(i));
 		XYPlot plot = new XYPlot(dataset, domainAxis, rangeAxis, renderer);
+		
 		chart = new JFreeChart(title, plot);
 		chart.setTitle(title);
 	}
