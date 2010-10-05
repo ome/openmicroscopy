@@ -62,9 +62,9 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
 {
 	private static boolean DEBUG = false;
 	
-	private static String SERVER = "server";
-	private static String USER = "user";
-	private static String PASS = "pass";
+	private static String SERVER = "warlock.openmicroscopy.org.uk";
+	private static String USER = "root";
+	private static String PASS = "omero";
 	
 	private static String baseDBNAME = "baseFile";
 	private static String itemDBNAME = "itemFile";
@@ -99,7 +99,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
     private Column[] baseColumns;
     private TablePrx itemTable;
     private Column[] itemColumns;
-	public boolean historyEnabled = false;
+	public boolean historyEnabled = true;
 	private static long lastUid = 0;
 	
 	private Data baseData = null;
@@ -122,7 +122,16 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
     	this.store = store;
         this.sf = store.getServiceFactory();
         this.iQuery = sf.getQueryService();
-        if (!sf.sharedResources().areTablesEnabled()) historyEnabled = false;
+        if (sf.sharedResources().areTablesEnabled() == true) 
+        {        	
+        	this.historyEnabled = true;
+        	log.warn("History tables service Enabled.");
+        } else
+        {
+        	this.historyEnabled = false;
+        	log.warn("History tables service Disabled.");
+        }
+        
     }
     
 	/* (non-Javadoc)
@@ -130,6 +139,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
 	 */
 	public void initializeDataSource() throws ServerError
     {
+		if (historyEnabled == false) return;
         baseColumns = createBaseColumns(DEFAULT_BUFFER_SIZE);
         itemColumns = createItemColumns(DEFAULT_BUFFER_SIZE);
     	initializeBaseTable();
@@ -141,10 +151,11 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
      */
     public boolean wipeDataSource(Long experimenterId) throws ServerError
     {
-			clearTable(itemDBNAME);
-	    	clearTable(baseDBNAME);
-	    	initializeDataSource();	  
-	    	return true;
+    	if (historyEnabled == false) return false;
+    	clearTable(itemDBNAME);
+    	clearTable(baseDBNAME);
+    	initializeDataSource();	  
+    	return true;
     }
     
     /**
@@ -305,45 +316,13 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
         
         if (baseFiles == null || baseFiles.isEmpty())     
         {
-            log.debug("Creating new " + baseDBNAME);
-            baseTable = sf.sharedResources().newTable(1, baseDBNAME);
-            if (baseTable == null)
-            {
-            	if (DEBUG) System.err.println("baseTable is null");
-            	historyEnabled = false;
-            }
-            else
-            {
-            	historyEnabled = true;
-
-            	baseTable.initialize(baseColumns);
-
-            	// Prime base table with 2 blank rows to address bug.
-            	Column[] newRow = createBaseColumns(2);
-
-            	LongColumn uids = (LongColumn) newRow[BASE_UID_COLUMN];
-            	LongColumn importTimes = (LongColumn) newRow[BASE_DATETIME_COLUMN];
-            	StringColumn statuses = (StringColumn) newRow[BASE_STATUS_COLUMN];
-
-            	uids.values[0] = 0;
-            	importTimes.values[0] = 0;
-            	statuses.values[0] = String.format("%1$-64s", " ");
-            	uids.values[1] = 0;
-            	importTimes.values[1] = 0;
-            	statuses.values[1] = String.format("%1$-64s", " ");
-
-            	baseTable.addData(newRow);
-            	baseDataDirty = true;
-                lastUid = getHighestBaseTableUid();
-            }
-
+        	createBaseTable();
         } else {
             log.debug("Using existing " + baseDBNAME);
             baseTable = sf.sharedResources().openTable(baseFiles.get(0));
             if (baseTable == null)
             {
             	if (DEBUG) System.err.println("baseTable is null"); 
-            	historyEnabled = false;
             }
             else
             {
@@ -353,7 +332,45 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
         }
     }
     
-    /* (non-Javadoc)
+    /**
+     * Create the baseTable
+     * 
+     * @throws ServerError
+     */
+    private void createBaseTable() throws ServerError {
+        log.debug("Creating new " + baseDBNAME);
+        baseTable = sf.sharedResources().newTable(1, baseDBNAME);
+        if (baseTable == null)
+        {
+        	if (DEBUG) System.err.println("baseTable is null");
+        }
+        else
+        {
+        	historyEnabled = true;
+
+        	baseTable.initialize(baseColumns);
+
+        	// Prime base table with 2 blank rows to address bug.
+        	Column[] newRow = createBaseColumns(2);
+
+        	LongColumn uids = (LongColumn) newRow[BASE_UID_COLUMN];
+        	LongColumn importTimes = (LongColumn) newRow[BASE_DATETIME_COLUMN];
+        	StringColumn statuses = (StringColumn) newRow[BASE_STATUS_COLUMN];
+
+        	uids.values[0] = 0;
+        	importTimes.values[0] = 0;
+        	statuses.values[0] = String.format("%1$-64s", " ");
+        	uids.values[1] = 0;
+        	importTimes.values[1] = 0;
+        	statuses.values[1] = String.format("%1$-64s", " ");
+
+        	baseTable.addData(newRow);
+        	baseDataDirty = true;
+            lastUid = getHighestBaseTableUid();
+        }
+	}
+
+	/* (non-Javadoc)
      * @see ome.formats.importer.gui.IHistoryTableDataSource#getLastBaseUid()
      */
     public int getLastBaseUid() throws ServerError

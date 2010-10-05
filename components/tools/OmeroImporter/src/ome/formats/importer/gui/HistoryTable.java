@@ -563,7 +563,7 @@ public class HistoryTable
         DefaultListModel today = db.getBaseTableDataByDate(db.getDaysBefore(new Date(), -1), new Date());
         historyTaskBar.updateList(todayList, historyTaskBar.today, today);
 
-        DefaultListModel yesterday = db.getBaseTableDataByDate(db.getYesterday(), new Date());
+        DefaultListModel yesterday = db.getBaseTableDataByDate(db.getDaysBefore(new Date(), -2), db.getDaysBefore(new Date(), -1));
         historyTaskBar.updateList(yesterdayList, historyTaskBar.yesterday, yesterday);
 
         DefaultListModel thisWeek = db.getBaseTableDataByDate(db.getDaysBefore(new Date(), -(dayOfWeek)), db.getDaysBefore(new Date(), 1));
@@ -659,7 +659,7 @@ public class HistoryTable
         if (experimenterID != -1 && event instanceof ImportEvent.LOGGED_IN
                 || event instanceof ImportEvent.QUICKBAR_UPDATE)
             {
-        		if (db.historyEnabled) updateOutlookBar();
+        		if (db.historyEnabled == true) updateOutlookBar();
             }
     }
 

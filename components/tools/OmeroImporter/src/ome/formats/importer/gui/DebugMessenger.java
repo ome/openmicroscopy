@@ -45,8 +45,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
-import javax.swing.text.Style;
-import javax.swing.text.StyledDocument;
 
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
@@ -76,7 +74,6 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
     
     private JPanel                  mainPanel;
     private JPanel                  commentPanel;
-    private JPanel                  debugPanel;
 
     private static JButton                 quitBtn;
     private static JButton                 cancelBtn;
@@ -94,8 +91,6 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
     private String                  commentText         = "";
     
     private JTextPane               debugTextPane;
-    private StyledDocument          debugDocument;
-    private Style                   debugStyle;
 
 	private ArrayList<ErrorContainer> errorsArrayList;
 
@@ -154,8 +149,9 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
         uploadCheckmark.setSelected(true);
        
         logUploadCheckmark = GuiCommonElements.addCheckBox(mainPanel, "Send importer log file.", "1,2,7,2", debug);
-        //uploadCheckmark.setSelected(config.sendFiles.get());
-        logUploadCheckmark.setSelected(true);
+        config.sendLogFile.load();
+        uploadCheckmark.setSelected(config.sendLogFile.get());
+        //logUploadCheckmark.setSelected(true);
         
         // fill out the comments panel (changes according to icon existance)        
         Icon icon = GuiCommonElements.getImageIcon(ICON);

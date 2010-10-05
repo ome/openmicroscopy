@@ -155,8 +155,8 @@ WindowStateListener, WindowFocusListener
     private JPanel              historyPanel;
     private JPanel              errorPanel;
 
-    private JTabbedPane         tPane;
-    private static final int historyTabIndex = 1;
+    JTabbedPane         tPane;
+    final int historyTabIndex = 1;
 
     private boolean errors_pending = false; // used to change error icon on tab
 	private boolean error_notification = false; // used if unsent errors on quit
@@ -366,14 +366,13 @@ WindowStateListener, WindowFocusListener
         if (getHistoryTable().db.historyEnabled == false)
         	tPane.setEnabledAt(historyTabIndex,false);
         
-        checkHistoryEnable();
-        
         // Add the tabbed pane to this panel.
         add(tPane);
 
         this.setVisible(false);
 
         historyPanel.add(historyHandler, BorderLayout.CENTER);
+        tPane.setEnabledAt(historyTabIndex,false);
 
         setLoginHandler(new LoginHandler(this, getHistoryTable()));
 
@@ -387,7 +386,7 @@ WindowStateListener, WindowFocusListener
         setErrorHandler(new ErrorHandler(importEx, config));
         getErrorHandler().addObserver(this);
         errorPanel.add(getErrorHandler(), BorderLayout.CENTER);
-
+        
         macMenuFix();
 
         //displayLoginDialog(this, true);
@@ -397,7 +396,7 @@ WindowStateListener, WindowFocusListener
      * Check if the history table is enabled, disabling the history tab 
      * if it is not.
      */
-    private void checkHistoryEnable() {
+    void checkHistoryEnable() {
         tPane.addMouseListener(new MouseAdapter() {
         	
         	public void mouseClicked(MouseEvent e) {
@@ -407,7 +406,6 @@ WindowStateListener, WindowFocusListener
         		if (pane.indexAtLocation(e.getX(), e.getY()) == historyTabIndex 
         				&& getHistoryTable().db.historyEnabled == false)
 				{
-					log.error("Could not start history DB.");
 					if (HistoryDB.alertOnce == false)
 					{
 						JOptionPane.showMessageDialog(null,
