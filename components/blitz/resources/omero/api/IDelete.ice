@@ -124,6 +124,12 @@ module omero {
                  * possible.
                  **/
                 bool cancel() throws ServerError;
+
+                /**
+                 * Removes the proxy from the server's adapter. Any calls on this
+                 * proxy after close will receive an [Ice::ObjectNotExistException].
+                 **/
+                void close() throws ServerError;
             };
 
         };

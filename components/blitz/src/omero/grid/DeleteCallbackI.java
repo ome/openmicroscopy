@@ -11,6 +11,8 @@ import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import omero.ServerError;
 import omero.api.delete.DeleteHandlePrx;
@@ -36,6 +38,8 @@ import Ice.ObjectNotExistException;
  * @since Beta4.2.1
  */
 public class DeleteCallbackI {
+
+    private final Logger logger = Logger.getLogger(DeleteCallbackI.class.getName());
 
     @SuppressWarnings("unused")
     private final Ice.ObjectAdapter adapter;
@@ -106,8 +110,8 @@ public class DeleteCallbackI {
                     try {
                         finished(handle.errors());
                     } catch (Exception e) {
-                        System.err.println("Error calling DeleteCallbackI.finished:" + handle);
-                        e.printStackTrace();
+                        logger.log(Level.SEVERE,
+                                "Error calling DeleteCallbackI.finished:" + handle, e);
                     }
                 }
             } catch (ObjectNotExistException onee) {
@@ -115,8 +119,8 @@ public class DeleteCallbackI {
                 ce.initCause(onee);
                 throw ce;
             } catch (Exception e) {
-                System.err.println("Error polling DeleteHandle:" + handle);
-                e.printStackTrace();
+                logger.log(Level.SEVERE,
+                        "Error polling DeleteHandlePrx:" + handle, e);
             }
         }
         return q.poll(ms, TimeUnit.MILLISECONDS);
@@ -129,11 +133,17 @@ public class DeleteCallbackI {
         try {
             q.put(errors);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.log(Level.INFO, "Interrupted during q.put", e);
         }
     }
 
     public void close() {
         // adapter.remove(id); // OK ADAPTER USAGE
+        try {
+            handle.close();
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error calling DeleteHandlePrx.close:"
+                    + handle, e);
+        }
     }
 }

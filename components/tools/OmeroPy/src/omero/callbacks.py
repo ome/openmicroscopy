@@ -139,7 +139,11 @@ class DeleteCallbackI(object):
         self.event.set()
 
     def close(self):
-        pass
         #self.adapter.remove(self.id) # OK ADAPTER USAGE
+        try:
+            self.handle.close() # ticket:2978
+        except exceptions.Exception, e:
+            DEL_LOG.warn("Error calling DeleteHandlePrx.close: %s" % self.handle, exc_info=True)
+
 
 

@@ -310,6 +310,7 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
     //
 
     public void close(Ice.Current current) throws ServerError {
+        sf.unregisterServant(id);
         if (!finished(current)) {
             log.warn("Handle closed before finished! State=" + state.get());
         }

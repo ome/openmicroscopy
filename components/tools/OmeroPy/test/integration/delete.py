@@ -147,13 +147,14 @@ class TestDelete(lib.ITest):
         cbString = str(handle)
         callback = omero.callbacks.DeleteCallbackI(self.client, handle)
         while callback.block(500) is not None: # ms.
-            callback.close()
-        
+            pass
+
         err = handle.errors()
+        callback.close()
+
         self.assertEquals(0, err)
         self.assertEquals(None, query.find("Image", iid))
-        
-        
+
         # create new session and double check
         import os
         import Ice
@@ -162,27 +163,23 @@ class TestDelete(lib.ITest):
         port = int(c.ic.getProperties().getProperty('omero.port'))
         cl1 = omero.client(host=host, port=port)
         sf1 = cl1.createSession(userName,userName)
-        
+
         try:
             handle1 = omero.api.delete.DeleteHandlePrx.checkedCast(cl1.ic.stringToProxy(cbString))
+            self.fail("exception Ice.ObjectNotExistException was not thrown")
         except Ice.ObjectNotExistException:
             pass
-        else:
-            callback1 = omero.callbacks.DeleteCallbackI(cl1, handle1)
-            self.assertEquals(None, callback1.block(500))
-        
-        
+
         # join session and double check
         cl2 = omero.client(host=host, port=port)
         sf2 = cl2.joinSession(uuid)
-        
+
         try:
             handle2 = omero.api.delete.DeleteHandlePrx.checkedCast(cl2.ic.stringToProxy(cbString))
+            self.fail("exception Ice.ObjectNotExistException was not thrown")
         except Ice.ObjectNotExistException:
             pass
-        else:
-            callback2 = omero.callbacks.DeleteCallbackI(cl2, handle2)
-            self.assertEquals(None, callback2.block(500))
-      
+
+
 if __name__ == '__main__':
     unittest.main()
