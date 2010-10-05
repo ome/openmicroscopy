@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 
 //Java imports
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -188,8 +187,7 @@ public class TreeViewerAgent
      */
     private void handleRndSettingsCopied(RndSettingsCopied evt)
     {
-    	Collection ids = evt.getImagesIDs();
-    	TreeViewerFactory.onRndSettingsCopied(ids);
+    	TreeViewerFactory.onRndSettingsCopied(evt.getImagesIDs());
     }
     
 	/**

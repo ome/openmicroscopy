@@ -903,20 +903,6 @@ class RendererComponent
 	
 	/** 
      * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#reloadUI(boolean)
-     */
-	public void reloadUI(boolean reload)
-	{
-		view.resetDefaultRndSettings();
-		firePropertyChange(COLOR_MODEL_PROPERTY, Boolean.valueOf(false), 
-				Boolean.valueOf(true));
-		if (reload) {
-			
-		}
-	}
-	
-	/** 
-     * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#setRangeAllChannels(boolean)
      */
 	public void setRangeAllChannels(boolean absolute)

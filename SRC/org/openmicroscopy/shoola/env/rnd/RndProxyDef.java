@@ -300,6 +300,5 @@ public class RndProxyDef
 	 * @return See above.
 	 */
 	public Timestamp getLastModified() { return lastModified; }
-	
-  
+
 }

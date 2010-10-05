@@ -35,6 +35,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +48,8 @@ import javax.swing.JFrame;
 
 //Application-internal dependencies
 import omero.model.OriginalFile;
+
+import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsSaved;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlLoader;
@@ -68,7 +71,9 @@ import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
@@ -328,16 +333,28 @@ class MetadataViewerComponent
 		if (rnd != null && getRndIndex() == RND_GENERAL) {
 			//save settings 
 			try {
-				//check if I can save first
-				if (model.isWritable()) 
-					rnd.saveCurrentSettings();
+				long imageID = -1;
+				long pixelsID = -1;
 				Object obj = model.getRefObject();
 				if (obj instanceof WellSampleData) {
 					WellSampleData wsd = (WellSampleData) obj;
 					obj = wsd.getImage();
 				}
 				if (obj instanceof ImageData) {
-					long imageID = ((ImageData) obj).getId();
+					ImageData data = (ImageData) obj;
+					imageID = data.getId();
+					pixelsID = data.getDefaultPixels().getId();
+				}
+				//check if I can save first
+				if (model.isWritable()) {
+					RndProxyDef def = rnd.saveCurrentSettings();
+					EventBus bus = 
+						MetadataViewerAgent.getRegistry().getEventBus();
+					bus.post(new RndSettingsSaved(pixelsID, def));
+				}
+					
+				
+				if (imageID >= 0) {
 					firePropertyChange(RENDER_THUMBNAIL_PROPERTY, -1, imageID);
 				}
 			} catch (Exception e) {
@@ -909,7 +926,7 @@ class MetadataViewerComponent
 			img = (ImageData) ob;
 		if (img == null) return;
 		if (!imageIds.contains(img.getId())) return;
-		rnd.reloadUI(false);
+		rnd.refresh();
 	}
 
 	/**

@@ -95,6 +95,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjSavingDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -475,14 +476,14 @@ class ImViewerControl
 
 			/** 
 			 * Required by I/F but not actually needed in our case, 
-			 * no-op implementation.
+			 * no-operation implementation.
 			 * @see MenuListener#menuCanceled(MenuEvent)
 			 */ 
 			public void menuCanceled(MenuEvent e) {}
 
 			/** 
 			 * Required by I/F but not actually needed in our case, 
-			 * no-op implementation.
+			 * no-operation implementation.
 			 * @see MenuListener#menuDeselected(MenuEvent)
 			 */ 
 			public void menuDeselected(MenuEvent e) {}
@@ -501,14 +502,14 @@ class ImViewerControl
 
 			/** 
 			 * Required by I/F but not actually needed in our case, 
-			 * no-op implementation.
+			 * no-operation implementation.
 			 * @see MenuKeyListener#menuKeyPressed(MenuKeyEvent)
 			 */
 			public void menuKeyPressed(MenuKeyEvent e) {}
 
 			/** 
 			 * Required by I/F but not actually needed in our case, 
-			 * no op implementation.
+			 * no-operation implementation.
 			 * @see MenuKeyListener#menuKeyTyped(MenuKeyEvent)
 			 */
 			public void menuKeyTyped(MenuKeyEvent e) {}
@@ -901,7 +902,7 @@ class ImViewerControl
 				pName)) {
 			int index = (Integer) pce.getNewValue();
 			model.onChannelColorChanged(index);
-		}
+		} 
 	}
 
 	/**

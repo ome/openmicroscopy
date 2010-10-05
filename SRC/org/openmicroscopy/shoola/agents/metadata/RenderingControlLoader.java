@@ -154,9 +154,7 @@ public class RenderingControlLoader
 			case LOAD:
 			case RELOAD:
 				viewer.setRenderingControl((RenderingControl) result);
-				//viewer.setRenderingControl((RenderingControl) result);
 				break;
-				//viewer.setRenderingControlReloaded(false);
 			case RESET:
 				//viewer.setRenderingControlReloaded(true);
 		}

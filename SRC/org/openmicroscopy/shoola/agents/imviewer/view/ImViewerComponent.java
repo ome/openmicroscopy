@@ -269,7 +269,6 @@ class ImViewerComponent
 	private boolean saveOnClose(boolean notifyUser)
 	{
 		if (isReadOnly()) return true;
-		
 		if (!notifyUser) {
 			//savePlane();
 			try {
@@ -572,6 +571,19 @@ class ImViewerComponent
 	 */
 	String getTitle() { return view.getTitle(); }
 
+	/** 
+     * Invokes when the rendering settings has been saved using another way.
+     * 
+     * @param settings The save rendering settings.
+     */
+    void onRndSettingsSaved(RndProxyDef settings)
+    {
+    	if (settings == null) return;
+    	model.resetOriginalSettings(settings);
+    	refresh();
+    	fireStateChange();
+    }
+    
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#activate(RndProxyDef, long)
@@ -2163,7 +2175,7 @@ class ImViewerComponent
 			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Save settings", "Cannot save rendering settings. ");
 		}
-    	
+		
 		EventBus bus = ImViewerAgent.getRegistry().getEventBus();
 		List<Long> l = new ArrayList<Long>();
 		l.add(model.getImageID());

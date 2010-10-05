@@ -1264,12 +1264,9 @@ class RenderingControlProxy
     { 
     	//DataServicesFactory.isSessionAlive(context);
     	try {
-    		long start = System.currentTimeMillis();
     		servant.saveCurrentSettings();
-			//System.err.println("save in rendering control: "+(System.currentTimeMillis()-start));
-    		return rndDef.copy();
+			return rndDef.copy();
 		} catch (Throwable e) {
-			e.printStackTrace();
 			handleException(e, ERROR+"save current settings.");
 		}
 		return null;
@@ -1761,13 +1758,16 @@ class RenderingControlProxy
 			new HashMap<Integer, ChannelBindingsProxy>();
 		for (int i = 0; i < getPixelsDimensionsC(); i++) {
 			channel = def.getChannel(i);
-			if (channel.isActive())
+			if (channel.isActive()) {
 				oldChannels.put(i, channel);
+			}	
 		}
 		
 		List<Integer> indexes = new ArrayList<Integer>();
 		for (int i = 0; i < getPixelsDimensionsC(); i++) {
-			if (isActive(i)) indexes.add(i);
+			if (isActive(i)) {
+				indexes.add(i);
+			}
 		}
 		
 		if (indexes.size() != oldChannels.size()) return false;

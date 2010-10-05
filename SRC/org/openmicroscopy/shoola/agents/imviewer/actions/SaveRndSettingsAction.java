@@ -56,8 +56,7 @@ public class SaveRndSettingsAction
     private static final String NAME = "Save Settings";
     
 	/** The description of the action. */
-    private static final String DESCRIPTION = "Save the current image's " +
-    		"settings.";
+    private static final String DESCRIPTION = "Save the current settings.";
     
     /** Sets the flag depending on the permissions of the group. */
     private void handleChange()

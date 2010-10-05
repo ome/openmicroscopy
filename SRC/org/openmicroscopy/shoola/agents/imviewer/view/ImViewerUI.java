@@ -73,7 +73,6 @@ import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import omero.model.PlaneInfo;
-
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
@@ -91,6 +90,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
@@ -1411,11 +1411,13 @@ class ImViewerUI
 	/** Resets the UI when switching to a new rendering control. */
 	void switchRndControl() { controlPane.switchRndControl(); }
 	
+	/** Refreshes the view. */
 	void refresh()
 	{
 		resetDefaults();
 		model.refresh();
 	}
+	
 	/**
 	 * Sets the image in the lens to the plane image shown on the screen
 	 * depending on the selected tab pane.
@@ -2424,7 +2426,7 @@ class ImViewerUI
 		c.add(component, BorderLayout.CENTER);
 		
 	}
-	
+
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
 	 * @see TopWindow#setOnScreen() 

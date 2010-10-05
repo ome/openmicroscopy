@@ -1432,6 +1432,20 @@ class ImViewerModel
 		}
 	}
 	
+	/**
+	 * Sets the original settings, the method should only be invoked when
+	 * keeping track of the value after a save from the preview.
+	 * 
+	 * @param settings The settings to set.
+	 */
+	void resetOriginalSettings(RndProxyDef settings)
+	{
+		originalDef = settings;
+		if (settings != null && renderingSettings != null) {
+			renderingSettings.put(ImViewerAgent.getUserDetails(), settings);
+		}
+	}
+	
 	/** 
 	 * Starts an asynchronous call to retrieve the rendering settings to paste. 
 	 */

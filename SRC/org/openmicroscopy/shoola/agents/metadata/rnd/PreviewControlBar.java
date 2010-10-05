@@ -54,7 +54,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since 3.0-Beta4
  */
-public class PreviewControlBar 
+class PreviewControlBar 
 	extends JPanel
 {
 

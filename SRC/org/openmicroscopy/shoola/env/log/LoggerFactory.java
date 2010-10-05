@@ -128,7 +128,7 @@ public class LoggerFactory
 	 * 
 	 * @param file	Absolute pathname to the file.
 	 * @return	The content of the file as a property object or
-	 * 			<code>null</code> if an error occured.
+	 * 			<code>null</code> if an error occurred.
 	 */
 	private static Properties loadConfig(String file)
 	{

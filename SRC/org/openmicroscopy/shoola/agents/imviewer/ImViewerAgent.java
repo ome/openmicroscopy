@@ -36,7 +36,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.ImageViewport;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
 import org.openmicroscopy.shoola.agents.events.iviewer.RendererUnloadedEvent;
-import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
+import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsSaved;
 import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
@@ -207,10 +207,22 @@ public class ImViewerAgent
      * 
      * @param evt The event to handle.
      */
-    public void handleCopyRndSettings(CopyRndSettings evt)
+    public void handleCopyRndSettingsEvent(CopyRndSettings evt)
     {
     	if (evt == null) return;
     	ImViewerFactory.copyRndSettings(evt.getImage());
+    }
+    
+    /**
+     * Handles the {@link RndSettingsSaved} event.
+     * 
+     * @param evt The event to handle.
+     */
+    public void handleRndSettingsSavedEvent(RndSettingsSaved evt)
+    {
+    	if (evt == null) return;
+    	ImViewerFactory.rndSettingsSaved(evt.getRefPixelsID(), 
+    			evt.getSettings());
     }
     
     /**
@@ -228,20 +240,7 @@ public class ImViewerAgent
 			//viewer.toFront();
 		}
     }
-    
-    /**
-     * Reloads the rendering engine if the settings of an active viewer
-     * have been updated.
-     * 
-     * @param evt The event to handle.
-     */
-    private void handleRndSettingsCopiedEvent(RndSettingsCopied evt)
-    {
-    	if (evt == null) return;
-    	ImViewerFactory.reloadRenderingEngine(evt.getImagesIDs(), 
-    							evt.getRefPixelsID());
-    }
-    
+
     /**
      * Displays the passed rectangle if possible.
      * 
@@ -363,12 +362,12 @@ public class ImViewerAgent
         bus.register(this, CopyRndSettings.class);
         bus.register(this, SaveRelatedData.class);
         bus.register(this, FocusGainedEvent.class);
-        bus.register(this, RndSettingsCopied.class);
         bus.register(this, ImageViewport.class);
         bus.register(this, UserGroupSwitched.class);
         bus.register(this, ViewObjectEvent.class);
         bus.register(this, RendererUnloadedEvent.class);
         bus.register(this, DeleteObjectEvent.class);
+        bus.register(this, RndSettingsSaved.class);
     }
 
     /**
@@ -409,13 +408,11 @@ public class ImViewerAgent
         else if (e instanceof SelectPlane)
         	handleSelectPlane((SelectPlane) e);
         else if (e instanceof CopyRndSettings)
-        	handleCopyRndSettings((CopyRndSettings) e);
+        	handleCopyRndSettingsEvent((CopyRndSettings) e);
         else if (e instanceof SaveRelatedData)
         	handleSaveRelatedData((SaveRelatedData) e);
         else if (e instanceof FocusGainedEvent)
 			handleFocusGainedEvent((FocusGainedEvent) e);
-        else if (e instanceof RndSettingsCopied)
-			handleRndSettingsCopiedEvent((RndSettingsCopied) e);
         else if (e instanceof ImageViewport)
 			handleImageViewportEvent((ImageViewport) e);
         else if (e instanceof UserGroupSwitched)
@@ -426,6 +423,8 @@ public class ImViewerAgent
         	handleRendererUnloadedEvent((RendererUnloadedEvent) e);
         else if (e instanceof DeleteObjectEvent)
         	handleDeleteObjectEvent((DeleteObjectEvent) e);
+        else if (e instanceof RndSettingsSaved) 
+        	handleRndSettingsSavedEvent((RndSettingsSaved) e);
     }
 
 }

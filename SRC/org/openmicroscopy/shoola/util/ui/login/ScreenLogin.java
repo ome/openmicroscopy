@@ -471,10 +471,8 @@ public class ScreenLogin
 	 * 
 	 * @param userName The name of the user.
 	 */
-	private void initializes(String userName)
+	private void initialize(String userName)
 	{
-		
-		
 		originalName = userName;
 		user = new JTextField();
 		user.setText(userName);
@@ -990,7 +988,7 @@ public class ScreenLogin
 		editor = new ServerEditor(defaultPort);
 		editor.addPropertyChangeListener(ServerEditor.REMOVE_PROPERTY, this);
 		speedIndex = retrieveConnectionSpeed();
-		initializes(getUserName());
+		initialize(getUserName());
 		initListeners();
 		buildGUI(logo, version);
 		encrypt();

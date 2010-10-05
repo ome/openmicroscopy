@@ -316,12 +316,11 @@ class OmeroImageServiceImpl
 				return r;
 			}
 			//First check if we have a renderer for the pixel
-			
-			
+			BufferedImage img;
 			RenderingControl rnd;
 			PlaneDef pDef = new PlaneDef();
 			pDef.slice = omero.romio.XY.value;
-			BufferedImage img;
+			
 			Dimension d;
 			int level;
 			while (j.hasNext()) {
@@ -337,11 +336,12 @@ class OmeroImageServiceImpl
 	        				rnd.getPixelsDimensionsX(), 
 	        				rnd.getPixelsDimensionsY());
 					try {
-						level = rnd.getCompressionLevel();
-						rnd.setCompression(RenderingControl.LOW);
+						//check compression
+						//level = rnd.getCompressionLevel();
+						//rnd.setCompression(RenderingControl.LOW);
 						img = Factory.scaleBufferedImage(rnd.renderPlane(pDef),
 								d.width, d.height);
-						rnd.setCompression(level);
+						//rnd.setCompression(level);
 						r.put(id, img);
 					} catch (Exception e) {//failed to get it that way
 						ids.add(id);

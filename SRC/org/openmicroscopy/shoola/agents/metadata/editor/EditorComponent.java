@@ -676,7 +676,7 @@ class EditorComponent
 				break;
 			case EditorUI.RND_INDEX:
 				Renderer rnd = getRenderer();
-				if (rnd != null) rnd.reloadUI(true);
+				if (rnd != null) rnd.refresh();
 				break;
 			case EditorUI.ACQUISITION_INDEX:
 				view.refreshAcquisition();

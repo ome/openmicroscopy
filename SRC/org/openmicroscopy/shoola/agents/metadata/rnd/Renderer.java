@@ -491,7 +491,7 @@ public interface Renderer
 	 * Saves the rendering settings and returns the saved object.
 	 * 
 	 * @return See above
-	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken. 
 	 */
@@ -550,14 +550,6 @@ public interface Renderer
 	 * @return See above.
 	 */
 	BufferedImage renderPlane(PlaneDef pDef);
-	
-	/** 
-	 * Reloads the UI.
-	 * 
-	 * @param reloadPlane Pass <code>true</code> to reload a plane,
-	 * 					  <code>false</code> otherwise.
-	 */
-	void reloadUI(boolean reloadPlane);
 	
 	/** 
 	 * Sets the maximum range for channels.
