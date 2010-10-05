@@ -42,6 +42,7 @@ from time import time
 from thread import start_new_thread
 
 from omero_version import omero_version
+import omero, omero.scripts 
 
 from django.conf import settings
 from django.contrib.sessions.backends.cache import SessionStore
@@ -1436,28 +1437,28 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             template = "webclient/annotations/annotation_new_form.html"
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_files':form_files}
     elif action == 'delete':
-        child = request.REQUEST.get('child')
+        child = request.REQUEST.get('o_type')
         anns = request.REQUEST.get('anns')
         try:
-            callback = manager.deleteItem(child, anns)
-            request.session['callback'][str(callback)] = str(callback)
+            handle = manager.deleteItem(child, anns)
+            request.session['callback'][str(handle)] = {'delmany':False,'did':o_id, 'dtype':o_type, 'derror':handle.errors(), 'dreport':handle.report()}
+            request.session.modified = True
         except Exception, x:
             logger.error(traceback.format_exc())
             rv = "Error: %s" % x
-            return HttpResponse(rv)
-        request.session.modified = True
+            return HttpResponse(rv)        
         return HttpResponse()
     elif action == 'deletemany':
         ids = request.REQUEST.getlist('image')
         anns = request.REQUEST.get('anns')
         try:
-            callback = manager.deleteImages(ids, anns)
-            request.session['callback'][str(callback)] = str(callback)
+            handle = manager.deleteImages(ids, anns)
+            request.session['callback'][str(handle)] = {'delmany':len(ids), 'did':ids, 'dtype':'image', 'derror':handle.errors(), 'dreport':handle.report()}
+            request.session.modified = True
         except Exception, x:
             logger.error(traceback.format_exc())
             rv = "Error: %s" % x
             return HttpResponse(rv)
-        request.session.modified = True
         return HttpResponse()
     
     t = template_loader.get_template(template)
@@ -2133,8 +2134,7 @@ def load_history(request, year, month, day, **kwargs):
 # Progressbar
 
 @isUserConnected
-def progress(request, **kwargs): 
-    import omero, omero.scripts 
+def progress(request, **kwargs):
     conn = None
     try:
         conn = kwargs["conn"]
@@ -2142,26 +2142,52 @@ def progress(request, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
-    removed = list()
-    for cbString in request.session.get('callback'):
-        handle = omero.api.delete.DeleteHandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
-        res = None
-        try:
-            cb = omero.callbacks.DeleteCallbackI(conn.c, handle)
-            if cb.block(500) is not None: # ms.
-                cb.close()
-                res = handle.report()
-        except:
-            logger.error(traceback.format_exc())
-        
-        if res is not None and len("".join(res)) == 0:
-            removed.append(request.session['callback'][cbString])
-    
-    for cbString in removed:
-        del request.session['callback'][cbString]
+    in_progress = 0
+    failure = 0
+    for cbString in request.session.get('callback').keys():
+        dreport = request.session['callback'][cbString]['dreport']
+        if dreport == "Finished":
+            del request.session['callback'][cbString]
+        elif dreport == "Failed":
+            failure+=1
+        else:
+            try:
+                handle = omero.api.delete.DeleteHandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
+                cb = omero.callbacks.DeleteCallbackI(conn.c, handle)
+                if cb.block(500) is None: # ms.
+                    err = handle.errors()
+                    request.session['callback'][cbString]['derror'] = err
+                    if err > 0:
+                        logger.error("Status job '%s'error:" % cbString)
+                        logger.error(err)
+                        request.session['callback'][cbString]['dreport'] = "Failed"
+                        failure+=1
+                    else:
+                        request.session['callback'][cbString]['dreport'] = "Progress"
+                        in_progress+=1
+                else:
+                    err = handle.errors()
+                    request.session['callback'][cbString]['derror'] = err
+                    if err > 0:
+                        request.session['callback'][cbString]['dreport'] = "Failed"
+                        failure+=1
+                    else:
+                        request.session['callback'][cbString]['dreport'] = "Finished"
+                        cb.close()
+            except Ice.ObjectNotExistException:
+                request.session['callback'][cbString]['dreport'] = "Finished"
+            except:
+                logger.error(traceback.format_exc())
+                logger.error("Status job '%s'error:" % cbString)
+                request.session['callback'][cbString]['derror'] = 1
+                request.session['callback'][cbString]['dreport'] = "Failed"
+                failure+=1
+            
 
-    request.session.modified = True
-    return HttpResponse(simplejson.dumps(len(request.session['callback'])),mimetype='application/json')
+    request.session.modified = True    
+        
+    rv = {'inprogress':in_progress, 'failure':failure, 'jobs':len(request.session['callback'])}
+    return HttpResponse(simplejson.dumps(rv),mimetype='application/json')
 
 @isUserConnected
 def status_action (request, action=None, **kwargs):
@@ -2177,31 +2203,45 @@ def status_action (request, action=None, **kwargs):
     
     template = "webclient/status/status.html"
     
-    jobs = list()
-    removed = list()
-    for cbString in request.session.get('callback'):
-        handle = omero.api.delete.DeleteHandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
-        res = None
-        try:
-            cb = omero.callbacks.DeleteCallbackI(conn.c, handle)
-            if cb.block(500) is not None: # ms.
-                cb.close()
-                res = handle.report()
-        except:
-            logger.error(traceback.format_exc())
-        
-        if res is not None and len("".join(res)) == 0:
-            removed.append(request.session['callback'][cbString])
-        else:
-            jobs.append(cbString)
-            
-    for cbString in removed:
-        del request.session['callback'][cbString]
-                
+    jobs = list()    
+    for cbString in request.session.get('callback').keys():
+        dreport = request.session['callback'][cbString]['dreport']
+        if dreport == "Finished":
+            del request.session['callback'][cbString]
+        elif str(dreport) != "Failed" or dreport != "Finished":
+            handle = None
+            try:
+                handle = omero.api.delete.DeleteHandlePrx.checkedCast(conn.c.ic.stringToProxy(cbString))
+                cb = omero.callbacks.DeleteCallbackI(conn.c, handle)
+                if cb.block(500) is None: # ms.
+                    err = handle.errors()
+                    request.session['callback'][cbString]['derror'] = err
+                    if err > 0:
+                        logger.error("Status job '%s'error:" % cbString)
+                        logger.error(err)
+                        request.session['callback'][cbString]['dreport'] = "Failed"
+                    else:
+                        request.session['callback'][cbString]['dreport'] = "Progress"
+                else:
+                    err = handle.errors()
+                    request.session['callback'][cbString]['derror'] = err
+                    if err > 0:
+                        request.session['callback'][cbString]['dreport'] = "Failed"
+                    else:
+                        request.session['callback'][cbString]['dreport'] = "Finished"
+                        cb.close()
+            except Ice.ObjectNotExistException:
+                request.session['callback'][cbString]['dreport'] = "Finished"
+            except:
+                logger.error(traceback.format_exc())
+                logger.error("Status job '%s'error:" % cbString)
+                request.session['callback'][cbString]['derror'] = 1
+                request.session['callback'][cbString]['dreport'] = "Failed"
+
     controller = BaseController(conn)    
     form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['allGroups']})
         
-    context = {'nav':request.session['nav'], 'eContext':controller.eContext, 'sizeOfJobs':len(jobs), 'jobs':jobs, 'form_active_group':form_active_group }
+    context = {'nav':request.session['nav'], 'eContext':controller.eContext, 'sizeOfJobs':len(request.session['callback']), 'jobs':request.session['callback'], 'form_active_group':form_active_group }
 
     t = template_loader.get_template(template)
     c = Context(request,context)

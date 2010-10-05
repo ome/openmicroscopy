@@ -8,6 +8,14 @@ var calculateCartTotal = function(total)
     $('#cartTotal').html(total); 
 };
 
+function loadMetadata(src) {
+    var h = $(window).height()-200;
+    $("#right_panel").show();
+    $("#swapMeta").html('<img tabindex="0" src="/appmedia/omeroweb/images/tree/spacer.gif"" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
+    $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="'+src+'" id="metadata_details" name="metadata_details"></iframe>');
+    $('iframe#metadata_details').load();
+}
+
 function manyToAnnotation(){
     if (!isCheckedById("image") && !isCheckedById("dataset") && !isCheckedById("project") && !isCheckedById("well") && !isCheckedById("plate") && !isCheckedById("screen")) {
         alert ("Please select at least one image. Currently you cannot add other objects to basket."); 
@@ -19,11 +27,7 @@ function manyToAnnotation(){
             }
         });
         
-        var h = $(window).height()-200;
-        $("#right_panel").show();
-        $("#swapMeta").html('<img tabindex="0" src="/appmedia/omeroweb/images/tree/spacer.gif"" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
-        $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="'+productListQuery+'" id="metadata_details" name="metadata_details"></iframe>');
-        $('iframe#metadata_details').load();
+        loadMetadata(productListQuery);
     }    
 }
 
@@ -192,15 +196,19 @@ function deleteItems (productArray, parent) {
                 //window.location.replace("");
                 var i = setInterval(function (){
                     $.getJSON("/webclient/progress/", function(data) {
-                        if (data == 0 || data == null) {
+                        if (data.inprogress== 0) {
                             clearInterval(i);
                             $("#progress").hide();
-                            $("#jobstatus").html('');
+                            if(data.failure>0) {
+                                $("#jobstatus").html('<a href="/webclient/status/" class="align_left">STATUS:</a>' + data.failure + ' job(s) failed');
+                            } else {
+                                $("#jobstatus").html('');
+                            }
                             return;
                         }
 
                         $("#progress").show();
-                        $("#jobstatus").html('<a class="align_left">STATUS&nbsp;</a>' + data + 'job(s) in progress');
+                        $("#jobstatus").html('<a href="/webclient/status/" class="align_left">STATUS:</a>' + data.jobs + ' job(s)');
                     });
                 }, 1000);
                 productArray.each(function() {
@@ -242,7 +250,7 @@ function deleteItem(productType, productId) {
                 success: function(responce){
                     if(responce.match(/(Error: ([A-z]+))/gi)) {
                         alert(responce)
-                    } else {
+                    } else {  
                         //window.location.replace("");
                         if ((productType == 'image') && productId > 0) {
                             $("div#metadata_details").empty();
@@ -252,7 +260,7 @@ function deleteItem(productType, productId) {
                         } else if ((productType == 'project' || productType == 'screen') && productId > 0) {
                             $("div#metadata_details").empty();
                         }
-                        
+
                         a = simpleTreeCollection.find('span.active').parents('li:first');
                         if (a.attr('class').indexOf('last')>=0) {  
                             a.prev().prev().attr('class', a.prev().prev().attr('class')+'-last');
@@ -266,18 +274,22 @@ function deleteItem(productType, productId) {
                         }
                         a.prev('li.line').remove();
                         a.remove();
-                        
+                                          
                         var i = setInterval(function (){
                             $.getJSON("/webclient/progress/", function(data) {
-                                if (data == 0 || data == null) {
+                                if (data.inprogress== 0) {
                                     clearInterval(i);
                                     $("#progress").hide();
-                                    $("#jobstatus").html('');
+                                    if(data.failure>0) {
+                                        $("#jobstatus").html('<a href="/webclient/status/" class="align_left">STATUS:</a>' + data.failure + ' job(s) failed');
+                                    } else {
+                                        $("#jobstatus").html('');
+                                    }
                                     return;
                                 }
 
                                 $("#progress").show();
-                                $("#jobstatus").html('<a class="align_left">STATUS&nbsp;</a>' + data + 'job(s) in progress');
+                                $("#jobstatus").html('<a href="/webclient/status/" class="align_left">STATUS:</a>' + data.jobs + ' job(s)');
                             });
                         }, 1000);
                     }
@@ -429,11 +441,8 @@ function saveMetadata (image_id, metadata_type, metadata_value) {
 }
 
 function editItem(type, item_id) {
-    var h = $(window).height()-169;
-    $("#right_panel").show();
-    $("#swapMeta").html('<img tabindex="0" src="/appmedia/omeroweb/images/tree/spacer.gif" class="collapsed-right" id="lhid_trayhandle_icon_right">');
-    $("div#metadata_details").html('<iframe width="370" height="'+h+'" src="/webclient/action/edit/'+type+'/'+item_id+'/" id="metadata_details" name="metadata_details"></iframe>');
-    $('iframe#metadata_details').load();
+    src = '/webclient/action/edit/'+type+'/'+item_id+'/';
+    loadMetadata(src);
     return false;
 }
 
@@ -461,19 +470,13 @@ function makeShare() {
         }
     }
     
-    var h = $(window).height()-169;
-    $("#right_panel").show();
-    $("#swapMeta").html('<img tabindex="0" src="/appmedia/omeroweb/images/tree/spacer.gif" class="collapsed-right" id="lhid_trayhandle_icon_right">');
-    $("div#metadata_details").html('<iframe width="370" height="'+h+'" src="/webclient/basket/toshare/?'+productListQuery+'" id="metadata_details" name="metadata_details"></iframe>');
-    $('iframe#metadata_details').load();
+    src = '/webclient/basket/toshare/?'+productListQuery+'';
+    loadMetadata(src);
     return false;
 }
 
 function makeDiscussion() {
-    var h = $(window).height()-169;
-    $("#right_panel").show();
-    $("#swapMeta").html('<img tabindex="0" src="/appmedia/omeroweb/images/tree/spacer.gif" class="collapsed-right" id="lhid_trayhandle_icon_right">');
-    $("div#metadata_details").html('<iframe width="370" height="'+h+'" src="/webclient/basket/todiscuss/" id="metadata_details" name="metadata_details"></iframe>');
-    $('iframe#metadata_details').load();
+    src = '/webclient/basket/todiscuss/';
+    loadMetadata(src);
     return false;
 }

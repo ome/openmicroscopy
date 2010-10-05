@@ -37,23 +37,35 @@
 {% block center %}
 
 <div id="content_details">
-    <h1>Status</h1>
-    {% if status.sizeOfJobs %}
+    <h1>Jobs status</h1>
+    {% if sizeOfJobs %}
 
         <table id="dataTable" class="tablesorter">
             <thead> 
                 <tr> 
-                    <th class="action">{% trans "Job" %}</th> 
+                    <th class="desc">{% trans "Job" %}</th> 
                     <th class="desc">{% trans "Status" %}</th> 
+                    <th class="desc">{% trans "Error" %}</th> 
                 </tr> 
             </thead>
             <tbody>
-                {% for c in status.jobs %}
+                {% for k,v in jobs.iteritems %}
                     <tr>
                         <td class="action">
-                            {{ c }}      
+                            {% ifequal v.dtype "project" %}<input class="button" type="image" src="{% url webstatic "images/folder32.png" %}" alt="project" title="project" onclick="loadMetadata('{% url load_metadata_details "image" v.did %}');"/>{% else %}
+                            {% ifequal v.dtype "dataset" %}<input class="button" type="image" src="{% url webstatic "images/folder_image32.png" %}" alt="dataset" title="dataset" onclick="loadMetadata('{% url load_metadata_details "image" v.did %}');"/>{% else %}
+                            {% ifequal v.dtype "image" %}
+                                {% if v.delmany %}
+                                    Deleting {{ v.delmany }} {{ v.dtype }}(s)
+                                {% else %}
+                                    <input class="button" type="image" src="{% url render_thumbnail_resize 32 v.did  %}" alt="image" title="image" onclick="loadMetadata('{% url load_metadata_details "image" v.did %}');"/>
+                                {% endif %}{% else %}
+                            {% ifequal v.dtype "screen" %}<input class="button" type="image" src="{% url webstatic "images/folder_image32.png" %}" alt="screen" title="screen" onclick="loadMetadata('{% url load_metadata_details "image" v.did %}');"/>{% else %}
+                            {% ifequal v.dtype "plate" %}<input class="button" type="image" src="{% url webstatic "images/folder_image32.png" %}" alt="plate" title="plate" onclick="loadMetadata('{% url load_metadata_details "image" v.did %}');"/>
+                            {% endifequal %}{% endifequal %}{% endifequal %}{% endifequal %}{% endifequal %}    
                         </td>
-                        <td class="roles">in progress <img src="{% url webstatic "images/spinner.gif" %}"/></td>                    
+                        <td class="action">{{ v.dreport }}{% ifequal v.dreport "Progress" %} <img src="{% url webstatic "images/spinner.gif" %}"/>{% endifequal %}</td>
+                        <td class="action">{{ v.derror }}</td>
                     </tr>
                 {% endfor %}
             </tbody>
