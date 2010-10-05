@@ -357,7 +357,6 @@ public class ExporterI extends AbstractAmdServant implements
                                 }
                                 retrieve = null;
 
-                                //
                                 try {
                                     writer.close();
                                 } finally {
@@ -365,17 +364,16 @@ public class ExporterI extends AbstractAmdServant implements
                                     writer = null;
                                 }
 
-                                cleanup(null, null, writer);
-                                __cb.ice_response(file.length());
-                            } catch (Exception e) {
-                                omero.InternalException ie = new omero.InternalException(
-                                        null, null,
-                                        "Error during TIFF generation");
-                                IceMapper.fillServerError(ie, e);
-                                __cb.ice_exception(ie);
-                            } finally {
-                                cleanup(raw, reader, writer);
-                            }
+                                    __cb.ice_response(file.length());
+                                } catch (Exception e) {
+                                    omero.InternalException ie = new omero.InternalException(
+                                            null, null,
+                                            "Error during TIFF generation");
+                                    IceMapper.fillServerError(ie, e);
+                                    __cb.ice_exception(ie);
+                                } finally {
+                                    cleanup(raw, reader, writer);
+                                }
 
                             return null; // see calls to __cb above
                         }
