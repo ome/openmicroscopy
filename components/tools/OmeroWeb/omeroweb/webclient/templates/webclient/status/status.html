@@ -40,38 +40,48 @@
     <h1>Jobs status</h1>
     {% if sizeOfJobs %}
 
+        <div id="toolbar" class="toolbar_noborder">
+            <input class="button" type="image" src="{% url webstatic "images/reset.png" %}" alt="Clean" title="Clean" onclick="document.location.href='{% url status "clean" %}';">
+        </div>
+        <div class="clear"> </div>
+        
         <table id="dataTable" class="tablesorter">
             <thead> 
                 <tr> 
                     <th class="desc">{% trans "Job" %}</th> 
                     <th class="desc">{% trans "Status" %}</th> 
-                    <th class="desc">{% trans "Error" %}</th> 
                 </tr> 
             </thead>
             <tbody>
                 {% for k,v in jobs.iteritems %}
                     <tr>
                         <td class="action">
-                            {% ifequal v.dtype "project" %}<input class="button" type="image" src="{% url webstatic "images/folder32.png" %}" alt="project" title="project" onclick="loadMetadata('{% url load_metadata_details "image" v.did %}');"/>{% else %}
-                            {% ifequal v.dtype "dataset" %}<input class="button" type="image" src="{% url webstatic "images/folder_image32.png" %}" alt="dataset" title="dataset" onclick="loadMetadata('{% url load_metadata_details "image" v.did %}');"/>{% else %}
-                            {% ifequal v.dtype "image" %}
-                                {% if v.delmany %}
-                                    Deleting {{ v.delmany }} {{ v.dtype }}(s)
+                            {% if v.delmany %}
+                                Delete {{ v.delmany }} {{ v.dtype }}(s):
+                                {% for iid in v.did %}                                    
+                                    {% ifequal v.dstatus "failed" %}
+                                        <a onclick="loadMetadata('{% url load_metadata_details "image" iid %}');">{{ v.dtype }} {{ iid }}</a>, 
+                                    {% else %}
+                                        {{ iid }},
+                                    {% endifequal %}
+                                {% endfor %}
+                            {% else %}
+                                Delete 
+                                {% ifequal v.dstatus "failed" %}
+                                    <a onclick="loadMetadata('{% url load_metadata_details "image" v.did %}');">{{ v.dtype }} {{ v.did }}</a>
                                 {% else %}
-                                    <input class="button" type="image" src="{% url render_thumbnail_resize 32 v.did  %}" alt="image" title="image" onclick="loadMetadata('{% url load_metadata_details "image" v.did %}');"/>
-                                {% endif %}{% else %}
-                            {% ifequal v.dtype "screen" %}<input class="button" type="image" src="{% url webstatic "images/folder_image32.png" %}" alt="screen" title="screen" onclick="loadMetadata('{% url load_metadata_details "image" v.did %}');"/>{% else %}
-                            {% ifequal v.dtype "plate" %}<input class="button" type="image" src="{% url webstatic "images/folder_image32.png" %}" alt="plate" title="plate" onclick="loadMetadata('{% url load_metadata_details "image" v.did %}');"/>
-                            {% endifequal %}{% endifequal %}{% endifequal %}{% endifequal %}{% endifequal %}    
+                                    {{ v.dtype }} {{ v.did }}
+                                {% endifequal %}
+                            {% endif %}
                         </td>
-                        <td class="action">{{ v.dreport }}{% ifequal v.dreport "Progress" %} <img src="{% url webstatic "images/spinner.gif" %}"/>{% endifequal %}</td>
-                        <td class="action">{{ v.derror }}</td>
+                        <td class="action">{{ v.dstatus|capfirst }}{% ifequal v.dstatus "in progress" %} <img src="{% url webstatic "images/spinner.gif" %}"/>{% endifequal %} {% if v.dreport %}{{ v.derror }} error(s) ({{ v.dreport }}){% endif %}</td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
 
         </div>
+
 
     {% else %}
         <p>{% trans "There are no jobs" %}</p>

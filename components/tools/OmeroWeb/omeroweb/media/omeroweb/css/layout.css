@@ -230,6 +230,7 @@ a {
     color: #1b7bc7;
     text-decoration: none;
     border: none;
+    cursor:pointer;
 }
 a:hover,a:link,a:visited {
     color: #1b7bc7;

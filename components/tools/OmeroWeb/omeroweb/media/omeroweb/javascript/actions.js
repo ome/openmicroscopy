@@ -193,33 +193,24 @@ function deleteItems (productArray, parent) {
             if(responce.match(/(Error: ([A-z]+))/gi)) {
                 alert(responce)
             } else {
-                //window.location.replace("");
+                window.location.replace("");
                 var i = setInterval(function (){
                     $.getJSON("/webclient/progress/", function(data) {
                         if (data.inprogress== 0) {
                             clearInterval(i);
                             $("#progress").hide();
                             if(data.failure>0) {
-                                $("#jobstatus").html('<a href="/webclient/status/" class="align_left">STATUS:</a>' + data.failure + ' job(s) failed');
+                                $("#jobstatus").html(data.failure + ' job(s) failed');
                             } else {
-                                $("#jobstatus").html('');
+                                $("#jobstatus").html(data.jobs + ' job(s)');
                             }
                             return;
                         }
 
                         $("#progress").show();
-                        $("#jobstatus").html('<a href="/webclient/status/" class="align_left">STATUS:</a>' + data.jobs + ' job(s)');
+                        $("#jobstatus").html(data.inprogress + ' job(s) in progress');
                     });
-                }, 1000);
-                productArray.each(function() {
-                    if(this.checked) {
-                        $('li#'+this.id).remove();
-                        a = simpleTreeCollection.find('li#img-'+this.id);
-                        a.prev('li.line').remove();
-                        a.remove();
-                    }
-                });
-                
+                }, 1000);                
             }
         },
         error: function(responce) {
@@ -253,7 +244,11 @@ function deleteItem(productType, productId) {
                     } else {  
                         //window.location.replace("");
                         if ((productType == 'image') && productId > 0) {
+                            var obj = $("div#content_details").attr('rel').split("-");
                             $("div#metadata_details").empty();
+                            $("div#content_details").html('<p>Reloading data... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+                            $("div#content_details").load('/webclient/load_data/dataset/'+obj[1]+'/?view=icon');
+                            $("div#content_details").attr('rel', obj.join("-"));
                         } else if ((productType == 'dataset' || productType == 'plate') && productId > 0) {
                             $("div#metadata_details").empty();
                             $("div#content_details").removeAttr('rel').children().remove();
@@ -265,13 +260,6 @@ function deleteItem(productType, productId) {
                         if (a.attr('class').indexOf('last')>=0) {  
                             a.prev().prev().attr('class', a.prev().prev().attr('class')+'-last');
                         }
-                        if ((productType == 'image') && productId > 0) {
-                            if ($('#dataIcons').length != 0) {
-                                $('#dataIcons').find('li#'+a.attr('id').split("-")[1]).remove();
-                            } else if ($('#dataTable').length != 0) {
-                                $('#dataTable').find('tr#'+a.attr('id').split("-")[1]).remove();
-                            }
-                        }
                         a.prev('li.line').remove();
                         a.remove();
                                           
@@ -281,15 +269,15 @@ function deleteItem(productType, productId) {
                                     clearInterval(i);
                                     $("#progress").hide();
                                     if(data.failure>0) {
-                                        $("#jobstatus").html('<a href="/webclient/status/" class="align_left">STATUS:</a>' + data.failure + ' job(s) failed');
+                                        $("#jobstatus").html(data.failure + ' job(s) failed');
                                     } else {
-                                        $("#jobstatus").html('');
+                                        $("#jobstatus").html(data.jobs + ' job(s)');
                                     }
                                     return;
                                 }
 
                                 $("#progress").show();
-                                $("#jobstatus").html('<a href="/webclient/status/" class="align_left">STATUS:</a>' + data.jobs + ' job(s)');
+                                $("#jobstatus").html(data.inprogress + ' job(s) in progress');
                             });
                         }, 1000);
                     }
