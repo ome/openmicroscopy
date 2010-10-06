@@ -18,6 +18,7 @@ import java.util.regex.Pattern;
 import ome.api.IDelete;
 import ome.model.IObject;
 import ome.security.basic.CurrentDetails;
+import ome.services.delete.DeleteOpts.Op;
 import ome.system.EventContext;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.QueryBuilder;
@@ -45,52 +46,6 @@ import org.springframework.beans.factory.ListableBeanFactory;
 public class DeleteEntry {
 
     private final static Log log = LogFactory.getLog(DeleteEntry.class);
-    
-    public enum Op {
-
-        /**
-         * Default operation. If a delete is not possible, i.e. it fails with a
-         * {@link org.hibernate.exception.ConstraintViolationException} or
-         * similar, then the failure will cause the entire command to fail as an
-         * error.
-         */
-        HARD,
-
-        /**
-         * Delete is attempted, but the exceptions which would make a
-         * {@link #HARD} operation fail lead only to warnings.
-         */
-        SOFT,
-
-        /**
-         * Prevents the delete from being carried out. If an entry has a subspec,
-         * then the entire subgraph will not be deleted. In some cases,
-         * specifically {@link AnnotationDeleteSpec} this value may be
-         * vetoed by {@link DeleteSpec#overrideKeep()}.
-         */
-        KEEP,
-
-        /**
-         * Permits the use of force to remove objects even against the
-         * permission system. (This option cannot override low-level
-         * DB constraints)
-         */
-        FORCE,
-
-        REAP,
-
-        ORPHAN,
-
-        /**
-         * Nulls a particular field of the target rather than deleting it.
-         * This is useful for situations where one user has generated data
-         * from another user, as with projections.
-         *
-         * <em>WARNING:</em>Currently, NULL can only be used for the
-         * Pixels.relatedTo relationship.
-         */
-        NULL;
-    }
 
     final public static Op DEFAULT = Op.HARD;
 
@@ -110,8 +65,10 @@ public class DeleteEntry {
      *
      * No longer protected since the {@link #initialize(String, Map)} phase can
      * change the operation based on the options map.
+     *
+     * This operation may be modified by other operations in the stack.
      */
-    private Op op;
+    private Op operation;
 
     /**
      * {@link DeleteSpec Subspec} found by looking for the {@link #name} of this
@@ -144,7 +101,7 @@ public class DeleteEntry {
         this.self = self;
         final Matcher m = getMatcher(value);
         this.name = getName(m);
-        this.op = getOp(m);
+        this.operation = getOp(m);
         this.path = getPath(m);
         this.parts = split(name);
     }
@@ -152,7 +109,7 @@ public class DeleteEntry {
     public DeleteEntry(DeleteSpec self, String name, DeleteEntry entry) {
         this.self = self;
         this.name = name;
-        this.op = entry.op;
+        this.operation = entry.operation;
         this.path = entry.path;
         this.parts = split(name);
     }
@@ -161,8 +118,8 @@ public class DeleteEntry {
         return name;
     }
 
-    public Op getOp() {
-        return op;
+    public boolean isKeep() {
+        return Op.KEEP.equals(operation);
     }
 
     /**
@@ -300,7 +257,7 @@ public class DeleteEntry {
                 option = options.get(string);
                 if (option != null) {
                     String[] parts = option.split(";"); // Just in case
-                    op = Op.valueOf(parts[0]);
+                    operation = Op.valueOf(parts[0]);
                     break;
                 }
 
@@ -327,7 +284,7 @@ public class DeleteEntry {
      * parts are kept or not kept.
      */
     public boolean skip() {
-        if (Op.KEEP.equals(this.getOp())) {
+        if (isKeep()) {
             DeleteSpec spec = this.getSubSpec();
             if (spec != null) {
                 return ! spec.overrideKeep();
@@ -337,42 +294,50 @@ public class DeleteEntry {
     }
     
     public String delete(Session session, CurrentDetails details,
-            ExtendedMetadata em, String superspec, DeleteIds deleteIds, List<Long> ids)
+            ExtendedMetadata em, String superspec, DeleteIds deleteIds,
+            List<Long> ids, DeleteOpts opts)
         throws DeleteException {
         
-        if (skip()) {
-            if (log.isDebugEnabled()) {
-                log.debug("skipping " + this);
-            }
-            return ""; // EARLY EXIT!
-        }
-        
-        
-        StringBuilder sb = new StringBuilder();
+        // Add this instance to the opts. Any method which then tries to
+        // ask the opts for the current state will have an accurate view.
+        opts.push(operation);
 
-        DeleteSpec subSpec = getSubSpec();
-        if (subSpec == null) {
-            sb.append(execute(session, details, em, deleteIds, ids));
-        } else {
-            for (int i = 0; i < subStepCount; i++) {
-                // TODO refactor this into a single location with
-                // execute below. This may require setting the
-                // "superOp" on subSpecs. Is there a need for
-                // handling longer chains of ops??
-                String cause = null;
-                try {
-                    cause = subSpec.delete(session, i, deleteIds);
-                } catch (ConstraintViolationException cve) {
-                    if (Op.SOFT.equals(this.getOp())) {
-                        sb.append(cause);
-                    } else {
-                        throw cve;
+        try {
+
+            if (skip()) {
+                if (log.isDebugEnabled()) {
+                    log.debug("Skipping " + this);
+                }
+                return ""; // EARLY EXIT!
+            }
+
+            final StringBuilder sb = new StringBuilder();
+
+            DeleteSpec subSpec = getSubSpec();
+            if (subSpec == null) {
+                sb.append(execute(session, details, em, deleteIds, ids, opts));
+            } else {
+                for (int i = 0; i < subStepCount; i++) {
+                    // TODO refactor this into a single location with
+                    // execute below. This may require setting the
+                    // "superOp" on subSpecs. Is there a need for
+                    // handling longer chains of ops??
+                    String cause = null;
+                    try {
+                        cause = subSpec.delete(session, i, deleteIds, opts);
+                    } catch (ConstraintViolationException cve) {
+                        if (opts.isSoft()) {
+                            sb.append(cause);
+                        } else {
+                            throw cve;
+                        }
                     }
                 }
             }
+            return sb.toString();
+        } finally {
+            opts.pop();
         }
-
-        return sb.toString();
     }
 
     /**
@@ -383,7 +348,8 @@ public class DeleteEntry {
      * Originally copied from DeleteBean.
      */
     protected String execute(final Session session, final CurrentDetails details, 
-            final ExtendedMetadata em, final DeleteIds deleteIds, final List<Long> ids)
+            final ExtendedMetadata em, final DeleteIds deleteIds, final List<Long> ids,
+            DeleteOpts opts)
         throws DeleteException {
 
         final String[] path = this.path(superspec);
@@ -404,7 +370,7 @@ public class DeleteEntry {
         // BUT requires reversing the relationship:
         // /Image/Pixels/<>/Pixels
         QueryBuilder nullOp = null;
-        if (Op.NULL.equals(getOp())) {
+        if (Op.NULL.equals(operation)) {
             // If this is a null operation, we don't want to delete the row,
             // but just modify a value. NB: below we also prevent this from
             // being raised as a delete event. TODO: refactor out to Op
@@ -419,7 +385,7 @@ public class DeleteEntry {
         qb.delete(table);
         qb.where();
         qb.and("id = :id");
-        if (!Op.FORCE.equals(getOp())) {
+        if (!opts.isForce()) {
             permissionsClause(details, qb);
         }
 
@@ -434,9 +400,11 @@ public class DeleteEntry {
 
                 if (nullOp != null) {
                     nullOp.param("id", id);
-                    log.fatal(nullOp.toString());
                     q = nullOp.query(session);
-                    q.executeUpdate();
+                    int updated = q.executeUpdate();
+                    if (log.isDebugEnabled()) {
+                        log.debug("Nulled " + updated + " Pixels.relatedTo fields");
+                    }
                 }
 
                 qb.param("id", id);
@@ -457,7 +425,7 @@ public class DeleteEntry {
             } catch (ConstraintViolationException cve) {
                 rollback(session, sp);
                 String cause = "ConstraintViolation: " + cve.getConstraintName();
-                if (DeleteEntry.Op.SOFT.equals(this.getOp())) {
+                if (opts.isSoft()) {
                     log.debug(String.format("Could not delete softly %s: %s due to %s",
                             str, this.id, cause));
                     rv.append(cause);
@@ -517,11 +485,23 @@ public class DeleteEntry {
     @Override
     public String toString() {
         return "DeleteEntry [name=" + name + ", parts="
-                + Arrays.toString(parts) + ", op=" + op + ", path=" + path
+                + Arrays.toString(parts) + ", op=" + operation + ", path=" + path
                 + (subSpec == null ? "" : ", subSpec=" + subSpec.getName())
                 + "]";
     }
     
+    /**
+     * Similar to {@link #toString()} but used to
+     * @param superspec2
+     * @return
+     */
+    public Object log(String superspec) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(StringUtils.join(path(superspec), "/"));
+        sb.append("@");
+        sb.append(operation.toString());
+        return sb.toString();
+    }
     
     /**
      * Appends a clause to the {@link QueryBuilder} based on the current user.

@@ -89,6 +89,8 @@ public interface DeleteSpec {
      * @param ids
      *            Ids which should be deleted for each step in the graph,
      *            including subgraphs. Not null.
+     * @param opts
+     *            options which are active for the current operation.
      *
      * @return Any warnings which were noted during execution.
      * @throws DeleteException
@@ -97,7 +99,7 @@ public interface DeleteSpec {
      *             definition of the specification and to the options which are
      *             passed in.
      */
-    String delete(Session session, int step, DeleteIds ids)
+    String delete(Session session, int step, DeleteIds ids, DeleteOpts opts)
             throws DeleteException;
 
     /**

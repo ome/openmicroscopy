@@ -384,7 +384,7 @@ public class DeleteServiceFilesTest
      * 
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test
     public void testDeleteImageViewedByOtherWithThumbnailOnDiskRWRW() 
         throws Exception
     {

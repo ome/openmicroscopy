@@ -300,7 +300,7 @@ public class DeleteServicePermissionsTest
      * Test to delete an image viewed by another user in a RWRW-- group.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test(groups = "ticket:2963")
     public void testDeleteImageViewedByOtherRenderingSettingsOnlyRWRW()
     	throws Exception	
     {

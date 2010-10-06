@@ -155,7 +155,7 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
         return new ArrayList<DeleteEntry>(entries);
     }
 
-    public String delete(Session session, int step, DeleteIds deleteIds)
+    public String delete(Session session, int step, DeleteIds deleteIds, DeleteOpts opts)
             throws DeleteException {
 
         final DeleteEntry entry = entries.get(step);
@@ -163,7 +163,7 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
         try {
             List<Long> foundIds = deleteIds.getFoundIds(this, step);
             return entry.delete(session, getCurrentDetails(), 
-                    em, superspec, deleteIds, foundIds);
+                    em, superspec, deleteIds, foundIds, opts);
         } finally {
 
             // If this is the final step, free memory.
@@ -326,10 +326,9 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
     }
 
     private String logmsg(DeleteEntry subpath, List<Long> results) {
-        String msg = String.format("Found %s id(s) for %s (%s)",
+        String msg = String.format("Found %s id(s) for %s",
                 (results == null ? "null" : results.size()),
-                Arrays.asList(subpath.path(superspec)),
-                subpath.getOp());
+                Arrays.asList(subpath.log(superspec)));
         return msg;
     }
 

@@ -180,9 +180,9 @@ How to handle more than one path:
                 <value>/Image/Pixels/PixelsOriginalFileMap;REAP</value>
                 <value>/OriginalFile;;/Image/Pixels/PixelsOriginalFileMap</value>
                 <value>/Image/Pixels/PlaneInfo</value>
-                <value>/Image/Pixels/RenderingDef</value><!-- FORCE, for admins? -->
+                <value>/Image/Pixels/RenderingDef;FORCE</value>
                 <value>/Image/Pixels/Channel</value>
-                <value>/Image/Pixels/Thumbnail;REAP</value><!-- HARD -->
+                <value>/Image/Pixels/Thumbnail;FORCE</value>
                 <value>/Image/Pixels;NULL</value>
                 <value>/Image/ImageAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Image/ImageAnnotationLink</value>

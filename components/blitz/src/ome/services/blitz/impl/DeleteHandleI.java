@@ -21,6 +21,7 @@ import ome.conditions.InternalException;
 import ome.io.nio.AbstractFileSystemService;
 import ome.services.delete.DeleteException;
 import ome.services.delete.DeleteIds;
+import ome.services.delete.DeleteOpts;
 import ome.services.delete.DeleteSpec;
 import ome.services.delete.DeleteSpecFactory;
 import ome.services.util.Executor;
@@ -406,8 +407,13 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                 if (report.ids == null) {
                     report.ids = new DeleteIds(sf.context, session, report.spec);
                 }
+
+                // Responsible for tracking the options and operations
+                // which are active at each branch in the graph.
+                DeleteOpts opts = new DeleteOpts();
+
                 sw = new CommonsLogStopWatch();
-                report.warning = report.spec.delete(session, j, report.ids);
+                report.warning = report.spec.delete(session, j, report.ids, opts);
             } catch (DeleteException de) {
                 report.error = de.message;
                 if (de.cancel) {
@@ -428,7 +434,9 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                 cancel.initCause(t);
                 throw cancel;
             } finally {
-                sw.stop("omero.delete.step." + j);
+                if (sw != null) {
+                    sw.stop("omero.delete.step." + j);
+                }
                 report.stepStarts[j] = sw.getStartTime();
                 report.stepStops[j] = sw.getElapsedTime();
                 // If cancel was thrown, then this value will be overwritten

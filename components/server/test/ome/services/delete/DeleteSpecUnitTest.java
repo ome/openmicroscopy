@@ -6,9 +6,10 @@
 package ome.services.delete;
 
 import static ome.services.delete.DeleteEntry.DEFAULT;
-import static ome.services.delete.DeleteEntry.Op.REAP;
-import static ome.services.delete.DeleteEntry.Op.SOFT;
+import static ome.services.delete.DeleteOpts.Op.REAP;
+import static ome.services.delete.DeleteOpts.Op.SOFT;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -31,7 +32,7 @@ import ome.model.annotations.TextAnnotation;
 import ome.model.annotations.TimestampAnnotation;
 import ome.model.annotations.TypeAnnotation;
 import ome.model.annotations.XmlAnnotation;
-import ome.services.delete.DeleteEntry.Op;
+import ome.services.delete.DeleteOpts.Op;
 import ome.system.OmeroContext;
 import ome.tools.hibernate.ExtendedMetadata;
 
@@ -123,11 +124,11 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
     }
 
     private void assertValidEntry(DeleteSpec spec, String string, String name,
-            Op op, boolean hasSubSpec) {
+            Op op, boolean hasSubSpec) throws Exception {
         DeleteEntry de = new DeleteEntry(spec, string);
         de.postProcess(specXml);
         assertEquals(name, de.getName());
-        assertEquals(op, de.getOp());
+        assertEquals(op, getOp(de));
         // assertEquals(hasSubSpec, de.getSubSpec() != null);
     }
 
@@ -254,19 +255,19 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
         options = new HashMap<String, String>();
         options.put("/Image", "KEEP");
         spec.initialize(1, "", options);
-        assertEquals(Op.KEEP, spec.entries.get(0).getOp());
+        assertEquals(Op.KEEP, getOp(spec.entries.get(0)));
 
         spec = new BaseDeleteSpec(Arrays.asList("/Project/Dataset/Image;SOFT"));
         options = new HashMap<String, String>();
         options.put("/Project/Dataset/Image", "KEEP");
         spec.initialize(1, "", options);
-        assertEquals(Op.KEEP, spec.entries.get(0).getOp());
+        assertEquals(Op.KEEP, getOp(spec.entries.get(0)));
 
         spec = new BaseDeleteSpec(Arrays.asList("/Project/Dataset/Image;SOFT"));
         options = new HashMap<String, String>();
         options.put("/", "KEEP");
         spec.initialize(1, "", options);
-        assertEquals(Op.KEEP, spec.entries.get(0).getOp());
+        assertEquals(Op.KEEP, getOp(spec.entries.get(0)));
 
         // check that values get applied to subclasses
         AnnotationDeleteSpec ads = specXml.getBean("/Annotation", AnnotationDeleteSpec.class);
@@ -275,7 +276,7 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
         ads.initialize(1, "", options);
         DeleteEntry de = ads.entries().get(0);
         assertEquals(de.getName(), "/FileAnnotation");
-        assertEquals(Op.KEEP, de.getOp());
+        assertEquals(Op.KEEP, getOp(de));
 
         // Now check that something between /Annotation and the concrete
         // class /FileAnnotation takes precedence
@@ -286,7 +287,7 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
         ads.initialize(1, "", options);
         de = ads.entries().get(0);
         assertEquals(de.getName(), "/FileAnnotation");
-        assertEquals(Op.SOFT, de.getOp());
+        assertEquals(Op.SOFT, getOp(de));
 
         // Now test whether or not we can correctly parse off the "excludes"
         // statement
@@ -296,7 +297,7 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
         ads.initialize(1, "", options);
         de = ads.entries().get(0);
         assertEquals(de.getName(), "/FileAnnotation");
-        assertEquals(Op.KEEP, de.getOp());
+        assertEquals(Op.KEEP, getOp(de));
         assertEquals("keepme", ads.getExclude(0));
 
         // and check that skipping will not take place, if there are
@@ -342,6 +343,12 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
         assertNotNull(idx);
         assertTrue(spec.overrideKeep());
         
+    }
+
+    private Object getOp(DeleteEntry de) throws Exception {
+        Field field = DeleteEntry.class.getField("operation");
+        field.setAccessible(true);
+        return field.get(de);
     }
 
 }

@@ -345,7 +345,7 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
 
         // If we have excludes and this is a KEEP, we only want
         // to query for those annotations which match the excludes value.
-        if (DeleteEntry.Op.KEEP.equals(copy.getOp())) {
+        if (copy.isKeep()) {
             String exclude = excludes[step];
             if (excludes[step] != null && excludes[step].length() > 0) {
                 final String[] parts = exclude.split(",");
@@ -379,7 +379,7 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
     }
     
     @Override
-    public String delete(Session session, int step, DeleteIds deleteIds)
+    public String delete(Session session, int step, DeleteIds deleteIds, DeleteOpts opts)
             throws DeleteException {
 
         if (isAbstract[step]) {
@@ -408,7 +408,7 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
             }
         }
 
-        return super.delete(session, step, deleteIds);
+        return super.delete(session, step, deleteIds, opts);
 
     }
 

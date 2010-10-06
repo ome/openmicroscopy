@@ -549,7 +549,7 @@ public class AbstractTest
 
 		DeleteHandlePrx handle = proxy.queueDelete(dc);
 		DeleteCallbackI cb = new DeleteCallbackI(c, handle);
-		int count = 10;
+		int count = 10 * dc.length;
 		while (null == cb.block(500)) {
 			count--;
 			if (count == 0) {
