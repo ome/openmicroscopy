@@ -7,7 +7,10 @@
 
 package ome.services.blitz.impl;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 
@@ -16,11 +19,15 @@ import ome.io.nio.AbstractFileSystemService;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ServiceFactoryAware;
+import ome.services.delete.DeleteEntry;
+import ome.services.delete.DeleteSpec;
+import ome.services.delete.DeleteSpecFactory;
 import ome.services.scheduler.ThreadPool;
 import omero.ApiUsageException;
 import omero.SecurityViolation;
 import omero.ServerError;
 import omero.ValidationException;
+import omero.api.AMD_IDelete_availableCommands;
 import omero.api.AMD_IDelete_checkImageDelete;
 import omero.api.AMD_IDelete_deleteImage;
 import omero.api.AMD_IDelete_deleteImages;
@@ -152,7 +159,29 @@ public class DeleteI extends AbstractAmdServant implements _IDeleteOperations,
                     uncheckedCast(sf.registerServant(id, handle));
                 return prx;
             }});
-
+    }
+    
+    public void availableCommands_async(final AMD_IDelete_availableCommands __cb,
+            final Current __current)
+            throws ServerError {
+        safeRunnableCall(__current, __cb, false, new Callable<DeleteCommand[]>() {
+            public DeleteCommand[] call() throws Exception {
+                final DeleteSpecFactory factory = sf.context.getBean(
+                        "deleteSpecFactory", DeleteSpecFactory.class);
+                final List<String> keys = new ArrayList<String>(factory.keys());
+                final DeleteCommand[] dcs = new DeleteCommand[keys.size()];
+                for (int i = 0; i < dcs.length; i++) {
+                    String key = keys.get(i);
+                    DeleteSpec spec = factory.get(key);
+                    Map<String, String> options = new HashMap<String, String>();
+                    for (DeleteEntry entry : spec.entries()) {
+                        options.put(entry.log(""), "");
+                    }
+                    dcs[i] = new DeleteCommand(key, -1, options);
+                }
+                return dcs;
+            }
+        });
     }
 
     public DeleteHandleI makeAndLaunchHandle(final Ice.Identity id, final DeleteCommand...commands) {

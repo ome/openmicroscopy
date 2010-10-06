@@ -503,7 +503,7 @@ public class DeleteEntry {
      * @param superspec2
      * @return
      */
-    public Object log(String superspec) {
+    public String log(String superspec) {
         StringBuilder sb = new StringBuilder();
         sb.append(StringUtils.join(path(superspec), "/"));
         sb.append("@");

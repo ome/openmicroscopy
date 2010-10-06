@@ -8,6 +8,7 @@
 package ome.services.delete;
 
 import java.util.Map;
+import java.util.Set;
 
 import ome.api.IDelete;
 
@@ -41,5 +42,12 @@ public class DeleteSpecFactory implements ApplicationContextAware {
             spec.postProcess(ctx);
         }
 
+    }
+
+    /**
+     * Returns the keys of all specs in the current factory.
+     */
+    public Set<String> keys() {
+        return specs.keySet();
     }
 }

@@ -148,6 +148,12 @@ module omero {
                 void deletePlate(long plateId) throws ServerError;
 
                 /**
+                 * Returns a list of [DeleteCommand] instances with type and options filled,
+                 * but whose id value can be ignored.
+                 **/
+                omero::api::delete::DeleteCommands availableCommands() throws ServerError;
+
+                /**
                  * Queue multiple deletes for later execution. The [DeleteHandle] instance can
                  * be queried for the state of the delete.
                  **/
