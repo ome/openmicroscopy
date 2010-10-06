@@ -755,9 +755,9 @@ class RenderingControlProxy
 	 * 						speed-up the client.
 	 * @param cacheSize		The desired size of the cache.
      */
-    RenderingControlProxy(Registry context, RenderingEnginePrx re, Pixels pixels,
-    					List m, int compression, RndProxyDef rndDef, 
-    					int cacheSize)
+    RenderingControlProxy(Registry context, RenderingEnginePrx re, 
+    		Pixels pixels, List m, int compression, RndProxyDef rndDef, 
+    		int cacheSize)
     {
         if (re == null)
             throw new NullPointerException("No rendering engine.");
@@ -773,7 +773,6 @@ class RenderingControlProxy
         models = null;
         
         try {
-        	
         	families = servant.getAvailableFamilies(); 
             models = servant.getAvailableModels();
             cacheID = -1;

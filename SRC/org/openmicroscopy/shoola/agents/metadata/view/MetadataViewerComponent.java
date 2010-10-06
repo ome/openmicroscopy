@@ -61,6 +61,7 @@ import org.openmicroscopy.shoola.agents.metadata.util.ChannelSelectionDialog;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.DataObjectRegistration;
 import org.openmicroscopy.shoola.agents.util.ui.MovieExportDialog;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
@@ -331,39 +332,43 @@ class MetadataViewerComponent
 		Renderer rnd = model.getEditor().getRenderer();
 		if (rnd != null && getRndIndex() == RND_GENERAL) {
 			//save settings 
-			try {
-				long imageID = -1;
-				long pixelsID = -1;
-				Object obj = model.getRefObject();
-				if (obj instanceof WellSampleData) {
-					WellSampleData wsd = (WellSampleData) obj;
-					obj = wsd.getImage();
-				}
-				if (obj instanceof ImageData) {
-					ImageData data = (ImageData) obj;
-					imageID = data.getId();
-					pixelsID = data.getDefaultPixels().getId();
-				}
-				//check if I can save first
-				if (model.isWritable()) {
-					RndProxyDef def = rnd.saveCurrentSettings();
-					EventBus bus = 
-						MetadataViewerAgent.getRegistry().getEventBus();
-					bus.post(new RndSettingsSaved(pixelsID, def));
-				}
-					
-				
-				if (imageID >= 0 && model.isWritable()) {
-					firePropertyChange(RENDER_THUMBNAIL_PROPERTY, -1, imageID);
-				}
-			} catch (Exception e) {
-				String s = "Data Retrieval Failure: ";
-		    	LogMessage msg = new LogMessage();
-		        msg.print(s);
-		        msg.print(e);
-		        MetadataViewerAgent.getRegistry().getLogger().error(this, msg);
+			long imageID = -1;
+			long pixelsID = -1;
+			Object obj = model.getRefObject();
+			if (obj instanceof WellSampleData) {
+				WellSampleData wsd = (WellSampleData) obj;
+				obj = wsd.getImage();
 			}
-			
+			if (obj instanceof ImageData) {
+				ImageData data = (ImageData) obj;
+				imageID = data.getId();
+				pixelsID = data.getDefaultPixels().getId();
+			}
+			//check if I can save first
+			if (model.isWritable()) {
+				Registry reg = MetadataViewerAgent.getRegistry();
+				RndProxyDef def = null;
+				try {
+					def = rnd.saveCurrentSettings();
+				} catch (Exception e) {
+					try {
+						reg.getImageService().resetRenderingService(pixelsID);
+						def = rnd.saveCurrentSettings();
+					} catch (Exception ex) {
+						String s = "Data Retrieval Failure: ";
+				    	LogMessage msg = new LogMessage();
+				        msg.print(s);
+				        msg.print(e);
+				        reg.getLogger().error(this, msg);
+					}
+				}
+				EventBus bus = 
+					MetadataViewerAgent.getRegistry().getEventBus();
+				bus.post(new RndSettingsSaved(pixelsID, def));
+			}
+			if (imageID >= 0 && model.isWritable()) {
+				firePropertyChange(RENDER_THUMBNAIL_PROPERTY, -1, imageID);
+			}
 		}
 		model.setRootObject(root);
 		view.setRootObject();
