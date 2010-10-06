@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.ui.AnalysisResultsDialog 
+ * org.openmicroscopy.shoola.env.ui.FLIMResultsDialog 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.env.ui;
+package org.openmicroscopy.shoola.env.ui.flim;
 
 
 //Java imports
@@ -31,18 +31,19 @@ import java.awt.Container;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Map.Entry;
-
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
@@ -55,18 +56,23 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
-import javax.swing.WindowConstants;
 import javax.swing.filechooser.FileFilter;
 
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.jdesktop.swingx.JXTaskPane;
+import org.jdesktop.swingx.JXTaskPaneContainer;
+import org.jdesktop.swingx.VerticalLayout;
 import org.openmicroscopy.shoola.env.data.model.AnalysisResultsHandlingParam;
+import org.openmicroscopy.shoola.env.ui.flim.TableIntervals;
+import org.openmicroscopy.shoola.util.file.ExcelWriter;
 import org.openmicroscopy.shoola.util.filter.file.CSVFilter;
 import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
-import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
+import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
+import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -87,13 +93,13 @@ import org.openmicroscopy.shoola.util.ui.graphutils.HistogramPlot;
  * </small>
  * @since 3.0-Beta4
  */
-class AnalysisResultsDialog 
+public class FLIMResultsDialog 
 	extends JDialog
 	implements ActionListener, PropertyChangeListener
 {
 
 	/** Bound property indicating that the chart as been saved. */
-	static final String SAVED_CHART_PROPERTY = "savedChart";
+	public static final String SAVED_FLIM_RESULTS_PROPERTY = "savedFlimResults";
 	
 	/** Action ID indicating to close the dialog. */
 	private static final int CLOSE = 0;
@@ -110,13 +116,15 @@ class AnalysisResultsDialog
 	/** The number of bins. */
 	private static final int BINS = 1001;
 	
+	/** The multiplication factor. */
+	private static final int FACTOR = 1000;
+	
 	/** Filters used for the save options. */
 	private static List<FileFilter> FILTERS;
 	
 	static {
 		FILTERS = new ArrayList<FileFilter>();
-		FILTERS.add(new PNGFilter());
-		FILTERS.add(new JPEGFilter());
+		FILTERS.add(new ExcelFilter());
 	}
 		
 	/** The file to handle. */
@@ -158,6 +166,82 @@ class AnalysisResultsDialog
 	/** The table displaying the values plotted. */
 	private Double[][] data;
 	
+	/** The component hosting the various JXTaskPane. */
+	private JXTaskPaneContainer paneContainer;
+	
+	/** The table displaying the intervals. */
+	private TableIntervals tableIntervals;
+
+	/** The table displaying the plotted values. */
+	private JTable tableValues;
+	
+	/**
+	 * Saves the data to the specified file.
+	 * 
+	 * @param f The file to handle.
+	 */
+	private void saveAs(File f)
+	{
+		if (f == null) return;
+		FileFilter filter = chooser.getSelectedFilter();
+		Iterator<FileFilter> i = FILTERS.iterator();
+		boolean accept = false;
+		while (i.hasNext()) {
+			filter = i.next();
+			if (filter.accept(f)) {
+				accept = true;
+				break;
+			}
+		}
+		if (!accept)
+			f = new File(f.getAbsolutePath()+"."+ExcelFilter.EXCEL);
+		boolean b = true;
+		File tmpFile = null;
+		try {
+			String v = f.getAbsolutePath();
+			int index = v.lastIndexOf(".");
+			tmpFile = new File(v.substring(0, index)+"."+PNGFilter.PNG);
+			chartObject.saveAs(tmpFile, ChartObject.SAVE_AS_PNG);
+		} catch (Exception e) {
+			b = false;
+		}
+		
+		//save to excel
+		boolean result = true;
+		try {
+			int col;
+			int index = 0;
+			ExcelWriter writer = new ExcelWriter(f.getAbsolutePath());
+			writer.openFile();
+			writer.createSheet("FLIM Results for ");
+			int row = 0;
+			if (tableIntervals != null) {
+				row = tableIntervals.getModel().getRowCount()+1;
+				writer.writeTableToSheet(0, 0, tableIntervals.getModel());
+			}
+			if (tableValues != null)
+				writer.writeTableToSheet(row+3, 0, tableValues.getModel());	
+			if (b) {
+				BufferedImage image = Factory.createImage(tmpFile);
+				if (image != null) {
+					int w = image.getWidth();
+					int h = image.getHeight();
+					writer.addImageToWorkbook(name, image); 
+					col = writer.getMaxColumn(0);
+					index += (col+2);
+					writer.writeImage(0, index, w, h, name);
+				}
+				
+				writer.close();
+			}
+		} catch (Exception e) {
+			result = false;
+		}
+		if (tmpFile != null) tmpFile.delete();
+		firePropertyChange(SAVED_FLIM_RESULTS_PROPERTY, 
+				Boolean.valueOf(!result), Boolean.valueOf(result));
+	}
+	
 	/**
 	 * Creates the table displaying the plotted values.
 	 * 
@@ -165,9 +249,22 @@ class AnalysisResultsDialog
 	 */
 	private void createTable(Map<Double, Double> values)
 	{
-		data = new Double[values.size()+1][2];
-		Iterator v = values.entrySet().iterator();
+		//reformat table.
 		Entry entry;
+		Map<Double, Double> newValues = new HashMap<Double, Double>();
+		Iterator v = values.entrySet().iterator();
+		double key;
+		Double value;
+		while (v.hasNext()) {
+			entry = (Entry) v.next();
+			key = UIUtilities.roundTwoDecimals((Double) entry.getKey());
+			value = newValues.get(key);
+			if (value != null) value += (Double) entry.getValue();
+			else value = (Double) entry.getValue();
+			newValues.put(key, value);
+		}
+		data = new Double[newValues.size()+1][2];
+		v = newValues.entrySet().iterator();
 		int index = 0;
 		double totalY = 0;
 		Double[] numbers;
@@ -240,10 +337,15 @@ class AnalysisResultsDialog
 		if (data != null) {
 			String[] columns = {parameters.getNameXaxis(), 
 					parameters.getNameYaxis()};
-			JSplitPane pane = new JSplitPane();
-			pane.setLeftComponent(body);
-			pane.setRightComponent(new JScrollPane(new JTable(data, columns)));
-			container.add(pane, BorderLayout.CENTER);
+			JSplitPane sp = new JSplitPane();
+			sp.setLeftComponent(body);
+			JXTaskPane pane = (JXTaskPane) paneContainer.getComponent(0);
+			pane.removeAll();
+			tableValues = new JTable(data, columns);
+			tableValues.getTableHeader().setReorderingAllowed(false);
+			pane.add(new JScrollPane(tableValues));
+			sp.setRightComponent(paneContainer);
+			container.add(sp, BorderLayout.CENTER);
 		} else {
 			container.add(body, BorderLayout.CENTER);
 		}
@@ -263,6 +365,15 @@ class AnalysisResultsDialog
 	 */
 	private void initComponents(String name)
 	{
+		tableIntervals = new TableIntervals(this, parameters.getNameYaxis());
+		paneContainer = new JXTaskPaneContainer();
+		VerticalLayout layout = (VerticalLayout) paneContainer.getLayout();
+		layout.setGap(0);
+		paneContainer.add(UIUtilities.createTaskPane("Graph Data", null));
+		JXTaskPane p = UIUtilities.createTaskPane("Intervals Data", null);
+		p.add(new JScrollPane(tableIntervals));
+		paneContainer.add(p);
+		
 		minThreshold = new NumericalTextField();
 		minThreshold.setToolTipText("Plot only values greater than the " +
 				"value entered.");
@@ -309,7 +420,7 @@ class AnalysisResultsDialog
 	private void save()
 	{
 		chooser = new FileChooser((JFrame) getOwner(), FileChooser.SAVE, 
-				"Save Chart", "Saves the chart", FILTERS);
+				"Save Results", "Saves the results", FILTERS);
 		chooser.setCurrentDirectory(UIUtilities.getDefaultFolder());
 		int index = name.lastIndexOf(".");
 		String value = name;
@@ -400,6 +511,7 @@ class AnalysisResultsDialog
 		int bins = (int) (binMax-binMin);
 		//repaint
 		createChart(results, bins);
+		tableIntervals.populateTable();
 		Container container = getContentPane();
 		Component c = container.getComponent(0);
 		container.removeAll();
@@ -422,17 +534,17 @@ class AnalysisResultsDialog
 			BufferedReader reader  = new BufferedReader(new FileReader(file));
 			String line = null;
 			StringTokenizer st;
+			double v;
 			while ((line = reader.readLine()) != null) {
 				st = new StringTokenizer(line, ",");
 				while (st.hasMoreTokens()) {
-					list.add(Double.parseDouble(st.nextToken()));
+					v = Double.parseDouble(st.nextToken());
+					list.add(UIUtilities.roundTwoDecimals(v*FACTOR));
 				}
 			}
 			reader.close();
 			return list;
-		} catch (Exception e) {
-			//ignore
-		}
+		} catch (Exception e) {}
 		return null;
 	}
 	
@@ -491,13 +603,11 @@ class AnalysisResultsDialog
 	{
 		TitlePanel tp = new TitlePanel("Results", 
 				"Follow a view of the results.", icon);
-		
 		Container container = getContentPane();
 		container.setLayout(new BorderLayout());
 		container.add(tp, BorderLayout.NORTH);
 		layoutBody(container);
 		container.add(buildControlsBar(), BorderLayout.SOUTH);
-		pack();
 	}
 	
 	/**
@@ -509,7 +619,7 @@ class AnalysisResultsDialog
 	 * @param name  The name to display in the legend
 	 * @param parameters The parameters describing.
 	 */
-	AnalysisResultsDialog(JFrame owner, Icon icon, File file, String name,
+	public FLIMResultsDialog(JFrame owner, Icon icon, File file, String name,
 			AnalysisResultsHandlingParam parameters)
 	{
 		super(owner);
@@ -519,11 +629,55 @@ class AnalysisResultsDialog
 			throw new IllegalArgumentException("No parameters set.");
 		this.file = file;
 		this.parameters = parameters;
-		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		initComponents(name);
 		buildGUI(icon);
+		pack();
 	}
 
+	/**
+	 * Returns the number of pixels contained in the specified interval or 
+	 * <code>null</code>.
+	 * 
+	 * @param lowerBound The lower bound of the interval.
+	 * @param upperBound The upper bound of the interval.
+	 * @return See above.
+	 */
+	Double getValueInInterval(Double lowerBound, Double upperBound)
+	{
+		if (data == null) return null;
+		if (lowerBound == null && upperBound == null) return null;
+		int n = data.length-1;
+		Double value;
+		double count = 0;
+		double min, max;
+		if (lowerBound != null && upperBound != null) {
+			min = lowerBound.doubleValue();
+			max = upperBound.doubleValue();
+			for (int i = 0; i < n; i++) {
+				 value = data[i][0];
+				 if (value >= min && value < max) 
+					 count += data[i][1];
+			}
+			return count;
+		} else if (lowerBound != null && upperBound == null) {
+			min = lowerBound.doubleValue();
+			for (int i = 0; i < n; i++) {
+				value = data[i][0];
+				 if (value >= min) 
+					 count += data[i][1];
+			}
+			return count;
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns the total number of pixels plotted.
+	 * 
+	 * @return See above.
+	 */
+	Double getTotalValue() { return data[data.length-1][1]; }
+	
 	/**
 	 * Reacts to close or save.
 	 * @see ActionListener#actionPerformed(ActionEvent)
@@ -542,7 +696,7 @@ class AnalysisResultsDialog
 				plot();
 		}
 	}
-
+	
 	/**
 	 * Reacts to property fired by the file chooser.
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
@@ -551,35 +705,8 @@ class AnalysisResultsDialog
 	{
 		String name = evt.getPropertyName();
 		if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
-			File f = (File) evt.getNewValue();
-			if (f == null) return;
-			FileFilter filter = chooser.getSelectedFilter();
-			int type = ChartObject.SAVE_AS_PNG;
-			String extension = PNGFilter.PNG;
-			if (filter instanceof JPEGFilter) {
-				type = ChartObject.SAVE_AS_JPEG;
-				extension = JPEGFilter.JPEG;
-			} 
-			Iterator<FileFilter> i = FILTERS.iterator();
-			boolean accept = false;
-			while (i.hasNext()) {
-				filter = i.next();
-				if (filter.accept(f)) {
-					accept = true;
-					break;
-				}
-			}
-			if (!accept)
-				f = new File(f.getAbsolutePath()+"."+extension);
-			boolean b = true;
-			try {
-				chartObject.saveAs(f, type);
-			} catch (Exception e) {
-				b = false;
-			}
-			firePropertyChange(SAVED_CHART_PROPERTY, Boolean.valueOf(!b), 
-					Boolean.valueOf(b));
+			saveAs((File) evt.getNewValue());
 		}
-		
 	}
+	
 }

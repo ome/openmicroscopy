@@ -91,7 +91,7 @@ public class ServerListEditor
 	 * Invokes when a new server name is entered or
 	 * an existing one is edited.
 	 */
-	private  void handleKeyEnter() { table.handleKeyEnter(); }
+	private void handleKeyEnter() { table.handleKeyEnter(); }
 	
 	/** 
 	 * Creates a new instance. 

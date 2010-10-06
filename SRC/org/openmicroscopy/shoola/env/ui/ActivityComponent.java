@@ -64,6 +64,7 @@ import org.openmicroscopy.shoola.env.data.model.AnalysisResultsHandlingParam;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.ui.flim.FLIMResultsDialog;
 import org.openmicroscopy.shoola.util.filter.file.CSVFilter;
 import org.openmicroscopy.shoola.util.filter.file.GIFFilter;
 import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
@@ -801,7 +802,7 @@ public abstract class ActivityComponent
 	{
 		if (result instanceof File) {
 			IconManager icons = IconManager.getInstance(registry);
-			AnalysisResultsDialog d = new AnalysisResultsDialog(
+			FLIMResultsDialog d = new FLIMResultsDialog(
 				registry.getTaskBar().getFrame(), 
 				icons.getIcon(IconManager.PLOT_48), (File) result, name,
 				parameters);
@@ -809,17 +810,17 @@ public abstract class ActivityComponent
 				
 				public void propertyChange(PropertyChangeEvent evt) {
 					String name = evt.getPropertyName();
-					if (AnalysisResultsDialog.SAVED_CHART_PROPERTY.equals(
+					if (FLIMResultsDialog.SAVED_FLIM_RESULTS_PROPERTY.equals(
 							name)){
 						boolean b = (
 								(Boolean) evt.getNewValue()).booleanValue();
 						UserNotifier un = registry.getUserNotifier();
 						if (b) {
-							un.notifyInfo("Saving Chart", "The file has " +
+							un.notifyInfo("Saving Results", "The file has " +
 									"successfully been saved.");
 						} else {
-							un.notifyInfo("Saving Chart", "An error " +
-							"occurred while saving the chart.");
+							un.notifyInfo("Saving Results", "An error " +
+							"occurred while saving the results.");
 						}
 					}
 				}

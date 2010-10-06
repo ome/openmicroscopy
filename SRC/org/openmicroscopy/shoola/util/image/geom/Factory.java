@@ -56,6 +56,7 @@ import java.awt.image.SinglePixelPackedSampleModel;
 import java.awt.image.WritableRaster;
 import java.io.File;
 
+import javax.imageio.ImageIO;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
@@ -872,6 +873,28 @@ public class Factory
     			BufferedImage.TYPE_INT_ARGB);
     	image.setRGB(0, 0, width, height, pixels, 0, width);
     	return image;
+    }
+    
+    /**
+     * Creates a buffered image from the passed image file.
+     * 
+     * @param file The file to handle.
+     * @return See above.
+     */
+    public static BufferedImage createImage(File file)
+    {
+    	if (file == null) return null;
+    	try {
+    		Image img = ImageIO.read(file);
+    		BufferedImage image = new BufferedImage(img.getWidth(null), 
+    				img.getHeight(null), BufferedImage.TYPE_INT_RGB);
+    		Graphics2D g = image.createGraphics();
+    		g.drawImage(img, null, null);
+    		g.dispose();
+    		return image;
+		} catch (Exception e) {
+		}
+    	return null;
     }
     
 }

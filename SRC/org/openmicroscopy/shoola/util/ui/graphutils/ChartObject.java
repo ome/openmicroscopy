@@ -57,10 +57,10 @@ public abstract class ChartObject
 {
 
 	/** The default name of the X-axis. */
-	public static final String X_AXIS = "X";
+	public static final String X_AXIS = "X-Axis";
 	
 	/** The default name of the Y-axis. */
-	public static final String Y_AXIS = "Y";
+	public static final String Y_AXIS = "Y-Axis";
 	
 	/** Indicates to save the chart as <code>PNG</code>. */
 	public static final int SAVE_AS_PNG = 0;
