@@ -52,6 +52,11 @@ public class DeleteIds {
 
     private final OmeroContext ctx;
 
+    /**
+     * Total count of objects found.
+     */
+    private long count = 0;
+
     public DeleteIds(OmeroContext ctx, Session session, DeleteSpec spec)
             throws DeleteException {
         this.ctx = ctx;
@@ -65,6 +70,9 @@ public class DeleteIds {
         while (it.hasNext()) {
             DeleteSpec subSpec = it.next();
             List<List<Long>> ids = subSpec.backupIds(session, paths);
+            for (List<Long> list : ids) {
+                count += list.size();
+            }
             this.ids.put(subSpec, ids);
         }
         sw.stop("omero.delete.ids");
@@ -82,6 +90,13 @@ public class DeleteIds {
         }
     }
 
+    /**
+     * Return the total number of ids loaded into this instance.
+     */
+    public long getTotalCount() {
+        return count;
+    }
+    
     /**
      * Return the list of ids which have been detected for deletion. These may
      * or may not eventually be deleted due to options and database

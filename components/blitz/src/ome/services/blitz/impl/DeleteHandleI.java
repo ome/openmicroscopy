@@ -410,6 +410,10 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                 // cancel the whole process.
                 if (report.ids == null) {
                     report.ids = new DeleteIds(sf.context, session, report.spec);
+                    if (report.ids.getTotalCount() == 0L) {
+                        report.warning = "Object missing.";
+                        return;
+                    }
                 }
 
                 // Responsible for tracking the options and operations
@@ -440,9 +444,9 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
             } finally {
                 if (sw != null) {
                     sw.stop("omero.delete.step." + j);
+                    report.stepStarts[j] = sw.getStartTime();
+                    report.stepStops[j] = sw.getElapsedTime();
                 }
-                report.stepStarts[j] = sw.getStartTime();
-                report.stepStops[j] = sw.getElapsedTime();
                 // If cancel was thrown, then this value will be overwritten
                 // by the try/catch handler
                 state.compareAndSet(State.RUNNING, State.READY);
