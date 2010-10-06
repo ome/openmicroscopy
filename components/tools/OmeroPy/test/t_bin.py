@@ -22,9 +22,14 @@ def has_sudo():
     """
     This tests if we have password-less sudo
     """
-    proc = subprocess.Popen(["sudo","sh","-c","true"])
-    time.sleep(0.5)
-    rc = proc.poll()
+    proc = subprocess.Popen(["sudo","-S","sh","-c","true"], stdin=subprocess.PIPE)
+    proc.communicate("***\n"*10)
+
+    rc = None
+    start = time.time()
+    while rc is None and (time.time() - start) < 1:
+        rc = proc.poll()
+        time.sleep(0.1)
 
     # Looks like we have sudo, EARLY EXIT
     if rc is not None and rc == 0:
