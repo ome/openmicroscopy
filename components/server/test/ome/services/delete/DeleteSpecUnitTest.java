@@ -32,6 +32,7 @@ import ome.model.annotations.TextAnnotation;
 import ome.model.annotations.TimestampAnnotation;
 import ome.model.annotations.TypeAnnotation;
 import ome.model.annotations.XmlAnnotation;
+import ome.security.basic.CurrentDetails;
 import ome.services.delete.DeleteOpts.Op;
 import ome.system.OmeroContext;
 import ome.tools.hibernate.ExtendedMetadata;
@@ -63,10 +64,14 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
         cav.addGenericArgumentValue(ExtendedMetadata.class);
         RootBeanDefinition mock = new RootBeanDefinition(Mock.class, cav, null);
 
+
         RootBeanDefinition em = new RootBeanDefinition();
         em.setFactoryBeanName("mock");
         em.setFactoryMethodName("proxy");
 
+        RootBeanDefinition cd = new RootBeanDefinition(CurrentDetails.class);
+
+        sac.registerBeanDefinition("currentDetails", cd);
         sac.registerBeanDefinition("mock", mock);
         sac.registerBeanDefinition("extendedMetadata", em);
         sac.refresh();
@@ -173,6 +178,10 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
                 .will(returnValue("shapes"));
         emMock.expects(once()).method("getRelationship")
                 .will(returnValue("annotationLinks"));
+        emMock.expects(once()).method("getRelationship")
+                .will(returnValue("parent"));
+        emMock.expects(once()).method("getRelationship")
+                .will(returnValue("child"));
 
         DeleteSpec roi = specXml.getBean("/Roi", BaseDeleteSpec.class);
         DeleteIds ids = new DeleteIds(specXml, session, roi);
@@ -193,12 +202,15 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
 
         Iterator<DeleteSpec> it = image.walk();
         List<DeleteSpec> expected = new ArrayList<DeleteSpec>();
+        expected.add(specs.get("/Annotation")); // Roi's annotation
         expected.add(specs.get("/Roi"));
+        expected.add(specs.get("/Annotation")); // file's annotation
+        expected.add(specs.get("/OriginalFile"));
         expected.add(specs.get("/Image/Pixels/RenderingDef"));
         expected.add(specs.get("/Image/Pixels/Channel"));
         expected.add(specs.get("/Annotation"));
-        expected.add(image);
         expected.add(specs.get("/Instrument"));
+        expected.add(image);
         while (it.hasNext()) {
             DeleteSpec found = it.next();
             assertTrue(found.toString() + " not expected", expected.size() > 0);
@@ -248,21 +260,27 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
      */
     @Test
     public void testOptions() throws Exception {
+
+        DeleteSpecFactory dsf;
         BaseDeleteSpec spec;
+        AnnotationDeleteSpec ads;
         Map<String, String> options;
 
+        dsf = specXml.getBean(DeleteSpecFactory.class);
         spec = new BaseDeleteSpec(Arrays.asList("/Image;SOFT"));
         options = new HashMap<String, String>();
         options.put("/Image", "KEEP");
         spec.initialize(1, "", options);
         assertEquals(Op.KEEP, getOp(spec.entries.get(0)));
 
+        dsf = specXml.getBean(DeleteSpecFactory.class);
         spec = new BaseDeleteSpec(Arrays.asList("/Project/Dataset/Image;SOFT"));
         options = new HashMap<String, String>();
         options.put("/Project/Dataset/Image", "KEEP");
         spec.initialize(1, "", options);
         assertEquals(Op.KEEP, getOp(spec.entries.get(0)));
 
+        dsf = specXml.getBean(DeleteSpecFactory.class);
         spec = new BaseDeleteSpec(Arrays.asList("/Project/Dataset/Image;SOFT"));
         options = new HashMap<String, String>();
         options.put("/", "KEEP");
@@ -270,7 +288,8 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
         assertEquals(Op.KEEP, getOp(spec.entries.get(0)));
 
         // check that values get applied to subclasses
-        AnnotationDeleteSpec ads = specXml.getBean("/Annotation", AnnotationDeleteSpec.class);
+        dsf = specXml.getBean(DeleteSpecFactory.class);
+        ads = (AnnotationDeleteSpec) dsf.get("/Annotation");
         options = new HashMap<String, String>();
         options.put("/Annotation", "KEEP");
         ads.initialize(1, "", options);
@@ -280,7 +299,8 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
 
         // Now check that something between /Annotation and the concrete
         // class /FileAnnotation takes precedence
-        ads = specXml.getBean("/Annotation", AnnotationDeleteSpec.class);
+        dsf = specXml.getBean(DeleteSpecFactory.class);
+        ads = (AnnotationDeleteSpec) dsf.get("/Annotation");
         options = new HashMap<String, String>();
         options.put("/Annotation", "KEEP");
         options.put("/TypeAnnotation", "SOFT");
@@ -291,62 +311,70 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
 
         // Now test whether or not we can correctly parse off the "excludes"
         // statement
-        ads = specXml.getBean("/Annotation", AnnotationDeleteSpec.class);
+        dsf = specXml.getBean(DeleteSpecFactory.class);
+        ads = (AnnotationDeleteSpec) dsf.get("/Annotation");
         options = new HashMap<String, String>();
-        options.put("/FileAnnotation", "KEEP;excludes=keepme");
+        options.put("/FileAnnotation", "KEEP;excludes=dontkeepme");
         ads.initialize(1, "", options);
         de = ads.entries().get(0);
         assertEquals(de.getName(), "/FileAnnotation");
         assertEquals(Op.KEEP, getOp(de));
-        assertEquals("keepme", ads.getExclude(0));
+        assertEquals("dontkeepme", ads.getExclude(0));
 
         // and check that skipping will not take place, if there are
         // excludes since then its necessary to perform the query
         // anyway.
-        ads = specXml.getBean("/Annotation", AnnotationDeleteSpec.class);
+        dsf = specXml.getBean(DeleteSpecFactory.class);
+        ads = (AnnotationDeleteSpec) dsf.get("/Annotation");
         options = new HashMap<String, String>();
-        options.put("/FileAnnotation", "KEEP;excludes=keepme");
+        options.put("/FileAnnotation", "KEEP;excludes=dontkeepme");
         ads.initialize(1, "", options);
         assertTrue(ads.overrideKeep());
         
         // And check the same thing for the case where we have an annotation
         // attached to another object
-        spec = specXml.getBean("/Image", BaseDeleteSpec.class);
+        dsf = specXml.getBean(DeleteSpecFactory.class);
+        spec = (BaseDeleteSpec) dsf.get("/Image");
         options = new HashMap<String, String>();
-        options.put("/Annotation", "KEEP;excludes=keepme");
+        options.put("/Annotation", "KEEP;excludes=dontkeepme");
         spec.initialize(1, "", options);
         // Find the right entry for /Annotation
         Integer idx = null;
+        DeleteEntry entry = null;
         for (int i = 0; i < spec.entries.size(); i++) {
-            DeleteEntry entry = spec.entries.get(i);
+            entry = spec.entries.get(i);
             if (entry.getName().equals("/Annotation")) {
                 idx = i;
+                break;
             }
         }
         assertNotNull(idx);
-        assertTrue(spec.overrideKeep());
+        assertTrue(entry.isKeep());
+        assertTrue(entry.getSubSpec().overrideKeep());
         
         // And THEN check that the recursive check of KEEP/skip() doesn't
         // go too far
-        spec = specXml.getBean("/Dataset", BaseDeleteSpec.class);
+        dsf = specXml.getBean(DeleteSpecFactory.class);
+        spec = (BaseDeleteSpec) dsf.get("/Dataset");
         options = new HashMap<String, String>();
         options.put("/Annotation", "KEEP;excludes=keepme");
         spec.initialize(1, "", options);
         // Find the right entry for /Image
         idx = null;
         for (int i = 0; i < spec.entries.size(); i++) {
-            DeleteEntry entry = spec.entries.get(i);
+            entry = spec.entries.get(i);
             if (entry.getName().equals("/Image")) {
                 idx = i;
+                break;
             }
         }
         assertNotNull(idx);
-        assertTrue(spec.overrideKeep());
+        assertFalse(spec.overrideKeep());
         
     }
 
     private Object getOp(DeleteEntry de) throws Exception {
-        Field field = DeleteEntry.class.getField("operation");
+        Field field = DeleteEntry.class.getDeclaredField("operation");
         field.setAccessible(true);
         return field.get(de);
     }
