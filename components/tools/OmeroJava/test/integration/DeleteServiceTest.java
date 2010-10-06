@@ -173,36 +173,36 @@ public class DeleteServiceTest
     * string, while the other paths can be used in for 
     * {@link DeleteCommand#options} keys.
     */
-    static final String REF_ANN = "/Annotation";
+    public static final String REF_ANN = "/Annotation";
 
     /** Identifies the Tag. */
-    static final String REF_TAG = "/TagAnnotation";
+    public static final String REF_TAG = "/TagAnnotation";
 	
 	/** Identifies the Term. */
-	static final String REF_TERM = "/TermAnnotation";
+	public static final String REF_TERM = "/TermAnnotation";
 	
 	/** Identifies the File. */
-	static final String REF_FILE= "/FileAnnotation";
+	public static final String REF_FILE= "/FileAnnotation";
 	
 	/** Indicates to keep a certain type of annotations. */
-	static final String KEEP = "KEEP";
+	public static final String KEEP = "KEEP";
 	
 	/** Indicates to exclude name space. */
-	static final String EXCLUDE = "excludes=";
+	public static final String EXCLUDE = "excludes=";
 	
-	/** Indicates to exclude name space. */
-	static final String INCLUDE = "includes=";
+	/** Indicates to include name space. */
+	public static final String INCLUDE = "includes=";
 	
 	/** Separator between option and include/exclude condition. */
-	static final String SEPARATOR = ";";
+	public static final String SEPARATOR = ";";
 	
 	/** Separator between option NS. */
-	static final String NS_SEPARATOR = ",";
+	public static final String NS_SEPARATOR = ",";
 	
 	/** 
 	 * Indicates to delete the annotation even if it is linked
 	 * to another object. */
-	static final String HARD = "HARD";
+	public static final String HARD = "HARD";
 	
 	/** The options to keep the sharable annotations. */
 	static final Map<String, String> SHARABLE_TO_KEEP;

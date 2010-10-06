@@ -199,7 +199,7 @@ public class ModelMockFactory
      * 
      * @return See above.
      */
-    DatasetData simpleDatasetData()
+    public DatasetData simpleDatasetData()
     {
         DatasetData dd = new DatasetData();
         dd.setName("t1");
@@ -212,7 +212,7 @@ public class ModelMockFactory
      * 
      * @return See above.
      */
-    ProjectData simpleProjectData()
+    public ProjectData simpleProjectData()
     {
         ProjectData data = new ProjectData();
         data.setName("project1");
@@ -225,7 +225,7 @@ public class ModelMockFactory
      * 
      * @return See above.
      */
-    ScreenData simpleScreenData()
+    public ScreenData simpleScreenData()
     {
     	ScreenData data = new ScreenData();
         data.setName("screen name");
@@ -242,7 +242,7 @@ public class ModelMockFactory
      * 
      * @return See above.
      */
-    PlateData simplePlateData()
+    public PlateData simplePlateData()
     {
     	PlateData data = new PlateData();
         data.setName("plate name");
@@ -258,7 +258,7 @@ public class ModelMockFactory
      * @param time The acquisition time.
      * @return See above.
      */
-    Image simpleImage(long time)
+    public Image simpleImage(long time)
     {
         // prepare data
         Image img = new ImageI();
@@ -274,7 +274,7 @@ public class ModelMockFactory
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
-    OriginalFile createOriginalFile()
+    public OriginalFile createOriginalFile()
     	throws Exception
     {
     	OriginalFileI oFile = new OriginalFileI();
@@ -291,7 +291,7 @@ public class ModelMockFactory
      * 
      * @return See above.
      */
-    Thumbnail createThumbnail()
+    public Thumbnail createThumbnail()
     {
     	ThumbnailI thumbnail = new ThumbnailI();
     	thumbnail.setMimeType(omero.rtypes.rstring("application/octet-stream"));
@@ -307,7 +307,7 @@ public class ModelMockFactory
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
-    Detector createDetector()
+    public Detector createDetector()
     	throws Exception
     {
     	//already tested see PixelsService enumeration.
@@ -332,7 +332,7 @@ public class ModelMockFactory
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
-    OTF createOTF(FilterSet filterSet, Objective objective)
+    public OTF createOTF(FilterSet filterSet, Objective objective)
     	throws Exception
     {
     	//already tested see PixelsService enumeration.
@@ -358,7 +358,7 @@ public class ModelMockFactory
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
-    Filter createFilter(int cutIn, int cutOut)
+    public Filter createFilter(int cutIn, int cutOut)
     	throws Exception
     {
     	//already tested see PixelsService enumeration.
@@ -384,7 +384,7 @@ public class ModelMockFactory
      * 
      * @return See above.
      */
-    FilterSet createFilterSet()
+    public FilterSet createFilterSet()
     {
     	FilterSet set = new FilterSetI();
     	set.setLotNumber(omero.rtypes.rstring("lot number"));
@@ -400,7 +400,7 @@ public class ModelMockFactory
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
-    Dichroic createDichroic()
+    public Dichroic createDichroic()
     	throws Exception
     {
     	Dichroic dichroic = new DichroicI();
@@ -417,7 +417,7 @@ public class ModelMockFactory
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
-    Objective createObjective()
+    public Objective createObjective()
     	throws Exception
     {
     	Objective objective = new ObjectiveI();
@@ -448,7 +448,7 @@ public class ModelMockFactory
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
-    ObjectiveSettings createObjectiveSettings(Objective objective)
+    public ObjectiveSettings createObjectiveSettings(Objective objective)
     	throws Exception
     {
     	//already tested see PixelsService enumeration.
@@ -467,7 +467,7 @@ public class ModelMockFactory
      * 
      * @return See above.
      */
-    StageLabel createStageLabel()
+    public StageLabel createStageLabel()
     {
     	StageLabel label = new StageLabelI();
     	label.setName(omero.rtypes.rstring("label"));
@@ -482,7 +482,7 @@ public class ModelMockFactory
      * 
      * @return See above.
      */
-    ImagingEnvironment createImageEnvironment()
+    public ImagingEnvironment createImageEnvironment()
     {
     	ImagingEnvironment env = new ImagingEnvironmentI();
     	env.setAirPressure(omero.rtypes.rdouble(1));
@@ -522,7 +522,7 @@ public class ModelMockFactory
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
-    LightSettings createLightSettings(LightSource light)
+    public LightSettings createLightSettings(LightSource light)
     	throws Exception
     {
     	//already tested see PixelsService enumeration.
@@ -552,7 +552,7 @@ public class ModelMockFactory
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
-    LightPath createLightPath(Filter emissionFilter, 
+    public LightPath createLightPath(Filter emissionFilter,
     		Dichroic dichroic, Filter excitationFilter)
     {
     	LightPath path = new LightPathI();
@@ -567,7 +567,7 @@ public class ModelMockFactory
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
-    Filament createFilament()
+    public Filament createFilament()
     	throws Exception
     {
     	List<IObject> types = 
@@ -588,7 +588,7 @@ public class ModelMockFactory
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
-    Arc createArc()
+    public Arc createArc()
     	throws Exception
     {
     	List<IObject> types = pixelsService.getAllEnumerations(
@@ -609,7 +609,7 @@ public class ModelMockFactory
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
-    LightEmittingDiode createLightEmittingDiode()
+    public LightEmittingDiode createLightEmittingDiode()
     	throws Exception
     {
     	LightEmittingDiode light = new LightEmittingDiodeI();
@@ -627,7 +627,7 @@ public class ModelMockFactory
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
-    Laser createLaser()
+    public Laser createLaser()
     	throws Exception
     {
     	Laser laser = new LaserI();
@@ -660,7 +660,7 @@ public class ModelMockFactory
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
-    Instrument createInstrument()
+    public Instrument createInstrument()
     	throws Exception
     {
     	List<IObject> types = pixelsService.getAllEnumerations(
@@ -683,7 +683,7 @@ public class ModelMockFactory
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
-    Instrument createInstrument(String light)
+    public Instrument createInstrument(String light)
     	throws Exception
     {
     	Instrument instrument = createInstrument();
@@ -712,7 +712,7 @@ public class ModelMockFactory
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
-    PlaneInfo createPlaneInfo()
+    public PlaneInfo createPlaneInfo()
    		throws Exception
     {
         return createPlaneInfo(0, 0, 0);
@@ -727,7 +727,7 @@ public class ModelMockFactory
      * @return See above.
      * @throws Exception Thrown if an error occurred.
      */
-    PlaneInfo createPlaneInfo(int z, int t, int c)
+    public PlaneInfo createPlaneInfo(int z, int t, int c)
    		throws Exception
     {
         PlaneInfo planeInfo = new PlaneInfoI();
@@ -749,7 +749,7 @@ public class ModelMockFactory
 	 * @return See above.
 	 * @throws Exception Thrown if an error occurred.
 	 */
-	Pixels createPixels(int sizeX, int sizeY, int sizeZ, int sizeT, int sizeC)
+	public Pixels createPixels(int sizeX, int sizeY, int sizeZ, int sizeT, int sizeC)
 		throws Exception
 	{
 		List<IObject> types = pixelsService.getAllEnumerations(
@@ -805,7 +805,7 @@ public class ModelMockFactory
 	 * @return See Above.
 	 * @throws Exception
 	 */
-	Channel createChannel(int w)
+	public Channel createChannel(int w)
 		throws Exception
 	{
 		Channel channel = new ChannelI();
@@ -838,7 +838,7 @@ public class ModelMockFactory
 	 * @return See above.
 	 * @throws Exception Thrown if an error occurred.
 	 */
-	Pixels createPixels()
+	public Pixels createPixels()
 		throws Exception
 	{
 		return createPixels(SIZE_X, SIZE_Y, SIZE_Y, SIZE_Y, 
@@ -869,7 +869,7 @@ public class ModelMockFactory
 	 * @return See above.
 	 * @throws Exception Thrown if an error occurred.
 	 */
-	Image createImage(int sizeX, int sizeY, int sizeZ, 
+	public Image createImage(int sizeX, int sizeY, int sizeZ,
 			int sizeT, int sizeC)
 		throws Exception
 	{
@@ -890,7 +890,7 @@ public class ModelMockFactory
 	 * 					<code>false</code> to create a simple image.
 	 * @return See above.
 	 */
-    Plate createPlate(int rows, int columns, int fields, 
+    public Plate createPlate(int rows, int columns, int fields,
     		int numberOfPlateAcquisition, boolean fullImage)
         throws Exception
     {
@@ -956,7 +956,7 @@ public class ModelMockFactory
      * @param r The reagent.
      * @return See above.
      */
-    Plate createPlateWithReagent(int rows, int columns, int fields, Reagent r)
+    public Plate createPlateWithReagent(int rows, int columns, int fields, Reagent r)
     {
     	Plate p = new PlateI();
         p.setRows(omero.rtypes.rint(rows));
@@ -988,7 +988,7 @@ public class ModelMockFactory
      * 
      * @return See above.
      */
-    Reagent createReagent()
+    public Reagent createReagent()
     {
     	Reagent reagent = new ReagentI();
     	reagent.setDescription(omero.rtypes.rstring("Reagent Description"));
@@ -1007,7 +1007,7 @@ public class ModelMockFactory
 	 * @param format One of the follow types: jpeg, png.
 	 * @throws Exception Thrown if an error occurred while encoding the image.
 	 */
-	void createImageFile(File file, String format)
+	public void createImageFile(File file, String format)
 		throws Exception
 	{
 		Iterator writers = ImageIO.getImageWritersByFormatName(format);
