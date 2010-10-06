@@ -56,6 +56,9 @@ class MyClient(object):
     def __del__(self, *args):
         pass
 
+    def enableKeepAlive(self, *args):
+        pass
+
     def getSession(self):
         return self
 

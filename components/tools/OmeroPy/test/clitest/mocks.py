@@ -82,6 +82,16 @@ class MockCLI(CLI):
         self.__popen.append(popen)
         return popen
 
+    def checksIceVersion(self):
+        popen = self.createPopen()
+        popen.communicate().AndReturn([None, "3.3.1"])
+        self.replay(popen)
+
+    def checksStatus(self, rcode):
+        popen = self.createPopen()
+        popen.wait().AndReturn(rcode)
+        self.replay(popen)
+
     def assertPopened(self):
         self.assertEquals(0, len(self.__popen))
 

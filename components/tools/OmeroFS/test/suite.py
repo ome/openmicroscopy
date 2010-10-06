@@ -10,6 +10,7 @@
 """
 
 import unittest
+import xmlrunner
 
 class TopLevel(unittest.TestCase):
     pass

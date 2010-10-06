@@ -81,6 +81,9 @@ class TestAdmin(unittest.TestCase):
 
     def testStartAsync(self):
         self.cli.addCall(0)
+        self.cli.checksIceVersion()
+        self.cli.checksStatus(1) # I.e. not running
+
         self.invoke("a startasync")
         self.cli.assertCalled()
         self.cli.assertStderr(['No descriptor given. Using etc/grid/default.xml'])
