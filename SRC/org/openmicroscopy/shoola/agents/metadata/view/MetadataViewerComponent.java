@@ -35,7 +35,6 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -354,7 +353,7 @@ class MetadataViewerComponent
 				}
 					
 				
-				if (imageID >= 0) {
+				if (imageID >= 0 && model.isWritable()) {
 					firePropertyChange(RENDER_THUMBNAIL_PROPERTY, -1, imageID);
 				}
 			} catch (Exception e) {
