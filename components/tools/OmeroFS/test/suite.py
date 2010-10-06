@@ -25,4 +25,4 @@ def additional_tests():
     return suite
 
 if __name__ == "__main__":
-    unittest.TextTestRunner().run(additional_tests())
+    xmlrunner.XMLTestRunner(output='target/reports').run(additional_tests())
