@@ -8,8 +8,15 @@ package integration.delete;
 
 import static omero.rtypes.rstring;
 import static omero.rtypes.rlong;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import integration.AbstractTest;
 import integration.DeleteServiceTest;
+import ome.services.delete.DeleteException;
+import ome.services.delete.DeleteSpec;
+import ome.services.delete.DeleteSpecFactory;
 import omero.api.delete.DeleteCommand;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
@@ -38,6 +45,51 @@ public class AnnotationDeleteTest extends AbstractTest {
     public final static omero.RString EXPERIMENT = rstring(omero.constants.metadata.NSEDITOREXPERIMENT.value);
 
     public final static omero.RString PROTOCOL = rstring(omero.constants.metadata.NSEDITORPROTOCOL.value);
+
+    @Test(groups = "ticket:2959")
+    public void testForceCannotBeSetByUser() throws Exception {
+        EventContext owner = newUserAndGroup("rwrw--");
+        FileAnnotation fa = new FileAnnotationI();
+        fa.setNs( EXPERIMENT );
+        fa.setFile( mmFactory.createOriginalFile() );
+        fa = (FileAnnotation) iUpdate.saveAndReturnObject( fa );
+        OriginalFile file = fa.getFile();
+        disconnect();
+
+        newUserInGroup(owner);
+        Map<String, String> options = new HashMap<String, String>();
+        options.put("/Annotation", "FORCE"); // Would delete other users' data
+        delete(false, iDelete, client,
+                new DeleteCommand(DeleteServiceTest.REF_ANN, fa
+                .getId().getValue(), options));
+
+        assertExists(fa);
+        assertExists(file);
+
+    }
+
+    @Test(groups = "ticket:2959")
+    public void testForceCanBeSetByAdmin() throws Exception {
+        EventContext owner = newUserAndGroup("rwrw--");
+        FileAnnotation fa = new FileAnnotationI();
+        fa.setNs( EXPERIMENT );
+        fa.setFile( mmFactory.createOriginalFile() );
+        fa = (FileAnnotation) iUpdate.saveAndReturnObject( fa );
+        OriginalFile file = fa.getFile();
+        disconnect();
+
+        logRootIntoGroup(owner);
+        Map<String, String> options = new HashMap<String, String>();
+        options.put("/Annotation", "FORCE"); // Would delete other users' data
+        delete(true, iDelete, client,
+                new DeleteCommand(DeleteServiceTest.REF_ANN, fa
+                .getId().getValue(), options));
+
+        assertDoesNotExist(fa);
+        assertDoesNotExist(file);
+
+    }
+
 
     @Test(groups = { "ticket:2994" })
     public void testDeleteFileAnnotationExperiment() throws Exception {

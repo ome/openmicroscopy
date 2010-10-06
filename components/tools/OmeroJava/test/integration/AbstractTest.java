@@ -269,11 +269,17 @@ public class AbstractTest
     }
 
     /**
-     * Changes the {@link ServiceFactoryPrx#setSecurityContext(IObject) security context}
-     * for the root user to the current group.
+     * Creates a new {@link omero.client} for root based on the current group.
      */
     protected void logRootIntoGroup() throws Exception {
         EventContext ec = iAdmin.getEventContext();
+        logRootIntoGroup(ec);
+    }
+
+    /**
+     * Creates a new {@link omero.client} for root based on the {@link EventContext}
+     */
+    protected void logRootIntoGroup(EventContext ec) throws Exception {
         omero.client rootClient = newRootOmeroClient();
         rootClient.getSession().setSecurityContext(new ExperimenterGroupI(
         		ec.groupId, false));

@@ -34,6 +34,7 @@ import ome.model.annotations.TypeAnnotation;
 import ome.model.annotations.XmlAnnotation;
 import ome.security.basic.CurrentDetails;
 import ome.services.delete.DeleteOpts.Op;
+import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.tools.hibernate.ExtendedMetadata;
 
@@ -338,17 +339,8 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
         options = new HashMap<String, String>();
         options.put("/Annotation", "KEEP;excludes=dontkeepme");
         spec.initialize(1, "", options);
-        // Find the right entry for /Annotation
-        Integer idx = null;
-        DeleteEntry entry = null;
-        for (int i = 0; i < spec.entries.size(); i++) {
-            entry = spec.entries.get(i);
-            if (entry.getName().equals("/Annotation")) {
-                idx = i;
-                break;
-            }
-        }
-        assertNotNull(idx);
+
+        DeleteEntry entry = findEntry(spec, "/Annotation");
         assertTrue(entry.isKeep());
         assertTrue(entry.getSubSpec().overrideKeep());
         
@@ -359,19 +351,24 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
         options = new HashMap<String, String>();
         options.put("/Annotation", "KEEP;excludes=keepme");
         spec.initialize(1, "", options);
-        // Find the right entry for /Image
-        idx = null;
-        for (int i = 0; i < spec.entries.size(); i++) {
-            entry = spec.entries.get(i);
-            if (entry.getName().equals("/Image")) {
-                idx = i;
-                break;
-            }
-        }
-        assertNotNull(idx);
+        entry = findEntry(spec, "/Image");
+        assertFalse(entry.isKeep());
+        entry = findEntry(spec, "/Annotation");
+        assertTrue(entry.isKeep());
         assertFalse(spec.overrideKeep());
         
     }
+
+    @Test(groups = "ticket:2959", expectedExceptions = DeleteException.class)
+    public void testDeleteOpsDirectly() throws Exception {
+        DeleteOpts opts = new DeleteOpts();
+        EventContext ec = createEventContext(false);
+        opts.push(Op.FORCE, true, ec);
+    }
+
+    //
+    // Helpers
+    //
 
     private Object getOp(DeleteEntry de) throws Exception {
         Field field = DeleteEntry.class.getDeclaredField("operation");
@@ -379,4 +376,29 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
         return field.get(de);
     }
 
+
+    private EventContext createEventContext(boolean admin) {
+        Mock m = mock(EventContext.class);
+        m.expects(once()).method("isCurrentUserAdmin").will(returnValue(admin));
+        m.expects(once()).method("getCurrentUserId").will(returnValue(1L));
+        EventContext ec = (EventContext) m.proxy();
+        return ec;
+    }
+
+
+    private DeleteEntry findEntry(BaseDeleteSpec spec, String name) {
+        Integer idx = null;
+        DeleteEntry entry = null;
+        // Find the right entry for /Image
+        idx = null;
+        for (int i = 0; i < spec.entries.size(); i++) {
+            entry = spec.entries.get(i);
+            if (entry.getName().equals(name)) {
+                idx = i;
+                break;
+            }
+        }
+        assertNotNull(idx);
+        return entry;
+    }
 }

@@ -71,6 +71,13 @@ public class DeleteEntry {
     private Op operation;
 
     /**
+     * Whether or not the {@link #operation} field was modified from its
+     * original setting. This would happen via the user passed options map
+     * on {@link #initialize(long, String, Map)}.
+     */
+    private boolean modifiedOp;
+
+    /**
      * {@link DeleteSpec Subspec} found by looking for the {@link #name} of this
      * {@link DeleteEntry} during {@link #postProcess(ListableBeanFactory)}. If
      * this is non-null, then many actions will have to iterate over all the
@@ -258,6 +265,7 @@ public class DeleteEntry {
                 if (option != null) {
                     String[] parts = option.split(";"); // Just in case
                     operation = Op.valueOf(parts[0]);
+                    modifiedOp = true;
                     break;
                 }
 
@@ -300,7 +308,7 @@ public class DeleteEntry {
         
         // Add this instance to the opts. Any method which then tries to
         // ask the opts for the current state will have an accurate view.
-        opts.push(operation);
+        opts.push(operation, modifiedOp, details.getCurrentEventContext());
 
         try {
 

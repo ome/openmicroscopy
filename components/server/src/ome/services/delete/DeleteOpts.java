@@ -10,6 +10,9 @@ package ome.services.delete;
 import java.util.LinkedList;
 
 import ome.api.IDelete;
+import ome.security.basic.CurrentDetails;
+import ome.services.delete.DeleteOpts.Op;
+import ome.system.EventContext;
 
 /**
  * Manager for option instances for an entire delete graph. As method calls are
@@ -31,13 +34,13 @@ public class DeleteOpts {
          * similar, then the failure will cause the entire command to fail as an
          * error.
          */
-        HARD,
+        HARD(false),
 
         /**
          * Delete is attempted, but the exceptions which would make a
          * {@link #HARD} operation fail lead only to warnings.
          */
-        SOFT,
+        SOFT(false),
 
         /**
          * Prevents the delete from being carried out. If an entry has a subspec,
@@ -45,18 +48,18 @@ public class DeleteOpts {
          * specifically {@link AnnotationDeleteSpec} this value may be
          * vetoed by {@link DeleteSpec#overrideKeep()}.
          */
-        KEEP,
+        KEEP(false),
 
         /**
          * Permits the use of force to remove objects even against the
          * permission system. (This option cannot override low-level
          * DB constraints)
          */
-        FORCE,
+        FORCE(true),
 
-        REAP,
+        REAP(false),
 
-        ORPHAN,
+        ORPHAN(false),
 
         /**
          * Nulls a particular field of the target rather than deleting it.
@@ -66,12 +69,32 @@ public class DeleteOpts {
          * <em>WARNING:</em>Currently, NULL can only be used for the
          * Pixels.relatedTo relationship.
          */
-        NULL;
+        NULL(true);
+
+        private final boolean restricted;
+
+        Op(boolean restricted) {
+            this.restricted = restricted;
+        }
+
     }
 
     private final LinkedList<Op> list = new LinkedList<Op>();
 
-    public void push(Op op) {
+    /**
+     * Adds the given operation to the current list <em>if</em> the user
+     * has permissions to do so.
+     *
+     * @param op Current {@link Op} to add to the stack
+     * @param modified Whether or not the value was changed by the user
+     * @param details Active user login
+     */
+    public void push(Op op, boolean modified, EventContext ec) throws DeleteException {
+        if (op.restricted && modified && ! ec.isCurrentUserAdmin()) {
+            throw new DeleteException(true, "User " + ec.getCurrentUserId() +
+                    " is not an admin and cannot set the operation to " +
+                    op.toString());
+        }
         list.add(op);
     }
 

@@ -350,8 +350,12 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                 }
             });
 
-        } catch (Exception e) {
-            // tx rolled back.
+        } catch (Throwable t) {
+            if (t instanceof Cancel) {
+                log.debug("Delete cancelled by " + t.getCause());
+            } else {
+                log.debug("Delete rolled back by " + t.getCause());
+            }
         } finally {
             sw.stop("omero.delete.tx");
         }
