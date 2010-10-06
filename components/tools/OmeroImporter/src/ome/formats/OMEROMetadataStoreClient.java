@@ -4578,8 +4578,8 @@ public class OMEROMetadataStoreClient
     public void setLaserPump(String pump, int instrumentIndex,
             int lightSourceIndex)
     {
-        Laser o = getLaser(instrumentIndex, lightSourceIndex);
-        o.setPump((LightSource) getEnumeration(LightSource.class, pump));
+        LSID key = new LSID(Laser.class, instrumentIndex, lightSourceIndex);
+        addReference(key, new LSID(pump));
     }
 
     /* (non-Javadoc)
