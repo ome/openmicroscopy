@@ -200,7 +200,7 @@ class BaseContainer(BaseController):
         if eid is not None:
             self.experimenter = self.conn.getExperimenter(eid)  
         
-        im_list = self.sortByAttr(list(self.conn.lookupImagesInDataset(oid=did, eid=eid, page=page)), 'name')
+        im_list = list(self.conn.lookupImagesInDataset(oid=did, eid=eid, page=page))
         im_list_with_counters = list()
         
         im_ids = [im.id for im in im_list]
@@ -356,7 +356,7 @@ class BaseContainer(BaseController):
         if eid is not None:
             self.experimenter = self.conn.getExperimenter(eid)
         
-        im_list = self.sortByAttr(list(self.conn.lookupOrphanedImages(eid=eid)), 'name')
+        im_list = list(self.conn.lookupOrphanedImages(eid=eid))
         im_list_with_counters = list()
         
         im_ids = [im.id for im in im_list]
@@ -367,6 +367,7 @@ class BaseContainer(BaseController):
                 im.annotation_counter = im_annotation_counter.get(im.id)
                 im_list_with_counters.append(im)
         
+        im_list_with_counters = self.sortByAttr(im_list_with_counters, 'id')
         self.containers = {'orphaned': True, 'images': im_list_with_counters}
         self.c_size = len(im_list_with_counters)
 

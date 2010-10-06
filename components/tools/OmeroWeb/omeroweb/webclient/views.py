@@ -1441,7 +1441,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         anns = request.REQUEST.get('anns')
         try:
             handle = manager.deleteItem(child, anns)
-            request.session['callback'][str(handle)] = {'delmany':False,'did':o_id, 'dtype':o_type, 'dstatus':'Progress', 'derror':handle.errors(), 'dreport':handle.report()}
+            request.session['callback'][str(handle)] = {'delmany':False,'did':o_id, 'dtype':o_type, 'dstatus':'Progress', 'derror':handle.errors(), 'dreport':("; ".join([ r for r in handle.report() if len(r)>0 ]))}
             request.session.modified = True
         except Exception, x:
             logger.error(traceback.format_exc())
@@ -1454,9 +1454,9 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         try:
             handle = manager.deleteImages(ids, anns)
             if len(ids) > 1:
-                request.session['callback'][str(handle)] = {'delmany':len(ids), 'did':ids, 'dtype':'image', 'dstatus':'Progress', 'derror':handle.errors(), 'dreport':handle.report()}
+                request.session['callback'][str(handle)] = {'delmany':len(ids), 'did':ids, 'dtype':'image', 'dstatus':'in progress', 'derror':handle.errors(), 'dreport':handle.report()}
             else:
-                request.session['callback'][str(handle)] = {'delmany':False, 'did':ids[0], 'dtype':'image', 'dstatus':'Progress', 'derror':handle.errors(), 'dreport':handle.report()}
+                request.session['callback'][str(handle)] = {'delmany':False, 'did':ids[0], 'dtype':'image', 'dstatus':'in progress', 'derror':handle.errors(), 'dreport':("; ".join([ r for r in handle.report() if len(r)>0 ]))}
             request.session.modified = True
         except Exception, x:
             logger.error(traceback.format_exc())
@@ -2147,6 +2147,8 @@ def progress(request, **kwargs):
     
     in_progress = 0
     failure = 0
+    _purgeCallback(request)
+    
     for cbString in request.session.get('callback').keys():
         dstatus = request.session['callback'][cbString]['dstatus']
         if dstatus == "failed":
@@ -2166,7 +2168,7 @@ def progress(request, **kwargs):
                         failure+=1
                     else:
                         request.session['callback'][cbString]['dstatus'] = "in progress"
-                        request.session['callback'][cbString]['dreport'] = None
+                        request.session['callback'][cbString]['dreport'] = "; ".join([ r for r in handle.report() if len(r)>0 ])
                         in_progress+=1
                 else:
                     err = handle.errors()
@@ -2177,11 +2179,11 @@ def progress(request, **kwargs):
                         failure+=1
                     else:
                         request.session['callback'][cbString]['dstatus'] = "finished"
-                        request.session['callback'][cbString]['dreport'] = None
+                        request.session['callback'][cbString]['dreport'] = "; ".join([ r for r in handle.report() if len(r)>0 ])
                         cb.close()
             except Ice.ObjectNotExistException:
                 request.session['callback'][cbString]['derror'] = 0
-                request.session['callback'][cbString]['dreport'] = "finished"
+                request.session['callback'][cbString]['dstatus'] = "finished"
                 request.session['callback'][cbString]['dreport'] = None
             except Exception, x:
                 logger.error(traceback.format_exc())
@@ -2214,6 +2216,8 @@ def status_action (request, action=None, **kwargs):
     
     template = "webclient/status/status.html"
 
+    _purgeCallback(request)
+            
     controller = BaseController(conn)    
     form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['allGroups']})
         
@@ -2224,6 +2228,13 @@ def status_action (request, action=None, **kwargs):
     logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
 
+def _purgeCallback(request):
+    
+    callbacks = request.session.get('callback').keys()
+    if len(callbacks) > 100:
+        for (cbString, count) in zip(request.session.get('callback').keys(), range(0,len(callbacks)-100)):
+            del request.session['callback'][cbString]
+            
 ####################################################################################
 # User Photo
 

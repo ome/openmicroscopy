@@ -206,7 +206,6 @@ function deleteItems (productArray, parent) {
                             }
                             return;
                         }
-
                         $("#progress").show();
                         $("#jobstatus").html(data.inprogress + ' job(s) in progress');
                     });
