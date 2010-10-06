@@ -317,7 +317,7 @@ class HSVWheel
 	}	
 	
 	/**
-	 * Adds listener to the arraylist of components who will be notified when
+	 * Adds listener to the components who will be notified when
 	 * the state changes in HSVWheel. 
 	 * 
 	 * @param listener The listener to add.

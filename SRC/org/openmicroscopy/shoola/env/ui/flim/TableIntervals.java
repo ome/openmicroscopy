@@ -74,7 +74,7 @@ class TableIntervals
 	private TableModelListener listener;
 	
 	/**
-	 * Populates the specified row.
+	 * Populates the specified row. 
 	 * 
 	 * @param row The selected row.
 	 */
@@ -143,10 +143,9 @@ class TableIntervals
 			
 			public void tableChanged(TableModelEvent evt) {
 				if (evt.getType() == TableModelEvent.UPDATE) {
-		            populateRow(evt.getFirstRow());
+					populateRow(evt.getFirstRow());
 		            addEmptyRow();
 		        }
-				
 			}
 		};
 		model.addTableModelListener(listener);

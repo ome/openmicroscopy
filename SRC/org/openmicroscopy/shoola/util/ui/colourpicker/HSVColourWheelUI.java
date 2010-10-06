@@ -114,39 +114,6 @@ class HSVColourWheelUI
 		createHSVSlider();
 		createAlphaSlider();
 		createAlphaTextbox();	
-		/*
-        JPanel container = new JPanel();
-        GridBagConstraints gbc = new GridBagConstraints();
-        container.setLayout(new GridBagLayout());
-    	gbc.anchor = GridBagConstraints.WEST;
-        gbc.weightx = 1600.0;
-        gbc.weighty = 600.0;
-        gbc.fill = GridBagConstraints.BOTH;
-        container.add(wheel, gbc);
-        gbc.gridx = 1;
-        gbc.weightx = 100;
-        container.add(HSVSlider,gbc);
-        //
-        JPanel p = new JPanel();
-        GridBagConstraints c = new GridBagConstraints();
-        c.anchor = GridBagConstraints.WEST;
-        c.weightx = 0.0;  
-        p.setLayout(new GridBagLayout());
-        c.fill = GridBagConstraints.VERTICAL;
-    	p.add(alphaSlider, c);
-        c.gridx = 1;
-        p.add(alphaTextbox, c);
-        gbc.fill = GridBagConstraints.BOTH;
-        setLayout(new GridBagLayout());
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.weightx = 100;
-        gbc.weighty = 100;
-        add(container,gbc);
-        gbc.weighty = 15;
-        gbc.gridy = 1;
-        add(p, gbc);
-        */
 		int width = HSVSlider.getPreferredSize().width;
 		
 		double[][] tl = {{TableLayout.PREFERRED, 5, width}, //columns
@@ -156,7 +123,7 @@ class HSVColourWheelUI
         empty.setOpaque(true);
         add(wheel, "0, 0");
         add(empty, "1, 0");
-        add(HSVSlider, "2, 0");
+        		add(HSVSlider, "2, 0");
         add(alphaSlider, "0, 1");
         empty = new JPanel();
         empty.setOpaque(true);

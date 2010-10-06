@@ -633,7 +633,7 @@ public class FLIMResultsDialog
 		buildGUI(icon);
 		pack();
 	}
-
+	
 	/**
 	 * Returns the number of pixels contained in the specified interval or 
 	 * <code>null</code>.
