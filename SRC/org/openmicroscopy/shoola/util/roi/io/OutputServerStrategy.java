@@ -89,28 +89,27 @@ class OutputServerStrategy
 	private List<ROIData>  ROIList;
 	
 	/**
-	 * Parses the ROI in the ROIComponent to create the appropriate ROIDAta 
+	 * Parses the ROI in the ROIComponent to create the appropriate ROIData 
 	 * object to supply to the server.
 	 * 
 	 * @param image The image the ROI is on.
+	 * @param ownerID The identifier of the owner.
 	 * @throws Exception 
 	 */
-	private void parseROI(ImageData image) 
+	private void parseROI(ImageData image, long ownerID) 
 		throws Exception
 	{
 		TreeMap<Long, ROI> map = component.getROIMap();
 		Iterator<ROI> roiIterator = map.values().iterator();
 		ROI roi;
-		ROIData serverROI;
 		while (roiIterator.hasNext())
 		{
 			roi = roiIterator.next();
-			serverROI = createServerROI(roi, image);
-			ROIList.add(serverROI);
+			if (roi.getOwnerID() == ownerID || roi.getOwnerID() == -1)
+				ROIList.add(createServerROI(roi, image));
 		}
 	}
-	
-	
+
 	/**
 	 * Creates the Shape object for the ROIShape figure object.
 	 * @param clientShape See above.
@@ -121,23 +120,30 @@ class OutputServerStrategy
 		throws Exception
 	{
 		ROIFigure fig = clientShape.getFigure();
+		ShapeData shape = null;
 		if (fig instanceof MeasureBezierFigure)
-			return createBezierFigure(clientShape);
+			shape = createBezierFigure(clientShape);
 		else if (fig instanceof MeasureEllipseFigure)
-			return createEllipseFigure(clientShape);
+			shape = createEllipseFigure(clientShape);
 		else if (fig instanceof MeasureLineFigure)
-			return createLineFigure(clientShape);
+			shape = createLineFigure(clientShape);
 		else if (fig instanceof MeasureMaskFigure)
-			return createMaskFigure(clientShape);
+			shape = createMaskFigure(clientShape);
 		else if (fig instanceof MeasurePointFigure)
-			return createPointFigure(clientShape);
+			shape = createPointFigure(clientShape);
 		else if (fig instanceof MeasureRectangleFigure)
-			return createRectangleFigure(clientShape);
+			shape = createRectangleFigure(clientShape);
 		else if (fig instanceof MeasureTextFigure)
-			return createTextFigure(clientShape);
-		else
+			shape = createTextFigure(clientShape);
+		if (shape == null)
 			throw new Exception("ROIShape not supported : " + 
 									clientShape.getClass().toString());
+		shape.setT(clientShape.getT());
+		shape.setZ(clientShape.getZ());
+		shape.setDirty(fig.isDirty());
+		if (!fig.isClientObject())
+			shape.setId(clientShape.getROIShapeID());
+		return shape;
 	}
 	
 	/**
@@ -152,7 +158,7 @@ class OutputServerStrategy
 		throws Exception
 	{
 		ROIData roiData = new ROIData();
-		String ns = (String)roi.getAnnotation(AnnotationKeys.NAMESPACE);
+		String ns = (String) roi.getAnnotation(AnnotationKeys.NAMESPACE);
 		List<String> list = UIUtilities.CSVToList(
 				(String) roi.getAnnotation(AnnotationKeys.KEYWORDS));
 		String[] kw = new String[list.size()];
@@ -187,7 +193,7 @@ class OutputServerStrategy
 	private ShapeData createBezierFigure(ROIShape shape) 
 		throws ParsingException
 	{
-		MeasureBezierFigure fig = (MeasureBezierFigure)shape.getFigure();
+		MeasureBezierFigure fig = (MeasureBezierFigure) shape.getFigure();
 		if (fig.isClosed())
 			return createPolygonFigure(shape);
 		else
@@ -212,11 +218,6 @@ class OutputServerStrategy
 		double cy = fig.getEllipse().getCenterY();
 		
 		EllipseData ellipse = new EllipseData(cx, cy, rx, ry); 
-		if (!fig.isClientObject())
-			ellipse.setId(shape.getROIShapeID());
-		ellipse.setDirty(fig.isDirty());
-		ellipse.setT(shape.getT());
-		ellipse.setZ(shape.getZ());
 		ellipse.setText(fig.getText());
 		AffineTransform t = TRANSFORM.get(fig);
 		if (t != null)
@@ -252,15 +253,10 @@ class OutputServerStrategy
 		double cy = fig.getCentre().getY();
 		
 		PointData point = new PointData(cx, cy); 
-		point.setDirty(fig.isDirty());
-		point.setT(shape.getT());
-		point.setZ(shape.getZ());
 		point.setText(fig.getText());
 		AffineTransform t = TRANSFORM.get(fig);
 		if (t != null)
 			point.setTransform(toTransform(t));
-		if (!fig.isClientObject())
-			point.setId(shape.getROIShapeID());
 		return point;
 	}
 	
@@ -309,17 +305,12 @@ class OutputServerStrategy
 		double height = fig.getHeight();
 		
 		RectangleData rectangle = new RectangleData(x, y, width, height); 
-		rectangle.setDirty(fig.isDirty());
-		rectangle.setT(shape.getT());
-		rectangle.setZ(shape.getZ());
 		rectangle.setText(fig.getText());
 		
 		AffineTransform t = TRANSFORM.get(fig);
 		if (t != null)
 			rectangle.setTransform(toTransform(t));
 		
-		if (!fig.isClientObject())
-			rectangle.setId(shape.getROIShapeID());
 		return rectangle;
 	}
 	
@@ -334,7 +325,7 @@ class OutputServerStrategy
 	private PolygonData createPolygonFigure(ROIShape shape) 
 		throws ParsingException
 	{
-		MeasureBezierFigure fig = (MeasureBezierFigure)shape.getFigure();
+		MeasureBezierFigure fig = (MeasureBezierFigure) shape.getFigure();
 		AffineTransform t = TRANSFORM.get(fig);
 		List<Point2D.Double> points = new LinkedList<Point2D.Double>();
 		List<Point2D.Double> points1 = new LinkedList<Point2D.Double>();
@@ -350,14 +341,10 @@ class OutputServerStrategy
 			maskList.add(Integer.valueOf(node.getMask()));
 		}
 		PolygonData poly = new PolygonData();
-		poly.setT(shape.getT());
-		poly.setZ(shape.getZ());
 		poly.setPoints(points, points1, points2, maskList);
 		if (t != null)
 			poly.setTransform(toTransform(t));
 		poly.setText(fig.getText());
-		if (!fig.isClientObject())
-			poly.setId(shape.getROIShapeID());
 		return poly;	
 	}
 	
@@ -388,14 +375,10 @@ class OutputServerStrategy
 			maskList.add(Integer.valueOf(node.getMask()));
 		}
 		PolylineData line = new PolylineData();
-		line.setT(shape.getT());
-		line.setZ(shape.getZ());
 		line.setPoints(points, points1, points2, maskList);
 		if (t != null)
 			line.setTransform(toTransform(t));
 		line.setText(fig.getText());
-		if (!fig.isClientObject())
-			line.setId(shape.getROIShapeID());
 		return line;
 	}
 	
@@ -426,15 +409,10 @@ class OutputServerStrategy
 			maskList.add(Integer.valueOf(node.getMask()));
 		}
 		PolylineData poly = new PolylineData();
-		poly.setT(shape.getT());
-		poly.setZ(shape.getZ());
 		poly.setPoints(points, points1, points2, maskList);
 		if (t != null)
 			poly.setTransform(toTransform(t));
 		poly.setText(fig.getText());
-		poly.setText(fig.getText());
-		if (!fig.isClientObject())
-			poly.setId(shape.getROIShapeID());
 		return poly;	
 	}
 	
@@ -584,14 +562,16 @@ class OutputServerStrategy
 	 * 
 	 * @param component See above.
 	 * @param image The image the ROI is on.
+	 * @param ownerID The identifier of the owner.
 	 * @throws Exception If an error occurred while parsing the ROI.
 	 */
-	List<ROIData> writeROI(ROIComponent component, ImageData image) 
+	List<ROIData> writeROI(ROIComponent component, ImageData image, 
+			long ownerID) 
 		throws Exception
 	{
 		this.component = component;
 		ROIList = new ArrayList<ROIData>();
-		parseROI(image);
+		parseROI(image, ownerID);
 		return ROIList;
 	}
 

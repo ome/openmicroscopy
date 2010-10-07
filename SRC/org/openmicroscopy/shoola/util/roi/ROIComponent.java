@@ -329,14 +329,16 @@ public class ROIComponent
 	 * Converts the ROI in the component to ROIData and return. 
 	 * 
 	 * @param image The image the ROI are on.
+	 * @param ownerID The identifier of the owner.
 	 * @return See above.
 	 * @throws Exception 
 	 */
-	public List<ROIData> saveROI(ImageData image) 
+	public List<ROIData> saveROI(ImageData image, long ownerID) 
 		throws Exception
 	{
-		if (serverStrategy == null) serverStrategy = new ServerROIStrategy();
-		return serverStrategy.write(this, image);
+		if (serverStrategy == null) 
+			serverStrategy = new ServerROIStrategy();
+		return serverStrategy.write(this, image, ownerID);
 	}
 	
 	/**
@@ -407,8 +409,7 @@ public class ROIComponent
 			throw new NullPointerException("No rois to transform.");
 		if (serverStrategy == null)
 			serverStrategy = new ServerROIStrategy();
-		List<ROI> l = serverStrategy.read(rois, this, readOnly);
-		return l;
+		return serverStrategy.read(rois, this, readOnly);
 	}
 	
 	/**

@@ -135,6 +135,7 @@ public class ROICollection
 	/**
 	 * Create an ROI with id. Add the ROI to the ROIMap, specifying if the ROI
 	 * is clientside.
+	 * 
 	 * @param id see above.
 	 * @param clientSideObject see above.
 	 * @return see above.
@@ -142,7 +143,7 @@ public class ROICollection
 	public ROI createROI(long id, boolean clientSideObject)
 	{
 		ROI newROI = new ROI(id, clientSideObject);
-		if(lastID<id) lastID=id+1;
+		if (lastID < id) lastID = id+1;
 		roiMap.add(newROI.getID(), newROI);
 		return newROI;
 	}

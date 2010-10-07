@@ -95,14 +95,16 @@ public class ServerROIStrategy
 	 * 
 	 * @param component The ROI component.
 	 * @param image The image the ROI is on.
+	 * @param ownerID The identifier of the owner.
 	 * @throws Exception 
 	 */
-	public List<ROIData> write(ROIComponent component, ImageData image)
+	public List<ROIData> write(ROIComponent component, ImageData image, 
+			long ownerID)
 		throws Exception
 	{
 		if (component.getROIMap().size() == 0)
 			return new ArrayList<ROIData>();
-		return outputStrategy.writeROI(component, image);
+		return outputStrategy.writeROI(component, image, ownerID);
 	}
 	
 }

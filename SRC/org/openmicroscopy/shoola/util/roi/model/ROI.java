@@ -59,6 +59,7 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
  */
 public class ROI
 {
+	
 	/** Default size of the ROI Map. */
 	final 	static 	int						DEFAULTMAPSIZE = 101;
 	
@@ -91,6 +92,9 @@ public class ROI
 	private String keyword;
 	
 
+	/** The identifier of the owner. */
+	private long ownerID;
+	
     /**
      * Construct the ROI with id.
      * @param id see above.
@@ -149,6 +153,7 @@ public class ROI
 	 */
 	private void init(long id, boolean clientSide)
 	{
+		ownerID = -1;
 		this.id = id;
 		this.clientSide = clientSide;
 		roiShapes = new TreeMap<Coord3D, ROIShape>(new Coord3D());
@@ -571,6 +576,21 @@ public class ROI
 	{
 		this.namespace = namespace;
 	}
+	
+	/**
+	 * Sets the identifier of the owner.
+	 * 
+	 * @param ownerID the identifier of the owner.
+	 */
+	public void setOwnerID(long ownerID) { this.ownerID = ownerID; }
+	
+	/**
+	 * Returns the identifier of the owner.
+	 * 
+	 * @return See above.
+	 */
+	public long getOwnerID() { return ownerID; }
+	
 }
 
 

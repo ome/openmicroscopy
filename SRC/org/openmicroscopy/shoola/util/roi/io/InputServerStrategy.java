@@ -165,7 +165,9 @@ class InputServerStrategy
 		throws NoSuchROIException, ROICreationException
 	{
 		long id = roi.getId();
-		ROI newROI = component.createROI(id, readOnly);
+		//ROI newROI = component.createROI(id, readOnly);
+		ROI newROI = component.createROI(id, id <= 0);
+		newROI.setOwnerID(roi.getOwner().getId());
 		if (roi.getNamespaces().size() != 0) {
 			String s = roi.getNamespaces().get(0);
 			newROI.setAnnotation(AnnotationKeys.NAMESPACE, s);

@@ -1023,28 +1023,12 @@ class MeasurementViewerModel
 	{
 		List<ROIData> roiList;
 		try {
-			roiList = roiComponent.saveROI(pixels.getImage());
-			Iterator<ROIData> i = roiList.iterator();
-			ROIData roi;
-			List<ROIData> toSave = new ArrayList<ROIData>();
-			//Need to add a read-only flag on ROI Data
 			ExperimenterData exp = 
 				(ExperimenterData) MeasurementAgent.getUserDetails();
-			ExperimenterData owner;
-			while (i.hasNext()) {
-				roi = i.next();
-				if (roi.isClientSide()) toSave.add(roi);
-				else {
-					owner = roi.getOwner();
-					if (owner.getId() == exp.getId())
-						toSave.add(roi);
-				}
-			}
+			roiList = roiComponent.saveROI(pixels.getImage(), exp.getId());
+			//Need to add a read-only flag on ROI Data
 			
-			if (toSave.size() == 0) { 
-				return;
-			}
-			
+			if (roiList.size() == 0) return;
 			if (async) {
 				currentSaver = new ROISaver(component, getImageID(), 
 						exp.getId(), roiList);
