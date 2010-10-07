@@ -193,7 +193,22 @@ function deleteItems (productArray, parent) {
             if(responce.match(/(Error: ([A-z]+))/gi)) {
                 alert(responce)
             } else {
-                window.location.replace("");
+                //window.location.replace("");
+                productArray.each(function() {
+                    if(this.checked) {                        
+                        a = simpleTreeCollection.find('li#img-'+this.id);
+                        if (a.attr('class').indexOf('last')>=0) {  
+                            a.prev().prev().attr('class', a.prev().prev().attr('class')+'-last');
+                        }
+                        a.prev('li.line').remove();
+                        a.remove();                        
+                        $('li#'+this.id).remove();
+                        a = simpleTreeCollection.find('li#img-'+this.id);
+                        a.prev('li.line').remove();
+                        a.remove();
+                    }
+                });
+                
                 var i = setInterval(function (){
                     $.getJSON("/webclient/progress/", function(data) {
                         if (data.inprogress== 0) {
@@ -242,26 +257,34 @@ function deleteItem(productType, productId) {
                         alert(responce)
                     } else {  
                         //window.location.replace("");
-                        if ((productType == 'image') && productId > 0) {
-                            var obj = $("div#content_details").attr('rel').split("-");
-                            $("div#metadata_details").empty();
-                            $("div#content_details").html('<p>Reloading data... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
-                            $("div#content_details").load('/webclient/load_data/dataset/'+obj[1]+'/?view=icon');
-                            $("div#content_details").attr('rel', obj.join("-"));
-                        } else if ((productType == 'dataset' || productType == 'plate') && productId > 0) {
-                            $("div#metadata_details").empty();
-                            $("div#content_details").removeAttr('rel').children().remove();
-                        } else if ((productType == 'project' || productType == 'screen') && productId > 0) {
-                            $("div#metadata_details").empty();
-                        }
-
+                        
                         a = simpleTreeCollection.find('span.active').parents('li:first');
                         if (a.attr('class').indexOf('last')>=0) {  
                             a.prev().prev().attr('class', a.prev().prev().attr('class')+'-last');
                         }
                         a.prev('li.line').remove();
                         a.remove();
-                                          
+                        
+                        if ((productType == 'image') && productId > 0) {
+                            $("div#metadata_details").empty();
+                            /*$("div#content_details").html('<p>Reloading data... please wait <img src ="/appmedia/omeroweb/images/tree/spinner.gif" /></p>');
+                            if ($("div#content_details").attr('rel') && $("div#content_details").attr('rel') !== undefined) {
+                                var obj = $("div#content_details").attr('rel').split("-");
+                                $("div#content_details").load('/webclient/load_data/dataset/'+obj[1]+'/?view=icon');
+                                $("div#content_details").attr('rel', obj.join("-"));
+                            }*/
+                            if ($('#dataIcons').length != 0) {
+                                $('#dataIcons').find('li#'+a.attr('id').split("-")[1]).remove();
+                            } else if ($('#dataTable').length != 0) {
+                                $('#dataTable').find('tr#'+a.attr('id').split("-")[1]).remove();
+                            }                     
+                        } else if ((productType == 'dataset' || productType == 'plate') && productId > 0) {
+                            $("div#metadata_details").empty();
+                            $("div#content_details").removeAttr('rel').children().remove();
+                        } else if ((productType == 'project' || productType == 'screen') && productId > 0) {
+                            $("div#metadata_details").empty();
+                        }
+                                  
                         var i = setInterval(function (){
                             $.getJSON("/webclient/progress/", function(data) {
                                 if (data.inprogress== 0) {

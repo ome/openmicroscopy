@@ -1446,7 +1446,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         except Exception, x:
             logger.error(traceback.format_exc())
             rv = "Error: %s" % x
-            return HttpResponse(rv)        
+            return HttpResponse(rv)      
         return HttpResponse()
     elif action == 'deletemany':
         ids = request.REQUEST.getlist('image')

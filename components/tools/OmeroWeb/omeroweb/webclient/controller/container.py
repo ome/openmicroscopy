@@ -370,6 +370,9 @@ class BaseContainer(BaseController):
         im_list_with_counters = self.sortByAttr(im_list_with_counters, 'id')
         self.containers = {'orphaned': True, 'images': im_list_with_counters}
         self.c_size = len(im_list_with_counters)
+        
+        #if page is not None:
+        #    self.paging = self.doPaging(page, len(im_list_with_counters), self.c_size)
 
     # Annotation list
     def annotationList(self):
