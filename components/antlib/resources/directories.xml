@@ -50,7 +50,6 @@
 	<property name="import.comp"    value="${components.dir}/importer"/>
 	<property name="blitz.comp"     value="${components.dir}/blitz"/>
 	<property name="tools.comp"     value="${components.dir}/tools"/>
-	<property name="licenses.comp"     value="${tools.comp}/licenses"/>
 	<property name="OmeroCpp.comp"     value="${tools.comp}/OmeroCpp"/>
 	<property name="OmeroJava.comp"     value="${tools.comp}/OmeroJava"/>
 	<property name="OmeroImporter.comp"     value="${tools.comp}/OmeroImporter"/>
@@ -75,9 +74,6 @@
 	</path>
 	<path id="server.buildpath">
 	  <pathelement location="${server.comp}/build.xml"/>
-	</path>
-	<path id="licenses.buildpath">
-	  <pathelement location="${licenses.comp}/build.xml"/>
 	</path>
 	<path id="OmeroImporter.buildpath">
 	  <pathelement location="${OmeroImporter.comp}/build.xml"/>

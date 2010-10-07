@@ -129,7 +129,6 @@ java component.
         <iterate buildpathref="OmeroImporter.buildpath" target="tools-dist"/>
         <iterate buildpathref="OmeroMatlab.buildpath" target="tools-dist"/>
         <iterate buildpathref="OmeroWeb.buildpath" target="tools-dist"/>
-        <iterate buildpathref="licenses.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
         <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
     </target>
@@ -206,7 +205,6 @@ java component.
         <iterate buildpathref="all.buildpath" target="eclipse"/>
         <iterate buildpathref="OmeroJava.buildpath" target="eclipse"/>
         <iterate buildpathref="OmeroImporter.buildpath" target="eclipse"/>
-        <iterate buildpathref="licenses.buildpath" target="eclipse"/>
         <antcall target="eclipse" inheritRefs="true" inheritAll="true"/>
     </target>
 
@@ -485,9 +483,6 @@ java component.
             </fileset>
             <!-- Skipping generated files for blitz. Just too many -->
             <fileset dir="components/blitz/src" defaultexcludes="yes" includes="**/*.java"/>
-            <fileset dir="components/tools/licenses" defaultexcludes="yes">
-                <patternset refid="all.java.files"/>
-            </fileset>
             <fileset dir="components/tools/OmeroJava" defaultexcludes="yes">
                 <patternset refid="all.java.files"/>
             </fileset>
