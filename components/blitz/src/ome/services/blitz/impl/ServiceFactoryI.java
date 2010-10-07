@@ -807,7 +807,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
             // First take measures to keep the session alive
             getEventContext();
             if (log.isInfoEnabled()) {
-                log.info("Keep alive: " + __current.id.name);
+                log.info("Keep alive: " + this);
             }
 
             if (proxies == null || proxies.length == 0) {
@@ -840,7 +840,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
             // First take measures to keep the session alive
             getEventContext();
             if (log.isInfoEnabled()) {
-                log.info("Keep alive: " + __current.id.name);
+                log.info("Keep alive: " + this);
             }
 
             if (proxy == null) {

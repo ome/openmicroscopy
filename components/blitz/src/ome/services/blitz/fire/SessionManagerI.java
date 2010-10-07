@@ -196,10 +196,10 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
             if (!sessionToClientIds.containsKey(s.getUuid())) {
                 sessionToClientIds.put(s.getUuid(), new HashSet<String>());
                 log.info(String.format("Created session %s for user %s",
-                        id.name, userId));
+                        session, userId));
             } else {
                 if (log.isInfoEnabled()) {
-                    log.info(String.format("Rejoining session %s", id.name));
+                    log.info(String.format("Rejoining session %s", session));
                 }
             }
             sessionToClientIds.get(s.getUuid()).add(session.clientId);

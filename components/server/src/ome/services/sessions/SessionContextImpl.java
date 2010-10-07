@@ -71,6 +71,7 @@ public class SessionContextImpl implements SessionContext {
                 // some loop is incrementing indefinitely.
                 if (ref < Integer.MAX_VALUE) {
                     ref = ref + 1;
+                    log.info("+Reference count: " + session.getUuid() + "=" + ref);
                 } else {
                     log.error("Reference count == MAX_VALUE");
                 }
@@ -85,6 +86,7 @@ public class SessionContextImpl implements SessionContext {
                 ref = 0;
             } else {
                 ref = ref - 1;
+                log.info("-Reference count: " + session.getUuid() + "=" + ref);
             }
             return ref;
         }
