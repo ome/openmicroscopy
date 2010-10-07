@@ -252,13 +252,7 @@ public abstract class AbstractAmdServant implements ApplicationContextAware,
         if (t == null) {
             __cb.ice_response();
         } else {
-            if (t instanceof Exception) {
-                __cb.ice_exception((Exception)t);
-            } else {
-                omero.InternalException ie = new omero.InternalException();
-                IceMapper.fillServerError(ie, t);
-                __cb.ice_exception(ie);
-            }
+            __cb.ice_exception(new IceMapper().handleException(t, ctx));
         }
 
     }
