@@ -519,7 +519,7 @@ public class HistoryTable
                 row.add(objectID);
                 row.add(projectID);
                 table.addRow(row);
-                table.fireTableDataChanged();
+                //table.fireTableDataChanged();
                 unknownProjectDatasetFlag = false;
             }
             

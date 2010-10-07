@@ -142,10 +142,9 @@ public class ErrorTable
         
         mainPanel = GuiCommonElements.addMainPanel(this, mainTable, 0,0,0,0, debug); 
                 
-        String message = "All errors accumulated during your import are collected here, " +
-                "allowing you to review and send us feedback on the problem. " +
-                "To help us, you can upload them to us by selecting the \"Upload\" checkbox " +
-                "besides each error.";
+        String message = "All errors accumulated during your import are displayed here, " +
+                "and will be uploaded to us if check-marked. You can send us feedback on " +
+                "these problems by clicking the 'Send Feedback' button.";
 
         JTextPane instructions = 
         	GuiCommonElements.addTextPane(mainPanel, message, "1,1,4,0", debug);
@@ -383,7 +382,6 @@ public class ErrorTable
     {
         table.setValueAt(1, row, 3);
         setFailedFiles(false);
-        table.fireTableDataChanged();
         progressPanel.setVisible(true);
         cancelBtn.setVisible(true); 
         invalidate();

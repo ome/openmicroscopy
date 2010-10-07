@@ -330,7 +330,6 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
     {
      	getTable().setValueAt("failed", row, 2);
         failedFiles = true;
-        getTable().fireTableDataChanged();
     }
     
     /**
@@ -342,7 +341,6 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
     {
         getTable().setValueAt("unreadable", row, 2);
         failedFiles = true;
-        getTable().fireTableDataChanged();
     }    
         
     /**
@@ -364,7 +362,6 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
     {
         getTable().setValueAt("done", row, 2);
         doneFiles = true;
-        getTable().fireTableDataChanged();
     }
 
     /**
