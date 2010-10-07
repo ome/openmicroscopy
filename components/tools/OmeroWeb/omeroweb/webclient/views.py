@@ -60,6 +60,17 @@ from django.utils.translation import ugettext_lazy as _
 from webclient_http import HttpJavascriptRedirect, HttpJavascriptResponse
 from webclient.webclient_gateway import OmeroWebGateway
 
+from webclient_utils import _formatReport, _purgeCallback
+from forms import ShareForm, BasketShareForm, ShareCommentForm, \
+                    ContainerForm, CommentAnnotationForm, TagAnnotationForm, \
+                    UploadFileForm, UsersForm, ActiveGroupForm, HistoryTypeForm, \
+                    MetadataFilterForm, MetadataDetectorForm, MetadataChannelForm, \
+                    MetadataEnvironmentForm, MetadataObjectiveForm, MetadataStageLabelForm, \
+                    MetadataLightSourceForm, MetadataDichroicForm, MetadataMicroscopeForm, \
+                    TagListForm, FileListForm, TagFilterForm, \
+                    MultiAnnotationForm, \
+                    WellIndexForm
+
 from controller import sortByAttr, BaseController
 from controller.index import BaseIndex
 from controller.annotation import BaseAnnotation
@@ -71,25 +82,15 @@ from controller.impexp import BaseImpexp
 from controller.search import BaseSearch
 from controller.share import BaseShare
 
-from omeroweb.feedback.views import handlerInternalError
+from omeroweb.webadmin.forms import MyAccountForm, MyAccountLdapForm, UploadPhotoForm, LoginForm
 from omeroweb.webadmin.controller.experimenter import BaseExperimenter 
 from omeroweb.webadmin.controller.uploadfile import BaseUploadFile
+from omeroweb.webadmin.views import _checkVersion, _isServerOn
 
-from forms import ShareForm, BasketShareForm, ShareCommentForm, \
-                    ContainerForm, CommentAnnotationForm, TagAnnotationForm, \
-                    UploadFileForm, UsersForm, ActiveGroupForm, HistoryTypeForm, \
-                    MetadataFilterForm, MetadataDetectorForm, MetadataChannelForm, \
-                    MetadataEnvironmentForm, MetadataObjectiveForm, MetadataStageLabelForm, \
-                    MetadataLightSourceForm, MetadataDichroicForm, MetadataMicroscopeForm, \
-                    TagListForm, FileListForm, TagFilterForm, \
-                    MultiAnnotationForm, \
-                    WellIndexForm
-
-from omeroweb.webadmin.forms import MyAccountForm, MyAccountLdapForm, UploadPhotoForm, LoginForm
-
-from omeroweb.webadmin.views import _session_logout, _checkVersion, _isServerOn
 from omeroweb.webgateway.views import getBlitzConnection
 from omeroweb.webgateway import views as webgateway_views
+
+from omeroweb.feedback.views import handlerInternalError
 
 logger = logging.getLogger('views-web')
 
@@ -1067,22 +1068,6 @@ def manage_annotation_multi(request, action=None, **kwargs):
     logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
 
-
-def __format_report(delete_handle):
-    """
-    Added as workaround to the changes made in #3006.
-    """
-    delete_reports = delete_handle.report()
-    rv = []
-    for report in delete_reports:
-        if report.error:
-            rv.append(report.error)
-        elif report.warning:
-            rv.append(report.warning)
-    return "; ".join(rv)
-    # Might want to take advantage of other feedback here
-
-
 @isUserConnected
 def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
     template = None
@@ -1452,11 +1437,11 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             template = "webclient/annotations/annotation_new_form.html"
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_files':form_files}
     elif action == 'delete':
-        child = request.REQUEST.get('o_type')
+        child = request.REQUEST.get('child')
         anns = request.REQUEST.get('anns')
         try:
             handle = manager.deleteItem(child, anns)
-            request.session['callback'][str(handle)] = {'delmany':False,'did':o_id, 'dtype':o_type, 'dstatus':'Progress', 'derror':handle.errors(), 'dreport':__format_report(handle)}
+            request.session['callback'][str(handle)] = {'delmany':False,'did':o_id, 'dtype':o_type, 'dstatus':'Progress', 'derror':handle.errors(), 'dreport':_formatReport(handle)}
             request.session.modified = True
         except Exception, x:
             logger.error(traceback.format_exc())
@@ -1469,9 +1454,9 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         try:
             handle = manager.deleteImages(ids, anns)
             if len(ids) > 1:
-                request.session['callback'][str(handle)] = {'delmany':len(ids), 'did':ids, 'dtype':'image', 'dstatus':'in progress', 'derror':handle.errors(), 'dreport':__format_report(handle)}
+                request.session['callback'][str(handle)] = {'delmany':len(ids), 'did':ids, 'dtype':'image', 'dstatus':'in progress', 'derror':handle.errors(), 'dreport':_formatReport(handle)}
             else:
-                request.session['callback'][str(handle)] = {'delmany':False, 'did':ids[0], 'dtype':'image', 'dstatus':'in progress', 'derror':handle.errors(), 'dreport':__format_report(handle)}
+                request.session['callback'][str(handle)] = {'delmany':False, 'did':ids[0], 'dtype':'image', 'dstatus':'in progress', 'derror':handle.errors(), 'dreport':_formatReport(handle)}
             request.session.modified = True
         except Exception, x:
             logger.error(traceback.format_exc())
@@ -2179,22 +2164,22 @@ def progress(request, **kwargs):
                         logger.error("Status job '%s'error:" % cbString)
                         logger.error(err)
                         request.session['callback'][cbString]['dstatus'] = "failed"
-                        request.session['callback'][cbString]['dreport'] = __format_report(handle)
+                        request.session['callback'][cbString]['dreport'] = _formatReport(handle)
                         failure+=1
                     else:
                         request.session['callback'][cbString]['dstatus'] = "in progress"
-                        request.session['callback'][cbString]['dreport'] = __format_report(handle)
+                        request.session['callback'][cbString]['dreport'] = _formatReport(handle)
                         in_progress+=1
                 else:
                     err = handle.errors()
                     request.session['callback'][cbString]['derror'] = err
                     if err > 0:
                         request.session['callback'][cbString]['dstatus'] = "failed"
-                        request.session['callback'][cbString]['dreport'] = __format_report(handle)
+                        request.session['callback'][cbString]['dreport'] = _formatReport(handle)
                         failure+=1
                     else:
                         request.session['callback'][cbString]['dstatus'] = "finished"
-                        request.session['callback'][cbString]['dreport'] = __format_report(handle)
+                        request.session['callback'][cbString]['dreport'] = _formatReport(handle)
                         cb.close()
             except Ice.ObjectNotExistException:
                 request.session['callback'][cbString]['derror'] = 0
@@ -2242,13 +2227,6 @@ def status_action (request, action=None, **kwargs):
     c = Context(request,context)
     logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
-
-def _purgeCallback(request):
-    
-    callbacks = request.session.get('callback').keys()
-    if len(callbacks) > 100:
-        for (cbString, count) in zip(request.session.get('callback').keys(), range(0,len(callbacks)-100)):
-            del request.session['callback'][cbString]
             
 ####################################################################################
 # User Photo

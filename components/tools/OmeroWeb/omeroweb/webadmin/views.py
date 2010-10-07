@@ -34,6 +34,7 @@ import calendar
 import datetime
 import traceback
 import logging
+import re
 
 from time import time
 
@@ -53,6 +54,11 @@ from django.views.defaults import page_not_found, server_error
 from django.views import debug
 from django.core.cache import cache
 
+from forms import LoginForm, ForgottonPasswordForm, ExperimenterForm, \
+                   ExperimenterLdapForm, GroupForm, GroupOwnerForm, MyAccountForm, \
+                   MyAccountLdapForm, ContainedExperimentersForm, UploadPhotoForm, \
+                   EnumerationEntry, EnumerationEntries, ScriptForm
+
 from controller import BaseController
 from controller.experimenter import BaseExperimenters, BaseExperimenter
 from controller.group import BaseGroups, BaseGroup
@@ -61,16 +67,12 @@ from controller.drivespace import BaseDriveSpace
 from controller.uploadfile import BaseUploadFile
 from controller.enums import BaseEnums
 
-from forms import LoginForm, ForgottonPasswordForm, ExperimenterForm, \
-                   ExperimenterLdapForm, GroupForm, GroupOwnerForm, MyAccountForm, \
-                   MyAccountLdapForm, ContainedExperimentersForm, UploadPhotoForm, \
-                   EnumerationEntry, EnumerationEntries, ScriptForm
-
 from webclient.webclient_gateway import OmeroWebGateway
 
 #from extlib.gateway import _session_logout, timeit, getBlitzConnection, _createConnection
 from webgateway.views import getBlitzConnection, timeit, _session_logout, _createConnection
 from webgateway import views as webgateway_views
+
 logger = logging.getLogger('views-admin')
 
 connectors = {}
@@ -94,7 +96,6 @@ def getGuestConnection(host, port):
     return conn
 
 def _checkVersion(host, port):
-    import re
     rv = False
     conn = getGuestConnection(host, port)
     if conn is not None:
@@ -115,7 +116,6 @@ def _checkVersion(host, port):
     return rv
 
 def _isServerOn(host, port):
-    import re
     conn = getGuestConnection(host, port)
     if conn is not None:
         try:
@@ -124,7 +124,7 @@ def _isServerOn(host, port):
         except Exception, x:
             logger.error(traceback.format_exc())
     return False
-    
+
 ################################################################################
 # decorators
 

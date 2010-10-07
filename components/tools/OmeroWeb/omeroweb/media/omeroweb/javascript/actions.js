@@ -221,15 +221,15 @@ function deleteItems (productArray, parent) {
 function deleteItem(productType, productId) {
     if ((productType == 'project' || productType == 'dataset' || productType == 'image' || productType == 'screen' || productType == 'plate' || productType == 'share') && productId > 0){
         if (confirm('Delete '+productType+'?')) {
-            var productListQuery = null;
+            var productListQuery=null;
             if ((productType == 'project' || productType == 'dataset' || productType == 'screen') && confirm('Also delete content?')) {
-                productListQuery += 'child=on';
+                productListQuery='child=on';
             }
             if (confirm('Also delete annotations?')) {
                 if(productListQuery!=null){
-                    productListQuery = 'anns=on';
+                    productListQuery='anns=on';
                 } else {
-                    productListQuery += '&anns=on';
+                    productListQuery+='&anns=on';
                 } 
             }
             $.ajax({
