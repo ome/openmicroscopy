@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.env.data;
 
 
 //Java imports
+import java.util.ArrayList;
 import java.util.List;
 
 //Third-party libraries
@@ -32,6 +33,7 @@ import java.util.List;
 import omero.ServerError;
 import omero.client;
 import omero.api.delete.DeleteHandlePrx;
+import omero.api.delete.DeleteReport;
 import omero.grid.DeleteCallbackI;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 
@@ -89,8 +91,12 @@ public class DeleteCallback
 		if (adapter == null) return;
 		try {
 			if (adapter != null) {
-				List<String> l = handle.report();
-				if (handle.errors() == 0) l.clear();
+				DeleteReport[] reports = handle.report();
+				List<DeleteReport> l = new ArrayList<DeleteReport>();
+				if (handle.errors() != 0) {
+					for (int i = 0; i < reports.length; i++) 
+						l.add(reports[i]);
+				}
 				adapter.handleResult(l);
 			}
 		} catch (Exception e) {

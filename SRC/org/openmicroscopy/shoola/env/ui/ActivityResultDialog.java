@@ -182,13 +182,13 @@ class ActivityResultDialog
 	{
 		Container c = getContentPane();
 		String title = "Results";
-		String text = "Follow the results returned by the script.";
+		String text = "Follow the results returned.";
 		
 		if (result instanceof Map) {
 			Map m = (Map) result;
 			if (m.containsKey(ActivityComponent.STD_ERR)) {
 				title = "Errors";
-				text = "Follow the errors returned by the script.";
+				text = "Follow the errors returned.";
 			}
 		}
 		TitlePanel tp = new TitlePanel(title, text, IconManager.getResults());

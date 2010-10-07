@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.env.ui;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Iterator;
+import java.util.Map;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -35,6 +37,7 @@ import javax.swing.JPanel;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.api.delete.DeleteReport;
 import omero.model.OriginalFile;
 import pojos.DatasetData;
 import pojos.FileAnnotationData;
@@ -112,6 +115,17 @@ class ActivityResultRow
 					text += data.getName().getValue();
 			} else text += "File";
 			text += " ID:"+data.getId().getValue();
+		} else if (row instanceof DeleteReport) {
+			DeleteReport report = (DeleteReport) row;
+			Map<String, long[]> undeletedFiles = report.undeletedFiles;
+			int count = 0;
+			Iterator<String> i = undeletedFiles.keySet().iterator();
+			while (i.hasNext()) {
+				count += undeletedFiles.get(i.next()).length;
+			}
+			text = report.error;
+			text += " Unable to delete "+count+" file";
+			if (count > 1) text += "s";
 		} else text = row.toString();
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		add(new JLabel(text));
