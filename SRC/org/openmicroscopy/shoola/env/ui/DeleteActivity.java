@@ -80,14 +80,17 @@ public class DeleteActivity
     	StringBuffer buffer = new StringBuffer();
     	DeletableObject o;
     	Iterator<DeletableObject> i = objects.iterator();
+    	int index = 0;
+    	int n = 2;
     	while (i.hasNext()) {
 			o = i.next();
-			if (buffer.length() < 300) {
-				buffer.append(o.getMessage()+" ");
-			} else {
-				break;
-			}
+			if (index == n) break;
+			buffer.append(o.getMessage());
+			if (index < (n-1)) buffer.append(", ");
+			index++;
 		}
+    	if (objects.size() > n)
+    		buffer.append("and "+(objects.size()-2)+" more");
     	return buffer.toString();
     }
     
