@@ -614,13 +614,16 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
      */
     public void destroy(Ice.Current current) {
 
+        Ice.Identity sessionId = sessionId();
+        log.info("destroy(" + this + ")");
+
         // Remove this instance from the adapter: 1) to prevent
         // further remote calls on it, and 2) to reduce the number
         // of calls to destroy() from SessionManagerI.reapSession()
         // If an exception if thrown, there's not much we can do,
         // and it's important to continue cleaning up resources!
         try {
-            adapter.remove(sessionId()); // OK ADAPTER USAGE
+            adapter.remove(sessionId); // OK ADAPTER USAGE
         } catch (Ice.NotRegisteredException nre) {
             // It's possible that another thread tried to remove
             // this session first. Logging the fact, but we will
@@ -734,7 +737,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     public void doDestroy() {
 
         if (log.isInfoEnabled()) {
-            log.info(String.format("Closing %s session", this));
+            log.info(String.format("doDestroy(%s)", this));
         }
 
         // Cleaning up resources
@@ -1058,4 +1061,12 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         return clientId;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("ServiceFactoryI(");
+        sb.append(Ice.Util.identityToString(sessionId()));
+        sb.append(")");
+        return sb.toString();
+    }
 }

@@ -346,6 +346,9 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
     public void reapSession(String sessionId) {
         Set<String> clientIds = sessionToClientIds.get(sessionId);
         if (clientIds != null) {
+            if (clientIds.size() > 0) {
+                log.info("Reaping " + clientIds.size() + " clients for " + sessionId);
+            }
             for (String clientId : clientIds) {
                 try {
                     ServiceFactoryI sf = getServiceFactory(clientId, sessionId);
@@ -353,7 +356,7 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
                         sf.doDestroy();
                         Ice.Identity id = sf.sessionId();
                         log.info("Removing " + id.name);
-                            adapter.remove(id); // OK ADAPTER USAGE
+                        adapter.remove(id); // OK ADAPTER USAGE
                     }
                 } catch (Ice.ObjectAdapterDeactivatedException oade) {
                     log.warn("Cannot reap session " + sessionId

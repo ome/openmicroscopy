@@ -404,6 +404,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         });
 
         if (list == null) {
+            log.info("removeSession on update: " + uuid);
             cache.removeSession(uuid);
             throw new RemovedSessionException("Database contains no info for "
                     + uuid);
@@ -519,19 +520,22 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     /*
      */
     public int close(String uuid) {
-
         SessionContext ctx;
         try {
             ctx = cache.getSessionContext(uuid, false);
         } catch (SessionException se) {
+            log.info("closeSession called but doesn't exist: " + uuid);
             return -1; // EARLY EXIT!
         }
 
         int refCount = ctx.decrement();
         if (refCount < 1) {
+            log.info("closeSession called and no more references: " + uuid);
             cache.removeSession(uuid);
             return -2;
         } else {
+            log.info("closeSession called but " + refCount
+                    + " more references" + uuid);
             return refCount;
         }
     }
@@ -543,6 +547,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                 continue; // DON'T KILL OUR ROOT SESSION
             }
             try {
+                log.info("closeAll called for " + id);
                 cache.removeSession(id);
             } catch (RemovedSessionException rse) {
                 // Ok. Done for us
