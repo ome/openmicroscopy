@@ -24,8 +24,7 @@ import org.testng.annotations.Test;
 @Test(groups = { "delete", "integration", "ticket:2615" })
 public class RoiDeleteTest extends AbstractTest {
 
-    // Disabling until discussion of what the logic should be.
-    @Test(enabled = false, groups = { "ticket:2962", "ticket:3010" })
+    @Test(groups = { "ticket:2962", "ticket:3010" })
     public void testDeleteWithAnotherUsersRoi() throws Exception {
 
         EventContext owner = newUserAndGroup("rwrw--");

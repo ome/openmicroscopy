@@ -176,7 +176,7 @@ How to handle more than one path:
         </description>
         <constructor-arg>
             <list>
-                <value>/Roi;ORPHAN;/Image</value>
+                <value>/Roi;FORCE;/Image</value>
                 <value>/Image/Pixels/PixelsOriginalFileMap;REAP</value>
                 <value>/OriginalFile;;/Image/Pixels/PixelsOriginalFileMap</value>
                 <value>/Image/Pixels/PlaneInfo</value>
