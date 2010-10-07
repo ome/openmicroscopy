@@ -515,17 +515,20 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
                 self.logger.warn("Cannot update file object %s since group is none", fid)
             else:
                 gid = self.file_obj.details.group.id.val
-                ctx = {"omero.group": str(gid)}
+                client_uuid = self.factory.ice_getIdentity().category[8:]
+                ctx = {"omero.group": str(gid), omero.constants.CLIENTUUID: client_uuid}
                 try:
                     rfs = self.factory.createRawFileStore(ctx)
-                    rfs.setFileId(fid, ctx)
-                    if size:
-                        rfs.truncate(size)     # May do nothing
-                        rfs.write([], size, 0, ctx) # Force an update
-                    else:
-                        rfs.write([], 0, 0, ctx)    # No-op
-                    file_obj = rfs.save(ctx)
-                    rfs.close(ctx)
+                    try:
+                        rfs.setFileId(fid, ctx)
+                        if size:
+                            rfs.truncate(size, ctx)     # May do nothing
+                            rfs.write([], size, 0, ctx) # Force an update
+                        else:
+                            rfs.write([], 0, 0, ctx)    # No-op
+                        file_obj = rfs.save(ctx)
+                    finally:
+                        rfs.close(ctx)
                     self.logger.info("Updated file object %s to sha1=%s (%s bytes)",\
                         self.file_obj.id.val, file_obj.sha1.val, file_obj.size.val)
                 except:
