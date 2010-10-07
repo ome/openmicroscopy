@@ -103,7 +103,7 @@ class SessionsControl(BaseControl):
         self._configure_dir(login)
 
     def _configure_dir(self, parser):
-        parser.add_argument("-d", "--dir", help="Use a different sessions directory (Default: $HOME/omero/sessions)")
+        parser.add_argument("--session-dir", help="Use a different sessions directory (Default: $HOME/omero/sessions)")
 
     def help(self, args):
         self.ctx.err(LONGHELP % {"prog":args.prog})
