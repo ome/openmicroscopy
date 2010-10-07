@@ -706,6 +706,7 @@ WindowStateListener, WindowFocusListener
     {
     	setImportEnabled(false);
         setLoggedIn(false);
+        tPane.setEnabledAt(historyTabIndex,false);
         appendToOutputLn("> Logged out.");
         getStatusBar().setStatusIcon("gfx/server_disconn16.png", "Logged out.");
         

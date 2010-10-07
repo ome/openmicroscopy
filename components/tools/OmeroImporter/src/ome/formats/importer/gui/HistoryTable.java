@@ -594,8 +594,7 @@ public class HistoryTable
         Object src = event.getSource();
         if (src == searchBtn || src == doneCheckBox || src == failedCheckBox 
                 || src == invalidCheckBox || src == pendingCheckBox)
-            getItemQuery(-1, getExperimenterID(), searchField.getText(), 
-                    fromDate.getDate(), toDate.getDate());
+            //getItemQuery(-1, getExperimenterID(), searchField.getText(), fromDate.getDate(), toDate.getDate());
         if (src == clearBtn)
             ClearHistory();
         if (src == reimportBtn)
