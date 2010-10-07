@@ -308,6 +308,7 @@ public class MeasurePointFigure
 	 * Overridden to return the correct handles.
 	 * @see AbstractAttributedFigure#createHandles(int)
 	 */
+	/* cannot do that otherwise enter in an infinite loop
 	public Collection<Handle> createHandles(int detailLevel) 
 	{
 		if(!readOnly)
@@ -319,6 +320,7 @@ public class MeasurePointFigure
 			return handles;
 		}
 	}
+	*/
 	
 	/**
 	 * Calculates the bounds of the rendered figure, including the text rendered. 

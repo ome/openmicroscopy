@@ -171,6 +171,7 @@ public class MeasureTextFigure
 	 * Overridden to return the correct handles.
 	 * @see AbstractAttributedFigure#createHandles(int)
 	 */
+	/* cannot do that otherwise enter in an infinite loop
 	public Collection<Handle> createHandles(int detailLevel) 
 	{
 		if(!readOnly)
@@ -182,6 +183,7 @@ public class MeasureTextFigure
 			return handles;
 		}
 	}
+	*/
    
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.

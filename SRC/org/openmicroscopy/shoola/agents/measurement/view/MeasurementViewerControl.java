@@ -237,19 +237,19 @@ class MeasurementViewerControl
     				AnnotationKeys.NAMESPACE);
     		String keywordsString = (String)figure.getROI().getAnnotation(
     				AnnotationKeys.KEYWORDS);
-    		if (keywordsString!=null)
+    		if (keywordsString != null)
     		{
     			List<String> stringList = new ArrayList<String>();
         		if (keywordsString != "")
     			{
     				String[] splitStrings = keywordsString.split(",");
     			    
-        			for(String word: splitStrings)
+        			for (String word: splitStrings)
         				stringList.add(word);				
     			}
     			model.setWorkflow(namespaceString);
     			model.setKeyword(stringList);
-    			this.view.updateWorkflow();
+    			view.updateWorkflow();
      		}
     	}
 		
@@ -258,7 +258,7 @@ class MeasurementViewerControl
 				(figure instanceof MeasurePointFigure)) {
     		figure.calculateMeasurements();
     		view.refreshResultsTable();
-    		model.setDataChanged();
+    		if (!figure.isReadOnly()) model.setDataChanged();
     		if (!view.inDataView()) return;
     		ROIShape shape = figure.getROIShape();
     		List<ROIShape> shapeList = new ArrayList<ROIShape>();
@@ -275,7 +275,7 @@ class MeasurementViewerControl
  		if (figure.getStatus() != ROIFigure.IDLE) return;
 		figure.calculateMeasurements();
 		view.refreshResultsTable();
-		model.setDataChanged();
+		if (!figure.isReadOnly()) model.setDataChanged();
 		if (!view.inDataView()) return;
 		ROIShape shape = figure.getROIShape();
 		List<ROIShape> shapeList = new ArrayList<ROIShape>();
@@ -609,7 +609,8 @@ class MeasurementViewerControl
 			view.onAttributeChanged(fig);
 			view.refreshInspectorTable();
 			model.figureAttributeChanged(e.getAttribute(), fig);
-			model.setDataChanged();
+			if (!fig.isReadOnly())
+				model.setDataChanged();
 		}
 	}
 

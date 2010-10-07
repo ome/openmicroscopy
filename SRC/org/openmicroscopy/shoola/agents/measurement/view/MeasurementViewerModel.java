@@ -89,6 +89,7 @@ import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.PixelsData;
 import pojos.ROIData;
+import pojos.ShapeData;
 
 /** 
  * The Model component in the <code>MeasurementViewer</code> MVC triad.
@@ -554,9 +555,12 @@ class MeasurementViewerModel
 		List<ROI> roiList = new ArrayList<ROI>();
 		Iterator r = rois.iterator();
 		ROIResult result;
-		
+		long userID = MeasurementAgent.getUserDetails().getId();
 		while (r.hasNext()) {
 			result = (ROIResult) r.next();
+			if (!readOnly) {
+				readOnly = result.getROIOwner() != userID;
+			}
 			roiList.addAll(roiComponent.loadROI(result.getROIs(), readOnly));
 		}
 		if (roiList == null) return false;
@@ -1020,8 +1024,27 @@ class MeasurementViewerModel
 		List<ROIData> roiList;
 		try {
 			roiList = roiComponent.saveROI(pixels.getImage());
+			Iterator<ROIData> i = roiList.iterator();
+			ROIData roi;
+			List<ROIData> toSave = new ArrayList<ROIData>();
+			//Need to add a read-only flag on ROI Data
 			ExperimenterData exp = 
 				(ExperimenterData) MeasurementAgent.getUserDetails();
+			ExperimenterData owner;
+			while (i.hasNext()) {
+				roi = i.next();
+				if (roi.isClientSide()) toSave.add(roi);
+				else {
+					owner = roi.getOwner();
+					if (owner.getId() == exp.getId())
+						toSave.add(roi);
+				}
+			}
+			
+			if (toSave.size() == 0) { 
+				return;
+			}
+			
 			if (async) {
 				currentSaver = new ROISaver(component, getImageID(), 
 						exp.getId(), roiList);

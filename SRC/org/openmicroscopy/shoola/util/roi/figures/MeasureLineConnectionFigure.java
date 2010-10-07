@@ -235,6 +235,7 @@ public class MeasureLineConnectionFigure
 	 * Overridden to return the correct handles.
 	 * @see AbstractAttributedFigure#createHandles(int)
 	 */
+	/* cannot do that otherwise enter in an infinite loop
 	public Collection<Handle> createHandles(int detailLevel) 
 	{
 		if(!readOnly)
@@ -246,6 +247,7 @@ public class MeasureLineConnectionFigure
 			return handles;
 		}
 	}
+	*/
 	
 	/**
 	 * Get the length array. These are the lengths of each segment of the line. 

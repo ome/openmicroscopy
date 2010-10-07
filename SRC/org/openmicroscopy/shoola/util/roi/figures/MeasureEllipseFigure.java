@@ -540,6 +540,7 @@ public class MeasureEllipseFigure
 	 * Overridden to return the correct handles.
 	 * @see AbstractAttributedFigure#createHandles(int)
 	 */
+	/* cannot do that otherwise enter in an infinite loop
 	public Collection<Handle> createHandles(int detailLevel) 
 	{
 		if (!readOnly)
@@ -551,6 +552,7 @@ public class MeasureEllipseFigure
 			return handles;
 		}
 	}
+	*/
 
 	/**
 	 * Invalidate the figure and remove the cachedTransformedShape, this means

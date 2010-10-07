@@ -254,12 +254,14 @@ public class MeasureRectangleFigure
 	{
 		super.draw(g);
 		
-		if (MeasurementAttributes.SHOWMEASUREMENT.get(this) || MeasurementAttributes.SHOWID.get(this))
+		if (MeasurementAttributes.SHOWMEASUREMENT.get(this) || 
+				MeasurementAttributes.SHOWID.get(this))
 		{
 			NumberFormat formatter = new DecimalFormat("###.#");
 			String rectangleArea = formatter.format(getArea());
 			rectangleArea = addUnits(rectangleArea);
-			double sz = ((Double)this.getAttribute(MeasurementAttributes.FONT_SIZE));
+			double sz = ((Double)this.getAttribute(
+					MeasurementAttributes.FONT_SIZE));
 			g.setFont(new Font("Arial",Font.PLAIN, (int)sz));
 			bounds = g.getFontMetrics().getStringBounds(rectangleArea, g);
 			bounds = new Rectangle2D.Double(
@@ -289,7 +291,7 @@ public class MeasureRectangleFigure
 	}
 	
 	/**
-	 * Overridden to stop updating shape if read only
+	 * Overridden to stop updating shape if read-only.
 	 * @see AbstractAttributedFigure#transform(AffineTransform)
 	 */
 	public void transform(AffineTransform tx)
@@ -302,7 +304,7 @@ public class MeasureRectangleFigure
 	}
 		
 	/**
-	 * Overridden to stop updating shape if readonly.
+	 * Overridden to stop updating shape if read-only.
 	 * @see AbstractAttributedFigure#setBounds(Double, Double)
 	 */
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
@@ -318,17 +320,18 @@ public class MeasureRectangleFigure
 	 * Overridden to return the correct handles.
 	 * @see AbstractAttributedFigure#createHandles(int)
 	 */
+	/* cannot do that otherwise enter in an infinite loop
 	public Collection<Handle> createHandles(int detailLevel) 
 	{
-		if(!readOnly)
+		if (!readOnly)
 			return super.createHandles(detailLevel);
-		else
-		{
+		else {
 			LinkedList<Handle> handles = new LinkedList<Handle>();
 			handles.add(new FigureSelectionHandle(this));
 			return handles;
 		}
 	}
+	*/
 	
 	/**
 	 * Calculates the bounds of the rendered figure, including the text rendered. 
@@ -586,11 +589,12 @@ public class MeasureRectangleFigure
 	{
 		List<FigureListener> figListeners = new ArrayList<FigureListener>();
 		Object[] listeners = listenerList.getListenerList();
-		for(Object listener : listeners)
+		for (Object listener : listeners)
 			if(listener instanceof FigureListener)
 				figListeners.add((FigureListener)listener);
 		return figListeners;
 	}
+	
 }
 
 

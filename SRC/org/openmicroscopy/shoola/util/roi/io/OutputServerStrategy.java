@@ -79,7 +79,7 @@ import pojos.RectangleData;
  * </small>
  * @since 3.0-Beta4
  */
-public class OutputServerStrategy 
+class OutputServerStrategy 
 {
 	
 	/** The ROIComponent to serialize. */
@@ -91,16 +91,18 @@ public class OutputServerStrategy
 	/**
 	 * Parses the ROI in the ROIComponent to create the appropriate ROIDAta 
 	 * object to supply to the server.
+	 * 
 	 * @param image The image the ROI is on.
 	 * @throws Exception 
 	 */
-	private void parseROI(ImageData image) throws Exception
+	private void parseROI(ImageData image) 
+		throws Exception
 	{
 		TreeMap<Long, ROI> map = component.getROIMap();
 		Iterator<ROI> roiIterator = map.values().iterator();
 		ROI roi;
 		ROIData serverROI;
-		while(roiIterator.hasNext())
+		while (roiIterator.hasNext())
 		{
 			roi = roiIterator.next();
 			serverROI = createServerROI(roi, image);
@@ -570,9 +572,7 @@ public class OutputServerStrategy
 	{
 		String str = Double.toString(number);
 		if (str.endsWith(".0"))
-		{
 			str = str.substring(0, str.length()-2);
-		}
 		return str;
 	}
 	
@@ -586,7 +586,7 @@ public class OutputServerStrategy
 	 * @param image The image the ROI is on.
 	 * @throws Exception If an error occurred while parsing the ROI.
 	 */
-	public List<ROIData> writeROI(ROIComponent component, ImageData image) 
+	List<ROIData> writeROI(ROIComponent component, ImageData image) 
 		throws Exception
 	{
 		this.component = component;

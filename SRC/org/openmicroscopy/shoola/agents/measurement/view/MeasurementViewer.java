@@ -322,12 +322,6 @@ public interface MeasurementViewer
 	public void setUpdateROIComponent(Collection result);
 
 	/**
-	 * The list of possible workflows in the component.
-	 * 
-	 */
-	public void getWorkflows();
-
-	/**
 	 * Create a new workflow
 	 */
 	public void createWorkflow();

@@ -658,6 +658,7 @@ public class MeasureBezierFigure
 	 * Overridden to return the correct handles.
 	 * @see AbstractAttributedFigure#createHandles(int)
 	 */
+	/* cannot do that otherwise enter in an infinite loop
 	public Collection<Handle> createHandles(int detailLevel) 
 	{
 		if (!readOnly)
@@ -669,6 +670,7 @@ public class MeasureBezierFigure
 			return handles;
 		}
 	}
+	*/
 	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface

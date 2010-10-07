@@ -966,7 +966,7 @@ class MeasurementViewerUI
     {
     	if (model.getState() != MeasurementViewer.READY) return;
     	if (figure == null) return;
-    	getDrawingView().repaint();
+    	//getDrawingView().repaint();
     	if (!model.isHCSData()) {
     		roiInspector.setModelData(figure);
         	//roiManager.update();

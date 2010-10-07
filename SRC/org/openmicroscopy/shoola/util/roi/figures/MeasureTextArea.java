@@ -362,7 +362,8 @@ public class MeasureTextArea
     // EVENT HANDLING
     
     public Collection<Handle> createHandles(int detailLevel) {
-        LinkedList<Handle> handles = (LinkedList<Handle>) super.createHandles(detailLevel);
+        LinkedList<Handle> handles = (LinkedList<Handle>) 
+        super.createHandles(detailLevel);
         if (detailLevel == 0) {
             handles.add(new FontSizeHandle(this));
         }

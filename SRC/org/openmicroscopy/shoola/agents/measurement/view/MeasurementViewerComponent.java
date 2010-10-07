@@ -181,7 +181,6 @@ class MeasurementViewerComponent
         this.model = model;
         controller = new MeasurementViewerControl();
         view = new MeasurementViewerUI(model.getImageTitle());
-        getWorkflows();
 	}
 	
 	/** Links up the MVC triad. */
@@ -290,7 +289,8 @@ class MeasurementViewerComponent
 	public void setDataChanged()
 	{ 
 		model.nofityDataChanged(true);
-		firePropertyChange(ROI_CHANGED_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+		firePropertyChange(ROI_CHANGED_PROPERTY, Boolean.valueOf(false), 
+				Boolean.valueOf(true));
 	}
 	
 	/** 
@@ -490,6 +490,7 @@ class MeasurementViewerComponent
      */
 	public void saveROIToServer()
 	{
+		if (!isImageWritable()) return;
 		model.saveROIToServer(true);
 		model.saveWorkflowToServer(true);
 	}
@@ -831,9 +832,11 @@ class MeasurementViewerComponent
 				if (roiResult.getROIs().size() != 0)
 					hasResult = true;
 			}
-			if (hasResult) //some ROI previously saved.
+			if (hasResult) {
+				//some ROI previously saved.
+				//result.ge
 				model.setServerROI(result, false);	
-			else {
+			} else {
 				model.fireROILoading(null);
 				return;
 			}
@@ -867,36 +870,8 @@ class MeasurementViewerComponent
 			reg.getLogger().error(this, "Cannot save the ROI "+e.getMessage());
 			un.notifyInfo("Save ROI", "Cannot save ROI " +
 										"for "+model.getImageID());
-			e.printStackTrace();
 		}
 		model.fireLoadROIServerOrClient(false);
-	}
-
-	/** 
-     * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#getWorkflows()
-     */
-	public void getWorkflows()
-	{
-		/*List<String> keywords = new ArrayList<String>();
-		keywords.add("1");
-		keywords.add("2");
-		keywords.add("3");
-		keywords.add("4");
-		
-		WorkflowData workflow = new WorkflowData("Classification",keywords);
-		
-		
-		model.addWorkflow(workflow);
-		keywords = new ArrayList<String>();
-		keywords.add("a");
-		keywords.add("b");
-		keywords.add("c");
-		keywords.add("d");
-		
-		workflow = new WorkflowData("State",keywords);
-		model.addWorkflow(workflow);*/
-		
 	}
 
 	/** 
@@ -946,6 +921,8 @@ class MeasurementViewerComponent
 		switch (level) {
 			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
 			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+				
+				
 				return true;
 		}
 		return false;

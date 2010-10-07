@@ -269,11 +269,13 @@ public class ROIComponent
     public ROI addROI(ROIFigure figure, Coord3D currentPlane)
     	throws ROICreationException, NoSuchROIException
     {
-    	if (figure == null) throw new NullPointerException("Figure param null.");
+    	if (figure == null) 
+    		throw new NullPointerException("Figure param null.");
     	setFigureAttributes(figure);
     	ROI roi = null;
     	roi = createROI(figure, currentPlane);
-		if (roi == null) throw new ROICreationException("Unable to create ROI.");
+		if (roi == null) 
+			throw new ROICreationException("Unable to create ROI.");
     	ROIShape shape = figure.getROIShape();
     	setShapeAnnotations(shape);
     	return roi;
@@ -284,7 +286,8 @@ public class ROIComponent
      * 
      * @param figure The figure to add.
      * @param currentPlane The plane to add figure to.
-     * @param addAttribs add attributes 
+     * @param addAttribs Passed <code>true</code> to add the attributes,
+     * 					 <code>false</code> otherwise.
      * @return returns the newly created ROI. 
      * @throws NoSuchROIException 
      * @throws ROICreationException 
@@ -292,13 +295,15 @@ public class ROIComponent
     public ROI addROI(ROIFigure figure, Coord3D currentPlane, boolean addAttribs)
     	throws ROICreationException, NoSuchROIException
     {
-    	if (figure == null) throw new NullPointerException("Figure param null.");
+    	if (figure == null) 
+    		throw new NullPointerException("Figure param null.");
       	figure.setMeasurementUnits(units);
         if (addAttribs)
         	setFigureAttributes(figure);
     	ROI roi = null;
     	roi = createROI(figure, currentPlane);
-		if (roi == null) throw new ROICreationException("Unable to create ROI.");
+		if (roi == null) 
+			throw new ROICreationException("Unable to create ROI.");
     	ROIShape shape = figure.getROIShape();
     	setShapeAnnotations(shape);
     	return roi;

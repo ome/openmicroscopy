@@ -91,16 +91,16 @@ public class ServerROIStrategy
 	}
 	
 	/**
+	 * Writes the ROI.
 	 * 
-	 * @param output
-	 * @param component
+	 * @param component The ROI component.
 	 * @param image The image the ROI is on.
 	 * @throws Exception 
 	 */
 	public List<ROIData> write(ROIComponent component, ImageData image)
 		throws Exception
 	{
-		if(component.getROIMap().size() == 0)
+		if (component.getROIMap().size() == 0)
 			return new ArrayList<ROIData>();
 		return outputStrategy.writeROI(component, image);
 	}
