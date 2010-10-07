@@ -98,6 +98,7 @@ cd /Server/omero/dist
 bin/omero config set omero.data.dir $OMERODIR
 
 export PGPASSWORD=$PGPASSWORD
+
 echo "CREATE USER $OMERO_DB_USER PASSWORD '$PGPASSWORD'" | sudo -u postgres psql
 
 ###
