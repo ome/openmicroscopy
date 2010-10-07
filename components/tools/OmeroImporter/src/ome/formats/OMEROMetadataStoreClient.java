@@ -3093,46 +3093,21 @@ public class OMEROMetadataStoreClient
         LightSettings o = getChannelLightSourceSettings(imageIndex, channelIndex);
         o.setWavelength(toRType(wavelength.getValue())); 
     }
-    
-    ////////Dataset/////////
-    
 
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDatasetID(java.lang.String, int)
-     */
-    
-    /**
-     * @param datasetIndex
-     * @return
-     */
-    private Dataset getDataset(int datasetIndex)
-    {
-        LinkedHashMap<Index, Integer> indexes =
-           new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.DATASET_INDEX, datasetIndex);
-        return getSourceObject(Dataset.class, indexes);
-    }
-    
-    
+    ////////Dataset/////////
+
     public void setDatasetID(String id, int datasetIndex)
     {
-//        checkDuplicateLSID(Dataset.class, id);
-//        LinkedHashMap<Index, Integer> indexes =
-//            new LinkedHashMap<Index, Integer>();
-//       indexes.put(Index.DATASET_INDEX, datasetIndex);
-//        IObjectContainer o = getIObjectContainer(Dataset.class, indexes);
-//        o.LSID = id;
-//        addAuthoritativeContainer(Dataset.class, id, o);
+        // XXX: Not handled by OMERO.
     }
-    
+
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setDatasetAnnotationRef(java.lang.String, int, int)
      */
     public void setDatasetAnnotationRef(String annotation, int datasetIndex,
             int annotationRefIndex)
     {
-//        LSID key = new LSID(Dataset.class, datasetIndex);
-//        addReference(key, new LSID(annotation));
+        // XXX: Not handled by OMERO.
     }
 
     /* (non-Javadoc)
@@ -3140,8 +3115,7 @@ public class OMEROMetadataStoreClient
      */
     public void setDatasetDescription(String description, int datasetIndex)
     {
-//        Dataset o = getDataset(datasetIndex);
-//        o.setDescription(toRType(description));  
+        // XXX: Not handled by OMERO.
     }
 
     /* (non-Javadoc)
@@ -3149,8 +3123,6 @@ public class OMEROMetadataStoreClient
      */
     public void setDatasetExperimenterRef(String experimenter, int datasetIndex)
     {
-//        LSID key = new LSID(Dataset.class, datasetIndex);
-//        addReference(key, new LSID(experimenter));
     }
 
     /* (non-Javadoc)
@@ -3158,8 +3130,7 @@ public class OMEROMetadataStoreClient
      */
     public void setDatasetGroupRef(String group, int datasetIndex)
     {
-//        LSID key = new LSID(Dataset.class, datasetIndex);
-//        addReference(key, new LSID(group));
+        // XXX: Not handled by OMERO.
     }
 
     /* (non-Javadoc)
@@ -3167,8 +3138,7 @@ public class OMEROMetadataStoreClient
      */
     public void setDatasetName(String name, int datasetIndex)
     {
-//        Dataset o = getDataset(datasetIndex);
-//        o.setName(toRType(name));  
+        // XXX: Not handled by OMERO.
     }
 
     /* (non-Javadoc)
@@ -3177,10 +3147,9 @@ public class OMEROMetadataStoreClient
     public void setDatasetProjectRef(String project, int datasetIndex,
             int projectRefIndex)
     {
-//        LSID key = new LSID(Dataset.class, datasetIndex);
-//        addReference(key, new LSID(project));
+        // XXX: Not handled by OMERO.
     }
-    
+
     ////////Detector/////////
 
     /**
@@ -6675,40 +6644,21 @@ public class OMEROMetadataStoreClient
 
     //////// Project /////////
 
-    /**
-     * Retrieve Project
-     * @param projectIndex
-     * @return
-     */
-    private Project getProject(int projectIndex)
-    {
-        LinkedHashMap<Index, Integer> indexes =
-            new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.PROJECT_INDEX, projectIndex);
-        return getSourceObject(Project.class, indexes);
-    }
-
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setProjectID(java.lang.String, int)
      */
     public void setProjectID(String id, int projectIndex)
     {
-        checkDuplicateLSID(Project.class, id);
-        LinkedHashMap<Index, Integer> indexes =
-            new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.PROJECT_INDEX, projectIndex);
-        IObjectContainer o = getIObjectContainer(Project.class, indexes);
-        o.LSID = id;
-        addAuthoritativeContainer(Project.class, id, o);    }
-        
+        // XXX: Not handled by OMERO.
+    }
+
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setProjectAnnotationRef(java.lang.String, int, int)
      */
     public void setProjectAnnotationRef(String annotation, int projectIndex,
             int annotationRefIndex)
     {
-        LSID key = new LSID(Project.class, projectIndex);
-        addReference(key, new LSID(annotation));
+        // XXX: Not handled by OMERO.
     }
 
     /* (non-Javadoc)
@@ -6716,8 +6666,7 @@ public class OMEROMetadataStoreClient
      */
     public void setProjectDescription(String description, int projectIndex)
     {
-        Project o = getProject(projectIndex);
-        o.setDescription(toRType(description));
+        // XXX: Not handled by OMERO.
     }
 
     /* (non-Javadoc)
@@ -6725,8 +6674,7 @@ public class OMEROMetadataStoreClient
      */
     public void setProjectExperimenterRef(String experimenter, int projectIndex)
     {
-        //LSID key = new LSID(Project.class, projectIndex, projectIndex);
-        //addReference(key, new LSID(experimenter));
+        // XXX: Not handled by OMERO.
     }
 
     /* (non-Javadoc)
@@ -6734,8 +6682,7 @@ public class OMEROMetadataStoreClient
      */
     public void setProjectGroupRef(String group, int projectIndex)
     {
-        //LSID key = new LSID(Project.class, projectIndex, projectIndex);
-        //addReference(key, new LSID(group));
+        // XXX: Not handled by OMERO.
     }
 
     /* (non-Javadoc)
@@ -6743,8 +6690,7 @@ public class OMEROMetadataStoreClient
      */
     public void setProjectName(String name, int projectIndex)
     {
-        Project o = getProject(projectIndex);
-        o.setName(toRType(name));
+        // XXX: Not handled by OMERO.
     }
 
     //////// ROI /////////
