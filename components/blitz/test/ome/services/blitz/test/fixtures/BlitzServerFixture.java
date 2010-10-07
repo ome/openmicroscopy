@@ -176,7 +176,7 @@ public class BlitzServerFixture extends MockObjectTestCase {
                 false), new Long(0), new Long(0), null, "Test");
         sc = new SessionContextImpl(session, Collections.singletonList(1L),
                 Collections.singletonList(1L), Collections
-                        .singletonList("user"), new NullSessionStats());
+                        .singletonList("user"), new NullSessionStats(), null);
         CacheFactory factory = new CacheFactory();
         factory.setBeanName("blitz.fixture");
         factory.setOverflowToDisk(false);

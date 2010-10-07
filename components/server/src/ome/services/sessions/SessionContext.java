@@ -14,6 +14,9 @@ import ome.services.sessions.state.SessionCache;
 import ome.services.sessions.stats.SessionStats;
 import ome.system.EventContext;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Extends {@link EventContext} to hold a {@link Session}. This is used by the
  * {@link SessionManager} to store information in the {@link SessionCache}.
@@ -38,21 +41,75 @@ public interface SessionContext extends EventContext {
      * Return a {@link SessionStats} implementation for this session.
      */
     SessionStats stats();
-    
-    /**
-     * Return the current number of references which this session is aware of.
-     */
-    int refCount();
 
     /**
-     * Increment the current {@link #refCount() reference count} and return the
-     * new value atomically.
+     * Returns the {@link Count} instance held by this context. This may be
+     * shared with other contexts, so that in critical phases as when the context
+     * is being copied, the reference count will be kept in sync.
      */
-    int increment();
+    Count count();
 
     /**
-     * Decrement the current {@link #refCount() reference count} and return the
-     * new value atomically.
+     * Synchronized counter which can be passed between {@link SessionContext}
+     * instances as they are recreated.
+     *
+     * @see ticket:2804
      */
-    int decrement();
+    public class Count {
+        private final Log log = LogFactory.getLog(Count.class);
+        private final Object[] refLock = new Object[0];
+        private int ref;
+        private String uuid;
+
+        public Count(String uuid) {
+            this.uuid = uuid;
+        }
+
+        /**
+         * Return the current number of references which this session is aware of.
+         */
+        public int get() {
+            synchronized (refLock) {
+                return ref;
+            }
+        }
+
+        /**
+         * Increment the current {@link #refCount() reference count} and return the
+         * new value atomically.
+         */
+        public int increment() {
+            synchronized (refLock) {
+                if (ref < 0) {
+                    ref = 1;
+                } else {
+                    // This should never happen, but just in case
+                    // some loop is incrementing indefinitely.
+                    if (ref < Integer.MAX_VALUE) {
+                        ref = ref + 1;
+                        log.info("+Reference count: " + uuid + "=" + ref);
+                    } else {
+                        log.error("Reference count == MAX_VALUE");
+                    }
+                }
+                return ref;
+            }
+        }
+
+        /**
+         * Decrement the current {@link #refCount() reference count} and return the
+         * new value atomically.
+         */
+        public int decrement() {
+            synchronized (refLock) {
+                if (ref < 1) {
+                    ref = 0;
+                } else {
+                    ref = ref - 1;
+                    log.info("-Reference count: " + uuid + "=" + ref);
+                }
+                return ref;
+            }
+        }
+    }
 }

@@ -195,11 +195,12 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
             // Logging & sessionToClientIds addition
             if (!sessionToClientIds.containsKey(s.getUuid())) {
                 sessionToClientIds.put(s.getUuid(), new HashSet<String>());
-                log.info(String.format("Created session %s for user %s",
-                        session, userId));
+                log.info(String.format("Created session %s for user %s (agent=%s)",
+                        session, userId, agent));
             } else {
                 if (log.isInfoEnabled()) {
-                    log.info(String.format("Rejoining session %s", session));
+                    log.info(String.format("Rejoining session %s (agent=%s)",
+                            session, agent));
                 }
             }
             sessionToClientIds.get(s.getUuid()).add(session.clientId);
@@ -355,7 +356,7 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
                     if (sf != null) {
                         sf.doDestroy();
                         Ice.Identity id = sf.sessionId();
-                        log.info("Removing " + id.name);
+                        log.info("Removing " + sf);
                         adapter.remove(id); // OK ADAPTER USAGE
                     }
                 } catch (Ice.ObjectAdapterDeactivatedException oade) {

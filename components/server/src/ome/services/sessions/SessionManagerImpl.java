@@ -216,7 +216,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
             SessionContext context = cache
                     .getSessionContext(credentials, false);
             if (context != null) {
-                context.increment();
+                context.count().increment();
                 return context.getSession(); // EARLY EXIT!
             }
         } catch (SessionException se) {
@@ -266,7 +266,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
             SessionContext context = cache.getSessionContext(principal
                     .getName(), false);
             if (context != null) {
-                context.increment();
+                context.count().increment();
                 return context.getSession(); // EARLY EXIT!
             }
         } catch (SessionException se) {
@@ -309,7 +309,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
             throw new RemovedSessionException("No info in database for "
                     + principal);
         }
-        SessionContext newctx = createSessionContext(rv);
+        SessionContext newctx = createSessionContext(rv, null);
 
         // This the publishEvent returns successfully, then we will have to
         // handle rolling back this addition our selves
@@ -324,7 +324,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         }
 
         // All successful, increment and return.
-        newctx.increment();
+        newctx.count().increment();
         return newctx.getSession();
     }
 
@@ -411,7 +411,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         }
         ;
 
-        final SessionContext newctx = createSessionContext(list);
+        final SessionContext newctx = createSessionContext(list, ctx);
         final Session copy = copy(orig);
         executor.execute(asroot, new Executor.SimpleWork(this, "update") {
             @Transactional(readOnly = false)
@@ -433,7 +433,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
      * null.
      */
     @SuppressWarnings("unchecked")
-    protected SessionContext createSessionContext(List<?> list) {
+    protected SessionContext createSessionContext(List<?> list, SessionContext previous) {
 
         final Experimenter exp = (Experimenter) list.get(0);
         final ExperimenterGroup grp = (ExperimenterGroup) list.get(1);
@@ -450,7 +450,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
 
         SessionContext sessionContext = new SessionContextImpl(session,
                 leaderOfGroupsIds, memberOfGroupsIds, userRoles, factory
-                        .createStats(), roles);
+                        .createStats(), roles, previous);
         return sessionContext;
     }
 
@@ -504,12 +504,12 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
 
     public int getReferenceCount(String uuid) {
         SessionContext ctx = cache.getSessionContext(uuid, true);
-        return ctx.refCount();
+        return ctx.count().get();
     }
 
     public int detach(String uuid) {
         SessionContext ctx = cache.getSessionContext(uuid, false);
-        return ctx.decrement();
+        return ctx.count().decrement();
     }
 
     public SessionStats getSessionStats(String uuid) {
@@ -528,14 +528,14 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
             return -1; // EARLY EXIT!
         }
 
-        int refCount = ctx.decrement();
+        int refCount = ctx.count().decrement();
         if (refCount < 1) {
             log.info("closeSession called and no more references: " + uuid);
             cache.removeSession(uuid);
             return -2;
         } else {
             log.info("closeSession called but " + refCount
-                    + " more references" + uuid);
+                    + " more references: " + uuid);
             return refCount;
         }
     }
@@ -853,12 +853,12 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
      * Will be called in a synchronized block by {@link SessionCache} in order
      * to allow for an update.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public SessionContext reload(final SessionContext ctx) {
         final Principal p = new Principal(ctx.getCurrentUserName(), ctx
                 .getCurrentGroupName(), ctx.getCurrentEventType());
         List list = (List) executor.execute(asroot, new Executor.SimpleWork(
-                this, "reload") {
+                this, "reload", ctx.getSession().getUuid()) {
             @Transactional(readOnly = true)
             public Object doWork(org.hibernate.Session session,
                     ServiceFactory sf) {
@@ -868,7 +868,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         if (list == null) {
             return null;
         }
-        return createSessionContext(list);
+        return createSessionContext(list, ctx);
     }
 
     // Executor methods

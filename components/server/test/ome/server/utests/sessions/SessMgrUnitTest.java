@@ -34,6 +34,7 @@ import ome.model.meta.Node;
 import ome.model.meta.Session;
 import ome.security.basic.CurrentDetails;
 import ome.services.sessions.SessionContext;
+import ome.services.sessions.SessionContextImpl;
 import ome.services.sessions.SessionManagerImpl;
 import ome.services.sessions.events.UserGroupUpdateEvent;
 import ome.services.sessions.state.SessionCache;
@@ -47,7 +48,6 @@ import ome.system.Roles;
 import ome.system.ServiceFactory;
 import ome.testing.MockServiceFactory;
 
-import org.hibernate.envers.tools.ArraysTools;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 import org.jmock.core.Constraint;
@@ -85,6 +85,11 @@ public class SessMgrUnitTest extends MockObjectTestCase {
             define(s, "uuid", "message", System.currentTimeMillis(),
                     defaultTimeToIdle, defaultTimeToLive, "Test",
                     "Test");
+
+            ExperimenterGroup group = new ExperimenterGroup();
+            group.getDetails().setPermissions(Permissions.COLLAB_READLINK);
+            s.getDetails().setGroup(group);
+
             return s;
         }
     }
@@ -432,20 +437,20 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         String uuid = session.getUuid();
         SessionContext ctx = cache.getSessionContext(uuid, false/* FIXME */);
 
-        assertEquals(1, ctx.refCount());
+        assertEquals(1, ctx.count().get());
         assertNull(ctx.getSession().getClosed());
 
         mgr.createWithAgent(new Principal(uuid), "Test");
-        assertEquals(2, ctx.refCount());
+        assertEquals(2, ctx.count().get());
         assertNull(ctx.getSession().getClosed());
 
         mgr.close(uuid);
-        assertEquals(1, ctx.refCount());
+        assertEquals(1, ctx.count().get());
         assertNull(ctx.getSession().getClosed());
 
         prepareForCreateSession();
         mgr.close(uuid);
-        assertEquals(0, ctx.refCount());
+        assertEquals(0, ctx.count().get());
         // Closing the session is now done asynchronously.
         // Instead, let's make sure it's removed from the
         // cache
@@ -619,6 +624,23 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         mgr.close(uuid);
         assertNull(cache.getSessionContext(uuid, true));
 
+    }
+
+    @Test(groups = {"ticket:2803", "ticket:2804"})
+    public void testCopyingReferenceCounts() {
+        SessionContextImpl s1 = new SessionContextImpl(
+                this.session, l_ids, m_ids, userRoles, null, null);
+        assertEquals(0, s1.count().get());
+        assertEquals(1, s1.count().increment());
+        assertEquals(2, s1.count().increment());
+        assertEquals(2, s1.count().get());
+        assertEquals(1, s1.count().decrement());
+
+        SessionContextImpl s2 = new SessionContextImpl(
+                this.session, l_ids, m_ids, userRoles, null, s1);
+        assertEquals(1, s2.count().get());
+        assertEquals(2, s2.count().increment());
+        assertEquals(2, s1.count().get());
     }
 
     //
