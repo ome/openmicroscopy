@@ -7,8 +7,12 @@
 package integration;
 
 //Java imports
+import static omero.rtypes.rstring;
+import static omero.rtypes.rtime;
+
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -18,13 +22,9 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 
-//Third-party libraries
-
-//Application-internal dependencies
-import static omero.rtypes.rstring;
-import static omero.rtypes.rtime;
 import omero.api.IPixelsPrx;
 import omero.model.AcquisitionMode;
+import omero.model.Annotation;
 import omero.model.Arc;
 import omero.model.ArcI;
 import omero.model.ArcType;
@@ -100,6 +100,9 @@ import omero.model.PlateI;
 import omero.model.Pulse;
 import omero.model.Reagent;
 import omero.model.ReagentI;
+import omero.model.RectI;
+import omero.model.Roi;
+import omero.model.RoiI;
 import omero.model.StageLabel;
 import omero.model.StageLabelI;
 import omero.model.StatsInfo;
@@ -795,6 +798,15 @@ public class ModelMockFactory
 			channels.add(createChannel(j));
 		}
 		pixels.addAllChannelSet(channels);
+
+		for (int z = 0; z < sizeZ; z++) {
+		    for (int t = 0; t < sizeT; t++) {
+		        for (int c = 0; c < sizeC; c++) {
+		            PlaneInfo info = new PlaneInfoI();
+		            pixels.addPlaneInfo(createPlaneInfo(z, t, c));
+		        }
+		    }
+		}
 		return pixels;
 	}
 	
@@ -998,6 +1010,18 @@ public class ModelMockFactory
     	return reagent;
     }
     
+    /**
+     * Returns an Image with a Roi and one Rect attached.
+     * @return
+     */
+    public Image createImageWithRoi() throws Exception
+    {
+        Roi roi = new RoiI();
+        roi.addShape(new RectI());
+        Image image = createImage();
+        image.addRoi(roi);
+        return image;
+    }
     
     //imaging
 	/**
@@ -1019,4 +1043,31 @@ public class ModelMockFactory
         ios.close();
 	}
     
+	/**
+	 * For a given IAnnotated type
+	 * @param o
+	 * @param a
+	 */
+	public IObject createAnnotationLink(IObject o, Annotation a) throws Exception
+	{
+	    String name;
+	    if (o instanceof Annotation) {
+	        name = "omero.model.AnnotationAnnotationLinkI";
+	    } else {
+	        name = o.getClass().getSimpleName();
+	    name = name.substring(0, name.length() - 1);
+	    name = "omero.model." + name + "AnnotationLinkI";
+	    }
+	    Class<?> linkClass = Class.forName(name);
+	    IObject link = (IObject) linkClass.newInstance();
+	    Method linkMethod = null;
+	    for (Method m : linkClass.getMethods()) {
+	        if ("link".equals(m.getName())) {
+	            linkMethod = m;
+	            break;
+	        }
+	    }
+	    linkMethod.invoke(link, o, a, null); // Last is Ice.Current;
+	    return link;
+	}
 }

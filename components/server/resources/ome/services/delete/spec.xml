@@ -11,24 +11,6 @@
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 -->
 
-
-<!--
-TODO:
-/Roi/FileAnnotation;REAP
-/Roi/RoiAnnotationLink;ORPHAN
-How to handle more than one path:
-
- * how to handle back-up identifiers of sub-items.
-
- * would sub-items ever take a different ID??
-
- * introduce breaks between sub-steps? (iterator perhaps)
-
- * delete project with cross-linked dataset!
-
- * test REAP
--->
-
 <beans>
 
     <description>
@@ -78,6 +60,9 @@ How to handle more than one path:
         </constructor-arg>
         <constructor-arg>
             <list>
+               <value>/Annotation/AnnotationAnnotationLink;FORCE</value>
+               <!-- Leaving the annotations on this annotation dangling
+                    for the moment -->
                <value>/FileAnnotation</value>
                <value>/FileAnnotation/OriginalFile</value>
                <value>/TypeAnnotation</value>
@@ -133,6 +118,8 @@ How to handle more than one path:
         </description>
         <constructor-arg>
             <list>
+                <value>/Image/Pixels/Channel/ChannelAnnotationLink;FORCE</value>
+                <value>/Annotation;SOFT;/Image/Pixels/Channel/ChannelAnnotationLink</value>
                 <value>/Image/Pixels/Channel</value>
                 <value>/Image/Pixels/Channel/StatsInfo</value>
                 <value>/Image/Pixels/Channel/LogicalChannel;SOFT</value> <!-- REAP -->
@@ -179,10 +166,14 @@ How to handle more than one path:
                 <value>/Roi;FORCE;/Image</value>
                 <value>/Image/Pixels/PixelsOriginalFileMap;REAP</value>
                 <value>/OriginalFile;;/Image/Pixels/PixelsOriginalFileMap</value>
+                <value>/Image/Pixels/PlaneInfo/PlaneInfoAnnotationLink;FORCE</value>
+                <value>/Annotation;SOFT;/Image/Pixels/PlaneInfo/PlaneInfoAnnotationLink</value>
                 <value>/Image/Pixels/PlaneInfo</value>
                 <value>/Image/Pixels/RenderingDef;FORCE</value>
                 <value>/Image/Pixels/Channel</value>
                 <value>/Image/Pixels/Thumbnail;FORCE</value>
+                <value>/Image/Pixels/PixelsAnnotationLink;FORCE</value>
+                <value>/Annotation;SOFT;/Image/Pixels/PixelsAnnotationLink</value>
                 <value>/Image/Pixels;NULL</value>
                 <value>/Image/ImageAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Image/ImageAnnotationLink</value>
@@ -247,7 +238,7 @@ How to handle more than one path:
                 <value>/Plate/PlateAcquisition</value>
                 <value>/Plate/PlateAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Plate/PlateAnnotationLink</value>
-                <value>/Plate/ScreenPlateLink</value><!-- TODO: or do we need Plate+SPL -->
+                <value>/Plate/ScreenPlateLink</value>
                 <value>/Plate</value>
             </list>
         </constructor-arg>
@@ -285,9 +276,9 @@ How to handle more than one path:
     <bean parent="delSpec" name="/OriginalFile">
         <constructor-arg>
             <list>
-                <value>/OriginalFile</value>
                 <value>/OriginalFile/OriginalFileAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/OriginalFile/OriginalFileAnnotationLink</value>
+                <value>/OriginalFile</value>
             </list>
         </constructor-arg>
     </bean>

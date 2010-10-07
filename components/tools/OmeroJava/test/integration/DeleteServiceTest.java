@@ -158,9 +158,9 @@ public class DeleteServiceTest
 	/** Identifies the plate as root. */
 	public static final String REF_PLATE = "/Plate";
 	
-	/** Identifies the ROI as root. */
-	public static final String REF_ROI = "/Roi";
-	
+    /** Identifies the ROI as root. */
+    public static final String REF_ROI = "/Roi";
+
 	/** Identifies the Plate Acquisition as root. */
 	public static final String REF_PLATE_ACQUISITION = "/PlateAcquisition";
 
