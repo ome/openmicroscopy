@@ -88,6 +88,90 @@ module omero {
             sequence<DeleteCommand> DeleteCommands;
 
             /**
+             * Status object which is returned for each [DeleteCommand] passed to
+             * [IDelete::queueCommand].
+             **/
+            class DeleteReport {
+
+                /**
+                 * The command object itself.
+                 **/
+                DeleteCommand command;
+
+                /**
+                 * Primary feedback mechanism. If this value is non-empty, then
+                 * there was an error during processing of this command. This will
+                 * cause [DeleteHandle::errors] to return a value higher than 0
+                 * and the entire transaction, including all [DeleteCommand]s.
+                 **/
+                string error;
+
+                /**
+                 * Extra feedback mechanism. Typically will only be non-empty
+                 * if the error is empty. This implies that some situation was
+                 * encountered that the user may need to be informed of (e.g.
+                 * some annotation wasn't deleted), but which was non-critical.
+                 **/
+                string warning;
+
+                /**
+                 * Map from type name ("Thumbnail", "Pixels", "OriginalFile") to
+                 * a list of ids for any binary files which did not get dieleted.
+                 *
+                 * Some action may be desired by the user to guarantee that this
+                 * server-space is eventually
+                 **/
+                omero::api::IdListMap undeletedFiles;
+
+                /**
+                 * Number of steps that this [DeleteCommand] requires.
+                 **/
+                int steps;
+
+                /**
+                 * Number of objects that this [DeleteCommand] will attempt
+                 * to delete.
+                 **/
+                long scheduledDeletes;
+
+                /**
+                 * Number of actual deletes which took place.
+                 **/
+                long actualDeletes;
+
+                //
+                // Timing information
+                //
+
+                /**
+                 * Server time (in milliseconds since the epoch) at
+                 * which processing of [DeleteCommand] began.
+                 **/
+                long start;
+
+                /**
+                 * Server time (in milliseconds since the epoch) at
+                 * which processing of this step was started.
+                 **/
+                omero::api::LongArray stepStarts;
+
+                /**
+                 * Server time (in milliseconds since the epoch) at
+                 * which processing of this step was finished.
+                 **/
+                omero::api::LongArray stepStops;
+
+                /**
+                 * Server time (in milliseconds since the epoch) at
+                 * which processing of [DeleteCommand] was finished.
+                 **/
+                long stop;
+
+            };
+
+            sequence<DeleteReport> DeleteReports;
+
+            /**
              * Returned by [IDelete] to allow managing of queued delete operations.
              **/
             interface DeleteHandle {
@@ -99,26 +183,27 @@ module omero {
                 DeleteCommands commands() throws ServerError;
 
                 /**
-                 * Returns when processing of all commands has completed, whether successfully
+                 * Returns a report of what happened. Any errors will produce output as well
+                 * as any warnings, such as "Tag was orphaned" when using the "SOFT" option.
+                 * An error can be detected by a non-empty string for the [DeleteReport::error]
+                 * field.
+                 **/
+                DeleteReports report() throws ServerError;
+
+                /**
+                 * Returns whether processing of all commands has completed, whether successfully
                  * or not.
                  **/
                 bool finished() throws ServerError;
 
                 /**
                  * Returns the number of errors that were encountered. If greater than
-                 * zero, then the transaction was rolled back. The [report] method may
-                 * still return non-empty messages if there were any warnings.
+                 * zero, then the transaction was rolled back.
                  **/
                 int errors() throws ServerError;
 
                 /**
-                 * Returns a report of what happened. Any errors will produce output as well
-                 * as any warnings, such as "Tag was orphaned" when using the "SOFT" option.
-                 **/
-                StringSet report() throws ServerError;
-
-                /**
-                 * Starts further [DeleteCommand]s from being processed and rolls back any
+                 * Prevents further [DeleteCommand]s from being processed and rolls back any
                  * changes already made by the transaction. If all commands were already
                  * processed, this method returns false to signal that the rollback was not
                  * possible.

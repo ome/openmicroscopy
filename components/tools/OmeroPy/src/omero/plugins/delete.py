@@ -37,6 +37,7 @@ class DeleteControl(BaseControl):
         parser.add_argument("--wait", type=long, help="""Number of seconds to wait for the delete to complete (Indefinite < 0; No wait=0).""", default=-1)
         parser.add_argument("--list", action="store_true", help="""Print a list of all available delete specs""")
         parser.add_argument("--list-details", action="store_true", help="""Print a list of all available delete specs along with detailed info""")
+        parser.add_argument("--report", action="store_true", help="""Print more detailed report of each delete""")
         parser.add_argument("obj", nargs="*", help="""Objects to be deleted in the form "<Class>:<Id>""")
         parser.set_defaults(func=self.delete)
 
@@ -87,12 +88,9 @@ class DeleteControl(BaseControl):
                     self.ctx.dbg("Exception on ctor: %s" % e)
                     self.ctx.die(5, "Can't delete type: %s" % klass)
 
-        def status(klass, args):
-            self.ctx.out(("Deleting %s %s... " % (klass, args)), newline = False)
-
         def action(klass, method, *args):
             import omero
-            status(klass, args)
+            self.status(klass, args)
             try:
                 method(*args)
                 self.ctx.out("ok.")
@@ -124,19 +122,11 @@ class DeleteControl(BaseControl):
                     if rv is not None:
                         break
 
-                # Print report
-                for i, report in enumerate(handle.report()):
-                    command = commands[i]
-                    status(command.type, command.id)
-                    if rv:
-                        msg = "error"
-                    else:
-                        msg = "ok"
-                    self.ctx.out(msg, newline=False)
-                    if report:
-                        self.ctx.out(" (%s)" % report)
-                    else:
-                        self.ctx.out("")
+                reports = handle.report()
+                if args.report:
+                    self.detailed_report(rv, reports)
+                else:
+                    self.simple_report(rv, reports)
 
                 if rv:
                     self.ctx.die(rv, "Failed")
@@ -150,6 +140,64 @@ class DeleteControl(BaseControl):
                     self.ctx.out("Failed to cancel")
         finally:
             callback.close()
+
+    def status(self, klass, args):
+        self.ctx.out(("Deleting %s %s... " % (klass, args)), newline = False)
+
+    def simple_report(self, rv, reports):
+        for i, report in enumerate(reports):
+            command = report.command
+            self.status(command.type, command.id)
+            if rv:
+                msg = "error"
+            else:
+                msg = "ok"
+            self.ctx.out(msg, newline=False)
+
+            msg = None
+            if report.error:
+                msg = report.error
+            elif report.warning:
+                msg = report.warning
+
+            if msg:
+                self.ctx.out(" (%s)" % msg)
+            else:
+                self.ctx.out("")
+
+    def detailed_report(self, rv, reports):
+        for i, report in enumerate(reports):
+            command = report.command
+            self.status(command.type, command.id)
+            if rv:
+                msg = "error"
+            else:
+                msg = "ok"
+            self.ctx.out(msg)
+
+            for k, v in report.undeletedFiles.items():
+                if v:
+                    self.ctx.out("Undeleted %s objects" % k)
+                    for i in v:
+                        self.ctx.out("%s:%s" % (k, i))
+
+
+            self.ctx.out("Steps: %s" % report.steps)
+            self.ctx.out("Scheduled deletes: %s" % report.scheduledDeletes)
+            self.ctx.out("Actual deletes: %s" % report.actualDeletes)
+            if report.stop > 0 and report.start > 0:
+                elapse = report.stop - report.start
+                self.ctx.out("Elapsed time: %s secs." % (elapse/1000.0))
+            else:
+                self.ctx.out("Unfinished.")
+
+            if report.warning:
+                self.ctx.out("Warning message: %s" % report.warning)
+
+            if report.error:
+                self.ctx.out("Error message: %s" % report.error)
+
+            self.ctx.out(" ")
 
 try:
     register("delete", DeleteControl, HELP)

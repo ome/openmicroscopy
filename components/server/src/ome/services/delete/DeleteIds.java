@@ -55,7 +55,12 @@ public class DeleteIds {
     /**
      * Total count of objects found.
      */
-    private long count = 0;
+    private long foundCount = 0;
+
+    /**
+     * Total count of objects deleted.
+     */
+    private long deletedCount = 0;
 
     public DeleteIds(OmeroContext ctx, Session session, DeleteSpec spec)
             throws DeleteException {
@@ -71,7 +76,7 @@ public class DeleteIds {
             DeleteSpec subSpec = it.next();
             List<List<Long>> ids = subSpec.backupIds(session, paths);
             for (List<Long> list : ids) {
-                count += list.size();
+                foundCount += list.size();
             }
             this.ids.put(subSpec, ids);
         }
@@ -93,8 +98,15 @@ public class DeleteIds {
     /**
      * Return the total number of ids loaded into this instance.
      */
-    public long getTotalCount() {
-        return count;
+    public long getTotalFoundCount() {
+        return foundCount;
+    }
+
+    /**
+     * Return the total number of ids which were deleted.
+     */
+    public long getTotalDeletedCount() {
+        return deletedCount;
     }
     
     /**
@@ -132,6 +144,7 @@ public class DeleteIds {
             throws DeleteException {
         Set<Long> set = lookup(table);
         set.addAll(ids);
+        deletedCount += ids.size();
 
         EventLogMessage elm = new EventLogMessage(this, "DELETE", k, ids);
         try {

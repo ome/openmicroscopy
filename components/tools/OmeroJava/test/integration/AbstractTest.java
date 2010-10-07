@@ -28,6 +28,7 @@ import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.api.delete.DeleteCommand;
 import omero.api.delete.DeleteHandlePrx;
+import omero.api.delete.DeleteReport;
 import omero.grid.DeleteCallbackI;
 import omero.model.ChannelBinding;
 import omero.model.Experimenter;
@@ -562,7 +563,15 @@ public class AbstractTest
 				throw new RuntimeException("Waiting on delete timed out");
 			}
 		}
-		String report = handle.report().toString();
+		StringBuilder sb = new StringBuilder();
+		for (DeleteReport report : handle.report()) {
+		    if (report.error != null && report.error.length() > 0) {
+		        sb.append(report.error);
+		    } else {
+		        sb.append(report.warning);
+		    }
+		}
+		String report = sb.toString();
 		if (passes) {
 		    assertEquals(report, 0, handle.errors());
 		} else {

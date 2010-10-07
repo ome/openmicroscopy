@@ -1068,6 +1068,21 @@ def manage_annotation_multi(request, action=None, **kwargs):
     return HttpResponse(t.render(c))
 
 
+def __format_report(delete_handle):
+    """
+    Added as workaround to the changes made in #3006.
+    """
+    delete_reports = delete_handle.report()
+    rv = []
+    for report in delete_reports:
+        if report.error:
+            rv.append(report.error)
+        elif report.warning:
+            rv.append(report.warning)
+    return "; ".join(rv)
+    # Might want to take advantage of other feedback here
+
+
 @isUserConnected
 def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
     template = None
@@ -1441,7 +1456,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         anns = request.REQUEST.get('anns')
         try:
             handle = manager.deleteItem(child, anns)
-            request.session['callback'][str(handle)] = {'delmany':False,'did':o_id, 'dtype':o_type, 'dstatus':'Progress', 'derror':handle.errors(), 'dreport':("; ".join([ r for r in handle.report() if len(r)>0 ]))}
+            request.session['callback'][str(handle)] = {'delmany':False,'did':o_id, 'dtype':o_type, 'dstatus':'Progress', 'derror':handle.errors(), 'dreport':__format_report(handle)}
             request.session.modified = True
         except Exception, x:
             logger.error(traceback.format_exc())
@@ -1454,9 +1469,9 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         try:
             handle = manager.deleteImages(ids, anns)
             if len(ids) > 1:
-                request.session['callback'][str(handle)] = {'delmany':len(ids), 'did':ids, 'dtype':'image', 'dstatus':'in progress', 'derror':handle.errors(), 'dreport':handle.report()}
+                request.session['callback'][str(handle)] = {'delmany':len(ids), 'did':ids, 'dtype':'image', 'dstatus':'in progress', 'derror':handle.errors(), 'dreport':__format_report(handle)}
             else:
-                request.session['callback'][str(handle)] = {'delmany':False, 'did':ids[0], 'dtype':'image', 'dstatus':'in progress', 'derror':handle.errors(), 'dreport':("; ".join([ r for r in handle.report() if len(r)>0 ]))}
+                request.session['callback'][str(handle)] = {'delmany':False, 'did':ids[0], 'dtype':'image', 'dstatus':'in progress', 'derror':handle.errors(), 'dreport':__format_report(handle)}
             request.session.modified = True
         except Exception, x:
             logger.error(traceback.format_exc())
@@ -2163,23 +2178,23 @@ def progress(request, **kwargs):
                     if err > 0:
                         logger.error("Status job '%s'error:" % cbString)
                         logger.error(err)
-                        request.session['callback'][cbString]['dstatus'] = "failed" 
-                        request.session['callback'][cbString]['dreport'] = "; ".join([ r for r in handle.report() if len(r)>0 ])
+                        request.session['callback'][cbString]['dstatus'] = "failed"
+                        request.session['callback'][cbString]['dreport'] = __format_report(handle)
                         failure+=1
                     else:
                         request.session['callback'][cbString]['dstatus'] = "in progress"
-                        request.session['callback'][cbString]['dreport'] = "; ".join([ r for r in handle.report() if len(r)>0 ])
+                        request.session['callback'][cbString]['dreport'] = __format_report(handle)
                         in_progress+=1
                 else:
                     err = handle.errors()
                     request.session['callback'][cbString]['derror'] = err
                     if err > 0:
                         request.session['callback'][cbString]['dstatus'] = "failed"
-                        request.session['callback'][cbString]['dreport'] = "; ".join([ r for r in handle.report() if len(r)>0 ])
+                        request.session['callback'][cbString]['dreport'] = __format_report(handle)
                         failure+=1
                     else:
                         request.session['callback'][cbString]['dstatus'] = "finished"
-                        request.session['callback'][cbString]['dreport'] = "; ".join([ r for r in handle.report() if len(r)>0 ])
+                        request.session['callback'][cbString]['dreport'] = __format_report(handle)
                         cb.close()
             except Ice.ObjectNotExistException:
                 request.session['callback'][cbString]['derror'] = 0

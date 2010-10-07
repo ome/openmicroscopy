@@ -26,6 +26,7 @@ import omero.api.AMD_IDelete_queueDelete;
 import omero.api.IDeletePrx;
 import omero.api.delete.DeleteCommand;
 import omero.api.delete.DeleteHandlePrx;
+import omero.api.delete.DeleteReport;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.AnnotationAnnotationLinkI;
 import omero.model.Dataset;
@@ -216,12 +217,12 @@ public class DeleteITest extends AbstractServantTest {
         // Perform delete
         DeleteCommand dc = new DeleteCommand("/Image", imageId1, null);
         DeleteHandleI handle = doDelete(dc);
-        List<String> reports = handle.report();
+        DeleteReport[] reports = handle.report();
         boolean found = false;
-        for (String report : reports) {
-            found |= report.contains("ConstraintViolation");
+        for (DeleteReport report : reports) {
+            found |= report.error.contains("ConstraintViolation");
         }
-        assertTrue(reports.toString(), true);
+        assertTrue(reports.toString(), found);
 
         // Check that data is gone
         List<List<RType>> ids = assertProjection(

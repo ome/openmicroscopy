@@ -30,6 +30,7 @@ import ome.system.ServiceFactory;
 import omero.LockTimeout;
 import omero.ServerError;
 import omero.api.delete.DeleteCommand;
+import omero.api.delete.DeleteReport;
 import omero.api.delete._DeleteHandleDisp;
 
 import org.apache.commons.logging.Log;
@@ -70,22 +71,12 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
         CREATED, READY, RUNNING, CANCELLING, CANCELLED, FINISHED;
     }
 
-    private static class Report {
 
-        DeleteCommand command;
-        DeleteSpec spec;
-        DeleteIds ids;
-        HashMap<String, ArrayList<Long>> undeletedFiles;
-        
-        long start;
-        int steps;
-        long[] stepStarts;
-        long[] stepStops;
-        long stop;
+        private static class Report extends DeleteReport {
+            DeleteSpec spec;
+            DeleteIds ids;
+        }
 
-        String warning;
-        String error;
-    }
 
     private static final long serialVersionUID = 1592043520935825L;
 
@@ -94,7 +85,6 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
     private static final List<String> fileTypeList = Collections.unmodifiableList(
             Arrays.asList( "OriginalFile", "Pixels", "Thumbnail"));
 
-    
     /**
      * The identity of this servant, used during logging and similar operations.
      */
@@ -229,18 +219,11 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
         return errors;
     }
 
-    public List<String> report(Current __current) throws ServerError {
-        List<String> rv = new ArrayList<String>(commands.length);
+    public DeleteReport[] report(Current __current) throws ServerError {
+        DeleteReport[] rv = new DeleteReport[commands.length];
         for (int i = 0; i < commands.length; i++) {
             Integer idx = Integer.valueOf(i);
-            Report report = reports.get(idx);
-            if (report != null) {
-                if (report.error != null) {
-                    rv.add(report.error);
-                } else {
-                    rv.add(report.warning);
-                }
-            }
+            rv[i] = reports.get(idx);
         }
         return rv;
     }
@@ -392,7 +375,7 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
             } finally {
                 sw.stop("omero.delete.command." + i);
                 report.start = sw.getStartTime();
-                report.stop = sw.getElapsedTime();
+                report.stop = sw.getStartTime() + sw.getElapsedTime();
             }
         }
     }
@@ -410,7 +393,8 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                 // cancel the whole process.
                 if (report.ids == null) {
                     report.ids = new DeleteIds(sf.context, session, report.spec);
-                    if (report.ids.getTotalCount() == 0L) {
+                    report.scheduledDeletes = report.ids.getTotalFoundCount();
+                    if (report.scheduledDeletes == 0L) {
                         report.warning = "Object missing.";
                         return;
                     }
@@ -422,6 +406,9 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
 
                 sw = new CommonsLogStopWatch();
                 report.warning = report.spec.delete(session, j, report.ids, opts);
+                // If we reach this far, then the delete was successful, so save
+                // the deleted id count.
+                report.actualDeletes = report.ids.getTotalDeletedCount();
             } catch (DeleteException de) {
                 report.error = de.message;
                 if (de.cancel) {
@@ -445,7 +432,7 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                 if (sw != null) {
                     sw.stop("omero.delete.step." + j);
                     report.stepStarts[j] = sw.getStartTime();
-                    report.stepStops[j] = sw.getElapsedTime();
+                    report.stepStops[j] = sw.getStartTime() + sw.getElapsedTime();
                 }
                 // If cancel was thrown, then this value will be overwritten
                 // by the try/catch handler
@@ -503,7 +490,18 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                     }
                 }
             }
-            report.undeletedFiles = failedMap;
+
+            report.undeletedFiles = new HashMap<String, long[]>();
+            for (String key : failedMap.keySet()) {
+                List<Long> ids = failedMap.get(key);
+                long[] array = new long[ids.size()];
+                for (int i = 0; i < array.length; i++) {
+                    array[i] = ids.get(i);
+                }
+                report.undeletedFiles.put(key, array);
+
+            }
+
             if (log.isDebugEnabled()) {
                 for (String table : failedMap.keySet()) {
                     log.debug("Failed to delete files : " + table + ":"
