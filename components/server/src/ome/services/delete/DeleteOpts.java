@@ -91,7 +91,7 @@ public class DeleteOpts {
      */
     public void push(Op op, boolean modified, EventContext ec) throws DeleteException {
         if (op.restricted && modified && ! ec.isCurrentUserAdmin()) {
-            throw new DeleteException(true, "User " + ec.getCurrentUserId() +
+            throw new DeleteException("User " + ec.getCurrentUserId() +
                     " is not an admin and cannot set the operation to " +
                     op.toString());
         }

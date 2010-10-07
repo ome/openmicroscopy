@@ -321,7 +321,7 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
             QueryBuilder and) throws DeleteException {
 
         if (and != null) {
-            throw new DeleteException(true, "Unexpected non-null and: " + and);
+            throw new DeleteException("Unexpected non-null and: " + and);
         }
 
         // Copying the entry since we cannot currently find relationships

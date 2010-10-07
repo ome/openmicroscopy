@@ -274,8 +274,7 @@ public class DeleteEntry {
 
         if (subSpec != null) {
             if (subSpec == this) {
-                throw new DeleteException(true, "Self-reference subspec:"
-                        + this);
+                throw new DeleteException("Self-reference subspec:" + this);
             }
             subStepCount = subSpec.initialize(id, superspec + this.path,
                     options);

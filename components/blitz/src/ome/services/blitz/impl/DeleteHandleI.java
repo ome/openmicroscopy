@@ -411,11 +411,9 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                 report.actualDeletes = report.ids.getTotalDeletedCount();
             } catch (DeleteException de) {
                 report.error = de.message;
-                if (de.cancel) {
-                    Cancel cancel = new Cancel("Cancelled by DeleteException");
-                    cancel.initCause(de);
-                    throw cancel;
-                }
+                Cancel cancel = new Cancel("Cancelled by DeleteException");
+                cancel.initCause(de);
+                throw cancel;
             } catch (ConstraintViolationException cve) {
                 report.error = "ConstraintViolation: " + cve.getConstraintName();
                 Cancel cancel = new Cancel("Cancelled by " + report.error);

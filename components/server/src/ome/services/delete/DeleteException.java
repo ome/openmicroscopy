@@ -25,10 +25,7 @@ public class DeleteException extends Exception {
 
     public final String message;
 
-    public final boolean cancel;
-
-    public DeleteException(boolean cancel, String msg) {
-        this.cancel = cancel;
+    public DeleteException(String msg) {
         this.message = msg;
     }
 
@@ -36,7 +33,7 @@ public class DeleteException extends Exception {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(super.toString());
-        sb.append("(cancel=" + cancel + ", message=" + message);
+        sb.append("(message=" + message);
         return sb.toString();
     }
 }

@@ -150,8 +150,7 @@ public class DeleteIds {
         try {
             ctx.publishMessage(elm);
         } catch (Throwable t) {
-            DeleteException de = new DeleteException(true,
-                    "EventLogMessage failed.");
+            DeleteException de = new DeleteException("EventLogMessage failed.");
             de.initCause(t);
             throw de;
         }

@@ -364,7 +364,7 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
         String rel = em.getRelationship(from, to);
 
         if (rel == null) {
-            throw new DeleteException(true, String.format(
+            throw new DeleteException(String.format(
                     "Null relationship: %s->%s", from, to));
         }
         qb.join(fromAlias + "." + rel, toAlias, false, false);
