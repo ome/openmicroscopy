@@ -86,15 +86,24 @@ fi
 ##
 # Set up server
 #
+
+#cd /home/omero
+#FILE=.pgpass
+#sudo -u omero cat > ${FILE} << EOF
+#localhost:5432:$OMERO_DB_NAME:$OMERO_DB_USER:$PGPASSWORD
+#EOF
+
 cd /Server/omero/dist
 
 bin/omero config set omero.data.dir $OMERODIR
 
-echo "CREATE USER $OMERO_DB_USER PASSWORD '$PGPASSWORD'" | yes "ome" | sudo -u postgres psql
+export PGPASSWORD=$PGPASSWORD
+echo "CREATE USER $OMERO_DB_USER PASSWORD '$PGPASSWORD'" | sudo -u postgres psql
+
 ###
 ### FREEZES SOMEWHERE HERE
 ###
-export PGPASSWORD=$PGPASSWORD
+
 sudo -u postgres createdb -O  $OMERO_DB_USER $OMERO_DB_NAME && {
     sudo -u postgres createlang plpgsql $OMERO_DB_NAME
     bin/omero config set omero.db.name $OMERO_DB_NAME

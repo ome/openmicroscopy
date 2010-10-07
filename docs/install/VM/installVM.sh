@@ -24,7 +24,24 @@ $VBOX list runningvms | grep "$VMNAME" || {
 }
 
 
-sh setupkey.sh
+# In order to prompt password to connect to vm user must generate local RSA key by '$ ssh-keygen -t rsa'
+# then copy them to the VM
+#expect -c 'spawn ssh -p 2222 -t omero@localhost ls -al; expect assword ; send "ome\n" ; interact'
+#expect -c 'spawn scp -P 2222 file omero@localhost:~/; expect assword; send "ome\n"; interact'
+
+SCP_K="spawn scp -P $SSH_PF"
+SSH_K="spawn ssh -p $SSH_PF -t"
+
+[ -f omerokey.pub ] && {
+    echo "Copying my RSA key"
+    expect -c "$SCP_K omerokey.pub omero@localhost:~/; expect assword; send \"ome\n\"; interact"
+    expect -c "$SCP_K setupkey.sh omero@localhost:~/; expect assword; send \"ome\n\"; interact"
+
+    echo "Setup key"
+    expect -c "$SSH_K omero@localhost sh /home/omero/setupkey.sh ; expect assword ; send \"ome\n\"; interact "
+    
+} || echo "Local RSAAuthentication key was not found. Use: $ ssh-keygen -t rsa"
+
 
 echo "Copying ubuntu-root-install"
 $SCP ubuntu-root-install.sh omero@localhost:~/
