@@ -6236,7 +6236,7 @@ class OMEROGateway
 	}
 	
 	/**
-	 * Save the ROI for the image to the server..
+	 * Save the ROI for the image to the server.
 	 * 
 	 * @param imageID 	The image's ID.
 	 * @param userID	The user's ID.
@@ -6276,9 +6276,12 @@ class OMEROGateway
 			for (Roi roi : serverRoiList)
 				if (!clientROIMap.containsKey(roi.getId().getValue()))
 				{
-					for (int i = 0 ; i < roi.sizeOfShapes() ; i++)
-						updateService.deleteObject(roi.getShape(i));
-					updateService.deleteObject(roi);
+					if (roi.getDetails().getOwner().getId().getValue()
+							== userID) {
+						for (int i = 0 ; i < roi.sizeOfShapes() ; i++)
+							updateService.deleteObject(roi.getShape(i));
+						updateService.deleteObject(roi);
+					}
 				}
 				else
 					roiMap.put(roi.getId().getValue(), roi);

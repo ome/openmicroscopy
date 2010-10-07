@@ -615,12 +615,14 @@ class InputServerStrategy
 	 * 
 	 * @param rois The ROIs to convert.
 	 * @param component ROIComponent.
+	 * @param userID The identifier of the user.
 	 * @return See above.
 	 * @throws ROICreationException if ROI cannot be created.
 	 * @throws NoSuchROIException if there is an error creating line connection 
 	 * figure.
 	 */
-	List<ROI> readROI(Collection rois, ROIComponent component, boolean readOnly)
+	List<ROI> readROI(Collection rois, ROIComponent component, boolean readOnly,
+			long userID)
 			throws ROICreationException, NoSuchROIException
 	{
 		if (component == null)
@@ -628,10 +630,19 @@ class InputServerStrategy
 		this.component = component;
 		Iterator i = rois.iterator();
 		Object o;
+		ROIData roi;
 		while (i.hasNext()) {
 			o = i.next();
-			if (o instanceof ROIData) 
-				roiList.add(createROI((ROIData) o, readOnly));
+			if (o instanceof ROIData) {
+				roi = (ROIData) o;
+				if (!readOnly) {
+					if (roi.getOwner().getId() != userID) {
+						readOnly = true;
+					}
+				}
+				roiList.add(createROI(roi, readOnly));
+			}
+				
 		}
 		return roiList;
 	}

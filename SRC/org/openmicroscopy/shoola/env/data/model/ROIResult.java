@@ -107,25 +107,6 @@ public class ROIResult
 	 */
 	public Collection getROIs() { return rois; }
 	
-	/**
-	 * Returns the owner of the ROIs.
-	 * 
-	 * @return See above.
-	 */
-	public long getROIOwner() 
-	{
-		if (rois == null || rois.size() == 0) return -1;
-		Iterator i = rois.iterator();
-		Object o;
-		while (i.hasNext()) {
-			o = i.next();
-			if (o instanceof ROIData) {
-				return ((ROIData) o).getOwner().getId();
-			}
-		}
-		return -1;
-	}
-	
 	/** 
 	 * Returns the id of the file.
 	 * 

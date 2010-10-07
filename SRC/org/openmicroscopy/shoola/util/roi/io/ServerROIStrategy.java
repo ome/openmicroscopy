@@ -77,17 +77,18 @@ public class ServerROIStrategy
 	 * @param rois The server side ROI to convert.
 	 * @param component
 	 * @param readOnly Is the ROI read only.
+	 * @param userID The identifier of the user currently logged in.
 	 * @throws NoSuchROIException
 	 * @throws ROICreationException
 	 * @returns See above.
 	 */
 	public List<ROI> read(Collection rois, ROIComponent component, boolean
-			readOnly)
+			readOnly, long userID)
 		throws NoSuchROIException, ROICreationException, 
 				ROICreationException	   
 	{
 		if (rois == null || rois.size() == 0) return new ArrayList<ROI>();
-		return inputStrategy.readROI(rois, component, readOnly);
+		return inputStrategy.readROI(rois, component, readOnly, userID);
 	}
 	
 	/**

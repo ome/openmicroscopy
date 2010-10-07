@@ -387,7 +387,7 @@ public class ROIComponent
 			throw new NullPointerException("No rois to transform.");
 		if (serverStrategy == null)
 			serverStrategy = new ServerROIStrategy();
-		List<ROI> l = serverStrategy.read(rois, this, readOnly);
+		List<ROI> l = serverStrategy.read(rois, this, readOnly, -1);
 		roiResult.put(fileID, l);
 		return l;
 	}
@@ -398,18 +398,19 @@ public class ROIComponent
 	 * @param fileID The id of the file.
 	 * @param rois The collection of ROIs to convert.
 	 * @param readOnly Are the ROI readOnly.
+	 * @param userID The identifier of the user currently logged in.
 	 * @return See above.
 	 * @throws NoSuchROIException
 	 * @throws ROICreationException
 	 */
-	public List<ROI> loadROI(Collection rois, boolean readOnly) 
+	public List<ROI> loadROI(Collection rois, boolean readOnly, long userID) 
 		throws NoSuchROIException, ROICreationException	
 	{
 		if (rois == null)
 			throw new NullPointerException("No rois to transform.");
 		if (serverStrategy == null)
 			serverStrategy = new ServerROIStrategy();
-		return serverStrategy.read(rois, this, readOnly);
+		return serverStrategy.read(rois, this, readOnly, userID);
 	}
 	
 	/**

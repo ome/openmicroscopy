@@ -89,7 +89,6 @@ import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.PixelsData;
 import pojos.ROIData;
-import pojos.ShapeData;
 
 /** 
  * The Model component in the <code>MeasurementViewer</code> MVC triad.
@@ -558,10 +557,8 @@ class MeasurementViewerModel
 		long userID = MeasurementAgent.getUserDetails().getId();
 		while (r.hasNext()) {
 			result = (ROIResult) r.next();
-			if (!readOnly) {
-				readOnly = result.getROIOwner() != userID;
-			}
-			roiList.addAll(roiComponent.loadROI(result.getROIs(), readOnly));
+			roiList.addAll(roiComponent.loadROI(result.getROIs(), readOnly, 
+					userID));
 		}
 		if (roiList == null) return false;
 		Iterator<ROI> i = roiList.iterator();

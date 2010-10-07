@@ -2087,12 +2087,13 @@ public class FigureDialog
 		ROIResult result;
 		int count = 0;
 		try {
+			long userID = MetadataViewerAgent.getUserDetails().getId();
 			Collection list;
 			while (r.hasNext()) {
 				result = (ROIResult) r.next();
 				list = result.getROIs();
 				if (list.size() > 0) count++;
-				displayedROIs = roiComponent.loadROI(list, true);
+				displayedROIs = roiComponent.loadROI(list, true, userID);
 				modifyROIDisplay();
 			}
 		} catch (Exception e) {}
