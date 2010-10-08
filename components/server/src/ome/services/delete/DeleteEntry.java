@@ -7,11 +7,9 @@
 
 package ome.services.delete;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -324,21 +322,26 @@ public class DeleteEntry {
             if (subSpec == null) {
                 sb.append(execute(session, details, em, deleteIds, ids, opts));
             } else {
-                for (int i = 0; i < subStepCount; i++) {
-                    // TODO refactor this into a single location with
-                    // execute below. This may require setting the
-                    // "superOp" on subSpecs. Is there a need for
-                    // handling longer chains of ops??
-                    String cause = null;
-                    try {
-                        cause = subSpec.delete(session, i, deleteIds, opts);
-                    } catch (ConstraintViolationException cve) {
-                        if (opts.isSoft()) {
-                            sb.append(cause);
-                        } else {
-                            throw cve;
+                // TODO refactor this into a single location with
+                // execute below. This may require setting the
+                // "superOp" on subSpecs. Is there a need for
+                // handling longer chains of ops??
+                final StringBuilder warning = new StringBuilder();
+                final String savepoint = deleteIds.savepoint();
+                try {
+                    for (int i = 0; i < subStepCount; i++) {
+                        String w = subSpec.delete(session, i, deleteIds, opts);
+                        if (w != null && w.length() > 0) {
+                            if (warning.length() > 0) {
+                                warning.append(";");
+                            }
+                            warning.append(w);
                         }
                     }
+                    deleteIds.release(savepoint);
+                } catch (ConstraintViolationException cve) {
+                    handleConstraintViolation(session, deleteIds, opts,
+                            subSpec.getName(), sb, savepoint, cve);
                 }
             }
             return sb.toString();
@@ -362,6 +365,7 @@ public class DeleteEntry {
         final String[] path = this.path(superspec);
         final String table = path[path.length - 1];
         final String str = StringUtils.join(path, "/");
+        final Class<IObject> k = em.getHibernateClass(table);
 
         if (ids.size() == 0) {
             if (log.isDebugEnabled()) {
@@ -397,12 +401,11 @@ public class DeleteEntry {
         }
 
         final StringBuilder rv = new StringBuilder();
-        final List<Long> actualDeletes = new ArrayList<Long>();
 
         Query q;
         final StopWatch sw = new CommonsLogStopWatch();
         for (Long id : ids) {
-            String sp = savepoint(session);
+            String sp = deleteIds.savepoint();
             try {
 
                 if (nullOp != null) {
@@ -418,6 +421,7 @@ public class DeleteEntry {
                 q = qb.query(session);
                 int count = q.executeUpdate();
                 if (count > 0) {
+                    deleteIds.addDeletedIds(table, k, id);
                     if (log.isDebugEnabled()) {
                         log.debug(String.format("Deleted %s from %s: root=%s", id, str, this.id));
                     }
@@ -426,21 +430,10 @@ public class DeleteEntry {
                         log.warn(String.format("Missing delete %s from %s: root=%s", id, str, this.id));
                     }
                 }
-                release(session, sp);
-                actualDeletes.add(id); // After release!
+                deleteIds.release(sp);
                 rv.append("");
             } catch (ConstraintViolationException cve) {
-                rollback(session, sp);
-                String cause = "ConstraintViolation: " + cve.getConstraintName();
-                if (opts.isSoft()) {
-                    log.debug(String.format("Could not delete softly %s: %s due to %s",
-                            str, this.id, cause));
-                    rv.append(cause);
-                } else {
-                    log.info(String.format("Failed to delete %s: %s due to %s",
-                            str, this.id, cause));
-                    throw cve;
-                }
+                handleConstraintViolation(session, deleteIds, opts, str, rv, sp, cve);
             } finally {
                 sw.stop("omero.delete." + table + "." + id);
             }
@@ -453,36 +446,34 @@ public class DeleteEntry {
         // to pass this ID out.
         // }
 
-        Class<IObject> k = em.getHibernateClass(table);
-        deleteIds.addDeletedIds(table, k, actualDeletes);
-
         return rv.toString();
     }
 
-    void call(Session session, String call, String savepoint) {
-        try {
-            session.connection().prepareCall(call + savepoint).execute();
-        } catch (Exception e) {
-            RuntimeException re = new RuntimeException("Failed to '" + call
-                    + savepoint + "'");
-            re.initCause(e);
-            throw re;
+    /**
+     * Method called when a {@link ConstraintViolationException} can be
+     * thrown. This is both during {@link #delete(Session, CurrentDetails, ExtendedMetadata, String, DeleteIds, List, DeleteOpts)}
+     * and {@link #execute(Session, CurrentDetails, ExtendedMetadata, DeleteIds, List, DeleteOpts)}.
+     * @param session
+     * @param opts
+     * @param type
+     * @param rv
+     * @param savepoint
+     * @param cve
+     */
+    private void handleConstraintViolation(final Session session,
+            DeleteIds deleteIds, DeleteOpts opts, final String type, final StringBuilder rv,
+            String savepoint, ConstraintViolationException cve) throws DeleteException {
+        deleteIds.rollback(savepoint);
+        String cause = "ConstraintViolation: " + cve.getConstraintName();
+        if (opts.isSoft()) {
+            log.debug(String.format("Could not delete softly %s: %s due to %s",
+                    type, this.id, cause));
+            rv.append(cause);
+        } else {
+            log.info(String.format("Failed to delete %s: %s due to %s",
+                    type, this.id, cause));
+            throw cve;
         }
-    }
-
-    String savepoint(Session session) {
-        String savepoint = UUID.randomUUID().toString();
-        savepoint = savepoint.replaceAll("-", "");
-        call(session, "SAVEPOINT DEL", savepoint);
-        return savepoint;
-    }
-
-    void release(Session session, String savepoint) {
-        call(session, "RELEASE SAVEPOINT DEL", savepoint);
-    }
-
-    void rollback(Session session, String savepoint) {
-        call(session, "ROLLBACK TO SAVEPOINT DEL", savepoint);
     }
 
     //
@@ -504,8 +495,9 @@ public class DeleteEntry {
      */
     public String log(String superspec) {
         StringBuilder sb = new StringBuilder();
+        sb.append("/");
         sb.append(StringUtils.join(path(superspec), "/"));
-        sb.append("@");
+        sb.append(";");
         sb.append(operation.toString());
         return sb.toString();
     }

@@ -106,9 +106,23 @@ public class DeleteOpts {
         return list.contains(Op.FORCE);
     }
 
+    /**
+     * Unlike force which is a applied for the entire graph, SOFT only counts
+     * at a particular node or leaf in the graph. This is because
+     * {@link DeleteIds} handle multiple levels of savepoints. If the entire
+     * subgraph is considered soft, then only the inner most will have its
+     * ConstraintViolation caught, and the rest of the subgraph will not be
+     * properly rolled back.
+     *
+     * @see ticket:3032
+     * @see ticket:2963
+     */
     public boolean isSoft() {
-        return list.contains(Op.SOFT);
-
+        if (list.size() == 0) {
+            return false;
+        } else {
+            return list.getLast().equals(Op.SOFT);
+        }
     }
 
 }

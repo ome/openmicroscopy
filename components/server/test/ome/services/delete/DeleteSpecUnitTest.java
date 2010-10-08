@@ -18,6 +18,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import ome.model.IObject;
 import ome.model.annotations.Annotation;
 import ome.model.annotations.BasicAnnotation;
 import ome.model.annotations.BooleanAnnotation;
@@ -364,6 +365,71 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
         DeleteOpts opts = new DeleteOpts();
         EventContext ec = createEventContext(false);
         opts.push(Op.FORCE, true, ec);
+    }
+
+    /**
+     * Tests the logic added to DeleteIds to handle SOFT deletes which must
+     * rollback previously deleted objects. A stack of maps is kept which
+     * get either committed or deleted based on exception handling.
+     */
+    @Test(groups = "ticket:3032")
+    public void testDeleteIdsTransactionalIdCounting() throws Exception {
+
+        String savepoint = null;
+        Mock sMock = mock(Session.class);
+        Session session = (Session) sMock.proxy();
+
+        Mock qMock = mock(Query.class);
+        Query q = (Query) qMock.proxy();
+
+        sMock.expects(once()).method("createQuery").will(returnValue(q));
+        qMock.expects(once()).method("setParameter");
+        qMock.expects(once()).method("list").will(returnValue(Arrays.asList()));
+
+        BaseDeleteSpec spec = new BaseDeleteSpec(Arrays.asList("/Foo"));
+        spec.setBeanName("/Foo");
+        spec.setExtendedMetadata(specXml.getBean(ExtendedMetadata.class));
+        spec.postProcess(specXml);
+
+        final DeleteIds ids = new DeleteIds(specXml, session, spec);
+        assertEquals(0, ids.getTotalFoundCount());
+
+        // Now we try to ignore all the method calls on the session since
+        // that is not what we are testing.
+        sMock.setDefaultStub(new DefaultResultStub());
+
+        ids.addDeletedIds("t", IObject.class, 1);
+        assertEquals(1, ids.getDeletedsIds("t").size());
+        assertEquals(1, ids.getTotalDeletedCount());
+
+        ids.addDeletedIds("a", IObject.class, 2);
+        assertEquals(2, ids.getTotalDeletedCount());
+        assertEquals(1, ids.getDeletedsIds("a").size());
+        assertEquals(1, ids.getDeletedsIds("t").size());
+
+        savepoint = ids.savepoint();
+        ids.addDeletedIds("x", IObject.class, 3);
+        assertEquals(2, ids.getTotalDeletedCount());
+        assertEquals(1, ids.getDeletedsIds("x").size());
+        assertEquals(0, ids.getDeletedsIds("t").size());
+        assertEquals(0, ids.getDeletedsIds("a").size());
+
+        ids.rollback(savepoint);
+        assertEquals(2, ids.getTotalDeletedCount());
+        assertEquals(0, ids.getDeletedsIds("x").size());
+        assertEquals(1, ids.getDeletedsIds("t").size());
+        assertEquals(1, ids.getDeletedsIds("a").size());
+
+        savepoint = ids.savepoint();
+        ids.addDeletedIds("t", IObject.class, 4);
+        assertEquals(2, ids.getTotalDeletedCount());
+        assertEquals(0, ids.getDeletedsIds("a").size());
+        assertEquals(1, ids.getDeletedsIds("t").size());
+        ids.release(savepoint);
+        assertEquals(3, ids.getTotalDeletedCount());
+        assertEquals(1, ids.getDeletedsIds("a").size());
+        assertEquals(2, ids.getDeletedsIds("t").size());
+
     }
 
     //
