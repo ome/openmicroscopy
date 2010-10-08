@@ -254,14 +254,22 @@
     <bean parent="delSpec" name="/Plate">
         <constructor-arg>
             <list>
+                <value>/Plate/ScreenPlateLink</value>
+                <value>/Plate+Only</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean parent="delSpec" name="/Plate+Only">
+        <constructor-arg>
+            <list>
                 <value>/Well;;/Plate</value>
                 <value>/Plate/PlateAcquisition/PlateAcquisitionAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Plate/PlateAcquisition/PlateAcquisitionAnnotationLink</value>
                 <value>/Plate/PlateAcquisition</value>
                 <value>/Plate/PlateAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Plate/PlateAnnotationLink</value>
-                <value>/Plate/ScreenPlateLink</value>
-                <value>/Plate</value>
+                <value>/Plate+Only</value>
             </list>
         </constructor-arg>
     </bean>
@@ -283,7 +291,7 @@
     <bean parent="delSpec" name="/Screen">
         <constructor-arg>
             <list>
-                <value>/Plate;;/Screen/ScreenPlateLink</value>
+                <value>/Plate+Only;SOFT;/Screen/ScreenPlateLink</value>
                 <value>/Screen/ScreenPlateLink</value><!-- Adding in case plate is set to KEEP -->
                 <value>/Screen/ScreenAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Screen/ScreenAnnotationLink</value>
