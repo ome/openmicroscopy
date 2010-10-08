@@ -24,18 +24,15 @@ package org.openmicroscopy.shoola.env.ui;
 
 
 //Java imports
-import java.util.Map;
 
 //Third-party libraries
 
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
-import org.openmicroscopy.shoola.env.Agent;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.events.UserGroupSwitched;
-import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.ExperimenterData;
 
@@ -62,9 +59,6 @@ public class SwitchUserLoader
 	/** The identifier of the group. */
 	private long groupID;
 	
-	/** The data to save. */
-	private Map<Agent, AgentSaveInfo> toSave;
-	
 	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle	handle;
     
@@ -79,13 +73,11 @@ public class SwitchUserLoader
      * @param groupID		The identifier of the group.
      */
 	public SwitchUserLoader(UserNotifier viewer, Registry registry, 
-			Map<Agent, AgentSaveInfo> toSave, ExperimenterData experimenter,
-			long groupID)
+			ExperimenterData experimenter, long groupID)
 	{
 		super(viewer, registry, null);
 		this.experimenter = experimenter;
 		this.groupID = groupID;
-		this.toSave = toSave;
 	}
 	
 	/**
@@ -94,7 +86,7 @@ public class SwitchUserLoader
      */
     public void load()
     {
-    	handle = dhView.switchUserGroup(toSave, experimenter, groupID, this);
+    	handle = dhView.switchUserGroup(experimenter, groupID, this);
     }
     
     /**

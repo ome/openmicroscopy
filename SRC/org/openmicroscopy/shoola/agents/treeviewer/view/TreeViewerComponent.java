@@ -3059,6 +3059,7 @@ class TreeViewerComponent
 		long oldGroup = model.getUserGroupID();
 		if (success) {
 			model.setGroupId(group.getId());
+			view.removeAllFromWorkingPane();
 			model.setDataViewer(null);
 			//model.resetMetadataViewer();
 			Map browsers = model.getBrowsers();

@@ -195,14 +195,13 @@ public class DataHandlerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#switchUserGroup(Map, ExperimenterData, long, 
+	 * @see DataHandlerView#switchUserGroup(ExperimenterData, long, 
 	 * AgentEventListener)
 	 */
-	public CallHandle switchUserGroup(Map<Agent, AgentSaveInfo> toSave,
-			ExperimenterData experimenter, long groupID,
-			AgentEventListener observer)
+	public CallHandle switchUserGroup(ExperimenterData experimenter, 
+			long groupID, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new SwitchUserGroupLoader(toSave, experimenter, groupID);
+		BatchCallTree cmd = new SwitchUserGroupLoader(experimenter, groupID);
 		return cmd.exec(observer);
 	}
 

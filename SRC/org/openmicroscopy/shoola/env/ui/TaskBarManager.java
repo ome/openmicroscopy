@@ -329,7 +329,7 @@ public class TaskBarManager
 			un.notifySaving(nodes, null);
 			Registry reg = container.getRegistry();
 			UserNotifierLoader loader = new SwitchUserLoader(
-					reg.getUserNotifier(), reg, map, evt.getExperimenterData(), 
+					reg.getUserNotifier(), reg, evt.getExperimenterData(), 
 					evt.getGroupID());
 			loader.load();
 		}
@@ -369,10 +369,12 @@ public class TaskBarManager
 					UserNotifierImpl un = (UserNotifierImpl) 
 					container.getRegistry().getUserNotifier();
 					un.notifySaving(nodes, this);
+					/*
 					Registry reg = container.getRegistry();
 					UserNotifierLoader loader = new SwitchUserLoader(
-							reg.getUserNotifier(), reg, map, null, -1);
+							reg.getUserNotifier(), reg, null, -1);
 					loader.load();
+					*/
 				}
 			}
 		}

@@ -461,7 +461,7 @@ class OMEROGateway
 	private List<ServiceInterfacePrx>				services;
 	
 	/** Collection of services to keep alive. */
-	private Map<Long, ServiceInterfacePrx>			reServices;
+	private Map<Long, StatefulServiceInterfacePrx>	reServices;
 	
 	/** Collection of monitors to end if any.*/
 	private List<String>							monitorIDs;
@@ -1890,7 +1890,7 @@ class OMEROGateway
 		thumbRetrieval = 0;
 		enumerations = new HashMap<String, List<EnumerationObject>>();
 		services = new ArrayList<ServiceInterfacePrx>();
-		reServices = new HashMap<Long, ServiceInterfacePrx>();
+		reServices = new HashMap<Long, StatefulServiceInterfacePrx>();
 	}
 	
 	/**
@@ -2199,6 +2199,8 @@ class OMEROGateway
 			throw new DSOutOfServiceException(s);  
 		}
 		try {
+			shutDownServices();
+			clear();
 			getAdminService().setDefaultGroup(exp.asExperimenter(), 
 					group.asGroup());
 			entryEncrypted.setSecurityContext(
@@ -3567,6 +3569,27 @@ class OMEROGateway
 			svc.close();
 		} catch (Exception e) {
 		}
+	}
+	
+	/** Shuts downs the stateful services. */
+	private void shutDownServices()
+	{
+		if (thumbnailService != null)
+			closeService(thumbnailService);
+		if (pixelsStore != null)
+			closeService(pixelsStore);
+		if (fileStore != null)
+			closeService(fileStore);
+		if (searchService != null)
+			closeService(searchService);
+		Collection<StatefulServiceInterfacePrx> l = reServices.values();
+		if (l != null) {
+			Iterator<StatefulServiceInterfacePrx> i = l.iterator();
+			while (i.hasNext()) {
+				closeService(i.next());
+			}
+		}
+		
 	}
 	
 	/**

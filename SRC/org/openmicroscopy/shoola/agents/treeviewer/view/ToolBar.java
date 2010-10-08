@@ -172,12 +172,6 @@ class ToolBar
         		TreeViewerControl.EDITOR_NO_SELECTION));
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
-        /*
-        b = new JButton(controller.getAction(TreeViewerControl.UPLOAD_SCRIPT));
-        UIUtilities.unifiedButtonLookAndFeel(b);
-        bar.add(b);
-        */
-        
         b = new JButton(controller.getAction(TreeViewerControl.IMPORT));
         UIUtilities.unifiedButtonLookAndFeel(b);
         //bar.add(b);
