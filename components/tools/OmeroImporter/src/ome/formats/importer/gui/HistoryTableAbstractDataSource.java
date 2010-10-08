@@ -45,6 +45,8 @@ public abstract class HistoryTableAbstractDataSource implements IObservable, IHi
 
     ArrayList<IObserver> observers = new ArrayList<IObserver>();
     
+    private static Calendar CALENDAR = Calendar.getInstance();
+    
 	// Calendar date methods
 	
     /**
@@ -69,6 +71,40 @@ public abstract class HistoryTableAbstractDataSource implements IObservable, IHi
         cal.setTime(date);
         cal.add(Calendar.DATE, -1);
         return cal.getTime();
+    }
+    
+    public Date getStartOfDay(Date date)
+    {
+        Calendar calendar = CALENDAR;
+        synchronized(calendar) {
+            calendar.setTime(date);
+            calendar.set(Calendar.HOUR_OF_DAY, 0);
+            calendar.set(Calendar.MILLISECOND, 0);
+            calendar.set(Calendar.SECOND, 0);
+            calendar.set(Calendar.MINUTE, 0);
+            return calendar.getTime();
+        }
+    }
+    
+    public Date getEndOfDay(Date date)
+    {
+        Calendar calendar = CALENDAR;
+        synchronized(calendar) {
+            calendar.setTime(date);
+            calendar.set(Calendar.HOUR_OF_DAY, 23);
+            calendar.set(Calendar.MILLISECOND, 999);
+            calendar.set(Calendar.SECOND, 59);
+            calendar.set(Calendar.MINUTE, 59);
+            return calendar.getTime();
+        }
+    }
+    
+    public Date getDayAfter(Date date)
+    {
+    	Calendar cal = Calendar.getInstance();
+    	cal.setTime(date);
+    	cal.add(Calendar.DATE, 1);
+    	return cal.getTime();
     }
   
     // days should be negative

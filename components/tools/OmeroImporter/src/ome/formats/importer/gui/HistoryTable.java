@@ -560,19 +560,24 @@ public class HistoryTable
         int dayOfWeek = newCal.get( Calendar.DAY_OF_WEEK );
         int dayOfMonth = newCal.get( Calendar.DAY_OF_MONTH);
         
-        DefaultListModel today = db.getBaseTableDataByDate(db.getDaysBefore(new Date(), -1), new Date());
+        DefaultListModel today = db.getBaseTableDataByDate(db.getStartOfDay(new Date()), 
+        		db.getEndOfDay(new Date()));
         historyTaskBar.updateList(todayList, historyTaskBar.today, today);
 
-        DefaultListModel yesterday = db.getBaseTableDataByDate(db.getDaysBefore(new Date(), -2), db.getDaysBefore(new Date(), -1));
+        DefaultListModel yesterday = db.getBaseTableDataByDate(db.getStartOfDay(db.getYesterday()), 
+        		db.getEndOfDay(db.getYesterday()));
         historyTaskBar.updateList(yesterdayList, historyTaskBar.yesterday, yesterday);
 
-        DefaultListModel thisWeek = db.getBaseTableDataByDate(db.getDaysBefore(new Date(), -(dayOfWeek)), db.getDaysBefore(new Date(), 1));
+        DefaultListModel thisWeek = db.getBaseTableDataByDate(db.getStartOfDay(db.getDaysBefore(new Date(), -(dayOfWeek))), 
+        		db.getEndOfDay(new Date()));
         historyTaskBar.updateList(thisWeekList, historyTaskBar.thisWeek, thisWeek);
 
-        DefaultListModel lastWeek = db.getBaseTableDataByDate(db.getDaysBefore(new Date(), -(dayOfWeek+7)), db.getDaysBefore(new Date(), -(dayOfWeek)));
+        DefaultListModel lastWeek = db.getBaseTableDataByDate(db.getStartOfDay(db.getDaysBefore(new Date(), -(dayOfWeek+7))), 
+        		db.getEndOfDay(db.getDaysBefore(new Date(), -(dayOfWeek))));
         historyTaskBar.updateList(lastWeekList, historyTaskBar.lastWeek, lastWeek);
         
-        DefaultListModel thisMonth = db.getBaseTableDataByDate(db.getDaysBefore(new Date(), -(dayOfMonth)), db.getDaysBefore(new Date(), 1));
+        DefaultListModel thisMonth = db.getBaseTableDataByDate(db.getStartOfDay(db.getDaysBefore(new Date(), -(dayOfMonth))), 
+        		db.getEndOfDay(new Date()));
         historyTaskBar.updateList(thisMonthList, historyTaskBar.thisMonth, thisMonth);
     }
 
