@@ -22,6 +22,8 @@ import omero.api.ThumbnailStorePrx;
 import omero.api.delete.DeleteCommand;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
+import omero.model.Dataset;
+import omero.model.DatasetI;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.IObject;
@@ -454,5 +456,41 @@ public class DeleteServiceFilesTest
  		   assertFileDoesNotExist(j.next(), "Thumbnail");
  	   }
     }
+    
+    @Test(groups = "ticket:3031")
+    public void testDeletingDatasetWithPixelsFiles() throws Exception {
+
+        Dataset ds1 = new DatasetI();
+        ds1.setName(omero.rtypes.rstring("#3031.1"));
+        Dataset ds2 = new DatasetI();
+        ds2.setName(omero.rtypes.rstring("#3031.2"));
+
+        Image img = (Image) iUpdate.saveAndReturnObject(
+                mmFactory.createImage());
+        Pixels pixels = img.getPrimaryPixels();
+        long pixId = pixels.getId().getValue();
+        IRenderingSettingsPrx rsPrx = factory.getRenderingSettingsService();
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(pixId);
+        rsPrx.resetDefaultsInSet(Pixels.class.getName(), ids);
+
+        //Now check that the files have been created and then deleted.
+        assertFileExists(pixId, "Pixels");
+
+        ds1.linkImage(img);
+        ds1 = (Dataset) iUpdate.saveAndReturnObject(ds1);
+        ds2.linkImage(img);
+        ds2 = (Dataset) iUpdate.saveAndReturnObject(ds2);
+
+        delete(client, new DeleteCommand(DeleteServiceTest.REF_DATASET, ds2.getId().getValue(),
+                null));
+
+        assertDoesNotExist(ds2);
+        assertExists(ds1);
+        assertExists(img);
+        assertFileExists(pixId, "Pixels");
+
+    }
+
     
 }
