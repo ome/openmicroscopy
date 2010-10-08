@@ -410,7 +410,15 @@ Examples:
     @with_config
     def start(self, args, config):
         self.startasync(args, config)
-        self.waitup(args)
+        try:
+            self.waitup(args)
+        except NonZeroReturnCode, nzrc:
+            # stop() may itself throw,
+            # if it does not, then we rethrow
+            # the original
+            self.ctx.err('Calling "stop" on remaining components')
+            self.stop(args, config)
+            raise nzrc
 
     @with_config
     def deploy(self, args, config):
@@ -469,13 +477,17 @@ Examples:
         self.startasync(args, config)
 
     def waitup(self, args):
+        """
+        Loops 30 times with 10 second pauses waiting for status()
+        to return 0. If it does not, then ctx.die() is called.
+        """
         self.check_access(os.R_OK)
         self.ctx.out("Waiting on startup. Use CTRL-C to exit")
         count = 30
         while True:
             count = count - 1
             if count == 0:
-                self.ctx.die(43, "Failed to startup after 5 minutes")
+                self.ctx.die(43, "\nFailed to startup some components after 5 minutes")
             elif 0 == self.status(args, node_only = False):
                 break
             else:
@@ -492,7 +504,7 @@ Examples:
         while True:
             count = count - 1
             if count == 0:
-                self.ctx.die(44, "Failed to shutdown after 5 minutes")
+                self.ctx.die(44, "\nFailed to shutdown some components after 5 minutes")
                 return False
             elif 0 != self.status(args, node_only = True):
                 break
