@@ -8,12 +8,15 @@ package integration.delete;
 
 import integration.AbstractTest;
 import omero.api.delete.DeleteCommand;
+import omero.model.Annotation;
+import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.Image;
 import omero.model.Plate;
 import omero.model.Project;
 import omero.model.ProjectI;
+import omero.model.Roi;
 import omero.model.Screen;
 import omero.model.ScreenI;
 
@@ -57,6 +60,67 @@ public class HierarchyDeleteTest extends AbstractTest {
         assertDoesNotExist(ds2);
         assertExists(ds1);
         assertExists(i);
+
+    }
+
+    @Test(groups = "ticket:3031")
+    public void testDeletingDatasetDoesntRemoveImageAnnotation() throws Exception {
+
+        newUserAndGroup("rwrw--");
+
+        Dataset ds1 = new DatasetI();
+        ds1.setName(t3031);
+
+        Dataset ds2 = new DatasetI();
+        ds2.setName(t3031);
+
+        Image i = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage());
+        i.unload();
+
+        ds1.linkImage(i);
+        ds1 = (Dataset) iUpdate.saveAndReturnObject(ds1);
+        ds2.linkImage(i);
+        ds2 = (Dataset) iUpdate.saveAndReturnObject(ds2);
+
+        Annotation a = (Annotation) iUpdate.saveAndReturnObject(new CommentAnnotationI());
+
+        delete(client, new DeleteCommand("/Dataset", ds2.getId().getValue(),
+                null));
+
+        assertDoesNotExist(ds2);
+        assertExists(ds1);
+        assertExists(i);
+        assertExists(a);
+
+    }
+
+    @Test(groups = {"ticket:3031", "ticket:3032"})
+    public void testDeletingDatasetDoesntRemoveImageRoi() throws Exception {
+
+        newUserAndGroup("rwrw--");
+
+        Dataset ds1 = new DatasetI();
+        ds1.setName(t3031);
+
+        Dataset ds2 = new DatasetI();
+        ds2.setName(t3031);
+
+        Image i = (Image) iUpdate.saveAndReturnObject(mmFactory.createImageWithRoi());
+        Roi roi = i.copyRois().get(0);
+        i.unload();
+
+        ds1.linkImage(i);
+        ds1 = (Dataset) iUpdate.saveAndReturnObject(ds1);
+        ds2.linkImage(i);
+        ds2 = (Dataset) iUpdate.saveAndReturnObject(ds2);
+
+        delete(client, new DeleteCommand("/Dataset", ds2.getId().getValue(),
+                null));
+
+        assertDoesNotExist(ds2);
+        assertExists(ds1);
+        assertExists(i);
+        assertExists(roi);
 
     }
 
