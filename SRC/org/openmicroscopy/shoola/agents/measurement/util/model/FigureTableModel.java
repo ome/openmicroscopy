@@ -30,7 +30,6 @@ import javax.swing.table.AbstractTableModel;
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
-import org.jhotdraw.draw.Figure;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
@@ -38,6 +37,7 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
+import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 
 /** 
  * The model associated to the table displaying the figures.
@@ -60,7 +60,7 @@ public class FigureTableModel
 	private static final String		NA	="N/A";
 	
 	/** The figure this model is for. */
-	private Figure					figure;
+	private ROIFigure				figure;
 	
 	/** The collection of column's names. */
 	private List<String>			columnNames;
@@ -117,10 +117,13 @@ public class FigureTableModel
 				key = (AttributeKey) i.next();
 				if (key.equals(fieldName.getKey()))
 				{
+					if (key.equals(MeasurementAttributes.TEXT) ||
+						key.equals(MeasurementAttributes.WIDTH) ||
+						key.equals(MeasurementAttributes.HEIGHT)) {
+						fieldName.setEditable(!figure.isReadOnly());
+					}
 					keys.add(key);
 					values.add(figure.getAttribute(key));
-					
-					
 					found = true;
 					break;
 				}
@@ -147,6 +150,13 @@ public class FigureTableModel
 		}
 		fireTableDataChanged();
 	}
+	
+	/**
+	 * Returns the figure handle by the model.
+	 * 
+	 * @return See above.
+	 */
+	public ROIFigure getFigure() { return figure; }
 	
 	/**
 	 * Overridden to return the name of the specified column.
@@ -192,8 +202,7 @@ public class FigureTableModel
 	/**
 	 * Returns the attributeGField of the specified cell.
 	 * 
-	 * @param rowIndex
-	 *            the index of the attributeField.
+	 * @param rowIndex The index of the attributeField.
 	 * @return see above.
 	 */
 	public AttributeField getFieldAt(int rowIndex)
@@ -245,7 +254,7 @@ public class FigureTableModel
 	{
 		if (col == 0) return false;
 		if (values.get(row) instanceof String) 
-			if (values.get(row).equals(NA)) return false;
+			if (NA.equals(values.get(row))) return false;
 		return fieldList.get(row).isEditable();
 	}
 	

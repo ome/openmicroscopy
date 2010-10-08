@@ -107,19 +107,10 @@ class ObjectInspector
 			"Show Measurements", false)); 
 		l.add(new AttributeField(MeasurementAttributes.SHOWID, 
 			"Show ID", false)); 
-//		l.add(new AttributeField(MeasurementAttributes.STROKE_WIDTH, 
-//						"Line Width", true, strokeRange(), ValueType.ENUM));
-//		l.add(new AttributeField(MeasurementAttributes.FONT_SIZE, "Font Size", 
-//				true, fontRange(), ValueType.ENUM));
-//		l.add(new AttributeField(MeasurementAttributes.TEXT_COLOR, "Font Colour", 
-//				false));
 		l.add(new AttributeField(MeasurementAttributes.FILL_COLOR, 
 				"Fill Colour", false));
 		l.add(new AttributeField(MeasurementAttributes.STROKE_COLOR, 
 				"Line Colour", false));
-//		l.add(new AttributeField(MeasurementAttributes.MEASUREMENTTEXT_COLOUR, 
-//				"Measurement Colour", false));
-		
 		//create the table
 		fieldTable = new FigureTable(new FigureTableModel(l, columnNames));
 		fieldTable.getTableHeader().setReorderingAllowed(false);
@@ -140,9 +131,14 @@ class ObjectInspector
 					
 				} else if (e.getClickCount() > 1) {
 					e.consume();
-					if (value instanceof Color)
-						controller.showColorPicker((Color) value);
-					if (value instanceof Boolean)
+					if (value instanceof Color) {
+						//Only if the figure is not read only.
+						FigureTableModel ftm = (FigureTableModel) 
+							fieldTable.getModel();
+						ROIFigure figure = ftm.getFigure();
+						if (figure != null && !figure.isReadOnly())
+							controller.showColorPicker((Color) value);
+					} else if (value instanceof Boolean)
 						toggleValue();
 				}
 			}
