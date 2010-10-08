@@ -163,6 +163,21 @@
         </description>
         <constructor-arg>
             <list>
+                <value>/Image/DatasetImageLink</value>
+                <value>/Image+Only</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean parent="delSpec" name="/Image+Only">
+        <description>
+        The /Image+Only specification is equivalent to the /Image
+        but does not remove DatasetImageLinks from the Image. This
+        makes it useful when deleting in the PDI hierarchy to prevent
+        removing an Image that is multiply linked.
+        </description>
+        <constructor-arg>
+            <list>
                 <value>/Roi;FORCE;/Image</value>
                 <value>/Image/Pixels/PixelsOriginalFileMap;REAP</value>
                 <value>/OriginalFile;;/Image/Pixels/PixelsOriginalFileMap</value>
@@ -177,8 +192,7 @@
                 <value>/Image/Pixels;NULL</value>
                 <value>/Image/ImageAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Image/ImageAnnotationLink</value>
-                <value>/Image/DatasetImageLink</value>
-                <value>/Image</value>
+                <value>/Image+Only</value>
                 <value>/Image/ImagingEnvironment</value>
                 <value>/Image/ObjectiveSettings;SOFT</value>
                 <!-- value>/Image/ObjectiveSettings/Objective;SOFT</value -->
@@ -192,12 +206,20 @@
     <bean parent="delSpec" name="/Dataset">
         <constructor-arg>
             <list>
-                <value>/Image;;/Dataset/DatasetImageLink</value><!-- assumes you can get in one jump with a link -->
-                <value>/Dataset/DatasetImageLink</value><!-- Adding in case image is set to KEEP -->
                 <value>/Dataset/ProjectDatasetLink</value>
+                <value>/Dataset+Only</value>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <bean parent="delSpec" name="/Dataset+Only">
+        <constructor-arg>
+            <list>
+                <value>/Dataset/DatasetImageLink</value>
+                <value>/Image+Only;SOFT;/Dataset/DatasetImageLink</value><!-- assumes you can get in one jump with a link -->
                 <value>/Dataset/DatasetAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Dataset/DatasetAnnotationLink</value>
-                <value>/Dataset</value>
+                <value>/Dataset+Only</value>
             </list>
         </constructor-arg>
     </bean>
@@ -205,7 +227,7 @@
     <bean parent="delSpec" name="/Project">
         <constructor-arg>
             <list>
-                <value>/Dataset;;/Project/ProjectDatasetLink</value>
+                <value>/Dataset+Only;SOFT;/Project/ProjectDatasetLink</value>
                 <value>/Project/ProjectDatasetLink</value><!-- Adding in case dataset is set to KEEP -->
                 <value>/Project/ProjectAnnotationLink;FORCE</value>
                 <value>/Annotation;SOFT;/Project/ProjectAnnotationLink</value>
