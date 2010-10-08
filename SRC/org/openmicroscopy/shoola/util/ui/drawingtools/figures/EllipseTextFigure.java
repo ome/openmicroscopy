@@ -69,6 +69,7 @@ public class EllipseTextFigure
 	extends RotateEllipseFigure
 	implements TextHolderFigure
 {
+	
 	/** Is the attribute update from a transform update. */
 	protected boolean 				fromTransformUpdate;
 	
@@ -129,10 +130,13 @@ public class EllipseTextFigure
 		fromTransformUpdate = false;
 	}	
 	
+	/**
+	 * Overridden to the value of the transform.
+	 */
 	public void setAttribute(AttributeKey key, Object newValue) 
 	{
 		super.setAttribute(key, newValue);
-		if(!fromTransformUpdate)
+		if (!fromTransformUpdate)
 		{
 			if(key.getKey().equals(MeasurementAttributes.HEIGHT.getKey()))
 			{
