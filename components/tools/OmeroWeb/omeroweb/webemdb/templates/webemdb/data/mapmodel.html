@@ -103,17 +103,14 @@ function openPopup(url) {
         <table>
         <tr>
             <td>
-                <img class="plane" src="{% url webemdb_maxprojection image.getId %}" />
+                <img class="plane" src="{% url webgateway.views.render_image image.getId 0 0 %}?p=intmax" />
                 <div class='caption'>Max Intensity Projection</div>
             </td>
-            <td>
+            <!-- <td>
                 <img class="plane" src="{% url webemdb_meanprojection image.getId %}" />
                 <div class='caption'>Mean Intensity Projection</div>
-            </td>
-            <td>
-                <img class="plane" src="{% url webemdb_sumprojection image.getId %}" />
-                <div class='caption'>Sum Intensity Projection</div>
-            </td>
+            </td> -->
+            
         </tr>
     </table>
     
