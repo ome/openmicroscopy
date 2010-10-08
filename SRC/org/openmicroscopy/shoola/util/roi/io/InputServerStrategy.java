@@ -631,16 +631,18 @@ class InputServerStrategy
 		Iterator i = rois.iterator();
 		Object o;
 		ROIData roi;
+		boolean r;
 		while (i.hasNext()) {
 			o = i.next();
 			if (o instanceof ROIData) {
 				roi = (ROIData) o;
+				r = readOnly;
 				if (!readOnly) {
 					if (roi.getOwner().getId() != userID) {
-						readOnly = true;
+						r = true;
 					}
 				}
-				roiList.add(createROI(roi, readOnly));
+				roiList.add(createROI(roi, r));
 			}
 				
 		}
