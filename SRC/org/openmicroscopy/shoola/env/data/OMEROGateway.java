@@ -1830,6 +1830,13 @@ class OMEROGateway
 		repInfoService = null;
 		deleteService = null;
 		pixelsService = null;
+		roiService = null;
+		pixelsStore = null;
+		updateService = null;
+		scriptService = null;
+		exporterService = null;
+		timeService = null;
+		sharedResources = null;
 		services.clear();
 		reServices.clear();
 	}
