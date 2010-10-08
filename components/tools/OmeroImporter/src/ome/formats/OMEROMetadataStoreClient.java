@@ -656,7 +656,7 @@ public class OMEROMetadataStoreClient
     {
         return instanceProvider;
     }
-    
+
     /**
      * Transforms a Java type into the corresponding OMERO RType.
      * 
@@ -2928,7 +2928,7 @@ public class OMEROMetadataStoreClient
             PositiveInteger emissionWavelength, int imageIndex, int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        o.getLogicalChannel().setEmissionWave(toRType(emissionWavelength.getValue()));
+        o.getLogicalChannel().setEmissionWave(toRType(emissionWavelength));
     }
 
     /** (non-Javadoc)
@@ -2939,7 +2939,7 @@ public class OMEROMetadataStoreClient
             int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        o.getLogicalChannel().setExcitationWave(toRType(excitationWavelength.getValue()));
+        o.getLogicalChannel().setExcitationWave(toRType(excitationWavelength));
     }
 
     /* (non-Javadoc)
@@ -3081,7 +3081,7 @@ public class OMEROMetadataStoreClient
             PercentFraction attenuation, int imageIndex, int channelIndex)
     {
         LightSettings o = getChannelLightSourceSettings(imageIndex, channelIndex);
-        o.setAttenuation(toRType(attenuation.getValue()));
+        o.setAttenuation(toRType(attenuation));
     }
 
     /* (non-Javadoc)
@@ -3091,7 +3091,7 @@ public class OMEROMetadataStoreClient
             PositiveInteger wavelength, int imageIndex, int channelIndex)
     {
         LightSettings o = getChannelLightSourceSettings(imageIndex, channelIndex);
-        o.setWavelength(toRType(wavelength.getValue())); 
+        o.setWavelength(toRType(wavelength)); 
     }
 
     ////////Dataset/////////
@@ -5273,7 +5273,7 @@ public class OMEROMetadataStoreClient
     {
         LightSettings o = getMicrobeamManipulationLightSourceSettings(experimentIndex, 
                 microbeamManipulationIndex, lightSourceSettingsIndex);
-        o.setAttenuation(toRType(attenuation.getValue())); 
+        o.setAttenuation(toRType(attenuation)); 
     }
 
     /* (non-Javadoc)
@@ -5285,7 +5285,7 @@ public class OMEROMetadataStoreClient
     {
         LightSettings o = getMicrobeamManipulationLightSourceSettings(experimentIndex, 
                 microbeamManipulationIndex, lightSourceSettingsIndex);
-        o.setWavelength(toRType(wavelength.getValue()));
+        o.setWavelength(toRType(wavelength));
     }
 
     //////// Microscope ////////
