@@ -71,7 +71,7 @@ public class FigureTable
 		super(model);
 		tableModel = model;
 	}
-		
+	
 	/**
 	 * Returns the Field at the specified row.
 	 * 

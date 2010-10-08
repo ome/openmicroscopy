@@ -35,6 +35,7 @@ import javax.swing.Icon;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.table.TableCellEditor;
 
 //Third-party libraries
 
@@ -271,6 +272,8 @@ class ObjectInspector
 		//Register error and notify user.
 		ROIShape shape;
 		try {
+			TableCellEditor editor = fieldTable.getCellEditor();
+			if (editor != null) editor.stopCellEditing();
 			while (i.hasNext()) {
 				shape = i.next();
 				tableModel.setData(shape.getFigure());
