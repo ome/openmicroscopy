@@ -194,6 +194,7 @@ public class CommandLineImporter {
                                         + "  --email=...\tEmail for reported errors\n"
                                         + "  --annotation_ns=...\tNamespace to use for subsequent annotation\n"
                                         + "  --annotation_text=...\tContent for a text annotation (requires namespace)\n"
+                                        + "  --annotation_link=...\tComment annotation ID to link all images to\n"
                                         + "\n"
                                         + "ex. %s -s localhost -u bart -w simpson -d 50 foo.tiff\n"
                                         + "\n"
@@ -268,15 +269,20 @@ public class CommandLineImporter {
         LongOpt annotationText = 
         	new LongOpt("annotation_text", LongOpt.REQUIRED_ARGUMENT,
         			    null, 7);
+        LongOpt annotationLink = 
+            new LongOpt("annotation_link", LongOpt.REQUIRED_ARGUMENT,
+                    null, 8);
         Getopt g = new Getopt(APP_NAME, args, "cfl:s:u:w:d:r:k:x:n:p:h",
                 new LongOpt[] { debug, report, upload, email,
-        		                annotationNamespace, annotationText});
+        		                annotationNamespace, annotationText,
+        		                annotationLink});
         int a;
 
         boolean getUsedFiles = false;
 
         List<String> annotationNamespaces = new ArrayList<String>();
         List<String> textAnnotations = new ArrayList<String>();
+        List<Long> annotationIds = new ArrayList<Long>();
         while ((a = g.getopt()) != -1) {
             switch (a) {
             case 1: {
@@ -309,6 +315,10 @@ public class CommandLineImporter {
             case 7: {
             	textAnnotations.add(g.getOptarg());
             	break;
+            }
+            case 8: {
+                annotationIds.add(Long.parseLong(g.getOptarg()));
+                break;
             }
             case 's': {
                 config.hostname.set(g.getOptarg());
@@ -371,6 +381,12 @@ public class CommandLineImporter {
         
         List<Annotation> annotations = 
         	toTextAnnotations(annotationNamespaces, textAnnotations);
+        for (Long id : annotationIds)
+        {
+            CommentAnnotationI unloadedAnnotation = 
+                new CommentAnnotationI(id, false);
+            annotations.add(unloadedAnnotation);
+        }
         config.annotations.set(annotations);
 
         // Start the importer and import the image we've been given
