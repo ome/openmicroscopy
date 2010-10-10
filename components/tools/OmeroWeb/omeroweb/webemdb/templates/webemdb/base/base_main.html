@@ -9,6 +9,12 @@
     
     <link rel="stylesheet" href="{% url webemdb 'css/base.css' %}" type="text/css" />
     <link rel="stylesheet" href="{% url webemdb 'css/autocomplete.css' %}" type="text/css" />
+    <style type="text/css">
+        #header_bg {
+            z-index: 2;
+            position: absolute;
+        }
+    </style>
     {% block link %}{% endblock %}
     
     <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.3.2.js" %}"></script>
@@ -20,8 +26,13 @@
 
 <body>
     
-    <div id="header_top">{% include "webemdb/base/header.html" %}
-        <div style="float:right; padding:5px">
+    <div id="header_top">
+        <!-- <div id="header_bg"> -->
+            <h2>OMERO EMDB</h2>
+            <!-- <img src="{% url webemdb 'images/ome.png' %}" />
+            <img src="{% url webemdb 'images/ebi.png' %}" />
+            <img src="{% url webemdb 'images/bbsrc.gif' %}" /> -->
+        <div style="float:right; padding:5px; z-index:3">
             <form class="nowrap" method='get' action="{% url webemdb_entries %}">
             <label>Entry</label>
             <!-- hidden links used by javascript. '1001' will be replaced by search entryId -->
@@ -31,7 +42,7 @@
             <input type="submit" value='go' />
             </form>
         </div>
-        <div style="float:right; padding:5px">
+        <div style="float:right; padding:5px; z-index:3">
             <form class="nowrap" method='get' action="{% url webemdb_search %}">
             <label>Search</label>
             <input type="text" name="search" />

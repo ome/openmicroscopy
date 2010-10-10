@@ -8,6 +8,12 @@
 .randomGifs {
     text-align:center;
 }
+    #logos {
+        z-index:2;
+        position:absolute;
+        right:0px;
+        top:0px;
+    }
 </style>
 
 {% endblock %}
@@ -15,10 +21,24 @@
 {% block content %}
 
     <div id="welcome">
+        <div id="logos">
+            <table>
+                <tr><td>
+                    <img src="{% url webemdb 'images/ebi.png' %}" />
+                </td><td>
+                    <img src="{% url webemdb 'images/bbsrc.gif' %}" />
+                </td><td>
+                    <img src="{% url webemdb 'images/ome.png' %}" />
+                </tr>
+            </table>
+        </div>
     <h3>Welcome to OMERO EMDB</h3>
-    
-    Total EMDB entries: {{ entryCount }} <br>
+    This EMDB repository is hosted by an OMERO server. <br />
+    Browse by <a href="{% url webemdb_entries %}">Entries</a> or <a href="{% url webemdb_publications %}">Publications</a> or read more <a href="{% url webemdb_about %}">About the project</a>.
+    <p>
+    Total EMDB entries: {{ entryCount }} <br />
     Most recent entries:
+    </p>
     <table>
         {% for p in projects %}
             <tr><td><a href="{% url webemdb.views.entry p.id %}">

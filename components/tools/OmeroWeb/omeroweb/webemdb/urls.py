@@ -8,6 +8,7 @@ urlpatterns = patterns('',
     url( r'^$', views.index, name='webemdb_index' ),
     url( r'^logout/$', views.logout, name='webemdb_logout' ),
     url( r'^loggedout/$', views.loggedout, name='webemdb_loggedout' ),
+    url( r'^about/$', views.about, name='webemdb_about' ),
     
     url( r'^entry/(?P<entryId>[0-9]+)/$', views.entry, name='webemdb_entry' ),
     

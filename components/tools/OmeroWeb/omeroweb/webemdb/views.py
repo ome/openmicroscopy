@@ -789,6 +789,8 @@ def logout (request):
 def loggedout (request):
     return render_to_response('webemdb/loggedout.html', {})
 
+def about (request):
+    return render_to_response('webemdb/about.html', {})
 
 def index (request):
     """ Show a selection of the latest EMDB entries """
@@ -970,6 +972,8 @@ def entries (request):
     f = omero.sys.Filter()
     f.limit = rint(resultsPerPage * page)
     f.offset = rint(resultsPerPage * (page-1))
+    logger.debug("Entries page: %s" % page)
+    logger.debug("Offset: %s  Limit: %s" % (f.offset.val, f.limit.val))
     p.theFilter = f
     
     # get the total number of results with no pagination. Returns a list of lists 
@@ -986,6 +990,7 @@ def entries (request):
     #totalResults = len(qs.findAllByQuery(projectsQuery, None))
     #print projectsQuery
     projects = qs.findAllByQuery(projectsQuery, p)
+    logger.debug("Entries query returned %s projects" % len(projects) )
     
     resolutions = []
     
