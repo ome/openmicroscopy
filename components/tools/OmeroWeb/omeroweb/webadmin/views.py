@@ -1005,7 +1005,7 @@ def piechart(request, **kwargs):
         from pylab import * 
     except Exception, x:
         logger.error(traceback.format_exc())
-        rv = "Error: %s" % x.message
+        rv = "Error: %s" % x
         return HttpResponse(rv)
     
     controller = BaseDriveSpace(conn)
