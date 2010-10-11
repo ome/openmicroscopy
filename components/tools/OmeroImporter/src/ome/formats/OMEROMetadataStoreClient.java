@@ -610,8 +610,10 @@ public class OMEROMetadataStoreClient
             serviceFactory.keepAllAlive(new ServiceInterfacePrx[]
                     {iQuery, iAdmin, rawFileStore, rawPixelStore, thumbnailStore,
 			 iRepoInfo, iContainer, iUpdate, iSettings, delegate});
-            log.debug("KeepAlive ping");
+            log.debug("KeepAlive ping.");
+            
         } catch (Exception e) {
+        	log.debug("KeepAlive failed.");
             throw new RuntimeException(e);
         }
     }

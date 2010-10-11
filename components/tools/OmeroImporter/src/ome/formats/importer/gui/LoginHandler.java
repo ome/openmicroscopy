@@ -207,6 +207,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                         
                         viewer.getStatusBar().setProgress(false, 0, "");
                         viewer.appendToOutput("> Login Successful.\n");
+                        viewer.getFileQueueHandler().enableImports(true);
                         log.info("Login successful!");
                         viewer.enableMenus(true);
                         viewer.setImportEnabled(true);

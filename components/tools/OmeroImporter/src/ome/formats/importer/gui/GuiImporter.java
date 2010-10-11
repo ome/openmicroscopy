@@ -578,7 +578,6 @@ WindowStateListener, WindowFocusListener
                 logout();
                 getLoginHandler().logout();
                 setLoginHandler(null);
-                getFileQueueHandler().enableImports(false);
             } else 
             {
                 HistoryTable table = null;
@@ -586,7 +585,6 @@ WindowStateListener, WindowFocusListener
                     table = historyHandler.table;
                 }
                 setLoginHandler(new LoginHandler(this, table, true, false));
-                getFileQueueHandler().enableImports(true);
                 //loginHandler.displayLogin(false);
             }
         } else if ("quit".equals(cmd)) {
@@ -709,6 +707,7 @@ WindowStateListener, WindowFocusListener
         tPane.setEnabledAt(historyTabIndex,false);
         appendToOutputLn("> Logged out.");
         getStatusBar().setStatusIcon("gfx/server_disconn16.png", "Logged out.");
+        getFileQueueHandler().enableImports(false);
         
         try {
             // Save login screen groups
@@ -732,12 +731,13 @@ WindowStateListener, WindowFocusListener
      */
     public void update(IObservable importLibrary, ImportEvent event)
     {
+
     	// Keep alive has failed, call logout
     	if (event instanceof ImportEvent.LOGGED_OUT)
     	{
     		logout();
     	}
-    	
+    	    	
         if (event instanceof ImportEvent.LOADING_IMAGE)
         {
             ImportEvent.LOADING_IMAGE ev = (ImportEvent.LOADING_IMAGE) event;
