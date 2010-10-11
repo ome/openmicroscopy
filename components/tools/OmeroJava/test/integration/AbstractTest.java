@@ -541,7 +541,7 @@ public class AbstractTest
      * of places that we do the same thing in case the API changes.
      * 
      * @param passes Pass <code>true</code> to indicate that no error
-     * 				 found in report, <code>false</code> otherwise.
+     *               found in report, <code>false</code> otherwise.
      * @param dc The command to handle.
      * @param strict whether or not the method should succeed.
      * @throws ApiUsageException
@@ -549,35 +549,74 @@ public class AbstractTest
      * @throws InterruptedException
      */
     protected String delete(boolean passes, IDeletePrx proxy, omero.client c, 
-    		DeleteCommand...dc)
+            DeleteCommand...dc)
     throws ApiUsageException, ServerError,
     InterruptedException
     {
 
-		DeleteHandlePrx handle = proxy.queueDelete(dc);
-		DeleteCallbackI cb = new DeleteCallbackI(c, handle);
-		int count = 10 * dc.length;
-		while (null == cb.block(500)) {
-			count--;
-			if (count == 0) {
-				throw new RuntimeException("Waiting on delete timed out");
-			}
-		}
-		StringBuilder sb = new StringBuilder();
-		for (DeleteReport report : handle.report()) {
-		    if (report.error != null && report.error.length() > 0) {
-		        sb.append(report.error);
-		    } else {
-		        sb.append(report.warning);
-		    }
-		}
-		String report = sb.toString();
-		if (passes) {
-		    assertEquals(report, 0, handle.errors());
-		} else {
-		    assertTrue(report, 0 < handle.errors());
-		}
-		return report;
-	}
+        DeleteHandlePrx handle = proxy.queueDelete(dc);
+        DeleteCallbackI cb = new DeleteCallbackI(c, handle);
+        int count = 10 * dc.length;
+        while (null == cb.block(500)) {
+            count--;
+            if (count == 0) {
+                throw new RuntimeException("Waiting on delete timed out");
+            }
+        }
+        StringBuilder sb = new StringBuilder();
+        for (DeleteReport report : handle.report()) {
+            if (report.error != null && report.error.length() > 0) {
+                sb.append(report.error);
+            } else {
+                sb.append(report.warning);
+            }
+        }
+        String report = sb.toString();
+        if (passes) {
+            assertEquals(report, 0, handle.errors());
+        } else {
+            assertTrue(report, 0 < handle.errors());
+        }
+        return report;
+    }
+
+    /**
+     * Asynchronous command for a single delete, this means a single 
+     * report is returned for testing. 
+     * 
+     * @param dc The SINGLE command to handle.
+     * @throws ApiUsageException
+     * @throws ServerError
+     * @throws InterruptedException
+     */
+    protected DeleteReport singleDeleteWithReport(IDeletePrx proxy, omero.client c, DeleteCommand dc)
+    throws ApiUsageException, ServerError,
+    InterruptedException
+    {
+        return deleteWithReports(proxy, c, dc)[0];
+    }
+    /**
+     * Asynchronous command for delete, report array is returned. 
+     * 
+     * @param dc The command to handle.
+     * @throws ApiUsageException
+     * @throws ServerError
+     * @throws InterruptedException
+     */
+    private DeleteReport[] deleteWithReports(IDeletePrx proxy, omero.client c, DeleteCommand...dc)
+    throws ApiUsageException, ServerError,
+    InterruptedException
+    {
+        DeleteHandlePrx handle = proxy.queueDelete(dc);
+        DeleteCallbackI cb = new DeleteCallbackI(c, handle);
+        int count = 10 * dc.length;
+        while (null == cb.block(500)) {
+            count--;
+            if (count == 0) {
+                throw new RuntimeException("Waiting on delete timed out");
+            }
+        }
+        return handle.report();
+    }
 	   
 }

@@ -3322,7 +3322,7 @@ public class DeleteServiceTest
     	Map<String, String> options = new HashMap<String, String>();
     	options.put(REF_PLATE, KEEP);
     	long id = s.getId().getValue();
-    	String report = delete(new DeleteCommand(REF_SCREEN, id, options));
+    	delete(new DeleteCommand(REF_SCREEN, id, options));
 		
 		assertDoesNotExist(s);
 		assertExists(p);

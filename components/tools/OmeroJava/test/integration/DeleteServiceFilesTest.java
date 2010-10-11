@@ -20,6 +20,7 @@ import omero.api.IRenderingSettingsPrx;
 import omero.api.RawFileStorePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.api.delete.DeleteCommand;
+import omero.api.delete.DeleteReport;
 import omero.grid.RepositoryMap;
 import omero.grid.RepositoryPrx;
 import omero.model.Dataset;
@@ -114,7 +115,23 @@ public class DeleteServiceFilesTest
        throws ApiUsageException, ServerError,
        InterruptedException
    {
-	   return delete(iDelete, client, dc);
+       return delete(iDelete, client, dc);
+   }
+   
+   /**
+    * Basic asynchronous delete command. Used in order to reduce the number
+    * of places that we do the same thing in case the API changes.
+    * 
+    * @param dc The SINGLE command to handle.
+    * @throws ApiUsageException
+    * @throws ServerError
+    * @throws InterruptedException
+    */
+   private DeleteReport deleteWithReport(DeleteCommand dc)
+       throws ApiUsageException, ServerError,
+       InterruptedException
+   {
+       return singleDeleteWithReport(iDelete, client, dc);
    }
 
    /**
@@ -224,8 +241,7 @@ public class DeleteServiceFilesTest
    }  
    
    /**
-    * Test to delete an image and make sure the companion file 
-    * and pixels file is deleted.
+    * Test to delete an image and make sure pixels file is deleted.
     * @throws Exception Thrown if an error occurred.
     */
     @Test(groups = "ticket:2880")
@@ -244,14 +260,14 @@ public class DeleteServiceFilesTest
         //Now check that the files have been created and then deleted.
         assertFileExists(pixId, "Pixels");
         
-        delete(new DeleteCommand(DeleteServiceTest.REF_IMAGE, 
+        DeleteReport report = deleteWithReport(new DeleteCommand(DeleteServiceTest.REF_IMAGE, 
         		img.getId().getValue(), null));
         assertFileDoesNotExist(pixId, "Pixels");
+        assertTrue(report.undeletedFiles.get("Pixels").length == 0);
     }
 
     /**
-     * Test to delete an image and make sure the companion file 
-     * and pixels file is deleted.
+     * Test to delete an image and make sure the companion file  is deleted.
      * @throws Exception Thrown if an error occurred.
      */
     @Test(groups = "ticket:2880")
@@ -284,9 +300,10 @@ public class DeleteServiceFilesTest
 
         //Now check that the files have been created and then deleted.
         assertFileExists(ofId, "OriginalFile");
-        delete(new DeleteCommand(DeleteServiceTest.REF_IMAGE, 
+        DeleteReport report = deleteWithReport(new DeleteCommand(DeleteServiceTest.REF_IMAGE, 
         		img.getId().getValue(), null));
         assertFileDoesNotExist(ofId, "OriginalFile");
+        assertTrue(report.undeletedFiles.get("OriginalFile").length == 0);
     }
     
     /**
@@ -317,8 +334,10 @@ public class DeleteServiceFilesTest
         //Now check that the files have NOT been created and then deleted.
         assertFileDoesNotExist(pixId, "Pixels");
         assertFileDoesNotExist(ofId, "OriginalFile");
-        delete(new DeleteCommand(DeleteServiceTest.REF_IMAGE,
+        DeleteReport report = deleteWithReport(new DeleteCommand(DeleteServiceTest.REF_IMAGE,
         		img.getId().getValue(), null));
+        assertTrue(report.undeletedFiles.get("Pixels").length == 0);
+        assertTrue(report.undeletedFiles.get("OriginalFile").length == 0);
     }
     
     /**
@@ -372,12 +391,13 @@ public class DeleteServiceFilesTest
         }
        
         //delete the image.
-        delete(new DeleteCommand(DeleteServiceTest.REF_IMAGE, imageID, null));
+        DeleteReport report = deleteWithReport(new DeleteCommand(DeleteServiceTest.REF_IMAGE, imageID, null));
         assertFileDoesNotExist(id, "Pixels");
         Iterator<Long> j = thumbIds.iterator();
         while (j.hasNext()) {
 			 assertFileDoesNotExist(j.next(), "Thumbnail");
 		}
+        assertTrue(report.undeletedFiles.get("Thumbnail").length == 0);
     }
 
     /**
@@ -457,6 +477,13 @@ public class DeleteServiceFilesTest
  	   }
     }
     
+    /**
+     * Test to delete a datsset containing and image that is 
+     * also in another dataset. The Image and its Pixels file
+     * should NOT be deleted.
+     * 
+     * @throws Exception Thrown if an error occurred.
+     */
     @Test(groups = "ticket:3031")
     public void testDeletingDatasetWithPixelsFiles() throws Exception {
 
@@ -489,8 +516,6 @@ public class DeleteServiceFilesTest
         assertExists(ds1);
         assertExists(img);
         assertFileExists(pixId, "Pixels");
-
     }
 
-    
 }
