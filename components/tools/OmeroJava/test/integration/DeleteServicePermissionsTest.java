@@ -268,11 +268,10 @@ public class DeleteServicePermissionsTest
         // owner creates the image
         Image img = (Image) iUpdate.saveAndReturnObject(
         		mmFactory.simpleImage(0));
-        
-        
+
         omero.client owner = disconnect();
         
-        // tagger creates tag and tags the image
+        // tagger creates tag
         newUserInGroup(ec);
         
         TagAnnotation c = new TagAnnotationI();
@@ -281,12 +280,13 @@ public class DeleteServicePermissionsTest
     	omero.client tagger = disconnect();
     	init(owner);
     	
+    	//Image's owner tags the image.
     	ImageAnnotationLink link = new ImageAnnotationLinkI();
     	link.setParent(img);
     	link.setChild(new TagAnnotationI(c.getId().getValue(), false));		
     	link = (ImageAnnotationLink) iUpdate.saveAndReturnObject(link);
     	
-    	//now delete the tag.
+    	//Tag's owner now deletes the tag.
     	init(tagger);
     	delete(false, iDelete, client, new DeleteCommand(
     			DeleteServiceTest.REF_ANN,

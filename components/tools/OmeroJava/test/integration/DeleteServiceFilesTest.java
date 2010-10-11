@@ -101,22 +101,6 @@ public class DeleteServiceFilesTest
            client = null;
        }
    }
-
-   /**
-    * Basic asynchronous delete command. Used in order to reduce the number
-    * of places that we do the same thing in case the API changes.
-    * 
-    * @param dc The command to handle.
-    * @throws ApiUsageException
-    * @throws ServerError
-    * @throws InterruptedException
-    */
-   private String delete(DeleteCommand...dc)
-       throws ApiUsageException, ServerError,
-       InterruptedException
-   {
-       return delete(iDelete, client, dc);
-   }
    
    /**
     * Basic asynchronous delete command. Used in order to reduce the number
@@ -509,7 +493,8 @@ public class DeleteServiceFilesTest
         ds2.linkImage(img);
         ds2 = (Dataset) iUpdate.saveAndReturnObject(ds2);
 
-        delete(client, new DeleteCommand(DeleteServiceTest.REF_DATASET, ds2.getId().getValue(),
+        delete(client, new DeleteCommand(DeleteServiceTest.REF_DATASET, 
+        		ds2.getId().getValue(),
                 null));
 
         assertDoesNotExist(ds2);

@@ -1226,13 +1226,26 @@ public class XMLMockObjects
 	//Collection of helper methods.
 	
 	/**
-	 * Creates and returns the root element.
+	 * Creates and returns the root element. Creates an image w/o metadata.
 	 * 
 	 * @return See above.
 	 */
 	public OME createImage()
 	{
 		ome.addImage(createImage(0));
+		return ome;
+	}
+	
+	/**
+	 * Creates and returns the root element. 
+	 * 
+	 * @param metadata Pass <code>true</code> to create an image with metadata,
+	 *                 <code>false</code> w/o/
+	 * @return See above.
+	 */
+	public OME createImage(boolean metadata)
+	{
+		ome.addImage(createImage(0, true));
 		return ome;
 	}
 	

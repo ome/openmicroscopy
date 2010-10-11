@@ -7,12 +7,15 @@
 package integration.delete;
 
 import integration.AbstractTest;
+import integration.DeleteServiceTest;
 import omero.api.delete.DeleteCommand;
 import omero.model.Annotation;
 import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
 import omero.model.DatasetI;
 import omero.model.Image;
+import omero.model.ImageAnnotationLink;
+import omero.model.ImageAnnotationLinkI;
 import omero.model.Plate;
 import omero.model.Project;
 import omero.model.ProjectI;
@@ -35,6 +38,11 @@ public class HierarchyDeleteTest extends AbstractTest {
 
     private final static omero.RString t3031 = omero.rtypes.rstring("#3031");
 
+    /**
+     * Test to delete a dataset containing an image also contained in another 
+     * dataset. The second dataset and the image should not be deleted.
+     * @throws Exception Thrown if an error occurred.
+     */
     @Test(groups = "ticket:3031")
     public void testDeletingDataset() throws Exception {
 
@@ -54,15 +62,20 @@ public class HierarchyDeleteTest extends AbstractTest {
         ds2.linkImage(i);
         ds2 = (Dataset) iUpdate.saveAndReturnObject(ds2);
 
-        delete(client, new DeleteCommand("/Dataset", ds2.getId().getValue(),
-                null));
+        delete(client, new DeleteCommand(DeleteServiceTest.REF_DATASET, 
+        		ds2.getId().getValue(), null));
 
         assertDoesNotExist(ds2);
         assertExists(ds1);
         assertExists(i);
-
     }
 
+    /**
+     * Test to delete a dataset containing an image also contained in another 
+     * dataset. The second dataset and the image with an annotation
+     * should not be deleted.
+     * @throws Exception Thrown if an error occurred.
+     */
     @Test(groups = "ticket:3031")
     public void testDeletingDatasetDoesntRemoveImageAnnotation() throws Exception {
 
@@ -82,18 +95,29 @@ public class HierarchyDeleteTest extends AbstractTest {
         ds2.linkImage(i);
         ds2 = (Dataset) iUpdate.saveAndReturnObject(ds2);
 
-        Annotation a = (Annotation) iUpdate.saveAndReturnObject(new CommentAnnotationI());
+        Annotation a = (Annotation) iUpdate.saveAndReturnObject(
+        		new CommentAnnotationI());
 
-        delete(client, new DeleteCommand("/Dataset", ds2.getId().getValue(),
-                null));
+        ImageAnnotationLink link = new ImageAnnotationLinkI();
+        link.setChild((Annotation) a.proxy());
+        link.setParent((Image) i.proxy());
+        iUpdate.saveAndReturnObject(link);
+        
+        delete(client, new DeleteCommand(DeleteServiceTest.REF_DATASET, 
+        		ds2.getId().getValue(), null));
 
         assertDoesNotExist(ds2);
         assertExists(ds1);
         assertExists(i);
         assertExists(a);
-
     }
 
+    /**
+     * Test to delete a dataset containing an image also contained in another 
+     * dataset. The second dataset and the image with ROI
+     * should not be deleted.
+     * @throws Exception Thrown if an error occurred.
+     */
     @Test(groups = {"ticket:3031", "ticket:3032"})
     public void testDeletingDatasetDoesntRemoveImageRoi() throws Exception {
 
@@ -105,7 +129,8 @@ public class HierarchyDeleteTest extends AbstractTest {
         Dataset ds2 = new DatasetI();
         ds2.setName(t3031);
 
-        Image i = (Image) iUpdate.saveAndReturnObject(mmFactory.createImageWithRoi());
+        Image i = (Image) iUpdate.saveAndReturnObject(
+        		mmFactory.createImageWithRoi());
         Roi roi = i.copyRois().get(0);
         i.unload();
 
@@ -114,16 +139,20 @@ public class HierarchyDeleteTest extends AbstractTest {
         ds2.linkImage(i);
         ds2 = (Dataset) iUpdate.saveAndReturnObject(ds2);
 
-        delete(client, new DeleteCommand("/Dataset", ds2.getId().getValue(),
-                null));
+        delete(client, new DeleteCommand(DeleteServiceTest.REF_DATASET, 
+        		ds2.getId().getValue(),  null));
 
         assertDoesNotExist(ds2);
         assertExists(ds1);
         assertExists(i);
         assertExists(roi);
-
     }
 
+    /**
+     * Test to delete a project containing a dataset also contained in another 
+     * project. The second project and the dataset should not be deleted.
+     * @throws Exception Thrown if an error occurred.
+     */
     @Test(groups = "ticket:3031")
     public void testDeletingProject() throws Exception {
 
@@ -145,15 +174,19 @@ public class HierarchyDeleteTest extends AbstractTest {
         p2.linkDataset(d);
         p2 = (Project) iUpdate.saveAndReturnObject(p2);
 
-        delete(client, new DeleteCommand("/Project", p2.getId().getValue(),
-                null));
+        delete(client, new DeleteCommand(DeleteServiceTest.REF_PROJECT, 
+        		p2.getId().getValue(), null));
 
         assertDoesNotExist(p2);
         assertExists(p1);
         assertExists(d);
-
     }
 
+    /**
+     * Test to delete a screen containing a plate also contained in another 
+     * screen. The second screen and the plate should not be deleted.
+     * @throws Exception Thrown if an error occurred.
+     */
     @Test(groups = "ticket:3031")
     public void testDeletingScreen() throws Exception {
 
@@ -175,13 +208,13 @@ public class HierarchyDeleteTest extends AbstractTest {
         s2.linkPlate(p);
         s2 = (Screen) iUpdate.saveAndReturnObject(s2);
 
-        delete(client, new DeleteCommand("/Screen", s2.getId().getValue(),
+        delete(client, new DeleteCommand(DeleteServiceTest.REF_SCREEN, 
+        		s2.getId().getValue(),
                 null));
 
         assertDoesNotExist(s2);
         assertExists(s1);
         assertExists(p);
-
     }
 
 }

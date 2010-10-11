@@ -107,7 +107,7 @@ public class ImporterTest
 {
 	
 	/** The OME-XML format. */
-	private static final String OME_FORMAT = "ome";
+	public static final String OME_FORMAT = "ome";
 	
 	/** The collection of files that have to be deleted. */
 	private List<File> files;

@@ -9,6 +9,7 @@ package integration;
 import static omero.rtypes.rdouble;
 import static omero.rtypes.rint;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -20,9 +21,12 @@ import java.util.Set;
 import java.util.UUID;
 
 import junit.framework.AssertionFailedError;
+import ome.formats.OMEROMetadataStoreClient;
 import ome.services.delete.BaseDeleteSpec;
+import ome.xml.model.OME;
 import omero.ApiUsageException;
 import omero.ServerError;
+import omero.api.IMetadataPrx;
 import omero.api.IPixelsPrx;
 import omero.api.IRenderingSettingsPrx;
 import omero.api.RawFileStorePrx;
@@ -45,9 +49,11 @@ import omero.model.DatasetImageLinkI;
 import omero.model.Detector;
 import omero.model.DetectorSettings;
 import omero.model.Dichroic;
+import omero.model.Experiment;
 import omero.model.ExperimenterGroupI;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
+import omero.model.Filter;
 import omero.model.FilterSet;
 import omero.model.IObject;
 import omero.model.Image;
@@ -63,6 +69,7 @@ import omero.model.LightSource;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
 import omero.model.LongAnnotationI;
+import omero.model.Microscope;
 import omero.model.OTF;
 import omero.model.Objective;
 import omero.model.ObjectiveSettings;
@@ -70,6 +77,7 @@ import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.PixelsI;
 import omero.model.PixelsOriginalFileMapI;
+import omero.model.PlaneInfo;
 import omero.model.Plate;
 import omero.model.PlateAcquisition;
 import omero.model.PlateAcquisitionAnnotationLink;
@@ -183,6 +191,9 @@ public class DeleteServiceTest
 	
 	/** Identifies the File. */
 	public static final String REF_FILE= "/FileAnnotation";
+	
+	/** Indicates to force the deletion. */
+	public static final String FORCE = "FORCE";
 	
 	/** Indicates to keep a certain type of annotations. */
 	public static final String KEEP = "KEEP";
@@ -724,27 +735,26 @@ public class DeleteServiceTest
         //
         Image img = (Image) iUpdate.saveAndReturnObject(
 			mmFactory.simpleImage(0));
-        
+
         //
         // tagger creates tag and tags the image
         //
         newUserInGroup(ownerEc); // Tagger
         TagAnnotation c = new TagAnnotationI();
-	c = (TagAnnotation) iUpdate.saveAndReturnObject(c).proxy();
-	ImageAnnotationLink link = new ImageAnnotationLinkI();
-	link.link(img, c);
-	link = (ImageAnnotationLink) iUpdate.saveAndReturnObject(link);
-	c = (TagAnnotation) link.getChild();
+        c = (TagAnnotation) iUpdate.saveAndReturnObject(c).proxy();
+        ImageAnnotationLink link = new ImageAnnotationLinkI();
+        link.link(img, c);
+        link = (ImageAnnotationLink) iUpdate.saveAndReturnObject(link);
+        c = (TagAnnotation) link.getChild();
 
-	//
-	// test delete
-	//
-	loginUser(ownerEc);
-	long id = img.getId().getValue();
-	delete(client, new DeleteCommand(REF_IMAGE, id, null));
-	assertDoesNotExist(img);
-	assertExists(c);
-
+        //
+        // test delete
+        //
+        loginUser(ownerEc);
+        long id = img.getId().getValue();
+        delete(client, new DeleteCommand(REF_IMAGE, id, null));
+        assertDoesNotExist(img);
+        assertExists(c);
     }
     
     /**
@@ -2160,7 +2170,7 @@ public class DeleteServiceTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test
-    public void testDeleteImportedImage() 
+    public void testDeleteImageWithCompanionFile() 
     	throws Exception
     {
     	Image img = (Image) iUpdate.saveAndReturnObject(
@@ -4108,9 +4118,7 @@ public class DeleteServiceTest
                  mmFactory.createImage());
     	 long id = img.getId().getValue();
     	 delete(new DeleteCommand(REF_IMAGE, id, null));
-         
-    	 delete(new DeleteCommand(REF_IMAGE, id, null));
-         
+    	 delete(new DeleteCommand(REF_IMAGE, id, null)); 
     }
     
     /**
@@ -4130,6 +4138,162 @@ public class DeleteServiceTest
     	ParametersI p = new ParametersI();
     	p.addIds(ids);
     	assertEquals(iQuery.findAllByQuery(sql, p).size(), 0);
+    }
+
+    /**
+     * Tests to delete an imported image. The image should have all
+     * the model objects, a companion file and a thumbnail.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(groups = "ticket:3030")
+    public void testDeleteImportedImage()
+    	throws Exception
+    {
+    	File f = File.createTempFile("testDeleteImportedImage", 
+    			"."+ImporterTest.OME_FORMAT);
+    	mmFactory.createImageFile(f, ModelMockFactory.FORMATS[0]);
+    	XMLMockObjects xml = new  XMLMockObjects();
+		XMLWriter writer = new XMLWriter();
+		writer.writeFile(f, xml.createImageWithAcquisitionData(), true);
+		OMEROMetadataStoreClient importer = new OMEROMetadataStoreClient();
+    	importer.initialize(factory);
+    	List<Pixels> list;
+    	try {
+    		list = importFile(importer, f, ImporterTest.OME_FORMAT, false);
+    	} catch (Throwable e) {
+    		throw new Exception("cannot import image", e);
+    	}
+    	IMetadataPrx iMetadata = factory.getMetadataService();
+    	
+    	Pixels pixels = list.get(0);
+    	long id = pixels.getId().getValue();
+    	
+    	pixels = factory.getPixelsService().retrievePixDescription(id);
+    	
+    	List<Channel> channels = pixels.copyChannels();
+    	
+    	assertTrue(channels.size() > 0);
+    	Channel channel;
+    	Iterator<Channel> j = channels.iterator();
+    	long lcID;
+    	List<Long> ids;
+    	LogicalChannel lc;
+    	List l;
+    	List<LogicalChannel> logicalChannels = new ArrayList<LogicalChannel>(); 
+    	List<LightPath> lightPaths = new ArrayList<LightPath>();
+    	List<DetectorSettings> 
+    		detectorSettings = new ArrayList<DetectorSettings>();
+    	List<LightSettings> lightSourceSettings = 
+    		new ArrayList<LightSettings>();
+    	while (j.hasNext()) {
+			channel = j.next();
+			ids = new ArrayList<Long>(1);
+			lcID = channel.getLogicalChannel().getId().getValue();
+			ids.add(lcID);
+			l = iMetadata.loadChannelAcquisitionData(ids);
+			lc = (LogicalChannel) l.get(0);
+			logicalChannels.add(lc);
+			lightPaths.add(lc.getLightPath());
+			detectorSettings.add(lc.getDetectorSettings());
+			lightSourceSettings.add(lc.getLightSourceSettings());
+		}
+    	
+    	String sql = "select info from PlaneInfo as info where pixels.id = :id";
+    	ParametersI param = new ParametersI();
+    	param.addId(id);
+    	
+    	List<IObject> planes = iQuery.findAllByQuery(sql, param);
+    	assertTrue(planes.size() > 0);
+    	
+    	long imageID = pixels.getImage().getId().getValue();
+    	ParametersI po = new ParametersI();
+		po.acquisitionData();
+		ids = new ArrayList<Long>(1);
+		ids.add(imageID);
+		List images = factory.getContainerService().getImages(
+				Image.class.getName(), ids, po);
+		Image image = (Image) images.get(0);
+    	long instrumentID = image.getInstrument().getId().getValue();
+    	
+    	Instrument instrument = factory.getMetadataService().loadInstrument(
+    			instrumentID);
+    	ImagingEnvironment env = image.getImagingEnvironment();
+    	Microscope miscrocope = instrument.getMicroscope();
+    	StageLabel stage = image.getStageLabel();
+    	ObjectiveSettings settings = image.getObjectiveSettings();
+    	Experiment experiment = image.getExperiment();
+    	//from instrument
+    	List<Detector> detectors = instrument.copyDetector();
+    	List<Dichroic> dichroics = instrument.copyDichroic();
+    	List<Filter> filters = instrument.copyFilter();
+    	List<Objective> objectives = instrument.copyObjective();
+    	List<LightSource> lightSources = instrument.copyLightSource();
+    	List<OTF> otfs = instrument.copyOtf();
+
+    	//Delete the image.
+    	delete(new DeleteCommand(REF_IMAGE, imageID, null));
+    	assertDoesNotExist(image);
+    	assertDoesNotExist(pixels);
+    	
+    	Iterator i = planes.iterator();
+    	while (i.hasNext()) {
+    		assertDoesNotExist((IObject) i.next());
+		}
+    	assertDoesNotExist(instrument);
+    	assertDoesNotExist(miscrocope);
+    	assertDoesNotExist(env);
+    	assertDoesNotExist(stage);
+    	assertDoesNotExist(settings);
+    	assertDoesNotExist(experiment);
+    	//
+    	i = detectors.iterator();
+    	while (i.hasNext()) {
+    		assertDoesNotExist((IObject) i.next());
+		}
+    	i = dichroics.iterator();
+    	while (i.hasNext()) {
+    		assertDoesNotExist((IObject) i.next());
+		}
+    	i = filters.iterator();
+    	while (i.hasNext()) {
+    		assertDoesNotExist((IObject) i.next());
+		}
+    	i = objectives.iterator();
+    	while (i.hasNext()) {
+    		assertDoesNotExist((IObject) i.next());
+		}
+    	i = lightSources.iterator();
+    	while (i.hasNext()) {
+    		assertDoesNotExist((IObject) i.next());
+		}
+    	i = otfs.iterator();
+    	while (i.hasNext()) {
+    		assertDoesNotExist((IObject) i.next());
+		}
+    	i = planes.iterator();
+    	while (i.hasNext()) {
+    		assertDoesNotExist((IObject) i.next());
+		}
+    	i = channels.iterator();
+    	while (i.hasNext()) {
+    		assertDoesNotExist((IObject) i.next());
+		}
+    	i = logicalChannels.iterator();
+    	while (i.hasNext()) {
+    		assertDoesNotExist((IObject) i.next());
+		}
+    	i = lightPaths.iterator();
+    	while (i.hasNext()) {
+    		assertDoesNotExist((IObject) i.next());
+		}
+    	i = detectorSettings.iterator();
+    	while (i.hasNext()) {
+    		assertDoesNotExist((IObject) i.next());
+		}
+    	i = lightSourceSettings.iterator();
+    	while (i.hasNext()) {
+    		assertDoesNotExist((IObject) i.next());
+		}
     }
  
  }

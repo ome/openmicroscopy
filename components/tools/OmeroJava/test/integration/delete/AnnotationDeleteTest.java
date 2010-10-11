@@ -11,10 +11,14 @@ import static omero.rtypes.rstring;
 import integration.AbstractTest;
 import integration.DeleteServiceTest;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import omero.RLong;
+import omero.RString;
 import omero.api.delete.DeleteCommand;
 import omero.model.Annotation;
 import omero.model.Channel;
@@ -45,12 +49,60 @@ import org.testng.annotations.Test;
 @Test(groups = { "delete", "integration", "ticket:2615" })
 public class AnnotationDeleteTest extends AbstractTest {
 
-    public final static omero.RString RATING = rstring(omero.constants.metadata.NSINSIGHTRATING.value);
+	/** Reference to the <code>Rating</code> name space. */
+    public final static RString RATING = rstring(
+    		omero.constants.metadata.NSINSIGHTRATING.value);
 
-    public final static omero.RString EXPERIMENT = rstring(omero.constants.metadata.NSEDITOREXPERIMENT.value);
+    /** Reference to the <code>Experiment</code> name space. */
+    public final static RString EXPERIMENT = rstring(
+    		omero.constants.metadata.NSEDITOREXPERIMENT.value);
 
-    public final static omero.RString PROTOCOL = rstring(omero.constants.metadata.NSEDITORPROTOCOL.value);
+    /** Reference to the <code>Protocol</code> name space. */
+    public final static RString PROTOCOL = rstring(
+    		omero.constants.metadata.NSEDITORPROTOCOL.value);
+    
+    /**
+     * Tests that the object, an annotation, and the link are all deleted.
+     * 
+     * @param obj The Object to annotate.
+     * @param command The command indicating the object to delete.
+     * @param id The identifier of the object to delete.
+     */
+    private void annotateSaveDeleteAndCheck(IObject obj, String command, 
+    		RLong id) throws Exception {
+        annotateSaveDeleteAndCheck(obj, command, id, true);
+    }
 
+    /**
+     * Tests that the object, the annotation link, and optionally the annotation
+     * are all deleted.
+     * 
+     * @param obj The Object to annotate.
+     * @param command The command indicating the object to delete.
+     * @param id The identifier of the object to delete.
+     * @param annIsDeleted Pass <code>true</code> if the annotation is deleted,
+     *                     <code>false</code> otherwise.
+     */
+    private void annotateSaveDeleteAndCheck(IObject obj, String command, 
+    		RLong id, boolean annIsDeleted) throws Exception {
+        Annotation ann = (Annotation) iUpdate
+                .saveAndReturnObject(new TagAnnotationI());
+        IObject link = mmFactory.createAnnotationLink(obj.proxy(), ann);
+        link = iUpdate.saveAndReturnObject(link);
+        delete(client, new DeleteCommand(command, id.getValue(), null));
+        assertDoesNotExist(obj);
+        assertDoesNotExist(link);
+        if (annIsDeleted) {
+            assertDoesNotExist(ann);
+        } else {
+            assertExists(ann);
+        }
+    }
+    
+    /**
+     * Test to ensure that a user cannot force a delete.
+     * @throws Exception Thrown if an error occurred.
+     */
     @Test(groups = "ticket:2959")
     public void testForceCannotBeSetByUser() throws Exception {
         EventContext owner = newUserAndGroup("rwrw--");
@@ -63,15 +115,18 @@ public class AnnotationDeleteTest extends AbstractTest {
 
         newUserInGroup(owner);
         Map<String, String> options = new HashMap<String, String>();
-        options.put("/Annotation", "FORCE"); // Would delete other users' data
+        options.put(DeleteServiceTest.REF_ANN, DeleteServiceTest.FORCE); 
         delete(false, iDelete, client, new DeleteCommand(
                 DeleteServiceTest.REF_ANN, fa.getId().getValue(), options));
 
         assertExists(fa);
         assertExists(file);
-
     }
 
+    /**
+     * Test to ensure that an administrator can force a delete.
+     * @throws Exception Thrown if an error occurred.
+     */
     @Test(groups = "ticket:2959")
     public void testForceCanBeSetByAdmin() throws Exception {
         EventContext owner = newUserAndGroup("rwrw--");
@@ -84,51 +139,50 @@ public class AnnotationDeleteTest extends AbstractTest {
 
         logRootIntoGroup(owner);
         Map<String, String> options = new HashMap<String, String>();
-        options.put("/Annotation", "FORCE"); // Would delete other users' data
+     // Would delete other users' data
+        options.put(DeleteServiceTest.REF_ANN, DeleteServiceTest.FORCE); 
         delete(true, iDelete, client, new DeleteCommand(
                 DeleteServiceTest.REF_ANN, fa.getId().getValue(), options));
 
         assertDoesNotExist(fa);
         assertDoesNotExist(file);
-
     }
 
+    /**
+     * Test to delete the file annotation of a given namespace.
+     * @throws Exception Thrown if an error occurred.
+     */
     @Test(groups = { "ticket:2994" })
-    public void testDeleteFileAnnotationExperiment() throws Exception {
+    public void testDeleteFileAnnotationOfGivenNamespace() 
+    	throws Exception {
 
         newUserAndGroup("rw----");
-        FileAnnotation fa = new FileAnnotationI();
-        fa.setNs(EXPERIMENT);
-        fa.setFile(mmFactory.createOriginalFile());
-        fa = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
-        OriginalFile file = fa.getFile();
+        List<RString> ns = new ArrayList<RString>();
+        ns.add(EXPERIMENT);
+        ns.add(PROTOCOL);
+        FileAnnotation fa;
+        OriginalFile file;
+        Iterator<RString> i = ns.iterator();
+        while (i.hasNext()) {
+			fa = new FileAnnotationI();
+	        fa.setNs(i.next());
+	        fa.setFile(mmFactory.createOriginalFile());
+	        fa = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
+	        file = fa.getFile();
 
-        delete(client, new DeleteCommand(DeleteServiceTest.REF_ANN, fa.getId()
-                .getValue(), null));
+	        delete(client, new DeleteCommand(DeleteServiceTest.REF_ANN, 
+	        		fa.getId().getValue(), null));
 
-        assertDoesNotExist(fa);
-        assertDoesNotExist(file);
-
+	        assertDoesNotExist(fa);
+	        assertDoesNotExist(file);
+		}
     }
 
-    @Test(groups = { "ticket:2994" })
-    public void testDeleteFileAnnotationProtocol() throws Exception {
-
-        newUserAndGroup("rw----");
-        FileAnnotation fa = new FileAnnotationI();
-        fa.setNs(PROTOCOL);
-        fa.setFile(mmFactory.createOriginalFile());
-        fa = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
-        OriginalFile file = fa.getFile();
-
-        delete(client, new DeleteCommand(DeleteServiceTest.REF_ANN, fa.getId()
-                .getValue(), null));
-
-        assertDoesNotExist(fa);
-        assertDoesNotExist(file);
-
-    }
-
+    /**
+     * Test to make sure that the ratings linked to an image are deleted
+     * when the image is deleted even if the ratings where made by others.
+     * @throws Exception Thrown if an error occurred.
+     */
     @Test(enabled = false, groups = { "ticket:2997" })
     public void testOtherUsersRatingsIsDeleted() throws Exception {
 
@@ -154,7 +208,6 @@ public class AnnotationDeleteTest extends AbstractTest {
         assertDoesNotExist(link);
         assertDoesNotExist(rating);
         disconnect();
-
     }
 
     @Test(enabled = false, groups = { "ticket:2997" })
@@ -166,6 +219,11 @@ public class AnnotationDeleteTest extends AbstractTest {
     // Tests for the less common annotated types
     //
 
+    /**
+     * Test to make sure that the annotations linked to an annotation are 
+     * deleted when the annotation is deleted.
+     * @throws Exception Thrown if an error occurred.
+     */
     @Test(enabled = false, groups = { "ticket:3002", "ticket:3015" })
     public void testAnnotationsRemovedFromAnnotation() throws Exception {
         newUserAndGroup("rw----");
@@ -175,6 +233,11 @@ public class AnnotationDeleteTest extends AbstractTest {
                 false);
     }
 
+    /**
+     * Test to make sure that the annotations linked to a channel are deleted
+     * when the channel is deleted.
+     * @throws Exception Thrown if an error occurred.
+     */
     @Test(groups = { "ticket:3002" })
     public void testAnnotationsRemovedFromChannel() throws Exception {
         newUserAndGroup("rw----");
@@ -185,6 +248,11 @@ public class AnnotationDeleteTest extends AbstractTest {
                 image.getId());
     }
 
+    /**
+     * Test to make sure that the annotations linked to an original file are 
+     * deleted when the original file is deleted.
+     * @throws Exception Thrown if an error occurred.
+     */
     @Test(groups = { "ticket:3002" })
     public void testAnnotationsRemovedFromOriginalFile() throws Exception {
         newUserAndGroup("rw----");
@@ -194,6 +262,11 @@ public class AnnotationDeleteTest extends AbstractTest {
                 file.getId());
     }
 
+    /**
+     * Test to make sure that the annotations linked to a pixels set are deleted
+     * when the pixels set is deleted.
+     * @throws Exception Thrown if an error occurred.
+     */
     @Test(groups = { "ticket:3002" })
     public void testAnnotationsRemovedFromPixels() throws Exception {
         newUserAndGroup("rw----");
@@ -204,6 +277,11 @@ public class AnnotationDeleteTest extends AbstractTest {
                 image.getId());
     }
 
+    /**
+     * Test to make sure that the annotations linked to a plane info are deleted
+     * when the plane info is deleted.
+     * @throws Exception Thrown if an error occurred.
+     */
     @Test(groups = { "ticket:3002" })
     public void testAnnotationsRemovedFromPlaneInfo() throws Exception {
         newUserAndGroup("rw----");
@@ -214,6 +292,11 @@ public class AnnotationDeleteTest extends AbstractTest {
                 image.getId());
     }
 
+    /**
+     * Test to make sure that the annotations linked to an ROI are deleted
+     * when the ROI is deleted.
+     * @throws Exception Thrown if an error occurred.
+     */
     @Test(groups = { "ticket:3002" })
     public void testAnnotationsRemovedFromRoi() throws Exception {
         newUserAndGroup("rw----");
@@ -222,37 +305,5 @@ public class AnnotationDeleteTest extends AbstractTest {
         Roi roi = image.copyRois().get(0);
         annotateSaveDeleteAndCheck(roi, DeleteServiceTest.REF_ROI, roi.getId());
     }
-
-    //
-    // Helpers
-    //
-
-    /**
-     * Tests that the object, an annotation, and the link are all deleted.
-     */
-    void annotateSaveDeleteAndCheck(IObject obj, String command, RLong id) throws Exception {
-        annotateSaveDeleteAndCheck(obj, command, id, true);
-    }
-
-    /**
-     * Tests that the object, the annotation link, and optionally the annotation
-     * are all deleted.
-     */
-    void annotateSaveDeleteAndCheck(IObject obj, String command, RLong id,
-            boolean annIsDeleted) throws Exception {
-        Annotation ann = (Annotation) iUpdate
-                .saveAndReturnObject(new TagAnnotationI());
-        IObject link = mmFactory.createAnnotationLink(obj.proxy(), ann);
-        link = iUpdate.saveAndReturnObject(link);
-        delete(client, new DeleteCommand(command, id.getValue(), null));
-        assertDoesNotExist(obj);
-        assertDoesNotExist(link);
-        if (annIsDeleted) {
-            assertDoesNotExist(ann);
-        } else {
-            assertExists(ann);
-        }
-
-    }
-
+    
 }
