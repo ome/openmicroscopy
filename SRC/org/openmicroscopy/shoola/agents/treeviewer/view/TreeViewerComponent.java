@@ -2417,7 +2417,7 @@ class TreeViewerComponent
 				//fireStateChange();
 				IconManager icons = IconManager.getInstance();
 				DeleteActivityParam p = new DeleteActivityParam(
-						icons.getIcon(IconManager.DELETE_22), l);
+						icons.getIcon(IconManager.APPLY_22), l);
 				UserNotifier un = 
 					TreeViewerAgent.getRegistry().getUserNotifier();
 				un.notifyActivity(p);
