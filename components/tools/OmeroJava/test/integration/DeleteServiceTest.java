@@ -718,44 +718,7 @@ public class DeleteServiceTest
     	return ids;
     }
     
-    /**
-     * Test to delete an image tagged collaboratively by another user.
-     */
-    @Test(groups = "ticket:2881")
-    public void testDeleteTaggedImageTagOwnedByOther() 
-    	throws Exception
-    {
-        //
-        // set up collaborative group with an owner user
-        //
-        EventContext ownerEc = newUserAndGroup("rwrw--");
-        
-        //
-        // owner creates the image
-        //
-        Image img = (Image) iUpdate.saveAndReturnObject(
-			mmFactory.simpleImage(0));
-
-        //
-        // tagger creates tag and tags the image
-        //
-        newUserInGroup(ownerEc); // Tagger
-        TagAnnotation c = new TagAnnotationI();
-        c = (TagAnnotation) iUpdate.saveAndReturnObject(c).proxy();
-        ImageAnnotationLink link = new ImageAnnotationLinkI();
-        link.link(img, c);
-        link = (ImageAnnotationLink) iUpdate.saveAndReturnObject(link);
-        c = (TagAnnotation) link.getChild();
-
-        //
-        // test delete
-        //
-        loginUser(ownerEc);
-        long id = img.getId().getValue();
-        delete(client, new DeleteCommand(REF_IMAGE, id, null));
-        assertDoesNotExist(img);
-        assertExists(c);
-    }
+   
     
     /**
      * Test to delete an image w/o pixels.
@@ -4235,17 +4198,17 @@ public class DeleteServiceTest
     	assertDoesNotExist(image);
     	assertDoesNotExist(pixels);
     	
-    	Iterator i = planes.iterator();
-    	while (i.hasNext()) {
-    		assertDoesNotExist((IObject) i.next());
-		}
     	assertDoesNotExist(instrument);
     	assertDoesNotExist(miscrocope);
     	assertDoesNotExist(env);
     	assertDoesNotExist(stage);
     	assertDoesNotExist(settings);
     	assertDoesNotExist(experiment);
-    	//
+    	
+    	Iterator i = planes.iterator();
+    	while (i.hasNext()) {
+    		assertDoesNotExist((IObject) i.next());
+		}
     	i = detectors.iterator();
     	while (i.hasNext()) {
     		assertDoesNotExist((IObject) i.next());
