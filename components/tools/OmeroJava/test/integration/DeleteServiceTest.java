@@ -4145,7 +4145,7 @@ public class DeleteServiceTest
      * the model objects, a companion file and a thumbnail.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(groups = "ticket:3030")
+    @Test(enabled = false, groups = "ticket:3030")
     public void testDeleteImportedImage()
     	throws Exception
     {
