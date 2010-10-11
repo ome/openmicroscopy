@@ -61,7 +61,7 @@ public class DeleteActivity
 	private static final String		DESCRIPTION_END = "Objects deleted";
 	
 	/** The description of the activity when error occurred. */
-	private static final String		DESCRIPTION_ERROR = "Error occurred";
+	private static final String		DESCRIPTION_ERROR = "Unable to delete";
 	
 	/** The description of the activity when cancelled. */
 	private static final String		DESCRIPTION_CANCEL = "Deletion cancelled";
@@ -138,7 +138,10 @@ public class DeleteActivity
 	protected void notifyActivityEnd()
 	{
 		Collection l = (Collection) result;
-		if (l.size() > 0) type.setText(DESCRIPTION_ERROR);
+		if (l.size() > 0) {
+			type.setText(DESCRIPTION_ERROR);
+			notifyActivityError();
+		}
 		else type.setText(DESCRIPTION_END);
 		//post an event to remove nodes
 	}
