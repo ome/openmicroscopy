@@ -282,4 +282,10 @@ public class DownloadActivity
 		type.setText(DESCRIPTION_CANCEL);
 	}
 	
+	/** 
+	 * No-operation in this case.
+	 * @see ActivityComponent#notifyActivityError()
+	 */
+	protected void notifyActivityError() {}
+	
 }

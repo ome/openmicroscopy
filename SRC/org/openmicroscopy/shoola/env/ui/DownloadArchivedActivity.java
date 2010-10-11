@@ -115,4 +115,9 @@ public class DownloadArchivedActivity
 			messageLabel.setText(value);
 	}
     
+	/** 
+	 * No-operation in this case.
+	 * @see ActivityComponent#notifyActivityError()
+	 */
+	protected void notifyActivityError() {}
 }

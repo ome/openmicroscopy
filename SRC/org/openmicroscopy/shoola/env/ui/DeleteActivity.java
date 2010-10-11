@@ -28,13 +28,14 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.swing.Icon;
+
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
-import org.openmicroscopy.shoola.env.event.EventBus;
 
 /** 
  * Activity to delete data.
@@ -140,7 +141,6 @@ public class DeleteActivity
 		if (l.size() > 0) type.setText(DESCRIPTION_ERROR);
 		else type.setText(DESCRIPTION_END);
 		//post an event to remove nodes
-		EventBus bus = registry.getEventBus();
 	}
 	
 	/**
@@ -151,6 +151,15 @@ public class DeleteActivity
 	{
 		type.setText(DESCRIPTION_CANCEL);
 	}
-	
-	
+
+	/**
+	 * Modifies the text of the component. 
+	 * @see ActivityComponent#notifyActivityError()
+	 */
+	protected void notifyActivityError()
+	{
+		Icon icon = parameters.getFailureIcon();
+		if (icon != null) iconLabel.setIcon(icon);
+	}
+
 }

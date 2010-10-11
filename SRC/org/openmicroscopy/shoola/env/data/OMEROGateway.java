@@ -5349,7 +5349,6 @@ class OMEROGateway
         try {
         	return service.findAllByQuery(sb.toString(), param);
 		} catch (Exception e) {
-			e.printStackTrace();
 			handleException(e, 
 					"Cannot load the plane info for pixels: "+pixelsID);
 		}

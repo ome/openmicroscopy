@@ -51,6 +51,9 @@ public class DeleteActivityParam
     /** The icon associated to the parameters. */
     private Icon			icon;
     
+    /** The icon associated to the parameters in case of failure. */
+    private Icon			failureIcon;
+    
     /** The collection of objects to delete. */
     private List<DeletableObject> objects;
     
@@ -85,6 +88,23 @@ public class DeleteActivityParam
     	objects = new ArrayList<DeletableObject>(1);
     	objects.add(object);
     }
+    
+    /**
+     * Sets the failure icon.
+     * 
+     * @param failureIcon The icon to set.
+     */
+    public void setFailureIcon(Icon failureIcon)
+    { 
+    	this.failureIcon = failureIcon;
+    }
+    
+    /**
+     * Returns the failure icon.
+     * 
+     * @return See above.
+     */
+    public Icon getFailureIcon() { return failureIcon; }
     
     /**
      * Sets the collection of nodes.

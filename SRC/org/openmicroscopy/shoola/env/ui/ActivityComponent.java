@@ -853,6 +853,7 @@ public abstract class ActivityComponent
 		if (exception != null) {
 			exceptionButton.setVisible(true);
 		}
+		notifyActivityError();
 		firePropertyChange(UNREGISTER_ACTIVITY_PROPERTY, null, this);
 		EventBus bus = registry.getEventBus();
 		bus.post(new ActivityProcessEvent(this, false));
@@ -920,6 +921,9 @@ public abstract class ActivityComponent
 	
 	/** Subclasses should override the method. */
 	protected abstract void notifyActivityEnd();
+	
+	/** Subclasses should override the method. */
+	protected abstract void notifyActivityError();
 	
 	/** Creates a loader. */
 	protected abstract UserNotifierLoader createLoader();

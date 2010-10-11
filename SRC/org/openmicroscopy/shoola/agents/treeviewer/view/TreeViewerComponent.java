@@ -2418,6 +2418,7 @@ class TreeViewerComponent
 				IconManager icons = IconManager.getInstance();
 				DeleteActivityParam p = new DeleteActivityParam(
 						icons.getIcon(IconManager.APPLY_22), l);
+				p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
 				UserNotifier un = 
 					TreeViewerAgent.getRegistry().getUserNotifier();
 				un.notifyActivity(p);
