@@ -341,4 +341,5 @@ public class DeleteServicePermissionsTest
     	assertEquals(iQuery.findAllByQuery(sql, p).size(), 0);
     }
     
+    
 }
