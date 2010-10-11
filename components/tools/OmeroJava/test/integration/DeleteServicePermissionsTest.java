@@ -8,15 +8,19 @@ package integration;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 //Third-party libraries
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 //Application-internal dependencies
+import omero.api.IAdminPrx;
 import omero.api.IRenderingSettingsPrx;
 import omero.api.delete.DeleteCommand;
 import omero.model.Dataset;
+import omero.model.Experimenter;
+import omero.model.ExperimenterGroup;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
@@ -296,6 +300,56 @@ public class DeleteServicePermissionsTest
     	assertExists(img);
     }
     
+    /**
+     * Test to delete a tag used by another user. The tag is owned by the 
+     * group owner.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = false, groups = "ticket:2962")
+    public void testDeleteTagOwnedByGroupOwnerUsedByOther() 
+    	throws Exception
+    {
+    	// set up collaborative group with an "owner" user
+        EventContext ec = newUserAndGroup("rwrw--");
+
+        // owner creates the image
+        Image img = (Image) iUpdate.saveAndReturnObject(
+        		mmFactory.simpleImage(0));
+
+        omero.client owner = disconnect();
+        
+        // tagger creates tag
+        ec = newUserInGroup(ec);
+        //make the tagger the owner of the group.
+        IAdminPrx rootAdmin = root.getSession().getAdminService();
+        Experimenter exp = rootAdmin.lookupExperimenter(ec.userName);
+        ExperimenterGroup group = rootAdmin.lookupGroup(ec.groupName);
+        rootAdmin.setGroupOwner(group, exp);
+        
+        
+        TagAnnotation c = new TagAnnotationI();
+    	c.setTextValue(omero.rtypes.rstring("tag"));
+    	c = (TagAnnotation) iUpdate.saveAndReturnObject(c);
+    	omero.client tagger = disconnect();
+    	
+    	init(owner);
+    	
+    	//Image's owner tags the image.
+    	ImageAnnotationLink link = new ImageAnnotationLinkI();
+    	link.setParent(img);
+    	link.setChild(new TagAnnotationI(c.getId().getValue(), false));		
+    	link = (ImageAnnotationLink) iUpdate.saveAndReturnObject(link);
+    	
+    	//Tag's owner now deletes the tag.
+    	init(tagger);
+    	delete(false, iDelete, client, new DeleteCommand(
+    			DeleteServiceTest.REF_ANN,
+    			c.getId().getValue(), null));
+    	assertExists(c); //fail tag is deleted
+    	assertExists(link); //fail link is deleted
+    	assertExists(img);
+    }
+    
 	/**
      * Test to delete an image viewed by another user in a RWRW-- group.
      * @throws Exception Thrown if an error occurred.
@@ -340,6 +394,5 @@ public class DeleteServicePermissionsTest
     	//make sure not settings.
     	assertEquals(iQuery.findAllByQuery(sql, p).size(), 0);
     }
-    
     
 }

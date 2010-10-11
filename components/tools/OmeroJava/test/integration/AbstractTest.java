@@ -249,7 +249,6 @@ public class AbstractTest
         e.setFirstName(omero.rtypes.rstring("integeration"));
         e.setLastName(omero.rtypes.rstring("tester"));
         rootAdmin.createUser(e, group.getName().getValue());
-
         omero.client client = newOmeroClient();
         client.createSession(uuid, uuid);
         return init(client);
