@@ -178,7 +178,7 @@ class IntensityView
 	private ChannelSummaryModel			channelSummaryModel;
 	
 	/** The channel selected in the Combo box. */
-	private int 						selectedChannel=-1;
+	private int 						selectedChannel = -1;
 
 	/** The name of the channel selected in the Combo box. */
 	private String 						selectedChannelName;
@@ -285,6 +285,7 @@ class IntensityView
 		showIntensityTable.setActionCommand(""+SHOW_TABLE_ACTION);
 		channelSelection = new JComboBox();
 		channelSelection.setEnabled(false);
+		channelSelection.setVisible(false);
 		channelSelection.addActionListener(this);
 		channelSelection.setActionCommand(""+CHANNEL_SELECTION);
 		saveButton = new JButton("Export to Excel");
@@ -365,7 +366,7 @@ class IntensityView
 		panel.add(Box.createRigidArea(new Dimension(0,10)));
 		JPanel channelPanel = 
 			UIUtilities.buildComponentPanel(channelSelection);
-		UIUtilities.setDefaultSize(channelPanel, new Dimension(175, 32));
+		//UIUtilities.setDefaultSize(channelPanel, new Dimension(175, 32));
 		panel.add(channelPanel);
 		panel.add(Box.createRigidArea(new Dimension(0,10)));
 		JPanel intensityPanel = 
@@ -1055,7 +1056,7 @@ class IntensityView
 		if (ROIStats == null || ROIStats.size() == 0) 
 			return;
 		state = State.ANALYSING;
-		
+		channelSelection.setVisible(true);
 		clearMaps();
 		shapeStatsList = new TreeMap<Coord3D, Map<StatsType, Map>>(new Coord3D());
 		pixelStats = 
