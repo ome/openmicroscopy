@@ -20,10 +20,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import ome.conditions.InternalException;
 import ome.io.nio.AbstractFileSystemService;
 import ome.services.delete.DeleteException;
-import ome.services.delete.DeleteIds;
-import ome.services.delete.DeleteOpts;
 import ome.services.delete.DeleteSpec;
 import ome.services.delete.DeleteSpecFactory;
+import ome.services.delete.DeleteState;
 import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
@@ -73,8 +72,9 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
 
 
         private static class Report extends DeleteReport {
+            private static final long serialVersionUID = 1L;
             DeleteSpec spec;
-            DeleteIds ids;
+            DeleteState state;
         }
 
 
@@ -183,8 +183,6 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                             report.command.id,
                             "",
                             report.command.options);
-                    report.stepStarts = new long[report.steps];
-                    report.stepStops = new long[report.steps];
                 } catch (DeleteException de) {
                     report.error = ("Failed initialization: " + de.message);
                 }
@@ -381,61 +379,61 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
     }
 
     public void steps(Session session, Report report) throws Cancel {
-        StopWatch sw = null;
-        for (int j = 0; j < report.steps; j++) {
-            try {
+        try {
 
-                if (!state.compareAndSet(State.READY, State.RUNNING)) {
-                    throw new Cancel("Not ready");
-                }
-
-                // Initialize on the first. Any exceptions should
-                // cancel the whole process.
-                if (report.ids == null) {
-                    report.ids = new DeleteIds(sf.context, session, report.spec);
-                    report.scheduledDeletes = report.ids.getTotalFoundCount();
-                    if (report.scheduledDeletes == 0L) {
-                        report.warning = "Object missing.";
-                        return;
-                    }
-                }
-
-                // Responsible for tracking the options and operations
-                // which are active at each branch in the graph.
-                DeleteOpts opts = new DeleteOpts();
-
-                sw = new CommonsLogStopWatch();
-                report.warning = report.spec.delete(session, j, report.ids, opts);
-                // If we reach this far, then the delete was successful, so save
-                // the deleted id count.
-                report.actualDeletes = report.ids.getTotalDeletedCount();
-            } catch (DeleteException de) {
-                report.error = de.message;
-                Cancel cancel = new Cancel("Cancelled by DeleteException");
-                cancel.initCause(de);
-                throw cancel;
-            } catch (ConstraintViolationException cve) {
-                report.error = "ConstraintViolation: " + cve.getConstraintName();
-                Cancel cancel = new Cancel("Cancelled by " + report.error);
-                cancel.initCause(cve);
-                throw cancel;
-            } catch (Throwable t) {
-                String msg = "Failure during DeleteHandle.steps :";
-                report.error = (msg + t);
-                log.error(msg, t);
-                Cancel cancel = new Cancel("Cancelled by " + t.getClass().getName());
-                cancel.initCause(t);
-                throw cancel;
-            } finally {
-                if (sw != null) {
-                    sw.stop("omero.delete.step." + j);
-                    report.stepStarts[j] = sw.getStartTime();
-                    report.stepStops[j] = sw.getStartTime() + sw.getElapsedTime();
-                }
-                // If cancel was thrown, then this value will be overwritten
-                // by the try/catch handler
-                state.compareAndSet(State.RUNNING, State.READY);
+            // Initialize. Any exceptions should cancel the process
+            final StopWatch sw = new CommonsLogStopWatch();
+            report.state = new DeleteState(sf.context, session, report.spec);
+            report.scheduledDeletes = report.state.getTotalFoundCount();
+            if (report.scheduledDeletes == 0L) {
+                report.warning = "Object missing.";
+                return;
             }
+            if (report.scheduledDeletes < Integer.MAX_VALUE) {
+                report.stepStarts = new long[(int)report.scheduledDeletes];
+                report.stepStops = new long[(int)report.scheduledDeletes];
+            }
+            sw.lap("omero.delete.ids");
+
+            // Loop throw all steps
+            report.warning = "";
+            for (int j = 0; j < report.scheduledDeletes; j++) {
+                try {
+                    if (!state.compareAndSet(State.READY, State.RUNNING)) {
+                        throw new Cancel("Not ready");
+                    }
+                    report.warning += report.state.execute(j);
+                } finally {
+                    sw.stop("omero.delete.step." + j);
+                    if (report.scheduledDeletes < Integer.MAX_VALUE) {
+                        report.stepStarts[j] = sw.getStartTime();
+                        report.stepStops[j] = sw.getStartTime() + sw.getElapsedTime();
+                    }
+                    // If cancel was thrown, then this value will be overwritten
+                    // by the try/catch handler
+                    state.compareAndSet(State.RUNNING, State.READY);
+                }
+            }
+            // If we reach this far, then the delete was successful, so save
+            // the deleted id count.
+            report.actualDeletes = report.state.getTotalDeletedCount();
+        } catch (DeleteException de) {
+            report.error = de.message;
+            Cancel cancel = new Cancel("Cancelled by DeleteException");
+            cancel.initCause(de);
+            throw cancel;
+        } catch (ConstraintViolationException cve) {
+            report.error = "ConstraintViolation: " + cve.getConstraintName();
+            Cancel cancel = new Cancel("Cancelled by " + report.error);
+            cancel.initCause(cve);
+            throw cancel;
+        } catch (Throwable t) {
+            String msg = "Failure during DeleteHandle.steps :";
+            report.error = (msg + t);
+            log.error(msg, t);
+            Cancel cancel = new Cancel("Cancelled by " + t.getClass().getName());
+            cancel.initCause(t);
+            throw cancel;
         }
 
     }
@@ -455,7 +453,7 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
         for (Report report : reports.values()) {
             
             for (String fileType : fileTypeList) {
-                Set<Long> deletedIds = report.ids.getDeletedsIds(fileType);
+                Set<Long> deletedIds = report.state.getDeletedsIds(fileType);
                 if (deletedIds != null && deletedIds.size() > 0) {
                     log.info(String.format("Binary delete of %s for %s:%s: %s",
                             fileType, report.command.type, report.command.id,

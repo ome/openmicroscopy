@@ -9,97 +9,30 @@ import static ome.services.delete.DeleteEntry.DEFAULT;
 import static ome.services.delete.DeleteOpts.Op.REAP;
 import static ome.services.delete.DeleteOpts.Op.SOFT;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import ome.model.IObject;
-import ome.model.annotations.Annotation;
-import ome.model.annotations.BasicAnnotation;
-import ome.model.annotations.BooleanAnnotation;
-import ome.model.annotations.CommentAnnotation;
 import ome.model.annotations.DoubleAnnotation;
-import ome.model.annotations.FileAnnotation;
-import ome.model.annotations.ListAnnotation;
 import ome.model.annotations.LongAnnotation;
-import ome.model.annotations.NumericAnnotation;
-import ome.model.annotations.TermAnnotation;
-import ome.model.annotations.TextAnnotation;
-import ome.model.annotations.TimestampAnnotation;
-import ome.model.annotations.TypeAnnotation;
-import ome.model.annotations.XmlAnnotation;
-import ome.security.basic.CurrentDetails;
 import ome.services.delete.DeleteOpts.Op;
 import ome.system.EventContext;
-import ome.system.OmeroContext;
 import ome.tools.hibernate.ExtendedMetadata;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.jmock.Mock;
-import org.jmock.MockObjectTestCase;
 import org.jmock.core.stub.DefaultResultStub;
 import org.springframework.beans.FatalBeanException;
-import org.springframework.beans.factory.config.ConstructorArgumentValues;
-import org.springframework.beans.factory.support.RootBeanDefinition;
-import org.springframework.context.support.StaticApplicationContext;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 @Test
-public class DeleteSpecUnitTest extends MockObjectTestCase {
-
-    private OmeroContext specXml;
-
-    private Mock emMock;
-
-    @BeforeMethod
-    public void setup() {
-        StaticApplicationContext sac = new StaticApplicationContext();
-
-        ConstructorArgumentValues cav = new ConstructorArgumentValues();
-        cav.addGenericArgumentValue(ExtendedMetadata.class);
-        RootBeanDefinition mock = new RootBeanDefinition(Mock.class, cav, null);
-
-
-        RootBeanDefinition em = new RootBeanDefinition();
-        em.setFactoryBeanName("mock");
-        em.setFactoryMethodName("proxy");
-
-        RootBeanDefinition cd = new RootBeanDefinition(CurrentDetails.class);
-
-        sac.registerBeanDefinition("currentDetails", cd);
-        sac.registerBeanDefinition("mock", mock);
-        sac.registerBeanDefinition("extendedMetadata", em);
-        sac.refresh();
-
-        emMock = sac.getBean("mock", Mock.class);
-        emMock.expects(atLeastOnce())
-                .method("getAnnotationTypes")
-                .will(returnValue(new HashSet<Class<?>>(Arrays
-                        .<Class<?>> asList(Annotation.class,
-                                BasicAnnotation.class,
-                                BooleanAnnotation.class,
-                                NumericAnnotation.class,
-                                DoubleAnnotation.class,
-                                LongAnnotation.class,
-                                TermAnnotation.class,
-                                TimestampAnnotation.class,
-                                ListAnnotation.class,
-                                TextAnnotation.class,
-                                CommentAnnotation.class,
-                                ome.model.annotations.TagAnnotation.class,
-                                XmlAnnotation.class,
-                                TypeAnnotation.class,
-                                FileAnnotation.class))));
-        specXml = new OmeroContext(
-                new String[] { "classpath:ome/services/delete/spec.xml" }, sac);
-    }
+public class DeleteSpecUnitTest extends MockDeleteTest {
 
     /**
      * Test that various entry strings will be properly parsed. These are the
@@ -176,17 +109,10 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
 
         sessionMock.expects(atLeastOnce()).method("createQuery")
                 .will(returnValue(query));
-        emMock.expects(once()).method("getRelationship")
-                .will(returnValue("shapes"));
-        emMock.expects(once()).method("getRelationship")
-                .will(returnValue("annotationLinks"));
-        emMock.expects(once()).method("getRelationship")
-                .will(returnValue("parent"));
-        emMock.expects(once()).method("getRelationship")
-                .will(returnValue("child"));
+        prepareGetRelationship();
 
         DeleteSpec roi = specXml.getBean("/Roi", BaseDeleteSpec.class);
-        DeleteIds ids = new DeleteIds(specXml, session, roi);
+        DeleteState ids = new DeleteState(specXml, session, roi);
         roi.initialize(1, null, null);
         // roi.delete(session, 0, ids); // Requires mock setup
     }
@@ -368,12 +294,12 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
     }
 
     /**
-     * Tests the logic added to DeleteIds to handle SOFT deletes which must
+     * Tests the logic added to DeleteState to handle SOFT deletes which must
      * rollback previously deleted objects. A stack of maps is kept which
      * get either committed or deleted based on exception handling.
      */
     @Test(groups = "ticket:3032")
-    public void testDeleteIdsTransactionalIdCounting() throws Exception {
+    public void testDeleteStateTransactionalIdCounting() throws Exception {
 
         String savepoint = null;
         Mock sMock = mock(Session.class);
@@ -391,37 +317,39 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
         spec.setExtendedMetadata(specXml.getBean(ExtendedMetadata.class));
         spec.postProcess(specXml);
 
-        final DeleteIds ids = new DeleteIds(specXml, session, spec);
+        final DeleteState ids = new DeleteState(specXml, session, spec);
         assertEquals(0, ids.getTotalFoundCount());
 
         // Now we try to ignore all the method calls on the session since
         // that is not what we are testing.
         sMock.setDefaultStub(new DefaultResultStub());
 
-        ids.addDeletedIds("t", IObject.class, 1);
+        ids.addDeletedIds(step("t", IObject.class, 1));
         assertEquals(1, ids.getDeletedsIds("t").size());
         assertEquals(1, ids.getTotalDeletedCount());
 
-        ids.addDeletedIds("a", IObject.class, 2);
+        ids.addDeletedIds(step("a", IObject.class, 2));
         assertEquals(2, ids.getTotalDeletedCount());
         assertEquals(1, ids.getDeletedsIds("a").size());
         assertEquals(1, ids.getDeletedsIds("t").size());
 
-        savepoint = ids.savepoint();
-        ids.addDeletedIds("x", IObject.class, 3);
+        DeleteStep step = step("x", IObject.class, 3);
+        ids.savepoint(step);
+        ids.addDeletedIds(step);
         assertEquals(2, ids.getTotalDeletedCount());
         assertEquals(1, ids.getDeletedsIds("x").size());
         assertEquals(0, ids.getDeletedsIds("t").size());
         assertEquals(0, ids.getDeletedsIds("a").size());
 
-        ids.rollback(savepoint);
+        ids.rollback(step);
         assertEquals(2, ids.getTotalDeletedCount());
         assertEquals(0, ids.getDeletedsIds("x").size());
         assertEquals(1, ids.getDeletedsIds("t").size());
         assertEquals(1, ids.getDeletedsIds("a").size());
 
-        savepoint = ids.savepoint();
-        ids.addDeletedIds("t", IObject.class, 4);
+        step = step("t", IObject.class, 4);
+        ids.savepoint(step);
+        ids.addDeletedIds(step);
         assertEquals(2, ids.getTotalDeletedCount());
         assertEquals(0, ids.getDeletedsIds("a").size());
         assertEquals(1, ids.getDeletedsIds("t").size());
@@ -432,39 +360,11 @@ public class DeleteSpecUnitTest extends MockObjectTestCase {
 
     }
 
-    //
-    // Helpers
-    //
+    DeleteStep step(String type, Class<IObject> k, long id) {
 
-    private Object getOp(DeleteEntry de) throws Exception {
-        Field field = DeleteEntry.class.getDeclaredField("operation");
-        field.setAccessible(true);
-        return field.get(de);
-    }
-
-
-    private EventContext createEventContext(boolean admin) {
-        Mock m = mock(EventContext.class);
-        m.expects(once()).method("isCurrentUserAdmin").will(returnValue(admin));
-        m.expects(once()).method("getCurrentUserId").will(returnValue(1L));
-        EventContext ec = (EventContext) m.proxy();
-        return ec;
-    }
-
-
-    private DeleteEntry findEntry(BaseDeleteSpec spec, String name) {
-        Integer idx = null;
-        DeleteEntry entry = null;
-        // Find the right entry for /Image
-        idx = null;
-        for (int i = 0; i < spec.entries.size(); i++) {
-            entry = spec.entries.get(i);
-            if (entry.getName().equals(name)) {
-                idx = i;
-                break;
-            }
-        }
-        assertNotNull(idx);
-        return entry;
+        BaseDeleteSpec spec = new BaseDeleteSpec("/"+type, "/"+type);
+        DeleteStep step = new DeleteStep(0, new LinkedList<DeleteStep>(),
+                spec, spec.entries.get(0), Arrays.asList(0L));
+        return step;
     }
 }

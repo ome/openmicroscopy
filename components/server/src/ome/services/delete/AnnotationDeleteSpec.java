@@ -317,8 +317,12 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
     }
     
     @Override
-    protected List<Long> queryBackupIds(Session session, int step, DeleteEntry subpath,
+    public List<List<Long>> queryBackupIds(Session session, int step, DeleteEntry subpath,
             QueryBuilder and) throws DeleteException {
+
+        if (isAbstract[step]) {
+            return Collections.emptyList();
+        }
 
         if (and != null) {
             throw new DeleteException("Unexpected non-null and: " + and);
@@ -377,39 +381,27 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
         }
         return false;
     }
-    
-    @Override
-    public String delete(Session session, int step, DeleteIds deleteIds, DeleteOpts opts)
-            throws DeleteException {
 
-        if (isAbstract[step]) {
-            if (log.isDebugEnabled()) {
-                log.debug("Step " + step + " is abstract.");
-            }
-            return "";
-        }
-        
+    @Override
+    public void runTopLevel(Session session, List<Long> ids) {
         // If this is a top-level annotation delete then the first thing we
         // do is delete all the links to it.
         if (superspec == null || superspec.length() == 0) {
-            List<Long> foundIds = deleteIds.getFoundIds(this, step);
-            if (foundIds != null && foundIds.size() > 0) {
+            if (ids != null && ids.size() > 0) {
                 QueryBuilder qb = new QueryBuilder();
                 qb.delete("ome.model.IAnnotationLink");
                 qb.where();
                 qb.and("child.id in (:ids)");
-                qb.paramList("ids", foundIds);
+                qb.paramList("ids", ids);
                 // ticket:2962
-                DeleteEntry.permissionsClause(getCurrentDetails(), qb);
+                EventContext ec = getCurrentDetails().getCurrentEventContext();
+                DeleteState.permissionsClause(ec, qb);
                 
                 Query q = qb.query(session);
                 int count = q.executeUpdate();
                 log.info("Deleted " + count + " annotation links");
             }
         }
-
-        return super.delete(session, step, deleteIds, opts);
-
     }
 
 }

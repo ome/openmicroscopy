@@ -8,27 +8,17 @@
 package ome.services.delete;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import ome.api.IDelete;
-import ome.model.IObject;
-import ome.security.basic.CurrentDetails;
 import ome.services.delete.DeleteOpts.Op;
 import ome.system.EventContext;
-import ome.tools.hibernate.ExtendedMetadata;
-import ome.tools.hibernate.QueryBuilder;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Query;
-import org.hibernate.Session;
-import org.hibernate.exception.ConstraintViolationException;
-import org.perf4j.StopWatch;
-import org.perf4j.commonslog.CommonsLogStopWatch;
 import org.springframework.beans.FatalBeanException;
 import org.springframework.beans.factory.ListableBeanFactory;
 
@@ -167,6 +157,14 @@ public class DeleteEntry {
         return subSpec;
     }
 
+    public String getSuperSpec() {
+        return superspec;
+    }
+
+    public long getId() {
+        return id;
+    }
+
     public String[] path(String superspec) {
         return prepend(superspec, path, parts);
     }
@@ -297,169 +295,30 @@ public class DeleteEntry {
         }
         return false;
     }
-    
-    public String delete(Session session, CurrentDetails details,
-            ExtendedMetadata em, String superspec, DeleteIds deleteIds,
-            List<Long> ids, DeleteOpts opts)
-        throws DeleteException {
-        
-        final String[] path = this.path(superspec);
-        final String table = path[path.length - 1];
-        final String str = StringUtils.join(path, "/");
-        final Class<IObject> k = em.getHibernateClass(table);
-        final DeleteSpec subSpec = getSubSpec();
-        final StringBuilder sb = new StringBuilder();
 
-        if (ids.size() == 0) {
-            if (log.isDebugEnabled()) {
-                log.debug("No ids found for " + str);
-            }
-            return ""; // Early exit!
-        }
-
-        // Add this instance to the opts. Any method which then tries to
-        // ask the opts for the current state will have an accurate view.
-        opts.push(operation, modifiedOp, details.getCurrentEventContext());
-
-        try {
-
-            if (skip()) { // after opts.push()
-                if (log.isDebugEnabled()) {
-                    log.debug("Skipping " + this);
-                }
-                return ""; // EARLY EXIT!
-            }
-
-            final String savepoint = deleteIds.savepoint();
-            try {
-                if (subSpec == null) {
-
-                    final QueryBuilder nullOp = optionalNullBuilder(table);
-                    final QueryBuilder qb = queryBuilder(table, opts, details);
-
-                    final StopWatch sw = new CommonsLogStopWatch();
-                    for (Long id : ids) {
-                        try {
-
-                            optionallyNullField(session, nullOp, id);
-
-                            qb.param("id", id);
-                            Query q = qb.query(session);
-                            int count = q.executeUpdate();
-                            if (count > 0) {
-                                deleteIds.addDeletedIds(table, k, id);
-                                if (log.isDebugEnabled()) {
-                                    log.debug(String.format("Deleted %s from %s: root=%s", id, str, this.id));
-                                }
-                            } else {
-                                if (log.isWarnEnabled()) {
-                                    log.warn(String.format("Missing delete %s from %s: root=%s", id, str, this.id));
-                                }
-                            }
-                        } finally {
-                            sw.stop("omero.delete." + table + "." + id);
-                        }
-                    }
-                } else {
-                    for (int i = 0; i < subStepCount; i++) {
-                        String w = subSpec.delete(session, i, deleteIds, opts);
-                        appendWithNewLine(sb, w);
-                    }
-                }
-                deleteIds.release(savepoint);
-            } catch (ConstraintViolationException cve) {
-                handleConstraintViolation(session, deleteIds, opts, str, sb, savepoint, cve);
-            }
-            return sb.toString();
-        } finally {
-            opts.pop();
-        }
+    public boolean isNull() {
+        return Op.NULL.equals(operation);
     }
 
-    private void appendWithNewLine(final StringBuilder sb, String w) {
-        if (w != null && w.length() > 0) {
-            if (sb.length() > 0) {
-                sb.append("\n");
-            }
-            sb.append(w);
-        }
-    }
-
-    /**
-     * Method called when a {@link ConstraintViolationException} can be thrown.
-     * This is both during
-     * {@link #delete(Session, CurrentDetails, ExtendedMetadata, String, DeleteIds, List, DeleteOpts)}
-     * and
-     * {@link #execute(Session, CurrentDetails, ExtendedMetadata, DeleteIds, List, DeleteOpts)}
-     * .
-     *
-     * @param session
-     * @param opts
-     * @param type
-     * @param rv
-     * @param savepoint
-     * @param cve
-     */
-    private void handleConstraintViolation(final Session session,
-            DeleteIds deleteIds, DeleteOpts opts, final String type,
-            final StringBuilder rv, String savepoint,
-            ConstraintViolationException cve) throws DeleteException {
-        deleteIds.rollback(savepoint);
-        String cause = "ConstraintViolation: " + cve.getConstraintName();
-        if (opts.isSoft()) {
-            log.debug(String.format("Could not delete softly %s: %s due to %s",
-                    type, this.id, cause));
-            rv.append(cause);
-        } else {
-            log.info(String.format("Failed to delete %s: %s due to %s", type,
-                    this.id, cause));
-            throw cve;
-        }
-    }
-
-    private QueryBuilder optionalNullBuilder(final String table) {
-        QueryBuilder nullOp = null;
-        if (Op.NULL.equals(operation)) { // WORKAROUND see #2776, #2966
-            // If this is a null operation, we don't want to delete the row,
-            // but just modify a value. NB: below we also prevent this from
-            // being raised as a delete event. TODO: refactor out to Op
-            nullOp = new QueryBuilder();
-            nullOp.update(table);
-            nullOp.append("set relatedTo = null ");
-            nullOp.where();
-            nullOp.and("relatedTo.id = :id");
-        }
-        return nullOp;
-    }
-
-
-    private void optionallyNullField(Session session,
-            final QueryBuilder nullOp, Long id) {
-        if (nullOp != null) {
-            nullOp.param("id", id);
-            Query q = nullOp.query(session);
-            int updated = q.executeUpdate();
-            if (log.isDebugEnabled()) {
-                log.debug("Nulled " + updated + " Pixels.relatedTo fields");
-            }
-        }
-    }
-
-    private QueryBuilder queryBuilder(final String table, DeleteOpts opts,
-            CurrentDetails details) {
-
-        final QueryBuilder qb = new QueryBuilder();
-        qb.delete(table);
-        qb.where();
-        qb.and("id = :id");
-        if (!opts.isForce()) {
-            permissionsClause(details, qb);
-        }
-        return qb;
+    public boolean isSoft() {
+        return Op.SOFT.equals(operation);
     }
 
     //
-    // MISC
+    // DeleteOpts interaction. Necessary since this instance hides its
+    // "operation" field.
+    //
+
+    public void push(DeleteOpts opts, EventContext ec) throws DeleteException {
+        opts.push(operation, modifiedOp, ec);
+    }
+
+    public void pop(DeleteOpts opts) {
+        opts.pop();
+    }
+
+    //
+    // Misc
     //
 
     @Override
@@ -482,29 +341,6 @@ public class DeleteEntry {
         sb.append(";");
         sb.append(operation.toString());
         return sb.toString();
-    }
-    
-    /**
-     * Appends a clause to the {@link QueryBuilder} based on the current user.
-     * 
-     * If the user is an admin like root, then nothing is appened, and any
-     * delete is permissible. If the user is a leader of the current group,
-     * then the object must be in the current group. Otherwise, the object
-     * must belong to the current user.
-     */
-    public static void permissionsClause(CurrentDetails details, QueryBuilder qb) {
-        EventContext ec = details.getCurrentEventContext();
-        if (!ec.isCurrentUserAdmin()) {
-            if (ec.getLeaderOfGroupsList().contains(ec.getCurrentGroupId())) {
-                qb.and("details.group.id = :gid");
-                qb.param("gid", ec.getCurrentGroupId());
-            } else {
-                // This is only a regular user, then the object must belong to
-                // him/her
-                qb.and("details.owner.id = :oid");
-                qb.param("oid", ec.getCurrentUserId());
-            }
-        }
     }
 
 }

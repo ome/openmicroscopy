@@ -11,11 +11,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
 import ome.api.IDelete;
+import ome.model.IObject;
 import ome.security.basic.CurrentDetails;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.QueryBuilder;
@@ -123,6 +125,10 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
         return this.superspec;
     }
 
+    public Class<IObject> getHibernateClass(String table) {
+        return this.em.getHibernateClass(table);
+    }
+
     public void postProcess(ListableBeanFactory factory) {
         for (DeleteEntry entry : entries) {
             entry.postProcess(factory);
@@ -155,28 +161,11 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
         return new ArrayList<DeleteEntry>(entries);
     }
 
-    public String delete(Session session, int step, DeleteIds deleteIds, DeleteOpts opts)
-            throws DeleteException {
-
-        final DeleteEntry entry = entries.get(step);
-        
-        try {
-            List<Long> foundIds = deleteIds.getFoundIds(this, step);
-            return entry.delete(session, getCurrentDetails(), 
-                    em, superspec, deleteIds, foundIds, opts);
-        } finally {
-
-            // If this is the final step, free memory.
-            if (step == entries.size()) {
-                this.superspec = null;
-                this.options = null;
-                this.id = -1;
-            }
-
-        }
+    public void close() {
+        this.superspec = null;
+        this.options = null;
+        this.id = -1;
     }
-
-
 
     //
     // Helpers
@@ -195,13 +184,13 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
     /**
      * See interface for documentation.
      */
-    public List<List<Long>> backupIds(Session session, List<String[]> paths)
+    public List<List<List<Long>>> backupIds(Session session, List<String[]> paths)
             throws DeleteException {
 
-        List<List<Long>> rv = new ArrayList<List<Long>>();
+        List<List<List<Long>>> rv = new ArrayList<List<List<Long>>>();
 
         for (int s = 0; s < entries.size(); s++) {
-            final List<Long> allIds = queryBackupIds(session, s, entries.get(s), null);
+            final List<List<Long>> allIds = queryBackupIds(session, s, entries.get(s), null);
             rv.add(allIds);
         }
 
@@ -243,62 +232,21 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
         return true;
     }
 
-    /**
-     * Returns a list of ids for each of the subpaths that was found for the
-     * given path. For example, if the entries are:
-     *
-     * <pre>
-     * /Image/Pixels/Channel
-     * /Image/Pixels/Channel/StatsInfo
-     * /Image/Pixels/Channel/LogicaChannel
-     * </pre>
-     *
-     * then this method would be called with
-     *
-     * <pre>
-     * queryBackupIds(..., ..., "/Image/Pixels/Channel",
-     *              ["/Image/Pixels/Channel/StatsInfo", ...]);
-     * </pre>
-     *
-     * and should return something like:
-     *
-     * <pre>
-     * {
-     *   "/Image/Pixels/StatsInfo": [1,2,3],
-     *   "/Image/Pixels/LogicalChannel": [3,5,6]
-     * }
-     * </pre>
-     *
-     * by making calls something like:
-     *
-     * <pre>
-     * select SUB.id from Channel ROOT2
-     * join ROOT2.statsInfo SUB
-     * join ROOT2.pixels ROOT1
-     * join ROOT1.image ROOT0
-     * where ROOT0.id = :id
-     * </pre>
-     *
-     * If a superspec of "/Dataset" was the query would be of the form:
-     *
-     * <pre>
-     * select SUB.id from Channel ROOT4
-     * join ROOT4.statsInfo SUB
-     * join ROOT4.pixels ROOT3
-     * join ROOT3.image ROOT2
-     * join ROOT2.datasetLinks ROOT1
-     * join ROOT1.parent ROOT0
-     * where ROOT0.id = :id
-     * </pre>
+    /*
+     * See interface documentation.
      */
-    protected List<Long> queryBackupIds(Session session, int step, DeleteEntry subpath, QueryBuilder and)
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public List<List<Long>> queryBackupIds(Session session, int step, DeleteEntry subpath, QueryBuilder and)
         throws DeleteException {
 
         final String[] sub = subpath.path(superspec);
         final QueryBuilder qb = new QueryBuilder();
 
-        int which = sub.length - 1;
-        qb.select("ROOT" + which + ".id");
+        final List<String> which = new ArrayList<String>();
+        for (int i = 0; i < sub.length; i++) {
+            which.add("ROOT" + i + ".id");
+        }
+        qb.select(which.toArray(new String[sub.length]));
         walk(qb, subpath);
 
         qb.where();
@@ -310,8 +258,7 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
         }
 
         Query q = qb.query(session);
-        @SuppressWarnings("unchecked")
-        List<Long> results = q.list();
+        List<List<Long>> results = q.list();
 
         if (results == null) {
             log.warn(logmsg(subpath, results));
@@ -321,11 +268,36 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
             }
         }
 
-        return results;
+        // If only one result is returned, results == List<Long> and otherwise
+        // List<Object[]>. Parsing into List<List<Long>>
+        List<List<Long>> copy = new LinkedList<List<Long>>();
+        for (int i = 0; i < results.size(); i++) {
+            Object v = results.get(i);
+            Class k = v == null ? Object.class : v.getClass();
+            List arr = new ArrayList();
+            if (Long.class.isAssignableFrom(k)) {
+                arr.add(v);
+            } else if (Object[].class.isAssignableFrom(k)) {
+                Object[] objs = (Object[]) v;
+                for (int j = 0; j < objs.length; j++) {
+                    arr.add(objs[j]);
+                }
+            } else if (v instanceof List) {
+                arr.addAll((List)v);
+            } else {
+                throw new IllegalArgumentException("Unknown type:" + v);
+            }
+            copy.add(arr);
+        }
+        return copy;
 
     }
 
-    private String logmsg(DeleteEntry subpath, List<Long> results) {
+    public void runTopLevel(Session session, List<Long> ids) {
+        // no-op
+    }
+
+    private String logmsg(DeleteEntry subpath, List<List<Long>> results) {
         String msg = String.format("Found %s id(s) for %s",
                 (results == null ? "null" : results.size()),
                 Arrays.asList(subpath.log(superspec)));

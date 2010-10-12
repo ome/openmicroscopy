@@ -12,6 +12,9 @@ import java.util.List;
 import java.util.Map;
 
 import ome.api.IDelete;
+import ome.model.IObject;
+import ome.security.basic.CurrentDetails;
+import ome.tools.hibernate.QueryBuilder;
 
 import org.hibernate.Session;
 import org.springframework.beans.factory.ListableBeanFactory;
@@ -79,28 +82,53 @@ public interface DeleteSpec {
             throws DeleteException;
 
     /**
+     * Returns a list of ids for each of the subpaths that was found for the
+     * given path. For example, if the entries are:
      *
-     * @param session
-     *            non-null, active Hibernate session that will be used to delete
-     *            all necessary items.
-     * @param step
-     *            which step is to be invoked. Running a step multiple times is
-     *            not supported.
-     * @param ids
-     *            Ids which should be deleted for each step in the graph,
-     *            including subgraphs. Not null.
-     * @param opts
-     *            options which are active for the current operation.
+     * <pre>
+     * /Image/Pixels/Channel
+     * /Image/Pixels/Channel/StatsInfo
+     * /Image/Pixels/Channel/LogicaChannel
+     * </pre>
      *
-     * @return Any warnings which were noted during execution.
-     * @throws DeleteException
-     *             Any errors which were caused during execution. Which
-     *             execution states may be encountered is strongly tied to the
-     *             definition of the specification and to the options which are
-     *             passed in.
+     * then this method would be called with
+     *
+     * <pre>
+     * queryBackupIds(..., ..., "/Image/Pixels/Channel",
+     *              ["/Image/Pixels/Channel/StatsInfo", ...]);
+     * </pre>
+     *
+     * and should return something like:
+     *
+     * <pre>
+     * {
+     *   "/Image/Pixels/StatsInfo": [1,2,3],
+     *   "/Image/Pixels/LogicalChannel": [3,5,6]
+     * }
+     * </pre>
+     *
+     * by making calls something like:
+     *
+     * <pre>
+     * select SUB.id from Channel ROOT2
+     * join ROOT2.statsInfo SUB
+     * join ROOT2.pixels ROOT1
+     * join ROOT1.image ROOT0
+     * where ROOT0.id = :id
+     * </pre>
+     *
+     * If a superspec of "/Dataset" was the query would be of the form:
+     *
+     * <pre>
+     * select SUB.id from Channel ROOT4
+     * join ROOT4.statsInfo SUB
+     * join ROOT4.pixels ROOT3
+     * join ROOT3.image ROOT2
+     * join ROOT2.datasetLinks ROOT1
+     * join ROOT1.parent ROOT0
+     * where ROOT0.id = :id
+     * </pre>
      */
-    String delete(Session session, int step, DeleteIds ids, DeleteOpts opts)
-            throws DeleteException;
 
     /**
      * If a given path is deleted before its sub-path, this points to a
@@ -111,7 +139,7 @@ public interface DeleteSpec {
      * In the case of superspecs, we also store the root ids for the sub-spec to
      * handle cases such as links, etc.
      *
-     * Returns a list of ids per step which should be deleted. These are
+     * Returns a list of all root ids per step which should be deleted. These are
      * precalculated on {@link #initialize(long, Map)} so that foreign key
      * constraints which require a higher level object to be deleted first, can
      * be removed.
@@ -140,8 +168,18 @@ public interface DeleteSpec {
      *            is going to detach a later graph which needs then to have its
      *            ids loaded.
      */
-    List<List<Long>> backupIds(Session session, List<String[]> paths)
+    List<List<Long>> queryBackupIds(Session session, int step, DeleteEntry subpath, QueryBuilder and)
             throws DeleteException;
+
+    /**
+     * Workaround for the removal of DeleteSpec#delete when refactoring to
+     * {@link DeleteState}. If more logic is needed by subclasses, then
+     * {@link #queryBackupIds(Session, int, DeleteEntry, QueryBuilder)}
+     * should no longer return list of ids, but rather a "Action" class
+     * so that it can inject its own logic as needed, though it would be necessary
+     * to give that method its place in the graph to detect "top-ness".
+     */
+    void runTopLevel(Session session, List<Long> ids) throws DeleteException;
 
     /**
      * Returns an iterator over all subspecs and their subspecs, depth-first.
@@ -162,4 +200,12 @@ public interface DeleteSpec {
      */
     List<DeleteEntry> entries();
 
+    /**
+     * Return the Hibernate type (ome.model.*) for the given table.
+     */
+    Class<IObject> getHibernateClass(String table);
+
+    CurrentDetails getCurrentDetails();
+
+    void close();
 }
