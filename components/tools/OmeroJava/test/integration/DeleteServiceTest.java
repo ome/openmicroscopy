@@ -4104,6 +4104,29 @@ public class DeleteServiceTest
     }
 
     /**
+     * Tests to delete an image with plane info linked to the pixels set
+     * using the <code>deleteImage</code> method.
+     * @throws Exception Thrown if an error occurred.
+     */
+    public void testDeleteImageWithPlaneInfo()
+    	throws Exception
+    {
+    	Image image = (Image) iUpdate.saveAndReturnObject(
+                mmFactory.createImage());
+        Pixels pixels = image.getPrimaryPixels();
+        pixels.clearPlaneInfo();
+        PlaneInfo planeInfo = mmFactory.createPlaneInfo();
+        planeInfo.setPixels(pixels);
+        planeInfo = (PlaneInfo) iUpdate.saveAndReturnObject(planeInfo);
+        //now Delete the image.
+        assertExists(planeInfo);
+        delete(new DeleteCommand(REF_IMAGE, image.getId().getValue(), null));
+        assertDoesNotExist(image);
+        assertDoesNotExist(pixels);
+        assertDoesNotExist(planeInfo);
+    }
+    
+    /**
      * Tests to delete an imported image. The image should have all
      * the model objects, a companion file and a thumbnail.
      * @throws Exception Thrown if an error occurred.

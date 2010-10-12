@@ -1195,8 +1195,8 @@ public class UpdateServiceTest
     public void testPlaneInfoSetPixelsSavePlaneInfo() 
     	throws Exception
     {
-    	Image image = mmFactory.createImage();
-		image = (Image) iUpdate.saveAndReturnObject(image);
+    	Image image = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.createImage());
         Pixels pixels = image.getPrimaryPixels();
         pixels.clearPlaneInfo();
         PlaneInfo planeInfo = mmFactory.createPlaneInfo();
@@ -1232,7 +1232,7 @@ public class UpdateServiceTest
     	List<IObject> test = (List<IObject>) iQuery.findAllByQuery(
     			"select pi from PlaneInfo pi where pi.pixels.id = :id",
     			param);
-    	assertNotNull(test);
+    	assertTrue(test.size() > 0);
     }
     
     /**
