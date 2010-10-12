@@ -104,7 +104,6 @@ public class DeleteState {
          */
         final Map<DeleteEntry, List<List<Integer>>> pointers = new HashMap<DeleteEntry, List<List<Integer>>>();
 
-        @SuppressWarnings({ "rawtypes", "unchecked" })
         public void add(DeleteEntry entry, List<List<Long>> results) {
 
             tables.put(entry, results);
@@ -415,11 +414,9 @@ public class DeleteState {
             return ""; // EARLY EXIT!
         }
 
-        final DeleteEntry entry = step.entry;
-
         // Add this instance to the opts. Any method which then tries to
         // ask the opts for the current state will have an accurate view.
-        entry.push(opts, step.ec);
+        step.push(opts);
 
         try {
 
@@ -466,7 +463,7 @@ public class DeleteState {
             }
 
         } finally {
-            opts.pop();
+            step.pop(opts);
         }
     }
 

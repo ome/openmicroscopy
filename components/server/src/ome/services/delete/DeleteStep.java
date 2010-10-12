@@ -18,7 +18,6 @@ import ome.system.EventContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
 
 /**
  * Single action performed by {@link DeleteState}.
@@ -117,6 +116,21 @@ public class DeleteStep {
             pathMsg = null;
             iObjectType = null;
         }
+    }
+
+    public void push(DeleteOpts opts) throws DeleteException {
+        for (DeleteStep parent : stack) {
+            parent.entry.push(opts, parent.ec);
+        }
+        entry.push(opts, ec);
+    }
+
+    public void pop(DeleteOpts opts) {
+        for (DeleteStep parent : stack) {
+            parent.entry.pop(opts);
+        }
+        entry.pop(opts);
+
     }
 
 }

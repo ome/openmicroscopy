@@ -372,27 +372,21 @@ public class DeleteServicePermissionsTest
     	//method already tested 
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	prx.resetDefaultsInSet(Image.class.getName(), ids);
-    	RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
+	RenderingDef ownerDef = factory.getPixelsService().retrieveRndSettings(id);
 
-    	List<Long> defs = new ArrayList<Long>();
-    	defs.add(def.getId().getValue());
     	newUserInGroup(ownerCtx);
     	prx = factory.getRenderingSettingsService();
     	prx.resetDefaultsInSet(Image.class.getName(), ids);
-    	def = factory.getPixelsService().retrieveRndSettings(id);
-    	defs.add(def.getId().getValue());
-    	String sql = "select r from RenderingDef as r where r.id in (:ids)";
-    	ParametersI p = new ParametersI();
-    	p.addIds(defs);
-    	assertEquals(iQuery.findAllByQuery(sql, p).size(), defs.size());
+	RenderingDef otherDef = factory.getPixelsService().retrieveRndSettings(id);
+	assertAllExist(ownerDef, otherDef);
     	disconnect();
-    	loginUser(ownerCtx);
+
     	//Delete the image.
+	loginUser(ownerCtx);
     	delete(client, new DeleteCommand(
     			DeleteServiceTest.REF_IMAGE, imageID, null));
-    	assertDoesNotExist(image);
-    	//make sure not settings.
-    	assertEquals(iQuery.findAllByQuery(sql, p).size(), 0);
+	assertNoneExist(image, ownerDef, otherDef);
+
     }
     
 }

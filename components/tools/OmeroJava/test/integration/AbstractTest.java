@@ -450,6 +450,13 @@ public class AbstractTest
     			+ " is missing!", copy);
     }
 
+    protected void assertAllExist(IObject...obj) throws Exception
+    {
+        for (IObject iObject : obj) {
+            assertExists(iObject);
+        }
+    }
+
     /**
      * Makes sure that the passed object does not exist.
      * 
@@ -466,7 +473,14 @@ public class AbstractTest
     			+ " still exists!", copy);
     }
 
-	/**
+    protected void assertNoneExist(IObject... obj) throws Exception
+    {
+        for (IObject iObject : obj) {
+            assertDoesNotExist(iObject);
+        }
+    }
+
+    /**
 	 * Imports the specified OME-XML file and returns the pixels set
 	 * if successfully imported.
 	 * 
