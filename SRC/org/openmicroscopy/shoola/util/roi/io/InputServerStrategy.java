@@ -293,6 +293,7 @@ class InputServerStrategy
 		MeasureEllipseFigure fig = new MeasureEllipseFigure(data.getText(), 
 				x, y, width, height, data.isReadOnly(), 
 					data.isClientObject());
+		fig.setEllipse(x, y, width, height);
 		addShapeSettings(fig, data.getShapeSettings());
 		AffineTransform transform;
 		try {
