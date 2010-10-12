@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.agents.editor.actions;
 //Java imports
 import java.awt.event.ActionEvent;
 
+import javax.swing.JComponent;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -56,6 +58,8 @@ public class OpenWwwFileAction
     private static final String 	DESCRIPTION = 
     	"Choose from a number of example OMERO.editor files on-line.";
     
+    private static UrlChooser urlChooser = null;
+    
     /** Creates a new instance.
      * 
      * @param model Reference to the Model. Mustn't be <code>null</code>.
@@ -75,7 +79,12 @@ public class OpenWwwFileAction
     */
    public void actionPerformed(ActionEvent e) 
    {
-	   new UrlChooser(model);
+	   if (urlChooser == null) {
+		   urlChooser = new UrlChooser(model);
+	   } else {
+		   // when the window is finished with, it is simply hidden and can be shown again:
+		   urlChooser.showWindow();
+	   }
    }
    
 }
