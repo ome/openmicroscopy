@@ -321,7 +321,7 @@ class HdfStorage(object):
         return cols
 
     @locked
-    def meta(self):
+    def get_meta_map(self):
         self.__initcheck()
         metadata = {}
         attr = self.__mea.attrs
@@ -332,11 +332,24 @@ class HdfStorage(object):
                 val = rfloat(val)
             elif type(val) == numpy.int32:
                 val = rint(val)
+            elif type(val) == numpy.int64:
+                val = rlong(val)
             elif type(val) == numpy.string_:
                 val = rstring(val)
             else:
                 raise omero.ValidationException("BAD TYPE: %s" % type(val))
             metadata[key] = val
+        return metadata
+
+    @locked
+    def add_meta_map(self, m):
+        if not m:
+            return
+        self.__initcheck()
+        attr = self.__mea.attrs
+        for k, v in m.items():
+            attr[k] = unwrap(v)
+        self.__mea.flush()
 
     @locked
     def append(self, cols):
@@ -555,13 +568,6 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
 
     @remoted
     @perf
-    def getMetadata(self, current = None):
-        rv = self.storage.meta()
-        self.logger.info("%s.getMetadata() => size=%s", self, slen(rv))
-        return rv
-
-    @remoted
-    @perf
     def getNumberOfRows(self, current = None):
         rv = self.storage.rows()
         self.logger.info("%s.getNumberOfRows() => %s", self, rv)
@@ -638,6 +644,42 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
         if data:
             self.storage.update(self.stamp, data)
             self.logger.info("Updated %s row(s) of data to %s", slen(data.rowNumbers), self)
+
+    @remoted
+    @perf
+    def delete(self, current = None):
+        pass
+
+    # TABLES METADATA API ===========================
+
+    @remoted
+    @perf
+    def getMetadata(self, key, current = None):
+        rv = self.storage.get_meta_map()
+        rv = rv.get(key)
+        self.logger.info("%s.getMetadata() => %s", self, unwrap(rv))
+        return rv
+
+    @remoted
+    @perf
+    def getAllMetadata(self, current = None):
+        rv = self.storage.get_meta_map()
+        self.logger.info("%s.getMetadata() => size=%s", self, slen(rv))
+        return rv
+
+    @remoted
+    @perf
+    def setMetadata(self, key, value, current = None):
+        self.storage.add_meta_map({key: value})
+        self.logger.info("%s.setMetadata() => %s=%s", self, key, unwrap(value))
+
+    @remoted
+    @perf
+    def setAllMetadata(self, value, current = None):
+        self.storage.add_meta_map({"key": wrap(value)})
+        self.logger.info("%s.setMetadata() => number=%s", self, slen(value))
+
+    # Column methods missing
 
 class TablesI(omero.grid.Tables, omero.util.Servant):
     """

@@ -17,7 +17,7 @@
 
 
 /*
- * The Tables API is intended to provide an storage mechanism
+ * The Tables API is intended to provide a storage mechanism
  * for tabular data.
  *
  * See https://trac.openmicroscopy.org.uk/omero/wiki/OmeroTables
@@ -25,6 +25,9 @@
 module omero {
 
 
+    /*
+     * Forward declaration
+     */
     module api {
         interface ServiceFactory;
     };

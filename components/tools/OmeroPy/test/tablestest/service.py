@@ -12,6 +12,7 @@ import path
 import unittest, os
 import omero, omero.tables
 
+from omero.rtypes import *
 from integration import library as lib
 
 
@@ -126,6 +127,49 @@ class TestTables(lib.ITest):
         self.client.download(file, str(p))
         self.assertEquals(p.size, file.size.val)
         self.assertEquals(self.client.sha1(p), file.sha1.val)
+
+    def test2855MetadataMethods(self):
+        """
+        Tests the various metadata methods for a table
+        """
+        grid = self.client.sf.sharedResources()
+        table = grid.newTable(1, "/test")
+        self.assert_( table )
+
+        def clean(m):
+            """
+            Unwraps the RTypes for easier processing
+            and gets rid of auto-generated values for
+            easier testing.
+            """
+            m = unwrap(m)
+            del m["initialized"]
+            del m["version"]
+            return m
+
+        try:
+            print table.getOriginalFile().id.val
+            lc = omero.columns.LongColumnI('lc', 'desc', [1])
+            table.initialize([lc])
+            self.assertEquals({}, clean(table.getAllMetadata()) )
+
+            # Set a string
+            table.setMetadata("s", rstring("b"))
+            self.assertEquals("b", unwrap(table.getMetadata("s")))
+            self.assertEquals({"s": "b"}, clean(table.getAllMetadata()))
+
+            # Set an int
+            table.setMetadata("i", rint(1))
+            self.assertEquals(1, unwrap(table.getMetadata("i")))
+            self.assertEquals({"s": "b", "i":1}, clean(table.getAllMetadata()))
+
+            # Set a float
+            table.setMetadata("f", rfloat(1))
+            self.assertEquals(1, unwrap(table.getMetadata("f")))
+            self.assertEquals({"s": "b", "i":1, "f": 1}, clean(table.getAllMetadata()))
+
+        finally:
+            table.close()
 
 def test_suite():
     return 1
