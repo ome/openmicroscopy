@@ -303,69 +303,12 @@ public class DeleteEntry {
             List<Long> ids, DeleteOpts opts)
         throws DeleteException {
         
-        // Add this instance to the opts. Any method which then tries to
-        // ask the opts for the current state will have an accurate view.
-        opts.push(operation, modifiedOp, details.getCurrentEventContext());
-
-        try {
-
-            if (skip()) {
-                if (log.isDebugEnabled()) {
-                    log.debug("Skipping " + this);
-                }
-                return ""; // EARLY EXIT!
-            }
-
-            final StringBuilder sb = new StringBuilder();
-
-            DeleteSpec subSpec = getSubSpec();
-            if (subSpec == null) {
-                sb.append(execute(session, details, em, deleteIds, ids, opts));
-            } else {
-                // TODO refactor this into a single location with
-                // execute below. This may require setting the
-                // "superOp" on subSpecs. Is there a need for
-                // handling longer chains of ops??
-                final StringBuilder warning = new StringBuilder();
-                final String savepoint = deleteIds.savepoint();
-                try {
-                    for (int i = 0; i < subStepCount; i++) {
-                        String w = subSpec.delete(session, i, deleteIds, opts);
-                        if (w != null && w.length() > 0) {
-                            if (warning.length() > 0) {
-                                warning.append(";");
-                            }
-                            warning.append(w);
-                        }
-                    }
-                    deleteIds.release(savepoint);
-                } catch (ConstraintViolationException cve) {
-                    handleConstraintViolation(session, deleteIds, opts,
-                            subSpec.getName(), sb, savepoint, cve);
-                }
-            }
-            return sb.toString();
-        } finally {
-            opts.pop();
-        }
-    }
-
-    /**
-     * If ids are non-empty, then calls a simple
-     * "delete TABLE where id in (:ids)"; otherwise, generates a query via
-     * {@link #buildQuery(DeleteEntry)} and uses the root "id"
-     *
-     * Originally copied from DeleteBean.
-     */
-    protected String execute(final Session session, final CurrentDetails details, 
-            final ExtendedMetadata em, final DeleteIds deleteIds, final List<Long> ids,
-            DeleteOpts opts)
-        throws DeleteException {
-
         final String[] path = this.path(superspec);
         final String table = path[path.length - 1];
         final String str = StringUtils.join(path, "/");
         final Class<IObject> k = em.getHibernateClass(table);
+        final DeleteSpec subSpec = getSubSpec();
+        final StringBuilder sb = new StringBuilder();
 
         if (ids.size() == 0) {
             if (log.isDebugEnabled()) {
@@ -373,15 +316,110 @@ public class DeleteEntry {
             }
             return ""; // Early exit!
         }
-        
 
-        // Hardcoded nulling of references to the given Pixels
-        // The NULL operation should actually be set on
-        // /Image/Pixels/Pixels not /Image/Pixels
-        // BUT requires reversing the relationship:
-        // /Image/Pixels/<>/Pixels
+        // Add this instance to the opts. Any method which then tries to
+        // ask the opts for the current state will have an accurate view.
+        opts.push(operation, modifiedOp, details.getCurrentEventContext());
+
+        try {
+
+            if (skip()) { // after opts.push()
+                if (log.isDebugEnabled()) {
+                    log.debug("Skipping " + this);
+                }
+                return ""; // EARLY EXIT!
+            }
+
+            final String savepoint = deleteIds.savepoint();
+            try {
+                if (subSpec == null) {
+
+                    final QueryBuilder nullOp = optionalNullBuilder(table);
+                    final QueryBuilder qb = queryBuilder(table, opts, details);
+
+                    final StopWatch sw = new CommonsLogStopWatch();
+                    for (Long id : ids) {
+                        try {
+
+                            optionallyNullField(session, nullOp, id);
+
+                            qb.param("id", id);
+                            Query q = qb.query(session);
+                            int count = q.executeUpdate();
+                            if (count > 0) {
+                                deleteIds.addDeletedIds(table, k, id);
+                                if (log.isDebugEnabled()) {
+                                    log.debug(String.format("Deleted %s from %s: root=%s", id, str, this.id));
+                                }
+                            } else {
+                                if (log.isWarnEnabled()) {
+                                    log.warn(String.format("Missing delete %s from %s: root=%s", id, str, this.id));
+                                }
+                            }
+                        } finally {
+                            sw.stop("omero.delete." + table + "." + id);
+                        }
+                    }
+                } else {
+                    for (int i = 0; i < subStepCount; i++) {
+                        String w = subSpec.delete(session, i, deleteIds, opts);
+                        appendWithNewLine(sb, w);
+                    }
+                }
+                deleteIds.release(savepoint);
+            } catch (ConstraintViolationException cve) {
+                handleConstraintViolation(session, deleteIds, opts, str, sb, savepoint, cve);
+            }
+            return sb.toString();
+        } finally {
+            opts.pop();
+        }
+    }
+
+    private void appendWithNewLine(final StringBuilder sb, String w) {
+        if (w != null && w.length() > 0) {
+            if (sb.length() > 0) {
+                sb.append("\n");
+            }
+            sb.append(w);
+        }
+    }
+
+    /**
+     * Method called when a {@link ConstraintViolationException} can be thrown.
+     * This is both during
+     * {@link #delete(Session, CurrentDetails, ExtendedMetadata, String, DeleteIds, List, DeleteOpts)}
+     * and
+     * {@link #execute(Session, CurrentDetails, ExtendedMetadata, DeleteIds, List, DeleteOpts)}
+     * .
+     *
+     * @param session
+     * @param opts
+     * @param type
+     * @param rv
+     * @param savepoint
+     * @param cve
+     */
+    private void handleConstraintViolation(final Session session,
+            DeleteIds deleteIds, DeleteOpts opts, final String type,
+            final StringBuilder rv, String savepoint,
+            ConstraintViolationException cve) throws DeleteException {
+        deleteIds.rollback(savepoint);
+        String cause = "ConstraintViolation: " + cve.getConstraintName();
+        if (opts.isSoft()) {
+            log.debug(String.format("Could not delete softly %s: %s due to %s",
+                    type, this.id, cause));
+            rv.append(cause);
+        } else {
+            log.info(String.format("Failed to delete %s: %s due to %s", type,
+                    this.id, cause));
+            throw cve;
+        }
+    }
+
+    private QueryBuilder optionalNullBuilder(final String table) {
         QueryBuilder nullOp = null;
-        if (Op.NULL.equals(operation)) {
+        if (Op.NULL.equals(operation)) { // WORKAROUND see #2776, #2966
             // If this is a null operation, we don't want to delete the row,
             // but just modify a value. NB: below we also prevent this from
             // being raised as a delete event. TODO: refactor out to Op
@@ -391,6 +429,24 @@ public class DeleteEntry {
             nullOp.where();
             nullOp.and("relatedTo.id = :id");
         }
+        return nullOp;
+    }
+
+
+    private void optionallyNullField(Session session,
+            final QueryBuilder nullOp, Long id) {
+        if (nullOp != null) {
+            nullOp.param("id", id);
+            Query q = nullOp.query(session);
+            int updated = q.executeUpdate();
+            if (log.isDebugEnabled()) {
+                log.debug("Nulled " + updated + " Pixels.relatedTo fields");
+            }
+        }
+    }
+
+    private QueryBuilder queryBuilder(final String table, DeleteOpts opts,
+            CurrentDetails details) {
 
         final QueryBuilder qb = new QueryBuilder();
         qb.delete(table);
@@ -399,81 +455,7 @@ public class DeleteEntry {
         if (!opts.isForce()) {
             permissionsClause(details, qb);
         }
-
-        final StringBuilder rv = new StringBuilder();
-
-        Query q;
-        final StopWatch sw = new CommonsLogStopWatch();
-        for (Long id : ids) {
-            String sp = deleteIds.savepoint();
-            try {
-
-                if (nullOp != null) {
-                    nullOp.param("id", id);
-                    q = nullOp.query(session);
-                    int updated = q.executeUpdate();
-                    if (log.isDebugEnabled()) {
-                        log.debug("Nulled " + updated + " Pixels.relatedTo fields");
-                    }
-                }
-
-                qb.param("id", id);
-                q = qb.query(session);
-                int count = q.executeUpdate();
-                if (count > 0) {
-                    deleteIds.addDeletedIds(table, k, id);
-                    if (log.isDebugEnabled()) {
-                        log.debug(String.format("Deleted %s from %s: root=%s", id, str, this.id));
-                    }
-                } else {
-                    if (log.isInfoEnabled()) {
-                        log.warn(String.format("Missing delete %s from %s: root=%s", id, str, this.id));
-                    }
-                }
-                deleteIds.release(sp);
-                rv.append("");
-            } catch (ConstraintViolationException cve) {
-                handleConstraintViolation(session, deleteIds, opts, str, rv, sp, cve);
-            } finally {
-                sw.stop("omero.delete." + table + "." + id);
-            }
-        }
-
-        // When full NULL operation is activated, the following if statement
-        // will be necessary.
-        // if (!Op.NULL.equals(getOp())) {
-        // Since this isn't a delete operation, we don't want
-        // to pass this ID out.
-        // }
-
-        return rv.toString();
-    }
-
-    /**
-     * Method called when a {@link ConstraintViolationException} can be
-     * thrown. This is both during {@link #delete(Session, CurrentDetails, ExtendedMetadata, String, DeleteIds, List, DeleteOpts)}
-     * and {@link #execute(Session, CurrentDetails, ExtendedMetadata, DeleteIds, List, DeleteOpts)}.
-     * @param session
-     * @param opts
-     * @param type
-     * @param rv
-     * @param savepoint
-     * @param cve
-     */
-    private void handleConstraintViolation(final Session session,
-            DeleteIds deleteIds, DeleteOpts opts, final String type, final StringBuilder rv,
-            String savepoint, ConstraintViolationException cve) throws DeleteException {
-        deleteIds.rollback(savepoint);
-        String cause = "ConstraintViolation: " + cve.getConstraintName();
-        if (opts.isSoft()) {
-            log.debug(String.format("Could not delete softly %s: %s due to %s",
-                    type, this.id, cause));
-            rv.append(cause);
-        } else {
-            log.info(String.format("Failed to delete %s: %s due to %s",
-                    type, this.id, cause));
-            throw cve;
-        }
+        return qb;
     }
 
     //
