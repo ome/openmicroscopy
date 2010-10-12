@@ -15,7 +15,7 @@ import ome.io.nio.AbstractFileSystemService;
 import ome.services.blitz.impl.DeleteHandleI;
 import ome.services.delete.BaseDeleteSpec;
 import ome.services.delete.DeleteEntry;
-import ome.services.delete.DeleteIds;
+import ome.services.delete.DeleteState;
 import ome.services.delete.DeleteSpecFactory;
 import ome.services.util.Executor;
 import ome.system.ServiceFactory;
@@ -674,11 +674,14 @@ public class DeleteITest extends AbstractServantTest {
                                     ServiceFactory sf) {
 
                                 try {
-                                    DeleteIds ids = new DeleteIds(ctx, session, spec);
+                                    DeleteState ids = new DeleteState(ctx, session, spec);
                                     List<List<Long>> rv = new ArrayList<List<Long>>();
+                                    fail("NYI");
+                                    /*
                                     rv.add(ids.getFoundIds(spec, 0));
                                     rv.add(ids.getFoundIds(spec, 1));
                                     rv.add(ids.getFoundIds(spec, 2));
+                                    */
                                     return rv;
                                 } catch (Exception e) {
                                     throw new RuntimeException(e);
