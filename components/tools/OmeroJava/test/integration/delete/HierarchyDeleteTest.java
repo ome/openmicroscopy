@@ -54,20 +54,31 @@ public class HierarchyDeleteTest extends AbstractTest {
         Dataset ds2 = new DatasetI();
         ds2.setName(t3031);
 
-        Image i = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage());
-        i.unload();
+        Image i1 = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage());
+        i1.unload();
 
-        ds1.linkImage(i);
+        ds1.linkImage(i1);
         ds1 = (Dataset) iUpdate.saveAndReturnObject(ds1);
-        ds2.linkImage(i);
+        ds2.linkImage(i1);
+        ds2 = (Dataset) iUpdate.saveAndReturnObject(ds2);
+
+        // http://trac.openmicroscopy.org.uk/omero/ticket/3031#comment:7
+        // This image is only singly linked and should be removed.
+
+        Image i2 = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage());
+        i2.unload();
+
+        ds2.linkImage(i2);
         ds2 = (Dataset) iUpdate.saveAndReturnObject(ds2);
 
         delete(client, new DeleteCommand(DeleteServiceTest.REF_DATASET, 
         		ds2.getId().getValue(), null));
 
         assertDoesNotExist(ds2);
+        assertDoesNotExist(i2);
         assertExists(ds1);
-        assertExists(i);
+        assertExists(i1);
+
     }
 
     /**
