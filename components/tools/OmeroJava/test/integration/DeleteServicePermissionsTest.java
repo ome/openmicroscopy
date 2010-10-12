@@ -348,13 +348,14 @@ public class DeleteServicePermissionsTest
     	//Tag's owner now deletes the tag.
     	init(tagger);
 	delete(true, iDelete, client, new DeleteCommand(
-    			DeleteServiceTest.REF_ANN,
-    			c.getId().getValue(), null));
-    	assertExists(c); //fail tag is deleted
-    	assertExists(link); //fail link is deleted
-    	assertExists(img);
+			DeleteServiceTest.REF_ANN,
+			c.getId().getValue(), null));
+
+	assertNoneExist(c, link);
+	assertExists(img);
+
     }
-    
+
 	/**
      * Test to delete an image viewed by another user in a RWRW-- group.
      * @throws Exception Thrown if an error occurred.
