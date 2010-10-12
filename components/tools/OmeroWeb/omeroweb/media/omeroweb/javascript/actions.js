@@ -197,15 +197,18 @@ function deleteItems (productArray, parent) {
                 productArray.each(function() {
                     if(this.checked) {                        
                         a = simpleTreeCollection.find('li#img-'+this.id);
-                        if (a.attr('class').indexOf('last')>=0) {  
-                            a.prev().prev().attr('class', a.prev().prev().attr('class')+'-last');
+                        if (a.length > 0) {
+                            if (a.attr('class').indexOf('last')>=0) {  
+                                a.prev().prev().attr('class', a.prev().prev().attr('class')+'-last');
+                            }
+                            a.prev('li.line').remove();
+                            a.remove();
                         }
-                        a.prev('li.line').remove();
-                        a.remove();                        
                         $('li#'+this.id).remove();
                         a = simpleTreeCollection.find('li#img-'+this.id);
                         a.prev('li.line').remove();
                         a.remove();
+                        
                     }
                 });
                 
@@ -234,18 +237,22 @@ function deleteItems (productArray, parent) {
 };
 
 function deleteItem(productType, productId) {
-    if ((productType == 'project' || productType == 'dataset' || productType == 'image' || productType == 'screen' || productType == 'plate' || productType == 'share') && productId > 0){
+    if ((productType == 'project' || productType == 'dataset' || productType == 'image' || productType == 'screen' || productType == 'plate' || productType == 'share' || productType == "tag") && productId > 0){
         if (confirm('Delete '+productType+'?')) {
-            var productListQuery=null;
-            if ((productType == 'project' || productType == 'dataset' || productType == 'screen') && confirm('Also delete content?')) {
-                productListQuery='child=on';
-            }
-            if (confirm('Also delete annotations?')) {
-                if(productListQuery!=null){
-                    productListQuery='anns=on';
-                } else {
-                    productListQuery+='&anns=on';
-                } 
+            var productListQuery="";
+            if ((productType == 'project' || productType == 'dataset' || productType == 'screen')) {
+                if (confirm('Also delete content?')) {
+                    productListQuery='child=on';
+                }
+            }  
+            if (productType!='tag') {          
+                if (confirm('Also delete annotations?')) {
+                    if(productListQuery.length>0){
+                        productListQuery+='&anns=on';
+                    } else {
+                        productListQuery='anns=on';
+                    }
+                }                
             }
             $.ajax({
                 type: "POST",
@@ -256,8 +263,7 @@ function deleteItem(productType, productId) {
                     if(responce.match(/(Error: ([A-z]+))/gi)) {
                         alert(responce)
                     } else {  
-                        //window.location.replace("");
-                        
+                        //window.location.replace("");                        
                         a = simpleTreeCollection.find('span.active').parents('li:first');
                         if (a.attr('class').indexOf('last')>=0) {  
                             a.prev().prev().attr('class', a.prev().prev().attr('class')+'-last');
@@ -278,7 +284,7 @@ function deleteItem(productType, productId) {
                             } else if ($('#dataTable').length != 0) {
                                 $('#dataTable').find('tr#'+a.attr('id').split("-")[1]).remove();
                             }                     
-                        } else if ((productType == 'dataset' || productType == 'plate') && productId > 0) {
+                        } else if ((productType == 'dataset' || productType == 'plate' || productType == 'tag') && productId > 0) {
                             $("div#metadata_details").empty();
                             $("div#content_details").removeAttr('rel').children().remove();
                         } else if ((productType == 'project' || productType == 'screen') && productId > 0) {

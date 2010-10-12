@@ -1115,6 +1115,10 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         template = "webclient/annotations/annotation_new_form.html"
         form_comment = CommentAnnotationForm()
         context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_comment':form_comment}     
+    elif action == 'newtagonly':
+        template = "webclient/annotations/annotation_new_form.html"
+        form_tag = TagAnnotationForm()
+        context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tag':form_tag}
     elif action == 'newtag':
         template = "webclient/annotations/annotation_new_form.html"
         form_tag = TagAnnotationForm()

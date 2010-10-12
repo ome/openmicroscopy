@@ -60,3 +60,10 @@ class BaseAnnotation(BaseController):
         else:
             ann.description = None
         self.conn.saveObject(ann)
+    
+    def deleteItem(self, child=None, anns=None):
+        handle = None
+        if self.tag:
+            handle = self.conn.deleteTag(self.tag.id, child, anns)
+        return handle
+    

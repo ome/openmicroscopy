@@ -1266,16 +1266,23 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         u = self.getUpdateService()
         u.deleteObject(obj)
     
-    def deleteImage(self, oid, anns):
+    def deleteTag(self, oid, child=None, anns=None):
         op = dict()
-        op["/TagAnnotation"] = "KEEP"
-        op["/TermAnnotation"] = "KEEP"
-        op["/FileAnnotation"] = "KEEP"
+        dc = omero.api.delete.DeleteCommand('/Annotation', long(oid), op)
+        handle = self.getDeleteService().queueDelete([dc])
+        return handle
+    
+    def deleteImage(self, oid, anns=None):
+        op = dict()
+        if anns is None:
+            op["/TagAnnotation"] = "KEEP"
+            op["/TermAnnotation"] = "KEEP"
+            op["/FileAnnotation"] = "KEEP"
         dc = omero.api.delete.DeleteCommand('/Image', long(oid), op)
         handle = self.getDeleteService().queueDelete([dc])
         return handle
         
-    def deleteImages(self, ids, anns):
+    def deleteImages(self, ids, anns=None):
         op = dict()
         if anns is None:
             op["/TagAnnotation"] = "KEEP"
