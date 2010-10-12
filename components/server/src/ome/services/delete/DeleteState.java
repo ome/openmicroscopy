@@ -455,7 +455,15 @@ public class DeleteState {
                 swStep.lap("omero.delete." + step.table + "." + step.id);
 
                 // Finalize.
-                release(step.savepoint);
+                release(step);
+                if (step.parent != null) {
+                    step.parent.activeChildren--;
+                    if (step.parent.activeChildren == 0) {
+                        release(step.parent);
+                    }
+
+                }
+
                 return "";
 
             } catch (ConstraintViolationException cve) {
@@ -635,7 +643,7 @@ public class DeleteState {
         return step.savepoint;
     }
 
-    public void release(String savepoint) throws DeleteException {
+    public void release(DeleteStep step) throws DeleteException {
 
         if (actualIds.size() == 0) {
             throw new DeleteException("Release at depth 0!");
@@ -680,11 +688,13 @@ public class DeleteState {
 
         }
 
-        call(session, "RELEASE SAVEPOINT DEL", savepoint);
+        call(session, "RELEASE SAVEPOINT DEL", step.savepoint);
 
         log.debug(String.format(
-                "Released savepoint %s with %s ids: new depth=%s", savepoint,
+                "Released savepoint %s with %s ids: new depth=%s", step.savepoint,
                 count, actualIds.size()));
+
+        step.savepoint = "INVALIDATED:" + step.savepoint;
 
     }
 

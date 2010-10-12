@@ -353,7 +353,7 @@ public class DeleteSpecUnitTest extends MockDeleteTest {
         assertEquals(2, ids.getTotalDeletedCount());
         assertEquals(0, ids.getDeletedsIds("a").size());
         assertEquals(1, ids.getDeletedsIds("t").size());
-        ids.release(savepoint);
+        ids.release(step);
         assertEquals(3, ids.getTotalDeletedCount());
         assertEquals(1, ids.getDeletedsIds("a").size());
         assertEquals(2, ids.getDeletedsIds("t").size());

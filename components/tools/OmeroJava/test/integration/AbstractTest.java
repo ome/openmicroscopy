@@ -629,7 +629,21 @@ public class AbstractTest
                 throw new RuntimeException("Waiting on delete timed out");
             }
         }
+        if (handle.errors() > 0) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Errors during delete!\n");
+            DeleteReport[] reports = handle.report();
+            for (DeleteReport report : reports) {
+                if (report.error.length() > 0) {
+                    sb.append(report.error);
+                    sb.append("\n");
+                } else if (report.warning.length() > 0) {
+                    sb.append(report.warning);
+                    sb.append("\n");
+                }
+            }
+            fail(sb.toString());
+        }
         return handle.report();
     }
-	   
 }

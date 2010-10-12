@@ -43,6 +43,12 @@ public class DeleteStep {
     final LinkedList<DeleteStep> stack;
 
     /**
+     * Final member of {@link #stack} which is the direct ancestor of this
+     * step.
+     */
+    final DeleteStep parent;
+
+    /**
      * {@link DeleteSpec} instance which is active for this step.
      */
     final DeleteSpec spec;
@@ -96,10 +102,22 @@ public class DeleteStep {
      */
     String savepoint = null;
 
+    /**
+     * Not final. Incremented each time a child is created for whom the current
+     * instance is their {@link #parent}.
+     */
+    int activeChildren = 0;
+
     DeleteStep(int idx, List<DeleteStep> stack, DeleteSpec spec, DeleteEntry entry,
             List<Long> ids) {
         this.idx = idx;
         this.stack = new LinkedList<DeleteStep>(stack);
+        if (this.stack.size() > 0) {
+            this.parent = this.stack.getLast();
+            this.parent.activeChildren++;
+        } else {
+            this.parent = null;
+        }
         this.spec = spec;
         this.entry = entry;
         this.ids = ids;
@@ -130,7 +148,6 @@ public class DeleteStep {
             parent.entry.pop(opts);
         }
         entry.pop(opts);
-
     }
 
 }

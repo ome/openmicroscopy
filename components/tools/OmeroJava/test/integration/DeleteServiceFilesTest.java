@@ -8,6 +8,7 @@ package integration;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Formatter;
 import java.util.Iterator;
 import java.util.List;
@@ -72,9 +73,6 @@ public class DeleteServiceFilesTest
 	
 	/** Reference to the <code>Thumbnail</code> class. */
 	private static final String REF_THUMBNAIL = "Thumbnail";
-	
-	/** Helper reference to the <code>IDelete</code> service. */
-	private IDeletePrx iDelete;
 
 	/** Reference to the standard directory. */
 	private String dataDir; 
@@ -218,7 +216,7 @@ public class DeleteServiceFilesTest
 	{   
 		String path = getPath(klass, id);
 		RepositoryPrx legacy = getLegacyRepository();
-		assertTrue(legacy.fileExists(path));
+		assertTrue(path + " does not exist!", legacy.fileExists(path));
 	}
 
 	/**
@@ -233,7 +231,7 @@ public class DeleteServiceFilesTest
 	{  
 		String path = getPath(klass, id);
 		RepositoryPrx legacy = getLegacyRepository();
-		assertFalse(legacy.fileExists(path));
+		assertFalse(path + " exists!", legacy.fileExists(path));
 	}  
 
 	/**
@@ -301,7 +299,7 @@ public class DeleteServiceFilesTest
 				new DeleteCommand(DeleteServiceTest.REF_IMAGE, 
 						img.getId().getValue(), null));
 		assertFileDoesNotExist(ofId, REF_ORIGINAL_FILE);
-		assertTrue(report.undeletedFiles.get(REF_ORIGINAL_FILE).length == 0);
+		assertNoUndeletedBinaries(report);
 	}
 
 	/**
@@ -335,8 +333,7 @@ public class DeleteServiceFilesTest
 		DeleteReport report = deleteWithReport(
 				new DeleteCommand(DeleteServiceTest.REF_IMAGE,
 						img.getId().getValue(), null));
-		assertTrue(report.undeletedFiles.get(REF_PIXELS).length == 0);
-		assertTrue(report.undeletedFiles.get(REF_ORIGINAL_FILE).length == 0);
+        assertNoUndeletedBinaries(report);
 	}
 
 	/**
@@ -392,12 +389,13 @@ public class DeleteServiceFilesTest
 		//delete the image.
 		DeleteReport report = deleteWithReport(new DeleteCommand(
 				DeleteServiceTest.REF_IMAGE, imageID, null));
+
+		assertNoUndeletedBinaries(report);
 		assertFileDoesNotExist(id, "Pixels");
 		Iterator<Long> j = thumbIds.iterator();
 		while (j.hasNext()) {
 			assertFileDoesNotExist(j.next(), REF_THUMBNAIL);
 		}
-		assertTrue(report.undeletedFiles.get(REF_THUMBNAIL).length == 0);
 	}
 
 	/**
@@ -467,14 +465,16 @@ public class DeleteServiceFilesTest
 				thumbIds.add(thumbId);
 		}        
 		disconnect();
+
 		loginUser(ownerCtx);
 		//Now try to delete the image.
-		delete(client, new DeleteCommand(
+		DeleteReport report = deleteWithReport(new DeleteCommand(
 				DeleteServiceTest.REF_IMAGE, imageID, null));
 		Iterator<Long> j = thumbIds.iterator();
 		while (j.hasNext()) {
 			assertFileDoesNotExist(j.next(), REF_THUMBNAIL);
 		}
+		assertNoUndeletedBinaries(report);
 	}
 
 	/**
@@ -518,5 +518,26 @@ public class DeleteServiceFilesTest
 		assertExists(img);
 		assertFileExists(pixId, REF_PIXELS);
 	}
+
+    private void assertNoUndeletedBinaries(DeleteReport report) {
+        assertNoUndeletedThumbnails(report);
+        assertNoUndeletedFiles(report);
+        assertNoUndeletedPixels(report);
+    }
+
+    private void assertNoUndeletedThumbnails(DeleteReport report) {
+        long[] tbIds = report.undeletedFiles.get(REF_THUMBNAIL);
+        assertTrue(Arrays.toString(tbIds), tbIds == null || tbIds.length == 0);
+    }
+
+    private void assertNoUndeletedFiles(DeleteReport report) {
+        long[] fileIds = report.undeletedFiles.get(REF_ORIGINAL_FILE);
+        assertTrue(Arrays.toString(fileIds), fileIds == null || fileIds.length == 0);
+    }
+
+    private void assertNoUndeletedPixels(DeleteReport report) {
+        long[] pixIds = report.undeletedFiles.get(REF_PIXELS);
+        assertTrue(Arrays.toString(pixIds), pixIds == null || pixIds.length == 0);
+    }
 
 }
