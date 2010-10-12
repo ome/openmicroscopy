@@ -69,14 +69,12 @@ public class StructuredAnnotationSaver
      * @param data		The data objects to handle.
      * @param toAdd		The annotations to add.
      * @param toRemove	The annotations to remove.
-     * @param toDelete	The annotations to delete.
      * @param metadata	The acquisition metadata.
      * @param userID	The id of the user.
      * @return The {@link BatchCall}.
      */
     private BatchCall loadCall(final Collection<DataObject> data, final
     		List<AnnotationData> toAdd, final List<AnnotationData> toRemove,
-    		final List<AnnotationData> toDelete, 
     		final List<Object> metadata, final long userID)
     {
         return new BatchCall("Saving") {
@@ -89,7 +87,7 @@ public class StructuredAnnotationSaver
 						os.saveAcquisitionData(i.next()) ;
 					}
             	}
-            	result = os.saveData(data, toAdd, toRemove, toDelete, userID);
+            	result = os.saveData(data, toAdd, toRemove, userID);
             }
         };
     }
@@ -102,14 +100,12 @@ public class StructuredAnnotationSaver
      * @param data		The data objects to handle.
      * @param toAdd		The annotations to add.
      * @param toRemove	The annotations to remove.
-     * @param toDelete	The annotations to delete.
      * @param metadata	The acquisition metadata.
      * @param userID	The id of the user.
      * @return The {@link BatchCall}.
      */
     private BatchCall loadBatchCall(final Collection<DataObject> data, final
     		List<AnnotationData> toAdd, final List<AnnotationData> toRemove,
-    		final List<AnnotationData> toDelete, 
     		final List<Object> metadata, final long userID)
     {
         return new BatchCall("Saving") {
@@ -122,8 +118,7 @@ public class StructuredAnnotationSaver
 						os.saveAcquisitionData(i.next()) ;
 					}
             	}
-            	result = os.saveBatchData(data, toAdd, toRemove, toDelete,
-            			userID);
+            	result = os.saveBatchData(data, toAdd, toRemove, userID);
             }
         };
     }
@@ -136,15 +131,13 @@ public class StructuredAnnotationSaver
      * @param data		The data objects to handle.
      * @param toAdd		The annotations to add.
      * @param toRemove	The annotations to remove.
-     * @param toDelete	The annotations to delete.
      * @param metadata	The acquisition metadata.
      * @param userID	The id of the user.
      * @return The {@link BatchCall}.
      */
     private BatchCall loadBatchCall(final TimeRefObject data, final
     		List<AnnotationData> toAdd, final List<AnnotationData> toRemove,
-    		final List<AnnotationData> toDelete, final List<Object> metadata, 
-    		final long userID)
+    		final List<Object> metadata, final long userID)
     {
         return new BatchCall("Saving") {
             public void doCall() throws Exception
@@ -156,8 +149,7 @@ public class StructuredAnnotationSaver
 						os.saveAcquisitionData(i.next()) ;
 					}
             	}
-            	result = os.saveBatchData(data, toAdd, toRemove, toDelete,
-            			userID);
+            	result = os.saveBatchData(data, toAdd, toRemove, userID);
             }
         };
     }
@@ -180,7 +172,6 @@ public class StructuredAnnotationSaver
      * @param data		The data objects to handle.
      * @param toAdd		The annotations to add.
      * @param toRemove	The annotations to remove.
-     * @param toDelete	The annotations to delete.
      * @param metadata	The acquisition metadata.
      * @param userID	The id of the user.
      * @param batch		Pass <code>true</code> to indicate that it is a batch
@@ -188,17 +179,14 @@ public class StructuredAnnotationSaver
      */
     public StructuredAnnotationSaver(Collection<DataObject> data, 
     		List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
-    		List<AnnotationData> toDelete, List<Object> metadata, long userID, 
-    		boolean batch)
+    		List<Object> metadata, long userID, boolean batch)
     {
     	if (data == null)
     		throw new IllegalArgumentException("No object to save.");
     	if (batch)
-    		loadCall = loadBatchCall(data, toAdd, toRemove, toDelete, 
-    				metadata, userID);
+    		loadCall = loadBatchCall(data, toAdd, toRemove, metadata, userID);
     	else 
-    		loadCall = loadCall(data, toAdd, toRemove, toDelete, 
-    				metadata, userID);
+    		loadCall = loadCall(data, toAdd, toRemove, metadata, userID);
     }
     
     /**
@@ -211,12 +199,11 @@ public class StructuredAnnotationSaver
      */
     public StructuredAnnotationSaver(TimeRefObject timeRefObject, 
     		List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
-    		List<AnnotationData> toDelete, long userID)
+    		long userID)
     {
     	if (timeRefObject == null)
     		throw new IllegalArgumentException("No time period sepecified.");
-    	loadCall = loadBatchCall(timeRefObject, toAdd, toRemove, toDelete,
-    			null, userID);
+    	loadCall = loadBatchCall(timeRefObject, toAdd, toRemove, null, userID);
     }
     
 }

@@ -63,9 +63,6 @@ public class DataBatchSaver
 	/** The annotation to remove from the data object. */
 	private List<AnnotationData> 	toRemove;
 	
-	/** The annotation to delete. */
-	private List<AnnotationData> 	toDelete;
-	
 	/** The object hosting the time period. */
 	private TimeRefObject			timeRefObject;
 	
@@ -83,8 +80,7 @@ public class DataBatchSaver
 	 * @param toRemove		The collection of annotations to remove.
 	 */
 	public DataBatchSaver(MetadataViewer viewer, Collection<DataObject> data,
-				List<AnnotationData> toAdd, List<AnnotationData> toRemove,
-				List<AnnotationData> toDelete)
+				List<AnnotationData> toAdd, List<AnnotationData> toRemove)
 	{
 		super(viewer, null);
 		if (data == null)
@@ -92,7 +88,6 @@ public class DataBatchSaver
 		this.data = data;
 		this.toAdd = toAdd;
 		this.toRemove = toRemove;
-		this.toDelete = toDelete;
 	}
 	
 	/**
@@ -106,8 +101,7 @@ public class DataBatchSaver
 	 * @param toRemove		The collection of annotations to remove.
 	 */
 	public DataBatchSaver(MetadataViewer viewer, TimeRefObject timeRefObject,
-				List<AnnotationData> toAdd, List<AnnotationData> toRemove,
-				List<AnnotationData> toDelete)
+				List<AnnotationData> toAdd, List<AnnotationData> toRemove)
 	{
 		super(viewer, null);
 		if (timeRefObject == null)
@@ -126,10 +120,9 @@ public class DataBatchSaver
 		long userID = MetadataViewerAgent.getUserDetails().getId();
 		if (timeRefObject != null)
 			handle = mhView.saveBatchData(timeRefObject, toAdd, toRemove, 
-					toDelete, userID, this);
-		else
-			handle = mhView.saveBatchData(data, toAdd, toRemove, toDelete, 
 					userID, this);
+		else
+			handle = mhView.saveBatchData(data, toAdd, toRemove, userID, this);
 	}
 	
 	/** 

@@ -137,48 +137,43 @@ class MetadataHandlerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see MetadataHandlerView#saveData(Collection, List, List, List, long, 
+	 * @see MetadataHandlerView#saveData(Collection, List, List, long, 
 	 * 									AgentEventListener)
 	 */
 	public CallHandle saveData(Collection<DataObject> data, 
 			List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
-			List<AnnotationData> toDelete, List<Object> metadata, long userID, 
-			AgentEventListener observer)
+			List<Object> metadata, long userID, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new StructuredAnnotationSaver(data, 
-								toAdd, toRemove, toDelete, metadata, userID, 
-								false);
+								toAdd, toRemove, metadata, userID, false);
 		return cmd.exec(observer);
 	}
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see MetadataHandlerView#saveBatchData(Collection, List, List, List, 
+	 * @see MetadataHandlerView#saveBatchData(Collection, List, List, 
 	 * 						long, AgentEventListener)
 	 */
 	public CallHandle saveBatchData(Collection<DataObject> data, 
 			List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
-			List<AnnotationData> toDelete, long userID, 
-			AgentEventListener observer)
+			long userID, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new StructuredAnnotationSaver(data, 
-									toAdd, toRemove, toDelete,
-									null, userID, true);
+									toAdd, toRemove, null, userID, true);
 		return cmd.exec(observer);
 	}
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see MetadataHandlerView#saveBatchData(TimeRefObject, List, List, List,
+	 * @see MetadataHandlerView#saveBatchData(TimeRefObject, List, List, 
 	 *  long, AgentEventListener)
 	 */
 	public CallHandle saveBatchData(TimeRefObject refObject, 
 			List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
-			List<AnnotationData> toDelete, 
 			long userID, AgentEventListener observer)
 	{
 		BatchCallTree cmd = new StructuredAnnotationSaver(refObject, 
-									toAdd, toRemove, toDelete, userID);
+									toAdd, toRemove, userID);
 		return cmd.exec(observer);
 	}
 	

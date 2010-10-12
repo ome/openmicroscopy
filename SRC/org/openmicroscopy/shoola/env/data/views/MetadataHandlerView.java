@@ -178,7 +178,6 @@ public interface MetadataHandlerView
 	 * @param data		The data objects to handle.
 	 * @param toAdd		Collection of annotations to add.
 	 * @param toRemove	Collection of annotations to remove.
-	 * @param toDelete	Collection of annotations to delete.
 	 * @param metadata	The acquisition metadata.
 	 * @param userID	The id of the user.
 	 * @param observer	Call-back handler.
@@ -186,7 +185,6 @@ public interface MetadataHandlerView
 	 */
 	public CallHandle saveData(Collection<DataObject> data, 
 					List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
-					List<AnnotationData> toDelete, 
 					List<Object> metadata,	long userID, 
 					AgentEventListener observer);
 	
@@ -198,15 +196,13 @@ public interface MetadataHandlerView
 	 * @param data		The data objects to handle.
 	 * @param toAdd		Collection of annotations to add.
 	 * @param toRemove	Collection of annotations to remove.
-	 * @param toDelete	Collection of annotations to delete.
 	 * @param userID	The id of the user.
 	 * @param observer	Call-back handler.
      * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle saveBatchData(Collection<DataObject> data, 
 					List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
-					List<AnnotationData> toDelete, long userID, 
-					AgentEventListener observer);
+					long userID, AgentEventListener observer);
 	
 	/**
 	 * Saves the objects contained in the passed <code>DataObject</code>s, 
@@ -216,14 +212,12 @@ public interface MetadataHandlerView
 	 * @param timeRefObject The object hosting the time period.
 	 * @param toAdd			Collection of annotations to add.
 	 * @param toRemove		Collection of annotations to remove.
-	 * @param toDelete	Collection of annotations to delete.
 	 * @param userID		The id of the user.
 	 * @param observer		Call-back handler.
      * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle saveBatchData(TimeRefObject timeRefObject, 
 					List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
-					List<AnnotationData> toDelete,
 					long userID, AgentEventListener observer);
 	
 	/**

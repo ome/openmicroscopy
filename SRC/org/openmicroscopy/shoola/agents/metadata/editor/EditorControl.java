@@ -455,7 +455,6 @@ class EditorControl
 					view.deleteAnnotation((FileAnnotationData) data);
 					view.removeAttachedFile(data);
 				}
-					
 			} 
 		} else if (AnnotationUI.EDIT_TAG_PROPERTY.equals(name)) {
 			Object object = evt.getNewValue();

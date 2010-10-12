@@ -427,19 +427,17 @@ class MetadataViewerModel
 	 * 
 	 * @param toAdd		Collection of annotations to add.
 	 * @param toRemove	Collection of annotations to remove.
-	 * @param toDelete	Collection of annotations to delete.
 	 * @param metadata	The acquisition metadata to save.
 	 * @param data		The object to update.
 	 * @param asynch 	Pass <code>true</code> to save data asynchronously,
      * 				 	<code>false</code> otherwise.
 	 */
 	void fireSaving(List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
-			List<AnnotationData> toDelete, List<Object> metadata, 
-			Collection<DataObject> data, boolean asynch)
+			List<Object> metadata, Collection<DataObject> data, boolean asynch)
 	{
 		if (asynch) {
 			DataSaver loader = new DataSaver(component, data, toAdd, toRemove, 
-					toDelete, metadata);
+					metadata);
 			loader.load();
 			state = MetadataViewer.SAVING;
 		} else {
@@ -451,7 +449,7 @@ class MetadataViewerModel
             		while (i.hasNext()) 
 						os.saveAcquisitionData(i.next()) ;
             	}
-            	os.saveData(data, toAdd, toRemove, toDelete, userID);
+            	os.saveData(data, toAdd, toRemove, userID);
 			} catch (Exception e) {
 				LogMessage msg = new LogMessage();
 				msg.print("Unable to save annotation and/or edited data");
@@ -580,15 +578,13 @@ class MetadataViewerModel
 	 * 
 	 * @param toAdd		Collection of annotations to add.
 	 * @param toRemove	Collection of annotations to remove.
-	 * @param toDelete	Collection of annotations to delete.
 	 * @param toSave    Collection of data objects to handle.
 	 */
 	void fireBatchSaving(List<AnnotationData> toAdd, List<AnnotationData> 
-						toRemove, List<AnnotationData> toDelete,
-						Collection<DataObject> toSave)
+						toRemove, Collection<DataObject> toSave)
 	{
 		DataBatchSaver loader = new DataBatchSaver(component, toSave, toAdd, 
-				toRemove, toDelete);
+				toRemove);
 		loader.load();
 		state = MetadataViewer.BATCH_SAVING;
 	}

@@ -945,6 +945,7 @@ class OmeroDataServiceImpl
 							ImageData.class.getName()), 
 							OMEROGateway.KEEP);
 				} else if (data instanceof TagAnnotationData) {
+					options = null;
 					ns = ((TagAnnotationData) data).getNameSpace();
 					if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
 						contents = deleteTagSet(data.getId());

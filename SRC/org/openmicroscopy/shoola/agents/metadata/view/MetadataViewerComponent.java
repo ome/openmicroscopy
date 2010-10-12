@@ -58,12 +58,15 @@ import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserSet;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.util.ChannelSelectionDialog;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.DataObjectRegistration;
 import org.openmicroscopy.shoola.agents.util.ui.MovieExportDialog;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
+import org.openmicroscopy.shoola.env.data.model.DeletableObject;
+import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.MovieActivityParam;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
@@ -424,6 +427,23 @@ class MetadataViewerComponent
 		return model.getRelatedNodes();
 	}
 	
+	private void deleteAnnotations(List<AnnotationData> toDelete)
+	{
+		if (toDelete == null || toDelete.size() == 0) return;
+		//Should only be annotation so content is false;
+		List<DeletableObject> l = new ArrayList<DeletableObject>();
+		Iterator<AnnotationData> j = toDelete.iterator();
+		while (j.hasNext())
+			l.add(new DeletableObject(j.next()));
+		IconManager icons = IconManager.getInstance();
+		DeleteActivityParam p = new DeleteActivityParam(
+				icons.getIcon(IconManager.APPLY_22), l);
+		p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
+		UserNotifier un = 
+			TreeViewerAgent.getRegistry().getUserNotifier();
+		un.notifyActivity(p);
+	}
+	
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#saveData(List, List, List, List, DataObject, boolean)
@@ -435,14 +455,13 @@ class MetadataViewerComponent
 		if (data == null) return;
 		Object refObject = model.getRefObject();
 		List<DataObject> toSave = new ArrayList<DataObject>();
-		
 		if (refObject instanceof FileData) {
 			FileData fa = (FileData) data;
 			if (fa.getId() > 0) {
 				toSave.add(data);
-				model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave,
-						asynch);
+				model.fireSaving(toAdd, toRemove, metadata, toSave, asynch);
 				fireStateChange();
+				deleteAnnotations(toDelete);
 			} else {
 				DataObjectRegistration r = new DataObjectRegistration(toAdd, 
 						toRemove, toDelete, metadata, data);
@@ -461,19 +480,13 @@ class MetadataViewerComponent
 					toSave.add((DataObject) n.next());
 			}
 		}
-		
-		if (refObject instanceof ProjectData) {
-			model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave, 
-					asynch);
-		} else if (refObject instanceof ScreenData) {
-			model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave,
-					asynch);
-		} else if (refObject instanceof PlateData) {
-			model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave,
-					asynch);
-		} else if (refObject instanceof DatasetData) {
-			model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave, 
-					asynch);
+		boolean b = true;
+		if (refObject instanceof ProjectData || 
+			refObject instanceof ScreenData ||
+			refObject instanceof PlateData || 
+			refObject instanceof DatasetData || 
+			refObject instanceof WellSampleData) {
+			model.fireSaving(toAdd, toRemove, metadata, toSave, asynch);
 		} else if (refObject instanceof ImageData) {
 			ImageData img = (ImageData) refObject;
 			if (img.getId() < 0) {
@@ -482,21 +495,18 @@ class MetadataViewerComponent
 				firePropertyChange(REGISTER_PROPERTY, null, r);
 				return;
 			} else {
-				model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave,
+				model.fireSaving(toAdd, toRemove, metadata, toSave,
 						asynch);
 			}
-		} else if (refObject instanceof WellSampleData) {
-			model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave,
-					asynch);
-		} else if (refObject instanceof TagAnnotationData) {
+		}  else if (refObject instanceof TagAnnotationData) {
 			//Only update properties.
 			if ((toAdd.size() == 0 && toRemove.size() == 0)) {
-				model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave,
-						asynch);
-				return;
+				model.fireSaving(toAdd, toRemove, metadata, toSave, asynch);
+				b = false;
 			}	
 		}
-		fireStateChange();
+		deleteAnnotations(toDelete);
+		if (b) fireStateChange();
 	}
 	
 	/** 
