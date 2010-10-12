@@ -303,9 +303,14 @@ public class DeleteServicePermissionsTest
     /**
      * Test to delete a tag used by another user. The tag is owned by the 
      * group owner.
+     *
+     * On 2010.10.12 meeting, it was decided that this test will be
+     * allowed to pass, i.e. the owner will be able to delete, but
+     * the clients will show a warning: "You are deleting as an admin/PI".
+     *
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false, groups = "ticket:2962")
+    @Test(groups = "ticket:2962")
     public void testDeleteTagOwnedByGroupOwnerUsedByOther() 
     	throws Exception
     {
@@ -342,7 +347,7 @@ public class DeleteServicePermissionsTest
     	
     	//Tag's owner now deletes the tag.
     	init(tagger);
-    	delete(false, iDelete, client, new DeleteCommand(
+	delete(true, iDelete, client, new DeleteCommand(
     			DeleteServiceTest.REF_ANN,
     			c.getId().getValue(), null));
     	assertExists(c); //fail tag is deleted
