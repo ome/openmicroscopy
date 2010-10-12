@@ -237,11 +237,11 @@ class IntensityResultsView
 	/** Map of the sum channel intensity values to coord. */
 	private Map<Coord3D, Map<Integer, Double>> sumStats;
 	
-	/** Map of the coord to a shape. */
+	/** Map of the coordinate to a shape. */
 	private Map<Coord3D, ROIShape> shapeMap;
 	
-	/** The current coord of the ROI being depicted in the slider. */
-	Coord3D coord;
+	/** The current coordinate of the ROI being depicted in the slider. */
+	private Coord3D coord;
 	
 	/** Current ROIShape. */
 	private 	ROIShape shape;
