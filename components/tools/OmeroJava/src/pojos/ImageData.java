@@ -302,7 +302,7 @@ public class ImageData extends DataObject {
     }
 
     /**
-     * Returns the acquistion date.
+     * Returns the acquisition date.
      * 
      * @return See above.
      */
