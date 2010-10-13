@@ -449,7 +449,9 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
         String filePath;
 
         HashMap<String, ArrayList<Long>> failedMap = new HashMap<String, ArrayList<Long>>();
-
+        long bytesFailed = 0;
+        long filesFailed = 0;
+        
         for (Report report : reports.values()) {
             
             for (String fileType : fileTypeList) {
@@ -475,6 +477,8 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                                         + file.getAbsolutePath());
                             } else {
                                 failedMap.get(fileType).add(id);
+                                filesFailed++;
+                                bytesFailed += file.length();
                                 log.warn("Failed to delete " + fileType
                                         + " " + file.getAbsolutePath());
                             }
@@ -495,9 +499,12 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                     array[i] = ids.get(i);
                 }
                 report.undeletedFiles.put(key, array);
-
             }
-
+            if (filesFailed > 0) {
+                report.warning += " Warning: " + Long.toString(filesFailed) + "file(s) comprising "
+                        + Long.toString(bytesFailed) + " bytes were not removed.";
+            }
+            
             if (log.isDebugEnabled()) {
                 for (String table : failedMap.keySet()) {
                     log.debug("Failed to delete files : " + table + ":"
