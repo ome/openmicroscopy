@@ -42,6 +42,7 @@ import omero.model.Pixels;
 import omero.model.QuantumDef;
 import omero.model.RenderingDef;
 import omero.model.Well;
+import omero.model.WellSample;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
@@ -61,8 +62,11 @@ import org.testng.annotations.Test;
 public class AbstractTest
 	extends TestCase
 {
-	
-	/** Identifies the <code>system</code> group. */
+
+    /** The OME-XML format. */
+    public static final String OME_FORMAT = "ome";
+
+    /** Identifies the <code>system</code> group. */
 	public String SYSTEM_GROUP = "system";
 	
 	/** Identifies the <code>user</code> group. */
@@ -94,6 +98,9 @@ public class AbstractTest
     
     /** Helper reference to the <code>IDelete</code> service. */
     protected IDeletePrx iDelete;
+
+    /** Reference to the importer store. */
+    protected OMEROMetadataStoreClient importer;
 
     /** Helper class creating mock object. */
     protected ModelMockFactory mmFactory;
@@ -322,6 +329,7 @@ public class AbstractTest
         iAdmin = null;
         iDelete = null;
         mmFactory = null;
+        importer = null;
     }
 
     /**
@@ -342,6 +350,10 @@ public class AbstractTest
         iAdmin = factory.getAdminService();
         iDelete = factory.getDeleteService();
         mmFactory = new ModelMockFactory(factory.getPixelsService());
+
+        importer = new OMEROMetadataStoreClient();
+        importer.initialize(factory);
+
         return iAdmin.getEventContext();
     }
     
@@ -433,7 +445,31 @@ public class AbstractTest
         return (List<Well>) (List<?>) 
         	iQuery.findAllByQuery(sb.toString(), param);
 	}
-	
+
+    /**
+     * Helper method to load a well sample with its well and plate intact
+     * (and possibly a screen if one exists) for the given pixels.
+     * @param p
+     * @return
+     * @throws ServerError
+     */
+    protected WellSample getWellSample(Pixels p) throws ServerError {
+        long id = p.getImage().getId().getValue();
+        String sql = "select ws from WellSample as ws ";
+        sql += "join fetch ws.well as w ";
+        sql += "join fetch w.plate as p ";
+        sql += "left outer join fetch p.screenLinks sl ";
+        sql += "left outer join fetch sl.parent s ";
+        sql += "where ws.image.id = :id";
+        ParametersI param = new ParametersI();
+        param.addId(id);
+        List<IObject> results = iQuery.findAllByQuery(sql, param);
+        assertTrue(results.size() == 1);
+        WellSample ws = (WellSample) results.get(0);
+        assertNotNull(ws);
+        return ws;
+    }
+
     /**
      * Makes sure that the passed object exists.
      * 
@@ -478,6 +514,37 @@ public class AbstractTest
         for (IObject iObject : obj) {
             assertDoesNotExist(iObject);
         }
+    }
+
+
+    /**
+     * Imports the specified OME-XML file and returns the pixels set
+     * if successfully imported.
+     *
+     * @param file The file to import.
+     * @param format The format of the file to import.
+     * @return The collection of imported pixels set.
+     * @throws Exception Thrown if an error occurred while encoding the image.
+     */
+    protected List<Pixels> importFile(File file, String format)
+        throws Throwable
+    {
+        return importFile(importer, file, format, false);
+    }
+
+    /**
+     * Imports the specified OME-XML file and returns the pixels set
+     * if successfully imported.
+     *
+     * @param file The file to import.
+     * @param format The format of the file to import.
+     * @return The collection of imported pixels set.
+     * @throws Exception Thrown if an error occurred while encoding the image.
+     */
+    protected List<Pixels> importFile(File file, String format, boolean metadata)
+        throws Throwable
+    {
+        return importFile(importer, file, format, metadata);
     }
 
     /**

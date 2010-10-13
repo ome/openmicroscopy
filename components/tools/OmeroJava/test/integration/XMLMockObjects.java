@@ -1363,7 +1363,24 @@ public class XMLMockObjects
 		ome.addPlate(createPlate(0, 1, 1, fields, n));
 		return ome;
 	}
-	
+
+    public OME createPopulatedScreen(int plates, int rows, int cols, int fields, int acqs)
+    {
+        Screen screen = createScreen(0);
+        for (int p = 0; p < plates; p++) {
+            Plate plate = createPlate(p, rows, cols, fields, acqs);
+            screen.linkPlate(plate);
+            ome.addPlate(plate);
+            ome.addScreen(screen);
+        }
+        return ome;
+    }
+
+    public OME createPopulatedScreen()
+    {
+        return createPopulatedScreen(1, 1, 1, 1, 1);
+    }
+
 	/**
 	 * Creates a plate with <code>1</code> row, <code>1</code> column
 	 * and <code>1</code> field. This plate will be added to a screen
@@ -1374,14 +1391,14 @@ public class XMLMockObjects
 	public OME createBasicPlateWithReagent()
 	{
 		populateInstrument();
-		Plate plate = createPlate(0, 1, 1, 1, 0);
+        Plate plate = createPlate(0, 1, 1, 1, 0);
 		Reagent r = createReagent(0);
 		plate.getWell(0).linkReagent(r);
-		Screen screen = createScreen(0);
-		screen.addReagent(r);
-		screen.linkPlate(plate);
-		ome.addPlate(plate);
-		ome.addScreen(screen);
+        Screen screen = createScreen(0);
+        screen.addReagent(r);
+        screen.linkPlate(plate);
+        ome.addPlate(plate);
+        ome.addScreen(screen);
 		return ome;
 	}
 	

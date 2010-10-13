@@ -60,7 +60,7 @@ import ome.xml.model.OME;
  * </small>
  * @since 3.0-Beta4
  */
-class XMLWriter 
+public class XMLWriter
 {
 
 	/** The schema language. */
@@ -185,7 +185,7 @@ class XMLWriter
 	}
 	
 	/** Creates a new instance. */
-	XMLWriter() {}
+	public XMLWriter() {}
 	
 	/**
 	 * Writes the data to the file. Binary data will be added.
@@ -194,7 +194,7 @@ class XMLWriter
 	 * @param ome  The element to write to the file.
 	 * @throws Exception Thrown if an error occurred while writing the XML file.
 	 */
-	void writeFile(File file, OME ome)
+	public void writeFile(File file, OME ome)
 		throws Exception
 	{
 		writeFile(file, ome, true);
@@ -209,7 +209,7 @@ class XMLWriter
 	 *                   <code>false</code> otherwise.
 	 * @throws Exception Thrown if an error occurred while writing the XML file.
 	 */
-	void writeFile(File file, OME ome, boolean binaryData)
+	public void writeFile(File file, OME ome, boolean binaryData)
 		throws Exception
 	{
 		String values = createXMLDocument(ome, binaryData);

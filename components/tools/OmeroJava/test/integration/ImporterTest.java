@@ -41,6 +41,7 @@ import org.testng.annotations.Test;
 //Application-internal dependencies
 import ome.formats.OMEROMetadataStoreClient;
 import ome.xml.model.OME;
+import omero.ServerError;
 import omero.api.IRoiPrx;
 import omero.api.RoiOptions;
 import omero.api.RoiResult;
@@ -106,15 +107,9 @@ public class ImporterTest
 	extends AbstractTest
 {
 	
-	/** The OME-XML format. */
-	public static final String OME_FORMAT = "ome";
-	
 	/** The collection of files that have to be deleted. */
 	private List<File> files;
 	
-	/** Reference to the importer store. */
-	private OMEROMetadataStoreClient importer;
-
     /**
      * Attempts to create a Java timestamp from an XML date/time string.
      * @param value An <i>xsd:dateTime</i> string.
@@ -591,37 +586,7 @@ public class ImporterTest
 		assertEquals(otf.getPixelsType().getValue().getValue(), 
 				xml.getType().getValue());
 	}
-	
-	/**
-	 * Imports the specified OME-XML file and returns the pixels set
-	 * if successfully imported.
-	 * 
-	 * @param file The file to import.
-	 * @param format The format of the file to import.
-	 * @return The collection of imported pixels set.
-	 * @throws Exception Thrown if an error occurred while encoding the image.
-	 */
-	private List<Pixels> importFile(File file, String format)
-		throws Throwable
-	{
-		return importFile(importer, file, format, false);
-	}
 
-	/**
-	 * Imports the specified OME-XML file and returns the pixels set
-	 * if successfully imported.
-	 * 
-	 * @param file The file to import.
-	 * @param format The format of the file to import.
-	 * @return The collection of imported pixels set.
-	 * @throws Exception Thrown if an error occurred while encoding the image.
-	 */
-	private List<Pixels> importFile(File file, String format, boolean metadata)
-		throws Throwable
-	{
-		return importFile(importer, file, format, metadata);
-	}
-	
 	/**
 	 * Overridden to initialize the list.
 	 * @see AbstractTest#setUp()
@@ -633,8 +598,6 @@ public class ImporterTest
     {
     	super.setUp();
     	files = new ArrayList<File>();
-    	importer = new OMEROMetadataStoreClient();
-    	importer.initialize(factory);
     }
     
 	/**
@@ -1092,18 +1055,8 @@ public class ImporterTest
 		} catch (Throwable e) {
 			throw new Exception("cannot import the plate", e);
 		}
-		Pixels p = pixels.get(0);
-		long id = p.getImage().getId().getValue();
-		String sql = "select ws from WellSample as ws ";
-		sql += "join fetch ws.well as w ";
-		sql += "join fetch w.plate as p ";
-		sql += "where ws.image.id = :id";
-		ParametersI param = new ParametersI();
-		param.addId(id);
-		List<IObject> results = iQuery.findAllByQuery(sql, param);
-		assertTrue(results.size() == 1);
-		WellSample ws = (WellSample) results.get(0);
-		assertNotNull(ws);
+        Pixels p = pixels.get(0);
+        WellSample ws = getWellSample(p);
 		validateWellSample(ws, ome.getPlate(0).getWell(0).getWellSample(0));
 		Well well = ws.getWell();
 		assertNotNull(well);
