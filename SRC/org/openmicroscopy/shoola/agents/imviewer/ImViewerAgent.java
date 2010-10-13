@@ -328,6 +328,7 @@ public class ImViewerAgent
     	
     	if (image.getId() < 0) return;
     	PixelsData pixels = image.getDefaultPixels();
+    	if (pixels == null) return;
     	ImViewer viewer = ImViewerFactory.getImageViewer(pixels.getId());
     	if (viewer != null) viewer.discard();
     }
