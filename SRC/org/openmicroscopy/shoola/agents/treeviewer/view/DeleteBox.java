@@ -39,8 +39,10 @@ import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JSeparator;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -48,6 +50,8 @@ import javax.swing.event.ChangeListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
@@ -60,7 +64,6 @@ import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
-import pojos.TermAnnotationData;
 
 /** 
  * A modal dialog asking what the user wants to delete.
@@ -86,10 +89,16 @@ public class DeleteBox
 	private static final String		DEFAULT_TEXT = "Are you sure you want to " +
 			"delete the selected ";
 
+	/** The text displayed in the tool tip for annotations. */
 	private static final String    TOOL_TIP = "The annotations will " +
 			"be deleted if they are only linked to one of the objects"+
 			" you wish to delete.";
 		
+	/** Text display if the user is a group owner. */
+	private static final String		WARNING_GROUP_OWNER = "Some data " +
+			"might be used by other users,\nthey will no longer be able to " +
+			"use or see them.";
+	
 	/** The button to display the tool tip. */
 	private JButton					infoButton;
 	
@@ -207,6 +216,7 @@ public class DeleteBox
         }
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		
 		boolean add = false;
 		if (ImageData.class.equals(type)) {
 			add = true;
@@ -226,6 +236,7 @@ public class DeleteBox
 				p.add(withoutContent);
 			}
 			if (annotation) {
+				p.add(new JSeparator());
 				p.add(Box.createVerticalStrut(10));
 				p.add(withAnnotation);
 				p.add(typesPane);
@@ -239,8 +250,18 @@ public class DeleteBox
 				}
 			}
 		}
+		JPanel body;
+		if (TreeViewerAgent.isLeaderOfCurrentGroup()) {
+			body = new JPanel();
+			body.setLayout(new BoxLayout(body, BoxLayout.Y_AXIS));
+			body.add(p);
+			JLabel label = UIUtilities.setTextFont(WARNING_GROUP_OWNER, 
+					Font.BOLD);
+			label.setForeground(UIUtilities.REQUIRED_FIELDS_COLOR);
+			body.add(UIUtilities.buildComponentPanel(label));
+		} else body = p;
 		if (add)
-			addBodyComponent(UIUtilities.buildComponentPanel(p));
+			addBodyComponent(UIUtilities.buildComponentPanel(body));
 	}
 	
 	/**
@@ -346,6 +367,7 @@ public class DeleteBox
 		initComponents(DeleteBox.getTypeAsString(type, number, nameSpace));
 		layoutComponents();
 		pack();
+		setResizable(false);
 	}
     
     /**

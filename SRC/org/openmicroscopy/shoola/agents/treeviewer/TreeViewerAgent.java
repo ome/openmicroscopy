@@ -157,7 +157,28 @@ public class TreeViewerAgent
 		return values;
 	}
 	
-	
+	/**
+	 * Returns <code>true</code> if the user currently logged in 
+	 * is an owner of the current group, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public static boolean isLeaderOfCurrentGroup()
+	{
+		ExperimenterData exp = getUserDetails();
+		Set groups = getGroupsLeaderOf();
+		if (groups.size() == 0) return false;
+		GroupData group = exp.getDefaultGroup();
+		Iterator i = groups.iterator();
+		GroupData g;
+		while (i.hasNext()) {
+			g = (GroupData) i.next();
+			if (g.getId() == group.getId())
+				return true;
+		}
+		return false;
+	}
+
     /**
      * Handles the {@link CopyRndSettings} event.
      * 
