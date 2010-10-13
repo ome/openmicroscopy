@@ -447,12 +447,12 @@ class TreeViewerModel
 	/**
 	 * Starts the asynchronous removal of the data and sets the state to 
 	 * {@link TreeViewer#SAVE}.
-	 * This method should be invoked to remove a collection of nodes of the
-	 * same type.
+	 * This method should be invoked to remove a collection of groups or 
+	 * experimenters.
 	 * 
-	 * @param values The values to delete.
+	 * @param values The groups or experimenters to delete.
 	 */
-	void fireObjectsDeletion(List<DeletableObject> values)
+	void fireObjectsDeletion(List<DataObject> values)
 	{
 		state = TreeViewer.SAVE;
 		currentLoader = new DataObjectRemover(component, values);

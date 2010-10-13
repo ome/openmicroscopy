@@ -93,8 +93,8 @@ import org.openmicroscopy.shoola.env.data.events.SwitchUserGroup;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
-import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
+import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ImportObject;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
@@ -2426,10 +2426,17 @@ class TreeViewerComponent
 			List<TreeImageDisplay> toRemove = new ArrayList<TreeImageDisplay>();
 			DeletableObject d;
 			List<DataObject> objects = new ArrayList<DataObject>();
+			List<DataObject> values = null;
 			while (i.hasNext()) {
 				node = (TreeImageDisplay) i.next();
 				obj = node.getUserObject();
-				if (obj instanceof DataObject) {
+				if (obj instanceof GroupData || 
+						obj instanceof ExperimenterData) {
+					if (values == null)
+						values = new ArrayList<DataObject>(); 
+					values.add((DataObject) obj);
+					toRemove.add(node);
+				} else if (obj instanceof DataObject) {
 					d = new DeletableObject((DataObject) obj, content);
 					if (!(obj instanceof TagAnnotationData || 
 							obj instanceof FileAnnotationData)) 
@@ -2446,8 +2453,6 @@ class TreeViewerComponent
 				view.removeAllFromWorkingPane();
 				DataBrowserFactory.discardAll();
 				model.getMetadataViewer().setRootObject(null, -1);
-				//model.fireObjectsDeletion(l);
-				//fireStateChange();
 				IconManager icons = IconManager.getInstance();
 				DeleteActivityParam p = new DeleteActivityParam(
 						icons.getIcon(IconManager.APPLY_22), l);
@@ -2455,6 +2460,14 @@ class TreeViewerComponent
 				UserNotifier un = 
 					TreeViewerAgent.getRegistry().getUserNotifier();
 				un.notifyActivity(p);
+			} 
+			if (values != null) {
+				model.getSelectedBrowser().removeTreeNodes(toRemove);
+				view.removeAllFromWorkingPane();
+				DataBrowserFactory.discardAll();
+				model.getMetadataViewer().setRootObject(null, -1);
+				model.fireObjectsDeletion(values);
+				fireStateChange();
 			}
 		}
 	}
@@ -2505,15 +2518,15 @@ class TreeViewerComponent
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#onNodesDeleted(Collection)
 	 */
-	public void onNodesDeleted(Collection<DeletableObject> notDeleted)
+	public void onNodesDeleted(Collection<DataObject> deleted)
 	{
 		if (model.getState() == DISCARDED) return;
-		if (notDeleted == null || notDeleted.size() == 0) {
+		if (deleted == null || deleted.size() == 0) {
 			onNodesMoved();
 			return;
 		}
 		NotDeletedObjectDialog nd = new NotDeletedObjectDialog(view, 
-								notDeleted);
+								deleted);
 		if (nd.centerAndShow() == NotDeletedObjectDialog.CLOSE)
 			onNodesMoved();
 	}

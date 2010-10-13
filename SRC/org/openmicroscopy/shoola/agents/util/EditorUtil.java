@@ -1991,4 +1991,16 @@ public class EditorUtil
 		return result;
     }
     
+    /**
+     * Returns the name of the experimenter.
+     * 
+     * @param exp The experimenter to handle.
+     * @return See above.
+     */
+    public static String getExperimenterName(ExperimenterData exp)
+    {
+    	if (exp == null) return "";
+    	return exp.getFirstName()+" "+exp.getLastName();
+    }
+    
 }

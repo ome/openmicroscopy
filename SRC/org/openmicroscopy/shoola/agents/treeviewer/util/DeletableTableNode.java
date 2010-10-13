@@ -30,11 +30,12 @@ package org.openmicroscopy.shoola.agents.treeviewer.util;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeNode;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
 import pojos.ProjectData;
@@ -79,6 +80,12 @@ class DeletableTableNode
 	/** Text corresponding to the <code>file</code> type. */
 	static final String FILE_TYPE = "File";
 	
+	/** Text corresponding to the <code>group</code> type. */
+	static final String GROUP_TYPE = "Group";
+	
+	/** Text corresponding to the <code>Experimenter</code> type. */
+	static final String EXPERIMENTER_TYPE = "Experimenter";
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -101,8 +108,8 @@ class DeletableTableNode
 	String getType()
 	{
 		Object node = getUserObject();
-		if (!(node instanceof DeletableObject)) return "";
-		DataObject object = ((DeletableObject) node).getObjectToDelete();
+		if (!(node instanceof DataObject)) return "";
+		DataObject object = (DataObject) node;
 		if (object instanceof ImageData) return IMAGE_TYPE;
 		if (object instanceof DatasetData) return DATASET_TYPE;
 		if (object instanceof ProjectData) return PROJECT_TYPE;
@@ -111,6 +118,8 @@ class DeletableTableNode
 		if (object instanceof FileAnnotationData) return FILE_TYPE;
 		if (object instanceof PlateAcquisitionData) 
 			return PLATE_ACQUISITION_TYPE;
+		if (object instanceof GroupData) return GROUP_TYPE;
+		if (object instanceof ExperimenterData) return EXPERIMENTER_TYPE;
 		return "";
 	}
 	
@@ -121,14 +130,14 @@ class DeletableTableNode
 	public Object getValueAt(int column)
 	{
 		Object node = getUserObject();
-		if (!(node instanceof DeletableObject)) {
+		if (!(node instanceof DataObject)) {
 			switch (column) {
 				case NotDeletedObjectDialog.TYPE_COL: return "";
 				case NotDeletedObjectDialog.ID_COL: return -1;
 				case NotDeletedObjectDialog.NAME_COL: return "";
 			}
 		}
-		DataObject object = ((DeletableObject) node).getObjectToDelete();
+		DataObject object = (DataObject) node;
 		switch (column) {
 			case NotDeletedObjectDialog.TYPE_COL:
 				return getType();
@@ -150,6 +159,12 @@ class DeletableTableNode
 				if (object instanceof ImageData)
 					return EditorUtil.getPartialName(
 							((ImageData) object).getName());
+				if (object instanceof GroupData)
+					return ((GroupData) object).getName();
+				if (object instanceof ExperimenterData) {
+					return EditorUtil.getExperimenterName(
+							(ExperimenterData) object);
+				}
 				return "";
 		}
 		return null;

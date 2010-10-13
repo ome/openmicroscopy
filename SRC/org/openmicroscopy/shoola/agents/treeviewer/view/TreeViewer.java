@@ -792,9 +792,9 @@ public interface TreeViewer
 	 * <code>null</code> or of size <code>0</code> all the nodes have been
 	 * deleted.
 	 * 
-	 * @param notDeleted The collection of nodes that couldn't be deleted.
+	 * @param nodes The collection of nodes that couldn't be deleted.
 	 */
-	public void onNodesDeleted(Collection<DeletableObject> notDeleted);
+	public void onNodesDeleted(Collection<DataObject> notDeleted);
 	
 	/** 
 	 * Refreshes the view when nodes have been <code>Cut/Paste</code> or

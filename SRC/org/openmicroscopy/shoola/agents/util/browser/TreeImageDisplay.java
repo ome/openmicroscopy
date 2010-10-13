@@ -436,8 +436,7 @@ public abstract class TreeImageDisplay
         else if (obj instanceof ImageData) 
             return ((ImageData) obj).getName();
         else if (obj instanceof ExperimenterData) {
-        	ExperimenterData exp = (ExperimenterData) obj;
-        	return exp.getFirstName()+" "+exp.getLastName();
+        	return EditorUtil.getExperimenterName((ExperimenterData) obj);
         } else if (obj instanceof GroupData) {
         	 return ((GroupData) obj).getName();
         } else if (obj instanceof TagAnnotationData)

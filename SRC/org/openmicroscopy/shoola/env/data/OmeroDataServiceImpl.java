@@ -903,6 +903,7 @@ class OmeroDataServiceImpl
 		List<DataObject> contents;
 		String ns;
 		Iterator<DataObject> k;
+		List<GroupData> groups = null;
 		while (i.hasNext()) {
 			contents = null;
 			object = i.next();

@@ -32,13 +32,13 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import pojos.DataObject;
 
 /** 
  * Removes data objects. Depending on the specified parameters, 
- * This class calls one of the <code>removeDataObjects</code> methods in the
- * <code>DataManagerView</code>.
+ * This class calls one of the <code>deleteDataObjects</code> methods in the
+ * <code>AdminView</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -52,20 +52,20 @@ public class DataObjectRemover
     extends DataTreeViewerLoader
 {
 
-    /** The objects to remove. */
-    private List<DeletableObject> 	values;
+    /** The groups or experimenters to remove. */
+    private List<DataObject> values;
 
     /** Handle to the asynchronous call so that we can cancel it. */
-    private CallHandle     			handle;
+    private CallHandle     	 handle;
 
     /**
      * Creates a new instance.
      * 
      * @param viewer	The Editor this data loader is for.
      * 					Mustn't be <code>null</code>.
-     * @param values	The objects to remove. 
+     * @param values The groups or experimenters to delete.
      */
-    public DataObjectRemover(TreeViewer viewer, List<DeletableObject> values)
+    public DataObjectRemover(TreeViewer viewer, List<DataObject> values)
     {
         super(viewer);
         if (values == null)
@@ -79,7 +79,7 @@ public class DataObjectRemover
      */
     public void load()
     {
-    	 handle = dmView.delete(values, this);
+    	 handle = adminView.deleteObjects(values, this);
     }
 
     /**
@@ -95,7 +95,7 @@ public class DataObjectRemover
     public void handleResult(Object result)
     {
         if (viewer.getState() == TreeViewer.DISCARDED) return;  //Async cancel.
-        viewer.onNodesDeleted((Collection<DeletableObject>) result);
+        viewer.onNodesDeleted((Collection<DataObject>) result);
     }
     
 }
