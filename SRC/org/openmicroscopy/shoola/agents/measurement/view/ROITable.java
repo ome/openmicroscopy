@@ -504,7 +504,7 @@ public class ROITable
 			nodeObject = getNodeAtRow(selectedRows[i]).getUserObject();
 			if (nodeObject instanceof ROI)
 			{
-				roi = (ROI)nodeObject;
+				roi = (ROI) nodeObject;
 				roiMap.put(roi.getID(), roi);
 				selectedList.add(roi);
 			}

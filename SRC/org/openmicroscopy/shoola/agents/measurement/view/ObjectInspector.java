@@ -100,7 +100,7 @@ class ObjectInspector
 		l.add(new AttributeField(MeasurementAttributes.TEXT, "Text", true));
 		l.add(new AttributeField(MeasurementAttributes.WIDTH, "Width", true));
 		l.add(new AttributeField(MeasurementAttributes.HEIGHT, "Height", true));
-		l.add(new AttributeField(AnnotationKeys.NAMESPACE, "Namespace", false));
+		l.add(new AttributeField(AnnotationKeys.NAMESPACE, "Workflow", false));
 		l.add(new AttributeField(AnnotationKeys.KEYWORDS, "Keywords", false));
 		l.add(new AttributeField(MeasurementAttributes.SHOWTEXT, "Show Text", 
 				false));
@@ -139,8 +139,9 @@ class ObjectInspector
 						ROIFigure figure = ftm.getFigure();
 						if (figure != null && !figure.isReadOnly())
 							controller.showColorPicker((Color) value);
-					} else if (value instanceof Boolean)
+					} else if (value instanceof Boolean) {
 						toggleValue();
+					}
 				}
 			}
 		});
