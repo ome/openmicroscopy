@@ -672,4 +672,11 @@ public interface DataBrowser
 	 */
 	PlateGridUI getGridUI();
 	
+	/**
+	 * Returns the parent of the nodes.
+	 * 
+	 * @return See above.
+	 */
+	Object getParentOfNodes();
+	
 }

@@ -181,9 +181,7 @@ public class ManageObjectAction
         Iterator i;
         int count = 0;
         Object obj;
-        ImageDisplay parentDisplay = node.getParentDisplay();
-        Object parent = null;
-        if (parentDisplay != null) parent = parentDisplay.getHierarchyObject();
+        //ImageDisplay parentDisplay = node.getParentDisplay();
         switch (index) {
 			case COPY:
 				if (ho instanceof DatasetData || ho instanceof ImageData || 
@@ -246,6 +244,7 @@ public class ManageObjectAction
 				} else setEnabled(false);
 				break;
 			case CUT:
+		        Object parent = model.getParentOfNodes();
 				if ((ho instanceof DatasetData && parent instanceof ProjectData)
 					|| (ho instanceof ImageData && 
 							(parent instanceof DatasetData || 

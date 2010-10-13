@@ -1429,6 +1429,12 @@ class DataBrowserComponent
 	 */
 	public PlateGridUI getGridUI() { return view.getGridUI(); }
 	
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#getParentOfNodes()
+	 */
+	public Object getParentOfNodes() { return model.getParent(); }
+	
 	/** 
 	 * Overridden to return the name of the instance to save. 
 	 * @see #toString()
