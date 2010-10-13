@@ -337,21 +337,6 @@ public class BasicSecuritySystem implements SecuritySystem,
         }
         tokenHolder.setToken(exp.getGraphHolder());
 
-        // Active group
-        ExperimenterGroup grp;
-        Long groupId = cd.getCallGroup();
-        if (groupId == null) {
-            groupId = ec.getCurrentGroupId();
-        } else {
-            log.debug("Using call-requested group: " + groupId);
-        }
-
-        if (isReadOnly) {
-            grp = new ExperimenterGroup(groupId, false);
-        } else {
-            grp = admin.groupProxy(groupId);
-        }
-
         // isAdmin
         boolean isAdmin = false;
         for (long gid : ec.getMemberOfGroupsList()) {
@@ -359,6 +344,32 @@ public class BasicSecuritySystem implements SecuritySystem,
                 isAdmin = true;
                 break;
             }
+        }
+
+        // Active group
+        ExperimenterGroup grp;
+        Long groupId = cd.getCallGroup();
+        Long shareId = null;
+        if (groupId == null) {
+            groupId = ec.getCurrentGroupId();
+        } else {
+            if (groupId >= 0) {
+                log.debug("Using call-requested group: " + groupId);
+            } else {
+                // ticket:2950
+                if (!isAdmin) {
+                    throw new SecurityViolation("Only administrators can use negative groups!");
+                }
+                log.info("Setting share id to -1");
+                shareId = -1L;
+                groupId = ec.getCurrentGroupId();
+            }
+        }
+
+        if (isReadOnly) {
+            grp = new ExperimenterGroup(groupId, false);
+        } else {
+            grp = admin.groupProxy(groupId);
         }
 
         // public groups (ticket:1940)
@@ -377,7 +388,7 @@ public class BasicSecuritySystem implements SecuritySystem,
 
         // In order to less frequently access the ThreadLocal in CurrentDetails
         // All properities are now set in one shot, except for Event.
-        cd.setValues(exp, grp, isAdmin, isReadOnly);
+        cd.setValues(exp, grp, isAdmin, isReadOnly, shareId);
 
         // Event
         String t = p.getEventType();

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-   Tests of the admin service
+   Tests of the permissions
 
    Copyright 2008 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
@@ -21,7 +21,7 @@ from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
 from omero.rtypes import *
 
-class TestAdmin(lib.ITest):
+class TestPermissions(lib.ITest):
 
     def testLoginToPublicGroupTicket1940(self):
         # As root create a new group
@@ -235,12 +235,12 @@ class TestAdmin(lib.ITest):
         leaderOfGroups = admin.getLeaderOfGroupIds(exp1)
         self.assertFalse(gr1.id.val in leaderOfGroups)
 
-        '''
+        """
         Controller method shows how it is used in practice
-        
+
         available = request.POST.getlist('available')
         owners = request.POST.getlist('owners')
-        
+
         def setOwnersOfGroup(self, available, owners):
             # available - current list rest of the users
             # owners - current list of chosen users
@@ -269,8 +269,49 @@ class TestAdmin(lib.ITest):
             #final save
             admin_serv.addGroupOwners(gr1, add_exps)
             admin_serv.removeGroupOwners(gr1, rm_exps)
-        '''
-        
-        
+        """
+
+    def testSearchAllGroups(self):
+        """
+        Seeing if by setting omero.group < 0, we
+        can load all possible objects.
+
+        see ticket:2950
+        """
+
+        uuid = self.uuid()
+        hsql = """select t from TagAnnotation t where t.ns = :ns"""
+        params = omero.sys.ParametersI()
+        params.addString("ns", uuid)
+
+        def get_tag(iquery, context):
+            return iquery.findByQuery(hsql, params, context)
+
+        update = self.client.sf.getUpdateService()
+        query = self.client.sf.getQueryService()
+
+        # As the regular user create an object
+        tag = omero.model.TagAnnotationI()
+        tag.ns = rstring(uuid)
+        tag = update.saveAndReturnObject(tag)
+        tid = tag.id.val
+
+        # As root, try to load it
+        root_query = self.root.sf.getQueryService()
+        tag = get_tag(root_query, {})
+        self.assertEquals(None, tag)
+
+        # Now try to load it again, with a context
+        tag = get_tag(root_query, {"omero.group": "-1"})
+        self.assertEquals(tid, tag.id.val)
+
+        # If the user tries that, there will be an exception
+        try:
+            get_tag(query, {"omero.group": "-1"})
+            self.fail("Should throw!")
+        except omero.SecurityViolation:
+            pass
+
+
 if __name__ == '__main__':
     unittest.main()

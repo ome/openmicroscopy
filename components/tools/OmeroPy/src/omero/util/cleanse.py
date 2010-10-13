@@ -4,7 +4,7 @@
 Reconcile and cleanse where necessary an OMERO data directory of orphaned data.
 """
 
-#  
+#
 #  Copyright (c) 2009 University of Dundee. All rights reserved.
 #
 #  Redistribution and use in source and binary forms, with or without
@@ -44,6 +44,7 @@ from stat import *
 SEARCH_DIRECTORIES = {
 	'Pixels': 'Pixels',
 	'Files': 'OriginalFile',
+        'Thumbnails': 'Thumbnail'
 }
 
 def usage(error):
@@ -77,7 +78,7 @@ class Cleanser(object):
 
 	# Number of objects to defer before we actually make a query
 	QUERY_THRESHOLD = 25
-	
+
 	def __init__(self, query_service, object_type):
 		self.query_service = query_service
 		self.object_type = object_type
@@ -107,7 +108,7 @@ class Cleanser(object):
 		self.deferred_paths.append(path)
 		if len(self.deferred_paths) == self.QUERY_THRESHOLD:
 			self.do_cleanse()
-	
+
 	def do_cleanse(self):
 		"""
 		Actually performs the reconciliation check against OMERO and
@@ -120,10 +121,10 @@ class Cleanser(object):
 		              for path in self.deferred_paths]
 		parameters = omero.sys.Parameters()
 		parameters.map = {'ids': omero.rtypes.rlist(object_ids)}
-		objects = self.query_service.findAllByQuery(
-			"select o from %s as o where o.id in (:ids)" % self.object_type,
-			parameters) 
-		existing_ids = [o.id.val for o in objects]
+		rows = self.query_service.projection(
+			"select o.id from %s as o where o.id in (:ids)" % self.object_type,
+			parameters, {"omero.group":"-1"})
+		existing_ids = [cols[0].val for cols in rows]
 		for i, object_id in enumerate(object_ids):
 			path = self.deferred_paths[i]
 			if object_id.val not in existing_ids:
