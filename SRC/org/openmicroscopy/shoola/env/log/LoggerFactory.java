@@ -85,8 +85,10 @@ public class LoggerFactory
 		String name = (String) reg.lookup(LookupNames.OMERO_HOME);
 		String omeroDir = System.getProperty("user.home")+File.separator+name;
 		File home = new File(omeroDir);
-		if (!home.exists()) home.mkdir();
+		if (!home.exists()) 
+			home.mkdir();
 		File logFile, logDir;
+
 		if (home.isDirectory()) {
 			logDir = new File(home, logDirName);
 			logDir.mkdir();

@@ -1812,4 +1812,21 @@ class BrowserComponent
 		view.addComponent(component);
 	}
 	
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#loadDirectory(TreeImageDisplay)
+	 */
+	public void loadDirectory(TreeImageDisplay display)
+	{
+		if (display == null) return;
+		Object ho = display.getUserObject();
+		if (!(ho instanceof FileData)) return;
+		FileData f = (FileData) ho;
+		if (f.isDirectory()) {
+			if (!display.isChildrenLoaded())
+				view.loadFile(display);
+			//model.getParentModel().browse(display, true);
+		}
+	}
+	
 }

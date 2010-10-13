@@ -760,4 +760,11 @@ public interface Browser
      */
 	void addComponent(JComponent component);
 	
+	/**
+	 * Loads the files contained in the passed folder.
+	 * 
+	 * @param display The directory.
+	 */
+	void loadDirectory(TreeImageDisplay display);
+	
 }
