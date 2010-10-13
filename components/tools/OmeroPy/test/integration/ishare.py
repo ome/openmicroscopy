@@ -523,7 +523,7 @@ class TestIShare(lib.ITest):
         ### create two users in two groups
         client_share1, user1 = self.new_client_and_user()
         client_share2, user2 = self.new_client_and_user()
-    
+
         ## login as user1
         share1 = client_share1.sf.getShareService()
         update1 = client_share1.sf.getUpdateService()
@@ -543,9 +543,9 @@ class TestIShare(lib.ITest):
         guests = []
         enabled = True
         sid = share1.createShare(description, timeout, objects, experimenters, guests, enabled)
-        
-        share2 = client_share2.sf.getShareService()  
+
+        share2 = client_share2.sf.getShareService()
         share = share2.getShare(sid)
-        
+
 if __name__ == '__main__':
     unittest.main()

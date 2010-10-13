@@ -21,6 +21,7 @@ import ome.model.internal.Details;
 import ome.model.meta.Event;
 import ome.model.meta.Experimenter;
 import ome.model.meta.Session;
+import ome.model.meta.Share;
 
 /**
  * Provides method for sharing - collaboration process for images, datasets,
@@ -125,7 +126,7 @@ public interface IShare extends ServiceInterface {
      *         of the share are linked to the {@link Session}. Missing is a list
      *         of share guests.
      */
-    Session getShare(long sessionId);
+    Share getShare(long sessionId);
 
     /**
      * Looks up all {@link ome.model.IObject items} belong to the

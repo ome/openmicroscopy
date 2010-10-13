@@ -22,6 +22,7 @@ import ome.model.IObject;
 import ome.model.internal.Details;
 import ome.model.meta.Node;
 import ome.model.meta.Session;
+import ome.model.meta.Share;
 import ome.security.basic.CurrentDetails;
 import ome.system.EventContext;
 import ome.util.ContextFilter;
@@ -108,7 +109,9 @@ public class ProxyCleanupFilter extends ContextFilter {
 
             // Also for security reasons, we're now checking ownership
             // of sessions.
-            if (f instanceof Session) {
+            if (f instanceof Share) {
+                // pass; ticket:2733
+            } else if (f instanceof Session) {
 
                 Session session = (Session) f;
                 if ( ! session.isLoaded()) {

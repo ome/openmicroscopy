@@ -237,8 +237,8 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
     }
 
     @RolesAllowed("user")
-    public Session getShare(long sessionId) {
-        Session session = null;
+    public Share getShare(long sessionId) {
+        Share session = null;
         ShareData data = getShareIfAccessible(sessionId);
         if (data != null) {
             session = shareToSession(data);
@@ -823,8 +823,8 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
         return sessions;
     }
 
-    protected Session shareToSession(ShareData data) {
-        return iQuery.findByQuery("select sh from Session sh "
+    protected Share shareToSession(ShareData data) {
+        return iQuery.findByQuery("select sh from Share sh "
                 + "join fetch sh.owner where sh.id = :id ", new Parameters()
                 .addId(data.id));
     }
