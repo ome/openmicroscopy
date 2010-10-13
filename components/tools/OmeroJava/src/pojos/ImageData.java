@@ -321,6 +321,8 @@ public class ImageData extends DataObject {
      * @return See above.
      */
     public PixelsData getDefaultPixels() {
+    	List<PixelsData> list = getAllPixels();
+    	if (list == null || list.size() == 0) return null;
         return getAllPixels().get(0);
     }
 
