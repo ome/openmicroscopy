@@ -890,6 +890,8 @@ public abstract class ActivityComponent
 		if (!viewButton.isVisible() && !downloadButton.isVisible()) {
 			if (this.result instanceof Collection) {
 				Collection l = (Collection) this.result;
+				if (this instanceof DeleteActivity)
+					resultButton.setText("Show error");
 				resultButton.setVisible(l.size() > 0);
 			} else if (this.result instanceof Map) {
 				Map l = (Map) this.result;

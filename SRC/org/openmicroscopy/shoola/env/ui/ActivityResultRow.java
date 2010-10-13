@@ -123,9 +123,12 @@ class ActivityResultRow
 			while (i.hasNext()) {
 				count += undeletedFiles.get(i.next()).length;
 			}
-			text = report.error;
-			text += " Unable to delete "+count+" file";
-			if (count > 1) text += "s";
+			text = convertReport(report.error);
+			if (count > 0) {
+				text += " Unable to delete "+count+" file";
+				if (count > 1) text += "s";
+			}
+			
 		} else text = row.toString();
 		setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
 		add(new JLabel(text));
@@ -141,6 +144,20 @@ class ActivityResultRow
 			add(Box.createHorizontalStrut(5));
 			add(activity.createButton("Plot", PLOT, this));
 		}
+	}
+	
+	/**
+	 * Converts the report error.
+	 * 
+	 * @param error The error to handle.
+	 * @return See above.
+	 */
+	private String convertReport(String error)
+	{
+		if (error == null) return "";
+		if (error.startsWith("ConstraintViolation"))
+			return "Object used by others.";
+		return error;
 	}
 	
 	/**

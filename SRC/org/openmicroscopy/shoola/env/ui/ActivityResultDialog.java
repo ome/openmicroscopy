@@ -71,7 +71,7 @@ class ActivityResultDialog
 	extends JDialog
 	implements ActionListener, PropertyChangeListener
 {
-
+	
 	/** Identifier indicating to close the dialog. */
 	private static final int CLOSE = 0;
 	
@@ -177,7 +177,11 @@ class ActivityResultDialog
 		return p;
 	}
 	
-	/** Builds and lays out the UI. */
+	/** 
+	 * Builds and lays out the UI. 
+	 * 
+	 * @param index One of the constants defined by this class.
+	 */
 	private void buildGUI()
 	{
 		Container c = getContentPane();
@@ -190,6 +194,10 @@ class ActivityResultDialog
 				title = "Errors";
 				text = "Follow the errors returned.";
 			}
+		}
+		if (activity instanceof DeleteActivity) {
+			title = "Errors";
+			text = "Follow the errors returned.";
 		}
 		TitlePanel tp = new TitlePanel(title, text, IconManager.getResults());
 		c.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -220,6 +228,20 @@ class ActivityResultDialog
 	 */
 	ActivityResultDialog(JFrame owner, ActivityComponent activity, Object 
 			result)
+	{
+		this(owner, activity, result, -1);
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param owner The owner of this dialog.
+	 * @param activity The activity of reference.
+	 * @param result The result to handle.
+	 * @param index One of the constants defined by this class.
+	 */
+	ActivityResultDialog(JFrame owner, ActivityComponent activity, Object 
+			result, int index)
 	{
 		super(owner);
 		if (activity == null) 
