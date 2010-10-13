@@ -374,16 +374,6 @@ class WellsModel
 	}
 	
 	/**
-	 * Views the passed node if supported.
-	 * 
-	 * @param node The node to handle.
-	 */
-	void viewNode(WellSampleNode node)
-	{
-		browser.viewDisplay(node);
-	}
-	
-	/**
 	 * Indicates how to display a column. 
 	 * 
 	 * @return See above.

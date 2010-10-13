@@ -115,6 +115,9 @@ public interface Browser
 	/** Bound property indicating to magnify the node when roll over. */
 	public static final String  ROLL_OVER_PROPERTY = "rollOver";
 
+	/** Bound property indicating to view the specified note. */
+	public static final String  VIEW_DISPLAY_PROPERTY = "viewDisplay";
+	
 	/**
 	 * Returns the node, if any, that is currently selected in the 
 	 * visualization tree.

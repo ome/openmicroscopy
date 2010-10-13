@@ -678,20 +678,7 @@ class BrowserModel
 	public void viewDisplay(ImageDisplay node)
 	{
 		if (node == null) return;
-		if (node instanceof ImageNode) {
-			EventBus bus = DataBrowserAgent.getRegistry().getEventBus();
-			Object uo = node.getHierarchyObject();
-			if (uo instanceof ImageData) {
-				bus.post(new ViewImage((ImageData) uo, null));
-			} else if (uo instanceof WellSampleData) {
-				ViewImage event = new ViewImage((WellSampleData) uo, null);
-				WellSampleNode wsn = (WellSampleNode) node;
-				Object parent = wsn.getParentObject();
-				if (parent instanceof DataObject)
-					event.setContext((DataObject) parent, null);
-				bus.post(event);
-			}
-		}
+		firePropertyChange(VIEW_DISPLAY_PROPERTY, null, node);
 	}
 	
 	/**

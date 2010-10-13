@@ -31,7 +31,6 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -215,6 +214,24 @@ public class ImViewerFactory
 		return null;
 	}
 
+	/**
+	 * Returns the viewer if any, identified by the passed pixels ID.
+	 * 
+	 * @param parent The of the image.
+	 * @return See above.
+	 */
+	public static ImViewer getImageViewerFromParent(DataObject parent)
+	{
+		if (parent == null) return null;
+		Iterator v = singleton.viewers.iterator();
+		ImViewerComponent comp;
+		while (v.hasNext()) {
+			comp = (ImViewerComponent) v.next();
+			if (comp.getModel().isSameParent(parent))  return comp;
+		}
+		return null;
+	}
+		
 	/**
 	 * Copies the rendering settings.
 	 * 

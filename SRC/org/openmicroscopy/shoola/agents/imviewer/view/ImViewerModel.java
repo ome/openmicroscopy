@@ -469,6 +469,32 @@ class ImViewerModel
 	}
 
 	/**
+	 * Returns <code>true</code> if it is the same parent, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @param data The data to handle.
+	 * @return See above
+	 */
+	boolean isSameParent(DataObject data)
+	{
+		if (data != null && parent != null) {
+			if (parent instanceof WellData) {
+				if (grandParent != null) {
+					if (data.getClass().getName().equals(
+							grandParent.getClass().getName()))
+						return data.getId() == grandParent.getId();
+				}
+			} else {
+				if (data.getClass().getName().equals(
+						parent.getClass().getName()))
+					return data.getId() == parent.getId();
+			}
+			
+		}
+		return false;
+	}
+	
+	/**
 	 * Returns the name of the image.
 	 * 
 	 * @return See above.

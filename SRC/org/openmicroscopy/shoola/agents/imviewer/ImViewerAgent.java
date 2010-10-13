@@ -57,6 +57,7 @@ import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.PixelsData;
+import pojos.PlateData;
 
 /** 
  * The ImViewer agent. This agent displays an <code>Image</code> and the 
@@ -310,11 +311,15 @@ public class ImViewerAgent
     	if (objects == null) return;
     	Iterator<DataObject> i = objects.iterator();
     	DataObject object;
+    	ImViewer viewer;
     	while (i.hasNext()) {
     		object = i.next();
 			if (object instanceof ImageData) {
 				checkImageForDelete((ImageData) object);
-			} 
+			} else {
+				viewer = ImViewerFactory.getImageViewerFromParent(object);
+				if (viewer != null) viewer.discard();
+			}
 		}
     }
     
@@ -332,8 +337,7 @@ public class ImViewerAgent
     	ImViewer viewer = ImViewerFactory.getImageViewer(pixels.getId());
     	if (viewer != null) viewer.discard();
     }
-    
-    
+
     /** Creates a new instance. */
     public ImViewerAgent() {}
     

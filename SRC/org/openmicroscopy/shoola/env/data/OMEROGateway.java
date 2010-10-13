@@ -2121,7 +2121,6 @@ class OMEROGateway
 			}
 			return exp;
 		} catch (Throwable e) {
-			e.printStackTrace();
 			connected = false;
 			String s = "Can't connect to OMERO. OMERO info not valid.\n\n";
 			s += printErrorText(e);
@@ -2199,7 +2198,7 @@ class OMEROGateway
 			throw new DSOutOfServiceException(s);  
 		}
 		try {
-			shutDownServices();
+			shutDownServices(true);
 			clear();
 			getAdminService().setDefaultGroup(exp.asExperimenter(), 
 					group.asGroup());
@@ -3567,12 +3566,17 @@ class OMEROGateway
 	{
 		try {
 			svc.close();
-		} catch (Exception e) {
+		} catch (Exception e) { //ignore
 		}
 	}
 	
-	/** Shuts downs the stateful services. */
-	private void shutDownServices()
+	/** 
+	 * Shuts downs the stateful services. 
+	 * 
+	 * @param rendering Pass <code>true</code> to shut down the rendering 
+	 * 					services, <code>false</code> otherwise.
+	 */
+	private void shutDownServices(boolean rendering)
 	{
 		if (thumbnailService != null)
 			closeService(thumbnailService);
@@ -3583,13 +3587,17 @@ class OMEROGateway
 		if (searchService != null)
 			closeService(searchService);
 		Collection<StatefulServiceInterfacePrx> l = reServices.values();
-		if (l != null) {
+		if (l != null && rendering) {
 			Iterator<StatefulServiceInterfacePrx> i = l.iterator();
 			while (i.hasNext()) {
 				closeService(i.next());
 			}
+			reServices.clear();
 		}
-		
+		thumbnailService = null;
+		pixelsStore = null;
+		searchService = null;
+		searchService = null;
 	}
 	
 	/**
@@ -6135,7 +6143,8 @@ class OMEROGateway
 	    	
 	    	ParametersI params = new ParametersI(); 
 	    	params.addId(id);
-	    	Instrument value = (Instrument) getQueryService().findByQuery(sb.toString(), params);
+	    	Instrument value = (Instrument) getQueryService().findByQuery(
+	    			sb.toString(), params);
 	    	if (value == null) return null;
 	    	LightSource ls;
 	    	List<LightSource> ll = value.copyLightSource();
@@ -6157,7 +6166,8 @@ class OMEROGateway
 	        				if (sb != null) {
 	        					params.addLong("instrumentId", id);
 	        					list.addAll(
-	        							getQueryService().findAllByQuery(sb.toString(), params));
+	        							getQueryService().findAllByQuery(
+	        									sb.toString(), params));
 	        				} 
 	        			}
 	    			}
@@ -6179,7 +6189,6 @@ class OMEROGateway
 			return new InstrumentData(instrument);
 			
 		} catch (Exception e) {
-			e.printStackTrace();
 			handleException(e, "Cannot load the instrument: "+id);
 		}
 		return null;
@@ -6344,7 +6353,7 @@ class OMEROGateway
 				/*
 				 * Step 1. Add new ROI to the server.
 				 */
-				if(!roiMap.containsKey(roi.getId()))
+				if (!roiMap.containsKey(roi.getId()))
 				{
 					updateService.saveAndReturnObject(roi.asIObject());
 					continue;
@@ -6369,7 +6378,7 @@ class OMEROGateway
 				 */
 				serverCoordMap  = new HashMap<ROICoordinate, Shape>();
 				
-				for( int i = 0 ; i < serverRoi.sizeOfShapes(); i++)
+				for (int i = 0 ; i < serverRoi.sizeOfShapes(); i++)
 				{
 					s = serverRoi.getShape(i);
 					serverCoordMap.put(new ROICoordinate(
@@ -7423,6 +7432,7 @@ class OMEROGateway
 		throws ProcessException
 	{
 		DeleteCallback cb = null;
+		shutDownServices(false);	
 		try {
 	         IDeletePrx svc = getDeleteService();
 	         //scriptID, parameters, timeout (5s if null)

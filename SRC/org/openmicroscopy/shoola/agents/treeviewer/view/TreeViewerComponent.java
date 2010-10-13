@@ -2314,9 +2314,11 @@ class TreeViewerComponent
 	 * 
 	 * @param object The object to handle.
 	 * @param objects The list to add the found image if any.
+	 * @param content Pass <code>true</code> if the content has to be deleted.
+	 * 				  <code>false</code> otherwise.
 	 */
 	private void checkForImages(TreeImageDisplay object, 
-				List<DataObject> objects)
+				List<DataObject> objects, boolean content)
 	{
 		List list = object.getChildrenDisplay();
 		Iterator i, j;
@@ -2325,8 +2327,9 @@ class TreeViewerComponent
 		DataObject ho = (DataObject) object.getUserObject();
 		if (ho instanceof ImageData) {
 			objects.add(ho);
-		} else if (ho instanceof DatasetData) {
+		} else if (ho instanceof DatasetData && content) {
 			if (object.isChildrenLoaded()) {
+				/*
 				i = list.iterator();
 				while (i.hasNext()) {
 					child = (TreeImageDisplay) i.next();
@@ -2334,27 +2337,57 @@ class TreeViewerComponent
 						objects.add((DataObject) child.getUserObject());
 					}
 				}
+				*/
+				objects.add(ho);
 			}
-		} else if (ho instanceof ProjectData) {
+			
+		} else if (ho instanceof ProjectData && content) {
 			if (object.isChildrenLoaded()) {
 				i = list.iterator();
 				while (i.hasNext()) {
 					child = (TreeImageDisplay) i.next();
 					if (child.getUserObject() instanceof DatasetData) {
 						if (child.isChildrenLoaded()) {
+							/*
 							children = child.getChildrenDisplay();
 							j = children.iterator();
 							while (j.hasNext()) {
 								child2 =  (TreeImageDisplay) j.next();
-								objects.add((DataObject) child2.getUserObject());
-								
+								objects.add(
+										(DataObject) child2.getUserObject());
 							}
+							*/
+							objects.add((DataObject) child.getUserObject());
 						}
 					}
 				}
 			}
 		} else if (ho instanceof PlateData) {
-			
+			objects.add(ho);
+		} else if (ho instanceof PlateAcquisitionData) {
+			TreeImageDisplay parent = object.getParentDisplay();
+			objects.add((DataObject) parent.getUserObject());
+		} else if (ho instanceof ScreenData && content) {
+			if (object.isChildrenLoaded()) {
+				i = list.iterator();
+				while (i.hasNext()) {
+					child = (TreeImageDisplay) i.next();
+					if (child.getUserObject() instanceof PlateData) {
+						if (child.isChildrenLoaded()) {
+							/*
+							children = child.getChildrenDisplay();
+							j = children.iterator();
+							while (j.hasNext()) {
+								child2 =  (TreeImageDisplay) j.next();
+								objects.add(
+										(DataObject) child2.getUserObject());
+							}
+							*/
+							objects.add((DataObject) child.getUserObject());
+						}
+					}
+				}
+			}
 		}
 	}
 	
@@ -2401,7 +2434,7 @@ class TreeViewerComponent
 					if (!(obj instanceof TagAnnotationData || 
 							obj instanceof FileAnnotationData)) 
 						d.setAttachmentTypes(types);
-					checkForImages(node, objects);
+					checkForImages(node, objects, content);
 					l.add(d);
 					toRemove.add(node);
 				}
