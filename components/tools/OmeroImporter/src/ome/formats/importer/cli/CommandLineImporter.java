@@ -93,11 +93,6 @@ public class CommandLineImporter {
 
         Runtime.getRuntime().addShutdownHook(new Thread() {
             public void run() {
-                try {
-                    config.saveAll();
-                } catch (Exception e) {
-                    log.error("Error during config.saveAll", e);
-                }
                 cleanup();
             }
         });
