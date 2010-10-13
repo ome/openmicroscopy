@@ -769,24 +769,30 @@ OMERO Diagnostics %s
         sm = Glacier2.SessionManagerPrx.checkedCast(sm)
         return sm
 
-    def can_access(self, path, mask=os.R_OK|os.W_OK):
+    def can_access(self, filepath, mask=os.R_OK|os.W_OK):
         """
         Check that the given path belongs to
         or is accessible by the current user
         on Linux systems.
         """
+
+        pathobj = path(filepath)
+
+        if not pathobj.exists():
+            self.ctx.die(8, "FATAL: OMERO directory does not exist: %s" % pathobj)
+
         if "Windows" == platform.system():
             return
 
-        owner = os.stat(path)[stat.ST_UID]
+        owner = os.stat(filepath)[stat.ST_UID]
         if owner == 0:
-            print "FATAL: OMERO directory which needs to be writeable belongs to root: %s" % path
-            print "Please use \"chown -R NEWUSER %s\" and run as then run %s as NEWUSER" % (path, sys.argv[0])
-            sys.exit(1)
+            msg = ""
+            msg += "FATAL: OMERO directory which needs to be writeable belongs to root: %s" % filepath
+            msg += "Please use \"chown -R NEWUSER %s\" and run as then run %s as NEWUSER" % (filepath, sys.argv[0])
+            self.ctx.die(9, msg)
         else:
-            if not os.access(path, mask):
-                print "FATAL: Cannot access %s, a required file/directory for OMERO" % path
-                sys.exit(1)
+            if not os.access(filepath, mask):
+                self.ctx.die(10, "FATAL: Cannot access %s, a required file/directory for OMERO" % filepath)
 
     def check_access(self, mask=os.R_OK|os.W_OK, config=None):
         """Check that 'var' is accessible by the current user."""
