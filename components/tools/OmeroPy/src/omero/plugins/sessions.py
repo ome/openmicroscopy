@@ -68,6 +68,7 @@ LONGHELP = """
         Password:
         $ bin/omero -k 8afe443f-19fc-4cc4-bf4a-850ec94f4650 sessions login
         $ bin/omero sessions clear
+        $ bin/omero sessions list --session-dir=/tmp
 """
 
 class SessionsControl(BaseControl):
@@ -75,8 +76,12 @@ class SessionsControl(BaseControl):
     FACTORY = SessionsStore
 
     def store(self, args):
-        dir = getattr(args, "dir", None)
-        return self.FACTORY(dir)
+        try:
+            dirpath = getattr(args, "session_dir", None)
+            return self.FACTORY(dirpath)
+        except OSError, ose:
+            filename = getattr(ose, "filename", dirpath)
+            self.ctx.die(155, "Could not access session dir: %s" % filename)
 
     def _configure(self, parser):
         sub = parser.sub()
