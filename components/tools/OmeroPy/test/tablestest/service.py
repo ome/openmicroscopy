@@ -171,6 +171,33 @@ class TestTables(lib.ITest):
         finally:
             table.close()
 
+    def test2910(self):
+        group = self.new_group(perms="rwr---")
+        user1 = self.new_client(group)
+        user2 = self.new_client(group)
+
+        # As the first user, create a file
+        table = user1.sf.sharedResources().newTable(1, "test2910.h5")
+        self.assert_( table )
+        lc = omero.grid.LongColumn("lc", None, None)
+        file = table.getOriginalFile()
+        table.initialize([lc])
+        table.close()
+
+        # As the second user, try to modify it
+        table = user2.sf.sharedResources().openTable( file )
+        self.assert_( table )
+        lc.values = [1]
+
+        self.assertRaises(omero.SecurityViolation, table.initialize, None)
+        self.assertRaises(omero.SecurityViolation, table.addColumn, None)
+        self.assertRaises(omero.SecurityViolation, table.addData, [lc])
+        self.assertRaises(omero.SecurityViolation, table.update, None)
+        self.assertRaises(omero.SecurityViolation, table.delete)
+        self.assertRaises(omero.SecurityViolation, table.setMetadata, "key", wrap(1))
+        self.assertRaises(omero.SecurityViolation, table.setAllMetadata, {})
+
+
 def test_suite():
     return 1
 

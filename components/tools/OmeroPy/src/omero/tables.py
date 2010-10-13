@@ -479,10 +479,22 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
         self.file_obj = file_obj
         self.factory = factory
         self.storage = storage
+        self.can_write = factory.getAdminService().canUpdate(file_obj)
         omero.util.SimpleServant.__init__(self, ctx)
 
         self.stamp = time.time()
         self.storage.incr(self)
+
+    def assert_write(self):
+        """
+        Checks that the current user can write to the given object
+        at the database level. If not, no FS level writes are permitted
+        either.
+
+        ticket:2910
+        """
+        if not self.can_write:
+            raise omero.SecurityViolation("Current user cannot write to file %s" % self.file_obj.id.val)
 
     def check(self):
         """
@@ -520,7 +532,7 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
         except:
             self.logger.warn("Closed %s with errors", self)
 
-        if self.file_obj is not None:
+        if self.file_obj is not None and self.can_write:
             fid = self.file_obj.id.val
             if not self.file_obj.isLoaded() or\
                 self.file_obj.getDetails() is None or\
@@ -621,6 +633,7 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     @remoted
     @perf
     def initialize(self, cols, current = None):
+        self.assert_write()
         self.storage.initialize(cols)
         if cols:
             self.logger.info("Initialized %s with %s col(s)", self, slen(cols))
@@ -628,11 +641,13 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     @remoted
     @perf
     def addColumn(self, col, current = None):
+        self.assert_write()
         raise omero.ApiUsageException(None, None, "NYI")
 
     @remoted
     @perf
     def addData(self, cols, current = None):
+        self.assert_write()
         self.storage.append(cols)
         sz = 0
         if cols and cols[0] and cols[0].getsize():
@@ -641,6 +656,7 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     @remoted
     @perf
     def update(self, data, current = None):
+        self.assert_write()
         if data:
             self.storage.update(self.stamp, data)
             self.logger.info("Updated %s row(s) of data to %s", slen(data.rowNumbers), self)
@@ -648,6 +664,7 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     @remoted
     @perf
     def delete(self, current = None):
+        self.assert_write()
         pass
 
     # TABLES METADATA API ===========================
@@ -670,12 +687,14 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     @remoted
     @perf
     def setMetadata(self, key, value, current = None):
+        self.assert_write()
         self.storage.add_meta_map({key: value})
         self.logger.info("%s.setMetadata() => %s=%s", self, key, unwrap(value))
 
     @remoted
     @perf
     def setAllMetadata(self, value, current = None):
+        self.assert_write()
         self.storage.add_meta_map({"key": wrap(value)})
         self.logger.info("%s.setMetadata() => number=%s", self, slen(value))
 
