@@ -197,6 +197,18 @@ class TestTables(lib.ITest):
         self.assertRaises(omero.SecurityViolation, table.setMetadata, "key", wrap(1))
         self.assertRaises(omero.SecurityViolation, table.setAllMetadata, {})
 
+    def testDelete(self):
+        group = self.new_group(perms="rwr---")
+        user1 = self.new_client(group)
+
+        table = user1.sf.sharedResources().newTable(1, "testDelete.h5")
+        self.assert_( table )
+        lc = omero.grid.LongColumn("lc", None, None)
+        file = table.getOriginalFile()
+        table.initialize([lc])
+        table.delete()
+        table.close()
+
 
 def test_suite():
     return 1

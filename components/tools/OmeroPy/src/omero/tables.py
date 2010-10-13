@@ -22,6 +22,7 @@ from path import path
 
 import omero # Do we need both??
 import omero.clients
+import omero.callbacks
 
 # For ease of use
 from omero.columns import *
@@ -665,7 +666,25 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     @perf
     def delete(self, current = None):
         self.assert_write()
-        pass
+        self.close()
+        prx = self.factory.getDeleteService()
+        dc = omero.api.delete.DeleteCommand("/OriginalFile", self.file_obj.id.val, None)
+        handle = prx.queueDelete([dc])
+        self.file_obj = None
+        # TODO: possible just return handle?
+        cb = omero.callbacks.DeleteCallbackI(current.adapter, handle)
+        count = 10
+        while count:
+            count -= 1
+            rv = cb.block(500)
+            if rv is not None:
+                report = handle.report()[0]
+                if rv > 0:
+                    raise omero.InternalException(None, None, report.error)
+                else:
+                    return
+        raise omero.InternalException(None, None, "delete timed-out")
+
 
     # TABLES METADATA API ===========================
 
