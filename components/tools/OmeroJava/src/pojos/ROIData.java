@@ -153,12 +153,14 @@ public class ROIData
 	 * 
 	 * @return See above.
 	 */
-	public Image getImage()
+	public ImageData getImage()
 	{
 		Roi roi = (Roi) asIObject();
 		if (roi == null) 
 			throw new IllegalArgumentException("No Roi specified.");
-		return roi.getImage();
+		Image image = roi.getImage();
+		if (image == null) return null;
+		return new ImageData(image);
 	}
 	
 	/**
