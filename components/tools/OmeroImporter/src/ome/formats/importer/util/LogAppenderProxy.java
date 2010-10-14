@@ -24,6 +24,7 @@
 package ome.formats.importer.util;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 
 import ome.formats.importer.gui.LogAppender;
 
@@ -51,8 +52,13 @@ public class LogAppenderProxy extends AppenderSkeleton implements Appender
      * logging to function, but is not ideal.
      * @see <a href="https://trac.openmicroscopy.org.uk/omero/ticket/1479">ticket:1479</a>
      */
-    public static void configure(File logFile)
+    public static void configure(File logFile) throws FileNotFoundException
     {
+    	// Sanity Check for logFile access - make sure we can get to the directory
+    	File parentDir = logFile.getParentFile();
+    	if (!parentDir.mkdirs() && !parentDir.isDirectory())
+    		throw new FileNotFoundException();
+    	
         delegate = LogAppender.getInstance();
         logfile_delegate = new RollingFileAppender();
         logfile_delegate.setFile(logFile.getAbsolutePath());

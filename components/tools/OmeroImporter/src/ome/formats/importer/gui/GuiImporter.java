@@ -46,6 +46,7 @@ import java.awt.event.WindowStateListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.concurrent.Executors;
@@ -844,6 +845,12 @@ WindowStateListener, WindowFocusListener
             error_notification  = false;
         }
 
+        else if (event instanceof ImportEvent.ERRORS_COMPLETE)
+        {
+            tPane.setIconAt(4, GuiCommonElements.getImageIcon(ERROR_ICON));
+            error_notification  = false;
+        }
+        
         else if (event instanceof ImportEvent.ERRORS_FAILED)
         {
             sendingErrorsFailed(this);
@@ -953,6 +960,17 @@ WindowStateListener, WindowFocusListener
         failedDialog.setVisible(true);
     }
         
+	private static void LoggingDisabledNotification() {
+		JOptionPane.showMessageDialog(null,
+				"The importer was unable to access its local log file\n" +
+				"which is normally located in your home directory under\n" +
+				" the sub-directory omero/logs.\n\n" +
+				"The importer will continue to operate normally, but will\n" +
+				"be unable to record any information to this file.\n",
+				"Warning",
+				JOptionPane.ERROR_MESSAGE);
+    }
+    
     /* (non-Javadoc)
      * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
      */
@@ -1158,11 +1176,15 @@ WindowStateListener, WindowFocusListener
      *            
      * @param args 
      */
-    public static void main(String[] args)
-    {  
-        LogAppenderProxy.configure(new File(IniFileLoader.LOGFILE));
-        ImportConfig config = new ImportConfig(args.length > 0 ? new File(args[0]) : null);
-        config.configureDebug(null); // Uses ini
+	public static void main(String[] args)
+	{  
+		try {
+			LogAppenderProxy.configure(new File(IniFileLoader.LOGFILE));
+		} catch (Exception e) {
+			GuiImporter.LoggingDisabledNotification();
+		}
+		ImportConfig config = new ImportConfig(args.length > 0 ? new File(args[0]) : null);
+		config.configureDebug(null); // Uses ini
         
         config.loadAll();
         config.loadGui();

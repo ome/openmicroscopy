@@ -209,6 +209,7 @@ public class FileUploader implements IObservable
                     
                     notifyObservers(new ImportEvent.FILE_UPLOAD_COMPLETE(
                             file.getName(), count, files.length, null, null, null));
+                    log.info("Uploaded file '" + file.getName() + "' to QA system"); 
                     upload.setStatus(1);
 
                 } else {
@@ -218,9 +219,6 @@ public class FileUploader implements IObservable
             } catch (Exception ex) {
                 notifyObservers(new ImportEvent.FILE_UPLOAD_ERROR(
                         file.getName(), count, files.length, null, null, ex));
-                ex.printStackTrace();
-            } finally {
-                method.releaseConnection();
             }
         }
 

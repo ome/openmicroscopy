@@ -70,6 +70,7 @@
         <jar destfile="${target.dir}/${ivy.module}.jar" update="true">
             <fileset dir="${resrc.dir}" includes="*.icns"/>
             <fileset dir="${src.dir}" includes="**/*.png"/>
+            <fileset dir="${src.dir}" includes="**/*.gif"/>
         </jar>
     </target>
 

@@ -25,6 +25,7 @@ package ome.formats.importer.gui;
 
 import java.awt.BorderLayout;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Vector;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -132,6 +133,11 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
             } else if (event instanceof ImportEvent.FILE_UPLOAD_COMPLETE) {
                 ImportEvent.FILE_UPLOAD_COMPLETE ev = (ImportEvent.FILE_UPLOAD_COMPLETE) event;
                 errorTable.setFilesProgress(ev.fileIndex);
+            } else if (event instanceof ImportEvent.FILE_UPLOAD_ERROR) {
+                ImportEvent.FILE_UPLOAD_ERROR ev = (ImportEvent.FILE_UPLOAD_ERROR) event;
+                errorTable.setFilesProgress(ev.fileIndex);
+                log.info("Error while sending QA Feedback file:" + ev.filename);
+                fileUploadErrors  = true;
             } else if (event instanceof ImportEvent.FILE_UPLOAD_CANCELLED || event instanceof ImportEvent.ERRORS_UPLOAD_CANCELLED) {
             	errorTable.resetProgress();
             	log.debug("Uploads Cancelled");
@@ -270,6 +276,29 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
                     JOptionPane.INFORMATION_MESSAGE);
         }
 
+        /* (non-Javadoc)
+         * @see ome.formats.importer.util.ErrorHandler#finishWithErrors()
+         */
+        @Override
+        protected void finishWithErroredFiles() {
+            super.finishWithErroredFiles();
+            errorTable.setCancelBtnCancelled();
+            
+            JOptionPane.showMessageDialog(panel,
+                    "\nThank you for your support, your errors "
+                            + "\nhave successfully been collected."
+                            + "\n\nIf you have provided us with an email"
+                            + "\naddress, you should recieve a message"
+                            + "\nshortly detailing how you can track the"
+                            + "\nstatus of your errors."
+                            + "\n\n Please note that during the import"
+                            + "\nthere were problems sending some of your"
+                            + "\nincluded files, however the error itself"
+                            + "\nhas been reported."
+                            , "Success!",
+                    JOptionPane.INFORMATION_MESSAGE);
+        }
+        
         /* (non-Javadoc)
          * @see ome.formats.importer.util.ErrorHandler#onAddError(ome.formats.importer.util.ErrorContainer, java.lang.String)
          */
