@@ -86,17 +86,15 @@ public class AdminSaver
             	while (i.hasNext()) {
             		data = i.next();
             		if (data instanceof GroupData) {
-            			l.add(data);
             			groups.add((GroupData) data);
             		} else if (data instanceof ExperimenterData) {
-            			l.add(data);
             			experimenters.add((ExperimenterData) data);
             		}
 				}
             	if (groups.size() > 0)
-            		os.deleteGroups(groups);
+            		l.addAll(os.deleteGroups(groups));
             	if (experimenters.size() > 0)
-            		os.deleteExperimenters(experimenters);
+            		l.addAll(os.deleteExperimenters(experimenters));
             	result = l;
             }
         };

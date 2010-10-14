@@ -84,39 +84,6 @@ public class DataObjectRemover
     			}
     		}
     	};
-    	
-    	/*
-        return new BatchCall("Delete the object.") {
-            public void doCall() throws Exception
-            {
-            	Iterator<DeletableObject> i = values.iterator();
-            	DeletableObject o;
-            	DataObject data;
-            	List<ExperimenterData> list = new ArrayList<ExperimenterData>();
-            	while (i.hasNext()) {
-					o = i.next();
-					data = o.getObjectToDelete();
-					if (data instanceof ExperimenterData)
-						list.add((ExperimenterData) data);
-				}
-            	if (list.size() > 0) {
-            		AdminService os = context.getAdminService();
-            		list =  os.deleteExperimenters(list);
-            		List<DeletableObject> l = new ArrayList<DeletableObject>();
-            		if (list != null && list.size() > 0) {
-            			Iterator<ExperimenterData> j = list.iterator();
-            			while (j.hasNext()) {
-            				l.add(new DeletableObject(j.next()));
-						}
-            		}
-                	result = l;
-            	} else {
-            		OmeroDataService os = context.getDataService();
-                	result = os.delete(values);
-            	}
-            }
-        };
-        */
     }
     
     /**
