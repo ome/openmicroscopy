@@ -128,8 +128,9 @@ class ObjectInspector
 				int row = fieldTable.getSelectedRow();
 				Object value = fieldTable.getValueAt(row, col);
 				if (e.getClickCount() == 1) {
-					if (value instanceof Boolean) toggleValue();
-					
+					if (value instanceof Boolean) {
+						toggleValue();
+					}
 				} else if (e.getClickCount() > 1) {
 					e.consume();
 					if (value instanceof Color) {
@@ -190,6 +191,7 @@ class ObjectInspector
 		Boolean value = (Boolean) fieldTable.getModel().getValueAt(row, col);
 		boolean newValue = !(value.booleanValue()); 
 		fieldTable.getModel().setValueAt(Boolean.valueOf(newValue), row, col);
+		model.getDrawingView().repaint();
 	}
 	
 	/** Builds and lays out the UI. */
