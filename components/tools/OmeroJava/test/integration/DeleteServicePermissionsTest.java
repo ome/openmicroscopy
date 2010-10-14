@@ -410,7 +410,7 @@ public class DeleteServicePermissionsTest
      * None of the users are owner of the group.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false, groups = "ticket:3119")
+    @Test(groups = "ticket:3119")
     public void testDeleteProjectDatasetGraphLinkDoneByDatasetOwnerRWRW()
     	throws Exception	
     {
@@ -553,7 +553,7 @@ public class DeleteServicePermissionsTest
      * None of the users are owner of the group.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false, groups = "ticket:3119")
+    @Test(groups = "ticket:3119")
     public void testDeleteDatasetImagesGraphRWRW()
     	throws Exception
     {
@@ -579,7 +579,6 @@ public class DeleteServicePermissionsTest
     	disconnect();
     	//now try to delete the dataset
     	loginUser(ctx);
-    	//Now try to delete the project.
     	delete(client, new DeleteCommand(
     			DeleteServiceTest.REF_DATASET, dataset.getId().getValue(), 
     			null));
@@ -700,7 +699,7 @@ public class DeleteServicePermissionsTest
      * None of the users are owner of the group.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false, groups = "ticket:3119")
+    @Test(groups = "ticket:3119")
     public void testDeleteScreenPlateGraphLinkDoneByPlateOwnerRWRW()
     	throws Exception	
     {

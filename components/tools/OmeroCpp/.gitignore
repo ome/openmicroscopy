@@ -22,5 +22,5 @@ libtool
 ltmain.sh
 missing
 stamp-h1
-test/unit
-test/integration
+test/unit.exe
+test/integration.exe
