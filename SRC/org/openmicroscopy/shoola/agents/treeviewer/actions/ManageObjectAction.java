@@ -284,7 +284,7 @@ public class ManageObjectAction
 						setEnabled(false);
 		        	} else setEnabled(false);
 				} else if (ho instanceof GroupData) {
-					setEnabled(true); //TODO
+					setEnabled(false); //TODO
 				} else setEnabled(false);
 				
 				break;

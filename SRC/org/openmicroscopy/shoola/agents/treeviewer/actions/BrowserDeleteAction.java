@@ -120,6 +120,7 @@ public class BrowserDeleteAction
     		setEnabled(count == selected.length);
         } else if (ho instanceof ExperimenterData) {
         	if (model.getBrowserType() == Browser.ADMIN_EXPLORER) {
+        		/*
         		setEnabled(true);
         		selected = model.getSelectedDisplays();
         		if (selected != null) {
@@ -137,11 +138,16 @@ public class BrowserDeleteAction
         			}
         			setEnabled(b);
         		}
+        		*/
+        		setEnabled(false);
         	} else setEnabled(false);
         } else if (ho instanceof GroupData) {
+        	/*
         	if (model.getBrowserType() == Browser.ADMIN_EXPLORER) {
         		setEnabled(TreeViewerAgent.isAdministrator());
         	} else setEnabled(false);
+        	*/
+        	setEnabled(false);
         } else if (ho instanceof ImageData) {
         	count = 0;
         	b = false;
