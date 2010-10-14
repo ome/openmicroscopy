@@ -278,6 +278,13 @@ namespace omero {
 	return __ic;
     }
 
+    Ice::ObjectAdapterPtr client::getObjectAdapter() const {
+	IceUtil::RecMutex::Lock lock(mutex);
+	if ( ! __oa ) {
+	    throw new ClientError(__FILE__, __LINE__, "No Ice.ObjectAdapter active; call createSession()");
+	}
+	return __oa;
+    }
 
     // --------------------------------------------------------------------
 

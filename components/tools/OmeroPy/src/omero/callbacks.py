@@ -111,6 +111,33 @@ class DeleteCallbackI(object):
         #self.prx = omero.grid.ProcessCallbackPrx.uncheckedCast(self.prx)
         #process.registerCallback(self.prx)
 
+    def loop(self, loops, ms):
+        """
+        Calls block(long) "loops" number of times with the "ms"
+        argument. This means the total wait time for the delete to occur
+        is: loops X ms. Sensible values might be 10 loops for 500 ms, or
+        5 seconds.
+
+        @param loops Number of times to call block(long)
+        @param ms Number of milliseconds to pass to block(long
+        @throws omero.LockTimeout if block(long) does not return
+        a non-null value after loops calls.
+        """
+
+        count = 0
+        errors = None
+        while errors is None and count < loops:
+            errors = block(ms)
+            count += 1
+
+        if errors is None:
+            waited = (ms / 1000) * loops
+            raise omero.LockTimeout(None, None,
+                    "Delete unfinished after %s seconds" % waited,
+                    5000L, waited)
+        else:
+            return handle.report()
+
     def block(self, ms):
         """
         Should only be used if the default logic of the handle methods is kept

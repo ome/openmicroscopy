@@ -14,8 +14,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import omero.LockTimeout;
 import omero.ServerError;
 import omero.api.delete.DeleteHandlePrx;
+import omero.api.delete.DeleteReport;
 import Ice.ObjectNotExistException;
 
 /**
@@ -91,6 +93,41 @@ public class DeleteCallbackI {
         // Ice.ObjectPrx prx = adapter.add(this, id);
         // ProcessCallbackPrx cb = ProcessCallbackPrxHelper.uncheckedCast(prx);
         // process.registerCallback(cb);
+    }
+
+    /**
+     * Calls {@link #block(long)} "loops" number of times with the "ms"
+     * argument. This means the total wait time for the delete to occur
+     * is: loops X ms. Sensible values might be 10 loops for 500 ms, or
+     * 5 seconds.
+     *
+     * @param loops Number of times to call {@link #block(long)}
+     * @param ms Number of milliseconds to pass to {@link #block(long)
+     * @throws omero.LockTimeout if {@link #block(long)} does not return
+     *  a non-null value after loops calls.
+     */
+    public DeleteReport[] loop(int loops, long ms)
+        throws omero.LockTimeout, omero.ServerError {
+
+        int count = 0;
+        Integer errors = null;
+        while (errors == null && count < loops) {
+            try {
+                errors = block(ms);
+            } catch (InterruptedException e) {
+                // continue;
+            }
+            count++;
+        }
+        if (errors == null) {
+            int waited = (int) (ms / 1000) * loops;
+            throw new LockTimeout(null, null,
+                    String.format("Delete unfinished after %s seconds",
+                            loops, ms), 5000L, waited);
+        } else {
+            return handle.report();
+        }
+
     }
 
     /**

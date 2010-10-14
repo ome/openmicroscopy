@@ -216,6 +216,12 @@ namespace omero {
 	Ice::CommunicatorPtr getCommunicator() const;
 
 	/*
+	 * Returns the Ice::ObjectAdapter for this instance or throws
+	 * an exception if null.
+	 */
+	Ice::ObjectAdapterPtr getObjectAdapter() const;
+
+	/*
 	 * Returns the current active session or throws an exception if none
 	 * has been created via createSession() since the last closeSession()
 	 */
