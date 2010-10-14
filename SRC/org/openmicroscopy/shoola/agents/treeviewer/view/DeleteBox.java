@@ -24,9 +24,12 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 
 //Java imports
+import info.clearthought.layout.TableLayout;
+
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -51,7 +54,6 @@ import javax.swing.event.ChangeListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
@@ -90,9 +92,8 @@ public class DeleteBox
 			"delete the selected ";
 
 	/** The text displayed in the tool tip for annotations. */
-	private static final String    TOOL_TIP = "The annotations will " +
-			"be deleted if they are only linked to one of the objects"+
-			" you wish to delete.";
+	private static final String    TOOL_TIP = "The annotations are " +
+			"deleted only if you own them and if they are not used by others.";
 		
 	/** Text display if the user is a group owner. */
 	private static final String		WARNING_GROUP_OWNER = "Some data " +
@@ -193,27 +194,36 @@ public class DeleteBox
 		}
 	}
 	
+	/**
+	 * Builds and lays out the message displayed next to the option to delete
+	 * annotations.
+	 * 
+	 * @return See above.
+	 */
+	private JLabel buildAnnotationWarning()
+	{
+		JLabel label = UIUtilities.setTextFont(TOOL_TIP, 
+				Font.ITALIC);
+		Font f = label.getFont();
+		label.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
+		return label;
+	}
+	
 	/** Builds and lays out the component. */
 	private void layoutComponents()
 	{
 		Iterator<JCheckBox> i = annotationTypes.keySet().iterator();
-		GridBagConstraints c = new GridBagConstraints();
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.anchor = GridBagConstraints.WEST;
-		c.insets = new Insets(0, 2, 2, 0);
+		TableLayout layout = new TableLayout();
+		double[] columns = {130, TableLayout.PREFERRED};
+		layout.setColumn(columns);
+		typesPane.setLayout(layout);
+		int index = 0;
 		while (i.hasNext()) {
-            c.gridx = 0;
-            ++c.gridy;
-       	 	c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-            c.fill = GridBagConstraints.NONE;      //reset to default
-            c.weightx = 1.0;  
-            typesPane.add(Box.createHorizontalStrut(30), c);
-            c.gridx++;
-            c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-            //c.fill = GridBagConstraints.HORIZONTAL;
-            //c.weightx = 1.0;
-            typesPane.add(i.next(), c);  
-        }
+			layout.insertRow(index, TableLayout.PREFERRED);
+			typesPane.add(Box.createHorizontalStrut(5), "0, "+index);
+			typesPane.add(i.next(), "1, "+index);
+			index++;
+		}
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		
@@ -221,6 +231,7 @@ public class DeleteBox
 		if (ImageData.class.equals(type)) {
 			add = true;
 			if (annotation) {
+				p.add(buildAnnotationWarning());
 				p.add(Box.createVerticalStrut(10));
 				p.add(withAnnotation);
 				p.add(typesPane);
@@ -237,6 +248,7 @@ public class DeleteBox
 			}
 			if (annotation) {
 				p.add(new JSeparator());
+				p.add(buildAnnotationWarning());
 				p.add(Box.createVerticalStrut(10));
 				p.add(withAnnotation);
 				p.add(typesPane);
