@@ -173,7 +173,7 @@
         </description>
         <constructor-arg>
             <list>
-                <value>/Image/DatasetImageLink</value>
+                <value>/Image/DatasetImageLink;FORCE</value>
                 <value>/Image+Only</value>
             </list>
         </constructor-arg>
@@ -216,7 +216,7 @@
     <bean parent="delSpec" name="/Dataset">
         <constructor-arg>
             <list>
-                <value>/Dataset/ProjectDatasetLink</value>
+                <value>/Dataset/ProjectDatasetLink;FORCE</value>
                 <value>/Dataset+Only</value>
             </list>
         </constructor-arg>
@@ -264,7 +264,7 @@
     <bean parent="delSpec" name="/Plate">
         <constructor-arg>
             <list>
-                <value>/Plate/ScreenPlateLink</value>
+                <value>/Plate/ScreenPlateLink;FORCE</value>
                 <value>/Plate+Only</value>
             </list>
         </constructor-arg>

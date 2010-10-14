@@ -516,7 +516,7 @@ public class DeleteServicePermissionsTest
      * None of the users are owner of the group.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false, groups = "ticket:3119")
+    @Test(groups = "ticket:3119")
     public void testDeleteDatasetProjectGraphLinkDoneByProjectOwnerRWRW()
     	throws Exception	
     {
@@ -626,7 +626,7 @@ public class DeleteServicePermissionsTest
      * None of the users are owner of the group.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false, groups = "ticket:3119")
+    @Test(groups = "ticket:3119")
     public void testDeleteImageInOtherUserDatasetAddedByDatasetOwnerRWRW()
     	throws Exception
     {
@@ -768,7 +768,7 @@ public class DeleteServicePermissionsTest
      * None of the users are owner of the group.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false, groups = "ticket:3119")
+    @Test(groups = "ticket:3119")
     public void testDeletePlateScreenGraphLinkDoneByScreenOwnerRWRW()
     	throws Exception	
     {
