@@ -106,8 +106,8 @@ class ObjectInspector
 				false));
 		l.add(new AttributeField(MeasurementAttributes.SHOWMEASUREMENT, 
 			"Show Measurements", false)); 
-		l.add(new AttributeField(MeasurementAttributes.SHOWID, 
-			"Show ID", false)); 
+		//l.add(new AttributeField(MeasurementAttributes.SHOWID, 
+			//"Show ID", false)); 
 		l.add(new AttributeField(MeasurementAttributes.FILL_COLOR, 
 				"Fill Colour", false));
 		l.add(new AttributeField(MeasurementAttributes.STROKE_COLOR, 
@@ -257,7 +257,7 @@ class ObjectInspector
 	{
 		FigureTableModel tableModel = (FigureTableModel) fieldTable.getModel();
 		tableModel.setData(figure);
-		fieldTable.setModel(tableModel);
+		//fieldTable.setModel(tableModel);
 		fieldTable.repaint();
 	}
 	
@@ -278,7 +278,7 @@ class ObjectInspector
 			while (i.hasNext()) {
 				shape = i.next();
 				tableModel.setData(shape.getFigure());
-				fieldTable.setModel(tableModel);
+				//fieldTable.setModel(tableModel);
 				fieldTable.repaint();
 			}
 		} catch (Exception e) {

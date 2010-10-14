@@ -117,9 +117,9 @@ public class FigureTableModel
 				key = (AttributeKey) i.next();
 				if (key.equals(fieldName.getKey()))
 				{
-					if (key.equals(MeasurementAttributes.TEXT) ||
-						key.equals(MeasurementAttributes.WIDTH) ||
-						key.equals(MeasurementAttributes.HEIGHT)) {
+					if (MeasurementAttributes.TEXT.equals(key) ||
+							MeasurementAttributes.WIDTH.equals(key) ||
+							MeasurementAttributes.HEIGHT.equals(key)) {
 						fieldName.setEditable(!figure.isReadOnly());
 					}
 					keys.add(key);
@@ -131,10 +131,12 @@ public class FigureTableModel
 			if (!found)
 			{
 				key = fieldName.getKey();
+				
+				/*
 				if (figure.getROI().hasAnnotation(key.getKey()))
 				{
 					keys.add(key);
-					if (key.equals(AnnotationKeys.NAMESPACE)) {
+					if (AnnotationKeys.NAMESPACE.equals(key)) {
 						values.add(EditorUtil.getWorkflowForDisplay(
 								(String) figure.getROI().getAnnotation(
 										(AnnotationKey) key)));
@@ -144,7 +146,20 @@ public class FigureTableModel
 					}
 				} else {
 					keys.add(key);
-					values.add(NA);
+					if (AnnotationKeys.NAMESPACE.equals(key) ||
+							AnnotationKeys.KEYWORDS.equals(key))
+						values.add("");
+					else values.add(NA);
+				}
+				*/
+				keys.add(key);
+				if (AnnotationKeys.NAMESPACE.equals(key)) {
+					values.add(EditorUtil.getWorkflowForDisplay(
+							(String) figure.getROI().getAnnotation(
+									(AnnotationKey) key)));
+				} else {
+					values.add(figure.getROI().getAnnotation(
+							(AnnotationKey) key));
 				}
 			}
 		}
