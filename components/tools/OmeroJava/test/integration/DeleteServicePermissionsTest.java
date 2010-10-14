@@ -19,6 +19,8 @@ import omero.api.IAdminPrx;
 import omero.api.IRenderingSettingsPrx;
 import omero.api.delete.DeleteCommand;
 import omero.model.Dataset;
+import omero.model.DatasetImageLink;
+import omero.model.DatasetImageLinkI;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.Image;
@@ -27,8 +29,12 @@ import omero.model.ImageAnnotationLinkI;
 import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.Project;
+import omero.model.ProjectDatasetLink;
+import omero.model.ProjectDatasetLinkI;
 import omero.model.RenderingDef;
 import omero.model.Screen;
+import omero.model.ScreenPlateLink;
+import omero.model.ScreenPlateLinkI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.sys.EventContext;
@@ -347,12 +353,12 @@ public class DeleteServicePermissionsTest
     	
     	//Tag's owner now deletes the tag.
     	init(tagger);
-	delete(true, iDelete, client, new DeleteCommand(
-			DeleteServiceTest.REF_ANN,
-			c.getId().getValue(), null));
+    	delete(true, iDelete, client, new DeleteCommand(
+    			DeleteServiceTest.REF_ANN,
+    			c.getId().getValue(), null));
 
-	assertNoneExist(c, link);
-	assertExists(img);
+    	assertNoneExist(c, link);
+    	assertExists(img);
 
     }
 
@@ -378,21 +384,461 @@ public class DeleteServicePermissionsTest
     	//method already tested 
     	IRenderingSettingsPrx prx = factory.getRenderingSettingsService();
     	prx.resetDefaultsInSet(Image.class.getName(), ids);
-	RenderingDef ownerDef = factory.getPixelsService().retrieveRndSettings(id);
+    	RenderingDef ownerDef = factory.getPixelsService().retrieveRndSettings(
+    			id);
 
     	newUserInGroup(ownerCtx);
     	prx = factory.getRenderingSettingsService();
     	prx.resetDefaultsInSet(Image.class.getName(), ids);
-	RenderingDef otherDef = factory.getPixelsService().retrieveRndSettings(id);
-	assertAllExist(ownerDef, otherDef);
+    	RenderingDef otherDef = factory.getPixelsService().retrieveRndSettings(
+    			id);
+    	assertAllExist(ownerDef, otherDef);
     	disconnect();
 
     	//Delete the image.
-	loginUser(ownerCtx);
+    	loginUser(ownerCtx);
     	delete(client, new DeleteCommand(
     			DeleteServiceTest.REF_IMAGE, imageID, null));
-	assertNoneExist(image, ownerDef, otherDef);
+    	assertNoneExist(image, ownerDef, otherDef);
 
+    }
+    
+    /**
+     * Test to delete possible graph P/D in collaborative RWRW-- group.
+     * The owner of the dataset creates the link with another user's project.
+     * Attempt to delete the project.
+     * None of the users are owner of the group.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = false, groups = "ticket:3119")
+    public void testDeleteProjectDatasetGraphLinkDoneByDatasetOwnerRWRW()
+    	throws Exception	
+    {
+    	EventContext ctx = newUserAndGroup("rwrw--");
+    	Project project = (Project) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleProjectData().asIObject());
+    	omero.client user1 = disconnect();
+        
+        // new user
+    	newUserInGroup(ctx);
+    	Dataset dataset = (Dataset) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleDatasetData().asIObject());
+    	//now link the project and dataset.
+    	ProjectDatasetLink link = new ProjectDatasetLinkI();
+    	link.setChild((Dataset) dataset.proxy());
+    	link.setParent((Project) project.proxy());
+    	iUpdate.saveAndReturnObject(link);
+    	disconnect();
+    	loginUser(ctx);
+    	//Now try to delete the project.
+    	delete(client, new DeleteCommand(
+    			DeleteServiceTest.REF_PROJECT, project.getId().getValue(), 
+    			null));
+    	assertDoesNotExist(project);
+    	assertExists(dataset);
+    }
+    
+    /**
+     * Test to delete possible graph P/D in collaborative RWRW-- group.
+     * The owner of the project creates the link with another user's dataset.
+     * Attempt to delete the project.
+     * None of the users are owner of the group.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(groups = "ticket:3119")
+    public void testDeleteProjectDatasetGraphLinkDoneByProjectOwnerRWRW()
+    	throws Exception	
+    {
+    	EventContext ctx = newUserAndGroup("rwrw--");
+    	Project project = (Project) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleProjectData().asIObject());
+    	omero.client user1 = disconnect();
+        
+        // new user
+    	newUserInGroup(ctx);
+    	Dataset dataset = (Dataset) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleDatasetData().asIObject());
+    	disconnect();
+    	loginUser(ctx);
+    	//now link the project and dataset.
+    	ProjectDatasetLink link = new ProjectDatasetLinkI();
+    	link.setChild((Dataset) dataset.proxy());
+    	link.setParent((Project) project.proxy());
+    	link = (ProjectDatasetLink) iUpdate.saveAndReturnObject(link);
+    	
+    	//Now try to delete the project.
+    	delete(client, new DeleteCommand(
+    			DeleteServiceTest.REF_PROJECT, project.getId().getValue(), 
+    			null));
+    	assertDoesNotExist(project);
+    	assertExists(dataset);
+    	assertDoesNotExist(link);
+    }
+    
+    /**
+     * Test to delete possible graph P/D in collaborative RWRW-- group.
+     * The owner of the dataset creates the link with another user's project.
+     * Attempt to delete the dataset.
+     * None of the users are owner of the group.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(groups = "ticket:3119")
+    public void testDeleteDatasetGraphLinkDoneByDatasetOwnerRWRW()
+    	throws Exception	
+    {
+    	EventContext ctx = newUserAndGroup("rwrw--");
+    	Project project = (Project) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleProjectData().asIObject());
+    	omero.client user1 = disconnect();
+        
+        // new user
+    	newUserInGroup(ctx);
+    	Dataset dataset = (Dataset) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleDatasetData().asIObject());
+    	//now link the project and dataset.
+    	ProjectDatasetLink link = new ProjectDatasetLinkI();
+    	link.setChild((Dataset) dataset.proxy());
+    	link.setParent((Project) project.proxy());
+    	link = (ProjectDatasetLink) iUpdate.saveAndReturnObject(link);
+    	//Now try to delete the project.
+    	delete(client, new DeleteCommand(
+    			DeleteServiceTest.REF_DATASET, dataset.getId().getValue(), 
+    			null));
+    	assertDoesNotExist(dataset);
+    	assertExists(project);
+    	assertDoesNotExist(link);
+    }
+    
+    /**
+     * Test to delete possible graph P/D in collaborative RWRW-- group.
+     * The owner of the project creates the link with another user's dataset.
+     * Attempt to delete the dataset.
+     * None of the users are owner of the group.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = false, groups = "ticket:3119")
+    public void testDeleteDatasetProjectGraphLinkDoneByProjectOwnerRWRW()
+    	throws Exception	
+    {
+    	EventContext ctx = newUserAndGroup("rwrw--");
+    	Project project = (Project) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleProjectData().asIObject());
+    	disconnect();
+        
+        // new user
+    	EventContext user2Ctx = newUserInGroup(ctx);
+    	Dataset dataset = (Dataset) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleDatasetData().asIObject());
+    	disconnect();
+    	loginUser(ctx);
+    	//now link the project and dataset.
+    	ProjectDatasetLink link = new ProjectDatasetLinkI();
+    	link.setChild((Dataset) dataset.proxy());
+    	link.setParent((Project) project.proxy());
+    	link = (ProjectDatasetLink) iUpdate.saveAndReturnObject(link);
+    	disconnect();
+    	loginUser(user2Ctx);
+    	//Now try to delete the project.
+    	delete(client, new DeleteCommand(
+    			DeleteServiceTest.REF_DATASET, dataset.getId().getValue(), 
+    			null));
+    	assertDoesNotExist(dataset);
+    	assertExists(project);
+    	assertDoesNotExist(link);
+    }
+    
+    /**
+     * Test to delete a dataset in collaborative RWRW-- group.
+     * The dataset will contain 2 images, one owned by another user.
+     * None of the users are owner of the group.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = false, groups = "ticket:3119")
+    public void testDeleteDatasetImagesGraphRWRW()
+    	throws Exception
+    {
+    	EventContext ctx = newUserAndGroup("rwrw--");
+    	Dataset dataset = (Dataset) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleDatasetData().asIObject());
+    	Image image1 = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.createImage());
+    	DatasetImageLink link = new DatasetImageLinkI();
+    	link.setChild((Image) image1.proxy());
+    	link.setParent((Dataset) dataset.proxy());
+    	iUpdate.saveAndReturnObject(link);
+    	disconnect();
+    	EventContext user2Ctx = newUserInGroup(ctx); 
+    	loginUser(user2Ctx);
+    	//create new user.
+    	Image image2 = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.createImage());
+    	link = new DatasetImageLinkI();
+    	link.setChild((Image) image2.proxy());
+    	link.setParent((Dataset) dataset.proxy());
+    	iUpdate.saveAndReturnObject(link);
+    	disconnect();
+    	//now try to delete the dataset
+    	loginUser(ctx);
+    	//Now try to delete the project.
+    	delete(client, new DeleteCommand(
+    			DeleteServiceTest.REF_DATASET, dataset.getId().getValue(), 
+    			null));
+    	assertDoesNotExist(dataset);
+    	assertDoesNotExist(image1);
+    	assertExists(image2);
+    }
+    
+    /**
+     * Test to delete an image in collaborative RWRW-- group.
+     * The image is linked to another user's dataset. The image was added
+     * by the owner of the image.
+     * None of the users are owner of the group.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(groups = "ticket:3119")
+    public void testDeleteImageInOtherUserDatasetRWRW()
+    	throws Exception
+    {
+    	EventContext ctx = newUserAndGroup("rwrw--");
+    	Dataset dataset = (Dataset) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleDatasetData().asIObject());
+    	disconnect();
+    	EventContext user2Ctx = newUserInGroup(ctx); 
+    	loginUser(user2Ctx);
+    	//create new user.
+    	Image image = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.createImage());
+    	DatasetImageLink link = new DatasetImageLinkI();
+    	link.setChild((Image) image.proxy());
+    	link.setParent((Dataset) dataset.proxy());
+    	iUpdate.saveAndReturnObject(link);
+    	//Now try to delete the project.
+    	delete(client, new DeleteCommand(
+    			DeleteServiceTest.REF_IMAGE, image.getId().getValue(), 
+    			null));
+    	assertDoesNotExist(image);
+    	assertExists(dataset);
+    }
+    
+    /**
+     * Test to delete an image in collaborative RWRW-- group.
+     * The image is linked to another user's dataset.
+     * The image was added by the owner of the dataset.
+     * None of the users are owner of the group.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = false, groups = "ticket:3119")
+    public void testDeleteImageInOtherUserDatasetAddedByDatasetOwnerRWRW()
+    	throws Exception
+    {
+    	EventContext ctx = newUserAndGroup("rwrw--");
+    	Dataset dataset = (Dataset) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleDatasetData().asIObject());
+    	disconnect();
+    	EventContext user2Ctx = newUserInGroup(ctx); 
+    	loginUser(user2Ctx);
+    	//create new user.
+    	Image image = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.createImage());
+    	disconnect();
+    	loginUser(ctx);
+    	DatasetImageLink link = new DatasetImageLinkI();
+    	link.setChild((Image) image.proxy());
+    	link.setParent((Dataset) dataset.proxy());
+    	iUpdate.saveAndReturnObject(link);
+    	disconnect();
+    	//now try to delete the image
+    	loginUser(user2Ctx);
+    	delete(client, new DeleteCommand(
+    			DeleteServiceTest.REF_IMAGE, image.getId().getValue(), 
+    			null));
+    	assertDoesNotExist(image);
+    	assertExists(dataset);
+    }
+
+    /**
+     * Test to delete possible graph Screen/Plate in collaborative RWRW-- group.
+     * The owner of the screen creates the link with another user's plate.
+     * Attempt to delete the screen.
+     * None of the users are owner of the group.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(groups = "ticket:3119")
+    public void testDeleteScreenPlateGraphLinkDoneByScreenOwnerRWRW()
+    	throws Exception	
+    {
+    	EventContext ctx = newUserAndGroup("rwrw--");
+    	Screen screen = (Screen) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleScreenData().asIObject());
+    	disconnect();
+        
+        // new user
+    	newUserInGroup(ctx);
+    	Plate plate = (Plate) iUpdate.saveAndReturnObject(
+    			mmFactory.simplePlateData().asIObject());
+    	disconnect();
+    	loginUser(ctx);
+    	//now link the project and dataset.
+    	ScreenPlateLink link = new ScreenPlateLinkI();
+    	link.setChild((Plate) plate.proxy());
+    	link.setParent((Screen) screen.proxy());
+    	link = (ScreenPlateLink) iUpdate.saveAndReturnObject(link);
+    	
+    	//Now try to delete the project.
+    	delete(client, new DeleteCommand(
+    			DeleteServiceTest.REF_SCREEN, screen.getId().getValue(), 
+    			null));
+    	assertDoesNotExist(screen);
+    	assertExists(plate);
+    	assertDoesNotExist(link);
+    }
+    
+    /**
+     * Test to delete possible graph Screen/Plate in collaborative RWRW-- group.
+     * The owner of the screen creates the link with another user's plate.
+     * Attempt to delete the screen.
+     * None of the users are owner of the group.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = false, groups = "ticket:3119")
+    public void testDeleteScreenPlateGraphLinkDoneByPlateOwnerRWRW()
+    	throws Exception	
+    {
+    	EventContext ctx = newUserAndGroup("rwrw--");
+    	Screen screen = (Screen) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleScreenData().asIObject());
+    	disconnect();
+        
+        // new user
+    	newUserInGroup(ctx);
+    	Plate plate = (Plate) iUpdate.saveAndReturnObject(
+    			mmFactory.simplePlateData().asIObject());
+    	//now link the project and dataset.
+    	ScreenPlateLink link = new ScreenPlateLinkI();
+    	link.setChild((Plate) plate.proxy());
+    	link.setParent((Screen) screen.proxy());
+    	link = (ScreenPlateLink) iUpdate.saveAndReturnObject(link);
+    	disconnect();
+    	loginUser(ctx);
+    	//Now try to delete the project.
+    	delete(client, new DeleteCommand(
+    			DeleteServiceTest.REF_SCREEN, screen.getId().getValue(), 
+    			null));
+    	assertDoesNotExist(screen);
+    	assertExists(plate);
+    	assertDoesNotExist(link);
+    }
+    
+    /**
+     * Test to delete possible graph Screen/Plate in collaborative RWRW-- group.
+     * The owner of the plate creates the link with another user's screen.
+     * Attempt to delete the plate.
+     * None of the users are owner of the group.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(groups = "ticket:3119")
+    public void testDeletePlateGraphLinkDoneByPlateOwnerRWRW()
+    	throws Exception	
+    {
+    	EventContext ctx = newUserAndGroup("rwrw--");
+    	Screen screen = (Screen) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleScreenData().asIObject());
+    	disconnect();
+        
+        // new user
+    	newUserInGroup(ctx);
+    	
+    	Plate plate = (Plate) iUpdate.saveAndReturnObject(
+    			mmFactory.simplePlateData().asIObject());
+    	ScreenPlateLink link = new ScreenPlateLinkI();
+    	link.setChild((Plate) plate.proxy());
+    	link.setParent((Screen) screen.proxy());
+    	link = (ScreenPlateLink) iUpdate.saveAndReturnObject(link);
+    	//Now try to delete the plate
+    	delete(client, new DeleteCommand(DeleteServiceTest.REF_PLATE, 
+    			plate.getId().getValue(), null));
+    	assertDoesNotExist(plate);
+    	assertExists(screen);
+    	assertDoesNotExist(link);
+    }
+    
+    /**
+     * Test to delete possible graph Screen/Plate in collaborative RWRW-- group.
+     * The owner of the screen creates the link with another user's plate.
+     * Attempt to delete the plate.
+     * None of the users are owner of the group.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(enabled = false, groups = "ticket:3119")
+    public void testDeletePlateScreenGraphLinkDoneByScreenOwnerRWRW()
+    	throws Exception	
+    {
+    	EventContext ctx = newUserAndGroup("rwrw--");
+    	Screen screen = (Screen) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleScreenData().asIObject());
+    	disconnect();
+        
+        // new user
+    	EventContext user2Ctx = newUserInGroup(ctx);
+    	Plate plate = (Plate) iUpdate.saveAndReturnObject(
+    			mmFactory.simplePlateData().asIObject());
+    	disconnect();
+    	loginUser(ctx);
+    	//now link the project and dataset.
+    	ScreenPlateLink link = new ScreenPlateLinkI();
+    	link.setChild((Plate) plate.proxy());
+    	link.setParent((Screen) screen.proxy());
+    	link = (ScreenPlateLink) iUpdate.saveAndReturnObject(link);
+    	disconnect();
+    	loginUser(user2Ctx);
+    	//Now try to delete the project.
+    	delete(client, new DeleteCommand(DeleteServiceTest.REF_PLATE, 
+    			plate.getId().getValue(), null));
+    	assertDoesNotExist(plate);
+    	assertExists(screen);
+    	assertDoesNotExist(link);
+    }
+    
+    /**
+     * Test to delete a dataset in collaborative RWRW-- group.
+     * The dataset contains one image, the image has added by another 
+     * user to his/her dataset.
+     * None of the users are owner of the group.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(groups = "ticket:3119")
+    public void testDeleteDatasetWithInOtherUserDatasetRWRW()
+    	throws Exception
+    {
+    	EventContext ctx = newUserAndGroup("rwrw--");
+    	Dataset dataset = (Dataset) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleDatasetData().asIObject());
+    	Image image = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.createImage());
+    	DatasetImageLink link = new DatasetImageLinkI();
+    	link.setChild((Image) image.proxy());
+    	link.setParent((Dataset) dataset.proxy());
+    	iUpdate.saveAndReturnObject(link);
+    	disconnect();
+    	
+    	EventContext user2Ctx = newUserInGroup(ctx); 
+    	loginUser(user2Ctx);
+    	//create new user.
+    	Dataset dataset2 = (Dataset) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleDatasetData().asIObject());
+    	link = new DatasetImageLinkI();
+    	link.setChild((Image) image.proxy());
+    	link.setParent((Dataset) dataset2.proxy());
+    	iUpdate.saveAndReturnObject(link);
+    	disconnect();
+    	loginUser(ctx);
+    	//Now try to delete the project.
+    	delete(client, new DeleteCommand(
+    			DeleteServiceTest.REF_DATASET, dataset.getId().getValue(), 
+    			null));
+    	assertDoesNotExist(dataset);
+    	assertExists(image);
+    	assertExists(dataset2);
     }
     
 }
