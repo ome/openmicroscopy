@@ -18,7 +18,6 @@ import exceptions
 import omero
 import omero_Scripts_ice
 import omero.util.concurrency
-import omero.util.temp_files
 
 from omero.rtypes import *
 
