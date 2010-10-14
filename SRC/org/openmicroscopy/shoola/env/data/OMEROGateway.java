@@ -2121,6 +2121,7 @@ class OMEROGateway
 			}
 			return exp;
 		} catch (Throwable e) {
+			e.printStackTrace();
 			connected = false;
 			String s = "Can't connect to OMERO. OMERO info not valid.\n\n";
 			s += printErrorText(e);
@@ -6830,6 +6831,8 @@ class OMEROGateway
 			List<ExperimenterGroup> l = new ArrayList<ExperimenterGroup>();
 			long id;
 			Experimenter value;
+			GroupData defaultGroup = null;
+			ExperimenterData expData;
 			while (i.hasNext()) {
 				entry = (Entry) i.next();
 				uc = (UserCredentials) entry.getValue();
@@ -6837,6 +6840,10 @@ class OMEROGateway
 				value = lookupExperimenter(uc.getUserName());
 				if (value != null) {
 					exp = value;
+					expData = new ExperimenterData(exp);
+					defaultGroup = expData.getDefaultGroup();
+					if (isSystemGroup(defaultGroup.asGroup()))
+						defaultGroup = null;
 				} else {
 					exp = (Experimenter) ModelMapper.createIObject(
 							(ExperimenterData) entry.getKey());
@@ -6852,7 +6859,11 @@ class OMEROGateway
 						id = svc.createExperimenter(exp, g, l);
 					exp = svc.getExperimenter(id);
 				}
+
 				svc.setGroupOwner(g, exp);
+				if (defaultGroup == null) {
+					svc.setDefaultGroup(exp, g);
+				}
 			}
 			return (GroupData) PojoMapper.asDataObject(g);
 		} catch (Exception e) {
