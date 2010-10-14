@@ -611,12 +611,16 @@ OMERO Diagnostics %s
                     self.ctx.out("%-12s %s" % (sz_str(p.size), msg))
 
         def version(cmd):
+            """
+            Returns a true response only
+            if a valid version was found.
+            """
             item("Commands","%s" % " ".join(cmd))
             try:
                 p = self.ctx.popen(cmd)
             except OSError:
                 self.ctx.err("not found")
-                return
+
             rv = p.wait()
             io = p.communicate()
             try:
@@ -639,8 +643,10 @@ OMERO Diagnostics %s
                 except:
                     where = "unknown"
                 self.ctx.out("(%s)" % where)
+                return True
             except exceptions.Exception, e:
                 self.ctx.err("error:%s" % e)
+
 
         import logging
         logging.basicConfig()
@@ -653,36 +659,39 @@ OMERO Diagnostics %s
         version(["java",         "-version"])
         version(["python",       "-V"])
         version(["icegridnode",  "--version"])
-        version(["icegridadmin", "--version"])
+        iga = version(["icegridadmin", "--version"])
         version(["psql",         "--version"])
 
 
         self.ctx.out("")
-        item("Server", "icegridnode")
-        p = self.ctx.popen(self._cmd("-e", "server list")) # popen
-        rv = p.wait()
-        io = p.communicate()
-        if rv != 0:
-            self.ctx.out("not started")
-            self.ctx.dbg("""
-            Stdout:\n%s
-            Stderr:\n%s
-            """ % io)
+        if not iga:
+            self.ctx.out("No icegridadmin available: Cannot check server list")
         else:
-            self.ctx.out("running")
-            servers = io[0].split()
-            servers.sort()
-            for s in servers:
-                item("Server", "%s" % s)
-                p2 = self.ctx.popen(self._cmd("-e", "server state %s" % s)) # popen
-                rv2 = p2.wait()
-                io2 = p2.communicate()
-                if io2[1]:
-                    self.ctx.err(io2[1].strip())
-                elif io2[0]:
-                    self.ctx.out(io2[0].strip())
-                else:
-                    self.ctx.err("UNKNOWN!")
+            item("Server", "icegridnode")
+            p = self.ctx.popen(self._cmd("-e", "server list")) # popen
+            rv = p.wait()
+            io = p.communicate()
+            if rv != 0:
+                self.ctx.out("not started")
+                self.ctx.dbg("""
+                Stdout:\n%s
+                Stderr:\n%s
+                """ % io)
+            else:
+                self.ctx.out("running")
+                servers = io[0].split()
+                servers.sort()
+                for s in servers:
+                    item("Server", "%s" % s)
+                    p2 = self.ctx.popen(self._cmd("-e", "server state %s" % s)) # popen
+                    rv2 = p2.wait()
+                    io2 = p2.communicate()
+                    if io2[1]:
+                        self.ctx.err(io2[1].strip())
+                    elif io2[0]:
+                        self.ctx.out(io2[0].strip())
+                    else:
+                        self.ctx.err("UNKNOWN!")
 
         def log_dir(log, cat, cat2, knownfiles):
             self.ctx.out("")
