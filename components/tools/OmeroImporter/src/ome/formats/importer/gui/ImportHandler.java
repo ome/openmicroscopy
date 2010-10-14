@@ -80,7 +80,7 @@ public class ImportHandler implements IObservable
     /**
      * @param ex -scheduled executor service for background processing
      * @param viewer - parent
-     * @param qTable - fileQueueTable to recieve notifications
+     * @param qTable - fileQueueTable to receive notifications
      * @param config - passed in config
      * @param library - passed in library
      * @param containers - importContainers

@@ -270,7 +270,7 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
                     "\nThank you for your support, your errors "
                             + "\nhave successfully been collected."
                             + "\n\nIf you have provided us with an email"
-                            + "\naddress, you should recieve a message"
+                            + "\naddress, you should receive a message"
                             + "\nshortly detailing how you can track the"
                             + "\nstatus of your errors.", "Success!",
                     JOptionPane.INFORMATION_MESSAGE);
@@ -288,7 +288,7 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
                     "\nThank you for your support, your errors "
                             + "\nhave successfully been collected."
                             + "\n\nIf you have provided us with an email"
-                            + "\naddress, you should recieve a message"
+                            + "\naddress, you should receive a message"
                             + "\nshortly detailing how you can track the"
                             + "\nstatus of your errors."
                             + "\n\n Please note that during the import"
