@@ -31,6 +31,7 @@ import omero.api.delete.DeleteHandlePrx;
 import omero.api.delete.DeleteReport;
 import omero.grid.DeleteCallbackI;
 import omero.model.ChannelBinding;
+import omero.model.Experiment;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
@@ -468,6 +469,27 @@ public class AbstractTest
         WellSample ws = (WellSample) results.get(0);
         assertNotNull(ws);
         return ws;
+    }
+
+    /**
+     * Helper method to load the Experiment which is is associated
+     * with the pixels argument via Image.
+     * @param p
+     * @return
+     * @throws ServerError
+     */
+    protected Experiment getExperiment(Pixels p) throws ServerError {
+        long id = p.getImage().getId().getValue();
+        String sql = "select e from Image i ";
+        sql += "join i.experiment e ";
+        sql += "where i.id = :id";
+        ParametersI param = new ParametersI();
+        param.addId(id);
+        List<IObject> results = iQuery.findAllByQuery(sql, param);
+        assertTrue(results.size() == 1);
+        Experiment e = (Experiment) results.get(0);
+        assertNotNull(e);
+        return e;
     }
 
     /**

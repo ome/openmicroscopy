@@ -533,20 +533,37 @@ public class XMLMockObjects
 		return mm;
 	}
 
-	/**
-	 * Creates an experiment.
-	 * 
-	 * @param index The index in the file.
-	 * @return See above.
-	 */
-	protected Experiment createExperiment(int index)
-	{
-		Experiment exp = new Experiment();
-		exp.setDescription("Experiment");
-		exp.setType(ExperimentType.PHOTOBLEACHING);
-		exp.setID("Experiment:"+index);
-		return exp;
-	}
+    /**
+     * Creates an experiment.
+     *
+     * @param index The index in the file.
+     * @return See above.
+     */
+    protected Experiment createExperiment(int index)
+    {
+        Experiment exp = new Experiment();
+        exp.setDescription("Experiment");
+        exp.setType(ExperimentType.PHOTOBLEACHING);
+        exp.setID("Experiment:"+index);
+        return exp;
+    }
+
+    /**
+     * Creates an experiment with a microbeam.
+     *
+     * @param index The index in the file.
+     * @return See above.
+     */
+    protected Experiment createExperimentWithMicrobeam(int index)
+    {
+        Experiment exp = new Experiment();
+        exp.setDescription("Experiment");
+        exp.setType(ExperimentType.PHOTOBLEACHING);
+        exp.setID("Experiment:"+index);
+        MicrobeamManipulation mm = createMicrobeamManipulation(0);
+        exp.addMicrobeamManipulation(mm);
+        return exp;
+    }
 
 	/**
 	 * Creates a detector settings.
@@ -803,6 +820,10 @@ public class XMLMockObjects
 	protected Plate createPlate(int index, int rows, int columns, int fields, 
 			int numberOfPlateAcquisition)
 	{
+	    // ticket:3102
+	    Experiment exp = createExperimentWithMicrobeam(0);
+	    ome.addExperiment(exp);
+
 		if (numberOfPlateAcquisition < 0)
 			numberOfPlateAcquisition = 0;
 		Plate plate = new Plate();
@@ -858,7 +879,7 @@ public class XMLMockObjects
 								row, column, field));
 						sample.setIndex(new NonNegativeInteger(i));
 						//create an image. and register it
-						image = createImage(i, true);
+						image = createImageWithExperiment(i, true, exp);
 						ome.addImage(image);
 						sample.linkImage(image);
 						if (pa != null) {
@@ -881,7 +902,8 @@ public class XMLMockObjects
 									row, column, field, kk));
 							sample.setIndex(new NonNegativeInteger(i));
 							//create an image. and register it
-							image = createImage(i, true);
+							//image = createImage(i, true);
+							image = createImageWithExperiment(i, true, exp);
 							ome.addImage(image);
 							sample.linkImage(image);
 							pa.linkWellSample(sample);
@@ -1278,37 +1300,49 @@ public class XMLMockObjects
 		return ome;
 	}
 
-	/**
-	 * Creates an image with acquisition data.
-	 * 
-	 * @return See above.
-	 */
-	public OME createImageWithAcquisitionData()
-	{
-		populateInstrument();
-		Image image = createImage(0, true);
-		ObjectiveSettings settings = createObjectiveSettings(0);
-		image.setObjectiveSettings(settings);
-		OTF otf = createOTF(0, instrument.getFilterSet(0), settings);
-		instrument.addOTF(otf);
+    /**
+     * Creates an image with acquisition data.
+     *
+     * @return See above.
+     */
+    public OME createImageWithAcquisitionData()
+    {
+        populateInstrument();
+        Image image = createImage(0, true);
+        ObjectiveSettings settings = createObjectiveSettings(0);
+        image.setObjectiveSettings(settings);
+        OTF otf = createOTF(0, instrument.getFilterSet(0), settings);
+        instrument.addOTF(otf);
 
-		//Add microbeam
-		Experiment exp = createExperiment(0);
-		ome.addExperiment(exp);
-		MicrobeamManipulation mm = createMicrobeamManipulation(0);
-		exp.addMicrobeamManipulation(mm);
-		Pixels pixels = image.getPixels();
-		Channel c;
-		for (int i = 0; i < pixels.getSizeC().getValue().intValue(); i++) {
-			c = pixels.getChannel(i);
-			c.linkOTF(otf);
-		}
-		image.linkExperiment(exp);
-		image.linkInstrument(instrument);
-		ome.addImage(image);
-		return ome;
-	}
-	
+        //Add microbeam
+        Experiment exp = createExperiment(0);
+        ome.addExperiment(exp);
+        MicrobeamManipulation mm = createMicrobeamManipulation(0);
+        exp.addMicrobeamManipulation(mm);
+        Pixels pixels = image.getPixels();
+        Channel c;
+        for (int i = 0; i < pixels.getSizeC().getValue().intValue(); i++) {
+            c = pixels.getChannel(i);
+            c.linkOTF(otf);
+        }
+        image.linkExperiment(exp);
+        image.linkInstrument(instrument);
+        ome.addImage(image);
+        return ome;
+    }
+
+    /**
+     * Creates an image with a given experiment. The Image is not added to ome.
+     *
+     * @return See above.
+     */
+    public Image createImageWithExperiment(int index, boolean metadata, Experiment exp)
+    {
+        Image image = createImage(index, metadata);
+        image.linkExperiment(exp);
+        return image;
+    }
+
 	/**
 	 * Creates an image with ROI.
 	 * 
@@ -1376,9 +1410,13 @@ public class XMLMockObjects
         return ome;
     }
 
+    /**
+     * Creates one 2x2 plate of with a single well sample per well and one
+     * plate acquisition.
+     */
     public OME createPopulatedScreen()
     {
-        return createPopulatedScreen(1, 1, 1, 1, 1);
+        return createPopulatedScreen(1, 2, 2, 1, 1);
     }
 
 	/**

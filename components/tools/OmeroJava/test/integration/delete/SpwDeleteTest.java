@@ -12,10 +12,12 @@ import integration.XMLMockObjects;
 import integration.XMLWriter;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import ome.xml.model.OME;
 import omero.api.delete.DeleteCommand;
+import omero.model.Experiment;
 import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.Screen;
@@ -49,18 +51,36 @@ public class SpwDeleteTest extends AbstractTest {
                 throw new Exception("cannot import the plate", e);
         }
 
-        Pixels p = pixels.get(0);
-        WellSample ws = getWellSample(p);
-        Plate plate = ws.getWell().getPlate();
-        Screen screen = plate.copyScreenLinks().get(0).getParent();
+        Experiment exp = null;
+        Screen screen = null;
+        List<Plate> plates = new ArrayList<Plate>();
+        List<WellSample> samples = new ArrayList<WellSample>();
+
+        for (Pixels p : pixels) {
+            Experiment e = getExperiment(p);
+            if (exp == null) {
+                exp = e;
+            } else {
+                assertEquals(exp.getId().getValue(), e.getId().getValue());
+            }
+            WellSample ws = getWellSample(p);
+            Plate plate = ws.getWell().getPlate();
+            Screen s = plate.copyScreenLinks().get(0).getParent();
+            if (screen == null) {
+                screen = s;
+            } else {
+                assertEquals(screen.getId().getValue(), s.getId().getValue());
+            }
+        }
 
         delete(client, new DeleteCommand(DeleteServiceTest.REF_SCREEN,
                 screen.getId().getValue(), null));
 
+        assertDoesNotExist(exp);
         assertDoesNotExist(screen);
-        assertDoesNotExist(plate);
-        assertDoesNotExist(ws);
-        assertDoesNotExist(p);
+        assertNoneExist(plates.toArray(new Plate[0]));
+        assertNoneExist(samples.toArray(new WellSample[0]));
+        assertNoneExist(pixels.toArray(new Pixels[0]));
 
     }
 
