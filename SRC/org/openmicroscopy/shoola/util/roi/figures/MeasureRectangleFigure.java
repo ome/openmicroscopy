@@ -101,7 +101,7 @@ public class MeasureRectangleFigure
     /** Creates a new instance. */
     public MeasureRectangleFigure() 
     {
-        this("Text", 0, 0, 0, 0, false, true);
+        this(DEFAULT_TEXT, 0, 0, 0, 0, false, true);
     }
 
     /** Creates a new instance. 
@@ -109,7 +109,7 @@ public class MeasureRectangleFigure
 	 */
     public MeasureRectangleFigure(boolean readOnly, boolean clientObject) 
     {
-        this("Text", 0, 0, 0, 0, readOnly, clientObject);
+        this(DEFAULT_TEXT, 0, 0, 0, 0, readOnly, clientObject);
     }
 
     /** 
@@ -131,10 +131,9 @@ public class MeasureRectangleFigure
     public MeasureRectangleFigure(double x, double y, double width, 
 			double height) 
     {
-    	this("Text", x, y, width, height, false, true);
+    	this(DEFAULT_TEXT, x, y, width, height, false, true);
     }
 
-    
     /** 
      * Creates a new instance.
      * @param x    coord of the figure. 
@@ -146,7 +145,7 @@ public class MeasureRectangleFigure
     public MeasureRectangleFigure(double x, double y, double width, 
 			double height, boolean readOnly, boolean clientObject) 
     {
-    	this("Text", x, y, width, height, readOnly, clientObject);
+    	this(DEFAULT_TEXT, x, y, width, height, readOnly, clientObject);
     }
     
     /** 
@@ -159,7 +158,7 @@ public class MeasureRectangleFigure
  	 * @param readOnly The figure is read only.
  	 * */
     public MeasureRectangleFigure(String text, double x, double y, double width, 
-    							double height, boolean readOnly, boolean clientObject) 
+    					double height, boolean readOnly, boolean clientObject) 
     {
 		super(text, x, y, width, height);
 		setAttributeEnabled(MeasurementAttributes.HEIGHT, true);

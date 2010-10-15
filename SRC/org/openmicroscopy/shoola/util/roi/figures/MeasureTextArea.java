@@ -80,7 +80,7 @@ public class MeasureTextArea
     
     /** Creates a new instance. */
     public MeasureTextArea() {
-        this("Text");
+        this(ROIFigure.DEFAULT_TEXT);
     }
     public MeasureTextArea(String text) {
         setText(text);

@@ -211,7 +211,7 @@ class OutputServerStrategy
 	private EllipseData createEllipseFigure(ROIShape shape) 
 		throws ParsingException
 	{
-		MeasureEllipseFigure fig = (MeasureEllipseFigure)shape.getFigure();
+		MeasureEllipseFigure fig = (MeasureEllipseFigure) shape.getFigure();
 		double rx = fig.getEllipse().getWidth()/2d;
 		double ry = fig.getEllipse().getHeight()/2d;
 		double cx = fig.getEllipse().getCenterX();
@@ -298,7 +298,7 @@ class OutputServerStrategy
 	private RectangleData createRectangleFigure(ROIShape shape) 
 		throws ParsingException
 	{
-		MeasureRectangleFigure fig = (MeasureRectangleFigure)shape.getFigure();
+		MeasureRectangleFigure fig = (MeasureRectangleFigure) shape.getFigure();
 		double x = fig.getX();
 		double y = fig.getY();
 		double width = fig.getWidth();
@@ -425,33 +425,32 @@ class OutputServerStrategy
 	private void addShapeAttributes(ROIFigure fig, ShapeData shape)
 	{
 		ShapeSettingsData settings = shape.getShapeSettings();
-		
-		if (AttributeKeys.FILL_COLOR.get(fig)!=null)
+		if (AttributeKeys.FILL_COLOR.get(fig) != null)
 		{
 			Color c = AttributeKeys.FILL_COLOR.get(fig);
 			settings.setFillColor(c);
 		}
-		if (MeasurementAttributes.STROKE_COLOR.get(fig)!=null)
+		if (MeasurementAttributes.STROKE_COLOR.get(fig) != null)
 			settings.setStrokeColor(
 					MeasurementAttributes.STROKE_COLOR.get(fig));
-		if (MeasurementAttributes.STROKE_WIDTH.get(fig)!=null)
+		if (MeasurementAttributes.STROKE_WIDTH.get(fig) != null)
 			settings.setStrokeWidth(
 					MeasurementAttributes.STROKE_WIDTH.get(fig));
-		if (MeasurementAttributes.FONT_FACE.get(fig)!=null)
+		if (MeasurementAttributes.FONT_FACE.get(fig) != null)
 			settings.setFontFamily(
 					MeasurementAttributes.FONT_FACE.get(fig).getName());
 		else
 			settings.setFontFamily(ShapeSettingsData.DEFAULT_FONT_FAMILY);
-		if (MeasurementAttributes.FONT_SIZE.get(fig)!=null)
+		if (MeasurementAttributes.FONT_SIZE.get(fig) != null)
 			settings.setFontSize(
 					MeasurementAttributes.FONT_SIZE.get(fig).intValue());
 		else
 			settings.setFontSize(ShapeSettingsData.DEFAULT_FONT_SIZE);
-		if (MeasurementAttributes.FONT_BOLD.get(fig)!=null)
+		if (MeasurementAttributes.FONT_BOLD.get(fig) != null)
 			settings.setFontWeight(ShapeSettingsData.FONT_BOLD);
 		else
 			settings.setFontWeight(ShapeSettingsData.DEFAULT_FONT_WEIGHT);
-		if (MeasurementAttributes.FONT_ITALIC.get(fig)!=null)
+		if (MeasurementAttributes.FONT_ITALIC.get(fig) != null)
 			settings.setFontStyle(ShapeSettingsData.FONT_ITALIC);
 		else
 			settings.setFontStyle(ShapeSettingsData.DEFAULT_FONT_STYLE);
@@ -523,11 +522,11 @@ class OutputServerStrategy
 				// matrix(a,b,c,d,e,f) is equivalent to applying the
 				// transformation matrix [a b c d e f].
 				buf.append("matrix(");
-				double[] matrix=new double[6];
+				double[] matrix = new double[6];
 				t.getMatrix(matrix);
-				for (int i=0; i<matrix.length; i++)
+				for (int i = 0; i < matrix.length; i++)
 				{
-					if (i!=0)
+					if (i != 0)
 					{
 						buf.append(' ');
 					}

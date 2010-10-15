@@ -90,7 +90,7 @@ public class LineTextFigure
 	public LineTextFigure(String text)
 	{
 		super();
-		setAttribute(AttributeKeys.TEXT, text);
+		setText(text);
 		textLayout = null;
 		textBounds = null;
 		editable = true;

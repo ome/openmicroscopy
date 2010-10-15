@@ -131,21 +131,24 @@ public class MeasureLineFigure
 	/** Creates a new instance. */
 	public MeasureLineFigure()
 	{
-		this("text", false, true);
+		this(DEFAULT_TEXT, false, true);
 	}
 
 
-	/** Creates a new instance. 
+	/** 
+	 * Creates a new instance.
+	 *  
 	 * @param readOnly the figure is read only.
      * @param clientObject the figure is a client object
 	 */
 	public MeasureLineFigure(boolean readOnly, boolean clientObject)
 	{
-		this("text", readOnly, clientObject);
+		this(DEFAULT_TEXT, readOnly, clientObject);
 	}
 	
 	/**
-	 * Create instance of the line figure.
+	 * Creates a new instance
+	 * 
 	 * @param text The text to add to the figure.
 	 * @param readOnly the figure is read only.
      * @param clientObject the figure is a client object
@@ -175,9 +178,9 @@ public class MeasureLineFigure
 		boundsArray.clear();
 		lengthArray.clear();
 		angleArray.clear();
-		if(MeasurementAttributes.SHOWMEASUREMENT.get(this))
+		if (MeasurementAttributes.SHOWMEASUREMENT.get(this))
 		{
-			if(getPointCount()==2)
+			if (getPointCount() == 2)
 			{
 				NumberFormat formatter = new DecimalFormat("###.#");
 				double angle = getAngle(0, 1);

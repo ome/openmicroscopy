@@ -180,7 +180,8 @@ public class MeasureBezierFigure
 	 * @param closed Pass <code>true</code> if the figure is a polygon,
 	 * 				 <code>false</code> if it is a polyline.
 	 */
-	public MeasureBezierFigure(boolean closed, boolean readOnly, boolean clientObject)
+	public MeasureBezierFigure(boolean closed, boolean readOnly, 
+			boolean clientObject)
 	{
 		this(ROIFigure.DEFAULT_TEXT, closed, readOnly, clientObject);
 	}

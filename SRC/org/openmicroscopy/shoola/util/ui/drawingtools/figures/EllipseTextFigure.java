@@ -123,7 +123,7 @@ public class EllipseTextFigure
 		setAttributeEnabled(MeasurementAttributes.WIDTH, true);
 		setAttribute(MeasurementAttributes.WIDTH, w);
 		setAttribute(MeasurementAttributes.HEIGHT, h);
-  		setAttribute(AttributeKeys.TEXT, t);
+  		setText(t);
 		textLayout = null;
 		textBounds = null;
 		editable = true;

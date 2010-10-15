@@ -67,6 +67,7 @@ public class MeasurePointFigure
 	extends PointTextFigure
 	implements ROIFigure
 {
+	
 	/** Is this figure read only. */
 	private boolean readOnly;
 
@@ -106,7 +107,7 @@ public class MeasurePointFigure
 	 * @param clientObject The figure is created clientside.
 	 */
 	public MeasurePointFigure(String text, double x, double y, double width, 
-												double height, boolean readOnly, boolean clientObject) 
+					double height, boolean readOnly, boolean clientObject) 
     {
     	super(text, x, y, width, height);
     	setAttributeEnabled(MeasurementAttributes.TEXT_COLOR, true);
@@ -126,7 +127,7 @@ public class MeasurePointFigure
      * */  
     public MeasurePointFigure(double x, double y, double width, double height) 
     {
-    	this("Text", x, y, width, height, false, true);
+    	this(DEFAULT_TEXT, x, y, width, height, false, true);
     }
 
     /**
@@ -136,16 +137,15 @@ public class MeasurePointFigure
 	 */
 	public MeasurePointFigure(boolean readOnly, boolean clientObject)
 	{
-		this("Text", 0, 0, 0, 0, readOnly, clientObject);
+		this(DEFAULT_TEXT, 0, 0, 0, 0, readOnly, clientObject);
 	}
 
-    
     /**
 	 * Create an instance of the Point Figure.
 	 */
 	public MeasurePointFigure()
 	{
-		this("Text", 0, 0, 0, 0, false, true);
+		this(DEFAULT_TEXT, 0, 0, 0, 0, false, true);
 	}
 
 	/** 
@@ -191,7 +191,6 @@ public class MeasurePointFigure
      */
     public double getMeasurementWidth() 
     {
-    	
     	if (units.isInMicrons()) return getWidth()*units.getMicronsPixelX();
     	return getWidth();
     }

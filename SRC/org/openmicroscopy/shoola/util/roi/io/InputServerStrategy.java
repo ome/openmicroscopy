@@ -370,7 +370,6 @@ class InputServerStrategy
 	 */
 	private MeasureRectangleFigure createRectangleFigure(RectangleData data)
 	{
-		
 		double x = data.getX();
 		double y = data.getY();
 		double width = data.getWidth();
@@ -384,10 +383,7 @@ class InputServerStrategy
 		try {
 			transform = SVGTransform.toTransform(data.getTransform());
 			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			// e.printStackTrace();
-		}
+		} catch (IOException e) {}
 		
 		return fig;
 	}

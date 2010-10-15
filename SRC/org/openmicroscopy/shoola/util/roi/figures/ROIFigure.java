@@ -54,7 +54,7 @@ public interface ROIFigure
 {
 		
 	/** The default text. */
-	static final String DEFAULT_TEXT = "Text";
+	public static final String DEFAULT_TEXT = "Text";
 	
 	/** Identified the <code>IDLE</code> status. */
 	public static final int IDLE = 0;

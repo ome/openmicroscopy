@@ -68,6 +68,7 @@ public class MeasureLineConnectionFigure
 	extends LineConnectionTextFigure
 	implements ROIFigure
 {
+	
 	/** Is this figure read only. */
 	private boolean readOnly;
 	
@@ -112,11 +113,12 @@ public class MeasureLineConnectionFigure
 	 */
 	public MeasureLineConnectionFigure()
 	{
-		this("Text", false);
+		this(DEFAULT_TEXT, false);
 	}
 	
 	/**
-	 * Create instane of line connection figure. 
+	 * Creates a new instance.
+	 * 
 	 * @param text text to assign to the figure. 
 	 * @param readOnly The figure is read only.
 	 */
@@ -127,13 +129,11 @@ public class MeasureLineConnectionFigure
 		angleArray = new ArrayList<Double>();
 		pointArrayX = new ArrayList<Double>();
 		pointArrayY = new ArrayList<Double>();
-	
 		shape = null;
 		roi = null;
 		status = IDLE;
 		setReadOnly(readOnly);
 	}
-
 
 	 /**
      * Draw the figure on the graphics context.
@@ -145,9 +145,10 @@ public class MeasureLineConnectionFigure
 		boundsArray.clear();
 		lengthArray.clear();
 		angleArray.clear();
-		if(MeasurementAttributes.SHOWMEASUREMENT.get(this) || MeasurementAttributes.SHOWID.get(this))
+		if (MeasurementAttributes.SHOWMEASUREMENT.get(this) || 
+				MeasurementAttributes.SHOWID.get(this))
 		{
-			if(getPointCount()==2)
+			if (getPointCount() == 2)
 			{
 				NumberFormat formatter = new DecimalFormat("###.#");
 				double angle = getAngle(0, 1);
@@ -156,53 +157,63 @@ public class MeasureLineConnectionFigure
 				angleArray.add(angle);
 				String lineAngle = formatter.format(angle);
 				lineAngle = addDegrees(lineAngle);
-				double sz = ((Double)this.getAttribute(MeasurementAttributes.FONT_SIZE));
+				double sz = ((Double)this.getAttribute(
+						MeasurementAttributes.FONT_SIZE));
 				g.setFont(new Font("Arial",Font.PLAIN, (int)sz));
-				Rectangle2D rect = g.getFontMetrics().getStringBounds(lineAngle, g);
+				Rectangle2D rect = g.getFontMetrics().getStringBounds(lineAngle,
+						g);
 				Point2D.Double lengthPoint = getLengthPosition(0, 1);
 				Rectangle2D bounds = new 
 					Rectangle2D.Double(lengthPoint.x,
 							lengthPoint.y+rect.getHeight()*2, rect.getWidth(), 
 							rect.getHeight());
-				g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
+				g.setColor(
+						MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
 				g.drawString(lineAngle, (int)bounds.getX(), (int)bounds.getY());
 				boundsArray.add(bounds);
 			}
-			for( int x = 1 ; x < this.getPointCount()-1; x++)
+			for (int x = 1 ; x < this.getPointCount()-1; x++)
 			{
 				NumberFormat formatter = new DecimalFormat("###.#");
 				double angle = getAngle(x-1, x, x+1);
 				angleArray.add(angle);
 				String lineAngle = formatter.format(angle);
 				lineAngle = addDegrees(lineAngle);
-				double sz = ((Double)this.getAttribute(MeasurementAttributes.FONT_SIZE));
+				double sz = ((Double) getAttribute(
+						MeasurementAttributes.FONT_SIZE));
 				g.setFont(new Font("Arial",Font.PLAIN, (int)sz));
 				Rectangle2D rect = g.getFontMetrics().getStringBounds(lineAngle, g);
-				Rectangle2D bounds = new Rectangle2D.Double(getPoint(x).x, getPoint(x).y, rect.getWidth(), rect.getHeight());
+				Rectangle2D bounds = new Rectangle2D.Double(getPoint(x).x, 
+						getPoint(x).y, rect.getWidth(), rect.getHeight());
 				g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
 				g.drawString(lineAngle, (int)bounds.getX(), (int)bounds.getY());
 				boundsArray.add(bounds);
 			}
-			for( int x = 1 ; x < this.getPointCount(); x++)
+			for (int x = 1 ; x < this.getPointCount(); x++)
 			{
 				NumberFormat formatter = new DecimalFormat("###.#");
 				double length = getLength(x-1, x);
 				lengthArray.add(length);
 				String lineLength = formatter.format(length);
 				lineLength = addUnits(lineLength);
-				double sz = ((Double)this.getAttribute(MeasurementAttributes.FONT_SIZE));
+				double sz = ((Double)
+						getAttribute(MeasurementAttributes.FONT_SIZE));
 				g.setFont(new Font("Arial",Font.PLAIN, (int)sz));
 				Rectangle2D rect = g.getFontMetrics().getStringBounds(lineLength, g);
-				Rectangle2D bounds = new Rectangle2D.Double(getPoint(x).x-15, getPoint(x).y-15,rect.getWidth()+30, rect.getHeight()+30);
+				Rectangle2D bounds = new Rectangle2D.Double(getPoint(x).x-15, 
+						getPoint(x).y-15,rect.getWidth()+30, rect.getHeight()+30);
 				Point2D.Double lengthPoint = getLengthPosition(x-1, x);
-				g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
+				g.setColor(
+						MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
 				g.drawString(lineLength, (int)lengthPoint.x, (int)lengthPoint.y);
 				boundsArray.add(bounds);
 			}
-			if(MeasurementAttributes.SHOWID.get(this))
+			if (MeasurementAttributes.SHOWID.get(this))
 			{
 				g.setColor(this.getTextColor());
-				g.drawString(this.getROI().getID()+"", (int)path.getCenter().getX(), (int)path.getCenter().getY());
+				g.drawString(this.getROI().getID()+"", 
+						(int) path.getCenter().getX(), 
+						(int) path.getCenter().getY());
 			}
 		}
 	}

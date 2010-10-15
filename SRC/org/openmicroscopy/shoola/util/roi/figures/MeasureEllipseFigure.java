@@ -99,7 +99,7 @@ public class MeasureEllipseFigure
 	/** Creates a new instance. */
 	public MeasureEllipseFigure()
 	{
-		this("Text", 0, 0, 0, 0, false, true);
+		this(DEFAULT_TEXT, 0, 0, 0, 0, false, true);
 	}
 	
 	/** 
@@ -123,7 +123,6 @@ public class MeasureEllipseFigure
 		status = IDLE;
 		setReadOnly(readOnly);
 		setClientObject(clientObject);
-		
 	}
 	
 	/** 
@@ -238,6 +237,7 @@ public class MeasureEllipseFigure
 		t.transform(src, dest);
 		return dest.getX();
 	}
+	
 	/** 
 	 * Returns the y-coordinate of the figure.
 	 * 
@@ -329,39 +329,39 @@ public class MeasureEllipseFigure
 	public Rectangle2D.Double getDrawingArea()
 	{
 		Rectangle2D.Double newBounds=super.getDrawingArea();
-		if (measurementBounds!=null)
+		if (measurementBounds != null)
 		{
-			if (newBounds.getX()>measurementBounds.getX())
+			if (newBounds.getX() > measurementBounds.getX())
 			{
-				double diff=newBounds.x-measurementBounds.getX();
-				newBounds.x=measurementBounds.getX();
-				newBounds.width=newBounds.width+diff;
+				double diff = newBounds.x-measurementBounds.getX();
+				newBounds.x = measurementBounds.getX();
+				newBounds.width = newBounds.width+diff;
 			}
-			if (newBounds.getY()>measurementBounds.getY())
+			if (newBounds.getY() > measurementBounds.getY())
 			{
-				double diff=newBounds.y-measurementBounds.getY();
-				newBounds.y=measurementBounds.getY();
-				newBounds.height=newBounds.height+diff;
+				double diff = newBounds.y-measurementBounds.getY();
+				newBounds.y = measurementBounds.getY();
+				newBounds.height = newBounds.height+diff;
 			}
 			if (measurementBounds.getX()+
-					measurementBounds.getWidth()>newBounds.getX()
+					measurementBounds.getWidth() > newBounds.getX()
 					+newBounds.getWidth())
 			{
-				double diff=
+				double diff =
 					measurementBounds.getX()+
 					measurementBounds.getWidth()-newBounds.getX()
 								+newBounds.getWidth();
-				newBounds.width=newBounds.width+diff;
+				newBounds.width = newBounds.width+diff;
 			}
 			if (measurementBounds.getY()+
-					measurementBounds.getHeight()>newBounds.getY()
+					measurementBounds.getHeight() > newBounds.getY()
 					+newBounds.getHeight())
 			{
-				double diff=
+				double diff =
 					measurementBounds.getY()+
 					measurementBounds.getHeight()-newBounds.getY()
 								+newBounds.getHeight();
-				newBounds.height=newBounds.height+diff;
+				newBounds.height = newBounds.height+diff;
 			}
 		}
 		return newBounds;
@@ -457,7 +457,7 @@ public class MeasureEllipseFigure
 	 */
 	public void calculateMeasurements()
 	{
-		if (shape==null) return;
+		if (shape == null) return;
 		AnnotationKeys.AREA.set(shape, getArea());
 		AnnotationKeys.HEIGHT.set(shape, getMeasurementHeight());
 		AnnotationKeys.WIDTH.set(shape, getMeasurementWidth());
@@ -659,9 +659,9 @@ public class MeasureEllipseFigure
 	{
 		List<FigureListener> figListeners = new ArrayList<FigureListener>();
 		Object[] listeners = listenerList.getListenerList();
-		for(Object listener : listeners)
+		for (Object listener : listeners)
 			if(listener instanceof FigureListener)
-				figListeners.add((FigureListener)listener);
+				figListeners.add((FigureListener) listener);
 		return figListeners;
 	}
 }
