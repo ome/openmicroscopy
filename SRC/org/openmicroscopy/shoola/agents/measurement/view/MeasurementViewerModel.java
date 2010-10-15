@@ -773,11 +773,11 @@ class MeasurementViewerModel
 				ownedRois.add(roi);
 			}
 		}
-		ROI[] valueList = new ROI[ownedRois.size()];
-		roiComponent.getROIMap().values().toArray(valueList);
-		if (valueList != null)
-			for (ROI r: valueList)
-				roiComponent.deleteROI(r.getID());
+		i = ownedRois.iterator();
+		while (i.hasNext()) {
+			roi = i.next();
+			roiComponent.deleteROI(roi.getID());
+		}	
 		Iterator<ROIFigure> j = figures.iterator();
 		while (j.hasNext()) {
 			drawingComponent.removeFigure(j.next());

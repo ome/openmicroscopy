@@ -975,6 +975,7 @@ class MeasurementViewerComponent
 			//clear all tables.
 			view.deleteROIs(figures);
 		} catch (Exception e) {
+			e.printStackTrace();
 		}
 		if (l.size() == 0) return;
 		
