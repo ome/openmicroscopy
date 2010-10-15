@@ -142,7 +142,8 @@ class ObjectManager
 		ROINode root = new ROINode("root");
         Vector cName = (Vector) columnNames;
 
-	    objectsTable = new ROITable(new ROITableModel(root, cName), cName, this);
+	    objectsTable = new ROITable(new ROITableModel(root, cName), cName, 
+	    		this);
 	    objectsTable.setRootVisible(false);
 	    objectsTable.setColumnSelectionAllowed(true);
 	    objectsTable.setRowSelectionAllowed(true);
@@ -459,6 +460,12 @@ class ObjectManager
 	void showReadyMessage()
 	{
 		view.setReadyStatus();
+	}
+	
+	/** Invokes when new figures are selected. */
+	void onSelectedFigures()
+	{
+		objectsTable.onSelectedFigures(model.getSelectedFigures());
 	}
 	
 	/**

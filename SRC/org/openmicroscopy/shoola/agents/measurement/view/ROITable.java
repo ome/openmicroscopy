@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -40,6 +41,7 @@ import javax.swing.tree.TreePath;
 
 //Third-party libraries
 import org.jdesktop.swingx.JXTreeTable;
+import org.jhotdraw.draw.Figure;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.util.roimenu.ROIPopupMenu;
@@ -48,6 +50,7 @@ import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROINode;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROITableCellRenderer;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROITableModel;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.ShapeRenderer;
+import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
@@ -138,6 +141,26 @@ public class ROITable
 		}
 		return shapeList.get(0).getID();
 	}
+
+	/**
+	 * Are all the roishapes in the shapelist on separate planes. 
+	 * 
+	 * @param shapeList The list to handle.
+	 * @return See above.
+	 */
+	private boolean onSeparatePlanes(List<ROIShape> shapeList)
+	{
+		TreeMap<Coord3D, ROIShape> 
+		shapeMap = new TreeMap<Coord3D, ROIShape>(new Coord3D());
+		for (ROIShape shape : shapeList)
+		{
+			if (shapeMap.containsKey(shape.getCoord3D()))
+				return false;
+			else
+				shapeMap.put(shape.getCoord3D(), shape);
+		}
+		return true;
+	}
 	
 	/**
 	 * The constructor for the ROITable, taking the root node and
@@ -163,6 +186,30 @@ public class ROITable
 		setDefaultRenderer(ShapeType.class, new ShapeRenderer());
 		setTreeCellRenderer(new ROITableCellRenderer());
 		popupMenu = new ROIPopupMenu(this);
+	}
+	
+	/** 
+	 * Invokes when new figures are selected.
+	 * 
+	 * @param figures The selected figures.
+	 */
+	void onSelectedFigures(Collection<Figure> figures)
+	{
+		boolean enabled = true;
+		if (figures == null || figures.size() == 0) 
+			enabled = false;
+		Iterator<Figure> i = figures.iterator();
+		Figure figure;
+		while (i.hasNext()) {
+			figure = i.next();
+			if (figure instanceof ROIFigure) {
+				if (((ROIFigure) figure).isReadOnly()) {
+					enabled = false;
+					break;
+				}
+			}
+		}
+		popupMenu.setActionsEnabled(enabled);
 	}
 	
 	/** 
@@ -479,13 +526,6 @@ public class ROITable
 		TableColumn col = this.getColumn(column);
 		return (col.getModelIndex() == (ROITableModel.SHAPE_COLUMN+1));
 	}
-
-	/** Deletes the ROIs. */
-	public void deleteROI()
-	{
-		List<ROIShape> selectionList = getSelectedROIShapes();
-		manager.deleteROIShapes(selectionList);
-	}
 	
 	/**
 	 * Create a list of all the roi and roishapes selected in the table.
@@ -632,26 +672,6 @@ public class ROITable
 	}
 	
 	/**
-	 * Are all the roishapes in the shapelist on separate planes. 
-	 * 
-	 * @param shapeList The list to handle.
-	 * @return See above.
-	 */
-	private boolean onSeparatePlanes(List<ROIShape> shapeList)
-	{
-		TreeMap<Coord3D, ROIShape> 
-		shapeMap = new TreeMap<Coord3D, ROIShape>(new Coord3D());
-		for (ROIShape shape : shapeList)
-		{
-			if (shapeMap.containsKey(shape.getCoord3D()))
-				return false;
-			else
-				shapeMap.put(shape.getCoord3D(), shape);
-		}
-		return true;
-	}
-	
-	/**
 	 * Duplicates the ROI
 	 * @see ROIActionController#duplicateROI()
 	 */
@@ -719,6 +739,17 @@ public class ROITable
 		else
 			manager.showMessage("Split: ROIs must be from the same ROI and " +
 			"on separate planes.");
+	}
+	
+	/** 
+	 * Deletes the ROIs. 
+	 * 
+	 *  @see ROIActionController#deleteROI()
+	 */
+	public void deleteROI()
+	{
+		List<ROIShape> selectionList = getSelectedROIShapes();
+		manager.deleteROIShapes(selectionList);
 	}
 	
 	/** 

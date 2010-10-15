@@ -23,6 +23,10 @@
 package org.openmicroscopy.shoola.agents.measurement.util.roimenu;
 
 //Java imports
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -71,6 +75,9 @@ public class ROIPopupMenu
 	/** The link to the controller for the pop up menu. */
 	private ROIActionController		controller; 	
 	
+	/** The list of actions. */
+	private List<ROIAction>			actions;
+	
 	/**
 	 * Instantiate the popup menu
 	 * @param controller class which has interface ROIActionController that 
@@ -79,6 +86,7 @@ public class ROIPopupMenu
 	public ROIPopupMenu(ROIActionController controller)
 	{
 		this.controller = controller;
+		actions = new ArrayList<ROIAction>();
 		createPopupMenu();
 	}
 			
@@ -91,12 +99,14 @@ public class ROIPopupMenu
 	{
 		JMenu roiOptionsParent = new JMenu(ROI_CREATION_OPTIONS);
 		JMenuItem roiOption;
-		
+		ROIAction action;
 		for (int indexCnt = 0 ; indexCnt < 
 		ROIActionController.CreationActionType.values().length ; indexCnt++)
 		{
-			roiOption = new JMenuItem(new ROIAction(controller, 
-					ROIActionController.CreationActionType.values()[indexCnt]));
+			action = new ROIAction(controller, 
+					ROIActionController.CreationActionType.values()[indexCnt]);
+			actions.add(action);
+			roiOption = new JMenuItem(action);
 			roiOptionsParent.add(roiOption);
 		}
 		return roiOptionsParent;
@@ -109,11 +119,25 @@ public class ROIPopupMenu
 		popupMenu.add(new JMenuItem(POPUP_MENU_DESCRIPTION));
 		popupMenu.addSeparator();
 		popupMenu.add(createROICreationOptions());
-	//	popupMenu.add(createROIStatsOptions());
+		//popupMenu.add(createROIStatsOptions());
 	}
 
 	/**
-	 * Get the popup menu.
+	 * Sets the flag to access the action to manage ROIs.
+	 * 
+	 * @param enabled Pass <code>true</code> to allow manipulation, 
+	 * 				  <code>false</code> otherwise.
+	 */
+	public void setActionsEnabled(boolean enabled)
+	{
+		Iterator<ROIAction> i = actions.iterator();
+		while (i.hasNext()) {
+			i.next().setEnabled(enabled);
+		}
+	}
+
+	/**
+	 * Returns the popup menu.
 	 * @return see above.
 	 */
 	public JPopupMenu getPopupMenu() { return popupMenu; }

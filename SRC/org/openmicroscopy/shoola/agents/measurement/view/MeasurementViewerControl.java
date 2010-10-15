@@ -72,7 +72,6 @@ import org.openmicroscopy.shoola.agents.measurement.actions.SaveROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.ShowROIAssistant;
 import org.openmicroscopy.shoola.agents.measurement.actions.UnitsAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.WorkflowAction;
-import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIActionController;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasurePointFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
@@ -101,7 +100,7 @@ import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
 class MeasurementViewerControl 
 	implements ChangeListener, DrawingListener, FigureListener, 
 				FigureSelectionListener, PropertyChangeListener,
-				WindowFocusListener, KeyListener, ROIActionController
+				WindowFocusListener, KeyListener
 {
 
 	/** Identifies the <code>SAVE</code> action in the menu. */
@@ -236,6 +235,7 @@ class MeasurementViewerControl
      */
     private void handleFigureChange(ROIFigure figure)
 	{
+    	view.onSelectedFigures();
     	if (figure.getROI().hasAnnotation(AnnotationKeys.NAMESPACE))
     	{
     		String namespaceString = (String)figure.getROI().getAnnotation(
@@ -727,35 +727,5 @@ class MeasurementViewerControl
 	 * @see KeyListener#keyReleased(KeyEvent)
 	 */
 	public void keyReleased(KeyEvent e) {}
-
-	public void calculateStats() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void deleteROI() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void duplicateROI() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void mergeROI() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void propagateROI() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void splitROI() {
-		// TODO Auto-generated method stub
-		
-	}
 
 }

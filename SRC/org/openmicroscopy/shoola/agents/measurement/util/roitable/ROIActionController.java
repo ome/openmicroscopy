@@ -29,7 +29,7 @@ package org.openmicroscopy.shoola.agents.measurement.util.roitable;
 //Application-internal dependencies
 
 /** 
- * 
+ * List of possible ROI manipulations.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -44,7 +44,7 @@ package org.openmicroscopy.shoola.agents.measurement.util.roitable;
 public interface ROIActionController
 {	
 
-	/** List of actions possible to be performed by ROIActionController.*/
+	/** List of management actions possible.*/
 	public enum CreationActionType
 	{
 		DUPLICATE,
@@ -54,18 +54,29 @@ public interface ROIActionController
 		DELETE
 	};
 	
+	/** List of statistical actions possible. */
 	public enum StatsActionType
 	{
 		CALCULATE
 	};
 	
 	
-	
+	/** Deletes the ROI.*/
 	public void deleteROI();
+	
+	/** Merges the ROI.*/
 	public void mergeROI();
+	
+	/** Splits the ROI.*/
 	public void splitROI();
+	
+	/** Propagates the ROI.*/
 	public void propagateROI();
+	
+	/** Duplicates the ROI.*/
 	public void duplicateROI();
+	
+	/** Calculates the statistics.*/
 	public void calculateStats();
 	
 }

@@ -494,6 +494,7 @@ class MeasurementViewerComponent
 	public void saveROIToServer()
 	{
 		if (!isImageWritable()) return;
+		//
 		model.saveROIToServer(true);
 		model.saveWorkflowToServer(true);
 	}

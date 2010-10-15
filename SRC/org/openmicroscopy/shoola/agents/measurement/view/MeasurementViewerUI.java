@@ -1390,6 +1390,12 @@ class MeasurementViewerUI
 		return workflowsUIMap.get(value);
 	}
 	
+	/** Invokes when the figures is selected. */
+	void onSelectedFigures()
+	{
+		roiManager.onSelectedFigures();
+	}
+	
     /** 
      * Overridden to the set the location of the {@link MeasurementViewer}.
      * @see TopWindow#setOnScreen() 
