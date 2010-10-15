@@ -621,17 +621,22 @@ class MeasurementViewerUI
 	{
 		try
 		{
+			ROIFigure roi;
 			model.notifyDataChanged(true);
+			ROI r;
 			for (ROIShape shape : shapeList)
 			{
-				if (getDrawing().contains(shape.getFigure()))
+				roi = shape.getFigure();
+				r = roi.getROI();
+				if (getDrawing().contains(roi))
 				{
 					shape.getFigure().removeFigureListener(controller);
 					getDrawing().removeDrawingListener(controller);
-					getDrawing().remove(shape.getFigure());
+					getDrawing().remove(roi);
 					getDrawing().addDrawingListener(controller);
 				}
 				model.deleteShape(shape.getID(), shape.getCoord3D());
+				model.markROIForDelete(shape.getID(), r);
 			}
 		} catch (Exception e) {
 			handleROIException(e, DELETE_MSG);

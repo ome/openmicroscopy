@@ -414,8 +414,7 @@ public class TreeViewerAgent
 		else if (e instanceof DataObjectSelectionEvent)
 			handleDataObjectSelectionEvent((DataObjectSelectionEvent) e);
 		else if (e instanceof ViewObjectEvent)
-	        	handleViewObjectEvent((ViewObjectEvent) e);
-		
+	        handleViewObjectEvent((ViewObjectEvent) e);
 	}
 
 }

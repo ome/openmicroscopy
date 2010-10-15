@@ -54,6 +54,7 @@ import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -209,6 +210,13 @@ class MeasurementViewerComponent
     	discard();
     }
     
+    /**
+     * Invokes when the ROI has been deleted.
+     * 
+     * @param imageID The image's identifier.
+     */
+    void onROIDeleted(long imageID) { model.onROIDeleted(imageID); }
+
     /** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
      * @see MeasurementViewer#activate()
@@ -494,9 +502,38 @@ class MeasurementViewerComponent
 	public void saveROIToServer()
 	{
 		if (!isImageWritable()) return;
-		//
-		model.saveROIToServer(true);
-		model.saveWorkflowToServer(true);
+		List<ROI> l = model.getROIToDelete();
+		if (l != null && l.size() > 0) {
+			List<DeletableObject> objects = new ArrayList<DeletableObject>();
+			Iterator<ROI> i = l.iterator();
+			ROI roi;
+			ROIData data;
+			while (i.hasNext()) {
+				roi = i.next();
+				if (!roi.isClientSide()) {
+					data = new ROIData();
+					data.setId(roi.getID());
+					data.setImage(model.getImage().asImage());
+					objects.add(new DeletableObject(data));
+				}
+			}
+			if (objects.size() == 0) {
+				model.saveROIToServer(true);
+				model.saveWorkflowToServer(true);
+			} else {
+				IconManager icons = IconManager.getInstance();
+				DeleteActivityParam p = new DeleteActivityParam(
+						icons.getIcon(IconManager.APPLY_22), objects);
+				p.setImageID(model.getImageID());
+				p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
+				UserNotifier un = 
+					MeasurementAgent.getRegistry().getUserNotifier();
+				un.notifyActivity(p);
+			}
+		} else {
+			model.saveROIToServer(true);
+			model.saveWorkflowToServer(true);
+		}
 	}
 	
 	/** 
@@ -952,9 +989,9 @@ class MeasurementViewerComponent
 
 	/** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#setWorkflowList(List)
+     * @see MeasurementViewer#deleteAllROIs()
      */
-	public void deleteROI()
+	public void deleteAllROIs()
 	{
 		if (!isImageWritable()) return;
 		List<ROIData> list = model.getROIData();
@@ -976,7 +1013,10 @@ class MeasurementViewerComponent
 			//clear all tables.
 			view.deleteROIs(figures);
 		} catch (Exception e) {
-			e.printStackTrace();
+			LogMessage msg = new LogMessage();
+			msg.print("Delete ROI");
+			msg.print(e);
+			MeasurementAgent.getRegistry().getLogger().error(this, msg);
 		}
 		if (l.size() == 0) return;
 		
@@ -987,6 +1027,5 @@ class MeasurementViewerComponent
 		UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
 		un.notifyActivity(p);
 	}
-
 	
 }

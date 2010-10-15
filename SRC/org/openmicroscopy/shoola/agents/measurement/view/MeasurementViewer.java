@@ -352,7 +352,7 @@ public interface MeasurementViewer
 	 */
 	public void setWorkflowList(List<WorkflowData> workflows);
 
-	/** Deletes the ROIs. */
-	public void deleteROI();
+	/** Deletes all ROIs owned by the user currently logged in. */
+	public void deleteAllROIs();
 	
 }

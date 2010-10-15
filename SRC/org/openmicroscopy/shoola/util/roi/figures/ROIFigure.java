@@ -93,7 +93,7 @@ public interface ROIFigure
 	public ROI  getROI();
 	
 	/**
-	 * Returns the ROI.
+	 * Returns the ROI shape.
 	 * 
 	 * @return See above.
 	 */

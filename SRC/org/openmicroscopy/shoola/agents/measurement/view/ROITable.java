@@ -582,7 +582,7 @@ public class ROITable
 		{
 			if (node instanceof ROI)
 			{
-				roi = (ROI)node;
+				roi = (ROI) node;
 				shapeMap =  roi.getShapes();
 				coordIterator = shapeMap.keySet().iterator();
 				while(coordIterator.hasNext())
@@ -617,10 +617,8 @@ public class ROITable
 		ROI roi;
 		for (Object node : selectedObjects)
 		{
-			
 			if (node instanceof ROI) roi = (ROI) node;
-			else
-				roi = ((ROIShape) node).getROI();
+			else roi = ((ROIShape) node).getROI();
 			if (!idMap.containsKey(roi.getID()))
 			{
 				idMap.put(roi.getID(), roi);

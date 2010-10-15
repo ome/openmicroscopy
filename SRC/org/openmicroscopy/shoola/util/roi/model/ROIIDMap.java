@@ -51,10 +51,10 @@ import org.openmicroscopy.shoola.util.roi.model.util.LongComparator;
  */
 public class ROIIDMap 
 {
+	
 	/** The TreeMap with the ROI--ROI.id mapping. */
 	private TreeMap<Long, ROI> 	roiMap;
-	
-	
+
 	/** 
 	 * ROI ID Map, this class is the ADT to map between ROI id and ROI. The
 	 * ROIIDMap is a tree map, so all the ROI's will be ordered in the map

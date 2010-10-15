@@ -236,10 +236,29 @@ public class MeasurementViewerFactory
 	 */
 	public static void onGroupSwitched(boolean success)
 	{
-		if (!success)  return;
+		if (!success)  
+			return;
 		singleton.clear();
 	}
 	
+	/**
+	 * Notifies the model that the ROIs have been deleted 
+	 * 
+	 * @param imageID The identifier of the image.
+	 */
+	public static void onROIDeleted(long imageID)
+	{
+		if (singleton.viewers.size() == 0) return;
+		Iterator i = singleton.viewers.iterator();
+		MeasurementViewerComponent comp;
+		while (i.hasNext()) {
+			comp = (MeasurementViewerComponent) i.next();
+			comp.onROIDeleted(imageID);
+			if (comp.hasROIToSave())	
+				comp.saveROIToServer();
+		}
+	}
+
 	/** All the tracked components. */
     private Set<MeasurementViewer>	viewers;
     

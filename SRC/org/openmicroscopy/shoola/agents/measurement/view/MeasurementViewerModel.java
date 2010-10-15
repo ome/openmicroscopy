@@ -87,6 +87,7 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
 import pojos.ChannelData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.ROIData;
 
@@ -193,6 +194,9 @@ class MeasurementViewerModel
 	
 	/** Flag indicating if the tool is for HCS data. */
 	private boolean					HCSData;
+	
+	/** Collection of ROIs to delete. */
+	private List<ROI>				roiToDelete;
 	
     /** 
 	 * Sorts the passed nodes by row.
@@ -1090,13 +1094,20 @@ class MeasurementViewerModel
 		ExperimenterData exp = 
 			(ExperimenterData) MeasurementAgent.getUserDetails();
 		try {
-			return roiComponent.saveROI(pixels.getImage(), exp.getId());
+			return roiComponent.saveROI(getImage(), exp.getId());
 		} catch (Exception e) {
 			Logger log = MeasurementAgent.getRegistry().getLogger();
 			log.warn(this, "Cannot transform the ROI: "+e.getMessage());
 		}
 		return new ArrayList<ROIData>();
 	}
+	
+	/**
+	 * Returns the image the pixels set is linked to.
+	 * 
+	 * @return See above.
+	 */
+	ImageData getImage() { return pixels.getImage(); }
 	
 	/** 
 	 * Saves the current ROISet in the ROI component to server. 
@@ -1581,4 +1592,38 @@ class MeasurementViewerModel
      */
     void setHCSData(boolean value) { HCSData = value; }
 	
+    /** 
+     * Adds the passed ROI to the collection of ROIs to delete.
+     * 
+     * 
+     * @param roi The ROI to add.
+     */
+    void markROIForDelete(long id, ROI roi)
+    {
+    	if (roi == null) return;
+    	if (roiToDelete == null) roiToDelete = new ArrayList<ROI>();
+    	if (!roiComponent.containsROI(id) && !roi.isClientSide())
+    		roiToDelete.add(roi);
+    }
+    
+    /**
+     * Returns the collection to ROI to delete.
+     * 
+     * @return See above.
+     */
+    List<ROI> getROIToDelete() { return roiToDelete; }
+
+    /**
+     * Invokes when the ROI has been deleted.
+     * 
+     * @param imageID The image's identifier.
+     */
+    void onROIDeleted(long imageID) 
+    {
+    	if (this.imageID != imageID) return;
+    	roiToDelete.clear();
+    	if (getROIData().size() == 0)
+    		notifyDataChanged(false);
+    }
+    
 }	

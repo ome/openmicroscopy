@@ -216,7 +216,7 @@ public class ROICollection
 	}
 
 	/**
-	 * Deletye the ROIShape with ROI.Id id and on plane coord. If the ROI 
+	 * Delete the ROIShape with ROI.Id id and on plane coord. If the ROI 
 	 * will not contain any ROIShapes after this shape is deleted, delete ROI.
 	 * @param id id of the ROI.
 	 * @param coord coord of the ROIShape.

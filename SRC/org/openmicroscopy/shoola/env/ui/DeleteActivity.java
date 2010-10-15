@@ -120,6 +120,13 @@ public class DeleteActivity
 	 */
 	public List<Object> getNodes() { return parameters.getNodes(); }
 	
+    /**
+     * Returns the identifier of the image.
+     * 
+     * @return See above.
+     */
+	public long getImageID() { return parameters.getImageID(); }
+	
 	/**
 	 * Creates a concrete loader.
 	 * @see ActivityComponent#createLoader()

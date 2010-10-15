@@ -608,7 +608,7 @@ public class ROIComponent
 	/** 
 	 * Deletes the ROIShape from the ROI with id. 
 	 * 
-	 * @param id 	The ROI id inwhich the ROIShape is a member.
+	 * @param id 	The ROI id which the ROIShape is a member.
 	 * @param coord	The plane on which the ROIShape resides. 
 	 * @throws NoSuchROIException	Thrown if the ROI does not exist.
 	 */ 

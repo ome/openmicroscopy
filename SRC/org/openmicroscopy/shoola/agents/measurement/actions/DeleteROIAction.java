@@ -56,7 +56,7 @@ public class DeleteROIAction
 	private static final String NAME = "Delete ROI";
 
 	/** The description of the action. */
-	private static final String DESCRIPTION = "Delete ROI.";
+	private static final String DESCRIPTION = "Delete All ROIs owned.";
 	
 	/**
 	 * Sets the enabled flag
@@ -85,9 +85,9 @@ public class DeleteROIAction
 	}
 	
 	/** 
-     * Deletes the ROI.
+     * Deletes all ROI owned by the user currently logged in.
      * @see ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e) { model.deleteROI(); }
+    public void actionPerformed(ActionEvent e) { model.deleteAllROIs(); }
     
 }

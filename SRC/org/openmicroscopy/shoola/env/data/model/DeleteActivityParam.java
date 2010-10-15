@@ -58,7 +58,10 @@ public class DeleteActivityParam
     private List<DeletableObject> objects;
     
     /** The collection of nodes to remove when the delete is completed. */
-    private List<Object> nodes;
+    private List<Object> 		nodes;
+    
+    /** The id of the image, only useful when deleting ROI. */
+    private long 		imageID;
     
     /**
      * Creates a new instance.
@@ -72,6 +75,7 @@ public class DeleteActivityParam
     		throw new IllegalArgumentException("No Objects to delete.");
     	this.icon = icon;
     	this.objects = objects;
+    	imageID = -1;
     }
     
     /**
@@ -87,7 +91,22 @@ public class DeleteActivityParam
     	this.icon = icon;
     	objects = new ArrayList<DeletableObject>(1);
     	objects.add(object);
+    	imageID = -1;
     }
+    
+    /**
+     * Sets the image's identifier.
+     * 
+     * @param imageID The identifier of the image.
+     */
+    public void setImageID(long imageID) { this.imageID = imageID; }
+    
+    /**
+     * Returns the identifier of the image.
+     * 
+     * @return See above.
+     */
+    public long getImageID() { return imageID; }
     
     /**
      * Sets the failure icon.

@@ -46,6 +46,9 @@ import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.ui.ActivityProcessEvent;
+import org.openmicroscopy.shoola.env.ui.DeleteActivity;
+
 import pojos.ExperimenterData;
 import pojos.PixelsData;
 
@@ -212,6 +215,18 @@ public class MeasurementAgent
     }
         
     /**
+     * Handles the {@link ActivityProcessEvent} event.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleActivityFinished(ActivityProcessEvent evt)
+    {
+    	if (evt == null) return;
+    	MeasurementViewerFactory.onROIDeleted(
+    			((DeleteActivity) evt.getActivity()).getImageID());
+    }
+    
+    /**
      * Helper method. 
      * 
      * @return A reference to the {@link Registry}.
@@ -257,6 +272,7 @@ public class MeasurementAgent
 		bus.register(this, FocusGainedEvent.class);
 		bus.register(this, ImageRendered.class);
 		bus.register(this, UserGroupSwitched.class);
+		bus.register(this, ActivityProcessEvent.class);
 	}
 
     /**
@@ -305,8 +321,10 @@ public class MeasurementAgent
 			handleFocusGainedEvent((FocusGainedEvent) e);
 		else if (e instanceof ImageRendered)
 			handleImageRenderedEvent((ImageRendered) e);
-		 else if (e instanceof UserGroupSwitched)
-				handleUserGroupSwitched((UserGroupSwitched) e);
+		else if (e instanceof UserGroupSwitched)
+			handleUserGroupSwitched((UserGroupSwitched) e);
+		else if (e instanceof ActivityProcessEvent)
+			handleActivityFinished((ActivityProcessEvent) e);
 	}
 	
 }
