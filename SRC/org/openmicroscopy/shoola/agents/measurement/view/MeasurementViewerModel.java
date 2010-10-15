@@ -739,15 +739,52 @@ class MeasurementViewerModel
 	 * 
 	 * @throws NoSuchROIException If the ROI does not exist.
 	 */
-	void removeAllROI() throws NoSuchROIException
+	void removeAllROI() 
+		throws NoSuchROIException
 	{
 		drawingComponent.removeAllFigures();
 		int size = roiComponent.getROIMap().values().size();
 		ROI[] valueList = new ROI[size];
 		roiComponent.getROIMap().values().toArray(valueList);
-		if(valueList!=null)
-			for(ROI roi: valueList)
+		if (valueList != null)
+			for (ROI roi: valueList)
 				roiComponent.deleteROI(roi.getID());
+	}
+	
+	/**
+	 * Removes all the <code>ROI</code> in the system.
+	 * Returns the collection of figures.
+	 * 
+	 * @return See above.
+	 * @throws NoSuchROIException If the ROI does not exist.
+	 */
+	List<ROIFigure> removeAllROI(long ownerID)
+		throws NoSuchROIException
+	{
+		Collection<ROI> rois = roiComponent.getROIMap().values();
+		Iterator<ROI> i = rois.iterator();
+		List<ROI> ownedRois = new ArrayList<ROI>();
+		ROI roi;
+		List<ROIFigure> figures = new ArrayList<ROIFigure>();
+		while (i.hasNext()) {
+			roi = i.next();
+			if (roi.getOwnerID() == ownerID || roi.getOwnerID() == -1) {
+				figures.addAll(roi.getAllFigures());
+				ownedRois.add(roi);
+			}
+		}
+		ROI[] valueList = new ROI[ownedRois.size()];
+		roiComponent.getROIMap().values().toArray(valueList);
+		if (valueList != null)
+			for (ROI r: valueList)
+				roiComponent.deleteROI(r.getID());
+		Iterator<ROIFigure> j = figures.iterator();
+		while (j.hasNext()) {
+			drawingComponent.removeFigure(j.next());
+		}
+		event = null;
+		notifyDataChanged(false);
+		return figures;
 	}
 	
 	/**
@@ -876,7 +913,7 @@ class MeasurementViewerModel
 		currentLoader = new ServerSideROILoader(component, getImageID(), 
 				exp.getId());
 		currentLoader.load();
-		nofityDataChanged(dataChanged);
+		notifyDataChanged(dataChanged);
 	}
 	
 	/** 
@@ -1003,7 +1040,7 @@ class MeasurementViewerModel
 			FileMap.setSavedFile(getServerName(), getUserName(), getPixelsID(), 
 								fileName);
 			if (!post) event = null;
-			nofityDataChanged(false);
+			notifyDataChanged(false);
 		} catch (Exception e) {
 			Logger log = MeasurementAgent.getRegistry().getLogger();
 			log.warn(this, "Cannot close the stream "+e.getMessage());
@@ -1018,19 +1055,18 @@ class MeasurementViewerModel
 	 */
 	void saveROIToServer(boolean async)
 	{
-		List<ROIData> roiList;
+		
 		try {
+			List<ROIData> roiList = getROIData();
+			//Need to add a read-only flag on ROI Data
 			ExperimenterData exp = 
 				(ExperimenterData) MeasurementAgent.getUserDetails();
-			roiList = roiComponent.saveROI(pixels.getImage(), exp.getId());
-			//Need to add a read-only flag on ROI Data
-			
 			if (roiList.size() == 0) return;
 			if (async) {
 				currentSaver = new ROISaver(component, getImageID(), 
 						exp.getId(), roiList);
 				currentSaver.load();
-				nofityDataChanged(false);
+				notifyDataChanged(false);
 			} else {
 				OmeroImageService svc = 
 					MeasurementAgent.getRegistry().getImageService();
@@ -1041,7 +1077,25 @@ class MeasurementViewerModel
 			Logger log = MeasurementAgent.getRegistry().getLogger();
 			log.warn(this, "Cannot save to server "+e.getMessage());
 		}
-		
+	}
+	
+	/**
+	 * Returns the collection of ROI on the image owned by the user currently
+	 * logged in
+	 * 
+	 * @return See above.
+	 */
+	List<ROIData> getROIData()
+	{
+		ExperimenterData exp = 
+			(ExperimenterData) MeasurementAgent.getUserDetails();
+		try {
+			return roiComponent.saveROI(pixels.getImage(), exp.getId());
+		} catch (Exception e) {
+			Logger log = MeasurementAgent.getRegistry().getLogger();
+			log.warn(this, "Cannot transform the ROI: "+e.getMessage());
+		}
+		return new ArrayList<ROIData>();
 	}
 	
 	/** 
@@ -1063,7 +1117,7 @@ class MeasurementViewerModel
 				currentSaver = new WorkflowSaver(component, 
 						workflowList, exp.getId());
 				currentSaver.load();
-				nofityDataChanged(false);
+				notifyDataChanged(false);
 			} else {
 				OmeroImageService svc = 
 					MeasurementAgent.getRegistry().getImageService();
@@ -1089,7 +1143,7 @@ class MeasurementViewerModel
 	List<ROIShape> propagateShape(ROIShape shape, int timePoint, int zSection) 
 		throws ROICreationException, NoSuchROIException
 	{
-		nofityDataChanged(true);
+		notifyDataChanged(true);
 		Coord3D coord = new Coord3D(zSection, timePoint);
 		return roiComponent.propagateShape(shape.getID(), shape.getCoord3D(), 
 			shape.getCoord3D(),coord);
@@ -1110,7 +1164,7 @@ class MeasurementViewerModel
 			drawingComponent.getDrawing().remove(shape.getFigure());
 		else
 		{
-			nofityDataChanged(true);
+			notifyDataChanged(true);
 			roiComponent.deleteShape(
 					shape.getID(), shape.getCoord3D(), new Coord3D(zSection, 
 							timePoint));
@@ -1279,7 +1333,7 @@ class MeasurementViewerModel
 	 * @param toSave Pass <code>true</code> to save the data, <code>false</code>
 	 * 				 otherwise.
 	 */
-	void nofityDataChanged(boolean toSave)
+	void notifyDataChanged(boolean toSave)
 	{
 		if (isHCSData()) return;
 		if (event != null && toSave) return;

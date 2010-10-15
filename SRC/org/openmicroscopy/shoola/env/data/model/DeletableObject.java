@@ -171,7 +171,7 @@ public class DeletableObject
 			return ((ScreenData) objectToDelete).getName();
 		} else if (objectToDelete instanceof ROIData) {
 			return "ROI for:"+
-			((ROIData) objectToDelete).getImage().getName().getValue();
+			((ROIData) objectToDelete).getImage().getName();
 		} else if (objectToDelete instanceof TagAnnotationData) {
 			return ((TagAnnotationData) objectToDelete).getTagValue();
 		} else if (objectToDelete instanceof TermAnnotationData) {

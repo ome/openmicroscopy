@@ -94,6 +94,14 @@ public class FigureTableModel
 		values = new ArrayList<Object>();
 	}
 	
+	/** Clears data. */
+	public void clearData()
+	{
+		keys.clear();
+		values.clear();
+		fireTableDataChanged();
+	}
+	
 	/**
 	 * Sets the figure handled by this model.
 	 * 

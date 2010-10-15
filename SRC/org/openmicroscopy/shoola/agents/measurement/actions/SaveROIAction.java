@@ -94,7 +94,7 @@ public class SaveROIAction
 	
 	/** 
      * Saves the ROI.
-     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     * @see ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e) 
     { 

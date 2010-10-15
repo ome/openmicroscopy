@@ -23,9 +23,12 @@
 package org.openmicroscopy.shoola.util.roi.model;
 
 //Java imports
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -330,6 +333,22 @@ public class ROI
 	}
 	
 	/**
+	 * Returns all the figures.
+	 * 
+	 * @return See above.
+	 */
+	public List<ROIFigure> getAllFigures()
+	{
+		List<ROIFigure> figures = new ArrayList<ROIFigure>();
+		Collection<ROIShape> set = roiShapes.values();
+		Iterator<ROIShape> i = set.iterator();
+		while (i.hasNext()) {
+			figures.add(i.next().getFigure());
+		}
+		return figures;
+	}
+	
+	/**
 	 * Adds ROIShape shape to the ROI. If the ROI already has a shape at 
 	 * coordinates an exception will be thrown.
 	 * @param shape see above. 
@@ -476,7 +495,7 @@ public class ROI
     	while (i.hasNext())
     	{
     		annotationKey = i.next(); 
-    		if (annotationKey.getKey() == key)
+    		if (annotationKey.getKey().equals(key))
     			return true;
     	}
     	return false;

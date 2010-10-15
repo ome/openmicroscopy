@@ -263,20 +263,26 @@ class IntensityView
 	{
 		stateChanged(null);
 	}
-	
-	/** Initializes the component composing the display. */
-	private void initComponents()
+
+	private void initTableModel()
 	{
-		Double data[][] = new Double[1][1];
 		Double summaryData[][] = new Double[1][1];
 		List<String> rowNames = new ArrayList<String>();
 		List<String> columnNames = new ArrayList<String>();
 		
 		rowNames.add("");
 		columnNames.add("");
-		tableModel = new IntensityModel(data);
 		channelSummaryModel = new ChannelSummaryModel(rowNames, columnNames, 
-														summaryData);
+				summaryData);
+	}
+	
+	/** Initializes the component composing the display. */
+	private void initComponents()
+	{
+		Double data[][] = new Double[1][1];
+		
+		tableModel = new IntensityModel(data);
+		initTableModel();
 		channelSummaryTable = new ChannelSummaryTable(channelSummaryModel);
 	
 		showIntensityTable = new JButton("Intensity Values");
@@ -479,6 +485,7 @@ class IntensityView
 	 */
 	private void populateData(Coord3D coord, int channel)
 	{
+		channelSummaryTable.setVisible(true);
 		interpretResults(coord, channel);
 		populateChannelSummaryTable(coord);
 	}
@@ -1041,7 +1048,16 @@ class IntensityView
 		IconManager icons = IconManager.getInstance();
 		return icons.getIcon(IconManager.INTENSITYVIEW);
 	}
-	
+
+	/** Invokes when ROI are removed. */
+	void onFigureRemoved()
+	{
+		channelSelection.setEnabled(false);
+		showIntensityTable.setEnabled(false);
+		saveButton.setEnabled(false);
+		channelSelection.setVisible(false);
+		channelSummaryTable.setVisible(false);
+	}
 	
 	/**
 	 * Get the analysis results from the model and convert to the 

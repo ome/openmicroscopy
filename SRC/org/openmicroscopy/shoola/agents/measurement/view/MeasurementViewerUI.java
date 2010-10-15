@@ -498,7 +498,7 @@ class MeasurementViewerUI
 	{
 		try
 		{
-			model.nofityDataChanged(true);
+			model.notifyDataChanged(true);
 			ROI newROI = model.cloneROI(idList.get(0));
 			ROIShape newShape;
 			for (ROIShape shape : shapeList)
@@ -544,7 +544,7 @@ class MeasurementViewerUI
 	{
 		try
 		{
-			model.nofityDataChanged(true);
+			model.notifyDataChanged(true);
 			ROI newROI = model.cloneROI(id);
 			ROIShape newShape;
 			for (ROIShape shape : shapeList)
@@ -590,7 +590,7 @@ class MeasurementViewerUI
 	{
 		try
 		{
-			model.nofityDataChanged(true);
+			model.notifyDataChanged(true);
 			ROI newROI = model.cloneROI(id);
 			ROIShape newShape;
 			for (ROIShape shape : shapeList)
@@ -621,7 +621,7 @@ class MeasurementViewerUI
 	{
 		try
 		{
-			model.nofityDataChanged(true);
+			model.notifyDataChanged(true);
 			for (ROIShape shape : shapeList)
 			{
 				if (getDrawing().contains(shape.getFigure()))
@@ -927,12 +927,35 @@ class MeasurementViewerUI
     		if (!model.isHCSData()) {
     			roiManager.removeFigure(figure);
     			roiResults.refreshResults();
+    			roiInspector.removeROIFigure(figure);
+    			//intensityResultsView
+    			//graphPane
     		}
 		} catch (Exception e) {
 			handleROIException(e, DELETE_MSG);
 		}
     }
     
+	/** 
+	 * Deletes the ROI from Display.
+	 * 
+	 * @param figures The figure to remove.
+	 */
+	void deleteROIs(List<ROIFigure> figures)
+	{
+		if (figures == null || figures.size() == 0) return;
+		try {
+			roiManager.removeFigures(figures);
+			roiResults.refreshResults();
+			roiInspector.removeROIFigures(figures);
+			intensityView.onFigureRemoved();
+			intensityResultsView.removeAllResults();
+			graphPane.clearData();
+		} catch (Exception e) {
+			handleROIException(e, DELETE_MSG);
+		}
+	}
+	
     /**
      * Adds the specified figure to the display.
      * 

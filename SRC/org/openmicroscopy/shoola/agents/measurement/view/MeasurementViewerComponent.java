@@ -44,13 +44,14 @@ import org.jhotdraw.draw.Drawing;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
+import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
-import pojos.WorkflowData;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.env.data.model.DeletableObject;
+import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.Logger;
@@ -70,6 +71,8 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.ROIData;
+import pojos.WorkflowData;
 
 /** 
  * Implements the {@link MeasurementViewer} interface to provide the 
@@ -288,7 +291,7 @@ class MeasurementViewerComponent
      */
 	public void setDataChanged()
 	{ 
-		model.nofityDataChanged(true);
+		model.notifyDataChanged(true);
 		firePropertyChange(ROI_CHANGED_PROPERTY, Boolean.valueOf(false), 
 				Boolean.valueOf(true));
 	}
@@ -729,7 +732,8 @@ class MeasurementViewerComponent
 		}
 		un.notifyInfo("Save ROI", "The Regions of Interests have been " +
 									"successfully saved. ");
-		firePropertyChange(ROI_CHANGED_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+		firePropertyChange(ROI_CHANGED_PROPERTY, Boolean.valueOf(false), 
+				Boolean.valueOf(true));
 	}
 
 	/** 
@@ -917,7 +921,7 @@ class MeasurementViewerComponent
 		boolean b = EditorUtil.isUserOwner(model.getRefObject(), id);
 		if (b) return b;
 		int level = 
-			TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel();
+			MeasurementAgent.getRegistry().getAdminService().getPermissionLevel();
 		switch (level) {
 			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
 			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
@@ -943,6 +947,43 @@ class MeasurementViewerComponent
 		for(WorkflowData workflow : workflows)
 			model.addWorkflow(workflow);
 		view.addedWorkflow();
+	}
+
+	/** 
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#setWorkflowList(List)
+     */
+	public void deleteROI()
+	{
+		if (!isImageWritable()) return;
+		List<ROIData> list = model.getROIData();
+		//ROI owned by the current user.
+		List<DeletableObject> l = new ArrayList<DeletableObject>();
+		Iterator<ROIData> i = list.iterator();
+		ROIData roi;
+		while (i.hasNext()) {
+			roi = i.next();
+			if (roi.getId() > 0)
+				l.add(new DeletableObject(roi));
+		}
+		//if (l.size() == 0) return;
+		//clear view. and table.
+		ExperimenterData exp = 
+			(ExperimenterData) MeasurementAgent.getUserDetails();
+		try {
+			List<ROIFigure> figures = model.removeAllROI(exp.getId());
+			//clear all tables.
+			view.deleteROIs(figures);
+		} catch (Exception e) {
+		}
+		if (l.size() == 0) return;
+		
+		IconManager icons = IconManager.getInstance();
+		DeleteActivityParam p = new DeleteActivityParam(
+				icons.getIcon(IconManager.APPLY_22), l);
+		p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
+		UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
+		un.notifyActivity(p);
 	}
 
 	

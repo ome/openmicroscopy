@@ -322,6 +322,10 @@ class ToolBar
         	MeasurementViewerControl.ROI_ASSISTANT));
         UIUtilities.unifiedButtonLookAndFeel(assistantButton);
     	bar.add(assistantButton);
+    	button = new JButton(controller.getAction(
+    			MeasurementViewerControl.DELETE));
+    	UIUtilities.unifiedButtonLookAndFeel(button);
+    	bar.add(button);
     	bar.add(new JSeparator());
 		return bar;
 	}

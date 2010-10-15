@@ -445,16 +445,6 @@ class IntensityResultsView
 		setButtonsEnabled(results.getRowCount() >0);
 	}
 	
-	/** Removes the results from the table. */
-	private void removeAllResults()
-	{
-		int count = results.getRowCount();
-		for (int i = count-1 ; i >= 0 ; i--)
-			resultsModel.removeRow(i);
-		setButtonsEnabled(false);
-		onFigureSelected();
-	}
-	
 	/**
 	 * Check to see if the selected figure contains textFigure
 	 * @param selectedFigures see above.
@@ -664,6 +654,16 @@ class IntensityResultsView
 			removeButton.setEnabled(false);
 			removeAllButton.setEnabled(false);
 		}
+	}
+	
+	/** Removes the results from the table. */
+	void removeAllResults()
+	{
+		int count = results.getRowCount();
+		for (int i = count-1 ; i >= 0 ; i--)
+			resultsModel.removeRow(i);
+		setButtonsEnabled(false);
+		onFigureSelected();
 	}
 	
 	/**

@@ -264,6 +264,42 @@ class ObjectInspector
 	}
 	
 	/**
+	 * Removes the ROI figure.
+	 * 
+	 * @param figure The figure to remove.
+	 */
+	void removeROIFigure(ROIFigure figure)
+	{
+		if (figure == null) return;
+		FigureTableModel tm = (FigureTableModel) fieldTable.getModel();
+		ROIFigure value = tm.getFigure();
+		if (value == null) return;
+		if (value.getROI().getID() == figure.getROI().getID())
+			tm.clearData();
+	}
+	
+	/**
+	 * Removes the ROI figures.
+	 * 
+	 * @param figures The figures to remove.
+	 */
+	void removeROIFigures(List<ROIFigure> figures)
+	{
+		if (figures == null || figures.size() == 0) return;
+		FigureTableModel tm = (FigureTableModel) fieldTable.getModel();
+		ROIFigure value = tm.getFigure();
+		if (value == null) return;
+		Iterator<ROIFigure> i = figures.iterator();
+		ROIFigure figure;
+		while (i.hasNext()) {
+			figure = i.next();
+			if (value.getROI().getID() == figure.getROI().getID())
+				tm.clearData();
+		}
+		fieldTable.repaint();
+	}
+	
+	/**
 	 * Sets the new figure retrieved from the passed collection.
 	 * 
 	 * @param l The collection to handle.

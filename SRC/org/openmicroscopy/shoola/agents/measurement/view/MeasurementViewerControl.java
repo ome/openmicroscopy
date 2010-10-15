@@ -64,6 +64,7 @@ import org.jhotdraw.draw.FigureSelectionListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.actions.CreateFigureAction;
+import org.openmicroscopy.shoola.agents.measurement.actions.DeleteROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.KeywordSelectionAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.LoadROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
@@ -155,6 +156,9 @@ class MeasurementViewerControl
      */
     static final Integer     KEYWORD_SELECTION =  Integer.valueOf(12);
     
+    /** Identifies the <code>DELETE</code> action in the menu. */
+    static final Integer     DELETE = Integer.valueOf(13);
+    
     /** 
      * Reference to the {@link MeasurementViewer} component, which, 
      * in this context, is regarded as the Model.
@@ -182,6 +186,7 @@ class MeasurementViewerControl
     	actionsMap.put(SELECT_WORKFLOW, new WorkflowAction(model, false));
     	actionsMap.put(CREATE_WORKFLOW, new WorkflowAction(model, true));
     	actionsMap.put(KEYWORD_SELECTION, new KeywordSelectionAction(model));
+    	actionsMap.put(DELETE, new DeleteROIAction(model));
     }
 
 	/**

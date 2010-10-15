@@ -450,10 +450,18 @@ class GraphPane
 		return icons.getIcon(IconManager.GRAPHPANE);
 	}
 
+	/** Clears the data. */
+	void clearData()
+	{
+		mainPanel.removeAll();
+		if (zSlider != null) zSlider.setEnabled(false);
+		if (tSlider != null) tSlider.setEnabled(false);
+	}
+	
 	/**
 	 * Returns the analysis results from the model and converts to the 
 	 * necessary array. data types using the ROIStats wrapper then
-	 * creates the approriate graph and plot.  
+	 * creates the graph and plot.  
 	 */
 	void displayAnalysisResults()
 	{

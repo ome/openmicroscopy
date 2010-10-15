@@ -839,25 +839,25 @@ public class InputStrategy
 	{
 		MeasureLineConnectionFigure lineFigure=
 				new MeasureLineConnectionFigure();
-		long toROIid=
+		long toROIid =
 				new Long(lineElement
 					.getAttribute(IOConstants.CONNECTION_TO_ATTRIBUTE,
 						IOConstants.VALUE_NULL));
-		long fromROIid=
+		long fromROIid =
 				new Long(lineElement.getAttribute(
 					IOConstants.CONNECTION_FROM_ATTRIBUTE,
 					IOConstants.VALUE_NULL));
 		ROI toROI, fromROI;
 		try
 		{
-			toROI=component.getROI(toROIid);
-			fromROI=component.getROI(fromROIid);
-			ROIFigure toFigure=toROI.getFigure(getCurrentCoord());
+			toROI = component.getROI(toROIid);
+			fromROI = component.getROI(fromROIid);
+			ROIFigure toFigure = toROI.getFigure(getCurrentCoord());
 			ROIFigure fromFigure=fromROI.getFigure(getCurrentCoord());
 			if (lineElement.hasAttribute(IOConstants.POINTS_ATTRIBUTE))
 			{
 				lineFigure.removeAllNodes();
-				String pointsValues=
+				String pointsValues =
 						lineElement.getAttribute(IOConstants.POINTS_ATTRIBUTE,
 							IOConstants.VALUE_NULL);
 				Point2D.Double[] points=toPoints(pointsValues);

@@ -351,6 +351,21 @@ class ObjectManager
 	}
 	
 	/**
+	 * Removes the passed figures from the table.
+	 * 
+	 * @param figures The figures to handle.
+	 */
+	void removeFigures(List<ROIFigure> figures)
+	{
+		if (figures == null || figures.size() == 0) return;
+		Iterator<ROIFigure> i = figures.iterator();
+		while (i.hasNext()) {
+			objectsTable.removeROIShape(i.next().getROIShape());
+		}
+		objectsTable.repaint();
+	}
+	
+	/**
 	 * Deletes the ROI shapes in the list.
 	 * 
 	 * @param shapeList see above.
