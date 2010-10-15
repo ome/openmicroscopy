@@ -135,8 +135,9 @@ class OmeroImageServiceImpl
 		throws RenderingServiceException
 	{
 		try {
-			ByteArrayInputStream stream = new ByteArrayInputStream(values);
-			return ImageIO.read(stream);
+			return WriterImage.bytesToImage(values);
+			//ByteArrayInputStream stream = new ByteArrayInputStream(values);
+			//return ImageIO.read(stream);
 		} catch (Exception e) {
 			throw new RenderingServiceException("Cannot create buffered image",
 					e);
@@ -252,7 +253,7 @@ class OmeroImageServiceImpl
 			byte[] values = (byte[]) m.get(pixelsID);
 			if (asTexture) {
 				return PixelsServicesFactory.createTexture(
-						WriterImage.bytesToDataBufferJPEG(values), w, h);
+						WriterImage.bytesToDataBuffer(values), w, h);
 			} else {
 				return createImage(values);
 			}

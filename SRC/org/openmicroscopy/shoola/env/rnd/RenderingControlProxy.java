@@ -473,17 +473,11 @@ class RenderingControlProxy
 		//Need to adjust the cache.
 		Object array = getFromCache(pDef);
 		try {
-			/*
-			if (array != null) {
-				
-			}
-				return WriterImage.bytesToImageJPEG((byte[]) array);
-			*/
 			byte[] values = servant.renderCompressed(pDef);
 			imageSize = values.length;
 			//initializeCache(pDef);
 			//cache(pDef, values);
-			return WriterImage.bytesToDataBufferJPEG(values);
+			return WriterImage.bytesToDataBuffer(values);
 		} catch (Throwable e) {
 			handleException(e, ERROR+"cannot render the compressed image.");
 		} 
@@ -701,7 +695,7 @@ class RenderingControlProxy
 					ProjectionParam.convertType(type), 
 					getDefaultT(), stepping, startZ, endZ);
 			
-			return WriterImage.bytesToImageJPEG(values);
+			return WriterImage.bytesToImage(values);
 		} catch (Throwable e) {
 			handleException(e, ERROR+"cannot render projected selection.");
 		}
