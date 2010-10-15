@@ -841,6 +841,7 @@ class MeasurementViewerUI
 			intensityResultsView.onFigureSelected();
 			intensityView.onFigureSelected();
 			toolBar.onFigureSelected();
+			displayAnalysisResults();
 		}
     }
     
