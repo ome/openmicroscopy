@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 
 //Java imports
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -589,7 +590,18 @@ abstract class DataBrowserModel
 	 */
 	void setTags(Collection tags)
 	{ 
-		existingTags = sorter.sort(tags); 
+		if (tags == null) return;
+		Iterator i = tags.iterator();
+		List l = new ArrayList();
+		TagAnnotationData tag;
+		String ns;
+		while (i.hasNext()) {
+			tag = (TagAnnotationData) i.next();
+			ns = tag.getNameSpace();
+			if (!TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns))
+				l.add(tag);
+		}
+		existingTags = sorter.sort(l); 
 	}
 	
 	/**
