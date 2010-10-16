@@ -4680,6 +4680,13 @@ class OMEROGateway
 		return null;
 	}
 	
+	List retrieveAnnotations(List<String> terms)
+	throws DSOutOfServiceException, DSAccessException
+	{
+		String sql = "select s from Annotation as s where s.textValue in";
+		return null;
+	}
+	
 	/**
 	 * Returns the collection of annotations of a given type.
 	 * 
