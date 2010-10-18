@@ -1649,10 +1649,12 @@ class BrowserComponent
 	public void setGroups(Collection groups, List expanded)
 	{
 		int state = model.getState();
-        if (state != LOADING_DATA)
+        if (state != LOADING_DATA) return;
+        /*
             throw new IllegalStateException(
                     "This method can only be invoked in the LOADING_DATA "+
                     "state.");
+                    */
         if (model.getBrowserType() != ADMIN_EXPLORER) return;
 		Set nodes = TreeViewerTranslator.transformGroups(groups);
 		view.setGroups(nodes, expanded);
