@@ -257,6 +257,7 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
                             + "\nfiles, simply click the 'Send Feedback'"
                             + "\nbutton again.", "Cancelled Upload!",
                     JOptionPane.INFORMATION_MESSAGE);
+            errorTable.resetProgress();
         }
 
         /* (non-Javadoc)
@@ -274,6 +275,7 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
                             + "\nshortly detailing how you can track the"
                             + "\nstatus of your errors.", "Success!",
                     JOptionPane.INFORMATION_MESSAGE);
+            errorTable.resetProgress();
         }
 
         /* (non-Javadoc)
@@ -297,6 +299,7 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
                             + "\nhas been reported."
                             , "Success!",
                     JOptionPane.INFORMATION_MESSAGE);
+            errorTable.resetProgress();
         }
         
         /* (non-Javadoc)
