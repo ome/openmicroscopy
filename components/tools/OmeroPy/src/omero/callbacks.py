@@ -127,7 +127,7 @@ class DeleteCallbackI(object):
         count = 0
         errors = None
         while errors is None and count < loops:
-            errors = block(ms)
+            errors = self.block(ms)
             count += 1
 
         if errors is None:
