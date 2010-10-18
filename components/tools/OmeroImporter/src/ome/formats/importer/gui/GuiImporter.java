@@ -46,7 +46,6 @@ import java.awt.event.WindowStateListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.concurrent.Executors;
@@ -579,8 +578,8 @@ WindowStateListener, WindowFocusListener
                 logout();
                 getLoginHandler().logout();
                 setLoginHandler(null);
-            } else 
-            {
+                showLogoutMessage();
+            } else {
                 HistoryTable table = null;
                 if (historyHandler != null) {
                     table = historyHandler.table;
@@ -647,7 +646,15 @@ WindowStateListener, WindowFocusListener
 
     }
 
-    /**
+    private void showLogoutMessage() {
+		JOptionPane.showMessageDialog(this,
+				"You have been logged out of the importer.\n" +
+				"Choose 'login' from the file menu to continue.",
+				"Warning",
+				JOptionPane.WARNING_MESSAGE);
+	}
+
+	/**
      * This function strips out the unwanted sections of the keywords
      * used for the version number and build time variables, leaving
      * only the stuff we want.
@@ -737,6 +744,7 @@ WindowStateListener, WindowFocusListener
     	if (event instanceof ImportEvent.LOGGED_OUT)
     	{
     		logout();
+    		showLogoutMessage();
     	}
     	    	
         if (event instanceof ImportEvent.LOADING_IMAGE)
