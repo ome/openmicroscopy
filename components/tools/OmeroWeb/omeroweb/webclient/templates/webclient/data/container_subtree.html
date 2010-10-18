@@ -3,14 +3,15 @@
 
 {% if manager.containers.orphaned %}
     {% for d in manager.containers.images %}
-        <li id='img-{{ d.id }}' title="{{ d.name }}"><span>{{ d.name|truncatebefor:"35" }}</span> 
+        <li id='img-{{ d.id }}' title="{{ d.name }}"><span {% if not d.isOwned %}{% if eContext.isLeader %}id="editonly"{% else %}id="readonly"{% endif %}{% endif %}>{{ d.name|truncatebefor:"35" }}</span> 
             {% if d.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>{% endif %} 
             {% if not d.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="owned by {{ d.getOwner.getNameWithInitial }}"/>{% endif %}</li>
     {% endfor %}
 {% else %}
     {% for d in manager.containers.images %}
-        <li id='img-{{ d.id }}' title="{{ d.name }}"><span {% if d.isOwned %}{% if d.link.isOwned %}{% else %}id="editonly"{% endif %}{% else %}{% if d.link.isOwned %}id="linkonly"{% else %}id="editonly"{% endif %}{% endif %}>{{ d.name|truncatebefor:"35" }}</span> 
+        <li id='img-{{ d.id }}' title="{{ d.name }}"><span {% if not d.isOwned %}{% if eContext.isLeader %}id="editonly"{% else %}id="readonly"{% endif %}{% endif %}>{{ d.name|truncatebefor:"35" }}</span> 
             {% if d.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>{% endif %} 
-            {% if not d.link.isOwned %}{% if not d.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="owned by {{ d.getOwner.getNameWithInitial }}, linked by {{ d.link.getOwner.getNameWithInitial }}"/>{% else %}<img src="{% url webstatic "images/kgpg_key16.png" %}" alt="l" title="linked by {{ d.link.getOwner.getNameWithInitial }}"/>{% endif %}{% else %}{% if not d.isOwned %} <img src="{% url webstatic "images/personal12.png" %}" alt="l" title="owned by {{ d.getOwner.getNameWithInitial }}"/>{% endif %}{% endif %}</li>
+            {% if not d.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="owned by {{ d.getOwner.getNameWithInitial }}"/>{% endif %}
+        </li>
     {% endfor %}    
 {% endif %}

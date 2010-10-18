@@ -2875,6 +2875,11 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
         self.CHILD_WRAPPER_CLASS = 'ExperimenterWrapper'
         self.PARENT_WRAPPER_CLASS = None
 
+    def isLeader(self):
+        if self._conn.getEventContext().groupId in self._conn.getEventContext().leaderOfGroups:
+            return True
+        return False
+
 ExperimenterGroupWrapper = _ExperimenterGroupWrapper
 
 class DetailsWrapper (BlitzObjectWrapper):
@@ -3831,7 +3836,7 @@ class _ImageWrapper (BlitzObjectWrapper):
                 img = self.renderImage(z,t, compression)
                 if fsize > 0:
                     draw = ImageDraw.ImageDraw(img)
-                    draw.text((2,2), "w=%s" % (str(self.getChannels()[i].getEmissionWave())), font=font, fill="#fff")
+                    draw.text((2,2), "%s" % (str(self.getChannels()[i].getEmissionWave())), font=font, fill="#fff")
                 canvas.paste(img, (px, py))
             pxc += 1
             if pxc < dims['gridx']:
@@ -3845,7 +3850,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             img = self.renderImage(z,t, compression)
             if fsize > 0:
                 draw = ImageDraw.ImageDraw(img)
-                draw.text((2,2), "combined", font=font, fill="#fff")
+                draw.text((2,2), "merged", font=font, fill="#fff")
             canvas.paste(img, (px, py))
         return canvas
 
