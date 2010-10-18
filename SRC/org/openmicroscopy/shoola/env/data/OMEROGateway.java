@@ -3598,7 +3598,7 @@ class OMEROGateway
 		thumbnailService = null;
 		pixelsStore = null;
 		searchService = null;
-		searchService = null;
+		fileStore = null;
 	}
 	
 	/**
