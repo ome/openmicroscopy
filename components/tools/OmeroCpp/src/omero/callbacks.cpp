@@ -32,11 +32,11 @@ namespace omero {
                 const ProcessPrx& process,
                 bool poll) :
             ProcessCallback(),
-            process(process),
             adapter(adapter),
             id(Ice::Identity()),
             poll(poll),
-            result(std::string()) {
+            result(std::string()),
+            process(process) {
 
             std::string uuid = generateUUID();
             this->id.category = "ProcessCallback";
@@ -88,8 +88,8 @@ namespace omero {
         DeleteCallbackI::DeleteCallbackI(
             const Ice::ObjectAdapterPtr& adapter, const OME_API_DEL::DeleteHandlePrx handle) :
             adapter(adapter),
-            handle(handle),
-            poll(true) {
+            poll(true),
+            handle(handle) {
         };
 
 	DeleteCallbackI::~DeleteCallbackI() {

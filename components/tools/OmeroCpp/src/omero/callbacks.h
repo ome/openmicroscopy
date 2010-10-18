@@ -44,13 +44,17 @@ namespace omero {
         private:
             ProcessCallbackI& operator=(const ProcessCallbackI& rv);
             ProcessCallbackI(ProcessCallbackI&);
-	protected:
             omero::util::concurrency::Event event;
-            omero::grid::ProcessPrx process;
             Ice::ObjectAdapterPtr adapter;
             Ice::Identity id;
             bool poll;
             std::string result;
+	protected:
+            /**
+             * Proxy passed to this instance on creation. Can be used by subclasses
+             * freely. The object will not be nulled, but may be closed server-side.
+             */
+            omero::grid::ProcessPrx process;
 	    virtual ~ProcessCallbackI();
         public:
             ProcessCallbackI(const Ice::ObjectAdapterPtr& adapter, const omero::grid::ProcessPrx& process, bool poll = true);
@@ -101,10 +105,14 @@ namespace omero {
             // State
             omero::util::concurrency::Event event;
             Ice::ObjectAdapterPtr adapter;
-            OME_API_DEL::DeleteHandlePrx handle;
             bool poll;
             omero::RIntPtr result;
 	protected:
+            /**
+             * Proxy passed to this instance on creation. Can be used by subclasses
+             * freely. The object will not be nulled, but may be closed server-side.
+             */
+            OME_API_DEL::DeleteHandlePrx handle;
 	    virtual ~DeleteCallbackI();
         public:
             DeleteCallbackI(const Ice::ObjectAdapterPtr& adapter, const OME_API_DEL::DeleteHandlePrx handle);
