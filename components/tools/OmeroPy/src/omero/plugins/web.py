@@ -46,10 +46,10 @@ class WebControl(BaseControl):
         start = parser.add(sub, self.start, "Primary start for webserver")
         start.add_argument("host", nargs="?")
         start.add_argument("port", nargs="?")
-        
+
         emdb_settings = parser.add(sub, self.emdb_settings, "Configure settings for the web EMDB client")
 
-        server = parser.add(sub, self.server, "Advanced use: Set to 'default' for django internal webserver or 'fastcfgi'")
+        server = parser.add(sub, self.server, "Advanced use: Set to 'default' for django internal webserver or 'fastcgi' or 'fastccgi-tcp'")
         server.add_argument("server")
 
         config = parser.add(sub, self.config, "Advanced use: Output a config template for server (only 'nginx' for the moment")
