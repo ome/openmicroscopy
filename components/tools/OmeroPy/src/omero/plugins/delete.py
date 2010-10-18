@@ -79,7 +79,10 @@ class DeleteControl(BaseControl):
             elif klass in keys:
                 commands.append(omero.api.delete.DeleteCommand(klass, long(id), None))
             else:
-                ctor = getattr(omero.model, "%sI" % klass)
+                try:
+                    ctor = getattr(omero.model, "%sI" % klass)
+                except AttributeError:
+                    self.ctx.die(6, "Unknown delete command: %s" % klass)
                 if not ctor:
                     ctor = getattr(omero.model, klass)
                 try:
