@@ -81,10 +81,6 @@ sys.path.append(ipy)
 if not os.path.exists(lib):
     print "WARN: %s does not exist. It is unlikely that OMERO will run properly" % lib
 
-if not os.path.exists(var):
-    print "Creating directory %s" % var
-    os.makedirs(var, 0700)
-
 #
 # Testing shortcut. If the first argument is an
 # empty string, exit sucessfully.

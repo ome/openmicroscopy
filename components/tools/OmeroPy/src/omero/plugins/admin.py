@@ -805,8 +805,14 @@ OMERO Diagnostics %s
 
     def check_access(self, mask=os.R_OK|os.W_OK, config=None):
         """Check that 'var' is accessible by the current user."""
+
         var = self.ctx.dir / 'var'
-        self.can_access(var, mask)
+        if not os.path.exists(var):
+            print "Creating directory %s" % var
+            os.makedirs(var, 0700)
+        else:
+            self.can_access(var, mask)
+
         if config is not None:
             omero_data_dir = '/OMERO'
             config = config.as_map()
