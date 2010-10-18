@@ -959,6 +959,12 @@ implements java.io.Serializable, IObject
         @org.hibernate.search.annotations.Field(index = org.hibernate.search.annotations.Index.TOKENIZED, 
             name="combined_fields")
     })
+#elseif($prop.type == "java.lang.Integer" || $prop.type == "java.lang.Long" || $prop.type == "java.lang.Double" || $prop.type == "java.lang.Float")
+    @org.hibernate.search.annotations.Fields({
+        @org.hibernate.search.annotations.Field(index = org.hibernate.search.annotations.Index.UN_TOKENIZED),
+        @org.hibernate.search.annotations.Field(index = org.hibernate.search.annotations.Index.UN_TOKENIZED,
+            name="combined_fields")
+    })
 #elseif($prop.type == "java.sql.Timestamp")
     @org.hibernate.search.annotations.DateBridge(
         resolution=org.hibernate.search.annotations.Resolution.MINUTE)
