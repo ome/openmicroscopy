@@ -477,47 +477,99 @@ public class DeleteServiceFilesTest
 		assertNoUndeletedBinaries(report);
 	}
 
-	/**
-	 * Test to delete a datsset containing and image that is 
-	 * also in another dataset. The Image and its Pixels file
-	 * should NOT be deleted.
-	 * 
-	 * @throws Exception Thrown if an error occurred.
-	 */
-	@Test(groups = "ticket:3031")
-	public void testDeletingDatasetWithPixelsFiles() throws Exception {
+    /**
+     * Test to delete a dataset containing and image that is 
+     * also in another dataset. The Image and its Pixels file
+     * should NOT be deleted.
+     * 
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(groups = "ticket:3031")
+    public void testDeletingDatasetWithPixelsFiles() throws Exception {
 
-		Dataset ds1 = new DatasetI();
-		ds1.setName(omero.rtypes.rstring("#3031.1"));
-		Dataset ds2 = new DatasetI();
-		ds2.setName(omero.rtypes.rstring("#3031.2"));
+        Dataset ds1 = new DatasetI();
+        ds1.setName(omero.rtypes.rstring("#3031.1"));
+        Dataset ds2 = new DatasetI();
+        ds2.setName(omero.rtypes.rstring("#3031.2"));
 
-		Image img = (Image) iUpdate.saveAndReturnObject(
-				mmFactory.createImage());
-		Pixels pixels = img.getPrimaryPixels();
-		long pixId = pixels.getId().getValue();
-		IRenderingSettingsPrx rsPrx = factory.getRenderingSettingsService();
-		List<Long> ids = new ArrayList<Long>();
-		ids.add(pixId);
-		rsPrx.resetDefaultsInSet(Pixels.class.getName(), ids);
+        Image img = (Image) iUpdate.saveAndReturnObject(
+                mmFactory.createImage());
+        Pixels pixels = img.getPrimaryPixels();
+        long pixId = pixels.getId().getValue();
+        IRenderingSettingsPrx rsPrx = factory.getRenderingSettingsService();
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(pixId);
+        rsPrx.resetDefaultsInSet(Pixels.class.getName(), ids);
 
-		//Now check that the files have been created and then deleted.
-		assertFileExists(pixId, REF_PIXELS);
+        //Now check that the files have been created and then deleted.
+        assertFileExists(pixId, REF_PIXELS);
 
-		ds1.linkImage(img);
-		ds1 = (Dataset) iUpdate.saveAndReturnObject(ds1);
-		ds2.linkImage(img);
-		ds2 = (Dataset) iUpdate.saveAndReturnObject(ds2);
+        ds1.linkImage(img);
+        ds1 = (Dataset) iUpdate.saveAndReturnObject(ds1);
+        ds2.linkImage(img);
+        ds2 = (Dataset) iUpdate.saveAndReturnObject(ds2);
 
-		delete(client, new DeleteCommand(DeleteServiceTest.REF_DATASET, 
-				ds2.getId().getValue(),
-				null));
+        delete(client, new DeleteCommand(DeleteServiceTest.REF_DATASET, 
+                ds2.getId().getValue(),
+                null));
 
-		assertDoesNotExist(ds2);
-		assertExists(ds1);
-		assertExists(img);
-		assertFileExists(pixId, REF_PIXELS);
-	}
+        assertDoesNotExist(ds2);
+        assertExists(ds1);
+        assertExists(img);
+        assertFileExists(pixId, REF_PIXELS);
+    }
+    
+    /**
+     * Test to delete a dataset containing multiple images
+     * all Pixels files should be deleted.
+     * 
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(groups = "ticket:3130")
+    public void testDeletingDatasetWithSeveralPixelsFiles() throws Exception {
+
+        Dataset ds = new DatasetI();
+        ds.setName(omero.rtypes.rstring("#3130"));
+ 
+        Image img1 = (Image) iUpdate.saveAndReturnObject(
+                mmFactory.createImage());
+        Pixels pixels = img1.getPrimaryPixels();
+        long pixId1 = pixels.getId().getValue();
+        IRenderingSettingsPrx rsPrx = factory.getRenderingSettingsService();
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(pixId1);
+        rsPrx.resetDefaultsInSet(Pixels.class.getName(), ids);
+
+        // A second Image
+        Image img2 = (Image) iUpdate.saveAndReturnObject(
+                mmFactory.createImage());
+        pixels = img2.getPrimaryPixels();
+        long pixId2 = pixels.getId().getValue();
+        rsPrx = factory.getRenderingSettingsService();
+        ids = new ArrayList<Long>();
+        ids.add(pixId2);
+        rsPrx.resetDefaultsInSet(Pixels.class.getName(), ids);
+
+        // link to dataset
+        ds.linkImage(img1);
+        ds = (Dataset) iUpdate.saveAndReturnObject(ds);
+        ds.linkImage(img2);
+        ds = (Dataset) iUpdate.saveAndReturnObject(ds);
+
+        //Now check that the files have been created and then deleted.
+        assertFileExists(pixId1, REF_PIXELS);
+        assertFileExists(pixId2, REF_PIXELS);
+
+        DeleteReport report = deleteWithReport(
+                new DeleteCommand(DeleteServiceTest.REF_DATASET, 
+                ds.getId().getValue(),
+                null));        
+        
+        assertTrue(report.undeletedFiles.get(REF_PIXELS).length == 0);
+        assertDoesNotExist(ds);
+        assertFileDoesNotExist(pixId1, REF_PIXELS);
+        assertFileDoesNotExist(pixId2, REF_PIXELS);
+    }
 
     private void assertNoUndeletedBinaries(DeleteReport report) {
         assertNoUndeletedThumbnails(report);
