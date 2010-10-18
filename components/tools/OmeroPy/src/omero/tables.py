@@ -194,7 +194,7 @@ class HdfStorage(object):
                 mode = "w"
             return tables.openFile(self.__hdf_path, mode=mode,\
                 title="OMERO HDF Measurement Storage", rootUEP="/")
-        except IOError, io:
+        except (tables.HDF5ExtError, IOError), io:
             msg = "HDFStorage initialized with bad path: %s" % self.__hdf_path
             self.logger.error(msg)
             raise omero.ValidationException(None, None, msg)
