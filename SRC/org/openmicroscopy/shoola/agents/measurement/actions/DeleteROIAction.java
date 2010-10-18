@@ -33,6 +33,7 @@ import javax.swing.Action;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
+import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -56,7 +57,8 @@ public class DeleteROIAction
 	private static final String NAME = "Delete ROI";
 
 	/** The description of the action. */
-	private static final String DESCRIPTION = "Delete All ROIs owned.";
+	private static final String DESCRIPTION = "Delete all your ROIs on " +
+			"this image.";
 	
 	/**
 	 * Sets the enabled flag
@@ -88,6 +90,13 @@ public class DeleteROIAction
      * Deletes all ROI owned by the user currently logged in.
      * @see ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e) { model.deleteAllROIs(); }
+    public void actionPerformed(ActionEvent e)
+    { 
+    	MessageBox msg = new MessageBox(model.getUI(), "Delete ROI", 
+		"Do you want to delete all your ROIs on this image.");
+    	int option = msg.centerMsgBox();
+    	if (option == MessageBox.YES_OPTION)
+    		model.deleteAllROIs(); 
+    }
     
 }
