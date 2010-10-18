@@ -10,7 +10,7 @@ s = c.createSession()
 
 try:
     deleteServicePrx = s.getDeleteService()
-    dc = omero.api.delete.DeleteCommand("/Image", 1, null)
+    dc = omero.api.delete.DeleteCommand("/Image", 1, None)
     deleteHandlePrx = deleteServicePrx .queueDelete([dc])
     cb = omero.callbacks.DeleteCallbackI(c, deleteHandlePrx)
 
