@@ -19,12 +19,10 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Logger;
 
 import ome.model.IObject;
 import ome.model.internal.Permissions;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 // Third-party libraries
 
@@ -41,7 +39,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class Utils {
 
-    private final static Log log = LogFactory.getLog(Utils.class);
+    private final static Logger log = Logger.getLogger(Utils.class.getName());
 
     protected final static String CGLIB_IDENTIFIER = "$$EnhancerByCGLIB$$";
 
@@ -268,7 +266,7 @@ public class Utils {
 
     public static void closeQuietly(Closeable is) {
         if (is == null) {
-            log.debug("Closeable is null");
+            log.fine("Closeable is null");
         } else {
             try {
                 is.close();
