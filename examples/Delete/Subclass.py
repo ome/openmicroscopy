@@ -37,7 +37,7 @@ try:
             cb.loop(10, 500)
             # If we reach here, finished() was called.
 
-        except LockTimeout:
+        except omero.LockTimeout:
             print "Not finished in 5 seconds. Cancelling..."
             if not deleteHandlePrx.cancel():
                 print "ERROR: Failed to cancel"
