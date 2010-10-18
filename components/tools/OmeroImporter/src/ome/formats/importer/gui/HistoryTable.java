@@ -279,7 +279,7 @@ public class HistoryTable
 
         // Set up the filterTable layout
         double filterTable[][] =
-                {{100, 70, 70, 70, 90, TableLayout.FILL}, // columns
+                {{100, 80, 80, 80, 90, TableLayout.FILL}, // columns
                 { 30 }}; // rows
         
         filterPanel = GuiCommonElements.addPlanePanel(mainPanel, filterTable, debug);     
