@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.editor.browser.paramUIs.editTemplate;
 import java.awt.BorderLayout;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 //Third-party libraries
@@ -130,6 +131,33 @@ public class EnumTemplate
 	public String getEditDisplayName() { return "Drop-down options"; }
 
 	/**
+	 * Takes a comma-delimited list string and removes duplicates. 
+	 * 
+	 * @param options	A comma-delimited list 
+	 * @return			The same list with duplicates removed. 
+	 */
+	private String removeDuplicates(String options) {
+		
+		if (options == null) return null;
+		
+		ArrayList<String> optionList = new ArrayList<String>();
+		
+		String[] ops = options.split(",");
+		String optionString = "";
+		String item;
+		for (int i=0; i<ops.length; i++) {
+			item = ops[i].trim();
+			if (!optionList.contains(item)) {
+				optionList.add(item);	// simply to keep track of what we have
+				// build the string we will return...
+				if (optionString.length() > 0) optionString += ", ";
+				optionString = optionString + item;
+			}
+		}
+		
+		return optionString;
+	}
+	/**
 	 * May be called from {@link #optionsFieldEditor} when options have changed.
 	 * 
 	 * Implemented as specified by the {@link PropertyChangeListener} interface.
@@ -150,8 +178,11 @@ public class EnumTemplate
 			// the value and default value are in the new options. 
 			if (evt.getSource().equals(optionsFieldEditor)) {
 				String newOptions = null;
-				if(evt.getNewValue() != null) 
+				if(evt.getNewValue() != null) {
 					newOptions = evt.getNewValue().toString();
+				} else return;
+				
+				newOptions = removeDuplicates(newOptions);
 				
 				String defaultValue = getParameter().getAttribute
 						(TextParam.DEFAULT_VALUE);
