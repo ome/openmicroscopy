@@ -87,6 +87,7 @@ public class LdapPasswordProvider extends ConfigurablePasswordProvider {
                 // because there may be another non-database login mechanism
                 // which should also be given a chance.
                 if (login) {
+                    loginAttempt(user, true);
                     return true;
                 }
             } catch (ApiUsageException e) {
@@ -100,7 +101,8 @@ public class LdapPasswordProvider extends ConfigurablePasswordProvider {
             try {
                 String dn = ldapUtil.lookupLdapAuthExperimenter(id);
                 if (dn != null) {
-                    return ldapUtil.validatePassword(dn, password);
+                    return loginAttempt(user,
+                            ldapUtil.validatePassword(dn, password));
                 }
             } catch (ApiUsageException e) {
                 log.warn("Default choice on check ldap password: " + user, e);

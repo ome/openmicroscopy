@@ -10,9 +10,14 @@ package ome.security.auth;
 import java.security.Permissions;
 
 import ome.security.SecuritySystem;
+import ome.services.messages.LoginAttemptMessage;
+import ome.system.OmeroContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 /**
  * Base class for most {@link PasswordProvider} implementations, providing
@@ -25,7 +30,7 @@ import org.apache.commons.logging.LogFactory;
  * @since 4.0
  */
 public abstract class ConfigurablePasswordProvider implements PasswordProvider,
-        PasswordUtility {
+        PasswordUtility, ApplicationContextAware {
 
     final protected Log log = LogFactory.getLog(this.getClass());
 
@@ -44,6 +49,8 @@ public abstract class ConfigurablePasswordProvider implements PasswordProvider,
 
     protected final PasswordUtil util;
 
+    protected OmeroContext ctx;
+
     public ConfigurablePasswordProvider(PasswordUtil util) {
         this(util, false);
     }
@@ -52,6 +59,20 @@ public abstract class ConfigurablePasswordProvider implements PasswordProvider,
         this.util = util;
         this.hash = "MD5";
         this.ignoreUnknown = ignoreUnknown;
+    }
+
+    public void setApplicationContext(ApplicationContext ctx)
+            throws BeansException {
+        this.ctx = (OmeroContext) ctx;
+    }
+
+    protected Boolean loginAttempt(String user, Boolean success) {
+        try {
+            this.ctx.publishMessage(new LoginAttemptMessage(this, user, success));
+        } catch (Throwable e) {
+            log.error("LoginAttemptMessage error", e);
+        }
+        return success;
     }
 
     /**
