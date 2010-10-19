@@ -344,7 +344,9 @@ $(document).ready(function() {
         //var pdbId = $a.text; 
         var pdbId = $a.text();
         var pdbUrl = $a.attr('href');
-        var command = "molecule load " + pdbId + " '" + pdbUrl + "';";
+        // lazy load - in case we have loaded it already
+        var command = "molecule lazy " + pdbId + " '" + pdbUrl + "';"
+        command += "\ncolor_by_rainbow aminoacid;\nsecstruc all;\nschematic -name protein_schematic all;\ncolor_by_atom;";
         execute_oav_command(command);
         return false;
     });
