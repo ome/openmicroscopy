@@ -565,10 +565,11 @@ public class DeleteServiceFilesTest
                 ds.getId().getValue(),
                 null));        
         
-        assertTrue(report.undeletedFiles.get(REF_PIXELS).length == 0);
-        assertDoesNotExist(ds);
+        assertNoUndeletedBinaries(report);
+        assertNoneExist(ds, img1, img2);
         assertFileDoesNotExist(pixId1, REF_PIXELS);
         assertFileDoesNotExist(pixId2, REF_PIXELS);
+
     }
 
     private void assertNoUndeletedBinaries(DeleteReport report) {

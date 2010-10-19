@@ -199,6 +199,8 @@ public class DeleteState {
 
     private final static Log log = LogFactory.getLog(DeleteState.class);
 
+    private final static String INVALIDATED = "INVALIDATED:";
+
     /**
      * List of each individual {@link DeleteStep} which this instance will
      * perform.
@@ -317,6 +319,7 @@ public class DeleteState {
                     stack.add(step);
                     parse(subSpec, tables, stack, columnSet.get(0));
                     stack.removeLast();
+                    this.steps.add(step);
                 } else {
 
                     // But for the actual entries, we create a step per
@@ -408,10 +411,25 @@ public class DeleteState {
     public String execute(int j) throws DeleteException {
 
         final DeleteStep step = steps.get(j);
-        steps.set(0, null); // Free memory.
 
-        if (step == null) {
-            return ""; // EARLY EXIT!
+        if (step.savepoint != null && step.savepoint.startsWith(INVALIDATED)) {
+            log.debug("Skipping closed savepoint: " + step.savepoint);
+            return "";
+        }
+
+        if (step.rollbackOnly) {
+            if (step.savepoint != null) {
+                rollback(step);
+            }
+            log.debug("Skipping due to rollbackOnly: " + step);
+            return ""; // EARLY EXIT
+        }
+
+        if (step.ids == null) { // Finalization marker
+            if (step.savepoint != null) {
+                release(step); // We know it's not rollback only.
+            }
+            return ""; // EARLY EXIT
         }
 
         // Add this instance to the opts. Any method which then tries to
@@ -420,6 +438,10 @@ public class DeleteState {
 
         try {
 
+            // Lazy initialization of parents.
+            // To guarantee that finalization
+            // happens (#3125, #3130), a special
+            // marker is added and handled above.
             for (DeleteStep parent : step.stack) {
                 if (parent.savepoint == null) {
                     savepoint(parent);
@@ -456,14 +478,6 @@ public class DeleteState {
 
                 // Finalize.
                 release(step);
-                if (step.parent != null) {
-                    step.parent.activeChildren--;
-                    if (step.parent.activeChildren == 0) {
-                        release(step.parent);
-                    }
-
-                }
-
                 return "";
 
             } catch (ConstraintViolationException cve) {
@@ -528,7 +542,7 @@ public class DeleteState {
             DeleteStep parent = step.stack.get(i);
             rollback(parent);
             if (parent.entry.isSoft()) {
-                nullRelatedEntries(parent);
+                disableRelatedEntries(parent);
                 log.debug(String.format("%s. Handled by %s: %s", msg,
                         parent.pathMsg, parent.id));
                 return cause;
@@ -547,12 +561,12 @@ public class DeleteState {
      * amounts to being a descedent. All such instances are set to null in
      * {@link #steps} so that further processing cannot take place on them.
      */
-    private void nullRelatedEntries(DeleteStep parent) {
+    private void disableRelatedEntries(DeleteStep parent) {
         for (DeleteStep step : steps) {
             if (step == null || step.stack == null) {
                 continue;
             } else if (step.stack.contains(parent)) {
-                steps.set(step.idx, null);
+                step.rollbackOnly = true;
             }
         }
     }
@@ -694,15 +708,17 @@ public class DeleteState {
                 "Released savepoint %s with %s ids: new depth=%s", step.savepoint,
                 count, actualIds.size()));
 
-        step.savepoint = "INVALIDATED:" + step.savepoint;
+        step.savepoint = INVALIDATED + step.savepoint;
 
     }
 
     public void rollback(DeleteStep step) throws DeleteException {
+
         if (actualIds.size() == 0) {
             throw new DeleteException("Release at depth 0!");
         }
 
+        step.rollbackOnly = true;
         int count = 0;
         Map<String, Set<Long>> ids = actualIds.removeLast();
         for (String key : ids.keySet()) {
@@ -716,7 +732,7 @@ public class DeleteState {
                 "Rolled back savepoint %s with %s ids: new depth=%s",
                 step.savepoint, count, actualIds.size()));
 
-        step.savepoint = "INVALIDATED:" + step.savepoint;
+        step.savepoint =  INVALIDATED + step.savepoint;
 
     }
 

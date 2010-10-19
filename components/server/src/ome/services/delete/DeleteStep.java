@@ -102,11 +102,7 @@ public class DeleteStep {
      */
     String savepoint = null;
 
-    /**
-     * Not final. Incremented each time a child is created for whom the current
-     * instance is their {@link #parent}.
-     */
-    int activeChildren = 0;
+    boolean rollbackOnly = false;
 
     DeleteStep(int idx, List<DeleteStep> stack, DeleteSpec spec, DeleteEntry entry,
             List<Long> ids) {
@@ -114,7 +110,6 @@ public class DeleteStep {
         this.stack = new LinkedList<DeleteStep>(stack);
         if (this.stack.size() > 0) {
             this.parent = this.stack.getLast();
-            this.parent.activeChildren++;
         } else {
             this.parent = null;
         }
