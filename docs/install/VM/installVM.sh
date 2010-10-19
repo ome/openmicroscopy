@@ -47,17 +47,22 @@ echo "Copying ubuntu-root-install"
 $SCP ubuntu-root-install.sh omero@localhost:~/
 echo "Copying ubuntu-omero-install"
 $SCP ubuntu-omero-install.sh omero@localhost:~/
+echo "Copying ubuntu-dbsetup"
+$SCP ubuntu-dbsetup.sh omero@localhost:~/
 echo "Copying omero.sh"
-$SCP omero.sh omero@localhost:~/omero.sh
-echo "Copying web-root-install and web-start.sh"
+$SCP omero.sh omero@localhost:~/
+echo "Copying web-root-install"
 $SCP web-root-install.sh omero@localhost:~/
+echo "Copying web-start.sh"
 $SCP web-start.sh omero@localhost:~/
 echo "Copying daemon-install.sh"
 $SCP daemon-install.sh omero@localhost:~/
 echo "ssh : exec ubuntu-root-install.sh"
 $SSH omero@localhost 'yes ome | sudo -S sh /home/omero/ubuntu-root-install.sh'
 echo "ssh : exec ubuntu-omero-install.sh"
-$SSH omero@localhost 'yes ome | sudo -S sh /home/omero/ubuntu-omero-install.sh'
+$SSH omero@localhost 'sh /home/omero/ubuntu-omero-install.sh'
+echo "ssh : exec ubuntu-dbsetup.sh"
+$SSH omero@localhost 'yes ome | sudo -S sh /home/omero/ubuntu-dbsetup.sh'
 echo "ssh : exec web-root-install.sh"
 $SSH omero@localhost 'yes ome | sudo -S bash -s < /home/omero/web-root-install.sh'
 echo "ssh : exec daemon-install.sh"

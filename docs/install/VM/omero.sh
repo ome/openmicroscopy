@@ -10,7 +10,7 @@ prog="omero"
 start() {	
 	echo -n $"Starting $prog:"
 	sudo -u omero /Server/omero/dist/bin/omero admin start
-	sudo -u omero /Server/omero/dist/bin/omero web start
+	sudo -u omero /Server/omero/dist/bin/omero web start localhost 8080 &
 	RETVAL=$?
 	[ "$RETVAL" = 0 ] 
 	echo

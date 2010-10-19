@@ -14,11 +14,20 @@ export OMEROS_PF=${OMEROS_PF:-"4064"}
 export OMEROWEB_PORT=${OMEROWEB_PORT:-"80"}
 export OMEROWEB_PF=${OMEROWEB_PF:-"8080"}
 export HARDDISKS=${HARDDISKS:-"$HOME/Library/VirtualBox/HardDisks/"}
+export VBDISKS=${VBDISKS:-"$HOME/Library/VirtualBox/"}
+
 #export HARDDISKS=${HARDDISKS:-"$HOME/.VirtualBox/HardDisks/"}
+export SRCVDI=${SRCVDI:-"$HOME/Dev/VM/OMERO-SSH.vdi"}
 
 set -e
 set -u
 set -x
+
+#prepare space
+rm -rf "$VBDISKS"*
+mkdir "$HARDDISKS"
+echo "Coping $HARDDISKS"OMERO-SSH.vdi"..."
+cp "$SRCVDI" "$HARDDISKS"OMERO-SSH.vdi""
 
 VBoxManage clonehd "$HARDDISKS"OMERO-SSH.vdi"" "$HARDDISKS$VMNAME.vdi"
 VBoxManage createvm --name "$VMNAME" --register --ostype "Ubuntu_64"
