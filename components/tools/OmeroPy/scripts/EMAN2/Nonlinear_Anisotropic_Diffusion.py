@@ -238,8 +238,8 @@ Uses command line functionality from IMOD. See http://bio3d.colorado.edu/imod/do
                 client.setOutput("Image_%s" % i.getId().getValue(),robject(i))
             if dataset:
                 client.setOutput("Dataset",robject(dataset))
-    except: raise
-    finally: client.closeSession()
-    
+    finally:
+        client.closeSession()
+
 if __name__ == "__main__":
     runAsScript()

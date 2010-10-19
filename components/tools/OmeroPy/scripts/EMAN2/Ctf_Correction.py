@@ -348,11 +348,11 @@ See http://trac.openmicroscopy.org.uk/omero/wiki/EmPreviewFunctionality""",
         for key in client.getInputKeys():
             if client.getInput(key):
                 parameterMap[key] = client.getInput(key).getValue()
-    
+
         runCtf(session, parameterMap)
-    except: raise
-    finally: client.closeSession()
-    
+    finally:
+        client.closeSession()
+
     # test
 if __name__ == "__main__":
     runAsScript()

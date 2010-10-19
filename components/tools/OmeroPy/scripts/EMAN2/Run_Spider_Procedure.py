@@ -401,9 +401,9 @@ See list at http://www.wadsworth.org/spider_doc/spider/docs/operations_doc.html"
                 client.setOutput("Image_%s" % i.getId().getValue(),robject(i))
             if dataset:
                 client.setOutput("Dataset",robject(dataset))
-            
-    except: raise
-    finally: client.closeSession()
-    
+
+    finally:
+        client.closeSession()
+
 if __name__ == "__main__":
     runAsScript()

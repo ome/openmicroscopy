@@ -450,14 +450,14 @@ See http://trac.openmicroscopy.org.uk/omero/wiki/EmPreviewFunctionality""",
         for key in client.getInputKeys():
             if client.getInput(key):
                 parameterMap[key] = client.getInput(key).getValue()
-    
+
         imgCount = doAutoBoxing(session, parameterMap)
         image = imgCount==1 and "image" or "images"
         client.setOutput("Message", rstring("Auto-Boxing added boxes to %s %s" (imgCount, image)))
-    except: raise
-    finally: client.closeSession()
-    
-    
+    finally:
+        client.closeSession()
+
+
 if __name__ == "__main__":
     runAsScript()
     
