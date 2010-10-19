@@ -136,7 +136,7 @@ class DeleteCallbackI(object):
                     "Delete unfinished after %s seconds" % waited,
                     5000L, waited)
         else:
-            return handle.report()
+            return self.handle.report()
 
     def block(self, ms):
         """
