@@ -93,7 +93,7 @@
         
         {% ifequal field.label_tag form.default_group.label_tag %}{% else %}{% ifequal field.label_tag form.other_groups.label_tag %}{% else %}{% ifequal field.label_tag form.available_groups.label_tag %}{% else %}
         
-        <tr><td class="form">{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text }}</td></tr>
+        <tr><td class="form">{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text|safe }}</td></tr>
         
         {% endifequal %}{% endifequal %}{% endifequal %}
         

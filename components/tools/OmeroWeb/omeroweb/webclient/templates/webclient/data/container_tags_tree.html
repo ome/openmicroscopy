@@ -10,14 +10,14 @@
             {% for t in manager.tags %}
             {% if t.ns %}
             
-            <li id="tset-{{ t.id }}"><span id="readonly">{{ t.textValue|truncateafter:"35" }}</span>
+            <li id="tset-{{ t.id }}"><span {% if not t.isOwned %}{% if eContext.isLeader %}id="editonly"{% else %}id="readonly"{% endif %}{% else %}id="editonly"{% endif %}>{{ t.textValue|truncateafter:"35" }}</span>{% if not t.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="owned by {{ t.getOwner.getNameWithInitial }}"/>{% endif %}
                 <ul class="ajax">
                     <li id='{{ t.id }}'>{url:{% url load_data_by_tag "tag" t.id %}?view=tree}</li>
                 </ul>
             </li>
             
             {% else %}
-            <li id="tag-{{ t.id }}"><span id="readonly">{{ t.textValue|truncateafter:"35" }}</span>
+            <li id="tag-{{ t.id }}"><span {% if not t.isOwned %}{% if eContext.isLeader %}id="editonly"{% else %}id="readonly"{% endif %}{% else %}id="editonly"{% endif %}>{{ t.textValue|truncateafter:"35" }}</span>{% if not t.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="owned by {{ t.getOwner.getNameWithInitial }}"/>{% endif %}
                 <ul class="ajax">
                     <li id='{{ t.id }}'>{url:{% url load_data_by_tag "tag" t.id %}?view=tree}</li>
                 </ul>

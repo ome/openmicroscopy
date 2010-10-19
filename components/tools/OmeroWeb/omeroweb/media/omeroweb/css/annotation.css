@@ -25,16 +25,16 @@ div.lncomments{
     background-color: #fff;
 }
 div.urls {
-    float: left;
+    /*float: left;*/
 }
 div.exurls {
-    float: right;
+    /*float: right;*/
 }
 div.tags {
-    float: left;
+    /*float: left;*/
 }
 div.extags {
-    float: left;
+    /*float: left;*/
 }
 div.lntags{
     /*max-height: 110px;*/

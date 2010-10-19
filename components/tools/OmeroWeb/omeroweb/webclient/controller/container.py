@@ -495,7 +495,19 @@ class BaseContainer(BaseController):
         l_ann.setChild(ann)
         self.conn.saveObject(l_ann)
     
-    # Tag annotation    
+    # Tag annotation 
+    def createTagAnnotationOnly(self, tag, desc):
+        ann = None
+        try:
+            ann = self.conn.findTag(tag, desc)._obj
+        except:
+            pass
+        if ann is None:
+            ann = omero.model.TagAnnotationI()
+            ann.textValue = rstring(str(tag))
+            ann.setDescription(rstring(str(desc)))
+            self.conn.saveObject(ann)
+     
     def createTagAnnotation(self, otype, tag, desc):
         otype = str(otype).lower()
         if not otype in ("project", "dataset", "image", "screen", "plate", "well"):

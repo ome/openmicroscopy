@@ -1405,6 +1405,18 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         else:
             template = "webclient/annotations/annotation_new_form.html"
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tag':form_tag}
+    elif action == 'addtagonly':
+        if not request.method == 'POST':
+            return HttpResponseRedirect(reverse("manage_action_containers", args=["newtagonly"]))
+        form_tag = TagAnnotationForm(data=request.REQUEST.copy())
+        if form_tag.is_valid():
+            tag = request.REQUEST['tag'].encode('utf-8')
+            desc = request.REQUEST['description'].encode('utf-8')
+            manager.createTagAnnotationOnly(tag, desc)
+            return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse("load_template", args=["usertags"])) 
+        else:
+            template = "webclient/annotations/annotation_new_form.html"
+            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tag':form_tag}
     elif action == 'usetag':
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers", args=["usetag", o_type, oid]))

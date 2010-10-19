@@ -50,7 +50,12 @@
                             var obj = $(node).attr('id').split("-");
                             var par = $(node).parents('li:first').attr('id')
                             if (obj[0] == 'tag') {
-                                $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" type="image" src="{% url webstatic "images/view_tree16.png" %}" alt="Data" title="Data" onclick="document.location.href=\'{% url load_template "userdata" %}\'"> <input class="button" type="image" src="{% url webstatic "images/block.png" %}" alt="Delete" title="Delete" onclick="deleteItem(\'tag\', \''+obj[1]+'\');" />');
+                                var ro = $(node).children().filter('span').attr('id');
+                                if (ro=='editonly') {
+                                    $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" type="image" src="{% url webstatic "images/view_tree16.png" %}" alt="Data" title="Data" onclick="document.location.href=\'{% url load_template "userdata" %}\'"> | <input class="button" type="image" src="{% url webstatic "images/block.png" %}" alt="Delete" title="Delete" onclick="deleteItem(\'tag\', \''+obj[1]+'\');" />');
+                                } else {
+                                    $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" type="image" src="{% url webstatic "images/view_tree16.png" %}" alt="Data" title="Data" onclick="document.location.href=\'{% url load_template "userdata" %}\'">');
+                                }
                                 $("#right_panel").show();
                                 $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
                                 $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="/webclient/metadata_details/tag/'+obj[1]+'/" id="metadata_details" name="metadata_details"></iframe>');

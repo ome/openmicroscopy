@@ -214,6 +214,7 @@ td.form {
 td.input {
     text-align: left;
     padding: 2px 2px 2px 20px;
+    min-width: 300px;
 }
 
 td.input ul {

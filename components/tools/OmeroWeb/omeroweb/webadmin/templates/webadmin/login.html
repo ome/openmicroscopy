@@ -46,7 +46,7 @@
     			<td>{{ form.password }}</td>
 			</tr>
 		</tbody></table>
-		<!-- <tr><td>{% if form.user_name.errors %}{{ form.user_name.errors }}{% endif %}{{ form.user_name.help_text }}</td> -->
+		<!-- <tr><td>{% if form.user_name.errors %}{{ form.user_name.errors }}{% endif %}{{ form.user_name.help_text|safe }}</td> -->
 		<center><input type="submit" value="Connect" /></center>
 	</form>
 </div>
