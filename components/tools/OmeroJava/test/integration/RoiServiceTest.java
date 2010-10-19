@@ -31,9 +31,6 @@ import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.IObject;
 import omero.model.Image;
-import omero.model.ImageAnnotationLink;
-import omero.model.ImageAnnotationLinkI;
-import omero.model.ImageI;
 import omero.model.OriginalFile;
 import omero.model.Plate;
 import omero.model.PlateAnnotationLink;
@@ -47,7 +44,6 @@ import omero.model.RoiAnnotationLinkI;
 import omero.model.RoiI;
 import omero.model.Shape;
 import omero.model.Well;
-import omero.sys.ParametersI;
 import pojos.FileAnnotationData;
 
 /**
