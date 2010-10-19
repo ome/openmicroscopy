@@ -110,7 +110,13 @@ public class ProxyCleanupFilter extends ContextFilter {
             // Also for security reasons, we're now checking ownership
             // of sessions.
             if (f instanceof Share) {
-                // pass; ticket:2733
+                // ticket:2733
+                Share share = (Share) f;
+                if ( ! share.isLoaded()) {
+                    return share;
+                } else if (share.retrieve("#2733") == null) {
+                    return new Share(share.getId(), false);
+                }
             } else if (f instanceof Session) {
 
                 Session session = (Session) f;

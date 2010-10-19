@@ -242,6 +242,7 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
         ShareData data = getShareIfAccessible(sessionId);
         if (data != null) {
             session = shareToSession(data);
+            session.putAt("#2733", "ALLOW");
         }
         return session;
     }

@@ -247,7 +247,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     public Share createShare(Principal principal, boolean enabled,
             long timeToLive, String eventType, String description,
             long groupId) {
-        Share share = new Share();
+        Share share = newShare();
         define(share, UUID.randomUUID().toString(), description, System
                 .currentTimeMillis(), defaultTimeToIdle, timeToLive, eventType,
                 "Share");
@@ -812,7 +812,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
 
         Session target;
         if (source instanceof Share) {
-            target = new Share();
+            target = newShare();
         } else {
             target = new Session();
         }
@@ -906,7 +906,9 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         }
         session.setNode(node);
         session.setOwner(new Experimenter(userId, false));
-        return sf.getUpdateService().saveAndReturnObject(session);
+        Session rv = sf.getUpdateService().saveAndReturnObject(session);
+        rv.putAt("#2733", session.retrieve("#2733"));
+        return rv;
     }
 
     private boolean executeCheckPassword(final Principal _principal,
@@ -1253,5 +1255,11 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         } catch (Exception e) {
             return null;
         }
+    }
+
+    private Share newShare() {
+        Share share = new Share();
+        share.putAt("#2733", "ALLOW");
+        return share;
     }
 }

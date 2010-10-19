@@ -166,7 +166,7 @@ class ITest(unittest.TestCase):
             for obj in objs:
                 self.root.sf.getUpdateService().indexObject(obj)
 
-    def new_user(self, group = None, perms = None):
+    def new_user(self, group = None, perms = None, admin = False):
 
         if not self.root:
             raise exceptions.Exception("No root client. Cannot create user")
@@ -182,7 +182,8 @@ class ITest(unittest.TestCase):
             g = group
             group = g.name.val
         else:
-            pass # Group is already name
+            g = admin.lookupGroup(group)
+            # Group is already name
 
         # Create user
         e = omero.model.ExperimenterI()
@@ -190,14 +191,17 @@ class ITest(unittest.TestCase):
         e.firstName = rstring(name)
         e.lastName = rstring(name)
         uid = admin.createUser(e, group)
+        e = admin.lookupExperimenter(name)
+        if admin:
+            admin.setGroupOwner(g, e)
         return admin.getExperimenter(uid)
 
-    def new_client(self, group = None, user = None, perms = None):
+    def new_client(self, group = None, user = None, perms = None, admin = False):
         """
         Like new_user() but returns an active client.
         """
         if user is None:
-            user = self.new_user(group, perms)
+            user = self.new_user(group, perms, admin)
         props = self.root.getPropertyMap()
         props["omero.user"] = user.omeName.val
         props["omero.pass"] = user.omeName.val
@@ -207,9 +211,9 @@ class ITest(unittest.TestCase):
         client.createSession()
         return client
 
-    def new_client_and_user(self, group = None):
+    def new_client_and_user(self, group = None, perms = None, admin = False):
         user = self.new_user(group)
-        client = self.new_client(group, user)
+        client = self.new_client(group, user, perms, admin)
         return client, user
 
     def timeit(self, func, *args, **kwargs):

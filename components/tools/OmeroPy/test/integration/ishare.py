@@ -22,7 +22,8 @@ from omero_model_DatasetImageLinkI import DatasetImageLinkI
 from omero.rtypes import rtime, rlong, rstring, rlist
 
 from integration.helpers import createTestImage
-    
+
+
 class TestIShare(lib.ITest):
 
     def testThatPermissionsAreDefaultPrivate(self):
@@ -451,12 +452,12 @@ class TestIShare(lib.ITest):
         guests = ["ident@emaildomain.com"]
         enabled = True
         self.share_id = share.createShare(description, timeout, objects,experimenters, guests, enabled)
-        
+
         share.addComment(self.share_id,"comment for share %i" % self.share_id)
         self.assertEquals(1,len(share.getComments(self.share_id)))
-        
+
         self.assertEquals(1,share.getCommentCount([self.share_id])[self.share_id])
-        
+
         # create second share
         description = "my second description"
         timeout = None
@@ -465,7 +466,7 @@ class TestIShare(lib.ITest):
         guests = ["ident@emaildomain.com"]
         enabled = True
         self.share_id2 = share.createShare(description, timeout, objects,experimenters, guests, enabled)
-        
+
         self.assertEquals(0,share.getCommentCount([self.share_id, self.share_id2])[self.share_id2])
         share.addComment(self.share_id2,"comment for share %i" % self.share_id2)
         self.assertEquals(1,share.getCommentCount([self.share_id, self.share_id2])[self.share_id2])
@@ -520,6 +521,7 @@ class TestIShare(lib.ITest):
         self.assertEquals(2, c2)
 
     def test2733(self):
+
         ### create two users in two groups
         client_share1, user1 = self.new_client_and_user()
         client_share2, user2 = self.new_client_and_user()
@@ -529,9 +531,7 @@ class TestIShare(lib.ITest):
         update1 = client_share1.sf.getUpdateService()
 
         # create image
-        img = ImageI()
-        img.setName(rstring('test2327'))
-        img.setAcquisitionDate(rtime(0))
+        img = self.new_image("test2733")
         img = update1.saveAndReturnObject(img)
         img.unload()
 
@@ -546,6 +546,63 @@ class TestIShare(lib.ITest):
 
         share2 = client_share2.sf.getShareService()
         share = share2.getShare(sid)
+
+    def test2733Access(self):
+        """
+        The solution for getting test2733 was to
+        open up access to share in ProxyCleanupHandler.
+
+        This test makes sure it is not too open.
+        """
+
+        ### create three users in three groups
+        group = self.new_group(perms="rwrw--")
+
+        smember, smember_obj = self.new_client_and_user() # Member of share
+
+        owner = self.new_client(group=group) # Owner of share
+        gmember = self.new_client(group=group) # Member of user1's group
+        gowner = self.new_client(group=group, admin=True) # Owner of user1's group
+        oowner = self.new_client(admin = True) # Admin of a different group
+
+        ## login as user1
+        share1 = owner.sf.getShareService()
+        update1 = owner.sf.getUpdateService()
+
+        # create image
+        img = self.new_image("test2733Access")
+        img = update1.saveAndReturnObject(img)
+        img.unload()
+
+        # create share
+        description = "my description"
+        timeout = None
+        objects = [img]
+        experimenters = [smember_obj]
+        guests = []
+        enabled = True
+        sid = share1.createShare(description, timeout, objects, experimenters, guests, enabled)
+
+        self.assertAccess(owner, sid)
+        self.assertAccess(smember, sid)
+        self.assertAccess(gmember, sid, False)
+        self.assertAccess(gowner, sid, False)
+        self.assertAccess(oowner, sid, False)
+        self.assertAccess(self.root, sid)
+
+    # Helpers
+
+    def assertAccess(self, client, sid, success = True):
+        share = client.sf.getShareService()
+        query = client.sf.getQueryService()
+
+        share_from_ishare = share.getShare(sid)
+        self.assertEquals(success, (share_from_ishare is not None))
+
+        # For the moment, preventing all non-IShare download.
+        share_from_iquery = query.get("Share", sid)
+        self.assertEquals(False, share_from_iquery.isLoaded())
+
 
 if __name__ == '__main__':
     unittest.main()
