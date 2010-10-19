@@ -29,6 +29,7 @@ logger = logging.getLogger('webemdb')
 
 PUBLICATION_NAMESPACE = "openmicroscopy.org/omero/emdb/publication"
 RESOLUTION_NAMESPACE = "openmicroscopy.org/omero/emdb/resolutionByAuthor"  
+FITTED_PDB_NAMESPACE = "openmicroscopy.org/omero/emdb/fittedPDBEntry"       # distinguish fittedPDBEntries from other pdbEntries (docked)
 
 
 EMAN2_IMPORTED = False
@@ -647,6 +648,7 @@ def entry (request, entryId):
     gif = None
     bit = None
     pdbs = []
+    fittedPdbs = []
     xmlName = "emd-%s.xml" % entryName
     gifName = "400_%s.gif" % entryName
     bitName = "%s.bit" % entryName
@@ -663,7 +665,10 @@ def entry (request, entryId):
                 if bit.getFileSize() > 2000000:
                     sizeWarning = True
             elif a.getFileName().endswith(".pdb.gz"):
-                pdbs.append(a)
+                if a.getNs() == FITTED_PDB_NAMESPACE:
+                    fittedPdbs.append(a)
+                else:
+                    pdbs.append(a)
         except:
             pass
     
@@ -671,7 +676,7 @@ def entry (request, entryId):
     
     return render_to_response('webemdb/entries/entry.html', 
         {'project':project, 'xml': xml, 'gif': gif, 'img': img, 'map': mrcMap, 'smallMap': smallMap, 'bit': bit, 'pdbs': pdbs, 
-            'sizeWarning':sizeWarning, 'data': data, 'segFiles': segFiles})
+            'fittedPdbs': fittedPdbs, 'sizeWarning':sizeWarning, 'data': data, 'segFiles': segFiles})
         
         
 def oa_viewer(request, fileId): 

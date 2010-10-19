@@ -211,7 +211,12 @@ $(document).ready(function() {
                             
                         {% for pdb in pdbs %}
                             <div>
-                            Load pdb:<a href="{% url webemdb_pdb pdb.id %}" class="oavLoadPdb">{{ pdb.getFileName }}</a>
+                            Load docked pdb:<a href="{% url webemdb_pdb pdb.id %}" class="oavLoadPdb">{{ pdb.getFileName }}</a>
+                            </div>
+                        {% endfor %}
+                        {% for pdb in fittedPdbs %}
+                            <div>
+                                Load fitted pdb:<a href="{% url webemdb_pdb pdb.id %}" class="oavLoadPdb">{{ pdb.getFileName }}</a>
                             </div>
                         {% endfor %}
                         {% for seg in segFiles %}
