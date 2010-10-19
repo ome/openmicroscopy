@@ -1308,12 +1308,17 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         final ExperimenterGroup group = (ExperimenterGroup) s.get(ExperimenterGroup.class, id);
         final Permissions oldPerms = group.getDetails().getPermissions();
 
+        if (oldPerms.sameRights(newPerms)) {
+            getBeanHelper().getLogger()
+                .debug(String.format("Ignoring unchanged permissions: %s",
+                        newPerms));
+            return;
+        }
+
         Role u = Role.USER;
         Role g = Role.GROUP;
         Role a = Role.WORLD;
         Right r = Right.READ;
-        /* Can this next line be removed? - ajp */
-        Right w = Right.WRITE;
 
         if (!newPerms.isGranted(u, r)) {
             throw new GroupSecurityViolation("Cannot remove user read: "+group);

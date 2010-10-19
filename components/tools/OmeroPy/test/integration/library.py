@@ -125,7 +125,8 @@ class ITest(unittest.TestCase):
         group = admin.getGroup(gid)
         if experimenters:
             for exp in experimenters:
-                admin.addGroups(exp, [group])
+                user, name = self.user_and_name(exp)
+                admin.addGroups(user, [group])
         return group
 
     def new_image(self, name = ""):
@@ -178,12 +179,8 @@ class ITest(unittest.TestCase):
         if not group:
             g = self.new_group(perms = perms)
             group = g.name.val
-        elif isinstance(group, omero.model.ExperimenterGroup):
-            g = group
-            group = g.name.val
         else:
-            g = admin.lookupGroup(group)
-            # Group is already name
+            g, group = self.group_and_name(group)
 
         # Create user
         e = omero.model.ExperimenterI()
@@ -223,6 +220,39 @@ class ITest(unittest.TestCase):
         elapsed = stop - start
         return elapsed, rv
 
+    def group_and_name(self, group):
+        admin = self.root.sf.getAdminService()
+        if isinstance(group, omero.model.ExperimenterGroup):
+            if group.isLoaded():
+                name = g.name.val
+                group = admin.lookupGroup(name)
+            else:
+                group = admin.getGroup(group.id.val)
+                name = group.name.val
+        elif isinstance(group, (str, unicode)):
+            name = group
+            group = admin.lookupGroup(name)
+        else:
+            self.fail("Unknown type: %s=%s" % (type(group), group))
+
+        return group, name
+
+    def user_and_name(self, user):
+        admin = self.root.sf.getAdminService()
+        if isinstance(user, omero.model.Experimenter):
+            if user.isLoaded():
+                name = g.name.val
+                user = admin.lookupExperimenter(name)
+            else:
+                user = admin.getExperimenter(user.id.val)
+                name = user.name.val
+        elif isinstance(user, (str, unicode)):
+            name = user
+            user = admin.lookupExperimenter(name)
+        else:
+            self.fail("Unknown type: %s=%s" % (type(user), user))
+
+        return group, name
     def tearDown(self):
         failure = False
         self.__clients.__del__()

@@ -67,7 +67,7 @@ class TestPermissions(lib.ITest):
         p.setWorldWrite(False)
         new_gr1.details.permissions = p
         g1_id = admin.createGroup(new_gr1)
-        
+
         # update name of group1
         gr1 = admin.getGroup(g1_id)
         self.assertEquals('rw----', str(gr1.details.permissions))
@@ -76,7 +76,7 @@ class TestPermissions(lib.ITest):
         admin.updateGroup(gr1)
         gr1_u = admin.getGroup(g1_id)
         self.assertEquals(new_name, gr1_u.name.val)
-    
+
     def testCreatAndUpdatePublicGroupReadOnly(self):
         # this is the test of creating public group read-only and updating it
         # including changes in #1434
@@ -97,7 +97,7 @@ class TestPermissions(lib.ITest):
         p.setWorldWrite(False)
         new_gr1.details.permissions = p
         g1_id = admin.createGroup(new_gr1)
-        
+
         # update name of group1
         gr1 = admin.getGroup(g1_id)
         self.assertEquals('rwr---', str(gr1.details.permissions))
@@ -106,7 +106,7 @@ class TestPermissions(lib.ITest):
         admin.updateGroup(gr1)
         gr1_u = admin.getGroup(g1_id)
         self.assertEquals(new_name, gr1_u.name.val)
-        
+
     def testCreatAndUpdatePublicGroup(self):
         # this is the test of creating public group and updating it
         # including changes in #1434
@@ -127,7 +127,7 @@ class TestPermissions(lib.ITest):
         p.setWorldWrite(False)
         new_gr1.details.permissions = p
         g1_id = admin.createGroup(new_gr1)
-        
+
         # update name of group1
         gr1 = admin.getGroup(g1_id)
         self.assertEquals('rwrw--', str(gr1.details.permissions))
@@ -157,7 +157,7 @@ class TestPermissions(lib.ITest):
         p.setWorldWrite(False)
         new_gr1.details.permissions = p
         g1_id = admin.createGroup(new_gr1)
-        
+
         #incrise permissions of group1 to rwr---
         gr1 = admin.getGroup(g1_id)
         p1 = PermissionsI()
@@ -169,8 +169,8 @@ class TestPermissions(lib.ITest):
         p1.setWorldWrite(False)
         admin.changePermissions(gr1, p1)
         gr2 = admin.getGroup(g1_id)
-        self.assertEquals('rwr---', str(gr2.details.permissions)) 
-        
+        self.assertEquals('rwr---', str(gr2.details.permissions))
+
         #incrise permissions of group1 to rwrw--
         p2 = PermissionsI()
         p2.setUserRead(True)
@@ -181,8 +181,8 @@ class TestPermissions(lib.ITest):
         p2.setWorldWrite(False)
         admin.changePermissions(gr2, p2)
         gr3 = admin.getGroup(g1_id)
-        self.assertEquals('rwrw--', str(gr3.details.permissions)) 
-        
+        self.assertEquals('rwrw--', str(gr3.details.permissions))
+
     def testGroupOwners(self):
         # this is the test of creating private group and updating it
         # including changes in #1434
@@ -190,7 +190,7 @@ class TestPermissions(lib.ITest):
         query = self.root.sf.getQueryService()
         update = self.root.sf.getUpdateService()
         admin = self.root.sf.getAdminService()
-        
+
         #create group1
         new_gr1 = ExperimenterGroupI()
         new_gr1.name = rstring("group1_%s" % uuid)
@@ -204,7 +204,7 @@ class TestPermissions(lib.ITest):
         new_gr1.details.permissions = p
         g1_id = admin.createGroup(new_gr1)
         gr1 = admin.getGroup(g1_id)
-        
+
         #create user1
         new_exp1 = ExperimenterI()
         new_exp1.omeName = rstring("user1_%s" % uuid)
@@ -312,6 +312,27 @@ class TestPermissions(lib.ITest):
         except omero.SecurityViolation:
             pass
 
+    def test3136(self):
+        """
+        Calls to updateGroup were taking too long
+        because the default value of permissions
+        returned by the server was triggering a
+        full changePermissions event.
+        """
+        admin = self.root.sf.getAdminService()
+        group = self.new_group(perms="rw----")
+
+        # Change the name but not the permissions
+        group.name = rstring(self.uuid())
+        elapsed1, rv = self.timeit(admin.updateGroup, group)
+
+        # Now change the name and the permissions
+        group.name = rstring(self.uuid())
+        group.details.permissions = omero.model.PermissionsI("rwr---")
+        elapsed2, rv = self.timeit(admin.updateGroup, group)
+
+        self.assertTrue(elapsed1 < (0.1 * elapsed2),\
+            "elapsed1=%s, elapsed2=%s" % (elapsed1, elapsed2))
 
 if __name__ == '__main__':
     unittest.main()
