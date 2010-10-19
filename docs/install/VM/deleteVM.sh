@@ -3,13 +3,20 @@
 
 export VMNAME=${VMNAME:-"$1"}
 export VMNAME=${VMNAME:-"OMERO42"}
-export HARDDISKS=${HARDDISKS:-"$HOME/Library/VirtualBox/HardDisks/"}
+if test -e $HOME/Library/VirtualBox; then
+    export HARDDISKS=${HARDDISKS:-"$HOME/Library/VirtualBox/HardDisks/"}
+elif test -e $HOME/.VirtualBox; then
+    export HARDDISKS=${HARDDISKS:-"$HOME/.VirtualBox/HardDisks/"}
+else
+    echo "Cannot find harddisks! Trying setting HARDDISKS"
+    exit 3
+fi
 
 set -e
 set -u
 set -x
-if VBoxManage showvminfo "$VMNAME" | grep -q "running" 
-then 
+if VBoxManage showvminfo "$VMNAME" | grep -q "running"
+then
 	VBoxManage controlvm "$VMNAME" poweroff
 	sleep 20
 fi
