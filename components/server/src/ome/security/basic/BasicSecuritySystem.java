@@ -349,7 +349,7 @@ public class BasicSecuritySystem implements SecuritySystem,
         // Active group
         ExperimenterGroup grp;
         Long groupId = cd.getCallGroup();
-        Long shareId = null;
+        Long shareId = ec.getCurrentShareId();
         if (groupId == null) {
             groupId = ec.getCurrentGroupId();
         } else {
