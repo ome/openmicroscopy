@@ -224,7 +224,7 @@ class ITest(unittest.TestCase):
         admin = self.root.sf.getAdminService()
         if isinstance(group, omero.model.ExperimenterGroup):
             if group.isLoaded():
-                name = g.name.val
+                name = group.name.val
                 group = admin.lookupGroup(name)
             else:
                 group = admin.getGroup(group.id.val)
@@ -241,11 +241,11 @@ class ITest(unittest.TestCase):
         admin = self.root.sf.getAdminService()
         if isinstance(user, omero.model.Experimenter):
             if user.isLoaded():
-                name = g.name.val
+                name = user.name.val
                 user = admin.lookupExperimenter(name)
             else:
                 user = admin.getExperimenter(user.id.val)
-                name = user.name.val
+                name = user.omeName.val
         elif isinstance(user, (str, unicode)):
             name = user
             user = admin.lookupExperimenter(name)
