@@ -70,7 +70,6 @@ class TaskPaneBrowser
 					1, 1, 1, 1));
 		setBackground(UIUtilities.BACKGROUND_COLOR);
 		setCollapsed(true);
-		setLayout(new BorderLayout(0, 0));
 		if (browser instanceof Browser) {
 			Browser b = (Browser) browser;
 			setTitle(b.getTitle());
