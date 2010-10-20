@@ -244,13 +244,6 @@ public class OMEWikiComponent
 		add(pane, BorderLayout.CENTER);
 	}
 	
-	/** 
-	 * Returns the default text or an empty string.
-	 * 
-	 * @return See above.
-	 */
-	String getDefaultText() { return defaultText; }
-	
 	/** Creates a default new instance. */
 	public OMEWikiComponent()
 	{
@@ -267,6 +260,13 @@ public class OMEWikiComponent
 	{
 		this(DEFAULT_FORMATTERS, toolBar);
 	}
+	
+	/** 
+	 * Returns the default text or an empty string.
+	 * 
+	 * @return See above.
+	 */
+	String getDefaultText() { return defaultText; }
 	
 	/**
 	 * Creates a new instance.

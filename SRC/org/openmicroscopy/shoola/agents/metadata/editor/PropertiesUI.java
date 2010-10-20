@@ -219,7 +219,12 @@ class PropertiesUI
     	f = namePane.getFont(); 
     	Font newFont = f.deriveFont(f.getStyle(), f.getSize()-2);
     	descriptionPane = new OMEWikiComponent(false);
-    	descriptionPane.installObjectFormatters();
+    	try {
+    		descriptionPane.installObjectFormatters();
+		} catch (Exception e) {
+			//just to be on the save side.
+		}
+    	
     	descriptionPane.setFont(newFont);
     	//descriptionPane = new RegexTextPane(f.getFamily(), f.getSize()-2);
     	//descriptionPane.installDefaultRegEx();
