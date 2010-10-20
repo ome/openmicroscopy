@@ -84,11 +84,8 @@ public class GuiCommonElements
      */
     public static boolean getIsMac() 
     {
-        String laf = UIManager.getLookAndFeel().getClass().getName();
-        if (laf.equals("apple.laf.AquaLookAndFeel") || laf.equals("ch.randelshofer.quaqua.QuaquaLookAndFeel")) 
-            return true;
-        else
-            return false;
+    	String osName = System.getProperty("os.name");
+        return osName.startsWith("Mac OS");
     }
     
 	/**

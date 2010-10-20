@@ -194,16 +194,21 @@ public class HistoryTable
         
         // Main Panel containing all elements  
         // Set up the main panel layout
+        /* Disabled till #2308 fixed
         double mainTable[][] =
                 {{170, 10, TableLayout.FILL, 80}, // columns
                 { 5, 30, 35, 40, TableLayout.FILL, 35, 5}}; // rows
+                */
+        double mainTable[][] =
+        {{170, 10, TableLayout.FILL, 90}, // columns
+        { 5, 30, 35, 70, TableLayout.FILL, 35, 5}}; // rows
         
         mainPanel = GuiCommonElements.addMainPanel(this, mainTable, 0,0,0,0, debug); 
 
         // *****Side Panel****
         double topSideTable[][] = 
                 {{TableLayout.FILL}, // columns
-                {20, 20, 20, 20}}; // rows      
+                {20, 20, 20, 20, 35}}; // rows      
         
         topSidePanel = GuiCommonElements.addBorderedPanel(mainPanel, topSideTable, " Date Filter ", debug);
         
@@ -265,11 +270,16 @@ public class HistoryTable
         clearBtn.addActionListener(this);
         
         // *****Top right most row containing search field and buttons*****
+        /*// Disabled till #2308 fixed
         searchField = GuiCommonElements.addTextField(mainPanel, "Name Filter: ", "*.*", 'N', 
                 "Type in a file name to search for here.", "", 
                 TableLayout.PREFERRED, "2,1, 0, 0", debug);
-
-        searchBtn = GuiCommonElements.addButton(mainPanel, "Search", 'S', "Click here to search", "3,1,C,C", debug);
+        */
+        
+        searchField = new JTextField("*.*");
+        searchField.setVisible(false);
+        
+        searchBtn = GuiCommonElements.addButton(topSidePanel, "Search", 'S', "Click here to search", "0,4,C,C", debug);
         
         searchBtn.setActionCommand(HistoryHandler.HISTORYSEARCH);
         searchBtn.addActionListener(this);
@@ -277,6 +287,7 @@ public class HistoryTable
         // *****Middle right row containing the filter options*****
         // Since this panel has a different layout, use a new panel for it
 
+        /* Disabled till #2308 fixed
         // Set up the filterTable layout
         double filterTable[][] =
                 {{100, 80, 80, 80, 90, TableLayout.FILL}, // columns
@@ -300,7 +311,9 @@ public class HistoryTable
         failedCheckBox.addActionListener(this);
         invalidCheckBox.addActionListener(this);
         pendingCheckBox.addActionListener(this);
-                
+        filterPanel.setVisible(false);
+        */
+        
        // *****Bottom right most row containing the history table*****
         TableColumnModel cModel =  eTable.getColumnModel();
         
@@ -340,7 +353,9 @@ public class HistoryTable
         // Add the table to the scollpane
         JScrollPane scrollPane = new JScrollPane(eTable);
 
-        reimportBtn = GuiCommonElements.addButton(filterPanel, "Reimport", 'R', "Click here to reimport selected images", "5,0,R,C", debug);
+        // disabled till #2308 fixed
+        //reimportBtn = GuiCommonElements.addButton(filterPanel, "Reimport", 'R', "Click here to reimport selected images", "5,0,R,C", debug);
+        reimportBtn = GuiCommonElements.addButton(mainPanel, "Reimport", 'R', "Click here to reimport selected images", "3,5,C,C", debug);
         reimportBtn.setEnabled(false);
         
         reimportBtn.setActionCommand(HistoryHandler.HISTORYREIMPORT);
@@ -351,10 +366,11 @@ public class HistoryTable
 		selectionModel.addListSelectionListener( this );
 
         
-        mainPanel.add(scrollPane, "2,3,3,5");
+        //mainPanel.add(scrollPane, "2,3,3,5"); Disabled till #2308 fixed
+        mainPanel.add(scrollPane, "2,1,3,4");
         mainPanel.add(bottomSidePanel, "0,4,0,0"); 
         mainPanel.add(topSidePanel, "0,0,0,3");
-        mainPanel.add(filterPanel, "2,2,3,1");
+        //mainPanel.add(filterPanel, "2,2,3,1");
         
         this.add(mainPanel);
     }
