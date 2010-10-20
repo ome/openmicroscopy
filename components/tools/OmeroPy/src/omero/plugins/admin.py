@@ -435,7 +435,7 @@ Examples:
     def status(self, args, node_only = False):
         self.check_access(os.R_OK)
         self.check_node(args)
-        command = self._cmd("-e","node ping %s" % args.node)
+        command = self._cmd("-e","node ping master") #3141, TODO should be configurable
         self.ctx.rv = self.ctx.popen(command).wait() # popen
 
         # node_only implies that "up" need not check for all
