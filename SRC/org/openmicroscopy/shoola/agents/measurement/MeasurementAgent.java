@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.env.data.util.AgentSaveInfo;
 import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.ui.ActivityComponent;
 import org.openmicroscopy.shoola.env.ui.ActivityProcessEvent;
 import org.openmicroscopy.shoola.env.ui.DeleteActivity;
 
@@ -222,8 +223,10 @@ public class MeasurementAgent
     private void handleActivityFinished(ActivityProcessEvent evt)
     {
     	if (evt == null) return;
-    	MeasurementViewerFactory.onROIDeleted(
-    			((DeleteActivity) evt.getActivity()).getImageID());
+    	ActivityComponent comp = evt.getActivity();
+    	if (comp instanceof DeleteActivity)
+    		MeasurementViewerFactory.onROIDeleted(
+    			((DeleteActivity) comp).getImageID());
     }
     
     /**
