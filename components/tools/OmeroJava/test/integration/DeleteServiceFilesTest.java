@@ -582,7 +582,7 @@ public class DeleteServiceFilesTest
     public void testDeletingImageWithSeveralOriginalFiles() throws Exception {
 
         Image img = (Image) iUpdate.saveAndReturnObject(
-                mmFactory.createImage());
+                mmFactory.createImage()).proxy();
 
         // This creates an attached OriginalFle and a subsequent Files file.
         // Is there a more concise way to achieve the same thing? cgb
