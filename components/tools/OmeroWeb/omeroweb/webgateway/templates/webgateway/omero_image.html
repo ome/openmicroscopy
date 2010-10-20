@@ -190,7 +190,7 @@
     $('#wblitz-image-timestamp').html(tmp.imageTimestamp);
     {% block xtra_metadata %}{% endblock %}
 
-    $('#wblitz-shortname').attr('title', tmp.imageName).html(gs_text_trim(tmp.imageName, 15, true));
+    /*$('#wblitz-shortname').attr('title', tmp.imageName).html(gs_text_trim(tmp.imageName, 15, true));*/
 
     tmp = viewport.getSizes();
     $('#wblitz-image-width').html(tmp.width);
@@ -648,19 +648,15 @@
       <ul>
         <li class="buttonbar">
         {% block save_rdef %}
-        {% if image.isOwned %}
           <button id="rdef-reset-btn" class="editor" onclick="return resetImageDefaults(this)" title="Returns the image settings to their original state at time of import.">reset</button>
-          <button id="rdef-setdef-btn" class="editor" onclick="return setImageDefaults(this)" title="Applies and saves the current settings as default.">save settings</button>
-        {% endif %}
+          <button id="rdef-setdef-btn" class="editor" onclick="return setImageDefaults(this)" title="Applies and saves the current settings as default.">save</button>
         {% endblock save_rdef %}
         <button id="rdef-default-btn" onclick="return resetRDCW();" title="Returns to the saved settings.">default</button><button id="rdef-undo-btn" onclick="return undoRDCW();" title="Returns to the settings as they were before clicking apply.">undo</button><button id="rdef-redo-btn" onclick="return redoRDCW();" title="Returns to the settings as they were before clicking undo.">redo</button><button id="rdef-apply-btn" onclick="return applyRDCW();" title="Applies the current settings to the open image.">apply</button>
         </li>
         {% block batch_copy %}
-        {% if dataset.canOwnerWrite %}
-        <li class="buttonbar">
-          <button id="rdef-batchcopy-btn" class="editor" onclick="return batchCopyRDefs(this);" title="Offers options to apply current settings to other images in your manuscript.">Select images to apply settings</button>
-        </li>
-        {% endif %}
+        <!--<li class="buttonbar">
+          <button id="rdef-batchcopy-btn" class="editor" onclick="return batchCopyRDefs(this);" title="Offers options to apply current settings to other images in your manuscript.">Apply to others</button>
+        </li>-->
         {% endblock batch_copy %}
       </ul>
 
@@ -730,7 +726,7 @@
           </div>
           <h1>Rendering Details</h1>
           <div class="odd row">
-            <label for="wblitz-channels-box">Channels</label>{{image.isReadOnly}} {{blitzcon.getShareId}}{% if not image.isReadOnly and not blitzcon.getShareId %} - <a href="#" onclick="$('#rdef-postit').toggle(); return false;">Edit</a>{% endif %}<br />
+            <label for="wblitz-channels-box">Channels</label> <a href="#" onclick="$('#rdef-postit').toggle(); return false;">Edit</a><br />
             <span id="wblitz-channels-box"></span>
           </div>
           <div class="even row">
@@ -741,7 +737,7 @@
             <h1>Current Image</h1>
           <div class="even row">
             <span style="font-size: 0.9em">
-            <span id="wblitz-shortname" style="white-space: nowrap;"></span><br />
+            <!--<span id="wblitz-shortname" style="white-space: nowrap;"></span><br />-->
             Z: <span id="wblitz-z-curr">?</span>/<span id="wblitz-z-count">?</span> |
             T: <span id="wblitz-t-curr">1</span>/<span id="wblitz-t-count">1</span>
             </span>
