@@ -850,7 +850,7 @@ def copy_image_rdef_json (request, server_id, _conn=None, **kwargs):
         json_data = '%s(%s)' % (r['callback'], json_data)
     return HttpResponse(json_data, mimetype='application/javascript')
 
-def reset_image_rdef_json (request, server_id, iid, _conn=None, **kwargs):
+def reset_image_rdef_json (request, iid, server_id=None, _conn=None, **kwargs):
     """ Try to remove all rendering defs the logged in user has for this image. """
     if _conn is None:
         blitzcon = getBlitzConnection(request, server_id, with_session=True, useragent="OMERO.webgateway")
