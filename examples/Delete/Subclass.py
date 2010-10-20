@@ -26,7 +26,7 @@ class Subclass(omero.callbacks.DeleteCallbackI):
 
 try:
     deleteServicePrx = s.getDeleteService()
-    dc = omero.api.delete.DeleteCommand("/Image", 1, null)
+    dc = omero.api.delete.DeleteCommand("/Image", 1, None)
     deleteHandlePrx = deleteServicePrx .queueDelete([dc])
     cb = Subclass(c, deleteHandlePrx)
 
