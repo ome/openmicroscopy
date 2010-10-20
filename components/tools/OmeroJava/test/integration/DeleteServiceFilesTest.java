@@ -13,6 +13,8 @@ import java.util.Formatter;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import junit.framework.AssertionFailedError;
 import ome.formats.OMEROMetadataStoreClient;
 import omero.ApiUsageException;
 import omero.ServerError;
@@ -34,6 +36,9 @@ import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
 import omero.model.OriginalFile;
 import omero.model.Pixels;
+import omero.model.Plate;
+import omero.model.Well;
+import omero.model.WellSample;
 import omero.sys.EventContext;
 import omero.sys.ParametersI;
 
@@ -635,6 +640,54 @@ public class DeleteServiceFilesTest
         assertNoneExist(img, of1, of2);
         assertFileDoesNotExist(ofId1, REF_ORIGINAL_FILE);
         assertFileDoesNotExist(ofId2, REF_ORIGINAL_FILE);
+        assertNoUndeletedBinaries(report);
+    }
+
+    /**
+     * Test to delete a dataset containing and image that is 
+     * from a Well. The Image and its Pixels file
+     * should NOT be deleted.
+     * 
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(groups = "ticket:2946")
+    public void testDeleteDatasetThatContainsImageFromAWell()
+        throws Exception
+    {
+
+        Image img = (Image) iUpdate.saveAndReturnObject(
+                mmFactory.createImage());
+        Pixels pix = img.getPrimaryPixels();
+        long pixId = pix.getId().getValue();
+        IRenderingSettingsPrx rsPrx = factory.getRenderingSettingsService();
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(pixId);
+        rsPrx.resetDefaultsInSet(Pixels.class.getName(), ids);
+
+        Plate p = (Plate) iUpdate.saveAndReturnObject(
+                mmFactory.createPlate(1, 1, 1, 0, false));
+        List<Well> wells = loadWells(p.getId().getValue(), false);
+        wells.get(0).copyWellSamples().get(0).setImage(img);
+        Well well = (Well) iUpdate.saveAndReturnObject(wells.get(0));
+
+         Dataset ds = new DatasetI();
+        ds.setName(omero.rtypes.rstring("#2946"));
+        // link to dataset
+        ds.linkImage(img);
+        ds = (Dataset) iUpdate.saveAndReturnObject(ds);
+
+        //Now check that the file has been created.
+        assertFileExists(pixId, REF_PIXELS);
+        
+        DeleteReport report = deleteWithReport(
+                new DeleteCommand(DeleteServiceTest.REF_DATASET, 
+                ds.getId().getValue(),
+                null));        
+        
+        //The dataset should be gone but nothing else.
+        assertNoneExist(ds);
+        assertAllExist(p, well, img, pix);
+        assertFileExists(pixId, REF_PIXELS);
         assertNoUndeletedBinaries(report);
     }
 
