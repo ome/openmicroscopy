@@ -205,7 +205,7 @@ class BrowserUI
     	JScrollPane pane = new JScrollPane(treeDisplay);
     	Dimension d = pane.getViewport().getPreferredSize();
     	pane.getViewport().setPreferredSize(new Dimension(d.width, 
-    			(int) (0.6*size.height)));
+    			(int) (0.5*size.height)));
         add(pane, BorderLayout.CENTER);
     }
     
