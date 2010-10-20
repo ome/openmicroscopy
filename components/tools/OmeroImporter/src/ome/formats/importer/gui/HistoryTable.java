@@ -598,10 +598,19 @@ public class HistoryTable
     {
         Object src = event.getSource();
         if (src == searchBtn || src == doneCheckBox || src == failedCheckBox 
-                || src == invalidCheckBox || src == pendingCheckBox)
-            //getItemQuery(-1, getExperimenterID(), searchField.getText(), fromDate.getDate(), toDate.getDate());
-        if (src == clearBtn)
+                || src == invalidCheckBox || src == pendingCheckBox) {
+        	if (fromDate.getDate() == null) {
+        		fromDate.setDate(db.getStartOfDay(new Date()));
+        	}
+        	if (toDate.getDate() == null) {
+    			toDate.setDate(db.getEndOfDay(new Date()));
+        	}
+        	getItemQuery(-1, getExperimenterID(), searchField.getText(),
+        			db.getStartOfDay(fromDate.getDate()), db.getEndOfDay(toDate.getDate())); 
+        }
+        if (src == clearBtn) {
             ClearHistory();
+        }
         if (src == reimportBtn)
         {
             notifyObservers(new ImportEvent.REIMPORT());
