@@ -41,7 +41,7 @@ $.fn.simpleTree = function(opt){
 		var dragNode_destination = false;
 		var dragNode_source = false;
 		var dragDropTimer = false;
-		var ajaxCache = Array();
+		//var ajaxCache = Array();
 
 		TREE.option = {
 			drag:		true,
@@ -103,35 +103,35 @@ $.fn.simpleTree = function(opt){
 		};
 		TREE.setAjaxNodes = function(node, parentId, callback)
 		{
-			if($.inArray(parentId,ajaxCache) == -1){
-				ajaxCache[ajaxCache.length]=parentId;
-				var url = $.trim($('>li', node).text());
-				if(url && url.indexOf('url:'))
-				{
-					url=$.trim(url.replace(/.*\{url:(.*)\}/i ,'$1'));
-					$.ajax({
-						type: "GET",
-						url: url,
-						contentType:'html',
-						cache:false,
-						success: function(responce){
-							node.removeAttr('class');
-							node.html(responce);
-							$.extend(node,{url:url});
-							TREE.setTreeNodes(node, true);
-							if(typeof TREE.option.afterAjax == 'function')
-							{
-								TREE.option.afterAjax(node);
-							}
-							if(typeof callback == 'function')
-							{
-								callback(node);
-							}
+		    // Not sure what is that for
+			//if($.inArray(parentId,ajaxCache) == -1){
+			//	ajaxCache[ajaxCache.length]=parentId;
+		    var url = $.trim($('>li', node).text());
+			if(url && url.indexOf('url:'))
+			{
+				url=$.trim(url.replace(/.*\{url:(.*)\}/i ,'$1'));
+				$.ajax({
+					type: "GET",
+					url: url,
+					contentType:'html',
+					cache:false,
+					success: function(responce){
+						node.removeAttr('class');
+						node.html(responce);
+						$.extend(node,{url:url});
+						TREE.setTreeNodes(node, true);
+						if(typeof TREE.option.afterAjax == 'function')
+						{
+							TREE.option.afterAjax(node);
 						}
-					});
-				}
-				
+						if(typeof callback == 'function')
+						{
+							callback(node);
+						}
+					}
+				});
 			}
+			//}
 		};
 		TREE.setTreeNodes = function(obj, useParent){
 			obj = useParent? obj.parent():obj;
