@@ -533,8 +533,8 @@ public class DeleteServiceFilesTest
  
         Image img1 = (Image) iUpdate.saveAndReturnObject(
                 mmFactory.createImage());
-        Pixels pixels = img1.getPrimaryPixels();
-        long pixId1 = pixels.getId().getValue();
+        Pixels pix1 = img1.getPrimaryPixels();
+        long pixId1 = pix1.getId().getValue();
         IRenderingSettingsPrx rsPrx = factory.getRenderingSettingsService();
         List<Long> ids = new ArrayList<Long>();
         ids.add(pixId1);
@@ -543,8 +543,8 @@ public class DeleteServiceFilesTest
         // A second Image
         Image img2 = (Image) iUpdate.saveAndReturnObject(
                 mmFactory.createImage());
-        pixels = img2.getPrimaryPixels();
-        long pixId2 = pixels.getId().getValue();
+        Pixels pix2 = img2.getPrimaryPixels();
+        long pixId2 = pix2.getId().getValue();
         rsPrx = factory.getRenderingSettingsService();
         ids = new ArrayList<Long>();
         ids.add(pixId2);
@@ -566,10 +566,76 @@ public class DeleteServiceFilesTest
                 null));        
         
         assertNoUndeletedBinaries(report);
-        assertNoneExist(ds, img1, img2);
+        assertNoneExist(ds, img1, img2, pix1, pix2);
         assertFileDoesNotExist(pixId1, REF_PIXELS);
         assertFileDoesNotExist(pixId2, REF_PIXELS);
 
+    }
+    
+    /**
+     * Test to delete a dataset containing multiple images
+     * all Pixels files should be deleted.
+     * 
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(groups = "ticket:3148")
+    public void testDeletingImageWithSeveralOriginalFiles() throws Exception {
+
+        Image img = (Image) iUpdate.saveAndReturnObject(
+                mmFactory.createImage());
+
+        // This creates an attached OriginalFle and a subsequent Files file.
+        // Is there a more concise way to achieve the same thing? cgb
+        OriginalFile of1 = (OriginalFile) iUpdate.saveAndReturnObject(
+                mmFactory.createOriginalFile());
+        FileAnnotation fa = new FileAnnotationI();
+        fa.setNs(omero.rtypes.rstring(FileAnnotationData.COMPANION_FILE_NS));
+        fa.setFile(of1);
+        fa = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
+        ImageAnnotationLink l = new ImageAnnotationLinkI();
+        l.setChild(fa);
+        l.setParent(img);
+        iUpdate.saveAndReturnObject(l);
+        long ofId1 = of1.getId().getValue();
+        RawFileStorePrx rfPrx = factory.createRawFileStore();
+        try {
+            rfPrx.setFileId(ofId1);
+            rfPrx.write(new byte[]{1, 2, 3, 4}, 0, 4);
+        } finally {
+            rfPrx.close();
+        }
+
+        OriginalFile of2 = (OriginalFile) iUpdate.saveAndReturnObject(
+                mmFactory.createOriginalFile());
+        fa = new FileAnnotationI();
+        fa.setNs(omero.rtypes.rstring(FileAnnotationData.COMPANION_FILE_NS));
+        fa.setFile(of2);
+        fa = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
+        l = new ImageAnnotationLinkI();
+        l.setChild(fa);
+        l.setParent(img);
+        iUpdate.saveAndReturnObject(l);
+        long ofId2 = of2.getId().getValue();
+        rfPrx = factory.createRawFileStore();
+        try {
+            rfPrx.setFileId(ofId2);
+            rfPrx.write(new byte[]{1, 2, 3, 4}, 0, 4);
+        } finally {
+            rfPrx.close();
+        }
+
+        //Now check that the files have been created and then deleted.
+        assertFileExists(ofId1, REF_ORIGINAL_FILE);
+        assertFileExists(ofId2, REF_ORIGINAL_FILE);
+        
+        DeleteReport report = deleteWithReport(
+                new DeleteCommand(DeleteServiceTest.REF_IMAGE, 
+                        img.getId().getValue(), null));
+        
+        assertNoneExist(img, of1, of2);
+        assertFileDoesNotExist(ofId1, REF_ORIGINAL_FILE);
+        assertFileDoesNotExist(ofId2, REF_ORIGINAL_FILE);
+        assertNoUndeletedBinaries(report);
     }
 
     private void assertNoUndeletedBinaries(DeleteReport report) {
