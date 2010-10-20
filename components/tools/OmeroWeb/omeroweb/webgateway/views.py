@@ -744,8 +744,6 @@ def search_json (request, server_id=None, _conn=None, **kwargs):
     return rv
 
 def save_image_rdef_json (request, iid, server_id=None, **kwargs):
-    import pdb
-    pdb.set_trace()
     """ Requests that the rendering defs passed in the request be set as the default for this image.
     TODO: jsonp """
     r = request.REQUEST
