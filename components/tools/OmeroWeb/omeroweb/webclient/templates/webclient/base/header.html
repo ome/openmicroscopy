@@ -29,7 +29,9 @@
 <div id="path">
     
     <div id="actionWrapper">
-        <div id="baskets"><a href="{% url basket_action %}"><img src="{% url webstatic "images/basket.png" %}" /> {% trans "BASKET" %}</a> {% trans "contains" %} <span id="cartTotal">{{ nav.basket }} {% plural nav.basket 'item' 'items' %}</span></div>
+        {% ifnotequal nav.menu "basket" %}
+        <div id="baskets"><a href="{% url basket_action %}">{% trans "BASKET" %}</a> {% trans "contains" %} <span id="cartTotal">{{ nav.basket }} {% plural nav.basket 'item' 'items' %}</span></div>
+        {% endifnotequal %}
         {% ifnotequal nav.menu "status" %}
         <div id="queue"><a href="{% url status %}" class="align_left">STATUS:</a><div id="jobstatus"></div><img src="{% url webstatic "images/spinner.gif" %}" id="progress" style="display: none;"/></div>
         {% endifnotequal %}

@@ -124,7 +124,7 @@ table.contentWrapper {
 }
 #actionWrapper {
     position: absolute;
-    padding: 2px 0;
+    padding: 4px 0;
     top: 0;
     left: 0;
     width: 400px;
@@ -134,7 +134,7 @@ table.contentWrapper {
     float:left;
 }
 #queue, #jobstatus {
-    margin: 0 5px;
+    margin: 0 10px;
     float:left;
 }
 #logo {
