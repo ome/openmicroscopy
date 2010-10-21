@@ -2551,14 +2551,10 @@ class FileAnnotationWrapper (AnnotationWrapper):
      
     def getFileSize(self):
         return self._obj.file.size.val
-
+    
     def getFileName(self):
         self.__loadedHotSwap__()
-        name = self._obj.file.name.val
-        l = len(name)
-        if l < 35:
-            return name
-        return name[:16] + "..." + name[l - 16:] 
+        return self._obj.file.name.val
     
     def getFileInChunks(self):
         self.__loadedHotSwap__()
