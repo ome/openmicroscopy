@@ -608,7 +608,7 @@ WindowStateListener, WindowFocusListener
                 System.exit(0);
             }
         } else if ("options".equals(cmd)) {
-           //final OptionsDialog dialog = new OptionsDialog(config, this, "Import", true);
+           final OptionsDialog dialog = new OptionsDialog(config, this, "Import", true);
         }
         else if ("about".equals(cmd))
         {
