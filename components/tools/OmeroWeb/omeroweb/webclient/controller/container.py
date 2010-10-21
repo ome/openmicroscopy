@@ -526,12 +526,17 @@ class BaseContainer(BaseController):
         if ann is None:
             ann = omero.model.TagAnnotationI()
             ann.textValue = rstring(str(tag))
-            ann.setDescription(rstring(str(desc)))
-        
-        t_ann = getattr(omero.model, otype.title()+"AnnotationLinkI")()
-        t_ann.setParent(selfobject._obj)
-        t_ann.setChild(ann)
-        self.conn.saveObject(t_ann)
+            ann.setDescription(rstring(str(desc)))            
+            t_ann = getattr(omero.model, otype.title()+"AnnotationLinkI")()
+            t_ann.setParent(selfobject._obj)
+            t_ann.setChild(ann)
+            self.conn.saveObject(t_ann)
+        else:
+            t_ann = getattr(self.conn, "get"+otype.title()+"AnnotationLink")(selfobject.id, ann.id.val)    
+            if t_ann is None:
+                t_ann.setParent(selfobject._obj)
+                t_ann.setChild(ann)
+                self.conn.saveObject(t_ann)
     
     # File annotation
     def getFileFormat(self, newFile):
