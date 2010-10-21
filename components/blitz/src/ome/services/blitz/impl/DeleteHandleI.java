@@ -382,7 +382,7 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
         try {
 
             // Initialize. Any exceptions should cancel the process
-            final StopWatch sw = new CommonsLogStopWatch();
+            StopWatch sw = new CommonsLogStopWatch();
             report.state = new DeleteState(sf.context, session, report.spec);
             report.scheduledDeletes = report.state.getTotalFoundCount();
             if (report.scheduledDeletes == 0L) {
@@ -393,11 +393,12 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                 report.stepStarts = new long[(int)report.scheduledDeletes];
                 report.stepStops = new long[(int)report.scheduledDeletes];
             }
-            sw.lap("omero.delete.ids");
+            sw.stop("omero.delete.ids." + report.scheduledDeletes);
 
             // Loop throw all steps
             report.warning = "";
             for (int j = 0; j < report.scheduledDeletes; j++) {
+                sw = new CommonsLogStopWatch();
                 try {
                     if (!state.compareAndSet(State.READY, State.RUNNING)) {
                         throw new Cancel("Not ready");

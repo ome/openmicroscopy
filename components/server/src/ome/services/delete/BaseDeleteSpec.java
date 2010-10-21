@@ -22,10 +22,13 @@ import ome.security.basic.CurrentDetails;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.QueryBuilder;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.perf4j.StopWatch;
+import org.perf4j.commonslog.CommonsLogStopWatch;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 
@@ -258,7 +261,9 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
         }
 
         Query q = qb.query(session);
+        StopWatch sw = new CommonsLogStopWatch();
         List<List<Long>> results = q.list();
+        sw.stop("omero.delete.query." + StringUtils.join(sub, "."));
 
         if (results == null) {
             log.warn(logmsg(subpath, results));
