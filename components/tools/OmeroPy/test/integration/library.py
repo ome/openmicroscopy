@@ -252,7 +252,8 @@ class ITest(unittest.TestCase):
         else:
             self.fail("Unknown type: %s=%s" % (type(user), user))
 
-        return group, name
+        return user, name
+
     def tearDown(self):
         failure = False
         self.__clients.__del__()
