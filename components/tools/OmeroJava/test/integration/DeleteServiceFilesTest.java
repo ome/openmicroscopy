@@ -17,6 +17,7 @@ import java.util.Map;
 import junit.framework.AssertionFailedError;
 import ome.formats.OMEROMetadataStoreClient;
 import omero.ApiUsageException;
+import omero.ResourceError;
 import omero.ServerError;
 import omero.api.IDeletePrx;
 import omero.api.IRenderingSettingsPrx;
@@ -222,6 +223,22 @@ public class DeleteServiceFilesTest
 		String path = getPath(klass, id);
 		RepositoryPrx legacy = getLegacyRepository();
 		assertTrue(path + " does not exist!", legacy.fileExists(path));
+	}
+
+	/**
+	 * Forcibly delete a file.
+	 *
+	 * @param id
+	 * @param klass
+	 * @throws Exception
+	 * @see ticket:3140
+	 */
+	void removeFile(Long id, String klass)
+	throws Exception
+	{
+	    String path = getPath(klass, id);
+	    RepositoryPrx legacy = getLegacyRepository();
+	    legacy.delete(path);
 	}
 
 	/**
@@ -591,8 +608,9 @@ public class DeleteServiceFilesTest
 
         // This creates an attached OriginalFle and a subsequent Files file.
         // Is there a more concise way to achieve the same thing? cgb
-        OriginalFile of1 = (OriginalFile) iUpdate.saveAndReturnObject(
-                mmFactory.createOriginalFile());
+
+        OriginalFile of1 = makeFile();
+
         FileAnnotation fa = new FileAnnotationI();
         fa.setNs(omero.rtypes.rstring(FileAnnotationData.COMPANION_FILE_NS));
         fa.setFile(of1);
@@ -601,17 +619,9 @@ public class DeleteServiceFilesTest
         l.setChild(fa);
         l.setParent(img);
         iUpdate.saveAndReturnObject(l);
-        long ofId1 = of1.getId().getValue();
-        RawFileStorePrx rfPrx = factory.createRawFileStore();
-        try {
-            rfPrx.setFileId(ofId1);
-            rfPrx.write(new byte[]{1, 2, 3, 4}, 0, 4);
-        } finally {
-            rfPrx.close();
-        }
 
-        OriginalFile of2 = (OriginalFile) iUpdate.saveAndReturnObject(
-                mmFactory.createOriginalFile());
+        OriginalFile of2 = makeFile();
+
         fa = new FileAnnotationI();
         fa.setNs(omero.rtypes.rstring(FileAnnotationData.COMPANION_FILE_NS));
         fa.setFile(of2);
@@ -620,26 +630,19 @@ public class DeleteServiceFilesTest
         l.setChild(fa);
         l.setParent(img);
         iUpdate.saveAndReturnObject(l);
-        long ofId2 = of2.getId().getValue();
-        rfPrx = factory.createRawFileStore();
-        try {
-            rfPrx.setFileId(ofId2);
-            rfPrx.write(new byte[]{1, 2, 3, 4}, 0, 4);
-        } finally {
-            rfPrx.close();
-        }
+
 
         //Now check that the files have been created and then deleted.
-        assertFileExists(ofId1, REF_ORIGINAL_FILE);
-        assertFileExists(ofId2, REF_ORIGINAL_FILE);
-        
+        assertFileExists(of1.getId().getValue(), REF_ORIGINAL_FILE);
+        assertFileExists(of2.getId().getValue(), REF_ORIGINAL_FILE);
+
         DeleteReport report = deleteWithReport(
-                new DeleteCommand(DeleteServiceTest.REF_IMAGE, 
+                new DeleteCommand(DeleteServiceTest.REF_IMAGE,
                         img.getId().getValue(), null));
-        
+
         assertNoneExist(img, of1, of2);
-        assertFileDoesNotExist(ofId1, REF_ORIGINAL_FILE);
-        assertFileDoesNotExist(ofId2, REF_ORIGINAL_FILE);
+        assertFileDoesNotExist(of1.getId().getValue(), REF_ORIGINAL_FILE);
+        assertFileDoesNotExist(of2.getId().getValue(), REF_ORIGINAL_FILE);
         assertNoUndeletedBinaries(report);
     }
 
@@ -647,7 +650,7 @@ public class DeleteServiceFilesTest
      * Test to delete a dataset containing and image that is 
      * from a Well. The Image and its Pixels file
      * should NOT be deleted.
-     * 
+     *
      * @throws Exception Thrown if an error occurred.
      */
     @Test(groups = "ticket:2946")
@@ -678,17 +681,67 @@ public class DeleteServiceFilesTest
 
         //Now check that the file has been created.
         assertFileExists(pixId, REF_PIXELS);
-        
+
         DeleteReport report = deleteWithReport(
-                new DeleteCommand(DeleteServiceTest.REF_DATASET, 
+                new DeleteCommand(DeleteServiceTest.REF_DATASET,
                 ds.getId().getValue(),
-                null));        
-        
+                null));
+
         //The dataset should be gone but nothing else.
         assertNoneExist(ds);
         assertAllExist(p, well, img, pix);
         assertFileExists(pixId, REF_PIXELS);
         assertNoUndeletedBinaries(report);
+    }
+
+    @Test(groups = "ticket:3140", expectedExceptions = ResourceError.class)
+    public void testSaveThrowsResourceErrorIfDeleted() throws Exception {
+        OriginalFile of = makeFile();
+        RawFileStorePrx rfs = factory.createRawFileStore();
+        try {
+            rfs.setFileId(of.getId().getValue());
+            rfs.write(new byte[1], 0, 1);
+            removeFile(of.getId().getValue(), "OriginalFile");
+            rfs.save();
+            fail("Should not reach here.");
+        } finally {
+            rfs.close();
+        }
+    }
+
+    @Test(groups = "ticket:3140", expectedExceptions = ResourceError.class)
+    public void testCloseThrowsResourceErrorIfDeleted() throws Exception {
+        OriginalFile of = makeFile();
+        RawFileStorePrx rfs = factory.createRawFileStore();
+        try {
+            rfs.setFileId(of.getId().getValue());
+            rfs.write(new byte[1], 0, 1);
+            removeFile(of.getId().getValue(), "OriginalFile");
+            fail("Should not reach here.");
+        } finally {
+            rfs.close();
+        }
+    }
+
+    //
+    // Helpers
+    //
+
+    private OriginalFile makeFile() throws ServerError, Exception {
+
+        OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
+                mmFactory.createOriginalFile());
+
+        long ofId = of.getId().getValue();
+        RawFileStorePrx rfPrx = factory.createRawFileStore();
+        try {
+            rfPrx.setFileId(ofId);
+            rfPrx.write(new byte[]{1, 2, 3, 4}, 0, 4);
+            of = rfPrx.save();
+        } finally {
+            rfPrx.close();
+        }
+        return of;
     }
 
     private void assertNoUndeletedBinaries(DeleteReport report) {
