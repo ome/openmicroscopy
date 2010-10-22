@@ -788,6 +788,8 @@ public class Factory
     {
         
     	if (image == null) return null;
+    	if (width <= 0) width = DEFAULT_ICON_WIDTH;
+    	if (height <= 0) height = DEFAULT_ICON_HEIGHT;
         ColorModel cm = image.getColorModel();
         WritableRaster r = cm.createCompatibleWritableRaster(width, height);
         BufferedImage thumbImage = new BufferedImage(cm, r, false, null);

@@ -911,8 +911,13 @@ public class FigureDialog
 			if (img != null) {
 				w = img.getWidth()*size.width/pixels.getSizeX();
 				h = img.getHeight()*size.height/pixels.getSizeY();
-				split.setOriginalImage(Factory.scaleBufferedImage(img, w, h));
-				split.setCanvasSize(w, h);
+				img = Factory.scaleBufferedImage(img, w, h);
+				if (img != null) {
+					w = img.getWidth();
+					h = img.getHeight();
+					split.setOriginalImage(img);
+					split.setCanvasSize(w, h);
+				}
 				if (!active.contains(j))
 					split.resetImage(true);
 			}
