@@ -458,7 +458,7 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
             for (String fileType : fileTypeList) {
                 Set<Long> deletedIds = report.state.getDeletedsIds(fileType);
                 if (deletedIds != null && deletedIds.size() > 0) {
-                    log.info(String.format("Binary delete of %s for %s:%s: %s",
+                    log.debug(String.format("Binary delete of %s for %s:%s: %s",
                             fileType, report.command.type, report.command.id,
                             deletedIds));
                     failedMap.put(fileType, new ArrayList<Long>());
@@ -480,11 +480,11 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                                 failedMap.get(fileType).add(id);
                                 filesFailed++;
                                 bytesFailed += file.length();
-                                log.warn("Failed to delete " + fileType
+                                log.debug("Failed to delete " + fileType
                                         + " " + file.getAbsolutePath());
                             }
                         } else {
-                            log.warn(fileType + " "
+                            log.debug(fileType + " "
                                     + file.getAbsolutePath()
                                     + " does not exist.");
                         }
@@ -502,17 +502,17 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                 report.undeletedFiles.put(key, array);
             }
             if (filesFailed > 0) {
-                report.warning += " Warning: " + Long.toString(filesFailed) + "file(s) comprising "
+                String warning = " Warning: " + Long.toString(filesFailed) + "file(s) comprising "
                         + Long.toString(bytesFailed) + " bytes were not removed.";
+                report.warning += warning;
+                log.warn(warning);
             }
-            
             if (log.isDebugEnabled()) {
                 for (String table : failedMap.keySet()) {
                     log.debug("Failed to delete files : " + table + ":"
                             + failedMap.get(table).toString());
                 }
             }
-
         }
     }
 
