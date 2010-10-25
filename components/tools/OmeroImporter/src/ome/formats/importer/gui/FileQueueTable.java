@@ -71,7 +71,7 @@ import org.openmicroscopy.shoola.util.ui.IconManager;
 public class FileQueueTable extends JPanel implements ActionListener, IObserver
 {
 	/** Logger for this class */
-	private static Log log = LogFactory.getLog(FileQueueTable.class);
+	private Log log = LogFactory.getLog(FileQueueTable.class);
 	
     private static QueueTableModel table = new QueueTableModel();
     private static ETable queue = new ETable(getTable());
@@ -853,7 +853,7 @@ public class FileQueueTable extends JPanel implements ActionListener, IObserver
      * @author Brian Loranger brain at lifesci.dundee.ac.uk
      *
      */
-    private static class SelectionListener implements ListSelectionListener {
+    private class SelectionListener implements ListSelectionListener {
     	
         JTable table;
         
