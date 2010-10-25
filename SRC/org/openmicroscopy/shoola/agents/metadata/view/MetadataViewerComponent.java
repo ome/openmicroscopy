@@ -1104,9 +1104,6 @@ class MetadataViewerComponent
 		
 		if (image == null) return;
 		if (image.getId() == imageID) {
-			
-		}
-		if (((ImageData) ref).getId() == imageID) {
 			view.setThumbnails(thumbnails);
 		}
 	}

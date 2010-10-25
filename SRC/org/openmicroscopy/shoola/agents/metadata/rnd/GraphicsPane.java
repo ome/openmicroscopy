@@ -36,7 +36,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.BorderFactory;
+import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -123,7 +125,7 @@ class GraphicsPane
     
     /** The Tasks pane, only visible if already viewed by others. */
     private JXTaskPane				viewedBy;
-    
+   
     /**
 	 * Formats the specified value.
 	 * 
@@ -166,11 +168,11 @@ class GraphicsPane
     		//	ManageRndSettingsAction.NAME_OWNER);
     	viewedBy = new JXTaskPane();
     	viewedBy.setCollapsed(true);
+    	viewedBy.setVisible(false);
 		Font font = viewedBy.getFont();
 		viewedBy.setFont(font.deriveFont(font.getSize2D()-2));
     	viewedBy.setTitle(ManageRndSettingsAction.NAME_OWNER);
     	viewedBy.setIcon(icons.getIcon(IconManager.RND_OWNER));
-    	viewedBy.setVisible(false);
         controlsBar = new PreviewControlBar(controller, model);
         uiDelegate = new GraphicsPaneUI(this, model);
         codomainSlider = new TwoKnobsSlider(RendererModel.CD_START, 
@@ -219,8 +221,8 @@ class GraphicsPane
     {
     	setBackground(UIUtilities.BACKGROUND_COLOR);
     	double size[][] = {{TableLayout.FILL},  // Columns
-    	         {TableLayout.PREFERRED, 5, TableLayout.PREFERRED}}; // Rows
-    	    	setLayout(new TableLayout(size));
+    	         {TableLayout.PREFERRED, 5, TableLayout.FILL}}; // Rows
+    	setLayout(new TableLayout(size));
     	if (model.isGeneralIndex()) {
     		add(buildGeneralPane(), "0, 0");
     	} else {
@@ -237,6 +239,8 @@ class GraphicsPane
     private JPanel buildGeneralPane()
     {
     	JPanel content = new JPanel();
+    	content.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	content.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
     	content.setLayout(new GridBagLayout());
     	content.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
     	GridBagConstraints c = new GridBagConstraints();
@@ -250,17 +254,10 @@ class GraphicsPane
     	}
    	 
    	 	content.add(controlsBar, c);
-   	 	/*
-   	 	c.gridy++;
-	 	c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-	 	c.fill = GridBagConstraints.HORIZONTAL;
-	 	c.weightx = 1.0;
-	 	content.add(viewedBy, c);
-	 	*/
    	 	c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
    	 	c.fill = GridBagConstraints.NONE;      //reset to default
    	 	c.weightx = 0.0;  
-   	 	content.setBackground(UIUtilities.BACKGROUND_COLOR);
+   	 	
     	Iterator<ChannelSlider> i = sliders.iterator();
     	while (i.hasNext())  {
     		c.gridy++;
@@ -268,12 +265,13 @@ class GraphicsPane
     	}
     	c.gridy++;
 	 	c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-	 	c.fill = GridBagConstraints.HORIZONTAL;
+	 	c.fill = GridBagConstraints.BOTH;
 	 	c.weightx = 1.0;
+	 	c.weighty = 1.0;
 	 	content.add(viewedBy, c);
     	return content;
-    	
     }
+    
     /** 
      * Builds the UI component hosting the controls used to determine the
      * input and output windows, and the histogram.
@@ -610,6 +608,7 @@ class GraphicsPane
     	content.setBackground(UIUtilities.BACKGROUND_COLOR);
     	viewedBy.add(content);
     	viewedBy.setVisible(true);
+    	viewedBy.setCollapsed(false);
     }
     
     /**
