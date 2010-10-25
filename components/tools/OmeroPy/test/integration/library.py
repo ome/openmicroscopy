@@ -165,7 +165,7 @@ class ITest(unittest.TestCase):
     def index(self, *objs):
         if objs:
             for obj in objs:
-                self.root.sf.getUpdateService().indexObject(obj)
+                self.root.sf.getUpdateService().indexObject(obj, {"omero.group":"-1"})
 
     def new_user(self, group = None, perms = None, admin = False):
 
