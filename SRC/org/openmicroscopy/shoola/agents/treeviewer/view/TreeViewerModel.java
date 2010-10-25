@@ -73,7 +73,6 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
-import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.ImportObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -920,8 +919,7 @@ class TreeViewerModel
 	Class getDataToCopyType()
 	{
 		TreeImageDisplay[] nodes = getNodesToCopy();
-		if (nodes == null) return null;
-		if (nodes.length == 0) return null;
+		if (nodes == null || nodes.length == 0) return null;
 		Object ho = nodes[0].getUserObject();
 		return ho.getClass();
 	}

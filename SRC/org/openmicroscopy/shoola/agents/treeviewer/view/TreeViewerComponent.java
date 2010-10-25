@@ -1332,10 +1332,11 @@ class TreeViewerComponent
 		UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
 		if (parents == null || parents.length == 0) {
 			un.notifyInfo("Paste action", "You first need to select " +
-			"the nodes to copy into"); 
+			"the nodes to copy into.");
+			return;	
 		}
 		TreeImageDisplay[] nodes = model.getNodesToCopy();
-		if (nodes == null || nodes.length == 0) return; //shouldn't happen
+		if (nodes == null || nodes.length == 0) return; 
 		boolean b = model.paste(parents);
 		if (!b) {
 			un.notifyInfo("Paste action", "The nodes to copy cannot " +
@@ -2447,6 +2448,7 @@ class TreeViewerComponent
 				}
 			}
 			if (l.size() > 0) {
+				model.setNodesToCopy(null, -1);
 				EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
 				bus.post(new DeleteObjectEvent(objects));
 				model.getSelectedBrowser().removeTreeNodes(toRemove);
