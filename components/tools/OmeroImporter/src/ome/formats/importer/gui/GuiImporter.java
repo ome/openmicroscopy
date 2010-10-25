@@ -311,11 +311,14 @@ WindowStateListener, WindowFocusListener
         outputScrollPane.getVerticalScrollBar().addAdjustmentListener(
                 new AdjustmentListener()
                 {
-                    public void adjustmentValueChanged(AdjustmentEvent e)
-                    {
-                        outputTextPane.setCaretPosition(outputTextPane.getDocument().
-                                getLength());
-                    }
+                	public void adjustmentValueChanged(AdjustmentEvent e)
+                	{
+                		try {
+                			outputTextPane.setCaretPosition(outputTextPane.getDocument().getLength());
+                		} catch (IllegalArgumentException e1) {
+                			log.error("Error setting cursor:" + e1);
+                		}
+                	}
                 }
         );
 
@@ -340,8 +343,11 @@ WindowStateListener, WindowFocusListener
                 {
                     public void adjustmentValueChanged(AdjustmentEvent e)
                     {
-                        debugTextPane.setCaretPosition(debugTextPane.getDocument().
-                                getLength());
+                    	try {
+                        debugTextPane.setCaretPosition(debugTextPane.getDocument().getLength());
+                    	} catch (IllegalArgumentException e1) {
+                    		log.error("Error setting cursor:" + e1);
+                    	}
                     }
                 }
         );
