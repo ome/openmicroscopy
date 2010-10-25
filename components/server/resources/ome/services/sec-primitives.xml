@@ -35,7 +35,7 @@
   <bean id="currentDetails" class="ome.security.basic.CurrentDetails">
     <constructor-arg ref="sessionCache"/>
   </bean>
-  
+
   <alias name="currentDetails" alias="principalHolder"/>
 
   <bean id="internalServiceFactory" class="ome.tools.spring.InternalServiceFactory"/>
@@ -107,7 +107,6 @@
   -->
 
   <bean id="perSessionStats" class="ome.services.sessions.stats.PerSessionStats">
-    <constructor-arg ref="sessionManager"/>
     <constructor-arg ref="currentDetails"/>
   </bean>
 
