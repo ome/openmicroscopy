@@ -185,22 +185,6 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
     }
 
     /**
-     * See interface for documentation.
-     */
-    public List<List<List<Long>>> backupIds(Session session, List<String[]> paths)
-            throws DeleteException {
-
-        List<List<List<Long>>> rv = new ArrayList<List<List<Long>>>();
-
-        for (int s = 0; s < entries.size(); s++) {
-            final List<List<Long>> allIds = queryBackupIds(session, s, entries.get(s), null);
-            rv.add(allIds);
-        }
-
-        return rv;
-    }
-
-    /**
      * Always returns false. See interface for documentation.
      */
     public boolean overrideKeep() {

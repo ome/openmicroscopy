@@ -7,6 +7,7 @@ package ome.services.delete;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -236,8 +237,29 @@ public class DeleteStateUnitTest extends MockDeleteTest {
         prepareTableLookups(rv);
 
         DeleteState state = new DeleteState(null, session, spec);
-        assertEquals(state.toString(), 3, state.getTotalFoundCount());
+        assertEquals(state.toString(), 4, state.getTotalFoundCount());
+        // 4 for the parent spec
 
+    }
+
+
+    @Test(groups = "ticket:3163")
+    public void testSlowDeleteStateTablesAdd() {
+        DeleteState.Tables dst = new DeleteState.Tables();
+        List<List<Long>> data = new ArrayList<List<Long>>();
+        for (int a = 0; a < 50; a++) {
+            for (int b = 0; b < 3; b++) {
+                for (int c = 0; c < 4; c++) {
+                    List<Long> l = new ArrayList<Long>();
+                    l.add((long)a);
+                    l.add((long)b);
+                    l.add((long)c);
+                    data.add(l);
+                }
+            }
+        }
+        Collections.shuffle(data);
+        dst.add(null, data);
     }
 
     //

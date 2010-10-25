@@ -10,6 +10,7 @@ package ome.services.delete;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -104,39 +105,59 @@ public class DeleteState {
          */
         final Map<DeleteEntry, List<List<Integer>>> pointers = new HashMap<DeleteEntry, List<List<Integer>>>();
 
+        final Comparator<List<Long>> CMP = new Comparator<List<Long>>() {
+            public int compare(List<Long> o1, List<Long> o2) {
+                for (int i = 0; i < o1.size(); i++) {
+                    int cmp = o1.get(i).compareTo(o2.get(i));
+                    if (cmp != 0) {
+                        return cmp;
+                    }
+                }
+                throw new IllegalStateException("Should never return two identical items! " + o1);
+            }
+        };
+
         public void add(DeleteEntry entry, List<List<Long>> results) {
 
+            Collections.sort(results, CMP);
+
+            int total = results.size();
             tables.put(entry, results);
             pointers.put(entry, new LinkedList<List<Integer>>());
 
-            Set<Integer> exclude = new HashSet<Integer>();
-            for (int r = 0; r < results.size(); r++) {
+            if (total == 0) {
+                return;
+            }
 
-                if (exclude.contains(r)) {
-                    continue; // Already handled.
-                }
+            int sz = -1;
+            List<Long> check = null;
+            List<Long> current = null;
+            List<Integer> pointer = new LinkedList<Integer>();
+            pointers.get(entry).add(pointer);
 
-                // Take the current line as the basis
-                // for comparison. Worst case, it will
-                // form a column-set of length 1.
-                List<Integer> pointer = new LinkedList<Integer>();
-                pointer.add(r);
-
-                List<Long> current = results.get(r);
-                CHECK: for (int q = r + 1; q < results.size(); q++) {
-                    if (exclude.contains(q)) {
-                        continue; // Already handled.
-                    }
-                    List<Long> check = results.get(q);
-                    for (int w = 0; w < Math.max(1, current.size() - 1); w++) {
+            for (int r = 0; r < total; r++) {
+                if (current == null) {
+                    // Take the current line as the basis
+                    // for comparison. Worst case, it will
+                    // form a column-set of length 1.
+                    current = results.get(0);
+                    sz = Math.max(1, current.size() - 1);
+                    pointer.add(r);
+                } else {
+                    // Otherwise we compare to the current
+                    // value. If different, then it becomes
+                    // our new current.
+                    check = results.get(r);
+                    for (int w = 0; w < sz; w++) {
                         if (!current.get(w).equals(check.get(w))) {
-                            continue CHECK;
+                            current = check;
+                            sz = Math.max(1, current.size() - 1);
+                            pointer = new LinkedList<Integer>();
+                            pointers.get(entry).add(pointer);
                         }
                     }
-                    pointer.add(q);
-                    exclude.add(q);
+                    pointer.add(r);
                 }
-                pointers.get(entry).add(pointer);
             }
         }
 
