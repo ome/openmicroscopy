@@ -164,6 +164,9 @@
             <option>-agentlib:jprofilerti=port=8849,id=108,config=${JPROFILER_CONFIG}</option>
             <option>-Xbootclasspath/a:${JPROFILER_AGENT}</option>
         </target>
+        <target name="Blitz-hprof">
+            <option>-agentlib:hprof=cpu=samples,cutoff=0,thread=y,interval=1,depth=50,force=y,file=${OMERO_LOGS}Blitz-${index}.hprof</option>
+        </target>
         <option>-Xmx512M</option>
         <target name="memcfg">
             <option>${omero.blitz.maxmemory}</option>
