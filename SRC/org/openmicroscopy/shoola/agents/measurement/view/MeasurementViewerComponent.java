@@ -302,6 +302,7 @@ class MeasurementViewerComponent
 		model.notifyDataChanged(true);
 		firePropertyChange(ROI_CHANGED_PROPERTY, Boolean.valueOf(false), 
 				Boolean.valueOf(true));
+		fireStateChange();
 	}
 	
 	/** 
@@ -1026,6 +1027,16 @@ class MeasurementViewerComponent
 		p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
 		UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
 		un.notifyActivity(p);
+	}
+
+	/** 
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#hasROIToDelete()
+     */
+	public boolean hasROIToDelete()
+	{
+		if (model.getState() == DISCARDED) return false;
+		return model.hasROIToDelete();
 	}
 	
 }

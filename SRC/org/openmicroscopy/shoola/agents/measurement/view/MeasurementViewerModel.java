@@ -198,6 +198,9 @@ class MeasurementViewerModel
 	/** Collection of ROIs to delete. */
 	private List<ROI>				roiToDelete;
 	
+	/** Flag indicating that the current user can deleted the ROI. */
+	private boolean					dataToDelete;
+	
     /** 
 	 * Sorts the passed nodes by row.
 	 * 
@@ -236,6 +239,28 @@ class MeasurementViewerModel
 			AnnotationKeys.TEXT.set(shape, 
 				MeasurementAttributes.TEXT.get(figure));
 		}
+	}
+	
+	/** Checks the user currently logged in has ROI to delete. */
+	private void checkIfHasROIToDelete()
+	{
+		if (dataToDelete) return;
+		ExperimenterData exp = 
+			(ExperimenterData) MeasurementAgent.getUserDetails();
+		long ownerID = exp.getId();
+		Collection<ROI> rois = roiComponent.getROIMap().values();
+		Iterator<ROI> i = rois.iterator();
+		List<ROI> ownedRois = new ArrayList<ROI>();
+		ROI roi;
+		List<ROIFigure> figures = new ArrayList<ROIFigure>();
+		while (i.hasNext()) {
+			roi = i.next();
+			if (roi.getOwnerID() == ownerID || roi.getOwnerID() == -1) {
+				figures.addAll(roi.getAllFigures());
+				ownedRois.add(roi);
+			}
+		}
+		dataToDelete = ownedRois.size() > 0;
 	}
 	
 	/**
@@ -586,6 +611,7 @@ class MeasurementViewerModel
 			}
 		}
 		component.attachListeners(roiList);
+		checkIfHasROIToDelete();
 		return true;
 	}
 	
@@ -788,6 +814,7 @@ class MeasurementViewerModel
 		}
 		event = null;
 		notifyDataChanged(false);
+		dataToDelete = false;
 		return figures;
 	}
 	
@@ -1059,7 +1086,6 @@ class MeasurementViewerModel
 	 */
 	void saveROIToServer(boolean async)
 	{
-		
 		try {
 			List<ROIData> roiList = getROIData();
 			//Need to add a read-only flag on ROI Data
@@ -1077,6 +1103,7 @@ class MeasurementViewerModel
 				svc.saveROI(getImageID(), exp.getId(), roiList);
 				event = null;
 			}
+			checkIfHasROIToDelete();
 		} catch (Exception e) {
 			Logger log = MeasurementAgent.getRegistry().getLogger();
 			log.warn(this, "Cannot save to server "+e.getMessage());
@@ -1352,12 +1379,13 @@ class MeasurementViewerModel
 		event = new SaveRelatedData(getPixelsID(), 
 					new SaveData(getPixelsID(), SaveData.MEASUREMENT_TYPE), 
 									"The ROI", toSave);
+		checkIfHasROIToDelete();
 		bus.post(event);
 		if (!toSave) event = null;
 	}
 	
 	/**
-	 * Calculate the stats for the roi in the shapelist
+	 * Calculate the stats for the roi in the shapelist.
 	 * 
 	 * @param shapeList see above.
 	 */
@@ -1463,6 +1491,18 @@ class MeasurementViewerModel
 	{ 
 		if (isHCSData()) return false;
 		return event != null;
+	}
+	
+	/**
+	 * Returns <code>true</code> if data to delete, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasROIToDelete()
+	{ 
+		if (hasROIToSave()) return true;
+		return dataToDelete;
 	}
 
 	/**

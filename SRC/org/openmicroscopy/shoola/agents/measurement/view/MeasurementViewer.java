@@ -355,4 +355,12 @@ public interface MeasurementViewer
 	/** Deletes all ROIs owned by the user currently logged in. */
 	public void deleteAllROIs();
 	
+	/**
+	 * Returns <code>true</code> if the current user has ROI that can be deleted,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasROIToDelete();
+	
 }

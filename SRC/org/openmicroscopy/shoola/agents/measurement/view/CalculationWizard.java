@@ -29,6 +29,7 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.Icon;
 import javax.swing.JPanel;
@@ -60,7 +61,7 @@ public class CalculationWizard
 	implements TabPaneInterface
 {
 	
-	static HashMap<String, AnalysisFunction> fnMap;
+	private static Map<String, AnalysisFunction> fnMap;
 	static 
 	{
 		fnMap = new HashMap<String, AnalysisFunction>();
