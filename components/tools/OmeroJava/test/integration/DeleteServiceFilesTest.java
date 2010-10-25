@@ -264,22 +264,16 @@ public class DeleteServiceFilesTest
 	public void testDeleteImageWithPixelsOnDisk() 
 	throws Exception 
 	{
-		Image img = (Image) iUpdate.saveAndReturnObject(
-				mmFactory.createImage());
-		Pixels pixels = img.getPrimaryPixels();
-		long pixId = pixels.getId().getValue();
-		IRenderingSettingsPrx rsPrx = factory.getRenderingSettingsService();
-		List<Long> ids = new ArrayList<Long>();
-		ids.add(pixId);
-		rsPrx.resetDefaultsInSet(Pixels.class.getName(), ids);
-
+	    Image img = makeImageWithPixelsFile();
+	    Pixels pix = img.getPrimaryPixels();      
+	 
 		//Now check that the files have been created and then deleted.
-		assertFileExists(pixId, REF_PIXELS);
+		assertFileExists(pix.getId().getValue(), REF_PIXELS);
 
 		DeleteReport report = deleteWithReport(
 				new DeleteCommand(DeleteServiceTest.REF_IMAGE, 
 						img.getId().getValue(), null));
-		assertFileDoesNotExist(pixId, REF_PIXELS);
+		assertFileDoesNotExist(pix.getId().getValue(), REF_PIXELS);
 		assertTrue(report.undeletedFiles.get(REF_PIXELS).length == 0);
 	}
 
@@ -514,17 +508,11 @@ public class DeleteServiceFilesTest
         Dataset ds2 = new DatasetI();
         ds2.setName(omero.rtypes.rstring("#3031.2"));
 
-        Image img = (Image) iUpdate.saveAndReturnObject(
-                mmFactory.createImage());
-        Pixels pixels = img.getPrimaryPixels();
-        long pixId = pixels.getId().getValue();
-        IRenderingSettingsPrx rsPrx = factory.getRenderingSettingsService();
-        List<Long> ids = new ArrayList<Long>();
-        ids.add(pixId);
-        rsPrx.resetDefaultsInSet(Pixels.class.getName(), ids);
+        Image img = makeImageWithPixelsFile();
+        Pixels pix = img.getPrimaryPixels();      
 
         //Now check that the files have been created and then deleted.
-        assertFileExists(pixId, REF_PIXELS);
+        assertFileExists(pix.getId().getValue(), REF_PIXELS);
 
         ds1.linkImage(img);
         ds1 = (Dataset) iUpdate.saveAndReturnObject(ds1);
@@ -538,7 +526,7 @@ public class DeleteServiceFilesTest
         assertDoesNotExist(ds2);
         assertExists(ds1);
         assertExists(img);
-        assertFileExists(pixId, REF_PIXELS);
+        assertFileExists(pix.getId().getValue(), REF_PIXELS);
     }
     
     /**
@@ -553,24 +541,11 @@ public class DeleteServiceFilesTest
         Dataset ds = new DatasetI();
         ds.setName(omero.rtypes.rstring("#3130"));
  
-        Image img1 = (Image) iUpdate.saveAndReturnObject(
-                mmFactory.createImage());
-        Pixels pix1 = img1.getPrimaryPixels();
-        long pixId1 = pix1.getId().getValue();
-        IRenderingSettingsPrx rsPrx = factory.getRenderingSettingsService();
-        List<Long> ids = new ArrayList<Long>();
-        ids.add(pixId1);
-        rsPrx.resetDefaultsInSet(Pixels.class.getName(), ids);
-
+        Image img1 = makeImageWithPixelsFile();
+        Pixels pix1 = img1.getPrimaryPixels();      
         // A second Image
-        Image img2 = (Image) iUpdate.saveAndReturnObject(
-                mmFactory.createImage());
-        Pixels pix2 = img2.getPrimaryPixels();
-        long pixId2 = pix2.getId().getValue();
-        rsPrx = factory.getRenderingSettingsService();
-        ids = new ArrayList<Long>();
-        ids.add(pixId2);
-        rsPrx.resetDefaultsInSet(Pixels.class.getName(), ids);
+        Image img2 = makeImageWithPixelsFile();
+        Pixels pix2 = img2.getPrimaryPixels();      
 
         // link to dataset
         ds.linkImage(img1);
@@ -579,8 +554,8 @@ public class DeleteServiceFilesTest
         ds = (Dataset) iUpdate.saveAndReturnObject(ds);
 
         //Now check that the files have been created and then deleted.
-        assertFileExists(pixId1, REF_PIXELS);
-        assertFileExists(pixId2, REF_PIXELS);
+        assertFileExists(pix1.getId().getValue(), REF_PIXELS);
+        assertFileExists(pix2.getId().getValue(), REF_PIXELS);
 
         DeleteReport report = deleteWithReport(
                 new DeleteCommand(DeleteServiceTest.REF_DATASET, 
@@ -589,8 +564,8 @@ public class DeleteServiceFilesTest
         
         assertNoUndeletedBinaries(report);
         assertNoneExist(ds, img1, img2, pix1, pix2);
-        assertFileDoesNotExist(pixId1, REF_PIXELS);
-        assertFileDoesNotExist(pixId2, REF_PIXELS);
+        assertFileDoesNotExist(pix1.getId().getValue(), REF_PIXELS);
+        assertFileDoesNotExist(pix2.getId().getValue(), REF_PIXELS);
 
     }
     
@@ -657,16 +632,8 @@ public class DeleteServiceFilesTest
     public void testDeleteDatasetThatContainsImageFromAWell()
         throws Exception
     {
-
-        Image img = (Image) iUpdate.saveAndReturnObject(
-                mmFactory.createImage());
-        Pixels pix = img.getPrimaryPixels();
-        long pixId = pix.getId().getValue();
-        IRenderingSettingsPrx rsPrx = factory.getRenderingSettingsService();
-        List<Long> ids = new ArrayList<Long>();
-        ids.add(pixId);
-        rsPrx.resetDefaultsInSet(Pixels.class.getName(), ids);
-
+        Image img = makeImageWithPixelsFile();
+        Pixels pix = img.getPrimaryPixels();      
         Plate p = (Plate) iUpdate.saveAndReturnObject(
                 mmFactory.createPlate(1, 1, 1, 0, false));
         List<Well> wells = loadWells(p.getId().getValue(), false);
@@ -680,7 +647,7 @@ public class DeleteServiceFilesTest
         ds = (Dataset) iUpdate.saveAndReturnObject(ds);
 
         //Now check that the file has been created.
-        assertFileExists(pixId, REF_PIXELS);
+        assertFileExists(pix.getId().getValue(), REF_PIXELS);
 
         DeleteReport report = deleteWithReport(
                 new DeleteCommand(DeleteServiceTest.REF_DATASET,
@@ -690,7 +657,39 @@ public class DeleteServiceFilesTest
         //The dataset should be gone but nothing else.
         assertNoneExist(ds);
         assertAllExist(p, well, img, pix);
-        assertFileExists(pixId, REF_PIXELS);
+        assertFileExists(pix.getId().getValue(), REF_PIXELS);
+        assertNoUndeletedBinaries(report);
+    }
+    
+    /**
+     * Test to try to delete an image owned by another user in a collaborative
+     * group i.e. RWR---
+     * @throws Exception Thrown if an error occurred.     
+     */
+    @Test(groups = "ticket:2946")
+    public void testDeleteImagePixelsFileOwnedByOtherRWR()
+        throws Exception
+    {
+        // set up collaborative group and one user, "the owner"
+        newUserAndGroup("rwr---");
+
+        Image img = makeImageWithPixelsFile();
+        Pixels pix = img.getPrimaryPixels();
+        
+        //Now check that the file has been created.
+        assertFileExists(pix.getId().getValue(), REF_PIXELS);
+        
+        // create another user and try to delete the image
+        newUserInGroup();
+        DeleteReport report = deleteWithReport(
+                new DeleteCommand(DeleteServiceTest.REF_IMAGE, 
+                img.getId().getValue(),
+                null));        
+
+        // check the image exists as the owner
+        assertExists(img);
+        //Now check that the file has not been deleted.
+        assertFileExists(pix.getId().getValue(), REF_PIXELS);
         assertNoUndeletedBinaries(report);
     }
 
@@ -744,6 +743,17 @@ public class DeleteServiceFilesTest
         return of;
     }
 
+    private Image makeImageWithPixelsFile() throws ServerError, Exception {
+        Image img = (Image) iUpdate.saveAndReturnObject(
+                mmFactory.createImage());
+        Pixels pix = img.getPrimaryPixels();
+        IRenderingSettingsPrx rsPrx = factory.getRenderingSettingsService();
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(pix.getId().getValue());
+        rsPrx.resetDefaultsInSet(Pixels.class.getName(), ids);
+        return img;
+    }
+    
     private void assertNoUndeletedBinaries(DeleteReport report) {
         assertNoUndeletedThumbnails(report);
         assertNoUndeletedFiles(report);
