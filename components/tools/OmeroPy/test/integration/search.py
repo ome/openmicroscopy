@@ -15,7 +15,39 @@ import datetime, time
 
 class TestSearch(lib.ITest):
 
-    def test3164(self):
+    def test3164Private(self):
+        group = self.new_group(perms="rw----")
+        owner = self.new_client(group)
+        searcher = self.new_client(group)
+        self._3164(owner, owner)
+
+    def test3164ReadOnlySelf(self):
+        group = self.new_group(perms="rwr---")
+        owner = self.new_client(group)
+        self._3164(owner, owner)
+
+    def test3164ReadOnlyOther(self):
+        group = self.new_group(perms="rwr---")
+        owner = self.new_client(group)
+        searcher = self.new_client(group)
+        self._3164(owner, searcher)
+
+    def test3164CollabSelf(self):
+        group = self.new_group(perms="rwrw--")
+        owner = self.new_client(group)
+        self._3164(owner, owner)
+
+    def test3164CollabOther(self):
+        group = self.new_group(perms="rwrw--")
+        owner = self.new_client(group)
+        searcher = self.new_client(group)
+        self._3164(owner, searcher)
+
+    #
+    # Helpers
+    #
+    def _3164(self, owner, searcher):
+
         images = list()
         for i in range(0,5):
             img = omero.model.ImageI()
@@ -25,7 +57,7 @@ class TestSearch(lib.ITest):
             tag.textValue = omero.rtypes.rstring("tag %i" % i)
             img.linkAnnotation( tag )
 
-            images.append(self.client.sf.getUpdateService().saveAndReturnObject( img ))
+            images.append(owner.sf.getUpdateService().saveAndReturnObject( img ))
             self.index(images[-1])
 
         p = omero.sys.Parameters()
@@ -35,17 +67,17 @@ class TestSearch(lib.ITest):
         sql = "select im from Image im "\
                 "where im.id in (:oids) " \
                 "order by im.id asc"
-        res = self.client.sf.getQueryService().findAllByQuery(sql, p)
+        res = owner.sf.getQueryService().findAllByQuery(sql, p)
         self.assertEquals(5, len(res))
 
         #Searching
         texts = ("*earch", "*h", "search tif", "search",\
                  "test", "tag", "t*", "search_test",\
-                 "*test*.tif", "search*tif", "s .tif",\
-                 ".tif", "tif", "*tif",\
-                 "s*.tif", "*.tif")
+                 "s .tif", ".tif", "tif", "*tif")
 
-        search = self.client.sf.createSearchService()
+        BROKEN = ("*test*.tif", "search*tif", "s*.tif", "*.tif")
+
+        search = searcher.sf.createSearchService()
         search.onlyType('Image')
         search.addOrderByAsc("name")
         search.setAllowLeadingWildcard(True)
