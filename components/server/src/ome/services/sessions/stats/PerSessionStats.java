@@ -7,7 +7,6 @@
 package ome.services.sessions.stats;
 
 import ome.security.basic.CurrentDetails;
-import ome.services.sessions.SessionManager;
 
 /**
  * Delegates to a {@link SessionStats} which is acquired on every method
@@ -20,16 +19,13 @@ import ome.services.sessions.SessionManager;
 public class PerSessionStats extends DelegatingStats {
 
     private final CurrentDetails cd;
-    private final SessionManager sm;
 
-    public PerSessionStats(CurrentDetails cd, SessionManager sm) {
+    public PerSessionStats(CurrentDetails cd) {
         this.cd = cd;
-        this.sm = sm;
     }
 
     protected SessionStats[] stats() {
-        return new SessionStats[] { sm.getSessionStats(cd
-                .getCurrentEventContext().getCurrentSessionUuid()) };
+        return new SessionStats[] { cd.getStats() };
     }
 
 }
