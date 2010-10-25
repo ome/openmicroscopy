@@ -933,6 +933,7 @@ public class FileQueueHandler extends JPanel
             
             if (qTable.getTable().getRowCount() >  0)
                 qTable.importBtn.setEnabled(true);
+            	qTable.importBtn.doClick();
         }
     }
 
