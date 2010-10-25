@@ -8,8 +8,8 @@
     <script type="text/javascript">
         $(document).ready(function(){
             $("ul#dataIcons").selectable({
+                filter: 'li',
             	stop: function(){
-            		var result = $("#select-result").empty();
             		var l = $('li.ui-selected img', this).length;
             		var ro = 0;
             		var eo = 0;

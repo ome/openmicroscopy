@@ -2229,7 +2229,7 @@ class _BlitzGateway (object):
                 def searchProcessing ():
                     rv.extend(map(lambda x: t(self, x), search.results()))
                 timeit(searchProcessing)()
-        search.close()
+        #search.close()
         return rv
 
 def safeCallWrap (self, attr, f): #pragma: no cover
@@ -2572,7 +2572,7 @@ class FileAnnotationWrapper (AnnotationWrapper):
                 else:
                     data = store.read(pos, buf)
                 yield data
-        store.close()
+        #store.close()
     
 #    def shortTag(self):
 #        if isinstance(self._obj, TagAnnotationI):
@@ -3493,7 +3493,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             rv = False
         if not rv: #pragma: no cover
             tb.resetDefaults()
-            tb.close()
+            #tb.close()
             tb.setPixelsId(pixels_id)
         return tb
     

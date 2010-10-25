@@ -119,6 +119,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             Public data can be only visible by the member of group and owners."""        
         
         for k in self._proxies.keys():
+            
             try:
                 self._proxies[k].close()
             except:

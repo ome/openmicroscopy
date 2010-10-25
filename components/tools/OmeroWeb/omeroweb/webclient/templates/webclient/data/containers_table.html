@@ -13,8 +13,8 @@
         $(document).ready(function(){
 
             $("table#dataTable tbody").selectable({
+            	filter: 'tr',
             	stop: function(){
-            		var result = $("#select-result").empty();
             		var l = $('tr.ui-selected', this).length;
             		var ro = 0;
             		var eo = 0;
@@ -78,7 +78,7 @@
             		}
             	},
             	start: function(){
-            		$("tr input", this).each(function(){
+            		$("tr td input", this).each(function(){
             			this.checked = false;
             		});
             	}
@@ -117,7 +117,7 @@
                         <img src="{% url render_thumbnail_resize 32 c.id  %}" alt="image" alt="image" title="{{ c.name }}{% if not c.isOwned %}, owned by {{ c.getOwner.getNameWithInitial }}{% endif %}"/>
                         <input type="checkbox" name="image" id="{{ c.id }}" class="hide">      
                     </td>
-                    <td class="desc">{{ c.name|truncatebefor:"65" }}</td>
+                    <td class="desc"><a>{{ c.name|truncatebefor:"65" }}</a></td>
                     <td class="roles">{{ c.getDate }}</td>                    
                 </tr>
             {% endfor %}

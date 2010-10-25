@@ -31,8 +31,8 @@
             
             
             $("table#dataTable tbody").selectable({
+            	filter: 'tr',
             	stop: function(){
-            		var result = $("#select-result").empty();
             		var l = $('tr.ui-selected', this).length;
             		$("tr.ui-selected td input", this).each(function(){
             		    this.checked = true;

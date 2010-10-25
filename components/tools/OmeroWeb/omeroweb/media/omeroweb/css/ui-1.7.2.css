@@ -394,6 +394,9 @@
 .ui-slider-vertical .ui-slider-range-min { bottom: 0; }
 .ui-slider-vertical .ui-slider-range-max { top: 0; }/* Tabs
 ----------------------------------*/
+
+.ui-selectee{ cursor: pointer;}
+
 .ui-tabs { padding:0; zoom: 1; }
 .ui-tabs .ui-tabs-nav { list-style: none; position: relative; padding:0; }
 .ui-tabs .ui-tabs-nav li { position: relative; float: left; border-bottom-width: 0 !important; margin: 0; padding: 0 .5em; margin: 0 0.2em;}
