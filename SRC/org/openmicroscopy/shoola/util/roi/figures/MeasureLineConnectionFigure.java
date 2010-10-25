@@ -549,12 +549,11 @@ public class MeasureLineConnectionFigure
 	}
 
 	/**
-	 * Get the number of points in the line. 
+	 * Returns the number of points in the line. 
+	 * 
+	 * @result See above.
 	 */
-	public int getPointCount()
-	{
-		return getNodeCount();
-	}
+	public int getPointCount() { return getNodeCount(); }
 	
 	/**
 	 * Overridden method for bezier, make public what 7.0 made private.
@@ -596,10 +595,7 @@ public class MeasureLineConnectionFigure
 	 * Implemented as specified by the {@link ROIFigure} interface
 	 * @see ROIFigure#isClientObject()
 	 */
-	public boolean isClientObject() 
-	{
-		return clientObject;
-	}
+	public boolean isClientObject() { return clientObject; }
 
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface
@@ -614,33 +610,28 @@ public class MeasureLineConnectionFigure
 	 * Implemented as specified by the {@link ROIFigure} interface
 	 * @see ROIFigure#isDirty()
 	 */
-	public boolean isDirty() 
-	{
-		return dirty;
-	}
+	public boolean isDirty() { return dirty; }
 
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface
 	 * @see ROIFigure#setObjectDirty(boolean)
 	 */
-	public void setObjectDirty(boolean dirty) 
-	{
-		this.dirty = dirty;
-	}
+	public void setObjectDirty(boolean dirty) { this.dirty = dirty; }
 	
-	/*
-	 * (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
-	 * MeasureLineConnectionFigure#clone()
+	/**
+	 * Overridden to set the various flags.
+	 * @see MeasureLineConnectionFigure#clone()
 	 */
 	public MeasureLineConnectionFigure clone()
 	{
-		MeasureLineConnectionFigure that = (MeasureLineConnectionFigure) super.clone();
+		MeasureLineConnectionFigure that = 
+			(MeasureLineConnectionFigure) super.clone();
 		that.setReadOnly(this.isReadOnly());
 		that.setClientObject(this.isClientObject());
 		that.setObjectDirty(true);
 		return that;
 	}
+	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface
 	 * @see ROIFigure#getFigureListeners()
@@ -649,9 +640,9 @@ public class MeasureLineConnectionFigure
 	{
 		List<FigureListener> figListeners = new ArrayList<FigureListener>();
 		Object[] listeners = listenerList.getListenerList();
-		for(Object listener : listeners)
-			if(listener instanceof FigureListener)
-				figListeners.add((FigureListener)listener);
+		for (Object listener : listeners)
+			if (listener instanceof FigureListener)
+				figListeners.add((FigureListener) listener);
 		return figListeners;
 	}
 }

@@ -560,7 +560,6 @@ public class MeasureEllipseFigure
 		if (!readOnly)
 			super.invalidate();
 	}
-
 	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
@@ -594,10 +593,7 @@ public class MeasureEllipseFigure
 	 * Implemented as specified by the {@link ROIFigure} interface
 	 * @see ROIFigure#isClientObject()
 	 */
-	public boolean isClientObject() 
-	{
-		return clientObject;
-	}
+	public boolean isClientObject() { return clientObject; }
 
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface
@@ -612,24 +608,17 @@ public class MeasureEllipseFigure
 	 * Implemented as specified by the {@link ROIFigure} interface
 	 * @see ROIFigure#isDirty()
 	 */
-	public boolean isDirty() 
-	{
-		return dirty;
-	}
+	public boolean isDirty() { return dirty; }
 
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface
 	 * @see ROIFigure#setObjectDirty(boolean)
 	 */
-	public void setObjectDirty(boolean dirty) 
-	{
-		this.dirty = dirty;
-	}
+	public void setObjectDirty(boolean dirty) { this.dirty = dirty; }
 	
-	/*
-	 * (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
-	 * MeasureEllipseFigure#clone()
+	/**
+	 * Overridden to set the various flags.
+	 * @see MeasureEllipseFigure#clone()
 	 */
 	public MeasureEllipseFigure clone()
 	{
@@ -640,10 +629,9 @@ public class MeasureEllipseFigure
 		return that;
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
-	 * MeasureEllipseFigure#setText(String)
+	/**
+	 * Overridden to mark the object has dirty.
+	 * @see MeasureEllipseFigure#setText(String)
 	 */
 	public void setText(String text)
 	{
@@ -660,8 +648,9 @@ public class MeasureEllipseFigure
 		List<FigureListener> figListeners = new ArrayList<FigureListener>();
 		Object[] listeners = listenerList.getListenerList();
 		for (Object listener : listeners)
-			if(listener instanceof FigureListener)
+			if (listener instanceof FigureListener)
 				figListeners.add((FigureListener) listener);
 		return figListeners;
 	}
 }
+

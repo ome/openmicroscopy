@@ -280,7 +280,6 @@ class InputServerStrategy
 	 */
 	private MeasureEllipseFigure createEllipseFigure(EllipseData data)
 	{
-		
 		double cx = data.getX();
 		double cy = data.getY();
 		double rx = data.getRadiusX();
@@ -300,8 +299,7 @@ class InputServerStrategy
 			transform = SVGTransform.toTransform(data.getTransform());
 			TRANSFORM.set(fig, transform);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			// e.printStackTrace();
+			
 		}
 		
 		return fig;
@@ -570,8 +568,6 @@ class InputServerStrategy
 			transform = SVGTransform.toTransform(data.getTransform());
 			TRANSFORM.set(fig, transform);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			// e.printStackTrace();
 		}	
 		return fig;
 	}

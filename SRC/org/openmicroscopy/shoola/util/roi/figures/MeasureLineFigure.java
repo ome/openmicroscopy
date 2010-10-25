@@ -789,17 +789,15 @@ public class MeasureLineFigure
 		return super.joinSegments(join, tolerance);
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
-	 * MeasureLineFigure#setText(String)
+	/**
+	 * Overridden to mark the object has dirty.
+	 * @see MeasureLineFigure#setText(String)
 	 */
 	public void setText(String text)
 	{
 		super.setText(text);
 		this.setObjectDirty(true);
 	}
-	
 	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface
@@ -809,9 +807,9 @@ public class MeasureLineFigure
 	{
 		List<FigureListener> figListeners = new ArrayList<FigureListener>();
 		Object[] listeners = listenerList.getListenerList();
-		for(Object listener : listeners)
-			if(listener instanceof FigureListener)
-				figListeners.add((FigureListener)listener);
+		for (Object listener : listeners)
+			if (listener instanceof FigureListener)
+				figListeners.add((FigureListener) listener);
 		return figListeners;
 	}
 }

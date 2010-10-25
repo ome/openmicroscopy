@@ -129,10 +129,9 @@ public class PointTextFigure
 	{
 		if (DrawingAttributes.SHOWTEXT.get(this)) {
 			String text = getText();
-			if (text != null  && isEditable()) 
+			if (text != null)//  && isEditable()) 
 			{	
-				if(text!=null)
-					text = text.trim();
+				text = text.trim();
 				TextLayout layout = getTextLayout();
 				Rectangle2D.Double r = getBounds();
 				FontMetrics fm = 
