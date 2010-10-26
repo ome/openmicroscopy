@@ -1214,18 +1214,27 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             logger.error(traceback.format_exc())
             rv = "Error: %s" % x
             return HttpResponse(rv)
+        
+        images = source[0] == 'img' and [source[1]] or None
+        datasets = source[0] == 'ds' and [source[1]] or None
+        plates = source[0] == 'pl' and [source[1]] or None        
+        request.session['clipboard'] = {'images': images, 'datasets': datasets, 'plates': plates}
         return HttpResponseRedirect(url)
     elif action == 'removemany':
         parent = request.REQUEST.get('parent')
         if parent is not None:
             parent = parent.split('-')
-            source = {'images': request.REQUEST.getlist('image'), 'datasets': request.REQUEST.getlist('dataset'), 'projects': request.REQUEST.getlist('projects'), 'plates': request.REQUEST.getlist('plate'), 'screens': request.REQUEST.getlist('screens')}
+            images = request.REQUEST.getlist('image')
+            datasets = request.REQUEST.getlist('dataset')
+            plates = request.REQUEST.getlist('plate')
+            source = {'images': images, 'datasets': datasets, 'plates': plates}
             try:
                 manager.removemany(parent,source)
             except Exception, x:
                 logger.error(traceback.format_exc())
                 rv = "Error: %s" % x
                 return HttpResponse(rv)
+            request.session['clipboard'] = source
             return HttpResponse()
         else:
             raise AttributeError('Operation not supported.')
