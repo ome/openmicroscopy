@@ -161,6 +161,16 @@ public class DeleteState {
             }
         }
 
+        /**
+         * Returns all column sets where the first LENGTH - 1 members of "match"
+         * coincide with the values of the columns in the set. (Remembering that
+         * a set is a group of rows which are all equal except for the last value
+         * it suffices to check any member of the set).
+         *
+         * @param entry
+         * @param match
+         * @return
+         */
         public Iterator<List<List<Long>>> columnSets(final DeleteEntry entry,
                 final List<Long> match) {
 
@@ -177,9 +187,15 @@ public class DeleteState {
                     LOOP: while (p != null && next == null && p.hasNext()) {
                         List<List<Long>> rv = new LinkedList<List<Long>>();
                         List<Integer> pointer = p.next();
-                        for (Integer idx : pointer) {
+                        for (int i = 0; i < pointer.size(); i++) {
+                            Integer idx = pointer.get(i);
                             List<Long> cols = r.get(idx);
-                            if (match != null) {
+
+                            /*
+                             * If we were asked to match a given value,
+                             * then we check it for the first index.
+                             */
+                            if (i == 0 && match != null) {
                                 for (int w = 0; w < match.size() - 1; w++) {
                                     if (!match.get(w).equals(cols.get(w))) {
                                         continue LOOP;

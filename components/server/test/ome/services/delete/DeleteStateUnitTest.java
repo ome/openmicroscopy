@@ -247,9 +247,9 @@ public class DeleteStateUnitTest extends MockDeleteTest {
     public void testSlowDeleteStateTablesAdd() {
         DeleteState.Tables dst = new DeleteState.Tables();
         List<List<Long>> data = new ArrayList<List<Long>>();
-        for (int a = 0; a < 50; a++) {
-            for (int b = 0; b < 3; b++) {
-                for (int c = 0; c < 4; c++) {
+        for (int a = 0; a < 10000; a++) {
+            for (int b = 0; b < 4000; b++) {
+                for (int c = 0; c < 2; c++) {
                     List<Long> l = new ArrayList<Long>();
                     l.add((long)a);
                     l.add((long)b);
@@ -259,7 +259,22 @@ public class DeleteStateUnitTest extends MockDeleteTest {
             }
         }
         Collections.shuffle(data);
-        dst.add(null, data);
+
+        DeleteSpec spec = new BaseDeleteSpec("foo", "foo");
+        DeleteEntry entry = spec.entries().get(0);
+        dst.add(entry, data);
+
+        Long ignored = -1L;
+        Iterator<List<List<Long>>> it = dst.columnSets(entry, Arrays.asList(0L, ignored));
+        int count = 0;
+        while (it.hasNext()) {
+            List<List<Long>> l = it.next();
+            for (List<Long> i : l) {
+                assertEquals(new Long(0L), i.get(0));
+                count++;
+            }
+        }
+        assertEquals(1200, count);
     }
 
     //
