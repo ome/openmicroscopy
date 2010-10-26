@@ -243,7 +243,7 @@ def login(request):
         request.session['shares'] = dict()
         request.session['imageInBasket'] = set()
         blitz_host = "%s:%s" % (blitz.host, blitz.port)
-        request.session['nav']={"blitz": blitz_host, "menu": "start", "view": "icon", "basket": 0, "experimenter":None, 'callback':dict()}
+        request.session['nav']={"error": None, "blitz": blitz_host, "menu": "start", "view": "icon", "basket": 0, "experimenter":None, 'callback':dict()}
         
     error = request.REQUEST.get('error')
     
@@ -303,6 +303,8 @@ def login(request):
 @isUserConnected
 def index(request, **kwargs):
     template = "webclient/index/index.html"
+    
+    request.session['nav']['error'] = request.REQUEST.get('error')
     
     conn = None
     try:
@@ -435,7 +437,7 @@ def change_active_group(request, **kwargs):
             logger.error(traceback.format_exc())
         return HttpResponseRedirect(url)
     else:
-        error = 'You cannot change your group becuase other session is on.'
+        error = 'You cannot change your group becuase the data is currently processing. You can force it by logging out and logging in again.'
         url = reverse("webindex")+ ("?error=%s" % error)
         if request.session.get('nav')['experimenter'] is not None:
             url += "&experimenter=%s" % request.session.get('nav')['experimenter']
@@ -472,6 +474,8 @@ def load_template(request, menu, **kwargs):
         template = "webclient/%s/%s.html" % (menu,menu)
     request.session['nav']['menu'] = menu
     
+    request.session['nav']['error'] = request.REQUEST.get('error')
+    
     conn = None
     try:
         conn = kwargs["conn"]
@@ -480,6 +484,15 @@ def load_template(request, menu, **kwargs):
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     url = None
+    try:
+        url = kwargs["url"]
+    except:
+        logger.error(traceback.format_exc())
+    if url is None:
+        url = reverse(viewname="load_template", args=[menu])
+    
+    error = request.REQUEST.get('error')
+    
     try:
         url = kwargs["url"]
     except:

@@ -23,6 +23,11 @@
 
     <script type="text/javascript" src="{% url webstatic "javascript/menu.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/nav.js" %}"></script>
+    <script type="text/javascript">
+    {% if nav.error %}
+        alert("{{ nav.error }}");
+    {% endif %}
+    </script>
     {% block script %}{% endblock %}
 
 </head>
