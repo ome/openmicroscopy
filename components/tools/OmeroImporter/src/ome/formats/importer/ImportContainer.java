@@ -25,6 +25,7 @@ public class ImportContainer
     private Boolean archive;
     private Double[] userPixels;
     private String userSpecifiedImageName;
+    private String userSpecifiedImageDescription;
     private IObject target;
     private FileInfo[] fileInfo;
     
@@ -107,11 +108,21 @@ public class ImportContainer
     public String getUserSpecifiedName()
     {
         return userSpecifiedImageName;
-    }   
+    }
+
+    public String getUserSpecifiedDescription()
+    {
+        return userSpecifiedImageDescription;
+    }
 
 	public void setUserSpecifiedFileName(String name)
 	{
 	    this.userSpecifiedImageName = name;
+	}
+
+	public void setUserSpecifiedFileDescription(String description)
+	{
+	    this.userSpecifiedImageDescription = description;
 	}
 	
 	public IObject getTarget()
