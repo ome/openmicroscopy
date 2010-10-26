@@ -122,7 +122,7 @@ public class BrowserManageAction
     private void handleExperimenter(TreeImageDisplay display)
     {
     	if (display == null) {
-    		setEnabled(false);
+    		setEnabled(true);
     	} else {
     		Object ho = display.getUserObject();
         	long id = TreeViewerAgent.getUserDetails().getId();
@@ -157,13 +157,8 @@ public class BrowserManageAction
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
     	if (model.getBrowserType() == Browser.ADMIN_EXPLORER) {
-    		if (!TreeViewerAgent.isAdministrator()) {
-    			setEnabled(false);
-    			return;
-    		} else {
-    			setEnabled(true);
-    			return;
-    		}
+    		setEnabled(TreeViewerAgent.isAdministrator());
+    		return;
     	}
     	if (selectedDisplay == null) {
     		handleExperimenter(model.getLastSelectedDisplay());
