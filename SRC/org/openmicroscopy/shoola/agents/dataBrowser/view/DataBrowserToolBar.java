@@ -263,7 +263,7 @@ class DataBrowserToolBar
 		if (filterByMenu != null) return filterByMenu;
 		filterByMenu = new JPopupMenu();
 		IconManager icons = IconManager.getInstance();
-		JMenuItem menuItem = new JMenuItem("Load Tags to filter by");
+		JMenuItem menuItem = new JMenuItem("Load Tags to filter by...");
 		menuItem.setToolTipText("Load the existing Tags to filter by.");
 		menuItem.setIcon(icons.getIcon(IconManager.TAG_FILTER));
 		menuItem.addActionListener(this);
