@@ -37,10 +37,12 @@ import tempfile
 try:
     from custom_settings import *
 except ImportError:
-    sys.stderr.write("Error: Can't find the file 'omero/var/lib/custom_settings.py'" \
-        "It appears you haven't customized things.\nYou'll have to run 'bin/omero web settings', " \
-        "passing it your settings module.\n(If the file custom_settings.py does indeed exist, " \
-        "it's causing an ImportError somehow.)\n") 
+    sys.stderr.write("""Error: Can't find the file 'omero/var/lib/custom_settings.py' It appears you
+haven't customized things. You'll have to run 'bin/omero web settings'
+(If the file custom_settings.py does indeed exist it's causing an ImportError
+somehow.)
+""")
+    sys.stderr.write(str(os.environ))
     sys.exit(1)
 
 

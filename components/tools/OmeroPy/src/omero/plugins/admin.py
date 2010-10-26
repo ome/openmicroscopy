@@ -769,6 +769,8 @@ OMERO Diagnostics %s
         is_writable = os.access(omero_data_dir, os.R_OK|os.W_OK)
         self.ctx.out("OMERO data dir: '%s'\tExists? %s\tIs writable? %s" % \
             (omero_data_dir, exists, is_writable))
+        from omero.plugins.web import WebControl
+        WebControl().status(args)
 
     def session_manager(self, communicator):
         import IceGrid, Glacier2

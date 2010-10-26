@@ -41,9 +41,10 @@ class WebControl(BaseControl):
         parser.add(sub, self.help, "Print extended help")
         parser.add(sub, self.settings, "Primary configuration for web")
         parser.add(sub, self.custom_settings, "Advanced use: Creates only a a custom_settings.py")
-        parser.add(sub, self.stop, "Stop the server")
+        parser.add(sub, self.stop, "Stop the OMERO.web server")
+        parser.add(sub, self.status, "Status for the OMERO.web server")
 
-        start = parser.add(sub, self.start, "Primary start for webserver")
+        start = parser.add(sub, self.start, "Primary start for the OMERO.web server")
         start.add_argument("host", nargs="?")
         start.add_argument("port", nargs="?")
 
@@ -263,6 +264,8 @@ ADMINS = (
             output.write("""
 APPLICATION_HOST='%s' 
 """ % settings["APPLICATION_HOST"])
+            output.write("""APPLICATION_SERVER='%s'
+""" % 'fastcgi-tcp')
         finally:
             output.flush()
             output.close()
@@ -293,7 +296,7 @@ APPLICATION_HOST='%s'
             self.ctx.out("You just installed OMERO, which means you didn't have settings configured in OMERO.web.")
         
         if not os.path.exists(self.ctx.dir / "var" / "lib"):
-            os.mkdir(self.ctx.dir / "var" / "lib")
+            os.makedirs(self.ctx.dir / "var" / "lib")
             
         settings = self._setup_server()
         self._update_settings(location, settings)
@@ -312,7 +315,7 @@ APPLICATION_HOST='%s'
             self.ctx.out("You don't have emdb_settings configured in OMERO.web. ")
         
         if not os.path.exists(self.ctx.dir / "var" / "lib"):
-            os.mkdir(self.ctx.dir / "var" / "lib")
+            os.makedirs(self.ctx.dir / "var" / "lib")
             
         settings = self._setup_emdb()
         self._update_emdb_settings(location, settings)
@@ -501,7 +504,7 @@ APPLICATION_HOST='%s'
         port = args.port is not None and args.port or "8000"
         link = ("%s:%s" % (host, port))
         location = self.ctx.dir / "lib" / "python" / "omeroweb"
-        self.ctx.out("Starting django development webserver... \n")
+        self.ctx.out("Starting OMERO.web... ", newline=False)
         import omeroweb.settings as settings
         deploy = getattr(settings, 'APPLICATION_SERVER', 'default')
         if deploy == 'fastcgi':
@@ -522,21 +525,54 @@ APPLICATION_HOST='%s'
         else:
             django = ["python","manage.py","runserver", link, "--noreload"]
             rv = self.ctx.call(django, cwd = location)
-        
+        self.ctx.out("[OK]")
+        return rv
+
+    def status(self, args):
+        location = self.ctx.dir / "lib" / "python" / "omeroweb"
+        self.ctx.out("OMERO.web status... ", newline=False)
+        import omeroweb.settings as settings
+        deploy = getattr(settings, 'APPLICATION_SERVER', 'default')
+        rv = 0
+        if deploy in ('fastcgi', 'fastcgi-tcp'):
+            try:
+                f=open(self.ctx.dir / "var" / "django.pid", 'r')
+                pid = int(f.read())
+            except IOError:
+                self.ctx.out("[NOT STARTED]")
+                return rv
+            import signal
+            try:
+                os.kill(pid, 0)  # NULL signal
+                self.ctx.out("[RUNNING] (PID %d)" % pid)
+            except:
+                self.ctx.out("[NOT STARTED]")
+                return rv
+        else:
+            self.ctx.err("DEVELOPMENT: You will have to check status by hand!")
+        return rv
+
     def stop(self, args):
-        self.ctx.out("Stopping django development webserver... \n")
+        self.ctx.out("Stopping OMERO.web... ", newline=False)
         import omeroweb.settings as settings
         deploy = getattr(settings, 'APPLICATION_SERVER', 'default')
         if deploy == 'fastcgi' or deploy == 'fastcgi-tcp':
-            f=open(self.ctx.dir / "var" / "django.pid", 'r')
-            pid = f.read()
-            import signal
+            pid = 'Unknown'
+            try:
+                f=open(self.ctx.dir / "var" / "django.pid", 'r')
+                pid = int(f.read())
+                import signal
+                os.kill(pid, 0)  # NULL signal
+            except:
+                self.ctx.out("[FAILED]")
+                self.ctx.out("Django FastCGI workers (PID %s) not started?" % pid)
+                return
             os.kill(pid, signal.SIGTERM) #kill whole group
-            self.ctx.out("Process %i was killed. Webserver was shut down!\n")
+            self.ctx.out("[OK]")
+            self.ctx.out("Django FastCGI workers (PID %d) killed." % pid)
         else:
-            self.ctx.err("DEVELOPMENT WARNING: Not ready yet. Kill it by hand! \n")
-        
-    
+            self.ctx.err("DEVELOPMENT: You will have to kill processes by hand!")
+
 try:
     register("web", WebControl, HELP)
 except NameError:
