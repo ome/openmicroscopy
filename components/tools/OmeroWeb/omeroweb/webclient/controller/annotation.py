@@ -32,7 +32,7 @@ from webclient.controller import BaseController
 class BaseAnnotation(BaseController):
     
     comment = None
-    url = None
+    attachment = None
     tag = None
     
     def __init__(self, conn, o_type=None, oid=None, **kw):
@@ -46,7 +46,11 @@ class BaseAnnotation(BaseController):
                 self.tag = self.conn.getTagAnnotation(long(oid))
                 if self.tag is None:
                     raise AttributeError("We are sorry, but that tag does not exist, or if it does, you have no permission to see it.")
-    
+            elif o_type == "file":
+                self.attachment = self.conn.getFileAnnotation(long(oid))
+                if self.attachment is None:
+                    raise AttributeError("We are sorry, but that tag does not exist, or if it does, you have no permission to see it.")
+            
     def saveCommentAnnotation(self, content):
         ann = self.comment._obj
         ann.textValue = rstring(str(content))
@@ -65,5 +69,7 @@ class BaseAnnotation(BaseController):
         handle = None
         if self.tag:
             handle = self.conn.deleteTag(self.tag.id, child, anns)
+        elif self.attachment:
+            handle = self.conn.deleteFileAnnotation(self.attachment.id, child, anns)
         return handle
     

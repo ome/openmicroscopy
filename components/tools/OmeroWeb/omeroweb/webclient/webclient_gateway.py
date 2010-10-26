@@ -118,13 +118,10 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             who would like to look at these data, is a member of.
             Public data can be only visible by the member of group and owners."""        
         
-        for k in self._proxies.keys():
-            
-            try:
-                self._proxies[k].close()
-            except:
-                logger.error(traceback.format_exc())
         try:
+            for k in self._proxies.keys():
+                self._proxies[k].close()
+                
             self.c.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid, False))
             admin_serv = self.getAdminService()
             admin_serv.setDefaultGroup(self.getUser()._obj, omero.model.ExperimenterGroupI(gid, False))

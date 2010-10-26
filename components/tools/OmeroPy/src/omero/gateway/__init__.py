@@ -1635,19 +1635,18 @@ class _BlitzGateway (object):
     
     def getColleagues(self):
         """ Look up users who are a member of the current user active group."""
-        
-        a = self.getAdminService()
-        default = self.getAdminService().getGroup(self.getEventContext().groupId)
-        for d in default.copyGroupExperimenterMap():
-            if d.child.id.val != self.getEventContext().userId:
-                yield ExperimenterWrapper(self, d.child)
+                
+        default = self.getGroup(self.getEventContext().groupId)
+        if not default.isPrivate() or default.isLeader():
+            for d in default.copyGroupExperimenterMap():
+                if d.child.id.val != self.getEventContext().userId:
+                    yield ExperimenterWrapper(self, d.child)
 
     def getStaffs(self):
         """ Look up users who are a member of the group owned by the current user."""
         
         q = self.getQueryService()
-        gr_list = list()
-        gr_list.extend(self.getEventContext().leaderOfGroups)
+        gr_list = self.getEventContext().leaderOfGroups
         p = omero.sys.Parameters()
         p.map = {}
         p.map["gids"] = rlist([rlong(a) for a in set(gr_list)])
@@ -1660,6 +1659,7 @@ class _BlitzGateway (object):
     def getColleaguesAndStaffs(self):
         """ Look up users who are a member of the current user active group 
             and users who are a member of the group owned by the current user."""
+        
         
         q = self.getQueryService()
         gr_list = list()
@@ -2229,7 +2229,7 @@ class _BlitzGateway (object):
                 def searchProcessing ():
                     rv.extend(map(lambda x: t(self, x), search.results()))
                 timeit(searchProcessing)()
-        #search.close()
+        search.close()
         return rv
 
 def safeCallWrap (self, attr, f): #pragma: no cover
@@ -2380,8 +2380,7 @@ class ProxyObjectWrapper (object):
         Closes the underlaying service, so next call to the proxy will create a new
         instance of it.
         """
-        
-        if self._obj:
+        if self._obj and isinstance(self._obj, omero.api.StatefulServiceInterfacePrx):
             self._obj.close()
         self._obj = None
     
@@ -2572,7 +2571,7 @@ class FileAnnotationWrapper (AnnotationWrapper):
                 else:
                     data = store.read(pos, buf)
                 yield data
-        #store.close()
+        store.close()
     
 #    def shortTag(self):
 #        if isinstance(self._obj, TagAnnotationI):
@@ -3493,7 +3492,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             rv = False
         if not rv: #pragma: no cover
             tb.resetDefaults()
-            #tb.close()
+            tb.close()
             tb.setPixelsId(pixels_id)
         return tb
     
