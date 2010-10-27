@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 //Java imports
 import java.awt.Color;
 import java.awt.Frame;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
@@ -98,9 +100,9 @@ import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
  * @since OME3.0
  */
 class MeasurementViewerControl 
-	implements ChangeListener, DrawingListener, FigureListener, 
-				FigureSelectionListener, PropertyChangeListener,
-				WindowFocusListener, KeyListener
+	implements ChangeListener, DrawingListener, 
+	FigureListener, FigureSelectionListener, PropertyChangeListener,
+	WindowFocusListener, KeyListener
 {
 
 	/** Identifies the <code>SAVE</code> action in the menu. */
@@ -333,93 +335,93 @@ class MeasurementViewerControl
      */
     void attachListeners()
     {
-    	 view.getLoadingWindow().addPropertyChangeListener(
-                 LoadingWindow.CLOSED_PROPERTY, this);
-    	 view.getDrawing().addDrawingListener(this);
-    	 view.getDrawingView().addFigureSelectionListener(this);
-         view.getDrawingView().addKeyListener(this);
-    	 view.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-    	 view.addWindowListener(new WindowAdapter() {
-             public void windowClosing(WindowEvent e) { model.close(); }
-             public void windowOpened(WindowEvent e) { 
-            	 view.addWindowFocusListener(this); }
-         });
-    	 view.getDrawingView().addMouseListener(new MouseAdapter() {
-    			
- 			public void mouseReleased(MouseEvent e)
- 			{
- 				setROIFigureStatus(ROIFigure.IDLE);
- 				if (isRightClick(e)) {
- 					Collection l = view.getDrawingView().getSelectedFigures();
- 					if (l != null && l.size() == 1)
- 						view.showROIManagementMenu(e.getX(), e.getY());
- 				}
- 			}
- 		
- 		});
-    	 
+    	view.getLoadingWindow().addPropertyChangeListener(
+    			LoadingWindow.CLOSED_PROPERTY, this);
+    	view.getDrawing().addDrawingListener(this);
+    	view.getDrawingView().addFigureSelectionListener(this);
+    	view.getDrawingView().addKeyListener(this);
+    	view.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+    	view.addWindowListener(new WindowAdapter() {
+    		public void windowClosing(WindowEvent e) { model.close(); }
+    		public void windowOpened(WindowEvent e) { 
+    			view.addWindowFocusListener(this); }
+    	});
+    	view.getDrawingView().addMouseListener(new MouseAdapter() {
+
+    		public void mouseReleased(MouseEvent e)
+    		{
+    			setROIFigureStatus(ROIFigure.IDLE);
+    			if (isRightClick(e)) {
+    				Collection l = view.getDrawingView().getSelectedFigures();
+    				if (l != null && l.size() == 1)
+    					view.showROIManagementMenu(e.getX(), e.getY());
+    			}
+    		}
+
+    	});
+
     	view.getDrawingView().addMouseMotionListener(new MouseMotionAdapter()
-		{
-			
-			@Override
-			public void mouseDragged(MouseEvent e)
-			{
-				setROIFigureStatus(ROIFigure.MOVING);
-			}
-			
-		});
+    	{
+
+    		@Override
+    		public void mouseDragged(MouseEvent e)
+    		{
+    			setROIFigureStatus(ROIFigure.MOVING);
+    		}
+
+    	});
     	JMenu menu = MeasurementViewerFactory.getWindowMenu();
-		menu.addMenuListener(new MenuListener() {
+    	menu.addMenuListener(new MenuListener() {
 
-			public void menuSelected(MenuEvent e)
-			{ 
-				Object source = e.getSource();
-				if (source instanceof JMenu)
-					MeasurementViewerFactory.register((JMenu) source);
-			}
+    		public void menuSelected(MenuEvent e)
+    		{ 
+    			Object source = e.getSource();
+    			if (source instanceof JMenu)
+    				MeasurementViewerFactory.register((JMenu) source);
+    		}
 
-			/** 
-			 * Required by I/F but not actually needed in our case, 
-			 * no-operation implementation.
-			 * @see MenuListener#menuCanceled(MenuEvent)
-			 */ 
-			public void menuCanceled(MenuEvent e) {}
+    		/** 
+    		 * Required by I/F but not actually needed in our case, 
+    		 * no-operation implementation.
+    		 * @see MenuListener#menuCanceled(MenuEvent)
+    		 */ 
+    		public void menuCanceled(MenuEvent e) {}
 
-			/** 
-			 * Required by I/F but not actually needed in our case, 
-			 * no-operation implementation.
-			 * @see MenuListener#menuDeselected(MenuEvent)
-			 */ 
-			public void menuDeselected(MenuEvent e) {}
+    		/** 
+    		 * Required by I/F but not actually needed in our case, 
+    		 * no-operation implementation.
+    		 * @see MenuListener#menuDeselected(MenuEvent)
+    		 */ 
+    		public void menuDeselected(MenuEvent e) {}
 
-		});
+    	});
 
-		//Listen to keyboard selection
-		menu.addMenuKeyListener(new MenuKeyListener() {
+    	//Listen to keyboard selection
+    	menu.addMenuKeyListener(new MenuKeyListener() {
 
-			public void menuKeyReleased(MenuKeyEvent e)
-			{
-				Object source = e.getSource();
-				if (source instanceof JMenu)
-					MeasurementViewerFactory.register((JMenu) source);
-			}
+    		public void menuKeyReleased(MenuKeyEvent e)
+    		{
+    			Object source = e.getSource();
+    			if (source instanceof JMenu)
+    				MeasurementViewerFactory.register((JMenu) source);
+    		}
 
-			/** 
-			 * Required by I/F but not actually needed in our case, 
-			 * no-operation implementation.
-			 * @see MenuKeyListener#menuKeyPressed(MenuKeyEvent)
-			 */
-			public void menuKeyPressed(MenuKeyEvent e) {}
+    		/** 
+    		 * Required by I/F but not actually needed in our case, 
+    		 * no-operation implementation.
+    		 * @see MenuKeyListener#menuKeyPressed(MenuKeyEvent)
+    		 */
+    		public void menuKeyPressed(MenuKeyEvent e) {}
 
-			/** 
-			 * Required by I/F but not actually needed in our case, 
-			 * no-operation implementation.
-			 * @see MenuKeyListener#menuKeyTyped(MenuKeyEvent)
-			 */
-			public void menuKeyTyped(MenuKeyEvent e) {}
+    		/** 
+    		 * Required by I/F but not actually needed in our case, 
+    		 * no-operation implementation.
+    		 * @see MenuKeyListener#menuKeyTyped(MenuKeyEvent)
+    		 */
+    		public void menuKeyTyped(MenuKeyEvent e) {}
 
-		});
-		MeasurementViewerFactory.attachWindowMenuToTaskBar();
+    	});
+    	MeasurementViewerFactory.attachWindowMenuToTaskBar();
     }
     
     /** 
@@ -701,28 +703,28 @@ class MeasurementViewerControl
 	public void figureRemoved(FigureEvent e) {}
 
 	/**
-	 * Required by the {@link DrawingListener} I/F but no-op implementation
-	 * in our case.
+	 * Required by the {@link DrawingListener} I/F but no-operation 
+	 * implementation in our case.
 	 * @see FigureListener#figureRequestRemove(FigureEvent)
 	 */
 	public void figureRequestRemove(FigureEvent e) {}
 
 	/**
-	 * Required by the {@link FigureListener} I/F but no-op implementation
-	 * in our case.
+	 * Required by the {@link FigureListener} I/F but no-operation 
+	 * implementation in our case.
 	 * @see FigureListener#figureHandlesChanged(FigureEvent)
 	 */
 	public void figureHandlesChanged(FigureEvent e) {}
 
 	/**
-	 * Required by the {@link KeyListener} I/F but no-op implementation
+	 * Required by the {@link KeyListener} I/F but no-operation implementation
 	 * in our case.
 	 * @see KeyListener#keyPressed(KeyEvent)
 	 */
 	public void keyPressed(KeyEvent e) {}
 
 	/**
-	 * Required by the {@link KeyListener} I/F but no-op implementation
+	 * Required by the {@link KeyListener} I/F but no-operation implementation
 	 * in our case.
 	 * @see KeyListener#keyReleased(KeyEvent)
 	 */

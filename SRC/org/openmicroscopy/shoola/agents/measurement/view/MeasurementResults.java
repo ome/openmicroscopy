@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.event.ActionEvent;
@@ -240,6 +241,7 @@ class MeasurementResults
 	private void buildGUI()
 	{
 		setLayout(new BorderLayout());
+		/*
 		scrollPane = new JScrollPane(results);
 		add(scrollPane, BorderLayout.CENTER);
 		scrollPane.setVerticalScrollBar(scrollPane.createVerticalScrollBar());
@@ -251,6 +253,21 @@ class MeasurementResults
 		panel.add(refreshButton);
 		panel.add(saveButton);
 		add(panel, BorderLayout.SOUTH);
+		*/
+		JPanel centrePanel = new JPanel();
+		centrePanel.setLayout(new BorderLayout());
+		scrollPane = new JScrollPane(results);
+		centrePanel.add(scrollPane, BorderLayout.CENTER);
+		JPanel bottomPanel = new JPanel();
+		bottomPanel.setLayout(new FlowLayout());
+		bottomPanel.add(resultsWizardButton);
+		bottomPanel.add(refreshButton);
+		bottomPanel.add(saveButton);
+		JPanel containerPanel = new JPanel();
+		containerPanel.setLayout(new BorderLayout());
+		containerPanel.add(centrePanel, BorderLayout.CENTER);
+		containerPanel.add(bottomPanel, BorderLayout.SOUTH);
+		add(containerPanel, BorderLayout.CENTER);
 	}
 
 	/**
@@ -603,7 +620,9 @@ class MeasurementResults
 		ResultsTable()
 		{
 			super();
+			/*
 			setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			
 			int columnWidth = 0;
 			FontMetrics metrics = getFontMetrics(getFont());
 			int w;
@@ -616,7 +635,7 @@ class MeasurementResults
 				col.setMinWidth(columnWidth);
 				col.setPreferredWidth(columnWidth);
 			}
-		
+			 */
 		}
 		
 		/**

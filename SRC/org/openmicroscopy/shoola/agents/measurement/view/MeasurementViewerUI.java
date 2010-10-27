@@ -468,6 +468,7 @@ class MeasurementViewerUI
         this.component = component;
         this.model = model;
         this.controller = controller;
+        
         controller.attachListeners();
         ImageIcon icon = IconManager.getInstance().getImageIcon(
         		IconManager.MEASUREMENT_TOOL);

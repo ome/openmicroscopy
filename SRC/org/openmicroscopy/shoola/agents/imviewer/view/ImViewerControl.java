@@ -934,22 +934,22 @@ class ImViewerControl
 	public void windowLostFocus(WindowEvent e) {}
 
 	/**
-	 * Required by the {@link ComponentListener} I/F but no-op implementation 
-	 * in our case.
+	 * Required by the {@link ComponentListener} I/F but no-operation
+	 * implementation in our case.
 	 * @see ComponentListener#componentShown(ComponentEvent)
 	 */
 	public void componentShown(ComponentEvent e) {}
 
 	/**
-	 * Required by the {@link ComponentListener} I/F but no-op implementation 
-	 * in our case.
+	 * Required by the {@link ComponentListener} I/F but no-operation
+	 * implementation in our case.
 	 * @see ComponentListener#componentHidden(ComponentEvent)
 	 */
 	public void componentHidden(ComponentEvent e) {}
 
 	/**
-	 * Required by the {@link ComponentListener} I/F but no-op implementation 
-	 * in our case.
+	 * Required by the {@link ComponentListener} I/F but no-operation
+	 * implementation in our case.
 	 * @see ComponentListener#componentMoved(ComponentEvent)
 	 */
 	public void componentMoved(ComponentEvent e) {}

@@ -62,7 +62,8 @@ import org.openmicroscopy.shoola.util.ui.TitlePanel;
  * @since OME3.0
  */
 class ResultsWizard
-	extends JDialog implements ActionListener
+	extends JDialog 
+	implements ActionListener
 {
 	
 	/** Action command ID to add a field to the result table. */
