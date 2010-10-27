@@ -41,6 +41,18 @@ import ome.security.basic.CurrentDetails;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.tools.hibernate.ExtendedMetadata;
+import omero.model.Plate;
+import omero.model.PlateAnnotationLink;
+import omero.model.Reagent;
+import omero.model.ReagentAnnotationLink;
+import omero.model.Screen;
+import omero.model.ScreenAnnotationLink;
+import omero.model.ScreenPlateLink;
+import omero.model.Well;
+import omero.model.WellAnnotationLink;
+import omero.model.WellReagentLink;
+import omero.model.WellSample;
+import omero.model.WellSampleAnnotationLink;
 
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
@@ -195,6 +207,73 @@ public class MockDeleteTest extends MockObjectTestCase {
         values.put("ImageAnnotationLink", "annotationLinks");
         values.put("Pixels", "pixels");
         relationships.put("Image", values);
+
+        // SPW
+
+        values = new HashMap<String, String>();
+        values.put("ScreenPlateLink", "plateLinks");
+        values.put("ScreenAnnotationLink", "annotationLinks");
+        values.put("Reagent", "reagent");
+        relationships.put("Screen", values);
+
+        values = new HashMap<String, String>();
+        values.put("Annotation", "child");
+        relationships.put("ScreenAnnotationLink", values);
+
+        values = new HashMap<String, String>();
+        values.put("Plate", "child");
+        relationships.put("ScreenPlateLink", values);
+
+        values = new HashMap<String, String>();
+        values.put("ReagentAnnotationLink", "annotationLinks");
+        relationships.put("Reagent", values);
+
+        values = new HashMap<String, String>();
+        values.put("Annotation", "child");
+        relationships.put("ReagentAnnotationLink", values);
+
+        values = new HashMap<String, String>();
+        values.put("Well", "wells");
+        values.put("PlateAcquisition", "plateAcquisition");
+        values.put("PlateAnnotationLink", "annotationLinks");
+        relationships.put("Plate", values);
+
+        values = new HashMap<String, String>();
+        values.put("Well", "wells");
+        values.put("Annotation", "child");
+        relationships.put("PlateAnnotationLink", values);
+
+        values = new HashMap<String, String>();
+        values.put("PlateAcquisitionAnnotationLink", "annotationLinks");
+        relationships.put("PlateAcquisition", values);
+
+        values = new HashMap<String, String>();
+        values.put("Annotation", "child");
+        relationships.put("PlateAcquisitionAnnotationLink", values);
+
+        values = new HashMap<String, String>();
+        values.put("WellSample", "wellSamples");
+        values.put("WellAnnotationLink", "annotationLinks");
+        values.put("WellReagentLink", "reagentLinks");
+        relationships.put("Well", values);
+
+        values = new HashMap<String, String>();
+        values.put("Reagent", "child");
+        relationships.put("WellReagentLink", values);
+
+        values = new HashMap<String, String>();
+        values.put("Annotation", "child");
+        relationships.put("WellAnnotationLink", values);
+
+        values = new HashMap<String, String>();
+        values.put("WellSampleAnnotationLink", "annotationLinks");
+        values.put("Image", "image");
+        relationships.put("WellSample", values);
+
+        values = new HashMap<String, String>();
+        values.put("Annotation", "child");
+        relationships.put("WellSampleAnnotationLink", values);
+
     }
 
     protected void prepareGetRelationship() {
@@ -256,6 +335,30 @@ public class MockDeleteTest extends MockObjectTestCase {
                     return Image.class;
                 } else if (name.equals("ImageAnnotationLink")) {
                     return ImageAnnotationLink.class;
+                } else if (name.equals("Screen")) {
+                    return Screen.class;
+                } else if (name.equals("ScreenAnnotationLink")) {
+                    return ScreenAnnotationLink.class;
+                } else if (name.equals("ScreenPlateLink")) {
+                    return ScreenPlateLink.class;
+                } else if (name.equals("Plate")) {
+                    return Plate.class;
+                } else if (name.equals("PlateAnnotationLink")) {
+                    return PlateAnnotationLink.class;
+                } else if (name.equals("Well")) {
+                    return Well.class;
+                } else if (name.equals("WellAnnotationLink")) {
+                    return WellAnnotationLink.class;
+                } else if (name.equals("WellReagentLink")) {
+                    return WellReagentLink.class;
+                } else if (name.equals("WellSample")) {
+                    return WellSample.class;
+                } else if (name.equals("WellSampleAnnotationLink")) {
+                    return WellSampleAnnotationLink.class;
+                } else if (name.equals("Reagent")) {
+                    return Reagent.class;
+                } else if (name.equals("ReagentAnnotationLink")) {
+                    return ReagentAnnotationLink.class;
                 } else {
                     fail("Unknown: " + name);
                     return null;

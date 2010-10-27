@@ -223,7 +223,7 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
      * See interface documentation.
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public List<List<Long>> queryBackupIds(Session session, int step, DeleteEntry subpath, QueryBuilder and)
+    public long[][] queryBackupIds(Session session, int step, DeleteEntry subpath, QueryBuilder and)
         throws DeleteException {
 
         final String[] sub = subpath.path(superspec);
@@ -259,26 +259,29 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
 
         // If only one result is returned, results == List<Long> and otherwise
         // List<Object[]>. Parsing into List<List<Long>>
-        List<List<Long>> copy = new LinkedList<List<Long>>();
+        long[][] rv = new long[results.size()][sub.length];
         for (int i = 0; i < results.size(); i++) {
             Object v = results.get(i);
             Class k = v == null ? Object.class : v.getClass();
-            List arr = new ArrayList();
+            long[] arr = new long[sub.length];
             if (Long.class.isAssignableFrom(k)) {
-                arr.add(v);
+                arr[0] = (Long) v;
             } else if (Object[].class.isAssignableFrom(k)) {
                 Object[] objs = (Object[]) v;
-                for (int j = 0; j < objs.length; j++) {
-                    arr.add(objs[j]);
+                for (int j = 0; j < arr.length; j++) {
+                    arr[j] = (Long) objs[j];
                 }
             } else if (v instanceof List) {
-                arr.addAll((List)v);
+                List l = (List) v;
+                for (int j = 0; j < arr.length; j++) {
+                    arr[j] = (Long) l.get(j);
+                }
             } else {
                 throw new IllegalArgumentException("Unknown type:" + v);
             }
-            copy.add(arr);
+            rv[i] = arr;
         }
-        return copy;
+        return rv;
 
     }
 

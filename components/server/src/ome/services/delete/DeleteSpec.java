@@ -168,7 +168,7 @@ public interface DeleteSpec {
      *            is going to detach a later graph which needs then to have its
      *            ids loaded.
      */
-    List<List<Long>> queryBackupIds(Session session, int step, DeleteEntry subpath, QueryBuilder and)
+    long[][] queryBackupIds(Session session, int step, DeleteEntry subpath, QueryBuilder and)
             throws DeleteException;
 
     /**

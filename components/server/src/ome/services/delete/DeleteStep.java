@@ -63,7 +63,7 @@ public class DeleteStep {
      * querying /Dataset/DatasetImageLink/Image then this contains: [4, 2, 1]
      * where 4 is the id of the dataset, and 1 is the id of the image.
      */
-    final List<Long> ids;
+    final long[] ids;
 
     /**
      * The actual id to be deleted as opposed to {@link DeleteEntry#getId()}
@@ -105,7 +105,7 @@ public class DeleteStep {
     boolean rollbackOnly = false;
 
     DeleteStep(int idx, List<DeleteStep> stack, DeleteSpec spec, DeleteEntry entry,
-            List<Long> ids) {
+            long[] ids) {
         this.idx = idx;
         this.stack = new LinkedList<DeleteStep>(stack);
         if (this.stack.size() > 0) {
@@ -116,7 +116,7 @@ public class DeleteStep {
         this.spec = spec;
         this.entry = entry;
         this.ids = ids;
-        this.id = ids == null ? -1L : ids.get(ids.size() - 1);
+        this.id = ids == null ? -1L : ids[ids.length - 1];
         this.ec = spec.getCurrentDetails().getCurrentEventContext();
 
         if (entry != null) {

@@ -167,17 +167,17 @@ public class DeleteStateUnitTest extends MockDeleteTest {
     public void testDeleteStateTablesTopLevel() {
         DeleteState.Tables t = new DeleteState.Tables();
         DeleteEntry entry = new DeleteEntry(new BaseDeleteSpec("foo"), "foo");
-        List<List<Long>> results = table(new long[] { 0L }, new long[] { 1L });
+        long[][] results = convert(table(new long[] { 0L }, new long[] { 1L }));
         t.add(entry, results);
-        Iterator<List<List<Long>>> it = t.columnSets(entry, null);
-        List<List<Long>> rows;
+        Iterator<List<long[]>> it = t.columnSets(entry, null);
+        List<long[]> rows;
         int count = 0;
         while (it.hasNext()) {
             rows = it.next();
             assertEquals(1, rows.size());
-            List<Long> cols = rows.get(0);
-            assertEquals(1, cols.size());
-            assertEquals(count, cols.get(0).intValue());
+            long[] cols = rows.get(0);
+            assertEquals(1, cols.length);
+            assertEquals(count, (int) cols[0]);
             count++;
         }
         assertEquals(2, count); // 2 sets
@@ -188,13 +188,13 @@ public class DeleteStateUnitTest extends MockDeleteTest {
         DeleteState.Tables t = new DeleteState.Tables();
         DeleteEntry entry = new DeleteEntry(new BaseDeleteSpec("foo"), "foo");
         List<List<Long>> results = table(new long[] { 0L }, new long[] { 1L });
-        t.add(entry, results);
-        Iterator<List<List<Long>>> it = t.columnSets(entry, Arrays.asList(0L));
-        List<List<Long>> rows;
+        t.add(entry, convert(results));
+        Iterator<List<long[]>> it = t.columnSets(entry, new long[]{0L});
+        List<long[]> rows;
         int count = 0;
         while (it.hasNext()) {
             rows = it.next();
-            assertEquals(count, rows.get(0).get(0).intValue());
+            assertEquals(count, (int) rows.get(0)[0]);
             count++;
         }
         assertEquals(2, count); // 2 sets when length is 1
@@ -207,17 +207,16 @@ public class DeleteStateUnitTest extends MockDeleteTest {
         List<List<Long>> results = table(new long[] { 0L, 2L, 2L }, new long[] {
                 0L, 2L, 3L }, new long[] { 0L, 2L, 4L }, new long[] { 1L, 3L,
                 5L }, new long[] { 1L, 3L, 6L });
-        t.add(entry, results);
-        Iterator<List<List<Long>>> it = t.columnSets(entry,
-                Arrays.asList(0L, 2L, 2L));
-        List<List<Long>> rows;
+        t.add(entry, convert(results));
+        Iterator<List<long[]>> it = t.columnSets(entry, new long[]{0L, 2L, 2L});
+        List<long[]> rows;
         int count = 0;
         while (it.hasNext()) {
             count++;
             rows = it.next();
-            for (List<Long> cols : rows) {
-                assertEquals((Long) 0L, cols.get(0));
-                assertEquals((Long) 2L, cols.get(1));
+            for (long[] cols : rows) {
+                assertEquals(0L, cols[0]);
+                assertEquals(2L, cols[1]);
             }
         }
         assertEquals(1, count);
@@ -247,9 +246,9 @@ public class DeleteStateUnitTest extends MockDeleteTest {
     public void testSlowDeleteStateTablesAdd() {
         DeleteState.Tables dst = new DeleteState.Tables();
         List<List<Long>> data = new ArrayList<List<Long>>();
-        for (int a = 0; a < 10000; a++) {
-            for (int b = 0; b < 4000; b++) {
-                for (int c = 0; c < 2; c++) {
+        for (int a = 0; a < 100; a++) {
+            for (int b = 0; b < 100; b++) {
+                for (int c = 0; c < 100; c++) {
                     List<Long> l = new ArrayList<Long>();
                     l.add((long)a);
                     l.add((long)b);
@@ -262,24 +261,155 @@ public class DeleteStateUnitTest extends MockDeleteTest {
 
         DeleteSpec spec = new BaseDeleteSpec("foo", "foo");
         DeleteEntry entry = spec.entries().get(0);
-        dst.add(entry, data);
+        dst.add(entry, convert(data));
 
         Long ignored = -1L;
-        Iterator<List<List<Long>>> it = dst.columnSets(entry, Arrays.asList(0L, ignored));
+        Iterator<List<long[]>> it = dst.columnSets(entry, new long[]{0L, ignored});
         int count = 0;
         while (it.hasNext()) {
-            List<List<Long>> l = it.next();
-            for (List<Long> i : l) {
-                assertEquals(new Long(0L), i.get(0));
+            List<long[]> l = it.next();
+            for (long[] i : l) {
+                assertEquals(0L, i[0]);
                 count++;
             }
         }
-        assertEquals(1200, count);
+        assertEquals(10000, count);
     }
 
+    @Test(groups = "ticket:3125")
+    public void testSavepointsAreHandledProperly() throws Exception {
+        prepareGetHibernateClass();
+        prepareGetRelationship();
+        DeleteSpecFactory factory = specXml.getBean(DeleteSpecFactory.class);
+        DeleteSpec spec = factory.get("/Screen");
+        Map<String, List<List<Long>>> rv = makeScreenLookups(
+                table(new long[] { 0L }), // Screen
+                table(new long[] { 0L, 1L }), // link
+                table(new long[] { 0L, 1L, 2L }), // plate
+                table(new long[] { 0L, 1L, 2L, 3L }), // well
+                table(new long[] { 3L, 4L }), // samples
+                table()); // images
+
+        prepareTableLookups(rv);
+
+        DeleteState state = new DeleteState(null, session, spec);
+        assertEquals(state.toString(), 100, state.getTotalFoundCount());
+    }
+
+
+    @Test(groups = {"ticket:3125", "ticket:3130"})
+    public void testSavepointsAreHandledProperly2() throws Exception {
+        prepareGetHibernateClass();
+        prepareGetRelationship();
+        DeleteSpecFactory factory = specXml.getBean(DeleteSpecFactory.class);
+        DeleteSpec spec = factory.get("/Screen");
+        Map<String, List<List<Long>>> rv = makeScreenLookups(
+                table(new long[] { 0L }), // Screen
+                table(new long[] { 0L, 1L }), // link
+                table(new long[] { 0L, 1L, 2L }), // plate
+                table(new long[] { 0L, 1L, 2L, 3L }), // well
+                table(new long[] { 3L, 4L }), // samples
+                table()); // images
+
+        prepareTableLookups(rv);
+
+        DeleteState state = new DeleteState(null, session, spec);
+        assertEquals(state.toString(), 100, state.getTotalFoundCount());
+    }
     //
     // Helpers
     //
+
+    private void assertColumns(int numberOfColumns, List<List<Long>> rows) {
+        for (List<Long> cols: rows) {
+            assertEquals(rows.toString(), numberOfColumns, cols.size());
+        }
+    }
+
+    private List<List<Long>> lastColumns(int numberOfColumns, List<List<Long>> rows) {
+        List<List<Long>> rv = new ArrayList<List<Long>>();
+        for (List<Long> cols : rows) {
+            assertTrue(numberOfColumns <= cols.size());
+            List<Long> rv2 = new ArrayList<Long>();
+            for (int i = cols.size() - numberOfColumns; i < cols.size(); i++) {
+                rv2.add(cols.get(i));
+            }
+            rv.add(rv2);
+        }
+        return rv;
+    }
+
+    private Map<String, List<List<Long>>> makeScreenLookups(
+            List<List<Long>> screens, List<List<Long>> plateLinks,
+            List<List<Long>> plates, List<List<Long>> wells,
+            List<List<Long>> samples, List<List<Long>> images) {
+
+        Map<String, List<List<Long>>> rv = new HashMap<String, List<List<Long>>>();
+        rv.put("select ROOT0.id , ROOT1.id from Screen as ROOT0 join ROOT0.plateLinks as ROOT1 where ROOT0.id = :id ",
+                plateLinks);
+        assertColumns(2, plateLinks);
+
+        rv.put("select ROOT0.id , ROOT1.id , ROOT2.id from Screen as ROOT0 join ROOT0.plateLinks as ROOT1 join ROOT1.child as ROOT2 where ROOT0.id = :id ",
+                plates);
+        assertColumns(3, plates);
+
+        rv.put("select ROOT0.id , ROOT1.id from Screen as ROOT0 join ROOT0.annotationLinks as ROOT1 where ROOT0.id = :id ",
+                table()); // No annotation links
+        rv.put("select ROOT0.id , ROOT1.id , ROOT2.id from Screen as ROOT0 join ROOT0.annotationLinks as ROOT1 join ROOT1.child as ROOT2 where ROOT0.id = :id ",
+                table()); // No annotations
+        rv.put("select ROOT0.id , ROOT1.id , ROOT2.id from Screen as ROOT0 join ROOT0.reagent as ROOT1 join ROOT1.annotationLinks as ROOT2 where ROOT0.id = :id ",
+                table()); // No reagent annotation links
+        rv.put("select ROOT0.id , ROOT1.id , ROOT2.id , ROOT3.id from Screen as ROOT0 join ROOT0.reagent as ROOT1 join ROOT1.annotationLinks as ROOT2 join ROOT2.child as ROOT3 where ROOT0.id = :id ",
+                table()); // No reagent annotations
+        rv.put("select ROOT0.id , ROOT1.id from Screen as ROOT0 join ROOT0.reagent as ROOT1 where ROOT0.id = :id ",
+                table()); // No reagents
+        rv.put("select ROOT0.id from Screen as ROOT0 where ROOT0.id = :id ",
+                screens);
+        assertColumns(1, screens);
+
+        rv.put("select ROOT0.id , ROOT1.id from Plate as ROOT0 join ROOT0.wells as ROOT1 where ROOT0.id = :id ",
+                lastColumns(2, wells));
+        assertColumns(2, lastColumns(2, wells));
+
+        rv.put("select ROOT0.id , ROOT1.id , ROOT2.id from Well as ROOT0 join ROOT0.wellSamples as ROOT1 join ROOT1.annotationLinks as ROOT2 where ROOT0.id = :id ",
+                table()); // No field annotation links
+        rv.put("select ROOT0.id , ROOT1.id , ROOT2.id , ROOT3.id from Well as ROOT0 join ROOT0.wellSamples as ROOT1 join ROOT1.annotationLinks as ROOT2 join ROOT2.child as ROOT3 where ROOT0.id = :id ",
+                table()); // No field annotations
+        rv.put("select ROOT0.id , ROOT1.id from Well as ROOT0 join ROOT0.wellSamples as ROOT1 where ROOT0.id = :id ",
+                samples);
+        assertColumns(2, samples);
+
+        rv.put("select ROOT0.id , ROOT1.id , ROOT2.id from Well as ROOT0 join ROOT0.wellSamples as ROOT1 join ROOT1.image as ROOT2 where ROOT0.id = :id ",
+                images);
+        assertColumns(3, images);
+
+        rv.put("select ROOT0.id , ROOT1.id from Image as ROOT0 join ROOT0.datasetLinks as ROOT1 where ROOT0.id = :id ",
+                table()); // No dataset links
+        rv.put("select ROOT0.id , ROOT1.id from Well as ROOT0 join ROOT0.annotationLinks as ROOT1 where ROOT0.id = :id ",
+                table()); // No well annotation links
+        rv.put("select ROOT0.id , ROOT1.id , ROOT2.id from Well as ROOT0 join ROOT0.annotationLinks as ROOT1 join ROOT1.child as ROOT2 where ROOT0.id = :id ",
+                table()); // No well annotations
+        rv.put("select ROOT0.id , ROOT1.id from Well as ROOT0 join ROOT0.reagentLinks as ROOT1 where ROOT0.id = :id ",
+                table()); // No well-reagent links
+        rv.put("select ROOT0.id from Well as ROOT0 where ROOT0.id = :id ",
+                lastColumns(1, wells));
+        assertColumns(1, lastColumns(1, wells));
+
+        rv.put("select ROOT0.id , ROOT1.id , ROOT2.id from Plate as ROOT0 join ROOT0.plateAcquisition as ROOT1 join ROOT1.annotationLinks as ROOT2 where ROOT0.id = :id ",
+                table()); // No plate acquisition annotation links
+        rv.put("select ROOT0.id , ROOT1.id , ROOT2.id , ROOT3.id from Plate as ROOT0 join ROOT0.plateAcquisition as ROOT1 join ROOT1.annotationLinks as ROOT2 join ROOT2.child as ROOT3 where ROOT0.id = :id ",
+                table()); // No plate acquisition annotations
+        rv.put("select ROOT0.id , ROOT1.id from Plate as ROOT0 join ROOT0.plateAcquisition as ROOT1 where ROOT0.id = :id ",
+                table()); // No plate acquisitions
+        rv.put("select ROOT0.id , ROOT1.id from Plate as ROOT0 join ROOT0.annotationLinks as ROOT1 where ROOT0.id = :id ",
+                table()); // No plate annotation links
+        rv.put("select ROOT0.id , ROOT1.id , ROOT2.id from Plate as ROOT0 join ROOT0.annotationLinks as ROOT1 join ROOT1.child as ROOT2 where ROOT0.id = :id ",
+                table()); // No plate annotations
+        rv.put("select ROOT0.id from Plate as ROOT0 where ROOT0.id = :id ",
+                lastColumns(1, plates));
+        assertColumns(1, lastColumns(1, plates));
+        return rv;
+    }
 
     private Map<String, List<List<Long>>> makeRoiLookups(List<List<Long>> rois,
             List<List<Long>> shapes, List<List<Long>> links,
@@ -372,6 +502,22 @@ public class DeleteStateUnitTest extends MockDeleteTest {
             rv.add(a);
         }
         return rv;
+    }
+
+    /**
+     * Allows transforming from lists of lists to arrays of arrays.
+     */
+    long[][] convert(List<List<Long>> table) {
+        long[][] arr = new long[table.size()][];
+        for (int i = 0; i < arr.length; i++) {
+            List<Long> l = table.get(i);
+            long[] a = new long[l.size()];
+            for (int j = 0; j < a.length; j++) {
+                a[j] = l.get(j);
+            }
+            arr[i] = a;
+        }
+        return arr;
     }
 
     private void prepareTableLookups(final Map<String, List<List<Long>>> values) {

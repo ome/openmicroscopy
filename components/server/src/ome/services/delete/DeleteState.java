@@ -68,7 +68,7 @@ public class DeleteState {
          * {@link DeleteSpec#queryBackupIds(Session, int, DeleteEntry, QueryBuilder)}
          * References to these rows will be stored in {@link #pointers}.
          */
-        final Map<DeleteEntry, List<List<Long>>> tables = new HashMap<DeleteEntry, List<List<Long>>>();
+        final Map<DeleteEntry, long[][]> tables = new HashMap<DeleteEntry, long[][]>();
 
         /**
          * Pointers to the data in {@link #tables} which can be used to gather
@@ -105,10 +105,13 @@ public class DeleteState {
          */
         final Map<DeleteEntry, List<List<Integer>>> pointers = new HashMap<DeleteEntry, List<List<Integer>>>();
 
-        final Comparator<List<Long>> CMP = new Comparator<List<Long>>() {
-            public int compare(List<Long> o1, List<Long> o2) {
-                for (int i = 0; i < o1.size(); i++) {
-                    int cmp = o1.get(i).compareTo(o2.get(i));
+        final Comparator<long[]> CMP = new Comparator<long[]>() {
+            public int compare(long[] o1, long[] o2) {
+                for (int i = 0; i < o1.length; i++) {
+                    long l1 = o1[i];
+                    long l2 = o2[i];
+                    // Copied from java.lang.Long.compareTo
+                    int cmp = (l1<l2 ? -1 : (l1==l2 ? 0 : 1));
                     if (cmp != 0) {
                         return cmp;
                     }
@@ -117,11 +120,11 @@ public class DeleteState {
             }
         };
 
-        public void add(DeleteEntry entry, List<List<Long>> results) {
+        public void add(DeleteEntry entry, long[][] results) {
 
-            Collections.sort(results, CMP);
+            Arrays.sort(results, CMP);
 
-            int total = results.size();
+            int total = results.length;
             tables.put(entry, results);
             pointers.put(entry, new LinkedList<List<Integer>>());
 
@@ -130,8 +133,8 @@ public class DeleteState {
             }
 
             int sz = -1;
-            List<Long> check = null;
-            List<Long> current = null;
+            long[] check = null;
+            long[] current = null;
             List<Integer> pointer = new LinkedList<Integer>();
             pointers.get(entry).add(pointer);
 
@@ -140,18 +143,18 @@ public class DeleteState {
                     // Take the current line as the basis
                     // for comparison. Worst case, it will
                     // form a column-set of length 1.
-                    current = results.get(0);
-                    sz = Math.max(1, current.size() - 1);
+                    current = results[0];
+                    sz = Math.max(1, current.length - 1);
                     pointer.add(r);
                 } else {
                     // Otherwise we compare to the current
                     // value. If different, then it becomes
                     // our new current.
-                    check = results.get(r);
+                    check = results[r];
                     for (int w = 0; w < sz; w++) {
-                        if (!current.get(w).equals(check.get(w))) {
+                        if (current[w] != check[w]) {
                             current = check;
-                            sz = Math.max(1, current.size() - 1);
+                            sz = Math.max(1, current.length - 1);
                             pointer = new LinkedList<Integer>();
                             pointers.get(entry).add(pointer);
                         }
@@ -171,33 +174,33 @@ public class DeleteState {
          * @param match
          * @return
          */
-        public Iterator<List<List<Long>>> columnSets(final DeleteEntry entry,
-                final List<Long> match) {
+        public Iterator<List<long[]>> columnSets(final DeleteEntry entry,
+                final long[] match) {
 
             final List<List<Integer>> ptrs = pointers.get(entry);
             final Iterator<List<Integer>> p = ptrs == null ? null : ptrs.iterator();
-            final List<List<Long>> r = tables.get(entry);
+            final long[][] r = tables.get(entry);
 
-            return new Iterator<List<List<Long>>>() {
+            return new Iterator<List<long[]>>() {
 
-                List<List<Long>> next = null;
+                List<long[]> next = null;
 
                 void load() {
 
                     LOOP: while (p != null && next == null && p.hasNext()) {
-                        List<List<Long>> rv = new LinkedList<List<Long>>();
+                        List<long[]> rv = new LinkedList<long[]>();
                         List<Integer> pointer = p.next();
                         for (int i = 0; i < pointer.size(); i++) {
                             Integer idx = pointer.get(i);
-                            List<Long> cols = r.get(idx);
+                            long[] cols = r[idx];
 
                             /*
                              * If we were asked to match a given value,
                              * then we check it for the first index.
                              */
                             if (i == 0 && match != null) {
-                                for (int w = 0; w < match.size() - 1; w++) {
-                                    if (!match.get(w).equals(cols.get(w))) {
+                                for (int w = 0; w < match.length - 1; w++) {
+                                    if (match[w] != cols[w]) {
                                         continue LOOP;
                                     }
                                 }
@@ -213,7 +216,7 @@ public class DeleteState {
                     return next != null;
                 }
 
-                public List<List<Long>> next() {
+                public List<long[]> next() {
                     load();
                     if (next == null) {
                         throw new NoSuchElementException();
@@ -314,11 +317,10 @@ public class DeleteState {
             }
 
             final DeleteSpec subSpec = entry.getSubSpec();
-            final List<List<Long>> results = spec.queryBackupIds(session, i,
-                    entry, null);
+            final long[][] results = spec.queryBackupIds(session, i, entry, null);
             tables.add(entry, results);
             if (subSpec != null) {
-                if (results.size() != 0) { // ticket:2823
+                if (results.length != 0) { // ticket:2823
                     descend(subSpec, tables);
                 }
             }
@@ -330,7 +332,7 @@ public class DeleteState {
      * up a graph of {@link DeleteStep} instances.
      */
     private void parse(DeleteSpec spec, Tables tables,
-            LinkedList<DeleteStep> stack, List<Long> match)
+            LinkedList<DeleteStep> stack, long[] match)
             throws DeleteException {
 
         final List<DeleteEntry> entries = spec.entries();
@@ -339,9 +341,9 @@ public class DeleteState {
             final DeleteEntry entry = entries.get(i);
             final DeleteSpec subSpec = entry.getSubSpec();
 
-            Iterator<List<List<Long>>> it = tables.columnSets(entry, match);
+            Iterator<List<long[]>> it = tables.columnSets(entry, match);
             while (it.hasNext()) {
-                List<List<Long>> columnSet = it.next();
+                List<long[]> columnSet = it.next();
                 if (columnSet.size() == 0) {
                     continue;
                 }
@@ -361,7 +363,7 @@ public class DeleteState {
 
                     // But for the actual entries, we create a step per
                     // individual row.
-                    for (List<Long> cols : columnSet) {
+                    for (long[] cols : columnSet) {
                         DeleteStep step = new DeleteStep(steps.size(), stack,
                                 spec, entry, cols);
                         this.steps.add(step);

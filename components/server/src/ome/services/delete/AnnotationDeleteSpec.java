@@ -317,11 +317,11 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
     }
     
     @Override
-    public List<List<Long>> queryBackupIds(Session session, int step, DeleteEntry subpath,
+    public long[][] queryBackupIds(Session session, int step, DeleteEntry subpath,
             QueryBuilder and) throws DeleteException {
 
         if (isAbstract[step]) {
-            return Collections.emptyList();
+            return new long[0][0];
         }
 
         if (and != null) {
@@ -360,7 +360,7 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
             } else {
                 // If there is no excludes, then none of this type should
                 // be loaded.
-                return Arrays.asList(); // EARLY EXIT!
+                return new long[0][0]; // EARLY EXIT!
             }
         }
         return super.queryBackupIds(session, step, copy, and);
