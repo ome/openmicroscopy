@@ -237,6 +237,63 @@ class TestDelete(lib.ITest):
                 "order by im.id asc"
         self.assertEquals(0, len(query.findAllByQuery(sql, p)))
 
+    def testOddMessage(self):
+        
+        query = self.client.sf.getQueryService()
+        update = self.client.sf.getUpdateService()
+        
+        from integration.helpers import createTestImage
+        
+        def _formatReport(delete_handle):
+            """
+            Added as workaround to the changes made in #3006.
+            """
+            delete_reports = delete_handle.report()
+            rv = []
+            for report in delete_reports:
+                if report.error:
+                    rv.append(report.error)
+                elif report.warning:
+                    rv.append(report.warning)
+            return "; ".join(rv)
+            
+        images = list()
+        for i in range(0,10):
+            iid = createTestImage(self.client.sf)
+            img = query.find('Image', iid)
+            ann = omero.model.TagAnnotationI()
+            ann.textValue = omero.rtypes.rstring('tag%i' % i)
+            ann.setDescription(omero.rtypes.rstring('desc'))
+            tail = omero.model.ImageAnnotationLinkI()
+            tail.setParent(img)
+            tail.setChild(ann)
+            tail = update.saveAndReturnObject(tail)        
+            images.append(iid)
+            
+        commands = list()
+        for iid in images:
+            commands.append(omero.api.delete.DeleteCommand("/Image", iid, None))
+        
+        handle = self.client.sf.getDeleteService().queueDelete(commands)
+        callback = omero.callbacks.DeleteCallbackI(self.client, handle)
+        
+        while callback.block(500) is None: # ms.
+            err = handle.errors()
+            if err > 0:
+                print 'Failed', err
+                print _formatReport(handle)
+            else:
+                print 'In progress'
+                print _formatReport(handle)
+
+        err = handle.errors()
+        if err > 0:
+            print 'Failed', err
+            print _formatReport(handle)
+        else:
+            print 'finished', err
+            print _formatReport(handle)
+            callback.close()
 
 if __name__ == '__main__':
     unittest.main()
