@@ -105,7 +105,7 @@ public class DeleteState {
          */
         final Map<DeleteEntry, List<List<Integer>>> pointers = new HashMap<DeleteEntry, List<List<Integer>>>();
 
-        final Comparator<long[]> CMP = new Comparator<long[]>() {
+        final static Comparator<long[]> CMP = new Comparator<long[]>() {
             public int compare(long[] o1, long[] o2) {
                 for (int i = 0; i < o1.length; i++) {
                     long l1 = o1[i];
@@ -132,35 +132,29 @@ public class DeleteState {
                 return;
             }
 
-            int sz = -1;
             long[] check = null;
-            long[] current = null;
+            long[] current = results[0];
+            final int sz = Math.max(1, current.length - 1);
+
+            // Take the first item regardless
             List<Integer> pointer = new LinkedList<Integer>();
             pointers.get(entry).add(pointer);
+            pointer.add(0);
 
-            for (int r = 0; r < total; r++) {
-                if (current == null) {
-                    // Take the current line as the basis
-                    // for comparison. Worst case, it will
-                    // form a column-set of length 1.
-                    current = results[0];
-                    sz = Math.max(1, current.length - 1);
-                    pointer.add(r);
-                } else {
-                    // Otherwise we compare to the current
-                    // value. If different, then it becomes
-                    // our new current.
-                    check = results[r];
-                    for (int w = 0; w < sz; w++) {
-                        if (current[w] != check[w]) {
-                            current = check;
-                            sz = Math.max(1, current.length - 1);
-                            pointer = new LinkedList<Integer>();
-                            pointers.get(entry).add(pointer);
-                        }
+            for (int r = 1; r < total; r++) {
+                // Compare to the current
+                // value. If different, then it becomes
+                // our new current.
+                check = results[r];
+                INNER: for (int w = 0; w < sz; w++) {
+                    if (current[w] != check[w]) {
+                        current = check;
+                        pointer = new LinkedList<Integer>();
+                        pointers.get(entry).add(pointer);
+                        break INNER;
                     }
-                    pointer.add(r);
                 }
+                pointer.add(r);
             }
         }
 
@@ -185,29 +179,68 @@ public class DeleteState {
 
                 List<long[]> next = null;
 
+                String debug(long[] cols, long[] match) {
+                    StringBuilder sb = new StringBuilder();
+                    sb.append("cols=");
+                    sb.append(Arrays.toString(cols));
+                    sb.append(";match=");
+                    sb.append(Arrays.toString(match));
+                    return sb.toString();
+                }
+
                 void load() {
 
-                    LOOP: while (p != null && next == null && p.hasNext()) {
-                        List<long[]> rv = new LinkedList<long[]>();
-                        List<Integer> pointer = p.next();
-                        for (int i = 0; i < pointer.size(); i++) {
-                            Integer idx = pointer.get(i);
-                            long[] cols = r[idx];
+                    if (p == null) {
+                        // We have no pointers and there can't do anything
+                        return;
+                    }
 
-                            /*
-                             * If we were asked to match a given value,
-                             * then we check it for the first index.
-                             */
-                            if (i == 0 && match != null) {
-                                for (int w = 0; w < match.length - 1; w++) {
-                                    if (match[w] != cols[w]) {
-                                        continue LOOP;
-                                    }
+                    if (next != null) {
+                        // Another object is active; must wait until next()
+                        // is called and sets it to null.
+                        return;
+                    }
+
+
+                    LOOP: while (p.hasNext()) {
+                        final List<Integer> pointer = p.next();
+                        if (pointer.size() == 0) {
+                            // No data here.
+                            assert false : "Empty pointer list";
+                            return;
+                        }
+
+                        // Now get the first element.
+                        Integer idx = pointer.get(0);
+                        long[] cols = r[idx];
+
+                        // And check if it matches the "match" array.
+                        if (match != null) {
+
+                            int size = match.length - 1;
+
+                            assert cols.length >= size : debug(cols, match);
+
+                            for (int w = 0; w < size; w++) {
+                                if (match[w] != cols[w]) {
+                                    continue LOOP;
                                 }
                             }
+                        }
+
+                        // If it does, then we save it, and its fellow
+                        // pointers
+                        final List<long[]> rv = new LinkedList<long[]>();
+                        rv.add(cols);
+                        for (int i = 1; i < pointer.size(); i++) {
+                            idx = pointer.get(i);
+                            cols = r[idx];
                             rv.add(cols);
                         }
+
+                        // And we save this as our next value.
                         next = rv;
+                        break;
                     }
                 }
 

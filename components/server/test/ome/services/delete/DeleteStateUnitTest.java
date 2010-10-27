@@ -133,8 +133,7 @@ public class DeleteStateUnitTest extends MockDeleteTest {
 
         Map<String, List<List<Long>>> rv = makeRoiLookups(
                 table(new long[] { 0L }), table(new long[] { 0L, 1L }),
-                table(new long[] { 0L, 2L }), table(new long[] { 0L, 3L }),
-                table(new long[] { 5L }));
+                table(new long[] { 0L, 2L }), table(new long[] { 0L, 2L, 3L }));
         prepareTableLookups(rv);
 
         DeleteState state = new DeleteState(null, session, spec);
@@ -151,11 +150,16 @@ public class DeleteStateUnitTest extends MockDeleteTest {
         prepareGetHibernateClass();
 
         Map<String, List<List<Long>>> rv = makeRoiLookups(
+                /*
+                List<List<Long>> rois,
+                List<List<Long>> shapes,
+                List<List<Long>> links,
+                List<List<Long>> annotations
+                */
                 table(new long[] { 0L }, new long[] { 10L }),
                 table(new long[] { 0L, 1L }, new long[] { 10L, 11L }),
                 table(new long[] { 0L, 2L }, new long[] { 10L, 12L }),
-                table(new long[] { 0L, 3L }, new long[] { 10L, 13L }),
-                table(new long[] { 5L }, new long[] { 15L }));
+                table(new long[] { 0L, 2L, 3L }, new long[] { 10L, 12L, 13L }));
         prepareTableLookups(rv);
 
         DeleteState state = new DeleteState(null, session, spec);
@@ -264,16 +268,17 @@ public class DeleteStateUnitTest extends MockDeleteTest {
         dst.add(entry, convert(data));
 
         Long ignored = -1L;
-        Iterator<List<long[]>> it = dst.columnSets(entry, new long[]{0L, ignored});
+        Iterator<List<long[]>> it = dst.columnSets(entry, new long[]{5L, 10L, ignored});
         int count = 0;
         while (it.hasNext()) {
             List<long[]> l = it.next();
             for (long[] i : l) {
-                assertEquals(0L, i[0]);
+                assertEquals(5L, i[0]);
+                assertEquals(10L, i[1]);
                 count++;
             }
         }
-        assertEquals(10000, count);
+        assertEquals(100, count);
     }
 
     @Test(groups = "ticket:3125")
@@ -413,19 +418,29 @@ public class DeleteStateUnitTest extends MockDeleteTest {
 
     private Map<String, List<List<Long>>> makeRoiLookups(List<List<Long>> rois,
             List<List<Long>> shapes, List<List<Long>> links,
-            List<List<Long>> annotations, List<List<Long>> justAnnotations) {
+            List<List<Long>> annotations) {
 
         Map<String, List<List<Long>>> rv = new HashMap<String, List<List<Long>>>();
         makeAnnLookups(rv);
+
         rv.put("select ROOT0.id from Roi as ROOT0 where ROOT0.id = :id ", rois);
+        assertColumns(1, rois);
+
         rv.put("select ROOT0.id , ROOT1.id from Roi as ROOT0 join ROOT0.shapes as ROOT1 where ROOT0.id = :id ",
                 shapes);
+        assertColumns(2, shapes);
+
         rv.put("select ROOT0.id , ROOT1.id from Roi as ROOT0 join ROOT0.annotationLinks as ROOT1 where ROOT0.id = :id ",
                 links);
+        assertColumns(2, links);
+
         rv.put("select ROOT0.id from Annotation as ROOT0 where ROOT0.id = :id and (ROOT0.class = BooleanAnnotation) ",
-                justAnnotations);
+                annotations);
+        assertColumns(1, lastColumns(1, annotations));
+
         rv.put("select ROOT0.id , ROOT1.id , ROOT2.id from Roi as ROOT0 join ROOT0.annotationLinks as ROOT1 join ROOT1.child as ROOT2 where ROOT0.id = :id ",
                 annotations);
+        assertColumns(3, annotations);
 
         return rv;
     }
@@ -466,8 +481,12 @@ public class DeleteStateUnitTest extends MockDeleteTest {
         Map<String, List<List<Long>>> rv = new HashMap<String, List<List<Long>>>();
         rv.put("select ROOT0.id , ROOT1.id from Project as ROOT0 join ROOT0.datasetLinks as ROOT1 where ROOT0.id = :id ",
                 projectDatasetLinks);
+        assertColumns(2, projectDatasetLinks);
+
         rv.put("select ROOT0.id , ROOT1.id , ROOT2.id from Project as ROOT0 join ROOT0.datasetLinks as ROOT1 join ROOT1.child as ROOT2 where ROOT0.id = :id ",
                 datasets);
+        assertColumns(3, datasets);
+
         rv.put("select ROOT0.id , ROOT1.id from Dataset as ROOT0 join ROOT0.imageLinks as ROOT1 where ROOT0.id = :id ",
                 table()); // Not a subspec
         rv.put("select ROOT0.id , ROOT1.id , ROOT2.id from Dataset as ROOT0 join ROOT0.imageLinks as ROOT1 join ROOT1.child as ROOT2 where ROOT0.id = :id ",
@@ -487,6 +506,7 @@ public class DeleteStateUnitTest extends MockDeleteTest {
                 table());
         rv.put("select ROOT0.id from Dataset as ROOT0 where ROOT0.id = :id ",
                 datasets);
+        assertColumns(1, lastColumns(1, datasets));
 
         makeAnnLookups(rv);
         return rv;
