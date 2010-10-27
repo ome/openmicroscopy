@@ -5,6 +5,8 @@
 
 package ome.services.delete;
 
+import java.sql.CallableStatement;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -137,7 +139,8 @@ public class DeleteStateUnitTest extends MockDeleteTest {
         prepareTableLookups(rv);
 
         DeleteState state = new DeleteState(null, session, spec);
-        assertEquals(state.toString(), 4, state.getTotalFoundCount());
+        assertEquals(state.toString(), 5, state.getTotalFoundCount());
+        // includes the one parent spec
 
     }
 
@@ -163,7 +166,8 @@ public class DeleteStateUnitTest extends MockDeleteTest {
         prepareTableLookups(rv);
 
         DeleteState state = new DeleteState(null, session, spec);
-        assertEquals(state.toString(), 8, state.getTotalFoundCount());
+        assertEquals(state.toString(), 10, state.getTotalFoundCount());
+        // includes the one parent spec
 
     }
 
@@ -281,6 +285,154 @@ public class DeleteStateUnitTest extends MockDeleteTest {
         assertEquals(100, count);
     }
 
+    @Test(groups = "ticket:3163")
+    public void testRefactoredDeleteStateCorrectness() throws DeleteException {
+
+        DeleteState.Tables dst = new DeleteState.Tables();
+        long[][] data = new long[][] {
+                new long[]{0,0,0,0},
+                new long[]{1,0,0,1},
+                new long[]{0,0,0,1},
+                new long[]{1,0,0,2},
+                new long[]{3,3,3,3},
+                new long[]{0,1,0,0},
+                new long[]{0,1,1,1},
+                new long[]{0,1,0,2}
+        };
+
+        DeleteSpec spec = new BaseDeleteSpec("foo", "foo");
+        DeleteEntry entry = spec.entries().get(0);
+        dst.add(entry, data);
+
+        Iterator<List<long[]>> it;
+
+        // First check that all the values come back out
+        it = dst.columnSets(entry, null);
+        assertSize(data.length, it);
+
+        // Now check that exact sets are returned
+        it = dst.columnSets(entry, new long[]{0,0,0,0});
+        assertColumnSets(it, //
+                new long[][] {
+                    new long[]{0,0,0,0},
+                    new long[]{0,0,0,1}
+        });
+
+        // Check that higher level sets can be returned
+        final int ignored = -1;
+        it = dst.columnSets(entry, new long[]{0, ignored});
+        assertColumnSets(it, //
+                new long[][] {
+                    new long[]{0,0,0,0},
+                    new long[]{0,0,0,1}},
+                new long[][] {
+                    new long[]{0,1,0,0},
+                    new long[]{0,1,0,2}},
+                new long[][] {
+                    new long[]{0,1,1,1}
+        });
+
+    }
+
+    private void assertSize(int size, Iterator<List<long[]>> it) {
+        int count;
+        count = 0;
+        while (it.hasNext()) {
+            count += it.next().size();
+        }
+        assertEquals(size, count);
+    }
+
+    /**
+     * Checks that each of the given arrays is returned by the iterator
+     * and nothing else.
+     */
+    private void assertColumnSets(Iterator<List<long[]>> it, long[][]...arrays) {
+        final boolean[][] found = new boolean[arrays.length][];
+        while (it.hasNext()) {
+            Integer set = null;
+            List<long[]> l = it.next();
+            for (long[] test : l) {
+                boolean foundSingle = false;
+                for (int s = 0; s < arrays.length; s++) {
+                    long[][] rows = arrays[s];
+                    NEXTROW: for (int r = 0; r < rows.length; r++) {
+                        long[] cols = rows[r];
+                        for (int c = 0; c < cols.length; c++) {
+                            if (arrays[s][r][c] != test[c]) {
+                                continue NEXTROW;
+                            }
+                        }
+                        // If we reach this point then the two match
+                        foundSingle = true;
+                        if (set == null) {
+                            // Then we haven't found anything for this set yet
+                            set = s;
+                            if (found[s] != null) {
+                                fail(String.format("Something's gone wrong." +
+						" Already have set at (s,r)=(%s,%s)",
+						s, r));
+                            } else {
+                                found[s] = new boolean[rows.length];
+                                found[s][r] = true;
+                            }
+                        } else {
+                            assertFalse("Already set to true! " +
+                                    Arrays.toString(test), found[set][r]);
+                            found[set][r] = true;
+                        }
+                    }
+                }
+                assertTrue("Couldn't find " + Arrays.toString(test),
+                        foundSingle);
+            }
+        }
+
+        // The previous blocked guaranteed that we found a UNIQUE place in
+        // "found[][]" for every long[] "test" that was returned from the
+        // iterator, now we check that a long[] was found for every location
+        // of "found[][]" that was given
+        StringBuilder sb = new StringBuilder();
+        for (int s = 0; s < found.length; s++) {
+            boolean[] rows = found[s];
+            if (rows == null) {
+                sb.append("\nSet ");
+                sb.append(s);
+                sb.append(" was not found");
+            } else {
+                for (int r = 0; r < rows.length; r++) {
+                    if (!rows[r]) {
+                        sb.append("\nRow ");
+                        sb.append(r);
+                        sb.append(" of set ");
+                        sb.append(s);
+                        sb.append(" was not found.");
+                    }
+                }
+            }
+        }
+        if (sb.length() > 0) {
+            sb.append("\nSearched for: " + Arrays.deepToString(arrays));
+            sb.append("\nFound: " + Arrays.deepToString(found));
+            fail(sb.toString());
+        }
+
+    }
+
+    private void prepareSavepoints() {
+        Mock statementMock = mock(CallableStatement.class);
+        CallableStatement statement = (CallableStatement) statementMock.proxy();
+        statementMock.expects(atLeastOnce()).method("execute").will(returnValue(true));
+
+        Mock connectionMock = mock(Connection.class);
+        Connection connection = (Connection) connectionMock.proxy();
+        connectionMock.expects(atLeastOnce()).method("prepareCall").will(
+                returnValue(statement));
+
+        sessionMock.expects(atLeastOnce()).method("connection").will(
+                returnValue(connection));
+    }
+
     @Test(groups = "ticket:3125")
     public void testSavepointsAreHandledProperly() throws Exception {
         prepareGetHibernateClass();
@@ -298,9 +450,8 @@ public class DeleteStateUnitTest extends MockDeleteTest {
         prepareTableLookups(rv);
 
         DeleteState state = new DeleteState(null, session, spec);
-        assertEquals(state.toString(), 100, state.getTotalFoundCount());
+        assertEquals(state.toString(), 3, state.getTotalFoundCount());
     }
-
 
     @Test(groups = {"ticket:3125", "ticket:3130"})
     public void testSavepointsAreHandledProperly2() throws Exception {
@@ -319,7 +470,7 @@ public class DeleteStateUnitTest extends MockDeleteTest {
         prepareTableLookups(rv);
 
         DeleteState state = new DeleteState(null, session, spec);
-        assertEquals(state.toString(), 100, state.getTotalFoundCount());
+        assertEquals(state.toString(), 3, state.getTotalFoundCount());
     }
     //
     // Helpers

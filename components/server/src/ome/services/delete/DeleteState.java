@@ -70,41 +70,6 @@ public class DeleteState {
          */
         final Map<DeleteEntry, long[][]> tables = new HashMap<DeleteEntry, long[][]>();
 
-        /**
-         * Pointers to the data in {@link #tables} which can be used to gather
-         * together {@link #columnSets(DeleteEntry)} for further processing. If
-         * {@link #tables} contained:
-         *
-         * <pre>
-         * {
-         *   entry#1:
-         *      [
-         *          [0, 1],
-         *          [0, 10],
-         *          [0, 15],
-         *          [1, 20],
-         *          [1, 25],
-         *          [1, 35]
-         *      ]
-         * }
-         * </pre>
-         *
-         * then {@link #pointers} would contain:
-         *
-         * <pre>
-         * {
-         *  entry#1:
-         *      [
-         *          [0,1,2],
-         *          [3,4,5]
-         *      ]
-         *  }
-         * </pre>
-         *
-         * A column-set consists of paths which only vary in their last element.
-         */
-        final Map<DeleteEntry, List<List<Integer>>> pointers = new HashMap<DeleteEntry, List<List<Integer>>>();
-
         final static Comparator<long[]> CMP = new Comparator<long[]>() {
             public int compare(long[] o1, long[] o2) {
                 for (int i = 0; i < o1.length; i++) {
@@ -121,40 +86,9 @@ public class DeleteState {
         };
 
         public void add(DeleteEntry entry, long[][] results) {
-
-            Arrays.sort(results, CMP);
-
-            int total = results.length;
-            tables.put(entry, results);
-            pointers.put(entry, new LinkedList<List<Integer>>());
-
-            if (total == 0) {
-                return;
-            }
-
-            long[] check = null;
-            long[] current = results[0];
-            final int sz = Math.max(1, current.length - 1);
-
-            // Take the first item regardless
-            List<Integer> pointer = new LinkedList<Integer>();
-            pointers.get(entry).add(pointer);
-            pointer.add(0);
-
-            for (int r = 1; r < total; r++) {
-                // Compare to the current
-                // value. If different, then it becomes
-                // our new current.
-                check = results[r];
-                INNER: for (int w = 0; w < sz; w++) {
-                    if (current[w] != check[w]) {
-                        current = check;
-                        pointer = new LinkedList<Integer>();
-                        pointers.get(entry).add(pointer);
-                        break INNER;
-                    }
-                }
-                pointer.add(r);
+            if (results != null && results.length > 0) {
+                Arrays.sort(results, CMP);
+                tables.put(entry, results);
             }
         }
 
@@ -171,27 +105,38 @@ public class DeleteState {
         public Iterator<List<long[]>> columnSets(final DeleteEntry entry,
                 final long[] match) {
 
-            final List<List<Integer>> ptrs = pointers.get(entry);
-            final Iterator<List<Integer>> p = ptrs == null ? null : ptrs.iterator();
             final long[][] r = tables.get(entry);
 
             return new Iterator<List<long[]>>() {
 
-                List<long[]> next = null;
+                /**
+                 * Current index of the next item which will be loaded. As soon
+                 * as an entry is found that does not match the current value,
+                 * then the offset is set to the current index.
+                 */
+                private int offset = 0;
 
-                String debug(long[] cols, long[] match) {
-                    StringBuilder sb = new StringBuilder();
-                    sb.append("cols=");
-                    sb.append(Arrays.toString(cols));
-                    sb.append(";match=");
-                    sb.append(Arrays.toString(match));
-                    return sb.toString();
-                }
+                /**
+                 * Toggle to prevent from constantly researching items when
+                 * none are to found. On starting through a loop, "matched"
+                 * is false, meaning that all values are to be tested. As soon
+                 * as "matched" is true, however, then once a match fails no
+                 * further values need to be checked (since all entries are
+                 * orderd).
+                 */
+                private boolean matched = false;
+
+                /**
+                 * The value which will be returned by the next call to
+                 * next(). If null, then either load() has not yet been called
+                 * or there is no further valid entry.
+                 */
+                private List<long[]> next = null;
 
                 void load() {
 
-                    if (p == null) {
-                        // We have no pointers and there can't do anything
+                    if (r == null) {
+                        // We don't have any data for this entry.
                         return;
                     }
 
@@ -201,46 +146,75 @@ public class DeleteState {
                         return;
                     }
 
+                    long[] cols = null;
+                    long[] check = null;
+                    int sz = -1;
 
-                    LOOP: while (p.hasNext()) {
-                        final List<Integer> pointer = p.next();
-                        if (pointer.size() == 0) {
-                            // No data here.
-                            assert false : "Empty pointer list";
-                            return;
-                        }
+                    // Initialize sz. Since all the rows are the same
+                    // length, we only need to do it once.
+                    if (r.length > 0) {
+                        sz = Math.max(1, r[0].length-1);
+                    }
 
-                        // Now get the first element.
-                        Integer idx = pointer.get(0);
-                        long[] cols = r[idx];
+                    LOOP: for (int idx = offset; idx < r.length; idx++) {
+                        if (cols == null) {
 
-                        // And check if it matches the "match" array.
-                        if (match != null) {
+                            // This is the first item in the loop, so take it
+                            // and create a new "next" value IF it matches
+                            // the (possibly null) "match" argument.
+                            cols = r[idx];
 
-                            int size = match.length - 1;
+                            if (match != null) {
+                                int size = match.length - 1;
+                                for (int w = 0; w < size; w++) {
 
-                            assert cols.length >= size : debug(cols, match);
+                                    if (w >= match.length || w >= cols.length) {
+                                        break; // FIXME THIS IS STILL ODD
+                                    }
 
-                            for (int w = 0; w < size; w++) {
-                                if (match[w] != cols[w]) {
-                                    continue LOOP;
+                                    if (match[w] != cols[w]) {
+                                        cols = null;
+                                        if (matched) {
+                                            offset = r.length; // CANCEL further.
+                                            break LOOP;
+                                        } else {
+                                            offset = idx + 1;
+                                            continue LOOP; // Goto the next.
+                                        }
+                                    }
+
+                                }
+                                matched = true;
+                            }
+
+                            // Here we've matched (or there is none)
+                            // so save it.
+                            next = new ArrayList<long[]>();
+                            next.add(cols);
+
+                        } else {
+
+                            // Second or later pass through the loop, so
+                            // check for a match. If yes, append; if no,
+                            // reset for the next loop;
+                            check = r[idx];
+                            for (int w = 0; w < sz; w++) {
+                                if (check[w] != cols[w]) {
+                                    cols = null;
+                                    check = null;
+                                    offset = idx;
+                                    break LOOP; // Redo this value _next_ time
                                 }
                             }
+
+                            next.add(check);
+
                         }
 
-                        // If it does, then we save it, and its fellow
-                        // pointers
-                        final List<long[]> rv = new LinkedList<long[]>();
-                        rv.add(cols);
-                        for (int i = 1; i < pointer.size(); i++) {
-                            idx = pointer.get(i);
-                            cols = r[idx];
-                            rv.add(cols);
-                        }
-
-                        // And we save this as our next value.
-                        next = rv;
-                        break;
+                        // If we reach here, then an element has been saved,
+                        // and therefore we reset to idx+1 because the current
+                        // element doesn't need reprocessing.
+                        offset = idx + 1;
                     }
                 }
 
@@ -268,7 +242,22 @@ public class DeleteState {
             };
 
         }
-    }
+
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            sb.append(super.toString());
+            sb.append("\n");
+            for (DeleteEntry key : tables.keySet()) {
+                sb.append(key);
+                sb.append("=");
+                sb.append(Arrays.deepToString(tables.get(key)));
+                sb.append("\n");
+            }
+            return sb.toString();
+        }
+
+    } // End Tables
 
     private final static Log log = LogFactory.getLog(DeleteState.class);
 
@@ -320,6 +309,7 @@ public class DeleteState {
 
         final LinkedList<DeleteStep> stack = new LinkedList<DeleteStep>();
         parse(spec, tables, stack, null);
+
     }
 
     //
