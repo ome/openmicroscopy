@@ -285,7 +285,8 @@ public class TreeViewerAgent
     	if (gp != null) id = gp.getId();
         TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
         if (viewer != null)
-        	viewer.findDataObject(evt.getDataType(), evt.getID());
+        	viewer.findDataObject(evt.getDataType(), evt.getID(), 
+        			evt.isSelectTab());
     }
     
     /**
@@ -322,7 +323,7 @@ public class TreeViewerAgent
 			if (gp != null) id = gp.getId();
 			TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
 			if (viewer != null)
-				viewer.findDataObject(data.getClass(), data.getId());
+				viewer.findDataObject(data.getClass(), data.getId(), false);
     	}
     }
     

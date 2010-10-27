@@ -219,7 +219,7 @@ class BrowserComponent
 	{
 		if (rootType == null) {
 			int type = model.getBrowserType();
-			if (type == PROJECT_EXPLORER) 
+			if (type == PROJECTS_EXPLORER) 
 				rootType = DatasetData.class;
 			else if (type == TAGS_EXPLORER)
 				rootType = TagAnnotationData.class;
@@ -578,7 +578,7 @@ class BrowserComponent
     {
         IconManager im = IconManager.getInstance();
         switch (model.getBrowserType()) {
-            case PROJECT_EXPLORER:
+            case PROJECTS_EXPLORER:
                 return im.getIcon(IconManager.HIERARCHY_EXPLORER);
             case TAGS_EXPLORER:
                 return im.getIcon(IconManager.TAGS_EXPLORER);
@@ -818,7 +818,7 @@ class BrowserComponent
 	{
 		int type = model.getBrowserType();
 		if (data instanceof DatasetData) {
-			if (type != PROJECT_EXPLORER) return;
+			if (type != PROJECTS_EXPLORER) return;
 		} else if (data instanceof TagAnnotationData) {
 			if (type != TAGS_EXPLORER) return;
 		}
@@ -1488,7 +1488,7 @@ class BrowserComponent
 		Object ho;
 		
 		switch (model.getBrowserType()) {
-			case PROJECT_EXPLORER:
+			case PROJECTS_EXPLORER:
 				SimilarNodesVisitor v = new SimilarNodesVisitor(nodes);
 				accept(v, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
 				nodes = v.getFoundNodes();

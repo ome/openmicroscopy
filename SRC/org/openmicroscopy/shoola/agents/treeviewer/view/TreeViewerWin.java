@@ -213,10 +213,10 @@ class TreeViewerWin
     			 pane = new TaskPaneBrowser(browser);
     			 firstPane = pane;
     			 container.add(pane);
-    			 browser = (Browser) browsers.get(Browser.PROJECT_EXPLORER);
+    			 browser = (Browser) browsers.get(Browser.PROJECTS_EXPLORER);
     			 container.add(new TaskPaneBrowser(browser));
     		} else {
-    			browser = (Browser) browsers.get(Browser.PROJECT_EXPLORER);
+    			browser = (Browser) browsers.get(Browser.PROJECTS_EXPLORER);
     			pane = new TaskPaneBrowser(browser);
    			 	firstPane = pane;
    			 	container.add(pane);
@@ -255,7 +255,7 @@ class TreeViewerWin
             tabs.setFont(font);
             tabs.setForeground(UIUtilities.STEELBLUE);
             
-            browser = (Browser) browsers.get(Browser.PROJECT_EXPLORER);
+            browser = (Browser) browsers.get(Browser.PROJECTS_EXPLORER);
             if (browser.isDisplayed())
                 tabs.addTab(browser.getTitle(), browser.getIcon(), 
                 		browser.getUI());
@@ -354,7 +354,7 @@ class TreeViewerWin
         menu.setMnemonic(KeyEvent.VK_V);
         JCheckBoxMenuItem item = new JCheckBoxMenuItem();
         Map browsers = model.getBrowsers();
-        Browser browser = (Browser) browsers.get(Browser.PROJECT_EXPLORER);
+        Browser browser = (Browser) browsers.get(Browser.PROJECTS_EXPLORER);
         item.setSelected(browser.isDisplayed());
         item.setAction(
                 controller.getAction(TreeViewerControl.HIERARCHY_EXPLORER));
@@ -521,15 +521,39 @@ class TreeViewerWin
     }
 
     /** Expands the first pane. */
-    void selectPane()
+    void selectFirstPane()
     { 
     	if (TreeViewerWin.JXTASKPANE_TYPE.equals(getLayoutType())) {
     		if (firstPane != null) firstPane.setCollapsed(false);
         	if (!UIUtilities.isLinuxOS()) {
         		List<JXTaskPane> list = container.getTaskPanes();
-        		for(JXTaskPane pane: list) 
+        		for (JXTaskPane pane: list) 
             		pane.setAnimated(true);
         	}
+    	}
+    }
+    
+    /**
+     * Selects the pane corresponding to the passed index.
+     * 
+     * @param browserType The type of browser hosted by the pane.
+     */
+    void selectPane(int browserType)
+    {
+    	if (TreeViewerWin.JXTASKPANE_TYPE.equals(getLayoutType())) {
+    		List<JXTaskPane> list = container.getTaskPanes();
+    		TaskPaneBrowser p;
+    		Browser b;
+    		for (JXTaskPane pane: list)  {
+    			if (pane instanceof TaskPaneBrowser) {
+    				p = (TaskPaneBrowser) pane;
+    				b = p.getBrowser();
+    				if (b != null && b.getBrowserType() == browserType)
+    					p.setCollapsed(false);	
+    			}
+    		}
+    	} else {
+    		
     	}
     }
     

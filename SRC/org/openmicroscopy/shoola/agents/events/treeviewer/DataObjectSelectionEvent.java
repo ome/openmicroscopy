@@ -53,6 +53,9 @@ public class DataObjectSelectionEvent
 	/** The identifier of the object to select. */
 	private long  id;
 	
+	/** Flag indicating to select the tab corresponding to the passed type. */
+	private boolean selectTab;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -63,7 +66,24 @@ public class DataObjectSelectionEvent
 	{
 		this.dataType = dataType;
 		this.id = id;
+		selectTab = false;
 	}
+	
+	/**
+	 * Returns <code>true</code> to select the tab corresponding to the passed 
+	 * type, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isSelectTab() { return selectTab; }
+	
+	/**
+	 * Sets the flag indicating to the select or no the tab.
+	 * 
+	 * @param selectTab Pass <code>true</code> to select the tab corresponding
+	 * 					to the passed type, <code>false</code> otherwise.
+	 */
+	public void setSelectTab(boolean selectTab) { this.selectTab = selectTab; }
 	
 	/**
 	 * Returns the identifier of the object.

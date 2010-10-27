@@ -225,7 +225,7 @@ class BrowserUI
         BrowserManageAction a;
         int type = model.getBrowserType();
         switch (type) {
-			case Browser.PROJECT_EXPLORER:
+			case Browser.PROJECTS_EXPLORER:
 			case Browser.SCREENS_EXPLORER:
 				a = (BrowserManageAction) 
 					controller.getAction(BrowserControl.NEW_CONTAINER);
@@ -1100,7 +1100,7 @@ class BrowserUI
     String getBrowserTitle()
     {
         switch (model.getBrowserType()) {
-            case Browser.PROJECT_EXPLORER:
+            case Browser.PROJECTS_EXPLORER:
                 return Browser.HIERARCHY_TITLE;
             case Browser.IMAGES_EXPLORER:
                 return Browser.IMAGES_TITLE;

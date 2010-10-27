@@ -208,7 +208,7 @@ public class BrowserManageAction
 		            		(Component) source, point);
 					break;
 				case NEW_CONTAINERS:
-					if (model.getBrowserType() == Browser.PROJECT_EXPLORER)
+					if (model.getBrowserType() == Browser.PROJECTS_EXPLORER)
 						model.showMenu(TreeViewer.CREATE_MENU_CONTAINERS, 
 		            		(Component) source, point);
 					else 

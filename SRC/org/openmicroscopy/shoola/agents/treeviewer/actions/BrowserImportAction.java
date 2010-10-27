@@ -126,7 +126,7 @@ public class BrowserImportAction
         //model.showImporter();
     	int type = -1;
     	switch (model.getBrowserType()) {
-			case Browser.PROJECT_EXPLORER:
+			case Browser.PROJECTS_EXPLORER:
 				type = LoadImporter.PROJECT_TYPE;
 				break;
 			case Browser.SCREENS_EXPLORER:

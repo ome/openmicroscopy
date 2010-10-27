@@ -107,7 +107,7 @@ public interface Browser
      * Indicates that the browser corresponds to an <code>Hierarchy</code>
      * explorer.
      */
-    public static final int     	PROJECT_EXPLORER = 100;
+    public static final int     	PROJECTS_EXPLORER = 100;
     
     /** 
      * Indicates that the browser corresponds to an <code>Images</code>
@@ -182,7 +182,7 @@ public interface Browser
     public static final String  	FILE_FORMATS_PROPERTY = "fileFormats";
   
     /** 
-     * The browser's title corresponding to {@link #PROJECT_EXPLORER} type.
+     * The browser's title corresponding to {@link #PROJECTS_EXPLORER} type.
      */
     public static final String     HIERARCHY_TITLE = "Hierarchies";//"Projects";
 

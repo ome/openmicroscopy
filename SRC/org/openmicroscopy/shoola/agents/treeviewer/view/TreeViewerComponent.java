@@ -544,7 +544,7 @@ class TreeViewerComponent
 		switch (model.getState()) {
 			case NEW:
 				view.setOnScreen();
-				view.selectPane();
+				view.selectFirstPane();
 				model.getSelectedBrowser().activate();
 				model.setState(READY);
 				break;
@@ -993,7 +993,7 @@ class TreeViewerComponent
 			if (parent == null) {
 				if ((data instanceof ProjectData) || 
 					(data instanceof DatasetData))
-					browser = model.getBrowser(Browser.PROJECT_EXPLORER);
+					browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
 				 else if (data instanceof ScreenData)
 					browser = model.getBrowser(Browser.SCREENS_EXPLORER);
 				else if (data instanceof TagAnnotationData)
@@ -1672,7 +1672,7 @@ class TreeViewerComponent
 		if (object == null) return;
 		Browser browser = null;
 		if (object instanceof DatasetData || object instanceof ProjectData) 
-			browser = model.getBrowser(Browser.PROJECT_EXPLORER);
+			browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
 		else if (object instanceof ScreenData) 
 			browser = model.getBrowser(Browser.SCREENS_EXPLORER);
 		if (browser != null) browser.expandUser();
@@ -2634,7 +2634,7 @@ class TreeViewerComponent
 		int type = browser.getBrowserType();
 		List<TreeImageDisplay> parents = new ArrayList<TreeImageDisplay>();
 		TreeImageDisplay node = null;
-		if (type == Browser.PROJECT_EXPLORER || 
+		if (type == Browser.PROJECTS_EXPLORER || 
 				type == Browser.SCREENS_EXPLORER) {
 			//File chooser import.
 			node = browser.getLastSelectedDisplay();
@@ -2692,7 +2692,7 @@ class TreeViewerComponent
 		if (container instanceof DatasetData) {
 			if (selectedBrowser != null && 
 					selectedBrowser.getBrowserType() == 
-						Browser.PROJECT_EXPLORER) {
+						Browser.PROJECTS_EXPLORER) {
 				browser = selectedBrowser;
 			} else browser = null;
 		}
@@ -3127,11 +3127,20 @@ class TreeViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#findDataObject(Class, int)
+	 * @see TreeViewer#findDataObject(Class, int, boolean)
 	 */
-	public void findDataObject(Class type, long id)
+	public void findDataObject(Class type, long id, boolean selectTab)
 	{
-		Browser browser = model.getSelectedBrowser();
+		Browser browser = null;
+		if (selectTab) {
+			if (ProjectData.class.equals(type) || 
+					DatasetData.class.equals(type)) {
+				view.selectPane(Browser.PROJECTS_EXPLORER);
+			} else if (ScreenData.class.equals(type)) {
+				view.selectPane(Browser.SCREENS_EXPLORER);
+			}
+		}
+		browser = model.getSelectedBrowser();
 		if (browser != null) {
 			NodesFinder finder = new NodesFinder(type, id);
 			browser.accept(finder);
@@ -3161,7 +3170,6 @@ class TreeViewerComponent
 						browser.setSelectedDisplay(i.next());
 					}
 				}
-				
 			}
 		}
 	}

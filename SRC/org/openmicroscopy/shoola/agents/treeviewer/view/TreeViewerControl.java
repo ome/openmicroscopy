@@ -446,7 +446,7 @@ class TreeViewerControl
 		actionsMap.put(SCREENS_EXPLORER, 
 				new BrowserSelectionAction(model, Browser.SCREENS_EXPLORER));
 		actionsMap.put(HIERARCHY_EXPLORER, 
-				new BrowserSelectionAction(model, Browser.PROJECT_EXPLORER));
+				new BrowserSelectionAction(model, Browser.PROJECTS_EXPLORER));
 		actionsMap.put(TAGS_EXPLORER, 
 				new BrowserSelectionAction(model, Browser.TAGS_EXPLORER));
 		actionsMap.put(IMAGES_EXPLORER, 

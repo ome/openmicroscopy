@@ -52,9 +52,17 @@ import javax.swing.tree.TreePath;
 import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.treeviewer.DataObjectSelectionEvent;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.util.TreeCellRenderer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.env.event.EventBus;
+
+import pojos.DataObject;
+import pojos.DatasetData;
+import pojos.ProjectData;
 
 /** 
  * The view.
@@ -143,12 +151,21 @@ class BrowserUI
      */
     private void handleMouseClick(MouseEvent evt)
     {
-    	/*
-    	Point loc = evt.getPoint();
-    	if (evt.isPopupTrigger()) 
-    		createManagementMenu().show((Component) evt.getSource(), loc.x, 
-    								loc.y);
-    								*/
+    	if (evt.getClickCount() == 2) {
+    		TreeBrowserDisplay node = model.getLastSelectedNode();
+        	if (node == null) return;
+        	Object uo = node.getUserObject();
+        	
+        	if (uo instanceof ProjectData || uo instanceof DatasetData) {
+        		Class type = uo.getClass();
+        		long id = ((DataObject) uo).getId();
+        		DataObjectSelectionEvent event = 
+        			new DataObjectSelectionEvent(type, id);
+        		event.setSelectTab(true);
+        		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
+        		bus.post(event);
+        	} 
+    	}
     }
     
     /** Helper method to create the menu bar. */

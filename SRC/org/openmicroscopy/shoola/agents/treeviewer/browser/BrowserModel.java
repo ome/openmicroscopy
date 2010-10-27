@@ -162,7 +162,7 @@ class BrowserModel
     private void checkBrowserType(int type)
     {
         switch (type) {
-            case Browser.PROJECT_EXPLORER:
+            case Browser.PROJECTS_EXPLORER:
             case Browser.IMAGES_EXPLORER:    
             case Browser.TAGS_EXPLORER:  
             case Browser.SCREENS_EXPLORER: 
@@ -569,7 +569,7 @@ class BrowserModel
 			return;
 		}
 		switch (browserType) {
-			case Browser.PROJECT_EXPLORER:
+			case Browser.PROJECTS_EXPLORER:
 				index = ExperimenterDataLoader.PROJECT;
 				break;
 			case Browser.IMAGES_EXPLORER:
@@ -602,7 +602,7 @@ class BrowserModel
     {
         Class klass = null;
         switch (browserType) {
-			case Browser.PROJECT_EXPLORER:
+			case Browser.PROJECTS_EXPLORER:
 				klass = ProjectData.class;
 				break;
 			case Browser.IMAGES_EXPLORER:

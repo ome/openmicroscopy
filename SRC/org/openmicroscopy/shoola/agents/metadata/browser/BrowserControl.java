@@ -224,11 +224,13 @@ class BrowserControl
 		else if (object instanceof ProjectData)
 			index = Browse.PROJECTS;
 		if (index == -1) return;
+		/*
 		Browse evt = new Browse(ids, index, 
 								MetadataViewerAgent.getUserDetails(), 
     						null);
 		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
 		bus.post(evt);
+		*/
 	}
 
 	/**

@@ -48,7 +48,6 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
-import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.ui.ActivityComponent;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
@@ -1005,7 +1004,9 @@ public interface TreeViewer
 	 * 
 	 * @param type The type of data object to find.
 	 * @param id   The identifier of the data object.
+	 * @param selectTab Pass <code>true</code> to select the tab corresponding 
+	 * to the passed type, <code>false</code> otherwise.
 	 */
-	void findDataObject(Class type, long id);
+	void findDataObject(Class type, long id, boolean selectTab);
 	
 }

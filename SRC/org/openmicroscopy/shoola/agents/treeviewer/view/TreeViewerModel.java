@@ -270,11 +270,11 @@ class TreeViewerModel
 	private void createBrowsers()
 	{
 		Browser browser = 
-			BrowserFactory.createBrowser(Browser.PROJECT_EXPLORER, 
+			BrowserFactory.createBrowser(Browser.PROJECTS_EXPLORER, 
 					component, experimenter, true);
 		selectedBrowser = browser;
 		browser.setSelected(true);
-		browsers.put(Browser.PROJECT_EXPLORER, browser);
+		browsers.put(Browser.PROJECTS_EXPLORER, browser);
 		browser = BrowserFactory.createBrowser(Browser.SCREENS_EXPLORER,
 									component, experimenter, true);
 		browsers.put(Browser.SCREENS_EXPLORER, browser);
