@@ -556,7 +556,7 @@ class EditorUI
 	{
 		if (objects == null) return;
 		generalPane.handleObjectsSelection(type, objects);
-		if (TagAnnotationData.class.equals(type))
+		//if (TagAnnotationData.class.equals(type))
 			saveData(true);	
 	}
 	
