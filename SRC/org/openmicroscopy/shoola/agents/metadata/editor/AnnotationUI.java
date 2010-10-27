@@ -55,7 +55,7 @@ abstract class AnnotationUI
 {
 
 	/** Color indicating that a value needs to be highlighted to the user. */
-	static final Color	WARNING = Color.red;
+	static final Color	WARNING = UIUtilities.REQUIRED_FIELDS_COLOR;
 	
 	/** The border of a field that can be edited. */
 	static final Border EDIT_BORDER = BorderFactory.createLineBorder(

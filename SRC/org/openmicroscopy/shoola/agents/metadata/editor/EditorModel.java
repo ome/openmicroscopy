@@ -858,7 +858,7 @@ class EditorModel
 	 * 
 	 * @return See above.
 	 */
-	int getTermssCount()
+	int getTermsCount()
 	{ 
 		Collection urls = getTerms();
 		if (urls == null) return 0;
@@ -918,7 +918,8 @@ class EditorModel
 	private FileAnnotationData originalMetadata;
 	
 	/**
-	 * Returns the collection of the tags linked to the <code>DataObject</code>.
+	 * Returns the collection of the attachments linked to the 
+	 * <code>DataObject</code>.
 	 * 
 	 * @return See above.
 	 */

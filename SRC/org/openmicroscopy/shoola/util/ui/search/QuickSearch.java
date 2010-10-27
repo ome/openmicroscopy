@@ -644,20 +644,26 @@ public class QuickSearch
     	String value;
     	List<String> values = new ArrayList<String>();
     	String term = "";
+    	int index = 0;
+    	int n = text.size()-1;
     	while (i.hasNext()) {
     		value = i.next();
 			if (value != null) {
 				value = value.trim();
 				if (!l.contains(value)) 
 					values.add(value);
-				else term += value;
+				else {
+					term += value;
+					if (index < n)
+						term += SearchUtil.COMMA_SEPARATOR+
+							SearchUtil.SPACE_SEPARATOR;
+					index++;
+				}
 			}
 		}
     	
     	i = values.iterator();
-    	
-    	int index = 0;
-    	int n = text.size()-1;
+    	index = 0;
     	while (i.hasNext()) {
     		term += i.next();
 			if (index < n)

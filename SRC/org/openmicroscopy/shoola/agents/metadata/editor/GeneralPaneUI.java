@@ -192,19 +192,6 @@ class GeneralPaneUI
 		viewport.add(container);
 		viewport.setBackground(UIUtilities.BACKGROUND_COLOR);
 	}
-    
-	/**
-	 * Returns <code>true</code> if the passed value corresponds to
-	 * a name space for <code>Editor</code>.
-	 * 
-	 * @param nameSpace The value to handle.
-	 * @return See above.
-	 */
-	private boolean isEditorFile(String nameSpace)
-	{
-		return (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(nameSpace) ||
-				FileAnnotationData.EDITOR_PROTOCOL_NS.equals(nameSpace));
-	}
 	
 	/** 
 	 * Lays out the protocols files. Returns the components hosting the 
@@ -229,10 +216,13 @@ class GeneralPaneUI
 		String ns;
 		int index = 0;
 		previews.clear();
+		boolean b;
 		while (i.hasNext()) {
 			fa = (FileAnnotationData) i.next();
 			ns = fa.getNameSpace();
-			if (fa.getId() > 0 && isEditorFile(ns)) {
+			b = annotationUI.isEditorFile(fa.getFileName());
+			if (!b) b = annotationUI.isEditorFile(ns);
+			if (fa.getId() > 0 && b) {
 				description = fa.getDescription();
 				if (description != null) {
 					preview = new PreviewPanel(description, fa.getId());
@@ -246,6 +236,7 @@ class GeneralPaneUI
 				}
 			}
 		}
+		if (index == 0) return null;
 		return paneContainer;
 	}
 	
