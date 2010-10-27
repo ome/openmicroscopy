@@ -42,7 +42,6 @@ haven't customized things. You'll have to run 'bin/omero web settings'
 (If the file custom_settings.py does indeed exist it's causing an ImportError
 somehow.)
 """)
-    sys.stderr.write(str(os.environ))
     sys.exit(1)
 
 
