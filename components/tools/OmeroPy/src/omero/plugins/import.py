@@ -72,10 +72,8 @@ class ImportControl(BaseControl):
         err = args.errs
 
         if out:
-            args.args.remove(out)
             out = open(out, "w")
         if err:
-            args.args.remove(err)
             err = open(err, "w")
 
         login_args = []
