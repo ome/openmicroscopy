@@ -38,8 +38,7 @@
                             } else {
                                 $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" onclick="manyCopyToClipboard();"> <input class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Unlink" title="Unlink" onclick="manyUnlink(\'ds-{{ manager.dataset.id }}\');"> <input class="button" type="image" src="{% url webstatic "images/block.png" %}" alt="Delete" title="Delete" onclick="manyDelete();" /> <input class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket" title="Add to basket" onclick="manyAddToBasket();"> <input onclick="changeView(\'icon\');" class="button align_right" type="image" src="{% url webstatic "images/view_icon16.png" %}" alt="Change view to icon" title="Change view to icon">');
                         	}
-                		}
-                		
+                		}                		
             		    $("#right_panel").show();
                         $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
             		    $('tr.ui-selected', this).each(function(){  
@@ -52,13 +51,17 @@
             		    if(ro > 0) {
             		        $("#toolbar").html('<input onclick="changeView(\'icon\');" class="button align_right" type="image" src="{% url webstatic "images/view_icon16.png" %}" alt="Change view to icon" title="Change view to icon">');
             		        $("#right_panel").show();
-                            $("div#metadata_details").html('<p>{% trans "This is read-only group." %}</p>');
-            		    } else if (eo > 0){
-                            $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Unlink" title="Unlink" onclick="manyUnlink(\'ds-{{ manager.dataset.id }}\');"> <input onclick="changeView(\'icon\');" class="button align_right" type="image" src="{% url webstatic "images/view_icon16.png" %}" alt="Change view to icon" title="Change view to icon">');
-                            {% if eContext.isEditable %}
+                            {% if not eContext.isReadOnly %}
                                 manyToAnnotation();
                             {% else %}
-                                $("#right_panel").show();
+                                $("div#metadata_details").html('<p>{% trans "This is read-only group." %}</p>');
+                            {% endif %}
+            		    } else if (eo > 0){
+                            $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Unlink" title="Unlink" onclick="manyUnlink(\'ds-{{ manager.dataset.id }}\');"> <input onclick="changeView(\'icon\');" class="button align_right" type="image" src="{% url webstatic "images/view_icon16.png" %}" alt="Change view to icon" title="Change view to icon">');
+                            $("#right_panel").show();
+                            {% if not eContext.isReadOnly %}
+                                manyToAnnotation();
+                            {% else %}
                                 $("div#metadata_details").html('<p>{% trans "This is read-only group." %}</p>');
                             {% endif %}
                         } else {
@@ -67,12 +70,8 @@
                             } else {                            
                                 $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" onclick="manyCopyToClipboard();"> <input class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Unlink" title="Unlink" onclick="manyUnlink(\'ds-{{ manager.dataset.id }}\');"> <input class="button" type="image" src="{% url webstatic "images/block.png" %}" alt="Delete" title="Delete" onclick="manyDelete();"/> <input class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket" title="Add to basket" onclick="manyAddToBasket();"> <input onclick="changeView(\'icon\');" class="button align_right" type="image" src="{% url webstatic "images/view_icon16.png" %}" alt="Change view to icon" title="Change view to icon">');
                             }
-                            {% if eContext.isEditable %}
-                                manyToAnnotation();
-                            {% else %}
-                                $("#right_panel").show();
-                                $("div#metadata_details").html('<p>{% trans "This is read-only group." %}</p>');
-                            {% endif %}
+                            $("#right_panel").show();
+                            manyToAnnotation();
                 		}
                         
             		}

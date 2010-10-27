@@ -48,13 +48,17 @@
             		    if(ro > 0) {
                             $("#toolbar").html('<input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">');
                             $("#right_panel").show();
-                            $("div#metadata_details").html('<p>{% trans "This is read-only group." %}</p>'); 
-                        } else if (eo > 0){
-                            $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/block.png" %}" alt="Delete" title="Delete" onclick="manyDelete();" /> <input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">');
-                            {% if eContext.isEditable %}
+                            {% if not eContext.isReadOnly %}
                                 manyToAnnotation();
                             {% else %}
-                                $("#right_panel").show();
+                                $("div#metadata_details").html('<p>{% trans "This is read-only group." %}</p>');
+                            {% endif %}
+                        } else if (eo > 0){
+                            $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/block.png" %}" alt="Delete" title="Delete" onclick="manyDelete();" /> <input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">');
+                            $("#right_panel").show();
+                            {% if not eContext.isReadOnly %}
+                                manyToAnnotation();
+                            {% else %}
                                 $("div#metadata_details").html('<p>{% trans "This is read-only group." %}</p>');
                             {% endif %}
                         } else {
@@ -63,12 +67,8 @@
                             } else {
                                 $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" onclick="manyCopyToClipboard();"> <input class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Unlink" title="Unlink" onclick="manyUnlink(\'ds-{{ manager.dataset.id }}\');"> <input class="button" type="image" src="{% url webstatic "images/block.png" %}" alt="Delete" title="Delete" onclick="manyDelete();" /> <input class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket" title="Add to basket" onclick="manyAddToBasket();"> <input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">');
                             }
-                            {% if eContext.isEditable %}
-                                manyToAnnotation();
-                            {% else %}
-                                $("#right_panel").show();
-                                $("div#metadata_details").html('<p>{% trans "This is read-only group." %}</p>');
-                            {% endif %}
+                            $("#right_panel").show();
+                            manyToAnnotation();
                         }
             		}
             	},

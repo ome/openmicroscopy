@@ -609,7 +609,7 @@ class BaseContainer(BaseController):
     def createTagAnnotations(self, tag, desc, oids):
         ann = None
         try:
-            ann = self.conn.findTag(tag, desc)._obj
+            ann = self.conn.findTag(tag, desc)
         except:
             pass
         if ann is None:

@@ -1293,7 +1293,12 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         return handle
     
     def deletePlate(self, oid, anns=None):
-        dc = omero.api.delete.DeleteCommand('/Plate', long(oid))
+        op = dict()
+        if anns is None:            
+            op["/TagAnnotation"] = "KEEP"
+            op["/TermAnnotation"] = "KEEP"
+            op["/FileAnnotation"] = "KEEP"
+        dc = omero.api.delete.DeleteCommand('/Plate', long(oid), op)
         handle = self.getDeleteService().queueDelete([dc])
         return handle
         
@@ -1330,7 +1335,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             op["/FileAnnotation"] = "KEEP"
         if child is None:
             op["/Plate"] = "KEEP"
-        dc = omero.api.delete.DeleteCommand('/Screen', long(obj.id))
+        dc = omero.api.delete.DeleteCommand('/Screen', long(obj.id), op)
         handle = self.getDeleteService().queueDelete([dc])
         return handle
     
