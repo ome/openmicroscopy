@@ -364,7 +364,7 @@ public class DeleteSpecUnitTest extends MockDeleteTest {
 
         BaseDeleteSpec spec = new BaseDeleteSpec("/"+type, "/"+type);
         DeleteStep step = new DeleteStep(0, new LinkedList<DeleteStep>(),
-                spec, spec.entries.get(0), Arrays.asList(0L));
+                spec, spec.entries.get(0), new long[0]);
         return step;
     }
 }
