@@ -50,6 +50,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.actions.ManageObjectAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ManageRndSettingsAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.RefreshAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.SaveAction;
+import org.openmicroscopy.shoola.agents.dataBrowser.actions.SendFeedbackAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.TaggingAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ViewAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ViewOtherAction;
@@ -148,6 +149,9 @@ class DataBrowserControl
 	 */
 	static final Integer    SET_OWNER_RND_SETTINGS = Integer.valueOf(15);
 	
+	/** Identifies the <code>Send Feedback action</code>.  */
+	static final Integer    SEND_FEEDBACK = Integer.valueOf(16);
+	
 	/** 
 	 * Reference to the {@link DataBrowser} component, which, in this context,
 	 * is regarded as the Model.
@@ -190,6 +194,7 @@ class DataBrowserControl
     	actionsMap.put(NEW_EXPERIMENT, new CreateExperimentAction(model));
     	actionsMap.put(FIELDS_VIEW, new FieldsViewAction(model));
     	actionsMap.put(OPEN_WITH, new ViewOtherAction(model, null));
+    	actionsMap.put(SEND_FEEDBACK, new SendFeedbackAction(model));
     }
     
 	/** 

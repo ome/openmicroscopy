@@ -92,6 +92,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.RefreshTreeAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RemoveExperimenterNode;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RollOverAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SearchAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.SendFeedbackAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchUserAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TaggingAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
@@ -340,6 +341,9 @@ class TreeViewerControl
 	/** Identifies the <code>Reset the rendering settings action</code>. */
 	static final Integer    SET_OWNER_RND_SETTINGS = Integer.valueOf(64);
 	
+	/** Identifies the <code>Send comment action</code>. */
+	static final Integer    SEND_COMMENT = Integer.valueOf(65);
+	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -519,6 +523,7 @@ class TreeViewerControl
 				new CreateTopContainerAction(model, 
 						CreateTopContainerAction.EXPERIMENTER));
 		actionsMap.put(RESET_PASSWORD,  new PasswordResetAction(model));
+		actionsMap.put(SEND_COMMENT,  new SendFeedbackAction(model));
 	}
 
 	/** 

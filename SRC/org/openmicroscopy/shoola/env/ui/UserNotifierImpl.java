@@ -305,12 +305,13 @@ public class UserNotifierImpl
 
     /** 
      * Implemented as specified by {@link UserNotifier}. 
-     * @see UserNotifier#submitMessage(String)
+     * @see UserNotifier#submitMessage(String, String)
      */ 
-	public void submitMessage(String email)
+	public void submitMessage(String email, String comment)
 	{
 		MessengerDialog d = manager.getCommentDialog(SHARED_FRAME, 
 				getEmail(email));
+		d.setComment(comment);
 		UIUtilities.centerAndShow(d);
 	}
 

@@ -712,6 +712,17 @@ public class MessengerDialog
 		errorDescription = description;
 	}
 	
+	/**
+	 * Sets the comment to send.
+	 * 
+	 * @param comment The text to display.
+	 */
+	public void setComment(String comment) 
+	{
+		if (comment != null && comment.trim().length() > 0)
+			commentArea.setText(comment);
+	}
+	
 	/** 
 	 * Sets the version of the server.
 	 * 

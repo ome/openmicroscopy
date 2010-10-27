@@ -82,6 +82,8 @@ import org.openmicroscopy.shoola.util.ui.login.LoginCredentials;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLoginDialog;
 
+import pojos.ExperimenterData;
+
 /** 
  * Creates and manages the {@link TaskBarView}.
  * It acts as a controller.
@@ -273,7 +275,11 @@ public class TaskBarManager
 	{
 		Registry reg = container.getRegistry();
 		UserNotifier un = reg.getUserNotifier();
-		un.submitMessage("");
+		ExperimenterData exp = (ExperimenterData) reg.lookup(
+				LookupNames.CURRENT_USER_DETAILS);
+		String email = "";
+		if (exp != null) email = exp.getEmail();
+		un.submitMessage(email, "");
 	}
 	
 	/**
