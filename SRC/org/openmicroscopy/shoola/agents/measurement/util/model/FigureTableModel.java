@@ -166,8 +166,10 @@ public class FigureTableModel
 							(String) figure.getROI().getAnnotation(
 									(AnnotationKey) key)));
 				} else {
-					values.add(figure.getROI().getAnnotation(
+					if (key instanceof AnnotationKey)
+						values.add(figure.getROI().getAnnotation(
 							(AnnotationKey) key));
+					else values.add(NA);
 				}
 			}
 		}
