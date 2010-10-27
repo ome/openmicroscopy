@@ -164,7 +164,7 @@ public class PreviewPanel
     	return content;
 	}
 	
-	/** Initialises the components. */
+	/** Initializes the components. */
 	private void initComponents()
 	{
 		setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -172,6 +172,8 @@ public class PreviewPanel
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		
 		String description = model.getDescription();
+		if (description == null || description.trim().length() == 0)
+			description = "Description and Summary Not available";
 		if (description != null) {
 			//TODO: externalize that
 			description = "<html>" +
@@ -221,7 +223,7 @@ public class PreviewPanel
 		add(p, BorderLayout.CENTER);
 	}
 	
-	/** Inovked when the model changes. */
+	/** Invokes when the model changes. */
 	private void rebuildUI() 
 	{	
 		removeAll();
@@ -340,10 +342,7 @@ public class PreviewPanel
 	 * Creates an instance without setting the content. 
 	 * Use {@link #setDescriptionXml(String)} to set the content with XML
 	 */
-	public PreviewPanel()
-	{
-		fileID = -1;
-	}
+	public PreviewPanel() { fileID = -1; }
 	
 	/**
 	 * Sets the XML description (XML that summarizes an OMERO.editor file),

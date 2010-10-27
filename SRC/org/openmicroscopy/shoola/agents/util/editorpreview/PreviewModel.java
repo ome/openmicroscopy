@@ -134,7 +134,7 @@ class PreviewModel
 	/**
 	 * Creates an instance and parses the XML summary.
 	 * 
-	 * @param summary		The XML that summarises an Editor file. 
+	 * @param summary The XML that summarizes an Editor file. 
 	 */
 	PreviewModel(String summary)
 	{
