@@ -12,8 +12,11 @@ import integration.XMLMockObjects;
 import integration.XMLWriter;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import ome.xml.model.OME;
 import omero.api.delete.DeleteCommand;
@@ -38,18 +41,7 @@ public class SpwDeleteTest extends AbstractTest {
 
         newUserAndGroup("rw----");
 
-        File f = File.createTempFile("testImportPlate", "."+OME_FORMAT);
-
-        XMLMockObjects xml = new XMLMockObjects();
-        XMLWriter writer = new XMLWriter();
-        OME ome = xml.createPopulatedScreen();
-        writer.writeFile(f, ome, true);
-        List<Pixels> pixels = null;
-        try {
-                pixels = importFile(f, OME_FORMAT);
-        } catch (Throwable e) {
-                throw new Exception("cannot import the plate", e);
-        }
+        List<Pixels> pixels = createScreen();
 
         Experiment exp = null;
         Screen screen = null;
@@ -73,8 +65,8 @@ public class SpwDeleteTest extends AbstractTest {
             }
         }
 
-        delete(client, new DeleteCommand(DeleteServiceTest.REF_SCREEN,
-                screen.getId().getValue(), null));
+        delete(client, new DeleteCommand(DeleteServiceTest.REF_SCREEN, screen
+                .getId().getValue(), null));
 
         assertDoesNotExist(exp);
         assertDoesNotExist(screen);
@@ -84,4 +76,73 @@ public class SpwDeleteTest extends AbstractTest {
 
     }
 
+    @Test
+    public void testScreenKeepPlates() throws Exception {
+
+        newUserAndGroup("rw----");
+
+        List<Pixels> pixels = createScreen();
+
+        Pixels p = pixels.get(0);
+        WellSample ws = getWellSample(p);
+        Plate plate = ws.getWell().getPlate();
+        Screen screen = plate.copyScreenLinks().get(0).getParent();
+        long sid = screen.getId().getValue();
+
+        Map<String, String> op = new HashMap<String, String>();
+        op.put("/Plate", "KEEP");
+
+        delete(client, new DeleteCommand(DeleteServiceTest.REF_SCREEN, sid, op));
+
+        assertDoesNotExist(screen);
+        assertExists(plate);
+
+    }
+
+    /**
+     * This tests using the /Plate+Only specifier as opposed to the class name.
+     * Currently not implemented.
+     */
+    @Test(groups = {"ticket:3195", "UNSUPPORTED"}, enabled = false)
+    public void testScreenKeepPlateOnly() throws Exception {
+
+        newUserAndGroup("rw----");
+
+        List<Pixels> pixels = createScreen();
+
+        Pixels p = pixels.get(0);
+        WellSample ws = getWellSample(p);
+        Plate plate = ws.getWell().getPlate();
+        Screen screen = plate.copyScreenLinks().get(0).getParent();
+        long sid = screen.getId().getValue();
+
+        Map<String, String> op = new HashMap<String, String>();
+        op.put("/Plate+Only", "KEEP");
+
+        delete(client, new DeleteCommand(DeleteServiceTest.REF_SCREEN, sid, op));
+
+        assertDoesNotExist(screen);
+        assertExists(plate);
+
+    }
+
+    //
+    // Helpers
+    //
+
+    private List<Pixels> createScreen() throws IOException, Exception {
+        File f = File.createTempFile("testImportPlate", "." + OME_FORMAT);
+
+        XMLMockObjects xml = new XMLMockObjects();
+        XMLWriter writer = new XMLWriter();
+        OME ome = xml.createPopulatedScreen();
+        writer.writeFile(f, ome, true);
+        List<Pixels> pixels = null;
+        try {
+            pixels = importFile(f, OME_FORMAT);
+        } catch (Throwable e) {
+            throw new Exception("cannot import the plate", e);
+        }
+        return pixels;
+    }
 }
