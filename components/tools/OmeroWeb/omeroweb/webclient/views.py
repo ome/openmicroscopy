@@ -1479,7 +1479,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         anns = request.REQUEST.get('anns')
         try:
             handle = manager.deleteItem(child, anns)
-            request.session['callback'][str(handle)] = {'delmany':False,'did':o_id, 'dtype':o_type, 'dstatus':'Progress', 'derror':handle.errors(), 'dreport':_formatReport(handle)}
+            request.session['callback'][str(handle)] = {'delmany':False,'did':o_id, 'dtype':o_type, 'dstatus':'in progress', 'derror':handle.errors(), 'dreport':_formatReport(handle)}
             request.session.modified = True
         except Exception, x:
             logger.error(traceback.format_exc())

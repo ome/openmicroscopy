@@ -15,6 +15,6 @@ def _formatReport(delete_handle):
 def _purgeCallback(request):
     
     callbacks = request.session.get('callback').keys()
-    if len(callbacks) > 100:
-        for (cbString, count) in zip(request.session.get('callback').keys(), range(0,len(callbacks)-100)):
+    if len(callbacks) > 200:
+        for (cbString, count) in zip(request.session.get('callback').keys(), range(0,len(callbacks)-200)):
             del request.session['callback'][cbString]
