@@ -1055,7 +1055,6 @@ class BrowserComponent
      */
 	public void addExperimenter(ExperimenterData experimenter, boolean load)
 	{
-		//TODO check state
 		if (experimenter == null)
 			throw new IllegalArgumentException("Experimenter cannot be null.");
 		//Make sure the user is not already display
