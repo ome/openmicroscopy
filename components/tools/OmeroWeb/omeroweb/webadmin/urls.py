@@ -44,17 +44,14 @@ urlpatterns = patterns('',
     url( r'^ldap/', views.ldap, name="waldap" ),
     #url( r'^scripts/', views.scripts, name="wascripts" ),
     #url( r'^script/(?P<action>[a-z]+)/(?:(?P<sc_id>[0-9]+)/)?$', views.manage_script, name="wamanagescriptid" ),
-    url( r'^enums/$', views.enums, name="waenums" ),
-    url( r'^enum/(?P<action>((?i)new|edit|delete|save|reset))/(?P<klass>[a-zA-Z]+)/(?:(?P<eid>[0-9]+)/)?$', views.manage_enum, name="wamanageenum" ),
+    #url( r'^enums/$', views.enums, name="waenums" ),
+    #url( r'^enum/(?P<action>((?i)new|edit|delete|save|reset))/(?P<klass>[a-zA-Z]+)/(?:(?P<eid>[0-9]+)/)?$', views.manage_enum, name="wamanageenum" ),
     #url( r'^imports/$', views.imports, name="waimports" ),
     url( r'^myaccount/(?:(?P<action>[a-z]+)/)?$', views.my_account, name="wamyaccount" ),
     url( r'^drivespace/$', views.drivespace, name="wadrivespace"),
 
     url( r'^piechart/$', views.piechart, name="wapiechart"),
     url( r'^myphoto/$', views.myphoto, name="wamyphoto"),
-
-    # static
-    url( r'^help/(?P<path>.*)$', serve ,{ 'document_root': os.path.join(os.path.dirname(__file__), 'help').replace('\\','/') }, name="wahelp" ),
 
 )
 

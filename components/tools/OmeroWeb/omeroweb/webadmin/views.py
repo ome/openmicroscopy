@@ -69,9 +69,8 @@ from controller.enums import BaseEnums
 
 from webclient.webclient_gateway import OmeroWebGateway
 
-#from extlib.gateway import _session_logout, timeit, getBlitzConnection, _createConnection
-from webgateway.views import getBlitzConnection, timeit, _session_logout, _createConnection
-from webgateway import views as webgateway_views
+from omeroweb.webgateway import views as webgateway_views
+from omeroweb.webgateway.views import getBlitzConnection
 
 logger = logging.getLogger('views-admin')
 
@@ -86,7 +85,7 @@ def getGuestConnection(host, port):
     guest = "guest"
     try:
         # do not store connection on connectors
-        conn = _createConnection('', host=host, port=port, username=guest, passwd=guest, secure=True, useragent="OMERO.web")
+        conn = webgateway_views._createConnection('', host=host, port=port, username=guest, passwd=guest, secure=True, useragent="OMERO.web")
         if conn is not None:
             logger.info("Have connection as Guest")
         else:
@@ -233,40 +232,34 @@ def forgotten_password(request, **kwargs):
     template = "webadmin/forgotten_password.html"
     
     conn = None
-    error = None
+    error = None    
+    blitz = None
     
-    if request.method == 'POST' and request.REQUEST.get('server') is not None and request.REQUEST.get('username') is not None and request.REQUEST.get('email') is not None:
-        blitz = settings.SERVER_LIST.get(pk=request.REQUEST.get('server'))
-        try:
-            conn = getGuestConnection(blitz.host, blitz.port)
-            if not conn.isForgottenPasswordSet():
-                error = "This server cannot reset password. Please contact your administrator."
-                conn = None
-        except Exception, x:
-            logger.error(traceback.format_exc())
-            error = str(x)
-
-    if conn is not None:
-        controller = None
-        try:
-            controller = conn.reportForgottenPassword(request.REQUEST.get('username').encode('utf-8'), request.REQUEST.get('email').encode('utf-8'))
-        except Exception, x:
-            logger.error(traceback.format_exc())
-            error = str(x)
+    if request.method == 'POST':
         form = ForgottonPasswordForm(data=request.REQUEST.copy())
-        context = {'error':error, 'controller':controller, 'form':form}
-    else:
-        if request.method == 'POST':
-            form = ForgottonPasswordForm(data=request.REQUEST.copy())
-        else:
+        if form.is_valid():
+            blitz = settings.SERVER_LIST.get(pk=request.REQUEST.get('server'))
             try:
-                blitz = settings.SERVER_LIST.get(pk=request.session.get('server'))
-                data = {'server': unicode(blitz.id), 'username':unicode(request.REQUEST.get('username')), 'password':unicode(request.REQUEST.get('password')) }
-                form = ForgottonPasswordForm(data=data)
-            except:
-                form = ForgottonPasswordForm()
-        context = {'error':error, 'form':form}
+                conn = getGuestConnection(blitz.host, blitz.port)
+                if not conn.isForgottenPasswordSet():
+                    error = "This server cannot reset password. Please contact your administrator."
+                    conn = None
+            except Exception, x:
+                logger.error(traceback.format_exc())
+                error = "Internal server error, please contact administrator."
+        
+            if conn is not None:
+                try:
+                    conn.reportForgottenPassword(request.REQUEST.get('username').encode('utf-8'), request.REQUEST.get('email').encode('utf-8'))
+                    error = "Password was reseted. Check you mailbox."
+                    form = None
+                except Exception, x:
+                    logger.error(traceback.format_exc())
+                    error = "Internal server error, please contact administrator."
+    else:
+        form = ForgottonPasswordForm()
     
+    context = {'error':error, 'form':form}    
     t = template_loader.get_template(template)
     c = Context(request, context)
     rsp = t.render(c)
@@ -367,8 +360,17 @@ def index(request, **kwargs):
     else:
         return HttpResponseRedirect(reverse("wamyaccount"))
 
-def logout(request):
-    _session_logout(request, request.session['server'])
+@isUserConnected
+def logout(request, **kwargs):
+    webgateway_views._session_logout(request, request.session.get('server'))
+    
+    try:
+        if request.session.get('shares') is not None:
+            for key in request.session.get('shares').iterkeys():
+                session_key = "S:%s#%s#%s" % (request.session.session_key,request.session.get('server'), key)
+                webgateway_views._session_logout(request,request.session.get('server'), force_key=session_key)
+    except:
+        logger.error(traceback.format_exc())
     
     request.session.set_expiry(1)
     return HttpResponseRedirect(reverse("waindex"))
@@ -786,77 +788,77 @@ def manage_script(request, action, sc_id=None, **kwargs):
     rsp = t.render(c)
     return HttpResponse(rsp)
 
-@isAdminConnected
-def enums(request, **kwargs):
-    enums = True
-    template = "webadmin/enums.html"
-    error = request.REQUEST.get('error') and request.REQUEST.get('error').replace("_", " ") or None
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-    
-    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'enums':enums, 'error':error}
-    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
-    
-    controller = BaseEnums(conn)
-    
-    context = {'info':info, 'eventContext':eventContext, 'controller':controller}
-    t = template_loader.get_template(template)
-    c = Context(request, context)
-    rsp = t.render(c)
-    return HttpResponse(rsp)
+#@isAdminConnected
+#def enums(request, **kwargs):
+#    enums = True
+#    template = "webadmin/enums.html"
+#    error = request.REQUEST.get('error') and request.REQUEST.get('error').replace("_", " ") or None
+#    
+#    conn = None
+#    try:
+#        conn = kwargs["conn"]
+#    except:
+#        logger.error(traceback.format_exc())
+#    
+#    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'enums':enums, 'error':error}
+#    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
+#    
+#    controller = BaseEnums(conn)
+#    
+#    context = {'info':info, 'eventContext':eventContext, 'controller':controller}
+#    t = template_loader.get_template(template)
+#    c = Context(request, context)
+#    rsp = t.render(c)
+#    return HttpResponse(rsp)
 
-@isAdminConnected
-def manage_enum(request, action, klass, eid=None, **kwargs):
-    enums = True
-    template = "webadmin/enum_form.html"
-        
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-    
-    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'enums':enums}
-    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
-    
-    controller = BaseEnums(conn, klass)
-    if action == "save":
-        form = EnumerationEntries(entries=controller.entries, data=request.POST.copy())
-        if form.is_valid():
-            controller.saveEntries(form.data)
-            return HttpResponseRedirect(reverse(viewname="wamanageenum", args=["edit", klass]))
-    elif action == "delete" and eid is not None:
-        controller.deleteEntry(eid)
-        return HttpResponseRedirect(reverse(viewname="wamanageenum", args=["edit", klass]))
-    elif action == "new":
-        if request.method == "POST":
-            form = EnumerationEntry(data=request.POST.copy())
-            if form.is_valid():
-                new_entry = request.REQUEST.get('new_entry').encode('utf-8')
-                controller.saveEntry(new_entry)
-                return HttpResponseRedirect(reverse(viewname="wamanageenum", args=["edit", klass]))
-        else:
-            form = EnumerationEntry()
-    elif action == "reset":
-        try:
-            controller.resetEnumerations()
-        except:
-            logger.error(traceback.format_exc())
-            return HttpResponseRedirect(reverse(viewname="waenums")+("?error=Enumeration_%s_cannot_be_reset" % (klass)))
-        else:
-            return HttpResponseRedirect(reverse("waenums"))
-    else:
-        form = EnumerationEntries(entries=controller.entries, initial={'entries':True})
-    
-    context = {'info':info, 'eventContext':eventContext, 'controller':controller, 'action':action, 'form':form}
-    t = template_loader.get_template(template)
-    c = Context(request, context)
-    rsp = t.render(c)
-    return HttpResponse(rsp)
+#@isAdminConnected
+#def manage_enum(request, action, klass, eid=None, **kwargs):
+#    enums = True
+#    template = "webadmin/enum_form.html"
+#        
+#    conn = None
+#    try:
+#        conn = kwargs["conn"]
+#    except:
+#        logger.error(traceback.format_exc())
+#    
+#    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'enums':enums}
+#    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
+#    
+#    controller = BaseEnums(conn, klass)
+#    if action == "save":
+#        form = EnumerationEntries(entries=controller.entries, data=request.POST.copy())
+#        if form.is_valid():
+#            controller.saveEntries(form.data)
+#            return HttpResponseRedirect(reverse(viewname="wamanageenum", args=["edit", klass]))
+#    elif action == "delete" and eid is not None:
+#        controller.deleteEntry(eid)
+#        return HttpResponseRedirect(reverse(viewname="wamanageenum", args=["edit", klass]))
+#    elif action == "new":
+#        if request.method == "POST":
+#            form = EnumerationEntry(data=request.POST.copy())
+#            if form.is_valid():
+#                new_entry = request.REQUEST.get('new_entry').encode('utf-8')
+#                controller.saveEntry(new_entry)
+#                return HttpResponseRedirect(reverse(viewname="wamanageenum", args=["edit", klass]))
+#        else:
+#            form = EnumerationEntry()
+#    elif action == "reset":
+#        try:
+#            controller.resetEnumerations()
+#        except:
+#            logger.error(traceback.format_exc())
+#            return HttpResponseRedirect(reverse(viewname="waenums")+("?error=Enumeration_%s_cannot_be_reset" % (klass)))
+#        else:
+#            return HttpResponseRedirect(reverse("waenums"))
+#    else:
+#        form = EnumerationEntries(entries=controller.entries, initial={'entries':True})
+#    
+#    context = {'info':info, 'eventContext':eventContext, 'controller':controller, 'action':action, 'form':form}
+#    t = template_loader.get_template(template)
+#    c = Context(request, context)
+#    rsp = t.render(c)
+#    return HttpResponse(rsp)
 
 @isAdminConnected
 def imports(request, **kwargs):
@@ -901,12 +903,15 @@ def my_account(request, action=None, **kwargs):
                 email = request.REQUEST.get('email').encode('utf-8')
                 institution = request.REQUEST.get('institution').encode('utf-8')
                 defaultGroup = request.REQUEST.get('default_group')
-                password = request.REQUEST.get('password').encode('utf-8')
-                if len(password) == 0:
+                try:
+                    password = request.REQUEST.get('password').encode('utf-8')
+                    if len(password) == 0:
+                        password = None
+                except:
                     password = None
                 myaccount.updateMyAccount(firstName, lastName, email, defaultGroup, middleName, institution, password)
-                logout(request)
                 return HttpResponseRedirect(reverse("wamyaccount"))
+    
     elif action == "upload":
         if request.method == 'POST':
             form_file = UploadPhotoForm(request.POST, request.FILES)

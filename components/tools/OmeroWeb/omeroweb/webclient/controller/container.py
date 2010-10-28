@@ -126,14 +126,18 @@ class BaseContainer(BaseController):
             self.series_metadata = sorted(om[2])
 
     def channelMetadata(self):
+        self.channel_metadata = None
         try:
             if self.image is not None:
                 self.channel_metadata = self.image.getChannels()
             elif self.well is not None:
                 self.channel_metadata = self.well.selectedWellSample().image().getChannels()
         except:
+            pass
+        
+        if self.channel_metadata is None:
             self.channel_metadata = list()
-    
+        
     def loadTags(self, eid=None):
         if eid is not None:
             self.experimenter = self.conn.getExperimenter(eid)

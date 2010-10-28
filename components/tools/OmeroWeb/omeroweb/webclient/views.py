@@ -445,17 +445,15 @@ def change_active_group(request, **kwargs):
     
 @isUserConnected
 def logout(request, **kwargs):
-    webgateway_views._session_logout(request, request.session['server'])
+    webgateway_views._session_logout(request, request.session.get('server'))
 
     try:
-        for key in request.session['shares'].iterkeys():
-            try:
-                session_key = "S:%s#%s#%s" % (request.session.session_key,request.session['server'], key)
-                webgateway_views._session_logout(request, request.session['server'], force_key=session_key)
-            except:
-                logger.error(traceback.format_exc())
-    except KeyError:
-        pass
+        if request.session.get('shares') is not None:
+            for key in request.session.get('shares').iterkeys():
+                session_key = "S:%s#%s#%s" % (request.session.session_key,request.session.get('server'), key)
+                webgateway_views._session_logout(request,request.session.get('server'), force_key=session_key)
+    except:
+        logger.error(traceback.format_exc())
     
     request.session.set_expiry(1)
     return HttpResponseRedirect(reverse("webindex"))

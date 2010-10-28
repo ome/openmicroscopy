@@ -1218,6 +1218,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         admin_serv.setDefaultGroup(experimenter, defultGroup)
         if password is not None and password!="":
             admin_serv.changePassword(rstring(str(password)))
+        self.changeActiveGroup(defultGroup.id.val)
         self._user = self.getExperimenter(self._userid)
     
     def updatePermissions(self, obj, perm):
