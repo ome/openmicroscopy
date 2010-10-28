@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.env.data;
 //Java import
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;

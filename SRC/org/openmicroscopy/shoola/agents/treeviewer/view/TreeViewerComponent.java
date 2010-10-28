@@ -2424,10 +2424,12 @@ class TreeViewerComponent
 			i = nodes.iterator();
 			Object obj;
 			List<DeletableObject> l = new ArrayList<DeletableObject>();
-			List<TreeImageDisplay> toRemove = new ArrayList<TreeImageDisplay>();
+			//List<TreeImageDisplay> toRemove = new ArrayList<TreeImageDisplay>();
 			DeletableObject d;
 			List<DataObject> objects = new ArrayList<DataObject>();
 			List<DataObject> values = null;
+			List<Long> ids = new ArrayList<Long>();
+			Class klass = null;
 			while (i.hasNext()) {
 				node = (TreeImageDisplay) i.next();
 				obj = node.getUserObject();
@@ -2436,7 +2438,7 @@ class TreeViewerComponent
 					if (values == null)
 						values = new ArrayList<DataObject>(); 
 					values.add((DataObject) obj);
-					toRemove.add(node);
+					//toRemove.add(node);
 				} else if (obj instanceof DataObject) {
 					d = new DeletableObject((DataObject) obj, content);
 					if (!(obj instanceof TagAnnotationData || 
@@ -2444,14 +2446,20 @@ class TreeViewerComponent
 						d.setAttachmentTypes(types);
 					checkForImages(node, objects, content);
 					l.add(d);
-					toRemove.add(node);
+					//toRemove.add(node);
 				}
+				klass = obj.getClass();
+				ids.add(((DataObject) obj).getId());
 			}
 			if (l.size() > 0) {
 				model.setNodesToCopy(null, -1);
 				EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
 				bus.post(new DeleteObjectEvent(objects));
-				model.getSelectedBrowser().removeTreeNodes(toRemove);
+				
+				NodesFinder finder = new NodesFinder(klass, ids);
+				Browser browser = model.getSelectedBrowser();
+				browser.accept(finder);
+				browser.removeTreeNodes(finder.getNodes());
 				view.removeAllFromWorkingPane();
 				DataBrowserFactory.discardAll();
 				model.getMetadataViewer().setRootObject(null, -1);
@@ -2464,7 +2472,10 @@ class TreeViewerComponent
 				un.notifyActivity(p);
 			} 
 			if (values != null) {
-				model.getSelectedBrowser().removeTreeNodes(toRemove);
+				NodesFinder finder = new NodesFinder(klass, ids);
+				Browser browser = model.getSelectedBrowser();
+				browser.accept(finder);
+				model.getSelectedBrowser().removeTreeNodes(finder.getNodes());
 				view.removeAllFromWorkingPane();
 				DataBrowserFactory.discardAll();
 				model.getMetadataViewer().setRootObject(null, -1);

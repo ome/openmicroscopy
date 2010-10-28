@@ -675,7 +675,7 @@ public interface Browser
 	void refreshBrowser();
 	
 	/** Removes the passed nodes from the display. */
-	void removeTreeNodes(List<TreeImageDisplay> nodes);
+	void removeTreeNodes(Collection<TreeImageDisplay> nodes);
 	
 	/** 
 	 * Removes all the data from the display

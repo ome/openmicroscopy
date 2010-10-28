@@ -829,7 +829,6 @@ class TreeViewerControl
 				groupID = (Long) entry.getKey();
 				d = (ExperimenterData) entry.getValue();
 				model.setHierarchyRoot(groupID, d);
-				break;
 			}
 		} else if (UserManagerDialog.NO_USER_SWITCH_PROPERTY.equals(name)) {
 			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();

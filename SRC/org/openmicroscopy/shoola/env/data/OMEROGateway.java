@@ -2942,6 +2942,7 @@ class OMEROGateway
 			return service.getThumbnail(omero.rtypes.rint(sizeX), 
 					omero.rtypes.rint(sizeY));
 		} catch (Throwable t) {
+			t.printStackTrace();
 			if (thumbnailService != null) {
 				try {
 					thumbnailService.close();
@@ -4246,6 +4247,7 @@ class OMEROGateway
 			while (i.hasNext()) {
 				rndDef = (RenderingDef) i.next();
 				exp = rndDef.getDetails().getOwner();
+				System.err.println(exp.getId().getValue());
 				map.put(PojoMapper.asDataObject(exp), 
 						PixelsServicesFactory.convert(rndDef));
 			}

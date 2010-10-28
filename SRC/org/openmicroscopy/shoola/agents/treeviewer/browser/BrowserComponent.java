@@ -1583,9 +1583,9 @@ class BrowserComponent
 	
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Browser#removeTreeNodes(List)
+	 * @see Browser#removeTreeNodes(Collection)
 	 */
-	public void removeTreeNodes(List<TreeImageDisplay> nodes)
+	public void removeTreeNodes(Collection<TreeImageDisplay> nodes)
 	{
 		if (nodes == null) return;
 		Iterator<TreeImageDisplay> i = nodes.iterator();
