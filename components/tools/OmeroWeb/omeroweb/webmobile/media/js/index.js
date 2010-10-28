@@ -47,7 +47,10 @@ $(document).ready(function() {
                endPos.top = startPos.top - 78;
                endPos.left = (w-endPos.width)/2;    // align middle
                
-               $enlargedCover.attr('src',$(this).children().filter('img').attr('src'))
+               // get the src of a bigger thumbnail for zooming (stored in a hidden child link)
+               var bigThumbSrc = $(this).children().filter('a').attr('href')
+               // and set this as the src of the zooming image. 
+               $enlargedCover.attr('src', bigThumbSrc)
                     .hide()
                     .css(startPos);
                  //.show();
