@@ -10,6 +10,7 @@
 from exceptions import Exception
 from omero.cli import BaseControl, CLI
 import omero.java
+import platform
 import time
 import sys
 import os
@@ -496,6 +497,15 @@ APPLICATION_HOST='%s'
         location = self.ctx.dir / "lib" / "python" / "omeroweb"
         self.ctx.out("Starting OMERO.web... ", newline=False)
         import omeroweb.settings as settings
+        cache_backend = getattr(settings, 'CACHE_BACKEND', None)
+        if cache_backend is not None and cache_backend.startswith("file:///"):
+            cache_backend = cache_backend[7:]
+            if "Windows" != platform.system() \
+               and not os.access(cache_backend, os.R_OK|os.W_OK):
+                self.ctx.out("[FAILED]")
+                self.ctx.out("CACHE_BACKEND '%s' not writable or missing." % \
+                             getattr(settings, 'CACHE_BACKEND'))
+                return 1
         deploy = getattr(settings, 'APPLICATION_SERVER', DEFAULT_SERVER_TYPE)
         if deploy == FASTCGI:
             cmd = "python manage.py runfcgi workdir=./"
@@ -524,6 +534,11 @@ APPLICATION_HOST='%s'
         self.ctx.out("OMERO.web status... ", newline=False)
         import omeroweb.settings as settings
         deploy = getattr(settings, 'APPLICATION_SERVER', DEFAULT_SERVER_TYPE)
+        cache_backend = getattr(settings, 'CACHE_BACKEND', None)
+        if cache_backend is not None:
+            cache_backend = ' (CACHE_BACKEND %s)' % cache_backend
+        else:
+            cache_backend = ''
         rv = 0
         if deploy in FASTCGI_TYPES:
             try:
@@ -535,7 +550,7 @@ APPLICATION_HOST='%s'
             import signal
             try:
                 os.kill(pid, 0)  # NULL signal
-                self.ctx.out("[RUNNING] (PID %d)" % pid)
+                self.ctx.out("[RUNNING] (PID %d)%s" % (pid, cache_backend))
             except:
                 self.ctx.out("[NOT STARTED]")
                 return rv
