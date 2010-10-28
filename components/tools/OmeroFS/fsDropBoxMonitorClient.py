@@ -578,12 +578,11 @@ class MonitorClientI(monitors.MonitorClient):
             to = create_path("dropbox", "out")
 
             cli = omero.cli.CLI()
-            cmd = ["import"]
+            cmd = ["-s", self.host, "-p", str(self.port), "-k", key, "import", "--"]
             cmd.extend(shlex.split(self.importArgs))
             cmd.extend([str("---errs=%s"%t), str("---file=%s"%to)])
-            cmd.extend(["-s", self.host, "-p", str(self.port), "-k", key])
             cmd.append(fileName)
-            self.log.debug("cli.invoke(%s)" % cmd)
+            logging.debug("cli.invoke(%s)" % cmd)
             cli.invoke(cmd)
             retCode = cli.rv
 
