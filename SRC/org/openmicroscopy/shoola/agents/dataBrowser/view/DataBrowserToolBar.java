@@ -596,6 +596,7 @@ class DataBrowserToolBar
 		bar.setRollover(true);
 		bar.add(thumbView);
 		bar.add(columnsView);
+		bar.add(refreshButton);
 		bar.add(Box.createHorizontalStrut(2));
 		bar.add(new JSeparator(JSeparator.VERTICAL));
 		bar.add(Box.createHorizontalStrut(2));
@@ -617,13 +618,14 @@ class DataBrowserToolBar
 		panel.add(itemsPerRow);
 		panel.setToolTipText(itemsPerRow.getToolTipText());
 		bar.add(panel);
+		/*
 		bar.add(Box.createHorizontalStrut(2));
 		bar.add(new JSeparator(JSeparator.VERTICAL));
 		bar.add(Box.createHorizontalStrut(2));
 		if (model.getType() != DataBrowserModel.GROUP) {
 			bar.add(slideShowView);
 		}
-		bar.add(refreshButton);
+		*/
 		return bar;
 	}
 	
