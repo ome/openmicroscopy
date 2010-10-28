@@ -80,6 +80,31 @@
 
             });
 
+
+            function deleteItem(productType, productId) {
+                if ((productType == 'file' || productType == 'tag' || productType == 'comment') && productId > 0){
+                    if (confirm('Delete '+productType+'?')) {
+                        var productListQuery="";
+                        $.ajax({
+                            type: "POST",
+                            url: "/webclient/action/delete/"+productType+"/"+productId+"/", //this.href,
+                            data: productListQuery,
+                            contentType:'html',
+                            success: function(responce){
+                                if(responce.match(/(Error: ([A-z]+))/gi)) {
+                                    alert(responce)
+                                } else {  
+                                    window.location = "{{ url }}";
+                                }
+                            },
+                            error: function(responce) {
+                                alert("Internal server error. Cannot delete object.");
+                            }
+                        });
+
+                    }
+                } 
+            }
     </script>
     
 {% endblock %}
@@ -411,7 +436,7 @@
                 {% for tann in manager.text_annotations %}
                 <div id="ann_comment_wrapper">
                     <div class="avatar"><img src="{% url load_photo tann.details.owner.id.val %}" alt="{{ tann.getOwner.getFullName }}" title="{{ tann.getOwner.getFullName }}" width="40" height="40" /></div>
-                    <div class="ann_comment"><span class="ann_comment_header">{{ tann.getOwner.getFullName }} {% trans "posted comment at" %} {{ tann.creationEventDate|date:"Y-m-d H:i:s" }}</span><br/>
+                    <div class="ann_comment"><span class="ann_comment_header">{{ tann.getOwner.getFullName }} {% trans "posted comment at" %} {{ tann.creationEventDate|date:"Y-m-d H:i:s" }}</span>{% if tann.canDelete %} <input class="button" type="image" src="{% url webstatic "images/block.png" %}" alt="Delete" title="Delete" onclick="deleteItem('comment', '{{ tann.id }}');" />{% endif %}<br/>
                         {{ tann.textValue|safe|linebreaks }}
                     </div>
                 </div>
@@ -455,7 +480,7 @@
             {% if manager.fileannSize %}
             <div class="lnfiles">
                 {% for fileann in manager.file_annotations %}
-                <p><a href="#" onClick="document.location.href='{% url download_annotation "download" fileann.id %}';" title="Linked by {{ fileann.link.getDetails.getOwner.getNameWithInitial }}">{{ fileann.getFileName|shortening:40 }}</a> ({{ fileann.getFileSize|default_if_none:0|filesizeformat }}) {% trans "by" %} {{ fileann.getDetails.getOwner.getNameWithInitial }} {% trans "at" %} {{ fileann.creationEventDate|date:"Y-m-d H:i:s" }} {% if fileann.link.isOwned and not fileann.isOriginalMetadata %}<a href="{% url manage_action_containers "remove" %}?parent={% if manager.image %}img-{{ manager.image.id}}{% else %}{% if manager.dataset %}ds-{{ manager.dataset.id}}{% else %}{% if manager.project %}pr-{{ manager.project.id}}{% endif %}{% endif %}{% endif %}&source=fann-{{ fileann.id }}&url={{ url }}" onClick="return confirm('Unlink file?');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a>{% endif %}</p>
+                <p><a href="#" onClick="document.location.href='{% url download_annotation "download" fileann.id %}';" title="Linked by {{ fileann.link.getDetails.getOwner.getNameWithInitial }}">{{ fileann.getFileName|shortening:40 }}</a> ({{ fileann.getFileSize|default_if_none:0|filesizeformat }}) {% trans "by" %} {{ fileann.getDetails.getOwner.getNameWithInitial }} {% trans "at" %} {{ fileann.creationEventDate|date:"Y-m-d H:i:s" }} {% if fileann.link.isOwned and not fileann.isOriginalMetadata %}<a href="{% url manage_action_containers "remove" %}?parent={% if manager.image %}img-{{ manager.image.id}}{% else %}{% if manager.dataset %}ds-{{ manager.dataset.id}}{% else %}{% if manager.project %}pr-{{ manager.project.id}}{% endif %}{% endif %}{% endif %}&source=fann-{{ fileann.id }}&url={{ url }}" onClick="return confirm('Unlink file?');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a>{% endif %}{% if fileann.canDelete %} <input class="button" type="image" src="{% url webstatic "images/block.png" %}" alt="Delete" title="Delete" onclick="deleteItem('file', '{{ fileann.id }}');" />{% endif %}</p>
                 {% endfor %}
             </div>
             {% else %}

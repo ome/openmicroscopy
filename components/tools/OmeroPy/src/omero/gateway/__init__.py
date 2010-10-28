@@ -244,6 +244,9 @@ class BlitzObjectWrapper (object):
     def canOwnerWrite (self):
         return self._obj.details.permissions.isUserWrite()
     
+    def canDelete(self):
+        return self.isOwned() or self.isLeaded()
+    
     def isOwned(self):
         return (self._obj.details.owner.id.val == self._conn.getEventContext().userId)
     

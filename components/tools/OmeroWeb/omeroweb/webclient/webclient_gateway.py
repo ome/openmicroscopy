@@ -1264,7 +1264,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         u = self.getUpdateService()
         u.deleteObject(obj)
     
-    def deleteTag(self, oid, child=None, anns=None):
+    def deleteAnnotation(self, oid, child=None, anns=None):
         op = dict()
         dc = omero.api.delete.DeleteCommand('/Annotation', long(oid), op)
         handle = self.getDeleteService().queueDelete([dc])

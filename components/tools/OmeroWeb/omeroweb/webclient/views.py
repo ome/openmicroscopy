@@ -1113,7 +1113,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         except AttributeError, x:
             logger.error(traceback.format_exc())
             return handlerInternalError(x)
-    elif o_type == "comment" or o_type == "url" or o_type == "tag":
+    elif o_type == "comment" or o_type == "file" or o_type == "tag":
         manager = BaseAnnotation(conn, o_type, o_id)
     elif o_type == "share" or o_type == "sharecomment":
         manager = BaseShare(conn, None, o_id)

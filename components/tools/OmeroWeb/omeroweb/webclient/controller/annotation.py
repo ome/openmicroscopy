@@ -67,9 +67,11 @@ class BaseAnnotation(BaseController):
     
     def deleteItem(self, child=None, anns=None):
         handle = None
-        if self.tag:
-            handle = self.conn.deleteTag(self.tag.id, child, anns)
+        if self.comment:
+            handle = self.conn.deleteAnnotation(self.comment.id, child, anns)
+        elif self.tag:
+            handle = self.conn.deleteAnnotation(self.tag.id, child, anns)
         elif self.attachment:
-            handle = self.conn.deleteFileAnnotation(self.attachment.id, child, anns)
+            handle = self.conn.deleteAnnotation(self.attachment.id, child, anns)
         return handle
     
