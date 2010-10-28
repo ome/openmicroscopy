@@ -238,9 +238,9 @@ class TestDelete(lib.ITest):
         self.assertEquals(0, len(query.findAllByQuery(sql, p)))
 
     def testOddMessage(self):
-        
         query = self.client.sf.getQueryService()
         update = self.client.sf.getUpdateService()
+        store = self.client.sf.createRawFileStore()
         
         from integration.helpers import createTestImage
         
@@ -261,13 +261,31 @@ class TestDelete(lib.ITest):
         for i in range(0,10):
             iid = createTestImage(self.client.sf)
             img = query.find('Image', iid)
-            ann = omero.model.TagAnnotationI()
-            ann.textValue = omero.rtypes.rstring('tag%i' % i)
-            ann.setDescription(omero.rtypes.rstring('desc'))
-            tail = omero.model.ImageAnnotationLinkI()
-            tail.setParent(img)
-            tail.setChild(ann)
-            tail = update.saveAndReturnObject(tail)        
+            
+            oFile = omero.model.OriginalFileI()
+            oFile.setName(omero.rtypes.rstring('companion_file.txt'));
+            oFile.setPath(omero.rtypes.rstring('/my/path/to/the/file/'));
+            oFile.setSize(omero.rtypes.rlong(7471));
+            oFile.setSha1(omero.rtypes.rstring("pending"));
+            oFile.setMimetype(omero.rtypes.rstring('Companion/Deltavision'));
+
+            ofid = update.saveAndReturnObject(oFile).id.val;
+                        
+            store.setFileId(ofid);
+            binary = 'aaa\naaaa\naaaaa'
+            pos = 0
+            rlen = 0
+            store.write(binary, 0, 0)
+            of = store.save()
+            
+            fa = omero.model.FileAnnotationI()
+            fa.setNs(omero.rtypes.rstring(omero.constants.namespaces.NSCOMPANIONFILE))
+            fa.setFile(of)
+            l_ia = omero.model.ImageAnnotationLinkI()
+            l_ia.setParent(img)
+            l_ia.setChild(fa)
+            l_ia = update.saveAndReturnObject(l_ia);
+
             images.append(iid)
             
         commands = list()
