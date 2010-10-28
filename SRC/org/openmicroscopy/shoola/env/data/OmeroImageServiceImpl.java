@@ -323,6 +323,7 @@ class OmeroImageServiceImpl
 			
 			Dimension d;
 			int level;
+			/*
 			while (j.hasNext()) {
 				id = (Long) j.next();
 				rnd = PixelsServicesFactory.getRenderingControl(context, id, 
@@ -336,12 +337,8 @@ class OmeroImageServiceImpl
 	        				rnd.getPixelsDimensionsX(), 
 	        				rnd.getPixelsDimensionsY());
 					try {
-						//check compression
-						//level = rnd.getCompressionLevel();
-						//rnd.setCompression(RenderingControl.LOW);
 						img = Factory.scaleBufferedImage(rnd.renderPlane(pDef),
 								d.width, d.height);
-						//rnd.setCompression(level);
 						r.put(id, img);
 					} catch (Exception e) {//failed to get it that way
 						ids.add(id);
@@ -350,8 +347,8 @@ class OmeroImageServiceImpl
 				}
 			}
 			if (ids.size() == 0) return r;
-			
-			Map m = gateway.getThumbnailSet(ids, max, false);
+			*/
+			Map m = gateway.getThumbnailSet(pixelsID, max, false);
 			if (m == null || m.size() == 0) {
 				i = ids.iterator();
 				while (i.hasNext()) 
