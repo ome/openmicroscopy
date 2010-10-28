@@ -4247,7 +4247,6 @@ class OMEROGateway
 			while (i.hasNext()) {
 				rndDef = (RenderingDef) i.next();
 				exp = rndDef.getDetails().getOwner();
-				System.err.println(exp.getId().getValue());
 				map.put(PojoMapper.asDataObject(exp), 
 						PixelsServicesFactory.convert(rndDef));
 			}

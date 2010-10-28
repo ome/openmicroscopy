@@ -1341,12 +1341,6 @@ class BrowserUI
 		}
     }
     
-    /** Loads the children of the root node. */
-    void loadRoot()
-    {
-        treeDisplay.expandPath(new TreePath(getTreeRoot().getPath()));
-    }
-    
     /** Loads the children of the currently logged in experimenter. */
     void loadExperimenterData()
     {
