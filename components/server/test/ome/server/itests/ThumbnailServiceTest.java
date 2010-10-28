@@ -177,7 +177,73 @@ public class ThumbnailServiceTest extends AbstractManagedContextTest {
     }
 
     @Test(groups = {"ticket:3161"})
-    public void testTicket3161() throws Exception {
+    public void testTicket3161ThreeUserView() throws Exception {
+        Experimenter e1 = loginNewUser();
+        final ServiceFactory sf = this.factory;// new InternalServiceFactory();
+        Pixels pix = makePixels();
+        loginRoot();
+        makeDefaultGroupReadWrite(e1);
+        // Experimenter1's interactions
+        loginUser(e1.getOmeName());
+        ThumbnailStore ts = sf.createThumbnailService();
+        IPixels ps = sf.getPixelsService();
+        ts.setPixelsId(pix.getId());
+        byte[] thumbExp1 = ts.getThumbnail(5, 5);
+        assertNotNull(thumbExp1);
+        List<IObject> settingsList = 
+            ps.retrieveAllRndSettings(pix.getId(), -1);
+        RenderingDef settings0 = (RenderingDef) settingsList.get(0);
+        assertEquals(1, settingsList.size());
+        assertEquals(1, settings0.getVersion().intValue());
+        // Experimenter2's interactions
+        Experimenter e2 = loginNewUserInOtherUsersGroup(e1);
+        RenderingEngine re = sf.createRenderingEngine();
+        ts = sf.createThumbnailService();
+        re.lookupPixels(pix.getId());
+        if (!re.lookupRenderingDef(pix.getId())) {
+            re.resetDefaults();
+            re.lookupRenderingDef(pix.getId());
+        }
+        re.load();
+        ts.setPixelsId(pix.getId());
+        List<RenderingModel> models = re.getAvailableModels();
+        re.setModel(getModel(models, "rgb"));
+        re.saveCurrentSettings();
+        byte[] thumbExp2 = ts.getThumbnail(5, 5);
+        assertNotNull(thumbExp2);
+        settingsList = ps.retrieveAllRndSettings(pix.getId(), -1);
+        assertEquals(2, settingsList.size());
+        settings0 = (RenderingDef) settingsList.get(0);
+        RenderingDef settings1 = (RenderingDef) settingsList.get(1);
+        assertEquals(1, settings0.getVersion().intValue());
+        assertEquals(2, settings1.getVersion().intValue());
+        byte[][] thumbnails = retrieveAllThumbnailsBySettings(
+                settingsList, ts);
+        assertEquals(2, thumbnails.length);
+        // Experimenter3's interactions
+        Experimenter e3 = loginNewUserInOtherUsersGroup(e1);
+        ts = sf.createThumbnailService();
+        ts.setPixelsId(pix.getId());
+        ts.resetDefaults();
+        ts.setPixelsId(pix.getId());
+        byte[] thumbExp3 = ts.getThumbnail(5, 5);
+        assertNotNull(thumbExp3);
+        settingsList = 
+            ps.retrieveAllRndSettings(pix.getId(), -1);
+        settings0 = (RenderingDef) settingsList.get(0);
+        settings1 = (RenderingDef) settingsList.get(1);
+        RenderingDef settings2 = (RenderingDef) settingsList.get(2);
+        assertEquals(3, settingsList.size());
+        assertEquals(1, settings0.getVersion().intValue());
+        assertEquals(2, settings1.getVersion().intValue());
+        assertEquals(1, settings2.getVersion().intValue());
+        thumbnails = retrieveAllThumbnailsBySettings(
+                settingsList, ts);
+        assertEquals(3, thumbnails.length);
+    }
+
+    @Test(groups = {"ticket:3161"})
+    public void testTicket3161SecurityViolation() throws Exception {
         Experimenter e1 = loginNewUser();
         final ServiceFactory sf = this.factory;// new InternalServiceFactory();
         Pixels pix = makePixels();
@@ -228,13 +294,6 @@ public class ThumbnailServiceTest extends AbstractManagedContextTest {
         re.saveCurrentSettings();
         settingsList = 
             psExp1.retrieveAllRndSettings(pix.getId(), -1);
-        for (IObject o : settingsList) {
-            RenderingDef settings = (RenderingDef) o;
-            System.err.println(settings.getDetails().getOwner());
-            System.err.println(settings.getVersion());
-        }
-        System.err.println("e1: " + e1.getId());
-        System.err.println("e2: " + e2.getId());
         loginUser(e1.getOmeName());
         thumbnails = retrieveAllThumbnailsBySettings(
                 settingsList, ts);

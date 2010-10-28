@@ -605,7 +605,7 @@ public class ThumbnailBean extends AbstractLevel2Service
         {
             throw new ome.conditions.InternalException(
                     "Fatal error retrieving rendering settings or settings " +
-                    " not loaded for Pixels set id:" + pixelsId);
+                    "not loaded for Pixels set id:" + pixelsId);
         }
     }
 
