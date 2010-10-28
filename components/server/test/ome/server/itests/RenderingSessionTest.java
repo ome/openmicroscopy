@@ -7,7 +7,6 @@
 
 package ome.server.itests;
 
-import java.io.FileOutputStream;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -15,7 +14,6 @@ import java.util.Map;
 import java.util.Set;
 
 import ome.api.IPixels;
-import ome.api.IRenderingSettings;
 import ome.api.ThumbnailStore;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
@@ -27,7 +25,6 @@ import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.RenderingDef;
 import ome.model.display.Thumbnail;
-import ome.model.enums.RenderingModel;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;

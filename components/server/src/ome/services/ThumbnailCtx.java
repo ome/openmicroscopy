@@ -39,6 +39,7 @@ import ome.model.display.RenderingDef;
 import ome.model.display.Thumbnail;
 import ome.model.internal.Details;
 import ome.model.internal.Permissions;
+import ome.model.meta.Session;
 import ome.parameters.Parameters;
 import ome.security.SecuritySystem;
 import ome.system.EventContext;
@@ -482,6 +483,9 @@ public class ThumbnailCtx
                 thumbnailService.getThumbnailExists(metadata);
             boolean isExtendedGraphCritical = 
                 isExtendedGraphCritical(Collections.singleton(pixelsId));
+            Long metadataOwnerId = metadata.getDetails().getOwner().getId();
+            Long sessionUserId = getCurrentUserId();
+            boolean isMyMetadata = sessionUserId.equals(metadataOwnerId);
             if (!dirtyMetadata)
             {
                 if (thumbnailExists)
@@ -497,6 +501,15 @@ public class ThumbnailCtx
                             "insufficient permissions to create it.",
                             pixelsId, userId));
                 }
+            }
+            else if (thumbnailExists && !isMyMetadata)
+            {
+                log.warn(String.format(
+                        "Thumbnail metadata is dirty for Pixels Id:%d and " +
+                        "the metadata is owned User id:%d which is not us " +
+                        "User id:%d. Ignoring this and returning the cached " +
+                        "thumbnail.", pixelsId, metadataOwnerId, sessionUserId));
+                return true;
             }
             else if (thumbnailExists && isExtendedGraphCritical)
             {
@@ -537,6 +550,21 @@ public class ThumbnailCtx
         }
         float ratio = (float) longestSide / sizeY;
         return new Dimension((int) (sizeX * ratio), longestSide);
+    }
+
+    /**
+     * Returns the Id of the currently logged in user.
+     * Returns owner of the share while in share
+     * @return See above.
+     */
+    private Long getCurrentUserId()
+    {
+        Long shareId = securitySystem.getEventContext().getCurrentShareId();
+        if (shareId != null) {
+            Session s = queryService.get(Session.class, shareId);
+            return s.getOwner().getId();
+        } 
+        return securitySystem.getEventContext().getCurrentUserId();
     }
 
     /**
