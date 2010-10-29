@@ -151,33 +151,34 @@ java component.
     </target>
 
     <target name="build-importer" description="Build importer and copy to dist/lib and dist/bin" depends="init">
-        <antcall target="build-blitz" inheritRefs="true" inheritAll="true"/>
         <iterate buildpathref="OmeroJava.buildpath" target="tools-dist"/>
         <iterate buildpathref="OmeroImporter.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
+        <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
     </target>
 
     <target name="build-web" description="Build OmeroWeb and copy to dist" depends="init">
-        <antcall target="build-blitz" inheritRefs="true" inheritAll="true"/>
         <iterate buildpathref="OmeroWeb.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
+        <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
     </target>
 
     <target name="build-cpp" description="Build OmeroCpp bindings and copy to dist/lib" depends="init">
-        <antcall target="build-blitz" inheritRefs="true" inheritAll="true"/>
         <iterate buildpathref="OmeroCpp.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
+        <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
     </target>
 
     <target name="build-java" description="Build OmeroJava bindings and copy to dist/lib" depends="init">
-        <antcall target="build-blitz" inheritRefs="true" inheritAll="true"/>
         <iterate buildpathref="OmeroJava.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
+        <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
     </target>
 
     <target name="build-py" description="Build OmeroPy bindings and copy to dist/lib" depends="init">
-        <antcall target="build-blitz" inheritRefs="true" inheritAll="true"/>
-        <!-- Currently has no logic, since build-blitz requires all of this -->
+        <iterate buildpathref="OmeroPy.buildpath" target="tools-dist"/>
+        <iterate buildpathref="tools.buildpath" target="dist"/>
+        <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
     </target>
 
     <target name="build-schema" description="Build new DB schema and copy to sql/" depends="init">
@@ -186,15 +187,18 @@ java component.
         <iterate buildpathref="dsl.buildpath" target="install"/>
         <iterate buildpathref="model.buildpath" target="install"/>
         <iterate buildpathref="model.buildpath" target="publish-schema"/>
+        <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
     </target>
 
     <target name="build-model" description="Generate model code for all language bindings" depends="init">
         <ant antfile="${blitz.comp}/build.xml" dir="${blitz.comp}" target="icegen" inheritAll="false"/>
+        <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
     </target>
 
     <target name="build-matlab" description="Provides a matlab toolbox under target" depends="init">
         <antcall target="build-blitz" inheritRefs="true" inheritAll="true"/>
         <iterate buildpathref="OmeroMatlab.buildpath" target="tools-dist"/>
+        <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
     </target>
 
     <target name="eclipse" depends="init">
