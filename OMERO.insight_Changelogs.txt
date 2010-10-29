@@ -8,6 +8,24 @@
   Java.
   
 --------------------------------------------------------------------------------
+ Last update: 10/2010 
+ Version: Beta 4.2.1
+
+  - Delete asynchronously.  
+  
+--------------------------------------------------------------------------------
+ Last update: 07/2010 
+ Version: Beta 4.2.0
+
+  - Permissions improvement. Allow users to work in private or collaborative
+  groups.
+  - Administrator section.
+  - Bug fixing.
+  - Figure scripts, Publishing data.
+  - Scripts UI on the fly.
+  - Improve HCS support
+  
+--------------------------------------------------------------------------------
  Last update: 25/03/2009 (revision 5994)
  Version: Beta 4.0.0
 
