@@ -796,21 +796,23 @@ class IntensityView
 			if (channelSummarySelected(channels))
 				outputSummary(writer, shapeMap);
 			BufferedImage originalImage = model.getRenderedImage();
-			BufferedImage image = Factory.copyBufferedImage(originalImage);
+			if(originalImage != null)
+			{
+				BufferedImage image = Factory.copyBufferedImage(originalImage);
 			
-			// Add the ROI for the current plane to the image.
-			//TODO: Need to check that.
-			model.setAttributes(MeasurementAttributes.SHOWID, true);
-			model.getDrawingView().print(image.getGraphics());
-			model.setAttributes(MeasurementAttributes.SHOWID, false);
-			try {
-				writer.addImageToWorkbook("ThumbnailImage", image); 
-			} catch (Exception e) {
-				//TODO
+				// Add the ROI for the current plane to the image.
+				//TODO: Need to check that.
+				model.setAttributes(MeasurementAttributes.SHOWID, true);
+				model.getDrawingView().print(image.getGraphics());
+				model.setAttributes(MeasurementAttributes.SHOWID, false);
+				try {
+					writer.addImageToWorkbook("ThumbnailImage", image); 
+				} catch (Exception e) {
+					//TODO
+				}
+				int col = writer.getMaxColumn(0);
+				writer.writeImage(0, col+1, 256, 256, "ThumbnailImage");
 			}
-			int col = writer.getMaxColumn(0);
-			writer.writeImage(0, col+1, 256, 256, "ThumbnailImage");
-
 			if (channelSummarySelected(channels) && channels.size() != 1)
 				while (coordMapIterator.hasNext())
 				{
