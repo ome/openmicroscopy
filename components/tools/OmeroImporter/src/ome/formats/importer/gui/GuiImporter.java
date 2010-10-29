@@ -229,15 +229,10 @@ WindowStateListener, WindowFocusListener
         login.setActionCommand("login");
         login.addActionListener(this);        
         fileMenu.add(login);
-        
-        
-        if (GuiCommonElements.getIsMac())
-        {
-            options = new JMenuItem("Options...", GuiCommonElements.getImageIcon(CONFIG_ICON));
-            options.setActionCommand("options");
-            options.addActionListener(this);        
-            fileMenu.add(options);
-        }
+        options = new JMenuItem("Options...", GuiCommonElements.getImageIcon(CONFIG_ICON));
+        options.setActionCommand("options");
+        options.addActionListener(this);        
+        fileMenu.add(options);
         fileQuit = new JMenuItem("Quit", GuiCommonElements.getImageIcon(QUIT_ICON));
         fileQuit.setActionCommand("quit");
         fileQuit.addActionListener(this);
