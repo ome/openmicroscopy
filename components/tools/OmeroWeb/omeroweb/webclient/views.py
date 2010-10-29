@@ -427,21 +427,38 @@ def change_active_group(request, **kwargs):
     except:
         logger.error(traceback.format_exc())
     
-    active_group = request.REQUEST['active_group']
+    server = request.session.get('server')
+    username = request.session.get('username')
+    password = request.session.get('password')
+    ssl = request.session.get('ssl')
+        
+    webgateway_views._session_logout(request, request.session.get('server'))
+    
+    blitz = settings.SERVER_LIST.get(pk=server) 
+    request.session['server'] = blitz.id
+    request.session['host'] = blitz.host
+    request.session['port'] = blitz.port
+    request.session['username'] = username
+    request.session['password'] = password
+    request.session['ssl'] = (True, False)[request.REQUEST.get('ssl') is None]
+    request.session['clipboard'] = {'images': None, 'datasets': None, 'plates': None}
+    request.session['shares'] = dict()
+    request.session['imageInBasket'] = set()
+    blitz_host = "%s:%s" % (blitz.host, blitz.port)
+    request.session['nav']={"error": None, "blitz": blitz_host, "menu": "start", "view": "icon", "basket": 0, "experimenter":None, 'callback':dict()}
+    
+    conn = getBlitzConnection(request, useragent="OMERO.web")
+    
+    active_group = request.REQUEST.get('active_group')
     if conn.changeActiveGroup(active_group):
-        request.session.modified = True
-        try:
-            del request.session['imageInBasket']
-            request.session['nav']["basket"] = 0
-        except KeyError:
-            logger.error(traceback.format_exc())
-        return HttpResponseRedirect(url)
+        request.session.modified = True        
     else:
         error = 'You cannot change your group becuase the data is currently processing. You can force it by logging out and logging in again.'
         url = reverse("webindex")+ ("?error=%s" % error)
         if request.session.get('nav')['experimenter'] is not None:
             url += "&experimenter=%s" % request.session.get('nav')['experimenter']
-        return HttpResponseRedirect(url)
+
+    return HttpResponseRedirect(url)
     
 @isUserConnected
 def logout(request, **kwargs):
