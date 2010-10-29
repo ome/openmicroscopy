@@ -53,8 +53,8 @@ import Ice.Current;
  *      |                        o
  *      |                        |
  * (CREATED) ---o READY o===o RUNNING o===o CANCELLING ---o [CANCELLED]
- *      |                                                        o
- *      |                                                        |
+ *      |           |                           o                o
+ *      |           |---------------------------|                |
  *      +--------------------------------------------------------+
  *
  * </pre>
@@ -241,6 +241,7 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
             // This is the most important case. If things are running, then
             // we want to set "CANCELLING" as quickly as possible.
             if (state.compareAndSet(State.RUNNING, State.CANCELLING) ||
+                    state.compareAndSet(State.READY, State.CANCELLING) ||
                     state.compareAndSet(State.CANCELLING, State.CANCELLING)) {
 
                 try {
@@ -452,9 +453,9 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
         HashMap<String, ArrayList<Long>> failedMap = new HashMap<String, ArrayList<Long>>();
         long bytesFailed = 0;
         long filesFailed = 0;
-        
+
         for (Report report : reports.values()) {
-            
+
             for (String fileType : fileTypeList) {
                 Set<Long> deletedIds = report.state.getDeletedsIds(fileType);
                 if (deletedIds != null && deletedIds.size() > 0) {
