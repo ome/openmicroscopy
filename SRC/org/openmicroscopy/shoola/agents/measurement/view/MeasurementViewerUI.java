@@ -36,6 +36,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -55,6 +56,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 import org.jhotdraw.draw.DelegationSelectionTool;
@@ -75,6 +77,7 @@ import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
@@ -85,6 +88,7 @@ import org.openmicroscopy.shoola.util.roi.model.ShapeList;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
+import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 
 /** 
  * The {@link MeasurementViewer} view.
@@ -102,7 +106,7 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
 class MeasurementViewerUI 
 	extends TopWindow 
 {
-
+	
 	/** The message displayed when a ROI cannot be retrieved. */
 	static final String					RETRIEVE_MSG = "Cannot retrieve the " +
 															"ROI";
@@ -1400,6 +1404,26 @@ class MeasurementViewerUI
 	void onSelectedFigures()
 	{
 		roiManager.onSelectedFigures();
+	}
+	
+	/**
+	 * Creates a file chooser used to select where to save the results
+	 * as an Excel file.
+	 * 
+	 * @return See above.
+	 */
+	FileChooser createSaveToExcelChooser()
+	{
+		List<FileFilter> filterList = new ArrayList<FileFilter>();
+		FileFilter filter = new ExcelFilter();
+		filterList.add(filter);
+		FileChooser chooser =
+			new FileChooser(this, FileChooser.SAVE, "Save Results to Excel", 
+					"Save the Results data to a file which can be loaded by " +
+					"a spreadsheet.", filterList);
+		File f = UIUtilities.getDefaultFolder();
+		if (f != null) chooser.setCurrentDirectory(f);
+		return chooser;
 	}
 	
     /** 

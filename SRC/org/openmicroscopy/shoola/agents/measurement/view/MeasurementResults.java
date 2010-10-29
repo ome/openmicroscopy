@@ -63,6 +63,7 @@ import org.openmicroscopy.shoola.agents.measurement.util.model.MeasurementObject
 import org.openmicroscopy.shoola.agents.measurement.util.ui.AttributeUnits;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.ResultsCellRenderer;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ExcelWriter;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
@@ -166,6 +167,38 @@ class MeasurementResults
 	 * @see TabPaneInterface#getIndex()
 	 */
 	public int getIndex() {return INDEX; }
+	
+	/**
+	 * Shows the results wizard and updates the fields based on the users 
+	 * selection.
+	 */
+	private void showResultsWizard()
+	{
+		ResultsWizard resultsWizard = new ResultsWizard(view, fields, 
+				allFields);
+		resultsWizard.pack();
+		UIUtilities.setLocationRelativeToAndShow(this, resultsWizard);
+		columnNames.clear();
+		columnNames = new ArrayList<KeyDescription>();
+		columnNames.add(new KeyDescription(
+				AnnotationDescription.ROIID_STRING,
+										AnnotationDescription.ROIID_STRING));
+		columnNames.add(new KeyDescription(AnnotationDescription.TIME_STRING,
+										AnnotationDescription.TIME_STRING));
+		columnNames.add(new KeyDescription(
+				AnnotationDescription.ZSECTION_STRING,
+				AnnotationDescription.ZSECTION_STRING));
+		columnNames.add(new KeyDescription(AnnotationDescription.SHAPE_STRING,
+										AnnotationDescription.SHAPE_STRING));
+		AnnotationField field;
+		for (int i = 0 ; i < fields.size(); i++) {
+			field = fields.get(i);
+			columnNames.add(new KeyDescription(field.getKey().toString(),
+					field.getName()));
+		}
+		populate();
+		results.repaint();
+	}
 	
 	/** Initializes the components composing the display. */
 	private void initComponents()
@@ -501,20 +534,10 @@ class MeasurementResults
 	 * @throws IOException Thrown if the data cannot be written.
 	 * @return true if results saved, false if users cancels save.
 	 */
-	boolean saveResults()
+	private boolean saveResults()
 		throws IOException
 	{
-		List<FileFilter> filterList = new ArrayList<FileFilter>();
-		FileFilter filter=new ExcelFilter();
-		filterList.add(filter);
-		FileChooser chooser=
-				new FileChooser(
-					view, FileChooser.SAVE, "Save the Results",
-					"Save the Results data to a file which can be loaded " +
-					"by a spreadsheet.",
-					filterList);
-		File f = UIUtilities.getDefaultFolder();
-	    if (f != null) chooser.setCurrentDirectory(f);
+		FileChooser chooser = view.createSaveToExcelChooser();
 		int choice = chooser.showDialog();
 		if (choice != JFileChooser.APPROVE_OPTION) return false;
 		File file = chooser.getSelectedFile();
@@ -540,7 +563,10 @@ class MeasurementResults
 		try {
 			writer.addImageToWorkbook(imageName, image); 
 		} catch (Exception e) {
-			//TODO
+			Logger logger = MeasurementAgent.getRegistry().getLogger();
+			logger.error(this, "Cannot Add the image to the sheet: " +
+					""+e.toString());
+			
 		}
 		int col = writer.getMaxColumn(0);
 		writer.writeImage(0, col+1, 256, 256,	imageName);
@@ -550,32 +576,6 @@ class MeasurementResults
 
 	/** Refreshes the result table. */
 	public void refreshResults() { populate(); }
-	
-	/**
-	 * Shows the results wizard and updates the fields based on the users 
-	 * selection.
-	 */
-	void showResultsWizard()
-	{
-		ResultsWizard resultsWizard = new ResultsWizard(view, fields, allFields);
-		resultsWizard.pack();
-		UIUtilities.setLocationRelativeToAndShow(this, resultsWizard);
-		columnNames.clear();
-		columnNames = new ArrayList<KeyDescription>();
-		columnNames.add(new KeyDescription(AnnotationDescription.ROIID_STRING,
-											AnnotationDescription.ROIID_STRING));
-		columnNames.add(new KeyDescription(AnnotationDescription.TIME_STRING,
-											AnnotationDescription.TIME_STRING));
-		columnNames.add(new KeyDescription( AnnotationDescription.ZSECTION_STRING,
-											AnnotationDescription.ZSECTION_STRING));
-		columnNames.add(new KeyDescription( AnnotationDescription.SHAPE_STRING,
-											AnnotationDescription.SHAPE_STRING));
-		for (int i = 0 ; i < fields.size(); i++)
-			columnNames.add(new KeyDescription(	fields.get(i).getKey().toString(),
-												fields.get(i).getName()));
-		populate();
-		results.repaint();
-	}
 	
 	/**
 	 * Reacts to controls selection.
@@ -668,7 +668,8 @@ class MeasurementResults
 		 * 						Mustn't be <code>null</code>.
 		 * @param units The units of measurement.
 		 */
-		MeasurementTableModel(List<KeyDescription> colNames, MeasurementUnits units)
+		MeasurementTableModel(List<KeyDescription> colNames, 
+				MeasurementUnits units)
 		{
 			if (colNames == null)
 				throw new IllegalArgumentException("No column's names " +
@@ -729,11 +730,12 @@ class MeasurementResults
 		 */
 		public String getColumnName(int col) 
 		{
-			if(AttributeUnits.getUnits(columnNames.get(col).getKey(),unitsType).equals(""))
+			String s = columnNames.get(col).getKey();
+			if (AttributeUnits.getUnits(s, unitsType).equals(""))
 				return columnNames.get(col).getDescription();
 			else
 				return columnNames.get(col).getDescription()+
-			" (" + AttributeUnits.getUnits(columnNames.get(col).getKey(),unitsType)+")"; }
+			" (" + AttributeUnits.getUnits(s, unitsType)+")"; }
 	    
 	    /**
 		 * Overridden to return the number of columns.

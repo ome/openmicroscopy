@@ -49,7 +49,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.table.DefaultTableModel;
 
 //Third-party libraries
@@ -375,22 +374,13 @@ class IntensityResultsView
 		results.repaint();
 	}
 	
-	/** Saves the results of the table to a csv file. */
+	/** Saves the results of the table to an Excel file. */
 	private void saveResults()
 	{
-		List<FileFilter> filterList = new ArrayList<FileFilter>();
-		FileFilter filter = new ExcelFilter();
-		filterList.add(filter);
-		FileChooser chooser =
-			new FileChooser(view, FileChooser.SAVE, "Save Results to Excel", 
-					"Save the Results data to a file which can be loaded by " +
-					"a spreadsheet.", filterList);
-		File f = UIUtilities.getDefaultFolder();
-		if (f != null) chooser.setCurrentDirectory(f);
+		FileChooser chooser = view.createSaveToExcelChooser();
 		int option = chooser.showDialog();
 		if (option != JFileChooser.APPROVE_OPTION) return;
 		File  file = chooser.getFormattedSelectedFile();
-		
 		try
 		{
 			String filename = file.getAbsolutePath();
@@ -414,20 +404,16 @@ class IntensityResultsView
 			} catch (Exception e) {
 				//no image available
 			}
-			
-
 			writer.close();
 		
-		}
-		catch (IOException e)
-		{
+		} catch (IOException e) {
 			Logger logger = MeasurementAgent.getRegistry().getLogger();
 			logger.error(this, "Cannot save ROI results: "+e.toString());
 			
 			UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Save Results", "An error occured while trying to" +
-				" save the data.\n" +
-			"Please try again.");
+			un.notifyInfo("Save Results", "An error occurred while trying to" +
+				" save the data.\nPlease try again.");
+			return;
 		}
 		Registry reg = MeasurementAgent.getRegistry();
 		UserNotifier un = reg.getUserNotifier();

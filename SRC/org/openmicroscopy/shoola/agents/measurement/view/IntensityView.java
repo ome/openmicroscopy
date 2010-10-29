@@ -55,7 +55,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 import org.jhotdraw.draw.Figure;
@@ -87,6 +86,7 @@ import org.openmicroscopy.shoola.agents.measurement.util.ChannelSummaryTable;
 import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper.StatsType;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import pojos.ChannelData;
@@ -762,17 +762,8 @@ class IntensityView
 	private void saveResults() 
 	{
 		channelsSelectionForm = new ChannelSelectionForm(channelName);
-		List<FileFilter> filterList = new ArrayList<FileFilter>();
-		FileFilter filter = new ExcelFilter();
-		filterList.add(filter);
-		FileChooser chooser=
-				new FileChooser(
-					 view, FileChooser.SAVE, "Save the Results", "Save the " +
-				"Results data to a file which can be loaded by a spreadsheet.",
-				filterList);
+		FileChooser chooser = view.createSaveToExcelChooser();
 		chooser.addComponentToControls(channelsSelectionForm);
-		File f = UIUtilities.getDefaultFolder();
-	    if (f != null) chooser.setCurrentDirectory(f);
 		int results = chooser.showDialog();
 		if (results != JFileChooser.APPROVE_OPTION) return;
 		File  file = chooser.getFormattedSelectedFile();
@@ -848,7 +839,7 @@ class IntensityView
 			logger.error(this, "Cannot save ROI results: "+e.toString());
 			
 			UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
-			String message = "An error occured while trying to" +
+			String message = "An error occurred while trying to" +
 			" save the data.\nPlease try again.";
 			if (e instanceof NumberFormatException) {
 				message = "We only support the British/American style of " +
@@ -856,7 +847,13 @@ class IntensityView
 						"than a comma.";
 			} 
 			un.notifyInfo("Save Results", message);
+			return;
 		}
+		
+		Registry reg = MeasurementAgent.getRegistry();
+		UserNotifier un = reg.getUserNotifier();
+		un.notifyInfo("Save ROI results", "The ROI results have been " +
+											"successfully saved.");
 	}
 	
 	/**
