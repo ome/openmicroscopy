@@ -590,6 +590,46 @@ class TestIShare(lib.ITest):
         self.assertAccess(oowner, sid, False)
         self.assertAccess(self.root, sid)
 
+    def test3214(self):
+        """
+        The solution for 2733 returned too many
+        unloaded shares.
+        """
+
+        ### create three users in three groups
+        group = self.new_group(perms="rwrw--")
+
+        smember, smember_obj = self.new_client_and_user() # Member of share
+
+        owner = self.new_client(group=group) # Owner of share
+        gmember = self.new_client(group=group) # Member of user1's group
+
+        ## login as user1
+        share1 = owner.sf.getShareService()
+        update1 = owner.sf.getUpdateService()
+
+        # create image
+        img = self.new_image("test2733Access")
+        img = update1.saveAndReturnObject(img)
+        img.unload()
+
+        # create share
+        description = "my description"
+        timeout = None
+        objects = [img]
+        experimenters = [smember_obj]
+        guests = []
+        enabled = True
+        sid = share1.createShare(description, timeout, objects, experimenters, guests, enabled)
+
+        shares = share1.getOwnShares(True)
+        self.assertEquals(1, len(shares))
+        self.assert_(shares[0].isLoaded())
+
+        shares = smember.sf.getShareService().getMemberShares(True)
+        self.assertEquals(1, len(shares))
+        self.assert_(shares[0].isLoaded())
+
     # Helpers
 
     def assertAccess(self, client, sid, success = True):

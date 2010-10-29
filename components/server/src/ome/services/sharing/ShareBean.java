@@ -242,7 +242,6 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
         ShareData data = getShareIfAccessible(sessionId);
         if (data != null) {
             session = shareToSession(data);
-            session.putAt("#2733", "ALLOW");
         }
         return session;
     }
@@ -813,21 +812,30 @@ public class ShareBean extends AbstractLevel2Service implements LocalShare {
         for (ShareData data : datas) {
             ids.add(data.id);
         }
-        Set<Session> sessions = new HashSet<Session>();
-        if (ids.size() > 0) {
-            List<Session> list = iQuery.findAllByQuery(
-                    "select sh from Session sh "
-                            + "join fetch sh.owner where sh.id in (:ids) ",
-                    new Parameters().addIds(ids));
-            sessions = new HashSet<Session>(list);
+        if (ids.size() == 0) {
+            return Collections.emptySet();
         }
-        return sessions;
+
+        List<Session> list = iQuery.findAllByQuery(
+                "select sh from Session sh "
+                        + "join fetch sh.owner where sh.id in (:ids) ",
+                new Parameters().addIds(ids));
+        for (Session session : list) {
+            if (session!= null) {
+                session.putAt("#2733", "ALLOW");
+            }
+        }
+        return new HashSet<Session>(list);
     }
 
     protected Share shareToSession(ShareData data) {
-        return iQuery.findByQuery("select sh from Share sh "
+        Share share = iQuery.findByQuery("select sh from Share sh "
                 + "join fetch sh.owner where sh.id = :id ", new Parameters()
                 .addId(data.id));
+        if (share != null) {
+            share.putAt("#2733", "ALLOW");
+        }
+        return share;
     }
 
     @SuppressWarnings("unchecked")
