@@ -593,7 +593,7 @@ public class DeleteState {
         // special we need to do.
         if (step.entry.isSoft()) {
             log.debug(msg);
-            return cause;
+            return "Skipping delete of " + step.table + ":" + step.id + "\n";
         }
 
         // Otherwise calculate if there is any "SOFT" setting about this

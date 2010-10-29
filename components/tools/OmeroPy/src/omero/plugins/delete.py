@@ -155,18 +155,20 @@ class DeleteControl(BaseControl):
                 msg = "error"
             else:
                 msg = "ok"
-            self.ctx.out(msg, newline=False)
+            self.ctx.out(msg)
 
-            msg = None
+            msg = ""
             if report.error:
+                which = "error"
                 msg = report.error
             elif report.warning:
+                which = "warning"
                 msg = report.warning
 
-            if msg:
-                self.ctx.out(" (%s)" % msg)
-            else:
-                self.ctx.out("")
+            for line in msg.split("\n"):
+                line = line.strip()
+                if line:
+                    self.ctx.out("\t%s: %s" % (which, line))
 
     def detailed_report(self, rv, reports):
         for i, report in enumerate(reports):
