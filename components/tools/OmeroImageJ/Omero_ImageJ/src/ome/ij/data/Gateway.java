@@ -30,12 +30,14 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Set;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import ome.conditions.ResourceError;
+import ome.system.UpgradeCheck;
 import omero.AuthenticationException;
 import omero.SecurityViolation;
 import omero.SessionException;
@@ -81,7 +83,7 @@ class Gateway
 	static final int SERVER_OUT_OF_SERVICE = 1;
 	
 	/** Identifies the client. */
-	//private static final String			AGENT = "OMERO.insight";
+	private static final String			AGENT = "OMERO.imagej";
 	
 	/** 
 	 * Used whenever a broken link is detected to get the Login Service and
@@ -388,6 +390,13 @@ class Gateway
 	 */
 	Gateway(ServicesFactory factory)
 	{
+
+                ResourceBundle bundle = ResourceBundle.getBundle("omero");
+                String version = bundle.getString("omero.version");
+                String url = bundle.getString("omero.upgrades.url");
+                UpgradeCheck check = new UpgradeCheck(url, version, "ij");
+                check.run();
+
 		services = new ArrayList<ServiceInterfacePrx>();
 		this.factory = factory;
 	}
@@ -444,11 +453,11 @@ class Gateway
 		throws DSOutOfServiceException
 	{
 		try {
-			
+
 			if (port > 0) secureClient = new client(hostName, port);
 			else secureClient = new client(hostName);
+			secureClient.setAgent(AGENT);
 			entryEncrypted = secureClient.createSession(userName, password);
-			//secureClient.setAgent(AGENT);
 			if (!encrypted) {
 				unsecureClient = secureClient.createClient(false);
 				entryUnencrypted = unsecureClient.getSession();
