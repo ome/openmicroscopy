@@ -35,9 +35,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+
 //Third-party libraries
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
+import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
+import org.openmicroscopy.shoola.util.filter.file.PDFFilter;
+import org.openmicroscopy.shoola.util.filter.file.WordFilter;
 
 /** 
  * Collection of static methods to read and write files.
@@ -55,6 +62,58 @@ import java.io.OutputStream;
 public class IOUtil
 {
 
+	/** Filter for Microsoft Word documents. */
+	private static final WordFilter WORD_FILTER;
+	
+	/** Filter for Microsoft Excel documents. */
+	private static final ExcelFilter EXCEL_FILTER;
+	
+	/** Filter for PDF documents. */
+	private static final PDFFilter PDF_FILTER;
+	
+	
+	static {
+		WORD_FILTER = new WordFilter();
+		PDF_FILTER = new PDFFilter();
+		EXCEL_FILTER = new ExcelFilter();
+	}
+	
+	/**
+	 * Reads the content of the passed Microsoft Word file.
+	 * 
+	 * @param file The file to handle.
+	 * @return See above.
+	 */
+	private static String readWordFile(File file)
+		throws Exception
+	{
+		return null;
+	}
+	
+	/**
+	 * Reads the content of the passed Microsoft Excel file.
+	 * 
+	 * @param file The file to handle.
+	 * @return See above.
+	 */
+	private static String readExcelFile(File file)
+		throws Exception
+	{
+		return null;
+	}
+	
+	/**
+	 * Reads the content of the passed PDF file.
+	 * 
+	 * @param file The file to handle.
+	 * @return See above.
+	 */
+	private static String readPDFFile(File file)
+		throws Exception
+	{
+		return null;
+	}
+	
 	/**
 	 * Reads the file corresponding to the passed file name. Returns
 	 * the input stream or <code>null</code> if the file doesn't exist.
@@ -63,7 +122,7 @@ public class IOUtil
 	 * @return See above.
 	 * @throws IOException If we cannot read the file or create a stream.
 	 */
-	public static InputStream readFile(String fileName)
+	public static InputStream readFileAsInputStream(String fileName)
 		throws IOException
 	{
 		if (fileName == null)
@@ -142,6 +201,38 @@ public class IOUtil
 		if (fileName == null)
 			throw new IllegalArgumentException("No file name specified.");
 		return readTextFile(new File(fileName));
+	}
+	
+	/**
+	 * Reads the contents of the passed file.
+	 * 
+	 * @param file The file to handle.
+	 * @return See above.
+	 */
+	public static String readFile(File file)
+		throws Exception
+	{
+		if (file == null)
+			throw new IllegalArgumentException("No file name specified.");
+		if (WORD_FILTER.accept(file)) return readWordFile(file);
+		else if (EXCEL_FILTER.accept(file)) return readExcelFile(file);
+		else if (PDF_FILTER.accept(file)) return readPDFFile(file);
+		return null;
+	}
+	
+	/**
+	 * Reads the contents of the passed text file.
+	 * 
+	 * @param fileName The name of the file.
+	 * @return See above.
+	 * @throws IOException If we cannot write the file or create a stream.
+	 */
+	public static String readFile(String fileName)
+		throws Exception
+	{
+		if (fileName == null || fileName.trim().length() == 0)
+			throw new IllegalArgumentException("No file name specified.");
+		return readFile(new File(fileName));
 	}
 	
 }

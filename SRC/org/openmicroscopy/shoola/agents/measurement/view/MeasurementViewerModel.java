@@ -999,7 +999,7 @@ class MeasurementViewerModel
 												getPixelsID());
 			fileSaved = fileName;
 			if (fileSaved != null)
-				stream = IOUtil.readFile(fileName);
+				stream = IOUtil.readFileAsInputStream(fileName);
 		} catch (Exception e) {
 			Logger log = MeasurementAgent.getRegistry().getLogger();
 			log.warn(this, "Cannot load the ROI "+e.getMessage());
