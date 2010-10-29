@@ -3044,10 +3044,12 @@ class _ShareWrapper (BlitzObjectWrapper):
             return True
     
     def isOwned(self):
-        if self.owner.id.val == self._conn.getEventContext().userId:
-            return True
-        else:
-            return False
+        try:
+            if self.owner.id.val == self._conn.getEventContext().userId:
+                return True
+        except:
+            logger.error(traceback.format_exc())
+        return False
     
     def getOwner(self):
         return omero.gateway.ExperimenterWrapper(self, self.owner)

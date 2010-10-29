@@ -97,15 +97,8 @@
         <div id="buttons" class="align_left">
             <input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href='{% url load_template nav.menu %}'"> <input class="button" type="image" src="{% url webstatic "images/wp_protocol16.png" %}" alt="Discuss" title="Discuss" onclick="makeDiscussion();"/>
         </div>
-        {% if form_users %}
-        <div class="align_right">
-            {% for field in form_users %}{{ field }}{% endfor %}&nbsp;&nbsp;&nbsp;
-        </div>
-        {% endif %}
     </div>
     
-    
-
 </div>
 <div class="clear"> </div>
 
