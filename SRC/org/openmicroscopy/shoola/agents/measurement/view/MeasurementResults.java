@@ -46,7 +46,6 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
@@ -323,39 +322,38 @@ class MeasurementResults
 			AnnotationDescription.annotationDescription.get(AnnotationKeys.AREA)
 				, false)); 
 		allFields.add(new AnnotationField(AnnotationKeys.PERIMETER,
-			AnnotationDescription.annotationDescription.get( AnnotationKeys.PERIMETER),
-						false)); 
+			AnnotationDescription.annotationDescription.get( 
+					AnnotationKeys.PERIMETER),false)); 
 		allFields.add(new AnnotationField(AnnotationKeys.LENGTH, 
-			AnnotationDescription.annotationDescription.get(AnnotationKeys.LENGTH),
-						false)); 
+			AnnotationDescription.annotationDescription.get(
+					AnnotationKeys.LENGTH), false)); 
 		allFields.add(new AnnotationField(AnnotationKeys.WIDTH, 
-			AnnotationDescription.annotationDescription.get(AnnotationKeys.WIDTH),
-						false)); 
+			AnnotationDescription.annotationDescription.get(
+					AnnotationKeys.WIDTH), false)); 
 		allFields.add(new AnnotationField(AnnotationKeys.HEIGHT, 
-			AnnotationDescription.annotationDescription.get(AnnotationKeys.HEIGHT),
-						false)); 
+			AnnotationDescription.annotationDescription.get(
+					AnnotationKeys.HEIGHT), false)); 
 		allFields.add(new AnnotationField(AnnotationKeys.ANGLE, 
-			AnnotationDescription.annotationDescription.get(AnnotationKeys.ANGLE),
-						false)); 
+			AnnotationDescription.annotationDescription.get(
+					AnnotationKeys.ANGLE), false)); 
 		allFields.add(new AnnotationField(AnnotationKeys.POINTARRAYX, 
-			AnnotationDescription.annotationDescription.get(AnnotationKeys.POINTARRAYX),
-				 false)); 
-		allFields.add(new AnnotationField(AnnotationKeys.POINTARRAYY, 
-						
-			AnnotationDescription.annotationDescription.get(AnnotationKeys.POINTARRAYY),
-				 false)); 
+			AnnotationDescription.annotationDescription.get(
+					AnnotationKeys.POINTARRAYX), false)); 
+		allFields.add(new AnnotationField(AnnotationKeys.POINTARRAYY, 		
+			AnnotationDescription.annotationDescription.get(
+					AnnotationKeys.POINTARRAYY), false)); 
 		allFields.add(new AnnotationField(AnnotationKeys.STARTPOINTX, 
-			AnnotationDescription.annotationDescription.get(AnnotationKeys.STARTPOINTX),
-				 false)); 
+			AnnotationDescription.annotationDescription.get(
+					AnnotationKeys.STARTPOINTX), false)); 
 		allFields.add(new AnnotationField(AnnotationKeys.STARTPOINTY, 
-			AnnotationDescription.annotationDescription.get(AnnotationKeys.STARTPOINTY),
-				false)); 
+			AnnotationDescription.annotationDescription.get(
+					AnnotationKeys.STARTPOINTY), false)); 
 		allFields.add(new AnnotationField(AnnotationKeys.ENDPOINTX,
-			AnnotationDescription.annotationDescription.get(AnnotationKeys.ENDPOINTX),
-				false)); 
+			AnnotationDescription.annotationDescription.get(
+					AnnotationKeys.ENDPOINTX), false)); 
 		allFields.add(new AnnotationField(AnnotationKeys.ENDPOINTY,
-			AnnotationDescription.annotationDescription.get(AnnotationKeys.ENDPOINTY),
-				false)); 
+			AnnotationDescription.annotationDescription.get(
+					AnnotationKeys.ENDPOINTY), false)); 
 	}
 	
 	/**
@@ -400,22 +398,6 @@ class MeasurementResults
 		for (int i = 0 ; i < fields.size(); i++)
 			columnNames.add(new KeyDescription(	fields.get(i).getKey().toString(),
 												fields.get(i).getName()));
-	}
-
-	
-	class KeyDescription
-	{
-		String key;
-		String description;
-		
-		public KeyDescription(String key, String description)
-		{
-			this.key = key;
-			this.description = description;
-		}
-		
-		public String getKey() { return key;}
-		public String getDescription() {return description;}
 	}
 	
 	/**
@@ -486,6 +468,9 @@ class MeasurementResults
 		}
 		results.setModel(tm);
 		resizeTableColumns();
+		int n = tm.getRowCount();
+		saveButton.setEnabled(n > 0);
+		refreshButton.setEnabled(n > 0);
 	}
 
 	/** 
@@ -760,4 +745,20 @@ class MeasurementResults
 		
 	}
 
+
+	class KeyDescription
+	{
+		String key;
+		String description;
+		
+		public KeyDescription(String key, String description)
+		{
+			this.key = key;
+			this.description = description;
+		}
+		
+		public String getKey() { return key;}
+		public String getDescription() {return description;}
+	}
+	
 }
