@@ -154,21 +154,6 @@ class GLImageCanvas
     	image = new BufferedImage(w, h, 
     			BufferedImage.TYPE_INT_ARGB);
     	image.setRGB(0, 0, w, h, copyFrame(gl), 0, w);
-    	// write the file.
-    	/*
-    	try {
-    		if (TIFFFilter.TIF.equals(format)) {
-    			Encoder encoder = new TIFFEncoder(Factory.createImage(img), 
-        				new DataOutputStream(new FileOutputStream(savedFile)));
-        		WriterImage.saveImage(encoder);
-    		} else {
-    			WriterImage.saveImage(savedFile, Factory.createImage(img), 
-    					format);
-    		}
-    	} catch (Exception e) {
-    		savedFile.delete();
-    	}
-    	*/
     	savedFile = false;
     }
     
