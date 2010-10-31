@@ -24,6 +24,8 @@
 
 <div class="projects">
 {% for proj in client.listProjects %}
+
+    {% if proj.isOwned %}
     <div class="project"> 
         <div class="project-name">{{ proj.getName|slice:":20" }}</div>
     </div>
@@ -37,6 +39,7 @@
     {% endfor %}
     
     </div>
+    {% endif %}
     
 {% endfor %}
 </div>
