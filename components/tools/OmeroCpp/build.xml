@@ -81,7 +81,7 @@
         </zip>
 
         <property prefix="compiler" file="${basedir}/compiler.log"/>
-        <property name="compiler.build" value="OMERO.cpp-${omero.version}-${compiler.CXX}-${compiler.CXXVERSION}-${compiler.ARCH}${compiler.RELEASE}"/>
+        <property name="compiler.build" value="OMERO.cpp-${omero.version}-${compiler.PLATFORM}-${compiler.CXX}-${compiler.CXXVERSION}-${compiler.ARCH}${compiler.RELEASE}"/>
         <zip destfile="${omero.home}/target/${compiler.build}.zip">
              <zipfileset dir="${basedir}/src"        prefix="${compiler.build}/src"     includes="**/*.cpp"/>
              <zipfileset dir="${basedir}/target"     prefix="${compiler.build}/src"     includes="**/*.cpp"/>
