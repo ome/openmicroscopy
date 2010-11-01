@@ -11,9 +11,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.ReadWriteLock;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
@@ -26,6 +25,7 @@ import ome.services.sessions.SessionCallback;
 import ome.services.sessions.SessionContext;
 import ome.services.sessions.SessionManager;
 import ome.services.sessions.events.UserGroupUpdateEvent;
+import ome.services.sessions.state.SessionCache.StaleCacheListener;
 import ome.system.OmeroContext;
 
 import org.apache.commons.logging.Log;
@@ -78,6 +78,19 @@ public class SessionCache implements ApplicationContextAware {
      */
     private static class Data {
 
+        public final static Integer MAX_ERROR = 3;
+        
+        /**
+         * Count of errors which occur during {@link SessionCache#doUpdate()}.
+         * These are not copied from previous instances since if a new Data
+         * is created, then it is valid for the error count to be reset. The
+         * intended effect of counting errors is that a sporadic DB exception
+         * on {@link StaleCacheListener#reload(SessionContext)} does not remove
+         * a perfectly valid session. Instead, the error must occur multiple
+         * times.
+         */
+        final AtomicInteger error = new AtomicInteger(0);
+        
         final SessionContext sessionContext;
         final long lastAccessTime;
         final long hitCount;
@@ -104,7 +117,7 @@ public class SessionCache implements ApplicationContextAware {
             this.lastAccessTime = last;
             this.hitCount = count;
         }
-        
+
     }
 
     /**
@@ -527,31 +540,54 @@ public class SessionCache implements ApplicationContextAware {
         try {
             final Set<String> ids = sessions.keySet();
             log.info("Synchronizing session cache. Count = " + ids.size());
-            final long start = System.currentTimeMillis();
+            final StopWatch sw = new CommonsLogStopWatch();
             for (String id : ids) {
+                Data data = null;
                 try {
-                    final Data data = getDataNullOrThrowOnTimeout(id, false);
+                    data = getDataNullOrThrowOnTimeout(id, false);
                     if (data == null) {
                         internalRemove(id, "Timeout");
-                    } else {
-                        SessionContext ctx = data.sessionContext;
-                        // May throw an exception
-                        SessionContext replacement = listener.reload(ctx);
-                        if (replacement == null) {
-                            internalRemove(id, "Replacement null");
-                        } else {
-                            // Adding and upping access information.
-                            Data fresh = new Data(data);
-                            this.sessions.put(id, fresh);
-                        }
+                        continue;
                     }
                 } catch (Exception e) {
-                    log.warn("Removing session on update error of " + id, e);
-                    internalRemove(id, "Error");
+                    // If an exception occurs here, then something is wrong
+                    // with the Data instance itself since no DB calls are
+                    // made. Therefore the instance will be removed.
+                    log.warn("Removing session on get error of " + id, e);
+                    internalRemove(id, "Get error");
                 }
-                log.info(String.format("Synchronization took %s ms.",
-                        System.currentTimeMillis() - start));
+
+                try {
+                    SessionContext ctx = data.sessionContext;
+                    // May throw an exception
+                    SessionContext replacement = listener.reload(ctx);
+                    if (replacement == null) {
+                        internalRemove(id, "Replacement null");
+                    } else {
+                        // Adding and upping access information.
+                        Data fresh = new Data(data);
+                        this.sessions.put(id, fresh);
+                    }
+                } catch (Exception e) {
+                    // If an exception occurs it MAY be transient, therefore
+                    // we count the number of errors that have happened for
+                    // this specific instance as described under Data#errors
+                    // just to be safe.
+                    int count = data.error.incrementAndGet();
+                    if (count > Data.MAX_ERROR) {
+                        log.warn("Removing session on reload error of " + id, e);
+                        internalRemove(id, "Reload error");                        
+                    } else {
+                        log.warn(count + "error(s) on reload of " + id, e);
+                    }
+                    
+                }
             }
+
+            sw.stop("omero.sessions.synchronization");
+            log.info(String.format("Synchronization took %s ms.",
+                    sw.getElapsedTime()));
+
         } catch (Exception e) {
             log.error("Error synchronizing cache", e);
         } finally {
