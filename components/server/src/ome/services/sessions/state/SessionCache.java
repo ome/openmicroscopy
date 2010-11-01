@@ -1,27 +1,23 @@
 /*
  *   $Id$
  *
- *   Copyright 2007 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 package ome.services.sessions.state;
 
 import java.sql.Timestamp;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
-import net.sf.ehcache.Element;
 import ome.conditions.ApiUsageException;
-import ome.conditions.DatabaseBusyException;
-import ome.conditions.InternalException;
 import ome.conditions.RemovedSessionException;
 import ome.conditions.SessionTimeoutException;
 import ome.model.meta.Session;
@@ -42,30 +38,26 @@ import org.springframework.context.ApplicationContextAware;
 
 /**
  * Synchronized and lockable state for the {@link SessionManager}. Maps from
- * {@link Session} to {@link SessionContext} in memory, with each mapping also
- * having an additional cache which may spill over to disk.
+ * {@link Session} uuid to {@link SessionContext} in memory, with each mapping
+ * also having an additional cache which may spill over to disk,
+ * {@link StaleCacheListener listeners}.
+ * 
+ * Uses {@link ConcurrentHashMap} and various implementations from
+ * java.util.concurrent.atomic to provide a lock-free implementation.
+ *
  * 
  * @author Josh Moore, josh at glencoesoftware.com
- * @since 3.0-Beta3
+ * @since 4.2.1
+ * @see ticket:3173
  */
 public class SessionCache implements ApplicationContextAware {
 
     private final static Log log = LogFactory.getLog(SessionCache.class);
 
     /**
-     * Observer pattern used to clear the blocked
-     * {@link SessionCache#needsUpdate} state, which prevents all further calls
-     * from happening.
+     * Observer pattern used to refresh sessions in doUpdate.
      */
     public interface StaleCacheListener {
-
-        /**
-         * Called once before all the reload methods are called to push out the
-         * current state to database and trigger any exceptions as the current
-         * user. Reload must be executed as root and so can't be run with
-         * readOnly set to false.
-         */
-        void prepareReload();
 
         /**
          * Method called for every active session in the cache. The returned
@@ -78,6 +70,123 @@ public class SessionCache implements ApplicationContextAware {
     }
 
     /**
+     * Container which can be put in a single {@link AtomicReference} instance.
+     * Contains all the data for a single session immutably. Therefore any
+     * thread that manages to get access to this instance (from the
+     * {@link ConcurrentHashMap} "data") can work with this data even if another
+     * thread is currently in the process of removing this from the map.
+     */
+    private static class Data {
+
+        final SessionContext sessionContext;
+        final long lastAccessTime;
+        final long hitCount;
+
+        /**
+         * Initial creation of a Data instance when a new session is
+         * added to the cache. 
+         */
+        Data(SessionContext sc) {
+            this(sc, System.currentTimeMillis(), 1);
+        }
+
+        /**
+         * Copy constructor which uses the current time for {@link #lastAccessTime} and
+         * increments {@link #hitCount} by one. Used when updating the access
+         * time for a session.
+         */
+        Data(Data old) {
+            this(old.sessionContext, System.currentTimeMillis(), old.hitCount+1);
+        }
+
+        Data(SessionContext sc, long last, long count) {
+            this.sessionContext = sc;
+            this.lastAccessTime = last;
+            this.hitCount = count;
+        }
+        
+    }
+
+    /**
+     * Container which can be put in a single {@link AtomicReference} instance
+     * to hold all the state of the session cache instance immutably.
+     * 
+     * Similar to {@link Data}, any thread which manages to get access to a
+     * {@link State} instance may act on it, even if a new instance is activated
+     * in the background. 
+     */
+    private static class State {
+
+        /**
+         * Time of the last update. This will be updated by a background thread.
+         */
+        final long lastUpdateRun;
+
+        /**
+         * Time of the last update request. Most likely occurs via
+         * SessionManagerImpl.onApplicationEvent(). Initialized to <em>before</em>
+         * {@link #lastUpdateRun} to prevent initial blocking.
+         */
+        final long lastUpdateRequest;
+        
+        /**
+         * Initial creation of State, used on cache creation.
+         */
+        State() {
+            this.lastUpdateRun = System.currentTimeMillis();
+            this.lastUpdateRequest = this.lastUpdateRun - 1;
+        }
+        
+        /**
+         * Update constructor for State, which is used when a new update request
+         * is received by the cache.
+         * 
+         * Specifies that a new request has occurred, but the old run
+         * is kept. 
+         */
+        State(State old, long request) {
+            this.lastUpdateRun = old.lastUpdateRun;
+            this.lastUpdateRequest = request;
+        }
+        
+
+        /**
+         * Whether or not {@link #doUpdate()} should run. Returns immediately
+         * if {@link #active} contains true.
+         */
+        boolean checkNeedsUpdate(long forceUpdateInterval) {
+            
+            // Check whether entry is required.
+            if (lastUpdateRun < 0) {
+                // Then we are currently running
+                return false;
+            }
+
+            if (lastUpdateRun <= lastUpdateRequest) {
+                return true;
+            }
+
+            long timed = System.currentTimeMillis() - forceUpdateInterval;
+            if (lastUpdateRun <= timed) {
+                return true;
+            }
+
+            return false;
+        }
+
+    }
+
+    /**
+     * 
+     */
+    private final ConcurrentHashMap<String, Data> sessions = new ConcurrentHashMap<String, Data>();
+
+    /**
+     * 
+     */
+    private final AtomicReference<State> state = new AtomicReference<State>(new State());
+
+    /**
      * Time in milliseconds between updates. Can be set via
      * {@link #setUpdateInterval(long)} but has a non-null value just in case
      * (30 minutes)
@@ -85,39 +194,9 @@ public class SessionCache implements ApplicationContextAware {
     private long forceUpdateInterval = 1800000;
 
     /**
-     * The amount of time in milliseconds that a thread is allowed to block for
-     * during {@link #waitForUpdate()}.
-     */
-    private long allowedBlockTime = 10000L;
-
-    /**
-     * Time of the last update. This will be updated by a background thread.
-     */
-    private long lastUpdateRun = System.currentTimeMillis();
-
-    /**
-     * Time of the last update request. Most likely occurs via
-     * SessionManagerImpl.onApplicationEvent(). Initialized to <em>before</em>
-     * {@link #lastUpdateRun} to prevent initial blocking.
-     */
-    private AtomicLong lastUpdateRequest = new AtomicLong(lastUpdateRun - 1);
-
-    /**
-     * Read/write lock used to protect access to the {@link #doUpdate()} method
-     * and any other use of {@link #internalRemove(String)}
-     */
-    private final ReadWriteLock runUpdate = new ReentrantReadWriteLock();
-
-    /**
      * Injected {@link CacheManager} used to create various caches.
      */
     private CacheManager ehmanager;
-
-    /**
-     * Primary in-memory cache which maps from session uuids as strings to
-     * {@link SessionContext} instances.
-     */
-    private Ehcache sessions;
 
     /**
      * 
@@ -125,7 +204,12 @@ public class SessionCache implements ApplicationContextAware {
     private final ConcurrentHashMap<String, Set<SessionCallback>> sessionCallbackMap = new ConcurrentHashMap<String, Set<SessionCallback>>(
             64);
 
-    private StaleCacheListener staleCacheListener = null;
+    private final AtomicReference<StaleCacheListener> staleCacheListener = new AtomicReference<StaleCacheListener>();
+
+    /**
+     * Whether or not {@link #doUpdate()} is currently running.
+     */
+    private final AtomicBoolean active = new AtomicBoolean();
 
     /**
      * {@link OmeroContext} instance used to publish
@@ -138,7 +222,6 @@ public class SessionCache implements ApplicationContextAware {
      */
     public void setCacheManager(CacheManager manager) {
         this.ehmanager = manager;
-        sessions = createCache("SessionCache", true, Integer.MAX_VALUE);
     }
 
     /**
@@ -156,23 +239,11 @@ public class SessionCache implements ApplicationContextAware {
         this.forceUpdateInterval = milliseconds;
     }
 
-    /**
-     * Inject time in milliseconds to allow blocking
-     */
-    public void setAllowedBlockTime(long allowedBlockTime) {
-        this.allowedBlockTime = allowedBlockTime;
-    }
-
     // Accessors
     // ========================================================================
 
     public void setStaleCacheListener(StaleCacheListener staleCacheListener) {
-        runUpdate.writeLock().lock();
-        try {
-            this.staleCacheListener = staleCacheListener;
-        } finally {
-            runUpdate.writeLock().unlock();
-        }
+        this.staleCacheListener.set(staleCacheListener);
     }
 
     public boolean addSessionCallback(String session, SessionCallback cb) {
@@ -187,13 +258,7 @@ public class SessionCache implements ApplicationContextAware {
     }
 
     public boolean removeSessionCallback(String session, SessionCallback cb) {
-        synchronized (sessionCallbackMap) {
-            Set<SessionCallback> set = sessionCallbackMap.get(session);
-            if (set == null) {
-                return false;
-            }
-            return set.remove(cb);
-        }
+        return null != sessionCallbackMap.remove(session);
     }
 
     // State management
@@ -207,7 +272,8 @@ public class SessionCache implements ApplicationContextAware {
      * therefore usage should be proceeded by a check.
      */
     public void putSession(String uuid, SessionContext sessionContext) {
-        sessions.put(new Element(uuid, sessionContext));
+        Data data = new Data(sessionContext);
+        this.sessions.put(uuid, data);
         final StopWatch sw = new CommonsLogStopWatch("omero.session");
         addSessionCallback(uuid, new SessionCallback.SimpleCloseCallback(){
             public void close() {
@@ -219,25 +285,17 @@ public class SessionCache implements ApplicationContextAware {
      * Retrieve a session possibly raising either
      * {@link RemovedSessionException} or {@link SessionTimeoutException}.
      */
-    public SessionContext getSessionContext(String uuid, boolean blocking) {
+    public SessionContext getSessionContext(String uuid) {
 
         if (uuid == null) {
             throw new ApiUsageException("Uuid cannot be null.");
         }
 
-        // Here it is necessary to possibly allow actions, like creation
-        // to pass through without blocking, but if an internal remove is
-        // later necessary these will be blockage anyway.
-        if (blocking) {
-            waitForUpdate();
-        }
-
-        SessionContext ctx = (SessionContext) getElementNullOrThrowOnTimeout(
-                uuid, true).getObjectValue();
+        Data data = getDataNullOrThrowOnTimeout(uuid, true);
 
         // Up'ing access time
-        sessions.get(uuid);
-        return ctx;
+        this.sessions.put(uuid, new Data(data));
+        return data.sessionContext;
     }
 
     /**
@@ -251,15 +309,15 @@ public class SessionCache implements ApplicationContextAware {
      *            null returned.
      * @return
      */
-    private Element getElementNullOrThrowOnTimeout(String uuid, boolean strict) {
+    private Data getDataNullOrThrowOnTimeout(String uuid, boolean strict) {
         //
         // All times are in milliseconds
         //
 
         // Getting quiet so that we have the previous access and hit info
-        final Element elt = sessions.getQuiet(uuid);
+        final Data data = this.sessions.get(uuid);
 
-        if (elt == null) {
+        if (data == null) {
             // Previously we called internalRemove here, under the
             // assumption that some other thread/event could cause the
             // element to be set to null. That's no longer allowed
@@ -272,11 +330,11 @@ public class SessionCache implements ApplicationContextAware {
             }
         }
 
-        long lastAccess = elt.getLastAccessTime();
-        long hits = elt.getHitCount();
+        long lastAccess = data.lastAccessTime;
+        long hits = data.hitCount;
 
         // Get session info
-        SessionContext ctx = (SessionContext) elt.getObjectValue();
+        SessionContext ctx = data.sessionContext;
         long now = System.currentTimeMillis();
         long start = ctx.getSession().getStarted().getTime();
         long timeToIdle = ctx.getSession().getTimeToIdle();
@@ -309,7 +367,7 @@ public class SessionCache implements ApplicationContextAware {
                 return null;
             }
         }
-        return elt;
+        return data;
     }
 
     private String reason(String why, long lastAccess, long hits, long start,
@@ -326,7 +384,7 @@ public class SessionCache implements ApplicationContextAware {
     private void internalRemove(String uuid, String reason) {
         try {
 
-            if (!sessions.isKeyInCache(uuid)) {
+            if (!sessions.containsKey(uuid)) {
                 log.warn("Session not in cache: " + uuid);
                 return; // EARLY EXIT!
             }
@@ -369,9 +427,9 @@ public class SessionCache implements ApplicationContextAware {
      * The existence of a session (which is what getIds specifies) is not
      * significantly effected.
      */
-    public List<String> getIds() {
+    public Set<String> getIds() {
         // waitForUpdate();
-        return sessions.getKeys();
+        return sessions.keySet();
     }
 
     // State
@@ -379,14 +437,14 @@ public class SessionCache implements ApplicationContextAware {
 
     public Ehcache inMemoryCache(String uuid) {
         // Check to make sure exists
-        getSessionContext(uuid, true);
+        getDataNullOrThrowOnTimeout(uuid, true);
         String key = "memory:" + uuid;
         return createCache(key, true, Integer.MAX_VALUE);
     }
 
     public Ehcache onDiskCache(String uuid) {
         // Check to make sure exists
-        getSessionContext(uuid, true);
+        getDataNullOrThrowOnTimeout(uuid, true);
         String key = "ondisk:" + uuid;
         return createCache(key, false, 100);
     }
@@ -417,24 +475,15 @@ public class SessionCache implements ApplicationContextAware {
     // Update
     // =========================================================================
 
+    // Primarily used for testing.
     public long getLastUpdated() {
-        runUpdate.readLock().lock();
-        try {
-            return lastUpdateRun;
-        } finally {
-            runUpdate.readLock().unlock();
-        }
+        return state.get().lastUpdateRun;
     }
 
     /**
-     * Marks a new update request in {@link #lastUpdateRequest}. If the
+     * Marks a new update request in {@link State#lastUpdateRequest}. If the
      * timestamp on the event is invalid, then
-     * {@link System#currentTimeMillis()} will be used. This method updates
-     * {@link #lastUpdateRequest} in the {@link ReadWriteLock#readLock()} of
-     * {@link #runUpdate}, since only blocking changed during the background
-     * thread are of importance (i.e. we don't want to miss a change). However,
-     * because getting/setting a long value is not always an atomic operation,
-     * we use a {@link AtomicLong}.
+     * {@link System#currentTimeMillis()} will be used.
      */
     public void updateEvent(UserGroupUpdateEvent ugue) {
         long time = 0;
@@ -444,91 +493,8 @@ public class SessionCache implements ApplicationContextAware {
             time = ugue.getTimestamp();
         }
 
-        runUpdate.readLock().lock();
-        try {
-            lastUpdateRequest.set(time);
-        } finally {
-            runUpdate.readLock().unlock();
-        }
-    }
-
-    /**
-     * If {@link #lastUpdateRun} is older than {@link #lastUpdateRequest}, then
-     * wait until the next background thread updates lastUpdateRequest. Note:
-     * this method does not use {@link #forceUpdateInterval} since that is
-     * primarily to guarantee that old sessions are removed. If synchronization
-     * takes too long, an {@link DatabaseBusyException} is thrown.
-     */
-    protected void waitForUpdate() {
-        long start = System.currentTimeMillis();
-        long finish = start + allowedBlockTime;
-        boolean first = true;
-        while (finish > System.currentTimeMillis()) {
-            boolean needsUpdate = false;
-
-            // Gets the current status, possibly waiting on any running updates
-            try {
-                boolean locked = runUpdate.readLock().tryLock(500L,
-                        TimeUnit.MILLISECONDS);
-                if (!locked) {
-                    log.debug("Failed to acquire read lock in 500 ms");
-                    continue;
-                }
-            } catch (InterruptedException e1) {
-                log.debug("Interrupted while waiting on read lock");
-                continue;
-            }
-
-            try {
-                needsUpdate = checkNeedsUpdateWithoutLock();
-            } finally {
-                runUpdate.readLock().unlock();
-            }
-
-            if (needsUpdate) {
-                try {
-                    if (first) {
-                        log.info("Waiting for synchronization");
-                        first = false;
-                    }
-                    Thread.sleep(500L);
-                } catch (InterruptedException e) {
-                    log.warn("Interrupted. Retrying wait...");
-                    continue; // Not sure about this. Shouldn't happen.
-                }
-            } else {
-                return;
-            }
-        }
-
-        throw new DatabaseBusyException(
-                "Timed out while waiting on synchronization", 2000L);
-
-    }
-
-    /**
-     * Whether or not {@link #doUpdate()} should run. This does not perform any
-     * synchronization so that methods can choose to use a read or write lock.
-     */
-    protected boolean checkNeedsUpdateWithoutLock() {
-
-        // Check whether entry is required.
-        if (lastUpdateRun < 0) {
-            // Then we are currently running
-            return false;
-        }
-
-        long manual = lastUpdateRequest.get();
-        if (lastUpdateRun <= manual) {
-            return true;
-        }
-
-        long timed = System.currentTimeMillis() - forceUpdateInterval;
-        if (lastUpdateRun <= timed) {
-            return true;
-        }
-
-        return false;
+        State old = state.get();
+        state.set(new State(old, time));
     }
 
     /**
@@ -537,87 +503,60 @@ public class SessionCache implements ApplicationContextAware {
      * {@link #lastUpdateRun} gets set to a negative value to specify that this
      * method is currently running.
      */
-    @SuppressWarnings("unchecked")
     public void doUpdate() {
 
-        boolean locked = false;
-        try {
-            locked = runUpdate.writeLock().tryLock(3 * 60, TimeUnit.SECONDS);
-        } catch (InterruptedException e1) {
-            log.debug("Interrupted while waiting on update lock");
+        // Check whether entry is required.
+        if (!state.get().checkNeedsUpdate(forceUpdateInterval)) {
+            return;
         }
 
-        if (!locked) {
-            throw new InternalException("Cannot get access to update lock");
+        final StaleCacheListener listener = staleCacheListener.get();
+        if (listener == null) {
+            log.error("Null stale cache listener!");
+            return;
+        }
+
+        // Prevent recursion!
+        // ------------------
+        // To prevent another call from entering this block it's
+        // necessary to set active
+        if (!active.compareAndSet(false, true)) {
+            return;
         }
 
         try {
-            // Check whether entry is required.
-            if (checkNeedsUpdateWithoutLock()) {
-
-                // Prevent recursion!
-                // ------------------
-                // To prevent another call from entering this block it's
-                // necessary to update the lastUpdate time here.
-                lastUpdateRun = -1;
-                boolean success = false;
-
+            final Set<String> ids = sessions.keySet();
+            log.info("Synchronizing session cache. Count = " + ids.size());
+            final long start = System.currentTimeMillis();
+            for (String id : ids) {
                 try {
-                    if (staleCacheListener != null) {
-                        staleCacheListener.prepareReload();
-                        List<String> ids = sessions.getKeys();
-                        log.info("Synchronizing session cache. Count = "
-                                + ids.size());
-                        long start = System.currentTimeMillis();
-                        for (String id : ids) {
-                            Element elt = getElementNullOrThrowOnTimeout(id,
-                                    false);
-                            if (elt == null) {
-                                internalRemove(id, "Timeout");
-                            } else {
-                                SessionContext ctx = (SessionContext) elt
-                                        .getObjectValue();
-                                // May throw an exception
-                                SessionContext replacement = staleCacheListener
-                                        .reload(ctx);
-                                if (replacement == null) {
-                                    internalRemove(id, "Replacement null");
-                                } else {
-                                    // Adding and upping access information.
-                                    long version = elt.getVersion() + 1;
-                                    long creation = elt.getCreationTime();
-                                    long access = elt.getLastAccessTime();
-                                    long nextToLast = elt
-                                            .getNextToLastAccessTime();
-                                    long update = System.currentTimeMillis();
-                                    long hits = elt.getHitCount();
-                                    Element fresh = new Element(id,
-                                            replacement, version, creation,
-                                            access, nextToLast, update, hits);
-                                    sessions.putQuiet(fresh);
-                                }
-                            }
+                    final Data data = getDataNullOrThrowOnTimeout(id, false);
+                    if (data == null) {
+                        internalRemove(id, "Timeout");
+                    } else {
+                        SessionContext ctx = data.sessionContext;
+                        // May throw an exception
+                        SessionContext replacement = listener.reload(ctx);
+                        if (replacement == null) {
+                            internalRemove(id, "Replacement null");
+                        } else {
+                            // Adding and upping access information.
+                            Data fresh = new Data(data);
+                            this.sessions.put(id, fresh);
                         }
-                        success = true;
-                        log.info(String.format("Synchronization took %s ms.",
-                                System.currentTimeMillis() - start));
                     }
                 } catch (Exception e) {
-                    log.error("Error synchronizing cache", e);
-                } finally {
-                    if (success) {
-                        lastUpdateRun = System.currentTimeMillis();
-                    } else {
-                        lastUpdateRun = 0L;
-                        throw new InternalException(
-                                "Could not update session cache."
-                                        + "\nAll further attempts to access the server may fail."
-                                        + "\nPlease contact your server administrator.");
-                    }
+                    log.warn("Removing session on update error of " + id, e);
+                    internalRemove(id, "Error");
                 }
+                log.info(String.format("Synchronization took %s ms.",
+                        System.currentTimeMillis() - start));
             }
+        } catch (Exception e) {
+            log.error("Error synchronizing cache", e);
         } finally {
-            runUpdate.writeLock().unlock();
+            active.set(false);
         }
+    
     }
 }

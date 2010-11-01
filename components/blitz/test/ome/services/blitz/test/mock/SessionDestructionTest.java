@@ -25,8 +25,6 @@ import ome.services.util.Executor;
 import ome.system.Roles;
 import omero.api.ServiceFactoryPrx;
 
-import org.aopalliance.intercept.MethodInterceptor;
-import org.aopalliance.intercept.MethodInvocation;
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
 import org.springframework.aop.framework.ProxyFactory;

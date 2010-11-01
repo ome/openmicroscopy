@@ -94,8 +94,12 @@ public class CurrentDetails implements PrincipalHolder {
     }
 
     public void login(Principal principal) {
-        BasicEventContext c = new BasicEventContext(principal, factory
-                .createStats());
+        // Can't use the method in SessionManager since that leads to a
+        // circular reference in Spring.
+        final String uuid = principal.getName();
+        final SessionContext ctx = cache.getSessionContext(uuid);
+        final SessionStats stats = ctx.stats();
+        final BasicEventContext c = new BasicEventContext(principal, stats);
         login(c);
     }
 

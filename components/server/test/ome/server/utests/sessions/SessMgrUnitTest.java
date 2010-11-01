@@ -32,8 +32,10 @@ import ome.security.basic.CurrentDetails;
 import ome.services.sessions.SessionContext;
 import ome.services.sessions.SessionManagerImpl;
 import ome.services.sessions.events.UserGroupUpdateEvent;
-import ome.services.sessions.state.SessionCache;
 import ome.services.sessions.state.SessionCache.StaleCacheListener;
+import ome.services.sessions.state.SessionCache;
+import ome.services.sessions.stats.CounterFactory;
+import ome.services.sessions.stats.SessionStats;
 import ome.services.util.Executor;
 import ome.system.OmeroContext;
 import ome.system.Principal;
@@ -442,7 +444,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
     public void testReferenceCounting() throws Exception {
         testCreateNewSession();
         String uuid = session.getUuid();
-        SessionContext ctx = cache.getSessionContext(uuid, false/* FIXME */);
+        SessionContext ctx = cache.getSessionContext(uuid);
 
         assertEquals(1, ctx.refCount());
         assertNull(ctx.getSession().getClosed());
@@ -463,7 +465,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         // cache
         // assertNotNull(ctx.getSession().getClosed());
         try {
-            cache.getSessionContext(uuid, false/* FIXME */);
+            cache.getSessionContext(uuid);
             fail(uuid + " not removed");
         } catch (RemovedSessionException rse) {
             // ok
@@ -476,7 +478,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
     public void testTimeoutDefaults() throws Exception {
         testCreateNewSession();
         SessionContext ctx = cache
-                .getSessionContext(session.getUuid(), false/* FIXME */);
+                .getSessionContext(session.getUuid());
 
         assertEquals(TTL, ctx.getSession().getTimeToLive());
         assertEquals(TTI, ctx.getSession().getTimeToIdle());
@@ -487,7 +489,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
 
         testTimeoutDefaults();
         SessionContext ctx = cache
-                .getSessionContext(session.getUuid(), false/* FIXME */);
+                .getSessionContext(session.getUuid());
 
         Session s = mgr.copy(ctx.getSession());
         s.setTimeToLive(300L);
@@ -501,7 +503,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         // the values in the session context are the same as the
         // returned values
 
-        ctx = cache.getSessionContext(session.getUuid(), false/* FIXME */);
+        ctx = cache.getSessionContext(session.getUuid());
         assertEquals(new Long(300L), ctx.getSession().getTimeToLive());
         assertEquals(new Long(100L), ctx.getSession().getTimeToIdle());
     }
@@ -511,7 +513,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
 
         testTimeoutDefaults();
         SessionContext ctx = cache
-                .getSessionContext(session.getUuid(), false/* FIXME */);
+                .getSessionContext(session.getUuid());
 
         Session s = mgr.copy(ctx.getSession());
         s.setTimeToLive(0L);
@@ -525,7 +527,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
 
         testTimeoutDefaults();
         SessionContext ctx = cache
-                .getSessionContext(session.getUuid(), false/* FIXME */);
+                .getSessionContext(session.getUuid());
 
         Session s = mgr.copy(ctx.getSession());
         s.setTimeToLive(100L);
@@ -539,7 +541,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
 
         testTimeoutDefaults();
         SessionContext ctx = cache
-                .getSessionContext(session.getUuid(), false/* FIXME */);
+                .getSessionContext(session.getUuid());
 
         Session s = mgr.copy(ctx.getSession());
         s.setTimeToLive(Long.MAX_VALUE);
@@ -610,4 +612,97 @@ public class SessMgrUnitTest extends MockObjectTestCase {
 
     }
 
+    @Test(groups = "ticket:2804")
+    public void testSessionShouldNotBeReapedDuringMethodExceution()
+            throws Exception {
+
+        testCreateNewSession();
+        final String uuid = session.getUuid();
+        final SessionContext ctx = cache.getSessionContext(uuid);
+        final SessionStats stats = ctx.stats();
+
+        // Check reaping while user is running a method
+        stats.methodIn();
+        mgr.close(uuid);
+        assertNotNull(cache.getSessionContext(uuid));
+
+        // Try to start a new method.
+        // fail("NYI");
+
+        // Checked reaping when user is not running a method
+        stats.methodOut();
+        mgr.close(uuid);
+        assertNull(cache.getSessionContext(uuid));
+
+    }
+
+    @Test(groups = {"ticket:2803", "ticket:2804"})
+    public void testCopyingReferenceCounts() {
+        SessionContextImpl s1 = new SessionContextImpl(
+                this.session, l_ids, m_ids, userRoles, null, null);
+        assertEquals(0, s1.count().get());
+        assertEquals(1, s1.count().increment());
+        assertEquals(2, s1.count().increment());
+        assertEquals(2, s1.count().get());
+        assertEquals(1, s1.count().decrement());
+
+        SessionContextImpl s2 = new SessionContextImpl(
+                this.session, l_ids, m_ids, userRoles, null, s1);
+        assertEquals(1, s2.count().get());
+        assertEquals(2, s2.count().increment());
+        assertEquals(2, s1.count().get());
+    }
+
+    //
+    // Helper
+    //
+
+    class DummyExecutor implements Executor {
+
+        org.hibernate.Session session;
+        ServiceFactory sf;
+
+        DummyExecutor(org.hibernate.Session session, ServiceFactory sf) {
+            this.session = session;
+            this.sf = sf;
+        }
+
+        public Object execute(Principal p, Work work) {
+            return work.doWork(session, sf);
+        }
+
+        public <T> Future<T> submit(Callable<T> callable) {
+            throw new UnsupportedOperationException();
+        }
+
+        public <T> T get(Future<T> future) {
+            throw new UnsupportedOperationException();
+        }
+
+        public Object executeStateless(StatelessWork work) {
+            throw new UnsupportedOperationException();
+        }
+
+        public void setApplicationContext(ApplicationContext arg0)
+                throws BeansException {
+            throw new UnsupportedOperationException();
+        }
+
+        public OmeroContext getContext() {
+            throw new UnsupportedOperationException();
+        }
+
+        public Principal principal() {
+            throw new UnsupportedOperationException();
+        }
+
+        public void setCallGroup(long gid) {
+            throw new UnsupportedOperationException();
+        }
+
+        public void resetCallGroup() {
+            throw new UnsupportedOperationException();
+        }
+
+    }
 }
