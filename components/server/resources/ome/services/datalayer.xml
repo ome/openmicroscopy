@@ -103,10 +103,6 @@
   <alias name="txAwareDataSource" alias="dataSource"/>
 
   <bean id="txAwareDataSource" class="org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy">
-    <property name="targetDataSource" ref="lazyDataSource"/>
-  </bean>
-
-  <bean id="lazyDataSource" class="org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy">
     <property name="targetDataSource" ref="selfCorrectingDataSource"/>
   </bean>
 
