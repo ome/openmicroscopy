@@ -25,9 +25,9 @@
   </description>
 
   <bean id="currentDetails" class="ome.security.basic.CurrentDetails">
-    <constructor-arg ref="threadCounterFactory"/>
+    <constructor-arg ref="sessionCache"/>
   </bean>
-  
+
   <alias name="currentDetails" alias="principalHolder"/>
 
   <bean id="internalServiceFactory" class="ome.tools.spring.InternalServiceFactory"/>
@@ -45,7 +45,7 @@
     <constructor-arg ref="sharingACLVoter"/>
     <constructor-arg ref="basicACLVoter"/>
   </bean>
-    
+
   <bean id="sharingACLVoter" class="ome.security.sharing.SharingACLVoter">
     <constructor-arg ref="systemTypes"/>
     <constructor-arg ref="currentDetails"/>
