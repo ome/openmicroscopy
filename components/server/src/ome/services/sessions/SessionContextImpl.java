@@ -16,15 +16,9 @@ import ome.model.meta.Session;
 import ome.services.sessions.stats.SessionStats;
 import ome.system.Roles;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 public class SessionContextImpl implements SessionContext {
-
-    private final static Log log = LogFactory.getLog(SessionContextImpl.class);
     
-    private int ref = 0;
-    private final Object refLock = new Object();
+    private final Count count;
     private final Roles _roles;
     private final Session session;
     private final SessionStats stats;
@@ -33,19 +27,24 @@ public class SessionContextImpl implements SessionContext {
     private final List<String> roles; /* group names for memberOfGroups */
     private Long shareId = null;
 
-    @SuppressWarnings("unchecked")
-    public SessionContextImpl(Session session, List<Long> lGroups,
-            List<Long> mGroups, List<String> roles, SessionStats stats) {
-        this(session, lGroups, mGroups, roles, stats, new Roles());
-    }
-
-    @SuppressWarnings("unchecked")
     public SessionContextImpl(Session session, List<Long> lGroups,
             List<Long> mGroups, List<String> roles, SessionStats stats,
-            Roles _roles) {
+            SessionContext previous) {
+        this(session, lGroups, mGroups, roles, stats, new Roles(), previous);
+    }
+
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public SessionContextImpl(Session session, List<Long> lGroups,
+            List<Long> mGroups, List<String> roles, SessionStats stats,
+            Roles _roles, SessionContext previous) {
         this._roles = _roles;
         this.stats = stats;
         this.session = session;
+        if (previous != null) {
+            this.count = previous.count();
+        } else {
+            this.count = new SessionContext.Count(session.getUuid());
+        }
         this.leaderOfGroups = Collections.unmodifiableList(new ArrayList(
                 lGroups));
         this.memberOfGroups = Collections.unmodifiableList(new ArrayList(
@@ -53,40 +52,8 @@ public class SessionContextImpl implements SessionContext {
         this.roles = Collections.unmodifiableList(new ArrayList(roles));
     }
 
-    public int refCount() {
-        synchronized (refLock) {
-            return ref;
-        }
-    }
-
-    public int increment() {
-        synchronized (refLock) {
-            if (ref < 0) {
-                ref = 1;
-            } else {
-                // This should never happen, but just in case
-                // some loop is incrementing indefinitely.
-                if (ref < Integer.MAX_VALUE) {
-                    ref = ref + 1;
-                    log.info("+Reference count: " + session.getUuid() + "=" + ref);
-                } else {
-                    log.error("Reference count == MAX_VALUE");
-                }
-            }
-            return ref;
-        }
-    }
-
-    public int decrement() {
-        synchronized (refLock) {
-            if (ref < 1) {
-                ref = 0;
-            } else {
-                ref = ref - 1;
-                log.info("-Reference count: " + session.getUuid() + "=" + ref);
-            }
-            return ref;
-        }
+    public Count count() {
+        return count;
     }
 
     public SessionStats stats() {
