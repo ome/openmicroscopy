@@ -14,6 +14,7 @@ import java.util.List;
 import ome.model.internal.Permissions;
 import ome.model.meta.Session;
 import ome.services.sessions.stats.SessionStats;
+import ome.system.Roles;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -24,6 +25,7 @@ public class SessionContextImpl implements SessionContext {
     
     private int ref = 0;
     private final Object refLock = new Object();
+    private final Roles _roles;
     private final Session session;
     private final SessionStats stats;
     private final List<Long> leaderOfGroups;
@@ -34,6 +36,14 @@ public class SessionContextImpl implements SessionContext {
     @SuppressWarnings("unchecked")
     public SessionContextImpl(Session session, List<Long> lGroups,
             List<Long> mGroups, List<String> roles, SessionStats stats) {
+        this(session, lGroups, mGroups, roles, stats, new Roles());
+    }
+
+    @SuppressWarnings("unchecked")
+    public SessionContextImpl(Session session, List<Long> lGroups,
+            List<Long> mGroups, List<String> roles, SessionStats stats,
+            Roles _roles) {
+        this._roles = _roles;
         this.stats = stats;
         this.session = session;
         this.leaderOfGroups = Collections.unmodifiableList(new ArrayList(
@@ -138,7 +148,14 @@ public class SessionContextImpl implements SessionContext {
     }
 
     public boolean isCurrentUserAdmin() {
-        throw new UnsupportedOperationException();
+        if (_roles == null) {
+            throw new UnsupportedOperationException();
+        }
+
+        if (leaderOfGroups.contains(_roles.getSystemGroupId())) {
+            return true;
+        }
+        return false;
     }
 
     public boolean isReadOnly() {

@@ -454,7 +454,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
 
         SessionContext sessionContext = new SessionContextImpl(session,
                 leaderOfGroupsIds, memberOfGroupsIds, userRoles, factory
-                        .createStats());
+                        .createStats(), roles);
         return sessionContext;
     }
 
