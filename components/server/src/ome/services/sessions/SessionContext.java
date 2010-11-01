@@ -87,9 +87,11 @@ public interface SessionContext extends EventContext {
                     // some loop is incrementing indefinitely.
                     if (ref < Integer.MAX_VALUE) {
                         ref = ref + 1;
-                        log.info("+Reference count: " + uuid + "=" + ref);
+                        if (log.isDebugEnabled()) {
+                            log.debug("+Reference count: " + uuid + "=" + ref);
+                        }
                     } else {
-                        log.error("Reference count == MAX_VALUE");
+                        log.warn("Reference count == MAX_VALUE");
                     }
                 }
                 return ref;

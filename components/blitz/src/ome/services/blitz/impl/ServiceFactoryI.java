@@ -615,7 +615,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     public void destroy(Ice.Current current) {
 
         Ice.Identity sessionId = sessionId();
-        log.info("destroy(" + this + ")");
+        log.debug("destroy(" + this + ")");
 
         // Remove this instance from the adapter: 1) to prevent
         // further remote calls on it, and 2) to reduce the number
@@ -806,8 +806,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         try {
             // First take measures to keep the session alive
             getEventContext();
-            if (log.isInfoEnabled()) {
-                log.info("Keep alive: " + this);
+            if (log.isDebugEnabled()) {
+                log.debug("Keep all alive: " + this);
             }
 
             if (proxies == null || proxies.length == 0) {
@@ -839,8 +839,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         try {
             // First take measures to keep the session alive
             getEventContext();
-            if (log.isInfoEnabled()) {
-                log.info("Keep alive: " + this);
+            if (log.isDebugEnabled()) {
+                log.debug("Keep alive: " + this);
             }
 
             if (proxy == null) {
