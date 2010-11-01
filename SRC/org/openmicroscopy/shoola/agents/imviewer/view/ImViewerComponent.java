@@ -2561,6 +2561,7 @@ class ImViewerComponent
 		} else {
 			renderXYPlane();
 		}
+		model.getBrowser().getUI().setVisible(true);
 		//firePropertyChange(TAB_SELECTION_PROPERTY, Boolean.FALSE, Boolean.TRUE);
 	}
 

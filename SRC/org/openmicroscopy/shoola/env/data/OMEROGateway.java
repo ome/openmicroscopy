@@ -3778,6 +3778,7 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
+			
 			//if currently logged in, use update self
 			getAdminService().updateExperimenter(exp);
 		} catch (Throwable t) {
@@ -7188,6 +7189,8 @@ class OMEROGateway
 	
 	/**
 	 * Resets the login name of the specified user.
+	 * Returns <code>true</code> if the user name could be reset,
+	 * <code>false</code> otherwise.
 	 * 
 	 * @param userName 		The login name.
 	 * @param experimenter 	The experimenter to handle.
@@ -7196,7 +7199,7 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	void resetUserName(String userName, ExperimenterData experimenter)
+	boolean resetUserName(String userName, ExperimenterData experimenter)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
@@ -7209,11 +7212,13 @@ class OMEROGateway
 				Experimenter exp = experimenter.asExperimenter();
 				exp.setOmeName(omero.rtypes.rstring(userName));
 				getAdminService().updateExperimenter(exp);
+				return true;
 			}
 		} catch (Throwable t) {
 			handleException(t, "Cannot modify the loginName for:"+
 					experimenter.getId());
 		}
+		return false;
 	}
 	
 	/**

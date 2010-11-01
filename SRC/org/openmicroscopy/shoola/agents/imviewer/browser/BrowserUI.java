@@ -92,10 +92,11 @@ class BrowserUI
     /** Flag indicating if the experimenter uses the scrollbars. */
     private boolean					adjusting;
     
-    /** Flag used to set the location of the scroll bars if visible
+    /** 
+     * Flag used to set the location of the scroll bars if visible
      * the first time the image is visible.
      */
-    private boolean					init;
+    private int					init;
     
     /** Initializes the components composing the display. */
     private void initComponents()
@@ -404,8 +405,6 @@ class BrowserUI
 	public void setVisible(boolean visible)
 	{
 		super.setVisible(visible);
-		//if (init) return;
-		//init = true;
 		if (!scrollbarsVisible()) return;
 		Rectangle r = getViewport().getViewRect();
 		JScrollBar hBar = getHorizontalScrollBar();

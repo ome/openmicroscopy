@@ -38,6 +38,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -596,22 +597,27 @@ class MetadataViewerComponent
 	public void onAdminUpdated(Object data)
 	{
 		Object o = data;
-		if (data instanceof List) {
+		if (data instanceof Map) {
 			o = model.getRefObject();
-			List l = (List) data;
+			Map l = (Map) data;
 			if (l.size() > 0) {
 				UserNotifier un = 
 					MetadataViewerAgent.getRegistry().getUserNotifier();
 				StringBuffer buf = new StringBuffer();
 				buf.append("Unable to update the following experimenters:\n");
-				Iterator i = l.iterator();
+				Entry entry;
+				Iterator i = l.entrySet().iterator();
 				Object node;
 				ExperimenterData exp;
+				Exception ex;
 				while (i.hasNext()) {
-					node = i.next();
+					entry = (Entry) i.next();
+					node = entry.getKey();
 					if (node instanceof ExperimenterData) {
 						exp = (ExperimenterData) node;
+						ex = (Exception) entry.getValue();
 						buf.append(exp.getFirstName()+" "+exp.getLastName());
+						buf.append("\n->"+ex.getMessage());
 						buf.append("\n");
 					}
 				}

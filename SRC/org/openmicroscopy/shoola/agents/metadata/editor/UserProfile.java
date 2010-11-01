@@ -906,6 +906,8 @@ class UserProfile
     		}
     	}
     	if (!original.getUserName().equals(value)) a = true;
+    	//if admin 
+    	if (MetadataViewerAgent.isAdministrator()) a = true;
     	if (a) {
     		Map<ExperimenterData, UserCredentials> m = 
     			new HashMap<ExperimenterData, UserCredentials>();
