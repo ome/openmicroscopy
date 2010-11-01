@@ -96,7 +96,7 @@ public class SessionStatsTest extends MockObjectTestCase {
         Mock mock = new Mock(SessionManager.class);
         mock.expects(once()).method("getSessionStats").will(returnValue(internal));
         sm = (SessionManager) mock.proxy();
-        PerSessionStats stats = new PerSessionStats(cd, sm);
+        PerSessionStats stats = new PerSessionStats(cd);
         
         stats.loadedObjects(1);
         assertTrue(called[0]);

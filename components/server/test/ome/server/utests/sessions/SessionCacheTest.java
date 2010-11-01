@@ -525,7 +525,7 @@ public class SessionCacheTest extends TestCase {
     SessionContext sc(Session s) {
         return new SessionContextImpl(s, Collections.singletonList(1L),
                 Collections.singletonList(1L), Collections.singletonList(""),
-                new NullSessionStats());
+                new NullSessionStats(), null);
     }
 
     private ApplicationEventMulticaster mc() {
