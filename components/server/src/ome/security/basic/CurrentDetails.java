@@ -28,7 +28,8 @@ import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
 import ome.services.messages.RegisterServiceCleanupMessage;
-import ome.services.sessions.stats.CounterFactory;
+import ome.services.sessions.SessionContext;
+import ome.services.sessions.state.SessionCache;
 import ome.services.sessions.stats.SessionStats;
 import ome.services.util.ServiceHandler;
 import ome.system.EventContext;
@@ -58,19 +59,16 @@ public class CurrentDetails implements PrincipalHolder {
 
     private static Log log = LogFactory.getLog(CurrentDetails.class);
 
-    private final CounterFactory factory;
+    private final SessionCache cache;
 
     private final ThreadLocal<LinkedList<BasicEventContext>> contexts = new ThreadLocal<LinkedList<BasicEventContext>>();
 
     public CurrentDetails() {
-        // Has very high limits set, and will not be able
-        // to publish an event with out the publisher.
-        // Message logged at error level.
-        this.factory = new CounterFactory();
+        this.cache = null;
     }
     
-    public CurrentDetails(CounterFactory factory) {
-        this.factory = factory;
+    public CurrentDetails(SessionCache cache) {
+        this.cache = cache;
     }
     
     private LinkedList<BasicEventContext> list() {
