@@ -489,7 +489,9 @@ class UserProfile
     {
     	ExperimenterData user = (ExperimenterData) model.getRefObject();
     	boolean editable = model.isUserOwner(user);
-    	if (!editable) editable = model.isGroupLeader();
+    	if (!editable) 
+    		editable = model.isGroupLeader() || 
+    		MetadataViewerAgent.isAdministrator();
     	details = EditorUtil.convertExperimenter(user);
         JPanel content = new JPanel();
         content.setBorder(
