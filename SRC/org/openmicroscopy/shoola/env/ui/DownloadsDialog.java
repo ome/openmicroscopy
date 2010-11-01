@@ -116,7 +116,7 @@ class DownloadsDialog
 		components = new ArrayList<JComponent>();
 		entries = new JPanel();
 		entries.setBackground(UIUtilities.BACKGROUND);
-		cleanupButton = new JButton("Clean List");
+		cleanupButton = new JButton("Clear List");
 		getRootPane().setDefaultButton(cleanupButton);
 		cleanupButton.addActionListener(new ActionListener() {
 		
