@@ -890,7 +890,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     private boolean executeCheckPasswordRO(final Principal _principal,
             final String credentials) {
         return (Boolean) executor.execute(asroot, new Executor.SimpleWork(this,
-                "executeCheckPassword") {
+                "executeCheckPasswordRO", _principal) {
             @Transactional(readOnly = true)
             public Object doWork(org.hibernate.Session session,
                     ServiceFactory sf) {
@@ -903,7 +903,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     private boolean executeCheckPasswordRW(final Principal _principal,
             final String credentials) {
         return (Boolean) executor.execute(asroot, new Executor.SimpleWork(this,
-                "executeCheckPassword") {
+                "executeCheckPasswordRW", _principal) {
             @Transactional(readOnly = false)
             public Object doWork(org.hibernate.Session session,
                     ServiceFactory sf) {
