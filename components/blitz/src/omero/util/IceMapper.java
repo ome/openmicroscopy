@@ -674,6 +674,13 @@ public class IceMapper extends ome.util.ModelMapper implements
 
     protected Map target2model = new IdentityHashMap();
 
+    public static omero.model.Permissions convert(ome.model.internal.Permissions p) {
+        if (p == null) {
+            return null;
+        }
+        return new omero.model.PermissionsI(p.toString());
+    }
+
     public ome.model.internal.Permissions convert(omero.model.Permissions p) {
         if (p == null) {
             return null;
@@ -944,6 +951,8 @@ public class IceMapper extends ome.util.ModelMapper implements
             return reverseArray((List) arg, p);
         } else if (p.equals(Class.class)) {
             return omeroClass((String) arg, true);
+        } else if (ome.model.internal.Permissions.class.isAssignableFrom(p)) {
+            return convert((ome.model.internal.Permissions) arg);
         } else if (ome.model.internal.Details.class.isAssignableFrom(p)) {
             return reverse((ModelBased) arg);
         } else if (ome.model.IObject.class.isAssignableFrom(p)) {
