@@ -91,7 +91,7 @@ public class DeleteActivity
 			index++;
 		}
     	if (objects.size() > n)
-    		buffer.append("and "+(objects.size()-2)+" more");
+    		buffer.append(" and "+(objects.size()-2)+" more");
     	return buffer.toString();
     }
     
