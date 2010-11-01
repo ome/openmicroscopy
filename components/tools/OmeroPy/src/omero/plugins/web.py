@@ -23,9 +23,57 @@ DEVELOPMENT = "development"
 DEFAULT_SERVER_TYPE = FASTCGITCP
 ALL_SERVER_TYPES = (FASTCGITCP, FASTCGI, DEVELOPMENT)
 
+DEFAULT_HOST="localhost"
+DEFAULT_PORT="8888"
+DEFAULT_HTTP_PORT="8000"
+
 HELP="""OMERO.web configuration/deployment tools"""
 
 class WebControl(BaseControl):
+
+    def host_and_port(self, args):
+        """
+        Used to find the most authoritative host and port
+        for fastcgi-tcp (and possibly other) server types.
+
+        @see ticket:3217
+        """
+
+        # First set the defaults
+        host = str(DEFAULT_HOST)
+        port = int(str(DEFAULT_PORT))
+
+        # Then overwrite with APPLICATION_HOST
+        from omeroweb.settings import APPLICATION_HOST
+
+        parts = APPLICATION_HOST.split(':')
+        if len(parts) < 2:
+            self.ctx.die(656, "Invalid application host: %s" % ":".join(parts))
+        elif len(parts) == 2:
+            host = parts[1]
+            port = str(DEFAULT_PORT)
+        else:
+            try:
+                host = parts[1]
+                while host.startswith(r"/"):
+                    host = host[1:]
+                port = parts[2]
+                port = re.search(r'^(\d+).*', port).group(1)
+                port = int(port)
+            except Exception, e:
+                self.ctx.die(567, "Badly formed domain: %s -- %s" % (":".join(parts), e))
+
+        # Finally, overwrite with anything passed
+        h = getattr(args, "host", None)
+        if h:
+            host = h
+
+        p = getattr(args, "port", None)
+        if p:
+            port = p
+
+        self.ctx.dbg("Returing host, port = %s, %s" % (host, port))
+        return host, port
 
 
     def _configure(self, parser):
@@ -39,8 +87,6 @@ class WebControl(BaseControl):
         settings.add_argument("--force", help="Don't ask whether or not to overwrite existing custom_settings.py", action="store_true", default=False)
 
         start = parser.add(sub, self.start, "Primary start for the OMERO.web server")
-        start.add_argument("host", nargs="?")
-        start.add_argument("port", nargs="?")
 
         parser.add(sub, self.stop, "Stop the OMERO.web server")
         parser.add(sub, self.status, "Status for the OMERO.web server")
@@ -63,6 +109,11 @@ class WebControl(BaseControl):
 
         config = parser.add(sub, self.config, "Advanced use: Output a config template for server (only 'nginx' for the moment")
         config.add_argument("type", choices=("nginx",))
+        config.add_argument("--http", type=int, help="HTTP port for web server (not fastcgi)", default=DEFAULT_HTTP_PORT)
+
+        for x in (start, config):
+            x.add_argument("host", nargs="?", help="Host for fastcgi-tcp connection (only)")
+            x.add_argument("port", nargs="?", type=int, help="Port for fastcgi-tcp connection (only)")
 
         parser.add(sub, self.custom_settings, "Advanced use: Creates only a a custom_settings.py")
         parser.add(sub, self.syncmedia, "Advanced use: Creates needed symlinks for static media files")
@@ -389,26 +440,27 @@ APPLICATION_HOST='%s'
         if not args.type:
             self.ctx.out("Available configuration helpers:\n - nginx\n")
         else:
-            from omeroweb.settings import APPLICATION_HOST, APPLICATION_SERVER
-            host = APPLICATION_HOST.split(':')
-            worker_port = args.port is not None and args.port or "8000"
-            try:
-                port = host[-1]
-                port = re.search(r'^(\d+).*', port).group(1)
-                port = int(port)
-            except:
-                port = 8000
             server = args.type
             if server == "nginx":
+                try:
+                    http_port = int(str(args.http))
+                except ValueError:
+                    self.ctx.die(679, "Bad http port: %s" % (args.http))
+                from omeroweb.settings import APPLICATION_SERVER
                 if APPLICATION_SERVER == "fastcgi-tcp":
-                    fastcgi_pass = "localhost:%s" % worker_port
+                    host, port = self.host_and_port(args)
+                    fastcgi_pass = "%s:%s" % (host, port)
+                    if port == http_port:
+                        self.ctx.die(678, "Port conflict: HTTP(%s) and fastcgi-tcp(%s)." % (http_port, port))
                 else:
+                    if args.port is not None or args.host is not None:
+                        self.ctx.die(654, "Only use 'host' and 'port' with 'fastcgi-tcp'")
                     fastcgi_pass = "unix:%s/var/django_fcgi.sock" % self.ctx.dir
                 c = file(self.ctx.dir / "etc" / "nginx.conf.template").read()
                 d = {
                     "ROOT":self.ctx.dir,
                     "OMEROWEBROOT":self.ctx.dir / "lib" / "python" / "omeroweb",
-                    "HTTPPORT":port,
+                    "HTTPPORT":http_port,
                     "FASTCGI_PASS":fastcgi_pass,
                     }
                 self.ctx.out(c % d)
@@ -500,8 +552,7 @@ APPLICATION_HOST='%s'
 
 
     def start(self, args):
-        host = args.host is not None and args.host or "0.0.0.0"
-        port = args.port is not None and args.port or "8000"
+        host, port = self.host_and_port(args)
         link = ("%s:%s" % (host, port))
         location = self.ctx.dir / "lib" / "python" / "omeroweb"
         self.ctx.out("Starting OMERO.web... ", newline=False)
@@ -517,6 +568,8 @@ APPLICATION_HOST='%s'
                 return 1
         deploy = getattr(settings, 'APPLICATION_SERVER', DEFAULT_SERVER_TYPE)
         if deploy == FASTCGI:
+            if args.host or args.port:
+                self.ctx.die(674, "Only use 'host' and 'port' for fastcgi-tcp")
             cmd = "python manage.py runfcgi workdir=./"
             cmd += " method=prefork socket=%(base)s/var/django_fcgi.sock"
             cmd += " pidfile=%(base)s/var/django.pid daemonize=true"
