@@ -14,6 +14,7 @@ import platform
 import time
 import sys
 import os
+import re
 
 FASTCGI = "fastcgi"
 FASTCGITCP = "fastcgi-tcp"
@@ -388,19 +389,27 @@ APPLICATION_HOST='%s'
         if not args.type:
             self.ctx.out("Available configuration helpers:\n - nginx\n")
         else:
-            from omeroweb.settings import APPLICATION_HOST
+            from omeroweb.settings import APPLICATION_HOST, APPLICATION_SERVER
             host = APPLICATION_HOST.split(':')
+            worker_port = args.port is not None and args.port or "8000"
             try:
-                port = int(host[-1])
-            except ValueError:
+                port = host[-1]
+                port = re.search(r'^(\d+).*', port).group(1)
+                port = int(port)
+            except:
                 port = 8000
             server = args.type
             if server == "nginx":
+                if APPLICATION_SERVER == "fastcgi-tcp":
+                    fastcgi_pass = "localhost:%s" % worker_port
+                else:
+                    fastcgi_pass = "unix:%s/var/django_fcgi.sock" % self.ctx.dir
                 c = file(self.ctx.dir / "etc" / "nginx.conf.template").read()
                 d = {
                     "ROOT":self.ctx.dir,
                     "OMEROWEBROOT":self.ctx.dir / "lib" / "python" / "omeroweb",
                     "HTTPPORT":port,
+                    "FASTCGI_PASS":fastcgi_pass,
                     }
                 self.ctx.out(c % d)
 
