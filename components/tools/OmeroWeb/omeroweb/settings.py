@@ -30,30 +30,34 @@ import sys
 import datetime
 import logging
 import omero
+import omero.config
 import omero.clients
-import tempfile 
+import tempfile
 
-# CUSTOM CONFIG
-try:
-    from custom_settings import *
-except ImportError:
-    sys.stderr.write("""Error: Can't find the file 'omero/var/lib/custom_settings.py' It appears you
-haven't customized things. You'll have to run 'bin/omero web settings'
-(If the file custom_settings.py does indeed exist it's causing an ImportError
-somehow.)
-""")
-    sys.exit(1)
+from django.utils import simplejson as json
+from portalocker import LockException
 
+def parse_boolean(s):
+    s = s.strip().lower()
+    if s in ('true', '1', 't'):
+        return True
+    return False
 
-# EMDB CUSTOM CONFIG
-try:
-    from emdb_settings import *
-except ImportError:
-    pass
-    # most users will not be interested in emdb - Don't show message
-    #sys.stderr.write("'omero/var/lib/emdb_settings.py' not found. If you wish to add EMDB settings, do bin/omero web emdb_settings")
+OMERO_HOME = os.path.join(os.path.dirname(__file__), '..', '..', '..')
+OMERO_HOME = os.path.normpath(OMERO_HOME)
 
-    
+# Load custom settings from etc/grid/config.xml
+# Tue  2 Nov 2010 11:03:18 GMT -- ticket:3228
+CONFIG_XML = os.path.join(OMERO_HOME, 'etc', 'grid', 'config.xml')
+while True:
+    try:
+        CONFIG_XML = omero.config.ConfigXml(CONFIG_XML)
+        CUSTOM_SETTINGS = CONFIG_XML.as_map()
+        CONFIG_XML.close()
+        break
+    except LockException:
+        pass
+
 # LOGS
 # NEVER DEPLOY a site into production with DEBUG turned on.
 
@@ -62,10 +66,10 @@ except ImportError:
 # handler404 and handler500 works only when False
 
 try:
-    DEBUG
+    DEBUG=parse_boolean(CUSTOM_SETTINGS['omero.web.debug'])
 except:
     DEBUG=False
-        
+
 TEMPLATE_DEBUG = DEBUG
 
 # Configure logging and set place to store logs.
@@ -77,7 +81,7 @@ LOGGING_LOG_SQL = False
 try:
     LOGDIR
 except:
-    LOGDIR = os.path.join(os.path.join(os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), '../'), '../'), '../'), 'var'), 'log').replace('\\','/')
+    LOGDIR = os.path.join(OMERO_HOME, 'var', 'log').replace('\\','/')
 
 if DEBUG:  
     LOGFILE = ('OMEROweb-DEBUG.log')
@@ -95,13 +99,37 @@ if not os.path.isdir(LOGDIR):
 
 import logconfig
 logger = logconfig.get_logger(os.path.join(LOGDIR, LOGFILE), LOGLEVEL)
-    
+
+logger.debug("OMERO config properties: " + repr(CUSTOM_SETTINGS))
+
 try:
-    ADMINS
+    ADMINS = json.loads(CUSTOM_SETTINGS['omero.web.admins'])
 except:
     ADMINS = ()
-    
+
+logger.debug('ADMINS: ' + repr(ADMINS))
+
 MANAGERS = ADMINS
+
+###
+### BEGIN EMDB settings
+###
+try:
+    CACHE_BACKEND = CUSTOM_SETTINGS['omero.web.cache_backend']
+    logger.debug("CACHE_BACKEND: " + CACHE_BACKEND)
+except:
+    pass
+
+try:
+    if parse_boolean(CUSTOM_SETTINGS['omero.web.use_eman2']):
+        logger.info("Using EMAN2...")
+        from eman2 import *
+except:
+    logger.info("Not using EMAN2...")
+    pass
+###
+### END EMDB settings
+###
 
 # Local time zone for this installation. Choices can be found here:
 # http://www.postgresql.org/docs/8.1/appmedia/omeroweb/datetime-keywords.html#DATETIME-TIMEZONE-SET-TABLE
@@ -206,58 +234,96 @@ except:
     PAGE = 24
 
 # CUSTOM CONFIG
+from webadmin.custom_models import ServerObjects
 try:
-    from webadmin.custom_models import ServerObjects
-    SERVER_LIST = ServerObjects(SERVER_LIST)
-except Exception, x:
-    logger.error("custom_settings.py has not been configured. SERVER_LIST is not set.\n" ) 
-    sys.stderr.write("custom_settings.py has not been configured. SERVER_LIST is not set.\n")
-    exctype, value = sys.exc_info()[:2]
-    raise exctype, value
+    SERVER_LIST = json.loads(CUSTOM_SETTINGS['omero.web.server_list'])
+except:
+    SERVER_LIST = (('localhost', 4064, 'omero'),)
+logger.debug('SERVER_LIST: ' + repr(SERVER_LIST))
+SERVER_LIST = ServerObjects(SERVER_LIST)
 
 try:
-    EMAIL_HOST
+    EMAIL_HOST = CUSTOM_SETTINGS['omero.web.email_host']
+    logger.debug('EMAIL_HOST: ' + repr(EMAIL_HOST))
 except:
     pass
 try:
-    EMAIL_HOST_PASSWORD
+    EMAIL_HOST_PASSWORD = CUSTOM_SETTINGS['omero.web.email_host_password']
+    logger.debug('EMAIL_HOST_PASSWORD: ' + repr(EMAIL_HOST_PASSWORD))
 except:
     pass
 try:
-    EMAIL_HOST_USER
+    EMAIL_HOST_USER = CUSTOM_SETTINGS['omero.web.email_host_user']
+    logger.debug('EMAIL_HOST_USER: ' + repr(EMAIL_HOST_USER))
 except:
     pass
 try:
-    EMAIL_PORT
+    EMAIL_PORT = CUSTOM_SETTINGS['omero.web.email_port']
+    logger.debug('EMAIL_PORT: ' + repr(EMAIL_PORT))
 except:
     pass
 try:
-    EMAIL_SUBJECT_PREFIX
+    EMAIL_SUBJECT_PREFIX = CUSTOM_SETTINGS['omero.web.email_subject_prefix']
+    logger.debug('EMAIL_SUBJECT_PREFIX: ' + repr(EMAIL_SUBJECT_PREFIX))
 except:
     pass
 try:
-    EMAIL_USE_TLS
+    EMAIL_USE_TLS = CUSTOM_SETTINGS['omero.web.email_use_tls']
+    logger.debug('EMAIL_USE_TLS: ' + repr(EMAIL_USE_TLS))
 except:
     pass
 try:
-    SERVER_EMAIL
+    SERVER_EMAIL = CUSTOM_SETTINGS['omero.web.server_email']
+    logger.debug('SERVER_EMAIL: ' + repr(SERVER_EMAIL))
 except:
     pass
 
 SEND_BROKEN_LINK_EMAILS = True
 EMAIL_SUBJECT_PREFIX = '[OMERO.web] '
 
-# APPLICATIONS CONFIG
-try:
-    if APPLICATION_HOST.endswith("/"):
-        APPLICATION_HOST=APPLICATION_HOST
-    else:
-        APPLICATION_HOST=APPLICATION_HOST+"/"
-except:
-    logger.error("custom_settings.py has not been configured. APPLICATION_HOST is not set.\n" ) 
-    sys.stderr.write("custom_settings.py has not been configured. APPLICATION_HOST is not set.\n")
-    sys.exit(1)
+###
+### BEGIN Application host and server configuration
+###
 
+FASTCGI = "fastcgi"
+FASTCGITCP = "fastcgi-tcp"
+FASTCGI_TYPES = (FASTCGI, FASTCGITCP)
+DEVELOPMENT = "development"
+DEFAULT_SERVER_TYPE = FASTCGITCP
+ALL_SERVER_TYPES = (FASTCGITCP, FASTCGI, DEVELOPMENT)
+
+APPLICATION_HOST = 'http://localhost:80/'
+try:
+    APPLICATION_HOST = CUSTOM_SETTINGS['omero.web.application_host']
+except:
+    pass
+if not APPLICATION_HOST.endswith("/"):
+    APPLICATION_HOST=APPLICATION_HOST+"/"
+logger.debug('APPLICATION_HOST: ' + repr(APPLICATION_HOST))
+
+APPLICATION_SERVER = 'fastcgi-tcp'
+try:
+    APPLICATION_SERVER = CUSTOM_SETTINGS['omero.web.application_server']
+except:
+    pass
+logger.debug('APPLICATION_SERVER: ' + repr(APPLICATION_SERVER))
+
+APPLICATION_SERVER_HOST = '0.0.0.0'
+try:
+    APPLICATION_SERVER = CUSTOM_SETTINGS['omero.web.application_server.host']
+except:
+    pass
+logger.debug('APPLICATION_SERVER_HOST: ' + repr(APPLICATION_SERVER_HOST))
+
+APPLICATION_SERVER_PORT = '4080'
+try:
+    APPLICATION_SERVER = CUSTOM_SETTINGS['omero.web.application_server.port']
+except:
+    pass
+logger.debug('APPLICATION_SERVER_PORT: ' + repr(APPLICATION_SERVER_PORT))
+###
+### END Application host and server configuration
+###
 
 EMAIL_TEMPLATES = {
     'create_share': {

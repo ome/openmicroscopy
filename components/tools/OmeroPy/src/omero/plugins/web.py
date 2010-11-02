@@ -8,6 +8,7 @@
 """
 
 from exceptions import Exception
+from datetime import datetime
 from omero.cli import BaseControl, CLI
 import omero.java
 import platform
@@ -16,106 +17,27 @@ import sys
 import os
 import re
 
-FASTCGI = "fastcgi"
-FASTCGITCP = "fastcgi-tcp"
-FASTCGI_TYPES = (FASTCGI, FASTCGITCP)
-DEVELOPMENT = "development"
-DEFAULT_SERVER_TYPE = FASTCGITCP
-ALL_SERVER_TYPES = (FASTCGITCP, FASTCGI, DEVELOPMENT)
-
-DEFAULT_HOST="localhost"
-DEFAULT_PORT="8888"
-DEFAULT_HTTP_PORT="8000"
-
 HELP="""OMERO.web configuration/deployment tools"""
 
+DEFAULT_HTTP_PORT = '8000'
+
 class WebControl(BaseControl):
-
-    def host_and_port(self, args):
-        """
-        Used to find the most authoritative host and port
-        for fastcgi-tcp (and possibly other) server types.
-
-        @see ticket:3217
-        """
-
-        # First set the defaults
-        host = str(DEFAULT_HOST)
-        port = int(str(DEFAULT_PORT))
-
-        # Then overwrite with APPLICATION_HOST
-        from omeroweb.settings import APPLICATION_HOST
-
-        parts = APPLICATION_HOST.split(':')
-        if len(parts) < 2:
-            self.ctx.die(656, "Invalid application host: %s" % ":".join(parts))
-        elif len(parts) == 2:
-            host = parts[1]
-            port = str(DEFAULT_PORT)
-        else:
-            try:
-                host = parts[1]
-                while host.startswith(r"/"):
-                    host = host[1:]
-                port = parts[2]
-                port = re.search(r'^(\d+).*', port).group(1)
-                port = int(port)
-            except Exception, e:
-                self.ctx.die(567, "Badly formed domain: %s -- %s" % (":".join(parts), e))
-
-        # Finally, overwrite with anything passed
-        h = getattr(args, "host", None)
-        if h:
-            host = h
-
-        p = getattr(args, "port", None)
-        if p:
-            port = p
-
-        self.ctx.dbg("Returing host, port = %s, %s" % (host, port))
-        return host, port
-
 
     def _configure(self, parser):
         sub = parser.sub()
 
-        settings = parser.add(sub, self.settings, "Primary configuration for web")
-        settings.add_argument("--domain", help="the domain you want to run OMERO.web on", default=None)
-        settings.add_argument("--email", help="the Email address you want to send from", default=None)
-        settings.add_argument("--smtphost", help="the SMTP server host you want to send from", default=None)
-        settings.add_argument("--quiet", help="Don't ask any non-necessary questions", action="store_true", default=False)
-        settings.add_argument("--force", help="Don't ask whether or not to overwrite existing custom_settings.py", action="store_true", default=False)
-
-        start = parser.add(sub, self.start, "Primary start for the OMERO.web server")
-
+        parser.add(sub, self.start, "Primary start for the OMERO.web server")
         parser.add(sub, self.stop, "Stop the OMERO.web server")
         parser.add(sub, self.status, "Status for the OMERO.web server")
-
-        emdb_settings = parser.add(sub, self.emdb_settings, "Experimental: Configure settings for the web EMDB client")
 
         #
         # Advanced
         #
 
-        server = parser.add(sub, self.server, """Advanced use: Set type of server process to be used
-
-        fastcgi        -- uses fastcgi with socket connection
-        fastcgi-tcp    -- uses fastcgi TCP connections. Host and port values are used on start.
-        development    -- Django development server. NOT FOR PRODUCTION USE """)
-
-        # Putting "server" argument
-        for x, prefix, kwargs in ((settings,"--",{}), (server,"",{"nargs":"?"})):
-            x.add_argument(prefix+"server", choices=ALL_SERVER_TYPES, **kwargs)
-
-        config = parser.add(sub, self.config, "Advanced use: Output a config template for server (only 'nginx' for the moment")
-        config.add_argument("type", choices=("nginx",))
+        config = parser.add(sub, self.config, "Output a config template for server ('nginx' or 'apache' for the moment")
+        config.add_argument("type", choices=("nginx","apache"))
         config.add_argument("--http", type=int, help="HTTP port for web server (not fastcgi)", default=DEFAULT_HTTP_PORT)
 
-        for x in (start, config):
-            x.add_argument("host", nargs="?", help="Host for fastcgi-tcp connection (only)")
-            x.add_argument("port", nargs="?", type=int, help="Port for fastcgi-tcp connection (only)")
-
-        parser.add(sub, self.custom_settings, "Advanced use: Creates only a a custom_settings.py")
         parser.add(sub, self.syncmedia, "Advanced use: Creates needed symlinks for static media files")
 
         #
@@ -138,332 +60,75 @@ class WebControl(BaseControl):
         test = parser.add(sub, self.test, "Developer use: Runs 'coverage -x manage.py test'")
         test.add_argument("arg", nargs="*")
 
-
-    def _setup_emdb(self):
-        settings = dict()
-
-        set_cache = self.ctx.input("Allow Django to use local memory caching? (yes/no) (default yes):")
-        if not set_cache == "no":
-            settings["CACHE_BACKEND"] = 'locmem://'
-
-        use_eman = self.ctx.input("Allow Django to use EMAN2 if installed? (yes/no):")
-        if not use_eman == "no":
-            settings["EMAN2"] = True
-
-        return settings
-
-
-    def _setup_server(self, email_server=None, app_host=None, sender_address=None, smtp_server=None, quiet=False):
-        settings = dict()
-
-        while not app_host or len(app_host) < 1:
-            app_host = self.ctx.input("Please enter the domain you want to run OMERO.web on (http://www.domain.com:8000/):")
-            if app_host == None or app_host == "":
-                self.ctx.err("Domain cannot be empty")
-                continue
-        settings["APPLICATION_HOST"] = app_host
-
-        while not sender_address or len(sender_address) < 1 :
-            sender_address = self.ctx.input("Please enter the Email address you want to send from (omero_admin@example.com): ")
-            if sender_address == None or sender_address == "":
-                self.ctx.err("Email cannot be empty")
-                continue
-
-        while not smtp_server or len(smtp_server) < 1 :
-            smtp_server = self.ctx.input("Please enter the SMTP server host you want to send from (smtp.example.com): ")
-            if smtp_server == None or smtp_server == "":
-                self.ctx.err("SMTP server host cannot be empty")
-                continue
-
-        def input(*args, **kwargs):
-            if quiet:
-                return ""
-            else:
-                return self.ctx.input(*args, **kwargs)
-
-        smtp_port = input("Optional: please enter the SMTP server port (default 25): ")
-        smtp_user = input("Optional: Please enter the SMTP server username: ")
-        smtp_password = input("Optional: Password: ", hidden=True)
-        smtp_tls = input("Optional: TSL? (yes/no): ")
-        if smtp_tls == "yes":
-            smtp_tls = True
-        else:
-            smtp_tls = False
-
-        settings["SERVER_EMAIL"] = sender_address
-        settings["EMAIL_HOST"] = smtp_server
-
-        if smtp_port:
-            settings["EMAIL_PORT"] = smtp_port
-        if smtp_user:
-            settings["EMAIL_HOST_USER"] = smtp_user
-        if smtp_password:
-            settings["EMAIL_HOST_PASSWORD"] = smtp_password
-        if smtp_tls:
-            settings["EMAIL_USE_TLS"] = smtp_tls
-
-        return settings
-
-
-    def _update_emdb_settings(self, server, location, settings=None):
-        output = open(location, 'w')
-
+    def host_and_port(self, APPLICATION_HOST):
+        parts = APPLICATION_HOST.split(':')
+        if len(parts) != 3:
+            self.ctx.die(656, "Invalid application host: %s" % ":".join(parts))
         try:
-            output.write("""#!/usr/bin/env python
-# 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-# #         Django custom settings for OMERO.web EMDB project.          # # 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# 
-# 
-# Copyright (c) 2009 University of Dundee. 
-# 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as
-# published by the Free Software Foundation, either version 3 of the
-# License, or (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
-# 
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-# 
-# Author: Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>, 2010.
-# Author: Will Moore <will(at)lifesci(dot)dundee(dot)ac(dot)uk>, 2010.
-# 
-# Version: 1.0
-
-""")
-            if settings.has_key('CACHE_BACKEND'):
-                output.write("""CACHE_BACKEND = '%s'
-""" % settings["CACHE_BACKEND"])
-
-            if settings.has_key('EMAN2') and settings["EMAN2"]:
-                output.write("""
-# EMAN2 functionality is used in some features of the webemdb application. E.g. see webemdb.views.py eman()
-# Do the import here since EMAN2 import fails if it happens for the first time in views.py "signal only works in main thread"
-try:
-    from EMAN2 import *
-except:
-    pass
-""")
-        finally:
-            output.flush()
-            output.close()
-
-        self.ctx.out("Saved to " + location)
-        sys.path_importer_cache.pop(self.ctx.dir / "var" / "lib", None)
-        self.ctx.out("PYTHONPATH updated.")
-
-
-    def _update_settings(self, location, settings=None, server_type=DEFAULT_SERVER_TYPE):
-        output = open(location, 'w')
-
-        try:
-            output.write("""#!/usr/bin/env python
-# 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-# #              Django custom settings for OMERO.web project.          # # 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# 
-# 
-# Copyright (c) 2009 University of Dundee. 
-# 
-# This program is free software: you can redistribute it and/or modify
-# it under the terms of the GNU Affero General Public License as
-# published by the Free Software Foundation, either version 3 of the
-# License, or (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU Affero General Public License for more details.
-# 
-# You should have received a copy of the GNU Affero General Public License
-# along with this program.  If not, see <http://www.gnu.org/licenses/>.
-# 
-# Author: Aleksandra Tarkowska <A(dot)Tarkowska(at)dundee(dot)ac(dot)uk>, 2008.
-# 
-# Version: 1.0
-
-# Notification
-# Application allows to notify user about new shares
-
-#DEBUG = False
-SERVER_LIST = (
-    ('localhost', 4064, 'omero'),
-)
-
-ADMINS = (
-    # ('Name', 'email'),
-)
-
-""")
-            if settings.has_key('SERVER_EMAIL'):
-                output.write("""SERVER_EMAIL = '%s'
-""" % settings["SERVER_EMAIL"])
-            if settings.has_key('EMAIL_HOST'):
-                output.write("""EMAIL_HOST = '%s'
-""" % settings["EMAIL_HOST"])
-            if settings.has_key('EMAIL_PORT'):
-                output.write("""EMAIL_PORT = %s
-""" % settings["EMAIL_PORT"])
-            if settings.has_key('EMAIL_HOST_USER'):
-                output.write("""EMAIL_HOST_USER = '%s'
-""" % settings["EMAIL_HOST_USER"])
-            if settings.has_key('EMAIL_HOST_PASSWORD'):
-                output.write("""EMAIL_HOST_PASSWORD = '%s'
-""" % settings["EMAIL_HOST_PASSWORD"])
-            if settings.has_key('EMAIL_USE_TLS'):
-                if settings["EMAIL_USE_TLS"]:
-                    output.write("""EMAIL_USE_TLS = 'True'
-""")
-                else:
-                    output.write("""EMAIL_USE_TLS = 'False'
-""")
-
-            output.write("""
-APPLICATION_HOST='%s' 
-""" % settings["APPLICATION_HOST"])
-            output.write("""APPLICATION_SERVER='%s'
-""" % server_type)
-        finally:
-            output.flush()
-            output.close()
-
-        self.ctx.out("Saved to " + location)
-        sys.path_importer_cache.pop(self.ctx.dir / "var" / "lib", None)
-        self.ctx.out("PYTHONPATH updated.")
-
-    def _get_yes_or_no(self, file_name, answer=None):
-        while answer != "yes" and answer != "no":
-            answer = self.ctx.input("%s already exist. Do you want to ovewrite it? (yes/no)" % file_name)
-            if answer != "yes" and answer != "no":
-                self.ctx.err("Answer yes or no")
-                continue
-            break
-        return answer
-
-    def custom_settings(self, args):
-
-        if not args.server:
-            args.server = DEFAULT_SERVER_TYPE
-
-        location = self.ctx.dir / "var" / "lib" / "custom_settings.py"
-
-        if location.exists():
-            if not args.force and self._get_yes_or_no("%s" % location) == 'no':
-                if hasattr(args, "no_exit") and args.no_exit:
-                    return
-                else:
-                    sys.exit()
-        else:
-            self.ctx.out("You just installed OMERO, which means you didn't have settings configured in OMERO.web.")
-
-        if not os.path.exists(self.ctx.dir / "var" / "lib"):
-            os.makedirs(self.ctx.dir / "var" / "lib")
-
-        settings = self._setup_server(app_host=args.domain, sender_address=args.email, smtp_server=args.smtphost, quiet=args.quiet)
-        self._update_settings(location, settings, server_type=args.server)
-
-
-    def emdb_settings(self, args):
-        location = self.ctx.dir / "var" / "lib" / "emdb_settings.py"
-
-        if location.exists():
-            if self._get_yes_or_no("%s" % location) == 'no':
-                if hasattr(args, "no_exit") and args.no_exit:
-                    return
-                else:
-                    sys.exit()
-        else:
-            self.ctx.out("You don't have emdb_settings configured in OMERO.web. ")
-
-        if not os.path.exists(self.ctx.dir / "var" / "lib"):
-            os.makedirs(self.ctx.dir / "var" / "lib")
-
-        settings = self._setup_emdb()
-        self._update_emdb_settings(location, settings)
-
-
-    def settings(self, args):
-        args.no_exit = True
-        self.custom_settings(args)
-        try:
-            sys.getwindowsversion()
-        except:
-            self.syncmedia(args)
-
-
-    def server(self, args):
-
-        # Check custom_settings.py
-        location = self.ctx.dir / "var" / "lib" / "custom_settings.py"
-        if not location.exists():
-            self.ctx.die(520, "Please use 'web settings' first")
-
-        # Read it in
-        settings = file(location, 'rb').read().split('\n')
-        if settings[-1] == '':
-            settings = settings[:-1]
-        cserver = DEFAULT_SERVER_TYPE
-        for l in settings:
-            if l.startswith('APPLICATION_SERVER'):
-                cserver = l.split('=')[-1].strip().replace("'",'').replace('"','')
-
-        server = args.server
-        if server is None:
-            self.ctx.out("OMERO.web is configured to be served by '%s'" % cserver)
-        elif server == cserver:
-            self.ctx.out("OMERO.web was already configured to be served by '%s'" % server)
-        elif server in ALL_SERVER_TYPES:
-            if server == FASTCGI:
-                import flup
-            out = file(location, 'wb')
-            wrote = False
-            for l in settings:
-                if l.startswith('APPLICATION_SERVER'):
-                    wrote = True
-                    out.write("APPLICATION_SERVER = '%s'\n" % server)
-                else:
-                    out.write(l + '\n')
-            if not wrote:
-                out.write("APPLICATION_SERVER = '%s'\n" % server)
-            self.ctx.out("OMERO.web has been configured to be served by '%s'" % server)
-        else:
-            self.ctx.err("Unknown server '%s'" % server)
+            host = parts[1]
+            while host.startswith(r"/"):
+                host = host[1:]
+            port = parts[2]
+            port = re.search(r'^(\d+).*', port).group(1)
+            port = int(port)
+            return (host, port)
+        except Exception, e:
+            self.ctx.die(567, "Badly formed domain: %s -- %s" % (":".join(parts), e))
 
     def config(self, args):
         if not args.type:
-            self.ctx.out("Available configuration helpers:\n - nginx\n")
+            self.ctx.out("Available configuration helpers:\n - nginx, apache\n")
         else:
             server = args.type
+            import omeroweb.settings as settings
+            host, port = self.host_and_port(settings.APPLICATION_HOST)
+            if settings.APPLICATION_SERVER == settings.FASTCGITCP:
+                if settings.APPLICATION_SERVER_PORT == port:
+                    self.ctx.die(678, "Port conflict: HTTP(%s) and fastcgi-tcp(%s)." % \
+                            (port, settings.APPLICATION_SERVER_PORT))
             if server == "nginx":
-                try:
-                    http_port = int(str(args.http))
-                except ValueError:
-                    self.ctx.die(679, "Bad http port: %s" % (args.http))
-                from omeroweb.settings import APPLICATION_SERVER
-                if APPLICATION_SERVER == "fastcgi-tcp":
-                    host, port = self.host_and_port(args)
-                    fastcgi_pass = "%s:%s" % (host, port)
-                    if port == http_port:
-                        self.ctx.die(678, "Port conflict: HTTP(%s) and fastcgi-tcp(%s)." % (http_port, port))
+                if settings.APPLICATION_SERVER == settings.FASTCGITCP:
+                    fastcgi_pass = "%s:%s" % (settings.APPLICATION_SERVER_HOST,
+                                              settings.APPLICATION_SERVER_PORT)
                 else:
-                    if args.port is not None or args.host is not None:
-                        self.ctx.die(654, "Only use 'host' and 'port' with 'fastcgi-tcp'")
                     fastcgi_pass = "unix:%s/var/django_fcgi.sock" % self.ctx.dir
                 c = file(self.ctx.dir / "etc" / "nginx.conf.template").read()
                 d = {
                     "ROOT":self.ctx.dir,
                     "OMEROWEBROOT":self.ctx.dir / "lib" / "python" / "omeroweb",
-                    "HTTPPORT":http_port,
+                    "HTTPPORT":port,
                     "FASTCGI_PASS":fastcgi_pass,
                     }
                 self.ctx.out(c % d)
+            if server == "apache":
+                if settings.APPLICATION_SERVER == settings.FASTCGITCP:
+                    fastcgi_external = '-host %s:%s' % \
+                            (settings.APPLICATION_SERVER_HOST,
+                             settings.APPLICATION_SERVER_PORT)
+                else:
+                    fastcgi_external = '-socket "%s/var/django_fcgi.sock"' % \
+                        self.ctx.dir
+                stanza  = """###
+### Stanza for OMERO.web created %(NOW)s
+###
+FastCGIExternalServer "%(ROOT)s/var/omero.fcgi" %(FASTCGI_EXTERNAL)s"
+
+<Directory "%(ROOT)s/var">
+    Options -Indexes FollowSymLinks
+    Order allow,deny
+    Allow from all
+</Directory>
+
+Alias /appmedia %(ROOT)s/lib/python/omeroweb/media
+Alias / "%(ROOT)s/var/omero.fcgi/"
+"""
+                d = {
+                    "ROOT":self.ctx.dir,
+                    "OMEROWEBROOT":self.ctx.dir / "lib" / "python" / "omeroweb",
+                    "FASTCGI_EXTERNAL":fastcgi_external,
+                    "NOW":str(datetime.now()),
+                    }
+                self.ctx.out(stanza % d)
 
     def syncmedia(self, args):
         import shutil
@@ -552,11 +217,11 @@ APPLICATION_HOST='%s'
 
 
     def start(self, args):
-        host, port = self.host_and_port(args)
-        link = ("%s:%s" % (host, port))
+        import omeroweb.settings as settings
+        link = ("%s:%s" % (settings.APPLICATION_SERVER_HOST,
+                           settings.APPLICATION_SERVER_PORT))
         location = self.ctx.dir / "lib" / "python" / "omeroweb"
         self.ctx.out("Starting OMERO.web... ", newline=False)
-        import omeroweb.settings as settings
         cache_backend = getattr(settings, 'CACHE_BACKEND', None)
         if cache_backend is not None and cache_backend.startswith("file:///"):
             cache_backend = cache_backend[7:]
@@ -566,23 +231,22 @@ APPLICATION_HOST='%s'
                 self.ctx.out("CACHE_BACKEND '%s' not writable or missing." % \
                              getattr(settings, 'CACHE_BACKEND'))
                 return 1
-        deploy = getattr(settings, 'APPLICATION_SERVER', DEFAULT_SERVER_TYPE)
-        if deploy == FASTCGI:
-            if args.host or args.port:
-                self.ctx.die(674, "Only use 'host' and 'port' for fastcgi-tcp")
+        deploy = getattr(settings, 'APPLICATION_SERVER')
+        if deploy == settings.FASTCGI:
             cmd = "python manage.py runfcgi workdir=./"
             cmd += " method=prefork socket=%(base)s/var/django_fcgi.sock"
             cmd += " pidfile=%(base)s/var/django.pid daemonize=true"
             cmd += " maxchildren=5 minspare=1 maxspare=5 maxrequests=400"
             django = (cmd % {'base': self.ctx.dir}).split()
             rv = self.ctx.popen(args=django, cwd=location) # popen
-        elif deploy == FASTCGITCP:
+        elif deploy == settings.FASTCGITCP:
             cmd = "python manage.py runfcgi workdir=./"
             cmd += " method=prefork host=%(host)s port=%(port)s"
             cmd += " pidfile=%(base)s/var/django.pid daemonize=true"
             cmd += " maxchildren=5 minspare=1 maxspare=5 maxrequests=400"
-            django = (cmd % {'base': self.ctx.dir, 'host': host,
-                             'port':port}).split()
+            django = (cmd % {'base': self.ctx.dir,
+                             'host': settings.APPLICATION_SERVER_HOST,
+                             'port': settings.APPLICATION_SERVER_PORT}).split()
             rv = self.ctx.popen(args=django, cwd=location) # popen
         else:
             django = ["python","manage.py","runserver", link, "--noreload"]
@@ -595,14 +259,14 @@ APPLICATION_HOST='%s'
         location = self.ctx.dir / "lib" / "python" / "omeroweb"
         self.ctx.out("OMERO.web status... ", newline=False)
         import omeroweb.settings as settings
-        deploy = getattr(settings, 'APPLICATION_SERVER', DEFAULT_SERVER_TYPE)
+        deploy = getattr(settings, 'APPLICATION_SERVER')
         cache_backend = getattr(settings, 'CACHE_BACKEND', None)
         if cache_backend is not None:
             cache_backend = ' (CACHE_BACKEND %s)' % cache_backend
         else:
             cache_backend = ''
         rv = 0
-        if deploy in FASTCGI_TYPES:
+        if deploy in settings.FASTCGI_TYPES:
             try:
                 f=open(self.ctx.dir / "var" / "django.pid", 'r')
                 pid = int(f.read())
@@ -623,8 +287,8 @@ APPLICATION_HOST='%s'
     def stop(self, args):
         self.ctx.out("Stopping OMERO.web... ", newline=False)
         import omeroweb.settings as settings
-        deploy = getattr(settings, 'APPLICATION_SERVER', DEFAULT_SERVER_TYPE)
-        if deploy in FASTCGI_TYPES:
+        deploy = getattr(settings, 'APPLICATION_SERVER')
+        if deploy in settings.FASTCGI_TYPES:
             pid = 'Unknown'
             try:
                 f=open(self.ctx.dir / "var" / "django.pid", 'r')
