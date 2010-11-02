@@ -108,7 +108,7 @@ namespace omero {
                 int waited = (ms/1000) * loops;
                 stringstream ss;
                 ss << "Delete unfinished after " << waited << "seconds.";
-                throw new LockTimeout("", "", ss.str(), 5000L, waited);
+                throw LockTimeout("", "", ss.str(), 5000L, waited);
             } else {
                 return handle->report();
             }
