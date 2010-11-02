@@ -613,24 +613,6 @@ class OmeroDataServiceImpl
 		context.getLogger().debug(this, path);
 		return gateway.getArchivedFiles(path, pixelsID);
 	}
-	
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#changePassword(String, String)
-	 */
-	public Boolean changePassword(String oldPassword, String newPassword) 
-		throws DSOutOfServiceException, DSAccessException 
-	{
-		if (newPassword == null || newPassword.trim().length() == 0)
-			throw new IllegalArgumentException("Password not valid.");
-		UserCredentials uc = (UserCredentials) 
-		context.lookup(LookupNames.USER_CREDENTIALS);
-		if (!uc.getPassword().equals(oldPassword)) return Boolean.FALSE;
-
-		gateway.changePassword(newPassword);
-		uc.resetPassword(newPassword);
-		return Boolean.TRUE;
-	}
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.

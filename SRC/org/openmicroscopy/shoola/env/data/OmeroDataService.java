@@ -35,8 +35,6 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.api.delete.DeleteHandlePrx;
-
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
 import pojos.DataObject;
