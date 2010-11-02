@@ -46,30 +46,38 @@ class TestISession(lib.ITest):
         sess  = self.root.sf.getSessionService().createSessionWithTimeout(p, 10000) # 10 secs
 
         client = omero.client()
-        user_sess = client.createSession(sess.uuid,sess.uuid)
-        new_uuid   = user_sess.getAdminService().getEventContext().sessionUuid
-        self.assert_( sess.uuid.val == new_uuid )
-        client.closeSession()
+        try:
+            user_sess = client.createSession(sess.uuid,sess.uuid)
+            new_uuid   = user_sess.getAdminService().getEventContext().sessionUuid
+            self.assert_( sess.uuid.val == new_uuid )
+            client.closeSession()
+        finally:
+            client.__del__()
 
     def testJoinSession_Helper(self):
         test_user = self.new_user()
-        
+
         client = omero.client()
-        sf = client.createSession(test_user.omeName.val,"ome")
-        a = sf.getAdminService()
-        suuid = a.getEventContext().sessionUuid
-        sf.detachOnDestroy()
-        return suuid
-        
+        try:
+            sf = client.createSession(test_user.omeName.val,"ome")
+            a = sf.getAdminService()
+            suuid = a.getEventContext().sessionUuid
+            sf.detachOnDestroy()
+            return suuid
+        finally:
+            client.__del__()
+
     def testJoinSession(self):
         suuid = self.testJoinSession_Helper()
         c1 = omero.client()
-        sf1 = c1.joinSession(suuid)
-        a1 = sf1.getAdminService()
-        s1uuid = a1.getEventContext().sessionUuid
-        self.assert_( s1uuid == suuid )
-        
-        
+        try:
+            sf1 = c1.joinSession(suuid)
+            a1 = sf1.getAdminService()
+            s1uuid = a1.getEventContext().sessionUuid
+            self.assert_( s1uuid == suuid )
+        finally:
+            c1.__del__()
+
 ## Removing test for 'guest' user. 
 ## This currently fails but there is some question
 ## as to whether we should have a guest user.
@@ -86,40 +94,48 @@ class TestISession(lib.ITest):
 ##        guest_client.closeSession()
 
     def testCreationDestructionClosing(self):
-        c1 = omero.client()
-        s1 = c1.createSession()
-        s1.detachOnDestroy()
-        uuid = s1.ice_getIdentity().name
+        c1, c2, c3, c4 = None, None, None, None
+        try:
+            c1 = omero.client()
+            s1 = c1.createSession()
+            s1.detachOnDestroy()
+            uuid = s1.ice_getIdentity().name
 
-        # Intermediate "disrupter"
-        c2 = omero.client()
-        s2 = c2.createSession(uuid, uuid)
-        s2.closeOnDestroy()
-        s2.getAdminService().getEventContext()
-        c2.closeSession()
+            # Intermediate "disrupter"
+            c2 = omero.client()
+            s2 = c2.createSession(uuid, uuid)
+            s2.closeOnDestroy()
+            s2.getAdminService().getEventContext()
+            c2.closeSession()
 
-        # 1 should still be able to continue
-        s1.getAdminService().getEventContext()
+            # 1 should still be able to continue
+            s1.getAdminService().getEventContext()
 
-        # Now if s1 exists another session should be able to connect
-        c1.closeSession()
-        c3 = omero.client()
-        s3 = c3.createSession(uuid, uuid)
-        s3.closeOnDestroy()
-        s3.getAdminService().getEventContext()
-        c3.closeSession()
+            # Now if s1 exists another session should be able to connect
+            c1.closeSession()
+            c3 = omero.client()
+            s3 = c3.createSession(uuid, uuid)
+            s3.closeOnDestroy()
+            s3.getAdminService().getEventContext()
+            c3.closeSession()
 
-        # Now a connection should not be possible
-        c4 = omero.client()
-        import Glacier2
-        self.assertRaises(Glacier2.PermissionDeniedException, c4.createSession, uuid, uuid);
+            # Now a connection should not be possible
+            c4 = omero.client()
+            import Glacier2
+            self.assertRaises(Glacier2.PermissionDeniedException, c4.createSession, uuid, uuid);
+        finally:
+            for c in (c1, c2, c3, c4):
+                if c: c.__del__()
 
     def testSimpleDestruction(self):
         c = omero.client()
-        c.ic.getImplicitContext().put(omero.constants.CLIENTUUID,"SimpleDestruction")
-        s = c.createSession()
-        s.closeOnDestroy()
-        c.closeSession()
+        try:
+            c.ic.getImplicitContext().put(omero.constants.CLIENTUUID,"SimpleDestruction")
+            s = c.createSession()
+            s.closeOnDestroy()
+            c.closeSession()
+        finally:
+            c.__del__()
 
     def testGetMySessionsTicket1975(self):
         svc = self.client.sf.getSessionService()
@@ -153,34 +169,38 @@ class TestISession(lib.ITest):
         adminCtx = self.client.sf.getAdminService().getEventContext()
         username = adminCtx.userName
         group = adminCtx.groupName
-        
+
         e = self.root.sf.getAdminService().lookupExperimenter(username)
         p = omero.sys.Principal()
         p.name = username
         p.group = group
         p.eventType = "User"
         newConnId = self.root.sf.getSessionService().createSessionWithTimeout(p, 60000)
-        
+
         c = omero.client(pmap=['--Ice.Config='+(os.environ.get("ICE_CONFIG"))])
-        host = c.ic.getProperties().getProperty('omero.host')
-        port = int(c.ic.getProperties().getProperty('omero.port'))
-        c = omero.client(host=host, port=port)
-        s = c.joinSession(newConnId.getUuid().val)
-        s.detachOnDestroy()
-        
-        svc = self.client.sf.getSessionService()
-        
-        for s in svc.getMyOpenSessions():
-            if adminCtx.sessionUuid != s.uuid.val and s.defaultEventType.val not in ('Internal', 'Sessions'):
-                try:
-                    cc = omero.client(host,port)
-                    cc.joinSession(s.uuid.val)
-                    cc.killSession()
-                except:
-                    self.assertRaises(traceback.format_exc())
-        
-        for s in svc.getMyOpenSessions():
-            self.assertNotEquals(s.uuid.val, newConnId.getUuid().val)
-            
+        try:
+            host = c.ic.getProperties().getProperty('omero.host')
+            port = int(c.ic.getProperties().getProperty('omero.port'))
+            c = omero.client(host=host, port=port)
+            s = c.joinSession(newConnId.getUuid().val)
+            s.detachOnDestroy()
+
+            svc = self.client.sf.getSessionService()
+
+            for s in svc.getMyOpenSessions():
+                if adminCtx.sessionUuid != s.uuid.val and s.defaultEventType.val not in ('Internal', 'Sessions'):
+                    try:
+                        cc = omero.client(host,port)
+                        cc.joinSession(s.uuid.val)
+                        cc.killSession()
+                    except:
+                        self.assertRaises(traceback.format_exc())
+
+            for s in svc.getMyOpenSessions():
+                self.assertNotEquals(s.uuid.val, newConnId.getUuid().val)
+        finally:
+            c.__del__()
+
+
 if __name__ == '__main__':
     unittest.main()

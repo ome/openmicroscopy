@@ -72,35 +72,44 @@ class TestIShare(lib.ITest):
 
         #check access by a member to see the content
         client_guest_read_only = omero.client()
-        client_guest_read_only.createSession(test_user.omeName.val,"ome")
-
-        #get dataset - not allowed
-        query = client_guest_read_only.sf.getQueryService()
         try:
-            query.find("Dataset",d.id.val)
-        except Exception, x:
-            pass
+            client_guest_read_only.createSession(test_user.omeName.val,"ome")
 
-        share_read_only = client_guest_read_only.sf.getShareService()
-        share_read_only.activate(self.share_id)
-        content = share_read_only.getContents(self.share_id)
-        self.assert_(share_read_only.getContentSize(self.share_id) == 5)
+            #get dataset - not allowed
+            query = client_guest_read_only.sf.getQueryService()
+            try:
+                query.find("Dataset",d.id.val)
+            except Exception, x:
+                pass
+
+            share_read_only = client_guest_read_only.sf.getShareService()
+            share_read_only.activate(self.share_id)
+            content = share_read_only.getContents(self.share_id)
+            self.assert_(share_read_only.getContentSize(self.share_id) == 5)
+        finally:
+            client_guest_read_only.__del__()
 
         #check access by a member to add comments
         client_guest = omero.client()
-        client_guest.createSession(test_user.omeName.val,"ome")
+        try:
+            client_guest.createSession(test_user.omeName.val,"ome")
 
-        share_guest = client_guest.sf.getShareService()
-        share_guest.addComment(self.share_id,"comment for share %i" % self.share_id)
-        self.assertEquals(1,len(share_guest.getComments(self.share_id)))
+            share_guest = client_guest.sf.getShareService()
+            share_guest.addComment(self.share_id,"comment for share %i" % self.share_id)
+            self.assertEquals(1,len(share_guest.getComments(self.share_id)))
+        finally:
+            client_guest.__del__()
 
         # get share key and join directly
         s = share.getShare(self.share_id)
 
         client_share = omero.client()
-        client_share.createSession(s.uuid,s.uuid)
-        share1 = client_share.sf.getShareService()
-        self.assertEquals(1, len(share1.getOwnShares(True)))
+        try:
+            client_share.createSession(s.uuid,s.uuid)
+            share1 = client_share.sf.getShareService()
+            self.assertEquals(1, len(share1.getOwnShares(True)))
+        finally:
+            client_share.__del__()
 
 ## Removing test for 'guest' user. 
 ## This currently fails but there is some question
@@ -123,12 +132,10 @@ class TestIShare(lib.ITest):
 
         
         ### create two users in one group
-        user1 = self.new_user()
-        user2 = self.new_user()
-        
-        ## login as user1 
-        client_share1 = omero.client()
-        client_share1.createSession(user1.omeName.val,"ome")
+        client_share1, user1 = self.new_client_and_user()
+        client_share2, user2 = self.new_client_and_user()
+
+        ## login as user1
         share1 = client_share1.sf.getShareService()
         update1 = client_share1.sf.getUpdateService()
         
@@ -151,8 +158,6 @@ class TestIShare(lib.ITest):
         self.assertEquals(1,len(share1.getContents(sid)))
         
         ## login as user2
-        client_share2 = omero.client()
-        client_share2.createSession(user2.omeName.val,"ome")
         share2 = client_share2.sf.getShareService()
         query2 = client_share2.sf.getQueryService()
         
@@ -176,12 +181,10 @@ class TestIShare(lib.ITest):
         share = self.root.sf.getShareService()
         
         ### create two users in one group
-        user1 = self.new_user()
-        user2 = self.new_user()
+        client_share1, user1 = self.new_client_and_user()
+        client_share2, user2 = self.new_client_and_user()
         
         ## login as user1 
-        client_share1 = omero.client()
-        client_share1.createSession(user1.omeName.val,"ome")
         share1 = client_share1.sf.getShareService()
         update1 = client_share1.sf.getUpdateService()
         
@@ -205,8 +208,6 @@ class TestIShare(lib.ITest):
         share.addComment(sid, 'test comment by the owner %s' % (uuid))
         
         ## login as user2
-        client_share2 = omero.client()
-        client_share2.createSession(user2.omeName.val,"ome")
         share2 = client_share2.sf.getShareService()
         query2 = client_share2.sf.getQueryService()
         
@@ -230,7 +231,7 @@ class TestIShare(lib.ITest):
         update = self.root.sf.getUpdateService()
         
         ### create user
-        user1 = self.new_user()
+        client_share1, user1 = self.new_client_and_user()
         
         #create dataset with image
         #dataset with image
@@ -273,8 +274,6 @@ class TestIShare(lib.ITest):
         
         # USER RETRIEVAL
         ## login as user1
-        client_share1 = omero.client()
-        client_share1.createSession(user1.omeName.val,"ome")
         share1 = client_share1.sf.getShareService()
         query1 = client_share1.sf.getQueryService()
         cntar1 = client_share1.sf.getContainerService()
@@ -352,13 +351,10 @@ class TestIShare(lib.ITest):
         admin = self.root.sf.getAdminService()
         
         ### create two users in one group
-        user1 = self.new_user()
-        ## login as user1
-        client_share1 = omero.client()
-        client_share1.createSession(user1.omeName.val,"ome")
+        client_share1, user1 = self.new_client_and_user()
         share1 = client_share1.sf.getShareService()
 
-        test_user = self.new_user()
+        client_share2, test_user = self.new_client_and_user()
         # create share
         description = "my description"
         timeout = None
@@ -369,9 +365,6 @@ class TestIShare(lib.ITest):
         sid = share1.createShare(description, timeout, objects,experimenters, guests, enabled)
 
         #re - login as user1
-
-        client_share2 = omero.client()
-        client_share2.createSession(user1.omeName.val,"ome")
         share2 = client_share2.sf.getShareService()
 
         new_description = "new description"
