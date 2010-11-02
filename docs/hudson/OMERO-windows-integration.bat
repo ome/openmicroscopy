@@ -55,7 +55,7 @@ if errorlevel 1 goto ERROR
 REM
 REM Import a file for testing
 REM
-python bin\omero import -s localhost -p %ROUTER% -u user -w ome C:\hudson\test11_R3D.dv
+python bin\omero -s localhost -p %ROUTER% -u user -w ome import C:\hudson\test11_R3D.dv
 if errorlevel 1 goto ERROR
 
 
