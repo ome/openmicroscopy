@@ -20,8 +20,7 @@ echo.
 
 if "x%PASSWORD%" == "x" (SET /P PASSWORD=Password:)
 REM Other defaults
-if "x%ROUTER%" == "x" (SET ROUTER=4064)
-if "x%REGISTRY%" == "x" (SET REGISTRY=4061)
+if "x%ROUTERPREFIX%" == "x" (SET ROUTERPREFIX="")
 
 cd "%~dp0\.."
 if exist dist goto AlreadyBuilt
@@ -75,8 +74,8 @@ echo Setting etc\grid directory paths to %CD%
 python lib\python\omero\install\win_set_path.py
 if errorlevel 1 goto ERROR
 
-echo Setting etc\grid ports to %ROUTER% and %REGISTRY%
-python lib\python\omero\install\change_ports.py %ROUTER% %REGISTRY%
+echo Setting etc\grid ports prefix to %ROUTERPREFIX%
+bin\omero admin ports --prefix=%ROUTERPREFXI%
 if errorlevel 1 goto ERROR
 
 REM Required because of environment-less service
