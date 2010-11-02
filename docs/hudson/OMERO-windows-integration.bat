@@ -46,10 +46,10 @@ echo omero.port=%ROUTER% >> %ICE_CONFIG%
 REM
 REM Create a user
 REM
-bin\omero -s localhost -p %ROUTER% -u root -w ome login
-bin\omero group add test
-bin\omero user add user Test User test
-bin\omero logout
+python bin\omero -s localhost -p %ROUTER% -u root -w ome login
+python bin\omero group add test
+python bin\omero user add user Test User test
+python bin\omero logout
 if errorlevel 1 goto ERROR
 
 REM
