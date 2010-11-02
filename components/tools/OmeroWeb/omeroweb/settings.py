@@ -79,7 +79,7 @@ LOGGING_LOG_SQL = False
 # LOG path
 # Logging levels: logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR logging.CRITICAL
 try:
-    LOGDIR = CUSTOM_SETTINGS['omero.web.logdir'])
+    LOGDIR = CUSTOM_SETTINGS['omero.web.logdir']
 except:
     LOGDIR = os.path.join(OMERO_HOME, 'var', 'log').replace('\\','/')
 
