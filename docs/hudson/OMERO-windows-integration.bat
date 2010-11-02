@@ -90,9 +90,13 @@ REM Do Python testing on Windows
 REM
 cd %OMERO_HOME%
 cd ..
-python build.py -f components\tools\OmeroPy\build.xml integration
+python build.py -f components\tools\OmeroPy\build.xml -Dtest.with.fail=true test
 if errorlevel 1 goto ERROR
-python build.py -f components\tools\OmeroFS\build.xml integration
+python build.py -f components\tools\OmeroPy\build.xml -Dtest.with.fail=true integration
+if errorlevel 1 goto ERROR
+python build.py -f components\tools\OmeroFs\build.xml -Dtest.with.fail=true test
+if errorlevel 1 goto ERROR
+python build.py -f components\tools\OmeroFs\build.xml -Dtest.with.fail=true integration
 if errorlevel 1 goto ERROR
 
 exit /b 0
