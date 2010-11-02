@@ -48,7 +48,7 @@ def additional_tests():
     suite.addTest(load("integration.tickets4000"))
     suite.addTest(load("integration.figureExportScripts"))
     suite.addTest(load("integration.thumbnailPerms"))
-    
+
     suite.addTest(load("clitest.integration_suite._additional_tests"))
     #suite.addTest(load("gatewaytest.suite._additional_tests"))
     suite.addTest(load("scriptstest.suite._additional_tests"))
@@ -59,4 +59,4 @@ def additional_tests():
     return suite
 
 if __name__ == "__main__":
-    xmlrunner.XMLTestRunner(output='target/reports').run(additional_tests())
+    xmlrunner.XMLTestRunner(verbose=True, output='target/reports').run(additional_tests())
