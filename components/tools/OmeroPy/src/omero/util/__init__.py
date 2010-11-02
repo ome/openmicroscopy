@@ -657,10 +657,13 @@ class Environment:
 #
 
 def get_user_dir():
+    exceptions_to_handle = (ImportError)
     try:
+        from pywintypes import com_error
         from win32com.shell import shellcon, shell
+        exceptions_to_handle = (ImportError, com_error)
         homeprop = shell.SHGetFolderPath(0, shellcon.CSIDL_APPDATA, 0, 0)
-    except ImportError:
+    except exceptions_to_handle:
         homeprop = os.path.expanduser("~")
     return homeprop
 

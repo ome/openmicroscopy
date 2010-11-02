@@ -130,7 +130,11 @@ class TempFileManager(object):
         locktest = None
 
         omerotemp = os.environ.get("OMERO_TEMPDIR", None)
-        homeprop = get_user_dir()
+        homeprop = None
+        try:
+            homeprop = get_user_dir()
+        except:
+            pass # ticket:3194
         tempprop = tempfile.gettempdir()
         targets = [omerotemp, homeprop, tempprop]
 
