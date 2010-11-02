@@ -22,8 +22,12 @@ def has_sudo():
     """
     This tests if we have password-less sudo
     """
-    proc = subprocess.Popen(["sudo","-S","sh","-c","true"], stdin=subprocess.PIPE)
-    proc.communicate("***\n"*10)
+    try:
+        proc = subprocess.Popen(["sudo","-S","sh","-c","true"], stdin=subprocess.PIPE)
+        proc.communicate("***\n"*10)
+    except:
+        # Most likely Windows
+        return False
 
     rc = None
     start = time.time()
