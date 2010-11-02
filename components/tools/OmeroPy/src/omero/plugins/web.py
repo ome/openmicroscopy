@@ -10,6 +10,7 @@
 from exceptions import Exception
 from datetime import datetime
 from omero.cli import BaseControl, CLI
+from omeroweb import settings
 import omero.java
 import platform
 import time
@@ -17,9 +18,38 @@ import sys
 import os
 import re
 
-HELP="""OMERO.web configuration/deployment tools"""
 
-DEFAULT_HTTP_PORT = '8000'
+CONFIG_TABLE_FMT = "    %-35.35s  %-8s  %r\n"
+CONFIG_TABLE = CONFIG_TABLE_FMT % ("Key", "Default?", "Current value")
+
+for key in sorted(settings.CUSTOM_SETTINGS_MAPPINGS):
+    global_name, default_value, mapping, using_default = settings.CUSTOM_SETTINGS_MAPPINGS[key]
+    global_value = getattr(settings, global_name, "(unset)")
+    CONFIG_TABLE += CONFIG_TABLE_FMT  % (key, using_default, global_value)
+
+HELP="""OMERO.web configuration/deployment tools
+
+Configuration:
+
+    Configuration for OMERO.web takes place via the
+    omero config commands. The configuration values
+    which are checked are as below:
+
+%s
+
+Example Nginx usage:
+
+    omero config set omero.web.debug true
+    omero config set omero.web.application_server fastcgi
+    omero web config nginx --http=8000 >> nginx.conf
+    omero web start
+    nginx -c `pwd`/nginx.conf
+    omero web status
+    omero web stop
+    nginx -s stop
+
+""" % CONFIG_TABLE
+
 
 class WebControl(BaseControl):
 
@@ -36,7 +66,7 @@ class WebControl(BaseControl):
 
         config = parser.add(sub, self.config, "Output a config template for server ('nginx' or 'apache' for the moment")
         config.add_argument("type", choices=("nginx","apache"))
-        config.add_argument("--http", type=int, help="HTTP port for web server (not fastcgi)", default=DEFAULT_HTTP_PORT)
+        config.add_argument("--http", type=int, help="HTTP port for web server (not fastcgi)")
 
         parser.add(sub, self.syncmedia, "Advanced use: Creates needed symlinks for static media files")
 
@@ -80,8 +110,9 @@ class WebControl(BaseControl):
             self.ctx.out("Available configuration helpers:\n - nginx, apache\n")
         else:
             server = args.type
-            import omeroweb.settings as settings
             host, port = self.host_and_port(settings.APPLICATION_HOST)
+            if args.http:
+                port = args.http
             if settings.APPLICATION_SERVER == settings.FASTCGITCP:
                 if settings.APPLICATION_SERVER_PORT == port:
                     self.ctx.die(678, "Port conflict: HTTP(%s) and fastcgi-tcp(%s)." % \
@@ -133,10 +164,9 @@ Alias / "%(ROOT)s/var/omero.fcgi/"
     def syncmedia(self, args):
         import shutil
         from glob import glob
-        from omeroweb.settings import INSTALLED_APPS
         location = self.ctx.dir / "lib" / "python" / "omeroweb"
         # Targets
-        apps = map(lambda x: x.startswith('omeroweb.') and x[9:] or x, INSTALLED_APPS)
+        apps = map(lambda x: x.startswith('omeroweb.') and x[9:] or x, settings.INSTALLED_APPS)
         apps = filter(lambda x: os.path.exists(location / x), apps)
         # Destination dir
         if not os.path.exists(location / 'media'):
@@ -151,11 +181,10 @@ Alias / "%(ROOT)s/var/omero.fcgi/"
                 os.symlink(os.path.abspath(media_dir), location / 'media' / app)
 
     def enableapp(self, args):
-        from omeroweb.settings import INSTALLED_APPS
         location = self.ctx.dir / "lib" / "python" / "omeroweb"
         if not args.appname:
             apps = [x.name for x in filter(lambda x: x.isdir() and (x / 'scripts' / 'enable.py').exists(), location.listdir())]
-            iapps = map(lambda x: x.startswith('omeroweb.') and x[9:] or x, INSTALLED_APPS)
+            iapps = map(lambda x: x.startswith('omeroweb.') and x[9:] or x, settings.INSTALLED_APPS)
             apps = filter(lambda x: x not in iapps, apps)
             self.ctx.out('[enableapp] available apps:\n - ' + '\n - '.join(apps) + '\n')
         else:

@@ -33,15 +33,12 @@ import omero
 import omero.config
 import omero.clients
 import tempfile
+import exceptions
 
+from webadmin.custom_models import ServerObjects
 from django.utils import simplejson as json
 from portalocker import LockException
 
-def parse_boolean(s):
-    s = s.strip().lower()
-    if s in ('true', '1', 't'):
-        return True
-    return False
 
 OMERO_HOME = os.path.join(os.path.dirname(__file__), '..', '..', '..')
 OMERO_HOME = os.path.normpath(OMERO_HOME)
@@ -58,17 +55,87 @@ while True:
     except LockException:
         pass
 
+FASTCGI = "fastcgi"
+FASTCGITCP = "fastcgi-tcp"
+FASTCGI_TYPES = (FASTCGI, FASTCGITCP)
+DEVELOPMENT = "development"
+DEFAULT_SERVER_TYPE = FASTCGITCP
+ALL_SERVER_TYPES = (FASTCGITCP, FASTCGI, DEVELOPMENT)
+
+def parse_boolean(s):
+    s = s.strip().lower()
+    if s in ('true', '1', 't'):
+        return True
+    return False
+
+def check_server_type(s):
+    if s not in ALL_SERVER_TYPES:
+        raise ValueError("Unknown server type: %s. Valid values are: %s" % (s, ALL_SERVER_TYPES))
+    return s
+
+def identity(x):
+    return x
+
+def append_slash(s):
+    if not s.endswith("/"):
+        s=s+"/"
+    return s
+
+class LeaveUnset(exceptions.Exception):
+    pass
+
+def leave_none_unset(s):
+    if s is None:
+        raise LeaveUnset()
+    return s
+
+CUSTOM_SETTINGS_MAPPINGS = {
+    "omero.web.admins": ["ADMINS", '[]', json.loads],
+    "omero.web.application_host": ["APPLICATION_HOST", "http://localhost:80", append_slash],
+    "omero.web.application_server": ["APPLICATION_SERVER", DEFAULT_SERVER_TYPE, check_server_type],
+    "omero.web.application_server.host": ["APPLICATION_SERVER_HOST", "0.0.0.0", str],
+    "omero.web.application_server.port": ["APPLICATION_SERVER_PORT", "4080", str],
+    "omero.web.cache_backend": ["CACHE_BACKEND", None, leave_none_unset],
+    "omero.web.debug": ["DEBUG", "false", parse_boolean],
+    "omero.web.email_host": ["EMAIL_HOST", None, identity],
+    "omero.web.email_host_password": ["EMAIL_HOST_PASSWORD", None, identity],
+    "omero.web.email_host_user": ["EMAIL_HOST_USER", None, identity],
+    "omero.web.email_port": ["EMAIL_PORT", None, identity],
+    "omero.web.email_subject_prefix": ["EMAIL_SUBJECT_PREFIX", "[OMERO.web] ", str],
+    "omero.web.email_use_tls": ["EMAIL_USE_TLS", "false", parse_boolean],
+    "omero.web.logdir": ["LOGDIR", os.path.join(OMERO_HOME, 'var', 'log').replace('\\','/'), str],
+    "omero.web.send_broken_link_emails": ["SEND_BROKEN_LINK_EMAILS", "true", parse_boolean],
+    "omero.web.server_email": ["SERVER_EMAIL", None, identity],
+    "omero.web.server_list": ["SERVER_LIST", '[["localhost", 4064, "omero"]]', json.loads],
+    "omero.web.use_eman2": ["USE_EMAN2", "false", parse_boolean]
+}
+
+for key, values in CUSTOM_SETTINGS_MAPPINGS.items():
+
+    global_name, default_value, mapping = values
+
+    try:
+        global_value = CUSTOM_SETTINGS[key]
+        values.append(False)
+    except KeyError:
+        global_value = default_value
+        values.append(True)
+
+    try:
+        globals()[global_name] = mapping(global_value)
+    except ValueError:
+        raise ValueError("Invalid %s JSON: %r" % (global_name, global_value))
+    except LeaveUnset:
+        pass
+
+
 # LOGS
 # NEVER DEPLOY a site into production with DEBUG turned on.
 
-# Debuging mode. 
+# Debuging mode.
 # A boolean that turns on/off debug mode.
 # handler404 and handler500 works only when False
 
-try:
-    DEBUG=parse_boolean(CUSTOM_SETTINGS['omero.web.debug'])
-except:
-    DEBUG=False
 
 TEMPLATE_DEBUG = DEBUG
 
@@ -78,18 +145,14 @@ LOGGING_LOG_SQL = False
 
 # LOG path
 # Logging levels: logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR logging.CRITICAL
-try:
-    LOGDIR = CUSTOM_SETTINGS['omero.web.logdir']
-except:
-    LOGDIR = os.path.join(OMERO_HOME, 'var', 'log').replace('\\','/')
 
-if DEBUG:  
+if DEBUG:
     LOGFILE = ('OMEROweb-DEBUG.log')
     LOGLEVEL = logging.DEBUG
 else:
     LOGFILE = ('OMEROweb.log')
     LOGLEVEL = logging.INFO
-    
+
 if not os.path.isdir(LOGDIR):
     try:
         os.makedirs(LOGDIR)
@@ -100,31 +163,19 @@ if not os.path.isdir(LOGDIR):
 import logconfig
 logger = logconfig.get_logger(os.path.join(LOGDIR, LOGFILE), LOGLEVEL)
 
-logger.debug("OMERO config properties: " + repr(CUSTOM_SETTINGS))
+for key in sorted(CUSTOM_SETTINGS_MAPPINGS):
+    values = CUSTOM_SETTINGS_MAPPINGS[key]
+    global_name, default_value, mapping, using_default = values
+    source = using_default and "default" or key
+    global_value = globals().get(global_name, "(unset)")
+    logger.debug("%s = %r (source:%s)", global_name, global_value, source)
 
-try:
-    ADMINS = CUSTOM_SETTINGS['omero.web.admins']
-    ADMINS = json.loads(ADMINS)
-except KeyError:
-    ADMINS = ()
-except ValueError:
-    raise ValueError("Invalid omero.web.admins JSON: %r" % (ADMINS))
-
-logger.debug('ADMINS: ' + repr(ADMINS))
-
-MANAGERS = ADMINS
 
 ###
 ### BEGIN EMDB settings
 ###
 try:
-    CACHE_BACKEND = CUSTOM_SETTINGS['omero.web.cache_backend']
-    logger.debug("CACHE_BACKEND: " + CACHE_BACKEND)
-except:
-    pass
-
-try:
-    if parse_boolean(CUSTOM_SETTINGS['omero.web.use_eman2']):
+    if USE_EMAN2:
         logger.info("Using EMAN2...")
         from eman2 import *
 except:
@@ -216,7 +267,7 @@ FEEDBACK_URL = "qa.openmicroscopy.org.uk:80"
 IGNORABLE_404_ENDS = ('*.ico')
 
 # Other option: "django.contrib.sessions.backends.cache_db"; "django.contrib.sessions.backends.cache"; "django.contrib.sessions.backends.file"
-SESSION_ENGINE = "django.contrib.sessions.backends.file" 
+SESSION_ENGINE = "django.contrib.sessions.backends.file"
 SESSION_FILE_PATH = tempfile.gettempdir()
 
 # Cookies config
@@ -236,101 +287,9 @@ try:
 except:
     PAGE = 24
 
-# CUSTOM CONFIG
-from webadmin.custom_models import ServerObjects
-try:
-    SERVER_LIST = CUSTOM_SETTINGS['omero.web.server_list']
-    SERVER_LIST = json.loads(SERVER_LIST)
-except ValueError:
-    raise ValueError("Invalid omero.web.server_list JSON: %r" % (SERVER_LIST))
-except KeyError:
-    SERVER_LIST = (('localhost', 4064, 'omero'),)
-logger.debug('SERVER_LIST: ' + repr(SERVER_LIST))
 SERVER_LIST = ServerObjects(SERVER_LIST)
 
-try:
-    EMAIL_HOST = CUSTOM_SETTINGS['omero.web.email_host']
-    logger.debug('EMAIL_HOST: ' + repr(EMAIL_HOST))
-except:
-    pass
-try:
-    EMAIL_HOST_PASSWORD = CUSTOM_SETTINGS['omero.web.email_host_password']
-    logger.debug('EMAIL_HOST_PASSWORD: ' + repr(EMAIL_HOST_PASSWORD))
-except:
-    pass
-try:
-    EMAIL_HOST_USER = CUSTOM_SETTINGS['omero.web.email_host_user']
-    logger.debug('EMAIL_HOST_USER: ' + repr(EMAIL_HOST_USER))
-except:
-    pass
-try:
-    EMAIL_PORT = CUSTOM_SETTINGS['omero.web.email_port']
-    logger.debug('EMAIL_PORT: ' + repr(EMAIL_PORT))
-except:
-    pass
-try:
-    EMAIL_SUBJECT_PREFIX = CUSTOM_SETTINGS['omero.web.email_subject_prefix']
-    logger.debug('EMAIL_SUBJECT_PREFIX: ' + repr(EMAIL_SUBJECT_PREFIX))
-except:
-    pass
-EMAIL_USE_TLS = False
-try:
-    EMAIL_USE_TLS = parse_boolean(CUSTOM_SETTINGS['omero.web.email_use_tls'])
-except:
-    pass
-logger.debug('EMAIL_USE_TLS: ' + repr(EMAIL_USE_TLS))
-try:
-    SERVER_EMAIL = CUSTOM_SETTINGS['omero.web.server_email']
-    logger.debug('SERVER_EMAIL: ' + repr(SERVER_EMAIL))
-except:
-    pass
-
-SEND_BROKEN_LINK_EMAILS = True
-EMAIL_SUBJECT_PREFIX = '[OMERO.web] '
-
-###
-### BEGIN Application host and server configuration
-###
-
-FASTCGI = "fastcgi"
-FASTCGITCP = "fastcgi-tcp"
-FASTCGI_TYPES = (FASTCGI, FASTCGITCP)
-DEVELOPMENT = "development"
-DEFAULT_SERVER_TYPE = FASTCGITCP
-ALL_SERVER_TYPES = (FASTCGITCP, FASTCGI, DEVELOPMENT)
-
-APPLICATION_HOST = 'http://localhost:80/'
-try:
-    APPLICATION_HOST = CUSTOM_SETTINGS['omero.web.application_host']
-except:
-    pass
-if not APPLICATION_HOST.endswith("/"):
-    APPLICATION_HOST=APPLICATION_HOST+"/"
-logger.debug('APPLICATION_HOST: ' + repr(APPLICATION_HOST))
-
-APPLICATION_SERVER = 'fastcgi-tcp'
-try:
-    APPLICATION_SERVER = CUSTOM_SETTINGS['omero.web.application_server']
-except:
-    pass
-logger.debug('APPLICATION_SERVER: ' + repr(APPLICATION_SERVER))
-
-APPLICATION_SERVER_HOST = '0.0.0.0'
-try:
-    APPLICATION_SERVER = CUSTOM_SETTINGS['omero.web.application_server.host']
-except:
-    pass
-logger.debug('APPLICATION_SERVER_HOST: ' + repr(APPLICATION_SERVER_HOST))
-
-APPLICATION_SERVER_PORT = '4080'
-try:
-    APPLICATION_SERVER = CUSTOM_SETTINGS['omero.web.application_server.port']
-except:
-    pass
-logger.debug('APPLICATION_SERVER_PORT: ' + repr(APPLICATION_SERVER_PORT))
-###
-### END Application host and server configuration
-###
+MANAGERS = ADMINS
 
 EMAIL_TEMPLATES = {
     'create_share': {
