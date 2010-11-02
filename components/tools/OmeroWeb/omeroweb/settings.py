@@ -103,9 +103,12 @@ logger = logconfig.get_logger(os.path.join(LOGDIR, LOGFILE), LOGLEVEL)
 logger.debug("OMERO config properties: " + repr(CUSTOM_SETTINGS))
 
 try:
-    ADMINS = json.loads(CUSTOM_SETTINGS['omero.web.admins'])
-except:
+    ADMINS = CUSTOM_SETTINGS['omero.web.admins']
+    ADMINS = json.loads(ADMINS)
+except KeyError:
     ADMINS = ()
+except ValueError:
+    raise ValueError("Invalid omero.web.admins JSON: %r" % (ADMINS))
 
 logger.debug('ADMINS: ' + repr(ADMINS))
 
@@ -236,8 +239,11 @@ except:
 # CUSTOM CONFIG
 from webadmin.custom_models import ServerObjects
 try:
-    SERVER_LIST = json.loads(CUSTOM_SETTINGS['omero.web.server_list'])
-except:
+    SERVER_LIST = CUSTOM_SETTINGS['omero.web.server_list']
+    SERVER_LIST = json.loads(SERVER_LIST)
+except ValueError:
+    raise ValueError("Invalid omero.web.server_list JSON: %r" % (SERVER_LIST))
+except KeyError:
     SERVER_LIST = (('localhost', 4064, 'omero'),)
 logger.debug('SERVER_LIST: ' + repr(SERVER_LIST))
 SERVER_LIST = ServerObjects(SERVER_LIST)
