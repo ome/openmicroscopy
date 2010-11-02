@@ -6,6 +6,7 @@
 
 */
 
+#include <omero/ClientErrors.h>
 #include <omero/callbacks.h>
 #include <omero/RTypesI.h>
 #include <IceUtil/Time.h>
@@ -124,6 +125,8 @@ namespace omero {
                                 cerr << "Error calling DeleteCallbackI.finished: " << ex << endl;
                             }
                     }
+                } catch (const Ice::ObjectNotExistException& onee) {
+                    throw omero::ClientError(__FILE__, __LINE__, "Handle is gone!");
                 } catch (const Ice::Exception& ex) {
                     cerr << "Error polling DeleteHandle:" << ex << endl;
                 }

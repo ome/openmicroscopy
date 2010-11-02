@@ -151,8 +151,11 @@ class DeleteCallbackI(object):
                         self.finished(self.handle.errors())
                     except exceptions.Exception, e:
                         DEL_LOG.warn("Error calling DeleteCallbackI.finished: %s" % e, exc_info=True)
+            except Ice.ObjectNotExistException, onee:
+                raise omero.ClientError("Handle is gone! %s" % self.handle)
             except:
                 DEL_LOG.warn("Error polling DeleteHandle:" + str(self.handle), exc_info=True)
+
 
         self.event.wait(float(ms) / 1000)
         if self.event.isSet():
