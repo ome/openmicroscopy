@@ -32,7 +32,7 @@ public class Options {
             // if a delete is not possible no error should be signaled.
             Map<String, String> options = new HashMap<String, String>();
             options.put("/Annotation", "KEEP");
-            DeleteCommand dc = new DeleteCommand("/Image", 1, options)
+            DeleteCommand dc = new DeleteCommand("/Image", 1, options);
 
             DeleteHandlePrx deleteHandlePrx = deleteServicePrx
                     .queueDelete(new DeleteCommand[] { dc });
