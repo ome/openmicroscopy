@@ -267,11 +267,12 @@ try:
     logger.debug('EMAIL_SUBJECT_PREFIX: ' + repr(EMAIL_SUBJECT_PREFIX))
 except:
     pass
+EMAIL_USE_TLS = False
 try:
-    EMAIL_USE_TLS = CUSTOM_SETTINGS['omero.web.email_use_tls']
-    logger.debug('EMAIL_USE_TLS: ' + repr(EMAIL_USE_TLS))
+    EMAIL_USE_TLS = parse_boolean(CUSTOM_SETTINGS['omero.web.email_use_tls'])
 except:
     pass
+logger.debug('EMAIL_USE_TLS: ' + repr(EMAIL_USE_TLS))
 try:
     SERVER_EMAIL = CUSTOM_SETTINGS['omero.web.server_email']
     logger.debug('SERVER_EMAIL: ' + repr(SERVER_EMAIL))
