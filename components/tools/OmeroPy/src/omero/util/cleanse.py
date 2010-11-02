@@ -44,7 +44,7 @@ from stat import *
 SEARCH_DIRECTORIES = {
 	'Pixels': 'Pixels',
 	'Files': 'OriginalFile',
-        'Thumbnails': 'Thumbnail'
+	'Thumbnails': 'Thumbnail'
 }
 
 def usage(error):
@@ -155,21 +155,36 @@ class Cleanser(object):
 		return "Cleansing context: %d files (%d bytes)" % \
 			(len(self.cleansed), self.bytes_cleansed)
 
-def cleanse(data_dir, query_service, dry_run = False):
-   try:
-       cleanser = ""
-       for directory in SEARCH_DIRECTORIES:
-           full_path = os.path.join(data_dir, directory)
-           if dry_run:
-               print "Reconciling OMERO data directory...\n %s" % full_path
-           object_type = SEARCH_DIRECTORIES[directory]
-           cleanser = Cleanser(query_service, object_type)
-           cleanser.dry_run = dry_run
-           cleanser.cleanse(full_path)
-           cleanser.finalize()
-   finally:
-       if dry_run:
-           print cleanser
+def cleanse(data_dir, query_service, dry_run = False, config_service = None):
+
+	#
+	# Compare server versions. See ticket #3123
+	#
+	if config_service is None:
+		print "No config service provided! Waiting 10 seconds to allow cancellation"
+		from threading import Event
+		Event().wait(10)
+
+	server_version = config_service.getVersion()
+	server_tuple = tuple([int(x) for x in server_version.split(".")])
+	if server_tuple < (4, 2, 1):
+		print "Server version is too old! (%s) Aborting..." % server_version
+		sys.exit(3)
+
+	try:
+		cleanser = ""
+		for directory in SEARCH_DIRECTORIES:
+			full_path = os.path.join(data_dir, directory)
+			if dry_run:
+				print "Reconciling OMERO data directory...\n %s" % full_path
+			object_type = SEARCH_DIRECTORIES[directory]
+			cleanser = Cleanser(query_service, object_type)
+			cleanser.dry_run = dry_run
+			cleanser.cleanse(full_path)
+			cleanser.finalize()
+	finally:
+		if dry_run:
+			print cleanser
 
 def main():
 	"""
@@ -215,9 +230,12 @@ def main():
 		print "%s: Permission denied" % sys.argv[0]
 		print "Sorry."
 		sys.exit(1)
+
+
 	query_service = session.getQueryService()
+	config_service = session.getConfigService()
 	try:
-		cleanse(data_dir, query_service, dry_run)
+		cleanse(data_dir, query_service, dry_run, config_service)
 	finally:
 		if session_key is None:
 			client.closeSession()

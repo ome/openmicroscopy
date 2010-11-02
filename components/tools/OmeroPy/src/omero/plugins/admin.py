@@ -938,7 +938,9 @@ OMERO Diagnostics %s
         from omero.util.cleanse import cleanse
         client = self.ctx.conn(args)
         key = client.getSessionId()
-        cleanse(data_dir=args.data_dir, dry_run=args.dry_run, query_service=client.sf.getQueryService())
+        cleanse(data_dir=args.data_dir, dry_run=args.dry_run, \
+            query_service=client.sf.getQueryService(), \
+            config_service=client.sf.getConfigService())
 
 try:
     register("admin", AdminControl, HELP)
