@@ -201,11 +201,12 @@ class AdminServiceImpl
 			throw new IllegalArgumentException("Password not valid.");
 		UserCredentials uc = (UserCredentials) 
 		context.lookup(LookupNames.USER_CREDENTIALS);
-		if (!uc.getPassword().equals(oldPassword)) return Boolean.FALSE;
+		if (!uc.getPassword().equals(oldPassword)) 
+			return Boolean.valueOf(false);
 
-		gateway.changePassword(newPassword);
+		gateway.changePassword(newPassword, oldPassword);
 		uc.resetPassword(newPassword);
-		return Boolean.TRUE;
+		return Boolean.valueOf(true);
 	}
 	
 	/**

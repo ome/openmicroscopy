@@ -3750,11 +3750,12 @@ class OMEROGateway
 	 * Modifies the password of the currently logged in user.
 	 * 
 	 * @param password	The new password.
+	 * @param oldPassword The old password.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	void changePassword(String password)
+	void changePassword(String password, String oldPassword)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
