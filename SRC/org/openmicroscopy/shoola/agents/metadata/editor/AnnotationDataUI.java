@@ -514,6 +514,7 @@ class AnnotationDataUI
 		return p;
 	}
   
+	
 	/** 
 	 * Lays out the attachments. 
 	 * 
@@ -804,6 +805,8 @@ class AnnotationDataUI
 		layout.setRow(tagRow, hTag);
 		content.revalidate();
 		content.repaint();
+		
+	
 		revalidate();
 		repaint();
 	}

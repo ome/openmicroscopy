@@ -211,6 +211,9 @@ class EditorModel
 	/** Scripts with a UI. */
 	private List<ScriptObject> scriptsWithUI;
 	
+	/** The file annotation with the original metadata. */
+	private FileAnnotationData originalMetadata;
+	
 	/**
 	 * Downloads the files.
 	 * 
@@ -904,18 +907,31 @@ class EditorModel
 	}
 	
 	/**
-	 * Returns the number of attachments linked to the <code>DataObject</code>.
+	 * Returns the collection of the files linked to the 
+	 * <code>DataObject</code> at import.
 	 * 
 	 * @return See above.
 	 */
-	int getAttachmentsCount()
+	Collection getCompanionFiles()
 	{
-		Collection attachments = getAttachments();
-		if (attachments == null) return 0;
-		return attachments.size();
+		StructuredDataResults data = parent.getStructuredData();
+		List list = new ArrayList();
+		if (data == null) return list;
+		Collection attachements = data.getAttachments(); 
+		if (attachements == null) return list;
+		Iterator i = attachements.iterator();
+		FileAnnotationData f;
+		String ns;
+		while (i.hasNext()) {
+			f = (FileAnnotationData) i.next();
+			ns = f.getNameSpace();
+			if (FileAnnotationData.COMPANION_FILE_NS.equals(ns) && 
+					f != originalMetadata) {
+				list.add(f);
+			}
+		}
+		return sorter.sort(list); 
 	}
-	
-	private FileAnnotationData originalMetadata;
 	
 	/**
 	 * Returns the collection of the attachments linked to the 
@@ -926,9 +942,10 @@ class EditorModel
 	Collection getAttachments()
 	{ 
 		StructuredDataResults data = parent.getStructuredData();
-		if (data == null) return new ArrayList();
+		List l = new ArrayList();
+		if (data == null) return l;
 		Collection attachements = data.getAttachments(); 
-		if (attachements == null) return new ArrayList();
+		if (attachements == null) return l;
 		Iterator i = attachements.iterator();
 		FileAnnotationData f;
 		String ns;
@@ -940,10 +957,9 @@ class EditorModel
 				String name = f.getFileName();
 				if (name.contains(ORIGINAL_METADATA_NAME))
 					originalMetadata = f;
-			}
+			} else l.add(f);
 		}
-		if (originalMetadata != null) attachements.remove(originalMetadata);
-		return sorter.sort(attachements); 
+		return sorter.sort(l); 
 	}
 
 	/**

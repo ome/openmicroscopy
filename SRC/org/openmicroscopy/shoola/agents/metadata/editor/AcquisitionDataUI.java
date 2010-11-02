@@ -34,6 +34,7 @@ import java.awt.Insets;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -43,6 +44,7 @@ import java.util.Map.Entry;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -147,9 +149,15 @@ class AcquisitionDataUI
 	/** Component displaying the original metadata. */
 	private OriginalMetadataComponent			originalMetadata;
 	
+	/** The component hosting the companion files. */
+	private JXTaskPane 							companionFilesPane;
+	
 	/** Flag indicating to build the UI once. */
 	private boolean 							init;
 
+	/** Components displaying the companion files. */
+	private JPanel 								docPane;
+	
 	/** Initializes the UI components. */
 	private void initComponents()
 	{  
@@ -172,6 +180,11 @@ class AcquisitionDataUI
 				UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE, this);
 		originalMetadata = new OriginalMetadataComponent(model);
 		originalMetadataPane.add(originalMetadata);
+		companionFilesPane = EditorUtil.createTaskPane("Companion Files");
+		docPane = new JPanel();
+		docPane.setLayout(new BoxLayout(docPane, BoxLayout.Y_AXIS));
+		docPane.setBackground(UIUtilities.BACKGROUND_COLOR);
+		companionFilesPane.add(docPane);
 	}
 	
 	/** Builds and lays out the components. */
@@ -187,6 +200,8 @@ class AcquisitionDataUI
 		constraints.anchor = GridBagConstraints.WEST;
 		constraints.insets = new Insets(0, 2, 2, 0);
 		constraints.weightx = 1.0;
+		container.add(companionFilesPane, constraints);
+		constraints.gridy++;
 		container.add(originalMetadataPane, constraints);
         constraints.gridy++;
         container.add(instrumentPane, constraints);
@@ -207,10 +222,11 @@ class AcquisitionDataUI
 		Component[] comps = container.getComponents();
 		for (int i = 0; i < comps.length; i++) {
 			if (comps[i] != imagePane && comps[i] != instrumentPane &&
-					comps[i] != originalMetadataPane)
+					comps[i] != originalMetadataPane && 
+					comps[i] != companionFilesPane)
 				container.remove(comps[i]);
 		}
-		constraints.gridy = 3;
+		constraints.gridy = 4;
         Iterator<JXTaskPane> i = channelAcquisitionPanes.keySet().iterator();
         while (i.hasNext()) {
             ++constraints.gridy;
@@ -561,6 +577,28 @@ class AcquisitionDataUI
 			model.firePlaneInfoLoading(index, 0);
 			view.setStatus(true);
 		}
+	}
+	
+	/** Lays out the companion files if any. */
+	void layoutCompanionFiles()
+	{
+		Collection list = model.getCompanionFiles();
+		if (list == null || list.size() == 0) {
+			companionFilesPane.setVisible(false);
+			revalidate();
+			repaint();
+			return;
+		}
+		companionFilesPane.setVisible(true);
+		Iterator i = list.iterator();
+		FileAnnotationData file;
+		DocComponent doc;
+		docPane.removeAll();
+		while (i.hasNext()) {
+			docPane.add(new DocComponent(i.next(), model, false));
+		}
+		revalidate();
+		repaint();
 	}
 	
 	/** Refreshes the view. */

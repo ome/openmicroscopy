@@ -260,6 +260,7 @@ class EditorUI
         	toolBar.buildUI();
         	toolBar.setControls();
         	generalPane.layoutUI();
+        	acquisitionPane.layoutCompanionFiles();
         	component = tabPane;
     	}
     	if (add) add(component, BorderLayout.CENTER);

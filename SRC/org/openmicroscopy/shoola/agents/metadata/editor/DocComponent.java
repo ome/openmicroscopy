@@ -193,6 +193,9 @@ class DocComponent
 	/** The pop-up menu. */
 	private JPopupMenu	popMenu;
 	
+	/** Flag indicating if the node can be deleted. */
+	private boolean		deletable;
+	
 	/**
 	 * Enables or disables the various buttons depending on the passed value.
 	 * Returns <code>true</code> if some controls are visible, 
@@ -406,14 +409,13 @@ class DocComponent
 			unlinkButton.setToolTipText("Remove the attachment.");
 			
 			if (fa.getId() > 0) {
-				deleteButton = new JMenuItem(icons.getIcon(
-						IconManager.DELETE_12));
-				deleteButton.setText("Delete");
-				//UIUtilities.unifiedButtonLookAndFeel(deleteButton);
-				//deleteButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-				deleteButton.addActionListener(this);
-				deleteButton.setActionCommand(""+DELETE);
-				
+				if (deletable) {
+					deleteButton = new JMenuItem(icons.getIcon(
+							IconManager.DELETE_12));
+					deleteButton.setText("Delete");
+					deleteButton.addActionListener(this);
+					deleteButton.setActionCommand(""+DELETE);
+				}
 				downloadButton = new JMenuItem(icons.getIcon(
 						IconManager.DOWNLOAD_12));
 				downloadButton.setText("Download...");
@@ -641,16 +643,31 @@ class DocComponent
 	 * 
 	 * @param data	The document annotation. 
 	 * @param model Reference to the model. Mustn't be <code>null</code>.
+	 * @param deletable Pass <code>false</code> to indicate that the document
+	 *					cannot be deleted regardless of the permissions,
+	 *					<code>true</code> otherwise.
 	 */
-	DocComponent(Object data, EditorModel model)
+	DocComponent(Object data, EditorModel model, boolean deletable)
 	{
 		if (model == null)
 			throw new IllegalArgumentException("No Model.");
 		originalDescription = null;
 		this.model = model;
 		this.data = data;
+		this.deletable = deletable;
 		initComponents();
 		buildGUI();
+	}
+	
+	/**
+	 * Creates a new instance,
+	 * 
+	 * @param data	The document annotation. 
+	 * @param model Reference to the model. Mustn't be <code>null</code>.
+	 */
+	DocComponent(Object data, EditorModel model)
+	{
+		this(data, model, true);
 	}
 	
 	/**
