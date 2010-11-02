@@ -74,15 +74,16 @@ except:
 logger = logging.getLogger('webclient_gateway')
 
 class OmeroWebGateway (omero.gateway.BlitzGateway):
-    
+
     def __init__ (self, *args, **kwargs):
         super(OmeroWebGateway, self).__init__(*args, **kwargs)
         self._shareId = None
 
     def connect (self, *args, **kwargs):
         rv = super(OmeroWebGateway, self).connect(*args,**kwargs)
-        if self._ctx.userName!="guest":
-            self.removeGroupFromContext()
+        if rv: # No _ctx available otherwise #3218
+            if self._ctx.userName!="guest":
+                self.removeGroupFromContext()
         return rv
 
     def attachToShare (self, share_id):
@@ -90,16 +91,16 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         if self._shareId is None:
             self._proxies['share'].activate(sh.id.val)
         self._shareId = sh.id.val
-    
+
     def getShareId(self):
         if self.getEventContext().shareId is not None:
             if self.getEventContext().shareId != self._shareId and self._shareId > 0:
                 self._shareId = self.getEventContext().shareId
         return self._shareId
-    
+
     def removeGroupFromContext (self):
         """ Removes group "User" from the current context."""
-        
+
         a = self.getAdminService()
         gr_u = a.lookupGroup('user')
         try:
@@ -107,10 +108,10 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             self._ctx.leaderOfGroups.remove(gr_u.id.val)
         except:
             pass
-    
+
     ##############################################
     #    Session methods                         #
-    
+
     def changeActiveGroup(self, gid): # TODO: should be moved to ISession
         """ Every time session is created default group becomes active group 
             and is loaded with the security for the current user and thread.
