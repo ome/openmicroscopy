@@ -71,6 +71,7 @@ module omero {
 
                 // UAuth
                 idempotent void changePassword(omero::RString newPassword) throws ServerError;
+                idempotent void changePasswordWithOldPassword(string oldPassword, omero::RString newPassword) throws ServerError;
                 idempotent void changeUserPassword(string omeName, omero::RString newPassword) throws ServerError;
                 idempotent void synchronizeLoginCache() throws ServerError;
                 void changeExpiredCredentials(string name, string oldCred, string newCred) throws ServerError;

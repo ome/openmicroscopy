@@ -1088,9 +1088,18 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         throw new UnsupportedOperationException();
     }
 
-    @RolesAllowed({"guest", "user", "HasPassword"})
+    @RolesAllowed({"user", "HasPassword"})
     public void changePassword(String newPassword) {
         String user = getSecuritySystem().getEventContext().getCurrentUserName();
+        _changePassword(user, newPassword);
+    }
+
+    @RolesAllowed({"user"})
+    public void changePasswordWithOldPassword(String oldPassword, String newPassword) {
+        String user = getSecuritySystem().getEventContext().getCurrentUserName();
+        if (!checkPassword(user, oldPassword)) {
+            throw new SecurityViolation("Old password is invalid");
+        }
         _changePassword(user, newPassword);
     }
 

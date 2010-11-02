@@ -551,19 +551,40 @@ public interface IAdmin extends ServiceInterface {
             throws AuthenticationException;
 
     /**
-     * change the password for the current user
-     * 
+     * change the password for the current user.
+     * <p>
+     * <em>Warning:</em>This method requires the user to be authenticated
+     * with a password and not with a one-time session id. To avoid this
+     * problem, use {@link #changePasswordWithOldPassword(String, String)}.
+     * </p>
+     *
      * @param newPassword
-     *            Not-null. Must pass validation in the security sub-system.
+     *            Possibly null to allow logging in with no password.
      * @throws ome.conditions.SecurityViolation
-     *             if the new password is too weak.
+     *             if the user is not authenticated with a password.
+     * @see <a href="http://trac.openmicroscopy.org.uk/omero/ticket/911">ticket:911</a>
+     * @see <a href="http://trac.openmicroscopy.org.uk/omero/ticket/3201">ticket:3201</a>
      */
     void changePassword(@Hidden
     String newPassword);
 
     /**
+     * change the password for the current user by passing the old password.
+     *
+     * @param newPassword
+     *            Not-null. Must pass validation in the security sub-system.
+     * @param newPassword
+     *            Possibly null to allow logging in with no password.
+     * @throws ome.conditions.SecurityViolation
+     *             if the oldPassword is incorrect.
+     */
+    void changePasswordWithOldPassword(
+        @Hidden @NotNull String oldPassword,
+        @Hidden String newPassword);
+
+    /**
      * change the password for the a given user.
-     * 
+     *
      * @param newPassword
      *            Not-null. Might must pass validation in the security
      *            sub-system.

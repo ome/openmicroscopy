@@ -24,6 +24,7 @@ import omero.api.AMD_IAdmin_changeExpiredCredentials;
 import omero.api.AMD_IAdmin_changeGroup;
 import omero.api.AMD_IAdmin_changeOwner;
 import omero.api.AMD_IAdmin_changePassword;
+import omero.api.AMD_IAdmin_changePasswordWithOldPassword;
 import omero.api.AMD_IAdmin_changePermissions;
 import omero.api.AMD_IAdmin_changeUserPassword;
 import omero.api.AMD_IAdmin_containedExperimenters;
@@ -131,6 +132,11 @@ public class AdminI extends AbstractAmdServant implements _IAdminOperations {
     public void changePassword_async(AMD_IAdmin_changePassword __cb,
             RString newPassword, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, newPassword);
+    }
+
+    public void changePasswordWithOldPassword_async(AMD_IAdmin_changePasswordWithOldPassword __cb,
+            String oldPassword, RString newPassword, Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current, oldPassword, newPassword);
     }
 
     public void changePermissions_async(AMD_IAdmin_changePermissions __cb,

@@ -58,5 +58,37 @@ class TestAdmin(lib.ITest):
             tstore.setPixelsId(pixel.id.val)
         tstore.getThumbnail(rint(16), rint(16))
 
+    def testChangePassword(self):
+        """
+        See ticket:3201
+        """
+
+        client = self.new_client()
+
+        admin = client.sf.getAdminService()
+        admin.changePassword(rstring("ome"))
+
+        uuid = client.getSessionId()
+
+        # Now login without a passowrd
+        client2 = client.createClient(True)
+        try:
+            admin = client2.sf.getAdminService()
+
+            self.assertRaises(omero.SecurityViolation, admin.changePassword, rstring("foo"))
+            admin.changePasswordWithOldPassword("ome", rstring("foo"))
+        finally:
+            client2.closeSession()
+
+        # Now try to change password without a secure session
+        if False: # Waiting on ticket:3232
+            client3 = client.createClient(False)
+            try:
+                admin = client3.sf.getAdminService()
+                self.assertRaises(omero.SecurityViolation, admin.changePasswordWithOldPassword, "foo", rstring("ome"))
+            finally:
+                client3.closeSession()
+
+
 if __name__ == '__main__':
     unittest.main()
