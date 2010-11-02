@@ -75,7 +75,7 @@ python lib\python\omero\install\win_set_path.py
 if errorlevel 1 goto ERROR
 
 echo Setting etc\grid ports prefix to %ROUTERPREFIX%
-bin\omero admin ports --prefix=%ROUTERPREFXI%
+python bin\omero admin ports --prefix=%ROUTERPREFIX%
 if errorlevel 1 goto ERROR
 
 REM Required because of environment-less service
