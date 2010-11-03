@@ -25,6 +25,9 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.Cursor;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,14 +35,12 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 
 //Third-party libraries
-import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.jdesktop.swingx.VerticalLayout;
@@ -174,12 +175,17 @@ class GeneralPaneUI
 		annotationTaskPane = EditorUtil.createTaskPane("Annotations");
 		annotationTaskPane.setCollapsed(false);
 		JPanel p = new JPanel();
-		p.setBackground(UIUtilities.BACKGROUND);
-		double[][]	size = {{TableLayout.FILL}, 
-			{TableLayout.PREFERRED, 5, TableLayout.PREFERRED}};
-		p.setLayout(new TableLayout(size));
-		p.add(annotationUI, "0, 0");
-		p.add(textualAnnotationsUI, "0, 2");
+		p.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+    	c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.insets = new Insets(0, 2, 2, 0);
+		c.gridy = 0;
+		c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+		c.weightx = 1.0;  
+		p.add(annotationUI, c);
+		c.gridy++;
+		p.add(textualAnnotationsUI, c); 
 		annotationTaskPane.add(p);
 	}
 	
