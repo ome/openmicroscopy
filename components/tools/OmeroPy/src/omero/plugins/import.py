@@ -80,7 +80,7 @@ class ImportControl(BaseControl):
         if args.javahelp:
                 login_args.append("-h")
 
-        if "-h" not in login_args and "-f" not in login_args:
+        if "-h" not in login_args and "-f" not in login_args and not args.java_f:
             client = self.ctx.conn(args)
             srv = client.getProperty("omero.host")
             prt = client.getProperty("omero.port")
