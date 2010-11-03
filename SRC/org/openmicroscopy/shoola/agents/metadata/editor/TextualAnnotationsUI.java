@@ -71,6 +71,9 @@ class TextualAnnotationsUI
 	implements ActionListener, DocumentListener, FocusListener
 {
     
+	/** The length of the text before hiding the comment. */
+	private static final int	MAX_LENGTH_TEXT = 200;
+	
 	/** The default description. */
     private static final String	DEFAULT_TEXT_COMMENT = "Comments";
     
@@ -110,8 +113,11 @@ class TextualAnnotationsUI
 	/** Flag indicating to build the UI once. */
 	private boolean 			init;
 	
-	/** Indicate that the comments added by other users are visible. */
+	/** Flag indicating that the comments added by other users are visible. */
 	private boolean				expanded;
+	
+	/** Flag indicating that the latest comment was displayed or not. */
+	private boolean				partial;
 	
 	/**
 	 * Builds and lays out the component hosting all previous annotations.
@@ -124,7 +130,6 @@ class TextualAnnotationsUI
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		List list = model.getTextualAnnotationsByDate();
-		//long userID = MetadataViewerAgent.getUserDetails().getId();
 		if (list != null) {
 			Iterator i = list.iterator();
 			TextualAnnotationData data;
@@ -132,14 +137,12 @@ class TextualAnnotationsUI
 			int index = 0;
 			while (i.hasNext()) {
 				data = (TextualAnnotationData) i.next();
-				//if (data.getOwner().getId() != userID) {
-					comp = new TextualAnnotationComponent(model, data);
-					if (index%2 == 0) 
-						comp.setAreaColor(UIUtilities.BACKGROUND_COLOUR_EVEN);
-		            else comp.setAreaColor(UIUtilities.BACKGROUND_COLOUR_ODD);
-					p.add(comp);
-					index++;
-				//}
+				comp = new TextualAnnotationComponent(model, data);
+				if (index%2 == 0) 
+					comp.setAreaColor(UIUtilities.BACKGROUND_COLOUR_EVEN);
+				else comp.setAreaColor(UIUtilities.BACKGROUND_COLOUR_ODD);
+				p.add(comp);
+				index++;
 			}
 		}
 		return p;
@@ -287,15 +290,21 @@ class TextualAnnotationsUI
 		layout.setRow(3, TableLayout.PREFERRED);
 		//remove(hideComponent);
 		List l = model.getTextualAnnotationsByDate();
-		if (l != null && l.size() > 2) {
+		if (partial) {
+			if (l != null && l.size() > 2) {
+				remove(hideComponent);
+				layout.setRow(2, TableLayout.PREFERRED);
+				add(moreComponent, "0, 2");
+			}
+			previousComments.getViewport().add(displayPartialPreviousComments());
+			add(previousComments, "0, 3");
+		} else {
 			remove(hideComponent);
 			layout.setRow(2, TableLayout.PREFERRED);
 			add(moreComponent, "0, 2");
+			previousComments.getViewport().removeAll();
 		}
-		//add(moreComponent, "0, 2");
-		JPanel p = displayPartialPreviousComments();
-		previousComments.getViewport().add(p);
-		add(previousComments, "0, 3");
+		
 		revalidate();
 		repaint();
 	}
@@ -305,15 +314,18 @@ class TextualAnnotationsUI
 	{
 		TableLayout layout = (TableLayout) getLayout();
 		List l = model.getTextualAnnotationsByDate();
-		if (l != null && l.size() > 2) {
+		int n = 3;
+		if (!partial) n = 1;
+		if (l != null && l.size() >= n) {
 			remove(moreComponent);
 			layout.setRow(2, TableLayout.PREFERRED);
 			add(hideComponent, "0, 2");
 		}
-		JPanel p = displayAllPreviousComments();
-		previousComments.getViewport().add(p);
+		previousComments.getViewport().removeAll();
+		previousComments.getViewport().add(displayAllPreviousComments());
 		revalidate();
 		repaint();
+		
 	}
 	
 	/**
@@ -354,19 +366,40 @@ class TextualAnnotationsUI
 		layout.setRow(2, 0);
 		layout.setRow(3, 0);
 		if (hasPreviousTextualAnnotations()) {
-			layout.setRow(3, TableLayout.PREFERRED);
-			add(previousComments, "0, 3");
+			List list = model.getTextualAnnotationsByDate();
+			TextualAnnotationData data = (TextualAnnotationData) list.get(0);
+			String text = data.getText();
+			expanded = text.length() < MAX_LENGTH_TEXT;
+			/*
 			List l = model.getTextualAnnotationsByDate();
 			if (l.size() > 2) {
 				layout.setRow(2, TableLayout.PREFERRED);
 				add(moreComponent, "0, 2");
 			}
+			
 			if (expanded) {
 				previousComments.getViewport().add(
 						displayAllPreviousComments());
 			} else {
 				previousComments.getViewport().add(
 						displayPartialPreviousComments());
+			}
+			*/
+			layout.setRow(3, TableLayout.PREFERRED);
+			add(previousComments, "0, 3");
+			if (expanded) {
+				partial = true;
+				previousComments.getViewport().add(
+						displayPartialPreviousComments());
+				if (list.size() > 2) {
+					layout.setRow(2, TableLayout.PREFERRED);
+					add(moreComponent, "0, 2");
+				}
+			} else {
+				partial = false;
+				layout.setRow(2, TableLayout.PREFERRED);
+				add(moreComponent, "0, 2");
+				//hidePreviousComments();
 			}
 		}
 		revalidate();
