@@ -57,7 +57,6 @@ public class ContainersLoader
 	/** The ID of the parent of the {@link #refNode}. */
 	private long		id;
 
-	
 	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
     

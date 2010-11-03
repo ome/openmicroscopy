@@ -55,7 +55,6 @@ import javax.swing.SwingUtilities;
 
 //Application-internal dependencies
 import omero.model.OriginalFile;
-
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;

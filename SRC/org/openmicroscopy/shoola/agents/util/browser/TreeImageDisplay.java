@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.util.browser;
 import java.awt.Color;
 import java.awt.Font;
 import java.io.File;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -452,9 +453,8 @@ public abstract class TreeImageDisplay
         	return ((File) obj).getName();
         else if (obj instanceof FileData)
         	return ((FileData) obj).getName();
-        else if (obj instanceof PlateAcquisitionData) 
+        else if (obj instanceof PlateAcquisitionData)
         	return ((PlateAcquisitionData) obj).getLabel();
-        	
         else if (obj instanceof MultiImageData) 
         	return ((MultiImageData) obj).getName();
         else if (obj instanceof String) return (String) obj;

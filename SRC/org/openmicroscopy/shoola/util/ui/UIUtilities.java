@@ -1215,18 +1215,6 @@ public class UIUtilities
     	if (time == null) return "";
     	return DateFormat.getDateInstance().format(time);  
     }
-    
-    /**
-     * Formats as a <code>String</code> the specified time.
-     * 
-     * @param time The timestamp to format.
-     * @return Returns the stringified version of the passed timestamp.
-     */
-    public static String formatDateTime(Timestamp time) 
-    {
-    	if (time == null) return "";
-    	return DateFormat.getDateTimeInstance().format(time);  
-    }
 	
     /**
      * Formats as a <code>String</code> the specified time.

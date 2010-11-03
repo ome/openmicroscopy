@@ -3760,7 +3760,8 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-			getAdminService().changePasswordWithOldPassword(oldPassword, 
+			getAdminService().changePasswordWithOldPassword(
+					omero.rtypes.rstring(oldPassword), 
 					omero.rtypes.rstring(password));
 		} catch (Throwable t) {
 			handleException(t, "Cannot modify password. ");
