@@ -31,4 +31,6 @@ echo omero.fstest.srcFile=very_small.d3d with spaces.dv >> etc\testdropbox.confi
 echo omero.fs.watchDir=TestDropBox >> etc\testdropbox.config
 
 mkdir -p TestDropBox
+
+bin/omero admin ports --prefix=5 # TODO refactor this into hudson configuration
 bin/omero admin ice server start TestDropBox
