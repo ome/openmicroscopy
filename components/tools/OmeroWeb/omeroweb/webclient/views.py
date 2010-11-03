@@ -2059,8 +2059,6 @@ def change_password(request, **kwargs):
         url = kwargs["url"]
     except:
         logger.error(traceback.format_exc())
-        
-    controller = BaseExperimenter(conn)
     
     if request.method != 'POST':
         password_form = ChangeMyPassword()
