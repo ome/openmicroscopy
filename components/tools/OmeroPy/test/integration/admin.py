@@ -76,7 +76,7 @@ class TestAdmin(lib.ITest):
             admin = client2.sf.getAdminService()
 
             self.assertRaises(omero.SecurityViolation, admin.changePassword, rstring("foo"))
-            admin.changePasswordWithOldPassword("ome", rstring("foo"))
+            admin.changePasswordWithOldPassword(rstring("ome"), rstring("foo"))
         finally:
             client2.closeSession()
 
@@ -85,7 +85,7 @@ class TestAdmin(lib.ITest):
             client3 = client.createClient(False)
             try:
                 admin = client3.sf.getAdminService()
-                self.assertRaises(omero.SecurityViolation, admin.changePasswordWithOldPassword, "foo", rstring("ome"))
+                self.assertRaises(omero.SecurityViolation, admin.changePasswordWithOldPassword, rstring("foo"), rstring("ome"))
             finally:
                 client3.closeSession()
 
@@ -103,20 +103,20 @@ class TestAdmin(lib.ITest):
         # By setting the user's password to the empty string
         # any password will be allowed as the old password
         admin.changePassword(rstring(""))
-        admin.changePasswordWithOldPassword("IGNORED", rstring("ome"))
-        self.assertRaises(omero.SecurityViolation, admin.changePasswordWithOldPassword, "BADPW", rstring("foo"))
-        admin.changePasswordWithOldPassword("ome", rstring("foo"))
+        admin.changePasswordWithOldPassword(rstring("IGNORED"), rstring("ome"))
+        self.assertRaises(omero.SecurityViolation, admin.changePasswordWithOldPassword, rstring("BADPW"), rstring("foo"))
+        admin.changePasswordWithOldPassword(rstring("ome"), rstring("foo"))
 
         # None disables user. No further password checks will pass.
         # Only the current session or an admin will be able to
         # reset the password
         admin.changePassword(None)
-        self.assertRaises(omero.SecurityViolation, admin.changePasswordWithOldPassword, "", rstring("foo"))
-        self.assertRaises(omero.SecurityViolation, admin.changePasswordWithOldPassword, None, rstring("foo"))
-        self.assertRaises(omero.SecurityViolation, admin.changePasswordWithOldPassword, "ome", rstring("foo"))
+        self.assertRaises(omero.SecurityViolation, admin.changePasswordWithOldPassword, rstring(""), rstring("foo"))
+        self.assertRaises(omero.SecurityViolation, admin.changePasswordWithOldPassword, rstring("ome"), rstring("foo"))
+        self.assertRaises(omero.ApiUsageException, admin.changePasswordWithOldPassword, None, rstring("foo"))
         joined_client = client.createClient(True)
         try:
-            self.assertRaises(omero.SecurityViolation, joined_client.sf.getAdminService().changePasswordWithOldPassword, "", rstring("ome"))
+            self.assertRaises(omero.SecurityViolation, joined_client.sf.getAdminService().changePasswordWithOldPassword, rstring(""), rstring("ome"))
         finally:
             joined_client.__del__()
         admin.changePassword(rstring("ome")) # could be an admin

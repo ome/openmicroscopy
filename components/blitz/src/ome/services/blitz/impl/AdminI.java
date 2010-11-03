@@ -135,7 +135,7 @@ public class AdminI extends AbstractAmdServant implements _IAdminOperations {
     }
 
     public void changePasswordWithOldPassword_async(AMD_IAdmin_changePasswordWithOldPassword __cb,
-            String oldPassword, RString newPassword, Current __current) throws ServerError {
+            RString oldPassword, RString newPassword, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, oldPassword, newPassword);
     }
 
