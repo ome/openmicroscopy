@@ -754,7 +754,6 @@ class UserProfile
 		c.gridy = 0;
 		c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
 		c.weightx = 1.0;  
-		c.gridx = 0;
     	add(buildContentPanel(), c);
     	if (model.isUserOwner(model.getRefObject()) || 
     			MetadataViewerAgent.isAdministrator()) {

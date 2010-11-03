@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 
 //Java imports
+import java.awt.BorderLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -45,7 +46,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 //Third-party libraries
-import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
@@ -252,13 +252,24 @@ class GroupProfile
 	{
 		removeAll();
     	initComponents();
-		double[][] size = {{TableLayout.FILL}, 
-				{TableLayout.PREFERRED, TableLayout.PREFERRED, 
-			TableLayout.PREFERRED}};
-		setLayout(new TableLayout(size));
-		add(buildContentPanel(), "0, 0");
-		add(permissionsPane, "0, 1");
-		add(buildOwnersPane(), "0, 2");
+    	JPanel p = new JPanel();
+    	p.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	p.setLayout(new GridBagLayout());
+    	GridBagConstraints c = new GridBagConstraints();
+    	c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.NORTHWEST;
+		c.insets = new Insets(0, 2, 2, 0);
+		c.gridx = 0;
+		c.gridy = 0;
+		c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+		c.weightx = 1.0;  
+		p.add(buildContentPanel(), c);
+    	c.gridy++;
+    	p.add(permissionsPane, c);
+		c.gridy++;
+		p.add(buildOwnersPane(), c);
+		setLayout(new BorderLayout(0, 0));
+		add(p, BorderLayout.NORTH);
 	}
 
 	/**
