@@ -1169,16 +1169,24 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     ##############################################
     ##   Sets methods                           ##
     
+    def changeUserPassword(self, omeName, password):
+        admin_serv = self.getAdminService()
+        admin_serv.changeUserPassword(omeName, rstring(str(password)))
+        
+    def changeMyPassword(self, old_password, password):
+        admin_serv = self.getAdminService() 
+        print 'old:', str(old_password)
+        print 'new:', rstring(str(password))
+        print admin_serv.getEventContext()
+        admin_serv.changePasswordWithOldPassword(str(old_password), rstring(str(password)))
+
     def createExperimenter(self, experimenter, defaultGroup, otherGroups, password):
         admin_serv = self.getAdminService()
         admin_serv.createExperimenterWithPassword(experimenter, rstring(str(password)), defaultGroup, otherGroups)
     
-    def updateExperimenter(self, experimenter, defaultGroup, addGroups, rmGroups, password=None):
+    def updateExperimenter(self, experimenter, defaultGroup, addGroups, rmGroups):
         admin_serv = self.getAdminService()
-        if password is not None and password!="":
-            admin_serv.updateExperimenterWithPassword(experimenter, rstring(str(password)))
-        else:
-            admin_serv.updateExperimenter(experimenter)
+        admin_serv.updateExperimenter(experimenter)
         if len(addGroups) > 0:
             admin_serv.addGroups(experimenter, addGroups)
         admin_serv.setDefaultGroup(experimenter, defaultGroup)
@@ -1213,12 +1221,10 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         admin_serv.addGroupOwners(group, add_exps)
         admin_serv.removeGroupOwners(group, rm_exps)
     
-    def updateMyAccount(self, experimenter, defultGroup, password=None):
+    def updateMyAccount(self, experimenter, defultGroup):
         admin_serv = self.getAdminService()
         admin_serv.updateSelf(experimenter)
         admin_serv.setDefaultGroup(experimenter, defultGroup)
-        if password is not None and password!="":
-            admin_serv.changePassword(rstring(str(password)))
         self.changeActiveGroup(defultGroup.id.val)
         self._user = self.getExperimenter(self._userid)
     
@@ -1774,7 +1780,7 @@ class ScreenWrapper (OmeroWebObjectWrapper, omero.gateway.ScreenWrapper):
 omero.gateway.ScreenWrapper = ScreenWrapper
 
 class ShareWrapper (OmeroWebObjectWrapper, omero.gateway.ShareWrapper):
-                
+            
     def truncateMessageForTree(self):
         try:
             msg = self.getMessage().val
@@ -1796,7 +1802,32 @@ class ShareWrapper (OmeroWebObjectWrapper, omero.gateway.ShareWrapper):
         if self.itemCount == 0:
             return True
         return False
-
+    
+    def getExpireDate(self):
+        #workaround for problem of year 2038
+        try:
+            if self.timeToLive > 2051222400:
+                return datetime(2035, 1, 1, 0, 0, 0)
+            
+            d = self.started+self.timeToLive
+            return datetime.fromtimestamp(d / 1000)
+        except:
+            logger.info(traceback.format_exc())
+        return None
+    
+    def isExpired(self):
+        #workaround for problem of year 2038
+        now = time.time()
+        try:
+            d = self.started+self.timeToLive
+            print d/1000, now
+            if (d / 1000)< now:
+                return False
+            return True
+        except:
+            logger.info(traceback.format_exc())
+        return None
+    
 omero.gateway.ShareWrapper = ShareWrapper
 
 class SessionAnnotationLinkWrapper (omero.gateway.BlitzObjectWrapper):

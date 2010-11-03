@@ -146,6 +146,40 @@ class TestTickets4000(lib.ITest):
         sf.getAdminService().setDefaultGroup(sf.getAdminService().getExperimenter(ec.userId), omero.model.ExperimenterGroupI(grp.id.val, False))
         self.assertEquals(grp.id.val, ec.groupId)
 
+    def test3201(self):
+        import Glacier2
+        def testLogin(username, password):
+            import os
+            import Ice
+            c = omero.client(pmap=['--Ice.Config='+(os.environ.get("ICE_CONFIG"))])
+            host = c.ic.getProperties().getProperty('omero.host')
+            port = int(c.ic.getProperties().getProperty('omero.port'))
+            omero.client(host=host, port=port)
+            sf = c.createSession(username, password)
+            ec = sf.getAdminService().getEventContext()
+            c.closeSession()
+            
+        admin_root = self.root.sf.getAdminService()
+        
+        client = self.new_client()
+        admin = client.sf.getAdminService()
+        omeName = admin.getEventContext().userName
+        
+        # change password as user
+        admin.changePassword(rstring("aaa"))
+
+        testLogin(omeName, "aaa")
+        
+        # change password as root
+        admin_root.changeUserPassword(omeName, rstring("ome"))
+
+        self.assertRaises(Glacier2.PermissionDeniedException, testLogin, omeName, "aaa")
+        
+        testLogin(omeName, "ome")
+        
+        admin.changePasswordWithOldPassword("ome", rstring("ccc"))
+        
+        testLogin(omeName, "ccc")
 
 if __name__ == '__main__':
     unittest.main()

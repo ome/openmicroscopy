@@ -99,7 +99,9 @@
         
         {% endfor %}
 
-        {% if ldapAuth %}<tr><td class="form">LDAP: </td><td colspan="2">{{ ldapAuth }}</td></tr>{% endif %}
+        {% if ldapAuth %}<tr><td class="form">LDAP: </td><td colspan="2">{{ ldapAuth }}</td></tr>
+        {% else %}<tr><td class="form">Password: </td><td colspan="2"><a href="{% url wamanagechangepasswordid eid %}">change password</a></td></tr>
+        {% endif %}
         
         <tr><td class="form" colspan="3"><p>{% trans "A user may belong to one or more groups. To define the list of groups user is member of select them from the <strong>Available groups</strong> box and click button <strong>[<]</strong> to move them to the <strong>Selected groups</strong> area. Once groups are chosen select one to specify <strong>Default Group</strong> user will first log in to. <strong>Default Group</strong> is last group user successfully logged in to." %}</p></td></tr>
         <tr><td></td><td class="form">{% trans "Selected groups" %}*</td><td class="form">{% trans "Available groups" %}</td></tr>
@@ -132,4 +134,6 @@
 </form>
 
 </div>
+
+
 {% endblock %}

@@ -40,8 +40,12 @@ from django.utils import simplejson as json
 from portalocker import LockException
 
 
-OMERO_HOME = os.path.join(os.path.dirname(__file__), '..', '..', '..')
-OMERO_HOME = os.path.normpath(OMERO_HOME)
+
+if os.environ.has_key('OMERO_HOME'):
+    OMERO_HOME =os.environ.get('OMERO_HOME') 
+else:
+    OMERO_HOME = os.path.join(os.path.dirname(__file__), '..', '..', '..')
+    OMERO_HOME = os.path.normpath(OMERO_HOME)
 
 # Load custom settings from etc/grid/config.xml
 # Tue  2 Nov 2010 11:03:18 GMT -- ticket:3228
@@ -258,7 +262,7 @@ INSTALLED_APPS = (
     'omeroweb.webclient',
     'omeroweb.webgateway',
     'omeroweb.webtest',
-    'omeroweb.webemdb',
+    #'omeroweb.webemdb',
     'omeroweb.webmobile',
 )
 

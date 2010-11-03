@@ -55,8 +55,9 @@ from django.views import debug
 from django.core.cache import cache
 
 from forms import LoginForm, ForgottonPasswordForm, ExperimenterForm, \
-                   ExperimenterLdapForm, GroupForm, GroupOwnerForm, MyAccountForm, \
-                   MyAccountLdapForm, ContainedExperimentersForm, UploadPhotoForm, \
+                   GroupForm, GroupOwnerForm, MyAccountForm, \
+                   ChangeMyPassword, ChangeUserPassword, \
+                   ContainedExperimentersForm, UploadPhotoForm, \
                    EnumerationEntry, EnumerationEntries, ScriptForm
 
 from controller import BaseController
@@ -422,8 +423,7 @@ def manage_experimenter(request, action, eid=None, **kwargs):
     controller = BaseExperimenter(conn, eid)
     
     if action == 'new':
-        form = ExperimenterForm(initial={'active':True, 'available':controller.otherGroupsInitialList()})
-        
+        form = ExperimenterForm(initial={'with_password':True, 'active':True, 'available':controller.otherGroupsInitialList()})        
         context = {'info':info, 'eventContext':eventContext, 'form':form}
     elif action == 'create':
         if request.method != 'POST':
@@ -431,9 +431,13 @@ def manage_experimenter(request, action, eid=None, **kwargs):
         else:
             name_check = conn.checkOmeName(request.REQUEST.get('omename').encode('utf-8'))
             email_check = conn.checkEmail(request.REQUEST.get('email').encode('utf-8'))
-            initial={'active':True}
-            exclude = list()
             
+            initial={'with_password':True}
+            
+            if request.REQUEST.get('active'):
+                initial['active'] = True
+            
+            exclude = list()            
             if len(request.REQUEST.getlist('other_groups')) > 0:
                 others = controller.getSelectedGroups(request.REQUEST.getlist('other_groups'))   
                 initial['others'] = others
@@ -465,41 +469,23 @@ def manage_experimenter(request, action, eid=None, **kwargs):
                 return HttpResponseRedirect(reverse("waexperimenters"))
             context = {'info':info, 'eventContext':eventContext, 'form':form}
     elif action == 'edit' :
-        if controller.ldapAuth == "" or controller.ldapAuth is None:
-            
-            initial={'omename': controller.experimenter.omeName, 'first_name':controller.experimenter.firstName,
-                                    'middle_name':controller.experimenter.middleName, 'last_name':controller.experimenter.lastName,
-                                    'email':controller.experimenter.email, 'institution':controller.experimenter.institution,
-                                    'administrator': controller.experimenter.isAdmin(), 'active': controller.experimenter.isActive(), 
-                                    'default_group': controller.defaultGroup, 'other_groups':controller.otherGroups}
-            
-            initial['default'] = controller.default
-            others = controller.others
-            initial['others'] = others
-            if len(others) > 0:
-                exclude = [g.id.val for g in others]
-            else:
-                exclude = [controller.defaultGroup]
-            available = controller.otherGroupsInitialList(exclude)
-            initial['available'] = available
-            form = ExperimenterForm(initial=initial)
+        initial={'omename': controller.experimenter.omeName, 'first_name':controller.experimenter.firstName,
+                                'middle_name':controller.experimenter.middleName, 'last_name':controller.experimenter.lastName,
+                                'email':controller.experimenter.email, 'institution':controller.experimenter.institution,
+                                'administrator': controller.experimenter.isAdmin(), 'active': controller.experimenter.isActive(), 
+                                'default_group': controller.defaultGroup, 'other_groups':controller.otherGroups}
+        
+        initial['default'] = controller.default
+        others = controller.others
+        initial['others'] = others
+        if len(others) > 0:
+            exclude = [g.id.val for g in others]
         else:
-            initial={'omename': controller.experimenter.omeName, 'first_name':controller.experimenter.firstName,
-                                    'middle_name':controller.experimenter.middleName, 'last_name':controller.experimenter.lastName,
-                                    'email':controller.experimenter.email, 'institution':controller.experimenter.institution,
-                                    'administrator': controller.experimenter.isAdmin(), 'active': controller.experimenter.isActive(), 
-                                    'default_group': controller.defaultGroup, 'other_groups':controller.otherGroups}
-            
-            initial['default'] = controller.default
-            others = controller.others
-            initial['others'] = others
-            if len(others) > 0:
-                exclude = [g.id.val for g in others]
-            else:
-                exclude = [controller.defaultGroup]
-            available = controller.otherGroupsInitialList(exclude)
-            initial['available'] = available
-            form = ExperimenterLdapForm(initial=initial)
+            exclude = [controller.defaultGroup]
+        available = controller.otherGroupsInitialList(exclude)
+        initial['available'] = available
+        form = ExperimenterForm(initial=initial)
+        
         context = {'info':info, 'eventContext':eventContext, 'form':form, 'eid': eid, 'ldapAuth': controller.ldapAuth}
     elif action == 'save':
         if request.method != 'POST':
@@ -519,11 +505,8 @@ def manage_experimenter(request, action, eid=None, **kwargs):
             available = controller.otherGroupsInitialList(exclude)
             initial['available'] = available
             
-            if controller.ldapAuth == "" or controller.ldapAuth is None:
-                form = ExperimenterForm(initial=initial, data=request.POST.copy(), name_check=name_check, email_check=email_check)
-            else:
-                form = ExperimenterLdapForm(initial=initial, data=request.POST.copy(), name_check=name_check, email_check=email_check)
-                
+            form = ExperimenterForm(initial=initial, data=request.POST.copy(), name_check=name_check, email_check=email_check)
+               
             if form.is_valid():
                 omeName = request.REQUEST.get('omename').encode('utf-8')
                 firstName = request.REQUEST.get('first_name').encode('utf-8')
@@ -541,13 +524,8 @@ def manage_experimenter(request, action, eid=None, **kwargs):
 
                 defaultGroup = request.REQUEST.get('default_group')
                 otherGroups = request.POST.getlist('other_groups')
-                try:
-                    password = request.REQUEST.get('password').encode('utf-8')
-                    if len(password) == 0:
-                        password = None
-                except:
-                    password = None
-                controller.updateExperimenter(omeName, firstName, lastName, email, admin, active, defaultGroup, otherGroups, middleName, institution, password)
+                
+                controller.updateExperimenter(omeName, firstName, lastName, email, admin, active, defaultGroup, otherGroups, middleName, institution)
                 return HttpResponseRedirect(reverse("waexperimenters"))
             context = {'info':info, 'eventContext':eventContext, 'form':form, 'eid': eid, 'ldapAuth': controller.ldapAuth}
     elif action == "delete":
@@ -556,6 +534,49 @@ def manage_experimenter(request, action, eid=None, **kwargs):
     else:
         return HttpResponseRedirect(reverse("waexperimenters"))
     
+    t = template_loader.get_template(template)
+    c = Context(request, context)
+    rsp = t.render(c)
+    return HttpResponse(rsp)
+
+@isUserConnected
+def manage_password(request, eid, **kwargs):
+    experimenters = True
+    template = "webadmin/password.html"
+    
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+    
+    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'experimenters':experimenters}
+
+    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
+    
+    if request.method != 'POST':
+        if conn.isAdmin():
+            password_form = ChangeUserPassword()
+        else:
+            password_form = ChangeMyPassword()
+    else:
+        if conn.isAdmin():
+            password_form = ChangeUserPassword(data=request.POST.copy())
+        else:
+            password_form = ChangeMyPassword(data=request.POST.copy())
+                    
+        if password_form.is_valid():
+            password = request.REQUEST.get('password').encode('utf-8')
+            if conn.isAdmin():
+                exp = conn.getExperimenter(eid)
+                conn.changeUserPassword(exp.omeName, password)
+                return HttpResponseRedirect(reverse(viewname="wamanageexperimenterid", args=["edit", eid]))
+            else:
+                old_password = request.REQUEST.get('old_password').encode('utf-8')
+                conn.changeMyPassword(old_password, password) 
+                return HttpResponseRedirect(reverse("wamyaccount"))
+    
+    context = {'info':info, 'eventContext':eventContext, 'password_form':password_form, 'eid': eid}
     t = template_loader.get_template(template)
     c = Context(request, context)
     rsp = t.render(c)
@@ -876,7 +897,7 @@ def my_account(request, action=None, **kwargs):
         logger.error(traceback.format_exc())
     
     info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'myaccount':myaccount}
-    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
+    eventContext = {'userId':conn.getEventContext().userId,'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
     
     myaccount = BaseExperimenter(conn)
     myaccount.getMyDetails()
@@ -892,10 +913,7 @@ def my_account(request, action=None, **kwargs):
             return HttpResponseRedirect(reverse(viewname="wamyaccount", args=["edit"]))
         else:
             email_check = conn.checkEmail(request.REQUEST.get('email').encode('utf-8'), myaccount.experimenter.email)
-            if myaccount.ldapAuth == "" or myaccount.ldapAuth is None:
-                form = MyAccountForm(data=request.POST.copy(), initial={'groups':myaccount.otherGroups}, email_check=email_check)
-            else:
-                form = MyAccountLdapForm(data=request.POST.copy(), initial={'groups':myaccount.otherGroups}, email_check=email_check)
+            form = MyAccountForm(data=request.POST.copy(), initial={'groups':myaccount.otherGroups}, email_check=email_check)
             if form.is_valid():
                 firstName = request.REQUEST.get('first_name').encode('utf-8')
                 middleName = request.REQUEST.get('middle_name').encode('utf-8')
@@ -928,13 +946,7 @@ def my_account(request, action=None, **kwargs):
         conn.cropExperimenterPhoto(box)
         return HttpResponseRedirect(reverse("wamyaccount"))
     elif action == "editphoto":
-        if myaccount.ldapAuth == "" or myaccount.ldapAuth is None:
-            form = MyAccountForm(initial={'omename': myaccount.experimenter.omeName, 'first_name':myaccount.experimenter.firstName,
-                                    'middle_name':myaccount.experimenter.middleName, 'last_name':myaccount.experimenter.lastName,
-                                    'email':myaccount.experimenter.email, 'institution':myaccount.experimenter.institution,
-                                    'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})
-        else:
-            form = MyAccountLdapForm(initial={'omename': myaccount.experimenter.omeName, 'first_name':myaccount.experimenter.firstName,
+        form = MyAccountForm(initial={'omename': myaccount.experimenter.omeName, 'first_name':myaccount.experimenter.firstName,
                                     'middle_name':myaccount.experimenter.middleName, 'last_name':myaccount.experimenter.lastName,
                                     'email':myaccount.experimenter.email, 'institution':myaccount.experimenter.institution,
                                     'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})
@@ -944,17 +956,11 @@ def my_account(request, action=None, **kwargs):
             edit_mode = True
     else:
         photo_size = conn.getExperimenterPhotoSize()        
-        if myaccount.ldapAuth == "" or myaccount.ldapAuth is None:
-            form = MyAccountForm(initial={'omename': myaccount.experimenter.omeName, 'first_name':myaccount.experimenter.firstName,
+        form = MyAccountForm(initial={'omename': myaccount.experimenter.omeName, 'first_name':myaccount.experimenter.firstName,
                                     'middle_name':myaccount.experimenter.middleName, 'last_name':myaccount.experimenter.lastName,
                                     'email':myaccount.experimenter.email, 'institution':myaccount.experimenter.institution,
                                     'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})
-        else:
-            form = MyAccountLdapForm(initial={'omename': myaccount.experimenter.omeName, 'first_name':myaccount.experimenter.firstName,
-                                    'middle_name':myaccount.experimenter.middleName, 'last_name':myaccount.experimenter.lastName,
-                                    'email':myaccount.experimenter.email, 'institution':myaccount.experimenter.institution,
-                                    'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})
-    
+        
     context = {'info':info, 'eventContext':eventContext, 'form':form, 'form_file':form_file, 'ldapAuth': myaccount.ldapAuth, 'edit_mode':edit_mode, 'photo_size':photo_size, 'myaccount':myaccount}
     t = template_loader.get_template(template)
     c = Context(request,context)

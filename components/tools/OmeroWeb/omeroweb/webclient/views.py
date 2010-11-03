@@ -82,7 +82,7 @@ from controller.impexp import BaseImpexp
 from controller.search import BaseSearch
 from controller.share import BaseShare
 
-from omeroweb.webadmin.forms import MyAccountForm, MyAccountLdapForm, UploadPhotoForm, LoginForm
+from omeroweb.webadmin.forms import MyAccountForm, UploadPhotoForm, LoginForm
 from omeroweb.webadmin.controller.experimenter import BaseExperimenter 
 from omeroweb.webadmin.controller.uploadfile import BaseUploadFile
 from omeroweb.webadmin.views import _checkVersion, _isServerOn
@@ -448,7 +448,7 @@ def change_active_group(request, **kwargs):
     request.session['nav']={"error": None, "blitz": blitz_host, "menu": "start", "view": "icon", "basket": 0, "experimenter":None, 'callback':dict()}
     
     conn = getBlitzConnection(request, useragent="OMERO.web")
-    
+
     active_group = request.REQUEST.get('active_group')
     if conn.changeActiveGroup(active_group):
         request.session.modified = True        
@@ -1686,7 +1686,7 @@ def basket_action (request, action=None, **kwargs):
             except:
                 host = '%s://%s:%s%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], reverse("webindex"))
             share = BaseShare(conn)
-            share.createShare(host, request.session['server'], images, message, members, enable, expiration)
+            share.createShare(host, request.session.get('server'), images, message, members, enable, expiration)
             return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse("load_template", args=["public"])) 
         else:
             template = "webclient/basket/basket_share_action.html"
@@ -2010,22 +2010,13 @@ def manage_myaccount(request, action=None, **kwargs):
     eContext['user'] = conn.getUser()
     eContext['allGroups']  = controller.sortByAttr(list(conn.getGroupsMemberOf()), "name")
     
-    if controller.ldapAuth == "" or controller.ldapAuth is None:
-        form = MyAccountForm(initial={'omename': controller.experimenter.omeName, 'first_name':controller.experimenter.firstName,
-                                'middle_name':controller.experimenter.middleName, 'last_name':controller.experimenter.lastName,
-                                'email':controller.experimenter.email, 'institution':controller.experimenter.institution,
-                                'default_group':controller.defaultGroup, 'groups':controller.otherGroups})
-    else:
-        form = MyAccountLdapForm(initial={'omename': controller.experimenter.omeName, 'first_name':controller.experimenter.firstName,
+    form = MyAccountForm(initial={'omename': controller.experimenter.omeName, 'first_name':controller.experimenter.firstName,
                                 'middle_name':controller.experimenter.middleName, 'last_name':controller.experimenter.lastName,
                                 'email':controller.experimenter.email, 'institution':controller.experimenter.institution,
                                 'default_group':controller.defaultGroup, 'groups':controller.otherGroups})
     
     if action == "save":
-        if controller.ldapAuth == "" or controller.ldapAuth is None:
-            form = MyAccountForm(data=request.POST.copy(), initial={'groups':controller.otherGroups})
-        else:
-            form = MyAccountLdapForm(data=request.POST.copy(), initial={'groups':controller.otherGroups})
+        form = MyAccountForm(data=request.POST.copy(), initial={'groups':controller.otherGroups})
         if form.is_valid():
             firstName = request.REQUEST['first_name'].encode('utf-8')
             middleName = request.REQUEST['middle_name'].encode('utf-8')
