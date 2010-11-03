@@ -25,7 +25,6 @@ package ome.formats.importer.gui;
 
 import java.awt.BorderLayout;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Vector;
 import java.util.concurrent.ScheduledExecutorService;
 
