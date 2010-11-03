@@ -7,6 +7,7 @@
  */
 """
 
+import os
 import logging
 import unittest
 import portalocker
@@ -100,9 +101,10 @@ class TestConfig(unittest.TestCase):
 
         p = create_path()
 
+        current = os.environ.get("OMERO_CONFIG", "default")
         config = ConfigXml(filename=str(p))
         config.close()
-        self.assertEquals("default", get_profile_name(p))
+        self.assertEquals(current, get_profile_name(p))
 
         config = ConfigXml(filename=str(p), env_config="FOO")
         config.close()
@@ -110,7 +112,7 @@ class TestConfig(unittest.TestCase):
 
         config = ConfigXml(filename=str(p))
         config.close()
-        self.assertEquals("default", get_profile_name(p))
+        self.assertEquals(current, get_profile_name(p))
 
     def testAsDict(self):
         p = create_path()
