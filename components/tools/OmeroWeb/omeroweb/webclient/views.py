@@ -82,7 +82,7 @@ from controller.impexp import BaseImpexp
 from controller.search import BaseSearch
 from controller.share import BaseShare
 
-from omeroweb.webadmin.forms import MyAccountForm, UploadPhotoForm, LoginForm
+from omeroweb.webadmin.forms import MyAccountForm, UploadPhotoForm, LoginForm, ChangeMyPassword
 from omeroweb.webadmin.controller.experimenter import BaseExperimenter 
 from omeroweb.webadmin.controller.uploadfile import BaseUploadFile
 from omeroweb.webadmin.views import _checkVersion, _isServerOn
@@ -2040,6 +2040,45 @@ def manage_myaccount(request, action=None, **kwargs):
     c = Context(request,context)
     logger.debug('TEMPLATE: '+template)
     return HttpResponse(t.render(c))
+
+@isUserConnected
+def change_password(request, **kwargs):
+    template = "webclient/person/password.html"
+    request.session.modified = True
+    request.session['nav']['menu'] = 'person'
+    
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+    
+    url = None
+    try:
+        url = kwargs["url"]
+    except:
+        logger.error(traceback.format_exc())
+        
+    controller = BaseExperimenter(conn)
+    
+    if request.method != 'POST':
+        password_form = ChangeMyPassword()
+    else:
+        password_form = ChangeMyPassword(data=request.POST.copy())
+                    
+        if password_form.is_valid():
+            password = request.REQUEST.get('password').encode('utf-8')
+            old_password = request.REQUEST.get('old_password').encode('utf-8')
+            conn.changeMyPassword(old_password, password) 
+            request.session['password'] = password
+            return HttpJavascriptResponse("Password was changed successfully")
+    
+    context = {'nav':request.session['nav'], 'password_form':password_form}
+    t = template_loader.get_template(template)
+    c = Context(request, context)
+    rsp = t.render(c)
+    return HttpResponse(rsp)
 
 @isUserConnected
 def upload_myphoto(request, action=None, **kwargs):

@@ -570,10 +570,12 @@ def manage_password(request, eid, **kwargs):
             if conn.isAdmin():
                 exp = conn.getExperimenter(eid)
                 conn.changeUserPassword(exp.omeName, password)
+                request.session['password'] = password
                 return HttpResponseRedirect(reverse(viewname="wamanageexperimenterid", args=["edit", eid]))
             else:
                 old_password = request.REQUEST.get('old_password').encode('utf-8')
                 conn.changeMyPassword(old_password, password) 
+                request.session['password'] = password
                 return HttpResponseRedirect(reverse("wamyaccount"))
     
     context = {'info':info, 'eventContext':eventContext, 'password_form':password_form, 'eid': eid}

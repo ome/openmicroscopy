@@ -105,6 +105,7 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^help_search/$', 'direct_to_template', {'template': 'webclient/help/help_search.html'}, name="help_search" ),
     
     url( r'^myphoto/$', views.myphoto, name="myphoto"),
+    url( r'^change_password/$', views.change_password, name="change_password"),
     url( r'^userphoto/(?P<oid>[0-9]+)/$', views.load_photo, name="load_photo"),
     
     url( r'^spellchecker/$', views.spellchecker, name="spellchecker"), 
