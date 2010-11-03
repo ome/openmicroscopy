@@ -1264,86 +1264,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             store.write(chunk, pos, rlen)
             pos = pos + rlen
         return store.save()
-    
-    def deleteObject(self, obj):
-        u = self.getUpdateService()
-        u.deleteObject(obj)
-    
-    def deleteAnnotation(self, oid, child=None, anns=None):
-        op = dict()
-        dc = omero.api.delete.DeleteCommand('/Annotation', long(oid), op)
-        handle = self.getDeleteService().queueDelete([dc])
-        return handle
-    
-    def deleteImage(self, oid, anns=None):
-        op = dict()
-        if anns is None:
-            op["/TagAnnotation"] = "KEEP"
-            op["/TermAnnotation"] = "KEEP"
-            op["/FileAnnotation"] = "KEEP"
-        dc = omero.api.delete.DeleteCommand('/Image', long(oid), op)
-        handle = self.getDeleteService().queueDelete([dc])
-        return handle
-        
-    def deleteImages(self, ids, anns=None):
-        op = dict()
-        if anns is None:
-            op["/TagAnnotation"] = "KEEP"
-            op["/TermAnnotation"] = "KEEP"
-            op["/FileAnnotation"] = "KEEP"
-        dcs = list()
-        for i in ids:            
-            dcs.append(omero.api.delete.DeleteCommand('/Image', long(i), op))
-        handle = self.getDeleteService().queueDelete(dcs)
-        return handle
-    
-    def deletePlate(self, oid, anns=None):
-        op = dict()
-        if anns is None:            
-            op["/TagAnnotation"] = "KEEP"
-            op["/TermAnnotation"] = "KEEP"
-            op["/FileAnnotation"] = "KEEP"
-        dc = omero.api.delete.DeleteCommand('/Plate', long(oid), op)
-        handle = self.getDeleteService().queueDelete([dc])
-        return handle
-        
-    def deleteDataset(self, obj, child=None, anns=None):
-        op = dict()
-        if anns is None:            
-            op["/TagAnnotation"] = "KEEP"
-            op["/TermAnnotation"] = "KEEP"
-            op["/FileAnnotation"] = "KEEP"
-        if child is None:
-            op["/Image"] = "KEEP"
-        dc = omero.api.delete.DeleteCommand('/Dataset', long(obj.id), op)
-        handle = self.getDeleteService().queueDelete([dc])
-        return handle
-    
-    def deleteProject(self, obj, child=None, anns=None):
-        op = dict()
-        if anns is None:            
-            op["/TagAnnotation"] = "KEEP"
-            op["/TermAnnotation"] = "KEEP"
-            op["/FileAnnotation"] = "KEEP"
-        if child is None:
-            op["/Dataset"] = "KEEP"
-            op["/Image"] = "KEEP"
-        dc = omero.api.delete.DeleteCommand('/Project', long(obj.id), op)
-        handle = self.getDeleteService().queueDelete([dc])
-        return handle
-    
-    def deleteScreen(self, obj, child=None, anns=None):
-        op = dict()
-        if anns is None:            
-            op["/TagAnnotation"] = "KEEP"
-            op["/TermAnnotation"] = "KEEP"
-            op["/FileAnnotation"] = "KEEP"
-        if child is None:
-            op["/Plate"] = "KEEP"
-        dc = omero.api.delete.DeleteCommand('/Screen', long(obj.id), op)
-        handle = self.getDeleteService().queueDelete([dc])
-        return handle
-    
+
     def prepareRecipients(self, recipients):
         recps = list()
         for m in recipients:
@@ -1804,8 +1725,7 @@ class ShareWrapper (OmeroWebObjectWrapper, omero.gateway.ShareWrapper):
         #workaround for problem of year 2038
         try:
             if self.timeToLive > 2051222400:
-                return datetime(2035, 1, 1, 0, 0, 0)
-            
+                return datetime(2035, 1, 1, 0, 0, 0)            
             d = self.started+self.timeToLive
             return datetime.fromtimestamp(d / 1000)
         except:
@@ -1817,8 +1737,7 @@ class ShareWrapper (OmeroWebObjectWrapper, omero.gateway.ShareWrapper):
         now = time.time()
         try:
             d = self.started+self.timeToLive
-            print d/1000, now
-            if (d / 1000)< now:
+            if (d / 1000)> now:
                 return False
             return True
         except:
