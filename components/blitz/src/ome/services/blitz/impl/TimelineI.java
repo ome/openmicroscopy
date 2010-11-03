@@ -417,9 +417,16 @@ public class TimelineI extends AbstractAmdServant implements
                     final ServiceFactory sf) {
 
                 IShare sh = sf.getShareService();
-                Set<ome.model.meta.Session> shares = sh.getOwnShares(false);
+                Set<ome.model.meta.Session> shares = new HashSet<ome.model.meta.Session>();
+                Set<ome.model.meta.Session> shares1 = sh.getOwnShares(false);
                 Set<ome.model.meta.Session> shares2 = sh.getMemberShares(false);
-                shares.addAll(shares2);
+
+                if (shares1 != null) {
+                    shares.addAll(shares1);
+                }
+                if (shares2 != null) {
+                    shares.addAll(shares2);
+                }
 
                 if (shares.size() == 0) {
                     return new ArrayList<Annotation>(); // EARLY EXIT
