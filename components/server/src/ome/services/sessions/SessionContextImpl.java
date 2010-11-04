@@ -128,7 +128,7 @@ public class SessionContextImpl implements SessionContext {
             throw new UnsupportedOperationException();
         }
 
-        if (leaderOfGroups.contains(_roles.getSystemGroupId())) {
+        if (memberOfGroups.contains(_roles.getSystemGroupId())) {
             return true;
         }
         return false;
