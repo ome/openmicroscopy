@@ -177,7 +177,7 @@ class TestTickets4000(lib.ITest):
         
         testLogin(omeName, "ome")
         
-        admin.changePasswordWithOldPassword("ome", rstring("ccc"))
+        admin.changePasswordWithOldPassword(rstring("ome"), rstring("ccc"))
         
         testLogin(omeName, "ccc")
 
