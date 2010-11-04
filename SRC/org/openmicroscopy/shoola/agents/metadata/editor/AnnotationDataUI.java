@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -61,6 +62,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 
 //Third-party libraries
@@ -613,22 +615,17 @@ class AnnotationDataUI
 		}
 		int n = docPane.getComponentCount();
 		docRef = docPane;
-		/*
+		
 		if (n >= MAX) {
-			//layout = (TableLayout) content.getLayout();
-			//layout.setRow(docIndex, h*2*MAX);
 			Dimension d = docPane.getPreferredSize();
 			JScrollPane sp = new JScrollPane(docPane);
-			docPane.setPreferredSize(new Dimension(d.width+15, h*2*MAX));
+			int width = d.width+20;
+			if (width < COLUMN_WIDTH) width = COLUMN_WIDTH;
+			sp.getViewport().setPreferredSize(new Dimension(width, h*MAX));
 			docRef = sp;	
-		} else {
-			//docPane.setPreferredSize(docPane.getPreferredSize());
-		}*/
-		//content.add(docRef, docConstraints);
+		} 
 		docPane.revalidate();
 		docPane.repaint();
-		//content.revalidate();
-		//content.repaint();
 	}
 	
 	

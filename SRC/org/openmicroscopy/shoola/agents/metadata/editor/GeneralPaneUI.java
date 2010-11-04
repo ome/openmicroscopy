@@ -35,9 +35,13 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JViewport;
 
 //Third-party libraries
@@ -175,17 +179,10 @@ class GeneralPaneUI
 		annotationTaskPane = EditorUtil.createTaskPane("Annotations");
 		annotationTaskPane.setCollapsed(false);
 		JPanel p = new JPanel();
-		p.setLayout(new GridBagLayout());
-		GridBagConstraints c = new GridBagConstraints();
-    	c.fill = GridBagConstraints.HORIZONTAL;
-		c.anchor = GridBagConstraints.NORTHWEST;
-		c.insets = new Insets(0, 2, 2, 0);
-		c.gridy = 0;
-		c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-		c.weightx = 1.0;  
-		p.add(annotationUI, c);
-		c.gridy++;
-		p.add(textualAnnotationsUI, c); 
+		p.setBackground(UIUtilities.BACKGROUND_COLOR);
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		p.add(annotationUI);
+		p.add(textualAnnotationsUI);
 		annotationTaskPane.add(p);
 	}
 	

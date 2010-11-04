@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -49,6 +50,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.border.Border;
@@ -662,7 +664,12 @@ class PropertiesUI
         	 descriptionPanel = layoutEditablefield(editDescription, 
         			 descriptionPane, 5);
         	 descriptionPanel.setBorder(AnnotationUI.EDIT_BORDER);
-        	 p.add(descriptionPanel);
+
+        	 JScrollPane pane = new JScrollPane(descriptionPanel);
+        	 Dimension d = pane.getPreferredSize();
+        	 pane.getViewport().setPreferredSize(new Dimension(d.width, 60));
+        	 pane.setBorder(null);
+        	 p.add(pane);
          } else if (refObject instanceof FileData) {
         	 /*
         	 FileData f = (FileData) refObject;
