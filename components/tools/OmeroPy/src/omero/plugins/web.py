@@ -246,6 +246,7 @@ Alias / "%(ROOT)s/var/omero.fcgi/"
 
 
     def start(self, args):
+
         import omeroweb.settings as settings
         link = ("%s:%s" % (settings.APPLICATION_SERVER_HOST,
                            settings.APPLICATION_SERVER_PORT))
@@ -264,6 +265,11 @@ Alias / "%(ROOT)s/var/omero.fcgi/"
 
         # 3216
         if deploy in (settings.FASTCGI_TYPES):
+            if "Windows" == platform.system():
+                self.ctx.out("""
+WARNING: Unless you **really** know what you are doing you should NOT be
+using bin\omero web start on Windows with FastCGI.
+""")
             pid_path = self.ctx.dir / "var" / "django.pid"
             pid_num = None
 
@@ -340,6 +346,11 @@ Alias / "%(ROOT)s/var/omero.fcgi/"
         import omeroweb.settings as settings
         deploy = getattr(settings, 'APPLICATION_SERVER')
         if deploy in settings.FASTCGI_TYPES:
+            if "Windows" == platform.system():
+                self.ctx.out("""
+WARNING: Unless you **really** know what you are doing you should NOT be
+using bin\omero web start on Windows with FastCGI.
+""")
             pid = 'Unknown'
             pid_path = self.ctx.dir / "var" / "django.pid"
             pid_text = pid_path.text().strip()
