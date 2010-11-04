@@ -47,6 +47,9 @@ import omero.model.LightSettings;
 import omero.model.LightSource;
 import omero.model.LogicalChannel;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 /**
  * Represents all the metadata required to make accurate decisions about
  * channel colour and name.
@@ -56,6 +59,8 @@ import omero.model.LogicalChannel;
  */
 public class ChannelData
 {
+	/** Logger for this class */
+	private static final Log log = LogFactory.getLog(ChannelProcessor.class);
 	
 	/** Base channel data. */
 	private Channel channel;
@@ -257,14 +262,22 @@ public class ChannelData
 				if (lsidString.endsWith(
 						OMEROMetadataStoreClient.OMERO_EMISSION_FILTER_SUFFIX))
 				{
-					lightPathEmFilters.add((Filter) 
-					filterContainers.get(unsuffixed).sourceObject);
+					IObjectContainer c = filterContainers.get(unsuffixed);
+					if (c == null)
+					{
+						throw new ModelException("No filter with LSID: " + unsuffixed);
+					}
+					lightPathEmFilters.add((Filter) c.sourceObject);
 				}
 				if (lsidString.endsWith(
 						OMEROMetadataStoreClient.OMERO_EXCITATION_FILTER_SUFFIX))
 				{
-					lightPathExFilters.add((Filter) 
-					filterContainers.get(unsuffixed).sourceObject);
+					IObjectContainer c = filterContainers.get(unsuffixed);
+					if (c == null)
+					{
+						throw new ModelException("No filter with LSID: " + unsuffixed);
+					}
+					lightPathExFilters.add((Filter) c.sourceObject);
 				}
 			}
 		}
