@@ -21,7 +21,7 @@
 import os, sys
 CWD = os.path.dirname(__file__)
 sys.path.append(str(CWD))
-sys.path.append(str(os.path.join(CWD, 'omeroweb'))
+sys.path.append(str(os.path.join(CWD, 'omeroweb')))
 os.environ['DJANGO_SETTINGS_MODULE'] = 'omeroweb.settings'
 import django.core.handlers.wsgi
 application = django.core.handlers.wsgi.WSGIHandler()
