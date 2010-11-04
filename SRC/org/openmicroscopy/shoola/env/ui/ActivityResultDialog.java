@@ -24,8 +24,6 @@ package org.openmicroscopy.shoola.env.ui;
 
 
 //Java imports
-import info.clearthought.layout.TableLayout;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Container;
@@ -49,6 +47,7 @@ import javax.swing.border.LineBorder;
 
 
 //Third-party libraries
+import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.TitlePanel;

@@ -56,9 +56,9 @@ import javax.swing.JViewport;
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
+import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
-import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
