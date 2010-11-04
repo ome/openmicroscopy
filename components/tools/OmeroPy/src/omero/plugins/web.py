@@ -142,7 +142,7 @@ class WebControl(BaseControl):
                 stanza  = """###
 ### Stanza for OMERO.web created %(NOW)s
 ###
-FastCGIExternalServer "%(ROOT)s/var/omero.fcgi" %(FASTCGI_EXTERNAL)s"
+FastCGIExternalServer "%(ROOT)s/var/omero.fcgi" %(FASTCGI_EXTERNAL)s
 
 <Directory "%(ROOT)s/var">
     Options -Indexes FollowSymLinks
