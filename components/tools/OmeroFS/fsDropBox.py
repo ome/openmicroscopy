@@ -109,6 +109,12 @@ class DropBox(Ice.Application):
                     dataDir = configService.getConfigValue("omero.data.dir")
                     defaultDropBoxDir = props.getPropertyWithDefault("omero.fs.defaultDropBoxDir","DropBox")
                     monitorParameters['default']['watchDir'] = os.path.join(dataDir, defaultDropBoxDir)
+                    watchDir = pathModule.path(monitorParameters['default']['watchDir'])
+                    if not watchDir.exists():
+                        log.info("Creating default dropbox directory: " + monitorParameters['default']['watchDir'])
+                        watchDir.mkdir()
+        except OSError:
+            log.exception("Failed to create default dropbox directory : \n")
         except:
             log.exception("Failed to use a query service : \n")
             log.error("Quitting")
