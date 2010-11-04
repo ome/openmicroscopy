@@ -32,8 +32,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 
-
-
 //Third-party libraries
 
 //Application-internal dependencies

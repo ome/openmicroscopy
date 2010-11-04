@@ -25,6 +25,9 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 //Java imports
 import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.Icon;
@@ -32,13 +35,10 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 
-import org.openmicroscopy.shoola.agents.metadata.IconManager;
-
-
 //Third-party libraries
-import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.IconManager;
 
 /** 
  * Pane displaying the controls used to define the transformations happening 
@@ -158,15 +158,23 @@ class CodomainPane
     private JPanel buildControlsPane()
     {
     	JPanel p = new JPanel();
-        double size[][] =
-        {{TableLayout.PREFERRED, 5, TableLayout.PREFERRED}, 
-         {TableLayout.PREFERRED, TableLayout.PREFERRED, TableLayout.PREFERRED}}; 
-        p.setLayout(new TableLayout(size));
-        p.add(reverseIntensity, "0, 0");
-        p.add(contrastStretching, "0, 1");
-        p.add(contrastStretchingButton, "2, 1");
-        p.add(planeSlicing, "0, 2");
-        p.add(planeSlicingButton, "2, 2");
+    	p.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.WEST;
+		c.insets = new Insets(0, 2, 2, 0);
+		c.gridy = 0;
+		c.gridx = 0;
+		p.add(reverseIntensity, c);
+		c.gridy++;
+        p.add(contrastStretching, c);
+        c.gridx = c.gridx+2;
+        p.add(contrastStretchingButton, c);
+        c.gridx = 0;
+        c.gridy++;
+        p.add(planeSlicing, c);
+        c.gridx = c.gridx+2;
+        p.add(planeSlicingButton, c);
         return p;
     }
     

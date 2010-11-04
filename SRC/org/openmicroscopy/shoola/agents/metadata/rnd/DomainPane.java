@@ -63,7 +63,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 //Third-party libraries
-import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
@@ -510,9 +509,13 @@ public class DomainPane
 			index.next().setPreferredSize(dMax);
 
         JPanel controls = new JPanel();
-        double size[][] = {{TableLayout.PREFERRED}, 
-        				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED}};
-        controls.setLayout(new TableLayout(size));
+        controls.setLayout(new GridBagLayout());
+        GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.VERTICAL;
+		c.anchor = GridBagConstraints.WEST;
+		c.insets = new Insets(0, 2, 2, 0);
+		c.gridy = 0;
+		c.gridx = 0;
         controls.setBackground(UIUtilities.BACKGROUND_COLOR);
         int k = 0;
         if (model.isGeneralIndex()) {
@@ -523,14 +526,19 @@ public class DomainPane
         	bar.setRollover(true);
         	bar.setBorder(null);
         	bar.add(colorModel);
-        	controls.add(bar, "0, "+k+", CENTER, CENTER");
+        	//controls.add(bar, "0, "+k+", CENTER, CENTER");
+        	controls.add(bar, c);
         	k = k+2;
+        	c.gridy = c.gridy+2;
         }
-        
+        /*
         if (channelList.size() > Renderer.MAX_CHANNELS) 
         	controls.add(new JScrollPane(p), "0, "+k);
         else controls.add(p, "0, "+k);
-
+        */
+        if (channelList.size() > Renderer.MAX_CHANNELS) 
+        	controls.add(new JScrollPane(p), c);
+        else controls.add(p, c);
         JPanel content = UIUtilities.buildComponentPanel(controls);  
         content.setBackground(UIUtilities.BACKGROUND_COLOR);
         return content;  
@@ -546,10 +554,8 @@ public class DomainPane
     	JPanel p = new JPanel();
     	p.setBackground(UIUtilities.BACKGROUND_COLOR);
     	p.setLayout(new BorderLayout());
-    	if (channelButtonPanel != null && model.isGeneralIndex())
-    		p.add(channelButtonPanel, BorderLayout.WEST);
     	if (model.isGeneralIndex()) {
-    		p.add(buildViewerPane(), BorderLayout.CENTER);
+    		p.add(buildViewerPane(), BorderLayout.WEST);
     		p.add(graphicsPane, BorderLayout.SOUTH);
     		
     		JPanel bar = new JPanel();
@@ -576,16 +582,25 @@ public class DomainPane
     private JPanel buildViewerPane()
     {
     	JPanel p = new JPanel();
-    	double[][] tl = {{TableLayout.PREFERRED, TableLayout.FILL}, 
-				{TableLayout.FILL, TableLayout.PREFERRED, 
-    		TableLayout.PREFERRED}};
     	p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		p.setLayout(new TableLayout(tl));
-		p.add(zSlider, "0, 0");
-		p.add(canvas, "1, 0");
-		if (tSlider.isVisible()) p.add(tSlider, "1, 1");
+    	p.setLayout(new GridBagLayout());
+    	GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.VERTICAL;
+		c.anchor = GridBagConstraints.WEST;
+		c.insets = new Insets(0, 2, 2, 0);
+		c.gridy = 0;
+		c.gridx = 0;
+		if (channelButtonPanel != null) {
+			p.add(channelButtonPanel, c);
+			c.gridx++;
+		}
+		p.add(zSlider, c);
+		c.gridx++;
+		p.add(canvas, c);
+		c.gridy++;
+		if (tSlider.isVisible()) p.add(tSlider, c);
 		if (lifetimeSlider != null && lifetimeSlider.isVisible())
-			p.add(lifetimeSlider, "1, 1");
+			p.add(lifetimeSlider, c);
     	return p;
     }
     
@@ -700,14 +715,16 @@ public class DomainPane
     private void buildGUI()
     {
     	setBackground(UIUtilities.BACKGROUND_COLOR);
-    	double size[][] = {{TableLayout.FILL},  // Columns
-         {TableLayout.PREFERRED, 5, TableLayout.PREFERRED}}; // Rows
-    	setLayout(new TableLayout(size));
-    	add(buildChannelGraphicsPanel(), "0, 0");
+    	JPanel p = new JPanel();
+    	p.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+    	p.add(buildChannelGraphicsPanel());
     	if (!model.isGeneralIndex()) {
     		taskPane.add(buildControlsPane());
-    		add(taskPane, "0, 2");
+    		p.add(taskPane);
     	}
+    	setLayout(new BorderLayout());
+    	add(p, BorderLayout.NORTH);
     }
     
     /**

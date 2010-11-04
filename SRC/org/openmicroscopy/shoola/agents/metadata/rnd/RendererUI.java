@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 
 //Java imports
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -33,7 +34,6 @@ import java.util.Map.Entry;
 import javax.swing.JPanel;
 
 //Third-party libraries
-import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -91,9 +91,8 @@ class RendererUI
 	{
 		setBackground(UIUtilities.BACKGROUND_COLOR);
 		DomainPane pane = (DomainPane) controlPanes.get(DOMAIN);
-		double[][] size = {{TableLayout.FILL}, {TableLayout.PREFERRED}};
-		setLayout(new TableLayout(size));
-		add(pane, "0, 0");
+		setLayout(new BorderLayout());
+		add(pane, BorderLayout.NORTH);
 	}
 
 	/**
