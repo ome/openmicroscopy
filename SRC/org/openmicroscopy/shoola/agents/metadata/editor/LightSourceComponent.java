@@ -55,7 +55,7 @@ import pojos.LightSourceData;
 
 /** 
  * Component displaying information about the light source i.e.
- * arc, filament, laser or emittind diode.
+ * arc, filament, laser or emitting diode.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

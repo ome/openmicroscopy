@@ -54,7 +54,6 @@ import javax.swing.JToolBar;
 import javax.swing.table.DefaultTableModel;
 
 //Third-party libraries
-import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
 import omero.model.OriginalFile;
@@ -193,20 +192,14 @@ class OriginalMetadataComponent
 		//Now lay out the elements
 		JPanel p = new JPanel();
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		double[] size = {TableLayout.FILL};
-		TableLayout layout = new TableLayout();
-		layout.setColumn(size);
-		p.setLayout(layout);
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		String key;
 		List l;
 		Entry entry;
 		Iterator i = components.entrySet().iterator();
 		JPanel row;
 		JLabel label;
-		layout.insertRow(0, TableLayout.PREFERRED);
-		p.add(new JSeparator(), "0, "+0);
-
-		int rowIndex = 1;
+		p.add(new JSeparator());
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			key = (String) entry.getKey();
@@ -216,12 +209,8 @@ class OriginalMetadataComponent
 				label.setBackground(UIUtilities.BACKGROUND_COLOR);
 				row = UIUtilities.buildComponentPanel(label);
 				row.setBackground(UIUtilities.BACKGROUND_COLOR);
-				layout.insertRow(rowIndex, TableLayout.PREFERRED);
-				p.add(row, "0, "+rowIndex);
-				rowIndex++;
-				layout.insertRow(rowIndex, TableLayout.PREFERRED);
-				p.add(createTable(l), "0, "+rowIndex);
-				rowIndex++;
+				p.add(row);
+				p.add(createTable(l));
 			}
 		}
 		removeAll();
@@ -384,7 +373,6 @@ class OriginalMetadataComponent
 			}
 		} catch (IOException e) {
 			file.delete();
-			String s = "Error while reading metadata file.";
 			JLabel l = new JLabel("Loading metadata");
 			l.setBackground(UIUtilities.BACKGROUND_COLOR);
 			statusBar = UIUtilities.buildComponentPanel(l);
@@ -392,7 +380,7 @@ class OriginalMetadataComponent
 			add(statusBar, BorderLayout.NORTH);
 			Logger logger = MetadataViewerAgent.getRegistry().getLogger();
 			LogMessage msg = new LogMessage();
-			msg.print("Error while reading metadata file.");
+			msg.print("An error occurred while reading metadata file.");
 			msg.print(e);
 			logger.error(this, msg);
 		}
