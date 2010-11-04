@@ -27,8 +27,8 @@ export ICE_CONFIG=`pwd`/ice.config
 #
 cd dist
 wget 'http://hudson.openmicroscopy.org.uk/userContent/very_small.d3d%20with%20spaces.dv'
-echo omero.fstest.srcFile=very_small.d3d with spaces.dv >> etc\testdropbox.config
-echo omero.fs.watchDir=TestDropBox >> etc\testdropbox.config
+echo omero.fstest.srcFile=very_small.d3d with spaces.dv >> etc/testdropbox.config
+echo omero.fs.watchDir=TestDropBox >> etc/testdropbox.config
 
 mkdir -p TestDropBox
 
