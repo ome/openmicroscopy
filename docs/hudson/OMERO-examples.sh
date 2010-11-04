@@ -1,3 +1,7 @@
+set -e
+set -u
+set -x
+
 . $HOME/.bashrc
 rm -rf OMERO.server*
 cp /hudson/.hudson/jobs/OMERO-trunk/lastSuccessful/archive/trunk/target/OMERO.server-*.zip .

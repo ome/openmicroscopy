@@ -1,4 +1,6 @@
-cd $WORKSPACE/trunk
+set -e
+set -u
+set -x
 
 export OMERO_BUILD=r"$SVN_REVISION"-trunk"$BUILD_NUMBER"
 export PORT_PREFIX=5
