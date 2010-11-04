@@ -517,7 +517,6 @@ public class DomainPane
 		c.gridy = 0;
 		c.gridx = 0;
         controls.setBackground(UIUtilities.BACKGROUND_COLOR);
-        int k = 0;
         if (model.isGeneralIndex()) {
         	colorModel.setVisible(true);
         	JToolBar bar = new JToolBar(JToolBar.VERTICAL);
@@ -526,16 +525,11 @@ public class DomainPane
         	bar.setRollover(true);
         	bar.setBorder(null);
         	bar.add(colorModel);
-        	//controls.add(bar, "0, "+k+", CENTER, CENTER");
+        	c.anchor = GridBagConstraints.CENTER;
         	controls.add(bar, c);
-        	k = k+2;
         	c.gridy = c.gridy+2;
+        	c.anchor = GridBagConstraints.WEST;
         }
-        /*
-        if (channelList.size() > Renderer.MAX_CHANNELS) 
-        	controls.add(new JScrollPane(p), "0, "+k);
-        else controls.add(p, "0, "+k);
-        */
         if (channelList.size() > Renderer.MAX_CHANNELS) 
         	controls.add(new JScrollPane(p), c);
         else controls.add(p, c);
