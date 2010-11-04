@@ -46,6 +46,6 @@ urlpatterns = patterns('',
     (r'(?i)^webgateway/', include('omeroweb.webgateway.urls')),
     (r'(?i)^webtest/', include('omeroweb.webtest.urls')),    
        
-    (r'(?i)^webemdb/', include('omeroweb.webemdb.urls')),
+    #(r'(?i)^webemdb/', include('omeroweb.webemdb.urls')),
     (r'(?i)^webmobile/', include('omeroweb.webmobile.urls')),
 )

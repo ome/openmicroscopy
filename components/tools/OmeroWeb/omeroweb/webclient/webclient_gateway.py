@@ -1724,9 +1724,11 @@ class ShareWrapper (OmeroWebObjectWrapper, omero.gateway.ShareWrapper):
     def getExpireDate(self):
         #workaround for problem of year 2038
         try:
-            if self.timeToLive > 2051222400:
-                return datetime(2035, 1, 1, 0, 0, 0)            
             d = self.started+self.timeToLive
+            print d
+            print 2051222400
+            if d > 2051222400:
+                return datetime(2035, 1, 1, 0, 0, 0)            
             return datetime.fromtimestamp(d / 1000)
         except:
             logger.info(traceback.format_exc())
@@ -1736,8 +1738,11 @@ class ShareWrapper (OmeroWebObjectWrapper, omero.gateway.ShareWrapper):
         #workaround for problem of year 2038
         now = time.time()
         try:
-            d = self.started+self.timeToLive
-            if (d / 1000)> now:
+            d = long(self.started+self.timeToLive)
+            print 'shr',d/1000
+            print 'now',now
+            print 'exp',(d / 1000) > now
+            if (d / 1000) > now:
                 return False
             return True
         except:

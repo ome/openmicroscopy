@@ -161,9 +161,9 @@
                     <td><p><label>{{ manager.share.getShareType|lower }} {{ manager.share.id }}</label></p>
                         {% if manager.share.isOwned %}<a href="{% url manage_action_containers "edit" "share" manager.share.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %} (id: {{ manager.share.id }})</td></tr>
                 <tr><td>Includes {{ manager.share.itemCount }} image(s)</td></tr>
-                <tr><td>Status: <strong>{% if manager.share.active %}{% trans "ACTIVE" %}{% else %}{% trans "NOT ACTIVE" %}{% endif %}</strong></td></tr>                
+                <tr><td>Status: <strong>{% if manager.share.active %}{% trans "ACTIVE" %}{% else %}{% trans "NOT ACTIVE" %}{% endif %}{% if manager.share.isExpired %}; EXPIRED{% endif %}</strong></td></tr>                
                 <tr><td colspan="2">Created on: {{ manager.share.getStartDate|date:"Y-m-d H:i:s" }}</td></tr>
-                <tr><td colspan="2">Expire on: {{ manager.share.getExpireDate|date:"Y-m-d H:i:s" }} {% if manager.share.isExpired %}<strong>EXPIRED</strong>{% endif %}</td></tr>
+                <tr><td colspan="2">Expire on: {{ manager.share.getExpireDate|date:"Y-m-d H:i:s" }}</td></tr>
                 <tr><td colspan="2">Owner: {{ manager.share.getOwner.getFullName }}</td></tr>              
                 <tr><td colspan="2">Member(s): 
                     <ol>

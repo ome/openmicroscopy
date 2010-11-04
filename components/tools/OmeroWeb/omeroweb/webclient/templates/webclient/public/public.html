@@ -41,7 +41,14 @@
                         afterClick:function(node){
                             var obj = $(node).attr('id').split("-");
                             var par = $(node).parents('li:first').attr('id').split("-");
-                            if (obj[0] == 'sh') {
+                            if (obj[0] == 'lock') {
+                                $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/>');                             
+                                $("#right_panel").show();
+                                $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
+                                $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="/webclient/metadata_details/share/'+obj[1]+'/" id="metadata_details" name="metadata_details"></iframe>');
+                                $('iframe#metadata_details').load();
+                                $("div#content_details").removeAttr('rel').children().remove(); 
+                            } else if (obj[0] == 'sh') {
                                 $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/>');                             
                                 $("#right_panel").show();
                                 $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');

@@ -261,6 +261,8 @@ $.fn.simpleTree = function(opt){
 		        pic = '<img class="icon" src="/appmedia/omeroweb/images/tree/folder_html16.png" alt="share"/>'; 
             } else if(node.id.indexOf('di')>=0){    
 		        pic = '<img class="icon" src="/appmedia/omeroweb/images/tree/wp_protocol16.png" alt="discussion"/>'; 
+            } else if(node.id.indexOf('lock')>=0){    
+		        pic = '<img class="icon" src="/appmedia/omeroweb/images/tree/file_locked16.png" alt="locked"/>'; 
             } else {
 		        pic = '<img class="icon" src="/appmedia/omeroweb/images/tree/unknown16.png" alt="image"/>';
 		    }
