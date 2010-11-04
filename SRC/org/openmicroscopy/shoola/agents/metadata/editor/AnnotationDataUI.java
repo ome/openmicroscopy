@@ -25,9 +25,11 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -47,7 +49,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -60,11 +61,9 @@ import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 
 //Third-party libraries
-import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
@@ -270,6 +269,7 @@ class AnnotationDataUI
 			if (data != null) nodes.add(data);
 		}
 		layoutAttachments(nodes);
+		buildGUI();
 	}
 	
 	/**
@@ -405,6 +405,7 @@ class AnnotationDataUI
 		docPane = new JPanel();
 		docPane.setLayout(new BoxLayout(docPane, BoxLayout.Y_AXIS));
 		docPane.setBackground(UIUtilities.BACKGROUND_COLOR);
+		docRef = docPane;
 		doc = new DocComponent(null, model);
 		filesDocList.add(doc);
 		docPane.add(doc);
@@ -443,58 +444,61 @@ class AnnotationDataUI
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		content.removeAll();
 		JLabel l = new JLabel();
 		Font f = l.getFont();
 		int size = f.getSize()-1;
+		content.removeAll();
+		content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 		
-    	double[] columns = {TableLayout.PREFERRED, 5,
-    			TableLayout.PREFERRED, 5, TableLayout.FILL};//DEFAULT_WIDTH};
-    	TableLayout layout = new TableLayout();
-    	content.setLayout(layout);
-    	layout.setColumn(columns);
-		int i = 0;
-		layout.insertRow(i, TableLayout.PREFERRED);
-		
-		JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		//layout button.
+		//filters
+		JPanel p = UIUtilities.buildComponentPanel(
+				createBar(filterButton, null), 0, 0);
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		p.add(createBar(filterButton, null));
-		content.add(p, "0, "+i+", 4, "+i);
-		i++;
-		
-		layout.insertRow(i, TableLayout.PREFERRED);
+		content.add(p);
+		//rating
 		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.add(UIUtilities.setTextFont("rate", Font.BOLD, size));
 		p.add(createBar(unrateButton, null));
-		content.add(p, "0, "+i);
-		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		p.setBackground(UIUtilities.BACKGROUND_COLOR);
+		p.add(Box.createHorizontalStrut(2));
 		p.add(rating);
 		p.add(Box.createHorizontalStrut(2));
 		p.add(otherRating);
-		content.add(p, "2, "+i);
-		i++;
-		layout.insertRow(i, TableLayout.PREFERRED);
+		content.add(p);
+		
+		//tags and attachments.
 		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.add(UIUtilities.setTextFont("tag", Font.BOLD, size));
 		p.add(createBar(addTagsButton, removeTagsButton));
 		
-		content.add(p, "0, "+i+", LEFT, TOP");
-		content.add(tagsPane, "2, "+i);
-		tagRow = i;
-		i++;
-		docIndex = i;
-		layout.insertRow(i, TableLayout.PREFERRED);
+		JPanel panel = new JPanel(new GridBagLayout());
+		panel.setBackground(UIUtilities.BACKGROUND_COLOR);
+		GridBagConstraints c = new GridBagConstraints();
+		//c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.WEST;
+		c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+		c.fill = GridBagConstraints.NONE;      //reset to default
+		c.insets = new Insets(0, 2, 2, 0);
+		c.gridy = 0;
+		c.gridx = 0;
+		panel.add(p, c);
+		
 		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.add(UIUtilities.setTextFont("attachment", Font.BOLD, size));
 		p.add(createBar(addDocsButton, removeDocsButton));
-		content.add(p, "0, "+i+", LEFT, TOP");
-		docConstraints = "2, "+i;
-		docRef = docPane;
-		content.add(docPane, docConstraints);
+		c.gridy = 3;
+		panel.add(p, c);
+		c.gridy = 0;
+		c.gridx++;
+		c.ipady = 2;
+		c.gridheight = 2;
+		panel.add(tagsPane, c);
+		c.gridy = 3;
+		panel.add(docRef, c);
+		content.add(panel);
 		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		setBackground(UIUtilities.BACKGROUND);
 		setBorder(new SeparatorOneLineBorder());
@@ -523,8 +527,8 @@ class AnnotationDataUI
 	private void layoutAttachments(Collection list)
 	{
 		docPane.removeAll();
-		TableLayout layout = (TableLayout) content.getLayout();
-		layout.setRow(docIndex, TableLayout.PREFERRED);
+		//TableLayout layout = (TableLayout) content.getLayout();
+		//layout.setRow(docIndex, TableLayout.PREFERRED);
 		filesDocList.clear();
 		DocComponent doc;
 		int h = 0;
@@ -609,22 +613,24 @@ class AnnotationDataUI
 		}
 		int n = docPane.getComponentCount();
 		docRef = docPane;
+		/*
 		if (n >= MAX) {
-			layout = (TableLayout) content.getLayout();
-			layout.setRow(docIndex, h*2*MAX);
+			//layout = (TableLayout) content.getLayout();
+			//layout.setRow(docIndex, h*2*MAX);
 			Dimension d = docPane.getPreferredSize();
 			JScrollPane sp = new JScrollPane(docPane);
-			//docPane.setPreferredSize(new Dimension(d.width+15, h*2*MAX));
+			docPane.setPreferredSize(new Dimension(d.width+15, h*2*MAX));
 			docRef = sp;	
 		} else {
 			//docPane.setPreferredSize(docPane.getPreferredSize());
-		}
-		content.add(docRef, docConstraints);
+		}*/
+		//content.add(docRef, docConstraints);
 		docPane.revalidate();
 		docPane.repaint();
-		content.revalidate();
-		content.repaint();
+		//content.revalidate();
+		//content.repaint();
 	}
+	
 	
 	/**
 	 * Lays out the tags.
@@ -743,11 +749,6 @@ class AnnotationDataUI
 	 */
 	protected void buildUI()
 	{
-		//rating
-		//if (!init) {
-			buildGUI();
-			init = true;
-		//}
 		selectedValue = 0;
 		String text = "";
 		if (!model.isMultiSelection()) {
@@ -785,8 +786,8 @@ class AnnotationDataUI
 		
 		//Viewed by
 		Object refObject = model.getRefObject();
-		TableLayout layout = (TableLayout) content.getLayout();
-		double hTag = TableLayout.PREFERRED;
+		//TableLayout layout = (TableLayout) content.getLayout();
+		//double hTag = TableLayout.PREFERRED;
 		
 		if (!model.isMultiSelection()) {
 			l = model.getTags();
@@ -802,13 +803,7 @@ class AnnotationDataUI
 		unrateButton.setEnabled(enabled);
 		removeTagsButton.setEnabled(enabled);
 		removeDocsButton.setEnabled(enabled);
-		layout.setRow(tagRow, hTag);
-		content.revalidate();
-		content.repaint();
-		
-	
-		revalidate();
-		repaint();
+		buildGUI();
 	}
 
 	/**
@@ -987,6 +982,7 @@ class AnnotationDataUI
 				}
 			}
 		}
+		buildGUI();
 		if (fire)
 			firePropertyChange(EditorControl.SAVE_PROPERTY, 
 					Boolean.valueOf(false), Boolean.valueOf(true));
@@ -1364,10 +1360,9 @@ class AnnotationDataUI
 		docPane.add(doc);
 		tagFlag = false;
 		docFlag = false;
-		double h = TableLayout.PREFERRED;
-		//if (!model.isMultiSelection()) h = TableLayout.PREFERRED;
-		TableLayout layout = (TableLayout) content.getLayout();
-		layout.setRow(tagRow, h);
+		//double h = TableLayout.PREFERRED;
+		//TableLayout layout = (TableLayout) content.getLayout();
+		//layout.setRow(tagRow, h);
 		content.revalidate();
 		content.repaint();
 		revalidate();

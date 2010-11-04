@@ -660,7 +660,7 @@ class PropertiesUI
         	(refObject instanceof ScreenData)) {
         	 p.add(Box.createVerticalStrut(5));
         	 descriptionPanel = layoutEditablefield(editDescription, 
-        			 descriptionPane, 80);
+        			 descriptionPane, 5);
         	 descriptionPanel.setBorder(AnnotationUI.EDIT_BORDER);
         	 p.add(descriptionPanel);
          } else if (refObject instanceof FileData) {
