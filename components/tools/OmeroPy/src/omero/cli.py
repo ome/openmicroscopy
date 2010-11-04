@@ -168,12 +168,13 @@ class Parser(ArgumentParser):
 
     def _format_list(self, choices):
             lines = ["\t"]
-            while len(choices) > 1:
-                choice = choices.pop(0)
-                lines[-1] += ("%s, " % choice)
-                if len(lines[-1]) > 62:
-                    lines.append("\t")
-            lines[-1] += choices.pop(0)
+            if choices:
+                while len(choices) > 1:
+                    choice = choices.pop(0)
+                    lines[-1] += ("%s, " % choice)
+                    if len(lines[-1]) > 62:
+                        lines.append("\t")
+                lines[-1] += choices.pop(0)
             return "\n".join(lines)
 
 class NewFileType(FileType):
