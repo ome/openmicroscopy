@@ -13,7 +13,7 @@ public class Notifications {
     public static void main(String args[]) throws Exception{
 
         long launched = System.currentTimeMillis();
-        omero.client client = new omero.client();
+        omero.client client = new omero.client(args);
         try {
             ServiceFactoryPrx sf = client.createSession();
             IScriptPrx scriptService = sf.getScriptService();

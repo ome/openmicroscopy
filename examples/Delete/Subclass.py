@@ -15,7 +15,7 @@ class Subclass(omero.callbacks.DeleteCallbackI):
         print "Finished. Error count=%s" % errors
 
         try:
-            reports = handle.report()
+            reports = self.handle.report()
             for r in reports:
                 print "Report:error=%s,warning=%s,deleted=%s" % \
                         (r.error, r.warning, r.actualDeletes)
