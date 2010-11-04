@@ -66,6 +66,12 @@ DEVELOPMENT = "development"
 DEFAULT_SERVER_TYPE = FASTCGITCP
 ALL_SERVER_TYPES = (FASTCGITCP, FASTCGI, DEVELOPMENT)
 
+DEFAULT_SESSION_ENGINE = 'django.contrib.sessions.backends.file'
+SESSION_ENGINE_VALUES = ('django.contrib.sessions.backends.db',
+                         'django.contrib.sessions.backends.file',
+                         'django.contrib.sessions.backends.cache',
+                         'django.contrib.sessions.backends.cached_db')
+
 def parse_boolean(s):
     s = s.strip().lower()
     if s in ('true', '1', 't'):
@@ -75,6 +81,11 @@ def parse_boolean(s):
 def check_server_type(s):
     if s not in ALL_SERVER_TYPES:
         raise ValueError("Unknown server type: %s. Valid values are: %s" % (s, ALL_SERVER_TYPES))
+    return s
+
+def check_session_engine(s):
+    if s not in SESSION_ENGINE_VALUES:
+        raise ValueError("Unknown session engine: %s. Valid values are: %s" % (s, SESSION_ENGINE_VALUES))
     return s
 
 def identity(x):
@@ -100,6 +111,7 @@ CUSTOM_SETTINGS_MAPPINGS = {
     "omero.web.application_server.host": ["APPLICATION_SERVER_HOST", "0.0.0.0", str],
     "omero.web.application_server.port": ["APPLICATION_SERVER_PORT", "4080", str],
     "omero.web.cache_backend": ["CACHE_BACKEND", None, leave_none_unset],
+    "omero.web.session_engine": ["SESSION_ENGINE", DEFAULT_SESSION_ENGINE, check_session_engine],
     "omero.web.debug": ["DEBUG", "false", parse_boolean],
     "omero.web.email_host": ["EMAIL_HOST", None, identity],
     "omero.web.email_host_password": ["EMAIL_HOST_PASSWORD", None, identity],
@@ -270,8 +282,7 @@ FEEDBACK_URL = "qa.openmicroscopy.org.uk:80"
 
 IGNORABLE_404_ENDS = ('*.ico')
 
-# Other option: "django.contrib.sessions.backends.cache_db"; "django.contrib.sessions.backends.cache"; "django.contrib.sessions.backends.file"
-SESSION_ENGINE = "django.contrib.sessions.backends.file"
+# SESSION_ENGINE is now set by the bin/omero config infrastructure
 SESSION_FILE_PATH = tempfile.gettempdir()
 
 # Cookies config
@@ -279,7 +290,7 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True # False
 SESSION_COOKIE_AGE = 86400 # 1 day in sec (86400)
 
 # file upload settings
-FILE_UPLOAD_TEMP_DIR = '/tmp'
+FILE_UPLOAD_TEMP_DIR = tempfile.gettempdir()
 FILE_UPLOAD_MAX_MEMORY_SIZE = 2621440 #default 2621440
 
 DEFAULT_IMG = os.path.join(os.path.dirname(__file__), 'media', 'omeroweb', "images", 'image128.png').replace('\\','/')

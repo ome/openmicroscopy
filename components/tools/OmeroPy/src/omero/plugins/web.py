@@ -261,6 +261,28 @@ Alias / "%(ROOT)s/var/omero.fcgi/"
                              getattr(settings, 'CACHE_BACKEND'))
                 return 1
         deploy = getattr(settings, 'APPLICATION_SERVER')
+
+        # 3216
+        if deploy in (settings.FASTCGI_TYPES):
+            pid_path = self.ctx.dir / "var" / "django.pid"
+            pid_num = None
+
+            if pid_path.exists():
+                pid_txt = pid_path.text().strip()
+                try:
+                    pid_num = int(pid_txt)
+                except:
+                    pid_path.remove()
+                    self.ctx.err("Removed invalid %s: '%s'" % (pid_path, pid_txt))
+
+            if pid_num is not None:
+                try:
+                    os.kill(pid_num, 0)
+                    self.ctx.die(606, "%s exists! Use 'web stop' first" % pid_path)
+                except OSError:
+                    pid_path.remove()
+                    self.ctx.err("Removed stale %s" % pid_path)
+
         if deploy == settings.FASTCGI:
             cmd = "python manage.py runfcgi workdir=./"
             cmd += " method=prefork socket=%(base)s/var/django_fcgi.sock"
@@ -319,18 +341,22 @@ Alias / "%(ROOT)s/var/omero.fcgi/"
         deploy = getattr(settings, 'APPLICATION_SERVER')
         if deploy in settings.FASTCGI_TYPES:
             pid = 'Unknown'
+            pid_path = self.ctx.dir / "var" / "django.pid"
+            pid_text = pid_path.text().strip()
             try:
-                f=open(self.ctx.dir / "var" / "django.pid", 'r')
-                pid = int(f.read())
-                import signal
-                os.kill(pid, 0)  # NULL signal
-            except:
-                self.ctx.out("[FAILED]")
-                self.ctx.out("Django FastCGI workers (PID %s) not started?" % pid)
-                return
-            os.kill(pid, signal.SIGTERM) #kill whole group
-            self.ctx.out("[OK]")
-            self.ctx.out("Django FastCGI workers (PID %d) killed." % pid)
+                try:
+                    pid = int(pid_text)
+                    import signal
+                    os.kill(pid, 0)  # NULL signal
+                except:
+                    self.ctx.out("[FAILED]")
+                    self.ctx.out("Django FastCGI workers (PID %s) not started?" % pid_text)
+                    return
+                os.kill(pid, signal.SIGTERM) #kill whole group
+                self.ctx.out("[OK]")
+                self.ctx.out("Django FastCGI workers (PID %d) killed." % pid)
+            finally:
+                pid_path.remove()
         else:
             self.ctx.err("DEVELOPMENT: You will have to kill processes by hand!")
 
