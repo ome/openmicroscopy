@@ -20,7 +20,7 @@
     <img src="{% url webstatic "images/logo-client.png" %}" />
 </div>
 <div id="login">
-    <form action="{% url weblogin %}?url={{url}}" method="post">
+    <form action="{% url weblogin %}{% if url %}?url={{url}}{% endif %}" method="post">
         <table><tbody>
             {% if error %}<tr><th colspan="2"><ul class="errorlist"><li>{% trans "Error:" %} {{ error }}</li></ul></th><tr>{% endif %}
         </tbody></table>

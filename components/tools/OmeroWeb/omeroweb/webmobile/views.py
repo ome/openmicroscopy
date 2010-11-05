@@ -56,6 +56,8 @@ def logout (request):
         del request.session['password']
     except KeyError:
         logger.error(traceback.format_exc())
+
+    #request.session.set_expiry(1)
     return HttpResponseRedirect(reverse('webmobile_login'))
 
 

@@ -57,7 +57,7 @@ from django.views import debug
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
-from webclient_http import HttpJavascriptRedirect, HttpJavascriptResponse
+from webclient_http import HttpJavascriptRedirect, HttpJavascriptResponse, HttpLoginRedirect
 from webclient.webclient_gateway import OmeroWebGateway
 
 from webclient_utils import _formatReport, _purgeCallback
@@ -115,39 +115,12 @@ def getShareConnection (request, share_id):
 
 ################################################################################
 # decorators
-def load_session_from_request(handler):
-    """Read the session key from the GET/POST vars instead of the cookie.
-
-    Centipedes, in my request headers?
-    Yes! We sometimes receive the session key in the POST, because the
-    multiple-file-uploader uses Flash to send the request, and the best Flash
-    can do is grab our cookies from javascript and send them in the POST.
-    """
-    def func(request, *args, **kwargs):
-        session_key = request.REQUEST.get(settings.SESSION_COOKIE_NAME, None)
-        if not session_key:
-            # TODO(rnk): Do something more sane like ask the user if their
-            #            session is expired or some other weirdness.
-            logger.error("Session key does not exist.")
-            raise Http404()
-        # This is how SessionMiddleware does it.
-        session_engine = __import__(settings.SESSION_ENGINE, {}, {}, [''])
-        try:
-            request.session = session_engine.SessionStore(session_key)
-        except Exception, e:
-            logger.error(e)
-            logger.error(traceback.format_exc())
-            return html_error(e)
-        logger.debug("Session from request loaded successfully.")
-        return handler(request, *args, **kwargs)
-    return func
-
 
 def isUserConnected (f):
     def wrapped (request, *args, **kwargs):
         #this check the connection exist, if not it will redirect to login page
         url = request.REQUEST.get('url')
-        if url is None:
+        if url is None or len(url) == 0:
             if request.META.get('QUERY_STRING'):
                 url = '%s?%s' % (request.META.get('PATH_INFO'), request.META.get('QUERY_STRING'))
             else:
@@ -156,14 +129,14 @@ def isUserConnected (f):
         conn = None
         try:
             conn = getBlitzConnection(request, useragent="OMERO.web")
-        except KeyError:
-            return HttpResponseRedirect(reverse("weblogin")+(("?url=%s") % (url)))
         except Exception, x:
             logger.error(traceback.format_exc())
             return HttpResponseRedirect(reverse("weblogin")+(("?error=%s&url=%s") % (str(x),url)))
         if conn is None:
+            if request.session.get('version') is not None:
+                return HttpLoginRedirect(reverse("weblogin"))
             return HttpResponseRedirect(reverse("weblogin")+(("?url=%s") % (url)))
-        
+            
         conn_share = None       
         share_id = kwargs.get('share_id', None)
         if share_id is not None:
@@ -174,9 +147,6 @@ def isUserConnected (f):
                 except Exception, x:
                     logger.error(traceback.format_exc())
         
-        #logger.debug('Active Services for the session: %s' % conn._sessionUuid)
-        #logger.debug(conn.c.sf.activeServices())
-            
         sessionHelper(request)
         kwargs["error"] = request.REQUEST.get('error')
         kwargs["conn"] = conn
@@ -258,7 +228,7 @@ def login(request):
         if request.REQUEST.get('noredirect'):
             return HttpResponse('OK')
         url = request.REQUEST.get("url")
-        if url is not None:
+        if url is not None and len(url) != 0:
             return HttpResponseRedirect(url)
         else:
             return HttpResponseRedirect(reverse("webindex"))
@@ -290,10 +260,10 @@ def login(request):
                     form = LoginForm(initial=initial)
             else:
                 form = LoginForm()
-        if url is not None:
-            context = {"version": omero_version, 'url':url, 'error':error, 'form':form}
-        else:
-            context = {"version": omero_version, 'error':error, 'form':form}
+        context = {"version": omero_version, 'error':error, 'form':form}
+        
+        if url is not None and len(url) != 0:
+            context['url'] = url
         
         t = template_loader.get_template(template)
         c = Context(request, context)
@@ -431,7 +401,8 @@ def change_active_group(request, **kwargs):
     username = request.session.get('username')
     password = request.session.get('password')
     ssl = request.session.get('ssl')
-        
+    version = request.session.get('version')
+       
     webgateway_views._session_logout(request, request.session.get('server'))
     
     blitz = settings.SERVER_LIST.get(pk=server) 
@@ -457,14 +428,19 @@ def change_active_group(request, **kwargs):
         url = reverse("webindex")+ ("?error=%s" % error)
         if request.session.get('nav')['experimenter'] is not None:
             url += "&experimenter=%s" % request.session.get('nav')['experimenter']
-
+    
+    request.session['version'] = conn.getServerVersion()
+    
     return HttpResponseRedirect(url)
     
 @isUserConnected
 def logout(request, **kwargs):
     webgateway_views._session_logout(request, request.session.get('server'))
-
+     
     try:
+        for k in ('clipboard', 'imageInBasket', 'nav'):
+            if request.session.has_key(k):
+                del request.session[k]
         if request.session.get('shares') is not None:
             for key in request.session.get('shares').iterkeys():
                 session_key = "S:%s#%s#%s" % (request.session.session_key,request.session.get('server'), key)
@@ -472,7 +448,7 @@ def logout(request, **kwargs):
     except:
         logger.error(traceback.format_exc())
     
-    request.session.set_expiry(1)
+    #request.session.set_expiry(1)
     return HttpResponseRedirect(reverse("webindex"))
 
 
@@ -1931,56 +1907,33 @@ def update_clipboard(request, **kwargs):
         rv = "Error: Action not available."
     return HttpResponse(rv)
 
+#@isUserConnected
+#def importer(request, **kwargs):
+#    request.session.modified = True
+#
+#    conn = None
+#    try:
+#        conn = kwargs["conn"]
+#    except:
+#        logger.error(traceback.format_exc())
+#        return handlerInternalError("Connection is not available. Please contact your administrator.")
+#    
+#    url = None
+#    try:
+#        url = kwargs["url"]
+#    except:
+#        logger.error(traceback.format_exc())
+#        
+#    controller = BaseImpexp(conn)
+#    
+#    form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['allGroups'], 'url':url})
+#    
+#    context = {'sid':request.session['server'], 'uuid':conn._sessionUuid, 'nav':request.session['nav'], 'eContext': controller.eContext, 'controller':controller, 'form_active_group':form_active_group}
+#    t = template_loader.get_template(template)
+#    c = Context(request,context)
+#    logger.debug('TEMPLATE: '+template)
+#    return HttpResponse(t.render(c))
 
-
-@isUserConnected
-def importer(request, **kwargs):
-    request.session.modified = True
-
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
-    url = None
-    try:
-        url = kwargs["url"]
-    except:
-        logger.error(traceback.format_exc())
-        
-    controller = BaseImpexp(conn)
-    
-    form_active_group = ActiveGroupForm(initial={'activeGroup':controller.eContext['context'].groupId, 'mygroups': controller.eContext['allGroups'], 'url':url})
-    
-    context = {'sid':request.session['server'], 'uuid':conn._sessionUuid, 'nav':request.session['nav'], 'eContext': controller.eContext, 'controller':controller, 'form_active_group':form_active_group}
-    t = template_loader.get_template(template)
-    c = Context(request,context)
-    logger.debug('TEMPLATE: '+template)
-    return HttpResponse(t.render(c))
-
-
-@load_session_from_request
-@isUserConnected
-def flash_uploader(request, **kwargs):
-    logger.debug("Upload from web processing...")
-    try:
-        if request.method == 'POST':
-            logger.debug("Web POST data sent:")
-            logger.debug(request.POST)
-            logger.debug(request.FILES)
-        else:
-            raise AttributeError("Only POST accepted")
-        try:
-            conn = kwargs["conn"]
-        except:
-            logger.error(traceback.format_exc())
-            return handlerInternalError("Connection is not available. Please contact your administrator.")
-        return HttpResponse()
-    except Exception, x:
-        logger.error(traceback.format_exc())
-        return HttpResponse(x)
 
 @isUserConnected
 def manage_myaccount(request, action=None, **kwargs):

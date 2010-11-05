@@ -110,7 +110,7 @@ def _checkVersion(host, port):
             local_split = local_cleaned.split(".")
 
             rv = (agent_split == local_split)
-            logger.debug("Client version: '%s'; Server version: '%s'"% (omero_version, agent))
+            logger.info("Client version: '%s'; Server version: '%s'"% (omero_version, agent))
         except Exception, x:
             logger.error(traceback.format_exc())
     return rv
@@ -132,7 +132,7 @@ def isAdminConnected (f):
     def wrapped (request, *args, **kwargs):
         #this check the connection exist, if not it will redirect to login page
         url = request.REQUEST.get('url')
-        if url is None:
+        if url is None or len(url) == 0:
             if request.META.get('QUERY_STRING'):
                 url = '%s?%s' % (request.META.get('PATH_INFO'), request.META.get('QUERY_STRING'))
             else:
@@ -160,7 +160,7 @@ def isOwnerConnected (f):
     def wrapped (request, *args, **kwargs):
         #this check the connection exist, if not it will redirect to login page
         url = request.REQUEST.get('url')
-        if url is None:
+        if url is None or len(url) == 0:
             if request.META.get('QUERY_STRING'):
                 url = '%s?%s' % (request.META.get('PATH_INFO'), request.META.get('QUERY_STRING'))
             else:
@@ -192,7 +192,7 @@ def isUserConnected (f):
     def wrapped (request, *args, **kwargs):
         #this check connection exist, if not it will redirect to login page
         url = request.REQUEST.get('url')
-        if url is None:
+        if url is None or len(url) == 0:
             if request.META.get('QUERY_STRING'):
                 url = '%s?%s' % (request.META.get('PATH_INFO'), request.META.get('QUERY_STRING'))
             else:
@@ -207,7 +207,7 @@ def isUserConnected (f):
             logger.error(traceback.format_exc())
             return HttpResponseRedirect(reverse("walogin")+(("?error=%s&url=%s") % (str(x),url)))
         if conn is None:
-            return HttpResponseRedirect(reverse("walogin")+(("?url=%s") % (url)))   
+            return HttpResponseRedirect(reverse("walogin")+(("?url=%s") % (url)))
         
         kwargs["conn"] = conn
         kwargs["url"] = url
@@ -373,7 +373,7 @@ def logout(request, **kwargs):
     except:
         logger.error(traceback.format_exc())
     
-    request.session.set_expiry(1)
+    #request.session.set_expiry(1)
     return HttpResponseRedirect(reverse("waindex"))
 
 @isAdminConnected

@@ -236,7 +236,7 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
                     return None
                 logger.debug('Failed connection, logging out')
                 _session_logout(request, server_id)
-                return blitzcon
+                return None
                 #return getBlitzConnection(request, server_id, with_session, force_anon=True, skip_stored=skip_stored, useragent=useragent)
             else:
                 ####

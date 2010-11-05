@@ -99,8 +99,7 @@ urlpatterns = patterns('django.views.generic.simple',
     
     url( r'^clipboard/$', views.update_clipboard, name="update_clipboard"),
         
-    url( r'^import/$', views.importer, name="importer"),
-    url( r'^upload/$', views.flash_uploader, name="flash_uploader"), 
+    #url( r'^import/$', views.importer, name="importer"),
     
     url( r'^help_search/$', 'direct_to_template', {'template': 'webclient/help/help_search.html'}, name="help_search" ),
     
