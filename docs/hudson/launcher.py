@@ -16,9 +16,9 @@
 # which will:
 #
 #   * download <BRANCH>.log from hudson
-#   * create target/hudson.log
+#   * create hudson.log
 #   * run sh docs/hudson/OMERO-<BRANCH>-<COMPONENT>.sh
-#      or docs\hudson\OMERO-<BRANCH>-<COMPONENT>.bat
+#      or    docs\hudson\OMERO-<BRANCH>-<COMPONENT>.bat
 #
 
 import os
@@ -65,11 +65,8 @@ if __name__ == "__main__":
     os.chdir("..") # docs
     os.chdir("..") # OMERO_HOME
     top = os.path.abspath(".")
-    target = os.path.join(top, "target")
-    if not os.path.exists(target):
-        os.makedirs(target)
-    build_log = os.path.join(target, "%s.log" % branch)
-    hudson_log = os.path.join(target, "hudson.log")
+    build_log = os.path.join(top, "%s.log" % branch)
+    hudson_log = os.path.join(top, "hudson.log")
 
 
     #
