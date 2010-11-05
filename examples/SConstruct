@@ -233,7 +233,11 @@ for src_dir in glob.glob("*"):
         if env["run"] or env["run_py"]:
             python_files = glob.glob(os.path.join(src_dir, "*.py"))
             for file in python_files:
-                if file.find("adminWorkflow.py") < 0: # Workaround ticket:3243
+                use = True
+                for x in ("adminWorkflow.py", "runHellowWorld.py", "HelloWorld.py", "Edit_Descriptions.py"):
+                    if file.find(x) >=0: # Workaround ticket:3243
+                        use = False
+                if use:
                     run = env.Alias(file, [], "python %s --Ice.Config=%s" % (file,ice_config) )
                     env.AlwaysBuild(run)
                     targets.append(run)
