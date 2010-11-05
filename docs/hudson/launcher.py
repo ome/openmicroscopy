@@ -46,11 +46,18 @@ if __name__ == "__main__":
         sys.exit(1)
 
     branch = m.group(1)
-    job = m.group(2)
+    axises = m.group(3)
+    values = {}
+    for axis in axises.split(","):
+        parts = axis.split("=")
+        values[parts[0]] = parts[1]
+    job = values["component"]
+    label = values["label"]
 
     top = os.path.join(os.pardir, os.pardir)
     target = os.path.join(top, "target")
-    os.makedirs(target)
+    if not os.path.exists(target):
+        os.makedirs(target)
     build_log = os.path.join(target, "%s.log" % branch)
     hudson_log = os.path.join(target, "hudson.log")
 
