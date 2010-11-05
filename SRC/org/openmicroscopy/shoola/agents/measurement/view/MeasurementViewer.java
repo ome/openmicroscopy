@@ -171,9 +171,6 @@ public interface MeasurementViewer
 
 	/** Saves the ROI. */
 	public void saveROI();
-
-	/** Rebuild the table in the measurement manager component. */
-	public void rebuildManagerTable();
 	
 	/**
 	 * Invokes when a figures attributes have changed. 

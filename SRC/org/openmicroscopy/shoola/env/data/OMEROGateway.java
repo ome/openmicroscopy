@@ -713,10 +713,11 @@ class OMEROGateway
 			Data d;
 			Column column;
 			long[] a = new long[cols.length];
-			long[] b = new long[0];
+			long[] b = new long[n];
 			for (int i = 0; i < cols.length; i++) {
 				a[i] = i; 
 			}
+			
 			d = table.slice(a, b);
 			for (int i = 0; i < cols.length; i++) {
 				column = d.columns[i];
@@ -6271,7 +6272,6 @@ class OMEROGateway
 					result.setResult(createTableResult(svc.getTable(id)));
 					results.add(result);
 				}
-				
 			}
 		} catch (Exception e) {
 			handleException(e, "Cannot load the ROI for image: "+imageID);

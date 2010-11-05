@@ -538,15 +538,6 @@ class MeasurementViewerComponent
 	}
 	
 	/** 
-     * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#rebuildManagerTable()
-     */
-	public void rebuildManagerTable() 
-	{
-		view.rebuildManagerTable();
-	}
-	
-	/** 
 	 * Implemented as specified by the {@link MeasurementViewer} interface.
 	 * @see MeasurementViewer#figureAttributeChanged(AttributeKey, ROIFigure)
 	 */
@@ -834,8 +825,6 @@ class MeasurementViewerComponent
 		}
 		//bring up the UI.
 		view.layoutUI();
-		//view.rebuildManagerTable();
-		
 		view.updateDrawingArea();
 		fireStateChange();
 		//Now we are ready to go. We can post an event to add component to
