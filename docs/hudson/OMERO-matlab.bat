@@ -3,6 +3,7 @@ sc stop OMERO.hudson
 
 REM For fingerprinting what caused this job, we download ice.config
 wget ice.config
+also examples/*.m
 
 set OMERO_BUILD=r%SVN_REVISION%_w%BUILD_NUMBER%
 set OMERO_CONFIG=%JOB_NAME%
@@ -76,6 +77,16 @@ mkdir TestDropBox
 if errorlevel 1 goto ERROR
 python bin\omero admin ice server start TestDropBox
 if errorlevel 1 goto ERROR
+
+
+REM
+REM Try Matlab
+REM
+REM Removed by Chris Allan <callan@blackcat.ca>
+REM Thu Oct  7 16:34:05 BST 2010
+REM set OMERO_HOME=%CD%
+REM call %WORKSPACE%\trunk\components\tools\OmeroM\test\omero_test
+REM if errorlevel 1 goto ERROR
 
 
 REM
