@@ -160,6 +160,7 @@ class ServerROITable
 		tc.setCellRenderer(table.getDefaultRenderer(Boolean.class));  
 		table.setShowGrid(true);
 		table.setGridColor(Color.LIGHT_GRAY);
+		table.setSelectionBackground(UIUtilities.SELECTED_BACKGROUND_COLOUR);
 		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
 		table.setRowSelectionAllowed(true);
@@ -398,7 +399,6 @@ class ServerROITable
 			List<ROIFigure> list = new ArrayList<ROIFigure>();
 			while (i.hasNext()) {
 				entry = (Entry) i.next();
-				System.err.println(entry.getValue());
 				if (indexes.contains(entry.getValue())) {
 					roi = model.getROI((Long) entry.getKey());
 					shapes = roi.getShapes();
