@@ -586,8 +586,8 @@ class MeasurementViewerModel
 		long userID = MeasurementAgent.getUserDetails().getId();
 		while (r.hasNext()) {
 			result = (ROIResult) r.next();
-			roiList.addAll(roiComponent.loadROI(result.getROIs(), readOnly, 
-					userID));
+			roiList.addAll(roiComponent.loadROI(result.getFileID(),
+					result.getROIs(), readOnly, userID));
 		}
 		if (roiList == null) return false;
 		Iterator<ROI> i = roiList.iterator();

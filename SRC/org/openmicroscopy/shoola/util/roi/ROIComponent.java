@@ -376,41 +376,29 @@ public class ROIComponent
 	 * @param fileID The id of the file.
 	 * @param rois The collection of ROIs to convert.
 	 * @param readOnly Are the ROI readOnly.
-	 * @return See above.
-	 * @throws NoSuchROIException
-	 * @throws ROICreationException
-	 */
-	public List<ROI> loadROI(long fileID, Collection rois, boolean readOnly) 
-		throws NoSuchROIException, ROICreationException	
-	{
-		if (rois == null)
-			throw new NullPointerException("No rois to transform.");
-		if (serverStrategy == null)
-			serverStrategy = new ServerROIStrategy();
-		List<ROI> l = serverStrategy.read(rois, this, readOnly, -1);
-		roiResult.put(fileID, l);
-		return l;
-	}
-	
-	/**
-	 * Reads the ROIs from the server and returns the UI representations.
-	 * 
-	 * @param fileID The id of the file.
-	 * @param rois The collection of ROIs to convert.
-	 * @param readOnly Are the ROI readOnly.
 	 * @param userID The identifier of the user currently logged in.
 	 * @return See above.
-	 * @throws NoSuchROIException
-	 * @throws ROICreationException
+	 * @throws NoSuchROIException		 	Tried to access a ROI which does not
+	 * 									   	Exist. In this case most likely 
+	 * 										reason is that a 
+	 * 										LineConnectionFigure tried
+	 * 									   	to link to ROIShapes which have not 
+	 * 									   	been created yet.
+	 * @throws ROICreationException		 	Thrown while trying to create an 
+	 * 										ROI.
 	 */
-	public List<ROI> loadROI(Collection rois, boolean readOnly, long userID) 
+	public List<ROI> loadROI(long fileID, Collection rois, boolean readOnly, 
+			long userID) 
 		throws NoSuchROIException, ROICreationException	
 	{
 		if (rois == null)
 			throw new NullPointerException("No rois to transform.");
 		if (serverStrategy == null)
 			serverStrategy = new ServerROIStrategy();
-		return serverStrategy.read(rois, this, readOnly, userID);
+		List<ROI> l = serverStrategy.read(rois, this, readOnly, userID);
+		if (fileID > 0)
+			roiResult.put(fileID, l);
+		return l;
 	}
 	
 	/**
@@ -444,9 +432,9 @@ public class ROIComponent
 	 * 
 	 * @param id The ROI id. 
 	 * @return See above.
-	 * @throws ROICreationException			If an error occurred while creating 
-	 * 									   	an ROI, basic assumption is this is 
-	 * 									   	linked to memory issues.
+	 * @throws ROICreationException	If an error occurred while creating 
+	 * 								an ROI, basic assumption is this is 
+	 * 								linked to memory issues.
 	 */
 	public ROI createROI(long id)
 		throws ROICreationException
@@ -462,11 +450,11 @@ public class ROIComponent
 	 * old one.
 	 * 
 	 * @param id The ROI id. 
-	 * @param clientSideObject Is this object a clientside object
+	 * @param clientSideObject Is this object a client-side object
 	 * @return See above.
-	 * @throws ROICreationException			If an error occurred while creating 
-	 * 									   	an ROI, basic assumption is this is 
-	 * 									   	linked to memory issues.
+	 * @throws ROICreationException	If an error occurred while creating 
+	 * 								an ROI, basic assumption is this is 
+	 * 								linked to memory issues.
 	 */
 	public ROI createROI(long id, boolean clientSideObject)
 		throws ROICreationException
@@ -474,7 +462,6 @@ public class ROIComponent
 		return roiCollection.createROI(id, clientSideObject);
 	}
 
-	
 	/**
 	 * Create a new ROI, assign it an ROI from the getNextID call.
 	 * 
@@ -544,7 +531,8 @@ public class ROIComponent
 	 * Returns the ROIShape which is part of the ROI id, and exists on the plane
 	 * coordinates. 
 	 * This method looks up the ROIIDMap (TreeMap) for the ROI with id 
-	 * and then looks up that ROIs TreeMap for the ROIShape on the plane coordinates.
+	 * and then looks up that ROIs TreeMap for the ROIShape on the plane 
+	 * coordinates.
 	 * 
 	 * @param id 	The id of the ROI the ROIShape is a member of.
 	 * @param coord The plane where the ROIShape sits.
@@ -642,8 +630,9 @@ public class ROIComponent
 
 	/**
 	 * This method will create new versions of the ROIShape belonging to ROI.id
-	 * on plane coord and propagate it from plane start to end. If the shape 
-	 * exists on a plane between start and end it will not be overwritten.
+	 * on plane coordinates and propagate it from plane start to end. 
+	 * If the shape exists on a plane between start and end it will not be 
+	 * overwritten.
 	 *
 	 * Note : iteration for planes occurs through z then t.
 	 *

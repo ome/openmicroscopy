@@ -1106,22 +1106,24 @@ class MeasurementViewerUI
 					List<ROI> rois;
 					if (fileID >= 0) {
 						 rois = model.getROIList(fileID);
-						 Iterator<ROI> k = rois.iterator();
-							ROI roi;
-							TreeMap<Coord3D, ROIShape> shapes;
-							Iterator<ROIShape> j;
-							ROIShape shape;
-							while (k.hasNext()) {
-								roi = k.next();
-								shapes = roi.getShapes();
-								j = shapes.values().iterator();
-								while (j.hasNext()) {
-									shape = j.next();
-									figure = shape.getFigure();
-									drawing.add(figure);
-									figure.addFigureListener(controller);
-								}
-							}
+						 if (rois != null) {
+							 Iterator<ROI> k = rois.iterator();
+							 ROI roi;
+							 TreeMap<Coord3D, ROIShape> shapes;
+							 Iterator<ROIShape> j;
+							 ROIShape shape;
+							 while (k.hasNext()) {
+								 roi = k.next();
+								 shapes = roi.getShapes();
+								 j = shapes.values().iterator();
+								 while (j.hasNext()) {
+									 shape = j.next();
+									 figure = shape.getFigure();
+									 drawing.add(figure);
+									 figure.addFigureListener(controller);
+								 }
+							 }
+						 }
 					} else {
 						try {
 							list = model.getShapeList();
