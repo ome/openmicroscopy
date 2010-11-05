@@ -81,6 +81,7 @@ import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureMaskFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -1097,6 +1098,9 @@ class MeasurementViewerUI
 		drawing.clear();
 		ShapeList list = null;
 		ROIFigure figure;
+		Iterator<ROIFigure> f;
+		List<ROIFigure> first = new ArrayList<ROIFigure>();
+		List<ROIFigure> second = new ArrayList<ROIFigure>();
 		if (model.isHCSData()) {
 			Component comp = tabs.getSelectedComponent();
 			if (comp instanceof ServerROITable) {
@@ -1112,6 +1116,7 @@ class MeasurementViewerUI
 							 TreeMap<Coord3D, ROIShape> shapes;
 							 Iterator<ROIShape> j;
 							 ROIShape shape;
+							 
 							 while (k.hasNext()) {
 								 roi = k.next();
 								 shapes = roi.getShapes();
@@ -1119,9 +1124,23 @@ class MeasurementViewerUI
 								 while (j.hasNext()) {
 									 shape = j.next();
 									 figure = shape.getFigure();
-									 drawing.add(figure);
-									 figure.addFigureListener(controller);
+									 if (!(figure instanceof MeasureMaskFigure)) 
+										 second.add(figure);
+									 else
+										 first.add(figure);
 								 }
+							 }
+							 f = first.iterator();
+							 while (f.hasNext()) {
+								 figure = f.next();
+								 drawing.add(figure);
+								 figure.addFigureListener(controller);
+							 }
+							 f = second.iterator();
+							 while (f.hasNext()) {
+								 figure = f.next();
+								 drawing.add(figure);
+								 figure.addFigureListener(controller);
 							 }
 						 }
 					} else {
@@ -1166,15 +1185,31 @@ class MeasurementViewerUI
 				TreeMap map = list.getList();
 				Iterator i = map.values().iterator();
 				ROIShape shape;
+				//mask
 				while (i.hasNext()) {
 					shape = (ROIShape) i.next();
-					if (shape != null) 
-					{
+					if (shape != null) {
 						figure = shape.getFigure();
-						drawing.add(figure);
-						figure.addFigureListener(controller);
+						 if (!(figure instanceof MeasureMaskFigure)) 
+							 second.add(figure);
+						 else
+							 first.add(figure);
 					}
 				}
+				f = first.iterator();
+				 while (f.hasNext()) {
+					 figure = f.next();
+					 drawing.add(figure);
+					 figure.addFigureListener(controller);
+				 }
+				 f = second.iterator();
+				 while (f.hasNext()) {
+					 figure = f.next();
+					 drawing.add(figure);
+					 figure.addFigureListener(controller);
+				 }
+				
+				
 			}
 		}
 		setStatus(DEFAULT_MSG);

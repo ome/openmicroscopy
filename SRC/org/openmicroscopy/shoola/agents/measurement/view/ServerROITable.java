@@ -55,8 +55,6 @@ import javax.swing.table.TableColumnModel;
 
 
 //Third-party libraries
-import org.jdesktop.swingx.decorator.Highlighter;
-import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 
 //Application-internal dependencies
@@ -160,10 +158,6 @@ class ServerROITable
 		TableColumn tc = tcm.getColumn(VISIBILITY_INDEX);
 		tc.setCellEditor(table.getDefaultEditor(Boolean.class));  
 		tc.setCellRenderer(table.getDefaultRenderer(Boolean.class));  
-		Highlighter h = HighlighterFactory.createAlternateStriping(
-				UIUtilities.BACKGROUND_COLOUR_EVEN, 
-				UIUtilities.BACKGROUND_COLOUR_ODD);
-		//table.addHighlighter(h);
 		table.setShowGrid(true);
 		table.setGridColor(Color.LIGHT_GRAY);
 		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
@@ -307,7 +301,7 @@ class ServerROITable
 	/**
 	 * Selects the row corresponding to the passed ROI's id.
 	 * 
-	 * @param roiIDs The collection of ROI's ids.
+	 * @param roiIDs The collection of ROI's identifiers.
 	 */
 	void selectROI(List<Long> roiIDs)
 	{
@@ -382,7 +376,7 @@ class ServerROITable
 	 */
 	public void valueChanged(ListSelectionEvent e)
 	{
-		if (e.getValueIsAdjusting()) return;
+		//if (e.getValueIsAdjusting()) return;
 		ListSelectionModel lsm = (ListSelectionModel) e.getSource();
 		List<Integer> indexes = new ArrayList<Integer>();
 		if (!lsm.isSelectionEmpty()) {
@@ -404,6 +398,7 @@ class ServerROITable
 			List<ROIFigure> list = new ArrayList<ROIFigure>();
 			while (i.hasNext()) {
 				entry = (Entry) i.next();
+				System.err.println(entry.getValue());
 				if (indexes.contains(entry.getValue())) {
 					roi = model.getROI((Long) entry.getKey());
 					shapes = roi.getShapes();
