@@ -29,7 +29,7 @@ import platform
 import subprocess
 
 
-LOG_URL = "http://hudson.openmicroscopy.org.uk/job/OMERO-%(BRANCH)s/lastSuccessfulBuild/artifact/src/target/%(BRANCH)s"
+LOG_URL = "http://hudson.openmicroscopy.org.uk/job/OMERO-%(BRANCH)s/lastSuccessfulBuild/artifact/src/target/%(BRANCH)s.log"
 JOB_NAME_STR = "^OMERO-([^-]+)-(.*?)(/(.*))?$"
 JOB_NAME_REG = re.compile(JOB_NAME_STR)
 
@@ -72,6 +72,7 @@ if __name__ == "__main__":
     #
     # LOG FILES
     #
+    log_url = LOG_URL % {"BRANCH": branch}
     url = urllib.urlopen(LOG_URL % {"BRANCH": branch})
     build_log_text = url.read()
     url.close()
