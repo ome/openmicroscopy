@@ -788,6 +788,10 @@ class ImViewerComponent
 		view.setLeftStatus();
 		view.setPlaneInfoStatus();
 		if (originalImage == null && model.isZoomFitToWindow()) {
+			
+			
+			
+			
 			controller.setZoomFactor(ZoomAction.ZOOM_FIT_TO_WINDOW);
 		}
 		if (model.isPlayingChannelMovie())

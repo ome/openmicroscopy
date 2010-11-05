@@ -398,13 +398,8 @@ class BrowserUI
 		layeredPane.setBounds(xLoc, yLoc, d.width, d.height);
 	}
 	
-	/**
-	 * Overridden to locate the scroll bars.
-	 * @see JComponent#setVisible(boolean)
-	 */
-	public void setVisible(boolean visible)
+	void locateScrollBars()
 	{
-		super.setVisible(visible);
 		if (!scrollbarsVisible()) return;
 		Rectangle r = getViewport().getViewRect();
 		JScrollBar hBar = getHorizontalScrollBar();

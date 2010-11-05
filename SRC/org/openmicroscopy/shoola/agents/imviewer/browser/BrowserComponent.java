@@ -127,18 +127,27 @@ class BrowserComponent
 
     /** 
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#setRenderedImage(BufferedImage)
+     * @see Browser#setRenderedImage(Object)
      */
-    public void setRenderedImage(BufferedImage image)
+    public void setRenderedImage(Object image)
     {
         if (image == null) 
             throw new IllegalArgumentException("Image cannot be null.");
-        model.setRenderedImage(image);
+        boolean hasImage = model.hasImage();
+        if (image instanceof BufferedImage)
+        	model.setRenderedImage((BufferedImage) image);
+        else if (image instanceof TextureData)
+        	model.setRenderedImageAsTexture((TextureData) image);
+        else  
+        	throw new IllegalArgumentException("Image type not supported.");
         //Paint only if selected.
+        if (!hasImage) {
+        	view.locateScrollBars();
+        }
         view.paintMainImage();
         viewSplitImages();
     }
-
+    
     /** 
      * Implemented as specified by the {@link Browser} interface.
      * @see Browser#getDisplayedImage()
@@ -628,20 +637,6 @@ class BrowserComponent
 	 * @see Browser#getUnitInMicrons()
 	 */
 	public double getUnitInMicrons() { return model.getUnitInMicrons(); }
-
-	/** 
-	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see Browser#setRenderedImageAsTexture(TextureData)
-	 */
-	public void setRenderedImageAsTexture(TextureData image)
-	{
-		 if (image == null) 
-	            throw new IllegalArgumentException("Image cannot be null.");
-		 model.setRenderedImageAsTexture(image);
-		 //Paint only if selected.
-		 view.paintMainImage();
-		 viewSplitImages();
-	}
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.

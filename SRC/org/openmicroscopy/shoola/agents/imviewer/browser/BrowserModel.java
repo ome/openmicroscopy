@@ -447,6 +447,19 @@ class BrowserModel
      */
     void initialize(Browser component) { this.component = component; }
     
+    /** 
+     * Returns <code>true</code> if the rendered image has been set,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean hasImage()
+    {
+    	if (renderedImage != null || renderedImageAsTexture != null) 
+    		return true;
+    	return false;
+    }
+    
     /**
      * Sets the rendered image.
      * 

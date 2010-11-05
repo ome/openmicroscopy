@@ -2126,7 +2126,7 @@ class ImViewerModel
 	double setImageAsTexture(TextureData image)
 	{
 		state = ImViewer.READY; 
-		browser.setRenderedImageAsTexture(image);
+		browser.setRenderedImage(image);
 		//update image icon
 		//28/02 added to speed up process, turn back on for 4.1
 		/*

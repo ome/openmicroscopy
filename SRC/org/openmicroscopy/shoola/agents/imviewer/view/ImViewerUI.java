@@ -2461,18 +2461,4 @@ class ImViewerUI
 		}
 	}
 
-	/**
-	 * Overridden to request the focus.
-	 * @see TopWindow#setVisible(boolean)
-	 */
-	public void setVisible(boolean visible)
-	{
-		super.setVisible(visible);
-		model.getBrowser().getUI().setVisible(visible);
-		if (visible) {
-			//toFront();
-			//requestFocusInWindow();
-		}
-	}
-	
 }

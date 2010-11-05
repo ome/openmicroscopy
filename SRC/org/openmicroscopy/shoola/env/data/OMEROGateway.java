@@ -713,11 +713,10 @@ class OMEROGateway
 			Data d;
 			Column column;
 			long[] a = new long[cols.length];
-			long[] b = new long[n];
+			long[] b = new long[0];
 			for (int i = 0; i < cols.length; i++) {
 				a[i] = i; 
 			}
-			
 			d = table.slice(a, b);
 			for (int i = 0; i < cols.length; i++) {
 				column = d.columns[i];
@@ -750,6 +749,7 @@ class OMEROGateway
 			table.close();
 			return new TableResult(data, headers);
 		} catch (Exception e) {
+			e.printStackTrace();
 			try {
 				if (table != null) table.close();
 			} catch (Exception ex) {
