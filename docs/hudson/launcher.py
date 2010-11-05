@@ -30,11 +30,12 @@ import subprocess
 
 
 LOG_URL = "http://hudson.openmicroscopy.org.uk/job/OMERO-%(BRANCH)s/lastSuccessfulBuild/artifact/src/target/%(BRANCH)s"
-JOB_NAME_STR = "^OMERO-([^-]+)-(.*?)/(.*)$"
+JOB_NAME_STR = "^OMERO-([^-]+)-(.*?)(/(.*))?$"
 JOB_NAME_REG = re.compile(JOB_NAME_STR)
 
 
 if __name__ == "__main__":
+
 
     #
     # FIND JOB NAME
@@ -46,14 +47,21 @@ if __name__ == "__main__":
         sys.exit(1)
 
     branch = m.group(1)
-    axises = m.group(3)
-    values = {}
-    for axis in axises.split(","):
-        parts = axis.split("=")
-        values[parts[0]] = parts[1]
-    job = values["component"]
-    label = values["label"]
+    build = m.group(2)
+    axises = m.group(4)
+    if axises:
+        values = {}
+        for axis in axises.split(","):
+            parts = axis.split("=")
+            values[parts[0]] = parts[1]
+        job = values["component"]
+        label = values["label"]
+    else:
+        job = build
 
+    #
+    # SETUP
+    #
     os.chdir("..") # docs
     os.chdir("..") # OMERO_HOME
     top = os.path.abspath(".")
@@ -94,6 +102,7 @@ if __name__ == "__main__":
         cmd = ["sh"]
     path = os.path.join(path, name)
     cmd.append(path)
+
 
     #
     # RUN
