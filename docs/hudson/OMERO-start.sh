@@ -35,9 +35,8 @@ dropdb $OMERO_CONFIG || echo Already gone maybe
 createdb -h localhost -U postgres -O hudson $OMERO_CONFIG
 createlang -h localhost -U postgres plpgsql $OMERO_CONFIG
 
-rm -f *.sql
-python bin/omero db script "" "" ome
-psql $OMERO_CONFIG < *.sql
+python bin/omero db script "" "" ome -f omero.sql
+psql $OMERO_CONFIG -f omero.sql
 
 rm -rf $WORKSPACE/datadir
 mkdir -p $WORKSPACE/datadir
