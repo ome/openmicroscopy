@@ -21,7 +21,7 @@ echo omero.pass=ome >> $ICE_CONFIG
 echo omero.host=necromancer.openmicroscopy.org.uk >> $ICE_CONFIG
 echo omero.port=$PORT >> $ICE_CONFIG
 echo omero.rootpass=ome >> $ICE_CONFIG
-echo omero.prefix=$PORT_PREFIX >> $ICE_CONFIG
+echo omero.prefix=$OMERO_PORT >> $ICE_CONFIG
 
 
 #
@@ -48,7 +48,7 @@ python bin/omero config set omero.db.user hudson
 # Fix TestTables.testBlankTable failure
 python bin/omero config set omero.grid.registry_timeout 15000
 
-python bin/omero admin ports --prefix $PORT_PREFIX
+python bin/omero admin ports --prefix "$OMERO_PORT"
 python bin/omero admin stop || echo Not running
 BUILD_ID=DONT_KILL_ME python bin/omero admin start
 python bin/omero admin deploy memcfg omero.blitz.maxmemory=-Xmx1024M omero.blitz.permgen=-XX:MaxPermSize=256m
