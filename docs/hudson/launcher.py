@@ -49,8 +49,10 @@ if __name__ == "__main__":
     job = m.group(2)
 
     top = os.path.join(os.pardir, os.pardir)
-    build_log = os.path.join(top, "target", "%s.log" % branch)
-    hudson_log = os.path.join(top, "target", "hudson.log")
+    target = os.path.join(top, "target")
+    os.makedirs(target)
+    build_log = os.path.join(target, "%s.log" % branch)
+    hudson_log = os.path.join(target, "hudson.log")
 
 
     #
