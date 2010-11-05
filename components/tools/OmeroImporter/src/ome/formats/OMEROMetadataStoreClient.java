@@ -4413,15 +4413,15 @@ public class OMEROMetadataStoreClient
     }
 
     //////// Instrument /////////
-    
-    public Instrument getInstrument(int instrumentIndex)
+
+    private Instrument getInstrument(int instrumentIndex)
     {
         LinkedHashMap<Index, Integer> indexes =
             new LinkedHashMap<Index, Integer>();
         indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
-        return getSourceObject(Instrument.class, indexes);   
+        return getSourceObject(Instrument.class, indexes);
     }
-    
+
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setInstrumentID(java.lang.String, int)
      */
@@ -5291,20 +5291,13 @@ public class OMEROMetadataStoreClient
     }
 
     //////// Microscope ////////
-    /**
-     * @param instrumentIndex
-     * @return
-     */
+
     private Microscope getMicroscope(int instrumentIndex)
     {
-        Instrument instrument = getInstrument(instrumentIndex);
-        Microscope microscope = instrument.getMicroscope();
-        if (microscope == null)
-        {
-                microscope = new MicroscopeI();
-                instrument.setMicroscope(microscope);
-        }
-        return microscope;
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
+        return getSourceObject(Microscope.class, indexes);
     }
 
     /* (non-Javadoc)
@@ -5353,7 +5346,8 @@ public class OMEROMetadataStoreClient
             int instrumentIndex)
     {
         Microscope o = getMicroscope(instrumentIndex);
-        o.setType((MicroscopeType) getEnumeration(MicroscopeType.class, type.toString()));
+        o.setType((MicroscopeType)
+                getEnumeration(MicroscopeType.class, type.toString()));
     }
 
     //////// OTF /////////
@@ -7513,18 +7507,8 @@ public class OMEROMetadataStoreClient
 
     //////// TransmittanceRange /////////
 
-    /**
-     * Retrieve TransmittanceRange
-     * @param instrumentIndex
-     * @param filterIndex
-     * @return
-     */
     private TransmittanceRange getTransmittanceRange(int instrumentIndex, int filterIndex)
     {
-        LinkedHashMap<Index, Integer> indexes =
-            new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
-        indexes.put(Index.FILTER_INDEX, filterIndex);
         Filter filter = getFilter(instrumentIndex, filterIndex);
         TransmittanceRange tm = filter.getTransmittanceRange();
         if (tm == null)

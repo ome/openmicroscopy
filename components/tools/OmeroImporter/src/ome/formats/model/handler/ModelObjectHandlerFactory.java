@@ -60,6 +60,8 @@ public class ModelObjectHandlerFactory
     	        new LogicalChannelHandler(enumProvider));
         handlers.put(OTFHandler.HANDLER_FOR, 
                 new OTFHandler(enumProvider));
+        handlers.put(MicroscopeHandler.HANDLER_FOR, 
+                new MicroscopeHandler(enumProvider));
     }
     
     /** Our fall through no-op enumeration handler. */
