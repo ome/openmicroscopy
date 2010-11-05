@@ -80,7 +80,15 @@ if __name__ == "__main__":
     url.close()
 
     f = open(build_log, "w")
-    f.write(build_log_text)
+    for line in build_log_text:
+        f.write(line)
+        # Also import the file into the environment
+        line = line.strip()
+        parts = line.split("=")
+        try:
+            os.environ[parts[0]] = parts[1]
+        except:
+            os.environ[parts[0]] = ""
     f.close()
 
     f = open(hudson_log, "w")
