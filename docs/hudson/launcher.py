@@ -83,10 +83,13 @@ if __name__ == "__main__":
         # Also import the file into the environment
         line = line.strip()
         parts = line.split("=")
-        try:
-            os.environ[parts[0]] = parts[1]
-        except:
-            os.environ[parts[0]] = ""
+        if parts and parts[0]:
+            k = str(parts[0])
+            try:
+                v = str(parts[1])
+                os.environ[k] = v
+            except:
+                os.environ[k] = ""
     f.close()
 
     f = open(hudson_log, "w")
