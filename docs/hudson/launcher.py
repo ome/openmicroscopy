@@ -54,7 +54,9 @@ if __name__ == "__main__":
     job = values["component"]
     label = values["label"]
 
-    top = os.path.join(os.pardir, os.pardir)
+    os.chdir("..") # docs
+    os.chdir("..") # OMERO_HOME
+    top = os.path.abspath(".")
     target = os.path.join(top, "target")
     if not os.path.exists(target):
         os.makedirs(target)
@@ -98,9 +100,7 @@ if __name__ == "__main__":
     #
     print "Launching", " ".join(cmd)
     print "="*60
-    popen = subprocess.Popen(cmd,\
-        cwd = top,
-        env = os.environ)
+    popen = subprocess.Popen(cmd, env = os.environ)
     rcode = popen.wait()
     if rcode != 0:
         print "="*60
