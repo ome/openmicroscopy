@@ -258,7 +258,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     
     def getServerVersion(self):
         conf = self.getConfigService()
-        return conf.getVersion()
+        return conf.getConfigValue("omero.version")
 
 
     #########################################################
