@@ -323,6 +323,7 @@ class OmeroImageServiceImpl
 			
 			Dimension d;
 			int level;
+			ids.addAll(pixelsID);
 			/*
 			while (j.hasNext()) {
 				id = (Long) j.next();
