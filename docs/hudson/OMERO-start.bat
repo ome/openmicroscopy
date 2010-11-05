@@ -5,11 +5,12 @@ echo on
 REM
 REM First do our best to clean up any left over servers
 REM
-sc stop OMERO.hudson
+sc stop OMERO.%OMERO_BRANCH%
 
 REM Print out the environment
 set
 
+set OMERO_MASTER=%OMERO_BRANCH%
 set OMERO_CONFIG=%OMERO_BRANCH%
 set ROUTERPREFIX=%OMERO_PREFIX%
 set ROUTER=%ROUTERPREFIX%4064
