@@ -1,3 +1,5 @@
+./build.py clean
+./build.py
 ./build.py -f components/tools/OmeroJava/build.xml -Dtest.with.fail=true test
 ./build.py -f components/tools/OmeroJava/build.xml -Dtest.with.fail=true integration
 

@@ -28,6 +28,7 @@ echo omero.prefix=$PORT_PREFIX >> $ICE_CONFIG
 # Prepare installation. Handled by QUICKSTART.bat on Windows
 #
 . $HOME/.bashrc
+./build.py
 cd dist
 
 dropdb $OMERO_CONFIG || echo Already gone maybe

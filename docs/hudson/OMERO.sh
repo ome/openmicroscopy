@@ -4,6 +4,8 @@ set -x
 
 export OMERO_BUILD=r"$SVN_REVISION"-"$OMERO_BRANCH"-b"$BUILD_NUMBER"
 
+echo OMERO_BUILD=$OMERO_BUILD > target/$OMERO_BRANCH.log
+
 ./build.py clean
 ./build.py build-default
 ./build.py release-docs

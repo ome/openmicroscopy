@@ -13,30 +13,28 @@
 #   cd hudson
 #   python launcher.py
 #
+# which will:
+#
+#   * download <BRANCH>.log from hudson
+#   * create target/hudson.log
+#   * run sh docs/hudson/OMERO-<BRANCH>-<COMPONENT>.sh
+#      or docs\hudson\OMERO-<BRANCH>-<COMPONENT>.bat
+#
 
 import os
 import re
 import sys
+import urllib
 import platform
 import subprocess
 
 
+LOG_URL = "http://hudson.openmicroscopy.org.uk/job/OMERO-%(BRANCH)s/lastSuccessfulBuild/artifact/src/target/%(BRANCH)s"
 JOB_NAME_STR = "^OMERO-([^-]+)-(.*?)/(.*)$"
 JOB_NAME_REG = re.compile(JOB_NAME_STR)
 
 
 if __name__ == "__main__":
-
-    top = os.path.join(os.pardir, os.pardir)
-    hudson_log = os.path.join(top, "target", "hudson.log")
-
-    #
-    # LOG PROPERTIES
-    #
-    f = open(hudson_log, "w")
-    for key in sorted(os.environ):
-        f.write("%s=%s\n" % (key, os.environ[key]))
-    f.close
 
     #
     # FIND JOB NAME
@@ -46,8 +44,31 @@ if __name__ == "__main__":
     if not m:
         print "Bad job name: %s doesn't match %r" % (job_name, JOB_NAME_STR)
         sys.exit(1)
-    else:
-        job = m.group(2)
+
+    branch = m.group(1)
+    job = m.group(2)
+
+    top = os.path.join(os.pardir, os.pardir)
+    build_log = os.path.join(top, "target", "%s.log" % branch)
+    hudson_log = os.path.join(top, "target", "hudson.log")
+
+
+    #
+    # LOG FILES
+    #
+    url = urllib.urlopen(LOG_URL % {"BRANCH": branch})
+    build_log_text = url.read()
+    url.close()
+
+    f = open(build_log, "w")
+    f.write(build_log_text)
+    f.close()
+
+    f = open(hudson_log, "w")
+    for key in sorted(os.environ):
+        f.write("%s=%s\n" % (key, os.environ[key]))
+    f.close
+
 
     #
     # BUILD COMMAND

@@ -1,5 +1,6 @@
 
-python build.py build-cpp
+python build.py clean
+python build.py build-all
 
 export RELEASE=Os
 python build.py build-cpp

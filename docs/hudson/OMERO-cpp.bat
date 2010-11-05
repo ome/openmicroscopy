@@ -14,7 +14,10 @@ REM set J=8 Possibly causes strange build issues in blitz
 
 set
 
-python build.py build-cpp
+python build.py clean
+if errorlevel 1 exit /b 1
+
+python build.py build-all
 if errorlevel 1 exit /b 1
 
 set RELEASE=Os

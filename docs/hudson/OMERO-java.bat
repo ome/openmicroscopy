@@ -1,5 +1,13 @@
+
+build clean
+if errorlevel 1 goto ERROR
+
+build
+if errorlevel 1 goto ERROR
+
 build -f components\tools\OmeroJava\build.xml -Dtest.with.fail=true test
 if errorlevel 1 goto ERROR
+
 build -f components\tools\OmeroJava\build.xml -Dtest.with.fail=true integration
 if errorlevel 1 goto ERROR
 

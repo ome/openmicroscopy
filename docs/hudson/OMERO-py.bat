@@ -1,3 +1,7 @@
+python build.py clean
+if errorlevel 1 goto ERROR
+python build.py
+if errorlevel 1 goto ERROR
 python build.py -f components\tools\OmeroPy\build.xml -Dtest.with.fail=true test
 if errorlevel 1 goto ERROR
 python build.py -f components\tools\OmeroPy\build.xml -Dtest.with.fail=true integration
