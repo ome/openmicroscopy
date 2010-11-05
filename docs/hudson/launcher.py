@@ -21,7 +21,7 @@ import platform
 import subprocess
 
 
-JOB_NAME_STR = "^OMERO-([^-]+)-(.*)$"
+JOB_NAME_STR = "^OMERO-([^-]+)-(.*?)/(.*)$"
 JOB_NAME_REG = re.compile(JOB_NAME_STR)
 
 
