@@ -5,7 +5,7 @@ set -x
 #
 # First do our best to clean up any left over servers
 #
-python dist/bin/omero admin stop
+test -e dist/bin/omero && python dist/bin/omero admin stop
 
 # Print out the environment
 set
