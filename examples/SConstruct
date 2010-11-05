@@ -222,7 +222,7 @@ for src_dir in glob.glob("*"):
                 # Cloning environment, so that CLASSPATH doesn't have all the subdirectories included
                 clone = env.Clone()
                 clone['ENV']['CLASSPATH'] = os.path.pathsep.join([ clone['ENV']['CLASSPATH'], src_dir ])
-                run = clone.Alias(os.path.join(src_dir,base), [], "java -ea %s --Ice.Config=%s" % (base,ice_config) )
+                run = clone.Alias(os.path.join(src_dir,base), [], "java -ea %s" % base)
                 Depends(run, javac)
                 clone.AlwaysBuild(run)
                 targets.append(run)
@@ -238,7 +238,7 @@ for src_dir in glob.glob("*"):
                     if file.find(x) >=0: # Workaround ticket:3243
                         use = False
                 if use:
-                    run = env.Alias(file, [], "python %s --Ice.Config=%s" % (file,ice_config) )
+                    run = env.Alias(file, [], "python %s" % file)
                     env.AlwaysBuild(run)
                     targets.append(run)
 
@@ -251,7 +251,7 @@ for src_dir in glob.glob("*"):
             make = env.Program(base+".exe", file, LIBS=libs)
             targets.append(make)
             if env["run"] or env["run_cpp"]:
-                run = env.Command(base+".out", base+".exe", "./$SOURCE --Ice.Config=%s" % ice_config )
+                run = env.Command(base+".out", base+".exe", "./$SOURCE")
                 env.Depends(run, make)
                 env.AlwaysBuild(run)
                 targets.append(run)

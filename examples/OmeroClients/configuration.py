@@ -1,9 +1,10 @@
 import omero
 
 # All configuration in file pointed to by
-# --Ice.Config=file.config
+# --Ice.Config=file.config or ICE_CONFIG
+# environment variable;
 # No username, password entered
-client1 = omero.client(args)
+client1 = omero.client()
 client1.createSession()
 client1.closeSession()
 
