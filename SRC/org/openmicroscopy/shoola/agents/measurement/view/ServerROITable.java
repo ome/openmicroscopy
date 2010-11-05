@@ -118,6 +118,22 @@ class ServerROITable
 	/** Button to export the data to excel. */
 	private JButton						export;
 	
+	/**
+	 * Rounds the specified value if it is a double or float.
+	 * 
+	 * @param value The value to handle.
+	 * @return See above.
+	 */
+	private Object roundValue(Object value)
+	{
+		if (value instanceof Double) {
+			return UIUtilities.roundTwoDecimals((Double) value);
+		} else if (value instanceof Float) {
+			return UIUtilities.roundTwoDecimals((Float) value);
+		}
+		return value;
+	}
+	
 	/** Initializes the components. */
 	private void initialize()
 	{
@@ -134,7 +150,7 @@ class ServerROITable
 		for (int i = 0; i < columns.length; i++) {
 			for (int j = 0; j < data.length; j++) {
 				if (i == 0) rows[j][i] = Boolean.valueOf(true);
-				else rows[j][i] = data[j][i];
+				else rows[j][i] = roundValue(data[j][i]);
 				if (i == 1) 
 					rowIDs.put((Long) rows[j][i], j);
 			}
@@ -195,18 +211,20 @@ class ServerROITable
 			writer.openFile();
 			writer.createSheet("Measurement");
 			writer.writeTableToSheet(0, 0, table.getModel());
-			BufferedImage originalImage = model.getRenderedImage();
-			BufferedImage image =  Factory.copyBufferedImage(originalImage);
+			try {
+				BufferedImage originalImage = model.getRenderedImage();
+				BufferedImage image =  Factory.copyBufferedImage(originalImage);
+				model.setAttributes(MeasurementAttributes.SHOWID, true);
+				model.getDrawingView().print(image.getGraphics());
+				model.setAttributes(MeasurementAttributes.SHOWID, false);
+				String imageName = "ROIImage";
+				writer.addImageToWorkbook(imageName, image); 
+				int col = writer.getMaxColumn(0);
+				writer.writeImage(0, col+1, 256, 256,	imageName);
+			} catch (Exception e) {
+				//opengGL
+			}
 			
-			// Add the ROI for the current plane to the image.
-			//TODO: Need to check that.
-			model.setAttributes(MeasurementAttributes.SHOWID, true);
-			model.getDrawingView().print(image.getGraphics());
-			model.setAttributes(MeasurementAttributes.SHOWID, false);
-			String imageName = "ROIImage";
-			writer.addImageToWorkbook(imageName, image); 
-			int col = writer.getMaxColumn(0);
-			writer.writeImage(0, col+1, 256, 256,	imageName);
 			writer.close();
 		} catch (Exception e) {
 			UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
