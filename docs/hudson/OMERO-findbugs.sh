@@ -1,1 +1,1 @@
-./build.py build-default release-findbugs
+./build.py clean build-default release-findbugs
