@@ -21,5 +21,5 @@ echo omero.fs.watchDir=TestDropBox >> etc/testdropbox.config
 
 mkdir -p TestDropBox
 
-bin/omero admin ports --prefix=5 # TODO refactor this into hudson configuration
-bin/omero admin ice server start TestDropBox
+python bin/omero admin ports --prefix=5 # TODO refactor this into hudson configuration
+python bin/omero admin ice server start TestDropBox

@@ -39,7 +39,7 @@ call docs\QUICKSTART.bat
 if errorlevel 1 goto ERROR
 cd dist
 
-bin\omero admin waitup
+python bin\omero admin waitup
 
 REM
 REM Create a user

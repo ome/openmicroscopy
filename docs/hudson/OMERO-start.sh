@@ -5,7 +5,7 @@ set -x
 #
 # First do our best to clean up any left over servers
 #
-dist/bin/omero admin stop
+python dist/bin/omero admin stop
 
 # Print out the environment
 set
@@ -35,35 +35,35 @@ createdb -h localhost -U postgres -O hudson $OMERO_CONFIG
 createlang -h localhost -U postgres plpgsql $OMERO_CONFIG
 
 rm -f *.sql
-bin/omero db script "" "" ome
+python bin/omero db script "" "" ome
 psql $OMERO_CONFIG < *.sql
 
 rm -rf $WORKSPACE/datadir
 mkdir -p $WORKSPACE/datadir
 
-bin/omero config set omero.data.dir $WORKSPACE/datadir
-bin/omero config set omero.db.name $OMERO_CONFIG
-bin/omero config set omero.db.user hudson
+python bin/omero config set omero.data.dir $WORKSPACE/datadir
+python bin/omero config set omero.db.name $OMERO_CONFIG
+python bin/omero config set omero.db.user hudson
 # Fix TestTables.testBlankTable failure
-bin/omero config set omero.grid.registry_timeout 15000
+python bin/omero config set omero.grid.registry_timeout 15000
 
-bin/omero admin ports --prefix $PORT_PREFIX
-bin/omero admin stop || echo Not running
-BUILD_ID=DONT_KILL_ME bin/omero admin start
-bin/omero admin deploy memcfg omero.blitz.maxmemory=-Xmx1024M omero.blitz.permgen=-XX:MaxPermSize=256m
+python bin/omero admin ports --prefix $PORT_PREFIX
+python bin/omero admin stop || echo Not running
+BUILD_ID=DONT_KILL_ME python bin/omero admin start
+python bin/omero admin deploy memcfg omero.blitz.maxmemory=-Xmx1024M omero.blitz.permgen=-XX:MaxPermSize=256m
 
 
-bin/omero admin waitup
+python bin/omero admin waitup
 
 #
 # Create a user
 #
-bin/omero login -s localhost -p $PORT -u root -w ome
-bin/omero group add hudson_group --perms=rwrw--
-bin/omero user add --admin hudson Test User hudson_group
+python bin/omero login -s localhost -p $PORT -u root -w ome
+python bin/omero group add hudson_group --perms=rwrw--
+python bin/omero user add --admin hudson Test User hudson_group
 
 #
 # Import a file for testing
 #
-bin/omero login -s localhost -p $PORT -u hudson -w ome ~/test11_R3D.dv
+python bin/omero login -s localhost -p $PORT -u hudson -w ome ~/test11_R3D.dv
 
