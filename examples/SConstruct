@@ -40,7 +40,7 @@ def env_path(key):
     Reads a path from the environment and splits it into
     a list
     """
-    value = os.environ.has_key(key) and os.environ[key] or None
+    value = os.environ.has_key(key) and os.environ[key] or []
     value = value and value.split(os.path.pathsep) or []
     return value
 
@@ -54,7 +54,7 @@ link = ARGUMENTS.get("link","omero_client").split()
 builddir = os.path.abspath(os.path.join(os.pardir,"dist"))
 builddir = ARGUMENTS.get("builddir",builddir)
 cpppath = env_path("CPPPATH")
-libpath = env_path("LIBPATH")
+libpath = env_path("DYLD_LIBRARY_PATH") + env_path("LD_LIBRARY_PATH") + env_path("LIBPATH")
 pypath  = env_path("PYTHONPATH")
 if os.environ.has_key("ICE_CONFIG"):
     ice_config = os.environ["ICE_CONFIG"]
@@ -83,14 +83,10 @@ map = { "options" : opts,
         "LINKFLAGS" : [],
         "JAVACFLAGS" : []}
 
-if platform.name == "darwin":
-    map["CPPPATH"].append( '/opt/local/include/' )
-
 if platform.name == "posix" or platform.name == "linux" or platform.name == "darwin":
     #
     map["CPPPATH"].append(os.path.join(builddir, 'include'))
     #
-    map["LIBPATH"].append('/opt/local/lib')
     map["LIBPATH"].append(os.path.join(builddir, 'lib'))
     #
     map["ENV"] = {
