@@ -285,7 +285,7 @@ class DropBox(Ice.Application):
                     fname = item._name._val
                     log.info("Query on id=%s returned file %s", i, fname)
             else:
-                log.error("No of items found.")
+                log.error("No items found.")
                 retVal = -1
 
         try:
