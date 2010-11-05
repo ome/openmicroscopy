@@ -432,9 +432,9 @@ class HdfStorage(object):
     def slice(self, stamp, colNumbers, rowNumbers, current):
         self.__initcheck()
 
-        if colNumbers is None:
+        if colNumbers is None or len(colNumbers) == 0:
             colNumbers = range(self.__width())
-        if rowNumbers is None:
+        if rowNumbers is None or len(rowNumbers) == 0:
             rowNumbers = range(self.__length())
 
         self.__sizecheck(colNumbers, rowNumbers)
