@@ -12,6 +12,8 @@ export OMERO_BUILD=r"$SVN_REVISION"-"$OMERO_BRANCH"-b"$BUILD_NUMBER"
 
 # Log information
 echo OMERO_BUILD=$OMERO_BUILD > target/$OMERO_BRANCH.log
+echo OMERO_BRANCH=$OMERO_BRANCH >> target/$OMERO_BRANCH.log
+echo PORT_PREFIX=$PORT_PREFIX >> target/$OMERO_BRANCH.log
 svn info > target/SVN_INFO
 
 # Creating source release
