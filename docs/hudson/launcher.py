@@ -77,7 +77,7 @@ if __name__ == "__main__":
     url.close()
 
     f = open(build_log, "w")
-    for line in build_log_text:
+    for line in build_log_text.split("\n"):
         f.write(line)
         # Also import the file into the environment
         line = line.strip()
