@@ -46,15 +46,24 @@ REM
 REM Create a user
 REM
 python bin\omero -s localhost -p %ROUTER% -u root -w ome login
-python bin\omero group add test
-python bin\omero user add user Test User test
+if errorlevel 1 goto ERROR
+python bin\omero group add hudson_group --perms=rwrw--
+if errorlevel 1 goto ERROR
+python bin\omero user add --admin hudson Test User hudson_group
+if errorlevel 1 goto ERROR
 python bin\omero logout
 if errorlevel 1 goto ERROR
 
 REM
 REM Import a file for testing
 REM
-python bin\omero -s localhost -p %ROUTER% -u user -w ome import C:\hudson\test11_R3D.dv
+set FILE=very_small.d3d.dv
+del %FILE%
+wget http://hudson.openmicroscopy.org.uk/userContent/%FILE%
+if errorlevel 1 goto ERROR
+python bin\omero login -s localhost -p %PORT% -u hudson -w ome
+if errorlevel 1 goto ERROR
+python bin\omero import %FILE%
 if errorlevel 1 goto ERROR
 
 

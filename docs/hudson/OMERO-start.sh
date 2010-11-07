@@ -62,9 +62,14 @@ python bin/omero admin waitup
 python bin/omero login -s localhost -p $PORT -u root -w ome
 python bin/omero group add hudson_group --perms=rwrw--
 python bin/omero user add --admin hudson Test User hudson_group
+python bin/omero logout
 
 #
 # Import a file for testing
 #
-python bin/omero login -s localhost -p $PORT -u hudson -w ome ~/test11_R3D.dv
+FILE=very_small.d3d.dv
+rm -f $FILE
+wget "http://hudson.openmicroscopy.org.uk/userContent/$FILE"
+python bin/omero login -s localhost -p $PORT -u hudson -w ome
+python bin/omero import "$FILE"
 
