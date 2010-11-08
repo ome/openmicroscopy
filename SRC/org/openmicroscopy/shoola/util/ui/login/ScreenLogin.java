@@ -572,8 +572,8 @@ public class ScreenLogin
 		configButton.setContentAreaFilled(false);
 		IconManager icons = IconManager.getInstance();
 		configButton.setIcon(icons.getIcon(IconManager.CONFIG_24));
-		configButton.setPressedIcon(icons.getIcon(
-				IconManager.CONFIG_PRESSED_24));
+		//configButton.setPressedIcon(icons.getIcon(
+		//		IconManager.CONFIG_PRESSED_24));
 		
 		encrypted = !isEncrypted();
 		encryptedButton = new JButton();
@@ -588,6 +588,9 @@ public class ScreenLogin
 		encryptedButton.setBorder(null);
 		encryptedButton.setFocusPainted(false);
 		encryptedButton.setContentAreaFilled(false);
+		if (encrypted) 
+			encryptedButton.setIcon(icons.getIcon(IconManager.ENCRYPTED_24));
+		else encryptedButton.setIcon(icons.getIcon(IconManager.DECRYPTED_24));
 		getRootPane().setDefaultButton(login);
 		enableControls();
 		

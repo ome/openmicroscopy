@@ -553,7 +553,7 @@ public class IconManager
     	relPaths[ERROR_ICON_64] = "nuvola_error64.png";
     	relPaths[COMMENT_ICON_64] = "nuvola_mail_send64.png";
     	relPaths[SERVER_22] = "nuvola_server22.png";
-    	relPaths[CONFIG_24] = "config24.png";
+    	relPaths[CONFIG_24] = "nuvola_configure24.png";
     	relPaths[CONFIG_PRESSED_24] = "config_pressed22.png";
     	relPaths[CONFIG_48] = "nuvola_configure48.png";
     	relPaths[REMOVE] = "remove16.png";
