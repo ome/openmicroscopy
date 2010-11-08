@@ -77,6 +77,7 @@ python bin/omero import "$FILE"
 #
 # Write test file for OMERO-start jobs
 #
+cd ..
 FILE=startup.xml
 rm -f $FILE
 wget "http://hudson.openmicroscopy.org.uk/userContent/$FILE"

@@ -69,6 +69,7 @@ if errorlevel 1 goto ERROR
 REM
 REM Write test file for OMERO-start jobs
 REM
+cd ..
 set FILE=startup.xml
 del %FILE%
 wget http://hudson.openmicroscopy.org.uk/userContent/%FILE%
