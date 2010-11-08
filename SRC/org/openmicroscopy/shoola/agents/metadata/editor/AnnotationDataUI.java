@@ -465,8 +465,8 @@ class AnnotationDataUI
 		p.add(createBar(unrateButton, null));
 		p.add(Box.createHorizontalStrut(2));
 		p.add(rating);
-		p.add(Box.createHorizontalStrut(2));
-		p.add(otherRating);
+		//p.add(Box.createHorizontalStrut(2));
+		//p.add(otherRating);
 		content.add(p);
 		
 		//tags and attachments.
