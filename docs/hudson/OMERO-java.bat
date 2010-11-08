@@ -1,14 +1,14 @@
 
-build clean
+python build.py clean
 if errorlevel 1 goto ERROR
 
-build
+python build.py
 if errorlevel 1 goto ERROR
 
-build -f components\tools\OmeroJava\build.xml -Dtest.with.fail=true test
+python build.py -f components\tools\OmeroJava\build.xml -Dtest.with.fail=true test
 if errorlevel 1 goto ERROR
 
-build -f components\tools\OmeroJava\build.xml -Dtest.with.fail=true integration
+python build.py -f components\tools\OmeroJava\build.xml -Dtest.with.fail=true integration
 if errorlevel 1 goto ERROR
 
 exit /b 0

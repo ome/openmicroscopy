@@ -2,7 +2,7 @@ REM
 REM Try Matlab
 REM
 set OMERO_HOME=%CD%\dist
-build
+python build.py
 call components\tools\OmeroM\test\omero_test
 if errorlevel 1 goto ERROR
 

@@ -29,7 +29,7 @@ if exist dist (
 )
 if errorlevel 1 goto ERROR
 
-call build clean
+python build.py clean
 if errorlevel 1 goto ERROR
 
 call docs\QUICKSTART.bat
