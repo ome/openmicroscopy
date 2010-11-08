@@ -193,7 +193,7 @@ for key in sorted(CUSTOM_SETTINGS_MAPPINGS):
 try:
     if USE_EMAN2:
         logger.info("Using EMAN2...")
-        from eman2 import *
+        from EMAN2 import *
 except:
     logger.info("Not using EMAN2...")
     pass
@@ -258,7 +258,7 @@ TEMPLATE_DIRS = (
     os.path.join(os.path.join(os.path.dirname(__file__), 'feedback'), 'templates').replace('\\','/'),
     os.path.join(os.path.join(os.path.dirname(__file__), 'webadmin'), 'templates').replace('\\','/'),
     os.path.join(os.path.join(os.path.dirname(__file__), 'webclient'), 'templates').replace('\\','/'),
-    #os.path.join(os.path.join(os.path.dirname(__file__), 'webemdb'), 'templates').replace('\\','/'),
+    os.path.join(os.path.join(os.path.dirname(__file__), 'webemdb'), 'templates').replace('\\','/'),
     os.path.join(os.path.join(os.path.dirname(__file__), 'webmobile'), 'templates').replace('\\','/'),
 )
 
@@ -276,6 +276,8 @@ INSTALLED_APPS = (
     'omeroweb.webtest',
     #'omeroweb.webemdb',
     'omeroweb.webmobile',
+    'omeroweb.webroi',
+    'omeroweb.webfigure',
 )
 
 FEEDBACK_URL = "qa.openmicroscopy.org.uk:80"
