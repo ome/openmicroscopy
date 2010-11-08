@@ -674,7 +674,7 @@ public class ScreenLogin
 			JPanel gp = UIUtilities.buildComponentPanel(groupsBox, 0, 0);
 			gp.setBorder(null);
 			gp.setOpaque(false);
-			mainPanel.add(gp, "1, 1, 3, 1");
+			mainPanel.add(gp, "1, 1, 5, 1");
 			ref.add(groupsBox);
 		}
 		//third row
