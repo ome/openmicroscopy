@@ -14,4 +14,4 @@ ulimit -a
 ./build.py -f components/tools/OmeroPy/build.xml -Dtest.with.fail=true integration
 
 cd examples
-python ../target/scons/scons.py builddir=$TEST run_py=1
+python ../target/scons/scons.py run_py=1
