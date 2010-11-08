@@ -66,8 +66,19 @@ if errorlevel 1 goto ERROR
 python bin\omero import %FILE%
 if errorlevel 1 goto ERROR
 
+REM
+REM Write test file for OMERO-start jobs
+REM
+set FILE=startup.xml
+del %FILE%
+wget http://hudson.openmicroscopy.org.uk/userContent/%FILE%
+if not exist target mkdir target
+if not exist target\reports mkdir target\reports
+cp %FILE% target\reports
+
 
 exit /b 0
 :ERROR
   echo Failed %ERRORLEVEL%
   exit /b %ERRORLEVEL%
+

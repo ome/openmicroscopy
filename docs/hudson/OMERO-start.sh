@@ -73,3 +73,12 @@ wget "http://hudson.openmicroscopy.org.uk/userContent/$FILE"
 python bin/omero login -s localhost -p $ROUTER -u hudson -w ome
 python bin/omero import "$FILE"
 
+
+#
+# Write test file for OMERO-start jobs
+#
+FILE=startup.xml
+rm -f $FILE
+wget "http://hudson.openmicroscopy.org.uk/userContent/$FILE"
+mkdir -p target/reports
+cp $FILE target/reports
