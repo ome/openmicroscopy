@@ -61,7 +61,7 @@ set FILE=very_small.d3d.dv
 del %FILE%
 wget http://hudson.openmicroscopy.org.uk/userContent/%FILE%
 if errorlevel 1 goto ERROR
-python bin\omero login -s localhost -p %PORT% -u hudson -w ome
+python bin\omero login -s localhost -p %ROUTER% -u hudson -w ome
 if errorlevel 1 goto ERROR
 python bin\omero import %FILE%
 if errorlevel 1 goto ERROR
