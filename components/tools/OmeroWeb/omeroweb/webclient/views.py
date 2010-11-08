@@ -109,7 +109,7 @@ def getShareConnection (request, share_id):
     share = getBlitzConnection(request, force_key=share_conn_key, useragent="OMERO.web")
     share.attachToShare(share_id)
     request.session['shares'][share_id] = share._sessionUuid
-    request.session.modified = True
+    request.session.modified = True    
     logger.debug('shared connection: %s : %s' % (share_id, share._sessionUuid))
     return share
 
@@ -156,15 +156,19 @@ def isUserConnected (f):
     return wrapped
 
 def sessionHelper(request):
-    request.session.modified = True
+    changes = False
     if request.session.get('callback') is None:
         request.session['callback'] = dict()
+        changes = True
     if request.session.get('clipboard') is None:
         request.session['clipboard'] = list()
+        changes = True
     if request.session.get('shares') is None:
         request.session['shares'] = dict()
+        changes = True
     if request.session.get('imageInBasket') is None:
         request.session['imageInBasket'] = set()
+        changes = True
     #if request.session.get('datasetInBasket') is None:
     #    request.session['datasetInBasket'] = set()
     if request.session.get('nav') is None:
@@ -174,12 +178,15 @@ def sessionHelper(request):
             blitz = settings.SERVER_LIST.get(host=request.session.get('host'))
         blitz = "%s:%s" % (blitz.host, blitz.port)
         request.session['nav']={"blitz": blitz, "menu": "mydata", "view": "tree", "basket": 0, "experimenter":None}
-
+        changes = True
+    if changes:
+        request.session.modified = True        
+        
 ################################################################################
 # views controll
 
 def login(request):
-    request.session.modified = True
+    request.session.modified = True    
     
     if request.REQUEST.get('server'):      
         # upgrade check:
@@ -289,7 +296,6 @@ def index(request, **kwargs):
     except:
         logger.error(traceback.format_exc())
     
-    sessionHelper(request)
     try:
         if request.session['nav']['menu'] != 'start':
             request.session['nav']['menu'] = 'home'
@@ -422,7 +428,7 @@ def change_active_group(request, **kwargs):
 
     active_group = request.REQUEST.get('active_group')
     if conn.changeActiveGroup(active_group):
-        request.session.modified = True        
+        request.session.modified = True                
     else:
         error = 'You cannot change your group becuase the data is currently processing. You can force it by logging out and logging in again.'
         url = reverse("webindex")+ ("?error=%s" % error)
@@ -456,7 +462,7 @@ def logout(request, **kwargs):
 @isUserConnected
 def load_template(request, menu, **kwargs):
     request.session.modified = True
-    
+        
     if menu == 'userdata':
         template = "webclient/data/containers.html"
     elif menu == 'usertags':
@@ -531,7 +537,7 @@ def load_template(request, menu, **kwargs):
 @isUserConnected
 def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, **kwargs):
     request.session.modified = True
-    
+        
     # check menu
     menu = request.REQUEST.get("menu")
     if menu is not None:
@@ -645,6 +651,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
 @isUserConnected
 def load_searching(request, form=None, **kwargs):
     request.session.modified = True
+    
     # check menu
     menu = request.REQUEST.get("menu")
     if menu is not None:
@@ -725,7 +732,7 @@ def load_searching(request, form=None, **kwargs):
 @isUserConnected
 def load_data_by_tag(request, o_type=None, o_id=None, **kwargs):
     request.session.modified = True
-    
+        
     # check menu
     menu = request.REQUEST.get("menu")
     if menu is not None:
@@ -1472,7 +1479,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         try:
             handle = manager.deleteItem(child, anns)
             request.session['callback'][str(handle)] = {'delmany':False,'did':o_id, 'dtype':o_type, 'dstatus':'in progress', 'derror':handle.errors(), 'dreport':_formatReport(handle)}
-            request.session.modified = True
+            request.session.modified = True            
         except Exception, x:
             logger.error(traceback.format_exc())
             rv = "Error: %s" % x
@@ -1537,6 +1544,7 @@ def download_annotation(request, action, iid, **kwargs):
 @isUserConnected
 def load_public(request, share_id=None, **kwargs):
     request.session.modified = True
+    
     # check menu
     menu = request.REQUEST.get("menu")
     if menu is not None:
@@ -1609,6 +1617,7 @@ def load_public(request, share_id=None, **kwargs):
 @isUserConnected
 def basket_action (request, action=None, **kwargs):
     request.session.modified = True
+    
     request.session['nav']['menu'] = 'basket'
     
     conn = None
@@ -1764,7 +1773,7 @@ def empty_basket(request, **kwargs):
 def update_basket(request, **kwargs):
     action = None
     if request.method == 'POST':
-        request.session.modified = True
+        request.session.modified = True        
         try:
             action = request.REQUEST['action']
         except Exception, x:
@@ -1910,6 +1919,7 @@ def update_clipboard(request, **kwargs):
 #@isUserConnected
 #def importer(request, **kwargs):
 #    request.session.modified = True
+#    
 #
 #    conn = None
 #    try:
@@ -1939,6 +1949,7 @@ def update_clipboard(request, **kwargs):
 def manage_myaccount(request, action=None, **kwargs):
     template = "webclient/person/myaccount.html"
     request.session.modified = True
+    
     request.session['nav']['menu'] = 'person'
     
     conn = None
@@ -1998,6 +2009,7 @@ def manage_myaccount(request, action=None, **kwargs):
 def change_password(request, **kwargs):
     template = "webclient/person/password.html"
     request.session.modified = True
+    
     request.session['nav']['menu'] = 'person'
     
     conn = None
@@ -2035,6 +2047,7 @@ def change_password(request, **kwargs):
 def upload_myphoto(request, action=None, **kwargs):
     template = "webclient/person/upload_myphoto.html"
     request.session.modified = True
+    
     conn = None
     try:
         conn = kwargs["conn"]
@@ -2075,7 +2088,7 @@ def upload_myphoto(request, action=None, **kwargs):
 def help(request, **kwargs):
     template = "webclient/help.html"
     request.session.modified = True
-    
+        
     conn = None
     try:
         conn = kwargs["conn"]
@@ -2227,8 +2240,7 @@ def progress(request, **kwargs):
                 request.session['callback'][cbString]['dstatus'] = "failed"
                 request.session['callback'][cbString]['dreport'] = str(x)
                 failure+=1
-
-    request.session.modified = True    
+            request.session.modified = True        
         
     rv = {'inprogress':in_progress, 'failure':failure, 'jobs':len(request.session['callback'])}
     return HttpResponse(simplejson.dumps(rv),mimetype='application/json')
@@ -2236,6 +2248,7 @@ def progress(request, **kwargs):
 @isUserConnected
 def status_action (request, action=None, **kwargs):
     request.session.modified = True
+    
     request.session['nav']['menu'] = 'status'
     
     if action == "clean":

@@ -230,6 +230,7 @@ def isAnythingCreated(f):
 
 def forgotten_password(request, **kwargs):
     request.session.modified = True
+    
     template = "webadmin/forgotten_password.html"
     
     conn = None
