@@ -9,4 +9,4 @@ python build.py -f components/tools/OmeroCpp/build.xml test
 python build.py -f components/tools/OmeroCpp/build.xml integration
 
 cd examples
-python ../scons/scons.py run_cpp=1
+python ../target/scons/scons.py run_cpp=1

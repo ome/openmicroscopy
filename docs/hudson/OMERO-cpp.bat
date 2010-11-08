@@ -31,7 +31,7 @@ python build.py -f components\tools\OmeroCpp\build.xml integration
 if errorlevel 1 exit /b 1
 
 cd examples
-python ..\scons\scons.py builddir=%TEST% run_cpp=1
+python ..\target\scons\scons.py builddir=%TEST% run_cpp=1
 if errorlevel 1 exit /b 1
 
 exit /b 0
