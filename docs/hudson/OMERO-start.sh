@@ -29,6 +29,7 @@ echo omero.prefix=$OMERO_PREFIX >> $ICE_CONFIG
 # Prepare installation. Handled by QUICKSTART.bat on Windows
 #
 . $HOME/.bashrc
+./build.py clean
 ./build.py
 cd dist
 
