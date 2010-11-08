@@ -73,7 +73,7 @@ cd ..
 if not exist target mkdir target
 if not exist target\reports mkdir target\reports
 set FILE=startup.xml
-wget -O target\reports\%FILE% http://hudson.openmicroscopy.org.uk/userContent/%FILE%
+wget -O - http://hudson.openmicroscopy.org.uk/userContent/%FILE% > target\reports\%FILE%
 
 
 exit /b 0

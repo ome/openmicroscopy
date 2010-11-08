@@ -80,4 +80,4 @@ python bin/omero import "$FILE"
 cd ..
 FILE=startup.xml
 mkdir -p target/reports
-wget -O target/reports/$FILE "http://hudson.openmicroscopy.org.uk/userContent/$FILE"
+wget -O - "http://hudson.openmicroscopy.org.uk/userContent/$FILE" > target/reports/$FILE
