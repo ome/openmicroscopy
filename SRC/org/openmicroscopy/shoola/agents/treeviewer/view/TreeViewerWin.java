@@ -505,21 +505,27 @@ class TreeViewerWin
     void initialize(TreeViewerControl controller, TreeViewerModel model, 
     						Rectangle bounds)
     {
-        this.controller = controller;
-        invokerBounds = bounds;
-        this.model = model;
-        displayMode = TreeViewer.EXPLORER_MODE;
-        statusBar = new StatusBar(controller);
-        statusBar.addPropertyChangeListener(controller);
-        toolBar = new ToolBar(controller, model, this);
-        initComponents();
-        setJMenuBar(createMenuBar());
-        buildGUI();
-        controller.attachUIListeners(browsersDisplay);
-        String title = model.getExperimenterNames()+"'s ";
-        setTitle(title+TITLE);
+    	this.controller = controller;
+    	invokerBounds = bounds;
+    	this.model = model;
+    	displayMode = TreeViewer.EXPLORER_MODE;
+    	statusBar = new StatusBar(controller);
+    	statusBar.addPropertyChangeListener(controller);
+    	toolBar = new ToolBar(controller, model, this);
+    	initComponents();
+    	setJMenuBar(createMenuBar());
+    	buildGUI();
+    	controller.attachUIListeners(browsersDisplay);
+    	createTitle();
     }
 
+    /** Creates and displays the title of the window. */
+    void createTitle()
+    {
+    	 String title = model.getExperimenterNames()+"'s ";
+         setTitle(title+TITLE);
+    }
+    
     /** Expands the first pane. */
     void selectFirstPane()
     { 

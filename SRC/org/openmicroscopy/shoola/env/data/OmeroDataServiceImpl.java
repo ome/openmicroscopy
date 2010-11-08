@@ -632,14 +632,8 @@ class OmeroDataServiceImpl
 					LookupNames.CURRENT_USER_DETAILS);
 		gateway.updateExperimenter(exp.asExperimenter(), user.getId());
 		ExperimenterData data;
-		if (group != null && exp.getDefaultGroup().getId() != group.getId()) {
-			gateway.changeCurrentGroup(exp, group.getId());//, uc.getUserName(), 
-					//uc.getPassword());
-			/*
-			data = gateway.login(uc.getUserName(), uc.getPassword(), 
-					uc.getHostName(), 1, group.getId());
-					*/
-		}
+		if (group != null && exp.getDefaultGroup().getId() != group.getId()) 
+			gateway.changeCurrentGroup(exp, group.getId());
 		data = gateway.getUserDetails(uc.getUserName());
 		
 		context.bind(LookupNames.CURRENT_USER_DETAILS, data);

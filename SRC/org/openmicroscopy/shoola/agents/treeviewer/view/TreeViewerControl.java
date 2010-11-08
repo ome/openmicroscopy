@@ -955,6 +955,7 @@ class TreeViewerControl
 				browser = (Browser) entry.getValue();
 				browser.refreshAdmin(data);
 			}
+			view.createTitle();
 		} else if (DataBrowser.TAG_WIZARD_PROPERTY.equals(name)) {
 			model.showTagWizard();
 		} else if (DataBrowser.CREATE_NEW_EXPERIMENT_PROPERTY.equals(name)) {
