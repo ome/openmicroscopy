@@ -79,7 +79,5 @@ python bin/omero import "$FILE"
 #
 cd ..
 FILE=startup.xml
-rm -f $FILE
-wget "http://hudson.openmicroscopy.org.uk/userContent/$FILE"
 mkdir -p target/reports
-cp $FILE target/reports
+wget -O target/reports/$FILE "http://hudson.openmicroscopy.org.uk/userContent/$FILE"

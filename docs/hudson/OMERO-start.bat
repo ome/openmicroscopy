@@ -70,12 +70,10 @@ REM
 REM Write test file for OMERO-start jobs
 REM
 cd ..
-set FILE=startup.xml
-del %FILE%
-wget http://hudson.openmicroscopy.org.uk/userContent/%FILE%
 if not exist target mkdir target
 if not exist target\reports mkdir target\reports
-copy %FILE% target\reports
+set FILE=startup.xml
+wget -O target\reports\%FILE% http://hudson.openmicroscopy.org.uk/userContent/%FILE%
 
 
 exit /b 0
