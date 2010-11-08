@@ -75,7 +75,7 @@ del %FILE%
 wget http://hudson.openmicroscopy.org.uk/userContent/%FILE%
 if not exist target mkdir target
 if not exist target\reports mkdir target\reports
-cp %FILE% target\reports
+copy %FILE% target\reports
 
 
 exit /b 0
