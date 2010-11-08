@@ -3773,18 +3773,20 @@ class OMEROGateway
 	 * Updates the profile of the specified experimenter.
 	 * 
 	 * @param exp	The experimenter to handle.
+	 * @param currentUserID The identifier of the user currently logged in.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
-	void updateExperimenter(Experimenter exp) 
+	void updateExperimenter(Experimenter exp, long currentUserID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
 		try {
-			
-			//if currently logged in, use update self
-			getAdminService().updateExperimenter(exp);
+			if (exp == null) return;
+			if (exp.getId().getValue() == currentUserID)
+				getAdminService().updateSelf(exp);
+			else getAdminService().updateExperimenter(exp);
 		} catch (Throwable t) {
 			handleException(t, "Cannot update the user. ");
 		}

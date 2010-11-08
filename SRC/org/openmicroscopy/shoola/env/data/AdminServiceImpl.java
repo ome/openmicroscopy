@@ -97,7 +97,7 @@ class AdminServiceImpl
 		if (!asAdmin && exp.getId() != currentUser.getId()) return exp;
 		UserCredentials uc = (UserCredentials) 
 		context.lookup(LookupNames.USER_CREDENTIALS);
-		gateway.updateExperimenter(exp.asExperimenter());
+		gateway.updateExperimenter(exp.asExperimenter(), currentUser.getId());
 		ExperimenterData data;
 		if (group != null && exp.getDefaultGroup().getId() != group.getId()) {
 			gateway.changeCurrentGroup(exp, group.getId());

@@ -627,7 +627,10 @@ class OmeroDataServiceImpl
 			throw new DSAccessException("No object to update.");
 		UserCredentials uc = (UserCredentials) 
 		context.lookup(LookupNames.USER_CREDENTIALS);
-		gateway.updateExperimenter(exp.asExperimenter());
+		ExperimenterData user = 
+			(ExperimenterData) context.lookup(
+					LookupNames.CURRENT_USER_DETAILS);
+		gateway.updateExperimenter(exp.asExperimenter(), user.getId());
 		ExperimenterData data;
 		if (group != null && exp.getDefaultGroup().getId() != group.getId()) {
 			gateway.changeCurrentGroup(exp, group.getId());//, uc.getUserName(), 
