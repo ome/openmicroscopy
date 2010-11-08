@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.measurement.util.roitable;
 
 //Java imports
 import java.awt.Component;
-
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JTree;
@@ -35,6 +34,7 @@ import javax.swing.tree.TreeCellRenderer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
+import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 
@@ -59,14 +59,21 @@ public class ROITableCellRenderer
 	/** Reference to the shape icon. */
 	private static Icon SHAPE_ICON;
 	
-	/** Reference to the shape icon. */
+	/** Reference to the ROI icon. */
 	private static Icon ROI_ICON;
+	
+	/** Reference to the ROI owned by other users icon. */
+	private static Icon ROI__OTHER_OWNER_ICON;
 	
 	static {
 		IconManager icons = IconManager.getInstance();
 		SHAPE_ICON = icons.getIcon(IconManager.ROISHAPE);
 		ROI_ICON = icons.getIcon(IconManager.ROISTACK);
+		ROI__OTHER_OWNER_ICON = icons.getIcon(IconManager.ROISTACK_OTHER_OWNER);
 	}
+	
+	/** The identifier of the user currently logged in. */
+	private long userID;
 	
 	/**
 	 * Creates a new instance. Sets the opacity of the label to 
@@ -75,13 +82,13 @@ public class ROITableCellRenderer
 	public ROITableCellRenderer()
 	{
 		setOpaque(false);
+		userID = MeasurementAgent.getUserDetails().getId();
 	}
 	
 	/**
 	 * Sets the icon corresponding to the type of Object.
-	 * @see javax.swing.tree.TreeCellRenderer#getTreeCellRendererComponent
-	 * (javax.swing.JTree, java.lang.Object, boolean, boolean, boolean, 
-	 * int, boolean)
+	 * @see TreeCellRenderer#getTreeCellRendererComponent(JTree, Object, 
+	 * boolean, boolean, boolean, int, boolean)
 	 */
 	public Component getTreeCellRendererComponent(JTree tree, 
 			Object value, boolean selected, boolean expanded, 
@@ -89,8 +96,12 @@ public class ROITableCellRenderer
 	{
 		Object thisObject = ((ROINode) value).getUserObject();
 		
-		if (thisObject instanceof ROI) setIcon(ROI_ICON);
-		else if( thisObject instanceof ROIShape) setIcon(SHAPE_ICON);
+		if (thisObject instanceof ROI) {
+			ROI roi = (ROI) thisObject;
+			if (userID == roi.getOwnerID())
+				setIcon(ROI_ICON);
+			else setIcon(ROI__OTHER_OWNER_ICON);
+		} else if( thisObject instanceof ROIShape) setIcon(SHAPE_ICON);
 		return this;
 	}
 	
