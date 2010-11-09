@@ -620,6 +620,7 @@ OMERO Diagnostics %s
                 p = self.ctx.popen(cmd)
             except OSError:
                 self.ctx.err("not found")
+                return False
 
             rv = p.wait()
             io = p.communicate()
@@ -646,6 +647,7 @@ OMERO Diagnostics %s
                 return True
             except exceptions.Exception, e:
                 self.ctx.err("error:%s" % e)
+                return False
 
 
         import logging
