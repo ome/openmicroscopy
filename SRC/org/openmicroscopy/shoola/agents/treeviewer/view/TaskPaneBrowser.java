@@ -62,11 +62,11 @@ class TaskPaneBrowser
 	/** Initializes the component. */
 	private void initialize()
 	{
-		Container c = getContentPane();
+		Container container = getContentPane();
         setAnimated(false);
-		c.setBackground(UIUtilities.BACKGROUND_COLOR);
-		if (c instanceof JComponent) 
-			((JComponent) c).setBorder(BorderFactory.createEmptyBorder(
+        container.setBackground(UIUtilities.BACKGROUND_COLOR);
+		if (container instanceof JComponent) 
+			((JComponent) container).setBorder(BorderFactory.createEmptyBorder(
 					1, 1, 1, 1));
 		setBackground(UIUtilities.BACKGROUND_COLOR);
 		setCollapsed(true);

@@ -26,11 +26,9 @@ package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
 //Java import
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.Toolkit;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
@@ -201,14 +199,9 @@ class BrowserUI
     {
     	setLayout(new BorderLayout(0, 0));
     	add(buildToolBar(), BorderLayout.NORTH);
-    	Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
-    	JScrollPane pane = new JScrollPane(treeDisplay);
-    	/*
-    	Dimension d = pane.getViewport().getPreferredSize();
-    	pane.getViewport().setPreferredSize(new Dimension(d.width, 
-    			(int) (0.5*size.height)));
-    			*/
-        add(pane, BorderLayout.CENTER);
+    	JScrollPane pane = new JScrollPane();
+    	pane.getViewport().add(treeDisplay);
+    	add(pane, BorderLayout.CENTER);
     }
     
     /** Helper method to create the menu bar. */

@@ -76,8 +76,8 @@ public class JXTaskPaneContainerSingle
 		expandable = true;
 		panes = new HashMap<JXTaskPane, Integer>();
 		if (getLayout() instanceof VerticalLayout) {
-			 VerticalLayout vl = (VerticalLayout) getLayout();
-		        vl.setGap(0);
+			VerticalLayout vl = (VerticalLayout) getLayout();
+			vl.setGap(1);
 		}
 		setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
 		setBackground(UIUtilities.BACKGROUND);
@@ -142,7 +142,6 @@ public class JXTaskPaneContainerSingle
 	{
 		int index = panes.size();
 		super.add(component);
-		
 		panes.put(component, index);
 		component.addPropertyChangeListener(
 				UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE, this);
