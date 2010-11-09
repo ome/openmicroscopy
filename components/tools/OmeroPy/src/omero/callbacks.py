@@ -36,7 +36,7 @@ class ProcessCallbackI(omero.grid.ProcessCallback):
     KILLED = "KILLED"
 
     def __init__(self, adapter_or_client, process, poll = True):
-        self.event = omero.util.concurrency.get_event()
+        self.event = omero.util.concurrency.get_event(name="ProcessCallbackI")
         self.result = None
         self.poll = poll
         self.process = process
@@ -99,7 +99,7 @@ class DeleteCallbackI(object):
     """
 
     def __init__(self, adapter_or_client, handle, poll = True):
-        self.event = omero.util.concurrency.get_event()
+        self.event = omero.util.concurrency.get_event(name="DeleteCallbackI")
         self.result = None
         self.poll = poll
         self.handle = handle

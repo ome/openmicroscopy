@@ -376,7 +376,7 @@ class SessionsControl(BaseControl):
                         return
         t = T()
         t.client = self.ctx.conn(args)
-        t.event = get_event()
+        t.event = get_event(name="keepalive")
         t.start()
         try:
             self.ctx.out("Running keep alive every %s seconds" % args.frequency)

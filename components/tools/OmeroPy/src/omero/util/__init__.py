@@ -124,7 +124,7 @@ def internal_service_factory(communicator, user="root", group=None, retries=6, i
     """
     log = logging.getLogger("omero.utils")
     if stop_event == None:
-        stop_event = omero.util.concurrency.get_event()
+        stop_event = omero.util.concurrency.get_event(name="internal_service_factory")
 
     tryCount = 0
     excpt = None
@@ -350,7 +350,7 @@ class Server(Ice.Application):
         self.adapter_name = adapter_name
         self.identity = identity
         self.logdir = logdir
-        self.stop_event = omero.util.concurrency.get_event()
+        self.stop_event = omero.util.concurrency.get_event(name="Server")
 
     def run(self,args):
 
@@ -500,7 +500,7 @@ class Resources:
         self.logger = logging.getLogger("omero.util.Resources")
         self.stop_event = stop_event
         if not self.stop_event:
-            self.stop_event = omero.util.concurrency.get_event()
+            self.stop_event = omero.util.concurrency.get_event(name="Resources")
 
         if sleeptime < 5:
             raise exceptions.Exception("Sleep time should be greater than 5: %s" % sleeptime)
@@ -529,6 +529,10 @@ class Resources:
                         ctx.stop_event.wait(ctx.sleeptime)
                     except ValueError:
                         pass
+
+                if isinstance(ctx.stop_event, omero.util.concurrency.AtExitEvent):
+                    if ctx.stop_event.atexit:
+                        return # Skipping log. See #3260
 
                 ctx.logger.info("Halted")
 
