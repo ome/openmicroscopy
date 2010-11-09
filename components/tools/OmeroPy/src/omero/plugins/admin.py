@@ -433,7 +433,6 @@ Examples:
         self.ctx.call(command)
 
     def status(self, args, node_only = False):
-        #self.check_access(os.R_OK)
         self.check_node(args)
         command = self._cmd("-e","node ping master") #3141, TODO should be configurable
         self.ctx.rv = self.ctx.popen(command).wait() # popen
@@ -519,7 +518,6 @@ Examples:
         """
         Returns true if the server was already stopped
         """
-        #self.check_access(config=config, mask=os.R_OK)
         self.check_node(args)
         if 0 != self.status(args, node_only=True):
             self.ctx.err("Server not running")
