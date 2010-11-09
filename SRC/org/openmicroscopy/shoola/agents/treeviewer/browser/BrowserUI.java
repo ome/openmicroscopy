@@ -203,9 +203,11 @@ class BrowserUI
     	add(buildToolBar(), BorderLayout.NORTH);
     	Dimension size = Toolkit.getDefaultToolkit().getScreenSize();
     	JScrollPane pane = new JScrollPane(treeDisplay);
+    	/*
     	Dimension d = pane.getViewport().getPreferredSize();
     	pane.getViewport().setPreferredSize(new Dimension(d.width, 
     			(int) (0.5*size.height)));
+    			*/
         add(pane, BorderLayout.CENTER);
     }
     
