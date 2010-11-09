@@ -185,7 +185,12 @@ Alias / "%(ROOT)s/var/omero.fcgi/"
             if os.path.exists(media_dir):
                 if os.path.exists(location / 'media' / app):
                     os.remove(os.path.abspath(location / 'media' / app))
-                os.symlink(os.path.abspath(media_dir), location / 'media' / app)
+                try:
+                    # Windows does not support symlink
+                    sys.getwindowsversion()
+                    shutil.copytree(os.path.abspath(media_dir), location / 'media' / app) 
+                except:
+                    os.symlink(os.path.abspath(media_dir), location / 'media' / app)
 
     def enableapp(self, args):
         location = self.ctx.dir / "lib" / "python" / "omeroweb"
