@@ -30,8 +30,17 @@ if errorlevel 1 exit /b 1
 python build.py -f components\tools\OmeroCpp\build.xml integration
 if errorlevel 1 exit /b 1
 
+REM
+REM Unpack to target
+REM
+python C:\hudson\unzip.py -z src\target\OMERO.cpp*dbg.zip -o target\
+FOR /F %I IN ('DIR target\OMERO.cpp*dbg /B') DO SET OMERO_CPP=%I
+SET OMERO_CPP=%cd%\%OMERO_CPP%
+if not exist %OMERO_CPP%\etc mkdir %OMERO_CPP%\etc
+copy %OMERO_BRANCH%.config %OMERO_CPP%\etc\
+
 cd examples
-python ..\target\scons\scons.py run_cpp=1
+python ..\target\scons\scons.py builddir=%OMERO_CPP% run_cpp=1
 if errorlevel 1 exit /b 1
 
 exit /b 0
