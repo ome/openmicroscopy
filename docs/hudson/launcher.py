@@ -107,8 +107,8 @@ if __name__ == "__main__":
     # order to access the server.
     #
     if axises and job != "start":
-        build_url = os.environ["BUIlD_URL"]
-        build_url = build_url.replace("component=" % job, "component=start")
+        build_url = os.environ["BUILD_URL"]
+        build_url = build_url.replace("component=%s" % job, "component=start")
         build_url = "%s/%s" % (build_url, "artifact/src/%s.config" % branch)
         urllib.urlretrieve(build_url, filename=config_file)
 

@@ -34,7 +34,7 @@ REM
 REM Unpack to target
 REM
 python C:\hudson\unzip.py -z src\target\OMERO.cpp*dbg.zip -o target\
-FOR /F %I IN ('DIR target\OMERO.cpp*dbg /B') DO SET OMERO_CPP=%I
+FOR /F %%I IN ('DIR target\OMERO.cpp*dbg /B') DO SET OMERO_CPP=%%I
 SET OMERO_CPP=%cd%\%OMERO_CPP%
 if not exist %OMERO_CPP%\etc mkdir %OMERO_CPP%\etc
 copy %OMERO_BRANCH%.config %OMERO_CPP%\etc\
