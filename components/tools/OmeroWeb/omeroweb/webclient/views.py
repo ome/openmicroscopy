@@ -1988,13 +1988,7 @@ def manage_myaccount(request, action=None, **kwargs):
             email = request.REQUEST['email'].encode('utf-8')
             institution = request.REQUEST['institution'].encode('utf-8')
             defaultGroup = request.REQUEST['default_group']
-            try:
-                password = request.REQUEST['password'].encode('utf-8')
-                if len(password) == 0:
-                    password = None
-            except:
-                password = None
-            controller.updateMyAccount(firstName, lastName, email, defaultGroup, middleName, institution, password)
+            controller.updateMyAccount(firstName, lastName, email, defaultGroup, middleName, institution)
             return HttpResponseRedirect(reverse("myaccount"))
 
     form_active_group = ActiveGroupForm(initial={'activeGroup':eContext['context'].groupId, 'mygroups': eContext['allGroups'], 'url':url})
@@ -2025,6 +2019,7 @@ def change_password(request, **kwargs):
     except:
         logger.error(traceback.format_exc())
     
+    error = None
     if request.method != 'POST':
         password_form = ChangeMyPassword()
     else:
@@ -2033,11 +2028,12 @@ def change_password(request, **kwargs):
         if password_form.is_valid():
             password = request.REQUEST.get('password').encode('utf-8')
             old_password = request.REQUEST.get('old_password').encode('utf-8')
-            conn.changeMyPassword(old_password, password) 
-            request.session['password'] = password
-            return HttpJavascriptResponse("Password was changed successfully")
-    
-    context = {'nav':request.session['nav'], 'password_form':password_form}
+            error = conn.changeMyPassword(old_password, password) 
+            if error is None:
+                request.session['password'] = password
+                return HttpJavascriptResponse("Password was changed successfully")                
+                
+    context = {'nav':request.session['nav'], 'password_form':password_form, 'error':error}
     t = template_loader.get_template(template)
     c = Context(request, context)
     rsp = t.render(c)

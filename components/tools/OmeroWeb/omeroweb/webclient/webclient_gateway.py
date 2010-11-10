@@ -1175,7 +1175,11 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         
     def changeMyPassword(self, old_password, password):
         admin_serv = self.getAdminService() 
-        admin_serv.changePasswordWithOldPassword(rstring(str(old_password)), rstring(str(password)))
+        try:
+            admin_serv.changePasswordWithOldPassword(rstring(str(old_password)), rstring(str(password)))
+        except omero.SecurityViolation, x:
+            return x.message
+        return None
 
     def createExperimenter(self, experimenter, defaultGroup, otherGroups, password):
         admin_serv = self.getAdminService()

@@ -555,6 +555,7 @@ def manage_password(request, eid, **kwargs):
 
     eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
     
+    error = None
     if request.method != 'POST':
         if conn.isAdmin():
             password_form = ChangeUserPassword()
@@ -575,11 +576,12 @@ def manage_password(request, eid, **kwargs):
                 return HttpResponseRedirect(reverse(viewname="wamanageexperimenterid", args=["edit", eid]))
             else:
                 old_password = request.REQUEST.get('old_password').encode('utf-8')
-                conn.changeMyPassword(old_password, password) 
-                request.session['password'] = password
-                return HttpResponseRedirect(reverse("wamyaccount"))
-    
-    context = {'info':info, 'eventContext':eventContext, 'password_form':password_form, 'eid': eid}
+                error = conn.changeMyPassword(old_password, password) 
+                if error is None:
+                    request.session['password'] = password
+                    return HttpResponseRedirect(reverse("wamyaccount"))
+                
+    context = {'info':info, 'error':error, 'eventContext':eventContext, 'password_form':password_form, 'eid': eid}
     t = template_loader.get_template(template)
     c = Context(request, context)
     rsp = t.render(c)
@@ -924,13 +926,7 @@ def my_account(request, action=None, **kwargs):
                 email = request.REQUEST.get('email').encode('utf-8')
                 institution = request.REQUEST.get('institution').encode('utf-8')
                 defaultGroup = request.REQUEST.get('default_group')
-                try:
-                    password = request.REQUEST.get('password').encode('utf-8')
-                    if len(password) == 0:
-                        password = None
-                except:
-                    password = None
-                myaccount.updateMyAccount(firstName, lastName, email, defaultGroup, middleName, institution, password)
+                myaccount.updateMyAccount(firstName, lastName, email, defaultGroup, middleName, institution)
                 return HttpResponseRedirect(reverse("wamyaccount"))
     
     elif action == "upload":
