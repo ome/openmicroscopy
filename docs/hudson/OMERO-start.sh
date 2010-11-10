@@ -19,7 +19,7 @@ export ICE_CONFIG=$WORKSPACE/$OMERO_BRANCH.config
 echo omero.version=$OMERO_BUILD > $ICE_CONFIG
 echo omero.user=hudson >> $ICE_CONFIG
 echo omero.pass=ome >> $ICE_CONFIG
-echo omero.host=necromancer.openmicroscopy.org.uk >> $ICE_CONFIG
+echo omero.host=$OMERO_HOST >> $ICE_CONFIG
 echo omero.port=$ROUTER >> $ICE_CONFIG
 echo omero.rootpass=ome >> $ICE_CONFIG
 echo omero.prefix=$OMERO_PREFIX >> $ICE_CONFIG
@@ -28,7 +28,6 @@ echo omero.prefix=$OMERO_PREFIX >> $ICE_CONFIG
 #
 # Prepare installation. Handled by QUICKSTART.bat on Windows
 #
-. $HOME/.bashrc
 ./build.py clean
 ./build.py
 cd dist

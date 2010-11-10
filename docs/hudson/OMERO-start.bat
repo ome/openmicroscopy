@@ -20,6 +20,7 @@ echo omero.host=localhost >> %ICE_CONFIG%
 echo omero.user=user >> %ICE_CONFIG%
 echo omero.pass=ome >> %ICE_CONFIG%
 echo omero.rootpass=ome >> %ICE_CONFIG%
+echo omero.host=%OMERO_HOST% >> %ICE_CONFIG%
 echo omero.port=%ROUTER% >> %ICE_CONFIG%
 echo omero.prefix=%ROUTERPREFIX% >> %ICE_CONFIG%
 
