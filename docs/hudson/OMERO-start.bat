@@ -14,7 +14,8 @@ set OMERO_MASTER=%OMERO_BRANCH%
 set OMERO_CONFIG=%OMERO_BRANCH%
 set ROUTERPREFIX=%OMERO_PREFIX%
 set ROUTER=%ROUTERPREFIX%4064
-set ICE_CONFIG=%WORKSPACE%\%OMERO_CONFIG%.config
+set ICE_CONFIG=%cd%\%OMERO_CONFIG%.config
+set OMERO_DATA=%cd%\target\datadir
 
 echo omero.host=localhost >> %ICE_CONFIG%
 echo omero.user=user >> %ICE_CONFIG%
@@ -27,10 +28,8 @@ echo omero.prefix=%ROUTERPREFIX% >> %ICE_CONFIG%
 REM Trying to delete data\.omero to detect orphaned server
 REM If found, prep will be needed.
 cmd /c exit 0
-if exist dist (
-        if exist dist\data\ (
-                if exist dist\data\.omero rd /s /q dist\data\.omero
-        )
+if exist %OMERO_DATA% (
+    if exist %OMERO_DATA%\.omero rd /s /q %OMERO_DATA%\.omero
 )
 if errorlevel 1 goto ERROR
 

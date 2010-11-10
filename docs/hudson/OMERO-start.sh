@@ -14,7 +14,8 @@ set
 export OMERO_CONFIG=$OMERO_BRANCH
 export ROUTERPREFIX=$OMERO_PREFIX
 export ROUTER="$ROUTERPREFIX"4064
-export ICE_CONFIG=$WORKSPACE/$OMERO_BRANCH.config
+export ICE_CONFIG=`pwd`/$OMERO_BRANCH.config
+export OMERO_DATA=`pwd`/target/datadir
 
 echo omero.version=$OMERO_BUILD > $ICE_CONFIG
 echo omero.user=hudson >> $ICE_CONFIG
@@ -39,10 +40,10 @@ createlang -h localhost -U postgres plpgsql $OMERO_CONFIG
 python bin/omero db script "" "" ome -f omero.sql
 psql $OMERO_CONFIG -f omero.sql
 
-rm -rf $WORKSPACE/datadir
-mkdir -p $WORKSPACE/datadir
+rm -rf $OMERO_DATA
+mkdir -p $OMERO_DATA
 
-python bin/omero config set omero.data.dir $WORKSPACE/datadir
+python bin/omero config set omero.data.dir $OMERO_DATA
 python bin/omero config set omero.db.name $OMERO_CONFIG
 python bin/omero config set omero.db.user hudson
 # Fix TestTables.testBlankTable failure
