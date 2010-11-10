@@ -2905,7 +2905,8 @@ public class OMEROMetadataStoreClient
     public void setChannelColor(Integer color, int imageIndex, int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        Color c = new Color(color);
+        // RGBA --> ARGB
+        Color c = new Color((color >>> 8) | (color << (32-8)));
         o.setRed(toRType(c.getRed()));
         o.setGreen(toRType(c.getGreen()));
         o.setBlue(toRType(c.getBlue()));

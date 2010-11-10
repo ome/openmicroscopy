@@ -649,7 +649,9 @@ public class OmeroMetadata extends DummyMetadata {
             Color color = new Color(
                     fromRType(o.getRed()), fromRType(o.getGreen()),
                     fromRType(o.getBlue()), fromRType(o.getAlpha()));
-            return color.getRGB();
+            int argb = color.getRGB();
+            // ARGB --> RGBA
+            return (argb << 8) | (argb >>> (32-8));
         }
         catch (NullPointerException e)
         {
