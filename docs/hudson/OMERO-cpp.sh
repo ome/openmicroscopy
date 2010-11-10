@@ -1,3 +1,6 @@
+set -e
+set -u
+set -x
 
 python build.py clean
 python build.py build-all
