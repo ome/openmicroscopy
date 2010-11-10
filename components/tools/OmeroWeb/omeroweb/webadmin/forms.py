@@ -97,8 +97,8 @@ class ExperimenterForm(forms.Form):
         self.fields['available_groups'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['available'], required=False, widget=forms.SelectMultiple(attrs={'size':10}))
         
         if kwargs['initial'].has_key('with_password') and kwargs['initial']['with_password']:
-            self.fields['password'] = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
-            self.fields['confirmation'] = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
+            self.fields['password'] = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
+            self.fields['confirmation'] = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
             
             self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'password', 'confirmation', 'default_group', 'other_groups', 'available_groups']
         else:
@@ -197,7 +197,8 @@ class MyAccountForm(forms.Form):
     def clean_email(self):
         if self.email_check:
             raise forms.ValidationError('This email already exist.')
-    
+
+
 class ContainedExperimentersForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
@@ -219,6 +220,7 @@ class UploadPhotoForm(forms.Form):
         if self.cleaned_data.get('photo').size > 204800:
             raise forms.ValidationError('Photo size file cannot be greater them 200KB.')
 
+
 class ChangeUserPassword(forms.Form):
     
     password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
@@ -233,8 +235,13 @@ class ChangeUserPassword(forms.Form):
             else:
                 return self.cleaned_data.get('password')
 
+
 class ChangeMyPassword(ChangeUserPassword):
     
+    def __init__(self, *args, **kwargs):
+        super(ChangeMyPassword, self).__init__(*args, **kwargs)
+        self.fields.keyOrder = ['old_password', 'password', 'confirmation']
+        
     old_password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
     
 class EnumerationEntry(forms.Form):
