@@ -123,8 +123,7 @@ class PreviewControlBar
         
         formatButton(b);
         bar.add(b);
-        
-        
+
         bar.add(Box.createHorizontalStrut(SPACE));
         b = new JButton(control.getAction(RendererControl.RND_RESET));
         formatButton(b);

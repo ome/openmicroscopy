@@ -770,6 +770,8 @@ class RendererComponent
 			view.resetDefaultRndSettings();
 			firePropertyChange(RENDER_PLANE_PROPERTY, 
 					Boolean.valueOf(false), Boolean.valueOf(true));
+			firePropertyChange(COLOR_MODEL_PROPERTY, Boolean.valueOf(false), 
+   		 			Boolean.valueOf(true));
 		} catch (Throwable e) {
 			handleException(e);
 		}
@@ -787,6 +789,8 @@ class RendererComponent
 				view.resetDefaultRndSettings();
 				firePropertyChange(RENDER_PLANE_PROPERTY, 
 						Boolean.valueOf(false), Boolean.valueOf(true));
+				firePropertyChange(COLOR_MODEL_PROPERTY, Boolean.valueOf(false), 
+	   		 			Boolean.valueOf(true));
 			}
 		} catch (Throwable e) {
 			handleException(e);
