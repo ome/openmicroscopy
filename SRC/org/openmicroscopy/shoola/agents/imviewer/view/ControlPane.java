@@ -1794,7 +1794,7 @@ class ControlPane
         		//Only if knob is released.
         		if (!tSliderProjection.getValueIsAdjusting()) {
         			try {
-        				setSelectedXYPlane(-1, tSliderProjection.getValue()-1);
+        				setSelectedXYPlane(-1, tSliderProjection.getValue());
         				controller.setProjectionRange(true);
 					} catch (Exception ex) {}
         		}

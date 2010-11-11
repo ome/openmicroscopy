@@ -28,19 +28,15 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.io.File;
-
 import javax.swing.JComponent;
 import javax.swing.JLayeredPane;
 import javax.swing.JScrollPane;
 
-import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
-
+//Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
 
-//Third-party libraries
-
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 
 /** 
  * Hosts the UI components displaying the projected image.

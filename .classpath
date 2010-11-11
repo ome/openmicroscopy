@@ -7,7 +7,6 @@
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/Users/jburel/Documents/workspace/InsightTrunkMain/LIB/osx-native"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="LIB/activation.jar"/>
 	<classpathentry kind="lib" path="LIB/axis-1.4.jar"/>
 	<classpathentry kind="lib" path="LIB/backport-util-concurrent.jar"/>
 	<classpathentry kind="lib" path="LIB/bio-formats.jar"/>
@@ -62,5 +61,6 @@
 	<classpathentry kind="lib" path="LIB/slf4j-log4j12-1.5.8.jar"/>
 	<classpathentry kind="lib" path="LIB/poi-3.6-20091214.jar"/>
 	<classpathentry kind="lib" path="LIB/TableLayout-bin-jdk1.5-2009-08-26.jar"/>
+	<classpathentry kind="lib" path="LIB/activation-1.1.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
