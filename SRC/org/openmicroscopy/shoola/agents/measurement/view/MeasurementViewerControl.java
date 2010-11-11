@@ -25,8 +25,6 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 //Java imports
 import java.awt.Color;
 import java.awt.Frame;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;

@@ -88,7 +88,7 @@ public class ROITreeTableCellRenderer
 
 		if (thisObject instanceof ROI) {
 			ROI roi = (ROI) thisObject;
-			if (userID == roi.getOwnerID())
+			if (userID == roi.getOwnerID() || roi.getOwnerID() == -1)
 				setIcon(icons.getIcon(IconManager.ROISTACK));
 			else setIcon(icons.getIcon(IconManager.ROISTACK_OTHER_OWNER));
 		} else if (thisObject instanceof ROIShape)

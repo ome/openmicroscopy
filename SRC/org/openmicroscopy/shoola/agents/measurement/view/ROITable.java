@@ -198,16 +198,19 @@ public class ROITable
 		boolean enabled = true;
 		if (figures == null || figures.size() == 0) 
 			enabled = false;
-		Iterator<Figure> i = figures.iterator();
-		Figure figure;
-		while (i.hasNext()) {
-			figure = i.next();
-			if (figure instanceof ROIFigure) {
-				if (((ROIFigure) figure).isReadOnly()) {
-					enabled = false;
-					break;
+		else {
+			Iterator<Figure> i = figures.iterator();
+			Figure figure;
+			int readable = 0;
+			while (i.hasNext()) {
+				figure = i.next();
+				if (figure instanceof ROIFigure) {
+					if (!(((ROIFigure) figure).isReadOnly())) {
+						readable++;
+					}
 				}
 			}
+			enabled = readable == figures.size();
 		}
 		popupMenu.setActionsEnabled(enabled);
 	}
@@ -555,7 +558,7 @@ public class ROITable
 			nodeObject = this.getNodeAtRow(selectedRows[i]).getUserObject();
 			if (nodeObject instanceof ROIShape)
 			{
-				roiShape = (ROIShape)nodeObject;
+				roiShape = (ROIShape) nodeObject;
 				if (!roiMap.containsKey(roiShape.getID()))
 					selectedList.add(roiShape);
 			}
@@ -772,8 +775,27 @@ public class ROITable
 	 */
 	protected void onMousePressed(MouseEvent e)
 	{
-		if (MeasurementViewerControl.isRightClick(e)) 
+		if (MeasurementViewerControl.isRightClick(e)) {
+			Collection l = getSelectedObjects();
+			if (l == null || l.size() == 0) return;
+			Iterator i = l.iterator();
+			Object o;
+			ROI roi;
+			ROIShape shape;
+			List<Figure> list = new ArrayList<Figure>();
+			while (i.hasNext()) {
+				o =  i.next();
+				if (o instanceof ROI) {
+					roi = (ROI) o;
+					list.addAll(roi.getAllFigures());
+				} else if (o instanceof ROIShape) {
+					shape = (ROIShape) o;
+					list.add(shape.getFigure());
+				}
+			}
+			onSelectedFigures(list);
 			showROIManagementMenu(this, e.getX(), e.getY());
+		}
 	}
 	
 }

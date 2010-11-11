@@ -51,10 +51,10 @@ public class ROIAction
 {
 	
 	/** action for this 'action' to perform. */
-	protected CreationActionType 				action;
+	protected CreationActionType 	action;
 	
 	/** The controller for the event. */
-	protected ROIActionController 		controller;
+	protected ROIActionController 	controller;
 
 	/**
 	 * Sets the names of the action.
@@ -78,13 +78,20 @@ public class ROIAction
 	}
 	
 	/**
-	 * Create instance;
-	 *@param controller the reference to the action controller.
+	 * Creates a new instance.
+	 * 
+	 * @param controller the reference to the action controller.
+	 * @param action The type of action to create.
 	 */
 	public ROIAction(ROIActionController controller, CreationActionType action)
 	{
+		if (controller == null)
+			throw new IllegalArgumentException("No control.");
+		if (action == null)
+			throw new IllegalArgumentException("No Action type specified.");
 		this.controller = controller;
 		this.action = action;
+		setEnabled(false);
 		switch (action)
 		{
 			case DUPLICATE:

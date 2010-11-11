@@ -98,7 +98,7 @@ public class ROITableCellRenderer
 		
 		if (thisObject instanceof ROI) {
 			ROI roi = (ROI) thisObject;
-			if (userID == roi.getOwnerID())
+			if (userID == roi.getOwnerID() || roi.getOwnerID() == -1)
 				setIcon(ROI_ICON);
 			else setIcon(ROI__OTHER_OWNER_ICON);
 		} else if( thisObject instanceof ROIShape) setIcon(SHAPE_ICON);

@@ -37,6 +37,7 @@ import javax.swing.JPopupMenu;
 
 import org.openmicroscopy.shoola.agents.measurement.util.actions.ROIAction;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIActionController;
+import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIActionController.CreationActionType;
 
 /** 
  * Displays options to manipulate a ROI.
@@ -100,11 +101,11 @@ public class ROIPopupMenu
 		JMenu roiOptionsParent = new JMenu(ROI_CREATION_OPTIONS);
 		JMenuItem roiOption;
 		ROIAction action;
-		for (int indexCnt = 0 ; indexCnt < 
-		ROIActionController.CreationActionType.values().length ; indexCnt++)
+		CreationActionType[] values = 
+			ROIActionController.CreationActionType.values();
+		for (int indexCnt = 0 ; indexCnt < values.length ; indexCnt++)
 		{
-			action = new ROIAction(controller, 
-					ROIActionController.CreationActionType.values()[indexCnt]);
+			action = new ROIAction(controller, values[indexCnt]);
 			actions.add(action);
 			roiOption = new JMenuItem(action);
 			roiOptionsParent.add(roiOption);
