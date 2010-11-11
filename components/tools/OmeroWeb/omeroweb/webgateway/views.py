@@ -181,9 +181,9 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
 
 #    if r.has_key('logout'):
 #        logger.debug('logout required by HTTP GET or POST')
-#    elif r.has_key('bsession') and not force_anon:
-#        blitz_session = r['bsession']
-#        request.session[browsersession_connection_key] = blitz_session
+    if r.has_key('bsession'):
+        blitz_session = r['bsession']
+        request.session[browsersession_connection_key] = blitz_session
 
     if force_key:
         ckey = force_key
