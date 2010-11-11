@@ -577,16 +577,15 @@ def runAsScript():
         for key in client.getInputKeys():
             if client.getInput(key):
                 commandArgs[key] = client.getInput(key).getValue()
-                
+
         print commandArgs
-        
+
         # Makes the figure and attaches it to Image. Returns the id of the originalFileLink child. (ID object, not value)
         fileAnnotation, image = movieFigure(session, commandArgs)
         if fileAnnotation:
             client.setOutput("Message", rstring("Movie Figure Attached to Image: %s" % image.name.val))
             client.setOutput("File_Annotation", robject(fileAnnotation))
-    except: raise
     finally: client.closeSession()
-    
+
 if __name__ == "__main__":
     runAsScript()

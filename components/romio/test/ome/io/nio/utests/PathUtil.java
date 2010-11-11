@@ -7,6 +7,9 @@
 
 package ome.io.nio.utests;
 
+import java.io.File;
+import java.util.UUID;
+
 import ome.system.OmeroContext;
 
 import org.apache.commons.logging.Log;
@@ -23,34 +26,23 @@ import org.apache.commons.logging.LogFactory;
  * 
  * @see <a href="https://trac.openmicroscopy.org.uk/omero/ticket/800">ticket:800</a>
  */
-public class PathUtil {
+class PathUtil {
 
     private final static Log log = LogFactory.getLog(PathUtil.class);
 
     private final static PathUtil instance = new PathUtil();
 
-    private final String omeroDataDir;
-
-    private PathUtil() {
-        String dataDir;
-        try {
-            OmeroContext c = new OmeroContext(
-                    new String[] { "classpath:ome/config.xml" });
-            dataDir = c.getProperty("omero.data.dir");
-        } catch (Exception e) {
-            dataDir = "/OMERO";
-            log.error("Could not find \"omero.data.dir\" "
-                    + "in OmeroContext with ome/config.xml", e);
-        }
-        omeroDataDir = dataDir;
-    }
-
     public static PathUtil getInstance() {
         return instance;
     }
 
-    public String getDataFilePath() {
-        return omeroDataDir;
+    public String getTemporaryDataFilePath() {
+        File tempdir = new File(System.getProperty("java.io.tmpdir"));
+        String uuid = UUID.randomUUID().toString();
+        tempdir = new File(tempdir, uuid);
+        tempdir.mkdirs();
+        String path = tempdir.getAbsolutePath() + "/";
+        log.debug("Created temporary directory: " + path);
+        return path;
     }
-
 }

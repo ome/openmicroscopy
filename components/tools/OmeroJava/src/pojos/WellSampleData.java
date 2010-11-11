@@ -30,7 +30,6 @@ package pojos;
 
 // Application-internal dependencies
 import omero.RDouble;
-import omero.RInt;
 import omero.RTime;
 import omero.model.WellSample;
 import omero.model.WellSampleI;
@@ -74,7 +73,7 @@ public class WellSampleData extends DataObject {
      */
     public WellSampleData(WellSample wellSample) {
         if (wellSample == null) {
-            throw new IllegalArgumentException("Object cannot null.");
+            throw new IllegalArgumentException("Object cannot be null.");
         }
         setValue(wellSample);
     }

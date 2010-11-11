@@ -100,14 +100,16 @@ class ITest(unittest.TestCase):
     def login_args(self):
         p = self.client.ic.getProperties()
         host = p.getProperty("omero.host")
+        port = p.getProperty("omero.port")
         key = self.sf.ice_getIdentity().name
-        return ["-s", host, "-k", key] # TODO PORT
+        return ["-s", host, "-k", key, "-p", port]
 
     def root_login_args(self):
         p = self.root.ic.getProperties()
         host = p.getProperty("omero.host")
+        port = p.getProperty("omero.port")
         key = self.root.sf.ice_getIdentity().name
-        return ["-s", host, "-k", key] # TODO PORT
+        return ["-s", host, "-k", key, "-p", port]
 
     def tmpfile(self):
         return str(create_path())
@@ -123,7 +125,8 @@ class ITest(unittest.TestCase):
         group = admin.getGroup(gid)
         if experimenters:
             for exp in experimenters:
-                admin.addGroups(exp, [group])
+                user, name = self.user_and_name(exp)
+                admin.addGroups(user, [group])
         return group
 
     def new_image(self, name = ""):
@@ -134,34 +137,37 @@ class ITest(unittest.TestCase):
 
     def import_image(self, filename = None):
         if filename is None:
-            filename = (path(".") / ".." / ".." / "common" / "test" / "tinyTest.d3d.dv").abspath()
-
+            filename = self.OmeroPy / ".." / ".." / ".." / "components" / "common" / "test" / "tinyTest.d3d.dv"
 
         server = self.client.getProperty("omero.host")
+        port = self.client.getProperty("omero.port")
         key = self.client.getSessionId()
 
         # Search up until we find "OmeroPy"
         dist_dir = self.OmeroPy / ".." / ".." / ".." / "dist"
         args = ["python"]
         args.append(str(path(".") / "bin" / "omero"))
-        args.extend(["-s", server, "-k", key, "import", filename])
+        args.extend(["-s", server, "-k", key, "-p", port, "import", filename])
         popen = subprocess.Popen(args, cwd=str(dist_dir), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         out, err = popen.communicate()
         rc = popen.wait()
         if rc != 0:
-            raise exceptions.Exception("import failed: %s\n%s" % (rc, err))
+            raise exceptions.Exception("import failed: [%r] %s\n%s" % (args, rc, err))
         pix_ids = []
         for x in out.split("\n"):
             if x and x.find("Created") < 0 and x.find("#") < 0:
-                pix_ids.append(long(x.strip()))
+                try:    # if the line has an image ID...
+                    imageId = str(long(x.strip()))
+                    pix_ids.append(imageId)
+                except: pass
         return pix_ids
 
     def index(self, *objs):
         if objs:
             for obj in objs:
-                self.root.sf.getUpdateService().indexObject(obj)
+                self.root.sf.getUpdateService().indexObject(obj, {"omero.group":"-1"})
 
-    def new_user(self, group = None, perms = None):
+    def new_user(self, group = None, perms = None, admin = False):
 
         if not self.root:
             raise exceptions.Exception("No root client. Cannot create user")
@@ -173,11 +179,8 @@ class ITest(unittest.TestCase):
         if not group:
             g = self.new_group(perms = perms)
             group = g.name.val
-        elif isinstance(group, omero.model.ExperimenterGroup):
-            g = group
-            group = g.name.val
         else:
-            pass # Group is already name
+            g, group = self.group_and_name(group)
 
         # Create user
         e = omero.model.ExperimenterI()
@@ -185,14 +188,17 @@ class ITest(unittest.TestCase):
         e.firstName = rstring(name)
         e.lastName = rstring(name)
         uid = admin.createUser(e, group)
+        e = admin.lookupExperimenter(name)
+        if admin:
+            admin.setGroupOwner(g, e)
         return admin.getExperimenter(uid)
 
-    def new_client(self, group = None, user = None, perms = None):
+    def new_client(self, group = None, user = None, perms = None, admin = False):
         """
         Like new_user() but returns an active client.
         """
         if user is None:
-            user = self.new_user(group, perms)
+            user = self.new_user(group, perms, admin)
         props = self.root.getPropertyMap()
         props["omero.user"] = user.omeName.val
         props["omero.pass"] = user.omeName.val
@@ -202,9 +208,9 @@ class ITest(unittest.TestCase):
         client.createSession()
         return client
 
-    def new_client_and_user(self, group = None):
+    def new_client_and_user(self, group = None, perms = None, admin = False):
         user = self.new_user(group)
-        client = self.new_client(group, user)
+        client = self.new_client(group, user, perms, admin)
         return client, user
 
     def timeit(self, func, *args, **kwargs):
@@ -213,6 +219,40 @@ class ITest(unittest.TestCase):
         stop = time.time()
         elapsed = stop - start
         return elapsed, rv
+
+    def group_and_name(self, group):
+        admin = self.root.sf.getAdminService()
+        if isinstance(group, omero.model.ExperimenterGroup):
+            if group.isLoaded():
+                name = group.name.val
+                group = admin.lookupGroup(name)
+            else:
+                group = admin.getGroup(group.id.val)
+                name = group.name.val
+        elif isinstance(group, (str, unicode)):
+            name = group
+            group = admin.lookupGroup(name)
+        else:
+            self.fail("Unknown type: %s=%s" % (type(group), group))
+
+        return group, name
+
+    def user_and_name(self, user):
+        admin = self.root.sf.getAdminService()
+        if isinstance(user, omero.model.Experimenter):
+            if user.isLoaded():
+                name = user.name.val
+                user = admin.lookupExperimenter(name)
+            else:
+                user = admin.getExperimenter(user.id.val)
+                name = user.omeName.val
+        elif isinstance(user, (str, unicode)):
+            name = user
+            user = admin.lookupExperimenter(name)
+        else:
+            self.fail("Unknown type: %s=%s" % (type(user), user))
+
+        return user, name
 
     def tearDown(self):
         failure = False

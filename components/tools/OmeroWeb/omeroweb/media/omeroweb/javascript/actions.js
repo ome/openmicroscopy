@@ -8,6 +8,14 @@ var calculateCartTotal = function(total)
     $('#cartTotal').html(total); 
 };
 
+function loadMetadata(src) {
+    var h = $(window).height()-200;
+    $("#right_panel").show();
+    $("#swapMeta").html('<img tabindex="0" src="/appmedia/omeroweb/images/tree/spacer.gif"" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
+    $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="'+src+'" id="metadata_details" name="metadata_details"></iframe>');
+    $('iframe#metadata_details').load();
+}
+
 function manyToAnnotation(){
     if (!isCheckedById("image") && !isCheckedById("dataset") && !isCheckedById("project") && !isCheckedById("well") && !isCheckedById("plate") && !isCheckedById("screen")) {
         alert ("Please select at least one image. Currently you cannot add other objects to basket."); 
@@ -19,11 +27,7 @@ function manyToAnnotation(){
             }
         });
         
-        var h = $(window).height()-200;
-        $("#right_panel").show();
-        $("#swapMeta").html('<img tabindex="0" src="/appmedia/omeroweb/images/tree/spacer.gif"" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
-        $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="'+productListQuery+'" id="metadata_details" name="metadata_details"></iframe>');
-        $('iframe#metadata_details').load();
+        loadMetadata(productListQuery);
     }    
 }
 
@@ -161,10 +165,12 @@ function unlink (productArray, parent) {
 };
 
 function manyDelete() { 
-    if (!isCheckedById("image") && !isCheckedById("plate")) {
-        alert ("Please select at least one object"); 
-    } else { 
-        deleteItems($("input[type='checkbox']:checked"), parent);
+    if (confirm('Delete selected objects?')) {
+        if (!isCheckedById("image") && !isCheckedById("plate")) {
+            alert ("Please select at least one object"); 
+        } else { 
+            deleteItems($("input[type='checkbox']:checked"), parent);
+        }
     }
 };
 
@@ -175,16 +181,54 @@ function deleteItems (productArray, parent) {
             productListQuery += "&"+this.name+"="+this.id;
         }
     });
+    if (confirm('Also delete annotations?')) {
+        productListQuery += '&anns=on';
+    } 
     $.ajax({
         type: "POST",
         url: "/webclient/action/deletemany/", //this.href,
         data: productListQuery,
         contentType:'html',
+        async:true,
         success: function(responce){
             if(responce.match(/(Error: ([A-z]+))/gi)) {
                 alert(responce)
             } else {
-                window.location.replace("");
+                //window.location.replace("");
+                productArray.each(function() {
+                    if(this.checked) {                        
+                        a = simpleTreeCollection.find('li#img-'+this.id);
+                        if (a.length > 0) {
+                            if (a.attr('class').indexOf('last')>=0) {  
+                                a.prev().prev().attr('class', a.prev().prev().attr('class')+'-last');
+                            }
+                            a.prev('li.line').remove();
+                            a.remove();
+                        }
+                        $('li#'+this.id).remove();
+                        a = simpleTreeCollection.find('li#img-'+this.id);
+                        a.prev('li.line').remove();
+                        a.remove();
+                        
+                    }
+                });
+                
+                var i = setInterval(function (){
+                    $.getJSON("/webclient/progress/", function(data) {
+                        if (data.inprogress== 0) {
+                            clearInterval(i);
+                            $("#progress").hide();
+                            if(data.failure>0) {
+                                $("#jobstatus").html(data.failure + ' job(s) failed');
+                            } else {
+                                $("#jobstatus").html(data.jobs + ' job(s)');
+                            }
+                            return;
+                        }
+                        $("#progress").show();
+                        $("#jobstatus").html(data.inprogress + ' job(s) in progress');
+                    });
+                }, 1000);                
             }
         },
         error: function(responce) {
@@ -194,23 +238,78 @@ function deleteItems (productArray, parent) {
 };
 
 function deleteItem(productType, productId) {
-    if ((productType == 'project' || productType == 'dataset' || productType == 'image' || productType == 'screen' || productType == 'plate' || productType == 'share') && productId > 0){
+    if ((productType == 'project' || productType == 'dataset' || productType == 'image' || productType == 'screen' || productType == 'plate' || productType == 'share' || productType == "tag") && productId > 0){
         if (confirm('Delete '+productType+'?')) {
-            if ((productType == 'project' || productType == 'dataset' || productType == 'screen') && confirm('Also delete content?')) {
-                all = 'all=on';
-            } else {
-                all = null;
+            var productListQuery="";
+            if ((productType == 'project' || productType == 'dataset' || productType == 'screen')) {
+                if (confirm('Also delete content?')) {
+                    productListQuery='child=on';
+                }
+            }  
+            if (productType!='tag') {          
+                if (confirm('Also delete annotations?')) {
+                    if(productListQuery.length>0){
+                        productListQuery+='&anns=on';
+                    } else {
+                        productListQuery='anns=on';
+                    }
+                }                
             }
             $.ajax({
                 type: "POST",
                 url: "/webclient/action/delete/"+productType+"/"+productId+"/", //this.href,
-                data: all,
+                data: productListQuery,
                 contentType:'html',
+                async:true,
                 success: function(responce){
                     if(responce.match(/(Error: ([A-z]+))/gi)) {
                         alert(responce)
-                    } else {
-                        window.location.replace("");
+                    } else {  
+                        //window.location.replace("");                        
+                        a = simpleTreeCollection.find('span.active').parents('li:first');
+                        if (a.attr('class').indexOf('last')>=0) {  
+                            a.prev().prev().attr('class', a.prev().prev().attr('class')+'-last');
+                        }
+                        a.prev('li.line').remove();
+                        a.remove();
+                        
+                        if ((productType == 'image') && productId > 0) {
+                            $("div#metadata_details").empty();
+                            /*$("div#content_details").html('<p>Reloading data... please wait <img src ="/appmedia/omeroweb/images/tree/spinner.gif" /></p>');
+                            if ($("div#content_details").attr('rel') && $("div#content_details").attr('rel') !== undefined) {
+                                var obj = $("div#content_details").attr('rel').split("-");
+                                $("div#content_details").load('/webclient/load_data/dataset/'+obj[1]+'/?view=icon');
+                                $("div#content_details").attr('rel', obj.join("-"));
+                            }*/
+                            if ($('#dataIcons').length != 0) {
+                                $('#dataIcons').find('li#'+a.attr('id').split("-")[1]).remove();
+                            } else if ($('#dataTable').length != 0) {
+                                $('#dataTable').find('tr#'+a.attr('id').split("-")[1]).remove();
+                            }                     
+                        } else if ((productType == 'dataset' || productType == 'plate' || productType == 'tag') && productId > 0) {
+                            $("div#metadata_details").empty();
+                            $("div#content_details").removeAttr('rel').children().remove();
+                        } else if ((productType == 'project' || productType == 'screen') && productId > 0) {
+                            $("div#metadata_details").empty();
+                        }
+                                  
+                        var i = setInterval(function (){
+                            $.getJSON("/webclient/progress/", function(data) {
+                                if (data.inprogress== 0) {
+                                    clearInterval(i);
+                                    $("#progress").hide();
+                                    if(data.failure>0) {
+                                        $("#jobstatus").html(data.failure + ' job(s) failed');
+                                    } else {
+                                        $("#jobstatus").html(data.jobs + ' job(s)');
+                                    }
+                                    return;
+                                }
+
+                                $("#progress").show();
+                                $("#jobstatus").html(data.inprogress + ' job(s) in progress');
+                            });
+                        }, 1000);
                     }
                 },
                 error: function(responce) {
@@ -360,11 +459,8 @@ function saveMetadata (image_id, metadata_type, metadata_value) {
 }
 
 function editItem(type, item_id) {
-    var h = $(window).height()-169;
-    $("#right_panel").show();
-    $("#swapMeta").html('<img tabindex="0" src="/appmedia/omeroweb/images/tree/spacer.gif" class="collapsed-right" id="lhid_trayhandle_icon_right">');
-    $("div#metadata_details").html('<iframe width="370" height="'+h+'" src="/webclient/action/edit/'+type+'/'+item_id+'/" id="metadata_details" name="metadata_details"></iframe>');
-    $('iframe#metadata_details').load();
+    src = '/webclient/action/edit/'+type+'/'+item_id+'/';
+    loadMetadata(src);
     return false;
 }
 
@@ -392,19 +488,13 @@ function makeShare() {
         }
     }
     
-    var h = $(window).height()-169;
-    $("#right_panel").show();
-    $("#swapMeta").html('<img tabindex="0" src="/appmedia/omeroweb/images/tree/spacer.gif" class="collapsed-right" id="lhid_trayhandle_icon_right">');
-    $("div#metadata_details").html('<iframe width="370" height="'+h+'" src="/webclient/basket/toshare/?'+productListQuery+'" id="metadata_details" name="metadata_details"></iframe>');
-    $('iframe#metadata_details').load();
+    src = '/webclient/basket/toshare/?'+productListQuery+'';
+    loadMetadata(src);
     return false;
 }
 
 function makeDiscussion() {
-    var h = $(window).height()-169;
-    $("#right_panel").show();
-    $("#swapMeta").html('<img tabindex="0" src="/appmedia/omeroweb/images/tree/spacer.gif" class="collapsed-right" id="lhid_trayhandle_icon_right">');
-    $("div#metadata_details").html('<iframe width="370" height="'+h+'" src="/webclient/basket/todiscuss/" id="metadata_details" name="metadata_details"></iframe>');
-    $('iframe#metadata_details').load();
+    src = '/webclient/basket/todiscuss/';
+    loadMetadata(src);
     return false;
 }

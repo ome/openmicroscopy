@@ -61,7 +61,7 @@
     <table>
       <tbody>
         {% for field in form_well_index %}
-        <tr><th>{{ field.label_tag }}</th><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text }}</td></tr>
+        <tr><th>{{ field.label_tag }}</th><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text|safe }}</td></tr>
         {% endfor %}
       </tbody>
     </table>

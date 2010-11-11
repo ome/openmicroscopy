@@ -46,13 +46,13 @@
     			<td>{{ form.password }}</td>
 			</tr>
 		</tbody></table>
-		<!-- <tr><td>{% if form.user_name.errors %}{{ form.user_name.errors }}{% endif %}{{ form.user_name.help_text }}</td> -->
+		<!-- <tr><td>{% if form.user_name.errors %}{{ form.user_name.errors }}{% endif %}{{ form.user_name.help_text|safe }}</td> -->
 		<center><input type="submit" value="Connect" /></center>
 	</form>
 </div>
 
 <div id="bottom">
-    <center><a href="{% url waforgottenpassword %}">Forgotten password</a> | <a href="javascript:openHelp()">Help</a></center>
+    <center><a href="{% url waforgottenpassword %}">Forgotten password</a></center>
 	<p>OMERO.web {{ version }}.<br/>&copy; University of Dundee & Open Microscopy Environment</p>
 </div>
 

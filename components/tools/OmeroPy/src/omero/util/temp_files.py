@@ -130,7 +130,11 @@ class TempFileManager(object):
         locktest = None
 
         omerotemp = os.environ.get("OMERO_TEMPDIR", None)
-        homeprop = get_user_dir()
+        homeprop = None
+        try:
+            homeprop = get_user_dir()
+        except:
+            pass # ticket:3194
         tempprop = tempfile.gettempdir()
         targets = [omerotemp, homeprop, tempprop]
 
@@ -147,7 +151,19 @@ class TempFileManager(object):
                 break
 
             try:
+
+                # 2805
+                omero_dir = path(target) / "omero"
+                if omero_dir.exists() and not omero_dir.isdir():
+                    self.logger.debug(""""omero" is not a directory: %s""" % omero_dir)
+                    continue
+                tmp_dir = omero_dir / "tmp"
+                if tmp_dir.exists() and not tmp_dir.isdir():
+                    self.logger.debug(""""tmp" is not a directory: %s""" % tmp_dir)
+                    continue
+
                 try:
+
                     name = self.mkstemp(prefix=".lock_test", suffix=".tmp", dir=target)
                     locktest = open(name, "a+")
                     portalocker.lock(locktest, portalocker.LOCK_EX|portalocker.LOCK_NB)

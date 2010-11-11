@@ -276,13 +276,19 @@ public class OMEROMetadataStoreClient
     
     /** Annotations from the user for use by model processors. */
     private List<Annotation> userSpecifiedAnnotations;
-    
+  
     /** Image name the user specified for use by model processors. */
     private String userSpecifiedImageName;
-    
+
     /** Image description the user specified for use by model processors. */
     private String userSpecifiedImageDescription;
-    
+
+    /** Plate name the user specified for use by model processors. */
+    private String userSpecifiedPlateName;
+
+    /** Plate description the user specified for use by model processors. */
+    private String userSpecifiedPlateDescription;
+
     /** Linkage target for all Images/Plates for use by model processors. */
     private IObject userSpecifiedTarget;
     
@@ -411,6 +417,20 @@ public class OMEROMetadataStoreClient
     }
     
     /**
+     * Initializes the MetadataStore with an already logged in, ready to go
+     * service factory.
+     * @param c The client. Mustn't be <code>null</code>.
+     */
+    public void initialize(omero.client c)
+        throws ServerError
+    {
+        this.c = c;
+        c.setAgent("OMERO.importer");
+        serviceFactory = c.getSession();
+        initializeServices();
+    }
+
+    /**
      * Initializes the MetadataStore taking string parameters to feed to the 
      * OMERO Blitz client object. Using this method creates an unsecure
      * session.
@@ -455,20 +475,12 @@ public class OMEROMetadataStoreClient
             String server, int port, boolean isSecure) 
 	throws CannotCreateSessionException, PermissionDeniedException, ServerError
 	{
-        log.info(String.format(
-                    "Attempting initial SSL connection to %s:%d",
-                    server, port));
-    	c = new client(server, port);
-    	c.setAgent("OMERO.importer");
-    	serviceFactory = c.createSession(username, password);
-    	
+        secure(server, port);
+        c.createSession(username, password);
     	if (!isSecure)
     	{
-                log.info("Insecure connection requested, falling back");
-    		c = c.createClient(false);
-    		serviceFactory = c.getSession();
+	    unsecure();
     	}
-
         initializeServices();
 	}
     
@@ -494,18 +506,11 @@ public class OMEROMetadataStoreClient
             String server, int port, long group, boolean isSecure) 
 	throws CannotCreateSessionException, PermissionDeniedException, ServerError
 	{
-        log.info(String.format(
-                    "Attempting initial SSL connection to %s:%d",
-                    server, port));
-    	c = new client(server, port);
-    	c.setAgent("OMERO.importer");
-    	serviceFactory = c.createSession(username, password);
-    	
+        secure(server, port);
+        serviceFactory = c.createSession(username, password);
     	if (!isSecure)
     	{
-                log.info("Insecure connection requested, falling back");
-    		c = c.createClient(false);
-    		serviceFactory = c.getSession();
+	    unsecure();
     	}
 
     	iAdmin = serviceFactory.getAdminService();
@@ -540,20 +545,49 @@ public class OMEROMetadataStoreClient
     public void initialize(String server, int port, String sessionKey, boolean isSecure)
         throws CannotCreateSessionException, PermissionDeniedException, ServerError
     {
+        secure(server, port);
+        serviceFactory = c.joinSession(sessionKey);
+    	if (!isSecure)
+    	{
+            unsecure();
+    	}
+        initializeServices();
+    }
+
+    /**
+     * First phase of login is to make an SSL connection. Creates an
+     * {@link omero.client} instance and calls {@link omero.client#setAgent(String)}
+     * @param server
+     * @param port
+     * @throws CannotCreateSessionException
+     * @throws PermissionDeniedException
+     * @throws ServerError
+     */
+    private void secure(String server, int port) throws CannotCreateSessionException,
+            PermissionDeniedException, ServerError {
         log.info(String.format(
                     "Attempting initial SSL connection to %s:%d",
                     server, port));
-    	c = new client(server, port);
-    	c.setAgent("OMERO.importer");
-        serviceFactory = c.joinSession(sessionKey);
-   	
-    	if (!isSecure)
-    	{
-                log.info("Insecure connection requested, falling back");
-    		c = c.createClient(false);
-    	}
-    	
-        initializeServices();
+        c = new client(server, port);
+        c.setAgent("OMERO.importer");
+    }
+
+    /**
+     * Second phase of login is to drop down to a non-SSL connection. Uses
+     * {@link omero.client#createClient(boolean)} to create a new instance and
+     * closes the old.
+     *
+     * @throws ServerError
+     * @throws CannotCreateSessionException
+     * @throws PermissionDeniedException
+     */
+    private void unsecure() throws ServerError, CannotCreateSessionException,
+            PermissionDeniedException {
+        log.info("Insecure connection requested, falling back");
+        omero.client tmp = c.createClient(false);
+        c.closeSession();
+        c = tmp;
+        serviceFactory = c.getSession();
     }
     
     /**
@@ -576,8 +610,10 @@ public class OMEROMetadataStoreClient
             serviceFactory.keepAllAlive(new ServiceInterfacePrx[]
                     {iQuery, iAdmin, rawFileStore, rawPixelStore, thumbnailStore,
 			 iRepoInfo, iContainer, iUpdate, iSettings, delegate});
-            log.debug("KeepAlive ping");
+            log.debug("KeepAlive ping.");
+            
         } catch (Exception e) {
+        	log.debug("KeepAlive failed.");
             throw new RuntimeException(e);
         }
     }
@@ -622,7 +658,7 @@ public class OMEROMetadataStoreClient
     {
         return instanceProvider;
     }
-    
+
     /**
      * Transforms a Java type into the corresponding OMERO RType.
      * 
@@ -750,10 +786,57 @@ public class OMEROMetadataStoreClient
     }
 
     /**
+     * Attempts to create a Java timestamp from an XML date/time string.
+     * @param value An <i>xsd:dateTime</i> string.
+     * @return A value Java timestamp for <code>value</code> or
+     * <code>null</code> if timestamp parsing failed. The error will be logged
+     * at the <code>ERROR</code> log level.
+     */
+    private Timestamp timestampFromXmlString(String value)
+    {
+        try
+        {
+            SimpleDateFormat sdf =
+                new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
+            return new Timestamp(sdf.parse(value).getTime());
+        }
+        catch (ParseException e)
+        {
+            log.error(String.format(
+                    "Parsing timestamp '%s' failed!", value), e);
+        }
+        return null;
+    }
+
+    private void closeQuietly(omero.api.StatefulServiceInterfacePrx prx)
+    {
+        if (prx != null) {
+            try {
+                prx.close();
+            } catch (Exception e) {
+                log.warn("Exception closing " + prx);
+                log.debug(e);
+            }
+        }
+    }
+
+    /**
      * Destroys the sessionFactory and closes the client.
      */
     public void logout()
     {
+        closeQuietly(rawFileStore);
+        rawFileStore = null;
+
+        closeQuietly(rawPixelStore);
+        rawPixelStore = null;
+
+        closeQuietly(thumbnailStore);
+        thumbnailStore = null;
+
+        closeQuietly(delegate);
+        delegate = null;
+
         if (c != null)
         {
             log.debug("closing client session.");
@@ -949,7 +1032,47 @@ public class OMEROMetadataStoreClient
     {
     	this.userSpecifiedAnnotations = annotations;
     }
-    
+
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#getUserSpecifiedPlateName()
+     */
+    public String getUserSpecifiedPlateName()
+    {
+        return userSpecifiedPlateName;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#setUserSpecifiedPlateName(java.lang.String)
+     */
+    public void setUserSpecifiedPlateName(String name)
+    {
+        if (log.isDebugEnabled())
+        {
+            log.debug("Using user specified plate name: " + name);
+        }
+        userSpecifiedPlateName = name;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#getUserSpecifiedPlateDescription()
+     */
+    public String getUserSpecifiedPlateDescription()
+    {
+        return userSpecifiedPlateDescription;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.formats.model.IObjectContainerStore#setUserSpecifiedPlateDescription(java.lang.String)
+     */
+    public void setUserSpecifiedPlateDescription(String description)
+    {
+        if (log.isDebugEnabled())
+        {
+            log.debug("Using user specified plate description: " + description);
+        }
+        userSpecifiedPlateDescription = description;
+    }
+
     /* (non-Javadoc)
      * @see ome.formats.model.IObjectContainerStore#getUserSpecifiedImageName()
      */
@@ -963,6 +1086,10 @@ public class OMEROMetadataStoreClient
      */
     public void setUserSpecifiedImageName(String name)
     {
+        if (log.isDebugEnabled())
+        {
+            log.debug("Using user specified image name: " + name);
+        }
         this.userSpecifiedImageName = name;
     }
     
@@ -979,9 +1106,13 @@ public class OMEROMetadataStoreClient
      */
     public void setUserSpecifiedImageDescription(String description)
     {
+        if (log.isDebugEnabled())
+        {
+            log.debug("Using user specified image description: " + description);
+        }
         this.userSpecifiedImageDescription = description;
     }
-    
+
     /* (non-Javadoc)
      * @see ome.formats.model.IObjectContainerStore#getUserSpecifiedTarget()
      */
@@ -1548,7 +1679,7 @@ public class OMEROMetadataStoreClient
      * <code>null</code> otherwise.
      */
     private OriginalFile byUUID(
-            String path, Map<String, OriginalFile> originalFileMap)
+    		String path, Map<String, OriginalFile> originalFileMap)
     {
     	for (Entry<String, OriginalFile> entry : originalFileMap.entrySet())
     	{
@@ -1570,7 +1701,7 @@ public class OMEROMetadataStoreClient
 
     	return null;
     }
-
+    
     /**
      * Writes binary original file data to the OMERO server.
      * @param files Files to populate against an original file list.
@@ -2774,7 +2905,8 @@ public class OMEROMetadataStoreClient
     public void setChannelColor(Integer color, int imageIndex, int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        Color c = new Color(color);
+        // RGBA --> ARGB
+        Color c = new Color((color >>> 8) | (color << (32-8)));
         o.setRed(toRType(c.getRed()));
         o.setGreen(toRType(c.getGreen()));
         o.setBlue(toRType(c.getBlue()));
@@ -2799,7 +2931,7 @@ public class OMEROMetadataStoreClient
             PositiveInteger emissionWavelength, int imageIndex, int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        o.getLogicalChannel().setEmissionWave(toRType(emissionWavelength.getValue()));
+        o.getLogicalChannel().setEmissionWave(toRType(emissionWavelength));
     }
 
     /** (non-Javadoc)
@@ -2810,7 +2942,7 @@ public class OMEROMetadataStoreClient
             int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        o.getLogicalChannel().setExcitationWave(toRType(excitationWavelength.getValue()));
+        o.getLogicalChannel().setExcitationWave(toRType(excitationWavelength));
     }
 
     /* (non-Javadoc)
@@ -2940,21 +3072,11 @@ public class OMEROMetadataStoreClient
     public void setChannelLightSourceSettingsID(String id, int imageIndex,
             int channelIndex)
     {
-    	LSID key = new LSID(LightSettings.class, imageIndex, channelIndex);
-    	addReference(key, new LSID(id));
-    	
-    	/*
-        checkDuplicateLSID(LightSettings.class, id);
-        LinkedHashMap<Index, Integer> indexes =
-            new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.IMAGE_INDEX, imageIndex);
-        indexes.put(Index.CHANNEL_INDEX, channelIndex);
-        IObjectContainer o = getIObjectContainer(LightSettings.class, indexes);
-        o.LSID = id;
-        addAuthoritativeContainer(LightSettings.class, id, o);
-        */
+        getChannelLightSourceSettings(imageIndex, channelIndex);
+        LSID key = new LSID(LightSettings.class, imageIndex, channelIndex);
+        addReference(key, new LSID(id));
     }
-    
+
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setChannelLightSourceSettingsAttenuation(ome.xml.model.primitives.PercentFraction, int, int)
      */
@@ -2962,7 +3084,7 @@ public class OMEROMetadataStoreClient
             PercentFraction attenuation, int imageIndex, int channelIndex)
     {
         LightSettings o = getChannelLightSourceSettings(imageIndex, channelIndex);
-        o.setAttenuation(toRType(attenuation.getValue()));
+        o.setAttenuation(toRType(attenuation));
     }
 
     /* (non-Javadoc)
@@ -2972,48 +3094,23 @@ public class OMEROMetadataStoreClient
             PositiveInteger wavelength, int imageIndex, int channelIndex)
     {
         LightSettings o = getChannelLightSourceSettings(imageIndex, channelIndex);
-        o.setWavelength(toRType(wavelength.getValue())); 
+        o.setWavelength(toRType(wavelength)); 
     }
-    
-    ////////Dataset/////////
-    
 
-    /* (non-Javadoc)
-     * @see loci.formats.meta.MetadataStore#setDatasetID(java.lang.String, int)
-     */
-    
-    /**
-     * @param datasetIndex
-     * @return
-     */
-    private Dataset getDataset(int datasetIndex)
-    {
-        LinkedHashMap<Index, Integer> indexes =
-           new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.DATASET_INDEX, datasetIndex);
-        return getSourceObject(Dataset.class, indexes);
-    }
-    
-    
+    ////////Dataset/////////
+
     public void setDatasetID(String id, int datasetIndex)
     {
-//        checkDuplicateLSID(Dataset.class, id);
-//        LinkedHashMap<Index, Integer> indexes =
-//            new LinkedHashMap<Index, Integer>();
-//       indexes.put(Index.DATASET_INDEX, datasetIndex);
-//        IObjectContainer o = getIObjectContainer(Dataset.class, indexes);
-//        o.LSID = id;
-//        addAuthoritativeContainer(Dataset.class, id, o);
+        // XXX: Not handled by OMERO.
     }
-    
+
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setDatasetAnnotationRef(java.lang.String, int, int)
      */
     public void setDatasetAnnotationRef(String annotation, int datasetIndex,
             int annotationRefIndex)
     {
-//        LSID key = new LSID(Dataset.class, datasetIndex);
-//        addReference(key, new LSID(annotation));
+        // XXX: Not handled by OMERO.
     }
 
     /* (non-Javadoc)
@@ -3021,8 +3118,7 @@ public class OMEROMetadataStoreClient
      */
     public void setDatasetDescription(String description, int datasetIndex)
     {
-//        Dataset o = getDataset(datasetIndex);
-//        o.setDescription(toRType(description));  
+        // XXX: Not handled by OMERO.
     }
 
     /* (non-Javadoc)
@@ -3030,8 +3126,6 @@ public class OMEROMetadataStoreClient
      */
     public void setDatasetExperimenterRef(String experimenter, int datasetIndex)
     {
-//        LSID key = new LSID(Dataset.class, datasetIndex);
-//        addReference(key, new LSID(experimenter));
     }
 
     /* (non-Javadoc)
@@ -3039,8 +3133,7 @@ public class OMEROMetadataStoreClient
      */
     public void setDatasetGroupRef(String group, int datasetIndex)
     {
-//        LSID key = new LSID(Dataset.class, datasetIndex);
-//        addReference(key, new LSID(group));
+        // XXX: Not handled by OMERO.
     }
 
     /* (non-Javadoc)
@@ -3048,8 +3141,7 @@ public class OMEROMetadataStoreClient
      */
     public void setDatasetName(String name, int datasetIndex)
     {
-//        Dataset o = getDataset(datasetIndex);
-//        o.setName(toRType(name));  
+        // XXX: Not handled by OMERO.
     }
 
     /* (non-Javadoc)
@@ -3058,10 +3150,9 @@ public class OMEROMetadataStoreClient
     public void setDatasetProjectRef(String project, int datasetIndex,
             int projectRefIndex)
     {
-//        LSID key = new LSID(Dataset.class, datasetIndex);
-//        addReference(key, new LSID(project));
+        // XXX: Not handled by OMERO.
     }
-    
+
     ////////Detector/////////
 
     /**
@@ -3215,6 +3306,7 @@ public class OMEROMetadataStoreClient
     public void setDetectorSettingsID(String id, int imageIndex,
             int channelIndex)
     {
+        getDetectorSettings(imageIndex, channelIndex);
         LSID key = new LSID(DetectorSettings.class, imageIndex, channelIndex);
         addReference(key, new LSID(id));
     }
@@ -3415,7 +3507,6 @@ public class OMEROMetadataStoreClient
         addAuthoritativeContainer(Ellipse.class, id, o); 
     }
 
-
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setEllipseDescription(java.lang.String, int, int)
      */
@@ -3599,8 +3690,7 @@ public class OMEROMetadataStoreClient
     public void setExperimentExperimenterRef(String experimenter,
             int experimentIndex)
     {
-        //LSID key = new LSID(Experiment.class, experimentIndex);
-        //addReference(key, new LSID(experimenter));  
+        // XXX: Not handled by OMERO.
     }
 
     /* (non-Javadoc)
@@ -3629,8 +3719,7 @@ public class OMEROMetadataStoreClient
     public void setExperimenterAnnotationRef(String annotation,
             int experimenterIndex, int annotationRefIndex)
     {
-        //LSID key = new LSID(Experimenter.class, experimenterIndex);
-        //addReference(key, new LSID(annotation));   
+        // XXX: Not handled by OMERO.
     }
 
     /* (non-Javadoc)
@@ -4127,19 +4216,8 @@ public class OMEROMetadataStoreClient
         {
             return;
         }
-        try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
-            java.util.Date date = sdf.parse(acquiredDate);
-            Timestamp acquiredTimestamp = new Timestamp(date.getTime());
-
-            Image o = getImage(imageIndex);
-            o.setAcquisitionDate(toRType(acquiredTimestamp));
-        }
-        catch (ParseException e)
-        {
-            log.error(String.format(
-                    "Parsing Image.AcquiredDate '%s' failed!", acquiredDate), e);
-        }
+        Image o = getImage(imageIndex);
+        o.setAcquisitionDate(toRType(timestampFromXmlString(acquiredDate)));
     }
 
     /* (non-Javadoc)
@@ -4244,26 +4322,17 @@ public class OMEROMetadataStoreClient
         indexes.put(Index.IMAGE_INDEX, imageIndex);
         return getSourceObject(ObjectiveSettings.class, indexes);   
     }
-    
+
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setImageObjectiveSettingsID(java.lang.String, int)
      */
     public void setImageObjectiveSettingsID(String id, int imageIndex)
     {
+        getImageObjectiveSettings(imageIndex);
         LSID key = new LSID(ObjectiveSettings.class, imageIndex);
         addReference(key, new LSID(id));
-        
-        /*
-        checkDuplicateLSID(ObjectiveSettings.class, id);
-        LinkedHashMap<Index, Integer> indexes =
-            new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.IMAGE_INDEX, imageIndex);
-        IObjectContainer o = getIObjectContainer(ObjectiveSettings.class, indexes);
-        o.LSID = id;
-        addAuthoritativeContainer(ObjectiveSettings.class, id, o);
-        */
     }
-    
+
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setImageObjectiveSettingsCorrectionCollar(java.lang.Double, int)
      */
@@ -4345,15 +4414,15 @@ public class OMEROMetadataStoreClient
     }
 
     //////// Instrument /////////
-    
-    public Instrument getInstrument(int instrumentIndex)
+
+    private Instrument getInstrument(int instrumentIndex)
     {
         LinkedHashMap<Index, Integer> indexes =
             new LinkedHashMap<Index, Integer>();
         indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
-        return getSourceObject(Instrument.class, indexes);   
+        return getSourceObject(Instrument.class, indexes);
     }
-    
+
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setInstrumentID(java.lang.String, int)
      */
@@ -4481,8 +4550,8 @@ public class OMEROMetadataStoreClient
     public void setLaserPump(String pump, int instrumentIndex,
             int lightSourceIndex)
     {
-        Laser o = getLaser(instrumentIndex, lightSourceIndex);
-        o.setPump((LightSource) getEnumeration(LightSource.class, pump));
+        LSID key = new LSID(Laser.class, instrumentIndex, lightSourceIndex);
+        addReference(key, new LSID(pump));
     }
 
     /* (non-Javadoc)
@@ -5119,7 +5188,7 @@ public class OMEROMetadataStoreClient
         LinkedHashMap<Index, Integer> indexes =
             new LinkedHashMap<Index, Integer>();
         indexes.put(Index.EXPERIMENT_INDEX, experimentIndex);
-        indexes.put(Index.MICROBEAM_MANIPULATION_INDEX, microbeamManipulationIndex);        
+        indexes.put(Index.MICROBEAM_MANIPULATION_INDEX, microbeamManipulationIndex);
         return getSourceObject(MicrobeamManipulation.class, indexes); 
     }
     
@@ -5156,8 +5225,8 @@ public class OMEROMetadataStoreClient
     public void setMicrobeamManipulationROIRef(String roi, int experimentIndex,
             int microbeamManipulationIndex, int ROIRefIndex)
     {
-        //LSID key = new LSID(MicrobeamManipulation.class, experimentIndex, microbeamManipulationIndex);
-        //addReference(key, new LSID(roi));
+        LSID key = new LSID(MicrobeamManipulation.class, experimentIndex, microbeamManipulationIndex);
+        addReference(key, new LSID(roi));
     }
 
     /* (non-Javadoc)
@@ -5169,8 +5238,7 @@ public class OMEROMetadataStoreClient
         MicrobeamManipulation o = getMicrobeamManipulation(experimentIndex, microbeamManipulationIndex);
         o.setType((MicrobeamManipulationType) getEnumeration(MicrobeamManipulationType.class, type.toString()));
     }
-    
-    
+
     ////////Microbeam Manipulation Light Source Settings /////////
 
     public LightSettings getMicrobeamManipulationLightSourceSettings(int experimentIndex, int microbeamManipulationIndex,
@@ -5191,25 +5259,14 @@ public class OMEROMetadataStoreClient
             int experimentIndex, int microbeamManipulationIndex,
             int lightSourceSettingsIndex)
     {
-    	
+        getMicrobeamManipulationLightSourceSettings(
+                experimentIndex, microbeamManipulationIndex,
+                lightSourceSettingsIndex);
         LSID key = new LSID(LightSettings.class, experimentIndex, 
         		microbeamManipulationIndex, lightSourceSettingsIndex);
         addReference(key, new LSID(id));
-        
-        
-    	/*
-        checkDuplicateLSID(LightSettings.class, id);
-        LinkedHashMap<Index, Integer> indexes =
-            new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.EXPERIMENT_INDEX, experimentIndex);
-        indexes.put(Index.MICROBEAM_MANIPULATION_INDEX, microbeamManipulationIndex); 
-        indexes.put(Index.LIGHT_SOURCE_SETTINGS_INDEX, lightSourceSettingsIndex); 
-        IObjectContainer o = getIObjectContainer(LightSettings.class, indexes);
-        o.LSID = id;
-        addAuthoritativeContainer(LightSettings.class, id, o);
-        */
     }
-    
+
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setMicrobeamManipulationLightSourceSettingsAttenuation(ome.xml.model.primitives.PercentFraction, int, int, int)
      */
@@ -5219,7 +5276,7 @@ public class OMEROMetadataStoreClient
     {
         LightSettings o = getMicrobeamManipulationLightSourceSettings(experimentIndex, 
                 microbeamManipulationIndex, lightSourceSettingsIndex);
-        o.setAttenuation(toRType(attenuation.getValue())); 
+        o.setAttenuation(toRType(attenuation)); 
     }
 
     /* (non-Javadoc)
@@ -5231,25 +5288,17 @@ public class OMEROMetadataStoreClient
     {
         LightSettings o = getMicrobeamManipulationLightSourceSettings(experimentIndex, 
                 microbeamManipulationIndex, lightSourceSettingsIndex);
-        o.setWavelength(toRType(wavelength.getValue()));
+        o.setWavelength(toRType(wavelength));
     }
-    
-    
+
     //////// Microscope ////////
-    /**
-     * @param instrumentIndex
-     * @return
-     */
+
     private Microscope getMicroscope(int instrumentIndex)
     {
-        Instrument instrument = getInstrument(instrumentIndex);
-        Microscope microscope = instrument.getMicroscope();
-        if (microscope == null)
-        {
-                microscope = new MicroscopeI();
-                instrument.setMicroscope(microscope);
-        }
-        return microscope;
+        LinkedHashMap<Index, Integer> indexes =
+            new LinkedHashMap<Index, Integer>();
+        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
+        return getSourceObject(Microscope.class, indexes);
     }
 
     /* (non-Javadoc)
@@ -5298,7 +5347,8 @@ public class OMEROMetadataStoreClient
             int instrumentIndex)
     {
         Microscope o = getMicroscope(instrumentIndex);
-        o.setType((MicroscopeType) getEnumeration(MicroscopeType.class, type.toString()));
+        o.setType((MicroscopeType)
+                getEnumeration(MicroscopeType.class, type.toString()));
     }
 
     //////// OTF /////////
@@ -5433,6 +5483,7 @@ public class OMEROMetadataStoreClient
     public void setOTFObjectiveSettingsID(String id, int instrumentIndex,
             int OTFIndex)
     {
+        getOTFObjectiveSettings(instrumentIndex, OTFIndex);
         LSID key = new LSID(OTF.class, instrumentIndex, OTFIndex);
         addReference(key, new LSID(id));
     }
@@ -6060,10 +6111,9 @@ public class OMEROMetadataStoreClient
     public void setPlateAcquisitionEndTime(String endTime, int plateIndex,
             int plateAcquisitionIndex)
     {
-        // TODO : should the type be changed to Timestamp?
-        //PlateAcquisition o =
-        //    getPlateAcquisition(plateIndex, plateAcquisitionIndex);
-        //o.setEndTime(toRType(endTime));
+        PlateAcquisition o =
+            getPlateAcquisition(plateIndex, plateAcquisitionIndex);
+        o.setEndTime(toRType(timestampFromXmlString(endTime)));
     }
 
     /* (non-Javadoc)
@@ -6111,10 +6161,9 @@ public class OMEROMetadataStoreClient
     public void setPlateAcquisitionStartTime(String startTime, int plateIndex,
             int plateAcquisitionIndex)
     {
-        // TODO : should the type be changed to Timestamp?
-        //PlateAcquisition o =
-        //    getPlateAcquisition(plateIndex, plateAcquisitionIndex);
-        //o.setStartTime(toRType(startTime));
+        PlateAcquisition o =
+            getPlateAcquisition(plateIndex, plateAcquisitionIndex);
+        o.setStartTime(toRType(timestampFromXmlString(startTime)));
     }
 
     /* (non-Javadoc)
@@ -6592,40 +6641,21 @@ public class OMEROMetadataStoreClient
 
     //////// Project /////////
 
-    /**
-     * Retrieve Project
-     * @param projectIndex
-     * @return
-     */
-    private Project getProject(int projectIndex)
-    {
-        LinkedHashMap<Index, Integer> indexes =
-            new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.PROJECT_INDEX, projectIndex);
-        return getSourceObject(Project.class, indexes);
-    }
-
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setProjectID(java.lang.String, int)
      */
     public void setProjectID(String id, int projectIndex)
     {
-        checkDuplicateLSID(Project.class, id);
-        LinkedHashMap<Index, Integer> indexes =
-            new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.PROJECT_INDEX, projectIndex);
-        IObjectContainer o = getIObjectContainer(Project.class, indexes);
-        o.LSID = id;
-        addAuthoritativeContainer(Project.class, id, o);    }
-        
+        // XXX: Not handled by OMERO.
+    }
+
     /* (non-Javadoc)
      * @see loci.formats.meta.MetadataStore#setProjectAnnotationRef(java.lang.String, int, int)
      */
     public void setProjectAnnotationRef(String annotation, int projectIndex,
             int annotationRefIndex)
     {
-        LSID key = new LSID(Project.class, projectIndex);
-        addReference(key, new LSID(annotation));
+        // XXX: Not handled by OMERO.
     }
 
     /* (non-Javadoc)
@@ -6633,8 +6663,7 @@ public class OMEROMetadataStoreClient
      */
     public void setProjectDescription(String description, int projectIndex)
     {
-        Project o = getProject(projectIndex);
-        o.setDescription(toRType(description));
+        // XXX: Not handled by OMERO.
     }
 
     /* (non-Javadoc)
@@ -6642,8 +6671,7 @@ public class OMEROMetadataStoreClient
      */
     public void setProjectExperimenterRef(String experimenter, int projectIndex)
     {
-        //LSID key = new LSID(Project.class, projectIndex, projectIndex);
-        //addReference(key, new LSID(experimenter));
+        // XXX: Not handled by OMERO.
     }
 
     /* (non-Javadoc)
@@ -6651,8 +6679,7 @@ public class OMEROMetadataStoreClient
      */
     public void setProjectGroupRef(String group, int projectIndex)
     {
-        //LSID key = new LSID(Project.class, projectIndex, projectIndex);
-        //addReference(key, new LSID(group));
+        // XXX: Not handled by OMERO.
     }
 
     /* (non-Javadoc)
@@ -6660,8 +6687,7 @@ public class OMEROMetadataStoreClient
      */
     public void setProjectName(String name, int projectIndex)
     {
-        Project o = getProject(projectIndex);
-        o.setName(toRType(name));
+        // XXX: Not handled by OMERO.
     }
 
     //////// ROI /////////
@@ -7476,34 +7502,14 @@ public class OMEROMetadataStoreClient
     public void setTimestampAnnotationValue(String value,
             int timestampAnnotationIndex)
     {
-        try
-        {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
-            java.util.Date date = sdf.parse(value);
-            Timestamp creationTimestamp = new Timestamp(date.getTime());
-            TimestampAnnotation o = getTimestampAnnotation(timestampAnnotationIndex);
-            o.setTimeValue(toRType(creationTimestamp));
-        }
-        catch (ParseException e)
-        {
-            log.error(String.format("Parsing start time failed!"), e);
-        }
+        TimestampAnnotation o = getTimestampAnnotation(timestampAnnotationIndex);
+        o.setTimeValue(toRType(timestampFromXmlString(value)));
     }
 
     //////// TransmittanceRange /////////
 
-    /**
-     * Retrieve TransmittanceRange
-     * @param instrumentIndex
-     * @param filterIndex
-     * @return
-     */
     private TransmittanceRange getTransmittanceRange(int instrumentIndex, int filterIndex)
     {
-        LinkedHashMap<Index, Integer> indexes =
-            new LinkedHashMap<Index, Integer>();
-        indexes.put(Index.INSTRUMENT_INDEX, instrumentIndex);
-        indexes.put(Index.FILTER_INDEX, filterIndex);
         Filter filter = getFilter(instrumentIndex, filterIndex);
         TransmittanceRange tm = filter.getTransmittanceRange();
         if (tm == null)
@@ -7697,10 +7703,9 @@ public class OMEROMetadataStoreClient
      */
     public void setWellStatus(String status, int plateIndex, int wellIndex)
     {
-        LSID key = new LSID(Well.class, plateIndex, wellIndex);
-        addReference(key, new LSID(status));
+        //TODO missing from omero model
     }
-    
+
     //////// WellSample /////////
     
     /**
@@ -7798,21 +7803,9 @@ public class OMEROMetadataStoreClient
         {
             return;
         }
-        try {
-            SimpleDateFormat sdf = 
-                new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss");
-            java.util.Date date = sdf.parse(timepoint);
-            Timestamp timepointTimestamp = new Timestamp(date.getTime());
-
-            WellSample o = 
-                getWellSample(plateIndex, wellIndex, wellSampleIndex);
-            o.setTimepoint(toRType(timepointTimestamp));
-        }
-        catch (ParseException e)
-        {
-            log.error(String.format(
-                    "Parsing WellSample.Timepoint '%s' failed!", timepoint), e);
-        }
+        WellSample o = 
+            getWellSample(plateIndex, wellIndex, wellSampleIndex);
+        o.setTimepoint(toRType(timestampFromXmlString(timepoint)));
     }
 
     //////// XMLAnnotation /////////

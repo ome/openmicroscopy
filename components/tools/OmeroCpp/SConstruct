@@ -84,6 +84,7 @@ f.close()
 compiler_env = dict()
 compiler_env["timestamp"] = time.ctime()
 compiler_env["ARCH"] = (env.is64bit() and "64" or "32")
+compiler_env["PLATFORM"] = env.get("PLATFORM", "unknown")
 compiler_env["RELEASE"] = (env.isdebug() and "dbg" or "rel")
 compiler_env["LIBPATH"] = env.get("LIBPATH","unknown")
 compiler_env["CPPPATH"] = env.get("CPPPATH","unknown")
@@ -112,6 +113,7 @@ CXXVERSION=%(CXXVERSION)s
 LIBPATH=%(LIBPATH)s
 ARCH=%(ARCH)s
 RELEASE=%(RELEASE)s
+PLATFORM=%(PLATFORM)s
 """ % compiler_env)
 f.close()
 

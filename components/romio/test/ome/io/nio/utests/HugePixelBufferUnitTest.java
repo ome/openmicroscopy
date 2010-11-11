@@ -6,8 +6,13 @@
  */
 package ome.io.nio.utests;
 
+import java.io.File;
+import java.io.IOException;
+
+import static org.testng.AssertJUnit.*;
+
+import org.apache.commons.io.FileUtils;
 import org.testng.annotations.*;
-import junit.framework.TestCase;
 
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.OriginalFileMetadataProvider;
@@ -16,7 +21,7 @@ import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
 
-public class HugePixelBufferUnitTest extends TestCase {
+public class HugePixelBufferUnitTest {
     private ome.model.core.Pixels pixels;
 
     private PixelBuffer pixelBuffer;
@@ -27,11 +32,16 @@ public class HugePixelBufferUnitTest extends TestCase {
 
     private static final int timepointSize = stackSize * 3;
 
-	private static final String ROOT = PathUtil.getInstance().getDataFilePath();
-	
-    @Override
+    private static final String ROOT = 
+        PathUtil.getInstance().getTemporaryDataFilePath();
+
+    @AfterClass
+    public void tearDown() throws IOException {
+        FileUtils.deleteDirectory(new File(ROOT));
+    }
+
     @BeforeMethod
-    protected void setUp() {
+    public void setUp() {
     	OriginalFileMetadataProvider provider =
     		new TestingOriginalFileMetadataProvider();
         pixels = new Pixels();
@@ -50,6 +60,8 @@ public class HugePixelBufferUnitTest extends TestCase {
         PixelsService service = new PixelsService(ROOT);
         pixelBuffer = service.getPixelBuffer(pixels, provider, true);
     }
+
+
 
     @Test
     public void testGetPlaneSize() {

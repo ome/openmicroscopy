@@ -62,9 +62,9 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
 {
 	private static boolean DEBUG = false;
 	
-	private static String SERVER = "server";
-	private static String USER = "user";
-	private static String PASS = "pass";
+	private static String SERVER = "warlock.openmicroscopy.org.uk";
+	private static String USER = "root";
+	private static String PASS = "omero";
 	
 	private static String baseDBNAME = "baseFile";
 	private static String itemDBNAME = "itemFile";
@@ -314,7 +314,7 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
         
         List<OriginalFile> baseFiles = getOriginalFiles(baseDBNAME);
         
-        if (baseFiles.isEmpty() || baseFiles == null)     
+        if (baseFiles == null || baseFiles.isEmpty())     
         {
         	createBaseTable();
         } else {
@@ -447,8 +447,8 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
      */
     public Integer updateBaseStatus(int baseUid, String newStatus) throws ServerError
     {
-    	long uid = new Long(baseUid);
-    	String searchString = "(Uid==" + uid + ")";
+    	Long uid = Long.valueOf(baseUid);
+    	String searchString = "(Uid==" + uid.longValue() + ")";
     	long[] ids = baseTable.getWhereList(searchString, null, 0, baseTable.getNumberOfRows(), 1);
     	
         int returnedRows = ids.length;
@@ -744,8 +744,8 @@ public class HistoryTableStore extends HistoryTableAbstractDataSource
      */
     public Integer updateItemStatus(int baseUid, int index, String newStatus) throws ServerError
     {
-    	long uid = new Long(baseUid);
-    	String searchString = "(BaseUid==" + uid + ")";
+    	Long uid = Long.valueOf(baseUid);
+    	String searchString = "(BaseUid==" + uid.longValue() + ")";
     	long[] ids = itemTable.getWhereList(searchString, null, 0, itemTable.getNumberOfRows(), 1);
     	
         int returnedRows = ids.length;

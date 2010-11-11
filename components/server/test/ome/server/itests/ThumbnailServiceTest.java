@@ -13,9 +13,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import ome.api.IPixels;
+import ome.api.IRenderingSettings;
 import ome.api.ThumbnailStore;
+import ome.model.IObject;
 import ome.model.core.Pixels;
+import ome.model.display.RenderingDef;
 import ome.model.enums.RenderingModel;
+import ome.model.internal.Permissions;
+import ome.model.meta.Experimenter;
+import ome.model.meta.ExperimenterGroup;
 import ome.system.ServiceFactory;
 import omeis.providers.re.RenderingEngine;
 
@@ -169,6 +176,142 @@ public class ThumbnailServiceTest extends AbstractManagedContextTest {
         assertTrue(before.length != after.length);
     }
 
+    @Test(groups = {"ticket:3161"})
+    public void testTicket3161ThreeUserView() throws Exception {
+        Experimenter e1 = loginNewUser();
+        final ServiceFactory sf = this.factory;// new InternalServiceFactory();
+        Pixels pix = makePixels();
+        loginRoot();
+        makeDefaultGroupReadWrite(e1);
+        // Experimenter1's interactions
+        loginUser(e1.getOmeName());
+        ThumbnailStore ts = sf.createThumbnailService();
+        IPixels ps = sf.getPixelsService();
+        ts.setPixelsId(pix.getId());
+        byte[] thumbExp1 = ts.getThumbnail(5, 5);
+        assertNotNull(thumbExp1);
+        List<IObject> settingsList = 
+            ps.retrieveAllRndSettings(pix.getId(), -1);
+        RenderingDef settings0 = (RenderingDef) settingsList.get(0);
+        assertEquals(1, settingsList.size());
+        assertEquals(1, settings0.getVersion().intValue());
+        // Experimenter2's interactions
+        Experimenter e2 = loginNewUserInOtherUsersGroup(e1);
+        RenderingEngine re = sf.createRenderingEngine();
+        ts = sf.createThumbnailService();
+        re.lookupPixels(pix.getId());
+        if (!re.lookupRenderingDef(pix.getId())) {
+            re.resetDefaults();
+            re.lookupRenderingDef(pix.getId());
+        }
+        re.load();
+        ts.setPixelsId(pix.getId());
+        List<RenderingModel> models = re.getAvailableModels();
+        re.setModel(getModel(models, "rgb"));
+        re.saveCurrentSettings();
+        byte[] thumbExp2 = ts.getThumbnail(5, 5);
+        assertNotNull(thumbExp2);
+        settingsList = ps.retrieveAllRndSettings(pix.getId(), -1);
+        assertEquals(2, settingsList.size());
+        settings0 = (RenderingDef) settingsList.get(0);
+        RenderingDef settings1 = (RenderingDef) settingsList.get(1);
+        assertEquals(1, settings0.getVersion().intValue());
+        assertEquals(2, settings1.getVersion().intValue());
+        byte[][] thumbnails = retrieveAllThumbnailsBySettings(
+                settingsList, ts);
+        assertEquals(2, thumbnails.length);
+        // Experimenter3's interactions
+        Experimenter e3 = loginNewUserInOtherUsersGroup(e1);
+        ts = sf.createThumbnailService();
+        ts.setPixelsId(pix.getId());
+        ts.resetDefaults();
+        ts.setPixelsId(pix.getId());
+        byte[] thumbExp3 = ts.getThumbnail(5, 5);
+        assertNotNull(thumbExp3);
+        settingsList = 
+            ps.retrieveAllRndSettings(pix.getId(), -1);
+        settings0 = (RenderingDef) settingsList.get(0);
+        settings1 = (RenderingDef) settingsList.get(1);
+        RenderingDef settings2 = (RenderingDef) settingsList.get(2);
+        assertEquals(3, settingsList.size());
+        assertEquals(1, settings0.getVersion().intValue());
+        assertEquals(2, settings1.getVersion().intValue());
+        assertEquals(1, settings2.getVersion().intValue());
+        thumbnails = retrieveAllThumbnailsBySettings(
+                settingsList, ts);
+        assertEquals(3, thumbnails.length);
+    }
+
+    @Test(groups = {"ticket:3161"})
+    public void testTicket3161SecurityViolation() throws Exception {
+        Experimenter e1 = loginNewUser();
+        final ServiceFactory sf = this.factory;// new InternalServiceFactory();
+        Pixels pix = makePixels();
+        loginRoot();
+        makeDefaultGroupReadWrite(e1);
+        // Experimenter1's services
+        loginUser(e1.getOmeName());
+        RenderingEngine re = sf.createRenderingEngine();
+        ThumbnailStore ts = sf.createThumbnailService();
+        IPixels psExp1 = sf.getPixelsService();
+        re.lookupPixels(pix.getId());
+        if (!re.lookupRenderingDef(pix.getId())) {
+            re.resetDefaults();
+            re.lookupRenderingDef(pix.getId());
+        }
+        re.load();
+        List<RenderingModel> models = re.getAvailableModels();
+        RenderingModel modelExp1 = re.getModel();
+        ts.setPixelsId(pix.getId());
+        byte[] thumbExp1 = ts.getThumbnail(5, 5);
+        assertNotNull(thumbExp1);
+        // Experimenter2's services
+        Experimenter e2 = loginNewUserInOtherUsersGroup(e1);
+        re = sf.createRenderingEngine();
+        ts = sf.createThumbnailService();
+        re.lookupPixels(pix.getId());
+        if (!re.lookupRenderingDef(pix.getId())) {
+            re.resetDefaults();
+            re.lookupRenderingDef(pix.getId());
+        }
+        re.load();
+        RenderingModel modelExp2 = re.getModel();
+        ts.setPixelsId(pix.getId());
+        byte[] thumbExp2A = ts.getThumbnail(5, 5);
+        assertNotNull(thumbExp2A);
+
+        // Check rendering models are the same
+        assertEquals(modelExp1.getId(), modelExp2.getId());
+        // Check that the rendering settings count is two
+        List<IObject> settingsList = 
+            psExp1.retrieveAllRndSettings(pix.getId(), -1);
+        assertEquals(2, settingsList.size());
+        byte[][] thumbnails = retrieveAllThumbnailsBySettings(
+                settingsList, ts);
+        assertEquals(2, thumbnails.length);
+        // Switch rendering model to check the settings
+        re.setModel(getModel(models, "rgb"));
+        re.saveCurrentSettings();
+        settingsList = 
+            psExp1.retrieveAllRndSettings(pix.getId(), -1);
+        loginUser(e1.getOmeName());
+        thumbnails = retrieveAllThumbnailsBySettings(
+                settingsList, ts);
+        assertEquals(2, thumbnails.length);
+    }
+
+    private byte[][] retrieveAllThumbnailsBySettings(
+            List<IObject> settingsList, ThumbnailStore ts) {
+        byte[][] toReturn = new byte[settingsList.size()][];
+        int i = 0;
+        for (IObject o : settingsList) {
+            ts.setRenderingDefId(o.getId());
+            toReturn[i] = ts.getThumbnail(5, 5);
+            i++;
+        }
+        return toReturn;
+    }
+
     private RenderingModel getModel(List<RenderingModel> models, String value) {
         for (RenderingModel model : models) {
             if (model.getValue().equals(value)) {
@@ -176,5 +319,19 @@ public class ThumbnailServiceTest extends AbstractManagedContextTest {
             }
         }
         throw new RuntimeException("Could not find model: " + value);
+    }
+
+    private void makeDefaultGroupReadWrite(Experimenter experimenter)
+    {
+        ExperimenterGroup group = iAdmin.getDefaultGroup(experimenter.getId());
+        group.getDetails().setPermissions(Permissions.GROUP_WRITEABLE);
+        iAdmin.updateGroup(group);
+    }
+
+    private void makeDefaultGroupReadOnly(Experimenter experimenter)
+    {
+        ExperimenterGroup group = iAdmin.getDefaultGroup(experimenter.getId());
+        group.getDetails().setPermissions(Permissions.GROUP_READABLE);
+        iAdmin.updateGroup(group);
     }
 }

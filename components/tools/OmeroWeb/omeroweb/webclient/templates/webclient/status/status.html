@@ -1,0 +1,101 @@
+{% extends "webclient/base/base.html" %}
+{% load i18n %}
+{% load markup %}
+{% load custom_tags %}
+
+{% block link %}
+    <link rel="stylesheet" href="{% url webstatic "css/table.css" %}" type="text/css" media="screen"/>
+    
+{% endblock %}
+
+{% block jscript %}
+    
+{% endblock %}
+
+{% block script %}
+
+    <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
+    
+    <script type="text/javascript">
+        $(document).ready(function(){
+
+            var h = $(window).height()-200;
+            $("div#content_details").css('height', h+31);
+            $("#right_panel").show();
+            $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
+            
+        });    
+    </script>
+
+{% endblock %}
+
+{% block center %}
+
+<div id="content_details">
+    <h1>Jobs status</h1>
+    {% if sizeOfJobs %}
+
+        <div id="toolbar" class="toolbar_noborder">
+            <input class="button" type="image" src="{% url webstatic "images/reset.png" %}" alt="Clean" title="Clean" onclick="document.location.href='{% url status "clean" %}';">
+        </div>
+        <div class="clear"> </div>
+        
+        <table id="dataTable" class="tablesorter">
+            <thead> 
+                <tr> 
+                    <th class="desc">{% trans "Job" %}</th> 
+                    <th class="desc">{% trans "Status" %}</th> 
+                </tr> 
+            </thead>
+            <tbody>
+                {% for k,v in jobs.iteritems %}
+                    <tr>
+                        <td class="action">
+                            {% if v.delmany %}
+                                Delete {{ v.delmany }} {{ v.dtype }}(s):
+                                {% for iid in v.did %}                                    
+                                    {% ifequal v.dstatus "failed" %}
+                                        <a onclick="loadMetadata('{% url load_metadata_details "image" iid %}');">{{ v.dtype }} {{ iid }}</a>, 
+                                    {% else %}
+                                        {{ iid }},
+                                    {% endifequal %}
+                                {% endfor %}
+                            {% else %}
+                                Delete 
+                                {% ifequal v.dstatus "failed" %}
+                                    <a onclick="loadMetadata('{% url load_metadata_details "image" v.did %}');">{{ v.dtype }} {{ v.did }}</a>
+                                {% else %}
+                                    {{ v.dtype }} {{ v.did }}
+                                {% endifequal %}
+                            {% endif %}
+                        </td>
+                        <td class="action">{{ v.dstatus|capfirst }}{% ifequal v.dstatus "in progress" %} <img src="{% url webstatic "images/spinner.gif" %}"/>{% endifequal %} {% if v.dreport %}{{ v.derror }} error(s) ({{ v.dreport }}){% endif %}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        </div>
+
+
+    {% else %}
+        <p>{% trans "There are no jobs" %}</p>
+    {% endif %}
+</div>    
+    
+{% endblock %}
+
+{% block right %}
+    
+    <div id="metadata_details">
+        <h1>{% trans "Status of your jobs" %}</h1>
+        <p>{% trans "This page shows the current status of your jobs." %}
+            {% if not status.sizeOfJobs %}
+                {% trans "Currently you have no awaiting jobs." %}
+            {% else %}
+                {% trans "Awaiting jobs are sting in the queue." %}
+            {% endif %}
+        </p>
+    </div>
+    
+{% endblock %}

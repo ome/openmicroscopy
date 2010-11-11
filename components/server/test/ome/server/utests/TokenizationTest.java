@@ -9,6 +9,7 @@ package ome.server.utests;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,14 +34,24 @@ import org.jmock.MockObjectTestCase;
 import org.springframework.expression.spel.ast.Indexer;
 import org.testng.annotations.Test;
 
+@Test(timeOut = 1000) // Lucene initialization takes longer than default 200ms.
 public class TokenizationTest extends MockObjectTestCase {
 
     void assertTokenizes(String text, String... tokens) {
         List<Token> results = tokenize(text);
         assertEquals(tokens.length, results.size());
         for (int i = 0; i < tokens.length; i++) {
-            assertEquals(tokens[i], results.get(i).termBuffer());
+            String term = results.get(i).term();
+            assertEquals(String.format("%s!=%s:%s", tokens[i], term,
+                    results.toString()), tokens[i], term);
         }
+    }
+
+    @Test(groups = "ticket:3164")
+    public void testProperHandlingOfFileNames() {
+        assertTokenizes(".tif", "tif");
+        assertTokenizes("*.tif", "tif");
+        assertTokenizes("s*.tif", "s", "tif");
     }
 
     @Test
@@ -124,8 +135,8 @@ public class TokenizationTest extends MockObjectTestCase {
         TokenStream ts = sa.tokenStream("field", new StringReader(a));
         List<Token> tokens = new ArrayList<Token>();
         try {
-            Token t = new Token();
             while (true) {
+                Token t = new Token();
                 t = ts.next(t);
                 if (t == null) {
                     break;

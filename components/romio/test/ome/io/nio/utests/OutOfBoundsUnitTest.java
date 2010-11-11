@@ -6,7 +6,11 @@
  */
 package ome.io.nio.utests;
 
-import junit.framework.TestCase;
+import static org.testng.AssertJUnit.*;
+
+import java.io.File;
+import java.io.IOException;
+
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
@@ -14,6 +18,8 @@ import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
 
+import org.apache.commons.io.FileUtils;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -21,16 +27,21 @@ import org.testng.annotations.Test;
  * @author callan
  * 
  */
-public class OutOfBoundsUnitTest extends TestCase {
+public class OutOfBoundsUnitTest {
     private Pixels pixels;
 
     private PixelBuffer pixelBuffer;
-	
-	private static final String ROOT = PathUtil.getInstance().getDataFilePath();
 
-    @Override
+    private static final String ROOT = 
+        PathUtil.getInstance().getTemporaryDataFilePath();
+
+    @AfterClass
+    public void tearDown() throws IOException {
+        FileUtils.deleteDirectory(new File(ROOT));
+    }
+
     @BeforeMethod
-    protected void setUp() {
+    public void setUp() {
     	OriginalFileMetadataProvider provider =
     		new TestingOriginalFileMetadataProvider();
         pixels = new Pixels();

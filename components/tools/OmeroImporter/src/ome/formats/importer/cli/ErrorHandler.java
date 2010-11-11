@@ -49,7 +49,7 @@ public class ErrorHandler extends ome.formats.importer.util.ErrorHandler {
         else if (event instanceof ImportEvent.DEBUG_SEND) {
 
             for (ErrorContainer error : errors) {
-                error.setEmail(config.cliEmail.get());
+                error.setEmail(config.email.get());
                 error.setComment("Sent from CLI");
             }
 

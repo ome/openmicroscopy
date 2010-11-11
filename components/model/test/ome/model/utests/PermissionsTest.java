@@ -345,7 +345,8 @@ public class PermissionsTest extends TestCase {
     // ~ Serialization
     // =========================================================================
 
-    @Test(groups = { "broken", "ticket:375" })
+    // grant() is unimplemented, until it is it will always raise this exception.
+    @Test(groups = { "broken", "ticket:375" }, expectedExceptions = UnsupportedOperationException.class)
     public void testImmutableSerialization() throws Exception {
         byte[] ser = serialize(Permissions.PUBLIC);
         p = deserialize(ser);

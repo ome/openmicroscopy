@@ -17,14 +17,42 @@ import omero.util
 import exceptions
 import logging.handlers
 
-def get_event():
+
+def get_event(name = "Unknown"):
     """
     Returns a threading.Event instance which is registered to be
     "set" (Event.set()) on system exit.
     """
-    event = threading.Event()
-    atexit.register(event.set)
+    event = AtExitEvent(name=name)
+    atexit.register(event.setAtExit)
     return event
+
+
+class AtExitEvent(threading._Event):
+    """
+    threading.Event extension which provides an additional method
+    setAtExit() which sets "atexit" to true.
+
+    This class was introduced in 4.2.1 to work around issue #3260
+    in which logging from background threads produced error
+    messages.
+    """
+
+    def __init__(self, verbose = None, name = "Unknown"):
+        super(AtExitEvent, self).__init__(verbose)
+        self.__name = name
+        self.__atexit = False
+
+    name = property(lambda self: self.__name)
+    atexit = property(lambda self: self.__atexit)
+
+    def setAtExit(self):
+        self.__atexit = True
+        super(AtExitEvent, self).set()
+
+    def __repr__(self):
+        return "%s (%s)" % (super(AtExitEvent, self).__repr__(), self.__name)
+
 
 class Timer(threading._Timer):
     """Based on threading._Thread but allows for resetting the Timer.

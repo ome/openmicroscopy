@@ -22,6 +22,7 @@ import ome.api.RawPixelsStore;
 import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
 import ome.conditions.ResourceError;
+import ome.conditions.ValidationException;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
@@ -185,6 +186,12 @@ public class RawPixelsBean extends AbstractStatefulBean implements
             			"join fetch p.pixelsType where p.id = :id",
             			new Parameters().addId(id));
             }
+
+            if (pixelsInstance == null)
+            {
+                throw new ValidationException("Cannot read pixels id=" + id);
+            }
+
             OriginalFileMetadataProvider metadataProvider =
             	new OmeroOriginalFileMetadataProvider(iQuery);
             buffer = dataService.getPixelBuffer(

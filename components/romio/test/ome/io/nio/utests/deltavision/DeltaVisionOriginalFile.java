@@ -4,7 +4,9 @@ import ome.model.core.OriginalFile;
 
 class DeltaVisionOriginalFile extends OriginalFile
 {
-	private String path = "/Users/callan/testimages/01_R3D.dv";
+    private static final long serialVersionUID = -1206483994172071229L;
+
+    private String path = "/Users/callan/testimages/01_R3D.dv";
 	
 	public DeltaVisionOriginalFile() { }
 	

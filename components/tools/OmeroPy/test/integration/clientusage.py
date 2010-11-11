@@ -54,6 +54,23 @@ class TestClientUsage(lib.ITest):
         finally:
             secure.closeSession();
 
+    def testGetStatefulServices(self):
+        root = self.root
+        sf = root.sf
+        sf.setSecurityContext(omero.model.ExperimenterGroupI(0, False))
+        sf.createRenderingEngine()
+        srvs = root.getStatefulServices()
+        self.assertEquals(1, len(srvs))
+        try:
+            sf.setSecurityContext(omero.model.ExperimenterGroupI(1, False))
+            self.fail("Should not be allowed")
+        except:
+            pass # good
+        srvs[0].close()
+        srvs = root.getStatefulServices()
+        self.assertEquals(0, len(srvs))
+        sf.setSecurityContext(omero.model.ExperimenterGroupI(1, False))
+
 if __name__ == '__main__':
     unittest.main()
 

@@ -113,7 +113,7 @@ class AnnotationQuerySetIterator(object):
             from omero_model_FileAnnotationI import FileAnnotationI
             from omero_model_TagAnnotationI import TagAnnotationI
             if isinstance(obj._obj, FileAnnotationI):
-                textValue = obj.file.name.val
+                textValue = (len(obj.file.name.val) < 45) and (obj.file.name.val) or (obj.file.name.val[:42]+"...")
             elif isinstance(obj._obj, TagAnnotationI):
                 if obj.textValue is not None:
                     if obj.ns is not None and obj.ns!="":

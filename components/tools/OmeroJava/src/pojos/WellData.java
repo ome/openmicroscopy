@@ -81,7 +81,7 @@ public class WellData extends DataObject {
      */
     public WellData(Well well) {
         if (well == null) {
-            throw new IllegalArgumentException("Object cannot null.");
+            throw new IllegalArgumentException("Object cannot be null.");
         }
         setValue(well);
     }
@@ -328,7 +328,8 @@ public class WellData extends DataObject {
             wellSamples = new ArrayList<WellSampleData>();
             List<WellSample> samples = asWell().copyWellSamples();
             for (WellSample sample : samples) {
-                wellSamples.add(new WellSampleData(sample));
+            	if (sample != null)
+            		wellSamples.add(new WellSampleData(sample));
             }
         }
         return wellSamples == null ? null : new ArrayList<WellSampleData>(

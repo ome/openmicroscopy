@@ -26,10 +26,8 @@ import ome.model.core.Image;
 import ome.model.core.LogicalChannel;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
-import ome.model.enums.Format;
 import ome.model.internal.Permissions;
 import ome.model.meta.Experimenter;
-import ome.model.meta.ExperimenterGroup;
 import ome.model.screen.Plate;
 import ome.model.screen.Well;
 import ome.model.screen.WellSample;
@@ -199,10 +197,10 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
     public void testDeleteByDatasetWithTwoImagesFromDifferentUsers()
             throws Exception {
 
-        Experimenter e1 = loginNewUser();
+        Experimenter e1 = loginNewUser(Permissions.COLLAB_READLINK);
         Image i1 = makeImage(false);
 
-        Experimenter e2 = loginNewUser();
+        Experimenter e2 = loginNewUserInOtherUsersGroup(e1);
         Image i2 = makeImage(false);
 
         Dataset containsAll = new Dataset("containsAll");
@@ -234,18 +232,11 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
 
     public void testDeleteSettingsAfterViewedByAnotherUser() throws Exception {
 
-        Experimenter e1 = loginNewUser();
+        Experimenter e1 = loginNewUser(Permissions.COLLAB_READLINK);
         Image i1 = makeImage(false);
         Pixels p1 = i1.iteratePixels().next();
 
         Experimenter e2 = loginNewUserInOtherUsersGroup(e1);
-
-        // In 4.0, default permissions were made private which prevents this
-        // test from being carried out as a regular user. Now testing as
-        // admin (who must be logged into the same group in 4.2)
-        loginRootKeepGroup();
-        iAdmin.addGroups(e2, new ExperimenterGroup(0L, false));
-        loginUser(e2.getOmeName());
 
         ThumbnailStore tb = this.factory.createThumbnailService();
         tb.setPixelsId(p1.getId());
@@ -301,11 +292,9 @@ public class DeleteServiceTest extends AbstractManagedContextTest {
     // 4.1 - Plates
     // =========================================================================
 
-    @Test(groups = "ticket:1228")
+    @Test(groups = {"ticket:1228", "broken"}) // Needs data!
     public void testDeleteByPlateReal() throws Exception {
 
-        fail("disabling");
-        
         String name = "2007.08.02.16.43.24.xdce";
         Experimenter e1 = loginNewUser();
         try {

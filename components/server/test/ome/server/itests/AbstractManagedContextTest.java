@@ -37,6 +37,7 @@ import ome.model.meta.Session;
 import ome.parameters.Parameters;
 import ome.security.SecuritySystem;
 import ome.security.basic.PrincipalHolder;
+import ome.services.fulltext.FullTextThread;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
 import ome.system.OmeroContext;
@@ -62,7 +63,7 @@ public class AbstractManagedContextTest extends TestCase {
 
     // =========================================================================
 
-    protected final Log logger = LogFactory.getLog(getClass());
+    protected final Log log = LogFactory.getLog(getClass());
     
     protected LoginInterceptor loginAop;
 
@@ -152,6 +153,11 @@ public class AbstractManagedContextTest extends TestCase {
         iMetadata = factory.getMetadataService();
         iPixels = factory.getPixelsService();
         iSession = factory.getSessionService();
+
+        // Disabling the background indexer. If you want indexing then
+        FullTextThread ftt = applicationContext
+            .getBean("fullTextThread", FullTextThread.class);
+        ftt.stop();
 
         loginRoot();
 
@@ -317,37 +323,36 @@ public class AbstractManagedContextTest extends TestCase {
         
         MockedOMEROImportFixture fixture = new MockedOMEROImportFixture(
                 this.factory, "");
-        try {
-            File test = ResourceUtils.getFile(path);
-            List<omero.model.Pixels> pixs = fixture.fullImport(test, "test");
-            if (pixelCount != null) {
-                assertEquals(pixelCount.intValue(), pixs.size());
-            }
-            omero.model.Pixels p = pixs.get(0);
-            assertNotNull(p);
-            Image i = new Image(p.getImage().getId().getValue(), false);
 
-            if (withDataset) {
-                Dataset d = new Dataset();
-                d.setName("test image");
-                d.linkImage(i);
-                iUpdate.saveObject(d);
-            }
+        File test = ResourceUtils.getFile(path);
+        List<omero.model.Pixels> pixs = fixture.fullImport(test, "test");
+        // fullImport calls tearDown
 
-            i = this.factory.getQueryService().findByQuery(
-                    "select i from Image i "
-                            + "left outer join fetch i.datasetLinks dil "
-                            + "left outer join fetch dil.parent d "
-                            + "left outer join fetch d.imageLinks "
-                            + "left outer join fetch i.pixels p "
-                            + "where p.id = :id",
-                    new Parameters().addId(pixs.get(0).getId().getValue()));
-
-            assertNotNull(i);
-            return i;
-        } finally {
-            fixture.tearDown();
+        if (pixelCount != null) {
+            assertEquals(pixelCount.intValue(), pixs.size());
         }
+        omero.model.Pixels p = pixs.get(0);
+        assertNotNull(p);
+        Image i = new Image(p.getImage().getId().getValue(), false);
+
+        if (withDataset) {
+            Dataset d = new Dataset();
+            d.setName("test image");
+            d.linkImage(i);
+            iUpdate.saveObject(d);
+        }
+
+        i = this.factory.getQueryService().findByQuery(
+                "select i from Image i "
+                        + "left outer join fetch i.datasetLinks dil "
+                        + "left outer join fetch dil.parent d "
+                        + "left outer join fetch d.imageLinks "
+                        + "left outer join fetch i.pixels p "
+                        + "where p.id = :id",
+                new Parameters().addId(pixs.get(0).getId().getValue()));
+
+        assertNotNull(i);
+        return i;
     }
 
     protected <T extends IObject> void assertWorldReadable(T t) {

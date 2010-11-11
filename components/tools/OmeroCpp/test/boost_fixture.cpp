@@ -113,6 +113,7 @@ omero::client_ptr Fixture::root_login() {
 omero::model::ExperimenterPtr Fixture::newUser(const omero::api::IAdminPrx& admin, const omero::model::ExperimenterGroupPtr& _g) {
 	omero::model::ExperimenterGroupPtr g(_g);
 	omero::RStringPtr name = omero::rtypes::rstring(uuid());
+	omero::RStringPtr groupName = name;
 	long gid = -1;
 	if (!g) {
 		g = new omero::model::ExperimenterGroupI();
@@ -120,11 +121,12 @@ omero::model::ExperimenterPtr Fixture::newUser(const omero::api::IAdminPrx& admi
 		gid = admin->createGroup(g);
 	} else {
 		gid = g->getId()->getValue();
+                groupName = admin->getGroup(gid)->getName();
 	}
 	omero::model::ExperimenterPtr e = new omero::model::ExperimenterI();
 	e->setOmeName( name );
 	e->setFirstName( name );
 	e->setLastName( name );
-	long id = admin->createUser(e, name->getValue());
+	long id = admin->createUser(e, groupName->getValue());
 	return admin->getExperimenter(id);
 }

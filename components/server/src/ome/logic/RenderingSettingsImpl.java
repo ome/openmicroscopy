@@ -58,7 +58,6 @@ import ome.services.OmeroOriginalFileMetadataProvider;
 import omeis.providers.re.ColorsFactory;
 import omeis.providers.re.Renderer;
 import omeis.providers.re.data.PlaneDef;
-import omeis.providers.re.data.PlaneFactory;
 import omeis.providers.re.metadata.StatsFactory;
 import omeis.providers.re.quantum.QuantumFactory;
 
@@ -661,46 +660,6 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     }
     
     /**
-     * Returns the pixels range.
-     * 
-     * @param type The type of pixels to handle.
-     * @return See above.
-     */
-    private double[] getPixelRange(String type)
-    {
-    	double pixelsTypeMin = 0;
-    	double pixelsTypeMax = 1;
-    	if (PlaneFactory.INT8.equals(type)) {
-    		pixelsTypeMin = -128;
-    		pixelsTypeMax = 127;
-    	} else if (PlaneFactory.UINT8.equals(type)) {
-    		pixelsTypeMin = 0;
-    		pixelsTypeMax = 255;
-    	} else if (PlaneFactory.INT16.equals(type)) {
-    		pixelsTypeMin = -32768;
-    		pixelsTypeMax = 32767;
-    	} else if (PlaneFactory.UINT16.equals(type)) {
-    		pixelsTypeMin = 0;
-    		pixelsTypeMax = 65535;
-    	} else if (PlaneFactory.INT32.equals(type)) {
-    		pixelsTypeMin = -32768;
-    		pixelsTypeMax = 32767;
-    	} else if (PlaneFactory.UINT32.equals(type)) {
-    		pixelsTypeMin = 0;
-    		pixelsTypeMax = 65535;
-    	} else if (PlaneFactory.FLOAT_TYPE.equals(type) ||
-    			PlaneFactory.DOUBLE_TYPE.equals(type)) {
-    		//b/c we don't know if it is signed or not
-    		pixelsTypeMin = 0;
-    		pixelsTypeMax = 32767; 
-    	} 
-    	double[] values = new double[2];
-    	values[0] = pixelsTypeMin;
-    	values[1] = pixelsTypeMax;
-    	return values;
-    }
-    
-    /**
      * Resets the channel bindings for the current active pixels set.
      * 
      * @param def
@@ -807,9 +766,6 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         	computeLocationStats(pixels, channelBindings, planeDef, buffer);
         else {
         	StatsInfo stats;
-        	String type = pixels.getPixelsType().getValue();
-        	double[] range = getPixelRange(type);
-        	double value;
             for (int w = 0; w < pixels.sizeOfChannels(); w++) {
                 // FIXME: This is where we need to have the ChannelBinding -->
                 // Channel linkage. Without it, we have to assume that the order in
@@ -817,25 +773,12 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
                 // of the channels linked to the pixels set.
             	channelBinding = channelBindings.get(w);
             	stats = pixels.getChannel(w).getStatsInfo();
-            	//JM: not sure we want to blow up.
-            	if (stats != null) {
-            		value = stats.getGlobalMin().doubleValue();
-            		if (Double.isInfinite(value)) value = range[0];
-            		channelBinding.setInputStart(value);
-            		value = stats.getGlobalMax().doubleValue();
-            		if (Double.isInfinite(value)) value = range[1];
-                	channelBinding.setInputEnd(value);
-            	} else {
-            		channelBinding.setInputStart(range[0]);
-                	channelBinding.setInputEnd(range[1]);
-            	}
-            	/*
             	if (stats == null)
             		throw new ResourceError("Pixels set is missing statistics" +
             				" for channel '"+ w +"'. This suggests an image " +
-            		"import error or failed image import.");
-            	
-            	*/
+            		"import error, import in progress or failed image import.");
+            	channelBinding.setInputStart(stats.getGlobalMin().doubleValue());
+            	channelBinding.setInputEnd(stats.getGlobalMax().doubleValue());
             }
         }
         
@@ -865,29 +808,16 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
         }
         StatsFactory sf = new StatsFactory();
         ChannelBinding cb;
-        String type = pixels.getPixelsType().getValue();
-        double[] range = getPixelRange(type);
-        double v1, v2;
         for (int w = 0; w < pixels.sizeOfChannels(); w++) {
             // FIXME: This is where we need to have the ChannelBinding -->
             // Channel linkage. Without it, we have to assume that the order in
             // which the channel bindings was created matches up with the order
             // of the channels linked to the pixels set.
             cb = cbs.get(w);
-            //we should not probably blow up.
-            try {
-            	sf.computeLocationStats(pixels, buf, planeDef, w);
-                cb.setNoiseReduction(sf.isNoiseReduction());
-                v2 = sf.getInputEnd();
-                v1 = sf.getInputStart();
-                if (Double.isInfinite(v1)) v1 = range[0];
-                if (Double.isInfinite(v2)) v2 = range[1];
-                cb.setInputStart(v1);
-                cb.setInputEnd(v2);
-			} catch (Exception e) {
-        		cb.setInputStart(range[0]);
-            	cb.setInputEnd(range[1]);
-			}
+            sf.computeLocationStats(pixels, buf, planeDef, w);
+            cb.setNoiseReduction(sf.isNoiseReduction());
+            cb.setInputStart(new Double(sf.getInputStart()));
+            cb.setInputEnd(new Double(sf.getInputEnd()));
         }
     }
     
@@ -1512,5 +1442,4 @@ public class RenderingSettingsImpl extends AbstractLevel2Service implements
     {
     	return resetDefaultsInSet(klass, nodeIds, false);
     }
-
 }

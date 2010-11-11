@@ -1,11 +1,12 @@
 package ome.io.nio.utests;
 
+import static org.testng.AssertJUnit.*;
+
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import junit.framework.TestCase;
 import ome.conditions.ResourceError;
 import ome.io.nio.DeltaVision;
 import ome.io.nio.PixelData;
@@ -30,7 +31,7 @@ import org.testng.annotations.Test;
  * @version $Revision$
  * @since 3.0
  */
-public class DeltaVisionTest extends TestCase {
+public class DeltaVisionTest {
 
     private OriginalFile originalFile;
 
@@ -42,9 +43,8 @@ public class DeltaVisionTest extends TestCase {
 
     public final static String FILENAME = "tinyTest.d3d.dv";
 
-    @Override
     @BeforeMethod
-    protected void setUp() {
+    public void setUp() {
 
         setupCount++;
 
@@ -93,9 +93,8 @@ public class DeltaVisionTest extends TestCase {
         }
     }
 
-    @Override
     @AfterMethod
-    protected void tearDown() {
+    public void tearDown() {
         if (setupCount == 13) {
             originalFile = null;
             deltaVision = null;

@@ -126,6 +126,16 @@ class LoginScreenManager
 		                "Please check the port or try again later.");
 				login.setControlsEnabled(true);
 				return;
+			case ServicesFactory.ACTIVE_INDEX:
+				IJ.showMessage(CONNECTION, "Your user account is no " +
+						"longer active.\nPlease" +
+						" contact your administrator.");
+				login.setControlsEnabled(true);
+				return;
+			case ServicesFactory.CONFIGURATION_INDEX:
+				IJ.showMessage(CONNECTION, "Please unset ICE_CONFIG.");
+				login.setControlsEnabled(true);
+				return;
 			case ServicesFactory.PERMISSION_INDEX:
 				IJ.showMessage(CONNECTION, "Failed to log onto OMERO.\n" +
 		                "Please check the username and/or password\n " +
@@ -224,7 +234,7 @@ class LoginScreenManager
 	}
 
 	/**
-	 * Resests the flag when one of the windows loses focus.
+	 * Resets the flag when one of the windows loses focus.
 	 * @see WindowFocusListener#windowLostFocus(WindowEvent)
 	 */
 	public void windowLostFocus(WindowEvent e)
@@ -235,8 +245,8 @@ class LoginScreenManager
 		}
 	}
 	/**
-	 * Required by the {@link WindowFocusListener} I/F but no-op implementation
-	 * in our case.
+	 * Required by the {@link WindowFocusListener} I/F but no-operation
+	 * implementation in our case.
 	 * @see WindowFocusListener#windowGainedFocus(WindowEvent)
 	 */
 	public void windowGainedFocus(WindowEvent e) {}

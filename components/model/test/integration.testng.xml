@@ -7,10 +7,12 @@
       <run>
         <exclude name="broken"/>
         <exclude name="ignore"/>
-      </run>        
+      </run>
     </groups>
     <packages>
-      <package name="ome.*"/>
+      <package name="ome.conditions.*"/>
+      <package name="ome.model.*"/>
+      <package name="ome.util.*"/>
     </packages>
   </test>
 

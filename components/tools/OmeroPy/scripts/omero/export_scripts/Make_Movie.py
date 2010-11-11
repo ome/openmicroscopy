@@ -437,7 +437,7 @@ def runAsScript():
     try:
         session = client.getSession()
         commandArgs = {}
-    
+
         for key in client.getInputKeys():
             if client.getInput(key):
                 commandArgs[key] = client.getInput(key).getValue()
@@ -447,11 +447,8 @@ def runAsScript():
         if fileAnnotation:
             client.setOutput("Message", rstring("Movie Created"))
             client.setOutput("File_Annotation", robject(fileAnnotation))
-    except: raise
     finally:
         client.closeSession()
-    
+
 if __name__ == "__main__":
      runAsScript()
-    
-

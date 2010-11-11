@@ -340,7 +340,11 @@ class MaskColumnI(AbstractColumn, omero.grid.MaskColumn):
         self.__sanitycheck()
         masks = self._getmasks(tbl)
         for x in self.bytes:
-            masks.append(numpy.fromstring(x, count=len(x), dtype=tables.UInt8Atom()))
+            if isinstance(x, list):
+                # This occurs primarily in testing.
+                masks.append(numpy.array(x, dtype=tables.UInt8Atom()))
+            else:
+                masks.append(numpy.fromstring(x, count=len(x), dtype=tables.UInt8Atom()))
 
     def _getmasks(self, tbl):
         n = tbl._v_name

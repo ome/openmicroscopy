@@ -43,6 +43,7 @@ import sys
 import time
 from unittest import TestResult, _TextTestResult, TextTestRunner
 from cStringIO import StringIO
+from xml.dom.minidom import Document
 
 
 class _TestInfo(object):
@@ -252,7 +253,6 @@ class _XMLTestResult(_TextTestResult):
     
     def generate_reports(self, test_runner):
         "Generates the XML reports to a given XMLTestRunner object."
-        from xml.dom.minidom import Document
         all_results = self._get_info_by_testcase()
         
         if type(test_runner.output) == str and not \

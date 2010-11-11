@@ -34,6 +34,8 @@
 # </small>
 # @since 3.0-Beta4
 #
+
+import logging
 import getopt, sys, os, subprocess
 import numpy;
 from struct import *
@@ -49,22 +51,23 @@ from omero.util.OmeroPopo import WorkflowData as WorkflowData
 from omero.util.OmeroPopo import ROIData as ROIData
 
 
-try: 
-    import hashlib 
-    hash_sha1 = hashlib.sha1 
-except: 
-    import sha 
-    hash_sha1 = sha.new 
-    
-# r,g,b,a colours for use in scripts. 
-COLOURS = {'Red': (255,0,0,255), 'Green': (0,255,0,255), 'Blue': (0,0,255,255), 'Yellow': (255,255,0,255), 
+try:
+    import hashlib
+    hash_sha1 = hashlib.sha1
+except:
+    import sha
+    hash_sha1 = sha.new
+
+# r,g,b,a colours for use in scripts.
+COLOURS = {'Red': (255,0,0,255), 'Green': (0,255,0,255), 'Blue': (0,0,255,255), 'Yellow': (255,255,0,255),
     'White': (255,255,255,255), }
-    
+
 EXTRA_COLOURS = {'Violet': (238,133,238,255), 'Indigo': (79,6,132,255),
     'Black': (0,0,0,255), 'Orange': (254,200,6,255), 'Gray': (130,130,130,255),}
 
 CSV_NS = 'text/csv';
 CSV_FORMAT = 'text/csv';
+SU_LOG = logging.getLogger("omero.util.script_utils")
 
 def drawTextOverlay(draw, x, y, text, colour='0xffffff'):
     """
@@ -99,7 +102,7 @@ def rgbToRGBInt(red, green, blue):
     """
     RGBInt = (red<<16)+(green<<8)+blue;
     return int(RGBInt);
-    
+
 def RGBToPIL(RGB):
     """
     Convert an RGB value to a PIL colour value.
@@ -391,7 +394,8 @@ def readFlimImageFile(rawPixelsStore, pixels):
     
 def downloadPlane(rawPixelsStore, pixels, z, c, t):
     """
-    Download the plane [z,c,t] for image pixels.
+    Download the plane [z,c,t] for image pixels. Pixels must have pixelsType loaded. 
+    N.B. The rawPixelsStore must have already been initialised by setPixelsId()
     @param rawPixelsStore The rawPixelStore service to get the image.
     @param pixels The pixels of the image.
     @param z The Z-Section to retrieve.
@@ -410,6 +414,352 @@ def downloadPlane(rawPixelsStore, pixels, z, c, t):
     remappedPlane = numpy.array(convertedPlane, numpyType);
     remappedPlane.resize(sizeY, sizeX);
     return remappedPlane;
+
+
+def getPlaneFromImage(imagePath, rgbIndex=None):
+    """
+    Reads a local image (E.g. single plane tiff) and returns it as a numpy 2D array.
+
+    @param imagePath   Path to image.
+    """
+    import numpy
+    try:
+         from PIL import Image # see ticket:2597
+    except ImportError:
+         import Image # see ticket:2597
+
+    i = Image.open(imagePath)
+    a = numpy.asarray(i)
+    if rgbIndex == None:
+        return a
+    else:
+        return a[:, :, rgbIndex]
+
+
+def uploadDirAsImages(sf, queryService, updateService, pixelsService, path, dataset = None):
+    """
+    Reads all the images in the directory specified by 'path' and uploads them to OMERO as a single
+    multi-dimensional image, placed in the specified 'dataset'
+    Uses regex to determine the Z, C, T position of each image by name,
+    and therefore determines sizeZ, sizeC, sizeT of the new Image.
+
+    @param path     the path to the directory containing images.
+    @param dataset  the OMERO dataset, if we want to put images somewhere. omero.model.DatasetI
+    """
+
+    import re
+
+    regex_token = re.compile(r'(?P<Token>.+)\.')
+    regex_time = re.compile(r'T(?P<T>\d+)')
+    regex_channel = re.compile(r'_C(?P<C>.+?)(_|$)')
+    regex_zslice = re.compile(r'_Z(?P<Z>\d+)')
+
+    # assume 1 image in this folder for now.
+    # Make a single map of all images. key is (z,c,t). Value is image path.
+    imageMap = {}
+    channelSet = set()
+    tokens = []
+
+    # other parameters we need to determine
+    sizeZ = 1
+    sizeC = 1
+    sizeT = 1
+    zStart = 1      # could be 0 or 1 ?
+    tStart = 1
+
+    fullpath = None
+
+    rgb = False
+    # process the names and populate our imagemap
+    for f in os.listdir(path):
+        fullpath = os.path.join(path, f)
+        tSearch = regex_time.search(f)
+        cSearch = regex_channel.search(f)
+        zSearch = regex_zslice.search(f)
+        tokSearch = regex_token.search(f)
+
+        if f.endswith(".jpg"):
+            rgb = True
+
+        if tSearch == None:
+            theT = 0
+        else:
+            theT = int(tSearch.group('T'))
+
+        if cSearch == None:
+            cName = "0"
+        else:
+            cName = cSearch.group('C')
+
+        if zSearch == None:
+            theZ = 0
+        else:
+            theZ = int(zSearch.group('Z'))
+
+        channelSet.add(cName)
+        sizeZ = max(sizeZ, theZ)
+        zStart = min(zStart, theZ)
+        sizeT = max(sizeT, theT)
+        tStart = min(tStart, theT)
+        if tokSearch != None:
+            tokens.append(tokSearch.group('Token'))
+        imageMap[(theZ, cName, theT)] = fullpath
+
+    colourMap = {}
+    if not rgb:
+        channels = list(channelSet)
+        # see if we can guess what colour the channels should be, based on name.
+        for i, c in enumerate(channels):
+            if c == 'rfp':
+                colourMap[i] = (255, 0, 0, 255)
+            if c == 'gfp':
+                colourMap[i] = (0, 255, 0, 255)
+    else:
+        channels = ("red", "green", "blue")
+        colourMap[0] = (255, 0, 0, 255)
+        colourMap[1] = (0, 255, 0, 255)
+        colourMap[2] = (0, 0, 255, 255)
+
+    sizeC = len(channels)
+
+    # use the common stem as the image name
+    imageName = os.path.commonprefix(tokens).strip('0T_')
+    description = "Imported from images in %s" % path
+    SU_LOG.info("Creating image: %s" % imageName)
+
+    # use the last image to get X, Y sizes and pixel type
+    if rgb:
+        plane = getPlaneFromImage(fullpath, 0)
+    else:
+        plane = getPlaneFromImage(fullpath)
+    pType = plane.dtype.name
+    # look up the PixelsType object from DB
+    pixelsType = queryService.findByQuery(\
+        "from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
+    if pixelsType == None and pType.startswith("float"):    # e.g. float32
+        pixelsType = queryService.findByQuery(\
+            "from PixelsType as p where p.value='%s'" % "float", None) # omero::model::PixelsType
+    if pixelsType == None:
+        SU_LOG.warn("Unknown pixels type for: %s" % pType)
+        return
+    sizeY, sizeX = plane.shape
+
+    SU_LOG.debug("sizeX: %s  sizeY: %s sizeZ: %s  sizeC: %s  sizeT: %s" % (sizeX, sizeY, sizeZ, sizeC, sizeT))
+
+    # code below here is very similar to combineImages.py
+    # create an image in OMERO and populate the planes with numpy 2D arrays
+    channelList = range(sizeC)
+    imageId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, imageName, description)
+    params = omero.sys.ParametersI()
+    params.addId(imageId)
+    pixelsId = queryService.projection(\
+        "select p.id from Image i join i.pixels p where i.id = :id",\
+        params)[0][0].val
+
+    rawPixelStore = sf.createRawPixelsStore()
+    rawPixelStore.setPixelsId(pixelsId, True)
+    try:
+        for theC in range(sizeC):
+            minValue = 0
+            maxValue = 0
+            for theZ in range(sizeZ):
+                zIndex = theZ + zStart
+                for theT in range(sizeT):
+                    tIndex = theT + tStart
+                    if rgb:
+                        c = "0"
+                    else:
+                        c = channels[theC]
+                    if (zIndex, c, tIndex) in imageMap:
+                        imagePath = imageMap[(zIndex, c, tIndex)]
+                        if rgb:
+                            SU_LOG.debug("Getting rgb plane from: %s" % imagePath)
+                            plane2D = getPlaneFromImage(imagePath, theC)
+                        else:
+                            SU_LOG.debug("Getting plane from: %s" % imagePath)
+                            plane2D = getPlaneFromImage(imagePath)
+                    else:
+                        SU_LOG.debug("Creating blank plane for .", theZ, channels[theC], theT)
+                        plane2D = zeros((sizeY, sizeX))
+                    SU_LOG.debug("Uploading plane: theZ: %s, theC: %s, theT: %s" % (theZ, theC, theT))
+
+                    uploadPlane(rawPixelStore, plane2D, theZ, theC, theT)
+                    minValue = min(minValue, plane2D.min())
+                    maxValue = max(maxValue, plane2D.max())
+            pixelsService.setChannelGlobalMinMax(pixelsId, theC, float(minValue), float(maxValue))
+            rgba = None
+            if theC in colourMap:
+                rgba = colourMap[theC]
+            try:
+                renderingEngine = sf.createRenderingEngine()
+                resetRenderingSettings(renderingEngine, pixelsId, theC, minValue, maxValue, rgba)
+            finally:
+                renderingEngine.close()
+    finally:
+        rawPixelStore.close()
+
+    # add channel names
+    pixels = pixelsService.retrievePixDescription(pixelsId)
+    i = 0
+    for c in pixels.iterateChannels():        # c is an instance of omero.model.ChannelI
+        lc = c.getLogicalChannel()            # returns omero.model.LogicalChannelI
+        lc.setName(rstring(channels[i]))
+        updateService.saveObject(lc)
+        i += 1
+
+    # put the image in dataset, if specified.
+    if dataset:
+        link = omero.model.DatasetImageLinkI()
+        link.parent = omero.model.DatasetI(dataset.id.val, False)
+        link.child = omero.model.ImageI(imageId, False)
+        updateService.saveAndReturnObject(link)
+
+    return imageId
+
+
+
+def uploadCecogObjectDetails(updateService, imageId, filePath):
+    """
+    Parses a single line of cecog output and saves as a roi.
+
+    Adds a Rectangle (particle) to the current OMERO image, at point x, y.
+    Uses the self.image (OMERO image) and self.updateService
+    """
+
+    objects = {}
+    roi_ids = []
+
+    import fileinput
+    for line in fileinput.input([filePath]):
+
+        theZ = 0
+        theT = None
+        x = None
+        y = None
+
+        parts = line.split("\t")
+        names = ("frame", "objID", "primaryClassLabel", "primaryClassName", "centerX", "centerY", "mean", "sd", "secondaryClassabel", "secondaryClassName", "secondaryMean", "secondarySd")
+        values = {}
+        for idx, name in enumerate(names):
+            if len(parts) >= idx:
+                values[name] = parts[idx]
+
+        frame = values["frame"]
+        try:
+            frame = long(frame)
+        except ValueError:
+            SU_LOG.debug("Non-roi line: %s " % line)
+            continue
+
+        theT = frame - 1
+        objID = values["objID"]
+        className = values["primaryClassName"]
+        x = float(values["centerX"])
+        y = float(values["centerY"])
+
+        description = ""
+        for name in names:
+            description += ("%s=%s\n" % (name, values.get(name, "(missing)")))
+
+        if theT and x and y:
+            SU_LOG.debug("Adding point '%s' to frame: %s, x: %s, y: %s" % (className, theT, x, y))
+            try:
+                shapes = objects[objID]
+            except KeyError:
+                shapes = []
+                objects[objID] = shapes
+            shapes.append( (theT, className, x, y, values, description) )
+
+    for object, shapes in objects.items():
+
+        # create an ROI, add the point and save
+        roi = omero.model.RoiI()
+        roi.setImage(omero.model.ImageI(imageId, False))
+        roi.setDescription(omero.rtypes.rstring("objID: %s" % object))
+
+        # create and save a point
+        for shape in shapes:
+
+            theT, className, x, y, values, description = shape
+
+            point = omero.model.PointI()
+            point.cx = rdouble(x)
+            point.cy = rdouble(y)
+            point.theT = rint(theT)
+            point.theZ = rint(0) # Workaround for shoola:ticket:1596
+            if className:
+                point.setTextValue(rstring(className))    # for display only
+
+            # link the point to the ROI and save it
+            roi.addShape(point)
+
+        roi = updateService.saveAndReturnObject(point)
+        roi_ids.append(roi.id.val)
+
+    return roi_ids
+
+
+def split_image(client, imageId, dir, unformattedImageName = "tubulin_P037_T%05d_C%s_Z%d_S1.tif", dims = ('T', 'C', 'Z')):
+    """
+    Splits the image into component planes, which are saved as local tiffs according to unformattedImageName.
+    E.g. myLocalDir/tubulin_P037_T%05d_C%s_Z%d_S1.tif which will be formatted according to dims, E.g. ('T', 'C', 'Z')
+    Channel will be formatted according to channel name, not index. 
+    @param rawPixelsStore The rawPixelStore
+    @param queryService
+    @param c The C-Section to retrieve.
+    @param t The T-Section to retrieve.
+    @param imageName  the local location to save the image. 
+    """
+
+    unformattedImageName = os.path.join(dir, unformattedImageName)
+
+    session = client.getSession()
+    queryService = session.getQueryService()
+    rawPixelsStore = session.createRawPixelsStore()
+    pixelsService = session.getPixelsService()
+
+    try:
+        from PIL import Image
+    except:
+        import Image
+
+    query_string = "select p from Pixels p join fetch p.image as i join fetch p.pixelsType where i.id='%s'" % imageId
+    pixels = queryService.findByQuery(query_string, None)
+    sizeX = pixels.getSizeX().getValue()
+    sizeY = pixels.getSizeY().getValue()
+    sizeZ = pixels.getSizeZ().getValue()
+    sizeC = pixels.getSizeC().getValue()
+    sizeT = pixels.getSizeT().getValue()
+    rawPixelsStore.setPixelsId(pixels.getId().getValue(), True)
+
+    channelMap = {}
+    cIndex = 0
+    pixels = pixelsService.retrievePixDescription(pixels.id.val)    # load channels
+    for c in pixels.iterateChannels():
+        lc = c.getLogicalChannel()
+        channelMap[cIndex] = lc.getName().getValue()
+        cIndex += 1
+
+    def formatName(unformatted, z, c, t):
+        # need to turn dims E.g. ('T', 'C', 'Z') into tuple, E.g. (t, c, z)
+        dimMap = {'T': t, 'C':channelMap[c], 'Z': z}
+        dd = tuple([dimMap[d] for d in dims])
+        return unformatted % dd
+
+    # cecog does this, but other formats may want to start at 0
+    zStart = 1
+    tStart = 1
+
+    # loop through dimensions, saving planes as tiffs.
+    for z in range(sizeZ):
+        for c in range(sizeC):
+            for t in range(sizeT):
+                imageName = formatName(unformattedImageName, z+zStart, c, t+tStart)
+                SU_LOG.debug("downloading plane z: %s c: %s t: %s  to  %s" % (z, c, t, imageName))
+                plane = downloadPlane(rawPixelsStore, pixels, z, c, t)
+                i = Image.fromarray(plane)
+                i.save(imageName)
+
 
 def createFileFromData(updateService, queryService, filename, data):
     """
@@ -430,11 +780,12 @@ def createFileFromData(updateService, queryService, filename, data):
     
 def attachArrayToImage(updateService, image, file, nameSpace):
     """
-    Attach an array, stored as a csv file to an image.
+    Attach an array, stored as a csv file to an image. Returns the annotation.
     @param updateService The updateService to create the annotation link.
     @param image The image to attach the data to.
     @param filename The name of the file.
     @param namespace The namespace of the file.
+    @return 
     """
     fa = omero.model.FileAnnotationI();
     fa.setFile(file);
@@ -443,15 +794,18 @@ def attachArrayToImage(updateService, image, file, nameSpace):
     l.setParent(image);
     l.setChild(fa);
     l = updateService.saveAndReturnObject(l);
+    return l.getChild();
 
-def uploadArray(rawFileStore, updateService, queryService, image, filename, array):
+def uploadArray(rawFileStore, updateService, queryService, image, filename, namespace, array):
     """
     Upload the data to the server, creating the OriginalFile Object and attaching it to the image.
     @param rawFileStore The rawFileStore used to create the file.
     @param updateService The updateService to create the annotation link.
     @param image The image to attach the data to.
     @param filename The name of the file.
+    @param namespace The name space associated to the annotation.
     @param data The data to save.
+    @return The newly created file.
     """
     data = arrayToCSV(array);
     file = createFileFromData(updateService, queryService, filename, data);
@@ -469,7 +823,7 @@ def uploadArray(rawFileStore, updateService, queryService, image, filename, arra
         block = data[cnt:cnt+blockSize];
         rawFileStore.write(block, cnt, blockSize);
         cnt = cnt+blockSize;
-    attachArrayToImage(updateService, image, file, CSV_NS)    
+    return attachArrayToImage(updateService, image, file, namespace);
 
 def arrayToCSV(data):
     """
@@ -756,17 +1110,29 @@ def registerNamespace(iQuery, iUpdate, namespace, keywords):
     @param keywords The keywords associated with the workflow.
     @return see above.
     """
-    workflow = iQuery.findByQuery("from Namespace as n where n.name = '" + namespace+"'", None);
-    workflowData = None;
-    if(workflow!=None):
-        return;
+    workflow = iQuery.findByQuery("from Namespace as n where n.name = '" + namespace.val+"'", None);
     workflowData = WorkflowData();
-    workflowData.setNamespace(namespace);
-    workflowData.setKeywords(keywords);
+    if(workflow!=None):
+        workflowData = WorkflowData(workflow);
+    else:
+        workflowData.setNamespace(namespace.val);
+    splitKeywords = keywords.val.split(',');
+
+    SU_LOG.debug(workflowData.asIObject())
+    for keyword in splitKeywords:
+        workflowData.addKeyword(keyword);
+    SU_LOG.debug(workflowData.asIObject())
     workflow = iUpdate.saveAndReturnObject(workflowData.asIObject());
     return WorkflowData(workflow);
 
 def findROIByImage(roiService, image, namespace):
+    """
+    Finds the ROI with the given namespace linked to the image. Returns a collection of ROIs.
+    @param roiService The ROI service.
+    @param image The image the ROIs are linked to .
+    @param namespace The namespace of the ROI.
+    @return see above.
+    """
     roiOptions = omero.api.RoiOptions();
     roiOptions.namespace = omero.rtypes.rstring(namespace);
     results = roiService.findByImage(image, roiOptions);

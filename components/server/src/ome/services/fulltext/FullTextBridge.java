@@ -341,9 +341,11 @@ public class FullTextBridge extends BridgeHelper {
             add(document, "file.name", file.getName(), opts);
             add(document, "file.path", file.getPath(), opts);
             add(document, "file.sha1", file.getSha1(), opts);
-            add(document, "file.format", file.getMimetype(), opts);
-            // ticket:2211 - duplicating for backwards compatibility
-            add(document, "file.mimetype", file.getMimetype(), opts);
+            if (file.getMimetype() != null) {
+                add(document, "file.format", file.getMimetype(), opts);
+                // ticket:2211 - duplicating for backwards compatibility
+                add(document, "file.mimetype", file.getMimetype(), opts);
+            }
             addContents(document, "file.contents", file, files, parsers, opts);
         }
     }

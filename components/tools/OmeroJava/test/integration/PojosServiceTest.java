@@ -11,42 +11,39 @@ package integration;
 //Java imports
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 //Third-party libraries
-import junit.framework.TestCase;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 //Application-internal dependencies
 import omero.RType;
-import omero.ServerError;
+import omero.api.IAdminPrx;
 import omero.api.IContainerPrx;
 import omero.api.IQueryPrx;
 import omero.api.IUpdatePrx;
 import omero.api.ServiceFactoryPrx;
-import omero.model.Annotation;
-import omero.model.CommentAnnotation;
-import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
-import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
+import omero.model.ExperimenterGroupI;
+import omero.model.ExperimenterI;
 import omero.model.IObject;
 import omero.model.Image;
-import omero.model.ImageI;
+import omero.model.ImagingEnvironment;
+import omero.model.Instrument;
+import omero.model.Objective;
+import omero.model.ObjectiveSettings;
+import omero.model.PermissionsI;
 import omero.model.Plate;
 import omero.model.Project;
 import omero.model.ProjectDatasetLink;
@@ -54,22 +51,20 @@ import omero.model.ProjectDatasetLinkI;
 import omero.model.Screen;
 import omero.model.ScreenPlateLink;
 import omero.model.ScreenPlateLinkI;
+import omero.model.StageLabel;
 import static omero.rtypes.rlong;
-import static omero.rtypes.rstring;
-import static omero.rtypes.rtime;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
-import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ImageData;
+import pojos.PixelsData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
-import pojos.TextualAnnotationData;
 
 /**
- * copied from client/test/ome/adapters/pojo/PojosServiceTest for the ticket
- * 1106 October, 2008
+ * Collections of tests for the <code>IContainer</code> service.
+ * 
  * @author Josh Moore &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:josh.moore@gmx.de">josh.moore@gmx.de</a>
  * @version 1.0 <small> (<b>Internal version:</b> $Rev$ $Date$) </small>
@@ -77,261 +72,36 @@ import pojos.TextualAnnotationData;
  */
 @Test(groups = { "client", "integration", "blitz" })
 public class PojosServiceTest 
-	extends TestCase 
+	extends AbstractTest
 {
 
-	/** Reference to the log. */
-    protected static Log log = LogFactory.getLog(PojosServiceTest.class);
-
-	/** 
-	 * The client object, this is the entry point to the Server. 
-	 */
-    private omero.client client;
-
-    private omero.client root;
-    
-    /** Helper reference to the <code>Service factory</code>. */
-    private ServiceFactoryPrx factory;
-    
     /** Reference to class used to create data object. */
     CreatePojosFixture2 fixture;
-
-    //OMEData data;
 
     /** Helper reference to the <code>IContainer</code> service. */
     private IContainerPrx iContainer;
 
-    /** Helper reference to the <code>IQuery</code> service. */
-    private IQueryPrx iQuery;
-
-    /** Helper reference to the <code>IUpdate</code> service. */
-    private IUpdatePrx iUpdate;
-    
-    /** Used to filter by group. */
-    private Parameters GROUP_FILTER;
-
-    /** Used to filter by owner. */
-    private Parameters OWNER_FILTER;
-
-    // ~ Helpers
-    // =========================================================================
-
-
-    // TODO move to another class
-    // now let's test all methods that use the filtering functionality
-    // ===========================================================
-  
     /**
-     * Helper method to make sure the filter works.
+     * Makes sure that the pixels set is loaded.
      * 
-     * @param results The values to handle.
-     * @param min	  The minimum value or <code>null</code>.
-     * @param max	  The maximum value or <code>null</code>.
-     * @param e	 	  The experimenter the filter is using or <code>null</code>.
-     * @param g	 	  The group the filter is using or <code>null</code>.
+     * @param pixels The pixels to handle.
+     * @throws Exception Thrown if an error occurred.
      */
-    private void assertFilterWorked(List<?> results, Integer min, Integer max, 
-    		Experimenter e, ExperimenterGroup g)
-   {
-        if (min != null) {
-            assertTrue(results.size() > min);
-        }
-        if (max != null) {
-            assertTrue(results.size() < max);
-        }
-        List<IObject> r = (List<IObject>) results;
-        if (e != null) {
-            for (IObject iobj : r) {
-                assertEquals(e.getId().getValue(),
-                        iobj.getDetails().getOwner().getId().getValue());
-            }
-        }
-        if (g != null) {
-            for (IObject iobj : r) {
-                assertEquals(g.getId().getValue(),
-                        iobj.getDetails().getGroup().getId().getValue());
-            }
-        }
-    }
-    
-    /**
-     * Creates a default image and returns it.
-     * 
-     * @return See above.
-     */
-    private ImageData simpleImageData()
+    private void checkPixels(PixelsData pixels)
+    	throws Exception 
     {
-        // prepare data
-        ImageData id = new ImageData();
-        id.setName("My test image");
-        id.setDescription("My test description");
-        return id;
-    }
-    
-    /**
-     * Creates a default image and returns it.
-     * 
-     * @return See above.
-     */
-    private Image simpleImage() { return simpleImage(0); }
-
-    /**
-     * Creates a default image and returns it.
-     * 
-     * @param time The acquisition time.
-     * @return See above.
-     */
-    private Image simpleImage(long time)
-    {
-        // prepare data
-        Image img = new ImageI();
-        img.setName(rstring("image1"));
-        img.setDescription(rstring("descriptionImage1"));
-        img.setAcquisitionDate(rtime(time));
-        return img;
-    }
-
-    /**
-     * Creates a default dataset and returns it.
-     * 
-     * @return See above.
-     */
-    private DatasetData simpleDatasetData()
-    {
-        DatasetData dd = new DatasetData();
-        dd.setName("t1");
-        dd.setDescription("t1");
-        return dd;
-    }
-    
-    /**
-     * Creates a default project and returns it.
-     * 
-     * @return See above.
-     */
-    private ProjectData simpleProjectData()
-    {
-        ProjectData data = new ProjectData();
-        data.setName("project1");
-        data.setDescription("project1");
-        return data;
-    }
-
-    /**
-     * Creates a default screen and returns it.
-     * 
-     * @return See above.
-     */
-    private ScreenData simpleScreenData()
-    {
-    	ScreenData data = new ScreenData();
-        data.setName("screen1");
-        data.setDescription("screen1");
-        return data;
-    }
-    
-    /**
-     * Creates a default project and returns it.
-     * 
-     * @return See above.
-     */
-    private PlateData simplePlateData()
-    {
-    	PlateData data = new PlateData();
-        data.setName("plate1");
-        data.setDescription("plate1");
-        return data;
-    }
-    
-    /**
-     * Creates an image, links it to a a new dataset and returns it.
-     * 
-     * @return See above.
-     */
-    private ImageData simpleImageDataWithDatasets()
-    {
-        DatasetData dd = simpleDatasetData();
-        Set dss = new HashSet();
-        dss.add(dd);
-        ImageData id = simpleImageData();
-        id.setDatasets(dss);
-        return id;
-    }
-
-    /**
-     * Makes sure that we have only one comment linked to the specified
-     * dataset.
-     * 
-     * @param name The name of the dataset.
-     * @param text The comment.
-     * @throws ServerError Thrown if an error occurred while retrieving data.
-     */
-    private void assertUniqueAnnotationCreation(String name, String text) 
-    	throws ServerError
-    {
-        // Test
-        List ds = iQuery.findAllByString(Dataset.class.getName(), 
-        		"name", name, true, null);
-        List as = iQuery.findAllByString(CommentAnnotation.class.getName(), 
-        		"textValue", text, true, null);
-
-        assertTrue(ds.size() == 1);
-        assertTrue(as.size() == 1);
-    }
-    
-    /** 
-     * Creates and saves an image with or without datasets.
-     * 
-     * @param withDataset Pass <code>true</code> to create an image with 
-     *                    datasets, <code>false</code> otherwise.					  
-     * @throws ServerError Thrown if an error occurred.
-     */
-    private Image saveImage(boolean withDataset) 
-    	throws ServerError 
-    {
-        ImageData imgData = simpleImageDataWithDatasets();
-        Image image = (Image) imgData.asIObject();
-        image.setAcquisitionDate(rtime(0));
-        image = (Image) iUpdate.saveAndReturnObject(image);
-        assertTrue("It better have a dataset link",
-        		image.sizeOfDatasetLinks() > 0);
-        return image;
-    }
-
-    /**
-     * Unlinks the datasets from the passed image.
-     * 
-     * @param img The image to unlink the object from.
-     * @return The list of links.
-     */
-    private List unlinkImage(Image img)
-    {
-        List updated = img.linkedDatasetList();
-        for (Object o : updated) {
-            img.unlinkDataset((Dataset)o);
-        }
-        updated.add(img);
-        return updated;
-    }
-    
-    /**
-     * Checks that the annotation is valid.
-     * 
-     * @param m The map to handle.
-     */
-    private void assertAnnotations(Map<Long, List<IObject>> m) 
-    {
-    	assertNotNull(m);
-        Annotation ann = (Annotation) m.values().iterator().next().iterator()
-                .next();
-        assertNotNull(ann.getDetails().getOwner());
-        assertTrue(ann.getDetails().getOwner().isLoaded());
-        assertNotNull(ann.getDetails().getCreationEvent());
-        assertTrue(ann.getDetails().getCreationEvent().isLoaded());
-        // Annotations are immutable
-        // assertNotNull(ann.getDetails().getUpdateEvent());
-        // assertTrue(ann.getDetails().getUpdateEvent().isLoaded());
-
+    	assertNotNull(pixels);
+		assertNotNull(pixels.getPixelSizeX());
+        assertNotNull(pixels.getPixelSizeY());
+        assertNotNull(pixels.getPixelSizeZ());
+        assertNotNull(pixels.getPixelType());
+        assertNotNull(pixels.getImage());
+        assertNotNull(pixels.getOwner());
+        assertNotNull(pixels.getSizeC());
+        assertNotNull(pixels.getSizeT());
+        assertNotNull(pixels.getSizeZ());
+        assertNotNull(pixels.getSizeY());
+        assertNotNull(pixels.getSizeX());
     }
     
     /**
@@ -344,75 +114,12 @@ public class PojosServiceTest
     protected void setUp() 
     	throws Exception 
     {   
-        client = new omero.client();
-        factory = client.createSession();
-        iContainer = factory.getContainerService();
-        iQuery = factory.getQueryService();
-        iUpdate = factory.getUpdateService();
-
-        root = new omero.client();
-        root.createSession("root", client.getProperty("omero.rootpass"));
+    	super.setUp();
+    	iContainer = factory.getContainerService();
         fixture = CreatePojosFixture2.withNewUser(root);
         fixture.createAllPojos();
-
-        GROUP_FILTER = new ParametersI().grp(fixture.g.getId());
-        OWNER_FILTER = new ParametersI().exp(fixture.e.getId());
     }
 
-    /**
-     * Closes the session.
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Override
-    @AfterClass
-    public void tearDown() 
-    	throws Exception 
-    {
-        client.__del__();
-        root.__del__();
-    }
-
-    /**
-     * Test to delete an newly created image.
-     * 
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testCreateAndDeleteBasicImage() 
-    	throws Exception 
-    {
-    	/*
-        ImageData imgData = simpleImageData();
-        Image img = (Image) imgData.asIObject();
-
-        assertNull("Image doesn't have an id.", img.getId());
-        
-        img = (Image) iContainer.createDataObject(img, null);
-        assertNotNull("Presto change-o, now it does.", img.getId());
-        
-        //Delete the image.
-        iContainer.deleteDataObject(img, null);
-
-        //Retrieve the image.
-        img = (Image) iQuery.find(Image.class.getName(), 
-        		img.getId().getValue());
-        assertNull("we should have deleted it ", img);
-        */
-    }
-    
-    /**
-     * Test to delete an newly created image.
-     * 
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testCreateAndDeleteBasicImageWithPixels() 
-    	throws Exception 
-    {
-        //TODO
-
-    }
-    
     /**
      * Test to load container hierarchy with project specified.
      * @throws Exception Thrown if an error occurred.
@@ -423,9 +130,9 @@ public class PojosServiceTest
     {
     	//first create a project
     	Project p = (Project) iUpdate.saveAndReturnObject(
-    			simpleProjectData().asIObject());
+    			mmFactory.simpleProjectData().asIObject());
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
-    			simpleDatasetData().asIObject());
+    			mmFactory.simpleDatasetData().asIObject());
     	
     	//link the 2
     	ProjectDatasetLink link = new ProjectDatasetLinkI();
@@ -446,15 +153,14 @@ public class PojosServiceTest
         DatasetData dataset;
         while (i.hasNext()) {
 			project = new  ProjectData((Project) i.next());
-			if (project.getId() == p.getId().getValue()) {
-				datasets = project.getDatasets();
-				assertTrue(datasets.size() == 1);
-				j = datasets.iterator();
-				while (j.hasNext()) {
-					dataset = j.next();
-					assertTrue(dataset.getId() == d.getId().getValue());
-				}
-			} 
+			assertTrue(project.getId() == p.getId().getValue());
+			datasets = project.getDatasets();
+			assertTrue(datasets.size() == 1);
+			j = datasets.iterator();
+			while (j.hasNext()) {
+				dataset = j.next();
+				assertTrue(dataset.getId() == d.getId().getValue());
+			}
 		}
     }
     
@@ -468,9 +174,9 @@ public class PojosServiceTest
     {
     	//first create a project
     	Screen p = (Screen) iUpdate.saveAndReturnObject(
-    			simpleScreenData().asIObject());
+    			mmFactory.simpleScreenData().asIObject());
     	Plate d = (Plate) iUpdate.saveAndReturnObject(
-    			simplePlateData().asIObject());
+    			mmFactory.simplePlateData().asIObject());
     	
     	//link the 2
     	ScreenPlateLink link = new ScreenPlateLinkI();
@@ -491,15 +197,14 @@ public class PojosServiceTest
         PlateData plate;
         while (i.hasNext()) {
 			screen = new  ScreenData((Screen) i.next());
-			if (screen.getId() == p.getId().getValue()) {
-				plates = screen.getPlates();
-				assertTrue(plates.size() == 1);
-				j = plates.iterator();
-				while (j.hasNext()) {
-					plate = j.next();
-					assertTrue(plate.getId() == d.getId().getValue());
-				}
-			} 
+			assertTrue(screen.getId() == p.getId().getValue());
+			plates = screen.getPlates();
+			assertTrue(plates.size() == 1);
+			j = plates.iterator();
+			while (j.hasNext()) {
+				plate = j.next();
+				assertTrue(plate.getId() == d.getId().getValue());
+			}
 		}
     }
     
@@ -515,9 +220,9 @@ public class PojosServiceTest
     	//first create a project
     	long self = factory.getAdminService().getEventContext().userId;
     	Project p = (Project) iUpdate.saveAndReturnObject(
-    			simpleProjectData().asIObject());
+    			mmFactory.simpleProjectData().asIObject());
     	Project p2 = (Project) iUpdate.saveAndReturnObject(
-    			simpleProjectData().asIObject());
+    			mmFactory.simpleProjectData().asIObject());
     	
     	ParametersI param = new ParametersI();
     	param.exp(omero.rtypes.rlong(self));
@@ -548,9 +253,9 @@ public class PojosServiceTest
     	//first create a project
     	long self = factory.getAdminService().getEventContext().userId;
     	Screen p = (Screen) iUpdate.saveAndReturnObject(
-    			simpleScreenData().asIObject());
+    			mmFactory.simpleScreenData().asIObject());
     	Screen p2 = (Screen) iUpdate.saveAndReturnObject(
-    			simpleScreenData().asIObject());
+    			mmFactory.simpleScreenData().asIObject());
     	
     	ParametersI param = new ParametersI();
     	param.exp(omero.rtypes.rlong(self));
@@ -581,11 +286,11 @@ public class PojosServiceTest
     	//first create a project
     	long self = factory.getAdminService().getEventContext().userId;
     	Project p = (Project) iUpdate.saveAndReturnObject(
-    			simpleProjectData().asIObject());
+    			mmFactory.simpleProjectData().asIObject());
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
-    			simpleDatasetData().asIObject());
+    			mmFactory.simpleDatasetData().asIObject());
     	Project p2 = (Project) iUpdate.saveAndReturnObject(
-    			simpleProjectData().asIObject());
+    			mmFactory.simpleProjectData().asIObject());
     	
     	ParametersI param = new ParametersI();
     	param.exp(omero.rtypes.rlong(self));
@@ -619,9 +324,9 @@ public class PojosServiceTest
     	//first create a project
     	long self = factory.getAdminService().getEventContext().userId;
     	Screen p = (Screen) iUpdate.saveAndReturnObject(
-    			simpleScreenData().asIObject());
+    			mmFactory.simpleScreenData().asIObject());
     	Plate d = (Plate) iUpdate.saveAndReturnObject(
-    			simplePlateData().asIObject());
+    			mmFactory.simplePlateData().asIObject());
     	
     	ParametersI param = new ParametersI();
     	param.exp(omero.rtypes.rlong(self));
@@ -652,10 +357,10 @@ public class PojosServiceTest
     public void testLoadContainerHierarchyDatasetSpecifiedAndLeaves() 
     	throws Exception 
     {
-    	
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
-    			simpleDatasetData().asIObject());
-    	Image img = (Image) iUpdate.saveAndReturnObject(simpleImage());
+    			mmFactory.simpleDatasetData().asIObject());
+    	Image img = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleImage(0));
     	//link the 2
     	DatasetImageLink link = new DatasetImageLinkI();
     	link.setParent(d);
@@ -686,7 +391,53 @@ public class PojosServiceTest
 			} 
 		}
     }
-
+    
+    /**
+     * Test to load container hierarchy with dataset specified
+     * and loads the images. We then make sure that the default pixels
+     * are loaded.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(groups = {"ticket:401", "ticket:221"})
+    public void testLoadContainerHierarchyDatasetSpecifiedAndLeavesWithDefaultPixels() 
+    	throws Exception 
+    {
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleDatasetData().asIObject());
+    	Image 
+    	img = (Image) iUpdate.saveAndReturnObject(mmFactory.createImage());
+    	//link the 2
+    	DatasetImageLink link = new DatasetImageLinkI();
+    	link.setParent(d);
+    	link.setChild(img);
+    	iUpdate.saveAndReturnObject(link);
+    	ParametersI param = new ParametersI();
+    	param.leaves();
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(d.getId().getValue());
+        List results = iContainer.loadContainerHierarchy(
+        		Dataset.class.getName(), ids, param);
+        assertTrue(results.size() == 1);
+        Iterator i = results.iterator();
+        DatasetData dataset;
+        Set<ImageData> images;
+        Iterator<ImageData> j;
+        ImageData image;
+        PixelsData pixelsData;
+        while (i.hasNext()) {
+			dataset = new  DatasetData((Dataset) i.next());
+			if (dataset.getId() == d.getId().getValue()) {
+				images = dataset.getImages();
+				assertTrue(images.size() == 1);
+				j = images.iterator();
+				while (j.hasNext()) {
+					image = j.next();
+					checkPixels(image.getDefaultPixels());
+				}
+			} 
+		}
+    }
+    
     /**
      * Test to the collection count method.
      * @throws Exception Thrown if an error occurred.
@@ -696,11 +447,11 @@ public class PojosServiceTest
     	throws Exception 
     {
     	Dataset d1 = (Dataset) iUpdate.saveAndReturnObject(
-    			simpleDatasetData().asIObject());
+    			mmFactory.simpleDatasetData().asIObject());
     	Dataset d2 = (Dataset) iUpdate.saveAndReturnObject(
-    			simpleDatasetData().asIObject());
+    			mmFactory.simpleDatasetData().asIObject());
     	Image i = (Image) iUpdate.saveAndReturnObject(
-    			simpleImage());
+    			mmFactory.simpleImage(0));
     	//link the d and i
     	DatasetImageLink link = new DatasetImageLinkI();
     	link.setParent(d1);
@@ -794,282 +545,7 @@ public class PojosServiceTest
         }
 */
     }
-
-    /**
-     * Test to count the annotation link to an image.
-     * 
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testCountAnnotationLinkedToImage() 
-    	throws Exception 
-    {
-    	/*
-        Long id = fixture.iu5551.getId().getValue();
-        Map m = iContainer.getCollectionCount(Image.class.getName(),
-                ImageI.ANNOTATIONLINKS, Collections.singletonList(id), null);
-        Long count = (Long) m.get(id);
-        assertTrue(count.longValue() > 0);
-        */
-    }
-
-    /**
-     * Test to count the annotation link to an image.
-     * 
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testCountAnnotationLinkedToDataset() 
-    	throws Exception 
-    {
-    	/*
-        Long id = fixture.dr7071.getId().getValue();
-        Map m = iContainer.getCollectionCount(Dataset.class.getName(),
-                DatasetI.IMAGELINKS, Collections.singletonList(id), null);
-        Long count = (Long) m.get(id);
-        assertTrue(count.longValue() == 1);
-        */
-
-    }
     
-    /**
-     * Test to count the images linked to a dataset.
-     * 
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testCountImageLinkedToDataset() 
-    	throws Exception 
-    {
-    	/*
-        Long id = fixture.dr7071.getId().getValue();
-        Map m = iContainer.getCollectionCount(Dataset.class.getName(),
-                DatasetI.IMAGELINKS, Collections.singletonList(id), null);
-        Long count = (Long) m.get(id);
-        assertTrue(count.longValue() == 2);
-        */
-    }
-    
-    /**
-     * Test to count the datasets linked to a project.
-     * 
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testCountDatasetLinkedToProject() 
-    	throws Exception 
-    {
-    	/*
-        Long id = fixture.pr9091.getId().getValue();
-        Map m = iContainer.getCollectionCount(Project.class.getName(),
-                ProjectI.DATASETLINKS, Collections.singletonList(id), null);
-        Long count = (Long) m.get(id);
-        assertTrue(count.longValue() == 2);
-        */
-    }
-
-    /**
-     * Test to retrieve the number of images within a given dataset.
-     * 
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testImagesCount() 
-    	throws Exception
-    {
-       /*
-        long id = fixture.du7770.getId().getValue();
-        Dataset dataset = (Dataset) iContainer.loadContainerHierarchy(
-        		Dataset.class.getName(),
-                Collections.singletonList(id), null).iterator().next();
-        
-        // 7770 has not links
-        //Test using the Pojo object
-        DatasetData data = new DatasetData(dataset);
-        Map<Long, Long> counts = data.getAnnotationsCounts();
-        assertNotNull(counts);
-        //assertNull(counts.get(self));
-        
-        
-        //Retrieve dataset 7771
-        id = fixture.du7771.getId().getValue();
-        dataset = (Dataset) iContainer.loadContainerHierarchy(
-        		Dataset.class.getName(),
-                Collections.singletonList(id), null).iterator().next();
-        data = new DatasetData(dataset);
-        counts = data.getAnnotationsCounts();
-        assertNotNull(counts);
-        Entry entry;
-        Iterator i = counts.entrySet().iterator();
-        Long value;
-        while (i.hasNext()) {
-			entry = (Entry) i.next();
-			value = (Long) entry.getValue();
-			assertNotNull(value);
-		}
-		*/
-    }
-
-    // /
-    // ========================================================================
-    // / ~ Various bug-like checks
-    // /
-    // ========================================================================
-   
-    /**
-     * Test to annotate a dataset with a comment.
-     * 
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testAnnotateDatasetCGLIBIssue() 
-    	throws Exception 
-    {
-
-        // Setup: original is our in-memory, used every where object.
-        Dataset original = new DatasetI();
-        original.setName(rstring(" two rows "));
-        original = (Dataset) iContainer.createDataObject(original, null);
-        DatasetData annotatedObject = new DatasetData(original);
-        Dataset annotated = (Dataset) 
-        	iContainer.updateDataObject(annotatedObject.asIObject(), null);
-        // Dataset m = new Dataset( original.getId(), false);
-        CommentAnnotation annotation = new CommentAnnotationI();
-        annotation.setNs(rstring(""));
-        annotation.setTextValue(rstring(" two rows content "));
-
-        // CGLIB
-        CommentAnnotation object = (CommentAnnotation) 
-        	iContainer.createDataObject(annotation, null);
-        DataObject returnedToUser = new TextualAnnotationData(object);
-
-        // Now working but iPojos is still returning a CGLIB class.
-        assertTrue(String.format("Class %s should equal class %s", object
-                .getClass(), annotation.getClass()), object.getClass().equals(
-                annotation.getClass()));
-    }
-
-    /**
-     * Test to annotate a dataset with a comment annotation.
-     * 
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testAnnotateDatasetWithComment() 
-    	throws Exception 
-    {
-    	/*
-        String name = " two rows " + System.currentTimeMillis();
-        String text = " two rows content " + System.currentTimeMillis();
-        String desc = " new description " + System.currentTimeMillis();
-
-        // Setup: original is our in-memory, used every where object.
-        Dataset original = new DatasetI();
-        original.setName(rstring (name));
-        original = (Dataset) iUpdate.saveAndReturnObject(original);
-
-        // No longer return these from create methods.
-        assertNull(original.getAnnotationLinksCountPerOwner());
-        
-        original.setDescription(rstring(desc));
-
-        //Create the comment
-        CommentAnnotation annotation = new CommentAnnotationI();
-        annotation.setNs(rstring(""));
-        annotation.setTextValue(rstring(text));
-       
-        // create the annotation
-        annotation =  (CommentAnnotation)
-        	iUpdate.saveAndReturnObject(annotation);
-        // Link the annotation and the dataset
-        DatasetAnnotationLink link = new DatasetAnnotationLinkI();
-        link.setParent(original);
-        link.setChild(annotation);
-        // create the link
-        link = (DatasetAnnotationLink) iUpdate.saveAndReturnObject(link);
-        assertTrue(link.getParent().getId().getValue() == 
-        	original.getId().getValue());
-        assertTrue(link.getChild().getId().getValue() == 
-        	annotation.getId().getValue());
-        	*/
-    }
-
-    /**
-     * Tests the deletion of a comment annotation.
-     * 
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test
-    public void testDeleteAnnotation() 
-    	throws Exception
-    {
-    	/*
-        String string = "delete_annotation" + System.currentTimeMillis();
-
-        Dataset d = new DatasetI();
-        d.setName(rstring(string));
-
-        CommentAnnotation a = new CommentAnnotationI();
-        a.setNs(rstring(""));
-        a.setTextValue(rstring(string));
-        d.linkAnnotation(a);
-
-        d = (Dataset) iContainer.createDataObject(d, null);
-        DatasetAnnotationLink al = d.copyAnnotationLinks().iterator()
-                .next();
-        a = (CommentAnnotation) al.getChild();
-
-        iContainer.deleteDataObject(al, null);
-        iContainer.deleteDataObject(a, null);
-
-        Object o = iQuery.find(CommentAnnotation.class.getName(),
-        		a.getId().getValue());
-        assertNull(o);
-        */
-    }
-
-    /**
-     * Test to update an uploaded object using the <code>Pojo</code> object.
-     * @throws Exception Thrown if an error occurred.
-     */
-    @Test(groups = { "version", "broken" })
-    public void testUnloadedDataset() 
-    	throws Exception 
-    {
-    	Image i = (Image) iUpdate.saveAndReturnObject(simpleImage());
-    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
-    			simpleDatasetData().asIObject());
-    	Project p = (Project) iUpdate.saveAndReturnObject(
-    			simpleProjectData().asIObject());
-    	//link dataset and image
-    	DatasetImageLink link = new DatasetImageLinkI();
-    	link.setParent(d);
-    	link.setChild(i);
-    	iUpdate.saveAndReturnObject(link);
-    	//link project and dataset
-    	ProjectDatasetLink l = new ProjectDatasetLinkI();
-    	l.setParent(p);
-    	l.setChild(d);
-    	iUpdate.saveAndReturnObject(l);
-    	
-        p = (Project) iContainer.loadContainerHierarchy(
-                Project.class.getName(), 
-                Collections.singletonList(p.getId().getValue()), 
-                null).iterator().next();
-        ProjectData pData = new ProjectData(p);
-        
-        DatasetData dData = pData.getDatasets().iterator().next();
-        pData.setDescription("new value:ui");
-
-        iContainer.updateDataObject(pData.asIObject(), null);
-        try {
-        	dData.getName();
-            fail(" this should blow up ");
-        } catch (Exception e) { // TODO which exception?
-            // good.
-        }
-    }
-
     /**
      * Tests the retrieval of images filtering by owners.
      * @throws Exception Thrown if an error occurred.
@@ -1078,9 +554,10 @@ public class PojosServiceTest
     public void testGetImagesByOwner() 
     	throws Exception
     {
-    	Image i1 = (Image) iUpdate.saveAndReturnObject(simpleImage());
+    	Image i1 = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleImage(0));
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
-    			simpleDatasetData().asIObject());
+    			mmFactory.simpleDatasetData().asIObject());
     	DatasetImageLink link = new DatasetImageLinkI();
     	link.setParent(d);
     	link.setChild(i1);
@@ -1109,6 +586,49 @@ public class PojosServiceTest
     }
 
     /**
+     * Tests the retrieval of images filtering by owners. Those images
+     * will have a pixels set.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(groups = "ticket:318")
+    public void testGetImagesByOwnerWithPixels() 
+    	throws Exception
+    {
+    	Image i1 = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.createImage());
+    	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleDatasetData().asIObject());
+    	DatasetImageLink link = new DatasetImageLinkI();
+    	link.setParent(d);
+    	link.setChild(i1);
+    	iUpdate.saveAndReturnObject(link);
+    	ParametersI param = new ParametersI();
+    	List<Long> ids = new ArrayList<Long>(1);
+    	ids.add(d.getId().getValue());
+    	List<Image> images = iContainer.getImages(Dataset.class.getName(), ids, 
+    			param);
+    	assertTrue(images.size() > 0);
+    	Iterator<Image> i = images.iterator();
+    	Image img;
+    	int count = 0;
+    	PixelsData pixelsData;
+    	while (i.hasNext()) {
+			img = i.next();
+			if (img.getId().getValue() == i1.getId().getValue()) {
+				pixelsData = new PixelsData(img.getPixels(0));
+				checkPixels(pixelsData);
+				count++;
+			}	
+		}
+    	assertTrue(count == 1);
+    	param = new ParametersI();
+    	param.exp(rlong(fixture.e.getId().getValue()));
+    	images = iContainer.getImages(Dataset.class.getName(), ids, 
+    			param);
+    	assertTrue(images.size() == 0);
+    }
+
+    /**
      * Links twice a dataset and an image. Only one link should be inserted.
      * @throws Exception Thrown if an error occurred.
      */
@@ -1116,9 +636,10 @@ public class PojosServiceTest
     public void testDuplicateDatasetImageLink() 
     	throws Exception
     {
-    	Image i1 = (Image) iUpdate.saveAndReturnObject(simpleImage());
+    	Image i1 = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleImage(0));
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
-    			simpleDatasetData().asIObject());
+    			mmFactory.simpleDatasetData().asIObject());
     	DatasetImageLink link = new DatasetImageLinkI();
     	link.setParent(d);
     	link.setChild(i1);
@@ -1151,12 +672,106 @@ public class PojosServiceTest
     public void testGetImagesByGroup() 
     	throws Exception
     {
-        /*TODO:rewrite test
-    	List ids = fixture.getProjectIds();
-        List<Image> images = iContainer.getImages(Project.class.getName(), ids, 
-        		GROUP_FILTER);
-        assertFilterWorked(images, null, 100, null, fixture.g);
-        */
+    	//Create 2 groups and add a user 
+    	String uuid1 = UUID.randomUUID().toString();
+		ExperimenterGroup g1 = new ExperimenterGroupI();
+		g1.setName(omero.rtypes.rstring(uuid1));
+		g1.getDetails().setPermissions(new PermissionsI("rw----"));
+		
+		String uuid2 = UUID.randomUUID().toString();
+		ExperimenterGroup g2 = new ExperimenterGroupI();
+		g2.setName(omero.rtypes.rstring(uuid2));
+		g2.getDetails().setPermissions(new PermissionsI("rw----"));
+			
+		IAdminPrx svc = root.getSession().getAdminService();
+		IQueryPrx query = root.getSession().getQueryService();
+		long id1 = svc.createGroup(g1);
+		long id2 = svc.createGroup(g2);
+		
+		ParametersI p = new ParametersI();
+		p.addId(id1);
+		
+		ExperimenterGroup eg1 = (ExperimenterGroup) query.findByQuery(
+				"select distinct g from ExperimenterGroup g where g.id = :id", 
+				p);
+		p = new ParametersI();
+		p.addId(id2);
+		
+		ExperimenterGroup eg2 = (ExperimenterGroup) query.findByQuery(
+				"select distinct g from ExperimenterGroup g where g.id = :id", 
+				p);
+		Experimenter e = new ExperimenterI();
+		e.setOmeName(omero.rtypes.rstring(uuid1));
+		e.setFirstName(omero.rtypes.rstring("user"));
+		e.setLastName(omero.rtypes.rstring("user"));
+		
+		List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
+		//method tested elsewhere
+		ExperimenterGroup userGroup = svc.lookupGroup(USER_GROUP);
+		groups.add(eg1);
+		groups.add(eg2);
+		groups.add(userGroup);
+		
+		svc.createExperimenter(e, eg1, groups);
+		
+		omero.client client = new omero.client();
+        ServiceFactoryPrx f = client.createSession(uuid1, uuid1);
+		//add an image.
+        IUpdatePrx update = f.getUpdateService();
+        Dataset d = (Dataset) update.saveAndReturnObject(
+        		mmFactory.simpleDatasetData().asIObject());
+        long d1 = d.getId().getValue();
+        
+        Image image1 = (Image) update.saveAndReturnObject(
+        		mmFactory.simpleImage(0));
+    	//link the 2
+    	DatasetImageLink link = new DatasetImageLinkI();
+    	link.setParent(d);
+    	link.setChild(image1);
+    	update.saveAndReturnObject(link);
+        
+        
+        
+       //Change the security context
+        client.getSession().setSecurityContext(
+        		new ExperimenterGroupI(id2, false));
+		//add an image.
+        d = (Dataset) update.saveAndReturnObject(
+        		mmFactory.simpleDatasetData().asIObject());
+        long d2 = d.getId().getValue();
+        Image image2 = (Image) 
+        	f.getUpdateService().saveAndReturnObject(
+        			mmFactory.simpleImage(0));
+        link = new DatasetImageLinkI();
+    	link.setParent(d);
+    	link.setChild(image2);
+    	f.getUpdateService().saveAndReturnObject(link);
+    	List<Long> ids = new ArrayList<Long>();
+		ids.add(d1);
+		ids.add(d2);
+		List<Image> images = f.getContainerService().getImages(
+				Dataset.class.getName(), ids, p);
+		assertNotNull(images);
+		assertTrue(images.size() == 1);
+		Iterator<Image> i = images.iterator();
+		
+		//Should only retrieve images from group2 
+		while (i.hasNext()) {
+			assertTrue(i.next().getId().getValue() == image2.getId().getValue());
+		}
+		
+		client.getSession().setSecurityContext(
+        		new ExperimenterGroupI(id1, false));
+		images = f.getContainerService().getImages(
+				Dataset.class.getName(), ids, p);
+		assertNotNull(images);
+		assertTrue(images.size() == 1);
+		i = images.iterator();
+		
+		//Should only retrieve images from group2 
+		while (i.hasNext()) {
+			assertTrue(i.next().getId().getValue() == image1.getId().getValue());
+		}
     }
     
     /**
@@ -1174,11 +789,12 @@ public class PojosServiceTest
     	param.exp(omero.rtypes.rlong(id));
     	
     	
-    	Image i = (Image) iUpdate.saveAndReturnObject(simpleImage());
+    	Image i = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleImage(0));
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
-    			simpleDatasetData().asIObject());
+    			mmFactory.simpleDatasetData().asIObject());
     	Project p = (Project) iUpdate.saveAndReturnObject(
-    			simpleProjectData().asIObject());
+    			mmFactory.simpleProjectData().asIObject());
     	//link dataset and image
     	DatasetImageLink link = new DatasetImageLinkI();
     	link.setParent(d);
@@ -1217,7 +833,7 @@ public class PojosServiceTest
     {
     	long id =  fixture.e.getId().getValue();
     	Project p = (Project) iUpdate.saveAndReturnObject(
-    			simpleProjectData().asIObject());
+    			mmFactory.simpleProjectData().asIObject());
     	ParametersI param = new ParametersI();
     	param.exp(omero.rtypes.rlong(id));
     	
@@ -1247,7 +863,7 @@ public class PojosServiceTest
     {
     	long id =  fixture.g.getId().getValue();
     	Project p = (Project) iUpdate.saveAndReturnObject(
-    			simpleProjectData().asIObject());
+    			mmFactory.simpleProjectData().asIObject());
     	ParametersI param = new ParametersI();
     	param.grp(omero.rtypes.rlong(id));
     	
@@ -1283,7 +899,8 @@ public class PojosServiceTest
     	ParametersI po = new ParametersI();
 		po.leaves();
 		po.startTime(omero.rtypes.rtime(startTime-1));
-		Image i = (Image) iUpdate.saveAndReturnObject(simpleImage(startTime));
+		Image i = (Image) iUpdate.saveAndReturnObject(
+				mmFactory.simpleImage(startTime));
 		
 		List result = iContainer.getImagesByOptions(po);
 		assertTrue(result.size() > 0);
@@ -1325,10 +942,10 @@ public class PojosServiceTest
     public void testLoadContainerHierarchyDatasetLeavesNotLoaded() 
     	throws Exception 
     {
-    	
     	Dataset d = (Dataset) iUpdate.saveAndReturnObject(
-    			simpleDatasetData().asIObject());
-    	Image img = (Image) iUpdate.saveAndReturnObject(simpleImage());
+    			mmFactory.simpleDatasetData().asIObject());
+    	Image img = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleImage(0));
     	//link the 2
     	DatasetImageLink link = new DatasetImageLinkI();
     	link.setParent(d);
@@ -1367,7 +984,60 @@ public class PojosServiceTest
 				assertTrue(images.size() == 1);
 			} 
 		}
-        
+    }
+    
+    /**
+     * Test to load an image with its acquisition data. This method
+     * invoked the <code>getImages</code>.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadImageWithAcquisitionData() 
+    	throws Exception 
+    {
+    	//First create an image 
+    	Image image = mmFactory.createImage();
+    	image = (Image) iUpdate.saveAndReturnObject(image);
+    	//create an instrument
+    	Instrument instrument = (Instrument) iUpdate.saveAndReturnObject(
+    			mmFactory.createInstrument(ModelMockFactory.LASER));
+    	ParametersI param = new ParametersI();
+    	param.addLong("iid", instrument.getId().getValue());
+    	String sql = "select d from Objective as d where d.instrument.id = :iid";
+    	Objective objective = (Objective) iQuery.findByQuery(sql, param);
+    	//create so settings.
+    	ObjectiveSettings settings = (ObjectiveSettings) 
+    		iUpdate.saveAndReturnObject(
+    				mmFactory.createObjectiveSettings(objective));
+    	assertNotNull(settings);
+    	image.setObjectiveSettings(settings);
+    	StageLabel label = (StageLabel)
+    		iUpdate.saveAndReturnObject(mmFactory.createStageLabel());
+    	image.setStageLabel(label);
+    	ImagingEnvironment env = (ImagingEnvironment)
+			iUpdate.saveAndReturnObject(mmFactory.createImageEnvironment());
+    	image.setImagingEnvironment(env);
+    	iUpdate.saveAndReturnObject(image);
+    	ParametersI po = new ParametersI();
+		po.acquisitionData();
+		List<Long> ids = new ArrayList<Long>(1);
+		ids.add(image.getId().getValue());
+		List results = iContainer.getImages(Image.class.getName(), ids, param);
+		assertNotNull(results);
+		assertTrue(results.size() == 1);
+		//Check if acquisition data are loaded.
+		Image test = (Image) results.get(0);
+		assertNotNull(test);
+		assertTrue(test.getId().getValue() == image.getId().getValue());
+		assertNotNull(test.getObjectiveSettings());
+		assertNotNull(test.getImagingEnvironment());
+		assertNotNull(test.getStageLabel());
+		assertTrue(test.getObjectiveSettings().getId().getValue() == 
+			settings.getId().getValue());
+		assertTrue(test.getImagingEnvironment().getId().getValue() == 
+			env.getId().getValue());
+		assertTrue(test.getStageLabel().getId().getValue() == 
+			label.getId().getValue());
     }
     
 }

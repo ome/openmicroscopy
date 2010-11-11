@@ -102,10 +102,12 @@ public class CurrentDetails implements PrincipalHolder {
 
     public Long getCallGroup() {
         Map<String, String> ctx = callContext.get();
-        if (ctx != null) {
+        if (ctx != null && ctx.containsKey("omero.group")) {
+            String s = ctx.get("omero.group");
             try {
                 return Long.valueOf(ctx.get("omero.group"));
             } catch (Exception e) {
+                log.debug("Ignoring invalid omero.group context: " + s);
                 return null;
             }
         }
@@ -398,12 +400,13 @@ public class CurrentDetails implements PrincipalHolder {
      * updated via {@link #updateEvent(Event)}.
      */
     void setValues(Experimenter owner, ExperimenterGroup group,
-            boolean isAdmin, boolean isReadOnly) {
+            boolean isAdmin, boolean isReadOnly, Long shareId) {
         BasicEventContext c = current();
         c.setOwner(owner);
         c.setGroup(group);
         c.setAdmin(isAdmin);
         c.setReadOnly(isReadOnly);
+        c.setShareId(shareId);
     }
 
     /**

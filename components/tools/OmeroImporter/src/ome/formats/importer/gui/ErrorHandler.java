@@ -51,7 +51,7 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
     @SuppressWarnings("unused")
     private static Log log = LogFactory.getLog(ErrorHandler.class);
 
-    public final MyErrorHandler delegate; // THIS SHOULD NOT BE PUBLIC
+    public final MyErrorHandler delegate;
     private final ScheduledExecutorService ex;
     private final ErrorTable errorTable;
 
@@ -132,6 +132,11 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
             } else if (event instanceof ImportEvent.FILE_UPLOAD_COMPLETE) {
                 ImportEvent.FILE_UPLOAD_COMPLETE ev = (ImportEvent.FILE_UPLOAD_COMPLETE) event;
                 errorTable.setFilesProgress(ev.fileIndex);
+            } else if (event instanceof ImportEvent.FILE_UPLOAD_ERROR) {
+                ImportEvent.FILE_UPLOAD_ERROR ev = (ImportEvent.FILE_UPLOAD_ERROR) event;
+                errorTable.setFilesProgress(ev.fileIndex);
+                log.info("Error while sending QA Feedback file:" + ev.filename);
+                fileUploadErrors  = true;
             } else if (event instanceof ImportEvent.FILE_UPLOAD_CANCELLED || event instanceof ImportEvent.ERRORS_UPLOAD_CANCELLED) {
             	errorTable.resetProgress();
             	log.debug("Uploads Cancelled");
@@ -251,6 +256,7 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
                             + "\nfiles, simply click the 'Send Feedback'"
                             + "\nbutton again.", "Cancelled Upload!",
                     JOptionPane.INFORMATION_MESSAGE);
+            errorTable.resetProgress();
         }
 
         /* (non-Javadoc)
@@ -264,12 +270,37 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
                     "\nThank you for your support, your errors "
                             + "\nhave successfully been collected."
                             + "\n\nIf you have provided us with an email"
-                            + "\naddress, you should recieve a message"
+                            + "\naddress, you should receive a message"
                             + "\nshortly detailing how you can track the"
                             + "\nstatus of your errors.", "Success!",
                     JOptionPane.INFORMATION_MESSAGE);
+            errorTable.resetProgress();
         }
 
+        /* (non-Javadoc)
+         * @see ome.formats.importer.util.ErrorHandler#finishWithErrors()
+         */
+        @Override
+        protected void finishWithErroredFiles() {
+            super.finishWithErroredFiles();
+            errorTable.setCancelBtnCancelled();
+            
+            JOptionPane.showMessageDialog(panel,
+                    "\nThank you for your support, your errors "
+                            + "\nhave successfully been collected."
+                            + "\n\nIf you have provided us with an email"
+                            + "\naddress, you should receive a message"
+                            + "\nshortly detailing how you can track the"
+                            + "\nstatus of your errors."
+                            + "\n\n Please note that during the import"
+                            + "\nthere were problems sending some of your"
+                            + "\nincluded files, however the error itself"
+                            + "\nhas been reported."
+                            , "Success!",
+                    JOptionPane.INFORMATION_MESSAGE);
+            errorTable.resetProgress();
+        }
+        
         /* (non-Javadoc)
          * @see ome.formats.importer.util.ErrorHandler#onAddError(ome.formats.importer.util.ErrorContainer, java.lang.String)
          */
@@ -277,7 +308,7 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
         protected void onAddError(ErrorContainer errorContainer, String message) {
             super.onAddError(errorContainer, message);
             Vector<Object> row = new Vector<Object>();
-            row.add(new Boolean(true));
+            row.add(Boolean.valueOf(true));
             if (errorContainer.getSelectedFile() == null)
             {
                 row.add("None");
@@ -293,7 +324,7 @@ public class ErrorHandler extends JPanel implements IObserver, IObservable {
             row.add(null); // full error for tooltip
             errorTable.addRow(row);
             errorTable.fireTableDataChanged();
-            this.notifyObservers(new ImportEvent.ERRORS_PENDING());
+            notifyObservers(new ImportEvent.ERRORS_PENDING());
         }
 
     }

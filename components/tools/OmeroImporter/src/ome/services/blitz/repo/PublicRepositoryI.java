@@ -468,6 +468,13 @@ public class PublicRepositoryI extends _RepositoryDisp {
     public List<OriginalFile> listFiles(String path, RepositoryListConfig config, Current __current) throws ServerError {
         Principal currentUser = currentUser(__current);
         File file = checkPath(path);
+        if (!file.exists()) {
+            throw new ValidationException(null, null, "Path does not exist");
+        }
+        if (!file.isDirectory()) {
+            throw new ValidationException(null, null, "Path is not a directory");
+        }
+        
         List<File> files;
         List<OriginalFile> oFiles;
         RepositoryListConfig conf;
@@ -504,6 +511,12 @@ public class PublicRepositoryI extends _RepositoryDisp {
             throws ServerError {
         Principal currentUser = currentUser(__current);
         File file = checkPath(path);
+        if (!file.exists()) {
+            throw new ValidationException(null, null, "Path does not exist");
+        }
+        if (!file.isDirectory()) {
+            throw new ValidationException(null, null, "Path is not a directory");
+        }
         RepositoryListConfig conf;
         
         if(config == null) {
@@ -536,6 +549,9 @@ public class PublicRepositoryI extends _RepositoryDisp {
      */
     public String mimetype(String path, Current __current) throws ServerError {
         File file = checkPath(path);
+        if (!file.exists()) {
+            throw new ValidationException(null, null, "Path does not exist");
+        }
         return getMimetype(file);
     }
 
@@ -552,6 +568,12 @@ public class PublicRepositoryI extends _RepositoryDisp {
     public String getThumbnail(String path, Current __current)  throws ServerError {
         Principal currentUser = currentUser(__current);
         File file = checkPath(path);
+        if (!file.exists()) {
+            throw new ValidationException(null, null, "Path does not exist");
+        }
+        if (!file.isFile()) {
+            throw new ValidationException(null, null, "Path is not a file");
+        }
         String tnPath;
         try {
             tnPath = createThumbnail(file);   
@@ -576,6 +598,12 @@ public class PublicRepositoryI extends _RepositoryDisp {
     public String getThumbnailByIndex(String path, int imageIndex, Current __current)  throws ServerError {
         Principal currentUser = currentUser(__current);
         File file = checkPath(path);
+        if (!file.exists()) {
+            throw new ValidationException(null, null, "Path does not exist");
+        }
+        if (!file.isFile()) {
+            throw new ValidationException(null, null, "Path is not a file");
+        }
         String tnPath;
         try {
             tnPath = createThumbnail(file, imageIndex);   
@@ -585,6 +613,20 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return tnPath;
     }
 
+    /**
+     * Return true if a file exists in the repository.
+     * 
+     * @param path
+     *            A path on a repository.
+     * @param __current
+     *            ice context.
+     * @return The existence of the file
+     *
+     */
+    public boolean fileExists(String path, Current __current) throws ServerError {
+        File file = checkPath(path);
+        return file.exists();
+    }
 
 
 
@@ -1303,6 +1345,8 @@ public class PublicRepositoryI extends _RepositoryDisp {
         int thumbSizeX = reader.getThumbSizeX();
         int thumbSizeY = reader.getThumbSizeY();  
         meta.createRoot();
+        meta.setImageID("Image:0", 0);
+        meta.setPixelsID("Pixels:0", 0);
         meta.setPixelsBinDataBigEndian(Boolean.TRUE, 0, 0);
         meta.setPixelsDimensionOrder(ome.xml.model.enums.DimensionOrder.XYZCT, 0);
         meta.setPixelsType(ome.xml.model.enums.PixelType.UINT8, 0);
@@ -1311,6 +1355,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         meta.setPixelsSizeZ(new PositiveInteger(1), 0);
         meta.setPixelsSizeC(new PositiveInteger(1), 0);
         meta.setPixelsSizeT(new PositiveInteger(1), 0);
+        meta.setChannelID("Channel:0:0", 0, 0);
         meta.setChannelSamplesPerPixel(new PositiveInteger(1), 0, 0);
         
         // Finally try to create the jpeg file abd return the path.  
@@ -1318,14 +1363,14 @@ public class PublicRepositoryI extends _RepositoryDisp {
         writer.setMetadataRetrieve(meta);
         try {
             writer.setId(tnFile.getAbsolutePath());
-            writer.saveBytes(thumb, true);
+            writer.saveBytes(0, thumb);
             writer.close();  
         } catch (FormatException exc) { 
             throw new ServerError(null, stackTraceAsString(exc), 
-                    "Thumbnail error, write failed."); 
+                    "Thumbnail error, write failed.\n File id: " + tnFile.getAbsolutePath()); 
         } catch (IOException exc) { 
             throw new ServerError(null, stackTraceAsString(exc), 
-                    "Thumbnail error, write failed."); 
+                    "Thumbnail error, write failed.\n File id: " + tnFile.getAbsolutePath()); 
         }
         
         return tnFile.getAbsolutePath();

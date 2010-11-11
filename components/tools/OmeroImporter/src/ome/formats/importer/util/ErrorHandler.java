@@ -166,6 +166,8 @@ public abstract class ErrorHandler implements IObserver, IObservable {
     
     protected boolean sendLogs = true;
 
+	public boolean fileUploadErrors = false;
+    
     protected int totalErrors = 0;
 
     private FileUploader fileUploader;
@@ -298,11 +300,9 @@ public abstract class ErrorHandler implements IObserver, IObservable {
                 if (files != null && files.length > 0) {
                     for (String f : errorContainer.getFiles()) {
                         File file = new File(f);
-                        postList.add(new StringPart("additional_files", file
-                                .getName()));
+                        postList.add(new StringPart("additional_files", file.getName()));
                         if (file.getParent() != null)
-                            postList.add(new StringPart(
-                                    "additional_files_path", file.getParent()));
+                            postList.add(new StringPart("additional_files_path", file.getParent()));
                         postList.add(new StringPart("additional_files_size",
                                 ((Long) file.length()).toString()));
                     }
@@ -334,6 +334,10 @@ public abstract class ErrorHandler implements IObserver, IObservable {
         }
         if (cancelUploads) {
             finishCancelled();
+        }
+        if (fileUploadErrors) {
+        	finishWithErroredFiles();
+        	notifyObservers(new ImportEvent.ERRORS_COMPLETE());
         } else {
             finishComplete();
             notifyObservers(new ImportEvent.ERRORS_COMPLETE());
@@ -500,6 +504,14 @@ public abstract class ErrorHandler implements IObserver, IObservable {
     protected void finishComplete() 
     {
     }
+    
+    /**
+     * Action to take when finish completed but with some errors
+     * (For example, missing files)
+     */
+    protected void finishWithErroredFiles() 
+    {
+    }    
     
     
     /**

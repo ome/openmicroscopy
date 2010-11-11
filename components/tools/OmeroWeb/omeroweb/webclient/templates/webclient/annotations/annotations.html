@@ -80,6 +80,31 @@
 
             });
 
+
+            function deleteItem(productType, productId) {
+                if ((productType == 'file' || productType == 'tag' || productType == 'comment') && productId > 0){
+                    if (confirm('Delete '+productType+'?')) {
+                        var productListQuery="";
+                        $.ajax({
+                            type: "POST",
+                            url: "/webclient/action/delete/"+productType+"/"+productId+"/", //this.href,
+                            data: productListQuery,
+                            contentType:'html',
+                            success: function(responce){
+                                if(responce.match(/(Error: ([A-z]+))/gi)) {
+                                    alert(responce)
+                                } else {  
+                                    window.location = "{{ url }}";
+                                }
+                            },
+                            error: function(responce) {
+                                alert("Internal server error. Cannot delete object.");
+                            }
+                        });
+
+                    }
+                } 
+            }
     </script>
     
 {% endblock %}
@@ -89,11 +114,11 @@
     <div id="annotation_tabs" class="ui-tabs">
         <ul>
             {% if manager.tag %}
-                <li><a href="#metadata_tab">{% trans "Metadata" %}</a>&nbsp;</li>
+                <li><a href="#metadata_tab">{% trans "Metadata" %}</a></li>
             {% else %}
-                {% if manager.image or manager.well %}<li>|&nbsp;<a href="#preview_tab">{% trans "Preview" %}</a>&nbsp;</li>{% endif %}
-                <li>|&nbsp;<a href="#metadata_tab">{% trans "Metadata" %}</a>&nbsp;</li>
-                <li>|&nbsp;<a href="#annotation_tab">{% trans "Annotation" %}</a>&nbsp;</li>
+                {% if manager.image or manager.well %}<li><a href="#preview_tab">{% trans "Preview" %}</a></li>{% endif %}
+                <li><a href="#metadata_tab">{% trans "Metadata" %}</a></li>
+                <li><a href="#annotation_tab">{% trans "Annotation" %}</a></li>
             {% endif %}
         </ul>
         <div class="clear"></div>        
@@ -211,7 +236,6 @@
                     <td><label>{{ manager.tag.textValue|warphtml:"30"|linebreaks }}</label>{% if manager.tag.isOwned %} <a href="{% url manage_action_containers "edit" "tag" manager.tag.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %} (id: {{ manager.tag.id }})</td></tr>
                 <tr><td colspan="2">Created on: {{ manager.tag.getDate|date:"Y-m-d H:i:s" }}</td></tr>
                 <tr><td colspan="2">
-                    {% if not manager.tag.isOwned %} <img src="{% url webstatic "images/personal16.png" %}" alt="owner by" title="Owner"/>{% endif %}
                     {% if manager.tag.isPublic %}<img src="{% url webstatic "images/network16.png" %}" alt="p" title="{{ manager.screen.details.permissions }}"/>Public{% else %}{% if manager.tag.isShared %}<img src="{% url webstatic "images/kuser16.png" %}" alt="s" title="{{ manager.screen.details.permissions }}"/>Shared{% else %}{% if manager.tag.isPrivate %}Private{% endif %}{% endif %}{% endif %}
                     {% if manager.tag.isReadOnly %} (read-only){% endif %}
                     {% if not manager.tag.isOwned %} <img src="{% url webstatic "images/personal16.png" %}" alt="owner by" title="Owner"/>{{ manager.tag.getOwner.getFullName }}{% endif %}
@@ -269,7 +293,7 @@
                 <tr><th><br/>{% trans "Objective" %}:</th><th colspan="2"></th></tr>
                     {% for field in form_objective %}
                     <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
                     </tr>
                     {% endfor %}
                 {% endif %}
@@ -277,7 +301,7 @@
                 <tr><th><br/>{% trans "Environment" %}:</th><th colspan="2"></th></tr>
                     {% for field in form_environment %}
                     <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
                     </tr>
                     {% endfor %}
                 {% endif %}
@@ -285,7 +309,7 @@
                 <tr><th><br/>{% trans "Stage label" %}:</th><th colspan="2"></th></tr>
                     {% for field in form_stageLabel %}
                     <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
                     </tr>
                     {% endfor %}
                 {% endif %}
@@ -298,7 +322,7 @@
                 {% if form_microscope %}
                     {% for field in form_microscope %}
                     <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
                     </tr>
                     {% endfor %}
                 {% endif %}
@@ -306,7 +330,7 @@
                 <tr><th><br/>{% trans "Objective" %}:</th><th colspan="2"></th></tr>
                     {% for field in form_objective %}
                     <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
                     </tr>
                     {% endfor %}
                 {% endif %}
@@ -314,7 +338,7 @@
                     <tr><th><br/>{% trans "Filter" %}:</th><th colspan="2"></th></tr>
                     {% for field in form %}
                     <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
                     </tr>
                     {% endfor %}
                 {% endfor %}
@@ -322,7 +346,7 @@
                     <tr><th><br/>{% trans "Detector" %}:</th><th colspan="2"></th></tr>
                     {% for field in form %}
                     <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
                     </tr>
                     {% endfor %}
                 {% endfor %}
@@ -330,7 +354,7 @@
                     <tr><th><br/>{% trans "Laser" %}:</th><th colspan="2"></th></tr>
                     {% for field in form %}
                     <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
                     </tr>
                     {% endfor %}
                 {% endfor %}
@@ -343,7 +367,7 @@
             <div><table class="metadata_details">
                 {% for field in ch.form %}
                 <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
                 </tr>
                 {% endfor %}
                 {% if ch.form_emission_filter or ch.form_excitation_filter %}
@@ -351,14 +375,14 @@
                 <tr><th><br/>{% trans "Filter" %}:</th><th colspan="2"></th></tr>
                 {% for field in f %}
                 <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
                 </tr>
                 {% endfor %}
                 {% endfor %}
                 {% for f in ch.form_excitation_filter %}
                 {% for field in f %}
                 <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
                 </tr>
                 {% endfor %}
                 {% endfor %}
@@ -367,7 +391,7 @@
                 <tr><th><br/>{% trans "Detector" %}:</th><th colspan="2"></th></tr>
                 {% for field in ch.form_detector_settings %}
                 <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
                 </tr>
                 {% endfor %}
                 {% endif %}                
@@ -375,7 +399,7 @@
                 <tr><th><br/>{% trans "Dichroic" %}:</th><th colspan="2"></th></tr>
                 {% for field in ch.form_dichroic %}
                 <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
                 </tr>
                 {% endfor %}
                 {% endif %}
@@ -383,7 +407,7 @@
                 <tr><th><br/>{% trans "Laser" %}:</th><th colspan="2"></th></tr>
                 {% for field in ch.form_light_source %}
                 <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
                 </tr>
                 {% endfor %}
                 {% endif %}
@@ -412,7 +436,7 @@
                 {% for tann in manager.text_annotations %}
                 <div id="ann_comment_wrapper">
                     <div class="avatar"><img src="{% url load_photo tann.details.owner.id.val %}" alt="{{ tann.getOwner.getFullName }}" title="{{ tann.getOwner.getFullName }}" width="40" height="40" /></div>
-                    <div class="ann_comment"><span class="ann_comment_header">{{ tann.getOwner.getFullName }} {% trans "posted comment at" %} {{ tann.creationEventDate|date:"Y-m-d H:i:s" }}</span><br/>
+                    <div class="ann_comment"><span class="ann_comment_header">{{ tann.getOwner.getFullName }} {% trans "posted comment at" %} {{ tann.creationEventDate|date:"Y-m-d H:i:s" }}</span>{% if tann.canDelete %} <input class="button" type="image" src="{% url webstatic "images/block.png" %}" alt="Delete" title="Delete" onclick="deleteItem('comment', '{{ tann.id }}');" />{% endif %}<br/>
                         {{ tann.textValue|safe|linebreaks }}
                     </div>
                 </div>
@@ -435,7 +459,7 @@
             {% if manager.tgannSize %}
             <div class="lntags"> <h1> 
             {% for tag in manager.tag_annotations %}
-                <a href="{% url load_template "usertags" %}{% if not tag.isOwned %}?experimenter={{ tag.getOwner.id }}{% endif %}" target="_top" title="Linked by {{ tag.link.getDetails.getOwner.getNameWithInitial }}. {{ tag.description|default_if_none:""  }}"> {{ tag.textValue }}</a></span> {% if tag.link.isOwned %}<a href="{% url manage_action_containers "remove" %}?parent={% if manager.image %}img-{{ manager.image.id}}{% else %}{% if manager.dataset %}ds-{{ manager.dataset.id}}{% else %}{% if manager.project %}pr-{{ manager.project.id}}{% endif %}{% endif %}{% endif %}&source=tann-{{ tag.id }}&url={{ url }}" onClick="return confirm('Unlink tag?');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a>{% endif %}, 
+                <a href="{% url load_template "usertags" %}{% if not tag.isOwned %}?experimenter={{ tag.getOwner.id }}{% endif %}" target="_top" title="Owned by {{ tag.getDetails.getOwner.getNameWithInitial }}; Linked by {{ tag.link.getDetails.getOwner.getNameWithInitial }}. {{ tag.description|default_if_none:""  }}"> {{ tag.textValue }}</a> {% if tag.link.isOwned %}<a href="{% url manage_action_containers "remove" %}?parent={% if manager.image %}img-{{ manager.image.id}}{% else %}{% if manager.dataset %}ds-{{ manager.dataset.id}}{% else %}{% if manager.project %}pr-{{ manager.project.id}}{% endif %}{% endif %}{% endif %}&source=tann-{{ tag.id }}&url={{ url }}" onClick="return confirm('Unlink tag?');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a>{% endif %}, 
             {% endfor %}
             </h1></div>
             {% else %}
@@ -456,9 +480,8 @@
             {% if manager.fileannSize %}
             <div class="lnfiles">
                 {% for fileann in manager.file_annotations %}
-                <p><a href="#" onClick="document.location.href='{% url download_annotation "download" fileann.id %}';">{{ fileann.getFileName }}</a> ({{ fileann.getFileSize|default_if_none:0|filesizeformat }}) {% trans "by" %} {{ fileann.getDetails.getOwner.getNameWithInitial }} {% trans "at" %} {{ fileann.creationEventDate|date:"Y-m-d H:i:s" }} {% if fileann.isOwned and not fileann.isOriginalMetadata %}<a href="{% url manage_action_containers "remove" %}?parent={% if manager.image %}img-{{ manager.image.id}}{% else %}{% if manager.dataset %}ds-{{ manager.dataset.id}}{% else %}{% if manager.project %}pr-{{ manager.project.id}}{% endif %}{% endif %}{% endif %}&source=fann-{{ fileann.id }}&url={{ url }}" onClick="return confirm('Unlink file?');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a>{% endif %}</p>
+                <p><a href="#" onClick="document.location.href='{% url download_annotation "download" fileann.id %}';" title="Linked by {{ fileann.link.getDetails.getOwner.getNameWithInitial }}">{{ fileann.getFileName|shortening:40 }}</a> ({{ fileann.getFileSize|default_if_none:0|filesizeformat }}) {% trans "by" %} {{ fileann.getDetails.getOwner.getNameWithInitial }} {% trans "at" %} {{ fileann.creationEventDate|date:"Y-m-d H:i:s" }} {% if fileann.link.isOwned and not fileann.isOriginalMetadata %}<a href="{% url manage_action_containers "remove" %}?parent={% if manager.image %}img-{{ manager.image.id}}{% else %}{% if manager.dataset %}ds-{{ manager.dataset.id}}{% else %}{% if manager.project %}pr-{{ manager.project.id}}{% endif %}{% endif %}{% endif %}&source=fann-{{ fileann.id }}&url={{ url }}" onClick="return confirm('Unlink file?');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a>{% endif %}{% if fileann.canDelete and not fileann.isOriginalMetadata %} <input class="button" type="image" src="{% url webstatic "images/block.png" %}" alt="Delete" title="Delete" onclick="deleteItem('file', '{{ fileann.id }}');" />{% endif %}</p>
                 {% endfor %}
-            </ol>
             </div>
             {% else %}
                 <p>No file has been attached yet.</p>

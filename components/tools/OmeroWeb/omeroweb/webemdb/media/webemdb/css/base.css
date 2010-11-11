@@ -5,20 +5,24 @@ body {
     background: #dde3e3;
 }
 
+#contentWrapper {
+    margin-left:auto;
+    margin-right:auto;
+    width: 900px;
+}
+
 #header_top {
     width: 900px;
     margin-left:auto;
     margin-right:auto;
 }
 
-#header_menu {
-    background: #666666;
+#header_top h2 {
+    float: left;
 }
 
-#contentWrapper {
-    width: 900px;
-    margin-left:auto;
-    margin-right:auto;
+#header_menu {
+    background: #666666;
 }
 
 #menu_bar {
@@ -33,8 +37,18 @@ body {
     margin: 10px;
 }
 
+.pageTable {
+    background: white;
+    width: 100%;
+    margin-top: 5px;
+    margin-bottom: 0px;
+}
+
 #footer {
     width: 900px;
     margin-left:auto;
     margin-right:auto;
+}
+.clear {
+    clear: both;
 }

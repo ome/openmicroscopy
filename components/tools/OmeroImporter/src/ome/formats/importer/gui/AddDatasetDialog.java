@@ -55,29 +55,33 @@ import omero.model.Project;
 @SuppressWarnings("serial")
 public class AddDatasetDialog extends JDialog implements ActionListener
 {
-    boolean debug = false;
+	private boolean debug = false;
 
-    ImportConfig       		config;
+    private ImportConfig	config;
     
-    Window                  owner;
+    private Window          owner;
     
-    JPanel                  mainPanel;
-    JPanel                  internalPanel;
+    private JPanel          mainPanel;
+    private JPanel          internalPanel;
 
-    JButton                 OKBtn;
-    JButton                 cancelBtn;
-
-    JTextField              nameField;
-    JTextArea               descriptionArea;
-
-    String                  datasetName;
-    String                  datasetDescription;
+    private JTextPane 		instructions;
+    private String			message;
     
-    Dataset                 dataset;
-    
-    OMEROMetadataStoreClient      store;
+    private JButton         OKBtn;
+    private JButton         cancelBtn;
 
-    Project                 project;
+    private JTextField      nameField;
+    private JTextArea       descriptionArea;
+
+    private String          datasetName;
+    private String          datasetDescription;
+    
+    private Dataset         dataset;
+
+    private Project         project;
+
+    private OMEROMetadataStoreClient	store;
+
     
     /**
      * Add and show a dataset dialog
@@ -131,12 +135,9 @@ public class AddDatasetDialog extends JDialog implements ActionListener
         
         internalPanel = GuiCommonElements.addMainPanel(this, internalTable, 10,10,10,10, debug);
 
-        String message = "Please enter your dataset name and an optional " +
-                "description below.";
+        message = "Please enter your dataset name and an optional description below.";
 
-        @SuppressWarnings("unused")
-        JTextPane instructions = 
-        	GuiCommonElements.addTextPane(internalPanel, message, "0,0,1,0", debug);
+        instructions = GuiCommonElements.addTextPane(internalPanel, message, "0,0,1,0", debug);
 
         nameField = GuiCommonElements.addTextField(internalPanel, "Dataset Name: ", "", 'E',
         "Input your dataset name here.", "", TableLayout.PREFERRED, "0, 1, 1, 1", debug);

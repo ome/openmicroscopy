@@ -6,7 +6,7 @@ int main(int argc, char* argv[]) {
     // All configuration in file pointed to by
     // --Ice.Config=file.config
     // No username, password entered
-    omero::client client11(argc, argv);
+    omero::client client1(argc, argv);
     client1.createSession();
     client1.closeSession();
 

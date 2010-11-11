@@ -60,6 +60,7 @@
         <entry key="text/plain"        value-ref="fileParser"/>
         <entry key="text/csv"          value-ref="fileParser"/>
         <entry key="text/xml"          value-ref="fileParser"/>
+        <entry key="application/xml"          value-ref="fileParser"/>
         <entry key="application/pdf"   value-ref="pdfParser"/>
       </map>
     </constructor-arg>

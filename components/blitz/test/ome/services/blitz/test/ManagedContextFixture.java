@@ -35,6 +35,7 @@ import ome.tools.spring.InternalServiceFactory;
  */
 public class ManagedContextFixture {
 
+    public Ice.ObjectAdapter adapter;
     public OmeroContext ctx;
     public SessionManager mgr;
     public Executor ex;
@@ -54,6 +55,7 @@ public class ManagedContextFixture {
 
     public ManagedContextFixture(OmeroContext ctx) {
         this.ctx = ctx;
+        adapter = (Ice.ObjectAdapter) ctx.getBean("adapter");
         mgr = (SessionManager) ctx.getBean("sessionManager");
         ex = (Executor) ctx.getBean("executor");
         security = (SecuritySystem) ctx.getBean("securitySystem");
@@ -69,6 +71,7 @@ public class ManagedContextFixture {
     public ServiceFactoryI createServiceFactoryI()
             throws omero.ApiUsageException {
         Ice.Current current = new Ice.Current();
+        current.adapter = adapter;
         current.ctx = new HashMap<String, String>();
         current.ctx.put(omero.constants.CLIENTUUID.value, "my-client-uuid");
         ServiceFactoryI factory = new ServiceFactoryI(current, null, ctx, mgr, ex,

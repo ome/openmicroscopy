@@ -60,11 +60,11 @@ DECLARE
     lid INT8;
 BEGIN
     -- FOR rec IN SELECT * FROM logicalchannel WHERE id IN (7,8,9) LOOP
-    FOR rec IN SELECT lc.*, ch.group_id as ch_group_id FROM logicalchannel lc, channel ch WHERE lc.id = ch.logicalchannel and lc.group_id <> ch.group_id LOOP
+    FOR rec IN SELECT lc.*, ch.group_id as ch_group_id, ch.id as ch_id FROM logicalchannel lc, channel ch WHERE lc.id = ch.logicalchannel and lc.group_id <> ch.group_id LOOP
         SELECT INTO lid ome_nextval('seq_logicalchannel');
         INSERT INTO logicalchannel (id, owner_id, group_id, creation_id, update_id, permissions, version, emissionwave, excitationwave, ndfilter)
              VALUES (lid, rec.owner_id, rec.ch_group_id, rec.creation_id, rec.update_id, rec.permissions, rec.version, rec.emissionwave, rec.excitationwave, rec.ndfilter);
-        UPDATE channel SET logicalchannel = lid;
+        UPDATE channel SET logicalchannel = lid WHERE id = rec.ch_id;
     END LOOP;
 END;$$ LANGUAGE plpgsql;
 SELECT fix_duplicate_logical_channels();

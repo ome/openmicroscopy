@@ -83,12 +83,13 @@ public class FullText extends SearchAction {
 
         this.queryStr = query;
         try {
-            final QueryParser parser = new QueryParser("combined_fields",
-                    analyzer.newInstance());
+            final Analyzer a = analyzer.newInstance();
+            final QueryParser parser = new /*Analyzing*/QueryParser("combined_fields", a);
             parser.setAllowLeadingWildcard(values.leadingWildcard);
             q = parser.parse(queryStr);
         } catch (ParseException pe) {
-            final String msg = queryStr + " caused a parse exception.";
+            final String msg = queryStr + " caused a parse exception: " +
+                pe.getMessage();
             // No longer logging these, since it's a simple user error
             ApiUsageException aue = new ApiUsageException(msg);
             throw aue;

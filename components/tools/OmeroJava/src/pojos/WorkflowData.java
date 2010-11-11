@@ -30,13 +30,13 @@ import java.util.List;
 
 //Application-internal dependencies
 import omero.RString;
+import omero.model.Namespace;
 import omero.model.NamespaceI;
-
 import omero.rtypes;
 import pojos.DataObject;
 
 /**
- *
+ * The data that makes up an <i>OME</i> worflow object.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -53,23 +53,39 @@ public class WorkflowData
 {
 	
 	/** The default workflow, i.e. nothing .*/
-	public static String DEFAULTWORKFLOW = "Default Workflow";
+	public static String DEFAULTWORKFLOW = "Default";
+
+	/**
+	 * Converts a CSV string to a list of strings.
+	 *
+	 * @param str The CSV string to convert.
+	 * @return See above.
+	 */
+	private List<String> CSVToList(String str)
+	{
+		List<String> list = new ArrayList<String>();
+		String[] valueString = str.split(",");
+		for (String keyword : valueString)
+			if (!keyword.equals("[]"))  {
+                list.add(keyword);
+            }
+		return list;
+	}
 	
 	/**
-	 * Instantiate the class. 
+	 * Creates a new instance. 
 	 * 
 	 * @param workflow The workflow object.
 	 */
-	public WorkflowData(NamespaceI workflow)
+	public WorkflowData(Namespace workflow)
 	{
-		if (workflow == null) {
+		if (workflow == null)
             throw new IllegalArgumentException("Object cannot null.");
-        }
         setValue(workflow);
 	}
 	
 	/**
-	 * Instantiate the class. 
+	 * Creates a new instance.  
 	 * 
 	 * @param nameSpace The namespace of the workflow.
 	 * @param keywords The keywords of the workflow.
@@ -79,7 +95,7 @@ public class WorkflowData
 		setDirty(true);
 		setValue(new NamespaceI());
 		
-		NamespaceI workflow = (NamespaceI) asIObject();
+		Namespace workflow = (Namespace) asIObject();
 		if (workflow == null) 
 			throw new IllegalArgumentException("No workflow specified.");
    		workflow.setName(rtypes.rstring(nameSpace));
@@ -87,7 +103,7 @@ public class WorkflowData
 	}
 	
 	/**
-	 * Instantiate the class. 
+	 * Creates a new instance.  
 	 * 
 	 * @param nameSpace The namespace of the workflow.
 	 * @param keywords The keywords of the workflow.
@@ -96,55 +112,18 @@ public class WorkflowData
 	{
 		setDirty(true);
 		setValue(new NamespaceI());
-		NamespaceI workflow = (NamespaceI) asIObject();
+		Namespace workflow = (Namespace) asIObject();
 		if (workflow == null) 
 			throw new IllegalArgumentException("No workflow specified.");
    		workflow.setName(rtypes.rstring(nameSpace));
 		workflow.setKeywords((String[]) CSVToList(keywords).toArray());
 	}
 	
-	/**
-	 * Instantiate the class. 
-	 * 
-	 */
+	/** Creates a new instance. */
 	public WorkflowData()
 	{
 		setDirty(true);
 		setValue(new NamespaceI());
-	}
-	
-	/**
-	* Converts a list to a CSV string.
-	*
-	* @param list The list to convert.
-	* @return See above.
-	*/
-	private String listToCSV(List<String> list)
-	{
-		String str = "";
-		for(int i = 0 ; i < list.size() ; i++)
-		{
-			str = str + list.get(i);
-			if(i<list.size()-1)
-				str = str + ",";
-		}
-		return str;
-	}
-	
-	/**
-	* Converts a CSV string to a list of strings.
-	*
-	* @param str The CSV string to convert.
-	* @return See above.
-	*/
-	private List<String> CSVToList(String str)
-	{
-		List<String> list = new ArrayList<String>();
-		String[] valueString = str.split(",");
-		for(String value : valueString)
-			if(!value.equals("[]"))
-				list.add(value);
-		return list;
 	}
 
 	/**
@@ -154,11 +133,11 @@ public class WorkflowData
 	 */
 	public String getNameSpace()
 	{
-		NamespaceI workflow = (NamespaceI) asIObject();
+		Namespace workflow = (Namespace) asIObject();
 		if (workflow == null) 
 			throw new IllegalArgumentException("No workflow specified.");
   		RString namespace = workflow.getName();
-  		if(namespace!=null)
+  		if (namespace != null)
             return namespace.getValue();
         return "";
 	}
@@ -170,15 +149,15 @@ public class WorkflowData
 	 */
 	public String getKeywords()
 	{
-		NamespaceI workflow = (NamespaceI) asIObject();
+		Namespace workflow = (Namespace) asIObject();
 		String keywordString = "";
 		if (workflow == null) 
 			throw new IllegalArgumentException("No workflow specified.");
   		String[] keywords = workflow.getKeywords();
-  		for(int i = 0 ; i < keywords.length; i++)
+  		for (int i = 0 ; i < keywords.length; i++)
   		{
   			keywordString = keywordString + keywords[i];
-  			if(i<keywords.length-1)
+  			if (i < keywords.length-1)
   				keywordString = keywordString + ",";
   		}
   		return keywordString;
@@ -191,13 +170,13 @@ public class WorkflowData
 	 */
 	public List<String> getKeywordsAsList()
 	{
-		NamespaceI workflow = (NamespaceI) asIObject();
+		Namespace workflow = (Namespace) asIObject();
 		List<String> keywordList = new ArrayList<String>();
 		if (workflow == null) 
 			throw new IllegalArgumentException("No workflow specified.");
   		String[] keywords = workflow.getKeywords();
-  		if(keywords!=null)
-  			for(String keyword : keywords)
+  		if (keywords != null)
+  			for (String keyword : keywords)
   				keywordList.add(keyword);
         return keywordList;
 	}
@@ -209,10 +188,10 @@ public class WorkflowData
 	 */
 	public void addKeyword(String keyword)
 	{
-		NamespaceI workflow = (NamespaceI) asIObject();
+		Namespace workflow = (Namespace) asIObject();
 		if (workflow == null) 
 			throw new IllegalArgumentException("No workflow specified.");
-  		if(contains(keyword))
+  		if (contains(keyword))
 			throw new IllegalArgumentException("Keyword already exists.");
 		List<String> keywords = getKeywordsAsList();
 		keywords.add(keyword);
@@ -220,46 +199,55 @@ public class WorkflowData
 	}
 		
 	/**
-	 * Set the keywords of the workflow. 
+	 * Sets the keywords of the workflow. 
 	 * 
  	 * @param keywords See above.
 	 */
 	public void setKeywords(String keywords)
 	{
-		NamespaceI workflow = (NamespaceI) asIObject();
+		Namespace workflow = (Namespace) asIObject();
 		if (workflow == null) 
 			throw new IllegalArgumentException("No workflow specified.");
 		setDirty(true);
-		workflow.setKeywords((String[])CSVToList(keywords).toArray());
+		Object keywordObject =  CSVToList(keywords);
+		List<String> keywordsList = (List<String>) keywordObject;
+		String[] keywordsArray = new String[keywordsList.size()];
+		for (int i = 0; i < keywordsList.size(); i++)
+			keywordsArray[i]=keywordsList.get(i);
+		workflow.setKeywords(keywordsArray);
 	}
 	
 	/**
-	 * Set the keywords of the workflow. 
+	 * Sets the keywords of the workflow. 
 	 * 
  	 * @param keywords See above.
 	 */
 	public void setKeywords(List<String> keywords)
 	{
-		NamespaceI workflow = (NamespaceI) asIObject();
+		Namespace workflow = (Namespace) asIObject();
 		if (workflow == null) 
 			throw new IllegalArgumentException("No workflow specified.");
 		setDirty(true);
-		workflow.setKeywords((String[])keywords.toArray());
+		String[] keywordString = new String[keywords.size()];
+		for (int i = 0; i < keywords.size(); i++)
+		  keywordString[i] = keywords.get(i);
+		workflow.setKeywords(keywordString);
 	}
 	
 	/**
-	 * Does the keyword exist in the workflow.
+	 * Returns <code>true</code> if the keyword exist in the workflow,
+	 * <code>false</code> otherwise.
 	 * 
 	 * @param value keyword to test for existence.
 	 * @return See above.
 	 */
 	public boolean contains(String value)
 	{
-		NamespaceI workflow = (NamespaceI) asIObject();
+		Namespace workflow = (Namespace) asIObject();
 		if (workflow == null) 
 			throw new IllegalArgumentException("No workflow specified.");
 		String[] keywords = workflow.getKeywords();
-  		if(keywords==null)
+  		if (keywords == null)
 			return false;
 		for (String keyword : keywords)
 		{
@@ -270,13 +258,13 @@ public class WorkflowData
 	}
 	
 	/**
-	 * Set the namespace of the workflow. 
+	 * Sets the namespace of the workflow. 
 	 * 
  	 * @param namespace See above.
 	 */
 	public void setNamespace(String namespace)
 	{
-		NamespaceI workflow = (NamespaceI) asIObject();
+		Namespace workflow = (Namespace) asIObject();
 		if (workflow == null) 
 			throw new IllegalArgumentException("No workflow specified.");
 		setDirty(true);

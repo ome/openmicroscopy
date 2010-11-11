@@ -104,7 +104,7 @@
     <h1>{% trans "Add new tag" %}:</h1>
     <p>This form allows you to create a new tag.</p>
     
-    <form action="{% if manager.project %}{% url manage_action_containers "addtag" "project" manager.project.id %}{% else %}{% if manager.dataset %}{% url manage_action_containers "addtag" "dataset" manager.dataset.id %}{% else %}{% if manager.image %}{% url manage_action_containers "addtag" "image" manager.image.id %}{% else %}{% if manager.screen %}{% url manage_action_containers "addtag" "screen" manager.screen.id %}{% else %}{% if manager.plate %}{% url manage_action_containers "addtag" "plate" manager.plate.id %}{% else %}{% if manager.well %}{% url manage_action_containers "addtag" "well" manager.well.id %}{% else %}{{ url }}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}?url={{url}}" method="post">
+    <form action="{% if manager.project %}{% url manage_action_containers "addtag" "project" manager.project.id %}{% else %}{% if manager.dataset %}{% url manage_action_containers "addtag" "dataset" manager.dataset.id %}{% else %}{% if manager.image %}{% url manage_action_containers "addtag" "image" manager.image.id %}{% else %}{% if manager.screen %}{% url manage_action_containers "addtag" "screen" manager.screen.id %}{% else %}{% if manager.plate %}{% url manage_action_containers "addtag" "plate" manager.plate.id %}{% else %}{% if manager.well %}{% url manage_action_containers "addtag" "well" manager.well.id %}{% else %}{% url manage_action_containers "addtagonly" %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}?url={{url}}" method="post">
     <table>
         {% for field in form_tag %}
             <tr>
@@ -167,7 +167,7 @@
 
 {% if form_files %}
 <div class="exfile">
-    <h1>{% trans "Attache existing file" %}:</h1>
+    <h1>{% trans "Attach existing file" %}:</h1>
     <form action="{% if manager.project %}{% url manage_action_containers "usefile" "project" manager.project.id %}{% else %}{% if manager.dataset %}{% url manage_action_containers "usefile" "dataset" manager.dataset.id %}{% else %}{% if manager.image %}{% url manage_action_containers "usefile" "image" manager.image.id %}{% else %}{% if manager.screen %}{% url manage_action_containers "usefile" "screen" manager.screen.id %}{% else %}{% if manager.plate %}{% url manage_action_containers "usefile" "plate" manager.plate.id %}{% else %}{% if manager.well %}{% url manage_action_containers "usefile" "well" manager.well.id %}{% else %}{{ url }}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}?url={{url}}" method="post"><input type="hidden" name="action" value="usefile" />
     <table>
     {% for field in form_files %}

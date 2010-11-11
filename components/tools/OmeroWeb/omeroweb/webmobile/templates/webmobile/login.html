@@ -2,6 +2,8 @@
 
 {% block title %} OMERO mobile Welcome {% endblock %}
 
+{% block meta %}<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">{% endblock %}
+
 {% block link %}
 <style type="text/css">
 
@@ -31,7 +33,7 @@ body {
 <form action="." method="POST">
 <table>
     <tr><td align="center">
-        <img id="ome-icon" width="128" height="128" src="/appmedia/webmobile/img/ome.png"/>
+        <img id="ome-icon" width="128" height="128" src="{% url mobile_static 'img/ome.png' %}"/>
     </td></tr>
 <tr><td align="right">
 <select id="server" name="server">

@@ -49,9 +49,9 @@
 /* Component containers
 ----------------------------------*/
 .ui-widget-content { border: 1px solid #dddddd; background: #ffffff url(/appmedia/omeroweb/images/ui/ui-bg_flat_75_ffffff_40x100.png) 50% 50% repeat-x; color: #444444; }
-.ui-widget-content a { color: #444444; }
+/*.ui-widget-content a { color: #444444; }
 .ui-widget-header { border: 1px solid #dddddd; background: #dddddd url(/appmedia/omeroweb/images/ui/ui-bg_highlight-soft_50_dddddd_1x100.png) 50% 50% repeat-x; color: #444444; font-weight: bold; }
-.ui-widget-header a { color: #444444; }
+.ui-widget-header a { color: #444444; }*/
 
 /* Interaction states
 ----------------------------------*/
@@ -362,8 +362,9 @@
 .ui-draggable .ui-dialog-titlebar { cursor: move; }
 /* Progressbar
 ----------------------------------*/
-.ui-progressbar { height:2em; text-align: left; }
-.ui-progressbar .ui-progressbar-value {margin: -1px; height:100%; }/* Resizable
+.ui-progressbar { height:2em; text-align: left;}
+.ui-progressbar .ui-progressbar-value {margin: -1px; height:100%; }
+/* Resizable
 ----------------------------------*/
 .ui-resizable { position: relative;}
 .ui-resizable-handle { position: absolute;font-size: 0.1px;z-index: 99999; display: block;}
@@ -393,12 +394,15 @@
 .ui-slider-vertical .ui-slider-range-min { bottom: 0; }
 .ui-slider-vertical .ui-slider-range-max { top: 0; }/* Tabs
 ----------------------------------*/
-.ui-tabs { padding: .2em; zoom: 1; }
-.ui-tabs .ui-tabs-nav { list-style: none; position: relative; padding: .2em .2em 0; }
-.ui-tabs .ui-tabs-nav li { position: relative; float: left; border-bottom-width: 0 !important; margin: 0 .2em -1px 0; padding: 0; }
-.ui-tabs .ui-tabs-nav li a { float: left; text-decoration: none; padding: .5em 1em; }
-.ui-tabs .ui-tabs-nav li.ui-tabs-selected { padding-bottom: 1px; border-bottom-width: 0; }
+
+.ui-selectee{ cursor: pointer;}
+
+.ui-tabs { padding:0; zoom: 1; }
+.ui-tabs .ui-tabs-nav { list-style: none; position: relative; padding:0; }
+.ui-tabs .ui-tabs-nav li { position: relative; float: left; border-bottom-width: 0 !important; margin: 0; padding: 0 .5em; margin: 0 0.2em;}
+.ui-tabs .ui-tabs-nav li a { text-decoration: none; padding: 0 1px; }
+.ui-tabs .ui-tabs-nav li.ui-tabs-selected { border-bottom-width: 0; }
 .ui-tabs .ui-tabs-nav li.ui-tabs-selected a, .ui-tabs .ui-tabs-nav li.ui-state-disabled a, .ui-tabs .ui-tabs-nav li.ui-state-processing a { cursor: text; }
 .ui-tabs .ui-tabs-nav li a, .ui-tabs.ui-tabs-collapsible .ui-tabs-nav li.ui-tabs-selected a { cursor: pointer; } /* first selector in group seems obsolete, but required to overcome bug in Opera applying cursor: text overall if defined elsewhere... */
-.ui-tabs .ui-tabs-panel { padding: 1em 1.4em; display: block; border-width: 0; background: none; }
+.ui-tabs .ui-tabs-panel { padding: 0; display: block; border:0; border-width: 0; background: none; margin-top: 10px;}
 .ui-tabs .ui-tabs-hide { display: none !important; }

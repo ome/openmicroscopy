@@ -12,6 +12,9 @@ import java.util.Set;
 import ome.model.IAnnotated;
 import ome.model.ILink;
 import ome.model.IObject;
+import ome.model.annotations.Annotation;
+import ome.model.annotations.BasicAnnotation;
+import ome.model.annotations.LongAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.containers.DatasetImageLink;
 import ome.model.containers.Project;
@@ -30,24 +33,57 @@ import org.testng.annotations.Test;
 
 public class ExtendedMetadataTest extends AbstractManagedContextTest {
 
-    ExtendedMetadata metadata;
+    ExtendedMetadata.Impl metadata;
 
     @BeforeClass
     public void init() throws Exception {
         setUp();
-        metadata = new ExtendedMetadata();
+        metadata = new ExtendedMetadata.Impl();
         metadata.setSessionFactory((SessionFactory)applicationContext.getBean("sessionFactory"));
         tearDown();
     }
 
     @Test
     public void testAnnotatedAreFound() throws Exception {
-        Set<Class<IAnnotated>> anns = metadata.getAnnotationTypes();
+        Set<Class<IAnnotated>> anns = metadata.getAnnotatableTypes();
         assertTrue(anns.contains(Image.class));
         assertTrue(anns.contains(Project.class));
         // And several others
     }
 
+
+    @Test
+    public void testAnnotationsAreFound() throws Exception {
+        Set<Class<Annotation>> anns = metadata.getAnnotationTypes();
+        assertTrue(anns.toString(), anns.contains(Annotation.class));
+        assertTrue(anns.toString(), anns.contains(BasicAnnotation.class));
+        assertTrue(anns.toString(), anns.contains(LongAnnotation.class));
+        // And several others
+    }
+
+    /**
+     * Where a superclass has a relationship to a class (Annotation to some link type),
+     * it is also necessary to be able to find the same relationship from a subclass
+     * (e.g. FileAnnotation).
+     */
+    @Test
+    public void testLinkFromSubclassToSuperClassRel() {
+       assertNotNull(
+               metadata.getRelationship("ImageAnnotationLink", "FileAnnotation"));
+    }
+
+    /**
+     * For simplicity, the relationship map currently holds only the short
+     * class names. Here we are adding a test which checks for the full ones
+     * under "broken" to remember to re-evaluate.
+     */
+    @Test(groups = {"broken","fixme"})
+    public void testAnnotatedAreFoundByFQN() throws Exception {
+        Set<Class<IAnnotated>> anns = metadata.getAnnotatableTypes();
+        assertTrue(anns.contains(Image.class));
+        assertTrue(anns.contains(Project.class));
+        // And several others
+    }
     // ~ Locking
     // =========================================================================
 
@@ -164,6 +200,18 @@ public class ExtendedMetadataTest extends AbstractManagedContextTest {
         assertEquals(metadata.getTargetType(Pixels.IMAGE), Image.class);
         assertEquals(metadata.getTargetType(DatasetImageLink.CHILD),
                 Image.class);
+    }
+
+    // ~ Relationships
+    // =========================================================================
+
+    @Test(groups = "ticket:2665")
+    public void testRelationships() {
+        String rel;
+        rel = metadata.getRelationship(Pixels.class.getSimpleName(), Image.class.getSimpleName());
+        assertEquals("image", rel);
+        rel = metadata.getRelationship(Image.class.getSimpleName(), Pixels.class.getSimpleName());
+        assertEquals("pixels", rel);
     }
 
     // ~ Helpers

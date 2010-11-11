@@ -35,8 +35,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.nio.ByteBuffer;
-import java.nio.ShortBuffer;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -89,7 +87,7 @@ public class TreeViewer
 	/** The title of the window. */
 	private static final String TITLE = "Manager";
 
-	/** Action ID indicating to quit the plugin. */
+	/** Action ID indicating to quit the plug-in. */
 	private static final int	QUIT = 0;
 	
 	/** Action ID indicating to view the selected image. */

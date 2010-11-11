@@ -6,11 +6,12 @@
  */
 package ome.io.nio.utests;
 
+import static org.testng.AssertJUnit.*;
+
 import java.nio.ByteBuffer;
 
 import org.testng.annotations.*;
 
-import junit.framework.TestCase;
 import ome.io.nio.RomioPixelBuffer;
 import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
@@ -25,14 +26,14 @@ import ome.util.Utils;
  * @author Chris Allan <callan@glencoesoftware.com>
  *
  */
-public class PlanarDataTest extends TestCase
+public class PlanarDataTest
 {
 	/** Imported tinyTest.d3d.dv binary repository file. */
 	private static final String PIXELS_PATH = "/OMERO/Pixels/100";
-	
+
 	/** Imported tinyTest.d3d.dv pixels ID. */
 	private static final long PIXELS_ID = 100L;
-	
+
 	private RomioPixelBuffer getRomioPixelBuffer()
 	{
 		PixelsType pType = new PixelsType();
@@ -50,7 +51,7 @@ public class PlanarDataTest extends TestCase
     	RomioPixelBuffer buffer = new RomioPixelBuffer(PIXELS_PATH, p);
     	return buffer;
 	}
-    
+
 	@Test(groups={"manual"})
     public void testFirstPlaneSecondTimepointFirstChannelMd5()
 		throws Exception
@@ -60,7 +61,7 @@ public class PlanarDataTest extends TestCase
     	String md = Utils.bytesToHex(Utils.calculateMessageDigest(buf));
     	assertEquals("2d1c16c02bece26920ff04ff08985f5e", md);
     }
-	
+
 	@Test(groups={"manual"})
     public void testFirstPlaneSecondTimepointFirstChannelFirstEightPixelsMd5()
 		throws Exception
@@ -71,7 +72,7 @@ public class PlanarDataTest extends TestCase
     	String md = Utils.bytesToHex(Utils.calculateMessageDigest(buf));
     	assertEquals("505c12f3149129adf250ae96af159ea1", md);
     }
-	
+
 	@Test(groups={"manual"})
     public void testFirstPlaneSecondTimepointFirstChannelSecondEightPixelsMd5()
 		throws Exception
@@ -82,7 +83,7 @@ public class PlanarDataTest extends TestCase
     	String md = Utils.bytesToHex(Utils.calculateMessageDigest(buf));
     	assertEquals("ed6a8ba38c61808d5790419c7a33839c", md);
     }
-	
+
 	@Test(groups={"manual"})
     public void testFirstPlaneSecondTimepointFirstChannelLastEightPixelsMd5()
 		throws Exception

@@ -138,6 +138,7 @@ public class IniFileLoader {
      * @return location of log file
      */
     public String getLogFile() {
+    	
         return staticPref("General", "logfile", LOGFILE);
     }
     

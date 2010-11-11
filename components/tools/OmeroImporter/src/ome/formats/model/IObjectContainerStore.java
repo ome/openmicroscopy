@@ -63,13 +63,13 @@ public interface IObjectContainerStore
 	 * @return See above.
 	 */
 	List<Annotation> getUserSpecifiedAnnotations();
-	
+
     /**
      * Sets the user specified image annotations.
      * @param annotations user specified annotations
      */
     void setUserSpecifiedAnnotations(List<Annotation> annotations);
-	
+
     /**
      * Returns the user specified image name.
      * @return See above.
@@ -81,33 +81,57 @@ public interface IObjectContainerStore
      * @param name user specified image name
      */
     void setUserSpecifiedImageName(String name);
-    
+
     /**
      * Returns the user specified image description.
      * @return See above.
      */
     String getUserSpecifiedImageDescription();
-    
+
     /**
      * Sets the user specified image description.
      * @param name user specified image description
      */
     void setUserSpecifiedImageDescription(String description);
-    
+
+    /**
+     * Returns the user specified plate name.
+     * @return See above.
+     */
+    String getUserSpecifiedPlateName();
+
+    /**
+     * Sets the user specified plate name.
+     * @param name user specified plate name
+     */
+    void setUserSpecifiedPlateName(String name);
+
+    /**
+     * Returns the user specified plate description.
+     * @return See above.
+     */
+    String getUserSpecifiedPlateDescription();
+
+    /**
+     * Sets the user specified plate description.
+     * @param name user specified plate description
+     */
+    void setUserSpecifiedPlateDescription(String description);
+
     /**
      * Returns the user specified linkage target (usually a Dataset for Images
      * and a Screen for Plates).
      * @return See above.
      */
     IObject getUserSpecifiedTarget();
-    
+
     /**
      * Sets the user specified linkage target (usually a Dataset for Images
      * and a Screen for Plates).
      * @param name user specified image description
      */
     void setUserSpecifiedTarget(IObject target);
-    
+
     /**
      * Returns the user specified physical pixel sizes.
      * @return An array of double[] { physicalSizeX, physicalSizeY,
@@ -116,7 +140,7 @@ public interface IObjectContainerStore
      * of that particular dimension.
      */
     Double[] getUserSpecifiedPhysicalPixelSizes();
-    
+
     /**
      * Sets the user specified physical pixel sizes. A value of 
      * <code>null</code> states the original file physical size for that

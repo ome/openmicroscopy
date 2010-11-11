@@ -23,13 +23,10 @@
 package pojos;
 
 //Java imports
-import java.io.File;
-
 //Third-party libraries
 
 //Application-internal dependencies
 import omero.RString;
-import omero.RTime;
 import omero.model.IObject;
 import omero.model.OriginalFile;
 

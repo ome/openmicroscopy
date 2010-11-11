@@ -144,12 +144,14 @@ omero.version=${omero.version}
 	</target>
 
 	<macrodef name="suite">
+		<attribute name="groups" default=""/>
 		<element name="files" implicit="yes"/>
 		<sequential>
 		<testng outputDir="${testreports.dir}"
 			haltonfailure="${test.with.fail}"
 			haltonskipped="${test.with.fail}"
 			verbose="2"
+                        groups="@{groups}"
                         useDefaultListeners="false"
                         listeners="org.uncommons.reportng.HTMLReporter,org.uncommons.reportng.JUnitXMLReporter"
 			>
@@ -163,6 +165,12 @@ omero.version=${omero.version}
 			<jvmarg value="-Xmx${javac.maxmem}"/>
 			<jvmarg value="-Demma.coverage.out.file=${target.dir}/coverage.emma" />
 			<jvmarg value="-Dlog4j.configuration=log4j-build.xml"/>
+			<jvmarg value="-Domero.db.name=${omero.db.name}"/>
+			<jvmarg value="-Domero.db.host=${omero.db.host}"/>
+			<jvmarg value="-Domero.db.port=${omero.db.port}"/>
+			<jvmarg value="-Domero.db.user=${omero.db.user}"/>
+			<jvmarg value="-Domero.db.pass=${omero.db.pass}"/>
+			<jvmarg value="-Domero.data.dir=${omero.data.dir}"/>
 		</testng>
 		</sequential>
 	</macrodef>
@@ -215,9 +223,25 @@ omero.version=${omero.version}
 		</suite>
 	</target>
 
+	<target name="test-groups" unless="TEST">
+		<!-- may be overriden by fail-on-error -->
+		<property name="test.with.fail" value="false"/>
+		<property name="integration.suite" value="integration.testng.xml"/>
+		<suite groups="${GROUPS}">
+                    <classfileset dir="${testclasses.dir}" includes="**/*Test*.class" />
+                </suite>
+	</target>
+
 	<target name="test" depends="test-compile" unless="test.skip">
-		<antcall target="test-single" inheritRefs="true" inheritAll="true"/>
-		<antcall target="test-suite" inheritRefs="true" inheritAll="true"/>
+                <if><isset property="TEST"/><then>
+                        <antcall target="test-single" inheritRefs="true" inheritAll="true"/></then>
+                    <elseif><isset property="GROUPS"/><then>
+                        <antcall target="test-groups" inheritRefs="true" inheritAll="true"/></then>
+                    </elseif>
+                    <else>
+                        <antcall target="test-suite" inheritRefs="true" inheritAll="true"/>
+                    </else>
+                </if>
 		<emma enabled="${emma.enabled}" >
 			<report sourcepath="${src.dir}" >
 				<fileset dir="${target.dir}" includes="*.emma"/>

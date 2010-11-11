@@ -10,6 +10,7 @@ package ome.services.blitz.impl;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.concurrent.Callable;
 
 import ome.api.ServiceInterface;
@@ -25,6 +26,7 @@ import ome.services.util.Executor;
 import ome.system.OmeroContext;
 import ome.util.messages.InternalMessage;
 import omero.ServerError;
+import omero.ShutdownInProgress;
 import omero.api.AMD_StatefulServiceInterface_activate;
 import omero.api.AMD_StatefulServiceInterface_close;
 import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
@@ -41,6 +43,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
 import Ice.Current;
+import Ice.ObjectAdapterDeactivatedException;
 
 /**
  * {@link ThrottlingStrategy throttled} implementation base class which can be
@@ -50,7 +53,8 @@ import Ice.Current;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta4
  */
-public abstract class AbstractAmdServant implements ApplicationContextAware {
+public abstract class AbstractAmdServant implements ApplicationContextAware,
+    CloseableServant {
 
     final protected Log log = LogFactory.getLog(getClass());
 
@@ -222,6 +226,9 @@ public abstract class AbstractAmdServant implements ApplicationContextAware {
                 StatefulServiceInterface ss = (StatefulServiceInterface) service;
                 ss.close();
             }
+        } catch (NoSuchElementException nsee) {
+            log.info("NoSuchElementException: Login is already gone");
+            t = nsee;
         } catch (Throwable t1) {
             log.error("Error on close, stage1", t1);
             t = t1;
@@ -231,6 +238,11 @@ public abstract class AbstractAmdServant implements ApplicationContextAware {
         try {
             InternalMessage msg = new UnregisterServantMessage(this, __current);
             ctx.publishMessage(msg);
+        } catch (ObjectAdapterDeactivatedException oade) {
+            log.warn("ObjectAdapter deactivated!");
+            ShutdownInProgress sip = new ShutdownInProgress();
+            IceMapper.fillServerError(sip, oade);
+            t = sip;
         } catch (Throwable t2) {
             log.error("Error on close, stage2", t2);
             t = t2;
@@ -240,13 +252,7 @@ public abstract class AbstractAmdServant implements ApplicationContextAware {
         if (t == null) {
             __cb.ice_response();
         } else {
-            if (t instanceof Exception) {
-                __cb.ice_exception((Exception)t);
-            } else {
-                omero.InternalException ie = new omero.InternalException();
-                IceMapper.fillServerError(ie, t);
-                __cb.ice_exception(ie);
-            }
+            __cb.ice_exception(new IceMapper().handleException(t, ctx));
         }
 
     }

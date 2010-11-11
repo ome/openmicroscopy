@@ -8,11 +8,11 @@
 package ome.services;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.sql.SQLException;
-import java.util.zip.Checksum;
 
 import ome.annotations.RolesAllowed;
 import ome.api.IRepositoryInfo;
@@ -20,6 +20,7 @@ import ome.api.RawFileStore;
 import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
 import ome.conditions.ResourceError;
+import ome.conditions.RootException;
 import ome.io.nio.FileBuffer;
 import ome.io.nio.OriginalFilesService;
 import ome.model.core.OriginalFile;
@@ -138,11 +139,24 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
             }
 
             String path = ioService.getFilesPath(id);
-            byte[] hash = Utils.pathToSha1(path);
-            file.setSha1(Utils.bytesToHex(hash));
+            try {
 
-            long size = new File(path).length();
-            file.setSize(size);
+                byte[] hash = Utils.pathToSha1(path);
+                file.setSha1(Utils.bytesToHex(hash));
+
+                long size = new File(path).length();
+                file.setSize(size);
+
+            } catch (RuntimeException re) {
+                // ticket:3140
+                if (re.getCause() instanceof FileNotFoundException) {
+                    String msg = "Cannot find path. Deleted? " + path;
+                    log.warn(msg);
+                    clean(); // Prevent a second exception on close.
+                    throw new ResourceError(msg);
+                }
+                throw re;
+            }
 
             iUpdate.flush();
             modified = false;
@@ -162,15 +176,23 @@ public class RawFileBean extends AbstractStatefulBean implements RawFileStore {
     public synchronized void close() {
         try {
             save();
+        } catch (RootException root) {
+            // ticket:3140
+            // if one of our exceptions, then just rethrow
+            throw root;
         } catch (RuntimeException re) {
             Long id = (file == null ? null : file.getId());
             log.error("Failed to update file: " + id, re);
         } finally {
-            ioService = null;
-            file = null;
-            closeFileBuffer();
-            buffer = null;
+            clean();
         }
+    }
+
+    public void clean() {
+        ioService = null;
+        file = null;
+        closeFileBuffer();
+        buffer = null;
     }
 
     /**

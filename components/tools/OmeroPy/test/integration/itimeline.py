@@ -219,6 +219,18 @@ class TestITimeline(lib.ITest):
         self.assertEquals(len(tids), 10)
         
         self.root.sf.closeOnDestroy()
-    
+
+    def test3234(self):
+
+        user_context = self.client.sf.getAdminService().getEventContext()
+        user_object = omero.model.ExperimenterI(user_context.userId, False)
+
+        share = self.root.sf.getShareService()
+        share_id = share.createShare("description", None, None, [user_object], None, True)
+
+        timeline = self.client.sf.getTimelineService()
+        timeline.getMostRecentShareCommentLinks(None)
+
+
 if __name__ == '__main__':
     unittest.main()

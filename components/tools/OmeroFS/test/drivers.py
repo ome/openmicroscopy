@@ -17,10 +17,12 @@ import time
 import unittest
 
 import omero.grid.monitors as monitors
+import IceGrid
 
 from uuid import uuid4
 from path import path
 from omero.util import ServerContext
+from omero_ext.mox import Mox
 from omero_ext.functional import wraps
 from omero.util.temp_files import create_path
 from fsDropBoxMonitorClient import *
@@ -315,8 +317,14 @@ class mock_communicator(object):
         pass
 
 class MockServerContext(ServerContext):
-    def __init__(self, get_root):
+    def __init__(self, ic, get_root):
+        self.mox = Mox()
+        self.communicator = ic
         self.getSession = get_root
+        self.stop_event = threading.Event()
+    def newSession(self, *args):
+        sess = self.mox.CreateMock(omero.api.ServiceFactoryPrx.__class__)
+        return sess
 
 class MockMonitor(MonitorClientI):
     """
@@ -331,7 +339,7 @@ class MockMonitor(MonitorClientI):
     def __init__(self, dir=None, pre = [], post = []):
         self.root = None
         ic = mock_communicator()
-        MonitorClientI.__init__(self, dir, ic, getUsedFiles = self.used_files, ctx = MockServerContext(self.get_root), worker_wait = 0.1)
+        MonitorClientI.__init__(self, dir, ic, getUsedFiles = self.used_files, ctx = MockServerContext(ic, self.get_root), worker_wait = 0.1)
         self.log = logging.getLogger("MockMonitor")
         self.events = []
         self.files = {}

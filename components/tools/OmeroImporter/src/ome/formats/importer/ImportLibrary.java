@@ -208,7 +208,6 @@ public class ImportLibrary implements IObservable
             int numDone = 0;
             for (int index = 0; index < containers.size(); index++) {
                 ImportContainer ic = containers.get(index);
-                ic.setCustomImageName(config.imageName.get());
                 if (config.targetClass.get() == "omero.model.Dataset")
                 {
                     ic.setTarget(store.getTarget(
@@ -221,18 +220,9 @@ public class ImportLibrary implements IObservable
                 }
 
                 try {
-                    importImage(
-                            ic.getFile(),
-                            index, numDone, containers.size(),
-                            ic.getCustomImageName(),
-                            "",
-                            ic.getArchive(),
-                            config.companionFile.get(),
-                            ic.getUserPixels(),
-                            ic.getTarget(),
-                            config.annotations.get());
+                    importImage(ic, index, numDone, containers.size());
                     numDone++;
-                } catch (Throwable t) {                    
+                } catch (Throwable t) {
                     if (!config.contOnError.get()) {
                         log.info("Exiting on error");
                         return false;
@@ -265,42 +255,41 @@ public class ImportLibrary implements IObservable
      * image metadata provided.
      * 
      * @param index Index of the file being imported.
-     * @param userSpecifiedImageName A user specified image name.
-     * @param userSpecifiedImageDescription A user specified description.
-     * @param userSpecifiedAnnotations The annotations to link to each image
-     * in the import.
+     * @param container The import container which houses all the configuration
+     * values for the import.
      * @return the newly created {@link Pixels} id.
      * @throws FormatException if there is an error parsing metadata.
      * @throws IOException if there is an error reading the file.
      */
     private List<Pixels> importMetadata(
-            int index,
-            IObject userSpecifiedTarget,
-            String userSpecifiedImageName,
-            String userSpecifiedImageDescription,
-            Double[] userPixels,
-            List<Annotation> userSpecifiedAnnotations)
+            int index, ImportContainer container)
             throws FormatException, IOException
     {
         // 1st we post-process the metadata that we've been given.
+        IObject target = container.getTarget();
         notifyObservers(new ImportEvent.BEGIN_POST_PROCESS(
-                index, null, userSpecifiedTarget, null, 0, null));
-        store.setUserSpecifiedImageName(userSpecifiedImageName);
-        store.setUserSpecifiedImageDescription(userSpecifiedImageDescription);
+                index, null, target, null, 0, null));
+        store.setUserSpecifiedPlateName(container.getCustomPlateName());
+        store.setUserSpecifiedPlateDescription(
+                container.getCustomPlateDescription());
+        store.setUserSpecifiedImageName(container.getCustomImageName());
+        store.setUserSpecifiedImageDescription(
+                container.getCustomImageDescription());
+        Double[] userPixels = container.getUserPixels();
         if (userPixels != null)
             store.setUserSpecifiedPhysicalPixelSizes(
                     userPixels[0], userPixels[1], userPixels[2]);
-        store.setUserSpecifiedTarget(userSpecifiedTarget);
-        store.setUserSpecifiedAnnotations(userSpecifiedAnnotations);
+        store.setUserSpecifiedTarget(container.getTarget());
+        store.setUserSpecifiedAnnotations(container.getCustomAnnotationList());
         store.postProcess();
         notifyObservers(new ImportEvent.END_POST_PROCESS(
-                index, null, userSpecifiedTarget, null, 0, null));
+                index, null, target, null, 0, null));
 
         notifyObservers(new ImportEvent.BEGIN_SAVE_TO_DB(
-                index, null, userSpecifiedTarget, null, 0, null));
+                index, null, target, null, 0, null));
         List<Pixels> pixelsList = store.saveToDB();
         notifyObservers(new ImportEvent.END_SAVE_TO_DB(
-                index, null, userSpecifiedTarget, null, 0, null));
+                index, null, target, null, 0, null));
         return pixelsList;
     }
 
@@ -348,7 +337,9 @@ public class ImportLibrary implements IObservable
      * processing.</em>
      * {@link #importCandidates(ImportConfig, ImportCandidates)}
      * uses {@link ImportConfig#contOnError} to act on these exceptions.
-     * 
+     *
+     * @deprecated As of OMERO Beta 4.2.1, replaced by
+     * {@link #importImage(ImportContainer, int, int, int)}.
      * @param file Target file to import.
      * @param index Index of the import in a set. <code>0</code> is safe if 
      * this is a singular import.
@@ -374,6 +365,7 @@ public class ImportLibrary implements IObservable
      * @throws ServerError If there is an error communicating with the OMERO
      * server we're importing into.
      */
+    @Deprecated
     public List<Pixels> importImage(File file, int index, int numDone,
             int total, String userSpecifiedImageName, 
             String userSpecifiedImageDescription,
@@ -393,6 +385,8 @@ public class ImportLibrary implements IObservable
      * {@link #importCandidates(ImportConfig, ImportCandidates)}
      * uses {@link ImportConfig#contOnError} to act on these exceptions.
      * 
+     * @deprecated As of OMERO Beta 4.2.1, replaced by
+     * {@link #importImage(ImportContainer, int, int, int)}.
      * @param file Target file to import.
      * @param index Index of the import in a set. <code>0</code> is safe if 
      * this is a singular import.
@@ -420,6 +414,7 @@ public class ImportLibrary implements IObservable
      * @throws ServerError If there is an error communicating with the OMERO
      * server we're importing into.
      */
+    @Deprecated
     public List<Pixels> importImage(File file, int index, int numDone,
             int total, String userSpecifiedImageName, 
             String userSpecifiedImageDescription,
@@ -428,12 +423,53 @@ public class ImportLibrary implements IObservable
             List<Annotation> userSpecifiedAnnotations)
             throws FormatException, IOException, Throwable
     {
+        ImportContainer container = new ImportContainer(
+                file, null, userSpecifiedTarget, archive, userPixels,
+                null, null, null);
+        container.setCustomImageName(userSpecifiedImageName);
+        container.setCustomImageDescription(userSpecifiedImageDescription);
+        container.setCustomAnnotationList(userSpecifiedAnnotations);
+        container.setUseMetadataFile(useMetadataFile);
+        return importImage(container, index, numDone, total);
+    }
+
+    /**
+     * Perform an image import.  <em>Note: this method both notifies
+     * {@link #observers} of error states AND throws the exception to cancel
+     * processing.</em>
+     * {@link #importCandidates(ImportConfig, ImportCandidates)}
+     * uses {@link ImportConfig#contOnError} to act on these exceptions.
+     * @param container The import container which houses all the configuration
+     * values and target for the import.
+     * @param index Index of the import in a set. <code>0</code> is safe if 
+     * this is a singular import.
+     * @param numDone Number of imports completed in a set. <code>0</code> is 
+     * safe if this is a singular import.
+     * @param total Total number of imports in a set. <code>1</code> is safe
+     * if this is a singular import.
+     * @return List of Pixels that have been imported.
+     * @throws FormatException If there is a Bio-Formats image file format
+     * error during import.
+     * @throws IOException If there is an I/O error.
+     * @throws ServerError If there is an error communicating with the OMERO
+     * server we're importing into.
+     * @since OMERO Beta 4.2.1.
+     */
+    public List<Pixels> importImage(ImportContainer container, int index,
+                                    int numDone, int total)
+            throws FormatException, IOException, Throwable
+    {
+        File file = container.getFile();
         String fileName = file.getAbsolutePath();
         String shortName = file.getName();
         String format = null;
         String[] domains = null;
         String[] usedFiles = new String[1];
         boolean isScreeningDomain = false;
+        boolean archive = container.getArchive();
+        boolean useMetadataFile = container.getUseMetadataFile();
+        IObject userSpecifiedTarget = container.getTarget();
+
         usedFiles[0] = file.getAbsolutePath();
         if (log.isInfoEnabled())
         {
@@ -481,13 +517,7 @@ public class ImportLibrary implements IObservable
                         + useMetadataFile);
                 metadataFiles = store.setArchive(archive, useMetadataFile);
             }
-            List<Pixels> pixList = 
-                importMetadata(index,
-                        userSpecifiedTarget,
-                        userSpecifiedImageName,
-                        userSpecifiedImageDescription,
-                        userPixels,
-                        userSpecifiedAnnotations);
+            List<Pixels> pixList = importMetadata(index, container);
             List<Long> plateIds = new ArrayList<Long>();
             Image image = pixList.get(0).getImage();
             if (image.sizeOfWellSamples() > 0)
@@ -656,7 +686,7 @@ public class ImportLibrary implements IObservable
         } finally {
             store.createRoot(); // CLEAR MetadataStore
         }
-            }
+    }
 
     /**
      * saves the binary data to the server. After each successful save,

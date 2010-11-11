@@ -34,6 +34,7 @@ import calendar
 import datetime
 import traceback
 import logging
+import re
 
 from time import time
 
@@ -53,6 +54,12 @@ from django.views.defaults import page_not_found, server_error
 from django.views import debug
 from django.core.cache import cache
 
+from forms import LoginForm, ForgottonPasswordForm, ExperimenterForm, \
+                   GroupForm, GroupOwnerForm, MyAccountForm, \
+                   ChangeMyPassword, ChangeUserPassword, \
+                   ContainedExperimentersForm, UploadPhotoForm, \
+                   EnumerationEntry, EnumerationEntries, ScriptForm
+
 from controller import BaseController
 from controller.experimenter import BaseExperimenters, BaseExperimenter
 from controller.group import BaseGroups, BaseGroup
@@ -61,16 +68,11 @@ from controller.drivespace import BaseDriveSpace
 from controller.uploadfile import BaseUploadFile
 from controller.enums import BaseEnums
 
-from forms import LoginForm, ForgottonPasswordForm, ExperimenterForm, \
-                   ExperimenterLdapForm, GroupForm, GroupOwnerForm, MyAccountForm, \
-                   MyAccountLdapForm, ContainedExperimentersForm, UploadPhotoForm, \
-                   EnumerationEntry, EnumerationEntries, ScriptForm
+from webclient.webclient_gateway import OmeroWebGateway
 
-from extlib import gateway
+from omeroweb.webgateway import views as webgateway_views
+from omeroweb.webgateway.views import getBlitzConnection
 
-#from extlib.gateway import _session_logout, timeit, getBlitzConnection, _createConnection
-from webgateway.views import getBlitzConnection, timeit, _session_logout, _createConnection
-from webgateway import views as webgateway_views
 logger = logging.getLogger('views-admin')
 
 connectors = {}
@@ -84,7 +86,7 @@ def getGuestConnection(host, port):
     guest = "guest"
     try:
         # do not store connection on connectors
-        conn = _createConnection('', host=host, port=port, username=guest, passwd=guest, secure=True)
+        conn = webgateway_views._createConnection('', host=host, port=port, username=guest, passwd=guest, secure=True, useragent="OMERO.web")
         if conn is not None:
             logger.info("Have connection as Guest")
         else:
@@ -94,7 +96,6 @@ def getGuestConnection(host, port):
     return conn
 
 def _checkVersion(host, port):
-    import re
     rv = False
     conn = getGuestConnection(host, port)
     if conn is not None:
@@ -109,11 +110,20 @@ def _checkVersion(host, port):
             local_split = local_cleaned.split(".")
 
             rv = (agent_split == local_split)
-            logger.debug("Client version: '%s'; Server version: '%s'"% (omero_version, agent))
+            logger.info("Client version: '%s'; Server version: '%s'"% (omero_version, agent))
         except Exception, x:
             logger.error(traceback.format_exc())
-            error = str(x)
     return rv
+
+def _isServerOn(host, port):
+    conn = getGuestConnection(host, port)
+    if conn is not None:
+        try:
+            conn.getServerVersion()
+            return True
+        except Exception, x:
+            logger.error(traceback.format_exc())
+    return False
 
 ################################################################################
 # decorators
@@ -122,7 +132,7 @@ def isAdminConnected (f):
     def wrapped (request, *args, **kwargs):
         #this check the connection exist, if not it will redirect to login page
         url = request.REQUEST.get('url')
-        if url is None:
+        if url is None or len(url) == 0:
             if request.META.get('QUERY_STRING'):
                 url = '%s?%s' % (request.META.get('PATH_INFO'), request.META.get('QUERY_STRING'))
             else:
@@ -130,7 +140,7 @@ def isAdminConnected (f):
         
         conn = None
         try:
-            conn = getBlitzConnection(request)
+            conn = getBlitzConnection(request, useragent="OMERO.webadmin")
         except KeyError:
             return HttpResponseRedirect(reverse("walogin")+(("?url=%s") % (url)))
         except Exception, x:
@@ -150,7 +160,7 @@ def isOwnerConnected (f):
     def wrapped (request, *args, **kwargs):
         #this check the connection exist, if not it will redirect to login page
         url = request.REQUEST.get('url')
-        if url is None:
+        if url is None or len(url) == 0:
             if request.META.get('QUERY_STRING'):
                 url = '%s?%s' % (request.META.get('PATH_INFO'), request.META.get('QUERY_STRING'))
             else:
@@ -158,7 +168,7 @@ def isOwnerConnected (f):
         
         conn = None
         try:
-            conn = getBlitzConnection(request)
+            conn = getBlitzConnection(request, useragent="OMERO.webadmin")
         except KeyError:
             return HttpResponseRedirect(reverse("walogin")+(("?url=%s") % (url)))
         except Exception, x:
@@ -182,7 +192,7 @@ def isUserConnected (f):
     def wrapped (request, *args, **kwargs):
         #this check connection exist, if not it will redirect to login page
         url = request.REQUEST.get('url')
-        if url is None:
+        if url is None or len(url) == 0:
             if request.META.get('QUERY_STRING'):
                 url = '%s?%s' % (request.META.get('PATH_INFO'), request.META.get('QUERY_STRING'))
             else:
@@ -190,14 +200,14 @@ def isUserConnected (f):
         
         conn = None
         try:
-            conn = getBlitzConnection(request)
+            conn = getBlitzConnection(request, useragent="OMERO.webadmin")
         except KeyError:
             return HttpResponseRedirect(reverse("walogin")+(("?url=%s") % (url)))
         except Exception, x:
             logger.error(traceback.format_exc())
             return HttpResponseRedirect(reverse("walogin")+(("?error=%s&url=%s") % (str(x),url)))
         if conn is None:
-            return HttpResponseRedirect(reverse("walogin")+(("?url=%s") % (url)))   
+            return HttpResponseRedirect(reverse("walogin")+(("?url=%s") % (url)))
         
         kwargs["conn"] = conn
         kwargs["url"] = url
@@ -220,43 +230,38 @@ def isAnythingCreated(f):
 
 def forgotten_password(request, **kwargs):
     request.session.modified = True
+    
     template = "webadmin/forgotten_password.html"
     
     conn = None
-    error = None
+    error = None    
+    blitz = None
     
-    if request.method == 'POST' and request.REQUEST.get('server') is not None and request.REQUEST.get('username') is not None and request.REQUEST.get('email') is not None:
-        blitz = settings.SERVER_LIST.get(pk=request.REQUEST.get('server'))
-        try:
-            conn = getGuestConnection(blitz.host, blitz.port)
-            if not conn.isForgottenPasswordSet():
-                error = "This server cannot reset password. Please contact your administrator."
-                conn = None
-        except Exception, x:
-            logger.error(traceback.format_exc())
-            error = str(x)
-
-    if conn is not None:
-        controller = None
-        try:
-            controller = conn.reportForgottenPassword(request.REQUEST.get('username').encode('utf-8'), request.REQUEST.get('email').encode('utf-8'))
-        except Exception, x:
-            logger.error(traceback.format_exc())
-            error = str(x)
+    if request.method == 'POST':
         form = ForgottonPasswordForm(data=request.REQUEST.copy())
-        context = {'error':error, 'controller':controller, 'form':form}
-    else:
-        if request.method == 'POST':
-            form = ForgottonPasswordForm(data=request.REQUEST.copy())
-        else:
+        if form.is_valid():
+            blitz = settings.SERVER_LIST.get(pk=request.REQUEST.get('server'))
             try:
-                blitz = settings.SERVER_LIST.get(pk=request.session.get('server'))
-                data = {'server': unicode(blitz.id), 'username':unicode(request.REQUEST.get('username')), 'password':unicode(request.REQUEST.get('password')) }
-                form = ForgottonPasswordForm(data=data)
-            except:
-                form = ForgottonPasswordForm()
-        context = {'error':error, 'form':form}
+                conn = getGuestConnection(blitz.host, blitz.port)
+                if not conn.isForgottenPasswordSet():
+                    error = "This server cannot reset password. Please contact your administrator."
+                    conn = None
+            except Exception, x:
+                logger.error(traceback.format_exc())
+                error = "Internal server error, please contact administrator."
+        
+            if conn is not None:
+                try:
+                    conn.reportForgottenPassword(request.REQUEST.get('username').encode('utf-8'), request.REQUEST.get('email').encode('utf-8'))
+                    error = "Password was reseted. Check you mailbox."
+                    form = None
+                except Exception, x:
+                    logger.error(traceback.format_exc())
+                    error = "Internal server error, please contact administrator."
+    else:
+        form = ForgottonPasswordForm()
     
+    context = {'error':error, 'form':form}    
     t = template_loader.get_template(template)
     c = Context(request, context)
     rsp = t.render(c)
@@ -292,13 +297,13 @@ def login(request):
         request.session['port'] = blitz.port
         request.session['username'] = request.REQUEST.get('username').encode('utf-8').strip()
         request.session['password'] = request.REQUEST.get('password').encode('utf-8').strip()
-        request.session['ssl'] = request.REQUEST.get('ssl') is None and True or False
+        request.session['ssl'] = (True, False)[request.REQUEST.get('ssl') is None]
     
     error = request.REQUEST.get('error')
     
     conn = None
     try:
-        conn = getBlitzConnection(request)
+        conn = getBlitzConnection(request, useragent="OMERO.webadmin")
     except Exception, x:
         logger.error(traceback.format_exc())
         error = str(x)
@@ -308,7 +313,9 @@ def login(request):
         return HttpResponseRedirect(reverse("waindex"))
     else:
         if request.method == 'POST' and request.REQUEST.get('server'):
-            if not _checkVersion(request.session.get('host'), request.session.get('port')):
+            if not _isServerOn(request.session.get('host'), request.session.get('port')):
+                error = "Server is not responding, please contact administrator."
+            elif not _checkVersion(request.session.get('host'), request.session.get('port')):
                 error = "Client version does not match server, please contact administrator."
             else:
                 error = "Connection not available, please check your user name and password."
@@ -355,31 +362,19 @@ def index(request, **kwargs):
     else:
         return HttpResponseRedirect(reverse("wamyaccount"))
 
-def logout(request):
-    _session_logout(request, request.session['server'])
-
+@isUserConnected
+def logout(request, **kwargs):
+    webgateway_views._session_logout(request, request.session.get('server'))
+    
     try:
-        del request.session['server']
-    except KeyError:
-        logger.error(traceback.format_exc())
-    try:
-        del request.session['host']
-    except KeyError:
-        logger.error(traceback.format_exc())
-    try:
-        del request.session['port']
-    except KeyError:
-        logger.error(traceback.format_exc())
-    try:
-        del request.session['username']
-    except KeyError:
-        logger.error(traceback.format_exc())
-    try:
-        del request.session['password']
-    except KeyError:
+        if request.session.get('shares') is not None:
+            for key in request.session.get('shares').iterkeys():
+                session_key = "S:%s#%s#%s" % (request.session.session_key,request.session.get('server'), key)
+                webgateway_views._session_logout(request,request.session.get('server'), force_key=session_key)
+    except:
         logger.error(traceback.format_exc())
     
-    request.session.set_expiry(1)
+    #request.session.set_expiry(1)
     return HttpResponseRedirect(reverse("waindex"))
 
 @isAdminConnected
@@ -429,8 +424,7 @@ def manage_experimenter(request, action, eid=None, **kwargs):
     controller = BaseExperimenter(conn, eid)
     
     if action == 'new':
-        form = ExperimenterForm(initial={'active':True, 'available':controller.otherGroupsInitialList()})
-        
+        form = ExperimenterForm(initial={'with_password':True, 'active':True, 'available':controller.otherGroupsInitialList()})        
         context = {'info':info, 'eventContext':eventContext, 'form':form}
     elif action == 'create':
         if request.method != 'POST':
@@ -438,9 +432,13 @@ def manage_experimenter(request, action, eid=None, **kwargs):
         else:
             name_check = conn.checkOmeName(request.REQUEST.get('omename').encode('utf-8'))
             email_check = conn.checkEmail(request.REQUEST.get('email').encode('utf-8'))
-            initial={'active':True}
-            exclude = list()
             
+            initial={'with_password':True}
+            
+            if request.REQUEST.get('active'):
+                initial['active'] = True
+            
+            exclude = list()            
             if len(request.REQUEST.getlist('other_groups')) > 0:
                 others = controller.getSelectedGroups(request.REQUEST.getlist('other_groups'))   
                 initial['others'] = others
@@ -472,41 +470,23 @@ def manage_experimenter(request, action, eid=None, **kwargs):
                 return HttpResponseRedirect(reverse("waexperimenters"))
             context = {'info':info, 'eventContext':eventContext, 'form':form}
     elif action == 'edit' :
-        if controller.ldapAuth == "" or controller.ldapAuth is None:
-            
-            initial={'omename': controller.experimenter.omeName, 'first_name':controller.experimenter.firstName,
-                                    'middle_name':controller.experimenter.middleName, 'last_name':controller.experimenter.lastName,
-                                    'email':controller.experimenter.email, 'institution':controller.experimenter.institution,
-                                    'administrator': controller.experimenter.isAdmin(), 'active': controller.experimenter.isActive(), 
-                                    'default_group': controller.defaultGroup, 'other_groups':controller.otherGroups}
-            
-            initial['default'] = controller.default
-            others = controller.others
-            initial['others'] = others
-            if len(others) > 0:
-                exclude = [g.id.val for g in others]
-            else:
-                exclude = [controller.defaultGroup]
-            available = controller.otherGroupsInitialList(exclude)
-            initial['available'] = available
-            form = ExperimenterForm(initial=initial)
+        initial={'omename': controller.experimenter.omeName, 'first_name':controller.experimenter.firstName,
+                                'middle_name':controller.experimenter.middleName, 'last_name':controller.experimenter.lastName,
+                                'email':controller.experimenter.email, 'institution':controller.experimenter.institution,
+                                'administrator': controller.experimenter.isAdmin(), 'active': controller.experimenter.isActive(), 
+                                'default_group': controller.defaultGroup, 'other_groups':controller.otherGroups}
+        
+        initial['default'] = controller.default
+        others = controller.others
+        initial['others'] = others
+        if len(others) > 0:
+            exclude = [g.id.val for g in others]
         else:
-            initial={'omename': controller.experimenter.omeName, 'first_name':controller.experimenter.firstName,
-                                    'middle_name':controller.experimenter.middleName, 'last_name':controller.experimenter.lastName,
-                                    'email':controller.experimenter.email, 'institution':controller.experimenter.institution,
-                                    'administrator': controller.experimenter.isAdmin(), 'active': controller.experimenter.isActive(), 
-                                    'default_group': controller.defaultGroup, 'other_groups':controller.otherGroups}
-            
-            initial['default'] = controller.default
-            others = controller.others
-            initial['others'] = others
-            if len(others) > 0:
-                exclude = [g.id.val for g in others]
-            else:
-                exclude = [controller.defaultGroup]
-            available = controller.otherGroupsInitialList(exclude)
-            initial['available'] = available
-            form = ExperimenterLdapForm(initial=initial)
+            exclude = [controller.defaultGroup]
+        available = controller.otherGroupsInitialList(exclude)
+        initial['available'] = available
+        form = ExperimenterForm(initial=initial)
+        
         context = {'info':info, 'eventContext':eventContext, 'form':form, 'eid': eid, 'ldapAuth': controller.ldapAuth}
     elif action == 'save':
         if request.method != 'POST':
@@ -526,11 +506,8 @@ def manage_experimenter(request, action, eid=None, **kwargs):
             available = controller.otherGroupsInitialList(exclude)
             initial['available'] = available
             
-            if controller.ldapAuth == "" or controller.ldapAuth is None:
-                form = ExperimenterForm(initial=initial, data=request.POST.copy(), name_check=name_check, email_check=email_check)
-            else:
-                form = ExperimenterLdapForm(initial=initial, data=request.POST.copy(), name_check=name_check, email_check=email_check)
-                
+            form = ExperimenterForm(initial=initial, data=request.POST.copy(), name_check=name_check, email_check=email_check)
+               
             if form.is_valid():
                 omeName = request.REQUEST.get('omename').encode('utf-8')
                 firstName = request.REQUEST.get('first_name').encode('utf-8')
@@ -548,13 +525,8 @@ def manage_experimenter(request, action, eid=None, **kwargs):
 
                 defaultGroup = request.REQUEST.get('default_group')
                 otherGroups = request.POST.getlist('other_groups')
-                try:
-                    password = request.REQUEST.get('password').encode('utf-8')
-                    if len(password) == 0:
-                        password = None
-                except:
-                    password = None
-                controller.updateExperimenter(omeName, firstName, lastName, email, admin, active, defaultGroup, otherGroups, middleName, institution, password)
+                
+                controller.updateExperimenter(omeName, firstName, lastName, email, admin, active, defaultGroup, otherGroups, middleName, institution)
                 return HttpResponseRedirect(reverse("waexperimenters"))
             context = {'info':info, 'eventContext':eventContext, 'form':form, 'eid': eid, 'ldapAuth': controller.ldapAuth}
     elif action == "delete":
@@ -563,6 +535,53 @@ def manage_experimenter(request, action, eid=None, **kwargs):
     else:
         return HttpResponseRedirect(reverse("waexperimenters"))
     
+    t = template_loader.get_template(template)
+    c = Context(request, context)
+    rsp = t.render(c)
+    return HttpResponse(rsp)
+
+@isUserConnected
+def manage_password(request, eid, **kwargs):
+    experimenters = True
+    template = "webadmin/password.html"
+    
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+    
+    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'experimenters':experimenters}
+
+    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
+    
+    error = None
+    if request.method != 'POST':
+        if conn.isAdmin():
+            password_form = ChangeUserPassword()
+        else:
+            password_form = ChangeMyPassword()
+    else:
+        if conn.isAdmin():
+            password_form = ChangeUserPassword(data=request.POST.copy())
+        else:
+            password_form = ChangeMyPassword(data=request.POST.copy())
+                    
+        if password_form.is_valid():
+            password = request.REQUEST.get('password').encode('utf-8')
+            if conn.isAdmin():
+                exp = conn.getExperimenter(eid)
+                conn.changeUserPassword(exp.omeName, password)
+                request.session['password'] = password
+                return HttpResponseRedirect(reverse(viewname="wamanageexperimenterid", args=["edit", eid]))
+            else:
+                old_password = request.REQUEST.get('old_password').encode('utf-8')
+                error = conn.changeMyPassword(old_password, password) 
+                if error is None:
+                    request.session['password'] = password
+                    return HttpResponseRedirect(reverse("wamyaccount"))
+                
+    context = {'info':info, 'error':error, 'eventContext':eventContext, 'password_form':password_form, 'eid': eid}
     t = template_loader.get_template(template)
     c = Context(request, context)
     rsp = t.render(c)
@@ -628,7 +647,7 @@ def manage_group(request, action, gid=None, **kwargs):
                 description = request.REQUEST.get('description').encode('utf-8')
                 owners = request.POST.getlist('owners')
                 permissions = request.REQUEST.get('access_controll')                
-                readonly = request.REQUEST.get('readonly') is None and True or False  
+                readonly = (False, True)[request.REQUEST.get('readonly') is None]
                 controller.createGroup(name, owners, permissions, readonly, description)
                 return HttpResponseRedirect(reverse("wagroups"))
             context = {'info':info, 'eventContext':eventContext, 'form':form}
@@ -649,7 +668,7 @@ def manage_group(request, action, gid=None, **kwargs):
                 description = request.REQUEST.get('description').encode('utf-8')
                 owners = request.POST.getlist('owners')
                 permissions = request.REQUEST.get('access_controll').encode('utf-8')
-                readonly = request.REQUEST.get('readonly') is None and True or False
+                readonly = (False, True)[request.REQUEST.get('readonly') is None]
                 controller.updateGroup(name, owners, permissions, readonly, description)
                 return HttpResponseRedirect(reverse("wagroups"))
             context = {'info':info, 'eventContext':eventContext, 'form':form, 'gid': gid}
@@ -703,7 +722,7 @@ def manage_group_owner(request, action, gid, **kwargs):
             form = GroupOwnerForm(data=request.POST.copy())
             if form.is_valid():
                 permissions = request.REQUEST.get('access_controll')                
-                readonly = request.REQUEST.get('readonly') is None and True or False
+                readonly = (False, True)[request.REQUEST.get('readonly') is None]
                 controller.updatePermissions(permissions, readonly)
                 return HttpResponseRedirect(reverse("wamyaccount"))
             context = {'info':info, 'eventContext':eventContext, 'form':form, 'gid': gid}
@@ -795,77 +814,77 @@ def manage_script(request, action, sc_id=None, **kwargs):
     rsp = t.render(c)
     return HttpResponse(rsp)
 
-@isAdminConnected
-def enums(request, **kwargs):
-    enums = True
-    template = "webadmin/enums.html"
-    error = request.REQUEST.get('error') and request.REQUEST.get('error').replace("_", " ") or None
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-    
-    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'enums':enums, 'error':error}
-    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
-    
-    controller = BaseEnums(conn)
-    
-    context = {'info':info, 'eventContext':eventContext, 'controller':controller}
-    t = template_loader.get_template(template)
-    c = Context(request, context)
-    rsp = t.render(c)
-    return HttpResponse(rsp)
+#@isAdminConnected
+#def enums(request, **kwargs):
+#    enums = True
+#    template = "webadmin/enums.html"
+#    error = request.REQUEST.get('error') and request.REQUEST.get('error').replace("_", " ") or None
+#    
+#    conn = None
+#    try:
+#        conn = kwargs["conn"]
+#    except:
+#        logger.error(traceback.format_exc())
+#    
+#    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'enums':enums, 'error':error}
+#    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
+#    
+#    controller = BaseEnums(conn)
+#    
+#    context = {'info':info, 'eventContext':eventContext, 'controller':controller}
+#    t = template_loader.get_template(template)
+#    c = Context(request, context)
+#    rsp = t.render(c)
+#    return HttpResponse(rsp)
 
-@isAdminConnected
-def manage_enum(request, action, klass, eid=None, **kwargs):
-    enums = True
-    template = "webadmin/enum_form.html"
-        
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-    
-    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'enums':enums}
-    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
-    
-    controller = BaseEnums(conn, klass)
-    if action == "save":
-        form = EnumerationEntries(entries=controller.entries, data=request.POST.copy())
-        if form.is_valid():
-            controller.saveEntries(form.data)
-            return HttpResponseRedirect(reverse(viewname="wamanageenum", args=["edit", klass]))
-    elif action == "delete" and eid is not None:
-        controller.deleteEntry(eid)
-        return HttpResponseRedirect(reverse(viewname="wamanageenum", args=["edit", klass]))
-    elif action == "new":
-        if request.method == "POST":
-            form = EnumerationEntry(data=request.POST.copy())
-            if form.is_valid():
-                new_entry = request.REQUEST.get('new_entry').encode('utf-8')
-                controller.saveEntry(new_entry)
-                return HttpResponseRedirect(reverse(viewname="wamanageenum", args=["edit", klass]))
-        else:
-            form = EnumerationEntry()
-    elif action == "reset":
-        try:
-            controller.resetEnumerations()
-        except:
-            logger.error(traceback.format_exc())
-            return HttpResponseRedirect(reverse(viewname="waenums")+("?error=Enumeration_%s_cannot_be_reset" % (klass)))
-        else:
-            return HttpResponseRedirect(reverse("waenums"))
-    else:
-        form = EnumerationEntries(entries=controller.entries, initial={'entries':True})
-    
-    context = {'info':info, 'eventContext':eventContext, 'controller':controller, 'action':action, 'form':form}
-    t = template_loader.get_template(template)
-    c = Context(request, context)
-    rsp = t.render(c)
-    return HttpResponse(rsp)
+#@isAdminConnected
+#def manage_enum(request, action, klass, eid=None, **kwargs):
+#    enums = True
+#    template = "webadmin/enum_form.html"
+#        
+#    conn = None
+#    try:
+#        conn = kwargs["conn"]
+#    except:
+#        logger.error(traceback.format_exc())
+#    
+#    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'enums':enums}
+#    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
+#    
+#    controller = BaseEnums(conn, klass)
+#    if action == "save":
+#        form = EnumerationEntries(entries=controller.entries, data=request.POST.copy())
+#        if form.is_valid():
+#            controller.saveEntries(form.data)
+#            return HttpResponseRedirect(reverse(viewname="wamanageenum", args=["edit", klass]))
+#    elif action == "delete" and eid is not None:
+#        controller.deleteEntry(eid)
+#        return HttpResponseRedirect(reverse(viewname="wamanageenum", args=["edit", klass]))
+#    elif action == "new":
+#        if request.method == "POST":
+#            form = EnumerationEntry(data=request.POST.copy())
+#            if form.is_valid():
+#                new_entry = request.REQUEST.get('new_entry').encode('utf-8')
+#                controller.saveEntry(new_entry)
+#                return HttpResponseRedirect(reverse(viewname="wamanageenum", args=["edit", klass]))
+#        else:
+#            form = EnumerationEntry()
+#    elif action == "reset":
+#        try:
+#            controller.resetEnumerations()
+#        except:
+#            logger.error(traceback.format_exc())
+#            return HttpResponseRedirect(reverse(viewname="waenums")+("?error=Enumeration_%s_cannot_be_reset" % (klass)))
+#        else:
+#            return HttpResponseRedirect(reverse("waenums"))
+#    else:
+#        form = EnumerationEntries(entries=controller.entries, initial={'entries':True})
+#    
+#    context = {'info':info, 'eventContext':eventContext, 'controller':controller, 'action':action, 'form':form}
+#    t = template_loader.get_template(template)
+#    c = Context(request, context)
+#    rsp = t.render(c)
+#    return HttpResponse(rsp)
 
 @isAdminConnected
 def imports(request, **kwargs):
@@ -883,7 +902,7 @@ def my_account(request, action=None, **kwargs):
         logger.error(traceback.format_exc())
     
     info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'myaccount':myaccount}
-    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
+    eventContext = {'userId':conn.getEventContext().userId,'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
     
     myaccount = BaseExperimenter(conn)
     myaccount.getMyDetails()
@@ -899,10 +918,7 @@ def my_account(request, action=None, **kwargs):
             return HttpResponseRedirect(reverse(viewname="wamyaccount", args=["edit"]))
         else:
             email_check = conn.checkEmail(request.REQUEST.get('email').encode('utf-8'), myaccount.experimenter.email)
-            if myaccount.ldapAuth == "" or myaccount.ldapAuth is None:
-                form = MyAccountForm(data=request.POST.copy(), initial={'groups':myaccount.otherGroups}, email_check=email_check)
-            else:
-                form = MyAccountLdapForm(data=request.POST.copy(), initial={'groups':myaccount.otherGroups}, email_check=email_check)
+            form = MyAccountForm(data=request.POST.copy(), initial={'groups':myaccount.otherGroups}, email_check=email_check)
             if form.is_valid():
                 firstName = request.REQUEST.get('first_name').encode('utf-8')
                 middleName = request.REQUEST.get('middle_name').encode('utf-8')
@@ -910,12 +926,9 @@ def my_account(request, action=None, **kwargs):
                 email = request.REQUEST.get('email').encode('utf-8')
                 institution = request.REQUEST.get('institution').encode('utf-8')
                 defaultGroup = request.REQUEST.get('default_group')
-                password = request.REQUEST.get('password').encode('utf-8')
-                if len(password) == 0:
-                    password = None
-                myaccount.updateMyAccount(firstName, lastName, email, defaultGroup, middleName, institution, password)
-                logout(request)
+                myaccount.updateMyAccount(firstName, lastName, email, defaultGroup, middleName, institution)
                 return HttpResponseRedirect(reverse("wamyaccount"))
+    
     elif action == "upload":
         if request.method == 'POST':
             form_file = UploadPhotoForm(request.POST, request.FILES)
@@ -932,13 +945,7 @@ def my_account(request, action=None, **kwargs):
         conn.cropExperimenterPhoto(box)
         return HttpResponseRedirect(reverse("wamyaccount"))
     elif action == "editphoto":
-        if myaccount.ldapAuth == "" or myaccount.ldapAuth is None:
-            form = MyAccountForm(initial={'omename': myaccount.experimenter.omeName, 'first_name':myaccount.experimenter.firstName,
-                                    'middle_name':myaccount.experimenter.middleName, 'last_name':myaccount.experimenter.lastName,
-                                    'email':myaccount.experimenter.email, 'institution':myaccount.experimenter.institution,
-                                    'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})
-        else:
-            form = MyAccountLdapForm(initial={'omename': myaccount.experimenter.omeName, 'first_name':myaccount.experimenter.firstName,
+        form = MyAccountForm(initial={'omename': myaccount.experimenter.omeName, 'first_name':myaccount.experimenter.firstName,
                                     'middle_name':myaccount.experimenter.middleName, 'last_name':myaccount.experimenter.lastName,
                                     'email':myaccount.experimenter.email, 'institution':myaccount.experimenter.institution,
                                     'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})
@@ -948,17 +955,11 @@ def my_account(request, action=None, **kwargs):
             edit_mode = True
     else:
         photo_size = conn.getExperimenterPhotoSize()        
-        if myaccount.ldapAuth == "" or myaccount.ldapAuth is None:
-            form = MyAccountForm(initial={'omename': myaccount.experimenter.omeName, 'first_name':myaccount.experimenter.firstName,
+        form = MyAccountForm(initial={'omename': myaccount.experimenter.omeName, 'first_name':myaccount.experimenter.firstName,
                                     'middle_name':myaccount.experimenter.middleName, 'last_name':myaccount.experimenter.lastName,
                                     'email':myaccount.experimenter.email, 'institution':myaccount.experimenter.institution,
                                     'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})
-        else:
-            form = MyAccountLdapForm(initial={'omename': myaccount.experimenter.omeName, 'first_name':myaccount.experimenter.firstName,
-                                    'middle_name':myaccount.experimenter.middleName, 'last_name':myaccount.experimenter.lastName,
-                                    'email':myaccount.experimenter.email, 'institution':myaccount.experimenter.institution,
-                                    'default_group':myaccount.defaultGroup, 'groups':myaccount.otherGroups})
-    
+        
     context = {'info':info, 'eventContext':eventContext, 'form':form, 'form_file':form_file, 'ldapAuth': myaccount.ldapAuth, 'edit_mode':edit_mode, 'photo_size':photo_size, 'myaccount':myaccount}
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -1011,10 +1012,10 @@ def piechart(request, **kwargs):
         from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
         import numpy as np
         import matplotlib.pyplot as plt
-        from pylab import * 
+        from pylab import axes 
     except Exception, x:
         logger.error(traceback.format_exc())
-        rv = "Error: %s" % x.message
+        rv = "Error: %s" % x
         return HttpResponse(rv)
     
     controller = BaseDriveSpace(conn)

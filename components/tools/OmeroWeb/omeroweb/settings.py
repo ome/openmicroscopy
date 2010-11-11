@@ -30,31 +30,129 @@ import sys
 import datetime
 import logging
 import omero
+import omero.config
 import omero.clients
-import tempfile 
+import tempfile
+import exceptions
 
-# CUSTOM CONFIG
-try:
-    from custom_settings import *
-except ImportError:
-    sys.stderr.write("Error: Can't find the file 'omero/var/lib/custom_settings.py'" \
-        "It appears you haven't customized things.\nYou'll have to run 'bin/omero web settings', " \
-        "passing it your settings module.\n(If the file custom_settings.py does indeed exist, " \
-        "it's causing an ImportError somehow.)\n") 
-    sys.exit(1)
+from webadmin.custom_models import ServerObjects
+from django.utils import simplejson as json
+from portalocker import LockException
+
+
+
+if os.environ.has_key('OMERO_HOME'):
+    OMERO_HOME =os.environ.get('OMERO_HOME') 
+else:
+    OMERO_HOME = os.path.join(os.path.dirname(__file__), '..', '..', '..')
+    OMERO_HOME = os.path.normpath(OMERO_HOME)
+
+# Load custom settings from etc/grid/config.xml
+# Tue  2 Nov 2010 11:03:18 GMT -- ticket:3228
+CONFIG_XML = os.path.join(OMERO_HOME, 'etc', 'grid', 'config.xml')
+while True:
+    try:
+        CONFIG_XML = omero.config.ConfigXml(CONFIG_XML)
+        CUSTOM_SETTINGS = CONFIG_XML.as_map()
+        CONFIG_XML.close()
+        break
+    except LockException:
+        pass
+
+FASTCGI = "fastcgi"
+FASTCGITCP = "fastcgi-tcp"
+FASTCGI_TYPES = (FASTCGI, FASTCGITCP)
+DEVELOPMENT = "development"
+DEFAULT_SERVER_TYPE = FASTCGITCP
+ALL_SERVER_TYPES = (FASTCGITCP, FASTCGI, DEVELOPMENT)
+
+DEFAULT_SESSION_ENGINE = 'django.contrib.sessions.backends.file'
+SESSION_ENGINE_VALUES = ('django.contrib.sessions.backends.db',
+                         'django.contrib.sessions.backends.file',
+                         'django.contrib.sessions.backends.cache',
+                         'django.contrib.sessions.backends.cached_db')
+
+def parse_boolean(s):
+    s = s.strip().lower()
+    if s in ('true', '1', 't'):
+        return True
+    return False
+
+def check_server_type(s):
+    if s not in ALL_SERVER_TYPES:
+        raise ValueError("Unknown server type: %s. Valid values are: %s" % (s, ALL_SERVER_TYPES))
+    return s
+
+def check_session_engine(s):
+    if s not in SESSION_ENGINE_VALUES:
+        raise ValueError("Unknown session engine: %s. Valid values are: %s" % (s, SESSION_ENGINE_VALUES))
+    return s
+
+def identity(x):
+    return x
+
+def append_slash(s):
+    if not s.endswith("/"):
+        s=s+"/"
+    return s
+
+class LeaveUnset(exceptions.Exception):
+    pass
+
+def leave_none_unset(s):
+    if s is None:
+        raise LeaveUnset()
+    return s
+
+CUSTOM_SETTINGS_MAPPINGS = {
+    "omero.web.admins": ["ADMINS", '[]', json.loads],
+    "omero.web.application_host": ["APPLICATION_HOST", "http://localhost:80", append_slash],
+    "omero.web.application_server": ["APPLICATION_SERVER", DEFAULT_SERVER_TYPE, check_server_type],
+    "omero.web.application_server.host": ["APPLICATION_SERVER_HOST", "0.0.0.0", str],
+    "omero.web.application_server.port": ["APPLICATION_SERVER_PORT", "4080", str],
+    "omero.web.cache_backend": ["CACHE_BACKEND", None, leave_none_unset],
+    "omero.web.session_engine": ["SESSION_ENGINE", DEFAULT_SESSION_ENGINE, check_session_engine],
+    "omero.web.debug": ["DEBUG", "false", parse_boolean],
+    "omero.web.email_host": ["EMAIL_HOST", None, identity],
+    "omero.web.email_host_password": ["EMAIL_HOST_PASSWORD", None, identity],
+    "omero.web.email_host_user": ["EMAIL_HOST_USER", None, identity],
+    "omero.web.email_port": ["EMAIL_PORT", None, identity],
+    "omero.web.email_subject_prefix": ["EMAIL_SUBJECT_PREFIX", "[OMERO.web] ", str],
+    "omero.web.email_use_tls": ["EMAIL_USE_TLS", "false", parse_boolean],
+    "omero.web.logdir": ["LOGDIR", os.path.join(OMERO_HOME, 'var', 'log').replace('\\','/'), str],
+    "omero.web.send_broken_link_emails": ["SEND_BROKEN_LINK_EMAILS", "true", parse_boolean],
+    "omero.web.server_email": ["SERVER_EMAIL", None, identity],
+    "omero.web.server_list": ["SERVER_LIST", '[["localhost", 4064, "omero"]]', json.loads],
+    "omero.web.use_eman2": ["USE_EMAN2", "false", parse_boolean]
+}
+
+for key, values in CUSTOM_SETTINGS_MAPPINGS.items():
+
+    global_name, default_value, mapping = values
+
+    try:
+        global_value = CUSTOM_SETTINGS[key]
+        values.append(False)
+    except KeyError:
+        global_value = default_value
+        values.append(True)
+
+    try:
+        globals()[global_name] = mapping(global_value)
+    except ValueError:
+        raise ValueError("Invalid %s JSON: %r" % (global_name, global_value))
+    except LeaveUnset:
+        pass
+
 
 # LOGS
 # NEVER DEPLOY a site into production with DEBUG turned on.
 
-# Debuging mode. 
+# Debuging mode.
 # A boolean that turns on/off debug mode.
 # handler404 and handler500 works only when False
 
-try:
-    DEBUG
-except:
-    DEBUG=False
-        
+
 TEMPLATE_DEBUG = DEBUG
 
 # Configure logging and set place to store logs.
@@ -63,21 +161,17 @@ LOGGING_LOG_SQL = False
 
 # LOG path
 # Logging levels: logging.DEBUG, logging.INFO, logging.WARNING, logging.ERROR logging.CRITICAL
-try:
-    LOGDIR
-except:
-    LOGDIR = os.path.join(os.path.join(os.path.join(os.path.join(os.path.join(os.path.dirname(__file__), '../'), '../'), '../'), 'var'), 'log').replace('\\','/')
 
-if DEBUG:  
+if DEBUG:
     LOGFILE = ('OMEROweb-DEBUG.log')
     LOGLEVEL = logging.DEBUG
 else:
     LOGFILE = ('OMEROweb.log')
     LOGLEVEL = logging.INFO
-    
+
 if not os.path.isdir(LOGDIR):
     try:
-        os.mkdir(LOGDIR)
+        os.makedirs(LOGDIR)
     except Exception, x:
         exctype, value = sys.exc_info()[:2]
         raise exctype, value
@@ -85,12 +179,27 @@ if not os.path.isdir(LOGDIR):
 import logconfig
 logger = logconfig.get_logger(os.path.join(LOGDIR, LOGFILE), LOGLEVEL)
 
+for key in sorted(CUSTOM_SETTINGS_MAPPINGS):
+    values = CUSTOM_SETTINGS_MAPPINGS[key]
+    global_name, default_value, mapping, using_default = values
+    source = using_default and "default" or key
+    global_value = globals().get(global_name, "(unset)")
+    logger.debug("%s = %r (source:%s)", global_name, global_value, source)
+
+
+###
+### BEGIN EMDB settings
+###
 try:
-    ADMINS
+    if USE_EMAN2:
+        logger.info("Using EMAN2...")
+        from EMAN2 import *
 except:
-    ADMINS = ()
-    
-MANAGERS = ADMINS
+    logger.info("Not using EMAN2...")
+    pass
+###
+### END EMDB settings
+###
 
 # Local time zone for this installation. Choices can be found here:
 # http://www.postgresql.org/docs/8.1/appmedia/omeroweb/datetime-keywords.html#DATETIME-TIMEZONE-SET-TABLE
@@ -137,7 +246,6 @@ TEMPLATE_LOADERS = (
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.middleware.doc.XViewMiddleware',
 )
 
@@ -151,7 +259,7 @@ TEMPLATE_DIRS = (
     os.path.join(os.path.join(os.path.dirname(__file__), 'webadmin'), 'templates').replace('\\','/'),
     os.path.join(os.path.join(os.path.dirname(__file__), 'webclient'), 'templates').replace('\\','/'),
     #os.path.join(os.path.join(os.path.dirname(__file__), 'webemdb'), 'templates').replace('\\','/'),
-    #os.path.join(os.path.join(os.path.dirname(__file__), 'webmobile'), 'templates').replace('\\','/'),
+    os.path.join(os.path.join(os.path.dirname(__file__), 'webmobile'), 'templates').replace('\\','/'),
 )
 
 INSTALLED_APPS = (
@@ -167,27 +275,22 @@ INSTALLED_APPS = (
     'omeroweb.webgateway',
     'omeroweb.webtest',
     #'omeroweb.webemdb',
-    #'omeroweb.webmobile',
+    'omeroweb.webmobile',
 )
 
 FEEDBACK_URL = "qa.openmicroscopy.org.uk:80"
 
 IGNORABLE_404_ENDS = ('*.ico')
 
-# Other option: "django.contrib.sessions.backends.cache_db"; "django.contrib.sessions.backends.cache"; "django.contrib.sessions.backends.file"
-SESSION_ENGINE = "django.contrib.sessions.backends.file" 
+# SESSION_ENGINE is now set by the bin/omero config infrastructure
 SESSION_FILE_PATH = tempfile.gettempdir()
-
-# Cache
-#CACHE_BACKEND = 'file:///var/tmp/django_cache'
-#CACHE_TIMEOUT = 86400
 
 # Cookies config
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True # False
 SESSION_COOKIE_AGE = 86400 # 1 day in sec (86400)
 
 # file upload settings
-FILE_UPLOAD_TEMP_DIR = '/tmp'
+FILE_UPLOAD_TEMP_DIR = tempfile.gettempdir()
 FILE_UPLOAD_MAX_MEMORY_SIZE = 2621440 #default 2621440
 
 DEFAULT_IMG = os.path.join(os.path.dirname(__file__), 'media', 'omeroweb', "images", 'image128.png').replace('\\','/')
@@ -199,59 +302,9 @@ try:
 except:
     PAGE = 24
 
-# CUSTOM CONFIG
-try:
-    from webadmin.custom_models import ServerObjects
-    SERVER_LIST = ServerObjects(SERVER_LIST)
-except Exception, x:
-    logger.error("custom_settings.py has not been configured. SERVER_LIST is not set.\n" ) 
-    sys.stderr.write("custom_settings.py has not been configured. SERVER_LIST is not set.\n")
-    exctype, value = sys.exc_info()[:2]
-    raise exctype, value
+SERVER_LIST = ServerObjects(SERVER_LIST)
 
-try:
-    EMAIL_HOST
-except:
-    pass
-try:
-    EMAIL_HOST_PASSWORD
-except:
-    pass
-try:
-    EMAIL_HOST_USER
-except:
-    pass
-try:
-    EMAIL_PORT
-except:
-    pass
-try:
-    EMAIL_SUBJECT_PREFIX
-except:
-    pass
-try:
-    EMAIL_USE_TLS
-except:
-    pass
-try:
-    SERVER_EMAIL
-except:
-    pass
-
-SEND_BROKEN_LINK_EMAILS = True
-EMAIL_SUBJECT_PREFIX = '[OMERO.web] '
-
-# APPLICATIONS CONFIG
-try:
-    if APPLICATION_HOST.endswith("/"):
-        APPLICATION_HOST=APPLICATION_HOST
-    else:
-        APPLICATION_HOST=APPLICATION_HOST+"/"
-except:
-    logger.error("custom_settings.py has not been configured. APPLICATION_HOST is not set.\n" ) 
-    sys.stderr.write("custom_settings.py has not been configured. APPLICATION_HOST is not set.\n")
-    sys.exit(1)
-
+MANAGERS = ADMINS
 
 EMAIL_TEMPLATES = {
     'create_share': {

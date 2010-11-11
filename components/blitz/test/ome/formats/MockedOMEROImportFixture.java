@@ -9,9 +9,9 @@ package ome.formats;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
 import ome.services.blitz.test.mock.MockFixture;
+import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.ServiceFactory;
-import omero.api.ServiceFactoryPrx;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,6 +43,8 @@ public class MockedOMEROImportFixture extends OMEROImportFixture {
 
     Log log = LogFactory.getLog(MockedOMEROImportFixture.class);
 
+    omero.client client;
+
     /**
      * Constructor for use when no blitz is available, like from server-side
      * tests.
@@ -57,6 +59,7 @@ public class MockedOMEROImportFixture extends OMEROImportFixture {
 
         OmeroContext inner = sf.getContext();
         OmeroContext outer = new OmeroContext(new String[] {
+                "classpath:ome/services/messaging.xml", // To share events
                 "classpath:ome/formats/fixture.xml",
                 "classpath:ome/services/blitz-servantDefinitions.xml",
                 "classpath:ome/services/throttling/throttling.xml",
@@ -64,16 +67,27 @@ public class MockedOMEROImportFixture extends OMEROImportFixture {
         outer.setParent(inner);
         outer.refresh();
 
-        String username = sf.getAdminService().getEventContext()
-                .getCurrentUserName();
+        EventContext ec = sf.getAdminService().getEventContext();
+        String username = ec.getCurrentUserName();
+        long groupid = ec.getCurrentGroupId();
 
         MockFixture fixture = new MockFixture(new MockObjectTestCase() {
         }, outer);
         omero.client client = fixture.newClient();
-        ServiceFactoryPrx factory = client.createSession(username, password);
+        // Fixing group permissions from 4.2.0
+        client.createSession(username, password).setSecurityContext(
+                new omero.model.ExperimenterGroupI(groupid, false));
         OMEROMetadataStoreClient store = new OMEROMetadataStoreClient();
-        store.initialize(factory);
+        store.initialize(client);
         return store;
     }
 
+    @Override
+    public void tearDown() {
+        try {
+            super.tearDown();
+        } catch (Exception e) {
+            log.error("Error on tearDown in store.logout()", e);
+        }
+    }
 }

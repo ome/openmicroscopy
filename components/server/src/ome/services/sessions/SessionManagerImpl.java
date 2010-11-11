@@ -216,7 +216,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
             SessionContext context = cache
                     .getSessionContext(credentials, false);
             if (context != null) {
-                context.increment();
+                context.count().increment();
                 return context.getSession(); // EARLY EXIT!
             }
         } catch (SessionException se) {
@@ -247,7 +247,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     public Share createShare(Principal principal, boolean enabled,
             long timeToLive, String eventType, String description,
             long groupId) {
-        Share share = new Share();
+        Share share = newShare();
         define(share, UUID.randomUUID().toString(), description, System
                 .currentTimeMillis(), defaultTimeToIdle, timeToLive, eventType,
                 "Share");
@@ -266,7 +266,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
             SessionContext context = cache.getSessionContext(principal
                     .getName(), false);
             if (context != null) {
-                context.increment();
+                context.count().increment();
                 return context.getSession(); // EARLY EXIT!
             }
         } catch (SessionException se) {
@@ -309,7 +309,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
             throw new RemovedSessionException("No info in database for "
                     + principal);
         }
-        SessionContext newctx = createSessionContext(rv);
+        SessionContext newctx = createSessionContext(rv, null);
 
         // This the publishEvent returns successfully, then we will have to
         // handle rolling back this addition our selves
@@ -324,7 +324,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         }
 
         // All successful, increment and return.
-        newctx.increment();
+        newctx.count().increment();
         return newctx.getSession();
     }
 
@@ -404,13 +404,14 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         });
 
         if (list == null) {
+            log.info("removeSession on update: " + uuid);
             cache.removeSession(uuid);
             throw new RemovedSessionException("Database contains no info for "
                     + uuid);
         }
         ;
 
-        final SessionContext newctx = createSessionContext(list);
+        final SessionContext newctx = createSessionContext(list, ctx);
         final Session copy = copy(orig);
         executor.execute(asroot, new Executor.SimpleWork(this, "update") {
             @Transactional(readOnly = false)
@@ -432,7 +433,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
      * null.
      */
     @SuppressWarnings("unchecked")
-    protected SessionContext createSessionContext(List<?> list) {
+    protected SessionContext createSessionContext(List<?> list, SessionContext previous) {
 
         final Experimenter exp = (Experimenter) list.get(0);
         final ExperimenterGroup grp = (ExperimenterGroup) list.get(1);
@@ -449,7 +450,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
 
         SessionContext sessionContext = new SessionContextImpl(session,
                 leaderOfGroupsIds, memberOfGroupsIds, userRoles, factory
-                        .createStats(), roles);
+                        .createStats(), roles, previous);
         return sessionContext;
     }
 
@@ -503,12 +504,12 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
 
     public int getReferenceCount(String uuid) {
         SessionContext ctx = cache.getSessionContext(uuid, true);
-        return ctx.refCount();
+        return ctx.count().get();
     }
 
     public int detach(String uuid) {
         SessionContext ctx = cache.getSessionContext(uuid, false);
-        return ctx.decrement();
+        return ctx.count().decrement();
     }
 
     public SessionStats getSessionStats(String uuid) {
@@ -519,19 +520,22 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     /*
      */
     public int close(String uuid) {
-
         SessionContext ctx;
         try {
             ctx = cache.getSessionContext(uuid, false);
         } catch (SessionException se) {
+            log.info("closeSession called but doesn't exist: " + uuid);
             return -1; // EARLY EXIT!
         }
 
-        int refCount = ctx.decrement();
+        int refCount = ctx.count().decrement();
         if (refCount < 1) {
+            log.info("closeSession called and no more references: " + uuid);
             cache.removeSession(uuid);
             return -2;
         } else {
+            log.info("closeSession called but " + refCount
+                    + " more references: " + uuid);
             return refCount;
         }
     }
@@ -543,6 +547,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                 continue; // DON'T KILL OUR ROOT SESSION
             }
             try {
+                log.info("closeAll called for " + id);
                 cache.removeSession(id);
             } catch (RemovedSessionException rse) {
                 // Ok. Done for us
@@ -807,7 +812,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
 
         Session target;
         if (source instanceof Share) {
-            target = new Share();
+            target = newShare();
         } else {
             target = new Session();
         }
@@ -848,12 +853,12 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
      * Will be called in a synchronized block by {@link SessionCache} in order
      * to allow for an update.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public SessionContext reload(final SessionContext ctx) {
         final Principal p = new Principal(ctx.getCurrentUserName(), ctx
                 .getCurrentGroupName(), ctx.getCurrentEventType());
         List list = (List) executor.execute(asroot, new Executor.SimpleWork(
-                this, "reload") {
+                this, "reload", ctx.getSession().getUuid()) {
             @Transactional(readOnly = true)
             public Object doWork(org.hibernate.Session session,
                     ServiceFactory sf) {
@@ -863,7 +868,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         if (list == null) {
             return null;
         }
-        return createSessionContext(list);
+        return createSessionContext(list, ctx);
     }
 
     // Executor methods
@@ -901,7 +906,9 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         }
         session.setNode(node);
         session.setOwner(new Experimenter(userId, false));
-        return sf.getUpdateService().saveAndReturnObject(session);
+        Session rv = sf.getUpdateService().saveAndReturnObject(session);
+        rv.putAt("#2733", session.retrieve("#2733"));
+        return rv;
     }
 
     private boolean executeCheckPassword(final Principal _principal,
@@ -1211,12 +1218,13 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
      * a removed user session, then a {@link RemovedSessionException} is thrown.
      */
     private long executeLookupUser(ServiceFactory sf, Principal p) {
-        try {
-            return sf.getAdminService().lookupExperimenter(p.getName()).getId();
-        } catch (ApiUsageException aue) {
+        List<Object[]> rv = sf.getQueryService().projection("select e.id from Experimenter e where e.omeName = :name",
+                new Parameters().addString("name", p.getName()));
+        if (rv.size() == 0) {
             throw new RemovedSessionException("Cannot find a user with name "
                     + p.getName());
         }
+        return (Long) rv.get(0)[0];
     }
 
     /**
@@ -1247,5 +1255,11 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         } catch (Exception e) {
             return null;
         }
+    }
+
+    private Share newShare() {
+        Share share = new Share();
+        share.putAt("#2733", "ALLOW");
+        return share;
     }
 }

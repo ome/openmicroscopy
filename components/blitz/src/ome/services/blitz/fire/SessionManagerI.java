@@ -195,11 +195,12 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
             // Logging & sessionToClientIds addition
             if (!sessionToClientIds.containsKey(s.getUuid())) {
                 sessionToClientIds.put(s.getUuid(), new HashSet<String>());
-                log.info(String.format("Created session %s for user %s",
-                        id.name, userId));
+                log.info(String.format("Created session %s for user %s (agent=%s)",
+                        session, userId, agent));
             } else {
                 if (log.isInfoEnabled()) {
-                    log.info(String.format("Rejoining session %s", id.name));
+                    log.info(String.format("Rejoining session %s (agent=%s)",
+                            session, agent));
                 }
             }
             sessionToClientIds.get(s.getUuid()).add(session.clientId);
@@ -304,15 +305,18 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
     void checkStatefulServices(ChangeSecurityContextEvent csce) {
         String uuid = csce.getUuid();
         Set<String> clientIds = sessionToClientIds.get(uuid);
+        if (clientIds == null) {
+            return; // nothing to be done. should only happen during testing.
+        }
         clientIds = new HashSet<String>(clientIds);
         for (String clientId : clientIds) {
             try {
                 ServiceFactoryI sf = getServiceFactory(clientId, uuid);
                 if (sf != null) {
-                    int count = sf.getStatefulServiceCount();
-                    if (count > 0) {
+                    String servants = sf.getStatefulServiceCount();
+                    if (servants.length() > 0) {
                         csce.cancel("Client " + clientId +
-                                " has active stateful services: count=" + count);
+                                " has active stateful services:\n" + servants);
                     }
                 }
             } catch (Exception e) {
@@ -343,14 +347,17 @@ public final class SessionManagerI extends Glacier2._SessionManagerDisp
     public void reapSession(String sessionId) {
         Set<String> clientIds = sessionToClientIds.get(sessionId);
         if (clientIds != null) {
+            if (clientIds.size() > 0) {
+                log.info("Reaping " + clientIds.size() + " clients for " + sessionId);
+            }
             for (String clientId : clientIds) {
                 try {
                     ServiceFactoryI sf = getServiceFactory(clientId, sessionId);
                     if (sf != null) {
                         sf.doDestroy();
                         Ice.Identity id = sf.sessionId();
-                        log.info("Removing " + id.name);
-                            adapter.remove(id); // OK ADAPTER USAGE
+                        log.info("Removing " + sf);
+                        adapter.remove(id); // OK ADAPTER USAGE
                     }
                 } catch (Ice.ObjectAdapterDeactivatedException oade) {
                     log.warn("Cannot reap session " + sessionId

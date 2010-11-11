@@ -145,7 +145,7 @@ class BaseExperimenter(BaseController):
                 self.groups.append({'group': gr, 'permissions': self.getPermissions(gr)})
         self.groupsCount = len(self.groups)
     
-    def updateMyAccount(self, firstName, lastName, email, dGroup, middleName=None, institution=None, password=None):
+    def updateMyAccount(self, firstName, lastName, email, dGroup, middleName=None, institution=None):
         up_exp = self.experimenter._obj
         up_exp.firstName = rstring(str(firstName))
         up_exp.middleName = middleName is not None and rstring(str(middleName)) or None
@@ -154,7 +154,7 @@ class BaseExperimenter(BaseController):
         up_exp.institution = (institution!="" and institution is not None) and rstring(str(institution)) or None
         
         defaultGroup = self.conn.getGroup(long(dGroup))._obj
-        self.conn.updateMyAccount(up_exp, defaultGroup, password)
+        self.conn.updateMyAccount(up_exp, defaultGroup)
     
     def createExperimenter(self, omeName, firstName, lastName, email, admin, active, dGroup, otherGroups, password, middleName=None, institution=None):
         new_exp = ExperimenterI()
@@ -195,7 +195,7 @@ class BaseExperimenter(BaseController):
                     listOfGroups.add(g._obj)
         self.conn.createExperimenter(new_exp, defaultGroup, list(listOfGroups), password)
     
-    def updateExperimenter(self, omeName, firstName, lastName, email, admin, active, dGroup, otherGroups, middleName=None, institution=None, password=None):
+    def updateExperimenter(self, omeName, firstName, lastName, email, admin, active, dGroup, otherGroups, middleName=None, institution=None):
         up_exp = self.experimenter._obj
         up_exp.omeName = rstring(str(omeName))
         up_exp.firstName = rstring(str(firstName))
@@ -262,7 +262,7 @@ class BaseExperimenter(BaseController):
             if not flag:
                 add_grs.append(ngr)
         
-        self.conn.updateExperimenter(up_exp, defaultGroup, add_grs, rm_grs, password)
+        self.conn.updateExperimenter(up_exp, defaultGroup, add_grs, rm_grs)
     
     def deleteExperimenter(self):
         self.conn.deleteExperimenter(self.experimenter._obj)

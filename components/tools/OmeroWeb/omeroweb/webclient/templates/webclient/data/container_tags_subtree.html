@@ -4,5 +4,5 @@
 {% for d in manager.containers.images %}
     <li id='img-{{ d.id }}' title="{{ d.name }}"><span id="readonly">{{ d.name|truncatebefor:"35" }}</span> 
         <!--{% if d.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="a" title="annotation"/>{% endif %}-->
-        {% if not d.link.isOwned %}{% if not d.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="owned by {{ d.getOwner.getNameWithInitial }}, linked by {{ d.link.getOwner.getNameWithInitial }}"/>{% else %}<img src="{% url webstatic "images/kgpg_key16.png" %}" alt="l" title="linked by {{ d.link.getOwner.getNameWithInitial }}"/>{% endif %}{% else %}{% if not d.isOwned %} <img src="{% url webstatic "images/personal12.png" %}" alt="l" title="owned by {{ d.getOwner.getNameWithInitial }}"/>{% endif %}{% endif %}</li>
+        {% if not d.isOwned %} <img src="{% url webstatic "images/kgpg12.png" %}" alt="l" title="owned by {{ d.getOwner.getNameWithInitial }}"/>{% endif %}</li>
 {% endfor %}

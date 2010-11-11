@@ -723,8 +723,8 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#Split-viewFigure"
         if fileAnnotation:
             client.setOutput("Message", rstring("Split-View Figure Created"))
             client.setOutput("File_Annotation", robject(fileAnnotation))
-    except: raise
-    finally: client.closeSession()
-        
+    finally:
+        client.closeSession()
+
 if __name__ == "__main__":
     runAsScript()

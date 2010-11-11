@@ -13,7 +13,7 @@
 
 import os
 import sys
-import Ice
+import Ice, Glacier2
 import time
 import traceback
 import exceptions
@@ -68,6 +68,7 @@ LONGHELP = """
         Password:
         $ bin/omero -k 8afe443f-19fc-4cc4-bf4a-850ec94f4650 sessions login
         $ bin/omero sessions clear
+        $ bin/omero sessions list --session-dir=/tmp
 """
 
 class SessionsControl(BaseControl):
@@ -75,8 +76,12 @@ class SessionsControl(BaseControl):
     FACTORY = SessionsStore
 
     def store(self, args):
-        dir = getattr(args, "dir", None)
-        return self.FACTORY(dir)
+        try:
+            dirpath = getattr(args, "session_dir", None)
+            return self.FACTORY(dirpath)
+        except OSError, ose:
+            filename = getattr(ose, "filename", dirpath)
+            self.ctx.die(155, "Could not access session dir: %s" % filename)
 
     def _configure(self, parser):
         sub = parser.sub()
@@ -103,7 +108,7 @@ class SessionsControl(BaseControl):
         self._configure_dir(login)
 
     def _configure_dir(self, parser):
-        parser.add_argument("-d", "--dir", help="Use a different sessions directory (Default: $HOME/omero/sessions)")
+        parser.add_argument("--session-dir", help="Use a different sessions directory (Default: $HOME/omero/sessions)")
 
     def help(self, args):
         self.ctx.err(LONGHELP % {"prog":args.prog})
@@ -221,18 +226,28 @@ class SessionsControl(BaseControl):
                     continue
 
         if not rv:
-            if not pasw:
-                pasw = self.ctx.input("Password:", hidden = True, required = True)
-            try:
-                rv = store.create(name, pasw, props)
-            except Ice.ConnectionRefusedException:
-                self.ctx.die(554, "Ice.ConnectionRefusedException: %s isn't running" % server)
-            except Ice.DNSException:
-                self.ctx.die(555, "Ice.DNSException: bad host name: '%s'" % server)
-            except exceptions.Exception, e:
-                exc = traceback.format_exc()
-                self.ctx.dbg(exc)
-                self.ctx.die(556, "InternalException: Failed to connect: %s" % e)
+            tries = 3
+            while True:
+                try:
+                    if not pasw:
+                        pasw = self.ctx.input("Password:", hidden = True, required = True)
+                    rv = store.create(name, pasw, props)
+                    break
+                except Glacier2.PermissionDeniedException, pde:
+                    tries -= 1
+                    if not tries:
+                        self.ctx.die(524, "3 incorrect password attempts")
+                    else:
+                        self.ctx.err(pde.reason)
+                        pasw = None
+                except Ice.ConnectionRefusedException:
+                    self.ctx.die(554, "Ice.ConnectionRefusedException: %s isn't running" % server)
+                except Ice.DNSException:
+                    self.ctx.die(555, "Ice.DNSException: bad host name: '%s'" % server)
+                except exceptions.Exception, e:
+                    exc = traceback.format_exc()
+                    self.ctx.dbg(exc)
+                    self.ctx.die(556, "InternalException: Failed to connect: %s" % e)
             action = "Created"
 
         return self.handle(rv, action)
@@ -242,9 +257,13 @@ class SessionsControl(BaseControl):
         Handles a new connection
         """
         client, uuid, idle, live = rv
-        self.ctx._client = client
-        ec = self.ctx._client.sf.getAdminService().getEventContext()
+        sf = client.sf
+
+        # detachOnDestroy called by omero.util.sessions
+        client.enableKeepAlive(300)
+        ec = sf.getAdminService().getEventContext()
         self.ctx._event_context = ec
+        self.ctx._client = client
 
         msg = "%s session %s (%s@%s)." % (action, uuid, ec.userName, client.getProperty("omero.host"))
         if idle:
@@ -252,7 +271,7 @@ class SessionsControl(BaseControl):
         if live:
             msg = msg + " Expires in %s min." % (float(live)/60/1000)
 
-        msg += (" Current group: %s" % self.ctx._client.sf.getAdminService().getEventContext().groupName)
+        msg += (" Current group: %s" % sf.getAdminService().getEventContext().groupName)
 
         self.ctx.err(msg)
 
@@ -357,7 +376,7 @@ class SessionsControl(BaseControl):
                         return
         t = T()
         t.client = self.ctx.conn(args)
-        t.event = get_event()
+        t.event = get_event(name="keepalive")
         t.start()
         try:
             self.ctx.out("Running keep alive every %s seconds" % args.frequency)

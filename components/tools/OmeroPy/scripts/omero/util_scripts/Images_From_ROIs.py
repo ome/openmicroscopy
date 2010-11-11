@@ -248,24 +248,24 @@ assumes that all the ROIs on an Image are the same size.""",
     
     try:
         session = client.getSession();
-    
-        # process the list of args above. 
+
+        # process the list of args above.
         parameterMap = {}
         for key in client.getInputKeys():
             if client.getInput(key):
                 parameterMap[key] = client.getInput(key).getValue()
-    
+
         print parameterMap
-        
+
         message = makeImagesFromRois(session, parameterMap)
-    
+
         if message:
             client.setOutput("Message", rstring(message))
         else:
             client.setOutput("Message", rstring("Script Failed. See 'error' or 'info'"))
-    except: raise
     finally:
         client.closeSession()
         printDuration()
+
 if __name__ == "__main__":
     runAsScript()

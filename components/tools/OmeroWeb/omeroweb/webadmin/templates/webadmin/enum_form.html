@@ -20,7 +20,7 @@
     <table>
       <tbody>
         {% for field in form %}
-        <tr><td class="form"> {{ field.label_tag }}{% if field.field.required %}*{% endif %}</td><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text }}</td></tr>
+        <tr><td class="form"> {{ field.label_tag }}{% if field.field.required %}*{% endif %}</td><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text|safe }}</td></tr>
         {% endfor %}
       </tbody>
       <tr><td>&nbsp;</td><td colspan="2" class="input"><br/><input type="submit" value="{% trans 'Save' %}" /></td></tr>
@@ -38,7 +38,7 @@
     <table>
       <tbody>
         {% for field in form %}
-        <tr><td class="form"><a href="{% url wamanageenum "delete" controller.klass field.name %}"><img src="{% url webstatic "images/del.png" %}" alt="delete" title="delete"></a> {{ field.label_tag }}</td><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text }}</td></tr>
+        <tr><td class="form"><a href="{% url wamanageenum "delete" controller.klass field.name %}"><img src="{% url webstatic "images/del.png" %}" alt="delete" title="delete"></a> {{ field.label_tag }}</td><td class="input">{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}{{ field.help_text|safe }}</td></tr>
         {% endfor %}
       </tbody>
       <tr><td>&nbsp;</td><td colspan="2" class="input"><br/><input type="submit" value="{% trans 'Save' %}" /></td></tr>

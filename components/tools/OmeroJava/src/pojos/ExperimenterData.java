@@ -245,7 +245,9 @@ public class ExperimenterData extends DataObject {
      * @return See above.
      */
     public GroupData getDefaultGroup() {
-        return getGroups().get(0);
+    	List<GroupData> groups = getGroups();
+    	if (groups == null || groups.size() == 0) return null;
+        return groups.get(0);
     }
 
     /**

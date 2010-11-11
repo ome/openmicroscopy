@@ -28,7 +28,7 @@ class InternalSessionContext extends SessionContextImpl {
         super(s, Arrays.asList(roles.getSystemGroupId()), Arrays.asList(roles
                 .getSystemGroupId()),
                 Arrays.asList(roles.getSystemGroupName()),
-                new NullSessionStats(), roles);
+                new NullSessionStats(), roles, null);
         this.roles = roles;
     }
 

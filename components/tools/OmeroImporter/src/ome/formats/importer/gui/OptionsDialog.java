@@ -224,7 +224,7 @@ public class OptionsDialog extends JDialog implements ActionListener
         companionFileCheckbox = GuiCommonElements.addCheckBox(otherOptionsPanel, "<html>Attached a text file to each imported" +
         		" file containing all collected metadata.</html>", "0,1", debug);
         
-        companionFileCheckbox.setEnabled(config.companionFile.get());
+        companionFileCheckbox.setSelected(config.companionFile.get());
         
         /////////////////////// START FILECHOOSER PANEL ////////////////////////
         
@@ -292,7 +292,7 @@ public class OptionsDialog extends JDialog implements ActionListener
     
         /////////////////////// START TABBED PANE ////////////////////////
         
-        if (GuiCommonElements.getIsMac()) tabbedPane.addTab("FileChooser", null, fileChooserPanel, "FileChooser Settings");
+        //if (GuiCommonElements.getIsMac()) tabbedPane.addTab("FileChooser", null, fileChooserPanel, "FileChooser Settings");
         tabbedPane.addTab("Debug", null, debugOptionsPanel, "Debug Settings");
         tabbedPane.addTab("Other", null, otherOptionsPanel, "Other Settings");
         
@@ -318,10 +318,7 @@ public class OptionsDialog extends JDialog implements ActionListener
             else
                 config.setUseQuaqua(true);
             
-            if (companionFileCheckbox.isSelected())
-                config.companionFile.set(true);
-            else
-                config.companionFile.set(false);
+            config.companionFile.set(companionFileCheckbox.isSelected());
             
             config.setDebugLevel(((DebugItem) dBox.getSelectedItem()).getLevel());
             

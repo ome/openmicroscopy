@@ -149,7 +149,29 @@
             <option>-Xdebug</option>
             <option>-Xrunjdwp:server=y,transport=dt_socket,address=8787,suspend=y</option>
         </target>
+        <target name="jprofiler">
+            <!-- In order to successfully startup with the "jprofiler" target,
+            you will need to have set DYLD_LIBRARY_PATH, LD_LIBRARY_PATH, or PATH
+            (dependending on your operating system) to include the JProfiler
+            libraries and have JPROFILER_AGENT and JPROFILER_CONFIG set. E.g.:
+
+                export DYLD_LIBRARY_PATH=/Applications/jprofiler5/bin/macos/
+                export JPROFILER_AGENT=/Applications/jprofiler5
+                export JPROFILER_CONFIG=$HOME/.jprofiler5/config.xml
+
+            -->
+            <option>-Xint</option><!-- Interpreted-mode only -->
+            <option>-agentlib:jprofilerti=port=8849,id=108,config=${JPROFILER_CONFIG}</option>
+            <option>-Xbootclasspath/a:${JPROFILER_AGENT}</option>
+        </target>
+        <target name="Blitz-hprof">
+            <option>-agentlib:hprof=cpu=samples,cutoff=0,thread=y,interval=1,depth=50,force=y,file=${OMERO_LOGS}Blitz-${index}.hprof</option>
+        </target>
         <option>-Xmx512M</option>
+        <target name="memcfg">
+            <option>${omero.blitz.maxmemory}</option>
+            <option>${omero.blitz.permgen}</option>
+        </target>
         <option>-Djava.awt.headless=true</option>
         <option>-Dlog4j.configuration=${OMERO_ETC}log4j.xml</option>
         <option>-Domero.logfile=${OMERO_LOGFILE}</option>
@@ -220,6 +242,23 @@
     <!--
       Python Servers
     -->
+
+    <!--<server-template id="WebTemplate"> 
+      <parameter name="act" default="always"/>
+      <server id="Web" exe="python" activation="${act}" pwd="${OMEROPY_HOME}omeroweb"> 
+        <option>manage.py</option> 
+        <option>runserver</option> 
+        <option>noreload</option> 
+        <option>0.0.0.0:8000</option>
+        <env>${PYTHONPATH}</env> 
+        <adapter name="WebAdapter" register-process="true" endpoints="tcp" server-lifetime="false"/>
+        <properties>
+            <properties refid="SingleThreaded"/>
+            <properties refid="Profile"/>
+        </properties> 
+      </server> 
+    </server-template>-->
+
     <server-template id="ProcessorTemplate">
       <parameter name="index"/>
       <parameter name="dir"/>

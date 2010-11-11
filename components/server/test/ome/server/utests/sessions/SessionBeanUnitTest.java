@@ -6,6 +6,8 @@
  */
 package ome.server.utests.sessions;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -14,12 +16,16 @@ import java.util.concurrent.TimeoutException;
 
 import ome.conditions.AuthenticationException;
 import ome.conditions.SessionException;
+import ome.model.internal.Permissions;
+import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Session;
 import ome.security.basic.CurrentDetails;
 import ome.services.sessions.SessionBean;
+import ome.services.sessions.SessionContextImpl;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
 import ome.system.Principal;
+import ome.system.Roles;
 
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
@@ -53,6 +59,9 @@ public class SessionBeanUnitTest extends MockObjectTestCase {
         session = new Session();
         session.setId(1L);
         session.setUuid("uuid");
+        ExperimenterGroup group = new ExperimenterGroup();
+        group.getDetails().setPermissions(new Permissions());
+        session.getDetails().setGroup(group);
         principal = new Principal("name", "group", "type");
     }
 
@@ -84,6 +93,16 @@ public class SessionBeanUnitTest extends MockObjectTestCase {
         expectsExecutorSubmit();
         smMock.expects(once()).method("close").will(returnValue(0));
         bean.closeSession(session);
+    }
+
+    @Test(groups = "ticket:3239")
+    public void testProperIsAdminImplementation() throws Exception {
+        List<Long> leaderOfGroupsIds = Arrays.asList(1L);
+        List<Long> memberOfGroupsIds = Arrays.asList(0L, 1L);
+        SessionContextImpl sessionContext = new SessionContextImpl(session,
+                leaderOfGroupsIds, memberOfGroupsIds, Arrays.asList("user"),
+                null, new Roles(), null);
+        assertTrue(sessionContext.isCurrentUserAdmin());
     }
 
 

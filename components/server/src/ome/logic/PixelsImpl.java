@@ -15,7 +15,6 @@ import java.util.List;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import ome.annotations.PermitAll;
 import ome.annotations.RolesAllowed;
 import ome.api.IPixels;
 import ome.api.ServiceInterface;
@@ -74,11 +73,12 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 		Pixels p = iQuery.findByQuery("select p from Pixels as p "
 				+ "left outer join fetch p.pixelsType as pt "
 				+ "left outer join fetch p.channels as c "
-				//+ "left outer join fetch c.colorComponent "
 				+ "left outer join fetch c.logicalChannel as lc "
 				+ "left outer join fetch c.statsInfo "
 				+ "left outer join fetch lc.photometricInterpretation "
 				+ "left outer join fetch lc.illumination "
+				+ "left outer join fetch lc.mode "
+				+ "left outer join fetch lc.contrastMethod "
 				+ "where p.id = :id",
 				new Parameters().addId(pixId));
 		return p;

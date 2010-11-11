@@ -126,13 +126,13 @@ namespace omero {
 	IceUtil::RecMutex::Lock lock(mutex);
 
 	if ( __ic ) {
-	    throw new ClientError(__FILE__, __LINE__, "Client already initialized.");
+	    throw ClientError(__FILE__, __LINE__, "Client already initialized.");
 	}
 
 	__ic = Ice::initialize(id);
 
 	if ( ! __ic ) {
-	    throw new ClientError(__FILE__, __LINE__, "Improper initialization");
+	    throw ClientError(__FILE__, __LINE__, "Improper initialization");
 	}
 
 	// Register Object Factory
@@ -273,11 +273,18 @@ namespace omero {
     Ice::CommunicatorPtr client::getCommunicator() const {
 	IceUtil::RecMutex::Lock lock(mutex);
 	if ( ! __ic ) {
-	    throw new ClientError(__FILE__, __LINE__, "No Ice.Communicator active; call createSession()");
+	    throw ClientError(__FILE__, __LINE__, "No Ice.Communicator active; call createSession()");
 	}
 	return __ic;
     }
 
+    Ice::ObjectAdapterPtr client::getObjectAdapter() const {
+	IceUtil::RecMutex::Lock lock(mutex);
+	if ( ! __oa ) {
+	    throw ClientError(__FILE__, __LINE__, "No Ice.ObjectAdapter active; call createSession()");
+	}
+	return __oa;
+    }
 
     // --------------------------------------------------------------------
 
@@ -291,7 +298,7 @@ namespace omero {
     omero::api::ServiceFactoryPrx client::getSession() const {
 	IceUtil::RecMutex::Lock lock(mutex);
 	if ( ! __sf ) {
-	    throw new ClientError(__FILE__, __LINE__, "Call createSession() to login");
+	    throw ClientError(__FILE__, __LINE__, "Call createSession() to login");
 	}
 	return __sf;
     }
@@ -369,13 +376,13 @@ namespace omero {
 	// Checking state
 
 	if ( __sf ) {
-	    throw new ClientError(__FILE__, __LINE__,
+	    throw ClientError(__FILE__, __LINE__,
 				  "Session already active. Create a new omero.client or closeSession()");
 	}
 
 	if ( ! __ic ) {
 	    if ( ! __previous.properties ) {
-		throw new ClientError(__FILE__, __LINE__,
+		throw ClientError(__FILE__, __LINE__,
 				      "No previous data to recreate communicator");
 	    }
 	    init(__previous);
@@ -473,7 +480,7 @@ namespace omero {
 
 	Glacier2::RouterPrx router = Glacier2::RouterPrx::checkedCast(prx);
 	if ( ! router ) {
-	    throw new ClientError(__FILE__, __LINE__, "Error obtaining Glacier2 router");
+	    throw ClientError(__FILE__, __LINE__, "Error obtaining Glacier2 router");
 	}
 
 	// For whatever reason, we have to set the context
@@ -484,6 +491,31 @@ namespace omero {
     }
 
 
+    // --------------------------------------------------------------------
+
+    std::vector<omero::api::StatefulServiceInterfacePrx> client::getStatefulServices() {
+            vector<omero::api::StatefulServiceInterfacePrx> rv;
+            omero::api::ServiceFactoryPrx sf = getSession();
+            vector<string> services = sf->activeServices();
+            vector<string>::const_iterator srv = services.begin();
+            vector<string>::const_iterator end = services.end();
+            while (srv != end) {
+                try {
+                    omero::api::ServiceInterfacePrx prx = sf->getByName(*srv);
+                    omero::api::StatefulServiceInterfacePrx sPrx =
+                        omero::api::StatefulServiceInterfacePrx::checkedCast(prx);
+                    if (sPrx) {
+                        rv.push_back(sPrx);
+                    }
+                } catch (...) {
+                    getCommunicator()->getLogger()->warning(
+                            "Error looking up proxy: " + *srv);
+                }
+                srv++;
+            }
+
+            return rv;
+        }
     // --------------------------------------------------------------------
 
     void client::closeSession() {
@@ -583,7 +615,7 @@ namespace omero {
 
 
     std::string client::sha1(const std::string& file) {
-	throw new ClientError(__FILE__, __LINE__, "Not yet implemented");
+	throw ClientError(__FILE__, __LINE__, "Not yet implemented");
     }
 
 
@@ -593,7 +625,7 @@ namespace omero {
     void client::upload(const std::string& file,
 			       const omero::model::OriginalFilePtr& ofile,
 			       int blockSize) {
-	throw new ClientError(__FILE__, __LINE__, "Not yet implemented");
+	throw ClientError(__FILE__, __LINE__, "Not yet implemented");
     }
 
 
@@ -646,7 +678,7 @@ namespace omero {
 	Ice::ObjectPtr obj = __oa->find(__ic->stringToIdentity("ClientCallback" + __uuid));
 	CallbackIPtr cb = CallbackIPtr::dynamicCast(obj);
 	if (!cb) {
-	    throw new ClientError(__FILE__,__LINE__,"Cannot find CallbackI in ObjectAdapter");
+	    throw ClientError(__FILE__,__LINE__,"Cannot find CallbackI in ObjectAdapter");
 	}
 	return cb;
     }

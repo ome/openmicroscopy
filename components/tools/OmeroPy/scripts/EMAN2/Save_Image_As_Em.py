@@ -247,10 +247,10 @@ See http://trac.openmicroscopy.org.uk/omero/wiki/EmPreviewFunctionality""",
         # But also return individual objects so Insight can offer 'Download' for each
         for i, o in enumerate(originalFiles):
             client.setOutput("Original_File%s"%i, omero.rtypes.robject(o))
-    
-    except: raise
-    finally: client.closeSession()
-    
+
+    finally:
+        client.closeSession()
+
 if __name__ == "__main__":
     runAsScript()
     

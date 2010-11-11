@@ -23,20 +23,24 @@ from omero.rtypes import rtime, rlong, rstring, rlist, rint
 from omero_model_ExperimenterI import ExperimenterI
 from omero_model_ExperimenterGroupI import ExperimenterGroupI
 from omero_model_PermissionsI import PermissionsI
-import omero_api_Gateway_ice
-import omero.util.script_utils as scriptUtil
+#import omero_api_Gateway_ice
 
-from numpy import arange
-
+from integration.helpers import createTestImage
 
 class TestThumbnailPerms(lib.ITest):
+
+    def set_context(self, client, gid):
+        rv = client.getStatefulServices()
+        for prx in rv:
+            prx.close()
+        client.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid, False))
 
     def testThumbs(self):
 
         # root session is root.sf
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
         admin = self.root.sf.getAdminService()
-        
+
         group1name = "private_%s" % uuid
         group2name = "read-only_%s" % uuid
         group3name = "collaborative_%s" % uuid
@@ -44,24 +48,9 @@ class TestThumbnailPerms(lib.ITest):
         user1name = "user1_%s" % uuid
         user2name = "user2_%s" % uuid
         
-        setup = False    # if we have a new DB and want to set-up groups & users for testing...
-        try:
-            admin.lookupGroup("JRS-private")    # if this fails, setup this and other groups.
-        except:
-            setup = True
-            
-        if (setup):
-            group1name = "JRS-private"
-            group2name = "JRS-read-only"
-            group3name = "JRS-collaborative"
-            ownerName = "jason"
-            user1name = "will"
-            user2name = "user"
-        
         ### create three users in 3 groups
         listOfGroups = list()
         listOfGroups.append(admin.lookupGroup("user"))  # all users need to be in 'user' group to do anything! 
-        
         
         #group1 - private
         new_gr1 = ExperimenterGroupI()
@@ -155,15 +144,16 @@ class TestThumbnailPerms(lib.ITest):
         # create image in private group
         privateImageId = createTestImage(client_share1.sf)
         print len(client_share1.sf.activeServices())
-        self.getThumbnail(client_share1.sf, privateImageId)    # if we don't get thumbnail, test fails when another user does
         
+        self.getThumbnail(client_share1.sf, privateImageId)    # if we don't get thumbnail, test fails when another user does
         print len(client_share1.sf.activeServices())
         
         # change user into read-only group. Use object Ids for this, NOT objects from a different context
         a = client_share1.sf.getAdminService()
         me = a.getExperimenter(a.getEventContext().userId)
         a.setDefaultGroup(me, omero.model.ExperimenterGroupI(gid2, False))
-        client_share1.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid2, False))
+
+        self.set_context(client_share1, gid2)
         #print a.getEventContext()
         
         # create image and get thumbnail (in read-only group)
@@ -172,7 +162,7 @@ class TestThumbnailPerms(lib.ITest):
         
         # change user into collaborative group. Use object Ids for this, NOT objects from a different context
         a.setDefaultGroup(me, omero.model.ExperimenterGroupI(gid3, False))
-        client_share1.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid3, False))
+        self.set_context(client_share1, gid3)
         
         # create image and get thumbnail (in collaborative group)
         collaborativeImageId = createTestImage(client_share1.sf)
@@ -197,7 +187,7 @@ class TestThumbnailPerms(lib.ITest):
         o = client_share1.sf.getAdminService()
         me = o.getExperimenter(o.getEventContext().userId)
         o.setDefaultGroup(me, omero.model.ExperimenterGroupI(gid2, False))
-        owner_client.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid2, False))
+        self.set_context(owner_client, gid2)
 
         self.getThumbnail(owner_client.sf, readOnlyImageId)
         # check that we can't get thumbnails for images in other groups
@@ -206,7 +196,7 @@ class TestThumbnailPerms(lib.ITest):
         
         # change owner into collaborative group.
         o.setDefaultGroup(me, omero.model.ExperimenterGroupI(gid3, False))
-        owner_client.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid3, False))
+        self.set_context(owner_client, gid3)
         
         self.getThumbnail(owner_client.sf, collaborativeImageId)
         # check that we can't get thumbnails for images in other groups
@@ -228,7 +218,7 @@ class TestThumbnailPerms(lib.ITest):
         u = user2_client.sf.getAdminService()
         me = u.getExperimenter(u.getEventContext().userId)
         u.setDefaultGroup(me, omero.model.ExperimenterGroupI(gid2, False))
-        user2_client.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid2, False))
+        self.set_context(user2_client, gid2)
 
         self.getThumbnail(user2_client.sf, readOnlyImageId)
         # check that we can't get thumbnails for images in other groups
@@ -237,7 +227,7 @@ class TestThumbnailPerms(lib.ITest):
         
         # change owner into collaborative group.
         u.setDefaultGroup(me, omero.model.ExperimenterGroupI(gid3, False))
-        user2_client.sf.setSecurityContext(omero.model.ExperimenterGroupI(gid3, False))
+        self.set_context(user2_client, gid3)
         
         self.getThumbnail(user2_client.sf, collaborativeImageId)
         # check that we can't get thumbnails for images in other groups
@@ -247,10 +237,12 @@ class TestThumbnailPerms(lib.ITest):
         
     def getThumbnail(self, session, imageId):
     
-        gateway = session.createGateway()
+        #gateway = session.createGateway()
         thumbnailStore = session.createThumbnailStore()
     
-        image = gateway.getImage(imageId)
+        image = session.getQueryService().findByQuery(
+            "select i from Image as i " \
+            "join fetch i.pixels where i.id = '%d'" % imageId, None)
         if image is None:
             return None
         pId = image.getPrimaryPixels().getId().getValue()
@@ -268,28 +260,8 @@ class TestThumbnailPerms(lib.ITest):
         self.assertNotEqual(None, t)
     
         thumbnailStore.close()
-        gateway.close()
+        #gateway.close()
         return t
         
-def createTestImage(session):
-    
-    gateway = session.createGateway()
-    renderingEngine = session.createRenderingEngine()
-    queryService = session.getQueryService()
-    pixelsService = session.getPixelsService()
-    rawPixelStore = session.createRawPixelsStore()
-    
-    plane2D = arange(256).reshape(16,16)
-    pType = plane2D.dtype.name
-    pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
-    
-    image = scriptUtil.createNewImage(pixelsService, rawPixelStore, renderingEngine, pixelsType, gateway, [plane2D], "imageName", "description", dataset=None)
-    
-    gateway.close()
-    renderingEngine.close()
-    rawPixelStore.close()
-    
-    return image.getId().getValue()
-
 if __name__ == '__main__':
     unittest.main()

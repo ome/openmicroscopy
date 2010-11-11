@@ -80,7 +80,7 @@ public class ImportHandler implements IObservable
     /**
      * @param ex -scheduled executor service for background processing
      * @param viewer - parent
-     * @param qTable - fileQueueTable to recieve notifications
+     * @param qTable - fileQueueTable to receive notifications
      * @param config - passed in config
      * @param library - passed in library
      * @param containers - importContainers
@@ -92,9 +92,9 @@ public class ImportHandler implements IObservable
         this.config = config;
         this.library = library;
         this.importContainer = containers;
-        if (viewer.historyTable != null) 
+        if (viewer.getHistoryTable() != null) 
         {
-            this.db = viewer.historyTable.db;
+            this.db = viewer.getHistoryTable().db;
         } else 
         {
             this.db = null;
@@ -112,7 +112,7 @@ public class ImportHandler implements IObservable
             this.qTable = qTable;
             library.addObserver(qTable);
             library.addObserver(viewer);
-            library.addObserver(viewer.errorHandler.delegate);
+            library.addObserver(viewer.getErrorHandler());
             library.addObserver(new IObserver()
             {
                 public void update(IObservable importLibrary, ImportEvent event) 
@@ -163,7 +163,7 @@ public class ImportHandler implements IObservable
         String myDate = formatter.format(date);
 
         viewer.appendToOutputLn("> Starting import at: " + myDate + "\n");
-        viewer.statusBar.setStatusIcon("gfx/import_icon_16.png",
+        viewer.getStatusBar().setStatusIcon("gfx/import_icon_16.png",
                 "Now importing.");
 
         numOfPendings = 0;
@@ -197,12 +197,13 @@ public class ImportHandler implements IObservable
 
         if (db != null)
             db.notifyObservers(new ImportEvent.QUICKBAR_UPDATE());
-        viewer.statusBar.setProgressMaximum(numOfPendings);
+        viewer.getStatusBar().setProgressMaximum(numOfPendings);
 
         numOfDone = 0;
         for (int j = 0; j < importContainer.length; j++) {
             ImportContainer container = importContainer[j];
-            if (qTable.table.getValueAt(j, 2).equals("pending")
+            
+            if (qTable.getTable().getValueAt(j, 2).equals("pending")
                     && qTable.cancel == false) {
                 numOfDone++;
                 String filename = container.getFile().getAbsolutePath();
@@ -292,8 +293,8 @@ public class ImportHandler implements IObservable
             }
         }
 
-        viewer.statusBar.setProgress(false, 0, "");
-        viewer.statusBar.setStatusIcon("gfx/import_done_16.png",
+        viewer.getStatusBar().setProgress(false, 0, "");
+        viewer.getStatusBar().setStatusIcon("gfx/import_done_16.png",
                 "Import complete.");
         if (importStatus >= 0)
         	updateHistoryWithCompleteImport(importKey);
@@ -348,7 +349,7 @@ public class ImportHandler implements IObservable
         try {
             if (db != null && db.historyEnabled == true) {
                 db.updateBaseStatus(importKey, "incomplete");
-                viewer.historyTable.updateOutlookBar();
+                viewer.getHistoryTable().updateOutlookBar();
             }
         } catch (Exception e) {
             	log.error("updateBaseStatus exception: importKey '" 
@@ -376,7 +377,7 @@ public class ImportHandler implements IObservable
             if (db != null && db.historyEnabled == true)
             {
                 db.updateBaseStatus(importKey, "complete");
-                viewer.historyTable.updateOutlookBar();
+                viewer.getHistoryTable().updateOutlookBar();
             }
         } catch (Exception e) {
         	log.error("updateBaseStatus exception: importKey '" 
@@ -429,6 +430,5 @@ public class ImportHandler implements IObservable
         {
             observer.update(this, event);
         }
-    }
-    
+    }    
 }

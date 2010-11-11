@@ -17,7 +17,7 @@ def login (request):
         request.session['host'] = blitz.host
         request.session['port'] = blitz.port
     
-    conn = getBlitzConnection (request)
+    conn = getBlitzConnection (request, useragent="OMERO.webtest")
     logger.debug(conn)
     if conn is not None:
         return HttpResponseRedirect(reverse('webtest_index'))
@@ -33,22 +33,23 @@ def logout (request):
         del request.session['password']
     except KeyError:
         logger.error(traceback.format_exc())
+    
+    #request.session.set_expiry(1)
     return HttpResponseRedirect(reverse('webtest_login'))
 
 def index (request):
-    conn = getBlitzConnection (request)
+    conn = getBlitzConnection (request, useragent="OMERO.webtest")
     if conn is None or not conn.isConnected():
         return HttpResponseRedirect(reverse('webtest_login'))
 
     return render_to_response('webtest/index.html', {'client': conn})
 
-def metadata (request, iid):
-    
+def metadata (request, iid):    
     from omeroweb.webclient.forms import MetadataFilterForm, MetadataDetectorForm, MetadataChannelForm, \
                         MetadataEnvironmentForm, MetadataObjectiveForm, MetadataStageLabelForm, \
                         MetadataLightSourceForm, MetadataDichroicForm, MetadataMicroscopeForm
                         
-    conn = getBlitzConnection (request)
+    conn = getBlitzConnection(request, useragent="OMERO.webtest")
     if conn is None or not conn.isConnected():
         return HttpResponseRedirect(reverse('webtest_login'))
     
@@ -167,7 +168,7 @@ def metadata (request, iid):
 def image_viewer (request, iid, **kwargs):
     """ This view is responsible for showing pixel data as images """
     
-    conn = getBlitzConnection (request)
+    conn = getBlitzConnection (request, useragent="OMERO.webtest")
     if conn is None or not conn.isConnected():
         return HttpResponseRedirect(reverse('webtest_login'))
     

@@ -96,7 +96,13 @@ class ExperimenterForm(forms.Form):
         
         self.fields['available_groups'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['available'], required=False, widget=forms.SelectMultiple(attrs={'size':10}))
         
-        self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'password', 'confirmation', 'default_group', 'other_groups', 'available_groups']
+        if kwargs['initial'].has_key('with_password') and kwargs['initial']['with_password']:
+            self.fields['password'] = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
+            self.fields['confirmation'] = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
+            
+            self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'password', 'confirmation', 'default_group', 'other_groups', 'available_groups']
+        else:
+            self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'default_group', 'other_groups', 'available_groups']
 
     omename = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}))
     first_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}))
@@ -106,17 +112,6 @@ class ExperimenterForm(forms.Form):
     institution = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
     administrator = forms.CharField(widget=forms.CheckboxInput(), required=False)
     active = forms.CharField(widget=forms.CheckboxInput(), required=False)
-    
-    password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
-    confirmation = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
-    
-    def clean_omename(self):
-        if self.name_check:
-            raise forms.ValidationError('This omename already exist.')
-
-    def clean_email(self):
-        if self.email_check:
-            raise forms.ValidationError('This email already exist.')
     
     def clean_confirmation(self):
         if self.cleaned_data.get('password') or self.cleaned_data.get('confirmation'):
@@ -126,42 +121,15 @@ class ExperimenterForm(forms.Form):
                 raise forms.ValidationError('Passwords do not match')
             else:
                 return self.cleaned_data.get('password')
-
-class ExperimenterLdapForm(forms.Form):
-
-    def __init__(self, name_check=False, email_check=False, *args, **kwargs):
-        super(ExperimenterLdapForm, self).__init__(*args, **kwargs)
-        self.name_check=name_check
-        self.email_check=email_check 
-        
-        try:
-            self.fields['default_group'] = forms.ChoiceField(choices=kwargs['initial']['default'], widget=forms.RadioSelect(), required=True, label="Groups")
-            self.fields['other_groups'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['others'], initial=kwargs['initial']['others'], required=False, widget=forms.SelectMultiple(attrs={'size':10}))
-        except:
-            self.fields['default_group'] = forms.ChoiceField(choices=list(), widget=forms.RadioSelect(), required=True, label="Groups")
-            self.fields['other_groups'] = GroupModelMultipleChoiceField(queryset=list(), required=False, widget=forms.SelectMultiple(attrs={'size':10}))
-        
-        self.fields['available_groups'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['available'], required=False, widget=forms.SelectMultiple(attrs={'size':10}))
-        
-        self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'default_group', 'other_groups', 'available_groups']
-    
-    omename = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}))
-    first_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}))
-    middle_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
-    last_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}))
-    email = forms.EmailField(widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
-    institution = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
-    administrator = forms.CharField(widget=forms.CheckboxInput(), required=False)
-    active = forms.CharField(widget=forms.CheckboxInput(), required=False)
-    
+                
     def clean_omename(self):
         if self.name_check:
             raise forms.ValidationError('This omename already exist.')
-    
+
     def clean_email(self):
         if self.email_check:
             raise forms.ValidationError('This email already exist.')
-    
+
 class GroupForm(forms.Form):
     
     PERMISSION_CHOICES = (
@@ -182,7 +150,7 @@ class GroupForm(forms.Form):
 
     name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'autocomplete': 'off'}))
     description = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':25, 'autocomplete': 'off'}), required=False)
-    access_controll = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions")
+    access_controll = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions", help_text="<div class=\"error\">WARNING: Changing Permissions will change permissions of all objects in a group, it means. That action might increase the time of upgrading group and break the server.</div>")
     readonly = forms.BooleanField(required=False, label="(read-only)")  
     
     def clean_name(self):
@@ -197,7 +165,7 @@ class GroupOwnerForm(forms.Form):
         #('2', 'Public ')
     )
 
-    access_controll = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True)
+    access_controll = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions", help_text="<div class=\"error\">WARNING: Changing Permissions will change permissions of all objects in a group. That action might increase the time of upgrading group and break the server.</div>")
     readonly = forms.BooleanField(required=False, label="(read-only)")  
 
 class ScriptForm(forms.Form):
@@ -211,42 +179,6 @@ class MyAccountForm(forms.Form):
         
     def __init__(self, email_check=False, *args, **kwargs):
         super(MyAccountForm, self).__init__(*args, **kwargs)
-        self.email_check=email_check
-        try:
-            if kwargs['initial']['default_group']: pass
-            self.fields['default_group'] = GroupModelChoiceField(queryset=kwargs['initial']['groups'], initial=kwargs['initial']['default_group'], empty_label=None)
-        except:
-            self.fields['default_group'] = GroupModelChoiceField(queryset=kwargs['initial']['groups'], empty_label=None)
-        self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'default_group', 'password', 'confirmation']
-
-    omename = forms.CharField(max_length=50, widget=forms.TextInput(attrs={'onfocus':'this.blur()', 'size':30, 'autocomplete': 'off'}))
-    first_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}))
-    middle_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
-    last_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}))
-    email = forms.EmailField(widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
-    institution = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
-
-    password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
-    confirmation = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
-    
-    def clean_email(self):
-        if self.email_check:
-            raise forms.ValidationError('This email already exist.')
-    
-    def clean_confirmation(self):
-        if self.cleaned_data.get('password') and self.cleaned_data.get('confirmation'):
-            if len(self.cleaned_data.get('password')) < 3:
-                raise forms.ValidationError('Password must be at least 3 letters long')
-            if self.cleaned_data.get('password') != self.cleaned_data.get('confirmation'):
-                raise forms.ValidationError('Passwords do not match')
-            else:
-                return self.cleaned_data.get('password')
-
-
-class MyAccountLdapForm(forms.Form):
-
-    def __init__(self, email_check=False, *args, **kwargs):
-        super(MyAccountLdapForm, self).__init__(*args, **kwargs)
         self.email_check=email_check
         try:
             if kwargs['initial']['default_group']: pass
@@ -289,6 +221,29 @@ class UploadPhotoForm(forms.Form):
             raise forms.ValidationError('Photo size file cannot be greater them 200KB.')
 
 
+class ChangeUserPassword(forms.Form):
+    
+    password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
+    confirmation = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
+    
+    def clean_confirmation(self):
+        if self.cleaned_data.get('password') or self.cleaned_data.get('confirmation'):
+            if len(self.cleaned_data.get('password')) < 3:
+                raise forms.ValidationError('Password must be at least 3 letters long')
+            if self.cleaned_data.get('password') != self.cleaned_data.get('confirmation'):
+                raise forms.ValidationError('Passwords do not match')
+            else:
+                return self.cleaned_data.get('password')
+
+
+class ChangeMyPassword(ChangeUserPassword):
+    
+    def __init__(self, *args, **kwargs):
+        super(ChangeMyPassword, self).__init__(*args, **kwargs)
+        self.fields.keyOrder = ['old_password', 'password', 'confirmation']
+        
+    old_password = forms.CharField(max_length=50, widget=forms.PasswordInput(attrs={'size':30, 'autocomplete': 'off'}))
+    
 class EnumerationEntry(forms.Form):
     
     new_entry = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30}))

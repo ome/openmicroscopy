@@ -27,6 +27,7 @@ import java.util.Set;
 
 import ome.annotations.NotNull;
 import ome.annotations.Validate;
+import ome.model.acquisition.Instrument;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
 import ome.model.core.LogicalChannel;
@@ -230,7 +231,7 @@ public interface IMetadata
      * @param id The id of the instrument to load.
      * @return See above
      */
-    public Set<IObject> loadInstrument(long id);
+    public Instrument loadInstrument(long id);
     
     /**
      * Counts the number of annotation of a given type used by the specified

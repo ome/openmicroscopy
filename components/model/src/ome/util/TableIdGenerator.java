@@ -70,13 +70,9 @@ public class TableIdGenerator extends TableGenerator {
             if (ds instanceof TransactionAwareDataSourceProxy) {
                 TransactionAwareDataSourceProxy tadsp = (TransactionAwareDataSourceProxy) ds;
                 ds = tadsp.getTargetDataSource();
-                if (ds instanceof LazyConnectionDataSourceProxy) {
-                    LazyConnectionDataSourceProxy lcdsp = (LazyConnectionDataSourceProxy) ds;
-                    ds = lcdsp.getTargetDataSource();
-                    jdbc = new SimpleJdbcTemplate(ds);
-                    tt = new TransactionTemplate(
-                            new DataSourceTransactionManager(ds));
-                }
+                jdbc = new SimpleJdbcTemplate(ds);
+                tt = new TransactionTemplate(
+                        new DataSourceTransactionManager(ds));
             }
         }
 

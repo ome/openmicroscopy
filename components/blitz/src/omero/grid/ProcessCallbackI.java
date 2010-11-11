@@ -34,9 +34,13 @@ public class ProcessCallbackI extends _ProcessCallbackDisp {
 
     private final BlockingQueue<Action> q = new LinkedBlockingQueue<Action>();
 
-    private final ProcessPrx process;
-
     private final boolean poll;
+
+    /**
+     * Proxy passed to this instance on creation. Can be used by subclasses
+     * freely. The object will not be nulled, but may be closed server-side.
+     */
+    protected final ProcessPrx process;
 
     public ProcessCallbackI(omero.client client, ProcessPrx process)
     throws ServerError {

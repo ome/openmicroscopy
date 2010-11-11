@@ -902,7 +902,7 @@ def usermode_processor(client, serverid = "UsermodeProcessor",\
         accepts_list = [omero.model.ExperimenterI(uid, False)]
 
     if stop_event is None:
-        stop_event = omero.util.concurrency.get_event()
+        stop_event = omero.util.concurrency.get_event(name="UsermodeProcessor")
 
     ctx = omero.util.ServerContext(serverid, client.ic, stop_event)
     impl = omero.processor.ProcessorI(ctx,

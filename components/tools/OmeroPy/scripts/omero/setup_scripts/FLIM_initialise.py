@@ -20,7 +20,7 @@
 
 ------------------------------------------------------------------------------
 
-Initialise the namespace and tags for the FLIM script, /scripts/omero/analysis_scripts/FLIM.py
+Initialises the namespace and keywords for the FLIM script, /scripts/omero/analysis_scripts/FLIM.py
 
 @author  Pieta Schofield &nbsp;&nbsp;&nbsp;&nbsp;
 <a href="mailto:p@schofield.dundee.ac.uk">will@lifesci.dundee.ac.uk</a>
@@ -53,20 +53,20 @@ from omero.util.OmeroPopo import ROICoordinate as ROICoordinate
 # Script Utility helper methods.
 import omero.util.script_utils as script_utils
 
-CELL = "Cell";
-NAMESPACE = "openmicroscopy.org.uk/ROI/FLIM";
-BACKGROUND = "Background";
+CELL = omero.constants.analysis.flim.KEYWORDFLIMCELL;
+NAMESPACE = omero.constants.analysis.flim.NSFLIM;
+BACKGROUND = omero.constants.analysis.flim.KEYWORDFLIMBACKGROUND;
 
 def initialise(session):
     iQuery = session.getQueryService();
     iUpdate = session.getUpdateService();
     
-    keywords = BACKGROUND+","+CELL;
+    #keywords = BACKGROUND+","+CELL;
+    keywords = CELL;
     script_utils.registerNamespace(iQuery, iUpdate, NAMESPACE, keywords);
 
 def runAsScript():
-    client = scripts.client('FLIM_initialise.py', """Setup the namespaces, keywords and tags for the FLIM script.
-    See http://trac.openmicroscopy.org.uk/shoola/wiki/Analysis_Scripts#FLIM""",
+    client = scripts.client('FLIM_initialise.py', """Sets up the namespace and keywords for the FLIM script.""",
     version = "4.2.0",
     authors = ["Donald MacDonald", "OME Team"],
     institutions = ["University of Dundee"],

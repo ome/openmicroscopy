@@ -60,7 +60,7 @@
             <tr><th>{% trans "Objective" %}:</th><td colspan="2"></td></tr>
                 {% for field in form_objective %}
                 <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
                 </tr>
                 {% endfor %}
                 <tr><th><br/></th><td colspan="2"></td></tr>
@@ -69,7 +69,7 @@
             <tr><th>{% trans "Environment" %}:</th><td colspan="2"></td></tr>
                 {% for field in form_environment %}
                 <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
                 </tr>
                 {% endfor %}
                 <tr><th><br/></th><td colspan="2"></td></tr>
@@ -78,7 +78,7 @@
             <tr><th>{% trans "Stage label" %}:</th><td colspan="2"></td></tr>
                 {% for field in form_stageLabel %}
                 <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
                 </tr>
                 {% endfor %}
                 <tr><th><br/></th><td colspan="2"></td></tr>
@@ -95,7 +95,7 @@
             <tr><th>{% trans "Objective" %}:</th><td colspan="2"></td></tr>
                 {% for field in form_objective %}
                 <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
                 </tr>
                 {% endfor %}
             <tr><th><br/></th><td colspan="2"></td></tr>
@@ -104,7 +104,7 @@
                 <tr><th>{% trans "Filter" %}:</th><td colspan="2"></td></tr>
                 {% for field in form %}
                 <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
                 </tr>
                 {% endfor %}
             <tr><th><br/></th><td colspan="2"></td></tr>
@@ -113,7 +113,7 @@
                 <tr><th>{% trans "Detector" %}:</th><td colspan="2"></td></tr>
                 {% for field in form %}
                 <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
                 </tr>
                 {% endfor %}
             <tr><th><br/></th><td colspan="2"></td></tr>
@@ -128,14 +128,14 @@
             <table class="forms">
                 {% for field in ch.form %}
                 <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
                 </tr>
                 {% endfor %}
                 {% if ch.form_emission_filter %}
                 <tr><th><br/>{% trans "Filter" %}:</th><td colspan="2"></td></tr>
                 {% for field in ch.form_emission_filter %}
                 <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
                 </tr>
                 {% endfor %}
                 {% endif %}
@@ -143,7 +143,7 @@
                 <tr><th><br/>{% trans "Detector" %}:</th><td colspan="2"></td></tr>
                 {% for field in ch.form_detector_settings %}
                 <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
                 </tr>
                 {% endfor %}
                 {% endif %}
@@ -151,7 +151,7 @@
                 <tr><th><br/>{% trans "Light source" %}:</th><td colspan="2"></td></tr>
                 {% for field in ch.form_light_source %}
                 <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
                 </tr>
                 {% endfor %}
                 {% endif %}
@@ -159,7 +159,7 @@
                 <tr><th><br/>{% trans "Dichroic" %}:</th><td colspan="2"></td></tr>
                 {% for field in ch.form_dichroic %}
                 <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text }}</td>
+                    <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
                 </tr>
                 {% endfor %}
                 {% endif %}

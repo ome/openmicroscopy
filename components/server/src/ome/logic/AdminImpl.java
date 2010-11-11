@@ -937,12 +937,13 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     }
 
     /**
-     * Helpers which unconditonally moves the object to the common space. This
+     * Helpers which unconditionally moves the object to the common space. This
      * can be used by other methods like {@link #uploadMyUserPhoto(String, String, byte[])}
      *
      * @param not null object. Should be linked to the current session.
      */
     private void internalMoveToCommonSpace(IObject obj) {
+        /* Can this next line be removed? - ajp */
         final Session session = osf.getSession();
         obj.getDetails().setGroup(
                 groupProxy(getSecurityRoles().getUserGroupId()));
@@ -1087,9 +1088,18 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         throw new UnsupportedOperationException();
     }
 
-    @RolesAllowed({"guest", "user", "HasPassword"})
+    @RolesAllowed({"user", "HasPassword"})
     public void changePassword(String newPassword) {
         String user = getSecuritySystem().getEventContext().getCurrentUserName();
+        _changePassword(user, newPassword);
+    }
+
+    @RolesAllowed({"user"})
+    public void changePasswordWithOldPassword(String oldPassword, String newPassword) {
+        String user = getSecuritySystem().getEventContext().getCurrentUserName();
+        if (!checkPassword(user, oldPassword)) {
+            throw new SecurityViolation("Old password is invalid");
+        }
         _changePassword(user, newPassword);
     }
 
@@ -1181,6 +1191,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
                     Query.LEFT_JOIN);
             Criteria g = m.createCriteria("parent", Query.LEFT_JOIN);
 
+            /* Should these calls be using g not c? - ajp */
             if (value("name") != null) {
                 c.add(Restrictions.eq("omeName", value("name")));
             }
@@ -1306,15 +1317,21 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         final ExperimenterGroup group = (ExperimenterGroup) s.get(ExperimenterGroup.class, id);
         final Permissions oldPerms = group.getDetails().getPermissions();
 
+        if (oldPerms.sameRights(newPerms)) {
+            getBeanHelper().getLogger()
+                .debug(String.format("Ignoring unchanged permissions: %s",
+                        newPerms));
+            return;
+        }
+
         Role u = Role.USER;
         Role g = Role.GROUP;
         Role a = Role.WORLD;
         Right r = Right.READ;
-        Right w = Right.WRITE;
 
-        if (!newPerms.isGranted(u,r)) {
+        if (!newPerms.isGranted(u, r)) {
             throw new GroupSecurityViolation("Cannot remove user read: "+group);
-        } else if (oldPerms.isGranted(g,r) && ! newPerms.isGranted(g, r)) {
+        } else if (oldPerms.isGranted(g, r) && ! newPerms.isGranted(g, r)) {
             throw new GroupSecurityViolation("Cannot remove group read: "+group);
         } else if (oldPerms.isGranted(a, r) && ! newPerms.isGranted(a, r)) {
             throw new GroupSecurityViolation("Cannot remove world read: "+group);

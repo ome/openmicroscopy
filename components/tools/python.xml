@@ -62,9 +62,11 @@
     </target>
 
     <target name="python-test-suite" unless="TEST">
-        <setup_py failonerror="${test.with.fail}">
-            <arg value="test"/>
-        </setup_py>
+        <run_py failonerror="${test.with.fail}">
+            <env key="ICE_CONFIG" value="${env.ICE_CONFIG}"/>
+            <env key="PYTHONPATH" path="test:build/lib:${basedir}/../target/lib/python:${env.PYTHONPATH}"/>
+            <arg file="${basedir}/test/suite.py"/>
+        </run_py>
     </target>
 
     <target name="python-test" unless="env.NOPYTHON">

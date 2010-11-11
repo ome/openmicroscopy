@@ -52,6 +52,9 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^basket/update/$', views.update_basket, name="update_basket"),
     url( r'^basket/(?:(?P<action>[a-zA-Z]+)/)?$', views.basket_action, name="basket_action"),
     
+    url( r'^progress/', views.progress, name="progress"),
+    url( r'^status/(?:(?P<action>[a-zA-Z]+)/)?$', views.status_action, name="status"),
+    
     # loading data
     url( r'^load_data/(?P<o1_type>((?i)orphaned))/$', views.load_data, name="load_data_ajax" ),
     
@@ -96,18 +99,14 @@ urlpatterns = patterns('django.views.generic.simple',
     
     url( r'^clipboard/$', views.update_clipboard, name="update_clipboard"),
         
-    url( r'^import/$', views.importer, name="importer"),
-    url( r'^upload/$', views.flash_uploader, name="flash_uploader"), 
+    #url( r'^import/$', views.importer, name="importer"),
     
     url( r'^help_search/$', 'direct_to_template', {'template': 'webclient/help/help_search.html'}, name="help_search" ),
     
     url( r'^myphoto/$', views.myphoto, name="myphoto"),
+    url( r'^change_password/$', views.change_password, name="change_password"),
     url( r'^userphoto/(?P<oid>[0-9]+)/$', views.load_photo, name="load_photo"),
     
     url( r'^spellchecker/$', views.spellchecker, name="spellchecker"), 
-    
-    
-    url( r'^applet/$', views.testApplet, name="testApplet"),
-    url( r'^binary/(?P<name>[^/]+)$', views.getBinary, name="testBinary"), 
     
 )

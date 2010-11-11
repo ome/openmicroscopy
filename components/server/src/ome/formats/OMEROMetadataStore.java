@@ -47,6 +47,7 @@ import ome.model.acquisition.Laser;
 import ome.model.acquisition.LightPath;
 import ome.model.acquisition.LightSettings;
 import ome.model.acquisition.LightSource;
+import ome.model.acquisition.Microscope;
 import ome.model.acquisition.OTF;
 import ome.model.acquisition.Objective;
 import ome.model.acquisition.ObjectiveSettings;
@@ -128,7 +129,8 @@ public class OMEROMetadataStore
         new LinkedHashMap<Integer, Roi>();
 
     /** A map of wellIndex vs. Well object ordered by first access. */
-    private Map<Integer, Well> wellList = new LinkedHashMap<Integer, Well>();
+    private Map<Integer, Map<Integer, Well>> wellList = 
+        new LinkedHashMap<Integer, Map<Integer, Well>>();
 
     /** A map of instrumentIndex vs. Instrument object ordered by first access. */
     private Map<Integer, Instrument> instrumentList = 
@@ -187,6 +189,10 @@ public class OMEROMetadataStore
     	{
     		handle(lsid, (Instrument) sourceObject, indexes);
     	}
+        else if (sourceObject instanceof Microscope)
+        {
+            handle(lsid, (Microscope) sourceObject, indexes);
+        }
     	else if (sourceObject instanceof Objective)
     	{
     		handle(lsid, (Objective) sourceObject, indexes);
@@ -623,7 +629,7 @@ public class OMEROMetadataStore
     	Pixels p = imageList.get(imageIndex).getPrimaryPixels();
     	p.addPlaneInfo(sourceObject);
     }
-    
+
     /**
      * Handles inserting a specific type of model object into our object graph.
      * @param LSID LSID of the model object.
@@ -632,12 +638,26 @@ public class OMEROMetadataStore
      * object.
      */
     private void handle(String LSID, Instrument sourceObject,
-    		            Map<String, Integer> indexes)
+                        Map<String, Integer> indexes)
     {
-    	int instrumentIndex = indexes.get("instrumentIndex");
-    	instrumentList.put(instrumentIndex, sourceObject);
+        int instrumentIndex = indexes.get("instrumentIndex");
+        instrumentList.put(instrumentIndex, sourceObject);
     }
-    
+
+    /**
+     * Handles inserting a specific type of model object into our object graph.
+     * @param LSID LSID of the model object.
+     * @param sourceObject Model object itself.
+     * @param indexes Any indexes that should be used to reference the model
+     * object.
+     */
+    private void handle(String LSID, Microscope sourceObject,
+                        Map<String, Integer> indexes)
+    {
+        int instrumentIndex = indexes.get("instrumentIndex");
+        instrumentList.get(instrumentIndex).setMicroscope(sourceObject);
+    }
+
     /**
      * Handles inserting a specific type of model object into our object graph.
      * @param LSID LSID of the model object.
@@ -873,7 +893,7 @@ public class OMEROMetadataStore
                         Map<String, Integer> indexes)
     {
     	int plateIndex = indexes.get("plateIndex");
-        wellList = new LinkedHashMap<Integer, Well>();
+        wellList.put(plateIndex, new LinkedHashMap<Integer, Well>());
         plateList.put(plateIndex, sourceObject);
     }
 
@@ -889,8 +909,8 @@ public class OMEROMetadataStore
     {
         int plateIndex = indexes.get("plateIndex");
         int wellIndex = indexes.get("wellIndex");
-        getPlate(plateIndex).addWell(sourceObject);  
-        wellList.put(wellIndex, sourceObject);
+        getPlate(plateIndex).addWell(sourceObject);
+        wellList.get(plateIndex).put(wellIndex, sourceObject);
     }
 
     /**
@@ -1503,7 +1523,7 @@ public class OMEROMetadataStore
      */ 
     private Well getWell(int plateIndex, int wellIndex)
     {
-        return wellList.get(wellIndex);
+        return wellList.get(plateIndex).get(wellIndex);
     }
 
     /**
@@ -1563,9 +1583,11 @@ public class OMEROMetadataStore
         pixelsList = new LinkedHashMap<Integer, Pixels>();
         screenList = new LinkedHashMap<Integer, Screen>();
         plateList = new LinkedHashMap<Integer, Plate>();
-        wellList = new LinkedHashMap<Integer, Well>();
+        roiList = new LinkedHashMap<Integer, Roi>();
+        wellList = new LinkedHashMap<Integer, Map<Integer, Well>>();
         instrumentList = new LinkedHashMap<Integer, Instrument>();
         experimentList = new LinkedHashMap<Integer, Experiment>();
+        otfList = new LinkedHashMap<Instrument, Map<Integer, OTF>>();
         lsidMap = new LinkedHashMap<LSID, IObject>();
     }
     

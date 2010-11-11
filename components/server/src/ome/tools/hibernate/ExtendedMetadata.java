@@ -20,16 +20,20 @@ import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.model.IAnnotated;
 import ome.model.IObject;
+import ome.model.annotations.Annotation;
 import ome.model.internal.Permissions;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.EntityMode;
 import org.hibernate.SessionFactory;
+import org.hibernate.engine.SessionFactoryImplementor;
 import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.persister.entity.EntityPersister;
+import org.hibernate.type.CollectionType;
 import org.hibernate.type.ComponentType;
 import org.hibernate.type.EmbeddedComponentType;
+import org.hibernate.type.EntityType;
 import org.hibernate.type.Type;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
@@ -46,7 +50,78 @@ import org.springframework.context.event.ContextRefreshedEvent;
  */
 @RevisionDate("$Date$")
 @RevisionNumber("$Revision$")
-public class ExtendedMetadata implements ApplicationListener {
+public interface ExtendedMetadata {
+
+    /**
+     * Returns all the classes which implement {@link IAnnotated}
+     */
+    Set<Class<IAnnotated>> getAnnotatableTypes();
+
+    /**
+     * Returns all the classes which subclass {@link Annotation}
+     */
+    Set<Class<Annotation>> getAnnotationTypes();
+
+    /**
+     * Returns the query for obtaining the number of collection items to a
+     * particular instance. All such queries will return a ResultSet with rows
+     * of the form: 0 (Long) id of the locked class 1 (Long) count of the
+     * instances locking that class
+     *
+     * @param field
+     *            Field name as specified in the class.
+     * @return String query. Never null.
+     * @throws ApiUsageException
+     *             if return value would be null.
+     */
+    String getCountQuery(String field) throws ApiUsageException;
+
+    /**
+     * Given the name of a database table or alternatively the simple class name
+     * (non-fully qualified) of an IObject, this method returns the class which
+     * Hibernate will map that table to.
+     */
+    Class<IObject> getHibernateClass(String table);
+
+    /**
+     * walks the {@link IObject} argument <em>non-</em>recursively and gathers
+     * all {@link IObject} instances which will be linkd to by the
+     * creation or updating of the argument. (Previously this was called "locking"
+     * since a flag was set on the object to mark it as linked, but this was
+     * removed in 4.2)
+     *
+     * @param iObject
+     *            A newly created or updated {@link IObject} instance which
+     *            might possibly lock other {@link IObject IObjects}. A null
+     *            argument will return an empty array to be checked.
+     * @return A non-null array of {@link IObject IObjects} which will be linked to.
+     */
+    IObject[] getLockCandidates(IObject iObject);
+
+    /**
+     * returns all class/field name pairs which may possibly link to an object
+     * of type <code>klass</code>.
+     *
+     * @param klass
+     *            Non-null {@link Class subclass} of {@link IObject}
+     * @return A non-null array of {@link String} queries which can be used to
+     *         determine if an {@link IObject} instance can be unlocked.
+     * @see Permissions.Flag#LOCKED
+     */
+    String[][] getLockChecks(Class<? extends IObject> klass);
+
+    /**
+     * Walks both the {@link #locksHolder} and the {@link #lockedByHolder} data
+     * for "from" argument to see if there is any direct relationship to the
+     * "to" argument. If there is, the name will be returned. Otherwise, null.
+     */
+    String getRelationship(String from, String to);
+
+/**
+ * Sole implementatino of ExtendedMetadata. The separation is intended to make
+ * unit testing without a full {@link ExtendedMetadata} possible.
+ */
+public static class Impl implements ExtendedMetadata, ApplicationListener {
 
     private final static Log log = LogFactory.getLog(ExtendedMetadata.class);
 
@@ -60,7 +135,13 @@ public class ExtendedMetadata implements ApplicationListener {
 
     private final Map<String, Class<IObject>> targetHolder = new HashMap<String, Class<IObject>>();
 
-    private final Set<Class<IAnnotated>> annotationTypes = new HashSet<Class<IAnnotated>>();
+    private final Set<Class<IAnnotated>> annotatableTypes = new HashSet<Class<IAnnotated>>();
+
+    private final Set<Class<Annotation>> annotationTypes = new HashSet<Class<Annotation>>();
+
+    private final Map<String, Map<String, String>> relationships = new HashMap<String, Map<String, String>>();
+
+    private final Map<String, Class<IObject>> hibernateClasses = new HashMap<String, Class<IObject>>();
 
     private boolean initialized = false;
 
@@ -110,6 +191,7 @@ public class ExtendedMetadata implements ApplicationListener {
 
         log.info("Calculating ExtendedMetadata...");
 
+        SessionFactoryImplementor sfi = (SessionFactoryImplementor) sessionFactory;
         Map<String, ClassMetadata> m = sessionFactory.getAllClassMetadata();
 
         // do Locks() first because they are used during the
@@ -129,7 +211,36 @@ public class ExtendedMetadata implements ApplicationListener {
             immutablesHolder.put(key, new Immutables(cm));
         }
 
+        for (Map.Entry<String, ClassMetadata> entry : m.entrySet()) {
+            String key = entry.getKey();
+            ClassMetadata cm = entry.getValue();
+            key = key.substring(key.lastIndexOf(".") + 1).toLowerCase();
+            if (hibernateClasses.containsKey(key)) {
+                throw new RuntimeException("Duplicate keys!: " + key);
+            }
+            hibernateClasses.put(key, cm.getMappedClass(EntityMode.POJO));
+        }
+
+        for (String key : m.keySet()) {
+            Map<String, String> value = new HashMap<String, String>();
+            ClassMetadata cm = m.get(key);
+            for (Class<?> c : hierarchy(m, key)) {
+                Locks locks = locksHolder.get(c.getName());
+                locks.fillRelationships(sfi, value);
+            }
+
+            // FIXME: using simple name rather than FQN
+            Map<String, String> value2 = new HashMap<String, String>();
+            for (Map.Entry<String, String> i : value.entrySet()) {
+                String k = i.getKey();
+                k = k.substring(k.lastIndexOf(".")+1);
+                value2.put(k, i.getValue());
+            }
+            relationships.put(key.substring(key.lastIndexOf(".")+1), value2);
+        }
+
         Set<Class<IAnnotated>> anns = new HashSet<Class<IAnnotated>>();
+        Set<Class<Annotation>> anns2 = new HashSet<Class<Annotation>>();
         for (String key : m.keySet()) {
             ClassMetadata cm = m.get(key);
             Map<String, String> queries = countQueriesAndEditTargets(key,
@@ -141,15 +252,42 @@ public class ExtendedMetadata implements ApplicationListener {
             if (IAnnotated.class.isAssignableFrom(c)) {
                 anns.add(c);
             }
+            if (Annotation.class.isAssignableFrom(c)) {
+                anns2.add(c);
+            }
         }
-        annotationTypes.addAll(anns);
+        annotatableTypes.addAll(anns);
+        annotationTypes.addAll(anns2);
         initialized = true;
     }
 
+    public Class<IObject> getHibernateClass(String table) {
+        int idx = table.lastIndexOf(".");
+        if (idx > 0) {
+            table = table.substring(idx+1);
+        }
+        table = table.toLowerCase();
+        return hibernateClasses.get(table);
+    }
+
     /**
-     * Returns all the classes which implement {@link IAnnotated}
+     * Walks both the {@link #locksHolder} and the {@link #lockedByHolder} data
+     * for "from" argument to see if there is any direct relationship to th
+     * "to" argument. If there is, the name will be returned. Otherwise, null.
      */
-    public Set<Class<IAnnotated>> getAnnotationTypes() {
+    public String getRelationship(String from, String to) {
+        Map<String, String> m = relationships.get(from);
+        if (m != null) {
+            return m.get(to);
+        }
+        return null;
+    }
+
+    public Set<Class<IAnnotated>> getAnnotatableTypes() {
+        return Collections.unmodifiableSet(annotatableTypes);
+    }
+
+    public Set<Class<Annotation>> getAnnotationTypes() {
         return Collections.unmodifiableSet(annotationTypes);
     }
 
@@ -323,6 +461,38 @@ public class ExtendedMetadata implements ApplicationListener {
 
         return queries;
     }
+
+    /**
+     * Takes a class name as a string and find that class and all of its
+     * subclasses (transitively) returns them as a list.
+     */
+    private static List<Class<?>> hierarchy(Map<String, ClassMetadata> m, String key) {
+
+        final List<Class<?>> h = new ArrayList<Class<?>>();
+
+        ClassMetadata cm = m.get(key);
+        Class<?> c = cm.getMappedClass(EntityMode.POJO);
+        h.add(c);
+
+        int index = 0;
+
+        while (index < h.size()) {
+            for (String key2 : m.keySet()) {
+                if (key.equals(key2)) {
+                    continue;
+                } else {
+                    cm = m.get(key2);
+                    c = cm.getMappedClass(EntityMode.POJO);
+                    if (c.getSuperclass().equals(h.get(index))) {
+                        h.add(c);
+                    }
+                }
+            }
+            index++;
+        }
+        return h;
+    }
+
 }
 
 /**
@@ -428,6 +598,52 @@ class Locks {
 
     // ~ Main method
     // =========================================================================
+
+    /**
+     * For each of the fields contained in this {@link Locks} object, parse
+     * out the type and the field name and store those as the key and value
+     * in the "value" argument.
+     */
+    public void fillRelationships(SessionFactoryImplementor sfi,
+            Map<String, String> value) {
+
+        final Type[] types = cm.getPropertyTypes();
+        for (int t = 0; t < types.length; t++) {
+
+            final Type type = types[t];
+            final String name = type.getName();
+
+            String to = null;
+            String field = null;
+            if (type instanceof EntityType) {
+                final EntityType entType = (EntityType) type;
+                to = entType.getAssociatedEntityName();
+                field = cm.getPropertyNames()[t];
+
+
+            } else if (types[t] instanceof CollectionType) {
+                final CollectionType colType = (CollectionType)types[t];
+                final Type elemType = colType.getElementType(sfi);
+                if (!elemType.isEntityType()) {
+                    continue; // The case for count maps and other primitives.
+                }
+                to = elemType.getName();
+
+                int open = name.indexOf("(");
+                int close = name.lastIndexOf(")");
+                String role = name.substring(open + 1, close);
+                int dot = role.lastIndexOf(".");
+                field = role.substring(dot+1);
+
+            }
+
+            if (to != null && field != null) {
+                for (Class<?> c : Impl.hierarchy(sfi.getAllClassMetadata(), to)) {
+                    value.put(c.getName(), field);
+                }
+            }
+        }
+    }
 
     public IObject[] getLockCandidates(IObject o) {
         int idx = 0;
@@ -583,5 +799,5 @@ class Immutables {
     public String[] getImmutableFields() {
         return immutableFields;
     }
-
+}
 }

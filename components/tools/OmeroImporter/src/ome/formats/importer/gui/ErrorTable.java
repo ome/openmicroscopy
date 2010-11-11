@@ -86,7 +86,6 @@ public class ErrorTable
 
     ArrayList<IObserver> observers = new ArrayList<IObserver>();
     
-    private static final long serialVersionUID = 1L;
     public ErrorTableModel table = new ErrorTableModel();
     public ETable eTable = new ETable(table);
     
@@ -111,7 +110,8 @@ public class ErrorTable
 
     private JButton sendBtn;
     private JButton cancelBtn;
-
+    private JButton clearDoneBtn;
+    
     private ArrayList<ErrorContainer> errors;
 
     private boolean failedFiles = false;
@@ -138,15 +138,14 @@ public class ErrorTable
         // Main Panel containing all elements  
         // Set up the main panel layout
         double mainTable[][] =
-                {{5, 200, 140, TableLayout.FILL, 180, 5}, // columns
+                {{5, 200, 140, TableLayout.FILL, 140, 5}, // columns
                 { 5, TableLayout.PREFERRED, TableLayout.FILL, 5, 29, 5}}; // rows
         
         mainPanel = GuiCommonElements.addMainPanel(this, mainTable, 0,0,0,0, debug); 
                 
-        String message = "All errors accumulated during your import are collected here, " +
-                "allowing you to review and send us feedback on the problem. " +
-                "To help us, you can upload them to us by selecting the \"Upload\" checkbox " +
-                "besides each error.";
+        String message = "All errors accumulated during your import are displayed here, " +
+                "and will be uploaded to us if check-marked. You can send us feedback on " +
+                "these problems by clicking the 'Send Feedback' button.";
 
         JTextPane instructions = 
         	GuiCommonElements.addTextPane(mainPanel, message, "1,1,4,0", debug);
@@ -235,11 +234,17 @@ public class ErrorTable
         mainPanel.add(progressPanel, "1,4");
         
         progressPanel.setVisible(false);
-       
+
+        
         cancelBtn = GuiCommonElements.addButton(mainPanel, "Cancel", 'c', "Cancel sending", "2,4,L,C", debug);
         cancelBtn.addActionListener(this);
         
         cancelBtn.setVisible(false);
+
+        clearDoneBtn = GuiCommonElements.addButton(mainPanel, "Clear Done", 'd', "Clear done", "3,4,R,C", debug);
+        clearDoneBtn.addActionListener(this);
+        clearDoneBtn.setOpaque(false);
+        clearDoneBtn.setEnabled(false);
         
         sendBtn = GuiCommonElements.addButton(mainPanel, "Send Feedback", 's', "Send your errors to the OMERO team", "4,4,R,C", debug);
         sendBtn.setOpaque(false);
@@ -267,8 +272,35 @@ public class ErrorTable
             enableCancelBtn(false);
             notifyObservers(new ImportEvent.ERRORS_UPLOAD_CANCELLED());
         }
+        if (event.getSource() == clearDoneBtn)
+        {
+                int numRows = table.getRowCount();
+
+                for (int i = (numRows - 1); i >= 0; i--)
+                {
+                    if (table.getValueAt(i, 3) == (Integer)20)
+                    {
+                        removeFileFromQueue(i);                    
+                    }
+                }
+                clearDoneBtn.setEnabled(false);
+        }
+        
     } 
 
+    /**
+     * Remove file from Queue
+     * 
+     * @param row - row index of file to remove
+     */
+    private void removeFileFromQueue(int row)
+    {
+        table.removeRow(row);
+        //qTable.table.fireTableRowsDeleted(row, row);
+        if (table.getRowCount() == 0)
+            sendBtn.setEnabled(false);
+    }
+    
     /* (non-Javadoc)
      * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
      */
@@ -384,7 +416,6 @@ public class ErrorTable
     {
         table.setValueAt(1, row, 3);
         setFailedFiles(false);
-        table.fireTableDataChanged();
         progressPanel.setVisible(true);
         cancelBtn.setVisible(true); 
         invalidate();
@@ -399,6 +430,7 @@ public class ErrorTable
     {
         table.setValueAt(20, row, 3);
         setFailedFiles(false);
+        clearDoneBtn.setEnabled(true);
     }
     
     /**
@@ -409,6 +441,7 @@ public class ErrorTable
     {
     	filesProgressBar.setValue(0);
     	bytesProgressBar.setValue(0);
+    	progressPanel.setVisible(false);
     }
     
     /**
@@ -517,7 +550,7 @@ public class ErrorTable
 	 * @author Brian Loranger brain at lifesci.dundee.ac.uk
 	 *
 	 */
-	class ErrorTableModel extends DefaultTableModel implements TableModelListener 
+	static class ErrorTableModel extends DefaultTableModel implements TableModelListener 
     {
         
         private static final long serialVersionUID = 1L;
@@ -544,7 +577,7 @@ public class ErrorTable
 	 * @author Brian Loranger brain at lifesci.dundee.ac.uk
 	 *
 	 */
-    class MyTableHeaderRenderer extends DefaultTableCellRenderer 
+    static class MyTableHeaderRenderer extends DefaultTableCellRenderer 
     {
         // This method is called each time a column header
         // using this renderer needs to be rendered.

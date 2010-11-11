@@ -84,11 +84,8 @@ public class GuiCommonElements
      */
     public static boolean getIsMac() 
     {
-        String laf = UIManager.getLookAndFeel().getClass().getName();
-        if (laf.equals("apple.laf.AquaLookAndFeel") || laf.equals("ch.randelshofer.quaqua.QuaquaLookAndFeel")) 
-            return true;
-        else
-            return false;
+    	String osName = System.getProperty("os.name");
+        return osName.startsWith("Mac OS");
     }
     
 	/**
@@ -673,17 +670,21 @@ public class GuiCommonElements
      */
     public static ImageIcon getImageIcon(String path)
     {
+    	if (path == null) 
+    	{
+    		log.error("Icon path is null");
+    		return null;
+    	}
+    	
         java.net.URL imgURL = GuiImporter.class.getResource(path);
         
-        if (imgURL != null) 
+        if (imgURL == null) 
         { 
-        	return new ImageIcon(imgURL); 
-        } 
-        else 
-        { 
-        	log.error("Couldn't find icon: " + imgURL); 
+        	log.error("Couldn't find icon: " + path);
+        	return null;
         }
-        return null;
+        else
+        	return new ImageIcon(imgURL); 
     }
 
     /**

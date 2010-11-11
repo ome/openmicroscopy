@@ -26,7 +26,7 @@ package ome.formats.importer;
 import java.io.File;
 import java.util.List;
 
-import loci.formats.FileInfo;
+import omero.model.Annotation;
 import omero.model.IObject;
 import omero.model.Pixels;
 
@@ -64,13 +64,17 @@ public class ImportContainer
      * be exercised when working directly with this metadata.
      */
     private List<String> bfImageNames;
-    
+
     private Boolean archive;
     private Double[] userPixels;
     private String customImageName;
+    private String customImageDescription;
+    private String customPlateName;
+    private String customPlateDescription;
+    private boolean useMetadataFile;
+    private List<Annotation> customAnnotationList;
     private IObject target;
-    private FileInfo[] fileInfo;
-    
+
 	public ImportContainer(File file, Long projectID,
 			IObject target, 
 			Boolean archive, 
@@ -111,26 +115,134 @@ public class ImportContainer
 	public void setBfImageNames(List<String> bfImageNames) {
 		this.bfImageNames = bfImageNames;
 	}
-    
+
     /**
-     * @return custom image name string
+     * Retrieves the current custom image name string.
+     * @return As above. <code>null</code> if it has not been set.
      */
     public String getCustomImageName()
     {
         return customImageName;
-    }   
+    }
 
-	/**
-	 * Sets the custom image name for import. If this value is left
-	 * null, the image name supplied by bio-formats will be used.
-	 * 
-	 * @param name - a custom image name to set for this image
-	 */
-	public void setCustomImageName(String name)
-	{
-	    this.customImageName = name;
-	}
-	
+    /**
+     * Sets the custom image name for import. If this value is left
+     * null, the image description supplied by Bio-Formats will be used.
+     * @param v A custom image name to use for all images represented
+     * by this container.
+     */
+    public void setCustomImageName(String v)
+    {
+        customImageName = v;
+    }
+
+    /**
+     * Retrieves the current custom image description string.
+     * @return As above. <code>null</code> if it has not been set.
+     * @since OMERO Beta 4.2.1.
+     */
+    public String getCustomImageDescription()
+    {
+        return customImageDescription;
+    }
+
+    /**
+     * Sets the custom image description for import. If this value is left
+     * null, the image description supplied by Bio-Formats will be used.
+     * @param v A custom image description to use for all images represented
+     * by this container.
+     * @since OMERO Beta 4.2.1.
+     */
+    public void setCustomImageDescription(String v)
+    {
+        customImageDescription = v;
+    }
+
+    /**
+     * Retrieves the current custom plate name string.
+     * @return As above. <code>null</code> if it has not been set.
+     * @since OMERO Beta 4.2.1.
+     */
+    public String getCustomPlateName()
+    {
+        return customPlateName;
+    }
+
+    /**
+     * Sets the custom plate name for import. If this value is left
+     * null, the plate description supplied by Bio-Formats will be used.
+     * @param v A custom plate name to use for all plates represented
+     * by this container.
+     * @since OMERO Beta 4.2.1.
+     */
+    public void setCustomPlateName(String v)
+    {
+        customPlateName = v;
+    }
+
+    /**
+     * Retrieves the current custom plate description string.
+     * @return As above. <code>null</code> if it has not been set.
+     * @since OMERO Beta 4.2.1.
+     */
+    public String getCustomPlateDescription()
+    {
+        return customPlateDescription;
+    }
+
+    /**
+     * Sets the custom plate description for import. If this value is left
+     * null, the plate description supplied by Bio-Formats will be used.
+     * @param v A custom plate description to use for all plates represented
+     * by this container.
+     * @since OMERO Beta 4.2.1.
+     */
+    public void setCustomPlateDescription(String v)
+    {
+        customPlateDescription = v;
+    }
+
+    /**
+     * Whether or not we're using an original metadata file.
+     * @return See above.
+     * @since OMERO Beta 4.2.1.
+     */
+    public boolean getUseMetadataFile()
+    {
+        return useMetadataFile;
+    }
+
+    /**
+     * Sets whether or not we're using an original metadata file.
+     * @since OMERO Beta 4.2.1.
+     */
+    public void setUseMetadataFile(boolean v)
+    {
+        useMetadataFile = v;
+    }
+
+    /**
+     * The list of custom, user specified, annotations to link to all images
+     * represented by this container.
+     * @return See above.
+     * @since OMERO Beta 4.2.1.
+     */
+    public List<Annotation> getCustomAnnotationList()
+    {
+        return customAnnotationList;
+    }
+
+    /**
+     * Sets the list of custom, user specified, annotations to link to all
+     * images represented by this container.
+     * @param v The list of annotations to use.
+     * @since OMERO Beta 4.2.1.
+     */
+    public void setCustomAnnotationList(List<Annotation> v)
+    {
+        customAnnotationList = v;
+    }
+
     public String getReader() {
 		return reader;
 	}
@@ -171,25 +283,7 @@ public class ImportContainer
 	{
 	    this.file = file;
 	}
-    
-    /**
-     * @return Returns the fileInfo.
-     */
-    public FileInfo[] getFileInfo()
-    {
-        return fileInfo;
-    }
 
-    
-    /**
-     * @param fileInfo The fileInfo to set.
-     */
-    public void setFileInfo(FileInfo[] fileInfo)
-    {
-        this.fileInfo = fileInfo;
-    }
-
-    
     /**
      * @return Returns the projectID.
      */

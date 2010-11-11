@@ -1,3 +1,4 @@
+#include <omero/api/IQuery.h>
 #include <omero/client.h>
 #include <omero/RTypesI.h>
 #include <omero/sys/ParametersI.h>

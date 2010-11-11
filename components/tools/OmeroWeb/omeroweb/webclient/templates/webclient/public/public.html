@@ -41,7 +41,14 @@
                         afterClick:function(node){
                             var obj = $(node).attr('id').split("-");
                             var par = $(node).parents('li:first').attr('id').split("-");
-                            if (obj[0] == 'sh') {
+                            if (obj[0] == 'lock') {
+                                $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/>');                             
+                                $("#right_panel").show();
+                                $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
+                                $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="/webclient/metadata_details/share/'+obj[1]+'/" id="metadata_details" name="metadata_details"></iframe>');
+                                $('iframe#metadata_details').load();
+                                $("div#content_details").removeAttr('rel').children().remove(); 
+                            } else if (obj[0] == 'sh') {
                                 $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/>');                             
                                 $("#right_panel").show();
                                 $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
@@ -68,7 +75,13 @@
                                 } else {
                                     $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/>');
                                 }                                
-                                                                
+                                
+                                if ($("div#content_details").attr('rel') != par.join("-")) {
+                                    $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
+                                    $("div#content_details").load('/webclient/load_public/'+par[1]+'/?view=icon');
+                                    $("div#content_details").attr('rel', par.join("-"));
+                                }
+                                                            
                                 $("#right_panel").show();
                                 $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
                                 $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="/webclient/metadata_details/image/'+obj[1]+'/'+par[1]+'/" id="metadata_details" name="metadata_details"></iframe>');
@@ -97,15 +110,8 @@
         <div id="buttons" class="align_left">
             <input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href='{% url load_template nav.menu %}'"> <input class="button" type="image" src="{% url webstatic "images/wp_protocol16.png" %}" alt="Discuss" title="Discuss" onclick="makeDiscussion();"/>
         </div>
-        {% if form_users %}
-        <div class="align_right">
-            {% for field in form_users %}{{ field }}{% endfor %}&nbsp;&nbsp;&nbsp;
-        </div>
-        {% endif %}
     </div>
     
-    
-
 </div>
 <div class="clear"> </div>
 

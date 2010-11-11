@@ -28,7 +28,10 @@ package pojos;
 
 //Application-internal dependencies
 import static omero.rtypes.rstring;
-import static omero.rtypes.rtime;
+
+import java.sql.Timestamp;
+import java.text.DateFormat;
+
 import omero.model.PlateAcquisition;
 import omero.model.PlateAcquisitionI;
 
@@ -49,9 +52,12 @@ public class PlateAcquisitionData
 	extends DataObject
 {
 
-	/** The Id of the plate this screen acquisition is for. */
+	/** The Id of the plate this plate acquisition is for. */
 	private long refPlateId;
 
+	/** The label associated to the plate acquisition. */
+	private String label;
+	
 	/** Creates a new instance. */
 	public PlateAcquisitionData()
 	{
@@ -72,6 +78,7 @@ public class PlateAcquisitionData
 			throw new IllegalArgumentException("Object cannot null.");
 		setValue(value);
 		refPlateId = -1L;
+		label = null;
 	}
 
 	/**
@@ -147,13 +154,13 @@ public class PlateAcquisitionData
 	 *
 	 * @return See above.
 	 */
-	public long getStartTime()
+	public Timestamp getStartTime()
 	{
 		PlateAcquisition sa = (PlateAcquisition) asIObject();
-		if (sa == null) return -1;
+		if (sa == null) return null;
 		omero.RTime time = sa.getStartTime();
-		if (time == null) return -1;
-		return time.getValue();
+		if (time == null) return null;
+		return new Timestamp(time.getValue());
 	}
 
 	/**
@@ -161,13 +168,13 @@ public class PlateAcquisitionData
 	 *
 	 * @return See above.
 	 */
-	public long getEndTime()
+	public Timestamp getEndTime()
 	{
 		PlateAcquisition sa = (PlateAcquisition) asIObject();
-		if (sa == null) return -1;
+		if (sa == null) return null;
 		omero.RTime time = sa.getEndTime();
-		if (time == null) return -1;
-		return time.getValue();
+		if (time == null) return null;
+		return new Timestamp(time.getValue());
 	}
 
 	/**
@@ -177,17 +184,38 @@ public class PlateAcquisitionData
 	 */
 	public String getLabel()
 	{
+		if (label != null) return label;
 		String name = getName();
-		if (name != null && name.length() > 0) return name;
-		long v = getEndTime();
-		String s = "";
-		if (v >= 0) s += v;
-		v = getStartTime();
-		if (v >= 0) {
-			if (s.length() > 0) s += "-"+v;
+		if (name != null && name.length() > 0) {
+			label = name;
+			return label;
 		}
-		if (s.length() == 0) return ""+getId();
-		return s;
+		String start = DateFormat.getDateTimeInstance(DateFormat.SHORT, 
+    			DateFormat.SHORT).format(getStartTime());
+    	String[] values = start.split(" ");
+    	String date = "";
+    	String dateEnd = "";
+    	if (values.length > 1) {
+    		date = values[0];
+    		start = start.substring(date.length()+1);
+    	} 
+    	String end = DateFormat.getDateTimeInstance(DateFormat.SHORT, 
+    			DateFormat.SHORT).format(getEndTime());
+    	values = end.split(" ");
+    	if (values.length > 1) {
+    		if (!date.equals(values[0]))
+    			dateEnd = values[0];
+    		end = end.substring(values[0].length()+1);
+    	}
+    	String value = "";
+    	if (dateEnd.length() == 0) {
+    		value = date+" "+start+" - "+end;
+    	} else {
+    		value = date+" "+start+" - "+dateEnd+" "+end;
+    	}
+    	if (value.length() > 0) label = value;
+    	else label = ""+getId();
+		return label;
 	}
 
 	/**

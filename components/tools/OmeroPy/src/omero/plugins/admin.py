@@ -15,6 +15,8 @@
 import re
 import os
 import sys
+import stat
+import platform
 import exceptions
 import portalocker
 
@@ -306,7 +308,7 @@ Examples:
         Checks that the templates file as defined in etc\Windows.cfg
         can be found.
         """
-
+        self.check_access(os.R_OK)
         if not self._isWindows():
             self.ctx.die(123, "Not Windows")
 
@@ -349,6 +351,7 @@ Examples:
         then registers the action: "node HOST start"
         """
 
+        self.check_access(config=config)
         self.check_ice()
         self.check_node(args)
         if self._isWindows():
@@ -407,20 +410,31 @@ Examples:
     @with_config
     def start(self, args, config):
         self.startasync(args, config)
-        self.waitup(args)
+        try:
+            self.waitup(args)
+        except NonZeroReturnCode, nzrc:
+            # stop() may itself throw,
+            # if it does not, then we rethrow
+            # the original
+            self.ctx.err('Calling "stop" on remaining components')
+            self.stop(args, config)
+            raise nzrc
 
     @with_config
     def deploy(self, args, config):
+        self.check_access()
         self.check_ice()
         descript = self._descript(args)
 
         # TODO : Doesn't properly handle whitespace
+        # Though users can workaround with something like:
+        # bin/omero admin deploy etc/grid/a\\\\ b.xml
         command = ["icegridadmin",self._intcfg(),"-e"," ".join(["application","update", str(descript)] + args.targets)]
         self.ctx.call(command)
 
     def status(self, args, node_only = False):
         self.check_node(args)
-        command = self._cmd("-e","node ping %s" % args.node)
+        command = self._cmd("-e","node ping master") #3141, TODO should be configurable
         self.ctx.rv = self.ctx.popen(command).wait() # popen
 
         # node_only implies that "up" need not check for all
@@ -462,12 +476,17 @@ Examples:
         self.startasync(args, config)
 
     def waitup(self, args):
+        """
+        Loops 30 times with 10 second pauses waiting for status()
+        to return 0. If it does not, then ctx.die() is called.
+        """
+        self.check_access(os.R_OK)
         self.ctx.out("Waiting on startup. Use CTRL-C to exit")
         count = 30
         while True:
             count = count - 1
             if count == 0:
-                self.ctx.die(43, "Failed to startup after 5 minutes")
+                self.ctx.die(43, "\nFailed to startup some components after 5 minutes")
             elif 0 == self.status(args, node_only = False):
                 break
             else:
@@ -478,12 +497,13 @@ Examples:
         """
         Returns true if the server went down
         """
+        self.check_access(os.R_OK)
         self.ctx.out("Waiting on shutdown. Use CTRL-C to exit")
         count = 30
         while True:
             count = count - 1
             if count == 0:
-                self.ctx.die(44, "Failed to shutdown after 5 minutes")
+                self.ctx.die(44, "\nFailed to shutdown some components after 5 minutes")
                 return False
             elif 0 != self.status(args, node_only = True):
                 break
@@ -528,6 +548,7 @@ Examples:
         pass
 
     def ice(self, args):
+        self.check_access()
         command = self._cmd()
         if len(args.argument) > 0:
             command.extend(["-e", " ".join(args.argument)])
@@ -535,7 +556,15 @@ Examples:
         else:
             rv = self.ctx.call(command)
 
-    def diagnostics(self, args):
+    @with_config
+    def diagnostics(self, args, config):
+        self.check_access()
+        config = config.as_map()
+        omero_data_dir = '/OMERO'
+        try:
+            omero_data_dir = config['omero.data.dir']
+        except KeyError:
+            pass
         self.ctx.out("""
 %s
 OMERO Diagnostics %s
@@ -580,12 +609,17 @@ OMERO Diagnostics %s
                     self.ctx.out("%-12s %s" % (sz_str(p.size), msg))
 
         def version(cmd):
+            """
+            Returns a true response only
+            if a valid version was found.
+            """
             item("Commands","%s" % " ".join(cmd))
             try:
                 p = self.ctx.popen(cmd)
             except OSError:
                 self.ctx.err("not found")
-                return
+                return False
+
             rv = p.wait()
             io = p.communicate()
             try:
@@ -608,8 +642,11 @@ OMERO Diagnostics %s
                 except:
                     where = "unknown"
                 self.ctx.out("(%s)" % where)
+                return True
             except exceptions.Exception, e:
                 self.ctx.err("error:%s" % e)
+                return False
+
 
         import logging
         logging.basicConfig()
@@ -622,36 +659,39 @@ OMERO Diagnostics %s
         version(["java",         "-version"])
         version(["python",       "-V"])
         version(["icegridnode",  "--version"])
-        version(["icegridadmin", "--version"])
+        iga = version(["icegridadmin", "--version"])
         version(["psql",         "--version"])
 
 
         self.ctx.out("")
-        item("Server", "icegridnode")
-        p = self.ctx.popen(self._cmd("-e", "server list")) # popen
-        rv = p.wait()
-        io = p.communicate()
-        if rv != 0:
-            self.ctx.out("not started")
-            self.ctx.dbg("""
-            Stdout:\n%s
-            Stderr:\n%s
-            """ % io)
+        if not iga:
+            self.ctx.out("No icegridadmin available: Cannot check server list")
         else:
-            self.ctx.out("running")
-            servers = io[0].split()
-            servers.sort()
-            for s in servers:
-                item("Server", "%s" % s)
-                p2 = self.ctx.popen(self._cmd("-e", "server state %s" % s)) # popen
-                rv2 = p2.wait()
-                io2 = p2.communicate()
-                if io2[1]:
-                    self.ctx.err(io2[1].strip())
-                elif io2[0]:
-                    self.ctx.out(io2[0].strip())
-                else:
-                    self.ctx.err("UNKNOWN!")
+            item("Server", "icegridnode")
+            p = self.ctx.popen(self._cmd("-e", "server list")) # popen
+            rv = p.wait()
+            io = p.communicate()
+            if rv != 0:
+                self.ctx.out("not started")
+                self.ctx.dbg("""
+                Stdout:\n%s
+                Stderr:\n%s
+                """ % io)
+            else:
+                self.ctx.out("running")
+                servers = io[0].split()
+                servers.sort()
+                for s in servers:
+                    item("Server", "%s" % s)
+                    p2 = self.ctx.popen(self._cmd("-e", "server state %s" % s)) # popen
+                    rv2 = p2.wait()
+                    io2 = p2.communicate()
+                    if io2[1]:
+                        self.ctx.err(io2[1].strip())
+                    elif io2[0]:
+                        self.ctx.out(io2[0].strip())
+                    else:
+                        self.ctx.err("UNKNOWN!")
 
         def log_dir(log, cat, cat2, knownfiles):
             self.ctx.out("")
@@ -724,6 +764,14 @@ OMERO Diagnostics %s
         env_val("LD_LIBRARY_PATH")
         env_val("DYLD_LIBRARY_PATH")
 
+        self.ctx.out("")
+        exists = os.path.exists(omero_data_dir)
+        is_writable = os.access(omero_data_dir, os.R_OK|os.W_OK)
+        self.ctx.out("OMERO data dir: '%s'\tExists? %s\tIs writable? %s" % \
+            (omero_data_dir, exists, is_writable))
+        from omero.plugins.web import WebControl
+        WebControl().status(args)
+
     def session_manager(self, communicator):
         import IceGrid, Glacier2
         iq = communicator.stringToProxy("IceGrid/Query")
@@ -731,6 +779,54 @@ OMERO Diagnostics %s
         sm = iq.findAllObjectsByType("::Glacier2::SessionManager")[0]
         sm = Glacier2.SessionManagerPrx.checkedCast(sm)
         return sm
+
+    def can_access(self, filepath, mask=os.R_OK|os.W_OK):
+        """
+        Check that the given path belongs to
+        or is accessible by the current user
+        on Linux systems.
+        """
+
+        pathobj = path(filepath)
+
+        if not pathobj.exists():
+            self.ctx.die(8, "FATAL: OMERO directory does not exist: %s" % pathobj)
+
+        if "Windows" == platform.system():
+            return
+
+        owner = os.stat(filepath)[stat.ST_UID]
+        if owner == 0:
+            msg = ""
+            msg += "FATAL: OMERO directory which needs to be writeable belongs to root: %s\n" % filepath
+            msg += "Please use \"chown -R NEWUSER %s\" and run as then run %s as NEWUSER" % (filepath, sys.argv[0])
+            self.ctx.die(9, msg)
+        else:
+            if not os.access(filepath, mask):
+                self.ctx.die(10, "FATAL: Cannot access %s, a required file/directory for OMERO" % filepath)
+
+    def check_access(self, mask=os.R_OK|os.W_OK, config=None):
+        """Check that 'var' is accessible by the current user."""
+
+        var = self.ctx.dir / 'var'
+        if not os.path.exists(var):
+            print "Creating directory %s" % var
+            os.makedirs(var, 0700)
+        else:
+            self.can_access(var, mask)
+
+        if config is not None:
+            omero_data_dir = '/OMERO'
+            config = config.as_map()
+            try:
+                omero_data_dir = config['omero.data.dir']
+            except KeyError:
+                pass
+            self.can_access(omero_data_dir)
+        for p in os.listdir(var):
+            subpath = os.path.join(var, p)
+            if os.path.isdir(subpath):
+                self.can_access(subpath, mask)
 
     def check_node(self, args):
         """
@@ -767,8 +863,9 @@ OMERO Diagnostics %s
         """
         cfg_xml = self.ctx.dir / "etc" / "grid" / "config.xml"
         cfg_tmp = self.ctx.dir / "etc" / "grid" / "config.xml.tmp"
-        if not cfg_xml.exists():
-            if cfg_tmp.exists():
+        grid_dir = self.ctx.dir / "etc" / "grid"
+        if not cfg_xml.exists() and self.can_access(grid_dir):
+            if cfg_tmp.exists() and self.can_access(cfg_tmp):
                 self.ctx.dbg("Removing old config.xml.tmp")
                 cfg_tmp.remove()
             config = omero.config.ConfigXml(str(cfg_tmp))
@@ -789,6 +886,7 @@ OMERO Diagnostics %s
 
     @with_config
     def reindex(self, args, config):
+        self.check_access(config=config)
         import omero.java
         server_dir = self.ctx.dir / "lib" / "server"
         log4j = "-Dlog4j.configuration=log4j-cli.properties"
@@ -828,6 +926,7 @@ OMERO Diagnostics %s
         self.ctx.rv = p.wait()
 
     def ports(self, args):
+        self.check_access()
         from omero.install.change_ports import change_ports
         if args.prefix:
             for x in ("registry", "tcp", "ssl"):
@@ -835,10 +934,13 @@ OMERO Diagnostics %s
         change_ports(args.ssl, args.tcp, args.registry, args.revert)
 
     def cleanse(self, args):
+        self.check_access()
         from omero.util.cleanse import cleanse
         client = self.ctx.conn(args)
         key = client.getSessionId()
-        cleanse(data_dir=args.data_dir, dry_run=args.dry_run, query_service=client.sf.getQueryService())
+        cleanse(data_dir=args.data_dir, dry_run=args.dry_run, \
+            query_service=client.sf.getQueryService(), \
+            config_service=client.sf.getConfigService())
 
 try:
     register("admin", AdminControl, HELP)

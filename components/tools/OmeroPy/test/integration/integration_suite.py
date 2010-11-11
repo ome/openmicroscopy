@@ -29,6 +29,7 @@ def additional_tests():
     suite.addTest(load("integration.client_ctors"))
     suite.addTest(load("integration.clientusage"))
     suite.addTest(load("integration.counts"))
+    suite.addTest(load("integration.delete"))
     suite.addTest(load("integration.gateway"))
     suite.addTest(load("integration.icontainer"))
     suite.addTest(load("integration.isession"))
@@ -39,17 +40,23 @@ def additional_tests():
     suite.addTest(load("integration.model42"))
     suite.addTest(load("integration.rawfilestore"))
     suite.addTest(load("integration.scripts"))
+    suite.addTest(load("integration.search"))
     suite.addTest(load("integration.files"))
     suite.addTest(load("integration.tickets1000"))
     suite.addTest(load("integration.tickets2000"))
     suite.addTest(load("integration.tickets3000"))
+    suite.addTest(load("integration.tickets4000"))
+    suite.addTest(load("integration.figureExportScripts"))
+    suite.addTest(load("integration.thumbnailPerms"))
+
     suite.addTest(load("clitest.integration_suite._additional_tests"))
-    suite.addTest(load("gatewaytest.suite._additional_tests"))
+    #suite.addTest(load("gatewaytest.suite._additional_tests"))
     suite.addTest(load("scriptstest.suite._additional_tests"))
     suite.addTest(load("scriptstest.integration_suite._additional_tests"))
     suite.addTest(load("tablestest.suite._additional_tests"))
     suite.addTest(load("tablestest.integration_suite._additional_tests"))
+
     return suite
 
 if __name__ == "__main__":
-    xmlrunner.XMLTestRunner(output='target/reports').run(additional_tests())
+    xmlrunner.XMLTestRunner(verbose=True, output='target/reports').run(additional_tests())

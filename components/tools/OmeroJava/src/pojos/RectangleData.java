@@ -30,8 +30,6 @@ package pojos;
 import omero.RDouble;
 import omero.RString;
 import omero.rtypes;
-import omero.model.Ellipse;
-import omero.model.EllipseI;
 import omero.model.Rect;
 import omero.model.RectI;
 import omero.model.Shape;
@@ -63,21 +61,19 @@ public class RectangleData
 		super(shape);
 	}
 	
-	/**
-	 * Create a new instance of RectangleData, creating a new EllipseI Object.
-	 */
+	/** Creates a new instance with a default rectangle. */
 	public RectangleData()
 	{
 		this(0.0, 0.0, 0.0, 0.0);
 	}
 	
 	/**
-	 * Create a new instance of the RectangleData, set the x, y coord and 
-	 * Width and height.
-	 * @param x See Above.
-	 * @param y See Above..
-	 * @param width See Above.
-	 * @param height See Above.
+	 * Creates a new instance of the RectangleData.
+	 * 
+	 * @param x The x-coordinate of the top-left corner.
+	 * @param y The y-coordinate of the top-left corner.
+	 * @param width The width of the rectangle.
+	 * @param heightThe height of the rectangle.
 	 */
 	public RectangleData(double x, double y, double width, double height)
 	{
@@ -108,17 +104,17 @@ public class RectangleData
 	 */
 	public void setText(String text)
 	{
-		if(isReadOnly())
+		if (isReadOnly())
 			throw new IllegalArgumentException("Shape ReadOnly");
 		Rect shape = (Rect) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		shape.setTextValue(rtypes.rstring(text));
 	}
-	
-	
+
 	/**
-	 * Returns the x-coordinate top-left corner of an untransformed rectangle.
+	 * Returns the x-coordinate of the top-left corner of an untransformed 
+	 * rectangle.
 	 * 
 	 * @return See above.
 	 */
@@ -131,7 +127,8 @@ public class RectangleData
 	}
 	
 	/**
-	 * set the x-coordinate top-left corner of an untransformed rectangle.
+	 * Sets the x-coordinate of the top-left corner of an 
+	 * untransformed rectangle.
 	 * 
 	 * @param x See above.
 	 */
@@ -146,7 +143,8 @@ public class RectangleData
 	}
 	
 	/**
-	 * Returns the top-left corner of an untransformed rectangle.
+	 * Returns the y-coordinate of the top-left corner of an 
+	 * untransformed rectangle.
 	 * 
 	 * @return See above.
 	 */
@@ -159,13 +157,14 @@ public class RectangleData
 	}
 	
 	/**
-	 * set the y-coordinate top-left corner of an untransformed rectangle.
+	 * Sets the y-coordinate of the top-left corner of an untransformed 
+	 * rectangle.
 	 * 
 	 * @param y See above.
 	 */
 	public void setY(double y)
 	{
-		if(isReadOnly())
+		if (isReadOnly())
 			throw new IllegalArgumentException("Shape ReadOnly");
 		Rect shape = (Rect) asIObject();
 		if (shape == null) 
@@ -187,21 +186,20 @@ public class RectangleData
 	}
 	
 	/**
-	 * set width of an untransformed rectangle.
+	 * Sets width of an untransformed rectangle.
 	 * 
 	 * @param width See above.
 	 */
 	public void setWidth(double width)
 	{
-		if(isReadOnly())
+		if (isReadOnly())
 			throw new IllegalArgumentException("Shape ReadOnly");
 		Rect shape = (Rect) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
 		shape.setWidth(rtypes.rdouble(width));
 	}
-	
-	
+
 	/**
 	 * Returns the height untransformed rectangle.
 	 * 
@@ -216,13 +214,13 @@ public class RectangleData
 	}
 	
 	/**
-	 * set height of an untransformed rectangle.
+	 * Sets the height of an untransformed rectangle.
 	 * 
 	 * @param height See above.
 	 */
 	public void setHeight(double height)
 	{
-		if(isReadOnly())
+		if (isReadOnly())
 			throw new IllegalArgumentException("Shape ReadOnly");
 		Rect shape = (Rect) asIObject();
 		if (shape == null) 

@@ -94,7 +94,7 @@ class PrefsControl(BaseControl):
         get.set_defaults(func=self.get)
         get.add_argument("KEY", nargs="*")
 
-        set = sub.add_parser("set", help="""Set key-value pair in the current profile.""")
+        set = sub.add_parser("set", help="""Set key-value pair in the current profile. Omit the value to remove the key.""")
         set.set_defaults(func=self.set)
         set.add_argument("KEY")
         set.add_argument("VALUE", nargs="?", help="Value to be set. If it is missing, the key will be removed")

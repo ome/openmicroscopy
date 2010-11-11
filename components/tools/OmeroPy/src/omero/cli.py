@@ -168,12 +168,13 @@ class Parser(ArgumentParser):
 
     def _format_list(self, choices):
             lines = ["\t"]
-            while len(choices) > 1:
-                choice = choices.pop(0)
-                lines[-1] += ("%s, " % choice)
-                if len(lines[-1]) > 62:
-                    lines.append("\t")
-            lines[-1] += choices.pop(0)
+            if choices:
+                while len(choices) > 1:
+                    choice = choices.pop(0)
+                    lines[-1] += ("%s, " % choice)
+                    if len(lines[-1]) > 62:
+                        lines.append("\t")
+                lines[-1] += choices.pop(0)
             return "\n".join(lines)
 
 class NewFileType(FileType):
@@ -214,7 +215,7 @@ class Context:
     """
 
     def __init__(self, controls = {}, params = {}, prog = sys.argv[0]):
-        self.event = get_event()
+        self.event = get_event(name="CLI")
         self.params = {}
         self.controls = controls
         self.dir = OMERODIR
@@ -284,7 +285,7 @@ class Context:
         Prints text to a given string, caputring any exceptions.
         """
         try:
-            stream.write(text % {"program_name": sys.argv[0]})
+            stream.write(str(text) % {"program_name": sys.argv[0]})
             if newline:
                 stream.write("\n")
             else:
@@ -408,9 +409,11 @@ class BaseControl:
     #
     # Mostly reusable code
     #
-    def __init__(self, ctx = Context(), dir = OMERODIR):
+    def __init__(self, ctx = None, dir = OMERODIR):
         self.dir = path(dir) # Guaranteed to be a path
         self.ctx = ctx
+        if self.ctx is None:
+            self.ctx = Context() # Prevents unncessary stop_event creation
 
     def _isWindows(self):
         p_s = platform.system()

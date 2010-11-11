@@ -51,7 +51,7 @@ class BaseDriveSpace(BaseController):
         used = 0
         i=0
         for k,v in self.usage.iteritems():
-            if i < 20:
+            if i < 10:
                 for exp in self.experimenters:
                     if long(exp.id) == k:
                         tt[str(exp.omeName)] = v
@@ -59,5 +59,5 @@ class BaseDriveSpace(BaseController):
             else:
                 used += v
             i+=1
-        tt["rest"] = used
+        tt["others"] = used
         self.usage = sorted(tt.iteritems(), key=lambda (k,v):(v,k), reverse=True)

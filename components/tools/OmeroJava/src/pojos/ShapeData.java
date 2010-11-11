@@ -100,9 +100,9 @@ public abstract class ShapeData
 		}
 		throw new IllegalArgumentException("No shape specified.");
 	}
-	
+
 	/** 
-     * Parses the points list from the string to a list of point2d objects.
+	 * Parses the points list from the string to a list of point2d objects.
 	 * 
 	 * @param str the string to convert to points.
 	 */
@@ -115,14 +115,14 @@ public abstract class ShapeData
 			points.add(
 					new Point2D.Double(new Double(tt.nextToken()), new Double(
 						tt.nextToken())));
-		 return points;
+		return points;
 	}
-
+	
 	/** 
-	* Parses the points list from the string to a list of integer objects.
-	* 
-	* @param str the string to convert to points.
-	*/
+	 * Parses the points list from the string to a list of integer objects.
+	 * 
+	 * @param str the string to convert to points.
+	 */
 	protected List<Integer> parsePointsToIntegerList(String str)
 	{
 		List<Integer> points = new ArrayList<Integer>();
@@ -133,11 +133,11 @@ public abstract class ShapeData
 			points.add(new Integer(tt.nextToken()));
 		return points;
 	}
-
-   /**
-	* Returns a Point2D.Double array as a Points attribute value. as specified
-	* in http://www.w3.org/TR/SVGMobile12/shapes.html#PointsBNF
-	*/
+	
+	/**
+	 * Returns a Point2D.Double array as a Points attribute value. as specified
+	 * in http://www.w3.org/TR/SVGMobile12/shapes.html#PointsBNF
+	 */
 	protected static String toPoints(Point2D.Double[] points)
 	{
 		StringBuilder buf = new StringBuilder();
@@ -154,6 +154,19 @@ public abstract class ShapeData
 		return buf.toString();
 	}
 	
+	/**
+	 * Populates the collections.
+	 */
+	private void parseShapeStringToPointsList()
+	{
+		/*
+		points = getPoints();
+		points1 = getPoints();
+		points2 = getPoints();
+		mask = getMaskPoints();
+		*/
+	}
+	
 	/** Returns a double array as a number attribute value. */
 	protected static String toNumber(double number)
 	{
@@ -162,14 +175,15 @@ public abstract class ShapeData
 			str = str.substring(0, str.length()-2);
 		return str;
 	}
-
+	
+	
 	/**
-	* Creates a new instance.
-	* 
-	* @param shape       The shape to host.
-	* @param clientObject Pass <code>true</code> if it is a client object, 
-	* 						<code>false</code> otherwise.
-	*/
+	 * Creates a new instance.
+	 * 
+	 * @param shape       The shape to host.
+	 * @param clientObject Pass <code>true</code> if it is a client object, 
+	 * 						<code>false</code> otherwise.
+	 */
 	protected ShapeData(Shape shape, boolean clientObject)
 	{
 		super();
@@ -178,7 +192,7 @@ public abstract class ShapeData
 		shape.setLocked(rtypes.rbool(false));
 		settings = new ShapeSettingsData(shape);
 	}
-			
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -384,7 +398,7 @@ public abstract class ShapeData
 	}
 	
 	/**
-	 * Set the Affine transform of the shape.
+	 * Sets the Affine transform of the shape.
 	 * 
 	 * @param See above.
 	 */
@@ -405,4 +419,5 @@ public abstract class ShapeData
 	{
 		super.setDirty(dirty);
 	}
+	
 }

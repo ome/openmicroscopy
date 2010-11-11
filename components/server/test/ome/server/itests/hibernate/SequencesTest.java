@@ -81,11 +81,11 @@ public class SequencesTest extends AbstractManagedContextTest {
      */
     public void testConnectionUniqueness() throws Exception {
         DataSource ds = (DataSource) applicationContext.getBean("selfCorrectingDataSource");
-        logger.warn("XXXX: GETTING CONNECTIONS");
+        log.warn("XXXX: GETTING CONNECTIONS");
         Connection conn1 = ds.getConnection();
         Connection conn2 = ds.getConnection();
         assertFalse(conn1.equals(conn2));
-        logger.warn("XXXX: GOT 2 CONNECTIONS");
+        log.warn("XXXX: GOT 2 CONNECTIONS");
     }
     
     public void testBasics() throws Exception {
@@ -157,7 +157,7 @@ public class SequencesTest extends AbstractManagedContextTest {
         final long[] values = new long[5];
 
         try {
-            logger.warn("XXXX: EXECUTING");
+            log.warn("XXXX: EXECUTING");
             executor.execute(this.loginAop.p, new Executor.SimpleWork(this,
                     "isolated") {
                 @Transactional(readOnly = false)
@@ -168,11 +168,11 @@ public class SequencesTest extends AbstractManagedContextTest {
                     // that's
                     // wrapped with AOP
                     Image i = new Image(new Timestamp(0L), "1176-inner");
-                    logger.warn("XXXX: SAVING");
+                    log.warn("XXXX: SAVING");
                     i = sf.getUpdateService().saveAndReturnObject(i);
                     values[IMAGEID] = i.getId();
 
-                    logger.warn("XXXX: CHECKING NEXTVAL");
+                    log.warn("XXXX: CHECKING NEXTVAL");
                     values[BEFORE] = getCurrentNextValue(seq_name);
 
                     // This was failing.
@@ -191,7 +191,7 @@ public class SequencesTest extends AbstractManagedContextTest {
                     // If instead we get our own datasoure then the connection
                     // should be an unwrapped one. We are duplicating what is
                     // done in TableIdGenerator here.
-                    logger.warn("XXXX: OME_NEXTVAL");
+                    log.warn("XXXX: OME_NEXTVAL");
                     DataSource ds = (DataSource) applicationContext
                             .getBean("selfCorrectingDataSource");
                     PlatformTransactionManager tm = new DataSourceTransactionManager(
@@ -207,7 +207,7 @@ public class SequencesTest extends AbstractManagedContextTest {
                         }
                     });
 
-                    logger.warn("XXXX: CHECKING NEXTVAL");
+                    log.warn("XXXX: CHECKING NEXTVAL");
                     values[AFTER] = getCurrentNextValue(seq_name);
 
                     throw new RuntimeException("Should rollback tx");
@@ -218,11 +218,11 @@ public class SequencesTest extends AbstractManagedContextTest {
             // good
         }
 
-        logger.warn("XXXX: AFTER EXECUTE. CHECKING NEXTVAL");
+        log.warn("XXXX: AFTER EXECUTE. CHECKING NEXTVAL");
         values[OUTSIDE] = getCurrentNextValue(seq_name);
 
         // First the image must be gone. Most important!
-        logger.warn("XXXX: QUERY.FIND");
+        log.warn("XXXX: QUERY.FIND");
         assertNull(iQuery.find(Image.class, values[IMAGEID]));
 
         // Then value should have updated despite the rollback.

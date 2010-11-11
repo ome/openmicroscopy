@@ -1,5 +1,5 @@
 """
- components/tools/OmeroPy/scripts/server/Populate_Plate_Roi.py
+components/tools/OmeroPy/scripts/omero/import_scripts/Populate_Plate_Roi.py
 
 Uses the omero.util.populate_roi functionality to parse all the
 measurement files attached to a plate, and generate server-side

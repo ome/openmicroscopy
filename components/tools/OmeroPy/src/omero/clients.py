@@ -332,7 +332,7 @@ class BaseClient(object):
         try:
             sf = self.__sf
             if not sf:
-                raise omero.ClientError("No session avaliable")
+                raise omero.ClientError("No session available")
             return sf
         finally:
             self.__lock.release()
@@ -666,6 +666,24 @@ class BaseClient(object):
                     filehandle.close()
         finally:
             prx.close()
+
+    def getStatefulServices(self):
+        """
+        Returns all active StatefulServiceInterface proxies. This can
+        be used to call close before calling setSecurityContext.
+        """
+        rv = []
+        sf = self.sf
+        services = sf.activeServices()
+        for srv in services:
+            try:
+                prx = sf.getByName(srv)
+                prx = omero.api.StatefulServiceInterfacePrx.checkedCast(prx)
+                if prx is not None:
+                    rv.append(prx)
+            except:
+                self.__logger.warn("Error looking up proxy: %s" % srv, exc_info=1)
+        return rv
 
     def closeSession(self):
         """

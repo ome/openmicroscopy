@@ -302,7 +302,7 @@ public class ImageData extends DataObject {
     }
 
     /**
-     * Returns the acquistion date.
+     * Returns the acquisition date.
      * 
      * @return See above.
      */
@@ -321,7 +321,9 @@ public class ImageData extends DataObject {
      * @return See above.
      */
     public PixelsData getDefaultPixels() {
-        return getAllPixels().get(0);
+    	List<PixelsData> list = getAllPixels();
+    	if (list == null || list.size() == 0) return null;
+        return list.get(0);
     }
 
     /**

@@ -38,6 +38,14 @@
   <Match> <Package name="IceSSL"/> </Match>
   <Match> <Package name="IceStorm"/> </Match>
   <Match> <Package name="IceUtilInternal"/> </Match>
+  
+  <!--
+    Filter out any Unread Field Bug if the field in the class is called log
+  -->
+  <Match>
+    <Bug pattern="URF_UNREAD_FIELD" />
+    <Field name="log" />
+  </Match>
 </FindBugsFilter>
 
 

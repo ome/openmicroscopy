@@ -6,9 +6,12 @@
  */
 package ome.server.utests.sessions;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import net.sf.ehcache.CacheManager;
@@ -27,17 +30,22 @@ import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
 import ome.model.meta.Experimenter;
 import ome.model.meta.ExperimenterGroup;
+import ome.model.meta.Node;
 import ome.model.meta.Session;
 import ome.security.basic.CurrentDetails;
 import ome.services.sessions.SessionContext;
+import ome.services.sessions.SessionContextImpl;
 import ome.services.sessions.SessionManagerImpl;
 import ome.services.sessions.events.UserGroupUpdateEvent;
 import ome.services.sessions.state.SessionCache;
 import ome.services.sessions.state.SessionCache.StaleCacheListener;
+import ome.services.sessions.stats.CounterFactory;
+import ome.services.sessions.stats.SessionStats;
 import ome.services.util.Executor;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.Roles;
+import ome.system.ServiceFactory;
 import ome.testing.MockServiceFactory;
 
 import org.jmock.Mock;
@@ -45,7 +53,10 @@ import org.jmock.MockObjectTestCase;
 import org.jmock.core.Constraint;
 import org.jmock.core.Invocation;
 import org.jmock.core.Stub;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.ApplicationEventMulticaster;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
@@ -74,6 +85,11 @@ public class SessMgrUnitTest extends MockObjectTestCase {
             define(s, "uuid", "message", System.currentTimeMillis(),
                     defaultTimeToIdle, defaultTimeToLive, "Test",
                     "Test");
+
+            ExperimenterGroup group = new ExperimenterGroup();
+            group.getDetails().setPermissions(Permissions.COLLAB_READLINK);
+            s.getDetails().setGroup(group);
+
             return s;
         }
     }
@@ -81,9 +97,10 @@ public class SessMgrUnitTest extends MockObjectTestCase {
     private OmeroContext ctx;
     private ApplicationEventMulticaster multicaster;
     private final MockServiceFactory sf = new MockServiceFactory();
-    private Mock exMock;
     private TestManager mgr;
     private SessionCache cache;
+    private org.hibernate.Session s;
+    private Mock sMock;
 
     // State
     final Long TTL = 300 * 1000L;
@@ -104,10 +121,12 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         multicaster = (ApplicationEventMulticaster) ctx
                 .getBean("applicationEventMulticaster");
 
-        exMock = mock(Executor.class);
         sf.mockAdmin = mock(LocalAdmin.class);
         sf.mockUpdate = mock(LocalUpdate.class);
         sf.mockQuery = mock(LocalQuery.class);
+
+        sMock = mock(org.hibernate.Session.class);
+        s = (org.hibernate.Session) sMock.proxy();
     }
 
     @BeforeMethod
@@ -117,10 +136,11 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         cache.setApplicationContext(ctx);
 
         mgr = new TestManager();
+        mgr.setCounterFactory(new CounterFactory());
         mgr.setRoles(new Roles());
         mgr.setSessionCache(cache);
         mgr.setPrincipalHolder(new CurrentDetails());
-        mgr.setExecutor((Executor) exMock.proxy());
+        mgr.setExecutor(new DummyExecutor(s, sf));
         mgr.setApplicationContext(ctx);
         mgr.setDefaultTimeToIdle(TTI);
         mgr.setDefaultTimeToLive(TTL);
@@ -131,53 +151,9 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         user.setOmeName(principal.getName());
     }
 
-    void prepareSessionCreation() {
-
-        exMock.expects(atLeastOnce()).method("execute").will(new DoWorkStub());
-
-        sf.mockAdmin.expects(once()).method("checkPassword").will(
-                returnValue(true));
-        sf.mockAdmin.expects(atLeastOnce()).method("userProxy").will(
-                returnValue(user));
-        sf.mockAdmin.expects(atLeastOnce()).method("lookupExperimenter").will(
-                        returnValue(user));
-        sf.mockAdmin.expects(atLeastOnce()).method("groupProxy").will(
-                returnValue(group));
-        sf.mockAdmin.expects(atLeastOnce()).method("getMemberOfGroupIds").will(
-                returnValue(m_ids));
-        sf.mockAdmin.expects(atLeastOnce()).method("getLeaderOfGroupIds").will(
-                returnValue(l_ids));
-        sf.mockAdmin.expects(atLeastOnce()).method("getUserRoles").will(
-                returnValue(userRoles));
-        sf.mockAdmin.expects(once()).method("checkPassword").will(
-                returnValue(true));
-
-        EventType t = new EventType(0L, true);
-        t.setValue("mock");
-        sf.mockTypes.expects(once()).method("getEnumeration").will(
-                returnValue(t));
-
-        sf.mockQuery.expects(once()).method("findAllByQuery")
-                .will(
-                        returnValue(Collections
-                                .singletonList(new ExperimenterGroup())));
-        sf.mockUpdate.expects(atLeastOnce()).method("saveAndReturnObject")
-                .will(returnValue(session));
-
-    }
-
-    void prepareSessionUpdate() {
-        prepareSessionCreation();
-        // exMock.expects(atLeastOnce()).method("execute").will(new
-        // DoWorkStub());
-        //
-        // sf.mockAdmin.expects(once()).method("userProxy")
-        // .will(returnValue(user));
-        // sf.mockAdmin.expects(atLeastOnce()).method("groupProxy").will(
-        // returnValue(group));
-        // sf.mockUpdate.expects(once()).method("saveAndReturnObject").will(
-        // new SetIdStub(1L));
-        //
+    @AfterMethod
+    public void cleanupMocks() throws Exception {
+        tearDown();
     }
 
     @Test
@@ -188,7 +164,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
          * sessionedPrincipal => hasSession() != null, then ok
          */
 
-        prepareSessionCreation();
+        prepareForCreateSession();
         assert session == mgr.createWithAgent(principal, credentials, "Test");
         assertNotNull(session);
         assertNotNull(session.getUuid());
@@ -236,7 +212,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         sf.mockUpdate.expects(once()).method("saveAndReturnObject").will(
                 returnValue(rv));
 
-        prepareSessionUpdate();
+        prepareForCreateSession();
         Session test = mgr.update(session);
         assertFalse(test == rv); // insists that a copy is performed
     }
@@ -278,7 +254,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         cache.setCacheManager(CacheManager.getInstance());
         cache.setApplicationContext(ctx);
 
-        prepareSessionCreation();
+        prepareForCreateSession();
         Session s1 = mgr.createWithAgent(principal, credentials, "Test");
         s1.setTimeToIdle(2000L);
         mgr.update(s1);
@@ -376,18 +352,35 @@ public class SessMgrUnitTest extends MockObjectTestCase {
     }
 
     void prepareForCreateSession() {
-        sf.mockAdmin.expects(once()).method("userProxy")
+        sf.mockAdmin.expects(atLeastOnce()).method("userProxy")
                 .will(returnValue(user));
-        sf.mockAdmin.expects(once()).method("groupProxy").will(
+        sf.mockAdmin.expects(atLeastOnce()).method("groupProxy").will(
                 returnValue(group));
         sf.mockAdmin.expects(atLeastOnce()).method("getMemberOfGroupIds").will(
                 returnValue(m_ids));
         sf.mockAdmin.expects(atLeastOnce()).method("getLeaderOfGroupIds").will(
                 returnValue(l_ids));
-        sf.mockAdmin.expects(once()).method("getUserRoles").will(
+        sf.mockAdmin.expects(atLeastOnce()).method("getUserRoles").will(
                 returnValue(userRoles));
         sf.mockAdmin.expects(once()).method("checkPassword").will(
                 returnValue(true));
+        // execute lookup user
+        sf.mockQuery.expects(once()).method("projection").will(
+                returnValue(Arrays.asList((Object)new Object[]{123L})));
+
+
+        EventType test = new EventType(0L, true);
+        test.setValue("test");
+        sf.mockTypes.expects(atLeastOnce()).method("getEnumeration").will(
+                returnValue(test));
+
+        sf.mockQuery.expects(atLeastOnce()).method("findByQuery")
+            .will(returnValue(new Node()));
+
+        sf.mockUpdate.expects(atLeastOnce()).method("saveAndReturnObject")
+            .will(returnValue(session));
+
+
     }
 
     @Test(expectedExceptions = AuthenticationException.class)
@@ -411,9 +404,10 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         mgr.createWithAgent(principal, "password", "Test");
     }
 
-    @Test(expectedExceptions = SecurityViolation.class)
+    @Test
     public void testChecksForDefaultGroupsOnCreation() throws Exception {
         prepareForCreateSession();
+
         sf.mockAdmin.expects(once()).method("getDefaultGroup").will(
                 returnValue(group));
         sf.mockQuery.expects(once()).method("findAllByQuery").will(
@@ -443,20 +437,20 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         String uuid = session.getUuid();
         SessionContext ctx = cache.getSessionContext(uuid, false/* FIXME */);
 
-        assertEquals(1, ctx.refCount());
+        assertEquals(1, ctx.count().get());
         assertNull(ctx.getSession().getClosed());
 
         mgr.createWithAgent(new Principal(uuid), "Test");
-        assertEquals(2, ctx.refCount());
+        assertEquals(2, ctx.count().get());
         assertNull(ctx.getSession().getClosed());
 
         mgr.close(uuid);
-        assertEquals(1, ctx.refCount());
+        assertEquals(1, ctx.count().get());
         assertNull(ctx.getSession().getClosed());
 
-        prepareSessionUpdate();
+        prepareForCreateSession();
         mgr.close(uuid);
-        assertEquals(0, ctx.refCount());
+        assertEquals(0, ctx.count().get());
         // Closing the session is now done asynchronously.
         // Instead, let's make sure it's removed from the
         // cache
@@ -555,14 +549,12 @@ public class SessMgrUnitTest extends MockObjectTestCase {
             throws Exception {
 
         // Threads
-        final CyclicBarrier forceHang = new CyclicBarrier(2);
         final CyclicBarrier barrier = new CyclicBarrier(3);
 
         cache.setStaleCacheListener(new StaleCacheListener() {
 
             public void prepareReload() {
                 try {
-                    forceHang.await();
                     barrier.await(10, TimeUnit.SECONDS);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
@@ -578,8 +570,9 @@ public class SessMgrUnitTest extends MockObjectTestCase {
             @Override
             public void run() {
                 try {
-                    // Here we force the an update
+                    // Here we force an update
                     cache.updateEvent(new UserGroupUpdateEvent(this));
+                    cache.doUpdate();
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }
@@ -600,7 +593,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
 
         // Run
         new Update().start();
-        forceHang.await(5, TimeUnit.SECONDS);
+
         // Now we know that update is blocking
         new Create().start();
         barrier.await(10, TimeUnit.SECONDS);
@@ -609,4 +602,97 @@ public class SessMgrUnitTest extends MockObjectTestCase {
 
     }
 
+    @Test(groups = "ticket:2804")
+    public void testSessionShouldNotBeReapedDuringMethodExceution()
+            throws Exception {
+
+        testCreateNewSession();
+        final String uuid = session.getUuid();
+        final SessionContext ctx = cache.getSessionContext(uuid, false);
+        final SessionStats stats = ctx.stats();
+
+        // Check reaping while user is running a method
+        stats.methodIn();
+        mgr.close(uuid);
+        assertNotNull(cache.getSessionContext(uuid, true));
+
+        // Try to start a new method.
+        // fail("NYI");
+
+        // Checked reaping when user is not running a method
+        stats.methodOut();
+        mgr.close(uuid);
+        assertNull(cache.getSessionContext(uuid, true));
+
+    }
+
+    @Test(groups = {"ticket:2803", "ticket:2804"})
+    public void testCopyingReferenceCounts() {
+        SessionContextImpl s1 = new SessionContextImpl(
+                this.session, l_ids, m_ids, userRoles, null, null);
+        assertEquals(0, s1.count().get());
+        assertEquals(1, s1.count().increment());
+        assertEquals(2, s1.count().increment());
+        assertEquals(2, s1.count().get());
+        assertEquals(1, s1.count().decrement());
+
+        SessionContextImpl s2 = new SessionContextImpl(
+                this.session, l_ids, m_ids, userRoles, null, s1);
+        assertEquals(1, s2.count().get());
+        assertEquals(2, s2.count().increment());
+        assertEquals(2, s1.count().get());
+    }
+
+    //
+    // Helper
+    //
+
+    class DummyExecutor implements Executor {
+
+        org.hibernate.Session session;
+        ServiceFactory sf;
+
+        DummyExecutor(org.hibernate.Session session, ServiceFactory sf) {
+            this.session = session;
+            this.sf = sf;
+        }
+
+        public Object execute(Principal p, Work work) {
+            return work.doWork(session, sf);
+        }
+
+        public <T> Future<T> submit(Callable<T> callable) {
+            throw new UnsupportedOperationException();
+        }
+
+        public <T> T get(Future<T> future) {
+            throw new UnsupportedOperationException();
+        }
+
+        public Object executeStateless(StatelessWork work) {
+            throw new UnsupportedOperationException();
+        }
+
+        public void setApplicationContext(ApplicationContext arg0)
+                throws BeansException {
+            throw new UnsupportedOperationException();
+        }
+
+        public OmeroContext getContext() {
+            throw new UnsupportedOperationException();
+        }
+
+        public Principal principal() {
+            throw new UnsupportedOperationException();
+        }
+
+        public void setCallGroup(long gid) {
+            throw new UnsupportedOperationException();
+        }
+
+        public void resetCallGroup() {
+            throw new UnsupportedOperationException();
+        }
+
+    }
 }

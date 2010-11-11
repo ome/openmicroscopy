@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Set;
 
 import ome.conditions.InternalException;
+import ome.conditions.RemovedSessionException;
 import ome.model.core.OriginalFile;
 import ome.model.meta.ExperimenterGroup;
 import ome.services.util.Executor;
@@ -87,7 +88,11 @@ public class ScriptRepoHelper {
     public ScriptRepoHelper(Executor ex, String sessionUuid, Roles roles) {
         this(new File(getDefaultScriptDir()), ex, new Principal(sessionUuid),
                 roles);
-        loadAll(true);
+        try {
+            loadAll(true);
+        } catch (RemovedSessionException rse) {
+            log.error("Script failure!!! RemovedSession on startup: are we testing?");
+        }
     }
 
     /**

@@ -109,20 +109,19 @@ public class MetadataImpl
     	if (src == null) return null;
     	StringBuilder sb = new StringBuilder();
     	if (src instanceof Laser) {
-			sb.append("select laser from Laser as laser ");
-			sb.append("left outer join fetch laser.type as type ");
-			sb.append("left outer join fetch laser.laserMedium as " +
-					"medium ");
-			sb.append("left outer join fetch laser.pulse as pulse ");
-	        sb.append("where laser.instrument.id = :instrumentId");
+			sb.append("select l from Laser as l ");
+			sb.append("left outer join fetch l.type ");
+			sb.append("left outer join fetch l.laserMedium ");
+			sb.append("left outer join fetch l.pulse as pulse ");
+	        sb.append("where l.instrument.id = :instrumentId");
 		} else if (src instanceof Filament) {
-			sb.append("select filament from Filament as filament ");
-			sb.append("left outer join fetch filament.type as type ");
-	        sb.append("where filament.instrument.id = :instrumentId");
+			sb.append("select l from Filament as l ");
+			sb.append("left outer join fetch l.type ");
+	        sb.append("where l.instrument.id = :instrumentId");
 		} else if (src instanceof Arc) {
-			sb.append("select arc from Arc as arc ");
-			sb.append("left outer join fetch arc.type as type ");
-	        sb.append("where arc.instrument.id = :instrumentId");
+			sb.append("select l from Arc as l ");
+			sb.append("left outer join fetch l.type ");
+	        sb.append("where l.instrument.id = :instrumentId");
 		}
     	return sb;
     }
@@ -337,87 +336,80 @@ public class MetadataImpl
      */
     @RolesAllowed("user")
     @Transactional(readOnly = true)
-    public Set<IObject> loadInstrument(long id)
+    public Instrument loadInstrument(long id)
     {
-    	Set<IObject> results = new HashSet<IObject>();
     	StringBuilder sb = new StringBuilder();
-    	Parameters params = new Parameters(); 
     	sb.append("select inst from Instrument as inst ");
     	sb.append("left outer join fetch inst.microscope as m ");
-    	sb.append("left outer join fetch m.type as mt ");
-    	sb.append("where inst.id = :id");
-    	Instrument value = iQuery.findByQuery(sb.toString(), 
-    			params.addId(id));
-    	if (value == null) return results;
-    	results.add(value);
-    	//detectors
-    	sb = new StringBuilder();
-    	params = new Parameters(); 
-    	params.addLong("instrumentId", id);
-    	sb.append("select d from Detector as d ");
-    	sb.append("left outer join fetch d.type as dt ");
-    	sb.append("where d.instrument.id = :instrumentId");
-    	
-    	List<IObject> list = iQuery.findAllByQuery(sb.toString(), params);
-    	if (list != null) results.addAll(list);
-    	
-    	//filters
-    	sb = new StringBuilder();
-    	sb.append("select f from Filter as f ");
-    	sb.append("left outer join fetch f.type as ft ");
+    	sb.append("left outer join fetch m.type ");
+    	//objective
+    	sb.append("left outer join fetch inst.objective as o ");
+    	sb.append("left outer join fetch o.immersion ");
+    	sb.append("left outer join fetch o.correction ");
+    	//detector
+    	sb.append("left outer join fetch inst.detector as d ");
+    	sb.append("left outer join fetch d.type ");
+    	//filter
+    	sb.append("left outer join fetch inst.filter as f ");
+    	sb.append("left outer join fetch f.type ");
     	sb.append("left outer join fetch f.transmittanceRange as trans ");
-    	sb.append("where f.instrument.id = :instrumentId");
-    	list = iQuery.findAllByQuery(sb.toString(), params);
-    	if (list != null) results.addAll(list);
+    	//filterset
+    	sb.append("left outer join fetch inst.filterSet as fs ");
+    	sb.append("left outer join fetch fs.dichroic as dichroic ");
+    	//dichroic
+    	sb.append("left outer join fetch inst.dichroic as di ");
+    	//OTF
+    	sb.append("left outer join fetch inst.otf as otf ");
+    	sb.append("left outer join fetch otf.pixelsType as type ");
+    	sb.append("left outer join fetch otf.objective as obj ");
+    	sb.append("left outer join fetch obj.immersion ");
+    	sb.append("left outer join fetch obj.correction ");
+    	sb.append("left outer join fetch otf.filterSet ");
     	
-    	//filter set
-    	sb = new StringBuilder();
-    	sb.append("select f from FilterSet as f ");
-    	sb.append("left outer join fetch f.dichroic as dichroic ");
-    	sb.append("where f.instrument.id = :instrumentId");
-    	list = iQuery.findAllByQuery(sb.toString(), params);
-    	if (list != null) results.addAll(list);
+    	//light source
+    	sb.append("left outer join fetch inst.lightSource as ls ");
+    	sb.append("where inst.id = :id ");
     	
-    	//dichroics
-    	sb = new StringBuilder();
-    	sb.append("select d from Dichroic as d ");
-    	sb.append("where d.instrument.id = :instrumentId");
-    	list = iQuery.findAllByQuery(sb.toString(), params);
-    	if (list != null) results.addAll(list);
+    	Parameters params = new Parameters(); 
+    	params.addId(id);
+    	Instrument value = iQuery.findByQuery(sb.toString(), params);
+    	if (value == null) return null;
     	
-    	//objectives
-    	sb = new StringBuilder();
-    	sb.append("select o from Objective as o ");
-    	sb.append("left outer join fetch o.immersion as oi ");
-    	sb.append("left outer join fetch o.correction as oc ");
-    	sb.append("where o.instrument.id = :instrumentId");
-    	list = iQuery.findAllByQuery(sb.toString(), params);
-    	if (list != null) results.addAll(list);
+    	LightSource ls;
+    	Iterator<LightSource> i = value.iterateLightSource();
+    	Laser laser;
     	
-    	//light sources
-    	sb = new StringBuilder();
-    	sb.append("select light from LightSource as light ");
-    	sb.append("where light.instrument.id = :instrumentId");
-    	list = iQuery.findAllByQuery(sb.toString(), params);
-    	//if (list != null) results.addAll(list);
-    	if (list != null) {
-    		IObject object;
-    		Iterator i = list.iterator();
-    		LightSource src;
+    	if (i != null) {
+    		params = new Parameters();  
+			params.addLong("instrumentId", id);
+    		List<String> names = new ArrayList<String>();
+    		String name;
+    		StringBuilder builder;
+    		List<IObject> list = new ArrayList<IObject>();
     		while (i.hasNext()) {
-            	src = (LightSource) i.next();
-				if (src instanceof LightEmittingDiode) {
-					results.add(src);
-				} else {
-					sb = createLightQuery(src);
-					if (sb != null) {
-						object = iQuery.findByQuery(sb.toString(), params);
-						if (object != null) results.add(object);
-					}
-				}
+    			ls = i.next();
+    			if (ls instanceof LightEmittingDiode) {
+    				list.add(ls);
+    			} else {
+    				name = ls.getClass().getName();
+    				if (!names.contains(name)) {
+        				names.add(name);
+        				builder = createLightQuery(ls);
+        				if (builder != null) {
+        					list.addAll(
+        						iQuery.findAllByQuery(builder.toString(), 
+        								params));
+        				} 
+        			}
+    			}
     		}
+    		value.clearLightSource();
+    		Iterator<IObject> j = list.iterator();
+    		while (j.hasNext()) {
+    			value.addLightSource((LightSource) j.next());
+			}
     	}
-    	return results;
+    	return value;
     }
     
     /**
@@ -431,11 +423,26 @@ public class MetadataImpl
     {
     	StringBuilder sb = new StringBuilder();
     	sb.append("select channel from LogicalChannel as channel ");
+    	sb.append("left outer join fetch channel.mode as mode ");
+        sb.append("left outer join fetch channel.illumination as illumination ");
+        sb.append("left outer join fetch channel.contrastMethod as cm ");
 		sb.append("left outer join fetch channel.detectorSettings as ds ");
         sb.append("left outer join fetch channel.lightSourceSettings as lss ");
-        sb.append("left outer join fetch channel.mode as mode ");
+        sb.append("left outer join fetch lss.microbeamManipulation ");
+        
+        //
+        sb.append("left outer join fetch channel.otf as otf ");
+        sb.append("left outer join fetch otf.pixelsType ");
+        sb.append("left outer join fetch otf.objective as objective ");
+        sb.append("left outer join fetch objective.immersion ");
+        sb.append("left outer join fetch objective.correction ");
+        sb.append("left outer join fetch otf.filterSet as otffilter ");
+        sb.append("left outer join fetch otffilter.dichroic as otfdichroic ");
+        
+        
         sb.append("left outer join fetch channel.filterSet as filter ");
         sb.append("left outer join fetch filter.dichroic as dichroic ");
+        
         //emission filters
         sb.append("left outer join fetch filter.emissionFilterLink as efl ");
         sb.append("left outer join fetch efl.child as ef ");
@@ -451,7 +458,7 @@ public class MetadataImpl
         sb.append("left outer join fetch channel.lightPath as lp ");
         sb.append("left outer join fetch lp.dichroic as dichroic ");
         
-      //emission filters
+        //emission filters
         sb.append("left outer join fetch lp.emissionFilterLink as efLpl ");
         sb.append("left outer join fetch efLpl.child as efLp ");
         sb.append("left outer join fetch efLp.transmittanceRange as efLpTrans ");
@@ -464,10 +471,10 @@ public class MetadataImpl
         sb.append("left outer join fetch exfLp.type as type4 ");
 
         sb.append("left outer join fetch ds.detector as detector ");
-        sb.append("left outer join fetch detector.type as dt ");
+        sb.append("left outer join fetch detector.type ");
         sb.append("left outer join fetch ds.binning as binning ");
         sb.append("left outer join fetch lss.lightSource as light ");
-        sb.append("left outer join fetch light.type as lt ");
+        sb.append("left outer join fetch light.instrument as instrument ");
         sb.append("where channel.id in (:ids)");
         List<LogicalChannel> list = iQuery.findAllByQuery(sb.toString(), 
         		new Parameters().addIds(ids));
@@ -476,7 +483,9 @@ public class MetadataImpl
         LightSettings light;
         LightSource src;
         IObject object;
-		Parameters params;
+        Parameters params; 
+        Laser laser;
+        Instrument instrument;
         while (i.hasNext()) {
         	channel = i.next();
 			light = channel.getLightSourceSettings();
@@ -488,10 +497,13 @@ public class MetadataImpl
 					sb = createLightQuery(src);
 					if (sb != null) {
 						params = new Parameters(); 
-						params.addLong("instrumentId", src.getInstrument().getId());
+						params.addLong("instrumentId", 
+								src.getInstrument().getId());
+						params.addId(src.getId());
+						sb.append(" and l.id = :id");
 						object = iQuery.findByQuery(sb.toString(), params);
 						light.setLightSource((LightSource) object);
-					}	
+					}
 				}
 			}
 		}

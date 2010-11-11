@@ -46,7 +46,8 @@ from omero.model import NamespaceI
 from omero.rtypes import rdouble 
 from omero.rtypes import rstring 
 from omero.rtypes import rint 
-from omero.rtypes import rfloat 
+from omero.rtypes import rfloat
+from omero.rtypes import rlist 
 
 ## Popo helpers ##
   
@@ -80,7 +81,7 @@ def toList(csvString):
 ##
 # Create instance of data object this object wraps the basic OMERO types.
 #
-class DataObject():
+class DataObject(object):
     
     ##
     # Create instance.
@@ -548,7 +549,7 @@ class ROIData(DataObject):
     #
     def getNamespaceKeywords(self):
         roi = self.asIObject();
-        if(roi==None):
+        if (roi == None):
             raise Exception("No Roi specified.");
         namespaces = self.getNamespaces();
         namespaceKeywords = roi.getKeywords();
@@ -558,8 +559,7 @@ class ROIData(DataObject):
         for i in range(len(namespaces)):
             map[namespaces[i]] = namespaceKeywords[i];
         return map;
-
-    
+	
 class ShapeData(DataObject):
     
     def __init__(self):
@@ -697,9 +697,8 @@ class ShapeData(DataObject):
     # Transform the affine transform matrix from the string 'matrix(m00 m01 m10 m 11 m02 m12)' to a 
     # more appropriate numpy.array([m00 m01 m02], [m10 m11 m12]).
     #
-    #
     def transformToMatrix(self, str):
-        if(str==""):
+        if (str == ""):
             return numpy.matrix([[1,0,0],[0,1,0]])
         transformstr = str[str.find('(')+1:len(str)-1];
         values = transformstr.split(' ');
@@ -1261,7 +1260,7 @@ class RectData(ShapeData):
     # 
     def __init__(self, rectShape=None):
         ShapeData.__init__(self);
-        if(rectShape==None):
+        if (rectShape == None):
             self.setValue(RectI());
             self.setX(0);
             self.setY(0);
@@ -1275,7 +1274,7 @@ class RectData(ShapeData):
     # @param x See above.
     def setX(self, x):
         shape = self.asIObject();
-        if(shape==None):
+        if (shape == None):
             raise Exception("No Shape specified.");
         shape.setX(rdouble(x));
 
@@ -1284,10 +1283,10 @@ class RectData(ShapeData):
     # @return See Above. 
     def getX(self):
         shape = self.asIObject();
-        if(shape==None):
+        if (shape == None):
             raise Exception("No Shape specified.");
         x = shape.getX();
-        if(x==None):
+        if (x == None):
             return 0;
         return x.getValue();
    
@@ -1370,8 +1369,8 @@ class RectData(ShapeData):
         transform = self.transformToMatrix(self.getTransform());
         x = self.getX();
         y = self.getY();
-        w = self.getWidth();
-        h = self.getHeight();
+        width = self.getWidth();
+        height = self.getHeight();
         point = numpy.matrix((x, y, 1)).transpose();
         centre = transform*point;
         BL = numpy.matrix((x, y+height, 1)).transpose();
@@ -1383,12 +1382,12 @@ class RectData(ShapeData):
         lt = transform*TL;
         rt = transform*TR;
         majl = lb
-        majr = lr
+        majr = rb
         o = (majr[1]-majl[1]);
         a = (majr[0]-majl[0]);
         h = math.sqrt(o*o+a*a);
         angle = math.asin(o/h); 
-        boundingBoxMinX = min(lt[0], rt[0],lb[0], rb[0]);
+        boundingBoxMinX = min(lt[0], rt[0], lb[0], rb[0]);
         boundingBoxMaxX = max(lt[0], rt[0], lb[0], rb[0]);
         boundingBoxMinY = min(lt[1], rt[1], lb[1], rb[1]);
         boundingBoxMaxY = max(lt[1], rt[1], lb[1], rb[1]);
@@ -1396,11 +1395,16 @@ class RectData(ShapeData):
         points = {};
         xrange =  range(boundingBox[0][0], boundingBox[1][0])
         yrange = range(boundingBox[0][1], boundingBox[1][1])
+        transformedX = float(centre[0]);
+        transformedY = float(centre[1]);
+        cx = float(centre[0]);
+        cy = float(centre[1]);
         for xx in xrange:
             for yy in yrange:
                 newX = xx*math.cos(angle)+yy*math.sin(angle);
                 newY = -xx*math.sin(angle)+yy*math.cos(angle);
-                if( newX-transformedX < width and newY-transformedY < height and newX-transformedX > 0 and newY-transformedY > 0):
+                
+                if (newX-transformedX < width and newY-transformedY < height and newX-transformedX > 0 and newY-transformedY > 0):
                     points[(int(x+cx), int(y+cy))]=1;
         return points;              
 
@@ -1413,7 +1417,8 @@ class WorkflowData(DataObject):
         if(workflow==None):
             self.setValue(NamespaceI());
             self.setNamespace("");
-            self.setKeywords("");
+            self.setKeywords([]);
+            self.setDirty(True);
         else:
             self.setValue(workflow);
 
@@ -1446,6 +1451,16 @@ class WorkflowData(DataObject):
         workflow = self.asIObject();
         if(workflow==None):
             raise Exception("No workflow specified.");
+        workflow.setKeywords(keywords);
+        self.setDirty(True);    
+    
+    ## 
+    # Set the keywords of the workflow.
+    # @param namespace See above.
+    def setKeywordsFromString(self, keywords):
+        workflow = self.asIObject();
+        if(workflow==None):
+            raise Exception("No workflow specified.");
         workflow.setKeywords(toList(keywords));
         self.setDirty(True);
 
@@ -1458,8 +1473,8 @@ class WorkflowData(DataObject):
             raise Exception("No Workflow specified.");
         keywords = workflow.getKeywords();
         if(keywords==None):
-            return "";
-        return keywords.getValue();
+            return [];
+        return keywords;
         
     ## 
     # Add a keyword to the workflow
@@ -1467,7 +1482,7 @@ class WorkflowData(DataObject):
     def addKeyword(self, keyword):
         if(self.containsKeyword(keyword)):
             return;
-        keywords = toList(self.getKeywords());
+        keywords = self.getKeywords();
         keywords.append(keyword);
         self.setKeywords(keywords);       
 
@@ -1475,7 +1490,7 @@ class WorkflowData(DataObject):
     # Return <code>True</code> if the keyword is part of workflow
     # @return See Above. 
     def containsKeyword(self, keyword):
-        keywords = toList(self.getKeywords);
+        keywords = self.getKeywords();
         return (keyword in keywords);
         
     ## 
@@ -1484,7 +1499,7 @@ class WorkflowData(DataObject):
     def removeKeyword(self, keyword):
         if(not self.containsKeyword()):
             return;
-        newList = toList(self.getKeywords());
+        newList = self.getKeywords();
         newList.remove(keyword);
-        self.setKeywords(toCSV(newList));
+        self.setKeywords(newList);
         

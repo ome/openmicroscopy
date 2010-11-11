@@ -53,7 +53,7 @@
 <h1>{% trans "Files" %}:</h1>
 <ol>
     {% for fileann in manager.file_annotations %}
-    <li><a href="{% url download_annotation "download" fileann.id %}" target="_blank">{{ fileann.getFileName }}</a> - {{ fileann.getFileSize|default_if_none:0|filesizeformat }} {% trans "by" %} {{ fileann.getOwner.getFullName }} {% trans "at" %} {{ fileann.creationEventDate|date:"Y-m-d H:i:s" }}</li>
+    <li><a href="{% url download_annotation "download" fileann.id %}" target="_blank">{{ fileann.getFileName|shortening:40 }}</a> - {{ fileann.getFileSize|default_if_none:0|filesizeformat }} {% trans "by" %} {{ fileann.getOwner.getFullName }} {% trans "at" %} {{ fileann.creationEventDate|date:"Y-m-d H:i:s" }}</li>
     {% endfor %}
 </ol>
 {% endif %}

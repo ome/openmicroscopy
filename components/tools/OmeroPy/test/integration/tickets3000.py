@@ -110,6 +110,21 @@ class TestTickets3000(lib.ITest):
         # Only IQuery.projection can return non-IObject types
         q.projection(sql, p1)
 
+    def test2952(self):
+
+        la = omero.model.LongAnnotationI()
+        la.longValue = rlong(123456789)
+        la = self.client.sf.getUpdateService().saveAndReturnObject(la)
+        self.index(la)
+
+        search = self.client.sf.createSearchService()
+        search.onlyType("LongAnnotation")
+        s = "%s" % la.longValue.val
+        search.byFullText(s)
+        res = search.results()
+
+        self.assert_( la.id.val in [x.id.val for x in res] )
+
 
 if __name__ == '__main__':
     unittest.main()

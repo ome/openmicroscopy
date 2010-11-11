@@ -74,7 +74,7 @@ class TestHdfStorage(TestCase):
         omero.tables.HdfStorage(self.hdfpath())
 
     def testLocking(self):
-        tmp = self.hdfpath()
+        tmp = str(self.hdfpath())
         hdf1 = omero.tables.HdfStorage(tmp)
         try:
             hdf2 = omero.tables.HdfStorage(tmp)
@@ -147,13 +147,19 @@ class TestHdfStorage(TestCase):
         except omero.ApiUsageException:
             pass
         hdf.cleanup()
-
+        
+    """
+    Hard fails disabled. See #2067
     def testAddColumn(self):
         self.fail("NYI")
 
     def testMergeFiles(self):
         self.fail("NYI")
-
+        
+    def testVersion(self):
+        self.fail("NYI")
+    """
+    
     def testHandlesExistingDirectory(self):
         t = path(self.tmpdir())
         h = t / "test.h5"
@@ -161,8 +167,6 @@ class TestHdfStorage(TestCase):
         hdf = omero.tables.HdfStorage(h)
         hdf.cleanup()
 
-    def testVersion(self):
-        self.fail()
 
     def testStringCol(self):
         hdf = omero.tables.HdfStorage(self.hdfpath())

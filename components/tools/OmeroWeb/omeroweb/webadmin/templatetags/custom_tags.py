@@ -24,13 +24,16 @@
 
 
 import datetime
+import traceback
+import logging
 
 from django.conf import settings
 from django import template
 
 register = template.Library()
 
-NAMESPACE_PROTECTION = settings.DEBUG
+logger = logging.getLogger('custom_tags')
+
 
 @register.filter
 def hash(value, key):
@@ -88,7 +91,29 @@ def warphtml(value, arg):
             for v in range(0,len(value),length): 
                 splited.append(value[v:v+length]+"\n") 
             return "".join(splited) 
-    except: 
+    except Exception, x:
+        logger.error(traceback.format_exc())
+        return value
+
+@register.filter
+def shortening(value, arg):
+    try:
+        length = int(arg)
+    except ValueError: # invalid literal for int()
+        return value # Fail silently.
+    front = length/2-3
+    end = length/2-3
+    
+    if not isinstance(value, basestring):
+        value = str(value)  
+    try: 
+        l = len(value) 
+        if l < length: 
+            return value
+        elif l >= length: 
+            return value[:front]+"..."+value[l-end:]
+    except Exception, x:
+        logger.error(traceback.format_exc())
         return value
 
 # makes settings available in template

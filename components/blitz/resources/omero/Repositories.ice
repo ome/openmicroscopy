@@ -145,7 +145,12 @@ module omero {
             omero::api::RawPixelsStore*  pixels(string path) throws ServerError;
             omero::api::RenderingEngine* render(string path) throws ServerError;
             omero::api::ThumbnailStore*  thumbs(string path) throws ServerError;
-
+            
+            /**
+             * Returns true if the file or path exists within the repository
+             **/
+            bool fileExists(string path) throws ServerError;
+            
             void rename(string path) throws ServerError;
             void delete(string path) throws ServerError;
             void transfer(string srcPath, Repository* target, string targetPath) 

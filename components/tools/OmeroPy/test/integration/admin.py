@@ -58,5 +58,68 @@ class TestAdmin(lib.ITest):
             tstore.setPixelsId(pixel.id.val)
         tstore.getThumbnail(rint(16), rint(16))
 
+    def testChangePassword(self):
+        """
+        See ticket:3201
+        """
+
+        client = self.new_client()
+
+        admin = client.sf.getAdminService()
+        admin.changePassword(rstring("ome"))
+
+        uuid = client.getSessionId()
+
+        # Now login without a passowrd
+        client2 = client.createClient(True)
+        try:
+            admin = client2.sf.getAdminService()
+
+            self.assertRaises(omero.SecurityViolation, admin.changePassword, rstring("foo"))
+            admin.changePasswordWithOldPassword(rstring("ome"), rstring("foo"))
+        finally:
+            client2.closeSession()
+
+        # Now try to change password without a secure session
+        if False: # Waiting on ticket:3232
+            client3 = client.createClient(False)
+            try:
+                admin = client3.sf.getAdminService()
+                self.assertRaises(omero.SecurityViolation, admin.changePasswordWithOldPassword, rstring("foo"), rstring("ome"))
+            finally:
+                client3.closeSession()
+
+    def testChangePasswordWhenUnset(self):
+        """
+        Shows that it's possible to use the
+        changePasswordWithOldPassword when
+        previously no password was set.
+
+        See ticket:3201
+        """
+        client = self.new_client()
+        admin = client.sf.getAdminService()
+
+        # By setting the user's password to the empty string
+        # any password will be allowed as the old password
+        admin.changePassword(rstring(""))
+        admin.changePasswordWithOldPassword(rstring("IGNORED"), rstring("ome"))
+        self.assertRaises(omero.SecurityViolation, admin.changePasswordWithOldPassword, rstring("BADPW"), rstring("foo"))
+        admin.changePasswordWithOldPassword(rstring("ome"), rstring("foo"))
+
+        # None disables user. No further password checks will pass.
+        # Only the current session or an admin will be able to
+        # reset the password
+        admin.changePassword(None)
+        self.assertRaises(omero.SecurityViolation, admin.changePasswordWithOldPassword, rstring(""), rstring("foo"))
+        self.assertRaises(omero.SecurityViolation, admin.changePasswordWithOldPassword, rstring("ome"), rstring("foo"))
+        self.assertRaises(omero.ApiUsageException, admin.changePasswordWithOldPassword, None, rstring("foo"))
+        joined_client = client.createClient(True)
+        try:
+            self.assertRaises(omero.SecurityViolation, joined_client.sf.getAdminService().changePasswordWithOldPassword, rstring(""), rstring("ome"))
+        finally:
+            joined_client.__del__()
+        admin.changePassword(rstring("ome")) # could be an admin
+
 if __name__ == '__main__':
     unittest.main()

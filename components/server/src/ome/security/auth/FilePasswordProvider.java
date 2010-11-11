@@ -55,7 +55,7 @@ public class FilePasswordProvider extends ConfigurablePasswordProvider {
     @Override
     public Boolean checkPassword(String user, String password) {
         Properties p = getProperties();
-        return doCheckPassword(user, password, p);
+        return loginAttempt(user, doCheckPassword(user, password, p));
     }
 
     protected Boolean doCheckPassword(String user, String password, Properties p) {

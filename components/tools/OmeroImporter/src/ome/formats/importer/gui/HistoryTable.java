@@ -89,8 +89,7 @@ public class HistoryTable
 	private static Log log = LogFactory.getLog(HistoryTable.class);
 	
     final ArrayList<IObserver> observers = new ArrayList<IObserver>();
-    
-    private static final long serialVersionUID = 1L;
+
     public HistoryTableModel table = new HistoryTableModel();
     public ETable eTable = new ETable(table);
     
@@ -195,16 +194,21 @@ public class HistoryTable
         
         // Main Panel containing all elements  
         // Set up the main panel layout
+        /* Disabled till #2308 fixed
         double mainTable[][] =
                 {{170, 10, TableLayout.FILL, 80}, // columns
                 { 5, 30, 35, 40, TableLayout.FILL, 35, 5}}; // rows
+                */
+        double mainTable[][] =
+        {{170, 10, TableLayout.FILL, 90}, // columns
+        { 5, 30, 35, 70, TableLayout.FILL, 35, 5}}; // rows
         
         mainPanel = GuiCommonElements.addMainPanel(this, mainTable, 0,0,0,0, debug); 
 
         // *****Side Panel****
         double topSideTable[][] = 
                 {{TableLayout.FILL}, // columns
-                {20, 20, 20, 20}}; // rows      
+                {20, 20, 20, 20, 35}}; // rows      
         
         topSidePanel = GuiCommonElements.addBorderedPanel(mainPanel, topSideTable, " Date Filter ", debug);
         
@@ -266,11 +270,16 @@ public class HistoryTable
         clearBtn.addActionListener(this);
         
         // *****Top right most row containing search field and buttons*****
+        /*// Disabled till #2308 fixed
         searchField = GuiCommonElements.addTextField(mainPanel, "Name Filter: ", "*.*", 'N', 
                 "Type in a file name to search for here.", "", 
                 TableLayout.PREFERRED, "2,1, 0, 0", debug);
-
-        searchBtn = GuiCommonElements.addButton(mainPanel, "Search", 'S', "Click here to search", "3,1,C,C", debug);
+        */
+        
+        searchField = new JTextField("*.*");
+        searchField.setVisible(false);
+        
+        searchBtn = GuiCommonElements.addButton(topSidePanel, "Search", 'S', "Click here to search", "0,4,C,C", debug);
         
         searchBtn.setActionCommand(HistoryHandler.HISTORYSEARCH);
         searchBtn.addActionListener(this);
@@ -278,9 +287,10 @@ public class HistoryTable
         // *****Middle right row containing the filter options*****
         // Since this panel has a different layout, use a new panel for it
 
+        /* Disabled till #2308 fixed
         // Set up the filterTable layout
         double filterTable[][] =
-                {{100, 70, 70, 70, 90, TableLayout.FILL}, // columns
+                {{100, 80, 80, 80, 90, TableLayout.FILL}, // columns
                 { 30 }}; // rows
         
         filterPanel = GuiCommonElements.addPlanePanel(mainPanel, filterTable, debug);     
@@ -301,7 +311,9 @@ public class HistoryTable
         failedCheckBox.addActionListener(this);
         invalidCheckBox.addActionListener(this);
         pendingCheckBox.addActionListener(this);
-                
+        filterPanel.setVisible(false);
+        */
+        
        // *****Bottom right most row containing the history table*****
         TableColumnModel cModel =  eTable.getColumnModel();
         
@@ -341,7 +353,9 @@ public class HistoryTable
         // Add the table to the scollpane
         JScrollPane scrollPane = new JScrollPane(eTable);
 
-        reimportBtn = GuiCommonElements.addButton(filterPanel, "Reimport", 'R', "Click here to reimport selected images", "5,0,R,C", debug);
+        // disabled till #2308 fixed
+        //reimportBtn = GuiCommonElements.addButton(filterPanel, "Reimport", 'R', "Click here to reimport selected images", "5,0,R,C", debug);
+        reimportBtn = GuiCommonElements.addButton(mainPanel, "Reimport", 'R', "Click here to reimport selected images", "3,5,C,C", debug);
         reimportBtn.setEnabled(false);
         
         reimportBtn.setActionCommand(HistoryHandler.HISTORYREIMPORT);
@@ -352,10 +366,11 @@ public class HistoryTable
 		selectionModel.addListSelectionListener( this );
 
         
-        mainPanel.add(scrollPane, "2,3,3,5");
+        //mainPanel.add(scrollPane, "2,3,3,5"); Disabled till #2308 fixed
+        mainPanel.add(scrollPane, "2,1,3,4");
         mainPanel.add(bottomSidePanel, "0,4,0,0"); 
         mainPanel.add(topSidePanel, "0,0,0,3");
-        mainPanel.add(filterPanel, "2,2,3,1");
+        //mainPanel.add(filterPanel, "2,2,3,1");
         
         this.add(mainPanel);
     }
@@ -520,7 +535,7 @@ public class HistoryTable
                 row.add(objectID);
                 row.add(projectID);
                 table.addRow(row);
-                table.fireTableDataChanged();
+                //table.fireTableDataChanged();
                 unknownProjectDatasetFlag = false;
             }
             
@@ -561,19 +576,24 @@ public class HistoryTable
         int dayOfWeek = newCal.get( Calendar.DAY_OF_WEEK );
         int dayOfMonth = newCal.get( Calendar.DAY_OF_MONTH);
         
-        DefaultListModel today = db.getBaseTableDataByDate(db.getDaysBefore(new Date(), -1), new Date());
+        DefaultListModel today = db.getBaseTableDataByDate(db.getStartOfDay(new Date()), 
+        		db.getEndOfDay(new Date()));
         historyTaskBar.updateList(todayList, historyTaskBar.today, today);
 
-        DefaultListModel yesterday = db.getBaseTableDataByDate(db.getDaysBefore(new Date(), -2), db.getDaysBefore(new Date(), -1));
+        DefaultListModel yesterday = db.getBaseTableDataByDate(db.getStartOfDay(db.getYesterday()), 
+        		db.getEndOfDay(db.getYesterday()));
         historyTaskBar.updateList(yesterdayList, historyTaskBar.yesterday, yesterday);
 
-        DefaultListModel thisWeek = db.getBaseTableDataByDate(db.getDaysBefore(new Date(), -(dayOfWeek)), db.getDaysBefore(new Date(), 1));
+        DefaultListModel thisWeek = db.getBaseTableDataByDate(db.getStartOfDay(db.getDaysBefore(new Date(), -(dayOfWeek))), 
+        		db.getEndOfDay(new Date()));
         historyTaskBar.updateList(thisWeekList, historyTaskBar.thisWeek, thisWeek);
 
-        DefaultListModel lastWeek = db.getBaseTableDataByDate(db.getDaysBefore(new Date(), -(dayOfWeek+7)), db.getDaysBefore(new Date(), -(dayOfWeek)));
+        DefaultListModel lastWeek = db.getBaseTableDataByDate(db.getStartOfDay(db.getDaysBefore(new Date(), -(dayOfWeek+7))), 
+        		db.getEndOfDay(db.getDaysBefore(new Date(), -(dayOfWeek))));
         historyTaskBar.updateList(lastWeekList, historyTaskBar.lastWeek, lastWeek);
         
-        DefaultListModel thisMonth = db.getBaseTableDataByDate(db.getDaysBefore(new Date(), -(dayOfMonth)), db.getDaysBefore(new Date(), 1));
+        DefaultListModel thisMonth = db.getBaseTableDataByDate(db.getStartOfDay(db.getDaysBefore(new Date(), -(dayOfMonth))), 
+        		db.getEndOfDay(new Date()));
         historyTaskBar.updateList(thisMonthList, historyTaskBar.thisMonth, thisMonth);
     }
 
@@ -594,11 +614,19 @@ public class HistoryTable
     {
         Object src = event.getSource();
         if (src == searchBtn || src == doneCheckBox || src == failedCheckBox 
-                || src == invalidCheckBox || src == pendingCheckBox)
-            getItemQuery(-1, getExperimenterID(), searchField.getText(), 
-                    fromDate.getDate(), toDate.getDate());
-        if (src == clearBtn)
+                || src == invalidCheckBox || src == pendingCheckBox) {
+        	if (fromDate.getDate() == null) {
+        		fromDate.setDate(db.getStartOfDay(new Date()));
+        	}
+        	if (toDate.getDate() == null) {
+    			toDate.setDate(db.getEndOfDay(new Date()));
+        	}
+        	getItemQuery(-1, getExperimenterID(), searchField.getText(),
+        			db.getStartOfDay(fromDate.getDate()), db.getEndOfDay(toDate.getDate())); 
+        }
+        if (src == clearBtn) {
             ClearHistory();
+        }
         if (src == reimportBtn)
         {
             notifyObservers(new ImportEvent.REIMPORT());
@@ -639,7 +667,7 @@ public class HistoryTable
      * @return - OMEROMetadataStore
      */
     private OMEROMetadataStoreClient getStore() {
-        return viewer.loginHandler.getMetadataStore();
+        return viewer.getLoginHandler().getMetadataStore();
     }
     
     /**
@@ -698,7 +726,7 @@ public class HistoryTable
      * @author Brian W. Loranger
      *
      */
-    class HistoryTableModel extends DefaultTableModel implements TableModelListener 
+    static class HistoryTableModel extends DefaultTableModel implements TableModelListener 
     {
         
         private static final long serialVersionUID = 1L;
@@ -735,7 +763,7 @@ public class HistoryTable
      * @author Brian W. Loranger
      *
      */
-    public class MyTableHeaderRenderer extends DefaultTableCellRenderer 
+    private static class MyTableHeaderRenderer extends DefaultTableCellRenderer 
     {
         // This method is called each time a column header
         // using this renderer needs to be rendered.
@@ -744,6 +772,8 @@ public class HistoryTable
         public Component getTableCellRendererComponent(JTable table, Object value,
                 boolean isSelected, boolean hasFocus, int row, int column) {
     
+        	if (table == null) return null;
+        	
            // setBorder(UIManager.getBorder("TableHeader.cellBorder"));
             setBorder(BorderFactory.createLineBorder(new Color(0xe0e0e0)));
             setForeground(UIManager.getColor("TableHeader.foreground"));
@@ -759,7 +789,7 @@ public class HistoryTable
             // Set tool tip if desired
             setToolTipText((String)value);
             
-            setEnabled(table == null || table.isEnabled());
+            setEnabled(table.isEnabled());
                         
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
     
@@ -796,7 +826,7 @@ public class HistoryTable
      * @author Brian W. Loranger
      *
      */
-    class LeftDotRenderer extends DefaultTableCellRenderer
+    private static class LeftDotRenderer extends DefaultTableCellRenderer
     {
         private static final long serialVersionUID = 1L;
         public Component getTableCellRendererComponent(
@@ -848,7 +878,7 @@ public class HistoryTable
      * @author Brian W. Loranger
      *
      */
-    public class TextCellCenter extends DefaultTableCellRenderer 
+    private static class TextCellCenter extends DefaultTableCellRenderer 
     {
         // This method is called each time a column header
         // using this renderer needs to be rendered.

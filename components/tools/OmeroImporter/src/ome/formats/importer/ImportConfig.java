@@ -102,10 +102,11 @@ public class ImportConfig {
     public final StrValue sessionKey;
     public final LongValue group;
     public final StrValue email;
-    public final StrValue cliEmail;
     public final StrValue serverList;
     public final StrValue imageName;
     public final StrValue imageDescription;
+    public final StrValue plateName;
+    public final StrValue plateDescription;
     public final StrValue targetClass;
     public final LongValue targetId;
 
@@ -123,10 +124,11 @@ public class ImportConfig {
 
     public final FileValue savedDirectory;
     public final StrValue readersPath;
-    
+
     public final BoolValue encryptedConnection;
-    
+
     public final AnnotationListValue annotations;
+    public final DoubleArrayValue userPixels;
 
     /**
      * Static method for creating {@link Preferences} during construction if
@@ -207,10 +209,11 @@ public class ImportConfig {
         sessionKey   = new StrValue("session", this);
         group		 = new LongValue("group", this, 0L);
         email        = new StrValue("email", this);
-        cliEmail     = new StrValue("cliEmail", this);
         serverList   = new StrValue("serverList", this);
         imageName    = new StrValue("imageName", this);
         imageDescription  = new StrValue("imageDescription", this);
+        plateName    = new StrValue("plateName", this);
+        plateDescription  = new StrValue("plateDescription", this);
         targetClass  = new StrValue("targetClass", this);
         targetId     = new LongValue("targetId", this, 0);
 
@@ -230,11 +233,13 @@ public class ImportConfig {
         useCustomImageNaming = new BoolValue("overrideImageName", this, true);
         numOfDirectories = new IntValue("numOfDirectories", this, 0);
         savedDirectory = new FileValue("savedDirectory", this);
-        
+
         encryptedConnection = new BoolValue("ecryptedConnection", this, true);
-        
+
         annotations = new AnnotationListValue(
-        		"annotations", this, new ArrayList<Annotation>());
+                "annotations", this, new ArrayList<Annotation>());
+        userPixels = new DoubleArrayValue(
+                "userPixels", this, null);
 
         readersPath = new StrValue("readersPath", this);
     }
@@ -852,18 +857,31 @@ public class ImportConfig {
             return s == null || s.length() == 0;
         }
     }
-    
-    public static class AnnotationListValue extends Value<List<Annotation>> {
-    	
-    	public AnnotationListValue(String key, ImportConfig config, 
-    			                   List<Annotation> defValue) {
-    		super(key, config, defValue);
-    	}
 
-		@Override
-		protected List<Annotation> fromString(String string) {
-			throw new RuntimeException("Not implemented.");
-		}
+    public static class AnnotationListValue extends Value<List<Annotation>> {
+
+        public AnnotationListValue(String key, ImportConfig config, 
+                                   List<Annotation> defValue) {
+            super(key, config, defValue);
+        }
+
+        @Override
+        protected List<Annotation> fromString(String string) {
+            throw new RuntimeException("Not implemented.");
+        }
+    }
+
+    public static class DoubleArrayValue extends Value<Double[]> {
+
+        public DoubleArrayValue(String key, ImportConfig config, 
+                                Double[] defValue) {
+            super(key, config, defValue);
+        }
+
+        @Override
+        protected Double[] fromString(String string) {
+            throw new RuntimeException("Not implemented.");
+        }
     }
 
     public static class PassValue extends StrValue {

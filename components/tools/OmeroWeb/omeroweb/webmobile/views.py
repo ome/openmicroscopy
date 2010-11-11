@@ -11,14 +11,24 @@ import omero
 logger = logging.getLogger('webmobilewebmobile')
 
 
+def viewer(request, imageId):
+    conn = getBlitzConnection (request, useragent="OMERO.webmobile")
+    if conn is None or not conn.isConnected():
+        return HttpResponseRedirect(reverse('webmobile_login'))
+        
+    image = conn.getImage(imageId)
+    w = image.getWidth()
+    h = image.getHeight()
+    
+    return render_to_response('webmobile/viewer.html', {'image': image})
+
+
 def dataset(request, id):
-    conn = getBlitzConnection (request)
+    conn = getBlitzConnection (request, useragent="OMERO.webmobile")
     if conn is None or not conn.isConnected():
         return HttpResponseRedirect(reverse('webmobile_login'))
         
     ds = conn.getDataset(id)
-    for d in ds.listChildren():
-        print d.name, d.id
     return render_to_response('webmobile/dataset.html', {'ds': ds})
 
 
@@ -29,7 +39,7 @@ def login (request):
         request.session['host'] = blitz.host
         request.session['port'] = blitz.port
     
-    conn = getBlitzConnection (request)
+    conn = getBlitzConnection (request, useragent="OMERO.webmobile")
     logger.debug(conn)
     if conn is not None:
         return HttpResponseRedirect(reverse('webmobile_index'))
@@ -46,11 +56,13 @@ def logout (request):
         del request.session['password']
     except KeyError:
         logger.error(traceback.format_exc())
+
+    #request.session.set_expiry(1)
     return HttpResponseRedirect(reverse('webmobile_login'))
 
 
 def index (request):
-    conn = getBlitzConnection (request)
+    conn = getBlitzConnection (request, useragent="OMERO.webmobile")
     if conn is None or not conn.isConnected():
         return HttpResponseRedirect(reverse('webmobile_login'))
 
@@ -60,7 +72,7 @@ def index (request):
 def image_viewer (request, iid, **kwargs):
     """ This view is responsible for showing pixel data as images """
     
-    conn = getBlitzConnection (request)
+    conn = getBlitzConnection (request, useragent="OMERO.webmobile")
     if conn is None or not conn.isConnected():
         return HttpResponseRedirect(reverse('webmobile_login'))
     

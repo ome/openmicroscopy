@@ -2,7 +2,7 @@
   
 <suite name="server.integration" time-out="200" parallel="true" thread-count="5">
   
-  <test name="server.integration.active" time-out="200">
+  <test name="server.integration.active" time-out="500">
     <groups>
       <run>
         <exclude name="broken"/>

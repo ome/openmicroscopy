@@ -122,7 +122,7 @@ public class FileQueueChooser extends JFileChooser implements ActionListener
                         component = components[i];
                         System.err.println("Component " + i + " = " + component.getClass());
                     }
-                } catch (Exception e) {}
+                } catch (Exception e) { log.info("component exception ignore");}
             }
             
             if (laf.contains("AquaLookAndFeel"))
@@ -148,8 +148,9 @@ public class FileQueueChooser extends JFileChooser implements ActionListener
                     refreshBtn.setToolTipText("Refresh");
                     refreshBtn.setText(null);
                 	tb.add(refreshBtn,8);
-                } catch (Exception e) {}
+                } catch (Exception e) { log.info("Exception ignored.");}
             }
+        	/* Disabled temporarily */
             else if (laf.contains("MetalLookAndFeel"))
             {
                 //Do Metal implimentation
@@ -165,6 +166,7 @@ public class FileQueueChooser extends JFileChooser implements ActionListener
                 fp.add(Box.createRigidArea(new Dimension(5,0)));
                 fp.add(refreshBtn);
             }
+
             else if (laf.contains("GTKLookAndFeel"))
             {
                 //do GTK implimentation
@@ -178,7 +180,7 @@ public class FileQueueChooser extends JFileChooser implements ActionListener
                 fp = (JPanel) this.getComponent(0);
                 fp.add(refreshBtn);
             }
-            
+
             if (fp != null && DEBUG == true)
             {
             fp.setBorder(BorderFactory.createCompoundBorder(

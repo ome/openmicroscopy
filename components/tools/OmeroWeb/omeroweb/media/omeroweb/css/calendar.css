@@ -64,11 +64,7 @@
 	background-color: #bbb;
 }
 .calendar_numerical_day a {
+    color: #555;
     font-weight: bold;
-	text-decoration: none;
-}
-.calendar_numerical_day a:hover,a:link,a:visited {
-	font-weight: bold;
-	color: #555;
 	text-decoration: none;
 }

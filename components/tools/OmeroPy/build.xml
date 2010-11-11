@@ -45,9 +45,9 @@
         </copy>
         <if><not><available file="${basedir}/../lib/fallback/IPython"/></not>
         <then>
-            <untar compression="gzip" src="${lib.dir}/repository/ipython-0.10.tar.gz" dest="${basedir}/../target/"/>
+            <untar compression="gzip" src="${lib.dir}/repository/ipython-${versions.ipython}.tar.gz" dest="${basedir}/../target/"/>
             <copy todir="${basedir}/../target/lib/fallback">
-                <fileset dir="${basedir}/../target/ipython-0.10/" includes="IPython/**"/>
+                <fileset dir="${basedir}/../target/ipython-${versions.ipython}/" includes="IPython/**"/>
             </copy>
         </then>
         </if>

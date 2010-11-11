@@ -135,7 +135,7 @@ public class AbstractLoginMockTest extends MockObjectTestCase {
         d.getGroup().setName("system");
         s.getDetails().copy(d);
         SessionContextImpl sci = new SessionContextImpl(s, LEADER_OF_GROUPS,
-                MEMBER_OF_GROUPS, USER_ROLES, new NullSessionStats());
+                MEMBER_OF_GROUPS, USER_ROLES, new NullSessionStats(), null);
         mockMgr.expects(once()).method("getEventContext")
                 .will(returnValue(sci));
         INITIAL_EVENT.setType(BOOTSTRAP);

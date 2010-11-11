@@ -25,7 +25,7 @@
     considered to have a "private" scope. 
   </description>
 
-  <bean id="extendedMetadata" class="ome.tools.hibernate.ExtendedMetadata">
+  <bean id="extendedMetadata" class="ome.tools.hibernate.ExtendedMetadata$Impl">
     <description>
     Simple cache for metadata needed throughout the server. Uses the Hibernate
     metamodel to fill the cache during creation. On ContextRefreshedEvent,

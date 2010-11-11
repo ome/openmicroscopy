@@ -25,9 +25,9 @@ import ome.model.enums.EventType;
 import ome.model.internal.Details;
 import ome.model.internal.GraphHolder;
 import ome.model.internal.Permissions;
-import ome.model.internal.Token;
 import ome.model.internal.Permissions.Right;
 import ome.model.internal.Permissions.Role;
+import ome.model.internal.Token;
 import ome.model.meta.Event;
 import ome.model.meta.EventLog;
 import ome.model.meta.Experimenter;
@@ -38,6 +38,7 @@ import ome.security.AdminAction;
 import ome.security.SecureAction;
 import ome.security.SecuritySystem;
 import ome.security.SystemTypes;
+import ome.services.messages.EventLogMessage;
 import ome.services.messages.ShapeChangeMessage;
 import ome.services.sessions.SessionManager;
 import ome.services.sessions.events.UserGroupUpdateEvent;
@@ -59,6 +60,7 @@ import org.hibernate.proxy.HibernateProxy;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.ApplicationListener;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.util.Assert;
 
@@ -79,7 +81,7 @@ import org.springframework.util.Assert;
 @RevisionDate("$Date: 2007-06-02 12:31:30 +0200 (Sat, 02 Jun 2007) $")
 @RevisionNumber("$Revision: 1581 $")
 public class BasicSecuritySystem implements SecuritySystem,
-        ApplicationContextAware {
+        ApplicationContextAware, ApplicationListener<EventLogMessage> {
 
     private final static Log log = LogFactory.getLog(BasicSecuritySystem.class);
 
@@ -109,8 +111,8 @@ public class BasicSecuritySystem implements SecuritySystem,
         SystemTypes st = new SystemTypes();
         TokenHolder th = new TokenHolder();
         OmeroInterceptor oi = new OmeroInterceptor(new Roles(),
-                st, new ExtendedMetadata(),
-                cd, th, new PerSessionStats(cd, sm));
+                st, new ExtendedMetadata.Impl(),
+                cd, th, new PerSessionStats(cd));
         BasicSecuritySystem sec = new BasicSecuritySystem(oi, st, cd, sm,
                 new Roles(), sf, new TokenHolder());
         return sec;
@@ -335,21 +337,6 @@ public class BasicSecuritySystem implements SecuritySystem,
         }
         tokenHolder.setToken(exp.getGraphHolder());
 
-        // Active group
-        ExperimenterGroup grp;
-        Long groupId = cd.getCallGroup();
-        if (groupId == null) {
-            groupId = ec.getCurrentGroupId();
-        } else {
-            log.debug("Using call-requested group: " + groupId);
-        }
-
-        if (isReadOnly) {
-            grp = new ExperimenterGroup(groupId, false);
-        } else {
-            grp = admin.groupProxy(groupId);
-        }
-
         // isAdmin
         boolean isAdmin = false;
         for (long gid : ec.getMemberOfGroupsList()) {
@@ -357,6 +344,32 @@ public class BasicSecuritySystem implements SecuritySystem,
                 isAdmin = true;
                 break;
             }
+        }
+
+        // Active group
+        ExperimenterGroup grp;
+        Long groupId = cd.getCallGroup();
+        Long shareId = ec.getCurrentShareId();
+        if (groupId == null) {
+            groupId = ec.getCurrentGroupId();
+        } else {
+            if (groupId >= 0) {
+                log.debug("Using call-requested group: " + groupId);
+            } else {
+                // ticket:2950
+                if (!isAdmin) {
+                    throw new SecurityViolation("Only administrators can use negative groups!");
+                }
+                log.info("Setting share id to -1");
+                shareId = -1L;
+                groupId = ec.getCurrentGroupId();
+            }
+        }
+
+        if (isReadOnly) {
+            grp = new ExperimenterGroup(groupId, false);
+        } else {
+            grp = admin.groupProxy(groupId);
         }
 
         // public groups (ticket:1940)
@@ -375,7 +388,7 @@ public class BasicSecuritySystem implements SecuritySystem,
 
         // In order to less frequently access the ThreadLocal in CurrentDetails
         // All properities are now set in one shot, except for Event.
-        cd.setValues(exp, grp, isAdmin, isReadOnly);
+        cd.setValues(exp, grp, isAdmin, isReadOnly, shareId);
 
         // Event
         String t = p.getEventType();
@@ -615,6 +628,14 @@ public class BasicSecuritySystem implements SecuritySystem,
                     + "Cannot execute: " + method);
         }
 
+    }
+
+    public void onApplicationEvent(EventLogMessage elm) {
+        if (elm != null) {
+            for (Long id : elm.entityIds) {
+                addLog(elm.action, elm.entityType, id);
+            }
+        }
     }
 
 }

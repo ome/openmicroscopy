@@ -216,6 +216,12 @@ namespace omero {
 	Ice::CommunicatorPtr getCommunicator() const;
 
 	/*
+	 * Returns the Ice::ObjectAdapter for this instance or throws
+	 * an exception if null.
+	 */
+	Ice::ObjectAdapterPtr getObjectAdapter() const;
+
+	/*
 	 * Returns the current active session or throws an exception if none
 	 * has been created via createSession() since the last closeSession()
 	 */
@@ -285,6 +291,12 @@ namespace omero {
 	void upload(const std::string& file,
 		    const omero::model::OriginalFilePtr& ofile,
 		    int blockSize);
+
+        /**
+         * Returns all active StatefulServiceInterface proxies. This can
+         * be used to call close before calling setSecurityContext.
+         */
+        std::vector<omero::api::StatefulServiceInterfacePrx> getStatefulServices();
 
 	/*
 	 * Closes the Router connection created by createSession(). Due to a bug in Ice,

@@ -44,12 +44,15 @@ public class JdbcPasswordProvider extends ConfigurablePasswordProvider {
         // If user doesn't exist, use the default settings for
         // #ignoreUknown.
 
+        Boolean b = null;
         if (id == null) {
-            return super.checkPassword(user, password);
+            b = super.checkPassword(user, password);
         } else {
             String trusted = util.getUserPasswordHash(id);
-            return comparePasswords(trusted, password);
+            b = comparePasswords(trusted, password);
         }
+        loginAttempt(user, b);
+        return b;
     }
 
     @Override

@@ -52,3 +52,24 @@ BOOST_AUTO_TEST_CASE( testCreateInsecureClientTicket2099 )
     insecure->getSession()->getAdminService()->getEventContext();
     BOOST_CHECK( ! insecure->isSecure());
 }
+
+BOOST_AUTO_TEST_CASE( testGetStatefulServices )
+{
+    Fixture f;
+    omero::client_ptr root = f.root_login();
+    omero::api::ServiceFactoryPrx sf = root->getSession();
+    sf->setSecurityContext(new omero::model::ExperimenterGroupI(0L, false));
+    sf->createRenderingEngine();
+    std::vector<omero::api::StatefulServiceInterfacePrx> srvs = root->getStatefulServices();
+    BOOST_CHECK( 1 == srvs.size());
+    try {
+        sf->setSecurityContext(new omero::model::ExperimenterGroupI(1L, false));
+        BOOST_FAIL("Should not be allowed");
+    } catch (const omero::SecurityViolation& sv) {
+        // good
+    }
+    srvs.at(0)->close();
+    srvs = root->getStatefulServices();
+    BOOST_CHECK(0 == srvs.size());
+    sf->setSecurityContext(new omero::model::ExperimenterGroupI(1L, false));
+}

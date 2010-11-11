@@ -36,8 +36,9 @@ urlpatterns = patterns('',
     
     (r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '/appmedia/omeroweb/images/ome.ico'}),
     (r'^appmedia/webgateway/(?P<path>.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), 'webgateway/media')}),
+    (r'^appmedia/webmobile/(?P<path>.*)$', 'django.views.static.serve', {'document_root': os.path.join(os.path.dirname(__file__), 'webmobile/media')}),
     url( r'^appmedia/omeroweb/(?P<path>.*)$', serve ,{ 'document_root': os.path.join(os.path.dirname(__file__), 'media', 'omeroweb').replace('\\','/') }, name="webstatic" ),
-    url(r'^appmedia/(?P<path>.*)$', serve, {'document_root': os.path.join(os.path.dirname(__file__), 'media')}, name="static"),
+    #url(r'^appmedia/(?P<path>.*)$', serve, {'document_root': os.path.join(os.path.dirname(__file__), 'media')}, name="static"),
     
     (r'(?i)^webadmin/', include('omeroweb.webadmin.urls')),
     (r'(?i)^webclient/', include('omeroweb.webclient.urls')),
@@ -46,5 +47,5 @@ urlpatterns = patterns('',
     (r'(?i)^webtest/', include('omeroweb.webtest.urls')),    
        
     #(r'(?i)^webemdb/', include('omeroweb.webemdb.urls')),
-    #(r'(?i)^webmobile/', include('omeroweb.webmobile.urls')),
+    (r'(?i)^webmobile/', include('omeroweb.webmobile.urls')),
 )

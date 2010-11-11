@@ -131,10 +131,23 @@ public class EventHandler implements MethodInterceptor {
         // now the user can be considered to be logged in.
         EventContext ec = secSys.getEventContext();
         if (log.isInfoEnabled()) {
-            log.info(String.format(" Auth:\tuser=%s,group=%s,event=%s(%s),sess=%s", ec
-                    .getCurrentUserId(), ec.getCurrentGroupId(), ec
-                    .getCurrentEventId(), ec.getCurrentEventType(), ec
-                    .getCurrentSessionUuid()));
+            StringBuilder sb = new StringBuilder();
+            sb.append(" Auth:\tuser=");
+            sb.append(ec.getCurrentUserId());
+            sb.append(",group=");
+            sb.append(ec.getCurrentGroupId());
+            sb.append(",event=");
+            sb.append(ec.getCurrentEventId());
+            sb.append("(");
+            sb.append(ec.getCurrentEventType());
+            sb.append("),sess=");
+            sb.append(ec.getCurrentSessionUuid());
+            Long shareId = ec.getCurrentShareId();
+            if (shareId != null) {
+                sb.append(",share=");
+                sb.append(shareId);
+            }
+            log.info(sb.toString());
         }
 
         boolean failure = false;

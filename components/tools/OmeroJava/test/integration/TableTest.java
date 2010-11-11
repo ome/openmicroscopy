@@ -11,18 +11,11 @@ import java.util.Date;
 import java.util.UUID;
 
 //Third-party libraries
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import static org.testng.AssertJUnit.*;
 
 //Application-internal dependencies
-import omero.api.IAdminPrx;
-import omero.api.IQueryPrx;
-import omero.api.IUpdatePrx;
-import omero.api.ServiceFactoryPrx;
 import omero.ApiUsageException;
 import omero.ServerError;
 import omero.grid.Column;
@@ -43,6 +36,7 @@ import omero.grid.TablePrx;
  * @since 3.0-Beta4
  */
 public class TableTest 
+	extends AbstractTest
 {
 
 	/** The default size of a buffer. */
@@ -58,24 +52,7 @@ public class TableTest
     protected int STRING_COLUMN = 2;
     
     protected long[] ColNumbers = {UID_COLUMN, LONG_COLUMN, STRING_COLUMN};
-    
-	/** 
-	 * The client object, this is the entry point to the Server. 
-	 */
-    protected omero.client client = null;
-    
-    /** Helper reference to the <code>Service factory</code>. */
-    protected ServiceFactoryPrx  sf;
-    
-    /** Helper reference to the <code>IQuery</code> service. */
-    protected IQueryPrx iQuery;
-    
-    /** Helper reference to the <code>IAdmin</code> service. */
-    protected IAdminPrx iAdmin;
-    
-    /** Helper reference to the <code>IUpdate</code> service. */
-    protected IUpdatePrx iUpdate;
-    
+
     /** Reference to the columns. */
     protected Column[] myColumns;
     
@@ -102,35 +79,7 @@ public class TableTest
         		64, new String[rows]);
         return newColumns;
     }
-    
-	/**
-     * Initializes the various services.
-     * @throws Exception Thrown if an error occurred.
-     */
-    @BeforeClass
-    public void setUp() 
-    	throws Exception 
-    { 
-        client = new omero.client();
-        sf = client.createSession(); 
-        iQuery = sf.getQueryService();
-        iAdmin = sf.getAdminService();
-        iUpdate = sf.getUpdateService();
-    }
-	
-    /**
-     * Closes session and clear variables.
-     *  @throws Exception Thrown if an error occurred.
-     */
-    @AfterClass
-    public void tearDown() 
-    	throws Exception
-    {        
-        client.closeSession();
-        // This also calls sf.destroy();
-    }
-    
-    
+
     /**
      * Create/initialize a new myTable.
      * @throws ServerError Thrown if an error occurred.
@@ -145,7 +94,7 @@ public class TableTest
 		String uniqueTableFile = "TableTest" + UUID.randomUUID().toString();
 		
     	// Create new unique table
-		myTable = sf.sharedResources().newTable(1, uniqueTableFile);
+		myTable = factory.sharedResources().newTable(1, uniqueTableFile);
 		if (myTable != null) myTable.initialize(myColumns);
 		
 		return uniqueTableFile;

@@ -1,0 +1,147 @@
+{% extends "webmobile/base/base.html" %}
+
+{% block title %} OMERO mobile Viewer {% endblock %}
+
+{% block link %}
+<style type="text/css">
+
+body {
+    background-color: #666;
+    font-family:arial; 
+    padding:0px; 
+    margin:0px;}
+
+img#imagePlane {
+  position: absolute;
+  z-index: 2;
+  background-image:url('/webmobile/appmedia/img/loading.gif');
+  background-repeat:no-repeat;
+}
+
+#imageContainer {
+    position:absolute;
+    z-index: 1;
+    left:0px;
+    top:0px;
+}
+
+.controls {
+    position:fixed;
+    z-index: 3;
+    color: white;
+    padding:0px;
+    margin:0px;
+}
+
+#infoPanel {
+    position:fixed;
+    z-index: 4;
+    color: white;
+    background: black;
+    opacity: 0.7;
+}
+#infoPanel h2 {
+    margin-top: 0px;
+    white-space:nowrap;
+}
+
+#zControls {
+    bottom:33px;
+    left:0px;
+    width: 32px;
+    height: 80px;
+}
+
+#tControls {
+    bottom: 0px;
+    left: 33px;
+    height: 32px;
+    width: 80px;
+}
+
+.controlBg {
+    position: absolute;
+    z-index: 4;
+}
+
+.arrow {
+    position: absolute;
+    z-index: 5;
+}
+.slider{
+    position: absolute;
+    border: solid white 1px;
+    z-index: 5;
+}
+
+#zUp {
+    top: 0px;
+}
+
+#zDown {
+    bottom: 0px;
+}
+#tRight {
+    right: 0px;
+}
+#imageId{
+    display:none;
+}
+
+#scalebar{
+    background: white;
+    border: solid black 1px;
+}
+#scaleNumber{
+    background-color: black;
+    color: #fff;
+    text-align: right;
+}
+.hidden {
+    display:none;
+}
+
+</style>
+
+{% endblock %}
+
+{% block meta %}
+    <meta name="viewport" content="width={{ image.getWidth }}; maximum-scale=5.0; user-scalable=1;">
+{% endblock %}
+
+
+{% block jscript %}
+    <script type="text/javascript" src="{% url mobile_static 'js/viewer.js' %}"></script>
+{% endblock %}
+
+{% block body %}
+
+<div id="imageId">{{image.id}}</div>
+
+<!-- simply makes the page the right size -->
+<div id="imageContainer"></div>
+
+<div class='controls' id="zControls">
+    <img class='controlBg' id="zBg" src="{% url mobile_static 'img/bg-vertical.png' %}"/>
+    <img class="arrow" id="zUp" src="{% url mobile_static 'img/up.png' %}"/>
+    <img class="arrow" id="zDown" src="{% url mobile_static 'img/down.png' %}"/>
+    <div class="slider" id="zSlider"></div>
+</div>
+<div class='controls' id="tControls">
+    <img class='controlBg' id="tBg" src="{% url mobile_static 'img/bg-horizontal.png' %}"/>
+    <img class="arrow" id="tLeft" src="{% url mobile_static 'img/left.png' %}"/>
+    <img class="arrow" id="tRight" src="{% url mobile_static 'img/right.png' %}"/>
+    <div class="slider" id="tSlider"></div>
+</div>
+
+<img class="controls" id="infoIcon" src="{% url mobile_static 'img/info.png' %}"/>
+<div id="infoPanel"></div>
+
+<div class="controls" id="scaleNumber"></div>
+<div class="controls" id="scalebar">
+    
+</div>
+
+<img id="imagePlane" width="{{ image.getWidth }}" height="{{ image.getHeight }}" src="{% url mobile_static 'img/spacer.gif' %}"/>
+    
+{% endblock %}

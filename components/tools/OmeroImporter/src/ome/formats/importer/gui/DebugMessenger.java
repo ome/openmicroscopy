@@ -62,8 +62,6 @@ import org.apache.commons.io.FileUtils;
  */
 public class DebugMessenger extends JDialog implements ActionListener, IObservable, IObserver
 {
-    private static final long serialVersionUID = -1026712513033611084L;
-
     private final ImportConfig config;
     
     private static final boolean debug = false;
@@ -77,11 +75,14 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
     private JPanel                  mainPanel;
     private JPanel                  commentPanel;
 
-    private JButton                 quitBtn;
-    private JButton                 cancelBtn;
-    private JButton                 sendBtn;
-    private JButton                 ignoreBtn;
-    private JButton                 copyBtn;
+    private static JButton                 quitBtn;
+    private static JButton                 cancelBtn;
+    private static JButton                 sendBtn;
+    private static JButton                 sendWithFilesBtn;
+    private static JButton                 ignoreBtn;
+    private static JButton                 copyBtn;
+    
+    private JTextPane 				instructions;
     
     private JTextField              emailTextField;
     private String                  emailText           = "";          
@@ -99,7 +100,7 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
 	
 	private FileSizeChecker checker;
 
-    private String file_info;
+    private String file_info; 
     
     /**
      * @param owner - parent JFrame
@@ -173,9 +174,7 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
         JLabel iconLabel = new JLabel(icon);
         commentPanel.add(iconLabel, "0,0, l, c");
         
-        @SuppressWarnings("unused")
-        JTextPane instructions = 
-                GuiCommonElements.addTextPane(commentPanel, message, "1,0,2,0", debug);
+        instructions = GuiCommonElements.addTextPane(commentPanel, message, "1,0,2,0", debug);
 
         emailTextField = GuiCommonElements.addTextField(commentPanel, "Email: ", emailText, 'E',
         "Input your email address here.", "(Optional)", TableLayout.PREFERRED, "0, 1, 2, 1", debug);
@@ -213,7 +212,7 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
         Object source = event.getSource();
         
         
-        if (source == quitBtn)
+        if (quitBtn != null && source == quitBtn)
         {
             if (GuiCommonElements.quitConfirmed(this, "Abandon your import and quit the application?") == true)
             {
@@ -222,12 +221,12 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
         }
         
         
-        if (source == cancelBtn)
+        if (cancelBtn != null && source == cancelBtn)
         {
             dispose();
         }
         
-        if (source == sendBtn)
+        if (sendBtn != null && source == sendBtn)
         {           
             emailText = emailTextField.getText();
             commentText = commentTextArea.getText();
@@ -249,15 +248,18 @@ public class DebugMessenger extends JDialog implements ActionListener, IObservab
             }
         }
         
-        if (source == ignoreBtn)
+        if (ignoreBtn != null && source == ignoreBtn)
         {
             dispose();
         }
         
-        if (source == copyBtn)
+        if (copyBtn != null && source == copyBtn)
         {
-            debugTextPane.selectAll();
-            debugTextPane.copy();
+        	if (debugTextPane != null)
+        	{
+        		debugTextPane.selectAll();
+        		debugTextPane.copy();
+        	}
         }
     }
     

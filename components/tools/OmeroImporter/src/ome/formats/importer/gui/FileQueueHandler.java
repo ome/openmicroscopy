@@ -74,9 +74,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class FileQueueHandler extends JPanel 
     implements ActionListener, PropertyChangeListener, IObserver
-{
-	private static final long serialVersionUID = 1L;
-	
+{	
     /** Logger for this class */
     private static final Log log = LogFactory.getLog(FileQueueHandler.class);
 
@@ -119,7 +117,7 @@ public class FileQueueHandler extends JPanel
         this.importEx = importEx;
         this.config = config;
         this.viewer = viewer;
-        this.historyTable = viewer.historyTable;
+        this.historyTable = viewer.getHistoryTable();
         this.importReader = new OMEROWrapper(config);
         this.scanReader = new OMEROWrapper(config);
 
@@ -159,7 +157,7 @@ public class FileQueueHandler extends JPanel
      * @return OMEROMetadataStoreClient
      */
     protected OMEROMetadataStoreClient getOMEROMetadataStoreClient() {
-        return viewer.loginHandler.getMetadataStore();
+        return viewer.getLoginHandler().getMetadataStore();
     }
 
     /* (non-Javadoc)
@@ -390,7 +388,7 @@ public class FileQueueHandler extends JPanel
                 addFileToQueue(ic, title, false, 0);
             }
             
-            qTable.centerOnRow(qTable.queue.getRowCount()-1);
+            qTable.centerOnRow(qTable.getQueue().getRowCount()-1);
             qTable.importBtn.requestFocus();
 
         }
@@ -421,7 +419,7 @@ public class FileQueueHandler extends JPanel
                 addFileToQueue(ic, title, useFullPath, config.numOfDirectories.get());
             }
             
-            qTable.centerOnRow(qTable.queue.getRowCount()-1);
+            qTable.centerOnRow(qTable.getQueue().getRowCount()-1);
             qTable.importBtn.requestFocus();
         } else {
         	addEnabled(true);
@@ -457,7 +455,7 @@ public class FileQueueHandler extends JPanel
         
         else if (prop.equals(REMOVE))
         {
-                int[] rows = qTable.queue.getSelectedRows();   
+                int[] rows = qTable.getQueue().getSelectedRows();   
 
                 if (rows.length == 0)
                 {
@@ -470,22 +468,22 @@ public class FileQueueHandler extends JPanel
 
                 while (rows.length > 0)
                 {
-                    if (qTable.queue.getValueAt(rows[0], 2) == "added"
-                        || qTable.queue.getValueAt(rows[0], 2) == "pending")
+                    if (qTable.getQueue().getValueAt(rows[0], 2) == "added"
+                        || qTable.getQueue().getValueAt(rows[0], 2) == "pending")
                     {
                         removeFileFromQueue(rows[0]);
-                        rows = qTable.queue.getSelectedRows();                    
+                        rows = qTable.getQueue().getSelectedRows();                    
                     }
                 }                
         }
         
         else if (prop.equals(CLEARDONE))
         {
-                int numRows = qTable.queue.getRowCount();
+                int numRows = qTable.getQueue().getRowCount();
 
                 for (int i = (numRows - 1); i >= 0; i--)
                 {
-                    if (qTable.queue.getValueAt(i, 2) == "done")
+                    if (qTable.getQueue().getValueAt(i, 2) == "done")
                     {
                         removeFileFromQueue(i);                    
                     }
@@ -495,11 +493,12 @@ public class FileQueueHandler extends JPanel
         
         else if (prop.equals(CLEARFAILED))
         {
-                int numRows = qTable.queue.getRowCount();
+                int numRows = qTable.getQueue().getRowCount();
 
                 for (int i = (numRows - 1); i >= 0; i--)
                 {
-                    if (qTable.queue.getValueAt(i, 2) == "failed")
+                    if (qTable.getQueue().getValueAt(i, 2) == "failed" || 
+                    		qTable.getQueue().getValueAt(i, 2) == "unreadable")
                     {
                         removeFileFromQueue(i);                    
                     }
@@ -509,7 +508,7 @@ public class FileQueueHandler extends JPanel
        
         else if (prop.equals(IMPORT))
         {
-            if (viewer.loggedIn == false)
+            if (viewer.getLoggedIn() == false)
             {
                 JOptionPane.showMessageDialog(viewer, 
                         "You must be logged in before you can import.");
@@ -535,12 +534,12 @@ public class FileQueueHandler extends JPanel
                         }
                     }
                     qTable.importing = true;
-                    qTable.queue.setRowSelectionAllowed(false);
+                    qTable.getQueue().setRowSelectionAllowed(false);
                     qTable.removeBtn.setEnabled(false);
                 } else {
                     qTable.importBtn.setText("Wait...");
                     qTable.importBtn.setEnabled(false);
-                    viewer.statusBar.setStatusIcon("gfx/import_cancelling_16.png",
+                    viewer.getStatusBar().setStatusIcon("gfx/import_cancelling_16.png",
                     "Cancelling import... please wait.");
                     //JOptionPane.showMessageDialog(viewer, 
                     //        "You import will be cancelled after the " +
@@ -580,7 +579,7 @@ public class FileQueueHandler extends JPanel
 	{
 		qTable.addBtn.setEnabled(b);
 		qTable.removeBtn.setEnabled(b);
-		if (b==true && qTable.table.getRowCount() > 0)
+		if (b==true && qTable.getTable().getRowCount() > 0)
 			qTable.importBtn.setEnabled(true);
 		else if (b==false)
 			qTable.importBtn.setEnabled(false);
@@ -672,7 +671,7 @@ public class FileQueueHandler extends JPanel
            
            int start = directories.length - numOfDirectories - 1;
            
-           String fileName = "";
+           StringBuffer buf = new StringBuffer();
                
            for (int i = start; i < directories.length - 1; i++)
            {
@@ -681,17 +680,18 @@ public class FileQueueHandler extends JPanel
                {
                    if (i == start)
                    {
-                       fileName = directories[i];
+                       buf.append(directories[i]);
                    } else
                    {
-                       fileName = fileName + "/" + directories[i];                       
+                       buf.append("/");
+                       buf.append(directories[i]);                     
                    }
                }
            }
 
-           fileName = fileName + "/" + file.getName();  
-           
-           return fileName;
+           buf.append("/");
+           buf.append(file.getName());
+           return buf.toString();
        }
     }
 
@@ -704,11 +704,9 @@ public class FileQueueHandler extends JPanel
     {
         //viewer.appendToDebugLn(path);
         String[] fields = path.split("/");
-        @SuppressWarnings("unused")
-        Integer length = fields.length;
+        //Integer length = fields.length;
         //viewer.appendToDebugLn(length.toString());
-       
-        
+
         return fields;
     }
     
@@ -719,9 +717,9 @@ public class FileQueueHandler extends JPanel
      */
     private void removeFileFromQueue(int row)
     {
-        qTable.table.removeRow(row);
+        qTable.getTable().removeRow(row);
         //qTable.table.fireTableRowsDeleted(row, row);
-        if (qTable.table.getRowCount() == 0)
+        if (qTable.getTable().getRowCount() == 0)
             qTable.importBtn.setEnabled(false);
     }
 
@@ -731,11 +729,11 @@ public class FileQueueHandler extends JPanel
     @SuppressWarnings("unchecked")
     public void update(IObservable observable, ImportEvent event)
     {
-        final OMEROMetadataStoreClient store = viewer.loginHandler.getMetadataStore();  
+        final OMEROMetadataStoreClient store = viewer.getLoginHandler().getMetadataStore();  
 
         if (event instanceof ome.formats.importer.util.ErrorHandler.EXCEPTION_EVENT)
         {
-            viewer.errorHandler.update(observable, event);
+            viewer.getErrorHandler().update(observable, event);
             
             if (event instanceof ome.formats.importer.util.ErrorHandler.UNKNOWN_FORMAT 
                     && fileChooser.getSelectedFiles().length == 1 && fileChooser.getSelectedFile().isFile())
@@ -912,7 +910,7 @@ public class FileQueueHandler extends JPanel
                 row.add(false);
                 row.add(projectID);
                 row.add(pixelSizes);
-                qTable.table.addRow(row);
+                qTable.getTable().addRow(row);
             }
             
             if (finalCount == 0)
@@ -933,8 +931,9 @@ public class FileQueueHandler extends JPanel
             }
 
             
-            if (qTable.table.getRowCount() >  0)
+            if (qTable.getTable().getRowCount() >  0)
                 qTable.importBtn.setEnabled(true);
+            	qTable.importBtn.doClick();
         }
     }
 
@@ -963,8 +962,8 @@ public class FileQueueHandler extends JPanel
         row.add(pdsString);
         row.add("added");
         row.add(container);
-        qTable.table.addRow(row);
-        if (qTable.table.getRowCount() == 1)
+        qTable.getTable().addRow(row);
+        if (qTable.getTable().getRowCount() == 1)
             qTable.importBtn.setEnabled(true);
     }
     

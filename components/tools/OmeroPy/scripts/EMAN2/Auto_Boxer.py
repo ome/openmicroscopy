@@ -51,7 +51,11 @@ import omero_api_Gateway_ice    # see http://tinyurl.com/icebuserror
 import omero_api_IRoi_ice
 import omero.util.script_utils as scriptUtil
 
-import Image # for saving as tiff. 
+# for saving as tiff.
+try:
+    from PIL import Image # see ticket:2597
+except ImportError:
+    import Image # see ticket:2597
 
 # from http://blake.bcm.edu/emanwiki/EMAN2/BoxSize
 goodBoxSizes = [32, 33, 36, 40, 42, 44, 48, 50, 52, 54, 56, 60, 64, 66, 70, 72, 81, 84, 96, 98, 100, 104, 105, 112, 120, 128,
@@ -446,14 +450,14 @@ See http://trac.openmicroscopy.org.uk/omero/wiki/EmPreviewFunctionality""",
         for key in client.getInputKeys():
             if client.getInput(key):
                 parameterMap[key] = client.getInput(key).getValue()
-    
+
         imgCount = doAutoBoxing(session, parameterMap)
         image = imgCount==1 and "image" or "images"
         client.setOutput("Message", rstring("Auto-Boxing added boxes to %s %s" (imgCount, image)))
-    except: raise
-    finally: client.closeSession()
-    
-    
+    finally:
+        client.closeSession()
+
+
 if __name__ == "__main__":
     runAsScript()
     

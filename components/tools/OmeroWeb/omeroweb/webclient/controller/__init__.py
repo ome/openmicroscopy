@@ -75,12 +75,12 @@ class BaseController(object):
         self.eContext['context'] = self.conn.getEventContext()
         gr = self.conn.getGroup(self.conn.getEventContext().groupId)
         self.eContext['isReadOnly'] = gr.isReadOnly()
+        self.eContext['isLeader'] = gr.isLeader()
         if not gr.isPrivate() and not gr.isReadOnly():
             self.eContext['isEditable'] = True
         else:
             self.eContext['isEditable'] = False
-        self.eContext['user'] = self.conn.getUser()
-        
+        self.eContext['user'] = self.conn.getUser()        
         grs = list(self.conn.getGroupsMemberOf())
         self.eContext['memberOfGroups'] = self.sortByAttr(grs, "name")        
         self.eContext['allGroups'] = self.sortByAttr(grs, "name")

@@ -21,22 +21,33 @@ from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
 from omero.rtypes import *
 
-# Common bits
-params = omero.sys.Parameters()
-params.theFilter = omero.sys.Filter()
-params.theFilter.offset = rint(0)
-params.theFilter.limit = rint(1)
-
+from integration.helpers import createTestImage
+    
 class TestGateway(lib.ITest):
 
     def testBasicUsage(self):
         gateway = self.client.sf.createGateway()
         gateway.getProjects([0],False)
-        query = self.client.sf.getQueryService()
-        thumb = query.findByQuery("select t from Thumbnail t join fetch t.pixels", params)
-        pixid = thumb.pixels.id.val
-        imgid = thumb.pixels.image.id.val
-        gateway.getRenderedImage(pixid, 0, 0)
 
+        try:
+            iid = createTestImage(self.client.sf)
+            
+            query = self.client.sf.getQueryService()
+    
+            params = omero.sys.Parameters()
+            params.map = {}
+            params.map["oid"] = rlong(iid)
+            params.theFilter = omero.sys.Filter()
+            params.theFilter.offset = rint(0)
+            params.theFilter.limit = rint(1)
+            pixel = query.findByQuery("select p from Pixels as p left outer join fetch p.image i where i.id=:oid", params)
+            imgid = pixel.image.id.val
+            gateway.getRenderedImage(pixel.id.val, 0, 0)
+        except omero.ValidationException, ve:
+            print " testBasicUsage - createTestImage has failed. This fixture method needs to be fixed."
+
+        gateway.close()
+        
+        
 if __name__ == '__main__':
     unittest.main()

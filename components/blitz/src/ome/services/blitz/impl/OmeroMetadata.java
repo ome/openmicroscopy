@@ -384,6 +384,34 @@ public class OmeroMetadata extends DummyMetadata {
         return v == null? null : v.getValue();
     }
 
+    private PositiveInteger toPositiveInteger(RInt v)
+    {
+        try
+        {
+            Integer asInt = fromRType(v);
+            return asInt != null? new PositiveInteger(asInt) : null;
+        }
+        catch (IllegalArgumentException e)
+        {
+            log.warn("Using new PositiveInteger(1)!", e);
+            return new PositiveInteger(1);
+        }
+    }
+
+    private NonNegativeInteger toNonNegativeInteger(RInt v)
+    {
+        try
+        {
+            Integer asInt = fromRType(v);
+            return asInt != null? new NonNegativeInteger(asInt) : null;
+        }
+        catch (IllegalArgumentException e)
+        {
+            log.warn("Using new NonNegativeInteger(0)!", e);
+            return new NonNegativeInteger(0);
+        }
+    }
+
     @Override
     public String getImageAcquiredDate(int imageIndex)
     {
@@ -497,40 +525,40 @@ public class OmeroMetadata extends DummyMetadata {
     public PositiveInteger getPixelsSizeC(int imageIndex)
     {
         Image o = _getImage(imageIndex);
-        return o != null? new PositiveInteger(fromRType(
-                o.getPrimaryPixels().getSizeC())) : null;
+        return o != null? toPositiveInteger(
+                o.getPrimaryPixels().getSizeC()) : null;
     }
 
     @Override
     public PositiveInteger getPixelsSizeT(int imageIndex)
     {
         Image o = _getImage(imageIndex);
-        return o != null? new PositiveInteger(fromRType(
-                o.getPrimaryPixels().getSizeT())) : null;
+        return o != null? toPositiveInteger(
+                o.getPrimaryPixels().getSizeT()) : null;
     }
 
     @Override
     public PositiveInteger getPixelsSizeX(int imageIndex)
     {
         Image o = _getImage(imageIndex);
-        return o != null? new PositiveInteger(fromRType(
-                o.getPrimaryPixels().getSizeX())) : null;
+        return o != null? toPositiveInteger(
+                o.getPrimaryPixels().getSizeX()) : null;
     }
 
     @Override
     public PositiveInteger getPixelsSizeY(int imageIndex)
     {
         Image o = _getImage(imageIndex);
-        return o != null? new PositiveInteger(fromRType(
-                o.getPrimaryPixels().getSizeY())) : null;
+        return o != null? toPositiveInteger(
+                o.getPrimaryPixels().getSizeY()) : null;
     }
 
     @Override
     public PositiveInteger getPixelsSizeZ(int imageIndex)
     {
         Image o = _getImage(imageIndex);
-        return o != null? new PositiveInteger(fromRType(
-                o.getPrimaryPixels().getSizeZ())) : null;
+        return o != null? toPositiveInteger(
+                o.getPrimaryPixels().getSizeZ()) : null;
     }
 
     @Override
@@ -621,7 +649,9 @@ public class OmeroMetadata extends DummyMetadata {
             Color color = new Color(
                     fromRType(o.getRed()), fromRType(o.getGreen()),
                     fromRType(o.getBlue()), fromRType(o.getAlpha()));
-            return color.getRGB();
+            int argb = color.getRGB();
+            // ARGB --> RGBA
+            return (argb << 8) | (argb >>> (32-8));
         }
         catch (NullPointerException e)
         {
@@ -668,8 +698,7 @@ public class OmeroMetadata extends DummyMetadata {
             int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        Integer v = fromRType(o.getLogicalChannel().getEmissionWave());
-        return v != null? new PositiveInteger(v) : null; 
+        return toPositiveInteger(o.getLogicalChannel().getEmissionWave());
     }
 
     @Override
@@ -677,8 +706,7 @@ public class OmeroMetadata extends DummyMetadata {
             int channelIndex)
     {
         Channel o = getChannel(imageIndex, channelIndex);
-        Integer v = fromRType(o.getLogicalChannel().getExcitationWave());
-        return v != null? new PositiveInteger(v) : null; 
+        return toPositiveInteger(o.getLogicalChannel().getExcitationWave()); 
     }
 
     @Override
@@ -823,24 +851,21 @@ public class OmeroMetadata extends DummyMetadata {
     public NonNegativeInteger getPlaneTheC(int imageIndex, int planeIndex)
     {
         PlaneInfo o = getPlane(imageIndex, planeIndex);
-        Integer v = fromRType(o.getTheC());
-        return v != null? new NonNegativeInteger(v) : null;
+        return toNonNegativeInteger(o.getTheC());
     }
 
     @Override
     public NonNegativeInteger getPlaneTheT(int imageIndex, int planeIndex)
     {
         PlaneInfo o = getPlane(imageIndex, planeIndex);
-        Integer v = fromRType(o.getTheT());
-        return v != null? new NonNegativeInteger(v) : null;
+        return toNonNegativeInteger(o.getTheT());
     }
 
     @Override
     public NonNegativeInteger getPlaneTheZ(int imageIndex, int planeIndex)
     {
         PlaneInfo o = getPlane(imageIndex, planeIndex);
-        Integer v = fromRType(o.getTheZ());
-        return v != null? new NonNegativeInteger(v) : null;
+        return toNonNegativeInteger(o.getTheZ());
     }
 
     private <T extends Annotation> T getAnnotation(Class<T> klass, int index)

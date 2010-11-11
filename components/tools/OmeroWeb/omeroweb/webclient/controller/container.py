@@ -57,51 +57,51 @@ class BaseContainer(BaseController):
         if o1_type == "project":
             self.project = self.conn.getProject(o1_id)
             if self.project is None:
-                raise AttributeError("We are sorry, but that project does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
+                raise AttributeError("We are sorry, but that project (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
             if self.project._obj is None:
-                raise AttributeError("We are sorry, but that project does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
+                raise AttributeError("We are sorry, but that project (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
             if o2_type == "dataset":
                 self.dataset = self.conn.getDataset(o2_id)
                 if self.dataset is None:
-                    raise AttributeError("We are sorry, but that dataset does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
+                    raise AttributeError("We are sorry, but that dataset (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o2_id))
                 if self.dataset._obj is None:
-                    raise AttributeError("We are sorry, but that dataset does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
+                    raise AttributeError("We are sorry, but that dataset (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o2_id))
         elif o1_type == "screen":
             self.screen = self.conn.getScreen(o1_id)
             if self.screen is None:
-                raise AttributeError("We are sorry, but that screen does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
+                raise AttributeError("We are sorry, but that screen (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
             if self.screen._obj is None:
-                raise AttributeError("We are sorry, but that screen does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
+                raise AttributeError("We are sorry, but that screen (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
             if o2_type == "plate":
                 self.plate = self.conn.getPlate(o2_id)
                 if self.plate is None:
-                    raise AttributeError("We are sorry, but that plate does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
+                    raise AttributeError("We are sorry, but that plate (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o2_id))
                 if self.plate._obj is None:
-                    raise AttributeError("We are sorry, but that plate does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.") 
+                    raise AttributeError("We are sorry, but that plate (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o2_id)) 
         elif o1_type == "plate":
             self.plate = self.conn.getPlate(o1_id)
             if self.plate is None:
-                raise AttributeError("We are sorry, but that plate does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
+                raise AttributeError("We are sorry, but that plate (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
             if self.plate._obj is None:
-                raise AttributeError("We are sorry, but that plate does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")  
+                raise AttributeError("We are sorry, but that plate (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))  
         elif o1_type == "dataset":
             self.dataset = self.conn.getDataset(o1_id)
             if self.dataset is None:
-                raise AttributeError("We are sorry, but that dataset does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
+                raise AttributeError("We are sorry, but that dataset (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
             if self.dataset._obj is None:
-                raise AttributeError("We are sorry, but that dataset does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
+                raise AttributeError("We are sorry, but that dataset (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
         elif o1_type == "image":
             self.image = self.conn.getImage(o1_id)
             if self.image is None:
-                raise AttributeError("We are sorry, but that image does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
+                raise AttributeError("We are sorry, but that image (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
             if self.image._obj is None:
-                raise AttributeError("We are sorry, but that image does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
+                raise AttributeError("We are sorry, but that image (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
         elif o1_type == "well":
             self.well = self.conn.lookupWell(o1_id)
             if self.well is None:
-                raise AttributeError("We are sorry, but that well does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
+                raise AttributeError("We are sorry, but that well (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
             if self.well._obj is None:
-                raise AttributeError("We are sorry, but that well does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you.")
+                raise AttributeError("We are sorry, but that well (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
         elif o1_type == "tag" and o1_id is not None:
             self.tag = self.conn.getTagAnnotation(o1_id)
         elif o1_type == "orphaned":
@@ -126,14 +126,18 @@ class BaseContainer(BaseController):
             self.series_metadata = sorted(om[2])
 
     def channelMetadata(self):
+        self.channel_metadata = None
         try:
             if self.image is not None:
                 self.channel_metadata = self.image.getChannels()
             elif self.well is not None:
                 self.channel_metadata = self.well.selectedWellSample().image().getChannels()
         except:
+            pass
+        
+        if self.channel_metadata is None:
             self.channel_metadata = list()
-    
+        
     def loadTags(self, eid=None):
         if eid is not None:
             self.experimenter = self.conn.getExperimenter(eid)
@@ -200,7 +204,7 @@ class BaseContainer(BaseController):
         if eid is not None:
             self.experimenter = self.conn.getExperimenter(eid)  
         
-        im_list = self.sortByAttr(list(self.conn.lookupImagesInDataset(oid=did, eid=eid, page=page)), 'name')
+        im_list = list(self.conn.lookupImagesInDataset(oid=did, eid=eid, page=page))
         im_list_with_counters = list()
         
         im_ids = [im.id for im in im_list]
@@ -211,7 +215,7 @@ class BaseContainer(BaseController):
                 im.annotation_counter = im_annotation_counter.get(im.id)
                 im_list_with_counters.append(im)
         
-        im_list_with_counters = self.sortByAttr(im_list_with_counters, 'name')
+        im_list_with_counters = self.sortByAttr(im_list_with_counters, 'id')
         self.containers = {'images': im_list_with_counters}
         self.c_size = self.conn.getCollectionCount("Dataset", "imageLinks", [long(did)])[long(did)]
         
@@ -356,7 +360,7 @@ class BaseContainer(BaseController):
         if eid is not None:
             self.experimenter = self.conn.getExperimenter(eid)
         
-        im_list = self.sortByAttr(list(self.conn.lookupOrphanedImages(eid=eid)), 'name')
+        im_list = list(self.conn.lookupOrphanedImages(eid=eid))
         im_list_with_counters = list()
         
         im_ids = [im.id for im in im_list]
@@ -367,8 +371,12 @@ class BaseContainer(BaseController):
                 im.annotation_counter = im_annotation_counter.get(im.id)
                 im_list_with_counters.append(im)
         
+        im_list_with_counters = self.sortByAttr(im_list_with_counters, 'id')
         self.containers = {'orphaned': True, 'images': im_list_with_counters}
         self.c_size = len(im_list_with_counters)
+        
+        #if page is not None:
+        #    self.paging = self.doPaging(page, len(im_list_with_counters), self.c_size)
 
     # Annotation list
     def annotationList(self):
@@ -491,7 +499,19 @@ class BaseContainer(BaseController):
         l_ann.setChild(ann)
         self.conn.saveObject(l_ann)
     
-    # Tag annotation    
+    # Tag annotation 
+    def createTagAnnotationOnly(self, tag, desc):
+        ann = None
+        try:
+            ann = self.conn.findTag(tag, desc)._obj
+        except:
+            pass
+        if ann is None:
+            ann = omero.model.TagAnnotationI()
+            ann.textValue = rstring(str(tag))
+            ann.setDescription(rstring(str(desc)))
+            self.conn.saveObject(ann)
+     
     def createTagAnnotation(self, otype, tag, desc):
         otype = str(otype).lower()
         if not otype in ("project", "dataset", "image", "screen", "plate", "well"):
@@ -510,12 +530,17 @@ class BaseContainer(BaseController):
         if ann is None:
             ann = omero.model.TagAnnotationI()
             ann.textValue = rstring(str(tag))
-            ann.setDescription(rstring(str(desc)))
-        
-        t_ann = getattr(omero.model, otype.title()+"AnnotationLinkI")()
-        t_ann.setParent(selfobject._obj)
-        t_ann.setChild(ann)
-        self.conn.saveObject(t_ann)
+            ann.setDescription(rstring(str(desc)))            
+            t_ann = getattr(omero.model, otype.title()+"AnnotationLinkI")()
+            t_ann.setParent(selfobject._obj)
+            t_ann.setChild(ann)
+            self.conn.saveObject(t_ann)
+        else:
+            t_ann = getattr(self.conn, "get"+otype.title()+"AnnotationLink")(selfobject.id, ann.id.val)    
+            if t_ann is None:
+                t_ann.setParent(selfobject._obj)
+                t_ann.setChild(ann)
+                self.conn.saveObject(t_ann)
     
     # File annotation
     def getFileFormat(self, newFile):
@@ -588,7 +613,7 @@ class BaseContainer(BaseController):
     def createTagAnnotations(self, tag, desc, oids):
         ann = None
         try:
-            ann = self.conn.findTag(tag, desc)._obj
+            ann = self.conn.findTag(tag, desc)
         except:
             pass
         if ann is None:
@@ -1102,18 +1127,20 @@ class BaseContainer(BaseController):
     ##########################################################
     # Delete
     
-    def deleteItem(self, allitems=None):
+    def deleteItem(self, child=None, anns=None):
+        handle = None
         if self.image:
-            self.conn.deleteImage(self.image.id)
+            handle = self.conn.deleteImage(self.image.id, anns)
         elif self.dataset:
-            self.conn.deleteDataset(self.dataset, allitems)
+            handle = self.conn.deleteDataset(self.dataset, child, anns)
         elif self.project:
-            self.conn.deleteProject(self.project, allitems)
+            handle = self.conn.deleteProject(self.project, child, anns)
         elif self.screen:
-            self.conn.deleteScreen(self.screen, allitems)
+            handle = self.conn.deleteScreen(self.screen, child, anns)
         elif self.plate:
-            self.conn.deletePlate(self.plate.id)
+            handle = self.conn.deletePlate(self.plate.id, anns)
+        return handle
     
-    def deleteImages(self, ids):
-        self.conn.deleteImages(ids)
+    def deleteImages(self, ids, anns=None):
+        return self.conn.deleteImages(ids, anns)
         

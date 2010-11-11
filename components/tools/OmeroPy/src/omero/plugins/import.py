@@ -72,20 +72,20 @@ class ImportControl(BaseControl):
         err = args.errs
 
         if out:
-            args.args.remove(out)
             out = open(out, "w")
         if err:
-            args.args.remove(err)
             err = open(err, "w")
 
         login_args = []
         if args.javahelp:
                 login_args.append("-h")
 
-        if "-h" not in login_args and "-f" not in login_args:
+        if "-h" not in login_args and "-f" not in login_args and not args.java_f:
             client = self.ctx.conn(args)
             srv = client.getProperty("omero.host")
+            prt = client.getProperty("omero.port")
             login_args.extend(["-s", srv])
+            login_args.extend(["-p", prt])
             login_args.extend(["-k", client.getSessionId()])
 
         # Due to the use of "--" some of these like debug

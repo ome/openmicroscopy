@@ -40,7 +40,7 @@ def env_path(key):
     Reads a path from the environment and splits it into
     a list
     """
-    value = os.environ.has_key(key) and os.environ[key] or None
+    value = os.environ.has_key(key) and os.environ[key] or []
     value = value and value.split(os.path.pathsep) or []
     return value
 
@@ -54,7 +54,7 @@ link = ARGUMENTS.get("link","omero_client").split()
 builddir = os.path.abspath(os.path.join(os.pardir,"dist"))
 builddir = ARGUMENTS.get("builddir",builddir)
 cpppath = env_path("CPPPATH")
-libpath = env_path("LIBPATH")
+libpath = env_path("DYLD_LIBRARY_PATH") + env_path("LD_LIBRARY_PATH") + env_path("LIBPATH")
 pypath  = env_path("PYTHONPATH")
 if os.environ.has_key("ICE_CONFIG"):
     ice_config = os.environ["ICE_CONFIG"]
@@ -83,14 +83,10 @@ map = { "options" : opts,
         "LINKFLAGS" : [],
         "JAVACFLAGS" : []}
 
-if platform.name == "darwin":
-    map["CPPPATH"].append( '/opt/local/include/' )
-
 if platform.name == "posix" or platform.name == "linux" or platform.name == "darwin":
     #
     map["CPPPATH"].append(os.path.join(builddir, 'include'))
     #
-    map["LIBPATH"].append('/opt/local/lib')
     map["LIBPATH"].append(os.path.join(builddir, 'lib'))
     #
     map["ENV"] = {
@@ -226,7 +222,7 @@ for src_dir in glob.glob("*"):
                 # Cloning environment, so that CLASSPATH doesn't have all the subdirectories included
                 clone = env.Clone()
                 clone['ENV']['CLASSPATH'] = os.path.pathsep.join([ clone['ENV']['CLASSPATH'], src_dir ])
-                run = clone.Alias(os.path.join(src_dir,base), [], "java -ea %s --Ice.Config=%s" % (base,ice_config) )
+                run = clone.Alias(os.path.join(src_dir,base), [], "java -ea %s" % base)
                 Depends(run, javac)
                 clone.AlwaysBuild(run)
                 targets.append(run)
@@ -237,9 +233,14 @@ for src_dir in glob.glob("*"):
         if env["run"] or env["run_py"]:
             python_files = glob.glob(os.path.join(src_dir, "*.py"))
             for file in python_files:
-                run = env.Alias(file, [], "python %s --Ice.Config=%s" % (file,ice_config) )
-                env.AlwaysBuild(run)
-                targets.append(run)
+                use = True
+                for x in ("adminWorkflow.py", "runHellowWorld.py", "HelloWorld.py", "Edit_Descriptions.py"):
+                    if file.find(x) >=0: # Workaround ticket:3243
+                        use = False
+                if use:
+                    run = env.Alias(file, [], "python %s" % file)
+                    env.AlwaysBuild(run)
+                    targets.append(run)
 
         #
         # C++
@@ -250,7 +251,7 @@ for src_dir in glob.glob("*"):
             make = env.Program(base+".exe", file, LIBS=libs)
             targets.append(make)
             if env["run"] or env["run_cpp"]:
-                run = env.Command(base+".out", base+".exe", "./$SOURCE --Ice.Config=%s" % ice_config )
+                run = env.Command(base+".out", base+".exe", "./$SOURCE")
                 env.Depends(run, make)
                 env.AlwaysBuild(run)
                 targets.append(run)

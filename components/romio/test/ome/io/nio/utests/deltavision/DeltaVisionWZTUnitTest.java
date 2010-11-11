@@ -6,17 +6,18 @@
  */
 package ome.io.nio.utests.deltavision;
 
+import static org.testng.AssertJUnit.*;
+
 import java.nio.ByteBuffer;
 
 import org.testng.annotations.*;
 
-import junit.framework.TestCase;
 import ome.io.nio.DeltaVision;
 import ome.io.nio.DeltaVisionHeader;
 import ome.model.core.OriginalFile;
 import ome.util.Utils;
 
-public class DeltaVisionWZTUnitTest extends TestCase
+public class DeltaVisionWZTUnitTest
 {
 	private DeltaVision getDeltaVisionPixelBuffer()
 	{

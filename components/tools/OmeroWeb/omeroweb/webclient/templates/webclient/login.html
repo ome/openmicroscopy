@@ -20,7 +20,7 @@
     <img src="{% url webstatic "images/logo-client.png" %}" />
 </div>
 <div id="login">
-    <form action="{% url weblogin %}?url={{url}}" method="post">
+    <form action="{% url weblogin %}{% if url %}?url={{url}}{% endif %}" method="post">
         <table><tbody>
             {% if error %}<tr><th colspan="2"><ul class="errorlist"><li>{% trans "Error:" %} {{ error }}</li></ul></th><tr>{% endif %}
         </tbody></table>
@@ -46,7 +46,7 @@
                 <td>{{ form.password }}</td>
             </tr>
         </tbody></table>
-        <!-- <tr><td>{% if form.user_name.errors %}{{ form.user_name.errors }}{% endif %}{{ form.user_name.help_text }}</td> -->
+        <!-- <tr><td>{% if form.user_name.errors %}{{ form.user_name.errors }}{% endif %}{{ form.user_name.help_text|safe }}</td> -->
         <center><input type="submit" value="Connect" /></center>
     </form>
 </div>

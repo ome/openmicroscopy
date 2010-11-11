@@ -86,6 +86,8 @@ import omero.api.RenderingEnginePrx;
 import omero.api.RenderingEnginePrxHelper;
 import omero.api.SearchPrx;
 import omero.api.SearchPrxHelper;
+import omero.api.ServiceFactoryPrx;
+import omero.api.ServiceFactoryPrxHelper;
 import omero.api.ServiceInterfacePrx;
 import omero.api.ServiceInterfacePrxHelper;
 import omero.api.StatefulServiceInterfacePrx;
@@ -263,6 +265,11 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
 
     public Executor getExecutor() {
         return this.executor;
+    }
+
+    public ServiceFactoryPrx proxy() {
+        return ServiceFactoryPrxHelper.uncheckedCast(
+            adapter.createDirectProxy(sessionId()));
     }
 
     // ~ Security Context
@@ -497,7 +504,15 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     }
 
     public ServiceInterfacePrx getByName(String blankname, Current dontUse)
-            throws ServerError {
+    throws ServerError {
+
+        // First try to get the blankname as is in case a value from
+        // activeServices is being passed back in.
+        Ice.Identity immediateId = getIdentity(blankname);
+        if (holder.get(immediateId) != null) {
+            return ServiceInterfacePrxHelper.uncheckedCast(
+                    adapter.createDirectProxy(immediateId));
+        }
 
         // ticket:911 - in order to use a different initializer
         // for each stateless service, we need to attach modify the id.
@@ -599,13 +614,16 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
      */
     public void destroy(Ice.Current current) {
 
+        Ice.Identity sessionId = sessionId();
+        log.debug("destroy(" + this + ")");
+
         // Remove this instance from the adapter: 1) to prevent
         // further remote calls on it, and 2) to reduce the number
         // of calls to destroy() from SessionManagerI.reapSession()
         // If an exception if thrown, there's not much we can do,
         // and it's important to continue cleaning up resources!
         try {
-            adapter.remove(sessionId()); // OK ADAPTER USAGE
+            adapter.remove(sessionId); // OK ADAPTER USAGE
         } catch (Ice.NotRegisteredException nre) {
             // It's possible that another thread tried to remove
             // this session first. Logging the fact, but we will
@@ -687,8 +705,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
      * NB: Much of the logic here is similar to {@link #doClose} and should
      * be pushed down.
      */
-    public int getStatefulServiceCount() {
-        int count = 0;
+    public String getStatefulServiceCount() {
+        String list = "";
         final List<String> servants = holder.getServantList();
         for (final String idName : servants) {
             final Ice.Identity id = getIdentity(idName);
@@ -696,14 +714,14 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
             if (servant != null) {
                 try {
                     if (servant instanceof _StatefulServiceInterfaceOperations) {
-                        count++;
+                        list += "\n" + idName;
                     }
                 } catch (Exception e) {
                     // oh well
                 }
             }
         }
-        return count;
+        return list;
     }
 
     /**
@@ -719,7 +737,7 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
     public void doDestroy() {
 
         if (log.isInfoEnabled()) {
-            log.info(String.format("Closing %s session", this));
+            log.info(String.format("doDestroy(%s)", this));
         }
 
         // Cleaning up resources
@@ -747,24 +765,15 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
                     // be stopped and unregistered. Stateless must only be
                     // unregistered.
                     //
-                    if (servant instanceof AbstractAmdServant) {
+                    if (servant instanceof CloseableServant) {
                         final Ice.Current __curr = new Ice.Current();
                         __curr.id = id;
                         __curr.adapter = adapter;
                         __curr.operation = "close";
                         __curr.ctx = new HashMap<String, String>();
                         __curr.ctx.put(CLIENTUUID.value, clientId);
-                        AbstractAmdServant amd = (AbstractAmdServant) servant;
-                        amd.close(__curr);
-                    } else if (servant instanceof InteractiveProcessorI) {
-                        // Cleanup interactive processors
-                        // ------------------------------
-                        InteractiveProcessorI ip = (InteractiveProcessorI) servant;
-                        ip.stop();
-                    } else if (servant instanceof SharedResourcesI) {
-                        // Not currently doing anything.
-                        // But will eventually need to cleanup cache.
-                        ((SharedResourcesI)servant).close();
+                        CloseableServant cs = (CloseableServant) servant;
+                        cs.close(__curr);
                     } else {
                         log.error("Unknown servant type: " + servant);
                     }
@@ -797,8 +806,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         try {
             // First take measures to keep the session alive
             getEventContext();
-            if (log.isInfoEnabled()) {
-                log.info("Keep alive: " + __current.id.name);
+            if (log.isDebugEnabled()) {
+                log.debug("Keep all alive: " + this);
             }
 
             if (proxies == null || proxies.length == 0) {
@@ -808,6 +817,9 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
             long retVal = 0;
             for (int i = 0; i < proxies.length; i++) {
                 ServiceInterfacePrx prx = proxies[i];
+                if (prx == null) {
+                    continue;
+                }
                 Ice.Identity id = prx.ice_getIdentity();
                 if (null == holder.get(id)) {
                     retVal |= 1 << i;
@@ -827,8 +839,8 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         try {
             // First take measures to keep the session alive
             getEventContext();
-            if (log.isInfoEnabled()) {
-                log.info("Keep alive: " + __current.id.name);
+            if (log.isDebugEnabled()) {
+                log.debug("Keep alive: " + this);
             }
 
             if (proxy == null) {
@@ -1049,4 +1061,12 @@ public final class ServiceFactoryI extends _ServiceFactoryDisp {
         return clientId;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("ServiceFactoryI(");
+        sb.append(Ice.Util.identityToString(sessionId()));
+        sb.append(")");
+        return sb.toString();
+    }
 }

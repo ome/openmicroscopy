@@ -42,7 +42,8 @@ public class GroupData extends DataObject {
     public final static String DESCRIPTION = ExperimenterGroupI.DESCRIPTION;
 
     /** Identifies the {@link ExperimenterGroup#GROUPEXPERIMENTERMAP} field. */
-    public final static String GROUP_EXPERIMENTER_MAP = ExperimenterGroupI.GROUPEXPERIMENTERMAP;
+    public final static String GROUP_EXPERIMENTER_MAP = 
+    	ExperimenterGroupI.GROUPEXPERIMENTERMAP;
 
     /** Identifies the <code>User</code> group. */
     public static final String	USER = "user";

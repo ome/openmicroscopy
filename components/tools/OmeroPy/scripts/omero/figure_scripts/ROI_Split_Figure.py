@@ -806,8 +806,8 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIFigure""",
         if fileAnnotation:
             client.setOutput("Message", rstring("ROI Split Figure Created"))
             client.setOutput("File_Annotation", robject(fileAnnotation))
-    except: raise
-    finally: client.closeSession()
-    
+    finally:
+        client.closeSession()
+
 if __name__ == "__main__":
     runAsScript()

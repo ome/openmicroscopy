@@ -88,7 +88,7 @@ public abstract class AbstractBasicSecuritySystemTest extends
         SystemTypes st = new SystemTypes();
         TokenHolder th = new TokenHolder();
         OmeroInterceptor oi = new OmeroInterceptor(new Roles(),
-                st, new ExtendedMetadata(),
+                st, new ExtendedMetadata.Impl(),
                 cd, th, new NullSessionStats());
         sec = new BasicSecuritySystem(oi, st, cd, mgr, new Roles(), sf,
                 new TokenHolder());

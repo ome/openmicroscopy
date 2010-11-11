@@ -417,4 +417,26 @@ public class PlateData extends DataObject {
         plateAcquisitions = new HashSet<PlateAcquisitionData>(m.result());
     }
     
+    /**
+     * Sets the external identifier.
+     * 
+     * @param value The value to set.
+     */
+    public void setExternalIdentifier(String value)
+    {
+    	if (value != null && value.trim().length() != 0)
+    		asPlate().setExternalIdentifier(omero.rtypes.rstring(value));
+    }
+    
+    /**
+     * Sets the status.
+     * 
+     * @param value The value to set.
+     */
+    public void setStatus(String value)
+    {
+    	if (value != null && value.trim().length() != 0)
+    		asPlate().setStatus(omero.rtypes.rstring(value));
+    }
+    
 }

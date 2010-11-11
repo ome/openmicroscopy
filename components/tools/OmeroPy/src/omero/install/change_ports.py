@@ -36,6 +36,9 @@ def change_ports(glacier2, glacier2insecure, registry, revert = False):
 
     Example::
 
+        ./etc/ice.config: ## omero.port=4064 (default)
+        or
+        ./etc/ice.config: omero.port=4064
         ./grid/default.xml:    <variable name="ROUTERPORT"   value="4064"/>
         ./grid/windefault.xml:    <variable name="ROUTERPORT"   value="4064"/>
         ./internal.cfg:Ice.Default.Locator=IceGrid/Locator:tcp -h 127.0.0.1 -p 4061
@@ -93,6 +96,11 @@ def change_ports(glacier2, glacier2insecure, registry, revert = False):
             continue
         print line,
     fileinput.close()
+
+    ice_cfg = ETC.files("ice.config")
+    for x in ice_cfg:
+        x.write_text("omero.port=%s\n" % t_glacier2, append=True)
+    print "Appended omero.port=%s to %s" % (t_glacier2, x)
 
     for x in ((found_reg, f_registry, t_registry), (found_tcp, f_glacier2insecure, t_glacier2insecure), (found_ssl, f_glacier2, t_glacier2)):
         if x[0]:

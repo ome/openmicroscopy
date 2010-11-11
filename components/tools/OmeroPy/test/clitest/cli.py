@@ -22,7 +22,7 @@ class TestCli(unittest.TestCase):
                 if len(*args) != 2:
                     raise Exc("Args was over parsed! %s" % args)
         cli = CLI()
-        cli.register("test", TestControl)
+        cli.register("test", TestControl, "HELP")
         cli.invoke(["test","a","a b c d e"])
         self.assertEquals(0, cli.rv)
 
@@ -31,9 +31,19 @@ class TestCli(unittest.TestCase):
             def __call__(self2, args):
                 self.assertEquals("b",args["a"])
         cli = CLI()
-        cli.register("test", TestControl)
+        cli.register("test", TestControl, "HELP")
         cli.invoke(["test","a=b"])
         self.assertEquals(0, cli.rv)
+
+    def testParserFormatList(self):
+        """
+        This failed for DropBox while working
+        on #3200
+        """
+        from omero.cli import Parser
+        p = Parser()
+        p._format_list([])
+        p._format_list(["a"])
 
 if __name__ == '__main__':
     unittest.main()

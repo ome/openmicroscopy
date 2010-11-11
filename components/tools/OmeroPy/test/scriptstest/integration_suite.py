@@ -20,7 +20,6 @@ def _additional_tests():
     suite.addTest(load("scriptstest.coverage"))
     suite.addTest(load("scriptstest.makeMovieTest"))
     suite.addTest(load("scriptstest.ping"))
-    suite.addTest(load("scriptstest.proj"))
     suite.addTest(load("scriptstest.rand"))
     return suite
 

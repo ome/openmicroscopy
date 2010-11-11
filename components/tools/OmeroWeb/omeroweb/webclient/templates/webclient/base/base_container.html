@@ -4,21 +4,8 @@
 {% load custom_tags %}
 
 {% block header %}
-<div id="path">
-    
-    <div id="logout">
-        | {% for field in form_active_group %} {% trans "current group" %}: {{ field }} {% if field.errors %}{{ field.errors }}{% endif %}{% endfor %}
-        | <a href="{% url weblogout %}">{% trans "logout" %}</a> |
-    </div>
-    <div id="basket"><a href="{% url basket_action %}"><img src="{% url webstatic "images/basket.png" %}" /> {% trans "BASKET" %}</a> {% trans "contains" %} <span id="cartTotal">{{ nav.basket }}</span> {% trans "items" %}</div>
-    <div id="logout">
-        | {% for field in form_active_group %} {% trans "current group" %}: {{ field }} {% if field.errors %}{{ field.errors }}{% endif %}{% endfor %}
-        | <a href="{% url weblogout %}">{% trans "logout" %}</a> |
-    </div>
-    
-</div>
 
-<div class="clear"> </div>
+{% include "webclient/base/header.html" %}
 
 {% endblock %}
 

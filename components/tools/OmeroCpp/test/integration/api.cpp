@@ -14,13 +14,14 @@
 
 using namespace omero::rtypes;
 
-// DISABLED
+// DISABLED 
+// cgb taken out the std output
 
 BOOST_AUTO_TEST_CASE( VectorArgs )
 {
   Ice::Long ids[] = {1L, 2L, 3L};
   omero::sys::LongList idList(ids,ids+3);
-  copy(idList.begin(), idList.end(), std::ostream_iterator<Ice::Long>(std::cout, "\n"));
+  //copy(idList.begin(), idList.end(), std::ostream_iterator<Ice::Long>(std::cout, "\n"));
   omero::sys::ParamMap pm;
   pm["user"] = rlong(1L);
 

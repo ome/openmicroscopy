@@ -15,59 +15,92 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
-import java.util.UUID;
-
-import junit.framework.TestCase;
-import ome.testing.ObjectFactory;
-import omero.OptimisticLockException;
-import omero.RInt;
-import omero.api.IAdminPrx;
-import omero.api.IQueryPrx;
-import omero.api.IUpdatePrx;
-import omero.api.ServiceFactoryPrx;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLinkI;
+import omero.model.BooleanAnnotation;
+import omero.model.BooleanAnnotationI;
 import omero.model.Channel;
 import omero.model.CommentAnnotation;
 import omero.model.CommentAnnotationI;
 import omero.model.Dataset;
+import omero.model.DatasetAnnotationLink;
+import omero.model.DatasetAnnotationLinkI;
 import omero.model.DatasetI;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
-import omero.model.Experimenter;
-import omero.model.ExperimenterGroup;
-import omero.model.ExperimenterGroupI;
-import omero.model.ExperimenterI;
+import omero.model.Detector;
+import omero.model.Dichroic;
+import omero.model.EllipseI;
+import omero.model.FileAnnotation;
+import omero.model.FileAnnotationI;
+import omero.model.Filter;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageAnnotationLinkI;
 import omero.model.ImageI;
-import omero.model.Permissions;
-import omero.model.PermissionsI;
+import omero.model.Instrument;
+import omero.model.Laser;
+import omero.model.Line;
+import omero.model.LineI;
+import omero.model.LongAnnotation;
+import omero.model.LongAnnotationI;
+import omero.model.Mask;
+import omero.model.MaskI;
+import omero.model.Objective;
+import omero.model.OriginalFile;
 import omero.model.Pixels;
+import omero.model.PlaneInfo;
+import omero.model.Plate;
+import omero.model.PlateAnnotationLink;
+import omero.model.PlateAnnotationLinkI;
+import omero.model.Point;
+import omero.model.PointI;
+import omero.model.Polygon;
+import omero.model.PolygonI;
+import omero.model.Polyline;
+import omero.model.PolylineI;
 import omero.model.Project;
+import omero.model.ProjectAnnotationLink;
+import omero.model.ProjectAnnotationLinkI;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
 import omero.model.ProjectI;
+import omero.model.Reagent;
+import omero.model.Rect;
+import omero.model.RectI;
+import omero.model.Roi;
+import omero.model.RoiI;
 import omero.model.Screen;
+import omero.model.ScreenAnnotationLink;
+import omero.model.ScreenAnnotationLinkI;
+import omero.model.ScreenPlateLink;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
-import omero.sys.EventContext;
+import omero.model.TermAnnotation;
+import omero.model.TermAnnotationI;
 import omero.sys.ParametersI;
-import omero.util.IceMapper;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+import pojos.BooleanAnnotationData;
 import pojos.DatasetData;
+import pojos.EllipseData;
 import pojos.ImageData;
+import pojos.LineData;
+import pojos.LongAnnotationData;
+import pojos.MaskData;
+import pojos.PlateData;
+import pojos.PointData;
+import pojos.PolygonData;
+import pojos.PolylineData;
 import pojos.ProjectData;
+import pojos.ROIData;
+import pojos.RectangleData;
 import pojos.ScreenData;
+import pojos.ShapeData;
 import pojos.TagAnnotationData;
+import pojos.TermAnnotationData;
+import pojos.TextualAnnotationData;
 
 /** 
  * Collections of tests for the <code>IUpdate</code> service.
@@ -86,42 +119,25 @@ import pojos.TagAnnotationData;
 public class UpdateServiceTest 
 	extends AbstractTest
 {
-
+	
     /**
      * Test to create an image and make sure the version is correct.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(groups = { "versions", "broken" })
+    @Test(groups = { "versions"})
     public void testVersionHandling() 
     	throws Exception
     {
-        Image img = simpleImage(0);
+        Image img = mmFactory.simpleImage(0);
         img.setName(rstring("version handling"));
         Image sent = (Image) iUpdate.saveAndReturnObject(img);
+        long version = sent.getDetails().getUpdateEvent().getId().getValue();
+        
         sent.setDescription(rstring("version handling update"));
-        RInt version = sent.getVersion();
-
-        // Version incremented
+        // Update event should be created
         Image sent2 = (Image) iUpdate.saveAndReturnObject(sent);
-        RInt version2 = sent2.getVersion();
-        assertTrue(version.getValue() != version2.getValue());
-
-        // Resetting; should get error
-        sent2.setVersion(version);
-        CommentAnnotation iann = new CommentAnnotationI();
-        iann.setTextValue( rstring(" version handling "));
-        try {
-            iUpdate.saveAndReturnObject(sent2);
-            fail("Need optmistic lock exception.");
-        } catch (OptimisticLockException e) {
-            // ok.
-        }
-
-        // Fixing the change;
-        // now it should work.
-        sent2.setVersion( version2 );
-        iUpdate.saveAndReturnObject(iann);
-
+        long version2 = sent2.getDetails().getUpdateEvent().getId().getValue();
+        assertTrue(version != version2);
     }
     
     /**
@@ -231,65 +247,53 @@ public class UpdateServiceTest
     }
     
     /**
-     * Test to make sure that the version does not increase after an update.
+     * Test to make sure that an update event is created for an object
+     * after updating an annotation linked to the image.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(groups = { "versions", "broken", "ticket:118" })
+    @Test(groups = { "versions", "ticket:118" })
     public void tesVersionNotIncreasingAfterUpdate()
             throws Exception 
     {
         CommentAnnotation ann = new CommentAnnotationI();
-        Image img = simpleImage(0);
-
+        Image img = mmFactory.simpleImage(0);
         img.setName(rstring("version_test"));
-        img.setAcquisitionDate( rtime(0) );
+        img = (Image) iUpdate.saveAndReturnObject(img);
+        
         ann.setTextValue(rstring("version_test"));
         img.linkAnnotation(ann);
 
         img = (Image) iUpdate.saveAndReturnObject(img);
         ann = (CommentAnnotation) img.linkedAnnotationList().get(0);
-
         assertNotNull(img.getId());
         assertNotNull(ann.getId());
-
-        int origVersion = img.getVersion().getValue();
-        // No longer exists int orig_ann_version = ann.getVersion().intValue();
-
+        long oldId = img.getDetails().getUpdateEvent().getId().getValue();
         ann.setTextValue(rstring("updated version_test"));
-
         ann = (CommentAnnotation) iUpdate.saveAndReturnObject(ann);
         img = (Image) iQuery.get(Image.class.getName(), img.getId().getValue()); 
 
-        // No longer existsint new_ann_version = ann.getVersion().intValue();
-        int newVersion = img.getVersion().getValue();
-
-        assertFalse(ann.getTextValue().getValue().contains("updated"));
-        assertTrue(origVersion == newVersion);
+        long newId = img.getDetails().getUpdateEvent().getId().getValue();
+        assertTrue(newId == oldId);
     }
     
     /**
-     * Test to make sure that the version number does not increase 
-     * when invoking the <code>SaveAndReturnObject</code> on an Object 
-     * not modified.
+     * Test to make sure that an update event is not created when
+     * when invoking the <code>SaveAndReturnObject</code> on an unmodified 
+     * Object.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(groups = { "versions", "broken", "ticket:118" })
+    @Test(groups = { "versions", "ticket:118" })
     public void testVersionNotIncreasingOnUnmodifiedObject() 
     	throws Exception 
     {
-        Image img = new ImageI();
-        img.setName(rstring("no vers. increment")) ;
-        img.setAcquisitionDate(rtime(0));
-        img = (Image) iUpdate.saveAndReturnObject(img);
-
+        Image img = (Image) iUpdate.saveAndReturnObject(
+        		mmFactory.simpleImage(0));
+        assertNotNull(img.getDetails().getUpdateEvent());
+        long id = img.getDetails().getUpdateEvent().getId().getValue();
         Image test = (Image) iUpdate.saveAndReturnObject(img);
-
-        fail("must move details correction to the merge event listener "
-                + "or version will always be incremented. ");
-
-        assertTrue(img.getVersion().equals(test.getVersion()));
+        assertNotNull(test.getDetails().getUpdateEvent());
+        assertTrue(id == test.getDetails().getUpdateEvent().getId().getValue());
     }
-    
 
     /**
      * Tests the creation of a project without datasets.
@@ -299,10 +303,8 @@ public class UpdateServiceTest
     public void testEmptyProject() 
     	throws Exception
     {
-    	Project data = new ProjectI();
-        data.setName(rstring("project1"));
-        data.setDescription(rstring("descriptionProject1"));
-        Project p = (Project) iUpdate.saveAndReturnObject(data);
+        Project p = (Project) iUpdate.saveAndReturnObject(
+        		mmFactory.simpleProjectData().asIObject());
         assertNotNull(p);
         ProjectData pd = new ProjectData(p);
     	assertTrue(p.getId().getValue() > 0);
@@ -319,11 +321,8 @@ public class UpdateServiceTest
     public void testEmptyDataset() 
     	throws Exception
     {
-    	DatasetData data = new DatasetData();
-        data.setName("dataset1");
-        data.setDescription("descriptionDataset1");
-        Dataset p = (Dataset) 
-        	factory.getUpdateService().saveAndReturnObject(data.asIObject());
+        Dataset p = (Dataset) iUpdate.saveAndReturnObject(
+        		mmFactory.simpleDatasetData().asIObject());
         assertNotNull(p);
         DatasetData d = new DatasetData(p);
     	assertTrue(p.getId().getValue() > 0);
@@ -340,12 +339,7 @@ public class UpdateServiceTest
     public void testEmptyImage() 
     	throws Exception
     {
-    	Image data = new ImageI();
-        data.setName(rstring("image1"));
-        data.setDescription(rstring("descriptionImage1"));
-        data.setAcquisitionDate(rtime(0));
-        Image p = (Image) 
-        	factory.getUpdateService().saveAndReturnObject(data);
+        Image p = (Image) iUpdate.saveAndReturnObject(mmFactory.simpleImage(0));
         ImageData img = new ImageData(p);
     	assertNotNull(p);
     	assertTrue(p.getId().getValue() > 0);
@@ -355,7 +349,37 @@ public class UpdateServiceTest
     }
     
     /**
-     * Tests the creation of a screen
+     * Tests the creation of an image with a set of pixels.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testCreateImageWithPixels()
+    	throws Exception 
+    {
+    	Image img = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleImage(0));
+    	assertNotNull(img);
+    	Pixels pixels = mmFactory.createPixels();
+    	img.addPixels(pixels);
+    	img = (Image) iUpdate.saveAndReturnObject(img);
+    	
+    	ParametersI param = new ParametersI();
+    	param.addId(img.getId().getValue());
+
+    	StringBuilder sb = new StringBuilder();
+    	sb.append("select i from Image i ");
+    	sb.append("left outer join fetch i.pixels as pix ");
+        sb.append("left outer join fetch pix.pixelsType as pt ");
+    	sb.append("where i.id = :id");
+    	img = (Image) iQuery.findByQuery(sb.toString(), param);
+    	assertNotNull(img);
+    	//Make sure we have a pixels set.
+    	pixels = img.getPixels(0);
+    	assertNotNull(pixels);
+    }
+    
+    /**
+     * Tests the creation of a screen.
      * 
      * @throws Exception Thrown if an error occurred.
      */
@@ -363,17 +387,67 @@ public class UpdateServiceTest
     public void testEmptyScreen() 
     	throws Exception
     {
-    	ScreenData data = new ScreenData();
-        data.setName("screen1");
-        data.setDescription("screen1");
         Screen p = (Screen) 
-        	factory.getUpdateService().saveAndReturnObject(data.asIObject());
-        data = new ScreenData(p);
+        	factory.getUpdateService().saveAndReturnObject(
+        			mmFactory.simpleScreenData().asIObject());
+        ScreenData data = new ScreenData(p);
     	assertNotNull(p);
     	assertTrue(p.getId().getValue() > 0);
     	assertTrue(p.getId().getValue() == data.getId());
     	assertTrue(p.getName().getValue() == data.getName());
     	assertTrue(p.getDescription().getValue() == data.getDescription());
+    }
+    
+    /**
+     * Tests the creation of a screen.
+     * 
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testEmptyPlate() 
+    	throws Exception
+    {
+        Plate p = (Plate) 
+        	factory.getUpdateService().saveAndReturnObject(
+        			mmFactory.simplePlateData().asIObject());
+        PlateData data = new PlateData(p);
+    	assertNotNull(p);
+    	assertTrue(p.getId().getValue() > 0);
+    	assertTrue(p.getId().getValue() == data.getId());
+    	assertTrue(p.getName().getValue() == data.getName());
+    	assertTrue(p.getDescription().getValue() == data.getDescription());
+    }
+    
+    /**
+     * Tests the creation of a plate with wells, wells sample and 
+     * plate acquisition.
+     * 
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testPopulatedPlate()
+		throws Exception
+    {
+    	Plate p = mmFactory.createPlate(1, 1, 1, 1, false);
+    	p = (Plate) iUpdate.saveAndReturnObject(p);
+    	assertNotNull(p);
+    	assertNotNull(p.getName().getValue());
+    	assertNotNull(p.getStatus().getValue());
+    	assertNotNull(p.getDescription().getValue());
+    	assertNotNull(p.getExternalIdentifier().getValue());
+    	String sql = "select l from PlateAcquisition as l ";
+    	sql += "join fetch l.plate as p ";
+    	sql += "where p.id = :id";
+    	ParametersI param = new ParametersI();
+    	param.addId(p.getId());
+    	assertNotNull(iQuery.findByQuery(sql, param));
+    	
+    	p = mmFactory.createPlate(1, 1, 1, 0, false);
+    	p = (Plate) iUpdate.saveAndReturnObject(p);
+    	assertNotNull(p);
+    	p = mmFactory.createPlate(1, 1, 1, 1, true);
+    	p = (Plate) iUpdate.saveAndReturnObject(p);
+    	assertNotNull(p);
     }
     
     /**
@@ -504,11 +578,12 @@ public class UpdateServiceTest
      * Test to unlink projects and datasets from just one side.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(groups = { "broken", "ticket:541" })
+    @Test(groups = { "ticket:541" })
     public void testUnlinkProjectAndDatasetFromJustOneSide() 
     	throws Exception 
     {
     	/*
+    	 *broken
         Image img = saveImage(true);
         DatasetImageLink link = img.copyDatasetLinks().get(0);
         img.removeDatasetImageLinkFromBoth(link, false);
@@ -522,14 +597,13 @@ public class UpdateServiceTest
         assertNull(test);
         */
     }
-    
 
     /**
      * Test to unlink datasets and images.
      * 
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(groups = { "broken", "ticket:541" })
+    @Test(groups = { "ticket:541" })
     public void testUnlinkDatasetAndImage() 
     	throws Exception
     {
@@ -586,7 +660,7 @@ public class UpdateServiceTest
      * Test to unlink datasets and images from just one side.
      * @throws Exception
      */
-    @Test(groups = { "broken", "ticket:541" })
+    @Test(groups = { "ticket:541" })
     public void testUnlinkDatasetAndImageFromJustOneSide() 
     	throws Exception 
     {
@@ -651,9 +725,222 @@ public class UpdateServiceTest
         assertTrue(orig_ids.containsAll(updt_ids));
         */
     }
-    
-    
+
     //Annotation section
+    
+    /**
+     * Links the passed annotation and test if correctly linked.
+     * @throws Exception Thrown if an error occurred.
+     */
+    private void linkAnnotationAndObjects(Annotation data)
+    	throws Exception 
+    {
+    	//Image
+        Image i = (Image) iUpdate.saveAndReturnObject(
+        		mmFactory.simpleImage(0));
+        ImageAnnotationLink l = new ImageAnnotationLinkI();
+        l.setParent((Image) i.proxy());
+        l.setChild((Annotation) data.proxy());
+        IObject o1 = iUpdate.saveAndReturnObject(l);
+        assertNotNull(o1);
+        l  = (ImageAnnotationLink) o1;
+        assertTrue(l.getChild().getId().getValue() == data.getId().getValue());
+        assertTrue(l.getParent().getId().getValue() == i.getId().getValue());
+        
+        //Project
+        Project p = (Project) iUpdate.saveAndReturnObject(
+        		mmFactory.simpleProjectData().asIObject());
+        ProjectAnnotationLink pl = new ProjectAnnotationLinkI();
+        pl.setParent((Project) p.proxy());
+        pl.setChild((Annotation) data.proxy());
+        o1 = iUpdate.saveAndReturnObject(pl);
+        assertNotNull(o1);
+        pl  = (ProjectAnnotationLink) o1;
+        assertTrue(pl.getChild().getId().getValue() == data.getId().getValue());
+        assertTrue(pl.getParent().getId().getValue() == p.getId().getValue());
+        
+        //Dataset
+        Dataset d = (Dataset) iUpdate.saveAndReturnObject(
+        		mmFactory.simpleDatasetData().asIObject());
+        DatasetAnnotationLink dl = new DatasetAnnotationLinkI();
+        dl.setParent((Dataset) d.proxy());
+        dl.setChild((Annotation) data.proxy());
+        o1 = iUpdate.saveAndReturnObject(dl);
+        assertNotNull(o1);
+        dl  = (DatasetAnnotationLink) o1;
+        assertTrue(dl.getChild().getId().getValue() == data.getId().getValue());
+        assertTrue(dl.getParent().getId().getValue() == d.getId().getValue());
+        
+        //Screen
+        Screen s = (Screen) iUpdate.saveAndReturnObject(
+        		mmFactory.simpleScreenData().asIObject());
+        ScreenAnnotationLink sl = new ScreenAnnotationLinkI();
+        sl.setParent((Screen) s.proxy());
+        sl.setChild((Annotation) data.proxy());
+        o1 = iUpdate.saveAndReturnObject(sl);
+        assertNotNull(o1);
+        sl  = (ScreenAnnotationLink) o1;
+        assertTrue(sl.getChild().getId().getValue() == data.getId().getValue());
+        assertTrue(sl.getParent().getId().getValue() == s.getId().getValue());
+        
+        //Plate
+        Plate pp = (Plate) iUpdate.saveAndReturnObject(
+        		mmFactory.simplePlateData().asIObject());
+        PlateAnnotationLink ppl = new PlateAnnotationLinkI();
+        ppl.setParent((Plate) pp.proxy());
+        ppl.setChild((Annotation) data.proxy());
+        o1 = iUpdate.saveAndReturnObject(ppl);
+        assertNotNull(o1);
+        ppl  = (PlateAnnotationLink) o1;
+        assertTrue(ppl.getChild().getId().getValue() == data.getId().getValue());
+        assertTrue(ppl.getParent().getId().getValue() == pp.getId().getValue());
+    }
+    
+    /**
+     * Tests to create a comment annotation and link it to various objects.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testCreateCommentAnnotation()
+    	throws Exception 
+    {
+    	CommentAnnotation annotation = new CommentAnnotationI();
+    	annotation.setTextValue(omero.rtypes.rstring("comment"));
+    	annotation = (CommentAnnotation) 
+    	iUpdate.saveAndReturnObject(annotation);
+    	assertNotNull(annotation);
+    	linkAnnotationAndObjects(annotation);
+    	TextualAnnotationData data = new TextualAnnotationData(annotation);
+    	assertNotNull(data);
+    	assertTrue(data.getText().equals(annotation.getTextValue().getValue()));
+    }
+    
+    /**
+     * Tests to create a tag annotation and link it to various objects.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testCreateTagAnnotation()
+    	throws Exception 
+    {
+    	TagAnnotation annotation = new TagAnnotationI();
+    	annotation.setTextValue(omero.rtypes.rstring("tag"));
+    	annotation = (TagAnnotation) 
+    		iUpdate.saveAndReturnObject(annotation);
+    	assertNotNull(annotation);
+    	linkAnnotationAndObjects(annotation);
+    	TagAnnotationData data = new TagAnnotationData(annotation);
+    	assertNotNull(data);
+    	assertTrue(data.getTagValue().equals(
+    			annotation.getTextValue().getValue()));
+    }
+    
+    /**
+     * Tests to create a boolean annotation and link it to various objects.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testCreateBooleanAnnotation()
+    	throws Exception 
+    {
+    	BooleanAnnotation annotation = new BooleanAnnotationI();
+    	annotation.setBoolValue(omero.rtypes.rbool(true));
+    	annotation = (BooleanAnnotation) 
+    		iUpdate.saveAndReturnObject(annotation);
+    	assertNotNull(annotation);
+    	linkAnnotationAndObjects(annotation);
+    	BooleanAnnotationData data = new BooleanAnnotationData(annotation);
+    	assertNotNull(data);
+    }
+    
+    /**
+     * Tests to create a long annotation and link it to various objects.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testCreateLongAnnotation()
+    	throws Exception 
+    {
+    	LongAnnotation annotation = new LongAnnotationI();
+    	annotation.setLongValue(omero.rtypes.rlong(1L));
+    	annotation = (LongAnnotation) 
+    		iUpdate.saveAndReturnObject(annotation);
+    	assertNotNull(annotation);
+    	linkAnnotationAndObjects(annotation);
+    	LongAnnotationData data = new LongAnnotationData(annotation);
+    	assertNotNull(data);
+    	assertTrue(data.getDataValue() == annotation.getLongValue().getValue());
+    }
+    
+    /**
+     * Tests to create a file annotation and link it to various objects.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testCreateFileAnnotation()
+    	throws Exception 
+    {
+    	OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
+    			mmFactory.createOriginalFile());
+		assertNotNull(of);
+		FileAnnotation fa = new FileAnnotationI();
+		fa.setFile(of);
+		FileAnnotation data = (FileAnnotation) iUpdate.saveAndReturnObject(fa);
+		assertNotNull(data);
+    	linkAnnotationAndObjects(data);
+    }
+    
+    /**
+     * Tests to create a term and link it to various objects.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testCreateTermAnnotation()
+    	throws Exception 
+    {
+		TermAnnotation term = new TermAnnotationI();
+		term.setTermValue(omero.rtypes.rstring("term"));
+		term = (TermAnnotation) iUpdate.saveAndReturnObject(term);
+		assertNotNull(term);
+    	linkAnnotationAndObjects(term);
+    	TermAnnotationData data = new TermAnnotationData(term);
+    	assertNotNull(data);
+    	assertTrue(data.getTerm().equals(term.getTermValue().getValue()));
+    }
+    
+    /**
+     * Tests to unlink of an annotation. Creates only one type of annotation.
+     * This method uses the <code>deleteObject</code> method.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testRemoveAnnotation()
+    	throws Exception 
+    {
+    	LongAnnotationI annotation = new LongAnnotationI();
+    	annotation.setLongValue(omero.rtypes.rlong(1L));
+    	LongAnnotation data = (LongAnnotation) 
+    		iUpdate.saveAndReturnObject(annotation);
+    	assertNotNull(data);
+    	//Image
+        Image i = (Image) iUpdate.saveAndReturnObject(mmFactory.simpleImage(0));
+        ImageAnnotationLink l = new ImageAnnotationLinkI();
+        l.setParent((Image) i.proxy());
+        l.setChild((Annotation) data.proxy());
+        l = (ImageAnnotationLink) iUpdate.saveAndReturnObject(l);
+        assertNotNull(l);
+        long id = l.getId().getValue();
+        //annotation and image are linked. Remove the link.
+        iUpdate.deleteObject(l);
+        //now check that the image is no longer linked to the annotation
+        String sql = "select link from ImageAnnotationLink as link";
+		sql += " where link.id = :id";
+		ParametersI p = new ParametersI();
+		p.addId(id);
+		IObject object = iQuery.findByQuery(sql, p);
+		assertNull(object);
+    }
+    
     /**
      * Tests to update an annotation.
      * @throws Exception Thrown if an error occurred.
@@ -688,11 +975,11 @@ public class UpdateServiceTest
     public void testUpdateSameTagAnnotationUsedByTwoUsers() 
     	throws Exception
     {
-
         String groupName = newUserAndGroup("rwrw--").groupName;
 
         //create an image.
-        Image image = (Image) iUpdate.saveAndReturnObject(simpleImage(0));
+        Image image = (Image) iUpdate.saveAndReturnObject(
+        		mmFactory.simpleImage(0));
 
         //create the tag.
         TagAnnotationI tag = new TagAnnotationI();
@@ -724,7 +1011,6 @@ public class UpdateServiceTest
             fixture.e.getId().getValue());
     }
     
-    
     /**
      * Tests the creation of tag annotation, linked it to an image by a
      * user and link it to the same image by a different user.
@@ -752,66 +1038,89 @@ public class UpdateServiceTest
     	link.setParent(tagSetReturned);
     	IObject l = iUpdate.saveAndReturnObject(link); //save the link.
     	assertNotNull(l);
-    	
-    	 ParametersI param = new ParametersI();
-         param.addId(l.getId());
-        
-         StringBuilder sb = new StringBuilder();
-         sb.append("select l from AnnotationAnnotationLink l ");
-         sb.append("left outer join fetch l.child c ");
-         sb.append("left outer join fetch l.parent p ");
-         sb.append("where l.id = :id");
-         AnnotationAnnotationLinkI lReturned = (AnnotationAnnotationLinkI) 
-         iQuery.findByQuery(sb.toString(), param);
-         assertNotNull(lReturned.getChild());
-         assertNotNull(lReturned.getParent());
-         assertTrue(lReturned.getChild().getId().getValue() 
-        		 == tagReturned.getId().getValue());
-         assertTrue(lReturned.getParent().getId().getValue() 
-        		 == tagSetReturned.getId().getValue());
+
+    	ParametersI param = new ParametersI();
+    	param.addId(l.getId());
+
+    	StringBuilder sb = new StringBuilder();
+    	sb.append("select l from AnnotationAnnotationLink l ");
+    	sb.append("left outer join fetch l.child c ");
+    	sb.append("left outer join fetch l.parent p ");
+    	sb.append("where l.id = :id");
+    	AnnotationAnnotationLinkI lReturned = (AnnotationAnnotationLinkI) 
+    	iQuery.findByQuery(sb.toString(), param);
+    	assertNotNull(lReturned.getChild());
+    	assertNotNull(lReturned.getParent());
+    	assertTrue(lReturned.getChild().getId().getValue() 
+    			== tagReturned.getId().getValue());
+    	assertTrue(lReturned.getParent().getId().getValue() 
+    			== tagSetReturned.getId().getValue());
     }
 
     //
     // The following are duplicated in ome.server.itests.update.UpdateTest
     //
     
+    /**
+     * Test the creation and handling of channels.
+     * @throws Exception Thrown if an error occurred.
+     */
     @Test(groups = "ticket:2547")
-    public void testChannelMoveWithFullArrayGoesToEnd() throws Exception {
-        Pixels p = createPixels();
-        Image i = p.getImage();
+    public void testChannelMoveWithFullArrayGoesToEnd() 
+    	throws Exception
+    {
+    	Image i = mmFactory.createImage(ModelMockFactory.SIZE_X, 
+    			ModelMockFactory.SIZE_Y, ModelMockFactory.SIZE_Z, 
+    			ModelMockFactory.SIZE_T, 
+    			ModelMockFactory.DEFAULT_CHANNELS_NUMBER);
         i = (Image) iUpdate.saveAndReturnObject(i);
-        p = i.getPrimaryPixels();
+        Pixels p = i.getPrimaryPixels();
 
         Set<Long> ids = new HashSet<Long>();
-        assertEquals(3, p.sizeOfChannels());
+        assertEquals(ModelMockFactory.DEFAULT_CHANNELS_NUMBER, 
+        		p.sizeOfChannels());
         for (Channel ch : p.copyChannels()) {
             assertNotNull(ch);
             ids.add(ch.getId().getValue());
         }
 
         // Now add another channel
-        Channel extra = createChannel(); // Copies dimension orders, etc.
+        Channel extra = mmFactory.createChannel(0); // Copies dimension orders, etc.
         p.addChannel(extra);
 
         i = (Image) iUpdate.saveAndReturnObject(i);
         p = i.getPrimaryPixels();
 
-        assertEquals(4, p.sizeOfChannels());
-        assertFalse(ids.contains(p.getChannel(3).getId().getValue()));
-
+        assertEquals(ModelMockFactory.DEFAULT_CHANNELS_NUMBER+1, 
+        		p.sizeOfChannels());
+        assertFalse(ids.contains(p.getChannel(
+        		ModelMockFactory.DEFAULT_CHANNELS_NUMBER).getId().getValue()));
     }
 
+    /**
+     * Test the creation and handling of channels.
+     * @throws Exception Thrown if an error occurred.
+     */
     @Test(groups = "ticket:2547")
-    public void testChannelMoveWithSpaceFillsSpace() throws Exception {
-        Pixels p = createPixels();
-        p.setChannel(1, null);
-        Image i = p.getImage();
+    public void testChannelMoveWithSpaceFillsSpace() 
+    	throws Exception
+    {
+    	Image i = mmFactory.createImage(ModelMockFactory.SIZE_X, 
+    			ModelMockFactory.SIZE_Y, ModelMockFactory.SIZE_Z, 
+    			ModelMockFactory.SIZE_T, 
+    			ModelMockFactory.DEFAULT_CHANNELS_NUMBER);
         i = (Image) iUpdate.saveAndReturnObject(i);
-        p = i.getPrimaryPixels();
+        
+        Pixels p = i.getPrimaryPixels();
+        p.setChannel(1, null);
+        p = (Pixels) iUpdate.saveAndReturnObject(p);
+        
 
         Set<Long> ids = new HashSet<Long>();
-        assertEquals(3, p.sizeOfChannels());
-        assertNotNull(p.getChannel(0));
+        Channel old = p.getChannel(0);
+        assertEquals(ModelMockFactory.DEFAULT_CHANNELS_NUMBER, 
+        		p.sizeOfChannels());
+        assertNotNull(old);
         ids.add(p.getChannel(0).getId().getValue());
 
         // Middle should be empty
@@ -821,28 +1130,43 @@ public class UpdateServiceTest
         ids.add(p.getChannel(2).getId().getValue());
 
         // Now add a channel to the front
-        Channel extra = createChannel();
-        Channel old = p.getChannel(0);
-        p.setChannel(0, extra);
+        
+        //extra = (Channel) iUpdate.saveAndReturnObject(extra);
+        //p.setChannel(0, extra);
         p.setChannel(1, old);
+        
+        p = (Pixels) iUpdate.saveAndReturnObject(p);
+        Channel extra =  mmFactory.createChannel(0);
+        p.setChannel(0, extra);
+        
+        p = (Pixels) iUpdate.saveAndReturnObject(p);
 
-        i = (Image) iUpdate.saveAndReturnObject(i);
-        p = i.getPrimaryPixels();
-
-        assertEquals(3, p.sizeOfChannels());
+        assertEquals(ModelMockFactory.DEFAULT_CHANNELS_NUMBER, 
+        		p.sizeOfChannels());
         assertFalse(ids.contains(p.getChannel(0).getId().getValue()));
     }
 
+    /**
+     * Test the creation and handling of channels.
+     * @throws Exception Thrown if an error occurred.
+     */
     @Test(groups = "ticket:2547")
-    public void testChannelToSpaceChangesNothing() throws Exception {
-        Pixels p = createPixels();
-        p.setChannel(1, null);
-        Image i = p.getImage();
+    public void testChannelToSpaceChangesNothing() 
+    	throws Exception
+    {
+    	Image i = mmFactory.createImage(ModelMockFactory.SIZE_X, 
+    			ModelMockFactory.SIZE_Y, ModelMockFactory.SIZE_Z, 
+    			ModelMockFactory.SIZE_T, 
+    			ModelMockFactory.DEFAULT_CHANNELS_NUMBER);
         i = (Image) iUpdate.saveAndReturnObject(i);
-        p = i.getPrimaryPixels();
+        
+        Pixels p = i.getPrimaryPixels();
+        p.setChannel(1, null);
+        p = (Pixels) iUpdate.saveAndReturnObject(p);
 
         Set<Long> ids = new HashSet<Long>();
-        assertEquals(3, p.sizeOfChannels());
+        assertEquals(ModelMockFactory.DEFAULT_CHANNELS_NUMBER, 
+        		p.sizeOfChannels());
         assertNotNull(p.getChannel(0));
         ids.add(p.getChannel(0).getId().getValue());
 
@@ -853,14 +1177,690 @@ public class UpdateServiceTest
         ids.add(p.getChannel(2).getId().getValue());
 
         // Now add a channel to the space
-        Channel extra = createChannel();
+        Channel extra =  mmFactory.createChannel(0);
         p.setChannel(1, extra);
 
-        i = (Image) iUpdate.saveAndReturnObject(i);
-        p = i.getPrimaryPixels();
+        p = (Pixels) iUpdate.saveAndReturnObject(p);
 
-        assertEquals(3, p.sizeOfChannels());
+        assertEquals(ModelMockFactory.DEFAULT_CHANNELS_NUMBER, 
+        		p.sizeOfChannels());
         assertFalse(ids.contains(p.getChannel(1).getId().getValue()));
     }
+    
+    /**
+     * Tests the creation of plane information objects.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(groups = { "ticket:168", "ticket:767" })
+    public void testPlaneInfoSetPixelsSavePlaneInfo() 
+    	throws Exception
+    {
+    	Image image = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.createImage());
+        Pixels pixels = image.getPrimaryPixels();
+        pixels.clearPlaneInfo();
+        PlaneInfo planeInfo = mmFactory.createPlaneInfo();
+        planeInfo.setPixels(pixels);
+        planeInfo = (PlaneInfo) iUpdate.saveAndReturnObject(planeInfo);
+        ParametersI param = new ParametersI();
+    	param.addId(planeInfo.getId());
+        Pixels test = (Pixels) iQuery.findByQuery(
+                "select pi.pixels from PlaneInfo pi where pi.id = :id",
+                param);
+        assertNotNull(test);
+    }
 
+    /**
+     * Tests the creation of plane information objects. This time the plane info
+     * object is directly added to the pixels set. The plane info should be
+     * saved.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test(groups = "ticket:168")
+    public void testPixelsAddToPlaneInfoSavePixels() 
+    	throws Exception
+    {
+    	Image image = mmFactory.createImage();
+    	image = (Image) iUpdate.saveAndReturnObject(image);
+        Pixels pixels = image.getPrimaryPixels();
+    	pixels.clearPlaneInfo();
+    	PlaneInfo planeInfo = mmFactory.createPlaneInfo();
+    	pixels.addPlaneInfo(planeInfo);
+    	pixels = (Pixels) iUpdate.saveAndReturnObject(pixels);
+    	ParametersI param = new ParametersI();
+    	param.addId(pixels.getId());
+    	List<IObject> test = (List<IObject>) iQuery.findAllByQuery(
+    			"select pi from PlaneInfo pi where pi.pixels.id = :id",
+    			param);
+    	assertTrue(test.size() > 0);
+    }
+    
+    /**
+	 * Tests the creation of ROIs whose shapes are Ellipses and converts them 
+	 * into the corresponding <code>POJO</code> objects.
+	 * @throws Exception  Thrown if an error occurred.
+	 */
+    @Test
+    public void testCreateROIWithEllipse() 
+    	throws Exception
+    {
+    	ImageI image = (ImageI) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleImage(0));
+        RoiI roi = new RoiI();
+        roi.setImage(image);
+        RoiI serverROI = (RoiI) iUpdate.saveAndReturnObject(roi);
+        assertNotNull(serverROI);
+        double v = 10;
+        int z = 0;
+        int t = 0;
+        int c = 0;
+        EllipseI rect = new EllipseI();
+        rect.setCx(omero.rtypes.rdouble(v));
+        rect.setCy(omero.rtypes.rdouble(v));
+        rect.setRx(omero.rtypes.rdouble(v));
+        rect.setRy(omero.rtypes.rdouble(v));
+        rect.setTheZ(omero.rtypes.rint(z));
+        rect.setTheT(omero.rtypes.rint(t));
+        rect.setTheC(omero.rtypes.rint(c));
+        serverROI.addShape(rect);
+        
+        serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
+        
+        ROIData data = new ROIData(serverROI);
+        assertTrue(data.getId() == serverROI.getId().getValue());
+        assertTrue(data.getShapeCount() == 1);
+        
+        List<ShapeData> shapes = data.getShapes(z, t);
+        assertNotNull(shapes);
+        assertTrue(shapes.size() == 1);
+        EllipseData shape;
+        Iterator<ShapeData> i = shapes.iterator();
+        while (i.hasNext()) {
+        	shape = (EllipseData) i.next();
+        	assertTrue(shape.getT() == t);
+        	assertTrue(shape.getZ() == z);
+        	assertTrue(shape.getC() == c);
+        	assertTrue(shape.getX() == v);
+        	assertTrue(shape.getY() == v);
+        	assertTrue(shape.getRadiusX() == v);
+        	assertTrue(shape.getRadiusY() == v);
+		}
+    }
+    
+    /**
+	 * Tests the creation of ROIs whose shapes are Points and converts them 
+	 * into the corresponding <code>POJO</code> objects.
+	 * @throws Exception  Thrown if an error occurred.
+	 */
+    @Test
+    public void testCreateROIWithPoint() 
+    	throws Exception
+    {
+        Image image = (Image) iUpdate.saveAndReturnObject(
+        		mmFactory.simpleImage(0));
+        Roi roi = new RoiI();
+        roi.setImage(image);
+        Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
+        assertNotNull(serverROI);
+        double v = 10;
+        int z = 0;
+        int t = 0;
+        int c = 0;
+        Point rect = new PointI();
+        rect.setCx(omero.rtypes.rdouble(v));
+        rect.setCy(omero.rtypes.rdouble(v));
+        rect.setTheZ(omero.rtypes.rint(z));
+        rect.setTheT(omero.rtypes.rint(t));
+        rect.setTheC(omero.rtypes.rint(c));
+        serverROI.addShape(rect);
+        
+        serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
+        
+        ROIData data = new ROIData(serverROI);
+        assertTrue(data.getId() == serverROI.getId().getValue());
+        assertTrue(data.getShapeCount() == 1);
+        
+        List<ShapeData> shapes = data.getShapes(z, t);
+        assertNotNull(shapes);
+        assertTrue(shapes.size() == 1);
+        PointData shape;
+        Iterator<ShapeData> i = shapes.iterator();
+        while (i.hasNext()) {
+        	shape = (PointData) i.next();
+        	assertTrue(shape.getT() == t);
+        	assertTrue(shape.getZ() == z);
+        	assertTrue(shape.getC() == c);
+        	assertTrue(shape.getX() == v);
+        	assertTrue(shape.getY() == v);
+		}
+    }
+    
+    /**
+	 * Tests the creation of ROIs whose shapes are Points and converts them 
+	 * into the corresponding <code>POJO</code> objects.
+	 * @throws Exception  Thrown if an error occurred.
+	 */
+    @Test
+    public void testCreateROIWithRectangle() 
+    	throws Exception
+    {
+        Image image = (Image) iUpdate.saveAndReturnObject(
+        		mmFactory.simpleImage(0));
+        Roi roi = new RoiI();
+        roi.setImage(image);
+        Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
+        assertNotNull(serverROI);
+        double v = 10;
+        int z = 0;
+        int t = 0;
+        int c = 0;
+        Rect rect = new RectI();
+        rect.setX(omero.rtypes.rdouble(v));
+        rect.setY(omero.rtypes.rdouble(v));
+        rect.setWidth(omero.rtypes.rdouble(v));
+        rect.setHeight(omero.rtypes.rdouble(v));
+        rect.setTheZ(omero.rtypes.rint(z));
+        rect.setTheT(omero.rtypes.rint(t));
+        rect.setTheC(omero.rtypes.rint(c));
+        serverROI.addShape(rect);
+        
+        serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
+        
+        ROIData data = new ROIData(serverROI);
+        assertTrue(data.getId() == serverROI.getId().getValue());
+        assertTrue(data.getShapeCount() == 1);
+        
+        List<ShapeData> shapes = data.getShapes(z, t);
+        assertNotNull(shapes);
+        assertTrue(shapes.size() == 1);
+        RectangleData shape;
+        Iterator<ShapeData> i = shapes.iterator();
+        while (i.hasNext()) {
+        	shape = (RectangleData) i.next();
+        	assertTrue(shape.getT() == t);
+        	assertTrue(shape.getZ() == z);
+        	assertTrue(shape.getC() == c);
+        	assertTrue(shape.getX() == v);
+        	assertTrue(shape.getY() == v);
+        	assertTrue(shape.getWidth() == v);
+        	assertTrue(shape.getHeight() == v);
+		}
+    }
+    
+    /**
+     * Tests the creation of an ROI not linked to an image.
+     * @throws Exception  Thrown if an error occurred.
+     */
+    @Test
+    public void testCreateROIWithoutImage()
+    	throws Exception
+    {
+    	/*
+    	 Roi roi = new RoiI();
+         roi.setDescription(omero.rtypes.rstring("roi w/o image"));
+         Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
+    	 */
+    }
+    
+    /**
+	 * Tests the creation of ROIs whose shapes are Polygons and converts them 
+	 * into the corresponding <code>POJO</code> objects.
+	 * @throws Exception  Thrown if an error occurred.
+	 */
+    @Test
+    public void testCreateROIWithPolygon() 
+    	throws Exception
+    {
+       	Image image = (Image) iUpdate.saveAndReturnObject(
+       			mmFactory.simpleImage(0));
+        Roi roi = new RoiI();
+        roi.setImage(image);
+        Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
+        assertNotNull(serverROI);
+        double v = 10;
+        double w = 11;
+        int z = 0;
+        int t = 0;
+        int c = 0;
+        String points = "points[10, 10] points1[10, 10] points2[10, 10]";
+        Polygon rect = new PolygonI();
+        rect.setPoints(omero.rtypes.rstring(points));
+        rect.setTheZ(omero.rtypes.rint(z));
+        rect.setTheT(omero.rtypes.rint(t));
+        rect.setTheC(omero.rtypes.rint(c));
+        serverROI.addShape(rect);
+        
+        serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
+        
+        ROIData data = new ROIData(serverROI);
+        assertTrue(data.getId() == serverROI.getId().getValue());
+        assertTrue(data.getShapeCount() == 1);
+        
+        List<ShapeData> shapes = data.getShapes(z, t);
+        assertNotNull(shapes);
+        assertTrue(shapes.size() == 1);
+        PolygonData shape;
+        Iterator<ShapeData> i = shapes.iterator();
+        while (i.hasNext()) {
+        	shape = (PolygonData) i.next();
+        	assertTrue(shape.getT() == t);
+        	assertTrue(shape.getZ() == z);
+        	assertTrue(shape.getC() == c);
+        	assertTrue(shape.getPoints().size() == 1);
+        	assertTrue(shape.getPoints1().size() == 1);
+        	assertTrue(shape.getPoints2().size() == 1);
+		}
+    }
+    
+    /**
+	 * Tests the creation of ROIs whose shapes are Polylines and converts them 
+	 * into the corresponding <code>POJO</code> objects.
+	 * @throws Exception  Thrown if an error occurred.
+	 */
+    @Test
+    public void testCreateROIWithPolyline() 
+    	throws Exception
+    {
+    	Image image = (Image) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleImage(0));
+        Roi roi = new RoiI();
+        roi.setImage(image);
+        Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
+        assertNotNull(serverROI);
+        double v = 10;
+        String points = "points[10, 10] points1[10, 10] points2[10, 10]";
+        int z = 0;
+        int t = 0;
+        int c = 0;
+        Polyline rect = new PolylineI();
+        rect.setPoints(omero.rtypes.rstring(points));
+        rect.setTheZ(omero.rtypes.rint(z));
+        rect.setTheT(omero.rtypes.rint(t));
+        rect.setTheC(omero.rtypes.rint(c));
+        serverROI.addShape(rect);
+        
+        serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
+        
+        ROIData data = new ROIData(serverROI);
+        assertTrue(data.getId() == serverROI.getId().getValue());
+        assertTrue(data.getShapeCount() == 1);
+        
+        List<ShapeData> shapes = data.getShapes(z, t);
+        assertNotNull(shapes);
+        assertTrue(shapes.size() == 1);
+        PolylineData shape;
+        Iterator<ShapeData> i = shapes.iterator();
+        while (i.hasNext()) {
+        	shape = (PolylineData) i.next();
+        	assertTrue(shape.getT() == t);
+        	assertTrue(shape.getZ() == z);
+        	assertTrue(shape.getC() == c);
+        	assertTrue(shape.getPoints().size() == 1);
+        	assertTrue(shape.getPoints1().size() == 1);
+        	assertTrue(shape.getPoints2().size() == 1);
+		}
+    }
+    
+    /**
+	 * Tests the creation of ROIs whose shapes are Lines and converts them 
+	 * into the corresponding <code>POJO</code> objects.
+	 * @throws Exception  Thrown if an error occurred.
+	 */
+    @Test
+    public void testCreateROIWithLine() 
+    	throws Exception
+    {
+        Image image = (Image) iUpdate.saveAndReturnObject(
+        		mmFactory.simpleImage(0));
+        Roi roi = new RoiI();
+        roi.setImage(image);
+        Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
+        assertNotNull(serverROI);
+        double v = 10;
+        double w = 11;
+        int z = 0;
+        int t = 0;
+        int c = 0;
+        Line rect = new LineI();
+        rect.setX1(omero.rtypes.rdouble(v));
+        rect.setY1(omero.rtypes.rdouble(v));
+        rect.setX2(omero.rtypes.rdouble(w));
+        rect.setY2(omero.rtypes.rdouble(w));
+        rect.setTheZ(omero.rtypes.rint(z));
+        rect.setTheT(omero.rtypes.rint(t));
+        rect.setTheC(omero.rtypes.rint(c));
+        serverROI.addShape(rect);
+        
+        serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
+        
+        ROIData data = new ROIData(serverROI);
+        assertTrue(data.getId() == serverROI.getId().getValue());
+        assertTrue(data.getShapeCount() == 1);
+        
+        List<ShapeData> shapes = data.getShapes(z, t);
+        assertNotNull(shapes);
+        assertTrue(shapes.size() == 1);
+        LineData shape;
+        Iterator<ShapeData> i = shapes.iterator();
+        while (i.hasNext()) {
+        	shape = (LineData) i.next();
+        	assertTrue(shape.getT() == t);
+        	assertTrue(shape.getZ() == z);
+        	assertTrue(shape.getC() == c);
+        	assertTrue(shape.getX1() == v);
+        	assertTrue(shape.getY1() == v);
+        	assertTrue(shape.getX2() == w);
+        	assertTrue(shape.getY2() == w);
+		}
+    }
+    
+    /**
+	 * Tests the creation of ROIs whose shapes are Masks and converts them 
+	 * into the corresponding <code>POJO</code> objects.
+	 * @throws Exception  Thrown if an error occurred.
+	 */
+    @Test
+    public void testCreateROIWithMask() 
+    	throws Exception
+    {
+        Image image = (Image) iUpdate.saveAndReturnObject(
+        		mmFactory.simpleImage(0));
+        Roi roi = new RoiI();
+        roi.setImage(image);
+        Roi serverROI = (Roi) iUpdate.saveAndReturnObject(roi);
+        assertNotNull(serverROI);
+        double v = 10;
+        int z = 0;
+        int t = 0;
+        int c = 0;
+        Mask rect = new MaskI();
+        rect.setX(omero.rtypes.rdouble(v));
+        rect.setY(omero.rtypes.rdouble(v));
+        rect.setWidth(omero.rtypes.rdouble(v));
+        rect.setHeight(omero.rtypes.rdouble(v));
+        rect.setTheZ(omero.rtypes.rint(z));
+        rect.setTheT(omero.rtypes.rint(t));
+        rect.setTheC(omero.rtypes.rint(c));
+        serverROI.addShape(rect);
+        
+        serverROI = (RoiI) iUpdate.saveAndReturnObject(serverROI);
+        
+        ROIData data = new ROIData(serverROI);
+        assertTrue(data.getId() == serverROI.getId().getValue());
+        assertTrue(data.getShapeCount() == 1);
+        
+        List<ShapeData> shapes = data.getShapes(z, t);
+        assertNotNull(shapes);
+        assertTrue(shapes.size() == 1);
+        MaskData shape;
+        Iterator<ShapeData> i = shapes.iterator();
+        while (i.hasNext()) {
+        	shape = (MaskData) i.next();
+        	assertTrue(shape.getT() == t);
+        	assertTrue(shape.getZ() == z);
+        	assertTrue(shape.getC() == c);
+        	assertTrue(shape.getX() == v);
+        	assertTrue(shape.getY() == v);
+        	assertTrue(shape.getWidth() == v);
+        	assertTrue(shape.getHeight() == v);
+		}
+    }
+    
+    /**
+	 * Tests the creation of an instrument using the <code>Add</code> methods
+	 * associated to an instrument.
+	 * @throws Exception  Thrown if an error occurred.
+	 */
+    @Test
+    public void testCreateInstrumentUsingAdd() 
+    	throws Exception
+    {
+    	Instrument instrument;
+    	ParametersI param;
+    	String sql;
+    	IObject test;
+    	String value;
+    	for (int i = 0; i < ModelMockFactory.LIGHT_SOURCES.length; i++) {
+    		value = ModelMockFactory.LIGHT_SOURCES[i];
+    		instrument = mmFactory.createInstrument(value);
+        	instrument = (Instrument) iUpdate.saveAndReturnObject(instrument);
+        	assertNotNull(instrument);
+    		param = new ParametersI();
+        	param.addLong("iid", instrument.getId().getValue());
+        	sql = "select d from Detector as d where d.instrument.id = :iid";
+            test = iQuery.findByQuery(sql, param);
+            assertNotNull(test);
+            sql = "select d from Dichroic as d where d.instrument.id = :iid";
+            test = iQuery.findByQuery(sql, param);
+            assertNotNull(test);
+            sql = "select d from Filter as d where d.instrument.id = :iid";
+            test = iQuery.findByQuery(sql, param);
+            assertNotNull(test);
+            sql = "select d from Objective as d where d.instrument.id = :iid";
+            test = iQuery.findByQuery(sql, param);
+            assertNotNull(test);
+            sql = "select d from LightSource as d where d.instrument.id = :iid";
+            test = iQuery.findByQuery(sql, param);
+            assertNotNull(test);
+            param = new ParametersI();
+        	param.addLong("iid", test.getId().getValue());
+            if (ModelMockFactory.LASER.equals(value)) {
+            	sql = "select d from Laser as d where d.id = :iid";
+            	test = iQuery.findByQuery(sql, param);
+            	assertNotNull(test);
+            } else if (ModelMockFactory.FILAMENT.equals(value)) {
+            	sql = "select d from Filament as d where d.id = :iid";
+            	test = iQuery.findByQuery(sql, param);
+            	assertNotNull(test);
+            } else if (ModelMockFactory.ARC.equals(value)) {
+            	sql = "select d from Arc as d where d.id = :iid";
+            	test = iQuery.findByQuery(sql, param);
+            	assertNotNull(test);
+            } else if (ModelMockFactory.LIGHT_EMITTING_DIODE.equals(value)) {
+            	sql = "select d from LightEmittingDiode as d where d.id = :iid";
+            	test = iQuery.findByQuery(sql, param);
+            	assertNotNull(test);
+            }
+		}
+    }
+    
+    /**
+	 * Tests the creation of an instrument using the <code>setInstrument</code> 
+	 * method on the entities composing the instrument.
+	 * @throws Exception  Thrown if an error occurred.
+	 */
+    @Test
+    public void testCreateInstrumentUsingSet() 
+    	throws Exception
+    {
+    	Instrument instrument = (Instrument) iUpdate.saveAndReturnObject(
+    			mmFactory.createInstrument());
+    	assertNotNull(instrument);
+    	
+    	Detector d = mmFactory.createDetector();
+    	d.setInstrument((Instrument) instrument.proxy());
+    	d = (Detector) iUpdate.saveAndReturnObject(d);
+    	assertNotNull(d);
+    	
+    	Filter f = mmFactory.createFilter(500, 560);
+    	f.setInstrument((Instrument) instrument.proxy());
+    	f = (Filter) iUpdate.saveAndReturnObject(f);
+    	assertNotNull(f);
+    	
+    	Dichroic di = mmFactory.createDichroic();
+    	di.setInstrument((Instrument) instrument.proxy());
+    	di = (Dichroic) iUpdate.saveAndReturnObject(di);
+    	assertNotNull(di);
+    	
+    	Objective o = mmFactory.createObjective();
+    	o.setInstrument((Instrument) instrument.proxy());
+    	o = (Objective) iUpdate.saveAndReturnObject(o);
+    	assertNotNull(o);
+    	
+    	Laser l = mmFactory.createLaser();
+    	l.setInstrument((Instrument) instrument.proxy());
+    	l = (Laser) iUpdate.saveAndReturnObject(l);
+    	assertNotNull(l);
+    	
+    	ParametersI param = new ParametersI();
+    	param.addLong("iid", instrument.getId().getValue());
+    	//Now check that we have a detector.
+    	String sql = "select d from Detector as d where d.instrument.id = :iid";
+        IObject test = iQuery.findByQuery(sql, param);
+        assertNotNull(test);
+        assertNotNull(test.getId().getValue() == d.getId().getValue());
+        sql = "select d from Dichroic as d where d.instrument.id = :iid";
+        test = iQuery.findByQuery(sql, param);
+        assertNotNull(test);
+        assertNotNull(test.getId().getValue() == di.getId().getValue());
+        sql = "select d from Filter as d where d.instrument.id = :iid";
+        test = iQuery.findByQuery(sql, param);
+        assertNotNull(test);
+        assertNotNull(test.getId().getValue() == f.getId().getValue());
+        sql = "select d from Objective as d where d.instrument.id = :iid";
+        test = iQuery.findByQuery(sql, param);
+        assertNotNull(test);
+        assertNotNull(test.getId().getValue() == o.getId().getValue());
+        sql = "select d from LightSource as d where d.instrument.id = :iid";
+        test = iQuery.findByQuery(sql, param);
+        assertNotNull(test);
+    }
+    
+    /**
+	 * Tests to delete various types of annotations i.e. 
+	 * Boolean, comment, long, tag, file annotation. 
+	 * This method the <code>deleteObject</code> method. 
+	 * 
+	 * @throws Exception  Thrown if an error occurred.
+	 */
+    @Test(enabled = false, groups = {"ticket:2705"})
+    public void testDeleteAnnotation() 
+    	throws Exception
+    {
+    	//creation and linkage have already been tested
+    	//boolean
+    	BooleanAnnotation b = new BooleanAnnotationI();
+    	b.setBoolValue(omero.rtypes.rbool(true));
+    	Annotation data = (Annotation) iUpdate.saveAndReturnObject(b);
+    	//delete and check
+    	long id = data.getId().getValue();
+    	iUpdate.deleteObject(data);
+    	ParametersI param = new ParametersI();
+    	param.addId(id);
+    	String sql = "select a from Annotation as a where a.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	//long
+    	LongAnnotation l = new LongAnnotationI();
+    	l.setLongValue(omero.rtypes.rlong(1L));
+    	data = (Annotation) iUpdate.saveAndReturnObject(l);
+    	id = data.getId().getValue();
+    	iUpdate.deleteObject(data);
+    	param = new ParametersI();
+    	param.addId(id);
+    	sql = "select a from Annotation as a where a.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	//comment
+    	CommentAnnotation c = new CommentAnnotationI();
+    	c.setTextValue(omero.rtypes.rstring("comment"));
+    	data = (Annotation) iUpdate.saveAndReturnObject(c);
+    	id = data.getId().getValue();
+    	iUpdate.deleteObject(data);
+    	param = new ParametersI();
+    	param.addId(id);
+    	sql = "select a from Annotation as a where a.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	//tag
+    	TagAnnotation t = new TagAnnotationI();
+    	t.setTextValue(omero.rtypes.rstring("tag"));
+    	data = (Annotation) iUpdate.saveAndReturnObject(t);
+    	id = data.getId().getValue();
+    	iUpdate.deleteObject(data);
+    	param = new ParametersI();
+    	param.addId(id);
+    	sql = "select a from Annotation as a where a.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	//File 
+    	OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
+    			mmFactory.createOriginalFile());
+		FileAnnotation fa = new FileAnnotationI();
+		fa.setFile(of);
+		long ofId = of.getId().getValue();
+		data = (Annotation) iUpdate.saveAndReturnObject(fa);
+		id = data.getId().getValue();
+    	iUpdate.deleteObject(data);
+    	param = new ParametersI();
+    	param.addId(id);
+    	sql = "select a from Annotation as a where a.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	param = new ParametersI();
+    	param.addId(ofId);
+    	//See ticket #2705
+    	sql = "select a from OriginalFile as a where a.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    	
+    	//Term
+    	TermAnnotation term = new TermAnnotationI();
+    	term.setTermValue(omero.rtypes.rstring("term"));
+    	data = (Annotation) iUpdate.saveAndReturnObject(term);
+    	id = data.getId().getValue();
+    	iUpdate.deleteObject(data);
+    	param = new ParametersI();
+    	param.addId(id);
+    	sql = "select a from Annotation as a where a.id = :id";
+    	assertNull(iQuery.findByQuery(sql, param));
+    }
+
+    /**
+     * Tests the creation of a plate and reagent
+     * 
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testPlateAndReagent()
+		throws Exception
+    {
+    	Screen s = mmFactory.simpleScreenData().asScreen();
+    	Reagent r = mmFactory.createReagent();
+    	s.addReagent(r);
+    	Plate p = mmFactory.createPlateWithReagent(1, 1, 1, r);
+    	s.linkPlate(p);
+    	s = (Screen) iUpdate.saveAndReturnObject(s);
+    	assertNotNull(s);
+    	assertNotNull(s.getName().getValue());
+    	assertNotNull(s.getDescription().getValue());
+    	assertNotNull(s.getProtocolDescription().getValue());
+    	assertNotNull(s.getProtocolIdentifier().getValue());
+    	assertNotNull(s.getReagentSetDescription().getValue());
+    	assertNotNull(s.getReagentSetIdentifier().getValue());
+    	
+    	//reagent first
+    	String sql = "select r from Reagent as r ";
+    	sql += "join fetch r.screen as s ";
+    	sql += "where s.id = :id";
+    	ParametersI param = new ParametersI();
+    	param.addId(s.getId().getValue());
+    	r = (Reagent) iQuery.findByQuery(sql, param);
+    	assertNotNull(r);
+    	assertNotNull(r.getName().getValue());
+    	assertNotNull(r.getDescription().getValue());
+    	assertNotNull(r.getReagentIdentifier().getValue());
+    	
+    	//
+    	sql = "select s from ScreenPlateLink as s ";
+    	sql += "join fetch s.child as c ";
+    	sql += "join fetch s.parent as p ";
+    	sql += "where p.id = :id";
+    	param = new ParametersI();
+    	param.addId(s.getId().getValue());
+    	ScreenPlateLink link = (ScreenPlateLink) iQuery.findByQuery(sql, param);
+    	assertNotNull(link);
+    	//check the reagent.
+    	sql = "select s from WellReagentLink as s ";
+    	sql += "join fetch s.child as c ";
+    	sql += "join fetch s.parent as p ";
+    	sql += "where c.id = :id";
+    	param = new ParametersI();
+    	param.addId(r.getId().getValue());
+    	assertNotNull(iQuery.findByQuery(sql, param));
+    }
 }
