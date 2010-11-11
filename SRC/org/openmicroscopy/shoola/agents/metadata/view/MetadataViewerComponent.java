@@ -506,7 +506,8 @@ class MetadataViewerComponent
 				b = false;
 			}	
 		}
-		deleteAnnotations(toDelete);
+		if (toDelete != null && toDelete.size() > 0)
+			deleteAnnotations(toDelete);
 		if (b) fireStateChange();
 	}
 	
