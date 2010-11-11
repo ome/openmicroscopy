@@ -28,6 +28,8 @@ echo omero.prefix=%ROUTERPREFIX% >> %ICE_CONFIG%
 REM Trying to delete data\.omero to detect orphaned server
 REM If found, prep will be needed.
 cmd /c exit 0
+
+if not exist target mkdir target
 if exist %OMERO_DATA% (
     if exist %OMERO_DATA%\.omero rd /s /q %OMERO_DATA%\.omero
 )

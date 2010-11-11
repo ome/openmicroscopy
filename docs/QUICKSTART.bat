@@ -87,9 +87,11 @@ if exist data echo Data directory already exists!
 if not exist data (echo Creating data directory && mkdir data)
 if errorlevel 1 goto ERROR
 
-echo Configuring data directory
+echo Configuring and creating data directory
 if "x%OMERO_DATA%" == "x" (SET OMERO_DATA="%CD%\data")
 python bin\omero config set omero.data.dir %OMERO_DATA%
+if errorlevel 1 goto ERROR
+mkdir %OMERO_DATA%
 if errorlevel 1 goto ERROR
 
 echo Configuring Windows user
