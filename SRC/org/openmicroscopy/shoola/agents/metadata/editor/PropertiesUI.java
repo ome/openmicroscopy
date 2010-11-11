@@ -840,7 +840,7 @@ class PropertiesUI
 		text = "";
 		
 		boolean b = model.isUserOwner(refObject);
-        if (refObject instanceof ImageData) text = "Image ";
+        if (refObject instanceof ImageData) text = "Image";
         else if (refObject instanceof DatasetData) text = "Dataset";
         else if (refObject instanceof ProjectData) text = "Project";
         else if (refObject instanceof ScreenData) text = "Screen";
