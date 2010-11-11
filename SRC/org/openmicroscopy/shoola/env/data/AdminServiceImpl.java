@@ -183,10 +183,15 @@ class AdminServiceImpl
 	public long getSpace(int index, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		switch (index) {
+		try {
+			switch (index) {
 			case USED: return gateway.getUsedSpace(userID);
 			case FREE: return gateway.getFreeSpace();
 		}
+		} catch (Exception e) {
+			return -1;
+		}
+		
 		return -1;
 	}
 	
