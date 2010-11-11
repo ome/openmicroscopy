@@ -262,7 +262,7 @@ public class TextualTwoKnobsSlider
         }
         start = val;
         //endField.setMinimum(start);
-        if (start > slider.getPartialMinimum()*roundingFactor) {
+        if (start < slider.getPartialMinimum()*roundingFactor) {
         	val = slider.getPartialMinimum()*roundingFactor;
         }
         removeSliderListeners();
@@ -293,7 +293,6 @@ public class TextualTwoKnobsSlider
         	val = slider.getPartialMaximum()*roundingFactor;
         }
         removeSliderListeners();
-        System.err.println("end:"+end);
         int old = slider.getEndValue();
         slider.setEndValue((int) val);
         firePropertyChange(TwoKnobsSlider.KNOB_RELEASED_PROPERTY, old, val);
