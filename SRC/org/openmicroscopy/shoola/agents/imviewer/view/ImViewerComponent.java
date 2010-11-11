@@ -2780,6 +2780,8 @@ class ImViewerComponent
 	 */
 	public void selectAllChannels(boolean selection)
 	{
+		String cm = model.getColorModel();
+		if (ImViewer.GREY_SCALE_MODEL.equals(cm)) return;
 		for (int i = 0; i < model.getMaxC(); i++) {
 			model.setChannelActive(i, selection);
 			firePropertyChange(CHANNEL_ACTIVE_PROPERTY, 
