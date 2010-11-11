@@ -289,7 +289,8 @@ public class SelectionWizardUI
 					}
 				} else {
 					if (!isImmutable(data)) {
-						selectedItems.remove(data);
+						//selectedItems.remove(data);
+						toRemove.add(item);
 						availableItems.add(data);
 					}
 				}
@@ -357,7 +358,6 @@ public class SelectionWizardUI
 		
 		selectedItemsListbox.setModel(listModel);
 	}
-	
 	
 	/** Updates the currentFields list box. */
 	private void populateAvailableItems()

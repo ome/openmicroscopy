@@ -35,11 +35,12 @@ import javax.swing.tree.TreeCellRenderer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
+import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 
 /** 
- * 
+ * Displays the icon corresponding to the shape of the ROI.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -56,6 +57,12 @@ public class ROITreeTableCellRenderer
 	implements TreeCellRenderer
 {
 
+	/** Helper reference to the Icon Manager. */
+	private IconManager icons;
+	
+	/** The identifier of the user currently logged in. */
+	private long userID;
+	
 	/**
 	 * Creates a new instance. Sets the opacity of the label to 
 	 * <code>true</code>.
@@ -63,25 +70,29 @@ public class ROITreeTableCellRenderer
 	public ROITreeTableCellRenderer()
 	{
 		setOpaque(false);
+		icons = IconManager.getInstance();
+		userID = MeasurementAgent.getUserDetails().getId();
 	}
 
 	/**
 	 * Sets the icon corresponding to the type of Object.
-	 * @see javax.swing.tree.TreeCellRenderer#getTreeCellRendererComponent
-	 * (javax.swing.JTree, java.lang.Object, boolean, boolean, boolean, 
-	 * int, boolean)
+	 * @see TreeCellRenderer#getTreeCellRendererComponent(JTree, Object, 
+	 * boolean, boolean, boolean, int, boolean)
 	 */
 	public Component getTreeCellRendererComponent(JTree tree, 
 			Object value, boolean selected, boolean expanded, 
 			boolean leaf, int row, boolean hasFocus)
 	{
 
-		Object thisObject = ((ROITreeNode)value).getUserObject();
+		Object thisObject = ((ROITreeNode) value).getUserObject();
 
-		if (thisObject instanceof ROI)
-			setIcon(IconManager.getInstance().getIcon(IconManager.ROISTACK));
-		else if (thisObject instanceof ROIShape)
-			setIcon(IconManager.getInstance().getIcon(IconManager.ROISHAPE));
+		if (thisObject instanceof ROI) {
+			ROI roi = (ROI) thisObject;
+			if (userID == roi.getOwnerID() || roi.getOwnerID() == -1)
+				setIcon(icons.getIcon(IconManager.ROISTACK));
+			else setIcon(icons.getIcon(IconManager.ROISTACK_OTHER_OWNER));
+		} else if (thisObject instanceof ROIShape)
+			setIcon(icons.getIcon(IconManager.ROISHAPE));
 		return this;
 	}
 

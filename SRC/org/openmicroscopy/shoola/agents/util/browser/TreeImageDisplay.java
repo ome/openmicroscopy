@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.util.browser;
 import java.awt.Color;
 import java.awt.Font;
 import java.io.File;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -436,8 +437,7 @@ public abstract class TreeImageDisplay
         else if (obj instanceof ImageData) 
             return ((ImageData) obj).getName();
         else if (obj instanceof ExperimenterData) {
-        	ExperimenterData exp = (ExperimenterData) obj;
-        	return exp.getFirstName()+" "+exp.getLastName();
+        	return EditorUtil.getExperimenterName((ExperimenterData) obj);
         } else if (obj instanceof GroupData) {
         	 return ((GroupData) obj).getName();
         } else if (obj instanceof TagAnnotationData)

@@ -62,7 +62,7 @@ public class NullOmeroPojoService
 {
 
 	/**
-     * No-op implementation
+     * No-operation implementation
      * @see OmeroDataService#addExistingObjects(DataObject, Collection)
      */
 	public void addExistingObjects(DataObject parent, Collection children) 
@@ -71,7 +71,7 @@ public class NullOmeroPojoService
 	}
 
 	/**
-     * No-op implementation
+     * No-operation implementation
      * @see OmeroDataService#advancedSearchFor(SearchDataContext)
      */
 	public Object advancedSearchFor(SearchDataContext context) 
@@ -81,7 +81,7 @@ public class NullOmeroPojoService
 	}
 
 	/**
-     * No-op implementation
+     * No-operation implementation
      * @see OmeroDataService#annotateChildren(Set, AnnotationData)
      */
 	public List annotateChildren(Set folders, AnnotationData data) 
@@ -91,7 +91,7 @@ public class NullOmeroPojoService
 	}
 
 	/**
-     * No-op implementation
+     * No-operation implementation
      * @see OmeroDataService#changePassword(String, String)
      */
 	public Boolean changePassword(String oldPassword, String newPassword)
@@ -101,7 +101,7 @@ public class NullOmeroPojoService
 	}
 
 	/**
-     * No-op implementation
+     * No-operation implementation
      * @see OmeroDataService#createAnnotationFor(DataObject, AnnotationData)
      */
 	public DataObject createAnnotationFor(DataObject annotatedObject, 
@@ -112,7 +112,7 @@ public class NullOmeroPojoService
 	}
 
 	/**
-     * No-op implementation
+     * No-operation implementation
      * @see OmeroDataService#createAnnotationFor(Set, AnnotationData)
      */
 	public List createAnnotationFor(Set toAnnotate, AnnotationData data) 
@@ -122,7 +122,7 @@ public class NullOmeroPojoService
 	}
 
 	/**
-     * No-op implementation
+     * No-operation implementation
      * @see OmeroDataService#createDataObject(DataObject, DataObject, Collection)
      */
 	public DataObject createDataObject(DataObject newObject, DataObject parent, 
@@ -133,7 +133,7 @@ public class NullOmeroPojoService
 	}
 
 	/**
-     * No-op implementation
+     * No-operation implementation
      * @see OmeroDataService#cutAndPaste(Map, Map)
      */
 	public void cutAndPaste(Map toPaste, Map toCut)
@@ -142,7 +142,7 @@ public class NullOmeroPojoService
 	}
 
 	/**
-     * No-op implementation
+     * No-operation implementation
      * @see OmeroDataService#deleteContainer(DataObject, boolean)
      */
 	public void deleteContainer(DataObject object, boolean content) 
@@ -151,7 +151,7 @@ public class NullOmeroPojoService
 	}
 
 	/**
-     * No-op implementation
+     * No-operation implementation
      * @see OmeroDataService#findAnnotations(Class, List, List, boolean)
      */
 	public Map findAnnotations(Class nodeType, List nodeIDs, List annotatorIDs,
@@ -162,7 +162,7 @@ public class NullOmeroPojoService
 	}
 
 	/**
-     * No-op implementation
+     * No-operation implementation
      * @see OmeroDataService#findContainerHierarchy(Class, List, long)
      */
 	public Set findContainerHierarchy(Class rootNodeType, List leavesIDs, 
@@ -173,7 +173,7 @@ public class NullOmeroPojoService
 	}
 
 	/**
-     * No-op implementation
+     * No-operation implementation
      * @see OmeroDataService#findContainerPaths(Class, long, long)
      */
 	public Collection findContainerPaths(Class type, long id, long userID) 
@@ -214,7 +214,7 @@ public class NullOmeroPojoService
 	}
 
 	/**
-     * No-op implementation
+     * No-operation implementation
      * @see OmeroDataService#getExperimenterImages(long)
      */
 	public Set getExperimenterImages(long userID) 
@@ -224,7 +224,7 @@ public class NullOmeroPojoService
 	}
 
 	/**
-     * No-op implementation
+     * No-operation implementation
      * @see OmeroDataService#getImages(Class, List, long)
      */
 	public Set getImages(Class nodeType, List nodeIDs, long userID) 
@@ -234,7 +234,7 @@ public class NullOmeroPojoService
 	}
 
 	/**
-     * No-op implementation
+     * No-operation implementation
      * @see OmeroDataService#getImagesAllPeriodCount(Timestamp, Timestamp, long)
      */
 	public List getImagesAllPeriodCount(Timestamp lowerTime, Timestamp time, 
@@ -245,7 +245,7 @@ public class NullOmeroPojoService
 	}
 
 	/**
-     * No-op implementation
+     * No-operation implementation
      * @see OmeroDataService#getImagesPeriod(Timestamp, Timestamp, long, boolean)
      */
 	public Collection getImagesPeriod(Timestamp lowerTime, Timestamp time, long userID, 
@@ -256,13 +256,13 @@ public class NullOmeroPojoService
 	}
 
 	/**
-     * No-op implementation
+     * No-operation implementation
      * @see OmeroDataService#getLoggingName()
      */
 	public String getLoggingName() { return null; }
 
 	/**
-     * No-op implementation
+     * No-operation implementation
      * @see OmeroDataService#getOriginalFiles(long)
      */
 	public Collection getOriginalFiles(long pixelsID) 
@@ -272,13 +272,13 @@ public class NullOmeroPojoService
 	}
 
 	/**
-     * No-op implementation
+     * No-operation implementation
      * @see OmeroDataService#getServerName()
      */
 	public String getServerName() { return null; }
 
 	/**
-     * No-op implementation
+     * No-operation implementation
      * @see OmeroDataService#getSpace(int, long)
      */
 	public long getSpace(int index, long userID)
@@ -288,7 +288,7 @@ public class NullOmeroPojoService
 	}
 
 	/**
-     * No-op implementation
+     * No-operation implementation
      * @see OmeroDataService#loadContainerHierarchy(Class, List, boolean, long,
      * long)
      */
@@ -300,7 +300,7 @@ public class NullOmeroPojoService
 	}
 
 	/**
-     * No-op implementation
+     * No-operation implementation
      * @see OmeroDataService#loadExistingObjects(Class, List, long)
      */
 	public Set loadExistingObjects(Class nodeType, List nodeIDs, long userID) 
@@ -310,7 +310,7 @@ public class NullOmeroPojoService
 	}
 
 	/**
-     * No-op implementation
+     * No-operation implementation
      * @see OmeroDataService#loadPlateWells(long, long, long)
      */
 	public Collection loadPlateWells(long plateID, long acquisitionID,
@@ -321,7 +321,7 @@ public class NullOmeroPojoService
 	}
 
 	/**
-     * No-op implementation
+     * No-operation implementation
      * @see OmeroDataService#loadScreenPlates(Class, List, long)
      */
 	public Set loadScreenPlates(Class rootNodeType, List rootNodeIDs, 
@@ -332,7 +332,7 @@ public class NullOmeroPojoService
 	}
 
 	/**
-     * No-op implementation
+     * No-operation implementation
      * @see OmeroDataService#loadTopContainerHierarchy(Class, long)
      */
 	public Set loadTopContainerHierarchy(Class rootNodeType, long userID) 
@@ -342,7 +342,7 @@ public class NullOmeroPojoService
 	}
 
 	/**
-     * No-op implementation
+     * No-operation implementation
      * @see OmeroDataService#removeDataObjects(Set, DataObject)
      */
 	public Set removeDataObjects(Set children, DataObject parent)
@@ -352,7 +352,7 @@ public class NullOmeroPojoService
 	}
 
 	/**
-     * No-op implementation
+     * No-operation implementation
      * @see OmeroDataService#updateAnnotationFor(Map)
      */
 	public List updateAnnotationFor(Map toUpdate) 
@@ -362,7 +362,7 @@ public class NullOmeroPojoService
 	}
 
 	/**
-     * No-op implementation
+     * No-operation implementation
      * @see OmeroDataService#updateDataObject(DataObject)
      */
 	public DataObject updateDataObject(DataObject object)
@@ -372,7 +372,7 @@ public class NullOmeroPojoService
 	}
 
 	/**
-     * No-op implementation
+     * No-operation implementation
      * @see OmeroDataService#updateExperimenter(ExperimenterData, GroupData)
      */
 	public ExperimenterData updateExperimenter(ExperimenterData exp, GroupData
@@ -383,18 +383,17 @@ public class NullOmeroPojoService
 	}
 
 	/**
-     * No-op implementation
+     * No-operation implementation
      * @see OmeroDataService#delete(Collection)
      */
-	public Collection<DeletableObject> delete(
-			Collection<DeletableObject> objects) 
+	public DeleteCallback delete(Collection<DeletableObject> objects) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return null;
 	}
 
 	/**
-     * No-op implementation
+     * No-operation implementation
      * @see OmeroDataService#getImage(long, long)
      */
 	public ImageData getImage(long imageID, long userID) 
@@ -404,7 +403,7 @@ public class NullOmeroPojoService
 	}
 
 	/**
-     * No-op implementation
+     * No-operation implementation
      * @see OmeroDataService#getServerVersion()
      */
 	public String getServerVersion() {
@@ -412,7 +411,7 @@ public class NullOmeroPojoService
 	}
 
 	/**
-     * No-op implementation
+     * No-operation implementation
      * @see OmeroDataService#getServerVersion()
      */
 	public FSFileSystemView getFSRepositories(long userID)

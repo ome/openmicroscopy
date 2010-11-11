@@ -199,11 +199,23 @@ public class IconManager
     /** The <code>Rendering Settings Owner</code> icon. */
     public static final int         RND_OWNER = 47;
 
+    /** The 48x48 <code>filter by tags</code> icon. */
+    public static final int         TAG_FILTER_48 = 48;
+    
+    /** The <code>filter by tags</code> icon. */
+    public static final int         TAG_FILTER = 49;
+    
+    /** The <code>filter by Menu</code> icon. */
+    public static final int         FILTER_BY_MENU = 50;
+    
+    /** The <code>Send comment</code> icon. */
+    public static final int			  SEND_COMMENT = 51;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 47;
+    private static final int          MAX_ID = 51;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -258,7 +270,10 @@ public class IconManager
         relPaths[RND_REDO] = "nuvola_undo16.png";
         relPaths[RND_MIN_MAX] =  "nuvola_rendering_minmax16.png";
         relPaths[RND_OWNER] = "rendering_owner16.png";
-
+        relPaths[TAG_FILTER_48] = "nuvola_knotes48.png";
+        relPaths[TAG_FILTER] = "eclipse_filter_ps16.png";
+        relPaths[FILTER_BY_MENU] = "eclipse_view_menu16.png";
+        relPaths[SEND_COMMENT] = "nuvola_mail_send16.png";
     }
     
     /** The sole instance. */

@@ -34,16 +34,13 @@ import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.FigureListener;
-import org.jhotdraw.draw.Handle;
 import org.jhotdraw.geom.BezierPath;
 
 //Application-internal dependencies
@@ -53,7 +50,6 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
-import org.openmicroscopy.shoola.util.roi.util.FigureSelectionHandle;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.LineTextFigure;
@@ -135,21 +131,24 @@ public class MeasureLineFigure
 	/** Creates a new instance. */
 	public MeasureLineFigure()
 	{
-		this("text", false, true);
+		this(DEFAULT_TEXT, false, true);
 	}
 
 
-	/** Creates a new instance. 
+	/** 
+	 * Creates a new instance.
+	 *  
 	 * @param readOnly the figure is read only.
      * @param clientObject the figure is a client object
 	 */
 	public MeasureLineFigure(boolean readOnly, boolean clientObject)
 	{
-		this("text", readOnly, clientObject);
+		this(DEFAULT_TEXT, readOnly, clientObject);
 	}
 	
 	/**
-	 * Create instance of the line figure.
+	 * Creates a new instance
+	 * 
 	 * @param text The text to add to the figure.
 	 * @param readOnly the figure is read only.
      * @param clientObject the figure is a client object
@@ -179,9 +178,9 @@ public class MeasureLineFigure
 		boundsArray.clear();
 		lengthArray.clear();
 		angleArray.clear();
-		if(MeasurementAttributes.SHOWMEASUREMENT.get(this))
+		if (MeasurementAttributes.SHOWMEASUREMENT.get(this))
 		{
-			if(getPointCount()==2)
+			if (getPointCount() == 2)
 			{
 				NumberFormat formatter = new DecimalFormat("###.#");
 				double angle = getAngle(0, 1);
@@ -280,6 +279,7 @@ public class MeasureLineFigure
 	 * Overridden to return the correct handles.
 	 * @see AbstractAttributedFigure#createHandles(int)
 	 */
+	/* cannot do that otherwise enter in an infinite loop
 	public Collection<Handle> createHandles(int detailLevel) 
 	{
 		if(!readOnly)
@@ -291,6 +291,7 @@ public class MeasureLineFigure
 			return handles;
 		}
 	}
+	*/
 
 	
 	/**
@@ -788,17 +789,15 @@ public class MeasureLineFigure
 		return super.joinSegments(join, tolerance);
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
-	 * MeasureLineFigure#setText(String)
+	/**
+	 * Overridden to mark the object has dirty.
+	 * @see MeasureLineFigure#setText(String)
 	 */
 	public void setText(String text)
 	{
 		super.setText(text);
 		this.setObjectDirty(true);
 	}
-	
 	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface
@@ -808,9 +807,9 @@ public class MeasureLineFigure
 	{
 		List<FigureListener> figListeners = new ArrayList<FigureListener>();
 		Object[] listeners = listenerList.getListenerList();
-		for(Object listener : listeners)
-			if(listener instanceof FigureListener)
-				figListeners.add((FigureListener)listener);
+		for (Object listener : listeners)
+			if (listener instanceof FigureListener)
+				figListeners.add((FigureListener) listener);
 		return figListeners;
 	}
 }

@@ -64,19 +64,13 @@ public class ThumbnailLoader
     /** The standard height of the thumbnail. */
     private static final int            STANDARD_HEIGHT = 96;
     
-    /** The width of the thumbnail. */
-    private static final int            THUMB_MAX_WIDTH = 200; 
-    
-    /** The maximum height of the thumbnail. */
-    private static final int            THUMB_MAX_HEIGHT = 200;
-  
     /** The object the thumbnails are for. */
     private ImageData					image;
     
     /** Collection of users who viewed the image. */
     private Set<Long>					userIDs;
     
-    /** Handle to the async call so that we can cancel it. */
+    /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  				handle;
     
     /** The collection of thumbnails. */

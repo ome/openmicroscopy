@@ -34,6 +34,7 @@ import java.util.TreeMap;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.rnd.roi.ROIShapeStats;
 import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint2D;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 
@@ -62,12 +63,16 @@ public class AnalysisStatsWrapper
 		PIXEL_PLANEPOINT2D
 	};
 
-	
+	/**
+	 * Converts the statistics.
+	 * 
+	 * @param shapeStats The statistics to convert.
+	 * @return See above.
+	 */
 	public static Map<StatsType, Map> convertStats(Map shapeStats)
 	{
-		if(shapeStats==null || shapeStats.size()==0)
-			return null;
-		ROIShapeStats 		stats;
+		if (shapeStats == null || shapeStats.size() == 0) return null;
+		ROIShapeStats stats;
 		Map<Integer, Double>   channelMin = new TreeMap<Integer, Double>();
 		Map<Integer, Double>   channelSum = new TreeMap<Integer, Double>();
 		Map<Integer, Double>   channelMax = new TreeMap<Integer, Double>();
@@ -90,8 +95,10 @@ public class AnalysisStatsWrapper
 			channelSum.put(channel, stats.getSum());
 			channelMin.put(channel, stats.getMin());
 			channelMax.put(channel, stats.getMax());
-			channelMean.put(channel, stats.getMean());
-			channelStdDev.put(channel, stats.getStandardDeviation());
+			channelMean.put(channel, UIUtilities.roundTwoDecimals(
+					stats.getMean()));
+			channelStdDev.put(channel, UIUtilities.roundTwoDecimals(
+					stats.getStandardDeviation()));
 			pixels = stats.getPixelsValue();
 				
 			channelPixel.put(channel, pixels);
@@ -100,8 +107,7 @@ public class AnalysisStatsWrapper
 			cnt = 0;
 			while (pixelIterator.hasNext())
 			{
-				double dataPt = pixelIterator.next();
-				pixelData[cnt] = dataPt;
+				pixelData[cnt] = pixelIterator.next();
 				cnt++;
 			}
 			

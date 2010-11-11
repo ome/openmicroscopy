@@ -285,6 +285,9 @@ class SearchPanel
 	/** The component hosting either the advanced or basic search component. */
 	private JPanel 					searchFor;
 	
+	/** The collection of buttons to add. */
+	private List<JButton>			controls;
+	
 	/** Initializes the components composing the display.  */
 	private void initComponents()
 	{
@@ -741,8 +744,15 @@ class SearchPanel
 		bar.setBorder(null);
 		bar.add(helpBasicButton);
 		bar.add(searchBasicButton);
+		if (controls != null && controls.size() > 0) {
+			Iterator<JButton> i = controls.iterator();
+			while (i.hasNext()) {
+				bar.add(i.next());
+			}
+		}
 		JPanel p = UIUtilities.buildComponentPanel(bar);
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
+
 		basicSearchComp.add(p);
 		return basicSearchComp;
 	}
@@ -801,12 +811,17 @@ class SearchPanel
 		bar.setBorder(null);
 		bar.add(helpAdvancedButton);
 		bar.add(searchAdvancedButton);
+		if (controls != null && controls.size() > 0) {
+			Iterator<JButton> j = controls.iterator();
+			while (j.hasNext()) {
+				bar.add(j.next());
+			}
+		}
 		JPanel comp = UIUtilities.buildComponentPanel(bar);
 	    comp.setBackground(UIUtilities.BACKGROUND_COLOR);
 		advancedSearchComp.add(comp);
 		return advancedSearchComp;
 	}
-	
 	/**
 	 * Builds the UI component hosting the terms to search for.
 	 * 
@@ -988,12 +1003,14 @@ class SearchPanel
 	 * Creates a new instance.
 	 * 
 	 * @param model Reference to the model. Mustn't be <code>null</code>.
+	 * @param controls The collection of buttons to add next to the help etc.
 	 */
-	SearchPanel(SearchComponent model)
+	SearchPanel(SearchComponent model, List<JButton> controls)
 	{
 		if (model == null)
 			throw new IllegalArgumentException("No model.");
 		this.model = model;
+		this.controls = controls;
 		initComponents();
 		buildGUI();
 	}
@@ -1088,6 +1105,24 @@ class SearchPanel
 				list.add(key);
 		}
 		return list;
+	}
+	
+	/** 
+	 * Sets the values to add. 
+	 * 
+	 * @param values The values to add.
+	 */
+	void setSomeValues(List<String> values)
+	{
+		if (values == null || values.size() == 0) return;
+		String text = "";
+		Iterator<String> i = values.iterator();
+		if (text != null) {
+			while (i.hasNext())
+				text += i.next()+SearchUtil.SPACE_SEPARATOR;
+		}
+		if (!advancedSearch) fullTextArea.setText(text);
+		else atLeastTermsArea.setText(text);
 	}
 	
 	/**

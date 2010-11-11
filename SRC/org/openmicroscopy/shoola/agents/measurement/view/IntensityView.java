@@ -55,12 +55,11 @@ import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
+import org.jhotdraw.draw.Figure;
 
 //Application-internal dependencies
-import org.jhotdraw.draw.Figure;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.util.file.ExcelWriter;
@@ -87,6 +86,7 @@ import org.openmicroscopy.shoola.agents.measurement.util.ChannelSummaryTable;
 import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper.StatsType;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import pojos.ChannelData;
@@ -178,7 +178,7 @@ class IntensityView
 	private ChannelSummaryModel			channelSummaryModel;
 	
 	/** The channel selected in the Combo box. */
-	private int 						selectedChannel=-1;
+	private int 						selectedChannel = -1;
 
 	/** The name of the channel selected in the Combo box. */
 	private String 						selectedChannelName;
@@ -263,20 +263,26 @@ class IntensityView
 	{
 		stateChanged(null);
 	}
-	
-	/** Initializes the component composing the display. */
-	private void initComponents()
+
+	private void initTableModel()
 	{
-		Double data[][] = new Double[1][1];
 		Double summaryData[][] = new Double[1][1];
 		List<String> rowNames = new ArrayList<String>();
 		List<String> columnNames = new ArrayList<String>();
 		
 		rowNames.add("");
 		columnNames.add("");
-		tableModel = new IntensityModel(data);
 		channelSummaryModel = new ChannelSummaryModel(rowNames, columnNames, 
-														summaryData);
+				summaryData);
+	}
+	
+	/** Initializes the component composing the display. */
+	private void initComponents()
+	{
+		Double data[][] = new Double[1][1];
+		
+		tableModel = new IntensityModel(data);
+		initTableModel();
 		channelSummaryTable = new ChannelSummaryTable(channelSummaryModel);
 	
 		showIntensityTable = new JButton("Intensity Values");
@@ -285,6 +291,7 @@ class IntensityView
 		showIntensityTable.setActionCommand(""+SHOW_TABLE_ACTION);
 		channelSelection = new JComboBox();
 		channelSelection.setEnabled(false);
+		channelSelection.setVisible(false);
 		channelSelection.addActionListener(this);
 		channelSelection.setActionCommand(""+CHANNEL_SELECTION);
 		saveButton = new JButton("Export to Excel");
@@ -365,7 +372,7 @@ class IntensityView
 		panel.add(Box.createRigidArea(new Dimension(0,10)));
 		JPanel channelPanel = 
 			UIUtilities.buildComponentPanel(channelSelection);
-		UIUtilities.setDefaultSize(channelPanel, new Dimension(175, 32));
+		//UIUtilities.setDefaultSize(channelPanel, new Dimension(175, 32));
 		panel.add(channelPanel);
 		panel.add(Box.createRigidArea(new Dimension(0,10)));
 		JPanel intensityPanel = 
@@ -478,6 +485,7 @@ class IntensityView
 	 */
 	private void populateData(Coord3D coord, int channel)
 	{
+		channelSummaryTable.setVisible(true);
 		interpretResults(coord, channel);
 		populateChannelSummaryTable(coord);
 	}
@@ -754,17 +762,8 @@ class IntensityView
 	private void saveResults() 
 	{
 		channelsSelectionForm = new ChannelSelectionForm(channelName);
-		List<FileFilter> filterList = new ArrayList<FileFilter>();
-		FileFilter filter = new ExcelFilter();
-		filterList.add(filter);
-		FileChooser chooser=
-				new FileChooser(
-					 view, FileChooser.SAVE, "Save the Results", "Save the " +
-				"Results data to a file which can be loaded by a spreadsheet.",
-				filterList);
+		FileChooser chooser = view.createSaveToExcelChooser();
 		chooser.addComponentToControls(channelsSelectionForm);
-		File f = UIUtilities.getDefaultFolder();
-	    if (f != null) chooser.setCurrentDirectory(f);
 		int results = chooser.showDialog();
 		if (results != JFileChooser.APPROVE_OPTION) return;
 		File  file = chooser.getFormattedSelectedFile();
@@ -797,21 +796,23 @@ class IntensityView
 			if (channelSummarySelected(channels))
 				outputSummary(writer, shapeMap);
 			BufferedImage originalImage = model.getRenderedImage();
-			BufferedImage image = Factory.copyBufferedImage(originalImage);
+			if(originalImage != null)
+			{
+				BufferedImage image = Factory.copyBufferedImage(originalImage);
 			
-			// Add the ROI for the current plane to the image.
-			//TODO: Need to check that.
-			model.setAttributes(MeasurementAttributes.SHOWID, true);
-			model.getDrawingView().print(image.getGraphics());
-			model.setAttributes(MeasurementAttributes.SHOWID, false);
-			try {
-				writer.addImageToWorkbook("ThumbnailImage", image); 
-			} catch (Exception e) {
-				//TODO
+				// Add the ROI for the current plane to the image.
+				//TODO: Need to check that.
+				model.setAttributes(MeasurementAttributes.SHOWID, true);
+				model.getDrawingView().print(image.getGraphics());
+				model.setAttributes(MeasurementAttributes.SHOWID, false);
+				try {
+					writer.addImageToWorkbook("ThumbnailImage", image); 
+				} catch (Exception e) {
+					//TODO
+				}
+				int col = writer.getMaxColumn(0);
+				writer.writeImage(0, col+1, 256, 256, "ThumbnailImage");
 			}
-			int col = writer.getMaxColumn(0);
-			writer.writeImage(0, col+1, 256, 256, "ThumbnailImage");
-
 			if (channelSummarySelected(channels) && channels.size() != 1)
 				while (coordMapIterator.hasNext())
 				{
@@ -840,7 +841,7 @@ class IntensityView
 			logger.error(this, "Cannot save ROI results: "+e.toString());
 			
 			UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
-			String message = "An error occured while trying to" +
+			String message = "An error occurred while trying to" +
 			" save the data.\nPlease try again.";
 			if (e instanceof NumberFormatException) {
 				message = "We only support the British/American style of " +
@@ -848,7 +849,13 @@ class IntensityView
 						"than a comma.";
 			} 
 			un.notifyInfo("Save Results", message);
+			return;
 		}
+		
+		Registry reg = MeasurementAgent.getRegistry();
+		UserNotifier un = reg.getUserNotifier();
+		un.notifyInfo("Save ROI results", "The ROI results have been " +
+											"successfully saved.");
 	}
 	
 	/**
@@ -1040,7 +1047,16 @@ class IntensityView
 		IconManager icons = IconManager.getInstance();
 		return icons.getIcon(IconManager.INTENSITYVIEW);
 	}
-	
+
+	/** Invokes when ROI are removed. */
+	void onFigureRemoved()
+	{
+		channelSelection.setEnabled(false);
+		showIntensityTable.setEnabled(false);
+		saveButton.setEnabled(false);
+		channelSelection.setVisible(false);
+		channelSummaryTable.setVisible(false);
+	}
 	
 	/**
 	 * Get the analysis results from the model and convert to the 
@@ -1055,7 +1071,7 @@ class IntensityView
 		if (ROIStats == null || ROIStats.size() == 0) 
 			return;
 		state = State.ANALYSING;
-		
+		channelSelection.setVisible(true);
 		clearMaps();
 		shapeStatsList = new TreeMap<Coord3D, Map<StatsType, Map>>(new Coord3D());
 		pixelStats = 

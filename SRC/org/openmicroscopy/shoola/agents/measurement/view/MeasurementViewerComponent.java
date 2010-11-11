@@ -44,15 +44,17 @@ import org.jhotdraw.draw.Drawing;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
+import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
-import pojos.WorkflowData;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.env.data.model.DeletableObject;
+import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -70,6 +72,8 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.ROIData;
+import pojos.WorkflowData;
 
 /** 
  * Implements the {@link MeasurementViewer} interface to provide the 
@@ -181,7 +185,6 @@ class MeasurementViewerComponent
         this.model = model;
         controller = new MeasurementViewerControl();
         view = new MeasurementViewerUI(model.getImageTitle());
-        getWorkflows();
 	}
 	
 	/** Links up the MVC triad. */
@@ -207,6 +210,13 @@ class MeasurementViewerComponent
     	discard();
     }
     
+    /**
+     * Invokes when the ROI has been deleted.
+     * 
+     * @param imageID The image's identifier.
+     */
+    void onROIDeleted(long imageID) { model.onROIDeleted(imageID); }
+
     /** 
      * Implemented as specified by the {@link MeasurementViewer} interface.
      * @see MeasurementViewer#activate()
@@ -289,8 +299,10 @@ class MeasurementViewerComponent
      */
 	public void setDataChanged()
 	{ 
-		model.nofityDataChanged(true);
-		firePropertyChange(ROI_CHANGED_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+		model.notifyDataChanged(true);
+		firePropertyChange(ROI_CHANGED_PROPERTY, Boolean.valueOf(false), 
+				Boolean.valueOf(true));
+		fireStateChange();
 	}
 	
 	/** 
@@ -490,17 +502,39 @@ class MeasurementViewerComponent
      */
 	public void saveROIToServer()
 	{
-		model.saveROIToServer(true);
-		model.saveWorkflowToServer(true);
-	}
-	
-	/** 
-     * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#rebuildManagerTable()
-     */
-	public void rebuildManagerTable() 
-	{
-		view.rebuildManagerTable();
+		if (!isImageWritable()) return;
+		List<ROI> l = model.getROIToDelete();
+		if (l != null && l.size() > 0) {
+			List<DeletableObject> objects = new ArrayList<DeletableObject>();
+			Iterator<ROI> i = l.iterator();
+			ROI roi;
+			ROIData data;
+			while (i.hasNext()) {
+				roi = i.next();
+				if (!roi.isClientSide()) {
+					data = new ROIData();
+					data.setId(roi.getID());
+					data.setImage(model.getImage().asImage());
+					objects.add(new DeletableObject(data));
+				}
+			}
+			if (objects.size() == 0) {
+				model.saveROIToServer(true);
+				model.saveWorkflowToServer(true);
+			} else {
+				IconManager icons = IconManager.getInstance();
+				DeleteActivityParam p = new DeleteActivityParam(
+						icons.getIcon(IconManager.APPLY_22), objects);
+				p.setImageID(model.getImageID());
+				p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
+				UserNotifier un = 
+					MeasurementAgent.getRegistry().getUserNotifier();
+				un.notifyActivity(p);
+			}
+		} else {
+			model.saveROIToServer(true);
+			model.saveWorkflowToServer(true);
+		}
 	}
 	
 	/** 
@@ -728,7 +762,8 @@ class MeasurementViewerComponent
 		}
 		un.notifyInfo("Save ROI", "The Regions of Interests have been " +
 									"successfully saved. ");
-		firePropertyChange(ROI_CHANGED_PROPERTY, Boolean.FALSE, Boolean.TRUE);
+		firePropertyChange(ROI_CHANGED_PROPERTY, Boolean.valueOf(false), 
+				Boolean.valueOf(true));
 	}
 
 	/** 
@@ -785,16 +820,12 @@ class MeasurementViewerComponent
 				model.setServerROI(result, true);
 			} 	
 		} catch (Exception e) {
-			e.printStackTrace();
 			String s = "Cannot convert server ROI into UI objects:";
 			MeasurementAgent.getRegistry().getLogger().error(this, s+e);
 		}
 		//bring up the UI.
 		view.layoutUI();
-		//view.rebuildManagerTable();
-		
 		view.updateDrawingArea();
-		view.setReadyStatus();
 		fireStateChange();
 		//Now we are ready to go. We can post an event to add component to
 		//Viewer
@@ -833,9 +864,11 @@ class MeasurementViewerComponent
 				if (roiResult.getROIs().size() != 0)
 					hasResult = true;
 			}
-			if (hasResult) //some ROI previously saved.
+			if (hasResult) {
+				//some ROI previously saved.
+				//result.ge
 				model.setServerROI(result, false);	
-			else {
+			} else {
 				model.fireROILoading(null);
 				return;
 			}
@@ -869,36 +902,8 @@ class MeasurementViewerComponent
 			reg.getLogger().error(this, "Cannot save the ROI "+e.getMessage());
 			un.notifyInfo("Save ROI", "Cannot save ROI " +
 										"for "+model.getImageID());
-			e.printStackTrace();
 		}
 		model.fireLoadROIServerOrClient(false);
-	}
-
-	/** 
-     * Implemented as specified by the {@link MeasurementViewer} interface.
-     * @see MeasurementViewer#getWorkflows()
-     */
-	public void getWorkflows()
-	{
-		/*List<String> keywords = new ArrayList<String>();
-		keywords.add("1");
-		keywords.add("2");
-		keywords.add("3");
-		keywords.add("4");
-		
-		WorkflowData workflow = new WorkflowData("Classification",keywords);
-		
-		
-		model.addWorkflow(workflow);
-		keywords = new ArrayList<String>();
-		keywords.add("a");
-		keywords.add("b");
-		keywords.add("c");
-		keywords.add("d");
-		
-		workflow = new WorkflowData("State",keywords);
-		model.addWorkflow(workflow);*/
-		
 	}
 
 	/** 
@@ -916,6 +921,7 @@ class MeasurementViewerComponent
      */
 	public void setWorkflow(String workflowNamespace)
 	{
+		workflowNamespace = view.getWorkflowFromDisplay(workflowNamespace);
 		model.setWorkflow(workflowNamespace);
 		view.updateWorkflow();
 	}
@@ -943,10 +949,12 @@ class MeasurementViewerComponent
 		boolean b = EditorUtil.isUserOwner(model.getRefObject(), id);
 		if (b) return b;
 		int level = 
-			TreeViewerAgent.getRegistry().getAdminService().getPermissionLevel();
+			MeasurementAgent.getRegistry().getAdminService().getPermissionLevel();
 		switch (level) {
 			case AdminObject.PERMISSIONS_GROUP_READ_LINK:
 			case AdminObject.PERMISSIONS_PUBLIC_READ_WRITE:
+				
+				
 				return true;
 		}
 		return false;
@@ -967,6 +975,57 @@ class MeasurementViewerComponent
 		for(WorkflowData workflow : workflows)
 			model.addWorkflow(workflow);
 		view.addedWorkflow();
+	}
+
+	/** 
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#deleteAllROIs()
+     */
+	public void deleteAllROIs()
+	{
+		if (!isImageWritable()) return;
+		List<ROIData> list = model.getROIData();
+		//ROI owned by the current user.
+		List<DeletableObject> l = new ArrayList<DeletableObject>();
+		Iterator<ROIData> i = list.iterator();
+		ROIData roi;
+		while (i.hasNext()) {
+			roi = i.next();
+			if (roi.getId() > 0)
+				l.add(new DeletableObject(roi));
+		}
+		//if (l.size() == 0) return;
+		//clear view. and table.
+		ExperimenterData exp = 
+			(ExperimenterData) MeasurementAgent.getUserDetails();
+		try {
+			List<ROIFigure> figures = model.removeAllROI(exp.getId());
+			//clear all tables.
+			view.deleteROIs(figures);
+		} catch (Exception e) {
+			LogMessage msg = new LogMessage();
+			msg.print("Delete ROI");
+			msg.print(e);
+			MeasurementAgent.getRegistry().getLogger().error(this, msg);
+		}
+		if (l.size() == 0) return;
+		
+		IconManager icons = IconManager.getInstance();
+		DeleteActivityParam p = new DeleteActivityParam(
+				icons.getIcon(IconManager.APPLY_22), l);
+		p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
+		UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
+		un.notifyActivity(p);
+	}
+
+	/** 
+     * Implemented as specified by the {@link MeasurementViewer} interface.
+     * @see MeasurementViewer#hasROIToDelete()
+     */
+	public boolean hasROIToDelete()
+	{
+		if (model.getState() == DISCARDED) return false;
+		return model.hasROIToDelete();
 	}
 	
 }

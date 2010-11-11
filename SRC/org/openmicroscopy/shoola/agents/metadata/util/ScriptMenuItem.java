@@ -36,6 +36,7 @@ import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * Displays the script.
@@ -103,7 +104,8 @@ public class ScriptMenuItem
 		text += script.getName();
 		setText(script.getDisplayedName()+"...");
 		setToolTipText(text);
-		scriptWithUI = SCRIPTS_UI_AVAILABLE.contains(script.getScriptLabel());
+		String path = script.getScriptLabel();
+		scriptWithUI = SCRIPTS_UI_AVAILABLE.contains(path);
 		if (scriptWithUI) {//reset the icon associated the script.
 			IconManager icons = IconManager.getInstance();
 			script.setIcon(icons.getIcon(IconManager.SCRIPT_WITH_UI));
@@ -135,7 +137,6 @@ public class ScriptMenuItem
 			return MOVIE_EXPORT_SCRIPT;
 		return -1;
 	}
-	
 	
 	/**
 	 * Returns <code>true</code> if the script has already a UI.

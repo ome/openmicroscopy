@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.data.util;
 //Java imports
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -51,6 +52,7 @@ import omero.model.FileAnnotation;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.LongAnnotation;
+import omero.model.Namespace;
 import omero.model.Pixels;
 import omero.model.Plate;
 import omero.model.Project;
@@ -82,6 +84,7 @@ import pojos.TextualAnnotationData;
 import pojos.TimeAnnotationData;
 import pojos.WellData;
 import pojos.WellSampleData;
+import pojos.WorkflowData;
 
 /** 
  * Helper methods to convert {@link IObject}s into their corresponding
@@ -173,6 +176,9 @@ public class PojoMapper
         	return new WellSampleData((WellSample) object);
         else if (object instanceof Roi)
         	return new ROIData((Roi) object);
+        else if (object instanceof Namespace) {
+        	return new WorkflowData((Namespace) object);
+        }
         return null;
     }
     
@@ -189,6 +195,28 @@ public class PojoMapper
     {
     	if (objects == null) return new HashSet<DataObject>();
         Set<DataObject> set = new HashSet<DataObject>(objects.size());
+        Iterator i = objects.iterator();
+        DataObject data;
+        while (i.hasNext()) {
+        	data = asDataObject((IObject) i.next());
+        	if (data != null) set.add(data);
+        }
+        return set;
+    }
+    
+    /**
+     * Converts each {@link IObject element} of the collection into its 
+     * corresponding {@link DataObject}.
+     * 
+     * @param objects   The set of objects to convert.
+     * @return          A set of {@link DataObject}s.
+     * @throws IllegalArgumentException If the set is <code>null</code>, doesn't
+     * contain {@link IObject} or if the type {@link IObject} is unknown.
+     */
+    public static List asDataObjectsAsList(Collection objects)
+    {
+    	if (objects == null) return new ArrayList<DataObject>();
+        List<DataObject> set = new ArrayList<DataObject>(objects.size());
         Iterator i = objects.iterator();
         DataObject data;
         while (i.hasNext()) {
@@ -261,7 +289,8 @@ public class PojoMapper
      * @throws IllegalArgumentException 
      * @throws IllegalArgumentException If the map is <code>null</code> 
      * or if the type {@link IObject} is unknown.
-     */public static <K, V extends DataObject>  Map<K, V> 
+     */
+    public static <K, V extends DataObject>  Map<K, V> 
     								asDataObjectMap(Class<K> keyKlass, 
     										Class<V> valueKlass, 
     								String method, List objects) throws 

@@ -30,12 +30,14 @@ import javax.swing.table.AbstractTableModel;
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
-import org.jhotdraw.draw.Figure;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
+import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 
 /** 
  * The model associated to the table displaying the figures.
@@ -58,7 +60,7 @@ public class FigureTableModel
 	private static final String		NA	="N/A";
 	
 	/** The figure this model is for. */
-	private Figure					figure;
+	private ROIFigure				figure;
 	
 	/** The collection of column's names. */
 	private List<String>			columnNames;
@@ -92,6 +94,14 @@ public class FigureTableModel
 		values = new ArrayList<Object>();
 	}
 	
+	/** Clears data. */
+	public void clearData()
+	{
+		keys.clear();
+		values.clear();
+		fireTableDataChanged();
+	}
+	
 	/**
 	 * Sets the figure handled by this model.
 	 * 
@@ -115,6 +125,11 @@ public class FigureTableModel
 				key = (AttributeKey) i.next();
 				if (key.equals(fieldName.getKey()))
 				{
+					if (MeasurementAttributes.TEXT.equals(key) ||
+							MeasurementAttributes.WIDTH.equals(key) ||
+							MeasurementAttributes.HEIGHT.equals(key)) {
+						fieldName.setEditable(!figure.isReadOnly());
+					}
 					keys.add(key);
 					values.add(figure.getAttribute(key));
 					found = true;
@@ -124,20 +139,49 @@ public class FigureTableModel
 			if (!found)
 			{
 				key = fieldName.getKey();
+				
+				/*
 				if (figure.getROI().hasAnnotation(key.getKey()))
 				{
 					keys.add(key);
-					values.add(figure.getROI().getAnnotation(
-							(AnnotationKey) key));
-				} else
-				{
+					if (AnnotationKeys.NAMESPACE.equals(key)) {
+						values.add(EditorUtil.getWorkflowForDisplay(
+								(String) figure.getROI().getAnnotation(
+										(AnnotationKey) key)));
+					} else {
+						values.add(figure.getROI().getAnnotation(
+								(AnnotationKey) key));
+					}
+				} else {
 					keys.add(key);
-					values.add(NA);
+					if (AnnotationKeys.NAMESPACE.equals(key) ||
+							AnnotationKeys.KEYWORDS.equals(key))
+						values.add("");
+					else values.add(NA);
+				}
+				*/
+				keys.add(key);
+				if (AnnotationKeys.NAMESPACE.equals(key)) {
+					values.add(EditorUtil.getWorkflowForDisplay(
+							(String) figure.getROI().getAnnotation(
+									(AnnotationKey) key)));
+				} else {
+					if (key instanceof AnnotationKey)
+						values.add(figure.getROI().getAnnotation(
+							(AnnotationKey) key));
+					else values.add(NA);
 				}
 			}
 		}
 		fireTableDataChanged();
 	}
+	
+	/**
+	 * Returns the figure handle by the model.
+	 * 
+	 * @return See above.
+	 */
+	public ROIFigure getFigure() { return figure; }
 	
 	/**
 	 * Overridden to return the name of the specified column.
@@ -183,8 +227,7 @@ public class FigureTableModel
 	/**
 	 * Returns the attributeGField of the specified cell.
 	 * 
-	 * @param rowIndex
-	 *            the index of the attributeField.
+	 * @param rowIndex The index of the attributeField.
 	 * @return see above.
 	 */
 	public AttributeField getFieldAt(int rowIndex)
@@ -236,7 +279,7 @@ public class FigureTableModel
 	{
 		if (col == 0) return false;
 		if (values.get(row) instanceof String) 
-			if (values.get(row).equals(NA)) return false;
+			if (NA.equals(values.get(row))) return false;
 		return fieldList.get(row).isEditable();
 	}
 	

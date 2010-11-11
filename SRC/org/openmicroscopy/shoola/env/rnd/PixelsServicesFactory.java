@@ -367,6 +367,15 @@ public class PixelsServicesFactory
 		return singleton.rndSvcProxies.get(pixelsID);
 	}
 	
+	/**
+	 * Returns <code>true</code> if the proxy is used elsewhere.
+	 * 
+	 * @param context Reference to the registry. To ensure that agents cannot
+	 *                  call the method. It must be a reference to the
+	 *                  container's registry.
+	 * @param pixelsID  The id of the pixels set.
+	 * @return See above.
+	 */
 	public static boolean isRenderingControlShared(Registry context,
 			Long pixelsID)
 	{

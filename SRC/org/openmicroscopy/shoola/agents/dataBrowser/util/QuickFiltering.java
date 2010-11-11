@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.util;
 import java.awt.Rectangle;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -72,6 +73,8 @@ public class QuickFiltering
 	/** Bound property indicating to filter the data. */
 	public static final String	FILTER_TAGS_PROPERTY = "filterTags";
 	
+	/** Bound property indicating to display all nodes. */
+	public static final String	DISPLAY_ALL_NODES_PROPERTY = "displayAllNodes";	
 	
 	/** The collection of tags if any. */
 	private Collection 		tags;
@@ -157,6 +160,44 @@ public class QuickFiltering
 	}
 	
 	/**
+	 * Returns the collection of tags.
+	 * 
+	 * @return See above. 
+	 */
+	public Collection getTags() { return tags; }
+	
+	/**
+	 * Sets the selected tags.
+	 * 
+	 * @param tags The tags to filter by.
+	 */
+	public void setSelectedTags(Collection tags)
+	{
+		clear();
+		if (tags == null || tags.size() == 0) {
+			firePropertyChange(DISPLAY_ALL_NODES_PROPERTY, 
+					Boolean.valueOf(false), Boolean.valueOf(true));
+			
+			return;
+		}
+		List<String> list = new ArrayList<String>();
+		Iterator i = tags.iterator();
+		TagAnnotationData tag;
+		while (i.hasNext()) {
+			tag = (TagAnnotationData) i.next();
+			list.add(tag.getTagValue());
+		}
+		setSearchValue(list, false);
+		FilterContext context = new FilterContext(); 
+		List<String> l = SearchUtil.splitTerms(getSearchValue(),  
+				SearchUtil.COMMA_SEPARATOR); 
+		if (l != null && l.size() > 0) { 
+			context.addAnnotationType(TagAnnotationData.class, l); 
+			firePropertyChange(FILTER_TAGS_PROPERTY, null, context); 
+		} 
+	}
+	
+	/**
 	 * Overridden to load the tags if the {@link QuickSearch#TAGS} is selected.
 	 * @see QuickSearch#handleTextInsert()
 	 */
@@ -172,6 +213,40 @@ public class QuickFiltering
 	}
 	
 	/**
+	 * Overridden to load the tags if the {@link QuickSearch#TAGS} is selected.
+	 * @see QuickSearch#handleKeyEnter()
+	 */
+	protected void handleKeyEnter()
+	{
+		SearchObject node = getSelectedNode();
+		if (node == null) return;
+		switch (node.getIndex()) {
+			case QuickSearch.TAGS:
+				if (tagsDialog != null && tagsDialog.isVisible()) {
+					Object item = tagsDialog.getSelectedTextValue();
+					if (!(item instanceof TagItem)) return;
+					DataObject ho = ((TagItem) item).getDataObject();
+					if (ho instanceof TagAnnotationData) {
+						String v = ((TagAnnotationData) ho).getTagValue();
+						setSearchValue(v, true);
+						FilterContext context = new FilterContext();
+						List<String> l = SearchUtil.splitTerms(getSearchValue(), 
+								SearchUtil.COMMA_SEPARATOR);
+						if (l != null && l.size() > 0) {
+							context.addAnnotationType(TagAnnotationData.class, 
+									l);
+							firePropertyChange(FILTER_TAGS_PROPERTY, null, 
+									context);
+						}
+					}
+				} else  {
+					onNodeSelection();
+				}
+		}
+	}
+	
+	
+	/**
 	 * Reacts to the property fired by the <code>SearchContextMenu</code>
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */
@@ -185,7 +260,7 @@ public class QuickFiltering
 			DataObject ho = ((TagItem) item).getDataObject(); 
 			if (ho instanceof TagAnnotationData) { 
 				String v = ((TagAnnotationData) ho).getTagValue(); 
-				setSearchValue(v); 
+				setSearchValue(v, true); 
 				FilterContext context = new FilterContext(); 
 				List<String> l = SearchUtil.splitTerms(getSearchValue(),  
 						SearchUtil.COMMA_SEPARATOR); 
@@ -202,12 +277,13 @@ public class QuickFiltering
 				tagsDialog.setSelectedIndex(true);
 		} else if (QUICK_SEARCH_PROPERTY.equals(name)) {
 			if (tagsDialog != null && tagsDialog.isVisible()) {
+				/*
 				Object item = tagsDialog.getSelectedTextValue();
 				if (!(item instanceof TagItem)) return;
 				DataObject ho = ((TagItem) item).getDataObject();
 				if (ho instanceof TagAnnotationData) {
 					String v = ((TagAnnotationData) ho).getTagValue();
-					setSearchValue(v);
+					setSearchValue(v, false);
 					FilterContext context = new FilterContext();
 					List<String> l = SearchUtil.splitTerms(getSearchValue(), 
 							SearchUtil.COMMA_SEPARATOR);
@@ -216,6 +292,7 @@ public class QuickFiltering
 						firePropertyChange(FILTER_TAGS_PROPERTY, null, context);
 					}
 				}
+				*/
 			} else
 				firePropertyChange(FILTER_DATA_PROPERTY, evt.getOldValue(), 
 						          evt.getNewValue());

@@ -76,12 +76,12 @@ public class WorkflowSaver
 	}
 	
 	/**
-     * Loads the ROI.
+     * Saves the workflows.
      * @see MeasurementViewerLoader#load()
      */
     public void load()
     {
-    	handle = this.idView.storeWorkflows(workflows, userID, this);
+    	handle = idView.storeWorkflows(workflows, userID, this);
     }
     
     /**

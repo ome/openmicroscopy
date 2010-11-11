@@ -105,9 +105,9 @@ public class NullUserNotifier
     public void notifyInfo(String title, String message, Icon icon) {}
 
     /**
-     * @see UserNotifier#submitMessage(String)
+     * @see UserNotifier#submitMessage(String, String)
      */
-	public void submitMessage(String emailAddress) {}
+	public void submitMessage(String emailAddress, String comment) {}
 
 	/**
 	 * @see UserNotifier#notifyDownload(FileAnnotationData)

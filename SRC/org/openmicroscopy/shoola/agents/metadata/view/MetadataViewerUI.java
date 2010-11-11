@@ -55,7 +55,6 @@ import javax.swing.JSplitPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
-import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.agents.util.ViewedByItem;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
@@ -97,7 +96,7 @@ class MetadataViewerUI
     /** The title of the dialog. */
     private static final String		TITLE = "Add metadata";
     
-    /** The description of the dilaog.. */
+    /** The description of the dialog. */
     private static final String		DESCRIPTION = "Add comments, tags, etc., " +
     		"to the selected items.";
     
@@ -214,31 +213,6 @@ class MetadataViewerUI
 		uiDelegate.revalidate();
 		uiDelegate.repaint();
 		viewedByMenu = null;
-	}
-	
-	/**
-	 * Sets the specified thumbnail 
-	 * 
-	 * @param thumbnail The thumbnail to set.
-	 */
-	void setThumbnail(BufferedImage thumbnail)
-	{
-		JLabel label = new JLabel(new ImageIcon(thumbnail));
-        label.setBorder(new FrameBorder(Color.BLACK));
-        label.addMouseListener(new MouseAdapter() {
-            
-            /**
-             * Views the image if the user double-clicks on the thumbnail.
-             */
-            public void mouseClicked(MouseEvent e)
-            {
-                //if (e.getClickCount() == 2) 
-                    //model.browse(model.getHierarchyObject());
-            }
-        });
-        //titlePanel.setIconComponent(label);
-        uiDelegate.revalidate();
-		uiDelegate.repaint();
 	}
 	
 	/**

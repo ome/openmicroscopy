@@ -66,7 +66,6 @@ import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
@@ -974,6 +973,8 @@ class OmeroMetadataServiceImpl
 			toInclude.add(nameSpace);
 		if (FileAnnotationData.class.equals(annotationType)) {
 			toExclude.add(FileAnnotationData.COMPANION_FILE_NS);
+			toExclude.add(FileAnnotationData.MEASUREMENT_NS);
+			toExclude.add(FileAnnotationData.FLIM_NS);
 		}
 		return gateway.loadSpecificAnnotation(annotationType, toInclude, 
 				toExclude, po);
@@ -981,11 +982,11 @@ class OmeroMetadataServiceImpl
 	
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroMetadataService#saveData(Collection, List, List, List, long)
+	 * @see OmeroMetadataService#saveData(Collection, List, List, long)
 	 */
 	public Object saveData(Collection<DataObject> data, 
 			        List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
-			        List<AnnotationData> toDelete, long userID) 
+			        long userID) 
 			throws DSOutOfServiceException, DSAccessException
 	{
 		if (data == null)
@@ -1021,28 +1022,16 @@ class OmeroMetadataServiceImpl
 				}
 			}
 		}
-		//now delete the annotation
-		if (toDelete != null && toDelete.size() > 0) {
-			List<DeletableObject> l = new ArrayList<DeletableObject>();
-			Iterator<AnnotationData> k = toDelete.iterator();
-			while (k.hasNext()) {
-				l.add(new DeletableObject(k.next()));
-			}
-			try {
-				context.getDataService().delete(l);
-			} catch (Exception ex) {}
-		}
 		return data;
 	}
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroMetadataService#saveBatchData(Collection, List, List, List,
-	 * long)
+	 * @see OmeroMetadataService#saveBatchData(Collection, List, List, long)
 	 */
 	public Object saveBatchData(Collection<DataObject> data, 
 				List<AnnotationData> toAdd, List<AnnotationData> toRemove, 
-				List<AnnotationData> toDelete, long userID) 
+				long userID) 
 			throws DSOutOfServiceException, DSAccessException
 	{
 		if (data == null)
@@ -1137,12 +1126,10 @@ class OmeroMetadataServiceImpl
 	
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroMetadataService#saveBatchData(TimeRefObject, List, List, List,
-	 * long)
+	 * @see OmeroMetadataService#saveBatchData(TimeRefObject, List, List, long)
 	 */
 	public Object saveBatchData(TimeRefObject data, List<AnnotationData> toAdd,
-			                  List<AnnotationData> toRemove, 
-			                  List<AnnotationData> toDelete, long userID) 
+			                  List<AnnotationData> toRemove, long userID) 
 			throws DSOutOfServiceException, DSAccessException
 	{
 		if (data == null)
@@ -1263,8 +1250,8 @@ class OmeroMetadataServiceImpl
 		List<Long> nodes;
 		if (terms != null && terms.size() > 0) {
 			//retrieve the annotations corresponding to the specified terms.
-			List annotations = gateway.filterBy(annotationType, terms,
-					                           null, null, exp);
+			//List annotations = gateway.filterBy(annotationType, terms,
+			//		                           null, null, exp);
 			
 			i = map.entrySet().iterator();
 			while (i.hasNext()) {
@@ -1276,7 +1263,8 @@ class OmeroMetadataServiceImpl
 					data = (AnnotationData) j.next();
 					if (annotationType.equals(TagAnnotationData.class)) {
 						if (data instanceof TagAnnotationData) {
-							if (annotations.contains(data.getId())) {
+							if (terms.contains(
+									((TagAnnotationData) data).getTagValue())) {
 								nodes = m.get(data.getId());
 								if (nodes == null) {
 									nodes = new ArrayList<Long>();
@@ -1289,8 +1277,9 @@ class OmeroMetadataServiceImpl
 						}
 					} else if (annotationType.equals(
 							 TextualAnnotationData.class)) {
-						if (!(data instanceof TagAnnotationData)) {
-							if (annotations.contains(data.getId())) {
+						if (data instanceof TextualAnnotationData) {
+							if (terms.contains(
+									((TextualAnnotationData) data).getText())) {
 								nodes = m.get(data.getId());
 								if (nodes == null) {
 									nodes = new ArrayList<Long>();
@@ -1795,6 +1784,7 @@ class OmeroMetadataServiceImpl
 				exclude.add(FileAnnotationData.MOVIE_NS);
 				exclude.add(FileAnnotationData.COMPANION_FILE_NS);
 				exclude.add(FileAnnotationData.MEASUREMENT_NS);
+				exclude.add(FileAnnotationData.FLIM_NS);
 		}
 		ParametersI po = new ParametersI();
 		if (userID >= 0) po.exp(omero.rtypes.rlong(userID));
@@ -1833,6 +1823,7 @@ class OmeroMetadataServiceImpl
 				exclude.add(FileAnnotationData.EDITOR_EXPERIMENT_NS);
 				exclude.add(FileAnnotationData.COMPANION_FILE_NS);
 				exclude.add(FileAnnotationData.MEASUREMENT_NS);
+				exclude.add(FileAnnotationData.FLIM_NS);
 		}
 		
 		return gateway.loadSpecificAnnotation(FileAnnotationData.class, 

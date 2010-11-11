@@ -316,7 +316,7 @@ class UserNotifierManager
 	}
 
 	/**
-	 * Returns the version number.
+	 * Returns the version number of the server.
 	 * 
 	 * @return See above.
 	 */
@@ -327,7 +327,9 @@ class UserNotifierManager
 			container.getRegistry().getAdminService().getServerVersion();
 		if (version == null || version.trim().length() == 0)
 			version = "not available";
-		return "Server version: "+version;
+		String name = container.getRegistry().getAdminService().getServerName();
+		if (name == null) name = "";
+		return "Server name: "+name+", version: "+version;
 	}
 	
 	/**

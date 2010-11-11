@@ -55,7 +55,7 @@ import pojos.LightSourceData;
 
 /** 
  * Component displaying information about the light source i.e.
- * arc, filament, laser or emittind diode.
+ * arc, filament, laser or emitting diode.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -82,7 +82,7 @@ class LightSourceComponent
 	private static final String FILAMENT_TYPE = "Filament";
 	
 	/** Identifies the Emitting Diode type. */
-	private static final String EMITTING_DIODE_TYPE = "Emitting Diode";
+	private static final String EMITTING_DIODE_TYPE = "Light Emitting Diode";
 	
 	/** The fields displaying the metadata. */
 	private Map<String, DataComponent> 			fieldsLight;

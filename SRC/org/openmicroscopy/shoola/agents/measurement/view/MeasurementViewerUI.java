@@ -30,16 +30,23 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Cursor;
 import java.awt.Dimension;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
+
+import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JCheckBoxMenuItem;
@@ -49,6 +56,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JTabbedPane;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 import org.jhotdraw.draw.DelegationSelectionTool;
@@ -61,15 +69,19 @@ import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
+
 import pojos.WorkflowData;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureMaskFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -77,6 +89,7 @@ import org.openmicroscopy.shoola.util.roi.model.ShapeList;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
+import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 
 /** 
  * The {@link MeasurementViewer} view.
@@ -94,7 +107,7 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
 class MeasurementViewerUI 
 	extends TopWindow 
 {
-
+	
 	/** The message displayed when a ROI cannot be retrieved. */
 	static final String					RETRIEVE_MSG = "Cannot retrieve the " +
 															"ROI";
@@ -201,7 +214,16 @@ class MeasurementViewerUI
     
     /** The menu bar handling the workflows. */
     private JMenu 						workflowMenu;
-
+   
+    /** The existing workflow menu. */
+    private JMenu 						existingWorkflow;
+    
+    /** Buttong group of exisitng workflows. */
+    private ButtonGroup					workflows;
+    
+    /** The map holding the work-flow objects. */
+    private Map<String, String>			workflowsUIMap;
+    
     /**
      * Scrolls to the passed figure.
      * 
@@ -310,36 +332,40 @@ class MeasurementViewerUI
     private JMenu createWorkFlowMenu()
     {
         JMenu menu = new JMenu("Workflow");
-       	JMenu existingWorkflow = new JMenu("Existing Workflows");
-       	ButtonGroup workflows = new ButtonGroup();
+        existingWorkflow = new JMenu("Existing Workflows");
+       	workflows = new ButtonGroup();
         menu.setMnemonic(KeyEvent.VK_W);
         
         List<String> workFlows = model.getWorkflows();
         MeasurementViewerAction a;
         JCheckBoxMenuItem workflowItem;
+        String uiWorkFlow;
         for (String workFlow : workFlows)
         {
         	a = controller.getAction(MeasurementViewerControl.SELECT_WORKFLOW);
         	workflowItem = new JCheckBoxMenuItem(a);
-        	workflowItem.setSelected(workFlow == WorkflowData.DEFAULTWORKFLOW);
-        	workflowItem.setText(workFlow);
+        	workflowItem.setSelected(WorkflowData.DEFAULTWORKFLOW.equals(
+        			workFlow));
+        	uiWorkFlow = getWorkflowDisplay(workFlow);
+        	workflowItem.setText(uiWorkFlow);
         	workflows.add(workflowItem);
         	existingWorkflow.add(workflowItem);
         }
         menu.add(existingWorkflow);    
        	a = controller.getAction(MeasurementViewerControl.CREATE_WORKFLOW);
        	
-       	//JMenuItem createWorkflow = new JMenuItem();
-       	//createWorkflow.setText(a.getName());
-    	//createWorkflow.addActionListener(a);
+       	JMenuItem createWorkflow = new JMenuItem();
+        createWorkflow.setText(a.getName());
+    	createWorkflow.addActionListener(a);
+    	//tmp
        	//menu.add(createWorkflow);
         return menu;
     }
-    
-    
+
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
+		workflowsUIMap = new HashMap<String, String>();
 		roiTables = new ArrayList<ServerROITable>();
 		statusBar = new StatusBar();
 		toolBar = new ToolBar(component, this, controller, model);
@@ -447,6 +473,7 @@ class MeasurementViewerUI
         this.component = component;
         this.model = model;
         this.controller = controller;
+        
         controller.attachListeners();
         ImageIcon icon = IconManager.getInstance().getImageIcon(
         		IconManager.MEASUREMENT_TOOL);
@@ -477,12 +504,12 @@ class MeasurementViewerUI
 	{
 		try
 		{
-			model.nofityDataChanged(true);
+			model.notifyDataChanged(true);
 			ROI newROI = model.cloneROI(idList.get(0));
+			ROIShape newShape;
 			for (ROIShape shape : shapeList)
 			{
-				ROIShape newShape = new ROIShape(newROI, shape.getCoord3D(), 
-						shape);
+				newShape = new ROIShape(newROI, shape.getCoord3D(), shape);
 				if (getDrawing().contains(shape.getFigure()))
 				{
 					shape.getFigure().removeFigureListener(controller);
@@ -523,7 +550,7 @@ class MeasurementViewerUI
 	{
 		try
 		{
-			model.nofityDataChanged(true);
+			model.notifyDataChanged(true);
 			ROI newROI = model.cloneROI(id);
 			ROIShape newShape;
 			for (ROIShape shape : shapeList)
@@ -569,7 +596,7 @@ class MeasurementViewerUI
 	{
 		try
 		{
-			model.nofityDataChanged(true);
+			model.notifyDataChanged(true);
 			ROI newROI = model.cloneROI(id);
 			ROIShape newShape;
 			for (ROIShape shape : shapeList)
@@ -600,17 +627,22 @@ class MeasurementViewerUI
 	{
 		try
 		{
-			model.nofityDataChanged(true);
+			ROIFigure roi;
+			model.notifyDataChanged(true);
+			ROI r;
 			for (ROIShape shape : shapeList)
 			{
-				if (getDrawing().contains(shape.getFigure()))
+				roi = shape.getFigure();
+				r = roi.getROI();
+				if (getDrawing().contains(roi))
 				{
 					shape.getFigure().removeFigureListener(controller);
 					getDrawing().removeDrawingListener(controller);
-					getDrawing().remove(shape.getFigure());
+					getDrawing().remove(roi);
 					getDrawing().addDrawingListener(controller);
 				}
 				model.deleteShape(shape.getID(), shape.getCoord3D());
+				model.markROIForDelete(shape.getID(), r);
 			}
 		} catch (Exception e) {
 			handleROIException(e, DELETE_MSG);
@@ -707,7 +739,7 @@ class MeasurementViewerUI
      * Selects the current figure based on ROIid, t and z sections.
      * 
      * @param ROIid     The id of the selected ROI.
-     * @param t 	The corresponding timepoint.
+     * @param t 	The corresponding time-point.
      * @param z 	The corresponding z-section.
      */
     void selectFigure(long ROIid, int t, int z)
@@ -820,6 +852,7 @@ class MeasurementViewerUI
 			intensityResultsView.onFigureSelected();
 			intensityView.onFigureSelected();
 			toolBar.onFigureSelected();
+			displayAnalysisResults();
 		}
     }
     
@@ -906,13 +939,35 @@ class MeasurementViewerUI
     		if (!model.isHCSData()) {
     			roiManager.removeFigure(figure);
     			roiResults.refreshResults();
+    			roiInspector.removeROIFigure(figure);
+    			//intensityResultsView
+    			//graphPane
     		}
 		} catch (Exception e) {
-			e.printStackTrace();
 			handleROIException(e, DELETE_MSG);
 		}
     }
     
+	/** 
+	 * Deletes the ROI from Display.
+	 * 
+	 * @param figures The figure to remove.
+	 */
+	void deleteROIs(List<ROIFigure> figures)
+	{
+		if (figures == null || figures.size() == 0) return;
+		try {
+			roiManager.removeFigures(figures);
+			roiResults.refreshResults();
+			roiInspector.removeROIFigures(figures);
+			intensityView.onFigureRemoved();
+			intensityResultsView.removeAllResults();
+			graphPane.clearData();
+		} catch (Exception e) {
+			handleROIException(e, DELETE_MSG);
+		}
+	}
+	
     /**
      * Adds the specified figure to the display.
      * 
@@ -946,7 +1001,7 @@ class MeasurementViewerUI
     {
     	if (model.getState() != MeasurementViewer.READY) return;
     	if (figure == null) return;
-    	getDrawingView().repaint();
+    	//getDrawingView().repaint();
     	if (!model.isHCSData()) {
     		roiInspector.setModelData(figure);
         	//roiManager.update();
@@ -1043,6 +1098,9 @@ class MeasurementViewerUI
 		drawing.clear();
 		ShapeList list = null;
 		ROIFigure figure;
+		Iterator<ROIFigure> f;
+		List<ROIFigure> first = new ArrayList<ROIFigure>();
+		List<ROIFigure> second = new ArrayList<ROIFigure>();
 		if (model.isHCSData()) {
 			Component comp = tabs.getSelectedComponent();
 			if (comp instanceof ServerROITable) {
@@ -1052,22 +1110,39 @@ class MeasurementViewerUI
 					List<ROI> rois;
 					if (fileID >= 0) {
 						 rois = model.getROIList(fileID);
-						 Iterator<ROI> k = rois.iterator();
-							ROI roi;
-							TreeMap<Coord3D, ROIShape> shapes;
-							Iterator<ROIShape> j;
-							ROIShape shape;
-							while (k.hasNext()) {
-								roi = k.next();
-								shapes = roi.getShapes();
-								j = shapes.values().iterator();
-								while (j.hasNext()) {
-									shape = j.next();
-									figure = shape.getFigure();
-									drawing.add(figure);
-									figure.addFigureListener(controller);
-								}
-							}
+						 if (rois != null) {
+							 Iterator<ROI> k = rois.iterator();
+							 ROI roi;
+							 TreeMap<Coord3D, ROIShape> shapes;
+							 Iterator<ROIShape> j;
+							 ROIShape shape;
+							 
+							 while (k.hasNext()) {
+								 roi = k.next();
+								 shapes = roi.getShapes();
+								 j = shapes.values().iterator();
+								 while (j.hasNext()) {
+									 shape = j.next();
+									 figure = shape.getFigure();
+									 if (!(figure instanceof MeasureMaskFigure)) 
+										 second.add(figure);
+									 else
+										 first.add(figure);
+								 }
+							 }
+							 f = first.iterator();
+							 while (f.hasNext()) {
+								 figure = f.next();
+								 drawing.add(figure);
+								 figure.addFigureListener(controller);
+							 }
+							 f = second.iterator();
+							 while (f.hasNext()) {
+								 figure = f.next();
+								 drawing.add(figure);
+								 figure.addFigureListener(controller);
+							 }
+						 }
 					} else {
 						try {
 							list = model.getShapeList();
@@ -1100,7 +1175,7 @@ class MeasurementViewerUI
 				for (int i = 0; i < l.length; i++)
 					canvas.removeKeyListener(l[i]);
 			}
-		} else {
+		} else { //non HCS data
 			try {
 				list = model.getShapeList();
 			} catch (Exception e) {
@@ -1110,15 +1185,31 @@ class MeasurementViewerUI
 				TreeMap map = list.getList();
 				Iterator i = map.values().iterator();
 				ROIShape shape;
+				//mask
 				while (i.hasNext()) {
 					shape = (ROIShape) i.next();
-					if (shape != null) 
-					{
+					if (shape != null) {
 						figure = shape.getFigure();
-						drawing.add(figure);
-						figure.addFigureListener(controller);
+						 if (!(figure instanceof MeasureMaskFigure)) 
+							 second.add(figure);
+						 else
+							 first.add(figure);
 					}
 				}
+				f = first.iterator();
+				 while (f.hasNext()) {
+					 figure = f.next();
+					 drawing.add(figure);
+					 figure.addFigureListener(controller);
+				 }
+				 f = second.iterator();
+				 while (f.hasNext()) {
+					 figure = f.next();
+					 drawing.add(figure);
+					 figure.addFigureListener(controller);
+				 }
+				
+				
 			}
 		}
 		setStatus(DEFAULT_MSG);
@@ -1265,17 +1356,45 @@ class MeasurementViewerUI
 		model.calculateStats(shapeList);
 	}
 
-    /**
-     * Update the workflow in the toolbar.
-     */
+    /** Updates the workflow in the toolbar. */
 	void addedWorkflow()
 	{
-		if (workflowMenu != null && mainMenu != null)
+		if (workflowMenu != null && mainMenu != null 
+				&& existingWorkflow != null)
 		{
-			mainMenu.remove(workflowMenu);
-			workflowMenu = createWorkFlowMenu(); 
-			mainMenu.add(workflowMenu);
-			toolBar.addedWorkflow();
+			 Enumeration<AbstractButton> buttons = workflows.getElements();
+			 List<AbstractButton> buttonList = new ArrayList<AbstractButton>();
+			 while(buttons.hasMoreElements())
+				 buttonList.add(buttons.nextElement());
+			 
+			ActionListener[] l = existingWorkflow.getActionListeners();
+			for (ActionListener a :l )
+				existingWorkflow.removeActionListener(a);
+			for (AbstractButton button : buttonList)
+				workflows.remove(button);
+			existingWorkflow.removeAll();
+			workflows = new ButtonGroup();
+			List<String> workFlows = model.getWorkflows();
+		    JCheckBoxMenuItem workflowItem;
+		    MeasurementViewerAction action;
+		    String uiWorkFlow;
+		    for (String workFlow : workFlows)
+		    {
+		    	action = controller.getAction(
+		    			MeasurementViewerControl.SELECT_WORKFLOW);
+		    	workflowItem = new JCheckBoxMenuItem(action);
+		    	uiWorkFlow = getWorkflowDisplay(workFlow);
+		    	workflowsUIMap.put(uiWorkFlow, workFlow);
+		    	workflowItem.setSelected(
+		    			WorkflowData.DEFAULTWORKFLOW.equals(workFlow));
+		    	workflowItem.setText(uiWorkFlow);
+		    	workflows.add(workflowItem);
+		    	existingWorkflow.add(workflowItem);
+		    	workflowItem.setEnabled(true);
+		    }
+		    for (ActionListener a :l )
+				existingWorkflow.addActionListener(a);
+		    toolBar.addedWorkflow();
 		}
 	}
 	
@@ -1285,6 +1404,65 @@ class MeasurementViewerUI
  	/** Adds the workflow to the toolbar.  */
 	void createWorkflow() { toolBar.createWorkflow(); }
 	
+	/**
+	 * Returns The UI representations of the workflow.
+	 * 
+	 * @param value The value to convert.
+	 * @return See above.
+	 */
+	String getWorkflowDisplay(String value)
+	{
+		/*
+		String result = value;
+		if (value.contains("/")) {
+			String[] list = value.split("/");
+			result = list[list.length-1];
+		}
+		*/
+		String result = EditorUtil.getWorkflowForDisplay(value);
+		if (!workflowsUIMap.containsKey(result))
+			workflowsUIMap.put(result, value);
+		return result;
+	}
+	
+	/**
+	 * Returns the workflow corresponding to the specified UI value.
+	 * 
+	 * @param value The value to convert.
+	 * @return See above.
+	 */
+	String getWorkflowFromDisplay(String value)
+	{
+		if (value == null) return null;
+		return workflowsUIMap.get(value);
+	}
+	
+	/** Invokes when the figures is selected. */
+	void onSelectedFigures()
+	{
+		roiManager.onSelectedFigures();
+	}
+	
+	/**
+	 * Creates a file chooser used to select where to save the results
+	 * as an Excel file.
+	 * 
+	 * @return See above.
+	 */
+	FileChooser createSaveToExcelChooser()
+	{
+		List<FileFilter> filterList = new ArrayList<FileFilter>();
+		FileFilter filter = new ExcelFilter();
+		filterList.add(filter);
+		FileChooser chooser =
+			new FileChooser(this, FileChooser.SAVE, "Save Results to Excel", 
+					"Save the Results data to a file which can be loaded by " +
+					"a spreadsheet.", filterList);
+		File f = UIUtilities.getDefaultFolder();
+		if (f != null) chooser.setCurrentDirectory(f);
+		return chooser;
+	}
+	
     /** 
      * Overridden to the set the location of the {@link MeasurementViewer}.
      * @see TopWindow#setOnScreen() 
@@ -1293,7 +1471,6 @@ class MeasurementViewerUI
     {
         if (model != null) { //Shouldn't happen
         	setSize(DEFAULT_SIZE);
-        	
             UIUtilities.setLocationRelativeToAndSizeToWindow(
             		model.getRequesterBounds(), this, MAXIMUM_SIZE);
         } else {
@@ -1308,7 +1485,7 @@ class MeasurementViewerUI
      */
  	public void setVisible(boolean value)
 	{
-		if(value==false)
+		if (!value)
 			toolBar.getWorkflowPanel().setVisible(false);
 		super.setVisible(value);
 	}

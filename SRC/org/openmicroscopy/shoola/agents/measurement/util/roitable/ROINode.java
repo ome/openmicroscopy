@@ -33,6 +33,7 @@ import java.util.TreeMap;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -153,7 +154,7 @@ public class ROINode
 	 */
 	public ROINode findChild(ROIShape shape)
 	{
-		if(childMap.containsKey(shape))
+		if (childMap.containsKey(shape))
 			return childMap.get(shape);
 		return null;
 	}
@@ -172,7 +173,9 @@ public class ROINode
 	}
 	
 	/**
-	 * Is the cell editable. 
+	 * Returns <code>true</code> if the node can be edited, <code>false</code>
+	 * otherwise.
+	 * 
 	 * @param column the column to edit.
 	 * @return see above.
 	 */
@@ -214,7 +217,7 @@ public class ROINode
 	 {
 		 super.remove(child);
 		 Object userObject = child.getUserObject();
-		 if(userObject instanceof ROIShape)
+		 if (userObject instanceof ROIShape)
 		 {
 			 ROIShape shape = (ROIShape)userObject;
 			 childMap.remove(shape);
@@ -263,7 +266,8 @@ public class ROINode
 				case SHAPE_COLUMN+1:
 					return roi.getShapeTypes();
 				case NAMESPACE_COLUMN+1:
-					return AnnotationKeys.NAMESPACE.get(roi);
+					return EditorUtil.getWorkflowForDisplay(
+							AnnotationKeys.NAMESPACE.get(roi));
 				case KEYWORDS_COLUMN+1:
 					return AnnotationKeys.KEYWORDS.get(roi);
 				case ANNOTATION_COLUMN+1:

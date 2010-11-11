@@ -37,7 +37,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.table.TableModel;
 import javax.swing.tree.TreeSelectionModel;
 
 
@@ -45,6 +44,7 @@ import javax.swing.tree.TreeSelectionModel;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.table.ColumnFactory;
 import org.jdesktop.swingx.table.TableColumnExt;
+import org.jhotdraw.draw.Figure;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
@@ -106,14 +106,14 @@ class ObjectManager
 	static{
 		columnWidths= new HashMap<String, Integer>();
         columnWidths.put(columnNames.get(0), 80);
-        columnWidths.put(columnNames.get(1),36);
-        columnWidths.put(columnNames.get(2),36);
-        columnWidths.put(columnNames.get(3),36);
-        columnWidths.put(columnNames.get(4),36);
-        columnWidths.put(columnNames.get(5),36);
-        columnWidths.put(columnNames.get(6),96);
-        columnWidths.put(columnNames.get(7),96);
-        columnWidths.put(columnNames.get(8),36);
+        columnWidths.put(columnNames.get(1), 36);
+        columnWidths.put(columnNames.get(2), 36);
+        columnWidths.put(columnNames.get(3), 36);
+        columnWidths.put(columnNames.get(4), 36);
+        columnWidths.put(columnNames.get(5), 36);
+        columnWidths.put(columnNames.get(6), 96);
+        columnWidths.put(columnNames.get(7), 96);
+        columnWidths.put(columnNames.get(8), 36);
 	}
 	
 	/** Index to identify tab */
@@ -142,9 +142,9 @@ class ObjectManager
 	{
 		ROINode root = new ROINode("root");
         Vector cName = (Vector) columnNames;
-        ROITableModel tableModel = new ROITableModel(root, cName);
-        	   
-	    objectsTable = new ROITable(tableModel, cName, this);
+
+	    objectsTable = new ROITable(new ROITableModel(root, cName), cName, 
+	    		this);
 	    objectsTable.setRootVisible(false);
 	    objectsTable.setColumnSelectionAllowed(true);
 	    objectsTable.setRowSelectionAllowed(true);
@@ -172,10 +172,10 @@ class ObjectManager
 				}
 				else
 				{
+					ROIShape shape;
 					for (int i = 0; i < index.length; i++)
 					{
-						ROIShape shape = objectsTable.getROIShapeAtRow(
-								index[i]);
+						shape = objectsTable.getROIShapeAtRow(index[i]);
 						if (shape != null)
 						{
 							view.selectFigure(shape.getFigure());
@@ -187,24 +187,17 @@ class ObjectManager
 		};
 	    
 	    objectsTable.addTreeSelectionListener(treeSelectionListener);
-		
-	     ColumnFactory columnFactory = new ColumnFactory() {
-            @Override
-            public void configureTableColumn(TableModel model, 
-            		TableColumnExt columnExt) {
-                super.configureTableColumn(model, columnExt);
-                if (columnExt.getModelIndex() == 1) {
-                	
-                }
-            }
- 
-            public void configureColumnWidths(JXTable table, 
-            		TableColumnExt columnExt) 
-            {
-            	columnExt.setPreferredWidth(
-            			columnWidths.get(columnExt.getHeaderValue()));
-            }
-        };
+
+	    ColumnFactory columnFactory = new ColumnFactory() {
+
+
+	    	public void configureColumnWidths(JXTable table, 
+	    			TableColumnExt columnExt) 
+	    	{
+	    		columnExt.setPreferredWidth(
+	    				columnWidths.get(columnExt.getHeaderValue()));
+	    	}
+	    };
     	objectsTable.setHorizontalScrollEnabled(true);
 	    objectsTable.setColumnControlVisible(true);
 	    objectsTable.setColumnFactory(columnFactory);
@@ -259,12 +252,9 @@ class ObjectManager
 			shapeList = roi.getShapes();
 			shapeIterator = shapeList.values().iterator();
 			while (shapeIterator.hasNext())
-			{
-				ROIShape shape = shapeIterator.next();
-				objectsTable.addROIShape(shape);
-			}
+				objectsTable.addROIShape(shapeIterator.next());
 		}
-
+		objectsTable.collapseAll();
 	}
 	
 	/**
@@ -300,9 +290,7 @@ class ObjectManager
 			roi = (ROI) i.next();
 			j = roi.getShapes().values().iterator();
 			while (j.hasNext())
-			{
 				objectsTable.addROIShape(j.next());
-			}
 		}
 	}
 
@@ -341,7 +329,7 @@ class ObjectManager
 				objectsTable.selectROIShape(figure.getROIShape());
 			}
 			objectsTable.repaint();
-			if(figure != null)
+			if (figure != null)
 				objectsTable.scrollToROIShape(figure.getROIShape());
 		} 
 		catch (Exception e) {
@@ -365,7 +353,23 @@ class ObjectManager
 	}
 	
 	/**
-	 * Delete the ROI shapes in the shapelist and belonging 
+	 * Removes the passed figures from the table.
+	 * 
+	 * @param figures The figures to handle.
+	 */
+	void removeFigures(List<ROIFigure> figures)
+	{
+		if (figures == null || figures.size() == 0) return;
+		Iterator<ROIFigure> i = figures.iterator();
+		while (i.hasNext()) {
+			objectsTable.removeROIShape(i.next().getROIShape());
+		}
+		objectsTable.repaint();
+	}
+	
+	/**
+	 * Deletes the ROI shapes in the list.
+	 * 
 	 * @param shapeList see above.
 	 */
 	void deleteROIShapes(List<ROIShape> shapeList)
@@ -375,7 +379,7 @@ class ObjectManager
 	}
 		
 	/**
-	 * Duplicate the ROI shapes in the shapelist and belonging to the ROI with
+	 * Duplicates the ROI shapes in the list and belonging to the ROI with
 	 * id.
 	 * @param id see above.
 	 * @param shapeList see above.
@@ -387,7 +391,7 @@ class ObjectManager
 	}
 	
 	/**
-	 * Calculates the stats for the roi in the shapelist
+	 * Calculates the statistics for the roi in the list.
 	 * 
 	 * @param shapeList The collection of shapes.
 	 */
@@ -397,7 +401,7 @@ class ObjectManager
 	}
 	
 	/**
-	 * Merge the ROI shapes in the shapelist and belonging to the ROI with
+	 * Merges the ROI shapes in the list and belonging to the ROI with
 	 * id in idList into a single new ROI. The ROI in the shape list should 
 	 * all be on separate planes.
 	 * 
@@ -411,17 +415,17 @@ class ObjectManager
 	}
 	
 	/**
-	 * Split the ROI shapes in the shapelist and belonging to the ROI with
+	 * Split the ROI shapes in the list and belonging to the ROI with
 	 * id into a single new ROI. The ROI in the shape list should 
 	 * all be on separate planes.
+	 * 
 	 * @param id see above. see above.
 	 * @param shapeList see above.
 	 */
 	void splitROI(long id, List<ROIShape> shapeList)
 	{
-			view.splitROI(id, shapeList);
-			this.rebuildTable();
-		
+		view.splitROI(id, shapeList);
+		this.rebuildTable();
 	}
 	
 	/** Repaints the table. */
@@ -433,10 +437,11 @@ class ObjectManager
 	}
 
 	/**
-	 * Show the roi assistant for the roi.
+	 * Shows the roi assistant for the roi.
+	 * 
 	 * @param roi see above.
 	 */
-	public void propagateROI(ROI roi)
+	void propagateROI(ROI roi)
 	{
 		view.showROIAssistant(roi);
 	}
@@ -456,6 +461,12 @@ class ObjectManager
 	void showReadyMessage()
 	{
 		view.setReadyStatus();
+	}
+	
+	/** Invokes when new figures are selected. */
+	void onSelectedFigures()
+	{
+		objectsTable.onSelectedFigures(model.getSelectedFigures());
 	}
 	
 	/**

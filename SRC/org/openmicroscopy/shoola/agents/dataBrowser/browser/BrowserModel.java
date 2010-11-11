@@ -39,18 +39,13 @@ import javax.swing.JComponent;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.Colors;
-import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.NodesFinder;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.ResetNodesVisitor;
-import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
-import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
-import pojos.ImageData;
 import pojos.WellData;
-import pojos.WellSampleData;
 
 /** 
  * Implements {@link Browser} to maintain presentation state, thus acting
@@ -678,20 +673,7 @@ class BrowserModel
 	public void viewDisplay(ImageDisplay node)
 	{
 		if (node == null) return;
-		if (node instanceof ImageNode) {
-			EventBus bus = DataBrowserAgent.getRegistry().getEventBus();
-			Object uo = node.getHierarchyObject();
-			if (uo instanceof ImageData) {
-				bus.post(new ViewImage((ImageData) uo, null));
-			} else if (uo instanceof WellSampleData) {
-				ViewImage event = new ViewImage((WellSampleData) uo, null);
-				WellSampleNode wsn = (WellSampleNode) node;
-				Object parent = wsn.getParentObject();
-				if (parent instanceof DataObject)
-					event.setContext((DataObject) parent, null);
-				bus.post(event);
-			}
-		}
+		firePropertyChange(VIEW_DISPLAY_PROPERTY, null, node);
 	}
 	
 	/**

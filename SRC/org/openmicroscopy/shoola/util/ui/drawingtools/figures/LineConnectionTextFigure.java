@@ -93,7 +93,7 @@ public class LineConnectionTextFigure
 	public LineConnectionTextFigure(String text)
 	{
 		super();
-		setAttribute(AttributeKeys.TEXT, text);
+		setText(text);
 		textLayout = null;
 		textBounds = null;
 		editable = true;
@@ -136,10 +136,9 @@ public class LineConnectionTextFigure
 	{
 		if (!(DrawingAttributes.SHOWTEXT.get(this))) return;
 		String text = getText();
-		if (text != null || isEditable()) {
+		if (text != null) {// || isEditable()) {
 			TextLayout layout = getTextLayout();
-			if(text!=null)
-				text = text.trim();
+			text = text.trim();
 			Rectangle2D.Double r = getBounds();
 			FontMetrics fm = 
 					g.getFontMetrics(AttributeKeys.FONT_FACE.get(this));

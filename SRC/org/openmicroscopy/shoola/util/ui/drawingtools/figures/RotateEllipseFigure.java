@@ -326,7 +326,6 @@ public class RotateEllipseFigure
 	 */
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead)
 	{
-		
 		ellipse.x = Math.min(anchor.x, lead.x);
 		ellipse.y = Math.min(anchor.y, lead.y);
 		ellipse.width = Math.max(0.1, Math.abs(lead.x-anchor.x));

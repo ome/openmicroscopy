@@ -26,16 +26,15 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 //Java imports
 import java.awt.Color;
 import java.util.List;
-
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
 
 /** 
@@ -56,7 +55,7 @@ abstract class AnnotationUI
 {
 
 	/** Color indicating that a value needs to be highlighted to the user. */
-	static final Color	WARNING = Color.red;
+	static final Color	WARNING = UIUtilities.REQUIRED_FIELDS_COLOR;
 	
 	/** The border of a field that can be edited. */
 	static final Border EDIT_BORDER = BorderFactory.createLineBorder(

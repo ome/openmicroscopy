@@ -51,7 +51,7 @@ import pojos.ExperimenterData;
  * </small>
  * @since 3.0-Beta4
  */
-public class SwitchUserLoader 
+public class SwitchUserGroupLoader 
 	extends BatchCallTree
 {
 
@@ -61,26 +61,11 @@ public class SwitchUserLoader
 	/** The identifier of the group. */
 	private long 						groupID;
 	
-	/** The data to save. */
-	private Map<Agent, AgentSaveInfo> 	toSave;
-	
 	/** The partial result. */
 	private Object						result;
 	
-	/**
-	 * Saves the data.
-	 * 
-	 * @param agent The agent to handle.
-	 * @param info	The data to save.
-	 */
-	private void saveAgentData(Agent agent, AgentSaveInfo info)
-	{
-		agent.save(info.getInstances());
-		result = info;
-	}
-	
 	/** Switches the user group. */
-	private void switchUser()
+	private void switchUserGroup()
 	{
 		try {
 			context.getAdminService().changeExperimenterGroup(experimenter, 
@@ -100,34 +85,17 @@ public class SwitchUserLoader
      */
     protected void buildTree()
     {
-    	String description = "Saving Agent's data.";
-    	if (toSave != null) {
-    		Iterator i = toSave.entrySet().iterator();
-    		Entry entry;
-    		while (i.hasNext()) {
-				entry = (Entry) i.next();
-				final Agent agent = (Agent) entry.getKey();
-				final AgentSaveInfo info = (AgentSaveInfo) entry.getValue();
-				add(new BatchCall(description) {
-	        		public void doCall() { 
-	        			saveAgentData(agent, info);
-	        		}
-	        	}); 
-			}
-    	}
-    	if (experimenter  != null) {
-    		description = "Switching the user's group.";
-    		add(new BatchCall(description) {
-        		public void doCall() { 
-        			switchUser();
-        		}
-        	}); 
-    	}
+    	String description = "Switching the user's group.";
+		add(new BatchCall(description) {
+    		public void doCall() { 
+    			switchUserGroup();
+    		}
+    	}); 
     }
     
     /**
-     * 
-     * @return 
+     * Returns the result.
+     * @see BatchCallTree#getPartialResult()
      */
     protected Object getPartialResult() { return result; }
     
@@ -137,12 +105,16 @@ public class SwitchUserLoader
      */
     protected Object getResult() { return null; }
     
-    public SwitchUserLoader(Map<Agent, AgentSaveInfo> toSave, 
-    		ExperimenterData experimenter, long groupID)
+    /**
+     * Creates a new instance.
+     * 
+     * @param experimenter The experimenter to handle.
+     * @param groupID The identifier of the group
+     */
+    public SwitchUserGroupLoader(ExperimenterData experimenter, long groupID)
     {
-    	if (toSave == null && experimenter == null)
+    	if (experimenter == null)
     		throw new IllegalArgumentException();
-    	this.toSave = toSave;
     	this.experimenter = experimenter;
     	this.groupID = groupID;
     }

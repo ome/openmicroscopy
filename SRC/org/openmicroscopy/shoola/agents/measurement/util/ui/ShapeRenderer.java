@@ -69,23 +69,23 @@ public class ShapeRenderer
 	private void makeShapeIcon(String shape)
 	{
 		if (FigureUtil.SCRIBBLE_TYPE.equals(shape)) 
-			label.setIcon(icons.getIcon(IconManager.SCRIBBLE_16));
+			label.setIcon(icons.getIcon(IconManager.SCRIBBLE));
 		else if (FigureUtil.LINE_TYPE.equals(shape)) 
 			label.setIcon(icons.getIcon(IconManager.LINE_16));
 		else if (FigureUtil.LINE_CONNECTION_TYPE.equals(shape)) 
-			label.setIcon(icons.getIcon(IconManager.CONNECTION_16));
+			label.setIcon(icons.getIcon(IconManager.CONNECTION));
 		else if (FigureUtil.POLYGON_TYPE.equals(shape)) 
 			label.setIcon(icons.getIcon(IconManager.POLYGON_16));
 		else if (FigureUtil.POINT_TYPE.equals(shape)) 
 			label.setIcon(icons.getIcon(IconManager.POINT_16));
 		else if (FigureUtil.RECTANGLE_TYPE.equals(shape)) 
-			label.setIcon(icons.getIcon(IconManager.RECTANGLE_16));
+			label.setIcon(icons.getIcon(IconManager.RECTANGLE));
 		else if (FigureUtil.ELLIPSE_TYPE.equals(shape)) 
 			label.setIcon(icons.getIcon(IconManager.ELLIPSE_16));
 		else if (FigureUtil.TEXT_TYPE.equals(shape)) 
 			label.setIcon(icons.getIcon(IconManager.TEXT_16));
 		else if (FigureUtil.MASK_TYPE.equals(shape)) 
-			label.setIcon(icons.getIcon(IconManager.MASK_16));
+			label.setIcon(icons.getIcon(IconManager.MASK));
 	}
 	
 	/**

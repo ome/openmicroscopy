@@ -33,6 +33,7 @@ import java.io.InputStream;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.util.file.IOUtil;
 
 
 /** 
@@ -73,7 +74,7 @@ public class CacheServiceFactory
 		
 		//Ok we have to cache, so try and read the config file.
 		InputStream config = loadConfig(
-								container.resolveConfigFile(CACHE_CONFIG_FILE));
+			container.resolveFilePath(CACHE_CONFIG_FILE, Container.CONFIG_DIR));
 		if (config == null)	return makeNoOpCache();
 		
 		//We have a config file, set up ehcache.
@@ -130,7 +131,7 @@ public class CacheServiceFactory
 	{
 		InputStream stream;
 		try { 
-			stream = new FileInputStream(file);
+			stream = IOUtil.readConfigFile(file);
 		} catch (Exception e) {
 			return null;
 		}

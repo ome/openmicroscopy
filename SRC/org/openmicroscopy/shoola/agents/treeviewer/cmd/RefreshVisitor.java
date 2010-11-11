@@ -167,6 +167,16 @@ public class RefreshVisitor
                 	expandedTopNodes.put(PlateData.class, l);
                 }
                 l.add(id);
+    		} else {
+    			if (node.isChildrenLoaded() && node.isExpanded()) {
+    				long id = ((DataObject) userObject).getId();
+                    List l = expandedTopNodes.get(PlateData.class);
+                    if (l == null) {
+                    	l = new ArrayList<Long>();
+                    	expandedTopNodes.put(PlateData.class, l);
+                    }
+                    l.add(id);
+    			}
     		}
         } else if (userObject instanceof GroupData) {
         	if (node.isExpanded()) {

@@ -56,9 +56,9 @@ import javax.swing.JViewport;
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
+import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
-import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
@@ -158,7 +158,7 @@ class TreeViewerWin
 	/** Flag indicating that the metadata view is visible or hidden. */
 	private boolean				metadataVisible;
 	
-	/** The location of the right splia pane. */
+	/** The location of the right split pane. */
 	private int					dividerRightLocation;
 
 	/** The first selected pane. */
@@ -169,9 +169,6 @@ class TreeViewerWin
 
     /** The pane displaying the viewer. */
     private JSplitPane			viewerPane;
-    
-    /** Indicate how the browser is displayed. */
-    private int					browsingType;
     
     /**
      * Returns <code>true</code> if the Screening data are displayed first,
@@ -216,10 +213,10 @@ class TreeViewerWin
     			 pane = new TaskPaneBrowser(browser);
     			 firstPane = pane;
     			 container.add(pane);
-    			 browser = (Browser) browsers.get(Browser.PROJECT_EXPLORER);
+    			 browser = (Browser) browsers.get(Browser.PROJECTS_EXPLORER);
     			 container.add(new TaskPaneBrowser(browser));
     		} else {
-    			browser = (Browser) browsers.get(Browser.PROJECT_EXPLORER);
+    			browser = (Browser) browsers.get(Browser.PROJECTS_EXPLORER);
     			pane = new TaskPaneBrowser(browser);
    			 	firstPane = pane;
    			 	container.add(pane);
@@ -258,7 +255,7 @@ class TreeViewerWin
             tabs.setFont(font);
             tabs.setForeground(UIUtilities.STEELBLUE);
             
-            browser = (Browser) browsers.get(Browser.PROJECT_EXPLORER);
+            browser = (Browser) browsers.get(Browser.PROJECTS_EXPLORER);
             if (browser.isDisplayed())
                 tabs.addTab(browser.getTitle(), browser.getIcon(), 
                 		browser.getUI());
@@ -357,7 +354,7 @@ class TreeViewerWin
         menu.setMnemonic(KeyEvent.VK_V);
         JCheckBoxMenuItem item = new JCheckBoxMenuItem();
         Map browsers = model.getBrowsers();
-        Browser browser = (Browser) browsers.get(Browser.PROJECT_EXPLORER);
+        Browser browser = (Browser) browsers.get(Browser.PROJECTS_EXPLORER);
         item.setSelected(browser.isDisplayed());
         item.setAction(
                 controller.getAction(TreeViewerControl.HIERARCHY_EXPLORER));
@@ -508,31 +505,61 @@ class TreeViewerWin
     void initialize(TreeViewerControl controller, TreeViewerModel model, 
     						Rectangle bounds)
     {
-        this.controller = controller;
-        invokerBounds = bounds;
-        this.model = model;
-        displayMode = TreeViewer.EXPLORER_MODE;
-        statusBar = new StatusBar(controller);
-        statusBar.addPropertyChangeListener(controller);
-        toolBar = new ToolBar(controller, model, this);
-        initComponents();
-        setJMenuBar(createMenuBar());
-        buildGUI();
-        controller.attachUIListeners(browsersDisplay);
-        String title = model.getExperimenterNames()+"'s ";
-        setTitle(title+TITLE);
+    	this.controller = controller;
+    	invokerBounds = bounds;
+    	this.model = model;
+    	displayMode = TreeViewer.EXPLORER_MODE;
+    	statusBar = new StatusBar(controller);
+    	statusBar.addPropertyChangeListener(controller);
+    	toolBar = new ToolBar(controller, model, this);
+    	initComponents();
+    	setJMenuBar(createMenuBar());
+    	buildGUI();
+    	controller.attachUIListeners(browsersDisplay);
+    	createTitle();
     }
 
+    /** Creates and displays the title of the window. */
+    void createTitle()
+    {
+    	 String title = model.getExperimenterNames()+"'s ";
+         setTitle(title+TITLE);
+    }
+    
     /** Expands the first pane. */
-    void selectPane()
+    void selectFirstPane()
     { 
     	if (TreeViewerWin.JXTASKPANE_TYPE.equals(getLayoutType())) {
     		if (firstPane != null) firstPane.setCollapsed(false);
         	if (!UIUtilities.isLinuxOS()) {
         		List<JXTaskPane> list = container.getTaskPanes();
-        		for(JXTaskPane pane: list) 
+        		for (JXTaskPane pane: list) 
             		pane.setAnimated(true);
         	}
+    	}
+    }
+    
+    /**
+     * Selects the pane corresponding to the passed index.
+     * 
+     * @param browserType The type of browser hosted by the pane.
+     */
+    void selectPane(int browserType)
+    {
+    	if (TreeViewerWin.JXTASKPANE_TYPE.equals(getLayoutType())) {
+    		List<JXTaskPane> list = container.getTaskPanes();
+    		TaskPaneBrowser p;
+    		Browser b;
+    		for (JXTaskPane pane: list)  {
+    			if (pane instanceof TaskPaneBrowser) {
+    				p = (TaskPaneBrowser) pane;
+    				b = p.getBrowser();
+    				if (b != null && b.getBrowserType() == browserType)
+    					p.setCollapsed(false);	
+    			}
+    		}
+    	} else {
+    		
     	}
     }
     
@@ -699,7 +726,7 @@ class TreeViewerWin
 	}
     
 	/** 
-	 * Displays the renderer.
+	 * Displays the data browser.
 	 * 
 	 * @param db The data browser.
 	 */

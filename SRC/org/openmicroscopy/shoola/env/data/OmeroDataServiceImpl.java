@@ -39,6 +39,7 @@ import java.util.Set;
 
 //Application-internal dependencies
 import omero.RString;
+import omero.api.delete.DeleteCommand;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.Channel;
@@ -51,7 +52,6 @@ import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.LongAnnotation;
-import omero.model.OriginalFile;
 import omero.model.Pixels;
 import omero.model.PlateAnnotationLink;
 import omero.model.Project;
@@ -80,6 +80,7 @@ import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.RatingAnnotationData;
@@ -102,7 +103,7 @@ import pojos.WellSampleData;
 class OmeroDataServiceImpl
 	implements OmeroDataService
 {
-  
+
 	/** Uses it to gain access to the container's services. */
 	private Registry                context;
 
@@ -156,202 +157,6 @@ class OmeroDataServiceImpl
 		}
 		return others;
 	}
-
-	/**
-	 * Deletes the passed object. Returns the objects that cannot be deleted.
-	 * 
-	 * @param object The object to delete.
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	private List<DeletableObject> delete(DeletableObject object) 
-		throws DSOutOfServiceException, DSAccessException
-	{
-		if (object == null) return null;
-		ExperimenterData exp = (ExperimenterData) context.lookup(
-					LookupNames.CURRENT_USER_DETAILS);
-
-		long userID = exp.getId();
-		long groupID = exp.getDefaultGroup().getId();
-		DataObject data = object.getObjectToDelete();
-		boolean attachment = object.deleteAttachment();
-		boolean content = object.deleteContent();
-		long id = data.getId();
-		List<IObject> list;
-		List<IObject> annotations;
-		List<IObject> annotatedByOthers;
-		List<IObject> usedByOthers;
-		List<DeletableObject> result = new ArrayList<DeletableObject>();
-		List<DeletableObject> notDeleted;
-		if (data instanceof ImageData) { //Image
-			list = gateway.checkImage(data.asImage());
-			if (list != null && list.size() > 0) {
-				object.setBlocker(list);
-				result.add(object);
-				return result;
-			} 
-			annotations = gateway.findAnnotationLinks(
-					ImageData.class.getName(), id, null);
-			annotatedByOthers = isRelatedToOther(annotations);
-			
-			if (annotatedByOthers.size() != 0) {
-				//cannot delete. Notify user.
-				object.setBlocker(annotatedByOthers);
-				result.add(object);
-				return result;
-			} 
-			//Nobody else annotated it.
-			if (!attachment) //want to keep the annotation.
-				gateway.deleteObjects(annotations);
-			else { //check if we need to keep some object
-				List<IObject> toDelete = 
-					annotationsLinkToDelete(object.getAttachmentTypes(), 
-							annotations, ImageData.class);
-				if (toDelete.size() > 0)
-					gateway.deleteObjects(toDelete);
-			} 
-			gateway.deleteImage(data.asImage());
-			return result;
-		} else if (data instanceof DatasetData) { //Dataset
-			if (!content) return deleteDataset(object);
-			//retrieve all the images
-			List<Long> ids = new ArrayList<Long>(1);
-			ids.add(id);
-			Set l = loadContainerHierarchy(DatasetData.class, ids, true, userID
-					, groupID);
-			Iterator j = l.iterator();
-			DatasetData d;
-			Set images;
-			Iterator k;
-			ImageData img;
-			while (j.hasNext()) {
-				d = (DatasetData) j.next();
-				images = d.getImages();
-				if (images != null) {
-					k = images.iterator();
-					while (k.hasNext()) {
-						img = (ImageData) k.next();
-						notDeleted = delete(new DeletableObject(img, false, 
-											attachment));
-						if (notDeleted.size() > 0)
-							result.addAll(notDeleted);
-					}
-				}
-			}
-			notDeleted = deleteDataset(object);
-			if (notDeleted.size() > 0)
-				result.addAll(notDeleted);
-			return result;
-		} else if (data instanceof PlateData) {
-			gateway.deleteObject(data.asIObject());
-		} else if (data instanceof ScreenData) {
-			if (!content)
-				return deleteTopContainer(object);
-			List<Long> ids = new ArrayList<Long>(1);
-			ids.add(id);
-			Set l = loadContainerHierarchy(ScreenData.class, ids, false, 
-											userID, groupID);
-			//delete all the plates
-			if (l != null && l.size() > 0) {
-				Iterator i = l.iterator();
-				DataObject obj;
-				while (i.hasNext()) {
-					obj = (DataObject) i.next();
-					if (obj instanceof PlateData) {
-						gateway.deleteObject(obj.asIObject());
-					}
-				}
-			}
-			return deleteTopContainer(object);
-		} else if (data instanceof ProjectData) { //project
-			if (!content)
-				return deleteTopContainer(object);
-			//retrieve all the dataset
-			List<Long> ids = new ArrayList<Long>(1);
-			ids.add(id);
-			Set l = loadContainerHierarchy(ProjectData.class, ids, false, 
-											userID, groupID);
-			Iterator j = l.iterator();
-			ProjectData p;
-			Set datasets;
-			Iterator k;
-			DatasetData d;
-			Set images;
-			ImageData img;
-			while (j.hasNext()) {
-				p = (ProjectData) j.next();
-				datasets = p.getDatasets();
-				k = datasets.iterator();
-				while (k.hasNext()) {
-					d = (DatasetData) k.next();
-					images = d.getImages();
-					if (images != null) {
-						k = images.iterator();
-						while (k.hasNext()) {
-							img = (ImageData) k.next();
-							notDeleted = delete(new DeletableObject(img, false, 
-												attachment));
-							if (notDeleted.size() > 0)
-								result.addAll(notDeleted);
-						}
-					}
-					//Now delete the dataset.
-					notDeleted = deleteDataset(
-							new DeletableObject(d, false, attachment));
-					if (notDeleted.size() > 0)
-						result.addAll(notDeleted);
-					/*
-					notDeleted = deleteDataset(
-							new DeletableObject(d, false, attachment));
-					if (notDeleted.size() > 0)
-						result.addAll(notDeleted);
-						*/
-				}
-			}
-			notDeleted = deleteTopContainer(object);
-			if (notDeleted.size() > 0)
-				result.addAll(notDeleted);
-			return result;
-		} else if (data instanceof FileAnnotationData) {
-			List<Long> ids = new ArrayList<Long>();
-			ids.add(data.getId());
-			List l = gateway.findAnnotationLinks(ImageData.class.getName(), -1, 
-					ids);
-			List links = new ArrayList();
-			//remove the links.
-			if (l != null && l.size() > 0) links.addAll(l);
-			l = gateway.findAnnotationLinks(DatasetData.class.getName(), -1, 
-					ids);
-			if (l != null && l.size() > 0) links.addAll(l);
-			l = gateway.findAnnotationLinks(ProjectData.class.getName(), -1, 
-					ids);
-			if (l != null && l.size() > 0) links.addAll(l);
-			if (links.size() > 0)
-				gateway.deleteObjects(links);
-			//not link, we can delete
-			long originalFileID = ((FileAnnotationData) data).getFileID();
-			gateway.deleteObject(
-					gateway.findIObject(data.asIObject()));
-			gateway.deleteObject(
-					gateway.findIObject(OriginalFile.class.getName(), 
-							originalFileID));
-		} else if (data instanceof TagAnnotationData) {
-			TagAnnotationData t = (TagAnnotationData) data;
-			String ns = t.getNameSpace();
-			if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
-				deleteTagSet(object);
-			} else {
-				//For now: don't allow to delete content.
-				//deleteTag(object);
-				IObject io = gateway.findIObject(data.asIObject());
-				deleteTagLinks(io);
-				gateway.deleteObject(io);
-			}
-		}
-		return result;
-	}
 	
 	/**
 	 * Removed the annotations links.
@@ -390,51 +195,28 @@ class OmeroDataServiceImpl
 		return null;
 	}
 	
-	private List<DeletableObject> deleteTagSet(DeletableObject object)
+	private List<DataObject> deleteTagSet(long id)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		DataObject data = object.getObjectToDelete();
-		long id = data.getId();
-		boolean content = object.deleteContent();
-		List<DeletableObject> resuls = new ArrayList<DeletableObject>();
 		List l = gateway.findAnnotationLinks(Annotation.class.getName(), id,
 											null);
 		
 		List<Long> tagIds = new ArrayList<Long>();
-		List<IObject> tags = new ArrayList<IObject>(); 
-		if (content) {
-			Iterator i = l.iterator();
-			AnnotationAnnotationLink link;
-			long tagID;
-			while (i.hasNext()) {
-				link =  (AnnotationAnnotationLink) i.next();
-				tagID = link.getChild().getId().getValue();
-				if (!tagIds.contains(tagID)) {
-					tagIds.add(tagID);
-					tags.add(link.getChild());
-				}
+		List<DataObject> tags = new ArrayList<DataObject>(); 
+		Iterator i = l.iterator();
+		AnnotationAnnotationLink link;
+		long tagID;
+		while (i.hasNext()) {
+			link =  (AnnotationAnnotationLink) i.next();
+			tagID = link.getChild().getId().getValue();
+			if (!tagIds.contains(tagID)) {
+				tagIds.add(tagID);
+				tags.add(PojoMapper.asDataObject(link.getChild()));
 			}
 		}
-		//Delete Tag Set-Tag links
+		//delete the links
 		gateway.deleteObjects(l);
-		
-		//Delete tag links 
-		if (tags.size() > 0) {
-			Iterator<IObject> i = tags.iterator();
-			IObject child;
-			while (i.hasNext()) {
-				child = i.next();
-				deleteTagLinks(child);
-			}
-			//Delete the tags
-			gateway.deleteObjects(tags);
-		}
-		//Delete Tag Set
-		//Clear other type of linkages
-		context.getMetadataService().clearAnnotation(TagAnnotationData.class, 
-				data.getId(), null);
-		gateway.deleteObject(gateway.findIObject(data.asIObject()));
-		return resuls;	
+		return tags;
 	}
 	
 	/**
@@ -512,127 +294,6 @@ class OmeroDataServiceImpl
 				newList.add(convertedClass);
 		}
 		return newList;
-	}
-	
-	/**
-	 * Deletes the specified top container.
-	 * 
-	 * @param object  The object to handle.
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	private List<DeletableObject> deleteTopContainer(DeletableObject object)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		DataObject data = object.getObjectToDelete();
-		Class klass = null;
-		if (data instanceof ProjectData) klass = ProjectData.class;
-		else if (data instanceof ScreenData) klass = ScreenData.class;
-		if (klass == null) 
-			throw new omero.IllegalArgumentException("Method can only be" +
-					"invoked to delete Project or Screen");
-		boolean attachment = object.deleteAttachment();
-		long id = data.getId();
-		List<IObject> list;
-		List<IObject> annotations;
-		List<IObject> annotatedByOthers;
-		List<DeletableObject> resuls = new ArrayList<DeletableObject>();
-		annotations = gateway.findAnnotationLinks(klass.getName(), id, null);
-		annotatedByOthers = isRelatedToOther(annotations);
-		if (annotatedByOthers.size() != 0) {
-			//cannot delete. Notify user.
-			object.setBlocker(annotatedByOthers);
-			resuls.add(object);
-			return resuls;
-		} 
-		/*
-		if (!attachment) //want to keep the annotation.
-			gateway.deleteObjects(annotations);
-		else //remove the annotation from the object.
-			context.getMetadataService().clearAnnotation(data);
-		*/
-		if (!attachment) //want to keep the annotation.
-			gateway.deleteObjects(annotations);
-		else {
-			//remove the annotation from the object.
-			List<IObject> toDelete = 
-				annotationsLinkToDelete(object.getAttachmentTypes(), 
-						annotations, klass);
-			if (toDelete.size() > 0)
-				gateway.deleteObjects(toDelete);
-		}
-		context.getMetadataService().clearAnnotation(data);
-		
-		//delete all the links
-		List toDelete = new ArrayList();
-		list = gateway.findLinks(data.asIObject(), null);
-		if (list != null) toDelete.addAll(list);
-		if (toDelete.size() > 0) gateway.deleteObjects(toDelete);
-		//delete the dataset
-		gateway.deleteObject(gateway.findIObject(data.asIObject()));
-		return resuls;	
-	}
-	
-	/**
-	 * Deletes the dataset.
-	 * 
-	 * @param object
-	 * @return See above.
-	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occurred while trying to 
-	 * retrieve data from OMERO service. 
-	 */
-	private List<DeletableObject> deleteDataset(DeletableObject object)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		DataObject data = object.getObjectToDelete();
-		boolean attachment = object.deleteAttachment();
-		long id = data.getId();
-		List<IObject> list;
-		List<IObject> annotations;
-		List<IObject> annotatedByOthers;
-		List<IObject> usedByOthers;
-		List<DeletableObject> results = new ArrayList<DeletableObject>();
-		//check if dataset used by other.
-		list = gateway.findLinks(ProjectData.class, id, -1);
-		usedByOthers = isRelatedToOther(list);
-		if (usedByOthers.size() > 0) { //somebody is using it.
-			object.setBlocker(usedByOthers);
-			results.add(object);
-			return results;
-		} 
-		annotations = gateway.findAnnotationLinks(
-				DatasetData.class.getName(), id, null);
-		annotatedByOthers = isRelatedToOther(annotations);
-		if (annotatedByOthers.size() != 0) {
-			//cannot delete. Notify user.
-			object.setBlocker(annotatedByOthers);
-			results.add(object);
-			return results;
-		} 
-		if (!attachment) //want to keep the annotation.
-			gateway.deleteObjects(annotations);
-		else {
-			//remove the annotation from the object.
-			List<IObject> toDelete = 
-				annotationsLinkToDelete(object.getAttachmentTypes(), 
-						annotations, DatasetData.class);
-			if (toDelete.size() > 0)
-				gateway.deleteObjects(toDelete);
-		}
-		context.getMetadataService().clearAnnotation(data);
-		
-		//delete all the links
-		List toDelete = new ArrayList();
-		if (list != null) toDelete.addAll(list); //project links
-		list = gateway.findLinks(data.asIObject(), null);
-		if (list != null)toDelete.addAll(list);
-		if (toDelete.size() > 0) gateway.deleteObjects(toDelete);
-		//delete the dataset
-		gateway.deleteObject(gateway.findIObject(data.asIObject()));
-		return results;
 	}
 	
 	/**
@@ -952,24 +613,6 @@ class OmeroDataServiceImpl
 		context.getLogger().debug(this, path);
 		return gateway.getArchivedFiles(path, pixelsID);
 	}
-	
-	/**
-	 * Implemented as specified by {@link OmeroDataService}.
-	 * @see OmeroDataService#changePassword(String, String)
-	 */
-	public Boolean changePassword(String oldPassword, String newPassword) 
-		throws DSOutOfServiceException, DSAccessException 
-	{
-		if (newPassword == null || newPassword.trim().length() == 0)
-			throw new IllegalArgumentException("Password not valid.");
-		UserCredentials uc = (UserCredentials) 
-		context.lookup(LookupNames.USER_CREDENTIALS);
-		if (!uc.getPassword().equals(oldPassword)) return Boolean.FALSE;
-
-		gateway.changePassword(newPassword);
-		uc.resetPassword(newPassword);
-		return Boolean.TRUE;
-	}
 
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
@@ -984,16 +627,13 @@ class OmeroDataServiceImpl
 			throw new DSAccessException("No object to update.");
 		UserCredentials uc = (UserCredentials) 
 		context.lookup(LookupNames.USER_CREDENTIALS);
-		gateway.updateExperimenter(exp.asExperimenter());
+		ExperimenterData user = 
+			(ExperimenterData) context.lookup(
+					LookupNames.CURRENT_USER_DETAILS);
+		gateway.updateExperimenter(exp.asExperimenter(), user.getId());
 		ExperimenterData data;
-		if (group != null && exp.getDefaultGroup().getId() != group.getId()) {
-			gateway.changeCurrentGroup(exp, group.getId(), uc.getUserName(), 
-					uc.getPassword());
-			/*
-			data = gateway.login(uc.getUserName(), uc.getPassword(), 
-					uc.getHostName(), 1, group.getId());
-					*/
-		}
+		if (group != null && exp.getDefaultGroup().getId() != group.getId()) 
+			gateway.changeCurrentGroup(exp, group.getId());
 		data = gateway.getUserDetails(uc.getUserName());
 		
 		context.bind(LookupNames.CURRENT_USER_DETAILS, data);
@@ -1227,22 +867,86 @@ class OmeroDataServiceImpl
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#delete(Collection)
 	 */
-	public Collection<DeletableObject> delete(
-			Collection<DeletableObject> objects) 
-		throws DSOutOfServiceException, DSAccessException
+	public DeleteCallback delete(Collection<DeletableObject> objects) 
+		throws DSOutOfServiceException, DSAccessException, ProcessException
 	{
-		if (objects == null) return null;
-		List<DeletableObject> l = new ArrayList<DeletableObject>();
+		if (objects == null || objects.size() == 0) return null;
 		Iterator<DeletableObject> i = objects.iterator();
-		List<DeletableObject> r; 
+		DeletableObject object;
+		List<DeleteCommand> commands = new ArrayList<DeleteCommand>();
+		DeleteCommand cmd;
+		Map<String, String> options;
+		DataObject data;
+		List<Class> annotations;
+		Iterator<Class> j;
+		List<DataObject> contents;
+		String ns;
+		Iterator<DataObject> k;
+		List<GroupData> groups = null;
 		while (i.hasNext()) {
-			r = delete(i.next());
-			if (r.size() != 0)
-				l.addAll(r);
+			contents = null;
+			object = i.next();
+			data = object.getObjectToDelete();
+			annotations = object.getAnnotations();
+			options = null;
+			if (annotations != null && annotations.size() > 0) {
+				options = new HashMap<String, String>();
+				j = annotations.iterator();
+				while (j.hasNext()) {
+					options.put(gateway.createDeleteOption(j.next().getName()), 
+							OMEROGateway.KEEP);
+				}
+			}
+			if (!object.deleteContent()) {
+				if (options == null) 
+					options = new HashMap<String, String>();
+				if (data instanceof DatasetData) {
+					options.put(gateway.createDeleteCommand(
+							ImageData.class.getName()), 
+							OMEROGateway.KEEP);
+				} else if (data instanceof ProjectData) {
+					options.put(gateway.createDeleteCommand(
+							DatasetData.class.getName()), 
+							OMEROGateway.KEEP);
+					options.put(gateway.createDeleteCommand(
+							ImageData.class.getName()), 
+							OMEROGateway.KEEP);
+				} else if (data instanceof ScreenData) {
+					options.put(gateway.createDeleteCommand(
+							PlateData.class.getName()), 
+							OMEROGateway.KEEP);
+					options.put(gateway.createDeleteCommand(
+							WellData.class.getName()), 
+							OMEROGateway.KEEP);
+					options.put(gateway.createDeleteCommand(
+							PlateAcquisitionData.class.getName()), 
+							OMEROGateway.KEEP);
+					options.put(gateway.createDeleteCommand(
+							ImageData.class.getName()), 
+							OMEROGateway.KEEP);
+				} else if (data instanceof TagAnnotationData) {
+					options = null;
+					ns = ((TagAnnotationData) data).getNameSpace();
+					if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {
+						contents = deleteTagSet(data.getId());
+					}
+				}
+			}
+			cmd = new DeleteCommand(gateway.createDeleteCommand(
+					data.getClass().getName()), data.getId(), options);
+			commands.add(cmd);
+			if (contents != null && contents.size() > 0) {
+				k = contents.iterator();
+				DataObject d;
+				while (k.hasNext()) {
+					d = k.next();
+					cmd = new DeleteCommand(gateway.createDeleteCommand(
+							d.getClass().getName()), d.getId(), options);
+					commands.add(cmd);
+				}
+			}
 		}
-		
-		//Clean repository.
-		return l;
+		return gateway.deleteObject(commands.toArray(new DeleteCommand[] {}));
 	}
 
 	/**

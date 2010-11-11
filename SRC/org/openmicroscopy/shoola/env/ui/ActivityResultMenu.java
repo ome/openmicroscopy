@@ -53,11 +53,14 @@ class ActivityResultMenu
 	implements ActionListener
 {
 
-	/** Indicates to dowload the object. */
+	/** Indicates to download the object. */
 	private static final int DOWNLOAD = 0;
 	
 	/** Indicates to view the object. */
 	private static final int VIEW = 1;
+	
+	/** Indicates to plot the object. */
+	private static final int PLOT = 2;
 	
 	/** Reference to the activity. */
 	private ActivityComponent activity;
@@ -117,8 +120,10 @@ class ActivityResultMenu
 				break;
 			case VIEW:
 				activity.view(row);
+				break;
+			case PLOT:
+				activity.plotResult(row);
 		}
-		
 	}
 	
 }

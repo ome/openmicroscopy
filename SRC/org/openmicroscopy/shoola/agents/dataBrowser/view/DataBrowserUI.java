@@ -95,11 +95,14 @@ class DataBrowserUI
 	/** Reference to the tool bar. */
 	private DataBrowserToolBar 		toolBar;
 	
-	/** Reference to the tool bar. */
+	/** Reference to the tool bar for Plates. */
 	private DataBrowserWellToolBar 	wellToolBar;
 	
 	/** Reference to the tool bar. */
 	private DataBrowserStatusBar 	statusBar;
+	
+	/** Reference to the tool bar. */
+	private PlateGridUI 			plateGridUI;
 	
 	/** Reference to the model. */
 	private DataBrowserModel		model;
@@ -146,9 +149,9 @@ class DataBrowserUI
 		this.controller = controller;
 		//if (model.getType() == DataBrowserModel.WELLS)
 		wellToolBar = new DataBrowserWellToolBar(this, controller);
-		//else
 		toolBar = new DataBrowserToolBar(model, this, controller);
-
+		if (model.getType() == DataBrowserModel.WELLS)
+			plateGridUI = new PlateGridUI((WellsModel) model, controller);
 		statusBar = new DataBrowserStatusBar(this);
 		selectedView = THUMB_VIEW;
 		factor = Thumbnail.SCALING_FACTOR;
@@ -180,6 +183,13 @@ class DataBrowserUI
 		if (number > 0) setItemsPerRow(number);
 		add(model.getBrowser().getUI(), BorderLayout.CENTER);
 	}
+	
+	/**
+	 * Returns the grid representing the plate.
+	 * 
+	 * @return See above.
+	 */
+	PlateGridUI getGridUI() { return plateGridUI; }
 	
 	/**
 	 * Returns the selected object in order to filter the node.
@@ -515,7 +525,7 @@ class DataBrowserUI
      * @param status Textual description to display.
      * @param hideProgressBar Whether or not to hide the progress bar.
      * @param progressPerc  The percentage value the progress bar should
-     *                      display.  If negative, it is iterpreted as
+     *                      display.  If negative, it is interpreted as
      *                      not available and the progress bar will be
      *                      set to indeterminate mode.  This argument is
      *                      only taken into consideration if the progress
@@ -606,6 +616,13 @@ class DataBrowserUI
 		if (selectedView == FIELDS_VIEW)
 			fieldsView.displayFields(nodes);
 	}
+	
+	/** Invokes when a well is selected. */
+	void onSelectedWell()
+	{
+		if (!(model instanceof WellsModel)) return;
+		plateGridUI.onSelectedWell();
+	}
 
 	/**
 	 * Sets the layout used to display the fields.
@@ -622,5 +639,12 @@ class DataBrowserUI
 	
 	/** Invokes when the parent has been set. */
 	void onExperimenterSet() { toolBar.onExperimenterSet(); }
+	
+    /**
+     * Returns the parent of the nodes if any.
+     * 
+     * @return See above.
+     */
+    Object getParentOfNodes() { return model.getParent(); }
 	
 }

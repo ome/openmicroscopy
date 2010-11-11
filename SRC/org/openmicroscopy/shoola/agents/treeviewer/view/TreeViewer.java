@@ -48,7 +48,6 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
-import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.ui.ActivityComponent;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
@@ -399,19 +398,6 @@ public interface TreeViewer
 	 * @param operation The type of operation.
 	 */
 	public void onDataObjectSave(List data, int operation);
-
-	/**
-	 * 
-	 * Updates the view when the image has been classified or declassified.
-	 * 
-	 * @param images        The image classified or declassified. Mustn't 
-	 *                      be <code>null</code>.
-	 * @param categories    The categories the image was added to or 
-	 *                      removed from. Mustn't be <code>null</code>.
-	 * @param mode          The type of operation i.e. classification or 
-	 *                      declassification.
-	 */
-	public void onImageClassified(ImageData[] images, Set categories, int mode);
 
 	/** Clears the result of a previous find action. */
 	public void clearFoundResults();
@@ -805,9 +791,9 @@ public interface TreeViewer
 	 * <code>null</code> or of size <code>0</code> all the nodes have been
 	 * deleted.
 	 * 
-	 * @param notDeleted The collection of nodes that couldn't be deleted.
+	 * @param nodes The collection of nodes that couldn't be deleted.
 	 */
-	public void onNodesDeleted(Collection<DeletableObject> notDeleted);
+	public void onNodesDeleted(Collection<DataObject> notDeleted);
 	
 	/** 
 	 * Refreshes the view when nodes have been <code>Cut/Paste</code> or
@@ -1018,7 +1004,9 @@ public interface TreeViewer
 	 * 
 	 * @param type The type of data object to find.
 	 * @param id   The identifier of the data object.
+	 * @param selectTab Pass <code>true</code> to select the tab corresponding 
+	 * to the passed type, <code>false</code> otherwise.
 	 */
-	void findDataObject(Class type, long id);
+	void findDataObject(Class type, long id, boolean selectTab);
 	
 }

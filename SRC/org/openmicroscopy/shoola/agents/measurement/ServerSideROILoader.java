@@ -59,8 +59,7 @@ public class ServerSideROILoader
 		
 	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
-   
-	
+
     /**
      * This loader will check that there are ROI's on the server and if so
      * load those ROIs. If there are no ROI, the measurement tool will check

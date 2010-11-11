@@ -60,9 +60,12 @@ import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.AnalysisResultsHandlingParam;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.ui.flim.FLIMResultsDialog;
+import org.openmicroscopy.shoola.util.filter.file.CSVFilter;
 import org.openmicroscopy.shoola.util.filter.file.GIFFilter;
 import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
 import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
@@ -132,6 +135,9 @@ public abstract class ActivityComponent
 	/** ID to display the standard error. */
 	private static final int	EXCEPTION = 7;
 	
+	/** ID to plot the result. */
+	private static final int 	PLOT = 8;
+	
 	/** The key to look for to display the output message. */
 	private static final String MESSAGE = "Message";
 	
@@ -192,6 +198,9 @@ public abstract class ActivityComponent
 	/** Button to show the error. */
 	protected JButton					errorButton;
 	
+	/** Button to cancel the activity. */
+	private JButton						plotButton;
+	
 	/** The label displaying the type of activity. */
 	protected JLabel					type;
 
@@ -214,8 +223,9 @@ public abstract class ActivityComponent
 	 * Opens the passed object. Downloads it first.
 	 * 
 	 * @param object The object to open.
+	 * @param parameters Either Analysis parameters or Application data.
 	 */
-	private void open(Object object)
+	private void open(Object object, Object parameters)
 	{
 		if (!(object instanceof FileAnnotationData || 
 				object instanceof OriginalFile)) return;
@@ -269,7 +279,11 @@ public abstract class ActivityComponent
 			activity = new DownloadActivityParam(id, index, f, null);
 		else 
 			activity = new DownloadActivityParam(of, f, null);
-		activity.setApplicationData(new ApplicationData(""));
+		if (parameters instanceof ApplicationData) {
+			activity.setApplicationData((ApplicationData) parameters);
+		} else if (parameters instanceof AnalysisResultsHandlingParam) {
+			activity.setResults((AnalysisResultsHandlingParam) parameters);
+		}
 		viewer.notifyActivity(activity);
 	}
 	
@@ -288,6 +302,8 @@ public abstract class ActivityComponent
 		//if (index == ADVANCED)
 		downloadButton = createButton("Download", DOWNLOAD, this);
 		downloadButton.setVisible(false);
+		plotButton = createButton("Plot", PLOT, this);
+		plotButton.setVisible(false);
 		viewButton = createButton(VIEW_TEXT, VIEW, this);
 		viewButton.setVisible(false);
 		infoButton = createButton("Info", INFO, this);
@@ -630,6 +646,24 @@ public abstract class ActivityComponent
 	}
 	
 	/**
+	 * Returns <code>true</code> if the result can be displayed, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param object The object to handle.
+	 * @return See above.
+	 */
+	boolean canPlotResult(Object object)
+	{
+		if (object instanceof FileAnnotationData) {
+			FileAnnotationData fa = (FileAnnotationData) object;
+			if (fa.isLoaded()) {
+				return fa.getFileName().endsWith("."+CSVFilter.CSV);
+			}
+		}
+		return false;
+	}
+	
+	/**
 	 * Returns <code>true</code> if the object can be downloaded, 
 	 * <code>false</code> otherwise.
 	 * 
@@ -641,54 +675,6 @@ public abstract class ActivityComponent
 		return (object instanceof FileAnnotationData || 
 				object instanceof OriginalFile);
 	}
-	
-	/** 
-	 * Invokes when the activity end. 
-	 * 
-	 * @param result The result of the activity.
-	 */ 
-	public void endActivity(Object result)
-	{
-		this.result = result;
-		boolean busy = status.isBusy();
-		reset();
-		if (result instanceof Map) {
-			Map<String, Object> m = convertResult((Map<String, Object>) result);
-			int size = m.size();
-			if (size == 1) {
-				Entry entry;
-				Iterator i = m.entrySet().iterator();
-				while (i.hasNext()) {
-					entry = (Entry) i.next();
-					this.result = entry.getValue();
-				}
-			} else this.result = m;
-		}
-		downloadButton.setVisible(isDownloadable(this.result));
-		if (isViewable(this.result)) {
-			viewButton.setText(getViewText(this.result));
-			viewButton.setVisible(true);
-		} else viewButton.setVisible(false);
-		
-		if (!viewButton.isVisible() && !downloadButton.isVisible()) {
-			if (this.result instanceof Collection) {
-				Collection l = (Collection) this.result;
-				resultButton.setVisible(l.size() > 0);
-			} else if (this.result instanceof Map) {
-				Map l = (Map) this.result;
-				resultButton.setVisible(l.size() > 0);
-			}
-		}
-			
-		notifyActivityEnd();
-		firePropertyChange(UNREGISTER_ACTIVITY_PROPERTY, null, this);
-		//Post an event to 
-		//if (busy) {
-		EventBus bus = registry.getEventBus();
-		bus.post(new ActivityProcessEvent(this, busy));
-		//}
-	}
-
 	
 	/** 
 	 * Downloads the passed object is supported.
@@ -781,12 +767,65 @@ public abstract class ActivityComponent
 	{
 		if (object instanceof FileAnnotationData || 
 				object instanceof OriginalFile) {
-			open(object);
+			open(object, new ApplicationData(""));
 		} else if (object instanceof File) {
 			viewer.openApplication(null, ((File) object).getAbsolutePath());
 		} else {
 			EventBus bus = registry.getEventBus();
 			bus.post(new ViewObjectEvent(object));
+		}
+	}
+
+	/**
+	 * Plots the results.
+	 * 
+	 * @param result The result to plot
+	 */
+	void plotResult(Object result)
+	{
+		if (result instanceof FileAnnotationData || 
+				result instanceof OriginalFile) {
+			open(result, new AnalysisResultsHandlingParam(
+					AnalysisResultsHandlingParam.HISTOGRAM));
+		}
+	}
+	
+	/**
+	 * The results to plot.
+	 * 
+	 * @param result The object to handle.
+	 * @param parameters The parameters indicating how to handle the results
+	 * @param name The name of
+	 */
+	void plotResult(Object result, AnalysisResultsHandlingParam parameters, 
+			String name)
+	{
+		if (result instanceof File) {
+			IconManager icons = IconManager.getInstance(registry);
+			FLIMResultsDialog d = new FLIMResultsDialog(
+				registry.getTaskBar().getFrame(), 
+				icons.getIcon(IconManager.PLOT_48), (File) result, name,
+				parameters);
+			d.addPropertyChangeListener(new PropertyChangeListener() {
+				
+				public void propertyChange(PropertyChangeEvent evt) {
+					String name = evt.getPropertyName();
+					if (FLIMResultsDialog.SAVED_FLIM_RESULTS_PROPERTY.equals(
+							name)){
+						boolean b = (
+								(Boolean) evt.getNewValue()).booleanValue();
+						UserNotifier un = registry.getUserNotifier();
+						if (b) {
+							un.notifyInfo("Saving Results", "The file has " +
+									"successfully been saved.");
+						} else {
+							un.notifyInfo("Saving Results", "An error " +
+							"occurred while saving the results.");
+						}
+					}
+				}
+			});
+			UIUtilities.centerAndShow(d);
 		}
 	}
 	
@@ -814,10 +853,60 @@ public abstract class ActivityComponent
 		if (exception != null) {
 			exceptionButton.setVisible(true);
 		}
+		notifyActivityError();
 		firePropertyChange(UNREGISTER_ACTIVITY_PROPERTY, null, this);
 		EventBus bus = registry.getEventBus();
 		bus.post(new ActivityProcessEvent(this, false));
 	}
+	
+	/** 
+	 * Invokes when the activity end. 
+	 * 
+	 * @param result The result of the activity.
+	 */ 
+	public void endActivity(Object result)
+	{
+		this.result = result;
+		boolean busy = status.isBusy();
+		reset();
+		if (result instanceof Map) {
+			Map<String, Object> m = convertResult((Map<String, Object>) result);
+			int size = m.size();
+			if (size == 1) {
+				Entry entry;
+				Iterator i = m.entrySet().iterator();
+				while (i.hasNext()) {
+					entry = (Entry) i.next();
+					this.result = entry.getValue();
+				}
+			} else this.result = m;
+		}
+		downloadButton.setVisible(isDownloadable(this.result));
+		if (isViewable(this.result)) {
+			viewButton.setText(getViewText(this.result));
+			viewButton.setVisible(true);
+		} else viewButton.setVisible(false);
+		
+		if (!viewButton.isVisible() && !downloadButton.isVisible()) {
+			if (this.result instanceof Collection) {
+				Collection l = (Collection) this.result;
+				if (this instanceof DeleteActivity)
+					resultButton.setText("Show error");
+				resultButton.setVisible(l.size() > 0);
+			} else if (this.result instanceof Map) {
+				Map l = (Map) this.result;
+				resultButton.setVisible(l.size() > 0);
+			}
+		}
+		notifyActivityEnd();
+		firePropertyChange(UNREGISTER_ACTIVITY_PROPERTY, null, this);
+		//Post an event to 
+		//if (busy) {
+		EventBus bus = registry.getEventBus();
+		bus.post(new ActivityProcessEvent(this, busy));
+		//}
+	}
+
 	
 	/**
 	 * Returns the type of activity.
@@ -834,6 +923,9 @@ public abstract class ActivityComponent
 	
 	/** Subclasses should override the method. */
 	protected abstract void notifyActivityEnd();
+	
+	/** Subclasses should override the method. */
+	protected abstract void notifyActivityError();
 	
 	/** Creates a loader. */
 	protected abstract UserNotifierLoader createLoader();

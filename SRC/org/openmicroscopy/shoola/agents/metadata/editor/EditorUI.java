@@ -51,7 +51,6 @@ import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
 import pojos.DataObject;
@@ -261,6 +260,7 @@ class EditorUI
         	toolBar.buildUI();
         	toolBar.setControls();
         	generalPane.layoutUI();
+        	acquisitionPane.layoutCompanionFiles();
         	component = tabPane;
     	}
     	if (add) add(component, BorderLayout.CENTER);
@@ -502,6 +502,7 @@ class EditorUI
 	 * Attaches the specified file.
 	 * 
 	 * @param file The file to attach.
+	 * @return See above
 	 */
 	void attachFile(File file)
 	{
@@ -519,8 +520,11 @@ class EditorUI
 			un.notifyInfo("Attachment Selection", "The selected file " +
 					"has no extension. It is not possible to upload it.");
 			return;
-		}*/
+		}
+		*/
+		//if (generalPane.attachFile(file))
 		generalPane.attachFile(file);
+		saveData(true);
 	}
 
 	/**
@@ -536,6 +540,13 @@ class EditorUI
 			saveData(true);
 	}
 	
+	/** Removes the tags. */
+	void removeTags()
+	{
+		List<TagAnnotationData> list = generalPane.removeTags();
+		if (list.size() > 0) saveData(true);
+	}
+	
 	/**
 	 * Handles the selection of objects via the selection wizard.
 	 * 
@@ -546,7 +557,7 @@ class EditorUI
 	{
 		if (objects == null) return;
 		generalPane.handleObjectsSelection(type, objects);
-		if (TagAnnotationData.class.equals(type))
+		//if (TagAnnotationData.class.equals(type))
 			saveData(true);	
 	}
 	
@@ -565,6 +576,17 @@ class EditorUI
 		}
 	}
 
+	/**
+	 * Returns the collection of attachments.
+	 * 
+	 * @return See above.
+	 */
+	void removeAttachedFiles()
+	{
+		List<FileAnnotationData> list = generalPane.removeAttachedFiles();
+		if (list.size() > 0) saveData(true);
+	}
+	
 	/**
 	 * Adds the annotation to the collection of objects to be deleted.
 	 * 
@@ -816,5 +838,13 @@ class EditorUI
     { 
     	return model.getScriptFromName(name);
     }
+    
+	/**
+	 * Returns <code>true</code> if it is an image with a lot of channels.
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isNumerousChannel() { return model.isNumerousChannel(); }
     
 }

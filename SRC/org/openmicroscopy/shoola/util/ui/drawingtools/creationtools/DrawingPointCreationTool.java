@@ -89,7 +89,7 @@ public class DrawingPointCreationTool
 	 */
 	public DrawingPointCreationTool(Figure prototype)
 	{
-		super(prototype, null, null);
+		super(prototype);
 	}
 		
 	/**

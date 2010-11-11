@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.event.ActionEvent;
@@ -45,7 +46,6 @@ import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
@@ -62,6 +62,7 @@ import org.openmicroscopy.shoola.agents.measurement.util.model.MeasurementObject
 import org.openmicroscopy.shoola.agents.measurement.util.ui.AttributeUnits;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.ResultsCellRenderer;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ExcelWriter;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
@@ -166,6 +167,38 @@ class MeasurementResults
 	 */
 	public int getIndex() {return INDEX; }
 	
+	/**
+	 * Shows the results wizard and updates the fields based on the users 
+	 * selection.
+	 */
+	private void showResultsWizard()
+	{
+		ResultsWizard resultsWizard = new ResultsWizard(view, fields, 
+				allFields);
+		resultsWizard.pack();
+		UIUtilities.setLocationRelativeToAndShow(this, resultsWizard);
+		columnNames.clear();
+		columnNames = new ArrayList<KeyDescription>();
+		columnNames.add(new KeyDescription(
+				AnnotationDescription.ROIID_STRING,
+										AnnotationDescription.ROIID_STRING));
+		columnNames.add(new KeyDescription(AnnotationDescription.TIME_STRING,
+										AnnotationDescription.TIME_STRING));
+		columnNames.add(new KeyDescription(
+				AnnotationDescription.ZSECTION_STRING,
+				AnnotationDescription.ZSECTION_STRING));
+		columnNames.add(new KeyDescription(AnnotationDescription.SHAPE_STRING,
+										AnnotationDescription.SHAPE_STRING));
+		AnnotationField field;
+		for (int i = 0 ; i < fields.size(); i++) {
+			field = fields.get(i);
+			columnNames.add(new KeyDescription(field.getKey().toString(),
+					field.getName()));
+		}
+		populate();
+		results.repaint();
+	}
+	
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
@@ -240,6 +273,7 @@ class MeasurementResults
 	private void buildGUI()
 	{
 		setLayout(new BorderLayout());
+		/*
 		scrollPane = new JScrollPane(results);
 		add(scrollPane, BorderLayout.CENTER);
 		scrollPane.setVerticalScrollBar(scrollPane.createVerticalScrollBar());
@@ -251,6 +285,21 @@ class MeasurementResults
 		panel.add(refreshButton);
 		panel.add(saveButton);
 		add(panel, BorderLayout.SOUTH);
+		*/
+		JPanel centrePanel = new JPanel();
+		centrePanel.setLayout(new BorderLayout());
+		scrollPane = new JScrollPane(results);
+		centrePanel.add(scrollPane, BorderLayout.CENTER);
+		JPanel bottomPanel = new JPanel();
+		bottomPanel.setLayout(new FlowLayout());
+		bottomPanel.add(resultsWizardButton);
+		bottomPanel.add(refreshButton);
+		bottomPanel.add(saveButton);
+		JPanel containerPanel = new JPanel();
+		containerPanel.setLayout(new BorderLayout());
+		containerPanel.add(centrePanel, BorderLayout.CENTER);
+		containerPanel.add(bottomPanel, BorderLayout.SOUTH);
+		add(containerPanel, BorderLayout.CENTER);
 	}
 
 	/**
@@ -273,39 +322,38 @@ class MeasurementResults
 			AnnotationDescription.annotationDescription.get(AnnotationKeys.AREA)
 				, false)); 
 		allFields.add(new AnnotationField(AnnotationKeys.PERIMETER,
-			AnnotationDescription.annotationDescription.get( AnnotationKeys.PERIMETER),
-						false)); 
+			AnnotationDescription.annotationDescription.get( 
+					AnnotationKeys.PERIMETER),false)); 
 		allFields.add(new AnnotationField(AnnotationKeys.LENGTH, 
-			AnnotationDescription.annotationDescription.get(AnnotationKeys.LENGTH),
-						false)); 
+			AnnotationDescription.annotationDescription.get(
+					AnnotationKeys.LENGTH), false)); 
 		allFields.add(new AnnotationField(AnnotationKeys.WIDTH, 
-			AnnotationDescription.annotationDescription.get(AnnotationKeys.WIDTH),
-						false)); 
+			AnnotationDescription.annotationDescription.get(
+					AnnotationKeys.WIDTH), false)); 
 		allFields.add(new AnnotationField(AnnotationKeys.HEIGHT, 
-			AnnotationDescription.annotationDescription.get(AnnotationKeys.HEIGHT),
-						false)); 
+			AnnotationDescription.annotationDescription.get(
+					AnnotationKeys.HEIGHT), false)); 
 		allFields.add(new AnnotationField(AnnotationKeys.ANGLE, 
-			AnnotationDescription.annotationDescription.get(AnnotationKeys.ANGLE),
-						false)); 
+			AnnotationDescription.annotationDescription.get(
+					AnnotationKeys.ANGLE), false)); 
 		allFields.add(new AnnotationField(AnnotationKeys.POINTARRAYX, 
-			AnnotationDescription.annotationDescription.get(AnnotationKeys.POINTARRAYX),
-				 false)); 
-		allFields.add(new AnnotationField(AnnotationKeys.POINTARRAYY, 
-						
-			AnnotationDescription.annotationDescription.get(AnnotationKeys.POINTARRAYY),
-				 false)); 
+			AnnotationDescription.annotationDescription.get(
+					AnnotationKeys.POINTARRAYX), false)); 
+		allFields.add(new AnnotationField(AnnotationKeys.POINTARRAYY, 		
+			AnnotationDescription.annotationDescription.get(
+					AnnotationKeys.POINTARRAYY), false)); 
 		allFields.add(new AnnotationField(AnnotationKeys.STARTPOINTX, 
-			AnnotationDescription.annotationDescription.get(AnnotationKeys.STARTPOINTX),
-				 false)); 
+			AnnotationDescription.annotationDescription.get(
+					AnnotationKeys.STARTPOINTX), false)); 
 		allFields.add(new AnnotationField(AnnotationKeys.STARTPOINTY, 
-			AnnotationDescription.annotationDescription.get(AnnotationKeys.STARTPOINTY),
-				false)); 
+			AnnotationDescription.annotationDescription.get(
+					AnnotationKeys.STARTPOINTY), false)); 
 		allFields.add(new AnnotationField(AnnotationKeys.ENDPOINTX,
-			AnnotationDescription.annotationDescription.get(AnnotationKeys.ENDPOINTX),
-				false)); 
+			AnnotationDescription.annotationDescription.get(
+					AnnotationKeys.ENDPOINTX), false)); 
 		allFields.add(new AnnotationField(AnnotationKeys.ENDPOINTY,
-			AnnotationDescription.annotationDescription.get(AnnotationKeys.ENDPOINTY),
-				false)); 
+			AnnotationDescription.annotationDescription.get(
+					AnnotationKeys.ENDPOINTY), false)); 
 	}
 	
 	/**
@@ -350,22 +398,6 @@ class MeasurementResults
 		for (int i = 0 ; i < fields.size(); i++)
 			columnNames.add(new KeyDescription(	fields.get(i).getKey().toString(),
 												fields.get(i).getName()));
-	}
-
-	
-	class KeyDescription
-	{
-		String key;
-		String description;
-		
-		public KeyDescription(String key, String description)
-		{
-			this.key = key;
-			this.description = description;
-		}
-		
-		public String getKey() { return key;}
-		public String getDescription() {return description;}
 	}
 	
 	/**
@@ -436,6 +468,9 @@ class MeasurementResults
 		}
 		results.setModel(tm);
 		resizeTableColumns();
+		int n = tm.getRowCount();
+		saveButton.setEnabled(n > 0);
+		refreshButton.setEnabled(n > 0);
 	}
 
 	/** 
@@ -484,20 +519,10 @@ class MeasurementResults
 	 * @throws IOException Thrown if the data cannot be written.
 	 * @return true if results saved, false if users cancels save.
 	 */
-	boolean saveResults()
+	private boolean saveResults()
 		throws IOException
 	{
-		List<FileFilter> filterList = new ArrayList<FileFilter>();
-		FileFilter filter=new ExcelFilter();
-		filterList.add(filter);
-		FileChooser chooser=
-				new FileChooser(
-					view, FileChooser.SAVE, "Save the Results",
-					"Save the Results data to a file which can be loaded " +
-					"by a spreadsheet.",
-					filterList);
-		File f = UIUtilities.getDefaultFolder();
-	    if (f != null) chooser.setCurrentDirectory(f);
+		FileChooser chooser = view.createSaveToExcelChooser();
 		int choice = chooser.showDialog();
 		if (choice != JFileChooser.APPROVE_OPTION) return false;
 		File file = chooser.getSelectedFile();
@@ -512,53 +537,34 @@ class MeasurementResults
 		writer.createSheet("Measurement Results");
 		writer.writeTableToSheet(0, 0, results.getModel());
 		BufferedImage originalImage = model.getRenderedImage();
-		BufferedImage image =  Factory.copyBufferedImage(originalImage);
+		if(originalImage != null)
+		{
+			BufferedImage image =  Factory.copyBufferedImage(originalImage);
 		
 		// Add the ROI for the current plane to the image.
 		//TODO: Need to check that.
-		model.setAttributes(MeasurementAttributes.SHOWID, true);
-		model.getDrawingView().print(image.getGraphics());
-		model.setAttributes(MeasurementAttributes.SHOWID, false);
-		String imageName = "ROIImage";
-		try {
-			writer.addImageToWorkbook(imageName, image); 
-		} catch (Exception e) {
-			//TODO
+			model.setAttributes(MeasurementAttributes.SHOWID, true);
+			model.getDrawingView().print(image.getGraphics());
+			model.setAttributes(MeasurementAttributes.SHOWID, false);
+			String imageName = "ROIImage";
+			try {
+				writer.addImageToWorkbook(imageName, image); 
+			} catch (Exception e) {
+				Logger logger = MeasurementAgent.getRegistry().getLogger();
+				logger.error(this, "Cannot Add the image to the sheet: " +
+					""+e.toString());
+			
+			}
+		
+			int col = writer.getMaxColumn(0);
+			writer.writeImage(0, col+1, 256, 256,	imageName);
 		}
-		int col = writer.getMaxColumn(0);
-		writer.writeImage(0, col+1, 256, 256,	imageName);
 		writer.close();
 		return true;
 	}
 
 	/** Refreshes the result table. */
 	public void refreshResults() { populate(); }
-	
-	/**
-	 * Shows the results wizard and updates the fields based on the users 
-	 * selection.
-	 */
-	void showResultsWizard()
-	{
-		ResultsWizard resultsWizard = new ResultsWizard(view, fields, allFields);
-		resultsWizard.pack();
-		UIUtilities.setLocationRelativeToAndShow(this, resultsWizard);
-		columnNames.clear();
-		columnNames = new ArrayList<KeyDescription>();
-		columnNames.add(new KeyDescription(AnnotationDescription.ROIID_STRING,
-											AnnotationDescription.ROIID_STRING));
-		columnNames.add(new KeyDescription(AnnotationDescription.TIME_STRING,
-											AnnotationDescription.TIME_STRING));
-		columnNames.add(new KeyDescription( AnnotationDescription.ZSECTION_STRING,
-											AnnotationDescription.ZSECTION_STRING));
-		columnNames.add(new KeyDescription( AnnotationDescription.SHAPE_STRING,
-											AnnotationDescription.SHAPE_STRING));
-		for (int i = 0 ; i < fields.size(); i++)
-			columnNames.add(new KeyDescription(	fields.get(i).getKey().toString(),
-												fields.get(i).getName()));
-		populate();
-		results.repaint();
-	}
 	
 	/**
 	 * Reacts to controls selection.
@@ -603,7 +609,9 @@ class MeasurementResults
 		ResultsTable()
 		{
 			super();
+			/*
 			setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+			
 			int columnWidth = 0;
 			FontMetrics metrics = getFontMetrics(getFont());
 			int w;
@@ -616,7 +624,7 @@ class MeasurementResults
 				col.setMinWidth(columnWidth);
 				col.setPreferredWidth(columnWidth);
 			}
-		
+			 */
 		}
 		
 		/**
@@ -649,7 +657,8 @@ class MeasurementResults
 		 * 						Mustn't be <code>null</code>.
 		 * @param units The units of measurement.
 		 */
-		MeasurementTableModel(List<KeyDescription> colNames, MeasurementUnits units)
+		MeasurementTableModel(List<KeyDescription> colNames, 
+				MeasurementUnits units)
 		{
 			if (colNames == null)
 				throw new IllegalArgumentException("No column's names " +
@@ -710,11 +719,12 @@ class MeasurementResults
 		 */
 		public String getColumnName(int col) 
 		{
-			if(AttributeUnits.getUnits(columnNames.get(col).getKey(),unitsType).equals(""))
+			String s = columnNames.get(col).getKey();
+			if (AttributeUnits.getUnits(s, unitsType).equals(""))
 				return columnNames.get(col).getDescription();
 			else
 				return columnNames.get(col).getDescription()+
-			" (" + AttributeUnits.getUnits(columnNames.get(col).getKey(),unitsType)+")"; }
+			" (" + AttributeUnits.getUnits(s, unitsType)+")"; }
 	    
 	    /**
 		 * Overridden to return the number of columns.
@@ -739,4 +749,20 @@ class MeasurementResults
 		
 	}
 
+
+	class KeyDescription
+	{
+		String key;
+		String description;
+		
+		public KeyDescription(String key, String description)
+		{
+			this.key = key;
+			this.description = description;
+		}
+		
+		public String getKey() { return key;}
+		public String getDescription() {return description;}
+	}
+	
 }

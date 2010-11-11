@@ -30,6 +30,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.font.TextLayout;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
@@ -69,6 +70,7 @@ public class EllipseTextFigure
 	extends RotateEllipseFigure
 	implements TextHolderFigure
 {
+	
 	/** Is the attribute update from a transform update. */
 	protected boolean 				fromTransformUpdate;
 	
@@ -122,17 +124,20 @@ public class EllipseTextFigure
 		setAttributeEnabled(MeasurementAttributes.WIDTH, true);
 		setAttribute(MeasurementAttributes.WIDTH, w);
 		setAttribute(MeasurementAttributes.HEIGHT, h);
-  		setAttribute(AttributeKeys.TEXT, t);
+  		setText(t);
 		textLayout = null;
 		textBounds = null;
 		editable = true;
 		fromTransformUpdate = false;
 	}	
 	
+	/**
+	 * Overridden to the value of the transform.
+	 */
 	public void setAttribute(AttributeKey key, Object newValue) 
 	{
 		super.setAttribute(key, newValue);
-		if(!fromTransformUpdate)
+		if (!fromTransformUpdate)
 		{
 			if(key.getKey().equals(MeasurementAttributes.HEIGHT.getKey()))
 			{
@@ -238,10 +243,9 @@ public class EllipseTextFigure
 	{
 		if (!(MeasurementAttributes.SHOWTEXT.get(this))) return;
 		String text = getText();
-		if (text != null && isEditable()) 
+		if (text != null)// && isEditable()) 
 		{	
-			if(text!=null)
-				text = text.trim();
+			text = text.trim();
 		
 			TextLayout layout = getTextLayout();
 			
@@ -253,8 +257,9 @@ public class EllipseTextFigure
 			
 			double textWidth = fm.stringWidth(text);
 			double textHeight = fm.getAscent();
-			double x = this.getTransformedShape().getBounds().getCenterX()-textWidth/2;
-			double y = this.getTransformedShape().getBounds().getCenterY();
+			Rectangle r = getTransformedShape().getBounds();
+			double x = r.getCenterX()-textWidth/2;
+			double y = r.getCenterY();
 			Font font = AttributeKeys.FONT_FACE.get(this);
 			Font viewFont = font.deriveFont(
 					AttributeKeys.FONT_SIZE.get(this).intValue());
@@ -389,9 +394,9 @@ public class EllipseTextFigure
 	 */
 	public boolean isTextOverflow()	{ return false; }
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.RotateEllipseFigure#clone()
+	/**
+	 * Overridden to set the text.
+	 * @see RotateEllipseFigure#clone()
 	 */
 	public EllipseTextFigure clone()
 	{

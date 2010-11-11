@@ -29,6 +29,15 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import pojos.DatasetData;
+import pojos.ImageData;
+import pojos.PlateAcquisitionData;
+import pojos.PlateData;
+import pojos.ProjectData;
+import pojos.ROIData;
+import pojos.ScreenData;
+import pojos.TagAnnotationData;
+import pojos.TermAnnotationData;
 
 /** 
  * Hosts the parameters to delete. 
@@ -51,23 +60,19 @@ public class DeletableObject
 	
 	/** 
 	 * Flag indicating to delete the objects contained in the object to delete,
-	 * the flag will be taken into account when the objec to delete is a 
+	 * the flag will be taken into account when the object to delete is a 
 	 * container e.g. <code>Project</code>.
 	 */
 	private boolean				content;
 	
-	/** Flag indicating to delete the annotations. */
-	private boolean				attachment;
+	/** The collection of annotations to keep e.g. TagAnnotationData. */
+	private List<Class> 		annotations;
 	
-	/** 
-	 * Sets to <code>null</code> or <code>empty</code>
-	 * if all annotations have to be deleted,
-	 * otherwise contains the types of annotation to delete.
-	 */
-	private List<Class> 		attachmentTypes;
+	/** The report of the delete action. */
+	private List<String>		report;
 	
-	/** Collection of entities that blocked the delete action. */
-	private List				blocker;
+	/** The number of errors. */
+	private int		            numberOfErrors;
 	
 	/**
 	 * Creates a new instance.
@@ -76,18 +81,13 @@ public class DeletableObject
 	 * @param content			Pass <code>true</code> to delete the objects
 	 * 							contained in the object to delete, 
 	 * 							<code>false</code> otherwise.
-	 * @param attachment		Pass <code>true</code> to delete the 
-	 * 							annotations, <code>false</code> otherwise.
 	 */
-	public DeletableObject(pojos.DataObject objectToDelete, 
-			boolean content, boolean attachment)
+	public DeletableObject(pojos.DataObject objectToDelete, boolean content)
 	{
 		if (objectToDelete == null) 
 			throw new IllegalArgumentException("No object to delete.");
 		this.objectToDelete = objectToDelete;
 		this.content = content;
-		this.attachment = attachment;
-		blocker = null;
 	}
 	
 	/**
@@ -97,7 +97,7 @@ public class DeletableObject
 	 */
 	public DeletableObject(pojos.DataObject objectToDelete)
 	{
-		this(objectToDelete, false, false);
+		this(objectToDelete, false);
 	}
 	
 	/** 
@@ -108,30 +108,22 @@ public class DeletableObject
 	 */
 	public boolean deleteContent() { return content; }
 	
-	/** 
-	 * Returns <code>true</code> if the related annotations have to be deleted,
-	 * <code>false</code> otherwise.
+	/**
+	 * Returns the types of keep. All annotations will be deleted if 
+	 * empty or <code>null</code>.
 	 * 
 	 * @return See above.
 	 */
-	public boolean deleteAttachment() { return attachment; }
+	public List<Class> getAnnotations() { return annotations; }
 	
 	/**
-	 * Returns the types of attachments to delete or <code>null</code>
-	 * if all types have to be deleted.
+	 * Sets the types of annotations to keep.
 	 * 
-	 * @return See above.
+	 * @param annotations The types of annotations to keep.
 	 */
-	public List<Class> getAttachmentTypes() { return attachmentTypes; }
-	
-	/**
-	 * Sets the types of attachments to delete.
-	 * 
-	 * @param attachmentTypes The types of attachments to delete.
-	 */
-	public void setAttachmentTypes(List<Class> attachmentTypes)
+	public void setAttachmentTypes(List<Class> annotations)
 	{
-		this.attachmentTypes = attachmentTypes;
+		this.annotations = annotations;
 	}
 	
 	/**
@@ -142,17 +134,54 @@ public class DeletableObject
 	public pojos.DataObject getObjectToDelete() { return objectToDelete; }
 	
 	/**
-	 * Sets the collection of objects that prevent the delete action.
+	 * Sets the report of the delete action.
 	 * 
-	 * @param blocker The value to set.
+	 * @param report The value to set.
 	 */
-	public void setBlocker(List blocker) { this.blocker = blocker; }
+	public void setReport(List<String> report) { this.report = report; }
 	
 	/**
-	 * Returns the collection of objects that prevent the delete action.
+	 * Returns the report of the delete action.
 	 * 
 	 * @return See above.
 	 */
-	public List getBlocker() { return blocker; }
+	public List<String> getReport() { return report; }
+
+	/**
+	 * Returns the number of reports.
+	 * 
+	 * @return See above.
+	 */
+	public int getNumberOfErrors() { return numberOfErrors; }
+	
+	/**
+	 * Returns the type of object to delete as a string.
+	 * 
+	 * @return See above.
+	 */
+	public String getMessage()
+	{
+		if (objectToDelete instanceof ProjectData) {
+			return ((ProjectData) objectToDelete).getName();
+		} else if (objectToDelete instanceof DatasetData) {
+			return ((DatasetData) objectToDelete).getName();
+		} else if (objectToDelete instanceof ImageData) {
+			return ((ImageData) objectToDelete).getName();
+		} else if (objectToDelete instanceof ScreenData) {
+			return ((ScreenData) objectToDelete).getName();
+		} else if (objectToDelete instanceof ROIData) {
+			return "ROI for:"+
+			((ROIData) objectToDelete).getImage().getName();
+		} else if (objectToDelete instanceof TagAnnotationData) {
+			return ((TagAnnotationData) objectToDelete).getTagValue();
+		} else if (objectToDelete instanceof TermAnnotationData) {
+			return ((TermAnnotationData) objectToDelete).getTerm();
+		} else if (objectToDelete instanceof PlateData) {
+			return ((PlateData) objectToDelete).getName();
+		} else if (objectToDelete instanceof PlateAcquisitionData) {
+			return ((PlateAcquisitionData) objectToDelete).getLabel();
+		}
+		return "";
+	}
 
 }

@@ -77,6 +77,53 @@ class AdminServiceImpl
 	private OMEROGateway            gateway;
 	
 	/**
+	 * Updates the experimenter.
+	 * 
+	 * @param exp The experimenter to update.
+	 * @param group The current group to set if any.
+	 * @param asAdmin Pass <code>true</code> if updated as an administrator,
+	 * 				  <code>false</code> otherwise.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service.
+	 */
+	private ExperimenterData updateExperimenter(ExperimenterData exp, GroupData 
+			group, boolean asAdmin) 
+	throws DSOutOfServiceException, DSAccessException
+	{
+		ExperimenterData currentUser = (ExperimenterData)
+		context.lookup(LookupNames.CURRENT_USER_DETAILS);
+		if (!asAdmin && exp.getId() != currentUser.getId()) return exp;
+		UserCredentials uc = (UserCredentials) 
+		context.lookup(LookupNames.USER_CREDENTIALS);
+		gateway.updateExperimenter(exp.asExperimenter(), currentUser.getId());
+		ExperimenterData data;
+		if (group != null && exp.getDefaultGroup().getId() != group.getId()) {
+			gateway.changeCurrentGroup(exp, group.getId());
+		}
+		String userName = uc.getUserName();
+		if (asAdmin) userName = exp.getUserName();
+		data = gateway.getUserDetails(userName);
+		if (currentUser.getId() != exp.getId()) 
+			return data;
+
+		context.bind(LookupNames.CURRENT_USER_DETAILS, data);
+		//	Bind user details to all agents' registry.
+		List agents = (List) context.lookup(LookupNames.AGENTS);
+		Iterator i = agents.iterator();
+		AgentInfo agentInfo;
+		while (i.hasNext()) {
+			agentInfo = (AgentInfo) i.next();
+			if (agentInfo.isActive()) {
+				agentInfo.getRegistry().bind(
+						LookupNames.CURRENT_USER_DETAILS, data);
+			}
+		}
+		return data;
+	}
+	
+	/**
 	 * Creates a new instance.
 	 * 
 	 * @param gateway   Reference to the OMERO entry point.
@@ -136,10 +183,15 @@ class AdminServiceImpl
 	public long getSpace(int index, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		switch (index) {
+		try {
+			switch (index) {
 			case USED: return gateway.getUsedSpace(userID);
 			case FREE: return gateway.getFreeSpace();
 		}
+		} catch (Exception e) {
+			return -1;
+		}
+		
 		return -1;
 	}
 	
@@ -154,11 +206,12 @@ class AdminServiceImpl
 			throw new IllegalArgumentException("Password not valid.");
 		UserCredentials uc = (UserCredentials) 
 		context.lookup(LookupNames.USER_CREDENTIALS);
-		if (!uc.getPassword().equals(oldPassword)) return Boolean.FALSE;
+		if (!uc.getPassword().equals(oldPassword)) 
+			return Boolean.valueOf(false);
 
-		gateway.changePassword(newPassword);
+		gateway.changePassword(newPassword, oldPassword);
 		uc.resetPassword(newPassword);
-		return Boolean.TRUE;
+		return Boolean.valueOf(true);
 	}
 	
 	/**
@@ -175,8 +228,8 @@ class AdminServiceImpl
 		if (exp.getDefaultGroup().getId() != groupID) {
 			UserCredentials uc = (UserCredentials) 
 			context.lookup(LookupNames.USER_CREDENTIALS);
-			gateway.changeCurrentGroup(exp, groupID, uc.getUserName(), 
-					uc.getPassword());
+			gateway.changeCurrentGroup(exp, groupID);//, uc.getUserName(), 
+					//uc.getPassword());
 		}
 		UserCredentials uc = (UserCredentials) 
 			context.lookup(LookupNames.USER_CREDENTIALS);
@@ -204,38 +257,7 @@ class AdminServiceImpl
 			group) 
 		throws DSOutOfServiceException, DSAccessException 
 	{
-		//ADD control
-		if (exp == null) 
-			throw new DSAccessException("No object to update.");
-		ExperimenterData currentUser = (ExperimenterData)
-			context.lookup(LookupNames.CURRENT_USER_DETAILS);
-		if (exp.getId() != currentUser.getId()) return exp;
-		UserCredentials uc = (UserCredentials) 
-			context.lookup(LookupNames.USER_CREDENTIALS);
-		gateway.updateExperimenter(exp.asExperimenter());
-		ExperimenterData data;
-		if (group != null && exp.getDefaultGroup().getId() != group.getId()) {
-			gateway.changeCurrentGroup(exp, group.getId(), 
-					uc.getUserName(), uc.getPassword());
-		}
-		data = gateway.getUserDetails(uc.getUserName());
-		if (currentUser.getId() != exp.getId()) 
-			return data;
-		
-		
-		context.bind(LookupNames.CURRENT_USER_DETAILS, data);
-//		Bind user details to all agents' registry.
-		List agents = (List) context.lookup(LookupNames.AGENTS);
-		Iterator i = agents.iterator();
-		AgentInfo agentInfo;
-		while (i.hasNext()) {
-			agentInfo = (AgentInfo) i.next();
-			if (agentInfo.isActive()) {
-				agentInfo.getRegistry().bind(
-						LookupNames.CURRENT_USER_DETAILS, data);
-			}
-		}
-		return data;
+		return updateExperimenter(exp, group, false);
 	}
 
 	/**
@@ -478,7 +500,7 @@ class AdminServiceImpl
 	 * Implemented as specified by {@link AdminService}.
 	 * @see AdminService#updateExperimenters(GroupData, Map)
 	 */
-	public List<ExperimenterData> updateExperimenters(GroupData group,
+	public Map<ExperimenterData, Exception> updateExperimenters(GroupData group,
 			Map<ExperimenterData, UserCredentials> experimenters)
 			throws DSOutOfServiceException, DSAccessException
 	{
@@ -486,7 +508,8 @@ class AdminServiceImpl
 			throw new IllegalArgumentException("No experimenters to update");
 		Entry entry;
 		Iterator i = experimenters.entrySet().iterator();
-		List<ExperimenterData> l = new ArrayList<ExperimenterData>();
+		Map<ExperimenterData, Exception> 
+		l = new HashMap<ExperimenterData, Exception>();
 		List<Experimenter> ownersToAdd = new ArrayList<Experimenter>();
 		List<Experimenter> ownersToRemove = new ArrayList<Experimenter>();
 		List<Experimenter> administratorsToAdd = new ArrayList<Experimenter>();
@@ -498,12 +521,15 @@ class AdminServiceImpl
 		ExperimenterData exp;
 		UserCredentials uc;
 		Boolean b;
+		boolean reset = false;
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			exp = (ExperimenterData) entry.getKey();
 			uc = (UserCredentials) entry.getValue();
+			//exp.asExperimenter().setOmeName(
+			//		omero.rtypes.rstring(uc.getUserName()));
 			try {
-				updateExperimenter(exp, group);
+				updateExperimenter(exp, group, true);
 				b = uc.isOwner();
 				if (b != null) {
 					if (b.booleanValue()) ownersToAdd.add(exp.asExperimenter());
@@ -524,10 +550,14 @@ class AdminServiceImpl
 				//Check owner
 				//reset login name
 				if (!exp.getUserName().equals(uc.getUserName())) {
-					gateway.resetUserName(uc.getUserName(), exp);
+					reset = gateway.resetUserName(uc.getUserName(), exp);
+					if (!reset) {
+						l.put(exp, new Exception(
+								"The selected User Name is already taken."));
+					}
 				}
 			} catch (Exception e) {
-				l.add(exp);
+				l.put(exp, e);
 			}
 		}
 		if (group != null) {

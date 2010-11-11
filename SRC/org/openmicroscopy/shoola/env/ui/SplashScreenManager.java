@@ -191,7 +191,7 @@ class SplashScreenManager
 		Registry reg = c.getRegistry();
 		String n = (String) reg.lookup(LookupNames.SPLASH_SCREEN_LOGO);
 		
-		String f = container.resolveConfigFile(null);
+		String f = container.resolveFilePath(null, Container.CONFIG_DIR);
 		Icon splashScreen = Factory.createIcon(n, f);
 		if (splashScreen == null) {
 			Boolean online = (Boolean) container.getRegistry().lookup(

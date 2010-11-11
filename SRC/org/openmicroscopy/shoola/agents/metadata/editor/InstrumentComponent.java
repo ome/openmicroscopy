@@ -40,6 +40,10 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+
+//Third-party libraries
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
@@ -47,11 +51,6 @@ import org.openmicroscopy.shoola.util.ui.JLabelButton;
 import org.openmicroscopy.shoola.util.ui.OMEComboBox;
 import org.openmicroscopy.shoola.util.ui.OMETextArea;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-
-//Third-party libraries
-
-//Application-internal dependencies
 import pojos.DataObject;
 import pojos.DetectorData;
 import pojos.DichroicData;

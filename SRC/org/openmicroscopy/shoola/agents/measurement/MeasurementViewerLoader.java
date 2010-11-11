@@ -103,8 +103,6 @@ public abstract class MeasurementViewerLoader
     {
         String info = "The data retrieval has been cancelled.";
         registry.getLogger().info(this, info);
-        //registry.getUserNotifier().notifyInfo("Data Retrieval Cancellation", 
-        //                                      info);
     }
     
     /**

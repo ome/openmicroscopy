@@ -96,7 +96,7 @@ public class PointTextFigure
 	public PointTextFigure(String text, double x, double y, double w, double h) 
 	{
 		super(x, y);
-		setAttribute(AttributeKeys.TEXT, text);
+		setText(text);
 		textLayout = null;
 		textBounds = null;
 		editable = true;
@@ -129,10 +129,9 @@ public class PointTextFigure
 	{
 		if (DrawingAttributes.SHOWTEXT.get(this)) {
 			String text = getText();
-			if (text != null  && isEditable()) 
+			if (text != null)//  && isEditable()) 
 			{	
-				if(text!=null)
-					text = text.trim();
+				text = text.trim();
 				TextLayout layout = getTextLayout();
 				Rectangle2D.Double r = getBounds();
 				FontMetrics fm = 
@@ -142,7 +141,8 @@ public class PointTextFigure
 				double x = r.x+r.width/2-textWith/2;
 				double y = r.y+r.height/2+textHeight/2;
 				Font font = AttributeKeys.FONT_FACE.get(this);
-				Font viewFont = font.deriveFont(AttributeKeys.FONT_SIZE.get(this).intValue());
+				Font viewFont = font.deriveFont(
+						AttributeKeys.FONT_SIZE.get(this).intValue());
 				g.setFont(viewFont);
 				g.setColor(AttributeKeys.TEXT_COLOR.get(this));
 				textBounds = new Rectangle2D.Double(x, y, textWith, textHeight);

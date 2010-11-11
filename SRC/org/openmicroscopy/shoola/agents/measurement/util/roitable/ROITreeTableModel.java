@@ -43,7 +43,7 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
 import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeTableModel;
 
 /**
- * 
+ * Tree model of a tree-table displaying ROI.
  * 
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -60,7 +60,7 @@ public class ROITreeTableModel
 	/** Collection of column names. */
 	private List<AnnotationField>					fields;
 
-	/** Map of annotationkeys to columns. */
+	/** Map of annotation keys to columns. */
 	private Map<AnnotationKey, Integer>			keyMap;
 	
 	/**
@@ -94,7 +94,7 @@ public class ROITreeTableModel
 	private void updateKeyMap()
 	{
 		keyMap.clear();
-		for(int i = 0 ; i < fields.size(); i++)
+		for (int i = 0 ; i < fields.size(); i++)
 			keyMap.put(fields.get(i).getKey(), i);
 	}
 	
@@ -105,10 +105,10 @@ public class ROITreeTableModel
 	 */
 	public void nodeUpdated(ROITreeNode node)
 	{
-		Object[] objects=new Object[2];
-		objects[0]=getRoot();
-		objects[1]=node.getParent();
-		TreePath path=new TreePath(objects);
+		Object[] objects = new Object[2];
+		objects[0] = getRoot();
+		objects[1] = node.getParent();
+		TreePath path = new TreePath(objects);
 		modelSupport.fireChildChanged(path, node.getParent().getIndex(node),
 			node);
 	}
@@ -124,18 +124,19 @@ public class ROITreeTableModel
 	{
 		if (nodeObject instanceof ROITreeNode)
 		{
-			ROITreeNode node=(ROITreeNode) nodeObject;
+			ROITreeNode node = (ROITreeNode) nodeObject;
 			Object object = node.getUserObject();
 			AnnotationField objectField = fields.get(column-1);
 				
 			if (object instanceof ROI)
 			{
-				ROI roi = (ROI)object;
+
+				ROI roi = (ROI) object;
 				roi.setAnnotation(objectField.getKey(), value);
 			}
 			else if (object instanceof ROIShape)
 			{
-				ROIShape shape = (ROIShape)object;
+				ROIShape shape = (ROIShape) object;
 				shape.setAnnotation(objectField.getKey(), value);
 			}
 			nodeUpdated(node);
@@ -153,19 +154,19 @@ public class ROITreeTableModel
 	{
 		if (nodeObject instanceof ROITreeNode)
 		{
-			ROITreeNode ROITreeNode=(ROITreeNode) nodeObject;
-			Object object=ROITreeNode.getUserObject();
+			ROITreeNode ROITreeNode = (ROITreeNode) nodeObject;
+			Object object = ROITreeNode.getUserObject();
 			if (column == 0)
 				return object;
 			AnnotationField objectField = fields.get(column-1);
 			if (object instanceof ROI)
 			{
-				ROI roi = (ROI)object;
+				ROI roi = (ROI) object;
 				return roi.getAnnotation(objectField.getKey());
 			}
 			else if (object instanceof ROIShape)
 			{
-				ROIShape shape = (ROIShape)object;
+				ROIShape shape = (ROIShape) object;
 				return shape.getAnnotation(objectField.getKey());
 			}
 		}
@@ -184,7 +185,8 @@ public class ROITreeTableModel
 	}
 	
 	/**
-	 * Is the cell editable for this node and column.
+	 * Returns <code>true</code> if the cell can be edited,
+	 * <code>false</code> otherwise.
 	 * 
 	 * @param node     the node of the tree.
 	 * @param column   the field to edit.

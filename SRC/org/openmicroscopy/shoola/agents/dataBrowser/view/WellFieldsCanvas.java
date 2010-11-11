@@ -108,7 +108,7 @@ class WellFieldsCanvas
 		g2D.drawLine(0, h/2, w, h/2);
 		
 		int n = h/2;
-		n = n/x;
+		if (x != 0) n = n/x;
 		for (int i = 1; i <= n; i++) {
 			g2D.drawLine(w/2+x*i, h/2-TICK, w/2+x*i, h/2+TICK);
 			
@@ -119,7 +119,7 @@ class WellFieldsCanvas
 		g2D.drawLine(w/2, 0, w/2, h);
 		
 		n = h/2;
-		n = n/y;
+		if (y != 0) n = n/y;
 		for (int i = 1; i <= n; i++) {
 			g2D.drawLine(w/2-TICK, h/2+y*i, w/2+TICK, h/2+y*i);
 			g2D.drawLine(w/2-TICK, h/2-y*i, w/2+TICK, h/2-y*i);

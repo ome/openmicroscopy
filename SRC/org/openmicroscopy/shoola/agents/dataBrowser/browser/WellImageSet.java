@@ -215,9 +215,9 @@ public class WellImageSet
 	public int getRow()
 	{ 
 		if (getHierarchyObject() == null) return -1;
-		Integer i = ((WellData) getHierarchyObject()).getRow();
+		Integer i = ((WellData) getHierarchyObject()).getRow(); 
 		if (i == null) return -1;
-		return i;
+		return i; 
 	}
 	
 	/**
@@ -228,7 +228,7 @@ public class WellImageSet
 	public int getColumn()
 	{
 		if (getHierarchyObject() == null) return -1;
-		Integer i = ((WellData) getHierarchyObject()).getColumn();
+		Integer i = ((WellData) getHierarchyObject()).getColumn(); 
 		if (i == null) return -1;
 		return i;
 	}

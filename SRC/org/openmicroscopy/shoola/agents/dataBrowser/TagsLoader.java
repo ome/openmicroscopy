@@ -30,10 +30,8 @@ import java.util.Collection;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-
 import pojos.ExperimenterData;
 import pojos.TagAnnotationData;
 
@@ -89,7 +87,7 @@ public class TagsLoader
 		long userID = exp.getId();//viewer.getUserID();
 		long groupID = -1;
 		int level = 
-		MetadataViewerAgent.getRegistry().getAdminService().getPermissionLevel();
+		DataBrowserAgent.getRegistry().getAdminService().getPermissionLevel();
 		switch (level) {
 				case AdminObject.PERMISSIONS_GROUP_READ_LINK:
 					groupID = exp.getDefaultGroup().getId();

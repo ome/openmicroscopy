@@ -49,26 +49,56 @@ import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIActionContr
 public class ROIAction
 	extends AbstractAction
 {
+	
 	/** action for this 'action' to perform. */
-	protected CreationActionType 				action;
+	protected CreationActionType 	action;
 	
 	/** The controller for the event. */
-	protected ROIActionController 		controller;
+	protected ROIActionController 	controller;
 
 	/**
-	 * Create instance;
-	 *@param controller the reference to the action controller.
+	 * Sets the names of the action.
+	 * 
+	 * @param name see above.
+	 */
+	private void setName(String name)
+	{
+		putValue(Action.NAME, name);
+		putValue(Action.SHORT_DESCRIPTION, name);
+	}
+
+	/**
+	 * Sets the tool-tip of the action.
+	 * 
+	 * @param name see above.
+	 */
+	private void setToolTip(String name)
+	{
+		putValue(Action.LONG_DESCRIPTION, name);
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param controller the reference to the action controller.
+	 * @param action The type of action to create.
 	 */
 	public ROIAction(ROIActionController controller, CreationActionType action)
 	{
+		if (controller == null)
+			throw new IllegalArgumentException("No control.");
+		if (action == null)
+			throw new IllegalArgumentException("No Action type specified.");
 		this.controller = controller;
 		this.action = action;
-		switch(action)
+		setEnabled(false);
+		switch (action)
 		{
 			case DUPLICATE:
 				this.
 				setName("Duplicate");
-				setToolTip("Duplicate the selected ROI, ROIShapes, creating new ROI.");
+				setToolTip("Duplicate the selected ROI, " +
+						"ROIShapes, creating new ROI.");
 				break;
 			case DELETE:
 				setName("Delete");
@@ -80,50 +110,24 @@ public class ROIAction
 				break;
 			case SPLIT:
 				setName("Split");
-				setToolTip("Split the selected ROIShapes from parent ROI into a new ROI.");
+				setToolTip("Split the selected ROIShapes from parent " +
+						"ROI into a new ROI.");
 				break;
 			case PROPAGATE:
 				setName("Propagate");
-				setToolTip("Propagate the selected ROI through Time and Z Sections.");
+				setToolTip("Propagate the selected ROI through " +
+						"Time and Z Sections.");
 				break;
 		}
 	}
-
-	/**
-	 * Set the anem of the aciton.
-	 * @param name see above.
-	 */
-	public void setName(String name)
-	{
-		putValue(Action.NAME, name);
-		putValue(Action.SHORT_DESCRIPTION, name);
-	}
-
-	/**
-	 * Set the anem of the aciton.
-	 * @param name see above.
-	 */
-	public void setToolTip(String name)
-	{
-		putValue(Action.LONG_DESCRIPTION, name);
-	}
 	
 	/**
-	 * Returns the name of the action.
-	 * 
-	 * @return See above.
-	 */
-    public String getName()
-    { 
-    	return (String) getValue(Action.NAME);  
-    } 
-	
-	/* (non-Javadoc)
-	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+	 * Manipulates the ROI.
+	 * @see ActionListener#actionPerformed(ActionEvent)
 	 */
 	public void actionPerformed(ActionEvent e)
 	{
-		switch(action)
+		switch (action)
 		{
 			case DUPLICATE:
 				this.

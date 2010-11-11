@@ -38,7 +38,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
 import java.io.File;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -1216,18 +1215,6 @@ public class UIUtilities
     	if (time == null) return "";
     	return DateFormat.getDateInstance().format(time);  
     }
-    
-    /**
-     * Formats as a <code>String</code> the specified time.
-     * 
-     * @param time The timestamp to format.
-     * @return Returns the stringified version of the passed timestamp.
-     */
-    public static String formatDateTime(Timestamp time) 
-    {
-    	if (time == null) return "";
-    	return DateFormat.getDateTimeInstance().format(time);  
-    }
 	
     /**
      * Formats as a <code>String</code> the specified time.
@@ -1844,14 +1831,16 @@ public class UIUtilities
 				list.add(value);
 		return list;
 	}
-
+	
 	/**
-	 * Make sure the paths for the script are platform agnostic.
+	 * Makes sure the paths for the script are platform agnostic.
+	 * 
 	 * @param path The path
 	 * @return The corrected path
 	 */
 	public static String toUnix(String path)
 	{
-		return path.replace('\\','/');
+		return path.replace('\\', '/');
 	}
+	
 }

@@ -269,7 +269,7 @@ class ToolBar
         b = new JButton(a);
         b.addMouseListener((ActivityImageAction) a);
         UIUtilities.unifiedButtonLookAndFeel(b);
-        bar.add(b);        
+        //bar.add(b);        
         Dimension d = new Dimension(w, h);
         busyLabel = new JXBusyLabel(d);
     	busyLabel.setEnabled(true);

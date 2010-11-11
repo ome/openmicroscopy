@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.List;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
@@ -36,7 +37,9 @@ import org.jdesktop.swingx.JXBusyLabel;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PiePlot3D;
 import org.jfree.data.general.DefaultPieDataset;
+import org.jfree.util.Rotation;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -64,6 +67,14 @@ class UserDiskSpace
 	/** The component hosting the data. */
 	private JPanel		data;
 	
+	/** Builds UI so the chart is not displayed.*/
+	private void buildChartNotAvailable()
+	{
+		JLabel l = UIUtilities.setTextFont("Unable to create chart");
+	    data.add(UIUtilities.buildComponentPanelCenter(l), 
+				BorderLayout.CENTER);
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -85,17 +96,29 @@ class UserDiskSpace
 	{
 		data.removeAll();
 		List list = view.isDiskSpaceLoaded();
-		if (list != null) {
+		if (list != null && list.size() == 2) {
 			DefaultPieDataset dataset = new DefaultPieDataset();
 			long free = (Long) list.get(0);
 			long used = (Long) list.get(1);
+			if (free < 0 || used  <0) {
+				buildChartNotAvailable();
+				return;
+			}
 			dataset.setValue("Free for Users "+
 					UIUtilities.formatFileSize(free), free);
 			dataset.setValue("Used by Me "+UIUtilities.formatFileSize(used), 
 					used);
-			JFreeChart freeChart = ChartFactory.createPieChart("", 
-					dataset, false, true, false);
-			data.add(new ChartPanel(freeChart), BorderLayout.CENTER);
+			try {
+				JFreeChart chart = ChartFactory.createPieChart3D("", 
+						dataset, false, true, false);
+				PiePlot3D plot = (PiePlot3D) chart.getPlot();
+				plot.setDirection(Rotation.CLOCKWISE);
+			    plot.setForegroundAlpha(0.55f);
+				data.add(new ChartPanel(chart), BorderLayout.CENTER);
+			} catch (Exception e) {
+				buildChartNotAvailable();
+			}
+			
 		} else {
 			JXBusyLabel busyLabel = new JXBusyLabel();
 			busyLabel.setBackground(UIUtilities.BACKGROUND_COLOR);

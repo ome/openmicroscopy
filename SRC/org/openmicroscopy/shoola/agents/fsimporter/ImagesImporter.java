@@ -31,6 +31,8 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
+import org.openmicroscopy.shoola.env.data.model.ImportContext;
+import org.openmicroscopy.shoola.env.data.model.ImportObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
 
@@ -53,31 +55,27 @@ public class ImagesImporter
 	extends DataImporterLoader
 {
 
-	/** Handle to the async call so that we can cancel it. */
+	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle	handle; 
     
-    /** The container where to import the images into. */
-    private DataObject 	container;
-    
-    /** The collection of images to import. */
-    private List<Object> images;
+    /** The object hosting the information for the import. */
+    private ImportContext context;
     
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param viewer	The Importer this data loader is for.
      * 					Mustn't be <code>null</code>.
-	 * @param container	The container where to import the image to.
+	 * @param context	The container where to import the image to.
 	 * @param images	The images to import.
 	 */
-	public ImagesImporter(Importer viewer, DataObject container, 
-			List<Object> images)
+	public ImagesImporter(Importer viewer, ImportContext context)
 	{
 		super(viewer);
-		if (images == null || images.size() == 0)
-			throw new IllegalArgumentException("No images to import.");
-		this.images = images;
-		this.container = container;
+		if (context == null || context.getFiles() == null ||
+				context.getFiles().size() == 0)
+			throw new IllegalArgumentException("No Files to import.");
+		this.context = context;
 	}
 
 	/** 
@@ -86,8 +84,7 @@ public class ImagesImporter
 	 */
 	public void load()
 	{
-		handle = ivView.importImages(container, null, 
-				getCurrentUserID(), -1, false, this);
+		//handle = ivView.importImages(context, getCurrentUserID(), -1L, this);
 	}
 	
 	/** 

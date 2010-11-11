@@ -23,9 +23,12 @@
 package org.openmicroscopy.shoola.util.roi.model;
 
 //Java imports
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -59,6 +62,7 @@ import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
  */
 public class ROI
 {
+	
 	/** Default size of the ROI Map. */
 	final 	static 	int						DEFAULTMAPSIZE = 101;
 	
@@ -91,6 +95,9 @@ public class ROI
 	private String keyword;
 	
 
+	/** The identifier of the owner. */
+	private long ownerID;
+	
     /**
      * Construct the ROI with id.
      * @param id see above.
@@ -149,6 +156,7 @@ public class ROI
 	 */
 	private void init(long id, boolean clientSide)
 	{
+		ownerID = -1;
 		this.id = id;
 		this.clientSide = clientSide;
 		roiShapes = new TreeMap<Coord3D, ROIShape>(new Coord3D());
@@ -325,6 +333,22 @@ public class ROI
 	}
 	
 	/**
+	 * Returns all the figures.
+	 * 
+	 * @return See above.
+	 */
+	public List<ROIFigure> getAllFigures()
+	{
+		List<ROIFigure> figures = new ArrayList<ROIFigure>();
+		Collection<ROIShape> set = roiShapes.values();
+		Iterator<ROIShape> i = set.iterator();
+		while (i.hasNext()) {
+			figures.add(i.next().getFigure());
+		}
+		return figures;
+	}
+	
+	/**
 	 * Adds ROIShape shape to the ROI. If the ROI already has a shape at 
 	 * coordinates an exception will be thrown.
 	 * @param shape see above. 
@@ -365,7 +389,7 @@ public class ROI
         if (forbiddenAnnotations == null
                 || ! forbiddenAnnotations.contains(key)) {
             Object oldValue = annotations.get(key);
-            if (! annotations.containsKey(key) || oldValue != newValue
+            if (!annotations.containsKey(key) || oldValue != newValue
                     || oldValue != null && newValue != null &&
                     ! oldValue.equals(newValue)) {
                 basicSetAnnotation(key, newValue);
@@ -471,7 +495,7 @@ public class ROI
     	while (i.hasNext())
     	{
     		annotationKey = i.next(); 
-    		if (annotationKey.getKey() == key)
+    		if (annotationKey.getKey().equals(key))
     			return true;
     	}
     	return false;
@@ -571,6 +595,21 @@ public class ROI
 	{
 		this.namespace = namespace;
 	}
+	
+	/**
+	 * Sets the identifier of the owner.
+	 * 
+	 * @param ownerID the identifier of the owner.
+	 */
+	public void setOwnerID(long ownerID) { this.ownerID = ownerID; }
+	
+	/**
+	 * Returns the identifier of the owner.
+	 * 
+	 * @return See above.
+	 */
+	public long getOwnerID() { return ownerID; }
+	
 }
 
 

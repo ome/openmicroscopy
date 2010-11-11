@@ -383,18 +383,18 @@ public interface OmeroDataService
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
-	 * Deletes the collection of objects. Returns a collection of objects
-	 * that couldn't be deleted.
+	 * Deletes the collection of objects. The objects should all be of the 
+	 * same types. Returns a handle to monitor the status of the deletion
 	 * 
 	 * @param objects	The collection of objects to delete.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
+	 * @throws ProcessException If an error occurred while starting the process.
 	 */
-	public Collection<DeletableObject> delete(
-			Collection<DeletableObject> objects)
-		throws DSOutOfServiceException, DSAccessException;
+	public DeleteCallback delete(Collection<DeletableObject> objects)
+		throws DSOutOfServiceException, DSAccessException, ProcessException;
 	
 	/**
 	 * Returns the view of the server repositories.

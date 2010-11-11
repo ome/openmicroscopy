@@ -83,7 +83,10 @@ public class SelectionWizard
 	/** Bound property indicating the selected items. */
 	public static final String		SELECTED_ITEMS_PROPERTY = "selectedItems";
 	
-	
+	/** Bound property indicating to cancel the selection. */
+	public static final String		CANCEL_SELECTION_PROPERTY = 
+		"cancelSelection";
+
 	/** Action command ID to Accept the current field selection. */
 	private static final int 		ACCEPT = 0;
 
@@ -166,10 +169,18 @@ public class SelectionWizard
 	}
 	
 	/** Closes and disposes. */
-	private void cancel()
+	private void close()
 	{
 		setVisible(false);
 		dispose();
+	}
+	
+	/** Closes and disposes. */
+	private void cancel()
+	{
+		close();
+		firePropertyChange(CANCEL_SELECTION_PROPERTY, Boolean.valueOf(false), 
+				Boolean.valueOf(true));
 	}
 	
 	/** Fires a property change with the selected items. */
@@ -179,7 +190,7 @@ public class SelectionWizard
 			r = new HashMap<Class, Collection<Object>>();
 		r.put(type, uiDelegate.getSelection());
 		firePropertyChange(SELECTED_ITEMS_PROPERTY, null, r);
-		cancel();
+		close();
 	}
 	
 	/** 

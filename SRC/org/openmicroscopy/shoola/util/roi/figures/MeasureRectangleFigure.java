@@ -34,14 +34,11 @@ import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.FigureListener;
-import org.jhotdraw.draw.Handle;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
@@ -49,7 +46,6 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
-import org.openmicroscopy.shoola.util.roi.util.FigureSelectionHandle;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
@@ -105,7 +101,7 @@ public class MeasureRectangleFigure
     /** Creates a new instance. */
     public MeasureRectangleFigure() 
     {
-        this("Text", 0, 0, 0, 0, false, true);
+        this(DEFAULT_TEXT, 0, 0, 0, 0, false, true);
     }
 
     /** Creates a new instance. 
@@ -113,7 +109,7 @@ public class MeasureRectangleFigure
 	 */
     public MeasureRectangleFigure(boolean readOnly, boolean clientObject) 
     {
-        this("Text", 0, 0, 0, 0, readOnly, clientObject);
+        this(DEFAULT_TEXT, 0, 0, 0, 0, readOnly, clientObject);
     }
 
     /** 
@@ -135,10 +131,9 @@ public class MeasureRectangleFigure
     public MeasureRectangleFigure(double x, double y, double width, 
 			double height) 
     {
-    	this("Text", x, y, width, height, false, true);
+    	this(DEFAULT_TEXT, x, y, width, height, false, true);
     }
 
-    
     /** 
      * Creates a new instance.
      * @param x    coord of the figure. 
@@ -150,7 +145,7 @@ public class MeasureRectangleFigure
     public MeasureRectangleFigure(double x, double y, double width, 
 			double height, boolean readOnly, boolean clientObject) 
     {
-    	this("Text", x, y, width, height, readOnly, clientObject);
+    	this(DEFAULT_TEXT, x, y, width, height, readOnly, clientObject);
     }
     
     /** 
@@ -163,7 +158,7 @@ public class MeasureRectangleFigure
  	 * @param readOnly The figure is read only.
  	 * */
     public MeasureRectangleFigure(String text, double x, double y, double width, 
-    							double height, boolean readOnly, boolean clientObject) 
+    					double height, boolean readOnly, boolean clientObject) 
     {
 		super(text, x, y, width, height);
 		setAttributeEnabled(MeasurementAttributes.HEIGHT, true);
@@ -254,12 +249,14 @@ public class MeasureRectangleFigure
 	{
 		super.draw(g);
 		
-		if (MeasurementAttributes.SHOWMEASUREMENT.get(this) || MeasurementAttributes.SHOWID.get(this))
+		if (MeasurementAttributes.SHOWMEASUREMENT.get(this) || 
+				MeasurementAttributes.SHOWID.get(this))
 		{
 			NumberFormat formatter = new DecimalFormat("###.#");
 			String rectangleArea = formatter.format(getArea());
 			rectangleArea = addUnits(rectangleArea);
-			double sz = ((Double)this.getAttribute(MeasurementAttributes.FONT_SIZE));
+			double sz = ((Double)this.getAttribute(
+					MeasurementAttributes.FONT_SIZE));
 			g.setFont(new Font("Arial",Font.PLAIN, (int)sz));
 			bounds = g.getFontMetrics().getStringBounds(rectangleArea, g);
 			bounds = new Rectangle2D.Double(
@@ -289,7 +286,7 @@ public class MeasureRectangleFigure
 	}
 	
 	/**
-	 * Overridden to stop updating shape if read only
+	 * Overridden to stop updating shape if read-only.
 	 * @see AbstractAttributedFigure#transform(AffineTransform)
 	 */
 	public void transform(AffineTransform tx)
@@ -302,7 +299,7 @@ public class MeasureRectangleFigure
 	}
 		
 	/**
-	 * Overridden to stop updating shape if readonly.
+	 * Overridden to stop updating shape if read-only.
 	 * @see AbstractAttributedFigure#setBounds(Double, Double)
 	 */
 	public void setBounds(Point2D.Double anchor, Point2D.Double lead) 
@@ -318,17 +315,18 @@ public class MeasureRectangleFigure
 	 * Overridden to return the correct handles.
 	 * @see AbstractAttributedFigure#createHandles(int)
 	 */
+	/* cannot do that otherwise enter in an infinite loop
 	public Collection<Handle> createHandles(int detailLevel) 
 	{
-		if(!readOnly)
+		if (!readOnly)
 			return super.createHandles(detailLevel);
-		else
-		{
+		else {
 			LinkedList<Handle> handles = new LinkedList<Handle>();
 			handles.add(new FigureSelectionHandle(this));
 			return handles;
 		}
 	}
+	*/
 	
 	/**
 	 * Calculates the bounds of the rendered figure, including the text rendered. 
@@ -586,11 +584,12 @@ public class MeasureRectangleFigure
 	{
 		List<FigureListener> figListeners = new ArrayList<FigureListener>();
 		Object[] listeners = listenerList.getListenerList();
-		for(Object listener : listeners)
+		for (Object listener : listeners)
 			if(listener instanceof FigureListener)
 				figListeners.add((FigureListener)listener);
 		return figListeners;
 	}
+	
 }
 
 

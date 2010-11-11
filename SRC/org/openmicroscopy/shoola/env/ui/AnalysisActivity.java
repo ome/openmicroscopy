@@ -40,7 +40,7 @@ import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import pojos.FileAnnotationData;
 
 /** 
- * Activity to analyse data.
+ * Activity to analyze data.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -74,7 +74,7 @@ public class AnalysisActivity
      * @param viewer		The viewer this data loader is for.
      *               		Mustn't be <code>null</code>.
      * @param registry		Convenience reference for subclasses.
-     * @param parameters  	The parameters used to analyse.
+     * @param parameters  	The parameters used to analyze.
      */
 	public AnalysisActivity(UserNotifier viewer, Registry registry,
 			AnalysisActivityParam parameters)
@@ -92,7 +92,7 @@ public class AnalysisActivity
 	protected UserNotifierLoader createLoader()
 	{
 		AnalysisParam param = (AnalysisParam) parameters.getParameters();
-		loader = new Analyser(viewer,  registry, parameters.getParameters(), 
+		loader = new Analyser(viewer,  registry, param, 
 				param.getIds(), param.getNodeType(), param.getIndex(),
 				this);
 		return loader;
@@ -154,5 +154,11 @@ public class AnalysisActivity
 	{
 		type.setText(DESCRIPTION_CANCEL);
 	}
+
+	/** 
+	 * No-operation in this case.
+	 * @see ActivityComponent#notifyActivityError()
+	 */
+	protected void notifyActivityError() {}
 	
 }

@@ -26,9 +26,6 @@ package org.openmicroscopy.shoola.agents.measurement.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-
 import javax.swing.JComboBox;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -38,7 +35,7 @@ import javax.swing.event.ChangeListener;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 
 /**
- *
+ * Creates or selects an existing workflow.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -61,17 +58,20 @@ public class WorkflowAction
 	private boolean createWorkflow;
 		
 	/** 
-	 * Create a workflow action, this will either allow the user to select the
+	 * Creates a new instance.
+	 * This will either allow the user to select the
 	 * current workflow or create a new one.
-	 * @param model
-	 * @param createWorkflow
+	 * 
+	 * @param model Reference to the model. Mustn't be <code>null</code>.
+	 * @param createWorkflow Pass <code>true</code> to create a workflow, 
+	 * 						 <code>false</code> otherwise.
 	 */
 	public WorkflowAction(MeasurementViewer model, boolean createWorkflow)
 	{
 		super(model);
 		this.createWorkflow = createWorkflow;
-		if(this.createWorkflow)
-			this.name = CREATEWORKFLOW;
+		if (createWorkflow)
+			name = CREATEWORKFLOW;
 	}
 
 	/** 
@@ -80,37 +80,19 @@ public class WorkflowAction
      */
 	public void actionPerformed(ActionEvent e) 
 	{
-		if(e.getActionCommand()==CREATEWORKFLOW)
+		if (e.getActionCommand()==CREATEWORKFLOW)
 			model.createWorkflow();
 		else
 		{
-			if(e.getActionCommand()=="comboBoxChanged")
+			if(e.getActionCommand() == "comboBoxChanged")
 			{
 				JComboBox comboBox = (JComboBox)e.getSource();
-				model.setWorkflow((String)comboBox.getSelectedItem());
+				model.setWorkflow((String) comboBox.getSelectedItem());
 				
 			}
 			else 			
 				model.setWorkflow(e.getActionCommand());
 		}
 	}
-    
-	/** 
-     * Implemented by sub-classes.
-     * @see MeasurementViewerAction#onStateChange()
-     */
-	protected void onStateChange() 
-    {
-    	
-    }
 
-	/** 
-     * Reacts to state changes in the {@link MeasurementViewer}.
-     * @see ChangeListener#stateChanged(ChangeEvent)
-     */
-	public void stateChanged(ChangeEvent e)
-	{
-		setEnabled(model.getState() == MeasurementViewer.READY);
-		onStateChange();
-	}
 }

@@ -80,13 +80,12 @@ public class NodesFinder
 	 * Creates a new instance.
 	 * 
 	 * @param type The type to data object.
-	 * @param id   The identifier of the data object.
+	 * @param ids   The identifiers of the data object.
 	 */
-	public NodesFinder(Class type, List id)
+	public NodesFinder(Class type, List<Long> id)
 	{
 		this.type = type;
-		ids = new ArrayList<Long>();
-		ids.addAll(id);
+		this.ids = id;
 		nodes = new HashSet<TreeImageDisplay>();
 	}
 	

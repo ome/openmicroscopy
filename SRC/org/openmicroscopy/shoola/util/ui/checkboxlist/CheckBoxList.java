@@ -24,13 +24,10 @@ package org.openmicroscopy.shoola.util.ui.checkboxlist;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.BorderFactory;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JCheckBox;
 import javax.swing.JTable;
@@ -41,7 +38,7 @@ import javax.swing.table.TableCellRenderer;
 //Application-internal dependencies
 
 /**
- *
+ * Table with 2 columns, the second one is the check box.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -56,29 +53,21 @@ import javax.swing.table.TableCellRenderer;
 public class CheckBoxList
 	extends JTable
 {
-	/**
-	 * Constructor for CheckBoxList, this takes a checkbox model. 
-	 * @param model See above.
-	 */
-	public CheckBoxList(CheckBoxModel model)
+	
+	/** Reference to the renderer. */
+	private CheckBoxRenderer renderer;
+	
+	/** Installs the listeners. */
+	private void installListeners()
 	{
-		super(model);
 		addMouseListener(new MouseAdapter() 
 		{
 			public void mousePressed(MouseEvent e) 
 			{
-				if(getSelectedColumn()==1)	
+				if (getSelectedColumn() == 1)	
 					toggleValue();
 			}
 		});
-	}
-	
-	/**
-	 * Default constructor.
-	 */
-	CheckBoxList()
-	{
-		this(new CheckBoxModel());
 	}
 
 	/** Toggles the value of the boolean under the current selection. */
@@ -92,68 +81,93 @@ public class CheckBoxList
 	}
 	
 	/**
+	 * Creates a new instance.
+	 *  
+	 * @param model See above.
+	 */
+	public CheckBoxList(CheckBoxModel model)
+	{
+		super(model);
+		installListeners();
+	}
+	
+	/**
+	 * Default constructor.
+	 */
+	CheckBoxList()
+	{
+		this(new CheckBoxModel());
+	}
+	
+	/**
 	 * Default Cell editor, This takes the row and column for the default editor.
 	 * We require this as it stops the disconnection between Renderer and Editor.
+	 * 
 	 * @param row The row of the cell.
 	 * @param col The column of the cell.
 	 */
 	public DefaultCellEditor getCellEditor(int row, int col)
 	{
-		CheckBoxRenderer renderer = (CheckBoxRenderer)
-		getCellRenderer(row, col);
-		return new DefaultCellEditor((JCheckBox)renderer.
+		CheckBoxRenderer renderer = (CheckBoxRenderer) 
+			getCellRenderer(row, col);
+		return new DefaultCellEditor((JCheckBox) renderer.
 				getTableCellRendererComponent(this,
 					getValueAt(row, col), false, false, row, col));
 	}
 
 	/**
-	 * Overridden to return a customised cell renderer.
+	 * Overridden to return a customized cell renderer.
 	 * @see JTable#getCellRenderer(int, int)
 	 */
 	public TableCellRenderer getCellRenderer(int row, int column) 
 	{
-        return new CheckBoxRenderer();
+		if (renderer == null) renderer = new CheckBoxRenderer();
+        return renderer;
     }
 
 	/**
-	 * Get all the values that have been selected as true.
+	 * Returns all the values that have been selected as <code>true</code>.
 	 * 
 	 * @return See above.
 	 */
 	public List<String> getTrueValues()
 	{
 		List<String> values = new ArrayList<String>();
-		for(int row = 0 ;row < getModel().getRowCount() ; row++)
-			if((Boolean)getValueAt(row,1)==true)
-				values.add((String)getValueAt(row,0));
+		for (int row = 0 ;row < getModel().getRowCount() ; row++)
+			if ((Boolean) getValueAt(row, 1))
+				values.add((String) getValueAt(row, 0));
 		return values;
 	}
 	
 	/**
-	 * Set to true the values in the list.
+	 * Sets to <code>true</code> the values in the list.
+	 * 
 	 * @param values See above.
 	 */
 	public void setTrueValues(List<String> values)
 	{
-		for(String value : values)
+		int row;
+		for (String value : values)
 		{
-			int row = findValue(value);
-			if(row == -1)
+			row = findValue(value);
+			if (row == -1)
 				continue;
 			getModel().setValueAt(true, row, 1);
 		}
 	}
 	
 	/**
-	 * Find the checkbox with name equal value.
+	 * Finds the index corresponding to the specified value.
+	 * 
 	 * @param value See above.
-	 * @return
+	 * @return See above.
 	 */
 	public int findValue(String value)
 	{
-		for(int i = 0 ; i < getRowCount(); i++)
-			if(value.equals(getModel().getValueAt(i,0)))
+		for (int i = 0 ; i < getRowCount(); i++)
+			if (value.equals(getModel().getValueAt(i, 0)))
 				return i;
 		return -1;
 	}
+	
 }

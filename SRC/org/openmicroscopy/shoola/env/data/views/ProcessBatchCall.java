@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.env.data.views.ScriptBatchCall
+ * org.openmicroscopy.shoola.env.data.views.ProcessBatchCall 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2010 Glencoe Software, Inc. All rights reserved.
+ *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -11,16 +11,15 @@
  *  (at your option) any later version.
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details.
- *
+ *  
  *  You should have received a copy of the GNU General Public License along
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  *------------------------------------------------------------------------------
  */
-
 package org.openmicroscopy.shoola.env.data.views;
 
 
@@ -29,49 +28,57 @@ package org.openmicroscopy.shoola.env.data.views;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.grid.ProcessCallbackI;
-
-import org.openmicroscopy.shoola.env.data.ScriptCallback;
 import org.openmicroscopy.shoola.util.concur.tasks.MultiStepTask;
 
-/**
+/** 
  * Subclass of {@link BatchCall} which handles periodically polling for
- * Script completion.
+ * server process completion.
  *
- * @version 4.2.0
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0
  * <small>
- * (<b>Internal version:</b> $Revision$ $Date$)
+ * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME Beta4.2.0
+ * @since 3.0-Beta4
  */
-public abstract class ScriptBatchCall
-    extends BatchCall
+public abstract class ProcessBatchCall 
+	extends BatchCall
 {
 
-    public ScriptBatchCall(String name) {
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param name The name associated to the call.
+	 */
+    public ProcessBatchCall(String name)
+    {
         super(name);
     }
 
-    /**
-     * Whether or not the first call has been made.
-     */
+    /** Tells whether or not the first call has been made. */
     private boolean initialized;
 
     /**
-     * The script callback which is needed to poll the server for completion.
+     * The call-back which is needed to poll the server for completion.
      */
-    private ScriptCallback cb;
+    private ProcessCallback cb;
 
     /**
      * Method call to initialize this BatchCall.
      */
-    protected abstract ScriptCallback initialize() throws Exception;
+    protected abstract ProcessCallback initialize() 
+    	throws Exception;
 
     /**
      * Disabling this method since we want to enforce the use of
      * doStep.
      */
-    public final void doCall() throws Exception {
+    public final void doCall() 
+    	throws Exception
+    {
         throw new UnsupportedOperationException();
     }
 
@@ -91,7 +98,7 @@ public abstract class ScriptBatchCall
             try {
                 cb = initialize();
             } catch (Exception e) {
-                e.printStackTrace();
+               throw new Exception(e);
                 // Sorry, not sure what to do here.
             } finally {
                 initialized = true;
@@ -110,7 +117,8 @@ public abstract class ScriptBatchCall
         //
         if (!done) {
             try {
-                ProcessCallbackI.Action action = cb.block(500); // Do a unit of work
+            	// Do a unit of work
+                Object action = cb.block(ProcessCallback.UNIT_OF_WORK); 
                 if (action != null) {
                     done = true;
                 }
@@ -129,9 +137,7 @@ public abstract class ScriptBatchCall
                 }
             }
         }
-
         return null;
-
     }
 
     /**
@@ -140,5 +146,5 @@ public abstract class ScriptBatchCall
      * @see MultiStepTask#isDone()
      */
     public boolean isDone() { return done; }
-
+    
 }

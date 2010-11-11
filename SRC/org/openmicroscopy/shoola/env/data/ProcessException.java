@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.data.ScriptingException 
+ * org.openmicroscopy.shoola.env.data.ProcessException 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
@@ -41,7 +41,7 @@ package org.openmicroscopy.shoola.env.data;
  * </small>
  * @since 3.0-Beta4
  */
-public class ScriptingException 
+public class ProcessException 
 	extends Exception
 {
 	
@@ -50,7 +50,7 @@ public class ScriptingException
 	 * 
 	 * @param message	Short explanation of the problem.
 	 */
-	public  ScriptingException(String message)
+	public  ProcessException(String message)
 	{
 		super(message);
 	}
@@ -61,7 +61,7 @@ public class ScriptingException
 	 * @param message	Short explanation of the problem.
 	 * @param cause		The exception that caused this one to be risen.
 	 */
-	public  ScriptingException(String message, Throwable cause) 
+	public  ProcessException(String message, Throwable cause) 
 	{
 		super(message, cause);
 	}

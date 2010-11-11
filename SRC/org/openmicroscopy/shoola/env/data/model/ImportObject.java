@@ -100,6 +100,7 @@ public class ImportObject
 	 * @return See above.
 	 */
 	public int getDepth() { return depth; }
+	
 	/**
 	 * Returns the file to import.
 	 * 

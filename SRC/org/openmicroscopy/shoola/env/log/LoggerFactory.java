@@ -35,6 +35,7 @@ import java.util.Properties;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.util.file.IOUtil;
 
 /** 
  * A factory for the {@link Logger}. 
@@ -75,7 +76,8 @@ public class LoggerFactory
 		if (!isLoggingOn.booleanValue()) return makeNoOpLogger();
 		
 		//Ok we have to log, so try and read the config file.
-		Properties config = loadConfig(c.resolveConfigFile(LOG_CONFIG_FILE));
+		Properties config = loadConfig(c.resolveFilePath(LOG_CONFIG_FILE, 
+				Container.CONFIG_DIR));
 		if (config == null)	return makeNoOpLogger();	
 		
 		//We have a config file, set up log4j.
@@ -84,8 +86,10 @@ public class LoggerFactory
 		String name = (String) reg.lookup(LookupNames.OMERO_HOME);
 		String omeroDir = System.getProperty("user.home")+File.separator+name;
 		File home = new File(omeroDir);
-		if (!home.exists()) home.mkdir();
+		if (!home.exists()) 
+			home.mkdir();
 		File logFile, logDir;
+
 		if (home.isDirectory()) {
 			logDir = new File(home, logDirName);
 			logDir.mkdir();
@@ -127,14 +131,13 @@ public class LoggerFactory
 	 * 
 	 * @param file	Absolute pathname to the file.
 	 * @return	The content of the file as a property object or
-	 * 			<code>null</code> if an error occured.
+	 * 			<code>null</code> if an error occurred.
 	 */
 	private static Properties loadConfig(String file)
 	{
 		Properties config = new Properties();
 		try { 
-			FileInputStream fis = new FileInputStream(file);
-			config.load(fis);
+			config.load(IOUtil.readConfigFile(file));
 		} catch (Exception e) {
 			return null;
 		}

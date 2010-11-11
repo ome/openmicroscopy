@@ -31,7 +31,6 @@ import java.awt.Font;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import javax.swing.JPanel;
 
@@ -267,7 +266,8 @@ class ChannelSlider
 		String name = evt.getPropertyName();
 		if (uiParent.isLiveUpdate()) {
 			if (TwoKnobsSlider.LEFT_MOVED_PROPERTY.equals(name)
-					|| TwoKnobsSlider.RIGHT_MOVED_PROPERTY.equals(name)) {
+					|| TwoKnobsSlider.RIGHT_MOVED_PROPERTY.equals(name) ||
+					TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name)) {
 				controller.setInputInterval(slider.getStartValue(),
 						slider.getEndValue(), channel.getIndex());
 			}

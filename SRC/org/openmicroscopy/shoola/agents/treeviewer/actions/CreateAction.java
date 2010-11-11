@@ -162,6 +162,7 @@ public class CreateAction
         } else if (ho instanceof ScreenData || ho instanceof DatasetData) {
         	//setEnabled(model.isUserOwner(ho) && !model.isImporting());
         	setEnabled(false);
+        	//setEnabled(model.isUserOwner(ho));
             nodeType = CreateCmd.IMAGE;
             putValue(Action.SMALL_ICON, im.getIcon(IconManager.IMPORTER));
             name = NAME_IMAGE;

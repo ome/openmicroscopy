@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.agents.util.finder;
 
 
 //Java imports
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.sql.Timestamp;
@@ -39,13 +41,16 @@ import java.util.Set;
 import java.util.Map.Entry;
 
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.util.SearchDataContext;
@@ -55,11 +60,14 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.search.SearchComponent;
 import org.openmicroscopy.shoola.util.ui.search.SearchContext;
 import org.openmicroscopy.shoola.util.ui.search.SearchHelp;
+import org.openmicroscopy.shoola.util.ui.search.SearchUtil;
+
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.ProjectData;
+import pojos.TagAnnotationData;
 
 /** 
  * The class actually managing the search.
@@ -91,6 +99,9 @@ public class AdvancedFinder
 	/** Collection of selected users. */
 	private Map<Long, ExperimenterData>		users;
     
+	/** The collection of tags. */
+	private Collection 						tags;
+	
 	/**
 	 * Determines the scope of the search.
 	 * 
@@ -277,8 +288,10 @@ public class AdvancedFinder
 		}
 		
 		List<ExperimenterData> owners = fillUsersList(ctx.getSelectedOwners());
-		List<ExperimenterData> annotators = fillUsersList(null);//fillUsersList(ctx.getSelectedAnnotators());
-		List<ExperimenterData> excludedOwners = fillUsersList(null);//fillUsersList(ctx.getExcludedOwners());
+		List<ExperimenterData> annotators = fillUsersList(null);
+		//fillUsersList(ctx.getSelectedAnnotators());
+		List<ExperimenterData> excludedOwners = fillUsersList(null);
+		//fillUsersList(ctx.getExcludedOwners());
 		List<ExperimenterData> excludedAnnotators = fillUsersList(null);
 		
 		fillUsersList(ctx.getOwnerSearchContext(), owners, excludedOwners);
@@ -337,9 +350,67 @@ public class AdvancedFinder
 		UIUtilities.centerAndShow(dialog);
 	}
 
+	/**
+	 * Creates a list of controls to add to the searching component.
+	 * 
+	 * @return See above.
+	 */
+	private List<JButton> createControls()
+	{
+		List<JButton> list = new ArrayList<JButton>();
+		IconManager icons = IconManager.getInstance();
+		JButton button = new JButton(icons.getIcon(IconManager.TAG));
+		UIUtilities.unifiedButtonLookAndFeel(button);
+		button.setToolTipText("Load existing Tags to search by.");
+		button.addActionListener(new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				loadTags();
+			}
+		});
+		list.add(button);
+		return list;
+	}
+	
+	/** Loads the tags. */
+	private void loadTags()
+	{
+		if (tags == null) {
+			TagsLoader loader = new TagsLoader(this);
+			loader.load();
+		} else setExistingTags(tags);
+	}
+	
+	/**
+	 * Handles the selection.
+	 * 
+	 * @param selected The selected tags.
+	 */
+	private void handleTagsSelection(Collection selected)
+	{
+		List<String> toAdd = new ArrayList<String>();
+		if (selected == null || selected.size() == 0) {
+			setSomeValues(toAdd);
+			return;
+		}
+		Iterator i = selected.iterator();
+		TagAnnotationData tag;
+		String value;
+		while (i.hasNext()) {
+			tag = (TagAnnotationData) i.next();
+			value = tag.getTagValue();
+			if (value.contains(SearchUtil.SPACE_SEPARATOR)) {
+				toAdd.add(SearchUtil.QUOTE_SEPARATOR+value+
+						SearchUtil.QUOTE_SEPARATOR);
+			} else toAdd.add(value);
+		}	
+		setSomeValues(toAdd);
+	}
+	
 	/** Creates a new instance. */
 	AdvancedFinder()
 	{
+		initialize(createControls());
 		finderHandlers = new ArrayList<FinderLoader>();
 		addPropertyChangeListener(SEARCH_PROPERTY, this);
 		addPropertyChangeListener(CANCEL_SEARCH_PROPERTY, this);
@@ -461,6 +532,42 @@ public class AdvancedFinder
 		firePropertyChange(RESULTS_FOUND_PROPERTY, null, nodes);
 	}
 	
+	/** 
+	 * Implemented as specified by {@link Finder} I/F
+	 * @see Finder#setExistingTags(Collection)
+	 */
+	public void setExistingTags(Collection tags)
+	{
+		this.tags = tags;
+		if (tags == null || tags.size() == 0) {
+			UserNotifier un = FinderFactory.getRegistry().getUserNotifier();
+			un.notifyInfo("Existing Tags", "No existing tags to search by.");
+			return;
+		}
+		IconManager icons = IconManager.getInstance();
+		String title = "Filter By Tags";
+		String text = "Select the Tags to filter by.";
+		Collection selected = new ArrayList<TagAnnotationData>();
+		Iterator i = tags.iterator();
+		TagAnnotationData tag;
+		List<String> l = getSome();
+		Collection available = new ArrayList<TagAnnotationData>();
+		
+		while (i.hasNext()) {
+			tag = (TagAnnotationData) i.next();
+			if (l.contains(tag.getTagValue()))
+				selected.add(tag);
+			else available.add(tag);
+		}
+		long id = DataBrowserAgent.getUserDetails().getId();
+		SelectionWizard wizard = new SelectionWizard(
+				DataBrowserAgent.getRegistry().getTaskBar().getFrame(), 
+				available, selected, TagAnnotationData.class, false, id);
+		wizard.setTitle(title, text, icons.getIcon(IconManager.TAG_48));
+		wizard.addPropertyChangeListener(this);
+		UIUtilities.centerAndShow(wizard);
+	}
+	
 	/**
 	 * Reacts to the property fired by the <code>SearchComponent</code>
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
@@ -488,7 +595,20 @@ public class AdvancedFinder
 				//uiValue += value;
 			}
 			//setUserString(uiValue);
+		} else if (SelectionWizard.SELECTED_ITEMS_PROPERTY.equals(name)) {
+			Map m = (Map) evt.getNewValue();
+			if (m == null || m.size() != 1) return;
+			Set set = m.entrySet();
+			Entry entry;
+			Iterator i = set.iterator();
+			Class type;
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				type = (Class) entry.getKey();
+				handleTagsSelection(
+						(Collection) entry.getValue());
+			}
 		}
 	}
-
+	
 }

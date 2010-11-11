@@ -24,6 +24,10 @@ package org.openmicroscopy.shoola.agents.metadata.browser;
 
 
 //Java imports
+import java.awt.Dimension;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -49,12 +53,17 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
 //Third-party libraries
-import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.treeviewer.DataObjectSelectionEvent;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.util.TreeCellRenderer;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
+import org.openmicroscopy.shoola.env.event.EventBus;
+import pojos.DataObject;
+import pojos.DatasetData;
+import pojos.ProjectData;
 
 /** 
  * The view.
@@ -143,12 +152,21 @@ class BrowserUI
      */
     private void handleMouseClick(MouseEvent evt)
     {
-    	/*
-    	Point loc = evt.getPoint();
-    	if (evt.isPopupTrigger()) 
-    		createManagementMenu().show((Component) evt.getSource(), loc.x, 
-    								loc.y);
-    								*/
+    	if (evt.getClickCount() == 2) {
+    		TreeBrowserDisplay node = model.getLastSelectedNode();
+        	if (node == null) return;
+        	Object uo = node.getUserObject();
+        	
+        	if (uo instanceof ProjectData || uo instanceof DatasetData) {
+        		Class type = uo.getClass();
+        		long id = ((DataObject) uo).getId();
+        		DataObjectSelectionEvent event = 
+        			new DataObjectSelectionEvent(type, id);
+        		event.setSelectTab(true);
+        		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
+        		bus.post(event);
+        	} 
+    	}
     }
     
     /** Helper method to create the menu bar. */
@@ -250,10 +268,20 @@ class BrowserUI
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
-    	//setLayout(new BorderLayout(0, 0));
-    	double[][] size = {{TableLayout.FILL}, {100}};
-    	setLayout(new TableLayout(size));
-    	add(new JScrollPane(treeDisplay), "0, 0");
+    	setLayout(new GridBagLayout());
+    	GridBagConstraints constraints = new GridBagConstraints();
+		constraints.fill = GridBagConstraints.HORIZONTAL;
+		constraints.anchor = GridBagConstraints.NORTHWEST;
+		constraints.insets = new Insets(0, 2, 2, 0);
+		constraints.gridy = 0;
+		constraints.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+		constraints.weightx = 1.0;  
+		JScrollPane pane = new JScrollPane(treeDisplay);
+		Dimension d = pane.getPreferredSize();
+		pane.getViewport().setPreferredSize(new Dimension(d.width, 100));
+    	pane.setBorder(null);
+    	add(pane, constraints);
+    	
     }
     
     /** Creates a new instance. */

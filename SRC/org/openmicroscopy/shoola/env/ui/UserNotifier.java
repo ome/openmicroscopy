@@ -146,8 +146,9 @@ public interface UserNotifier
      * Submits a message to the development team. 
      * 
      * @param emailAddress	The e-mail address of the current user.
+     * @param comment The text to display in the comment box.
      */
-    public void submitMessage(String emailAddress);
+    public void submitMessage(String emailAddress, String comment);
     
     /**
      * Notifies the user of an activity such as movie creation.

@@ -63,6 +63,7 @@ import org.openmicroscopy.shoola.agents.util.DataObjectListCellRenderer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.AnalysisResultsHandlingParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -74,6 +75,7 @@ import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
+
 import pojos.AnnotationData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
@@ -122,6 +124,9 @@ class DocComponent
 	/** Action id to open the annotation. */
 	private static final int MENU = 5;
 	
+	/** Action id to open the annotation. */
+	private static final int PLOT = 6;
+	
 	/** Collection of filters supported. */
 	private static final List<CustomizedFileFilter> FILTERS;
 		
@@ -150,6 +155,9 @@ class DocComponent
 	
 	/** Button to open the file linked to the annotation. */
 	private JMenuItem		openButton;
+	
+	/** Button to plot the results. */
+	private JMenuItem		plotButton;
 	
 	/** Button to delete the file annotation. */
 	private JMenuItem		deleteButton;
@@ -183,6 +191,9 @@ class DocComponent
 	
 	/** The pop-up menu. */
 	private JPopupMenu	popMenu;
+	
+	/** Flag indicating if the node can be deleted. */
+	private boolean		deletable;
 	
 	/**
 	 * Enables or disables the various buttons depending on the passed value.
@@ -219,9 +230,16 @@ class DocComponent
 			if (link) count++;
 		}
 		if (openButton != null) {
-			openButton.setEnabled(enabled);
-			openButton.setVisible(enabled);
+			//openButton.setEnabled(enabled);
+			//openButton.setVisible(enabled);
+			downloadButton.setEnabled(link);
+			downloadButton.setVisible(link);
 			if (enabled) count++;
+		}
+		if (plotButton != null) {
+			plotButton.setEnabled(link);
+			plotButton.setVisible(link);
+			if (link) count++;
 		}
 		if (deleteButton != null) {
 			deleteButton.setEnabled(b);
@@ -253,6 +271,7 @@ class DocComponent
 			if (unlinkButton != null) popMenu.add(unlinkButton);
 			if (downloadButton != null) popMenu.add(downloadButton);
 			if (openButton != null) popMenu.add(openButton);
+			if (plotButton != null) popMenu.add(plotButton);
 			if (deleteButton != null) popMenu.add(deleteButton);
 		}
 		popMenu.show(invoker, p.x, p.y);
@@ -322,9 +341,10 @@ class DocComponent
 			}
 			if (annotation.getId() > 0) {
 				buf.append("<b>");
-				buf.append("ID: ");
+				buf.append("File ID: ");
 				buf.append("</b>");
-				buf.append(annotation.getId());
+				FileAnnotationData fa = (FileAnnotationData) data;
+				buf.append(fa.getFileID());
 				buf.append("<br>");
 				buf.append("<b>");
 				buf.append("Date Added: ");
@@ -388,38 +408,39 @@ class DocComponent
 			unlinkButton.setToolTipText("Remove the attachment.");
 			
 			if (fa.getId() > 0) {
-				deleteButton = new JMenuItem(icons.getIcon(
-						IconManager.DELETE_12));
-				deleteButton.setText("Delete");
-				//UIUtilities.unifiedButtonLookAndFeel(deleteButton);
-				//deleteButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-				deleteButton.addActionListener(this);
-				deleteButton.setActionCommand(""+DELETE);
-				
+				if (deletable) {
+					deleteButton = new JMenuItem(icons.getIcon(
+							IconManager.DELETE_12));
+					deleteButton.setText("Delete");
+					deleteButton.addActionListener(this);
+					deleteButton.setActionCommand(""+DELETE);
+				}
 				downloadButton = new JMenuItem(icons.getIcon(
 						IconManager.DOWNLOAD_12));
 				downloadButton.setText("Download...");
-				//downloadButton.setOpaque(false);
-				//UIUtilities.unifiedButtonLookAndFeel(downloadButton);
-				//downloadButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 				downloadButton.setToolTipText("Download the selected file.");
 				downloadButton.setActionCommand(""+DOWNLOAD);
 				downloadButton.addActionListener(this);
 				
 				String ns = fa.getNameSpace();
-				if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(ns) ||
-						FileAnnotationData.EDITOR_PROTOCOL_NS.equals(ns) ||
-						FileAnnotationData.COMPANION_FILE_NS.equals(ns)) {
+				//if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(ns) ||
+					//	FileAnnotationData.EDITOR_PROTOCOL_NS.equals(ns) ||
+					//	FileAnnotationData.COMPANION_FILE_NS.equals(ns)) {
 					openButton = new JMenuItem(icons.getIcon(
 							IconManager.EDITOR_12));
-					openButton.setText("Open");
-					//openButton.setOpaque(false);
-					//UIUtilities.unifiedButtonLookAndFeel(openButton);
-					//openButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-					openButton.setToolTipText("Open the file in the editor.");
+					openButton.setText("View");
+					openButton.setToolTipText("View the file.");
 					openButton.setActionCommand(""+OPEN);
 					openButton.addActionListener(this);
-				} 
+				//} 
+				if (FileAnnotationData.FLIM_NS.equals(ns)) {
+					plotButton = new JMenuItem(icons.getIcon(
+							IconManager.PLOT_12));
+					plotButton.setText("Plot");
+					plotButton.setToolTipText("Plot the results.");
+					plotButton.setActionCommand(""+PLOT);
+					plotButton.addActionListener(this);
+				}
 				if (FileAnnotationData.COMPANION_FILE_NS.equals(ns) ||
 					FileAnnotationData.MEASUREMENT_NS.equals(ns))
 					unlinkButton = null;
@@ -551,6 +572,7 @@ class DocComponent
 		if (editButton != null) count++;
 		if (unlinkButton != null) count++;
 		if (downloadButton != null) count++;
+		if (plotButton != null) count++;
 		if (openButton != null) count++;
 		if (deleteButton != null) count++;
 		if (count > 0) {
@@ -558,18 +580,6 @@ class DocComponent
 			if (!b) bar.add(Box.createHorizontalStrut(8));
 			add(bar);
 		}
-		/*
-		if (editButton != null) bar.add(editButton);
-		if (unlinkButton != null) bar.add(unlinkButton);
-		if (downloadButton != null) bar.add(downloadButton);
-		if (openButton != null) bar.add(openButton);
-		if (deleteButton != null) bar.add(deleteButton);
-		boolean b = setControlsEnabled(data != null);
-		if (bar.getComponentCount() > 0) {
-			if (!b) bar.add(Box.createHorizontalStrut(8));
-			add(bar);
-		}
-		*/
 	}
 	
 	/** Adds or edits the description of the tag. */
@@ -611,6 +621,43 @@ class DocComponent
 		chooser.centerDialog();
 	}
 	
+	/** Plots the analysis results. */
+	private void plotResults()
+	{
+		String value = MetadataViewerAgent.getOmeroFilesHome();
+		FileAnnotationData fa = (FileAnnotationData) data;
+		OriginalFile of = (OriginalFile) fa.getContent();
+		value += File.separator+fa.getFileName();
+		DownloadActivityParam activity = new DownloadActivityParam(of,
+				new File(value), null);
+		AnalysisResultsHandlingParam p = new AnalysisResultsHandlingParam(
+				AnalysisResultsHandlingParam.HISTOGRAM);
+		activity.setResults(p);
+		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
+		un.notifyActivity(activity);
+	}
+	
+	/**
+	 * Creates a new instance,
+	 * 
+	 * @param data	The document annotation. 
+	 * @param model Reference to the model. Mustn't be <code>null</code>.
+	 * @param deletable Pass <code>false</code> to indicate that the document
+	 *					cannot be deleted regardless of the permissions,
+	 *					<code>true</code> otherwise.
+	 */
+	DocComponent(Object data, EditorModel model, boolean deletable)
+	{
+		if (model == null)
+			throw new IllegalArgumentException("No Model.");
+		originalDescription = null;
+		this.model = model;
+		this.data = data;
+		this.deletable = deletable;
+		initComponents();
+		buildGUI();
+	}
+	
 	/**
 	 * Creates a new instance,
 	 * 
@@ -619,13 +666,7 @@ class DocComponent
 	 */
 	DocComponent(Object data, EditorModel model)
 	{
-		if (model == null)
-			throw new IllegalArgumentException("No Model.");
-		originalDescription = null;
-		this.model = model;
-		this.data = data;
-		initComponents();
-		buildGUI();
+		this(data, model, true);
 	}
 	
 	/**
@@ -636,7 +677,7 @@ class DocComponent
 	 */
 	boolean hasThumbnailToLoad()
 	{
-		return (imageToLoad == LOAD_FROM_SERVER && thumbnail == null);
+		return false;//(imageToLoad == LOAD_FROM_SERVER && thumbnail == null);
 	}
 	
 	/**
@@ -673,6 +714,18 @@ class DocComponent
 	 * @return See above.
 	 */
 	boolean isImageLoaded() { return thumbnail != null; }
+	
+	/**
+	 * Returns <code>true</code> if the object can be unlinked,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean canUnlink()
+	{
+		if (unlinkButton == null) return false;
+		return unlinkButton.isVisible();
+	}
 	
 	/**
 	 * Sets the image representing the file.
@@ -718,6 +771,9 @@ class DocComponent
 				break;
 			case OPEN:
 				openFile();
+				break;
+			case PLOT:
+				plotResults();
 		}
 	}
 

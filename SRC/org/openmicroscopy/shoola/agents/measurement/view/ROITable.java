@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.measurement.view;
 import java.awt.Component;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -40,6 +41,7 @@ import javax.swing.tree.TreePath;
 
 //Third-party libraries
 import org.jdesktop.swingx.JXTreeTable;
+import org.jhotdraw.draw.Figure;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.util.roimenu.ROIPopupMenu;
@@ -48,10 +50,10 @@ import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROINode;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROITableCellRenderer;
 import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROITableModel;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.ShapeRenderer;
+import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.graphutils.ShapeType;
 import org.openmicroscopy.shoola.util.ui.treetable.OMETreeTable;
 
@@ -117,7 +119,7 @@ public class ROITable
 	}
 	
 	/**
-	 * Get the id that the roishapes in the shapelist contain, if they
+	 * Returns the id that the shapes in the list contain, if they
 	 * do not contain the same id return -1;
 	 * 
 	 * @param shapeList The list to handle.
@@ -138,6 +140,26 @@ public class ROITable
 			}
 		}
 		return shapeList.get(0).getID();
+	}
+
+	/**
+	 * Are all the roishapes in the shapelist on separate planes. 
+	 * 
+	 * @param shapeList The list to handle.
+	 * @return See above.
+	 */
+	private boolean onSeparatePlanes(List<ROIShape> shapeList)
+	{
+		TreeMap<Coord3D, ROIShape> 
+		shapeMap = new TreeMap<Coord3D, ROIShape>(new Coord3D());
+		for (ROIShape shape : shapeList)
+		{
+			if (shapeMap.containsKey(shape.getCoord3D()))
+				return false;
+			else
+				shapeMap.put(shape.getCoord3D(), shape);
+		}
+		return true;
 	}
 	
 	/**
@@ -167,14 +189,41 @@ public class ROITable
 	}
 	
 	/** 
+	 * Invokes when new figures are selected.
+	 * 
+	 * @param figures The selected figures.
+	 */
+	void onSelectedFigures(Collection<Figure> figures)
+	{
+		boolean enabled = true;
+		if (figures == null || figures.size() == 0) 
+			enabled = false;
+		else {
+			Iterator<Figure> i = figures.iterator();
+			Figure figure;
+			int readable = 0;
+			while (i.hasNext()) {
+				figure = i.next();
+				if (figure instanceof ROIFigure) {
+					if (!(((ROIFigure) figure).isReadOnly())) {
+						readable++;
+					}
+				}
+			}
+			enabled = readable == figures.size();
+		}
+		popupMenu.setActionsEnabled(enabled);
+	}
+	
+	/** 
 	 * Select the ROIShape in the TreeTable and move the view port of the 
 	 * table to the shape selected. 
 	 * @param shape
 	 */
-	public void selectROIShape(ROIShape shape)
+	void selectROIShape(ROIShape shape)
 	{
 		ROINode parent = findParent(shape.getROI());
-		if(parent == null)
+		if (parent == null)
 			return;
 		expandROIRow(parent);
 		ROINode child = parent.findChild(shape);
@@ -187,25 +236,14 @@ public class ROITable
 	 * Scroll to the selected ROIShape. 
 	 * @param shape see above.
 	 */
-	public void scrollToROIShape(ROIShape shape)
+	void scrollToROIShape(ROIShape shape)
 	{
 		ROINode parent = findParent(shape.getROI());
-		if(parent == null)
+		if (parent == null)
 			return;
 		expandROIRow(parent);
 		ROINode child = parent.findChild(shape);
 		this.scrollPathToVisible(child.getPath());
-	}
-	
-	/**
-	 * Extending the mouse pressed event to show menu. 
-	 * 
-	 * @param e mouse event.
-	 */
-	protected void onMousePressed(MouseEvent e)
-	{
-		if (MeasurementViewerControl.isRightClick(e)) 
-			showROIManagementMenu(this, e.getX(), e.getY());
 	}
 
     /** 
@@ -250,12 +288,12 @@ public class ROITable
 	 */
 	public void setValueAt(Object obj, int row, int column)
 	{
-		ROINode node = (ROINode)getNodeAtRow(row);
+		ROINode node = (ROINode) getNodeAtRow(row);
 		super.setValueAt(obj, row, column);
 		ROINode expandNode;
 		if (node.getUserObject() instanceof ROI)
 		{
-			ROI roi = (ROI)node.getUserObject();
+			ROI roi = (ROI) node.getUserObject();
 			expandNode = node;
 			if (roi.isVisible())
 				expandROIRow(expandNode);
@@ -264,8 +302,8 @@ public class ROITable
 		}
 		else
 		{
-			expandNode = (ROINode)node.getParent();
-			ROIShape roiShape = (ROIShape)node.getUserObject();
+			expandNode = (ROINode) node.getParent();
+			ROIShape roiShape = (ROIShape) node.getUserObject();
 			if (roiShape.getROI().isVisible())
 				expandROIRow(expandNode);
 			else
@@ -276,7 +314,7 @@ public class ROITable
 	/**
 	 * Adds the ROIShape to the table, placing it under the ROI the ROIShape
 	 * belongs to. This method will create the ROI if it does not exist 
-	 * already. This method will also collapse all the ROI in the treetable
+	 * already. This method will also collapse all the ROI in the table
 	 * and expand the ROI of the ROIShape, moving the viewport to 
 	 * the ROIShape.
 	 *  
@@ -293,7 +331,7 @@ public class ROITable
 	 * Adds the ROIShapes in the shapeList to the table, placing it under the 
 	 * ROI the ROIShape belongs to. This method will create the ROI if it does 
 	 * not exist already. This method will also collapse all the ROI in the 
-	 * treetable  and expand the ROI of the ROIShape, moving the viewport to 
+	 * table  and expand the ROI of the ROIShape, moving the viewport to 
 	 * the ROIShape. 
 	 * 
 	 * @param shapeList The collection to add.
@@ -308,13 +346,13 @@ public class ROITable
 		for (ROIShape shape : shapeList)
 		{
 			parent = findParent(shape.getROI());
-			if(parent == null)
+			if (parent == null)
 			{
 				parent = new ROINode(shape.getROI());
 				parent.setExpanded(true);
 				ROIMap.put(shape.getROI(), parent);
 				childCount = root.getChildCount();
-				root.insert(parent,childCount);
+				root.insert(parent, childCount);
 			}
 			roiShapeNode = parent.findChild(shape.getCoord3D());
 			newNode = new ROINode(shape);
@@ -329,7 +367,8 @@ public class ROITable
 				parent.insert(newNode, 
 						parent.getInsertionPoint(shape.getCoord3D()));
 		}
-		this.setTreeTableModel(new ROITableModel(root, columnNames));
+		model = new ROITableModel(root, columnNames);
+		this.setTreeTableModel(model);
 		if (parent != null) expandROIRow(parent);
 	}
 
@@ -490,13 +529,6 @@ public class ROITable
 		TableColumn col = this.getColumn(column);
 		return (col.getModelIndex() == (ROITableModel.SHAPE_COLUMN+1));
 	}
-
-	/** Deletes the ROIs. */
-	public void deleteROI()
-	{
-		List<ROIShape> selectionList = getSelectedROIShapes();
-		manager.deleteROIShapes(selectionList);
-	}
 	
 	/**
 	 * Create a list of all the roi and roishapes selected in the table.
@@ -515,7 +547,7 @@ public class ROITable
 			nodeObject = getNodeAtRow(selectedRows[i]).getUserObject();
 			if (nodeObject instanceof ROI)
 			{
-				roi = (ROI)nodeObject;
+				roi = (ROI) nodeObject;
 				roiMap.put(roi.getID(), roi);
 				selectedList.add(roi);
 			}
@@ -526,7 +558,7 @@ public class ROITable
 			nodeObject = this.getNodeAtRow(selectedRows[i]).getUserObject();
 			if (nodeObject instanceof ROIShape)
 			{
-				roiShape = (ROIShape)nodeObject;
+				roiShape = (ROIShape) nodeObject;
 				if (!roiMap.containsKey(roiShape.getID()))
 					selectedList.add(roiShape);
 			}
@@ -553,7 +585,7 @@ public class ROITable
 		{
 			if (node instanceof ROI)
 			{
-				roi = (ROI)node;
+				roi = (ROI) node;
 				shapeMap =  roi.getShapes();
 				coordIterator = shapeMap.keySet().iterator();
 				while(coordIterator.hasNext())
@@ -588,10 +620,8 @@ public class ROITable
 		ROI roi;
 		for (Object node : selectedObjects)
 		{
-			
 			if (node instanceof ROI) roi = (ROI) node;
-			else
-				roi = ((ROIShape) node).getROI();
+			else roi = ((ROIShape) node).getROI();
 			if (!idMap.containsKey(roi.getID()))
 			{
 				idMap.put(roi.getID(), roi);
@@ -640,26 +670,6 @@ public class ROITable
 		}
 
 		return selectedList;
-	}
-	
-	/**
-	 * Are all the roishapes in the shapelist on separate planes. 
-	 * 
-	 * @param shapeList The list to handle.
-	 * @return See above.
-	 */
-	private boolean onSeparatePlanes(List<ROIShape> shapeList)
-	{
-		TreeMap<Coord3D, ROIShape> 
-		shapeMap = new TreeMap<Coord3D, ROIShape>(new Coord3D());
-		for (ROIShape shape : shapeList)
-		{
-			if (shapeMap.containsKey(shape.getCoord3D()))
-				return false;
-			else
-				shapeMap.put(shape.getCoord3D(), shape);
-		}
-		return true;
 	}
 	
 	/**
@@ -733,6 +743,17 @@ public class ROITable
 	}
 	
 	/** 
+	 * Deletes the ROIs. 
+	 * 
+	 *  @see ROIActionController#deleteROI()
+	 */
+	public void deleteROI()
+	{
+		List<ROIShape> selectionList = getSelectedROIShapes();
+		manager.deleteROIShapes(selectionList);
+	}
+	
+	/** 
 	 * Calculates statistics.
 	 * @see ROIActionController#calculateStats()
 	 */
@@ -745,6 +766,36 @@ public class ROITable
 		else
 			manager.showMessage("Calculate: ROIs must be from the same ROI " +
 					"and on separate planes.");
+	}
+	
+	/**
+	 * Extending the mouse pressed event to show menu. 
+	 * 
+	 * @param e mouse event.
+	 */
+	protected void onMousePressed(MouseEvent e)
+	{
+		if (MeasurementViewerControl.isRightClick(e)) {
+			Collection l = getSelectedObjects();
+			if (l == null || l.size() == 0) return;
+			Iterator i = l.iterator();
+			Object o;
+			ROI roi;
+			ROIShape shape;
+			List<Figure> list = new ArrayList<Figure>();
+			while (i.hasNext()) {
+				o =  i.next();
+				if (o instanceof ROI) {
+					roi = (ROI) o;
+					list.addAll(roi.getAllFigures());
+				} else if (o instanceof ROIShape) {
+					shape = (ROIShape) o;
+					list.add(shape.getFigure());
+				}
+			}
+			onSelectedFigures(list);
+			showROIManagementMenu(this, e.getX(), e.getY());
+		}
 	}
 	
 }

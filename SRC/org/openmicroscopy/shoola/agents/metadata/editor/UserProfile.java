@@ -38,7 +38,6 @@ import java.awt.image.BufferedImage;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -69,7 +68,6 @@ import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.util.UploadPictureDialog;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
-import org.openmicroscopy.shoola.agents.util.ui.GroupsRenderer;
 import org.openmicroscopy.shoola.agents.util.ui.PermissionsPane;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -239,6 +237,10 @@ class UserProfile
     /** Initializes the components composing this display. */
     private void initComponents()
     {
+		admin = false;
+		active = false;
+		groupOwner = false;
+
     	userPicture = new UserProfileCanvas();
     	userPicture.setBackground(UIUtilities.BACKGROUND_COLOR);
     	userPicture.setToolTipText("Click to upload your picture.");
@@ -275,16 +277,27 @@ class UserProfile
     	ExperimenterData user = (ExperimenterData) model.getRefObject();
     	List userGroups = user.getGroups();
     	GroupData defaultGroup = user.getDefaultGroup();
+
     	permissionsPane = new PermissionsPane(defaultGroup.getPermissions(), 
     			UIUtilities.BACKGROUND_COLOR);
     	permissionsPane.disablePermissions();
     	groupLabel = new JLabel(defaultGroup.getName());
     	groupLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
     	
+    	
 		long groupID = defaultGroup.getId();
+		boolean owner = false;
+		
+		if (defaultGroup.getLeaders() != null)
+			owner = setGroupOwner(defaultGroup);
+		else {
+			GroupData g = model.loadGroup(groupID);
+			if (g != null)
+				owner = setGroupOwner(g);
+		}
 		//Build the array for box.
+		/*
 		Iterator i = userGroups.iterator();
-		//Remove not visible group
 		GroupData g;
 		
 		List<GroupData> validGroups = new ArrayList<GroupData>();
@@ -294,7 +307,6 @@ class UserProfile
 				validGroups.add(g);
 		}
 		groupData = new GroupData[validGroups.size()];
-		groupOwner = false;
 		admin = false;
 		active = false;
 		int selectedIndex = 0;
@@ -305,19 +317,21 @@ class UserProfile
 			g = (GroupData) i.next();
 			groupData[index] = g;
 			if (g.getId() == groupID) {
-				owner = setGroupOwner(g);
-				originalIndex = index;
+				if (g.getLeaders() != null) {
+					owner = setGroupOwner(g);
+					originalIndex = index;
+				}
 			}
 			index++;
 		}
 		selectedIndex = originalIndex;
-		//sort by name
-		
 		groups = EditorUtil.createComboBox(groupData, 0);
 		groups.setEnabled(false);
 		groups.setRenderer(new GroupsRenderer());
 		if (groupData.length != 0)
 			groups.setSelectedIndex(selectedIndex);
+		*/
+		
 		
 		if (MetadataViewerAgent.isAdministrator()) {
 			oldPassword.setVisible(false);
@@ -391,7 +405,6 @@ class UserProfile
 			 */
 			public void changedUpdate(DocumentEvent e) {}
 		});
-		
 		ownerBox.setEnabled(owner);
 		ownerBox.addChangeListener(this);
 		ExperimenterData logUser = MetadataViewerAgent.getUserDetails();
@@ -476,7 +489,9 @@ class UserProfile
     {
     	ExperimenterData user = (ExperimenterData) model.getRefObject();
     	boolean editable = model.isUserOwner(user);
-    	if (!editable) editable = model.isGroupLeader();
+    	if (!editable) 
+    		editable = model.isGroupLeader() || 
+    		MetadataViewerAgent.isAdministrator();
     	details = EditorUtil.convertExperimenter(user);
         JPanel content = new JPanel();
         content.setBorder(
@@ -739,7 +754,6 @@ class UserProfile
 		c.gridy = 0;
 		c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
 		c.weightx = 1.0;  
-		c.gridx = 0;
     	add(buildContentPanel(), c);
     	if (model.isUserOwner(model.getRefObject()) || 
     			MetadataViewerAgent.isAdministrator()) {
@@ -771,7 +785,7 @@ class UserProfile
 		text = text.trim();
 		ExperimenterData original = (ExperimenterData) model.getRefObject();
 		if (!text.equals(original.getUserName())) return true;
-		if (selectedIndex != originalIndex) return true;
+		//if (selectedIndex != originalIndex) return true;
 		if (details == null) return false;
 		Entry entry;
 		Iterator i = details.entrySet().iterator();
@@ -835,8 +849,20 @@ class UserProfile
     	if (v == null) v = "";
     	original.setFirstName(v.trim());
     	
+    	f = items.get(EditorUtil.FIRST_NAME);
+    	v = f.getText();
+    	if (v == null) v = "";
+    	original.setFirstName(v.trim());
+    	
+    	f = items.get(EditorUtil.MIDDLE_NAME);
+    	v = f.getText();
+    	if (v == null) v = "";
+    	original.setMiddleName(v.trim());
+    	
     	//set the groups
     	GroupData g = null;
+    	/*
+    	
     	if (selectedIndex != originalIndex) {
     		if (selectedIndex < groupData.length)
     			g = groupData[selectedIndex];
@@ -856,6 +882,7 @@ class UserProfile
     		//Need to see what to do b/c no ExperimenterGroupMap
     		original.setGroups(newGroups);
     	}
+    	*/
     	String value = loginArea.getText().trim();
     	UserCredentials uc = new UserCredentials(value, "");
     	Boolean b = ownerBox.isSelected();
@@ -880,6 +907,8 @@ class UserProfile
     		}
     	}
     	if (!original.getUserName().equals(value)) a = true;
+    	//if admin 
+    	if (MetadataViewerAgent.isAdministrator()) a = true;
     	if (a) {
     		Map<ExperimenterData, UserCredentials> m = 
     			new HashMap<ExperimenterData, UserCredentials>();

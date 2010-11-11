@@ -40,7 +40,7 @@ import pojos.ExperimenterData;
 import pojos.GroupData;
 
 /** 
- * 
+ * Saves objects.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -52,7 +52,8 @@ import pojos.GroupData;
  * </small>
  * @since 3.0-Beta4
  */
-public class AdminSaver extends BatchCallTree
+public class AdminSaver 
+	extends BatchCallTree
 {
 
 	/** Indicates to delete the objects. */
@@ -76,21 +77,25 @@ public class AdminSaver extends BatchCallTree
             public void doCall() throws Exception
             {
             	AdminService os = context.getAdminService();
-            	if (objects.get(0) instanceof GroupData) {
-            		List<GroupData> groups = new ArrayList<GroupData>();
-            		Iterator<DataObject> i = objects.iterator();
-            		while (i.hasNext()) {
-						groups.add((GroupData) i.next());
-					}
-            		os.deleteGroups(groups);
-            	} else if (objects.get(0) instanceof ExperimenterData) {
-            		List<ExperimenterData> l = new ArrayList<ExperimenterData>();
-            		Iterator<DataObject> i = objects.iterator();
-            		while (i.hasNext()) {
-						l.add((ExperimenterData) i.next());
-					}
-            		os.deleteExperimenters(l);
-            	}
+            	List<DataObject> l = new ArrayList<DataObject>();
+            	List<GroupData> groups = new ArrayList<GroupData>();
+            	List<ExperimenterData> experimenters = 
+            		new ArrayList<ExperimenterData>();
+            	Iterator<DataObject> i = objects.iterator();
+            	DataObject data;
+            	while (i.hasNext()) {
+            		data = i.next();
+            		if (data instanceof GroupData) {
+            			groups.add((GroupData) data);
+            		} else if (data instanceof ExperimenterData) {
+            			experimenters.add((ExperimenterData) data);
+            		}
+				}
+            	if (groups.size() > 0)
+            		l.addAll(os.deleteGroups(groups));
+            	if (experimenters.size() > 0)
+            		l.addAll(os.deleteExperimenters(experimenters));
+            	result = l;
             }
         };
     }

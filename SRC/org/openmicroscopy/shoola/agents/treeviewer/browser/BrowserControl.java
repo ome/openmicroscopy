@@ -198,9 +198,7 @@ class BrowserControl
     	if (model.getBrowserType() == Browser.FILE_SYSTEM_EXPLORER) {
     		if (ho instanceof FileData) {
     			FileData f = (FileData) ho;
-        		if (f.isDirectory() && !display.isChildrenLoaded()) {
-        			view.loadFile(display);
-        		}
+    			if (f.isDirectory()) model.loadDirectory(display);
         		return;
     		} else if ((ho instanceof ImageData) && display.isChildrenLoaded())
     			return;
@@ -224,15 +222,15 @@ class BrowserControl
         } 
         
         if (display.isChildrenLoaded()) {
-        	List l = display.getChildrenDisplay();
-			//if (display.getChildCount() != l.size()) {
-	
-        		//view.setLeavesViews(l, (TreeImageSet) display);
-        	//} else {
-        		if (view.isFirstChildMessage(display)) {
-        			view.setLeavesViews(l, (TreeImageSet) display);
-        		}
-        	//}
+        	if (view.isFirstChildMessage(display)) {
+        		List l = display.getChildrenDisplay();
+        		List<Object> list = new ArrayList<Object>(l.size());
+        		Iterator i = l.iterator();
+        		while (i.hasNext()) {
+        			list.add(i.next());
+				}
+        		view.setLeavesViews(list, (TreeImageSet) display);
+        	}
         	return;
         }
         if (ho instanceof ProjectData || ho instanceof ScreenData ||

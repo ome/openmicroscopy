@@ -45,6 +45,7 @@ import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -248,7 +249,8 @@ public class ManageObjectAction
 				break;
 			case REMOVE:
 				if (ho instanceof ProjectData || ho instanceof DatasetData ||
-					//ho instanceof ScreenData || ho instanceof PlateData ||
+					ho instanceof ScreenData || ho instanceof PlateData ||
+					ho instanceof PlateAcquisitionData ||
 					ho instanceof FileAnnotationData || 
 					ho instanceof TagAnnotationData ||
 					ho instanceof ImageData) {
@@ -282,7 +284,7 @@ public class ManageObjectAction
 						setEnabled(false);
 		        	} else setEnabled(false);
 				} else if (ho instanceof GroupData) {
-					setEnabled(true); //TODO
+					setEnabled(false); //TODO
 				} else setEnabled(false);
 				
 				break;

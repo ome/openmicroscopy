@@ -37,11 +37,9 @@
 	<classpathentry kind="lib" path="LIB/ome-xml.jar"/>
 	<classpathentry kind="lib" path="LIB/omero_client.jar"/>
 	<classpathentry kind="lib" path="LIB/OmeroImporter.jar"/>
-	<classpathentry kind="lib" path="LIB/poi-3.5-beta4-20081128.jar"/>
 	<classpathentry kind="lib" path="LIB/poi-loci.jar"/>
 	<classpathentry kind="lib" path="LIB/saaj-1.2.jar"/>
 	<classpathentry kind="lib" path="LIB/swingx-0.9.4.jar"/>
-	<classpathentry kind="lib" path="LIB/TableLayout-bin-jdk1.5-2009-08-26.jar"/>
 	<classpathentry kind="lib" path="LIB/wsdl4j-1.5.1.jar"/>
 	<classpathentry kind="lib" path="build/tools/ant-1.6.2.jar"/>
 	<classpathentry kind="lib" path="build/tools/ant-apache-bsf-1.6.2.jar"/>
@@ -60,5 +58,9 @@
 	<classpathentry kind="lib" path="build/tools/xerces-2.6.2.jar"/>
 	<classpathentry kind="lib" path="build/tools/xerces-xml-apis-2.6.2.jar"/>
 	<classpathentry kind="lib" path="LIB/commons-lang-2.5.jar"/>
+	<classpathentry kind="lib" path="LIB/slf4j-api-1.5.8.jar"/>
+	<classpathentry kind="lib" path="LIB/slf4j-log4j12-1.5.8.jar"/>
+	<classpathentry kind="lib" path="LIB/poi-3.6-20091214.jar"/>
+	<classpathentry kind="lib" path="LIB/TableLayout-bin-jdk1.5-2009-08-26.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -26,12 +26,16 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Java imports
 import java.util.List;
 
+//Third-party libraries
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.ScriptCallback;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
-import org.openmicroscopy.shoola.env.data.views.ScriptBatchCall;
+import org.openmicroscopy.shoola.env.data.views.ProcessCallback;
+import org.openmicroscopy.shoola.env.data.views.ProcessBatchCall;
 
 /** 
  * Command to create a movie.
@@ -49,15 +53,12 @@ import org.openmicroscopy.shoola.env.data.views.ScriptBatchCall;
 public class MovieCreator 
 	extends BatchCallTree
 {
-
-	/** The result of the call. */
-    private Object       	result;
     
     /** Loads the specified tree. */
     private BatchCall   	loadCall;
 
     /** The server call-handle to the computation. */
-    private ScriptCallback	scriptCallBack;
+    private Object		callBack;
     
     /**
      * Creates a {@link BatchCall} to create a movie.
@@ -71,15 +72,19 @@ public class MovieCreator
     private BatchCall makeBatchCall(final long imageID, final long pixelsID, 
     		final List<Integer> channels, final MovieExportParam param)
     {
-        return new ScriptBatchCall("Creating movie: ") {
-            public ScriptCallback initialize() throws Exception
+        return new ProcessBatchCall("Creating movie: ") {
+            public ProcessCallback initialize() throws Exception
             {
                 OmeroImageService os = context.getImageService();
-                scriptCallBack = os.createMovie(imageID, pixelsID, channels, 
+                ScriptCallback cb = os.createMovie(imageID, pixelsID, channels, 
                 		param);
-                System.err.println("callback: "+scriptCallBack);
-                result = Boolean.TRUE;
-                return scriptCallBack;
+                if (cb == null) {
+                	callBack = Boolean.valueOf(false);
+                	return null;
+                } else {
+                	callBack = new ProcessCallback(cb);
+                    return (ProcessCallback) callBack;
+                }
             }
         };
     }
@@ -89,7 +94,7 @@ public class MovieCreator
      * 
      * @return See above.
      */
-    protected Object getPartialResult() { return scriptCallBack; }
+    protected Object getPartialResult() { return callBack; }
     
     /**
      * Adds the {@link #loadCall} to the computation tree.

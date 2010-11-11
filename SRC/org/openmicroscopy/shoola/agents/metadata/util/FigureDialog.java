@@ -911,8 +911,13 @@ public class FigureDialog
 			if (img != null) {
 				w = img.getWidth()*size.width/pixels.getSizeX();
 				h = img.getHeight()*size.height/pixels.getSizeY();
-				split.setOriginalImage(Factory.scaleBufferedImage(img, w, h));
-				split.setCanvasSize(w, h);
+				img = Factory.scaleBufferedImage(img, w, h);
+				if (img != null) {
+					w = img.getWidth();
+					h = img.getHeight();
+					split.setOriginalImage(img);
+					split.setCanvasSize(w, h);
+				}
 				if (!active.contains(j))
 					split.resetImage(true);
 			}
@@ -1837,8 +1842,7 @@ public class FigureDialog
 		Integer n = (Integer) field.getValueAsNumber();
 		if (n == null) return;
 		Document doc;
-		int v;
-		v = (int) ((n*pixels.getSizeX())/pixels.getSizeY());
+		int v = (int) ((n*pixels.getSizeX())/pixels.getSizeY());
 		if (field == widthField) {
 			doc = heightField.getDocument();
 			doc.removeDocumentListener(this);
@@ -1900,6 +1904,23 @@ public class FigureDialog
 	}
 	
 	/**
+	 * Returns <code>true</code> if the dialog required a set of pixels
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param index One of the constants identifying the dialog.
+	 * @return See above.
+	 */
+	public static boolean needPixels(int index)
+	{
+		switch (index) {
+			case THUMBNAILS:
+				return false;
+			default:
+				return true;
+		}
+	}
+	
+	/**
 	 * Creates a new instance.
 	 * 
 	 * @param owner The owner of the dialog.
@@ -1911,7 +1932,7 @@ public class FigureDialog
 	public FigureDialog(JFrame owner, String name, PixelsData pixels,
 			int index, Class type)
 	{
-		super(owner);
+		super(owner, true);
 		this.type = type;
 		this.pixels = pixels;
 		this.dialogType = index;
@@ -2071,12 +2092,14 @@ public class FigureDialog
 		ROIResult result;
 		int count = 0;
 		try {
+			long userID = MetadataViewerAgent.getUserDetails().getId();
 			Collection list;
 			while (r.hasNext()) {
 				result = (ROIResult) r.next();
 				list = result.getROIs();
 				if (list.size() > 0) count++;
-				displayedROIs = roiComponent.loadROI(list, true);
+				displayedROIs = roiComponent.loadROI(result.getFileID(), 
+						list, true, userID);
 				modifyROIDisplay();
 			}
 		} catch (Exception e) {}

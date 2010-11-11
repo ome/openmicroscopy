@@ -25,14 +25,18 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 //Java imports
 import java.io.File;
+import java.util.Collection;
 
-import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
-import org.openmicroscopy.shoola.env.ui.UserNotifier;
-import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
+import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
+import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportableObject;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 /** 
  * Implements the {@link Importer} interface to provide the functionality
@@ -70,6 +74,27 @@ class ImporterComponent
 	/** The View sub-component. */
 	private ImporterUI 		view;
 	
+	/** Reference to the chooser used to select the files to import. */
+	private ImportDialog	chooser;
+	
+	/** 
+	 * Shows the dialog used to select the files to import. 
+	 * 
+	 * @param type One of the type constants.
+	 */
+	private void showChooser(int type)
+	{
+		if (chooser == null) {
+			chooser = new ImportDialog(view, model.getSupportedFormats(), 
+					model.getContainer(), type);
+			chooser.addPropertyChangeListener(controller);
+			chooser.pack();
+		} else {
+			
+		}
+		UIUtilities.centerAndShow(chooser);
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * The {@link #initialize() initialize} method should be called straigh 
@@ -94,13 +119,13 @@ class ImporterComponent
 
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
-	 * @see Importer#activate()
+	 * @see Importer#activate(int)
 	 */
-	public void activate()
+	public void activate(int type)
 	{
 		switch (model.getState()) {
 			case NEW:
-				controller.setDialogOnScreen();
+				showChooser(type);
 				model.setState(READY);
 				break;
 			case DISCARDED:
@@ -136,17 +161,20 @@ class ImporterComponent
 
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
-	 * @see Importer#importData(File[])
+	 * @see Importer#importData(ImportableObject)
 	 */
-	public void importData(File[] data)
+	public void importData(ImportableObject data)
 	{
 		if (model.getState() != READY) return;
-		if (data == null || data.length == 0) {
+		if (data == null || data.getFiles() == null || 
+				data.getFiles().size() == 0) {
 			UserNotifier un = ImporterAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Import", "No images to import.");
+			un.notifyInfo("Import", "No Files to import.");
 			return;
 		}
-		model.fireImportData(data);
+		//
+		
+		//model.fireImportData(data);
 		fireStateChange();
 	}
 
@@ -164,6 +192,27 @@ class ImporterComponent
 		}
 		model.fireMonitorDirectory(dir);
 		fireStateChange();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#setExistingTags(Collection)
+	 */
+	public void setExistingTags(Collection tags)
+	{
+		model.setTags(tags);
+		if (chooser != null) chooser.setTags(tags);
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#loadExistingTags()
+	 */
+	public void loadExistingTags()
+	{
+		Collection tags = model.getTags();
+		if (tags != null) setExistingTags(tags);
+		else model.fireTagsLoading();	
 	}
 	
 }

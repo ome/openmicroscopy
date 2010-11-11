@@ -24,9 +24,12 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 
 //Java imports
+import info.clearthought.layout.TableLayout;
+
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Insets;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -36,22 +39,29 @@ import java.util.Map;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
+import javax.swing.JSeparator;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -81,6 +91,18 @@ public class DeleteBox
 	private static final String		DEFAULT_TEXT = "Are you sure you want to " +
 			"delete the selected ";
 
+	/** The text displayed in the tool tip for annotations. */
+	private static final String    TOOL_TIP = "The annotations are " +
+			"deleted only if you own them and if they are not used by others.";
+		
+	/** Text display if the user is a group owner. */
+	private static final String		WARNING_GROUP_OWNER = "Some data " +
+			"might be used by other users,\nthey will no longer be able to " +
+			"use or see them.";
+	
+	/** The button to display the tool tip. */
+	private JButton					infoButton;
+	
 	/** Delete the objects and the contents. */
 	private JRadioButton 			withContent;
 	
@@ -133,8 +155,12 @@ public class DeleteBox
 	 */
 	private void initComponents(String annotationText)
 	{
+		IconManager icons = IconManager.getInstance();
+		infoButton = new JButton(icons.getIcon(IconManager.INFO));
+		infoButton.setToolTipText(TOOL_TIP);
 		withAnnotation = new JCheckBox("Also delete the annotations " +
-				"only linked to the "+annotationText+".");
+				"linked to the objects.");
+		withAnnotation.setToolTipText(TOOL_TIP);
 		withContent = new JRadioButton("Also delete contents.");
 		withoutContent = new JRadioButton("Do not delete contents.");
 		ButtonGroup group = new ButtonGroup();
@@ -144,7 +170,8 @@ public class DeleteBox
 		annotationTypes = new LinkedHashMap<JCheckBox, Class>();
 		annotationTypes.put(createBox("Tag"), TagAnnotationData.class);
 		annotationTypes.put(createBox("Attachment"), FileAnnotationData.class);
-		
+		//annotationTypes.put(createBox("Ontology Terms"), 
+		//		TermAnnotationData.class);
 		withAnnotation.addChangeListener(new ChangeListener() {
 		
 			public void stateChanged(ChangeEvent e) {
@@ -167,46 +194,62 @@ public class DeleteBox
 		}
 	}
 	
+	/**
+	 * Builds and lays out the message displayed next to the option to delete
+	 * annotations.
+	 * 
+	 * @return See above.
+	 */
+	private JLabel buildAnnotationWarning()
+	{
+		JLabel label = UIUtilities.setTextFont(TOOL_TIP, 
+				Font.ITALIC);
+		Font f = label.getFont();
+		label.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
+		return label;
+	}
+	
 	/** Builds and lays out the component. */
 	private void layoutComponents()
 	{
 		Iterator<JCheckBox> i = annotationTypes.keySet().iterator();
-		GridBagConstraints c = new GridBagConstraints();
-		c.fill = GridBagConstraints.HORIZONTAL;
-		c.anchor = GridBagConstraints.WEST;
-		c.insets = new Insets(0, 2, 2, 0);
+		TableLayout layout = new TableLayout();
+		double[] columns = {130, TableLayout.PREFERRED};
+		layout.setColumn(columns);
+		typesPane.setLayout(layout);
+		int index = 0;
 		while (i.hasNext()) {
-            c.gridx = 0;
-            ++c.gridy;
-       	 	c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
-            c.fill = GridBagConstraints.NONE;      //reset to default
-            c.weightx = 1.0;  
-            typesPane.add(Box.createHorizontalStrut(30), c);
-            c.gridx++;
-            c.gridwidth = GridBagConstraints.REMAINDER;     //end row
-            //c.fill = GridBagConstraints.HORIZONTAL;
-            //c.weightx = 1.0;
-            typesPane.add(i.next(), c);  
-        }
+			layout.insertRow(index, TableLayout.PREFERRED);
+			typesPane.add(Box.createHorizontalStrut(5), "0, "+index);
+			typesPane.add(i.next(), "1, "+index);
+			index++;
+		}
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		
 		boolean add = false;
 		if (ImageData.class.equals(type)) {
 			add = true;
 			if (annotation) {
+				p.add(buildAnnotationWarning());
+				p.add(Box.createVerticalStrut(10));
 				p.add(withAnnotation);
 				p.add(typesPane);
 			}
 		} else if (DatasetData.class.equals(type) || 
 				ProjectData.class.equals(type) ||
 				PlateData.class.equals(type) || 
-				ScreenData.class.equals(type)) {
+				ScreenData.class.equals(type) || 
+				PlateAcquisitionData.class.equals(type)) {
 			add = true;
 			if (children) {
 				p.add(withContent);
 				p.add(withoutContent);
 			}
 			if (annotation) {
+				p.add(new JSeparator());
+				p.add(buildAnnotationWarning());
+				p.add(Box.createVerticalStrut(10));
 				p.add(withAnnotation);
 				p.add(typesPane);
 			}
@@ -219,8 +262,18 @@ public class DeleteBox
 				}
 			}
 		}
+		JPanel body;
+		if (TreeViewerAgent.isLeaderOfCurrentGroup()) {
+			body = new JPanel();
+			body.setLayout(new BoxLayout(body, BoxLayout.Y_AXIS));
+			body.add(p);
+			JLabel label = UIUtilities.setTextFont(WARNING_GROUP_OWNER, 
+					Font.BOLD);
+			label.setForeground(UIUtilities.REQUIRED_FIELDS_COLOR);
+			body.add(UIUtilities.buildComponentPanel(label));
+		} else body = p;
 		if (add)
-			addBodyComponent(p);
+			addBodyComponent(UIUtilities.buildComponentPanel(body));
 	}
 	
 	/**
@@ -247,6 +300,8 @@ public class DeleteBox
 			return "Screen"+end;
 		else if (PlateData.class.equals(type))
 			return "Plate"+end;
+		else if (PlateAcquisitionData.class.equals(type))
+			return "Plate Run"+end;
 		else if (ExperimenterData.class.equals(type))
 			return "Experimenter"+end;
 		else if (GroupData.class.equals(type))
@@ -287,7 +342,8 @@ public class DeleteBox
 					DatasetData.class.equals(type) || 
 					ProjectData.class.equals(type) ||
 					ScreenData.class.equals(type) || 
-					PlateData.class.equals(type)) {
+					PlateData.class.equals(type) ||
+					PlateAcquisitionData.class.equals(type)) {
 				if (annotation || children) buffer.append("If yes, ");
 			} else if (TagAnnotationData.class.equals(type) &&
 						TagAnnotationData.INSIGHT_TAGSET_NS.equals(nameSpace)) {
@@ -323,6 +379,7 @@ public class DeleteBox
 		initComponents(DeleteBox.getTypeAsString(type, number, nameSpace));
 		layoutComponents();
 		pack();
+		setResizable(false);
 	}
     
     /**
@@ -338,15 +395,7 @@ public class DeleteBox
     }
     
     /**
-     * Returns <code>true</code> if the annotations related to the objects
-     * to delete have to be deleted.
-     * 
-     * @return See above.
-     */
-    public boolean deleteAnnotations() { return withAnnotation.isSelected(); }
-    
-    /**
-     * Returns the types of annotations to delete.
+     * Returns the types of annotations to keep.
      * 
      * @return See above.
      */
@@ -355,12 +404,18 @@ public class DeleteBox
     	List<Class> types = new ArrayList<Class>();
     	Iterator<JCheckBox> i = annotationTypes.keySet().iterator();
     	JCheckBox box;
-    	while (i.hasNext()) {
-    		box = i.next();
-			if (box.isSelected()) 
-				types.add(annotationTypes.get(box));
-		}
-    	//if (types.size() == annotationTypes.size()) return null;
+    	if (!withAnnotation.isSelected()) {
+    		while (i.hasNext()) {
+    			box = i.next();
+    			types.add(annotationTypes.get(box));
+			}
+    	} else {
+    		while (i.hasNext()) {
+        		box = i.next();
+    			if (!box.isSelected()) 
+    				types.add(annotationTypes.get(box));
+    		}
+    	}
     	return types;
     }
     

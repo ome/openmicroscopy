@@ -63,7 +63,6 @@ abstract class DataPane
     	name = name.trim();
     	int l = name.length();
     	boolean b = l > 0;
-    	System.err.println(b);
     	firePropertyChange(AdminDialog.ENABLE_SAVE_PROPERTY, !b, b);
     }
     

@@ -35,16 +35,13 @@ import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.FigureListener;
-import org.jhotdraw.draw.Handle;
 import org.jhotdraw.geom.BezierPath;
 
 //Application-internal dependencies
@@ -53,7 +50,6 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
-import org.openmicroscopy.shoola.util.roi.util.FigureSelectionHandle;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.BezierTextFigure;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
@@ -184,7 +180,8 @@ public class MeasureBezierFigure
 	 * @param closed Pass <code>true</code> if the figure is a polygon,
 	 * 				 <code>false</code> if it is a polyline.
 	 */
-	public MeasureBezierFigure(boolean closed, boolean readOnly, boolean clientObject)
+	public MeasureBezierFigure(boolean closed, boolean readOnly, 
+			boolean clientObject)
 	{
 		this(ROIFigure.DEFAULT_TEXT, closed, readOnly, clientObject);
 	}
@@ -658,6 +655,7 @@ public class MeasureBezierFigure
 	 * Overridden to return the correct handles.
 	 * @see AbstractAttributedFigure#createHandles(int)
 	 */
+	/* cannot do that otherwise enter in an infinite loop
 	public Collection<Handle> createHandles(int detailLevel) 
 	{
 		if (!readOnly)
@@ -669,6 +667,7 @@ public class MeasureBezierFigure
 			return handles;
 		}
 	}
+	*/
 	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface

@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -49,6 +50,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JToolBar;
 import javax.swing.border.Border;
@@ -57,7 +59,6 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
 
 //Third-party libraries
-import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
@@ -219,7 +220,12 @@ class PropertiesUI
     	f = namePane.getFont(); 
     	Font newFont = f.deriveFont(f.getStyle(), f.getSize()-2);
     	descriptionPane = new OMEWikiComponent(false);
-    	descriptionPane.installObjectFormatters();
+    	try {
+    		descriptionPane.installObjectFormatters();
+		} catch (Exception e) {
+			//just to be on the save side.
+		}
+    	
     	descriptionPane.setFont(newFont);
     	//descriptionPane = new RegexTextPane(f.getFamily(), f.getSize()-2);
     	//descriptionPane.installDefaultRegEx();
@@ -484,52 +490,54 @@ class PropertiesUI
     	JPanel content = new JPanel();
     	content.setBackground(UIUtilities.BACKGROUND_COLOR);
     	content.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
-    	double[] columns = {TableLayout.PREFERRED, 2, TableLayout.FILL};
-    	TableLayout layout = new TableLayout();
-    	content.setLayout(layout);
-    	layout.setColumn(columns);
-    	int index = 0;
+    	content.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.WEST;
+		c.insets = new Insets(0, 2, 2, 0);
+		c.gridy = 0;
+		c.gridx = 0;
     	JLabel l = new JLabel();
     	Font font = l.getFont();
     	int size = font.getSize()-2;
-    	layout.insertRow(index, TableLayout.PREFERRED);
     	JLabel label = UIUtilities.setTextFont("Image Date", Font.BOLD, size);
     	JLabel value = UIUtilities.createComponent(null);
     	String v = model.formatDate(image);
     	value.setText(v);
-    	content.add(label, "0, "+index);
-    	content.add(value, "2, "+index);
-    	
-    	index++;
-    	layout.insertRow(index, TableLayout.PREFERRED);
+    	content.add(label, c);
+    	c.gridx = c.gridx+2;
+    	content.add(value, c);
+    	c.gridy++;
     	label = UIUtilities.setTextFont("Dimensions (XY)", Font.BOLD, size);
     	value = UIUtilities.createComponent(null);
     	v = (String) details.get(EditorUtil.SIZE_X);
     	v += " x ";
     	v += (String) details.get(EditorUtil.SIZE_Y);
     	value.setText(v);
-    	content.add(label, "0, "+index);
-    	content.add(value, "2, "+index);
+    	c.gridx = 0;
+    	content.add(label, c);
+    	c.gridx = c.gridx+2;
+    	content.add(value, c);
     	
     	String s = isValidPixelsSize(details);
     	if (s != null) {
     		boolean isANumber = isPixelsSizeNumber(details);
     		String[] split = s.split("=");
-    		index++;
-        	layout.insertRow(index, TableLayout.PREFERRED);
+    		c.gridy++;
         	label = UIUtilities.setTextFont(split[0]+EditorUtil.MICRONS, 
         			Font.BOLD, size);
         	value = UIUtilities.createComponent(null);
         	value.setText(split[1]);
-        	content.add(label, "0, "+index);
-        	content.add(value, "2, "+index);
+        	c.gridx = 0;
+        	content.add(label, c);
+        	c.gridx = c.gridx+2;
+        	content.add(value, c);
         	if (!isANumber) {
         		value.setForeground(AnnotationUI.WARNING);
         		value.setToolTipText("Values stored in the file...");
         	}
     	}
-    	index++;
-    	layout.insertRow(index, TableLayout.PREFERRED);
+    	c.gridy++;
     	label = UIUtilities.setTextFont("z-sections/timepoints", Font.BOLD, 
     			size);
     	value = UIUtilities.createComponent(null);
@@ -537,15 +545,17 @@ class PropertiesUI
     	v += " x ";
     	v += (String) details.get(EditorUtil.TIMEPOINTS);
     	value.setText(v);
-    	content.add(label, "0, "+index);
-    	content.add(value, "2, "+index);
-    	index++;
-    	layout.insertRow(index, TableLayout.PREFERRED);
-    	
+    	c.gridx = 0;
+    	content.add(label, c);
+    	c.gridx = c.gridx+2;
+    	content.add(value, c);
+    	c.gridy++;
     	if (!model.isNumerousChannel() && model.getRefObjectID() > 0) {
     		label = UIUtilities.setTextFont("Channels", Font.BOLD, size);
-        	content.add(label, "0, "+index);
-        	content.add(channelsArea, "2, "+index);
+    		c.gridx = 0;
+        	content.add(label, c);
+        	c.gridx = c.gridx+2;
+        	content.add(channelsArea, c);
     	}
     	JPanel p = UIUtilities.buildComponentPanel(content);
     	p.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -570,40 +580,48 @@ class PropertiesUI
      * Lays out the components using a <code>FlowLayout</code>.
      * 
      * @param button    The component to lay out.
-     * @param c			The component to lay out.
+     * @param component	The component to lay out.
      * @return See above.
      */
-    private JPanel layoutEditablefield(Component button, JComponent c)
+    private JPanel layoutEditablefield(Component button, JComponent component)
     {
-    	return layoutEditablefield(button, c, TableLayout.FILL);
+    	return layoutEditablefield(button, component, -1);
     }
     
     /**
      * Lays out the components using a <code>FlowLayout</code>.
      * 
      * @param button    The component to lay out.
-     * @param c			The component to lay out.
+     * @param component	The component to lay out.
+     * @param sizeRow   The size of the row.
      * @return See above.
      */
-    private JPanel layoutEditablefield(Component button, JComponent c, double
-    		sizeRow)
+    private JPanel layoutEditablefield(Component button, JComponent component, 
+    		int sizeRow)
     {
     	JPanel p = new JPanel();
-    	double[][] size = {{TableLayout.PREFERRED, TableLayout.FILL}, 
-    			{TableLayout.PREFERRED, sizeRow}};
-    	p.setLayout(new TableLayout(size));
     	p.setBackground(UIUtilities.BACKGROUND_COLOR);
-    	if (button != null) {
+    	p.setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.WEST;
+		c.insets = new Insets(0, 2, 2, 0);
+		c.gridy = 0;
+		c.gridx = 0;
+		if (button != null) {
     		JToolBar bar = new JToolBar();
         	bar.setBorder(null);
         	bar.setFloatable(false);
         	bar.setBackground(UIUtilities.BACKGROUND_COLOR);
         	bar.add(button);
-        	p.add(bar, "0, 0, LEFT, TOP");
+        	p.add(bar, c);
     	}
-    	
-    	p.add(c, "1, 0, 1, 1");
-    	
+		c.gridx++;
+		if (sizeRow > 0) {
+			c.ipady = sizeRow;
+			c.gridheight = 2;
+		}
+		p.add(component, c);
     	JPanel content = UIUtilities.buildComponentPanel(p, 0, 0);
     	content.setBackground(UIUtilities.BACKGROUND_COLOR);
     	return content;
@@ -644,9 +662,14 @@ class PropertiesUI
         	(refObject instanceof ScreenData)) {
         	 p.add(Box.createVerticalStrut(5));
         	 descriptionPanel = layoutEditablefield(editDescription, 
-        			 descriptionPane, 80);
+        			 descriptionPane, 5);
         	 descriptionPanel.setBorder(AnnotationUI.EDIT_BORDER);
-        	 p.add(descriptionPanel);
+
+        	 JScrollPane pane = new JScrollPane(descriptionPanel);
+        	 Dimension d = pane.getPreferredSize();
+        	 pane.getViewport().setPreferredSize(new Dimension(d.width, 60));
+        	 pane.setBorder(null);
+        	 p.add(pane);
          } else if (refObject instanceof FileData) {
         	 /*
         	 FileData f = (FileData) refObject;
@@ -817,7 +840,7 @@ class PropertiesUI
 		text = "";
 		
 		boolean b = model.isUserOwner(refObject);
-        if (refObject instanceof ImageData) text = "Image ";
+        if (refObject instanceof ImageData) text = "Image";
         else if (refObject instanceof DatasetData) text = "Dataset";
         else if (refObject instanceof ProjectData) text = "Project";
         else if (refObject instanceof ScreenData) text = "Screen";

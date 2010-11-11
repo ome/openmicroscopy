@@ -295,8 +295,9 @@ public interface AdminService
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
-	 * Updates the specified experimenters. Returns the experimenters
-	 * that could not be updated.
+	 * Updates the specified experimenters. Returns a map whose key are the 
+	 * experimenter that cannot be updated and whose values are the exception.
+	 * 
 	 * 
 	 * @param group The default group.
 	 * @param experimenters The experimenters to update.
@@ -305,7 +306,7 @@ public interface AdminService
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service.
 	 */
-	public List<ExperimenterData> updateExperimenters(GroupData group,
+	public Map<ExperimenterData, Exception> updateExperimenters(GroupData group,
 			Map<ExperimenterData, UserCredentials> experimenters)
 			throws DSOutOfServiceException, DSAccessException;
 

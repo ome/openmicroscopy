@@ -64,7 +64,7 @@ public class MeasureMaskFigure
     /** Creates a new instance. */
     public MeasureMaskFigure() 
     {
-        this("Text", 0, 0, 0, 0, null, false, true);
+        this(DEFAULT_TEXT, 0, 0, 0, 0, null, false, true);
     }
 
     /** 
@@ -86,9 +86,8 @@ public class MeasureMaskFigure
     public MeasureMaskFigure(double x, double y, double width, 
 			double height, BufferedImage mask) 
     {
-    	this("Text", x, y, width, height, mask, false, true);
+    	this(DEFAULT_TEXT, x, y, width, height, mask, false, true);
     }
-    
 
     /** 
      * Creates a new instance.
@@ -100,9 +99,10 @@ public class MeasureMaskFigure
      * @param clientObject the figure is a client object
      * */
     public MeasureMaskFigure(double x, double y, double width, 
-			double height, BufferedImage mask, boolean readOnly, boolean clientObject) 
+			double height, BufferedImage mask, boolean readOnly, 
+			boolean clientObject) 
     {
-    	this("Text", x, y, width, height, mask, readOnly, clientObject);
+    	this(DEFAULT_TEXT, x, y, width, height, mask, readOnly, clientObject);
     }
     
     /** 
@@ -116,7 +116,8 @@ public class MeasureMaskFigure
      * @param clientObject the figure is a client object
      * */
     public MeasureMaskFigure(String text, double x, double y, double width, 
-    	double height, BufferedImage mask, boolean readOnly, boolean clientObject) 
+    	double height, BufferedImage mask, boolean readOnly, 
+    	boolean clientObject) 
     {
 		super(text, x, y, width, height, readOnly, clientObject);
 		this.mask = mask;
@@ -210,5 +211,6 @@ public class MeasureMaskFigure
 				figListeners.add((FigureListener)listener);
 		return figListeners;
 	}
+	
 }
 

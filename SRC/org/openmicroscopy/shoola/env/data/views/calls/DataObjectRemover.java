@@ -26,21 +26,18 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 //Java imports
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
-
-import org.openmicroscopy.shoola.env.data.AdminService;
+import org.openmicroscopy.shoola.env.data.DeleteCallback;
 import org.openmicroscopy.shoola.env.data.OmeroDataService;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
-
-import pojos.DataObject;
-import pojos.ExperimenterData;
+import org.openmicroscopy.shoola.env.data.views.ProcessBatchCall;
+import org.openmicroscopy.shoola.env.data.views.ProcessCallback;
 
 /** 
  * Command to delete the passed objects.
@@ -59,11 +56,11 @@ public class DataObjectRemover
 	extends BatchCallTree
 {
 
-	 /** The call. */
-    private BatchCall       call;
-    
-    /** The result of the call. */
-    private Object          result;
+	/** The call. */
+	private BatchCall       call;
+
+	/** The server call-handle to the computation. */
+	private Object		callBack;
     
     /**
      * Creates a {@link BatchCall} to delete the specified objects.
@@ -73,36 +70,20 @@ public class DataObjectRemover
      */
     private BatchCall makeDeleteCall(final Collection<DeletableObject> values)
     {
-        return new BatchCall("Delete the object.") {
-            public void doCall() throws Exception
-            {
-            	Iterator<DeletableObject> i = values.iterator();
-            	DeletableObject o;
-            	DataObject data;
-            	List<ExperimenterData> list = new ArrayList<ExperimenterData>();
-            	while (i.hasNext()) {
-					o = i.next();
-					data = o.getObjectToDelete();
-					if (data instanceof ExperimenterData)
-						list.add((ExperimenterData) data);
-				}
-            	if (list.size() > 0) {
-            		AdminService os = context.getAdminService();
-            		list =  os.deleteExperimenters(list);
-            		List<DeletableObject> l = new ArrayList<DeletableObject>();
-            		if (list != null && list.size() > 0) {
-            			Iterator<ExperimenterData> j = list.iterator();
-            			while (j.hasNext()) {
-            				l.add(new DeletableObject(j.next()));
-						}
-            		}
-                	result = l;
-            	} else {
-            		OmeroDataService os = context.getDataService();
-                	result = os.delete(values);
-            	}
-            }
-        };
+    	return new ProcessBatchCall("Delete the Objects") {
+    		public ProcessCallback initialize() throws Exception
+    		{
+    			OmeroDataService os = context.getDataService();
+    			DeleteCallback cb = os.delete(values);
+    			if (cb == null) {
+    				callBack = Boolean.valueOf(false);
+                	return null;
+    			} else {
+    				callBack = new ProcessCallback(cb);
+                    return (ProcessCallback) callBack;
+    			}
+    		}
+    	};
     }
     
     /**
@@ -112,10 +93,17 @@ public class DataObjectRemover
     protected void buildTree() { add(call); }
 
     /**
-     * Returns the saved <code>DataObject</code>.
+     * Returns the server call-handle to the computation.
+     * 
+     * @return See above.
+     */
+    protected Object getPartialResult() { return callBack; }
+    
+    /**
+     * Returns the result.
      * @see BatchCallTree#getResult()
      */
-    protected Object getResult() { return result; }
+    protected Object getResult() { return Boolean.valueOf(true); }
     
     /**
      * Creates a new instance.

@@ -22,6 +22,8 @@
  */
 package org.openmicroscopy.shoola.agents.util.finder;
 
+import java.util.Collection;
+
 //Java imports
 
 //Third-party libraries
@@ -74,7 +76,7 @@ public interface Finder
 	 * Sets the status.
 	 * 
 	 * @param text		The text to display.
-	 * @param status 	Pass <code>true</code> to hide the progess bar,
+	 * @param status 	Pass <code>true</code> to hide the progress bar,
 	 * 					<code>false</code> otherwise.
 	 */
 	public void setStatus(String text, boolean status);
@@ -86,4 +88,11 @@ public interface Finder
 	 */
 	public void setResult(Object result);
 
+	/** 
+	 * Sets the collection of tags. 
+	 * 
+	 * @param tags The collection of tags to set.
+	 */
+	public void setExistingTags(Collection tags);
+	
 }

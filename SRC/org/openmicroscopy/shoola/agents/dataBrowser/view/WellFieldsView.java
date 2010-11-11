@@ -159,16 +159,8 @@ class WellFieldsView
 				if (node != null) {
 					model.setSelectedField(node);
 					if (e.getClickCount() == 2)
-						model.viewNode(node);
+						controller.viewDisplay(node);
 				}
-				/*
-				if (e.getClickCount() == 2) {
-					
-					if (node != null) {
-						model.viewNode(node);
-					}
-				}
-				*/
 			}
 
 			/**

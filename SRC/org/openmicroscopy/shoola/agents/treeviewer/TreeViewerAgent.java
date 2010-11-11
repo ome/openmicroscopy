@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 
 //Java imports
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -158,7 +157,28 @@ public class TreeViewerAgent
 		return values;
 	}
 	
-	
+	/**
+	 * Returns <code>true</code> if the user currently logged in 
+	 * is an owner of the current group, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public static boolean isLeaderOfCurrentGroup()
+	{
+		ExperimenterData exp = getUserDetails();
+		Set groups = getGroupsLeaderOf();
+		if (groups.size() == 0) return false;
+		GroupData group = exp.getDefaultGroup();
+		Iterator i = groups.iterator();
+		GroupData g;
+		while (i.hasNext()) {
+			g = (GroupData) i.next();
+			if (g.getId() == group.getId())
+				return true;
+		}
+		return false;
+	}
+
     /**
      * Handles the {@link CopyRndSettings} event.
      * 
@@ -188,8 +208,7 @@ public class TreeViewerAgent
      */
     private void handleRndSettingsCopied(RndSettingsCopied evt)
     {
-    	Collection ids = evt.getImagesIDs();
-    	TreeViewerFactory.onRndSettingsCopied(ids);
+    	TreeViewerFactory.onRndSettingsCopied(evt.getImagesIDs());
     }
     
 	/**
@@ -266,7 +285,8 @@ public class TreeViewerAgent
     	if (gp != null) id = gp.getId();
         TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
         if (viewer != null)
-        	viewer.findDataObject(evt.getDataType(), evt.getID());
+        	viewer.findDataObject(evt.getDataType(), evt.getID(), 
+        			evt.isSelectTab());
     }
     
     /**
@@ -303,7 +323,7 @@ public class TreeViewerAgent
 			if (gp != null) id = gp.getId();
 			TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
 			if (viewer != null)
-				viewer.findDataObject(data.getClass(), data.getId());
+				viewer.findDataObject(data.getClass(), data.getId(), false);
     	}
     }
     
@@ -395,8 +415,7 @@ public class TreeViewerAgent
 		else if (e instanceof DataObjectSelectionEvent)
 			handleDataObjectSelectionEvent((DataObjectSelectionEvent) e);
 		else if (e instanceof ViewObjectEvent)
-	        	handleViewObjectEvent((ViewObjectEvent) e);
-		
+	        handleViewObjectEvent((ViewObjectEvent) e);
 	}
 
 }

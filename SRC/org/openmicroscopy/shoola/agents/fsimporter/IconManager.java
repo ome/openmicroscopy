@@ -64,11 +64,23 @@ public class IconManager
     /** The <code>Import</code> icon. */
     public  static final int	IMPORT_48 = 2;
     
+    /** The <code>Plus 12x12</code> icon. */
+    public static final int      PLUS_12 = 3;
+    
+    /** The <code>Minus 12x12</code> icon. */
+    public static final int      MINUS_12 = 4;
+    
+    /** The <code>Tag 48x48</code> icon. */
+    public static final int      TAGS_48 = 5;
+    
+    /** The <code>Minus 11x11</code> icon. */
+    public static final int      MINUS_11 = 6;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int	MAX_ID = 2;
+    private static final int	MAX_ID = 6;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -77,6 +89,10 @@ public class IconManager
     	relPaths[STATUS_INFO] = "nuvola_messagebox_info16.png";
     	relPaths[IMPORT] = "omeroImporterLink16.png";
     	relPaths[IMPORT_48] = "omeroImporterLink48.png";
+    	relPaths[PLUS_12] = "plus12.png";
+        relPaths[MINUS_12] = "minus12.png";
+        relPaths[MINUS_11] = "minus11.png";
+        relPaths[TAGS_48] = "nuvola_knotes48.png";
     }
     
     /** The sole instance. */

@@ -34,7 +34,7 @@ import javax.swing.table.TableModel;
 //Application-internal dependencies
 
 /** 
- * 
+ * Displays the intensity values.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

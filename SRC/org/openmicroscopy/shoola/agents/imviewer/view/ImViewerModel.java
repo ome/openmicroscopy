@@ -469,6 +469,32 @@ class ImViewerModel
 	}
 
 	/**
+	 * Returns <code>true</code> if it is the same parent, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @param data The data to handle.
+	 * @return See above
+	 */
+	boolean isSameParent(DataObject data)
+	{
+		if (data != null && parent != null) {
+			if (parent instanceof WellData) {
+				if (grandParent != null) {
+					if (data.getClass().getName().equals(
+							grandParent.getClass().getName()))
+						return data.getId() == grandParent.getId();
+				}
+			} else {
+				if (data.getClass().getName().equals(
+						parent.getClass().getName()))
+					return data.getId() == parent.getId();
+			}
+			
+		}
+		return false;
+	}
+	
+	/**
 	 * Returns the name of the image.
 	 * 
 	 * @return See above.
@@ -1432,6 +1458,20 @@ class ImViewerModel
 		}
 	}
 	
+	/**
+	 * Sets the original settings, the method should only be invoked when
+	 * keeping track of the value after a save from the preview.
+	 * 
+	 * @param settings The settings to set.
+	 */
+	void resetOriginalSettings(RndProxyDef settings)
+	{
+		originalDef = settings;
+		if (settings != null && renderingSettings != null) {
+			renderingSettings.put(ImViewerAgent.getUserDetails(), settings);
+		}
+	}
+	
 	/** 
 	 * Starts an asynchronous call to retrieve the rendering settings to paste. 
 	 */
@@ -2086,7 +2126,7 @@ class ImViewerModel
 	double setImageAsTexture(TextureData image)
 	{
 		state = ImViewer.READY; 
-		browser.setRenderedImageAsTexture(image);
+		browser.setRenderedImage(image);
 		//update image icon
 		//28/02 added to speed up process, turn back on for 4.1
 		/*

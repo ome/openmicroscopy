@@ -46,15 +46,15 @@ import javax.swing.JScrollPane;
 import javax.swing.WindowConstants;
 
 //Third-party libraries
+import org.jdesktop.swingx.JXTreeTable;
 
 //Application-internal dependencies
-import org.jdesktop.swingx.JXTreeTable;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.treetable.OMETreeTable;
 import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeTableModel;
+import pojos.DataObject;
 
 /** 
  * Dialog displaying the objects that could not be deleted.
@@ -146,7 +146,7 @@ public class NotDeletedObjectDialog
 	 * 						Mustn't be <code>null</code> or of size 
 	 * 						<code>0</code>.
 	 */
-	private void initComponents(Collection<DeletableObject> notDeleted)
+	private void initComponents(Collection<DataObject> notDeleted)
 	{
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		addWindowListener(new WindowAdapter() {
@@ -165,8 +165,8 @@ public class NotDeletedObjectDialog
 		root = new DeletableTableNode("");
 		
 		//table.setColumnControlVisible(true);
-		Iterator<DeletableObject> i = notDeleted.iterator();
-		DeletableObject node;
+		Iterator<DataObject> i = notDeleted.iterator();
+		DataObject node;
 		while (i.hasNext()) {
 			node = i.next();
 			if (node != null)
@@ -222,7 +222,7 @@ public class NotDeletedObjectDialog
 	 * 						<code>0</code>.
 	 */
 	public NotDeletedObjectDialog(JFrame owner, 
-			Collection<DeletableObject> notDeleted)
+			Collection<DataObject> notDeleted)
 	{
 		super(owner);
 		if (notDeleted == null || notDeleted.size() == 0)

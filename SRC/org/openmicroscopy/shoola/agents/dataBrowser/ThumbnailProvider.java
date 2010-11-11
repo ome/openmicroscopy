@@ -153,6 +153,13 @@ public class ThumbnailProvider
 	        originalHeight = THUMB_MAX_HEIGHT;
 	        return;
 		}
+		if (pxd == null) {
+			width = (int) (THUMB_MAX_WIDTH*SCALING_FACTOR);
+	        height = (int) (THUMB_MAX_HEIGHT*SCALING_FACTOR);
+	        originalWidth = THUMB_MAX_WIDTH;
+	        originalHeight = THUMB_MAX_HEIGHT;
+	        return;
+		}
         double pixSizeX = pxd.getSizeX();
         double pixSizeY = pxd.getSizeY();
         Dimension size = Factory.computeThumbnailSize(width, height, pixSizeX, 

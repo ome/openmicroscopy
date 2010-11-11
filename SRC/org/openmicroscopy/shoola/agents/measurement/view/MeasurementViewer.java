@@ -171,9 +171,6 @@ public interface MeasurementViewer
 
 	/** Saves the ROI. */
 	public void saveROI();
-
-	/** Rebuild the table in the measurement manager component. */
-	public void rebuildManagerTable();
 	
 	/**
 	 * Invokes when a figures attributes have changed. 
@@ -322,12 +319,6 @@ public interface MeasurementViewer
 	public void setUpdateROIComponent(Collection result);
 
 	/**
-	 * The list of possible workflows in the component.
-	 * 
-	 */
-	public void getWorkflows();
-
-	/**
 	 * Create a new workflow
 	 */
 	public void createWorkflow();
@@ -357,5 +348,16 @@ public interface MeasurementViewer
 	 * @param workflows See above.
 	 */
 	public void setWorkflowList(List<WorkflowData> workflows);
+
+	/** Deletes all ROIs owned by the user currently logged in. */
+	public void deleteAllROIs();
+	
+	/**
+	 * Returns <code>true</code> if the current user has ROI that can be deleted,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasROIToDelete();
 	
 }

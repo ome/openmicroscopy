@@ -219,7 +219,7 @@ class BrowserComponent
 	{
 		if (rootType == null) {
 			int type = model.getBrowserType();
-			if (type == PROJECT_EXPLORER) 
+			if (type == PROJECTS_EXPLORER) 
 				rootType = DatasetData.class;
 			else if (type == TAGS_EXPLORER)
 				rootType = TagAnnotationData.class;
@@ -270,9 +270,10 @@ class BrowserComponent
     			}
     		}
     	}
+    	addComponent(null);
     	if (exp != null) model.setSelectedDisplay(exp, single);
     	else model.setSelectedDisplay(display, single);
-    	if (display == null) view.setNullSelectedNode();
+    	//if (display == null) view.setNullSelectedNode();
     	if (oldDisplay != null && oldDisplay.equals(display)) {
     		ho = oldDisplay.getUserObject();
     		if (ho instanceof PlateData)
@@ -335,6 +336,9 @@ class BrowserComponent
             case NEW:
             	view.loadExperimenterData();
                 break;
+            case READY:
+            	refreshBrowser();
+            	break;
             case DISCARDED:
                 throw new IllegalStateException(
                         "This method can't be invoked in the DISCARDED state.");
@@ -574,7 +578,7 @@ class BrowserComponent
     {
         IconManager im = IconManager.getInstance();
         switch (model.getBrowserType()) {
-            case PROJECT_EXPLORER:
+            case PROJECTS_EXPLORER:
                 return im.getIcon(IconManager.HIERARCHY_EXPLORER);
             case TAGS_EXPLORER:
                 return im.getIcon(IconManager.TAGS_EXPLORER);
@@ -813,8 +817,8 @@ class BrowserComponent
 	public void onOrphanDataObjectCreated(DataObject data) 
 	{
 		int type = model.getBrowserType();
-		if ((data instanceof DatasetData) || (data instanceof DatasetData)) {
-			if (type != PROJECT_EXPLORER) return;
+		if (data instanceof DatasetData) {
+			if (type != PROJECTS_EXPLORER) return;
 		} else if (data instanceof TagAnnotationData) {
 			if (type != TAGS_EXPLORER) return;
 		}
@@ -1051,7 +1055,6 @@ class BrowserComponent
      */
 	public void addExperimenter(ExperimenterData experimenter, boolean load)
 	{
-		//TODO check state
 		if (experimenter == null)
 			throw new IllegalArgumentException("Experimenter cannot be null.");
 		//Make sure the user is not already display
@@ -1484,7 +1487,7 @@ class BrowserComponent
 		Object ho;
 		
 		switch (model.getBrowserType()) {
-			case PROJECT_EXPLORER:
+			case PROJECTS_EXPLORER:
 				SimilarNodesVisitor v = new SimilarNodesVisitor(nodes);
 				accept(v, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
 				nodes = v.getFoundNodes();
@@ -1579,9 +1582,9 @@ class BrowserComponent
 	
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Browser#removeTreeNodes(List)
+	 * @see Browser#removeTreeNodes(Collection)
 	 */
-	public void removeTreeNodes(List<TreeImageDisplay> nodes)
+	public void removeTreeNodes(Collection<TreeImageDisplay> nodes)
 	{
 		if (nodes == null) return;
 		Iterator<TreeImageDisplay> i = nodes.iterator();
@@ -1645,10 +1648,12 @@ class BrowserComponent
 	public void setGroups(Collection groups, List expanded)
 	{
 		int state = model.getState();
-        if (state != LOADING_DATA)
+        if (state != LOADING_DATA) return;
+        /*
             throw new IllegalStateException(
                     "This method can only be invoked in the LOADING_DATA "+
                     "state.");
+                    */
         if (model.getBrowserType() != ADMIN_EXPLORER) return;
 		Set nodes = TreeViewerTranslator.transformGroups(groups);
 		view.setGroups(nodes, expanded);
@@ -1796,7 +1801,33 @@ class BrowserComponent
 		    model.loadRefreshExperimenterData(m, type, id);
 			fireStateChange();
 		}
-		
+	}
+
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#addComponent(JComponent)
+	 */
+	public void addComponent(JComponent component)
+	{
+		if (getBrowserType() != SCREENS_EXPLORER) return;
+		view.addComponent(component);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#loadDirectory(TreeImageDisplay)
+	 */
+	public void loadDirectory(TreeImageDisplay display)
+	{
+		if (display == null) return;
+		Object ho = display.getUserObject();
+		if (!(ho instanceof FileData)) return;
+		FileData f = (FileData) ho;
+		if (f.isDirectory()) {
+			if (!display.isChildrenLoaded())
+				view.loadFile(display);
+			//model.getParentModel().browse(display, true);
+		}
 	}
 	
 }

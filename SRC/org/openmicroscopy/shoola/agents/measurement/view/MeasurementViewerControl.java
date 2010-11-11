@@ -64,6 +64,7 @@ import org.jhotdraw.draw.FigureSelectionListener;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.actions.CreateFigureAction;
+import org.openmicroscopy.shoola.agents.measurement.actions.DeleteROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.KeywordSelectionAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.LoadROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.MeasurementViewerAction;
@@ -71,7 +72,6 @@ import org.openmicroscopy.shoola.agents.measurement.actions.SaveROIAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.ShowROIAssistant;
 import org.openmicroscopy.shoola.agents.measurement.actions.UnitsAction;
 import org.openmicroscopy.shoola.agents.measurement.actions.WorkflowAction;
-import org.openmicroscopy.shoola.agents.measurement.util.roitable.ROIActionController;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasurePointFigure;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
@@ -98,9 +98,9 @@ import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
  * @since OME3.0
  */
 class MeasurementViewerControl 
-	implements ChangeListener, DrawingListener, FigureListener, 
-				FigureSelectionListener, PropertyChangeListener,
-				WindowFocusListener, KeyListener, ROIActionController
+	implements ChangeListener, DrawingListener, 
+	FigureListener, FigureSelectionListener, PropertyChangeListener,
+	WindowFocusListener, KeyListener
 {
 
 	/** Identifies the <code>SAVE</code> action in the menu. */
@@ -155,6 +155,9 @@ class MeasurementViewerControl
      */
     static final Integer     KEYWORD_SELECTION =  Integer.valueOf(12);
     
+    /** Identifies the <code>DELETE</code> action in the menu. */
+    static final Integer     DELETE = Integer.valueOf(13);
+    
     /** 
      * Reference to the {@link MeasurementViewer} component, which, 
      * in this context, is regarded as the Model.
@@ -182,6 +185,7 @@ class MeasurementViewerControl
     	actionsMap.put(SELECT_WORKFLOW, new WorkflowAction(model, false));
     	actionsMap.put(CREATE_WORKFLOW, new WorkflowAction(model, true));
     	actionsMap.put(KEYWORD_SELECTION, new KeywordSelectionAction(model));
+    	actionsMap.put(DELETE, new DeleteROIAction(model));
     }
 
 	/**
@@ -231,25 +235,26 @@ class MeasurementViewerControl
      */
     private void handleFigureChange(ROIFigure figure)
 	{
+    	view.onSelectedFigures();
     	if (figure.getROI().hasAnnotation(AnnotationKeys.NAMESPACE))
     	{
     		String namespaceString = (String)figure.getROI().getAnnotation(
     				AnnotationKeys.NAMESPACE);
     		String keywordsString = (String)figure.getROI().getAnnotation(
     				AnnotationKeys.KEYWORDS);
-    		if (keywordsString!=null)
+    		if (keywordsString != null)
     		{
     			List<String> stringList = new ArrayList<String>();
         		if (keywordsString != "")
     			{
     				String[] splitStrings = keywordsString.split(",");
     			    
-        			for(String word: splitStrings)
+        			for (String word: splitStrings)
         				stringList.add(word);				
     			}
     			model.setWorkflow(namespaceString);
     			model.setKeyword(stringList);
-    			this.view.updateWorkflow();
+    			view.updateWorkflow();
      		}
     	}
 		
@@ -258,7 +263,7 @@ class MeasurementViewerControl
 				(figure instanceof MeasurePointFigure)) {
     		figure.calculateMeasurements();
     		view.refreshResultsTable();
-    		model.setDataChanged();
+    		if (!figure.isReadOnly()) model.setDataChanged();
     		if (!view.inDataView()) return;
     		ROIShape shape = figure.getROIShape();
     		List<ROIShape> shapeList = new ArrayList<ROIShape>();
@@ -275,7 +280,7 @@ class MeasurementViewerControl
  		if (figure.getStatus() != ROIFigure.IDLE) return;
 		figure.calculateMeasurements();
 		view.refreshResultsTable();
-		model.setDataChanged();
+		if (!figure.isReadOnly()) model.setDataChanged();
 		if (!view.inDataView()) return;
 		ROIShape shape = figure.getROIShape();
 		List<ROIShape> shapeList = new ArrayList<ROIShape>();
@@ -328,93 +333,93 @@ class MeasurementViewerControl
      */
     void attachListeners()
     {
-    	 view.getLoadingWindow().addPropertyChangeListener(
-                 LoadingWindow.CLOSED_PROPERTY, this);
-    	 view.getDrawing().addDrawingListener(this);
-    	 view.getDrawingView().addFigureSelectionListener(this);
-         view.getDrawingView().addKeyListener(this);
-    	 view.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-    	 view.addWindowListener(new WindowAdapter() {
-             public void windowClosing(WindowEvent e) { model.close(); }
-             public void windowOpened(WindowEvent e) { 
-            	 view.addWindowFocusListener(this); }
-         });
-    	 view.getDrawingView().addMouseListener(new MouseAdapter() {
-    			
- 			public void mouseReleased(MouseEvent e)
- 			{
- 				setROIFigureStatus(ROIFigure.IDLE);
- 				if (isRightClick(e)) {
- 					Collection l = view.getDrawingView().getSelectedFigures();
- 					if (l != null && l.size() == 1)
- 						view.showROIManagementMenu(e.getX(), e.getY());
- 				}
- 			}
- 		
- 		});
-    	 
+    	view.getLoadingWindow().addPropertyChangeListener(
+    			LoadingWindow.CLOSED_PROPERTY, this);
+    	view.getDrawing().addDrawingListener(this);
+    	view.getDrawingView().addFigureSelectionListener(this);
+    	view.getDrawingView().addKeyListener(this);
+    	view.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+    	view.addWindowListener(new WindowAdapter() {
+    		public void windowClosing(WindowEvent e) { model.close(); }
+    		public void windowOpened(WindowEvent e) { 
+    			view.addWindowFocusListener(this); }
+    	});
+    	view.getDrawingView().addMouseListener(new MouseAdapter() {
+
+    		public void mouseReleased(MouseEvent e)
+    		{
+    			setROIFigureStatus(ROIFigure.IDLE);
+    			if (isRightClick(e)) {
+    				Collection l = view.getDrawingView().getSelectedFigures();
+    				if (l != null && l.size() == 1)
+    					view.showROIManagementMenu(e.getX(), e.getY());
+    			}
+    		}
+
+    	});
+
     	view.getDrawingView().addMouseMotionListener(new MouseMotionAdapter()
-		{
-			
-			@Override
-			public void mouseDragged(MouseEvent e)
-			{
-				setROIFigureStatus(ROIFigure.MOVING);
-			}
-			
-		});
+    	{
+
+    		@Override
+    		public void mouseDragged(MouseEvent e)
+    		{
+    			setROIFigureStatus(ROIFigure.MOVING);
+    		}
+
+    	});
     	JMenu menu = MeasurementViewerFactory.getWindowMenu();
-		menu.addMenuListener(new MenuListener() {
+    	menu.addMenuListener(new MenuListener() {
 
-			public void menuSelected(MenuEvent e)
-			{ 
-				Object source = e.getSource();
-				if (source instanceof JMenu)
-					MeasurementViewerFactory.register((JMenu) source);
-			}
+    		public void menuSelected(MenuEvent e)
+    		{ 
+    			Object source = e.getSource();
+    			if (source instanceof JMenu)
+    				MeasurementViewerFactory.register((JMenu) source);
+    		}
 
-			/** 
-			 * Required by I/F but not actually needed in our case, 
-			 * no-operation implementation.
-			 * @see MenuListener#menuCanceled(MenuEvent)
-			 */ 
-			public void menuCanceled(MenuEvent e) {}
+    		/** 
+    		 * Required by I/F but not actually needed in our case, 
+    		 * no-operation implementation.
+    		 * @see MenuListener#menuCanceled(MenuEvent)
+    		 */ 
+    		public void menuCanceled(MenuEvent e) {}
 
-			/** 
-			 * Required by I/F but not actually needed in our case, 
-			 * no-operation implementation.
-			 * @see MenuListener#menuDeselected(MenuEvent)
-			 */ 
-			public void menuDeselected(MenuEvent e) {}
+    		/** 
+    		 * Required by I/F but not actually needed in our case, 
+    		 * no-operation implementation.
+    		 * @see MenuListener#menuDeselected(MenuEvent)
+    		 */ 
+    		public void menuDeselected(MenuEvent e) {}
 
-		});
+    	});
 
-		//Listen to keyboard selection
-		menu.addMenuKeyListener(new MenuKeyListener() {
+    	//Listen to keyboard selection
+    	menu.addMenuKeyListener(new MenuKeyListener() {
 
-			public void menuKeyReleased(MenuKeyEvent e)
-			{
-				Object source = e.getSource();
-				if (source instanceof JMenu)
-					MeasurementViewerFactory.register((JMenu) source);
-			}
+    		public void menuKeyReleased(MenuKeyEvent e)
+    		{
+    			Object source = e.getSource();
+    			if (source instanceof JMenu)
+    				MeasurementViewerFactory.register((JMenu) source);
+    		}
 
-			/** 
-			 * Required by I/F but not actually needed in our case, 
-			 * no-operation implementation.
-			 * @see MenuKeyListener#menuKeyPressed(MenuKeyEvent)
-			 */
-			public void menuKeyPressed(MenuKeyEvent e) {}
+    		/** 
+    		 * Required by I/F but not actually needed in our case, 
+    		 * no-operation implementation.
+    		 * @see MenuKeyListener#menuKeyPressed(MenuKeyEvent)
+    		 */
+    		public void menuKeyPressed(MenuKeyEvent e) {}
 
-			/** 
-			 * Required by I/F but not actually needed in our case, 
-			 * no-operation implementation.
-			 * @see MenuKeyListener#menuKeyTyped(MenuKeyEvent)
-			 */
-			public void menuKeyTyped(MenuKeyEvent e) {}
+    		/** 
+    		 * Required by I/F but not actually needed in our case, 
+    		 * no-operation implementation.
+    		 * @see MenuKeyListener#menuKeyTyped(MenuKeyEvent)
+    		 */
+    		public void menuKeyTyped(MenuKeyEvent e) {}
 
-		});
-		MeasurementViewerFactory.attachWindowMenuToTaskBar();
+    	});
+    	MeasurementViewerFactory.attachWindowMenuToTaskBar();
     }
     
     /** 
@@ -609,7 +614,8 @@ class MeasurementViewerControl
 			view.onAttributeChanged(fig);
 			view.refreshInspectorTable();
 			model.figureAttributeChanged(e.getAttribute(), fig);
-			model.setDataChanged();
+			if (!fig.isReadOnly())
+				model.setDataChanged();
 		}
 	}
 
@@ -695,61 +701,31 @@ class MeasurementViewerControl
 	public void figureRemoved(FigureEvent e) {}
 
 	/**
-	 * Required by the {@link DrawingListener} I/F but no-op implementation
-	 * in our case.
+	 * Required by the {@link DrawingListener} I/F but no-operation 
+	 * implementation in our case.
 	 * @see FigureListener#figureRequestRemove(FigureEvent)
 	 */
 	public void figureRequestRemove(FigureEvent e) {}
 
 	/**
-	 * Required by the {@link FigureListener} I/F but no-op implementation
-	 * in our case.
+	 * Required by the {@link FigureListener} I/F but no-operation 
+	 * implementation in our case.
 	 * @see FigureListener#figureHandlesChanged(FigureEvent)
 	 */
 	public void figureHandlesChanged(FigureEvent e) {}
 
 	/**
-	 * Required by the {@link KeyListener} I/F but no-op implementation
+	 * Required by the {@link KeyListener} I/F but no-operation implementation
 	 * in our case.
 	 * @see KeyListener#keyPressed(KeyEvent)
 	 */
 	public void keyPressed(KeyEvent e) {}
 
 	/**
-	 * Required by the {@link KeyListener} I/F but no-op implementation
+	 * Required by the {@link KeyListener} I/F but no-operation implementation
 	 * in our case.
 	 * @see KeyListener#keyReleased(KeyEvent)
 	 */
 	public void keyReleased(KeyEvent e) {}
-
-	public void calculateStats() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void deleteROI() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void duplicateROI() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void mergeROI() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void propagateROI() {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void splitROI() {
-		// TODO Auto-generated method stub
-		
-	}
 
 }

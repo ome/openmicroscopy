@@ -234,7 +234,8 @@ public class FileChooser
      * @param accept		Determines whether the all files filter is turned
      */
     public FileChooser(JFrame owner, int dialogType, String title, 
-    					String message, List<FileFilter> filters, boolean accept)
+    					String message, List<FileFilter> filters, 
+    					boolean accept)
     {
     	this(owner, dialogType, title, message, filters, accept, false);
     }

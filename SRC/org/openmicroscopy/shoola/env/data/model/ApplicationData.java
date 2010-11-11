@@ -92,7 +92,6 @@ public class ApplicationData
 		try {
 			img = reader.decode(IconReader.ICON_16);
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 		if (img == null) return null;
 		return new ImageIcon(img);
@@ -172,20 +171,14 @@ public class ApplicationData
 	 * 
 	 * @return See above.
 	 */
-	public Icon getApplicationIcon()
-	{
-		return applicationIcon;
-	}
+	public Icon getApplicationIcon() { return applicationIcon; }
 	
 	/**
 	 * Returns the application's path.
 	 * 
 	 * @return See above.
 	 */
-	public String getApplicationPath()
-	{
-		return file.getAbsolutePath();
-	}
+	public String getApplicationPath() { return file.getAbsolutePath(); }
 	
 	/**
 	 * Returns the arguments.

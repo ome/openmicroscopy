@@ -42,7 +42,6 @@ import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
-
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
@@ -771,6 +770,8 @@ class RendererComponent
 			view.resetDefaultRndSettings();
 			firePropertyChange(RENDER_PLANE_PROPERTY, 
 					Boolean.valueOf(false), Boolean.valueOf(true));
+			firePropertyChange(COLOR_MODEL_PROPERTY, Boolean.valueOf(false), 
+   		 			Boolean.valueOf(true));
 		} catch (Throwable e) {
 			handleException(e);
 		}
@@ -788,6 +789,8 @@ class RendererComponent
 				view.resetDefaultRndSettings();
 				firePropertyChange(RENDER_PLANE_PROPERTY, 
 						Boolean.valueOf(false), Boolean.valueOf(true));
+				firePropertyChange(COLOR_MODEL_PROPERTY, Boolean.valueOf(false), 
+	   		 			Boolean.valueOf(true));
 			}
 		} catch (Throwable e) {
 			handleException(e);
@@ -899,20 +902,6 @@ class RendererComponent
 			handleException(e, false);
 		}
 		return null;
-	}
-	
-	/** 
-     * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#reloadUI(boolean)
-     */
-	public void reloadUI(boolean reload)
-	{
-		view.resetDefaultRndSettings();
-		firePropertyChange(COLOR_MODEL_PROPERTY, Boolean.valueOf(false), 
-				Boolean.valueOf(true));
-		if (reload) {
-			
-		}
 	}
 	
 	/** 

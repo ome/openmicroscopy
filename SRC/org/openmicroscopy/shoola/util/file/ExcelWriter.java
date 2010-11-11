@@ -605,13 +605,13 @@ public class ExcelWriter
 	 * @param imageName The name of the image.
 	 * @param image 	The image to add to the workbook
 	 * @return index of new image.
-	 * @throws EncoderException Exception thrown if an error occured during the
+	 * @throws EncoderException Exception thrown if an error occurred during the
      * encoding process.
 	 */
 	public int addImageToWorkbook(String imageName, BufferedImage image) 
 		throws EncoderException
 	{
-		byte[] array = WriterImage.imageToByteStreamAsJPEG(image);
+		byte[] array = WriterImage.imageToByteStream(image);
 		if (array == null) return -1;
 		int index = workbook.addPicture(array, HSSFWorkbook.PICTURE_TYPE_JPEG);
 		imageMap.put(imageName, index);

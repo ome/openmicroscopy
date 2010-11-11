@@ -70,6 +70,9 @@ class ManagePopupMenu
     /** Button to delete the selected elements. */
     private JMenuItem           deleteElement;
     
+    /** Button to delete the selected elements. */
+    private JMenuItem           cutElement;
+    
     /** Button to add existing element to the specified container. */
     private JMenuItem           existingElement;
     
@@ -80,10 +83,12 @@ class ManagePopupMenu
      */
     private void initMenuItem(JMenuItem item)
     {
+    	/*
         item.setBorder(null);
         item.setFont((Font) 
                 TreeViewerAgent.getRegistry().lookup(
                         "/resources/fonts/Labels"));
+                        */
     }
     
     /** Initializes the components composing the display. */
@@ -106,6 +111,9 @@ class ManagePopupMenu
         existingElement = new JMenuItem(
             controller.getAction(TreeViewerControl.ADD_OBJECT));
         initMenuItem(existingElement);
+        cutElement = new JMenuItem(
+                controller.getAction(TreeViewerControl.CUT_OBJECT));
+        initMenuItem(cutElement);
     }
     
     /** Builds and lays out the GUI. */
@@ -114,6 +122,7 @@ class ManagePopupMenu
         setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
         add(newElement);
         //add(existingElement);
+        add(cutElement);
         add(copyElement);
         add(pasteElement);
         add(deleteElement);

@@ -56,6 +56,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.treeviewer.CopyItems;
+import org.openmicroscopy.shoola.agents.events.treeviewer.DeleteObjectEvent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
@@ -93,6 +94,7 @@ import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
+import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ImportObject;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
@@ -429,6 +431,11 @@ class TreeViewerComponent
         	}
         }
 		model.setDataViewer(db);
+		if (db != null) {
+			Browser b = getSelectedBrowser();
+			if (b != null && b.getBrowserType() == Browser.SCREENS_EXPLORER)
+				b.addComponent(db.getGridUI());
+		}
 	}
 	
 	/**
@@ -537,7 +544,7 @@ class TreeViewerComponent
 		switch (model.getState()) {
 			case NEW:
 				view.setOnScreen();
-				view.selectPane();
+				view.selectFirstPane();
 				model.getSelectedBrowser().activate();
 				model.setState(READY);
 				break;
@@ -661,7 +668,7 @@ class TreeViewerComponent
     		if (object instanceof ExperimenterData) {
     			TreeImageDisplay node = 
     				getSelectedBrowser().getLastSelectedDisplay();
-        		uo = node.getUserObject();
+        		if (node != null) uo = node.getUserObject();
         		ContainerFinder finder = new ContainerFinder(GroupData.class);
         		getSelectedBrowser().accept(finder, 
         				TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
@@ -986,7 +993,7 @@ class TreeViewerComponent
 			if (parent == null) {
 				if ((data instanceof ProjectData) || 
 					(data instanceof DatasetData))
-					browser = model.getBrowser(Browser.PROJECT_EXPLORER);
+					browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
 				 else if (data instanceof ScreenData)
 					browser = model.getBrowser(Browser.SCREENS_EXPLORER);
 				else if (data instanceof TagAnnotationData)
@@ -1017,7 +1024,8 @@ class TreeViewerComponent
 	{
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		Browser browser = model.getSelectedBrowser();
-		browser.onOrphanDataObjectCreated(data);
+		if (browser != null)
+			browser.onOrphanDataObjectCreated(data);
 		
 		setStatus(false, "", true);
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
@@ -1083,45 +1091,6 @@ class TreeViewerComponent
 			browser.accept(new ClearVisitor());
 			browser.setFoundInBrowser(null); 
 		}
-		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-	}
-
-	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#onImageClassified(ImageData[], Set, int)
-	 */
-	public void onImageClassified(ImageData[] images, Set categories, int mode)
-	{
-		switch (model.getState()) {
-		case DISCARDED:
-			throw new IllegalStateException("This method cannot be " +
-					"invoked in the DISCARDED, SAVE or LOADING_THUMBNAIL " +
-			"state");
-		}
-		if (categories == null)
-			throw new IllegalArgumentException("Categories shouln't be null.");
-		if (images == null)
-			throw new IllegalArgumentException("No image.");
-		if (images.length == 0)
-			throw new IllegalArgumentException("No image.");
-		/*
-		if (mode != Classifier.CLASSIFY_MODE && 
-				mode != Classifier.DECLASSIFY_MODE)
-			throw new IllegalArgumentException("Classification mode not " +
-			"supported.");
-			*/
-		TreeImageDisplay d = getSelectedBrowser().getLastSelectedDisplay();
-		Map browsers = model.getBrowsers();
-		Iterator b = browsers.keySet().iterator();
-		Browser browser;
-		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-		while (b.hasNext()) {
-			browser = (Browser) browsers.get(b.next());
-			browser.refreshTree();
-			//browser.refreshClassification(images, categories, mode);
-		}
-		getSelectedBrowser().setSelectedDisplay(d);
-
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 	}
 
@@ -1363,10 +1332,11 @@ class TreeViewerComponent
 		UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
 		if (parents == null || parents.length == 0) {
 			un.notifyInfo("Paste action", "You first need to select " +
-			"the nodes to copy into"); 
+			"the nodes to copy into.");
+			return;	
 		}
 		TreeImageDisplay[] nodes = model.getNodesToCopy();
-		if (nodes == null || nodes.length == 0) return; //shouldn't happen
+		if (nodes == null || nodes.length == 0) return; 
 		boolean b = model.paste(parents);
 		if (!b) {
 			un.notifyInfo("Paste action", "The nodes to copy cannot " +
@@ -1702,7 +1672,7 @@ class TreeViewerComponent
 		if (object == null) return;
 		Browser browser = null;
 		if (object instanceof DatasetData || object instanceof ProjectData) 
-			browser = model.getBrowser(Browser.PROJECT_EXPLORER);
+			browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
 		else if (object instanceof ScreenData) 
 			browser = model.getBrowser(Browser.SCREENS_EXPLORER);
 		if (browser != null) browser.expandUser();
@@ -1746,6 +1716,8 @@ class TreeViewerComponent
 				db.setExperimenter(exp);
 			}
 		}
+			
+		if (db == null) return;
 		db.addPropertyChangeListener(controller);
 		db.activate();
 		view.displayBrowser(db);
@@ -2246,6 +2218,7 @@ class TreeViewerComponent
 			view.removeAllFromWorkingPane();
 			view.displayBrowser(db);
 			model.setDataViewer(db);
+			getSelectedBrowser().addComponent(db.getGridUI());
 		}
 		model.setState(READY);
 		fireStateChange();
@@ -2338,22 +2311,93 @@ class TreeViewerComponent
 	}
 	
 	/**
+	 * Checks for the images if loaded.
+	 * 
+	 * @param object The object to handle.
+	 * @param objects The list to add the found image if any.
+	 * @param content Pass <code>true</code> if the content has to be deleted.
+	 * 				  <code>false</code> otherwise.
+	 */
+	private void checkForImages(TreeImageDisplay object, 
+				List<DataObject> objects, boolean content)
+	{
+		List list = object.getChildrenDisplay();
+		Iterator i, j;
+		TreeImageDisplay child, child2;
+		List children;
+		DataObject ho = (DataObject) object.getUserObject();
+		if (ho instanceof ImageData) {
+			objects.add(ho);
+		} else if (ho instanceof DatasetData && content) {
+			if (object.isChildrenLoaded()) {
+				/*
+				i = list.iterator();
+				while (i.hasNext()) {
+					child = (TreeImageDisplay) i.next();
+					if (child.getUserObject() instanceof ImageData) {
+						objects.add((DataObject) child.getUserObject());
+					}
+				}
+				*/
+				objects.add(ho);
+			}
+			
+		} else if (ho instanceof ProjectData && content) {
+			if (object.isChildrenLoaded()) {
+				i = list.iterator();
+				while (i.hasNext()) {
+					child = (TreeImageDisplay) i.next();
+					if (child.getUserObject() instanceof DatasetData) {
+						if (child.isChildrenLoaded()) {
+							/*
+							children = child.getChildrenDisplay();
+							j = children.iterator();
+							while (j.hasNext()) {
+								child2 =  (TreeImageDisplay) j.next();
+								objects.add(
+										(DataObject) child2.getUserObject());
+							}
+							*/
+							objects.add((DataObject) child.getUserObject());
+						}
+					}
+				}
+			}
+		} else if (ho instanceof PlateData) {
+			objects.add(ho);
+		} else if (ho instanceof PlateAcquisitionData) {
+			TreeImageDisplay parent = object.getParentDisplay();
+			objects.add((DataObject) parent.getUserObject());
+		} else if (ho instanceof ScreenData && content) {
+			if (object.isChildrenLoaded()) {
+				i = list.iterator();
+				while (i.hasNext()) {
+					child = (TreeImageDisplay) i.next();
+					if (child.getUserObject() instanceof PlateData) {
+						if (child.isChildrenLoaded()) {
+							/*
+							children = child.getChildrenDisplay();
+							j = children.iterator();
+							while (j.hasNext()) {
+								child2 =  (TreeImageDisplay) j.next();
+								objects.add(
+										(DataObject) child2.getUserObject());
+							}
+							*/
+							objects.add((DataObject) child.getUserObject());
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#deleteObjects(List)
 	 */
 	public void deleteObjects(List nodes)
 	{
-		/*
-      switch (model.getState()) {
-          case READY:
-          case NEW:  
-          case LOADING_THUMBNAIL:
-              break;
-          default:
-              throw new IllegalStateException("This method should only be " +
-              "invoked in the READY or NEW state.");
-      }
-		 */
 		if (nodes == null) return;
 		Iterator i = nodes.iterator();
 		TreeImageDisplay node;
@@ -2375,31 +2419,67 @@ class TreeViewerComponent
 		DeleteBox dialog = new DeleteBox(type, ann, content, nodes.size(), ns, 
 										view);
 		if (dialog.centerMsgBox() == DeleteBox.YES_OPTION) {
-			ann = dialog.deleteAnnotations();
 			content = dialog.deleteContents();
 			List<Class> types = dialog.getAnnotationTypes();
 			i = nodes.iterator();
 			Object obj;
 			List<DeletableObject> l = new ArrayList<DeletableObject>();
-			List<TreeImageDisplay> toRemove = new ArrayList<TreeImageDisplay>();
+			//List<TreeImageDisplay> toRemove = new ArrayList<TreeImageDisplay>();
 			DeletableObject d;
+			List<DataObject> objects = new ArrayList<DataObject>();
+			List<DataObject> values = null;
+			List<Long> ids = new ArrayList<Long>();
+			Class klass = null;
 			while (i.hasNext()) {
 				node = (TreeImageDisplay) i.next();
 				obj = node.getUserObject();
-				if (obj instanceof DataObject) {
-					d = new DeletableObject((DataObject) obj, content, ann);
-					d.setAttachmentTypes(types);
+				if (obj instanceof GroupData || 
+						obj instanceof ExperimenterData) {
+					if (values == null)
+						values = new ArrayList<DataObject>(); 
+					values.add((DataObject) obj);
+					//toRemove.add(node);
+				} else if (obj instanceof DataObject) {
+					d = new DeletableObject((DataObject) obj, content);
+					if (!(obj instanceof TagAnnotationData || 
+							obj instanceof FileAnnotationData)) 
+						d.setAttachmentTypes(types);
+					checkForImages(node, objects, content);
 					l.add(d);
-					toRemove.add(node);
+					//toRemove.add(node);
 				}
+				klass = obj.getClass();
+				ids.add(((DataObject) obj).getId());
 			}
-			
 			if (l.size() > 0) {
-				model.getSelectedBrowser().removeTreeNodes(toRemove);
+				model.setNodesToCopy(null, -1);
+				EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+				bus.post(new DeleteObjectEvent(objects));
+				
+				NodesFinder finder = new NodesFinder(klass, ids);
+				Browser browser = model.getSelectedBrowser();
+				browser.accept(finder);
+				browser.removeTreeNodes(finder.getNodes());
 				view.removeAllFromWorkingPane();
 				DataBrowserFactory.discardAll();
 				model.getMetadataViewer().setRootObject(null, -1);
-				model.fireObjectsDeletion(l);
+				IconManager icons = IconManager.getInstance();
+				DeleteActivityParam p = new DeleteActivityParam(
+						icons.getIcon(IconManager.APPLY_22), l);
+				p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
+				UserNotifier un = 
+					TreeViewerAgent.getRegistry().getUserNotifier();
+				un.notifyActivity(p);
+			} 
+			if (values != null) {
+				NodesFinder finder = new NodesFinder(klass, ids);
+				Browser browser = model.getSelectedBrowser();
+				browser.accept(finder);
+				model.getSelectedBrowser().removeTreeNodes(finder.getNodes());
+				view.removeAllFromWorkingPane();
+				DataBrowserFactory.discardAll();
+				model.getMetadataViewer().setRootObject(null, -1);
+				model.fireObjectsDeletion(values);
 				fireStateChange();
 			}
 		}
@@ -2451,15 +2531,15 @@ class TreeViewerComponent
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#onNodesDeleted(Collection)
 	 */
-	public void onNodesDeleted(Collection<DeletableObject> notDeleted)
+	public void onNodesDeleted(Collection<DataObject> deleted)
 	{
 		if (model.getState() == DISCARDED) return;
-		if (notDeleted == null || notDeleted.size() == 0) {
+		if (deleted == null || deleted.size() == 0) {
 			onNodesMoved();
 			return;
 		}
 		NotDeletedObjectDialog nd = new NotDeletedObjectDialog(view, 
-								notDeleted);
+								deleted);
 		if (nd.centerAndShow() == NotDeletedObjectDialog.CLOSE)
 			onNodesMoved();
 	}
@@ -2565,7 +2645,7 @@ class TreeViewerComponent
 		int type = browser.getBrowserType();
 		List<TreeImageDisplay> parents = new ArrayList<TreeImageDisplay>();
 		TreeImageDisplay node = null;
-		if (type == Browser.PROJECT_EXPLORER || 
+		if (type == Browser.PROJECTS_EXPLORER || 
 				type == Browser.SCREENS_EXPLORER) {
 			//File chooser import.
 			node = browser.getLastSelectedDisplay();
@@ -2623,7 +2703,7 @@ class TreeViewerComponent
 		if (container instanceof DatasetData) {
 			if (selectedBrowser != null && 
 					selectedBrowser.getBrowserType() == 
-						Browser.PROJECT_EXPLORER) {
+						Browser.PROJECTS_EXPLORER) {
 				browser = selectedBrowser;
 			} else browser = null;
 		}
@@ -2697,6 +2777,7 @@ class TreeViewerComponent
 		if (finished) {
 			view.onActivityTerminated(activity);
 		} 
+		//TODO: IF DELETE ACTIVITY NEED TO CLEAN THE BROWSER.
 		firePropertyChange(IMPORTED_PROPERTY, Boolean.valueOf(!finished), 
 				Boolean.valueOf(finished));
 	}
@@ -3038,6 +3119,7 @@ class TreeViewerComponent
 		long oldGroup = model.getUserGroupID();
 		if (success) {
 			model.setGroupId(group.getId());
+			view.removeAllFromWorkingPane();
 			model.setDataViewer(null);
 			//model.resetMetadataViewer();
 			Map browsers = model.getBrowsers();
@@ -3056,11 +3138,20 @@ class TreeViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#findDataObject(Class, int)
+	 * @see TreeViewer#findDataObject(Class, int, boolean)
 	 */
-	public void findDataObject(Class type, long id)
+	public void findDataObject(Class type, long id, boolean selectTab)
 	{
-		Browser browser = model.getSelectedBrowser();
+		Browser browser = null;
+		if (selectTab) {
+			if (ProjectData.class.equals(type) || 
+					DatasetData.class.equals(type)) {
+				view.selectPane(Browser.PROJECTS_EXPLORER);
+			} else if (ScreenData.class.equals(type)) {
+				view.selectPane(Browser.SCREENS_EXPLORER);
+			}
+		}
+		browser = model.getSelectedBrowser();
 		if (browser != null) {
 			NodesFinder finder = new NodesFinder(type, id);
 			browser.accept(finder);
@@ -3090,7 +3181,6 @@ class TreeViewerComponent
 						browser.setSelectedDisplay(i.next());
 					}
 				}
-				
 			}
 		}
 	}

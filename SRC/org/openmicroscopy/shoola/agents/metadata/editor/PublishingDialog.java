@@ -228,7 +228,7 @@ class PublishingDialog
 	private void buildGUI()
 	{
 		add(movieItem);
-		add(exportAsOmeTiffItem);
+		//add(exportAsOmeTiffItem);
 		add(splitViewFigureItem);
 		add(splitViewROIFigureItem);
 		add(thumbnailsFigureItem);

@@ -33,6 +33,7 @@ import java.util.Map;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.model.ImportContext;
 import org.openmicroscopy.shoola.env.data.model.ImportObject;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
@@ -62,8 +63,6 @@ public class ImagesImporter
     /** Loads the specified tree. */
     private BatchCall   			loadCall;
     
-    /** Collection of objects to import. */
-    private List<ImportObject> images;
     
     /** The id of the user currently logged in. */
     private long 		 			userID;
@@ -71,20 +70,14 @@ public class ImagesImporter
     /** The id of the group is logged as. */
     private long 		 			groupID;
     
-    /** The container the images have to be downloaded into. */
-    private DataObject				container;
-    
     /** 
      * Map of result, key is the file to import, value is an object or a
      * string. 
      */
     private Map<File, Object> 		partialResult;
     
-    /** Flag indicating to archive the files or not. */
-    private boolean 				archived;
-    
-    /** The number of folder before the name or <code>-1</code>.. */
-    private int  					folder;
+    /** The object hosting the information for the import. */
+    private ImportContext context;
     
     /** 
      * Imports the file.
@@ -94,9 +87,10 @@ public class ImagesImporter
      * @param name	 The name of the imported image.
      * @param depth  The depth used to set the name.
      */
-    private void importFile(File f, StatusLabel status, String name, int depth)
+    private void importFile(File f, StatusLabel status, String name)
     {
     	partialResult = new HashMap<File, Object>();
+    	/*
     	OmeroImageService os = context.getImageService();
     	try {
     		Object ho = os.importImage(container, f, status, userID, groupID,
@@ -105,56 +99,61 @@ public class ImagesImporter
 		} catch (Exception e) {
 			partialResult.put(f, e);
 		}
+		*/
+    }
+
+    /** 
+     * Imports the file.
+     * 
+     * @param f 	 The file to import.
+     * @param status The element indicating the status of the import.
+     * @param name	 The name of the imported image.
+     * @param depth  The depth used to set the name.
+     */
+    private void importFolder(File f, StatusLabel status, String name)
+    {
+    	partialResult = new HashMap<File, Object>();
+    	/*
+    	OmeroImageService os = context.getImageService();
+    	try {
+    		Object ho = os.importImage(container, f, status, userID, groupID,
+    				archived, name, depth);
+    		partialResult.put(f, ho);
+		} catch (Exception e) {
+			partialResult.put(f, e);
+		}
+		*/
     }
     
     /**
-     * Creates a a {@link BatchCall} to import the images.
-     * 
-     * @param container The container where to import the images into or 
-	 * 					<code>null</code>.
-	 * @param directory	The directory to monitor. Mustn't be <code>null</code>.
-	 * @param userID	The id of the user.
-	 * @param groupID	The id of the group.
-     * @return The {@link BatchCall}.
-     */
-    private BatchCall makeBatchCall(final DataObject container, 
-    						final File directory, final long userID, 
-    						final long groupID)
-    {
-        return new BatchCall("Importing images: ") {
-            public void doCall() throws Exception
-            {
-                OmeroImageService os = context.getImageService();
-				results = os.monitor(directory.getAbsolutePath(), container, 
-						userID, groupID);
-            }
-        };
-    }
-    
-	 /**
      * Adds the {@link #loadCall} to the computation tree.
      * 
      * @see BatchCallTree#buildTree()
      */
     protected void buildTree()
     { 
-    	if (loadCall != null) {
-    		add(loadCall); 
-    	} else {
-    		ImportObject io;
-    		Iterator i = images.iterator();
-    		File ho;
-    		while (i.hasNext()) {
-				io = (ImportObject) i.next();
-				final File f = io.getFile();
-				final String name = io.getName();
-				final StatusLabel label = io.getStatus();
-				final int depth = io.getDepth();
+    	ImportObject io;
+    	
+    	List<ImportObject> files = context.getFiles();
+		Iterator<ImportObject> i = files.iterator();
+		File ho;
+		while (i.hasNext()) {
+			io = (ImportObject) i.next();
+			ho = io.getFile();
+			final String name = io.getName();
+			final StatusLabel label = io.getStatus();
+			final File f = io.getFile();
+			if (ho.isDirectory()) {
 				add(new BatchCall("Importing file") {
-            		public void doCall() { importFile(f, label, name, depth); }
-            	}); 
+	        		public void doCall() { importFolder(f, label, name); }
+	        	}); 
+			} else {
+				add(new BatchCall("Importing file") {
+	        		public void doCall() { importFile(f, label, name); }
+	        	}); 
 			}
-    	}
+			
+		}
     }
 
     /**
@@ -183,43 +182,19 @@ public class ImagesImporter
      * Creates a new instance. If bad arguments are passed, we throw a runtime
 	 * exception so to fail early and in the call.
 	 * 
-     * @param container The container where to import the images into or 
-	 * 					<code>null</code>.
-	 * @param images	The images to import. Mustn't be <code>null</code>.
+     * @param context  The object hosting the information for the import. 
+     * 					Mustn't be <code>null</code>.
 	 * @param userID	The id of the user.
 	 * @param groupID	The id of the group.
-	 * @param archived 	Pass <code>true</code> to archived the files, 
-	 * 					<code>false</code> otherwise.
      */
-    public ImagesImporter(DataObject container, List<ImportObject> images, 
-    					long userID, long groupID, boolean archived)
+    public ImagesImporter(ImportContext context, long userID, long groupID)
     {
-    	if (images == null || images.size() == 0)
-    		throw new IllegalArgumentException("No images to import.");
+    	if (context == null || context.getFiles() == null ||
+    			context.getFiles().size() == 0)
+    		throw new IllegalArgumentException("No Files to import.");
     	this.userID = userID;
     	this.groupID = groupID;
-    	this.images = images;
-    	this.container = container;
-    	this.archived = archived;
-    	//loadCall = makeBatchCall(container, images, userID, groupID);
-    }
-    
-    /**
-     * Creates a new instance. If bad arguments are passed, we throw a runtime
-	 * exception so to fail early and in the call.
-	 * 
-     * @param container The container where to import the images into or 
-	 * 					<code>null</code>.
-	 * @param directory	The directory to monitor. Mustn't be <code>null</code>.
-	 * @param userID	The id of the user.
-	 * @param groupID	The id of the group.
-     */
-    public ImagesImporter(DataObject container, File directory, 
-    					long userID, long groupID)
-    {
-    	if (directory == null)
-    		throw new IllegalArgumentException("No directory to monitor.");
-    	loadCall = makeBatchCall(container, directory, userID, groupID);
+    	this.context = context;
     }
     
 }

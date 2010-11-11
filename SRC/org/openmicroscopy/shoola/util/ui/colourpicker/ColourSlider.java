@@ -57,19 +57,19 @@ public class ColourSlider
 {	
 	
 	/**
-	 * The UI delegate of the colourslider. This wil draw the colourtrack
+	 * The UI delegate of the colour slider. This will draw the colour track
 	 * overriding the {@link BasicSliderUI#paintTrack(Graphics g)} method.
 	 */
 	private ColourSliderUI 	ui;
 	
 	/**
-	 * Static variable used to determine which colourspace the user wishes to 
+	 * Static variable used to determine which colour space the user wishes to 
 	 * use for the  slider. 
 	 */
 	final static int		HSV_COLOURSPACE = 1;
 
 	/**
-	 * Static variable used to determine which colourspace the user wishes to 
+	 * Static variable used to determine which colour space the user wishes to 
 	 * use for the  slider. 
 	 */
 	final static int		RGB_COLOURSPACE = 0;	

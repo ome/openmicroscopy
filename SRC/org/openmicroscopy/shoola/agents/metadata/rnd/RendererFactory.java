@@ -24,11 +24,11 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 
 
 //Java imports
+
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
-
 import pojos.ImageData;
 
 /** 

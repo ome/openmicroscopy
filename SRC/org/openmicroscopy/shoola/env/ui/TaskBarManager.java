@@ -33,7 +33,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -81,6 +81,9 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.login.LoginCredentials;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLoginDialog;
+import org.openmicroscopy.shoola.util.file.IOUtil;
+
+import pojos.ExperimenterData;
 
 /** 
  * Creates and manages the {@link TaskBarView}.
@@ -185,7 +188,7 @@ public class TaskBarManager
 	{
 		String message;
 		try {
-			FileInputStream fis = new FileInputStream(file);
+			InputStream fis = IOUtil.readConfigFile(file);
 			BufferedReader in = new BufferedReader(new InputStreamReader(fis));
 			StringBuffer buffer = new StringBuffer();
 			int number = 0;
@@ -244,6 +247,11 @@ public class TaskBarManager
 		} 
 	}
 	
+	/**
+	 * Handles event sent when the data has been saved.
+	 * 
+	 * @param e The event to handle.
+	 */
 	private void handleSaveEventResponse(SaveEventResponse e)
 	{
 		if (e == null) return;
@@ -273,7 +281,11 @@ public class TaskBarManager
 	{
 		Registry reg = container.getRegistry();
 		UserNotifier un = reg.getUserNotifier();
-		un.submitMessage("");
+		ExperimenterData exp = (ExperimenterData) reg.lookup(
+				LookupNames.CURRENT_USER_DETAILS);
+		String email = "";
+		if (exp != null) email = exp.getEmail();
+		un.submitMessage(email, "");
 	}
 	
 	/**
@@ -329,7 +341,7 @@ public class TaskBarManager
 			un.notifySaving(nodes, null);
 			Registry reg = container.getRegistry();
 			UserNotifierLoader loader = new SwitchUserLoader(
-					reg.getUserNotifier(), reg, map, evt.getExperimenterData(), 
+					reg.getUserNotifier(), reg, evt.getExperimenterData(), 
 					evt.getGroupID());
 			loader.load();
 		}
@@ -369,10 +381,12 @@ public class TaskBarManager
 					UserNotifierImpl un = (UserNotifierImpl) 
 					container.getRegistry().getUserNotifier();
 					un.notifySaving(nodes, this);
+					/*
 					Registry reg = container.getRegistry();
 					UserNotifierLoader loader = new SwitchUserLoader(
-							reg.getUserNotifier(), reg, map, null, -1);
+							reg.getUserNotifier(), reg, null, -1);
 					loader.load();
+					*/
 				}
 			}
 		}
@@ -394,7 +408,8 @@ public class TaskBarManager
     	//READ content of the about file.
     	String aboutFile = (String) container.getRegistry().lookup(
     			LookupNames.ABOUT_FILE);
-    	String refFile = container.resolveConfigFile(aboutFile);
+    	String refFile = container.resolveFilePath(aboutFile, 
+    			Container.CONFIG_DIR);
     	String message = loadAbout(refFile);
     	String title = (String) container.getRegistry().lookup(
     			LookupNames.SOFTWARE_NAME);
@@ -656,7 +671,7 @@ public class TaskBarManager
 		    				LookupNames.OMERODS);
 		        
 		    	String port = ""+omeroInfo.getPortSSL();
-		    	String f = container.resolveConfigFile(null);
+		    	String f = container.resolveFilePath(null, Container.CONFIG_DIR);
 
 				String n = (String) container.getRegistry().lookup(
 						LookupNames.SPLASH_SCREEN_LOGIN);

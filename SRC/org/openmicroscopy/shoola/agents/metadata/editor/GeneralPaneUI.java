@@ -25,6 +25,9 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.Cursor;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,11 +35,16 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
+import javax.swing.JViewport;
 
 //Third-party libraries
-import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.jdesktop.swingx.VerticalLayout;
@@ -45,9 +53,7 @@ import org.jdesktop.swingx.VerticalLayout;
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
-import org.openmicroscopy.shoola.util.ui.ScrollablePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 import pojos.AnnotationData;
 import pojos.DatasetData;
 import pojos.FileAnnotationData;
@@ -76,6 +82,9 @@ class GeneralPaneUI
 
 	/** The default text. */
 	private static final String			DETAILS = "'s details";
+	
+	/** The protocols title. */
+	private static final String			PROTOCOL = "Protocols and Experiments";
 	
 	/** Reference to the controller. */
 	private EditorControl				controller;
@@ -106,38 +115,20 @@ class GeneralPaneUI
 	
 	/** Collection of annotations UI components. */
 	private List<AnnotationUI>			components;
-	
-	/** Main component. */
-	private JPanel						content;
-	
-	/** The layout index of the annotation component. */
-	private int							annotationLayoutIndex;
-	
-	/** The layout index of the browser component. */
-	private int							browserIndex;
-	
-	/** The layout index of the protocols. */
-	private int							protocolsIndex;
-	
+
 	/** The component hosting the various protocols. */
-	private JXTaskPaneContainer			protocolComponent;
+	private JXTaskPane					protocolTaskPane;
 	
 	/** Collection of preview panels. */
 	private List<PreviewPanel>			previews;
 	
-	/** Collection of preview panes. */
-	private Map<JXTaskPane, Integer>	panes;
-	
-	/** The index of the taskPane, the value in layout. */
-	private Map<Integer, Double>		indexes;
-	
-	/** The default height of a <code>JXTaskPane</code>. */
-	private double						defaultProtocolHeight;
-	
 	/** Flag indicating to build the UI once. */
 	private boolean 					init;
 
-	/**
+	/** The container hosting the <code>JXTaskPane</code>. */
+	private JXTaskPaneContainer 		container;
+	
+	/**;
 	 * Loads or cancels any on-going loading of containers hosting
 	 * the edited object.
 	 * 
@@ -154,16 +145,20 @@ class GeneralPaneUI
     /** Initializes the UI components. */
 	private void initComponents()
 	{
-		content = new ScrollablePanel();
+		container  = new JXTaskPaneContainer();
+		container.setBackground(UIUtilities.BACKGROUND);
+		if (container.getLayout() instanceof VerticalLayout) {
+			VerticalLayout vl = (VerticalLayout) container.getLayout();
+			vl.setGap(0);
+		}
 		if (model.getBrowser() != null) {
 			browserTaskPane = EditorUtil.createTaskPane(Browser.TITLE);
 			browserTaskPane.add(model.getBrowser().getUI());
 			browserTaskPane.addPropertyChangeListener(controller);
 		}
 		
-		protocolComponent = new JXTaskPaneContainer();
-		protocolComponent.setLayout(new VerticalLayout(2));
-		protocolComponent.setBackground(UIUtilities.BACKGROUND);
+		protocolTaskPane = EditorUtil.createTaskPane(PROTOCOL);
+		
 		propertiesUI = new PropertiesUI(model, controller);
 		textualAnnotationsUI = new TextualAnnotationsUI(model, controller);
 		annotationUI = new AnnotationDataUI(model, controller);
@@ -178,75 +173,44 @@ class GeneralPaneUI
 											controller);
 		}
 		previews = new ArrayList<PreviewPanel>();
-		panes = new HashMap<JXTaskPane, Integer>(); 
-		indexes = new HashMap<Integer, Double>(); 
 		propertiesTaskPane = EditorUtil.createTaskPane("");
 		propertiesTaskPane.setCollapsed(false);
 		propertiesTaskPane.add(propertiesUI);
 		annotationTaskPane = EditorUtil.createTaskPane("Annotations");
 		annotationTaskPane.setCollapsed(false);
 		JPanel p = new JPanel();
-		p.setBackground(UIUtilities.BACKGROUND);
-		double[][]	size = {{TableLayout.FILL}, 
-			{TableLayout.PREFERRED, 5, TableLayout.PREFERRED}};
-		p.setLayout(new TableLayout(size));
-		p.add(annotationUI, "0, 0");
-		p.add(textualAnnotationsUI, "0, 2");
+		p.setBackground(UIUtilities.BACKGROUND_COLOR);
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		p.add(annotationUI);
+		p.add(textualAnnotationsUI);
 		annotationTaskPane.add(p);
 	}
 	
 	/** Builds and lays out the components. */
 	private void buildGUI()
 	{
-		content.setBackground(UIUtilities.BACKGROUND);
-		double[][]	size = {{TableLayout.FILL}, 
-				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5, 
-				TableLayout.PREFERRED, 0, 5, 0}};
-		int i = 0;
-		content.setLayout(new TableLayout(size));
-		content.add(propertiesTaskPane, "0, "+i);
-		i = i+2;
-		annotationLayoutIndex = i;
-		content.add(annotationTaskPane, "0, "+i);
-		i = i+2;
-		protocolsIndex = i;
-		content.add(protocolComponent, "0, "+i);
-		i = i+2;
-		browserIndex = i;
-		content.add(browserTaskPane, "0, "+i);
-		getViewport().add(content);
-		getViewport().setBackground(UIUtilities.BACKGROUND_COLOR);
-	}
-    
-	/**
-	 * Returns <code>true</code> if the passed value corresponds to
-	 * a name space for <code>Editor</code>.
-	 * 
-	 * @param nameSpace The value to handle.
-	 * @return See above.
-	 */
-	private boolean isEditorFile(String nameSpace)
-	{
-		return (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(nameSpace) ||
-				FileAnnotationData.EDITOR_PROTOCOL_NS.equals(nameSpace));
+		container.add(propertiesTaskPane);
+		container.add(annotationTaskPane);
+		JViewport viewport = getViewport();
+		viewport.add(container);
+		viewport.setBackground(UIUtilities.BACKGROUND_COLOR);
 	}
 	
 	/** 
-	 * Lays out the protocols files. Returns the number of protocol files.
+	 * Lays out the protocols files. Returns the components hosting the 
+	 * files.
 	 * 
 	 * @return See above.
 	 */
-	private int buildProtocolTaskPanes()
+	private JXTaskPaneContainer buildProtocolTaskPanes()
 	{
 		Collection list = model.getAttachments();
-		protocolComponent.removeAll();
-		
-		TableLayout layout = new TableLayout();
-		double[] size = {TableLayout.FILL};
-		layout.setColumn(size);
-		
-		//protocolComponent.setLayout(layout);
-		if (list.size() == 0) return 0;
+		if (list.size() == 0) return null;
+		JXTaskPaneContainer paneContainer = new JXTaskPaneContainer();
+		VerticalLayout vl = (VerticalLayout) paneContainer.getLayout();
+		vl.setGap(0);
+		paneContainer.setBackground(UIUtilities.BACKGROUND_COLOR);
+
 		Iterator i = list.iterator();
 		FileAnnotationData fa;
 		JXTaskPane pane;
@@ -255,14 +219,13 @@ class GeneralPaneUI
 		String ns;
 		int index = 0;
 		previews.clear();
-		panes.clear();
-		protocolComponent.setBorder(
-				new TitledLineBorder("Protocols and Experiments"));
-		
+		boolean b;
 		while (i.hasNext()) {
 			fa = (FileAnnotationData) i.next();
 			ns = fa.getNameSpace();
-			if (fa.getId() > 0 && isEditorFile(ns)) {
+			b = annotationUI.isEditorFile(fa.getFileName());
+			if (!b) b = annotationUI.isEditorFile(ns);
+			if (fa.getId() > 0 && b) {
 				description = fa.getDescription();
 				if (description != null) {
 					preview = new PreviewPanel(description, fa.getId());
@@ -270,22 +233,14 @@ class GeneralPaneUI
 					preview.addPropertyChangeListener(controller);
 					pane = EditorUtil.createTaskPane(fa.getFileName());
 					pane.addPropertyChangeListener(controller);
-					defaultProtocolHeight = 
-						pane.getMinimumSize().getHeight()/2+5;
-					panes.put(pane, index);
-					indexes.put(index, defaultProtocolHeight);
-					
 					pane.add(preview);
-					//layout.insertRow(index, defaultProtocolHeight);
-					protocolComponent.add(pane, "0, "+index);
+					paneContainer.add(pane);
 					index++;
-					//layout.insertRow(index, 5);
-					//protocolComponent.add(new JLabel(), "0, "+index);
-					//index++;
 				}
 			}
 		}
-		return index;
+		if (index == 0) return null;
+		return paneContainer;
 	}
 	
 	/**
@@ -324,7 +279,9 @@ class GeneralPaneUI
 		textualAnnotationsUI.buildUI();
 		propertiesTaskPane.setTitle(propertiesUI.getText()+DETAILS);
 
-		TableLayout layout = (TableLayout) content.getLayout();
+	
+		//TableLayout layout = (TableLayout) content.getLayout();
+		
 		double h = 0;
 		String s = "";
 		boolean multi = model.isMultiSelection();
@@ -336,23 +293,23 @@ class GeneralPaneUI
 				browserTaskPane.setCollapsed(true);
 			} else {
 				if (!multi) {
-					h = TableLayout.PREFERRED;
+					h = 1;
 					s = "Contained in Tag Sets";
 				}
 			}
 		} else if (refObject instanceof FileAnnotationData) {
 			if (!multi) {
-				h = TableLayout.PREFERRED;
+				h = 1;
 				s = "Attached to...";
 			}
 		} else if (refObject instanceof DatasetData) {
 			if (!multi) {
-				h = TableLayout.PREFERRED;
+				h = 1;
 				s = "Contained in Projects";
 			}
 		} else if (refObject instanceof ImageData) {
 			if (!multi) {
-				h = TableLayout.PREFERRED;
+				h = 1;
 				s = "Contained in Datasets";
 				controller.loadChannelData();
 			}
@@ -364,16 +321,21 @@ class GeneralPaneUI
 			browserTaskPane.setCollapsed(true);
 		}
 		browserTaskPane.setTitle(s);
-		content.remove(browserTaskPane);
 		
-		if (h != 0.0) 
-			content.add(browserTaskPane, "0, "+browserIndex);
-		int n = buildProtocolTaskPanes();
-		double hp = 0;
-		if (n > 0) hp = TableLayout.PREFERRED;
-		layout.setRow(protocolsIndex, hp);
-		if (h != 0.0 && !browserTaskPane.isCollapsed()) 
-			loadParents(true);
+		container.remove(protocolTaskPane);
+		container.remove(browserTaskPane);
+		protocolTaskPane.removeAll();
+		JComponent n = buildProtocolTaskPanes();
+		if (n != null) {
+			protocolTaskPane.add(n);
+			container.add(protocolTaskPane);
+		}
+			
+		if (h > 0) {
+			container.add(browserTaskPane);
+			if (!browserTaskPane.isCollapsed())
+				loadParents(true);
+		}
 	}
 	
 	/** 
@@ -428,26 +390,32 @@ class GeneralPaneUI
     	textualAnnotationsUI.clearDisplay();
     	propertiesUI.buildUI();
     	Object uo = model.getRefObject();
-    	TableLayout layout = (TableLayout) content.getLayout();
-    	if (uo instanceof AnnotationData) { //hide everything
-    		layout.setRow(annotationLayoutIndex, 0);
-    		layout.setRow(browserIndex, 0);
-    	} else {
-    		layout.setRow(annotationLayoutIndex, TableLayout.PREFERRED);
-    		if (model.isMultiSelection()) layout.setRow(browserIndex, 0);
-    		else layout.setRow(browserIndex, TableLayout.PREFERRED);
-    	}
+    	
+    	int annotation = 0;
+    	int browser = 0;
+    	if (!(uo instanceof AnnotationData)) { //hide everything
+    		annotation = 1;
+    		if (!model.isMultiSelection()) browser = 1;
+    	} 
     	if (uo instanceof FileAnnotationData) {
-    		if (model.isMultiSelection()) layout.setRow(browserIndex, 0);
-    		else layout.setRow(browserIndex, TableLayout.PREFERRED);
+    		if (!model.isMultiSelection()) browser = 1;
     	} else if (uo instanceof TagAnnotationData) {
 			TagAnnotationData tag = (TagAnnotationData) uo;
 			if (!TagAnnotationData.INSIGHT_TAGSET_NS.equals(
 					tag.getNameSpace())) {
-				if (model.isMultiSelection()) layout.setRow(browserIndex, 0);
-	    		else layout.setRow(browserIndex, TableLayout.PREFERRED);
+				if (!model.isMultiSelection()) browser = 1;
 			}
 		}
+		container.remove(annotationTaskPane);
+		container.remove(protocolTaskPane);
+		container.remove(browserTaskPane);
+		if (annotation > 0) 
+			container.add(annotationTaskPane);
+		if (protocolTaskPane.getComponentCount() > 0)
+			container.add(protocolTaskPane);
+		if (browser > 0) 
+			container.add(browserTaskPane);
+			
 		revalidate();
     	repaint();
 	}
@@ -528,38 +496,17 @@ class GeneralPaneUI
 		if (source == null) return;
 		if  (source.equals(browserTaskPane)) 
 			loadParents(!browserTaskPane.isCollapsed());
-		else {
-			/*
-			if (panes.size() == 0) return;
-			Iterator i = panes.entrySet().iterator();
-			Entry entry;
-			JXTaskPane pane;
-			int index;
-			double h;
-			TableLayout layout = (TableLayout) protocolComponent.getLayout();
-			while (i.hasNext()) {
-				entry = (Entry) i.next();
-				pane = (JXTaskPane) entry.getKey();
-				index = (Integer) entry.getValue();
-				if (pane == source) {
-					if (pane.isCollapsed()) h = defaultProtocolHeight;
-					else h = TableLayout.PREFERRED;
-					indexes.put(index, h);	
-					layout.setRow(index, h);
-				}
-			}
-			protocolComponent.validate();
-			protocolComponent.repaint();
-			*/
-		}
 	}
 
 	/**
 	 * Attaches the passed file.
+	 * Returns <code>true</code> if the file
+	 * does not already exist, <code>false</code> otherwise.
 	 * 
 	 * @param file The file to attach.
+	 * @return See above
 	 */
-	void attachFile(File file) { annotationUI.attachFile(file); }
+	boolean attachFile(File file) { return annotationUI.attachFile(file); }
 
 	/**
 	 * Removes the passed file from the display.
@@ -569,6 +516,26 @@ class GeneralPaneUI
 	void removeAttachedFile(Object file)
 	{ 
 		annotationUI.removeAttachedFile(file);
+	}
+	
+	/**
+	 * Returns the collection of attachments.
+	 * 
+	 * @return See above.
+	 */
+	List<FileAnnotationData> removeAttachedFiles()
+	{
+		return annotationUI.removeAttachedFiles();
+	}
+	
+	/**
+	 * Returns the collection of tags.
+	 * 
+	 * @return See above.
+	 */
+	List<TagAnnotationData> removeTags()
+	{
+		return annotationUI.removeTags();
 	}
 	
 	/**
@@ -591,7 +558,7 @@ class GeneralPaneUI
 	void handleObjectsSelection(Class type, Collection objects)
 	{
 		if (objects == null) return;
-		annotationUI.handleObjectsSelection(type, objects);
+		annotationUI.handleObjectsSelection(type, objects, true);
 	}
 	
 }

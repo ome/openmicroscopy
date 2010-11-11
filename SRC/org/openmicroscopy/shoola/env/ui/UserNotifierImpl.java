@@ -40,6 +40,7 @@ import javax.swing.JFrame;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.data.model.AnalysisActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
+import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadArchivedActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
@@ -304,12 +305,13 @@ public class UserNotifierImpl
 
     /** 
      * Implemented as specified by {@link UserNotifier}. 
-     * @see UserNotifier#submitMessage(String)
+     * @see UserNotifier#submitMessage(String, String)
      */ 
-	public void submitMessage(String email)
+	public void submitMessage(String email, String comment)
 	{
 		MessengerDialog d = manager.getCommentDialog(SHARED_FRAME, 
 				getEmail(email));
+		d.setComment(comment);
 		UIUtilities.centerAndShow(d);
 	}
 
@@ -330,7 +332,8 @@ public class UserNotifierImpl
 			comp = new ExportActivity(this, manager.getRegistry(), p);
 		} else if (activity instanceof DownloadActivityParam) {
 			DownloadActivityParam p = (DownloadActivityParam) activity;
-			register = (p.getApplicationData() == null);
+			if (p.getResults() != null) register = false;
+			else register = (p.getApplicationData() == null);
 			comp = new DownloadActivity(this, manager.getRegistry(), p);
 		} else if (activity instanceof FigureActivityParam) {
 			FigureActivityParam p = (FigureActivityParam) activity;
@@ -347,7 +350,12 @@ public class UserNotifierImpl
 				(DownloadArchivedActivityParam) activity;
 			comp = new DownloadArchivedActivity(this, manager.getRegistry(),
 					p);
-		}
+		} else if (activity instanceof DeleteActivityParam) {
+			DeleteActivityParam p = (DeleteActivityParam) activity;
+			comp = new DeleteActivity(this, manager.getRegistry(),
+					p);
+			
+		} 
 		if (comp != null) {
 			UserNotifierLoader loader = comp.createLoader();
 			if (loader == null) return;

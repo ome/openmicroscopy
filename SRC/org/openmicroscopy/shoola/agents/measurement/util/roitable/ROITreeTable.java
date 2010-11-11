@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.Vector;
 
@@ -79,7 +80,7 @@ public class ROITreeTable
 	private List<AnnotationField>			fields;
 	
 	/** The map to relate ROI to ROITreeNodes. */
-	private HashMap<ROI, ROITreeNode> ROIMap;
+	private Map<ROI, ROITreeNode> ROIMap;
 	
 	/** The tree model. */
 	private ROITreeTableModel	model;
@@ -90,7 +91,8 @@ public class ROITreeTable
 	 * @param model the table model.
 	 * @param columnNames the column names.
 	 */
-	public ROITreeTable(ROITreeTableModel model, Vector columnNames, List<AnnotationField> fields)
+	public ROITreeTable(ROITreeTableModel model, Vector columnNames, 
+			List<AnnotationField> fields)
 	{
 		super(model);
 		this.model = model;
@@ -115,7 +117,8 @@ public class ROITreeTable
 	 * and will represent an annotation in the ROI, ROIShape. 
 	 * @param newFields see above.
 	 */
-	public void setFields(Vector<String> columnNames, List<AnnotationField> newFields)
+	public void setFields(Vector<String> columnNames, 
+			List<AnnotationField> newFields)
 	{
 		fields = newFields;
 	}
@@ -137,9 +140,9 @@ public class ROITreeTable
 		ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
 		
 		Iterator<ROIShape> shapeIterator = shapeMap.values().iterator();
-		while(shapeIterator.hasNext())
+		while (shapeIterator.hasNext())
 			shapeList.add(shapeIterator.next());
-		if(shapeList.size()==0)
+		if (shapeList.size() == 0)
 			return;
 		addROIShapeList(shapeList);
 	}
@@ -154,7 +157,7 @@ public class ROITreeTable
 	 */
 	public void addROIShape(ROIShape shape)
 	{
-		ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
+		List<ROIShape> shapeList = new ArrayList<ROIShape>();
 		shapeList.add(shape);
 		addROIShapeList(shapeList);
 	}
@@ -168,13 +171,13 @@ public class ROITreeTable
 	 * the ROIShape. 
 	 * @param shapeList see above.
 	 */
-	public void addROIShapeList(ArrayList<ROIShape> shapeList)
+	public void addROIShapeList(List<ROIShape> shapeList)
 	{
 		ROITreeNode parent=null;
-		for(ROIShape shape : shapeList)
+		for (ROIShape shape : shapeList)
 		{
 			parent = findParent(shape.getROI());
-			if(parent == null)
+			if (parent == null)
 			{
 				parent = new ROITreeNode(shape.getROI());
 				parent.setExpanded(true);
@@ -185,17 +188,19 @@ public class ROITreeTable
 			ROITreeNode roiShapeNode = parent.findChild(shape.getCoord3D());
 			ROITreeNode newNode = new ROITreeNode(shape);
 			newNode.setExpanded(true);
-			if(roiShapeNode != null)
+			if (roiShapeNode != null)
 			{
 				int index = parent.getIndex(roiShapeNode);
 				parent.remove(shape.getCoord3D());
 				parent.insert(newNode, index);
 			}
 			else
-				parent.insert(newNode, parent.getInsertionPoint(shape.getCoord3D()));
+				parent.insert(newNode, 
+						parent.getInsertionPoint(shape.getCoord3D()));
 		}
-		this.setTreeTableModel(new ROITreeTableModel(root, columnNames, fields));
-		if(parent!=null)
+		this.setTreeTableModel(
+				new ROITreeTableModel(root, columnNames, fields));
+		if (parent != null)
 			expandROIRow(parent);
 	}
 	
@@ -208,9 +213,10 @@ public class ROITreeTable
 	public void clear()
 	{
 		int childCount = root.getChildCount();
-		for(int i = 0 ; i < childCount ; i++ )
+		for (int i = 0 ; i < childCount ; i++ )
 			root.remove(0);
-		this.setTreeTableModel(new ROITreeTableModel(root, columnNames, fields));
+		this.setTreeTableModel(new ROITreeTableModel(root, 
+				columnNames, fields));
 		ROIMap = new HashMap<ROI, ROITreeNode>();
 		this.invalidate();
 		this.repaint();
@@ -224,13 +230,14 @@ public class ROITreeTable
 	public void removeROIShape(ROIShape shape)
 	{
 		ROITreeNode parent = findParent(shape.getROI());
-		if(parent == null)
+		if (parent == null)
 			return;
 		ROITreeNode child = parent.findChild(shape);
 		parent.remove(child);
 		if(parent.getChildCount()==0)
 			root.remove(parent);
-		this.setTreeTableModel(new ROITreeTableModel(root, columnNames, fields));
+		this.setTreeTableModel(
+				new ROITreeTableModel(root, columnNames, fields));
 	}
 
 	/**
@@ -241,7 +248,8 @@ public class ROITreeTable
 	{
 		ROITreeNode ROITreeNode = findParent(roi);
 		root.remove(ROITreeNode);
-		this.setTreeTableModel(new ROITreeTableModel(root, columnNames, fields));
+		this.setTreeTableModel(
+				new ROITreeTableModel(root, columnNames, fields));
 	}
 	
 	/* FIND METHODS. */
@@ -253,7 +261,7 @@ public class ROITreeTable
 	 */
 	public ROITreeNode findParent(ROI roi)
 	{
-		if(ROIMap.containsKey(roi))
+		if (ROIMap.containsKey(roi))
 			return ROIMap.get(roi);
 		return null;
 	}
@@ -268,10 +276,10 @@ public class ROITreeTable
 	public ROIShape getROIShapeAtRow(int index)
 	{
 		TreePath path = this.getPathForRow(index);
-		if(path==null) return null;
-		ROITreeNode node = (ROITreeNode)path.getLastPathComponent();
-		if(node.getUserObject() instanceof ROIShape)
-			return (ROIShape)node.getUserObject();
+		if (path == null) return null;
+		ROITreeNode node = (ROITreeNode) path.getLastPathComponent();
+		if (node.getUserObject() instanceof ROIShape)
+			return (ROIShape) node.getUserObject();
 		return null;
 	}
 	
@@ -283,14 +291,14 @@ public class ROITreeTable
 	public ROI getROIAtRow(int index)
 	{
 		TreePath path = this.getPathForRow(index);
-		ROITreeNode node = (ROITreeNode)path.getLastPathComponent();
-		if(node.getUserObject() instanceof ROI)
-			return (ROI)node.getUserObject();
+		ROITreeNode node = (ROITreeNode) path.getLastPathComponent();
+		if (node.getUserObject() instanceof ROI)
+			return (ROI) node.getUserObject();
 		return null;
 	}
 	
-	/** is this column the shapeType column.
-	 * @param column see above
+	/** 
+	 * Returns <code>true</code> if the column is hosting a shape.
 	 * @return see above 
 	 */
 	public boolean isShapeTypeColumn(int column)
@@ -315,20 +323,20 @@ public class ROITreeTable
 		ROITreeNode node = (ROITreeNode)getNodeAtRow(row);
 		super.setValueAt(obj, row, column);
 		ROITreeNode expandNode;
-		if(node.getUserObject() instanceof ROI)
+		if (node.getUserObject() instanceof ROI)
 		{
-			ROI roi = (ROI)node.getUserObject();
+			ROI roi = (ROI) node.getUserObject();
 			expandNode = node;
-			if(roi.isVisible())
+			if (roi.isVisible())
 				expandROIRow(expandNode);
 			else
 				collapseROIRow(expandNode);
 		}
 		else
 		{
-			expandNode = (ROITreeNode)node.getParent();
-			ROIShape roiShape = (ROIShape)node.getUserObject();
-			if(roiShape.getROI().isVisible())
+			expandNode = (ROITreeNode) node.getParent();
+			ROIShape roiShape = (ROIShape) node.getUserObject();
+			if (roiShape.getROI().isVisible())
 				expandROIRow(expandNode);
 			else
 				collapseROIRow(expandNode);
@@ -343,11 +351,10 @@ public class ROITreeTable
 	 */
 	public void expandNode(ROITreeNode node)
 	{
-		if(node.getUserObject() instanceof ROI)
+		if (node.getUserObject() instanceof ROI)
 			expandROIRow((ROI)node.getUserObject());
 	}
-	
-	
+
 	/** 
 	 * Expand the row with node parent.
 	 * @param parent see above.
@@ -358,7 +365,7 @@ public class ROITreeTable
 		parent.setExpanded(true);
 		this.expandRow(addedNodeIndex);
 		ROITreeNode node;
-		for (int i=0; i<root.getChildCount(); i++)
+		for (int i = 0; i < root.getChildCount(); i++)
 		{
 				node = (ROITreeNode) root.getChildAt(i);
 				if (node.isExpanded()) 
@@ -403,7 +410,7 @@ public class ROITreeTable
 	public void scrollToROIShape(ROIShape shape)
 	{
 		ROITreeNode parent = findParent(shape.getROI());
-		if(parent == null)
+		if (parent == null)
 			return;
 		expandROIRow(parent);
 		ROITreeNode child = parent.findChild(shape);
@@ -453,7 +460,7 @@ public class ROITreeTable
 	public void selectROIShape(ROIShape shape)
 	{
 		ROITreeNode parent = findParent(shape.getROI());
-		if(parent == null)
+		if (parent == null)
 			return;
 		expandROIRow(parent);
 		ROITreeNode child = parent.findChild(shape);
@@ -470,12 +477,12 @@ public class ROITreeTable
 	public void selectROI(ROI roi)
 	{
 		ROITreeNode parent = findParent(roi);
-		if(parent == null)
+		if (parent == null)
 			return;
 		expandROIRow(parent);
 		List<MutableTreeTableNode> childList = parent.getChildList();
-		for(MutableTreeTableNode child : childList)
-			selectROIShape((ROIShape)((ROITreeNode)child).getUserObject());
+		for (MutableTreeTableNode child : childList)
+			selectROIShape((ROIShape) ((ROITreeNode) child).getUserObject());
 	}	
 	
 	/**
@@ -483,14 +490,15 @@ public class ROITreeTable
 	 * This will only list an roi even if the roi and roishapes are selected.
 	 * @return see above.
 	 */
-	public ArrayList getSelectedObjects()
+	public List getSelectedObjects()
 	{
 		int [] selectedRows = this.getSelectedRows();
 		TreeMap<Long, Object> roiMap = new TreeMap<Long, Object>(); 
-		ArrayList selectedList = new ArrayList();
+		List selectedList = new ArrayList();
 		for(int i = 0 ; i < selectedRows.length ; i++)
 		{	
-			Object nodeObject = this.getNodeAtRow(selectedRows[i]).getUserObject();
+			Object nodeObject = this.getNodeAtRow(
+					selectedRows[i]).getUserObject();
 			if(nodeObject instanceof ROI)
 			{
 				ROI roi = (ROI)nodeObject;
@@ -498,13 +506,14 @@ public class ROITreeTable
 				selectedList.add(roi);
 			}
 		}
-		for(int i = 0 ; i < selectedRows.length ; i++)
+		for (int i = 0 ; i < selectedRows.length ; i++)
 		{	
-			Object nodeObject = this.getNodeAtRow(selectedRows[i]).getUserObject();
+			Object nodeObject = this.getNodeAtRow(
+					selectedRows[i]).getUserObject();
 			if (nodeObject instanceof ROIShape)
 			{
-				ROIShape roiShape = (ROIShape)nodeObject;
-				if(!roiMap.containsKey(roiShape.getID()))
+				ROIShape roiShape = (ROIShape) nodeObject;
+				if (!roiMap.containsKey(roiShape.getID()))
 					selectedList.add(roiShape);
 			}
 		}
@@ -516,26 +525,29 @@ public class ROITreeTable
 	 * into their respective ROIshapes. 
 	 * @return see above.
 	 */
-	public ArrayList<ROIShape> getSelectedROIShapes()
+	public List<ROIShape> getSelectedROIShapes()
 	{
 		int [] selectedRows = this.getSelectedRows();
 		TreeMap<Long, Object> roiMap = new TreeMap<Long, Object>(); 
-		ArrayList<ROIShape> selectedList = new ArrayList<ROIShape>();
+		List<ROIShape> selectedList = new ArrayList<ROIShape>();
 		for(int i = 0 ; i < selectedRows.length ; i++)
 		{	
-			Object nodeObject = this.getNodeAtRow(selectedRows[i]).getUserObject();
-			if(nodeObject instanceof ROI)
+			Object nodeObject = this.getNodeAtRow(
+					selectedRows[i]).getUserObject();
+			if (nodeObject instanceof ROI)
 			{
-				ROI roi = (ROI)nodeObject;
+				ROI roi = (ROI) nodeObject;
 				roiMap.put(roi.getID(), roi);
-				Iterator<ROIShape> shapeIterator = roi.getShapes().values().iterator();
+				Iterator<ROIShape> shapeIterator = 
+					roi.getShapes().values().iterator();
 				while(shapeIterator.hasNext())
 					selectedList.add(shapeIterator.next());
 			}
 		}
 		for(int i = 0 ; i < selectedRows.length ; i++)
 		{	
-			Object nodeObject = this.getNodeAtRow(selectedRows[i]).getUserObject();
+			Object nodeObject = this.getNodeAtRow(
+					selectedRows[i]).getUserObject();
 			if (nodeObject instanceof ROIShape)
 			{
 				ROIShape roiShape = (ROIShape)nodeObject;
@@ -557,18 +569,19 @@ public class ROITreeTable
 	 */
 	public TreeMap<Coord3D, ROIShape> buildPlaneMap(ArrayList objectList)
 	{
-		TreeMap<Coord3D, ROIShape> planeMap = new TreeMap<Coord3D, ROIShape>(new Coord3D());
-		for(Object node : objectList)
+		TreeMap<Coord3D, ROIShape> planeMap = new TreeMap<Coord3D, ROIShape>
+		(new Coord3D());
+		for (Object node : objectList)
 		{
-			if(node instanceof ROI)
+			if (node instanceof ROI)
 			{
-				ROI roi = (ROI)node;
+				ROI roi = (ROI) node;
 				TreeMap<Coord3D, ROIShape> shapeMap =  roi.getShapes();
 				Iterator<Coord3D> coordIterator = shapeMap.keySet().iterator();
-				while(coordIterator.hasNext())
+				while (coordIterator.hasNext())
 				{
 					Coord3D coord = coordIterator.next();
-					if(planeMap.containsKey(coord))
+					if (planeMap.containsKey(coord))
 						return null;
 					planeMap.put(coord, shapeMap.get(coord));
 				}
@@ -589,18 +602,18 @@ public class ROITreeTable
 	 * @param selectedObjects
 	 * @return see above.
 	 */
-	public ArrayList<Long> getIDList(ArrayList selectedObjects)
+	public List<Long> getIDList(List selectedObjects)
 	{
 		TreeMap<Long,ROI> idMap = new TreeMap<Long, ROI>();
-		ArrayList<Long> idList = new ArrayList<Long>();
-		for(Object node : selectedObjects)
+		List<Long> idList = new ArrayList<Long>();
+		for (Object node : selectedObjects)
 		{
 			ROI roi;
-			if(node instanceof ROI)
+			if (node instanceof ROI)
 				roi = (ROI)node;
 			else
 				roi = ((ROIShape)node).getROI();
-			if(!idMap.containsKey(roi.getID()))
+			if (!idMap.containsKey(roi.getID()))
 			{
 				idMap.put(roi.getID(), roi);
 				idList.add(roi.getID());
@@ -616,10 +629,11 @@ public class ROITreeTable
 	 */
 	public boolean onSeparatePlanes(ArrayList<ROIShape> shapeList)
 	{
-		TreeMap<Coord3D, ROIShape> shapeMap = new TreeMap<Coord3D, ROIShape>(new Coord3D());
-		for(ROIShape shape : shapeList)
+		TreeMap<Coord3D, ROIShape> 
+		shapeMap = new TreeMap<Coord3D, ROIShape>(new Coord3D());
+		for (ROIShape shape : shapeList)
 		{
-			if(shapeMap.containsKey(shape.getCoord3D()))
+			if (shapeMap.containsKey(shape.getCoord3D()))
 				return false;
 			else
 				shapeMap.put(shape.getCoord3D(), shape);
@@ -635,11 +649,11 @@ public class ROITreeTable
 	public boolean haveSameID(ArrayList<ROIShape> shapeList)
 	{
 		TreeMap<Long, ROIShape> shapeMap = new TreeMap<Long, ROIShape>();
-		for(ROIShape shape : shapeList)
+		for (ROIShape shape : shapeList)
 		{
-			if(!shapeMap.containsKey(shape.getID()))
+			if (!shapeMap.containsKey(shape.getID()))
 			{
-				if(shapeMap.size()==0)
+				if (shapeMap.size() == 0)
 					shapeMap.put(shape.getID(), shape);
 				else
 					return false;
@@ -657,13 +671,13 @@ public class ROITreeTable
 	public long getSameID(ArrayList<ROIShape> shapeList)
 	{
 		TreeMap<Long, ROIShape> shapeMap = new TreeMap<Long, ROIShape>();
-		if(shapeList.size()==0)
+		if (shapeList.size() == 0)
 			return -1;
-		for(ROIShape shape : shapeList)
+		for (ROIShape shape : shapeList)
 		{
-			if(!shapeMap.containsKey(shape.getID()))
+			if (!shapeMap.containsKey(shape.getID()))
 			{
-				if(shapeMap.size()==0)
+				if (shapeMap.size() == 0)
 					shapeMap.put(shape.getID(), shape);
 				else
 					return -1;
@@ -680,23 +694,23 @@ public class ROITreeTable
 	 */
 	public boolean shapesInSameROI(ArrayList shapeList)
 	{
-		long id=-1;
-		if(shapeList.size() == 0)
+		long id = -1;
+		if (shapeList.size() == 0)
 			return false;
 		boolean first = true;
-		for(Object node : shapeList)
+		for (Object node : shapeList)
 		{
-			if(node instanceof ROI)
+			if (node instanceof ROI)
 				return false;
-			else if(node instanceof ROIShape)
+			else if (node instanceof ROIShape)
 			{
 				ROIShape shape = (ROIShape)node;
-				if(first)
+				if (first)
 				{
 					id = shape.getID();
 					first = false;
 				}
-				if(id != shape.getID())
+				if (id != shape.getID())
 					return false;
 			}
 		}

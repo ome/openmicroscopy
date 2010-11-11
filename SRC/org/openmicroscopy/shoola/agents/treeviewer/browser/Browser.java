@@ -82,12 +82,6 @@ public interface Browser
      */
     static final int                IN_DATASET_FILTER = 201;
     
-    /**
-     * Indicates that the images contained in the selected categories are 
-     * retrieved if the view is {@link #IMAGES_EXPLORER}.
-     */
-    static final int                IN_CATEGORY_FILTER = 202;
-    
     /** Flag to denote the <i>New</i> state. */
     public static final int     	NEW = 10;
     
@@ -113,7 +107,7 @@ public interface Browser
      * Indicates that the browser corresponds to an <code>Hierarchy</code>
      * explorer.
      */
-    public static final int     	PROJECT_EXPLORER = 100;
+    public static final int     	PROJECTS_EXPLORER = 100;
     
     /** 
      * Indicates that the browser corresponds to an <code>Images</code>
@@ -188,7 +182,7 @@ public interface Browser
     public static final String  	FILE_FORMATS_PROPERTY = "fileFormats";
   
     /** 
-     * The browser's title corresponding to {@link #PROJECT_EXPLORER} type.
+     * The browser's title corresponding to {@link #PROJECTS_EXPLORER} type.
      */
     public static final String     HIERARCHY_TITLE = "Hierarchies";//"Projects";
 
@@ -681,7 +675,7 @@ public interface Browser
 	void refreshBrowser();
 	
 	/** Removes the passed nodes from the display. */
-	void removeTreeNodes(List<TreeImageDisplay> nodes);
+	void removeTreeNodes(Collection<TreeImageDisplay> nodes);
 	
 	/** 
 	 * Removes all the data from the display
@@ -757,5 +751,20 @@ public interface Browser
 	 * @param id   The identifier of the object.
 	 */
 	void refreshBrowser(Class type, long id);
+	
+    /**
+     * Adds the component under the tree. This method should only be invoked
+     * if the browser is displayed Screening data.
+     * 
+     * @param component The component to add.
+     */
+	void addComponent(JComponent component);
+	
+	/**
+	 * Loads the files contained in the passed folder.
+	 * 
+	 * @param display The directory.
+	 */
+	void loadDirectory(TreeImageDisplay display);
 	
 }

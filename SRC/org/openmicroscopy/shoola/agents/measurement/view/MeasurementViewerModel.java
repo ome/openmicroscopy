@@ -63,6 +63,8 @@ import org.openmicroscopy.shoola.agents.measurement.WorkflowSaver;
 import org.openmicroscopy.shoola.agents.measurement.util.FileMap;
 import pojos.WorkflowData;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.env.data.DSAccessException;
+import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -74,6 +76,7 @@ import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureMaskFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -85,6 +88,7 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
 import pojos.ChannelData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
+import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.ROIData;
 
@@ -192,6 +196,12 @@ class MeasurementViewerModel
 	/** Flag indicating if the tool is for HCS data. */
 	private boolean					HCSData;
 	
+	/** Collection of ROIs to delete. */
+	private List<ROI>				roiToDelete;
+	
+	/** Flag indicating that the current user can deleted the ROI. */
+	private boolean					dataToDelete;
+	
     /** 
 	 * Sorts the passed nodes by row.
 	 * 
@@ -230,6 +240,28 @@ class MeasurementViewerModel
 			AnnotationKeys.TEXT.set(shape, 
 				MeasurementAttributes.TEXT.get(figure));
 		}
+	}
+	
+	/** Checks the user currently logged in has ROI to delete. */
+	private void checkIfHasROIToDelete()
+	{
+		if (dataToDelete) return;
+		ExperimenterData exp = 
+			(ExperimenterData) MeasurementAgent.getUserDetails();
+		long ownerID = exp.getId();
+		Collection<ROI> rois = roiComponent.getROIMap().values();
+		Iterator<ROI> i = rois.iterator();
+		List<ROI> ownedRois = new ArrayList<ROI>();
+		ROI roi;
+		List<ROIFigure> figures = new ArrayList<ROIFigure>();
+		while (i.hasNext()) {
+			roi = i.next();
+			if (roi.getOwnerID() == ownerID || roi.getOwnerID() == -1) {
+				figures.addAll(roi.getAllFigures());
+				ownedRois.add(roi);
+			}
+		}
+		dataToDelete = ownedRois.size() > 0;
 	}
 	
 	/**
@@ -552,10 +584,11 @@ class MeasurementViewerModel
 		List<ROI> roiList = new ArrayList<ROI>();
 		Iterator r = rois.iterator();
 		ROIResult result;
-		
+		long userID = MeasurementAgent.getUserDetails().getId();
 		while (r.hasNext()) {
 			result = (ROIResult) r.next();
-			roiList.addAll(roiComponent.loadROI(result.getROIs(), readOnly));
+			roiList.addAll(roiComponent.loadROI(result.getFileID(),
+					result.getROIs(), readOnly, userID));
 		}
 		if (roiList == null) return false;
 		Iterator<ROI> i = roiList.iterator();
@@ -579,6 +612,7 @@ class MeasurementViewerModel
 			}
 		}
 		component.attachListeners(roiList);
+		checkIfHasROIToDelete();
 		return true;
 	}
 	
@@ -736,15 +770,53 @@ class MeasurementViewerModel
 	 * 
 	 * @throws NoSuchROIException If the ROI does not exist.
 	 */
-	void removeAllROI() throws NoSuchROIException
+	void removeAllROI() 
+		throws NoSuchROIException
 	{
 		drawingComponent.removeAllFigures();
 		int size = roiComponent.getROIMap().values().size();
 		ROI[] valueList = new ROI[size];
 		roiComponent.getROIMap().values().toArray(valueList);
-		if(valueList!=null)
-			for(ROI roi: valueList)
+		if (valueList != null)
+			for (ROI roi: valueList)
 				roiComponent.deleteROI(roi.getID());
+	}
+	
+	/**
+	 * Removes all the <code>ROI</code> in the system.
+	 * Returns the collection of figures.
+	 * 
+	 * @return See above.
+	 * @throws NoSuchROIException If the ROI does not exist.
+	 */
+	List<ROIFigure> removeAllROI(long ownerID)
+		throws NoSuchROIException
+	{
+		Collection<ROI> rois = roiComponent.getROIMap().values();
+		Iterator<ROI> i = rois.iterator();
+		List<ROI> ownedRois = new ArrayList<ROI>();
+		ROI roi;
+		List<ROIFigure> figures = new ArrayList<ROIFigure>();
+		while (i.hasNext()) {
+			roi = i.next();
+			if (roi.getOwnerID() == ownerID || roi.getOwnerID() == -1) {
+				figures.addAll(roi.getAllFigures());
+				ownedRois.add(roi);
+			}
+		}
+		i = ownedRois.iterator();
+		while (i.hasNext()) {
+			roi = i.next();
+			roiComponent.deleteROI(roi.getID());
+		}	
+		Iterator<ROIFigure> j = figures.iterator();
+		while (j.hasNext()) {
+			drawingComponent.removeFigure(j.next());
+		}
+		event = null;
+		notifyDataChanged(false);
+		dataToDelete = false;
+		return figures;
 	}
 	
 	/**
@@ -873,7 +945,7 @@ class MeasurementViewerModel
 		currentLoader = new ServerSideROILoader(component, getImageID(), 
 				exp.getId());
 		currentLoader.load();
-		nofityDataChanged(dataChanged);
+		notifyDataChanged(dataChanged);
 	}
 	
 	/** 
@@ -886,6 +958,32 @@ class MeasurementViewerModel
 		currentLoader = new WorkflowLoader(component, exp.getId());
 		currentLoader.load();
 	}
+	
+	/**
+	 * Retrieves the workflows saved.
+	 */
+	void retrieveWorkflowsFromServer()
+	{
+		ExperimenterData exp = 
+			(ExperimenterData) MeasurementAgent.getUserDetails();
+		OmeroImageService svc = 
+			MeasurementAgent.getRegistry().getImageService();
+		try
+		{
+			List<WorkflowData> result = svc.retrieveWorkflows(exp.getId());
+			workflows.clear();
+			component.setWorkflowList(result);
+		} catch (DSAccessException e)
+		{
+			Logger log = MeasurementAgent.getRegistry().getLogger();
+			log.error(this, "Cannot load workflows");
+		} catch (DSOutOfServiceException e)
+		{
+			Logger log = MeasurementAgent.getRegistry().getLogger();
+			log.error(this, "Cannot load workflows");
+		}
+	}
+	
 	/** 
 	 * Fires an asynchronous retrieval of the ROI related to the pixels set. 
 	 * 
@@ -902,7 +1000,7 @@ class MeasurementViewerModel
 												getPixelsID());
 			fileSaved = fileName;
 			if (fileSaved != null)
-				stream = IOUtil.readFile(fileName);
+				stream = IOUtil.readFileAsInputStream(fileName);
 		} catch (Exception e) {
 			Logger log = MeasurementAgent.getRegistry().getLogger();
 			log.warn(this, "Cannot load the ROI "+e.getMessage());
@@ -974,7 +1072,7 @@ class MeasurementViewerModel
 			FileMap.setSavedFile(getServerName(), getUserName(), getPixelsID(), 
 								fileName);
 			if (!post) event = null;
-			nofityDataChanged(false);
+			notifyDataChanged(false);
 		} catch (Exception e) {
 			Logger log = MeasurementAgent.getRegistry().getLogger();
 			log.warn(this, "Cannot close the stream "+e.getMessage());
@@ -989,28 +1087,55 @@ class MeasurementViewerModel
 	 */
 	void saveROIToServer(boolean async)
 	{
-		List<ROIData> roiList;
 		try {
-			roiList = roiComponent.saveROI(pixels.getImage());
+			List<ROIData> roiList = getROIData();
+			//Need to add a read-only flag on ROI Data
 			ExperimenterData exp = 
 				(ExperimenterData) MeasurementAgent.getUserDetails();
+			if (roiList.size() == 0) return;
 			if (async) {
 				currentSaver = new ROISaver(component, getImageID(), 
 						exp.getId(), roiList);
 				currentSaver.load();
-				nofityDataChanged(false);
+				notifyDataChanged(false);
 			} else {
 				OmeroImageService svc = 
 					MeasurementAgent.getRegistry().getImageService();
 				svc.saveROI(getImageID(), exp.getId(), roiList);
 				event = null;
 			}
+			checkIfHasROIToDelete();
 		} catch (Exception e) {
 			Logger log = MeasurementAgent.getRegistry().getLogger();
 			log.warn(this, "Cannot save to server "+e.getMessage());
 		}
-		
 	}
+	
+	/**
+	 * Returns the collection of ROI on the image owned by the user currently
+	 * logged in
+	 * 
+	 * @return See above.
+	 */
+	List<ROIData> getROIData()
+	{
+		ExperimenterData exp = 
+			(ExperimenterData) MeasurementAgent.getUserDetails();
+		try {
+			return roiComponent.saveROI(getImage(), exp.getId());
+		} catch (Exception e) {
+			Logger log = MeasurementAgent.getRegistry().getLogger();
+			log.warn(this, "Cannot transform the ROI: "+e.getMessage());
+		}
+		return new ArrayList<ROIData>();
+	}
+	
+	/**
+	 * Returns the image the pixels set is linked to.
+	 * 
+	 * @return See above.
+	 */
+	ImageData getImage() { return pixels.getImage(); }
 	
 	/** 
 	 * Saves the current ROISet in the ROI component to server. 
@@ -1031,7 +1156,7 @@ class MeasurementViewerModel
 				currentSaver = new WorkflowSaver(component, 
 						workflowList, exp.getId());
 				currentSaver.load();
-				nofityDataChanged(false);
+				notifyDataChanged(false);
 			} else {
 				OmeroImageService svc = 
 					MeasurementAgent.getRegistry().getImageService();
@@ -1057,7 +1182,7 @@ class MeasurementViewerModel
 	List<ROIShape> propagateShape(ROIShape shape, int timePoint, int zSection) 
 		throws ROICreationException, NoSuchROIException
 	{
-		nofityDataChanged(true);
+		notifyDataChanged(true);
 		Coord3D coord = new Coord3D(zSection, timePoint);
 		return roiComponent.propagateShape(shape.getID(), shape.getCoord3D(), 
 			shape.getCoord3D(),coord);
@@ -1078,7 +1203,7 @@ class MeasurementViewerModel
 			drawingComponent.getDrawing().remove(shape.getFigure());
 		else
 		{
-			nofityDataChanged(true);
+			notifyDataChanged(true);
 			roiComponent.deleteShape(
 					shape.getID(), shape.getCoord3D(), new Coord3D(zSection, 
 							timePoint));
@@ -1247,7 +1372,7 @@ class MeasurementViewerModel
 	 * @param toSave Pass <code>true</code> to save the data, <code>false</code>
 	 * 				 otherwise.
 	 */
-	void nofityDataChanged(boolean toSave)
+	void notifyDataChanged(boolean toSave)
 	{
 		if (isHCSData()) return;
 		if (event != null && toSave) return;
@@ -1255,12 +1380,13 @@ class MeasurementViewerModel
 		event = new SaveRelatedData(getPixelsID(), 
 					new SaveData(getPixelsID(), SaveData.MEASUREMENT_TYPE), 
 									"The ROI", toSave);
+		checkIfHasROIToDelete();
 		bus.post(event);
 		if (!toSave) event = null;
 	}
 	
 	/**
-	 * Calculate the stats for the roi in the shapelist
+	 * Calculate the stats for the roi in the shapelist.
 	 * 
 	 * @param shapeList see above.
 	 */
@@ -1367,6 +1493,18 @@ class MeasurementViewerModel
 		if (isHCSData()) return false;
 		return event != null;
 	}
+	
+	/**
+	 * Returns <code>true</code> if data to delete, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasROIToDelete()
+	{ 
+		if (hasROIToSave()) return true;
+		return dataToDelete;
+	}
 
 	/**
 	 * Sets the workflow for the next ROI.
@@ -1379,13 +1517,13 @@ class MeasurementViewerModel
 		if (WorkflowData.DEFAULTWORKFLOW.equals(workflowNamespace))
 		{
 			this.workflowNamespace = workflowNamespace;
-			this.keyword = new ArrayList<String>();
+			keyword = new ArrayList<String>();
 		} else {
 			if (!workflows.containsKey(workflowNamespace))
 				throw new IllegalArgumentException("Workflow " + 
 						workflowNamespace + " does not exist");
 			this.workflowNamespace = workflowNamespace;
-			this.keyword = new ArrayList<String>();
+			keyword = getWorkflow().getKeywordsAsList();
 		}
 	}
 	
@@ -1411,8 +1549,19 @@ class MeasurementViewerModel
 			workflows.put(workflow.getNameSpace(), workflow);
 	}
 
+	/**
+	 * Set the Workflows of the system.
+	 * @param workflowList See above.
+	 */
+	void resetWorkflows(List<WorkflowData> workflowList)
+	{
+		workflows.clear();
+		for(WorkflowData workflow : workflowList)
+			workflows.put(workflow.getNameSpace(), workflow);
+	}
+	
 	/** 
-	 * Get all the workflow namespaces in the model, as an array list
+	 * Returns all the workflow namespaces in the model, as an array list
 	 * @return See above.
 	 */
 	List<String> getWorkflows()
@@ -1424,10 +1573,25 @@ class MeasurementViewerModel
 			workflowList.add(i.next());
 		return workflowList;
 	}
+	
+	/** 
+	 * Returns all the workflow namespaces in the model, as an array list.
+	 * 
+	 * @return See above.
+	 */
+	List<WorkflowData> getWorkflowDataList()
+	{
+		List<WorkflowData> workflowList = new ArrayList<WorkflowData>();
+		Iterator<WorkflowData> i = workflows.values().iterator();
+		while (i.hasNext())
+			workflowList.add(i.next());
+		return workflowList;
+	}
 
 	/**
 	 * Sets the keyword of the workflow to keyword, the keyword must exist in 
 	 * the workflow to be set.
+	 * 
 	 * @param keyword See above.
 	 */
 	void setKeyword(List<String> keywords)
@@ -1435,11 +1599,11 @@ class MeasurementViewerModel
 		if (keywords == null) return;
 		if (keywords.size() == 0)
 			this.keyword = keywords;
-		else
-		{
+		else {
 			WorkflowData workflow = getWorkflow();
+			if (workflow == null) return;
 			for (String word : keywords)
-				if (!workflow.contains(word) && word != "")
+				if (!workflow.contains(word) && word.trim().length() != 0)
 					throw new IllegalArgumentException(
 							"Workflow does not contain keyword '" +
 							keyword +"'");
@@ -1469,4 +1633,38 @@ class MeasurementViewerModel
      */
     void setHCSData(boolean value) { HCSData = value; }
 	
+    /** 
+     * Adds the passed ROI to the collection of ROIs to delete.
+     * 
+     * 
+     * @param roi The ROI to add.
+     */
+    void markROIForDelete(long id, ROI roi)
+    {
+    	if (roi == null) return;
+    	if (roiToDelete == null) roiToDelete = new ArrayList<ROI>();
+    	if (!roiComponent.containsROI(id) && !roi.isClientSide())
+    		roiToDelete.add(roi);
+    }
+    
+    /**
+     * Returns the collection to ROI to delete.
+     * 
+     * @return See above.
+     */
+    List<ROI> getROIToDelete() { return roiToDelete; }
+
+    /**
+     * Invokes when the ROI has been deleted.
+     * 
+     * @param imageID The image's identifier.
+     */
+    void onROIDeleted(long imageID) 
+    {
+    	if (this.imageID != imageID) return;
+    	roiToDelete.clear();
+    	if (getROIData().size() == 0)
+    		notifyDataChanged(false);
+    }
+    
 }	

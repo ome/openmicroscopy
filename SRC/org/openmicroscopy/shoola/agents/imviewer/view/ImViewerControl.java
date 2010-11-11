@@ -475,14 +475,14 @@ class ImViewerControl
 
 			/** 
 			 * Required by I/F but not actually needed in our case, 
-			 * no-op implementation.
+			 * no-operation implementation.
 			 * @see MenuListener#menuCanceled(MenuEvent)
 			 */ 
 			public void menuCanceled(MenuEvent e) {}
 
 			/** 
 			 * Required by I/F but not actually needed in our case, 
-			 * no-op implementation.
+			 * no-operation implementation.
 			 * @see MenuListener#menuDeselected(MenuEvent)
 			 */ 
 			public void menuDeselected(MenuEvent e) {}
@@ -501,14 +501,14 @@ class ImViewerControl
 
 			/** 
 			 * Required by I/F but not actually needed in our case, 
-			 * no-op implementation.
+			 * no-operation implementation.
 			 * @see MenuKeyListener#menuKeyPressed(MenuKeyEvent)
 			 */
 			public void menuKeyPressed(MenuKeyEvent e) {}
 
 			/** 
 			 * Required by I/F but not actually needed in our case, 
-			 * no op implementation.
+			 * no-operation implementation.
 			 * @see MenuKeyListener#menuKeyTyped(MenuKeyEvent)
 			 */
 			public void menuKeyTyped(MenuKeyEvent e) {}
@@ -901,7 +901,7 @@ class ImViewerControl
 				pName)) {
 			int index = (Integer) pce.getNewValue();
 			model.onChannelColorChanged(index);
-		}
+		} 
 	}
 
 	/**
@@ -934,22 +934,22 @@ class ImViewerControl
 	public void windowLostFocus(WindowEvent e) {}
 
 	/**
-	 * Required by the {@link ComponentListener} I/F but no-op implementation 
-	 * in our case.
+	 * Required by the {@link ComponentListener} I/F but no-operation
+	 * implementation in our case.
 	 * @see ComponentListener#componentShown(ComponentEvent)
 	 */
 	public void componentShown(ComponentEvent e) {}
 
 	/**
-	 * Required by the {@link ComponentListener} I/F but no-op implementation 
-	 * in our case.
+	 * Required by the {@link ComponentListener} I/F but no-operation
+	 * implementation in our case.
 	 * @see ComponentListener#componentHidden(ComponentEvent)
 	 */
 	public void componentHidden(ComponentEvent e) {}
 
 	/**
-	 * Required by the {@link ComponentListener} I/F but no-op implementation 
-	 * in our case.
+	 * Required by the {@link ComponentListener} I/F but no-operation
+	 * implementation in our case.
 	 * @see ComponentListener#componentMoved(ComponentEvent)
 	 */
 	public void componentMoved(ComponentEvent e) {}

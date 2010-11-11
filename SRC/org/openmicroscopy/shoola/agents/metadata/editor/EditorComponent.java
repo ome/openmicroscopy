@@ -568,15 +568,25 @@ class EditorComponent
 	public void setRenderingControl(RenderingControl rndControl)
 	{
 		boolean loaded = model.isRendererLoaded();
+		
 		setStatus(false);
 		if (rndControl == null) { //exception
 			setSelectedTab(GENERAL_TAB);
 			return;
 		}
+		//is the rendering control for the correct pixels set
+		FigureDialog d = controller.getFigureDialog();
+		PixelsData data = model.getPixels();
+		if (data == null) {
+			setSelectedTab(GENERAL_TAB);
+			return;
+		}
+		if (data.getId() != rndControl.getPixelsID()) {
+			setSelectedTab(GENERAL_TAB);
+			return;
+		}
 		model.setRenderingControl(rndControl);
 		if (loaded) view.onSettingsApplied(false);
-		//if (model.isNumerousChannel()) return;
-		FigureDialog d = controller.getFigureDialog();
 		if (d == null) view.setRenderer();
 		if (model.getRndIndex() == MetadataViewer.RND_SPECIFIC)
 			loadChannelData();
@@ -666,7 +676,7 @@ class EditorComponent
 				break;
 			case EditorUI.RND_INDEX:
 				Renderer rnd = getRenderer();
-				if (rnd != null) rnd.reloadUI(true);
+				if (rnd != null) rnd.refresh();
 				break;
 			case EditorUI.ACQUISITION_INDEX:
 				view.refreshAcquisition();
@@ -734,11 +744,18 @@ class EditorComponent
 				MetadataViewerAgent.getRegistry().getUserNotifier();
 			FigureDialog dialog;
 			PixelsData pixels = model.getPixels();
+			boolean b = view.isNumerousChannel();
 			switch (index) {
 				case FigureDialog.SPLIT:
 					if (pixels == null) {
 						un.notifyInfo("Split View Figure", 
 								"Image not valid. Cannot create figure.");
+						return;
+					}
+					if (b) {
+						un.notifyInfo("Split View Figure", 
+								"The selected type of figure " +
+						"is not available for the image.");
 						return;
 					}
 					dialog = controller.createFigureDialog(name, pixels, 
@@ -751,6 +768,12 @@ class EditorComponent
 					dialog.centerDialog();
 					break;
 				case FigureDialog.SPLIT_ROI:
+					if (b) {
+						un.notifyInfo("ROI Split Figure", 
+								"The selected type of figure " +
+						"is not available for the image.");
+						return;
+					}
 					model.fireROILoading(FigureDialog.SPLIT_ROI);
 					break;
 				case FigureDialog.THUMBNAILS:
@@ -836,6 +859,7 @@ class EditorComponent
 			String name = model.getRefObjectName();
 			FigureDialog dialog = controller.createFigureDialog(name, 
 					pixels, index);
+			if (dialog == null) return;
 			dialog.setROIs(rois);
 			if (!model.isRendererLoaded()) {
 				loadRenderingControl(RenderingControlLoader.LOAD);

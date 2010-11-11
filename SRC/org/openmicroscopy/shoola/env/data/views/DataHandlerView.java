@@ -209,14 +209,12 @@ public interface DataHandlerView
 	/**
 	 * Switches the user's group.
 	 * 
-	 * @param save 			The data to save before switching group.
 	 * @param experimenter  The experimenter to handle.
 	 * @param groupID		The identifier of the group.
 	 * @param observer		Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle switchUserGroup(Map<Agent, AgentSaveInfo> save, 
-			ExperimenterData experimenter, long groupID, 
-			AgentEventListener observer);
+	public CallHandle switchUserGroup( ExperimenterData experimenter, 
+			long groupID, AgentEventListener observer);
 	
 }

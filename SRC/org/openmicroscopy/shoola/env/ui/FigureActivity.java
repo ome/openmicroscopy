@@ -135,4 +135,9 @@ public class FigureActivity
 		type.setText(DESCRIPTION_CANCEL);
 	}
 	
+	/** 
+	 * No-operation in this case.
+	 * @see ActivityComponent#notifyActivityError()
+	 */
+	protected void notifyActivityError() {}
 }

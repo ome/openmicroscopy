@@ -105,7 +105,7 @@ class GraphPane
 	private JPanel 							mainPanel;
 			
 	/** The map of the shape statistics to coordinates. */
-	private HashMap<Coord3D, Map<StatsType, Map>> shapeStatsList;
+	private Map<Coord3D, Map<StatsType, Map>> shapeStatsList;
 	
 	/** Map of the pixel intensity values to coordinates. */
 	private Map<Coord3D, Map<Integer, double[]>> pixelStats;
@@ -293,7 +293,8 @@ class GraphPane
 		if (channelNames.size() == 0 || data.size() == 0 || 
 			channelColours.size() == 0)
 			return null;
-		if(channelNames.size() != channelColours.size() || channelNames.size() != data.size())
+		if (channelNames.size() != channelColours.size() || 
+				channelNames.size() != data.size())
 			return null;
 		LinePlot plot = new LinePlot(title, channelNames, data, 
 			channelColours, channelMinValue(), channelMaxValue());
@@ -318,7 +319,8 @@ class GraphPane
 		if (channelNames.size() == 0 || data.size() == 0 || 
 				channelColours.size() == 0)
 				return null;
-			if(channelNames.size() != channelColours.size() || channelNames.size() != data.size())
+			if (channelNames.size() != channelColours.size() || 
+					channelNames.size() != data.size())
 				return null;
 		HistogramPlot plot = new HistogramPlot(title, channelNames, data, 
 			channelColours, bins, channelMinValue(), channelMaxValue());
@@ -382,7 +384,7 @@ class GraphPane
 			}
 		}
 		mainPanel.removeAll();
-		if(channelData.size()==0)
+		if (channelData.size() == 0)
 			return;
 		lineProfileChart = null;
 		histogramChart = null;
@@ -448,10 +450,18 @@ class GraphPane
 		return icons.getIcon(IconManager.GRAPHPANE);
 	}
 
+	/** Clears the data. */
+	void clearData()
+	{
+		mainPanel.removeAll();
+		if (zSlider != null) zSlider.setEnabled(false);
+		if (tSlider != null) tSlider.setEnabled(false);
+	}
+	
 	/**
 	 * Returns the analysis results from the model and converts to the 
 	 * necessary array. data types using the ROIStats wrapper then
-	 * creates the approriate graph and plot.  
+	 * creates the graph and plot.  
 	 */
 	void displayAnalysisResults()
 	{

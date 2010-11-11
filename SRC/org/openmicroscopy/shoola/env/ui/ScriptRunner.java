@@ -29,10 +29,10 @@ package org.openmicroscopy.shoola.env.ui;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.ScriptCallback;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import org.openmicroscopy.shoola.env.data.views.ProcessCallback;
 
 /** 
  * Runs a script.
@@ -58,7 +58,7 @@ public class ScriptRunner
     private ScriptObject 			script;
 
     /** The call-back returned by the server. */
-    private ScriptCallback 			callBack;
+    private ProcessCallback 		callBack;
     
     /**
      * Notifies that an error occurred.
@@ -124,7 +124,7 @@ public class ScriptRunner
         	if (o instanceof Boolean) {
         		onException(MESSAGE_RUN, null); 
         	} else {
-        		callBack = (ScriptCallback) o;
+        		callBack = (ProcessCallback) o;
             	callBack.setAdapter(this);
             	activity.onCallBackSet();
         	}

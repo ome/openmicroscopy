@@ -22,15 +22,14 @@
 */
 package org.openmicroscopy.shoola.agents.measurement.view;
 
+
+//Java imports
+import java.awt.BorderLayout;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -38,22 +37,18 @@ import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
-
-import org.openmicroscopy.shoola.agents.measurement.IconManager;
-import org.openmicroscopy.shoola.util.ui.TitlePanel;
-
-import pojos.WorkflowData;
-
-//Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.measurement.IconManager;
+import org.openmicroscopy.shoola.util.ui.TitlePanel;
+import pojos.WorkflowData;
+
 
 /**
- *
+ * The Dialog. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -65,9 +60,9 @@ import pojos.WorkflowData;
  * </small>
  * @since 3.0-Beta4
  */
-public class WorkflowDialog
+class WorkflowDialog
 	extends JDialog
-	implements ComponentListener, ActionListener
+	implements ActionListener
 {
 	
 	/** The view of the main UI. */
@@ -98,22 +93,7 @@ public class WorkflowDialog
 	private StatusBar statusBar;
 	
 	/**
-	 * The constructor for the workflow dialog. This dialog creates the new
-	 * workflows.
-	 * @param view The view which will indicate current workflows. 
-	 * @param model The model which will indicate current workflows. 
-	 */
-	public WorkflowDialog(MeasurementViewerUI view, 
-						  MeasurementViewerModel model)
-	{
-		this.view = view;
-		this.model = model;
-		init();
-		buildUI();
-	}
-	
-	/**
-	 * Initialise the components. Create the label, workflow combobox.
+	 * Initializes the components. Create the label, workflow combobox.
 	 */
 	private void init()
 	{
@@ -136,16 +116,19 @@ public class WorkflowDialog
 		setSize(500, 350);
 		JPanel panel = new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-		panel.add(createInfoPanel());
+		//panel.add(createInfoPanel());
 		panel.add(namespaceLabel);
 		panel.add(Box.createVerticalGlue());
-		namespace.setMaximumSize(new Dimension(500,30));
-		panel.add(wrap(namespace));
+		Dimension d = new Dimension(300,30);
+		namespace.setSize(d);
+		namespace.setMaximumSize(d);
+		namespace.setMinimumSize(d);
+		panel.add(wrap(namespace, d));
 		panel.add(Box.createVerticalGlue());
 		panel.add(keywordsLabel);
 		panel.add(Box.createVerticalGlue());
-		panel.add(wrap(keywords));
-		keywords.setMaximumSize(new Dimension(500,30));
+		d = new Dimension(300,80);
+		panel.add(wrap(keywords, d));
 		panel.add(Box.createVerticalGlue());
 		JPanel buttonPanel = new JPanel();
 		buttonPanel.setLayout(new FlowLayout());
@@ -153,17 +136,22 @@ public class WorkflowDialog
 		buttonPanel.add(cancelButton);
 		panel.add(buttonPanel);
 		panel.add(statusBar);
-		this.getContentPane().add(panel);
+		Container container = getContentPane();
+		container.add(createInfoPanel(), BorderLayout.NORTH);
+		container.add(panel, BorderLayout.CENTER);
 		
 	}
 	
-	private JPanel wrap(JComponent comp)
+	private JPanel wrap(JComponent comp, Dimension d)
 	{
 		JPanel panel= new JPanel();
 		panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
 		panel.add(Box.createHorizontalStrut(10));
 		panel.add(comp);
 		panel.add(Box.createHorizontalStrut(10));
+		panel.setMaximumSize(d);
+		panel.setSize(d);
+		panel.setMinimumSize(d);
 		return panel;
 	}
 	
@@ -177,7 +165,8 @@ public class WorkflowDialog
 	{
 		JPanel infoPanel = new TitlePanel("Workflow Panel", 
 				"The workflow panel allows you to create a new " +
-				"workflow\n that associates a namespace and keywords with an ROI\n"
+				"workflow\n that associates a namespace and keywords with " +
+				"an ROI.\n"
 				+ "The keywords should be separated by  a comma e.g. " +
 						"interphase, metaphase, anaphase", 
 				IconManager.getInstance().getIcon(IconManager.WIZARD_48));
@@ -206,34 +195,22 @@ public class WorkflowDialog
 		keywords.setText("");
 	}
 	
-	
-	public void componentHidden(ComponentEvent e)
+	/**
+	 * Creates the new workflows.
+	 * @param view The view which will indicate current workflows. 
+	 * @param model The model which will indicate current workflows. 
+	 */
+	WorkflowDialog(MeasurementViewerUI view, MeasurementViewerModel model)
 	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void componentMoved(ComponentEvent e)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void componentResized(ComponentEvent e)
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void componentShown(ComponentEvent e)
-	{
-		// TODO Auto-generated method stub
-		
+		this.view = view;
+		this.model = model;
+		init();
+		buildUI();
 	}
 
 	public void actionPerformed(ActionEvent e)
 	{
-		if(e.getActionCommand() == "Create")
+		if (e.getActionCommand() == "Create")
 		{
 			createWorkflow();
 		}

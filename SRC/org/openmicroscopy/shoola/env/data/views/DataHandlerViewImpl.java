@@ -39,7 +39,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.FilesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ImagesLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ObjectFinder;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsSaver;
-import org.openmicroscopy.shoola.env.data.views.calls.SwitchUserLoader;
+import org.openmicroscopy.shoola.env.data.views.calls.SwitchUserGroupLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 
 import pojos.ExperimenterData;
@@ -195,14 +195,13 @@ public class DataHandlerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see DataHandlerView#switchUserGroup(Map, ExperimenterData, long, 
+	 * @see DataHandlerView#switchUserGroup(ExperimenterData, long, 
 	 * AgentEventListener)
 	 */
-	public CallHandle switchUserGroup(Map<Agent, AgentSaveInfo> toSave,
-			ExperimenterData experimenter, long groupID,
-			AgentEventListener observer)
+	public CallHandle switchUserGroup(ExperimenterData experimenter, 
+			long groupID, AgentEventListener observer)
 	{
-		BatchCallTree cmd = new SwitchUserLoader(toSave, experimenter, groupID);
+		BatchCallTree cmd = new SwitchUserGroupLoader(experimenter, groupID);
 		return cmd.exec(observer);
 	}
 

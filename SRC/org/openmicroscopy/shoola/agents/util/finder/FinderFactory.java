@@ -29,9 +29,11 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 
 import pojos.DataObject;
+import pojos.ExperimenterData;
 
 /** 
  * Factory to create {@link Finder}.
@@ -119,6 +121,18 @@ public class FinderFactory
 	{
 		return singleton.registry.getTaskBar().getFrame();
 	}
+	
+    /**
+	 * Helper method returning the current user's details.
+	 * 
+	 * @return See above.
+	 */
+	public static ExperimenterData getUserDetails()
+	{ 
+		return (ExperimenterData) singleton.registry.lookup(
+								LookupNames.CURRENT_USER_DETAILS);
+	}
+	
 	
 	 /** Reference to the registry. */
     private Registry	registry;

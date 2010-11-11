@@ -38,6 +38,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -47,6 +48,8 @@ import javax.swing.JFrame;
 
 //Application-internal dependencies
 import omero.model.OriginalFile;
+
+import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsSaved;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlLoader;
@@ -56,11 +59,15 @@ import org.openmicroscopy.shoola.agents.metadata.browser.TreeBrowserSet;
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.util.ChannelSelectionDialog;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.DataObjectRegistration;
 import org.openmicroscopy.shoola.agents.util.ui.MovieExportDialog;
+import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
+import org.openmicroscopy.shoola.env.data.model.DeletableObject;
+import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.MovieActivityParam;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
@@ -68,7 +75,9 @@ import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
@@ -327,27 +336,43 @@ class MetadataViewerComponent
 		Renderer rnd = model.getEditor().getRenderer();
 		if (rnd != null && getRndIndex() == RND_GENERAL) {
 			//save settings 
-			try {
-				//check if I can save first
-				if (model.isWritable()) 
-					rnd.saveCurrentSettings();
-				Object obj = model.getRefObject();
-				if (obj instanceof WellSampleData) {
-					WellSampleData wsd = (WellSampleData) obj;
-					obj = wsd.getImage();
-				}
-				if (obj instanceof ImageData) {
-					long imageID = ((ImageData) obj).getId();
-					firePropertyChange(RENDER_THUMBNAIL_PROPERTY, -1, imageID);
-				}
-			} catch (Exception e) {
-				String s = "Data Retrieval Failure: ";
-		    	LogMessage msg = new LogMessage();
-		        msg.print(s);
-		        msg.print(e);
-		        MetadataViewerAgent.getRegistry().getLogger().error(this, msg);
+			long imageID = -1;
+			long pixelsID = -1;
+			Object obj = model.getRefObject();
+			if (obj instanceof WellSampleData) {
+				WellSampleData wsd = (WellSampleData) obj;
+				obj = wsd.getImage();
 			}
-			
+			if (obj instanceof ImageData) {
+				ImageData data = (ImageData) obj;
+				imageID = data.getId();
+				pixelsID = data.getDefaultPixels().getId();
+			}
+			//check if I can save first
+			if (model.isWritable()) {
+				Registry reg = MetadataViewerAgent.getRegistry();
+				RndProxyDef def = null;
+				try {
+					def = rnd.saveCurrentSettings();
+				} catch (Exception e) {
+					try {
+						reg.getImageService().resetRenderingService(pixelsID);
+						def = rnd.saveCurrentSettings();
+					} catch (Exception ex) {
+						String s = "Data Retrieval Failure: ";
+				    	LogMessage msg = new LogMessage();
+				        msg.print(s);
+				        msg.print(e);
+				        reg.getLogger().error(this, msg);
+					}
+				}
+				EventBus bus = 
+					MetadataViewerAgent.getRegistry().getEventBus();
+				bus.post(new RndSettingsSaved(pixelsID, def));
+			}
+			if (imageID >= 0 && model.isWritable()) {
+				firePropertyChange(RENDER_THUMBNAIL_PROPERTY, -1, imageID);
+			}
 		}
 		model.setRootObject(root);
 		view.setRootObject();
@@ -403,6 +428,23 @@ class MetadataViewerComponent
 		return model.getRelatedNodes();
 	}
 	
+	private void deleteAnnotations(List<AnnotationData> toDelete)
+	{
+		if (toDelete == null || toDelete.size() == 0) return;
+		//Should only be annotation so content is false;
+		List<DeletableObject> l = new ArrayList<DeletableObject>();
+		Iterator<AnnotationData> j = toDelete.iterator();
+		while (j.hasNext())
+			l.add(new DeletableObject(j.next()));
+		IconManager icons = IconManager.getInstance();
+		DeleteActivityParam p = new DeleteActivityParam(
+				icons.getIcon(IconManager.APPLY_22), l);
+		p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
+		UserNotifier un = 
+			TreeViewerAgent.getRegistry().getUserNotifier();
+		un.notifyActivity(p);
+	}
+	
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
 	 * @see MetadataViewer#saveData(List, List, List, List, DataObject, boolean)
@@ -414,14 +456,13 @@ class MetadataViewerComponent
 		if (data == null) return;
 		Object refObject = model.getRefObject();
 		List<DataObject> toSave = new ArrayList<DataObject>();
-		
 		if (refObject instanceof FileData) {
 			FileData fa = (FileData) data;
 			if (fa.getId() > 0) {
 				toSave.add(data);
-				model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave,
-						asynch);
+				model.fireSaving(toAdd, toRemove, metadata, toSave, asynch);
 				fireStateChange();
+				deleteAnnotations(toDelete);
 			} else {
 				DataObjectRegistration r = new DataObjectRegistration(toAdd, 
 						toRemove, toDelete, metadata, data);
@@ -440,19 +481,13 @@ class MetadataViewerComponent
 					toSave.add((DataObject) n.next());
 			}
 		}
-		
-		if (refObject instanceof ProjectData) {
-			model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave, 
-					asynch);
-		} else if (refObject instanceof ScreenData) {
-			model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave,
-					asynch);
-		} else if (refObject instanceof PlateData) {
-			model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave,
-					asynch);
-		} else if (refObject instanceof DatasetData) {
-			model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave, 
-					asynch);
+		boolean b = true;
+		if (refObject instanceof ProjectData || 
+			refObject instanceof ScreenData ||
+			refObject instanceof PlateData || 
+			refObject instanceof DatasetData || 
+			refObject instanceof WellSampleData) {
+			model.fireSaving(toAdd, toRemove, metadata, toSave, asynch);
 		} else if (refObject instanceof ImageData) {
 			ImageData img = (ImageData) refObject;
 			if (img.getId() < 0) {
@@ -461,21 +496,19 @@ class MetadataViewerComponent
 				firePropertyChange(REGISTER_PROPERTY, null, r);
 				return;
 			} else {
-				model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave,
+				model.fireSaving(toAdd, toRemove, metadata, toSave,
 						asynch);
 			}
-		} else if (refObject instanceof WellSampleData) {
-			model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave,
-					asynch);
-		} else if (refObject instanceof TagAnnotationData) {
+		}  else if (refObject instanceof TagAnnotationData) {
 			//Only update properties.
 			if ((toAdd.size() == 0 && toRemove.size() == 0)) {
-				model.fireSaving(toAdd, toRemove, toDelete, metadata, toSave,
-						asynch);
-				return;
+				model.fireSaving(toAdd, toRemove, metadata, toSave, asynch);
+				b = false;
 			}	
 		}
-		fireStateChange();
+		if (toDelete != null && toDelete.size() > 0)
+			deleteAnnotations(toDelete);
+		if (b) fireStateChange();
 	}
 	
 	/** 
@@ -565,22 +598,27 @@ class MetadataViewerComponent
 	public void onAdminUpdated(Object data)
 	{
 		Object o = data;
-		if (data instanceof List) {
+		if (data instanceof Map) {
 			o = model.getRefObject();
-			List l = (List) data;
+			Map l = (Map) data;
 			if (l.size() > 0) {
 				UserNotifier un = 
 					MetadataViewerAgent.getRegistry().getUserNotifier();
 				StringBuffer buf = new StringBuffer();
 				buf.append("Unable to update the following experimenters:\n");
-				Iterator i = l.iterator();
+				Entry entry;
+				Iterator i = l.entrySet().iterator();
 				Object node;
 				ExperimenterData exp;
+				Exception ex;
 				while (i.hasNext()) {
-					node = i.next();
+					entry = (Entry) i.next();
+					node = entry.getKey();
 					if (node instanceof ExperimenterData) {
 						exp = (ExperimenterData) node;
+						ex = (Exception) entry.getValue();
 						buf.append(exp.getFirstName()+" "+exp.getLastName());
+						buf.append("\n->"+ex.getMessage());
 						buf.append("\n");
 					}
 				}
@@ -909,7 +947,7 @@ class MetadataViewerComponent
 			img = (ImageData) ob;
 		if (img == null) return;
 		if (!imageIds.contains(img.getId())) return;
-		rnd.reloadUI(false);
+		rnd.refresh();
 	}
 
 	/**
@@ -1073,9 +1111,6 @@ class MetadataViewerComponent
 		
 		if (image == null) return;
 		if (image.getId() == imageID) {
-			
-		}
-		if (((ImageData) ref).getId() == imageID) {
 			view.setThumbnails(thumbnails);
 		}
 	}

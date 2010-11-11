@@ -476,11 +476,20 @@ public class IconManager
     /** The <code>Rendering Settings Owner</code> icon. */
     public static final int           RND_OWNER = 140;
     
+    /** The 22x22 <code>Delete</code> icon. */
+    public static final int           DELETE_22 = 141;
+    
+    /** The 22x22 <code>Apply</code> icon. */
+    public static final int           APPLY_22 = 142;
+    
+    /** The <code>Send comment</code> icon. */
+    public static final int			  SEND_COMMENT = 143;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 140;
+    private static final int          MAX_ID = 143;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -631,6 +640,9 @@ public class IconManager
         relPaths[RND_UNDO] = "nuvola_undo16.png";
         relPaths[RND_MIN_MAX] = "nuvola_rendering_minmax16.png";
         relPaths[RND_OWNER] = "rendering_owner16.png";
+        relPaths[DELETE_22] = "nuvola_cancel22.png";
+        relPaths[APPLY_22] = "nuvola_apply22.png";
+        relPaths[SEND_COMMENT] = "nuvola_mail_send16.png";
     }
     
     /** The sole instance. */

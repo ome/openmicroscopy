@@ -33,8 +33,9 @@ import java.util.List;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.ScriptCallback;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
-import org.openmicroscopy.shoola.env.data.views.ScriptBatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
+import org.openmicroscopy.shoola.env.data.views.ProcessCallback;
+import org.openmicroscopy.shoola.env.data.views.ProcessBatchCall;
 
 /** 
  * Command to create a figure.
@@ -57,7 +58,7 @@ public class FigureCreator
     private BatchCall   loadCall;
 
     /** The server call-handle to the computation. */
-    private Object	scriptCallBack;
+    private Object	callBack;
     
     /**
      * Creates a {@link BatchCall} to create a movie.
@@ -70,16 +71,17 @@ public class FigureCreator
     private BatchCall makeBatchCall(final List<Long> ids, final Class type,
     		final Object param)
     {
-        return new ScriptBatchCall("Creating figure: ") {
-            public ScriptCallback initialize() throws Exception
+        return new ProcessBatchCall("Creating figure: ") {
+            public ProcessCallback initialize() throws Exception
             {
                 OmeroImageService os = context.getImageService();
-                scriptCallBack = os.createFigure(ids, type, param);
-                if (scriptCallBack == null) {
-                	scriptCallBack = Boolean.valueOf(false);
-			return null;
+                ScriptCallback cb = os.createFigure(ids, type, param);
+                if (cb == null) {
+                	callBack = Boolean.valueOf(false);
+                	return null;
                 } else {
-                    return (ScriptCallback) scriptCallBack;
+                	callBack = new ProcessCallback(cb);
+                    return (ProcessCallback) callBack;
                 }
             }
         };
@@ -90,7 +92,7 @@ public class FigureCreator
      * 
      * @return See above.
      */
-    protected Object getPartialResult() { return scriptCallBack; }
+    protected Object getPartialResult() { return callBack; }
     
     /**
      * Adds the {@link #loadCall} to the computation tree.

@@ -43,12 +43,14 @@ import javax.swing.Action;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.CreateExperimentAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.FieldsViewAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ManageObjectAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ManageRndSettingsAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.RefreshAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.SaveAction;
+import org.openmicroscopy.shoola.agents.dataBrowser.actions.SendFeedbackAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.TaggingAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ViewAction;
 import org.openmicroscopy.shoola.agents.dataBrowser.actions.ViewOtherAction;
@@ -58,19 +60,25 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.RollOverNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.FilteringDialog;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.QuickFiltering;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.ui.RollOverThumbnailManager;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.PlateGrid;
+import org.openmicroscopy.shoola.util.ui.PlateGridObject;
 import org.openmicroscopy.shoola.util.ui.search.QuickSearch;
 import org.openmicroscopy.shoola.util.ui.search.SearchComponent;
 import org.openmicroscopy.shoola.util.ui.search.SearchObject;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ImageData;
+import pojos.WellSampleData;
 
 /** 
  * The DataBrowser's Controller.
@@ -141,6 +149,9 @@ class DataBrowserControl
 	 */
 	static final Integer    SET_OWNER_RND_SETTINGS = Integer.valueOf(15);
 	
+	/** Identifies the <code>Send Feedback action</code>.  */
+	static final Integer    SEND_FEEDBACK = Integer.valueOf(16);
+	
 	/** 
 	 * Reference to the {@link DataBrowser} component, which, in this context,
 	 * is regarded as the Model.
@@ -183,6 +194,7 @@ class DataBrowserControl
     	actionsMap.put(NEW_EXPERIMENT, new CreateExperimentAction(model));
     	actionsMap.put(FIELDS_VIEW, new FieldsViewAction(model));
     	actionsMap.put(OPEN_WITH, new ViewOtherAction(model, null));
+    	actionsMap.put(SEND_FEEDBACK, new SendFeedbackAction(model));
     }
     
 	/** 
@@ -209,8 +221,7 @@ class DataBrowserControl
 				if (values != null && values.size() > 0)
 					model.filterByTags(values);
 				else {
-					view.setFilterLabel("");
-					model.showAll();
+					showAll();
 				}
 				break;
 			case QuickSearch.COMMENTS:
@@ -268,6 +279,13 @@ class DataBrowserControl
 		}
 	}
 	
+	/** Shows all the nodes. */
+	private void showAll()
+	{ 
+		view.setFilterLabel("");
+		model.showAll(); 
+	}
+	
 	/** Creates a new instance. */
 	DataBrowserControl() {}
 	
@@ -313,7 +331,7 @@ class DataBrowserControl
 	
 	/** Loads the existing datasets. */
 	void loadExistingDatasets() { model.loadExistingDatasets(); }
-
+	
 	/**
 	 * Returns the external application previously used to open 
 	 * the selected document.
@@ -330,6 +348,39 @@ class DataBrowserControl
 			actions.add(new ViewOtherAction(model, i.next()));
 		}
 		return actions;
+	}
+	
+	/**
+	 * Views the passed node if supported.
+	 * 
+	 * @param node The node to handle.
+	 */
+	void viewDisplay(ImageDisplay node)
+	{
+		if (node instanceof ImageNode) {
+			EventBus bus = DataBrowserAgent.getRegistry().getEventBus();
+			DataObject data = null;
+			Object uo = node.getHierarchyObject();
+			ViewImage event;
+			if (uo instanceof ImageData) {
+				event = new ViewImage((ImageData) uo, null);
+				Object go =  view.getParentOfNodes();
+				if (go instanceof DataObject) data = (DataObject) go;
+				event.setContext(data, null);
+				bus.post(event);
+				if (go instanceof DataObject) data = (DataObject) go;
+			} else if (uo instanceof WellSampleData) {
+				event = new ViewImage((WellSampleData) uo, null);
+				WellSampleNode wsn = (WellSampleNode) node;
+				Object parent = wsn.getParentObject();
+				if (parent instanceof DataObject) {
+					Object go =  view.getParentOfNodes();
+					if (go instanceof DataObject) data = (DataObject) go;
+					event.setContext((DataObject) parent, data);
+				}
+				bus.post(event);
+			}
+		}
 	}
 	
 	/**
@@ -350,6 +401,8 @@ class DataBrowserControl
 			model.setUnselectedDisplay(node);
 		} else if (QuickFiltering.FILTER_DATA_PROPERTY.equals(name)) {
 			filterNodes((SearchObject) evt.getNewValue());
+		} else if (QuickFiltering.DISPLAY_ALL_NODES_PROPERTY.equals(name)) {
+			showAll();
 		} else if (FilteringDialog.FILTER_PROPERTY.equals(name) ||
 				QuickFiltering.FILTER_TAGS_PROPERTY.equals(name)) {
 			model.filterByContext((FilterContext) evt.getNewValue());
@@ -406,9 +459,12 @@ class DataBrowserControl
 				}
 			}
 		} else if (PlateGrid.WELL_FIELDS_PROPERTY.equals(name)) {
-			Point p = (Point) evt.getNewValue();
+			PlateGridObject p = (PlateGridObject) evt.getNewValue();
 			if (p == null) return;
-			model.viewFieldsFor(p.x, p.y);
+			model.viewFieldsFor(p.getRow(), p.getColumn(), 
+					p.isMultipleSelection());
+		} else if (Browser.VIEW_DISPLAY_PROPERTY.equals(name)) {
+			viewDisplay((ImageDisplay) evt.getNewValue());
 		}
 	}
 	

@@ -65,13 +65,13 @@ public interface Browser
      * @return The viewer widget.
      */
     public JComponent getUI();
-    
+   
     /**
      * Sets the original rendered image.
      * 
      * @param image The buffered image.
      */
-    public void setRenderedImage(BufferedImage image);
+    public void setRenderedImage(Object image);
     
     /**
      * Returns the image displayed on screen.
@@ -363,14 +363,8 @@ public interface Browser
 	 */
 	public BufferedImage getProjectedImage();
 
+	/** Invokes when the color model changes. */
 	public void onColorModelChange();
-	
-	/**
-	 * Sets the image rendered as texture.
-	 * 
-	 * @param image The image to set.
-	 */
-	void setRenderedImageAsTexture(TextureData image);
 	
 	/**
 	 * Creates an image to save.

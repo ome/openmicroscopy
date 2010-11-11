@@ -73,7 +73,6 @@ import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import omero.model.PlaneInfo;
-
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
@@ -1411,11 +1410,13 @@ class ImViewerUI
 	/** Resets the UI when switching to a new rendering control. */
 	void switchRndControl() { controlPane.switchRndControl(); }
 	
+	/** Refreshes the view. */
 	void refresh()
 	{
 		resetDefaults();
 		model.refresh();
 	}
+	
 	/**
 	 * Sets the image in the lens to the plane image shown on the screen
 	 * depending on the selected tab pane.
@@ -2424,7 +2425,7 @@ class ImViewerUI
 		c.add(component, BorderLayout.CENTER);
 		
 	}
-	
+
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
 	 * @see TopWindow#setOnScreen() 
@@ -2460,17 +2461,4 @@ class ImViewerUI
 		}
 	}
 
-	/**
-	 * Overridden to request the focus.
-	 * @see TopWindow#setVisible(boolean)
-	 */
-	public void setVisible(boolean visible)
-	{
-		super.setVisible(visible);
-		if (visible) {
-			//toFront();
-			//requestFocusInWindow();
-		}
-	}
-	
 }

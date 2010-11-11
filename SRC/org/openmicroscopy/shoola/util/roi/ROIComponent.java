@@ -269,11 +269,13 @@ public class ROIComponent
     public ROI addROI(ROIFigure figure, Coord3D currentPlane)
     	throws ROICreationException, NoSuchROIException
     {
-    	if (figure == null) throw new NullPointerException("Figure param null.");
+    	if (figure == null) 
+    		throw new NullPointerException("Figure param null.");
     	setFigureAttributes(figure);
     	ROI roi = null;
     	roi = createROI(figure, currentPlane);
-		if (roi == null) throw new ROICreationException("Unable to create ROI.");
+		if (roi == null) 
+			throw new ROICreationException("Unable to create ROI.");
     	ROIShape shape = figure.getROIShape();
     	setShapeAnnotations(shape);
     	return roi;
@@ -284,7 +286,8 @@ public class ROIComponent
      * 
      * @param figure The figure to add.
      * @param currentPlane The plane to add figure to.
-     * @param addAttribs add attributes 
+     * @param addAttribs Passed <code>true</code> to add the attributes,
+     * 					 <code>false</code> otherwise.
      * @return returns the newly created ROI. 
      * @throws NoSuchROIException 
      * @throws ROICreationException 
@@ -292,13 +295,15 @@ public class ROIComponent
     public ROI addROI(ROIFigure figure, Coord3D currentPlane, boolean addAttribs)
     	throws ROICreationException, NoSuchROIException
     {
-    	if (figure == null) throw new NullPointerException("Figure param null.");
+    	if (figure == null) 
+    		throw new NullPointerException("Figure param null.");
       	figure.setMeasurementUnits(units);
         if (addAttribs)
         	setFigureAttributes(figure);
     	ROI roi = null;
     	roi = createROI(figure, currentPlane);
-		if (roi == null) throw new ROICreationException("Unable to create ROI.");
+		if (roi == null) 
+			throw new ROICreationException("Unable to create ROI.");
     	ROIShape shape = figure.getROIShape();
     	setShapeAnnotations(shape);
     	return roi;
@@ -324,14 +329,16 @@ public class ROIComponent
 	 * Converts the ROI in the component to ROIData and return. 
 	 * 
 	 * @param image The image the ROI are on.
+	 * @param ownerID The identifier of the owner.
 	 * @return See above.
 	 * @throws Exception 
 	 */
-	public List<ROIData> saveROI(ImageData image) 
+	public List<ROIData> saveROI(ImageData image, long ownerID) 
 		throws Exception
 	{
-		if (serverStrategy == null) serverStrategy = new ServerROIStrategy();
-		return serverStrategy.write(this, image);
+		if (serverStrategy == null) 
+			serverStrategy = new ServerROIStrategy();
+		return serverStrategy.write(this, image, ownerID);
 	}
 	
 	/**
@@ -369,40 +376,28 @@ public class ROIComponent
 	 * @param fileID The id of the file.
 	 * @param rois The collection of ROIs to convert.
 	 * @param readOnly Are the ROI readOnly.
+	 * @param userID The identifier of the user currently logged in.
 	 * @return See above.
-	 * @throws NoSuchROIException
-	 * @throws ROICreationException
+	 * @throws NoSuchROIException		 	Tried to access a ROI which does not
+	 * 									   	Exist. In this case most likely 
+	 * 										reason is that a 
+	 * 										LineConnectionFigure tried
+	 * 									   	to link to ROIShapes which have not 
+	 * 									   	been created yet.
+	 * @throws ROICreationException		 	Thrown while trying to create an 
+	 * 										ROI.
 	 */
-	public List<ROI> loadROI(long fileID, Collection rois, boolean readOnly) 
+	public List<ROI> loadROI(long fileID, Collection rois, boolean readOnly, 
+			long userID) 
 		throws NoSuchROIException, ROICreationException	
 	{
 		if (rois == null)
 			throw new NullPointerException("No rois to transform.");
 		if (serverStrategy == null)
 			serverStrategy = new ServerROIStrategy();
-		List<ROI> l = serverStrategy.read(rois, this, readOnly);
-		roiResult.put(fileID, l);
-		return l;
-	}
-	
-	/**
-	 * Reads the ROIs from the server and returns the UI representations.
-	 * 
-	 * @param fileID The id of the file.
-	 * @param rois The collection of ROIs to convert.
-	 * @param readOnly Are the ROI readOnly.
-	 * @return See above.
-	 * @throws NoSuchROIException
-	 * @throws ROICreationException
-	 */
-	public List<ROI> loadROI(Collection rois, boolean readOnly) 
-		throws NoSuchROIException, ROICreationException	
-	{
-		if (rois == null)
-			throw new NullPointerException("No rois to transform.");
-		if (serverStrategy == null)
-			serverStrategy = new ServerROIStrategy();
-		List<ROI> l = serverStrategy.read(rois, this, readOnly);
+		List<ROI> l = serverStrategy.read(rois, this, readOnly, userID);
+		if (fileID > 0)
+			roiResult.put(fileID, l);
 		return l;
 	}
 	
@@ -437,9 +432,9 @@ public class ROIComponent
 	 * 
 	 * @param id The ROI id. 
 	 * @return See above.
-	 * @throws ROICreationException			If an error occurred while creating 
-	 * 									   	an ROI, basic assumption is this is 
-	 * 									   	linked to memory issues.
+	 * @throws ROICreationException	If an error occurred while creating 
+	 * 								an ROI, basic assumption is this is 
+	 * 								linked to memory issues.
 	 */
 	public ROI createROI(long id)
 		throws ROICreationException
@@ -455,11 +450,11 @@ public class ROIComponent
 	 * old one.
 	 * 
 	 * @param id The ROI id. 
-	 * @param clientSideObject Is this object a clientside object
+	 * @param clientSideObject Is this object a client-side object
 	 * @return See above.
-	 * @throws ROICreationException			If an error occurred while creating 
-	 * 									   	an ROI, basic assumption is this is 
-	 * 									   	linked to memory issues.
+	 * @throws ROICreationException	If an error occurred while creating 
+	 * 								an ROI, basic assumption is this is 
+	 * 								linked to memory issues.
 	 */
 	public ROI createROI(long id, boolean clientSideObject)
 		throws ROICreationException
@@ -467,7 +462,6 @@ public class ROIComponent
 		return roiCollection.createROI(id, clientSideObject);
 	}
 
-	
 	/**
 	 * Create a new ROI, assign it an ROI from the getNextID call.
 	 * 
@@ -537,7 +531,8 @@ public class ROIComponent
 	 * Returns the ROIShape which is part of the ROI id, and exists on the plane
 	 * coordinates. 
 	 * This method looks up the ROIIDMap (TreeMap) for the ROI with id 
-	 * and then looks up that ROIs TreeMap for the ROIShape on the plane coordinates.
+	 * and then looks up that ROIs TreeMap for the ROIShape on the plane 
+	 * coordinates.
 	 * 
 	 * @param id 	The id of the ROI the ROIShape is a member of.
 	 * @param coord The plane where the ROIShape sits.
@@ -601,7 +596,7 @@ public class ROIComponent
 	/** 
 	 * Deletes the ROIShape from the ROI with id. 
 	 * 
-	 * @param id 	The ROI id inwhich the ROIShape is a member.
+	 * @param id 	The ROI id which the ROIShape is a member.
 	 * @param coord	The plane on which the ROIShape resides. 
 	 * @throws NoSuchROIException	Thrown if the ROI does not exist.
 	 */ 
@@ -635,8 +630,9 @@ public class ROIComponent
 
 	/**
 	 * This method will create new versions of the ROIShape belonging to ROI.id
-	 * on plane coord and propagate it from plane start to end. If the shape 
-	 * exists on a plane between start and end it will not be overwritten.
+	 * on plane coordinates and propagate it from plane start to end. 
+	 * If the shape exists on a plane between start and end it will not be 
+	 * overwritten.
 	 *
 	 * Note : iteration for planes occurs through z then t.
 	 *

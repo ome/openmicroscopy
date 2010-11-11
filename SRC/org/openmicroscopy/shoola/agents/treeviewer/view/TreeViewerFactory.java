@@ -87,9 +87,6 @@ public class TreeViewerFactory
 	/** The name of the file. */
 	private static final String FILE_NAME = "externalApplication.txt";
 	
-	/** The name associated to the component. */
-	private static final String NAME = "Data Manager";
-	
 	/** The name of the windows menu. */
 	private static final String MENU_NAME = "Data Manager";
 	

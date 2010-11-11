@@ -30,7 +30,7 @@ package org.openmicroscopy.shoola.agents.metadata;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
-import org.openmicroscopy.shoola.env.data.ScriptingException;
+import org.openmicroscopy.shoola.env.data.ProcessException;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
@@ -112,8 +112,8 @@ public class ScriptLoader
         msg.print(s);
         msg.print(exc);
         registry.getLogger().error(this, msg);
-        if (exc instanceof ScriptingException) {
-            ScriptingException se = (ScriptingException) exc;
+        if (exc instanceof ProcessException) {
+            ProcessException se = (ProcessException) exc;
             s = se.getMessage();
 
             Throwable cause = se.getCause();

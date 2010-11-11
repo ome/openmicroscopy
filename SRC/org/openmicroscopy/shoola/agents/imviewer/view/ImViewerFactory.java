@@ -31,7 +31,6 @@ import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -50,6 +49,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ActivateRecentAction;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ActivationAction;
+import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import pojos.DataObject;
 import pojos.ImageData;
@@ -200,7 +200,7 @@ public class ImViewerFactory
 	/**
 	 * Returns the viewer if any, identified by the passed pixels ID.
 	 * 
-	 * @param pixelsID The Id of the pixels set.
+	 * @param pixelsID The Identifier of the pixels set.
 	 * @return See above.
 	 */
 	public static ImViewer getImageViewer(long pixelsID)
@@ -215,6 +215,24 @@ public class ImViewerFactory
 	}
 
 	/**
+	 * Returns the viewer if any, identified by the passed pixels ID.
+	 * 
+	 * @param parent The of the image.
+	 * @return See above.
+	 */
+	public static ImViewer getImageViewerFromParent(DataObject parent)
+	{
+		if (parent == null) return null;
+		Iterator v = singleton.viewers.iterator();
+		ImViewerComponent comp;
+		while (v.hasNext()) {
+			comp = (ImViewerComponent) v.next();
+			if (comp.getModel().isSameParent(parent))  return comp;
+		}
+		return null;
+	}
+		
+	/**
 	 * Copies the rendering settings.
 	 * 
 	 * @param image	The image to copy the rendering settings from.
@@ -228,6 +246,23 @@ public class ImViewerFactory
 			comp = (ImViewerComponent) v.next();
 			if (comp.getModel().getImageID() != image.getId()) 
 				comp.copyRndSettings();
+		}
+	}
+	
+	/**
+	 * Indicates that rendering settings has been saved using another way.
+	 * 
+	 * @param pixelsID The Identifier of the pixels set.
+	 * @param settings The rendering settings saved.
+	 */
+	public static void rndSettingsSaved(long pixelsID, RndProxyDef settings)
+	{
+		Iterator v = singleton.viewers.iterator();
+		ImViewerComponent comp;
+		while (v.hasNext()) {
+			comp = (ImViewerComponent) v.next();
+			if (comp.getModel().getPixelsID() == pixelsID) 
+				comp.onRndSettingsSaved(settings);
 		}
 	}
 
@@ -289,18 +324,6 @@ public class ImViewerFactory
 				}
 			}
 		}
-	}
-	
-	/**
-	 * Resets the rendering engine if necessary.
-	 * 
-	 * @param pixelsIDs The collection of pixels set whose rendering settings 
-	 * 					have been updated.
-	 * @param refID		The if of the pixels of reference.
-	 */
-	public static void reloadRenderingEngine(Collection pixelsIDs, long refID)
-	{
-		
 	}
 	
 	/** 

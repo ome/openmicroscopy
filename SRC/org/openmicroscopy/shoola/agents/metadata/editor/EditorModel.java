@@ -33,7 +33,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -44,7 +43,6 @@ import java.util.Map.Entry;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.model.Image;
 import omero.model.OriginalFile;
 import omero.model.PlaneInfo;
 import org.openmicroscopy.shoola.agents.metadata.AcquisitionDataLoader;
@@ -212,6 +210,9 @@ class EditorModel
 	
 	/** Scripts with a UI. */
 	private List<ScriptObject> scriptsWithUI;
+	
+	/** The file annotation with the original metadata. */
+	private FileAnnotationData originalMetadata;
 	
 	/**
 	 * Downloads the files.
@@ -421,8 +422,7 @@ class EditorModel
 	 * @return See above.
 	 */
 	boolean isMultiSelection() { return !parent.isSingleMode(); }
-	
-	
+
 	/**
 	 * Returns the observable.
 	 * 
@@ -861,7 +861,7 @@ class EditorModel
 	 * 
 	 * @return See above.
 	 */
-	int getTermssCount()
+	int getTermsCount()
 	{ 
 		Collection urls = getTerms();
 		if (urls == null) return 0;
@@ -907,30 +907,45 @@ class EditorModel
 	}
 	
 	/**
-	 * Returns the number of attachments linked to the <code>DataObject</code>.
+	 * Returns the collection of the files linked to the 
+	 * <code>DataObject</code> at import.
 	 * 
 	 * @return See above.
 	 */
-	int getAttachmentsCount()
+	Collection getCompanionFiles()
 	{
-		Collection attachments = getAttachments();
-		if (attachments == null) return 0;
-		return attachments.size();
+		StructuredDataResults data = parent.getStructuredData();
+		List list = new ArrayList();
+		if (data == null) return list;
+		Collection attachements = data.getAttachments(); 
+		if (attachements == null) return list;
+		Iterator i = attachements.iterator();
+		FileAnnotationData f;
+		String ns;
+		while (i.hasNext()) {
+			f = (FileAnnotationData) i.next();
+			ns = f.getNameSpace();
+			if (FileAnnotationData.COMPANION_FILE_NS.equals(ns) && 
+					f != originalMetadata) {
+				list.add(f);
+			}
+		}
+		return sorter.sort(list); 
 	}
 	
-	private FileAnnotationData originalMetadata;
-	
 	/**
-	 * Returns the collection of the tags linked to the <code>DataObject</code>.
+	 * Returns the collection of the attachments linked to the 
+	 * <code>DataObject</code>.
 	 * 
 	 * @return See above.
 	 */
 	Collection getAttachments()
 	{ 
 		StructuredDataResults data = parent.getStructuredData();
-		if (data == null) return new ArrayList();
+		List l = new ArrayList();
+		if (data == null) return l;
 		Collection attachements = data.getAttachments(); 
-		if (attachements == null) return new ArrayList();
+		if (attachements == null) return l;
 		Iterator i = attachements.iterator();
 		FileAnnotationData f;
 		String ns;
@@ -942,10 +957,9 @@ class EditorModel
 				String name = f.getFileName();
 				if (name.contains(ORIGINAL_METADATA_NAME))
 					originalMetadata = f;
-			}
+			} else l.add(f);
 		}
-		if (originalMetadata != null) attachements.remove(originalMetadata);
-		return sorter.sort(attachements); 
+		return sorter.sort(l); 
 	}
 
 	/**
@@ -2572,6 +2586,30 @@ class EditorModel
 				return script;
 		}
     	return null;
+    }
+    
+    /**
+     * Loads the group corresponding to the specified identifier.
+     * 
+     * @param groupID The identifier of the group to load.
+     * @return See above.
+     */
+    GroupData loadGroup(long groupID)
+    {
+    	try {
+			AdminService svc = 
+				MetadataViewerAgent.getRegistry().getAdminService();
+			List<GroupData> groups = svc.loadGroups(groupID);
+			Iterator<GroupData> i = groups.iterator();
+			GroupData g;
+			while (i.hasNext()) {
+				g = i.next();
+				if (g.getId() == groupID) return g;
+			}
+		} catch (Exception e) {
+			//ignore
+		}
+		return null;
     }
     
 }

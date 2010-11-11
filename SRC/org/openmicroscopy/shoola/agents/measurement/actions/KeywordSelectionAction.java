@@ -24,10 +24,7 @@ package org.openmicroscopy.shoola.agents.measurement.actions;
 
 
 //Java imports
-import java.awt.event.ActionEvent;
 import java.util.List;
-
-import javax.swing.JComboBox;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
@@ -38,7 +35,7 @@ import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.util.ui.checkboxlist.CheckBoxList;
 
 /**
- *
+ * Selects the keywords associated a namespace.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -56,26 +53,22 @@ public class KeywordSelectionAction
 {
 
 	/**
-	 * Create keyselectionAction.
+	 * Creates a new instance.
+	 * 
 	 * @param model Model for action.
 	 */
 	public KeywordSelectionAction(MeasurementViewer model)
 	{
 		super(model);
 	}
-	
-	/** 
-     * Implemented by sub-classes.
-     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
-     */
-	public void actionPerformed(ActionEvent e) 
-	{
-       
-	}
 
+	/**
+	 * Implemented as specified by the {@link #TableModelListener}.
+	 * @see TableModelListener#tableChanged(TableModelEvent)
+	 */
 	public void tableChanged(TableModelEvent e)
 	{
-		CheckBoxList checkBoxList = (CheckBoxList)e.getSource();
+		CheckBoxList checkBoxList = (CheckBoxList) e.getSource();
 	    List<String> keywords = checkBoxList.getTrueValues();
 	    model.setKeyword(keywords);
 	}

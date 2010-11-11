@@ -62,7 +62,8 @@ import org.openmicroscopy.shoola.util.ui.TitlePanel;
  * @since OME3.0
  */
 class ResultsWizard
-	extends JDialog implements ActionListener
+	extends JDialog 
+	implements ActionListener
 {
 	
 	/** Action command ID to add a field to the result table. */
@@ -176,7 +177,7 @@ class ResultsWizard
 	}
 
 	/**
-	 * This method is involked when the user clicks the addFieldButton.
+	 * This method is invoked when the user clicks the addFieldButton.
 	 * It adds a field to the list and then sorts the list to maintain order. 
 	 */
 	private void addField()
@@ -190,7 +191,7 @@ class ResultsWizard
 		for (int i = 0 ; i < indexes.length ; i++)
 		{
 			annotationName = (String) model.getElementAt(indexes[i]);
-			for(AnnotationField field : allFields)
+			for (AnnotationField field : allFields)
 			{
 				if (field.getName().equals(annotationName))
 				{

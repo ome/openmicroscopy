@@ -33,15 +33,12 @@ import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.FigureListener;
-import org.jhotdraw.draw.Handle;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
@@ -50,7 +47,6 @@ import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
-import org.openmicroscopy.shoola.util.roi.util.FigureSelectionHandle;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.EllipseTextFigure;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
@@ -103,7 +99,7 @@ public class MeasureEllipseFigure
 	/** Creates a new instance. */
 	public MeasureEllipseFigure()
 	{
-		this("Text", 0, 0, 0, 0, false, true);
+		this(DEFAULT_TEXT, 0, 0, 0, 0, false, true);
 	}
 	
 	/** 
@@ -127,7 +123,6 @@ public class MeasureEllipseFigure
 		status = IDLE;
 		setReadOnly(readOnly);
 		setClientObject(clientObject);
-		
 	}
 	
 	/** 
@@ -149,7 +144,7 @@ public class MeasureEllipseFigure
 	 */
 	public MeasureEllipseFigure(boolean readOnly, boolean isClientObject)
 	{
-		this("Text", 0, 0, 0, 0, readOnly, isClientObject);
+		this(ROIFigure.DEFAULT_TEXT, 0, 0, 0, 0, readOnly, isClientObject);
 	}
 	
 	/** 
@@ -242,6 +237,7 @@ public class MeasureEllipseFigure
 		t.transform(src, dest);
 		return dest.getX();
 	}
+	
 	/** 
 	 * Returns the y-coordinate of the figure.
 	 * 
@@ -333,39 +329,39 @@ public class MeasureEllipseFigure
 	public Rectangle2D.Double getDrawingArea()
 	{
 		Rectangle2D.Double newBounds=super.getDrawingArea();
-		if (measurementBounds!=null)
+		if (measurementBounds != null)
 		{
-			if (newBounds.getX()>measurementBounds.getX())
+			if (newBounds.getX() > measurementBounds.getX())
 			{
-				double diff=newBounds.x-measurementBounds.getX();
-				newBounds.x=measurementBounds.getX();
-				newBounds.width=newBounds.width+diff;
+				double diff = newBounds.x-measurementBounds.getX();
+				newBounds.x = measurementBounds.getX();
+				newBounds.width = newBounds.width+diff;
 			}
-			if (newBounds.getY()>measurementBounds.getY())
+			if (newBounds.getY() > measurementBounds.getY())
 			{
-				double diff=newBounds.y-measurementBounds.getY();
-				newBounds.y=measurementBounds.getY();
-				newBounds.height=newBounds.height+diff;
+				double diff = newBounds.y-measurementBounds.getY();
+				newBounds.y = measurementBounds.getY();
+				newBounds.height = newBounds.height+diff;
 			}
 			if (measurementBounds.getX()+
-					measurementBounds.getWidth()>newBounds.getX()
+					measurementBounds.getWidth() > newBounds.getX()
 					+newBounds.getWidth())
 			{
-				double diff=
+				double diff =
 					measurementBounds.getX()+
 					measurementBounds.getWidth()-newBounds.getX()
 								+newBounds.getWidth();
-				newBounds.width=newBounds.width+diff;
+				newBounds.width = newBounds.width+diff;
 			}
 			if (measurementBounds.getY()+
-					measurementBounds.getHeight()>newBounds.getY()
+					measurementBounds.getHeight() > newBounds.getY()
 					+newBounds.getHeight())
 			{
-				double diff=
+				double diff =
 					measurementBounds.getY()+
 					measurementBounds.getHeight()-newBounds.getY()
 								+newBounds.getHeight();
-				newBounds.height=newBounds.height+diff;
+				newBounds.height = newBounds.height+diff;
 			}
 		}
 		return newBounds;
@@ -461,7 +457,7 @@ public class MeasureEllipseFigure
 	 */
 	public void calculateMeasurements()
 	{
-		if (shape==null) return;
+		if (shape == null) return;
 		AnnotationKeys.AREA.set(shape, getArea());
 		AnnotationKeys.HEIGHT.set(shape, getMeasurementHeight());
 		AnnotationKeys.WIDTH.set(shape, getMeasurementWidth());
@@ -540,6 +536,7 @@ public class MeasureEllipseFigure
 	 * Overridden to return the correct handles.
 	 * @see AbstractAttributedFigure#createHandles(int)
 	 */
+	/* cannot do that otherwise enter in an infinite loop
 	public Collection<Handle> createHandles(int detailLevel) 
 	{
 		if (!readOnly)
@@ -551,6 +548,7 @@ public class MeasureEllipseFigure
 			return handles;
 		}
 	}
+	*/
 
 	/**
 	 * Invalidate the figure and remove the cachedTransformedShape, this means
@@ -562,7 +560,6 @@ public class MeasureEllipseFigure
 		if (!readOnly)
 			super.invalidate();
 	}
-
 	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
@@ -596,10 +593,7 @@ public class MeasureEllipseFigure
 	 * Implemented as specified by the {@link ROIFigure} interface
 	 * @see ROIFigure#isClientObject()
 	 */
-	public boolean isClientObject() 
-	{
-		return clientObject;
-	}
+	public boolean isClientObject() { return clientObject; }
 
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface
@@ -614,24 +608,17 @@ public class MeasureEllipseFigure
 	 * Implemented as specified by the {@link ROIFigure} interface
 	 * @see ROIFigure#isDirty()
 	 */
-	public boolean isDirty() 
-	{
-		return dirty;
-	}
+	public boolean isDirty() { return dirty; }
 
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface
 	 * @see ROIFigure#setObjectDirty(boolean)
 	 */
-	public void setObjectDirty(boolean dirty) 
-	{
-		this.dirty = dirty;
-	}
+	public void setObjectDirty(boolean dirty) { this.dirty = dirty; }
 	
-	/*
-	 * (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
-	 * MeasureEllipseFigure#clone()
+	/**
+	 * Overridden to set the various flags.
+	 * @see MeasureEllipseFigure#clone()
 	 */
 	public MeasureEllipseFigure clone()
 	{
@@ -642,10 +629,9 @@ public class MeasureEllipseFigure
 		return that;
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
-	 * MeasureEllipseFigure#setText(String)
+	/**
+	 * Overridden to mark the object has dirty.
+	 * @see MeasureEllipseFigure#setText(String)
 	 */
 	public void setText(String text)
 	{
@@ -661,9 +647,10 @@ public class MeasureEllipseFigure
 	{
 		List<FigureListener> figListeners = new ArrayList<FigureListener>();
 		Object[] listeners = listenerList.getListenerList();
-		for(Object listener : listeners)
-			if(listener instanceof FigureListener)
-				figListeners.add((FigureListener)listener);
+		for (Object listener : listeners)
+			if (listener instanceof FigureListener)
+				figListeners.add((FigureListener) listener);
 		return figListeners;
 	}
 }
+

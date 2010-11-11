@@ -34,14 +34,11 @@ import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.FigureListener;
-import org.jhotdraw.draw.Handle;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
@@ -50,7 +47,6 @@ import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
-import org.openmicroscopy.shoola.util.roi.util.FigureSelectionHandle;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.LineConnectionTextFigure;
@@ -72,6 +68,7 @@ public class MeasureLineConnectionFigure
 	extends LineConnectionTextFigure
 	implements ROIFigure
 {
+	
 	/** Is this figure read only. */
 	private boolean readOnly;
 	
@@ -116,11 +113,12 @@ public class MeasureLineConnectionFigure
 	 */
 	public MeasureLineConnectionFigure()
 	{
-		this("Text", false);
+		this(DEFAULT_TEXT, false);
 	}
 	
 	/**
-	 * Create instane of line connection figure. 
+	 * Creates a new instance.
+	 * 
 	 * @param text text to assign to the figure. 
 	 * @param readOnly The figure is read only.
 	 */
@@ -131,13 +129,11 @@ public class MeasureLineConnectionFigure
 		angleArray = new ArrayList<Double>();
 		pointArrayX = new ArrayList<Double>();
 		pointArrayY = new ArrayList<Double>();
-	
 		shape = null;
 		roi = null;
 		status = IDLE;
 		setReadOnly(readOnly);
 	}
-
 
 	 /**
      * Draw the figure on the graphics context.
@@ -149,9 +145,10 @@ public class MeasureLineConnectionFigure
 		boundsArray.clear();
 		lengthArray.clear();
 		angleArray.clear();
-		if(MeasurementAttributes.SHOWMEASUREMENT.get(this) || MeasurementAttributes.SHOWID.get(this))
+		if (MeasurementAttributes.SHOWMEASUREMENT.get(this) || 
+				MeasurementAttributes.SHOWID.get(this))
 		{
-			if(getPointCount()==2)
+			if (getPointCount() == 2)
 			{
 				NumberFormat formatter = new DecimalFormat("###.#");
 				double angle = getAngle(0, 1);
@@ -160,53 +157,63 @@ public class MeasureLineConnectionFigure
 				angleArray.add(angle);
 				String lineAngle = formatter.format(angle);
 				lineAngle = addDegrees(lineAngle);
-				double sz = ((Double)this.getAttribute(MeasurementAttributes.FONT_SIZE));
+				double sz = ((Double)this.getAttribute(
+						MeasurementAttributes.FONT_SIZE));
 				g.setFont(new Font("Arial",Font.PLAIN, (int)sz));
-				Rectangle2D rect = g.getFontMetrics().getStringBounds(lineAngle, g);
+				Rectangle2D rect = g.getFontMetrics().getStringBounds(lineAngle,
+						g);
 				Point2D.Double lengthPoint = getLengthPosition(0, 1);
 				Rectangle2D bounds = new 
 					Rectangle2D.Double(lengthPoint.x,
 							lengthPoint.y+rect.getHeight()*2, rect.getWidth(), 
 							rect.getHeight());
-				g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
+				g.setColor(
+						MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
 				g.drawString(lineAngle, (int)bounds.getX(), (int)bounds.getY());
 				boundsArray.add(bounds);
 			}
-			for( int x = 1 ; x < this.getPointCount()-1; x++)
+			for (int x = 1 ; x < this.getPointCount()-1; x++)
 			{
 				NumberFormat formatter = new DecimalFormat("###.#");
 				double angle = getAngle(x-1, x, x+1);
 				angleArray.add(angle);
 				String lineAngle = formatter.format(angle);
 				lineAngle = addDegrees(lineAngle);
-				double sz = ((Double)this.getAttribute(MeasurementAttributes.FONT_SIZE));
+				double sz = ((Double) getAttribute(
+						MeasurementAttributes.FONT_SIZE));
 				g.setFont(new Font("Arial",Font.PLAIN, (int)sz));
 				Rectangle2D rect = g.getFontMetrics().getStringBounds(lineAngle, g);
-				Rectangle2D bounds = new Rectangle2D.Double(getPoint(x).x, getPoint(x).y, rect.getWidth(), rect.getHeight());
+				Rectangle2D bounds = new Rectangle2D.Double(getPoint(x).x, 
+						getPoint(x).y, rect.getWidth(), rect.getHeight());
 				g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
 				g.drawString(lineAngle, (int)bounds.getX(), (int)bounds.getY());
 				boundsArray.add(bounds);
 			}
-			for( int x = 1 ; x < this.getPointCount(); x++)
+			for (int x = 1 ; x < this.getPointCount(); x++)
 			{
 				NumberFormat formatter = new DecimalFormat("###.#");
 				double length = getLength(x-1, x);
 				lengthArray.add(length);
 				String lineLength = formatter.format(length);
 				lineLength = addUnits(lineLength);
-				double sz = ((Double)this.getAttribute(MeasurementAttributes.FONT_SIZE));
+				double sz = ((Double)
+						getAttribute(MeasurementAttributes.FONT_SIZE));
 				g.setFont(new Font("Arial",Font.PLAIN, (int)sz));
 				Rectangle2D rect = g.getFontMetrics().getStringBounds(lineLength, g);
-				Rectangle2D bounds = new Rectangle2D.Double(getPoint(x).x-15, getPoint(x).y-15,rect.getWidth()+30, rect.getHeight()+30);
+				Rectangle2D bounds = new Rectangle2D.Double(getPoint(x).x-15, 
+						getPoint(x).y-15,rect.getWidth()+30, rect.getHeight()+30);
 				Point2D.Double lengthPoint = getLengthPosition(x-1, x);
-				g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
+				g.setColor(
+						MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
 				g.drawString(lineLength, (int)lengthPoint.x, (int)lengthPoint.y);
 				boundsArray.add(bounds);
 			}
-			if(MeasurementAttributes.SHOWID.get(this))
+			if (MeasurementAttributes.SHOWID.get(this))
 			{
 				g.setColor(this.getTextColor());
-				g.drawString(this.getROI().getID()+"", (int)path.getCenter().getX(), (int)path.getCenter().getY());
+				g.drawString(this.getROI().getID()+"", 
+						(int) path.getCenter().getX(), 
+						(int) path.getCenter().getY());
 			}
 		}
 	}
@@ -235,6 +242,7 @@ public class MeasureLineConnectionFigure
 	 * Overridden to return the correct handles.
 	 * @see AbstractAttributedFigure#createHandles(int)
 	 */
+	/* cannot do that otherwise enter in an infinite loop
 	public Collection<Handle> createHandles(int detailLevel) 
 	{
 		if(!readOnly)
@@ -246,6 +254,7 @@ public class MeasureLineConnectionFigure
 			return handles;
 		}
 	}
+	*/
 	
 	/**
 	 * Get the length array. These are the lengths of each segment of the line. 
@@ -540,12 +549,11 @@ public class MeasureLineConnectionFigure
 	}
 
 	/**
-	 * Get the number of points in the line. 
+	 * Returns the number of points in the line. 
+	 * 
+	 * @result See above.
 	 */
-	public int getPointCount()
-	{
-		return getNodeCount();
-	}
+	public int getPointCount() { return getNodeCount(); }
 	
 	/**
 	 * Overridden method for bezier, make public what 7.0 made private.
@@ -587,10 +595,7 @@ public class MeasureLineConnectionFigure
 	 * Implemented as specified by the {@link ROIFigure} interface
 	 * @see ROIFigure#isClientObject()
 	 */
-	public boolean isClientObject() 
-	{
-		return clientObject;
-	}
+	public boolean isClientObject() { return clientObject; }
 
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface
@@ -605,33 +610,28 @@ public class MeasureLineConnectionFigure
 	 * Implemented as specified by the {@link ROIFigure} interface
 	 * @see ROIFigure#isDirty()
 	 */
-	public boolean isDirty() 
-	{
-		return dirty;
-	}
+	public boolean isDirty() { return dirty; }
 
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface
 	 * @see ROIFigure#setObjectDirty(boolean)
 	 */
-	public void setObjectDirty(boolean dirty) 
-	{
-		this.dirty = dirty;
-	}
+	public void setObjectDirty(boolean dirty) { this.dirty = dirty; }
 	
-	/*
-	 * (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
-	 * MeasureLineConnectionFigure#clone()
+	/**
+	 * Overridden to set the various flags.
+	 * @see MeasureLineConnectionFigure#clone()
 	 */
 	public MeasureLineConnectionFigure clone()
 	{
-		MeasureLineConnectionFigure that = (MeasureLineConnectionFigure) super.clone();
+		MeasureLineConnectionFigure that = 
+			(MeasureLineConnectionFigure) super.clone();
 		that.setReadOnly(this.isReadOnly());
 		that.setClientObject(this.isClientObject());
 		that.setObjectDirty(true);
 		return that;
 	}
+	
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface
 	 * @see ROIFigure#getFigureListeners()
@@ -640,9 +640,9 @@ public class MeasureLineConnectionFigure
 	{
 		List<FigureListener> figListeners = new ArrayList<FigureListener>();
 		Object[] listeners = listenerList.getListenerList();
-		for(Object listener : listeners)
-			if(listener instanceof FigureListener)
-				figListeners.add((FigureListener)listener);
+		for (Object listener : listeners)
+			if (listener instanceof FigureListener)
+				figListeners.add((FigureListener) listener);
 		return figListeners;
 	}
 }

@@ -65,6 +65,7 @@ import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.filter.file.EditorFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.filter.file.HTMLFilter;
@@ -112,7 +113,7 @@ class EditorControl
 	/** Action id indicating to upload attach documents. */
 	static final int	ADD_UPLOADED_DOCS = 1;
 	
-	/** Action id indicating to attach documents. */
+	/** Action id indicating to attach tags. */
 	static final int	ADD_TAGS = 2;
 	
 	/** Action ID to save the data. */
@@ -165,6 +166,12 @@ class EditorControl
 	
 	/** Action ID to upload a script to the server. */
 	static final int	RELOAD_SCRIPT = 18;
+	
+	/** Action id indicating to remove tags. */
+	static final int	REMOVE_TAGS = 19;
+	
+	/** Action id indicating to remove documents. */
+	static final int	REMOVE_DOCS = 20;
 	
     /** Reference to the Model. */
     private Editor		model;
@@ -372,6 +379,12 @@ class EditorControl
 	FigureDialog createFigureDialog(String name, PixelsData pixels, int index)
 	{
 		if (figureDialog != null) return figureDialog;
+		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
+		if (FigureDialog.needPixels(index) && pixels == null) {
+			un.notifyInfo("Figure", "The image is not valid," +
+					" cannot create the figure.");
+			return null;
+		}
 		JFrame f = 
 			MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
 		figureDialog = new FigureDialog(f, name, pixels, index, 
@@ -442,7 +455,6 @@ class EditorControl
 					view.deleteAnnotation((FileAnnotationData) data);
 					view.removeAttachedFile(data);
 				}
-					
 			} 
 		} else if (AnnotationUI.EDIT_TAG_PROPERTY.equals(name)) {
 			Object object = evt.getNewValue();
@@ -607,6 +619,12 @@ class EditorControl
 				break;
 			case RELOAD_SCRIPT:
 				view.reloadScript();
+				break;
+			case REMOVE_TAGS:
+				view.removeTags();
+				break;
+			case REMOVE_DOCS:
+				view.removeAttachedFiles();
 		}
 	}
 	

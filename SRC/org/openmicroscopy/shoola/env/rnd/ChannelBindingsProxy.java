@@ -224,12 +224,13 @@ class ChannelBindingsProxy
     ChannelBindingsProxy copy()
     {
     	ChannelBindingsProxy copy = new ChannelBindingsProxy();
-    	copy.setUpperBound(upperBound);
-    	copy.setLowerBound(lowerBound);
-    	copy.setActive(active);
-    	copy.setInterval(inputStart, inputEnd);
-    	copy.setQuantization(family, curveCoefficient, noiseReduction);
-    	copy.setRGBA(rgba);
+    	copy.setUpperBound(this.getUpperBound());
+    	copy.setLowerBound(this.getLowerBound());
+    	copy.setActive(this.isActive());
+    	copy.setInterval(this.getInputStart(), this.getInputEnd());
+    	copy.setQuantization(this.getFamily(), this.getCurveCoefficient(), 
+    			this.isNoiseReduction());
+    	copy.setRGBA(this.getRGBA());
     	return copy;
     }
        

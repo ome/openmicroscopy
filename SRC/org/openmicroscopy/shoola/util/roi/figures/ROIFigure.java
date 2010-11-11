@@ -54,7 +54,7 @@ public interface ROIFigure
 {
 		
 	/** The default text. */
-	static final String DEFAULT_TEXT = "Text";
+	public static final String DEFAULT_TEXT = "Text";
 	
 	/** Identified the <code>IDLE</code> status. */
 	public static final int IDLE = 0;
@@ -93,7 +93,7 @@ public interface ROIFigure
 	public ROI  getROI();
 	
 	/**
-	 * Returns the ROI.
+	 * Returns the ROI shape.
 	 * 
 	 * @return See above.
 	 */

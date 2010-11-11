@@ -62,9 +62,7 @@ public class ScriptCallback
 	/** The identifier of the script. */
 	private long              scriptID;
 	
-	/** Helper reference to the process. */
-	private ScriptProcessPrx  process;
-	
+	/** Helper reference to the adapter to notify. */
 	private DSCallAdapter adapter;
 	
 	/**
@@ -76,12 +74,12 @@ public class ScriptCallback
 	 * @throws ServerError Thrown if an error occurred while initializing the
 	 * 					   call-back.
 	 */
-	public ScriptCallback(long scriptID, client client, final ScriptProcessPrx process)
+	public ScriptCallback(long scriptID, client client, 
+			final ScriptProcessPrx process)
 		throws ServerError
 	{
 		super(client, process);
 		this.scriptID = scriptID;
-		this.process = process;
 	}
 	
 	/**
@@ -103,7 +101,8 @@ public class ScriptCallback
 	{
 		String value = "";
 		try {
-			RString desc = process.getJob().getDescription();
+			RString desc = 
+				((ScriptProcessPrx) process).getJob().getDescription();
 			if (desc != null) value = desc.getValue();
 		} catch (Exception e) {
 		}
@@ -112,13 +111,13 @@ public class ScriptCallback
 	
 	/** Cancels the on-going process. */
 	public void cancel()
-		throws ScriptingException
+		throws ProcessException
 	{
 		try {
 			process.cancel();
 			close();
 		} catch (Exception e) {
-			throw new ScriptingException("Cannot cancel the following " +
+			throw new ProcessException("Cannot cancel the following " +
 					"script:"+getName());
 		}
 	}
@@ -133,7 +132,8 @@ public class ScriptCallback
 		if (adapter == null) return;
 		try {
 			if (adapter != null) {
-				Map<String, RType> results = process.getResults(0);
+				Map<String, RType> 
+				results = ((ScriptProcessPrx) process).getResults(0);
 				if (results == null)
 					adapter.handleResult(null);
 				else {
@@ -169,7 +169,6 @@ public class ScriptCallback
 		super.processCancelled(value, current);
 		if (adapter != null) adapter.handleResult(null);
 	}
-	
 
 	/**
 	 * Overridden to handle the fact of the process has been killed.

@@ -30,9 +30,9 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -113,8 +113,15 @@ class WorkflowPanel
 	{
 		label = new JLabel("Keywords");
 		namespaceLabel = new JLabel("Namespace");
-		namespaceCombobox = new JComboBox(model.getWorkflows().toArray());
-		namespaceCombobox.addActionListener(this.controller.getAction(
+		List<String> list = model.getWorkflows();
+		String[] values = new String[list.size()];
+		Iterator<String> i = list.iterator();
+		int index = 0;
+		while (i.hasNext()) {
+			values[index] = view.getWorkflowDisplay(i.next());
+		}
+		namespaceCombobox = new JComboBox(values);
+		namespaceCombobox.addActionListener(controller.getAction(
 				MeasurementViewerControl.SELECT_WORKFLOW));
 		checkBoxModel = new CheckBoxModel();
 		keywords = new CheckBoxList(checkBoxModel);
@@ -123,7 +130,9 @@ class WorkflowPanel
 			public void mouseClicked(MouseEvent e) {
 				CheckBoxList checkBoxList = (CheckBoxList) e.getSource();
 			    List<String> keywords = checkBoxList.getTrueValues();
-			    model.setWorkflow((String) namespaceCombobox.getSelectedItem());
+			    String value = view.getWorkflowFromDisplay(
+			    		(String) namespaceCombobox.getSelectedItem());
+			    model.setWorkflow(value);
 			    model.setKeyword(keywords);
 				applyWorkflowToCollection(
 						view.getDrawingView().getSelectedFigures());
@@ -144,6 +153,11 @@ class WorkflowPanel
 		JPanel j = new JPanel();
 		j.setLayout(new BoxLayout(j, BoxLayout.X_AXIS));
 		j.add(namespaceLabel);
+		Dimension d = new Dimension(200,30);
+		namespaceCombobox.setSize(d);
+		namespaceCombobox.setMinimumSize(d);
+		namespaceCombobox.setMaximumSize(d);
+		namespaceCombobox.setPreferredSize(d);
 		j.add(namespaceCombobox);
 		panel.add(j);
 		JPanel k = new JPanel();
@@ -194,14 +208,14 @@ class WorkflowPanel
 	private void applyWorkflow(ROIFigure fig)
 	{
 		fig.getROI().setAnnotation(AnnotationKeys.NAMESPACE, 
-										model.getWorkflow().getNameSpace());
+				model.getWorkflow().getNameSpace());
 		List<String> keywordList = model.getKeywords();
 		String keywordString = "";
 		for (int i = 0 ; i < keywordList.size() ; i++)
 		{
 			keywordString = keywordString + keywordList.get(i);
 			if (i < keywordList.size()-1)
-				keywordString = keywordString + ",";
+				keywordString = keywordString + ", ";
 		}
 		fig.getROI().setAnnotation(AnnotationKeys.KEYWORDS, keywordString);
 	}
@@ -228,7 +242,7 @@ class WorkflowPanel
 	void updateWorkflow()
 	{
 		WorkflowData workflow = model.getWorkflow();
-		if(workflow == null)
+		if (workflow == null)
 		{
 			namespaceCombobox.removeActionListener(this.controller.getAction(
 					MeasurementViewerControl.SELECT_WORKFLOW));
@@ -236,19 +250,19 @@ class WorkflowPanel
 			keywords.setModel(new CheckBoxModel(new ArrayList()));
 			namespaceCombobox.addActionListener(this.controller.getAction(
 					MeasurementViewerControl.SELECT_WORKFLOW));
-		}
-		else
-		{
+		} else {
 			namespaceCombobox.removeActionListener(this.controller.getAction(
 					MeasurementViewerControl.SELECT_WORKFLOW));
-			namespaceCombobox.setSelectedItem(workflow.getNameSpace());
+			namespaceCombobox.setSelectedItem(view.getWorkflowDisplay(
+					workflow.getNameSpace()));
 			namespaceCombobox.addActionListener(controller.getAction(
 					MeasurementViewerControl.SELECT_WORKFLOW));
 			
-			CheckBoxModel tableModel = new CheckBoxModel(
-					workflow.getKeywordsAsList());
+			List<String> list = workflow.getKeywordsAsList();
+			CheckBoxModel tableModel = new CheckBoxModel(list);
 			keywords.setModel(tableModel);
-			keywords.setTrueValues(model.getKeywords());
+			List<String> words = model.getKeywords();
+			keywords.setTrueValues(words);
 			repaint();
 			if (!isVisible())
 				UIUtilities.setLocationRelativeToAndSizeToWindow(view, this, 
@@ -262,8 +276,11 @@ class WorkflowPanel
 		namespaceCombobox.removeActionListener(this.controller.getAction(
 				MeasurementViewerControl.SELECT_WORKFLOW));
 		namespaceCombobox.removeAllItems();
-		for (String workflow : model.getWorkflows())
-			namespaceCombobox.addItem(workflow);
+		List<String> list = model.getWorkflows();
+		Iterator<String> i = list.iterator();
+		while (i.hasNext()) {
+			namespaceCombobox.addItem(view.getWorkflowDisplay(i.next()));
+		}
 		namespaceCombobox.addActionListener(controller.getAction(
 				MeasurementViewerControl.SELECT_WORKFLOW));
 	}
@@ -280,7 +297,7 @@ class WorkflowPanel
 	 */
 	public void componentHidden(ComponentEvent e)
 	{
-		model.setWorkflow(WorkflowData.DEFAULTWORKFLOW);
+		//model.setWorkflow(WorkflowData.DEFAULTWORKFLOW);
 	}
 
 	/**

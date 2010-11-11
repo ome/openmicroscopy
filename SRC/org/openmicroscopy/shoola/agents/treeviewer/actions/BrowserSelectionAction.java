@@ -39,7 +39,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 /** 
  * Selects the type of <code>Browser</code>. Three types are actually 
  * implemented and defined by the following constants:
- * {@link Browser#PROJECT_EXPLORER}, {@link Browser#IMAGES_EXPLORER},
+ * {@link Browser#PROJECTS_EXPLORER}, {@link Browser#IMAGES_EXPLORER},
  * {@link Browser#TAGS_EXPLORER} and {@link Browser#SCREENS_EXPLORER}.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -66,7 +66,7 @@ public class BrowserSelectionAction
     {
         IconManager im = IconManager.getInstance();
         switch (type) {
-            case Browser.PROJECT_EXPLORER:
+            case Browser.PROJECTS_EXPLORER:
                 putValue(Action.NAME, Browser.HIERARCHY_TITLE);
                 putValue(Action.SMALL_ICON,
                         im.getIcon(IconManager.HIERARCHY_EXPLORER));
@@ -107,7 +107,7 @@ public class BrowserSelectionAction
      * 
      * @param model Reference to the model. Mustn't be <code>null</code>.
      * @param browserType 	The Browser's type. One of the following constants:
-     * 						{@link Browser#PROJECT_EXPLORER}, 
+     * 						{@link Browser#PROJECTS_EXPLORER}, 
      * 						{@link Browser#IMAGES_EXPLORER},
      * 						{@link Browser#FILES_EXPLORER}
      * 						{@link Browser#TAGS_EXPLORER} and 

@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.env.data;
 //Java import
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -135,8 +134,9 @@ class OmeroImageServiceImpl
 		throws RenderingServiceException
 	{
 		try {
-			ByteArrayInputStream stream = new ByteArrayInputStream(values);
-			return ImageIO.read(stream);
+			return WriterImage.bytesToImage(values);
+			//ByteArrayInputStream stream = new ByteArrayInputStream(values);
+			//return ImageIO.read(stream);
 		} catch (Exception e) {
 			throw new RenderingServiceException("Cannot create buffered image",
 					e);
@@ -248,11 +248,11 @@ class OmeroImageServiceImpl
 			if (max < h) max = h;
 			if (max > RenderingControl.MAX_SIZE_THREE) 
 				max = RenderingControl.MAX_SIZE_THREE;
-			Map m = gateway.getThumbnailSet(ids, max);
+			Map m = gateway.getThumbnailSet(ids, max, true);
 			byte[] values = (byte[]) m.get(pixelsID);
 			if (asTexture) {
 				return PixelsServicesFactory.createTexture(
-						WriterImage.bytesToDataBufferJPEG(values), w, h);
+						WriterImage.bytesToDataBuffer(values), w, h);
 			} else {
 				return createImage(values);
 			}
@@ -316,14 +316,15 @@ class OmeroImageServiceImpl
 				return r;
 			}
 			//First check if we have a renderer for the pixel
-			
-			
+			BufferedImage img;
 			RenderingControl rnd;
 			PlaneDef pDef = new PlaneDef();
 			pDef.slice = omero.romio.XY.value;
-			BufferedImage img;
+			
 			Dimension d;
 			int level;
+			ids.addAll(pixelsID);
+			/*
 			while (j.hasNext()) {
 				id = (Long) j.next();
 				rnd = PixelsServicesFactory.getRenderingControl(context, id, 
@@ -337,11 +338,8 @@ class OmeroImageServiceImpl
 	        				rnd.getPixelsDimensionsX(), 
 	        				rnd.getPixelsDimensionsY());
 					try {
-						level = rnd.getCompressionLevel();
-						rnd.setCompression(RenderingControl.LOW);
 						img = Factory.scaleBufferedImage(rnd.renderPlane(pDef),
 								d.width, d.height);
-						rnd.setCompression(level);
 						r.put(id, img);
 					} catch (Exception e) {//failed to get it that way
 						ids.add(id);
@@ -350,8 +348,8 @@ class OmeroImageServiceImpl
 				}
 			}
 			if (ids.size() == 0) return r;
-			
-			Map m = gateway.getThumbnailSet(ids, max);
+			*/
+			Map m = gateway.getThumbnailSet(pixelsID, max, false);
 			if (m == null || m.size() == 0) {
 				i = ids.iterator();
 				while (i.hasNext()) 
@@ -391,7 +389,6 @@ class OmeroImageServiceImpl
 					r.put((Long) i.next(), null);
 			} 
 			return r;
-			//throw new RenderingServiceException("Get Thumbnail set", e);
 		}
 	}
 	
@@ -930,7 +927,7 @@ class OmeroImageServiceImpl
 	 * @see OmeroImageService#loadScript(long)
 	 */
 	public ScriptObject loadScript(long scriptID)
-		throws ScriptingException
+		throws ProcessException
 	{
 		return gateway.loadScript(scriptID);
 	}
@@ -1054,12 +1051,13 @@ class OmeroImageServiceImpl
 	 * @see OmeroImageService#retrieveWorkflows(long)
 	 */
 	public List<WorkflowData> retrieveWorkflows(long userID) 
-	throws DSAccessException, DSOutOfServiceException
+		throws DSAccessException, DSOutOfServiceException
 	{
-		List<WorkflowData> workflows = gateway.retrieveWorkflows(userID);
-		return workflows;
+		ExperimenterData exp = (ExperimenterData) context.lookup(
+					LookupNames.CURRENT_USER_DETAILS);
+		if (userID < 0) userID = exp.getId();
+		return gateway.retrieveWorkflows(userID);
 	}
-
 	
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.

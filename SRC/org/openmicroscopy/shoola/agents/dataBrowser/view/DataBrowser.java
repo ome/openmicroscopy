@@ -636,8 +636,10 @@ public interface DataBrowser
 	 * 
 	 * @param row		The row identifying the well.
 	 * @param column	The column identifying the well.
+	 * @param multiSelection Pass <code>true</code> for multiple selection,
+	 * 		                 <code>false</code> otherwise.
 	 */
-	public void viewFieldsFor(int row, int column);
+	public void viewFieldsFor(int row, int column, boolean multiSelection);
 	
 	/**
 	 * Sets the thumbnails for all the fields of the specified well.
@@ -662,5 +664,19 @@ public interface DataBrowser
 	 * @param exp The user currently selected.
 	 */
 	public void setExperimenter(ExperimenterData exp);
+	
+	/**
+	 * Returns the grid representing the plate.
+	 * 
+	 * @return See above.
+	 */
+	PlateGridUI getGridUI();
+	
+	/**
+	 * Returns the parent of the nodes.
+	 * 
+	 * @return See above.
+	 */
+	Object getParentOfNodes();
 	
 }

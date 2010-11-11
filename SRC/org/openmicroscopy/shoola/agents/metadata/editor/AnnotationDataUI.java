@@ -28,6 +28,9 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -47,7 +50,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -64,11 +66,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 
 //Third-party libraries
-import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.border.SeparatorOneLineBorder;
@@ -150,6 +151,12 @@ class AnnotationDataUI
 	/** Button to add documents. */
 	private JButton							addDocsButton;
 	
+	/** Button to remove all documents. */
+	private JButton							removeDocsButton;
+	
+	/** Button to remove all tags. */
+	private JButton							removeTagsButton;
+	
 	/** Button to remove the rate of the object. */
 	private JButton							unrateButton;
 	
@@ -201,6 +208,10 @@ class AnnotationDataUI
 	/** The constraints related to the layout of the attachments. */
 	private String							docConstraints;
 	
+	/** The index indicating the location of the attachments. */
+	private int docIndex = 0;
+	
+	/** The document of reference. */
 	private JComponent docRef;
 	
 	/**
@@ -260,6 +271,7 @@ class AnnotationDataUI
 			if (data != null) nodes.add(data);
 		}
 		layoutAttachments(nodes);
+		buildGUI();
 	}
 	
 	/**
@@ -358,6 +370,20 @@ class AnnotationDataUI
 		
 		});
 		UIUtilities.unifiedButtonLookAndFeel(addDocsButton);
+		
+		removeTagsButton = new JButton(icons.getIcon(IconManager.MINUS_12));
+		UIUtilities.unifiedButtonLookAndFeel(removeTagsButton);
+		removeTagsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+		removeTagsButton.setToolTipText("Unlink Tags.");
+		removeTagsButton.addActionListener(controller);
+		removeTagsButton.setActionCommand(""+EditorControl.REMOVE_TAGS);
+		removeDocsButton = new JButton(icons.getIcon(IconManager.MINUS_12));
+		UIUtilities.unifiedButtonLookAndFeel(removeDocsButton);
+		removeDocsButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+		removeDocsButton.setToolTipText("Unlink Attachments.");
+		removeDocsButton.addActionListener(controller);
+		removeDocsButton.setActionCommand(""+EditorControl.REMOVE_DOCS);
+		
 		selectedValue = 0;
 		initialValue = selectedValue;
 		rating = new RatingComponent(selectedValue, 
@@ -381,6 +407,7 @@ class AnnotationDataUI
 		docPane = new JPanel();
 		docPane.setLayout(new BoxLayout(docPane, BoxLayout.Y_AXIS));
 		docPane.setBackground(UIUtilities.BACKGROUND_COLOR);
+		docRef = docPane;
 		doc = new DocComponent(null, model);
 		filesDocList.add(doc);
 		docPane.add(doc);
@@ -396,75 +423,84 @@ class AnnotationDataUI
 	}
 	
 	/**
-	 * Creates a tool bar and adds the passed button to it.
+	 * Creates a tool bar and adds the passed buttons to it.
 	 * 
-	 * @param button The button to add.
+	 * @param addButton The button to add.
+	 * @param removeButton The button to add.
 	 * @return See above.
 	 */
-	private JToolBar createBar(JButton button)
+	private JToolBar createBar(JButton addButton, JButton removeButton)
 	{
 		JToolBar bar = new JToolBar();
 		bar.setFloatable(false);
 		bar.setBorder(null);
 		bar.setBackground(UIUtilities.BACKGROUND_COLOR);
-		bar.add(button);
+		bar.add(addButton);
+		if (removeButton != null) {
+			//bar.add(Box.createHorizontalStrut(2));
+			bar.add(removeButton);
+		}
 		return bar;
 	}
 	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		content.removeAll();
 		JLabel l = new JLabel();
 		Font f = l.getFont();
 		int size = f.getSize()-1;
+		content.removeAll();
+		content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 		
-    	double[] columns = {TableLayout.PREFERRED, 5,
-    			TableLayout.PREFERRED, 5, TableLayout.PREFERRED};//DEFAULT_WIDTH};
-    	TableLayout layout = new TableLayout();
-    	content.setLayout(layout);
-    	layout.setColumn(columns);
-		int i = 0;
-		layout.insertRow(i, TableLayout.PREFERRED);
-		
-		JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		//layout button.
+		//filters
+		JPanel p = UIUtilities.buildComponentPanel(
+				createBar(filterButton, null), 0, 0);
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		p.add(createBar(filterButton));
-		content.add(p, "0, "+i+", 4, "+i);
-		i++;
-		
-		layout.insertRow(i, TableLayout.PREFERRED);
+		content.add(p);
+		//rating
 		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.add(UIUtilities.setTextFont("rate", Font.BOLD, size));
-		p.add(createBar(unrateButton));
-		content.add(p, "0, "+i);
-		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		p.add(rating);
+		p.add(createBar(unrateButton, null));
 		p.add(Box.createHorizontalStrut(2));
-		p.add(otherRating);
-		content.add(p, "2, "+i);
-		i++;
-		layout.insertRow(i, TableLayout.PREFERRED);
+		p.add(rating);
+		//p.add(Box.createHorizontalStrut(2));
+		//p.add(otherRating);
+		content.add(p);
+		
+		//tags and attachments.
 		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.add(UIUtilities.setTextFont("tag", Font.BOLD, size));
-		p.add(createBar(addTagsButton));
+		p.add(createBar(addTagsButton, removeTagsButton));
 		
-		content.add(p, "0, "+i+", LEFT, TOP");
-		content.add(tagsPane, "2, "+i);
-		tagRow = i;
-		i++;
-		layout.insertRow(i, TableLayout.PREFERRED);
+		JPanel panel = new JPanel(new GridBagLayout());
+		panel.setBackground(UIUtilities.BACKGROUND_COLOR);
+		GridBagConstraints c = new GridBagConstraints();
+		//c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.WEST;
+		c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+		c.fill = GridBagConstraints.NONE;      //reset to default
+		c.insets = new Insets(0, 2, 2, 0);
+		c.gridy = 0;
+		c.gridx = 0;
+		panel.add(p, c);
+		
 		p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.add(UIUtilities.setTextFont("attachment", Font.BOLD, size));
-		p.add(createBar(addDocsButton));
-		content.add(p, "0, "+i+", LEFT, TOP");
-		docConstraints = "2, "+i;
-		docRef = docPane;
-		content.add(docPane, docConstraints);
+		p.add(createBar(addDocsButton, removeDocsButton));
+		c.gridy = 3;
+		panel.add(p, c);
+		c.gridy = 0;
+		c.gridx++;
+		c.ipady = 2;
+		c.gridheight = 2;
+		panel.add(tagsPane, c);
+		c.gridy = 3;
+		panel.add(docRef, c);
+		content.add(panel);
 		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		setBackground(UIUtilities.BACKGROUND);
 		setBorder(new SeparatorOneLineBorder());
@@ -483,35 +519,8 @@ class AnnotationDataUI
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		return p;
 	}
-	
-	/** 
-	 * Lays out the passed row. 
-	 * 
-	 * @param row The row to lay out.
-	 * @return See above.
-	 */
-	private JPanel layoutRow(JPanel row)
-	{
-		JPanel p = new JPanel(); 
-		p.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
-		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-		Component[] comps = row.getComponents();
-		row.removeAll();
-		JLabel l;
-		for (int i = 0; i < comps.length; i++) {
-			row.add(comps[i]);
-			if (i < comps.length-1) {
-				l = new JLabel();
-				l.setBackground(UIUtilities.BACKGROUND_COLOR);
-				l.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
-				l.setText(", ");
-				row.add(l);
-			}
-		}
-		p.add(row);
-		return p;
-	}
   
+	
 	/** 
 	 * Lays out the attachments. 
 	 * 
@@ -520,9 +529,12 @@ class AnnotationDataUI
 	private void layoutAttachments(Collection list)
 	{
 		docPane.removeAll();
+		//TableLayout layout = (TableLayout) content.getLayout();
+		//layout.setRow(docIndex, TableLayout.PREFERRED);
 		filesDocList.clear();
 		DocComponent doc;
 		int h = 0;
+		int v;
 		if (list != null && list.size() > 0) {
 			Iterator i = list.iterator();
 			Map<FileAnnotationData, Object> 
@@ -543,7 +555,8 @@ class AnnotationDataUI
 							}
 							filesDocList.add(doc);
 							docPane.add(doc);
-							h = doc.getPreferredSize().height;
+							v = doc.getPreferredSize().height;
+							if (h < v) h = v;
 						}
 					}
 					break;
@@ -561,7 +574,8 @@ class AnnotationDataUI
 											(FileAnnotationData) data, doc);
 								}
 								docPane.add(doc);
-								h = doc.getPreferredSize().height;
+								v = doc.getPreferredSize().height;
+								if (h < v) h = v;
 							}
 						}
 					}
@@ -580,7 +594,8 @@ class AnnotationDataUI
 											(FileAnnotationData) data, doc);
 								}
 								docPane.add(doc);
-								h = doc.getPreferredSize().height;
+								v = doc.getPreferredSize().height;
+								if (h < v) h = v;
 							}
 						}
 					}
@@ -600,19 +615,19 @@ class AnnotationDataUI
 		}
 		int n = docPane.getComponentCount();
 		docRef = docPane;
+		
 		if (n >= MAX) {
 			Dimension d = docPane.getPreferredSize();
 			JScrollPane sp = new JScrollPane(docPane);
-			sp.setPreferredSize(new Dimension(d.width, h*2*MAX));
+			int width = d.width+20;
+			if (width < COLUMN_WIDTH) width = COLUMN_WIDTH;
+			sp.getViewport().setPreferredSize(new Dimension(width, h*MAX));
 			docRef = sp;	
-		}
-		content.add(docRef, docConstraints);
-		
+		} 
 		docPane.revalidate();
 		docPane.repaint();
-		content.revalidate();
-		content.repaint();
 	}
+	
 	
 	/**
 	 * Lays out the tags.
@@ -731,11 +746,6 @@ class AnnotationDataUI
 	 */
 	protected void buildUI()
 	{
-		//rating
-		//if (!init) {
-			buildGUI();
-			init = true;
-		//}
 		selectedValue = 0;
 		String text = "";
 		if (!model.isMultiSelection()) {
@@ -755,13 +765,26 @@ class AnnotationDataUI
 		//Add attachments
 		Collection l = model.getAttachments();
 		int count = 0;
-		if (l != null) count += l.size();
-		layoutAttachments(l);
+		List v = null;
+		if (l != null) {
+			v = new ArrayList();
+			Iterator k = l.iterator();
+			FileAnnotationData data;
+			boolean b = false;
+			while (k.hasNext()) {
+				data = (FileAnnotationData) k.next();
+				b = isEditorFile(data.getFileName());
+				if (!b) b = isEditorFile(data.getNameSpace());
+				if (!b) v.add(data);
+			}
+			count += v.size();
+		}
+		layoutAttachments(v);
 		
 		//Viewed by
 		Object refObject = model.getRefObject();
-		TableLayout layout = (TableLayout) content.getLayout();
-		double hTag = TableLayout.PREFERRED;
+		//TableLayout layout = (TableLayout) content.getLayout();
+		//double hTag = TableLayout.PREFERRED;
 		
 		if (!model.isMultiSelection()) {
 			l = model.getTags();
@@ -775,19 +798,33 @@ class AnnotationDataUI
 		addTagsButton.setEnabled(enabled);
 		addDocsButton.setEnabled(enabled);
 		unrateButton.setEnabled(enabled);
-		layout.setRow(tagRow, hTag);
-		content.revalidate();
-		content.repaint();
-		revalidate();
-		repaint();
+		removeTagsButton.setEnabled(enabled);
+		removeDocsButton.setEnabled(enabled);
+		buildGUI();
 	}
 
 	/**
-	 * Attaches the passed file.
+	 * Returns <code>true</code> if the passed value corresponds to
+	 * a name space for <code>Editor</code>.
+	 * 
+	 * @param value The value to handle.
+	 * @return See above.
+	 */
+	boolean isEditorFile(String value)
+	{
+		if (EditorUtil.isEditorFile(value)) return true;
+		return (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(value) ||
+				FileAnnotationData.EDITOR_PROTOCOL_NS.equals(value));
+	}
+	
+	/**
+	 * Attaches the passed file. Returns <code>true</code> if the file
+	 * does not already exist, <code>false</code> otherwise.
 	 * 
 	 * @param file The file to attach.
+	 * @return See above
 	 */
-	void attachFile(File file)
+	boolean attachFile(File file)
 	{
 		List<FileAnnotationData> list = getCurrentAttachmentsSelection();
 		DocComponent doc;
@@ -823,6 +860,7 @@ class AnnotationDataUI
 					Boolean.TRUE);
 		}
 		layoutAttachments(list);
+		return !exist;
 	}
 	
 	/**
@@ -858,7 +896,7 @@ class AnnotationDataUI
 				}
 			}
 		}
-		handleObjectsSelection(FileAnnotationData.class, toKeep);
+		handleObjectsSelection(FileAnnotationData.class, toKeep, true);
 	}
 	
 	/**
@@ -878,7 +916,7 @@ class AnnotationDataUI
 			if (data.getId() != tag.getId())
 				toKeep.add(data);
 		}
-		handleObjectsSelection(TagAnnotationData.class, toKeep);
+		handleObjectsSelection(TagAnnotationData.class, toKeep, true);
 	}
 	
 	/**
@@ -886,8 +924,10 @@ class AnnotationDataUI
 	 * 
 	 * @param type	  The type of objects to handle.
 	 * @param objects The objects to handle.
+	 * @param fire 	  Pass <code>true</code> to notify, <code>false</code>
+	 * 				  otherwise.
 	 */
-	void handleObjectsSelection(Class type, Collection objects)
+	void handleObjectsSelection(Class type, Collection objects, boolean fire)
 	{
 		if (objects == null) return;
 		if (TagAnnotationData.class.equals(type)) {
@@ -939,8 +979,10 @@ class AnnotationDataUI
 				}
 			}
 		}
-		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false), 
-				Boolean.valueOf(true));
+		buildGUI();
+		if (fire)
+			firePropertyChange(EditorControl.SAVE_PROPERTY, 
+					Boolean.valueOf(false), Boolean.valueOf(true));
 	}
 	
 	/**
@@ -990,6 +1032,76 @@ class AnnotationDataUI
 					list.add(data);
 			}
 		}
+		return list;
+	}
+	
+	/**
+	 * Returns the collection of attachments.
+	 * 
+	 * @return See above.
+	 */
+	List<FileAnnotationData> removeAttachedFiles()
+	{
+		List<FileAnnotationData> list = new ArrayList<FileAnnotationData>();
+		if (filesDocList.size() == 0) {
+			docFlag = false;
+			return list;
+		}
+		List<FileAnnotationData> toKeep = new ArrayList<FileAnnotationData>();
+		FileAnnotationData data;
+		DocComponent doc;
+		Object object;
+		Iterator<DocComponent> i = filesDocList.iterator();
+		while (i.hasNext()) {
+			doc = i.next();
+			object = doc.getData();
+			if (doc.canUnlink()) {
+				if (object instanceof FileAnnotationData) {
+					data = (FileAnnotationData) object;
+					if (data.getId() > 0)
+						list.add(data);
+				}
+			} else {
+				toKeep.add((FileAnnotationData) object);
+			}
+		}
+		handleObjectsSelection(FileAnnotationData.class, toKeep, false);
+		if (list.size() == 0) docFlag = false;
+		return list;
+	}
+	
+	/**
+	 * Returns the collection of tags.
+	 * 
+	 * @return See above.
+	 */
+	List<TagAnnotationData> removeTags()
+	{
+		List<TagAnnotationData> list = new ArrayList<TagAnnotationData>();
+		if (tagsDocList.size() == 0)  {
+			tagFlag = false;
+			return list;
+		}
+		List<TagAnnotationData> toKeep = new ArrayList<TagAnnotationData>();
+		TagAnnotationData data;
+		DocComponent doc;
+		Object object;
+		Iterator<DocComponent> i = tagsDocList.iterator();
+		while (i.hasNext()) {
+			doc = i.next();
+			object = doc.getData();
+			if (doc.canUnlink()) {
+				if (object instanceof TagAnnotationData) {
+					data = (TagAnnotationData) object;
+					if (data.getId() > 0)
+						list.add(data);
+				} 
+			} else {
+				toKeep.add((TagAnnotationData) object);
+			}
+		}
+		handleObjectsSelection(TagAnnotationData.class, toKeep, false);
+		if (list.size() == 0) tagFlag = false;
 		return list;
 	}
 	
@@ -1245,10 +1357,9 @@ class AnnotationDataUI
 		docPane.add(doc);
 		tagFlag = false;
 		docFlag = false;
-		double h = TableLayout.PREFERRED;
-		//if (!model.isMultiSelection()) h = TableLayout.PREFERRED;
-		TableLayout layout = (TableLayout) content.getLayout();
-		layout.setRow(tagRow, h);
+		//double h = TableLayout.PREFERRED;
+		//TableLayout layout = (TableLayout) content.getLayout();
+		//layout.setRow(tagRow, h);
 		content.revalidate();
 		content.repaint();
 		revalidate();

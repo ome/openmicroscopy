@@ -25,7 +25,11 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -43,7 +47,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
 //Third-party libraries
-import info.clearthought.layout.TableLayout; 
+//import info.clearthought.layout.TableLayout; 
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -71,6 +75,9 @@ class TextualAnnotationsUI
 	implements ActionListener, DocumentListener, FocusListener
 {
     
+	/** The length of the text before hiding the comment. */
+	private static final int	MAX_LENGTH_TEXT = 200;
+	
 	/** The default description. */
     private static final String	DEFAULT_TEXT_COMMENT = "Comments";
     
@@ -110,8 +117,14 @@ class TextualAnnotationsUI
 	/** Flag indicating to build the UI once. */
 	private boolean 			init;
 	
-	/** Indicate that the comments added by other users are visible. */
+	/** Flag indicating that the comments added by other users are visible. */
 	private boolean				expanded;
+	
+	/** Flag indicating that the latest comment was displayed or not. */
+	private boolean				partial;
+	
+	/** The constraints used to lay out the components. */
+	private GridBagConstraints constraints;
 	
 	/**
 	 * Builds and lays out the component hosting all previous annotations.
@@ -124,7 +137,6 @@ class TextualAnnotationsUI
 		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		List list = model.getTextualAnnotationsByDate();
-		//long userID = MetadataViewerAgent.getUserDetails().getId();
 		if (list != null) {
 			Iterator i = list.iterator();
 			TextualAnnotationData data;
@@ -132,14 +144,12 @@ class TextualAnnotationsUI
 			int index = 0;
 			while (i.hasNext()) {
 				data = (TextualAnnotationData) i.next();
-				//if (data.getOwner().getId() != userID) {
-					comp = new TextualAnnotationComponent(model, data);
-					if (index%2 == 0) 
-						comp.setAreaColor(UIUtilities.BACKGROUND_COLOUR_EVEN);
-		            else comp.setAreaColor(UIUtilities.BACKGROUND_COLOUR_ODD);
-					p.add(comp);
-					index++;
-				//}
+				comp = new TextualAnnotationComponent(model, data);
+				if (index%2 == 0) 
+					comp.setAreaColor(UIUtilities.BACKGROUND_COLOUR_EVEN);
+				else comp.setAreaColor(UIUtilities.BACKGROUND_COLOUR_ODD);
+				p.add(comp);
+				index++;
 			}
 		}
 		return p;
@@ -266,36 +276,49 @@ class TextualAnnotationsUI
 		removeAll();
     	setBorder(new SeparatorOneLineBorder());
 		setBackground(UIUtilities.BACKGROUND_COLOR);
-		double[][] size = {{TableLayout.FILL}, {TableLayout.PREFERRED, 
-			60, 0, 0}};
-    	setLayout(new TableLayout(size));
-    	JScrollPane pane = new JScrollPane(commentArea);
+		JScrollPane pane = new JScrollPane(commentArea);
+		Dimension d = pane.getPreferredSize();
+		pane.getViewport().setPreferredSize(new Dimension(d.width, 60));
     	pane.setBorder(null);
     	JLabel l = new JLabel();
     	
 		Font f = l.getFont();
 		l = UIUtilities.setTextFont("comment", Font.BOLD, f.getSize()-1);
 		l.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
-		add(l, "0, 0");
-    	add(pane, "0, 1");
+		setLayout(new GridBagLayout());
+		constraints = new GridBagConstraints();
+		constraints.fill = GridBagConstraints.HORIZONTAL;
+		constraints.anchor = GridBagConstraints.NORTHWEST;
+		constraints.insets = new Insets(0, 2, 2, 0);
+		constraints.gridy = 0;
+		constraints.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+		constraints.weightx = 1.0;  
+		add(l, constraints);
+		constraints.gridy++;
+		add(pane, constraints);
 	}
 
 	/** Hides the previous comments. */
 	private void hidePreviousComments()
 	{
-		TableLayout layout = (TableLayout) getLayout();
-		layout.setRow(3, TableLayout.PREFERRED);
-		//remove(hideComponent);
 		List l = model.getTextualAnnotationsByDate();
-		if (l != null && l.size() > 2) {
+		if (partial) {
+			if (l != null && l.size() > 2) {
+				remove(hideComponent);
+				constraints.gridy = 2;
+				add(moreComponent, constraints);
+			}
+			constraints.gridy = 3;
+			previousComments.getViewport().add(
+					displayPartialPreviousComments());
+			add(previousComments, constraints);
+		} else {
 			remove(hideComponent);
-			layout.setRow(2, TableLayout.PREFERRED);
-			add(moreComponent, "0, 2");
+			constraints.gridy = 2;
+			add(moreComponent, constraints);
+			previousComments.getViewport().removeAll();
 		}
-		//add(moreComponent, "0, 2");
-		JPanel p = displayPartialPreviousComments();
-		previousComments.getViewport().add(p);
-		add(previousComments, "0, 3");
+		
 		revalidate();
 		repaint();
 	}
@@ -303,15 +326,16 @@ class TextualAnnotationsUI
 	/** Lays out the node. */
 	private void layoutPreviousComments()
 	{
-		TableLayout layout = (TableLayout) getLayout();
 		List l = model.getTextualAnnotationsByDate();
-		if (l != null && l.size() > 2) {
+		int n = 3;
+		if (!partial) n = 1;
+		if (l != null && l.size() >= n) {
 			remove(moreComponent);
-			layout.setRow(2, TableLayout.PREFERRED);
-			add(hideComponent, "0, 2");
+			constraints.gridy = 2;
+			add(hideComponent, constraints);
 		}
-		JPanel p = displayAllPreviousComments();
-		previousComments.getViewport().add(p);
+		previousComments.getViewport().removeAll();
+		previousComments.getViewport().add(displayAllPreviousComments());
 		revalidate();
 		repaint();
 	}
@@ -339,10 +363,10 @@ class TextualAnnotationsUI
 	 */
 	protected void buildUI()
 	{
-		if (!init) {
+		//if (!init) {
 			buildGUI();
 			init = true;
-		}
+		//}
 		
 		if (!hasPreviousTextualAnnotations()) {
 			originalText = DEFAULT_TEXT_COMMENT;
@@ -350,23 +374,26 @@ class TextualAnnotationsUI
 		}
 		
 		commentArea.setEnabled(model.isWritable());
-		TableLayout layout = (TableLayout) getLayout();
-		layout.setRow(2, 0);
-		layout.setRow(3, 0);
 		if (hasPreviousTextualAnnotations()) {
-			layout.setRow(3, TableLayout.PREFERRED);
-			add(previousComments, "0, 3");
-			List l = model.getTextualAnnotationsByDate();
-			if (l.size() > 2) {
-				layout.setRow(2, TableLayout.PREFERRED);
-				add(moreComponent, "0, 2");
-			}
+			List list = model.getTextualAnnotationsByDate();
+			TextualAnnotationData data = (TextualAnnotationData) list.get(0);
+			String text = data.getText();
+			expanded = text.length() < MAX_LENGTH_TEXT;
+			//layout.setRow(3, TableLayout.PREFERRED);
+			constraints.gridy = 3;
+			add(previousComments, constraints);
 			if (expanded) {
-				previousComments.getViewport().add(
-						displayAllPreviousComments());
-			} else {
+				partial = true;
 				previousComments.getViewport().add(
 						displayPartialPreviousComments());
+				if (list.size() > 2) {
+					constraints.gridy = 2;
+					add(moreComponent, constraints);
+				}
+			} else {
+				partial = false;
+				constraints.gridy = 2;
+				add(moreComponent, constraints);
 			}
 		}
 		revalidate();

@@ -79,6 +79,7 @@ package org.openmicroscopy.shoola.util.concur.tasks;
  */
 public interface ExecMonitor
 {
+	
     /**
      * Called just before executing the first step in the computation.
      */

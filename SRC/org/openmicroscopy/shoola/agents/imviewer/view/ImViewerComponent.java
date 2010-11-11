@@ -269,7 +269,6 @@ class ImViewerComponent
 	private boolean saveOnClose(boolean notifyUser)
 	{
 		if (isReadOnly()) return true;
-		
 		if (!notifyUser) {
 			//savePlane();
 			try {
@@ -573,6 +572,19 @@ class ImViewerComponent
 	String getTitle() { return view.getTitle(); }
 
 	/** 
+     * Invokes when the rendering settings has been saved using another way.
+     * 
+     * @param settings The save rendering settings.
+     */
+    void onRndSettingsSaved(RndProxyDef settings)
+    {
+    	if (settings == null) return;
+    	model.resetOriginalSettings(settings);
+    	refresh();
+    	fireStateChange();
+    }
+    
+	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
 	 * @see ImViewer#activate(RndProxyDef, long)
 	 */
@@ -776,6 +788,10 @@ class ImViewerComponent
 		view.setLeftStatus();
 		view.setPlaneInfoStatus();
 		if (originalImage == null && model.isZoomFitToWindow()) {
+			
+			
+			
+			
 			controller.setZoomFactor(ZoomAction.ZOOM_FIT_TO_WINDOW);
 		}
 		if (model.isPlayingChannelMovie())
@@ -2163,7 +2179,7 @@ class ImViewerComponent
 			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Save settings", "Cannot save rendering settings. ");
 		}
-    	
+		
 		EventBus bus = ImViewerAgent.getRegistry().getEventBus();
 		List<Long> l = new ArrayList<Long>();
 		l.add(model.getImageID());
@@ -2549,6 +2565,7 @@ class ImViewerComponent
 		} else {
 			renderXYPlane();
 		}
+		model.getBrowser().getUI().setVisible(true);
 		//firePropertyChange(TAB_SELECTION_PROPERTY, Boolean.FALSE, Boolean.TRUE);
 	}
 
@@ -2763,6 +2780,8 @@ class ImViewerComponent
 	 */
 	public void selectAllChannels(boolean selection)
 	{
+		String cm = model.getColorModel();
+		if (ImViewer.GREY_SCALE_MODEL.equals(cm)) return;
 		for (int i = 0; i < model.getMaxC(); i++) {
 			model.setChannelActive(i, selection);
 			firePropertyChange(CHANNEL_ACTIVE_PROPERTY, 

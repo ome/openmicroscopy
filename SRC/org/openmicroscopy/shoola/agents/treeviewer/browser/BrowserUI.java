@@ -24,7 +24,7 @@
 package org.openmicroscopy.shoola.agents.treeviewer.browser;
 
 
-//Java imports
+//Java import
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Point;
@@ -47,6 +47,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
@@ -84,7 +85,6 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.data.FSFileSystemView;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -166,6 +166,9 @@ class BrowserUI
     /** Flag indicating if the left mouse button is pressed. */
     private boolean					leftMouseButton;
     
+    /** The component displayed at the bottom of the UI. */
+    private JComponent				bottomComponent;
+
     /**
      * Builds the tool bar.
      * 
@@ -196,8 +199,9 @@ class BrowserUI
     {
     	setLayout(new BorderLayout(0, 0));
     	add(buildToolBar(), BorderLayout.NORTH);
-    	add(new JScrollPane(treeDisplay), BorderLayout.CENTER);
-    	//add(treeDisplay, BorderLayout.CENTER);
+    	JScrollPane pane = new JScrollPane();
+    	pane.getViewport().add(treeDisplay);
+    	add(pane, BorderLayout.CENTER);
     }
     
     /** Helper method to create the menu bar. */
@@ -216,7 +220,7 @@ class BrowserUI
         BrowserManageAction a;
         int type = model.getBrowserType();
         switch (type) {
-			case Browser.PROJECT_EXPLORER:
+			case Browser.PROJECTS_EXPLORER:
 			case Browser.SCREENS_EXPLORER:
 				a = (BrowserManageAction) 
 					controller.getAction(BrowserControl.NEW_CONTAINER);
@@ -319,19 +323,19 @@ class BrowserUI
             if (me.getClickCount() == 1) {
                 model.setClickPoint(p);
                //if (released) {
-            	   if ((me.isPopupTrigger() && !released) || 
-            			   (me.isPopupTrigger() && released && 
-            					   !UIUtilities.isMacOS()) ||
-                		(UIUtilities.isMacOS() && 
-                			SwingUtilities.isLeftMouseButton(me)
-                				&& me.isControlDown())) { //(me.isPopupTrigger()) {
-   
-                    	if (model.getBrowserType() == Browser.ADMIN_EXPLORER) 
-                    		controller.showPopupMenu(TreeViewer.ADMIN_MENU);
-                    	else 
-                    		controller.showPopupMenu(TreeViewer.FULL_POP_UP_MENU);
-                    		
-                    } 
+                if ((me.isPopupTrigger() && !released) || 
+                		(me.isPopupTrigger() && released && 
+                				!UIUtilities.isMacOS()) ||
+                				(UIUtilities.isMacOS() && 
+                						SwingUtilities.isLeftMouseButton(me)
+                						&& me.isControlDown())) { //(me.isPopupTrigger()) {
+
+                	if (model.getBrowserType() == Browser.ADMIN_EXPLORER) 
+                		controller.showPopupMenu(TreeViewer.ADMIN_MENU);
+                	else 
+                		controller.showPopupMenu(TreeViewer.FULL_POP_UP_MENU);
+
+                } 
                // }
             } else if (me.getClickCount() == 2 && released && !(me.isMetaDown()
             		|| me.isControlDown() || me.isShiftDown())) {
@@ -880,6 +884,7 @@ class BrowserUI
 			else if (uo instanceof ScreenData) top2.add(object);
 			else if (uo instanceof DatasetData) bottom.add(object);
 			else if (uo instanceof PlateData) bottom2.add(object);
+			else if (uo instanceof PlateAcquisitionData) bottom2.add(object);
 			else if (uo instanceof TagAnnotationData) {
 				if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(
 					((TagAnnotationData) uo).getNameSpace()))
@@ -1090,7 +1095,7 @@ class BrowserUI
     String getBrowserTitle()
     {
         switch (model.getBrowserType()) {
-            case Browser.PROJECT_EXPLORER:
+            case Browser.PROJECTS_EXPLORER:
                 return Browser.HIERARCHY_TITLE;
             case Browser.IMAGES_EXPLORER:
                 return Browser.IMAGES_TITLE;
@@ -1329,12 +1334,6 @@ class BrowserUI
 					}
 				}	        	
 		}
-    }
-    
-    /** Loads the children of the root node. */
-    void loadRoot()
-    {
-        treeDisplay.expandPath(new TreePath(getTreeRoot().getPath()));
     }
     
     /** Loads the children of the currently logged in experimenter. */
@@ -1808,7 +1807,6 @@ class BrowserUI
     	        treeDisplay.expandPath(new TreePath(node.getPath()));
     	        treeDisplay.addTreeExpansionListener(listener);
     	}
-       
     }
 	
     /**
@@ -1822,4 +1820,18 @@ class BrowserUI
     	expandNode(node, false);
     }
 	
+    /**
+     * Adds the component under the tree.
+     * 
+     * @param component The component to add.
+     */
+    void addComponent(JComponent component)
+    {
+    	if (bottomComponent != null) remove(bottomComponent);
+    	bottomComponent = component;
+    	if (component != null) add(bottomComponent, BorderLayout.SOUTH);
+    	revalidate();
+    	repaint();
+    }
+    
 }

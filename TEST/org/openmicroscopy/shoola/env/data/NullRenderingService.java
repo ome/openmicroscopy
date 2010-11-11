@@ -497,7 +497,7 @@ public class NullRenderingService
      * @see OmeroImageService#loadScript(long)
      */
 	public ScriptObject loadScript(long scriptID)
-			throws ScriptingException
+			throws ProcessException
 	{
 		return null;
 	}

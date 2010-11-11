@@ -143,7 +143,7 @@ public class SearchUtil
 		if (exist) {
 			i = terms.iterator();
 			int index = 0;
-			n = n-1;
+			//n = n-1;
 			while (i.hasNext()) {
     			value = i.next();
     			result += value;
@@ -153,7 +153,7 @@ public class SearchUtil
 			}
 			return result;
 		}
-		terms.remove(n-1);
+		//terms.remove(n-1);
 		i = terms.iterator();
 		while (i.hasNext()) {
 			result += i.next();

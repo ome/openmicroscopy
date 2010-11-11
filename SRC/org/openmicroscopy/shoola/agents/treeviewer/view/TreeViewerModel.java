@@ -73,7 +73,6 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
-import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.ImportObject;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -271,11 +270,11 @@ class TreeViewerModel
 	private void createBrowsers()
 	{
 		Browser browser = 
-			BrowserFactory.createBrowser(Browser.PROJECT_EXPLORER, 
+			BrowserFactory.createBrowser(Browser.PROJECTS_EXPLORER, 
 					component, experimenter, true);
 		selectedBrowser = browser;
 		browser.setSelected(true);
-		browsers.put(Browser.PROJECT_EXPLORER, browser);
+		browsers.put(Browser.PROJECTS_EXPLORER, browser);
 		browser = BrowserFactory.createBrowser(Browser.SCREENS_EXPLORER,
 									component, experimenter, true);
 		browsers.put(Browser.SCREENS_EXPLORER, browser);
@@ -447,12 +446,12 @@ class TreeViewerModel
 	/**
 	 * Starts the asynchronous removal of the data and sets the state to 
 	 * {@link TreeViewer#SAVE}.
-	 * This method should be invoked to remove a collection of nodes of the
-	 * same type.
+	 * This method should be invoked to remove a collection of groups or 
+	 * experimenters.
 	 * 
-	 * @param values The values to delete.
+	 * @param values The groups or experimenters to delete.
 	 */
-	void fireObjectsDeletion(List<DeletableObject> values)
+	void fireObjectsDeletion(List<DataObject> values)
 	{
 		state = TreeViewer.SAVE;
 		currentLoader = new DataObjectRemover(component, values);
@@ -920,8 +919,7 @@ class TreeViewerModel
 	Class getDataToCopyType()
 	{
 		TreeImageDisplay[] nodes = getNodesToCopy();
-		if (nodes == null) return null;
-		if (nodes.length == 0) return null;
+		if (nodes == null || nodes.length == 0) return null;
 		Object ho = nodes[0].getUserObject();
 		return ho.getClass();
 	}

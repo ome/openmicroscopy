@@ -473,17 +473,11 @@ class RenderingControlProxy
 		//Need to adjust the cache.
 		Object array = getFromCache(pDef);
 		try {
-			/*
-			if (array != null) {
-				
-			}
-				return WriterImage.bytesToImageJPEG((byte[]) array);
-			*/
 			byte[] values = servant.renderCompressed(pDef);
 			imageSize = values.length;
 			//initializeCache(pDef);
 			//cache(pDef, values);
-			return WriterImage.bytesToDataBufferJPEG(values);
+			return WriterImage.bytesToDataBuffer(values);
 		} catch (Throwable e) {
 			handleException(e, ERROR+"cannot render the compressed image.");
 		} 
@@ -701,7 +695,7 @@ class RenderingControlProxy
 					ProjectionParam.convertType(type), 
 					getDefaultT(), stepping, startZ, endZ);
 			
-			return WriterImage.bytesToImageJPEG(values);
+			return WriterImage.bytesToImage(values);
 		} catch (Throwable e) {
 			handleException(e, ERROR+"cannot render projected selection.");
 		}
@@ -755,9 +749,9 @@ class RenderingControlProxy
 	 * 						speed-up the client.
 	 * @param cacheSize		The desired size of the cache.
      */
-    RenderingControlProxy(Registry context, RenderingEnginePrx re, Pixels pixels,
-    					List m, int compression, RndProxyDef rndDef, 
-    					int cacheSize)
+    RenderingControlProxy(Registry context, RenderingEnginePrx re, 
+    		Pixels pixels, List m, int compression, RndProxyDef rndDef, 
+    		int cacheSize)
     {
         if (re == null)
             throw new NullPointerException("No rendering engine.");
@@ -773,7 +767,6 @@ class RenderingControlProxy
         models = null;
         
         try {
-        	
         	families = servant.getAvailableFamilies(); 
             models = servant.getAvailableModels();
             cacheID = -1;
@@ -802,7 +795,6 @@ class RenderingControlProxy
             tmpSolutionForNoiseReduction();
             
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
     }
 
@@ -1265,10 +1257,8 @@ class RenderingControlProxy
     { 
     	//DataServicesFactory.isSessionAlive(context);
     	try {
-    		long start = System.currentTimeMillis();
     		servant.saveCurrentSettings();
-			//System.err.println("save in rendering control: "+(System.currentTimeMillis()-start));
-    		return rndDef.copy();
+			return rndDef.copy();
 		} catch (Throwable e) {
 			handleException(e, ERROR+"save current settings.");
 		}
@@ -1761,13 +1751,16 @@ class RenderingControlProxy
 			new HashMap<Integer, ChannelBindingsProxy>();
 		for (int i = 0; i < getPixelsDimensionsC(); i++) {
 			channel = def.getChannel(i);
-			if (channel.isActive())
+			if (channel.isActive()) {
 				oldChannels.put(i, channel);
+			}	
 		}
 		
 		List<Integer> indexes = new ArrayList<Integer>();
 		for (int i = 0; i < getPixelsDimensionsC(); i++) {
-			if (isActive(i)) indexes.add(i);
+			if (isActive(i)) {
+				indexes.add(i);
+			}
 		}
 		
 		if (indexes.size() != oldChannels.size()) return false;

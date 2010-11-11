@@ -58,7 +58,7 @@ public class UserCredentials
 	
     /**
      * The <i>OMERO</i> login name of the user.
-     * This is the <code>OME Name</code> that was assinged to the user when
+     * This is the <code>OME Name</code> that was assigned to the user when
      * it was created in the DB.
      */
     private String  userName;
@@ -228,7 +228,7 @@ public class UserCredentials
     
     /**
      * Returns the <i>OMERO</i> login name of the user.
-     * This is the <code>OME Name</code> that was assinged to the user when
+     * This is the <code>OME Name</code> that was assigned to the user when
      * it was created in the DB.
      * This field is always a non-<code>null</code> string with a positive
      * length.

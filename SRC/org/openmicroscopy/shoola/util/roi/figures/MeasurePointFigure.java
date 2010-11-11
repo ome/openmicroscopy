@@ -33,14 +33,11 @@ import java.awt.geom.Rectangle2D;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
 import org.jhotdraw.draw.FigureListener;
-import org.jhotdraw.draw.Handle;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
@@ -49,7 +46,6 @@ import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
-import org.openmicroscopy.shoola.util.roi.util.FigureSelectionHandle;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.PointTextFigure;
@@ -71,6 +67,7 @@ public class MeasurePointFigure
 	extends PointTextFigure
 	implements ROIFigure
 {
+	
 	/** Is this figure read only. */
 	private boolean readOnly;
 
@@ -110,7 +107,7 @@ public class MeasurePointFigure
 	 * @param clientObject The figure is created clientside.
 	 */
 	public MeasurePointFigure(String text, double x, double y, double width, 
-												double height, boolean readOnly, boolean clientObject) 
+					double height, boolean readOnly, boolean clientObject) 
     {
     	super(text, x, y, width, height);
     	setAttributeEnabled(MeasurementAttributes.TEXT_COLOR, true);
@@ -130,7 +127,7 @@ public class MeasurePointFigure
      * */  
     public MeasurePointFigure(double x, double y, double width, double height) 
     {
-    	this("Text", x, y, width, height, false, true);
+    	this(DEFAULT_TEXT, x, y, width, height, false, true);
     }
 
     /**
@@ -140,16 +137,15 @@ public class MeasurePointFigure
 	 */
 	public MeasurePointFigure(boolean readOnly, boolean clientObject)
 	{
-		this("Text", 0, 0, 0, 0, readOnly, clientObject);
+		this(DEFAULT_TEXT, 0, 0, 0, 0, readOnly, clientObject);
 	}
 
-    
     /**
 	 * Create an instance of the Point Figure.
 	 */
 	public MeasurePointFigure()
 	{
-		this("Text", 0, 0, 0, 0, false, true);
+		this(DEFAULT_TEXT, 0, 0, 0, 0, false, true);
 	}
 
 	/** 
@@ -195,7 +191,6 @@ public class MeasurePointFigure
      */
     public double getMeasurementWidth() 
     {
-    	
     	if (units.isInMicrons()) return getWidth()*units.getMicronsPixelX();
     	return getWidth();
     }
@@ -308,6 +303,7 @@ public class MeasurePointFigure
 	 * Overridden to return the correct handles.
 	 * @see AbstractAttributedFigure#createHandles(int)
 	 */
+	/* cannot do that otherwise enter in an infinite loop
 	public Collection<Handle> createHandles(int detailLevel) 
 	{
 		if(!readOnly)
@@ -319,6 +315,7 @@ public class MeasurePointFigure
 			return handles;
 		}
 	}
+	*/
 	
 	/**
 	 * Calculates the bounds of the rendered figure, including the text rendered. 

@@ -78,6 +78,7 @@ public class ROITableModel
 
 	/**
 	 * Set the model to use ROI nodes and columns as a vector.
+	 * 
 	 * @param node root node for model.
 	 * @param columns column names.
 	 */
@@ -96,7 +97,8 @@ public class ROITableModel
 		objects[0] = getRoot();
 		objects[1] = node.getParent();
 		TreePath path = new TreePath(objects);
-		modelSupport.fireChildChanged(path, node.getParent().getIndex(node), node);
+		modelSupport.fireChildChanged(path, 
+				node.getParent().getIndex(node), node);
 	}
 	
 	/**
@@ -109,7 +111,7 @@ public class ROITableModel
 	{
 		if (nodeObject instanceof ROINode)
 		{
-			ROINode node = (ROINode)nodeObject;
+			ROINode node = (ROINode) nodeObject;
 			if (column == ANNOTATION_COLUMN+1)
 				if (value == null)
 					value = new String("");
@@ -131,21 +133,23 @@ public class ROITableModel
 	{
 		if (nodeObject instanceof ROINode)
 		{
-			ROINode roiNode=(ROINode)nodeObject;
+			ROINode roiNode = (ROINode) nodeObject;
 			return roiNode.getValueAt(column);
 		}
 		return null;
 	}
 	
 	/**
-	 * Is the cell editable for this node and column.
-	 * @param node the node of the tree.
-	 * @param column the field to edit.
-	 * @return see above.
+	 * Returns <code>true</code> if the cell can be edited, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param node The node of the tree.
+	 * @param column The field to edit.
+	 * @return See above.
 	 */
 	public boolean isCellEditable(Object node, int column) 
 	{
-		return isCellEditable((ROINode)node, column);
+		return isCellEditable((ROINode) node, column);
 	}
  
 	/**

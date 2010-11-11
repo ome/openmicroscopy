@@ -211,13 +211,13 @@ class TaskBarView
 								iconManager.getIcon(IconManager.SW_UPDATES));
 		buttons[ABOUT_MI] = new JMenuItem("About OMERO",
 												IconManager.getOMEIcon());
-		buttons[COMMENT_MI] = new JMenuItem("Send Comment",
+		buttons[COMMENT_MI] = new JMenuItem("Send Feedback...",
 								iconManager.getIcon(IconManager.COMMENT));
 		buttons[FORUM_MI] = new JMenuItem("Forum",
 				iconManager.getIcon(IconManager.FORUM));
 		buttons[LOG_FILE_MI] = new JMenuItem("Show Log File",
 				iconManager.getIcon(IconManager.LOG_FILE));
-		buttons[ACTIVITY_MI] = new JMenuItem("Activities",
+		buttons[ACTIVITY_MI] = new JMenuItem("Activities...",
 				iconManager.getIcon(IconManager.ACTIVITY));
 	}
 	
@@ -393,7 +393,7 @@ class TaskBarView
 		JToolBar bar = new JToolBar();
 		bar.setBorder(BorderFactory.createEtchedBorder());
 		bar.setFloatable(false);
-		bar.putClientProperty("JToolBar.isRollover", Boolean.TRUE);
+		bar.putClientProperty("JToolBar.isRollover", Boolean.valueOf(true));
 		return bar;
 	}
 	

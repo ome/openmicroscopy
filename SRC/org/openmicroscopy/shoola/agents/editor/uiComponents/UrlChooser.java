@@ -118,6 +118,15 @@ public class UrlChooser
 		frame.setLocation(100, 50);
 		frame.setVisible(true);
 	}
+	
+	/**
+	 * Shows the window on screen by calling setVisible() 
+	 */
+	public void showWindow() {
+		if (frame != null) {
+			frame.setVisible(true);
+		}
+	}
 
 	/**
 	 * Creates a new file by down-loading from the given URL. 

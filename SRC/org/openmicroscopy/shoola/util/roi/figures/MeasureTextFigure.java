@@ -29,15 +29,11 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedList;
 import java.util.List;
 
 //Third-party libraries
 import org.jhotdraw.draw.AbstractAttributedFigure;
-import org.jhotdraw.draw.BoundsOutlineHandle;
 import org.jhotdraw.draw.FigureListener;
-import org.jhotdraw.draw.Handle;
 import org.jhotdraw.draw.TextFigure;
 
 //Application-internal dependencies
@@ -171,6 +167,7 @@ public class MeasureTextFigure
 	 * Overridden to return the correct handles.
 	 * @see AbstractAttributedFigure#createHandles(int)
 	 */
+	/* cannot do that otherwise enter in an infinite loop
 	public Collection<Handle> createHandles(int detailLevel) 
 	{
 		if(!readOnly)
@@ -182,6 +179,7 @@ public class MeasureTextFigure
 			return handles;
 		}
 	}
+	*/
    
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.

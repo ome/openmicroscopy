@@ -165,7 +165,9 @@ class InputServerStrategy
 		throws NoSuchROIException, ROICreationException
 	{
 		long id = roi.getId();
-		ROI newROI = component.createROI(id, readOnly);
+		//ROI newROI = component.createROI(id, readOnly);
+		ROI newROI = component.createROI(id, id <= 0);
+		newROI.setOwnerID(roi.getOwner().getId());
 		if (roi.getNamespaces().size() != 0) {
 			String s = roi.getNamespaces().get(0);
 			newROI.setAnnotation(AnnotationKeys.NAMESPACE, s);
@@ -278,7 +280,6 @@ class InputServerStrategy
 	 */
 	private MeasureEllipseFigure createEllipseFigure(EllipseData data)
 	{
-		
 		double cx = data.getX();
 		double cy = data.getY();
 		double rx = data.getRadiusX();
@@ -288,18 +289,17 @@ class InputServerStrategy
 		double y = cy-ry;
 		double width = rx*2d;
 		double height = ry*2d;
-		MeasureEllipseFigure fig = new MeasureEllipseFigure(data.isReadOnly(), 
+		MeasureEllipseFigure fig = new MeasureEllipseFigure(data.getText(), 
+				x, y, width, height, data.isReadOnly(), 
 					data.isClientObject());
 		fig.setEllipse(x, y, width, height);
 		addShapeSettings(fig, data.getShapeSettings());
-		fig.setText(data.getText());
 		AffineTransform transform;
 		try {
 			transform = SVGTransform.toTransform(data.getTransform());
 			TRANSFORM.set(fig, transform);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			// e.printStackTrace();
+			
 		}
 		
 		return fig;
@@ -368,7 +368,6 @@ class InputServerStrategy
 	 */
 	private MeasureRectangleFigure createRectangleFigure(RectangleData data)
 	{
-		
 		double x = data.getX();
 		double y = data.getY();
 		double width = data.getWidth();
@@ -382,10 +381,7 @@ class InputServerStrategy
 		try {
 			transform = SVGTransform.toTransform(data.getTransform());
 			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			// e.printStackTrace();
-		}
+		} catch (IOException e) {}
 		
 		return fig;
 	}
@@ -471,11 +467,10 @@ class InputServerStrategy
 		List<Point2D.Double> points1 = data.getPoints1();
 		List<Point2D.Double> points2 = data.getPoints2();
 		List<Integer> mask = data.getMaskPoints();
-		for (int i=0; i<points.size(); i++)
+		for (int i = 0; i < points.size(); i++)
 		{
-			Node newNode = new Node(mask.get(i), points.get(i), points1.get(i), 
-					points2.get(i));
-			fig.addNode(newNode);
+			fig.addNode(new Node(mask.get(i), points.get(i), points1.get(i), 
+					points2.get(i)));
 		}
 		
 		addShapeSettings(fig, data.getShapeSettings());
@@ -504,16 +499,14 @@ class InputServerStrategy
 		List<Integer> mask = data.getMaskPoints();
 		
 		boolean line = true;
-		for(int i = 0 ; i < mask.size(); i++)
+		for (int i = 0 ; i < mask.size(); i++)
 		{
-			if(mask.get(i)!=0)
+			if (mask.get(i) != 0)
 				line = false;
 		}
 		
-		if(line)
-			return createLineFromPolylineFigure(data);
-		else
-			return createPolylineFromPolylineFigure(data);
+		if (line) return createLineFromPolylineFigure(data);
+		else return createPolylineFromPolylineFigure(data);
 	}	
 		
 	/**
@@ -530,11 +523,8 @@ class InputServerStrategy
 				data.isClientObject());
 		fig.removeAllNodes();
 		
-		for (int i=0; i<points.size(); i++)
-		{
-			Node newNode = new Node(points.get(i));
-			fig.addNode(newNode);
-		}
+		for (int i = 0; i < points.size(); i++)
+			fig.addNode(new Node(points.get(i)));
 		
 		addShapeSettings(fig, data.getShapeSettings());
 		fig.setText(data.getText());
@@ -578,8 +568,6 @@ class InputServerStrategy
 			transform = SVGTransform.toTransform(data.getTransform());
 			TRANSFORM.set(fig, transform);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			// e.printStackTrace();
 		}	
 		return fig;
 	}
@@ -613,12 +601,14 @@ class InputServerStrategy
 	 * 
 	 * @param rois The ROIs to convert.
 	 * @param component ROIComponent.
+	 * @param userID The identifier of the user.
 	 * @return See above.
 	 * @throws ROICreationException if ROI cannot be created.
 	 * @throws NoSuchROIException if there is an error creating line connection 
 	 * figure.
 	 */
-	List<ROI> readROI(Collection rois, ROIComponent component, boolean readOnly)
+	List<ROI> readROI(Collection rois, ROIComponent component, boolean readOnly,
+			long userID)
 			throws ROICreationException, NoSuchROIException
 	{
 		if (component == null)
@@ -626,10 +616,19 @@ class InputServerStrategy
 		this.component = component;
 		Iterator i = rois.iterator();
 		Object o;
+		ROIData roi;
+		boolean r;
 		while (i.hasNext()) {
 			o = i.next();
-			if (o instanceof ROIData) 
-				roiList.add(createROI((ROIData) o, readOnly));
+			if (o instanceof ROIData) {
+				roi = (ROIData) o;
+				r = readOnly;
+				if (!readOnly) {
+					if (roi.getOwner().getId() != userID) 
+						r = true;
+				}
+				roiList.add(createROI(roi, r));
+			}
 		}
 		return roiList;
 	}

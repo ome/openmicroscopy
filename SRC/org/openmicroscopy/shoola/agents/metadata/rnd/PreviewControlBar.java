@@ -54,7 +54,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since 3.0-Beta4
  */
-public class PreviewControlBar 
+class PreviewControlBar 
 	extends JPanel
 {
 
@@ -123,8 +123,7 @@ public class PreviewControlBar
         
         formatButton(b);
         bar.add(b);
-        
-        
+
         bar.add(Box.createHorizontalStrut(SPACE));
         b = new JButton(control.getAction(RendererControl.RND_RESET));
         formatButton(b);

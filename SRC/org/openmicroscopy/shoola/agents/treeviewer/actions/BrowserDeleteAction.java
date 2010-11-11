@@ -41,6 +41,7 @@ import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -106,8 +107,9 @@ public class BrowserDeleteAction
         if ((ho instanceof DatasetData) || (ho instanceof ProjectData) ||
         	(ho instanceof FileAnnotationData) ||
         	(ho instanceof TagAnnotationData) || 
-        	(ho instanceof ScreenData)) { //|| 
-        	//(ho instanceof PlateData)) {
+        	(ho instanceof ScreenData) ||
+        	(ho instanceof PlateData) ||
+        	(ho instanceof PlateAcquisitionData)) {
         	selected = model.getSelectedDisplays();
         	count = 0;
         	b = false;
@@ -118,6 +120,7 @@ public class BrowserDeleteAction
     		setEnabled(count == selected.length);
         } else if (ho instanceof ExperimenterData) {
         	if (model.getBrowserType() == Browser.ADMIN_EXPLORER) {
+        		/*
         		setEnabled(true);
         		selected = model.getSelectedDisplays();
         		if (selected != null) {
@@ -135,11 +138,16 @@ public class BrowserDeleteAction
         			}
         			setEnabled(b);
         		}
+        		*/
+        		setEnabled(false);
         	} else setEnabled(false);
         } else if (ho instanceof GroupData) {
+        	/*
         	if (model.getBrowserType() == Browser.ADMIN_EXPLORER) {
         		setEnabled(TreeViewerAgent.isAdministrator());
         	} else setEnabled(false);
+        	*/
+        	setEnabled(false);
         } else if (ho instanceof ImageData) {
         	count = 0;
         	b = false;

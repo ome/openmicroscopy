@@ -37,12 +37,7 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 
-
 //Third-party libraries
-import com.sun.image.codec.jpeg.JPEGCodec;
-import com.sun.image.codec.jpeg.JPEGEncodeParam;
-import com.sun.image.codec.jpeg.JPEGImageDecoder;
-import com.sun.image.codec.jpeg.JPEGImageEncoder;
 
 //Application-internal dependencies
 
@@ -63,6 +58,15 @@ import com.sun.image.codec.jpeg.JPEGImageEncoder;
 public class WriterImage
 {
     
+	/** Indicates to create a <code>JPEG</code>. */
+	public static final int JPEG = 0;
+	
+	/** Indicates to create a <code>PNG</code>. */
+	public static final int PNG = 1;
+	
+	/** Indicates to create a <code>GIF</code>. */
+	public static final int GIF = 2;
+	
     /**
      * Encodes the specified image. Depending on the specified format
      * a <code>JPEG</code>, <code>PNG</code>, <code>BMP</code> image is created.
@@ -120,21 +124,42 @@ public class WriterImage
 	 * @throws EncoderException Exception thrown if an error occurred during the
      * encoding process.
 	 */
-	public static byte[] imageToByteStreamAsJPEG(BufferedImage image) 
+	public static byte[] imageToByteStream(BufferedImage image) 
+		throws EncoderException
+	{
+		return imageToByteStream(image, JPEG);
+	}
+	
+    /**
+	 * Converts the BufferImage.
+	 * 
+	 * @param image The image to convert.
+	 * @param type  One of the constants defined by this class.
+	 * @return See above.
+	 * @throws EncoderException Exception thrown if an error occurred during the
+     * encoding process.
+	 */
+	public static byte[] imageToByteStream(BufferedImage image, int type) 
 		throws EncoderException
 	{
 		if (image == null) 
     		throw new IllegalArgumentException("No image specified.");
 		try {
-			ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			JPEGImageEncoder encoder = JPEGCodec.createJPEGEncoder(bos); 
-			JPEGEncodeParam param = encoder.getDefaultJPEGEncodeParam(image);
-			param.setQuality(1.0f, false); 
-			encoder.setJPEGEncodeParam(param); 
-			encoder.encode(image); 
-			bos.close(); 
-			return bos.toByteArray(); 
-		} catch (Exception e) {
+			ByteArrayOutputStream stream = new ByteArrayOutputStream();
+			switch (type) {
+				case PNG:
+					ImageIO.write(image, "png", stream);
+					break;
+				case GIF:
+					ImageIO.write(image, "gif", stream);
+					break;
+				case JPEG:
+				default:
+					ImageIO.write(image, "jpeg", stream);
+			}
+			stream.close();
+			return stream.toByteArray();
+		} catch (Throwable e) {
 			throw new EncoderException("Cannot encode the image.", e);
 		}  
 	}
@@ -147,17 +172,16 @@ public class WriterImage
 	 *  @throws EncoderException Exception thrown if an error occurred during the
      * encoding process.
 	 */
-	public static BufferedImage bytesToImageJPEG(byte[] values)
+	public static BufferedImage bytesToImage(byte[] values)
 		throws EncoderException
 	{
 		if (values == null) 
     		throw new IllegalArgumentException("No array specified.");
-		JPEGImageDecoder decoder = 
-			JPEGCodec.createJPEGDecoder(new ByteArrayInputStream(values));
 		try {
-			return decoder.decodeAsBufferedImage();
+			ByteArrayInputStream stream = new ByteArrayInputStream(values);
+			return ImageIO.read(stream);
 		} catch (Exception e) {
-			throw new EncoderException("Cannot decode the image.", e);
+			throw new EncoderException("Cannot create buffered image", e);
 		}
 	}
 	
@@ -169,14 +193,14 @@ public class WriterImage
 	 *  @throws EncoderException Exception thrown if an error occurred during the
      * encoding process.
 	 */
-	public static int[] bytesToDataBufferJPEG(byte[] values)
+	public static int[] bytesToDataBuffer(byte[] values)
 		throws EncoderException
 	{
 		if (values == null) 
     		throw new IllegalArgumentException("No array specified.");
 		
 		try {
-			BufferedImage img = bytesToImageJPEG(values);
+			BufferedImage img = bytesToImage(values);
 			if (img == null) return null;
 			DataBufferInt buf = (DataBufferInt) img.getData().getDataBuffer();
 			return buf.getData();

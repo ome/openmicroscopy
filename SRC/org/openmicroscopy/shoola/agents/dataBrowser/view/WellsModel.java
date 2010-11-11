@@ -374,16 +374,6 @@ class WellsModel
 	}
 	
 	/**
-	 * Views the passed node if supported.
-	 * 
-	 * @param node The node to handle.
-	 */
-	void viewNode(WellSampleNode node)
-	{
-		browser.viewDisplay(node);
-	}
-	
-	/**
 	 * Indicates how to display a column. 
 	 * 
 	 * @return See above.
@@ -575,6 +565,26 @@ class WellsModel
 		if (selectedNode == null) return false;
 		return (selectedNode.getRow() == row 
 				&& selectedNode.getColumn() == column);
+	}
+	
+	/**
+	 * Returns the well corresponding to the passed location.
+	 * 
+	 * @param row 	 The row identifying the well.
+	 * @param column The column identifying the well.
+	 * @return See above.
+	 */
+	WellImageSet getWell(int row, int column)
+	{
+		List l = getNodes();
+		Iterator i = l.iterator();
+		WellImageSet well;
+		while (i.hasNext()) {
+			well = (WellImageSet) i.next();
+			if (well.getColumn() == column && well.getRow() == row) 
+				return well;
+		}
+		return null;
 	}
 	
 	/**

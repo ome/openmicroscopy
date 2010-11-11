@@ -24,7 +24,7 @@
 package org.openmicroscopy.shoola.env.data;
 
 //Java imports
-import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -50,7 +50,9 @@ import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.views.DataViewsFactory;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
+import org.openmicroscopy.shoola.util.file.IOUtil;
 
 import pojos.ExperimenterData;
 import pojos.GroupData;
@@ -137,9 +139,9 @@ public class DataServicesFactory
 	private static Properties loadConfig(String file)
 	{
 		Properties config = new Properties();
-		FileInputStream fis = null;
-		try { 
-			fis = new FileInputStream(file);
+		InputStream fis = null;
+		try {
+			fis = IOUtil.readConfigFile(file);
 			config.load(fis);
 		} catch (Exception e) {
 			return null;
@@ -181,7 +183,8 @@ public class DataServicesFactory
         
         
         //fs stuff
-        fsConfig = loadConfig(c.resolveConfigFile(FS_CONFIG_FILE));
+        fsConfig = loadConfig(c.resolveFilePath(FS_CONFIG_FILE, 
+        		Container.CONFIG_DIR));
         //Initialize the Views Factory.
         DataViewsFactory.initialize(c);
         if (omeroGateway.isUpgradeRequired()) {
@@ -251,7 +254,7 @@ public class DataServicesFactory
     		client = client.substring(4);
     	String[] values = server.split("\\.");
     	String[] valuesClient = client.split("\\.");
-    	Integer.parseInt(values[0]);
+    	//Integer.parseInt(values[0]);
     	if (values.length < 2 || valuesClient.length < 2) return false;
     	int s1 = Integer.parseInt(values[0]);
     	int s2 = Integer.parseInt(values[1]);
@@ -286,31 +289,42 @@ public class DataServicesFactory
 	 */
 	void sessionExpiredExit(int index)
 	{
+		String message;
 		UserNotifier un = registry.getUserNotifier();
-		String message = "The server is no longer " +
-			"running. \nPlease contact your system administrator.";
-		if (index == OMEROGateway.LOST_CONNECTION) {
-			message = "The connection has been lost. \nThe application will " +
-					"exit.";
-			//Need to reconnect.
+		switch (index) {
+			case OMEROGateway.LOST_CONNECTION:
+				message = "The connection has been lost. \nDo you want " +
+						"to reconnect? If no, the application will exit.";
+				MessageBox box = new MessageBox(
+						registry.getTaskBar().getFrame(), "Lost Connection", 
+						message);
+				int v = box.centerMsgBox();
+				if (v == MessageBox.NO_OPTION) exitApplication();
+				else if (v == MessageBox.YES_OPTION) {
+					UserCredentials uc = (UserCredentials) 
+					registry.lookup(LookupNames.USER_CREDENTIALS);
+					boolean b =  omeroGateway.reconnect(uc.getUserName(), 
+            				uc.getPassword());
+					if (b) {
+						message = "You are reconnected to the server.";
+						un.notifyInfo("Reconnection Success", message);
+					} else {
+						message = "A failure occurred while attempting to " +
+								"reconnect.\nThe application will exit.";
+						un.notifyInfo("Reconnection Failure", message);
+						exitApplication();
+					}
+				}
+				break;
+			case OMEROGateway.SERVER_OUT_OF_SERVICE:
+				message = "The server is no longer " +
+				"running. \nPlease contact your system administrator.";
+				un.notifyInfo("Connection Refused", message);
+				exitApplication();
+				break;	
 		}
-		un.notifyInfo("Connection Refused", message);
-		exitApplication();
 	}
 	
-	/**
-	 * Checks if the session is still alive.
-	 * 
-	 * @param reg Reference to the container registry.
-	 */
-	/*
-	public static void isSessionAlive(Registry reg)
-	{
-		if (!(reg.equals(registry)))
-			throw new IllegalArgumentException("Not allow to access method.");
-		//omeroGateway.isSessionAlive();
-	}
-	*/
     /**
      * Returns the {@link OmeroDataService}.
      * 
@@ -384,7 +398,6 @@ public class DataServicesFactory
         	return;
         }
         
-        
         KeepClientAlive kca = new KeepClientAlive(container, omeroGateway);
         executor = new ScheduledThreadPoolExecutor(1);
         executor.scheduleWithFixedDelay(kca, 60, 60, TimeUnit.SECONDS);
@@ -450,21 +463,7 @@ public class DataServicesFactory
         	registry.bind(LookupNames.USER_ADMINISTRATOR, uc.isAdministrator());
 		} catch (DSAccessException e) {
 			throw new DSOutOfServiceException("Cannot retrieve groups", e);
-		}
-		/*
-        try {
-        	registry.getAdminService().reloadPIGroups(exp);
-		} catch (Exception e) {
-			throw new DSOutOfServiceException("Cannot retrieve groups", e);
-		}
-		 Set<GroupData> available = (Set) registry.lookup(
-        		LookupNames.USER_GROUP_DETAILS);
-        List<ExperimenterData> exps = (List) registry.lookup(
-        		LookupNames.USERS_DETAILS);
-		*/
-        
-       
-        
+		} 
         //Bind user details to all agents' registry.
         List agents = (List) registry.lookup(LookupNames.AGENTS);
 		Iterator i = agents.iterator();

@@ -211,7 +211,7 @@ public class TreeViewerTranslator
             throw new IllegalArgumentException("Cannot be null");
         TreeImageSet plate =  new TreeImageSet(data);
         Set<PlateAcquisitionData> acquisitions = data.getPlateAcquisitions();
-        if (acquisitions != null) {
+        if (acquisitions != null && acquisitions.size() > 0) {
         	Iterator<PlateAcquisitionData> i = acquisitions.iterator();
         	PlateAcquisitionData pa;
         	long id = data.getId();

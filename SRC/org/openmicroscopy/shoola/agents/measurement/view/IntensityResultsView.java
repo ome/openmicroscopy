@@ -49,7 +49,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import javax.swing.filechooser.FileFilter;
 import javax.swing.table.DefaultTableModel;
 
 //Third-party libraries
@@ -237,11 +236,11 @@ class IntensityResultsView
 	/** Map of the sum channel intensity values to coord. */
 	private Map<Coord3D, Map<Integer, Double>> sumStats;
 	
-	/** Map of the coord to a shape. */
+	/** Map of the coordinate to a shape. */
 	private Map<Coord3D, ROIShape> shapeMap;
 	
-	/** The current coord of the ROI being depicted in the slider. */
-	Coord3D coord;
+	/** The current coordinate of the ROI being depicted in the slider. */
+	private Coord3D coord;
 	
 	/** Current ROIShape. */
 	private 	ROIShape shape;
@@ -375,22 +374,13 @@ class IntensityResultsView
 		results.repaint();
 	}
 	
-	/** Saves the results of the table to a csv file. */
+	/** Saves the results of the table to an Excel file. */
 	private void saveResults()
 	{
-		List<FileFilter> filterList = new ArrayList<FileFilter>();
-		FileFilter filter = new ExcelFilter();
-		filterList.add(filter);
-		FileChooser chooser =
-			new FileChooser(view, FileChooser.SAVE, "Save Results to Excel", 
-					"Save the Results data to a file which can be loaded by " +
-					"a spreadsheet.", filterList);
-		File f = UIUtilities.getDefaultFolder();
-		if (f != null) chooser.setCurrentDirectory(f);
+		FileChooser chooser = view.createSaveToExcelChooser();
 		int option = chooser.showDialog();
 		if (option != JFileChooser.APPROVE_OPTION) return;
 		File  file = chooser.getFormattedSelectedFile();
-		
 		try
 		{
 			String filename = file.getAbsolutePath();
@@ -414,20 +404,16 @@ class IntensityResultsView
 			} catch (Exception e) {
 				//no image available
 			}
-			
-
 			writer.close();
 		
-		}
-		catch (IOException e)
-		{
+		} catch (IOException e) {
 			Logger logger = MeasurementAgent.getRegistry().getLogger();
 			logger.error(this, "Cannot save ROI results: "+e.toString());
 			
 			UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Save Results", "An error occured while trying to" +
-				" save the data.\n" +
-			"Please try again.");
+			un.notifyInfo("Save Results", "An error occurred while trying to" +
+				" save the data.\nPlease try again.");
+			return;
 		}
 		Registry reg = MeasurementAgent.getRegistry();
 		UserNotifier un = reg.getUserNotifier();
@@ -443,16 +429,6 @@ class IntensityResultsView
 		for (int i = rows.length-1 ; i >= 0 ; i--)
 			resultsModel.removeRow(rows[i]);
 		setButtonsEnabled(results.getRowCount() >0);
-	}
-	
-	/** Removes the results from the table. */
-	private void removeAllResults()
-	{
-		int count = results.getRowCount();
-		for (int i = count-1 ; i >= 0 ; i--)
-			resultsModel.removeRow(i);
-		setButtonsEnabled(false);
-		onFigureSelected();
 	}
 	
 	/**
@@ -664,6 +640,16 @@ class IntensityResultsView
 			removeButton.setEnabled(false);
 			removeAllButton.setEnabled(false);
 		}
+	}
+	
+	/** Removes the results from the table. */
+	void removeAllResults()
+	{
+		int count = results.getRowCount();
+		for (int i = count-1 ; i >= 0 ; i--)
+			resultsModel.removeRow(i);
+		setButtonsEnabled(false);
+		onFigureSelected();
 	}
 	
 	/**

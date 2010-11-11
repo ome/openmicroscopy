@@ -49,7 +49,7 @@ import org.openmicroscopy.shoola.util.ui.OMETextArea;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /**
- * Displays a dichroic
+ * Displays a dichroic.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  *     <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

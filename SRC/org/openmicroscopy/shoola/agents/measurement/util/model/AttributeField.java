@@ -110,6 +110,14 @@ public class AttributeField
 		this(key, name, editable, null,  ValueType.DEFAULT);
 	}
 
+	/**
+	 * Indicates if the field can be edited or not.
+	 * 
+	 * @param editable Pass <code>true</code> to edit the field, 
+	 * 				   <code>false</code> otherwise.
+	 */
+	public void setEditable(boolean editable) { this.editable = editable; }
+	
 	/** 
 	 * Gets the value range the object can take.
 	 * 

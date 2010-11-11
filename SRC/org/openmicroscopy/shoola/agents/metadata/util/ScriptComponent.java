@@ -193,9 +193,13 @@ class ScriptComponent
 		this.name = name;
 		parentIndex = null;
 		//format
-		label = UIUtilities.setTextFont(name.replace(
-				ScriptObject.PARAMETER_SEPARATOR, 
-				ScriptObject.PARAMETER_UI_SEPARATOR));
+		if (name.contains(ScriptObject.PARAMETER_SEPARATOR)) {
+			label = UIUtilities.setTextFont(name.replace(
+					ScriptObject.PARAMETER_SEPARATOR, 
+					ScriptObject.PARAMETER_UI_SEPARATOR));
+		} else {
+			label = UIUtilities.setTextFont(name);
+		}
 		label.setToolTipText(component.getToolTipText());
 		required = false;
 	}
@@ -308,14 +312,7 @@ class ScriptComponent
 			return value;
 		} else if (c instanceof JComboBox) {
 			JComboBox box = (JComboBox) c;
-			Object o = box.getSelectedItem();
-			/*
-			if (o instanceof String) {
-				return ((String) o).replace(ScriptObject.PARAMETER_UI_SEPARATOR, 
-						ScriptObject.PARAMETER_SEPARATOR);
-			}
-			*/
-			return o;
+			return box.getSelectedItem();
 		} else if (c instanceof ComplexParamPane)
 			return ((ComplexParamPane) c).getValue();
 			

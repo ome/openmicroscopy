@@ -157,6 +157,9 @@ class PopupMenu
 	/** Button to open the new Editor. */
 	private JMenuItem			newExperimentElement;
 	
+	/** Button to send feedback. */
+	private JMenuItem			sendFeedbackElement;	
+	
 	/** Reference to the Control. */
 	private TreeViewerControl   controller;
 
@@ -262,6 +265,10 @@ class PopupMenu
 						TreeViewerControl.EDITOR_NEW_WITH_SELECTION);
 				newExperimentElement = new JMenuItem(a);
 				initMenuItem(newExperimentElement, a.getActionName());
+				a = controller.getAction(
+						TreeViewerControl.SEND_COMMENT);
+				sendFeedbackElement = new JMenuItem(a);
+				initMenuItem(sendFeedbackElement, a.getActionName());
 				break;
 			case TreeViewer.PARTIAL_POP_UP_MENU:
 				a = controller.getAction(TreeViewerControl.REFRESH_TREE);
@@ -347,6 +354,7 @@ class PopupMenu
 				add(openWithMenu);
 				add(editFile);
 				add(downloadElement);
+				add(sendFeedbackElement);
 				add(new JSeparator(JSeparator.HORIZONTAL));
 				add(newElement);
 				add(cutElement);

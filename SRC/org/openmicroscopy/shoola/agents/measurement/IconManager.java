@@ -146,16 +146,16 @@ public class IconManager
     public static final int		ELLIPSE_16 = 31;
     
     /** The <code>Rectangle 16</code> icon. */
-    public static final int		RECTANGLE_16 = 32;
+    public static final int		RECTANGLE = 32;
     
     /** The <code>Connection 16</code> icon. */
-    public static final int		CONNECTION_16 = 33;
+    public static final int		CONNECTION = 33;
     
     /** The <code>Polygon 16</code> icon. */
     public static final int		POLYGON_16 = 34;
     
     /** The <code>Scribble 16</code> icon. */
-    public static final int		SCRIBBLE_16 = 35;
+    public static final int		SCRIBBLE = 35;
 
     /** The <code>Point 16</code> icon. */
     public static final int		POINT_16 = 36;
@@ -176,13 +176,25 @@ public class IconManager
     public static final int		MEASUREMENT_TOOL = 41;
 
     /** The <code>Measurement tool</code> icon. */
-	public static final int MASK_16 = 42;
+	public static final int MASK = 42;
 
+    /** The <code>Delete</code> icon. */
+	public static final int DELETE = 43;
+	
+    /** The 22x22 <code>Delete</code> icon. */
+    public static final int DELETE_22 = 44;
+    
+    /** The 22x22 <code>Apply</code> icon. */
+    public static final int APPLY_22 = 45;
+    
+    /** The <code>ROI stack</code> icon if ROI is owned by other users. */
+    public static final int ROISTACK_OTHER_OWNER = 46;
+    
 	/** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int    MAX_ID = 42;
+    private static final int    MAX_ID = 46;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -220,19 +232,23 @@ public class IconManager
         relPaths[INTENSITYVIEW] = "nuvola_kig16.png";
         relPaths[ROISTACK] = "roistack16.png";
         relPaths[ROISHAPE] = "roishape16.png";
-        relPaths[RECTANGLE_16] = "rectangle16.png";
+        relPaths[RECTANGLE] = "rectangle16.png";
         relPaths[ELLIPSE_16] = "ellipse16.png";
-        relPaths[CONNECTION_16] = "connection16.png";
+        relPaths[CONNECTION] = "connection16.png";
         relPaths[LINE_16] = "line16.png";
-        relPaths[SCRIBBLE_16] = "scribble16.png";
+        relPaths[SCRIBBLE] = "scribble16.png";
         relPaths[POLYGON_16] = "polygon16.png";
         relPaths[POINT_16] = "point16.png";
         relPaths[TEXT_16] = "text16.png";
         relPaths[QUESTION_32] = "nuvola_filetype32.png";
         relPaths[CORNERICON] = "cornericon.png";
         relPaths[LOAD] = "nuvola_revert16.png";
-        relPaths[MEASUREMENT_TOOL] = "nuvola_designer16.png";//"crystal_roi16.png";//"nuvola_designer16.png";
-        relPaths[MASK_16] = "mask16.png";//"crystal_roi16.png";//"nuvola_designer16.png";
+        relPaths[MEASUREMENT_TOOL] = "nuvola_designer16.png";
+        relPaths[MASK] = "mask16.png";
+        relPaths[DELETE] = "nuvola_cancel16.png";
+        relPaths[DELETE_22] = "nuvola_cancel22.png";
+        relPaths[APPLY_22] = "nuvola_apply22.png";
+        relPaths[ROISTACK_OTHER_OWNER] = "roistack_owner_16.png";
     }
     
     /** 

@@ -35,6 +35,7 @@ import javax.swing.Icon;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.table.TableCellEditor;
 
 //Third-party libraries
 
@@ -99,27 +100,18 @@ class ObjectInspector
 		l.add(new AttributeField(MeasurementAttributes.TEXT, "Text", true));
 		l.add(new AttributeField(MeasurementAttributes.WIDTH, "Width", true));
 		l.add(new AttributeField(MeasurementAttributes.HEIGHT, "Height", true));
-		l.add(new AttributeField(AnnotationKeys.NAMESPACE, "Namespace", true));
-		l.add(new AttributeField(AnnotationKeys.KEYWORDS, "Keywords", true));
+		l.add(new AttributeField(AnnotationKeys.NAMESPACE, "Workflow", false));
+		l.add(new AttributeField(AnnotationKeys.KEYWORDS, "Keywords", false));
 		l.add(new AttributeField(MeasurementAttributes.SHOWTEXT, "Show Text", 
 				false));
 		l.add(new AttributeField(MeasurementAttributes.SHOWMEASUREMENT, 
 			"Show Measurements", false)); 
-		l.add(new AttributeField(MeasurementAttributes.SHOWID, 
-			"Show ID", false)); 
-//		l.add(new AttributeField(MeasurementAttributes.STROKE_WIDTH, 
-//						"Line Width", true, strokeRange(), ValueType.ENUM));
-//		l.add(new AttributeField(MeasurementAttributes.FONT_SIZE, "Font Size", 
-//				true, fontRange(), ValueType.ENUM));
-//		l.add(new AttributeField(MeasurementAttributes.TEXT_COLOR, "Font Colour", 
-//				false));
+		//l.add(new AttributeField(MeasurementAttributes.SHOWID, 
+			//"Show ID", false)); 
 		l.add(new AttributeField(MeasurementAttributes.FILL_COLOR, 
 				"Fill Colour", false));
 		l.add(new AttributeField(MeasurementAttributes.STROKE_COLOR, 
 				"Line Colour", false));
-//		l.add(new AttributeField(MeasurementAttributes.MEASUREMENTTEXT_COLOUR, 
-//				"Measurement Colour", false));
-		
 		//create the table
 		fieldTable = new FigureTable(new FigureTableModel(l, columnNames));
 		fieldTable.getTableHeader().setReorderingAllowed(false);
@@ -132,21 +124,25 @@ class ObjectInspector
 		{
 			public void mouseClicked(MouseEvent e) {
 				
+				int col = fieldTable.getSelectedColumn();
+				int row = fieldTable.getSelectedRow();
+				Object value = fieldTable.getValueAt(row, col);
 				if (e.getClickCount() == 1) {
-					int col = fieldTable.getSelectedColumn();
-					int row = fieldTable.getSelectedRow();
-					Object value = fieldTable.getValueAt(row, col);
-					if (value instanceof Boolean) toggleValue();
-					
+					if (value instanceof Boolean) {
+						toggleValue();
+					}
 				} else if (e.getClickCount() > 1) {
 					e.consume();
-					int col = fieldTable.getSelectedColumn();
-					int row = fieldTable.getSelectedRow();
-					Object value = fieldTable.getValueAt(row, col);
-					if (value instanceof Color)
-						controller.showColorPicker((Color) value);
-					if (value instanceof Boolean)
+					if (value instanceof Color) {
+						//Only if the figure is not read only.
+						FigureTableModel ftm = (FigureTableModel) 
+							fieldTable.getModel();
+						ROIFigure figure = ftm.getFigure();
+						if (figure != null && !figure.isReadOnly())
+							controller.showColorPicker((Color) value);
+					} else if (value instanceof Boolean) {
 						toggleValue();
+					}
 				}
 			}
 		});
@@ -195,6 +191,7 @@ class ObjectInspector
 		Boolean value = (Boolean) fieldTable.getModel().getValueAt(row, col);
 		boolean newValue = !(value.booleanValue()); 
 		fieldTable.getModel().setValueAt(Boolean.valueOf(newValue), row, col);
+		model.getDrawingView().repaint();
 	}
 	
 	/** Builds and lays out the UI. */
@@ -262,7 +259,43 @@ class ObjectInspector
 	{
 		FigureTableModel tableModel = (FigureTableModel) fieldTable.getModel();
 		tableModel.setData(figure);
-		fieldTable.setModel(tableModel);
+		//fieldTable.setModel(tableModel);
+		fieldTable.repaint();
+	}
+	
+	/**
+	 * Removes the ROI figure.
+	 * 
+	 * @param figure The figure to remove.
+	 */
+	void removeROIFigure(ROIFigure figure)
+	{
+		if (figure == null) return;
+		FigureTableModel tm = (FigureTableModel) fieldTable.getModel();
+		ROIFigure value = tm.getFigure();
+		if (value == null) return;
+		if (value.getROI().getID() == figure.getROI().getID())
+			tm.clearData();
+	}
+	
+	/**
+	 * Removes the ROI figures.
+	 * 
+	 * @param figures The figures to remove.
+	 */
+	void removeROIFigures(List<ROIFigure> figures)
+	{
+		if (figures == null || figures.size() == 0) return;
+		FigureTableModel tm = (FigureTableModel) fieldTable.getModel();
+		ROIFigure value = tm.getFigure();
+		if (value == null) return;
+		Iterator<ROIFigure> i = figures.iterator();
+		ROIFigure figure;
+		while (i.hasNext()) {
+			figure = i.next();
+			if (value.getROI().getID() == figure.getROI().getID())
+				tm.clearData();
+		}
 		fieldTable.repaint();
 	}
 	
@@ -278,15 +311,17 @@ class ObjectInspector
 		//Register error and notify user.
 		ROIShape shape;
 		try {
+			TableCellEditor editor = fieldTable.getCellEditor();
+			if (editor != null) editor.stopCellEditing();
 			while (i.hasNext()) {
 				shape = i.next();
 				tableModel.setData(shape.getFigure());
-				fieldTable.setModel(tableModel);
+				//fieldTable.setModel(tableModel);
 				fieldTable.repaint();
 			}
 		} catch (Exception e) {
 			MeasurementAgent.getRegistry().getLogger().info(this, 
-													"Figures selection"+e);;
+													"Figures selection"+e);
 		}
 	}
 	

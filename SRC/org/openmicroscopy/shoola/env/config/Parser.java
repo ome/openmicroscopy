@@ -37,6 +37,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.file.IOUtil;
 
 
 /**
@@ -154,7 +155,7 @@ class Parser
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         try {
             DocumentBuilder builder = factory.newDocumentBuilder();
-            document = builder.parse(new File(configFile));
+            document = builder.parse(IOUtil.readConfigFile(configFile));
             if (validating) {
                 factory.setValidating(true);   
                 factory.setNamespaceAware(true);

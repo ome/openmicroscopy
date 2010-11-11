@@ -133,13 +133,52 @@ class CustomizedFileChooser
 				setFileSelectionMode(FILES_ONLY);
 				break;
 			case FileChooser.FOLDER_CHOOSER:
+				
+				/*
+				List boxes = UIUtilities.findComponents(this, JComboBox.class);
+				if (boxes != null) {
+					JComboBox box = (JComboBox) boxes.get(boxes.size()-1);
+					if (box.getParent() != null) 
+						box.getParent().setVisible(false);
+				}*/
+				
 				label = (JLabel) UIUtilities.findComponent(this, JLabel.class);
 				if (label != null)
 					label.setText(FOLDER_LABEL);
 				setFileSelectionMode(DIRECTORIES_ONLY);
 				setCurrentDirectory(getFileSystemView().getHomeDirectory());
+				/*
+				String s = UIUtilities.getDefaultFolderAsString();
+		        if (s == null) return;
+		        if (s == null || s.equals("") || !(new File(s).exists()))
+		            setCurrentDirectory(getFileSystemView().getHomeDirectory());
+		        else {
+		        	//setSelectedFile(new File(s));
+		        	if (nameArea != null) {
+		        		String[] n = UIUtilities.splitString(s);
+		        		if (n.length > 0) nameArea.setText(n[n.length-1]);
+		        	}
+		        }
+		        */
 		       	return;
 		}
+	}
+	
+	/**
+	 * Returns the format corresponding to the specified filter.
+	 * 
+	 * @param selectedFilter The filter specified.
+	 * @return See above.
+	 */
+	private String getFormat(FileFilter selectedFilter)
+	{
+		List<FileFilter> filters = model.getFilters();
+		if (filters == null) return "";
+		for (FileFilter filter : filters) {
+			if (selectedFilter.equals(filter))
+				return filter.getDescription();
+		}
+		return "";
 	}
 
 	/**

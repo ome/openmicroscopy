@@ -106,7 +106,7 @@ public class BezierTextFigure
 	public BezierTextFigure(String text, boolean closed) 
 	{
 		super(closed);
-		setAttribute(AttributeKeys.TEXT, text);
+		setText(text);
 		textLayout = null;
 		textBounds = null;
 		editable = true;

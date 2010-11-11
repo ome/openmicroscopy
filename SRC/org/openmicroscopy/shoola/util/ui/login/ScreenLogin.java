@@ -471,10 +471,8 @@ public class ScreenLogin
 	 * 
 	 * @param userName The name of the user.
 	 */
-	private void initializes(String userName)
+	private void initialize(String userName)
 	{
-		
-		
 		originalName = userName;
 		user = new JTextField();
 		user.setText(userName);
@@ -574,8 +572,8 @@ public class ScreenLogin
 		configButton.setContentAreaFilled(false);
 		IconManager icons = IconManager.getInstance();
 		configButton.setIcon(icons.getIcon(IconManager.CONFIG_24));
-		configButton.setPressedIcon(icons.getIcon(
-				IconManager.CONFIG_PRESSED_24));
+		//configButton.setPressedIcon(icons.getIcon(
+		//		IconManager.CONFIG_PRESSED_24));
 		
 		encrypted = !isEncrypted();
 		encryptedButton = new JButton();
@@ -590,6 +588,9 @@ public class ScreenLogin
 		encryptedButton.setBorder(null);
 		encryptedButton.setFocusPainted(false);
 		encryptedButton.setContentAreaFilled(false);
+		if (encrypted) 
+			encryptedButton.setIcon(icons.getIcon(IconManager.ENCRYPTED_24));
+		else encryptedButton.setIcon(icons.getIcon(IconManager.DECRYPTED_24));
 		getRootPane().setDefaultButton(login);
 		enableControls();
 		
@@ -673,7 +674,7 @@ public class ScreenLogin
 			JPanel gp = UIUtilities.buildComponentPanel(groupsBox, 0, 0);
 			gp.setBorder(null);
 			gp.setOpaque(false);
-			mainPanel.add(gp, "1, 1, 3, 1");
+			mainPanel.add(gp, "1, 1, 5, 1");
 			ref.add(groupsBox);
 		}
 		//third row
@@ -990,7 +991,7 @@ public class ScreenLogin
 		editor = new ServerEditor(defaultPort);
 		editor.addPropertyChangeListener(ServerEditor.REMOVE_PROPERTY, this);
 		speedIndex = retrieveConnectionSpeed();
-		initializes(getUserName());
+		initialize(getUserName());
 		initListeners();
 		buildGUI(logo, version);
 		encrypt();

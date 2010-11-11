@@ -118,6 +118,7 @@ public class RectangleTextFigure
 		super(x, y, w, h);
 		setAttributeEnabled(AttributeKeys.TEXT_COLOR, true);
 		setAttribute(AttributeKeys.TEXT, text);
+		setAttribute(DrawingAttributes.SHOWTEXT, true);
 		textLayout = null;
 		textBounds = null;
 		editable = true;
@@ -203,10 +204,9 @@ public class RectangleTextFigure
 	{
 		if (!(DrawingAttributes.SHOWTEXT.get(this))) return;
 		String text = getText();
-		if (text != null && isEditable()) 
+		if (text != null)// && isEditable()) 
 		{	
-			if(text!=null)
-				text = text.trim();
+			text = text.trim();
 			TextLayout layout = getTextLayout();
 			FontMetrics fm = 
 					g.getFontMetrics(AttributeKeys.FONT_FACE.get(this));
@@ -216,7 +216,8 @@ public class RectangleTextFigure
 			double y = rectangle.y+textHeight/2+rectangle.height/2;
 			
 			Font font = AttributeKeys.FONT_FACE.get(this);
-			Font viewFont = font.deriveFont(AttributeKeys.FONT_SIZE.get(this).intValue());
+			Font viewFont = font.deriveFont(
+					AttributeKeys.FONT_SIZE.get(this).intValue());
 			g.setFont(viewFont);
 			g.setColor(AttributeKeys.TEXT_COLOR.get(this));
 			textBounds = new Rectangle2D.Double(x, y, textWidth, textHeight);

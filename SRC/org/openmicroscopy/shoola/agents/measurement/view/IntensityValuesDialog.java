@@ -104,7 +104,7 @@ public class IntensityValuesDialog
 	}
 	
 	/** 
-	 * Create the intial dialog.
+	 * Create the initial dialog.
 	 * 
 	 * @param model The table model of the first dialog.
 	 */

@@ -30,10 +30,10 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Map;
-
 import javax.swing.JComponent;
 
 //Third-party libraries
+import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
@@ -42,9 +42,6 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
-
-import com.sun.opengl.util.texture.TextureData;
-
 import pojos.ChannelData;
 import pojos.ImageData;
 import pojos.PixelsData;
@@ -491,7 +488,7 @@ public interface Renderer
 	 * Saves the rendering settings and returns the saved object.
 	 * 
 	 * @return See above
-	 * @throws RenderingServiceException 	If an error occured while setting 
+	 * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken. 
 	 */
@@ -550,14 +547,6 @@ public interface Renderer
 	 * @return See above.
 	 */
 	BufferedImage renderPlane(PlaneDef pDef);
-	
-	/** 
-	 * Reloads the UI.
-	 * 
-	 * @param reloadPlane Pass <code>true</code> to reload a plane,
-	 * 					  <code>false</code> otherwise.
-	 */
-	void reloadUI(boolean reloadPlane);
 	
 	/** 
 	 * Sets the maximum range for channels.
