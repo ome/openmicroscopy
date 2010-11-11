@@ -246,6 +246,11 @@ public class TaskBarManager
 		} 
 	}
 	
+	/**
+	 * Handles event sent when the data has been saved.
+	 * 
+	 * @param e The event to handle.
+	 */
 	private void handleSaveEventResponse(SaveEventResponse e)
 	{
 		if (e == null) return;

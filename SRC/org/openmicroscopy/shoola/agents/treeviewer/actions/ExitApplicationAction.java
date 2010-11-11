@@ -58,7 +58,7 @@ public class ExitApplicationAction
 {
 
     /** The name of the action. */
-    public static final String NAME = "Quit the application";
+    public static final String NAME = "Quit the application...";
     
     /** The description of the action. */
     public static final String DESCRIPTION = "Exit the application.";
