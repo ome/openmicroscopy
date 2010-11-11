@@ -57,7 +57,6 @@ import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.PixelsData;
-import pojos.PlateData;
 
 /** 
  * The ImViewer agent. This agent displays an <code>Image</code> and the 

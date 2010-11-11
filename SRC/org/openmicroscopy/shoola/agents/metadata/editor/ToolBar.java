@@ -69,6 +69,7 @@ import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.ImageData;
+import pojos.PixelsData;
 import pojos.WellSampleData;
 
 /** 
@@ -87,6 +88,10 @@ import pojos.WellSampleData;
 class ToolBar 
 	extends JPanel
 {
+	
+	/** The text associated to the export as OME-TIFF action. */
+	private static final String EXPORT_AS_OME_TIFF_TOOLTIP = 
+		"Export the image as OME-TIFF.";
 	
 	/** Button to save the annotations. */
 	private JButton			saveButton;
@@ -108,6 +113,9 @@ class ToolBar
 	
 	/** Button to bring up the list of scripts. */
 	private JButton			scriptsButton;
+	
+	/** Button to export an image as OME-TIFF. */
+	private JButton 		exportAsOmeTiffButton;
 	
 	/** Button to upload the . */
 	private JButton			uploadScriptButton;
@@ -230,6 +238,13 @@ class ToolBar
 				}
 			}
 		});
+		exportAsOmeTiffButton = new JButton(icons.getIcon(
+				IconManager.EXPORT_AS_OMETIFF));
+		exportAsOmeTiffButton.setToolTipText(EXPORT_AS_OME_TIFF_TOOLTIP);
+		exportAsOmeTiffButton.addActionListener(controller);
+		exportAsOmeTiffButton.setActionCommand(
+				""+EditorControl.EXPORT_AS_OMETIFF);
+		exportAsOmeTiffButton.setBackground(UIUtilities.BACKGROUND_COLOR);
 		uploadScriptButton = new JButton(icons.getIcon(
 				IconManager.UPLOAD_SCRIPT));
 		uploadScriptButton.setToolTipText("Upload a script to the server.");
@@ -243,7 +258,7 @@ class ToolBar
 		UIUtilities.unifiedButtonLookAndFeel(downloadButton);
 		UIUtilities.unifiedButtonLookAndFeel(rndButton);
 		UIUtilities.unifiedButtonLookAndFeel(refreshButton);
-
+		UIUtilities.unifiedButtonLookAndFeel(exportAsOmeTiffButton);
 		UIUtilities.unifiedButtonLookAndFeel(publishingButton);
 		UIUtilities.unifiedButtonLookAndFeel(analysisButton);
 		UIUtilities.unifiedButtonLookAndFeel(scriptsButton);
@@ -272,6 +287,8 @@ class ToolBar
     	bar.add(refreshButton);
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(downloadButton);
+    	bar.add(Box.createHorizontalStrut(5));
+    	bar.add(exportAsOmeTiffButton);
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(publishingButton);
     	if (MetadataViewerAgent.isAdministrator()) {
@@ -482,6 +499,20 @@ class ToolBar
 			scriptsButton.setEnabled(false);
 			return;
 		}
+    	ImageData img = null;
+    	if (ref instanceof ImageData) {
+    		img = (ImageData) ref;
+    	} else if (ref instanceof WellSampleData) {
+    		img = ((WellSampleData) ref).getImage();
+    	}
+    	exportAsOmeTiffButton.setEnabled(false);
+    	if (img != null) {
+    		try {
+    			img.getDefaultPixels();
+    			exportAsOmeTiffButton.setEnabled(true);
+			} catch (Exception e) {}
+    	}
+    	
 		publishingButton.setEnabled(true);
 		analysisButton.setEnabled(true);
 		scriptsButton.setEnabled(true);
