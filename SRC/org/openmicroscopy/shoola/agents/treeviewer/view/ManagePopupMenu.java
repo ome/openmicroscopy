@@ -83,10 +83,12 @@ class ManagePopupMenu
      */
     private void initMenuItem(JMenuItem item)
     {
+    	/*
         item.setBorder(null);
         item.setFont((Font) 
                 TreeViewerAgent.getRegistry().lookup(
                         "/resources/fonts/Labels"));
+                        */
     }
     
     /** Initializes the components composing the display. */

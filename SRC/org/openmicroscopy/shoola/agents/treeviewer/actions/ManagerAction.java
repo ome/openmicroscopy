@@ -63,7 +63,8 @@ public class ManagerAction
 
     /** The description of the action. */
     private static final String DESCRIPTION = "Manage the data. " +
-            "Press (Shift) to keep the menu on screen when making selection.";
+            "Press (Shift) to keep the menu on screen when making the " +
+            "selection.";
     
     /** The location of the mouse pressed. */
     private Point point;
