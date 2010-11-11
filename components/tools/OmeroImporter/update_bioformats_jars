@@ -57,7 +57,7 @@ Report bugs to ome-devel@lists.openmicroscopy.org.uk""" % (error, cmd, cmd)
 def download():
     # JARs to ignore from download
     ignore = ["loci_tools.jar"]
-    url = urllib.urlopen("http://hudson.openmicroscopy.org.uk/job/LOCI/lastBuild/api/xml")
+    url = urllib.urlopen("http://hudson.openmicroscopy.org.uk/job/LOCI-Beta4.2/lastBuild/api/xml")
     hudson_xml = url.read()
     url.close()
     root = XML(hudson_xml)
@@ -65,7 +65,7 @@ def download():
     revision = root.find("./changeSet/revision/revision").text
     artifacts = root.findall("./artifact")
     print "Updating Bio-Formats JARs from revision: %s" % revision
-    base_url = "http://hudson.openmicroscopy.org.uk/job/LOCI/lastBuild/artifact/"
+    base_url = "http://hudson.openmicroscopy.org.uk/job/LOCI-Beta4.2/lastBuild/artifact/"
     new_jars = list()
     for artifact in artifacts:
         filename = artifact.find("fileName").text
