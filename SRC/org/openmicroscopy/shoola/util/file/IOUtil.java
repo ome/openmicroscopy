@@ -235,4 +235,24 @@ public class IOUtil
 		return readFile(new File(fileName));
 	}
 	
+	/**
+	 * Returns an input stream for the contents of the passed configuration
+	 * file path. If we're running under Java Web Start, this input stream is
+	 * loaded from the CLASSPATH otherwise it is loaded directly.
+	 * 
+	 * @param fileName The name of the file.
+	 * @return See above.
+	 * @throws IOException If we cannot create the input stream.
+	 */
+	public static InputStream readConfigFile(String fileName)
+		throws IOException {
+		if (System.getProperty("javawebstart.version", null) != null) {
+			// We're running under Java Web Start, read configuration file
+			// from the CLASSPATH.
+			return IOUtil.class.getClassLoader().getResourceAsStream(
+					new java.io.File(fileName).getName());
+		}
+		// We're running normally, return as so.
+		return new FileInputStream(fileName);
+	}
 }

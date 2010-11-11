@@ -24,7 +24,7 @@
 package org.openmicroscopy.shoola.env.data;
 
 //Java imports
-import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -52,6 +52,7 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
+import org.openmicroscopy.shoola.util.file.IOUtil;
 
 import pojos.ExperimenterData;
 import pojos.GroupData;
@@ -138,9 +139,9 @@ public class DataServicesFactory
 	private static Properties loadConfig(String file)
 	{
 		Properties config = new Properties();
-		FileInputStream fis = null;
-		try { 
-			fis = new FileInputStream(file);
+		InputStream fis = null;
+		try {
+			fis = IOUtil.readConfigFile(file);
 			config.load(fis);
 		} catch (Exception e) {
 			return null;

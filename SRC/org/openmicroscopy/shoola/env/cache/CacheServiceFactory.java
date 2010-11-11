@@ -33,6 +33,7 @@ import java.io.InputStream;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.util.file.IOUtil;
 
 
 /** 
@@ -130,7 +131,7 @@ public class CacheServiceFactory
 	{
 		InputStream stream;
 		try { 
-			stream = new FileInputStream(file);
+			stream = IOUtil.readConfigFile(file);
 		} catch (Exception e) {
 			return null;
 		}

@@ -33,7 +33,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -81,6 +81,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.login.LoginCredentials;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLogin;
 import org.openmicroscopy.shoola.util.ui.login.ScreenLoginDialog;
+import org.openmicroscopy.shoola.util.file.IOUtil;
 
 import pojos.ExperimenterData;
 
@@ -187,7 +188,7 @@ public class TaskBarManager
 	{
 		String message;
 		try {
-			FileInputStream fis = new FileInputStream(file);
+			InputStream fis = IOUtil.readConfigFile(file);
 			BufferedReader in = new BufferedReader(new InputStreamReader(fis));
 			StringBuffer buffer = new StringBuffer();
 			int number = 0;

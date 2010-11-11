@@ -35,6 +35,7 @@ import java.util.Properties;
 import org.openmicroscopy.shoola.env.Container;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.util.file.IOUtil;
 
 /** 
  * A factory for the {@link Logger}. 
@@ -136,8 +137,7 @@ public class LoggerFactory
 	{
 		Properties config = new Properties();
 		try { 
-			FileInputStream fis = new FileInputStream(file);
-			config.load(fis);
+			config.load(IOUtil.readConfigFile(file));
 		} catch (Exception e) {
 			return null;
 		}
