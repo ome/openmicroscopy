@@ -240,6 +240,7 @@ class ToolBar
 		});
 		exportAsOmeTiffButton = new JButton(icons.getIcon(
 				IconManager.EXPORT_AS_OMETIFF));
+		exportAsOmeTiffButton.setEnabled(false);
 		exportAsOmeTiffButton.setToolTipText(EXPORT_AS_OME_TIFF_TOOLTIP);
 		exportAsOmeTiffButton.addActionListener(controller);
 		exportAsOmeTiffButton.setActionCommand(
@@ -499,20 +500,22 @@ class ToolBar
 			scriptsButton.setEnabled(false);
 			return;
 		}
-    	ImageData img = null;
-    	if (ref instanceof ImageData) {
-    		img = (ImageData) ref;
-    	} else if (ref instanceof WellSampleData) {
-    		img = ((WellSampleData) ref).getImage();
-    	}
-    	exportAsOmeTiffButton.setEnabled(false);
-    	if (img != null) {
-    		try {
-    			img.getDefaultPixels();
-    			exportAsOmeTiffButton.setEnabled(true);
-			} catch (Exception e) {}
-    	}
     	
+    	exportAsOmeTiffButton.setEnabled(false);
+    	if (model.isSingleMode()) {
+    		ImageData img = null;
+        	if (ref instanceof ImageData) {
+        		img = (ImageData) ref;
+        	} else if (ref instanceof WellSampleData) {
+        		img = ((WellSampleData) ref).getImage();
+        	}
+        	if (img != null) {
+        		try {
+        			img.getDefaultPixels();
+        			exportAsOmeTiffButton.setEnabled(true);
+    			} catch (Exception e) {}
+        	}
+    	}
 		publishingButton.setEnabled(true);
 		analysisButton.setEnabled(true);
 		scriptsButton.setEnabled(true);
