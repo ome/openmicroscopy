@@ -19,5 +19,8 @@ OMERO_CPP=`pwd`/`ls -d target/OMERO.cpp*dbg`
 mkdir -p $OMERO_CPP/etc/
 cp $OMERO_BRANCH.config $OMERO_CPP/etc/ice.config
 
+mkdir -p $OMERO_CPP/lib/client
+cp dist/lib/client/omero_client.jar $OMERO_CPP/lib/client/ # For Java compilation
+
 cd examples
 python ../target/scons/scons.py builddir=$OMERO_CPP run_cpp=1

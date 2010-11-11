@@ -39,6 +39,10 @@ SET OMERO_CPP=%cd%\%OMERO_CPP%
 if not exist %OMERO_CPP%\etc mkdir %OMERO_CPP%\etc
 copy %OMERO_BRANCH%.config %OMERO_CPP%\etc\
 
+mkdir %OMERO_CPP%\lib\client
+copy dist\lib\client\omero_client.jar %OMERO_CPP%\lib\client\
+REM For Java compilation
+
 cd examples
 python ..\target\scons\scons.py builddir=%OMERO_CPP% run_cpp=1
 if errorlevel 1 exit /b 1
