@@ -300,3 +300,7 @@
   Artifacts: All the tango_* graphics files contained the Shoola SVN 
   		module.
   License: Public Domain.
+
+  Project: JavaBeans Activation Framework (JAF).
+  Web Site: http://java.sun.com/javase/technologies/desktop/javabeans/jaf/index.jsp
+  License: Common Development and Distribution License (CDDL) v1.0
