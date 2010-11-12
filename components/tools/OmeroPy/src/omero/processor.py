@@ -89,11 +89,13 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
     """
 
     def __init__(self, ctx, interpreter, properties, params, iskill = False,\
-        Popen = subprocess.Popen, callback_cast = omero.grid.ProcessCallbackPrx.uncheckedCast):
+        Popen = subprocess.Popen, callback_cast = omero.grid.ProcessCallbackPrx.uncheckedCast,\
+        omero_home = path.getcwd()):
         """
         Popen and callback_Cast are primarily for testing.
         """
         omero.util.SimpleServant.__init__(self, ctx)
+        self.omero_home = omero_home          #: Location for OMERO_HOME/lib/python
         self.interpreter = interpreter        #: Executable which will be used on the script
         self.properties = properties          #: Properties used to create an Ice.Config
         self.params = params                  #: JobParams for this script. Possibly None if a ParseJob
@@ -131,7 +133,7 @@ class ProcessI(omero.grid.Process, omero.util.SimpleServant):
         # by having setting PYTHONPATH to an absolute value. This is
         # not currently possible with IceGrid (without using icepatch --
         # see 39.17.2 "node.datadir).
-        self.env.append("PYTHONPATH", str(path.getcwd() / "lib" / "python"))
+        self.env.append("PYTHONPATH", str(self.omero_home / "lib" / "python"))
         self.env.set("ICE_CONFIG", str(self.config_path))
 
     def make_files(self):
@@ -627,7 +629,10 @@ class UseSessionHolder(object):
 class ProcessorI(omero.grid.Processor, omero.util.Servant):
 
     def __init__(self, ctx, needs_session = True,
-                 use_session = None, accepts_list = [], cfg = None):
+                 use_session = None, accepts_list = [], cfg = None,
+                 omero_home = path.getcwd()):
+
+        self.omero_home = omero_home
 
         # Extensions for user-mode processors (ticket:1672)
 
@@ -850,7 +855,7 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
             properties["omero.pass"] = session
             properties["Ice.Default.Router"] = client.getProperty("Ice.Default.Router")
 
-            process = ProcessI(self.ctx, "python", properties, params, iskill)
+            process = ProcessI(self.ctx, "python", properties, params, iskill, omero_home = self.omero_home)
             self.resources.add(process)
 
             # client.download(file, str(process.script_path))
@@ -875,7 +880,8 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
             handle.close()
 
 def usermode_processor(client, serverid = "UsermodeProcessor",\
-                       cfg = None, accepts_list = None, stop_event = None):
+                       cfg = None, accepts_list = None, stop_event = None,\
+                       omero_home = path.getcwd()):
     """
     Creates an activates a usermode processor for the given client.
     It is the responsibility of the client to call "cleanup()" on
@@ -906,6 +912,7 @@ def usermode_processor(client, serverid = "UsermodeProcessor",\
 
     ctx = omero.util.ServerContext(serverid, client.ic, stop_event)
     impl = omero.processor.ProcessorI(ctx,
-        use_session=client.sf, accepts_list=accepts_list, cfg=cfg)
+        use_session=client.sf, accepts_list=accepts_list, cfg=cfg,
+        omero_home = omero_home)
     ctx.add_servant(client.adapter, impl)
     return impl

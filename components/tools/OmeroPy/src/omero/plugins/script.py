@@ -465,7 +465,7 @@ class ScriptControl(BaseControl):
 
         try:
             try:
-                impl = usermode_processor(client, serverid = "omer.scripts.serve", accepts_list = who)
+                impl = usermode_processor(client, serverid = "omer.scripts.serve", accepts_list = who, omero_home=self.ctx.dir)
                 self._processors.append(impl)
             except exceptions.Exception, e:
                 self.ctx.die(100, "Failed initialization: %s" % e)
