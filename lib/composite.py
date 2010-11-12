@@ -50,15 +50,18 @@ INSIGHT_JOB_NAME = 'INSIGHT-Beta4.2'
 
 IMPORTER_JOB_NAME = 'OMERO-Beta4.2'
 
-TARGET_PREFIX = 'OMERO.clients-Beta4.2.0'
+TARGET_PREFIX = 'OMERO.clients-Beta4.2.1'
 
 # The following libraries are duplicated in Insight and Importer:
 # IGNORE = "bio-formats.jar jai_imageio.jar loci-common.jar mdbtools-java.jar ome-xml.jar poi-loci.jar".split()
 # IGNORE'ing them, however, causes Insight to not start.
 IGNORE = []
 
-if "BUILD_NUMBER" in os.environ:
-    TARGET_PREFIX = '%s-b%s' % (TARGET_PREFIX, os.environ["BUILD_NUMBER"])
+# Including the build number makes the usage of these builds externally
+# very difficult. Commenting them out.
+# Chris Allan -- Fri 12 Nov 2010 16:01:32 GMT
+#if "BUILD_NUMBER" in os.environ:
+#    TARGET_PREFIX = '%s-b%s' % (TARGET_PREFIX, os.environ["BUILD_NUMBER"])
 
 def version():
 	omero_properties = os.path.join(os.path.dirname(os.path.dirname(__file__)), "etc", "omero.properties")
