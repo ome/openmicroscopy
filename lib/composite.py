@@ -53,9 +53,9 @@ IMPORTER_JOB_NAME = 'OMERO-Beta4.2'
 TARGET_PREFIX = 'OMERO.clients-Beta4.2.1'
 
 # The following libraries are duplicated in Insight and Importer:
-IGNORE = "bio-formats.jar jai_imageio.jar loci-common.jar mdbtools-java.jar ome-xml.jar poi-loci.jar".split()
+# IGNORE = "bio-formats.jar jai_imageio.jar loci-common.jar mdbtools-java.jar ome-xml.jar poi-loci.jar".split()
 # IGNORE'ing them, however, causes Insight to not start.
-#IGNORE = []
+IGNORE = []
 
 # Including the build number makes the usage of these builds externally
 # very difficult. Commenting them out.
