@@ -170,7 +170,7 @@ target_artifacts += artifacts
 revision, artifacts = download(IMPORTER_JOB_NAME, regex)
 target_artifacts += artifacts
 target = '%s.win' % TARGET_PREFIX
-ignore = ['omero_client.jar', 'OmeroImporter-Beta-4.2.0-DEV.jar',
+ignore = ['omero_client.jar', 'OmeroImporter.jar',
           'omero-clients-util-r\d+-b\d+.jar'] + IGNORE
 
 for artifact in target_artifacts:
