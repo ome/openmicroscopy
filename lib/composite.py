@@ -170,12 +170,17 @@ target_artifacts += artifacts
 revision, artifacts = download(IMPORTER_JOB_NAME, regex)
 target_artifacts += artifacts
 target = '%s.win' % TARGET_PREFIX
-ignore = ['omero_client.jar', 'OmeroImporter.jar',
+ignore = ['omero_client.jar',
           'omero-clients-util-r\d+-b\d+.jar'] + IGNORE
 
 for artifact in target_artifacts:
     extract(artifact, target, ignore)
+# Since Insight has an OmeroImporter.jar we want to use the one we've got
+# from the Importer artifact so delete the one in libs.
+omero_importer_jar = glob(os.path.join(target, 'libs', 'OmeroImporter.jar'))[0]
+os.unlink(omero_importer_jar)
 compress('%s.zip' % target, target)
+
 
 #
 # Create the composite Mac OS X client build
