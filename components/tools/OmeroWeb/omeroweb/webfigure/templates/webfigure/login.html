@@ -1,0 +1,18 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>WebTest login form</title>
+</head>
+
+<body>
+<h1>Web Figure login form</h1>
+<form action="." method="POST">
+<select name="server">
+{% for e in gw.all %}
+  <option value="{{ e.id }}">{{ e.host }}</option>
+{% endfor %}
+</select>
+User Name <input type="text" name="username">
+Password <input type="password" name="password">
+<input type="submit">
+</form>
+</body> </html>

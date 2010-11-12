@@ -1,0 +1,19 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Annotations Added</title>
+
+</head>
+
+<body>
+    
+    {{ comment }} added to images:
+    
+    <lu>
+    {% for i in images %}
+        <li>{{ i.getName }}</li>
+    {% endfor %}
+    </lu>
+    
+</body>
+
+</html>
