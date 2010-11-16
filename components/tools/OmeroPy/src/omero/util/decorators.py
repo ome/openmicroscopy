@@ -85,3 +85,37 @@ def locked(func):
     return with_lock
 
 
+class TimeIt (object):
+    """
+    Decorator to measure the execution time of a function. Assumes that a C{logger} global var
+    is available and is the logger instance from C{logging.getLogger()}.
+
+    @param level: the level to use for logging
+    """
+    logger = logging.getLogger('omero.timeit')
+
+    def __init__ (self, level=logging.DEBUG):
+        self._level = level
+ 
+    def __call__ (self, func):
+        def wrapped (*args, **kwargs):
+            self.logger.log(self._level, "timing %s" % (func.func_name))
+            now = time.time()
+            rv = func(*args, **kwargs)
+            self.logger.log(self._level, "timed %s: %f" % (func.func_name, time.time()-now))
+            return rv
+        return wrapped
+
+def timeit (func):
+    """
+    Shortcut version of the L{TimeIt} decorator class.
+    Logs at logging.DEBUG level.
+    """
+    def wrapped (*args, **kwargs):
+        TimeIt.logger.log(self._level, "timing %s" % (func.func_name))
+        now = time.time()
+        rv = func(*args, **kwargs)
+        TimeIt.logger.log(self._level, "timed %s: %f" % (func.func_name, time.time()-now))
+        return rv
+    return TimeIt()(func)
+

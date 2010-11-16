@@ -220,21 +220,43 @@ Alias / "%(ROOT)s/var/omero.fcgi/"
         rv = self.ctx.call(args, cwd = location)
 
     def test(self, args):
-        location = self.ctx.dir / "lib" / "python" / "omeroweb"
-        cargs = ["coverage","-x", "manage.py", "test"]
-        if args.arg:
-            cargs.append(args.arg)
+        appname = args.arg[0]
+        if appname.find('.') > 0:
+            appname = appname.split('.')
+            appbase = appname[0]
+            location = self.ctx.dir / appbase
+            appname = '.'.join(appname[1:])
+        else:
+            appbase = "omeroweb"
+            location = self.ctx.dir / "lib" / "python" / "omeroweb"
+        if len(args.arg) > 1:
+            cargs = args.arg[1:]
+        else:
+            cargs = ['python']
+        cargs.extend([ "manage.py", "test"])
+        if appname:
+            cargs.append(appname)
         os.environ['ICE_CONFIG'] = self.ctx.dir / "etc" / "ice.config"
         os.environ['PATH'] = os.environ.get('PATH', '.') + ':' + self.ctx.dir / 'bin'
         rv = self.ctx.call(cargs, cwd = location)
 
     def seleniumtest (self, args):
-        location = self.ctx.dir / "lib" / "python" / "omeroweb"
-        cargs = ["python", "seleniumtests.py"]
-        location = location / args.djangoapp / "tests"
-        print location
-        rv = self.ctx.call(cargs, cwd = location )
+        if len(args.arg) < 1:
+            self.ctx.die(121, "usage: seleniumtest [path.]{djangoapp} [seleniumserver] [hostname] [browser]")
+        appname = args.arg[0]
+        if appname.find('.') > 0:
+            appname = appname.split('.')
+            appbase = appname[0]
+            location = self.ctx.dir / appbase
+            appname = '.'.join(appname[1:])
+        else:
+            appbase = "omeroweb"
+            location = self.ctx.dir / "lib" / "python" / "omeroweb"
 
+        cargs = ["python", location / appname / "tests" / "seleniumtests.py"]
+        cargs += args.arg[1:]
+        rv = self.ctx.call(cargs, cwd = location )
+        
     def call (self, args):
         try:
             location = self.ctx.dir / "lib" / "python" / "omeroweb"
