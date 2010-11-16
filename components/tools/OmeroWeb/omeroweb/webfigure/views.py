@@ -18,7 +18,7 @@ def add_annotations (request):
     Creates a L{omero.gateway.CommentAnnotationWrapper} and adds it to the images according 
     to variables in the http request. 
     
-    @param request:     The django L{http request <django.core.handlers.wsgi.WSGIRequest>}
+    @param request:     The django L{django.core.handlers.wsgi.WSGIRequest}
                             - imageIds:     A comma-delimited list of image IDs
                             - comment:      The text to add as a comment to the images
                             
@@ -69,6 +69,20 @@ def add_annotations (request):
     
 
 def dataset_split_view (request, datasetId):
+    """
+    Generates a web page that displays a dataset in two panels, with the option to choose different
+    rendering settings (channels on/off) for each panel. It uses the render_image url for each
+    image, generating the full sized image which is scaled down to view. 
+    
+    The page also includes a form for editing the channel settings and display size of images.
+    This form resubmits to this page and displays the page again with updated parameters. 
+    
+    @param request:     The django L{http request <django.core.handlers.wsgi.WSGIRequest>}
+    @param datasetId:   The ID of the dataset. 
+    @type datasetId:    Number. 
+    
+    @return:            The http response - html page displaying split view figure.
+    """
     
     conn = getBlitzConnection (request, useragent="OMERO.webfigure")
     if conn is None or not conn.isConnected():
