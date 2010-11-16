@@ -425,19 +425,20 @@ java component.
            <arg value="-o"/>
            <arg value="${dist.dir}/docs/api/epydoc"/>
            <arg value="${dist.dir}/lib/python/omero"/>
+           <arg value="${dist.dir}/lib/python/omeroweb"/>
        </exec>
-       <replace dir="${dist.dir}/docs/api/epydoc" 
-          token="@NAVLINK@" 
+       <replace dir="${dist.dir}/docs/api/epydoc"
+          token="@NAVLINK@"
           value="&lt;div id=&quot;name-and-version&quot;&gt;OmeroPy API ${omero.version}&lt;/div&gt;&lt;div id=&quot;top-logo&quot; style=&quot;display:none&quot;&gt;&amp;nbsp;&lt;a href=&quot;http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/&quot; target=&quot;_top&quot;&gt;&lt;div id=&quot;ome-logo-inner&quot;&gt;&lt;img src=&quot;http://hudson.openmicroscopy.org.uk/userContent/ome_docs_trac_banner.png&quot; alt=&quot;OME Docs&quot;&gt;&lt;/a&gt;&lt;/div&gt;"/>
-        
+
        <replace dir="${dist.dir}/docs/api/epydoc">
            <replacetoken><![CDATA[<head>]]></replacetoken>
            <replacevalue><![CDATA[<head profile="http://www.w3.org/2005/10/profile" >
-<link rel="icon" 
-      type="image/vnd.microsoft.icon" 
+<link rel="icon"
+      type="image/vnd.microsoft.icon"
       href="http://hudson.openmicroscopy.org.uk/userContent/favicon.ico">]]></replacevalue>
        </replace>
-        
+
     </target>
 
     <target name="release-javadoc" description="Generate Javadocs for all components under dist/docs/api">
