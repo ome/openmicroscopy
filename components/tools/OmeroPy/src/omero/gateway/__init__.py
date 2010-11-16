@@ -47,7 +47,7 @@ from math import sqrt
 
 import omero_Constants_ice  
 import omero_ROMIO_ice
-from omero.rtypes import rstring, rint, rlong, rbool, rtime
+from omero.rtypes import rstring, rint, rlong, rbool, rtime, rlist
 
 def omero_type(val):
     """
@@ -917,7 +917,7 @@ class _BlitzGateway (object):
             self._proxies['config'] = ProxyObjectWrapper(self, 'getConfigService')
             self._proxies['container'] = ProxyObjectWrapper(self, 'getContainerService')
             self._proxies['delete'] = ProxyObjectWrapper(self, 'getDeleteService')
-            self._proxies['export'] = ProxyObjectWrapper(self, 'getExporter')
+            self._proxies['export'] = ProxyObjectWrapper(self, 'createExporter')
             self._proxies['ldap'] = ProxyObjectWrapper(self, 'getLdapService')
             self._proxies['metadata'] = ProxyObjectWrapper(self, 'getMetadataService')
             self._proxies['query'] = ProxyObjectWrapper(self, 'getQueryService')
@@ -1453,9 +1453,8 @@ class _BlitzGateway (object):
     
     def createSearchService (self):
         """
-        Creates a new search service.
-        This service is special in that it does not get cached inside BlitzGateway so every call to this function
-        returns a new object, avoiding unexpected inherited states.
+        Gets a reference to the searching service on this connection object or creates a new one
+        if none exists.
         
         @return: omero.gateway.ProxyObjectWrapper
         """
@@ -2147,10 +2146,6 @@ class _BlitzGateway (object):
     ###################
     # Delete          #
     
-    def deleteObject(self, obj):
-        u = self.getUpdateService()
-        u.deleteObject(obj)
-        
     def deleteAnnotation(self, oid, child=None, anns=None):
         op = dict()
         dc = omero.api.delete.DeleteCommand('/Annotation', long(oid), op)
