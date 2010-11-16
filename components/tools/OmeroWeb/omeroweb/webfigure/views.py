@@ -14,6 +14,16 @@ logger = logging.getLogger('webfigure')
 
 
 def add_annotations (request):
+    """
+    Creates a L{omero.gateway.CommentAnnotationWrapper} and adds it to the images according 
+    to variables in the http request. 
+    
+    @param request:     The django L{http request <django.core.handlers.wsgi.WSGIRequest>}
+                            - imageIds:     A comma-delimited list of image IDs
+                            - comment:      The text to add as a comment to the images
+                            
+    @return:            A simple html page with a success message 
+    """
     
     conn = getBlitzConnection (request, useragent="OMERO.webfigure")
     if conn is None or not conn.isConnected():
@@ -33,7 +43,12 @@ def add_annotations (request):
     ann.setTextValue(rstring( str(comment) ))
     ann = updateService.saveAndReturnObject(ann)
     annId = ann.getId().getValue()
-    
+    """
+    from omero.gateway import CommentAnnotationWrapper
+    ann = CommentAnnotationWrapper()
+    #ann.setNs()
+    ann.setValue(comment)
+    """
     # get the wrapped annotation
     #annotation = conn.getCommentAnnotation(annId)
     
@@ -41,7 +56,7 @@ def add_annotations (request):
     for iId in imageIds:
         image = conn.getImage(iId)
         if image == None: continue
-        #image.linkAnnotation(annotation)   # get: PermissionMismatchGroupSecurityViolation: Manually setting permissions currently disallowed
+        #image.linkAnnotation(ann)   # get: PermissionMismatchGroupSecurityViolation: Manually setting permissions currently disallowed
         
         l = omero.model.ImageAnnotationLinkI()
         parent = omero.model.ImageI(iId, False)     # use unloaded object to avoid update conflicts
@@ -131,7 +146,20 @@ def dataset_split_view (request, datasetId):
     
     
 def split_view_figure (request):
+    """
+    Generates an html page displaying a number of images in a grid with channels split into different columns. 
+    The page also includes a form for modifying various display parameters and re-submitting
+    to regenerate this page. 
+    If no 'imageIds' parameter (comma-delimited list) is found in the 'request', the page generated is simply 
+    a form requesting image IDs. 
+    If there are imageIds, the first ID (image) is used to generate the form based on channels of that image.
     
+    @param request:     The django L{http request <django.core.handlers.wsgi.WSGIRequest>}
+    
+    @return:            The http response - html page displaying split view figure.  
+    """
+    
+    print type(request)
     conn = getBlitzConnection (request, useragent="OMERO.webfigure")
     if conn is None or not conn.isConnected():
         return HttpResponseRedirect(reverse('webfigure_login'))
