@@ -263,6 +263,14 @@ def split_view_figure (request):
     
 
 def login (request):
+    """
+    Attempts to get a connection to the server by calling L{omeroweb.webgateway.views.getBlitzConnection} with the 'request'
+    object. If a connection is created, the user is directed to the 'webfigure_index' page. 
+    If a connection is not created, this method returns a login page.
+    
+    @param request:     The django http request
+    @return:            The http response - webfigure_index or login page
+    """
     if request.method == 'POST' and request.REQUEST['server']:
         blitz = settings.SERVER_LIST.get(pk=request.REQUEST['server'])
         request.session['server'] = blitz.id
@@ -275,7 +283,14 @@ def login (request):
         return HttpResponseRedirect(reverse('webfigure_index'))
     return render_to_response('webfigure/login.html', {'gw':settings.SERVER_LIST})
 
+
 def logout (request):
+    """
+    Attempts to delete the username and password from the request.session, then returns 
+    the login page. 
+    @param request:     The django http request
+    @return:            The http response - webfigure_login
+    """
     _session_logout(request, request.session['server'])
     try:
         del request.session['username']
@@ -287,7 +302,14 @@ def logout (request):
         logger.error(traceback.format_exc())
     return HttpResponseRedirect(reverse('webfigure_login'))
 
+
 def index (request):
+    """
+    Displays the 'home page' of the webfigure app, with links to various pages in the app.
+    
+    @param request:     The django http request
+    @return:            The http response - webfigure index
+    """
     conn = getBlitzConnection (request, useragent="OMERO.webfigure")
     if conn is None or not conn.isConnected():
         return HttpResponseRedirect(reverse('webfigure_login'))
