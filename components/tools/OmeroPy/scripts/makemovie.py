@@ -84,7 +84,7 @@ WMV_NS = omero_Constants_ice._M_omero.constants.metadata.NSMOVIEWMV;
 
 formatNSMap = {MPEG:MPEG_NS, QT:QT_NS, WMV:WMV_NS};
 formatExtensionMap = {MPEG:{'ext':"avi", 'out':'-ovc lavc -lavcopts vcodec=mpeg4'},
-                        QT:{'ext':"mov", 'out':'-ovc x264 -x264encopts bitrate=900:vbv_maxrate=1500:vbv_bufsize=2000:nocabac:level_idc=13:global_header:bframes=0:threads=auto:frameref=5'},
+                        QT:{'ext':"mov", 'out':'-ovc x264 -x264encopts bitrate=900:vbv_maxrate=1500:vbv_bufsize=2000:nocabac:level_idc=13:global_header:bframes=0:threads=1:frameref=5'},
                        WMV:{'ext':"avi", 'out':'-ovc lavc -lavcopts vcodec=wmv2'}};
 OVERLAYCOLOUR = "#666666";
 
