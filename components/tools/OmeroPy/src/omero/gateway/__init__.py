@@ -3266,6 +3266,8 @@ class _ImageWrapper (BlitzObjectWrapper):
                 if ratio > 1:
                     watermark = watermark.resize(map(lambda x: x*ratio, watermark.size), Image.ANTIALIAS)
             ww, wh = watermark.size
+        else:
+            ww, wh = 0, 0
         if minsize is not None and (w < minsize[0] or h < minsize[1]):
             w = max(w, minsize[0])
             h = max(h, minsize[1])
