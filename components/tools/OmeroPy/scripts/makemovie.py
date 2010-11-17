@@ -437,7 +437,7 @@ def buildMovie (commandArgs, session, omeroImage, pixels, renderingEngineCB):
 		if(len(timeMap)==0):
 			commandArgs["showTime"]=0;
 	
-	pixelTypeString = pixels.getPixelsType().getValue().getValue();
+	#pixelTypeString = pixels.getPixelsType().getValue().getValue();
 	frameNo = 1;
 	filelist=[];
         outX = sizeX
