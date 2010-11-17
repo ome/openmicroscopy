@@ -5,7 +5,7 @@
 # Copyright (c) 2007, 2010 Glencoe Software, Inc. All rights reserved.
 # 
 # This software is distributed under the terms described by the LICENCE file
-# you can find at the root of the distribution bundle, which states you are
+# you can find at the root of the distribution bundle, which states you are 
 # free to use it only for non commercial purposes.
 # If the file is missing please request a copy by contacting
 # jason@glencoesoftware.com.
@@ -100,7 +100,7 @@ def fileread (fin, fsize, bufsize):
 
 def fileread_gen (fin, fsize, bufsize):
     """
-    Generator helper function.
+    Generator helper function that yields chunks of the file of size fsize. 
 
     @type fin: file
     @param fin: filelike readable object
@@ -120,15 +120,27 @@ def fileread_gen (fin, fsize, bufsize):
 
 class BlitzObjectWrapper (object):
     """
-    Object wrapper class.
+    Object wrapper class which provides various methods for hierarchy traversing, 
+    saving, handling permissions etc. 
+    This is the 'abstract' super class which is subclassed by 
+    E.g. _ProjectWrapper, _DatasetWrapper etc. 
     """
     
-    OMERO_CLASS = None
+    OMERO_CLASS = None              # E.g. 'Project', 'Dataset', 'Experimenter' etc. 
     LINK_CLASS = None
     CHILD_WRAPPER_CLASS = None
     PARENT_WRAPPER_CLASS = None
     
     def __init__ (self, conn=None, obj=None, cache={}, **kwargs):
+        """
+        Initialises the wrapper object, setting the various class variables etc
+        
+        @param conn:    The L{omero.gateway.BlitzGateway} connection.
+        @type conn:     L{omero.gateway.BlitzGateway}
+        @param obj:     The object to wrap. E.g. omero.model.Image
+        @type obj:      omero.model object
+        @param cache:   Cache which is passed to new child wrappers
+        """
         self.__bstrap__()
         self._obj = obj
         self._cache = cache
@@ -142,15 +154,27 @@ class BlitzObjectWrapper (object):
         self.__prepare__ (**kwargs)
 
     def __eq__ (self, a):
+        """
+        Returns true if the object is of the same type and has same id and name
+        
+        @param a:   The object to compare to this one
+        @return:    True if objects are same - see above
+        """
         return type(a) == type(self) and self._obj.id == a._obj.id and self.getName() == a.getName()
 
     def __bstrap__ (self):
+        """ Initialisation method which is implemented by subclasses to set their class variables etc. """
         pass
 
     def __prepare__ (self, **kwargs):
+        """ Initialisation method which is implemented by subclasses to handle various init tasks """
         pass
 
     def __repr__ (self):
+        """
+        Returns a String representation of the Object, including ID if set. 
+        @return:    String E.g. '<DatasetWrapper id=123>'
+        """
         if hasattr(self, '_oid'):
             return '<%s id=%s>' % (self.__class__.__name__, str(self._oid))
         return super(BlitzObjectWrapper, self).__repr__()
