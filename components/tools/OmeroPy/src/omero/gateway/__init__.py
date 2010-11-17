@@ -843,12 +843,18 @@ class _BlitzGateway (object):
             # The connection was lost. This shouldn't happen, as we keep pinging it, but does so...
             logger.debug(traceback.format_exc())
             logger.debug("... lost, reconnecting")
-            return self.connect()
+            #return self.connect()
+            return False
         except Ice.ConnectionRefusedException: #pragma: no cover
             # The connection was refused. We lost contact with glacier2router...
             logger.debug(traceback.format_exc())
             logger.debug("... refused, not reconnecting")
             return False
+        except omero.SessionTimeoutException: #pragma: no cover
+           # The connection is there, but it has been reset, because the proxy no longer exists...
+           logger.debug(traceback.format_exc())
+           logger.debug("... reset, not reconnecting")
+           return False
         except omero.RemovedSessionException: #pragma: no cover
             # Session died on us
             logger.debug(traceback.format_exc())
@@ -860,6 +866,11 @@ class _BlitzGateway (object):
             logger.debug('Ice.UnknownException: %s' % str(x))
             logger.debug("... ice says something bad happened, not reconnecting")
             return False
+        except:
+            # Something else happened
+            logger.debug(traceback.format_exc())
+            logger.debug("... error not reconnecting")
+            return False
 
     def seppuku (self, softclose=False): #pragma: no cover
         """
@@ -870,31 +881,32 @@ class _BlitzGateway (object):
         """
         
         self._connected = False
-        if self.c:
+        if self._sessionUuid:
+            s = omero.model.SessionI()
+            s._uuid = omero_type(self._sessionUuid)
             try:
-                self.c.sf.closeOnDestroy()
-            except Ice.ConnectionLostException:
-                pass 
-            except Glacier2.SessionNotExistException:
+                #r = 1
+                #while r:
+                #    r = self.c.sf.getSessionService().closeSession(s)
+                # it is not neccessary to go through every workers.
+                # if cannot get session service for killSession will use closeSession
+                self.c.killSession()
+            except Ice.ObjectNotExistException:
                 pass
-            except AttributeError:
+            except omero.RemovedSessionException:
                 pass
+            except ValueError:
+                raise
+            except: #pragma: no cover
+                logger.warn(traceback.format_exc())
+        else:
             try:
-                if softclose:
-                    try:
-                        r = self.c.sf.getSessionService().getReferenceCount(self._sessionUuid)
-                        self.c.closeSession()
-                        if r < 2:
-                            self._session_cb and self._session_cb.close(self)
-                    except Ice.OperationNotExistException:
-                        self.c.closeSession()
-                else:
-                    self._closeSession()
-            except Glacier2.SessionNotExistException:
+                self.c.killSession()
+            except Glacier2.SessionNotExistException: #pragma: no cover
                 pass
-            except Ice.ConnectionLostException:
-                pass 
-            self.c = None
+            except:
+                logger.warn(traceback.format_exc())
+        
         self._proxies = NoProxies()
         logger.info("closed connecion (uuid=%s)" % str(self._sessionUuid))
 
@@ -3408,7 +3420,7 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     def __loadedHotSwap__ (self):
         self._obj = self._conn.getContainerService().getImages(self.OMERO_CLASS, (self._oid,), None)[0]
-
+    
     def getInstrument (self):
         i = self._obj.instrument
         if i is None:
@@ -3417,25 +3429,23 @@ class _ImageWrapper (BlitzObjectWrapper):
             self._obj.instrument = self._conn.getQueryService().find('Instrument', i.id.val)
             i = self._obj.instrument
             meta_serv = self._conn.getMetadataService()
-            for e in meta_serv.loadInstrument(i.id.val):
-                if isinstance(e, omero.model.DetectorI):
-                    i._detectorSeq.append(e)
-                elif isinstance(e, omero.model.ObjectiveI):
-                    i._objectiveSeq.append(e)
-                elif isinstance(e, omero.model.LightSource):
-                    i._lightSourceSeq.append(e)
-                elif isinstance(e, omero.model.FilterI):
-                    i._filterSeq.append(e)
-                elif isinstance(e, omero.model.DichroicI):
-                    i._dichroicSeq.append(e)
-                elif isinstance(e, omero.model.FilterSetI):
-                    i._filterSetSeq.append(e)
-                elif isinstance(e, omero.model.OTFI):
-                    i._otfSeq.append(e)
-                elif isinstance(e, omero.model.InstrumentI):
-                    pass
-                else:
-                    logger.info("Unknown instrument entry: %s" % str(e))
+            instruments = meta_serv.loadInstrument(i.id.val)
+
+            if instruments._detectorLoaded:
+                i._detectorSeq.extend(instruments._detectorSeq)
+            if instruments._objectiveLoaded:
+                i._objectiveSeq.extend(instruments._objectiveSeq)
+            if instruments._lightSourceLoaded:
+                i._lightSourceSeq.extend(instruments._lightSourceSeq)
+            if instruments._filterLoaded:
+                i._filterSeq.extend(instruments._filterSeq)
+            if instruments._dichroicLoaded:
+                i._dichroicSeq.extend(instruments._dichroicSeq)
+            if instruments._filterSetLoaded:
+                i._filterSetSeq.extend(instruments._filterSetSeq)
+            if instruments._otfLoaded:
+                i._otfSeq.extend(instruments._otfSeq)
+                    
         return InstrumentWrapper(self._conn, i)
 
     def _loadPixels (self):
@@ -4173,7 +4183,7 @@ class _ImageWrapper (BlitzObjectWrapper):
                 img = self.renderImage(z,t, compression)
                 if fsize > 0:
                     draw = ImageDraw.ImageDraw(img)
-                    draw.text((2,2), "w=%s" % (str(self.getChannels()[i].getEmissionWave())), font=font, fill="#fff")
+                    draw.text((2,2), "%s" % (str(self.getChannels()[i].getEmissionWave())), font=font, fill="#fff")
                 canvas.paste(img, (px, py))
             pxc += 1
             if pxc < dims['gridx']:
@@ -4187,7 +4197,7 @@ class _ImageWrapper (BlitzObjectWrapper):
             img = self.renderImage(z,t, compression)
             if fsize > 0:
                 draw = ImageDraw.ImageDraw(img)
-                draw.text((2,2), "combined", font=font, fill="#fff")
+                draw.text((2,2), "merged", font=font, fill="#fff")
             canvas.paste(img, (px, py))
         return canvas
 
@@ -4597,8 +4607,6 @@ class _FilterSetWrapper (BlitzObjectWrapper):
     _attrs = ('manufacturer',
               'model',
               'lotNumber',
-              'exFilter|FilterWrapper',
-              'emFilter|FilterWrapper',
               'dichroic|DichroicWrapper',
               'version')
 
@@ -4654,7 +4662,7 @@ class _LightSourceWrapper (BlitzObjectWrapper):
               'model',
               'power',
               'serialNumber',
-              '#type;lightsourceType',
+              '#type;lightSourceType',
               'version')
 
     def getLightSourceType(self):
@@ -4772,7 +4780,8 @@ class _InstrumentWrapper (BlitzObjectWrapper):
     def getMicroscope (self):
         if self._obj.microscope is not None:
             return MicroscopeWrapper(self._conn, self._obj.microscope)
-
+        return None
+           
     def getDetectors (self):
         return [DetectorWrapper(self._conn, x) for x in self._detectorSeq]
 
