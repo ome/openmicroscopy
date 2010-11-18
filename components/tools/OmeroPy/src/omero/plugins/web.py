@@ -10,7 +10,6 @@
 from exceptions import Exception
 from datetime import datetime
 from omero.cli import BaseControl, CLI
-from omeroweb import settings
 import omero.java
 import platform
 import time
@@ -18,14 +17,18 @@ import sys
 import os
 import re
 
+try:
+    from omeroweb import settings
 
-CONFIG_TABLE_FMT = "    %-35.35s  %-8s  %r\n"
-CONFIG_TABLE = CONFIG_TABLE_FMT % ("Key", "Default?", "Current value")
+    CONFIG_TABLE_FMT = "    %-35.35s  %-8s  %r\n"
+    CONFIG_TABLE = CONFIG_TABLE_FMT % ("Key", "Default?", "Current value")
 
-for key in sorted(settings.CUSTOM_SETTINGS_MAPPINGS):
-    global_name, default_value, mapping, using_default = settings.CUSTOM_SETTINGS_MAPPINGS[key]
-    global_value = getattr(settings, global_name, "(unset)")
-    CONFIG_TABLE += CONFIG_TABLE_FMT  % (key, using_default, global_value)
+    for key in sorted(settings.CUSTOM_SETTINGS_MAPPINGS):
+        global_name, default_value, mapping, using_default = settings.CUSTOM_SETTINGS_MAPPINGS[key]
+        global_value = getattr(settings, global_name, "(unset)")
+        CONFIG_TABLE += CONFIG_TABLE_FMT  % (key, using_default, global_value)
+except:
+    CONFIG_TABLE="INVALID CONFIGURATION! Cannot display default values"
 
 HELP="""OMERO.web configuration/deployment tools
 
