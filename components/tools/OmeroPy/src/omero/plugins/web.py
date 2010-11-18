@@ -223,22 +223,25 @@ Alias / "%(ROOT)s/var/omero.fcgi/"
         rv = self.ctx.call(args, cwd = location)
 
     def test(self, args):
-        appname = args.arg[0]
-        if appname.find('.') > 0:
-            appname = appname.split('.')
-            appbase = appname[0]
-            location = self.ctx.dir / appbase
-            appname = '.'.join(appname[1:])
+        param = args.arg[0]
+        if param.find('/') >= 0:
+            path = param.split('/')
+            test = path[len(path)-1]
+            if param.startswith('/'):
+                location = "/".join(path[:(len(path)-1)])
+            else:
+                appbase = test.split('.')[0]
+                location = self.ctx.dir / "/".join(path[:(len(path)-1)])
         else:
-            appbase = "omeroweb"
             location = self.ctx.dir / "lib" / "python" / "omeroweb"
+            test = param        
         if len(args.arg) > 1:
             cargs = args.arg[1:]
         else:
             cargs = ['python']
         cargs.extend([ "manage.py", "test"])
-        if appname:
-            cargs.append(appname)
+        if test:
+            cargs.append(test)
         os.environ['ICE_CONFIG'] = self.ctx.dir / "etc" / "ice.config"
         os.environ['PATH'] = os.environ.get('PATH', '.') + ':' + self.ctx.dir / 'bin'
         rv = self.ctx.call(cargs, cwd = location)
