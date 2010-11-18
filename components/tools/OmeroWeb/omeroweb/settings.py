@@ -39,7 +39,7 @@ from webadmin.custom_models import ServerObjects
 from django.utils import simplejson as json
 from portalocker import LockException
 
-# In order to run utests we must set it
+# TODO: In order to run utests we must set it
 DATABASE_ENGINE = 'sqlite3'
 
 if os.environ.has_key('OMERO_HOME'):

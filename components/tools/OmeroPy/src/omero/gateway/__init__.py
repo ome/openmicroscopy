@@ -1139,9 +1139,12 @@ class _BlitzGateway (object):
             s = omero.model.SessionI()
             s._uuid = omero_type(self._sessionUuid)
             try:
-                r = 1
-                while r:
-                    r = self.c.sf.getSessionService().closeSession(s)
+                #r = 1
+                #while r:
+                #    r = self.c.sf.getSessionService().closeSession(s)
+                # it is not neccessary to go through every workers.
+                # if cannot get session service for killSession will use closeSession
+                self.c.killSession()
             except Ice.ObjectNotExistException:
                 pass
             except omero.RemovedSessionException:
@@ -1151,10 +1154,13 @@ class _BlitzGateway (object):
             except: #pragma: no cover
                 logger.warn(traceback.format_exc())
         try:
-            self.c.closeSession()
+            #self.c.closeSession()
+            self.c.killSession()
         except Glacier2.SessionNotExistException: #pragma: no cover
             pass
-    
+        except:
+            logger.warn(traceback.format_exc())
+                        
     def _resetOmeroClient (self):
         """
         Resets omero.client object.

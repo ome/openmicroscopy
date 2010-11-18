@@ -60,7 +60,7 @@ def _session_logout (request, server_id, force_key=None):
         if request.session.has_key(browsersession_connection_key):
             logger.debug('logout: removing "%s"' % (request.session[browsersession_connection_key]))
             del request.session[browsersession_connection_key]
-    for k in ('username', 'password', 'server', 'host', 'port'):
+    for k in ('username', 'password', 'server', 'host', 'port', 'ssl'):
         if request.session.has_key(k):
             del request.session[k]
     if connectors.has_key(session_key):
@@ -225,7 +225,7 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
         if ckey.startswith('S:') and not force_key:
             ckey = 'S:'
         logger.debug('creating new connection with "%s" (%s)' % (ckey, try_super))
-        if force_key or username:
+        if force_key or r.get('username', None):
             sUuid = None
         else:
             sUuid = request.session.get(browsersession_connection_key, None)
@@ -249,7 +249,8 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
                     return None
                 logger.debug('Failed connection, logging out')
                 _session_logout(request, server_id)
-                return blitzcon
+                #return blitzcon
+                return None
                 #return getBlitzConnection(request, server_id, with_session, force_anon=True, skip_stored=skip_stored)
             else:
                 ####
@@ -271,10 +272,14 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
                     blitzcon.user.logIn()
 
     if blitzcon and not blitzcon.keepAlive() and not ckey.startswith('C:'):
-        logger.info("Failed keepalive")
-        _session_logout(request, server_id)
-        return blitzcon
-        #return getBlitzConnection(request, server_id, with_session, force_anon=True, skip_stored=skip_stored)
+        # session could expire or be closed by another client. webclient needs to recreate connection with new uuid
+        # otherwise it will forward user to login screen.
+        logger.info("Failed keepalive for connection %s" % ckey)
+        del request.session[browsersession_connection_key]
+        del connectors[ckey]
+        #_session_logout(request, server_id)
+        #return blitzcon
+        return getBlitzConnection(request, server_id, with_session, retry=False, group=group, try_super=try_super, useragent=useragent)
     if blitzcon and ckey.startswith('C:') and not blitzcon.isConnected():
         logger.info("Something killed the base connection, recreating")
         del connectors[ckey]
@@ -564,7 +569,7 @@ def render_movie (request, iid, axis, pos, server_id=None, _conn=None, **kwargs)
         img, compress_quality = pi
 
         fpath, rpath, fobj = webgateway_tempfile.new(img.getName() + ext, key=key)
-        print fpath, rpath, fobj
+        logger.debug(fpath, rpath, fobj)
         if fobj is True:
             return HttpResponseRedirect('/appmedia/tfiles/' + rpath)#os.path.join(rpath, img.getName() + ext))
 
@@ -861,7 +866,7 @@ def searchOptFromRequest (request):
             opts['search'] += ' author:'+author
         return opts
     except:
-        print traceback.format_exc()
+        logger.error(traceback.format_exc())
         return {}
 
 @TimeIt(logging.INFO)
@@ -1022,7 +1027,7 @@ def copy_image_rdef_json (request, server_id, _conn=None, **kwargs):
         json_data = '%s(%s)' % (r['callback'], json_data)
     return HttpResponse(json_data, mimetype='application/javascript')
 
-def reset_image_rdef_json (request, server_id, iid, _conn=None, **kwargs):
+def reset_image_rdef_json (request, iid, server_id=None, _conn=None, **kwargs):
     """ Try to remove all rendering defs the logged in user has for this image. """
     if _conn is None:
         blitzcon = getBlitzConnection(request, server_id, with_session=True, useragent="OMERO.webgateway")

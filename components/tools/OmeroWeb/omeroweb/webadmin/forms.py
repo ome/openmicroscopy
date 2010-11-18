@@ -22,8 +22,6 @@
 # Version: 1.0
 #
 
-import re
-
 from django.conf import settings
 from django import forms
 from django.forms import ModelForm
@@ -33,23 +31,7 @@ from django.forms.widgets import HiddenInput
 from custom_forms import ServerModelChoiceField, \
         GroupModelChoiceField, GroupModelMultipleChoiceField, \
         ExperimenterModelChoiceField, ExperimenterModelMultipleChoiceField, \
-        DefaultGroupField
-
-##################################################################
-# Fields
-
-class OmeNameField(forms.Field):
-    def clean(self, value):
-        omeName = value
-        if not value:
-            raise forms.ValidationError('This field is required.')
-        if not self.is_valid_omeName(omeName):
-            raise forms.ValidationError('%s is not a valid Omename.' % omeName)
-        return omeName
-
-    def is_valid_omeName(self, omeName):
-        omeName_pattern = re.compile(r"(?:^|\s)[a-zA-Z0-9_.]") #TODO: PATTERN !!!!!!!
-        return omeName_pattern.match(omeName) is not None
+        DefaultGroupField, OmeNameField
 
 
 #################################################################
@@ -104,7 +86,7 @@ class ExperimenterForm(forms.Form):
         else:
             self.fields.keyOrder = ['omename', 'first_name', 'middle_name', 'last_name', 'email', 'institution', 'administrator', 'active', 'default_group', 'other_groups', 'available_groups']
 
-    omename = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}))
+    omename = OmeNameField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}))
     first_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}))
     middle_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}), required=False)
     last_name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':30, 'autocomplete': 'off'}))
@@ -125,10 +107,12 @@ class ExperimenterForm(forms.Form):
     def clean_omename(self):
         if self.name_check:
             raise forms.ValidationError('This omename already exist.')
+        return self.cleaned_data.get('omename')
 
     def clean_email(self):
         if self.email_check:
             raise forms.ValidationError('This email already exist.')
+        return self.cleaned_data.get('email')
 
 class GroupForm(forms.Form):
     
@@ -146,16 +130,17 @@ class GroupForm(forms.Form):
             self.fields['owners'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], initial=kwargs['initial']['owner'], required=False)
         except:
             self.fields['owners'] = ExperimenterModelMultipleChoiceField(queryset=kwargs['initial']['experimenters'], required=False)
-        self.fields.keyOrder = ['name', 'description', 'owners', 'access_controll', 'readonly']
+        self.fields.keyOrder = ['name', 'description', 'owners', 'permissions', 'readonly']
 
     name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'autocomplete': 'off'}))
     description = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':25, 'autocomplete': 'off'}), required=False)
-    access_controll = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions", help_text="<div class=\"error\">WARNING: Changing Permissions will change permissions of all objects in a group, it means. That action might increase the time of upgrading group and break the server.</div>")
+    permissions = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions", help_text="<div class=\"error\">WARNING: Changing Permissions will change permissions of all objects in a group, it means. That action might increase the time of upgrading group and break the server.</div>")
     readonly = forms.BooleanField(required=False, label="(read-only)")  
     
     def clean_name(self):
         if self.name_check:
             raise forms.ValidationError('This name already exist.')
+        return self.cleaned_data.get('name')
 
 class GroupOwnerForm(forms.Form):
     
@@ -165,15 +150,8 @@ class GroupOwnerForm(forms.Form):
         #('2', 'Public ')
     )
 
-    access_controll = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions", help_text="<div class=\"error\">WARNING: Changing Permissions will change permissions of all objects in a group. That action might increase the time of upgrading group and break the server.</div>")
+    permissions = forms.ChoiceField(choices=PERMISSION_CHOICES, widget=forms.RadioSelect(), required=True, label="Permissions", help_text="<div class=\"error\">WARNING: Changing Permissions will change permissions of all objects in a group. That action might increase the time of upgrading group and break the server.</div>")
     readonly = forms.BooleanField(required=False, label="(read-only)")  
-
-class ScriptForm(forms.Form):
-    
-    name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':51}))
-    content = forms.CharField(widget=forms.Textarea(attrs={'rows': 20, 'cols': 50}))
-    size = forms.CharField(label="size [B]", max_length=250, widget=forms.TextInput(attrs={'onfocus':'this.blur()', 'size':5}), required=False)
-
 
 class MyAccountForm(forms.Form):
         
@@ -197,6 +175,7 @@ class MyAccountForm(forms.Form):
     def clean_email(self):
         if self.email_check:
             raise forms.ValidationError('This email already exist.')
+        return self.cleaned_data.get('email')
 
 
 class ContainedExperimentersForm(forms.Form):
@@ -219,7 +198,7 @@ class UploadPhotoForm(forms.Form):
             raise forms.ValidationError('Only images (JPEG, GIF, PNG) acepted.')
         if self.cleaned_data.get('photo').size > 204800:
             raise forms.ValidationError('Photo size file cannot be greater them 200KB.')
-
+        return self.cleaned_data.get('photo') 
 
 class ChangeUserPassword(forms.Form):
     

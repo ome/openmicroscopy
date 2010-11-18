@@ -22,12 +22,32 @@
 # Version: 1.0
 #
 
+
+import re
+
 from django import forms
 from django.forms.fields import Field, ChoiceField, EMPTY_VALUES
 from django.forms.widgets import Select, SelectMultiple, MultipleHiddenInput
 from django.forms import ModelChoiceField, ModelMultipleChoiceField, ValidationError
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import smart_unicode
+
+
+##################################################################
+# Fields
+
+class OmeNameField(forms.CharField):
+    def clean(self, value):
+        omeName = value
+        if not value:
+            raise forms.ValidationError('This field is required.')
+        if not self.is_valid_omeName(omeName):
+            raise forms.ValidationError('%s is not a valid Omename.' % omeName)
+        return omeName
+
+    def is_valid_omeName(self, omeName):
+        omeName_pattern = re.compile(r"(?:^|\s)[a-zA-Z0-9_.]") #TODO: PATTERN !!!!!!!
+        return omeName_pattern.match(omeName) is not None
 
 # Group queryset iterator for group form
 

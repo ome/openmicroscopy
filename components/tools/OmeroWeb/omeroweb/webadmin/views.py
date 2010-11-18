@@ -58,12 +58,11 @@ from forms import LoginForm, ForgottonPasswordForm, ExperimenterForm, \
                    GroupForm, GroupOwnerForm, MyAccountForm, \
                    ChangeMyPassword, ChangeUserPassword, \
                    ContainedExperimentersForm, UploadPhotoForm, \
-                   EnumerationEntry, EnumerationEntries, ScriptForm
+                   EnumerationEntry, EnumerationEntries
 
 from controller import BaseController
 from controller.experimenter import BaseExperimenters, BaseExperimenter
 from controller.group import BaseGroups, BaseGroup
-from controller.script import BaseScripts, BaseScript
 from controller.drivespace import BaseDriveSpace
 from controller.uploadfile import BaseUploadFile
 from controller.enums import BaseEnums
@@ -430,13 +429,10 @@ def manage_experimenter(request, action, eid=None, **kwargs):
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamanageexperimenterid", args=["new"]))
         else:
-            name_check = conn.checkOmeName(request.REQUEST.get('omename').encode('utf-8'))
-            email_check = conn.checkEmail(request.REQUEST.get('email').encode('utf-8'))
+            name_check = conn.checkOmeName(request.REQUEST.get('omename'))
+            email_check = conn.checkEmail(request.REQUEST.get('email'))
             
             initial={'with_password':True}
-            
-            if request.REQUEST.get('active'):
-                initial['active'] = True
             
             exclude = list()            
             if len(request.REQUEST.getlist('other_groups')) > 0:
@@ -449,24 +445,19 @@ def manage_experimenter(request, action, eid=None, **kwargs):
             initial['available'] = available
             form = ExperimenterForm(initial=initial, data=request.REQUEST.copy(), name_check=name_check, email_check=email_check)
             if form.is_valid():
-                omeName = request.REQUEST.get('omename').encode('utf-8')
-                firstName = request.REQUEST.get('first_name').encode('utf-8')
-                middleName = request.REQUEST.get('middle_name').encode('utf-8')
-                lastName = request.REQUEST.get('last_name').encode('utf-8')
-                email = request.REQUEST.get('email').encode('utf-8')
-                institution = request.REQUEST.get('institution').encode('utf-8')
-                admin = False
-                if request.REQUEST.get('administrator'):
-                    admin = True
-
-                active = False
-                if request.REQUEST.get('active'):
-                    active = True
-
-                defaultGroup = request.REQUEST.get('default_group')
-                otherGroups = request.POST.getlist('other_groups')
-                password = request.REQUEST.get('password').encode('utf-8')
-                controller.createExperimenter(omeName, firstName, lastName, email, admin, active, defaultGroup, otherGroups, password, middleName, institution)
+                logger.debug("Create experimenter form:" + str(form.cleaned_data))
+                omename = form.cleaned_data['omename']
+                firstName = form.cleaned_data['first_name']
+                middleName = form.cleaned_data['middle_name']
+                lastName = form.cleaned_data['last_name']
+                email = form.cleaned_data['email']
+                institution = form.cleaned_data['institution']
+                admin = form.cleaned_data['administrator']
+                active = form.cleaned_data['active']
+                defaultGroup = form.cleaned_data['default_group']
+                otherGroups = form.cleaned_data['other_groups']
+                password = form.cleaned_data['password']
+                controller.createExperimenter(omename, firstName, lastName, email, admin, active, defaultGroup, otherGroups, password, middleName, institution)
                 return HttpResponseRedirect(reverse("waexperimenters"))
             context = {'info':info, 'eventContext':eventContext, 'form':form}
     elif action == 'edit' :
@@ -491,9 +482,9 @@ def manage_experimenter(request, action, eid=None, **kwargs):
     elif action == 'save':
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamanageexperimenterid", args=["edit", controller.experimenter.id]))
-        else:
-            name_check = conn.checkOmeName(request.REQUEST.get('omename').encode('utf-8'), controller.experimenter.omeName)
-            email_check = conn.checkEmail(request.REQUEST.get('email').encode('utf-8'), controller.experimenter.email)
+        else:            
+            name_check = conn.checkOmeName(request.REQUEST.get('omename'), controller.experimenter.omeName)
+            email_check = conn.checkEmail(request.REQUEST.get('email'), controller.experimenter.email)
             initial={'active':True}
             exclude = list()
             
@@ -509,24 +500,18 @@ def manage_experimenter(request, action, eid=None, **kwargs):
             form = ExperimenterForm(initial=initial, data=request.POST.copy(), name_check=name_check, email_check=email_check)
                
             if form.is_valid():
-                omeName = request.REQUEST.get('omename').encode('utf-8')
-                firstName = request.REQUEST.get('first_name').encode('utf-8')
-                middleName = request.REQUEST.get('middle_name').encode('utf-8')
-                lastName = request.REQUEST.get('last_name').encode('utf-8')
-                email = request.REQUEST.get('email').encode('utf-8')
-                institution = request.REQUEST.get('institution').encode('utf-8')
-                admin = False
-                if request.REQUEST.get('administrator'):
-                    admin = True
-
-                active = False
-                if request.REQUEST.get('active'):
-                    active = True
-
-                defaultGroup = request.REQUEST.get('default_group')
-                otherGroups = request.POST.getlist('other_groups')
-                
-                controller.updateExperimenter(omeName, firstName, lastName, email, admin, active, defaultGroup, otherGroups, middleName, institution)
+                logger.debug("Update experimenter form:" + str(form.cleaned_data))
+                omename = form.cleaned_data['omename']
+                firstName = form.cleaned_data['first_name']
+                middleName = form.cleaned_data['middle_name']
+                lastName = form.cleaned_data['last_name']
+                email = form.cleaned_data['email']
+                institution = form.cleaned_data['institution']
+                admin = form.cleaned_data['administrator']
+                active = form.cleaned_data['active']
+                defaultGroup = form.cleaned_data['default_group']
+                otherGroups = form.cleaned_data['other_groups']
+                controller.updateExperimenter(omename, firstName, lastName, email, admin, active, defaultGroup, otherGroups, middleName, institution)
                 return HttpResponseRedirect(reverse("waexperimenters"))
             context = {'info':info, 'eventContext':eventContext, 'form':form, 'eid': eid, 'ldapAuth': controller.ldapAuth}
     elif action == "delete":
@@ -568,14 +553,14 @@ def manage_password(request, eid, **kwargs):
             password_form = ChangeMyPassword(data=request.POST.copy())
                     
         if password_form.is_valid():
-            password = request.REQUEST.get('password').encode('utf-8')
+            password = form.cleaned_data['password']
             if conn.isAdmin():
                 exp = conn.getExperimenter(eid)
                 conn.changeUserPassword(exp.omeName, password)
                 request.session['password'] = password
                 return HttpResponseRedirect(reverse(viewname="wamanageexperimenterid", args=["edit", eid]))
             else:
-                old_password = request.REQUEST.get('old_password').encode('utf-8')
+                old_password = form.cleaned_data['old_password']
                 error = conn.changeMyPassword(old_password, password) 
                 if error is None:
                     request.session['password'] = password
@@ -634,29 +619,30 @@ def manage_group(request, action, gid=None, **kwargs):
     controller = BaseGroup(conn, gid)
     
     if action == 'new':
-        form = GroupForm(initial={'experimenters':controller.experimenters, 'access_controll': 0})
+        form = GroupForm(initial={'experimenters':controller.experimenters, 'permissions': 0})
         context = {'info':info, 'eventContext':eventContext, 'form':form}
     elif action == 'create':
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamanagegroupid", args=["new"]))
         else:
-            name_check = conn.checkGroupName(request.REQUEST.get('name').encode('utf-8'))
+            name_check = conn.checkGroupName(request.REQUEST.get('name'))
             form = GroupForm(initial={'experimenters':controller.experimenters}, data=request.POST.copy(), name_check=name_check)
             if form.is_valid():
-                name = request.REQUEST.get('name').encode('utf-8')
-                description = request.REQUEST.get('description').encode('utf-8')
-                owners = request.POST.getlist('owners')
-                permissions = request.REQUEST.get('access_controll')                
-                readonly = (False, True)[request.REQUEST.get('readonly') is None]
+                logger.debug("Create group form:" + str(form.cleaned_data))
+                name = form.cleaned_data['name']
+                description = form.cleaned_data['description']
+                owners = form.cleaned_data['owners']
+                permissions = form.cleaned_data['permissions']
+                readonly = form.cleaned_data['readonly']
                 controller.createGroup(name, owners, permissions, readonly, description)
                 return HttpResponseRedirect(reverse("wagroups"))
             context = {'info':info, 'eventContext':eventContext, 'form':form}
     elif action == 'edit':
-        access_controll = controller.getActualPermissions()
+        permissions = controller.getActualPermissions()
         form = GroupForm(initial={'name': controller.group.name, 'description':controller.group.description,
-                                     'access_controll': access_controll, 'readonly': controller.isReadOnly(), 
+                                     'permissions': permissions, 'readonly': controller.isReadOnly(), 
                                      'owners': controller.owners, 'experimenters':controller.experimenters})
-        context = {'info':info, 'eventContext':eventContext, 'form':form, 'gid': gid, 'access_controll': access_controll}
+        context = {'info':info, 'eventContext':eventContext, 'form':form, 'gid': gid, 'permissions': permissions}
     elif action == 'save':
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamanagegroupid", args=["edit", controller.group.id]))
@@ -664,11 +650,12 @@ def manage_group(request, action, gid=None, **kwargs):
             name_check = conn.checkGroupName(request.REQUEST.get('name').encode('utf-8'), controller.group.name)
             form = GroupForm(initial={'experimenters':controller.experimenters}, data=request.POST.copy(), name_check=name_check)
             if form.is_valid():
-                name = request.REQUEST.get('name').encode('utf-8')
-                description = request.REQUEST.get('description').encode('utf-8')
-                owners = request.POST.getlist('owners')
-                permissions = request.REQUEST.get('access_controll').encode('utf-8')
-                readonly = (False, True)[request.REQUEST.get('readonly') is None]
+                logger.debug("Update group form:" + str(form.cleaned_data))
+                name = form.cleaned_data['name']
+                description = form.cleaned_data['description']
+                owners = form.cleaned_data['owners']
+                permissions = form.cleaned_data['permissions']
+                readonly = form.cleaned_data['readonly']
                 controller.updateGroup(name, owners, permissions, readonly, description)
                 return HttpResponseRedirect(reverse("wagroups"))
             context = {'info':info, 'eventContext':eventContext, 'form':form, 'gid': gid}
@@ -677,8 +664,8 @@ def manage_group(request, action, gid=None, **kwargs):
         controller.containedExperimenters()
         form = ContainedExperimentersForm(initial={'members':controller.members, 'available':controller.available})
         if not form.is_valid():
-            available = request.POST.getlist('available')
-            members = request.POST.getlist('members')
+            available = form.cleaned_data['available']
+            members = form.cleaned_data['members']
             controller.setMembersOfGroup(available, members)
             return HttpResponseRedirect(reverse("wagroups"))
         context = {'info':info, 'eventContext':eventContext, 'form':form, 'controller': controller}
@@ -712,17 +699,17 @@ def manage_group_owner(request, action, gid, **kwargs):
     controller = BaseGroup(conn, gid)
     
     if action == 'edit':
-        access_controll = controller.getActualPermissions()
-        form = GroupOwnerForm(initial={'access_controll': access_controll, 'readonly': controller.isReadOnly()})
-        context = {'info':info, 'eventContext':eventContext, 'form':form, 'gid': gid, 'access_controll': access_controll, 'group':controller.group, 'owners':controller.getOwnersNames()}
+        permissions = controller.getActualPermissions()
+        form = GroupOwnerForm(initial={'permissions': permissions, 'readonly': controller.isReadOnly()})
+        context = {'info':info, 'eventContext':eventContext, 'form':form, 'gid': gid, 'permissions': permissions, 'group':controller.group, 'owners':controller.getOwnersNames()}
     elif action == "save":
         if request.method != 'POST':
             return HttpResponseRedirect(reverse(viewname="wamyaccount", args=["edit", controller.group.id]))
         else:
             form = GroupOwnerForm(data=request.POST.copy())
             if form.is_valid():
-                permissions = request.REQUEST.get('access_controll')                
-                readonly = (False, True)[request.REQUEST.get('readonly') is None]
+                permissions = form.cleaned_data['permissions']
+                readonly = form.cleaned_data['readonly']
                 controller.updatePermissions(permissions, readonly)
                 return HttpResponseRedirect(reverse("wamyaccount"))
             context = {'info':info, 'eventContext':eventContext, 'form':form, 'gid': gid}
@@ -750,64 +737,6 @@ def ldap(request, **kwargs):
     controller = None
     
     context = {'info':info, 'eventContext':eventContext, 'controller':controller}
-    
-    t = template_loader.get_template(template)
-    c = Context(request, context)
-    rsp = t.render(c)
-    return HttpResponse(rsp)
-
-@isAdminConnected
-def scripts(request, **kwargs):
-    scripts = True
-    template = "webadmin/scripts.html"
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-    
-    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'scripts':scripts}
-    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
-    controller = BaseScripts(conn)
-    
-    context = {'info':info, 'eventContext':eventContext, 'controller':controller}
-    
-    t = template_loader.get_template(template)
-    c = Context(request, context)
-    rsp = t.render(c)
-    return HttpResponse(rsp)
-
-@isAdminConnected
-def manage_script(request, action, sc_id=None, **kwargs):
-    scripts = True
-    template = "webadmin/script_form.html"
-    
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-    
-    info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'scripts':scripts}
-    eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
-    controller = BaseScript(conn)
-    
-    if action == 'new':
-        form = ScriptForm(initial={'script':controller.script})
-        context = {'info':info, 'eventContext':eventContext, 'form':form}
-    elif action == 'save':
-        form = GroupForm(initial={'script':controller.script}, data=request.POST.copy())
-        if form.is_valid():
-            
-            return HttpResponseRedirect(reverse("wascripts"))
-        context = {'info':info, 'eventContext':eventContext, 'form':form}
-    elif action == "edit":
-        controller.getScript(sc_id)
-        form = ScriptForm(initial={'name':controller.details.val.path.val, 'content':controller.script, 'size':controller.details.val.size.val})
-        context = {'info':info, 'eventContext':eventContext, 'form':form, 'sc_id': sc_id}
-    else:
-        return HttpResponseRedirect(reverse("wascripts"))
     
     t = template_loader.get_template(template)
     c = Context(request, context)
@@ -920,12 +849,12 @@ def my_account(request, action=None, **kwargs):
             email_check = conn.checkEmail(request.REQUEST.get('email').encode('utf-8'), myaccount.experimenter.email)
             form = MyAccountForm(data=request.POST.copy(), initial={'groups':myaccount.otherGroups}, email_check=email_check)
             if form.is_valid():
-                firstName = request.REQUEST.get('first_name').encode('utf-8')
-                middleName = request.REQUEST.get('middle_name').encode('utf-8')
-                lastName = request.REQUEST.get('last_name').encode('utf-8')
-                email = request.REQUEST.get('email').encode('utf-8')
-                institution = request.REQUEST.get('institution').encode('utf-8')
-                defaultGroup = request.REQUEST.get('default_group')
+                firstName = form.cleaned_data['first_name']
+                middleName = form.cleaned_data['middle_name']
+                lastName = form.cleaned_data['last_name']
+                email = form.cleaned_data['email']
+                institution = form.cleaned_data['institution']
+                defaultGroup = form.cleaned_data['default_group']
                 myaccount.updateMyAccount(firstName, lastName, email, defaultGroup, middleName, institution)
                 return HttpResponseRedirect(reverse("wamyaccount"))
     

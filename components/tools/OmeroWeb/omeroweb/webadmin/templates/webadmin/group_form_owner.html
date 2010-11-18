@@ -19,14 +19,14 @@
             {
                 var ch = $('#checkbox');
                 {% if gid %}
-                    {% if access_controll %}
-                        $('#id_access_controll_{{ access_controll }}').parent().append(ch);
-                        {% ifequal access_controll 1 %}
-                            $('#id_access_controll_0').attr('disabled', true);
+                    {% if permissions %}
+                        $('#id_permissions_{{ permissions }}').parent().append(ch);
+                        {% ifequal permissions 1 %}
+                            $('#id_permissions_0').attr('disabled', true);
                         {% endifequal %}
-                        {% ifequal access_controll 2 %}
-                            $('#id_access_controll_0').attr('disabled', true);
-                            $('#id_access_controll_1').attr('disabled', true);
+                        {% ifequal permissions 2 %}
+                            $('#id_permissions_0').attr('disabled', true);
+                            $('#id_permissions_1').attr('disabled', true);
                         {% endifequal %}                
                     {% else %}
                         ch.remove();
@@ -35,14 +35,14 @@
                     ch.remove();
                 {% endif %}
                 
-                $("input[name=access_controll]").click(radioClicks);                
+                $("input[name=permissions]").click(radioClicks);                
                 function radioClicks()
                 {
                     var index = $(this).val();
                     if ($(this).val() == 0) {
                         ch.remove();
                     } else {
-                        $('#id_access_controll_'+index).parent().append(ch);
+                        $('#id_permissions_'+index).parent().append(ch);
                     };
                 }
 
