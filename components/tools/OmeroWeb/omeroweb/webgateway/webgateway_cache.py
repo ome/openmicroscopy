@@ -20,19 +20,21 @@ import datetime
 
 logger = logging.getLogger('cache')
 
-import struct, time, os, re, shutil
+import struct, time, os, re, shutil, stat
 size_of_double = len(struct.pack('d',0))
 string_type = type('')
 
 CACHE=getattr(settings, 'WEBGATEWAY_CACHE', None)
+TMPROOT=getattr(settings, 'WEBGATEWAY_TMPROOT', None)
 THUMB_CACHE_TIME = 3600 # 1 hour
 THUMB_CACHE_SIZE = 20*1024 # KB == 20MB
 IMG_CACHE_TIME= 3600 # 1 hour
 IMG_CACHE_SIZE = 512*1024 # KB == 512MB
 JSON_CACHE_TIME= 3600 # 1 hour
 JSON_CACHE_SIZE = 1*1024 # KB == 1MB
+TMPDIR_TIME = 3600 * 12 # 12 hours
 
-class CacheBase (object):
+class CacheBase (object): #pragma: nocover
     def __init__ (self):
         pass
 
@@ -61,7 +63,7 @@ class FileCache(CacheBase):
         self._default_timeout=timeout
         if not os.path.exists(self._dir):
             self._createdir()
-
+#
     def add(self, key, value, timeout=None, invalidateGroup=None):
         if self.has_key(key):
             return False
@@ -110,13 +112,13 @@ class FileCache(CacheBase):
             exp = time.time() + timeout + (timeout / 5 * random()) 
             f.write(struct.pack('d', exp))
             f.write(value)
-        except (IOError, OSError):
+        except (IOError, OSError): #pragma: nocover
             pass
 
     def delete(self, key):
         try:
             self._delete(self._key_to_file(key))
-        except (IOError, OSError):
+        except (IOError, OSError): #pragma: nocover
             pass
 
     def _delete(self, fname):
@@ -126,15 +128,17 @@ class FileCache(CacheBase):
         else:
             os.remove(fname)
             try:
-                # Remove the 2 subdirs if they're empty
+                # Remove the parent subdirs if they're empty
                 dirname = os.path.dirname(fname)
-                os.rmdir(dirname)
-                os.rmdir(os.path.dirname(dirname))
+                while dirname != self._dir:
+                    os.rmdir(dirname)
+                    dirname = os.path.dirname(fname)
             except (IOError, OSError):
                 pass
 
     def wipe (self):
         shutil.rmtree(self._dir)
+        self._createdir()
         return True
 
     def _check_entry (self, fname):
@@ -153,12 +157,21 @@ class FileCache(CacheBase):
                 return False
             else:
                 return True
-        except (IOError, OSError, EOFError, struct.error):
+        except (IOError, OSError, EOFError, struct.error): #pragma: nocover
             return False
 
     def has_key(self, key):
         fname = self._key_to_file(key)
         return self._check_entry(fname)
+
+    def _du (self):
+        """
+        Disk Usage count on the filesystem the cache is based at
+        
+        @rtype: int
+        @return: the current usage, in KB
+        """
+        return int(os.popen('du -sk %s' % os.path.join(os.getcwd(),self._dir)).read().split('\t')[0].strip())
 
     def _full(self, _on_retry=False):
         # Check nr of entries
@@ -171,19 +184,19 @@ class FileCache(CacheBase):
                         return self._full(True)
                     logger.warn('caching limits reached on %s: max entries %d' % (self._dir, self._max_entries))
                     return True
-            except ValueError:
+            except ValueError: #pragma: nocover
                 logger.error('Counting cache entries failed')
         # Check for space usage
         if self._max_size:
             try:
-                x = int(os.popen('du -sk %s' % self._dir).read().split('\t')[0].strip())
+                x = self._du()
                 if x >= self._max_size:
                     if not _on_retry:
                         self._purge()
                         return self._full(True)
                     logger.warn('caching limits reached on %s: max size %d' % (self._dir, self._max_size))
                     return True
-            except ValueError:
+            except ValueError: #pragma: nocover
                 logger.error('Counting cache size failed')
         return False
 
@@ -208,7 +221,7 @@ class FileCache(CacheBase):
     def _createdir(self):
         try:
             os.makedirs(self._dir)
-        except OSError:
+        except OSError: #pragma: nocover
             raise EnvironmentError, "Cache directory '%s' does not exist and could not be created'" % self._dir
 
     def _key_to_file(self, key):
@@ -217,7 +230,6 @@ class FileCache(CacheBase):
         return os.path.join(self._dir, key)
 
     def _get_num_entries(self):
-        
         count = 0
         for _,_,files in os.walk(self._dir):
             count += len(files)
@@ -262,6 +274,13 @@ class WebGatewayCache (object):
             self._lastlock = None
 
     def tryLock (self):
+        """
+        simple lock mechanisn to avoid multiple processes on the same cache to
+        step on each other's toes.
+
+        @rtype: boolean
+        @return: True if we created a lockfile or already had it. False otherwise.
+        """
         lockfile = os.path.join(self._basedir, '%s_lock' % datetime.datetime.now().strftime('%Y%m%d_%H%M'))
         if self._lastlock:
             if lockfile == self._lastlock:
@@ -280,9 +299,26 @@ class WebGatewayCache (object):
             return False
 
     def handleEvent (self, client_base, e):
-        logger.debug('## %s#%i %s user #%i group #%i(%i)' % (e.entityType.val, e.entityId.val, e.action.val, e.details.owner.id.val, e.details.group.id.val, e.event.id.val))
+        """
+        Handle one event from blitz.onEventLogs.
+
+        Meant to be overridden, this implementation just logs.
+        """
+        logger.debug('## %s#%i %s user #%i group #%i(%i)' % (e.entityType.val,
+                                                             e.entityId.val,
+                                                             e.action.val,
+                                                             e.details.owner.id.val,
+                                                             e.details.group.id.val,
+                                                             e.event.id.val))
 
     def eventListener (self, client_base, events):
+        """
+        handle events coming our way from blitz.onEventLogs.
+        
+        Because all processes will be listening to the same events, we use a simple file
+        lock mechanism to make sure the first process to get the event will be the one
+        handling things from then on.
+        """
         for e in events:
             if self.tryLock():
                 self.handleEvent(client_base, e)
@@ -314,7 +350,10 @@ class WebGatewayCache (object):
     # Thumb
 
     def _thumbKey (self, r, client_base, iid, size):
-        return 'thumb_%s/%s-%s' % (client_base, str(iid), 'x'.join([str(x) for x in size]))
+        if size is not None:
+            return 'thumb_%s/%s/%s' % (client_base, str(iid), 'x'.join([str(x) for x in size]))
+        else:
+            return 'thumb_%s/%s' % (client_base, str(iid))
 
     def setThumb (self, r, client_base, iid, obj, size=()):
         k = self._thumbKey(r, client_base, iid, size)
@@ -330,7 +369,7 @@ class WebGatewayCache (object):
             logger.debug('cached: %s' % k)
         return r
 
-    def clearThumb (self, r, client_base, iid, size=()):
+    def clearThumb (self, r, client_base, iid, size=None):
         k = self._thumbKey(r, client_base, iid, size)
         self._cache_clear(self._thumb_cache, k)
         return True
@@ -345,7 +384,8 @@ class WebGatewayCache (object):
             c = FN_REGEX.sub('-',r.get('c', ''))
             m = r.get('m', '')
             p = r.get('p', '')
-            if p and not isinstance(omero.gateway.ImageWrapper.PROJECTIONS.get(p, -1), omero.constants.projection.ProjectionType):
+            if p and not isinstance(omero.gateway.ImageWrapper.PROJECTIONS.get(p, -1),
+                                    omero.constants.projection.ProjectionType): #pragma: nocover
                 p = ''
             q = r.get('q', '')
             rv = 'img_%s/%s/%%s-c%s-m%s-q%s' % (client_base, str(iid), c, m, q)
@@ -385,6 +425,12 @@ class WebGatewayCache (object):
     def getSplitChannelImage (self, r, client_base, img, z, t):
         return self.getImage(r, client_base, img, z, t, '-sc')
 
+    def setOmeTiffImage (self, r, client_base, img, obj):
+        return self.setImage(r, client_base, img, 0, 0, obj, '-ometiff')
+
+    def getOmeTiffImage (self, r, client_base, img):
+        return self.getImage(r, client_base, img, 0, 0, '-ometiff')
+
     ##
     # hierarchies (json)
 
@@ -399,10 +445,6 @@ class WebGatewayCache (object):
         if obj.OMERO_CLASS == 'Dataset':
             self.clearDatasetContents(None, client_base, obj)
     
-    #def _jsonDSKey (self, r, client_base, did, ctx):
-    #    # ignore request data
-    #    return self._jsonKey(r, client_base, str(did), 'ds') + ctx
-
     def setDatasetContents (self, r, client_base, ds, data):
         k = self._jsonKey(r, client_base, ds, 'contents')
         self._cache_set(self._json_cache, k, data)
@@ -423,3 +465,91 @@ class WebGatewayCache (object):
         return True
 
 webgateway_cache = WebGatewayCache(FileCache)
+
+class AutoLockFile (file):
+    def __init__ (self, fn, mode):
+        super(AutoLockFile, self).__init__(fn, mode)
+        self._lock = os.path.join(os.path.dirname(fn), '.lock')
+        file(self._lock, 'a').close()
+    def __del__ (self):
+        try:
+            os.remove(self._lock)
+        except:
+            pass
+    def close (self):
+        try:
+            os.remove(self._lock)
+        except:
+            pass
+        super(AutoLockFile, self).close()
+
+class WebGatewayTempFile (object):
+    def __init__ (self, tdir=TMPROOT):
+        self._dir = tdir
+        if tdir and not os.path.exists(self._dir):
+            self._createdir()
+
+    def _createdir(self):
+        try:
+            os.makedirs(self._dir)
+        except OSError: #pragma: nocover
+            raise EnvironmentError, "Cache directory '%s' does not exist and could not be created'" % self._dir
+
+    def _cleanup (self):
+        now = time.time()
+        for f in os.listdir(self._dir):
+            try:
+                ts = os.path.join(self._dir, f, '.timestamp')
+                if os.path.exists(ts):
+                    ft = float(file(ts).read()) + TMPDIR_TIME
+                else:
+                    ft = float(f) + TMPDIR_TIME
+                if ft < now:
+                    shutil.rmtree(os.path.join(self._dir, f), ignore_errors=True)
+            except ValueError:
+                continue
+
+    def newdir (self, key=None):
+        if not self._dir:
+            return None, None
+        self._cleanup()
+        stamp = str(time.time())
+        if key is None:
+            dn = os.path.join(self._dir, stamp)
+            while os.path.exists(dn):
+                stamp = str(time.time())
+                dn = os.path.join(self._dir, stamp)
+            key = stamp
+        key = key.replace('/','_').decode('utf8').encode('ascii','ignore')
+        dn = os.path.join(self._dir, key)
+        if not os.path.isdir(dn):
+            os.makedirs(dn)
+        file(os.path.join(dn, '.timestamp'), 'w').write(stamp)
+        return dn, key
+
+    def new (self, name, key=None):
+        if not self._dir:
+            return None, None, None
+        dn, stamp = self.newdir(key)
+        name = name.replace('/','_').decode('utf8').encode('ascii', 'ignore')
+        fn = os.path.join(dn, name)
+        rn = os.path.join(stamp, name)
+        lf = os.path.join(dn, '.lock')
+        cnt = 30
+        fsize = 0
+        while os.path.exists(lf) and cnt > 0:
+            time.sleep(1)
+            t = os.stat(fn)[stat.ST_SIZE]
+            if (t == fsize):
+                cnt -= 1
+                logger.debug('countdown %d' % cnt)
+            else:
+                fsize = t
+                cnt = 30
+        if cnt == 0:
+            return None, None, None
+        if os.path.exists(fn):
+            return fn, rn, True
+        return fn, rn, AutoLockFile(fn, 'wb')
+
+webgateway_tempfile = WebGatewayTempFile()

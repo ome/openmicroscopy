@@ -14,7 +14,7 @@ from django.http import QueryDict
 
 CLIENT_BASE='test'
 
-def fakeRequest ():
+def fakeRequest (**kwargs):
     def bogus_request(self, **request):
         """
         The master request method. Composes the environment dictionary
@@ -55,7 +55,7 @@ def fakeRequest ():
         return r
     Client.bogus_request = bogus_request
     c = Client()
-    return c.bogus_request()
+    return c.bogus_request(**kwargs)
 
 class WGTest (GTest):
     def doLogin (self, user):
@@ -106,41 +106,13 @@ class HelperObjectsTest (unittest.TestCase):
         self.assertEqual(splitHTMLColor('#$%&%'), None)
 
 
-#class StoredConnectionModelTest(WGTest):
-#    def setUp (self):
-#        super(StoredConnectionModelTest, self).setUp()
-#        self._conf = tempfile.mkstemp()
-#        f = os.fdopen(self._conf[0], 'w')
-#        conffile = os.path.join(getattr(settings, 'ETCPATH', '.'), 'ice.config')
-#        if os.path.exists(conffile):
-#            for l in open(conffile, 'rb').readlines():
-#                if l.startswith('omero.'):
-#                    f.write(l.strip()+'\n')
-#        f.write('weblitz.anon_user=%s\nweblitz.anon_pass=%s\nweblitz.admin_group=system\n' % (self.USER.name, self.USER.passwd))
-#        f.close()
-#        conn = StoredConnection.objects.filter(base_path__iexact=CLIENT_BASE, enabled__exact=True)
-#        if len(conn) > 0:
-#            # already have the connection, update the config file
-#            s = conn[0]
-#            s.config_file = self._conf[1]
-#        else:
-#            # First call, create the connection
-#            s = StoredConnection(base_path=CLIENT_BASE, config_file=self._conf[1])
-#        s.save()
-#        conn = StoredConnection.objects.filter(base_path__iexact=CLIENT_BASE, enabled__exact=True)
-#        self.assert_(len(conn) > 0, 'Can not find connection %s' % CLIENT_BASE)
-#        self.conn = conn[0]
-#        self.gateway = self.conn.getBlitzGateway(trysuper=True)
-#        self.assert_(self.gateway, 'Can not get gateway from connection')
-#        self._has_connected = False
-#
-#    def doLogin (self, user):
-#        super(StoredConnectionModelTest, self).doLogin(user)
-#        self.gateway.conn = self.conn
-#    
-#    def tearDown (self):
-#        self.doDisconnect()
-#        os.remove(self._conf[1])
+def _testCacheFSBlockSize (cache):
+    cache.wipe()
+    c1 = cache._du()
+    cache.set('test/1', 'a')
+    c2 = cache._du()
+    cache.wipe()
+    return c1, c2-c1
 
 class FileCacheTest(unittest.TestCase):
     def setUp (self):
@@ -157,14 +129,15 @@ class FileCacheTest(unittest.TestCase):
         self.assertEqual(self.cache.get('date/test/1'), None, 'Timeout failed')
 
     def testMaxSize (self):
-        self.cache._max_size = 16 # KBytes
+        empty_size, cache_block = _testCacheFSBlockSize(self.cache)
+        self.cache._max_size = empty_size + 4*cache_block + 1
         # There is an overhead (8 bytes in my system) for timestamp per file,
         # and the limit is only enforced after we cross over it
         for i in range(5):
-            self.cache.set('date/test/%d' % i, 'abcdefgh'*510) # just under 4KB
-        #for i in range(4):
-        #    self.assertEqual(self.cache.get('date/test/%d' % i), 'abcdefgh'*510, 'Key not properly cached')
-        self.assertEqual(self.cache.get('date/test/0'), 'abcdefgh'*510, 'Key not properly cached')
+            self.cache.set('date/test/%d' % i, 'abcdefgh'*127*cache_block)
+        for i in range(4):
+            self.assertEqual(self.cache.get('date/test/%d' % i), 'abcdefgh'*127*cache_block,
+                             'Key %d not properly cached' % i)
         self.assertEqual(self.cache.get('date/test/4'), None, 'Size limit failed')
 
     def testMaxEntries (self):
@@ -189,16 +162,59 @@ class FileCacheTest(unittest.TestCase):
         self.cache.set('date/test/3', '3')
         self.assertEqual(self.cache.get('date/test/3'), '3', 'Purge not working')
 
+    def testOther (self):
+        # set should only accept strings as values
+        self.assertRaises(ValueError, self.cache.set, 'date/test/1', 123)
+        # keys can't have .. or start with /
+        self.assertRaises(ValueError, self.cache.set, '/date/test/1', '1')
+        self.assertRaises(ValueError, self.cache.set, 'date/test/../1', '1')
+        # get some test data in
+        self.cache.set('date/test/1', '1')
+        self.cache.set('date/test/2', '2')
+        self.cache.set('date/test/3', '3')
+        self.assertEqual(self.cache.get('date/test/1'), '1', 'Key not properly cached')
+        self.assertEqual(self.cache.get('date/test/2'), '2', 'Key not properly cached')
+        self.assertEqual(self.cache.get('date/test/3'), '3', 'Key not properly cached')
+        # check has_key
+        self.assert_(self.cache.has_key('date/test/1'))
+        self.assert_(not self.cache.has_key('date/test/bogus'))
+        # assert wipe() nukes the whole thing
+        self.assertEqual(self.cache._num_entries, 3)
+        self.cache.wipe()
+        self.assertEqual(self.cache._num_entries, 0)
         
 class WebGatewayCacheTest(unittest.TestCase):
     def setUp (self):
         self.wcache = WebGatewayCache(backend=FileCache, basedir='test_cache')
         class r:
-            REQUEST = {'c':'1|292:1631$FF0000,2|409:5015$0000FF','m':'c', 'q':'0.9'}
+            def __init__ (self):
+                self.REQUEST = {'c':'1|292:1631$FF0000,2|409:5015$0000FF','m':'c', 'q':'0.9'}
+            def new (self, q):
+                rv = self.__class__()
+                rv.REQUEST.update(q)
+                return rv
         self.request = r()
 
     def tearDown (self):
         os.system('rm -fr test_cache')
+
+    def testCacheSettings (self):
+        empty_size, cache_block = _testCacheFSBlockSize(self.wcache._thumb_cache)
+        max_size = empty_size + 4*cache_block + 1
+        self.wcache._updateCacheSettings(self.wcache._thumb_cache, timeout=2, max_entries=5, max_size=max_size )
+        for i in range(5):
+            self.wcache.setThumb(self.request, 'test', i, 'abcdefgh'*127*cache_block)
+        for i in range(4):
+            self.assertEqual(self.wcache.getThumb(self.request, 'test', 0), 'abcdefgh'*127*cache_block,
+                             'Key %d not properly cached' % i)
+        self.assertEqual(self.wcache.getThumb(self.request, 'test', 4), None, 'Size limit failed')
+        for i in range(10):
+            self.wcache.setThumb(self.request, 'test', i, 'abcdefgh')
+        for i in range(5):
+            self.assertEqual(self.wcache.getThumb(self.request, 'test', i), 'abcdefgh', 'Key %d not properly cached' % i)
+        self.assertEqual(self.wcache.getThumb(self.request, 'test', 5), None, 'Entries limit failed')
+        time.sleep(2)
+        self.assertEqual(self.wcache.getThumb(self.request, 'test', 0), None, 'Time limit failed')
 
     def testThumbCache (self):
         self.assertEqual(self.wcache.getThumb(self.request, 'test', 1), None)
@@ -206,19 +222,90 @@ class WebGatewayCacheTest(unittest.TestCase):
         self.assertEqual(self.wcache.getThumb(self.request, 'test', 1), 'thumbdata', 'Thumb not properly cached')
         self.wcache.clearThumb(self.request, 'test', 1)
         self.assertEqual(self.wcache.getThumb(self.request, 'test', 1), None)
-
-    def testImageCache (self):
-        # Also add a thumb, as it should get deleted with image
-        self.assertEqual(self.wcache.getThumb(self.request, 'test', 1), None)
+        # Make sure clear() nukes this
         self.wcache.setThumb(self.request, 'test', 1, 'thumbdata')
         self.assertEqual(self.wcache.getThumb(self.request, 'test', 1), 'thumbdata', 'Thumb not properly cached')
+        self.assertNotEqual(self.wcache._thumb_cache._num_entries, 0)
+        self.wcache.clear()
+        self.assertEqual(self.wcache._thumb_cache._num_entries, 0)
+
+    def testImageCache (self):
+        # Also add a thumb, a split channel and a projection, as it should get deleted with image
+        preq = self.request.new({'p':'intmax'})
+        self.assertEqual(self.wcache.getThumb(self.request, 'test', 1), None)
+        self.wcache.setThumb(self.request, 'test', 1, 'thumbdata')
+        self.assertEqual(self.wcache.getThumb(self.request, 'test', 1), 'thumbdata')
         img = omero.gateway.ImageWrapper(None, omero.model.ImageI(1,False))
         self.assertEqual(self.wcache.getImage(self.request, 'test', img, 2, 3), None)
         self.wcache.setImage(self.request, 'test', img, 2, 3, 'imagedata')
-        self.assertEqual(self.wcache.getImage(self.request, 'test', img, 2, 3), 'imagedata', 'Image not properly cached')
+        self.assertEqual(self.wcache.getImage(self.request, 'test', img, 2, 3), 'imagedata')
+        self.assertEqual(self.wcache.getImage(preq, 'test', img, 2, 3), None)
+        self.wcache.setImage(preq, 'test', img, 2, 3, 'imagedata')
+        self.assertEqual(self.wcache.getImage(preq, 'test', img, 2, 3), 'imagedata')
+        self.assertEqual(self.wcache.getSplitChannelImage(self.request, 'test', img, 2, 3), None)
+        self.wcache.setSplitChannelImage(self.request, 'test', img, 2, 3, 'imagedata')
+        self.assertEqual(self.wcache.getSplitChannelImage(self.request, 'test', img, 2, 3), 'imagedata')
         self.wcache.clearImage(self.request, 'test', img)
         self.assertEqual(self.wcache.getImage(self.request, 'test', img, 2, 3), None)
+        self.assertEqual(self.wcache.getSplitChannelImage(self.request, 'test', img, 2, 3), None)
+        self.assertEqual(self.wcache.getImage(preq, 'test', img, 2, 3), None)
         self.assertEqual(self.wcache.getThumb(self.request, 'test', 1), None)
+        # The exact same behaviour, using invalidateObject
+        self.wcache.setThumb(self.request, 'test', 1, 'thumbdata')
+        self.assertEqual(self.wcache.getThumb(self.request, 'test', 1), 'thumbdata')
+        self.wcache.setImage(self.request, 'test', img, 2, 3, 'imagedata')
+        self.assertEqual(self.wcache.getImage(self.request, 'test', img, 2, 3), 'imagedata')
+        self.assertEqual(self.wcache.getImage(preq, 'test', img, 2, 3), None)
+        self.wcache.setImage(preq, 'test', img, 2, 3, 'imagedata')
+        self.assertEqual(self.wcache.getImage(preq, 'test', img, 2, 3), 'imagedata')
+        self.assertEqual(self.wcache.getSplitChannelImage(self.request, 'test', img, 2, 3), None)
+        self.wcache.setSplitChannelImage(self.request, 'test', img, 2, 3, 'imagedata')
+        self.assertEqual(self.wcache.getSplitChannelImage(self.request, 'test', img, 2, 3), 'imagedata')
+        self.wcache.invalidateObject('test', img)
+        self.assertEqual(self.wcache.getImage(self.request, 'test', img, 2, 3), None)
+        self.assertEqual(self.wcache.getSplitChannelImage(self.request, 'test', img, 2, 3), None)
+        self.assertEqual(self.wcache.getImage(preq, 'test', img, 2, 3), None)
+        self.assertEqual(self.wcache.getThumb(self.request, 'test', 1), None)
+        # Make sure clear() nukes this
+        self.assertEqual(self.wcache.getImage(self.request, 'test', img, 2, 3), None)
+        self.wcache.setImage(self.request, 'test', img, 2, 3, 'imagedata')
+        self.assertEqual(self.wcache.getImage(self.request, 'test', img, 2, 3), 'imagedata')
+        self.assertNotEqual(self.wcache._img_cache._num_entries, 0)
+        self.wcache.clear()
+        self.assertEqual(self.wcache._img_cache._num_entries, 0)
+
+    def testLocks (self):
+        wcache2 = WebGatewayCache(backend=FileCache, basedir=self.wcache._basedir)
+        #wcache2 will hold the lock
+        self.assert_(wcache2.tryLock())
+        self.assert_(not self.wcache.tryLock())
+        self.assert_(wcache2.tryLock())
+        del wcache2
+        # The lock should have been removed
+        self.assert_(self.wcache.tryLock())
+
+    def testJsonCache (self):
+        ds = omero.gateway.DatasetWrapper(None, omero.model.DatasetI(1,False))
+        self.assertEqual(self.wcache.getDatasetContents(self.request, 'test', ds), None)
+        self.wcache.setDatasetContents(self.request, 'test', ds, 'datasetdata')
+        self.assertEqual(self.wcache.getDatasetContents(self.request, 'test', ds), 'datasetdata')
+        self.wcache.clearDatasetContents(self.request, 'test', ds)
+        self.assertEqual(self.wcache.getDatasetContents(self.request, 'test', ds), None)
+        # The exact same behaviour, using invalidateObject
+        self.assertEqual(self.wcache.getDatasetContents(self.request, 'test', ds), None)
+        self.wcache.setDatasetContents(self.request, 'test', ds, 'datasetdata')
+        self.assertEqual(self.wcache.getDatasetContents(self.request, 'test', ds), 'datasetdata')
+        self.wcache.invalidateObject('test', ds)
+        self.assertEqual(self.wcache.getDatasetContents(self.request, 'test', ds), None)
+        # Make sure clear() nukes this
+        self.assertEqual(self.wcache.getDatasetContents(self.request, 'test', ds), None)
+        self.wcache.setDatasetContents(self.request, 'test', ds, 'datasetdata')
+        self.assertEqual(self.wcache.getDatasetContents(self.request, 'test', ds), 'datasetdata')
+        self.assertNotEqual(self.wcache._json_cache._num_entries, 0)
+        self.wcache.clear()
+        self.assertEqual(self.wcache._json_cache._num_entries, 0)
+        
+        
 
 class JsonTest (WGTest):
     def testImageData (self):

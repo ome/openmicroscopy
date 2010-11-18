@@ -40,7 +40,9 @@ $.fn.gs_slider = function(cfg) {
 	  var handleId = this.id + '-shi';
 	  var lineId = this.id + '-sli';
 	  var btnUpId = this.id + '-bup';
+	  var btnPlayUpId = this.id + '-bpup';
 	  var btnDownId = this.id + '-bdn';
+	  var btnPlayDownId = this.id + '-bpdn';
 
       var slider_container = jQuery(this);
 
@@ -65,10 +67,14 @@ $.fn.gs_slider = function(cfg) {
       var slider = jQuery("#"+lineId);
 
       /* The buttons */
+      slider.before('<div id="'+btnPlayUpId+'" class="slider-btn-playup"></div>');//&nbsp;</div>');
       slider.before('<div id="'+btnUpId+'" class="slider-btn-up"></div>');//&nbsp;</div>');
       var btnup = jQuery("#"+btnUpId);
+      var btnplayup = jQuery("#"+btnPlayUpId);
       slider.after('<div id="'+btnDownId+'" class="slider-btn-down"></div>');//&nbsp;</div>');
+      slider.after('<div id="'+btnPlayDownId+'" class="slider-btn-playdown"></div>');//&nbsp;</div>');
       var btndown = jQuery("#"+btnDownId);
+      var btnplaydown = jQuery("#"+btnPlayDownId);
 
       /* Are we horizontal or vertical? */
       if (this.sliderCfg.orientation == 'width') {
@@ -111,7 +117,9 @@ $.fn.gs_slider = function(cfg) {
         var pos = Math.min(Math.max(pos, this.sliderCfg.min), this.sliderCfg.max) - this.sliderCfg.min;
         if (pos != this.pos || trigger) {
           this.pos = pos;
-          if (self.sliderCfg.direction < 0) {
+	  if (self.sliderCfg.range == 1) {
+            handle.css(this.sliderCfg.anchor, '-1px');
+	  } else if (self.sliderCfg.direction < 0) {
             handle.css(this.sliderCfg.anchor, (100.0-handle_rel-(this.pos*100.0/this.sliderCfg.range))+'%');
           } else {
             handle.css(this.sliderCfg.anchor, (this.pos*100.0/this.sliderCfg.range)+'%');
@@ -119,7 +127,9 @@ $.fn.gs_slider = function(cfg) {
 	  if (trigger != false) {
 	    slider_container.trigger('change', [this.sliderCfg.min + this.pos]);
 	  }
+	  return true;
         }
+	return false;
         //handle.attr('title', this.pos + self.sliderCfg.min);
       };
 
@@ -152,6 +162,7 @@ $.fn.gs_slider = function(cfg) {
 
       var handlesliderpos = function (e) {
         var rpos = posFromEvent(e);
+        self.stoprepeat()
         self.setSliderPos(rpos+self.sliderCfg.min);
       }
 
@@ -172,32 +183,59 @@ $.fn.gs_slider = function(cfg) {
                 repeat_func(20);
                 return;
               }
-              self.setSliderPos(self.pos+self.sliderCfg.min+additive);
-              repeat_func(20);
+              if (self.setSliderPos(self.pos+self.sliderCfg.min+additive)) {
+                repeat_func(20);
+	      } else {
+		self.stoprepeat();
+	      }
             }
           }, timeout);
         };
         repeat_func(500);
       }
 
-      var stoprepeat = function () {
+      this.stoprepeat = function () {
         onrepeat = false;
         clearTimeout(repeat_timer);
-        $(this).unbind('mouseout', stoprepeat);
-        $(this).unbind('mouseup', stoprepeat);
+        btnup.unbind('mouseout', self.stoprepeat);
+        btnup.unbind('mouseup', self.stoprepeat);
+        btndown.unbind('mouseout', self.stoprepeat);
+        btndown.unbind('mouseup', self.stoprepeat);
+	btnplayup.removeClass('onplay');
+	btnplaydown.removeClass('onplay');
       }
 
+      btnplayup.click(function () {
+        var onplay = btnplayup.is('.onplay');
+        self.stoprepeat();
+  	if (!onplay) {
+          btnplayup.toggleClass('onplay');
+          startrepeat(-self.sliderCfg.direction);
+	}
+      });
+
       btnup.mousedown(function () {
-	btnup.mouseup(stoprepeat);
-	btnup.mouseout(stoprepeat);
+	self.stoprepeat();
+	btnup.mouseup(self.stoprepeat);
+	btnup.mouseout(self.stoprepeat);
         startrepeat(-self.sliderCfg.direction);
         return false;
       });
 
 
+      btnplaydown.click(function () {
+        var onplay = btnplaydown.is('.onplay');
+        self.stoprepeat();
+  	if (!onplay) {
+          btnplaydown.toggleClass('onplay');
+          startrepeat(self.sliderCfg.direction);
+	}
+      });
+
       btndown.mousedown(function () {
-        btndown.mouseup(stoprepeat);
-        btndown.mouseout(stoprepeat);
+	self.stoprepeat();
+        btndown.mouseup(self.stoprepeat);
+        btndown.mouseout(self.stoprepeat);
         startrepeat(self.sliderCfg.direction);
         return false;
       });
@@ -225,6 +263,7 @@ $.fn.gs_slider = function(cfg) {
       }
 
       var domove = function (e) {
+        self.stoprepeat()
         if (ondrag) {
           var xypos, sliderSize;
           if (self.sliderCfg.orientation == 'width') {

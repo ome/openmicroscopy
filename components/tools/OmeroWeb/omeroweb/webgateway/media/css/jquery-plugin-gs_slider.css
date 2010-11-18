@@ -18,39 +18,55 @@
 .hslider { 
 }
 
-.hslider *.slider-line { 
+.hslider .slider-line { 
   cursor: pointer;
   font-size: 1px;
   border: 1px solid;
   position: absolute;
   display: block;
-  left: 15px;
-  right: 15px;
+  left: 20px;
+  right: 20px;
   height: 100%;
   /** HACK ALERT: you need to add this to your stylesheet to make it work in IE!! **/
   /*  height: expression(document.getElementById('__slider__id__').clientHeight - 30);  */
 }
 
-.hslider *.slider-btn-down { 
+.hslider .slider-btn-down, .hslider .slider-btn-playdown { 
   display: block;
   cursor: pointer;
-  float: right;
-  left: 0px;
+  position: absolute;
+  right: 10px;
   text-align: right;
   width: 10px;
-  height: 15px;
+  height: 10px;
+  top: 1px;
   background: url('/appmedia/webgateway/img/blue_arrow_right.gif') no-repeat center;
 }
 
-.hslider *.slider-btn-up { 
+.hslider .slider-btn-playdown {
+  right: 0px;
+  background: url('/appmedia/webgateway/img/blue_play_right.gif') no-repeat center;
+}
+
+.hslider .slider-btn-up, .hslider .slider-btn-playup { 
   display: block;
   cursor: pointer;
-  float: left;
-  left: 0px;
+  position: absolute;
+  left: 10px;
   text-align: left;
   width: 10px;
-  height: 15px;
+  height: 10px;
+  top: 1px;
   background: url('/appmedia/webgateway/img/blue_arrow_left.gif') no-repeat center;
+}
+
+.hslider .slider-btn-playup {
+  left: 0px;
+  background: url('/appmedia/webgateway/img/blue_play_left.gif') no-repeat center;
+}
+
+.hslider .onplay {
+  background: url('/appmedia/webgateway/img/blue_square.gif') no-repeat center;
 }
 
 /*********************************/
@@ -59,41 +75,56 @@
 .vslider { 
 }
 
-.vslider *.slider-line { 
+.vslider .slider-line { 
   cursor: pointer;
   font-size: 1px;
   border: 1px solid;
   position: absolute;
   display: block;
-  top: 15px;
-  bottom: 15px;
+  top: 20px;
+  bottom: 20px;
   width: 100%;
   /** HACK ALERT: you need to add this to your stylesheet to make it work in IE!! **/
   /*  height: expression(document.getElementById('__slider__id__').clientHeight - 30);  */
 }
 
-.vslider *.slider-btn-down { 
+.vslider .slider-btn-down, .vslider .slider-btn-playdown { 
   position: absolute;
   cursor: pointer;
   display: block;
-  bottom: 0px;
+  bottom: 10px;
+  left: 1px;
   width: 100%;
-  height: 15px;
+  height: 10px;
   text-align: center;
   background: url('/appmedia/webgateway/img/blue_arrow_down.gif') no-repeat center;
 }
 
-.vslider *.slider-btn-up { 
+.vslider .slider-btn-playdown {
+  bottom: 0px;
+  background: url('/appmedia/webgateway/img/blue_play_down.gif') no-repeat center;
+}
+
+.vslider .slider-btn-up, .vslider .slider-btn-playup { 
   position: absolute;
   cursor: pointer;
   display: block;
-  top: 0px;
+  top: 10px;
   width: 100%;
-  height: 15px;
+  height: 10px;
+  left: 1px;
   text-align: center;
   background: url('/appmedia/webgateway/img/blue_arrow_up.gif') no-repeat center;
 }
 
+.vslider .slider-btn-playup {
+  top: 0px;
+  background: url('/appmedia/webgateway/img/blue_play_up.gif') no-repeat center;
+}
+
+.vslider .onplay {
+  background: url('/appmedia/webgateway/img/blue_square.gif') no-repeat center;
+}
 
 /***********/
 /* Generic */

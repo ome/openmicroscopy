@@ -4,7 +4,7 @@
 /**
  * omero_image - django html template
  * 
- * Copyright (c) 2007, 2008 Glencoe Software, Inc. All rights reserved.
+ * Copyright (c) 2007-2010 Glencoe Software, Inc. All rights reserved.
  * 
  * This software is distributed under the terms described by the LICENCE file
  * you can find at the root of the distribution bundle, which states you are
@@ -155,6 +155,7 @@
     /* Sync inputs with initial values */
 
     $('#wblitz-rmodel').attr('checked', !viewport.isGreyModel());
+    $('#wblitz-invaxis').attr('checked', viewport.loadedImg.rdefs.invertAxis);
     //$('#rd-wblitz-rmodel').attr('checked', !viewport.isGreyModel());
 
     var q = viewport.getQuality();
@@ -179,8 +180,6 @@
     }
 
     /* Image details */
-    $('#wblitz-t-count').html(viewport.getTCount());
-    $('#wblitz-z-count').html(viewport.getZCount());
     var tmp = getMetadata();
     $('#wblitz-image-name').html(tmp.imageName);
     $('#wblitz-image-description-content').html(tmp.imageDescription.replace(/\n/g, '<br />'));
@@ -190,7 +189,7 @@
     $('#wblitz-image-timestamp').html(tmp.imageTimestamp);
     {% block xtra_metadata %}{% endblock %}
 
-    /*$('#wblitz-shortname').attr('title', tmp.imageName).html(gs_text_trim(tmp.imageName, 15, true));*/
+    $('#wblitz-shortname').attr('title', tmp.imageName).html(gs_text_trim(tmp.imageName, 15, true));
 
     tmp = viewport.getSizes();
     $('#wblitz-image-width').html(tmp.width);
@@ -315,6 +314,7 @@
       }
       $('#wblitz-lp-enable').attr('disabled', p != 'normal');
       //$('#wblitz-channels-box button').attr('disabled', p == 'split');
+        $('[name="wblitz-proj"][value=intmax]').attr('disabled', viewport.loadedImg.rdefs.invertAxis);
     }
     
     //nosync || syncRDCW();
@@ -398,6 +398,8 @@
   var imageChange = function (ev, obj) {
     $('#wblitz-t-curr').html(viewport.getTPos());
     $('#wblitz-z-curr').html(viewport.getZPos());
+    $('#wblitz-t-count').html(viewport.getTCount());
+    $('#wblitz-z-count').html(viewport.getZCount());
     if (viewport.hasLinePlot() || $('#wblitz-lp-enable').attr('checked')) {
       viewport.refreshPlot();
     }
@@ -520,7 +522,7 @@
   function setImageDefaults (obj, callback, skip_apply) {
     if (!skip_apply) applyRDCW();
     var old = $(obj).html();
-    gs_modalJson('/webgateway/saveImgRDef/'+viewport.loadedImg.id+'/?'+viewport.getQuery(true),
+    gs_modalJson('/{{ blitzcon.server_id|default:"webgateway" }}/saveImgRDef/'+viewport.loadedImg.id+'/?'+viewport.getQuery(true),
                  {},
                  function(success, rv) {
                     $(obj).html(old).attr('disabled', false);
@@ -635,7 +637,7 @@
         <div id="rdef-active-area">
         <a id="rdef-postit-help" href="#" onclick="return showChannelWindowHelp();"><img src="/appmedia/webgateway/img/question.png" alt="Show help on channel window ranges" /></a>
         <label for="rd-wblitz-rmodel">Render as Color</label>
-        <input id="rd-wblitz-rmodel" type="checkbox" onchange="return rdChanSelHelper(this); viewport.setModel(this.checked?'c':'g');" />
+        <input id="rd-wblitz-rmodel" type="checkbox" onchange="return rdChanSelHelper(this);" />
         <table cellspacing="0">
           <tr>
             <th>Visible</th>
@@ -648,16 +650,19 @@
       <ul>
         <li class="buttonbar">
         {% block save_rdef %}
+        {% if image.isOwned %}
           <button id="rdef-reset-btn" class="editor" onclick="return resetImageDefaults(this)" title="Returns the image settings to their original state at time of import.">reset</button>
-          {% if image.isEditable %}<button id="rdef-setdef-btn" class="editor" onclick="return setImageDefaults(this)" title="Applies and saves the current settings as default.">save</button>
-          {% endif %}
+          <button id="rdef-setdef-btn" class="editor" onclick="return setImageDefaults(this)" title="Applies and saves the current settings as default.">save settings</button>
+        {% endif %}
         {% endblock save_rdef %}
         <button id="rdef-default-btn" onclick="return resetRDCW();" title="Returns to the saved settings.">default</button><button id="rdef-undo-btn" onclick="return undoRDCW();" title="Returns to the settings as they were before clicking apply.">undo</button><button id="rdef-redo-btn" onclick="return redoRDCW();" title="Returns to the settings as they were before clicking undo.">redo</button><button id="rdef-apply-btn" onclick="return applyRDCW();" title="Applies the current settings to the open image.">apply</button>
         </li>
         {% block batch_copy %}
-        <!--<li class="buttonbar">
-          <button id="rdef-batchcopy-btn" class="editor" onclick="return batchCopyRDefs(this);" title="Offers options to apply current settings to other images in your manuscript.">Apply to others</button>
-        </li>-->
+        {% if dataset.canOwnerWrite %}
+        <li class="buttonbar">
+          <button id="rdef-batchcopy-btn" class="editor" onclick="return batchCopyRDefs(this);" title="Offers options to apply current settings to other images in your manuscript.">Select images to apply settings</button>
+        </li>
+        {% endif %}
         {% endblock batch_copy %}
       </ul>
 
@@ -727,18 +732,23 @@
           </div>
           <h1>Rendering Details</h1>
           <div class="odd row">
-            <label for="wblitz-channels-box">Channels</label> <a href="#" onclick="$('#rdef-postit').toggle(); return false;">Edit</a><br />
+            <label for="wblitz-channels-box">Channels</label> - <a href="#" onclick="$('#rdef-postit').toggle(); return false;">Edit</a><br />
             <span id="wblitz-channels-box"></span>
           </div>
           <div class="even row">
             <label for="wblitz-rmodel">Color</label>
             <input id="wblitz-rmodel" type="checkbox" onclick="viewport.setModel(this.checked?'c':'g');" />
+	    {% if not blitzcon.isAnonymous and image.canWrite %}
+	    <br />
+            <label for="wblitz-invaxis">Invert Z/T Axis</label>
+            <input id="wblitz-invaxis" type="checkbox" onchange="viewport.setInvertedAxis(this.checked);" />
+	    {% endif %}
             <br />
           </div>
             <h1>Current Image</h1>
           <div class="even row">
             <span style="font-size: 0.9em">
-            <!--<span id="wblitz-shortname" style="white-space: nowrap;"></span><br />-->
+            <span id="wblitz-shortname" style="white-space: nowrap;"></span><br />
             Z: <span id="wblitz-z-curr">?</span>/<span id="wblitz-z-count">?</span> |
             T: <span id="wblitz-t-curr">1</span>/<span id="wblitz-t-count">1</span>
             </span>
@@ -765,7 +775,7 @@
     </div>
     <div id="footer">
     {% block footer_content %}
-      &copy;2007/2008 Glencoe Software Inc. All rights reserved.
+      &copy;2007-2010 Glencoe Software Inc. All rights reserved.
     {% endblock %}
     </div>
 {% endblock full_body %}
@@ -773,7 +783,7 @@
 {% block content_script %}
   $(document).ready(function () {
     /* Prepare the viewport */
-    viewport = $.WeblitzViewport($('#weblitz-viewport'), '{{ viewport_server }}',{% block viewport_opts %}null{% endblock %});
+    viewport = $.WeblitzViewport($('#weblitz-viewport'), '{% block viewport_base %}/webgateway{% endblock %}',{% block viewport_opts %}null{% endblock %});
     viewport.bind('imageLoad', _refresh_cb);
 
     /* Prepare the Zoom spin button */

@@ -20,6 +20,8 @@ urlpatterns = patterns('',
     (r'^render_row_plot/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/(?P<y>[^/]+)/(?:(?P<w>[^/]+)/)?$', 'webgateway.views.render_row_plot'),
     (r'^render_col_plot/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/(?P<x>[^/]+)/(?:(?P<w>[^/]+)/)?$', 'webgateway.views.render_col_plot'),
     (r'^render_thumbnail/(?P<iid>[^/]+)/(?:(?P<w>[^/]+)/)?(?:(?P<h>[^/]+)/)?$', 'webgateway.views.render_thumbnail'),
+    (r'^render_ome_tiff/(?P<ctx>[^/]+)/(?P<cid>[^/]+)/$', 'webgateway.views.render_ome_tiff'),
+    (r'^render_movie/(?P<iid>[^/]+)/(?P<axis>[zt])/(?P<pos>[^/]+)/$', 'webgateway.views.render_movie'),
 
     # Template views
     (r'^test/$', 'webgateway.views.test'),

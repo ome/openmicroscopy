@@ -53,6 +53,11 @@ var Metadata = function () {
     }
     this.current.z = this.rdefs.defaultZ;
     this.current.t = this.rdefs.defaultT;
+      if (this.rdefs.invertAxis) {
+	  var t = this.size.t;
+	  this.size.t = this.size.z;
+	  this.size.z = t;
+      }
     this.current.zoom = 100;
   }
   this.hasSameSettings = function (other) {
@@ -135,11 +140,19 @@ jQuery._WeblitzViewport = function (container, server, options) {
   this.tslider.gs_slider({ tooltip_prefix: 'T=', min:0, max:0, repeatCallback: done_reload });
   this.viewportimg.css('overflow', 'hidden');
   this.zslider.bind('change', function (e,pos) {
+      if (_this.loadedImg.rdefs.invertAxis) {
+	_this.loadedImg.current.t = pos-1;
+      } else {
 	_this.loadedImg.current.z = pos-1;
+      }
         _load();
      });
   this.tslider.bind('change', function (e,pos) {
+      if (_this.loadedImg.rdefs.invertAxis) {
+	_this.loadedImg.current.z = pos-1;
+      } else {
 	_this.loadedImg.current.t = pos-1;
+      }
         _load();
      });
 
@@ -148,10 +161,11 @@ jQuery._WeblitzViewport = function (container, server, options) {
     _this.viewportimg.show();
     _this.zslider.get(0).pos = -1;
     if (_this.loadedImg.rdefs.projection.toLowerCase().substring(3,0) == 'int') {
-      _this.zslider.get(0).setSliderRange(1, 1, _this.loadedImg.current.z+1, false);
+	_this.zslider.get(0).setSliderRange(1, 1, _this.getPos().z+1, false);
     } else {
-      _this.zslider.get(0).setSliderRange(1, _this.loadedImg.size.z, _this.loadedImg.current.z+1, false);
+	_this.zslider.get(0).setSliderRange(1, _this.getSizes().z, _this.getPos().z+1, false);
     }
+      _this.tslider.get(0).setSliderRange(1, _this.getSizes().t, _this.getPos().t+1, false);
     if (callback) {
       callback();
     }
@@ -177,8 +191,9 @@ jQuery._WeblitzViewport = function (container, server, options) {
     if (_this.loadedImg.current.query) {
       _this.setQuery(_this.loadedImg.current.query);
     }
+    _this.refresh();
     _load(function () {
-      _this.refresh();
+      //_this.refresh();
       if (!_this.loadedImg.current.query.zm) {
         var size = getSizeDict();
         _this.viewportimg.get(0).setZoomToFit(true, size.width, size.height);
@@ -188,7 +203,6 @@ jQuery._WeblitzViewport = function (container, server, options) {
       }
       _this.self.trigger('imageLoad', [_this]);
     });
-    _this.tslider.get(0).setSliderRange(1, _this.loadedImg.size.t, _this.loadedImg.current.t+1, false);
     channels_undo_stack = [];
     channels_undo_stack_ptr = -1;
     channels_bookmark = null;
@@ -210,11 +224,14 @@ jQuery._WeblitzViewport = function (container, server, options) {
       } else {
         href = server + '/render_split_channel/' + _this.getRelUrl();
       }
-      var rcb = function () { after_img_load_cb(callback); _this.viewportimg.unbind('load', rcb); };
+      var rcb = function () {
+        after_img_load_cb(callback);
+        _this.viewportimg.unbind('load', rcb);
+        _this.self.trigger('imageChange', [_this]);
+      };
       showLoading();
       _this.viewportimg.load(rcb);
       _this.viewportimg.attr('src', href);
-      _this.self.trigger('imageChange', [_this]);
     }
   }
 
@@ -381,10 +398,10 @@ jQuery._WeblitzViewport = function (container, server, options) {
       remember_allow_resize = true;
     }
     _this.tslider.css('width', _this.viewport.width());
-    sli.css('width', _this.tslider.width() - (btn.width()*2) - _this.bottom.position().left);
+    sli.css('width', _this.tslider.width() - (parseInt(sli.css('left')) *2) - 2);
     sli = jQuery('.slider-line', _this.zslider);
     btn = jQuery('.slider-btn-up', _this.zslider);
-    sli.css('height', _this.top.height() - (btn.height()*2));
+    sli.css('height', _this.top.height() - (parseInt(sli.css('top')) *2) - 2);
     _this.viewport.css('height', _this.top.height() -3);
     _this.viewportimg.get(0).refresh();
   };
@@ -501,7 +518,12 @@ jQuery._WeblitzViewport = function (container, server, options) {
     p = p.toLowerCase();
     if (_this.loadedImg.rdefs.projection.toLowerCase() != p) {
       var doReset = _this.loadedImg.rdefs.projection.toLowerCase() == 'split' ||  p == 'split';
-      _this.loadedImg.rdefs.projection = p;
+      if (p.substring(3,0) == 'int' && _this.loadedImg.rdefs.invertAxis) {
+        /* No intensity projections when axis are inverted */
+        p = _this.loadedImg.rdefs.projection;
+      } else {
+        _this.loadedImg.rdefs.projection = p;
+      }
       _this.self.trigger('projectionChange', [_this]);
       if (!noreload) {
         _load(function () {
@@ -509,6 +531,19 @@ jQuery._WeblitzViewport = function (container, server, options) {
               var size = getSizeDict();
               _this.viewportimg.get(0).setZoomToFit(true, size.width, size.height);
             }
+          });
+      }
+    }
+  }
+
+  this.setInvertedAxis = function (p, noreload) {
+    p = p=='1';
+    if (_this.loadedImg.rdefs.invertAxis ^ p) {
+      _this.loadedImg.rdefs.invertAxis = p;
+      _this.self.trigger('invertAxis', [_this]);
+	_this.loadedImg.current.query.ia = p ? "1":"0";
+      if (!noreload) {
+        _load(function () {
           });
       }
     }
@@ -589,23 +624,48 @@ jQuery._WeblitzViewport = function (container, server, options) {
   }
 
   this.getSizes = function () {
-    return _this.loadedImg.size;
+      var s = _this.loadedImg.size;
+      rv = {width: s.width,
+	    height: s.height,
+	    c: s.c};
+      if (_this.loadedImg.rdefs.invertAxis) {
+	  rv.z= s.t;
+	  rv.t = s.z;
+      } else {
+	  rv.z = s.z;
+	  rv.t = s.t;
+      }
+    return rv;
   }
 
   this.getTCount = function () {
-    return _this.loadedImg.size.t;
+      return _this.getSizes().t;
   }
 
+    this.getPos = function () {
+      var p = _this.loadedImg.current;
+	rv = {};
+      if (_this.loadedImg.rdefs.invertAxis) {
+	  rv.t = p.z;
+	  rv.z = p.t;
+      } else {
+	  rv.t = p.t;
+	  rv.z = p.z;
+      }
+    return rv;
+	
+    }
+
   this.getTPos = function () {
-    return _this.loadedImg.current.t + 1;
+      return _this.getPos().t + 1;
   }
 
   this.getZCount = function () {
-    return _this.loadedImg.size.z;
+      return _this.getSizes().z;
   }
 
   this.getZPos = function () {
-    return _this.loadedImg.current.z + 1;
+      return _this.getPos().z + 1;
   }
 
   this.setZoom = function (z) {
@@ -747,6 +807,8 @@ jQuery._WeblitzViewport = function (container, server, options) {
     query.push('m=' + this.loadedImg.rdefs.model.toLowerCase().substring(0,1));
     /* Projection */
     query.push('p=' + this.loadedImg.rdefs.projection.toLowerCase());
+    /* Inverted Axis */
+    query.push('ia=' + (this.loadedImg.rdefs.invertAxis?1:0));
     /* Image Quality */
     if (this.loadedImg.current.quality) {
       query.push('q=' + this.loadedImg.current.quality);
@@ -799,6 +861,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
     query.m && this.setModel(query.m, true);
     query.q && this.setQuality(query.q, true);
     query.p && this.setProjection(query.p, true);
+    query.p && this.setInvertedAxis(query.ia, true);
     query.zm && this.setZoom(parseInt(query.zm));
     if (query.t) {
       this.loadedImg.current.t = parseInt(query.t)-1;
