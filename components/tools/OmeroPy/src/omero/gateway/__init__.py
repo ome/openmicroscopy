@@ -180,6 +180,14 @@ class BlitzObjectWrapper (object):
         return super(BlitzObjectWrapper, self).__repr__()
 
     def _getChildWrapper (self):
+        """
+        Returns the wrapper class of children of this object. 
+        Checks that this is one of the Wrapper objects in the L{omero.gateway} module
+        Raises NotImplementedError if this is not true or class is not defined (None)
+        This is used internally by the L{listChildren} and L{countChildren} methods. 
+        
+        @return:    The child wrapper class. E.g. omero.gateway.DatasetWrapper.__class__
+        """
         if self.CHILD_WRAPPER_CLASS is None:
             raise NotImplementedError
         if type(self.CHILD_WRAPPER_CLASS) is type(''):
@@ -191,6 +199,12 @@ class BlitzObjectWrapper (object):
         return self.CHILD_WRAPPER_CLASS
 
     def _getParentWrapper (self):
+        """
+        Returns the wrapper class of the parent of this object. 
+        This is used internally by the L{listParents} method.
+        
+        @return:    The parent wrapper class. E.g. omero.gateway.DatasetWrapper.__class__
+        """
         if self.PARENT_WRAPPER_CLASS is None:
             raise NotImplementedError
         if type(self.PARENT_WRAPPER_CLASS) is type(''):
@@ -202,6 +216,11 @@ class BlitzObjectWrapper (object):
         return self.PARENT_WRAPPER_CLASS
 
     def __loadedHotSwap__ (self):
+        """
+        Loads the object that is wrapped by this class. This includes linked objects. 
+        This method can be overwritten by subclasses that want to specify how/which linked objects 
+        are loaded. 
+        """
         self._obj = self._conn.getContainerService().loadContainerHierarchy(self.OMERO_CLASS, (self._oid,), None)[0]
 
 
@@ -213,7 +232,14 @@ class BlitzObjectWrapper (object):
 #        return None
 
     def _moveLink (self, newParent):
-        """ moves this object from the current parent container to a new one """
+        """ 
+        Moves this object from a parent container (first one if there are more than one) to a new parent.
+        TODO: might be more useful if it didn't assume only 1 parent?
+        
+        @param newParent:   The new parent Object Wrapper. 
+        @return:            True if moved from parent to parent. 
+                            False if no parent exists or newParent has mismatching type
+        """
         p = self.listParents()
         if type(p) == type(newParent):
             link = self._conn.getQueryService().findAllByQuery("select l from %s as l where l.parent.id=%i and l.child.id=%i" % (p.LINK_CLASS, p.id, self.id), None)
@@ -224,6 +250,13 @@ class BlitzObjectWrapper (object):
         return False
 
     def findChildByName (self, name, description=None):
+        """
+        Find the first child object with a matching name, and description if specified.
+        
+        @param name:    The name which must match the child name
+        @param description: If specified, child description must match too
+        @return:        The wrapped child object
+        """
         for c in self.listChildren():
             if c.getName() == name:
                 if description is None or omero_type(description) == omero_type(c.getDescription()):
@@ -231,11 +264,21 @@ class BlitzObjectWrapper (object):
         return None
 
     def getDetails (self):
+        """
+        Gets the details of the wrapped object
+        
+        @return:    L{omero.gateway.DetailsWrapper} or None if object not loaded
+        """
         if self._obj.loaded:
             return omero.gateway.DetailsWrapper (self._conn, self._obj.getDetails())
         return None
     
     def getDate(self):
+        """
+        Returns the object's acquisitionDate, or creation date (details.creationEvent.time)
+        
+        @return:    A L{datetime.datetime} object 
+        """
         try:
             if self._obj.acquisitionDate.val is not None and self._obj.acquisitionDate.val > 0:
                 t = self._obj.acquisitionDate.val
@@ -246,10 +289,24 @@ class BlitzObjectWrapper (object):
         return datetime.fromtimestamp(t/1000)
     
     def save (self):
+        """ Uses the updateService to save the wrapped object 
+        TODO: Always returns None - not the saved object? 
+        """
         self._obj = self._conn.getUpdateService().saveAndReturnObject(self._obj)
 
     def saveAs (self, details):
-        """ Save this object, keeping the object owner the same as the one on provided details """
+        """ 
+        Save this object, keeping the object owner the same as the one on provided details 
+        If the current user is an admin but is NOT the owner specified in 'details',
+        then create a new connection for that owner, clone the current object under that
+        connection and save. 
+        Otherwise, simply save. 
+        
+        @param details:     The Details specifying owner to save to
+        @type details:      L{DetailsWrapper}
+        @return:            None (if admin and saved to new owner)
+                            TODO: Otherwise returns result of L{save}, which is None
+        """
         if self._conn.isAdmin():
             d = self.getDetails()
             if d.getOwner() and \
@@ -273,23 +330,53 @@ class BlitzObjectWrapper (object):
             return self.save()
 
     def canWrite (self):
+        """ Delegates to L{BlitzGateway.canWrite} """
         return self._conn.canWrite(self._obj)
 
     def canOwnerWrite (self):
+        """
+        Returns isUserWrite() from the object's permissions
+        @rtype:     boolean
+        @return:    True if the objects's permissions allow user to write
+        """
         return self._obj.details.permissions.isUserWrite()
     
     def canDelete(self):
+        """
+        Determines whether the current user can delete this object.
+        Returns True if the object L{isOwned} by the current user or L{isLeaded}
+        (current user is leader of this the group that this object belongs to)
+        @rtype:     boolean
+        @return:    see above
+        """
         return self.isOwned() or self.isLeaded()
     
     def isOwned(self):
+        """
+        Returns True if the object owner is the same user specified in the connection's Event Context
+        @rtype:     boolean
+        @return:    True if current user owns this object
+        """
         return (self._obj.details.owner.id.val == self._conn.getEventContext().userId)
     
     def isLeaded(self):
+        """
+        Returns True if the group that this object belongs to is lead by the currently logged-in user
+        @rtype:     boolean
+        @return:    see above
+        """
         if self._obj.details.group.id.val in self._conn.getEventContext().leaderOfGroups:
             return True
         return False
     
     def isEditable(self):
+        """
+        Determines whether the current user can edit this object. 
+        Returns True if the object L{isOwned} by the current user
+        Also True if object is not L{private<isPrivate>} AND not L{readOnly<isReadOnly>}
+        @rtype:     boolean
+        @return:    see above
+        """
         if self.isOwned():
             return True
         elif not self.isPrivate() and not self.isReadOnly():
@@ -297,19 +384,43 @@ class BlitzObjectWrapper (object):
         return False
     
     def isPublic(self):
+        """
+        Determines if the object permissions are world readable, ie permissions.isWorldRead()
+        @rtype:     boolean
+        @return:    see above
+        """
         return self._obj.details.permissions.isWorldRead()
     
     def isShared(self):
+        """
+        Determines if the object is sharable between groups (but not public) 
+        @rtype:     boolean
+        @return:    True if the object is not L{public<isPublic>} AND the 
+                    object permissions allow group read.
+        """
         if not self.isPublic():
             return self._obj.details.permissions.isGroupRead()
         return False
     
     def isPrivate(self):
+        """
+        Determines if the object is private
+        @rtype:     bool
+        @return:    True if the object is not L{public<isPublic>} and not L{shared<isShared>} and 
+                    permissions allow user to read.
+        """
         if not self.isPublic() and not self.isShared():
             return self._obj.details.permissions.isUserRead()
         return False
     
     def isReadOnly(self):
+        """
+        Determines if the object is visible but not writeable
+        @rtype:     boolean
+        @return:    True if public but not world writable
+                    True if shared but not group writable
+                    True if private but not user writable
+        """
         if self.isPublic() and not self._obj.details.permissions.isWorldWrite():
             return True
         elif self.isShared() and not self._obj.details.permissions.isGroupWrite():
