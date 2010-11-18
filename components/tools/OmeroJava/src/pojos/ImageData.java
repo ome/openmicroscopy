@@ -26,6 +26,7 @@ import omero.RTime;
 import omero.model.Annotation;
 import omero.model.CommentAnnotation;
 import omero.model.DatasetImageLink;
+import omero.model.Format;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
 import omero.model.ImageI;
@@ -200,6 +201,19 @@ public class ImageData extends DataObject {
      * @return See above.
      */
     public int getIndex() { return index; }
+    
+    /**
+     * Returns the format of the image.
+     * 
+     * @return See above.
+     */
+    public String getFormat()
+    {
+    	Image image = asImage();
+    	Format format = image.getFormat();
+    	if (format == null) return null;
+    	return format.getValue().getValue();
+    }
     
 	/**
 	 * Sets the registered file.
