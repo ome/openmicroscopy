@@ -59,6 +59,7 @@ def omero_type(val):
     elswere return the argument itself
 
     @param val: value 
+    @rtype:     omero.rtype
     @return:    matched RType or value
     """
     
@@ -159,6 +160,7 @@ class BlitzObjectWrapper (object):
         
         @param a:   The object to compare to this one
         @return:    True if objects are same - see above
+        @rtype:     Boolean
         """
         return type(a) == type(self) and self._obj.id == a._obj.id and self.getName() == a.getName()
 
@@ -173,7 +175,9 @@ class BlitzObjectWrapper (object):
     def __repr__ (self):
         """
         Returns a String representation of the Object, including ID if set. 
+        
         @return:    String E.g. '<DatasetWrapper id=123>'
+        @rtype:     String
         """
         if hasattr(self, '_oid'):
             return '<%s id=%s>' % (self.__class__.__name__, str(self._oid))
@@ -187,6 +191,7 @@ class BlitzObjectWrapper (object):
         This is used internally by the L{listChildren} and L{countChildren} methods. 
         
         @return:    The child wrapper class. E.g. omero.gateway.DatasetWrapper.__class__
+        @rtype:     class
         """
         if self.CHILD_WRAPPER_CLASS is None:
             raise NotImplementedError
@@ -204,6 +209,7 @@ class BlitzObjectWrapper (object):
         This is used internally by the L{listParents} method.
         
         @return:    The parent wrapper class. E.g. omero.gateway.DatasetWrapper.__class__
+        @rtype:     class
         """
         if self.PARENT_WRAPPER_CLASS is None:
             raise NotImplementedError
@@ -239,6 +245,7 @@ class BlitzObjectWrapper (object):
         @param newParent:   The new parent Object Wrapper. 
         @return:            True if moved from parent to parent. 
                             False if no parent exists or newParent has mismatching type
+        @rtype:             Boolean
         """
         p = self.listParents()
         if type(p) == type(newParent):
@@ -256,6 +263,7 @@ class BlitzObjectWrapper (object):
         @param name:    The name which must match the child name
         @param description: If specified, child description must match too
         @return:        The wrapped child object
+        @rtype:         L{BlitzObjectWrapper}
         """
         for c in self.listChildren():
             if c.getName() == name:
@@ -268,6 +276,7 @@ class BlitzObjectWrapper (object):
         Gets the details of the wrapped object
         
         @return:    L{omero.gateway.DetailsWrapper} or None if object not loaded
+        @rtype:     L{DetailsWrapper}
         """
         if self._obj.loaded:
             return omero.gateway.DetailsWrapper (self._conn, self._obj.getDetails())
@@ -278,6 +287,7 @@ class BlitzObjectWrapper (object):
         Returns the object's acquisitionDate, or creation date (details.creationEvent.time)
         
         @return:    A L{datetime.datetime} object 
+        @rtype:     datetime
         """
         try:
             if self._obj.acquisitionDate.val is not None and self._obj.acquisitionDate.val > 0:
@@ -291,6 +301,8 @@ class BlitzObjectWrapper (object):
     def save (self):
         """ Uses the updateService to save the wrapped object 
         TODO: Always returns None - not the saved object? 
+        
+        @rtype:     None
         """
         self._obj = self._conn.getUpdateService().saveAndReturnObject(self._obj)
 
@@ -306,6 +318,7 @@ class BlitzObjectWrapper (object):
         @type details:      L{DetailsWrapper}
         @return:            None (if admin and saved to new owner)
                             TODO: Otherwise returns result of L{save}, which is None
+        @rtype:     None
         """
         if self._conn.isAdmin():
             d = self.getDetails()
@@ -330,13 +343,18 @@ class BlitzObjectWrapper (object):
             return self.save()
 
     def canWrite (self):
-        """ Delegates to L{BlitzGateway.canWrite} """
+        """ 
+        Delegates to the connection L{BlitzGateway.canWrite} method
+        
+        @rtype:     Boolean
+        """
         return self._conn.canWrite(self._obj)
 
     def canOwnerWrite (self):
         """
         Returns isUserWrite() from the object's permissions
-        @rtype:     boolean
+        
+        @rtype:     Boolean
         @return:    True if the objects's permissions allow user to write
         """
         return self._obj.details.permissions.isUserWrite()
@@ -346,7 +364,8 @@ class BlitzObjectWrapper (object):
         Determines whether the current user can delete this object.
         Returns True if the object L{isOwned} by the current user or L{isLeaded}
         (current user is leader of this the group that this object belongs to)
-        @rtype:     boolean
+        
+        @rtype:     Boolean
         @return:    see above
         """
         return self.isOwned() or self.isLeaded()
@@ -354,7 +373,8 @@ class BlitzObjectWrapper (object):
     def isOwned(self):
         """
         Returns True if the object owner is the same user specified in the connection's Event Context
-        @rtype:     boolean
+        
+        @rtype:     Boolean
         @return:    True if current user owns this object
         """
         return (self._obj.details.owner.id.val == self._conn.getEventContext().userId)
@@ -362,7 +382,8 @@ class BlitzObjectWrapper (object):
     def isLeaded(self):
         """
         Returns True if the group that this object belongs to is lead by the currently logged-in user
-        @rtype:     boolean
+        
+        @rtype:     Boolean
         @return:    see above
         """
         if self._obj.details.group.id.val in self._conn.getEventContext().leaderOfGroups:
@@ -374,7 +395,8 @@ class BlitzObjectWrapper (object):
         Determines whether the current user can edit this object. 
         Returns True if the object L{isOwned} by the current user
         Also True if object is not L{private<isPrivate>} AND not L{readOnly<isReadOnly>}
-        @rtype:     boolean
+        
+        @rtype:     Boolean
         @return:    see above
         """
         if self.isOwned():
@@ -386,7 +408,8 @@ class BlitzObjectWrapper (object):
     def isPublic(self):
         """
         Determines if the object permissions are world readable, ie permissions.isWorldRead()
-        @rtype:     boolean
+        
+        @rtype:     Boolean
         @return:    see above
         """
         return self._obj.details.permissions.isWorldRead()
@@ -394,7 +417,8 @@ class BlitzObjectWrapper (object):
     def isShared(self):
         """
         Determines if the object is sharable between groups (but not public) 
-        @rtype:     boolean
+        
+        @rtype:     Boolean
         @return:    True if the object is not L{public<isPublic>} AND the 
                     object permissions allow group read.
         """
@@ -405,7 +429,8 @@ class BlitzObjectWrapper (object):
     def isPrivate(self):
         """
         Determines if the object is private
-        @rtype:     bool
+        
+        @rtype:     Boolean
         @return:    True if the object is not L{public<isPublic>} and not L{shared<isShared>} and 
                     permissions allow user to read.
         """
@@ -416,7 +441,8 @@ class BlitzObjectWrapper (object):
     def isReadOnly(self):
         """
         Determines if the object is visible but not writeable
-        @rtype:     boolean
+        
+        @rtype:     Boolean
         @return:    True if public but not world writable
                     True if shared but not group writable
                     True if private but not user writable
@@ -445,7 +471,8 @@ class BlitzObjectWrapper (object):
         """
         Counts available number of child objects.
         
-        @return: Long. The number of child objects available
+        @return:    The number of child objects available
+        @rtype:     Long
         """
         
         childw = self._getChildWrapper()
@@ -460,7 +487,8 @@ class BlitzObjectWrapper (object):
         a single sequence, but have no way of storing the value between them.
         It is actually a hack to support django template's lack of break in for loops
         
-        @return: Long
+        @return:    The number of child objects available
+        @rtype:     Long
         """
         
         if not hasattr(self, '_cached_countChildren'):
@@ -471,10 +499,9 @@ class BlitzObjectWrapper (object):
         """
         Lists available child objects.
 
-        @rtype: generator of BlitzObjectWrapper objs
+        @rtype: generator of L{BlitzObjectWrapper} objs
         @return: child objects.
         """
-
         childw = self._getChildWrapper()
         klass = childw().OMERO_CLASS
         if not params:
@@ -504,12 +531,12 @@ class BlitzObjectWrapper (object):
         """
         Lists available parent objects.
 
-        @type single: boolean
+        @type single: Boolean
         @param single: if True returns only the immediate parent object, else returns a list
-                       of BlitzObjectWrapper with all parents linking to this object
-        @type withlinks: boolean
+                       of L{BlitzObjectWrapper} with all parents linking to this object
+        @type withlinks: Boolean
         @param withlinks: if true each yielded result will be a tuple of (linkobj, obj)
-        @rtype: list of BlitzObjectWrapper (or tuples) or just the object (or tuple)
+        @rtype: list of L{BlitzObjectWrapper} (or tuples) or just the object (or tuple)
         @return: the parent or parents, with or without the links depending on args
         """
         if self.PARENT_WRAPPER_CLASS is None:
@@ -528,6 +555,13 @@ class BlitzObjectWrapper (object):
 
 
     def getAncestry (self):
+        """
+        Get a list of Ancestors. First in list is parent of this object. 
+        TODO: Assumes listParents() returns a single parent. 
+        
+        @rtype: List of L{BlitzObjectWrapper}
+        @return:    List of Ancestor objects
+        """
         rv = []
         p = self.listParents()
         while p:
@@ -535,8 +569,8 @@ class BlitzObjectWrapper (object):
             p = p.listParents()
         return rv
 
-
     def _loadAnnotationLinks (self):
+        """ Loads the annotation links for the object (if not already loaded) and saves them to the object """
         if not hasattr(self._obj, 'isAnnotationLinksLoaded'): #pragma: no cover
             raise NotImplementedError
         if not self._obj.isAnnotationLinksLoaded():
@@ -544,16 +578,30 @@ class BlitzObjectWrapper (object):
             self._obj._annotationLinksLoaded = True
             self._obj._annotationLinksSeq = links
 
-
     def _getAnnotationLinks (self, ns=None):
+        """
+        Checks links are loaded and returns a list of Annotation Links filtered by 
+        namespace if specified
+        TODO: check what self.copyAnnotationLinks() returns
+        
+        @param ns:  Namespace
+        @type ns:   String
+        @return:    List of Annotation Links on this object 
+        @rtype:     List of Annotation Links
+        """
         self._loadAnnotationLinks()
         rv = self.copyAnnotationLinks()
         if ns is not None:
             rv = filter(lambda x: x.getChild().getNs() and x.getChild().getNs().val == ns, rv)
         return rv
 
-
     def removeAnnotations (self, ns):
+        """
+        Uses updateService to delete annotations, with specified ns, and their links on the object
+        
+        @param ns:      Namespace
+        @type ns:       String
+        """
         for al in self._getAnnotationLinks(ns=ns):
             a = al.child
             update = self._conn.getUpdateService()
@@ -563,9 +611,11 @@ class BlitzObjectWrapper (object):
     
     def getAnnotation (self, ns=None):
         """
-        ets the first annotation in the ns namespace, linked to this object
+        Gets the first annotation on the object, filtered by ns if specified
         
-        @return: #AnnotationWrapper or None
+        @param ns:      Namespace
+        @type ns:       String
+        @return:        L{AnnotationWrapper} or None
         """
         rv = self._getAnnotationLinks(ns)
         if len(rv):
@@ -576,14 +626,21 @@ class BlitzObjectWrapper (object):
         """
         List annotations in the ns namespace, linked to this object
         
-        @return: Generator yielding AnnotationWrapper
+        @return:    Generator yielding L{AnnotationWrapper}
+        @rtype:     L{AnnotationWrapper} generator
         """
-        
         for ann in self._getAnnotationLinks(ns):
             yield AnnotationWrapper._wrap(self._conn, ann.child, link=ann)
 
-
     def _linkAnnotation (self, ann):
+        """
+        Saves the annotation to DB if needed - setting the permissions manually.
+        Creates the annotation link and saves it, setting permissions manually.
+        TODO: Can't set permissions manually in 4.2 - Assumes world & group writable
+        
+        @param ann:     The annotation object
+        @type ann:      L{AnnotationWrapper}
+        """
         if not ann.getId():
             # Not yet in db, save it
             ann.details.setPermissions(omero.model.PermissionsI())
@@ -605,6 +662,30 @@ class BlitzObjectWrapper (object):
 
 
     def linkAnnotation (self, ann, sameOwner=True):
+        """
+        Link the annotation to this object.
+        
+        @param ann:         The Annotation object
+        @type ann:          L{AnnotationWrapper}
+        @param sameOwner:   If True, try to make sure that the link is created by the object owner
+        @type sameOwner:    Boolean
+        @return:            The annotation
+        @rtype:             L{AnnotationWrapper}
+        """
+        
+        """
+        My notes (will) to try and work out what's going on! 
+        If sameOwner:
+            if current user is admin AND they are not the object owner,
+                if the object owner and annotation owner are the same:
+                    use the Annotation connection to do the linking
+                else use a new connection for the object owner (?same owner as ann?)
+                do linking
+            else:
+                try to switch the current group of this object to the group of the annotation - do linking
+        else - just do linking
+        
+        """
         if sameOwner:
             d = self.getDetails()
             ad = ann.getDetails()
@@ -618,6 +699,7 @@ class BlitzObjectWrapper (object):
                     group = None
                     if d.getGroup():
                         group = d.getGroup().name
+                    # TODO: Do you know that the object owner is same as ann owner??
                     newConn = self._conn.suConn(d.getOwner().omeName, group)
                     #p.eventType = "User"
                     #newConnId = self._conn.getSessionService().createSessionWithTimeout(p, 60000)
@@ -629,6 +711,7 @@ class BlitzObjectWrapper (object):
                     newConn.seppuku()
             elif d.getGroup():
                 # Try to match group
+                # TODO: Should switch session of this object to use group from annotation (ad) not this object (d) ?
                 self._conn.setGroupForSession(d.getGroup().getId())
                 ann = self._linkAnnotation(ann)
                 self._conn.revertGroupForSession()
@@ -641,6 +724,19 @@ class BlitzObjectWrapper (object):
 
 
     def simpleMarshal (self, xtra=None, parents=False):
+        """
+        Creates a dict representation of this object.
+        E.g. for Image: {'description': '', 'author': 'Will Moore', 'date': 1286332557.0,
+            'type': 'Image', 'id': 3841L, 'name': 'cb_4_w500_t03_z01.tif'}
+        TODO: for what objects is hasattr(self, '_attrs') True??
+        
+        @param xtra:        A dict of extra keys to include. E.g. 'childCount'
+        @type xtra:         Dict
+        @param parents:     If True, include a list of ancestors (in simpleMarshal form) as 'parents'
+        @type parents:      Boolean
+        @return:            A dict representation of this object
+        @rtype:             Dict
+        """
         rv = {'type': self.OMERO_CLASS,
               'id': self.getId(),
               'name': self.getName(),
@@ -692,6 +788,15 @@ class BlitzObjectWrapper (object):
     #    return str(self._obj)
 
     def __getattr__ (self, attr):
+        """
+        Attempts to return the named attribute of this object. E.g. image.__getattr__('name')
+        TODO: need to understand cases where this returns methods that return omero.gateway objects etc. 
+        
+        @param attr:    The name of the attribute to get
+        @type attr:     String
+        @return:        The named attribute.
+        @rtype:         method, value etc
+        """
         if attr != 'get' and attr.startswith('get') and hasattr(self, '_attrs'):
             tattr = attr[3].lower() + attr[4:]
             attrs = filter(lambda x: tattr in x, self._attrs)
@@ -750,7 +855,6 @@ class BlitzObjectWrapper (object):
         
         @return: String
         """
-        
         rv = hasattr(self._obj, 'description') and self._obj.getDescription() or None
         return rv and rv.val or ''
 
@@ -760,7 +864,6 @@ class BlitzObjectWrapper (object):
         
         @return: _ExperimenterWrapper
         """
-        
         return self.getDetails().getOwner()
 
     def getOwnerFullName (self):
@@ -769,7 +872,6 @@ class BlitzObjectWrapper (object):
         
         @return: String or None
         """
-        
         try:
             lastName = self.getDetails().getOwner().lastName
             firstName = self.getDetails().getOwner().firstName
@@ -796,7 +898,8 @@ class BlitzObjectWrapper (object):
         """
         Gets event time in timestamp format (yyyy-mm-dd hh:mm:ss.fffffff) when object was created.
         
-        @return: Long
+        @return:    The datetime for object creation
+        @rtype:     datetime.datetime
         """
         
         try:
@@ -812,7 +915,8 @@ class BlitzObjectWrapper (object):
         """
         Gets event time in timestamp format (yyyy-mm-dd hh:mm:ss.fffffff) when object was updated.
         
-        @return: Long
+        @return:    The datetime for object update
+        @rtype:     datetime.datetime
         """
         
         try:
@@ -828,9 +932,21 @@ class BlitzObjectWrapper (object):
     # setters are also provided
     
     def setName (self, value):
+        """
+        Sets the name of the object
+        
+        @param value:   New name
+        @type value:    String
+        """
         self._obj.setName(omero_type(value))
 
     def setDescription (self, value):
+        """
+        Sets the description of the object
+        
+        @param value:   New description
+        @type value:    String
+        """
         self._obj.setDescription(omero_type(value))
 
 ## BASIC ##
@@ -841,9 +957,10 @@ class NoProxies (object):
 
 class _BlitzGateway (object):
     """
-    ICE_CONFIG - Defines the path to the Ice configuration
+    Connection wrapper. Handles connecting and keeping the session alive, creation of various services,
+    context switching, security privilidges etc.  
     """
-
+    
     CONFIG = {}
     """
     Holder for class wide configuration properties:
@@ -854,22 +971,39 @@ class _BlitzGateway (object):
     One good place to define this is on the extending class' connect() method.
     """
     ICE_CONFIG = None
+    """
+    ICE_CONFIG - Defines the path to the Ice configuration
+    """
 #    def __init__ (self, username, passwd, server, port, client_obj=None, group=None, clone=False):
     
     def __init__ (self, username=None, passwd=None, client_obj=None, group=None, clone=False, try_super=False, host=None, port=None, extra_config=[], secure=False, anonymous=True, useragent=None):
         """
-        TODO: Constructor
+        Create the connection wrapper. Does not attempt to connect at this stage
+        Initialises the omero.client
         
-        @param username:    User name. String
-        @param passwd:      Password. String
-        @param client_obj:  omero.client 
-        @param group:       admin group
-        @param clone:       Boolean
-        @param try_super:   Boolean
-        @param host:        Omero server host. String
-        @param port:        Omero server port. Integer
-        @param extra_config:
+        @param username:    User name. If not specified, use 'omero.gateway.anon_user'
+        @type username:     String
+        @param passwd:      Password.
+        @type passwd:       String
+        @param client_obj:  omero.client - TODO: not used?
+        @param group:       name of group to try to connect to
+        @type group:        String
+        @param clone:       If True, overwrite anonymous with False
+        @type clone:        Boolean
+        @param try_super:   Try to log on as super user ('system' group) 
+        @type try_super:    Boolean
+        @param host:        Omero server host. 
+        @type host:         String
+        @param port:        Omero server port. 
+        @type port:         Integer
+        @param extra_config:    Dictionary of extra configuration
+        @type extra_config:     Dict
         @param secure:      Initial underlying omero.client connection type (True=SSL/False=insecure)
+        @type secure:       Boolean
+        @param anonymous:   
+        @type anonymous:    Boolean
+        @param useragent:   Log which python clients use this connection. E.g. 'OMERO.webadmin'
+        @type useragent:    String
         """
         
         super(_BlitzGateway, self).__init__()
@@ -910,12 +1044,30 @@ class _BlitzGateway (object):
         self._proxies = NoProxies()
 
     def isAnonymous (self):
+        """ 
+        Returns the anonymous flag 
+        
+        @return:    Anonymous
+        @rtype:     Boolean
+        """
         return not not self._anonymous
 
     def getProperty(self, k):
+        """
+        Returns named property of the wrapped omero.client
+        
+        @return:    named client property
+        """
         return self.c.getProperty(k)
 
     def clone (self):
+        """
+        Returns a new instance of this class, with all matching properties. 
+        TODO: Add anonymous and userAgent parameters?
+        
+        @return:    Clone of this connection wrapper
+        @rtype:     L{_BlitzGateway}
+        """
         return self.__class__(self._ic_props[omero.constants.USERNAME],
                               self._ic_props[omero.constants.PASSWORD],
                               host = self.host,
@@ -927,20 +1079,33 @@ class _BlitzGateway (object):
 
     def setIdentity (self, username, passwd, _internal=False):
         """
-        TODO: description
+        Saves the username and password for later use, creating session etc
         
-        @param username:    User name. String
-        @param passwd:      Password. String
-        @param _internal:   Boolean
+        @param username:    User name. 
+        @type username:     String
+        @param passwd:      Password.
+        @type passwd:       String
+        @param _internal:   If False, set _anonymous = False
+        @type _internal:    Booelan
         """
-        
         self._ic_props = {omero.constants.USERNAME: username,
                           omero.constants.PASSWORD: passwd}
         if not _internal:
             self._anonymous = False
     
     def suConn (self, username, group=None, ttl=60000):
-        """ If current user isAdmin, return new connection owned by 'username' """
+        """
+        If current user isAdmin, return new connection owned by 'username'
+        
+        @param username:    Username for new connection
+        @type username:     String
+        @param group:       If specified, try to log in to this group
+        @type group:        String
+        @param ttl:         Timeout for new session
+        @type ttl:          Int
+        @return:            Clone of this connection, with username's new Session
+        @rtype:             L{_BlitzGateway} or None if not admin or username unknown
+        """
         if self.isAdmin():
             if group is None:
                 e = self.lookupExperimenter(username)
@@ -960,8 +1125,10 @@ class _BlitzGateway (object):
         """
         Keeps service alive. 
         Returns True if connected. If connection was lost, reconnecting.
+        If connection failed, returns False and error is logged. 
         
-        @return:    Boolean
+        @return:    True if connection alive. 
+        @rtype:     Boolean
         """
         
         try:
@@ -1009,15 +1176,16 @@ class _BlitzGateway (object):
 
     def seppuku (self, softclose=False): #pragma: no cover
         """
-        Terminates connection. If softclose is False, the session is really
+        Terminates connection with killSession(). If softclose is False, the session is really
         terminate disregarding its connection refcount. 
+        TODO: softclose ignored
         
         @param softclose:   Boolean
         """
         
         self._connected = False
-        if self._sessionUuid:
-            s = omero.model.SessionI()
+        if self._sessionUuid:           # TODO: if true, no difference? - Exceptions? (not handled anyway)
+            s = omero.model.SessionI()              # TODO: Do these 2 lines do anything? 
             s._uuid = omero_type(self._sessionUuid)
             try:
                 #r = 1
@@ -1050,7 +1218,9 @@ class _BlitzGateway (object):
     
     def _createProxies (self):
         """
-        Creates proxies to the server services.
+        Creates proxies to the server services. Called on connection or security switch.
+        Doesn't actually create any services themselves. Created if/when needed. 
+        If proxies have been created already, they are resynced and reused. 
         """
         
         if not isinstance(self._proxies, NoProxies):
@@ -1101,8 +1271,13 @@ class _BlitzGateway (object):
                 self._session_cb.create(self)
 
     def setSecure (self, secure=True):
-        """ Switches between SSL and insecure (faster) connections to Blitz.
-        The gateway must already be connected. """
+        """ 
+        Switches between SSL and insecure (faster) connections to Blitz.
+        The gateway must already be connected.
+        
+        @param secure:  If False, use an insecure connection
+        @type secure:   Boolean
+        """
         if hasattr(self.c, 'createClient') and (secure ^ self.c.isSecure()):
             self.c = self.c.createClient(secure=secure)
             self._createProxies()
@@ -1115,6 +1290,10 @@ class _BlitzGateway (object):
     def _createSession (self, skipSUuid=False):
         """
         Creates a new session for the principal given in the constructor.
+        Used during L{connect} method
+        
+        @param skipSUuid:   TODO: Never used (not specified in any calls from connect() either)
+        @type skipSUuid:    Boolean
         """
         s = self.c.createSession(self._ic_props[omero.constants.USERNAME],
                                  self._ic_props[omero.constants.PASSWORD])
@@ -1133,7 +1312,7 @@ class _BlitzGateway (object):
         """
         Close session.
         """
-        
+        # TODO is self._session_cb ever set? None in __init__
         self._session_cb and self._session_cb.close(self)
         if self._sessionUuid:
             s = omero.model.SessionI()
@@ -1163,7 +1342,8 @@ class _BlitzGateway (object):
                         
     def _resetOmeroClient (self):
         """
-        Resets omero.client object.
+        Creates new omero.client object using self.host or self.ice_config (if host is None)
+        Also tries to setAgent for the client
         """
         
         if self.host is not None:
@@ -1312,8 +1492,10 @@ class _BlitzGateway (object):
             groupId, groupName, isAdmin, isReadOnly, 
             eventId, eventType, eventType,
             memberOfGroups, leaderOfGroups
+        Also saves context to self._ctx
         
-        @return: omero.sys.EventContext
+        @return:    Event Context from admin service. 
+        @rtype:     L{omero.sys.EventContext}
         """
         
         self._ctx = self._proxies['admin'].getEventContext()
@@ -1321,9 +1503,10 @@ class _BlitzGateway (object):
 
     def getUser (self):
         """
-        Returns current omero_model_ExperimenterI.
+        Returns current Experimenter.
          
-        @return:    omero.model.ExperimenterI
+        @return:    Current Experimenter
+        @rtype:     L{ExperimenterWrapper}
         """
         
         return self._user
@@ -1358,12 +1541,16 @@ class _BlitzGateway (object):
 
     def isOwner (self, gid=None):
         """
-        Checks if a user has owner privileges.
+        Checks if a user has owner privileges of a particular group
+        or any group if gid is not specified. 
         
-        @return:    Boolean
+        @param gid:     ID of group to check for ownership
+        @type gid:      Long
+        @return:    True if gid specified and owner belongs to that group
+                    Otherwise True if owner belongs to any group
         """
         if not isinstance(gid, LongType) or not isinstance(gid, IntType):
-            gid = long(gid)
+            gid = long(gid)     # TODO: this will fail if gid is None
         if gid is not None:
             for gem in self._user.copyGroupExperimenterMap():
                 if gem.parent.id.val == gid and gem.owner.val == True:
@@ -1402,6 +1589,13 @@ class _BlitzGateway (object):
         return self.setGroupForSession(g.getId().val)
 
     def setGroupForSession (self, groupid):
+        """
+        Sets the security context of this connection to the specified group
+        @param groupid:     The ID of the group to switch to
+        @type groupid:      Long
+        @rtype:             Boolean
+        @return:            True if the group was switched successfully
+        """
         if self.getEventContext().groupId == groupid:
             return True
         if groupid not in self._ctx.memberOfGroups:
