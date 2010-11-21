@@ -8,6 +8,7 @@ $(document).ready(function() {
     var sizeT = 1;
     var pixelSize = 0;
     var json;
+    var activeCs = [];
     
     // elements we need repeatedly
     var imageId = $("#imageId").text();
@@ -16,9 +17,62 @@ $(document).ready(function() {
     var $zSlider = $("#zSlider");
     var $tSlider = $("#tSlider");
     var $infoIcon = $("#infoIcon");
+    $infoIcon.hide();
     var $infoPanel = $("#infoPanel");
+    var $rendIcon = $("#rendIcon");
+    $rendIcon.hide();
+    var $renderingPanel = $("#renderingPanel");
+    $renderingPanel.addClass('hidden');
+    var buttUpSrc = $("#button-up").attr('src');
+    var buttDownSrc = $("#button-down").attr('src');
     
     // --- functions ---
+    var handleChannelButton = function() {
+        var buttonImg = $(this);
+        var c = buttonImg.attr('id').replace('cb', '');
+        var cIndex = parseInt(c);
+        var newActive = buttonImg.attr('src') == buttUpSrc;
+        activeCs[cIndex] = newActive;
+        if (newActive) {
+            buttonImg.attr('src', buttDownSrc);
+        } else {
+            buttonImg.attr('src', buttUpSrc);
+        }
+        refreshImage();
+    }
+    
+    var showRenderingControls = function() {
+        
+        var scrollX = window.pageXOffset; 
+        var scrollY = window.pageYOffset; 
+        var scrollW = window.innerWidth;
+        var scrollH = window.innerHeight;
+        var w = scrollW / 8;
+        
+        activeCs = [];
+        // build a column of buttons
+        var rHtml = "<table border='0' cellpadding='0' cellspacing='0' >";
+        var clist = json["channels"];
+        for (var c=0; c<clist.length; c++) {
+            var cdata = clist[c];
+            var colour = cdata["color"];
+            var src = buttUpSrc;
+            if (cdata["active"]) {
+                src = buttDownSrc;
+            }
+            activeCs.push(cdata["active"]);
+            
+            rHtml += "<tr><td bgcolor='#" + colour + "'><img id='cb"+ c +"' class='channelButton' src='"+ src +"' width='"+
+                w +"' height='"+ w +"' /></td></tr>";
+        }
+        rHtml += "</table>";
+        $renderingPanel.empty();
+        $renderingPanel.append($(rHtml));
+        $renderingPanel.css('top', scrollY).css('left', scrollX);
+        $(".channelButton").click(handleChannelButton);
+        hideControls();
+        $renderingPanel.removeClass('hidden');
+    }
     
     var showInfoPanel = function() {
         
@@ -85,7 +139,17 @@ $(document).ready(function() {
     // update the image with the current z and t indexes
     var refreshImage = function() {
         var imgSrc = "/webgateway/render_image/"+ imageId + "/" + z + "/" + t + "/";
+        if (activeCs.length > 0) {
+            imgSrc += "?c=";
+        
+            for (var c=1; c<=activeCs.length; c++) {
+                if (c > 1) imgSrc += ",";
+                if (!(activeCs[c-1])) imgSrc += "-";
+                imgSrc += c;
+            }
+        }
         $("#imagePlane").attr('src', imgSrc);
+        
         // find the slider positions
         if (sizeZ > 1) {
             $(".zPoint").css('background', 'none');
@@ -111,6 +175,13 @@ $(document).ready(function() {
     // this positions the controls within the current viewport and shows them 
     var showControls = function() {
         
+        // if rendering controls are still showing, simply hide them
+        if ($renderingPanel.not('.hidden').length) {
+            $renderingPanel.addClass('hidden');
+            return;
+        }
+        
+        // otherwise, show scroll bars
         var scrollX = window.pageXOffset; 
         var scrollY = window.pageYOffset; 
         var scrollW = window.innerWidth;
@@ -133,6 +204,9 @@ $(document).ready(function() {
         var iconW = scrollW / 10;
         var margin = scrollW/70;
         $infoIcon.css('top', scrollY+margin).css('left', scrollX+scrollW-iconW-margin).css('width', iconW).css('height', iconW);
+        
+        // rendering icon - top right corner
+        $rendIcon.css('top', scrollY+margin+iconW).css('left', scrollX+scrollW-iconW-margin).css('width', iconW).css('height', iconW);
         
         // scalebar 
         if (pixelSize == 0) {
@@ -163,6 +237,8 @@ $(document).ready(function() {
     
     // hides the controls
     var hideControls = function() {
+        $renderingPanel.addClass('hidden');
+        
         $imagePlane.unbind('click', hideControls);  // in case hideControls wasn't called from imagePlane
         $(".controls").fadeOut();
         //$infoPanel.fadeOut(); 
@@ -174,6 +250,8 @@ $(document).ready(function() {
     
     // Show info
     $infoIcon.click(showInfoPanel);
+    // Show rendering 
+    $rendIcon.click(showRenderingControls);
     
     // When a slider is clicked, try to identify the actual increment that was clicked, set z or t and refresh
     $zSlider.click(function(event) {

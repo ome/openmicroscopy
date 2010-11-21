@@ -40,6 +40,13 @@ img#imagePlane {
     background: black;
     opacity: 0.7;
 }
+#renderingPanel {
+    position:fixed;
+    z-index: 5;
+    color: white;
+    background: black;
+    opacity: 0.7;
+}
 #infoPanel h2 {
     margin-top: 0px;
     white-space:nowrap;
@@ -101,6 +108,10 @@ img#imagePlane {
     display:none;
 }
 
+.hidden {
+    display: none;
+}
+
 </style>
 
 {% endblock %}
@@ -136,6 +147,8 @@ img#imagePlane {
 
 <img class="controls" id="infoIcon" src="{% url mobile_static 'img/info.png' %}"/>
 <div id="infoPanel"></div>
+<img class="controls" id="rendIcon" src="{% url mobile_static 'img/coloursliders64.png' %}"/>
+<div id="renderingPanel"></div>
 
 <div class="controls" id="scaleNumber"></div>
 <div class="controls" id="scalebar">
@@ -143,5 +156,9 @@ img#imagePlane {
 </div>
 
 <img id="imagePlane" width="{{ image.getWidth }}" height="{{ image.getHeight }}" src="{% url mobile_static 'img/spacer.gif' %}"/>
+
+<!-- element for passing src of button-down.png to js -->
+<img id="button-down" style="display:none" src="{% url mobile_static 'img/button-down.png' %}"/>
+<img id="button-up" style="display:none" src="{% url mobile_static 'img/button-up.png' %}"/>
     
 {% endblock %}
