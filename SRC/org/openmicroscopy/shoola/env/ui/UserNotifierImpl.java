@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.env.data.model.DownloadArchivedActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
 import org.openmicroscopy.shoola.env.data.model.FigureActivityParam;
 import org.openmicroscopy.shoola.env.data.model.MovieActivityParam;
+import org.openmicroscopy.shoola.env.data.model.OpenActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
@@ -354,8 +355,10 @@ public class UserNotifierImpl
 			DeleteActivityParam p = (DeleteActivityParam) activity;
 			comp = new DeleteActivity(this, manager.getRegistry(),
 					p);
-			
-		} 
+		} else if (activity instanceof OpenActivityParam) {
+			OpenActivityParam p = (OpenActivityParam) activity;
+			comp = new OpenObjectActivity(this, manager.getRegistry(), p);
+		}
 		if (comp != null) {
 			UserNotifierLoader loader = comp.createLoader();
 			if (loader == null) return;
@@ -397,7 +400,8 @@ public class UserNotifierImpl
 					index++;
 				}
 			} else {
-				values = new String[l.size()+1];
+				int n = 1;
+				values = new String[l.size()+n];
 				while (i.hasNext()) {
 					values[index] = i.next();
 					index++;

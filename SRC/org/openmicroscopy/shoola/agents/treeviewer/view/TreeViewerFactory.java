@@ -84,6 +84,12 @@ public class TreeViewerFactory
   	implements ChangeListener
 {
 
+	/** Keeps track of viewers used to view archived images. */
+	static final String	IMAGE_ARCHIVED = "imageNotArchived";//"imageArchived";
+	
+	/** Keeps track of viewers used to view images. */
+	static final String	IMAGE_NOT_ARCHIVED = "imageNotArchived";
+	
 	/** The name of the file. */
 	private static final String FILE_NAME = "externalApplication.txt";
 	

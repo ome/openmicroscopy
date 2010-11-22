@@ -40,7 +40,7 @@ import org.w3c.dom.NodeList;
 //Application-internal dependencies
 
 /** 
- * Parses file identifying application on Mac.
+ * Parses file identifying application on Mac, Windows
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -55,14 +55,23 @@ import org.w3c.dom.NodeList;
 public class Parser
 {
 
+	/** Identifies the path to the executable. */
+	public static final String EXECUTABLE_PATH = "executablePath";
+	
+	/** Identifies the icon associated to the executable. */
+	public static final String EXECUTABLE_ICON = "executableIcon";
+	
+	/** Identifies the name of the executable. */
+	public static final String EXECUTABLE_NAME = "executableName";
+	
 	/** Tag identifying the executable. */
-	public static final String EXECUTABLE_TAG_MAC = "CFBundleExecutable";
+	private static final String EXECUTABLE_TAG_MAC = "CFBundleExecutable";
 	
 	/** Tag identifying the icon associated to the application. */
-	public static final String ICON_TAG_MAC = "CFBundleIconFile";
+	private static final String ICON_TAG_MAC = "CFBundleIconFile";
 	
 	/** Tag identifying the name of the application. */
-	public static final String NAME_TAG_MAC = "CFBundleName";
+	private static final String NAME_TAG_MAC = "CFBundleName";
 
 	/** Path to the resources of the application on MAC. */
 	public static final String RESOURCES_MAC = "/Contents/Resources/";
@@ -107,19 +116,20 @@ public class Parser
 								s = child.getNextSibling().getNextSibling();
 								r = path+EXECUTABLE_MAC
 									+s.getTextContent().trim();
-								map.put(EXECUTABLE_TAG_MAC, r);	
+								map.put(EXECUTABLE_PATH, r);	
 							}
 						} else if (ICON_TAG_MAC.equals(value)) {
 							if (child.getNextSibling() != null) {
 								s = child.getNextSibling().getNextSibling();
 								r = path+RESOURCES_MAC
 								+s.getTextContent().trim();
-								map.put(ICON_TAG_MAC, r);	
+								map.put(EXECUTABLE_ICON, r);	
 							}
 						} else if (NAME_TAG_MAC.equals(value)) {
 							if (child.getNextSibling() != null) {
 								s = child.getNextSibling().getNextSibling();
-								map.put(NAME_TAG_MAC, s.getTextContent().trim());	
+								map.put(EXECUTABLE_NAME, 
+										s.getTextContent().trim());	
 							}
 						}
 					}

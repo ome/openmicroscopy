@@ -1116,7 +1116,7 @@ class TreeViewerModel
 				folder, application);
 		loader.load();
 	}
-	
+
 	/** Refreshes the renderer. */
 	void refreshRenderer()
 	{
@@ -1152,19 +1152,13 @@ class TreeViewerModel
 	 */
 	String getObjectMimeType(Object object)
 	{
-		File f = null;
 		if (object instanceof ImageData) {
 			ImageData img = (ImageData) object;
-			f = new File(img.getName());
-			/*
-			MimetypesFileTypeMap map = new MimetypesFileTypeMap();
-			type = map.getContentType(f);
-			f.delete();
-			return type;
-			*/
+			if (img.isArchived()) return TreeViewerFactory.IMAGE_ARCHIVED;
+			return TreeViewerFactory.IMAGE_NOT_ARCHIVED;
 		} else if (object instanceof FileAnnotationData) {
 			FileAnnotationData fa = (FileAnnotationData) object;
-			f = new File(fa.getFileName());
+			File f = new File(fa.getFileName());
 			/*
 			MimetypesFileTypeMap map = new MimetypesFileTypeMap();
 			type = map.getContentType(f);
@@ -1172,7 +1166,6 @@ class TreeViewerModel
 			return type;
 			*/
 		}
-		if (f == null) return null;
 		//MimetypesFileTypeMap map = new MimetypesFileTypeMap();
 		//String type = map.getContentType(f);
 		//f.delete();

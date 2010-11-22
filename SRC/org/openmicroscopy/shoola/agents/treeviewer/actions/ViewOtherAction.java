@@ -88,7 +88,8 @@ public class ViewOtherAction
         Object ho = selectedDisplay.getUserObject();
         if (ho instanceof ImageData) {
         	ImageData img = (ImageData) ho;
-        	setEnabled(img.isArchived());
+        	//setEnabled(img.isArchived());
+        	setEnabled(true);
         } else setEnabled(ho instanceof FileAnnotationData);
     }
     

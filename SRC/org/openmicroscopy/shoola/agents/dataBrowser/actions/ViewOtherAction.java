@@ -89,8 +89,8 @@ public class ViewOtherAction
     	Object ho = node.getHierarchyObject();
     	if (ho instanceof ImageData) {
         	ImageData img = (ImageData) ho;
-        	setEnabled(img.isArchived());
-        	//setEnabled(true);
+        	//setEnabled(img.isArchived());
+        	setEnabled(true);
         } else setEnabled(ho instanceof FileAnnotationData);
     }
     

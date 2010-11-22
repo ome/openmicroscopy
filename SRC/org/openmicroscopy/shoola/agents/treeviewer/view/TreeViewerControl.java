@@ -1108,8 +1108,9 @@ class TreeViewerControl
 			//Register 
 			if (data == null) return;
 			String format = view.getObjectMimeType();
-			if (format == null) return;
-			TreeViewerFactory.register(data, format);
+			//if (format == null) return;
+			if (format != null)	
+				TreeViewerFactory.register(data, format);
 			model.openWith(data);
 		} else if (DataBrowser.OPEN_EXTERNAL_APPLICATION_PROPERTY.equals(name)) {
 			model.openWith((ApplicationData) pce.getNewValue());

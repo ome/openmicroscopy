@@ -609,7 +609,7 @@ public class IconManager
         relPaths[DOWNLOAD] = "nuvola_download_manager16.png";
         relPaths[DOWNLOAD_48] = "nuvola_download_manager48.png";
         relPaths[DOWNLOAD_22] = "nuvola_download_manager22.png";
-        relPaths[APPLICATION_48] = "nuvola_download_manager48.png";
+        relPaths[APPLICATION_48] = "nuvola_applixware48.png";//"nuvola_download_manager48.png";
         relPaths[PERSONAL] = "nuvola_personal16.png";
         relPaths[PERSONAL_48] = "nuvola_personal48.png";
         relPaths[PLATE_ACQUISITION] = "plateAcquisition16.png";

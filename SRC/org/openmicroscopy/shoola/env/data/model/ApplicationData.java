@@ -55,7 +55,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  */
 public class ApplicationData
 {
-
+	
 	/** The default location on <code>MAC</code> platform. */
 	public static final String LOCATION_MAC = "/Applications";
 	
@@ -102,9 +102,9 @@ public class ApplicationData
 	{
 		try {
 			Map<String, Object> m = Parser.parseInfoPList(getApplicationPath());
-			executable = (String) m.get(Parser.EXECUTABLE_TAG_MAC);
-			applicationIcon = convert((String) m.get(Parser.ICON_TAG_MAC));
-			applicationName = (String) m.get(Parser.NAME_TAG_MAC);
+			executable = (String) m.get(Parser.EXECUTABLE_PATH);
+			applicationIcon = convert((String) m.get(Parser.EXECUTABLE_ICON));
+			applicationName = (String) m.get(Parser.EXECUTABLE_NAME);
 		} catch (Exception e) {
 			applicationName = UIUtilities.removeFileExtension(
 					file.getAbsolutePath());
@@ -192,6 +192,8 @@ public class ApplicationData
 			if (executable != null && executable.length() > 0)
 				list.add(executable);
 			else list.add("open");
+		} else if (UIUtilities.isWindowsOS()) {
+			
 		}
 		return list;
 	}

@@ -6565,33 +6565,6 @@ class OMEROGateway
 				} catch (Exception e) {}
 				return f;
 			}
-			/*
-			ExporterPrx store = getExporterService();
-			store.addImage(imageID);
-			long size = store.generateTiff();
-			int offset = 0;
-			int length = (int) size;
-			try {
-				try {
-					for (offset = 0; (offset+INC) < size;) {
-						stream.write(store.read(offset, INC));
-						offset += INC;
-					}	
-				} finally {
-					stream.write(store.read(offset, length-offset)); 
-					stream.close();
-				}
-			} catch (Exception e) {
-				if (stream != null) stream.close();
-				if (f != null) f.delete();
-			}
-			*/
-			/*
-			try {
-				exporterService.close();
-				exporterService = null;
-			} catch (Exception e) {}
-			*/
 		} catch (Throwable t) {
 			exporterService = null;
 			if (f != null) f.delete();

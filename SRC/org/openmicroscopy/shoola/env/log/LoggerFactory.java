@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.env.log;
 
 //Java imports
 import java.io.File;
-import java.io.FileInputStream;
 import java.util.Properties;
 
 //Third-party libraries

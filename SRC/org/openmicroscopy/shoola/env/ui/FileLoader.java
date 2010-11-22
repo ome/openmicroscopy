@@ -90,7 +90,7 @@ public class FileLoader
      * 
      * @param viewer 	Reference to the parent.
      * @param reg    	Reference to the registry.
-     * @param path	 	The absolute path to the file.
+     * @param file	 	The absolute path to the file.
      * @param fileID 	The file ID.
      * @param size   	The size of the file.
      * @param toLoad 	Indicates to download the file.
@@ -112,7 +112,7 @@ public class FileLoader
      * 
      * @param viewer 	Reference to the parent.
      * @param reg    	Reference to the registry.
-     * @param path	 	The absolute path to the file.
+     * @param file	 	The absolute path to the file.
      * @param fileID 	The file ID.
      * @param index   	One of the constants defined by this class.
      * @param toLoad 	Indicates to download the file.

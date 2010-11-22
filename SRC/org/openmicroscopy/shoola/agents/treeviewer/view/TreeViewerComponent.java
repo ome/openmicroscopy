@@ -97,6 +97,7 @@ import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ImportObject;
+import org.openmicroscopy.shoola.env.data.model.OpenActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
@@ -2789,7 +2790,28 @@ class TreeViewerComponent
 	public void download(File folder)
 	{
 		if (model.getState() == DISCARDED) return;
-		download(folder, null);
+		Browser browser = model.getSelectedBrowser();
+		if (browser == null) return;
+		List l = browser.getSelectedDataObjects();
+		if (l == null) return;
+		Iterator i = l.iterator();
+		Object object;
+		List<ImageData> archived = new ArrayList<ImageData>();
+		boolean override = l.size() > 1;
+		ImageData image;
+		while (i.hasNext()) {
+			object = i.next();
+			if (object instanceof ImageData) {
+				image = (ImageData) object;
+				if (image.isArchived()) archived.add(image);
+			} else if (object instanceof FileAnnotationData) {
+				downloadFile(folder, override, (FileAnnotationData) object, 
+						null);
+			}
+		}
+		if (archived.size() > 0) {
+			model.downloadImages(archived, folder, null);
+		}
 	}
 
 	/**
@@ -2807,19 +2829,36 @@ class TreeViewerComponent
 		if (l == null) return;
 		Iterator i = l.iterator();
 		Object object;
-		List<ImageData> images = new ArrayList<ImageData>();
+		List<ImageData> archived = new ArrayList<ImageData>();
+		List<ImageData> notArchived = new ArrayList<ImageData>();
 		boolean override = l.size() > 1;
+		ImageData image;
 		while (i.hasNext()) {
 			object = i.next();
 			if (object instanceof ImageData) {
-				images.add((ImageData) object);
+				image = (ImageData) object;
+				if (image.isArchived()) archived.add(image);
+				else notArchived.add(image);
 			} else if (object instanceof FileAnnotationData) {
 				downloadFile(folder, override, (FileAnnotationData) object, 
 						data);
 			}
 		}
-		if (images.size() > 0) 
-			model.downloadImages(images, folder, data);
+		if (archived.size() > 0) {
+			model.downloadImages(archived, folder, data);
+		}
+		if (notArchived.size() > 0) {
+			image = notArchived.get(0);
+			try {
+				File f = new File(
+						folder.getAbsolutePath()+File.separator+image.getName()+".ome.tiff");
+				TreeViewerAgent.getRegistry().getImageService().exportImageAsOMETiff(
+						image.getId(), f);
+				TreeViewerAgent.getRegistry().getUserNotifier().openApplication(
+						data, f.getAbsolutePath());
+			} catch (Exception e) {
+			}
+		}
 	}
 	
 	
@@ -2864,13 +2903,31 @@ class TreeViewerComponent
 	 */
 	public void openWith(ApplicationData data)
 	{
+		Browser browser = model.getSelectedBrowser();
+		if (browser == null) return;
 		if (data != null) {
 			Environment env = (Environment) 
 				TreeViewerAgent.getRegistry().lookup(LookupNames.ENV);
-			download(new File(env.getOmeroFilesHome()), data);
+			String dir = System.getProperty("java.io.tmpdir");
+			//download(new File(env.getOmeroFilesHome()), data);
+			//
+			List l = browser.getSelectedDataObjects();
+			if (l == null) return;
+			Iterator i = l.iterator();
+			Object object;
+			OpenActivityParam activity;
+			UserNotifier un = TreeViewerAgent.getRegistry().getUserNotifier();
+			while (i.hasNext()) {
+				object = i.next();
+				if (object instanceof ImageData || 
+					object instanceof FileAnnotationData) {
+					activity = new OpenActivityParam(data, (DataObject) object, 
+							dir);
+					un.notifyActivity(activity);
+				}
+			}
 			return;
 		}
-		Browser browser = model.getSelectedBrowser();
 		if (browser == null) return;
 		TreeImageDisplay d = browser.getLastSelectedDisplay();
 		if (d == null) return;
