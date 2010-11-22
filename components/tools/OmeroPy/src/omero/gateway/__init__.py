@@ -125,6 +125,8 @@ class BlitzObjectWrapper (object):
     saving, handling permissions etc. 
     This is the 'abstract' super class which is subclassed by 
     E.g. _ProjectWrapper, _DatasetWrapper etc. 
+    All ojbects have a reference to the L{BlitzGateway} connection, and therefore all services are
+    available for handling calls on the object wrapper. E.g listChildren() uses queryservice etc.
     """
     
     OMERO_CLASS = None              # E.g. 'Project', 'Dataset', 'Experimenter' etc. 
@@ -952,6 +954,7 @@ class BlitzObjectWrapper (object):
 ## BASIC ##
 
 class NoProxies (object):
+    """ A dummy placeholder to indicate that proxies haven't been created """
     def __getitem__ (self, k):
         raise Ice.ConnectionLostException
 
@@ -1572,6 +1575,12 @@ class _BlitzGateway (object):
         return self.isAdmin() or (self._userid == obj.details.owner.id.val and obj.details.permissions.isUserWrite())
 
     def getSession (self):
+        """
+        Returns the existing session, or creates a new one if needed
+        
+        @return:    The session from session service 
+        @rtype:     L{omero.model.session}
+        """
         if self._session is None:
             ss = self.c.sf.getSessionService()
             self._session = ss.getSession(self._sessionUuid)
@@ -1584,6 +1593,14 @@ class _BlitzGateway (object):
 #        self.getSessionService().updateSession(self._session)
 
     def setGroupNameForSession (self, group):
+        """
+        Looks up the group by name, then delegates to L{setGroupForSession}, returning the result
+        
+        @param group:       Group name
+        @type group:        String
+        @return:            True if group set successfully
+        @rtype:             Boolean
+        """
         a = self.getAdminService()
         g = a.lookupGroup(group)
         return self.setGroupForSession(g.getId().val)
@@ -1591,6 +1608,7 @@ class _BlitzGateway (object):
     def setGroupForSession (self, groupid):
         """
         Sets the security context of this connection to the specified group
+        
         @param groupid:     The ID of the group to switch to
         @type groupid:      Long
         @rtype:             Boolean
@@ -1627,6 +1645,7 @@ class _BlitzGateway (object):
 #        self.getSessionService().updateSession(self._session)
 #
     def revertGroupForSession (self):
+        """ Switches the group to the previous group """
         if self._lastGroupId is not None:
             self.setGroupForSession(self._lastGroupId)
             self._lastGroupId = None
@@ -1845,10 +1864,12 @@ class _BlitzGateway (object):
     
     def listProjects (self, only_owned=False):
         """
-        List every Projects controlled by the security system.
+        List every Project controlled by the security system, ordered by name
         
-        @param only_owned:  Only owned by the logged user. Boolean.
-        @return:            Generator yielding _ProjectWrapper
+        @param only_owned:  If True, only return Projects owned by current user
+        @type only_owned:   Boolean
+        @return:            Generator yielding L{ProjectWrapper}
+        @rtype:             L{ProjectWrapper} generator
         """
         
         q = self.getQueryService()
@@ -1874,36 +1895,69 @@ class _BlitzGateway (object):
     # GROUPS
     
     def getGroup(self, gid):
-        """ Fetch an Group and all contained users."""
+        """ 
+        Fetch a Group and all contained users, by group ID.
+        
+        @param gid:     Group Id
+        @type gid:      Long
+        @return:        The group
+        @rtype:         L{ExperimenterGroupWrapper}
+        """
         
         admin_service = self.getAdminService()
         group = admin_service.getGroup(long(gid))
         return ExperimenterGroupWrapper(self, group)
     
     def lookupGroup(self, name):
-        """ Look up an Group and all contained users by name."""
+        """ 
+        Look up a Group and all contained users by group name.
+        
+        @param name:    Group name
+        @type name:     String
+        @return:        The named group
+        @rtype:         L{ExperimenterGroupWrapper}
+        """
         
         admin_service = self.getAdminService()
         group = admin_service.lookupGroup(str(name))
         return ExperimenterGroupWrapper(self, group)
     
     def getDefaultGroup(self, eid):
-        """ Retrieve the default group for the given user id."""
+        """
+        Retrieve the default group for the given user id.
+        
+        @param eid:     Experimenter ID
+        @type eid:      Long
+        @return:        The default group for user
+        @rtype:         L{ExperimenterGroupWrapper}
+        """
         
         admin_serv = self.getAdminService()
         dgr = admin_serv.getDefaultGroup(long(eid))
         return ExperimenterGroupWrapper(self, dgr)
     
     def getOtherGroups(self, eid):
-        """ Fetch all groups of which the given user is a member. 
-            The returned groups will have all fields filled in and all collections unloaded."""
+        """ 
+        Fetch all groups of which the given user is a member. 
+        The returned groups will have all fields filled in and all collections unloaded.
+        
+        @param eid:         Experimenter ID
+        @type eid:          Long
+        @return:            Generator of groups for user
+        @rtype:             L{ExperimenterGroupWrapper} generator
+        """
         
         admin_serv = self.getAdminService()
         for gr in admin_serv.containedGroups(long(eid)):
             yield ExperimenterGroupWrapper(self, gr)
         
     def getGroupsLeaderOf(self):
-        """ Look up Groups where current user is a leader of."""
+        """ 
+        Look up Groups where current user is a leader of.
+        
+        @return:        Groups that current user leads
+        @rtype:         L{ExperimenterGroupWrapper} generator
+        """
          
         q = self.getQueryService()
         p = omero.sys.Parameters()
@@ -1914,7 +1968,12 @@ class _BlitzGateway (object):
             yield ExperimenterGroupWrapper(self, e)
 
     def getGroupsMemberOf(self):
-        """ Look up Groups where current user is a member of (except "user")."""
+        """ 
+        Look up Groups where current user is a member of (except "user" group).
+        
+        @return:        Current users groups
+        @rtype:         L{ExperimenterGroupWrapper} generator
+        """
         
         q = self.getQueryService()
         p = omero.sys.Parameters()
@@ -1930,8 +1989,13 @@ class _BlitzGateway (object):
     # EXPERIMENTERS
         
     def lookupExperimenters(self):
-        """ Look up all experimenters all related groups.
-            The experimenters are also loaded."""
+        """ 
+        Look up all experimenters all related groups.
+        TODO: The experimenters? are also loaded. groups? loaded
+        
+        @return:    All experimenters
+        @rtype:     L{ExperimenterWrapper} generator
+        """
         
         admin_serv = self.getAdminService()
         for exp in admin_serv.lookupExperimenters():
@@ -1940,10 +2004,12 @@ class _BlitzGateway (object):
     def listExperimenters (self, start=''):
         """
         Return a generator for all Experimenters whose omeName starts with 'start'.
-        The generated values follow the alphabetic order on omeName.
+        Experimenters ordered by omeName.
         
-        @param start:   Only if omero_model_ExperimenterI.omeName starts with. String.
-        @return:        Generator yielding _ExperimenterWrapper
+        @param start:   omeName must start with these letters
+        @type start:    String
+        @return:        Generator of experimenters
+        @rtype:         L{ExperimenterWrapper} generator
         """
         
         if isinstance(start, UnicodeType):
@@ -1960,8 +2026,10 @@ class _BlitzGateway (object):
         """
         Return an Experimenter for the given ID.
         
-        @param eid: User ID.
-        @return:    _ExperimenterWrapper or None
+        @param eid:     User ID.
+        @type:          Long
+        @return:        Experimenter or None
+        @rtype:         L{ExperimenterWrapper}
         """
         
         admin_serv = self.getAdminService()
@@ -1975,8 +2043,10 @@ class _BlitzGateway (object):
         """
         Return an Experimenter for the given username.
         
-        @param name:    Username. String
-        @return:        _ExperimenterWrapper or None
+        @param name:    Username. 
+        @type:          String
+        @return:        Experimenter or None
+        @rtype:         L{ExperimenterWrapper}
         """
         
         admin_serv = self.getAdminService()
@@ -1986,17 +2056,29 @@ class _BlitzGateway (object):
         except omero.ApiUsageException:
             return None
 
-            
     def containedExperimenters(self, gid):
-        """ Fetch all users contained in this group. 
-            The returned users will have all fields filled in and all collections unloaded."""
+        """ 
+        Fetch all users contained in this group. 
+        The returned users will have all fields filled in and all collections unloaded.
+        
+        @param gid:     Group ID
+        @type gid:      Long
+        @return:        Generator of experimenters
+        @rtype:         L{ExperimenterWrapper} generator
+        """
         
         admin_serv = self.getAdminService()
         for exp in admin_serv.containedExperimenters(long(gid)):
             yield ExperimenterWrapper(self, exp)
     
     def getColleagues(self):
-        """ Look up users who are a member of the current user active group."""
+        """
+        Look up users who are a member of the current user active group.
+        Returns None if the group is private or is lead by the current user? TODO: ?
+        
+        @return:    Generator of Experimenters or None
+        @rtype:     L{ExperimenterWrapper} generator
+        """
                 
         default = self.getGroup(self.getEventContext().groupId)
         if not default.isPrivate() or default.isLeader():
@@ -2005,7 +2087,12 @@ class _BlitzGateway (object):
                     yield ExperimenterWrapper(self, d.child)
 
     def getStaffs(self):
-        """ Look up users who are a member of the group owned by the current user."""
+        """
+        Look up users who are members of groups lead by the current user.
+        
+        @return:    Members of groups lead by current user
+        @rtype:     L{ExperimenterWrapper} generator
+        """
         
         q = self.getQueryService()
         gr_list = self.getEventContext().leaderOfGroups
@@ -2019,9 +2106,15 @@ class _BlitzGateway (object):
                 yield ExperimenterWrapper(self, e)
 
     def getColleaguesAndStaffs(self):
-        """ Look up users who are a member of the current user active group 
-            and users who are a member of the group owned by the current user."""
+        """
+        Look up users who are a member of the current user active group 
+        and users who are a member of the group owned by the current user.
+        TODO:   leaderOfGroups must be a subset of memberOfGroups ??
+        This returns all users who share group membership with current user?
         
+        @return:    Members of groups... TODO: that user is a member of? 
+        @rtype:     L{ExperimenterWrapper} generator
+        """
         
         q = self.getQueryService()
         gr_list = list()
@@ -2037,15 +2130,25 @@ class _BlitzGateway (object):
                 yield ExperimenterWrapper(self, e)
     
     def lookupGroups(self):
-        """ Looks up all groups and all related experimenters. 
-            The experimenters' groups are also loaded."""
+        """
+        Looks up all groups and all related experimenters. 
+        TODO: The experimenters are also loaded?
+        
+        @return:    All groups
+        @rtype:     L{ExperimenterGroupWrapper} generator
+        """
             
         admin_serv = self.getAdminService()
         for gr in admin_serv.lookupGroups():
             yield ExperimenterGroupWrapper(self, gr)
     
     def lookupOwnedGroups(self):
-        """ Looks up owned groups for the logged user. """
+        """
+        Looks up owned groups for the logged user.
+        
+        @return:    Groups owned by current user
+        @rtype:     L{ExperimenterGroupWrapper} generator
+        """
             
         exp = self.getUser()
         for gem in exp.copyGroupExperimenterMap():
@@ -2054,21 +2157,38 @@ class _BlitzGateway (object):
     
     # Repository info
     def getUsedSpace(self):
-        """ Returns the total space in bytes for this file system
-            including nested subdirectories. """
+        """
+        Returns the total space in bytes for this file system
+        including nested subdirectories.
+        
+        @return:    Used space in bytes
+        @rtype:     Int
+        """
         
         rep_serv = self.getRepositoryInfoService()
         return rep_serv.getUsedSpaceInKilobytes() * 1024
     
     def getFreeSpace(self):
-        """ Returns the free or available space on this file system
-            including nested subdirectories. """
+        """ 
+        Returns the free or available space on this file system
+        including nested subdirectories.
+        
+        @return:    Free space in bytes
+        @rtype:     Int
+        """
         
         rep_serv = self.getRepositoryInfoService()
         return rep_serv.getFreeSpaceInKilobytes() * 1024
     
     def getUsage(self):
-        """ Returns list of users and how much space each of them use."""
+        """
+        If admin, returns dict of users and how much space each of them uses, calculated from the DB record
+        of their current pixels count and data type. 
+        Otherwise, return the same data for members of the current user's groups (where permissions allow)
+        
+        @return:    Dict of userId: bytes
+        @rtype:     Dict
+        """
        
         query_serv = self.getQueryService()
         usage = dict()
@@ -2092,6 +2212,7 @@ class _BlitzGateway (object):
         else:
             groups = self.getEventContext().memberOfGroups
             groups.extend(self.getEventContext().leaderOfGroups)
+            # TODO: leaderOfGroups is subset of memberOfGroups?
             groups = set(groups)
             for gid in groups:
                 res = query_serv.projection("""
@@ -2108,6 +2229,15 @@ class _BlitzGateway (object):
         return usage
     
     def bytesPerPixel(self, pixel_type):
+        """
+        Returns the number of bytes for various pixel_types. E.g. int16 = 2
+        
+        @param pixel_type:      Pixel type. E.g. uint8
+        @type pixel_type:       String
+        @return:                Number of bytes
+        @rtype:                 Int
+        """
+        
         if pixel_type == "int8" or pixel_type == "uint8":
             return 1
         elif pixel_type == "int16" or pixel_type == "uint16":
@@ -2125,61 +2255,120 @@ class _BlitzGateway (object):
     ##   IShare
     
     def getOwnShares(self):
-        """ Gets all owned shares for the current user. """
+        """
+        Gets all owned shares for the current user.
+        
+        @return:    Shares that user owns
+        @rtype:     L{ShareWrapper} generator
+        """
         
         sh = self.getShareService()
         for e in sh.getOwnShares(False):
             yield ShareWrapper(self, e)
     
     def getMemberShares(self):
-        """ Gets all shares where current user is a member. """
+        """
+        Gets all shares where current user is a member.
+        
+        @return:    Shares that user is a member of
+        @rtype:     L{ShareWrapper} generator
+        """
         
         sh = self.getShareService()
         for e in sh.getMemberShares(False):
             yield ShareWrapper(self, e)
     
     def getMemberCount(self, share_ids):
-        """ Returns a map from share id to the count of total members (including the
-            owner). This is represented by ome.model.meta.ShareMember links."""
+        """
+        Returns a map from share id to the count of total members (including the
+        owner). This is represented by ome.model.meta.ShareMember links.
+        
+        @param share_ids:   List of IDs
+        @type share_ids:    List of Longs
+        @return:            Dict of shareId: member-count
+        @rtype:             Dict of long: long
+        """
         
         sh = self.getShareService()
         return sh.getMemberCount(share_ids)
     
     def getCommentCount(self, share_ids):
-        """ Returns a map from share id to comment count. """
+        """ 
+        Returns a map from share id to comment count.
+        
+        @param share_ids:   List of IDs
+        @type share_ids:    List of Longs
+        @return:            Dict of shareId: comment-count
+        @rtype:             Dict of long: long 
+        """
         
         sh = self.getShareService()
         return sh.getCommentCount(share_ids)
     
     def getContents(self, share_id):
-        """ Looks up all items belong to the share."""
+        """ 
+        Looks up all items belonging to the share, wrapped in object wrapper
+        
+        @param share_id:    share ID
+        @type share_id:     Long
+        @return:            Share contents
+        @rtype:             L{ShareContentWrapper} generator
+        """
         
         sh = self.getShareService()
         for e in sh.getContents(long(share_id)):
             yield ShareContentWrapper(self, e)
     
     def getComments(self, share_id):
-        """ Looks up all comments which belong to the share."""
+        """
+        Looks up all comments which belong to the share, wrapped in object wrapper
+        
+        @param share_id:    share ID
+        @type share_id:     Long
+        @return:            Share comments
+        @rtype:             L{ShareCommentWrapper} generator
+        """
         
         sh = self.getShareService()
         for e in sh.getComments(long(share_id)):
             yield ShareCommentWrapper(self, e)
     
     def getAllMembers(self, share_id):
-        """ Get all {@link Experimenter users} who are a member of the share."""
+        """
+        Get all {@link Experimenter users} who are a member of the share.
+        
+        @param share_id:    share ID
+        @type share_id:     Long
+        @return:            Members of share
+        @rtype:             L{ExperimenterWrapper} generator
+        """
         
         sh = self.getShareService()
         for e in sh.getAllMembers(long(share_id)):
             yield ExperimenterWrapper(self, e)
 
     def getAllGuests(self, share_id):
-        """ Get the email addresses for all share guests."""
+        """
+        Get the email addresses for all share guests.
+        
+        @param share_id:    share ID
+        @type share_id:     Long
+        @return:            List of e-mail addresses
+        @rtype:             List of Strings
+        """
         
         sh = self.getShareService()
         return sh.getAllGuests(long(share_id))
 
     def getAllUsers(self, share_id):
-        """ Get a single set containing the login names of the users as well email addresses for guests."""
+        """
+        Get a single set containing the login names of the users as well email addresses for guests.
+        
+        @param share_id:    share ID
+        @type share_id:     Long
+        @return:            List of usernames and e-mail addresses
+        @rtype:             List of Strings
+        """
         
         sh = self.getShareService()
         return sh.getAllUsers(long(share_id))
@@ -2189,15 +2378,17 @@ class _BlitzGateway (object):
 
     def timelineListImages (self, tfrom=None, tto=None, limit=10, only_owned=True):
         """
-        List images based on the their creation times.
+        List images based on their creation times.
         If both tfrom and tto are None, grab the most recent batch.
         
-        @param tfrom: milliseconds since the epoch for start date
-        @param tto: milliseconds since the epoch for end date
-        @param tlimit: maximum number of results
+        @param tfrom:       milliseconds since the epoch for start date
+        @param tto:         milliseconds since the epoch for end date
+        @param limit:       maximum number of results
         @param only_owned:  Only owned by the logged user. Boolean.
         @return:            Generator yielding _ImageWrapper
+        @rtype:             L{ImageWrapper} generator
         """
+        
         tm = self.getTimelineService()
         p = omero.sys.Parameters()
         f = omero.sys.Filter()
@@ -2221,8 +2412,6 @@ class _BlitzGateway (object):
                 yield ImageWrapper(self, e)
 
 
-
-    
     ###########################
     # Specific Object Getters #
 
@@ -2230,8 +2419,10 @@ class _BlitzGateway (object):
         """
         Return Project for the given ID.
         
-        @param oid: Project ID.
-        @return:    _ProjectWrapper or None
+        @param oid:     Project ID.
+        @type oid:      Long
+        @return:        _ProjectWrapper or None
+        @rtype:         L{ProjectWrapper}
         """
         
         q = self.getQueryService()
@@ -2246,7 +2437,9 @@ class _BlitzGateway (object):
         
         @param name: Project name.
         @return:    _ProjectWrapper or None
+        @rtype:     L{ProjectWrapper}
         """
+        
         q = self.getQueryService()
         params = omero.sys.Parameters()
         if not params.map:
@@ -2262,7 +2455,9 @@ class _BlitzGateway (object):
         Return Dataset for the given ID.
         
         @param oid: Dataset ID.
+        @type oid:      Long
         @return:    _DatasetWrapper or None
+        @rtype:     L{DatasetWrapper}
         """
         
         q = self.getQueryService()
@@ -2276,7 +2471,9 @@ class _BlitzGateway (object):
         Return Image for the given ID.
         
         @param oid: Image ID.
+        @type oid:      Long
         @return:    _ImageWrapper or None
+        @rtype:     L{ImageWrapper}
         """
         
         q = self.getQueryService()
@@ -2286,7 +2483,14 @@ class _BlitzGateway (object):
         return img
 
     def getShare (self, oid):
-        """ Gets share for the given share id. """
+        """
+        Gets share for the given share id.
+        
+        @param oid:     Share ID.
+        @type oid:      Long
+        @return:        ShareWrapper or None
+        @rtype:         L{ShareWrapper}
+        """
         
         sh_serv = self.getShareService()
         sh = sh_serv.getShare(long(oid))
@@ -2296,6 +2500,15 @@ class _BlitzGateway (object):
             return None
     
     def getScreen (self, oid):
+        """
+        Gets a Screen for given ID, with owner and group loaded
+        
+        @param oid:     Screen ID.
+        @type oid:      Long
+        @return:        ScreenWrapper or None
+        @rtype:         L{ScreenWrapper}
+        """
+        
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -2308,6 +2521,15 @@ class _BlitzGateway (object):
             return None
     
     def getPlate (self, oid):
+        """
+        Gets a Plate for given ID, with owner, group and screens loaded
+        
+        @param oid:     Plate ID.
+        @type oid:      Long
+        @return:        PlateWrapper or None
+        @rtype:         L{PlateWrapper}
+        """
+        
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -2322,6 +2544,15 @@ class _BlitzGateway (object):
             return None
     
     def getSpecifiedImages(self, oids):
+        """
+        Gets Images by IDs with owner and group loaded, sorted  by image name
+        
+        @param oids:    Image IDs.
+        @type oids:     List of Longs
+        @return:        Generator of ImageWrapper
+        @rtype:         L{ImageWrapper} generator
+        """
+        
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {} 
@@ -2331,6 +2562,15 @@ class _BlitzGateway (object):
             yield ImageWrapper(self, e)
 
     def getSpecifiedDatasets(self, oids):
+        """
+        Gets Datasets by IDs with owner and group loaded, sorted  by dataset name
+        
+        @param oids:    Dataset IDs.
+        @type oids:     List of Longs
+        @return:        Generator of DatasetWrapper
+        @rtype:         L{DatasetWrapper} generator
+        """
+        
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {} 
@@ -2340,6 +2580,15 @@ class _BlitzGateway (object):
             yield DatasetWrapper(self, e) 
     
     def getSpecifiedProjects(self, oids):
+        """
+        Gets Projects by IDs with owner and group loaded, sorted  by project name
+        
+        @param oids:    Project IDs.
+        @type oids:     List of Longs
+        @return:        Generator of ProjectWrapper
+        @rtype:         L{ProjectWrapper} generator
+        """
+        
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {} 
@@ -2349,6 +2598,15 @@ class _BlitzGateway (object):
             yield ProjectWrapper(self, e)
     
     def getSpecifiedPlates(self, oids):
+        """
+        Gets Plates by IDs with owner and group loaded, sorted by plate name
+        
+        @param oids:    Plate IDs.
+        @type oids:     List of Longs
+        @return:        Generator of DatasetWrapper TODO: DatasetWrapper!?
+        @rtype:         L{DatasetWrapper} generator ?!
+        """
+        
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {} 
@@ -2361,6 +2619,15 @@ class _BlitzGateway (object):
     # Annotations                   #
     
     def getFileAnnotation (self, oid):
+        """
+        Gets file annotation by ID
+        
+        @param oid:     File Annotation ID.
+        @type oid:      Long
+        @return:        File Annotation
+        @rtype:         L{FileAnnotationWrapper}
+        """
+        
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {} 
@@ -2370,6 +2637,15 @@ class _BlitzGateway (object):
         return FileAnnotationWrapper(self, of)
     
     def getCommentAnnotation (self, oid):
+        """
+        Gets comment annotation by ID
+        
+        @param oid:     Comment Annotation ID.
+        @type oid:      Long
+        @return:        Annotation
+        @rtype:         L{AnnotationWrapper}
+        """
+        
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {} 
@@ -2379,6 +2655,15 @@ class _BlitzGateway (object):
         return AnnotationWrapper(self, ta)
     
     def getTagAnnotation (self, oid):
+        """
+        Gets tag annotation by ID
+        
+        @param oid:     Tag Annotation ID.
+        @type oid:      Long
+        @return:        Annotation
+        @rtype:         L{AnnotationWrapper}
+        """
+        
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {} 
@@ -2388,6 +2673,15 @@ class _BlitzGateway (object):
         return AnnotationWrapper(self, tg)
     
     def lookupTagAnnotation (self, name):
+        """
+        Gets tag by name, owned by the current user
+        
+        @param name:    Tag name (text value)
+        @type name:     String
+        @return:        Annotation
+        @rtype:         L{AnnotationWrapper}
+        """
+        
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {} 
@@ -2406,9 +2700,14 @@ class _BlitzGateway (object):
     
     def listImages (self, ns, params=None):
         """
-        TODO: description
+        Lists all images with annotations in the given namespace, ordered by reverse annotation id.
         
-        @return:    Generator yielding _ImageWrapper
+        @param ns:      Annotation namespace
+        @type ns:       String
+        @param params:  Additional query parameters
+        @type params:   L{omero.sys.Parameters}
+        @return:        Generator of Images
+        @rtype:         L{ImageWrapper} generator
         """
         
         if not params:
@@ -2431,11 +2730,31 @@ class _BlitzGateway (object):
     # Enumerations #
     
     def getEnumerationEntries(self, klass):
+        """
+        Get all enumerations by class
+        
+        @param klass:   Class
+        @type klass:    Class or string
+        @return:        Generator of Enumerations
+        @rtype:         L{EnumerationWrapper} generator
+        """
+        
         types = self.getTypesService()
         for e in types.allEnumerations(str(klass)):
             yield EnumerationWrapper(self, e)
     
     def getEnumeration(self, klass, string):
+        """
+        Get enumeration by class and value
+        
+        @param klass:   Class
+        @type klass:    Class or string
+        @param string:  Enum value
+        @type string:   String
+        @return:        Enumeration or None
+        @rtype:         L{EnumerationWrapper}
+        """
+        
         types = self.getTypesService()
         obj = types.getEnumeration(str(klass), str(string))
         if obj is not None:
@@ -2444,6 +2763,17 @@ class _BlitzGateway (object):
             return None
     
     def getEnumerationById(self, klass, eid):
+        """
+        Get enumeration by class and ID
+        
+        @param klass:   Class
+        @type klass:    Class or string
+        @param eid:     Enum ID
+        @type eid:      Long
+        @return:        Enumeration or None
+        @rtype:         L{EnumerationWrapper}
+        """
+        
         query_serv = self.getQueryService()
         obj =  query_serv.find(klass, long(eid))
         if obj is not None:
@@ -2452,6 +2782,13 @@ class _BlitzGateway (object):
             return None
             
     def getOriginalEnumerations(self):
+        """
+        Gets original enumerations. Returns a dictionary of enumeration class: list of Enumerations
+        
+        @return:    Original enums
+        @rtype:     Dict of <string: L{EnumerationWrapper} list >
+        """
+        
         types = self.getTypesService()
         rv = dict()
         for e in types.getOriginalEnumerations():
@@ -2461,10 +2798,24 @@ class _BlitzGateway (object):
         return rv
         
     def getEnumerations(self):
+        """
+        Gets list of enumeration types
+        
+        @return:    List of enum types
+        @rtype:     List of Strings
+        """
+        
         types = self.getTypesService()
         return types.getEnumerationTypes() 
     
     def getEnumerationsWithEntries(self):
+        """
+        Get enumeration types, with lists of Enum entries
+        
+        @return:    Dictionary of type: entries
+        @rtype:     Dict of <string: L{EnumerationWrapper} list >
+        """
+        
         types = self.getTypesService()
         rv = dict()
         for key, value in types.getEnumerationsWithEntries().items():
@@ -2475,18 +2826,46 @@ class _BlitzGateway (object):
         return rv
     
     def deleteEnumeration(self, obj):
+        """
+        Deletes an enumeration object
+        
+        @param obj:     Enumeration object
+        @type obj:      omero.model.IObject
+        """
+        
         types = self.getTypesService()
         types.deleteEnumeration(obj)
         
     def createEnumeration(self, obj):
+        """
+        Create an enumeration with given object 
+        
+        @param obj:     Object
+        @type obj:      omero.model.IObject
+        """
+        
         types = self.getTypesService()
         types.createEnumeration(obj)
     
     def resetEnumerations(self, klass):
+        """
+        Resets the enumerations by type
+        
+        @param klass:   Type of enum to reset
+        @type klass:    String
+        """
+        
         types = self.getTypesService()
         types.resetEnumerations(klass)
     
     def updateEnumerations(self, new_entries):
+        """
+        Updates enumerations with new entries
+        
+        @param new_entries:   List of objects
+        @type new_entries:    List of omero.model.IObject
+        """
+        
         types = self.getTypesService()
         types.updateEnumerations(new_entries)
     
@@ -2494,12 +2873,33 @@ class _BlitzGateway (object):
     # Delete          #
     
     def deleteAnnotation(self, oid, child=None, anns=None):
+        """
+        Adds a 'Delete Annotation' command to the delete queue. 
+        
+        @param oid:     Annotation ID
+        @type oid:      Long
+        @param child:   TODO: Not used
+        @param anns:    TODO: Not used
+        @return:        Delete handle
+        @rtype:         L{omero.api.delete.DeleteHandle}
+        """
+        
         op = dict()
         dc = omero.api.delete.DeleteCommand('/Annotation', long(oid), op)
         handle = self.getDeleteService().queueDelete([dc])
         return handle
     
     def deleteImage(self, oid, anns=None):
+        """
+        Adds a 'Delete Image' command to the delete queue, keeping annotations by default
+        
+        @param oid:     Image ID
+        @type oid:      Long
+        @param anns:    If None, keep Tag, Term and File Annotations
+        @return:        Delete handle
+        @rtype:         L{omero.api.delete.DeleteHandle}
+        """
+        
         op = dict()
         if anns is None:
             op["/TagAnnotation"] = "KEEP"
@@ -2510,6 +2910,16 @@ class _BlitzGateway (object):
         return handle
         
     def deleteImages(self, ids, anns=None):
+        """
+        Adds a 'Delete Images' command to the delete queue, keeping annotations by default
+        
+        @param ids:     Image ID
+        @type ids:      Long list
+        @param anns:    If None, keep Tag, Term and File Annotations
+        @return:        Delete handle
+        @rtype:         L{omero.api.delete.DeleteHandle}
+        """
+        
         op = dict()
         if anns is None:
             op["/TagAnnotation"] = "KEEP"
@@ -2522,6 +2932,16 @@ class _BlitzGateway (object):
         return handle
     
     def deletePlate(self, oid, anns=None):
+        """
+        Adds a 'Delete Plate' command to the delete queue, keeping annotations by default
+        
+        @param oid:     Plate ID
+        @type oid:      Long
+        @param anns:    If None, keep Tag, Term and File Annotations
+        @return:        Delete handle
+        @rtype:         L{omero.api.delete.DeleteHandle}
+        """
+        
         op = dict()
         if anns is None:            
             op["/TagAnnotation"] = "KEEP"
@@ -2532,6 +2952,17 @@ class _BlitzGateway (object):
         return handle
         
     def deleteDataset(self, obj, child=None, anns=None):
+        """
+        Adds a 'Delete Dataset' command to the delete queue, keeping Annotations and Images by default
+        
+        @param oid:     Image ID
+        @type oid:      Long
+        @param child:   If None, keep Images
+        @param anns:    If None, keep Tag, Term and File Annotations
+        @return:        Delete handle
+        @rtype:         L{omero.api.delete.DeleteHandle}
+        """
+        
         op = dict()
         if anns is None:            
             op["/TagAnnotation"] = "KEEP"
@@ -2544,6 +2975,17 @@ class _BlitzGateway (object):
         return handle
     
     def deleteProject(self, obj, child=None, anns=None):
+        """
+        Adds a 'Delete Project' command to the delete queue, keeping Annotations, Datasets and Images by default
+        
+        @param oid:     Image ID
+        @type oid:      Long
+        @param child:   If None, keep Datasets and Images
+        @param anns:    If None, keep Tag, Term and File Annotations
+        @return:        Delete handle
+        @rtype:         L{omero.api.delete.DeleteHandle}
+        """
+        
         op = dict()
         if anns is None:            
             op["/TagAnnotation"] = "KEEP"
@@ -2557,6 +2999,17 @@ class _BlitzGateway (object):
         return handle
     
     def deleteScreen(self, obj, child=None, anns=None):
+        """
+        Adds a 'Delete Screen' command to the delete queue, keeping Annotations and Plates by default
+        
+        @param obj:     Screen object
+        @type obj:      Object. TODO: why object when all others methods use ID? 
+        @param child:   If None, keep Plates
+        @param anns:    If None, keep Tag, Term and File Annotations
+        @return:        Delete handle
+        @rtype:         L{omero.api.delete.DeleteHandle}
+        """
+        
         op = dict()
         if anns is None:            
             op["/TagAnnotation"] = "KEEP"
@@ -2574,37 +3027,87 @@ class _BlitzGateway (object):
 
     def searchImages (self, text, created=None):
         """
-        Fulltext search for images
+        Fulltext search on Images.
+        
+        @param text:        The text to search for
+        @type text:         String
+        @param created:     List or tuple of creation times. (start, stop)
+        @type created:      L{omero.rtime} list or tuple
+        @return:            List of Images
+        @rtype:             List of L{ImageWrapper}
         """
+        
         return self.simpleSearch(text=text,created=created, types=(ImageWrapper,))
 
     def searchDatasets (self, text, created=None):
         """
-        Fulltext search for datasets
+        Fulltext search on Datasets.
+        
+        @param text:        The text to search for
+        @type text:         String
+        @param created:     List or tuple of creation times. (start, stop)
+        @type created:      L{omero.rtime} list or tuple
+        @return:            List of Datasets
+        @rtype:             List of L{DatasetWrapper}
         """
+        
         return self.simpleSearch(text=text, created=created, types=(DatasetWrapper,))
 
     def searchProjects (self, text, created=None):
         """
-        Fulltext search for projects
+        Fulltext search on Projects.
+        
+        @param text:        The text to search for
+        @type text:         String
+        @param created:     List or tuple of creation times. (start, stop)
+        @type created:      L{omero.rtime} list or tuple
+        @return:            List of Projects
+        @rtype:             List of L{ProjectWrapper}
         """
+        
         return self.simpleSearch(text=text, created=created, types=(ProjectWrapper,))
 
     def searchScreens (self, text, created=None):
         """
-        Fulltext search for screens
+        Fulltext search on Screens.
+        
+        @param text:        The text to search for
+        @type text:         String
+        @param created:     List or tuple of creation times. (start, stop)
+        @type created:      L{omero.rtime} list or tuple
+        @return:            List of Screens
+        @rtype:             List of L{ScreenWrapper}
         """
+        
         return self.simpleSearch(text=text, created=created, types=(ScreenWrapper,))
 
     def searchPlates (self, text, created=None):
         """
-        Fulltext search for plates
+        Fulltext search on Plates.
+        
+        @param text:        The text to search for
+        @type text:         String
+        @param created:     List or tuple of creation times. (start, stop)
+        @type created:      L{omero.rtime} list or tuple
+        @return:            List of Plates
+        @rtype:             List of L{PlateWrapper}
         """
+        
         return self.simpleSearch(text=text, created=created, types=(PlateWrapper,))
 
     def simpleSearch (self, text, created=None, types=None):
         """
-        Fulltext search on Projects, Datasets and Images.
+        Fulltext search on Projects, Datasets and Images. Used by other search methods above.
+        
+        @param text:        The text to search for
+        @type text:         String
+        @param created:     List or tuple of creation times. (start, stop)
+        @type created:      L{omero.rtime} list or tuple
+        @param types:       List or tuple of types to search for - E.g. Project, Dataset
+        @type types:        E.g. (L{ProjectWrapper}, L{DatasetWrapper})
+        @return:            List of search result wrapped objects
+        @rtype:             List of Object wrappers as specified in 'types'
+        
         TODO: search other object types?
         TODO: batch support.
         """
@@ -3281,6 +3784,12 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
         self.PARENT_WRAPPER_CLASS = None
 
     def isLeader(self):
+        """
+        Is the current group led by the current user? 
+        
+        @return:    True if user leads the current group
+        @rtype:     Boolean
+        """
         if self._conn.getEventContext().groupId in self._conn.getEventContext().leaderOfGroups:
             return True
         return False
