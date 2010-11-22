@@ -63,7 +63,7 @@ import pojos.ProjectData;
 
 /** 
  * The TreeViewer agent. This agent manages and presents the
- * Project/Dataset/Image, CategoryGroup/Category/Image and Image hierarchy.
+ * Project/Dataset/Image, Screen/Plate, Image hierarchy etc.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

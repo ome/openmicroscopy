@@ -189,7 +189,7 @@ public class TinyDialog
     {
         super(owner);
         setProperties();
-        if (owner == null) throw new NullPointerException("No owner.");
+        //if (owner == null) throw new NullPointerException("No owner.");
         if (image == null) throw new NullPointerException("No image.");
         this.title = title;
         originalImage = image;
@@ -235,7 +235,7 @@ public class TinyDialog
     public TinyDialog(Frame owner, JComponent c, int index, String title)
     {
     	 super(owner);
-         if (owner == null) throw new NullPointerException("No owner.");
+         //if (owner == null) throw new NullPointerException("No owner.");
          this.title = title;
          buttonIndex = index;
          //Create the View and the Controller.

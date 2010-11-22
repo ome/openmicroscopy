@@ -140,10 +140,12 @@ class ActivityResultRow
 			add(Box.createHorizontalStrut(5));
 			add(activity.createButton(activity.getViewText(row), VIEW, this));
 		}
+		/*
 		if (activity.canPlotResult(row)) {
 			add(Box.createHorizontalStrut(5));
 			add(activity.createButton("Plot", PLOT, this));
 		}
+		*/
 	}
 	
 	/**

@@ -258,7 +258,7 @@ public class AnimatedJFrame
 	}
 	
 	/**
-	 * 
+	 * Indicates to close after a set number of seconds. 
 	 * @param closeAfter The value to set.
 	 */
 	public void setCloseAfter(boolean closeAfter)

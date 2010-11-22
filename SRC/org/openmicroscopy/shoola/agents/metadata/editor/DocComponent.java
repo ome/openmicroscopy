@@ -37,7 +37,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.swing.Box;
 import javax.swing.Icon;
 import javax.swing.JButton;
@@ -75,7 +74,7 @@ import org.openmicroscopy.shoola.util.filter.file.TIFFFilter;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
-
+import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 import pojos.AnnotationData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
@@ -121,11 +120,9 @@ class DocComponent
 	/** Action id to open the annotation. */
 	private static final int DELETE = 4;
 	
-	/** Action id to open the annotation. */
-	private static final int MENU = 5;
+	/** Action id to display more information. */
+	private static final int INFO = 5;
 	
-	/** Action id to open the annotation. */
-	private static final int PLOT = 6;
 	
 	/** Collection of filters supported. */
 	private static final List<CustomizedFileFilter> FILTERS;
@@ -156,11 +153,11 @@ class DocComponent
 	/** Button to open the file linked to the annotation. */
 	private JMenuItem		openButton;
 	
-	/** Button to plot the results. */
-	private JMenuItem		plotButton;
-	
 	/** Button to delete the file annotation. */
 	private JMenuItem		deleteButton;
+	
+	/** Button to display information. */
+	private JMenuItem		infoButton;
 	
 	/** Component displaying the file name. */
 	private JLabel		label;
@@ -236,9 +233,9 @@ class DocComponent
 			downloadButton.setVisible(link);
 			if (enabled) count++;
 		}
-		if (plotButton != null) {
-			plotButton.setEnabled(link);
-			plotButton.setVisible(link);
+		if (infoButton != null) {
+			infoButton.setEnabled(true);
+			infoButton.setVisible(true);
 			if (link) count++;
 		}
 		if (deleteButton != null) {
@@ -271,10 +268,31 @@ class DocComponent
 			if (unlinkButton != null) popMenu.add(unlinkButton);
 			if (downloadButton != null) popMenu.add(downloadButton);
 			if (openButton != null) popMenu.add(openButton);
-			if (plotButton != null) popMenu.add(plotButton);
 			if (deleteButton != null) popMenu.add(deleteButton);
+			if (infoButton != null) popMenu.add(infoButton);
 		}
 		popMenu.show(invoker, p.x, p.y);
+	}
+	
+	/**
+	 * Displays information about the attachment.
+	 * 
+	 * @param invoker The component where the clicks occurred.
+	 * @param p The location of the mouse pressed.
+	 */
+	private void displayInformation(JComponent invoker, Point p)
+	{
+		String text = label.getToolTipText();
+		if (text == null || text.trim().length() == 0) return;
+		JLabel l = new JLabel();
+		l.setText(text);
+		TinyDialog d = new TinyDialog(null, l, TinyDialog.CLOSE_ONLY);
+		d.setModal(true);
+		d.getContentPane().setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
+		SwingUtilities.convertPointToScreen(p, invoker);
+		d.pack();
+		d.setLocation(p);
+		d.setVisible(true);
 	}
 	
 	/**
@@ -397,6 +415,16 @@ class DocComponent
 				showMenu(menuButton, p);
 			}
 		});
+		infoButton = new JMenuItem(icons.getIcon(IconManager.INFO));
+		infoButton.setText("Info...");
+		infoButton.addMouseListener(new MouseAdapter() {
+			
+			public void mousePressed(MouseEvent e)
+			{
+				Point p = e.getPoint();
+				displayInformation(label, p);
+			}
+		});
 		unlinkButton = new JMenuItem(icons.getIcon(IconManager.MINUS_12));
 		unlinkButton.setText("Unlink");
 		//UIUtilities.unifiedButtonLookAndFeel(unlinkButton);
@@ -433,14 +461,6 @@ class DocComponent
 					openButton.setActionCommand(""+OPEN);
 					openButton.addActionListener(this);
 				//} 
-				if (FileAnnotationData.FLIM_NS.equals(ns)) {
-					plotButton = new JMenuItem(icons.getIcon(
-							IconManager.PLOT_12));
-					plotButton.setText("Plot");
-					plotButton.setToolTipText("Plot the results.");
-					plotButton.setActionCommand(""+PLOT);
-					plotButton.addActionListener(this);
-				}
 				if (FileAnnotationData.COMPANION_FILE_NS.equals(ns) ||
 					FileAnnotationData.MEASUREMENT_NS.equals(ns))
 					unlinkButton = null;
@@ -572,7 +592,7 @@ class DocComponent
 		if (editButton != null) count++;
 		if (unlinkButton != null) count++;
 		if (downloadButton != null) count++;
-		if (plotButton != null) count++;
+		if (infoButton != null) count++;
 		if (openButton != null) count++;
 		if (deleteButton != null) count++;
 		if (count > 0) {
@@ -772,8 +792,6 @@ class DocComponent
 			case OPEN:
 				openFile();
 				break;
-			case PLOT:
-				plotResults();
 		}
 	}
 
