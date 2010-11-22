@@ -167,7 +167,7 @@ public class ServicesFactory
 	 * 
 	 * @param lc The credentials
 	 * @return See above.
-	 * @throws DSOutOfServiceException If an error occured while connecting.
+	 * @throws DSOutOfServiceException If an error occurred while connecting.
 	 */
 	public int login(LoginCredentials lc)
 	{
@@ -181,7 +181,6 @@ public class ServicesFactory
 		try {
 			gateway.login(lc.getUserName(), lc.getPassword(), lc.getHostName(), 
 					lc.getPort(), lc.getGroup(), lc.isEncrypted());
-			
 			KeepClientAlive kca = new KeepClientAlive(gateway);
 	        executor = new ScheduledThreadPoolExecutor(1);
 	        executor.scheduleWithFixedDelay(kca, 60, 60, TimeUnit.SECONDS);
@@ -225,7 +224,7 @@ public class ServicesFactory
 		return;
 	}
 	
-	/** Exits the plugin. */
+	/** Exits the plug-in. */
 	public void exitPlugin()
 	{
 		if (executor != null) executor.shutdown();

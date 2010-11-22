@@ -23,6 +23,7 @@
 package ome.ij.data;
 
 //Java imports
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -81,7 +82,6 @@ public class DataServiceImpl
 		p.leaves();
 		List<Long> ids = new ArrayList<Long>(1);
 		ids.add(datasetId);
-		//return gateway.loadImages(datasetId);      
 		return gateway.loadContainerHierarchy(DatasetData.class, ids, p);        
 	}
 
@@ -117,22 +117,7 @@ public class DataServiceImpl
 		throws DSAccessException, DSOutOfServiceException
 	{
 		Pixels pixels = gateway.getPixels(pixelsID);
-		ImageObject img = new ImageObject(pixels);
-		/*
-		int sizeZ = img.getSizeZ();
-		int sizeC = img.getSizeC();
-		int sizeT = img.getSizeT();
-		byte[] array;
-		for (int z = 0; z < sizeZ; z++) {
-			for (int c = 0; c < sizeC; c++) {
-				for (int t = 0; t < sizeT; t++) {
-					array = gateway.getPlane(pixelsID, z, c, t);
-					img.setPlane(z, c, t, array);
-				}
-			}
-		}
-		*/
-		return img;
+		return new ImageObject(pixels);
 	}
 
 	/**
@@ -140,9 +125,19 @@ public class DataServiceImpl
 	 * @see DataService#getPlane(long, int, int, int)
 	 */
 	public byte[] getPlane(long pixelsID, int z, int c, int t)
-			throws DSAccessException, DSOutOfServiceException {
-		// TODO Auto-generated method stub
+			throws DSAccessException, DSOutOfServiceException 
+	{
 		return gateway.getPlane(pixelsID, z, c, t);
+	}
+
+	/**
+	 * Implemented as specified by the {@link DataService}.
+	 * @see DataService#exportImageAsOMETiff(File, long)
+	 */
+	public File exportImageAsOMETiff(File file, long imageID)
+			throws DSAccessException, DSOutOfServiceException
+	{
+		return gateway.exportImageAsOMETiff(file, imageID);
 	}
 	
 }

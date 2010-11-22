@@ -23,6 +23,8 @@
 package ome.ij.data;
 
 //Java imports
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -42,6 +44,7 @@ import omero.AuthenticationException;
 import omero.SecurityViolation;
 import omero.SessionException;
 import omero.client;
+import omero.api.ExporterPrx;
 import omero.api.GatewayPrx;
 import omero.api.IAdminPrx;
 import omero.api.IContainerPrx;
@@ -84,6 +87,9 @@ class Gateway
 	
 	/** Identifies the client. */
 	private static final String			AGENT = "OMERO.imagej";
+	
+	/** Maximum size of pixels read at once. */
+	private static final int				INC = 262144;
 	
 	/** 
 	 * Used whenever a broken link is detected to get the Login Service and
@@ -202,6 +208,33 @@ class Gateway
 			return gService; 
 		} catch (Throwable e) {
 			handleException(e, "Cannot access Pojos service.");
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns the {@link ExporterPrx} service.
+	 *   
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	private ExporterPrx getExporterService()
+		throws DSAccessException, DSOutOfServiceException
+	{ 
+		try {
+			ExporterPrx store = null;
+			//if (exporterService == null) {
+				if (entryUnencrypted != null)
+					store = entryUnencrypted.createExporter();
+				else 
+					store = entryEncrypted.createExporter();
+				//services.add(exporterService);
+			//}
+			return store;//exporterService; 
+		} catch (Throwable e) {
+			handleException(e, "Cannot access Exporter service.");
 		}
 		return null;
 	}
@@ -609,6 +642,64 @@ class Gateway
 			handleException(e, "Cannot load plane: ("+z+", "+c+", "+t+")");
 		}
 		return null;
+	}
+	
+	/**
+	 * Returns the file 
+	 * 
+	 * @param file		The file to write the bytes.
+	 * @param imageID	The id of the image.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	File exportImageAsOMETiff(File f, long imageID)
+		throws DSAccessException, DSOutOfServiceException
+	{
+		isSessionAlive();
+		FileOutputStream stream = null;
+		ExporterPrx store = null;
+		try {
+			stream = new FileOutputStream(f);
+			try {
+				synchronized(new Object()) {
+					store = getExporterService();
+					store.addImage(imageID);
+					long size = store.generateTiff();
+					int offset = 0;
+					int length = (int) size;
+					try {
+						try {
+							for (offset = 0; (offset+INC) < size;) {
+								stream.write(store.read(offset, INC));
+								offset += INC;
+							}	
+						} finally {
+							stream.write(store.read(offset, length-offset)); 
+							stream.close();
+						}
+					} catch (Exception e) {
+						if (stream != null) stream.close();
+						if (f != null) f.delete();
+					}
+				}
+				
+			} finally {
+				try {
+					if (store != null) store.close();
+				} catch (Exception e) {}
+				return f;
+			}
+		} catch (Throwable t) {
+			if (f != null) f.delete();
+			try {
+				if (store != null) store.close();
+			} catch (Exception e) {}
+			handleException(t, "Cannot export the image as an OME-TIFF");
+			return null;
+		}
 	}
 	
 }

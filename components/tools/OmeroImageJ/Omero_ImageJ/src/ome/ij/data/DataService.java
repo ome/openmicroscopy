@@ -24,6 +24,7 @@ package ome.ij.data;
 
 
 //Java imports
+import java.io.File;
 import java.util.Collection;
 
 import pojos.ExperimenterData;
@@ -53,7 +54,7 @@ public interface DataService
 	 * 
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	public Collection loadProjects()
@@ -65,7 +66,7 @@ public interface DataService
 	 * @param datasetId The id of the dataset.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	public Collection loadImages(long datasetId)
@@ -84,23 +85,37 @@ public interface DataService
 	 * @param pixelsID The id of the pixels set.
 	 * @return See above.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
-	 * @throws DSAccessException If an error occured while trying to 
+	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	public ImageObject getImage(long pixelsID)
 		throws DSAccessException, DSOutOfServiceException;
 	
 	/**
+	 * Retrieves the specified plane for the given pixels set.
 	 * 
-	 * @param pixelsID
-	 * @param z
-	 * @param c
-	 * @param t
-	 * @return
-	 * @throws DSAccessException
-	 * @throws DSOutOfServiceException
+	 * @param pixelsID The identifier of the pixels set.
+	 * @param z The selected z-section.
+	 * @param c The selected channel.
+	 * @param t The time-point
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
 	 */
 	public byte[] getPlane(long pixelsID, int z, int c, int t)
 		throws DSAccessException, DSOutOfServiceException;
 	
+	/**
+	 * Exports the specified image as OME-TIFF.
+	 * 
+	 * @param file The file to write the image to.
+	 * @param imageID The identifier of the image.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	public File exportImageAsOMETiff(File file, long imageID)
+		throws DSAccessException, DSOutOfServiceException;
 }

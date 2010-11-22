@@ -35,10 +35,9 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -47,17 +46,14 @@ import javax.swing.JToolBar;
 import javax.swing.SwingConstants;
 
 //Third-party libraries
-import i5d.Image5D;
 import ij.IJ;
-import ij.gui.ImageWindow;
 
 //Application-internal dependencies
 import ome.ij.data.DataService;
-import ome.ij.data.ImageObject;
 import ome.ij.data.ServicesFactory;
 import ome.ij.dm.browser.Browser;
 import ome.ij.dm.browser.BrowserFactory;
-
+import org.openmicroscopy.shoola.util.filter.file.OMETIFFFilter;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
@@ -99,7 +95,7 @@ public class TreeViewer
 	/** Reference to the browser. */
 	private Browser browser;
 	
-	/** Button indicating to <code>Quit</code> the plugin. */
+	/** Button indicating to <code>Quit</code> the plug-in. */
 	private JButton quitButton;
 	
 	/** Button indicating to <code>Refresh</code> the display. */
@@ -109,16 +105,12 @@ public class TreeViewer
 	private JButton viewButton;
 	
 	/** The viewers. */
-	private Map<Long, Image5D> viewers;
-	
-	/** The viewers. */
-	private Map<ImageWindow, Image5D> viewerWindows;
+	private Map<Long, String> viewers;
 	
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
-		viewers = new HashMap<Long, Image5D>();
-		viewerWindows = new HashMap<ImageWindow, Image5D>();
+		viewers = new HashMap<Long, String>();
 		browser = BrowserFactory.createBrowser();
 		browser.addPropertyChangeListener(this);
 		IconManager icons = IconManager.getInstance();
@@ -152,7 +144,7 @@ public class TreeViewer
 		});
 	}
 
-	/** Inovkes when closing the window. */
+	/** Invokes when closing the window. */
 	private void onWindowClosing()
 	{
 		firePropertyChange(CLOSE_MANAGER_PROPERTY, 
@@ -189,81 +181,48 @@ public class TreeViewer
 		c.add(new JScrollPane(browser.getUI()), BorderLayout.CENTER);
 	}
 	
+	/**
+	 * Returns the full path to the file locally stored.
+	 * 
+	 * @param image The image to handle.
+	 * @return See above.
+	 */
+	private String getFile(ImageData image)
+	{
+		long id = image.getId();
+		if (viewers.containsKey(id)) return viewers.get(id);
+		DataService ds = ServicesFactory.getInstance().getDataService();
+		String dir = System.getProperty("java.io.tmpdir");
+		String name = image.getName()+"_ID_"+id+"."+OMETIFFFilter.OME_TIFF;
+		String path = dir+File.separator+name;
+		File f = new File(path);
+		try {
+			f = ds.exportImageAsOMETiff(f, image.getId());
+			f.deleteOnExit();
+		} catch (Exception e) {
+			return null;
+		}
+		path = f.getAbsolutePath();
+		viewers.put(id, path);
+		return path;
+	}
+	
 	/** Views the selected image. */
 	private void viewImage()
 	{
 		DataObject object = browser.getSelectedObject();
 		if (!(object instanceof ImageData)) return;
 		ImageData image = (ImageData) object;
-		long id = image.getId();
-		Image5D viewer = viewers.get(id);
-		if (viewer != null) {
-			viewer.show();
-			return;
-		}
-		IJ.showStatus("Loading Image...");	
 		setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-		DataService ds = ServicesFactory.getInstance().getDataService();
-		try {
-			long pixelsID = image.getDefaultPixels().getId();
-			ImageObject img = ds.getImage(pixelsID);
-			int sizeZ = img.getSizeZ();
-			int sizeC = img.getSizeC();
-			int sizeT = img.getSizeT();
-			viewer = new Image5D(image.getName(), 
-					img.getImagePlusType(), img.getSizeX(), 
-					img.getSizeY(), sizeC, sizeZ, sizeT, false);
-			
-			double min, max;
-			for (int z = 0; z < sizeZ; z++) {
-				for (int c = 0; c < sizeC; c++) {
-					min = img.getGlobalMin(c);
-					max = img.getGlobalMax(c);
-					viewer.setChannelMinMax(c+1, min, max);
-					
-					for (int t = 0; t < sizeT; t++) {
-						viewer.setCurrentPosition(0, 0, c, z, t);
-						viewer.setPixels(img.getMappedPlane(
-										ds.getPlane(pixelsID, z, c, t)));
-					}
-				}
-			}
-
-			viewer.setCurrentPosition(0, 0, 0, 0, 0);
-			viewer.show();
-			viewers.put(id, viewer);
-			ImageWindow window = viewer.getWindow();
-			viewerWindows.put(window, viewer);
-			window.addWindowListener(new WindowAdapter() {
-				public void windowClosing(WindowEvent e) {
-					closeViewer((ImageWindow) e.getWindow());
-				}
-			});
-			
-		} catch (Exception e) {
-			IJ.showMessage("An error occured while loading the image.");
+		IJ.showStatus("Loading Image from server...");
+		String path = getFile(image);
+		if (path == null) {
+			IJ.showMessage("An error occurred while loading the image.");
+		} else {
+			IJ.runPlugIn("loci.plugins.LociImporter", path);
 		}
 		IJ.showStatus("");
 		setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-	}
-	
-	/**
-	 * Closes the viewer.
-	 * 
-	 * @param window The window to close.
-	 */
-	private void closeViewer(ImageWindow window)
-	{
-		Image5D viewer = viewerWindows.get(window);
-		if (viewer == null) return;
-		viewerWindows.remove(window);
-		Iterator i = viewers.entrySet().iterator();
-		Entry entry;
-		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			viewer = (Image5D) entry.getValue();
-			viewers.entrySet().remove(entry);
-		}
 	}
 	
 	/** Creates a new instance. */
@@ -288,19 +247,9 @@ public class TreeViewer
 		}
 	}
 
-	/** Closes the plugin. */
+	/** Closes the plug-in. */
 	public void discard()
 	{
-		Iterator i = viewers.entrySet().iterator();
-		Entry entry;
-		Image5D viewer;
-		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			viewer = (Image5D) entry.getValue();
-			viewer.close();
-		}
-		viewers.clear();
-		viewerWindows.clear();
 		browser.discard();
 		setVisible(false);
 		dispose();
@@ -342,4 +291,5 @@ public class TreeViewer
 			onWindowClosing();
 		}
  	}
+	
 }
