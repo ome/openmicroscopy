@@ -33,6 +33,7 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.FocusGainedEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
+import org.openmicroscopy.shoola.agents.events.iviewer.FLIMResultsEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ImageViewport;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
 import org.openmicroscopy.shoola.agents.events.iviewer.RendererUnloadedEvent;
@@ -323,13 +324,28 @@ public class ImViewerAgent
     }
     
     /**
+     * Displays the results of a FLIM analysis
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleFLIMResultsEvent(FLIMResultsEvent evt)
+    {
+    	if (evt == null) return;
+    	ImageData image = evt.getImage();
+    	ImViewer viewer = ImViewerFactory.getImageViewer(
+    			image.getDefaultPixels().getId());
+    	if (viewer != null) {
+    		viewer.displayFLIMResults(evt.getResults());
+    	}
+    }
+    
+    /**
      * Checks if the passed image is actually opened in the viewer.
      * 
      * @param image The image to handle.
      */
     private void checkImageForDelete(ImageData image)
     {
-    	
     	if (image.getId() < 0) return;
     	PixelsData pixels = image.getDefaultPixels();
     	if (pixels == null) return;
@@ -372,6 +388,7 @@ public class ImViewerAgent
         bus.register(this, RendererUnloadedEvent.class);
         bus.register(this, DeleteObjectEvent.class);
         bus.register(this, RndSettingsSaved.class);
+        bus.register(this, FLIMResultsEvent.class);
     }
 
     /**
@@ -429,6 +446,8 @@ public class ImViewerAgent
         	handleDeleteObjectEvent((DeleteObjectEvent) e);
         else if (e instanceof RndSettingsSaved) 
         	handleRndSettingsSavedEvent((RndSettingsSaved) e);
+        else if (e instanceof FLIMResultsEvent) 
+        	handleFLIMResultsEvent((FLIMResultsEvent) e);
     }
 
 }

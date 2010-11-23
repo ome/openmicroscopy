@@ -69,6 +69,7 @@ import javax.swing.JToolBar;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.RatingComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -476,6 +477,7 @@ class AnnotationDataUI
 		p.add(createBar(addTagsButton, removeTagsButton));
 		
 		JPanel panel = new JPanel(new GridBagLayout());
+		panel.setBorder(null);
 		panel.setBackground(UIUtilities.BACKGROUND_COLOR);
 		GridBagConstraints c = new GridBagConstraints();
 		//c.fill = GridBagConstraints.HORIZONTAL;
@@ -501,6 +503,29 @@ class AnnotationDataUI
 		c.gridy = 3;
 		panel.add(docRef, c);
 		content.add(panel);
+		
+		
+		//analysis results
+		List results = model.getAnalysisResults();
+		if (results != null && results.size() > 0) {
+			p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+			p.setBackground(UIUtilities.BACKGROUND_COLOR);
+			l = UIUtilities.setTextFont("analysis", Font.BOLD, size);
+			l.setToolTipText("Displays the results of analysis run.");
+			p.add(l);
+			Iterator i = results.iterator();
+			AnalysisResultsItem item;
+			JPanel list = new JPanel();
+			list.setLayout(new BoxLayout(list, BoxLayout.Y_AXIS));
+			list.setBackground(UIUtilities.BACKGROUND_COLOR);
+			while (i.hasNext()) {
+				item = (AnalysisResultsItem) i.next();
+				item.addPropertyChangeListener(controller);
+				list.add(item);
+			}
+			p.add(list);
+			content.add(p);
+		}
 		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		setBackground(UIUtilities.BACKGROUND);
 		setBorder(new SeparatorOneLineBorder());
@@ -783,9 +808,6 @@ class AnnotationDataUI
 		
 		//Viewed by
 		Object refObject = model.getRefObject();
-		//TableLayout layout = (TableLayout) content.getLayout();
-		//double hTag = TableLayout.PREFERRED;
-		
 		if (!model.isMultiSelection()) {
 			l = model.getTags();
 			if (l != null) count += l.size();

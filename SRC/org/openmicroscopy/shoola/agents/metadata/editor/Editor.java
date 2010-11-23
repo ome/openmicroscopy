@@ -34,6 +34,7 @@ import javax.swing.JComponent;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
@@ -432,5 +433,19 @@ public interface Editor
 	 * @return See above.
 	 */
 	boolean isWritable();
+	
+	/**
+	 * Displays the results of analysis.
+	 * 
+	 * @param analysis Object hosting information about the results.
+	 */
+	void displayAnalysisResults(AnalysisResultsItem analysis);
+	
+	/**
+	 * Notifies that the results have been loaded.
+	 * 
+	 * @param analysis Object hosting information about the results.
+	 */
+	void analysisResultsLoaded(AnalysisResultsItem analysis);
 	
 }

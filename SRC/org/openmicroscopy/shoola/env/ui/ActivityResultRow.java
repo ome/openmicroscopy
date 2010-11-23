@@ -71,9 +71,6 @@ class ActivityResultRow
 	
 	/** Indicates to view the object. */
 	private static final int VIEW = 1;
-	
-	/** Indicates to plot the results. */
-	private static final int PLOT = 2;
 
 	/** Reference to the activity. */
 	private ActivityComponent activity;
@@ -140,12 +137,6 @@ class ActivityResultRow
 			add(Box.createHorizontalStrut(5));
 			add(activity.createButton(activity.getViewText(row), VIEW, this));
 		}
-		/*
-		if (activity.canPlotResult(row)) {
-			add(Box.createHorizontalStrut(5));
-			add(activity.createButton("Plot", PLOT, this));
-		}
-		*/
 	}
 	
 	/**
@@ -204,11 +195,6 @@ class ActivityResultRow
 				firePropertyChange(ACTION_PROPERTY, Boolean.valueOf(false), 
 						Boolean.valueOf(true));
 				activity.view(row);
-				break;
-			case PLOT:
-				firePropertyChange(ACTION_PROPERTY, Boolean.valueOf(false), 
-						Boolean.valueOf(true));
-				activity.plotResult(row);
 		}
 	}
 	

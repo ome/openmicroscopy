@@ -62,6 +62,16 @@ public class ScriptSubMenu
 	/** The text before being formatted. */
 	private String unformattedText;
 	
+	/**
+	 * Moves up in the path if the name is already taken.
+	 * 
+	 * @param values The path as an array.
+	 * @param index The current index.
+	 * @param sep   The file separator.
+	 * @param names The names already taken.
+	 * @param value The value to handle.
+	 * @return See above.
+	 */
 	private String getValue(String[] values, int index, String sep, 
 			List<String> names, String value)
 	{

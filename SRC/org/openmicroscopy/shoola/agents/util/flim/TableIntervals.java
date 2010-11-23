@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.env.ui.flim;
+package org.openmicroscopy.shoola.agents.util.flim;
 
 
 //Java imports

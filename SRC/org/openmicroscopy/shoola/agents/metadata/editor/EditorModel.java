@@ -46,6 +46,7 @@ import java.util.Map.Entry;
 import omero.model.OriginalFile;
 import omero.model.PlaneInfo;
 import org.openmicroscopy.shoola.agents.metadata.AcquisitionDataLoader;
+import org.openmicroscopy.shoola.agents.metadata.AnalysisResultsFileLoader;
 import org.openmicroscopy.shoola.agents.metadata.AttachmentsLoader;
 import org.openmicroscopy.shoola.agents.metadata.ChannelDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.DiskSpaceLoader;
@@ -67,6 +68,7 @@ import org.openmicroscopy.shoola.agents.metadata.UserPhotoUploader;
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.agents.metadata.rnd.RendererFactory;
+import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
@@ -213,6 +215,9 @@ class EditorModel
 	
 	/** The file annotation with the original metadata. */
 	private FileAnnotationData originalMetadata;
+	
+	/** The collection of analysis results. */
+	private Map<AnalysisResultsItem, EditorLoader> resultsLoader;
 	
 	/**
 	 * Downloads the files.
@@ -957,11 +962,46 @@ class EditorModel
 				String name = f.getFileName();
 				if (name.contains(ORIGINAL_METADATA_NAME))
 					originalMetadata = f;
-			} else l.add(f);
+			} else if (!FileAnnotationData.FLIM_NS.equals(ns)) {
+				l.add(f);
+			}
+			
 		}
 		return sorter.sort(l); 
 	}
 
+	/** 
+	 * Returns the objects displaying analysis results.
+	 * 
+	 * @return See above.
+	 */
+	List getAnalysisResults()
+	{
+		StructuredDataResults data = parent.getStructuredData();
+		if (data == null) return null;
+		Collection attachements = data.getAttachments(); 
+		if (attachements == null) return null;
+		Iterator i = attachements.iterator();
+		FileAnnotationData f;
+		String ns;
+		AnalysisResultsItem item;
+		Map l = new HashMap();
+		while (i.hasNext()) {
+			f = (FileAnnotationData) i.next();
+			ns = f.getNameSpace();
+			if (FileAnnotationData.FLIM_NS.equals(ns)) {
+				item = (AnalysisResultsItem) l.get(ns);
+				if (item == null) {
+					item = new AnalysisResultsItem((DataObject) getRefObject(), 
+							ns);
+					l.put(ns, item);
+				}
+				item.addAttachment(f);
+			} 
+		}
+		return sorter.sort(l.values()); 
+	}
+	
 	/**
 	 * Returns the companion file generated while importing the file
 	 * and containing the metadata found in the file, or <code>null</code>
@@ -1287,6 +1327,8 @@ class EditorModel
 			existingAttachments.clear();
 	    existingAttachments = null;
 	   
+	    if (resultsLoader != null) resultsLoader.clear();
+	    resultsLoader = null;
 	    if (!b) {
 	    	if (emissionsWavelengths != null) 
 	    		emissionsWavelengths.clear();
@@ -1625,6 +1667,25 @@ class EditorModel
 				data = ((WellSampleData) ref).getImage();
 			}
 			parent.saveData(toAdd, toRemove, toDelete, metadata, data, asynch);
+		}
+	}
+	
+	/**
+	 * Starts an asynchronous call to delete the annotations.
+	 * 
+	 * @param annotations The annotations to delete.
+	 */
+	void fireAnnotationsDeletion(List<AnnotationData> annotations)
+	{
+		Object ref = getRefObject();
+		if (ref instanceof DataObject) {
+			DataObject data = (DataObject) ref;
+			if (data instanceof WellSampleData) {
+				data = ((WellSampleData) ref).getImage();
+			}
+			List<AnnotationData> l = new ArrayList<AnnotationData>();
+			parent.saveData(l, l, annotations, new ArrayList<Object>(), data, 
+					true);
 		}
 	}
 	
@@ -2610,6 +2671,44 @@ class EditorModel
 			//ignore
 		}
 		return null;
+    }
+    
+    /**
+     * Loads the attachments.
+     * 
+     * @param analysis The object hosting the results.
+     */
+    void loadAnalysisResults(AnalysisResultsItem analysis)
+    {
+    	if (resultsLoader == null)
+    		resultsLoader = new HashMap<AnalysisResultsItem, EditorLoader>();
+    	AnalysisResultsFileLoader loader = new AnalysisResultsFileLoader(
+    			component, analysis);
+    	resultsLoader.put(analysis, loader);
+    	loader.load();
+    }
+    
+    /**
+     * Cancels on-going loading of results.
+     * 
+     * @param item The object hosting the results.
+     */
+    void cancelAnalysisResultsLoading(AnalysisResultsItem item)
+    {
+    	if (resultsLoader == null) return;
+    	EditorLoader loader = resultsLoader.get(item);
+    	if (loader != null) loader.cancel();
+    }
+    
+    /**
+     * Cancels on-going loading of results.
+     * 
+     * @param item The object hosting the results.
+     */
+    void removeAnalysisResultsLoading(AnalysisResultsItem item)
+    {
+    	if (resultsLoader == null) return;
+    	resultsLoader.remove(item);
     }
     
 }

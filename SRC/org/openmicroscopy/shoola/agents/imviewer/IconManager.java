@@ -260,11 +260,14 @@ public class IconManager
     /** The <code>Refresh</code> icon. */
     public static final int          REFRESH = 68;
     
+    /** The 48x48 <code>FLIM</code> icon. */
+    public static final int          FLIM_48 = 69;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 68;
+    private static final int          MAX_ID = 69;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -338,6 +341,7 @@ public class IconManager
         relPaths[RND_OWNER] = "rendering_owner16.png";
         relPaths[RND_UNDO] = "nuvola_undo16.png";
         relPaths[REFRESH] = "nuvola_reload16.png";
+        relPaths[FLIM_48] = "nuvola_messagebox_info48.png";
     }
     
     /** The sole instance. */

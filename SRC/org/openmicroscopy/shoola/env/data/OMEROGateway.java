@@ -2104,7 +2104,6 @@ class OMEROGateway
 				entryUnencrypted = unsecureClient.getSession();
 			}
 			connected = true;
-			
 			ExperimenterData exp = getUserDetails(userName);
 			if (groupID >= 0) {
 				long defaultID = exp.getDefaultGroup().getId();

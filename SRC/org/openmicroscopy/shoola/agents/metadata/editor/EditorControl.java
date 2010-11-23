@@ -48,6 +48,8 @@ import javax.swing.filechooser.FileFilter;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.model.OriginalFile;
+
 import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
@@ -55,6 +57,7 @@ import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlLoader;
+import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.util.FigureDialog;
 import org.openmicroscopy.shoola.agents.metadata.util.ScriptMenuItem;
 import org.openmicroscopy.shoola.agents.metadata.util.ScriptingDialog;
@@ -63,6 +66,8 @@ import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
 import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
+import org.openmicroscopy.shoola.env.data.model.AnalysisResultsHandlingParam;
+import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -82,10 +87,13 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.WikiDataObject;
+
+import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.FileAnnotationData;
 import pojos.PixelsData;
 import pojos.TagAnnotationData;
+import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
 
 /** 
  * The Editor's controller.
@@ -234,7 +242,7 @@ class EditorControl
 		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
 		bus.post(new ViewImage(imageID, null));
 	}
-	
+
 	/**
 	 * Posts an event to view the image.
 	 * 
@@ -527,7 +535,23 @@ class EditorControl
 				if (script != null)
 					view.manageScript(script, MetadataViewer.VIEW);
 			}
-		} 
+		} else if (AnalysisResultsItem.ANALYSIS_RESULTS_DELETE.equals(name)) {
+			AnalysisResultsItem item = (AnalysisResultsItem) evt.getNewValue();
+			List<FileAnnotationData> list = item.getAttachments();
+			view.fireAnnotationsDeletion(list);
+		} else if (AnalysisResultsItem.ANALYSIS_RESULTS_VIEW.equals(name)) {
+			AnalysisResultsItem item = (AnalysisResultsItem) evt.getNewValue();
+			if (view.getRndIndex() == MetadataViewer.RND_GENERAL) {
+				ViewImage event = new ViewImage(item.getData(), null);
+				EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
+				bus.post(event);
+			} else {
+				model.displayAnalysisResults(item);
+			}
+		} else if (AnalysisResultsItem.ANALYSIS_RESULTS_CANCEL.equals(name)) {
+			AnalysisResultsItem item = (AnalysisResultsItem) evt.getNewValue();
+			view.cancelAnalysisResultsLoading(item);
+		}
 	}
 
 	/**

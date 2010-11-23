@@ -81,6 +81,16 @@ public class Environment
 	}
 	
 	/**
+	 * Returns the location of the temporary directory.
+	 * 
+	 * @return See above.
+	 */
+	public String getTmpDir()
+	{
+		return System.getProperty("java.io.tmpdir");
+	}
+	
+	/**
 	 * Resolves the specified pathname against the installation directory.
 	 * 
 	 * @param relPathName	The pathname to resolve.

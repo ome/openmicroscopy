@@ -91,7 +91,7 @@ public class FileLoader
 			throw new IllegalArgumentException("No data set.");
 		this.data = data;
 		this.uiView = uiView;
-		file = new File(MetadataViewerAgent.getOmeroFilesHome() 
+		file = new File(MetadataViewerAgent.getTmpDir() 
 				+File.separator+data.getFileName());
 		file.deleteOnExit();
 	}
@@ -150,14 +150,14 @@ public class FileLoader
     		filesMap = new HashMap<FileAnnotationData, File>(files.size());
     		File f;
     		//int index = 0;
+    		String dir = MetadataViewerAgent.getTmpDir();
     		while (i.hasNext()) {
 				entry = (Entry) i.next();
 				fa = (FileAnnotationData) entry.getKey();
-				f = new File(MetadataViewerAgent.getOmeroFilesHome() 
-						+File.separator+fa.getFileName());
+				f = new File(dir+File.separator+fa.getFileID()+"_"+
+						fa.getFileName());
 				f.deleteOnExit();
 				filesMap.put(fa, f);
-				//index++;
 			}
 			handle = mhView.loadFiles(filesMap, this);
 		}

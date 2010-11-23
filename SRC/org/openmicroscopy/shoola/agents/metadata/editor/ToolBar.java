@@ -69,7 +69,6 @@ import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.GroupData;
 import pojos.ImageData;
-import pojos.PixelsData;
 import pojos.WellSampleData;
 
 /** 

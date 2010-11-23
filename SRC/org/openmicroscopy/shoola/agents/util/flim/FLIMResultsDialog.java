@@ -20,7 +20,7 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.env.ui.flim;
+package org.openmicroscopy.shoola.agents.util.flim;
 
 
 //Java imports
@@ -40,6 +40,7 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
@@ -48,6 +49,7 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -60,13 +62,12 @@ import javax.swing.filechooser.FileFilter;
 
 
 //Third-party libraries
-
-//Application-internal dependencies
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.jdesktop.swingx.VerticalLayout;
-import org.openmicroscopy.shoola.env.data.model.AnalysisResultsHandlingParam;
-import org.openmicroscopy.shoola.env.ui.flim.TableIntervals;
+
+//Application-internal dependencies
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.util.file.ExcelWriter;
 import org.openmicroscopy.shoola.util.filter.file.CSVFilter;
 import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
@@ -79,6 +80,8 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.graphutils.ChartObject;
 import org.openmicroscopy.shoola.util.ui.graphutils.HistogramPlot;
+
+import pojos.FileAnnotationData;
 
 /** 
  * Displays the results stored in the passed file.
@@ -110,6 +113,9 @@ public class FLIMResultsDialog
 	/** Action ID indicating to plot the result again. */
 	private static final int PLOT = 2;
 	
+	/** Action ID indicating that a new file is selected. */
+	private static final int SELECTION = 3;
+	
 	/** The default color. */
 	private static final Color DEFAULT_COLOR = Color.RED;
 	
@@ -119,19 +125,19 @@ public class FLIMResultsDialog
 	/** The multiplication factor. */
 	private static final int FACTOR = 1000;
 	
+	/** The name of the X-axis. */
+	private static final String NAME_X_AXIS = ChartObject.X_AXIS;
+	
+	/** The name of the Y-axis. */
+	private static final String NAME_Y_AXIS = "Number of Pixels";
+	
 	/** Filters used for the save options. */
 	private static List<FileFilter> FILTERS;
-	
+
 	static {
 		FILTERS = new ArrayList<FileFilter>();
 		FILTERS.add(new ExcelFilter());
 	}
-		
-	/** The file to handle. */
-	private File file;
-	
-	/** The parameters indicating how to display the results. */
-	private AnalysisResultsHandlingParam parameters;
 	
 	/** Button to close the dialog. */
 	private JButton closeButton;
@@ -160,9 +166,6 @@ public class FLIMResultsDialog
 	/** The values extracted from the file. */
 	private List<Double> parseValues;
 	
-	/** The name of the graph. */
-	private String 		name;
-	
 	/** The table displaying the values plotted. */
 	private Double[][] data;
 	
@@ -174,6 +177,12 @@ public class FLIMResultsDialog
 
 	/** The table displaying the plotted values. */
 	private JTable tableValues;
+	
+	/** The results to display. */
+	private Map<FileAnnotationData, File> results;
+	
+	/** The component displaying the results. */
+	private JComboBox resultsBox;
 	
 	/**
 	 * Saves the data to the specified file.
@@ -226,6 +235,7 @@ public class FLIMResultsDialog
 				if (image != null) {
 					int w = image.getWidth();
 					int h = image.getHeight();
+					String name = (String) resultsBox.getSelectedItem();
 					writer.addImageToWorkbook(name, image); 
 					col = writer.getMaxColumn(0);
 					index += (col+2);
@@ -291,39 +301,36 @@ public class FLIMResultsDialog
 	 */
 	private void createChart(double[] values, int bins)
 	{
-		switch (parameters.getIndex()) {
-			case AnalysisResultsHandlingParam.HISTOGRAM:
-				HistogramPlot hp = new HistogramPlot();
-				hp.setXAxisName(parameters.getNameXaxis());
-				hp.setYAxisName(parameters.getNameYaxis());
+		HistogramPlot hp = new HistogramPlot();
+		hp.setXAxisName(NAME_X_AXIS);
+		hp.setYAxisName(NAME_Y_AXIS);
+		
+		if (values == null) {
+			double min = Double.MAX_VALUE;
+			double max = Double.MIN_VALUE;
+			double v;
+			
+			values = new double[parseValues.size()];
+			Iterator<Double> i = parseValues.iterator();
+			int index = 0;
+			while (i.hasNext()) {
+				v = i.next();
 				
-				if (values == null) {
-					double min = Double.MAX_VALUE;
-					double max = Double.MIN_VALUE;
-					double v;
-					
-					values = new double[parseValues.size()];
-					Iterator<Double> i = parseValues.iterator();
-					int index = 0;
-					while (i.hasNext()) {
-						v = i.next();
-						
-						if (v < min) min = v;
-						if (v > max) max = v;
-						values[index] = v;
-						index++;
-					}
-				}
-				if (values.length > 0)
-					hp.addSeries(name, values, DEFAULT_COLOR, BINS);
-				
-				createTable(hp.getYValues(0));
-				body = hp.getChart();
-				chartObject = hp;
-				break;
-				default:
-					break;
+				if (v < min) min = v;
+				if (v > max) max = v;
+				values[index] = v;
+				index++;
 			}
+		}
+		if (values.length > 0) {
+			hp.addSeries((String) resultsBox.getSelectedItem(), 
+					values, DEFAULT_COLOR, BINS);
+		}
+			
+		
+		createTable(hp.getYValues(0));
+		body = hp.getChart();
+		chartObject = hp;
 	}
 	
 	/** 
@@ -335,8 +342,7 @@ public class FLIMResultsDialog
 	{
 		if (body == null) return;
 		if (data != null) {
-			String[] columns = {parameters.getNameXaxis(), 
-					parameters.getNameYaxis()};
+			String[] columns = {NAME_X_AXIS, NAME_Y_AXIS};
 			JSplitPane sp = new JSplitPane();
 			sp.setLeftComponent(body);
 			JXTaskPane pane = (JXTaskPane) paneContainer.getComponent(0);
@@ -351,21 +357,31 @@ public class FLIMResultsDialog
 		}
 	}
 	
-	/**
-	 * Returns the legend to link to the display.
-	 * 
-	 * @return See above.
-	 */
-	private String getLegend() { return file.getName(); }
-	
-	/** 
-	 * Initializes the components composing the display.
-	 * 
-	 *  @param name The name to display in the legend.
-	 */
-	private void initComponents(String name)
+	/** Initializes the components composing the display. */
+	private void initComponents()
 	{
-		tableIntervals = new TableIntervals(this, parameters.getNameYaxis());
+		Entry entry;
+		Iterator i = results.entrySet().iterator();
+		FileAnnotationData fa;
+		String[] names = new String[results.size()];
+		int index = 0;
+		File file = null;
+		int selectedIndex = 0;
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			fa = (FileAnnotationData) entry.getKey();
+			names[index] = fa.getFileName();
+			if (file == null) {
+				file = (File) entry.getValue();
+				selectedIndex = index;
+			}
+			index++;
+		}
+		resultsBox = new JComboBox(names);
+		resultsBox.setSelectedIndex(selectedIndex);
+		resultsBox.setActionCommand(""+SELECTION);
+		resultsBox.addActionListener(this);
+		tableIntervals = new TableIntervals(this, NAME_Y_AXIS);
 		paneContainer = new JXTaskPaneContainer();
 		VerticalLayout layout = (VerticalLayout) paneContainer.getLayout();
 		layout.setGap(0);
@@ -394,15 +410,12 @@ public class FLIMResultsDialog
 		saveButton = new JButton("Save");
 		saveButton.setActionCommand(""+SAVE);
 		saveButton.addActionListener(this);
-		parseValues = parseFile();
+		parseValues = parseFile(file);
 		if (parseValues == null || parseValues.size() == 0) {
 			 JLabel l = new JLabel();
 			 l.setText("Cannot display the results");
 			 body = l;
 		} else {
-			if (name == null || name.trim().length() == 0)
-				name = getLegend();
-			this.name = name;
 			createChart(null, BINS);
 		}
 		saveButton.setEnabled(chartObject != null);
@@ -413,7 +426,6 @@ public class FLIMResultsDialog
 	{
 		setVisible(false);
 		dispose();
-		file.delete();
 	}
 	
 	/** Saves the display. */
@@ -422,6 +434,7 @@ public class FLIMResultsDialog
 		chooser = new FileChooser((JFrame) getOwner(), FileChooser.SAVE, 
 				"Save Results", "Saves the results", FILTERS);
 		chooser.setCurrentDirectory(UIUtilities.getDefaultFolder());
+		String name =  (String) resultsBox.getSelectedItem();
 		int index = name.lastIndexOf(".");
 		String value = name;
 		if (index > 0) value = name.substring(0, index);
@@ -522,12 +535,34 @@ public class FLIMResultsDialog
 		container.repaint();
 	}
 	
+	/** Selects the file. */
+	private void selectFile()
+	{
+		int index = resultsBox.getSelectedIndex();
+		int n = 0;
+		Entry entry;
+		File f = null;
+		Iterator i = results.entrySet().iterator();
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			if (n == index) {
+				f = (File) entry.getValue();
+				break;
+			}
+			n++;
+		}
+		if (f == null) return;
+		parseValues = parseFile(f);
+		plot();
+	}
+	
 	/**
 	 * Parses a CSV file.
 	 * 
+	 * @param file The file to parse.
 	 * @return See above.
 	 */
-	private List<Double> parseCSV()
+	private List<Double> parseCSV(File file)
 	{
 		List<Double> list = new ArrayList<Double>();
 		try {
@@ -551,13 +586,14 @@ public class FLIMResultsDialog
 	/**
 	 * Parses the file.
 	 * 
+	 * @param file The file to parse.
 	 * @return See above.
 	 */
-	private List<Double> parseFile()
+	private List<Double> parseFile(File file)
 	{
 		CustomizedFileFilter filter = new CSVFilter();
 		if (filter.accept(file))
-			return parseCSV();
+			return parseCSV(file);
 		return null;
 	}
 	
@@ -581,6 +617,7 @@ public class FLIMResultsDialog
 		content.add(l);
 		content.add(maxThreshold);
 		
+		content.add(resultsBox);
 		JPanel p = new JPanel();
 		p.add(plotButton);
 		p.add(Box.createHorizontalStrut(10));
@@ -615,21 +652,24 @@ public class FLIMResultsDialog
 	 * 
 	 * @param owner The owner the dialog.
 	 * @param icon  The icon to display in the header.
-	 * @param file  The file to handle.
-	 * @param name  The name to display in the legend
-	 * @param parameters The parameters describing.
+	 * @param values The results to display.
 	 */
-	public FLIMResultsDialog(JFrame owner, Icon icon, File file, String name,
-			AnalysisResultsHandlingParam parameters)
+	public FLIMResultsDialog(JFrame owner, Icon icon, 
+			Map<FileAnnotationData, File> values)
 	{
 		super(owner);
-		if (file == null)
-			throw new IllegalArgumentException("No results to display.");
-		if (parameters == null)
+		if (values == null)
 			throw new IllegalArgumentException("No parameters set.");
-		this.file = file;
-		this.parameters = parameters;
-		initComponents(name);
+		ViewerSorter sorter = new ViewerSorter();
+		List list = sorter.sort(values.keySet());
+		results = new LinkedHashMap<FileAnnotationData, File>();
+		Iterator i = list.iterator();
+		FileAnnotationData fa;
+		while (i.hasNext()) {
+			fa = (FileAnnotationData) i.next();
+			results.put(fa, values.get(fa));
+		}
+		initComponents();
 		buildGUI(icon);
 		pack();
 	}
@@ -694,6 +734,9 @@ public class FLIMResultsDialog
 				break;
 			case PLOT:
 				plot();
+				break;
+			case SELECTION:
+				selectFile();
 		}
 	}
 	

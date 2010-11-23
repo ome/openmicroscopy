@@ -146,6 +146,17 @@ public class MetadataViewerAgent
 		return omeroDir; 
 	}
  	
+	/** 
+	 * Returns the temporary directory.
+	 * 
+	 * @return See above. 
+	 */ 
+	public static String getTmpDir()
+	{ 
+		Environment env = (Environment) registry.lookup(LookupNames.ENV); 
+		return env.getTmpDir();
+	}
+	
 	/**
 	 * Returns the experimenter corresponding to the passed id.
 	 * 

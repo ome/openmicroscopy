@@ -32,6 +32,7 @@ import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +47,7 @@ import org.jdesktop.swingx.JXTaskPane;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.editor.ShowEditorEvent;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
@@ -597,6 +599,19 @@ class EditorUI
 		model.deleteAnnotation(annotation);
 	}
 	
+	/**
+	 * Starts an asynchronous call to delete the annotations.
+	 * 
+	 * @param annotations The annotations to delete.
+	 */
+	void fireAnnotationsDeletion(List<FileAnnotationData> annotations)
+	{
+		if (annotations == null || annotations.size() == 0) return;
+		List<AnnotationData> l = new ArrayList<AnnotationData>();
+		l.addAll(annotations);
+		model.fireAnnotationsDeletion(l);
+	}
+	
 	/** Sets the image acquisition metadata. */
 	void setImageAcquisitionData()
 	{
@@ -683,6 +698,13 @@ class EditorUI
 		setSelectedTab(RND_INDEX);
 		model.getRenderer().renderPreview();
 	}
+	
+	/**
+	 * Returns the rendering constants. 
+	 * 
+	 * @return See above.
+	 */
+	int getRndIndex() { return model.getRndIndex(); }
 	
 	/**
 	 * Sets the selected tab.
@@ -847,4 +869,9 @@ class EditorUI
 	 */
 	boolean isNumerousChannel() { return model.isNumerousChannel(); }
     
+	void cancelAnalysisResultsLoading(AnalysisResultsItem item)
+	{
+		
+	}
+	
 }

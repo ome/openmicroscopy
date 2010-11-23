@@ -168,7 +168,6 @@ public class FilesLoader
                 	entry = (Entry) i.next();
 					fa = (FileAnnotationData) entry.getKey();
 					f = (File) entry.getValue();
-					System.err.println(f.getAbsolutePath());
 					of = ((FileAnnotation) fa.asAnnotation()).getFile();
 					service.downloadFile(f, of.getId().getValue(), 
 							of.getSize().getValue());
@@ -197,8 +196,9 @@ public class FilesLoader
         	m.put(fa, f);
         	currentFile = m;
 		} catch (Exception e) {
+			m.put(fa, null);
 			context.getLogger().error(this, 
-        			"Cannot retrieve fie: "+e.getMessage());
+        			"Cannot retrieve file: "+e.getMessage());
 		}
     }
     
@@ -230,6 +230,7 @@ public class FilesLoader
     { 
     	if (files == null && loadCall != null) add(loadCall);
     	else {
+    		result = null;
     		Iterator i = files.entrySet().iterator();
     		Entry entry;
     		String description = "Loading file";
@@ -297,7 +298,6 @@ public class FilesLoader
     	if (files == null) 
     		throw new IllegalArgumentException("No files to load.");
     	this.files = files;
-    	//loadCall = makeBatchCall(files);
     }
     
     /**

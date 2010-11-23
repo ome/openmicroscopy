@@ -120,10 +120,6 @@ class DocComponent
 	/** Action id to open the annotation. */
 	private static final int DELETE = 4;
 	
-	/** Action id to display more information. */
-	private static final int INFO = 5;
-	
-	
 	/** Collection of filters supported. */
 	private static final List<CustomizedFileFilter> FILTERS;
 		
@@ -639,22 +635,6 @@ class DocComponent
 		chooser.setApproveButtonText("Download");
 		chooser.addPropertyChangeListener(this);
 		chooser.centerDialog();
-	}
-	
-	/** Plots the analysis results. */
-	private void plotResults()
-	{
-		String value = MetadataViewerAgent.getOmeroFilesHome();
-		FileAnnotationData fa = (FileAnnotationData) data;
-		OriginalFile of = (OriginalFile) fa.getContent();
-		value += File.separator+fa.getFileName();
-		DownloadActivityParam activity = new DownloadActivityParam(of,
-				new File(value), null);
-		AnalysisResultsHandlingParam p = new AnalysisResultsHandlingParam(
-				AnalysisResultsHandlingParam.HISTOGRAM);
-		activity.setResults(p);
-		UserNotifier un = MetadataViewerAgent.getRegistry().getUserNotifier();
-		un.notifyActivity(activity);
 	}
 	
 	/**

@@ -40,11 +40,13 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.iviewer.FLIMResultsEvent;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlLoader;
 import org.openmicroscopy.shoola.agents.metadata.browser.Browser;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
+import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.util.FigureDialog;
 import org.openmicroscopy.shoola.agents.metadata.util.ScriptingDialog;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
@@ -53,6 +55,7 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
@@ -61,6 +64,7 @@ import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.AnnotationData;
 import pojos.ChannelAcquisitionData;
 import pojos.ChannelData;
+import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.ImageAcquisitionData;
@@ -935,5 +939,45 @@ class EditorComponent
 	 * @see Editor#isWritable()
 	 */
 	public boolean isWritable() { return model.isWritable(); }
+
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#displayAnalysisResults(AnalysisResultsItem)
+	 */
+	public void displayAnalysisResults(AnalysisResultsItem analysis)
+	{
+		if (analysis == null) return;
+		List<FileAnnotationData> list = analysis.getAttachments();
+		if (list == null || list.size() == 0) return;
+		Map<FileAnnotationData, File> results = analysis.getResults();
+		if (results != null) {
+			analysisResultsLoaded(analysis);
+		} else {
+			model.loadAnalysisResults(analysis);
+			analysis.notifyLoading(true);
+		}
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#analysisResultsLoaded(AnalysisResultsItem)
+	 */
+	public void analysisResultsLoaded(AnalysisResultsItem analysis)
+	{
+		if (analysis == null) return;
+		analysis.notifyLoading(false);
+		model.removeAnalysisResultsLoading(analysis);
+		//now display results.
+		String name = analysis.getNameSpace();
+		if (FileAnnotationData.FLIM_NS.equals(name)) {
+			DataObject data = analysis.getData();
+			if (data instanceof ImageData) {
+				FLIMResultsEvent event = new FLIMResultsEvent((ImageData) data, 
+						analysis.getResults());
+				EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
+				bus.post(event);
+			}
+		}
+	}
 	
 }
