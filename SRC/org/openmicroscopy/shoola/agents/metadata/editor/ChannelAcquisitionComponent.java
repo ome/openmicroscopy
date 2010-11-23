@@ -484,7 +484,7 @@ class ChannelAcquisitionComponent
 		while (j.hasNext()) {
 			info = (PlaneInfo) j.next();
 			details = EditorUtil.transformPlaneInfo(info);
-			notSet = (List<String> )details.get(EditorUtil.NOT_SET);
+			notSet = (List<String>) details.get(EditorUtil.NOT_SET);
 			if (!notSet.contains(EditorUtil.EXPOSURE_TIME)) {
 				values[0][i] = details.get(EditorUtil.EXPOSURE_TIME)+
 				EditorUtil.TIME_UNIT;

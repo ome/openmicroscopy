@@ -1835,8 +1835,18 @@ public class EditorUtil
     		o = plane.getExposureTime();
     		if (o != null) {
     			notSet.remove(EXPOSURE_TIME);
-    			details.put(EXPOSURE_TIME, 
-    					UIUtilities.roundTwoDecimals(o.getValue()));
+    			double v = o.getValue();
+    			if (v == 0) {
+    				details.put(EXPOSURE_TIME, 0);
+    			} else {
+    				int decimal = UIUtilities.findDecimal(v, 1);
+    				if (decimal <= 2) {
+    					details.put(EXPOSURE_TIME, 
+    	    					UIUtilities.roundTwoDecimals(v));
+    				} else 
+    					details.put(EXPOSURE_TIME, 
+    	    					UIUtilities.ceil(v, decimal+1));
+    			}
     		}
     		o = plane.getPositionX();
     		if (o != null) {
