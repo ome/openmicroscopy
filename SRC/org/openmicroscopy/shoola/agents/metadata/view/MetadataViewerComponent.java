@@ -428,6 +428,11 @@ class MetadataViewerComponent
 		return model.getRelatedNodes();
 	}
 	
+	/**
+	 * Deletes the annotations.
+	 * 
+	 * @param toDelete The annotations to delete.
+	 */
 	private void deleteAnnotations(List<AnnotationData> toDelete)
 	{
 		if (toDelete == null || toDelete.size() == 0) return;

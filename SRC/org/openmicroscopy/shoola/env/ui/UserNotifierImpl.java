@@ -333,8 +333,7 @@ public class UserNotifierImpl
 			comp = new ExportActivity(this, manager.getRegistry(), p);
 		} else if (activity instanceof DownloadActivityParam) {
 			DownloadActivityParam p = (DownloadActivityParam) activity;
-			if (p.getResults() != null) register = false;
-			else register = (p.getApplicationData() == null);
+			register = (p.getApplicationData() == null);
 			comp = new DownloadActivity(this, manager.getRegistry(), p);
 		} else if (activity instanceof FigureActivityParam) {
 			FigureActivityParam p = (FigureActivityParam) activity;

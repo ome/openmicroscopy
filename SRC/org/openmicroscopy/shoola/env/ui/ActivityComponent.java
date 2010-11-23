@@ -60,7 +60,6 @@ import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.model.AnalysisResultsHandlingParam;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -280,9 +279,7 @@ public abstract class ActivityComponent
 			activity = new DownloadActivityParam(of, f, null);
 		if (parameters instanceof ApplicationData) {
 			activity.setApplicationData((ApplicationData) parameters);
-		} else if (parameters instanceof AnalysisResultsHandlingParam) {
-			activity.setResults((AnalysisResultsHandlingParam) parameters);
-		}
+		} 
 		viewer.notifyActivity(activity);
 	}
 	
