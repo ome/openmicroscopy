@@ -244,8 +244,7 @@ class InstrumentComponent
 	/** Sets the instrument and its components. */
 	void setInstrumentData()
 	{
-		if (init) return;
-		//resetBoxes();
+		resetBoxes();
 		fieldsMicroscope.clear();
 		InstrumentData data = model.getInstrumentData();
 		//Microscope.

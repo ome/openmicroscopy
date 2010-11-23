@@ -45,6 +45,7 @@ import java.util.Map.Entry;
 //Application-internal dependencies
 import omero.model.OriginalFile;
 import omero.model.PlaneInfo;
+
 import org.openmicroscopy.shoola.agents.metadata.AcquisitionDataLoader;
 import org.openmicroscopy.shoola.agents.metadata.AttachmentsLoader;
 import org.openmicroscopy.shoola.agents.metadata.ChannelDataLoader;
@@ -1938,9 +1939,13 @@ class EditorModel
 		if (l.size() == 0) return null;
 		EnumerationObject o;
 		Iterator i = l.iterator();
+		value = value.trim();
+		String v;
 		while (i.hasNext()) {
 			o = (EnumerationObject) i.next();
-			if (o.getValue().equals(value)) return o;
+			v = o.getValue();
+			v = v.trim();
+			if (v.equals(value)) return o;
 		}
 		return null;
 	}
