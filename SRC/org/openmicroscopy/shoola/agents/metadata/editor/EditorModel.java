@@ -1999,9 +1999,12 @@ class EditorModel
 		if (l.size() == 0) return null;
 		EnumerationObject o;
 		Iterator i = l.iterator();
+		String v;
 		while (i.hasNext()) {
 			o = (EnumerationObject) i.next();
-			if (o.getValue().equals(value)) return o;
+			v = o.getValue();
+			v = v.trim();
+			if (v.equals(value)) return o;
 		}
 		return null;
 	}

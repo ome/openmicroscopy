@@ -88,7 +88,7 @@ public interface Editor
 	
 	/** Identified the <code>Microscope type</code> enumeration. */
 	public static final String MICROSCOPE_TYPE = 
-					OmeroMetadataService.DETECTOR_TYPE;
+					OmeroMetadataService.MICROSCOPE_TYPE;
 	
 	/** Identified the <code>Detector type</code> enumeration. */
 	public static final String DETECTOR_TYPE = 
