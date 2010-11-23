@@ -1843,4 +1843,33 @@ public class UIUtilities
 		return path.replace('\\', '/');
 	}
 	
+    /**
+     * Returns the decimal value.
+     * 
+     * @param value The value to handle.
+     * @return See above.
+     */
+    public static final int findDecimal(double value, int decimal)
+    {
+    	double v = round(value, decimal);
+    	if (v > 0) return decimal;
+    	decimal++;
+    	return findDecimal(value, decimal);
+    }
+    
+    /**
+     * Rounds the passed value to the specified number of decimals.
+     * 
+     * @param value 	The value to round.
+     * @param decimal 	The number of figures after decimal point.
+     * @return The rounded value.
+     */
+    public static double ceil(double value, int decimal)
+    {
+    	if (decimal <= 0) return value;
+    	double p = Math.pow(10, decimal);
+    	value = value*p;
+    	return Math.ceil(value)/p;
+    }
+    
 }
