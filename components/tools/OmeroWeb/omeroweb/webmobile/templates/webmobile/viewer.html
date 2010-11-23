@@ -145,10 +145,13 @@ img#imagePlane {
     <div class="slider" id="tSlider"></div>
 </div>
 
-<img class="controls" id="infoIcon" src="{% url mobile_static 'img/info.png' %}"/>
+<img class="controls" id="infoIcon" src="{% url mobile_static 'img/info.png' %}" style="display:none"/>
 <div id="infoPanel"></div>
-<img class="controls" id="rendIcon" src="{% url mobile_static 'img/coloursliders64.png' %}"/>
+
+<div id="channelButtons" class="controls"></div>
 <div id="renderingPanel"></div>
+
+<img class="controls" id="projectionButton" src="{% url mobile_static 'img/proj-off.png' %}" style="display:none"/>
 
 <div class="controls" id="scaleNumber"></div>
 <div class="controls" id="scalebar">
@@ -157,8 +160,11 @@ img#imagePlane {
 
 <img id="imagePlane" width="{{ image.getWidth }}" height="{{ image.getHeight }}" src="{% url mobile_static 'img/spacer.gif' %}"/>
 
-<!-- element for passing src of button-down.png to js -->
+<!-- element for passing src of images to js -->
 <img id="button-down" style="display:none" src="{% url mobile_static 'img/button-down.png' %}"/>
 <img id="button-up" style="display:none" src="{% url mobile_static 'img/button-up.png' %}"/>
+<img id="button-down-select" style="display:none" src="{% url mobile_static 'img/button-down-select.png' %}"/>
+<img id="proj-on" style="display:none" src="{% url mobile_static 'img/proj-on.png' %}"/>
+<img id="proj-off" style="display:none" src="{% url mobile_static 'img/proj-off.png' %}"/>
     
 {% endblock %}

@@ -9,6 +9,8 @@ $(document).ready(function() {
     var pixelSize = 0;
     var json;
     var activeCs = [];
+    var currentChannel = 0;
+    var projectionOn = false;
     
     // elements we need repeatedly
     var imageId = $("#imageId").text();
@@ -23,22 +25,97 @@ $(document).ready(function() {
     $rendIcon.hide();
     var $renderingPanel = $("#renderingPanel");
     $renderingPanel.addClass('hidden');
+    var $channelButtons = $("#channelButtons");
+    var $projButton = $("#projectionButton");
+    
     var buttUpSrc = $("#button-up").attr('src');
     var buttDownSrc = $("#button-down").attr('src');
+    var buttDownSelectSrc = $("#button-down-select").attr('src');
+    var projOnSrc = $("#proj-on").attr('src');
+    var projOffSrc = $("#proj-off").attr('src');
     
     // --- functions ---
+    
+    var toggleProjection = function() {
+        projectionOn = (!projectionOn);
+        var buttonSrc = projOffSrc;
+        if (projectionOn) {
+            buttonSrc = projOnSrc;
+        }
+        $(this).attr('src', buttonSrc);
+        
+        refreshImage();
+    }
+    
     var handleChannelButton = function() {
         var buttonImg = $(this);
-        var c = buttonImg.attr('id').replace('cb', '');
+        var c = buttonImg.attr('id').replace('cb', '');     // E.g. id = 'cb1'
         var cIndex = parseInt(c);
-        var newActive = buttonImg.attr('src') == buttUpSrc;
-        activeCs[cIndex] = newActive;
-        if (newActive) {
-            buttonImg.attr('src', buttDownSrc);
-        } else {
-            buttonImg.attr('src', buttUpSrc);
+        
+        // if we clicked a button that is not current channel...
+        if (cIndex != currentChannel) {
+            // ... if it's not selected, turn channel on.
+            if (!activeCs[cIndex]) {
+                activeCs[cIndex] = true;
+                buttonImg.attr('src', buttDownSrc);
+            }
+            currentChannel = cIndex;    // change current channel
         }
+        else {
+            // clicked the current channel - toggle on/off
+            var newActive = buttonImg.attr('src') == buttUpSrc;
+            activeCs[cIndex] = newActive;
+            var newSrc = buttDownSrc;
+            if (!newActive) {
+                newSrc = buttUpSrc;
+                for (var i=0; i<activeCs.length; i++) {
+                    if (activeCs[i]) {
+                        currentChannel = i;
+                        break;
+                    }
+                }
+            }
+            buttonImg.attr('src', newSrc);
+        }
+        
+        // now update src of each button
+        var newSrc = "";
+        for (var i=0; i<activeCs.length; i++) {
+            newSrc = buttUpSrc;
+            if (activeCs[i]) {
+                newSrc = buttDownSrc;
+                if (currentChannel == i) {
+                    newSrc = buttDownSelectSrc;
+                }
+            }
+            $("#cb"+i).attr('src', newSrc);
+        }
+        
         refreshImage();
+    }
+    
+    var buildChannelButtons = function() {
+        
+        // if we haven't looked up active channels yet, use json data
+        var clist = json["channels"];
+        if (activeCs.length == 0) {
+            // build a column of buttons
+            var rHtml = "<table border='0' cellpadding='0' cellspacing='0' >";
+            for (var c=0; c<clist.length; c++) {
+                var cdata = clist[c];
+                activeCs.push(cdata["active"]);
+                var colour = cdata["color"];
+                var src = buttUpSrc;
+                if (activeCs[c]) {
+                    src = buttDownSrc;
+                }
+
+                rHtml += "<tr><td bgcolor='#" + colour + "'><img id='cb"+ c +"' class='channelButton' src='"+ src +"' /></td></tr>";
+            }
+            rHtml += "</table>";
+            $channelButtons.append($(rHtml));
+            $(".channelButton").click(handleChannelButton);
+        }
     }
     
     var showRenderingControls = function() {
@@ -49,18 +126,23 @@ $(document).ready(function() {
         var scrollH = window.innerHeight;
         var w = scrollW / 8;
         
-        activeCs = [];
+        // if we haven't looked up active channels yet, use json data
+        var clist = json["channels"];
+        if (activeCs.length == 0) {
+            for (var c=0; c<clist.length; c++) {
+                var cdata = clist[c];
+                activeCs.push(cdata["active"]);
+            }
+        }
         // build a column of buttons
         var rHtml = "<table border='0' cellpadding='0' cellspacing='0' >";
-        var clist = json["channels"];
         for (var c=0; c<clist.length; c++) {
             var cdata = clist[c];
             var colour = cdata["color"];
             var src = buttUpSrc;
-            if (cdata["active"]) {
+            if (activeCs[c]) {
                 src = buttDownSrc;
             }
-            activeCs.push(cdata["active"]);
             
             rHtml += "<tr><td bgcolor='#" + colour + "'><img id='cb"+ c +"' class='channelButton' src='"+ src +"' width='"+
                 w +"' height='"+ w +"' /></td></tr>";
@@ -139,21 +221,33 @@ $(document).ready(function() {
     // update the image with the current z and t indexes
     var refreshImage = function() {
         var imgSrc = "/webgateway/render_image/"+ imageId + "/" + z + "/" + t + "/";
+        var renderQuery = ""
         if (activeCs.length > 0) {
-            imgSrc += "?c=";
+            renderQuery += "c=";
         
             for (var c=1; c<=activeCs.length; c++) {
-                if (c > 1) imgSrc += ",";
-                if (!(activeCs[c-1])) imgSrc += "-";
-                imgSrc += c;
+                if (c > 1) renderQuery += ",";
+                if (!(activeCs[c-1])) renderQuery += "-";
+                renderQuery += c;
             }
+        }
+        if (projectionOn) {
+            if (renderQuery.length > 0) {
+                renderQuery += "&";
+            }
+            renderQuery += "p=intmax";
+        }
+        if (renderQuery.length > 1) {
+            imgSrc = imgSrc + "?" + renderQuery
         }
         $("#imagePlane").attr('src', imgSrc);
         
         // find the slider positions
         if (sizeZ > 1) {
             $(".zPoint").css('background', 'none');
-            $("#z"+z).css('background', 'red');
+            if (!projectionOn) {
+               $("#z"+z).css('background', 'red');
+            }
         }
         if (sizeT > 1) {
             $(".tPoint").css('background', 'none');
@@ -178,6 +272,7 @@ $(document).ready(function() {
         // if rendering controls are still showing, simply hide them
         if ($renderingPanel.not('.hidden').length) {
             $renderingPanel.addClass('hidden');
+            $imagePlane.one('click', showControls);
             return;
         }
         
@@ -201,12 +296,18 @@ $(document).ready(function() {
         $tSlider.css('height', w-2 ).css('width',tWidth-w-w-2).css('left',w).css('top',1);
         
         // info icon - top right corner
-        var iconW = scrollW / 10;
+        var iconW = scrollW / 8;
         var margin = scrollW/70;
         $infoIcon.css('top', scrollY+margin).css('left', scrollX+scrollW-iconW-margin).css('width', iconW).css('height', iconW);
         
-        // rendering icon - top right corner
-        $rendIcon.css('top', scrollY+margin+iconW).css('left', scrollX+scrollW-iconW-margin).css('width', iconW).css('height', iconW);
+        // channel-buttons - top right corner
+        buildChannelButtons();  // only used first time
+        $channelButtons.css('top', scrollY+margin+iconW).css('left', scrollX+scrollW-iconW-margin).css('width', iconW);
+        $(".channelButton").css('width', iconW).css('height', iconW);
+        
+        // projection button
+        $projButton.css('top', scrollY+margin).css('left', scrollX+scrollW-iconW-iconW-margin)
+            .css('width', iconW).css('height', iconW).css('opacity', 0.7);
         
         // scalebar 
         if (pixelSize == 0) {
@@ -250,8 +351,8 @@ $(document).ready(function() {
     
     // Show info
     $infoIcon.click(showInfoPanel);
-    // Show rendering 
-    $rendIcon.click(showRenderingControls);
+    // toggle projection
+    $projButton.click(toggleProjection);
     
     // When a slider is clicked, try to identify the actual increment that was clicked, set z or t and refresh
     $zSlider.click(function(event) {
