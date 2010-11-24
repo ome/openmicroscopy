@@ -63,11 +63,9 @@ from forms import LoginForm, ForgottonPasswordForm, ExperimenterForm, \
 from controller import BaseController
 from controller.experimenter import BaseExperimenters, BaseExperimenter
 from controller.group import BaseGroups, BaseGroup
-from controller.drivespace import BaseDriveSpace
+from controller.drivespace import BaseDriveSpace, usersData
 from controller.uploadfile import BaseUploadFile
 from controller.enums import BaseEnums
-
-from webclient.webclient_gateway import OmeroWebGateway
 
 from omeroweb.webgateway import views as webgateway_views
 from omeroweb.webgateway.views import getBlitzConnection
@@ -918,14 +916,27 @@ def drivespace(request, **kwargs):
     info = {'today': _("Today is %(tday)s") % {'tday': datetime.date.today()}, 'drivespace':drivespace}
     eventContext = {'userName':conn.getEventContext().userName, 'isAdmin':conn.getEventContext().isAdmin, 'version': request.session.get('version')}
     controller = BaseDriveSpace(conn)
-    controller.usersData()
-    
-    context = {'info':info, 'eventContext':eventContext, 'driveSpace': {'free':controller.freeSpace, 'used':controller.usedSpace }, 'usage':controller.usage}
+        
+    context = {'info':info, 'eventContext':eventContext, 'driveSpace': {'free':controller.freeSpace, 'used':controller.usedSpace }}
     
     t = template_loader.get_template(template)
     c = Context(request, context)
     rsp = t.render(c)
     return HttpResponse(rsp)
+
+
+@isUserConnected
+def load_drivespace(request, **kwargs):
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+    
+    offset = request.REQUEST.get('offset', 0)
+    rv = usersData(conn, offset)
+    return HttpResponse(simplejson.dumps(rv),mimetype='application/json')
+
 
 @isUserConnected
 def piechart(request, **kwargs):

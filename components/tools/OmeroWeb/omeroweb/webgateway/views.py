@@ -284,12 +284,12 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
         logger.info("Something killed the base connection, recreating")
         del connectors[ckey]
         return None
-        #return getBlitzConnection(request, server_id, with_session, force_anon=True, skip_stored=skip_stored)
+        #return getBlitzConnection(request, server_id, with_session, force_anon=True, skip_stored=skip_stored, useragent=useragent)
     if r.has_key('logout') and not ckey.startswith('C:'):
         logger.debug('logout required by HTTP GET or POST : killing current connection')
         _session_logout(request, server_id)
         return None
-        #return getBlitzConnection(request, server_id, with_session, force_anon=True, skip_stored=skip_stored)
+        #return getBlitzConnection(request, server_id, with_session, force_anon=True, skip_stored=skip_stored, useragent=useragent)
 #    # After keepalive the user session may have been replaced with an 'anonymous' one...
 #    if not force_key and blitzcon and request.session.get(browsersession_connection_key, None) != blitzcon._sessionUuid:
 #        logger.debug('Cleaning the user proxy %s!=%s' % (str(request.session.get(browsersession_connection_key, None)), str(blitzcon._sessionUuid)))

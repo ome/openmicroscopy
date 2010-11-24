@@ -1,80 +1,137 @@
 import unittest, time, os, datetime
 import tempfile
 
-from webgateway import views
-from webgateway import views
-
 import omero
-from omero.gateway.scripts.testdb_create import *
 
-from django.test.client import Client
-from django.core.handlers.wsgi import WSGIRequest
-from django.conf import settings
 from django.http import QueryDict
+from django.conf import settings
 
-CLIENT_BASE='test'
+from webgateway import views
+from webadmin.forms import LoginForm, GroupForm
+                   
+from webadmin.controller.experimenter import BaseExperimenter
+from webadmin.controller.group import BaseGroup
+from webadmin_test_helpers import WebTest, fakeRequest
 
-def fakeRequest (**kwargs):
-    def bogus_request(self, **request):
-        """
-        The master request method. Composes the environment dictionary
-        and passes to the handler, returning the result of the handler.
-        Assumes defaults for the query environment, which can be overridden
-        using the arguments to the request.
-        """
-        environ = {
-            'HTTP_COOKIE':      self.cookies,
-            'PATH_INFO':         '/',
-            'QUERY_STRING':      '',
-            'REQUEST_METHOD':    'GET',
-            'SCRIPT_NAME':       '',
-            'SERVER_NAME':       'testserver',
-            'SERVER_PORT':       '80',
-            'SERVER_PROTOCOL':   'HTTP/1.1',
-            'HTTP_HOST':         'localhost',
-            'wsgi.version':      (1,0),
-            'wsgi.url_scheme':   'http',
-            'wsgi.errors':       None,#self.errors,
-            'wsgi.multiprocess': True,
-            'wsgi.multithread':  False,
-            'wsgi.run_once':     False,
+
+class WebAdminTest(WebTest):
+    
+    def test_isServerOn(self):
+        from omeroweb.webadmin.views import _isServerOn
+        if not _isServerOn('localhost', 4064):
+            raise AttributeError('Server is offline')
+            
+    def test_checkVersion(self):
+        from omeroweb.webadmin.views import _checkVersion
+        if not _checkVersion('localhost', 4064):
+            raise AttributeError('Client version does not match server')
+    
+    def test_loginFromRequest(self):
+        params = {
+            'username': 'root',
+            'password': self.root_password,
+            'server':1,
+            'ssl':'on'
+        }        
+        request = fakeRequest(method="post", params=params)
+        
+        blitz = settings.SERVER_LIST.get(pk=request.REQUEST.get('server')) 
+        request.session['server'] = blitz.id
+        request.session['host'] = blitz.host
+        request.session['port'] = blitz.port
+        request.session['username'] = request.REQUEST.get('username').encode('utf-8').strip()
+        request.session['password'] = request.REQUEST.get('password').encode('utf-8').strip()
+        request.session['ssl'] = (True, False)[request.REQUEST.get('ssl') is None]
+        
+        from omeroweb.webgateway.views import getBlitzConnection
+        conn = views.getBlitzConnection(request, useragent="TEST.webadmin")
+        if conn is None:
+            raise AttributeError('Cannot connect')
+        return conn    
+
+    def test_loginFromForm(self):
+        params = {
+            'username': 'root',
+            'password': self.root_password,
+            'server':1,
+            'ssl':'on'
+        }        
+        request = fakeRequest(method="post", params=params)
+        
+        form = LoginForm(data=request.REQUEST.copy())        
+        if form.is_valid():
+            
+            blitz = settings.SERVER_LIST.get(pk=form.cleaned_data['server']) 
+            request.session['server'] = blitz.id
+            request.session['host'] = blitz.host
+            request.session['port'] = blitz.port
+            request.session['username'] = form.cleaned_data['username'].strip()
+            request.session['password'] = form.cleaned_data['password'].strip()
+            request.session['ssl'] = form.cleaned_data['ssl']
+
+            from omeroweb.webgateway.views import getBlitzConnection
+            conn = views.getBlitzConnection(request, useragent="TEST.webadmin")
+            if conn is None:
+                raise AttributeError('Cannot connect')
+            return conn
+        else:
+            errors = form.errors.as_text()
+            raise AttributeError(errors)
+            
+    def test_loginFailure(self):
+        params = {
+            'username': 'notauser',
+            'password': 'nonsence',
+            'server':1
+        }        
+        request = fakeRequest(method="post", params=params)
+        
+        form = LoginForm(data=request.REQUEST.copy())        
+        if form.is_valid():
+            blitz = settings.SERVER_LIST.get(pk=form.cleaned_data['server']) 
+            request.session['server'] = blitz.id
+            request.session['host'] = blitz.host
+            request.session['port'] = blitz.port
+            request.session['username'] = form.cleaned_data['username'].strip()
+            request.session['password'] = form.cleaned_data['password'].strip()
+            request.session['ssl'] = form.cleaned_data['ssl']
+
+            from omeroweb.webgateway.views import getBlitzConnection
+            conn = views.getBlitzConnection(request, useragent="TEST.webadmin")
+            if conn is not None:
+                raise AttributeError('This user does not exist. Login failure error!')
+        else:
+            errors = form.errors.as_text()
+            raise AttributeError(errors)            
+    
+    def test_createGroup(self):        
+        conn = self.rootconn
+        uuid = conn._sessionUuid
+        
+        params = {
+            "name":"webadmin_test_group_private %s" % uuid,
+            "description":"test group",
+            "owners": ['0'],
+            "permissions":'0'
         }
-        environ.update(self.defaults)
-        environ.update(request)
-        r = WSGIRequest(environ)
-        if 'django.contrib.sessions' in settings.INSTALLED_APPS:
-            engine = __import__(settings.SESSION_ENGINE, {}, {}, [''])
-        r.session = engine.SessionStore()
-        qlen = len(r.REQUEST.dicts)
-        def setQuery (**query):
-            r.REQUEST.dicts = r.REQUEST.dicts[:qlen]
-            q = QueryDict('', mutable=True)
-            q.update(query)
-            r.REQUEST.dicts += (q,)
-        r.setQuery = setQuery
-        return r
-    Client.bogus_request = bogus_request
-    c = Client()
-    return c.bogus_request(**kwargs)
+        
+        request = fakeRequest(method="post", params=params)
 
-class WGTest (GTest):
-    def doLogin (self, user):
-        r = fakeRequest()
-        q = QueryDict('', mutable=True)
-        q.update({'username': user.name, 'password': user.passwd})
-        r.REQUEST.dicts += (q,)
-        self.gateway = views.getBlitzConnection(r, 1, group=user.groupname, try_super=user.admin)
-        if self.gateway is None:
-            # If the login framework was customized (using this app outside omeroweb) the above fails
-            super(WGTest, self).doLogin(user)
-            self.gateway.user = views.UserProxy(self.gateway)
+        controller = BaseGroup(conn)
+        name_check = conn.checkGroupName(request.REQUEST.get('name'))
 
-class UserProxyTest (WGTest):
-    def test (self):
-        self.loginAsAuthor()
-        user = self.gateway.user
-        self.assertEqual(user.isAdmin(), False)
-        int(user.getId())
-        self.assertEqual(user.getName(), self.AUTHOR.name)
-        self.assertEqual(user.getFirstName(), self.AUTHOR.firstname)
-        views._purge(True)
+        # create
+        name_check = conn.checkGroupName(request.REQUEST.get('name'))
+        form = GroupForm(initial={'experimenters':controller.experimenters}, data=request.POST.copy(), name_check=name_check)
+        if form.is_valid():
+            name = form.cleaned_data['name']
+            description = form.cleaned_data['description']
+            owners = form.cleaned_data['owners']
+            permissions = form.cleaned_data['permissions']
+            readonly = form.cleaned_data['readonly']
+            controller.createGroup(name, owners, permissions, readonly, description)
+        else:
+            errors = form.errors.as_text()
+            raise AttributeError(errors)
+    
+    

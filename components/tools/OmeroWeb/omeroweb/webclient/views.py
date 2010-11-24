@@ -58,7 +58,6 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 from webclient_http import HttpJavascriptRedirect, HttpJavascriptResponse, HttpLoginRedirect
-from webclient.webclient_gateway import OmeroWebGateway
 
 from webclient_utils import _formatReport, _purgeCallback
 from forms import ShareForm, BasketShareForm, ShareCommentForm, \
