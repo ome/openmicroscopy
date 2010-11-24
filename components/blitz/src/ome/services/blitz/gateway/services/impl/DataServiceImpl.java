@@ -177,10 +177,11 @@ public class DataServiceImpl
 			throws ServerError
 	{
 		IContainerPrx iContainerService = gatewayFactory.getIContainer();
-		Map<String, RType> map = new HashMap<String, RType>();
-		return 
-			iContainerService.getImages(convertContainer(nodeType), 
-					nodeIds, new ParametersI(map));
+		ParametersI p = new ParametersI();
+	    long self = gatewayFactory.getAdminService().getEventContext().userId;
+	    p.exp(omero.rtypes.rlong(self));
+		return iContainerService.getImages(convertContainer(nodeType), 
+					nodeIds, p);
 	}
 
 	
