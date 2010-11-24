@@ -6,12 +6,12 @@ import omero
 from django.http import QueryDict
 from django.conf import settings
 
-from webgateway import views
+from webgateway import views as webgateway_views
 from webadmin.forms import LoginForm, GroupForm
                    
 from webadmin.controller.experimenter import BaseExperimenter
 from webadmin.controller.group import BaseGroup
-from webadmin_test_helpers import WebTest, fakeRequest
+from webadmin_test_library import WebTest, fakeRequest
 
 
 class WebAdminTest(WebTest):
@@ -19,12 +19,12 @@ class WebAdminTest(WebTest):
     def test_isServerOn(self):
         from omeroweb.webadmin.views import _isServerOn
         if not _isServerOn('localhost', 4064):
-            raise AttributeError('Server is offline')
+            self.fail('Server is offline')
             
     def test_checkVersion(self):
         from omeroweb.webadmin.views import _checkVersion
         if not _checkVersion('localhost', 4064):
-            raise AttributeError('Client version does not match server')
+            self.fail('Client version does not match server')
     
     def test_loginFromRequest(self):
         params = {
@@ -42,12 +42,13 @@ class WebAdminTest(WebTest):
         request.session['username'] = request.REQUEST.get('username').encode('utf-8').strip()
         request.session['password'] = request.REQUEST.get('password').encode('utf-8').strip()
         request.session['ssl'] = (True, False)[request.REQUEST.get('ssl') is None]
-        
-        from omeroweb.webgateway.views import getBlitzConnection
-        conn = views.getBlitzConnection(request, useragent="TEST.webadmin")
+
+        conn = webgateway_views.getBlitzConnection(request, useragent="TEST.webadmin")
         if conn is None:
-            raise AttributeError('Cannot connect')
-        return conn    
+            self.fail('Cannot connect')
+        webgateway_views._session_logout(request, request.session.get('server'))
+        if conn.isConnected() and conn.keepAlive():
+            self.fail('Cnnection was not closed')
 
     def test_loginFromForm(self):
         params = {
@@ -69,14 +70,16 @@ class WebAdminTest(WebTest):
             request.session['password'] = form.cleaned_data['password'].strip()
             request.session['ssl'] = form.cleaned_data['ssl']
 
-            from omeroweb.webgateway.views import getBlitzConnection
-            conn = views.getBlitzConnection(request, useragent="TEST.webadmin")
+            conn = webgateway_views.getBlitzConnection(request, useragent="TEST.webadmin")
             if conn is None:
-                raise AttributeError('Cannot connect')
-            return conn
+                self.fail('Cannot connect')            
+            webgateway_views._session_logout(request, request.session.get('server'))
+            if conn.isConnected() and conn.keepAlive():
+                self.fail('Cnnection was not closed')
+            
         else:
             errors = form.errors.as_text()
-            raise AttributeError(errors)
+            self.fail(errors)
             
     def test_loginFailure(self):
         params = {
@@ -96,13 +99,14 @@ class WebAdminTest(WebTest):
             request.session['password'] = form.cleaned_data['password'].strip()
             request.session['ssl'] = form.cleaned_data['ssl']
 
-            from omeroweb.webgateway.views import getBlitzConnection
-            conn = views.getBlitzConnection(request, useragent="TEST.webadmin")
+            conn = webgateway_views.getBlitzConnection(request, useragent="TEST.webadmin")
             if conn is not None:
-                raise AttributeError('This user does not exist. Login failure error!')
+                self.fail('This user does not exist. Login failure error!')
+                webgateway_views._session_logout(request, request.session.get('server'))
+
         else:
             errors = form.errors.as_text()
-            raise AttributeError(errors)            
+            self.fail(errors)            
     
     def test_createGroup(self):        
         conn = self.rootconn
@@ -113,14 +117,13 @@ class WebAdminTest(WebTest):
             "description":"test group",
             "owners": ['0'],
             "permissions":'0'
-        }
-        
+        }        
         request = fakeRequest(method="post", params=params)
 
+        #create group
         controller = BaseGroup(conn)
         name_check = conn.checkGroupName(request.REQUEST.get('name'))
 
-        # create
         name_check = conn.checkGroupName(request.REQUEST.get('name'))
         form = GroupForm(initial={'experimenters':controller.experimenters}, data=request.POST.copy(), name_check=name_check)
         if form.is_valid():
@@ -132,6 +135,5 @@ class WebAdminTest(WebTest):
             controller.createGroup(name, owners, permissions, readonly, description)
         else:
             errors = form.errors.as_text()
-            raise AttributeError(errors)
-    
+            self.fail(errors)
     
