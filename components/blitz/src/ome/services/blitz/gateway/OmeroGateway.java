@@ -290,7 +290,7 @@ public class OmeroGateway extends AbstractAmdServant
 	{
 		return dataService.getProjects(ids, withLeaves);
 	}
-
+	
 	/* (non-Javadoc)
 	 * @see omero.api._GatewayOperations#getRenderedImage(long, int, int, Ice.Current)
 	 */

@@ -24,8 +24,6 @@ package ome.services.blitz.gateway.services.impl;
 
 
 //Java imports
-import static omero.rtypes.rbool;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,10 +36,8 @@ import omero.ServerError;
 import omero.api.ContainerClass;
 import omero.api.IContainerPrx;
 import omero.api.IQueryPrx;
-import omero.api.IScriptPrx;
 import omero.api.ITypesPrx;
 import omero.api.IUpdatePrx;
-import omero.grid.JobParams;
 import omero.model.Dataset;
 import omero.model.DatasetImageLink;
 import omero.model.DatasetImageLinkI;
@@ -50,7 +46,6 @@ import omero.model.Image;
 import omero.model.Pixels;
 import omero.model.PixelsType;
 import omero.model.Project;
-import omero.sys.Parameters;
 import omero.sys.ParametersI;
 
 /** 
@@ -69,6 +64,7 @@ import omero.sys.ParametersI;
 public class DataServiceImpl
 	implements DataService
 {
+	
 	GatewayFactory 				gatewayFactory;
 	
 	/**
@@ -140,8 +136,10 @@ public class DataServiceImpl
 	{
 		IContainerPrx iContainerService = gatewayFactory.getIContainer();
 		ParametersI p = new ParametersI();
-		if(getLeaves)
+		if (getLeaves)
 			p.leaves();
+		long self = gatewayFactory.getAdminService().getEventContext().userId;
+		p.exp(omero.rtypes.rlong(self));
 		return ServiceUtilities.collectionCast(Dataset.class, 
 			iContainerService.loadContainerHierarchy(
 				convertContainer(ContainerClass.Dataset), ids, p));
@@ -179,9 +177,10 @@ public class DataServiceImpl
 			throws ServerError
 	{
 		IContainerPrx iContainerService = gatewayFactory.getIContainer();
-		HashMap<String, RType> map = new HashMap<String, RType>();
+		Map<String, RType> map = new HashMap<String, RType>();
 		return 
-			iContainerService.getImages(convertContainer(nodeType), nodeIds, new ParametersI(map));
+			iContainerService.getImages(convertContainer(nodeType), 
+					nodeIds, new ParametersI(map));
 	}
 
 	
@@ -226,8 +225,10 @@ public class DataServiceImpl
 	{
 		IContainerPrx iContainerService = gatewayFactory.getIContainer();
 		ParametersI p = new ParametersI();
-		if(getLeaves)
-			p.leaves();
+		if (getLeaves) p.leaves();
+		else p.noLeaves();
+		long self = gatewayFactory.getAdminService().getEventContext().userId;
+		p.exp(omero.rtypes.rlong(self));
 		return ServiceUtilities.collectionCast(Project.class, 
 			iContainerService.loadContainerHierarchy(
 				convertContainer(ContainerClass.Project), ids, p));

@@ -26,15 +26,12 @@ package ome.services.blitz.gateway.services;
 
 //Java imports
 import java.util.List;
-import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.RType;
 import omero.ServerError;
 import omero.api.ContainerClass;
-import omero.grid.JobParams;
 import omero.model.Dataset;
 import omero.model.IObject;
 import omero.model.Image;
@@ -96,7 +93,7 @@ public interface DataService
 
 	/**
 	 * Get the projects in the users.
-	 * @param ids The ids of the users.
+	 * @param ids The ids of the projects.
 	 * @param getLeaves see above.
 	 * @return see above.
 	 * @throws DSOutOfServiceException
