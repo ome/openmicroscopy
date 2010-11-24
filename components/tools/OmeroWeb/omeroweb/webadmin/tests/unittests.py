@@ -112,22 +112,6 @@ class WebAdminTest(WebTest):
     def test_createGroups(self):        
         conn = self.rootconn
         uuid = conn._sessionUuid
-            
-        def _createGroup(request):
-            #create group
-            controller = BaseGroup(conn)
-            name_check = conn.checkGroupName(request.REQUEST.get('name'))
-            form = GroupForm(initial={'experimenters':controller.experimenters}, data=request.POST.copy(), name_check=name_check)
-            if form.is_valid():
-                name = form.cleaned_data['name']
-                description = form.cleaned_data['description']
-                owners = form.cleaned_data['owners']
-                permissions = form.cleaned_data['permissions']
-                readonly = form.cleaned_data['readonly']
-                return controller.createGroup(name, owners, permissions, readonly, description)
-            else:
-                errors = form.errors.as_text()
-                self.fail(errors)
         
         #private group
         params = {
@@ -137,7 +121,7 @@ class WebAdminTest(WebTest):
             "permissions":0
         }
         request = fakeRequest(method="post", params=params)
-        gid = _createGroup(request)
+        gid = _createGroup(request, conn)
            
         #check if group created
         controller = BaseGroup(conn, gid)
@@ -156,7 +140,7 @@ class WebAdminTest(WebTest):
             "readonly":True
         }
         request = fakeRequest(method="post", params=params)
-        gid = _createGroup(request)
+        gid = _createGroup(request, conn)
               
         #check if group created
         controller = BaseGroup(conn, gid)
@@ -171,63 +155,15 @@ class WebAdminTest(WebTest):
         conn = self.rootconn
         uuid = conn._sessionUuid
         
+        #private group
         params = {
             "name":"webadmin_test_group_private %s" % uuid,
             "description":"test group",
-            "owners": ['0'],
-            "permissions":'0'
-        }        
+            "owners": [0L],
+            "permissions":0
+        }
         request = fakeRequest(method="post", params=params)
-
-        #create group
-        controller = BaseGroup(conn)
-        name_check = conn.checkGroupName(request.REQUEST.get('name'))
-        form = GroupForm(initial={'experimenters':controller.experimenters}, data=request.POST.copy(), name_check=name_check)
-        if form.is_valid():
-            name = form.cleaned_data['name']
-            description = form.cleaned_data['description']
-            owners = form.cleaned_data['owners']
-            permissions = form.cleaned_data['permissions']
-            readonly = form.cleaned_data['readonly']
-            gid = controller.createGroup(name, owners, permissions, readonly, description)
-        else:
-            errors = form.errors.as_text()
-            self.fail(errors)
-        
-        def _createExperimenter(request):
-            #create group
-            controller = BaseExperimenter(conn)
-            name_check = conn.checkOmeName(request.REQUEST.get('omename'))
-            email_check = conn.checkEmail(request.REQUEST.get('email'))
-
-            initial={'with_password':True}
-
-            exclude = list()            
-            if len(request.REQUEST.getlist('other_groups')) > 0:
-                others = controller.getSelectedGroups(request.REQUEST.getlist('other_groups'))   
-                initial['others'] = others
-                initial['default'] = [(g.id, g.name) for g in others]
-                exclude.extend([g.id for g in others])
-
-            available = controller.otherGroupsInitialList(exclude)
-            initial['available'] = available
-            form = ExperimenterForm(initial=initial, data=request.REQUEST.copy(), name_check=name_check, email_check=email_check)
-            if form.is_valid():
-                omename = form.cleaned_data['omename']
-                firstName = form.cleaned_data['first_name']
-                middleName = form.cleaned_data['middle_name']
-                lastName = form.cleaned_data['last_name']
-                email = form.cleaned_data['email']
-                institution = form.cleaned_data['institution']
-                admin = webadmin_views.toBoolean(form.cleaned_data['administrator'])
-                active = webadmin_views.toBoolean(form.cleaned_data['active'])
-                defaultGroup = form.cleaned_data['default_group']
-                otherGroups = form.cleaned_data['other_groups']
-                password = form.cleaned_data['password']
-                return controller.createExperimenter(omename, firstName, lastName, email, admin, active, defaultGroup, otherGroups, password, middleName, institution)
-            else:
-                errors = form.errors.as_text()
-                self.fail(errors)
+        gid = _createGroup(request, conn)
         
         params = {
             "omename":"webadmin_test_user %s" % uuid,
@@ -240,11 +176,10 @@ class WebAdminTest(WebTest):
             "default_group":gid,
             "other_groups":[gid],
             "password":"ome",
-            "confirmation":"ome"
- 
+            "confirmation":"ome" 
         }
         request = fakeRequest(method="post", params=params)
-        eid = _createExperimenter(request)
+        eid = _createExperimenter(request, conn)
         
         #check if experimenter created
         controller = BaseExperimenter(conn, eid)
@@ -271,11 +206,10 @@ class WebAdminTest(WebTest):
             "default_group":gid,
             "other_groups":[0,gid],
             "password":"ome",
-            "confirmation":"ome"
- 
+            "confirmation":"ome" 
         }
         request = fakeRequest(method="post", params=params)
-        eid = _createExperimenter(request)
+        eid = _createExperimenter(request, conn)
         
         #check if experimenter created
         controller = BaseExperimenter(conn, eid)
@@ -300,11 +234,10 @@ class WebAdminTest(WebTest):
             "default_group":gid,
             "other_groups":[gid],
             "password":"ome",
-            "confirmation":"ome"
- 
+            "confirmation":"ome" 
         }
         request = fakeRequest(method="post", params=params)
-        eid = _createExperimenter(request)
+        eid = _createExperimenter(request, conn)
         
         #check if experimenter created
         controller = BaseExperimenter(conn, eid)
@@ -320,3 +253,56 @@ class WebAdminTest(WebTest):
         self.assertEquals(sorted(params['other_groups']), sorted(controller.otherGroups))
         
         
+####################################
+# helpers
+    
+def _createGroup(request, conn):
+    #create group
+    controller = BaseGroup(conn)
+    name_check = conn.checkGroupName(request.REQUEST.get('name'))
+    form = GroupForm(initial={'experimenters':controller.experimenters}, data=request.POST.copy(), name_check=name_check)
+    if form.is_valid():
+        name = form.cleaned_data['name']
+        description = form.cleaned_data['description']
+        owners = form.cleaned_data['owners']
+        permissions = form.cleaned_data['permissions']
+        readonly = form.cleaned_data['readonly']
+        return controller.createGroup(name, owners, permissions, readonly, description)
+    else:
+        errors = form.errors.as_text()
+        self.fail(errors)
+
+def _createExperimenter(request, conn):
+    #create experimenter
+    controller = BaseExperimenter(conn)
+    name_check = conn.checkOmeName(request.REQUEST.get('omename'))
+    email_check = conn.checkEmail(request.REQUEST.get('email'))
+
+    initial={'with_password':True}
+
+    exclude = list()            
+    if len(request.REQUEST.getlist('other_groups')) > 0:
+        others = controller.getSelectedGroups(request.REQUEST.getlist('other_groups'))   
+        initial['others'] = others
+        initial['default'] = [(g.id, g.name) for g in others]
+        exclude.extend([g.id for g in others])
+
+    available = controller.otherGroupsInitialList(exclude)
+    initial['available'] = available
+    form = ExperimenterForm(initial=initial, data=request.REQUEST.copy(), name_check=name_check, email_check=email_check)
+    if form.is_valid():
+        omename = form.cleaned_data['omename']
+        firstName = form.cleaned_data['first_name']
+        middleName = form.cleaned_data['middle_name']
+        lastName = form.cleaned_data['last_name']
+        email = form.cleaned_data['email']
+        institution = form.cleaned_data['institution']
+        admin = webadmin_views.toBoolean(form.cleaned_data['administrator'])
+        active = webadmin_views.toBoolean(form.cleaned_data['active'])
+        defaultGroup = form.cleaned_data['default_group']
+        otherGroups = form.cleaned_data['other_groups']
+        password = form.cleaned_data['password']
+        return controller.createExperimenter(omename, firstName, lastName, email, admin, active, defaultGroup, otherGroups, password, middleName, institution)
+    else:
+        errors = form.errors.as_text()
+        self.fail(errors)

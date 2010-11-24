@@ -10,6 +10,7 @@ from django.conf import settings
 from webgateway import views
 from request_factory import RequestFactory
 
+
 def fakeRequest (method, path="/", params={}, **kwargs):
     def bogus_request(self, **request):
         """
