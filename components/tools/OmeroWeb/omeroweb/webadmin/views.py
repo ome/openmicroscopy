@@ -77,7 +77,23 @@ connectors = {}
 logger.info("INIT '%s'" % os.getpid())
 
 ################################################################################
+def toBoolean(val):
+    """ 
+    Get the boolean value of the provided input.
 
+        If the value is a boolean return the value.
+        Otherwise check to see if the value is in 
+        ["false", "f", "no", "n", "none", "0", "[]", "{}", "" ]
+        and returns True if value is not in the list
+    """
+
+    if val is True or val is False:
+        return val
+
+    falseItems = ["false", "f", "no", "n", "none", "0", "[]", "{}", "" ]
+
+    return not str( val ).strip().lower() in falseItems
+    
 def getGuestConnection(host, port):
     conn = None
     guest = "guest"
@@ -450,8 +466,8 @@ def manage_experimenter(request, action, eid=None, **kwargs):
                 lastName = form.cleaned_data['last_name']
                 email = form.cleaned_data['email']
                 institution = form.cleaned_data['institution']
-                admin = form.cleaned_data['administrator']
-                active = form.cleaned_data['active']
+                admin = toBoolean(form.cleaned_data['administrator'])
+                active = toBoolean(form.cleaned_data['active'])
                 defaultGroup = form.cleaned_data['default_group']
                 otherGroups = form.cleaned_data['other_groups']
                 password = form.cleaned_data['password']
@@ -505,8 +521,8 @@ def manage_experimenter(request, action, eid=None, **kwargs):
                 lastName = form.cleaned_data['last_name']
                 email = form.cleaned_data['email']
                 institution = form.cleaned_data['institution']
-                admin = form.cleaned_data['administrator']
-                active = form.cleaned_data['active']
+                admin = toBoolean(form.cleaned_data['administrator'])
+                active = toBoolean(form.cleaned_data['active'])
                 defaultGroup = form.cleaned_data['default_group']
                 otherGroups = form.cleaned_data['other_groups']
                 controller.updateExperimenter(omename, firstName, lastName, email, admin, active, defaultGroup, otherGroups, middleName, institution)
@@ -631,7 +647,7 @@ def manage_group(request, action, gid=None, **kwargs):
                 description = form.cleaned_data['description']
                 owners = form.cleaned_data['owners']
                 permissions = form.cleaned_data['permissions']
-                readonly = form.cleaned_data['readonly']
+                readonly = toBoolean(form.cleaned_data['readonly'])
                 controller.createGroup(name, owners, permissions, readonly, description)
                 return HttpResponseRedirect(reverse("wagroups"))
             context = {'info':info, 'eventContext':eventContext, 'form':form}
@@ -653,7 +669,7 @@ def manage_group(request, action, gid=None, **kwargs):
                 description = form.cleaned_data['description']
                 owners = form.cleaned_data['owners']
                 permissions = form.cleaned_data['permissions']
-                readonly = form.cleaned_data['readonly']
+                readonly = toBoolean(form.cleaned_data['readonly'])
                 controller.updateGroup(name, owners, permissions, readonly, description)
                 return HttpResponseRedirect(reverse("wagroups"))
             context = {'info':info, 'eventContext':eventContext, 'form':form, 'gid': gid}
@@ -707,7 +723,7 @@ def manage_group_owner(request, action, gid, **kwargs):
             form = GroupOwnerForm(data=request.POST.copy())
             if form.is_valid():
                 permissions = form.cleaned_data['permissions']
-                readonly = form.cleaned_data['readonly']
+                readonly = toBoolean(form.cleaned_data['readonly'])
                 controller.updatePermissions(permissions, readonly)
                 return HttpResponseRedirect(reverse("wamyaccount"))
             context = {'info':info, 'eventContext':eventContext, 'form':form, 'gid': gid}

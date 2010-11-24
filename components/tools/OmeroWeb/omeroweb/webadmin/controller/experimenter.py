@@ -193,7 +193,7 @@ class BaseExperimenter(BaseController):
                     pass
                 elif long(og) == g.id:
                     listOfGroups.add(g._obj)
-        self.conn.createExperimenter(new_exp, defaultGroup, list(listOfGroups), password)
+        return self.conn.createExperimenter(new_exp, defaultGroup, list(listOfGroups), password)
     
     def updateExperimenter(self, omeName, firstName, lastName, email, admin, active, dGroup, otherGroups, middleName=None, institution=None):
         up_exp = self.experimenter._obj

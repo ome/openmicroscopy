@@ -52,10 +52,9 @@ class OmeNameField(forms.CharField):
 # Group queryset iterator for group form
 
 class ServerQuerySetIterator(object):
-    def __init__(self, queryset, empty_label, cache_choices):
+    def __init__(self, queryset, empty_label):
         self.queryset = queryset
         self.empty_label = empty_label
-        self.cache_choices = cache_choices
 
     def __iter__(self):
         if self.empty_label is not None:
@@ -65,10 +64,7 @@ class ServerQuerySetIterator(object):
                 name = "%s:%s" % (obj.host,obj.port)
             else:
                 name = "%s:%s" % (obj.server,obj.port)
-            yield (obj.id, smart_unicode(name))
-        # Clear the QuerySet cache if required.
-        #if not self.cache_choices:
-            #self.queryset._result_cache = None
+            yield (smart_unicode(obj.id), smart_unicode(name))
 
 class ServerModelChoiceField(ModelChoiceField):
 
@@ -83,8 +79,7 @@ class ServerModelChoiceField(ModelChoiceField):
         # *each* time _get_choices() is called (and, thus, each time
         # self.choices is accessed) so that we can ensure the QuerySet has not
         # been consumed.
-        return ServerQuerySetIterator(self.queryset, self.empty_label,
-                                self.cache_choices)
+        return ServerQuerySetIterator(self.queryset, self.empty_label)
 
     def _set_choices(self, value):
         # This method is copied from ChoiceField._set_choices(). It's necessary
@@ -108,22 +103,18 @@ class ServerModelChoiceField(ModelChoiceField):
            
 # Group queryset iterator for group form
 class GroupQuerySetIterator(object):
-    def __init__(self, queryset, empty_label, cache_choices):
+    def __init__(self, queryset, empty_label):
         self.queryset = queryset
         self.empty_label = empty_label
-        self.cache_choices = cache_choices
 
     def __iter__(self):
         if self.empty_label is not None:
             yield (u"", self.empty_label)
         for obj in self.queryset:
             if hasattr(obj.id, 'val'):
-                yield (obj.id.val, smart_unicode(obj.name.val))
+                yield (smart_unicode(obj.id.val), smart_unicode(obj.name.val))
             else:
-                yield (obj.id, smart_unicode(obj.name))
-        # Clear the QuerySet cache if required.
-        #if not self.cache_choices:
-            #self.queryset._result_cache = None
+                yield (smart_unicode(obj.id), smart_unicode(obj.name))
 
 class GroupModelChoiceField(ModelChoiceField):
 
@@ -138,8 +129,7 @@ class GroupModelChoiceField(ModelChoiceField):
         # *each* time _get_choices() is called (and, thus, each time
         # self.choices is accessed) so that we can ensure the QuerySet has not
         # been consumed.
-        return GroupQuerySetIterator(self.queryset, self.empty_label,
-                                self.cache_choices)
+        return GroupQuerySetIterator(self.queryset, self.empty_label)
 
     def _set_choices(self, value):
         # This method is copied from ChoiceField._set_choices(). It's necessary
@@ -211,10 +201,9 @@ class GroupModelMultipleChoiceField(GroupModelChoiceField):
 
 # Experimenter queryset iterator for experimenter form
 class ExperimenterQuerySetIterator(object):
-    def __init__(self, queryset, empty_label, cache_choices):
+    def __init__(self, queryset, empty_label):
         self.queryset = queryset
         self.empty_label = empty_label
-        self.cache_choices = cache_choices
 
     def __iter__(self):
         if self.empty_label is not None:
@@ -257,10 +246,7 @@ class ExperimenterQuerySetIterator(object):
             else:
                 oid = obj.id
 
-            yield (oid, smart_unicode(name))
-        # Clear the QuerySet cache if required.
-        #if not self.cache_choices:
-            #self.queryset._result_cache = None
+            yield (smart_unicode(oid), smart_unicode(name))
 
 class ExperimenterModelChoiceField(ModelChoiceField):
     
@@ -275,8 +261,7 @@ class ExperimenterModelChoiceField(ModelChoiceField):
         # *each* time _get_choices() is called (and, thus, each time
         # self.choices is accessed) so that we can ensure the QuerySet has not
         # been consumed.
-        return ExperimenterQuerySetIterator(self.queryset, self.empty_label,
-                                self.cache_choices)
+        return ExperimenterQuerySetIterator(self.queryset, self.empty_label)
 
     def _set_choices(self, value):
         # This method is copied from ChoiceField._set_choices(). It's necessary

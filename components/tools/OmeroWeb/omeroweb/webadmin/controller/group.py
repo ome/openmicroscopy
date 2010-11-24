@@ -127,7 +127,7 @@ class BaseGroup(BaseController):
                 if long(o) == e.id:
                     listOfOwners.add(e._obj)
         
-        self.conn.createGroup(new_gr, list(listOfOwners))
+        return self.conn.createGroup(new_gr, list(listOfOwners))
     
     def updateGroup(self, name, owners, perm, r=None, description=None):
         up_gr = self.group._obj
