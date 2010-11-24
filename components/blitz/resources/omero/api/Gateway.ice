@@ -54,7 +54,8 @@ module omero {
             /**
              * Get the projects, and datasets in the OMERO.Blitz server in the user
              * account.
-             * @param ids user ids to get the projects from, if null will retrieve all
+             *
+             * @param ids The ids of the projects from, if null will retrieve all
              * projects from the users account.
              * @param withLeaves get the projects, images and pixels too.
              * @return see above.
@@ -65,6 +66,7 @@ module omero {
 
             /**
              * Get the datasets in the OMERO.Blitz server with the given ids.
+             *
              * @param ids of the datasets to retrieve, if null get all users datasets.
              * @param withLeaves get the images and pixels too.
              * @return see above.
@@ -72,7 +74,6 @@ module omero {
              **/
             idempotent DatasetList getDatasets(LongList ids, bool withLeaves)
                 throws omero::ServerError;
-
 
             /**
              * Get the dataset in the OMERO.Blitz server with the given id.
