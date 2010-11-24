@@ -140,8 +140,10 @@ public class DataServiceImpl
 	{
 		IContainerPrx iContainerService = gatewayFactory.getIContainer();
 		ParametersI p = new ParametersI();
-		if(getLeaves)
-			p.leaves();
+	    if (getLeaves) p.leaves();
+	    else p.noLeaves();
+	    long self = gatewayFactory.getAdminService().getEventContext().userId;
+	    p.exp(omero.rtypes.rlong(self));
 		return ServiceUtilities.collectionCast(Dataset.class, 
 			iContainerService.loadContainerHierarchy(
 				convertContainer(ContainerClass.Dataset), ids, p));
@@ -179,9 +181,11 @@ public class DataServiceImpl
 			throws ServerError
 	{
 		IContainerPrx iContainerService = gatewayFactory.getIContainer();
-		HashMap<String, RType> map = new HashMap<String, RType>();
+		ParametersI p = new ParametersI();
+	    long self = gatewayFactory.getAdminService().getEventContext().userId;
+	    p.exp(omero.rtypes.rlong(self));
 		return 
-			iContainerService.getImages(convertContainer(nodeType), nodeIds, new ParametersI(map));
+			iContainerService.getImages(convertContainer(nodeType), nodeIds, p);
 	}
 
 	
@@ -226,8 +230,10 @@ public class DataServiceImpl
 	{
 		IContainerPrx iContainerService = gatewayFactory.getIContainer();
 		ParametersI p = new ParametersI();
-		if(getLeaves)
-			p.leaves();
+	    if (getLeaves) p.leaves();
+	    else p.noLeaves();
+	    long self = gatewayFactory.getAdminService().getEventContext().userId;
+	    p.exp(omero.rtypes.rlong(self));
 		return ServiceUtilities.collectionCast(Project.class, 
 			iContainerService.loadContainerHierarchy(
 				convertContainer(ContainerClass.Project), ids, p));

@@ -35,6 +35,7 @@ import ome.services.blitz.gateway.services.impl.RawPixelsStoreServiceImpl;
 import ome.services.blitz.gateway.services.impl.RenderingServiceImpl;
 import ome.services.blitz.gateway.services.impl.ThumbnailServiceImpl;
 import omero.ServerError;
+import omero.api.IAdminPrx;
 import omero.api.IPixelsPrx;
 import omero.api.IContainerPrx;
 import omero.api.IProjectionPrx;
@@ -72,8 +73,11 @@ public class GatewayFactory
 	private IQueryPrx 					iQuery;
 
 	/** The iPojo Service. */ 
-	private IContainerPrx 					iContainer;
-
+	private IContainerPrx 				iContainer;
+	
+	/** The iQuery Service. */ 
+	private IAdminPrx 					iAdmin;
+		
 	/** The IScript Service. */ 
 	private IScriptPrx 					iScript;
 
@@ -143,6 +147,7 @@ public class GatewayFactory
 	 */
 	private void createServices() throws ServerError
 	{
+	    iAdmin = serviceFactory.getAdminService();
 		iQuery = serviceFactory.getQueryService();
 		iPixels = serviceFactory.getPixelsService();
 		iUpdate = serviceFactory.getUpdateService();
@@ -170,6 +175,15 @@ public class GatewayFactory
 	public DataService getDataService()
 	{
 		return dataService;
+	}
+	
+	/**
+	 * Return the admin service.
+	 * @return see above.
+	 */
+	public IAdminPrx getAdminService()
+	{
+		return iAdmin;
 	}
 	
 	/**
