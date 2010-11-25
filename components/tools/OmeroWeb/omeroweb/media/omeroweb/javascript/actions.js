@@ -189,7 +189,6 @@ function deleteItems (productArray, parent) {
         url: "/webclient/action/deletemany/", //this.href,
         data: productListQuery,
         contentType:'html',
-        async:true,
         success: function(responce){
             if(responce.match(/(Error: ([A-z]+))/gi)) {
                 alert(responce)
@@ -260,7 +259,6 @@ function deleteItem(productType, productId) {
                 url: "/webclient/action/delete/"+productType+"/"+productId+"/", //this.href,
                 data: productListQuery,
                 contentType:'html',
-                async:true,
                 success: function(responce){
                     if(responce.match(/(Error: ([A-z]+))/gi)) {
                         alert(responce)
