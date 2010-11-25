@@ -62,6 +62,8 @@ public class ModelObjectHandlerFactory
                 new OTFHandler(enumProvider));
         handlers.put(MicroscopeHandler.HANDLER_FOR, 
                 new MicroscopeHandler(enumProvider));
+        handlers.put(ExperimentHandler.HANDLER_FOR, 
+                new ExperimentHandler(enumProvider));
     }
     
     /** Our fall through no-op enumeration handler. */
