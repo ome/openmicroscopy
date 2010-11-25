@@ -35,25 +35,7 @@ class BaseDriveSpace(BaseController):
     def __init__(self, conn):
         BaseController.__init__(self, conn)
         self.freeSpace = self.conn.getFreeSpace()
-        self.usedSpace = self.conn.getUsedSpace()
         self.experimenters = list(self.conn.lookupExperimenters())
-    
-    
-    def pieChartData(self):
-        tt = {"free space":self.freeSpace}
-        used = 0
-        i=0
-        for k,v in self.usage.iteritems():
-            if i < 10:
-                for exp in self.experimenters:
-                    if long(exp.id) == k:
-                        tt[str(exp.omeName)] = v
-                        break
-            else:
-                used += v
-            i+=1
-        tt["others"] = used
-        self.usage = sorted(tt.iteritems(), key=lambda (k,v):(v,k), reverse=True)
 
 def _bytes_per_pixel(pixel_type):
     if pixel_type == "int8" or pixel_type == "uint8":
@@ -76,11 +58,11 @@ def _usage_map_helper(pixels_list,exps):
         p_size = p.sizeX.val * p.sizeY.val * p.sizeZ.val * p.sizeC.val * p.sizeT.val
         p_size = p_size*_bytes_per_pixel(p.pixelsType.value.val)
         if tt.has_key(oid):
-            tt[oid]['size']+=p_size
+            tt[oid]['data']+=p_size
         else:
             tt[oid] = dict()
-            tt[oid]['user']=exps[oid]
-            tt[oid]['size']=p_size
+            tt[oid]['label']=exps[oid]
+            tt[oid]['data']=p_size
         
     return tt #sorted(tt.iteritems(), key=lambda (k,v):(v,k), reverse=True)
 

@@ -54,6 +54,8 @@ from django.views.defaults import page_not_found, server_error
 from django.views import debug
 from django.core.cache import cache
 
+from webclient.webclient_gateway import OmeroWebGateway
+
 from forms import LoginForm, ForgottonPasswordForm, ExperimenterForm, \
                    GroupForm, GroupOwnerForm, MyAccountForm, \
                    ChangeMyPassword, ChangeUserPassword, \
@@ -952,54 +954,3 @@ def load_drivespace(request, **kwargs):
     offset = request.REQUEST.get('offset', 0)
     rv = usersData(conn, offset)
     return HttpResponse(simplejson.dumps(rv),mimetype='application/json')
-
-
-@isUserConnected
-def piechart(request, **kwargs):
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-    
-    from cStringIO import StringIO
-    
-    try:
-        from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-        import numpy as np
-        import matplotlib.pyplot as plt
-        from pylab import axes 
-    except Exception, x:
-        logger.error(traceback.format_exc())
-        rv = "Error: %s" % x
-        return HttpResponse(rv)
-    
-    controller = BaseDriveSpace(conn)
-    controller.pieChartData() 
-    
-    keys, values = list(), list()
-    for item in controller.usage:
-        keys.append(str(item[0]))
-        values.append(long(item[1]))
-    
-    explode = list()
-    explode.append(0.1)
-    for e in range(0, len(keys)):
-        explode.append(0)
-    explode.remove(0)
-    
-    # make a square figure and axes
-    fig = plt.figure()
-    ax = axes([0.1, 0.1, 0.8, 0.8])
-
-    labels = labels=tuple(keys)
-    explode = tuple(explode)
-
-    plt.pie(values, labels=labels, explode=explode, autopct='%1.1f%%', shadow=False)
-    plt.title(_("Repository information status"))
-    plt.grid(True)
-    canvas = FigureCanvas(fig)
-    imdata = StringIO()
-    canvas.print_figure(imdata)
-    return HttpResponse(imdata.getvalue(), mimetype='image/png')
-

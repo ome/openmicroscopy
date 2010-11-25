@@ -49,8 +49,7 @@ urlpatterns = patterns('',
     url( r'^myaccount/(?:(?P<action>[a-z]+)/)?$', views.my_account, name="wamyaccount" ),
     url( r'^drivespace/$', views.drivespace, name="wadrivespace"),
     url( r'^load_drivespace/$', views.load_drivespace, name="waloaddrivespace"),
-    
-    url( r'^piechart/$', views.piechart, name="wapiechart"),
+
     url( r'^myphoto/$', views.myphoto, name="wamyphoto"),
 
 )
