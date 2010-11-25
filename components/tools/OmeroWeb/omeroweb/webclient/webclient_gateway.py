@@ -1183,7 +1183,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
 
     def createExperimenter(self, experimenter, defaultGroup, otherGroups, password):
         admin_serv = self.getAdminService()
-        admin_serv.createExperimenterWithPassword(experimenter, rstring(str(password)), defaultGroup, otherGroups)
+        return admin_serv.createExperimenterWithPassword(experimenter, rstring(str(password)), defaultGroup, otherGroups)
     
     def updateExperimenter(self, experimenter, defaultGroup, addGroups, rmGroups):
         admin_serv = self.getAdminService()
@@ -1210,6 +1210,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         gr_id = admin_serv.createGroup(group)
         new_gr = admin_serv.getGroup(gr_id)
         admin_serv.addGroupOwners(new_gr, group_owners)
+        return gr_id
     
     def updateGroup(self, group, add_exps, rm_exps, perm=None):
         admin_serv = self.getAdminService()

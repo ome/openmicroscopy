@@ -5,40 +5,136 @@
 
 {% block title %}{% trans "Drive space" %}{% endblock %}
 
+{% block css %}
+    <link rel="stylesheet" href="{% url webstatic "css/table.css" %}" type="text/css" media="screen"/>
+{% endblock %}
+
 {% block jscript %}
+    <!--[if IE]><script language="javascript" type="text/javascript" src="excanvas.js"></script><![endif]-->
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.flot.pie.js" %}"></script>
+    
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.tablesorter.js" %}"></script>
     <script type="text/javascript">
-        $(function () {
-            var img = new Image();
-            $(img).load(function () {
-                //$(this).css('display', 'none'); // .hide() doesn't work in Safari when the element isn't on the DOM already
-                $(this).hide();
-                $('#piechart').removeClass('loading').append(this);
-                $(this).fadeIn();
-            }).error(function () {
-                // notify the user that the image could not be loaded
-                $('#piechart').removeClass('loading')
-                $('#piechart').html('<p class="error">Piechart could not be displayed. Please check log file to solve the problem.</p>').show();
-                }).attr('src', '{% url wapiechart %}');
-            });
+        $(document).ready(function() {
+            var usage = true;
+            var offsetQuery = '';
+            var piechart_data = {};
+            while (usage){ 
+                $.ajax({  
+                    type: "GET",  
+                    url: "{% url waloaddrivespace %}",  
+                    contentType: "application/json; charset=utf-8",  
+                    data: offsetQuery,
+    				dataType: "json",
+    				timeout: 10000, 
+    				async: false,
+                    success: function(data){  
+                        if (!data.loading) {
+                            usage = false;
+                            $("#usage").remove();
+                            $("#placeholder").css('width',600).css('height',300);
+                        }
+                        
+                        offsetQuery = "offset="+(data.offset);
+                        
+                        var l = $('table#drivespaceTable');
+                        jQuery.each(data.usage, function(i, val) {
+                    	
+                            if($('tr#'+i).length == 0) {
+                                l.append('<tr id="'+i+'"><td>' + val.label + '(id:'+i+')</td><td id="usage">' + val.data + '</td></tr>');
+                                piechart_data[val.label] = val.data;
+                            } else {
+                                piechart_data[val.label] += val.data;
+                                var v = $('tr#'+i).find('td#usage');
+                                v.text(piechart_data[val.label]);
+                            }
+                        });
+                        
+                        $("#status").html('loading...');
+                        $("#progress").show();
+                        
+                    },  
+                    error: function(xhr, msg){
+                        alert("{% trans 'Could not load tag component. Please contact Administrator.' %}");
+                        usage = false;
+                    }
+                });
+            };
+            
+            $("#status").html('');
+            $("#progress").hide();
+            
+            $("#drivespaceTable").tablesorter( {sortList: [[1,1]]} ); 
+            
+            // do piechart
+            function sortByValue(keyArray, valueMap) {
+                return keyArray.sort(function(a,b){return valueMap[b]-valueMap[a];});
+            }
+            
+            var keyArray = [];
+            var i=0;
+            for (var l in piechart_data) { 
+                keyArray[i]=l;
+                i++;
+            }
+            
+            keyArray = sortByValue(keyArray, piechart_data);
+            var chart_data = [];
+            for(i=0; i<keyArray.length; i++) {
+                var key = keyArray[i];
+                if(i>10){
+                    var d = chart_data[10].data;
+                    chart_data[10] = {label:'Others', data:d+piechart_data[key]};
+                } else {
+                    chart_data[i]={label:key, data:piechart_data[key]};
+                }
+            }
+            
+            chart_data[11]={label:'Free space', data:{{ driveSpace.free}}}
+            
+            $.plot($("#placeholder"), chart_data, 
+        	{
+        		pie: { 
+        			show: true, 
+        			pieStrokeLineWidth: 0, 
+        			pieStrokeColor: '#FFF', 
+        			//pieChartRadius: 100, 			// by default it calculated by 
+        			//centerOffsetTop:30,
+        			//centerOffsetLeft:30, 			// if 'auto' and legend position is "nw" then centerOffsetLeft is equal a width of legend.
+        			showLabel: true,				//use ".pieLabel div" to format looks of labels
+        			labelOffsetFactor: 6/6, 		// part of radius (default 5/6)
+        			//labelOffset: 0        		// offset in pixels if > 0 then labelOffsetFactor is ignored
+        			labelBackgroundOpacity: 0.55, 	// default is 0.85
+        			labelFormatter: function(serie){// default formatter is "serie.label"
+        				//return serie.label;
+        				//return serie.data;
+        				return Math.round(serie.percent)+'%';
+        			}
+        		},
+        		legend: {
+        			show: true, 
+        			position: "ne", 
+        			backgroundOpacity: 0
+        		}
+        	})
+        });
+        
+        
     </script>
 {% endblock %}
 
 {% block content %}
 <h2>{% trans "Drive space" %}</h2>
 
-<p>{% trans "Pie-chart shows usage of main hard drive." %}</p>
-<br/>
+<div id="placeholder"><div id="usage"><img src="{% url webstatic "images/spinner.gif" %}" id="progress" style="display: none; float:left"/><div id="status"></div></div></div>
 
-<div id="piechart" class="loading"></div>
-
-<br/>
 <p>{% trans "Free space" %}: {{ driveSpace.free|filesizeformat }}</p>
-<p>{% trans "Used space" %}: {{ driveSpace.used|filesizeformat }}</p>
 
-<p>{% trans "Experimenter list" %}:</p>
-<ol>
-{% for item in usage %}
-    <li>{{ item.0 }} - {{ item.1|filesizeformat }}</li>
-{% endfor %}
-</ul>
+<div class="myform">{% trans "Drive space usage" %}:</div>
+
+<table id="drivespaceTable" class="tablesorter">
+    <thead>
+        <tr><th>User</th><th>Usage [Bytes]</th></tr>
+    </thead>
+</table>
 {% endblock %}

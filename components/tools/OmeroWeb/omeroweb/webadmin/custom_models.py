@@ -32,7 +32,13 @@ class Server(object):
         self.server = None
         if server is not None and server != '':
             self.server = server
-        
+
+    def __repr__(self):
+        """
+        Json for printin settings.py: [["localhost", 4064, "omero"]]'
+        """
+        return """["%s", %s, "%s"]""" % (self.host, self.port, self.server)
+
     def __str__(self):
         if hasattr(self, '__unicode__'):
             return force_unicode(self).encode('utf-8')
@@ -65,3 +71,5 @@ class ServerObjects(object):
     def all(self):
         return self.blitz_list
 
+    def __repr__(self):
+        return repr(self.blitz_list)

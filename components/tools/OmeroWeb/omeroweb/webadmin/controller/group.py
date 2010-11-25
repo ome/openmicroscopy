@@ -127,7 +127,7 @@ class BaseGroup(BaseController):
                 if long(o) == e.id:
                     listOfOwners.add(e._obj)
         
-        self.conn.createGroup(new_gr, list(listOfOwners))
+        return self.conn.createGroup(new_gr, list(listOfOwners))
     
     def updateGroup(self, name, owners, perm, r=None, description=None):
         up_gr = self.group._obj
@@ -135,7 +135,7 @@ class BaseGroup(BaseController):
         up_gr.description = (description!="" and description is not None) and rstring(str(description)) or None
         permissions = None
         perm = int(perm)
-        if self.getActualPermissions() != perm or self.isReadOnly()==r:
+        if self.getActualPermissions() != perm or self.isReadOnly()!=r:
             permissions = self.setActualPermissions(perm, r)
         # old list of groups
         old_owners = list()
@@ -176,7 +176,7 @@ class BaseGroup(BaseController):
     def updatePermissions(self, perm, r=None):
         permissions = None
         perm = int(perm)
-        if self.getActualPermissions() != perm or self.isReadOnly()==r:
+        if self.getActualPermissions() != perm or self.isReadOnly()!=r:
             permissions = self.setActualPermissions(perm, r)
             self.conn.updatePermissions(self.group._obj, permissions)
     
@@ -204,18 +204,12 @@ class BaseGroup(BaseController):
         else:
             p = self.group.details.getPermissions()
         
-        flag = True
-        if p.isUserRead() and p.isUserWrite():
-            flag = False
-        elif p.isUserRead() and not p.isUserWrite():
+        flag = False
+        if p.isUserRead() and not p.isUserWrite():
             flag = True
-        if p.isGroupRead() and p.isGroupWrite():
-            flag = False
-        elif p.isGroupRead() and not p.isGroupWrite():
+        if p.isGroupRead() and not p.isGroupWrite():
             flag = True
-        if p.isWorldRead() and p.isWorldWrite():
-            flag = False
-        elif p.isWorldRead() and not p.isWorldWrite():
+        if p.isWorldRead() and not p.isWorldWrite():
             flag = True
         return flag
         
@@ -235,7 +229,7 @@ class BaseGroup(BaseController):
             permissions.setUserRead(True)
             permissions.setUserWrite(True)
             permissions.setGroupRead(True)
-            permissions.setGroupWrite(r)
+            permissions.setGroupWrite(not r)
             permissions.setWorldRead(False)
             permissions.setWorldWrite(False)
         elif p == 2:
@@ -243,7 +237,7 @@ class BaseGroup(BaseController):
             permissions.setUserRead(True)
             permissions.setUserWrite(True)
             permissions.setGroupRead(True)
-            permissions.setGroupWrite(r)
+            permissions.setGroupWrite(not r)
             permissions.setWorldRead(True)
-            permissions.setWorldWrite(r)
+            permissions.setWorldWrite(not r)
         return permissions

@@ -10,7 +10,6 @@
 from exceptions import Exception
 from datetime import datetime
 from omero.cli import BaseControl, CLI
-from omeroweb import settings
 import omero.java
 import platform
 import time
@@ -18,14 +17,18 @@ import sys
 import os
 import re
 
+try:
+    from omeroweb import settings
 
-CONFIG_TABLE_FMT = "    %-35.35s  %-8s  %r\n"
-CONFIG_TABLE = CONFIG_TABLE_FMT % ("Key", "Default?", "Current value")
+    CONFIG_TABLE_FMT = "    %-35.35s  %-8s  %r\n"
+    CONFIG_TABLE = CONFIG_TABLE_FMT % ("Key", "Default?", "Current value")
 
-for key in sorted(settings.CUSTOM_SETTINGS_MAPPINGS):
-    global_name, default_value, mapping, using_default = settings.CUSTOM_SETTINGS_MAPPINGS[key]
-    global_value = getattr(settings, global_name, "(unset)")
-    CONFIG_TABLE += CONFIG_TABLE_FMT  % (key, using_default, global_value)
+    for key in sorted(settings.CUSTOM_SETTINGS_MAPPINGS):
+        global_name, default_value, mapping, using_default = settings.CUSTOM_SETTINGS_MAPPINGS[key]
+        global_value = getattr(settings, global_name, "(unset)")
+        CONFIG_TABLE += CONFIG_TABLE_FMT  % (key, using_default, global_value)
+except:
+    CONFIG_TABLE="INVALID CONFIGURATION! Cannot display default values"
 
 HELP="""OMERO.web configuration/deployment tools
 
@@ -220,21 +223,46 @@ Alias / "%(ROOT)s/var/omero.fcgi/"
         rv = self.ctx.call(args, cwd = location)
 
     def test(self, args):
-        location = self.ctx.dir / "lib" / "python" / "omeroweb"
-        cargs = ["coverage","-x", "manage.py", "test"]
-        if args.arg:
-            cargs.append(args.arg)
+        param = args.arg[0]
+        if param.find('/') >= 0:
+            path = param.split('/')
+            test = path[len(path)-1]
+            if param.startswith('/'):
+                location = "/".join(path[:(len(path)-1)])
+            else:
+                appbase = test.split('.')[0]
+                location = self.ctx.dir / "/".join(path[:(len(path)-1)])
+        else:
+            location = self.ctx.dir / "lib" / "python" / "omeroweb"
+            test = param        
+        if len(args.arg) > 1:
+            cargs = args.arg[1:]
+        else:
+            cargs = ['python']
+        cargs.extend([ "manage.py", "test"])
+        if test:
+            cargs.append(test)
         os.environ['ICE_CONFIG'] = self.ctx.dir / "etc" / "ice.config"
         os.environ['PATH'] = os.environ.get('PATH', '.') + ':' + self.ctx.dir / 'bin'
         rv = self.ctx.call(cargs, cwd = location)
 
     def seleniumtest (self, args):
-        location = self.ctx.dir / "lib" / "python" / "omeroweb"
-        cargs = ["python", "seleniumtests.py"]
-        location = location / args.djangoapp / "tests"
-        print location
-        rv = self.ctx.call(cargs, cwd = location )
+        if len(args.arg) < 1:
+            self.ctx.die(121, "usage: seleniumtest [path.]{djangoapp} [seleniumserver] [hostname] [browser]")
+        appname = args.arg[0]
+        if appname.find('.') > 0:
+            appname = appname.split('.')
+            appbase = appname[0]
+            location = self.ctx.dir / appbase
+            appname = '.'.join(appname[1:])
+        else:
+            appbase = "omeroweb"
+            location = self.ctx.dir / "lib" / "python" / "omeroweb"
 
+        cargs = ["python", location / appname / "tests" / "seleniumtests.py"]
+        cargs += args.arg[1:]
+        rv = self.ctx.call(cargs, cwd = location )
+        
     def call (self, args):
         try:
             location = self.ctx.dir / "lib" / "python" / "omeroweb"
