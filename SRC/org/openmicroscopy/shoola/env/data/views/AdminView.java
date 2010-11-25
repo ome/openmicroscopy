@@ -59,11 +59,41 @@ public interface AdminView
 	 * Loads the used and free disk space for the specified user if any,
 	 * pass <code>-1</code> to retrieve the whole disk space.
 	 * 
-	 * @param userID	The id of the user or <code>-1</code>.
+	 * @param id	The id of the user or <code>-1</code>.
 	 * @param observer	Call-back handler.
 	 * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle getDiskSpace(long userID, AgentEventListener observer);
+	public CallHandle getDiskSpace(long id, AgentEventListener observer);
+	
+	/**
+	 * Loads the disk space used by each member of a group.
+	 * 
+	 * @param id	The id of the group.
+	 * @param observer	Call-back handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle getGroupUsageDiskSpace(long id, 
+			AgentEventListener observer);
+	
+	/**
+	 * Loads the disk space used by groups
+	 * 
+	 * @param ids	The identifier of the groups or <code>null</code> to 
+	 * retrieve usage for all groups.
+	 * @param observer	Call-back handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle getGroupsUsageDiskSpace(List<Long> ids, 
+			AgentEventListener observer);
+	
+	/**
+	 * Loads the users who are administrators.
+	 * 
+	 * @param id	The identifier of the groups.
+	 * @param observer	Call-back handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle loadAdministrators(AgentEventListener observer);
 	
 	/**
 	 * Updates the specified experimenter.

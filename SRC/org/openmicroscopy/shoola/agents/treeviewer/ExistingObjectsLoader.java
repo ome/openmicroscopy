@@ -25,7 +25,9 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 
 //Java imports
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 //Third-party libraries
@@ -35,6 +37,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.GroupData;
 import pojos.ProjectData;
 
 /** 
@@ -69,7 +72,8 @@ public class ExistingObjectsLoader
      */
     private void checkObject(DataObject o)
     {
-        if ((o instanceof DatasetData) || (o instanceof ProjectData))
+        if ((o instanceof DatasetData) || (o instanceof ProjectData) ||
+        	(o instanceof GroupData))
             return;
         throw new IllegalArgumentException("Data type not supported.");
     }
@@ -94,8 +98,9 @@ public class ExistingObjectsLoader
      */
     public void load()
     {
-        Set<Long> nodes = new HashSet<Long>(1);
-        nodes.add(Long.valueOf(ho.getId()));
+        if (ho instanceof GroupData) {
+        	handle = adminView.loadExperimenters(-1, this);
+        }
         //handle = dmView.loadExistingObjects(ho.getClass(), nodes, 
          //       viewer.getRootID(), this);
         
@@ -114,7 +119,7 @@ public class ExistingObjectsLoader
     public void handleResult(Object result)
     {
         if (viewer.getState() == TreeViewer.DISCARDED) return;  //Async cancel.
-        viewer.setExistingObjects((Set) result);
+        viewer.setExistingObjects((List) result);
     }
     
 }

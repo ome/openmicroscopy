@@ -114,6 +114,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.util.ImportableObject;
 import org.openmicroscopy.shoola.agents.treeviewer.util.OpenWithDialog;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.DataObjectRegistration;
+import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.finder.Finder;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
@@ -1124,6 +1125,32 @@ class TreeViewerControl
 		} else if (MetadataViewer.UPLOAD_SCRIPT_PROPERTY.equals(name)) {
 			TreeViewerAction action = getAction(UPLOAD_SCRIPT);
 			action.actionPerformed(new ActionEvent(this, 1, ""));
+		} else if (SelectionWizard.SELECTED_ITEMS_PROPERTY.equals(name)) {
+			Map m = (Map) pce.getNewValue();
+			if (m == null || m.size() != 1) return;
+			Entry entry;
+			Iterator i = m.entrySet().iterator();
+			Class klass;
+			TreeImageDisplay node;
+			Collection<ExperimenterData> list;
+			Object uo;
+			AdminObject object;
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				klass = (Class) entry.getKey();
+				
+				if (ExperimenterData.class.equals(klass)) {
+					list = (Collection<ExperimenterData>) entry.getValue();
+					node = model.getSelectedBrowser().getLastSelectedDisplay();
+					if (node != null) {
+						uo = node.getUserObject();
+						if (uo instanceof GroupData) {
+							object = new AdminObject((GroupData) uo, list);
+							model.administrate(object);
+						}
+					}
+				}
+			}
 		}
 	}
 	

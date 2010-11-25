@@ -117,6 +117,9 @@ class PopupMenu
 	
 	/** Button to reset default Rnd settings. */
 	private JMenuItem			setOwnerRndElement;
+	
+	/** Button to add existing elements. */
+	private JMenuItem			addExistingElement;
 
 	/** Button to quit the application. */
 	private JMenuItem			quitElement;
@@ -324,6 +327,10 @@ class PopupMenu
 						TreeViewerControl.CREATE_TOP_EXPERIMENTER);
 				createExperimenter = new JMenuItem(a);
 				initMenuItem(createExperimenter, a.getActionName());
+				a = controller.getAction(TreeViewerControl.ADD_OBJECT);
+				addExistingElement = new JMenuItem(a);
+				initMenuItem(addExistingElement, a.getActionName());
+				
 				a = controller.getAction(TreeViewerControl.CUT_OBJECT);
 				cutElement = new JMenuItem(a); 
 				initMenuItem(cutElement, a.getActionName());
@@ -398,6 +405,7 @@ class PopupMenu
 				break;
 			case TreeViewer.ADMIN_MENU:
 				add(createExperimenter);
+				add(addExistingElement);
 				add(new JSeparator(JSeparator.HORIZONTAL));
 				add(resetPassword);
 				add(cutElement);

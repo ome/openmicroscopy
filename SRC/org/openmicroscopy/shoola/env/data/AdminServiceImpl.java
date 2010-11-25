@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.env.data;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -180,14 +181,14 @@ class AdminServiceImpl
 	 * Implemented as specified by {@link AdminService}.
 	 * @see AdminService#getSpace(int, long)
 	 */
-	public long getSpace(int index, long userID)
+	public long getSpace(int index, long id)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		try {
 			switch (index) {
-			case USED: return gateway.getUsedSpace(userID);
-			case FREE: return gateway.getFreeSpace();
-		}
+				case USED: return gateway.getUsedSpace(id);
+				case FREE: return gateway.getFreeSpace();
+			}
 		} catch (Exception e) {
 			return -1;
 		}
@@ -296,8 +297,7 @@ class AdminServiceImpl
 	public List<ExperimenterData> loadExperimenters(long groupID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		List<ExperimenterData> l = new ArrayList<ExperimenterData>();
-		return l;
+		return gateway.loadExperimenters(groupID);
 	}
 
 	/**
@@ -408,7 +408,7 @@ class AdminServiceImpl
 	 * @see AdminService#copyExperimenters(GroupData, Set)
 	 */
 	public List<ExperimenterData> copyExperimenters(GroupData group, 
-				Set experimenters) 
+				Collection experimenters) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		if (group == null)

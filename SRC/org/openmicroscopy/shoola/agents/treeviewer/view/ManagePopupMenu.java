@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 
 //Java imports
-import java.awt.Font;
 import javax.swing.BorderFactory;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
@@ -34,7 +33,6 @@ import javax.swing.border.BevelBorder;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
 
 /** 

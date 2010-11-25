@@ -241,6 +241,10 @@ public class DataObjectListCellRenderer
 			GroupData d = (GroupData) value;
 			setText(d.getName());
 			setIcon(icons.getIcon(IconManager.GROUP));
+		} else if (value instanceof ExperimenterData) {
+			ExperimenterData exp = (ExperimenterData) value;
+			setText(EditorUtil.getExperimenterName(exp));
+			setIcon(icons.getIcon(IconManager.OWNER));
 		}
 		setEnabled(!isImmutable(value));
 		return this;

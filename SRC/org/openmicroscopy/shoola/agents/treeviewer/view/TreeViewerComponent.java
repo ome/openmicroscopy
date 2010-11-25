@@ -38,6 +38,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+
+import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -67,7 +69,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.BrowserFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.ClearVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
-import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AdminDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.GenericDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.ImportDialog;
@@ -84,6 +85,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.DataObjectRegistration;
+import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ui.UserManagerDialog;
 import org.openmicroscopy.shoola.env.Environment;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -1205,23 +1207,35 @@ class TreeViewerComponent
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#setExistingObjects(Set)
+	 * @see TreeViewer#setExistingObjects(List)
 	 */
-	public void setExistingObjects(Set nodes)
+	public void setExistingObjects(List objects)
 	{
 		if (model.getState() != LOADING_DATA)
 			throw new IllegalStateException(
 					"This method cannot be invoked in the LOADING_DATA state.");
-		if (nodes == null)
-			throw new IllegalArgumentException("Nodes cannot be null.");
+		if (objects == null || objects.size() == 0)
+			return;
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		model.setState(READY);
+		SelectionWizard d = new SelectionWizard(view, objects, 
+				objects.get(0).getClass(), 
+				TreeViewerAgent.getUserDetails().getId());
+		IconManager icons = IconManager.getInstance();
+		String title = "Experimenters Selection";
+		String text = "Select the Experimenters to add to the selected group.";
+		Icon icon = icons.getIcon(IconManager.OWNER_48);
+		d.setTitle(title, text, icon);
+		d.addPropertyChangeListener(controller);
+		UIUtilities.centerAndShow(d);  
+		/*
 		Set n = TreeViewerTranslator.transformIntoCheckNodes(nodes, 
 				getUserDetails().getId(), model.getUserGroupID());
 		model.setState(LOADING_SELECTION);
-		AddExistingObjectsDialog 
-		dialog = new AddExistingObjectsDialog(view, n);
+		AddExistingObjectsDialog dialog = new AddExistingObjectsDialog(view, n);
 		dialog.addPropertyChangeListener(controller);
 		UIUtilities.centerAndShow(dialog);  
+		*/
 	}
 
 	/**
@@ -1235,7 +1249,9 @@ class TreeViewerComponent
 					"This method cannot be invoked in the LOADING_DATA state.");
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
 		if (set == null || set.size() == 0) model.setState(READY);
-		else model.fireAddExistingObjects(set);
+		else {
+			model.fireAddExistingObjects(set);
+		}
 		fireStateChange();
 	}
 

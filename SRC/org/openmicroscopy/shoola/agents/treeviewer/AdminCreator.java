@@ -24,8 +24,10 @@ package org.openmicroscopy.shoola.agents.treeviewer;
 
 
 //Java imports
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
@@ -89,6 +91,11 @@ public class AdminCreator
 				break;
 			case AdminObject.RESET_PASSWORD:
 				handle = adminView.resetExperimentersPassword(object, this);
+				break;
+			case AdminObject.ADD_EXPERIMENTER_TO_GROUP:
+				Map m = new HashMap();
+				m.put(object.getGroup(), object.getExperimenters().keySet());
+				handle = dmView.addExistingObjects(m, this);
 		}
     }
 
@@ -108,6 +115,7 @@ public class AdminCreator
         switch (object.getIndex()) {
         	case AdminObject.CREATE_GROUP:
         	case AdminObject.CREATE_EXPERIMENTER:
+        	case AdminObject.ADD_EXPERIMENTER_TO_GROUP:
         		viewer.refreshTree();
 				break;
         	case AdminObject.RESET_PASSWORD:
@@ -127,10 +135,8 @@ public class AdminCreator
         			buffer.append("the following experimenters:\n");
         			buffer.append(s);
         			un.notifyInfo("Reset password", buffer.toString());
-        			
         		}
 		}
-        
     }
     
 }

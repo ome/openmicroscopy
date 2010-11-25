@@ -24,6 +24,9 @@ package org.openmicroscopy.shoola.env.data.model;
 
 
 //Java imports
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -66,6 +69,9 @@ public class AdminObject
 	
 	/** Indicates to reset the password. */
 	public static final int RESET_PASSWORD = 4;
+	
+	/** Indicates to add experimenters to group. */
+	public static final int ADD_EXPERIMENTER_TO_GROUP = 5;
 	
 	/** Indicates that the group is <code>Private</code> i.e. RW----. */
 	public static final int PERMISSIONS_PRIVATE = 100;
@@ -112,6 +118,7 @@ public class AdminObject
 			case UPDATE_GROUP:
 			case UPDATE_EXPERIMENTER:
 			case RESET_PASSWORD:
+			case ADD_EXPERIMENTER_TO_GROUP:
 				return;
 			default:
 				throw new IllegalArgumentException("Index not supported");
@@ -153,6 +160,28 @@ public class AdminObject
 		this.group = group;
 		this.experimenters = experimenters;
 		this.index = index;
+		this.permissions = -1;
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param group The group to handle.
+	 * @param values The experimenters to handle.
+	 * @param index One of the constants defined by this class.
+	 */
+	public AdminObject(GroupData group, Collection<ExperimenterData> values)
+	{
+		checkIndex(index);
+		if (values != null) {
+			Iterator<ExperimenterData> i = values.iterator();
+			experimenters = new HashMap<ExperimenterData, UserCredentials>();
+			while (i.hasNext()) {
+				experimenters.put(i.next(), null);
+			}
+		}
+		this.group = group;
+		this.index = ADD_EXPERIMENTER_TO_GROUP;
 		this.permissions = -1;
 	}
 	

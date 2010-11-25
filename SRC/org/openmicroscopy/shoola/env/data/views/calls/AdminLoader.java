@@ -85,18 +85,19 @@ public class AdminLoader
      * Creates a {@link BatchCall} to retrieve the available and used
      * disk space.
      * 
-     * @param userID	The id of the user or <code>-1</code>.
+     * @param id The id of the user, group or <code>-1</code>.
+     * @param type Either experimenter or group.
      * @return The {@link BatchCall}.
      */
-    private BatchCall availableSpaceCall(final long userID)
+    private BatchCall availableSpaceCall(final long id)
     {
         return new BatchCall("Loading disk space information") {
             public void doCall() throws Exception
             {
                 AdminService os = context.getAdminService();
                 List<Long> l = new ArrayList<Long>();
-                l.add(os.getSpace(AdminService.FREE, userID));
-                l.add(os.getSpace(AdminService.USED, userID));
+                l.add(os.getSpace(AdminService.FREE, id));
+                l.add(os.getSpace(AdminService.USED, id));
                 result = l;
             }
         };
@@ -268,7 +269,7 @@ public class AdminLoader
     /** 
      * Creates a new instance. 
      * 
-     * @param id		The id of the user, or group or <code>-1</code>.
+     * @param id		The id of the user or <code>-1</code>.
      * @param index 	One of the constants defined by this class.
      */
     public AdminLoader(long id, int index)

@@ -66,7 +66,7 @@ import pojos.ImageData;
 * like Project/Dataset/Image, Screen/Plate/Wells or simply Images.
 * The component follows the <code>Lazy loading rule</code> i.e. the leaves 
 * of a given hierarchy are only retrieved if the parent is selected.
-* In practise, this means that we only display a Project/Dataset hierarchy
+* In practice, this means that we only display a Project/Dataset hierarchy
 * if a given Dataset is selected,  then the images in this Dataset are 
 * retrieved.
 * <p>The typical life-cycle of a tree viewer is as follows. The object
@@ -451,11 +451,11 @@ public interface TreeViewer
 	public void addExistingObjects(DataObject ho);
 
 	/**
-	 * Displays the collection of existing nodes.
+	 * Displays the collection of existing o.
 	 * 
 	 * @param nodes The nodes to display.
 	 */
-	public void setExistingObjects(Set nodes);
+	public void setExistingObjects(List nodes);
 
 	/**
 	 * Adds the specified notes to the tree.

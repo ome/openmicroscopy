@@ -119,11 +119,11 @@ public class ExistingObjectsSaver
                 	entry = (Entry) i.next();
                 	p = entry.getKey();
                 	if (p instanceof GroupData) {
-                		as.copyExperimenters((GroupData) p, (Set)
+                		as.copyExperimenters((GroupData) p, (Collection)
                                 entry.getValue());
                 	} else {
                 		if (p instanceof DataObject) {
-                            os.addExistingObjects((DataObject) p, (Set)
+                            os.addExistingObjects((DataObject) p, (Collection)
                                     entry.getValue());
                         }
                 	}

@@ -52,26 +52,29 @@ public class DiskSpaceLoader
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  handle;
     
-    /** The id of the user. */
-    private long		userID;
-    
+    /** The id of the user or group. */
+    private long		id;
+
     /**
      * Creates a new instance.
      * 
      * @param viewer Reference to the viewer. Mustn't be <code>null</code>.
-     * @param userID The user who used the disk space.
+     * @param id The identifier of the user or the group.
      */
-	public DiskSpaceLoader(Editor viewer, long userID)
+	public DiskSpaceLoader(Editor viewer, long id)
 	{
 		super(viewer);
-		this.userID = userID;
+		this.id = id;
 	}
 	
     /** 
      * Loads the used and free space.
      * @see EditorLoader#load()
      */
-    public void load() { handle = adminView.getDiskSpace(userID, this); }
+    public void load()
+    { 
+    	handle = adminView.getDiskSpace(id, this); 
+    }
     
     /** 
      * Cancels the data loading. 

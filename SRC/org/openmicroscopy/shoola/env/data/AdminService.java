@@ -25,9 +25,9 @@ package org.openmicroscopy.shoola.env.data;
 
 //Java imports
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 //Third-party libraries
 
@@ -175,14 +175,14 @@ public interface AdminService
 	 * 
 	 * @param index One of the following constants: {@link #USED} or 
 	 * 				{@link #FREE}.
-	 * @param userID The id of the user.
+	 * @param id The identifier of the user.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	public long getSpace(int index, long userID)
+	public long getSpace(int index, long id)
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
@@ -262,9 +262,13 @@ public interface AdminService
 	 * 
 	 * @param group The group to add the experimenters to.
 	 * @param experimenters The experimenters to add.
+	 * @return See above
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
 	 */
 	public List<ExperimenterData> copyExperimenters(GroupData group, 
-			Set experimenters)
+			Collection experimenters)
 		throws DSOutOfServiceException, DSAccessException;
 
 	/**
@@ -272,6 +276,7 @@ public interface AdminService
 	 * 
 	 * @param toPaste   The nodes to paste.
 	 * @param toCut     The nodes to cut.
+	 * @return See above
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
@@ -375,5 +380,5 @@ public interface AdminService
 	public Object uploadUserPhoto(File f, String format, 
 			ExperimenterData experimenter)
 		throws DSOutOfServiceException, DSAccessException;
-	
+
 }

@@ -32,6 +32,7 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
@@ -39,6 +40,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 import pojos.ProjectData;
 
 /** 
@@ -59,17 +61,32 @@ public class AddAction
 {
 
     /** The default name of the action. */
-    private static final String NAME = "...";
+    private static final String NAME = "Add Existing...";
     
     /** The name of the action to add existing <code>Datasets</code>. */
-    private static final String NAME_DATASET = "Add existing Dataset...";
+    private static final String NAME_DATASET = "Add Existing Dataset...";
     
     /** The name of the action to add existing <code>Images</code>. */
-    private static final String NAME_IMAGE = "Add existing Image...";
+    private static final String NAME_IMAGE = "Add Existing Image...";
+    
+    /** The name of the action to add existing <code>Users</code>. */
+    private static final String NAME_USER= "Add Existing User...";
     
     /** Description of the action. */
     private static final String DESCRIPTION = "Add existing elements to the " +
                                                 "selected container.";
+    
+    /** Description of the action. */
+    private static final String DESCRIPTION_DATASET = 
+    	"Add existing datasets to the selected project.";
+    
+    /** Description of the action. */
+    private static final String DESCRIPTION_IMAGE = 
+    	"Add existing images to the selected dataset.";
+    
+    /** Description of the action. */
+    private static final String DESCRIPTION_USER = 
+    	"Add existing users to the selected group.";
     
     /**
      * Modifies the name of the action and sets it enabled depending on
@@ -78,6 +95,8 @@ public class AddAction
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
+    	 putValue(Action.SHORT_DESCRIPTION, 
+                 UIUtilities.formatToolTipText(DESCRIPTION));
         if (selectedDisplay == null) {
             setEnabled(false);
             putValue(Action.NAME, NAME); 
@@ -90,9 +109,19 @@ public class AddAction
         } else if (ho instanceof ProjectData) {
             setEnabled(model.isObjectWritable(ho));
             putValue(Action.NAME, NAME_DATASET); 
+            putValue(Action.SHORT_DESCRIPTION, 
+                    UIUtilities.formatToolTipText(DESCRIPTION_DATASET));
         } else if (ho instanceof DatasetData) {
             setEnabled(model.isObjectWritable(ho));
             putValue(Action.NAME, NAME_IMAGE);
+            putValue(Action.SHORT_DESCRIPTION, 
+                    UIUtilities.formatToolTipText(DESCRIPTION_IMAGE));
+        } else if (ho instanceof GroupData) {
+            setEnabled(TreeViewerAgent.isAdministrator());
+            //setEnabled(false);
+            putValue(Action.NAME, NAME_USER);
+            putValue(Action.SHORT_DESCRIPTION, 
+                    UIUtilities.formatToolTipText(DESCRIPTION_USER));
         } else {
             setEnabled(false);
             putValue(Action.NAME, NAME);
@@ -127,7 +156,8 @@ public class AddAction
         TreeImageDisplay d = b.getLastSelectedDisplay();
         if (d == null) return;
         Object ho = d.getUserObject();
-        if ((ho instanceof ProjectData) || (ho instanceof DatasetData))
+        if ((ho instanceof ProjectData) || (ho instanceof DatasetData) ||
+        	(ho instanceof GroupData))
             model.addExistingObjects((DataObject) ho);
     }
     

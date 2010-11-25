@@ -3973,26 +3973,26 @@ class OMEROGateway
 	 * Returns the used space (in Kilobytes) on the file system
 	 * including nested sub-directories.
 	 * 
-	 * @param userID The identifier of the user or <code>-1</code> if not specified.
+	 * @param id The identifier of the user or <code>-1</code> if not specified.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	long getUsedSpace(long userID)
+	long getUsedSpace(long id)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
 		try {
-			if (userID < 0)
+			if (id < 0)
 				return getRepositoryService().getUsedSpaceInKilobytes();
 			StringBuffer buffer = new StringBuffer();
 			buffer.append("select f from OriginalFile as f ");
 			buffer.append("left outer join fetch f.details.owner as o ");
 			buffer.append("where o.id = :userID");
 			ParametersI param = new ParametersI();
-			param.addLong("userID", userID);
+			param.addLong("userID", id);
 			List<IObject> result = 
 				getQueryService().findAllByQuery(buffer.toString(), param);
 			if (result == null) return -1;
@@ -7010,6 +7010,33 @@ class OMEROGateway
 		}
 		return pojos;
 	}
+	
+	/**
+	 * Loads the experimenters contained in the specified group or all
+	 * experimenters if the value passed is <code>-1</code>.
+	 * 
+	 * @param id The group identifier or <code>-1</code>.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	List<ExperimenterData> loadExperimenters(long groupID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		List<ExperimenterData> pojos = new ArrayList<ExperimenterData>();
+		try {
+			List<Experimenter> l = getAdminService().lookupExperimenters();
+			pojos.addAll(PojoMapper.asDataObjects(l));
+		} catch (Throwable t) {
+			handleException(t, "Cannot retrieve the existing groups.");
+		}
+		return pojos;
+	}
+	
+	
 	
 	/**
 	 * Deletes the specified experimenters. Returns the experimenters 

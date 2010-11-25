@@ -485,11 +485,14 @@ public class IconManager
     /** The <code>Send comment</code> icon. */
     public static final int			  SEND_COMMENT = 143;
     
+    /** The 48x48 <code>Add existing</code> icon. */
+    public static final int           ADD_EXISTING_48 = 144;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 143;
+    private static final int          MAX_ID = 144;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -544,7 +547,7 @@ public class IconManager
         relPaths[DATA_MANAGER] = "eclipse_external_tools16.png";
         relPaths[CLASSIFIER] = "tag_folder_open16.png";//"eclipse_sroot_obj16.png";
         relPaths[ADD_CONTAINER] = "eclipse_newpack_wiz16.png";
-        relPaths[ADD_EXISTING] = "eclipse_newdatapool_wiz16.png";
+        relPaths[ADD_EXISTING] = "nuvola_window_new16.png";//"eclipse_newdatapool_wiz16.png";
         relPaths[PROGRESS] = "eclipse_progress_none16.png";
         relPaths[DECLASSIFY] = "delete_knotes16.png";
         relPaths[CUT] = "nuvola_editcut16.png";
@@ -643,6 +646,7 @@ public class IconManager
         relPaths[DELETE_22] = "nuvola_cancel22.png";
         relPaths[APPLY_22] = "nuvola_apply22.png";
         relPaths[SEND_COMMENT] = "nuvola_mail_send16.png";
+        relPaths[ADD_EXISTING_48] = "nuvola_window_new48.png";
     }
     
     /** The sole instance. */
