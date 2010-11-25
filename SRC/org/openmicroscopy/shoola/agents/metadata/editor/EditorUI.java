@@ -298,6 +298,7 @@ class EditorUI
 			revalidate();
 	    	repaint();
 		} else if (uo instanceof ExperimenterData) {
+			userUI.clearData();
 			toolBar.setStatus(false);
 			layoutUI();
 		} else {
@@ -460,6 +461,7 @@ class EditorUI
 	void clearData()
 	{
 		saved = false;
+		userUI.clearData();
 		generalPane.clearData();
 		tabPane.setComponentAt(RND_INDEX, dummyPanel);
 		tabPane.repaint();

@@ -130,6 +130,9 @@ class UserProfile
     /** Modify password. */
     private JButton					passwordButton;
     
+    /** Button to add the user to group. */
+    private JButton					manageButton;
+    
     /** Box to make the selected user an administrator. */
     private JCheckBox				adminBox;
     
@@ -234,6 +237,15 @@ class UserProfile
         model.changePassword(old, confirm);
     }
     
+    /** 
+     * Loads the collection of existing groups and 
+     * select where to add the user to or remove the user from.
+     */
+    private void manageGroup()
+    {
+    	
+    }
+    
     /** Initializes the components composing this display. */
     private void initComponents()
     {
@@ -265,6 +277,14 @@ class UserProfile
     	passwordButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {  
             	changePassword(); 
+            }
+        });
+    	manageButton = new JButton("Group");
+    	manageButton.setEnabled(false);
+    	manageButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+    	manageButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {  
+            	manageGroup(); 
             }
         });
     	passwordNew = new JPasswordField();

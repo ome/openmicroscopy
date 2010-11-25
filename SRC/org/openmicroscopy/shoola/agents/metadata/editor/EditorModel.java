@@ -1743,10 +1743,13 @@ class EditorModel
 		}
 	}
 
-	/** Starts an asynchronous call to retrieve disk space information. */
-	void loadDiskSpace()
+	/** 
+	 * Starts an asynchronous call to retrieve disk space information. 
+	 * 
+	 * @param id The identifier of the user.
+	 */
+	void loadDiskSpace(long id)
 	{
-		long id = MetadataViewerAgent.getUserDetails().getId();
 		DiskSpaceLoader loader = new DiskSpaceLoader(component, id);
 		loader.load();
 		loaders.add(loader);
