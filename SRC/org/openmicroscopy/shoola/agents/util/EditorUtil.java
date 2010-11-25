@@ -1836,8 +1836,8 @@ public class EditorUtil
     		if (o != null) {
     			notSet.remove(EXPOSURE_TIME);
     			double v = o.getValue();
-    			if (v == 0) {
-    				details.put(EXPOSURE_TIME, 0);
+    			if (v <= 0) {
+    				details.put(EXPOSURE_TIME, UIUtilities.roundTwoDecimals(v));
     			} else {
     				int decimal = UIUtilities.findDecimal(v, 1);
     				if (decimal <= 2) {
