@@ -177,20 +177,6 @@ logging.basicConfig(level=LEVEL,
                 filename=os.path.join(LOGDIR, LOGFILE),
                 filemode='a')
 
-fileLog = logging.handlers.TimedRotatingFileHandler(os.path.join(LOGDIR, LOGFILE),'midnight',1)
-
-# Windows will not allow renaming (or deleting) a file that's open. 
-# There's nothing the logging package can do about that.
-#try:
-#    sys.getwindowsversion()
-#except:
-#    fileLog.doRollover()
-
-fileLog.setLevel(LEVEL)
-formatter = logging.Formatter('%(asctime)s %(name)-12s: %(levelname)-8s %(message)s')
-fileLog.setFormatter(formatter)
-logging.getLogger().addHandler(fileLog)
-
 logger = logging.getLogger()
 
 # CUSTOM CONFIG
@@ -281,3 +267,4 @@ try:
         logger.error("Upgrade is available. Please visit http://trac.openmicroscopy.org.uk/omero/wiki/MilestoneDownloads.\n")
 except Exception, x:
     logger.error("Upgrade check error: %s" % x)
+
