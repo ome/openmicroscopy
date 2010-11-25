@@ -1854,6 +1854,7 @@ public class UIUtilities
     	double v = round(value, decimal);
     	if (v > 0) return decimal;
     	decimal++;
+    	if (decimal == 10) return decimal;
     	return findDecimal(value, decimal);
     }
     
