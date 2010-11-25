@@ -104,9 +104,9 @@ class UserDiskSpace
 				buildChartNotAvailable();
 				return;
 			}
-			dataset.setValue("Free for Users "+
+			dataset.setValue("Free "+
 					UIUtilities.formatFileSize(free), free);
-			dataset.setValue("Used by Me "+UIUtilities.formatFileSize(used), 
+			dataset.setValue("Used "+UIUtilities.formatFileSize(used), 
 					used);
 			try {
 				JFreeChart chart = ChartFactory.createPieChart3D("", 
@@ -131,5 +131,8 @@ class UserDiskSpace
 		revalidate();
 		repaint();
 	}
+	
+	/** Clears data. */
+	void clearDisplay() { data.removeAll(); }
 	
 }

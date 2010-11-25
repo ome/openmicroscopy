@@ -296,6 +296,7 @@ class EditorUI
 			revalidate();
 	    	repaint();
 		} else if (uo instanceof ExperimenterData) {
+			userUI.clearData();
 			toolBar.setStatus(false);
 			layoutUI();
 		} else {

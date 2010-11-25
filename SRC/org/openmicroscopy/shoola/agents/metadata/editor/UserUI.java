@@ -188,14 +188,10 @@ class UserUI
 	 */
 	protected void clearDisplay()
 	{ 
-		diskSpace.removeAll();
-		profile.removeAll();
+		diskSpace.clearDisplay();
 		if (!diskTask.isCollapsed()) diskTask.setCollapsed(true);
-		removeAll();
+		//removeAll();
 		diskSpace.revalidate();
-		profile.revalidate();
-		revalidate();
-		repaint();
 	}
 
 	/**
@@ -243,7 +239,7 @@ class UserUI
 	{
 		if (!(model.getRefObject() instanceof ExperimenterData)) return;
 		if (diskTask.isCollapsed()) model.cancelDiskSpaceLoading();
-		else model.loadDiskSpace();
+		else model.loadDiskSpace(model.getRefObjectID());
 	}
 
 }
