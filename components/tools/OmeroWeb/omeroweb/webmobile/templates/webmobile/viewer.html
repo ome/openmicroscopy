@@ -47,6 +47,23 @@ img#imagePlane {
     background: black;
     opacity: 0.7;
 }
+#gradient {
+    position:fixed;
+    z-index: 6;
+}
+#renderingText {
+    color: white;
+    position:fixed;
+    z-index: 7;
+}
+.pointer {
+    position:fixed;
+    z-index: 8;
+}
+#renderingOverlay{
+    position:fixed;
+    z-index: 9;
+}
 #infoPanel h2 {
     margin-top: 0px;
     white-space:nowrap;
@@ -150,6 +167,11 @@ img#imagePlane {
 
 <div id="channelButtons" class="controls"></div>
 <div id="renderingPanel"></div>
+<img class='pointer' id="winStartPointer" src="{% url mobile_static 'img/slider-pointer.png' %}" style="display:none" />
+<img class='pointer' id="winEndPointer" src="{% url mobile_static 'img/slider-pointer.png' %}" style="display:none" />
+<img id="gradient" src="{% url mobile_static 'img/gradient.png' %}" style="display:none" />
+<div id="renderingText"></div>
+<div id="renderingOverlay"></div>
 
 <img class="controls" id="projectionButton" src="{% url mobile_static 'img/proj-off.png' %}" style="display:none"/>
 
