@@ -8,17 +8,199 @@ $(document).ready(function() {
     var sizeT = 1;
     var pixelSize = 0;
     var json;
+    var activeCs = [];
+    var currentChannel = -1;
+    var projectionOn = false;
+    var rWindows = {};  // keep track of rendering settings - populate from json
     
     // elements we need repeatedly
     var imageId = $("#imageId").text();
     var $imagePlane = $("#imagePlane");
     var $imageContainer = $("#imageContainer");
+    var $zControls = $("#zControls");
+    var $tControls = $("#tControls");
     var $zSlider = $("#zSlider");
     var $tSlider = $("#tSlider");
     var $infoIcon = $("#infoIcon");
+    $infoIcon.hide();
     var $infoPanel = $("#infoPanel");
+    var $rendIcon = $("#rendIcon");
+    $rendIcon.hide();
+    var $renderingPanel = $("#renderingPanel");
+    $renderingPanel.hide();
+    var $renderingText = $("#renderingText");
+    var $renderingOverlay = $("#renderingOverlay");
+    var $gradient = $("#gradient");
+    var $winStartPointer = $("#winStartPointer");
+    var $winEndPointer = $("#winEndPointer");
+    var $channelButtons = $("#channelButtons");
+    var $projButton = $("#projectionButton");
+    
+    var buttUpSrc = $("#button-up").attr('src');
+    var buttDownSrc = $("#button-down").attr('src');
+    var buttDownSelectSrc = $("#button-down-select").attr('src');
+    var projOnSrc = $("#proj-on").attr('src');
+    var projOffSrc = $("#proj-off").attr('src');
     
     // --- functions ---
+    
+    var handleRenderSliderClick = function(event) {
+        
+        // need to work out where the point is wrt width of slider 
+        var x = event.pageX - this.offsetLeft;
+        var w = $renderingPanel.css('width');
+        
+        var selectedChannel = json["channels"][currentChannel];
+        var color = "#" + selectedChannel["color"];
+        var label = selectedChannel["label"];
+        var win = selectedChannel["window"];
+        var min = win["min"];
+        var max = win["max"];
+        var start = rWindows[currentChannel][0];
+        var end = rWindows[currentChannel][1];
+        var range = max-min;
+        
+        // need to know which slider knob to move
+        var newVal = min + ( (parseFloat(x)/parseInt(w)) * range );
+        var midway = start + ( (end-start)/2 )
+        
+        if (newVal < midway) {
+            rWindows[currentChannel][0] = newVal;
+        } else {
+            rWindows[currentChannel][1] = newVal;
+        }
+        showRenderingControls();
+        refreshImage();
+    }
+    
+    var toggleProjection = function() {
+        projectionOn = (!projectionOn);
+        var buttonSrc = projOffSrc;
+        if (projectionOn) {
+            buttonSrc = projOnSrc;
+        }
+        $(this).attr('src', buttonSrc);
+        
+        refreshImage();
+    }
+    
+    var handleChannelButton = function() {
+        var buttonImg = $(this);
+        var c = buttonImg.attr('id').replace('cb', '');     // E.g. id = 'cb1'
+        var cIndex = parseInt(c);
+        
+        // if we clicked a button that is not current channel...
+        if (cIndex != currentChannel) {
+            // ... if it's not selected, turn channel on.
+            if (!activeCs[cIndex]) {
+                activeCs[cIndex] = true;
+                buttonImg.attr('src', buttDownSrc);
+            }
+            currentChannel = cIndex;    // change current channel
+        }
+        else {
+            // clicked the current channel - toggle on/off
+            var newActive = buttonImg.attr('src') == buttUpSrc;
+            activeCs[cIndex] = newActive;
+            var newSrc = buttDownSrc;
+            if (!newActive) {
+                newSrc = buttUpSrc;
+                for (var i=0; i<activeCs.length; i++) {
+                    if (activeCs[i]) {
+                        currentChannel = i;
+                        break;
+                    }
+                }
+            }
+            buttonImg.attr('src', newSrc);
+        }
+        
+        $zControls.hide();
+        $tControls.hide();
+        showRenderingControls();
+        refreshChannelButtons();
+        refreshImage();
+    }
+    
+    var refreshChannelButtons = function() {
+        
+        // now update src of each button
+        var newSrc = "";
+        for (var i=0; i<activeCs.length; i++) {
+            newSrc = buttUpSrc;
+            if (activeCs[i]) {
+                newSrc = buttDownSrc;
+                if (currentChannel == i) {
+                    newSrc = buttDownSelectSrc;
+                }
+            }
+            $("#cb"+i).attr('src', newSrc);
+        }
+    }
+    
+    var buildChannelButtons = function() {
+        
+        // this is called every time that controls are shown, but the buttons are only 
+        // built the first time. Use json data...
+        var clist = json["channels"];
+        if (activeCs.length == 0) {
+            // build a column of buttons
+            var rHtml = "<table border='0' cellpadding='0' cellspacing='0' >";
+            for (var c=0; c<clist.length; c++) {
+                var cdata = clist[c];
+                activeCs.push(cdata["active"]);
+                var colour = cdata["color"];
+                var src = buttUpSrc;
+                if (activeCs[c]) {
+                    src = buttDownSrc;
+                }
+
+                rHtml += "<tr><td bgcolor='#" + colour + "'><img id='cb"+ c +"' class='channelButton' src='"+ src +"' /></td></tr>";
+            }
+            rHtml += "</table>";
+            $channelButtons.append($(rHtml));
+            $(".channelButton").click(handleChannelButton);
+        }
+    }
+    
+    var showRenderingControls = function() {
+        
+        var scrollX = window.pageXOffset; 
+        var scrollY = window.pageYOffset; 
+        var scrollW = window.innerWidth;
+        var scrollH = window.innerHeight;
+        var h = scrollW / 8;
+        var thickness = h * 0.75;
+        
+        var selectedChannel = json["channels"][currentChannel];
+        var color = "#" + selectedChannel["color"];
+        var label = selectedChannel["label"];
+        var rHtml = "<span>" + label + "</span>";
+        var font = 200 * scrollW/480 + "%";
+        var win = selectedChannel["window"];
+        var min = win["min"];
+        var max = win["max"];
+        var start = rWindows[currentChannel][0];
+        var end = rWindows[currentChannel][1];
+        var range = max-min;
+        
+        var pointerH = h * 0.75;
+        var halfW = (pointerH * 50)/128;
+        var startx = scrollW * (start-min)/range;
+        var endx = scrollW * (end-min)/range;
+        
+        $renderingPanel.css('top', scrollY+scrollH-h).css('left', scrollX).css('height',thickness).css('width',scrollW)
+            .css('background', color);
+        $gradient.css('top', scrollY+scrollH-h).css('left', scrollX).css('height',thickness).css('width',scrollW).show();
+        $renderingText.css('top', scrollY+scrollH-h).css('left', scrollX).css('height',thickness).css('width',scrollW).css('font-size', font);
+        $renderingText.empty().append($(rHtml)).show();
+        $renderingOverlay.css('top', scrollY+scrollH-h).css('left', scrollX).css('height',h).css('width',scrollW).show();
+        
+        $winStartPointer.css('top',scrollY+scrollH-pointerH).css('left', scrollX+startx-halfW).css('height', pointerH).show();
+        $winEndPointer.css('top',scrollY+scrollH-pointerH).css('left', scrollX+endx-halfW).css('height', pointerH).show();
+        
+        $renderingPanel.show();
+    }
     
     var showInfoPanel = function() {
         
@@ -85,11 +267,33 @@ $(document).ready(function() {
     // update the image with the current z and t indexes
     var refreshImage = function() {
         var imgSrc = "/webgateway/render_image/"+ imageId + "/" + z + "/" + t + "/";
+        var renderQuery = ""
+        if (activeCs.length > 0) {
+            renderQuery += "c=";
+        
+            for (var c=1; c<=activeCs.length; c++) {
+                if (c > 1) renderQuery += ",";
+                if (!(activeCs[c-1])) renderQuery += "-";
+                renderQuery += (c + "|"+ rWindows[c-1][0] + ":" + rWindows[c-1][1]);
+            }
+        }
+        if (projectionOn) {
+            if (renderQuery.length > 0) {
+                renderQuery += "&";
+            }
+            renderQuery += "p=intmax";
+        }
+        if (renderQuery.length > 1) {
+            imgSrc = imgSrc + "?" + renderQuery
+        }
         $("#imagePlane").attr('src', imgSrc);
+        
         // find the slider positions
         if (sizeZ > 1) {
             $(".zPoint").css('background', 'none');
-            $("#z"+z).css('background', 'red');
+            if (!projectionOn) {
+               $("#z"+z).css('background', 'red');
+            }
         }
         if (sizeT > 1) {
             $(".tPoint").css('background', 'none');
@@ -111,6 +315,7 @@ $(document).ready(function() {
     // this positions the controls within the current viewport and shows them 
     var showControls = function() {
         
+        // otherwise, show scroll bars
         var scrollX = window.pageXOffset; 
         var scrollY = window.pageYOffset; 
         var scrollW = window.innerWidth;
@@ -130,9 +335,18 @@ $(document).ready(function() {
         $tSlider.css('height', w-2 ).css('width',tWidth-w-w-2).css('left',w).css('top',1);
         
         // info icon - top right corner
-        var iconW = scrollW / 10;
+        var iconW = scrollW / 8;
         var margin = scrollW/70;
         $infoIcon.css('top', scrollY+margin).css('left', scrollX+scrollW-iconW-margin).css('width', iconW).css('height', iconW);
+        
+        // channel-buttons - top right corner
+        buildChannelButtons();  // only used first time
+        $channelButtons.css('top', scrollY+margin+iconW).css('left', scrollX+scrollW-iconW-margin).css('width', iconW);
+        $(".channelButton").css('width', iconW).css('height', iconW);
+        
+        // projection button
+        $projButton.css('top', scrollY+margin).css('left', scrollX+scrollW-iconW-iconW-margin)
+            .css('width', iconW).css('height', iconW).css('opacity', 0.7);
         
         // scalebar 
         if (pixelSize == 0) {
@@ -163,9 +377,19 @@ $(document).ready(function() {
     
     // hides the controls
     var hideControls = function() {
+        $renderingPanel.hide();
+        $(".pointer").hide();
+        $gradient.hide();
+        $renderingText.hide();
+        $renderingOverlay.hide();
+        
         $imagePlane.unbind('click', hideControls);  // in case hideControls wasn't called from imagePlane
+        
+        // reset active channel to -1 (no channels active)
+        currentChannel = -1;
+        refreshChannelButtons();
+        
         $(".controls").fadeOut();
-        //$infoPanel.fadeOut(); 
         $imagePlane.one('click', showControls);
     };
     
@@ -174,6 +398,10 @@ $(document).ready(function() {
     
     // Show info
     $infoIcon.click(showInfoPanel);
+    // toggle projection
+    $projButton.click(toggleProjection);
+    // click on the rendering slider - renderingText is the top layer
+    $renderingOverlay.click(handleRenderSliderClick);
     
     // When a slider is clicked, try to identify the actual increment that was clicked, set z or t and refresh
     $zSlider.click(function(event) {
@@ -246,6 +474,13 @@ $(document).ready(function() {
         html += "</tr></table>";
         $tSlider.append($(html));
         
+        cList = json["channels"];
+        for (var c=0; c<cList.length; c++) {
+            var s = cList[c]["window"]["start"];
+            var e = cList[c]["window"]["end"];
+            rWindows[c] = [s, e];
+        }
+        
         // update sliders and image plane
         refreshImage();
     });
@@ -261,11 +496,6 @@ $(document).ready(function() {
     if (imageWH > portWH) {
         var containerW = imgW;
         var containerH = containerW / portWH;
-        //alert(containerW + " " + containerH);
-        //$imageContainer.css('height', containerH + "px").css('width', containerW + "px");
-        //var cont = 'device-width = '+ imgW + ', width = '+ imgW + ', minimum-scale = 1, maximum-scale = 1, initial-scale = 1';
-        //alert(cont);
-        // $("#viewport").attr('content', cont);
         
         var topSpacer = (containerH - imgH) / 2;
         $imagePlane.css('top', topSpacer + "px");

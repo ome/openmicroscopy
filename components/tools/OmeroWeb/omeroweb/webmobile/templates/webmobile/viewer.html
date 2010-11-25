@@ -40,6 +40,30 @@ img#imagePlane {
     background: black;
     opacity: 0.7;
 }
+#renderingPanel {
+    position:fixed;
+    z-index: 5;
+    color: white;
+    background: black;
+    opacity: 0.7;
+}
+#gradient {
+    position:fixed;
+    z-index: 6;
+}
+#renderingText {
+    color: white;
+    position:fixed;
+    z-index: 7;
+}
+.pointer {
+    position:fixed;
+    z-index: 8;
+}
+#renderingOverlay{
+    position:fixed;
+    z-index: 9;
+}
 #infoPanel h2 {
     margin-top: 0px;
     white-space:nowrap;
@@ -101,6 +125,10 @@ img#imagePlane {
     display:none;
 }
 
+.hidden {
+    display: none;
+}
+
 </style>
 
 {% endblock %}
@@ -134,8 +162,18 @@ img#imagePlane {
     <div class="slider" id="tSlider"></div>
 </div>
 
-<img class="controls" id="infoIcon" src="{% url mobile_static 'img/info.png' %}"/>
+<img class="controls" id="infoIcon" src="{% url mobile_static 'img/info.png' %}" style="display:none"/>
 <div id="infoPanel"></div>
+
+<div id="channelButtons" class="controls"></div>
+<div id="renderingPanel"></div>
+<img class='pointer' id="winStartPointer" src="{% url mobile_static 'img/slider-pointer.png' %}" style="display:none" />
+<img class='pointer' id="winEndPointer" src="{% url mobile_static 'img/slider-pointer.png' %}" style="display:none" />
+<img id="gradient" src="{% url mobile_static 'img/gradient.png' %}" style="display:none" />
+<div id="renderingText"></div>
+<div id="renderingOverlay"></div>
+
+<img class="controls" id="projectionButton" src="{% url mobile_static 'img/proj-off.png' %}" style="display:none"/>
 
 <div class="controls" id="scaleNumber"></div>
 <div class="controls" id="scalebar">
@@ -143,5 +181,12 @@ img#imagePlane {
 </div>
 
 <img id="imagePlane" width="{{ image.getWidth }}" height="{{ image.getHeight }}" src="{% url mobile_static 'img/spacer.gif' %}"/>
+
+<!-- element for passing src of images to js -->
+<img id="button-down" style="display:none" src="{% url mobile_static 'img/button-down.png' %}"/>
+<img id="button-up" style="display:none" src="{% url mobile_static 'img/button-up.png' %}"/>
+<img id="button-down-select" style="display:none" src="{% url mobile_static 'img/button-down-select.png' %}"/>
+<img id="proj-on" style="display:none" src="{% url mobile_static 'img/proj-on.png' %}"/>
+<img id="proj-off" style="display:none" src="{% url mobile_static 'img/proj-off.png' %}"/>
     
 {% endblock %}
