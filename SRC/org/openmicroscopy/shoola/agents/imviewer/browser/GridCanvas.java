@@ -190,7 +190,7 @@ class GridCanvas
 			img = (GridImage) i.next();
 			if (img.isActive()) {
 				rgb = img.getRGB();
-				gl.glColorMask(rgb[0], rgb[1], rgb[2], true);
+				gl.glColorMask(rgb[0], rgb[1], rgb[2], false);
 				gl.glBegin(GL.GL_QUADS);
 				gl.glScaled(ZOOM, -1, 1);
 				gl.glTexCoord2f(coords.left(), coords.bottom());
@@ -322,15 +322,14 @@ class GridCanvas
 		else texture.updateImage(data);
 		texture.enable();
 		texture.bind();
+		paintGrid(gl);
+		/*
     	if (model.isRenderedImageRGB() && model.isModelRGB()) { 
-    		//texture = TextureIO.newTexture(data);
-    		//texture.enable();
-    		//texture.bind();
     		paintGridAsRGB(gl);
     	} else {
-    		//texture = null;
     		paintGrid(gl);
     	}
+    	*/
     	float vGap = 1.0f/model.getGridRow();
     	//paint the 
     	float xStart = HGAP;

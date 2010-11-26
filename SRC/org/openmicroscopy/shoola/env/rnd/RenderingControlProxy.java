@@ -1806,7 +1806,7 @@ class RenderingControlProxy
 		 if (pDef == null) 
 	            throw new IllegalArgumentException("Plane def cannot be null.");
 	        //DataServicesFactory.isSessionAlive(context);
-	     if (isCompressed()) return renderPlaneCompressedAsTexture(pDef);
+	     //if (isCompressed()) return renderPlaneCompressedAsTexture(pDef);
 	     return renderPlaneUncompressedAsTexture(pDef);
 	}
 

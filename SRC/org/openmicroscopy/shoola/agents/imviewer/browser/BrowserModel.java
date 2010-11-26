@@ -315,7 +315,7 @@ class BrowserModel
     		if (!hasGridImagesAsTexture())
     			gridImagesAsTextures = parent.getGridImagesAsTexture();
     	} else {
-    		if (isRenderedImageRGB()) return;
+    		//if (isRenderedImageRGB()) return;
         	gridImagesAsTextures = parent.getGridImagesAsTexture();
     	}
     }
@@ -1136,7 +1136,7 @@ class BrowserModel
     }
     
     /**
-     * Returns the list of grid images.
+     * Returns the list of grid images for openGL.
      * 
      * @return See above.
      */
@@ -1158,15 +1158,19 @@ class BrowserModel
 			label = data.getChannelLabeling();
 			rgb = new boolean[3];
 			if (parent.isChannelActive(index)) {
+				/*
 				if (b) {
-					rgb[0] = parent.isChannelRed(index);
-					rgb[1] = parent.isChannelGreen(index);
-					rgb[2] = parent.isChannelBlue(index);
+					rgb[0] = !parent.isChannelRed(index);
+					rgb[1] = !parent.isChannelGreen(index);
+					rgb[2] = !parent.isChannelBlue(index);
 					image = new GridImage(index, true, label, rgb);
 				} else {
 					image = new GridImage(index, true, label);
 					image.setTextureData(gridImagesAsTextures.get(index));
 				}
+				*/
+				image = new GridImage(index, true, label);
+				image.setTextureData(gridImagesAsTextures.get(index));
 			} else {
 				image = new GridImage(index, false, label);
 			}
