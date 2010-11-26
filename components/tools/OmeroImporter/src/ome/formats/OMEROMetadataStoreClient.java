@@ -2097,8 +2097,10 @@ public class OMEROMetadataStoreClient
             dataset.setName(toRType(datasetName));
         if (datasetDescription.length() != 0)
             dataset.setDescription(toRType(datasetDescription));
-        Project p = new ProjectI(project.getId().getValue(), false);
-        dataset.linkProject(p);
+        if (project.getId() != null) {
+        	Project p = new ProjectI(project.getId().getValue(), false);
+        	dataset.linkProject(p);
+        }
 
         try
         {
@@ -2203,6 +2205,8 @@ public class OMEROMetadataStoreClient
      */
     public List<Dataset> getDatasets(Project p)
     {
+    	if (p.getId() == null || p.getId().getValue() == 0)
+    		return getDatasetsWithoutProjects();
         try
         {
             List<Long> ids = new ArrayList<Long>(1);
@@ -2225,6 +2229,32 @@ public class OMEROMetadataStoreClient
         }
     }
 
+    /**
+     * @return
+     */
+    public List<Dataset> getDatasetsWithoutProjects()
+    {
+        try
+        {
+        	ParametersI param = new ParametersI();
+        	param.exp(rlong(getExperimenterID()));
+        	param.orphan();
+            List<IObject> objects = 
+                iContainer.loadContainerHierarchy(Project.class.getName(), null, param);
+            List<Dataset> datasets = new ArrayList<Dataset>(0);
+            for (IObject object : objects)
+            {
+            	if (object instanceof DatasetI)
+            		datasets.add((Dataset) object);
+            }
+            return datasets;
+        }
+        catch (ServerError e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+    
     /**
      * @param projectName
      * @param projectDescription

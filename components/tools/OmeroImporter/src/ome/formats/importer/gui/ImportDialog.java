@@ -147,9 +147,8 @@ public class ImportDialog extends JDialog implements ActionListener
         if (store != null)
         {
             projectItems = ProjectItem.createProjectItems(store.getProjects());
-            datasetItems = DatasetItem.createEmptyDataset();
         }
-
+        
         setLocation(200, 200);
         setTitle(title);
         setModal(modal);
@@ -205,7 +204,7 @@ public class ImportDialog extends JDialog implements ActionListener
         addDatasetBtn = GuiCommonElements.addIconButton(pdPanel, "", addIcon, 20, 60, null, null, "2,1,f" + offsetButtons, debug);
         addDatasetBtn.addActionListener(this);
         
-        addDatasetBtn.setEnabled(false);
+        //addDatasetBtn.setEnabled(false);
         
         importPanel.add(pdPanel, "0, 2, 4, 2");
 
@@ -353,19 +352,20 @@ public class ImportDialog extends JDialog implements ActionListener
         tabbedPane.addTab("Import Settings", null, importPanel, "Import Settings");
         tabbedPane.addTab("Metadata Defaults", null, metadataPanel, "Metadata Defaults");
 
+        getProjectDatasets(projectItems[0].getProject());
         buildProjectsAndDatasets();
         setVisible(true);
     }
 
     /**
-     * Create projects and dataset dialogs
+     * Create projects and dataset pulldown lists
      */
     private void buildProjectsAndDatasets()
     {
         long savedProject = config.savedProject.get();
         long savedDataset = config.savedDataset.get();
         
-        if (savedProject != 0 && projectItems != null) {
+        if (projectItems != null) {
             for (int i = 0; i < projectItems.length; i++)
             {
                 RLong pId = projectItems[i].getProject().getId();
@@ -375,16 +375,15 @@ public class ImportDialog extends JDialog implements ActionListener
                     pbox.setSelectedIndex(i);
 
                     Project p = ((ProjectItem) pbox.getSelectedItem()).getProject();
-                    datasetItems = 
-                        DatasetItem.createDatasetItems(store.getDatasets(p));
+                    datasetItems = DatasetItem.createDatasetItems(store.getDatasets(p));
                     dbox.removeAllItems();
-                    if (datasetItems.length == 0 || pbox.getSelectedIndex() == 0)
+                    if (datasetItems.length == 0)
                     {
-                        datasetItems = 
-                            DatasetItem.createEmptyDataset();
+                        datasetItems = DatasetItem.createEmptyDataset();
                         dbox.addItem(datasetItems[0]);
                         dbox.setEnabled(false);
-                        addDatasetBtn.setEnabled(false);
+                        //addDatasetBtn.setEnabled(false);
+                        addDatasetBtn.setEnabled(true);
                         importBtn.setEnabled(false);
                     } else {
                         for (int k = 0; k < datasetItems.length; k++ )
@@ -411,6 +410,7 @@ public class ImportDialog extends JDialog implements ActionListener
      */
     private void refreshAndSetProject()
     {
+		addProjectBtn.setFocusPainted(false); // remove focus state on button
         if (store != null)
         {
             //pbox.removeAllItems();
@@ -437,13 +437,15 @@ public class ImportDialog extends JDialog implements ActionListener
      */
     private void refreshAndSetDataset(Project p)
     {
-    	datasetItems = 
-    		DatasetItem.createDatasetItems(store.getDatasets(p));
+		addDatasetBtn.setFocusPainted(false); // remove focus state on button
+    	datasetItems = DatasetItem.createDatasetItems(store.getDatasets(p));
+    	if (datasetItems == null) {
+    		return; // user cancelled.. do nothing.
+    	}
     	dbox.removeAllItems();
     	if (datasetItems.length == 0)
     	{
-    		datasetItems = 
-    			DatasetItem.createEmptyDataset();
+    		datasetItems = DatasetItem.createEmptyDataset();
     		dbox.addItem(datasetItems[0]);
     		dbox.setEnabled(false);
     		// Clear button focus
@@ -556,8 +558,11 @@ public class ImportDialog extends JDialog implements ActionListener
             
             dataset = ((DatasetItem) dbox.getSelectedItem()).getDataset();
             project = ((ProjectItem) pbox.getSelectedItem()).getProject();
-            config.savedProject.set(
-                    ((ProjectItem) pbox.getSelectedItem()).getProject().getId().getValue());
+            if (pbox.getSelectedIndex() != 0)
+            {
+            	config.savedProject.set(
+            			((ProjectItem) pbox.getSelectedItem()).getProject().getId().getValue());
+            }
             config.savedDataset.set(dataset.getId().getValue());
             
             pixelSizeX = xPixelSize.getValue();
@@ -573,40 +578,34 @@ public class ImportDialog extends JDialog implements ActionListener
         else if (event.getSource() == pbox)
         {
             cancelled = false;
-
-            if (pbox.getSelectedIndex() == 0)
-            {
-                dbox.setEnabled(false);
-                addDatasetBtn.setEnabled(false);
-            } else
-            {
-                Project p = ((ProjectItem) pbox.getSelectedItem()).getProject();
-                datasetItems = 
-                    DatasetItem.createDatasetItems(store.getDatasets(p));
-                addDatasetBtn.setEnabled(true);
-            }
-
-            dbox.removeAllItems();
-            if (datasetItems.length == 0 || pbox.getSelectedIndex() == 0)
-            {
-                datasetItems = 
-                    DatasetItem.createEmptyDataset();
-                dbox.addItem(datasetItems[0]);
-                dbox.setEnabled(false);
-                importBtn.setEnabled(false);
-            } else {
-                for (int i = 0; i < datasetItems.length; i++ )
-                {
-                    dbox.setEnabled(true);
-                    importBtn.setEnabled(true);
-                    dbox.addItem(datasetItems[i]);
-                }
-            }
-
+            Project p = ((ProjectItem) pbox.getSelectedItem()).getProject();
+            getProjectDatasets(p);
         }
     }
 
-    public void stateChanged(ChangeEvent e)
+    private void getProjectDatasets(Project p) {
+        datasetItems = 
+        	DatasetItem.createDatasetItems(store.getDatasets(p));
+        addDatasetBtn.setEnabled(true);
+
+        dbox.removeAllItems();
+        if (datasetItems.length == 0)
+        {
+            datasetItems = DatasetItem.createEmptyDataset();
+            dbox.addItem(datasetItems[0]);
+            dbox.setEnabled(false);
+            importBtn.setEnabled(false);
+        } else {
+            for (int i = 0; i < datasetItems.length; i++ )
+            {
+                dbox.setEnabled(true);
+                importBtn.setEnabled(true);
+                dbox.addItem(datasetItems[i]);
+            }
+        }
+	}
+
+	public void stateChanged(ChangeEvent e)
     {
         System.err.println("Test");
     }
@@ -644,6 +643,8 @@ class DatasetItem
 
     public static DatasetItem[] createDatasetItems(List<Dataset> datasets)
     {
+    	if (datasets == null)
+    		return null;
         DatasetItem[] items = new DatasetItem[datasets.size()];
         for (int i = 0; i < datasets.size(); i++)
         {
@@ -694,7 +695,7 @@ class ProjectItem
     {
         ProjectItem[] items = new ProjectItem[projects.size() + 1];
         ProjectI p = new ProjectI();
-        p.setName(rstring("--- Select Project ---"));
+        p.setName(rstring("--- No Project ---"));
         items[0] = new ProjectItem(p);
 
         for (int i = 1; i < (projects.size() + 1); i++)

@@ -410,11 +410,15 @@ public class FileQueueHandler extends JPanel
                 ic.setTarget(dialog.dataset);
                 ic.setUserPixels(pixelSizes);
                 ic.setArchive(dialog.archiveImage.isSelected());
-                ic.setProjectID(dialog.project.getId().getValue());
-                
-                String title =
-                dialog.project.getName().getValue() + " / " +
-                dialog.dataset.getName().getValue();
+                String title = "";
+                if (dialog.project.getId() != null) {
+                	ic.setProjectID(dialog.project.getId().getValue());
+	                title =
+	                dialog.project.getName().getValue() + " / " +
+	                dialog.dataset.getName().getValue();
+                } else {
+                	title = "none / " + dialog.dataset.getName().getValue();
+                }
                 
                 addFileToQueue(ic, title, useFullPath, config.numOfDirectories.get());
             }
