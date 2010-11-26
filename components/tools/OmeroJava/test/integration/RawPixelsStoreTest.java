@@ -55,6 +55,8 @@ public class RawPixelsStoreTest
 
     private int planeSize;
 
+    private long totalSize;
+
     private byte[] prepareTestByteArray(int size, int start)
     {
         byte[] buf = new byte[size];
@@ -74,6 +76,9 @@ public class RawPixelsStoreTest
         Pixels pixels = image.getPrimaryPixels();
         planeSize = pixels.getSizeX().getValue()*pixels.getSizeY().getValue();
         planeSize = planeSize * 2;  // UINT16
+        totalSize = planeSize * pixels.getSizeZ().getValue()
+                    * pixels.getSizeC().getValue()
+                    * pixels.getSizeT().getValue();
         svc = factory.createRawPixelsStore();
         svc.setPixelsId(pixels.getId().getValue(), false);
     }
@@ -112,7 +117,7 @@ public class RawPixelsStoreTest
     @Test
     public void testSetGetRegion() throws Exception
     {
-        int half = svc.getPlaneSize() / 2;
+        int half = planeSize / 2;
         byte[] a1 = prepareTestByteArray(half, 0);
         byte[] b1 = prepareTestByteArray(half, half);
         svc.setRegion(a1.length, 0, a1);
@@ -125,6 +130,49 @@ public class RawPixelsStoreTest
         assertEquals(b1.length, b2.length);
         assertEquals(sha1(a1), sha1(a2));
         assertEquals(sha1(b1), sha1(b2));
+    }
+
+    /**
+     * Tests to set a region off the end of the file.
+     */
+    @Test
+    public void testSetRegionOffEndOfFile() throws Exception
+    {
+        byte[] a1 = prepareTestByteArray(planeSize, 0);
+        long offset = svc.getPlaneOffset(
+                ModelMockFactory.SIZE_Z - 1, 0, ModelMockFactory.SIZE_T - 1);
+        offset += (planeSize / 2);
+        int remaining = (int) (totalSize - offset);
+        svc.setRegion(remaining, offset, a1);
+        byte[] a2 = svc.getRegion(remaining, offset);
+        a1 = prepareTestByteArray(planeSize / 2, 0);
+        assertNotNull(a2);
+        assertEquals(remaining, a2.length);
+        assertEquals(sha1(a1), sha1(a2));
+    }
+
+    /**
+     * Tests to set a region off the end of plane.
+     */
+    @Test
+    public void testSetRegionOffEndOfPlane() throws Exception
+    {
+        byte[] a1 = prepareTestByteArray(planeSize, 0);
+        long offset = svc.getPlaneOffset(
+                ModelMockFactory.SIZE_Z - 2, 0, ModelMockFactory.SIZE_T - 1);
+        offset += (planeSize / 2);
+        int remaining = (int) (totalSize - planeSize - offset);
+        svc.setRegion(remaining, offset, a1);
+        byte[] lastPlane = svc.getPlane(
+                ModelMockFactory.SIZE_Z - 1, 0, ModelMockFactory.SIZE_T - 1);
+        byte[] a2 = svc.getRegion(remaining, offset);
+        a1 = prepareTestByteArray(planeSize / 2, 0);
+        assertNotNull(a2);
+        assertNotNull(lastPlane);
+        assertEquals(remaining, a2.length);
+        assertEquals(planeSize, lastPlane.length);
+        assertEquals(sha1(a1), sha1(a2));
+        assertEquals(sha1(new byte[planeSize]), sha1(lastPlane));
     }
 
 }
