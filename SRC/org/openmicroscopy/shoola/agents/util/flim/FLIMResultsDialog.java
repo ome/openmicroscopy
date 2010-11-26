@@ -24,16 +24,11 @@ package org.openmicroscopy.shoola.agents.util.flim;
 
 
 //Java imports
-import info.clearthought.layout.TableLayout;
-
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -50,7 +45,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Map.Entry;
-
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -63,13 +57,13 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
-import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.filechooser.FileFilter;
 
 
 //Third-party libraries
+import info.clearthought.layout.TableLayout;
+
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.jdesktop.swingx.VerticalLayout;
@@ -211,6 +205,9 @@ public class FLIMResultsDialog
 	/** Component hosting the settings. */
 	private JComponent mainPane;
 	
+	/** The name of the image. */
+	private String	imageName;
+	
 	/**
 	 * Saves the data to the specified file.
 	 * 
@@ -256,21 +253,31 @@ public class FLIMResultsDialog
 				writer.writeTableToSheet(0, 0, tableIntervals.getModel());
 			}
 			if (tableValues != null)
-				writer.writeTableToSheet(row+3, 0, tableValues.getModel());	
+				writer.writeTableToSheet(row+3, 0, tableValues.getModel());
+			BufferedImage image;
+			int w, h;
+			row = 0;
 			if (b) {
-				BufferedImage image = Factory.createImage(tmpFile);
+				image = Factory.createImage(tmpFile);
 				if (image != null) {
-					int w = image.getWidth();
-					int h = image.getHeight();
+					w = image.getWidth();
+					h = image.getHeight();
 					String name = (String) resultsBox.getSelectedItem();
 					writer.addImageToWorkbook(name, image); 
 					col = writer.getMaxColumn(0);
 					index += (col+2);
 					writer.writeImage(0, index, w, h, name);
 				}
-				
-				writer.close();
 			}
+			image = canvas.getImage();
+			if (image != null) {
+				w = image.getWidth();
+				h = image.getHeight();
+				writer.addImageToWorkbook(imageName, image); 
+				row = writer.getCurrentRow()+2;
+				writer.writeImage(row, 0, w, h, imageName);
+			}
+			writer.close();
 		} catch (Exception e) {
 			result = false;
 		}
@@ -744,8 +751,10 @@ public class FLIMResultsDialog
 	 */
 	private void buildGUI(Icon icon)
 	{
-		TitlePanel tp = new TitlePanel("Results", 
-				"Follow a view of the results.", icon);
+		String text = "Follow a view of the results";
+		if (imageName != null && imageName.length() > 0)
+			text += " for "+imageName;
+		TitlePanel tp = new TitlePanel("Results", text, icon);
 		settings = buildSettingsComponent();
 		Container container = getContentPane();
 		container.setLayout(new BorderLayout());
@@ -760,14 +769,16 @@ public class FLIMResultsDialog
 	 * 
 	 * @param owner The owner the dialog.
 	 * @param icon  The icon to display in the header.
+	 * @param imageName The name of the image.
 	 * @param values The results to display.
 	 */
-	public FLIMResultsDialog(JFrame owner, Icon icon, 
+	public FLIMResultsDialog(JFrame owner, String imageName, Icon icon,
 			Map<FileAnnotationData, File> values)
 	{
 		super(owner);
 		if (values == null)
 			throw new IllegalArgumentException("No parameters set.");
+		this.imageName = imageName;
 		ViewerSorter sorter = new ViewerSorter();
 		List list = sorter.sort(values.keySet());
 		results = new LinkedHashMap<FileAnnotationData, File>();

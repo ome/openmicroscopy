@@ -76,6 +76,7 @@ import org.openmicroscopy.shoola.agents.imviewer.util.proj.ProjectionRef;
 import org.openmicroscopy.shoola.agents.imviewer.util.UnitBarSizeDialog;
 import org.openmicroscopy.shoola.agents.imviewer.util.player.MoviePlayerDialog;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
+import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.flim.FLIMResultsDialog;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
@@ -3113,6 +3114,7 @@ class ImViewerComponent
 		}
 		IconManager icons = IconManager.getInstance();
 		FLIMResultsDialog d = new FLIMResultsDialog(view, 
+				EditorUtil.getPartialName(model.getImageName()),
 				icons.getIcon(IconManager.FLIM_48), results);
 		d.addPropertyChangeListener(new PropertyChangeListener() {
 			

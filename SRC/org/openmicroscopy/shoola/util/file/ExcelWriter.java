@@ -357,7 +357,8 @@ public class ExcelWriter
 	}
 	
 	/**
-	 * Set the height of the row rowIndex to rowHeight in px
+	 * Set the height of the row rowIndex to rowHeight in pixels.
+	 * 
 	 * @param rowIndex see above.
 	 * @param rowHeight see above.
 	 */
@@ -674,6 +675,17 @@ public class ExcelWriter
 	{
 		if (currentSheet == null) return 0;
 		return currentSheet.getMaxColumn(row);
+	}
+	
+	/**
+	 * Returns the current row.
+	 * 
+	 * @return See above.
+	 */
+	public int getCurrentRow()
+	{
+		if (currentSheet == null) return 0;
+		return currentSheet.getCurrentRow();
 	}
 	
 	/**
