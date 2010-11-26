@@ -79,18 +79,16 @@
             }
             
             keyArray = sortByValue(keyArray, piechart_data);
-            var chart_data = [];
+            var chart_data = [{label:'Free space', data:{{ driveSpace.free}}}];
             for(i=0; i<keyArray.length; i++) {
                 var key = keyArray[i];
                 if(i>10){
-                    var d = chart_data[10].data;
-                    chart_data[10] = {label:'Others', data:d+piechart_data[key]};
+                    var d = chart_data[11].data;
+                    chart_data[11] = {label:'Others', data:d+piechart_data[key]};
                 } else {
-                    chart_data[i]={label:key, data:piechart_data[key]};
+                    chart_data[i+1]={label:key, data:piechart_data[key]};
                 }
             }
-            
-            chart_data[11]={label:'Free space', data:{{ driveSpace.free}}}
             
             $.plot($("#placeholder"), chart_data, 
         	{
