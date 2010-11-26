@@ -209,11 +209,6 @@ $(document).ready(function() {
                         <p>If the map fails to display, try restarting your browser</p>
                         {% endif %}
                             
-                        {% for pdb in pdbs %}
-                            <div>
-                            Load docked pdb:<a href="{% url webemdb_pdb pdb.id %}" class="oavLoadPdb">{{ pdb.getFileName }}</a>
-                            </div>
-                        {% endfor %}
                         {% for pdb in fittedPdbs %}
                             <div>
                                 Load fitted pdb:<a href="{% url webemdb_pdb pdb.id %}" class="oavLoadPdb">{{ pdb.getFileName }}</a>
