@@ -7,6 +7,8 @@
 package integration;
 
 import java.io.File;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -146,6 +148,58 @@ public class AbstractTest
         client.createSession("root", rootpass);
         return client;
     }
+
+    /**
+     * Calculates a SHA-1 digest.
+     * @param data Data to calcluate a SHA-1 digest for.
+     * @return Hex string of the SHA-1 digest.
+     */
+    protected String sha1(byte[] data)
+    {
+        MessageDigest md;
+        try {
+            md = MessageDigest.getInstance("SHA-1");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(
+                    "Required SHA-1 message digest algorithm unavailable.");
+        }
+        md.update(data);
+        return byteArrayToHexString(md.digest());
+    }
+
+    /**
+     * Converts a byte array to a hex string.
+     * @param in Byte array to convert.
+     * @return Hex string representing the byte array.
+     */
+    public static String byteArrayToHexString(byte in[]) {
+
+        byte ch = 0x00;
+        int i = 0;
+
+        if (in == null || in.length <= 0) {
+            return null;
+        }
+
+        String pseudo[] = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9",
+                "a", "b", "c", "d", "e", "f" };
+
+        StringBuffer out = new StringBuffer(in.length * 2);
+
+        while (i < in.length) {
+            ch = (byte) (in[i] & 0xF0);
+            ch = (byte) (ch >>> 4);
+            ch = (byte) (ch & 0x0F);
+            out.append(pseudo[ch]);
+            ch = (byte) (in[i] & 0x0F);
+            out.append(pseudo[ch]);
+            i++;
+        }
+
+        String rslt = new String(out);
+        return rslt;
+    }
+
     /**
      * Initializes the various services.
      * @throws Exception Thrown if an error occurred.

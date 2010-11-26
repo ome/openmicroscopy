@@ -26,6 +26,7 @@ package integration;
 //Java imports
 
 //Third-party libraries
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 //Application-internal dependencies
@@ -47,10 +48,36 @@ import omero.model.Pixels;
  * @since 3.0-Beta4
  */
 @Test(groups = { "client", "integration", "blitz" })
-public class RawPixelsStoreTest 
-	extends AbstractTest
+public class RawPixelsStoreTest
+    extends AbstractTest
 {
-	
+    private RawPixelsStorePrx svc;
+
+    private int planeSize;
+
+    private byte[] prepareTestByteArray(int size, int start)
+    {
+        byte[] buf = new byte[size];
+        for (int i = 0; i < buf.length; i++) {
+            buf[i] = (byte) (i + start);
+        }
+        return buf;
+    }
+
+    @BeforeMethod
+    public void localSetUp() throws Exception
+    {
+        Image image = mmFactory.createImage(ModelMockFactory.SIZE_X,
+                ModelMockFactory.SIZE_Y, ModelMockFactory.SIZE_Z,
+                ModelMockFactory.SIZE_T, 1);
+        image = (Image) iUpdate.saveAndReturnObject(image);
+        Pixels pixels = image.getPrimaryPixels();
+        planeSize = pixels.getSizeX().getValue()*pixels.getSizeY().getValue();
+        planeSize = planeSize * 2;  // UINT16
+        svc = factory.createRawPixelsStore();
+        svc.setPixelsId(pixels.getId().getValue(), false);
+    }
+
     /**
      * Tests to set a plane and retrieve it, this method will test the 
      * <code>setPlane</code> and <code>getPlane</code>.
@@ -59,25 +86,45 @@ public class RawPixelsStoreTest
      * @see RawFileStoreTest#testUploadFile()
      */
     @Test
-    public void testSetGetPlane() 
-    	throws Exception 
+    public void testSetGetPlane() throws Exception
     {
-    	Image image = mmFactory.createImage(ModelMockFactory.SIZE_X, 
-    			ModelMockFactory.SIZE_Y, ModelMockFactory.SIZE_Z, 
-    			ModelMockFactory.SIZE_T, 1);
-    	image = (Image) iUpdate.saveAndReturnObject(image);
-    	Pixels pixels = image.getPrimaryPixels();
-    	int v = pixels.getSizeX().getValue()*pixels.getSizeY().getValue(); 
-    	RawPixelsStorePrx svc = factory.createRawPixelsStore();
-    	svc.setPixelsId(pixels.getId().getValue(), false);
-    	int size = svc.getPlaneSize();
-    	assertTrue(size >= v);
-    	byte[] data = new byte[size];
-    	svc.setPlane(data, 0, 0, 0);
-    	
-    	byte[] r = svc.getPlane(0, 0, 0);
-    	assertNotNull(r);
-    	assertTrue(r.length == data.length);
+        byte[] data = prepareTestByteArray(svc.getPlaneSize(), 0);
+        svc.setPlane(data, 0, 0, 0);
+        byte[] r = svc.getPlane(0, 0, 0);
+        assertNotNull(r);
+        assertEquals(data.length, r.length);
+        assertEquals(sha1(data), sha1(r));
     }
-    
+
+    /**
+     * Tests the <code>getPlaneSize</code> method is accurate.
+     */
+    @Test
+    public void testPlaneSize() throws Exception
+    {
+        assertEquals(planeSize, svc.getPlaneSize());
+    }
+
+    /**
+     * Tests to set a region and retrieve it, this method will test the 
+     * <code>setRegion</code> and <code>getRegion</code> methods.
+     */
+    @Test
+    public void testSetGetRegion() throws Exception
+    {
+        int half = svc.getPlaneSize() / 2;
+        byte[] a1 = prepareTestByteArray(half, 0);
+        byte[] b1 = prepareTestByteArray(half, half);
+        svc.setRegion(a1.length, 0, a1);
+        svc.setRegion(b1.length, half, b1);
+        byte[] a2 = svc.getRegion(a1.length, 0);
+        byte[] b2 = svc.getRegion(b1.length, half);
+        assertNotNull(a2);
+        assertNotNull(b2);
+        assertEquals(a1.length, a2.length);
+        assertEquals(b1.length, b2.length);
+        assertEquals(sha1(a1), sha1(a2));
+        assertEquals(sha1(b1), sha1(b2));
+    }
+
 }
