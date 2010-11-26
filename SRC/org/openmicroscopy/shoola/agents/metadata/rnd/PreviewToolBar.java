@@ -116,7 +116,7 @@ class PreviewToolBar
     {
     	String s = "Z="+(model.getDefaultZ()+1)+"/"+model.getMaxZ();
     	s += " T="+(model.getDefaultT()+1)+"/"+model.getMaxT();
-    	if (model.isNumerousChannel()) {
+    	if (model.isLifetimeImage()) {
 			s += " L="+(model.getSelectedBin()+1);
 			s += "/"+(model.getMaxLifetimeBin());
 		}

@@ -406,7 +406,7 @@ public class DomainPane
         	previewToolBar = new PreviewToolBar(controller, model);
         }
         
-        if (!model.isNumerousChannel())
+        if (!model.isLifetimeImage())
         	channelButtonPanel = createChannelButtons();
         else {
         	lifetimeSlider = new OneKnobSlider(OneKnobSlider.HORIZONTAL, 

@@ -189,7 +189,7 @@ class UserUI
 	protected void clearDisplay()
 	{ 
 		diskSpace.clearDisplay();
-		if (!diskTask.isCollapsed()) diskTask.setCollapsed(true);
+		//if (!diskTask.isCollapsed()) diskTask.setCollapsed(true);
 		//removeAll();
 		diskSpace.revalidate();
 	}

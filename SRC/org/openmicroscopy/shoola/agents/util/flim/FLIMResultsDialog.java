@@ -24,11 +24,16 @@ package org.openmicroscopy.shoola.agents.util.flim;
 
 
 //Java imports
+import info.clearthought.layout.TableLayout;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -45,6 +50,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.Map.Entry;
+
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
@@ -56,6 +63,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.filechooser.FileFilter;
@@ -74,6 +82,7 @@ import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
+import org.openmicroscopy.shoola.util.image.io.WriterImage;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -131,6 +140,9 @@ public class FLIMResultsDialog
 	/** The name of the Y-axis. */
 	private static final String NAME_Y_AXIS = "Number of Pixels";
 	
+	/** The columns of the table. */
+	private static final String[] COLUMNS = {NAME_X_AXIS, NAME_Y_AXIS};
+	
 	/** Filters used for the save options. */
 	private static List<FileFilter> FILTERS;
 
@@ -164,7 +176,7 @@ public class FLIMResultsDialog
 	private FileChooser chooser;
 	
 	/** The values extracted from the file. */
-	private List<Double> parseValues;
+	private List<List<Double>> parseValues;
 	
 	/** The table displaying the values plotted. */
 	private Double[][] data;
@@ -183,6 +195,21 @@ public class FLIMResultsDialog
 	
 	/** The component displaying the results. */
 	private JComboBox resultsBox;
+	
+	/** The starting value of the interval. */
+	private double start;
+	
+	/** The ending value of the interval. */
+	private double end;
+	
+	/** Component displaying the image. */
+	private ImageCanvas canvas;
+	
+	/** Component hosting the settings. */
+	private JPanel settings;
+	
+	/** Component hosting the settings. */
+	private JComponent mainPane;
 	
 	/**
 	 * Saves the data to the specified file.
@@ -306,19 +333,29 @@ public class FLIMResultsDialog
 		hp.setYAxisName(NAME_Y_AXIS);
 		
 		if (values == null) {
-			double min = Double.MAX_VALUE;
-			double max = Double.MIN_VALUE;
-			double v;
 			
-			values = new double[parseValues.size()];
-			Iterator<Double> i = parseValues.iterator();
+			double v;
+			List<Double> list = new ArrayList<Double>();
+			
+			Iterator<List<Double>> i = parseValues.iterator();
 			int index = 0;
+			List<Double> l;
+			Iterator<Double> j;
 			while (i.hasNext()) {
-				v = i.next();
-				
-				if (v < min) min = v;
-				if (v > max) max = v;
-				values[index] = v;
+				l = i.next();
+				j = l.iterator();
+				while (j.hasNext()) {
+					v = j.next();
+					if (v < start) start = v;
+					if (v > end) end = v;
+					list.add(v);
+				}
+			}
+			
+			values = new double[list.size()];
+			j = list.iterator();
+			while (i.hasNext()) {
+				values[index] = j.next();
 				index++;
 			}
 		}
@@ -326,8 +363,6 @@ public class FLIMResultsDialog
 			hp.addSeries((String) resultsBox.getSelectedItem(), 
 					values, DEFAULT_COLOR, BINS);
 		}
-			
-		
 		createTable(hp.getYValues(0));
 		body = hp.getChart();
 		chartObject = hp;
@@ -338,28 +373,28 @@ public class FLIMResultsDialog
 	 * 
 	 * @param container The container hosting the various components. 
 	 */
-	private void layoutBody(Container container)
+	private JComponent layoutBody()
 	{
-		if (body == null) return;
-		if (data != null) {
-			String[] columns = {NAME_X_AXIS, NAME_Y_AXIS};
-			JSplitPane sp = new JSplitPane();
-			sp.setLeftComponent(body);
-			JXTaskPane pane = (JXTaskPane) paneContainer.getComponent(0);
-			pane.removeAll();
-			tableValues = new JTable(data, columns);
-			tableValues.getTableHeader().setReorderingAllowed(false);
-			pane.add(new JScrollPane(tableValues));
-			sp.setRightComponent(paneContainer);
-			container.add(sp, BorderLayout.CENTER);
-		} else {
-			container.add(body, BorderLayout.CENTER);
-		}
+		if (mainPane != null)
+			getContentPane().remove(mainPane);
+		if (body == null) return new JPanel();
+		if (data == null) return body;
+		JPanel p = new JPanel();
+		double[][] size = {{TableLayout.PREFERRED, TableLayout.PREFERRED}, 
+				{TableLayout.PREFERRED, TableLayout.PREFERRED}};
+		p.setLayout(new TableLayout(size));
+		p.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 0));
+		p.add(canvas, "0, 0, LEFT, TOP");
+		p.add(settings, "0, 1, LEFT, TOP");
+		p.add(body, "1, 0");
+		p.add(paneContainer, "1, 1");
+		return p;
 	}
 	
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
+		canvas = new ImageCanvas();
 		Entry entry;
 		Iterator i = results.entrySet().iterator();
 		FileAnnotationData fa;
@@ -411,14 +446,19 @@ public class FLIMResultsDialog
 		saveButton.setActionCommand(""+SAVE);
 		saveButton.addActionListener(this);
 		parseValues = parseFile(file);
+		start = Double.MAX_VALUE;
+		end = Double.MIN_VALUE;
+		
 		if (parseValues == null || parseValues.size() == 0) {
 			 JLabel l = new JLabel();
 			 l.setText("Cannot display the results");
 			 body = l;
 		} else {
 			createChart(null, BINS);
+			createImage();
 		}
 		saveButton.setEnabled(chartObject != null);
+		
 	}
 	
 	/** Closes the dialog. */
@@ -443,96 +483,144 @@ public class FLIMResultsDialog
 		chooser.centerDialog();
 	}
 	
+	/** Creates the image representing the values read from the file.*/
+	private void createImage()
+	{
+		if (parseValues == null || parseValues.size() == 0) return;
+		int rows = parseValues.size();
+		List<Double> l = parseValues.get(0);
+		int columns = l.size();
+		Iterator<List<Double>> i = parseValues.iterator();
+		Iterator<Double> j;
+		int index = 0;
+		int[] values = new int[columns*rows];
+		while (i.hasNext()) {
+			l = i.next();
+			j = l.iterator();
+			while (j.hasNext()) {
+				values[index] = convertValue(j.next().doubleValue());
+				index++;
+			}
+		}
+		Dimension d = new Dimension(columns, rows);
+		canvas.setPreferredSize(d);
+		canvas.setSize(d);
+		BufferedImage image = new BufferedImage(columns, rows, 
+	    		BufferedImage.TYPE_INT_RGB);
+	    image.setRGB(0, 0, columns, rows, values, 0, columns);
+		canvas.setImage(image);
+	}
+	
+	/**
+	 * Maps the value to [0, 255] for display.
+	 * 
+	 * @param value The value to convert.
+	 * @return See above.
+	 */
+	private int convertValue(double value)
+	{
+		if (value < start) return 0;
+		if (value > end) return 255;
+		if (end == 0) return 0;
+		double a = 255*(value-start)/(end-start);
+		return (int) a;
+	}
+	
+	
 	/** Plots the results again. */
 	private void plot()
 	{
 		if (parseValues == null || parseValues.size() == 0) return;
 		Number nMin = minThreshold.getValueAsNumber();
 		Number nMax = maxThreshold.getValueAsNumber();
-		Iterator<Double> i = parseValues.iterator();
+		Iterator<List<Double>> i = parseValues.iterator();
 		double[] results;
 		int index = 0;
 		double min;
 		double max;
 		double v;
+		List<Double> l;
+		Iterator<Double> j;
 		List<Double> values;
 		double binMin = Double.MAX_VALUE;
 		double binMax = Double.MIN_VALUE;
+		values = new ArrayList<Double>();
 		if (nMin == null && nMax == null) {
-			results = new double[parseValues.size()];
-			i = parseValues.iterator();
 			while (i.hasNext()) {
-				v = i.next();
-				if (v < binMin) binMin = v;
-				if (v > binMax) binMax = v;
-				results[index] = v;
-				index++;
+				l = i.next();
+				j = l.iterator();
+				while (j.hasNext()) {
+					v = j.next();
+					if (v < binMin) binMin = v;
+					if (v > binMax) binMax = v;
+					values.add(v);
+				}
 			}
 		} else if (nMin == null && nMax != null) {
 			max = nMax.doubleValue();
-			values = new ArrayList<Double>();
 			while (i.hasNext()) {
-				v = i.next();
-				if (v < max) {
-					if (v < binMin) binMin = v;
-					if (v > binMax) binMax = v;
-					values.add(v);
-				}
-			}
-			results = new double[values.size()];
-			i = values.iterator();
-			while (i.hasNext()) {
-				results[index] = i.next();
-				index++;
+				l = i.next();
+				j = l.iterator();
+				while (j.hasNext()) {
+					v = j.next();
+					if (v < max) {
+						if (v < binMin) binMin = v;
+						if (v > binMax) binMax = v;
+						values.add(v);
+					}
+				}	
 			}	
 		} else if (nMax == null && nMin != null) {
 			min = nMin.doubleValue();
-			values = new ArrayList<Double>();
 			while (i.hasNext()) {
-				v = i.next();
-				if (v > min) {
-					if (v < binMin) binMin = v;
-					if (v > binMax) binMax = v;
-					values.add(v);
+				l = i.next();
+				j = l.iterator();
+				while (j.hasNext()) {
+					v = j.next();
+					if (v > min) {
+						if (v < binMin) binMin = v;
+						if (v > binMax) binMax = v;
+						values.add(v);
+					}
 				}
-			}
-			results = new double[values.size()];
-			i = values.iterator();
-			while (i.hasNext()) {
-				results[index] = i.next();
-				index++;
 			}
 		} else {
 			min = nMin.doubleValue();
 			max = nMax.doubleValue();
-			values = new ArrayList<Double>();
 			while (i.hasNext()) {
-				v = i.next();
-				if (v > min && v < max) {
-					if (v < binMin) binMin = v;
-					if (v > binMax) binMax = v;
-					values.add(v);
+				l = i.next();
+				j = l.iterator();
+				while (j.hasNext()) {
+					v = j.next();
+					if (v > min && v < max) {
+						if (v < binMin) binMin = v;
+						if (v > binMax) binMax = v;
+						values.add(v);
+					}
 				}
 			}
-			results = new double[values.size()];
-			i = values.iterator();
-			while (i.hasNext()) {
-				results[index] = i.next();
-				index++;
-			}
 		}
+		results = new double[values.size()];
+		j = values.iterator();
+		while (i.hasNext()) {
+			results[index] = j.next();
+			index++;
+		}
+		start = binMin;
+		end = binMax;
 		int bins = (int) (binMax-binMin);
 		//repaint
 		createChart(results, bins);
+		createImage();
 		tableIntervals.populateTable();
-		Container container = getContentPane();
-		Component c = container.getComponent(0);
-		container.removeAll();
-		container.add(c, BorderLayout.NORTH);
-		layoutBody(container);
-		container.add(buildControlsBar(), BorderLayout.SOUTH);
-		container.validate();
-		container.repaint();
+		
+		//
+		JXTaskPane pane = (JXTaskPane) paneContainer.getComponent(0);
+		pane.removeAll();
+		tableValues = new JTable(data, COLUMNS);
+		tableValues.getTableHeader().setReorderingAllowed(false);
+		pane.add(new JScrollPane(tableValues));
+		layoutBody();
 	}
 	
 	/** Selects the file. */
@@ -562,20 +650,23 @@ public class FLIMResultsDialog
 	 * @param file The file to parse.
 	 * @return See above.
 	 */
-	private List<Double> parseCSV(File file)
+	private List<List<Double>> parseCSV(File file)
 	{
-		List<Double> list = new ArrayList<Double>();
+		List<List<Double>> list = new ArrayList<List<Double>>();
 		try {
 			BufferedReader reader  = new BufferedReader(new FileReader(file));
 			String line = null;
 			StringTokenizer st;
 			double v;
+			List<Double> row;
 			while ((line = reader.readLine()) != null) {
+				row = new ArrayList<Double>();
 				st = new StringTokenizer(line, ",");
 				while (st.hasMoreTokens()) {
 					v = Double.parseDouble(st.nextToken());
-					list.add(UIUtilities.roundTwoDecimals(v*FACTOR));
+					row.add(UIUtilities.roundTwoDecimals(v*FACTOR));
 				}
+				list.add(row);
 			}
 			reader.close();
 			return list;
@@ -589,12 +680,46 @@ public class FLIMResultsDialog
 	 * @param file The file to parse.
 	 * @return See above.
 	 */
-	private List<Double> parseFile(File file)
+	private List<List<Double>> parseFile(File file)
 	{
 		CustomizedFileFilter filter = new CSVFilter();
 		if (filter.accept(file))
 			return parseCSV(file);
 		return null;
+	}
+	
+	/**
+	 * Builds the components used to modify the 
+	 * @return
+	 */
+	private JPanel buildSettingsComponent()
+	{
+		JPanel content = new JPanel();
+		content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+		JPanel row = new JPanel();
+		row.setLayout(new FlowLayout());
+		JLabel l = new JLabel();
+		l.setText("Min Threshold:");
+		l.setToolTipText(minThreshold.getToolTipText());
+		row.add(l);
+		row.add(minThreshold);
+		content.add(UIUtilities.buildComponentPanel(row));
+		row = new JPanel();
+		row.setLayout(new FlowLayout());
+		l = new JLabel();
+		l.setText("Max Threshold:");
+		l.setToolTipText(maxThreshold.getToolTipText());
+		row.add(l);
+		row.add(maxThreshold);
+		content.add(UIUtilities.buildComponentPanel(row));
+		row = new JPanel();
+		row.setLayout(new FlowLayout());
+		l = new JLabel();
+		l.setText("Results:");
+		row.add(l);
+		row.add(resultsBox);
+		content.add(UIUtilities.buildComponentPanel(row));
+		return content;
 	}
 	
 	/**
@@ -604,32 +729,13 @@ public class FLIMResultsDialog
 	 */
 	private JComponent buildControlsBar()
 	{
-		JPanel content = new JPanel();
-		content.setLayout(new FlowLayout());
-		JLabel l = new JLabel();
-		l.setText("Min Threshold:");
-		l.setToolTipText(minThreshold.getToolTipText());
-		content.add(l);
-		content.add(minThreshold);
-		l = new JLabel();
-		l.setText("Max Threshold:");
-		l.setToolTipText(maxThreshold.getToolTipText());
-		content.add(l);
-		content.add(maxThreshold);
-		
-		content.add(resultsBox);
 		JPanel p = new JPanel();
 		p.add(plotButton);
 		p.add(Box.createHorizontalStrut(10));
 		p.add(saveButton);
 		p.add(Box.createHorizontalStrut(10));
 		p.add(closeButton);
-		JPanel bar = new JPanel();
-		bar.setLayout(new BoxLayout(bar, BoxLayout.X_AXIS));
-		bar.add(UIUtilities.buildComponentPanel(content));
-		bar.add(Box.createHorizontalGlue());
-		bar.add(UIUtilities.buildComponentPanelRight(p));
-		return UIUtilities.buildComponentPanel(bar);
+		return UIUtilities.buildComponentPanelRight(p);
 	}
 	
 	/** Builds and lays out the UI. 
@@ -640,10 +746,12 @@ public class FLIMResultsDialog
 	{
 		TitlePanel tp = new TitlePanel("Results", 
 				"Follow a view of the results.", icon);
+		settings = buildSettingsComponent();
 		Container container = getContentPane();
 		container.setLayout(new BorderLayout());
 		container.add(tp, BorderLayout.NORTH);
-		layoutBody(container);
+		mainPane = layoutBody();
+		container.add(mainPane, BorderLayout.CENTER);
 		container.add(buildControlsBar(), BorderLayout.SOUTH);
 	}
 	

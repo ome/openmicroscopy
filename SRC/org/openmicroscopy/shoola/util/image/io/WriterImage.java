@@ -37,9 +37,13 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageWriter;
 import javax.imageio.stream.ImageOutputStream;
 
+
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.filter.file.GIFFilter;
+import org.openmicroscopy.shoola.util.filter.file.JPEGFilter;
+import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
 
 /** 
  * Utility class to encode images.
@@ -148,14 +152,14 @@ public class WriterImage
 			ByteArrayOutputStream stream = new ByteArrayOutputStream();
 			switch (type) {
 				case PNG:
-					ImageIO.write(image, "png", stream);
+					ImageIO.write(image, PNGFilter.PNG, stream);
 					break;
 				case GIF:
-					ImageIO.write(image, "gif", stream);
+					ImageIO.write(image, GIFFilter.GIF, stream);
 					break;
 				case JPEG:
 				default:
-					ImageIO.write(image, "jpeg", stream);
+					ImageIO.write(image, JPEGFilter.JPEG, stream);
 			}
 			stream.close();
 			return stream.toByteArray();
@@ -169,7 +173,7 @@ public class WriterImage
 	 * 
 	 * @param values The values to convert.
 	 * @return See above.
-	 *  @throws EncoderException Exception thrown if an error occurred during the
+	 * @throws EncoderException Exception thrown if an error occurred during the
      * encoding process.
 	 */
 	public static BufferedImage bytesToImage(byte[] values)
@@ -190,7 +194,7 @@ public class WriterImage
 	 * 
 	 * @param values The values to convert.
 	 * @return See above.
-	 *  @throws EncoderException Exception thrown if an error occurred during the
+	 * @throws EncoderException Exception thrown if an error occurred during the
      * encoding process.
 	 */
 	public static int[] bytesToDataBuffer(byte[] values)

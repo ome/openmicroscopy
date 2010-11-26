@@ -197,7 +197,7 @@ class GraphicsPane
         maxLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
         minLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
         sliders = new ArrayList<ChannelSlider>();
-        if (!model.isNumerousChannel()) {
+        if (!model.isLifetimeImage()) {
         	List<ChannelData> channels = model.getChannelData();
         	Iterator<ChannelData> i = channels.iterator();
         	ChannelSlider slider;

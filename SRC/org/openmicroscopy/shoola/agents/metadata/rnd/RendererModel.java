@@ -1357,15 +1357,16 @@ class RendererModel
 	}
 	
 	/**
-	 * Returns the number of bins per time interval
+	 * Returns the number of bins per time interval.
 	 * 
 	 * @return See above
 	 */
 	int getMaxLifetimeBin()
 	{
-		if (isNumerousChannel()) return getMaxC();
+		if (isLifetimeImage()) return getMaxC();
 		return 0;
 	}
+	
 	
 	/**
 	 * Returns <code>true</code> if the image is a lifetime image,
@@ -1373,7 +1374,7 @@ class RendererModel
 	 * 
 	 * @return See above.
 	 */
-	boolean isNumerousChannel()
+	boolean isLifetimeImage()
 	{ 
 		if (getMaxC() >= Renderer.MAX_CHANNELS) return true;
 		return image.isLifetime(); 
