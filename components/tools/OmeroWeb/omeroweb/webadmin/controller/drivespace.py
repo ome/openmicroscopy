@@ -84,7 +84,6 @@ def usersData(conn, offset=0):
     p.page(offset, PAGE_SIZE)
     pixels_list = conn.getQueryService().findAllByQuery(
             "select p from Pixels as p join fetch p.pixelsType " \
-            #"where p.details.owner.id = 2914 " \
             "order by p.id", p, ctx)
     
     count = len(pixels_list)
