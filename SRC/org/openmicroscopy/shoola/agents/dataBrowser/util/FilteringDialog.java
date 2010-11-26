@@ -63,7 +63,6 @@ import javax.swing.event.DocumentListener;
 
 
 //Third-party libraries
-import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXDatePicker;
 
 //Application-internal dependencies
@@ -563,32 +562,17 @@ public class FilteringDialog
 	private JPanel buildSelectionPane()
 	{
 		JPanel p = new JPanel();
-		double[][] size = {{TableLayout.FILL}, 
-				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5, 
-			TableLayout.PREFERRED, 5,
-				TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 5, 
-				TableLayout.PREFERRED, 5}};
-		p.setLayout(new TableLayout(size));
-		int i = 0;
-		p.add(buildTagsPane(), "0, "+i);
-		i++;
-		p.add(new JSeparator(JSeparator.HORIZONTAL), "0, "+i);
-		i++;
-		p.add(buildNamePane(), "0, "+i);
-		i++;
-		p.add(new JSeparator(JSeparator.HORIZONTAL), "0, "+i);
-		i++;
-		p.add(buildCommentsPane(), "0, "+i);
-		i++;
-		p.add(new JSeparator(JSeparator.HORIZONTAL), "0, "+i);
-		i++;
-		p.add(buildRatingPane(), "0, "+i);
-		i++;
-		p.add(new JSeparator(JSeparator.HORIZONTAL), "0, "+i);
-		i++;
-		p.add(buildCalendarPane(), "0, "+i);
-		i++;
-		p.add(new JSeparator(JSeparator.HORIZONTAL), "0, "+i);
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		p.add(buildTagsPane());
+		p.add(new JSeparator(JSeparator.HORIZONTAL));
+		p.add(buildNamePane());
+		p.add(new JSeparator(JSeparator.HORIZONTAL));
+		p.add(buildCommentsPane());
+		p.add(new JSeparator(JSeparator.HORIZONTAL));
+		p.add(buildRatingPane());
+		p.add(new JSeparator(JSeparator.HORIZONTAL));
+		p.add(buildCalendarPane());
+		p.add(new JSeparator(JSeparator.HORIZONTAL));
 		return p;
 	}
 	

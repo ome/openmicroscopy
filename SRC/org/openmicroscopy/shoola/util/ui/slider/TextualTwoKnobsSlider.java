@@ -39,6 +39,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+
+import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -48,7 +50,6 @@ import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
 
 //Third-party libraries
-import info.clearthought.layout.TableLayout; 
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
@@ -551,25 +552,22 @@ public class TextualTwoKnobsSlider
 				add(endField);
 				break;
 			case LAYOUT_SLIDER_AND_LABEL:
-				double size[][] =
-		        {{TableLayout.PREFERRED, TableLayout.PREFERRED},  // Columns
-		         {TableLayout.PREFERRED}}; // Rows
 				JPanel content = new JPanel();
-				content.setLayout(new TableLayout(size));
-				content.add(sliderLabel, "0, 0");
-				content.add(UIUtilities.buildComponentPanel(slider), "1, 0");
+				content.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+				content.add(sliderLabel);
+				content.add(UIUtilities.buildComponentPanel(slider));
 				add(content);
 				break;
 			case LAYOUT_ALL:
 			default:
-				double size1[][] =
-		        {{TableLayout.PREFERRED, TableLayout.PREFERRED},  // Columns
-		         {TableLayout.PREFERRED, TableLayout.PREFERRED}}; // Rows
 				JPanel content1 = new JPanel();
-				content1.setLayout(new TableLayout(size1));
-				content1.add(sliderLabel, "0, 0");
-				content1.add(UIUtilities.buildComponentPanel(slider), "1, 0");
-				content1.add(buildFieldsPane(), "1, 1");
+				content1.setLayout(new BoxLayout(content1, BoxLayout.Y_AXIS));
+				JPanel row = new JPanel();
+				row.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+				row.add(sliderLabel);
+				row.add(UIUtilities.buildComponentPanel(slider));
+				content1.add(row);
+				content1.add(buildFieldsPane());
 				add(content1);
 		}
 	}

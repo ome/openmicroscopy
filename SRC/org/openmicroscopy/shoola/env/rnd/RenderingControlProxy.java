@@ -586,14 +586,10 @@ class RenderingControlProxy
 		try {
 			int[] buffer = renderPlaneCompressed(pDef);
 			if (buffer == null) return null;
-			Point p = getSize(pDef);
-			//imageSize = values.length;
-			//initializeCache(pDef);
-			//cache(pDef, values); 
+			Point p = getSize(pDef); 
 			return createTexture(buffer, p.x, p.y);
 			
 		} catch (Throwable e) {
-			e.printStackTrace();
 			handleException(e, ERROR+"cannot render the compressed image.");
 		} 
 		return null;
@@ -1806,7 +1802,7 @@ class RenderingControlProxy
 		 if (pDef == null) 
 	            throw new IllegalArgumentException("Plane def cannot be null.");
 	        //DataServicesFactory.isSessionAlive(context);
-	     //if (isCompressed()) return renderPlaneCompressedAsTexture(pDef);
+	     if (isCompressed()) return renderPlaneCompressedAsTexture(pDef);
 	     return renderPlaneUncompressedAsTexture(pDef);
 	}
 
