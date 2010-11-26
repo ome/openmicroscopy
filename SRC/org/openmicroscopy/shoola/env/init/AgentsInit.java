@@ -24,9 +24,6 @@
 package org.openmicroscopy.shoola.env.init;
 
 //Java imports
-import java.io.File;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Iterator;
 import java.util.List;
 

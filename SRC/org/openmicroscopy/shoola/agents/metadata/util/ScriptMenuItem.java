@@ -33,6 +33,7 @@ import javax.swing.JMenuItem;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
@@ -70,6 +71,9 @@ public class ScriptMenuItem
 	/** Identifies the movie export script. */
 	public static final int MOVIE_EXPORT_SCRIPT = 4;
 	
+	/** Identifies the FLIM script. */
+	public static final int FLIM_SCRIPT = 5;
+	
 	/** The collection of scripts that have a UI available. */
 	private static final List<String>		SCRIPTS_UI_AVAILABLE;
 	
@@ -80,6 +84,8 @@ public class ScriptMenuItem
 		SCRIPTS_UI_AVAILABLE.add(FigureParam.MOVIE_SCRIPT);
 		SCRIPTS_UI_AVAILABLE.add(FigureParam.SPLIT_VIEW_SCRIPT);
 		SCRIPTS_UI_AVAILABLE.add(MovieExportParam.MOVIE_SCRIPT);
+		SCRIPTS_UI_AVAILABLE.add(MovieExportParam.MOVIE_SCRIPT);
+		SCRIPTS_UI_AVAILABLE.add(AnalysisParam.FLIM_SCRIPT);
 	}
 	
 	/** The script to handle. */
@@ -135,6 +141,8 @@ public class ScriptMenuItem
 			return SPLIT_VIEW_FIGURE_SCRIPT;
 		else if (MovieExportParam.MOVIE_SCRIPT.equals(path))
 			return MOVIE_EXPORT_SCRIPT;
+		else if (AnalysisParam.FLIM_SCRIPT.equals(path))
+			return FLIM_SCRIPT;
 		return -1;
 	}
 	

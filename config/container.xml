@@ -294,5 +294,5 @@
    * be set to false when testing DB upgrade for example.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
    <entry name="/services/SERVER/BinaryAvailable" type="boolean">true</entry>
-    
+     
 </container>

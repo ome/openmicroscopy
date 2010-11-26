@@ -682,6 +682,11 @@ class TaskBarView
      * Implemented as specified by {@link TaskBar}.
      * @see TaskBar#openURL(String)
      */
-	public void openURL(String path) { manager.openURL(path); }
+	public void openURL(String path)
+	{ 
+		if (path == null || path.trim().length() == 0)
+			return;
+		manager.openURL(path); 
+	}
 	
 }

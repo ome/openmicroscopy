@@ -24,5 +24,6 @@
  <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    * Information indicating to use or not openGL. 
  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
-    <entry name="/library/opengl" type="boolean">false</entry>
+    <entry name="/library/opengl" type="boolean">true</entry>
+ 
 </agent>

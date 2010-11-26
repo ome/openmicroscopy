@@ -47,6 +47,10 @@ import java.util.List;
 public class AnalysisParam
 {
 
+	/** Identifies the <code>Split View Figure</code> script. */
+	public static final String FLIM_SCRIPT = 
+		ScriptObject.ANALYSIS_PATH+"FLIM.py";
+	
 	/** Identifies a <code>FLIM</code> analysis. */
 	public static final int FLIM = 0;
 	

@@ -21,4 +21,8 @@
        </structuredEntry>
      </fonts>
    </resources>
+   <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   * Information about RAPID 
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+   <entry name="/services/SERVER/RAPID">http://escience2.inf.ed.ac.uk:8080/web/guest/omero</entry>
 </agent>

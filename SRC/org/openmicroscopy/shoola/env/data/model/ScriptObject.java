@@ -84,6 +84,9 @@ public class ScriptObject
 	/** Path to the <code>Setup</code> script. */
 	public static final String SETUP_PATH = "/omero/setup_scripts/";
 	
+	/** Path to the <code>Setup</code> script. */
+	public static final String ANALYSIS_PATH = "/omero/analysis_scripts/";
+	
 	/** Indicates that the script is a <code>Export</code> script. */
 	public static final int EXPORT = 0;
 	

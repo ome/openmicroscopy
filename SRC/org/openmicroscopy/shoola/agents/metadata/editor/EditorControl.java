@@ -46,11 +46,9 @@ import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
+import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
-import omero.model.OriginalFile;
-
-import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
@@ -65,6 +63,7 @@ import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.util.DataComponent;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.editorpreview.PreviewPanel;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.data.model.AnalysisParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -191,7 +190,16 @@ class EditorControl
 	/** Collection of supported export formats. */
 	private List<FileFilter>	exportFilters;
 	
+	/** Reference to the figure dialog. */
 	private FigureDialog		figureDialog;
+	
+	/** Launches RAPID. */
+	private void openFLIM()
+	{
+		String url = (String) 
+			MetadataViewerAgent.getRegistry().lookup(LookupNames.RAPID);
+		MetadataViewerAgent.getRegistry().getTaskBar().openURL(url);
+	}
 	
 	/** Creates the collection of supported file filters. */
 	private void createFileFilters()
@@ -576,6 +584,8 @@ class EditorControl
 						break;
 					case ScriptMenuItem.MOVIE_EXPORT_SCRIPT:
 						view.makeMovie(-1, null);
+					case ScriptMenuItem.FLIM_SCRIPT:
+						openFLIM();
 				}
 			} else {
 				ScriptObject object = item.getScript();

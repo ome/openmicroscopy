@@ -244,4 +244,7 @@ public class LookupNames
     public static final String	BINARY_AVAILABLE = 
     	"/services/SERVER/BinaryAvailable";
     
+    /** Field to access <code>RAPID</code> information. */
+    public static final String	RAPID = "/services/SERVER/RAPID";
+    
 }
