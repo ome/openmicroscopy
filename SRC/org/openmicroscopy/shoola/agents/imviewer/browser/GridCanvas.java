@@ -322,15 +322,15 @@ class GridCanvas
 		else texture.updateImage(data);
 		texture.enable();
 		texture.bind();
+		paintGrid(gl);
+		/*
     	if (model.isRenderedImageRGB() && model.isModelRGB()) { 
-    		//texture = TextureIO.newTexture(data);
-    		//texture.enable();
-    		//texture.bind();
     		paintGridAsRGB(gl);
     	} else {
     		//texture = null;
     		paintGrid(gl);
     	}
+    	*/
     	float vGap = 1.0f/model.getGridRow();
     	//paint the 
     	float xStart = HGAP;

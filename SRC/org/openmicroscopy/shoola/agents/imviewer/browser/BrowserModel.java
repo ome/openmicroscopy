@@ -315,7 +315,7 @@ class BrowserModel
     		if (!hasGridImagesAsTexture())
     			gridImagesAsTextures = parent.getGridImagesAsTexture();
     	} else {
-    		if (isRenderedImageRGB()) return;
+    		//if (isRenderedImageRGB()) return;
         	gridImagesAsTextures = parent.getGridImagesAsTexture();
     	}
     }
@@ -1158,6 +1158,7 @@ class BrowserModel
 			label = data.getChannelLabeling();
 			rgb = new boolean[3];
 			if (parent.isChannelActive(index)) {
+				/*
 				if (b) {
 					rgb[0] = parent.isChannelRed(index);
 					rgb[1] = parent.isChannelGreen(index);
@@ -1167,6 +1168,9 @@ class BrowserModel
 					image = new GridImage(index, true, label);
 					image.setTextureData(gridImagesAsTextures.get(index));
 				}
+				*/
+				image = new GridImage(index, true, label);
+				image.setTextureData(gridImagesAsTextures.get(index));
 			} else {
 				image = new GridImage(index, false, label);
 			}

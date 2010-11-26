@@ -244,7 +244,7 @@
    * Information related to the version of the software, name of the software,
    * etc.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
-    <entry name="Version">Beta4.2.1</entry>
+    <entry name="Version">Beta4.2.2</entry>
     <entry name="SoftwareName">OMERO.editor</entry>
     <entry name="AboutFile">about.xml</entry>
     <entry name="SplashScreenLogo">client_splashscreen.png</entry>
