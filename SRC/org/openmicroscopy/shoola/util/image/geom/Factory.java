@@ -575,7 +575,10 @@ public class Factory
 			
 			ColorModel colorModel = new DirectColorModel(bits, masks[0],   
 													masks[1], masks[2]);
-			return new BufferedImage(colorModel, raster, false, null);
+			BufferedImage image =
+				new BufferedImage(colorModel, raster, false, null);
+			image.setAccelerationPriority(1f);
+			return image;
 		}
 		return null;
 	}

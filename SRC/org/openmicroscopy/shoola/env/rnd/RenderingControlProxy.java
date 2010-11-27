@@ -28,7 +28,6 @@ import java.awt.Color;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
-import java.io.ByteArrayInputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -38,8 +37,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import javax.imageio.ImageIO;
 
 //Third-party libraries
 import com.sun.opengl.util.texture.TextureData;
@@ -502,8 +499,7 @@ class RenderingControlProxy
 		try {
 			byte[] values = servant.renderCompressed(pDef);
 			imageSize = values.length;
-			ByteArrayInputStream stream = new ByteArrayInputStream(values);
-			return ImageIO.read(stream);
+			return WriterImage.bytesToImage(values);
 		} catch (Throwable e) {
 			handleException(e, ERROR+"cannot render the compressed image.");
 		} 

@@ -183,7 +183,9 @@ public class WriterImage
     		throw new IllegalArgumentException("No array specified.");
 		try {
 			ByteArrayInputStream stream = new ByteArrayInputStream(values);
-			return ImageIO.read(stream);
+			BufferedImage image = ImageIO.read(stream);
+			image.setAccelerationPriority(1f);
+			return image;
 		} catch (Exception e) {
 			throw new EncoderException("Cannot create buffered image", e);
 		}
