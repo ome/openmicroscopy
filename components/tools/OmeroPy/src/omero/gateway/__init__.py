@@ -621,7 +621,7 @@ class BlitzObjectWrapper (object):
         """
         rv = self._getAnnotationLinks(ns)
         if len(rv):
-            return AnnotationWrapper._wrap(self._conn, rv[0].child)
+            return AnnotationWrapper._wrap(self._conn, rv[0].child)     # TODO: add link=rv[0] to args?
         return None
 
     def listAnnotations (self, ns=None):
@@ -730,7 +730,6 @@ class BlitzObjectWrapper (object):
         Creates a dict representation of this object.
         E.g. for Image: {'description': '', 'author': 'Will Moore', 'date': 1286332557.0,
             'type': 'Image', 'id': 3841L, 'name': 'cb_4_w500_t03_z01.tif'}
-        TODO: for what objects is hasattr(self, '_attrs') True??
         
         @param xtra:        A dict of extra keys to include. E.g. 'childCount'
         @type xtra:         Dict
@@ -3137,9 +3136,15 @@ class _BlitzGateway (object):
 
 def safeCallWrap (self, attr, f): #pragma: no cover
     """
-    Captures called function. Throws an exception.
+    Wraps a function call. Does not call the function. Throws an exception.
     
-    @return:
+    @param self:    Wrapped object
+    @param attr:    Function name
+    @type attr:     String
+    @param f:       Function to wrap
+    @type f:        Function
+    @return:        Wrapped function
+    @rtype:         Function
     """
     
     def inner (*args, **kwargs):
@@ -3224,6 +3229,10 @@ def splitHTMLColor (color):
     - abcd     -> (0xAA, 0xBB, 0xCC, 0xDD)
     - abbccd   -> (0xAB, 0xBC, 0xCD, 0xFF)
     - abbccdde -> (0xAB, 0xBC, 0xCD, 0xDE)
+    
+    @param color:   Characters to split.
+    @return:        rgba
+    @rtype:         list of Ints
     """
     try:
         out = []
@@ -3244,20 +3253,43 @@ def splitHTMLColor (color):
 
 
 class ProxyObjectWrapper (object):
+    """
+    Wrapper for services. E.g. Admin Service, Delete Service etc. 
+    Maintains reference to connection. 
+    Handles creation of service when requested. 
+    """
+    
     def __init__ (self, conn, func_str):
+        """
+        Initialisation of proxy object wrapper. 
+        
+        @param conn:        The L{BlitzGateway} connection
+        @type conn:         L{BlitzGateway}
+        @param func_str:    The name of the service creation method. E.g 'getAdminService'
+        @type func_str:     String
+        """
         self._obj = None
         self._func_str = func_str
         self._resyncConn(conn)
         self._tainted = False
     
     def clone (self):
+        """
+        Creates and returns a new L{ProxyObjectWrapper} with the same connection 
+        and service creation method name as this one. 
+        
+        @return:    Cloned service wrapper
+        @rtype:     L{ProxyObjectWrapper}
+        """
+        
         return ProxyObjectWrapper(self._conn, self._func_str)
 
     def _connect (self): #pragma: no cover
         """
-        Returns True if connected.
+        Returns True if connected. If connection OK, wrapped service is also created. 
         
-        @return:    Boolean
+        @return:    True if connection OK
+        @rtype:     Boolean
         """
         
         logger.debug("proxy_connect: a");
@@ -3273,9 +3305,11 @@ class ProxyObjectWrapper (object):
         return True
 
     def taint (self):
+        """ Sets the tainted flag to True """
         self._tainted = True
 
     def untaint (self):
+        """ Sets the tainted flag to False """
         self._tainted = False
 
     def close (self):
@@ -3290,8 +3324,11 @@ class ProxyObjectWrapper (object):
     
     def _resyncConn (self, conn):
         """
+        Reset refs to connection and session factory. Resets session creation function. 
+        Attempts to reload the wrapped service - if already created (doesn't create service)
         
         @param conn:    Connection
+        @type conn:     L{BlitzGateway}
         """
         
         self._conn = conn
@@ -3307,9 +3344,12 @@ class ProxyObjectWrapper (object):
 
     def _getObj (self):
         """
+        Returns the wrapped service. If it is None, service is created. 
         
-        @return:    obj
+        @return:    The wrapped service
+        @rtype:     omero.api.ServiceInterface subclass
         """
+        
         if not self._obj:
             try:
                 self._obj = self._create_func()
@@ -3324,8 +3364,10 @@ class ProxyObjectWrapper (object):
     def _ping (self): #pragma: no cover
         """
         For some reason, it seems that keepAlive doesn't, so every so often I need to recreate the objects.
+        Calls serviceFactory.keepAlive(service). If this returns false, attempt to create service. 
         
-        @return:    Boolean
+        @return:    True if no exception thrown 
+        @rtype:     Boolean
         """
         
         try:
@@ -3366,9 +3408,12 @@ class ProxyObjectWrapper (object):
 
     def __getattr__ (self, attr):
         """
+        Returns named attribute of the wrapped service. 
+        If attribute is a method, the method is wrapped to handle exceptions, connection etc.
         
-        @param attr:    Connection
-        @return: rv
+        @param attr:    Attribute name
+        @type attr:     String
+        @return:        Attribute or wrapped method
         """
         # safe call wrapper
         obj = self._obj or self._getObj()
@@ -3383,24 +3428,53 @@ class AnnotationWrapper (BlitzObjectWrapper):
     """
     omero_model_AnnotationI class wrapper extends BlitzObjectWrapper.
     """
-    registry = {}
+    registry = {}       # class dict for type:wrapper E.g. DoubleAnnotationI : DoubleAnnotationWrapper
     OMERO_TYPE = None
 
     def __init__ (self, *args, **kwargs):
+        """
+        Initialises the Annotation wrapper and 'link' if in kwargs
+        """
         super(AnnotationWrapper, self).__init__(*args, **kwargs)
         self.link = kwargs.has_key('link') and kwargs['link'] or None
         if self._obj is None and self.OMERO_TYPE is not None:
             self._obj = self.OMERO_TYPE()
 
     def __eq__ (self, a):
+        """
+        Returns true if type, id, value and ns are equal
+        
+        @param a:   The annotation to compare
+        @return:    True if annotations are the same - see above
+        @rtype:     Boolean
+        """
         return type(a) == type(self) and self._obj.id == a._obj.id and self.getValue() == a.getValue() and self.getNs() == a.getNs()
 
     @classmethod
     def _register (klass, regklass):
+        """
+        Adds the AnnotationWrapper regklass to class registry
+        @param regklass:    The wrapper class, E.g. L{DoubleAnnotationWrapper} 
+        @type regklass:     L{AnnotationWrapper} subclass
+        """
+        
         klass.registry[regklass.OMERO_TYPE] = regklass
 
     @classmethod
     def _wrap (klass, conn, obj, link=None):
+        """
+        Class method for creating L{AnnotationWrapper} subclasses based on the type of 
+        annotation object, using previously registered mapping between OMERO types and wrapper classes
+        
+        @param conn:    The L{BlitzGateway} connection
+        @type conn:     L{BlitzGateway}
+        @param obj:     The OMERO annotation object. E.g. omero.model.DoubleAnnotation
+        @type obj:      L{omero.model.Annotation} subclass
+        @param link:    The link for this annotation
+        @type link:     E.g. omero.model.DatasetAnnotationLink
+        @return:    Wrapped AnnotationWrapper object or None if obj.__class__ not registered
+        @rtype:     L{AnnotationWrapper} subclass
+        """
         if obj.__class__ in klass.registry:
             kwargs = dict()
             if link is not None:
@@ -3411,6 +3485,17 @@ class AnnotationWrapper (BlitzObjectWrapper):
 
     @classmethod
     def createAndLink (klass, target, ns, val=None):
+        """
+        Class method for creating an instance of this AnnotationWrapper, setting ns and value
+        and linking to the target. 
+        
+        @param target:      The object to link annotation to
+        @type target:       L{BlitzObjectWrapper} subclass
+        @param ns:          Annotation namespace
+        @type ns:           String
+        @param val:         Value of annotation. E.g Long, Text, Boolean etc. 
+        """
+        
         this = klass()
         this.setNs(ns)
         if val is not None:
@@ -3418,15 +3503,31 @@ class AnnotationWrapper (BlitzObjectWrapper):
         target.linkAnnotation(this)
 
     def getNs (self):
+        """
+        Gets annotation namespace
+        
+        @return:    Namespace or None
+        @rtype:     String
+        """
+        
         return self._obj.ns is not None and self._obj.ns.val or None
 
     def setNs (self, val):
+        """
+        Sets annotation namespace
+        
+        @param val:     Namespace value
+        @type val:      String
+        """
+        
         self._obj.ns = omero_type(val)
     
     def getValue (self): #pragma: no cover
+        """ Needs to be implemented by subclasses """
         raise NotImplementedError
 
     def setValue (self, val): #pragma: no cover
+        """ Needs to be implemented by subclasses """
         raise NotImplementedError
 
 from omero_model_FileAnnotationI import FileAnnotationI
@@ -3439,16 +3540,28 @@ class FileAnnotationWrapper (AnnotationWrapper):
     OMERO_TYPE = FileAnnotationI
 
     def __loadedHotSwap__ (self):
+        """
+        Checks that the Annotation's File is loaded - Loads if needed. 
+        """
         if not self._obj.file.loaded:
             self._obj._file = self._conn.getQueryService().find('OriginalFile', self._obj.file.id.val)
 
     def getValue (self):
+        """ Not implemented """
         pass
 
     def setValue (self, val):
+        """ Not implemented """
         pass
 
     def isOriginalMetadata(self):
+        """
+        Checks if this file annotation is an 'original_metadata' file
+        
+        @return:    True if namespace and file name follow metadata convention
+        @rtype:     Boolean
+        """
+        
         self.__loadedHotSwap__()
         try:
             if self._obj.ns is not None and self._obj.ns.val == omero.constants.namespaces.NSCOMPANIONFILE and self._obj.file.name.val.startswith("original_metadata"):
@@ -3458,13 +3571,34 @@ class FileAnnotationWrapper (AnnotationWrapper):
         return False
      
     def getFileSize(self):
+        """
+        Looks up the size of the file in bytes
+        
+        @return:    File size (bytes)
+        @rtype:     Long
+        """
+        
         return self._obj.file.size.val
 
     def getFileName(self):
+        """
+        Gets the file name
+        
+        @return:    File name
+        @rtype:     String
+        """
+        
         self.__loadedHotSwap__()
         return self._obj.file.name.val
     
     def getFileInChunks(self):
+        """
+        Returns a generator yielding chunks of the file data. 
+        
+        @return:    Data from file in chunks
+        @rtype:     Generator
+        """
+        
         self.__loadedHotSwap__()
         store = self._conn.createRawFileStore()
         store.setFileId(self._obj.file.id.val)
@@ -3506,9 +3640,23 @@ class TimestampAnnotationWrapper (AnnotationWrapper):
     OMERO_TYPE = TimestampAnnotationI
 
     def getValue (self):
+        """
+        Returns a datetime object of the timestamp in seconds
+        
+        @return:    Timestamp value
+        @rtype:     L{datetime}
+        """
+        
         return datetime.fromtimestamp(self._obj.timeValue.val / 1000.0)
 
     def setValue (self, val):
+        """
+        Sets the timestamp value
+        
+        @param val:     Timestamp value
+        @type param:    L{datetime} OR L{omero.RTime} OR Long
+        """
+        
         if isinstance(val, datetime):
             self._obj.timeValue = rtime(long(time.mktime(val.timetuple())*1000))
         elif isinstance(val, omero.RTime):
@@ -3528,9 +3676,22 @@ class BooleanAnnotationWrapper (AnnotationWrapper):
     OMERO_TYPE = BooleanAnnotationI
 
     def getValue (self):
+        """
+        Gets boolean value
+        
+        @return:    Value
+        @rtype:     Boolean
+        """
         return self._obj.boolValue.val
 
     def setValue (self, val):
+        """
+        Sets boolean value
+        
+        @param val:     Value
+        @type val:      Boolean
+        """
+        
         self._obj.boolValue = rbool(not not val)
 
 AnnotationWrapper._register(BooleanAnnotationWrapper)
@@ -3545,9 +3706,23 @@ class TagAnnotationWrapper (AnnotationWrapper):
     OMERO_TYPE = TagAnnotationI
 
     def getValue (self):
+        """ 
+        Gets the value of the Tag
+        
+        @return:    Value
+        @type:      String
+        """
+        
         return self._obj.textValue.val
 
     def setValue (self, val):
+        """
+        Sets Tag value
+        
+        @param val:     Tag text value
+        @type val:      String
+        """
+        
         self._obj.textValue = rbool(not not val)
     
 AnnotationWrapper._register(TagAnnotationWrapper)
@@ -3562,9 +3737,23 @@ class CommentAnnotationWrapper (AnnotationWrapper):
     OMERO_TYPE = CommentAnnotationI
 
     def getValue (self):
+        """ 
+        Gets the value of the Comment
+        
+        @return:    Value
+        @type:      String
+        """
+        
         return self._obj.textValue.val
 
     def setValue (self, val):
+        """
+        Sets comment text value
+        
+        @param val:     Value
+        @type val:      String
+        """
+        
         self._obj.textValue = omero_type(val)
 
 AnnotationWrapper._register(CommentAnnotationWrapper)
@@ -3578,9 +3767,23 @@ class LongAnnotationWrapper (AnnotationWrapper):
     OMERO_TYPE = LongAnnotationI
 
     def getValue (self):
+        """ 
+        Gets the value of the Long annotation
+        
+        @return:    Value
+        @type:      Long
+        """
+        
         return self._obj.longValue and self._obj.longValue.val or None
 
     def setValue (self, val):
+        """
+        Sets long annotation value
+        
+        @param val:     Value
+        @type val:      Long
+        """
+        
         self._obj.longValue = rlong(val)
 
 AnnotationWrapper._register(LongAnnotationWrapper)
@@ -3594,9 +3797,23 @@ class DoubleAnnotationWrapper (AnnotationWrapper):
     OMERO_TYPE = DoubleAnnotationI
 
     def getValue (self):
+        """ 
+        Gets the value of the Double Annotation
+        
+        @return:    Value
+        @type:      Double
+        """
+        
         return self._obj.doubleValue.val
 
     def setValue (self, val):
+        """
+        Sets Double annotation value
+        
+        @param val:     Value
+        @type val:      Double
+        """
+        
         self._obj.doubleValue = rdouble(val)
 
 AnnotationWrapper._register(DoubleAnnotationWrapper)
@@ -3610,9 +3827,23 @@ class TermAnnotationWrapper (AnnotationWrapper):
     OMERO_TYPE = TermAnnotationI
 
     def getValue (self):
+        """ 
+        Gets the value of the Term
+        
+        @return:    Value
+        @type:      String
+        """
+        
         return self._obj.termValue.val
 
     def setValue (self, val):
+        """
+        Sets term value
+        
+        @param val:     Value
+        @type val:      String
+        """
+        
         self._obj.termValue = rstring(val)
 
 AnnotationWrapper._register(TermAnnotationWrapper)
@@ -3630,6 +3861,13 @@ AnnotationWrapper._register(XmlAnnotationWrapper)
 class _EnumerationWrapper (BlitzObjectWrapper):
     
     def getType(self):
+        """ 
+        Gets the type (class) of the Enumeration
+        
+        @return:    The omero class
+        @type:      Class
+        """
+        
         return self._obj.__class__
 
 EnumerationWrapper = _EnumerationWrapper
@@ -3656,7 +3894,13 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         return rv
 
     def getRawPreferences (self):
-        """ Returns the experiments preferences annotation contents, as a ConfigParser instance """
+        """
+        Returns the experimenter's preferences annotation contents, as a ConfigParser instance
+        
+        @return:    See above
+        @rtype:     ConfigParser
+        """
+        
         self._obj.unloadAnnotationLinks()
         cp = ConfigParser.SafeConfigParser()
         prefs = self.getAnnotation('TODO.changeme.preferences')
@@ -3667,7 +3911,13 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         return cp
 
     def setRawPreferences (self, prefs):
-        """ Sets the experiments preferences annotation contents, passed in as a ConfigParser instance """
+        """
+        Sets the experimenter's preferences annotation contents, passed in as a ConfigParser instance
+        
+        @param prefs:       ConfigParser of preferences
+        @type prefs:        ConfigParser
+        """
+        
         ann = self.getAnnotation('TODO.changeme.preferences')
         t = StringIO()
         prefs.write(t)
@@ -3682,6 +3932,15 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
             self._obj.unloadAnnotationLinks()
     
     def getPreference (self, key, default='', section=None):
+        """
+        Gets a preference for the experimenter
+        
+        @param key:     Preference key
+        @param default: Default value to return
+        @param section: Preferences section
+        @return:        Preference value
+        """
+        
         if section is None:
             section = 'DEFAULT'
         try:
@@ -3691,6 +3950,13 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         return default
 
     def getPreferences (self, section=None):
+        """
+        Gets all preferences for section
+        
+        @param section: Preferences section
+        @return:        Dict of preferences
+        """
+        
         if section is None:
             section = 'DEFAULT'
         prefs = self.getRawPreferences()
@@ -3699,6 +3965,14 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         return {}
 
     def setPreference (self, key, value, section=None):
+        """
+        Sets a preference for the experimenter
+        
+        @param key:     Preference key
+        @param value:   Value to set
+        @param section: Preferences section - created if needed
+        """
+        
         if section is None:
             section = 'DEFAULT'
         prefs = self.getRawPreferences()
@@ -3708,6 +3982,13 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         self.setRawPreferences(prefs)
 
     def getDetails (self):
+        """
+        Make sure we have correct details for this experimenter and return them
+        
+        @return:    Experimenter Details
+        @rtype:     L{DetailsWrapper}
+        """
+        
         if not self._obj.details.owner:
             details = omero.model.DetailsI()
             details.owner = self._obj
@@ -3715,16 +3996,31 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
         return DetailsWrapper(self._conn, self._obj.details)
 
     def getName (self):
+        """
+        Returns Experimenter's omeName 
+        
+        @return:    Name
+        @rtype:     String
+        """
+        
         return self.omeName
 
     def getDescription (self):
+        """
+        Returns Experimenter's Full Name 
+        
+        @return:    Full Name or None
+        @rtype:     String
+        """
+        
         return self.getFullName()
 
     def getFullName (self):
         """
-        Gets full name of this experimenter.
+        Gets full name of this experimenter. E.g. 'William James. Moore' or 'William Moore' if no middle name
         
-        @return: String or None
+        @return:    Full Name or None
+        @rtype:     String
         """
         
         try:
@@ -3742,6 +4038,13 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
             return None
     
     def getNameWithInitial(self):
+        """
+        Returns first initial and Last name. E.g. 'W. Moore'
+        
+        @return:    Initial and last name
+        @rtype:     String
+        """
+        
         try:
             if self.firstName is not None and self.lastName is not None:
                 name = "%s. %s" % (self.firstName[:1], self.lastName)
@@ -3753,18 +4056,39 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
             return _("Unknown name")
     
     def isAdmin(self):
+        """
+        Returns true if Experimenter is Admin (if they are in any group named 'system')
+        
+        @return:    True if experimenter is Admin
+        @rtype:     Boolean
+        """
+        
         for ob in self._obj.copyGroupExperimenterMap():
             if ob.parent.name.val == "system":
                 return True
         return False
     
     def isActive(self):
+        """
+        Returns true if Experimenter is Active (if they are in any group named 'user')
+        
+        @return:    True if experimenter is Active
+        @rtype:     Boolean
+        """
+        
         for ob in self._obj.copyGroupExperimenterMap():
             if ob.parent.name.val == "user":
                 return True
         return False
     
     def isGuest(self):
+        """
+        Returns true if Experimenter is Guest (if they are in any group named 'guest')
+        
+        @return:    True if experimenter is Admin
+        @rtype:     Boolean
+        """
+        
         for ob in self._obj.copyGroupExperimenterMap():
             if ob.parent.name.val == "guest":
                 return True
@@ -3809,9 +4133,23 @@ class DetailsWrapper (BlitzObjectWrapper):
         self._group = group and ExperimenterGroupWrapper(self._conn, self._obj.getGroup()) or None
 
     def getOwner (self):
+        """
+        Returns the Owner of the object that these details apply to
+        
+        @return:    Owner
+        @rtype:     L{ExperimenterWrapper}
+        """
+        
         return self._owner
 
     def getGroup (self):
+        """
+        Returns the Group that these details refer to
+        
+        @return:    Group
+        @rtype:     L{ExperimenterGroupWrapper}
+        """
+        
         return self._group
 
 class _DatasetWrapper (BlitzObjectWrapper):
@@ -3826,6 +4164,8 @@ class _DatasetWrapper (BlitzObjectWrapper):
         self.PARENT_WRAPPER_CLASS = 'ProjectWrapper'
 
     def __loadedHotSwap__ (self):
+        """ In addition to loading the Dataset, this method also loads the Images """
+        
         super(_DatasetWrapper, self).__loadedHotSwap__()
         if not self._obj.isImageLinksLoaded():
             links = self._conn.getQueryService().findAllByQuery("select l from DatasetImageLink as l join fetch l.child as a where l.parent.id=%i" % (self._oid), None)
@@ -3848,6 +4188,9 @@ class _ProjectWrapper (BlitzObjectWrapper):
 ProjectWrapper = _ProjectWrapper
 
 class _ScreenWrapper (BlitzObjectWrapper):
+    """
+    omero_model_ScreenI class wrapper extends BlitzObjectWrapper.
+    """
     
     annotation_counter = None
     
@@ -3860,6 +4203,9 @@ class _ScreenWrapper (BlitzObjectWrapper):
 ScreenWrapper = _ScreenWrapper
 
 class _PlateWrapper (BlitzObjectWrapper):
+    """
+    omero_model_PlateI class wrapper extends BlitzObjectWrapper.
+    """
     
     annotation_counter = None
     
@@ -3872,6 +4218,9 @@ class _PlateWrapper (BlitzObjectWrapper):
 PlateWrapper = _PlateWrapper
 
 class _WellWrapper (BlitzObjectWrapper):
+    """
+    omero_model_WellI class wrapper extends BlitzObjectWrapper.
+    """
     
     def __bstrap__ (self):
         self.OMERO_CLASS = 'Well'
@@ -3886,7 +4235,13 @@ class _WellWrapper (BlitzObjectWrapper):
             self.index = 0
     
     def isWellSample (self):
-        """ return boolean if object exist """
+        """ 
+        Return True if well samples exist (loaded)
+        
+        @return:    True if well samples loaded
+        @rtype:     Boolean
+        """
+        
         if getattr(self, 'isWellSamplesLoaded')():
             childnodes = getattr(self, 'copyWellSamples')()
             logger.debug('listChildren for %s %d: already loaded, %d samples' % (self.OMERO_CLASS, self.getId(), len(childnodes)))
@@ -3895,7 +4250,13 @@ class _WellWrapper (BlitzObjectWrapper):
         return False
     
     def countWellSample (self):
-        """ return boolean if object exist """
+        """
+        Return the number of well samples loaded
+        
+        @return:    well sample count
+        @rtype:     Int
+        """
+        
         if getattr(self, 'isWellSamplesLoaded')():
             childnodes = getattr(self, 'copyWellSamples')()
             logger.debug('countChildren for %s %d: already loaded, %d samples' % (self.OMERO_CLASS, self.getId(), len(childnodes)))
@@ -3905,7 +4266,14 @@ class _WellWrapper (BlitzObjectWrapper):
         return 0
     
     def selectedWellSample (self):
-        """ return a wrapped child object """
+        """
+        Return the well sample at the current index (0 if not set)
+        
+        @return:    The Well Sample wrapper
+        @rtype:     L{WellSampleWrapper}
+        
+        """
+        
         if getattr(self, 'isWellSamplesLoaded')():
             childnodes = getattr(self, 'copyWellSamples')()
             logger.debug('listSelectedChildren for %s %d: already loaded, %d samples' % (self.OMERO_CLASS, self.getId(), len(childnodes)))
@@ -3914,7 +4282,13 @@ class _WellWrapper (BlitzObjectWrapper):
         return None
     
     def loadWellSamples (self):
-        """ return a generator yielding child objects """
+        """
+        Return a generator yielding child objects
+        
+        @return:    Well Samples
+        @rtype:     L{WellSampleWrapper} generator
+        """
+        
         if getattr(self, 'isWellSamplesLoaded')():
             childnodes = getattr(self, 'copyWellSamples')()
             logger.debug('listChildren for %s %d: already loaded, %d samples' % (self.OMERO_CLASS, self.getId(), len(childnodes)))
@@ -3922,11 +4296,21 @@ class _WellWrapper (BlitzObjectWrapper):
                 yield WellSampleWrapper(self._conn, ch)
     
     def plate(self):
+        """
+        Gets the Plate. 
+        
+        @return:    The Plate
+        @rtype:     L{PlateWrapper}
+        """
+        
         return PlateWrapper(self._conn, self._obj.plate)
 
 WellWrapper = _WellWrapper
 
 class _WellSampleWrapper (BlitzObjectWrapper):
+    """
+    omero_model_WellSampleI class wrapper extends BlitzObjectWrapper.
+    """
     
     def __bstrap__ (self):
         self.OMERO_CLASS = 'WellSample'
@@ -3934,16 +4318,40 @@ class _WellSampleWrapper (BlitzObjectWrapper):
         self.PARENT_WRAPPER_CLASS = 'WellWrapper'
         
     def image(self):
+        """
+        Gets the Image for this well sample.
+        
+        @return:    The Image
+        @rtype:     L{ImageWrapper}
+        """
+        
         return ImageWrapper(self._conn, self._obj.image)
 
 WellSampleWrapper = _WellSampleWrapper
 
 class _ShareWrapper (BlitzObjectWrapper):
+    """
+    omero_model_ShareI class wrapper extends BlitzObjectWrapper.
+    """
     
     def getStartDate(self):
+        """
+        Gets the start date of the share
+        
+        @return:    Start Date-time
+        @rtype:     datetime object
+        """
+        
         return datetime.fromtimestamp(self.getStarted().val/1000)
         
     def getExpirationDate(self):
+        """
+        Gets the end date for the share
+        
+        @return:    End Date-time
+        @rtype:     datetime object
+        """
+        
         try:
             return datetime.fromtimestamp((self.getStarted().val+self.getTimeToLive().val)/1000)
         except ValueError:
@@ -3951,6 +4359,13 @@ class _ShareWrapper (BlitzObjectWrapper):
         return None
     
     def isExpired(self):
+        """
+        Returns True if we are past the end date of the share
+        
+        @return:    True if share expired
+        @rtype:     Boolean
+        """
+        
         try:
             if (self.getStarted().val+self.getTimeToLive().val)/1000 <= time.time():
                 return True
@@ -3960,6 +4375,13 @@ class _ShareWrapper (BlitzObjectWrapper):
             return True
     
     def isOwned(self):
+        """
+        Returns True if share is owned by the current user
+        
+        @return:    True if owned
+        @rtype:     Boolean
+        """
+        
         try:
             if self.owner.id.val == self._conn.getEventContext().userId:
                 return True
@@ -3968,14 +4390,27 @@ class _ShareWrapper (BlitzObjectWrapper):
         return False
     
     def getOwner(self):
+        """
+        The owner of this share
+        
+        @return:    Owner
+        @rtype:     L{ExperimenterWrapper}
+        """
+        
         return omero.gateway.ExperimenterWrapper(self, self.owner)
 
 ShareWrapper = _ShareWrapper
 
 class ShareContentWrapper (BlitzObjectWrapper):
+    """
+    wrapper for share content, extends BlitzObjectWrapper.
+    """
     pass
 
 class ShareCommentWrapper (AnnotationWrapper):
+    """
+    wrapper for share comment, extends BlitzObjectWrapper.
+    """
     pass
 
 #class CategoryWrapper (BlitzObjectWrapper):
@@ -4000,12 +4435,34 @@ class ColorHolder (object):
     _color = {'red': 0, 'green': 0, 'blue': 0, 'alpha': 255}
 
     def __init__ (self, colorname=None):
+        """
+        If colorname is 'red', 'green' or 'blue', set color accordingly - Otherwise black
+        
+        @param colorname:   'red', 'green' or 'blue'
+        @type colorname:    String
+        """
+        
         self._color = {'red': 0, 'green': 0, 'blue': 0, 'alpha': 255}
         if colorname and colorname.lower() in self._color.keys():
             self._color[colorname.lower()] = 255
 
     @classmethod
     def fromRGBA(klass,r,g,b,a):
+        """
+        Class method for creating a ColorHolder from r,g,b,a values
+        
+        @param r:   red 0 - 255
+        @type r:    int
+        @param g:   green 0 - 255
+        @type g:    int
+        @param b:   blue 0 - 255
+        @type b:    int
+        @param a:   alpha 0 - 255
+        @type a:    int
+        @return:    new Color object
+        @rtype:     L{ColorHolder}
+        """
+        
         rv = klass()
         rv.setRed(r)
         rv.setGreen(g)
@@ -4014,6 +4471,13 @@ class ColorHolder (object):
         return rv
 
     def getRed (self):
+        """
+        Gets the Red component
+        
+        @return:    red
+        @rtype:     int
+        """
+        
         return self._color['red']
 
     def setRed (self, val):
@@ -4021,11 +4485,19 @@ class ColorHolder (object):
         Set red, as int 0..255 
         
         @param val: value of Red.
+        @type val:  Int
         """
         
         self._color['red'] = max(min(255, int(val)), 0)
 
     def getGreen (self):
+        """
+        Gets the Green component
+        
+        @return:    green
+        @rtype:     int
+        """
+        
         return self._color['green']
 
     def setGreen (self, val):
@@ -4033,11 +4505,19 @@ class ColorHolder (object):
         Set green, as int 0..255 
         
         @param val: value of Green.
+        @type val:  Int
         """
         
         self._color['green'] = max(min(255, int(val)), 0)
 
     def getBlue (self):
+        """
+        Gets the Blue component
+        
+        @return:    blue
+        @rtype:     int
+        """
+        
         return self._color['blue']
 
     def setBlue (self, val):
@@ -4045,11 +4525,19 @@ class ColorHolder (object):
         Set Blue, as int 0..255 
         
         @param val: value of Blue.
+        @type val:  Int
         """
         
         self._color['blue'] = max(min(255, int(val)), 0)
 
     def getAlpha (self):
+        """
+        Gets the Alpha component
+        
+        @return:    alpha
+        @rtype:     int
+        """
+        
         return self._color['alpha']
 
     def setAlpha (self, val):
@@ -4062,14 +4550,20 @@ class ColorHolder (object):
 
     def getHtml (self):
         """
-        @return: String. The html usable color. Dumps the alpha information.
+        Gets the html usable color. Dumps the alpha information. E.g. 'FF0000'
+        
+        @return:    html color
+        @rtype:     String
         """
         
         return "%(red)0.2X%(green)0.2X%(blue)0.2X" % (self._color)
 
     def getCss (self):
         """
-        @return: String. rgba(r,g,b,a) for this color.
+        Gets the css string: rgba(r,g,b,a)
+        
+        @return:    css color
+        @rtype:     String
         """
         
         c = self._color.copy()
@@ -4078,7 +4572,10 @@ class ColorHolder (object):
 
     def getRGB (self):
         """
-        @return: list. A list of (r,g,b) values
+        Gets the (r,g,b) as a tuple. 
+        
+        @return:    Tuple of (r,g,b) values
+        @rtype:     tuple of ints
         """
         
         return (self._color['red'], self._color['green'], self._color['blue'])
@@ -4086,6 +4583,7 @@ class ColorHolder (object):
 class _LogicalChannelWrapper (BlitzObjectWrapper):
     """
     omero_model_LogicalChannelI class wrapper extends BlitzObjectWrapper.
+    Specifies a number of _attrs for the channel metadata.
     """
     _attrs = ('name',
               'pinHoleSize',
@@ -4121,9 +4619,11 @@ class _LightPathWrapper (BlitzObjectWrapper):
         self.OMERO_CLASS = 'LightPath'
 
     def copyEmissionFilters(self):
+        """ TODO: not implemented """
         pass
 
     def copyExcitationFilters(self):
+        """ TODO: not implemented """
         pass
         
 LightPathWrapper = _LightPathWrapper
@@ -4148,31 +4648,51 @@ class _ChannelWrapper (BlitzObjectWrapper):
         self.OMERO_CLASS = 'Channel'
 
     def __prepare__ (self, idx=-1, re=None, img=None):
+        """
+        Sets values of idx, re and img
+        """
         self._re = re
         self._idx = idx
         self._img = img
 
     def save (self):
+        """
+        Extends the superclass save method to save Pixels. Returns result of saving superclass (TODO: currently this is None)
+        """
+        
         self._obj.setPixels(omero.model.PixelsI(self._obj.getPixels().getId(), False))
         return super(_ChannelWrapper, self).save()
 
     def isActive (self):
+        """
+        Returns True if the channel is active (turned on in rendering settings)
+        
+        @return:    True if Channel is Active
+        @rtype:     Boolean
+        """
+        
         return self._re.isActive(self._idx)
 
     def getLogicalChannel (self):
+        """
+        Returns the logical channel
+        
+        @return:    Logical Channel
+        @rtype:     L{LogicalChannelWrapper}
+        """
+        
         if self._obj.logicalChannel is not None:
             return LogicalChannelWrapper(self._conn, self._obj.logicalChannel)
     
     def getEmissionWave (self):
         """
-        returns the logical channel name, emission wave or index. The first that is not null
+        Returns the logical channel name, emission wave or index. The first that is not null
         in the described order.
 
-        The reference to emissionWave in the getter is historical.
-        
-        @rtype: string
-        @return: the logical channel string representation
+        @return:    The logical channel string representation
+        @rtype:     String
         """
+        
         lc = self.getLogicalChannel()
         rv = lc.name
         if rv is None:
@@ -4182,15 +4702,36 @@ class _ChannelWrapper (BlitzObjectWrapper):
         return unicode(rv)
 
     def getColor (self):
+        """
+        Returns the rendering settings color of this channel
+        
+        @return:    Channel color
+        @rtype:     L{ColorHolder}
+        """
+        
         return ColorHolder.fromRGBA(*self._re.getRGBA(self._idx))
 
     def getWindowStart (self):
+        """
+        Returns the rendering settings window-start of this channel
+        
+        @return:    Window start
+        @rtype:     int
+        """
+        
         return int(self._re.getChannelWindowStart(self._idx))
 
     def setWindowStart (self, val):
         self.setWindow(val, self.getWindowEnd())
 
     def getWindowEnd (self):
+        """
+        Returns the rendering settings window-end of this channel
+        
+        @return:    Window end
+        @rtype:     int
+        """
+        
         return int(self._re.getChannelWindowEnd(self._idx))
 
     def setWindowEnd (self, val):
@@ -4200,22 +4741,58 @@ class _ChannelWrapper (BlitzObjectWrapper):
         self._re.setChannelWindow(self._idx, float(minval), float(maxval))
 
     def getWindowMin (self):
+        """
+        Returns the minimum pixel value of the channel
+        
+        @return:    Min pixel value
+        @rtype:     double
+        """
+        
         return self._obj.getStatsInfo().getGlobalMin().val
 
     def getWindowMax (self):
+        """
+        Returns the maximum pixel value of the channel
+        
+        @return:    Min pixel value
+        @rtype:     double
+        """
+        
         return self._obj.getStatsInfo().getGlobalMax().val
 
 ChannelWrapper = _ChannelWrapper
 
 def assert_re (func):
+    """
+    Function decorator to make sure that rendering engine is prepared before call
+    
+    @param func:    Function
+    @type func:     Function
+    @return:        Decorated function
+    @rtype:         Function
+    """
+    
     def wrapped (self, *args, **kwargs):
+        """ Tries to prepare rendering engine, then call function and return the result"""
+        
         if not self._prepareRenderingEngine():
             return None
         return func(self, *args, **kwargs)
     return wrapped
 
 def assert_pixels (func):
+    """
+    Function decorator to make sure that pixels are loaded before call
+    
+    @param func:    Function
+    @type func:     Function
+    @return:        Decorated function
+    @rtype:         Function
+    """
+    
     def wrapped (self, *args, **kwargs):
+        """ Tries to load pixels, then call function and return the result"""
+        
         if not self._loadPixels():
             return None
         return func(self, *args, **kwargs)
@@ -4247,6 +4824,17 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     @classmethod
     def fromPixelsId (self, conn, pid):
+        """
+        Creates a new Image wrapper with the image specified by pixels ID
+        
+        @param conn:    The connection
+        @type conn:     L{BlitzGateway}
+        @param pid:     Pixles ID
+        @type pid:      Long
+        @return:        New Image wrapper
+        @rtype:         L{ImageWrapper}
+        """
+        
         q = conn.getQueryService()
         p = q.find('Pixels', pid)
         if p is None:
@@ -4266,6 +4854,13 @@ class _ImageWrapper (BlitzObjectWrapper):
         self._obj = self._conn.getContainerService().getImages(self.OMERO_CLASS, (self._oid,), None)[0]
     
     def getInstrument (self):
+        """
+        Returns the Instrument for this image (or None) making sure the instrument is loaded. 
+        
+        @return:    Instrument (microscope)
+        @rtype:     L{InstrumentWrapper}
+        """
+        
         i = self._obj.instrument
         if i is None:
             return None
@@ -4293,13 +4888,24 @@ class _ImageWrapper (BlitzObjectWrapper):
         return InstrumentWrapper(self._conn, i)
 
     def _loadPixels (self):
+        """
+        Checks that pixels are loaded
+        
+        @return:    True if loaded
+        @rtype:     Boolean
+        """
+        
         if not self._obj.pixelsLoaded:
             self.__loadedHotSwap__()
         return self._obj.sizeOfPixels() > 0
 
     def _createRDef (self):
         """
+        Loads rendering def, resetting defaults (via thumbnail-store) if no settings exist
+        
+        @return:    Tuple of (pixels-ID, renderingDef-ID) 
         """
+        
         pixels_id = self._obj.getPrimaryPixels().id.val
         rdid = self._conn.getRenderingSettingsService().getRenderingSettings(pixels_id)
         if rdid is None:
@@ -4312,8 +4918,14 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     def _getRDef (self, forcenew=False):
         """
-        return a tuple with (pixels_id, rdef_id) for this image.
+        Return a rendering def ID if exists - or create rendering def. 
+        Also returns pixels ID for this image
+        
+        @param forcenew:    Force creation of new rendering defs
+        @type forcenew:     Boolean
+        @return:            tuple with (pixels_id, rdef_id) for this image.
         """
+        
         if not self._loadPixels():
             logger.debug('#NO PIXELS')
             return None,None
@@ -4338,6 +4950,15 @@ class _ImageWrapper (BlitzObjectWrapper):
         return pixels_id, rdid
 
     def _prepareRE (self, forcenew=False):
+        """
+        Prepare the rendering engine with pixels ID and existing or new rendering def. 
+        
+        @param forcenew:    Force creation of new rendering defs
+        @type forcenew:     Boolean
+        @return:            The Rendering Engine service
+        @rtype:             L{ProxyObjectWrapper}
+        """
+        
         pid, rdid = self._getRDef(forcenew=forcenew)
         logger.info('pid:%s rdid:%s' % (str(pid), str(rdid)))
         if rdid is None: #pragma: nocover
@@ -4357,6 +4978,14 @@ class _ImageWrapper (BlitzObjectWrapper):
         return re
 
     def _prepareRenderingEngine (self):
+        """
+        Checks that the rendering engine is prepared, calling L{_prepareRE} if needed.
+        Used by the L{assert_re} method to wrap calls requiring rendering engine
+        
+        @return:    True if rendering engine is created
+        @rtype:     Boolean
+        """
+        
         self._loadPixels()
         if self._re is None:
             if self._obj.sizeOfPixels() < 1:
@@ -4374,6 +5003,13 @@ class _ImageWrapper (BlitzObjectWrapper):
         return False
 
     def simpleMarshal (self, xtra=None, parents=False):
+        """
+        Creates a dict representation of the Image, including author and date info. 
+        
+        @return:    Dict
+        @rtype:     Dict
+        """
+        
         rv = super(_ImageWrapper, self).simpleMarshal(xtra=xtra, parents=parents)
         rv.update({'author': self.getAuthor(),
                    'date': time.mktime(self.getDate().timetuple()),})
@@ -4386,12 +5022,30 @@ class _ImageWrapper (BlitzObjectWrapper):
         return rv
 
     def getStageLabel (self):
+        """
+        Returns the stage label or None
+        
+        @return:    Stage label
+        @rtype:     L{ImageStageLabelWrapper}
+        """
+        
         if self._obj.stageLabel is None:
             return None
         else:
             return ImageStageLabelWrapper(self._conn, self._obj.stageLabel)
     
     def shortname(self, length=20, hist=5):
+        """
+        Provides a truncated name of the image. E.g. ...catedNameOfTheImage.tiff
+        
+        @param length:  The ideal length to return. If truncated, will be ...length
+        @type length:   Int
+        @param hist:    The amount of leeway allowed before trunction (avoid truncating 1 or 2 letters)
+        @type hist:     Int
+        @return:        Truncated ...name
+        @type:          String
+        """
+        
         name = self.name
         if not name:
             return ""
@@ -4401,12 +5055,26 @@ class _ImageWrapper (BlitzObjectWrapper):
         return "..." + name[l - length:]
 
     def getAuthor(self):
+        """
+        Returns 'Firstname Lastname' of image owner
+        
+        @return:    Image owner
+        @rtype:     String
+        """
+        
         q = self._conn.getQueryService()
         e = q.findByQuery("select e from Experimenter e where e.id = %i" % self._obj.details.owner.id.val,None)
         self._author = e.firstName.val + " " + e.lastName.val
         return self._author
 
     def getDataset(self):
+        """
+        Gets the Dataset that image is in, or None. TODO: Assumes image is in only 1 DATASET!
+        
+        @return:    Dataset
+        @rtype:     L{DatasetWrapper}
+        """
+        
         try:
             q = """
             select ds from Image i join i.datasetLinks dl join dl.parent ds
@@ -4421,6 +5089,13 @@ class _ImageWrapper (BlitzObjectWrapper):
             return None
         
     def getProject(self):
+        """
+        Gets the Project that image is in, or None. TODO: Assumes image is in only 1 PROJECT!
+        
+        @return:    Project
+        @rtype:     L{ProjectWrapper}
+        """
+        
         try:
             q = """
             select p from Image i join i.datasetLinks dl join dl.parent ds join ds.projectLinks pl join pl.parent p
@@ -4435,6 +5110,13 @@ class _ImageWrapper (BlitzObjectWrapper):
             return None
 
     def getDate(self):
+        """
+        Gets the creation date-time of the Image
+        
+        @return:    Creation date-time
+        @rtype:     datetime
+        """
+        
         try:
             query = self._conn.getQueryService()
             event = query.findByQuery("select e from Event e where id = %i" % self._obj.details.creationEvent.id.val, None)
@@ -4446,6 +5128,13 @@ class _ImageWrapper (BlitzObjectWrapper):
             return datetime.fromtimestamp(event.time.val / 1000) #"Today"
 
     def getObjectiveSettings (self):
+        """
+        Gets the Ojbective Settings of the Image, or None
+        
+        @return:    Objective Settings
+        @rtype:     L{ObjectiveSettingsWrapper}
+        """
+        
         rv = self.objectiveSettings
         if self.objectiveSettings is not None:
             rv = ObjectiveSettingsWrapper(self._conn, self.objectiveSettings)
@@ -4454,6 +5143,13 @@ class _ImageWrapper (BlitzObjectWrapper):
         return rv
 
     def getImagingEnvironment (self):
+        """
+        Gets the Imaging Environment of the Image, or None
+        
+        @return:    Imaging Environment
+        @rtype:     L{ImagingEnvironmentWrapper}
+        """
+        
         rv = self.imagingEnvironment
         if self.imagingEnvironment is not None:
             rv = ImagingEnvironmentWrapper(self._conn, self.imagingEnvironment)
@@ -4463,13 +5159,38 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     @assert_pixels
     def getPrimaryPixels (self):
+        """
+        Returns the Primary Pixels for the image.
+        
+        @return:    Pixels
+        @rtype:     omero.model.Pixels
+        """
+        
         return self._obj.getPrimaryPixels()
 
     @assert_pixels
     def getPixelsId (self):
+        """
+        Returns the Primary Pixels ID for the image.
+        
+        @return:    Pixels ID
+        @rtype:     Long
+        """
+        
         return self._obj.getPrimaryPixels().getId().val
 
     def _prepareTB (self, forcenew=False, _r=False):
+        """
+        Prepares Thumbnail Store for the image.
+        
+        @param forcenew:    If True, force new rendering Def
+        @type forcenew:     Boolean
+        @param _r:          If True, don't reset default rendering (return None if no rDef exists)
+        @type _r:           Boolean
+        @return:            Thumbnail Store or None
+        @rtype:             L{ProxyObjectWrapper}
+        """
+        
         pid, rdid = self._getRDef(forcenew=forcenew)
         if pid is None:
             return None
@@ -4508,6 +5229,15 @@ class _ImageWrapper (BlitzObjectWrapper):
 #        return tb
     
     def loadOriginalMetadata(self):
+        """
+        Gets original metadata from the file annotation. 
+        Returns the File Annotation, list of Global Metadata, list of Series Metadata in a tuple. 
+        Metadata lists are lists of (key, value) tuples. 
+        
+        @return:    Tuple of (file-annotation, global-metadata, series-metadata)
+        @rtype:     Tuple (L{FileAnnotationWrapper}, [], [])
+        """
+        
         global_metadata = list()
         series_metadata = list()
         if self is not None:
@@ -4540,7 +5270,14 @@ class _ImageWrapper (BlitzObjectWrapper):
     def _getProjectedThumbnail (self, size, pos):
         """
         Returns a string holding a rendered JPEG of the projected image, sized to mimic a thumbnail.
+        TODO: Don't see any projection code here?? Sure it's projected? 
+        
+        @param size:    The length of the longest size, in a list or tuple. E.g. (100,)   TODO: bit strange? 
+        @type size:     list or tuple
+        @param pos:     The (z, t) position
+        @type pos:      Tuple (z,t)
         """
+        
         if pos is None:
             t = z = None
         else:
@@ -4619,8 +5356,13 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     @assert_pixels
     def getPixelRange (self):
-        """ Returns (min, max) values for the pixels type of this image.
-        TODO: Does not handle floats correctly, though."""
+        """ 
+        Returns (min, max) values for the pixels type of this image.
+        TODO: Does not handle floats correctly, though.
+        
+        @return:    Tuple (min, max)
+        """
+        
         pixels_id = self._obj.getPrimaryPixels().getId().val
         rp = self._conn.createRawPixelsStore()
         rp.setPixelsId(pixels_id, True)
@@ -4632,9 +5374,27 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     @assert_re
     def getChannels (self):
+        """
+        Returns a list of Channels, each initialised with rendering engine
+        
+        @return:    Channels
+        @rtype:     List of L{ChannelWrapper}
+        """
+        
         return [ChannelWrapper(self._conn, c, idx=n, re=self._re, img=self) for n,c in enumerate(self._re.getPixels().iterateChannels())]
 
     def setActiveChannels(self, channels, windows=None, colors=None):
+        """
+        Sets the active channels on the rendering engine.
+        Also sets rendering windows and channel colors (for channels that are active)
+        
+        @param channels:    List of active channel indexes ** 1-based index **
+        @type channels:     List of int
+        @param windows:     Start and stop values for active channel rendering settings
+        @type windows:      Map of tuples. E.g. {1: (20, 300), 3: (50, 500)}
+        @param colors:      Map of colors. E.g. {1: 'F00', 3: '00FF00'}
+        """
+        
         for c in range(len(self.getChannels())):
             self._re.setActive(c, (c+1) in channels)
             if (c+1) in channels:
@@ -4647,20 +5407,55 @@ class _ImageWrapper (BlitzObjectWrapper):
         return True
 
     def getProjections (self):
+        """
+        Returns list of available keys for projection. E.g. ['intmax', 'intmean']
+        
+        @return:    Projection options
+        @rtype:     List of strings
+        """
+        
         return self.PROJECTIONS.keys()
 
     def getProjection (self):
+        """
+        Returns the current projection option (checking it is valid).
+        
+        @return:    Projection key. E.g. 'intmax'
+        @rtype:     String
+        """
+        
         if self._pr in self.PROJECTIONS.keys():
             return self._pr
         return 'normal'
 
     def setProjection (self, proj):
+        """
+        Sets the current projection option. 
+        
+        @param proj:    Projection Option. E.g. 'intmax' or 'normal'
+        @type proj:     String
+        """
+        
         self._pr = proj
 
     def isInvertedAxis (self):
+        """
+        Returns the inverted axis flag
+        
+        @return:    Inverted Axis
+        @rtype:     Boolean
+        """
+        
         return self._invertedAxis
 
     def setInvertedAxis (self, inverted):
+        """
+        Sets the inverted axis flag
+        
+        @param inverted:    Inverted Axis
+        @type inverted:     Boolean
+        """
+        
         self._invertedAxis = inverted
 
     LINE_PLOT_DTYPES = {
@@ -4674,16 +5469,16 @@ class _ImageWrapper (BlitzObjectWrapper):
     def getPixelLine (self, z, t, pos, axis, channels=None, range=None):
         """
         Grab a horizontal or vertical line from the image pixel data, for the specified channels
-        (or all if not specified) and using the specified range (or 1:1 relative to the image size).
+        (or 'active' if not specified) and using the specified range (or 1:1 relative to the image size).
         Axis may be 'h' or 'v', for horizontal or vertical respectively.
         
-        @param z:
-        @param t:
-        @param pos:
-        @param axis:
-        @param channels:
-        @param range:
-        @return: rv
+        @param z:           Z index
+        @param t:           T index
+        @param pos:         X or Y position
+        @param axis:        Axis 'h' or 'v'
+        @param channels:    map of {index: L{ChannelWrapper} }
+        @param range:       height of scale (use image height (or width) by default)
+        @return: rv         List of lists (one per channel)
         """
         
         if not self._loadPixels():
@@ -4722,13 +5517,42 @@ class _ImageWrapper (BlitzObjectWrapper):
         
 
     def getRow (self, z, t, y, channels=None, range=None):
+        """
+        Grab a horizontal line from the image pixel data, for the specified channels (or active ones)
+        
+        @param z:           Z index
+        @param t:           T index
+        @param y:           Y position of row
+        @param channels:    map of {index: L{ChannelWrapper} }
+        @param range:       height of scale (use image height by default)
+        @return: rv         List of lists (one per channel)
+        """
+        
         return self.getPixelLine(z,t,y,'h',channels,range)
 
     def getCol (self, z, t, x, channels=None, range=None):
+        """
+        Grab a horizontal line from the image pixel data, for the specified channels (or active ones)
+        
+        @param z:           Z index
+        @param t:           T index
+        @param x:           X position of column
+        @param channels:    map of {index: L{ChannelWrapper} }
+        @param range:       height of scale (use image width by default)
+        @return: rv         List of lists (one per channel)
+        """
+        
         return self.getPixelLine(z,t,x,'v',channels,range)
 
     @assert_re
     def getRenderingModels (self):
+        """
+        Gets a list of available rendering models.
+        
+        @return:    Rendering models
+        @rtype:     List of L{BlitzObjectWrapper} 
+        """
+        
         if not len(self._rm):
             for m in [BlitzObjectWrapper(self._conn, m) for m in self._re.getAvailableModels()]:
                 self._rm[m.value.lower()] = m
@@ -4736,6 +5560,13 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     @assert_re
     def getRenderingModel (self):
+        """
+        Get the current rendering model.
+        
+        @return:    Rendering model
+        @rtype:     L{BlitzObjectWrapper}
+        """
+        
         return BlitzObjectWrapper(self._conn, self._re.getModel())
 
     def setGreyscaleRenderingModel (self):
@@ -4755,10 +5586,26 @@ class _ImageWrapper (BlitzObjectWrapper):
         self._re.setModel(self._rm.get('rgb', rm[0])._obj)
 
     def isGreyscaleRenderingModel (self):
+        """
+        Returns True if the current rendering model is 'greyscale'
+        
+        @return:    isGreyscale
+        @rtype:     Boolean
+        """
         return self.getRenderingModel().value.lower() == 'greyscale'
         
     @assert_re
     def renderJpeg (self, z, t, compression=0.9):
+        """
+        Return the data from rendering image, compressed (and projected).
+        Projection (or not) is specified by calling L{setProjection} before renderJpeg.
+        
+        @param z:               The Z index. TODO: Not required for projection? 
+        @param t:               The T index. 
+        @param compression:     Compression level for jpeg
+        @type compression:      Float
+        """
+        
         self._pd.z = long(z)
         self._pd.t = long(t)
         try:
@@ -4795,7 +5642,10 @@ class _ImageWrapper (BlitzObjectWrapper):
         @param bufsize: if 0 return a single string buffer with the whole OME-TIFF
                         if >0 return a tuple holding total size and generator of chunks
                         (string buffers) of bufsize bytes each
+        @return:        OME-TIFF file data
+        @rtype:         String or (size, data generator)
         """
+        
         e = self._conn.createExporter()
         e.addImage(self.getId())
         size = e.generateTiff()
@@ -4807,6 +5657,20 @@ class _ImageWrapper (BlitzObjectWrapper):
             return (size, fileread_gen(e, size, bufsize))
 
     def _wordwrap (self, width, text, font):
+        """
+        Wraps text into lines that are less than a certain width (when rendered 
+        in specified font)
+        
+        @param width:   The max width to wrap text (pixels)
+        @type width:    Int
+        @param text:    The text to wrap 
+        @type text:     String
+        @param font:    Font to use. 
+        @type font:     E.g. PIL ImageFont
+        @return:        List of text lines
+        @rtype:         List of Strings
+        """
+        
         rv = []
         tokens = filter(None, text.split(' '))
         while len(tokens) > 1:
@@ -4825,6 +5689,7 @@ class _ImageWrapper (BlitzObjectWrapper):
     def createMovie (self, outpath, zstart, zend, tstart, tend, opts={}):
         """
         Creates a movie file from this image.
+        TODO:   makemovie import is commented out
 
         @type outpath: string
         @type zstart: int
@@ -4839,7 +5704,11 @@ class _ImageWrapper (BlitzObjectWrapper):
                      - fps:int: frames per second
                      - minsize: tuple of (minwidth, minheight, bgcolor)
                     - format:string: one of video/mpeg or video/quicktime
+                    
+        @return:    Tuple of (file-ext, format)
+        @rtype:     (String, String)
         """
+        
         slides = opts.get('slides', None)
         minsize = opts.get('minsize', None)
         w, h = self.getWidth(), self.getHeight()
@@ -4924,6 +5793,17 @@ class _ImageWrapper (BlitzObjectWrapper):
         return os.path.splitext(fn)[-1], ca['format']
 
     def renderImage (self, z, t, compression=0.9):
+        """
+        Render the Image, (projected) and compressed. 
+        For projection, call L{setProjection} before renderImage. 
+        
+        @param z:       Z index
+        @param t:       T index
+        @compression:   Image compression level 
+        @return:        A PIL Image or None
+        @rtype:         PIL Image. 
+        """
+        
         rv = self.renderJpeg(z,t,compression)
         if rv is not None:
             i = StringIO(rv)
@@ -4935,9 +5815,9 @@ class _ImageWrapper (BlitzObjectWrapper):
         Prepares a jpeg representation of a 2d grid holding a render of each channel, 
         along with one for all channels at the set Z and T points.
         
-        @param z:
-        @param t:
-        @param compression:
+        @param z:       Z index
+        @param t:       T index
+        @param compression: Image compression level 
         @param border:
         @return: value
         """
@@ -4948,6 +5828,16 @@ class _ImageWrapper (BlitzObjectWrapper):
         return rv.getvalue()
 
     def splitChannelDims (self, border=2):
+        """
+        Returns a dict of layout parameters for generating split channel image.
+        E.g. row count, column count etc.  for greyscale and color layouts. 
+        
+        @param border:  spacing between panels
+        @type border:   int
+        @return:        Dict of parameters
+        @rtype:         Dict
+        """
+        
         c = self.c_count()
         # Greyscale, no channel overlayed image
         x = sqrt(c)
@@ -4982,11 +5872,12 @@ class _ImageWrapper (BlitzObjectWrapper):
         Prepares a PIL Image with a 2d grid holding a render of each channel, 
         along with one for all channels at the set Z and T points.
         
-        @param z:
-        @param t:
-        @param compression:
-        @param border:
-        @return: canvas
+        @param z:   Z index
+        @param t:   T index
+        @param compression: Compression level
+        @param border:  space around each panel (int)
+        @return:        canvas
+        @rtype:         PIL Image
         """
                 
         dims = self.splitChannelDims(border=border)[self.isGreyscaleRenderingModel() and 'g' or 'c']
@@ -5052,6 +5943,8 @@ class _ImageWrapper (BlitzObjectWrapper):
     def prepareLinePlotCanvas (self, z, t):
         """
         Common part of horizontal and vertical line plot rendering.
+        TODO: z and t ignored
+        
         @returns: (Image, width, height).
         """
         channels = filter(lambda x: x.isActive(), self.getChannels())
@@ -5071,6 +5964,17 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     @assert_re
     def renderRowLinePlotGif (self, z, t, y, linewidth=1):
+        """
+        Draws the Row plot as a gif file. Returns gif data.  
+        
+        @param z:   Z index
+        @param t:   T index
+        @param y:   Y position
+        @param linewidth:   Width of plot line
+        @return:    gif data as String
+        @rtype:     String
+        """
+        
         self._pd.z = long(z)
         self._pd.t = long(t)
 
@@ -5099,6 +6003,17 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     @assert_re
     def renderColLinePlotGif (self, z, t, x, linewidth=1):
+        """
+        Draws the Column plot as a gif file. Returns gif data.  
+        
+        @param z:   Z index
+        @param t:   T index
+        @param x:   X position
+        @param linewidth:   Width of plot line
+        @return:    gif data as String
+        @rtype:     String
+        """
+        
         self._pd.z = long(z)
         self._pd.t = long(t)
 
@@ -5126,37 +6041,97 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     @assert_re
     def getZ (self):
+        """
+        Returns the last used value of Z (E.g. for renderingJpeg or line plot)
+        Returns 0 if these methods not been used yet.
+        TODO: How to get default-Z?
+        
+        @return:    current Z index
+        @rtype:     int
+        """
+        
         return self._pd.z
 
     @assert_re
     def getT (self):
+        """
+        Returns the last used value of T (E.g. for renderingJpeg or line plot)
+        Returns 0 if these methods not been used yet. 
+        TODO: How to get default-T?
+        
+        @return:    current T index
+        @rtype:     int
+        """
+        
         return self._pd.t
 
     @assert_pixels
     def getPixelSizeX (self):
+        """
+        Gets the physical size X of pixels in microns
+        
+        @return:    Size of pixel in x or O
+        @rtype:     float
+        """
+        
         rv = self._obj.getPrimaryPixels().getPhysicalSizeX()
         return rv is not None and rv.val or 0
 
     @assert_pixels
     def getPixelSizeY (self):
+        """
+        Gets the physical size Y of pixels in microns
+        
+        @return:    Size of pixel in y or O
+        @rtype:     float
+        """
+        
         rv = self._obj.getPrimaryPixels().getPhysicalSizeY()
         return rv is not None and rv.val or 0
 
     @assert_pixels
     def getPixelSizeZ (self):
+        """
+        Gets the physical size Z of pixels in microns
+        
+        @return:    Size of pixel in z or O
+        @rtype:     float
+        """
+        
         rv = self._obj.getPrimaryPixels().getPhysicalSizeZ()
         return rv is not None and rv.val or 0
 
     @assert_pixels
     def getWidth (self):
+        """
+        Gets width (size X) of the image (in pixels)
+        
+        @return:    width
+        @rtype:     int
+        """
+        
         return self._obj.getPrimaryPixels().getSizeX().val
 
     @assert_pixels
     def getHeight (self):
+        """
+        Gets height (size Y) of the image (in pixels)
+        
+        @return:    height
+        @rtype:     int
+        """
+        
         return self._obj.getPrimaryPixels().getSizeY().val
 
     @assert_pixels
     def z_count (self):
+        """
+        Gets Z count of the image
+        
+        @return:    size Z
+        @rtype:     int
+        """
+        
         if self.isInvertedAxis():
             return self._obj.getPrimaryPixels().getSizeT().val
         else:
@@ -5164,6 +6139,13 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     @assert_pixels
     def t_count (self):
+        """
+        Gets T count of the image
+        
+        @return:    size T
+        @rtype:     int
+        """
+        
         if self.isInvertedAxis():
             return self._obj.getPrimaryPixels().getSizeZ().val
         else:
@@ -5171,13 +6153,21 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     @assert_pixels
     def c_count (self):
+        """
+        Gets C count of the image (number of channels)
+        
+        @return:    size C
+        @rtype:     int
+        """
+        
         return self._obj.getPrimaryPixels().getSizeC().val
 
     def clearDefaults (self):
         """
         Removes specific color settings from channels
         
-        @return: Boolean
+        @return:    True if allowed to do this
+        @rtype:     Boolean
         """
         
         if not self.canWrite():
@@ -5193,15 +6183,30 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     def _collectRenderOptions (self):
         """
+        Returns a map of rendering options not stored in rendering settings. 
+            - 'p' : projection
+            - 'ia' : inverted axis (swap Z and T)
+            
+        TODO: doc below is correct?
         Stores the render options that are not stored in the rendering settings, if the annotation ns is set
         in _conn.CONFIG.
+        
+        @return:    Dict of render options
+        @rtype:     Dict
         """
+        
         rv = {}
         rv['p'] = self.getProjection()
         rv['ia'] = self.isInvertedAxis() and "1" or "0"
         return rv
 
     def _loadRenderOptions (self):
+        """
+        Loads rendering options from an Annotation on the Image.
+        
+        @return:    Dict of rendering options
+        @rtype:     Dict 
+        """
         ns = self._conn.CONFIG.get('IMG_ROPTSNS', None)
         if ns:
             ann = self.getAnnotation(ns)
@@ -5211,6 +6216,12 @@ class _ImageWrapper (BlitzObjectWrapper):
         return {}
 
     def loadRenderOptions (self):
+        """
+        Loads rendering options from an Annotation on the Image and applies them
+        to the Image. 
+        
+        @return:    True!    TODO: Always True??
+        """
         opts = self._loadRenderOptions()
         self.setProjection(opts.get('p', None))
         self.setInvertedAxis(opts.get('ia', "0") == "1")
@@ -5243,11 +6254,17 @@ ImageWrapper = _ImageWrapper
 ## INSTRUMENT AND ACQUISITION ##
 
 class _ImageStageLabelWrapper (BlitzObjectWrapper):
+    """
+    omero_model_StageLabelI class wrapper extends BlitzObjectWrapper.
+    """
     pass
 
 ImageStageLabelWrapper = _ImageStageLabelWrapper
 
 class _ImagingEnvironmentWrapper(BlitzObjectWrapper):
+    """
+    omero_model_ImagingEnvironment class wrapper extends BlitzObjectWrapper.
+    """
     pass
 
 ImagingEnvironmentWrapper = _ImagingEnvironmentWrapper
@@ -5319,6 +6336,13 @@ class _DetectorWrapper (BlitzObjectWrapper):
         self.OMERO_CLASS = 'Detector'
 
     def getDetectorType(self):
+        """
+        The type of detector (enum value)
+        
+        @return:    Detector type
+        @rtype:     L{EnumerationWrapper}
+        """
+        
         rv = self.type
         if self.type is not None:
             rv = EnumerationWrapper(self._conn, self.type)
@@ -5348,6 +6372,13 @@ class _ObjectiveWrapper (BlitzObjectWrapper):
         self.OMERO_CLASS = 'Objective'
 
     def getImmersion(self):
+        """
+        The type of immersion for this objective (enum value)
+        
+        @return:    Immersion type, or None
+        @rtype:     L{EnumerationWrapper}
+        """
+        
         rv = self.immersion
         if self.immersion is not None:
             rv = EnumerationWrapper(self._conn, self.immersion)
@@ -5356,6 +6387,13 @@ class _ObjectiveWrapper (BlitzObjectWrapper):
             return rv
     
     def getCorrection(self):
+        """
+        The type of Correction for this objective (enum value)
+        
+        @return:    Correction type, or None
+        @rtype:     L{EnumerationWrapper}
+        """
+        
         rv = self.correction
         if self.correction is not None:
             rv = EnumerationWrapper(self._conn, self.correction)
@@ -5364,6 +6402,13 @@ class _ObjectiveWrapper (BlitzObjectWrapper):
             return rv
 
     def getIris(self):
+        """
+        The type of Iris for this objective (enum value)
+        
+        @return:    Iris type
+        @rtype:     L{EnumerationWrapper}
+        """
+        
         rv = self.iris
         if self.iris is not None:
             rv = EnumerationWrapper(self._conn, self.iris)
@@ -5387,6 +6432,13 @@ class _ObjectiveSettingsWrapper (BlitzObjectWrapper):
         self.OMERO_CLASS = 'ObjectiveSettings'
 
     def getObjective (self):
+        """
+        Gets the Objective that these settings refer to 
+        
+        @return:    Objective
+        @rtype:     L{ObjectiveWrapper}
+        """
+        
         rv = self.objective
         if self.objective is not None:
             rv = ObjectiveWrapper(self._conn, self.objective)
@@ -5395,6 +6447,13 @@ class _ObjectiveSettingsWrapper (BlitzObjectWrapper):
         return rv
 
     def getMedium(self):
+        """
+        Gets the Medium type that these settings refer to (enum value)
+        
+        @return:    Medium
+        @rtype:     L{EnumerationWrapper}
+        """
+        
         rv = self.medium
         if self.medium is not None:
             rv = EnumerationWrapper(self._conn, self.medium)
@@ -5421,6 +6480,13 @@ class _FilterWrapper (BlitzObjectWrapper):
         self.OMERO_CLASS = 'Filter'
     
     def getFilterType(self):
+        """
+        Gets the Filter type for this filter (enum value)
+        
+        @return:    Filter type
+        @rtype:     L{EnumerationWrapper}
+        """
+        
         rv = self.type
         if self.type is not None:
             rv = EnumerationWrapper(self._conn, self.type)
@@ -5458,9 +6524,11 @@ class _FilterSetWrapper (BlitzObjectWrapper):
         self.OMERO_CLASS = 'FilterSet'
     
     def copyEmissionFilters(self):
+        """ TODO: not implemented """
         pass
 
     def copyExcitationFilters(self):
+        """ TODO: not implemented """
         pass
     
 FilterSetWrapper = _FilterSetWrapper
@@ -5510,6 +6578,13 @@ class _LightSourceWrapper (BlitzObjectWrapper):
               'version')
 
     def getLightSourceType(self):
+        """
+        Gets the Light Source type for this light source (enum value)
+        
+        @return:    Light Source type
+        @rtype:     L{EnumerationWrapper}
+        """
+        
         rv = self.type
         if self.type is not None:
             rv = EnumerationWrapper(self._conn, self.type)
@@ -5517,8 +6592,16 @@ class _LightSourceWrapper (BlitzObjectWrapper):
                 self.type = rv._obj
             return rv
 
+# map of light source gateway classes to omero model objects. E.g. omero.model.Arc : 'ArcWrapper'
 _LightSourceClasses = {}
 def LightSourceWrapper (conn, obj, **kwargs):
+    """
+    Creates wrapper instances for omero.model light source objects
+    
+    @param conn:    L{BlitzGateway} connection
+    @param obj:     omero.model object
+    @return:        L{_LightSourceWrapper} subclass
+    """
     for k, v in _LightSourceClasses.items():
         if isinstance(obj, k):
             return getattr(omero.gateway, v)(conn, obj, **kwargs)
@@ -5526,7 +6609,7 @@ def LightSourceWrapper (conn, obj, **kwargs):
 
 class _FilamentWrapper (_LightSourceWrapper):
     """
-    omero_model_ArcI class wrapper extends LightSourceWrapper.
+    omero_model_FilamentI class wrapper extends LightSourceWrapper.
     """
 
     def __bstrap__ (self):
@@ -5565,6 +6648,13 @@ class _LaserWrapper (_LightSourceWrapper):
             'repetitionRate')
 
     def getLaserMedium(self):
+        """
+        Gets the laser medium type for this Laser (enum value)
+        
+        @return:    Laser medium type
+        @rtype:     L{EnumerationWrapper}
+        """
+        
         rv = self.laserMedium
         if self.laserMedium is not None:
             rv = EnumerationWrapper(self._conn, self.laserMedium)
@@ -5600,6 +6690,13 @@ class _MicroscopeWrapper (BlitzObjectWrapper):
         self.OMERO_CLASS = 'Microscope'
 
     def getMicroscopeType(self):
+        """
+        Returns the 'type' of microscope this is. 
+        
+        @return:    Microscope type.
+        @rtype:     L{EnumerationWrapper}
+        """
+        
         rv = self.type
         if self.type is not None:
             rv = EnumerationWrapper(self._conn, self.type)
@@ -5622,29 +6719,85 @@ class _InstrumentWrapper (BlitzObjectWrapper):
         self.OMERO_CLASS = 'Instrument'
 
     def getMicroscope (self):
+        """
+        Returns the microscope component of the Instrument. 
+        
+        @return:    Microscope
+        @rtype:     omero.model.Microscope
+        """
+        
         if self._obj.microscope is not None:
             return MicroscopeWrapper(self._conn, self._obj.microscope)
         return None
            
     def getDetectors (self):
+        """
+        Gets the Instrument detectors. 
+        
+        @return:    List of Detectors
+        @rtype:     L{DetectorWrapper} list
+        """
+        
         return [DetectorWrapper(self._conn, x) for x in self._detectorSeq]
 
     def getObjectives (self):
+        """
+        Gets the Instrument Objectives. 
+        
+        @return:    List of Objectives
+        @rtype:     L{ObjectiveWrapper} list
+        """
+        
         return [ObjectiveWrapper(self._conn, x) for x in self._objectiveSeq]
 
     def getFilters (self):
+        """
+        Gets the Instrument Filters. 
+        
+        @return:    List of Filters
+        @rtype:     L{FilterWrapper} list
+        """
+        
         return [FilterWrapper(self._conn, x) for x in self._filterSeq]
 
     def getDichroics (self):
+        """
+        Gets the Instrument Dichroics. 
+        
+        @return:    List of Dichroics
+        @rtype:     L{DichroicWrapper} list
+        """
+        
         return [DichroicWrapper(self._conn, x) for x in self._dichroicSeq]
 
     def getFilterSets (self):
+        """
+        Gets the Instrument FilterSets. 
+        
+        @return:    List of FilterSets
+        @rtype:     L{FilterSetWrapper} list
+        """
+        
         return [FilterSetWrapper(self._conn, x) for x in self._filterSetSeq]
 
     def getOTFs (self):
+        """
+        Gets the Instrument OTFs. 
+        
+        @return:    List of OTFs
+        @rtype:     L{OTFWrapper} list
+        """
+        
         return [OTFWrapper(self._conn, x) for x in self._otfSeq]
 
     def getLightSources (self):
+        """
+        Gets the Instrument LightSources. 
+        
+        @return:    List of LightSources
+        @rtype:     L{LightSourceWrapper} list
+        """
+        
         return [LightSourceWrapper(self._conn, x) for x in self._lightSourceSeq]
 
 
