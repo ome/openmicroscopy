@@ -584,7 +584,6 @@ class BlitzObjectWrapper (object):
         """
         Checks links are loaded and returns a list of Annotation Links filtered by 
         namespace if specified
-        TODO: check what self.copyAnnotationLinks() returns
         
         @param ns:  Namespace
         @type ns:   String
@@ -621,7 +620,7 @@ class BlitzObjectWrapper (object):
         """
         rv = self._getAnnotationLinks(ns)
         if len(rv):
-            return AnnotationWrapper._wrap(self._conn, rv[0].child)     # TODO: add link=rv[0] to args?
+            return AnnotationWrapper._wrap(self._conn, rv[0].child)     # TODO: add link=rv[0] to args? (see listAnnotations)
         return None
 
     def listAnnotations (self, ns=None):
@@ -790,17 +789,21 @@ class BlitzObjectWrapper (object):
 
     def __getattr__ (self, attr):
         """
-        Attempts to return the named attribute of this object. E.g. image.__getattr__('name')
-        TODO: need to understand cases where this returns methods that return omero.gateway objects etc. 
+        Attempts to return the named attribute of this object. E.g. image.__getattr__('name') or 'getName'
+        In cases where the attribute E.g. 'getImmersion' should return an enumeration, this is specified by the
+        attr name starting with '#' #immersion.
+        In cases where the attribute E.g. 'getLightSource' should return a wrapped object, this is handled
+        by the parent encoding the wrapper in the attribute name. E.g 'lightSource|LightSourceWrapper'
+        In both cases this returns a method that will return the object. 
         
         @param attr:    The name of the attribute to get
         @type attr:     String
         @return:        The named attribute.
-        @rtype:         method, value etc
+        @rtype:         method, value (string, long etc)
         """
         if attr != 'get' and attr.startswith('get') and hasattr(self, '_attrs'):
-            tattr = attr[3].lower() + attr[4:]
-            attrs = filter(lambda x: tattr in x, self._attrs)
+            tattr = attr[3].lower() + attr[4:]      # 'getName' -> 'name'
+            attrs = filter(lambda x: tattr in x, self._attrs)   # find attr with 'name'
             for a in attrs:
                 if a.startswith('#') and a[1:] == tattr:
                     v = getattr(self, tattr)
@@ -809,8 +812,8 @@ class BlitzObjectWrapper (object):
                     def wrap ():
                         return v
                     return wrap
-                if len(a) > len(tattr) and a[len(tattr)] == '|':
-                    def wrap ():
+                if len(a) > len(tattr) and a[len(tattr)] == '|':        # E.g.  a = lightSource|LightSourceWrapper
+                    def wrap ():                                # E.g. method returns a LightSourceWrapper(omero.model.lightSource)
                         return getattr(omero.gateway, a[len(tattr)+1:])(self._conn, getattr(self, tattr))
                     return wrap
         if not hasattr(self._obj, attr) and hasattr(self._obj, '_'+attr):
@@ -987,7 +990,7 @@ class _BlitzGateway (object):
         @type username:     String
         @param passwd:      Password.
         @type passwd:       String
-        @param client_obj:  omero.client - TODO: not used?
+        @param client_obj:  omero.client
         @param group:       name of group to try to connect to
         @type group:        String
         @param clone:       If True, overwrite anonymous with False
@@ -1186,7 +1189,7 @@ class _BlitzGateway (object):
         """
         
         self._connected = False
-        if self._sessionUuid:           # TODO: if true, no difference? - Exceptions? (not handled anyway)
+        if self._sessionUuid:           # TODO: why test this? (self._sessionUuid not used?)- Exceptions? (not handled anyway)
             s = omero.model.SessionI()              # TODO: Do these 2 lines do anything? 
             s._uuid = omero_type(self._sessionUuid)
             try:
@@ -1314,7 +1317,6 @@ class _BlitzGateway (object):
         """
         Close session.
         """
-        # TODO is self._session_cb ever set? None in __init__
         self._session_cb and self._session_cb.close(self)
         if self._sessionUuid:
             s = omero.model.SessionI()
@@ -1990,7 +1992,7 @@ class _BlitzGateway (object):
     def lookupExperimenters(self):
         """ 
         Look up all experimenters all related groups.
-        TODO: The experimenters? are also loaded. groups? loaded
+        TODO: 'The experimenters are also loaded' should be 'groups are loaded'?
         
         @return:    All experimenters
         @rtype:     L{ExperimenterWrapper} generator
@@ -2073,7 +2075,7 @@ class _BlitzGateway (object):
     def getColleagues(self):
         """
         Look up users who are a member of the current user active group.
-        Returns None if the group is private or is lead by the current user? TODO: ?
+        Returns None if the group is private and isn't lead by the current user
         
         @return:    Generator of Experimenters or None
         @rtype:     L{ExperimenterWrapper} generator
@@ -2111,7 +2113,7 @@ class _BlitzGateway (object):
         TODO:   leaderOfGroups must be a subset of memberOfGroups ??
         This returns all users who share group membership with current user?
         
-        @return:    Members of groups... TODO: that user is a member of? 
+        @return:    Members of groups that current user is a member of? 
         @rtype:     L{ExperimenterWrapper} generator
         """
         
@@ -5069,7 +5071,7 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     def getDataset(self):
         """
-        Gets the Dataset that image is in, or None. TODO: Assumes image is in only 1 DATASET!
+        Gets the Dataset that image is in, or None. TODO: Assumes image is in only 1 Dataset
         
         @return:    Dataset
         @rtype:     L{DatasetWrapper}
@@ -5090,7 +5092,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         
     def getProject(self):
         """
-        Gets the Project that image is in, or None. TODO: Assumes image is in only 1 PROJECT!
+        Gets the Project that image is in, or None. TODO: Assumes image is in only 1 Project
         
         @return:    Project
         @rtype:     L{ProjectWrapper}
@@ -5272,7 +5274,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         Returns a string holding a rendered JPEG of the projected image, sized to mimic a thumbnail.
         TODO: Don't see any projection code here?? Sure it's projected? 
         
-        @param size:    The length of the longest size, in a list or tuple. E.g. (100,)   TODO: bit strange? 
+        @param size:    The length of the longest size, in a list or tuple. E.g. (100,)
         @type size:     list or tuple
         @param pos:     The (z, t) position
         @type pos:      Tuple (z,t)
@@ -5600,7 +5602,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         Return the data from rendering image, compressed (and projected).
         Projection (or not) is specified by calling L{setProjection} before renderJpeg.
         
-        @param z:               The Z index. TODO: Not required for projection? 
+        @param z:               The Z index. TODO: Should be optional for projection? 
         @param t:               The T index. 
         @param compression:     Compression level for jpeg
         @type compression:      Float
