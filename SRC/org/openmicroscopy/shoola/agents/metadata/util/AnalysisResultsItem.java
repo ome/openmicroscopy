@@ -26,25 +26,44 @@ package org.openmicroscopy.shoola.agents.metadata.util;
 //Java imports
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
+import javax.swing.SwingUtilities;
 
 //Third-party libraries
+
 import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
+import omero.model.OriginalFile;
+import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
+import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
+
 import pojos.DataObject;
 import pojos.FileAnnotationData;
 
@@ -63,7 +82,7 @@ import pojos.FileAnnotationData;
  */
 public class AnalysisResultsItem 
 	extends JPanel
-	implements ActionListener
+	implements ActionListener, PropertyChangeListener
 {
 
 	/** Bound property indicating to view the results. */ 
@@ -87,8 +106,11 @@ public class AnalysisResultsItem
 	/** Action id indicating to view the results. */
 	private static final int VIEW = 1;
 	
-	/** Action id indicating to view the results. */
+	/** Action id indicating to cancel the loading of the results. */
 	private static final int CANCEL = 2;
+	
+	/** Action id indicating to view the results. */
+	private static final int DOWNLOAD = 3;
 	
 	/** The collection of attachments related to the objects. */
 	private List<FileAnnotationData> attachments;
@@ -103,16 +125,97 @@ public class AnalysisResultsItem
 	private JButton		resultsButton;
 	
 	/** Button indicating to delete the results. */
-	private JButton		deleteButton;
+	private JMenuItem	deleteButton;
 	
 	/** Button indicating to cancel the data loading. */
 	private JButton		cancelButton;
+	
+	/** Display the menu. */
+	private JButton		menuButton;
+	
+	/** Download the files. */
+	private JMenuItem	downloadButton;
+	
+	/** Display the information about the analysis. */
+	private JMenuItem	infoButton;
+	
+	/** The pop-up menu. */
+	private JPopupMenu	popMenu;
 	
 	/** The loaded results. */
 	private Map<FileAnnotationData, File> results;
 	
 	/** The time when the analysis was done. */
 	private Timestamp time;
+	
+	/** 
+	 * Brings up a dialog so that the user can select where to 
+	 * download the file.
+	 */
+	private void download()
+	{
+		String name = null;
+		if (data instanceof FileAnnotationData) {
+			name = ((FileAnnotationData) data).getFileName();
+		}
+		JFrame f = EditorAgent.getRegistry().getTaskBar().getFrame();
+		FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
+				"Download", "Select where to download the files.", null, true);
+		if (name != null && name.trim().length() > 0) 
+			chooser.setSelectedFileFull(name);
+		IconManager icons = IconManager.getInstance();
+		chooser.setTitleIcon(icons.getIcon(IconManager.DOWNLOAD_48));
+		chooser.setApproveButtonText("Download");
+		chooser.addPropertyChangeListener(this);
+		chooser.centerDialog();
+	}
+	
+	/**
+	 * Displays information about the analysis.
+	 * 
+	 * @param p The location of the mouse pressed.
+	 */
+	private void displayInformation(Point p)
+	{
+		StringBuffer buf = new StringBuffer();
+		buf.append("<html><body>");
+		buf.append("<b>Analysis Run: </b>"+UIUtilities.formatTime(time));
+		buf.append("<br>");
+		buf.append("<b>Number of files: </b>"+attachments.size());
+		buf.append("<br>");
+		Iterator<FileAnnotationData> i = attachments.iterator();
+		while (i.hasNext()) {
+			buf.append(i.next().getFileName());
+			buf.append("<br>");
+		}
+		buf.append("</body></html>");
+		JLabel l = new JLabel();
+		l.setText(buf.toString());
+		TinyDialog d = new TinyDialog(null, l, TinyDialog.CLOSE_ONLY);
+		d.setModal(true);
+		d.getContentPane().setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
+		SwingUtilities.convertPointToScreen(p, this);
+		d.pack();
+		d.setLocation(p);
+		d.setVisible(true);
+	}
+	
+	/** 
+	 * Brings up the menu. 
+	 * 
+	 * @param invoker The component where the clicks occurred.
+	 * @param p The location of the mouse pressed.
+	 */
+	private void showMenu(JComponent invoker, Point p)
+	{
+		if (popMenu == null) {
+			popMenu = new JPopupMenu();
+			popMenu.add(deleteButton);
+			popMenu.add(downloadButton);
+			popMenu.add(infoButton);
+		}
+		popMenu.show(invoker, p.x, p.y);
+	}
 	
 	/**
 	 * Converts the specified name space.
@@ -133,7 +236,8 @@ public class AnalysisResultsItem
 	{
 		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		add(resultsButton);
-		add(deleteButton);
+		//add(deleteButton);
+		add(menuButton);
 	}
 	
 	/** 
@@ -165,12 +269,40 @@ public class AnalysisResultsItem
 		cancelButton.addActionListener(this);
 		
 		IconManager icons = IconManager.getInstance();
-		deleteButton = new JButton(icons.getIcon(IconManager.DELETE_12));
-		deleteButton.setBackground(UIUtilities.BACKGROUND_COLOR);
-		UIUtilities.unifiedButtonLookAndFeel(deleteButton);
+		deleteButton = new JMenuItem(icons.getIcon(IconManager.DELETE_12));
+		deleteButton.setText("Delete");
+		deleteButton.setToolTipText("Delete the results.");
 		deleteButton.setActionCommand(""+DELETE);
 		deleteButton.addActionListener(this);
-		deleteButton.setVisible(false);
+		downloadButton = new JMenuItem(icons.getIcon(
+				IconManager.DOWNLOAD_12));
+		downloadButton.setText("Download...");
+		downloadButton.setToolTipText("Download the selected file.");
+		downloadButton.setActionCommand(""+DOWNLOAD);
+		downloadButton.addActionListener(this);
+		
+		menuButton = new JButton(icons.getIcon(IconManager.UP_DOWN_9_12));
+		UIUtilities.unifiedButtonLookAndFeel(menuButton);
+		menuButton.setBackground(UIUtilities.BACKGROUND_COLOR);
+		menuButton.addMouseListener(new MouseAdapter() {
+			
+			public void mousePressed(MouseEvent e)
+			{
+				Point p = e.getPoint();
+				showMenu(menuButton, p);
+			}
+		});
+		infoButton = new JMenuItem(icons.getIcon(IconManager.INFO));
+		infoButton.setText("Info...");
+		infoButton.addMouseListener(new MouseAdapter() {
+			
+			public void mousePressed(MouseEvent e)
+			{
+				Point p = e.getPoint();
+				displayInformation(p);
+			}
+		});
+		
 		setBackground(UIUtilities.BACKGROUND_COLOR);
 	}
 	
@@ -263,8 +395,7 @@ public class AnalysisResultsItem
 		} else {
 			//resultsButton.setEnabled(false);
 			add(resultsButton);
-			if (deleteButton.isVisible())
-				add(deleteButton);
+			add(menuButton);
 		}
 		revalidate();
 		repaint();
@@ -286,6 +417,35 @@ public class AnalysisResultsItem
 				break;
 			case CANCEL:
 				firePropertyChange(ANALYSIS_RESULTS_CANCEL, null, this);
+				break;
+			case DOWNLOAD:
+				download();
+		}
+	}
+	
+	/**
+	 * Listens to property fired by the Editor dialog.
+	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+	 */
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		String name = evt.getPropertyName();
+		if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
+			File folder = (File) evt.getNewValue();
+			if (folder == null)
+				folder = UIUtilities.getDefaultFolder();
+			UserNotifier un = EditorAgent.getRegistry().getUserNotifier();
+			if (data == null) return;
+			FileAnnotationData fa = (FileAnnotationData) data;
+			OriginalFile f = (OriginalFile) fa.getContent();
+			IconManager icons = IconManager.getInstance();
+			
+			DownloadActivityParam activity = new DownloadActivityParam(f,
+					folder, icons.getIcon(IconManager.DOWNLOAD_22));
+			//Check Name space
+			activity.setLegend(fa.getDescription());
+			un.notifyActivity(activity);
+			//un.notifyDownload((FileAnnotationData) data, folder);
 		}
 	}
 	

@@ -63,7 +63,6 @@ import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
-
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.jdesktop.swingx.VerticalLayout;
@@ -71,12 +70,9 @@ import org.jdesktop.swingx.VerticalLayout;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.util.file.ExcelWriter;
-import org.openmicroscopy.shoola.util.filter.file.CSVFilter;
-import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
-import org.openmicroscopy.shoola.util.image.io.WriterImage;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -340,10 +336,8 @@ public class FLIMResultsDialog
 		hp.setYAxisName(NAME_Y_AXIS);
 		
 		if (values == null) {
-			
 			double v;
 			List<Double> list = new ArrayList<Double>();
-			
 			Iterator<List<Double>> i = parseValues.iterator();
 			int index = 0;
 			List<Double> l;
@@ -358,10 +352,9 @@ public class FLIMResultsDialog
 					list.add(v);
 				}
 			}
-			
 			values = new double[list.size()];
 			j = list.iterator();
-			while (i.hasNext()) {
+			while (j.hasNext()) {
 				values[index] = j.next();
 				index++;
 			}
@@ -388,7 +381,7 @@ public class FLIMResultsDialog
 		if (data == null) return body;
 		JPanel p = new JPanel();
 		double[][] size = {{TableLayout.PREFERRED, TableLayout.PREFERRED}, 
-				{TableLayout.PREFERRED, TableLayout.PREFERRED}};
+				{TableLayout.PREFERRED, 200}};
 		p.setLayout(new TableLayout(size));
 		p.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 0));
 		p.add(canvas, "0, 0, LEFT, TOP");
@@ -427,16 +420,18 @@ public class FLIMResultsDialog
 		paneContainer = new JXTaskPaneContainer();
 		VerticalLayout layout = (VerticalLayout) paneContainer.getLayout();
 		layout.setGap(0);
-		paneContainer.add(UIUtilities.createTaskPane("Graph Data", null));
+		
 		JXTaskPane p = UIUtilities.createTaskPane("Intervals Data", null);
 		p.add(new JScrollPane(tableIntervals));
 		paneContainer.add(p);
+		paneContainer.add(UIUtilities.createTaskPane("Graph Data", null));
 		
 		minThreshold = new NumericalTextField();
 		minThreshold.setToolTipText("Plot only values greater than the " +
 				"value entered.");
 		minThreshold.setNumberType(Double.class);
 		minThreshold.setColumns(3);
+		minThreshold.setText(""+0.0);
 		maxThreshold = new NumericalTextField();
 		maxThreshold.setColumns(3);
 		maxThreshold.setNumberType(Double.class);
@@ -452,8 +447,10 @@ public class FLIMResultsDialog
 		saveButton = new JButton("Save");
 		saveButton.setActionCommand(""+SAVE);
 		saveButton.addActionListener(this);
+		
+		//parse the file
 		parseValues = parseFile(file);
-		start = Double.MAX_VALUE;
+		start = 0.0;//Double.MAX_VALUE;
 		end = Double.MIN_VALUE;
 		
 		if (parseValues == null || parseValues.size() == 0) {
@@ -461,9 +458,10 @@ public class FLIMResultsDialog
 			 l.setText("Cannot display the results");
 			 body = l;
 		} else {
-			createChart(null, BINS);
-			createImage();
+			createChart(extractValues(), BINS);
+			
 		}
+		createImage();
 		saveButton.setEnabled(chartObject != null);
 		
 	}
@@ -533,11 +531,13 @@ public class FLIMResultsDialog
 		return (int) a;
 	}
 	
-	
-	/** Plots the results again. */
-	private void plot()
+	/** 
+	 * Extracts the values.
+	 * 
+	 * @return See above.
+	 */
+	private double[] extractValues()
 	{
-		if (parseValues == null || parseValues.size() == 0) return;
 		Number nMin = minThreshold.getValueAsNumber();
 		Number nMax = maxThreshold.getValueAsNumber();
 		Iterator<List<Double>> i = parseValues.iterator();
@@ -609,25 +609,36 @@ public class FLIMResultsDialog
 		}
 		results = new double[values.size()];
 		j = values.iterator();
-		while (i.hasNext()) {
+		while (j.hasNext()) {
 			results[index] = j.next();
 			index++;
 		}
 		start = binMin;
 		end = binMax;
-		int bins = (int) (binMax-binMin);
+		return results;
+	}
+	
+	/** 
+	 * Plots the results again. */
+	private void plot()
+	{
+		if (parseValues == null || parseValues.size() == 0) return;
+		double[] values = extractValues();
+		int bins = (int) (end-start);
 		//repaint
-		createChart(results, bins);
+		createChart(values, bins);
 		createImage();
 		tableIntervals.populateTable();
 		
-		//
-		JXTaskPane pane = (JXTaskPane) paneContainer.getComponent(0);
+		JXTaskPane pane = (JXTaskPane) paneContainer.getComponent(1);
 		pane.removeAll();
 		tableValues = new JTable(data, COLUMNS);
 		tableValues.getTableHeader().setReorderingAllowed(false);
 		pane.add(new JScrollPane(tableValues));
-		layoutBody();
+		mainPane = layoutBody();
+		getContentPane().add(mainPane, BorderLayout.CENTER);
+		getContentPane().validate();
+		getContentPane().repaint();
 	}
 	
 	/** Selects the file. */
@@ -689,10 +700,10 @@ public class FLIMResultsDialog
 	 */
 	private List<List<Double>> parseFile(File file)
 	{
-		CustomizedFileFilter filter = new CSVFilter();
-		if (filter.accept(file))
+		//CustomizedFileFilter filter = new CSVFilter();
+		//if (filter.accept(file))
 			return parseCSV(file);
-		return null;
+		//return null;
 	}
 	
 	/**
