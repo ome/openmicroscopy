@@ -464,7 +464,7 @@ class TreeViewerWin
     	rightPane.setContinuousLayout(true);
     	rightPane.setBackground(UIUtilities.BACKGROUND_COLOR);
     	rightPane.setLeftComponent(workingPane);
-    	rightPane.setRightComponent(model.getMetadataViewer().getEditorUI());
+    	rightPane.setRightComponent(null);
     	rightPane.setResizeWeight(WEIGHT);
     	splitPane = new JSplitPane();
         //splitPane.setResizeWeight(1);
@@ -537,6 +537,14 @@ class TreeViewerWin
             		pane.setAnimated(true);
         	}
     	}
+    }
+    
+    /** Adds the metadata editor. */
+    void initializeDisplay()
+    {
+    	if (rightPane.getRightComponent() == null)
+    		rightPane.setRightComponent(
+    				model.getMetadataViewer().getEditorUI());
     }
     
     /**

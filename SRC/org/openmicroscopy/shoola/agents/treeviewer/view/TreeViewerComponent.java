@@ -777,7 +777,7 @@ class TreeViewerComponent
 				throw new IllegalStateException("This method cannot be " +
 				"invoked in the DISCARDED, SAVE state.");
 		}
-		
+		view.initializeDisplay();
 		Browser browser = model.getSelectedBrowser();
         if (browser == null) return;
         TreeImageDisplay display = browser.getLastSelectedDisplay();
