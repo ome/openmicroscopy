@@ -71,6 +71,8 @@ import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -251,8 +253,9 @@ class OmeroImageServiceImpl
 			Map m = gateway.getThumbnailSet(ids, max, true);
 			byte[] values = (byte[]) m.get(pixelsID);
 			if (asTexture) {
-				return PixelsServicesFactory.createTexture(
-						WriterImage.bytesToDataBuffer(values), w, h);
+				values = WriterImage.bytesToBytes(values);
+				return PixelsServicesFactory.createTexture(values, 
+						UIUtilities.ceilingPow2(w), UIUtilities.ceilingPow2(w));
 			} else {
 				return createImage(values);
 			}

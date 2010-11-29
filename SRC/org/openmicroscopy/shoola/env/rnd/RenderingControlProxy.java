@@ -54,6 +54,8 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.ChannelData;
 import pojos.PixelsData;
 
@@ -471,10 +473,14 @@ class RenderingControlProxy
 		Object array = getFromCache(pDef);
 		try {
 			byte[] values = servant.renderCompressed(pDef);
+			values = WriterImage.bytesToBytes(values);
+			/*
+			byte[] values = servant.renderCompressed(pDef);
 			imageSize = values.length;
 			//initializeCache(pDef);
 			//cache(pDef, values);
 			return WriterImage.bytesToDataBuffer(values);
+			*/
 		} catch (Throwable e) {
 			handleException(e, ERROR+"cannot render the compressed image.");
 		} 
@@ -580,11 +586,11 @@ class RenderingControlProxy
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		try {
-			int[] buffer = renderPlaneCompressed(pDef);
-			if (buffer == null) return null;
+			byte[] values = servant.renderCompressed(pDef);
+			values = WriterImage.bytesToBytes(values);
 			Point p = getSize(pDef); 
-			return createTexture(buffer, p.x, p.y);
-			
+			return PixelsServicesFactory.createTexture(values, 
+					UIUtilities.ceilingPow2(p.x), UIUtilities.ceilingPow2(p.y));
 		} catch (Throwable e) {
 			handleException(e, ERROR+"cannot render the compressed image.");
 		} 
@@ -662,7 +668,8 @@ class RenderingControlProxy
 	 */
 	private TextureData createTexture(int[] data, int w, int h)
 	{
-		return PixelsServicesFactory.createTexture(data, w, h);
+		return PixelsServicesFactory.createTexture(data, 
+				UIUtilities.ceilingPow2(w), UIUtilities.ceilingPow2(h));
 	}
 
 	/**

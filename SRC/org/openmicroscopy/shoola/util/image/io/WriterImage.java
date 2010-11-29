@@ -27,8 +27,15 @@ package org.openmicroscopy.shoola.util.image.io;
 
 
 //Java imports
+import java.awt.Graphics2D;
+import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
+import java.awt.image.ComponentColorModel;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
 import java.awt.image.DataBufferInt;
+import java.awt.image.Raster;
+import java.awt.image.WritableRaster;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -192,6 +199,43 @@ public class WriterImage
 	}
 	
 	/**
+	 * Converts the passed byte array to a byte array used to texture.
+	 * 
+	 * @param values The values to convert.
+	 * @return See above.
+	 * @throws EncoderException Exception thrown if an error occurred during the
+     * encoding process.
+	 */
+	public static byte[] bytesToBytes(byte[] values)
+		throws EncoderException
+	{
+		if (values == null) 
+    		throw new IllegalArgumentException("No array specified.");
+		try {
+			ByteArrayInputStream stream = new ByteArrayInputStream(values);
+			BufferedImage image = ImageIO.read(stream);
+			image.setAccelerationPriority(1f);
+			int w = image.getWidth();
+			int h = image.getHeight();
+			WritableRaster raster = Raster.createInterleavedRaster(
+					DataBuffer.TYPE_BYTE, w, h, 4, null);
+			ComponentColorModel cm =
+				new ComponentColorModel (ColorSpace.getInstance(
+						ColorSpace.CS_sRGB), new int[] {8, 8, 8, 8}, true,
+						false, ComponentColorModel.TRANSLUCENT,
+						DataBuffer.TYPE_BYTE);
+			BufferedImage img = new BufferedImage(cm, raster, false, null);
+ 
+			Graphics2D g = img.createGraphics();
+			g.drawImage(image, null, null);
+			DataBufferByte buf = (DataBufferByte) raster.getDataBuffer();
+			return buf.getData();
+		} catch (Exception e) {
+			throw new EncoderException("Cannot create buffered image", e);
+		}
+	}
+	
+	/**
 	 * Converts the passed byte array to a buffered image.
 	 * 
 	 * @param values The values to convert.
@@ -214,5 +258,7 @@ public class WriterImage
 			throw new EncoderException("Cannot decode the image.", e);
 		}
 	}
+	
+	
 	
 }

@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.env.rnd;
 import java.awt.image.BufferedImage;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryUsage;
+import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.sql.Timestamp;
 import java.util.Collection;
@@ -97,7 +98,7 @@ public class PixelsServicesFactory
 	private static int						maxSize;
 	
 	/**
-	 * Creates the texture.
+	 * Creates the texture using an array of integer.
 	 * 
 	 * @param data  The data to display.
 	 * @param w	    The width of the image.
@@ -106,9 +107,29 @@ public class PixelsServicesFactory
 	 */
 	public static TextureData createTexture(int[] data, int w, int h)
 	{
+		IntBuffer bb = IntBuffer.wrap(data);
+		bb.position(0);
+		bb.mark();
 		TextureData texture = new TextureData(GL.GL_RGBA, w, h, 0, GL.GL_BGRA, 
-        		GL.GL_UNSIGNED_INT_8_8_8_8_REV, false, false, false, 
-        		IntBuffer.wrap(data), null);
+        		GL.GL_UNSIGNED_INT_8_8_8_8_REV, false, false, false, bb, null);
+		return texture;
+	}
+	
+	/**
+	 * Creates the texture using an array of byte.
+	 * 
+	 * @param data  The data to display.
+	 * @param w	    The width of the image.
+	 * @param h		The height of the image.
+	 * @return See above.
+	 */
+	public static TextureData createTexture(byte[] data, int w, int h)
+	{
+		ByteBuffer bb = ByteBuffer.wrap(data);
+		bb.position(0);
+		bb.mark();
+		TextureData texture = new TextureData(GL.GL_RGBA, w, h, 0, GL.GL_RGBA, 
+        		GL.GL_UNSIGNED_BYTE, false, false, false, bb, null);
 		return texture;
 	}
 	

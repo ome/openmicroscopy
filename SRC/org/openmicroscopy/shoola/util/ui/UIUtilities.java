@@ -1872,4 +1872,18 @@ public class UIUtilities
 		return path.replace('\\', '/');
 	}
 	
+	/**
+	 * Converting the passed value to make sure we can use it for OpenGL.
+	 * 
+	 * @param n The value to convert.
+	 * @return See above.
+	 */
+    public static int ceilingPow2(int n)
+    {
+		int pow2 = 1;
+		while (n > pow2) 
+			pow2 = pow2<<1;
+		return pow2;
+	}
+	
 }
