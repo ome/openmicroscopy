@@ -29,6 +29,8 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.GradientPaint;
+import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -76,6 +78,7 @@ import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.colour.GradientUtil;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.graphutils.ChartObject;
 import org.openmicroscopy.shoola.util.ui.graphutils.HistogramPlot;
@@ -498,15 +501,65 @@ public class FLIMResultsDialog
 		Iterator<List<Double>> i = parseValues.iterator();
 		Iterator<Double> j;
 		int index = 0;
-		int[] values = new int[columns*rows];
+		double[][] values = new double[columns][rows];
+		double largest = Double.MIN_VALUE;
+        double smallest = Double.MAX_VALUE;
+        double value;
+        int row = 0; 
+        int column = 0;
+        while (i.hasNext()) {
+			l = i.next();
+			j = l.iterator();
+			column = 0;
+			while (j.hasNext()) {
+				value = convertValue(j.next().doubleValue());
+				values[column][row] = value;
+				largest = Math.max(value, largest);
+				smallest = Math.min(value, smallest);
+				//index++;
+				column++;
+			}
+			row++;
+		}
+        Color[] colors = GradientUtil.GRADIENT_HOT;
+        
+        double range = largest-smallest;
+        BufferedImage image = new BufferedImage(columns, rows, 
+        		BufferedImage.TYPE_INT_RGB);
+        Color c;
+        int v;
+        double norm;
+        for (int x = 0; x < columns; x++) {
+        	for (int y = 0; y < rows; y++) {
+        		v = (int) values[x][y];
+        		norm = (v-smallest)/range; // 0 < norm < 1
+                c = colors[(int) Math.floor(norm*(colors.length-1))];
+        		image.setRGB(x, y, makeRGB(c.getAlpha(), c.getRed(), 
+        				c.getGreen(), c.getBlue()));
+        		index++;
+        	}
+		}
+        
+        Dimension d = new Dimension(columns, rows);
+		canvas.setPreferredSize(d);
+		canvas.setSize(d);
+		canvas.setImage(image);
+        /*
 		while (i.hasNext()) {
 			l = i.next();
 			j = l.iterator();
 			while (j.hasNext()) {
+				value = convertValue(j.next().doubleValue());
 				values[index] = convertValue(j.next().doubleValue());
+				largest = Math.max(value, largest);
+				smallest = Math.min(value, smallest);
 				index++;
 			}
 		}
+		
+		
+		
+		
 		Dimension d = new Dimension(columns, rows);
 		canvas.setPreferredSize(d);
 		canvas.setSize(d);
@@ -514,6 +567,7 @@ public class FLIMResultsDialog
 	    		BufferedImage.TYPE_INT_RGB);
 	    image.setRGB(0, 0, columns, rows, values, 0, columns);
 		canvas.setImage(image);
+		*/
 	}
 	
 	/**
@@ -522,13 +576,27 @@ public class FLIMResultsDialog
 	 * @param value The value to convert.
 	 * @return See above.
 	 */
-	private int convertValue(double value)
+	private double convertValue(double value)
 	{
 		if (value < start) return 0;
 		if (value > end) return 255;
 		if (end == 0) return 0;
 		double a = 255*(value-start)/(end-start);
-		return (int) a;
+		return a;
+	}
+	
+	/**
+	 * Maps from 4 ints to 4 byte colour.
+	 * 
+	 * @param a The alpha component, value in [0..255].
+	 * @param r The red component, value in [0..255].
+	 * @param g The greed component, value in [0..255].
+	 * @param b The blue component, value in [0..255].
+	 * @return 4 byte int composed of the 4 params, Alpha-Red-Green-Blue.
+	 */
+	private int makeRGB(int a, int r, int g, int b)
+    {
+		return a << 24 | r << 16 | g << 8 | b;
 	}
 	
 	/** 

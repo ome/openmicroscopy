@@ -1723,7 +1723,7 @@ class RenderingControlProxy
 	{
 		List<Integer> active = new ArrayList<Integer>();
 		for (int i = 0; i < getPixelsDimensionsC(); i++) 
-			if (isActive(i)) active.add(new Integer(i));
+			if (isActive(i)) active.add(Integer.valueOf(i));
 		return active;
 	}
 
