@@ -6,13 +6,14 @@
  */
 package ome.formats.utests;
 
+import static org.testng.AssertJUnit.*;
+
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
-import junit.framework.TestCase;
 import loci.common.Location;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportCandidates;
@@ -24,12 +25,12 @@ import ome.formats.importer.util.IniFileLoader;
 import omero.util.TempFileManager;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.ini4j.IniFile;
 import org.ini4j.IniFile.Mode;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
@@ -46,73 +47,116 @@ import org.testng.annotations.Test;
  * 
  * @since Beta4.1
  */
-public class IniFileLoaderTest extends TestCase {
+public class IniFileLoaderTest {
 
-    Log log = LogFactory.getLog(IniFileLoaderTest.class);
-    IniFileLoader ini = new IniFileLoader(null);
-    Preferences maps = Preferences.userNodeForPackage(getClass());
-    
+    private IniFileLoader ini;
+    private Preferences maps;
+    private File temporaryFile;
 
-    protected void assertMaps(Map<String, List<String>> rv) {
-        assertEquals(1, rv.size());
-        List<String> list = rv.get("A");
-        assertEquals(2, list.size());
-        assertEquals("\\\\hostname1\\path1", list.get(0));
-        assertEquals("\\\\hostname2\\path2", list.get(1));
-    }
-    
-    String[] data = new String[] {
+    private static final String[] data = new String[] {
             "\\\\hostname1\\path1;  \\\\hostname2\\path2",
             "\\\\hostname1\\path1;  \\\\hostname2\\path2 ",
             " \\\\hostname1\\path1;  \\\\hostname2\\path2",
             " \\\\hostname1\\path1;  \\\\hostname2\\path2 ",
             " \\\\hostname1\\path1;\\\\hostname2\\path2 ",
-            " //hostname1/path1;//hostname2/path2 ",
-            " //hostname1/path1;\\\\hostname2\\path2 ",
-            " //hostname1/path1 ; \\\\hostname2\\path2 ",
-            "//hostname1\\path1 ; \\\\hostname2\\path2"
+            " /hostname1/path1;\\\\hostname2\\path2 ",
+            " /hostname1/path1;\\\\hostname2\\path2 ",
+            " /hostname1/path1 ; \\\\hostname2\\path2 ",
+            "/hostname1/path1 ; \\\\hostname2\\path2"
     };
-    
+
+    @BeforeMethod
+    public void setUp() throws Exception {
+        temporaryFile = TempFileManager.create_path("initest");
+        System.err.println("Temporary file: " + temporaryFile.getAbsolutePath());
+        ini = new IniFileLoader(null);
+        maps = Preferences.userNodeForPackage(getClass());
+    }
+
+    @AfterMethod
+    public void tearDown() throws Exception {
+        temporaryFile.delete();
+    }
+
+    protected void assertMaps(Map<String, List<String>> rv) {
+        assertEquals(1, rv.size());
+        List<String> list = rv.get("A");
+        assertEquals(2, list.size());
+        String first = list.get(0);
+        if (!"\\\\hostname1\\path1".equals(first)
+            && !"/hostname1/path1".equals(first)) {
+            fail(String.format("%s does not equal %s or %s",
+                    first, "\\\\hostname1\\path1", "/hostname1/path1"));
+        }
+        assertEquals("\\\\hostname2\\path2", list.get(1));
+    }
+
+    @Test
+    public void testFlexReaderServerMapUNC() throws Exception {
+        FileUtils.writeLines(temporaryFile, Arrays.asList(
+                "[FlexReaderServerMaps]",
+                "CIA-1=\\\\\\\\hostname1\\\\path1;\\\\\\\\hostname1\\\\path2"));
+        Preferences test = new IniFile(temporaryFile, Mode.RW);
+        Preferences maps = test.node("FlexReaderServerMaps");
+        Map<String, List<String>> parsedMaps = ini.parseFlexMaps(maps);
+        assertEquals(1, parsedMaps.size());
+        List<String> serverPaths = parsedMaps.get("CIA-1");
+        assertEquals(2, serverPaths.size());
+        assertEquals("\\\\hostname1\\path1", serverPaths.get(0));
+        assertEquals("\\\\hostname1\\path2", serverPaths.get(1));
+    }
+
+    @Test
+    public void testFlexReaderServerMapUnix() throws Exception {
+        FileUtils.writeLines(temporaryFile, Arrays.asList(
+                "[FlexReaderServerMaps]",
+                "CIA-1=/mnt/path1;/mnt/path2"));
+        Preferences test = new IniFile(temporaryFile, Mode.RW);
+        Preferences maps = test.node("FlexReaderServerMaps");
+        Map<String, List<String>> parsedMaps = ini.parseFlexMaps(maps);
+        assertEquals(1, parsedMaps.size());
+        List<String> serverPaths = parsedMaps.get("CIA-1");
+        assertEquals(2, serverPaths.size());
+        assertEquals("/mnt/path1", serverPaths.get(0));
+        assertEquals("/mnt/path2", serverPaths.get(1));
+    }
+
     @Test
     public void testAllData() throws Exception {
         for (String item : data) {
             maps.put("A",item);
-            assertMaps(ini.parseFlexMaps(maps));            
+            assertMaps(ini.parseFlexMaps(maps));
         }
     }
     
     @Test
     public void testDuplicatedSections() throws Exception {
-        File f = TempFileManager.create_path("initest");
-        FileUtils.writeLines(f, Arrays.asList(
+        FileUtils.writeLines(temporaryFile, Arrays.asList(
                 "[Section]",
                 "A=1",
                 "[Section]",
                 "A=2"));
-        Preferences test = new IniFile(f, Mode.RW);
+        Preferences test = new IniFile(temporaryFile, Mode.RW);
         String a1 = test.node("Section").get("A", "missing");
         assertEquals("2",a1);
     }
 
     @Test
     public void testDuplicatedSections2() throws Exception {
-        File f = TempFileManager.create_path("initest");
-        FileUtils.writeLines(f, Arrays.asList(
+        FileUtils.writeLines(temporaryFile, Arrays.asList(
                 "[Section]",
                 "[Section]",
                 "A=1"));
-        Preferences test = new IniFile(f, Mode.RW);
+        Preferences test = new IniFile(temporaryFile, Mode.RW);
         String a1 = test.node("Section").get("A", "missing");
         assertEquals("1",a1);
     }
 
-
+    @Test
     public void testLocation() throws Exception {
         Logger l = Logger.getLogger("loci");
         l.setLevel(Level.DEBUG);
         Location loc = new Location("/");
-        assertTrue(loc.exists());
-        loc = new Location("\\squig.openmicroscopy.org.uk");
         assertTrue(loc.exists());
     }
 

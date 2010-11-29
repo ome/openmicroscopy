@@ -260,7 +260,6 @@ public class IniFileLoader {
                 for(String value : mapValues.split(";")) 
                 {
                     value = value.trim();
-                    value = value.replaceAll("/", "\\\\");
                     list.add(value);
                 }
             }
