@@ -110,7 +110,7 @@ class ControlPane
     
     /** The description of a bin selection slider. */
     private static final String 	LITEIME_SLIDER_DESCRIPTION = 
-    								"Select .";
+    								"Select a bin.";
     
     /** The description of a magnification selection slider. */
     private static final String 	RATIO_SLIDER_DESCRIPTION = "Select the " +
