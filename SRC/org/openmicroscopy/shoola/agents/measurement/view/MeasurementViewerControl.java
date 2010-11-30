@@ -236,6 +236,7 @@ class MeasurementViewerControl
     private void handleFigureChange(ROIFigure figure)
 	{
     	view.onSelectedFigures();
+    	/*
     	if (figure.getROI().hasAnnotation(AnnotationKeys.NAMESPACE))
     	{
     		String namespaceString = (String)figure.getROI().getAnnotation(
@@ -257,6 +258,7 @@ class MeasurementViewerControl
     			view.updateWorkflow();
      		}
     	}
+    	*/
 		
 		//TODO clean that code
     	if ((figure instanceof MeasureLineFigure) || 
