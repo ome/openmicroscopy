@@ -787,13 +787,13 @@ OMERO Diagnostics %s
         on Linux systems.
         """
 
+        if "Windows" == platform.system():
+            return
+
         pathobj = path(filepath)
 
         if not pathobj.exists():
             self.ctx.die(8, "FATAL: OMERO directory does not exist: %s" % pathobj)
-
-        if "Windows" == platform.system():
-            return
 
         owner = os.stat(filepath)[stat.ST_UID]
         if owner == 0:
