@@ -76,7 +76,6 @@ import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ParsingException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
-import org.openmicroscopy.shoola.util.roi.figures.MeasureMaskFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -1602,12 +1601,21 @@ class MeasurementViewerModel
 		else {
 			WorkflowData workflow = getWorkflow();
 			if (workflow == null) return;
+			boolean b = true;
+			for (String word : keywords) {
+				if (!workflow.contains(word) && word.trim().length() != 0)
+					b = false;
+			}
+			/*
 			for (String word : keywords)
 				if (!workflow.contains(word) && word.trim().length() != 0)
 					throw new IllegalArgumentException(
 							"Workflow does not contain keyword '" +
 							keyword +"'");
-			this.keyword = keywords;
+							*/
+			if (b)
+				this.keyword = keywords;
+			else keyword = new ArrayList<String>();
 		}
 	}
 	
