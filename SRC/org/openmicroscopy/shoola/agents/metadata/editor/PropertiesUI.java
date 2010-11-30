@@ -518,6 +518,14 @@ class PropertiesUI
     	content.add(label, c);
     	c.gridx = c.gridx+2;
     	content.add(value, c);
+    	c.gridy++;
+    	label = UIUtilities.setTextFont("Pixels Type", Font.BOLD, size);
+    	value = UIUtilities.createComponent(null);
+    	value.setText((String) details.get(EditorUtil.PIXEL_TYPE));
+    	c.gridx = 0;
+    	content.add(label, c);
+    	c.gridx = c.gridx+2;
+    	content.add(value, c);
     	
     	String s = isValidPixelsSize(details);
     	if (s != null) {
