@@ -252,7 +252,7 @@ public class RawPixelsStoreTest
         long planeOffset;
         for (int t = 0; t < ModelMockFactory.SIZE_T; t++) {
             for (int c = 0;c < 1; c++) {
-                for (int z = 0; z < ModelMockFactory.SIZE_T; z++) {
+                for (int z = 0; z < ModelMockFactory.SIZE_Z; z++) {
                     planeOffset = svc.getPlaneOffset(z, c, t);
                     buf[0] = i;
                     buf[planeSize / 4] = i;
@@ -266,7 +266,7 @@ public class RawPixelsStoreTest
         i = 1;
         for (int t = 0; t < ModelMockFactory.SIZE_T; t++) {
             for (int c = 0;c < 1; c++) {
-                for (int z = 0; z < ModelMockFactory.SIZE_T; z++) {
+                for (int z = 0; z < ModelMockFactory.SIZE_Z; z++) {
                     buf = svc.getPlane(z, c, t);
                     assertEquals(planeSize, buf.length);
                     assertEquals(i, buf[0]);
@@ -286,12 +286,17 @@ public class RawPixelsStoreTest
     public void testSetMegabyteRegion() throws Exception
     {
         byte[] buf = new byte[1048576];
+        int bufSize = buf.length;
+        assertTrue(bufSize > totalSize);
+        
         byte i = 1;
         long planeOffset;
         for (int t = 0; t < ModelMockFactory.SIZE_T; t++) {
             for (int c = 0;c < 1; c++) {
-                for (int z = 0; z < ModelMockFactory.SIZE_T; z++) {
+                for (int z = 0; z < ModelMockFactory.SIZE_Z; z++) {
                     planeOffset = svc.getPlaneOffset(z, c, t);
+                    // manually set some values within the part of buf that
+                    // will form each plane
                     buf[0] = i;
                     buf[planeSize / 4] = i;
                     buf[planeSize / 2] = i;
@@ -304,7 +309,7 @@ public class RawPixelsStoreTest
         i = 1;
         for (int t = 0; t < ModelMockFactory.SIZE_T; t++) {
             for (int c = 0;c < 1; c++) {
-                for (int z = 0; z < ModelMockFactory.SIZE_T; z++) {
+                for (int z = 0; z < ModelMockFactory.SIZE_Z; z++) {
                     buf = svc.getPlane(z, c, t);
                     assertEquals(planeSize, buf.length);
                     assertEquals(i, buf[0]);
