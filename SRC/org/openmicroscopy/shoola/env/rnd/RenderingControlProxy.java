@@ -790,7 +790,6 @@ class RenderingControlProxy
                     cb.setUpperBound(servant.getPixelsTypeUpperBound(i));
                 }
             }
-            
             tmpSolutionForNoiseReduction();
             
 		} catch (Exception e) {

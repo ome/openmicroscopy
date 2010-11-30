@@ -2723,7 +2723,7 @@ class ImViewerComponent
 	 */
 	public void onRndLoaded(boolean reload)
 	{
-		if (model.isNumerousChannel()) model.setForLifetime();
+		//if (model.isNumerousChannel()) model.setForLifetime();
 		model.onRndLoaded();
 		
 		if (!reload) {
