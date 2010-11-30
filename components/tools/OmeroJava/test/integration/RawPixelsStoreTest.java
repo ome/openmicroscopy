@@ -278,5 +278,43 @@ public class RawPixelsStoreTest
             }
         }
     }
+    
+    /**
+     * Tests to set a region that is bigger than the entire file
+     */
+    @Test
+    public void testSetMegabyteRegion() throws Exception
+    {
+        byte[] buf = new byte[1048576];
+        byte i = 1;
+        long planeOffset;
+        for (int t = 0; t < ModelMockFactory.SIZE_T; t++) {
+            for (int c = 0;c < 1; c++) {
+                for (int z = 0; z < ModelMockFactory.SIZE_T; z++) {
+                    planeOffset = svc.getPlaneOffset(z, c, t);
+                    buf[0] = i;
+                    buf[planeSize / 4] = i;
+                    buf[planeSize / 2] = i;
+                    buf[planeSize - 1] = i;
+                    svc.setRegion(planeSize, planeOffset, buf);
+                    i++;
+                }
+            }
+        }
+        i = 1;
+        for (int t = 0; t < ModelMockFactory.SIZE_T; t++) {
+            for (int c = 0;c < 1; c++) {
+                for (int z = 0; z < ModelMockFactory.SIZE_T; z++) {
+                    buf = svc.getPlane(z, c, t);
+                    assertEquals(planeSize, buf.length);
+                    assertEquals(i, buf[0]);
+                    assertEquals(i, buf[planeSize / 4]);
+                    assertEquals(i, buf[planeSize / 2]);
+                    assertEquals(i, buf[planeSize - 1]);
+                    i++;
+                }
+            }
+        }
+    }
 
 }
