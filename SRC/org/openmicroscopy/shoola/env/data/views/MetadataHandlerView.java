@@ -237,13 +237,12 @@ public interface MetadataHandlerView
 	 * 
 	 * @param file		The file to copy the date into.
 	 * @param fileID	The id of the original file.
-	 * @param size		The size of the file.
+	 * @param index		The index of the files
 	 * @param observer	Call-back handler.
      * @return A handle that can be used to cancel the call.
 	 */
 	public CallHandle loadFile(File file, long fileID, int index, 
 							AgentEventListener observer);
-	
 	
 	/**
 	 * Loads the annotation corresponding to the passed id.

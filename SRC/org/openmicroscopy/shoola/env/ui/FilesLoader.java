@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.env.ui.FileLoader 
+ * org.openmicroscopy.shoola.env.ui.FilesLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -11,7 +11,7 @@
  *  (at your option) any later version.
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details.
  *  
  *  You should have received a copy of the GNU General Public License along
@@ -25,19 +25,25 @@ package org.openmicroscopy.shoola.env.ui;
 
 //Java imports
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.EditorLoader;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
-
+import pojos.FileAnnotationData;
 
 /** 
- * Hosts information about the file to load i.e. absolute path, size, etc.
+ * Loads the files to zip.
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
@@ -45,37 +51,21 @@ import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME3.0
+ * @since 3.0-Beta4
  */
-public class FileLoader 
+public class FilesLoader 
 	extends UserNotifierLoader
 {
 
-	/** Indicates to load the original file if original file is not set. */
-	public static final int ORIGINAL_FILE = MetadataHandlerView.ORIGINAL_FILE;
-	
-	/** Indicates to load the file annotation if original file is not set. */
-	public static final int FILE_ANNOTATION = 
-		MetadataHandlerView.FILE_ANNOTATION;
-	
-	/** The id of the file to download. */
-	private long 		fileID;
-	
-	/** The absolute of the new file. */
-	private File 		file;
-	
-	/** The size of the file. */
-	private long		size;
-	
-	/** Pass <code>true</code> to load, <code>false</code> otherwise. */
-	private boolean		toLoad;
-	
-	/** One of the constants defined by this class. */
-	private int 		index;
-	
-    /** Handle to the asynchronous call so that we can cancel it. */
+	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle	handle;
-
+    
+    /** The files to load. */
+    private Map<FileAnnotationData, File> files;
+    
+    /** The files loaded. */
+    private List<File> results;
+    
     /**
      * Notifies that an error occurred.
      * @see UserNotifierLoader#onException(String, Throwable)
@@ -96,36 +86,14 @@ public class FileLoader
      * @param toLoad 	Indicates to download the file.
      * @param activity 	The activity associated to this loader.
      */
-	FileLoader(UserNotifier viewer, Registry reg, File file, long fileID, 
-			long size, boolean toLoad, ActivityComponent activity)
+	FilesLoader(UserNotifier viewer, Registry reg, 
+			Map<FileAnnotationData, File> files, ActivityComponent activity)
 	{
 		super(viewer, reg, activity);
-		this.file = file;
-		this.fileID = fileID;
-		this.size = size;
-		this.toLoad = toLoad;
-		index = -1;
-	}
-	
-    /**
-     * Creates a new instance.
-     * 
-     * @param viewer 	Reference to the parent.
-     * @param reg    	Reference to the registry.
-     * @param file	 	The absolute path to the file.
-     * @param fileID 	The file ID.
-     * @param index   	One of the constants defined by this class.
-     * @param toLoad 	Indicates to download the file.
-     * @param activity 	The activity associated to this loader.
-     */
-	FileLoader(UserNotifier viewer, Registry reg, File file, long fileID, 
-			int index, boolean toLoad, ActivityComponent activity)
-	{
-		super(viewer, reg, activity);
-		this.file = file;
-		this.fileID = fileID;
-		this.toLoad = toLoad;
-		this.index = index;
+		if (files == null || files.size() == 0)
+			throw new IllegalArgumentException("No files to download");
+		this.files = files;
+		results = new ArrayList<File>();
 	}
 	
 	/** 
@@ -134,16 +102,7 @@ public class FileLoader
 	 */
 	public void load()
 	{
-		if (toLoad) {
-			switch (index) {
-				case ORIGINAL_FILE:
-				case FILE_ANNOTATION:
-					handle = mhView.loadFile(file, fileID, index, this);
-					break;
-				default:
-					handle = mhView.loadFile(file, fileID, size, this);
-			}
-		} else handleResult(file);
+		handle = mhView.loadFiles(files, this);
 	}
     
 	/** 
@@ -153,7 +112,12 @@ public class FileLoader
 	public void cancel()
 	{ 
 		if (handle != null) handle.cancel();
-		file.delete();
+		Entry entry;
+		Iterator i = files.entrySet().iterator();
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			((File) entry.getValue()).delete();
+		}
 	}
 	
 	/** 
@@ -166,6 +130,36 @@ public class FileLoader
         registry.getLogger().info(this, info);
     }
 
+	/** 
+	 * Feeds the file back to the viewer, as they arrive. 
+	 * @see EditorLoader#update(DSCallFeedbackEvent)
+	 */
+	public void update(DSCallFeedbackEvent fe) 
+	{
+		Map m = (Map) fe.getPartialResult();
+		if (m != null) {
+			Entry entry;
+			Iterator i = m.entrySet().iterator();
+			FileAnnotationData fa;
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				fa = (FileAnnotationData) entry.getKey();
+				results.add((File) entry.getValue());
+			}
+			if (results.size() == files.size() && activity != null) {
+				activity.endActivity(results); 
+			}
+		}
+	}
+	
+    /**
+     * Does nothing as the asynchronous call returns <code>null</code>.
+     * The actual payload is delivered progressively during the updates
+     * if data is <code>null</code>.
+     * @see EditorLoader#handleNullResult()
+     */
+    public void handleNullResult() {}
+    
     /** 
      * Feeds the result back to the viewer. 
      * @see UserNotifierLoader#handleResult(Object)

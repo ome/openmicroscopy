@@ -206,12 +206,6 @@ class AnnotationDataUI
 	/** The collection of annotations to replace. */
 	private List<FileAnnotationData> 		toReplace;
 	
-	/** The constraints related to the layout of the attachments. */
-	private String							docConstraints;
-	
-	/** The index indicating the location of the attachments. */
-	private int docIndex = 0;
-	
 	/** The document of reference. */
 	private JComponent docRef;
 	

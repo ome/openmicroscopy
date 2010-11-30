@@ -54,16 +54,14 @@ import javax.swing.SwingUtilities;
 import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
-import omero.model.OriginalFile;
 import org.openmicroscopy.shoola.agents.editor.EditorAgent;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
-import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
+import org.openmicroscopy.shoola.env.data.model.DownloadAndZipParam;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
-
 import pojos.DataObject;
 import pojos.FileAnnotationData;
 
@@ -435,17 +433,12 @@ public class AnalysisResultsItem
 			if (folder == null)
 				folder = UIUtilities.getDefaultFolder();
 			UserNotifier un = EditorAgent.getRegistry().getUserNotifier();
-			if (data == null) return;
-			FileAnnotationData fa = (FileAnnotationData) data;
-			OriginalFile f = (OriginalFile) fa.getContent();
-			IconManager icons = IconManager.getInstance();
 			
-			DownloadActivityParam activity = new DownloadActivityParam(f,
+			if (attachments == null || attachments.size() == 0) return;
+			IconManager icons = IconManager.getInstance();
+			DownloadAndZipParam param = new DownloadAndZipParam(attachments, 
 					folder, icons.getIcon(IconManager.DOWNLOAD_22));
-			//Check Name space
-			activity.setLegend(fa.getDescription());
-			un.notifyActivity(activity);
-			//un.notifyDownload((FileAnnotationData) data, folder);
+			un.notifyActivity(param);
 		}
 	}
 	

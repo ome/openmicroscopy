@@ -42,6 +42,7 @@ import org.openmicroscopy.shoola.env.data.model.AnalysisActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
+import org.openmicroscopy.shoola.env.data.model.DownloadAndZipParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadArchivedActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
 import org.openmicroscopy.shoola.env.data.model.FigureActivityParam;
@@ -357,6 +358,9 @@ public class UserNotifierImpl
 		} else if (activity instanceof OpenActivityParam) {
 			OpenActivityParam p = (OpenActivityParam) activity;
 			comp = new OpenObjectActivity(this, manager.getRegistry(), p);
+		} else if (activity instanceof DownloadAndZipParam) {
+			DownloadAndZipParam p = (DownloadAndZipParam) activity;
+			comp = new DownloadAndZipActivity(this, manager.getRegistry(), p);
 		}
 		if (comp != null) {
 			UserNotifierLoader loader = comp.createLoader();

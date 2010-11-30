@@ -123,29 +123,29 @@ public class AnalysisResultsFileLoader
 		handle = mhView.loadFiles(map, this);
 	}
 	
-	 /** 
-     * Feeds the file back to the viewer, as they arrive. 
-     * @see EditorLoader#update(DSCallFeedbackEvent)
-     */
-    public void update(DSCallFeedbackEvent fe) 
-    {
-    	Map m = (Map) fe.getPartialResult();
-    	if (m != null) {
-    		Entry entry;
-    		Iterator i = m.entrySet().iterator();
-    		FileAnnotationData fa;
-    		while (i.hasNext()) {
-    			entry = (Entry) i.next();
-    			fa = (FileAnnotationData) entry.getKey();
-    			results.put(fa, (File) entry.getValue());
-    		}
-    		if (results.size() == total) {
-        		item.setLoadedFiles(results);
-        		viewer.analysisResultsLoaded(item);
-        	}
-    	}
-    	
-    }
+	/** 
+	 * Feeds the file back to the viewer, as they arrive. 
+	 * @see EditorLoader#update(DSCallFeedbackEvent)
+	 */
+	public void update(DSCallFeedbackEvent fe) 
+	{
+		Map m = (Map) fe.getPartialResult();
+		if (m != null) {
+			Entry entry;
+			Iterator i = m.entrySet().iterator();
+			FileAnnotationData fa;
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				fa = (FileAnnotationData) entry.getKey();
+				results.put(fa, (File) entry.getValue());
+			}
+			if (results.size() == total) {
+				item.setLoadedFiles(results);
+				viewer.analysisResultsLoaded(item);
+			}
+		}
+
+	}
     
     /**
      * Does nothing as the asynchronous call returns <code>null</code>.

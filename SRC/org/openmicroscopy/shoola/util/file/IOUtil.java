@@ -34,14 +34,17 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Iterator;
+import java.util.List;
+import java.util.zip.Deflater;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 
 //Third-party libraries
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.util.filter.file.CustomizedFileFilter;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.filter.file.PDFFilter;
 import org.openmicroscopy.shoola.util.filter.file.WordFilter;
@@ -245,7 +248,8 @@ public class IOUtil
 	 * @throws IOException If we cannot create the input stream.
 	 */
 	public static InputStream readConfigFile(String fileName)
-		throws IOException {
+		throws IOException
+	{
 		if (System.getProperty("javawebstart.version", null) != null) {
 			// We're running under Java Web Start, read configuration file
 			// from the CLASSPATH.
@@ -255,4 +259,49 @@ public class IOUtil
 		// We're running normally, return as so.
 		return new FileInputStream(fileName);
 	}
+	
+	/**
+	 * Makes the zip.
+	 * 
+	 * @param zipName The name of the zip.
+	 * @param files   The files to add.
+	 */
+	public static File zipDirectory(File zip)
+		throws Exception
+	{
+		if (zip == null)
+			throw new IllegalArgumentException("No name specified.");
+		if (!zip.isDirectory())
+			throw new IllegalArgumentException("Not a directory.");
+		File[] entries = zip.listFiles();
+	    byte[] buffer = new byte[4096]; // Create a buffer for copying
+	    int bytesRead;
+
+	    String name = zip.getName()+".zip";
+	    File f;
+		try {
+			f = new File(zip.getParentFile(), name);
+			ZipOutputStream out = new ZipOutputStream(
+					new FileOutputStream(f));
+
+		    FileInputStream in;
+		    
+		    for (int i = 0; i < entries.length; i++) {
+		    	f = entries[i];
+		    	if (f.isDirectory())
+		    		continue;//Ignore directory TODO
+		    	in = new FileInputStream(f); // Stream to read file
+		    	out.putNextEntry(new ZipEntry(f.getName())); // Store entry
+		    	while ((bytesRead = in.read(buffer)) != -1)
+		    		out.write(buffer, 0, bytesRead);
+		    	out.closeEntry();
+		    	in.close(); 
+		    }
+		    out.close();
+			return zip;
+		} catch (Exception e) {
+			throw new Exception("Cannot create the zip.", e);
+		}
+	}
+	
 }
