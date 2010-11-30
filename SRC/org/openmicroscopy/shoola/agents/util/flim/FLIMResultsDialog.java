@@ -29,8 +29,6 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.GradientPaint;
-import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -82,7 +80,6 @@ import org.openmicroscopy.shoola.util.ui.colour.GradientUtil;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.graphutils.ChartObject;
 import org.openmicroscopy.shoola.util.ui.graphutils.HistogramPlot;
-
 import pojos.FileAnnotationData;
 
 /** 
@@ -125,7 +122,7 @@ public class FLIMResultsDialog
 	private static final int BINS = 1001;
 	
 	/** The multiplication factor. */
-	private static final int FACTOR = 1000;
+	private static final int FACTOR = 1;//1000;
 	
 	/** The name of the X-axis. */
 	private static final String NAME_X_AXIS = ChartObject.X_AXIS;
@@ -206,6 +203,13 @@ public class FLIMResultsDialog
 	
 	/** The name of the image. */
 	private String	imageName;
+	
+	private JComponent intervalsPane;
+	
+	private JComponent graphicsPane;
+
+	
+	
 	
 	/**
 	 * Saves the data to the specified file.
@@ -383,14 +387,16 @@ public class FLIMResultsDialog
 		if (body == null) return new JPanel();
 		if (data == null) return body;
 		JPanel p = new JPanel();
+		int h = canvas.getPreferredSize().height;
 		double[][] size = {{TableLayout.PREFERRED, TableLayout.PREFERRED}, 
-				{TableLayout.PREFERRED, 200}};
+				{h, 200, 200}};
 		p.setLayout(new TableLayout(size));
 		p.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 0));
 		p.add(canvas, "0, 0, LEFT, TOP");
 		p.add(settings, "0, 1, LEFT, TOP");
 		p.add(body, "1, 0");
-		p.add(paneContainer, "1, 1");
+		p.add(graphicsPane, "1, 1");
+		p.add(intervalsPane, "1, 2");
 		return p;
 	}
 	
@@ -425,7 +431,8 @@ public class FLIMResultsDialog
 		layout.setGap(0);
 		
 		JXTaskPane p = UIUtilities.createTaskPane("Intervals Data", null);
-		p.add(new JScrollPane(tableIntervals));
+		//p.add(new JScrollPane(tableIntervals));
+		intervalsPane = new JScrollPane(tableIntervals);
 		paneContainer.add(p);
 		paneContainer.add(UIUtilities.createTaskPane("Graph Data", null));
 		
@@ -462,11 +469,13 @@ public class FLIMResultsDialog
 			 body = l;
 		} else {
 			createChart(extractValues(), BINS);
-			
 		}
 		createImage();
+		tableIntervals.populateTable();
+		tableValues = new JTable(data, COLUMNS);
+		tableValues.getTableHeader().setReorderingAllowed(false);
+		graphicsPane = new JScrollPane(tableValues);
 		saveButton.setEnabled(chartObject != null);
-		
 	}
 	
 	/** Closes the dialog. */
@@ -544,30 +553,6 @@ public class FLIMResultsDialog
 		canvas.setPreferredSize(d);
 		canvas.setSize(d);
 		canvas.setImage(image);
-        /*
-		while (i.hasNext()) {
-			l = i.next();
-			j = l.iterator();
-			while (j.hasNext()) {
-				value = convertValue(j.next().doubleValue());
-				values[index] = convertValue(j.next().doubleValue());
-				largest = Math.max(value, largest);
-				smallest = Math.min(value, smallest);
-				index++;
-			}
-		}
-		
-		
-		
-		
-		Dimension d = new Dimension(columns, rows);
-		canvas.setPreferredSize(d);
-		canvas.setSize(d);
-		BufferedImage image = new BufferedImage(columns, rows, 
-	    		BufferedImage.TYPE_INT_RGB);
-	    image.setRGB(0, 0, columns, rows, values, 0, columns);
-		canvas.setImage(image);
-		*/
 	}
 	
 	/**
@@ -702,7 +687,8 @@ public class FLIMResultsDialog
 		pane.removeAll();
 		tableValues = new JTable(data, COLUMNS);
 		tableValues.getTableHeader().setReorderingAllowed(false);
-		pane.add(new JScrollPane(tableValues));
+		//pane.add(new JScrollPane(tableValues));
+		graphicsPane = new JScrollPane(tableValues);
 		mainPane = layoutBody();
 		getContentPane().add(mainPane, BorderLayout.CENTER);
 		getContentPane().validate();
