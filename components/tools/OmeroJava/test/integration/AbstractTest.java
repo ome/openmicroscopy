@@ -152,6 +152,26 @@ public class AbstractTest
     /**
      * Calculates a SHA-1 digest.
      * @param data Data to calcluate a SHA-1 digest for.
+     * @param offset Offset within the byte buffer to calculate from.
+     * @param len Number of bytes from <code>offset</code> to calculate with.
+     * @return Hex string of the SHA-1 digest.
+     */
+    protected String sha1(byte[] data, int offset, int len)
+    {
+        MessageDigest md;
+        try {
+            md = MessageDigest.getInstance("SHA-1");
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(
+                    "Required SHA-1 message digest algorithm unavailable.");
+        }
+        md.update(data, offset, len);
+        return byteArrayToHexString(md.digest());
+    }
+
+    /**
+     * Calculates a SHA-1 digest.
+     * @param data Data to calcluate a SHA-1 digest for.
      * @return Hex string of the SHA-1 digest.
      */
     protected String sha1(byte[] data)

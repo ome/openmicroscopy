@@ -111,6 +111,43 @@ public class RawPixelsStoreTest
     }
 
     /**
+     * Tests to set a whole plane as a region with the buffer larger than the 
+     * plane and retrieve it, this method will test the <code>setRegion</code>
+     * and <code>getPlane</code> methods.
+     */
+    @Test
+    public void testSetPlaneOffEndAsRegion() throws Exception
+    {
+        byte[] plane1 = new byte[planeSize * 2];
+        plane1[0] = 1;
+        plane1[planeSize - 1] = 1;
+        svc.setRegion(planeSize, 0, plane1);
+        byte[] plane2 = svc.getPlane(0, 0, 0);
+        assertNotNull(plane1);
+        assertNotNull(plane2);
+        assertEquals(planeSize, plane2.length);
+        assertEquals(sha1(plane1, 0, planeSize), sha1(plane2));
+    }
+
+    /**
+     * Tests to set a whole plane as a region and retrieve it, this method will
+     * test the <code>setRegion</code> and <code>getPlane</code> methods.
+     */
+    @Test
+    public void testSetPlaneAsRegion() throws Exception
+    {
+        byte[] plane1 = new byte[planeSize];
+        plane1[0] = 1;
+        plane1[planeSize - 1] = 1;
+        svc.setRegion(planeSize, 0, plane1);
+        byte[] plane2 = svc.getPlane(0, 0, 0);
+        assertNotNull(plane1);
+        assertNotNull(plane2);
+        assertEquals(plane1.length, plane2.length);
+        assertEquals(sha1(plane1), sha1(plane2));
+    }
+
+    /**
      * Tests to set a region and retrieve it, this method will test the 
      * <code>setRegion</code> and <code>getRegion</code> methods.
      */
@@ -173,6 +210,73 @@ public class RawPixelsStoreTest
         assertEquals(planeSize, lastPlane.length);
         assertEquals(sha1(a1), sha1(a2));
         assertEquals(sha1(new byte[planeSize]), sha1(lastPlane));
+    }
+ 
+    /**
+     * Tests to set a region off the end of plane and doesn't overwrite the
+     * current content of the off the end plane.
+     */
+    @Test
+    public void testSetRegionDoesntOverwrite() throws Exception
+    {
+        byte[] a1 = prepareTestByteArray(planeSize, 0);
+        long offset = svc.getPlaneOffset(
+                ModelMockFactory.SIZE_Z - 2, 0, ModelMockFactory.SIZE_T - 1);
+        long lastPlaneOffset = svc.getPlaneOffset(
+                ModelMockFactory.SIZE_Z - 1, 0, ModelMockFactory.SIZE_T - 1);
+        offset += (planeSize / 2);
+        int remaining = (int) (totalSize - planeSize - offset);
+        svc.setRegion(1, lastPlaneOffset, new byte[] { 0x01 });
+        svc.setRegion(remaining, offset, a1);
+        byte[] lastPlane = svc.getPlane(
+                ModelMockFactory.SIZE_Z - 1, 0, ModelMockFactory.SIZE_T - 1);
+        byte[] a2 = svc.getRegion(remaining, offset);
+        a1 = prepareTestByteArray(planeSize / 2, 0);
+        assertNotNull(a2);
+        assertNotNull(lastPlane);
+        assertEquals(remaining, a2.length);
+        assertEquals(planeSize, lastPlane.length);
+        assertEquals(0x01, lastPlane[0]);
+        assertEquals(sha1(a1), sha1(a2));
+    }
+
+    /**
+     * Tests to set a region off the end of plane and doesn't overwrite the
+     * current content of the off the end plane.
+     */
+    @Test
+    public void testSetRegionEveryPlane() throws Exception
+    {
+        byte[] buf = new byte[planeSize * 2];
+        byte i = 1;
+        long planeOffset;
+        for (int t = 0; t < ModelMockFactory.SIZE_T; t++) {
+            for (int c = 0;c < 1; c++) {
+                for (int z = 0; z < ModelMockFactory.SIZE_T; z++) {
+                    planeOffset = svc.getPlaneOffset(z, c, t);
+                    buf[0] = i;
+                    buf[planeSize / 4] = i;
+                    buf[planeSize / 2] = i;
+                    buf[planeSize - 1] = i;
+                    svc.setRegion(planeSize, planeOffset, buf);
+                    i++;
+                }
+            }
+        }
+        i = 1;
+        for (int t = 0; t < ModelMockFactory.SIZE_T; t++) {
+            for (int c = 0;c < 1; c++) {
+                for (int z = 0; z < ModelMockFactory.SIZE_T; z++) {
+                    buf = svc.getPlane(z, c, t);
+                    assertEquals(planeSize, buf.length);
+                    assertEquals(i, buf[0]);
+                    assertEquals(i, buf[planeSize / 4]);
+                    assertEquals(i, buf[planeSize / 2]);
+                    assertEquals(i, buf[planeSize - 1]);
+                    i++;
+                }
+            }
+        }
     }
 
 }
