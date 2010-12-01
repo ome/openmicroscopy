@@ -716,7 +716,7 @@ public class ImportLibrary implements IObservable
         }
 
         int planeNo = 1;
-        int offset = 0;
+        long offset = 0;
         for (int t = 0; t < size.sizeT; t++)
         {
             for (int c = 0; c < size.sizeC; c++)
@@ -724,11 +724,11 @@ public class ImportLibrary implements IObservable
                 for (int z = 0; z < size.sizeZ; z++)
                 {
                     // XXX: Disabling for now.
-                    //offset = writeDataBlockBased(
-                    //        pixId, size, z, c, t, offset, maximumRowCount,
-                    //        maximumPixelCount, bytesPerPixel, fileName, md);
-                    writeDataPlanarBased(pixId, size, z, c, t, bytesPerPixel,
-                                         fileName, md);
+                    offset = writeDataBlockBased(
+                            pixId, size, z, c, t, offset, maximumRowCount,
+                            maximumPixelCount, bytesPerPixel, fileName, md);
+                    //writeDataPlanarBased(pixId, size, z, c, t, bytesPerPixel,
+                    //                     fileName, md);
                     notifyObservers(new ImportEvent.IMPORT_STEP(
                             planeNo, series, reader.getSeriesCount()));
                     planeNo++;
@@ -764,22 +764,20 @@ public class ImportLibrary implements IObservable
      * @throws ServerError If there is an error writing the data to the
      * OMERO.server instance.
      */
-    private int writeDataBlockBased(long pixId, ImportSize size,
-                                    int z, int c, int t, int offset,
-                                    int maximumRowCount, int maximumPixelCount,
-                                    int bytesPerPixel, String fileName,
-                                    MessageDigest md)
+    private long writeDataBlockBased(long pixId, ImportSize size,
+                                     int z, int c, int t, long offset,
+                                     int maximumRowCount, int maximumPixelCount,
+                                     int bytesPerPixel, String fileName,
+                                     MessageDigest md)
         throws FormatException, IOException, ServerError
     {
-        int posY;
-        int bytesToRead;
         int planeNumber;
         int width = size.sizeX;
         int height;
         int arrayBufSize;
-        posY = 0;
-        bytesToRead = size.sizeX * size.sizeY;
-        while (bytesToRead > 0)
+        int posY = 0;
+        int pixelsToRead = size.sizeX * size.sizeY;
+        while (pixelsToRead > 0)
         {
             planeNumber = reader.getIndex(z, c, t);
             height = maximumRowCount;
@@ -788,17 +786,23 @@ public class ImportLibrary implements IObservable
                 height = size.sizeY - posY;
             }
             arrayBufSize = bytesPerPixel * height * width;
-            log.debug(String.format(
-                    "ToRead:%d Size:%d Offset: %d Width:%d Height: %d PosY:%d",
-                    bytesToRead, arrayBufSize, offset, width, height, posY));
+            if (log.isTraceEnabled())
+            {
+                log.trace(String.format(
+                        "Plane:%d PixelsToRead:%d Size:%d Offset:%d " +
+                        "Width:%d Height:%d PosY:%d",
+                        planeNumber, pixelsToRead, arrayBufSize, offset,
+                        width, height, posY));
+            }
             Plane2D data = reader.openPlane2D(
                     fileName, planeNumber, arrayBuf, 0, posY,
                     width, height);
             ByteBuffer buf = data.getData();
+            buf.limit(arrayBufSize);
             arrayBuf = swapIfRequired(buf, fileName);
             try
             {
-                md.update(arrayBuf);
+                md.update(arrayBuf, 0, arrayBufSize);
             }
             catch (Exception e)
             {
@@ -809,7 +813,7 @@ public class ImportLibrary implements IObservable
 
             // Update offsets, etc.
             posY += height;
-            bytesToRead -= height * width;
+            pixelsToRead -= height * width;
             offset += arrayBufSize;
         }
         return offset;
@@ -861,16 +865,6 @@ public class ImportLibrary implements IObservable
     }
 
     /**
-     * Return true if the data is in little-endian format. 
-     * @throws IOException 
-     * @throws FormatException */
-    private boolean isLittleEndian(String fileName)
-        throws FormatException, IOException
-    {
-        return reader.isLittleEndian();
-    }
-
-    /**
      * Examines a byte array to see if it needs to be byte swapped and modifies
      * the byte array directly.
      * @param byteArray The byte array to check and modify if required.
@@ -882,33 +876,31 @@ public class ImportLibrary implements IObservable
         throws FormatException, IOException
     {
         int pixelType = reader.getPixelType();
+        boolean isLittleEndian = reader.isLittleEndian();
         int bytesPerPixel = getBytesPerPixel(pixelType);
 
         // We've got nothing to do if the samples are only 8-bits wide.
-        if (bytesPerPixel == 1) 
+        if (bytesPerPixel == 1)
             return buffer.array();
 
         int length;
-
-        if (isLittleEndian(fileName)) {
-            if (bytesPerPixel == 2) { // short
+        if (isLittleEndian) {
+            if (bytesPerPixel == 2) { // short/ushort
                 ShortBuffer buf = buffer.asShortBuffer();
-                length = buffer.capacity() / 2;
-                short x;
-                for (int i = 0; i < length; i++) {
-                    x = buf.get(i);
-                    buf.put(i, (short) ((x << 8) | ((x >> 8) & 0xFF)));
-                }
-            } else if (bytesPerPixel == 4) { // int/uint/float
-                IntBuffer buf = buffer.asIntBuffer();
-                length = buffer.capacity() / 4;
+                length = buffer.limit() / 2;
                 for (int i = 0; i < length; i++) {
                     buf.put(i, DataTools.swap(buf.get(i)));
                 }
-            } else if (bytesPerPixel == 8) // double
+            } else if (bytesPerPixel == 4) { // int/uint/float
+                IntBuffer buf = buffer.asIntBuffer();
+                length = buffer.limit() / 4;
+                for (int i = 0; i < length; i++) {
+                    buf.put(i, DataTools.swap(buf.get(i)));
+                }
+            } else if (bytesPerPixel == 8) // long/double
             {
                 LongBuffer buf = buffer.asLongBuffer();
-                length = buffer.capacity() / 8;
+                length = buffer.limit() / 8;
                 for (int i = 0; i < length ; i++) {
                     buf.put(i, DataTools.swap(buf.get(i)));
                 }
