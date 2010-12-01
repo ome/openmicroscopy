@@ -5309,16 +5309,16 @@ class _ImageWrapper (BlitzObjectWrapper):
         @param channels:    List of active channel indexes ** 1-based index **
         @type channels:     List of int
         @param windows:     Start and stop values for active channel rendering settings
-        @type windows:      Map of tuples. E.g. {1: (20, 300), 3: (50, 500)}
-        @param colors:      Map of colors. E.g. {1: 'F00', 3: '00FF00'}
+        @type windows:      List of tuples. [(20, 300), (50, 500)]
+        @param colors:      Map of colors. ['F00', '00FF00']
         """
-        
+
         for c in range(len(self.getChannels())):
             self._re.setActive(c, (c+1) in channels)
             if (c+1) in channels:
-                if windows is not None and c in windows and windows[c][0] is not None and windows[c][1] is not None:
+                if windows is not None and windows[c][0] is not None and windows[c][1] is not None:
                     self._re.setChannelWindow(c, *windows[c])
-                if colors is not None and c in colors and colors[c]:
+                if colors is not None and colors[c]:
                     rgba = splitHTMLColor(colors[c])
                     if rgba:
                         self._re.setRGBA(c, *rgba)
