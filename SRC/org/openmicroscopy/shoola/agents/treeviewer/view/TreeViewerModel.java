@@ -1141,7 +1141,8 @@ class TreeViewerModel
 	 */
 	void reloadThumbnails(List<Long> ids)
 	{
-		getDataViewer().reloadThumbnails(ids);
+		if (dataViewer != null)
+			dataViewer.reloadThumbnails(ids);
 	}
 	
 	/** 
