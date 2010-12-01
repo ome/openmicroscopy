@@ -44,7 +44,6 @@ import javax.swing.tree.TreeSelectionModel;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.table.ColumnFactory;
 import org.jdesktop.swingx.table.TableColumnExt;
-import org.jhotdraw.draw.Figure;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;

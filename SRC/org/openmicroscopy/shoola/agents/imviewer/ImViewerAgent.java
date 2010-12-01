@@ -423,7 +423,8 @@ public class ImViewerAgent
      */
     public void eventFired(AgentEvent e)
     {
-        if (e instanceof ViewImage) handleViewImage((ViewImage) e);
+        if (e instanceof ViewImage) 
+        	handleViewImage((ViewImage) e);
         else if (e instanceof MeasurementToolLoaded)
         	handleMeasurementToolLoaded((MeasurementToolLoaded) e);
         else if (e instanceof SelectPlane)

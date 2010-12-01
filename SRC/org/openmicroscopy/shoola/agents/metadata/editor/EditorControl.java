@@ -548,9 +548,13 @@ class EditorControl
 		} else if (AnalysisResultsItem.ANALYSIS_RESULTS_VIEW.equals(name)) {
 			AnalysisResultsItem item = (AnalysisResultsItem) evt.getNewValue();
 			if (view.getRndIndex() == MetadataViewer.RND_GENERAL) {
+				model.displayAnalysisResults(item);
+				/*
 				ViewImage event = new ViewImage(item.getData(), null);
+				event.setAnalysis(item);
 				EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
 				bus.post(event);
+				*/
 			} else {
 				model.displayAnalysisResults(item);
 			}
