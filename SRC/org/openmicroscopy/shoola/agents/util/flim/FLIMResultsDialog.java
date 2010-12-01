@@ -932,7 +932,9 @@ public class FLIMResultsDialog
 	{
 		String name = evt.getPropertyName();
 		if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
-			saveAs((File) evt.getNewValue());
+			File[] files = (File[]) evt.getNewValue();
+			File f = files[0];
+			saveAs(f);
 		}
 	}
 	

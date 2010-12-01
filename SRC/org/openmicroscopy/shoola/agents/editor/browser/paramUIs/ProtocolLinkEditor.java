@@ -345,8 +345,8 @@ public class ProtocolLinkEditor
 		
 		if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(evt.getPropertyName())) 
 		{
-			File f = (File) evt.getNewValue();
-			
+			File[] files = (File[]) evt.getNewValue();
+			File f = files[0];
 			attributeEdited(TextParam.PARAM_VALUE, f.getAbsolutePath());
 		}
 	}

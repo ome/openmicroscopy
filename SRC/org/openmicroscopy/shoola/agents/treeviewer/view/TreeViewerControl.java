@@ -383,7 +383,8 @@ class TreeViewerControl
 			public void propertyChange(PropertyChangeEvent evt) {
 				String name = evt.getPropertyName();
 				if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
-					File folder = (File) evt.getNewValue();
+					File[] files = (File[]) evt.getNewValue();
+					File folder = files[0];
 					IconManager icons = IconManager.getInstance();
 					DownloadActivityParam activity;
 					activity = new DownloadActivityParam(id, 

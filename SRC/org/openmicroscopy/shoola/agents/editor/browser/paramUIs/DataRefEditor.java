@@ -364,7 +364,8 @@ public class DataRefEditor
 	{
 		String name = evt.getPropertyName();
 		if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
-			File f = (File) evt.getNewValue();
+			File[] files = (File[]) evt.getNewValue();
+			File f = files[0];
 					
 			Map<String, String> edits = new HashMap<String, String>();
 			// set reference/path to file, and last modified time. 

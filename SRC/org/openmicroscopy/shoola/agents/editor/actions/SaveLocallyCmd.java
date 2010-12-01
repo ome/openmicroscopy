@@ -122,7 +122,8 @@ class SaveLocallyCmd
 		
 		String name = evt.getPropertyName();
 		if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
-			File file = (File) evt.getNewValue();
+			File[] files = (File[]) evt.getNewValue();
+			File file = files[0];
 			
 			FileFilter filter = fileChooser.getSelectedFilter();
 			String filterExtension = "";

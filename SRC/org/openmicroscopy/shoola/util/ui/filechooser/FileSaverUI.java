@@ -495,6 +495,29 @@ class FileSaverUI
      */
 	FileFilter getSelectedFilter() { return chooser.getFileFilter(); }
 
+    /**
+     * Sets the value indicating to allow for multiple selection if 
+     * <code>true</code>.
+     * 
+     * @param enabled Pass <code>true</code> to allow multiple selections,
+     *                <code>false</code> otherwise.
+     */
+    void setMultiSelectionEnabled(boolean enabled)
+    {
+    	chooser.setMultiSelectionEnabled(enabled);
+    }
+    
+    /**
+     * Returns <code>true</code> if the multiple selection is allowed,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isMultisSelectionEnabled()
+    {
+    	return chooser.isMultiSelectionEnabled();
+    }
+    
 	/**
 	 * Reacts to click on buttons.
 	 * @see ActionListener#actionPerformed(ActionEvent)

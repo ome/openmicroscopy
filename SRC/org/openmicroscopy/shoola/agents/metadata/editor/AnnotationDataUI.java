@@ -837,15 +837,15 @@ class AnnotationDataUI
 	 * Attaches the passed file. Returns <code>true</code> if the file
 	 * does not already exist, <code>false</code> otherwise.
 	 * 
-	 * @param file The file to attach.
+	 * @param files The files to attach.
 	 * @return See above
 	 */
-	boolean attachFile(File file)
+	boolean attachFiles(File[] files)
 	{
 		List<FileAnnotationData> list = getCurrentAttachmentsSelection();
 		DocComponent doc;
-		boolean exist = false;
-		Object data;
+		List<File> toAdd = new ArrayList<File>();
+		Object data = null;
 		if (filesDocList.size() > 0) {
 			Iterator<DocComponent> i = filesDocList.iterator();
 			FileAnnotationData fa;
@@ -854,29 +854,42 @@ class AnnotationDataUI
 				data = doc.getData();
 				if (data instanceof FileAnnotationData) {
 					fa = (FileAnnotationData) data;
-					if (fa.getId() <= 0) {
-						if (fa.getFilePath().equals(file.getAbsolutePath()))
-							exist = true;
-						list.add(fa);
-					} else {
-						if (fa.getFileName().equals(file.getName())) {
-							toReplace.add(fa);
+					for (int j = 0; j < files.length; j++) {
+						if (fa.getId() <= 0) {
+							if (!fa.getFilePath().equals(
+									files[j].getAbsolutePath()))
+								toAdd.add(files[j]);
+							list.add(fa);
+						} else {
+							if (fa.getFileName().equals(files[j].getName())) {
+								toReplace.add(fa);
+							}
 						}
 					}
+					
 				}
 			}
 		}
-		if (!exist) {
+		if (data == null) {
+			for (int i = 0; i < files.length; i++) {
+				toAdd.add(files[i]);
+			}
+		}
+		if (toAdd.size() > 0) {
 			data = null;
 			try {
 				docFlag = true;
-				list.add(new FileAnnotationData(file));
+				Iterator<File> j = toAdd.iterator();
+				while (j.hasNext()) {
+					list.add(new FileAnnotationData(j.next()));
+				}
+				
 			} catch (Exception e) {} 
-			firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.FALSE, 
-					Boolean.TRUE);
+			firePropertyChange(EditorControl.SAVE_PROPERTY, 
+					Boolean.valueOf(false), Boolean.valueOf(true));
 		}
 		layoutAttachments(list);
-		return !exist;
+		return toAdd.size() > 0;
 	}
 	
 	/**

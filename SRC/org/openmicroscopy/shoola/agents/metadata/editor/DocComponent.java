@@ -788,7 +788,8 @@ class DocComponent
 			label.setToolTipText(formatTootTip(tag));
 			firePropertyChange(AnnotationUI.EDIT_TAG_PROPERTY, null, this);
 		} else if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
-			File folder = (File) evt.getNewValue();
+			File[] files = (File[]) evt.getNewValue();
+			File folder = files[0];
 			if (folder == null)
 				folder = UIUtilities.getDefaultFolder();
 			UserNotifier un = EditorAgent.getRegistry().getUserNotifier();

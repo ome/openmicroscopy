@@ -129,7 +129,8 @@ public class AnalysisActivity
 			public void propertyChange(PropertyChangeEvent evt) {
 				String name = evt.getPropertyName();
 				if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
-					File folder = (File) evt.getNewValue();
+					File[] files = (File[]) evt.getNewValue();
+					File folder = files[0];
 					if (data == null) return;
 					OriginalFile f = (OriginalFile) data.getContent();
 					IconManager icons = IconManager.getInstance(registry);

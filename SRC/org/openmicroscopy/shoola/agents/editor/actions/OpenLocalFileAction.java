@@ -113,8 +113,8 @@ public class OpenLocalFileAction
 	{
 		String name = evt.getPropertyName();
 		if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
-			File f = (File) evt.getNewValue();
-
+			File[] files = (File[]) evt.getNewValue();
+			File f = files[0];
 			FileFilter filter = chooser.getSelectedFilter();
 
 			// only allow accepted files to be opened.

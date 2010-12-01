@@ -157,7 +157,8 @@ public class DownloadAction
 			public void propertyChange(PropertyChangeEvent evt) {
 				String name = evt.getPropertyName();
 				if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
-					File folder = (File) evt.getNewValue();
+					File[] files = (File[]) evt.getNewValue();
+					File folder = files[0];
 					if (folder == null)
 						folder = UIUtilities.getDefaultFolder();
 					model.download(folder);

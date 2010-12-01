@@ -25,9 +25,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.Cursor;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -35,13 +32,10 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSeparator;
 import javax.swing.JViewport;
 
 //Third-party libraries
@@ -499,14 +493,17 @@ class GeneralPaneUI
 	}
 
 	/**
-	 * Attaches the passed file.
-	 * Returns <code>true</code> if the file
-	 * does not already exist, <code>false</code> otherwise.
+	 * Attaches the passed files.
+	 * Returns <code>true</code> if the files
+	 * do not already exist, <code>false</code> otherwise.
 	 * 
-	 * @param file The file to attach.
+	 * @param files The files to attach.
 	 * @return See above
 	 */
-	boolean attachFile(File file) { return annotationUI.attachFile(file); }
+	boolean attachFiles(File[] files)
+	{ 
+		return annotationUI.attachFiles(files); 
+	}
 
 	/**
 	 * Removes the passed file from the display.

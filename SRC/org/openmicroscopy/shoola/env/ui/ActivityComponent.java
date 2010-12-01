@@ -730,7 +730,8 @@ public abstract class ActivityComponent
 			public void propertyChange(PropertyChangeEvent evt) {
 				String name = evt.getPropertyName();
 				if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
-					File folder = (File) evt.getNewValue();
+					File[] files = (File[]) evt.getNewValue();
+					File folder = files[0];
 					if (original == null && type == -1) return;
 					IconManager icons = IconManager.getInstance(registry);
 					DownloadActivityParam activity;

@@ -227,6 +227,7 @@ class EditorControl
 			MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
 		FileChooser chooser = new FileChooser(owner, FileChooser.LOAD, 
 				"Choose File", "Select the file to attach.", filters, true);
+		chooser.setMultiSelectionEnabled(true);
 		IconManager icons = IconManager.getInstance();
 		chooser.setTitleIcon(icons.getIcon(IconManager.ATTACHMENT_48));
 		chooser.setApproveButtonText("Attach");
@@ -313,7 +314,8 @@ class EditorControl
 			public void propertyChange(PropertyChangeEvent evt) {
 				String name = evt.getPropertyName();
 				if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
-					File folder = (File) evt.getNewValue();
+					File[] files = (File[]) evt.getNewValue();
+					File folder = files[0];
 					if (folder == null)
 						folder = UIUtilities.getDefaultFolder();
 					Object src = evt.getSource();
@@ -445,7 +447,8 @@ class EditorControl
 		} else if (UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE.equals(name)) {
 			view.handleTaskPaneCollapsed((JXTaskPane) evt.getSource());
 		} else if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
-			view.attachFile((File) evt.getNewValue());
+			File[] files = (File[]) evt.getNewValue();
+			view.attachFiles(files);
 		} else if (AnnotationUI.REMOVE_ANNOTATION_PROPERTY.equals(name)) {
 			Object object = evt.getNewValue();
 			if (object instanceof DocComponent) {

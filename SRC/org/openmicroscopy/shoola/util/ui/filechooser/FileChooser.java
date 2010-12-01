@@ -328,8 +328,15 @@ public class FileChooser
     			firePropertyChange(APPROVE_SELECTION_PROPERTY, null, path);
     		}
     	} else {
+    		File[] files;
+    		if (uiDelegate.isMultisSelectionEnabled()) {
+    			files = getSelectedFiles();
+    		} else {
+    			files = new File[1];
+    			files[0] = getSelectedFile();
+    		}
     		firePropertyChange(APPROVE_SELECTION_PROPERTY, 
-    				Boolean.valueOf(false), getSelectedFile());
+    				Boolean.valueOf(false), files);
     	}
     	
         if (uiDelegate.isSetDefaultFolder() 
@@ -594,6 +601,18 @@ public class FileChooser
     {
     	if (icon == null) return;
     	uiDelegate.setTitleIcon(icon);
+    }
+    
+    /**
+     * Sets the value indicating to allow for multiple selection if 
+     * <code>true</code>.
+     * 
+     * @param enabled Pass <code>true</code> to allow multiple selections,
+     *                <code>false</code> otherwise.
+     */
+    public void setMultiSelectionEnabled(boolean enabled)
+    {
+    	uiDelegate.setMultiSelectionEnabled(enabled);
     }
     
 }
