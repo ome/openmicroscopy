@@ -2156,19 +2156,6 @@ class _BlitzGateway (object):
             if gem.owner.val:
                 yield ExperimenterGroupWrapper(self, gem.parent)
     
-    # Repository info
-    def getUsedSpace(self):
-        """
-        Returns the total space in bytes for this file system
-        including nested subdirectories.
-        
-        @return:    Used space in bytes
-        @rtype:     Int
-        """
-        
-        rep_serv = self.getRepositoryInfoService()
-        return rep_serv.getUsedSpaceInKilobytes() * 1024
-    
     def getFreeSpace(self):
         """ 
         Returns the free or available space on this file system
@@ -2180,77 +2167,6 @@ class _BlitzGateway (object):
         
         rep_serv = self.getRepositoryInfoService()
         return rep_serv.getFreeSpaceInKilobytes() * 1024
-    
-    def getUsage(self):
-        """
-        If admin, returns dict of users and how much space each of them uses, calculated from the DB record
-        of their current pixels count and data type. 
-        Otherwise, return the same data for members of the current user's groups (where permissions allow)
-        
-        @return:    Dict of userId: bytes
-        @rtype:     Dict
-        """
-       
-        query_serv = self.getQueryService()
-        usage = dict()
-        if self.getUser().isAdmin():
-            admin_serv = self.getAdminService()
-            groups = admin_serv.lookupGroups()
-            for group in groups:
-                for gem in group.copyGroupExperimenterMap():
-                    exp = gem.child
-                    res = query_serv.projection("""
-                    select o.id, sum(p.sizeX * p.sizeY * p.sizeZ * p.sizeC * p.sizeT), p.pixelsType.value 
-                    from Pixels p join p.details.owner o 
-                    group by o.id, p.pixelsType.value
-                    """, None, {"omero.group":str(group.id.val)})
-                    rv = unwrap(res)
-                    for r in rv:
-                        if usage.has_key(r[0]):
-                            usage[r[0]] += r[1]*self.bytesPerPixel(r[2])
-                        else:
-                            usage[r[0]] = r[1]*self.bytesPerPixel(r[2])
-        else:
-            groups = self.getEventContext().memberOfGroups
-            groups.extend(self.getEventContext().leaderOfGroups)
-            # TODO: leaderOfGroups is subset of memberOfGroups?
-            groups = set(groups)
-            for gid in groups:
-                res = query_serv.projection("""
-                select o.id, sum(p.sizeX * p.sizeY * p.sizeZ * p.sizeC * p.sizeT), p.pixelsType.value 
-                from Pixels p join p.details.owner o 
-                group by o.id, p.pixelsType.value
-                """, None, {"omero.group":str(gid)})
-                rv = unwrap(res)
-                for r in rv:
-                    if usage.has_key(gid):
-                        usage[gid] += r[1]*self.bytesPerPixel(r[2])
-                    else:
-                        usage[gid] = r[1]*self.bytesPerPixel(r[2])
-        return usage
-    
-    def bytesPerPixel(self, pixel_type):
-        """
-        Returns the number of bytes for various pixel_types. E.g. int16 = 2
-        
-        @param pixel_type:      Pixel type. E.g. uint8
-        @type pixel_type:       String
-        @return:                Number of bytes
-        @rtype:                 Int
-        """
-        
-        if pixel_type == "int8" or pixel_type == "uint8":
-            return 1
-        elif pixel_type == "int16" or pixel_type == "uint16":
-            return 2
-        elif pixel_type == "int32" or pixel_type == "uint32" or pixel_type == "float":
-            return 4
-        elif pixel_type == "double":
-            return 8;
-        else:
-            logger.error("Error: Unknown pixel type: %s" % (pixel_type))
-            logger.error(traceback.format_exc())
-            raise AttributeError("Unknown pixel type: %s" % (pixel_type))
     
     ##############################################
     ##   IShare
