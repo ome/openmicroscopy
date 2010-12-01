@@ -5316,9 +5316,9 @@ class _ImageWrapper (BlitzObjectWrapper):
         for c in range(len(self.getChannels())):
             self._re.setActive(c, (c+1) in channels)
             if (c+1) in channels:
-                if windows is not None and windows[c][0] is not None and windows[c][1] is not None:
+                if windows is not None and c in windows and windows[c][0] is not None and windows[c][1] is not None:
                     self._re.setChannelWindow(c, *windows[c])
-                if colors is not None and colors[c]:
+                if colors is not None and c in colors and colors[c]:
                     rgba = splitHTMLColor(colors[c])
                     if rgba:
                         self._re.setRGBA(c, *rgba)
