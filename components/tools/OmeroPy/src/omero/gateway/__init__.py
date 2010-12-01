@@ -5309,8 +5309,8 @@ class _ImageWrapper (BlitzObjectWrapper):
         @param channels:    List of active channel indexes ** 1-based index **
         @type channels:     List of int
         @param windows:     Start and stop values for active channel rendering settings
-        @type windows:      List of tuples. [(20, 300), (50, 500)]
-        @param colors:      Map of colors. ['F00', '00FF00']
+        @type windows:      List of tuples. [(20, 300), (None, None), (50, 500)]. Must be tuples for all channels
+        @param colors:      List of colors. ['F00', None, '00FF00'].  Must be item for each channel
         """
 
         for c in range(len(self.getChannels())):
