@@ -168,6 +168,7 @@ class InputServerStrategy
 		//ROI newROI = component.createROI(id, readOnly);
 		ROI newROI = component.createROI(id, id <= 0);
 		newROI.setOwnerID(roi.getOwner().getId());
+		
 		if (roi.getNamespaces().size() != 0) {
 			String s = roi.getNamespaces().get(0);
 			newROI.setAnnotation(AnnotationKeys.NAMESPACE, s);
@@ -180,6 +181,7 @@ class InputServerStrategy
 			newROI.setAnnotation(AnnotationKeys.KEYWORDS, 
 					UIUtilities.listToCSV(roi.getNamespaceKeywords(
 							roi.getNamespaces().get(0))));
+							
 		ROIShape shape;
 		ShapeData shapeData;
 		Iterator<List<ShapeData>> i = roi.getIterator();

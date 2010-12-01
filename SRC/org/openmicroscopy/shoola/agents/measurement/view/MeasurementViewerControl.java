@@ -236,11 +236,13 @@ class MeasurementViewerControl
     private void handleFigureChange(ROIFigure figure)
 	{
     	view.onSelectedFigures();
-    	if (figure.getROI().hasAnnotation(AnnotationKeys.NAMESPACE))
+    	ROI roi = figure.getROI();
+    	/*
+    	if (roi.hasAnnotation(AnnotationKeys.NAMESPACE))
     	{
-    		String namespaceString = (String)figure.getROI().getAnnotation(
+    		String namespaceString = (String) roi.getAnnotation(
     				AnnotationKeys.NAMESPACE);
-    		String keywordsString = (String)figure.getROI().getAnnotation(
+    		String keywordsString = (String) roi.getAnnotation(
     				AnnotationKeys.KEYWORDS);
     		if (keywordsString != null)
     		{
@@ -257,7 +259,7 @@ class MeasurementViewerControl
     			view.updateWorkflow();
      		}
     	}
-		
+		*/
 		//TODO clean that code
     	if ((figure instanceof MeasureLineFigure) || 
 				(figure instanceof MeasurePointFigure)) {
@@ -267,7 +269,7 @@ class MeasurementViewerControl
     		if (!view.inDataView()) return;
     		ROIShape shape = figure.getROIShape();
     		List<ROIShape> shapeList = new ArrayList<ROIShape>();
-    		ROI roi = shape.getROI();
+    		roi = shape.getROI();
     		TreeMap<Coord3D, ROIShape> shapeMap = roi.getShapes();
     		Iterator<Coord3D> shapeIterator = shapeMap.keySet().iterator();
     		while (shapeIterator.hasNext())
@@ -284,7 +286,7 @@ class MeasurementViewerControl
 		if (!view.inDataView()) return;
 		ROIShape shape = figure.getROIShape();
 		List<ROIShape> shapeList = new ArrayList<ROIShape>();
-		ROI roi = shape.getROI();
+		roi = shape.getROI();
 		TreeMap<Coord3D, ROIShape> shapeMap = roi.getShapes();
 		Iterator<Coord3D> shapeIterator = shapeMap.keySet().iterator();
 		ROIShape thisShape;

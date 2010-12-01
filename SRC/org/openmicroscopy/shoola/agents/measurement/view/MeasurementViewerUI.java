@@ -247,7 +247,7 @@ class MeasurementViewerUI
     	menuBar.add(createControlsMenu());
     	menuBar.add(createOptionsMenu());
     	workflowMenu = createWorkFlowMenu();
-    	menuBar.add(workflowMenu);
+    	//menuBar.add(workflowMenu);
         return menuBar;
     }
     

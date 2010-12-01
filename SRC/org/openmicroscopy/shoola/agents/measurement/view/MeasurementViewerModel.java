@@ -1602,12 +1602,21 @@ class MeasurementViewerModel
 		else {
 			WorkflowData workflow = getWorkflow();
 			if (workflow == null) return;
+			boolean b = true;
+			for (String word : keywords) {
+				if (!workflow.contains(word) && word.trim().length() != 0)
+					b = false;
+			}
+			/*
 			for (String word : keywords)
 				if (!workflow.contains(word) && word.trim().length() != 0)
 					throw new IllegalArgumentException(
 							"Workflow does not contain keyword '" +
 							keyword +"'");
-			this.keyword = keywords;
+							*/
+			if (b)
+				this.keyword = keywords;
+			else keyword = new ArrayList<String>();
 		}
 	}
 	

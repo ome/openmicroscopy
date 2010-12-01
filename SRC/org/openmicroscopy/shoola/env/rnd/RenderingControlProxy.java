@@ -565,6 +565,8 @@ class RenderingControlProxy
             //initializeCache(pDef);
             //img = Factory.createImage(buf, 32, sizeX1, sizeX2);
             //cache(pDef, img);
+            
+            //img = createTexture(servant.renderAsPackedInt(pDef), p.x, p.y);
             img = createTexture(servant.renderAsPackedInt(pDef), p.x, p.y);
 		} catch (Throwable e) {
 			handleException(e, ERROR+"cannot render the plane.");
@@ -589,8 +591,8 @@ class RenderingControlProxy
 			byte[] values = servant.renderCompressed(pDef);
 			values = WriterImage.bytesToBytes(values);
 			Point p = getSize(pDef); 
-			return PixelsServicesFactory.createTexture(values, 
-					UIUtilities.ceilingPow2(p.x), UIUtilities.ceilingPow2(p.y));
+			return PixelsServicesFactory.createTexture(values, p.x, p.y);
+					//UIUtilities.ceilingPow2(p.x), UIUtilities.ceilingPow2(p.y));
 		} catch (Throwable e) {
 			handleException(e, ERROR+"cannot render the compressed image.");
 		} 
@@ -668,8 +670,7 @@ class RenderingControlProxy
 	 */
 	private TextureData createTexture(int[] data, int w, int h)
 	{
-		return PixelsServicesFactory.createTexture(data, 
-				UIUtilities.ceilingPow2(w), UIUtilities.ceilingPow2(h));
+		return PixelsServicesFactory.createTexture(data, w, h);
 	}
 
 	/**

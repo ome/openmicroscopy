@@ -254,8 +254,7 @@ class OmeroImageServiceImpl
 			byte[] values = (byte[]) m.get(pixelsID);
 			if (asTexture) {
 				values = WriterImage.bytesToBytes(values);
-				return PixelsServicesFactory.createTexture(values, 
-						UIUtilities.ceilingPow2(w), UIUtilities.ceilingPow2(w));
+				return PixelsServicesFactory.createTexture(values, w, h);
 			} else {
 				return createImage(values);
 			}

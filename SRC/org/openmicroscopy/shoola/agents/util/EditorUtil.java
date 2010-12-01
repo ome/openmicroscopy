@@ -474,17 +474,17 @@ public class EditorUtil
 		
 		PIXELS_TYPE_DESCRIPTION = new LinkedHashMap<String, String>();
 		PIXELS_TYPE_DESCRIPTION.put(OmeroImageService.INT_8, 
-					"Signed 8-bit (1byte)");
+					"Signed 8-bit (1 byte)");
 		PIXELS_TYPE_DESCRIPTION.put(OmeroImageService.UINT_8, 
 					"Unsigned 8-bit (1 byte)");
 		PIXELS_TYPE_DESCRIPTION.put(OmeroImageService.INT_16, 
-					"Signed 16-bit (2byte)");
+					"Signed 16-bit (2 byte)");
 		PIXELS_TYPE_DESCRIPTION.put(OmeroImageService.UINT_16, 
-					"Unsigned 16-bit(2byte)");
+					"Unsigned 16-bit (2 byte)");
 		PIXELS_TYPE_DESCRIPTION.put(OmeroImageService.INT_32, 
-					"Signed 32-bit(4byte)");
+					"Signed 32-bit (4 byte)");
 		PIXELS_TYPE_DESCRIPTION.put(OmeroImageService.UINT_32, 
-					"Unsigned 32-bit(4byte)");
+					"Unsigned 32-bit (4 byte)");
 		PIXELS_TYPE_DESCRIPTION.put(OmeroImageService.FLOAT, 
 					"Floating precision");
 		PIXELS_TYPE_DESCRIPTION.put(OmeroImageService.DOUBLE, 
