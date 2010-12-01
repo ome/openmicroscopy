@@ -197,6 +197,9 @@ class BlitzObjectWrapper (object):
                 link[0].parent = newParent._obj
                 self._conn.getUpdateService().saveObject(link[0])
                 return True
+            logger.debug("## query didn't return objects: 'select l from %s as l where l.parent.id=%i and l.child.id=%i'" % (p.LINK_CLASS, p.id, self.id))
+        else:
+            logger.debug("## %s != %s ('%s' - '%s')" % (type(p), type(newParent), str(p), str(newParent)))
         return False
 
     def findChildByName (self, name, description=None):

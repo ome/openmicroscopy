@@ -408,6 +408,8 @@ def buildMovie (commandArgs, session, omeroImage, pixels, renderingEngineCB):
         print "buildMovie: %s" % str(commandArgs)
 	pixelsId = pixels.getId().getValue();
 
+	invert = omeroImage.isInvertedAxis()
+
 	sizeX = pixels.getSizeX().getValue();
 	sizeY = pixels.getSizeY().getValue();
 	sizeZ = pixels.getSizeZ().getValue();
@@ -427,6 +429,9 @@ def buildMovie (commandArgs, session, omeroImage, pixels, renderingEngineCB):
 		cRange = range(0, sizeC);
 
         commandArgs['font'] = commandArgs.get('font', ImageFont.load_default())
+
+	if invert:
+		sizeZ, sizeT = sizeT, sizeZ
 
 	tzList = calculateRanges(sizeZ, sizeT, commandArgs);
 
@@ -454,7 +459,10 @@ def buildMovie (commandArgs, session, omeroImage, pixels, renderingEngineCB):
 	for tz in tzList:
 		t = tz[0];
 		z = tz[1];
-		plane = getPlane(renderingEngine, z, t)
+		if invert:
+			plane = getPlane(renderingEngine, t, z)
+		else:
+			plane = getPlane(renderingEngine, z, t)
 		planeImage = numpy.array(plane, dtype='uint32')
 		planeImage = planeImage.byteswap();
 		planeImage = planeImage.reshape(sizeX, sizeY);
