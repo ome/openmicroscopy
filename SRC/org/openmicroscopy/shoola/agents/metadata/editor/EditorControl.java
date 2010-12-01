@@ -84,13 +84,10 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.WikiDataObject;
-
-import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.FileAnnotationData;
 import pojos.PixelsData;
 import pojos.TagAnnotationData;
-import sun.reflect.ReflectionFactory.GetReflectionFactoryAction;
 
 /** 
  * The Editor's controller.
