@@ -11,10 +11,10 @@ Displays images (one per row) split into individual channels (one per column) in
     - merged_names: if true, show the names of each channel above the merged image
 """
 
-# view a dataset as two panels of images, each with a different rendering setting
+#: view a dataset as two panels of images, each with a different rendering setting
 dataset_split_view = url( r'^dataset_split_view/(?P<datasetId>[0-9]+)/', views.dataset_split_view, name='webfigure_dataset_split_view' )
 
-# view a dataset as two panels of images, each with a different rendering setting
+#: view a dataset as two panels of images, each with a different rendering setting
 image_dimensions = url( r'^image_dimensions/', views.image_dimensions, name='webfigure_image_dimensions' )
 
 
