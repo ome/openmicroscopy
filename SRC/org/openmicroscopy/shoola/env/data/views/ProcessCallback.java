@@ -64,6 +64,7 @@ public class ProcessCallback
 	{
 		if (callback instanceof ScriptCallback) return;
 		if (callback instanceof DeleteCallback) return;
+		throw new omero.IllegalArgumentException("Call back not supported.");
 	}
 	
 	/**

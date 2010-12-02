@@ -57,6 +57,12 @@ public class DeleteCallback
 	/** Helper reference to the adapter to notify. */
 	private DSCallAdapter adapter;
 	
+	/** List handling the reports. */
+	private List<DeleteReport> reports;
+	
+	/** Flag indicating that the operation has finished. */
+	private boolean finished;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -69,6 +75,7 @@ public class DeleteCallback
 		throws ServerError
 	{
 		super(client, process);
+		reports = null;
 	}
 	
 	/**
@@ -79,6 +86,8 @@ public class DeleteCallback
 	public void setAdapter(DSCallAdapter adapter)
 	{
 		this.adapter = adapter;
+		if (finished && adapter != null)
+			adapter.handleResult(reports);
 	}
 	
 	/**
@@ -88,20 +97,19 @@ public class DeleteCallback
 	public void finished(int value)
 	{
 		super.finished(value);
-		if (adapter == null) return;
+		finished = true;
 		try {
-			if (adapter != null) {
-				DeleteReport[] reports = handle.report();
-				List<DeleteReport> l = new ArrayList<DeleteReport>();
-				if (handle.errors() != 0) {
-					for (int i = 0; i < reports.length; i++) 
-						l.add(reports[i]);
-				}
-				adapter.handleResult(l);
+			DeleteReport[] reports = handle.report();
+			this.reports = new ArrayList<DeleteReport>();
+			if (handle.errors() != 0) {
+				for (int i = 0; i < reports.length; i++) 
+					this.reports.add(reports[i]);
 			}
+			if (adapter != null) adapter.handleResult(this.reports);
 		} catch (Exception e) {
 		    if (adapter != null) adapter.handleResult(null);
 		}
+		
 		
 		try {
 			close();
