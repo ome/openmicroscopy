@@ -51,7 +51,14 @@ logger = logging.getLogger('webgateway')
 logger.debug("INIT")
 
 def _session_logout (request, server_id, force_key=None):
-    """ Remove reference to old sUuid key and old blitz connection. """
+    """
+    Remove reference to old sUuid key and old blitz connection.
+    
+    @param request:     http request
+    @param server_id:   used to generate session_key
+    @param force_key:   If specified, use this as session_key
+    """
+    
     if force_key:
         session_key = force_key
     else:
@@ -71,26 +78,74 @@ def _session_logout (request, server_id, force_key=None):
         del connectors[session_key]
 
 class UserProxy (object):
+    """
+    Represents the current user of the connection, with methods delegating to the connection itself. 
+    """
+    
     def __init__ (self, blitzcon):
+        """
+        Initialises the User proxy with the L{omero.gateway.BlitzGateway} connection
+        
+        @param blitzcon:    connection
+        @type blitzcon:     L{omero.gateway.BlitzGateway}
+        """
+        
         self._blitzcon = blitzcon
         self.loggedIn = False
 
     def logIn (self):
+        """ Sets the loggedIn Flag to True """
+        
         self.loggedIn = True
 
     def isAdmin (self):
+        """ 
+        True if the current user is an admin
+        
+        @return:    True if the current user is an admin
+        @rtype:     Boolean
+        """
+        
         return self._blitzcon.isAdmin()
 
     def canBeAdmin (self):
+        """ 
+        True if the current user can be admin
+        
+        @return:    True if the current user can be admin
+        @rtype:     Boolean
+        """
+        
         return self._blitzcon.canBeAdmin()
 
     def getId (self):
+        """ 
+        Returns the ID of the current user
+        
+        @return:    User ID
+        @rtype:     Long
+        """
+        
         return self._blitzcon._user.id
 
     def getName (self):
+        """ 
+        Returns the Name of the current user
+        
+        @return:    User Name
+        @rtype:     String
+        """
+        
         return self._blitzcon._user.omeName
 
     def getFirstName (self):
+        """ 
+        Returns the first name of the current user
+        
+        @return:    First Name
+        @rtype:     String
+        """
+        
         return self._blitzcon._user.firstName or self.getName()
 
 #    def getPreferences (self):
@@ -114,6 +169,25 @@ class UserProxy (object):
 #_session_cb = SessionCB()
 
 def _createConnection (server_id, sUuid=None, username=None, passwd=None, host=None, port=None, retry=True, group=None, try_super=False, secure=False, anonymous=False, useragent=None):
+    """
+    Attempts to create a L{omero.gateway.BlitzGateway} connection.
+    
+    @param server_id:   Way of referencing the server, used in connection dict keys. Int or String
+    @param sUuid:       Session ID - used for attempts to join sessions etc without password
+    @param username:    User name to log on with
+    @param passwd:      Password
+    @param host:        Host name
+    @param port:        Port number
+    @param retry:       Boolean
+    @param group:       String? TODO: parameter is ignored. 
+    @param try_super:   If True, try to log on as super user, 'system' group
+    @param secure:      If True, use an encrypted connection
+    @param anonymous:   Boolean
+    @param useragent:   Log which python clients use this connection. E.g. 'OMERO.webadmin'
+    @return:            The connection
+    @rtype:             L{omero.gateway.BlitzGateway}
+    """
+    
     try:
         blitzcon = client_wrapper(username, passwd, host=host, port=port, group=None, try_super=try_super, secure=secure, anonymous=anonymous, useragent=useragent)
         blitzcon.connect(sUuid=sUuid)
@@ -157,7 +231,24 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
     To allow multiple worker processes to access the session created connections (which will need to be
     recreated on each process) the blitz session key will be kept in the django session data, and joining that
     session is attempted, thus avoiding having to keep user/pass around.
+    
+    @param request:     http request. Used to get these values, either from request.session or 
+                            from request.REQUEST if not in session:
+                            - username
+                            - password
+                            - host
+                            - port
+                            - secure (optional, False by default)
+    @param server_id:   Way of referencing the server, used in connection dict keys. Int or String
+    @param with_session:    If true, try to use existing session
+    @param retry:       If true, make an extra attempt to connect
+    @param group:       String?
+    @param try_super:   If True, try to log on as super user, 'system' group
+    @param useragent:   Log which python clients use this connection. E.g. 'OMERO.webadmin'
+    @return:            The connection
+    @rtype:             L{omero.gateway.BlitzGateway}
     """
+    
     r = request.REQUEST
     if server_id is None:
         # If no server id is passed, the db entry will not be used and instead we'll depend on the
@@ -211,7 +302,7 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
         logger.debug('p=%s, k=%s' % (str(passwd), str(browsersession_connection_key)))
         blitzcon = None
     else:
-        logger.debug('trying stored connection')
+        logger.debug('trying stored connection with userAgent: %s  ckey: %s' % (useragent, ckey))
         logger.debug(connectors.items())
         blitzcon = connectors.get(ckey, None)
         if not force_key and blitzcon and request.session.get(browsersession_connection_key, blitzcon._sessionUuid) != blitzcon._sessionUuid:
@@ -301,7 +392,13 @@ def _split_channel_info (rchannels):
     """
     Splits the request query channel information for images into a sequence of channels, window ranges
     and channel colors.
+    
+    @param rchannels:   The request string with channel info. E.g 1|100:505$0000FF,-2,3|620:3879$FF0000
+    @type rchannels:    String
+    @return:            E.g. [1, -2, 3] [[100.0, 505.0], (None, None), [620.0, 3879.0]] [u'0000FF', None, u'FF0000']
+    @rtype:             tuple of 3 lists
     """
+    
     channels = []
     windows = []
     colors = []
@@ -344,7 +441,13 @@ def getImgDetailsFromReq (request, as_string=False):
     c - a comma separated list of channels to be rendered (start index 1)
       - format for each entry [-]ID[|wndst:wndend][#HEXCOLOR][,...]
     zm - the zoom setting (as a percentual value)
+    
+    @param request:     http request with keys above
+    @param as_string:   If True, return a string representation of the rendering details
+    @return:            A dict or String representation of rendering details above. 
+    @rtype:             Dict or String
     """
+    
     r = request.REQUEST
     rv = {}
     for k in ('z', 't', 'q', 'm', 'zm', 'x', 'y', 'p'):
@@ -362,7 +465,17 @@ def getImgDetailsFromReq (request, as_string=False):
     return rv
 
 def render_thumbnail (request, iid, server_id=None, w=None, h=None, **kwargs):
-    """ Returns an HttpResponse wrapped jpeg with the rendered thumbnail for image 'iid' """
+    """ 
+    Returns an HttpResponse wrapped jpeg with the rendered thumbnail for image 'iid' 
+    
+    @param request:     http request
+    @param iid:         Image ID
+    @param server_id:   Optional, used for getting connection if needed etc
+    @param w:           Thumbnail max width. 64 by default
+    @param h:           Thumbnail max height
+    @return:            http response containing jpeg
+    """
+    
     if w is None:
         size = (64,)
     else:
@@ -394,7 +507,11 @@ def _get_signature_from_request (request):
     """
     returns a string that identifies this image, along with the settings passed on the request.
     Useful for using as img identifier key, for prepared image.
+    
+    @param request: http request
+    @return:        String
     """
+    
     r = request.REQUEST
     rv = r.get('m','_') + r.get('p','_')+r.get('c','_')+r.get('q', '_')
     return rv
@@ -403,6 +520,16 @@ def _get_prepared_image (request, iid, server_id=None, _conn=None, with_session=
     """
     Fetches the Image object for image 'iid' and prepares it according to the request query, setting the channels,
     rendering model and projection arguments. The compression level is parsed and returned too.
+    For parameters in request, see L{getImgDetailsFromReq}
+    
+    @param request:     http request
+    @param iid:         Image ID
+    @param server_id:   
+    @param _conn:       L{omero.gateway.BlitzGateway} connection
+    @param with_session:    If true, attempt to use existing session
+    @param saveDefs:    Try to save the rendering settings, default z and t. 
+    @param retry:       Try an extra attempt at this method
+    @return:            Tuple (L{omero.gateway.ImageWrapper} image, quality)
     """
     r = request.REQUEST
     if _conn is None:
@@ -444,9 +571,20 @@ def _get_prepared_image (request, iid, server_id=None, _conn=None, with_session=
     return (img, compress_quality)
 
 def render_image (request, iid, z, t, server_id=None, _conn=None, **kwargs):
-    """ Renders the image with id {{iid}} at {{z}} and {{t}} as jpeg.
-        Many options are available from the request dict.
-    I am assuming a single Pixels object on image with id='iid'. May be wrong """
+    """ 
+    Renders the image with id {{iid}} at {{z}} and {{t}} as jpeg.
+    Many options are available from the request dict. See L{getImgDetailsFromReq} for list.
+    I am assuming a single Pixels object on image with image-Id='iid'. May be wrong
+    
+    @param request:     http request
+    @param iid:         image ID
+    @param z:           Z index
+    @param t:           T index
+    @param server_id:   
+    @param _conn:       L{omero.gateway.BlitzGateway} connection
+    @return:            http response wrapping jpeg
+    """
+    
     USE_SESSION = False
     pi = _get_prepared_image(request, iid, server_id=server_id, _conn=_conn, with_session=USE_SESSION)
     if pi is None:
@@ -465,6 +603,13 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
     """
     Renders the OME-TIFF representation of the image(s) with id cid in ctx (i)mage,
     (d)ataset, or (p)roject.
+    
+    @param request:     http request
+    @param ctx:         'p' or 'd' or 'i'
+    @param cid:         Project, Dataset or Image ID
+    @param server_id:   
+    @param _conn:       L{omero.gateway.BlitzGateway} connection
+    @return:            http response wrapping the tiff (or zip for multiple files), or redirect to temp file/zip
     """
     USE_SESSION = False
     if _conn is None:
@@ -550,7 +695,18 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
         return HttpResponseRedirect('/appmedia/tfiles/' + rpath)
 
 def render_movie (request, iid, axis, pos, server_id=None, _conn=None, **kwargs):
-    """ Renders a movie from the image with id iid """
+    """ 
+    Renders a movie from the image with id iid
+    
+    @param request:     http request
+    @param iid:         Image ID
+    @param axis:        Movie frames are along 'z' or 't' dimension. String
+    @param pos:         The T index (for z axis) or Z index (for t axis)
+    @param server_id:   
+    @param _conn:       L{omero.gateway.BlitzGateway} connection
+    @return:            http response wrapping the file, or redirect to temp file
+    """
+    
     try:
         # Prepare a filename we'll use for temp cache, and check if file is already there
         opts = {}
@@ -605,8 +761,20 @@ def render_movie (request, iid, axis, pos, server_id=None, _conn=None, **kwargs)
         
     
 def render_split_channel (request, iid, z, t, server_id=None, _conn=None, **kwargs):
-    """ Renders a split channel view of the image with id {{iid}} at {{z}} and {{t}} as jpeg.
-        Many options are available from the request dict. """
+    """
+    Renders a split channel view of the image with id {{iid}} at {{z}} and {{t}} as jpeg.
+    Many options are available from the request dict.
+    Requires PIL to be installed on the server. 
+    
+    @param request:     http request
+    @param iid:         Image ID
+    @param z:           Z index
+    @param t:           T index
+    @param server_id:   
+    @param _conn:       L{omero.gateway.BlitzGateway} connection
+    @return:            http response wrapping a jpeg
+    """
+    
     USE_SESSION = False
     pi = _get_prepared_image(request, iid, server_id=server_id, _conn=_conn, with_session=USE_SESSION)
     if pi is None:
@@ -623,6 +791,13 @@ def render_split_channel (request, iid, z, t, server_id=None, _conn=None, **kwar
     return rsp
 
 def debug (f):
+    """
+    Decorator for adding debugging functionality to methods.
+    
+    @param f:       The function to wrap
+    @return:        The wrapped function
+    """
+    
     def wrap (request, *args, **kwargs):
         debug = request.REQUEST.getlist('debug')
         if 'slow' in debug:
@@ -636,6 +811,14 @@ def debug (f):
     return wrap
 
 def jsonp (f):
+    """
+    Decorator for adding connection debugging and returning function result as json, depending on 
+    values in kwargs
+    
+    @param f:       The function to wrap
+    @return:        The wrapped function, which will return json 
+    """
+    
     def wrap (request, *args, **kwargs):
         logger.debug('jsonp')
         try:
@@ -676,10 +859,23 @@ def jsonp (f):
 
 @debug
 def render_row_plot (request, iid, z, t, y, server_id=None, _conn=None, w=1, **kwargs):
-    """ Renders the line plot for the image with id {{iid}} at {{z}} and {{t}} as gif with transparent background.
-        Many options are available from the request dict.
-    I am assuming a single Pixels object on image with id='iid'. May be wrong 
-    TODO: cache """
+    """
+    Renders the line plot for the image with id {{iid}} at {{z}} and {{t}} as gif with transparent background.
+    Many options are available from the request dict.
+    I am assuming a single Pixels object on image with Image ID='iid'. May be wrong 
+    TODO: cache 
+    
+    @param request:     http request
+    @param iid:         Image ID
+    @param z:           Z index
+    @param t:           T index
+    @param y:           Y position of row to measure
+    @param server_id:
+    @param _conn:       L{omero.gateway.BlitzGateway} connection
+    @param w:           Line width
+    @return:            http response wrapping a gif
+    """
+    
     if not w:
         w = 1
     pi = _get_prepared_image(request, iid, server_id=server_id, _conn=_conn)
@@ -694,10 +890,23 @@ def render_row_plot (request, iid, z, t, y, server_id=None, _conn=None, w=1, **k
 
 @debug
 def render_col_plot (request, iid, z, t, x, w=1, server_id=None, _conn=None, **kwargs):
-    """ Renders the line plot for the image with id {{iid}} at {{z}} and {{t}} as gif with transparent background.
-        Many options are available from the request dict.
+    """ 
+    Renders the line plot for the image with id {{iid}} at {{z}} and {{t}} as gif with transparent background.
+    Many options are available from the request dict.
     I am assuming a single Pixels object on image with id='iid'. May be wrong 
-    TODO: cache """
+    TODO: cache
+    
+    @param request:     http request
+    @param iid:         Image ID
+    @param z:           Z index
+    @param t:           T index
+    @param x:           X position of column to measure
+    @param server_id:
+    @param _conn:       L{omero.gateway.BlitzGateway} connection
+    @param w:           Line width
+    @return:            http response wrapping a gif
+    """
+    
     if not w:
         w = 1
     pi = _get_prepared_image(request, iid, server_id=server_id, _conn=_conn)
@@ -711,7 +920,13 @@ def render_col_plot (request, iid, z, t, x, w=1, server_id=None, _conn=None, **k
     return rsp
  
 def channelMarshal (channel):
-    """ return a dict with all there is to know about a channel """
+    """
+    return a dict with all there is to know about a channel
+    
+    @param channel:     L{omero.gateway.ChannelWrapper}
+    @return:            Dict
+    """
+    
     return {'emissionWave': channel.getEmissionWave(),
             'label': channel.getEmissionWave(),
             'color': channel.getColor().getHtml(),
@@ -722,8 +937,15 @@ def channelMarshal (channel):
             'active': channel.isActive()}
 
 def imageMarshal (image, key=None):
-    """ return a dict with pretty much everything we know and care about an image,
-    all wrapped in a pretty structure."""
+    """ 
+    return a dict with pretty much everything we know and care about an image,
+    all wrapped in a pretty structure.
+    
+    @param image:   L{omero.gateway.ImageWrapper}
+    @param key:     key of specific attributes to select 
+    @return:        Dict 
+    """
+    
     image.loadRenderOptions()
     pr = image.getProject()
     ds = image.getDataset()
@@ -777,8 +999,17 @@ def imageMarshal (image, key=None):
 
 @jsonp
 def imageData_json (request, server_id=None, _conn=None, _internal=False, **kwargs):
-    """ Get a dict with image information
-    TODO: cache """
+    """
+    Get a dict with image information
+    TODO: cache
+    
+    @param request:     http request
+    @param server_id:
+    @param _conn:       L{omero.gateway.BlitzGateway}
+    @param _internal:   TODO: ? 
+    @return:            Dict
+    """
+    
     iid = kwargs['iid']
     key = kwargs.get('key', None)
     blitzcon = _conn
@@ -790,8 +1021,17 @@ def imageData_json (request, server_id=None, _conn=None, _internal=False, **kwar
 
 @jsonp
 def listImages_json (request, did, server_id=None, _conn=None, **kwargs):
-    """ lists all Images in a Dataset, as json
-    TODO: cache """
+    """
+    lists all Images in a Dataset, as json
+    TODO: cache
+    
+    @param request:     http request
+    @param did:         Dataset ID
+    @param server_id:   
+    @param _conn:       L{omero.gateway.BlitzGateway}
+    @return:            list of image json. 
+    """
+    
     blitzcon = _conn
     dataset = blitzcon.getDataset(did)
     if dataset is None:
@@ -804,8 +1044,17 @@ def listImages_json (request, did, server_id=None, _conn=None, **kwargs):
 
 @jsonp
 def listDatasets_json (request, pid, server_id=None, _conn=None, **kwargs):
-    """ lists all Datasets in a Project, as json
-    TODO: cache """
+    """
+    lists all Datasets in a Project, as json
+    TODO: cache
+    
+    @param request:     http request
+    @param pid:         Project ID
+    @param server_id:   
+    @param _conn:       L{omero.gateway.BlitzGateway}
+    @return:            list of dataset json.
+    """
+    
     blitzcon = _conn
     project = blitzcon.getProject(pid)
     rv = []
@@ -815,16 +1064,26 @@ def listDatasets_json (request, pid, server_id=None, _conn=None, **kwargs):
 
 @jsonp
 def datasetDetail_json (request, did, server_id=None, _conn=None, **kwargs):
-    """ return json encoded details for a dataset
-    TODO: cache """
+    """
+    return json encoded details for a dataset
+    TODO: cache
+    """
     blitzcon = _conn
     ds = blitzcon.getDataset(did)
     return ds.simpleMarshal()
 
 @jsonp
 def listProjects_json (request, server_id=None, _conn=None, **kwargs):
-    """ lists all Projects, as json
-    TODO: cache """
+    """
+    lists all Projects, as json
+    TODO: cache
+    
+    @param request:     http request
+    @param server_id:   
+    @param _conn:       L{omero.gateway.BlitzGateway}
+    @return:            list of project json.
+    """
+    
     blitzcon = _conn
     rv = []
     for pr in blitzcon.listProjects():
@@ -833,8 +1092,17 @@ def listProjects_json (request, server_id=None, _conn=None, **kwargs):
 
 @jsonp
 def projectDetail_json (request, pid, server_id=None, _conn=None, **kwargs):
-    """ grab details from one specific project
-    TODO: cache """
+    """
+    grab details from one specific project
+    TODO: cache
+    
+    @param request:     http request
+    @param pid:         Project ID
+    @param server_id:   
+    @param _conn:       L{omero.gateway.BlitzGateway}
+    @return:            project details as dict.
+    """
+    
     blitzcon = _conn
     pr = blitzcon.getProject(pid)
     rv = pr.simpleMarshal()
@@ -842,14 +1110,21 @@ def projectDetail_json (request, pid, server_id=None, _conn=None, **kwargs):
 
 def searchOptFromRequest (request):
     """
-    @param ctx: (http request) 'imgs' to search only images
-    @param text: (http request) the actual text phrase
-    @param start: starting index (0 based) for result
-    @param limit: nr of results to retuen (0 == unlimited)
-    @param author: 
-    @param grabData:
-    @param parents:
+    Returns a dict of options for searching, based on 
+    parameters in the http request
+    Request keys include:
+        - ctx: (http request) 'imgs' to search only images
+        - text: (http request) the actual text phrase
+        - start: starting index (0 based) for result
+        - limit: nr of results to retuen (0 == unlimited)
+        - author: 
+        - grabData:
+        - parents:
+        
+    @param request:     http request
+    @return:            Dict of options
     """
+    
     try:
         r = request.REQUEST
         opts = {
@@ -874,8 +1149,20 @@ def searchOptFromRequest (request):
 def search_json (request, server_id=None, _conn=None, **kwargs):
     """
     Search for objects in blitz.
-
-    @return: json encoded list of marshalled objects found by the search query
+    Returns json encoded list of marshalled objects found by the search query
+    Request keys include:
+        - ctx: (http request) 'imgs' to search only images
+        - text: (http request) the actual text phrase
+        - start: starting index (0 based) for result
+        - limit: nr of results to retuen (0 == unlimited)
+        - author: 
+        - grabData:
+        - parents:
+    
+    @param request:     http request
+    @param server_id:   
+    @param _conn:       L{omero.gateway.BlitzGateway}
+    @return:            json search results
     TODO: cache
     """
     opts = searchOptFromRequest(request)
@@ -919,10 +1206,18 @@ def search_json (request, server_id=None, _conn=None, **kwargs):
     return rv
 
 def save_image_rdef_json (request, iid, server_id=None, **kwargs):
-    """ Requests that the rendering defs passed in the request be set as the default for this image.
-    TODO: jsonp """
+    """
+    Requests that the rendering defs passed in the request be set as the default for this image.
+    Rendering defs in request listed at L{getImgDetailsFromReq}
+    TODO: jsonp
+    
+    @param request:     http request
+    @param iid:         Image ID
+    @param server_id:   
+    @return:            http response 'true' or 'false'
+    """
+    
     r = request.REQUEST
-
     pi = _get_prepared_image(request, iid, server_id=server_id, with_session=True, saveDefs=True)
     if pi is None:
         json_data = 'false'
@@ -935,7 +1230,16 @@ def save_image_rdef_json (request, iid, server_id=None, **kwargs):
     return HttpResponse(json_data, mimetype='application/javascript')
  
 def list_compatible_imgs_json (request, server_id, iid, _conn=None, **kwargs):
-    """ Lists the images on the same project that would be viable targets for copying rendering settings. """
+    """
+    Lists the images on the same project that would be viable targets for copying rendering settings.
+    
+    @param request:     http request
+    @param server_id:   
+    @param iid:         Image ID
+    @param _conn:       L{omero.gateway.BlitzGateway}
+    @return:            json list of image IDs
+    """
+    
     json_data = 'false'
     r = request.REQUEST
     if _conn is None:
@@ -978,7 +1282,18 @@ def list_compatible_imgs_json (request, server_id, iid, _conn=None, **kwargs):
     return HttpResponse(json_data, mimetype='application/javascript')
 
 def copy_image_rdef_json (request, server_id, _conn=None, **kwargs):
-    """ Copy the rendering settings from one image to a list of images. """
+    """
+    Copy the rendering settings from one image to a list of images.
+    Images are specified in request by 'fromid' and list of 'toids'
+    Returns json dict of Boolean:[Image-IDs] for images that have successfully 
+    had the rendering settings applied, or not. 
+    
+    @param request:     http request
+    @param server_id:   
+    @param _conn:       L{omero.gateway.BlitzGateway}
+    @return:            json dict of Boolean:[Image-IDs]
+    """
+    
     json_data = 'false'
     r = request.REQUEST
     try:
@@ -1028,7 +1343,16 @@ def copy_image_rdef_json (request, server_id, _conn=None, **kwargs):
     return HttpResponse(json_data, mimetype='application/javascript')
 
 def reset_image_rdef_json (request, iid, server_id=None, _conn=None, **kwargs):
-    """ Try to remove all rendering defs the logged in user has for this image. """
+    """
+    Try to remove all rendering defs the logged in user has for this image.
+    
+    @param request:     http request
+    @param iid:         Image ID
+    @param server_id:   
+    @param _conn:       L{omero.gateway.BlitzGateway}
+    @return:            json 'true', or 'false' if failed
+    """
+    
     if _conn is None:
         blitzcon = getBlitzConnection(request, server_id, with_session=True, useragent="OMERO.webgateway")
     else:
@@ -1046,17 +1370,31 @@ def reset_image_rdef_json (request, iid, server_id=None, _conn=None, **kwargs):
     else:
         json_data = 'false'
     if _conn is not None:
-        return json_data == 'true'
+        return json_data == 'true'      # TODO: really return a boolean? (not json)
     if r.get('callback', None):
         json_data = '%s(%s)' % (r['callback'], json_data)
     return HttpResponse(json_data, mimetype='application/javascript')
 
 def dbg_connectors (request):
+    """
+    For debugging, return connectors dict as plain text
+    """
     rv = connectors.items()
     return HttpResponse(rv, mimetype='text/plain')
 
 def full_viewer (request, iid, server_id=None, _conn=None, **kwargs):
-    """ This view is responsible for showing the omero_image template """
+    """
+    This view is responsible for showing the omero_image template
+    Image rendering options in request are used in the display page. See L{getImgDetailsFromReq}.
+    
+    @param request:     http request.
+    @param iid:         Image ID
+    @param server_id:   
+    @param _conn:       L{omero.gateway.BlitzGateway}
+    @param **kwargs:    Can be used to specify the html 'template' for rendering
+    @return:            html page of image and metadata
+    """
+    
     rid = getImgDetailsFromReq(request)
     try:
         if _conn is None:
@@ -1082,6 +1420,13 @@ def full_viewer (request, iid, server_id=None, _conn=None, **kwargs):
     return HttpResponse(rsp)
 
 def test (request):
+    """
+    Tests the L{full_viewer} with no args passed to the template. 
+    
+    @param request:     http request.
+    @return:            blank page template
+    """
+    
     context = {}
 
     t = template_loader.get_template('webgateway/omero_image.html')
@@ -1090,6 +1435,18 @@ def test (request):
 
 @jsonp
 def su (request, user, server_id=None, _conn=None, **kwargs):
+    """
+    If current user is admin, switch the session to a new connection owned by 'user'
+    (puts the new session ID in the request.session)
+    Return False if not possible
+    
+    @param request:     http request.
+    @param user:        Username of new connection owner
+    @param server_id:   
+    @param _conn:       L{omero.gateway.BlitzGateway}
+    @param **kwargs:    Can be used to specify the html 'template' for rendering
+    @return:            Boolean
+    """
     if not _conn.canBeAdmin():
         return False
     _conn.setGroupNameForSession('system')
