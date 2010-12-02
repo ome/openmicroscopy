@@ -65,6 +65,12 @@ public class ScriptCallback
 	/** Helper reference to the adapter to notify. */
 	private DSCallAdapter adapter;
 	
+	/** Flag indicating that the operation has finished. */
+	private boolean finished;
+	
+	/** The results of the script. */
+	private Map<String, Object> results;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -80,6 +86,7 @@ public class ScriptCallback
 	{
 		super(client, process);
 		this.scriptID = scriptID;
+		results = null;
 	}
 	
 	/**
@@ -90,6 +97,8 @@ public class ScriptCallback
 	public void setAdapter(DSCallAdapter adapter)
 	{
 		this.adapter = adapter;
+		if (finished && adapter != null)
+			adapter.handleResult(results);
 	}
 	
 	/**
@@ -129,26 +138,21 @@ public class ScriptCallback
 	public void processFinished(int value, Current current)
 	{
 		super.processFinished(value, current);
-		if (adapter == null) return;
+		finished = true;
 		try {
-			if (adapter != null) {
-				Map<String, RType> 
-				results = ((ScriptProcessPrx) process).getResults(0);
-				if (results == null)
-					adapter.handleResult(null);
-				else {
-					Map<String, Object> r = new HashMap<String, Object>();
-					Iterator i = results.entrySet().iterator();
-					RType type;
-					Entry entry;
-					while (i.hasNext()) {
-						entry = (Entry) i.next();
-						r.put((String) entry.getKey(), 
-							ParamData.convertRType((RType) entry.getValue()));
-					}
-					adapter.handleResult(r);
+			Map<String, RType> r = ((ScriptProcessPrx) process).getResults(0);
+			if (r != null) {
+				results = new HashMap<String, Object>();
+				Iterator i = r.entrySet().iterator();
+				RType type;
+				Entry entry;
+				while (i.hasNext()) {
+					entry = (Entry) i.next();
+					results.put((String) entry.getKey(), 
+						ParamData.convertRType((RType) entry.getValue()));
 				}
 			}
+			if (adapter != null) adapter.handleResult(results);
 		} catch (Exception e) {
 		    if (adapter != null) adapter.handleResult(null);
 		}

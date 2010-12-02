@@ -103,7 +103,7 @@ public class DataObjectRemover
      * Returns the result.
      * @see BatchCallTree#getResult()
      */
-    protected Object getResult() { return Boolean.valueOf(true); }
+    protected Object getResult() { return null; }//Boolean.valueOf(true); }
     
     /**
      * Creates a new instance.
