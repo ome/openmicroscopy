@@ -1,10 +1,8 @@
 package ome.server.itests;
 
 import ome.api.IRepositoryInfo;
-import ome.logic.RepositoryInfoImpl;
+import ome.conditions.InternalException;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.testng.annotations.Test;
 
 /**
@@ -22,28 +20,27 @@ import org.testng.annotations.Test;
  */
 @Test(groups = { "ticket:39", "integration" })
 public class RepositoryInfoTest extends AbstractManagedContextTest {
-	
+
     @Test
     public void testRepositoryFree() throws Exception {
 
         IRepositoryInfo iRepositoryInfo = factory.getRepositoryInfoService();
         assertTrue(iRepositoryInfo.getFreeSpaceInKilobytes() > 0);
-    }	
+    }
 
-    @Test
+    @Test(expectedExceptions={InternalException.class})
     public void testRepositoryUsed() throws Exception {
 
         IRepositoryInfo iRepositoryInfo = factory.getRepositoryInfoService();
-        assertTrue(iRepositoryInfo.getUsedSpaceInKilobytes() > 0);
-    }	
+        iRepositoryInfo.getUsedSpaceInKilobytes();
+    }
 
-    @Test
+    @Test(expectedExceptions={InternalException.class})
     public void testRepositoryPercentUsed() throws Exception {
 
         IRepositoryInfo iRepositoryInfo = factory.getRepositoryInfoService();
-    	
-        assertTrue(iRepositoryInfo.getUsageFraction() < 0.95);
-    }	
+        iRepositoryInfo.getUsageFraction();
+    }
 
     /**
      * Query database eventlog table for objects marked for delete and
@@ -56,6 +53,6 @@ public class RepositoryInfoTest extends AbstractManagedContextTest {
 
         IRepositoryInfo iRepositoryInfo = factory.getRepositoryInfoService();
         iRepositoryInfo.removeUnusedFiles();
-    }	
+    }
 
 }

@@ -101,6 +101,10 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
      */
     private final Object lastLock = new Object();
 
+    private static final String DEPRECATED =
+        "This UNSAFE method has been deprecated. Server side functionality " +
+        "has been REMOVED.";
+
     /**
      * Bean injection setter for ROMIO thumbnail service
      * 
@@ -149,7 +153,6 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
      */
     @RolesAllowed("user")
     public long getFreeSpaceInKilobytes() {
-
         FileSystem f;
         long result = 0L;
 
@@ -173,23 +176,9 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
      * @see ome.api.IRepositoryInfo#getUsedSpaceInKilobytes()
      */
     @RolesAllowed("user")
+    @Deprecated
     public long getUsedSpaceInKilobytes() {
-
-        FileSystem f;
-        long result = 0L;
-
-        try {
-            f = new FileSystem(datadir);
-            result = f.used();
-            if (log.isInfoEnabled()) {
-                log.info("Total kilobytes used: " + f.used());
-            }
-        } catch (Throwable t) {
-            log.error("Error retrieving usage in KB.", t);
-            throw new ResourceError(t.getMessage());
-        }
-
-        return result;
+        throw new InternalException(DEPRECATED);
     }
 
     /*
@@ -198,21 +187,9 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
      * @see ome.api.IRepositoryInfo#getUsageFraction()
      */
     @RolesAllowed("user")
+    @Deprecated
     public double getUsageFraction() {
-        double result = 0.0;
-
-        try {
-            if (getUsedSpaceInKilobytes() > 0) {
-                Double used = new Double(getUsedSpaceInKilobytes());
-                Double free = new Double(getFreeSpaceInKilobytes());
-                result = used / free;
-            }
-        } catch (Throwable t) {
-            log.error("Could not obtain usage fraction.", t);
-            throw new ResourceError(t.getMessage());
-        }
-
-        return result;
+        throw new InternalException(DEPRECATED);
     }
 
     /*

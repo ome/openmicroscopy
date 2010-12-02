@@ -13,6 +13,7 @@ package integration;
 import org.testng.annotations.Test;
 
 //Application-internal dependencies
+import omero.InternalException;
 import omero.api.IRepositoryInfoPrx;
 
 /** 
@@ -49,24 +50,24 @@ public class RepositoryServiceTest
 	 * Tests the <code>getUsedSpaceInKilobytes</code> method.
 	 * @throws Exception Thrown if an error occurred.
 	 */
-	@Test
+	@Test(expectedExceptions={InternalException.class})
     public void testUsedSpace() 
     	throws Exception
     {
 		IRepositoryInfoPrx svc = root.getSession().getRepositoryInfoService();
-		assertTrue(svc.getUsedSpaceInKilobytes() >= 0);
+		svc.getUsedSpaceInKilobytes();
     }
 	
 	/**
 	 * Tests the <code>getUsageFraction</code> method.
 	 * @throws Exception Thrown if an error occurred.
 	 */
-	@Test
+	@Test(expectedExceptions={InternalException.class})
     public void testUsageFraction() 
     	throws Exception
     {
 		IRepositoryInfoPrx svc = root.getSession().getRepositoryInfoService();
-		assertTrue(svc.getUsageFraction() >= 0);
+		svc.getUsageFraction();
     }
 	
 }

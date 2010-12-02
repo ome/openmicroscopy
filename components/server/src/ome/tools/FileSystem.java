@@ -78,47 +78,6 @@ public class FileSystem extends File {
 	}
 
 	/**
-	 * This method is used to get the used space of a File or FileSystem in
-	 * bytes
-	 * 
-	 * @return
-	 */
-	public long size() {
-		long totalSpace = length();
-
-		if (isDirectory()) {
-			String[] entries = list();
-			if (entries == null) {
-			    log.error("I/O error or not a directory: " + getAbsolutePath());
-			    entries = new String[0];
-			}
-			int len = entries.length;
-
-			for (int i = 0; i < len; i++) {
-				FileSystem child = new FileSystem(getPath() + separatorChar
-						+ entries[i]);
-				totalSpace += child.size();
-			}
-		}
-		return totalSpace;
-	}
-
-	/**
-	 * This method is used to get the used space of a File or FileSystem in
-	 * kilobytes
-	 * 
-	 * @return
-	 */
-	public long used() {
-		long result = 0;
-
-		if (size() > 0) {
-			result = size() / 1024; // in kilobytes
-		}
-		return result;
-	}
-
-	/**
 	 * This method will return the free space in kilobytes TODO - resolve the
 	 * slash mount
 	 * 
@@ -182,17 +141,13 @@ public class FileSystem extends File {
 	public static void main(String[] args) throws IOException {
 	    FileSystem file = new FileSystem(args[0]);
 	    long free = file.free(args[0]);
-	    long used = file.used();
 
 	    System.err.println("Free kilobytes: " + free);
-	    System.err.println("Used kilobytes: " + used);
 	    System.err.println(
 	            "Time prior to check: " + System.currentTimeMillis());
 
 	    free = file.free(args[0]);
-	    used = file.used();
 	    System.err.println("Free kilobytes: " + free);
-	    System.err.println("Used kilobytes: " + used);
 	    System.err.println(
 	            "Time after check: " + System.currentTimeMillis());
 	}
