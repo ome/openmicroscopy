@@ -37,6 +37,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.text.NumberFormat;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -428,32 +429,60 @@ class PropertiesUI
      * @param details The map to convert.
      * @return See above.
      */
-    private String isValidPixelsSize(Map details)
+    private String formatPixelsSize(Map details, JLabel component)
     {
     	String x = (String) details.get(EditorUtil.PIXEL_SIZE_X);
     	String y = (String) details.get(EditorUtil.PIXEL_SIZE_Y);
     	String z = (String) details.get(EditorUtil.PIXEL_SIZE_Z);
+    	Double dx = null, dy = null, dz = null;
+    	boolean number = true;
+    	NumberFormat nf = NumberFormat.getInstance();
+    	try {
+			dx = Double.parseDouble(x);
+		} catch (Exception e) {
+			number = false;
+		}
+		try {
+			dy = Double.parseDouble(y);
+		} catch (Exception e) {
+			number = false;
+		}
+		try {
+			dz = Double.parseDouble(z);
+		} catch (Exception e) {
+			number = false;
+		}
+		
     	String label = "Pixels Size (";
-    	
     	String value = "";
-    	String zero = "0";
-    	if (!zero.equals(x)) {
-    		value += x;
+    	String tooltip = "<html><body>";
+    	if (dx != null && dx.doubleValue() > 0) {
+    		value += nf.format(dx);
+    		tooltip += "X: "+x+"<br>";
     		label += "X";
     	}
-    	if (!zero.equals(y)) {
-    		if (value.length() == 0) value += y;
-    		else value +="x"+y;
+    	if (dy != null && dy.doubleValue() > 0) {
+    		if (value.length() == 0) value += nf.format(dy);
+    		else value +="x"+nf.format(dy);;
+    		tooltip += "Y: "+y+"<br>";
     		label += "Y";
     	}
-    	if (!zero.equals(z)) {
-    		if (value.length() == 0) value += z;
-    		else value +="x"+z;
+    	if (dz != null && dz.doubleValue() > 0) {
+    		if (value.length() == 0) value += nf.format(dz);
+    		else value +="x"+nf.format(dz);
+    		tooltip += "Z: "+z+"<br>";
     		label += "Z";
     	}
     	label += ") ";
+    	if (!number) {
+    		component.setForeground(AnnotationUI.WARNING);
+    		component.setToolTipText("Values stored in the file...");
+    	} else {
+    		component.setToolTipText(tooltip);
+    	}
     	if (value.length() == 0) return null;
-    	return label+"="+value;
+    	component.setText(value);
+    	return label;
     }
 
     /**
@@ -519,23 +548,16 @@ class PropertiesUI
     	c.gridx = c.gridx+2;
     	content.add(value, c);
     	
-    	String s = isValidPixelsSize(details);
+    	value = UIUtilities.createComponent(null);
+    	String s = formatPixelsSize(details, value);
     	if (s != null) {
-    		boolean isANumber = isPixelsSizeNumber(details);
-    		String[] split = s.split("=");
     		c.gridy++;
-        	label = UIUtilities.setTextFont(split[0]+EditorUtil.MICRONS, 
+        	label = UIUtilities.setTextFont(s+EditorUtil.MICRONS, 
         			Font.BOLD, size);
-        	value = UIUtilities.createComponent(null);
-        	value.setText(split[1]);
         	c.gridx = 0;
         	content.add(label, c);
         	c.gridx = c.gridx+2;
         	content.add(value, c);
-        	if (!isANumber) {
-        		value.setForeground(AnnotationUI.WARNING);
-        		value.setToolTipText("Values stored in the file...");
-        	}
     	}
     	c.gridy++;
     	label = UIUtilities.setTextFont("z-sections/timepoints", Font.BOLD, 

@@ -514,6 +514,20 @@ public class EditorUtil
 	/** The filter to determine if a file is an editor file or not. */
 	private static final EditorFileFilter editorFilter = new EditorFileFilter();
 	
+	/**
+     * Rounds the value.
+     * 
+     * @param v The value to handle.
+     * @return See above.
+     */
+    private static double roundValue(double v)
+    {
+		if (v <= 0) return UIUtilities.roundTwoDecimals(v);
+		int decimal = UIUtilities.findDecimal(v, 1);
+		if (decimal <= 2) return UIUtilities.roundTwoDecimals(v);
+		return UIUtilities.ceil(v, decimal+1);
+    }
+    
     /**
      * Transforms the specified {@link ExperimenterData} object into 
      * a visualization form.
@@ -564,15 +578,14 @@ public class EditorUtil
             details.put(PIXEL_SIZE_Z, "");
             details.put(PIXEL_TYPE, "");  
         } else {
-            NumberFormat nf = NumberFormat.getInstance();
             details.put(SIZE_X, ""+data.getSizeX());
             details.put(SIZE_Y, ""+data.getSizeY());
             details.put(SECTIONS, ""+data.getSizeZ());
             details.put(TIMEPOINTS, ""+data.getSizeT());
             try {
-                details.put(PIXEL_SIZE_X, nf.format(data.getPixelSizeX()));
-                details.put(PIXEL_SIZE_Y, nf.format(data.getPixelSizeY()));
-                details.put(PIXEL_SIZE_Z, nf.format(data.getPixelSizeZ()));
+            	details.put(PIXEL_SIZE_X, ""+data.getPixelSizeX());
+                details.put(PIXEL_SIZE_Y, ""+data.getPixelSizeY());
+                details.put(PIXEL_SIZE_Z, ""+data.getPixelSizeZ());
                 details.put(PIXEL_TYPE, 
                 		PIXELS_TYPE_DESCRIPTION.get(""+data.getPixelType())); 
             } catch (Exception e) {
@@ -1825,46 +1838,31 @@ public class EditorUtil
 		notSet.add(POSITION_Y);
 		notSet.add(POSITION_Z);
 		details.put(NOT_SET, notSet);
-    	if (plane != null) {
+		if (plane != null) {
     		RDouble o = plane.getDeltaT();
     		if (o != null)  {
     			notSet.remove(DELTA_T);
-    			details.put(DELTA_T, 
-    					UIUtilities.roundTwoDecimals(o.getValue()));
+    			details.put(DELTA_T, roundValue(o.getValue()));
     		}
     		o = plane.getExposureTime();
     		if (o != null) {
     			notSet.remove(EXPOSURE_TIME);
-    			double v = o.getValue();
-    			if (v <= 0) {
-    				details.put(EXPOSURE_TIME, UIUtilities.roundTwoDecimals(v));
-    			} else {
-    				int decimal = UIUtilities.findDecimal(v, 1);
-    				if (decimal <= 2) {
-    					details.put(EXPOSURE_TIME, 
-    	    					UIUtilities.roundTwoDecimals(v));
-    				} else 
-    					details.put(EXPOSURE_TIME, 
-    	    					UIUtilities.ceil(v, decimal+1));
-    			}
+    			details.put(EXPOSURE_TIME, roundValue(o.getValue()));
     		}
     		o = plane.getPositionX();
     		if (o != null) {
     			notSet.remove(POSITION_X);
-    			details.put(POSITION_X, 
-    					UIUtilities.roundTwoDecimals(o.getValue()));
+    			details.put(POSITION_X, roundValue(o.getValue()));
     		}
     		o = plane.getPositionY();
     		if (o != null) {
     			notSet.remove(POSITION_Y);
-    			details.put(POSITION_Y, 
-    					UIUtilities.roundTwoDecimals(o.getValue()));
+    			details.put(POSITION_Y, roundValue(o.getValue()));
     		}
     		o = plane.getPositionZ();
     		if (o != null) {
     			notSet.remove(POSITION_Z);
-    			details.put(POSITION_Z, 
-    					UIUtilities.roundTwoDecimals(o.getValue()));
+    			details.put(POSITION_Z, roundValue(o.getValue()));
     		}
     	}
     	return details;
