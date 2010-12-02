@@ -724,11 +724,11 @@ public class ImportLibrary implements IObservable
                 for (int z = 0; z < size.sizeZ; z++)
                 {
                     // XXX: Disabling for now.
-                    //offset = writeDataBlockBased(
-                    //        pixId, size, z, c, t, offset, maximumRowCount,
-                    //        maximumPixelCount, bytesPerPixel, fileName, md);
-                    writeDataPlanarBased(pixId, size, z, c, t, bytesPerPixel,
-                                         fileName, md);
+                    offset = writeDataBlockBased(
+                            pixId, size, z, c, t, offset, maximumRowCount,
+                            maximumPixelCount, bytesPerPixel, fileName, md);
+                    //writeDataPlanarBased(pixId, size, z, c, t, bytesPerPixel,
+                    //                     fileName, md);
                     notifyObservers(new ImportEvent.IMPORT_STEP(
                             planeNo, series, reader.getSeriesCount()));
                     planeNo++;

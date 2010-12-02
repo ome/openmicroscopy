@@ -220,13 +220,13 @@ public class OMEROWrapper extends MinMaxCalculator {
     }
 
     /* (non-Javadoc)
-     * @see loci.formats.MinMaxCalculator#updateMinMax(byte[], int)
+     * @see loci.formats.MinMaxCalculator#updateMinMax(int, byte[], int)
      */
     @Override
-    protected void updateMinMax(byte[] b, int ndx) throws FormatException,
-            IOException {
+    protected void updateMinMax(int no, byte[] buf, int len)
+        throws FormatException, IOException {
         if (isMinMaxSet() == false)
-            super.updateMinMax(b, ndx);
+            super.updateMinMax(no, buf, len);
     }
 
     /* (non-Javadoc)
