@@ -127,6 +127,28 @@ class MetadataViewerComponent
 	
 	/** The View sub-component. */
 	private MetadataViewerUI 		view;
+
+	/**
+	 * Deletes the passed annotation.
+	 * 
+	 * @param toDelete The annotation to delete.
+	 */
+	private void deleteAnnotations(List<AnnotationData> toDelete)
+	{
+		if (toDelete == null || toDelete.size() == 0) return;
+		//Should only be annotation so content is false;
+		List<DeletableObject> l = new ArrayList<DeletableObject>();
+		Iterator<AnnotationData> j = toDelete.iterator();
+		while (j.hasNext())
+			l.add(new DeletableObject(j.next()));
+		IconManager icons = IconManager.getInstance();
+		DeleteActivityParam p = new DeleteActivityParam(
+				icons.getIcon(IconManager.APPLY_22), l);
+		p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
+		UserNotifier un = 
+			TreeViewerAgent.getRegistry().getUserNotifier();
+		un.notifyActivity(p);
+	}
 	
 	/**
 	 * Creates the movie.
@@ -426,23 +448,6 @@ class MetadataViewerComponent
 	public List getRelatedNodes()
 	{
 		return model.getRelatedNodes();
-	}
-	
-	private void deleteAnnotations(List<AnnotationData> toDelete)
-	{
-		if (toDelete == null || toDelete.size() == 0) return;
-		//Should only be annotation so content is false;
-		List<DeletableObject> l = new ArrayList<DeletableObject>();
-		Iterator<AnnotationData> j = toDelete.iterator();
-		while (j.hasNext())
-			l.add(new DeletableObject(j.next()));
-		IconManager icons = IconManager.getInstance();
-		DeleteActivityParam p = new DeleteActivityParam(
-				icons.getIcon(IconManager.APPLY_22), l);
-		p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
-		UserNotifier un = 
-			TreeViewerAgent.getRegistry().getUserNotifier();
-		un.notifyActivity(p);
 	}
 	
 	/** 
