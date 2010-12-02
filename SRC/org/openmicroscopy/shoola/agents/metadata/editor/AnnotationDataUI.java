@@ -1180,7 +1180,7 @@ class AnnotationDataUI
 			while (j.hasNext()) {
 				tag = (TagAnnotationData) j.next();
 				id = tag.getId();
-				if (!idsToKeep.contains(id))
+				if (!idsToKeep.contains(id) && !model.isAnnotationToDelete(tag))
 					l.add(tag);
 			}
 		}
@@ -1203,7 +1203,7 @@ class AnnotationDataUI
 			while (j.hasNext()) {
 				fa = (FileAnnotationData) j.next();
 				id = fa.getId();
-				if (!idsToKeep.contains(id))
+				if (!idsToKeep.contains(id)  && !model.isAnnotationToDelete(fa))
 					l.add(fa);
 			}
 		}

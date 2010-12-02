@@ -151,10 +151,30 @@ class MetadataViewerComponent
 		IconManager icons = IconManager.getInstance();
 		activity.setIcon(icons.getIcon(IconManager.MOVIE_22));
 		un.notifyActivity(activity);
-		
-		//model.createMovie(parameters);
 	}
 
+	/**
+	 * Deletes the annotations.
+	 * 
+	 * @param toDelete The annotations to delete.
+	 */
+	private void deleteAnnotations(List<AnnotationData> toDelete)
+	{
+		if (toDelete == null || toDelete.size() == 0) return;
+		//Should only be annotation so content is false;
+		List<DeletableObject> l = new ArrayList<DeletableObject>();
+		Iterator<AnnotationData> j = toDelete.iterator();
+		while (j.hasNext())
+			l.add(new DeletableObject(j.next()));
+		IconManager icons = IconManager.getInstance();
+		DeleteActivityParam p = new DeleteActivityParam(
+				icons.getIcon(IconManager.APPLY_22), l);
+		p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
+		UserNotifier un = 
+			TreeViewerAgent.getRegistry().getUserNotifier();
+		un.notifyActivity(p);
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * The {@link #initialize() initialize} method should be called straight
@@ -426,28 +446,6 @@ class MetadataViewerComponent
 	public List getRelatedNodes()
 	{
 		return model.getRelatedNodes();
-	}
-	
-	/**
-	 * Deletes the annotations.
-	 * 
-	 * @param toDelete The annotations to delete.
-	 */
-	private void deleteAnnotations(List<AnnotationData> toDelete)
-	{
-		if (toDelete == null || toDelete.size() == 0) return;
-		//Should only be annotation so content is false;
-		List<DeletableObject> l = new ArrayList<DeletableObject>();
-		Iterator<AnnotationData> j = toDelete.iterator();
-		while (j.hasNext())
-			l.add(new DeletableObject(j.next()));
-		IconManager icons = IconManager.getInstance();
-		DeleteActivityParam p = new DeleteActivityParam(
-				icons.getIcon(IconManager.APPLY_22), l);
-		p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
-		UserNotifier un = 
-			TreeViewerAgent.getRegistry().getUserNotifier();
-		un.notifyActivity(p);
 	}
 	
 	/** 

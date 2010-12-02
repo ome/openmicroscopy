@@ -2717,5 +2717,25 @@ class EditorModel
     	resultsLoader.remove(item);
     }
     
+    /**
+     * Returns <code>true</code> if the passed annotation has to be 
+     * deleted, <code>false</code> otherwise.
+     * 
+     * @param annotation The annotation to handle.
+     * @return See above.
+     */
+    boolean isAnnotationToDelete(AnnotationData annotation)
+    {
+    	if (toDelete == null || toDelete.size() == 0) return false;
+    	Iterator<AnnotationData> i = toDelete.iterator();
+    	AnnotationData data;
+    	while (i.hasNext()) {
+			data = i.next();
+			if (data.getId() == annotation.getId())
+				return true;
+		}
+    	return false;
+    }
+    
 }
 	
