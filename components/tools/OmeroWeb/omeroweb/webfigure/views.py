@@ -12,6 +12,73 @@ from omero.rtypes import rstring
 
 logger = logging.getLogger('webfigure')
 
+def image_dimensions (request):
+    
+    conn = getBlitzConnection (request, useragent="OMERO.webfigure")
+    if conn is None or not conn.isConnected():
+        return HttpResponseRedirect(reverse('webfigure_login'))
+    
+    imageId = request.REQUEST.get('imageId', None)
+    image = None
+    if imageId:
+        image = conn.getImage(imageId)
+    else:
+        return render_to_response('webfigure/image_dimensions.html', {}) 
+    
+    mode = request.REQUEST.get('mode', None) and 'g' or 'c'
+    dims = {'Z':image.z_count(), 'C': image.c_count(), 'T': image.t_count()}
+    
+    xDim = request.REQUEST.get('xDim', 'T')
+    if xDim not in dims.keys():
+        xDim = 'T'
+        
+    yDim = request.REQUEST.get('yDim', 'Z')
+    if yDim not in dims.keys():
+        yDim = 'Z'
+    
+    xFrames = int(request.REQUEST.get('xFrames', 1))
+    xSize = dims[xDim]
+    yFrames = int(request.REQUEST.get('yFrames', 1))
+    ySize = dims[yDim]
+    
+    print xFrames, xSize
+    print yFrames, ySize
+    
+    xFrames = min(xFrames, xSize)
+    yFrames = min(yFrames, ySize)
+    
+    xRange = range(xFrames)
+    yRange = range(yFrames)
+    
+    # 2D array of (theZ, theC, theT)
+    grid = []
+    for y in yRange:
+        grid.append([])
+        for x in xRange:
+            theZ, theC, theT = 0,0,0
+            if xDim == 'Z':
+                theZ = x
+            if xDim == 'C':
+                theC = x
+            if xDim == 'T':
+                theT = x
+            if yDim == 'Z':
+                theZ = y
+            if yDim == 'C':
+                theC = y
+            if yDim == 'T':
+                theT = y
+                
+            grid[y].append( (theZ, theC+1, theT) )
+    
+    for y in yRange:
+        print ":".join( [str(d) for d in grid[y] ] )
+        
+    size = {"height": 125, "width": 125}
+    
+    return render_to_response('webfigure/image_dimensions.html', {'image':image, 'grid': grid, "size": size, "mode":mode,
+        'xDim':xDim, 'xRange':xRange, 'yRange':yRange, 'yDim':yDim, 'xFrames':xFrames, 'yFrames':yFrames})
+    
 
 def add_annotations (request):
     """
