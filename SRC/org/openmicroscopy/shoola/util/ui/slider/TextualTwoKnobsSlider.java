@@ -235,9 +235,9 @@ public class TextualTwoKnobsSlider
 		
 		startField = new NumericalTextField(minR, maxR, type);
 		startField.setColumns(length);
+		
 		endField = new NumericalTextField(minR, maxR, type);
 		endField.setColumns(length);
-		
 		endField.setText(formatValue(end));
 		startField.setText(formatValue(start));
 		//No need to check values b/c already done by the slider.
@@ -649,6 +649,19 @@ public class TextualTwoKnobsSlider
 		startField.setText(formatValue(start));
 		//endField.setMinimum(absoluteMinText);
 		//startField.setMaximum(absoluteMaxText);
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("<html><body>");
+		buffer.append("<b>Min:</b> "+min);
+		buffer.append("<br><b>Pixels Type Min: </b>"+absoluteMinText);
+		buffer.append("</body></html>");
+		startField.setToolTipText(buffer.toString());
+		buffer = new StringBuffer();
+		buffer.append("<html><body>");
+		buffer.append("<b>Max:</b> "+max);
+		buffer.append("<br><b>Pixels Type Max: </b>"+absoluteMaxText);
+		buffer.append("</body></html>");
+		endField.setToolTipText(buffer.toString());
+		
 		this.start = start;
 		this.end = end;
 		attachListeners();
