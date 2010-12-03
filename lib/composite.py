@@ -50,7 +50,7 @@ INSIGHT_JOB_NAME = 'INSIGHT-Beta4.2'
 
 IMPORTER_JOB_NAME = 'OMERO-Beta4.2'
 
-TARGET_PREFIX = 'OMERO.clients-Beta4.2.1'
+TARGET_PREFIX = 'OMERO.clients-Beta4.2.2'
 
 # The following libraries are duplicated in Insight and Importer:
 # IGNORE = "bio-formats.jar jai_imageio.jar loci-common.jar mdbtools-java.jar ome-xml.jar poi-loci.jar".split()
