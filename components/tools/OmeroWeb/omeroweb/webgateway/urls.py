@@ -21,8 +21,8 @@ path to media files for webgateway
 
 render_image = (r'^render_image/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/$', 'webgateway.views.render_image')
 """
-Returns a jpeg of the OMERO image. See L{webgateway.views.render_image}. Rendering settings can be specified
-in the request parameters. See L{webgateway.views.getImgDetailsFromReq} for details. 
+Returns a jpeg of the OMERO image. See L{views.render_image}. Rendering settings can be specified
+in the request parameters. See L{.views.getImgDetailsFromReq} for details. 
     Params in render_image/<iid>/<z>/<t>/ are:
     - iid:  Image ID
     - z:    Z index
@@ -31,7 +31,7 @@ in the request parameters. See L{webgateway.views.getImgDetailsFromReq} for deta
 
 render_split_channel = (r'^render_split_channel/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/$', 'webgateway.views.render_split_channel')
 """
-Returns a jpeg of OMERO Image with channels split into different panes in a grid. See {webgateway.views.render_split_channel}.
+Returns a jpeg of OMERO Image with channels split into different panes in a grid. See L{views.render_split_channel}.
 Rendering settings can be specified in the request parameters (as above).
     Params in render_split_channel/<iid>/<z>/<t> are:
     - iid:  Image ID
@@ -42,7 +42,7 @@ Rendering settings can be specified in the request parameters (as above).
 render_row_plot = (r'^render_row_plot/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/(?P<y>[^/]+)/(?:(?P<w>[^/]+)/)?$', 
     'webgateway.views.render_row_plot')
 """
-Returns a gif graph of pixel values for a row of an image plane. See {webgateway.views.render_row_plot}.
+Returns a gif graph of pixel values for a row of an image plane. See L{views.render_row_plot}.
 Channels can be turned on/off using request. E.g. c=-1,2,-3,-4
     Params in render_row_plot/<iid>/<z>/<t>/<y>/<w> are:
     - iid:  Image ID
@@ -55,7 +55,7 @@ Channels can be turned on/off using request. E.g. c=-1,2,-3,-4
 render_col_plot = (r'^render_col_plot/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/(?P<x>[^/]+)/(?:(?P<w>[^/]+)/)?$', 
     'webgateway.views.render_col_plot')
 """
-Returns a gif graph of pixel values for a column of an image plane. See {webgateway.views.render_col_plot}.
+Returns a gif graph of pixel values for a column of an image plane. See L{views.render_col_plot}.
 Channels can be turned on/off using request. E.g. c=-1,2,-3,-4
     Params in render_col_plot/<iid>/<z>/<t>/<x>/<w> are:
     - iid:  Image ID
@@ -68,7 +68,7 @@ Channels can be turned on/off using request. E.g. c=-1,2,-3,-4
 render_thumbnail = (r'^render_thumbnail/(?P<iid>[^/]+)/(?:(?P<w>[^/]+)/)?(?:(?P<h>[^/]+)/)?$', 'webgateway.views.render_thumbnail')
 """
 Returns a thumbnail jpeg of the OMERO Image, optionally scaled to max-width and max-height.
-See L{webgateway.views.render_thumbnail}. Uses current rendering settings. 
+See L{views.render_thumbnail}. Uses current rendering settings. 
     Params in render_thumbnail/<iid>/<w>/<h> are:
     - iid:  Image ID
     - w:    Optional max width
@@ -78,7 +78,7 @@ See L{webgateway.views.render_thumbnail}. Uses current rendering settings.
 render_ome_tiff = (r'^render_ome_tiff/(?P<ctx>[^/]+)/(?P<cid>[^/]+)/$', 'webgateway.views.render_ome_tiff')
 """
 Generates an OME-TIFF of an Image (or zip for multiple OME-TIFFs) and returns the file or redirects 
-to a temp file location. See L{webgateway.views.render_ome_tiff}
+to a temp file location. See L{views.render_ome_tiff}
     Params in render_ome_tiff/<ctx>/<cid> are:
     - ctx:      The container context. 'p' for Project, 'd' for Dataset or 'i' Image. 
     - cid:      ID of container.
@@ -86,7 +86,7 @@ to a temp file location. See L{webgateway.views.render_ome_tiff}
 
 render_movie = (r'^render_movie/(?P<iid>[^/]+)/(?P<axis>[zt])/(?P<pos>[^/]+)/$', 'webgateway.views.render_movie')
 """
-Generates a movie file from the image, spanning Z or T frames. See {views.render_movie}
+Generates a movie file from the image, spanning Z or T frames. See L{views.render_movie}
 Returns the file or redirects to temp file location. 
     Params in render_movie/<iid>/<axis>/<pos> are:
     - iid:      Image ID
