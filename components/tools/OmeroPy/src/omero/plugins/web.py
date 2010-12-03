@@ -393,7 +393,9 @@ using bin\omero web start on Windows with FastCGI.
 """)
             pid = 'Unknown'
             pid_path = self.ctx.dir / "var" / "django.pid"
-            pid_text = pid_path.text().strip()
+            pid_text = "Unknown"
+            if pid_path.exists():
+                pid_text = pid_path.text().strip()
             try:
                 try:
                     pid = int(pid_text)
@@ -407,7 +409,8 @@ using bin\omero web start on Windows with FastCGI.
                 self.ctx.out("[OK]")
                 self.ctx.out("Django FastCGI workers (PID %d) killed." % pid)
             finally:
-                pid_path.remove()
+                if pid_path.exists():
+                    pid_path.remove()
         else:
             self.ctx.err("DEVELOPMENT: You will have to kill processes by hand!")
 
