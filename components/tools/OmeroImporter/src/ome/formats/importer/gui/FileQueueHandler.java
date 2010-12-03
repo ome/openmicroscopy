@@ -261,6 +261,7 @@ public class FileQueueHandler extends JPanel
                 } 
                 else if (fileExt.equals("txt")
                          || fileExt.equals("xml")
+                         || fileExt.equals("exp")
                          || fileExt.equals("log"))
                 { // arbitrary file extension so we must do candidates
                     runCandidates = true;
