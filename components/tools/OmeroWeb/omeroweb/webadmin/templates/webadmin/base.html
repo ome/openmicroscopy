@@ -26,7 +26,7 @@
             <h1>{% trans "Hello" %} {{ eventContext.userName }}! <a href="{% url walogout %}">{% trans "Logout" %}</a>
             <br/>{{ info.today }}</h1>
             <br/><br/>
-            <div> Version: <strong>OMERO Beta {{ eventContext.version }}.</strong> Role: <strong>{% if eventContext.isAdmin %}admin{% else %}user{% endif %}</strong></div>
+            <div> Version: <strong>OMERO {{ eventContext.version }}.</strong> Role: <strong>{% if eventContext.isAdmin %}admin{% else %}user{% endif %}</strong></div>
         </div>
     </div>
     <div class="nav">
