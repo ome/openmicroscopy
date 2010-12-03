@@ -28,9 +28,9 @@
                     url: "{% url waloaddrivespace %}",  
                     contentType: "application/json; charset=utf-8",  
                     data: offsetQuery,
-    				dataType: "json",
-    				timeout: 10000, 
-    				async: false,
+                    dataType: "json",
+                    timeout: 10000, 
+                    async: false,
                     success: function(data){  
                         if (!data.loading) {
                             usage = false;
@@ -92,8 +92,8 @@
             }
             
             $.plot($("#placeholder"), chart_data, 
-        	{
-        	    pie: { 
+            {
+                pie: { 
                     show: true, 
                     pieStrokeLineWidth: 0, 
                     pieStrokeColor: '#FFF', 
