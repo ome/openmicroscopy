@@ -16,6 +16,9 @@
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.tablesorter.js" %}"></script>
     <script type="text/javascript">
         $(document).ready(function() {
+            $("#status").html('loading...');
+            $("#progress").show();
+            
             var usage = true;
             var offsetQuery = '';
             var piechart_data = {};
@@ -55,7 +58,7 @@
                         
                     },  
                     error: function(xhr, msg){
-                        alert("{% trans 'Could not load tag component. Please contact Administrator.' %}");
+                        alert("{% trans 'Could not load piechart. Please contact Administrator.' %}");
                         usage = false;
                     }
                 });
@@ -63,8 +66,6 @@
             
             $("#status").html('');
             $("#progress").hide();
-            
-            $("#drivespaceTable").tablesorter( {sortList: [[1,1]]} ); 
             
             // do piechart
             function sortByValue(keyArray, valueMap) {
@@ -115,6 +116,10 @@
         			backgroundOpacity: 0
         		}
         	})
+        	
+        	if(keyArray.length > 0) {
+                $("#drivespaceTable").tablesorter( {sortList: [[1,1]]} ); 
+            }
         });
         
         
