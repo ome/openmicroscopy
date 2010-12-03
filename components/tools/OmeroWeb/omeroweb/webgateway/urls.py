@@ -23,7 +23,7 @@ render_image = (r'^render_image/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/$', 'we
 """
 Returns a jpeg of the OMERO image. See L{views.render_image}. Rendering settings can be specified
 in the request parameters. See L{.views.getImgDetailsFromReq} for details. 
-    Params in render_image/<iid>/<z>/<t>/ are:
+Params in render_image/<iid>/<z>/<t>/ are:
     - iid:  Image ID
     - z:    Z index
     - t:    T index
@@ -33,7 +33,7 @@ render_split_channel = (r'^render_split_channel/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<
 """
 Returns a jpeg of OMERO Image with channels split into different panes in a grid. See L{views.render_split_channel}.
 Rendering settings can be specified in the request parameters (as above).
-    Params in render_split_channel/<iid>/<z>/<t> are:
+Params in render_split_channel/<iid>/<z>/<t> are:
     - iid:  Image ID
     - z:    Z index
     - t:    T index
@@ -44,7 +44,7 @@ render_row_plot = (r'^render_row_plot/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/(
 """
 Returns a gif graph of pixel values for a row of an image plane. See L{views.render_row_plot}.
 Channels can be turned on/off using request. E.g. c=-1,2,-3,-4
-    Params in render_row_plot/<iid>/<z>/<t>/<y>/<w> are:
+Params in render_row_plot/<iid>/<z>/<t>/<y>/<w> are:
     - iid:  Image ID
     - z:    Z index
     - t:    T index
@@ -57,7 +57,7 @@ render_col_plot = (r'^render_col_plot/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/(
 """
 Returns a gif graph of pixel values for a column of an image plane. See L{views.render_col_plot}.
 Channels can be turned on/off using request. E.g. c=-1,2,-3,-4
-    Params in render_col_plot/<iid>/<z>/<t>/<x>/<w> are:
+Params in render_col_plot/<iid>/<z>/<t>/<x>/<w> are:
     - iid:  Image ID
     - z:    Z index
     - t:    T index
@@ -69,7 +69,7 @@ render_thumbnail = (r'^render_thumbnail/(?P<iid>[^/]+)/(?:(?P<w>[^/]+)/)?(?:(?P<
 """
 Returns a thumbnail jpeg of the OMERO Image, optionally scaled to max-width and max-height.
 See L{views.render_thumbnail}. Uses current rendering settings. 
-    Params in render_thumbnail/<iid>/<w>/<h> are:
+Params in render_thumbnail/<iid>/<w>/<h> are:
     - iid:  Image ID
     - w:    Optional max width
     - h:    Optional max height
@@ -79,7 +79,7 @@ render_ome_tiff = (r'^render_ome_tiff/(?P<ctx>[^/]+)/(?P<cid>[^/]+)/$', 'webgate
 """
 Generates an OME-TIFF of an Image (or zip for multiple OME-TIFFs) and returns the file or redirects 
 to a temp file location. See L{views.render_ome_tiff}
-    Params in render_ome_tiff/<ctx>/<cid> are:
+Params in render_ome_tiff/<ctx>/<cid> are:
     - ctx:      The container context. 'p' for Project, 'd' for Dataset or 'i' Image. 
     - cid:      ID of container.
 """
@@ -88,7 +88,7 @@ render_movie = (r'^render_movie/(?P<iid>[^/]+)/(?P<axis>[zt])/(?P<pos>[^/]+)/$',
 """
 Generates a movie file from the image, spanning Z or T frames. See L{views.render_movie}
 Returns the file or redirects to temp file location. 
-    Params in render_movie/<iid>/<axis>/<pos> are:
+Params in render_movie/<iid>/<axis>/<pos> are:
     - iid:      Image ID
     - axis:     'z' or 't' dimension that movie plays
     - pos:      The T index (for 'z' movie) or Z index (for 't' movie)
