@@ -22,7 +22,7 @@ path to media files for webgateway
 render_image = (r'^render_image/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/$', 'webgateway.views.render_image')
 """
 Returns a jpeg of the OMERO image. See L{views.render_image}. Rendering settings can be specified
-in the request parameters. See L{.views.getImgDetailsFromReq} for details. 
+in the request parameters. See L{views.getImgDetailsFromReq} for details. 
 Params in render_image/<iid>/<z>/<t>/ are:
     - iid:  Image ID
     - z:    Z index
@@ -94,6 +94,110 @@ Params in render_movie/<iid>/<axis>/<pos> are:
     - pos:      The T index (for 'z' movie) or Z index (for 't' movie)
 """
 
+# Template views
+test = (r'^test/$', 'webgateway.views.test')
+"""
+Test method: returns a blank template of the image-viewer
+"""
+
+listProjects_json = (r'^proj/list/$', 'webgateway.views.listProjects_json')
+"""
+json method: returning list of all projects available to current user. See L{views.listProjects_json} .
+List of E.g. {"description": "", "id": 651, "name": "spim"}
+"""
+
+projectDetail_json = (r'^proj/(?P<pid>[^/]+)/detail/$', 'webgateway.views.projectDetail_json')
+"""
+json method: returns details of specified Project. See L{views.projectDetail_json}. Returns E.g
+{"description": "", "type": "Project", "id": 651, "name": "spim"}
+    - webgateway/proj/<pid>/detail params are:
+    - pid:  Project ID
+"""
+
+listDatasets_json = (r'^proj/(?P<pid>[^/]+)/children/$', 'webgateway.views.listDatasets_json')
+"""
+json method: returns list of Datasets belonging to specified Project. See L{views.listDatasets_json}. Returns E.g
+list of {"child_count": 4, "description": "", "type": "Dataset", "id": 901, "name": "example"}
+    - webgateway/proj/<pid>/children params are:
+    - pid:  Project ID
+"""
+
+datasetDetail_json = (r'^dataset/(?P<did>[^/]+)/detail/$', 'webgateway.views.datasetDetail_json')
+"""
+json method: returns details of specified Dataset. See L{views.datasetDetail_json}. Returns E.g
+{"description": "", "type": "Dataset", "id": 901, "name": "example"}
+    - webgateway/dataset/<did>/detail params are:
+    - did:  Dataset ID
+"""
+
+webgateway_listimages_json = url(r'^dataset/(?P<did>[^/]+)/children/$', 'webgateway.views.listImages_json', name="webgateway_listimages_json")
+"""
+json method: returns list of Images belonging to specified Dataset. See L{views.listImages_json}. Returns E.g list of 
+{"description": "", "author": "Will Moore", "date": 1291325060.0, "thumb_url": "/webgateway/render_thumbnail/4701/", "type": "Image", "id": 4701, "name": "spim.png"}
+    - webgateway/dataset/<did>/children params are:
+    - did:  Dataset ID
+"""
+
+imageData_json = (r'^imgData/(?P<iid>[^/]+)/(?:(?P<key>[^/]+)/)?$', 'webgateway.views.imageData_json')
+"""
+json method: returns details of specified Image. See L{views.imageData_json}. Returns E.g
+{"description": "", "type": "Dataset", "id": 901, "name": "example"}
+    - webgateway/imgData/<iid>/<key> params are:
+    - did:  Dataset ID
+    - key:  Optional key of selected attributes to return. E.g. meta, pixel_range, rdefs, split_channel, size etc
+"""
+
+webgateway_search_json = url(r'^search/$', 'webgateway.views.search_json', name="webgateway_search_json")
+"""
+json method: returns search results. All parameters in request. See L{views.search_json}
+"""
+
+full_viewer = (r'^img_detail/(?P<iid>[0-9]+)/$', "webgateway.views.full_viewer")
+"""
+Returns html page displaying full image viewer and image details, rendering settings etc. 
+See L{views.full_viewer}.
+    - webgateway/img_detail/<iid>/ params are:
+    - iid:  Image ID. 
+"""
+
+save_image_rdef_json = (r'^saveImgRDef/(?P<iid>[^/]+)/$', 'webgateway.views.save_image_rdef_json')
+"""
+Saves rendering definition (from request parameters) on the image. See L{views.save_image_rdef_json}. 
+For rendering parameters, see L{views.getImgDetailsFromReq} for details. 
+Returns 'true' if worked OK. 
+    - webgateway/saveImgRDef/<iid>/ params are:
+    - iid:  Image ID.
+"""
+
+reset_image_rdef_json = (r'^resetImgRDef/(?P<iid>[^/]+)/$', 'webgateway.views.reset_image_rdef_json')
+"""
+Removes user's rendering settings on an image, reverting to settings created on import. 
+See L{views.reset_image_rdef_json}. 
+    - webgateway/resetImgRDef/<iid>/ params are:
+    - iid:  Image ID.
+"""
+
+list_compatible_imgs_json = (r'^compatImgRDef/(?P<iid>[^/]+)/$', 'webgateway.views.list_compatible_imgs_json')
+"""
+json method: returns list of IDs for images that have channels compatible with the specified image, such
+that rendering settings can be copied from the image to those returned. Images are selected from the same
+project that the specified image is in. 
+    - webgateway/compatImgRDef/<iid>/ params are:
+    - iid:  Image ID.
+"""
+
+copy_image_rdef_json = (r'^copyImgRDef/$', 'webgateway.views.copy_image_rdef_json')
+"""
+Copy the rendering settings from one image to a list of images, specified in request
+by 'fromid' and list of 'toids'. See L{views.copy_image_rdef_json}
+"""
+
+webgateway_su = url(r'^su/(?P<user>[^/]+)/$', 'webgateway.views.su', name="webgateway_su")
+"""
+Admin method to switch to the specified user, identified by username: <user> 
+Returns 'true' if switch went OK.
+"""
+
 urlpatterns = patterns('',
     appmedia,
     render_image,
@@ -103,26 +207,25 @@ urlpatterns = patterns('',
     render_thumbnail,
     render_ome_tiff,
     render_movie,
-
     # Template views
-    (r'^test/$', 'webgateway.views.test'),
-
+    test,
     # JSON methods
-    (r'^proj/list/$', 'webgateway.views.listProjects_json'),
-    (r'^proj/(?P<pid>[^/]+)/detail/$', 'webgateway.views.projectDetail_json'),
-    (r'^proj/(?P<pid>[^/]+)/children/$', 'webgateway.views.listDatasets_json'),
-    (r'^dataset/(?P<did>[^/]+)/detail/$', 'webgateway.views.datasetDetail_json'),
-    url(r'^dataset/(?P<did>[^/]+)/children/$', 'webgateway.views.listImages_json', name="webgateway_listimages_json"),
-    (r'^imgData/(?P<iid>[^/]+)/(?:(?P<key>[^/]+)/)?$', 'webgateway.views.imageData_json'),
-    url(r'^search/$', 'webgateway.views.search_json', name="webgateway_search_json"),
-    (r'^img_detail/(?P<iid>[0-9]+)/$', "webgateway.views.full_viewer"),
-
-    (r'^saveImgRDef/(?P<iid>[^/]+)/$', 'webgateway.views.save_image_rdef_json'),
-    (r'^resetImgRDef/(?P<iid>[^/]+)/$', 'webgateway.views.reset_image_rdef_json'),
-    (r'^compatImgRDef/(?P<iid>[^/]+)/$', 'webgateway.views.list_compatible_imgs_json'),
-    (r'^copyImgRDef/$', 'webgateway.views.copy_image_rdef_json'),
-
-    url(r'^su/(?P<user>[^/]+)/$', 'webgateway.views.su', name="webgateway_su"),
+    listProjects_json,
+    projectDetail_json,
+    listDatasets_json,
+    datasetDetail_json,
+    webgateway_listimages_json,
+    imageData_json,
+    webgateway_search_json,
+    # image viewer
+    full_viewer,
+    # rendering def methods
+    save_image_rdef_json,
+    reset_image_rdef_json,
+    list_compatible_imgs_json,
+    copy_image_rdef_json,
+    # switch user
+    webgateway_su,
     
     # Debug stuff
     (r'^dbg_connectors/$', 'webgateway.views.dbg_connectors'),
