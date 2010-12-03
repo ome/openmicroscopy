@@ -767,4 +767,13 @@ public interface Browser
 	 */
 	void loadDirectory(TreeImageDisplay display);
 	
+	/**
+	 * Returns <code>true</code> if the user currently logged in can
+	 * delete the passed object.
+	 * 
+	 * @param ho The data object to check.
+	 * @return See above.
+	 */
+	public boolean canDeleteObject(Object ho);
+	
 }

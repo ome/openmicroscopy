@@ -1169,7 +1169,7 @@ class TreeViewerComponent
 		}
 		return false;
 	}
-
+	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#isObjectWritable(Object)
@@ -1187,6 +1187,18 @@ class TreeViewerComponent
 			return (exp.getId() == id);
 		}
 		return EditorUtil.isUserOwner(ho, id);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#canDeleteObject(Object)
+	 */
+	public boolean canDeleteObject(Object ho)
+	{
+		if (isUserOwner(ho)) return true;
+		if (TreeViewerAgent.isLeaderOfCurrentGroup()) return true;
+		if (TreeViewerAgent.isAdministrator()) return true;
+		return false;
 	}
 	
 	/**

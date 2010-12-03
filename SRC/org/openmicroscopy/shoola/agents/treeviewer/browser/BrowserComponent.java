@@ -1749,6 +1749,15 @@ class BrowserComponent
 	}
 
 	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see Browser#canDeleteObject(Object)
+	 */
+	public boolean canDeleteObject(Object ho)
+	{
+		return model.getParentModel().canDeleteObject(ho);
+	}
+	
+	/**
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#expandUser()
 	 */

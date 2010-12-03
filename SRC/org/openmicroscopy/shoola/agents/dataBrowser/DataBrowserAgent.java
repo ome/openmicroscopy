@@ -25,8 +25,10 @@ package org.openmicroscopy.shoola.agents.dataBrowser;
 
 //Java imports
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 //Third-party libraries
 
@@ -45,6 +47,7 @@ import org.openmicroscopy.shoola.env.event.AgentEvent;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import pojos.ExperimenterData;
+import pojos.GroupData;
 
 /** 
  * The DataBrowser agent. This agent manages and presents a thumbnail view
@@ -83,6 +86,71 @@ public class DataBrowserAgent
 	{ 
 		return (ExperimenterData) registry.lookup(
 								LookupNames.CURRENT_USER_DETAILS);
+	}
+	
+	/**
+	 * Returns <code>true</code> if the currently logged in user
+	 * is an administrator, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public static boolean isAdministrator()
+	{
+		Boolean b = (Boolean) registry.lookup(LookupNames.USER_ADMINISTRATOR);
+		if (b == null) return false;
+		return b.booleanValue();
+	}
+	
+	/**
+	 * Returns the collection of groups the current user is the leader of.
+	 * 
+	 * @return See above.
+	 */
+	public static Set getGroupsLeaderOf()
+	{
+		Set values = new HashSet();
+		Set groups = (Set) registry.lookup(LookupNames.USER_GROUP_DETAILS);
+		Iterator i = groups.iterator();
+		GroupData g;
+		Set leaders;
+		ExperimenterData exp = getUserDetails();
+		long id = exp.getId();
+		Iterator j;
+		while (i.hasNext()) {
+			g = (GroupData) i.next();
+			leaders = g.getLeaders();
+			if (leaders != null && leaders.size() > 0) {
+				j = leaders.iterator();
+				while (j.hasNext()) {
+					exp = (ExperimenterData) j.next();
+					if (exp.getId() == id)
+						values.add(g);
+				}
+			}
+		}
+		return values;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the user currently logged in 
+	 * is an owner of the current group, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public static boolean isLeaderOfCurrentGroup()
+	{
+		ExperimenterData exp = getUserDetails();
+		Set groups = getGroupsLeaderOf();
+		if (groups.size() == 0) return false;
+		GroupData group = exp.getDefaultGroup();
+		Iterator i = groups.iterator();
+		GroupData g;
+		while (i.hasNext()) {
+			g = (GroupData) i.next();
+			if (g.getId() == group.getId())
+				return true;
+		}
+		return false;
 	}
 	
 	/**

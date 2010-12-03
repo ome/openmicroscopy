@@ -29,12 +29,12 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.Collection;
 import java.util.Iterator;
-
 import javax.swing.Action;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserAgent;
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Browser;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
@@ -111,6 +111,21 @@ public class ManageObjectAction
 	
 	/** Helper reference to the icons manager. */
 	private IconManager icons;
+	
+	/**
+	 * Returns <code>true</code> if the user currently logged in can
+	 * delete the passed object.
+	 * 
+	 * @param ho The data object to check.
+	 * @return See above.
+	 */
+	private boolean canDeleteObject(Object ho)
+	{
+		if (model.isUserOwner(ho)) return true;
+		if (DataBrowserAgent.isLeaderOfCurrentGroup()) return true;
+		if (DataBrowserAgent.isAdministrator()) return true;
+		return false;
+	}
 	
 	/**
 	 * Checks if the passed index is supported.
@@ -238,7 +253,7 @@ public class ManageObjectAction
 					i = selected.iterator();
 					while (i.hasNext()) {
 						obj = i.next();
-						if (model.isUserOwner(obj)) count++;
+						if (canDeleteObject(obj)) count++;
 					}
 					setEnabled(count == selected.size());
 				} else setEnabled(false);

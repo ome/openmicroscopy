@@ -31,6 +31,7 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.ActionCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.CopyCmd;
@@ -256,7 +257,7 @@ public class ManageObjectAction
 					ho instanceof ImageData) {
 					selected = browser.getSelectedDisplays();
 		    		for (int i = 0; i < selected.length; i++) {
-						if (model.isUserOwner(selected[i].getUserObject())) 
+						if (model.canDeleteObject(selected[i].getUserObject())) 
 							count++;
 					}
 		    		setEnabled(count == selected.length);

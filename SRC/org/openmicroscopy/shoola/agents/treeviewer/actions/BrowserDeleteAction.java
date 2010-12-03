@@ -31,7 +31,6 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.DeleteCmd;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
@@ -114,7 +113,7 @@ public class BrowserDeleteAction
         	count = 0;
         	b = false;
     		for (int i = 0; i < selected.length; i++) {
-				b = model.isUserOwner(selected[i].getUserObject());
+				b = model.canDeleteObject(selected[i].getUserObject());
 				if (b) count++;
 			}
     		setEnabled(count == selected.length);

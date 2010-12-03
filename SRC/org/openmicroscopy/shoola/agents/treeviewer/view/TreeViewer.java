@@ -438,10 +438,19 @@ public interface TreeViewer
 	 * Returns <code>true</code> if the user currently logged in is the
 	 * owner of the object, <code>false</code> otherwise.
 	 * 
-	 * @param ho    The data object to check.
+	 * @param ho The data object to check.
 	 * @return See above.
 	 */
 	public boolean isUserOwner(Object ho);
+	
+	/**
+	 * Returns <code>true</code> if the user currently logged in can
+	 * delete the passed object.
+	 * 
+	 * @param ho The data object to check.
+	 * @return See above.
+	 */
+	public boolean canDeleteObject(Object ho);
 	
 	/** 
 	 * Adds existing objects to the currently selected node. 
