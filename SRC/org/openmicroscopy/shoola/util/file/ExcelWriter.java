@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.util.file;
 
 //Java imports
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -621,8 +622,8 @@ public class ExcelWriter
 	
 	/**
 	 * Writes the image with name imageName to the work sheet, at the 
-	 * specified location 
-	 * (rowStart, colStart)->(rowEnd, colEnd)
+	 * specified location (rowStart, colStart)->(rowEnd, colEnd).
+	 * Returns the (colEnd, rowEnd).
 	 * 
 	 * @param rowStartIndex The index of the start row.
 	 * @param colStartIndex The index of the start column.
@@ -630,7 +631,7 @@ public class ExcelWriter
 	 * @param height 		The height of the image.
 	 * @param imageName 	The name of the image.
 	 */
-	public void writeImage(int rowStartIndex, int colStartIndex, 
+	public Point writeImage(int rowStartIndex, int colStartIndex, 
 							int width, int height, String imageName)
 	{
 		HSSFPatriarch patriarch = currentSheet.getDrawingPatriarch();
@@ -639,16 +640,16 @@ public class ExcelWriter
 		int widthInCells = width/68;
 		double remainderHeight = (height%18)/18.0;
 		int heightInCells = (height/18);
+		int rowEnd = rowStartIndex+heightInCells;
+		int colEnd = colStartIndex+widthInCells;
 		anchor = new HSSFClientAnchor(0, 0, (int) (remainderWidth*1023),
-				 (int) (remainderHeight*255),
-				 (short) colStartIndex,
-				 (short) rowStartIndex,
-				 (short) (colStartIndex+widthInCells), 
-				 (short) (rowStartIndex+heightInCells));
+				 (int) (remainderHeight*255), (short) colStartIndex,
+				 (short) rowStartIndex, (short) colEnd, (short) rowEnd);
 		
 		anchor.setAnchorType(3);
 		int index = imageMap.get(imageName);
 		patriarch.createPicture(anchor, index);
+		return new Point(colEnd, rowEnd); 
 	}
 	
 	/**
@@ -657,7 +658,7 @@ public class ExcelWriter
 	 * 
 	 * @param row 		The selected row.
 	 * @param column 	The selected column.
-	 * @return Ssee above.
+	 * @return See above.
 	 */
 	private HSSFCell getCell(int row , int column)
 	{

@@ -29,6 +29,7 @@ import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -207,9 +208,6 @@ public class FLIMResultsDialog
 	private JComponent intervalsPane;
 	
 	private JComponent graphicsPane;
-
-	
-	
 	
 	/**
 	 * Saves the data to the specified file.
@@ -259,7 +257,7 @@ public class FLIMResultsDialog
 				writer.writeTableToSheet(row+3, 0, tableValues.getModel());
 			BufferedImage image;
 			int w, h;
-			row = 0;
+			Point p = null;
 			if (b) {
 				image = Factory.createImage(tmpFile);
 				if (image != null) {
@@ -269,7 +267,7 @@ public class FLIMResultsDialog
 					writer.addImageToWorkbook(name, image); 
 					col = writer.getMaxColumn(0);
 					index += (col+2);
-					writer.writeImage(0, index, w, h, name);
+					p = writer.writeImage(0, index, w, h, name);
 				}
 			}
 			image = canvas.getImage();
@@ -277,8 +275,8 @@ public class FLIMResultsDialog
 				w = image.getWidth();
 				h = image.getHeight();
 				writer.addImageToWorkbook(imageName, image); 
-				row = writer.getCurrentRow()+2;
-				writer.writeImage(row, 0, w, h, imageName);
+				if (p == null) row = 0;
+				writer.writeImage(p.y+2, index, w, h, imageName);
 			}
 			writer.close();
 		} catch (Exception e) {
@@ -543,7 +541,7 @@ public class FLIMResultsDialog
         		v = (int) values[x][y];
         		norm = (v-smallest)/range; // 0 < norm < 1
                 c = colors[(int) Math.floor(norm*(colors.length-1))];
-        		image.setRGB(x, y, makeRGB(c.getAlpha(), c.getRed(), 
+        		image.setRGB(x, y, Factory.makeRGB(c.getAlpha(), c.getRed(), 
         				c.getGreen(), c.getBlue()));
         		index++;
         	}
@@ -566,24 +564,9 @@ public class FLIMResultsDialog
 		if (value < start) return 0;
 		if (value > end) return 255;
 		if (end == 0) return 0;
-		double a = 255*(value-start)/(end-start);
-		return a;
+		return 255*(value-start)/(end-start);
 	}
-	
-	/**
-	 * Maps from 4 ints to 4 byte colour.
-	 * 
-	 * @param a The alpha component, value in [0..255].
-	 * @param r The red component, value in [0..255].
-	 * @param g The greed component, value in [0..255].
-	 * @param b The blue component, value in [0..255].
-	 * @return 4 byte int composed of the 4 params, Alpha-Red-Green-Blue.
-	 */
-	private int makeRGB(int a, int r, int g, int b)
-    {
-		return a << 24 | r << 16 | g << 8 | b;
-	}
-	
+
 	/** 
 	 * Extracts the values.
 	 * 

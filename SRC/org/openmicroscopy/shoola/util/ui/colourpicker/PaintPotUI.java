@@ -87,7 +87,7 @@ class PaintPotUI
     }
 
 	/**
-	 * Reacts to color change events. Repaints the componet
+	 * Reacts to color change events. Repaints the component
 	 * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
 	 */
 	public void propertyChange(PropertyChangeEvent event)

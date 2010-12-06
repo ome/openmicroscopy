@@ -902,4 +902,18 @@ public class Factory
     	return null;
     }
     
+	/**
+	 * Maps from 4 ints to 4 byte colour.
+	 * 
+	 * @param a The alpha component, value in [0..255].
+	 * @param r The red component, value in [0..255].
+	 * @param g The greed component, value in [0..255].
+	 * @param b The blue component, value in [0..255].
+	 * @return 4 byte int composed of the 4 params, Alpha-Red-Green-Blue.
+	 */
+	public static int makeRGB(int a, int r, int g, int b)
+    {
+		return a << 24 | r << 16 | g << 8 | b;
+	}
+	
 }

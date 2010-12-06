@@ -103,7 +103,7 @@ class ColourSliderUI
 	
 	/** 
      * Creates the sliderUI delegate based on the JSlider component. The 
-	 * Colour range is specifed in the s, and e parameters. 
+	 * Colour range is specified in the s, and e parameters. 
      * 
 	 * @param slider   The parent slider.
 	 * @param s        The start colour used to paint the gradient in the track.
@@ -120,7 +120,7 @@ class ColourSliderUI
 	
 	/** 
      * Creates the sliderUI delegate based on the JSlider component. The 
-	 * Colour range is specifed in the s, and e parameters. 
+	 * Colour range is specified in the s, and e parameters. 
      * 
 	 * @param slider   parent slider.
 	 * @param s        start HSV colour used to paint the gradient in the track.
@@ -137,7 +137,7 @@ class ColourSliderUI
 	}
 	
 	/**
-	 * Sets the current colourspace of the Slider. 
+	 * Sets the current colour space of the Slider. 
      * 
 	 * @param colourSpace 	The selected color space, should either be
 	 * 						{@link ColourSlider#RGB_COLOURSPACE} or
