@@ -7,15 +7,18 @@
 
 package ome.services.delete;
 
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
-import ome.api.IDelete;
 import ome.model.IObject;
+import ome.services.graphs.GraphEntry;
+import ome.services.graphs.GraphException;
+import ome.services.graphs.GraphSpec;
+import ome.services.graphs.GraphStep;
 import ome.services.messages.EventLogMessage;
-import ome.system.EventContext;
+import ome.system.OmeroContext;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -23,126 +26,33 @@ import org.apache.commons.logging.LogFactory;
  * Single action performed by {@link DeleteState}.
  *
  * @author Josh Moore, josh at glencoesoftware.com
- * @since Beta4.2.1
- * @see IDelete
- * @see ticket:3031
+ * @since Beta4.2.3
  */
-public class DeleteStep {
+public class DeleteStep extends GraphStep {
 
     final private static Log log = LogFactory.getLog(DeleteStep.class);
 
-    /**
-     * Location of this step in {@link DeleteState#steps}.
-     */
-    final int idx;
+    final private OmeroContext ctx;
 
-    /**
-     * Stack of other {@link DeleteStep} instances which show where this step is
-     * in the entire graph.
-     */
-    final LinkedList<DeleteStep> stack;
-
-    /**
-     * Final member of {@link #stack} which is the direct ancestor of this
-     * step.
-     */
-    final DeleteStep parent;
-
-    /**
-     * {@link DeleteSpec} instance which is active for this step.
-     */
-    final DeleteSpec spec;
-
-    /**
-     * {@link DeleteEntry} instance which is active for this step.
-     */
-    final DeleteEntry entry;
-
-    /**
-     * Ids of each element in the path to this node. For example, if we are
-     * querying /Dataset/DatasetImageLink/Image then this contains: [4, 2, 1]
-     * where 4 is the id of the dataset, and 1 is the id of the image.
-     */
-    final long[] ids;
-
-    /**
-     * The actual id to be deleted as opposed to {@link DeleteEntry#getId()}
-     * which is the id of the root object.
-     *
-     * @see #ids
-     */
-    final long id;
-
-    /**
-     * Parsed table name used for the SQL/HQL statements.
-     */
-    final String table;
-
-    /**
-     * Type of object which is being deleted, using during
-     * {@link DeleteState#release(String)} to send an {@link EventLogMessage}.
-     */
-    final Class<IObject> iObjectType;
-
-    /**
-     * String representation of the path to this {@link DeleteEntry} used for
-     * logging.
-     */
-    final String pathMsg;
-
-    /**
-     * Information as to the current login.
-     */
-    final EventContext ec;
-
-    /**
-     * Not final. Set during {@link DeleteState#execute(int)}. If anything goes
-     * wrong, it and possibly other instances from {@link #stack} will have
-     * their savepoints rolled back.
-     */
-    String savepoint = null;
-
-    boolean rollbackOnly = false;
-
-    DeleteStep(int idx, List<DeleteStep> stack, DeleteSpec spec, DeleteEntry entry,
-            long[] ids) {
-        this.idx = idx;
-        this.stack = new LinkedList<DeleteStep>(stack);
-        if (this.stack.size() > 0) {
-            this.parent = this.stack.getLast();
-        } else {
-            this.parent = null;
-        }
-        this.spec = spec;
-        this.entry = entry;
-        this.ids = ids;
-        this.id = ids == null ? -1L : ids[ids.length - 1];
-        this.ec = spec.getCurrentDetails().getCurrentEventContext();
-
-        if (entry != null) {
-            final String[] path = entry.path(entry.getSuperSpec());
-            table = path[path.length - 1];
-            pathMsg = StringUtils.join(path, "/");
-            iObjectType = spec.getHibernateClass(table);
-        } else {
-            table = null;
-            pathMsg = null;
-            iObjectType = null;
-        }
+    public DeleteStep(OmeroContext ctx, int idx, List<GraphStep> stack,
+            GraphSpec spec, GraphEntry entry, long[] ids) {
+        super(idx, stack, spec, entry, ids);
+        this.ctx = ctx;
     }
 
-    public void push(DeleteOpts opts) throws DeleteException {
-        for (DeleteStep parent : stack) {
-            parent.entry.push(opts, parent.ec);
-        }
-        entry.push(opts, ec);
-    }
+    @Override
+    public void onRelease(Class<IObject> k, Set<Long> ids)
+            throws GraphException {
+        EventLogMessage elm = new EventLogMessage(this, "DELETE", k,
+                new ArrayList<Long>(ids));
 
-    public void pop(DeleteOpts opts) {
-        for (DeleteStep parent : stack) {
-            parent.entry.pop(opts);
+        try {
+            ctx.publishMessage(elm);
+        } catch (Throwable t) {
+            GraphException de = new GraphException("EventLogMessage failed.");
+            de.initCause(t);
+            throw de;
         }
-        entry.pop(opts);
-    }
 
+    }
 }

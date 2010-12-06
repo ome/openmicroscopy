@@ -8,6 +8,7 @@
 package ome.services.delete;
 
 import ome.api.IDelete;
+import ome.services.graphs.GraphException;
 
 /**
  * Exception which will be thrown by activities within {@link DeleteSpec}
@@ -19,21 +20,12 @@ import ome.api.IDelete;
  * @since Beta4.2.1
  * @see IDelete
  */
-public class DeleteException extends Exception {
+public class DeleteException extends GraphException {
 
-    private static final long serialVersionUID = 1L;
-
-    public final String message;
+    private static final long serialVersionUID = -4619031026063199194L;
 
     public DeleteException(String msg) {
-        this.message = msg;
+        super(msg);
     }
 
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(super.toString());
-        sb.append("(message=" + message);
-        return sb.toString();
-    }
 }

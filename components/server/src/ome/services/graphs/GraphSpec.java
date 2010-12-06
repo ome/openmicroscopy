@@ -5,13 +5,12 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
-package ome.services.delete;
+package ome.services.graphs;
 
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import ome.api.IDelete;
 import ome.model.IObject;
 import ome.security.basic.CurrentDetails;
 import ome.tools.hibernate.QueryBuilder;
@@ -22,16 +21,16 @@ import org.springframework.beans.factory.ListableBeanFactory;
 /**
  * Specification of a delete operation. These instances are defined in
  * ome/services/delete/spec.xml as non-singletons, i.e each time a request is
- * made for a new {@link DeleteSpecFactory} one of each {@link DeleteSpec} is
+ * made for a new {@link GraphSpecFactory} one of each {@link GraphSpec} is
  * initialized and gathered into the factory. A single thread, then, can
- * repeatedly call {@link #initialize(long, Map)} on the {@link DeleteSpec}
+ * repeatedly call {@link #initialize(long, Map)} on the {@link GraphSpec}
  * instances.
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.2.1
- * @see IDelete
+ * @see IGraph
  */
-public interface DeleteSpec {
+public interface GraphSpec {
 
     /**
      * The name of this specification. Usually the first component of the
@@ -40,9 +39,9 @@ public interface DeleteSpec {
     String getName();
 
     /**
-     * Specification of where this {@link DeleteSpec} is attached under another
-     * {@DeleteSpec}. The reverse of
-     * {@link DeleteEntry#getSubSpec()}.
+     * Specification of where this {@link GraphSpec} is attached under another
+     * {@GraphSpec}. The reverse of
+     * {@link GraphEntry#getSubSpec()}.
      */
     String getSuperSpec();
 
@@ -79,7 +78,7 @@ public interface DeleteSpec {
      * @return number of steps which are to be processed.
      */
     int initialize(long id, String supersec, Map<String, String> options)
-            throws DeleteException;
+            throws GraphException;
 
     /**
      * Returns a list of ids for each of the subpaths that was found for the
@@ -168,37 +167,37 @@ public interface DeleteSpec {
      *            is going to detach a later graph which needs then to have its
      *            ids loaded.
      */
-    long[][] queryBackupIds(Session session, int step, DeleteEntry subpath, QueryBuilder and)
-            throws DeleteException;
+    long[][] queryBackupIds(Session session, int step, GraphEntry subpath, QueryBuilder and)
+            throws GraphException;
 
     /**
-     * Workaround for the removal of DeleteSpec#delete when refactoring to
-     * {@link DeleteState}. If more logic is needed by subclasses, then
-     * {@link #queryBackupIds(Session, int, DeleteEntry, QueryBuilder)}
+     * Workaround for the removal of GraphSpec#delete when refactoring to
+     * {@link GraphState}. If more logic is needed by subclasses, then
+     * {@link #queryBackupIds(Session, int, GraphEntry, QueryBuilder)}
      * should no longer return list of ids, but rather a "Action" class
      * so that it can inject its own logic as needed, though it would be necessary
      * to give that method its place in the graph to detect "top-ness".
      */
-    void runTopLevel(Session session, List<Long> ids) throws DeleteException;
+    void runTopLevel(Session session, List<Long> ids) throws GraphException;
 
     /**
      * Returns an iterator over all subspecs and their subspecs, depth-first.
      */
-    Iterator<DeleteSpec> walk();
+    Iterator<GraphSpec> walk();
 
     /**
-     * For some {@link DeleteSpec} type/option combinations, a "KEEP" setting
+     * For some {@link GraphSpec} type/option combinations, a "KEEP" setting
      * may need to be overridden. This method allows implementors to say that
-     * KEEPing must be performed on a per {@link DeleteEntry} basis as opposed
-     * to for the whole {@link DeleteSpec subspec}.
+     * KEEPing must be performed on a per {@link GraphEntry} basis as opposed
+     * to for the whole {@link GraphSpec subspec}.
      */
     boolean overrideKeep();
-    
+
     /**
-     * Returns a copy of the list of {@link DeleteEntry} instances contained in
-     * this {@link DeleteSpec}
+     * Returns a copy of the list of {@link GraphEntry} instances contained in
+     * this {@link GraphSpec}
      */
-    List<DeleteEntry> entries();
+    List<GraphEntry> entries();
 
     /**
      * Return the Hibernate type (ome.model.*) for the given table.

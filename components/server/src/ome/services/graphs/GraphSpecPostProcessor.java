@@ -1,0 +1,47 @@
+/*
+ *   $Id$
+ *
+ *   Copyright 2010 Glencoe Software, Inc. All rights reserved.
+ *   Use is subject to license terms supplied in LICENSE.txt
+ */
+
+package ome.services.graphs;
+
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+
+/**
+ * post processor which should be included in all Spring context files with
+ * @author Josh Moore, josh at glencoesoftware.com
+ * @since Beta4.2.3
+ */
+public class GraphSpecPostProcessor implements BeanPostProcessor,
+        ApplicationContextAware {
+
+    private ApplicationContext ctx;
+
+    public void setApplicationContext(ApplicationContext ctx)
+            throws BeansException {
+        this.ctx = ctx;
+    }
+
+    public Object postProcessBeforeInitialization(Object bean, String name)
+            throws BeansException {
+
+        return bean;
+
+    }
+
+    public Object postProcessAfterInitialization(Object bean, String name)
+            throws BeansException {
+
+        if (bean instanceof GraphSpec) {
+            ((GraphSpec) bean).postProcess(ctx);
+        }
+        return bean;
+
+    }
+
+}

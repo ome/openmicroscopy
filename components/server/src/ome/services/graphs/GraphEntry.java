@@ -5,15 +5,14 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
-package ome.services.delete;
+package ome.services.graphs;
 
 import java.util.Arrays;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import ome.api.IDelete;
-import ome.services.delete.DeleteOpts.Op;
+import ome.services.graphs.GraphOpts.Op;
 import ome.system.EventContext;
 
 import org.apache.commons.lang.StringUtils;
@@ -29,18 +28,18 @@ import org.springframework.beans.factory.ListableBeanFactory;
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.2.1
- * @see IDelete
+ * @see IGraph
  */
-public class DeleteEntry {
+public class GraphEntry {
 
-    private final static Log log = LogFactory.getLog(DeleteEntry.class);
+    private final static Log log = LogFactory.getLog(GraphEntry.class);
 
     final public static Op DEFAULT = Op.HARD;
 
     final private static Pattern opRegex = Pattern
             .compile("^([^;]+?)(;([^;]*?))?(;([^;]*?))?$");
 
-    final private DeleteSpec self;
+    final private GraphSpec self;
 
     final private String name;
 
@@ -66,23 +65,23 @@ public class DeleteEntry {
     private boolean modifiedOp;
 
     /**
-     * {@link DeleteSpec Subspec} found by looking for the {@link #name} of this
-     * {@link DeleteEntry} during {@link #postProcess(ListableBeanFactory)}. If
+     * {@link GraphSpec Subspec} found by looking for the {@link #name} of this
+     * {@link GraphEntry} during {@link #postProcess(ListableBeanFactory)}. If
      * this is non-null, then many actions will have to iterate over all the
      * {@link #subStepCount} steps of the {@link #subSpec}.
      */
-    /* final */private DeleteSpec subSpec;
-    
+    /* final */private GraphSpec subSpec;
+
     /**
      * Number of steps in the {@link #subSpec}, calculated during
      * {@link #initialize(long, String, Map)}.
      */
     /* final */private int subStepCount = 0;
-    
+
     /**
      * Value of the superspec passed in during {@link #initialize(long, String, Map)}.
      * This will be used to determine where this entry is in the overall graph,
-     * as opposed to just within its own {@link #self DeleteSpec}.
+     * as opposed to just within its own {@link #self GraphSpec}.
      */
     /* final */private String superspec;
 
@@ -91,7 +90,7 @@ public class DeleteEntry {
      */
     /* final */private long id;
 
-    public DeleteEntry(DeleteSpec self, String value) {
+    public GraphEntry(GraphSpec self, String value) {
         checkArgs(self, value);
         this.self = self;
         final Matcher m = getMatcher(value);
@@ -101,7 +100,7 @@ public class DeleteEntry {
         this.parts = split(name);
     }
 
-    public DeleteEntry(DeleteSpec self, String name, DeleteEntry entry) {
+    public GraphEntry(GraphSpec self, String name, GraphEntry entry) {
         this.self = self;
         this.name = name;
         this.operation = entry.operation;
@@ -153,7 +152,7 @@ public class DeleteEntry {
         return totalParts;
     }
 
-    public DeleteSpec getSubSpec() {
+    public GraphSpec getSubSpec() {
         return subSpec;
     }
 
@@ -225,19 +224,19 @@ public class DeleteEntry {
     /**
      * Load the spec which has the same name as this entry, but do not load the
      * spec if the name matches {@link #name}. This is called early in the
-     * {@link DeleteEntry} lifecycle, by {@link DeleteSpec}.
+     * {@link GraphEntry} lifecycle, by {@link GraphSpec}.
      */
     protected void postProcess(ListableBeanFactory factory) {
         if (name.equals(self.getName())) {
             return;
         } else if (factory.containsBean(name)) {
-            this.subSpec = factory.getBean(name, DeleteSpec.class);
+            this.subSpec = factory.getBean(name, GraphSpec.class);
             this.subSpec.postProcess(factory);
         }
     }
 
     /**
-     * Called during {@link DeleteSpec#initialize(long, String, Map)} to give
+     * Called during {@link GraphSpec#initialize(long, String, Map)} to give
      * the entry a chance to modify its {@link #op} based on the options and to
      * initialize subspecs.
      *
@@ -245,11 +244,11 @@ public class DeleteEntry {
      * last path element can be checked. Further, a key of "/" apply to all
      * entries.
      */
-    public int initialize(long id, String superspec, Map<String, String> options) throws DeleteException {
-        
+    public int initialize(long id, String superspec, Map<String, String> options) throws GraphException {
+
         this.id = id;
         this.superspec = superspec;
-        
+
         if (options != null) {
             final String[] path = path(superspec);
             final String absolute = "/" + StringUtils.join(path, "/");
@@ -270,7 +269,7 @@ public class DeleteEntry {
 
         if (subSpec != null) {
             if (subSpec == this) {
-                throw new DeleteException("Self-reference subspec:" + this);
+                throw new GraphException("Self-reference subspec:" + this);
             }
             subStepCount = subSpec.initialize(id, superspec + this.path,
                     options);
@@ -288,7 +287,7 @@ public class DeleteEntry {
      */
     public boolean skip() {
         if (isKeep()) {
-            DeleteSpec spec = this.getSubSpec();
+            GraphSpec spec = this.getSubSpec();
             if (spec != null) {
                 return ! spec.overrideKeep();
             }
@@ -305,15 +304,15 @@ public class DeleteEntry {
     }
 
     //
-    // DeleteOpts interaction. Necessary since this instance hides its
+    // GraphOpts interaction. Necessary since this instance hides its
     // "operation" field.
     //
 
-    public void push(DeleteOpts opts, EventContext ec) throws DeleteException {
+    public void push(GraphOpts opts, EventContext ec) throws GraphException {
         opts.push(operation, modifiedOp, ec);
     }
 
-    public void pop(DeleteOpts opts) {
+    public void pop(GraphOpts opts) {
         opts.pop();
     }
 
@@ -323,12 +322,12 @@ public class DeleteEntry {
 
     @Override
     public String toString() {
-        return "DeleteEntry [name=" + name + ", parts="
+        return "GraphEntry [name=" + name + ", parts="
                 + Arrays.toString(parts) + ", op=" + operation + ", path=" + path
                 + (subSpec == null ? "" : ", subSpec=" + subSpec.getName())
                 + "]";
     }
-    
+
     /**
      * Similar to {@link #toString()} but used to
      * @param superspec2

@@ -13,10 +13,10 @@ import java.util.Map;
 
 import ome.io.nio.AbstractFileSystemService;
 import ome.services.blitz.impl.DeleteHandleI;
-import ome.services.delete.BaseDeleteSpec;
-import ome.services.delete.DeleteEntry;
-import ome.services.delete.DeleteState;
-import ome.services.delete.DeleteSpecFactory;
+import ome.services.delete.DeleteStepFactory;
+import ome.services.graphs.BaseGraphSpec;
+import ome.services.graphs.GraphEntry;
+import ome.services.graphs.GraphState;
 import ome.services.util.Executor;
 import ome.system.ServiceFactory;
 import omero.RLong;
@@ -61,6 +61,7 @@ import org.jmock.core.Invocation;
 import org.jmock.core.InvocationMatcher;
 import org.jmock.core.Stub;
 import org.jmock.core.matcher.InvokeOnceMatcher;
+import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -420,7 +421,7 @@ public class DeleteITest extends AbstractServantTest {
     }
 
     /**
-     * Uses the {@link DeleteEntry.Op#KEEP} setting to prevent a delete
+     * Uses the {@link GraphEntry.Op#KEEP} setting to prevent a delete
      * from happening.
      */
     @SuppressWarnings("rawtypes")
@@ -457,7 +458,7 @@ public class DeleteITest extends AbstractServantTest {
     }
 
     /**
-     * Uses the {@link DeleteEntry.Op#KEEP} setting to prevent a delete
+     * Uses the {@link GraphEntry.Op#KEEP} setting to prevent a delete
      * from happening.
      */
     @SuppressWarnings("rawtypes")
@@ -495,7 +496,7 @@ public class DeleteITest extends AbstractServantTest {
     }
 
     /**
-     * Tests overriding the {@link DeleteEntry.Op#KEEP} setting by a hard-code
+     * Tests overriding the {@link GraphEntry.Op#KEEP} setting by a hard-code
      * value in spec.xml. These are well-known "unshared" annotations, that should
      * be deleted, regardless of KEEP.
      */
@@ -537,7 +538,7 @@ public class DeleteITest extends AbstractServantTest {
     }
 
     /**
-     * Tests overriding the {@link DeleteEntry.Op#KEEP} setting by setting
+     * Tests overriding the {@link GraphEntry.Op#KEEP} setting by setting
      * a namespace which should always be deleted (an "unshared" annotation).
      */
     @SuppressWarnings("rawtypes")
@@ -661,9 +662,9 @@ public class DeleteITest extends AbstractServantTest {
         Long ch = channelId.getValue();
 
         // Run test
-        final DeleteSpecFactory dsf = specFactory();
-        final BaseDeleteSpec spec = (BaseDeleteSpec) dsf
-                .get("/Image/Pixels/Channel");
+        final ApplicationContext dsf = user_delete.loadSpecs();
+        final BaseGraphSpec spec = dsf
+                .getBean("/Image/Pixels/Channel", BaseGraphSpec.class);
         spec.initialize(imageId, null, null);
 
         List<List<Long>> backupIds = (List<List<Long>>) user_sf.getExecutor()
@@ -674,7 +675,7 @@ public class DeleteITest extends AbstractServantTest {
                                     ServiceFactory sf) {
 
                                 try {
-                                    DeleteState ids = new DeleteState(ctx, session, spec);
+                                    GraphState ids = new GraphState(new DeleteStepFactory(ctx), session, spec);
                                     List<List<Long>> rv = new ArrayList<List<Long>>();
                                     fail("NYI");
                                     /*
@@ -720,16 +721,10 @@ public class DeleteITest extends AbstractServantTest {
     private DeleteHandleI doDelete(DeleteCommand... dc) throws Exception {
         Ice.Identity id = new Ice.Identity("handle", "delete");
         //DeleteSpecFactory factory = specFactory();
-        DeleteHandleI handle = new DeleteHandleI(id, user_sf, afs, dc, 1000);
+        DeleteHandleI handle = new DeleteHandleI(user_delete.loadSpecs(), id, user_sf, afs, dc, 1000);
         handle.run();
         assertEquals(handle.report().toString(), 0, handle.errors());
         return handle;
-    }
-
-    private DeleteSpecFactory specFactory() {
-        DeleteSpecFactory factory = (DeleteSpecFactory) ctx
-                .getBean("deleteSpecFactory");
-        return factory;
     }
 
     /**

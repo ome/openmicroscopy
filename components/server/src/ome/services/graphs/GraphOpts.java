@@ -5,13 +5,10 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
-package ome.services.delete;
+package ome.services.graphs;
 
 import java.util.LinkedList;
 
-import ome.api.IDelete;
-import ome.security.basic.CurrentDetails;
-import ome.services.delete.DeleteOpts.Op;
 import ome.system.EventContext;
 
 /**
@@ -22,9 +19,9 @@ import ome.system.EventContext;
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.2.1
- * @see IDelete
+ * @see IGraph
  */
-public class DeleteOpts {
+public class GraphOpts {
 
     public enum Op {
 
@@ -37,7 +34,7 @@ public class DeleteOpts {
         HARD(false),
 
         /**
-         * Delete is attempted, but the exceptions which would make a
+         * Graph is attempted, but the exceptions which would make a
          * {@link #HARD} operation fail lead only to warnings.
          */
         SOFT(false),
@@ -45,8 +42,8 @@ public class DeleteOpts {
         /**
          * Prevents the delete from being carried out. If an entry has a subspec,
          * then the entire subgraph will not be deleted. In some cases,
-         * specifically {@link AnnotationDeleteSpec} this value may be
-         * vetoed by {@link DeleteSpec#overrideKeep()}.
+         * specifically {@link AnnotationGraphSpec} this value may be
+         * vetoed by {@link GraphSpec#overrideKeep()}.
          */
         KEEP(false),
 
@@ -89,9 +86,9 @@ public class DeleteOpts {
      * @param modified Whether or not the value was changed by the user
      * @param details Active user login
      */
-    public void push(Op op, boolean modified, EventContext ec) throws DeleteException {
+    public void push(Op op, boolean modified, EventContext ec) throws GraphException {
         if (op.restricted && modified && ! ec.isCurrentUserAdmin()) {
-            throw new DeleteException("User " + ec.getCurrentUserId() +
+            throw new GraphException("User " + ec.getCurrentUserId() +
                     " is not an admin and cannot set the operation to " +
                     op.toString());
         }

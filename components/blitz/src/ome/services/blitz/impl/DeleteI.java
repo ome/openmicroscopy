@@ -7,7 +7,6 @@
 
 package ome.services.blitz.impl;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,9 +18,8 @@ import ome.io.nio.AbstractFileSystemService;
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.BlitzOnly;
 import ome.services.blitz.util.ServiceFactoryAware;
-import ome.services.delete.DeleteEntry;
-import ome.services.delete.DeleteSpec;
-import ome.services.delete.DeleteSpecFactory;
+import ome.services.graphs.GraphEntry;
+import ome.services.graphs.GraphSpec;
 import ome.services.scheduler.ThreadPool;
 import omero.ApiUsageException;
 import omero.SecurityViolation;
@@ -40,6 +38,10 @@ import omero.api._IDeleteOperations;
 import omero.api.delete.DeleteCommand;
 import omero.api.delete.DeleteHandlePrx;
 import omero.api.delete.DeleteHandlePrxHelper;
+
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
 import Ice.Current;
 
 /**
@@ -166,15 +168,14 @@ public class DeleteI extends AbstractAmdServant implements _IDeleteOperations,
             throws ServerError {
         safeRunnableCall(__current, __cb, false, new Callable<DeleteCommand[]>() {
             public DeleteCommand[] call() throws Exception {
-                final DeleteSpecFactory factory = sf.context.getBean(
-                        "deleteSpecFactory", DeleteSpecFactory.class);
-                final List<String> keys = new ArrayList<String>(factory.keys());
-                final DeleteCommand[] dcs = new DeleteCommand[keys.size()];
+                ApplicationContext ctx = loadSpecs();
+                final String[] keys = ctx.getBeanNamesForType(GraphSpec.class);
+                final DeleteCommand[] dcs = new DeleteCommand[keys.length];
                 for (int i = 0; i < dcs.length; i++) {
-                    String key = keys.get(i);
-                    DeleteSpec spec = factory.get(key);
+                    String key = keys[i];
+                    GraphSpec spec = ctx.getBean(key, GraphSpec.class);
                     Map<String, String> options = new HashMap<String, String>();
-                    for (DeleteEntry entry : spec.entries()) {
+                    for (GraphEntry entry : spec.entries()) {
                         options.put(entry.log(""), "");
                     }
                     dcs[i] = new DeleteCommand(key, -1, options);
@@ -185,19 +186,25 @@ public class DeleteI extends AbstractAmdServant implements _IDeleteOperations,
     }
 
     public DeleteHandleI makeAndLaunchHandle(final Ice.Identity id, final DeleteCommand...commands) {
-        DeleteHandleI handle = new DeleteHandleI(id, sf, afs, commands, cancelTimeoutMs);
+        DeleteHandleI handle = new DeleteHandleI(loadSpecs(), id, sf, afs, commands, cancelTimeoutMs);
         threadPool.getExecutor().execute(handle);
         return handle;
     }
 
     public void makeAndRun(final Ice.Identity id, final DeleteCommand...commands) {
-        DeleteHandleI handle = new DeleteHandleI(id, sf, afs, commands, cancelTimeoutMs);
+        DeleteHandleI handle = new DeleteHandleI(loadSpecs(), id, sf, afs, commands, cancelTimeoutMs);
         handle.run();
     }
 
     private Ice.Identity handleId() {
         Ice.Identity id = sf.getIdentity("DeleteHandle"+UUID.randomUUID().toString());
         return id;
+    }
+
+    public ApplicationContext loadSpecs() {
+        return new ClassPathXmlApplicationContext(
+                new String[]{"classpath:ome/services/delete/spec.xml"}, ctx);
+
     }
 
 }

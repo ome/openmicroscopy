@@ -19,10 +19,10 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import ome.conditions.InternalException;
 import ome.io.nio.AbstractFileSystemService;
-import ome.services.delete.DeleteException;
-import ome.services.delete.DeleteSpec;
-import ome.services.delete.DeleteSpecFactory;
-import ome.services.delete.DeleteState;
+import ome.services.delete.DeleteStepFactory;
+import ome.services.graphs.GraphException;
+import ome.services.graphs.GraphSpec;
+import ome.services.graphs.GraphState;
 import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
@@ -38,6 +38,7 @@ import org.hibernate.Session;
 import org.hibernate.exception.ConstraintViolationException;
 import org.perf4j.StopWatch;
 import org.perf4j.commonslog.CommonsLogStopWatch;
+import org.springframework.context.ApplicationContext;
 import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
@@ -73,8 +74,8 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
 
         private static class Report extends DeleteReport {
             private static final long serialVersionUID = 1L;
-            DeleteSpec spec;
-            DeleteState state;
+            GraphSpec spec;
+            GraphState state;
         }
 
 
@@ -140,7 +141,7 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
      * @param commands
      * @param cancelTimeoutMs
      */
-    public DeleteHandleI(final Ice.Identity id, final ServiceFactoryI sf,
+    public DeleteHandleI(final ApplicationContext ctx, final Ice.Identity id, final ServiceFactoryI sf,
             final AbstractFileSystemService afs, final DeleteCommand[] commands, int cancelTimeoutMs) {
         this.id = id;
         this.sf = sf;
@@ -157,8 +158,6 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
             this.commands = new DeleteCommand[commands.length];
             System.arraycopy(commands, 0, this.commands, 0, commands.length);
             for (int i = 0; i < commands.length; i++) {
-                final DeleteSpecFactory factory = sf.context.getBean(
-                        "deleteSpecFactory", DeleteSpecFactory.class);
                 Integer idx = Integer.valueOf(i);
                 Report report = new Report();
                 reports.put(idx, report);
@@ -169,7 +168,7 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                 }
 
                 try {
-                    report.spec = factory.get(report.command.type);
+                    report.spec = ctx.getBean(report.command.type, GraphSpec.class);
                     if (report.spec == null) {
                         throw new NullPointerException(); // handled in catch
                     }
@@ -183,7 +182,7 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                             report.command.id,
                             "",
                             report.command.options);
-                } catch (DeleteException de) {
+                } catch (GraphException de) {
                     report.error = ("Failed initialization: " + de.message);
                 }
 
@@ -384,7 +383,8 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
 
             // Initialize. Any exceptions should cancel the process
             StopWatch sw = new CommonsLogStopWatch();
-            report.state = new DeleteState(sf.context, session, report.spec);
+            DeleteStepFactory factory = new DeleteStepFactory(executor.getContext());
+            report.state = new GraphState(factory, session, report.spec);
             report.scheduledDeletes = report.state.getTotalFoundCount();
             if (report.scheduledDeletes == 0L) {
                 report.warning = "Object missing.";
@@ -418,8 +418,8 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
             }
             // If we reach this far, then the delete was successful, so save
             // the deleted id count.
-            report.actualDeletes = report.state.getTotalDeletedCount();
-        } catch (DeleteException de) {
+            report.actualDeletes = report.state.getTotalProcessedCount();
+        } catch (GraphException de) {
             report.error = de.message;
             Cancel cancel = new Cancel("Cancelled by DeleteException");
             cancel.initCause(de);
@@ -457,7 +457,7 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
         for (Report report : reports.values()) {
 
             for (String fileType : fileTypeList) {
-                Set<Long> deletedIds = report.state.getDeletedsIds(fileType);
+                Set<Long> deletedIds = report.state.getProcessedIds(fileType);
                 if (deletedIds != null && deletedIds.size() > 0) {
                     log.debug(String.format("Binary delete of %s for %s:%s: %s",
                             fileType, report.command.type, report.command.id,

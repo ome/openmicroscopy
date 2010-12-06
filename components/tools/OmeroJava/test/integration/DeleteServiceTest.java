@@ -22,7 +22,6 @@ import java.util.UUID;
 
 import junit.framework.AssertionFailedError;
 import ome.formats.OMEROMetadataStoreClient;
-import ome.services.delete.BaseDeleteSpec;
 import ome.xml.model.OME;
 import omero.ApiUsageException;
 import omero.ServerError;
@@ -3999,7 +3998,8 @@ public class DeleteServiceTest
     }
 
     /**
-     * Use of the savepoint/release/rollback methods in {@link BaseDeleteSpec}
+     * Use of the savepoint/release/rollback methods in
+     * {@link ome.services.graphs.BaseGraphSpec}
      * seem to prevent transactions from being properly rolled back.
      * @throws Exception Thrown if an error occurred.
      */

@@ -5,18 +5,16 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
-package ome.services.delete;
+package ome.services.graphs;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
-import ome.api.IDelete;
 import ome.model.IObject;
 import ome.security.basic.CurrentDetails;
 import ome.tools.hibernate.ExtendedMetadata;
@@ -33,15 +31,15 @@ import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 
 /**
- * {@link DeleteSpec} which takes the id of some id as the root of deletion.
+ * {@link GraphSpec} which takes the id of some id as the root of deletion.
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.2.1
- * @see IDelete
+ * @see IGraph
  */
-public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
+public class BaseGraphSpec implements GraphSpec, BeanNameAware {
 
-    private final static Log log = LogFactory.getLog(BaseDeleteSpec.class);
+    private final static Log log = LogFactory.getLog(BaseGraphSpec.class);
 
     //
     // Bean-creation time values
@@ -52,7 +50,7 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
      * steps which will be performed by multiple calls to
      * {@link #delete(Session, int)}
      */
-    protected final List<DeleteEntry> entries;
+    protected final List<GraphEntry> entries;
 
     private/* final */ExtendedMetadata em;
 
@@ -61,7 +59,7 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
      * is an admin or the owner of an object.
      */
     private /*final*/ CurrentDetails details;
-    
+
     private/* final */String beanName = null;
 
     //
@@ -91,12 +89,12 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
     /**
      * Simplified constructor, primarily used for testing.
      */
-    public BaseDeleteSpec(String name, String... entries) {
+    public BaseGraphSpec(String name, String... entries) {
         this(Arrays.asList(entries));
         this.beanName = name;
     }
 
-    public BaseDeleteSpec(List<String> entries) {
+    public BaseGraphSpec(List<String> entries) {
         this.entries = makeList(entries);
     }
 
@@ -107,11 +105,11 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
     public void setExtendedMetadata(ExtendedMetadata em) {
         this.em = em;
     }
-    
+
     public void setCurrentDetails(CurrentDetails details) {
         this.details = details;
     }
-    
+
     public CurrentDetails getCurrentDetails() {
         return this.details;
     }
@@ -133,20 +131,20 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
     }
 
     public void postProcess(ListableBeanFactory factory) {
-        for (DeleteEntry entry : entries) {
+        for (GraphEntry entry : entries) {
             entry.postProcess(factory);
         }
     }
 
     public int initialize(long id, String superspec, Map<String, String> options)
-            throws DeleteException {
+            throws GraphException {
 
         if (this.id >= 0) {
             throw new IllegalStateException("Currently initialized!: " + this);
         }
 
         for (int i = 0; i < entries.size(); i++) {
-            DeleteEntry entry = entries.get(i);
+            GraphEntry entry = entries.get(i);
             entry.initialize(id, superspec, options);
         }
 
@@ -156,12 +154,12 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
         return entries.size();
     }
 
-    public Iterator<DeleteSpec> walk() {
+    public Iterator<GraphSpec> walk() {
         return new SubSpecIterator(this);
     }
 
-    public List<DeleteEntry> entries() {
-        return new ArrayList<DeleteEntry>(entries);
+    public List<GraphEntry> entries() {
+        return new ArrayList<GraphEntry>(entries);
     }
 
     public void close() {
@@ -174,11 +172,11 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
     // Helpers
     //
 
-    private List<DeleteEntry> makeList(List<String> entries) {
-        List<DeleteEntry> rv = new ArrayList<DeleteEntry>();
+    private List<GraphEntry> makeList(List<String> entries) {
+        List<GraphEntry> rv = new ArrayList<GraphEntry>();
         if (entries != null) {
             for (String entry : entries) {
-                rv.add(new DeleteEntry(this, entry));
+                rv.add(new GraphEntry(this, entry));
             }
         }
         return Collections.unmodifiableList(rv);
@@ -190,7 +188,7 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
     public boolean overrideKeep() {
         return false;
     }
-    
+
     /**
      * Returns true iff lhs[i] == rhs[i] for all i in rhs. For example,
      *
@@ -223,8 +221,8 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
      * See interface documentation.
      */
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    public long[][] queryBackupIds(Session session, int step, DeleteEntry subpath, QueryBuilder and)
-        throws DeleteException {
+    public long[][] queryBackupIds(Session session, int step, GraphEntry subpath, QueryBuilder and)
+        throws GraphException {
 
         final String[] sub = subpath.path(superspec);
         final QueryBuilder qb = new QueryBuilder();
@@ -289,7 +287,7 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
         // no-op
     }
 
-    private String logmsg(DeleteEntry subpath, List<List<Long>> results) {
+    private String logmsg(GraphEntry subpath, List<List<Long>> results) {
         String msg = String.format("Found %s id(s) for %s",
                 (results == null ? "null" : results.size()),
                 Arrays.asList(subpath.log(superspec)));
@@ -299,8 +297,8 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
     /**
      * Walks the parts given adding a new relationship between each.
      */
-    private void walk(final QueryBuilder qb, final DeleteEntry entry)
-            throws DeleteException {
+    private void walk(final QueryBuilder qb, final GraphEntry entry)
+            throws GraphException {
         String[] path = entry.path(superspec);
         qb.from(path[0], "ROOT0");
         for (int p = 1; p < path.length; p++) {
@@ -313,7 +311,7 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
     /**
      * Used to generate a join statement on the {@link QueryBuilder} making use
      * of {@link ExtendedMetadata#getRelationship(String, String). If the value
-     * returned by that value is null, a {@link DeleteException} will be thrown.
+     * returned by that value is null, a {@link GraphException} will be thrown.
      * Otherwise something of the form:
      *
      * <pre>
@@ -323,12 +321,12 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
      * will be added to the {@link QueryBuilder}
      */
     protected void join(QueryBuilder qb, String from, String fromAlias,
-            String to, String toAlias) throws DeleteException {
+            String to, String toAlias) throws GraphException {
 
         String rel = em.getRelationship(from, to);
 
         if (rel == null) {
-            throw new DeleteException(String.format(
+            throw new GraphException(String.format(
                     "Null relationship: %s->%s", from, to));
         }
         qb.join(fromAlias + "." + rel, toAlias, false, false);
@@ -342,7 +340,7 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
      * delete ROOT2 where id in (select ROOT2.id from C join C.b ROOT1 join b.a ROOT0 where ROOT0.id = :id)
      * </pre>
      */
-    private QueryBuilder buildQuery(DeleteEntry entry) throws DeleteException {
+    private QueryBuilder buildQuery(GraphEntry entry) throws GraphException {
         final QueryBuilder sub = new QueryBuilder();
 
         String[] path = entry.path(superspec);
@@ -363,33 +361,33 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append("BaseDeleteSpec [" + beanName + ", id=" + id
+        sb.append("BaseGraphSpec [" + beanName + ", id=" + id
                 + (superspec == null ? "" : ", superspec=" + superspec));
         sb.append("]");
         return sb.toString();
     }
 
     /**
-     * {@link Iterator} which walks returns all {@link DeleteSpec}s which are
+     * {@link Iterator} which walks returns all {@link GraphSpec}s which are
      * reachable from the given spec, depth first including the spec itself. A
-     * {@link DeleteSpec} is "reachable" if it is the subspec of a
-     * {@link DeleteEntry} for a spec.
+     * {@link GraphSpec} is "reachable" if it is the subspec of a
+     * {@link GraphEntry} for a spec.
      */
-    public static class SubSpecIterator implements Iterator<DeleteSpec> {
+    public static class SubSpecIterator implements Iterator<GraphSpec> {
 
-        final DeleteSpec spec;
+        final GraphSpec spec;
 
-        final List<DeleteEntry> entries;
+        final List<GraphEntry> entries;
 
         SubSpecIterator sub;
 
-        DeleteSpec subSpec;
+        GraphSpec subSpec;
 
         int step = 0;
 
         boolean done = false;
 
-        public SubSpecIterator(DeleteSpec spec) {
+        public SubSpecIterator(GraphSpec spec) {
             this.spec = spec;
             this.entries = spec.entries();
             nextIterator();
@@ -400,7 +398,7 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
             subSpec = null;
             for (int i = step; i < entries.size(); i++) {
                 step = i + 1;
-                DeleteEntry entry = entries.get(i);
+                GraphEntry entry = entries.get(i);
                 subSpec = entry.getSubSpec();
                 if (subSpec != null) {
                     sub = new SubSpecIterator(subSpec);
@@ -420,7 +418,7 @@ public class BaseDeleteSpec implements DeleteSpec, BeanNameAware {
             }
         }
 
-        public DeleteSpec next() {
+        public GraphSpec next() {
             if (sub != null) {
                 if (sub.hasNext()) {
                     return sub.next();

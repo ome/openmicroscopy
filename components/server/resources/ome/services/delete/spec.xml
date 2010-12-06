@@ -24,9 +24,9 @@
 
    <!-- SETUP ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
-    <bean id="deleteSpecFactory" class="ome.services.delete.DeleteSpecFactory" singleton="false"/>
+    <bean class="ome.services.graphs.GraphSpecPostProcessor"/>
 
-    <bean id="delSpec"  abstract="true" class="ome.services.delete.BaseDeleteSpec" singleton="false">
+    <bean id="delSpec"  abstract="true" class="ome.services.graphs.BaseGraphSpec" singleton="false">
         <description>
         Delete specification which takes a single id as the identifier for where
         the graph of objects to be deleted starts.
@@ -37,7 +37,7 @@
 
    <!-- SPECIFCATIONS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
-    <bean parent="delSpec" name="/Annotation" class="ome.services.delete.AnnotationDeleteSpec">
+    <bean parent="delSpec" name="/Annotation" class="ome.services.graphs.AnnotationGraphSpec">
         <description>
         Lists all abstract and concrete annotation types as steps with their 
         default operations.

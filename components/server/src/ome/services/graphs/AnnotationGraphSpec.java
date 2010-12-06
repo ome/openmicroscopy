@@ -5,7 +5,7 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
-package ome.services.delete;
+package ome.services.graphs;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -17,9 +17,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import ome.api.IDelete;
 import ome.model.annotations.Annotation;
-import ome.security.basic.CurrentDetails;
 import ome.system.EventContext;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.QueryBuilder;
@@ -32,18 +30,18 @@ import org.hibernate.Session;
 import org.springframework.beans.FatalBeanException;
 
 /**
- * {@link DeleteSpec} specialized for deleting annotations. Adds options which
+ * {@link GraphSpec} specialized for deleting annotations. Adds options which
  * classes to delete as well as which namespaces.
  *
  *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.2.1
- * @see IDelete
+ * @see IGraph
  */
-public class AnnotationDeleteSpec extends BaseDeleteSpec {
+public class AnnotationGraphSpec extends BaseGraphSpec {
 
     private final static Log log = LogFactory
-            .getLog(AnnotationDeleteSpec.class);
+            .getLog(AnnotationGraphSpec.class);
 
     /**
      * Collection of namespace values (or LIKE values if they contain '%' or
@@ -115,7 +113,7 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
      * @param entries
      *            The entries to handle.
      */
-    public AnnotationDeleteSpec(List<String> entries) {
+    public AnnotationGraphSpec(List<String> entries) {
         this(null, entries);
     }
 
@@ -127,7 +125,7 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
      * @param entries
      *            The entries to handle.
      */
-    public AnnotationDeleteSpec(Map<String, String> excludeMap,
+    public AnnotationGraphSpec(Map<String, String> excludeMap,
             List<String> entries) {
         super(entries);
         isAbstract = new boolean[entries.size()];
@@ -161,7 +159,7 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
 
         // First calculate the number of unique top-level paths
         List<String> uniquePaths = new ArrayList<String>();
-        for (DeleteEntry entry : entries) {
+        for (GraphEntry entry : entries) {
             String topLevel = entry.path("")[0];
             if (!uniquePaths.contains(topLevel)) {
                 uniquePaths.add(topLevel);
@@ -180,7 +178,7 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
         TYPE: for (Class<Annotation> type : types) {
             String simpleName = type.getSimpleName();
             for (int i = 0; i < entries.size(); i++) {
-                DeleteEntry entry = entries.get(i);
+                GraphEntry entry = entries.get(i);
                 if (entry.path("").length > 1) {
                     // This not an annotation, but some subpath
                     // ignore it.
@@ -200,7 +198,7 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
 
     @Override
     public int initialize(long id, String superspec, Map<String, String> dontmodify)
-        throws DeleteException {
+        throws GraphException {
 
         Map<String, String> options = null;
         if (dontmodify != null) {
@@ -214,7 +212,7 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
         // clauses, e.g. KEEP;excludes=%companionFile will be passed as "KEEP"
         if (options != null) {
             for (int i = 0; i < types.length; i++) {
-                DeleteEntry entry = entries.get(i);
+                GraphEntry entry = entries.get(i);
                 Class<?> type = types[i];
 
                 // If the type is null, then this is not an annotation but
@@ -315,28 +313,28 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
         int steps = super.initialize(id, superspec, options);
         return steps;
     }
-    
+
     @Override
-    public long[][] queryBackupIds(Session session, int step, DeleteEntry subpath,
-            QueryBuilder and) throws DeleteException {
+    public long[][] queryBackupIds(Session session, int step, GraphEntry subpath,
+            QueryBuilder and) throws GraphException {
 
         if (isAbstract[step]) {
             return new long[0][0];
         }
 
         if (and != null) {
-            throw new DeleteException("Unexpected non-null and: " + and);
+            throw new GraphException("Unexpected non-null and: " + and);
         }
 
         // Copying the entry since we cannot currently find relationships
         // to subclasses, i.e. getRelationship(ImageAnnotationLink,
         // LongAnnotation)==null.
-        final DeleteEntry dontuseentry = entries.get(step);
+        final GraphEntry dontuseentry = entries.get(step);
         final String[] dontuse = dontuseentry.path("");
         final String klass = dontuse[0];
         dontuse[0] = "/Annotation"; // Reset the value.
         final String newpath = StringUtils.join(dontuse, "/");
-        final DeleteEntry copy = new DeleteEntry(this, newpath, subpath);
+        final GraphEntry copy = new GraphEntry(this, newpath, subpath);
 
         final String[] sub = copy.path(superspec);
         final int which = sub.length - dontuse.length;
@@ -395,11 +393,11 @@ public class AnnotationDeleteSpec extends BaseDeleteSpec {
                 qb.paramList("ids", ids);
                 // ticket:2962
                 EventContext ec = getCurrentDetails().getCurrentEventContext();
-                DeleteState.permissionsClause(ec, qb);
-                
+                GraphState.permissionsClause(ec, qb);
+
                 Query q = qb.query(session);
                 int count = q.executeUpdate();
-                log.info("Deleted " + count + " annotation links");
+                log.info("Graphd " + count + " annotation links");
             }
         }
     }
