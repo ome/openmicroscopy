@@ -518,6 +518,20 @@ class PropertiesUI
     	c.gridx = c.gridx+2;
     	content.add(value, c);
     	c.gridy++; 	
+    	c.gridx = 0;
+    	try { //just to be on the save side
+    		label = UIUtilities.setTextFont("Imported Date", 
+        			Font.BOLD, size);
+        	value = UIUtilities.createComponent(null);
+        	v =  UIUtilities.formatShortDateTime(image.getInserted());
+        	value.setText(v);
+        	content.add(label, c);
+        	c.gridx = c.gridx+2;
+        	content.add(value, c);
+        	c.gridy++; 
+		} catch (Exception e) {
+			
+		}
     	label = UIUtilities.setTextFont("Dimensions (XY)", Font.BOLD, size);
     	value = UIUtilities.createComponent(null);
     	v = (String) details.get(EditorUtil.SIZE_X);
