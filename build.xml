@@ -141,6 +141,12 @@ java component.
         <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
     </target>
 
+    <target name="build-dev" description="build-default, then test-compile and build-eclipse"
+        depends="clean,init,build-default,test-compile,build-eclipse"/>
+
+    <target name="build-all-dev" description="build-all, then test-compile and build-eclipse"
+        depends="clean,init,build-default,test-compile,build-eclipse"/>
+
     <target name="build-blitz" description="Build blitz and copy to dist/blitz" depends="init">
         <iterate buildpathref="blitzserver.buildpath" target="dist"/>
         <!-- Must also build python since it provides our command lines -->
