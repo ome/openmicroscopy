@@ -313,7 +313,7 @@ def login(request):
         request.session['username'] = request.REQUEST.get('username').encode('utf-8').strip()
         request.session['password'] = request.REQUEST.get('password').encode('utf-8').strip()
         request.session['ssl'] = (True, False)[request.REQUEST.get('ssl') is None]
-    
+        
     error = request.REQUEST.get('error')
     
     conn = None
@@ -322,7 +322,7 @@ def login(request):
     except Exception, x:
         logger.error(traceback.format_exc())
         error = str(x)
-            
+    
     if conn is not None:
         request.session['version'] = conn.getServerVersion()
         return HttpResponseRedirect(reverse("waindex"))
@@ -680,8 +680,10 @@ def manage_group(request, action, gid=None, **kwargs):
         controller.containedExperimenters()
         form = ContainedExperimentersForm(initial={'members':controller.members, 'available':controller.available})
         if not form.is_valid():
-            available = form.cleaned_data['available']
-            members = form.cleaned_data['members']
+            #available = form.cleaned_data['available']
+            available = request.POST.getlist('available')
+            #members = form.cleaned_data['members']
+            members = request.POST.getlist('members')
             controller.setMembersOfGroup(available, members)
             return HttpResponseRedirect(reverse("wagroups"))
         context = {'info':info, 'eventContext':eventContext, 'form':form, 'controller': controller}
