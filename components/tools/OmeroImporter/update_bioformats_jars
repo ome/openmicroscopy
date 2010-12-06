@@ -100,15 +100,6 @@ def update(revision, new_jars):
     f.write(properties)
     f.close()
     
-    f = open("../../.classpath")
-    classpath = f.read()
-    f.close()
-    regex = re.compile('r%s.jar' % old_revision)
-    classpath = regex.sub('r%s.jar' % revision, classpath)
-    f = open("../../.classpath", "w")
-    f.write(classpath)
-    f.close()
-
 if __name__ == "__main__":
     try:
         options, args = getopt(sys.argv[1:], "", ['subversion'])
