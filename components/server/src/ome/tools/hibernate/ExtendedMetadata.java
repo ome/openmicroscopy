@@ -22,6 +22,7 @@ import ome.model.IAnnotated;
 import ome.model.IObject;
 import ome.model.annotations.Annotation;
 import ome.model.internal.Permissions;
+import ome.tools.spring.OnContextRefreshedEventListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -121,7 +122,7 @@ public interface ExtendedMetadata {
  * Sole implementatino of ExtendedMetadata. The separation is intended to make
  * unit testing without a full {@link ExtendedMetadata} possible.
  */
-public static class Impl implements ExtendedMetadata, ApplicationListener {
+public static class Impl extends OnContextRefreshedEventListener implements ExtendedMetadata {
 
     private final static Log log = LogFactory.getLog(ExtendedMetadata.class);
 
@@ -159,14 +160,8 @@ public static class Impl implements ExtendedMetadata, ApplicationListener {
      * extracts the {@link SessionFactory} from the {@link ApplicationContext}
      * and pases it to {@link #setSessionFactory(SessionFactory)}.
      */
-    public void onApplicationEvent(
-            org.springframework.context.ApplicationEvent event) {
-
-        if (!(event instanceof ContextRefreshedEvent)) {
-            return; // EARLY EXIT!!
-        }
-
-        ContextRefreshedEvent cre = (ContextRefreshedEvent) event;
+    @Override
+    public void handleContextRefreshedEvent(ContextRefreshedEvent cre) {
         ApplicationContext ctx = cre.getApplicationContext();
         if (ctx.containsBean("sessionFactory")) {
             SessionFactory sessionFactory = (SessionFactory) ctx

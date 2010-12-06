@@ -10,6 +10,8 @@ package ome.services.scheduler;
 import java.util.HashMap;
 import java.util.Map;
 
+import ome.tools.spring.OnContextRefreshedEventListener;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.quartz.JobDetail;
@@ -31,29 +33,43 @@ import org.springframework.scheduling.quartz.JobDetailAwareTrigger;
  */
 public class SchedulerFactoryBean extends
         org.springframework.scheduling.quartz.SchedulerFactoryBean implements
-        ApplicationListener {
+        ApplicationListener<ContextRefreshedEvent> {
 
     private final static Log log = LogFactory
             .getLog(SchedulerFactoryBean.class);
 
     private final Map<String, Trigger> triggers = new HashMap<String, Trigger>();
 
-    public void onApplicationEvent(ApplicationEvent event) {
-        if (event instanceof ContextRefreshedEvent) {
-            ContextRefreshedEvent cre = (ContextRefreshedEvent) event;
-            String[] names = cre.getApplicationContext().getBeanNamesForType(
-                    Trigger.class);
-            for (String name : names) {
-                if (triggers.containsKey(name)) {
-                    log.error("Scheduler already has trigger named: " + name);
-                    continue;
-                }
-                Trigger trigger = (Trigger) cre.getApplicationContext()
-                        .getBean(name);
-                registerTrigger(name, trigger);
+    /**
+     * Already subclassing another class, so re-using the handler here
+     * in a somewhat awkward to re-use the code.
+     */
+    private final OnContextRefreshedEventListener handler =
+        new OnContextRefreshedEventListener() {
+
+            @Override
+            public void handleContextRefreshedEvent(ContextRefreshedEvent event) {
+                handle(event);
             }
-            restartIfNeeded();
+        };
+
+    public void onApplicationEvent(ContextRefreshedEvent event) {
+        handler.onApplicationEvent(event);
+    }
+
+    private void handle(ContextRefreshedEvent cre) {
+        String[] names = cre.getApplicationContext().getBeanNamesForType(
+                Trigger.class);
+        for (String name : names) {
+            if (triggers.containsKey(name)) {
+                log.error("Scheduler already has trigger named: " + name);
+                continue;
+            }
+            Trigger trigger = (Trigger) cre.getApplicationContext()
+                    .getBean(name);
+            registerTrigger(name, trigger);
         }
+        restartIfNeeded();
     }
 
     /**

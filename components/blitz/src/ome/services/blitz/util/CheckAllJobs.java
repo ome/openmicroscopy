@@ -15,6 +15,7 @@ import java.util.UUID;
 
 import ome.services.blitz.fire.TopicManager;
 import ome.services.util.Executor;
+import ome.tools.spring.OnContextRefreshedEventListener;
 import omero.constants.categories.PROCESSORCALLBACK;
 import omero.constants.topics.PROCESSORACCEPTS;
 import omero.grid.ProcessorCallbackPrx;
@@ -38,7 +39,7 @@ import Ice.ObjectAdapter;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.2
  */
-public class CheckAllJobs implements ApplicationListener {
+public class CheckAllJobs extends OnContextRefreshedEventListener {
 
     private static final Log log = LogFactory.getLog(CheckAllJobs.class);
 
@@ -66,10 +67,9 @@ public class CheckAllJobs implements ApplicationListener {
                 PROCESSORCALLBACK.value);
     }
 
-    public void onApplicationEvent(ApplicationEvent event) {
-        if (event instanceof ContextRefreshedEvent) {
-            run();
-        }
+    @Override
+    public void handleContextRefreshedEvent(ContextRefreshedEvent event) {
+        run();
     }
 
     public void run() {

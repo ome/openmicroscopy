@@ -16,6 +16,7 @@ import ome.parameters.Parameters;
 import ome.system.Principal;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
+import ome.tools.spring.OnContextRefreshedEventListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -31,8 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Josh Moore, josh at glencoesoftwarecom
  * @since 4.2.1
  */
-public class NamespaceCheck implements
-        ApplicationListener<ContextRefreshedEvent> {
+public class NamespaceCheck extends OnContextRefreshedEventListener {
 
     public final static Log log = LogFactory.getLog(NamespaceCheck.class);
 
@@ -50,7 +50,8 @@ public class NamespaceCheck implements
         this.roles = roles;
     }
 
-    public void onApplicationEvent(ContextRefreshedEvent arg0) {
+    @Override
+    public void handleContextRefreshedEvent(ContextRefreshedEvent event) {
         executor.execute(principal, new Executor.SimpleWork(this,
                 "namespaceCheck") {
             @Transactional(readOnly = false)
