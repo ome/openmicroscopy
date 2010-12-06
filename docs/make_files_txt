@@ -42,7 +42,6 @@ from getopt import getopt, GetoptError
 from fnmatch import fnmatch
 
 EXTENSIONS = {
-    "aarhus": { "glob": ["*.bio"] },
     "al3d": { "glob": ["*.al3d"] },
     "amira": { "glob": ["*.am"] },
     "analyze": { "glob": ["*.hdr"] },
@@ -69,7 +68,6 @@ EXTENSIONS = {
     "gatan": {"glob": ["*.dm3"] },
     "gel": {"glob": ["*.gel"] },
     "gif": {"glob": ["*.gif"] },
-    "hamamatsu_his": {"glob": ["*.ndpi"] },
     "ics": {"glob": ["*.ics"] },
     "imacom": {"glob": ["*.fff"] },
     "imagepro": {"glob": ["*.tif"] },
