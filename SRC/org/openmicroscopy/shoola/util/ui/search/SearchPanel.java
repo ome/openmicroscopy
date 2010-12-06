@@ -57,7 +57,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
 //Third-party libraries
-import info.clearthought.layout.TableLayout; 
 import org.jdesktop.swingx.JXDatePicker;
 import org.jdesktop.swingx.JXTaskPane;
 
@@ -977,24 +976,31 @@ class SearchPanel
 	{
 		buildType();
 		setBorder(null);
-		double[][] size = {{TableLayout.FILL}, //columns
-				{TableLayout.PREFERRED, 5, TableLayout.PREFERRED, 
-			TableLayout.PREFERRED, TableLayout.PREFERRED}}; //rows
-		setLayout(new TableLayout(size));
-
+		setLayout(new GridBagLayout());
+		GridBagConstraints c = new GridBagConstraints();
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.anchor = GridBagConstraints.WEST;
+		c.insets = new Insets(0, 2, 2, 0);
+		c.gridy = 0;
+		c.gridx = 0;
+		c.gridwidth = GridBagConstraints.REMAINDER;
+		c.weightx = 1.0;
 		setBackground(UIUtilities.BACKGROUND_COLOR);
-		add(buildSearchFor(), "0, 0");
+		add(buildSearchFor(), c);//, "0, 0");
 		SeparatorPane sep = new SeparatorPane();
 		sep.setBackground(UIUtilities.BACKGROUND_COLOR);
-		add(sep, "0, 1");
+		c.gridy++;
+		add(sep, c);//, "0, 1");
 		JXTaskPane pane = UIUtilities.createTaskPane(SCOPE_TITLE, null); 
 		pane.setCollapsed(false);
 		pane.add(buildScope());
-		add(pane, "0, 2");
+		c.gridy++;
+		add(pane, c);//, "0, 2");
 		//add(UIUtilities.buildTaskPane(buildUsers(), USER_TITLE, true), "0, 3");
 		pane = UIUtilities.createTaskPane(DATE_TITLE, null); 
 		pane.add(buildDate());
-		add(pane, "0, 4");
+		c.gridy++;
+		add(pane, c);//, "0, 4");
 
 		setDateIndex();
 	}
