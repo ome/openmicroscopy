@@ -61,9 +61,9 @@ public class PojosLoadHierarchyQueryDefinition extends Query {
                     + "this.imageLinksCountPerOwner this_i_c ");
         } else if (Screen.class.isAssignableFrom(klass)) {
         	sb.append("select this from Screen this ");
-        	//sb.append("left outer join fetch this.screenAcquisition sa ");
             sb.append("left outer join fetch this.plateLinks pdl ");
             sb.append("left outer join fetch pdl.child ds ");
+            sb.append("left outer join fetch ds.details.updateEvent ");
             sb.append("left outer join fetch ds.plateAcquisition sa ");
             sb.append("left outer join fetch "
                     + "this.annotationLinksCountPerOwner this_a_c ");
@@ -78,6 +78,7 @@ public class PojosLoadHierarchyQueryDefinition extends Query {
         }
 
         if (params.isLeaves()) {
+        	sb.append("left outer join fetch img.details.updateEvent as evt ");
             sb.append("left outer join fetch img.pixels as pix ");
             sb.append("left outer join fetch pix.pixelsType as pt ");
             if (params.isAcquisitionData()) {
