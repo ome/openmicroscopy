@@ -386,6 +386,10 @@ public class PojosServiceTest
 				j = images.iterator();
 				while (j.hasNext()) {
 					image = j.next();
+					assertNotNull(
+							image.asImage().getDetails().getUpdateEvent());
+					assertTrue(
+					image.asImage().getDetails().getUpdateEvent().isLoaded());
 					assertTrue(image.getId() == img.getId().getValue());
 				}
 			} 
@@ -981,7 +985,7 @@ public class PojosServiceTest
 			dataset = new  DatasetData((Dataset) i.next());
 			if (dataset.getId() == d.getId().getValue()) {
 				images = dataset.getImages();
-				assertTrue(images.size() == 1);
+				assertTrue(images.size() > 0);
 			} 
 		}
     }
