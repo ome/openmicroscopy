@@ -4,11 +4,10 @@ import exceptions
 
 import omero
 
-from django.test.client import Client
 from django.conf import settings
+from request_factory import RequestFactory, Client
 
 from webgateway import views
-from request_factory import RequestFactory
 
 
 def fakeRequest (method, path="/", params={}, **kwargs):
@@ -51,4 +50,21 @@ class WebTest(unittest.TestCase):
             self.rootconn.seppuku()
         except Exception,e:
             self.fail(e)
-    
+
+
+class WebClientTest(unittest.TestCase):
+        
+    def setUp (self):
+        c = omero.client(pmap=['--Ice.Config='+(os.environ.get("ICE_CONFIG"))])
+        try:
+            self.root_password = c.ic.getProperties().getProperty('omero.rootpass')
+        finally:
+            c.__del__()
+        
+        self.client = Client()
+
+    def tearDown(self):
+        try:
+            self.client.get("/webadmin/logout/")
+        except Exception,e:
+            self.fail(e)
