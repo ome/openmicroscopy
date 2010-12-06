@@ -5,4 +5,4 @@ set -x
 #
 # Run tests
 #
-python bin/omero web test webadmin
+python dist/bin/omero web test webadmin
