@@ -1232,6 +1232,8 @@ def save_image_rdef_json (request, iid, server_id=None, **kwargs):
 def list_compatible_imgs_json (request, server_id, iid, _conn=None, **kwargs):
     """
     Lists the images on the same project that would be viable targets for copying rendering settings.
+    TODO: change method to:
+    list_compatible_imgs_json (request, iid, server_id=None, _conn=None, **kwargs):
     
     @param request:     http request
     @param server_id:   
