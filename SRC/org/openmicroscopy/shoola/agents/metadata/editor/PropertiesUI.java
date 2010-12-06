@@ -37,6 +37,7 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.sql.Timestamp;
 import java.text.NumberFormat;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -486,63 +487,6 @@ class PropertiesUI
     	return label;
     }
 
-    /**
-     * Returns the pixels size as a string.
-     * 
-     * @param details The map to convert.
-     * @return See above.
-     */
-    private String createPixelsToolTip(Map details)
-    {
-    	NumberFormat nf = NumberFormat.getInstance();
-    	String x = (String) details.get(EditorUtil.PIXEL_SIZE_X);
-    	String y = (String) details.get(EditorUtil.PIXEL_SIZE_Y);
-    	String z = (String) details.get(EditorUtil.PIXEL_SIZE_Z);
-    	String label = "Pixels Size (";
-    	
-    	String value = "";
-    	String zero = "0";
-    	if (!zero.equals(x)) {
-    		value += x;
-    		label += "X";
-    	}
-    	if (!zero.equals(y)) {
-    		if (value.length() == 0) value += y;
-    		else value +="x"+y;
-    		label += "Y";
-    	}
-    	if (!zero.equals(z)) {
-    		if (value.length() == 0) value += z;
-    		else value +="x"+z;
-    		label += "Z";
-    	}
-    	label += ") ";
-    	if (value.length() == 0) return null;
-    	return label+"="+value;
-    }
-    
-    /**
-     * Returns <code>true</code> if the pixels size is a number, 
-     * <code>false</code> otherwise.
-     * 
-     * @param details The map to handle.
-     * @return See above.
-     */
-    private boolean isPixelsSizeNumber(Map details)
-    {
-    	String x = (String) details.get(EditorUtil.PIXEL_SIZE_X);
-    	String y = (String) details.get(EditorUtil.PIXEL_SIZE_Y);
-    	String z = (String) details.get(EditorUtil.PIXEL_SIZE_Z);
-    	try {
-			Double.parseDouble(x);
-			Double.parseDouble(y);
-			Double.parseDouble(z);
-			return true;
-		} catch (Exception e) {
-		}
-		return false;
-    }
-    
 	/**
      * Builds the panel hosting the information
      * 
@@ -565,14 +509,15 @@ class PropertiesUI
     	JLabel l = new JLabel();
     	Font font = l.getFont();
     	int size = font.getSize()-2;
-    	JLabel label = UIUtilities.setTextFont("Image Date", Font.BOLD, size);
+    	JLabel label = UIUtilities.setTextFont("Acquisition Date", 
+    			Font.BOLD, size);
     	JLabel value = UIUtilities.createComponent(null);
     	String v = model.formatDate(image);
     	value.setText(v);
     	content.add(label, c);
     	c.gridx = c.gridx+2;
     	content.add(value, c);
-    	c.gridy++;
+    	c.gridy++; 	
     	label = UIUtilities.setTextFont("Dimensions (XY)", Font.BOLD, size);
     	value = UIUtilities.createComponent(null);
     	v = (String) details.get(EditorUtil.SIZE_X);
