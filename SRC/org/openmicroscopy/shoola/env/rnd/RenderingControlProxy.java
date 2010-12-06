@@ -54,8 +54,6 @@ import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.ChannelData;
 import pojos.PixelsData;
 
@@ -113,6 +111,9 @@ class RenderingControlProxy
     
     /** Local copy of the rendering settings used to speed-up the client. */
     private RndProxyDef             rndDef;
+    
+    /** Local copy of the rendering settings used to speed-up the client. */
+    private List<RndProxyDef>       rndDefs;
     
     /** Indicates if the compression level. */
     private int						compression;
@@ -745,12 +746,12 @@ class RenderingControlProxy
      * @param m         	The channel metadata. 
      * @param compression  	Pass <code>0</code> if no compression otherwise 
 	 * 						pass the compression used.
-	 * @param rndDef		Local copy of the rendering settings used to 
+	 * @param rndDefs		Local copy of the rendering settings used to 
 	 * 						speed-up the client.
 	 * @param cacheSize		The desired size of the cache.
      */
     RenderingControlProxy(Registry context, RenderingEnginePrx re, 
-    		Pixels pixels, List m, int compression, RndProxyDef rndDef, 
+    		Pixels pixels, List m, int compression, List<RndProxyDef> rndDefs, 
     		int cacheSize)
     {
         if (re == null)
@@ -759,13 +760,14 @@ class RenderingControlProxy
             throw new NullPointerException("No pixels set.");
         if (context == null)
             throw new NullPointerException("No registry.");
+        if (rndDefs == null) rndDefs = new ArrayList<RndProxyDef>();
+        this.rndDefs = rndDefs;
         this.cacheSize = cacheSize;
         this.context = context;
         servant = re;
         pixs = pixels;//servant.getPixels();
         families = null;
         models = null;
-        
         try {
         	families = servant.getAvailableFamilies(); 
             models = servant.getAvailableModels();
@@ -779,11 +781,11 @@ class RenderingControlProxy
             	cm = (ChannelData) j.next();
                 metadata[cm.getIndex()] = cm;
             }
-            if (rndDef == null) {
+            if (rndDefs.size() < 1) {
             	this.rndDef = new RndProxyDef();
             	initialize();
             } else {
-            	this.rndDef = rndDef;
+            	this.rndDef = rndDefs.get(0);
             	ChannelBindingsProxy cb;
             	for (int i = 0; i < pixs.getSizeC().getValue(); i++) {
                     cb = rndDef.getChannel(i);
@@ -1850,4 +1852,17 @@ class RenderingControlProxy
 		
 	}
 
+	/** 
+	 * Implemented as specified by {@link RenderingControl}. 
+	 * @see RenderingControl#getPreviousRenderingSettings()
+	 */
+	public List<RndProxyDef> getPreviousRenderingSettings()
+	{
+		List<RndProxyDef> list = new ArrayList<RndProxyDef>();
+		if (rndDefs.size() <= 1) return list;
+		list.addAll(rndDefs);
+		list.remove(0);
+		return list;
+	}
+	
 }

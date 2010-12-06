@@ -335,13 +335,13 @@ class OMEROGateway
 		
 		//script w/ a UI.
 		SCRIPTS_UI_AVAILABLE = new ArrayList<String>();
-		/*
+		
 		SCRIPTS_UI_AVAILABLE.add(FigureParam.ROI_SCRIPT);
 		SCRIPTS_UI_AVAILABLE.add(FigureParam.THUMBNAIL_SCRIPT);
 		SCRIPTS_UI_AVAILABLE.add(FigureParam.MOVIE_SCRIPT);
 		SCRIPTS_UI_AVAILABLE.add(FigureParam.SPLIT_VIEW_SCRIPT);
 		SCRIPTS_UI_AVAILABLE.add(MovieExportParam.MOVIE_SCRIPT);
-		*/
+		
 		SCRIPTS_NOT_AVAILABLE_TO_USER = new ArrayList<String>();
 		//SCRIPTS_NOT_AVAILABLE_TO_USER.add(
 		//		ScriptObject.REGION_PATH+"Populate_ROI.py");
@@ -4270,6 +4270,8 @@ class OMEROGateway
 	 * 
 	 * @param pixelsID	The pixels ID.
 	 * @param userID	The id of the user.
+	 * @param convert   Pass <code>true</code> to convert the object,
+	 * 					<code>false</code> otherwise.
 	 * @return Map whose key is the experimenter who set the settings,
 	 * 		  and the value is the rendering settings itself.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
@@ -4277,7 +4279,7 @@ class OMEROGateway
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	List getRenderingSettingsFor(long pixelsID, long userID)
+	List<RndProxyDef> getRenderingSettingsFor(long pixelsID, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		Map map = new HashMap();
@@ -4285,9 +4287,8 @@ class OMEROGateway
 		try {
 			IPixelsPrx service = getPixelsService();
 			List results = service.retrieveAllRndSettings(pixelsID, userID);
-			
-			if (results == null || results.size() == 0) return new ArrayList();
 			List<RndProxyDef> l = new ArrayList<RndProxyDef>();
+			if (results == null || results.size() == 0) return l;
 			Iterator i = results.iterator();
 			while (i.hasNext()) {
 				l.add(PixelsServicesFactory.convert((RenderingDef) i.next()));
@@ -5584,8 +5585,8 @@ class OMEROGateway
 				of = j.next();
 				value = of.getName();
 				v = of.getPath().getValue()+ value.getValue();
-				if (!SCRIPTS_NOT_AVAILABLE_TO_USER.contains(v) &&
-					!SCRIPTS_UI_AVAILABLE.contains(v)) {
+				if (!SCRIPTS_NOT_AVAILABLE_TO_USER.contains(v)) { 
+					//&&!SCRIPTS_UI_AVAILABLE.contains(v)) {
 					script = new ScriptObject(of.getId().getValue(), 
 							of.getPath().getValue(), of.getName().getValue());
 					value = of.getMimetype();

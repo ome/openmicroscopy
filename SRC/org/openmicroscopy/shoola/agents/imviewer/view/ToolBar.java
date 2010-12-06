@@ -182,6 +182,7 @@ class ToolBar
         historyButton.setSelected(view.isHistoryShown());
         historyButton.setAction(controller.getAction(ImViewerControl.HISTORY));
         //if (view.isSeparateWindow()) bar.add(historyButton);
+        //bar.add(historyButton);
         
         b = new JButton(
         		controller.getAction(ImViewerControl.REFRESH));

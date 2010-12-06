@@ -488,7 +488,7 @@ public class FLIMResultsDialog
 	/** Saves the display. */
 	private void save()
 	{
-		chooser = new FileChooser((JFrame) getOwner(), FileChooser.SAVE, 
+		chooser = new FileChooser(null, FileChooser.SAVE, 
 				"Save Results", "Saves the results", FILTERS);
 		chooser.setCurrentDirectory(UIUtilities.getDefaultFolder());
 		String name =  (String) resultsBox.getSelectedItem();

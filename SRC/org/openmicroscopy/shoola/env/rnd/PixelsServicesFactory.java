@@ -64,7 +64,7 @@ import pojos.PixelsData;
 /** 
 * Factory to create the {@link RenderingControl} proxies.
 * This class keeps track of all {@link RenderingControl} instances
-* that have been created and are not yet shutted down. A new
+* that have been created and are not yet closed. A new
 * component is only created if none of the <i>tracked</i> ones is already
 * active. Otherwise, the existing proxy is recycled.
 *
@@ -234,7 +234,7 @@ public class PixelsServicesFactory
 	 * @param metadata  	The channel metadata.
 	 * @param compression  	Pass <code>0</code> if no compression otherwise 
 	 * 						pass the compression used.
-	 * @param def			The rendering def linked to the rendering engine.
+	 * @param defs			The rendering defs linked to the rendering engine.
 	 * 						This is passed to speed up the initialization 
 	 * 						sequence.
 	 * @return See above.
@@ -242,11 +242,11 @@ public class PixelsServicesFactory
 	 */
 	public static RenderingControl createRenderingControl(Registry context, 
 			RenderingEnginePrx re, Pixels pixels, List<ChannelData> metadata, 
-			int compression, RenderingDef def)
+			int compression, List<RndProxyDef> defs)
 	{
 		if (!(context.equals(registry)))
 			throw new IllegalArgumentException("Not allow to access method.");
-		return singleton.makeNew(re, pixels, metadata, compression, def);
+		return singleton.makeNew(re, pixels, metadata, compression, defs);
 	}
 
 	/**
@@ -634,13 +634,14 @@ public class PixelsServicesFactory
 	 * @param metadata		The related metadata.
 	 * @param compression  	Pass <code>0</code> if no compression otherwise 
 	 * 						pass the compression used.
-	 * @param def			The rendering definition linked to the 
+	 * @param defs			The rendering definitions linked to the 
 	 * 						rendering engine.This is passed to speed up the 
 	 * 						initialization sequence.
 	 * @return See above.
 	 */
 	private RenderingControl makeNew(RenderingEnginePrx re, Pixels pixels, 
-							List metadata, int compression, RenderingDef def)
+							List metadata, int compression, 
+							List<RndProxyDef> defs)
 	{
 		if (singleton == null) throw new NullPointerException();
 		Long id = pixels.getId().getValue();
@@ -648,9 +649,8 @@ public class PixelsServicesFactory
 			(RenderingControl) singleton.rndSvcProxies.get(id);
 		if (rnd != null) return rnd;
 		singleton.rndSvcProxiesCount.put(id, 1);
-		RndProxyDef proxyDef = convert(def);
 		rnd = new RenderingControlProxy(registry, re, pixels, metadata, 
-										compression, proxyDef, getCacheSize());
+										compression, defs, getCacheSize());
 		singleton.rndSvcProxies.put(id, rnd);
 		return rnd;
 	}

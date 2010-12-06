@@ -215,6 +215,7 @@ class GLImageCanvas
 			texture = TextureIO.newTexture(data);
 		} else {
 			texture.updateImage(data);
+
 		}
 		if (texture != null) {
 			float x = 1;
@@ -225,12 +226,10 @@ class GLImageCanvas
 			//image
 			texture.enable();
 			texture.bind();
+			
 			gl.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE,
 					GL.GL_REPLACE);
 			TextureCoords coords = new TextureCoords(0, 0, 1, 1);
-			//gl.glColorMask(false, true, false, false);
-			//Color c = Color.green;
-			//gl.glColor3f(c.getRed()/255f, c.getGreen()/255f, c.getBlue()/255f);
 			gl.glBegin(GL.GL_QUADS);
 			gl.glTexCoord2f(coords.left(), coords.bottom());
 			gl.glVertex3f(0, 0, 0);

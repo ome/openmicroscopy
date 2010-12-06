@@ -214,7 +214,8 @@ class OmeroImageServiceImpl
 					LookupNames.CURRENT_USER_DETAILS);
 			RenderingEnginePrx re = gateway.createRenderingEngine(pixelsID);
 			Pixels pixels = gateway.getPixels(pixelsID);
-			RenderingDef def = gateway.getRenderingDef(pixelsID, exp.getId());
+			List<RndProxyDef> defs = gateway.getRenderingSettingsFor(pixelsID, 
+					exp.getId());
 			Collection l = pixels.copyChannels();
 			Iterator i = l.iterator();
 			List<ChannelData> m = new ArrayList<ChannelData>(l.size());
@@ -225,7 +226,7 @@ class OmeroImageServiceImpl
 			}
 			
 			proxy = PixelsServicesFactory.createRenderingControl(context, re,
-					pixels, m, compressionLevel, def);
+					pixels, m, compressionLevel, defs);
 		}
 		return proxy;
 	}
@@ -540,7 +541,7 @@ class OmeroImageServiceImpl
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#getRenderingSettingsFor(long, long)
 	 */
-	public List getRenderingSettingsFor(long pixelsID, long userID) 
+	public List<RndProxyDef> getRenderingSettingsFor(long pixelsID, long userID) 
 		throws DSOutOfServiceException, DSAccessException
 	{
 		return gateway.getRenderingSettingsFor(pixelsID, userID);
