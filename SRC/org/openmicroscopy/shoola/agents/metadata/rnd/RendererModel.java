@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import org.openmicroscopy.shoola.env.rnd.data.Region;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ChannelData;
@@ -1238,10 +1239,27 @@ class RendererModel
 	BufferedImage renderPlane(PlaneDef pDef)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
-		if (rndControl == null) return null;
-		return rndControl.renderPlane(pDef);
+		return renderRegion(pDef, null);
 	}
 
+	/**
+	 * Renders the specified plane.
+	 * 
+	 * @param pDef The plane to render.
+	 * @param region The region to render, If <code>null</code> the plane 
+	 * 				 is rendered.
+	 * @return See above.
+	 * @throws RenderingServiceException 	If an error occurred while setting 
+	 * 										the value.
+	 * @throws DSOutOfServiceException  	If the connection is broken.
+	 */
+	BufferedImage renderRegion(PlaneDef pDef, Region region)
+		throws RenderingServiceException, DSOutOfServiceException
+	{
+		if (rndControl == null) return null;
+		return rndControl.renderRegion(pDef, region);
+	}
+	
 	/**
 	 * Renders the specified plane.
 	 * 
@@ -1254,8 +1272,25 @@ class RendererModel
 	TextureData renderPlaneAsTexture(PlaneDef pDef)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
+		return renderRegionAsTexture(pDef, null);
+	}
+	
+	/**
+	 * Renders the specified plane.
+	 * 
+	 * @param pDef The plane to render.
+	 * @param region The region to render, If <code>null</code> the plane 
+	 * 				 is rendered.
+	 * @return See above.
+	 * @throws RenderingServiceException 	If an error occurred while setting 
+	 * 										the value.
+	 * @throws DSOutOfServiceException  	If the connection is broken.
+	 */
+	TextureData renderRegionAsTexture(PlaneDef pDef, Region region)
+		throws RenderingServiceException, DSOutOfServiceException
+	{
 		if (rndControl == null) return null;
-		return rndControl.renderPlaneAsTexture(pDef);
+		return rndControl.renderRegionAsTexture(pDef, region);
 	}
 	
 	/**
@@ -1311,7 +1346,7 @@ class RendererModel
     	plane.z = getDefaultZ();
     	try {
     		if (rndControl == null) return null;
-    		return rndControl.renderPlane(plane, RenderingControl.LOW);
+    		return rndControl.renderRegion(plane, null, RenderingControl.LOW);
 		} catch (Exception e) {
 			// TODO: handle exception
 		}

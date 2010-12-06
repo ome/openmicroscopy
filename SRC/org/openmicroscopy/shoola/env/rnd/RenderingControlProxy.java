@@ -52,6 +52,7 @@ import org.openmicroscopy.shoola.env.cache.CacheService;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.rnd.data.Region;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
 import pojos.ChannelData;
@@ -493,12 +494,14 @@ class RenderingControlProxy
 	 * 
 	 * @param pDef A plane orthogonal to one of the <i>X</i>, <i>Y</i>,
 	 *            or <i>Z</i> axes.
+	 * @param region The region to render, if <code>null</code> the plane is 
+	 * rendered.
 	 * @return See above.
 	 * @throws RenderingServiceException 	If an error occurred while setting 
 	 * 										the value.
 	 * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
-	private BufferedImage renderPlaneCompressedBI(PlaneDef pDef)
+	private BufferedImage renderRegionCompressedBI(PlaneDef pDef, Region region)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		//Need to adjust the cache.
@@ -518,12 +521,14 @@ class RenderingControlProxy
 	 * 
 	 * @param pDef A plane orthogonal to one of the <i>X</i>, <i>Y</i>,
      *            or <i>Z</i> axes.
+     * @param region The region to render, if <code>null</code> the plane is 
+     * 				 rendered.
 	 * @return See above.
 	 * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
-	private BufferedImage renderPlaneUncompressed(PlaneDef pDef)
+	private BufferedImage renderRegionUncompressed(PlaneDef pDef, Region region)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		//See if the requested image is in cache.
@@ -549,12 +554,15 @@ class RenderingControlProxy
 	 * 
 	 * @param pDef A plane orthogonal to one of the <i>X</i>, <i>Y</i>,
      *            or <i>Z</i> axes.
+     * @param region The region to render, if <code>null</code> the plane is 
+     * 				 rendered.
 	 * @return See above.
 	 * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
-	private TextureData renderPlaneUncompressedAsTexture(PlaneDef pDef)
+	private TextureData renderRegionUncompressedAsTexture(PlaneDef pDef,
+			Region region)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		//See if the requested image is in cache.
@@ -562,30 +570,26 @@ class RenderingControlProxy
         if (img != null) return img;
         try {
             Point p = getSize(pDef);
-            //imageSize = 3*buf.length;
-            //initializeCache(pDef);
-            //img = Factory.createImage(buf, 32, sizeX1, sizeX2);
-            //cache(pDef, img);
-            
-            //img = createTexture(servant.renderAsPackedInt(pDef), p.x, p.y);
             img = createTexture(servant.renderAsPackedInt(pDef), p.x, p.y);
 		} catch (Throwable e) {
 			handleException(e, ERROR+"cannot render the plane.");
 		}
         return img;
 	}
-	
     /**
 	 * Renders the compressed image.
 	 * 
 	 * @param pDef A plane orthogonal to one of the <i>X</i>, <i>Y</i>,
      *            or <i>Z</i> axes.
+     * @param region The region to render if <code>null</code> the plane will
+     * be rendered.
 	 * @return See above.
 	 * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
-	private TextureData renderPlaneCompressedAsTexture(PlaneDef pDef)
+	private TextureData renderRegionCompressedAsTexture(PlaneDef pDef, 
+			Region region)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		try {
@@ -593,9 +597,9 @@ class RenderingControlProxy
 			values = WriterImage.bytesToBytes(values);
 			Point p = getSize(pDef); 
 			return PixelsServicesFactory.createTexture(values, p.x, p.y);
-					//UIUtilities.ceilingPow2(p.x), UIUtilities.ceilingPow2(p.y));
 		} catch (Throwable e) {
-			handleException(e, ERROR+"cannot render the compressed image.");
+			handleException(e, ERROR+"cannot render the compressed image " +
+					"as texture.");
 		} 
 		return null;
 	}
@@ -1521,31 +1525,27 @@ class RenderingControlProxy
 	
 	/** 
 	 * Implemented as specified by {@link RenderingControl}. 
-	 * @see RenderingControl#renderPlane(PlaneDef)
+	 * @see RenderingControl#renderRegion(PlaneDef, Region)
 	 */
-    public BufferedImage renderPlane(PlaneDef pDef)
+    public BufferedImage renderRegion(PlaneDef pDef, Region region)
     	throws RenderingServiceException, DSOutOfServiceException
     {
-        if (pDef == null) 
-            throw new IllegalArgumentException("Plane def cannot be null.");
-        //DataServicesFactory.isSessionAlive(context);
-        if (isCompressed()) return renderPlaneCompressedBI(pDef);
-        return renderPlaneUncompressed(pDef);
+        return renderRegion(pDef, region, compression);
     }
     
 	/** 
 	 * Implemented as specified by {@link RenderingControl}. 
-	 * @see RenderingControl#renderPlane(PlaneDef, int)
+	 * @see RenderingControl#renderRegion(PlaneDef, Region, int)
 	 */
-    public BufferedImage renderPlane(PlaneDef pDef, int value)
+    public BufferedImage renderRegion(PlaneDef pDef, Region region, int value)
     	throws RenderingServiceException, DSOutOfServiceException
     {
     	if (pDef == null) 
              throw new IllegalArgumentException("Plane def cannot be null.");
     	if (value != compression) setCompression(value);
     	BufferedImage img;
-        if (isCompressed()) img = renderPlaneCompressedBI(pDef);
-        else img = renderPlaneUncompressed(pDef);
+        if (isCompressed()) img = renderRegionCompressedBI(pDef, region);
+        else img = renderRegionUncompressed(pDef, region);
         if (value != compression) setCompression(compression);
         return img;
     }
@@ -1799,16 +1799,17 @@ class RenderingControlProxy
 
 	/** 
 	 * Implemented as specified by {@link RenderingControl}. 
-	 * @see RenderingControl#renderPlaneAsBuffer(PlaneDef)
+	 * @see RenderingControl#renderPlaneAsBuffer(PlaneDef, Region)
 	 */
-	public TextureData renderPlaneAsTexture(PlaneDef pDef)
+	public TextureData renderRegionAsTexture(PlaneDef pDef, Region region)
 		throws RenderingServiceException, DSOutOfServiceException
 	{
 		 if (pDef == null) 
 	            throw new IllegalArgumentException("Plane def cannot be null.");
 	        //DataServicesFactory.isSessionAlive(context);
-	     if (isCompressed()) return renderPlaneCompressedAsTexture(pDef);
-	     return renderPlaneUncompressedAsTexture(pDef);
+	     if (isCompressed()) 
+	    	 return renderRegionCompressedAsTexture(pDef, region);
+	     return renderRegionUncompressedAsTexture(pDef, region);
 	}
 
 	/** 

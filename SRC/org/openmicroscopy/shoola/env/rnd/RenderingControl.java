@@ -36,6 +36,8 @@ import com.sun.opengl.util.texture.TextureData;
 //Application-internal dependencies
 import omero.romio.PlaneDef;
 import org.openmicroscopy.shoola.env.data.DSOutOfServiceException;
+import org.openmicroscopy.shoola.env.rnd.data.Region;
+
 import pojos.ChannelData;
 import pojos.PixelsData;
 
@@ -621,29 +623,33 @@ public interface RenderingControl
 	/**
 	 * Renders the specified {@link PlaneDef 2D-plane}.
 	 * 
-	 * @param pDef The plane to render.
+	 * @param pDef   Information about the plane to render.
+	 * @param region The region to render, if <code>null</code> the specified 
+	 * 				 plane is rendered.
 	 * @return See above.
 	 * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
-	public BufferedImage renderPlane(PlaneDef pDef)
+	public BufferedImage renderRegion(PlaneDef pDef, Region region)
 		throws RenderingServiceException, DSOutOfServiceException;
 
 	/**
 	 * Renders the specified {@link PlaneDef 2D-plane}.
 	 * 
-	 * @param pDef 		  The plane to render.
+	 * @param pDef 	 Information about the plane to render.
+	 * @param region The region to render, if <code>null</code> the specified 
+	 * 				 plane is rendered.
 	 * @param compression The compression level.
 	 * @return See above.
 	 * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
-	public BufferedImage renderPlane(PlaneDef pDef, int compression)
+	public BufferedImage renderRegion(PlaneDef pDef, Region region, 
+			int compression)
 		throws RenderingServiceException, DSOutOfServiceException;
 
-	
 	/**
 	 * Returns one of the compression level defined by this class.
 	 * 
@@ -761,13 +767,15 @@ public interface RenderingControl
 	/**
 	 * Renders the specified {@link PlaneDef 2D-plane}.
 	 * 
-	 * @param pDef The plane to render.
+	 * @param pDef   Information about the plane to render.
+	 * @param region The region to render, if <code>null</code> the specified 
+	 * 				 plane is rendered.
 	 * @return See above.
 	 * @throws RenderingServiceException 	If an error occurred while setting 
      * 										the value.
      * @throws DSOutOfServiceException  	If the connection is broken.
 	 */
-	public TextureData renderPlaneAsTexture(PlaneDef pDef)
+	public TextureData renderRegionAsTexture(PlaneDef pDef, Region region)
 		throws RenderingServiceException, DSOutOfServiceException;
 
 	/**

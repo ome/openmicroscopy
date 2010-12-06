@@ -477,8 +477,8 @@ public class PixelsServicesFactory
 		if (proxy == null) 
 			throw new RuntimeException("No rendering service " +
 			"initialized for the specified pixels set.");
-		if (asTexture) return proxy.renderPlaneAsTexture(pDef);
-		return proxy.renderPlane(pDef);
+		if (asTexture) return proxy.renderRegionAsTexture(pDef, null);
+		return proxy.renderRegion(pDef, null);
 	}
 
 	/**
@@ -512,8 +512,8 @@ public class PixelsServicesFactory
 			throw new RuntimeException("No rendering service " +
 			"initialized for the specified pixels set.");
 		proxy.setOverlays(tableID, overlays);
-		if (asTexture) return proxy.renderPlaneAsTexture(pd);
-		return proxy.renderPlane(pd);
+		if (asTexture) return proxy.renderRegionAsTexture(pd, null);
+		return proxy.renderRegion(pd, null);
 	}
 	
 	/**
