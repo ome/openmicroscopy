@@ -680,8 +680,10 @@ def manage_group(request, action, gid=None, **kwargs):
         controller.containedExperimenters()
         form = ContainedExperimentersForm(initial={'members':controller.members, 'available':controller.available})
         if not form.is_valid():
-            available = form.cleaned_data['available']
-            members = form.cleaned_data['members']
+            #available = form.cleaned_data['available']
+            available = request.POST.getlist('available')
+            #members = form.cleaned_data['members']
+            members = request.POST.getlist('members')
             controller.setMembersOfGroup(available, members)
             return HttpResponseRedirect(reverse("wagroups"))
         context = {'info':info, 'eventContext':eventContext, 'form':form, 'controller': controller}
