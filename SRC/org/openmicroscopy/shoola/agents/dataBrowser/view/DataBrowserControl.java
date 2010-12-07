@@ -362,9 +362,10 @@ class DataBrowserControl
 			DataObject data = null;
 			Object uo = node.getHierarchyObject();
 			ViewImage event;
+			Object go;
 			if (uo instanceof ImageData) {
 				event = new ViewImage((ImageData) uo, null);
-				Object go =  view.getParentOfNodes();
+				go =  view.getParentOfNodes();
 				if (go instanceof DataObject) data = (DataObject) go;
 				event.setContext(data, null);
 				bus.post(event);
@@ -374,8 +375,9 @@ class DataBrowserControl
 				WellSampleNode wsn = (WellSampleNode) node;
 				Object parent = wsn.getParentObject();
 				if (parent instanceof DataObject) {
-					Object go =  view.getParentOfNodes();
-					if (go instanceof DataObject) data = (DataObject) go;
+					go =  view.getGrandParentOfNodes();
+					if (go instanceof DataObject)
+						data = (DataObject) go;
 					event.setContext((DataObject) parent, data);
 				}
 				bus.post(event);

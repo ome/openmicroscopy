@@ -309,6 +309,13 @@ abstract class DataBrowserModel
     void setGrandParent(Object grandParent) { this.grandParent = grandParent; }
     
     /**
+     * Returns the grand parent.
+     * 
+     * @return See above.
+     */
+    Object getGrandParent() { return grandParent; }
+    
+    /**
      * Returns the browser.
      * 
      * @return See above.

@@ -400,16 +400,16 @@ class MetadataViewerComponent
 		view.setRootObject();
 		//reset the parent.
 		model.setUserID(userID);
-		setParentRootObject(null);
+		setParentRootObject(null, null);
 	}
 
 	/** 
 	 * Implemented as specified by the {@link MetadataViewer} interface.
-	 * @see MetadataViewer#setParentRootObject(Object)
+	 * @see MetadataViewer#setParentRootObject(Object, Object)
 	 */
-	public void setParentRootObject(Object parent)
+	public void setParentRootObject(Object parent, Object grandParent)
 	{
-		model.setParentRootObject(parent);
+		model.setParentRootObject(parent, grandParent);
 	}
 	
 	/** 

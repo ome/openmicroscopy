@@ -288,8 +288,9 @@ public interface Editor
 	 * only if the root is a well sample.
 	 * 
 	 * @param parentRefObject The parent of the root object.
+	 * @param grandParent     The grand parent of the root object.
 	 */
-	public void setParentRootObject(Object parentRefObject);
+	public void setParentRootObject(Object parentRefObject, Object grandParent);
 
 	/**
 	 * Sets the plane info corresponding to the channel and the pixels set.

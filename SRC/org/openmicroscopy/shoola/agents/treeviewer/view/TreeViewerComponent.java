@@ -811,8 +811,12 @@ class TreeViewerComponent
         		  if (exp == null) exp = model.getUserDetails();
         		  metadata.setRootObject(object, exp.getId());
         		  TreeImageDisplay p = display.getParentDisplay();
-        		  if (p != null)
-        			  metadata.setParentRootObject(p.getUserObject());
+        		  if (p != null) {
+        			  TreeImageDisplay pp = p.getParentDisplay();
+        			  Object gpp = null;
+        			  if (pp != null) gpp = pp.getUserObject();
+        			  metadata.setParentRootObject(p.getUserObject(), gpp);
+        		  } 
         	  }
         	  if (!model.isFullScreen()) {
         		  showDataBrowser(object, display, false);
@@ -886,7 +890,7 @@ class TreeViewerComponent
 		if (last != null) exp = browser.getNodeOwner(last);
 		if (exp == null) exp = model.getUserDetails();
 		mv.setRootObject(selected, exp.getId());
-		mv.setParentRootObject(parent);
+		mv.setParentRootObject(parent, null);
 		if (size > 0) 
 			mv.setRelatedNodes(siblings);
 
@@ -942,7 +946,7 @@ class TreeViewerComponent
 		if (exp == null) exp = model.getUserDetails();
 		mv.setSelectionMode(true);
 		mv.setRootObject(selected, exp.getId());
-		mv.setParentRootObject(parent);
+		mv.setParentRootObject(parent, null);
 	}
 	
 	/**

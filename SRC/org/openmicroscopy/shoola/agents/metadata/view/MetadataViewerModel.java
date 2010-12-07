@@ -241,12 +241,14 @@ class MetadataViewerModel
 	 * Sets the parent of the object of reference.
 	 * 
 	 * @param parentRefObject The value to set.
+	 * @param grandParent     The value to set.
 	 */
-	void setParentRootObject(Object parentRefObject)
+	void setParentRootObject(Object parentRefObject, Object grandParent)
 	{
 		this.parentRefObject = parentRefObject;
-		editor.setParentRootObject(parentRefObject);
+		editor.setParentRootObject(parentRefObject, grandParent);
 	}
+	
 	
 	/**
 	 * Returns the parent of the reference object.

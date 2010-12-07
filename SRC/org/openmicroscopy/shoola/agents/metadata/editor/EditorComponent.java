@@ -207,11 +207,11 @@ class EditorComponent
 
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#setParentRootObject(Object)
+	 * @see Editor#setParentRootObject(Object, Object)
 	 */
-	public void setParentRootObject(Object parentRefObject)
+	public void setParentRootObject(Object parentRefObject, Object grandParent)
 	{
-		model.setParentRootObject(parentRefObject);
+		model.setParentRootObject(parentRefObject, grandParent);
 		view.setParentRootObject();
 	}
 

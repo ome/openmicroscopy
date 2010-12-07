@@ -647,4 +647,11 @@ class DataBrowserUI
      */
     Object getParentOfNodes() { return model.getParent(); }
 	
+    /**
+     * Returns the parent of the nodes if any.
+     * 
+     * @return See above.
+     */
+    Object getGrandParentOfNodes() { return model.getGrandParent(); }
+    
 }

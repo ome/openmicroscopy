@@ -174,6 +174,12 @@ class PropertiesUI
     /** The label displaying the parent of the node. */
     private JLabel				parentLabel;
     
+    /** The label displaying the parent of the node. */
+    private JLabel				gpLabel;
+    
+    /** The label displaying the parent of the node. */
+    private JLabel				wellLabel;
+    
     /** The area displaying the channels information. */
 	private JLabel				channelsArea;
 
@@ -200,8 +206,23 @@ class PropertiesUI
         Font f;
        	
        	parentLabel = new JLabel();
+       	f = parentLabel.getFont(); 
+       	Font newFont = f.deriveFont(f.getStyle(), f.getSize()-2);
+
        	parentLabel.setOpaque(false);
+       	parentLabel.setFont(newFont);
        	parentLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
+       	gpLabel = new JLabel();
+       	gpLabel.setOpaque(false);
+       	gpLabel.setFont(newFont);
+       	gpLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
+       	
+       	wellLabel = new JLabel();
+       	wellLabel.setOpaque(false);
+       	wellLabel.setFont(newFont);
+       	wellLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
+       	
+       	
        	idLabel = UIUtilities.setTextFont("");
        	ownerLabel = new JLabel();
        	ownerLabel.setBackground(UIUtilities.BACKGROUND_COLOR);
@@ -219,7 +240,7 @@ class PropertiesUI
     	namePane.setEditable(false);
     	namePane.addFocusListener(this);
     	f = namePane.getFont(); 
-    	Font newFont = f.deriveFont(f.getStyle(), f.getSize()-2);
+    	newFont = f.deriveFont(f.getStyle(), f.getSize()-2);
     	descriptionPane = new OMEWikiComponent(false);
     	try {
     		descriptionPane.installObjectFormatters();
@@ -259,6 +280,14 @@ class PropertiesUI
     	f = parentLabel.getFont();
     	parentLabel.setFont(f.deriveFont(Font.BOLD));
     	parentLabel.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+    	f = gpLabel.getFont();
+    	gpLabel.setFont(f.deriveFont(Font.BOLD));
+    	gpLabel.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+    	f = wellLabel.getFont();
+    	wellLabel.setFont(f.deriveFont(Font.BOLD));
+    	wellLabel.setForeground(UIUtilities.DEFAULT_FONT_COLOR);
+    	
+    	
     	f = ownerLabel.getFont();
     	ownerLabel.setFont(f.deriveFont(Font.BOLD, f.getSize()-2));
     	channelsArea = UIUtilities.createComponent(null);
@@ -484,28 +513,6 @@ class PropertiesUI
     	component.setText(value);
     	return label;
     }
-
-    /**
-     * Returns <code>true</code> if the pixels size is a number, 
-     * <code>false</code> otherwise.
-     * 
-     * @param details The map to handle.
-     * @return See above.
-     */
-    private boolean isPixelsSizeNumber(Map details)
-    {
-    	String x = (String) details.get(EditorUtil.PIXEL_SIZE_X);
-    	String y = (String) details.get(EditorUtil.PIXEL_SIZE_Y);
-    	String z = (String) details.get(EditorUtil.PIXEL_SIZE_Z);
-    	try {
-			Double.parseDouble(x);
-			Double.parseDouble(y);
-			Double.parseDouble(z);
-			return true;
-		} catch (Exception e) {
-		}
-		return false;
-    }
     
 	/**
      * Builds the panel hosting the information
@@ -667,7 +674,13 @@ class PropertiesUI
          l = UIUtilities.buildComponentPanel(ownerLabel, 0, 0);
          l.setBackground(UIUtilities.BACKGROUND_COLOR);
          p.add(layoutEditablefield(Box.createHorizontalStrut(w), l));
+         l = UIUtilities.buildComponentPanel(gpLabel, 0, 0);
+         l.setBackground(UIUtilities.BACKGROUND_COLOR);
+         p.add(layoutEditablefield(Box.createHorizontalStrut(w), l));
          l = UIUtilities.buildComponentPanel(parentLabel, 0, 0);
+         l.setBackground(UIUtilities.BACKGROUND_COLOR);
+         p.add(layoutEditablefield(Box.createHorizontalStrut(w), l));
+         l = UIUtilities.buildComponentPanel(wellLabel, 0, 0);
          l.setBackground(UIUtilities.BACKGROUND_COLOR);
          p.add(layoutEditablefield(Box.createHorizontalStrut(w), l));
          
@@ -805,18 +818,59 @@ class PropertiesUI
 		if (d == document) modifiedName = namePane.getText();
 	}
 	
+	/**
+	 * Returns the label associated to the well.
+	 * 
+	 * @param well
+	 * @param columnIndex
+	 * @param rowIndex
+	 * @return
+	 */
+	private String getWellLabel(WellData well, int columnIndex, 
+			int rowIndex)
+	{
+		int k = well.getRow()+1;
+		String rowText = "";
+		if (rowIndex == PlateData.ASCENDING_LETTER)
+			rowText = UIUtilities.LETTERS.get(k);
+		else if (rowIndex == PlateData.ASCENDING_NUMBER)
+			rowText = ""+k;
+		k = well.getColumn()+1;
+		String columnText = "";
+		if (columnIndex == PlateData.ASCENDING_LETTER)
+			columnText = UIUtilities.LETTERS.get(k+1);
+		else if (columnIndex == PlateData.ASCENDING_NUMBER)
+			columnText = ""+k;
+		String value = rowText+"-"+columnText;
+		return value;
+	}
+	
 	/** Sets the text of the parent label. */
 	private void setParentLabel()
 	{
+		parentLabel.setText("");
+		wellLabel.setText("");
+		gpLabel.setText("");
 		Object parent = model.getParentRootObject();
-		String text = "";
 		if (parent instanceof WellData) {
-			PlateData plate = ((WellData) parent).getPlate();
-			text = "Plate: "; 
+			WellData well = (WellData) parent;
+			PlateData plate = well.getPlate();
+			String text = "Plate: "; 
 			text += plate.getName();
+			parentLabel.setText(text);
+			parentLabel.repaint();
+			text = "Well "+getWellLabel(well, plate.getColumnSequenceIndex(), 
+					plate.getRowSequenceIndex());
+			wellLabel.setText(text);
 		}
-		parentLabel.setText(text);
-		parentLabel.repaint();
+		parent = model.getGrandParentRootObject();
+		if (parent instanceof ScreenData) {
+			ScreenData screen = (ScreenData) parent;
+			text = "Screen: "; 
+			text += screen.getName();
+			gpLabel.setText(text);
+			gpLabel.repaint();
+		}
 	}
 	
     /**

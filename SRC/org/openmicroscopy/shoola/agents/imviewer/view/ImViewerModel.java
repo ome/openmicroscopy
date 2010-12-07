@@ -1794,7 +1794,7 @@ class ImViewerModel
 		this.parent = parent;
 		this.grandParent = grandParent;
 		if (metadataViewer != null)
-			metadataViewer.setParentRootObject(parent);
+			metadataViewer.setParentRootObject(parent, grandParent);
 		if (isHCSImage()) fireMeasurementsLoading();
 	}
 	
@@ -1874,7 +1874,7 @@ class ImViewerModel
 		initializeMetadataViewer();
 		currentPixelsID = image.getDefaultPixels().getId();
 		if (metadataViewer != null)
-			metadataViewer.setParentRootObject(parent);
+			metadataViewer.setParentRootObject(parent, grandParent);
 	}
 	
 	/**

@@ -393,7 +393,7 @@ public class DataBrowserFactory
 			Entry entry;
 			while (i.hasNext()) {
 				entry = (Entry) i.next();
-				go = entry.getKey();
+				go = entry.getValue();
 				break;
 			}
 		}
