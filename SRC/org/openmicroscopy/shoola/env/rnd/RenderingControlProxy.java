@@ -493,7 +493,7 @@ class RenderingControlProxy
 	 * Renders the compressed image.
 	 * 
 	 * @param pDef A plane orthogonal to one of the <i>X</i>, <i>Y</i>,
-	 *            or <i>Z</i> axes.
+	 *             or <i>Z</i> axes.
 	 * @param region The region to render, if <code>null</code> the plane is 
 	 * rendered.
 	 * @return See above.

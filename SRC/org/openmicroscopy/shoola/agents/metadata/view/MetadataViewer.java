@@ -403,8 +403,9 @@ public interface MetadataViewer
 	 * only if the root is a well sample.
 	 * 
 	 * @param parent The parent of the root object.
+	 * @param grandParent The grandParent of the root object.
 	 */
-	public void setParentRootObject(Object parent);
+	public void setParentRootObject(Object parent, Object grandParent);
 
 	/**
 	 * Brings up the dialog to create a movie.

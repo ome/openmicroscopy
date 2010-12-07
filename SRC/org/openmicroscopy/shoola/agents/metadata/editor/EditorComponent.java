@@ -42,7 +42,6 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.events.iviewer.FLIMResultsEvent;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.RenderingControlLoader;
@@ -59,7 +58,6 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
-import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
@@ -215,11 +213,11 @@ class EditorComponent
 
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#setParentRootObject(Object)
+	 * @see Editor#setParentRootObject(Object, Object)
 	 */
-	public void setParentRootObject(Object parentRefObject)
+	public void setParentRootObject(Object parentRefObject, Object grandParent)
 	{
-		model.setParentRootObject(parentRefObject);
+		model.setParentRootObject(parentRefObject, grandParent);
 		view.setParentRootObject();
 	}
 

@@ -275,7 +275,7 @@ public class DataServicesFactory
     {
     	UserNotifier un = registry.getUserNotifier();
     	String message = "The client version ("+clientVersion+") is not " +
-    			"comptabible with the following server:\n"+hostname+
+    			"compatible with the following server:\n"+hostname+
     			".\nThe application will exit. ";
     	un.notifyInfo("Client Server not compatible", message);
 		exitApplication();

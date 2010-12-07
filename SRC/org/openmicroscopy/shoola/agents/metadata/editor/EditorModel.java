@@ -152,6 +152,9 @@ class EditorModel
 	/** The parent of the object this editor is for. */
 	private Object					parentRefObject;
 	
+	/** The parent of the object this editor is for. */
+	private Object					gpRefObject;
+	
     /** 
      * Map containing the annotations made by users.
      * The keys are the user, the value the collection of
@@ -1358,10 +1361,12 @@ class EditorModel
 	 * Sets the parent of the object of reference.
 	 * 
 	 * @param parentRefObject The value to set.
+	 * @param gpRefObject The value to set.
 	 */
-	void setParentRootObject(Object parentRefObject)
+	void setParentRootObject(Object parentRefObject, Object gpRefObject)
 	{
 		this.parentRefObject = parentRefObject;
+		this.gpRefObject = gpRefObject;
 	}
 	
 	/**
@@ -1370,6 +1375,13 @@ class EditorModel
 	 * @return See above.
 	 */
 	Object getParentRootObject() { return parentRefObject; }
+	
+	/**
+	 * Returns the parent of the object of reference.
+	 * 
+	 * @return See above.
+	 */
+	Object getGrandParentRootObject() { return gpRefObject; }
 	
 	/**
 	 * Returns the owner of the reference object or <code>null</code>
