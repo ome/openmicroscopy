@@ -425,7 +425,110 @@ class WebAdminTest(WebTest):
         self.assert_(not controller.experimenter.isActive())
         self.assertEquals(params['default_group'], controller.defaultGroup)        
         self.assertEquals(sorted(params['other_groups']), sorted(controller.otherGroups))
+    
+    def test_updateExperimenter(self):        
+        conn = self.rootconn
+        uuid = conn._sessionUuid
         
+        # private group
+        params = {
+            "name":"webadmin_test_group_private %s" % uuid,
+            "description":"test group",
+            "owners": [0L],
+            "permissions":0
+        }
+        
+        request = fakeRequest(method="post", params=params)
+        gid = _createGroup(request, conn)
+        
+        # default group - helper
+        params = {
+            "name":"webadmin_test_default %s" % uuid,
+            "description":"test group default",
+            "owners": [0L],
+            "permissions":0
+        }
+        request = fakeRequest(method="post", params=params)
+        default_gid = _createGroup(request, conn)
+        
+        # create experimenter
+        params = {
+            "omename":"webadmin_test_user %s" % uuid,
+            "first_name":uuid,
+            "middle_name": uuid,
+            "last_name":uuid,
+            "email":"user_%s@domain.com" % uuid,
+            "institution":"Laboratory",
+            "active":True,
+            "default_group":gid,
+            "other_groups":[gid],
+            "password":"ome",
+            "confirmation":"ome" 
+        }
+        request = fakeRequest(method="post", params=params)
+        eid = _createExperimenter(request, conn)
+        
+        # add admin privilages and change default group
+        params = {
+            "omename":"webadmin_test_admin %s" % uuid,
+            "first_name":uuid,
+            "middle_name": uuid,
+            "last_name":uuid,
+            "email":"admin_%s@domain.com" % uuid,
+            "institution":"Laboratory",
+            "administrator": True,
+            "active":True,
+            "default_group":default_gid,
+            "other_groups":[0,gid,default_gid],
+            "password":"ome",
+            "confirmation":"ome" 
+        }
+        request = fakeRequest(method="post", params=params)
+        _updateExperimenter(request, eid, conn)
+        
+        # check if experimenter updated
+        controller = BaseExperimenter(conn, eid)
+        self.assertEquals(params['omename'], controller.experimenter.omeName)
+        self.assertEquals(params['first_name'], controller.experimenter.firstName)
+        self.assertEquals(params['middle_name'], controller.experimenter.middleName)
+        self.assertEquals(params['last_name'], controller.experimenter.lastName)
+        self.assertEquals(params['email'], controller.experimenter.email)
+        self.assertEquals(params['institution'], controller.experimenter.institution)
+        self.assertEquals(params['administrator'], controller.experimenter.isAdmin())
+        self.assertEquals(params['active'], controller.experimenter.isActive())
+        self.assertEquals(params['default_group'], controller.defaultGroup)        
+        self.assertEquals(sorted(params['other_groups']), sorted(controller.otherGroups))
+        
+        # remove admin privilages and deactivate account 
+        params = {
+            "omename":"webadmin_test_admin %s" % uuid,
+            "first_name":uuid,
+            "middle_name": uuid,
+            "last_name":uuid,
+            "email":"admin_%s@domain.com" % uuid,
+            "institution":"Laboratory",
+            "administrator": False,
+            "active":False,
+            "default_group":default_gid,
+            "other_groups":[gid,default_gid],
+            "password":"ome",
+            "confirmation":"ome" 
+        }
+        request = fakeRequest(method="post", params=params)
+        _updateExperimenter(request, eid, conn)
+        
+        # check if experimenter updated
+        controller = BaseExperimenter(conn, eid)
+        self.assertEquals(params['omename'], controller.experimenter.omeName)
+        self.assertEquals(params['first_name'], controller.experimenter.firstName)
+        self.assertEquals(params['middle_name'], controller.experimenter.middleName)
+        self.assertEquals(params['last_name'], controller.experimenter.lastName)
+        self.assertEquals(params['email'], controller.experimenter.email)
+        self.assertEquals(params['institution'], controller.experimenter.institution)
+        self.assert_(not controller.experimenter.isAdmin())
+        self.assert_(not controller.experimenter.isActive())
+        self.assertEquals(params['default_group'], controller.defaultGroup)        
+        self.assertEquals(sorted(params['other_groups']), sorted(controller.otherGroups))
         
 ####################################
 # helpers
@@ -493,6 +596,42 @@ def _createExperimenter(request, conn):
         otherGroups = form.cleaned_data['other_groups']
         password = form.cleaned_data['password']
         return controller.createExperimenter(omename, firstName, lastName, email, admin, active, defaultGroup, otherGroups, password, middleName, institution)
+    else:
+        errors = form.errors.as_text()
+        self.fail(errors)
+
+def _updateExperimenter(request, eid, conn):
+    # update experimenter
+    controller = BaseExperimenter(conn, eid)
+    name_check = conn.checkOmeName(request.REQUEST.get('omename'), controller.experimenter.omeName)
+    email_check = conn.checkEmail(request.REQUEST.get('email'), controller.experimenter.email)
+    
+    initial={'active':True}
+    exclude = list()
+
+    if len(request.REQUEST.getlist('other_groups')) > 0:
+        others = controller.getSelectedGroups(request.REQUEST.getlist('other_groups'))   
+        initial['others'] = others
+        initial['default'] = [(g.id, g.name) for g in others]
+        exclude.extend([g.id for g in others])
+
+    available = controller.otherGroupsInitialList(exclude)
+    initial['available'] = available
+
+    form = ExperimenterForm(initial=initial, data=request.POST.copy(), name_check=name_check, email_check=email_check)
+
+    if form.is_valid():
+        omename = form.cleaned_data['omename']
+        firstName = form.cleaned_data['first_name']
+        middleName = form.cleaned_data['middle_name']
+        lastName = form.cleaned_data['last_name']
+        email = form.cleaned_data['email']
+        institution = form.cleaned_data['institution']
+        admin = webadmin_views.toBoolean(form.cleaned_data['administrator'])
+        active = webadmin_views.toBoolean(form.cleaned_data['active'])
+        defaultGroup = form.cleaned_data['default_group']
+        otherGroups = form.cleaned_data['other_groups']
+        controller.updateExperimenter(omename, firstName, lastName, email, admin, active, defaultGroup, otherGroups, middleName, institution)
     else:
         errors = form.errors.as_text()
         self.fail(errors)
