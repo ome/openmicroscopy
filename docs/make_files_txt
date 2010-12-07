@@ -117,7 +117,7 @@ EXTENSIONS = {
     "targa": {"glob": ["*.tga"] },
     "tif": {"glob": ["*.tif", "*.tiff"] },
     "tillvision": {"glob": ["*.vws"] },
-    "visitech": {"glob": ["*.exp"] },
+    "visitech": {"glob": ["*.html"] },
     "zvi": {"glob": ["*.zvi"] },
 }
 
