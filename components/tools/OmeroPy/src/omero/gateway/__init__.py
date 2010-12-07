@@ -1302,7 +1302,7 @@ class _BlitzGateway (object):
         """
         s = self.c.createSession(self._ic_props[omero.constants.USERNAME],
                                  self._ic_props[omero.constants.PASSWORD])
-        self._sessionUuid = self.c.sf.ice_getIdentity().name
+        self._sessionUuid = self.c.getSessionId()
         ss = self.c.sf.getSessionService()
         self._session = ss.getSession(self._sessionUuid)
         self._lastGroupId = None

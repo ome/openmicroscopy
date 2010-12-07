@@ -8,7 +8,9 @@ from django.conf import settings
 
 from webgateway import views as webgateway_views
 from webadmin import views as webadmin_views
-from webadmin.forms import LoginForm, GroupForm, ExperimenterForm, ContainedExperimentersForm
+from webadmin.forms import LoginForm, GroupForm, ExperimenterForm, \
+                ContainedExperimentersForm, \
+                ChangeMyPassword, ChangeUserPassword
                    
 from webadmin.controller.experimenter import BaseExperimenter
 from webadmin.controller.group import BaseGroup
@@ -31,7 +33,7 @@ class WebAdminUrlTest(WebClientTest):
         # self.assertRedirects(response, '/webadmin/')
 
 
-# Testing controllers 
+# Testing controllers, and forms
 class WebAdminTest(WebTest):
     
     def test_isServerOn(self):
@@ -66,7 +68,7 @@ class WebAdminTest(WebTest):
             self.fail('Cannot connect')
         webgateway_views._session_logout(request, request.session.get('server'))
         if conn.isConnected() and conn.keepAlive():
-            self.fail('Cnnection was not closed')
+            self.fail('Connection was not closed')
 
     def test_loginFromForm(self):
         params = {
@@ -93,7 +95,7 @@ class WebAdminTest(WebTest):
                 self.fail('Cannot connect')            
             webgateway_views._session_logout(request, request.session.get('server'))
             if conn.isConnected() and conn.keepAlive():
-                self.fail('Cnnection was not closed')
+                self.fail('Connection was not closed')
             
         else:
             errors = form.errors.as_text()
@@ -194,8 +196,8 @@ class WebAdminTest(WebTest):
             "active":True,
             "default_group":gid,
             "other_groups":[gid],
-            "password":"ome",
-            "confirmation":"ome" 
+            "password":"123",
+            "confirmation":"123" 
         }
         request = fakeRequest(method="post", params=params)
         eid = _createExperimenter(request, conn)
@@ -210,7 +212,7 @@ class WebAdminTest(WebTest):
             "readonly":True
         }
         request = fakeRequest(method="post", params=params)
-        _updateGroup(request, gid, conn)
+        _updateGroup(request, conn, gid)
         
         # check if updated
         controller = BaseGroup(conn, gid)
@@ -257,8 +259,8 @@ class WebAdminTest(WebTest):
             "active":True,
             "default_group":default_gid,
             "other_groups":[default_gid],
-            "password":"ome",
-            "confirmation":"ome" 
+            "password":"123",
+            "confirmation":"123" 
         }
         request = fakeRequest(method="post", params=params)
         eid1 = _createExperimenter(request, conn)
@@ -274,8 +276,8 @@ class WebAdminTest(WebTest):
             "active":True,
             "default_group":default_gid,
             "other_groups":[default_gid],
-            "password":"ome",
-            "confirmation":"ome" 
+            "password":"123",
+            "confirmation":"123" 
         }
         request = fakeRequest(method="post", params=params)
         eid2 = _createExperimenter(request, conn)
@@ -349,8 +351,8 @@ class WebAdminTest(WebTest):
             "active":True,
             "default_group":gid,
             "other_groups":[gid],
-            "password":"ome",
-            "confirmation":"ome" 
+            "password":"123",
+            "confirmation":"123" 
         }
         request = fakeRequest(method="post", params=params)
         eid = _createExperimenter(request, conn)
@@ -379,8 +381,8 @@ class WebAdminTest(WebTest):
             "active":True,
             "default_group":gid,
             "other_groups":[0,gid],
-            "password":"ome",
-            "confirmation":"ome" 
+            "password":"123",
+            "confirmation":"123" 
         }
         request = fakeRequest(method="post", params=params)
         eid = _createExperimenter(request, conn)
@@ -407,8 +409,8 @@ class WebAdminTest(WebTest):
             "institution":"Laboratory",
             "default_group":gid,
             "other_groups":[gid],
-            "password":"ome",
-            "confirmation":"ome" 
+            "password":"123",
+            "confirmation":"123" 
         }
         request = fakeRequest(method="post", params=params)
         eid = _createExperimenter(request, conn)
@@ -462,8 +464,8 @@ class WebAdminTest(WebTest):
             "active":True,
             "default_group":gid,
             "other_groups":[gid],
-            "password":"ome",
-            "confirmation":"ome" 
+            "password":"123",
+            "confirmation":"123" 
         }
         request = fakeRequest(method="post", params=params)
         eid = _createExperimenter(request, conn)
@@ -480,11 +482,11 @@ class WebAdminTest(WebTest):
             "active":True,
             "default_group":default_gid,
             "other_groups":[0,gid,default_gid],
-            "password":"ome",
-            "confirmation":"ome" 
+            "password":"123",
+            "confirmation":"123" 
         }
         request = fakeRequest(method="post", params=params)
-        _updateExperimenter(request, eid, conn)
+        _updateExperimenter(request, conn, eid)
         
         # check if experimenter updated
         controller = BaseExperimenter(conn, eid)
@@ -511,11 +513,11 @@ class WebAdminTest(WebTest):
             "active":False,
             "default_group":default_gid,
             "other_groups":[gid,default_gid],
-            "password":"ome",
-            "confirmation":"ome" 
+            "password":"123",
+            "confirmation":"123" 
         }
         request = fakeRequest(method="post", params=params)
-        _updateExperimenter(request, eid, conn)
+        _updateExperimenter(request, conn, eid)
         
         # check if experimenter updated
         controller = BaseExperimenter(conn, eid)
@@ -530,9 +532,88 @@ class WebAdminTest(WebTest):
         self.assertEquals(params['default_group'], controller.defaultGroup)        
         self.assertEquals(sorted(params['other_groups']), sorted(controller.otherGroups))
         
+        try:
+           self.loginAsUser(params['omename'], params['password'])
+           self.fail('This user was deactivated. Login failure error!')
+        except:
+            pass
+    
+    def test_changePassword(self):
+        conn = self.rootconn
+        uuid = conn._sessionUuid
+        
+        # private group
+        params = {
+            "name": uuid,
+            "description":"password test",
+            "owners": [0L],
+            "permissions":0
+        }
+        
+        request = fakeRequest(method="post", params=params)
+        gid = _createGroup(request, conn)
+        
+        # create experimenter
+        params = {
+            "omename":'password%s' % uuid,
+            "first_name":uuid,
+            "middle_name": uuid,
+            "last_name":uuid,
+            "email":"password_%s@domain.com" % uuid,
+            "institution":"Laboratory",
+            "active":True,
+            "default_group":gid,
+            "other_groups":[gid],
+            "password":"123",
+            "confirmation":"123" 
+        }
+        request = fakeRequest(method="post", params=params)
+        eid = _createExperimenter(request, conn)
+        
+        #change password as root        
+        params_passwd = {
+            "password":"abc",
+            "confirmation":"abc" 
+        }
+        request = fakeRequest(method="post", params=params_passwd)        
+        _changePassword(request, conn, eid)
+        
+        # login as user and change my password
+        user_conn = self.loginAsUser(params['omename'], params_passwd['password'])
+        params_passwd = {
+            "old_password":"abc",
+            "password":"foo",
+            "confirmation":"foo" 
+        }
+        request = fakeRequest(method="post", params=params_passwd)
+        _changePassword(request, user_conn)
+        
+        self.loginAsUser(params['omename'], params_passwd['password'])
+        
 ####################################
 # helpers
-    
+
+def _changePassword(request, conn, eid=None):
+    if conn.isAdmin():
+        password_form = ChangeUserPassword(data=request.POST.copy())
+    else:
+        password_form = ChangeMyPassword(data=request.POST.copy())
+
+    if password_form.is_valid():
+        password = password_form.cleaned_data['password']
+        if conn.isAdmin():
+            exp = conn.getExperimenter(eid)
+            conn.changeUserPassword(exp.omeName, password)
+        else:
+            old_password = password_form.cleaned_data['old_password']
+            error = conn.changeMyPassword(old_password, password) 
+            if error is not None:
+                errors = form.errors.as_text()
+                self.fail(errors)
+    else:
+        errors = form.errors.as_text()
+        self.fail(errors)
+        
 def _createGroup(request, conn):
     #create group
     controller = BaseGroup(conn)
@@ -549,7 +630,7 @@ def _createGroup(request, conn):
         errors = form.errors.as_text()
         self.fail(errors)
 
-def _updateGroup(request, gid, conn):
+def _updateGroup(request, conn, gid):
     # update group
     controller = BaseGroup(conn, gid)
     name_check = conn.checkGroupName(request.REQUEST.get('name'), controller.group.name)
@@ -600,7 +681,7 @@ def _createExperimenter(request, conn):
         errors = form.errors.as_text()
         self.fail(errors)
 
-def _updateExperimenter(request, eid, conn):
+def _updateExperimenter(request, conn, eid):
     # update experimenter
     controller = BaseExperimenter(conn, eid)
     name_check = conn.checkOmeName(request.REQUEST.get('omename'), controller.experimenter.omeName)
