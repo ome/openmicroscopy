@@ -75,7 +75,7 @@ public class ExporterStepFactory implements GraphStepFactory {
 
     public <T extends IObject> T getObject(String name, int...idx)
             throws GraphException {
-        return load(name, id(name, idx));
+        return (T) load(name, id(name, idx));
     }
 
     //
@@ -145,8 +145,8 @@ public class ExporterStepFactory implements GraphStepFactory {
     }
 
     @SuppressWarnings("unchecked")
-    private <T extends IObject> T load(String name, long id) {
-        return (T) ex.execute(p, new Load(this, name, id));
+    private IObject load(String name, long id) {
+        return (IObject) ex.execute(p, new Load(this, name, id));
     }
 
     /**
