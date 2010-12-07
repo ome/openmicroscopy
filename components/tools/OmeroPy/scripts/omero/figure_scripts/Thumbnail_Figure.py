@@ -223,7 +223,7 @@ def makeThumbnailFigure(client, session, commandArgs):
         for imageId in commandArgs["IDs"]:
             iId = long(imageId.getValue())
             imageIds.append(iId)
-        if "Parent_ID" in commandArgs:
+        if "Parent_ID" in commandArgs and len(imageIds) > 1:
             pId = commandArgs["Parent_ID"]
             if pId >0:
                 parent = gateway.getDataset(pId, False)
@@ -241,7 +241,7 @@ def makeThumbnailFigure(client, session, commandArgs):
                 datasetIds.append(dId)
             except: pass
             
-        if "Parent_ID" in commandArgs:
+        if "Parent_ID" in commandArgs and len(datasetIds) > 1:
             pId = commandArgs["Parent_ID"]
             if pId >0:
                 pros = gateway.getProjects([pId], False)
@@ -377,6 +377,7 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ThumbnailFigure""
 
         scripts.Long("Parent_ID", grouping="4",
             description="Attach figure to this Project (if datasetIds above) or Dataset if imageIds. If not specifed, attach figure to first dataset or image."),
+            # this will be ignored if only a single ID in list - attach to that object instead. 
 
         scripts.Int("Thumbnail_Size", grouping="5.1", min=10, max=250, default=100,
             description="The dimension of each thumbnail. Default is 100"),
