@@ -176,7 +176,10 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         return True
     
     def getExperimenters(self, ids=None):
-        """ Get experimenters for the given user ids. If ID is not set, return current user. """
+        """ 
+        Get experimenters for the given user ids. If ID is not set, return current user.
+        TODO: omero.gateway.BlitzGateway has getExperimenter(id) method
+        """
         
         q = self.getQueryService()
         p = omero.sys.Parameters()
@@ -192,7 +195,10 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             yield ExperimenterWrapper(self, e)
     
     def getExperimenterGroups(self, ids):
-        """ Get group for for the given group ids. """
+        """ 
+        Get group for for the given group ids. 
+        TODO: omero.gateway.BlitzGateway has getGroup(id) method
+        """
             
         q = self.getQueryService()
         p = omero.sys.Parameters()
@@ -220,6 +226,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         """
         Return a generator for all Experimenters whose omeName starts with 'start'.
         The generated values follow the alphabetic order on omeName.
+        TODO: omero.gateway.BlitzGateway has this exact same method & code already. 
         
         @param start:   Only if omero_model_ExperimenterI.omeName starts with. String.
         @return:        Generator yielding _ExperimenterWrapper
@@ -288,8 +295,12 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     ##   DATA RETRIVAL                          ##
 
     def lookupProjects (self, eid=None, page=None):
-        """ Retrieves every Projects. If user id not set, owned by 
-            the current user."""
+        """ 
+        Retrieves every Projects. If user id not set, owned by 
+        the current user.
+        TODO: omero.gateway.BlitzGateway.listProjects(self, only_owned=False)  
+        TODO: page ignored. 
+        """
         
         q = self.getQueryService()
         p = omero.sys.Parameters()
@@ -351,8 +362,11 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             yield ImageWrapper(self, e)
     
     def lookupImagesInDataset (self, oid, eid=None, page=None):
-        """ Retrieves every Images in a for the given Dataset. 
-            If user id not set, owned by the current user."""
+        """ 
+        Retrieves every Images in the given Dataset. 
+        If user id not set, owned by the current user.
+        TODO: omero.gateway.DatasetWrapper.listChildren
+        """
         
         q = self.getQueryService()
         p = omero.sys.Parameters()
@@ -465,7 +479,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     
     # LISTS selections
     def listSelectedImages(self, ids):
-        """ Retrieves for the given Image ids."""
+        """ Retrieves for the given Image ids.
+        TODO: omero.gateway.BlitzGateway.getImage(id)
+        """
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -1238,6 +1254,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             self._user = self.getExperimenter(self._userid)
     
     def saveObject (self, obj):
+        """
+        TODO: see omero.gateway.Ob
+        """
         u = self.getUpdateService()
         u.saveObject(obj)
     
