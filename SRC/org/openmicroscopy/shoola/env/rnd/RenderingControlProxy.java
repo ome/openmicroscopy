@@ -128,6 +128,9 @@ class RenderingControlProxy
     /** The size of the image. */
     private int						imageSize;
     
+    /** The rendering settings. */
+    private Map<String, List<RndProxyDef>> settings;
+    
     /**
      * Maps the color channel Red to {@link #RED_INDEX}, Blue to 
      * {@link #BLUE_INDEX}, Green to {@link #GREEN_INDEX} and
@@ -1864,6 +1867,33 @@ class RenderingControlProxy
 		list.addAll(rndDefs);
 		list.remove(0);
 		return list;
+	}
+	
+	/** 
+	 * Implemented as specified by {@link RenderingControl}. 
+	 * @see RenderingControl#getRenderingSettings()
+	 */
+	public Map<String, List<RndProxyDef>> getRenderingSettings()
+	{
+		if (settings != null) return settings;
+		settings = new HashMap<String, List<RndProxyDef>>();
+		Iterator<RndProxyDef> i = rndDefs.iterator();
+		RndProxyDef def;
+		String name;
+		List<RndProxyDef> l;
+		while (i.hasNext()) {
+			def = i.next();
+			name = def.getName();
+			if (name == null || name.trim().length() == 0)
+				name = DEFAULT_NAME;
+			l = settings.get(name);
+			if (l == null) {
+				l = new ArrayList<RndProxyDef>();
+				settings.put(name, l);
+			}
+			l.add(def);
+		}
+		return settings;
 	}
 	
 }

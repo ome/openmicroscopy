@@ -150,6 +150,8 @@ public class PixelsServicesFactory
 		} catch (Exception e) {
 			//ignore;
 		}
+		if (rndDef.getName() != null)
+			proxy.setName(rndDef.getName().getValue());
 		
 		proxy.setDefaultZ(rndDef.getDefaultZ().getValue());
 		proxy.setDefaultT(rndDef.getDefaultT().getValue());

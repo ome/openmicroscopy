@@ -61,6 +61,9 @@ import pojos.PixelsData;
 public interface RenderingControl
 {
 	
+	/** The default name. */
+	public static final String	DEFAULT_NAME = "default";
+	
 	/** The maximum size before retrieving the plane asynchronously. */
 	public static final int		MAX_SIZE = 1024;
 	
@@ -784,5 +787,13 @@ public interface RenderingControl
 	 * @return See above.
 	 */
 	public List<RndProxyDef> getPreviousRenderingSettings();
+	
+	/**
+	 * Returns a map whose keys are the name of the settings and the values
+	 * the corresponding rendering settings.
+	 * 
+	 * @return See above.
+	 */
+	public Map<String, List<RndProxyDef>> getRenderingSettings();
 	
 }

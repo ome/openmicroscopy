@@ -89,13 +89,31 @@ public class RndProxyDef
 	/** Indicates when the settings was last modified. */
 	private Timestamp							lastModified;
 	
+	/** The name associated to the rendering def. */
+	private String								name;
+	
 	/** Creates a new instance. */
 	RndProxyDef()
 	{
 		compression = 1.0;
 		channels = new HashMap<Integer, ChannelBindingsProxy>();
+		name = "";
 	}
 
+	/**
+	 * Sets the name associated to the rendering def. 
+	 * 
+	 * @param name The name to set.
+	 */
+	void setName(String name) { this.name = name; }
+	
+	/**
+	 * Returns the name.
+	 * 
+	 * @return See above.
+	 */
+	String getName() { return name; }
+	
 	/**
 	 * Sets when the settings were last modified.
 	 * 
