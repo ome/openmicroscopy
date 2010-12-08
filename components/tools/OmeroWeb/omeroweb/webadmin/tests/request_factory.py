@@ -9,7 +9,7 @@ try:
     from cStringIO import StringIO
 except ImportError:
     from StringIO import StringIO
-
+    
 from django.conf import settings
 from django.contrib.auth import authenticate, login
 from django.core.handlers.base import BaseHandler
@@ -26,12 +26,38 @@ from django.utils.itercompat import is_iterable
 from django.db import transaction, close_connection
 from django.test.utils import ContextList
 
+from omeroweb.webgateway import views as webgateway_views
+
 __all__ = ('Client', 'RequestFactory', 'encode_file', 'encode_multipart')
 
 
 BOUNDARY = 'BoUnDaRyStRiNg'
 MULTIPART_CONTENT = 'multipart/form-data; boundary=%s' % BOUNDARY
 CONTENT_TYPE_RE = re.compile('.*; charset=([\w\d-]+);?')
+
+def fakeRequest (method, path="/", params={}, **kwargs):
+    def bogus_request(self, **request):
+        """
+        Usage:
+        rf = RequestFactory()
+        get_request = rf.get('/hello/')
+        post_request = rf.post('/submit/', {'foo': 'bar'})
+        """
+        if not method.lower() in ('post', 'get'):
+            raise AttributeError("Method must be 'get' or 'post'")                
+        if not isinstance(params, dict):
+            raise AttributeError("Params must be a dictionary")
+                
+        rf = RequestFactory()
+        r = getattr(rf, method.lower())(path, params)
+        if 'django.contrib.sessions' in settings.INSTALLED_APPS:
+            engine = __import__(settings.SESSION_ENGINE, {}, {}, [''])
+        r.session = engine.SessionStore()
+        return r
+    Client.bogus_request = bogus_request
+    c = Client()
+    return c.bogus_request(**kwargs)
+
 
 class FakePayload(object):
     """
@@ -200,12 +226,8 @@ class RequestFactory(object):
         return environ
 
     def request(self, **request):
-        "Construct a generic request object with session."        
-        r = WSGIRequest(self._base_environ(**request))
-        if 'django.contrib.sessions' in settings.INSTALLED_APPS:
-            engine = __import__(settings.SESSION_ENGINE, {}, {}, [''])
-        r.session = engine.SessionStore()
-        return r
+        "Construct a generic request object with session."
+        return WSGIRequest(self._base_environ(**request))
 
     def get(self, path, data={}, **extra):
         "Construct a GET request"
@@ -487,7 +509,7 @@ class Client(RequestFactory):
             response = self._handle_redirects(response, **extra)
         return response
 
-    def login(self, **credentials):
+    def login(self, login,password, server_id=1, secure=True):
         """
         Sets the Factory to appear as if it has successfully logged into a site.
 
@@ -495,44 +517,58 @@ class Client(RequestFactory):
         are incorrect, or the user is inactive, or if the sessions framework is
         not available.
         """
-        user = authenticate(**credentials)
-        if user and user.is_active \
-                and 'django.contrib.sessions' in settings.INSTALLED_APPS:
-            engine = import_module(settings.SESSION_ENGINE)
+        engine = import_module(settings.SESSION_ENGINE)
+        
+        params = {
+            'username': login,
+            'password': password,
+            'server':server_id,
+            'ssl':'on'
+        }        
+        request = fakeRequest(method="post", path="/webadmin/login/", params=params)
+        
+        if self.session:
+            request.session = self.session
+        else:
+            request.session = engine.SessionStore()
+            
+        # Set the cookie to represent the session.
+        session_cookie = settings.SESSION_COOKIE_NAME
+        self.cookies[session_cookie] = request.session.session_key
+        cookie_data = {
+            'max-age': None,
+            'path': '/',
+            'domain': settings.SESSION_COOKIE_DOMAIN,
+            'secure': settings.SESSION_COOKIE_SECURE or None,
+            'expires': None,
+        }
+        self.cookies[session_cookie].update(cookie_data)
+        
+        blitz = settings.SERVER_LIST.get(pk=request.REQUEST.get('server')) 
+        request.session['server'] = blitz.id
+        request.session['host'] = blitz.host
+        request.session['port'] = blitz.port
+        request.session['username'] = request.REQUEST.get('username').encode('utf-8').strip()
+        request.session['password'] = request.REQUEST.get('password').encode('utf-8').strip()
+        request.session['ssl'] = (True, False)[request.REQUEST.get('ssl') is None]
 
-            # Create a fake request to store login details.
-            request = HttpRequest()
-            if self.session:
-                request.session = self.session
-            else:
-                request.session = engine.SessionStore()
-            login(request, user)
-
-            # Save the session values.
+        conn = webgateway_views.getBlitzConnection(request, useragent="TEST.webadmin")
+        if conn is not None and conn.isConnected() and conn.keepAlive():
             request.session.save()
-
-            # Set the cookie to represent the session.
-            session_cookie = settings.SESSION_COOKIE_NAME
-            self.cookies[session_cookie] = request.session.session_key
-            cookie_data = {
-                'max-age': None,
-                'path': '/',
-                'domain': settings.SESSION_COOKIE_DOMAIN,
-                'secure': settings.SESSION_COOKIE_SECURE or None,
-                'expires': None,
-            }
-            self.cookies[session_cookie].update(cookie_data)
-
             return True
         else:
+            webgateway_views._session_logout(request, request.session.get('server'))
             return False
-
+    
     def logout(self):
         """
         Removes the authenticated user's cookies and session object.
 
         Causes the authenticated user to be logged out.
         """
+        request = fakeRequest(method="get", path="/webadmin/logout/")
+        webgateway_views._session_logout(request, request.session.get('server'))
+                    
         session = import_module(settings.SESSION_ENGINE).SessionStore()
         session_cookie = self.cookies.get(settings.SESSION_COOKIE_NAME)
         if session_cookie:

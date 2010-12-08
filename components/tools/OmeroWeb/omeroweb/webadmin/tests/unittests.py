@@ -3,8 +3,8 @@ import tempfile
 
 import omero
 
-from django.http import QueryDict
 from django.conf import settings
+from request_factory import fakeRequest
 
 from webgateway import views as webgateway_views
 from webadmin import views as webadmin_views
@@ -14,7 +14,9 @@ from webadmin.forms import LoginForm, GroupForm, ExperimenterForm, \
                    
 from webadmin.controller.experimenter import BaseExperimenter
 from webadmin.controller.group import BaseGroup
-from webadmin_test_library import WebTest, WebClientTest, fakeRequest
+from webadmin_test_library import WebTest, WebClientTest
+
+from django.core.urlresolvers import reverse
 
 # Testing client, URLs
 class WebAdminUrlTest(WebClientTest):
@@ -27,12 +29,112 @@ class WebAdminUrlTest(WebClientTest):
             'ssl':'on'
         }
         
-        response = self.client.post('/webadmin/login/', params)
+        response = self.client.post(reverse(viewname="walogin"), params)
         # Check that the response was a 302 (redirect)
         self.failUnlessEqual(response.status_code, 302)
-        # self.assertRedirects(response, '/webadmin/')
+        self.failUnlessEqual(response['Location'], reverse(viewname="waindex"))
+    
+    def test_urlsAsRoot(self):        
+        self.client.login('root', self.root_password)
+        
+        # response 200
+        response = self.client.get(reverse(viewname="waexperimenters"))
+        self.failUnlessEqual(response.status_code, 200)
+        
+        # response 200
+        response = self.client.get(reverse(viewname="wamanageexperimenterid", args=["new"]))
+        self.failUnlessEqual(response.status_code, 200)
+        
+        # response 302
+        response = self.client.get(reverse(viewname="wamanageexperimenterid", args=["create"]))
+        self.failUnlessEqual(response.status_code, 302)
+        self.failUnlessEqual(response['Location'], reverse(viewname="wamanageexperimenterid", args=["new"]))
+        
+        # response 200
+        response = self.client.get(reverse(viewname="wamanageexperimenterid", args=["edit", "1"]))
+        self.failUnlessEqual(response.status_code, 200)
+        
+        # response 302
+        response = self.client.get(reverse(viewname="wamanageexperimenterid", args=["save", "1"]))
+        self.failUnlessEqual(response.status_code, 302)
+        self.failUnlessEqual(response['Location'], reverse(viewname="wamanageexperimenterid", args=["edit", "1"]))
+        
+        # response 200
+        response = self.client.get(reverse(viewname="wagroups"))
+        self.failUnlessEqual(response.status_code, 200)
+        
+        # response 200
+        response = self.client.get(reverse(viewname="wamanagegroupid", args=["new"]))
+        self.failUnlessEqual(response.status_code, 200)
+        
+        # response 302
+        response = self.client.get(reverse(viewname="wamanagegroupid", args=["create"]))
+        self.failUnlessEqual(response.status_code, 302)
+        self.failUnlessEqual(response['Location'], reverse(viewname="wamanagegroupid", args=["new"]))
+        
+        # response 200
+        response = self.client.get(reverse(viewname="wamanagegroupid", args=["edit", "2"]))
+        self.failUnlessEqual(response.status_code, 200)
+        
+        # response 302
+        response = self.client.get(reverse(viewname="wamanagegroupid", args=["save", "2"]))
+        self.failUnlessEqual(response.status_code, 302)
+        self.failUnlessEqual(response['Location'], reverse(viewname="wamanagegroupid", args=["edit", "2"]))
 
+        # response 200
+        response = self.client.get(reverse(viewname="wamanagechangepasswordid", args=["1"]))
+        self.failUnlessEqual(response.status_code, 200)
+        
 
+    def test_urlsAsUser(self):
+        # TODO:Create experimenter 
+        self.client.login('user', 'abc')
+        
+        # response 200
+        response = self.client.get(reverse(viewname="wamyaccount"))
+        self.failUnlessEqual(response.status_code, 200)
+        
+        response = self.client.get(reverse(viewname="wadrivespace"))
+        self.failUnlessEqual(response.status_code, 200)
+        
+        response = self.client.get(reverse(viewname="wamyphoto"))
+        self.failUnlessEqual(response.status_code, 200)
+        
+        response = self.client.get(reverse(viewname="wamanagechangepasswordid", args=["4"]))
+        self.failUnlessEqual(response.status_code, 200)
+        
+        # response 404
+        response = self.client.get(reverse(viewname="waexperimenters"))
+        self.failUnlessEqual(response.status_code, 404)
+                
+        response = self.client.get(reverse(viewname="wamanageexperimenterid", args=["new"]))
+        self.failUnlessEqual(response.status_code, 404)
+        
+        response = self.client.get(reverse(viewname="wamanageexperimenterid", args=["create"]))
+        self.failUnlessEqual(response.status_code, 404)
+        
+        response = self.client.get(reverse(viewname="wamanageexperimenterid", args=["edit", "1"]))
+        self.failUnlessEqual(response.status_code, 404)
+        
+        response = self.client.get(reverse(viewname="wamanageexperimenterid", args=["save", "1"]))
+        self.failUnlessEqual(response.status_code, 404)
+        
+        response = self.client.get(reverse(viewname="wagroups"))
+        self.failUnlessEqual(response.status_code, 404)
+        
+        response = self.client.get(reverse(viewname="wamanagegroupid", args=["new"]))
+        self.failUnlessEqual(response.status_code, 404)
+        
+        response = self.client.get(reverse(viewname="wamanagegroupid", args=["create"]))
+        self.failUnlessEqual(response.status_code, 404)
+        
+        response = self.client.get(reverse(viewname="wamanagegroupid", args=["edit", "2"]))
+        self.failUnlessEqual(response.status_code, 404)
+        
+        response = self.client.get(reverse(viewname="wamanagegroupid", args=["save", "2"]))
+        self.failUnlessEqual(response.status_code, 404)
+     
+     
 # Testing controllers, and forms
 class WebAdminTest(WebTest):
     

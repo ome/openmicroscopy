@@ -5,31 +5,9 @@ import exceptions
 import omero
 
 from django.conf import settings
-from request_factory import RequestFactory, Client
+from request_factory import Client
 
 from omeroweb.webgateway import views as webgateway_views
-
-
-def fakeRequest (method, path="/", params={}, **kwargs):
-    def bogus_request(self, **request):
-        """
-        Usage:
-        rf = RequestFactory()
-        get_request = rf.get('/hello/')
-        post_request = rf.post('/submit/', {'foo': 'bar'})
-        """
-        if not method.lower() in ('post', 'get'):
-            raise AttributeError("Method must be 'get' or 'post'")                
-        if not isinstance(params, dict):
-            raise AttributeError("Params must be a dictionary")
-                
-        rf = RequestFactory()
-        r = getattr(rf, method.lower())(path, params)
-        return r
-    Client.bogus_request = bogus_request
-    c = Client()
-    return c.bogus_request(**kwargs)
-
 
 class WebTest(unittest.TestCase):
         
@@ -58,6 +36,7 @@ class WebTest(unittest.TestCase):
             raise exceptions.Exception("Cannot connect")
         return conn
 
+
 class WebClientTest(unittest.TestCase):
         
     def setUp (self):
@@ -71,6 +50,6 @@ class WebClientTest(unittest.TestCase):
 
     def tearDown(self):
         try:
-            self.client.get("/webadmin/logout/")
+            self.client.logout()
         except Exception,e:
             self.fail(e)
