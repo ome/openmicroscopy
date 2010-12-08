@@ -205,9 +205,14 @@ public class FLIMResultsDialog
 	/** The name of the image. */
 	private String	imageName;
 	
+	/** Component displaying the intervals. */
 	private JComponent intervalsPane;
 	
+	/** Component displaying the graphics. */
 	private JComponent graphicsPane;
+	
+	/** Used to sort the results. */
+	private ViewerSorter sorter;
 	
 	/**
 	 * Saves the data to the specified file.
@@ -295,11 +300,11 @@ public class FLIMResultsDialog
 	private void createTable(Map<Double, Double> values)
 	{
 		//reformat table.
-		Entry entry;
 		Map<Double, Double> newValues = new HashMap<Double, Double>();
 		Iterator v = values.entrySet().iterator();
 		double key;
 		Double value;
+		Entry entry;
 		while (v.hasNext()) {
 			entry = (Entry) v.next();
 			key = UIUtilities.roundTwoDecimals((Double) entry.getKey());
@@ -308,18 +313,22 @@ public class FLIMResultsDialog
 			else value = (Double) entry.getValue();
 			newValues.put(key, value);
 		}
+		//sort the map.
+		
+		List l = sorter.sort(newValues.keySet());
 		data = new Double[newValues.size()+1][2];
-		v = newValues.entrySet().iterator();
+		v = l.iterator();
 		int index = 0;
 		double totalY = 0;
 		Double[] numbers;
+		Double number;
 		while (v.hasNext()) {
-			entry = (Entry) v.next();
 			numbers = new Double[2];
-			numbers[0] = (Double) entry.getKey();
-			numbers[1] = (Double) entry.getValue();
+			numbers[0] = (Double) v.next();
+			number = newValues.get(numbers[0]);
+			numbers[1] = number;
 			data[index] = numbers;
-			totalY += ((Double) entry.getValue()).doubleValue();
+			totalY += number.doubleValue();
 			index++;
 		}
 		numbers = new Double[2];
@@ -827,7 +836,7 @@ public class FLIMResultsDialog
 		if (values == null)
 			throw new IllegalArgumentException("No parameters set.");
 		this.imageName = imageName;
-		ViewerSorter sorter = new ViewerSorter();
+		sorter = new ViewerSorter();
 		List list = sorter.sort(values.keySet());
 		results = new LinkedHashMap<FileAnnotationData, File>();
 		Iterator i = list.iterator();
