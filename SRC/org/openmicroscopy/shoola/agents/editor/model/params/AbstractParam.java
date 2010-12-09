@@ -280,7 +280,7 @@ public abstract class AbstractParam
 	public void removeValueAt(int index) {
 		
 		if (index < 0) return;
-		if (index > paramValues.size() +1 ) return;
+		if (index > paramValues.size()-1 ) return;
 		
 		paramValues.remove(index);
 	}
