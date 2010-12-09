@@ -33,6 +33,7 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.Stroke;
 import java.awt.geom.Ellipse2D;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +44,7 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.math.geom2D.PlanePoint;
 
 /** 
@@ -111,20 +113,6 @@ class HSVWheel
 	private HSVWheelListener       mouselistener;
 
 	/**
-	 * Maps from 4 ints to 4 byte colour.
-	 * 
-	 * @param a The alpha component, value in [0..255].
-	 * @param r The red component, value in [0..255].
-	 * @param g The greed component, value in [0..255].
-	 * @param b The blue component, value in [0..255].
-	 * @return 4 byte int composed of the 4 params, Alpha-Red-Green-Blue.
-	 */
-	private int makeARGB(int a, int r, int g, int b)
-    {
-		return a << 24 | r << 16 | g << 8 | b;
-	} 
-
-	/**
 	 * Builds the colour wheel graphic based on LUT, construct in a 
      * BufferedImage to improve speed. 
 	 */
@@ -136,16 +124,16 @@ class HSVWheel
 		for (int x =  sz ; x > -sz ; x--)
 			for (int y =  sz ; y > -sz ; y--)
 				if (x*x+y*y < szsz) {
-					img.setRGB(sz+x, sz+y, makeARGB((
+					img.setRGB(sz+x, sz+y, Factory.makeARGB((
 							(int) (control.getAlpha()*255)),
 							(int) (lut[x+sz][y+sz][0]*value),
 							(int) (lut[x+sz][y+sz][1]*value),
-							(int) (lut[x+sz][y+sz][2]*value )));	
+							(int) (lut[x+sz][y+sz][2]*value)));	
 				}		
 	}
 	
 	/**
-	 * Builds the lookup table for the colourwheel. Althought the WheelUI
+	 * Builds the lookup table for the colourwheel. Although the WheelUI
 	 * changes all parts of the HSV vector, the wheel only changes the H, S
 	 * components. We can then create a colour lookup table which will set these
 	 * It is much fast to render the wheel using this.  
@@ -293,7 +281,7 @@ class HSVWheel
 		radius = wheelwidth/2;
 		puckColour = Color.black;
 		puckfillColour = Color.white;
-		img = new BufferedImage((int) wheelwidth,(int) wheelwidth, 
+		img = new BufferedImage((int) wheelwidth, (int) wheelwidth, 
 				BufferedImage.TYPE_INT_ARGB);
 		buildLUT();
 		createColourWheelFromLUT();

@@ -46,20 +46,23 @@ import java.awt.Color;
 public class GradientUtil
 {
 
-	/** Blue to Red. */
+	/** From <code>Blue</code> to <code>Red</code>. */
     public final static Color[] GRADIENT_BLUE_TO_RED = 
     	createGradient(Color.BLUE, Color.RED);
 
+	/** From <code>Red</code> to <code>Blue</code>. */
+    public final static Color[] GRADIENT_RED_TO_BLUE = 
+    	createGradient(Color.RED, Color.BLUE);
     
-    /** Black to White gradient. */
+    /** From <code>Black</code> to <code>White</code>. */
     public final static Color[] GRADIENT_BLACK_TO_WHITE = 
     	createGradient(Color.BLACK, Color.WHITE);
 
-	/** Black, Red, Orange, Yellow, white. */
+	/** Black, Red, Orange, Yellow, white. */ //added few more
     public final static Color[] GRADIENT_HOT = createGradient(
     		new Color[]{Color.BLACK, new Color(87, 0, 0), Color.RED, 
-    				Color.ORANGE, Color.YELLOW, Color.WHITE});
-
+    				Color.ORANGE, Color.YELLOW, Color.GREEN,
+    				Color.BLUE, new Color(0, 0, 87), Color.WHITE}); 
     
 	/** The default number of steps. */
 	public static final int STEPS = 500;

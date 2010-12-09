@@ -98,7 +98,6 @@ public class RenderingControlLoader
      * @param viewer    The view this loader is for.
      *                  Mustn't be <code>null</code>.
      * @param pixelsID  The id of the pixels set.
-     * @param imageID   The id of the image.
      * @param index		One of the constants defined by this class.
      */
     public RenderingControlLoader(Editor viewer, long pixelsID, int index)

@@ -193,6 +193,8 @@ public class ScatterPlot
 	{
 		PointRenderer renderer = new PointRenderer(colours, shapes);
 		XYPlot plot = new XYPlot(dataset, domainAxis, rangeAxis, renderer);
+		if (backgroundImage != null)
+			plot.setBackgroundImage(backgroundImage);
 		chart = new JFreeChart(title, plot);
 	}
 	

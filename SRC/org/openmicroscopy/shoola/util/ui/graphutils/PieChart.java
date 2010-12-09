@@ -124,6 +124,8 @@ public class PieChart
 		chart = ChartFactory.createPieChart3D(title, dataset, false, true, 
 				false);
 		PiePlot3D plot = (PiePlot3D) chart.getPlot();
+		if (backgroundImage != null)
+			plot.setBackgroundImage(backgroundImage);
 		plot.setDirection(Rotation.CLOCKWISE);
 	    plot.setForegroundAlpha(0.55f);
 	}

@@ -27,6 +27,9 @@ package org.openmicroscopy.shoola.util.ui.graphutils;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Image;
+import java.awt.Paint;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -97,6 +100,9 @@ public abstract class ChartObject
 	
 	/** The X-Axis label. Also can, but not currently used set the range. */
 	protected NumberAxis  	domainAxis;
+	
+	/** The background image. */
+	protected Image			backgroundImage;
 	
 	/** Initializes all the lists*/
 	protected void init()
@@ -196,10 +202,12 @@ public abstract class ChartObject
 	/**
 	 * Builds the graph and returns the UI component hosting it.
 	 * 
+	 * @param image The background image of the plot.
 	 * @return See above.
 	 */
-	public JPanel getChart()
+	public JPanel getChart(Image image)
 	{
+		backgroundImage = image;
 		createChart();
 		JPanel graphPanel = new JPanel();
 		if (chart == null) return graphPanel;
@@ -207,6 +215,13 @@ public abstract class ChartObject
 		graphPanel.add(new ChartPanel(chart), BorderLayout.CENTER);
 		return graphPanel;
 	}
+	
+	/**
+	 * Builds the graph and returns the UI component hosting it.
+	 * 
+	 * @return See above.
+	 */
+	public JPanel getChart() { return getChart(null); }
 	
 	/** Creates the chart. */
 	abstract void createChart();

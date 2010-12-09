@@ -151,6 +151,8 @@ public class LinePlot
 		for (int i = 0 ; i < colours.size(); i++)
 			renderer.setSeriesPaint(i, colours.get(i));
 		XYPlot plot = new XYPlot(dataset, domainAxis, rangeAxis, renderer);
+		if (backgroundImage != null)
+			plot.setBackgroundImage(backgroundImage);
 		chart = new JFreeChart(title, plot);
 	}
 	

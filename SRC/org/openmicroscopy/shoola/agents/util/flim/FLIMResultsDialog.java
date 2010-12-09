@@ -378,7 +378,8 @@ public class FLIMResultsDialog
 					values, DEFAULT_COLOR, BINS);
 		}
 		createTable(hp.getYValues(0));
-		body = hp.getChart();
+		
+		body = hp.getChart(Factory.createGradientImage(600, 400));
 		chartObject = hp;
 	}
 	
@@ -538,6 +539,10 @@ public class FLIMResultsDialog
 			row++;
 		}
         Color[] colors = GradientUtil.GRADIENT_HOT;
+       
+        //Color[] colors = new Color[256];
+        //for (int k = 0; k < 256; k++)
+          // colors[k] = Color.getHSBColor(1.0f * k / 255, 1f, 1f);
         
         double range = largest-smallest;
         BufferedImage image = new BufferedImage(columns, rows, 
@@ -550,9 +555,10 @@ public class FLIMResultsDialog
         		v = (int) values[x][y];
         		norm = (v-smallest)/range; // 0 < norm < 1
                 c = colors[(int) Math.floor(norm*(colors.length-1))];
-        		image.setRGB(x, y, Factory.makeRGB(c.getAlpha(), c.getRed(), 
-        				c.getGreen(), c.getBlue()));
-        		index++;
+        		c = colors[v];
+        		image.setRGB(x, y, c.getRGB());//Factory.makeARGB(c.getAlpha(), c.getRed(), 
+        				//c.getGreen(), c.getBlue()));
+        		//index++;
         	}
 		}
         
@@ -572,7 +578,7 @@ public class FLIMResultsDialog
 	{
 		if (value < start) return 0;
 		if (value > end) return 255;
-		if (end == 0) return 0;
+		//if (end == 0) return 0;
 		return 255*(value-start)/(end-start);
 	}
 

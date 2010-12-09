@@ -1026,7 +1026,6 @@ class MetadataViewerComponent
 			model.getEditor().loadRenderingControl(
 					RenderingControlLoader.RELOAD);
 		else {
-			
 			firePropertyChange(CLOSE_RENDERER_PROPERTY, null, 
 					model.getRefObject());
 		}

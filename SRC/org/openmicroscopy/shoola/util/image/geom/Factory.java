@@ -28,6 +28,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
+import java.awt.GradientPaint;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -142,6 +143,15 @@ public class Factory
 	/** The RGB masks. */
 	public static final int[]	RGB = {RED_MASK, GREEN_MASK, BLUE_MASK};
 	
+	/** Color of the rainbow starting 
+	 * from <code>red</code> to 
+	 * <code>blue</code>. */
+	public static final Color[] RED_TO_BLUE_RAINBOW = {Color.red, Color.orange, 
+		Color.yellow, Color.green, Color.blue};
+	
+	/** The violet color. */
+	public static final Color VIOLET = new Color(138, 43, 226);
+	
     /** Sharpen filter. */
     public static final float[] SHARPEN = {
             0.f, -1.f,  0.f,
@@ -192,12 +202,7 @@ public class Factory
     	if (img == null) {
     		if (width == 0) width = THUMB_DEFAULT_WIDTH;
         	if (height == 0) height = THUMB_DEFAULT_HEIGHT;
-    		return createDefaultThumbnail(width, height, null); 
-    		
-    		//return createDefaultImageThumbnail(); 
-    	}
-    	int h = img.getIconHeight();
-    	int w = img.getIconWidth();
+    		return createDefaultThumbnail(width, height, null);     	}
     	if (width == 0) width = THUMB_DEFAULT_WIDTH;
     	if (height == 0) height = THUMB_DEFAULT_HEIGHT;
     	//if (h == height && w == width)
@@ -911,9 +916,54 @@ public class Factory
 	 * @param b The blue component, value in [0..255].
 	 * @return 4 byte int composed of the 4 params, Alpha-Red-Green-Blue.
 	 */
-	public static int makeRGB(int a, int r, int g, int b)
+	public static int makeARGB(int a, int r, int g, int b)
     {
 		return a << 24 | r << 16 | g << 8 | b;
+	}
+	
+	/**
+	 * Creates a buffered image of the specified size using the color
+	 * of the rainbow going from the <code>Red</code> to <code>blue</code>.
+	 * 
+	 * @param width The width of the image.
+	 * @param height The height of the image.
+	 * @return See above.
+	 */
+	public static BufferedImage createGradientImage(int width, int height)
+	{
+		return createGradientImage(width, height, RED_TO_BLUE_RAINBOW);
+	}
+	
+	/**
+	 * Creates a buffered image of the specified size using the colors.
+	 * 
+	 * @param width The width of the image.
+	 * @param height The height of the image.
+	 * @param colors The colors to use.
+	 * @return See above.
+	 */
+	public static BufferedImage createGradientImage(int width, int height, 
+			Color[] colors)
+	{
+		if (width < 1 || height < 1)  return null;
+		if (colors == null || colors.length < 2)
+			colors = RED_TO_BLUE_RAINBOW;
+		BufferedImage image = new BufferedImage(width, height, 
+				BufferedImage.TYPE_INT_RGB);
+		Graphics2D g2D = (Graphics2D) image.getGraphics();
+		int x = 0;
+		int y = 0;
+		int n = colors.length;
+		int l = width/(n-1);
+		if (l < 1) l = 1;
+		GradientPaint paint;
+		for (int i = 0; i < colors.length-1; i++) {
+			paint = new GradientPaint(x, y, colors[i], x+l, y, colors[i+1]);
+			g2D.setPaint(paint);
+			g2D.fill(new Rectangle(x, y, l, height));
+			x += l;
+		}
+		return image;
 	}
 	
 }

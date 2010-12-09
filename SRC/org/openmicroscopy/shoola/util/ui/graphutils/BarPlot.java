@@ -132,6 +132,8 @@ public class BarPlot
 	{
 		CategoryPlot plot = new CategoryPlot(dataset, categoryAxis, rangeAxis, 
 				new CustomBarRenderer(colours));
+		if (backgroundImage != null)
+			plot.setBackgroundImage(backgroundImage);
 		chart = new JFreeChart(title, plot);
 	}
 	
