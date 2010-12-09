@@ -81,6 +81,8 @@ import org.openmicroscopy.shoola.util.ui.colour.GradientUtil;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.graphutils.ChartObject;
 import org.openmicroscopy.shoola.util.ui.graphutils.HistogramPlot;
+import org.openmicroscopy.shoola.util.ui.graphutils.LinePlot;
+
 import pojos.FileAnnotationData;
 
 /** 
@@ -117,7 +119,7 @@ public class FLIMResultsDialog
 	private static final int SELECTION = 3;
 	
 	/** The default color. */
-	private static final Color DEFAULT_COLOR = Color.RED;
+	private static final Color DEFAULT_COLOR = new Color(192, 192, 192, 50);
 	
 	/** The number of bins. */
 	private static final int BINS = 1001;
@@ -348,7 +350,6 @@ public class FLIMResultsDialog
 		HistogramPlot hp = new HistogramPlot();
 		hp.setXAxisName(NAME_X_AXIS);
 		hp.setYAxisName(NAME_Y_AXIS);
-		
 		if (values == null) {
 			double v;
 			List<Double> list = new ArrayList<Double>();
@@ -368,8 +369,10 @@ public class FLIMResultsDialog
 			}
 			values = new double[list.size()];
 			j = list.iterator();
+			Double d;
 			while (j.hasNext()) {
-				values[index] = j.next();
+				d = j.next();
+				values[index] = d;
 				index++;
 			}
 		}
