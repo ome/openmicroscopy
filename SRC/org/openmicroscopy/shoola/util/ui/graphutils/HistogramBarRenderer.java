@@ -68,7 +68,7 @@ class HistogramBarRenderer
 	}
 	
 	/**
-	 * Returns the paint for an item. Overrides the default behaviour inherited
+	 * Returns the paint for an item. Overrides the default behavior inherited
 	 * from AbstractSeriesRenderer.
 	 *
 	 * @param series  The series.

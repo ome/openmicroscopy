@@ -70,12 +70,11 @@ class LineRenderer
 	
 	/**
 	 * Returns the paint for an item. 
-	 * Overrides the default behaviour inherited from
+	 * Overrides the default behavior inherited from
 	 * AbstractSeriesRenderer.
 	 *
 	 * @param row  the series.
 	 * @param column  the category.
-	 *
 	 * @return The item color.
 	 */
 	public Paint getItemPaint(final int row, final int column) 

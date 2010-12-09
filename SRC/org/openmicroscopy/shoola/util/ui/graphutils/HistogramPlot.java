@@ -188,10 +188,12 @@ public class HistogramPlot
 		for (int i = 0 ; i < colours.size(); i++)
 			renderer.setSeriesPaint(i, colours.get(i));
 		XYPlot plot = new XYPlot(dataset, domainAxis, rangeAxis, renderer);
-		if (backgroundImage != null)
+		if (backgroundImage != null) {
+			plot.setRangeGridlinesVisible(false);
+			plot.setDomainGridlinesVisible(false);
 			plot.setBackgroundImage(backgroundImage);
+		}
 		chart = new JFreeChart(title, plot);
-		chart.setTitle(title);
 	}
 
 }

@@ -132,8 +132,11 @@ public class BarPlot
 	{
 		CategoryPlot plot = new CategoryPlot(dataset, categoryAxis, rangeAxis, 
 				new CustomBarRenderer(colours));
-		if (backgroundImage != null)
+		if (backgroundImage != null) {
+			plot.setRangeGridlinesVisible(false);
+			plot.setDomainGridlinesVisible(false);
 			plot.setBackgroundImage(backgroundImage);
+		}
 		chart = new JFreeChart(title, plot);
 	}
 	

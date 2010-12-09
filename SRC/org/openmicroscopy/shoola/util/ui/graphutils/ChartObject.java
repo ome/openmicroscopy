@@ -28,8 +28,6 @@ package org.openmicroscopy.shoola.util.ui.graphutils;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Image;
-import java.awt.Paint;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
