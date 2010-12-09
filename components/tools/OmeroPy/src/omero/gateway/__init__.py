@@ -242,7 +242,7 @@ class BlitzObjectWrapper (object):
     def _moveLink (self, newParent):
         """ 
         Moves this object from a parent container (first one if there are more than one) to a new parent.
-        TODO: might be more useful if it didn't assume only 1 parent?
+        TODO: might be more useful if it didn't assume only 1 parent - option allowed you to specify the oldParent.
         
         @param newParent:   The new parent Object Wrapper. 
         @return:            True if moved from parent to parent. 
@@ -1991,8 +1991,8 @@ class _BlitzGateway (object):
         
     def lookupExperimenters(self):
         """ 
-        Look up all experimenters all related groups.
-        TODO: 'The experimenters are also loaded' should be 'groups are loaded'?
+        Look up all experimenters and related groups.
+        Groups are also loaded
         
         @return:    All experimenters
         @rtype:     L{ExperimenterWrapper} generator
@@ -4987,7 +4987,8 @@ class _ImageWrapper (BlitzObjectWrapper):
 
     def getDataset(self):
         """
-        Gets the Dataset that image is in, or None. TODO: Assumes image is in only 1 Dataset
+        Gets the Dataset that image is in, or None. TODO: Why not use listParents()? 
+        Returns None if Image is in more than one Dataset. 
         
         @return:    Dataset
         @rtype:     L{DatasetWrapper}
@@ -5008,7 +5009,8 @@ class _ImageWrapper (BlitzObjectWrapper):
         
     def getProject(self):
         """
-        Gets the Project that image is in, or None. TODO: Assumes image is in only 1 Project
+        Gets the Project that image is in, or None. TODO: Assumes image is in only 1 Project. Why not use getAncestory()[-1]
+        Returns None if Image is in more than one Dataset & Project. 
         
         @return:    Project
         @rtype:     L{ProjectWrapper}
@@ -6104,10 +6106,6 @@ class _ImageWrapper (BlitzObjectWrapper):
         Returns a map of rendering options not stored in rendering settings. 
             - 'p' : projection
             - 'ia' : inverted axis (swap Z and T)
-            
-        TODO: doc below is correct?
-        Stores the render options that are not stored in the rendering settings, if the annotation ns is set
-        in _conn.CONFIG.
         
         @return:    Dict of render options
         @rtype:     Dict
