@@ -60,9 +60,9 @@ public class GradientUtil
 
 	/** Black, Red, Orange, Yellow, white. */ //added few more
     public final static Color[] GRADIENT_HOT = createGradient(
-    		new Color[]{Color.BLACK, new Color(87, 0, 0), Color.RED, 
+    		new Color[]{Color.BLACK, Color.RED, 
     				Color.ORANGE, Color.YELLOW, Color.GREEN,
-    				Color.BLUE, new Color(0, 0, 87), Color.WHITE}); 
+    				Color.BLUE, new Color(138, 43, 226), Color.WHITE}); 
     
 	/** The default number of steps. */
 	public static final int STEPS = 500;

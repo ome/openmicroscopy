@@ -349,7 +349,6 @@ class GraphPane
 		List<double[][]> channelXYData = new ArrayList<double[][]>();
 		channelName.clear();
 		channelColour.clear();
-		channelXYData.clear();
 		channelData.clear();
 
 		ChannelData cData;

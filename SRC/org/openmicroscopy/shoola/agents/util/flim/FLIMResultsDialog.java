@@ -81,8 +81,6 @@ import org.openmicroscopy.shoola.util.ui.colour.GradientUtil;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.graphutils.ChartObject;
 import org.openmicroscopy.shoola.util.ui.graphutils.HistogramPlot;
-import org.openmicroscopy.shoola.util.ui.graphutils.LinePlot;
-
 import pojos.FileAnnotationData;
 
 /** 
@@ -215,6 +213,12 @@ public class FLIMResultsDialog
 	
 	/** Used to sort the results. */
 	private ViewerSorter sorter;
+	
+	/** The label displaying the mean. */
+	private JLabel meanLabel;
+	
+	/** The label displaying the median. */
+	private JLabel medianLabel;
 	
 	/**
 	 * Saves the data to the specified file.
@@ -376,6 +380,8 @@ public class FLIMResultsDialog
 				index++;
 			}
 		}
+		//double range = end-start;
+		
 		if (values.length > 0) {
 			hp.addSeries((String) resultsBox.getSelectedItem(), 
 					values, DEFAULT_COLOR, BINS);
@@ -414,6 +420,8 @@ public class FLIMResultsDialog
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
+		meanLabel = new JLabel();
+		medianLabel = new JLabel();
 		canvas = new ImageCanvas();
 		Entry entry;
 		Iterator i = results.entrySet().iterator();
@@ -527,6 +535,7 @@ public class FLIMResultsDialog
         double value;
         int row = 0; 
         int column = 0;
+        double totalValue = 0;
         while (i.hasNext()) {
 			l = i.next();
 			j = l.iterator();
@@ -538,6 +547,7 @@ public class FLIMResultsDialog
 				smallest = Math.min(value, smallest);
 				//index++;
 				column++;
+				totalValue += value;
 			}
 			row++;
 		}
@@ -556,11 +566,10 @@ public class FLIMResultsDialog
         for (int x = 0; x < columns; x++) {
         	for (int y = 0; y < rows; y++) {
         		v = (int) values[x][y];
-        		norm = (v-smallest)/range; // 0 < norm < 1
-                c = colors[(int) Math.floor(norm*(colors.length-1))];
+        		//norm = (v-smallest)/range; // 0 < norm < 1
+                //c = colors[(int) Math.floor(norm*(colors.length-1))];
         		c = colors[v];
-        		image.setRGB(x, y, c.getRGB());//Factory.makeARGB(c.getAlpha(), c.getRed(), 
-        				//c.getGreen(), c.getBlue()));
+        		image.setRGB(x, y, c.getRGB());
         		//index++;
         	}
 		}
@@ -663,10 +672,19 @@ public class FLIMResultsDialog
 		}
 		results = new double[values.size()];
 		j = values.iterator();
+		double totalValue = 0;
+		index = 0;
 		while (j.hasNext()) {
-			results[index] = j.next();
+			v = j.next();
+			results[index] = v;
 			index++;
+			totalValue += v;
 		}
+		List list = sorter.sort(values);
+		int n = list.size();
+		double median = (Double) list.get(n/2+1);
+		meanLabel.setText(""+UIUtilities.roundTwoDecimals(totalValue/index));
+		medianLabel.setText(""+UIUtilities.roundTwoDecimals(median));
 		start = binMin;
 		end = binMax;
 		return results;
@@ -792,6 +810,18 @@ public class FLIMResultsDialog
 		row.add(l);
 		row.add(resultsBox);
 		content.add(UIUtilities.buildComponentPanel(row));
+		row = new JPanel();
+		l = new JLabel();
+		l.setText("Mean:");
+		row.add(l);
+		row.add(meanLabel);
+		row.add(Box.createHorizontalStrut(5));
+		l = new JLabel();
+		l.setText("Median:");
+		row.add(l);
+		row.add(medianLabel);
+		content.add(UIUtilities.buildComponentPanel(row));
+		
 		return content;
 	}
 	
