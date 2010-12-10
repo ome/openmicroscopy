@@ -890,8 +890,8 @@ class _BlitzGateway (object):
         self._proxies = NoProxies()
         logger.info("closed connecion (uuid=%s)" % str(self._sessionUuid))
 
-    def __del__ (self):
-        logger.debug("##GARBAGE COLLECTOR KICK IN")
+#    def __del__ (self):
+#        logger.debug("##GARBAGE COLLECTOR KICK IN")
     
     def _createProxies (self):
         """

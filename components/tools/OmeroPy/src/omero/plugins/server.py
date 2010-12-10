@@ -79,7 +79,7 @@ class ServerControl(BaseControl):
             cmd = "python manage.py runfcgi workdir=./"
             cmd += " method=prefork socket=%(base)s/var/django_fcgi.sock"
             cmd += " pidfile=%(base)s/var/django.pid daemonize=false"
-            cmd += " maxchildren=5 minspare=1 maxspare=5 maxrequests=400"
+            cmd += " maxchildren=5 minspare=1 maxspare=5 maxrequests=0"
             django = (cmd % {'base': self.ctx.dir}).split()+list(args)
         else:
             django = ["python","manage.py","runserver","--noreload",omeroweb.custom_settings.APPLICATION_HOST]+list(args)
