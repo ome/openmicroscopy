@@ -109,7 +109,16 @@ public class SessionCache implements ApplicationContextAware {
          * time for a session.
          */
         Data(Data old) {
-            this(old.sessionContext, System.currentTimeMillis(), old.hitCount+1);
+            this(old, true);
+        }
+
+        /**
+         * Copy constructor which uses either the current time for {@link #lastAccessTime}
+         * (if reset is true) or the previous lastAccessTime (if reset is false); and
+         * increments {@link #hitCount} by one. Used when reloading the session.
+         */
+        Data(Data old, boolean reset) {
+            this(old.sessionContext, reset ? System.currentTimeMillis() : old.lastAccessTime, old.hitCount+1);
         }
 
         Data(SessionContext sc, long last, long count) {
@@ -561,8 +570,8 @@ public class SessionCache implements ApplicationContextAware {
                     if (replacement == null) {
                         internalRemove(id, "Replacement null");
                     } else {
-                        // Adding and upping access information.
-                        Data fresh = new Data(data);
+                        // Adding and upping hit information.
+                        Data fresh = new Data(data, false);
                         this.sessions.put(id, fresh);
                     }
                 } catch (Exception e) {
@@ -573,11 +582,10 @@ public class SessionCache implements ApplicationContextAware {
                     int count = data.error.incrementAndGet();
                     if (count > Data.MAX_ERROR) {
                         log.warn("Removing session on reload error of " + id, e);
-                        internalRemove(id, "Reload error");                        
+                        internalRemove(id, "Reload error");
                     } else {
                         log.warn(count + "error(s) on reload of " + id, e);
                     }
-                    
                 }
             }
 
