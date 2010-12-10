@@ -11,7 +11,7 @@ try
     imageIds.add(java.lang.Long(1));
 
     annotationTypes = java.util.ArrayList();
-    annotationTypes.add('TagAnnotation');
+    annotationTypes.add('ome.model.annotations.TagAnnotation');
 
     % Unused
     annotatorIds = java.util.ArrayList();
