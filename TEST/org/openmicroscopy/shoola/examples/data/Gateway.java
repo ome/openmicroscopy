@@ -266,6 +266,7 @@ public class Gateway
 	 * @return
 	 */
 	public boolean login(LoginCredentials credentials)
+	throws Exception
 	{
 		//read login file
 		//parse
@@ -280,7 +281,7 @@ public class Gateway
 	        executor.scheduleWithFixedDelay(kca, 60, 60, TimeUnit.SECONDS);
 			
 		} catch (Exception e) {
-			e.printStackTrace();
+			new Exception("Cannot log in");
 		}
 		return connected;
 	}
@@ -291,6 +292,10 @@ public class Gateway
 		if (executor != null) executor.shutdown();
         executor = null;
 		connected = false;
+		thumbnailService = null;
+		adminService = null;
+		services.clear();
+		reServices.clear();
 		try {
 			secureClient.closeSession();
 			secureClient = null;

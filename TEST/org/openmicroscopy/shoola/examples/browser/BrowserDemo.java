@@ -233,7 +233,14 @@ public class BrowserDemo
 		initialize();
 		gateway = new Gateway();
 		JComponent comp;
-		if (!gateway.login(lc)) {
+		boolean connected = false;
+		try {
+			connected = gateway.login(lc);
+		} catch (Exception e) {
+		
+		}
+		
+		if (!connected) {
 			JLabel label = new JLabel();
 			StringBuffer buffer = new StringBuffer();
 			buffer.append("<html><body>");
