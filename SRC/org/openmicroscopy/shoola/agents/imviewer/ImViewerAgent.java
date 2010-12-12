@@ -58,6 +58,7 @@ import pojos.DataObject;
 import pojos.ExperimenterData;
 import pojos.ImageData;
 import pojos.PixelsData;
+import pojos.WellSampleData;
 
 /** 
  * The ImViewer agent. This agent displays an <code>Image</code> and the 
@@ -142,11 +143,18 @@ public class ImViewerAgent
         if (available != null && !available.booleanValue()) return;
         DataObject image = evt.getImage();
         Rectangle r = evt.getRequesterBounds();
-        ImViewer view;
+        ImViewer view = null;
         boolean b = evt.isSeparateWindow();
-        if (image != null)
-        	view = ImViewerFactory.getImageViewer(image, r, b);
-        else
+        if (image != null) {
+        	PixelsData pixels = null;
+        	if (image instanceof ImageData) {
+        		pixels = ((ImageData) image).getDefaultPixels();
+        	} else if (image instanceof WellSampleData) {
+        		pixels = ((WellSampleData) image).getImage().getDefaultPixels();
+        	}
+        	if (pixels != null)
+        		view = ImViewerFactory.getImageViewer(image, r, b);
+        } else
         	view = ImViewerFactory.getImageViewer(evt.getImageID(), r, b);
         if (view != null) {
         	view.activate(evt.getSettings(), evt.getSelectedUserID());

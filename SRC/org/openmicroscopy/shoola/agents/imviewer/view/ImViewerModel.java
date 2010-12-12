@@ -407,7 +407,9 @@ class ImViewerModel
 		this.image = image;
 		initialize(bounds, separateWindow);
 		initializeMetadataViewer();
-		currentPixelsID = getImage().getDefaultPixels().getId();
+		if (getImage().getDefaultPixels() != null) {
+			currentPixelsID = getImage().getDefaultPixels().getId();
+		}
 	}
 
 	/**
