@@ -30,9 +30,11 @@ import time
 import sys
 import csv
 import re
+from threading import Thread
 from StringIO import StringIO
 from getpass import getpass
 from getopt import getopt, GetoptError
+from Queue import Queue
 
 import omero.clients
 from omero.rtypes import rdouble, rstring, rint
@@ -65,12 +67,53 @@ Options:
   -m    Measurement index to populate
   -i    Dump measurement information and exit (no population)
   -d    Print debug statements
+  -t    Number of threads to use when populating [defaults to 1]
 
 Examples:
   %s -s localhost -p 4063 -u bob 27
 
 Report bugs to ome-devel@lists.openmicroscopy.org.uk""" % (error, cmd, cmd)
     sys.exit(2)
+
+###
+### Worker and ThreadPool from...
+### http://code.activestate.com/recipes/577187-python-thread-pool/
+###
+
+class Worker(Thread):
+    """Thread executing tasks from a given tasks queue"""
+    def __init__(self, tasks):
+        Thread.__init__(self)
+        self.tasks = tasks
+        self.daemon = True
+        self.start()
+    
+    def run(self):
+        while True:
+            func, args, kargs = self.tasks.get()
+            try:
+                func(*args, **kargs)
+            except Exception, e:
+                log.exception(e)
+            self.tasks.task_done()
+
+class ThreadPool:
+    """Pool of threads consuming tasks from a queue"""
+    def __init__(self, num_threads):
+        self.tasks = Queue(num_threads)
+        for _ in range(num_threads):
+            Worker(self.tasks)
+
+    def add_task(self, func, *args, **kargs):
+        """Add a task to the queue"""
+        self.tasks.put((func, args, kargs))
+
+    def wait_completion(self):
+        """Wait for completion of all the tasks in the queue"""
+        self.tasks.join()
+
+# Global thread pool for use by ROI workers
+thread_pool = None
 
 class MeasurementError(Exception):
     """
@@ -591,17 +634,17 @@ class AbstractMeasurementCtx(object):
         name = self.get_name(set_of_columns)
         self.file_annotation.description = rstring(name)
 
-    def update_rois(self, rois, column):
+    def update_rois(self, rois, batches, batch_no):
         """
-        Updates a set of ROI inserting the updated IDs back into a given
-        column.
+        Updates a set of ROI for a given batch updating the batches
+        dictionary with the saved IDs.
         """
-        print "Saving %d ROI at %d" % (len(rois), len(column.values))
+        log.debug("Saving %d ROI for batch %d" % (len(rois), batch_no))
         t0 = int(time.time() * 1000)
         roi_ids = self.update_service.saveAndReturnIds(rois)
-        print "ROI update took %sms" % (int(time.time() * 1000) - t0)
-        column.values += roi_ids
-        print "Total ROI saved: %d" % (len(column.values))
+        log.info("Batch %d ROI update took %sms" % \
+            (batch_no, int(time.time() * 1000) - t0))
+        batches[batch_no] = roi_ids
 
     def image_from_original_file(self, original_file):
         """Returns the image from which an original file has originated."""
@@ -747,6 +790,8 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
             self.update_service.saveAndReturnObject(self.file_annotation)
         unloaded_file_annotation = \
             FileAnnotationI(self.file_annotation.id.val, False)
+        batch_no = 1
+        batches = dict()
         for i, image_id in enumerate(image_ids):
             unloaded_image = ImageI(image_id, False)
             roi = RoiI()
@@ -766,7 +811,7 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
             roi.linkAnnotation(unloaded_file_annotation)
             rois.append(roi)
             if len(rois) == self.ROI_UPDATE_LIMIT:
-                self.update_rois(rois, columns[self.ROI_COL])
+                batches[batch_no] = self.update_rois(rois, batch_no)
                 rois = list()
         self.update_rois(rois, columns[self.ROI_COL])
         
@@ -933,6 +978,9 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
     # Expected source attribute value for nuclei data
     NUCLEI_SOURCE = 'Nuclei'
     
+    # Expected source attribute value for organelle data
+    ORGANELLE_SOURCE = 'Organelles'
+    
     def __init__(self, analysis_ctx, service_factory, original_file_provider,
                  original_file, result_files):
         super(InCellMeasurementCtx, self).__init__(
@@ -953,11 +1001,11 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
             current_length = len(column.values)
             if length is not None:
                 if current_length > length:
-                    log.warn("%s length %d > %d modding previous column" % \
+                    log.debug("%s length %d > %d modding previous column" % \
                         (column.name, current_length, length))
                     columns[i - 1].values.append(-1.0)
                 if current_length < length:
-                    log.warn("%s length %d < %d modding current column" % \
+                    log.debug("%s length %d < %d modding current column" % \
                         (column.name, current_length, length))
                     column.values.append(-1.0)
             length = len(column.values)
@@ -987,6 +1035,9 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
                              'Cell': LongColumn('Cell', '', list()),
                              'ROI': RoiColumn('ROI', '', list())
                             }
+            organelles_columns = {'Image': ImageColumn('Image', '', list()),
+                                  'Cell': LongColumn('Cell', '', list()),
+                                 }
             nuclei_columns = {'Image': ImageColumn('Image', '', list()),
                              'Cell': LongColumn('Cell', '', list()),
                              'ROI': RoiColumn('ROI', '', list())
@@ -1007,31 +1058,33 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
                         continue
                     self.check_sparse_data(cells_columns.values())
                     self.check_sparse_data(nuclei_columns.values())
+                    self.check_sparse_data(organelles_columns.values())
                     cell = long(element.get('cell'))
                     cells_columns['Cell'].values.append(cell)
                     nuclei_columns['Cell'].values.append(cell)
+                    organelles_columns['Cell'].values.append(cell)
                     well_data = element
                     cells_columns['Image'].values.append(image.id.val)
                     nuclei_columns['Image'].values.append(image.id.val)
+                    organelles_columns['Image'].values.append(image.id.val)
                 elif well_data is not None and event == 'start' \
                      and element.tag == 'Measure':
                     source = element.get('source')
                     key = element.get('key')
                     value = float(element.get('value'))
                     if source == self.CELLS_SOURCE:
-                        if n_roi == 0:
-                            cells_columns[key] = DoubleColumn(key, '', list())
-                        cells_columns[key].values.append(value)
+                        columns_list = [cells_columns]
                     elif source == self.NUCLEI_SOURCE:
-                        if n_roi == 0:
-                            nuclei_columns[key] = DoubleColumn(key, '', list())
-                        nuclei_columns[key].values.append(value)
+                        columns_list = [nuclei_columns]
+                    elif source == self.ORGANELLE_SOURCE:
+                        columns_list = [organelles_columns]
                     else:
-                        if n_roi == 0:
-                            cells_columns[key] = DoubleColumn(key, '', list())
-                            nuclei_columns[key] = DoubleColumn(key, '', list())
-                        cells_columns[key].values.append(value)
-                        nuclei_columns[key].values.append(value)
+                        columns_list = [cells_columns, nuclei_columns,
+                                        organelles_columns]
+                    for columns in columns_list: 
+                        if key not in columns:
+                            columns[key] = DoubleColumn(key, '', list())
+                        columns[key].values.append(value)
                     n_measurements += 1
                 elif event == 'end' and element.tag == 'WellData':
                     if well_data is not None:
@@ -1042,7 +1095,8 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
                     element.clear()
             print "Total ROI: %d" % n_roi
             print "Total measurements: %d" % n_measurements
-            sets_of_columns = [cells_columns.values(), nuclei_columns.values()]
+            sets_of_columns = [cells_columns.values(), nuclei_columns.values(),
+                               organelles_columns.values()]
             return MeasurementParsingResult(sets_of_columns)
         finally:
             data.close()
@@ -1068,6 +1122,8 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
         unloaded_file_annotation = \
             FileAnnotationI(self.file_annotation.id.val, False)
         # Parse and append ROI
+        batch_no = 1
+        batches = dict()
         for i, image_id in enumerate(image_ids):
             unloaded_image = ImageI(image_id, False)
             if False in nuclei_expected:
@@ -1097,16 +1153,22 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
             else:
                 raise MeasurementError('Not a nucleus or cell ROI')
             if len(rois) == self.ROI_UPDATE_LIMIT:
-                self.update_rois(rois, columns['ROI'])
+                thread_pool.add_task(self.update_rois, rois, batches, batch_no)
                 rois = list()
-        self.update_rois(rois, columns['ROI'])
+                batch_no += 1
+        thread_pool.add_task(self.update_rois, rois, batches, batch_no)
+        thread_pool.wait_completion()
+        batch_keys = batches.keys()
+        batch_keys.sort()
+        for k in batch_keys:
+            columns['ROI'].values += batches[k]
 
     def populate(self, columns):
         self.update_table(columns)
 
 if __name__ == "__main__":
     try:
-        options, args = getopt(sys.argv[1:], "s:p:u:m:k:id")
+        options, args = getopt(sys.argv[1:], "s:p:u:m:k:t:id")
     except GetoptError, (msg, opt):
         usage(msg)
 
@@ -1122,7 +1184,8 @@ if __name__ == "__main__":
     measurement = None
     info = False
     session_key = None
-    logging_level = logging.WARN
+    logging_level = logging.INFO
+    thread_count = 1
     for option, argument in options:
         if option == "-u":
             username = argument
@@ -1138,6 +1201,8 @@ if __name__ == "__main__":
             session_key = argument
         if option == "-d":
             logging_level = logging.DEBUG
+        if option == "-t":
+            thread_count = int(argument)
     if session_key is None and username is None:
         usage("Username must be specified!")
     if session_key is None and hostname is None:
@@ -1154,7 +1219,8 @@ if __name__ == "__main__":
             service_factory = c.createSession(session_key)
         else:
             service_factory = c.createSession(username, password)
-    
+
+        thread_pool = ThreadPool(thread_count)
         factory = PlateAnalysisCtxFactory(service_factory)
         analysis_ctx = factory.get_analysis_ctx(plate_id)
         n_measurements = analysis_ctx.get_measurement_count()
