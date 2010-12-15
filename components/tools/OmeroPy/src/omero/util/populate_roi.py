@@ -141,7 +141,7 @@ class DownloadingOriginalFileProvider(object):
         file handle to that temporary file seeked to zero. The caller is
         responsible for closing the temporary file.
         """
-        print "Downloading original file: %d" % original_file.id.val
+        log.info("Downloading original file: %d" % original_file.id.val)
         self.raw_file_store.setFileId(original_file.id.val)
         temporary_file = tempfile.TemporaryFile(dir=str(self.dir))
         size = original_file.size.val
@@ -585,8 +585,8 @@ class AbstractMeasurementCtx(object):
             # This has the potential to happen alot with the
             # datasets we have given the split machine acquisition
             # ".flex" file storage.
-            print "WARNING: Missing data for row %d column %d" % \
-                    (row, col)
+            log.warn("WARNING: Missing data for row %d column %d" % \
+                    (row, col))
             return (None, None)
 
     def update_table(self, columns):
@@ -605,7 +605,7 @@ class AbstractMeasurementCtx(object):
         # which it belongs and save the file annotation.
         table_original_file = self.table.getOriginalFile()
         table_original_file_id = table_original_file.id.val
-        print "Created new table: %d" % table_original_file_id
+        log.info("Created new table: %d" % table_original_file_id)
         unloaded_o_file = OriginalFileI(table_original_file_id, False)
         self.file_annotation.file = unloaded_o_file
         unloaded_plate = PlateI(self.analysis_ctx.plate_id, False)
@@ -618,10 +618,10 @@ class AbstractMeasurementCtx(object):
         
         t0 = int(time.time() * 1000)
         self.table.initialize(columns)
-        print "Table init took %sms" % (int(time.time() * 1000) - t0)
+        log.debug("Table init took %sms" % (int(time.time() * 1000) - t0))
         t0 = int(time.time() * 1000)
         self.table.addData(columns)
-        print "Table update took %sms" % (int(time.time() * 1000) - t0)
+        log.info("Table update took %sms" % (int(time.time() * 1000) - t0))
     
     def create_file_annotation(self, set_of_columns):
         """
@@ -755,7 +755,7 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
     def parse(self):
         columns = None
         for result_file in self.result_files:
-            print "Parsing: %s" % result_file.name.val
+            log.info("Parsing: %s" % result_file.name.val)
             image = self.image_from_original_file(result_file)
             provider = self.original_file_provider
             data = provider.get_original_file_data(result_file)
@@ -776,12 +776,12 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
                     for i, value in enumerate(row):
                         columns[i + 2].name = value
                     break
-        print "Returning %d columns" % len(columns)
+        log.debug("Returning %d columns" % len(columns))
         return MeasurementParsingResult([columns])
         
     def _parse_neo_roi(self, columns):
         """Parses out ROI from OmeroTables columns for 'NEO' datasets."""
-        print "Parsing %s NEO ROIs..." % (len(columns[0].values))
+        log.debug("Parsing %s NEO ROIs..." % (len(columns[0].values)))
         image_ids = columns[self.IMAGE_COL].values
         rois = list()
         # Save our file annotation to the database so we can use an unloaded
@@ -811,13 +811,19 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
             roi.linkAnnotation(unloaded_file_annotation)
             rois.append(roi)
             if len(rois) == self.ROI_UPDATE_LIMIT:
-                batches[batch_no] = self.update_rois(rois, batch_no)
+                thread_pool.add_task(self.update_rois, rois, batches, batch_no)
                 rois = list()
-        self.update_rois(rois, columns[self.ROI_COL])
+                batch_no += 1
+        thread_pool.add_task(self.update_rois, rois, batches, batch_no)
+        thread_pool.wait_completion()
+        batch_keys = batches.keys()
+        batch_keys.sort()
+        for k in batch_keys:
+            columns[self.ROI_COL].values += batches[k]
         
     def _parse_mnu_roi(self, columns):
         """Parses out ROI from OmeroTables columns for 'MNU' datasets."""
-        print "Parsing %s MNU ROIs..." % (len(columns[0].values))
+        log.debug("Parsing %s MNU ROIs..." % (len(columns[0].values)))
         image_ids = columns[self.IMAGE_COL].values
         rois = list()
         # Save our file annotation to the database so we can use an unloaded
@@ -826,6 +832,8 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
             self.update_service.saveAndReturnObject(self.file_annotation)
         unloaded_file_annotation = \
             FileAnnotationI(self.file_annotation.id.val, False)
+        batch_no = 1
+        batches = dict()
         for i, image_id in enumerate(image_ids):
             unloaded_image = ImageI(image_id, False)
             roi = RoiI()
@@ -841,22 +849,28 @@ class MIASMeasurementCtx(AbstractMeasurementCtx):
             roi.linkAnnotation(unloaded_file_annotation)
             rois.append(roi)
             if len(rois) == self.ROI_UPDATE_LIMIT:
-                self.update_rois(rois, columns[self.ROI_COL])
+                thread_pool.add_task(self.update_rois, rois, batches, batch_no)
                 rois = list()
-        self.update_rois(rois, columns[self.ROI_COL])
+                batch_no += 1
+        thread_pool.add_task(self.update_rois, rois, batches, batch_no)
+        thread_pool.wait_completion()
+        batch_keys = batches.keys()
+        batch_keys.sort()
+        for k in batch_keys:
+            columns[self.ROI_COL].values += batches[k]
     
     def parse_and_populate_roi(self, columns):
         names = [column.name for column in columns]
         neo = [name in self.NEO_EXPECTED for name in names]
         mnu = [name in self.MNU_EXPECTED for name in names]
         for name in names:
-            print "Column: %s" % name
+            log.debug("Column: %s" % name)
         if len(columns) == 9 and False not in neo:
             self._parse_neo_roi(columns)
         elif len(columns) == 5 and False not in mnu:
             self._parse_mnu_roi(columns)
         else:
-            print "WARNING: Unknown ROI type for MIAS dataset: %r" % names
+            log.warn("Unknown ROI type for MIAS dataset: %r" % names)
 
     def populate(self, columns):
         """
@@ -915,7 +929,7 @@ class FlexMeasurementCtx(AbstractMeasurementCtx):
         return self.original_file.name.val[:-4]
 
     def parse(self):
-        print "Parsing: %s" % self.original_file.name.val
+        log.info("Parsing: %s" % self.original_file.name.val)
         provider = self.original_file_provider
         data = provider.get_original_file_data(self.original_file)
         try:
@@ -924,12 +938,13 @@ class FlexMeasurementCtx(AbstractMeasurementCtx):
             data.close()
         root = et.getroot()
         areas = root.findall(self.AREA_XPATH)
-        print "Area count: %d" % len(areas)
+        log.debug("Area count: %d" % len(areas))
         for i, area in enumerate(areas):
             result_parameters = area.findall(self.PARAMETER_XPATH)
-            print "Area %d result children: %d" % (i, len(result_parameters))
+            log.debug("Area %d result children: %d" % \
+                    (i, len(result_parameters)))
             if len(result_parameters) == 0:
-                print "%s contains no analysis data." % self.get_name()
+                log.warn("%s contains no analysis data." % self.get_name())
                 return
             headers = list()
             for result_parameter in result_parameters:
@@ -979,7 +994,7 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
     NUCLEI_SOURCE = 'Nuclei'
     
     # Expected source attribute value for organelle data
-    ORGANELLE_SOURCE = 'Organelles'
+    ORGANELLES_SOURCE = 'Organelles'
     
     def __init__(self, analysis_ctx, service_factory, original_file_provider,
                  original_file, result_files):
@@ -1017,13 +1032,15 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
     def get_name(self, set_of_columns=None):
         if set_of_columns is None:
             return self.original_file.name.val[:-4]
-        elif set_of_columns == 0:
+        if set_of_columns == 0:
             return self.original_file.name.val[:-4] + ' Cells'
-        elif set_of_columns == 1:
+        if set_of_columns == 1:
             return self.original_file.name.val[:-4] + ' Nuclei'
+        if set_of_columns == 2:
+            return self.original_file.name.val[:-4] + ' Organelles'
 
     def parse(self):
-        print "Parsing: %s" % self.original_file.name.val
+        log.info("Parsing: %s" % self.original_file.name.val)
         provider = self.original_file_provider
         data = provider.get_original_file_data(self.original_file)
         try:
@@ -1076,7 +1093,7 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
                         columns_list = [cells_columns]
                     elif source == self.NUCLEI_SOURCE:
                         columns_list = [nuclei_columns]
-                    elif source == self.ORGANELLE_SOURCE:
+                    elif source == self.ORGANELLES_SOURCE:
                         columns_list = [organelles_columns]
                     else:
                         columns_list = [cells_columns, nuclei_columns,
@@ -1093,8 +1110,8 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
                         well_data = None
                 else:
                     element.clear()
-            print "Total ROI: %d" % n_roi
-            print "Total measurements: %d" % n_measurements
+            log.info("Total ROI: %d" % n_roi)
+            log.info("Total measurements: %d" % n_measurements)
             sets_of_columns = [cells_columns.values(), nuclei_columns.values(),
                                organelles_columns.values()]
             return MeasurementParsingResult(sets_of_columns)
@@ -1107,7 +1124,7 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
         cells_expected = [name in names for name in self.CELLS_CG_EXPECTED]
         nuclei_expected = [name in names for name in self.NUCLEI_CG_EXPECTED]
         if (False in cells_expected) and (False in nuclei_expected):
-            print "WARNING: Missing CGs for InCell dataset: %r" % names
+            log.warn("Missing CGs for InCell dataset: %r" % names)
             return
         # Reconstruct a column name to column map
         columns = dict()
