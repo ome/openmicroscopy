@@ -537,8 +537,8 @@ java component.
         <replace dir="dist/docs/api">
             <replacetoken><![CDATA[<HEAD>]]></replacetoken>
             <replacevalue><![CDATA[<HEAD profile="http://www.w3.org/2005/10/profile">
-<link rel="icon" 
-      type="image/vnd.microsoft.icon" 
+<link rel="icon"
+      type="image/vnd.microsoft.icon"
       href="http://hudson.openmicroscopy.org.uk/userContent/favicon.ico">]]></replacevalue>
         </replace>
     </target>
