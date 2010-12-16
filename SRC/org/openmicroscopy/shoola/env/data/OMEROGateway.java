@@ -291,7 +291,10 @@ class OMEROGateway
 	 * thumbnails service.
 	 */
 	private static final int				MAX_RETRIEVAL = 100;
-	
+
+	/** Maximum number of rows to retrieve at one time from a table. */
+	private static final int				MAX_TABLE_ROW_RETRIEVAL = 100000;
+
 	/** The collection of escaping characters we allow in the search. */
 	private static final List<Character>	SUPPORTED_SPECIAL_CHAR;
 	
@@ -687,16 +690,65 @@ class OMEROGateway
 		}
 		return null;
 	}
-		
+
 	/**
-	 * Transforms the passed table.
+	 * Translates a set of table results into an array.
+	 * @param src Source data from the table.
+	 * @param dst Destination array.
+	 * @param offset Offset within the destination array from which to copy
+	 * data into.
+	 * @param length Number of rows of data to be copied.
+	 */
+	private void translateTableResult(Data src, Object[][] dst, int offset,
+	                                  int length) {
+		Column[] cols = src.columns;
+		Column column;
+		for (int i = 0; i < cols.length; i++) {
+			column = cols[i];
+			if (column instanceof LongColumn) {
+				for (int j = 0; j < length; j++) {
+					dst[j + offset][i] =
+						((LongColumn) column).values[j];
+				}
+			} else if (column instanceof DoubleColumn) {
+				for (int j = 0; j < length; j++) {
+					dst[j + offset][i] =
+						((DoubleColumn) column).values[j];
+				}
+			} else if (column instanceof StringColumn) {
+				for (int j = 0; j < length; j++) {
+					dst[j + offset][i] =
+						((StringColumn) column).values[j];
+				}
+			} else if (column instanceof BoolColumn) {
+				for (int j = 0; j < length; j++) {
+					dst[j + offset][i] =
+						((BoolColumn) column).values[j];
+				}
+			} else if (column instanceof RoiColumn) {
+				for (int j = 0; j < length; j++) {
+					dst[j + offset][i] =
+						((RoiColumn) column).values[j];
+				}
+			} else if (column instanceof ImageColumn) {
+				for (int j = 0; j < length; j++) {
+					dst[j + offset][i] =
+						((ImageColumn) column).values[j];
+				}
+			}
+		}
+	}
+
+	/**
+	 * Transforms a set of rows for the passed table.
 	 * 
 	 * @param table The table to convert.
+	 * @param rows The rows of the table to convert.
 	 * @return See above
 	 * @throws DSAccessException If an error occurred while trying to 
 	 *                           retrieve data from OMEDS service.
 	 */
-	private TableResult createTableResult(TablePrx table)
+	private TableResult createTableResult(TablePrx table, long[] rows)
 		throws DSAccessException
 	{
 		if (table == null) return null;
@@ -708,43 +760,42 @@ class OMEROGateway
 				headers[i] = cols[i].name;
 				headersDescriptions[i] = cols[i].description;
 			}
-			int n = (int) table.getNumberOfRows();
-			Object[][] data = new Object[n][cols.length];
+			int totalRowCount = rows.length;
+			Object[][] data = new Object[totalRowCount][cols.length];
 			Data d;
-			Column column;
-			long[] a = new long[cols.length];
-			long[] b = new long[0];
+			long[] columns = new long[cols.length];
 			for (int i = 0; i < cols.length; i++) {
-				a[i] = i; 
+				columns[i] = i;
 			}
-			d = table.slice(a, b);
-			for (int i = 0; i < cols.length; i++) {
-				column = d.columns[i];
-				if (column instanceof LongColumn) {
-					for (int j = 0; j < n; j++) {
-						data[j][i] = ((LongColumn) column).values[j];
-					}
-				} else if (column instanceof DoubleColumn) {
-					for (int j = 0; j < n; j++) {
-						data[j][i] = ((DoubleColumn) column).values[j];
-					}
-				} else if (column instanceof StringColumn) {
-					for (int j = 0; j < n; j++) {
-						data[j][i] = ((StringColumn) column).values[j];
-					}
-				} else if (column instanceof BoolColumn) {
-					for (int j = 0; j < n; j++) {
-						data[j][i] = ((BoolColumn) column).values[j];
-					}
-				} else if (column instanceof RoiColumn) {
-					for (int j = 0; j < n; j++) {
-						data[j][i] = ((RoiColumn) column).values[j];
-					}
-				} else if (column instanceof ImageColumn) {
-					for (int j = 0; j < n; j++) {
-						data[j][i] = ((ImageColumn) column).values[j];
-					}
-				} 
+
+			int rowOffset = 0;
+			int rowCount = 0;
+			int rowsToGo = totalRowCount;
+			int loopCount = 0;
+			long[] rowSubset;
+			while (rowsToGo > 0) {
+				rowCount = (int) Math.min(MAX_TABLE_ROW_RETRIEVAL,
+				                          totalRowCount - rowOffset);
+				rowSubset = new long[rowCount];
+				System.arraycopy(rows, rowOffset, rowSubset, 0, rowCount);
+				long t0 = System.currentTimeMillis();
+				d = table.slice(columns, rowSubset);
+				long t1 = System.currentTimeMillis();
+				for (int i = 0; i < cols.length; i++) {
+					//System.err.println(String.format(
+					//		"Transforming; loopCount:%d totalRowCount:%d " +
+					//		"rowOffset:%d rowCount:%d rowsToGo:%d column:%d "+
+					//		"readTime(ms): %d", loopCount, totalRowCount,
+					//		rowOffset, rowCount, rowsToGo, i, t1 - t0));
+					translateTableResult(d, data, rowOffset, rowCount);
+				}
+				long t2 = System.currentTimeMillis();
+				//System.err.println(String.format(
+				//		"totalLoopTime:%d loopArrayCopyTime:%d",
+				//		t2 - t0, t2 - t1));
+				rowOffset += rowCount;
+				rowsToGo -= rowCount;
+				loopCount++;
 			}
 			table.close();
 			return new TableResult(data, headers);
@@ -759,7 +810,77 @@ class OMEROGateway
 		}
 		return null;
 	}
-	
+
+	/**
+	 * Transforms the passed table data for a given image.
+	 * 
+	 * @param table The table to convert.
+	 * @param imageID The <code>Image</code> to retrieve rows for.
+	 * @return See above
+	 * @throws DSAccessException If an error occurred while trying to 
+	 *                           retrieve data from OMEDS service.
+	 */
+	private TableResult createTableResult(TablePrx table, long imageID)
+		throws DSAccessException
+	{
+		if (table == null) return null;
+		try {
+			long totalRowCount = table.getNumberOfRows();
+			Map<String, RType> variables = new HashMap<String, RType>();
+			variables.put("imageId", omero.rtypes.rlong(imageID));
+			long[] rows = table.getWhereList(
+					String.format("(Image==%d)", imageID), null, 0,
+					totalRowCount, 1L);
+			//System.err.println(String.format(
+			//		"imageId based creation; imageId:%d rowCount:%d",
+			//		imageID, rows.length));
+			return createTableResult(table, rows);
+		} catch (Exception e) {
+			e.printStackTrace();
+			try {
+				if (table != null) table.close();
+			} catch (Exception ex) {
+				//Digest exception
+			}
+			new DSAccessException("Unable to read the table.");
+		}
+		return null;
+	}
+
+	/**
+	 * Transforms the passed table.
+	 * 
+	 * @param table The table to convert.
+	 * @return See above
+	 * @throws DSAccessException If an error occurred while trying to 
+	 *                           retrieve data from OMEDS service.
+	 */
+	private TableResult createTableResult(TablePrx table)
+		throws DSAccessException
+	{
+		if (table == null) return null;
+		try {
+			int totalRowCount = (int) table.getNumberOfRows();
+			long[] rows = new long[totalRowCount];
+			for (int i = 0; i < totalRowCount; i++) {
+				rows[i] = i;
+			}
+			//System.err.println(String.format(
+			//		"full table based creation; rowCount:%d",
+			//		rows.length));
+			return createTableResult(table, rows);
+		} catch (Exception e) {
+			e.printStackTrace();
+			try {
+				if (table != null) table.close();
+			} catch (Exception ex) {
+				//Digest exception
+			}
+			new DSAccessException("Unable to read the table.");
+		}
+		return null;
+	}
+
 	/**
 	 * Helper method to handle exceptions thrown by the connection library.
 	 * Methods in this class are required to fill in a meaningful context
@@ -6270,7 +6391,8 @@ class OMEROGateway
 					//get the table
 					result = new ROIResult(PojoMapper.asDataObjects(r.rois), 
 							id);
-					result.setResult(createTableResult(svc.getTable(id)));
+					result.setResult(createTableResult(
+							svc.getTable(id), imageID));
 					results.add(result);
 				}
 			}
