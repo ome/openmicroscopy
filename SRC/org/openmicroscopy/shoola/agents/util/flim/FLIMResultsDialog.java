@@ -82,6 +82,7 @@ import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.graphutils.ChartObject;
 import org.openmicroscopy.shoola.util.ui.graphutils.HistogramPlot;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
+import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
 
 import pojos.FileAnnotationData;
 
@@ -298,8 +299,8 @@ public class FLIMResultsDialog
 				writer.addImageToWorkbook(imageName, image); 
 				if (p == null) row = 0;
 				writer.writeImage(p.y+2, index, w, h, imageName);
-				WriterImage.saveImage(
-						new File(f.getAbsolutePath()+"."+PNGFilter.PNG), 
+				String v = f.getAbsolutePath();
+				WriterImage.saveImage(new File(v+"."+PNGFilter.PNG), 
 						image, PNGFilter.PNG);
 			}
 			writer.close();
@@ -430,7 +431,7 @@ public class FLIMResultsDialog
 		JPanel content = new JPanel();
 		content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 		content.add(body);
-		//content.add(slider);
+		content.add(slider);
 		p.add(content, "1, 0");
 		p.add(graphicsPane, "1, 1");
 		p.add(intervalsPane, "1, 2");
@@ -523,16 +524,7 @@ public class FLIMResultsDialog
 		
 		//parse the file
 		parseValues = parseFile(file);
-		//start = 0.0;//Double.MAX_VALUE;
-		//end = Double.MIN_VALUE;
-		slider = new TextualTwoKnobsSlider();
-		slider.layoutComponents(
-        		TextualTwoKnobsSlider.LAYOUT_SLIDER_FIELDS_X_AXIS);
-		int s = (int) start;
-		int e = (int) end;
-		slider.setValues(s, e, s, e, s, e);
-		slider.setInterval(s, e);
-		slider.addPropertyChangeListener(this);
+		initSlider();
 		if (parseValues == null || parseValues.size() == 0) {
 			 JLabel l = new JLabel();
 			 l.setText("Cannot display the results");
@@ -581,8 +573,8 @@ public class FLIMResultsDialog
 		Iterator<Double> j;
 		int index = 0;
 		double[][] values = new double[columns][rows];
-		double largest = Double.MIN_VALUE;
-        double smallest = Double.MAX_VALUE;
+		//double largest = Double.MIN_VALUE;
+        //double smallest = Double.MAX_VALUE;
         double value;
         int row = 0; 
         int column = 0;
@@ -594,8 +586,8 @@ public class FLIMResultsDialog
 			while (j.hasNext()) {
 				value = convertValue(j.next().doubleValue());
 				values[column][row] = value;
-				largest = Math.max(value, largest);
-				smallest = Math.min(value, smallest);
+				//largest = Math.max(value, largest);
+				//smallest = Math.min(value, smallest);
 				//index++;
 				column++;
 				totalValue += value;
@@ -603,12 +595,6 @@ public class FLIMResultsDialog
 			row++;
 		}
         Color[] colors = GradientUtil.GRADIENT_HOT;
-       
-        //Color[] colors = new Color[256];
-        //for (int k = 0; k < 256; k++)
-          // colors[k] = Color.getHSBColor(1.0f * k / 255, 1f, 1f);
-        
-        double range = largest-smallest;
         BufferedImage image = new BufferedImage(columns, rows, 
         		BufferedImage.TYPE_INT_RGB);
         Color c;
@@ -639,10 +625,12 @@ public class FLIMResultsDialog
 	 */
 	private double convertValue(double value)
 	{
-		if (value < start) return 0;
-		if (value > end) return 255;
+		double min = slider.getStartValue();
+		double max = slider.getEndValue();
+		if (value < min) return 0;
+		if (value > max) return 255;
 		//if (end == 0) return 0;
-		return 255*(value-start)/(end-start);
+		return 255*(value-min)/(max-min);
 	}
 
 	/** 
@@ -654,85 +642,19 @@ public class FLIMResultsDialog
 	{
 		double min = slider.getStartValue();
 		double max = slider.getEndValue();
-		//Number nMin = minThreshold.getValueAsNumber();
-		//Number nMax = maxThreshold.getValueAsNumber();
 		Iterator<List<Double>> i = parseValues.iterator();
 		double[] results;
 		int index = 0;
-		//double min;
-		//double max;
 		double v;
 		List<Double> l;
 		Iterator<Double> j;
-		List<Double> values;
-		double binMin = Double.MAX_VALUE;
-		double binMax = Double.MIN_VALUE;
-		values = new ArrayList<Double>();
-		/*
-		if (nMin == null && nMax == null) {
-			while (i.hasNext()) {
-				l = i.next();
-				j = l.iterator();
-				while (j.hasNext()) {
-					v = j.next();
-					if (v < binMin) binMin = v;
-					if (v > binMax) binMax = v;
-					values.add(v);
-				}
-			}
-		} else if (nMin == null && nMax != null) {
-			max = nMax.doubleValue();
-			while (i.hasNext()) {
-				l = i.next();
-				j = l.iterator();
-				while (j.hasNext()) {
-					v = j.next();
-					if (v < max) {
-						if (v < binMin) binMin = v;
-						if (v > binMax) binMax = v;
-						values.add(v);
-					}
-				}	
-			}	
-		} else if (nMax == null && nMin != null) {
-			min = nMin.doubleValue();
-			while (i.hasNext()) {
-				l = i.next();
-				j = l.iterator();
-				while (j.hasNext()) {
-					v = j.next();
-					if (v > min) {
-						if (v < binMin) binMin = v;
-						if (v > binMax) binMax = v;
-						values.add(v);
-					}
-				}
-			}
-		} else {
-			min = nMin.doubleValue();
-			max = nMax.doubleValue();
-			while (i.hasNext()) {
-				l = i.next();
-				j = l.iterator();
-				while (j.hasNext()) {
-					v = j.next();
-					if (v > min && v < max) {
-						if (v < binMin) binMin = v;
-						if (v > binMax) binMax = v;
-						values.add(v);
-					}
-				}
-			}
-		}
-		*/
+		List<Double> values = new ArrayList<Double>();
 		while (i.hasNext()) {
 			l = i.next();
 			j = l.iterator();
 			while (j.hasNext()) {
 				v = j.next();
-				if (v > min && v < max) {
-					if (v < binMin) binMin = v;
-					if (v > binMax) binMax = v;
+				if (v >= min && v <= max) {
 					values.add(v);
 				}
 			}
@@ -754,8 +676,6 @@ public class FLIMResultsDialog
 		else if (n == 1 || n == 2) median = (Double) list.get(0);
 		meanLabel.setText(""+UIUtilities.roundTwoDecimals(totalValue/index));
 		medianLabel.setText(""+UIUtilities.roundTwoDecimals(median));
-		start = binMin;
-		end = binMax;
 		return results;
 	}
 	
@@ -801,11 +721,19 @@ public class FLIMResultsDialog
 		}
 		if (f == null) return;
 		parseValues = parseFile(f);
-		int s = (int) start;
-		int e = (int) end;
-		slider.setValues(s, e, s, e, s, e);
-		slider.setInterval(s, e);
+		initSlider();
 		plot();
+	}
+	
+	/** Initializes the slider. */
+	private void initSlider()
+	{
+		int s = (int) Math.round(start);
+		int e = (int) Math.round(end);
+		slider = new TextualTwoKnobsSlider(s, e, s, e);
+		slider.layoutComponents(
+        		TextualTwoKnobsSlider.LAYOUT_SLIDER_FIELDS_X_AXIS);
+		slider.getSlider().addPropertyChangeListener(this);
 	}
 	
 	/**
@@ -831,9 +759,9 @@ public class FLIMResultsDialog
 				st = new StringTokenizer(line, ",");
 				while (st.hasMoreTokens()) {
 					v = Double.parseDouble(st.nextToken());
-					v = UIUtilities.roundTwoDecimals(v*FACTOR);
 					if (v < start) start = v;
 					if (v > end) end = v;
+					v = UIUtilities.roundTwoDecimals(v*FACTOR);
 					row.add(v);
 				}
 				list.add(row);
@@ -1051,6 +979,8 @@ public class FLIMResultsDialog
 			File[] files = (File[]) evt.getNewValue();
 			File f = files[0];
 			saveAs(f);
+		} else if (TwoKnobsSlider.KNOB_RELEASED_PROPERTY.equals(name)) {
+			plot();
 		}
 	}
 	
