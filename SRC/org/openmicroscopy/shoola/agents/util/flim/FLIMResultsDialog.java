@@ -113,11 +113,8 @@ public class FLIMResultsDialog
 	/** Action ID indicating to save the result. */
 	private static final int SAVE = 1;
 	
-	/** Action ID indicating to plot the result again. */
-	private static final int PLOT = 2;
-	
 	/** Action ID indicating that a new file is selected. */
-	private static final int SELECTION = 3;
+	private static final int SELECTION = 2;
 	
 	/** The default color. */
 	private static final Color DEFAULT_COLOR = new Color(192, 192, 192, 50);
@@ -155,15 +152,6 @@ public class FLIMResultsDialog
 	
 	/** Button to save the graphics as <code>PNG</code> or <code>JPEG</code>. */
 	private JButton saveButton;
-	
-	/** Button to plot the result */
-	private JButton plotButton;
-	
-	/** The threshold for the maximum value. */
-	//private NumericalTextField maxThreshold;
-	
-	/** The threshold for the minimum value. */
-	//private NumericalTextField minThreshold;
 	
 	/** The main component displaying the results. */
 	private JComponent body;
@@ -498,23 +486,6 @@ public class FLIMResultsDialog
 		paneContainer.add(p);
 		paneContainer.add(UIUtilities.createTaskPane("Graph Data", null));
 		
-		/*
-		minThreshold = new NumericalTextField();
-		minThreshold.setToolTipText("Plot only values greater than the " +
-				"value entered.");
-		minThreshold.setNumberType(Double.class);
-		minThreshold.setColumns(3);
-		minThreshold.setText(""+0.0);
-		maxThreshold = new NumericalTextField();
-		maxThreshold.setColumns(3);
-		maxThreshold.setNumberType(Double.class);
-		maxThreshold.setToolTipText("Plot only values lower than the " +
-		"value entered.");
-		*/
-		plotButton = new JButton("Plot");
-		plotButton.setActionCommand(""+PLOT);
-		plotButton.addActionListener(this);
-		
 		closeButton = new JButton("Close");
 		closeButton.setActionCommand(""+CLOSE);
 		closeButton.addActionListener(this);
@@ -654,7 +625,7 @@ public class FLIMResultsDialog
 			j = l.iterator();
 			while (j.hasNext()) {
 				v = j.next();
-				if (v >= min && v <= max) {
+				if (v > min && v < max) {
 					values.add(v);
 				}
 			}
@@ -959,9 +930,6 @@ public class FLIMResultsDialog
 				break;
 			case SAVE:
 				save();
-				break;
-			case PLOT:
-				plot();
 				break;
 			case SELECTION:
 				selectFile();
