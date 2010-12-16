@@ -27,6 +27,7 @@ import org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy;
 import org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy;
 import org.springframework.orm.hibernate3.TransactionAwareDataSourceConnectionProvider;
 import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -72,7 +73,9 @@ public class TableIdGenerator extends TableGenerator {
                 ds = tadsp.getTargetDataSource();
                 jdbc = new SimpleJdbcTemplate(ds);
                 tt = new TransactionTemplate(
-                        new DataSourceTransactionManager(ds));
+                        new DataSourceTransactionManager(ds),
+                        new DefaultTransactionDefinition(
+                                DefaultTransactionDefinition.PROPAGATION_REQUIRES_NEW));
             }
         }
 
