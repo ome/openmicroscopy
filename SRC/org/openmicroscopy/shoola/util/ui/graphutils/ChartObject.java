@@ -201,12 +201,15 @@ public abstract class ChartObject
 	 * Builds the graph and returns the UI component hosting it.
 	 * 
 	 * @param image The background image of the plot.
+	 * @param removeLegend Pass <code>true</code> to remove the legend,
+	 * 					   <code>false</code>.
 	 * @return See above.
 	 */
-	public JPanel getChart(Image image)
+	public JPanel getChart(Image image, boolean removeLegend)
 	{
 		backgroundImage = image;
 		createChart();
+		if (removeLegend) chart.removeLegend();
 		JPanel graphPanel = new JPanel();
 		if (chart == null) return graphPanel;
 		graphPanel.setLayout(new BorderLayout());
@@ -217,9 +220,21 @@ public abstract class ChartObject
 	/**
 	 * Builds the graph and returns the UI component hosting it.
 	 * 
+	 * @param removeLegend Pass <code>true</code> to remove the legend,
+	 * 					   <code>false</code>.
 	 * @return See above.
 	 */
-	public JPanel getChart() { return getChart(null); }
+	public JPanel getChart(boolean removeLegend)
+	{ 
+		return getChart(null, removeLegend);
+	}
+	
+	/**
+	 * Builds the graph and returns the UI component hosting it.
+	 * 
+	 * @return See above.
+	 */
+	public JPanel getChart() { return getChart(null, false); }
 	
 	/** Creates the chart. */
 	abstract void createChart();

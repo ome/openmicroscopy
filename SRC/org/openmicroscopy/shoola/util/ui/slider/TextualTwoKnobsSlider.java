@@ -90,6 +90,9 @@ public class TextualTwoKnobsSlider
 	/** Indicates to layout the slider and label only. */
 	public static final int		LAYOUT_SLIDER_FIELDS_X_AXIS = 4;
 	
+	/** Indicates to layout the slider and label only. */
+	public static final int		LAYOUT_SLIDER_FIELDS_LABELS_X_AXIS = 5;
+	
 	/** The id of the action linked to the {@link #startField}. */
 	public static final int 	START = 0;
 	
@@ -550,6 +553,14 @@ public class TextualTwoKnobsSlider
 				add(startField);
 				add(slider);
 				add(endField);
+				break;
+			case LAYOUT_SLIDER_FIELDS_LABELS_X_AXIS:
+				setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+				add(sliderLabel);
+				add(startField);
+				add(slider);
+				add(endField);
+				add(endLabel);
 				break;
 			case LAYOUT_SLIDER_AND_LABEL:
 				JPanel content = new JPanel();

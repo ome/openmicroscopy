@@ -74,13 +74,15 @@ import org.openmicroscopy.shoola.util.file.ExcelWriter;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
-import org.openmicroscopy.shoola.util.ui.NumericalTextField;
+import org.openmicroscopy.shoola.util.image.io.WriterImage;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colour.GradientUtil;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.graphutils.ChartObject;
 import org.openmicroscopy.shoola.util.ui.graphutils.HistogramPlot;
+import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
+
 import pojos.FileAnnotationData;
 
 /** 
@@ -137,9 +139,14 @@ public class FLIMResultsDialog
 	/** Filters used for the save options. */
 	private static List<FileFilter> FILTERS;
 
+	/** The annotation files to exclude. */
+	private static List<String> NAMES_TO_EXCLUDE;
+	
 	static {
 		FILTERS = new ArrayList<FileFilter>();
 		FILTERS.add(new ExcelFilter());
+		
+		NAMES_TO_EXCLUDE = new ArrayList<String>();
 	}
 	
 	/** Button to close the dialog. */
@@ -152,10 +159,10 @@ public class FLIMResultsDialog
 	private JButton plotButton;
 	
 	/** The threshold for the maximum value. */
-	private NumericalTextField maxThreshold;
+	//private NumericalTextField maxThreshold;
 	
 	/** The threshold for the minimum value. */
-	private NumericalTextField minThreshold;
+	//private NumericalTextField minThreshold;
 	
 	/** The main component displaying the results. */
 	private JComponent body;
@@ -219,6 +226,9 @@ public class FLIMResultsDialog
 	
 	/** The label displaying the median. */
 	private JLabel medianLabel;
+	
+	/** Slider used to enter the minimum and maximum values. */
+	private TextualTwoKnobsSlider slider;
 	
 	/**
 	 * Saves the data to the specified file.
@@ -288,6 +298,9 @@ public class FLIMResultsDialog
 				writer.addImageToWorkbook(imageName, image); 
 				if (p == null) row = 0;
 				writer.writeImage(p.y+2, index, w, h, imageName);
+				WriterImage.saveImage(
+						new File(f.getAbsolutePath()+"."+PNGFilter.PNG), 
+						image, PNGFilter.PNG);
 			}
 			writer.close();
 		} catch (Exception e) {
@@ -388,7 +401,7 @@ public class FLIMResultsDialog
 		}
 		createTable(hp.getYValues(0));
 		
-		body = hp.getChart(Factory.createGradientImage(600, 400));
+		body = hp.getChart(Factory.createGradientImage(600, 400), true);
 		chartObject = hp;
 	}
 	
@@ -404,14 +417,21 @@ public class FLIMResultsDialog
 		if (body == null) return new JPanel();
 		if (data == null) return body;
 		JPanel p = new JPanel();
-		int h = canvas.getPreferredSize().height;
+		Dimension d = slider.getPreferredSize();
+		Dimension dd = canvas.getPreferredSize();
+		int h = dd.height;
+		//slider.setPreferredSize(new Dimension(dd.width, d.height));
 		double[][] size = {{TableLayout.PREFERRED, TableLayout.PREFERRED}, 
 				{h, 200, 200}};
 		p.setLayout(new TableLayout(size));
 		p.setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 0));
 		p.add(canvas, "0, 0, LEFT, TOP");
 		p.add(settings, "0, 1, LEFT, TOP");
-		p.add(body, "1, 0");
+		JPanel content = new JPanel();
+		content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
+		content.add(body);
+		//content.add(slider);
+		p.add(content, "1, 0");
 		p.add(graphicsPane, "1, 1");
 		p.add(intervalsPane, "1, 2");
 		return p;
@@ -426,10 +446,30 @@ public class FLIMResultsDialog
 		Entry entry;
 		Iterator i = results.entrySet().iterator();
 		FileAnnotationData fa;
-		String[] names = new String[results.size()];
+		
 		int index = 0;
 		File file = null;
 		int selectedIndex = 0;
+		Map<FileAnnotationData, File> 
+		filtered = new HashMap<FileAnnotationData, File>();
+		
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			fa = (FileAnnotationData) entry.getKey();
+			if (!NAMES_TO_EXCLUDE.contains(fa.getFileName())) {
+				filtered.put(fa, (File) entry.getValue());
+			}
+			/*
+			names[index] = fa.getFileName();
+			if (file == null) {
+				file = (File) entry.getValue();
+				selectedIndex = index;
+			}
+			index++;
+			*/
+		}
+		String[] names = new String[filtered.size()];
+		i = filtered.entrySet().iterator();
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			fa = (FileAnnotationData) entry.getKey();
@@ -440,6 +480,8 @@ public class FLIMResultsDialog
 			}
 			index++;
 		}
+		
+		
 		resultsBox = new JComboBox(names);
 		resultsBox.setSelectedIndex(selectedIndex);
 		resultsBox.setActionCommand(""+SELECTION);
@@ -455,6 +497,7 @@ public class FLIMResultsDialog
 		paneContainer.add(p);
 		paneContainer.add(UIUtilities.createTaskPane("Graph Data", null));
 		
+		/*
 		minThreshold = new NumericalTextField();
 		minThreshold.setToolTipText("Plot only values greater than the " +
 				"value entered.");
@@ -466,6 +509,7 @@ public class FLIMResultsDialog
 		maxThreshold.setNumberType(Double.class);
 		maxThreshold.setToolTipText("Plot only values lower than the " +
 		"value entered.");
+		*/
 		plotButton = new JButton("Plot");
 		plotButton.setActionCommand(""+PLOT);
 		plotButton.addActionListener(this);
@@ -479,9 +523,16 @@ public class FLIMResultsDialog
 		
 		//parse the file
 		parseValues = parseFile(file);
-		start = 0.0;//Double.MAX_VALUE;
-		end = Double.MIN_VALUE;
-		
+		//start = 0.0;//Double.MAX_VALUE;
+		//end = Double.MIN_VALUE;
+		slider = new TextualTwoKnobsSlider();
+		slider.layoutComponents(
+        		TextualTwoKnobsSlider.LAYOUT_SLIDER_FIELDS_X_AXIS);
+		int s = (int) start;
+		int e = (int) end;
+		slider.setValues(s, e, s, e, s, e);
+		slider.setInterval(s, e);
+		slider.addPropertyChangeListener(this);
 		if (parseValues == null || parseValues.size() == 0) {
 			 JLabel l = new JLabel();
 			 l.setText("Cannot display the results");
@@ -601,13 +652,15 @@ public class FLIMResultsDialog
 	 */
 	private double[] extractValues()
 	{
-		Number nMin = minThreshold.getValueAsNumber();
-		Number nMax = maxThreshold.getValueAsNumber();
+		double min = slider.getStartValue();
+		double max = slider.getEndValue();
+		//Number nMin = minThreshold.getValueAsNumber();
+		//Number nMax = maxThreshold.getValueAsNumber();
 		Iterator<List<Double>> i = parseValues.iterator();
 		double[] results;
 		int index = 0;
-		double min;
-		double max;
+		//double min;
+		//double max;
 		double v;
 		List<Double> l;
 		Iterator<Double> j;
@@ -615,6 +668,7 @@ public class FLIMResultsDialog
 		double binMin = Double.MAX_VALUE;
 		double binMax = Double.MIN_VALUE;
 		values = new ArrayList<Double>();
+		/*
 		if (nMin == null && nMax == null) {
 			while (i.hasNext()) {
 				l = i.next();
@@ -670,6 +724,19 @@ public class FLIMResultsDialog
 				}
 			}
 		}
+		*/
+		while (i.hasNext()) {
+			l = i.next();
+			j = l.iterator();
+			while (j.hasNext()) {
+				v = j.next();
+				if (v > min && v < max) {
+					if (v < binMin) binMin = v;
+					if (v > binMax) binMax = v;
+					values.add(v);
+				}
+			}
+		}
 		results = new double[values.size()];
 		j = values.iterator();
 		double totalValue = 0;
@@ -682,7 +749,9 @@ public class FLIMResultsDialog
 		}
 		List list = sorter.sort(values);
 		int n = list.size();
-		double median = (Double) list.get(n/2+1);
+		double median = 0;
+		if (n > 2) median = (Double) list.get(n/2+1);
+		else if (n == 1 || n == 2) median = (Double) list.get(0);
 		meanLabel.setText(""+UIUtilities.roundTwoDecimals(totalValue/index));
 		medianLabel.setText(""+UIUtilities.roundTwoDecimals(median));
 		start = binMin;
@@ -732,6 +801,10 @@ public class FLIMResultsDialog
 		}
 		if (f == null) return;
 		parseValues = parseFile(f);
+		int s = (int) start;
+		int e = (int) end;
+		slider.setValues(s, e, s, e, s, e);
+		slider.setInterval(s, e);
 		plot();
 	}
 	
@@ -750,12 +823,18 @@ public class FLIMResultsDialog
 			StringTokenizer st;
 			double v;
 			List<Double> row;
+			//set start and end
+			start = Double.MAX_VALUE;
+			end = Double.MIN_VALUE;
 			while ((line = reader.readLine()) != null) {
 				row = new ArrayList<Double>();
 				st = new StringTokenizer(line, ",");
 				while (st.hasMoreTokens()) {
 					v = Double.parseDouble(st.nextToken());
-					row.add(UIUtilities.roundTwoDecimals(v*FACTOR));
+					v = UIUtilities.roundTwoDecimals(v*FACTOR);
+					if (v < start) start = v;
+					if (v > end) end = v;
+					row.add(v);
 				}
 				list.add(row);
 			}
@@ -789,7 +868,9 @@ public class FLIMResultsDialog
 		content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 		JPanel row = new JPanel();
 		row.setLayout(new FlowLayout());
+		
 		JLabel l = new JLabel();
+		/*
 		l.setText("Min Threshold:");
 		l.setToolTipText(minThreshold.getToolTipText());
 		row.add(l);
@@ -803,6 +884,7 @@ public class FLIMResultsDialog
 		row.add(l);
 		row.add(maxThreshold);
 		content.add(UIUtilities.buildComponentPanel(row));
+		*/
 		row = new JPanel();
 		row.setLayout(new FlowLayout());
 		l = new JLabel();
@@ -815,7 +897,10 @@ public class FLIMResultsDialog
 		l.setText("Mean:");
 		row.add(l);
 		row.add(meanLabel);
-		row.add(Box.createHorizontalStrut(5));
+		content.add(UIUtilities.buildComponentPanel(row));
+		//row.add(Box.createHorizontalStrut(5));
+		row = new JPanel();
+		row.setLayout(new FlowLayout());
 		l = new JLabel();
 		l.setText("Median:");
 		row.add(l);
@@ -833,8 +918,8 @@ public class FLIMResultsDialog
 	private JComponent buildControlsBar()
 	{
 		JPanel p = new JPanel();
-		p.add(plotButton);
-		p.add(Box.createHorizontalStrut(10));
+		//p.add(plotButton);
+		//p.add(Box.createHorizontalStrut(10));
 		p.add(saveButton);
 		p.add(Box.createHorizontalStrut(10));
 		p.add(closeButton);

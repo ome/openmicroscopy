@@ -136,11 +136,8 @@ public class TwoKnobsSlider
 	/** The View component that renders this slider. */
 	private TwoKnobsSliderUI    uiDelegate;
 
-	/** The start color for the gradient. */
-	private Color 				rgbStart; 
-	
-	/** The end color for the gradient. */
-	private Color				rgbEnd;
+	/** The colors for the gradient. */
+	private Color[] 			gradients; 
 	
 	/** 
 	 * Indicates which knob is moved.
@@ -155,6 +152,7 @@ public class TwoKnobsSlider
 	/** The height of the font. */
 	private int                 fontHeight;
 
+	/** Flag indicating that the colors have been set. */
 	private boolean 			colourGradient;
 
 	/** Computes the preferred size of this component. */
@@ -672,32 +670,41 @@ public class TwoKnobsSlider
 	}
 
 	/**
-	 * Sets the colour gradient of the slider. This will replace the track with
+	 * Sets the color gradient of the slider. This will replace the track with
 	 * a gradient.
 	 * 
-	 * @param rgbStart Start colour of the gradient.
-	 * @param rgbEnd End colour of the gradient.
+	 * @param rgbStart Start color of the gradient.
+	 * @param rgbEnd End color of the gradient.
 	 */
 	public void setColourGradients(Color rgbStart, Color rgbEnd)
 	{
+		if (rgbStart == null || rgbEnd == null) return;
+		
 		colourGradient = true;
-		this.rgbStart = rgbStart;
-		this.rgbEnd = rgbEnd;
+		gradients = new Color[2];
+		gradients[0] = rgbStart;
+		gradients[1] = rgbEnd;
 	}
 	
 	/**
-	 * Returns the start colour of the gradient.
+	 * Sets the colors.
+	 * 
+	 * @param colors The colors to set.
+	 */
+	public void setColourGradients(Color[] colors)
+	{
+		if (colors == null || colors.length < 2) return;
+		colourGradient = true;
+		gradients = colors;
+	}
+	
+	/**
+	 * Returns the colors of the gradient.
 	 *  
 	 * @return See above.
 	 */
-	public Color getRGBStart() { return rgbStart; }
+	Color[] getGradientColors() { return gradients; }
 	
-	/**
-	 * Returns the end colour of the gradient. 
-	 * 
-	 * @return See above.
-	 */
-	public Color getRGBEnd() { return rgbEnd; }
 	
 	/**
 	 * Returns <code>True</code> if the color gradient is set,

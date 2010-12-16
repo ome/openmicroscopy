@@ -359,15 +359,14 @@ class TwoKnobsSliderUI
 		}
 		else
 		{
-			Paint paint = new GradientPaint((int) trackRect.getX(),
-					 (int) trackRect.getY()-2,  component.getRGBStart(),
-					 (int) trackRect.getWidth(),
-					 (int) trackRect.getHeight()+2,component.getRGBEnd(), 
-					 false);
+			Color[] colors = component.getGradientColors();
+			Paint paint = new GradientPaint(trackRect.x,
+					trackRect.y-2,  colors[0], trackRect.width,
+					trackRect.height+2, colors[1], false);
 			g2D.setPaint(paint);
 			g2D.fillRoundRect(trackRect.x, trackRect.y+2, trackRect.width,
-						trackRect.height-10, trackRect.height/3, 
-						trackRect.height/3);
+					trackRect.height-10, trackRect.height/3, 
+					trackRect.height/3);
 			g2D.setColor(Color.black);
 			g2D.drawRoundRect(trackRect.x, trackRect.y+2, trackRect.width,
 					trackRect.height-9, trackRect.height/3, trackRect.height/3);
@@ -430,10 +429,11 @@ class TwoKnobsSliderUI
 		}
 		else
 		{
+			Color[] colors = component.getGradientColors();
 			paint = new GradientPaint(trackRect.x+1, trackRect.y+h/2, 
-					component.getRGBStart(), 
+					colors[0], 
 					trackRect.x+1+trackRect.width-w-2, 
-					trackRect.y+h/2, component.getRGBEnd(), false);
+					trackRect.y+h/2, colors[1], false);
 			g2D.setPaint(paint);
 			g2D.fillRoundRect(trackRect.x, trackRect.y+3, trackRect.width,
 						trackRect.height-12, trackRect.height/3, 
