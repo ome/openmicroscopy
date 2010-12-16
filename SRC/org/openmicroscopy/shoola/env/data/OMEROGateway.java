@@ -4667,9 +4667,7 @@ class OMEROGateway
 		isSessionAlive();
 		SearchPrx service = getSearchService();
 		try {
-			//service.clearQueries();
-			//service.resetDefaults();
-			service.setAllowLeadingWildcard(false);
+			service.setAllowLeadingWildcard(true);
 			service.setCaseSentivice(context.isCaseSensitive());
 			Timestamp start = context.getStart();
 			Timestamp end = context.getEnd();
@@ -4783,10 +4781,12 @@ class OMEROGateway
 					if (size instanceof Integer)
 						results.put(key, size);
 					service.clearQueries();
-					if (!(size instanceof Integer) && fSomeSec != null) {
+					if (!(size instanceof Integer) && fSomeSec != null &&
+							fSomeSec.size() > 0) {
 						service.bySomeMustNone(fSomeSec, fMustSec, 
 								fNoneSec);
-						size = handleSearchResult(Image.class.getName(), 
+						size = handleSearchResult(
+								convertTypeForSearch(Image.class), 
 								rType, service);
 						if (size instanceof Integer) 
 							results.put(key, size);
@@ -6238,80 +6238,6 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		try {
-		  	StringBuilder sb = new StringBuilder();
-	    	sb.append("select inst from Instrument as inst ");
-	    	sb.append("left outer join fetch inst.microscope as m ");
-	    	sb.append("left outer join fetch m.type ");
-	    	//objective
-	    	sb.append("left outer join fetch inst.objective as o ");
-	    	sb.append("left outer join fetch o.immersion ");
-	    	sb.append("left outer join fetch o.correction ");
-	    	//detector
-	    	sb.append("left outer join fetch inst.detector as d ");
-	    	sb.append("left outer join fetch d.type ");
-	    	//filter
-	    	sb.append("left outer join fetch inst.filter as f ");
-	    	sb.append("left outer join fetch f.type ");
-	    	sb.append("left outer join fetch f.transmittanceRange as trans ");
-	    	//filterset
-	    	sb.append("left outer join fetch inst.filterSet as fs ");
-	    	sb.append("left outer join fetch fs.dichroic as dichroic ");
-	    	//dichroic
-	    	sb.append("left outer join fetch inst.dichroic as di ");
-	    	//OTF
-	    	sb.append("left outer join fetch inst.otf as otf ");
-	    	sb.append("left outer join fetch otf.pixelsType as type ");
-	    	sb.append("left outer join fetch otf.objective as obj ");
-	    	sb.append("left outer join fetch obj.immersion ");
-	    	sb.append("left outer join fetch obj.correction ");
-	    	sb.append("left outer join fetch otf.filterSet ");
-	    	
-	    	//light source
-	    	sb.append("left outer join fetch inst.lightSource as ls ");
-	    	sb.append("where inst.id = :id ");
-	    	
-	    	ParametersI params = new ParametersI(); 
-	    	params.addId(id);
-	    	Instrument value = (Instrument) getQueryService().findByQuery(
-	    			sb.toString(), params);
-	    	if (value == null) return null;
-	    	LightSource ls;
-	    	List<LightSource> ll = value.copyLightSource();
-	    	Laser laser;
-	    	if (ll != null) {
-	    		Iterator<LightSource> i = ll.iterator();
-	    		List<String> names = new ArrayList<String>();
-	    		String name;
-	    		List<IObject> list = new ArrayList<IObject>();
-	    		while (i.hasNext()) {
-	    			ls = i.next();
-	    			name = ls.getClass().getName();
-	    			if (ls instanceof LightEmittingDiode) {
-	    				list.add(ls);
-	    			} else {
-	    				if (!names.contains(name)) {
-	        				names.add(name);
-	        				sb = createLightQuery(ls);
-	        				if (sb != null) {
-	        					params.addLong("instrumentId", id);
-	        					list.addAll(
-	        							getQueryService().findAllByQuery(
-	        									sb.toString(), params));
-	        				} 
-	        			}
-	    			}
-	    		}
-	    		value.clearLightSource();
-	    		List<LightSource> srcs = new ArrayList<LightSource>(); 
-	    		Iterator<IObject> j = list.iterator();
-	    		while (j.hasNext()) {
-					srcs.add((LightSource) j.next());
-					
-				}value.addAllLightSourceSet(srcs);
-	    		//value.addLightSourceSet(srcs);
-	    	}
-	    	//return new InstrumentData(value);
-	    	
 			IMetadataPrx service = getMetadataService();
 			Instrument instrument = service.loadInstrument(id);
 			if (instrument == null) return null;
@@ -6323,35 +6249,6 @@ class OMEROGateway
 		return null;
 	}
 	
-	/**
-     * Builds the <code>StringBuilder</code> corresponding to the passed 
-     * light source.
-     * 
-     * @param src The light source to handle.
-     * @return See above.
-     */
-    private StringBuilder createLightQuery(LightSource src)
-    {
-    	if (src == null) return null;
-    	StringBuilder sb = new StringBuilder();
-    	if (src instanceof Laser) {
-			sb.append("select l from Laser as l ");
-			sb.append("left outer join fetch l.type ");
-			sb.append("left outer join fetch l.laserMedium ");
-			sb.append("left outer join fetch l.pulse as pulse ");
-	        sb.append("where l.instrument.id = :instrumentId");
-		} else if (src instanceof Filament) {
-			sb.append("select l from Filament as l ");
-			sb.append("left outer join fetch l.type ");
-	        sb.append("where l.instrument.id = :instrumentId");
-		} else if (src instanceof Arc) {
-			sb.append("select l from Arc as l ");
-			sb.append("left outer join fetch l.type ");
-	        sb.append("where l.instrument.id = :instrumentId");
-		}
-    	return sb;
-    }
-    
 	/**
 	 * Loads the ROI related to the specified image.
 	 * 
