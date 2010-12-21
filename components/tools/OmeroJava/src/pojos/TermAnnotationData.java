@@ -34,7 +34,7 @@ import omero.model.TermAnnotation;
 import omero.model.TermAnnotationI;
 
 /**
- * Define a Term Annotation.
+ * Defines a Term Annotation.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp; <a
  *         href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -119,8 +119,7 @@ public class TermAnnotationData extends AnnotationData {
     {
     	asAnnotation().setNs(rstring(name));
     }
-    
-    
+      
     /**
      * Returns the textual content of the annotation.
      *
