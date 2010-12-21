@@ -89,6 +89,7 @@ public class ViewOtherAction
         if (ho instanceof ImageData) {
         	ImageData img = (ImageData) ho;
         	//setEnabled(img.isArchived());
+        	//TODO: Check size
         	setEnabled(true);
         } else setEnabled(ho instanceof FileAnnotationData);
     }

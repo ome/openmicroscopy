@@ -129,7 +129,6 @@ import omero.grid.StringColumn;
 import omero.grid.TablePrx;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
-import omero.model.Arc;
 import omero.model.BooleanAnnotation;
 import omero.model.BooleanAnnotationI;
 import omero.model.CommentAnnotation;
@@ -141,7 +140,6 @@ import omero.model.DetailsI;
 import omero.model.Experimenter;
 import omero.model.ExperimenterGroup;
 import omero.model.ExperimenterGroupI;
-import omero.model.Filament;
 import omero.model.FileAnnotation;
 import omero.model.FileAnnotationI;
 import omero.model.GroupExperimenterMap;
@@ -149,9 +147,6 @@ import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageI;
 import omero.model.Instrument;
-import omero.model.Laser;
-import omero.model.LightEmittingDiode;
-import omero.model.LightSource;
 import omero.model.LogicalChannel;
 import omero.model.LongAnnotation;
 import omero.model.Namespace;
@@ -7472,7 +7467,7 @@ class OMEROGateway
 		throws ProcessException
 	{
 		DeleteCallback cb = null;
-		shutDownServices(false);	
+		shutDownServices(false);
 		try {
 	         IDeletePrx svc = getDeleteService();
 	         //scriptID, parameters, timeout (5s if null)

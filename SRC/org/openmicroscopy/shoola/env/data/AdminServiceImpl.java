@@ -91,7 +91,7 @@ class AdminServiceImpl
 	 */
 	private ExperimenterData updateExperimenter(ExperimenterData exp, GroupData 
 			group, boolean asAdmin) 
-	throws DSOutOfServiceException, DSAccessException
+		throws DSOutOfServiceException, DSAccessException
 	{
 		ExperimenterData currentUser = (ExperimenterData)
 		context.lookup(LookupNames.CURRENT_USER_DETAILS);

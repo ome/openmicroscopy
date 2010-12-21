@@ -77,6 +77,9 @@ public class ApplicationData
 	/** The path to the executable. */
 	private String executable;
 	
+	/** The commands to add. */
+	private List<String> commands;
+	
 	/** 
 	 * Converts the <code>.icns</code> to an icon.
 	 * 
@@ -192,10 +195,22 @@ public class ApplicationData
 			if (executable != null && executable.length() > 0)
 				list.add(executable);
 			else list.add("open");
+			if (commands != null && commands.size() > 0)
+				list.addAll(commands); 
 		} else if (UIUtilities.isWindowsOS()) {
 			
 		}
 		return list;
+	}
+	
+	/**
+	 * Sets the commands.
+	 * 
+	 * @param commands The commands to set.
+	 */
+	public void setCommands(List<String> commands)
+	{
+		this.commands = commands;
 	}
 	
 	/**

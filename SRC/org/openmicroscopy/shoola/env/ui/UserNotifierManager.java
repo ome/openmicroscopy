@@ -134,60 +134,6 @@ class UserNotifierManager
 				container.getRegistry(), 
 				source, details);
 		loader.load();
-		/*
-		Registry reg = container.getRegistry();
-		String tokenURL = (String) reg.lookup(LookupNames.TOKEN_URL);
-		String processURL = (String) reg.lookup(LookupNames.PROCESSING_URL);
-		String appName = (String) reg.lookup(LookupNames.APPLICATION_NAME_BUG);
-		String teamAddress = (String) reg.lookup(LookupNames.DEBUG_EMAIL);
-		int timeout = (Integer) reg.lookup(LookupNames.POST_TIMEOUT);
-		
-		try {
-			Communicator c; 
-			CommunicatorDescriptor desc = new CommunicatorDescriptor
-			(HttpChannel.CONNECTION_PER_REQUEST, tokenURL, -1);
-			List l = (List) details.getObjectToSubmit();
-			Iterator i = l.iterator();
-			FileTableNode node;
-			File f;
-			ImportException ex;
-			StringBuilder token;
-			StringBuilder reply;
-			while (i.hasNext()) {
-				node = (FileTableNode) i.next();
-				f = node.getFile();
-				ex = (ImportException) node.getException();
-				if (f != null) {
-					c = SvcRegistry.getCommunicator(desc);
-					token = new StringBuilder();
-					c.submitError(INVOKER_ERROR,
-							details.getEmail(), details.getComment(), 
-							details.getExtra(), ex.toString(), appName, token);
-					desc = new CommunicatorDescriptor(
-							HttpChannel.CONNECTION_PER_REQUEST, processURL, 
-							timeout);
-					c = SvcRegistry.getCommunicator(desc);
-					reply = new StringBuilder();
-					c.submitFile(token.toString(), f, ex.getReaderType(), 
-							reply); 
-				}
-			}
-		} catch (Exception e) {
-			LogMessage msg = new LogMessage();
-            msg.println("Failed to send files.");
-            msg.println("Reason: "+e.getMessage());
-            Logger logger = container.getRegistry().getLogger();
-            logger.error(this, msg);
-			String s = MESSAGE_START;
-			if (source.getDialogType() == MessengerDialog.ERROR_TYPE)
-				s += ERROR_MSG;
-			else s += COMMENT_MSG;
-			s += MESSAGE_END;
-			JOptionPane.showMessageDialog(source, s+teamAddress+".");
-		}
-		*/
-		//source.setVisible(false);
-		//source.dispose();
 	}
 	
 	/**

@@ -2945,8 +2945,6 @@ class TreeViewerComponent
 			Environment env = (Environment) 
 				TreeViewerAgent.getRegistry().lookup(LookupNames.ENV);
 			String dir = env.getTmpDir();
-			//download(new File(env.getOmeroFilesHome()), data);
-			//
 			List l = browser.getSelectedDataObjects();
 			if (l == null) return;
 			Iterator i = l.iterator();
