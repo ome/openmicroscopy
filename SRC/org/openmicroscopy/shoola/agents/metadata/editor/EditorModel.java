@@ -109,6 +109,7 @@ import pojos.ProjectData;
 import pojos.RatingAnnotationData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
+import pojos.TermAnnotationData;
 import pojos.TextualAnnotationData;
 import pojos.WellData;
 import pojos.WellSampleData;
@@ -871,9 +872,9 @@ class EditorModel
 	 */
 	int getTermsCount()
 	{ 
-		Collection urls = getTerms();
-		if (urls == null) return 0;
-		return urls.size();
+		Collection<TermAnnotationData> terms = getTerms();
+		if (terms == null) return 0;
+		return terms.size();
 	}
 	
 	/**
@@ -881,7 +882,7 @@ class EditorModel
 	 * 
 	 * @return See above.
 	 */
-	Collection getTerms()
+	Collection<TermAnnotationData> getTerms()
 	{ 
 		StructuredDataResults data = parent.getStructuredData();
 		if (data == null) return null;
@@ -905,13 +906,14 @@ class EditorModel
 	 * 
 	 * @return See above.
 	 */
-	Collection getTags()
+	Collection<TagAnnotationData> getTags()
 	{ 
 		StructuredDataResults data = parent.getStructuredData();
-		if (data == null) return new ArrayList();
-		Collection tags = data.getTags();
-		if (tags == null || tags.size() == 0) return new ArrayList();
-		return sorter.sort(tags);
+		if (data == null) return new ArrayList<TagAnnotationData>();
+		Collection<TagAnnotationData> tags = data.getTags();
+		if (tags == null || tags.size() == 0) 
+			return new ArrayList<TagAnnotationData>();
+		return (Collection<TagAnnotationData>) sorter.sort(tags);
 	}
 	
 	/**
@@ -920,25 +922,25 @@ class EditorModel
 	 * 
 	 * @return See above.
 	 */
-	Collection getCompanionFiles()
+	Collection<FileAnnotationData> getCompanionFiles()
 	{
 		StructuredDataResults data = parent.getStructuredData();
-		List list = new ArrayList();
+		List<FileAnnotationData> list = new ArrayList<FileAnnotationData>();
 		if (data == null) return list;
-		Collection attachements = data.getAttachments(); 
+		Collection<FileAnnotationData> attachements = data.getAttachments(); 
 		if (attachements == null) return list;
-		Iterator i = attachements.iterator();
+		Iterator<FileAnnotationData> i = attachements.iterator();
 		FileAnnotationData f;
 		String ns;
 		while (i.hasNext()) {
-			f = (FileAnnotationData) i.next();
+			f = i.next();
 			ns = f.getNameSpace();
 			if (FileAnnotationData.COMPANION_FILE_NS.equals(ns) && 
 					f != originalMetadata) {
 				list.add(f);
 			}
 		}
-		return sorter.sort(list); 
+		return (Collection<FileAnnotationData>) sorter.sort(list); 
 	}
 	
 	/**
@@ -947,18 +949,18 @@ class EditorModel
 	 * 
 	 * @return See above.
 	 */
-	Collection getAttachments()
+	Collection<FileAnnotationData> getAttachments()
 	{ 
 		StructuredDataResults data = parent.getStructuredData();
-		List l = new ArrayList();
+		List<FileAnnotationData> l = new ArrayList<FileAnnotationData>();
 		if (data == null) return l;
-		Collection attachements = data.getAttachments(); 
+		Collection<FileAnnotationData> attachements = data.getAttachments(); 
 		if (attachements == null) return l;
-		Iterator i = attachements.iterator();
+		Iterator<FileAnnotationData> i = attachements.iterator();
 		FileAnnotationData f;
 		String ns;
 		while (i.hasNext()) {
-			f = (FileAnnotationData) i.next();
+			f = i.next();
 			ns = f.getNameSpace();
 			if (FileAnnotationData.COMPANION_FILE_NS.equals(ns)) {
 				//tmp
@@ -970,7 +972,7 @@ class EditorModel
 			}
 			
 		}
-		return sorter.sort(l); 
+		return (Collection<FileAnnotationData>) sorter.sort(l); 
 	}
 
 	/** 
@@ -978,19 +980,19 @@ class EditorModel
 	 * 
 	 * @return See above.
 	 */
-	List getAnalysisResults()
+	List<FileAnnotationData> getAnalysisResults()
 	{
 		StructuredDataResults data = parent.getStructuredData();
 		if (data == null) return null;
-		Collection attachements = data.getAttachments(); 
+		Collection<FileAnnotationData> attachements = data.getAttachments(); 
 		if (attachements == null) return null;
-		Iterator i = attachements.iterator();
+		Iterator<FileAnnotationData> i = attachements.iterator();
 		FileAnnotationData f;
 		String ns;
 		AnalysisResultsItem item;
 		Map l = new HashMap();
 		while (i.hasNext()) {
-			f = (FileAnnotationData) i.next();
+			f = i.next();
 			ns = f.getNameSpace();
 			if (FileAnnotationData.FLIM_NS.equals(ns)) {
 				item = (AnalysisResultsItem) l.get(ns);
@@ -1002,7 +1004,7 @@ class EditorModel
 				item.addAttachment(f);
 			} 
 		}
-		return sorter.sort(l.values()); 
+		return (List<FileAnnotationData>) sorter.sort(l.values()); 
 	}
 	
 	/**
@@ -1121,16 +1123,6 @@ class EditorModel
 	{
 		StructuredDataResults data = parent.getStructuredData();
 		if (data == null) return null;
-		Collection c = data.getPublished();
-		if (c == null || c.size() == 0) return null;
-		Iterator i = c.iterator();
-		BooleanAnnotationData b;
-		long id = MetadataViewerAgent.getUserDetails().getId();
-		while (i.hasNext()) {
-			b = (BooleanAnnotationData) i.next();
-			if (b.getOwner().getId() == id)
-				return b;
-		}
 		return null;
 	}
 	
@@ -1180,7 +1172,7 @@ class EditorModel
 	 */
 	int getTextualAnnotationCount()
 	{
-		Collection annotations = getTextualAnnotations();
+		Collection<TextualAnnotationData> annotations = getTextualAnnotations();
 		if (annotations == null) return 0;
 		return annotations.size();
 	}
@@ -1190,7 +1182,7 @@ class EditorModel
 	 * 
 	 * @return See above.
 	 */
-	Collection getTextualAnnotations()
+	Collection<TextualAnnotationData> getTextualAnnotations()
 	{
 		StructuredDataResults data = parent.getStructuredData();
 		if (data == null) return null;
@@ -1236,7 +1228,7 @@ class EditorModel
 			&& textualAnnotationsByUsers.size() > 0)
 			return textualAnnotationsByUsers;
 		textualAnnotationsByUsers = new HashMap<Long, List>();
-		Collection original = getTextualAnnotations();
+		Collection<TextualAnnotationData> original = getTextualAnnotations();
 		if (original == null) return textualAnnotationsByUsers;
         Iterator i = original.iterator();
         AnnotationData annotation;

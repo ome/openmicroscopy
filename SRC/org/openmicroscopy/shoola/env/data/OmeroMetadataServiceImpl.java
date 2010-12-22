@@ -87,6 +87,7 @@ import pojos.RatingAnnotationData;
 import pojos.TagAnnotationData;
 import pojos.TermAnnotationData;
 import pojos.TextualAnnotationData;
+import pojos.XMLAnnotationData;
 
 /** 
  * Implementation of the {@link OmeroMetadataService} I/F.
@@ -663,12 +664,21 @@ class OmeroMetadataServiceImpl
 		Collection annotations = loadStructuredAnnotations(object.getClass(),
 													r.getId(), userID);
 		if (annotations != null && annotations.size() > 0) {
-			List<AnnotationData> texts = new ArrayList<AnnotationData>();
-			List<AnnotationData> tags = new ArrayList<AnnotationData>();
-			List<AnnotationData> terms = new ArrayList<AnnotationData>();
-			List<AnnotationData> attachments = new ArrayList<AnnotationData>();
-			List<AnnotationData> ratings = new ArrayList<AnnotationData>();
-			List<AnnotationData> published = new ArrayList<AnnotationData>();
+			List<TextualAnnotationData> 
+				texts = new ArrayList<TextualAnnotationData>();
+			List<TagAnnotationData> tags = new ArrayList<TagAnnotationData>();
+			List<TermAnnotationData> 
+			terms = new ArrayList<TermAnnotationData>();
+			List<FileAnnotationData> 
+			attachments = new ArrayList<FileAnnotationData>();
+			List<RatingAnnotationData> 
+			ratings = new ArrayList<RatingAnnotationData>();
+			List<XMLAnnotationData> 
+			xml = new ArrayList<XMLAnnotationData>();
+			
+			List<AnnotationData> 
+			other = new ArrayList<AnnotationData>();
+			
 			Iterator i = annotations.iterator();
 			AnnotationData data;
 			BooleanAnnotationData b;
@@ -678,27 +688,22 @@ class OmeroMetadataServiceImpl
 			while (i.hasNext()) {
 				data = (AnnotationData) i.next();
 				if (data instanceof TermAnnotationData)
-					terms.add(data);
+					terms.add((TermAnnotationData) data);
 				else if (data instanceof TextualAnnotationData)
-					texts.add(data);
+					texts.add((TextualAnnotationData) data);
 				else if ((data instanceof TagAnnotationData)) {
-					//if (data.getOwner().getId() != userID) 
 					annotationIds.add(data.getId());
 					map.put(data.getId(), data);
-					tags.add(data);
+					tags.add((TagAnnotationData) data);
 				} else if (data instanceof RatingAnnotationData)
-					ratings.add(data);
+					ratings.add((RatingAnnotationData) data);
 				else if (data instanceof FileAnnotationData) {
-					//if (data.getOwner().getId() != userID) 
 					annotationIds.add(data.getId());
 					map.put(data.getId(), data);
-					attachments.add(data);
-				} else if (data instanceof BooleanAnnotationData) {
-					b = (BooleanAnnotationData) data;
-					if (BooleanAnnotationData.INSIGHT_PUBLISHED_NS.equals(
-							b.getNameSpace()))
-						published.add(data);
-				}
+					attachments.add((FileAnnotationData) data);
+				} else if (data instanceof XMLAnnotationData) {
+					xml.add((XMLAnnotationData) data);
+				} else other.add(data);
 			}
 			//load the links tags and attachments
 			if (annotationIds.size() > 0 && 
@@ -722,19 +727,14 @@ class OmeroMetadataServiceImpl
 					}
 					results.setLinks(m);
 				}
-				
 			}
-			
+			results.setOtherAnnotation(other);
+			results.setXMLAnnotations(xml);
 			results.setTextualAnnotations(texts);
 			results.setTerms(terms);
 			results.setTags(tags);
 			results.setRatings(ratings);
 			results.setAttachments(attachments);
-			results.setPublished(published);
-			if (map.size() > 0) {
-				
-				//loadLmap.keySet()
-			}
 		}
 		return results;
 	}

@@ -30,7 +30,14 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
+import pojos.AnnotationData;
 import pojos.DataObject;
+import pojos.FileAnnotationData;
+import pojos.RatingAnnotationData;
+import pojos.TagAnnotationData;
+import pojos.TermAnnotationData;
+import pojos.TextualAnnotationData;
+import pojos.XMLAnnotationData;
 
 /** 
  * Helper class storing the various data related to a given object.
@@ -49,17 +56,26 @@ public class StructuredDataResults
 {
 	
 	/** The tags related to the object. */
-	private Collection					tags;
+	private Collection<TagAnnotationData>	tags;
 	
 	/** The attachments related to the object. */
-	private Collection					attachments;
+	private Collection<FileAnnotationData>	attachments;
 	
 	/** The terms related to the object. */
-	private Collection					terms;
+	private Collection<TermAnnotationData>	terms;
 	
 	/** The textual annotations. */
-	private Collection					textualAnnotations;
+	private Collection<TextualAnnotationData> texts;
 
+	/** The ratings of the objects. */
+	private Collection<RatingAnnotationData>  ratings;
+	
+	/** The XML type of the objects. */
+	private Collection<XMLAnnotationData>  xmlAnnotations;
+	
+	/** Collection of annotations not already stored. */
+	private Collection<AnnotationData>     otherAnnotation;
+	
 	/** The object the results are for. */
 	private DataObject					relatedObject;
 	
@@ -69,13 +85,7 @@ public class StructuredDataResults
 	 * <code>dataset</code>.
 	 */
 	private Collection					parents;
-	
-	/** The ratings of the objects. */
-	private Collection					ratings;
 
-	/** Flag indicating if the object has been published e.g. image. */
-	private Collection					published;
-	
 	/** The tags and documents links. */
 	private Map							links;
 	
@@ -118,16 +128,19 @@ public class StructuredDataResults
 	 * 
 	 * @return See above.
 	 */
-	public Collection getTextualAnnotations() { return textualAnnotations; }
+	public Collection<TextualAnnotationData> getTextualAnnotations()
+	{ 
+		return texts; 
+	}
 
 	/**
 	 * Sets the collection of annotations.
 	 * 
-	 * @param annotations The value to set.
+	 * @param texts The value to set.
 	 */
-	public void setTextualAnnotations(Collection annotations)
+	public void setTextualAnnotations(Collection<TextualAnnotationData> texts)
 	{
-		this.textualAnnotations = annotations;
+		this.texts = texts;
 	}
 
 	/**
@@ -135,76 +148,111 @@ public class StructuredDataResults
 	 * 
 	 * @return See above.
 	 */
-	public Collection getAttachments() { return attachments; }
+	public Collection<FileAnnotationData> getAttachments()
+	{ 
+		return attachments; 
+	}
 
 	/**
 	 * Sets the collections of attachments.
 	 * 
 	 * @param attachments The value to set.
 	 */
-	public void setAttachments(Collection attachments)
+	public void setAttachments(Collection<FileAnnotationData> attachments)
 	{
 		this.attachments = attachments;
 	}
 
 	/**
+	 * Returns the collection of <code>XML</code> annotations.
+	 * 
+	 * @return See above.
+	 */
+	public Collection<XMLAnnotationData> getXMLAnnotations()
+	{ 
+		return xmlAnnotations; 
+	}
+	
+	/**
+	 * Sets the collections of <code>XML</code> annotations.
+	 * 
+	 * @param xmlAnnotations The value to set.
+	 */
+	public void setXMLAnnotations(Collection<XMLAnnotationData> xmlAnnotations)
+	{
+		this.xmlAnnotations = xmlAnnotations;
+	}
+	
+	/**
 	 * Returns the ratings.
 	 * 
 	 * @return See above.
 	 */
-	public Collection getRatings() { return ratings; }
+	public Collection<RatingAnnotationData> getRatings() { return ratings; }
 
 	/**
 	 * Sets the ratings.
 	 * 
 	 * @param ratings The value to set.
 	 */
-	public void setRatings(Collection ratings) { this.ratings = ratings; }
+	public void setRatings(Collection<RatingAnnotationData> ratings)
+	{ 
+		this.ratings = ratings; 
+	}
 
 	/**
 	 * Returns the collection of tags.
 	 * 
 	 * @return See above.
 	 */
-	public Collection getTags() { return tags; }
+	public Collection<TagAnnotationData> getTags() { return tags; }
 
 	/**
 	 * Sets the collections of tags.
 	 * 
 	 * @param tags The value to set.
 	 */
-	public void setTags(Collection tags) { this.tags = tags; }
+	public void setTags(Collection<TagAnnotationData> tags)
+	{ 
+		this.tags = tags;
+	}
 
 	/**
 	 * Returns the collection of terms.
 	 * 
 	 * @return See above.
 	 */
-	public Collection getTerms() { return terms; }
+	public Collection<TermAnnotationData> getTerms() { return terms; }
 
 	/**
 	 * Sets the collections of terms.
 	 * 
 	 * @param terms The value to set.
 	 */
-	public void setTerms(Collection terms) { this.terms = terms; }
-	
-	/**
-	 * Sets the collection of objects.
-	 * 
-	 * @param published The value to set.
-	 */
-	public void setPublished(Collection published)
+	public void setTerms(Collection<TermAnnotationData> terms)
 	{ 
-		this.published = published;
+		this.terms = terms; 
 	}
 	
 	/**
-	 * Returns the collection of published annotations.
+	 * Returns the collection of annotations.
 	 * 
 	 * @return See above.
 	 */
-	public Collection getPublished() { return published; }
+	public Collection<AnnotationData> getOtherAnnotation()
+	{ 
+		return otherAnnotation; 
+	}
+
+	/**
+	 * Sets the collections of annotations.
+	 * 
+	 * @param terms The value to set.
+	 */
+	public void setOtherAnnotation(Collection<AnnotationData> otherAnnotation)
+	{ 
+		this.otherAnnotation = otherAnnotation; 
+	}
 	
 	/**
 	 * Returns the collection of links.
@@ -218,9 +266,6 @@ public class StructuredDataResults
 	 * 
 	 * @param links The collection to set.
 	 */
-	public void setLinks(Map links)
-	{
-		this.links = links;
-	}
+	public void setLinks(Map links) { this.links = links; }
 	
 }

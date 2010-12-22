@@ -63,6 +63,7 @@ import omero.model.TermAnnotation;
 import omero.model.TimestampAnnotation;
 import omero.model.Well;
 import omero.model.WellSample;
+import omero.model.XmlAnnotation;
 import pojos.BooleanAnnotationData;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -85,6 +86,7 @@ import pojos.TimeAnnotationData;
 import pojos.WellData;
 import pojos.WellSampleData;
 import pojos.WorkflowData;
+import pojos.XMLAnnotationData;
 
 /** 
  * Helper methods to convert {@link IObject}s into their corresponding
@@ -152,14 +154,16 @@ public class PojoMapper
         		return new LongAnnotationData(ann);
         	}
         	return new LongAnnotationData(ann);
-        } else if (object instanceof DoubleAnnotation) {
+        } else if (object instanceof DoubleAnnotation)
         	return new DoubleAnnotationData((DoubleAnnotation) object);
-        } else if (object instanceof FileAnnotation) 
+        else if (object instanceof FileAnnotation) 
         	return new FileAnnotationData((FileAnnotation) object);
-        else if (object instanceof BooleanAnnotation) {
+        else if (object instanceof BooleanAnnotation)
         	return new BooleanAnnotationData((BooleanAnnotation) object);
-        }  else if (object instanceof TimestampAnnotation) 
+        else if (object instanceof TimestampAnnotation) 
         	return new TimeAnnotationData((TimestampAnnotation) object);
+        else if (object instanceof XmlAnnotation)
+        	return new XMLAnnotationData((XmlAnnotation) object);
         else if (object instanceof Pixels) 
             return new PixelsData((Pixels) object);
         else if (object instanceof Experimenter) 
