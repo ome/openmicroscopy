@@ -113,6 +113,7 @@ import pojos.TermAnnotationData;
 import pojos.TextualAnnotationData;
 import pojos.WellData;
 import pojos.WellSampleData;
+import pojos.XMLAnnotationData;
 
 /** 
  * The Model component in the <code>EditorViewer</code> MVC triad.
@@ -975,12 +976,24 @@ class EditorModel
 		return (Collection<FileAnnotationData>) sorter.sort(l); 
 	}
 
+	/**
+	 * Returns the collection of XML annotations.
+	 * 
+	 * @return See above.
+	 */
+	Collection<XMLAnnotationData> getXMLAnnotations()
+	{
+		StructuredDataResults data = parent.getStructuredData();
+		if (data == null) return null;
+		return data.getXMLAnnotations(); 
+	}
+	
 	/** 
 	 * Returns the objects displaying analysis results.
 	 * 
 	 * @return See above.
 	 */
-	List<FileAnnotationData> getAnalysisResults()
+	List<AnalysisResultsItem> getAnalysisResults()
 	{
 		StructuredDataResults data = parent.getStructuredData();
 		if (data == null) return null;
@@ -990,7 +1003,39 @@ class EditorModel
 		FileAnnotationData f;
 		String ns;
 		AnalysisResultsItem item;
-		Map l = new HashMap();
+		
+		Map<Long, FileAnnotationData> 
+		ids = new HashMap<Long, FileAnnotationData>();
+		while (i.hasNext()) {
+			f = i.next();
+			ns = f.getNameSpace();
+			if (FileAnnotationData.FLIM_NS.equals(ns)) {
+				ids.put(f.getId(), f);
+			}
+		}
+		List<Long> orderedIds =  (List<Long>) sorter.sort(ids.values());
+		if (orderedIds.size() == 0) return null;
+		int index = 0; //this should be modified.
+		Iterator<Long> j = orderedIds.iterator();
+		Long id;
+		DataObject object = (DataObject) getRefObject();
+		List<AnalysisResultsItem> 
+		results = new ArrayList<AnalysisResultsItem>();
+		item = null;
+		int n = 6;
+		while (j.hasNext()) {
+			id = j.next();
+			if (index == 0) {
+				item = new AnalysisResultsItem((DataObject) getRefObject(), 
+						FileAnnotationData.FLIM_NS);
+				results.add(item);
+			} else if (index == n) {
+				index = -1;
+			}
+			item.addAttachment(ids.get(id));
+			index++;
+		}
+		/*
 		while (i.hasNext()) {
 			f = i.next();
 			ns = f.getNameSpace();
@@ -1004,7 +1049,9 @@ class EditorModel
 				item.addAttachment(f);
 			} 
 		}
-		return (List<FileAnnotationData>) sorter.sort(l.values()); 
+		*/
+		return null;
+		//return (List<FileAnnotationData>) sorter.sort(l.values()); 
 	}
 	
 	/**
