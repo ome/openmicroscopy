@@ -145,6 +145,7 @@ public class FLIMResultsDialog
 		FILTERS.add(new ExcelFilter());
 		
 		NAMES_TO_EXCLUDE = new ArrayList<String>();
+		NAMES_TO_EXCLUDE.add("(?i)gb.*");
 	}
 	
 	/** Button to close the dialog. */
@@ -426,6 +427,23 @@ public class FLIMResultsDialog
 		return p;
 	}
 	
+	/**
+	 * Returns <code>true</code> if the name has to be excluded,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param name The name to handle.
+	 * @return See above.
+	 */
+	private boolean excludeName(String name)
+	{
+		Iterator<String> i = NAMES_TO_EXCLUDE.iterator();
+		while (i.hasNext()) {
+			if (i.next().matches(name))
+				return true;	
+		}
+		return false;
+	}
+	
 	/** Initializes the components composing the display. */
 	private void initComponents()
 	{
@@ -445,7 +463,7 @@ public class FLIMResultsDialog
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			fa = (FileAnnotationData) entry.getKey();
-			if (!NAMES_TO_EXCLUDE.contains(fa.getFileName())) {
+			if (!excludeName(fa.getFileName())) {
 				filtered.put(fa, (File) entry.getValue());
 			}
 			/*
