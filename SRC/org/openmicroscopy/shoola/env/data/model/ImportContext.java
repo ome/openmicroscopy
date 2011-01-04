@@ -25,13 +25,11 @@ package org.openmicroscopy.shoola.env.data.model;
 
 
 //Java imports
-import java.util.Collection;
 import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import pojos.TagAnnotationData;
 
 /** 
  * Holds the information on where to import the files and

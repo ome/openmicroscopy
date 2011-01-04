@@ -25,13 +25,9 @@ package org.openmicroscopy.shoola.env.data.model;
 
 //Java imports
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 
 //Third-party libraries
 
@@ -60,9 +56,10 @@ public class ImportableObject
 	/** 
 	 * The collection of files to import. The value is used if the file
 	 * is a directory to find out if the folder has to be turned into a 
-	 * dataset or screen.
+	 * dataset or screen for the first value and if the file has to be archived
+	 * for the second value.
 	 */
-	private Map<File, Boolean> files;
+	private Map<File, List<Boolean>> files;
 	
 	/** The depth. */
 	private int			depth;
@@ -74,9 +71,6 @@ public class ImportableObject
 	
 	/** The collection of tags. */
 	private Collection<TagAnnotationData> tags;
-	
-	/** Flag indicating to archive the files. */
-	private boolean archived;
 	
 	/** The container where to import the data if set. */
 	private DataObject container;
@@ -98,7 +92,7 @@ public class ImportableObject
 	 *                     file set while importing the data,
 	 *                     <code>false</code> otherwise.
 	 */
-	public ImportableObject(Map<File, Boolean> files, boolean overrideName)
+	public ImportableObject(Map<File, List<Boolean>> files, boolean overrideName)
 	{
 		this.files = files;
 		this.overrideName = overrideName;
@@ -112,23 +106,6 @@ public class ImportableObject
 	 * @param type The type to use.
 	 */
 	public void setType(Class type) { this.type = type; }
-	
-	/**
-	 * Sets to <code>true</code> to archive the files, <code>false</code>
-	 * otherwise.
-	 * 
-	 * @param archived Pass <code>true</code> to archive the files, 
-	 * 				   <code>false</code> otherwise.
-	 */
-	public void setArchived(boolean archived) { this.archived = archived; }
-	
-	/**
-	 * Returns <code>true</code> to archive the files, <code>false</code>
-	 * otherwise.
-	 * 
-	 * @return See above.
-	 */
-	public boolean isArchived() { return archived; }
 	
 	/**
 	 * Sets the container where to import the data if set.
@@ -179,7 +156,24 @@ public class ImportableObject
 	 * 
 	 * @return See above.
 	 */
-	public Map<File, Boolean> getFiles() { return files; }
+	public Map<File, List<Boolean>> getFiles() { return files; }
+	
+	/**
+	 * Returns <code>true</code> if the file has to be archived.
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param file The file to handle.
+	 * @return See above.
+	 */
+	public boolean isArchivedFile(File file)
+	{
+		if (file == null) return false;
+		List<Boolean> list = files.get(file);
+		if (list.size() < 2) return false;
+		Boolean b = list.get(1);
+		if (b == null) return false;
+		return b.booleanValue();
+	}
 	
 	/**
 	 * Returns the <code>DataObject</code> corresponding to the folder 
@@ -191,7 +185,8 @@ public class ImportableObject
 	public DataObject createFolderAsContainer(File file)
 	{
 		if (file == null || file.isFile()) return null;
-		Boolean b = files.get(file);
+		List<Boolean> list = files.get(file);
+		Boolean b = list.get(0);
 		if (b == null || !b.booleanValue()) return null;
 		if (DatasetData.class.equals(type)) {
 			DatasetData dataset = new DatasetData();

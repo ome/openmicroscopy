@@ -50,6 +50,7 @@ import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
+import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.treetable.renderers.StringCellRenderer;
@@ -78,6 +79,12 @@ class FileSelectionTable
 	/** Bound property indicating to remove files to the queue. */
 	static final String REMOVE_PROPERTY = "remove";
 	
+	/** String used to retrieve if the value of the archived flag. */
+	private static final String ARCHIVED = "/options/Archived";
+	
+	/** String used to retrieve if the archived option is displayed. */
+	private static final String ARCHIVED_AVAILABLE = "/options/ArchivedTunable";
+	
 	/** Action command ID to add a field to the result table. */
 	private static final int 		ADD = 0;
 	
@@ -90,8 +97,14 @@ class FileSelectionTable
 	/** The index of the file's name column. */
 	private static final int		FILE_INDEX = 0;
 	
-	/** The index of the column indicating to import the file. */
-	private static final int		SELECTED_INDEX = 1;
+	/** 
+	 * The index of the column indicating to use the folder
+	 * as a dataset. 
+	 */
+	private static final int		FOLDER_AS_CONTAINER_INDEX = 1;
+	
+	/** The index of the column indicating to archive the file. */
+	private static final int		ARCHIVED_INDEX = 2;
 	
 	/** The columns of the table. */
 	private static final Vector<String> COLUMNS;
@@ -100,6 +113,7 @@ class FileSelectionTable
 		COLUMNS = new Vector<String>(2);
 		COLUMNS.add("File or Folder");
 		COLUMNS.add("Folder as Dataset");
+		COLUMNS.add("Archived");
 	}
 	
 	/** The button to move an item from the remaining items to current items. */
@@ -116,6 +130,12 @@ class FileSelectionTable
 	
 	/** Reference to the model. */
 	private ImportDialog 		model;
+	
+	/** The default value of the archived file. */
+	private boolean archived;
+	
+	/** The default value of the archived file. */
+	private boolean archivedTunable;
 	
 	/** Initializes the components composing the display. */
 	private void initComponents()
@@ -138,13 +158,22 @@ class FileSelectionTable
 		removeButton.addActionListener(this);
 		removeAllButton.setActionCommand(""+REMOVE_ALL);
 		removeAllButton.addActionListener(this);
+		Boolean b = (Boolean) ImporterAgent.getRegistry().lookup(ARCHIVED);
+		if (b != null) archived = b.booleanValue();
+		b = (Boolean) ImporterAgent.getRegistry().lookup(ARCHIVED_AVAILABLE);
+		if (b != null) archivedTunable = b.booleanValue();
 		table = new JXTable(new FileTableModel(COLUMNS));
 		
 		//add tool tip
 		TableColumnModel tcm = table.getColumnModel();
-		TableColumn tc = tcm.getColumn(SELECTED_INDEX);
+		TableColumn tc = tcm.getColumn(FOLDER_AS_CONTAINER_INDEX);
 		tc.setCellEditor(table.getDefaultEditor(Boolean.class));  
 		tc.setCellRenderer(table.getDefaultRenderer(Boolean.class));  
+		
+		tc = tcm.getColumn(ARCHIVED_INDEX);
+		tc.setCellEditor(table.getDefaultEditor(Boolean.class));  
+		tc.setCellRenderer(table.getDefaultRenderer(Boolean.class));
+		
 		Highlighter h = HighlighterFactory.createAlternateStriping(
 				UIUtilities.BACKGROUND_COLOUR_EVEN, 
 				UIUtilities.BACKGROUND_COLOUR_ODD);
@@ -253,20 +282,24 @@ class FileSelectionTable
 	 * 
 	 * @return See above.
 	 */
-	Map<File, Boolean> getFilesToImport()
+	Map<File, List<Boolean>> getFilesToImport()
 	{
-		Map<File, Boolean> files = new HashMap<File, Boolean>();
+		Map<File, List<Boolean>> files = new HashMap<File, List<Boolean>>();
 		int n = table.getRowCount();
 		DefaultTableModel dtm = (DefaultTableModel) table.getModel();
 		FileElement element;
 		File file;
+		List<Boolean> list;
 		for (int i = 0; i < n; i++) {
 			element = (FileElement) dtm.getValueAt(i, FILE_INDEX);
+			list = new ArrayList<Boolean>();
 			file = element.getFile();
-			if (file.isFile()) 
-				files.put(file, Boolean.valueOf(false));
-			else files.put(file, Boolean.valueOf(
-						(Boolean) dtm.getValueAt(i, SELECTED_INDEX)));
+			if (file.isFile()) list.add(Boolean.valueOf(false));
+			else list.add(Boolean.valueOf((Boolean) dtm.getValueAt(i, 
+							FOLDER_AS_CONTAINER_INDEX)));
+			list.add(Boolean.valueOf((Boolean) dtm.getValueAt(i, 
+					ARCHIVED_INDEX)));
+			files.put(file, list);
 		}
 		return files;
 	}
@@ -316,7 +349,8 @@ class FileSelectionTable
 				element = new FileElement(f);
 				element.setName(f.getName());
 				dtm.addRow(new Object[] {element, 
-						Boolean.valueOf(f.isDirectory())});
+						Boolean.valueOf(f.isDirectory()), 
+						Boolean.valueOf(archived)});
 			}
 		}
 	}
@@ -394,9 +428,10 @@ class FileSelectionTable
 		{ 
 			switch (column) {
 				case FILE_INDEX: return false;
-				case SELECTED_INDEX:
+				case FOLDER_AS_CONTAINER_INDEX:
 					FileElement f = (FileElement) getValueAt(row, FILE_INDEX);
 					return f.isDirectory();
+				case ARCHIVED_INDEX: return archivedTunable;
 			}
 			return false; 
 		}

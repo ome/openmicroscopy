@@ -108,7 +108,7 @@ class ImporterUIElement
 		entries = new JPanel();
 		entries.setBackground(UIUtilities.BACKGROUND);
 		components = new LinkedHashMap<String, FileImportComponent>();
-		Map<File, Boolean> files = object.getFiles();
+		Map<File, List<Boolean>> files = object.getFiles();
 		FileImportComponent c;
 		File f;
 		ImportObject obj;

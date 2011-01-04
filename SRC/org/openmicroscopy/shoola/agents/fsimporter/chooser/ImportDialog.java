@@ -201,9 +201,6 @@ public class ImportDialog extends JDialog
 	/** Apply the partial name to all files. */
 	private JButton				applyToAllButton;
 	
-	/** Box indicating to archive or not the files. */
-	private JCheckBox			archived;
-	
 	/** Indicates to use a partial name. */
 	private JRadioButton		partialName;
 	
@@ -420,13 +417,6 @@ public class ImportDialog extends JDialog
 		tagButton.setToolTipText("Add Tags.");
 		tagsPane = new JPanel();
 		tagsPane.setLayout(new BoxLayout(tagsPane, BoxLayout.Y_AXIS));
-		
-		archived = new JCheckBox();
-		archived.setText("Archived files");
-		Boolean b = (Boolean) ImporterAgent.getRegistry().lookup(ARCHIVED);
-		if (b != null) archived.setSelected(b);
-		b = (Boolean) ImporterAgent.getRegistry().lookup(ARCHIVED_AVAILABLE);
-		if (b != null) archived.setVisible(b);
 
 		overrideName = new JCheckBox("Override default File naming. " +
 				"Instead use");
@@ -651,8 +641,6 @@ public class ImportDialog extends JDialog
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		p.add(content);
-		if (archived.isVisible())
-			p.add(UIUtilities.buildComponentPanel(archived));
 		p.add(buildAnnotationComponent());
 		return UIUtilities.buildComponentPanel(p);
 	}
@@ -766,9 +754,7 @@ public class ImportDialog extends JDialog
     	//Set the current directory as the defaults
     	UIUtilities.setDefaultFolder(
     			chooser.getCurrentDirectory().toString());
-
-    	Map<File, Boolean> files = table.getFilesToImport();
-    	ImportableObject object = new ImportableObject(files,
+    	ImportableObject object = new ImportableObject(table.getFilesToImport(),
     			overrideName.isSelected());
     	object.setContainer(container);
     	//tags
@@ -843,22 +829,6 @@ public class ImportDialog extends JDialog
 			*/
 		}
 	}
-    
-	/**
-	 * Returns <code>true</code> if the file will be archived, 
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	boolean isArchived() { return archived.isSelected(); }
-	
-	/**
-	 * Returns <code>true</code> if the user can interact with the archived
-	 * options, <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	boolean canArchived() { return archived.isVisible(); }
 	
 	/**
 	 * Returns the name to display for a file.

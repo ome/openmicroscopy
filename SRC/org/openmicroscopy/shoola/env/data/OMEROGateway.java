@@ -6085,9 +6085,9 @@ class OMEROGateway
 					new OMEROWrapper(new ImportConfig()));
 			library.addObserver(status);
 			//Double[] userPixels, String reader, String[] usedFiles, Boolean isSPW
+			boolean archived = object.isArchivedFile(file);
 			ImportContainer ic = new ImportContainer(file, -1L, container, 
-					object.isArchived(), object.getPixelsSize(), null, null,
-					null);
+					archived, object.getPixelsSize(), null, null, null);
 			ic.setUseMetadataFile(true);
 			if (object.isOverrideName()) {
 				int depth = object.getDepth();
