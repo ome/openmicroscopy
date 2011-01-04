@@ -97,12 +97,6 @@ public class CreateAction
     private int nodeType;
     
     /** 
-     * Flag indicating to bring a file chooser, <code>false</code>
-     * otherwise.
-     */
-    private boolean chooser;
-    
-    /** 
      * Sets the action enabled depending on the state of the {@link Browser}.
      * @see TreeViewerAction#onBrowserStateChange(Browser)
      */
@@ -128,7 +122,6 @@ public class CreateAction
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
-    	chooser = true;
         IconManager im = IconManager.getInstance();
         putValue(Action.SMALL_ICON, im.getIcon(IconManager.CREATE));
         Browser browser = model.getSelectedBrowser();
@@ -227,7 +220,7 @@ public class CreateAction
      */
     public void actionPerformed(ActionEvent e)
     {
-       CreateCmd cmd = new CreateCmd(model, nodeType, chooser);
+       CreateCmd cmd = new CreateCmd(model, nodeType);
        cmd.execute();
     }
 

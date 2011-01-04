@@ -32,11 +32,9 @@ package org.openmicroscopy.shoola.agents.treeviewer.cmd;
 import org.openmicroscopy.shoola.agents.events.importer.LoadImporter;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.treeviewer.util.ImportDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.event.EventBus;
-
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -101,12 +99,6 @@ public class CreateCmd
     /** Flag indicating if the node to create has a parent. */
     private boolean		withParent;
     
-    /** Flag indicating to bring up or not a filer chooser. */
-    private boolean		chooser;
-    
-    /** The file chooser. */
-    private ImportDialog importDialog;
-    
     /**
      * Checks that the specified type is currently supported
      * and returns the corresponding <code>DataObject</code>.
@@ -136,15 +128,12 @@ public class CreateCmd
      * 
      * @param model     Reference to the model. Mustn't be <code>null</code>.
      * @param type      One of the constants defined by this class.
-     * @param chooser	Pass <code>true</code> to bring up a file chooser.
-     * 					<code>false</code> otherwise.
      */
-    public CreateCmd(TreeViewer model, int type, boolean chooser)
+    public CreateCmd(TreeViewer model, int type)
     {
         if (model == null) throw new IllegalArgumentException("No model.");
         userObject = checkNodeType(type);
         this.model = model;
-        this.chooser = chooser;
         withParent = true;
     }
     

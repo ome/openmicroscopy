@@ -31,12 +31,13 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
+import org.openmicroscopy.shoola.util.file.ImportErrorObject;
+
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.model.ImportErrorObject;
 
 /**
  * Table displaying the file to send post to the server. 

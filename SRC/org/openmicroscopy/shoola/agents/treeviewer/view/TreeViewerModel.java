@@ -52,7 +52,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.DataObjectUpdater;
 import org.openmicroscopy.shoola.agents.treeviewer.DataTreeViewerLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExistingObjectsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ExistingObjectsSaver;
-import org.openmicroscopy.shoola.agents.treeviewer.ImagesImporter;
 import org.openmicroscopy.shoola.agents.treeviewer.OriginalFileLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.PlateWellsLoader;
 import org.openmicroscopy.shoola.agents.treeviewer.ProjectsLoader;
@@ -168,16 +167,10 @@ class TreeViewerModel
 	private AdvancedFinder			advancedFinder;
 	
 	/** Reference to the component that embeds this model. */
-	protected TreeViewer            	component;
+	protected TreeViewer            component;
 
-	/** Collection of importers. */
-	private Map<Integer, ImagesImporter>	importLoaders;
-	
-	/** The id associated to an import. */
-	private int							importID;
-	
-	/** Flag indicating to open the images in a separate window or not. */
-	private boolean						fullScreen;
+	/** Flag indicating if there is an on-going import. */
+	private boolean 				importing;
 	
 	/**
 	 * Builds the map linking the nodes to copy and the parents.
@@ -301,11 +294,9 @@ class TreeViewerModel
 	{
 		state = TreeViewer.NEW;
 		browsers = new HashMap<Integer, Browser>();
-		importLoaders = new HashMap<Integer, ImagesImporter>();
-		importID = 0;
 		recycled = false;
 		refImage = null;
-		fullScreen = true;
+		importing = false;
 	}
 	
 	/**
@@ -942,113 +933,6 @@ class TreeViewerModel
 	DataBrowser getDataViewer() { return dataViewer; }
 
 	/**
-	 * Fires an asynchronous call to import the specified files.
-	 * 
-	 * @param nodes 	The nodes to reload.
-	 * @param files 	The files to import.
-	 * @param archived 	Pass <code>true</code> to archived the files, 
-	 * 					<code>false</code> otherwise.
-	 */
-	void importFiles(List<TreeImageDisplay> nodes, List<ImportObject> files,
-			boolean archived)
-	{
-		ImagesImporter loader = new ImagesImporter(component, nodes, files,
-			archived, importID);
-		importLoaders.put(importID, loader);
-		importID++;
-		loader.load();
-	}
-	
-	/**
-	 * Fires an asynchronous call to import the specified files.
-	 * 
-	 * @param node 		The node hosting the container to import the image into.
-	 * @param files 	The files to import.
-	 * @param archived 	Pass <code>true</code> to archived the files, 
-	 * 					<code>false</code> otherwise.
-	 */
-	void importFiles(TreeImageDisplay node, List<ImportObject> files, 
-			boolean archived)
-	{
-		ImagesImporter loader = new ImagesImporter(component, node, files,
-				archived, importID);
-		importLoaders.put(importID, loader);
-		importID++;
-		loader.load();
-	}
-	
-	/**
-	 * Removes the loaders from the map.
-	 * 
-	 * @param importID The id of the loader.
-	 */
-	void removeLoader(int importID)
-	{
-		importLoaders.remove(importID);
-	}
-	
-	/** Cancels on-going imports. */
-	void cancelImport()
-	{
-		Entry entry;
-		Iterator i = importLoaders.entrySet().iterator();
-		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			((ImagesImporter) entry.getValue()).cancel();
-		}
-		importLoaders.clear();
-	}
-	
-	/**
-	 * Returns <code>true</code> if the file can be imported,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @param f The file to handle.
-	 * @return See above.
-	 */
-	boolean isFileImportable(File f)
-	{
-		if (f.isDirectory()) return false;
-		if (f.isHidden()) return false;
-		if (!f.canRead()) return false;
-		if (!f.exists()) return false;
-		Browser b = getSelectedBrowser();
-		/*
-		Browser b = getBrowser(Browser.FILE_SYSTEM_EXPLORER);
-		//already imported
-		if (b.isFileImported(f.getAbsolutePath()))
-			return false;
-			*/
-		if (b != null && b.getBrowserType() == Browser.FILE_SYSTEM_EXPLORER
-				&& b.isFileImported(f.getAbsolutePath()))
-			return false;
-		
-		String path = f.getAbsolutePath();
-    	path = path.toLowerCase();
-    	if (path.endsWith(OmeroImageService.ZIP_EXTENSION)) return true;
-    	
-		List<FileFilter> filters = getSupportedFormats();
-		Iterator<FileFilter> i = filters.iterator();
-		FileFilter filter;
-		while (i.hasNext()) {
-			filter = i.next();
-			if (filter.accept(f)) return true;
-		}
-		return false;
-	}
-	
-	/**
-	 * Returns the list of the supported file formats.
-	 * 
-	 * @return See above.
-	 */
-	List<FileFilter> getSupportedFormats()
-	{
-		OmeroImageService svc = TreeViewerAgent.getRegistry().getImageService();
-		return svc.getSupportedFileFilters();
-	}
-
-	/**
 	 * Returns <code>true</code> if the multiple users flag is turned on,
 	 * <code>false</code> otherwise.
 	 * 
@@ -1186,25 +1070,7 @@ class TreeViewerModel
 		if (d == null) return null;
 		return getObjectMimeType(d.getUserObject());
 	}
-	
-	/**
-	 * Returns <code>true</code> if the images are opened in a separate 
-	 * window, <code>false</code> to open them in the main window.
-	 * 
-	 * @return See above.
-	 */
-	boolean isFullScreen() { return true; }//fullScreen; }
-	
-	/**
-	 * Sets to <code>true</code> to open the images in a separate 
-	 * window, to <code>false</code> to open them in the main window.
-	 * 
-	 * @param fullScreen Pass <code>true</code> to open the images in a separate 
-	 * 					 window, to <code>false</code> to open them in the main 
-	 * 					 window.
-	 */
-	void setFullScreen(boolean fullScreen) { this.fullScreen = fullScreen; }
-	
+
 	/**
 	 * Returns <code>true</code> if the currently logged in user is 
 	 * a leader of a group, <code>false</code> otherwise.
@@ -1268,4 +1134,26 @@ class TreeViewerModel
 		currentLoader.load();
 	}
 
+	/**
+	 * Returns <code>true</code> if on-going imports, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isImporting() { return importing; }
+	
+	/**
+	 * Sets the flag indicating if there are on-going imports.
+	 * 
+	 * @param importing Pass <code>true</code> if there are on-going imports,
+	 * 					<code>false</code> otherwise.
+	 */
+	void setImporting(boolean importing) { this.importing = importing; }
+	
+	/** 
+	 * Returns 
+	 */
+	boolean isFullScreen() { return true; }
+	
+	
 }

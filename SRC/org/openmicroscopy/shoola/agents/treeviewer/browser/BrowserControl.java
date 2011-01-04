@@ -42,7 +42,6 @@ import javax.swing.tree.TreePath;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserDeleteAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserImportAction;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserInfoAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserManageAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserPasswordResetAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserRefreshAction;
@@ -142,7 +141,6 @@ class BrowserControl
         actionsMap.put(SORT, new SortAction(model));
         actionsMap.put(SORT_DATE, new SortByDateAction(model));
         actionsMap.put(PARTIAL_NAME, new ShowNameAction(model));
-        actionsMap.put(INFO, new BrowserInfoAction(model));
         actionsMap.put(DELETE, new BrowserDeleteAction(model));
         actionsMap.put(NEW_CONTAINER, new BrowserManageAction(model, 
         		BrowserManageAction.NEW_CONTAINERS));

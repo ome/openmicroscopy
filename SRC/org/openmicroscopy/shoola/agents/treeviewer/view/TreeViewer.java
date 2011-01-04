@@ -32,16 +32,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.treeviewer.util.ImportableObject;
 import org.openmicroscopy.shoola.agents.util.DataObjectRegistration;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
@@ -830,42 +827,6 @@ public interface TreeViewer
 
 	/** Shows or hides the Tree Viewer. */
 	public void setInspectorVisibility();
-
-	/** 
-	 * Imports the selected files. 
-	 * 
-	 * @param toImport Object containing the files and the import options.
-	 */
-	void importFiles(ImportableObject toImport);
-	
-	/**
-	 * Sets the imported file.
-	 * 
-	 * @param key   	The imported file.
-	 * @param value 	The corresponding internal object.
-	 * @param nodes 	The nodes to refresh.
-	 * @param container The container where the files are linked to or 
-	 * 					<code>null</code>.
-	 * @param loaderID	The id associated to that specific loader.
-	 */
-	void setImportedFiles(File key, Object value, List<TreeImageDisplay> nodes,
-			DataObject container, int loaderID);
-
-	/**
-	 * Returns <code>true</code> if there is an on-going import.
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	boolean isImporting();
-
-	/** 
-	 * Shows or hides the Importer. Returns <code>true</code> if the importer
-	 * is visible, <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	boolean setImporterVisibility();
 	
 	/**
 	 * Returns all the images currently displayed in the 
@@ -874,16 +835,6 @@ public interface TreeViewer
 	 * @return See above.
 	 */
 	public Collection getDisplayedImages();
-
-	/**
-	 * Returns the list of the supported file formats.
-	 * 
-	 * @return See above.
-	 */
-	public List<FileFilter> getSupportedFormats();
-	
-	/** Brings up the import dialog. */
-	public void showImporter();
 
 	/**
 	 * Indicates that an activity has just terminated.
@@ -900,9 +851,6 @@ public interface TreeViewer
 	 * @param folder The folder where to download the files.
 	 */
 	void download(File folder);
-
-	/** Cancels on-going imports. */
-	void cancelImports();
 
 	/**
 	 * Sets the collection of archived files.
@@ -1017,5 +965,13 @@ public interface TreeViewer
 	 * to the passed type, <code>false</code> otherwise.
 	 */
 	void findDataObject(Class type, long id, boolean selectTab);
+
+	/**
+	 * Returns <code>true</code> if there is an on-going import,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isImporting();
 	
 }

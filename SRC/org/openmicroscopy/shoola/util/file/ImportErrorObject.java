@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.env.data.model.ImportErrorObject 
+ * org.openmicroscopy.shoola.util.file.ImportErrorObject 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2011 University of Dundee. All rights reserved.
@@ -20,7 +20,8 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.env.data.model;
+package org.openmicroscopy.shoola.util.file;
+
 
 //Java imports
 import java.io.File;
@@ -28,7 +29,6 @@ import java.io.File;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.ImportException;
 
 /** 
  * Object information about files that cannot be imported.
@@ -50,7 +50,7 @@ public class ImportErrorObject
 	private File file;
 	
 	/** The exception thrown during the import. */
-	private ImportException exception;
+	private Exception exception;
 	
 	/** The files associated to the file that failed to import. */
 	private String[] usedFiles;
@@ -64,7 +64,7 @@ public class ImportErrorObject
 	 * @param file The file that could not be imported.
 	 * @param exception The exception.
 	 */
-	public ImportErrorObject(File file, ImportException exception)
+	public ImportErrorObject(File file, Exception exception)
 	{
 		this.file = file;
 		this.exception = exception;
@@ -116,7 +116,6 @@ public class ImportErrorObject
 	 * 
 	 * @return See above.
 	 */
-	public ImportException getException() { return exception; }
-	
+	public Exception getException() { return exception; }
 	
 }

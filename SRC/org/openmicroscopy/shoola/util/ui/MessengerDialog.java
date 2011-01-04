@@ -65,10 +65,10 @@ import javax.swing.text.StyledDocument;
 import javax.swing.text.TabSet;
 import javax.swing.text.TabStop;
 
-import org.jdesktop.swingx.JXBusyLabel;
-import org.openmicroscopy.shoola.env.data.model.ImportErrorObject;
-
 //Third-party libraries
+import org.jdesktop.swingx.JXBusyLabel;
+import org.openmicroscopy.shoola.util.file.ImportErrorObject;
+
 import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies

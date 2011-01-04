@@ -53,7 +53,6 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.EmptyBorder;
 
 //Third-party libraries
-import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
@@ -94,26 +93,11 @@ class ToolBar
     /** Reference to the view. */
     private TreeViewerWin	   view;
     
-    /** The component indicating the status of the import. */
-    private JXBusyLabel			importLabel;
-    
-    /** The import bar. */
-    private JToolBar			importBar;
-    
     /** The menu displaying the groups the user is a member of. */
     private JPopupMenu			personalMenu;
 
     /** Button to open the full in a separate window. */
     private JToggleButton		fullScreen;
-    
-    /** Initializes the components. */
-    private void initComponents()
-    {
-    	importLabel = new JXBusyLabel();//new JXBusyLabel(SIZE);
-    	importLabel.setEnabled(true);
-    	importLabel.setVisible(false);
-    	importLabel.setHorizontalTextPosition(JXBusyLabel.LEFT);
-    }
     
     /**
      * Sets the defaults of the specified menu item.
@@ -213,25 +197,6 @@ class ToolBar
         return bar;
     }
     
-    /**
-     * Returns the tool bar indicating the status of the import.
-     * 
-     * @return See above.
-     */
-    private JToolBar createImportBar()
-    {
-    	JToolBar bar = new JToolBar();
-        bar.setFloatable(false);
-        bar.setRollover(true);
-        bar.setBorder(null);
-        bar.add(importLabel);
-        JButton b = new JButton(controller.getAction(
-        		TreeViewerControl.IMPORTER));
-        UIUtilities.unifiedButtonLookAndFeel(b);
-        bar.add(b);
-        return bar;
-    }
-    
     /** Builds and lays out the UI. */
     private void buildGUI()
     {
@@ -253,25 +218,6 @@ class ToolBar
         setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         add(UIUtilities.buildComponentPanel(outerPanel));
     }
-
-    /**
-     * Sets the status of the import.
-     * 
-     * @param perc  The text do display
-     * @param show  Pass <code>true</code> to show the wheel, <code>false</code>
-     * 				to hide it.
-     */
-    void setImportStatus(String perc, boolean show)
-    {
-    	if (importBar == null) {
-    		importBar = createImportBar();
-    		add(UIUtilities.buildComponentPanelRight(importBar));
-    	}
-    	importLabel.setBusy(true);
-    	importLabel.setText(perc);
-    	importLabel.setVisible(show);
-    	
-    }
     
     /**
      * Creates a new instance.
@@ -287,15 +233,14 @@ class ToolBar
     		TreeViewerWin view)
     {
         if (controller == null) 
-            throw new NullPointerException("No controller.");
+            throw new NullPointerException("No Controller.");
         if (model == null) 
-            throw new NullPointerException("No model.");
+            throw new NullPointerException("No Model.");
         if (view == null) 
-            throw new NullPointerException("No view.");
+            throw new NullPointerException("No View.");
         this.model = model;
         this.controller = controller;
         this.view = view;
-        initComponents();
         buildGUI();
     }
     

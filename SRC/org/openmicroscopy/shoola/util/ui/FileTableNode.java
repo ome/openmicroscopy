@@ -34,9 +34,9 @@ import javax.swing.JSeparator;
 
 //Third-party libraries
 import org.jdesktop.swingx.JXBusyLabel;
+import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.model.ImportErrorObject;
 
 /**
  * Element to display the status of the upload of a file.

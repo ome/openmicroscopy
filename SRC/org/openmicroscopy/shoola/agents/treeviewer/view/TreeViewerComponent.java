@@ -38,12 +38,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 
@@ -62,7 +60,6 @@ import org.openmicroscopy.shoola.agents.events.treeviewer.DeleteObjectEvent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewerFactory;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-import org.openmicroscopy.shoola.agents.treeviewer.ImportManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerTranslator;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
@@ -71,8 +68,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.finder.ClearVisitor;
 import org.openmicroscopy.shoola.agents.treeviewer.finder.Finder;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AdminDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.GenericDialog;
-import org.openmicroscopy.shoola.agents.treeviewer.util.ImportDialog;
-import org.openmicroscopy.shoola.agents.treeviewer.util.ImportableObject;
 import org.openmicroscopy.shoola.agents.treeviewer.util.NotDeletedObjectDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.OpenWithDialog;
 import org.openmicroscopy.shoola.agents.util.browser.ContainerFinder;
@@ -98,10 +93,8 @@ import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
-import org.openmicroscopy.shoola.env.data.model.ImportObject;
 import org.openmicroscopy.shoola.env.data.model.OpenActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
-import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.log.LogMessage;
@@ -163,13 +156,7 @@ class TreeViewerComponent
 	
 	/** The dialog presenting the list of available users. */
 	private UserManagerDialog	switchUserDialog;
-
-	/** The component managing the import. */
-	private ImportManager 		importManager;
 	
-    /** The file chooser. */
-    private ImportDialog 		importDialog;
-
 	/**
 	 * Downloads the files.
 	 * 
@@ -192,30 +179,6 @@ class TreeViewerComponent
 			activity.setFileName(fa.getFileName());
 		activity.setApplicationData(data);
 		un.notifyActivity(activity);
-	}
-	
-	/** 
-	 * Prepares the file to import.
-	 * 
-	 * @param l 	The collection hosting the file to import.
-	 * @param f 	The file to handle.
-	 * @param total The number of files.
-	 */
-	private void prepareFile(List<Object> l, File f, int total)
-	{
-		File child;
-		File[] list;
-		if (f.isFile() && model.isFileImportable(f)) {
-			l.add(f);
-		} else if (f.isDirectory() && !f.isHidden()) {
-			list = f.listFiles();
-			total += list.length;
-			for (int k = 0; k < list.length; k++) {
-				child = list[k];
-				if (child.isFile() && model.isFileImportable(child))
-					l.add(child);
-			}
-		}
 	}
 	
 	/** 
@@ -2670,139 +2633,7 @@ class TreeViewerComponent
 		if (model.getState() == DISCARDED) return;
 		view.setInspectorVisibility();
 	}
-
-	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#importFiles(ImportableObject)
-	 */
-	public void importFiles(ImportableObject toImport)
-	{
-		if (model.getState() == DISCARDED) return;
-		Browser browser = model.getSelectedBrowser();
-		int type = browser.getBrowserType();
-		List<TreeImageDisplay> parents = new ArrayList<TreeImageDisplay>();
-		TreeImageDisplay node = null;
-		if (type == Browser.PROJECTS_EXPLORER || 
-				type == Browser.SCREENS_EXPLORER) {
-			//File chooser import.
-			node = browser.getLastSelectedDisplay();
-		} else return;
-		Map<File, String> files = toImport.getFiles();
-		if (files == null || files.size() == 0) return;
-		if (importManager == null) {
-			importManager = new ImportManager();
-			importManager.addPropertyChangeListener(controller);
-		}
-		//
-		
-		List<ImportObject> list = importManager.initialize(files, 
-				toImport.getDepth());
-		if (!view.isImporterVisible())
-			view.setImporterVisibility(importManager.getUIDelegate(), true);
-		view.setImportStatus("Importing...", true);
-		if (node == null)
-			model.importFiles(parents, list, toImport.isArchived());
-		else model.importFiles(node, list, toImport.isArchived());
-		firePropertyChange(IMPORT_PROPERTY, Boolean.valueOf(false),
-				Boolean.valueOf(true));
-	}
-
-	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#setImportedFiles(File, Object, List, DataObject, int)
-	 */
-	public void setImportedFiles(File key, Object value,
-			List<TreeImageDisplay> nodes, DataObject container, int loaderID)
-	{
-		if (model.getState() == DISCARDED) return;
-		if (importManager == null) return;
-		Browser browser = model.getBrowser(Browser.FILE_SYSTEM_EXPLORER);
-		ImageData img;
-		if (value == null || value instanceof String || value instanceof
-				Exception) {
-			importManager.setStatus(key, value);
-		} else if (value instanceof Map) {
-			importManager.setStatus(key, value);
-		} else if (value instanceof ImageData) {
-			img = (ImageData) value;
-			browser.setImportedFile(img);
-			importManager.setStatus(key, img);
-		} else if (value instanceof ThumbnailData) {
-			ThumbnailData thumb = (ThumbnailData) value;
-			img = thumb.getImage();
-			browser.setImportedFile(img);
-			importManager.setStatus(key, thumb);
-		}
-		boolean b = importManager.hasFilesToImport();
-		model.removeLoader(loaderID);
-		view.setImportStatus("", b);
-		Browser selectedBrowser = model.getSelectedBrowser();
-		if (container instanceof DatasetData) {
-			if (selectedBrowser != null && 
-					selectedBrowser.getBrowserType() == 
-						Browser.PROJECTS_EXPLORER) {
-				browser = selectedBrowser;
-			} else browser = null;
-		}
-		if (browser != null && nodes != null && !b) {
-			browser.onImportFinished(nodes);
-			firePropertyChange(IMPORTED_PROPERTY, Boolean.valueOf(false), 
-					Boolean.valueOf(true));
-		}
-	}
-
-	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#isImporting()
-	 */
-	public boolean isImporting()
-	{
-		if (importManager == null) return false;
-		return importManager.hasFilesToImport();
-	}
-
-	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#setImporterVisibility()
-	 */
-	public boolean setImporterVisibility()
-	{
-		if (model.getState() == DISCARDED) return false;
-		if (importManager == null) return false;
-		return view.setImporterVisibility(importManager.getUIDelegate(), false);
-	}
-
-	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#getSupportedFormats()
-	 */
-	public List<FileFilter> getSupportedFormats()
-	{
-		if (model.getState() == DISCARDED) return null;
-		return model.getSupportedFormats();
-	}
-
-	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#showImporter()
-	 */
-	public void showImporter()
-	{
-		Browser browser = model.getSelectedBrowser();
-		Object o;
-        if (browser == null) o = null;
-        else o = browser.getLastSelectedDisplay().getUserObject();
-		if (importDialog == null) {
-			importDialog = new ImportDialog(view, 
-    				model.getSupportedFormats(), o);
-    		importDialog.addPropertyChangeListener(
-    				ImportDialog.IMPORT_PROPERTY, controller);
-		} else {
-			importDialog.resetObject(o);
-		}
-		importDialog.centerDialog();
-	}
-
+	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#onActivityProcessed(ActivityComponent, boolean)
@@ -2895,20 +2726,6 @@ class TreeViewerComponent
 			} catch (Exception e) {
 			}
 		}
-	}
-	
-	
-	/**
-	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#cancelImports()
-	 */
-	public void cancelImports()
-	{
-		if (model.getState() == DISCARDED) return;
-		if (importManager == null) return;
-		boolean b = importManager.hasFilesToImport();
-		view.setImportStatus("", b);
-		model.cancelImport();
 	}
 	
 	/** 
@@ -3274,6 +3091,27 @@ class TreeViewerComponent
 				}
 			}
 		}
+	}
+
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#isImporting()
+	 */
+	public boolean isImporting()
+	{
+		if (model.getState() == DISCARDED) return false;
+		return model.isImporting();
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#setImporting(boolean)
+	 */
+	public void setImporting(boolean importing)
+	{
+		if (model.getState() == DISCARDED) return;
+		model.setImporting(importing);
+		firePropertyChange(IMPORT_PROPERTY, importing, !importing);
 	}
 	
 }

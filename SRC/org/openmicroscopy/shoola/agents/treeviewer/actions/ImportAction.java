@@ -152,7 +152,7 @@ public class ImportAction
      */
     public void actionPerformed(ActionEvent e)
     {
-       CreateCmd cmd = new CreateCmd(model, CreateCmd.IMAGE, true);
+       CreateCmd cmd = new CreateCmd(model, CreateCmd.IMAGE);
        cmd.execute();
     }
     

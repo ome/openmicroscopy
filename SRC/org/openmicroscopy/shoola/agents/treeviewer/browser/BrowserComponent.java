@@ -1526,17 +1526,6 @@ class BrowserComponent
 
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Browser#showSupportedFiles()
-	 */
-	public void showSupportedFiles()
-	{
-		if (model.getState() == DISCARDED) return;
-		firePropertyChange(FILE_FORMATS_PROPERTY, Boolean.valueOf(false), 
-				Boolean.valueOf(true));
-	}
-
-	/**
-	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#deleteObjects(List)
 	 */
 	public void deleteObjects(List nodes)
@@ -1551,24 +1540,6 @@ class BrowserComponent
 	public void showMenu(int index, Component invoker, Point loc)
 	{
 		model.getParentModel().showMenu(index, invoker, loc);
-	}
-
-	/**
-	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Browser#isImporting()
-	 */
-	public boolean isImporting()
-	{ 
-		return model.getParentModel().isImporting();
-	}
-
-	/**
-	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Browser#showImporter()
-	 */
-	public void showImporter()
-	{
-		model.getParentModel().showImporter();
 	}
 
 	/**

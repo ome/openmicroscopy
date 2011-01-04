@@ -263,11 +263,6 @@ class BrowserUI
 			rightMenuBar.add(button);
 		}
 		rightMenuBar.add(Box.createHorizontalStrut(6));
-		if (type == Browser.FILE_SYSTEM_EXPLORER) {
-        	button = new JButton(controller.getAction(BrowserControl.INFO));
-            button.setBorderPainted(false);
-            rightMenuBar.add(button);
-        }
 		rightMenuBar.add(new JSeparator());
 		rightMenuBar.add(Box.createHorizontalStrut(6));
         ButtonGroup group = new ButtonGroup();

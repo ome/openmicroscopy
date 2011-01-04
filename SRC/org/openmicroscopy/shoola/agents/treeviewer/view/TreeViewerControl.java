@@ -60,10 +60,8 @@ import org.jdesktop.swingx.JXTaskPaneContainer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
-import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
-import org.openmicroscopy.shoola.agents.treeviewer.ImportManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ActivationAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.AddAction;
@@ -78,7 +76,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.FinderAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.FullScreenViewerAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.GroupSelectionAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ImportAction;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.ImporterVisibilityAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.InspectorVisibilityAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManageObjectAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ManageRndSettingsAction;
@@ -109,8 +106,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.PasteRndSettingsCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AddExistingObjectsDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.AdminDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.util.GenericDialog;
-import org.openmicroscopy.shoola.agents.treeviewer.util.ImportDialog;
-import org.openmicroscopy.shoola.agents.treeviewer.util.ImportableObject;
 import org.openmicroscopy.shoola.agents.treeviewer.util.OpenWithDialog;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.DataObjectRegistration;
@@ -128,13 +123,11 @@ import org.openmicroscopy.shoola.env.data.model.FigureActivityParam;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
-import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.JXTaskPaneContainerSingle;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
-
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -297,9 +290,6 @@ class TreeViewerControl
 	
 	/** Identifies the <code>Show/hide inspector</code> in the menu. */
 	static final Integer    INSPECTOR = Integer.valueOf(50);
-	
-	/** Identifies the <code>Show/hide importer</code> in the menu. */
-	static final Integer    IMPORTER = Integer.valueOf(51);
 	
 	/** 
 	 * Identifies the <code>File System Explorer</code> action in the View menu.
@@ -509,7 +499,6 @@ class TreeViewerControl
 		actionsMap.put(EDITOR_NEW_WITH_SELECTION, new EditorAction(model, 
 				EditorAction.NEW_WITH_SELECTION));
 		actionsMap.put(INSPECTOR, new InspectorVisibilityAction(model));
-		actionsMap.put(IMPORTER, new ImporterVisibilityAction(model));
 		actionsMap.put(IMPORT, new ImportAction(model));
 		actionsMap.put(DOWNLOAD, new DownloadAction(model));
 		actionsMap.put(VIEWER_WITH_OTHER, new ViewOtherAction(model, null));
@@ -964,13 +953,6 @@ class TreeViewerControl
 			model.openEditorFile(TreeViewer.NEW_WITH_SELECTION);
 		} else if (DataBrowser.FIELD_SELECTED_PROPERTY.equals(name)) {
 			model.setSelectedField(pce.getNewValue());
-		} else if (ImportManager.VIEW_IMAGE_PROPERTY.equals(name)) {
-			ImageData image = (ImageData) pce.getNewValue();
-			EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-			ViewImage evt = new ViewImage(image, view.getBounds());
-			bus.post(evt);
-		} else if (Browser.FILE_FORMATS_PROPERTY.equals(name)) {
-			view.showSupportedFileFormats();
 		} else if (MetadataViewer.RENDER_THUMBNAIL_PROPERTY.equals(name)) {
 			long imageID = ((Long) pce.getNewValue()).longValue();
 			List<Long> ids = new ArrayList<Long>(1);
@@ -999,9 +981,6 @@ class TreeViewerControl
 				ids.add(well.getPlate().getId());
 				model.pasteRndSettings(ids, PlateData.class);
 			}
-		} else if (ImportDialog.IMPORT_PROPERTY.equals(name)) {
-			ImportableObject object = (ImportableObject) pce.getNewValue();
-			model.importFiles(object);
 		} else if (JXTaskPaneContainerSingle.SELECTED_TASKPANE_PROPERTY.equals(
 				name)) {
 			handleTaskPaneSelection((JXTaskPane) pce.getNewValue());
@@ -1093,8 +1072,6 @@ class TreeViewerControl
 			} else {
 				un.notifyActivity(pce.getNewValue());
 			}
-		} else if (ImportManager.CANCEL_IMPORT_PROPERTY.equals(name)) {
-			model.cancelImports();
 		} else if (OpenWithDialog.OPEN_DOCUMENT_PROPERTY.equals(name)) {
 			ApplicationData data = (ApplicationData) pce.getNewValue();
 			//Register 

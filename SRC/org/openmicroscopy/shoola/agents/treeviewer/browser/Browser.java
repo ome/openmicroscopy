@@ -174,12 +174,6 @@ public interface Browser
     
     /** Bound property name indicating to bring up the pop-up menu.  */
     public static final String  	POPUP_MENU_PROPERTY = "popupMenu";
-    
-    /** 
-     * Bound property name indicating to display the list of supported file
-     * formats.  
-     */
-    public static final String  	FILE_FORMATS_PROPERTY = "fileFormats";
   
     /** 
      * The browser's title corresponding to {@link #PROJECTS_EXPLORER} type.
@@ -640,9 +634,6 @@ public interface Browser
 	 */
 	boolean isFileImported(String path);
 
-	/** Displays the list of supported file formats. */
-	void showSupportedFiles();
-	
 	/**
 	 * Deletes the {@link DataObject}s hosted by the passed nodes.
 	 * 
@@ -659,17 +650,6 @@ public interface Browser
 	 *                  <code>component</code>'s coordinates.
 	 */
 	void showMenu(int index, Component source, Point point);
-
-	/**
-	 * Returns <code>true</code> if there is an on-going import.
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	boolean isImporting();
-
-	/** Brings up the importer. */
-	void showImporter();
 
 	/** Refreshes the browser. */
 	void refreshBrowser();

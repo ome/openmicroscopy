@@ -174,8 +174,6 @@ public class PersonalManagementAction
 				String name = evt.getPropertyName();
 				if (TreeViewer.GROUP_CHANGED_PROPERTY.equals(name)) {
 					setPermissions();
-				} else if (TreeViewer.IMPORTED_PROPERTY.equals(name)) {
-					onDataImport();
 				}
 			}
 		});

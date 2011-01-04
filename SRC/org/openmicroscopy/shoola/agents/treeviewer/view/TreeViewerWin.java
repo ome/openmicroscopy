@@ -34,17 +34,12 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import javax.swing.Action;
-import javax.swing.Icon;
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
-import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -53,14 +48,12 @@ import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JViewport;
-import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
-import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.NewObjectAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
@@ -941,103 +934,6 @@ class TreeViewerWin
 			//rightPane.setDividerLocation(dividerRightLocation);
 		}
 		metadataVisible = !metadataVisible;
-	}
-	
-	/** 
-	 * Shows the importer or the metadata. 
-	 * Returns <code>true</code> if the importer is visible, 
-	 * <code>false</code> otherwise.
-	 * 
-	 * @param importUI  The UI representation of the importer.
-	 * @param init		Pass <code>true</code> to indicate that it is a
-	 * 					call at the beginning of the import, <code>false</code>
-	 * 					otherwise.
-	 * @return See above.
-	 */
-	boolean setImporterVisibility(JComponent importUI, boolean init)
-	{
-		if (init) {
-			//model.importFiles(parents, l);
-			Icon icon = IconManager.getInstance().getIcon(
-					IconManager.BACKWARD_NAV);
-			controller.getAction(TreeViewerControl.IMPORTER).putValue(
-					Action.SMALL_ICON, icon);
-			
-		}
-		JComponent r = (JComponent) rightPane.getRightComponent();
-		rightPane.remove(r);
-		int div = rightPane.getDividerLocation();
-		boolean visible = false;
-		if (r == importUI) 
-			rightPane.setRightComponent(
-					model.getMetadataViewer().getEditorUI());
-		else {
-			visible = true;
-			rightPane.setRightComponent(importUI);
-		}
-		rightPane.setDividerLocation(div);
-		return visible;
-	}
-	
-	/**
-	 * Returns <code>true</code> if the importer is visible,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	boolean isImporterVisible()
-	{
-		JComponent r = (JComponent) rightPane.getRightComponent();
-		return !(r == model.getMetadataViewer().getEditorUI());
-	}
-	
-    /**
-     * Sets the status of the import.
-     * 
-     * @param perc  The text do display.
-     * @param show  Pass <code>true</code> to show the wheel, <code>false</code>
-     * 				to hide it.
-     */
-	void setImportStatus(String perc, boolean show)
-	{
-		toolBar.setImportStatus(perc, show);
-	}
-
-	/** Shows the supported file formats. */
-	void showSupportedFileFormats()
-	{
-		if (formatDialog == null) {
-			List<FileFilter> filters = model.getSupportedFormats();
-			if (filters == null || filters.size() == 0) return;
-			String[] array = new String[filters.size()];
-			
-			Iterator<FileFilter> i = filters.iterator();
-			FileFilter filter;
-			int index = 0;
-			while (i.hasNext()) {
-				filter = i.next();
-				array[index] = filter.getDescription();
-				index++;
-			}
-			JList list = new JList(array);
-			formatDialog = new TinyDialog(this, new JScrollPane(list), 
-					TinyDialog.CLOSE_ONLY);
-			formatDialog.setFontTitleStyle(Font.BOLD);
-			formatDialog.setTitle("Supported Formats");
-			formatDialog.addPropertyChangeListener(TinyDialog.CLOSED_PROPERTY, 
-					new PropertyChangeListener() {
-					
-						public void propertyChange(PropertyChangeEvent evt) {
-							hideAnimation();
-							formatDialog = null;
-						}
-					});
-			formatDialog.pack();
-		}
-		
-		Point p = new Point(0, 2*statusBar.getPreferredSize().height);
-		//setCloseAfter(true);
-		showJDialogAsSheet(formatDialog, p, DOWN);
 	}
 	
 	/**
