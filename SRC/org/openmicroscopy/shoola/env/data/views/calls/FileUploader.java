@@ -32,13 +32,13 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.data.model.ImportErrorObject;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.svc.SvcRegistry;
 import org.openmicroscopy.shoola.svc.communicator.Communicator;
 import org.openmicroscopy.shoola.svc.communicator.CommunicatorDescriptor;
 import org.openmicroscopy.shoola.svc.transport.HttpChannel;
+import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.FileTableNode;
 import org.openmicroscopy.shoola.util.ui.MessengerDetails;
 

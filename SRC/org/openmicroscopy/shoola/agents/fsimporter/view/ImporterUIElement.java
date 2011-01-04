@@ -48,9 +48,12 @@ import javax.swing.border.LineBorder;
 import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
+import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
 import org.openmicroscopy.shoola.env.data.model.ImportObject;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
@@ -297,11 +300,16 @@ class ImporterUIElement
 		if (c != null) {
 			c.setStatus(false, result);
 			countImported++;
-			setClosable(countImported == totalToImport);
-			long duration = System.currentTimeMillis()-startImport;
-			String text = timeLabel.getText();
-			String time = UIUtilities.calculateHMS((int) (duration/1000));
-			timeLabel.setText(text+" Duration: "+time);
+			boolean done = countImported == totalToImport;
+			setClosable(done);
+			if (done) {
+				long duration = System.currentTimeMillis()-startImport;
+				String text = timeLabel.getText();
+				String time = UIUtilities.calculateHMS((int) (duration/1000));
+				timeLabel.setText(text+" Duration: "+time);
+				EventBus bus = ImporterAgent.getRegistry().getEventBus();
+				bus.post(new ImportStatusEvent(false));
+			}
 		}
 	}
 	

@@ -29,16 +29,14 @@ import java.io.File;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
 import javax.swing.Icon;
-
-import org.openmicroscopy.shoola.env.data.model.ApplicationData;
-import org.openmicroscopy.shoola.env.data.model.ImportErrorObject;
-import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.ApplicationData;
+import org.openmicroscopy.shoola.util.file.ImportErrorObject;
+import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import pojos.FileAnnotationData;
 
 /** 

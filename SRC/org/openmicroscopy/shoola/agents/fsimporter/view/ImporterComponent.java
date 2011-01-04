@@ -35,9 +35,11 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
@@ -198,6 +200,8 @@ class ImporterComponent
 		if (element != null) {
 			uiElements.put(index, element);
 		}
+		EventBus bus = ImporterAgent.getRegistry().getEventBus();
+		bus.post(new ImportStatusEvent(true));
 		fireStateChange();
 	}
 

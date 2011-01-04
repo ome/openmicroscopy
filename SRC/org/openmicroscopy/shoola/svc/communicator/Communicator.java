@@ -31,7 +31,6 @@ import java.util.Map;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.model.ImportErrorObject;
 import org.openmicroscopy.shoola.svc.transport.TransportException;
 
 /** 

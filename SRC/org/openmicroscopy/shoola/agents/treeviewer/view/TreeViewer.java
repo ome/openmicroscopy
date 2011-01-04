@@ -974,4 +974,11 @@ public interface TreeViewer
 	 */
 	boolean isImporting();
 	
+	/**
+	 * Sets the flag indicating of any on-going imports.
+	 * 
+	 * @param importing The value to set.
+	 */
+	void setImporting(boolean importing);
+	
 }

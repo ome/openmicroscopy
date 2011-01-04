@@ -135,6 +135,14 @@ public class StatusLabel
 		firePropertyChange(FILES_SET_PROPERTY, null, files);
 	}
 	
+	/**
+	 * Returns the number of imported files.
+	 * 
+	 * @return See above.
+	 */
+	public int getNumberOfFiles() { return numberOfFiles; }
+	
+	
 	/** 
 	 * Fires a property indicating that the file has been imported.
 	 * 
