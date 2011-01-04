@@ -48,7 +48,7 @@ public class SchedulerFactoryBean extends
      * in a somewhat awkward to re-use the code.
      */
     private final OnContextRefreshedEventListener handler =
-        new OnContextRefreshedEventListener() {
+        new OnContextRefreshedEventListener(true, Integer.MAX_VALUE) {
 
             @Override
             public void handleContextRefreshedEvent(ContextRefreshedEvent event) {
@@ -91,6 +91,7 @@ public class SchedulerFactoryBean extends
             JobDetail job = jdat.getJobDetail();
             scheduler.addJob(job, false);
             scheduler.scheduleJob(trigger);
+            log.debug(String.format("Registered trigger \"%s\": %s", beanName, trigger));
         } catch (SchedulerException se) {
             throw new RuntimeException(se);
         }
