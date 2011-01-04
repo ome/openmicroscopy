@@ -7,6 +7,8 @@
 
 package ome.services.search;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -177,17 +179,19 @@ public class FullText extends SearchAction {
             // EARLY EXIT 
             return result; // of wrong type but with generics it doesn't matter
         }
-        
-        Map<Long, Float> scores = new HashMap<Long, Float>();
+
+        final Map<Long, Integer> order = new HashMap<Long, Integer>();
+        final Map<Long, Float> scores = new HashMap<Long, Float>();
         for (int i = 0; i < result.size(); i++) {
             Object[] parts = (Object[]) result.get(i);
             scores.put((Long) parts[1], (Float) parts[0]);
+            order.put((Long) parts[1], i);
         }
 
         // TODO Could add a performance optimization here on returnUnloaded
 
         criteria.add(Restrictions.in("id", scores.keySet()));
-        List<IObject> check975 = criteria.list();
+        final List<IObject> check975 = criteria.list();
         for (IObject object : check975) {
             // TODO This is now all but impossible. Remove
             if (!cls.isAssignableFrom(object.getClass())) {
@@ -199,6 +203,21 @@ public class FullText extends SearchAction {
                         .getId()));
             }
         }
+
+        // Order return value based on the original ordering
+
+        final Comparator cmp = new Comparator() {
+            public int compare(Object obj1, Object obj2) {
+                IObject o1 = (IObject) obj1;
+                IObject o2 = (IObject) obj2;
+                Long id1 = o1.getId();
+                Long id2 = o2.getId();
+                Integer idx1 = order.get(id1);
+                Integer idx2 = order.get(id2);
+                return idx1.compareTo(idx2);
+            }
+        };
+        Collections.sort(check975, cmp);
         return check975;
     }
 }
