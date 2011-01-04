@@ -24,7 +24,9 @@
 </resources>
 <!-- Indicate that option is turned on or off -->
 <options>
+<!-- The default value -->
 <entry name="/options/Archived" type="boolean">false</entry>
-<entry name="/options/ArchivedAvailable" type="boolean">true</entry>
+<!-- if set to true, the user can modify the value -->
+<entry name="/options/ArchivedTunable" type="boolean">true</entry>
 </options>
 </agent>
