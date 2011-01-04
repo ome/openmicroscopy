@@ -29,8 +29,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.nio.ByteBuffer;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -48,7 +46,6 @@ import java.util.Map.Entry;
 
 //Third-party libraries
 import loci.formats.FormatException;
-import loci.formats.IFormatReader;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
@@ -5203,7 +5200,7 @@ class OMEROGateway
 			}
 			return null;
 		} catch (Exception e) {
-			handleException(e, "Cannot project the image.");
+			handleException(e, "Cannot retrieve the image.");
 		}
 		return null;
 	}
@@ -6096,9 +6093,37 @@ class OMEROGateway
 			}
 			List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
 			if (pixels != null && pixels.size() > 0) {
-				Pixels p = pixels.get(0);
-				long id = p.getImage().getId().getValue();
-				return getImage(id, new Parameters());
+				int n = pixels.size();
+				Pixels p;
+				long id;
+				List<Long> ids;
+				Parameters params = new Parameters();
+				if (n == 1) {
+					p = pixels.get(0);
+					id = p.getImage().getId().getValue();
+					return getImage(id, params);
+				} else if (n == 2) {
+					ids = new ArrayList<Long>();
+					p = pixels.get(0);
+					id = p.getImage().getId().getValue();
+					ids.add(id);
+					p = pixels.get(1);
+					id = p.getImage().getId().getValue();
+					ids.add(id);
+					return getContainerImages(ImageData.class, ids, params);
+				} else if (n >= 3) {
+					Iterator<Pixels> j = pixels.iterator();
+					int index = 0;
+					ids = new ArrayList<Long>();
+					while (j.hasNext()) {
+						p = j.next();
+						id = p.getImage().getId().getValue();
+						ids.add(id);
+						index++;
+						if (index == 3) break;
+					}
+					return getContainerImages(ImageData.class, ids, params);
+				}
 			}
 		} catch (Throwable e) {
 			throw new ImportException(getImportFailureMessage(e), e);

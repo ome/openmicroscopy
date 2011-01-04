@@ -72,6 +72,9 @@ public class StatusLabel
 	/** The number of imported files. */
 	private int numberOfFiles;
 	
+	/** The number of images in a series. */
+	private int seriesCount;
+	
 	/** The type of reader used. */
 	private String readerType;
 	
@@ -90,6 +93,7 @@ public class StatusLabel
 		setForeground(UIUtilities.LIGHT_GREY);
 		maxPlanes = 0;
 		numberOfFiles = 0;
+		seriesCount = 0;
 		readerType = "";
 	}
 	
@@ -136,12 +140,11 @@ public class StatusLabel
 	}
 	
 	/**
-	 * Returns the number of imported files.
+	 * Returns the number of series.
 	 * 
 	 * @return See above.
 	 */
-	public int getNumberOfFiles() { return numberOfFiles; }
-	
+	public int getSeriesCount() { return seriesCount; }
 	
 	/** 
 	 * Fires a property indicating that the file has been imported.
@@ -186,10 +189,11 @@ public class StatusLabel
 				int value = ev.step;
 				if (value <= maxPlanes) {
 					String text;
-					int count = ev.seriesCount;
+					seriesCount = ev.seriesCount;
 					int series = ev.series;
-					if (count > 1)
-						text = (series+1)+"/"+count+": "+value+"/"+maxPlanes;
+					if (seriesCount > 1)
+						text = (series+1)+"/"+seriesCount+": "
+							+value+"/"+maxPlanes;
 					else
 						text = value+"/"+maxPlanes;
 					setText(text);
@@ -207,7 +211,7 @@ public class StatusLabel
 		} else if (event instanceof ImportEvent.IMPORT_THUMBNAILING) {
 			setText("thumbnailing");
 		} else if (event instanceof ImportEvent.DATA_STORED) {
-			setText("saving data");
+			//setText("saving data");
 		}
 	}
 	

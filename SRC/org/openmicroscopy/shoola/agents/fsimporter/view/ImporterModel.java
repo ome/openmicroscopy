@@ -38,7 +38,9 @@ import javax.swing.filechooser.FileFilter;
 import org.openmicroscopy.shoola.agents.fsimporter.DataImporterLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.DirectoryMonitor;
 import org.openmicroscopy.shoola.agents.fsimporter.ImagesImporter;
+import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.TagsLoader;
+import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import pojos.DataObject;
 
@@ -82,11 +84,15 @@ class ImporterModel
 	/** Keeps track of the different loaders. */
 	private Map<Integer, ImagesImporter> loaders;
 	
+	/** The identifier of the loader. */
+	private int loaderID;
+	
 	/** Creates a new instance. */
 	ImporterModel()
 	{
 		state = Importer.NEW;
 		loaders = new HashMap<Integer, ImagesImporter>();
+		loaderID = 0;
 	}
 	
 	/**
@@ -145,9 +151,6 @@ class ImporterModel
 	List<FileFilter> getSupportedFormats()
 	{
 		return new ArrayList<FileFilter>();
-		
-		//OmeroImageService svc = ImporterAgent.getRegistry().getImageService();
-		//return svc.getSupportedFileFilters();
 	}
 	
 	/**
@@ -158,24 +161,24 @@ class ImporterModel
 	Integer fireImportData(ImportableObject data)
 	{
 		if (data == null) return -1;
-		int index = loaders.size();
-		ImagesImporter loader = new ImagesImporter(component, data, index);
+		ImagesImporter loader = new ImagesImporter(component, data, loaderID);
 		loaders.put(loaders.size(), loader);
 		loader.load();
+		int index = loaderID;
+		loaderID++;
 		return index;
-		//ImportContext metadata = new ImportContext();
-		//metadata.setTags(data.getTags());
-		//metadata.setPixelsSize(data.getPixelsSize());
-		
-		
-		/*
-		List<Object> files = new ArrayList<Object>(data.length);
-		for (int i = 0; i < data.length; i++)
-			files.add(data[i]);
-		currentLoader = new ImagesImporter(component, container, files);
-		currentLoader.load();
-		state = Importer.IMPORTING;
-		*/
+	}
+	
+	/**
+	 * Notifies that the import has finished.
+	 * 
+	 * @param loaderID  The identifier of the loader associated to the finished
+	 * 					import.
+	 */
+	void importCompleted(int loaderID)
+	{
+		state = Importer.NEW;
+		loaders.remove(loaderID);
 	}
 	
 	/**

@@ -138,7 +138,7 @@ class ImporterComponent
 		switch (model.getState()) {
 			case NEW:
 				showChooser(type, container);
-				model.setState(READY);
+				//model.setState(READY);
 				break;
 			case DISCARDED:
 				throw new IllegalStateException(
@@ -183,7 +183,8 @@ class ImporterComponent
 	 */
 	public void importData(ImportableObject data)
 	{
-		//if (model.getState() != READY) return;
+		if (model.getState() == NEW)
+			model.setState(READY);
 		if (data == null || data.getFiles() == null || 
 				data.getFiles().size() == 0) {
 			UserNotifier un = ImporterAgent.getRegistry().getUserNotifier();
@@ -213,8 +214,11 @@ class ImporterComponent
 	{
 		if (uiElements == null) return;
 		ImporterUIElement element = uiElements.get(index);
-		if (element != null)
+		if (element != null) {
 			element.setImportedFile(f, result);
+			if (element.isDone())
+				model.importCompleted(index);
+		}
 	}
 	
 	/** 

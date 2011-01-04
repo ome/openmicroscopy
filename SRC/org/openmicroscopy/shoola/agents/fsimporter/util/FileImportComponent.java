@@ -28,10 +28,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -45,7 +41,6 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -58,16 +53,12 @@ import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
-import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.ImportException;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
-import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
-import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ImageData;
 
@@ -107,6 +98,9 @@ public class FileImportComponent
 	/** Color used to indicate that a file could not be imported. */
 	private static final Color		ERROR_COLOR = Color.red;
 	
+	/** The number of extra labels for images to add. */
+	private static final int NUMBER = 3;
+	
 	/** The file to import. */
 	private File 			file;
 	
@@ -114,13 +108,16 @@ public class FileImportComponent
 	private JXBusyLabel 	busyLabel;
 	
 	/** The component displaying the file name. */
-	private JPanel			nameLabel;
+	private JPanel			namePane;
 
-	/** The component allowing to launch the viewer. */
-	private JLabel			thumbLabel;
+	/** The component displaying the result. */
+	private JLabel			resultLabel;
 
 	/** The component displaying the imported image. */
-	private JLabel			imageLabel;
+	private ThumbnailLabel	imageLabel;
+	
+	/** Keeps track of the extra images if any. */
+	private List<ThumbnailLabel> imageLabels;
 	
 	/** The component displaying the status of the import. */
 	private JLabel			status;
@@ -151,37 +148,32 @@ public class FileImportComponent
 		busyLabel.setVisible(true);
 		busyLabel.setBusy(false);
 		
-		nameLabel = new JPanel();
-		nameLabel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
+		namePane = new JPanel();
+		namePane.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
 		IconManager icons = IconManager.getInstance();
 		Icon icon;
 		if (file.isFile()) icon = icons.getIcon(IconManager.IMAGE);
 		else icon = icons.getIcon(IconManager.DIRECTORY);
-		imageLabel = new JLabel(icon);
-		imageLabel.addMouseListener(new MouseAdapter() {
-			
-			/**
-			 * Views the image.
-			 * @see ActionListener#actionPerformed(ActionEvent)
-			 */
-			public void mousePressed(MouseEvent e) {
-				if (image instanceof ThumbnailData) {
-					ThumbnailData thumb = (ThumbnailData) image;
-					//parent.viewImage(thumb.getImage());
-					EventBus bus = ImporterAgent.getRegistry().getEventBus();
-					ViewImage evt = new ViewImage(thumb.getImage(), null);
-					bus.post(evt);
-				}
-			}
-		});
+		imageLabel = new ThumbnailLabel(icon);
+		imageLabels = new ArrayList<ThumbnailLabel>();
+		ThumbnailLabel label;
+		for (int i = 0; i < NUMBER; i++) {
+			label = new ThumbnailLabel();
+			label.setVisible(false);
+			imageLabels.add(label);
+		}
 		fileNameLabel = new JLabel(file.getName());
-		nameLabel.add(imageLabel);
-		nameLabel.add(Box.createHorizontalStrut(4));
-		nameLabel.add(fileNameLabel);
-		nameLabel.add(Box.createHorizontalStrut(10));
+		namePane.add(imageLabel);
+		Iterator<ThumbnailLabel> j = imageLabels.iterator();
+		while (j.hasNext()) {
+			namePane.add(j.next());
+		}
+		namePane.add(Box.createHorizontalStrut(4));
+		namePane.add(fileNameLabel);
+		namePane.add(Box.createHorizontalStrut(10));
 		//Dimension d = nameLabel.getPreferredSize();
 		//nameLabel.setPreferredSize(new Dimension(d.width, 35));
-		thumbLabel = new JLabel();
+		resultLabel = new JLabel();
 		control = busyLabel;
 		errorBox = new JCheckBox("Mark to Send");
 		errorBox.setOpaque(false);
@@ -196,7 +188,7 @@ public class FileImportComponent
 	private void buildGUI()
 	{
 		removeAll();
-		add(nameLabel);
+		add(namePane);
 		add(control);
 		if (statusLabel.isVisible())
 			add(statusLabel);
@@ -208,7 +200,7 @@ public class FileImportComponent
 	}
 	
 	/**
-	 * Sets the text of the {@link #thumbLabel}.
+	 * Sets the text of the {@link #resultLabel}.
 	 * 
 	 * @param text The string to set.
 	 */
@@ -216,8 +208,8 @@ public class FileImportComponent
 	{
 		if (text == null) text = "";
 		text = text.trim();
-		if (text.length() == 0) thumbLabel.setText(FAILURE_TEXT);
-		else thumbLabel.setText(text);
+		if (text.length() == 0) resultLabel.setText(FAILURE_TEXT);
+		else resultLabel.setText(text);
 	}
 	
 	/**
@@ -303,63 +295,77 @@ public class FileImportComponent
 	 * @return See above.
 	 */
 	public StatusLabel getStatus() { return statusLabel; }
-	
+
 	/**
-	 * Returns the components hosting the name of the file.
+	 * Sets the result of the import.
 	 * 
-	 * @return See above.
-	 */
-	public JPanel getNameLabel() { return nameLabel; }
-	
-	/**
-	 * Sets the id of the image to view.
-	 * 
-	 * @param status The value to set.
-	 * @param image The image.
+	 * @param status Flag indicating the status of the import.
+	 * @param image  The image.
 	 */
 	public void setStatus(boolean status, Object image)
 	{
 		this.image = image;	
 		busyLabel.setBusy(status);
 		if (image instanceof ImageData) {
-			thumbLabel.setText("Preview not available");
-			thumbLabel.setToolTipText("");
-			thumbLabel.setEnabled(false);
-			control = thumbLabel;
+			resultLabel.setText("Preview not available");
+			resultLabel.setToolTipText("");
+			resultLabel.setEnabled(false);
+			control = resultLabel;
 			statusLabel.setVisible(false);
 		} else if (image instanceof ThumbnailData) {
-			ThumbnailData thumb = (ThumbnailData) image;
-			ImageIcon icon = new ImageIcon(Factory.magnifyImage(0.25, 
-					thumb.getThumbnail()));
-			imageLabel.setToolTipText(IMAGE_LABEL_TOOLTIP);
-			imageLabel.setIcon(icon);
-			imageLabel.setBorder(LABEL_BORDER);
-			if (icon != null)
-				imageLabel.setPreferredSize(new Dimension(icon.getIconWidth(), 
-						icon.getIconHeight()));
+			imageLabel.setThumbnail((ThumbnailData) image);
 			statusLabel.setVisible(false);
-			control = thumbLabel;
+			control = resultLabel;
+		} else if (image instanceof List) {
+			List list = (List) image;
+			int m = list.size();
+			ThumbnailData thumb = (ThumbnailData) list.get(0);
+			imageLabel.setThumbnail(thumb);
+			list.remove(0);
+			ThumbnailLabel label = imageLabels.get(0);
+			label.setVisible(true);
+			thumb = (ThumbnailData) list.get(0);
+			label.setThumbnail(thumb);
+			list.remove(0);
+			if (list.size() > 0) {
+				label = imageLabels.get(1);
+				label.setVisible(true);
+				thumb = (ThumbnailData) list.get(0);
+				label.setThumbnail(thumb);
+				list.remove(0);
+				int n = statusLabel.getSeriesCount()-m;
+				if (n > 0) {
+					label = imageLabels.get(2);
+					Font f = label.getFont();
+					label.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
+					label.setVisible(true);
+					String value = "and "+n+" more";
+					label.setText(value);
+				}
+			}
+			statusLabel.setVisible(false);
+			control = resultLabel;
 		} else if (image instanceof Boolean) {
 			setStatusText("Folder imported");
 			return;
 		} else {
 			if (!status) {
 				statusLabel.setVisible(false);
-				thumbLabel.setToolTipText("");
-				thumbLabel.setEnabled(false);
+				resultLabel.setToolTipText("");
+				resultLabel.setEnabled(false);
 				if (image == null) setStatusText(null);
 				else if (image instanceof String) {
 					setStatusText((String) image);
 				} else if (image instanceof ImportException) {
 					fileNameLabel.setForeground(ERROR_COLOR);
-					thumbLabel.setForeground(ERROR_COLOR);
+					resultLabel.setForeground(ERROR_COLOR);
 					ImportException ie = (ImportException) image;
 					setStatusText(ie.getMessage());
-					thumbLabel.setToolTipText(
+					resultLabel.setToolTipText(
 							UIUtilities.printErrorText(ie.getCause()));
 					errorBox.setSelected(true);
 				}
-				control = thumbLabel;
+				control = resultLabel;
 			} else control = busyLabel;
 		}
 		if (!file.isDirectory())
@@ -440,10 +446,10 @@ public class FileImportComponent
 	public void setBackground(Color color)
 	{
 		if (busyLabel != null) busyLabel.setBackground(color);
-		if (nameLabel != null) {
-			nameLabel.setBackground(color);
-			for (int i = 0; i < nameLabel.getComponentCount(); i++) 
-				nameLabel.getComponent(i).setBackground(color);
+		if (namePane != null) {
+			namePane.setBackground(color);
+			for (int i = 0; i < namePane.getComponentCount(); i++) 
+				namePane.getComponent(i).setBackground(color);
 		}
 		if (status != null) status.setBackground(color);
 		super.setBackground(color);

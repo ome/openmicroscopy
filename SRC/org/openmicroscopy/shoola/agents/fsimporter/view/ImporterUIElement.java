@@ -103,6 +103,9 @@ class ImporterUIElement
 	/** The component displaying the duration of the import. */
 	private JLabel timeLabel;
 	
+	/** Flag indicating if the import is finished. */
+	private boolean done;
+	
 	/** Initializes the components. */
 	private void initialize()
 	{
@@ -300,7 +303,7 @@ class ImporterUIElement
 		if (c != null) {
 			c.setStatus(false, result);
 			countImported++;
-			boolean done = countImported == totalToImport;
+			done = countImported == totalToImport;
 			setClosable(done);
 			if (done) {
 				long duration = System.currentTimeMillis()-startImport;
@@ -312,6 +315,14 @@ class ImporterUIElement
 			}
 		}
 	}
+	
+	/**
+	 * Returns <code>true</code> if the import is finished, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isDone() { return done; }
 	
 	/**
 	 * Returns the collection of files that could not be imported.

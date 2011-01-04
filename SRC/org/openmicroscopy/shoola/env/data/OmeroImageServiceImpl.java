@@ -34,6 +34,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 import javax.imageio.ImageIO;
 import javax.swing.filechooser.FileFilter;
@@ -776,12 +777,23 @@ class OmeroImageServiceImpl
 				}
 			}
 			result = gateway.importImage(object, io, file, status);
-			if (!(result instanceof ImageData)) return object;
-			
-			ImageData image = (ImageData) result;
-			images.add(image);
-			annotatedImportedImage(list, images);
-			return createImportedImage(userID, image);
+			ImageData image;
+			if (result instanceof ImageData) {
+				image = (ImageData) result;
+				images.add(image);
+				annotatedImportedImage(list, images);
+				return createImportedImage(userID, image);
+			} else if (result instanceof Set) {
+				Set<ImageData> ll = (Set<ImageData>) result;
+				annotatedImportedImage(list, ll);
+				Iterator<ImageData> k = ll.iterator();
+				List<Object> converted = new ArrayList<Object>(ll.size());
+				while (k.hasNext()) {
+					converted.add(createImportedImage(userID, k.next()));	
+				}
+				return converted;
+			}
+			return result;
 		}
 		DataObject folder = object.createFolderAsContainer(file);
 		Map m = new HashMap();
@@ -840,16 +852,16 @@ class OmeroImageServiceImpl
 	 * @param images The imported images.
 	 */
 	private void annotatedImportedImage(List<Annotation> annotations, 
-			List<ImageData> images)
+			Collection images)
 	{
 		if (annotations.size() == 0 || images.size() == 0) return;
-		Iterator<ImageData> i = images.iterator();
+		Iterator i = images.iterator();
 		ImageData image;
 		Iterator<Annotation> j;
 		List<IObject> list = new ArrayList<IObject>();
 		IObject io;
 		while (i.hasNext()) {
-			image = i.next();
+			image = (ImageData) i.next();
 			j = annotations.iterator();
 			while (j.hasNext()) {
 				io = ModelMapper.linkAnnotation(image.asIObject(), j.next());
