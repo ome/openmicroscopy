@@ -708,6 +708,9 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
                 Iterator<Shape> it = roii.iterateShapes();
                 while (it.hasNext()) {
                     Shape shape = it.next();
+                    if (shape == null) {
+                        continue;
+                    }
                     if (shape.getTheT() != null) {
                         byT.put(shape.getTheT().getValue(), shape);
                     } else {
