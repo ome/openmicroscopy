@@ -18,6 +18,8 @@ import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -33,7 +35,8 @@ import org.springframework.scheduling.quartz.JobDetailAwareTrigger;
  */
 public class SchedulerFactoryBean extends
         org.springframework.scheduling.quartz.SchedulerFactoryBean implements
-        ApplicationListener<ContextRefreshedEvent> {
+        ApplicationListener<ContextRefreshedEvent>,
+        ApplicationContextAware {
 
     private final static Log log = LogFactory
             .getLog(SchedulerFactoryBean.class);
@@ -52,6 +55,10 @@ public class SchedulerFactoryBean extends
                 handle(event);
             }
         };
+
+    public void setApplicationContext(ApplicationContext ctx) {
+        handler.setApplicationContext(ctx);
+    }
 
     public void onApplicationEvent(ContextRefreshedEvent event) {
         handler.onApplicationEvent(event);
