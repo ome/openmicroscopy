@@ -31,7 +31,6 @@ import javax.swing.JLabel;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.apache.taglibs.bsf.expression;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
@@ -197,6 +196,10 @@ public class StatusLabel
 			ErrorHandler.FILE_EXCEPTION e = (ErrorHandler.FILE_EXCEPTION) event;
 			readerType = e.reader;
 			usedFiles = e.usedFiles;
+		} else if (event instanceof ImportEvent.IMPORT_THUMBNAILING) {
+			setText("thumbnailing");
+		} else if (event instanceof ImportEvent.DATA_STORED) {
+			setText("saving data");
 		}
 	}
 	
