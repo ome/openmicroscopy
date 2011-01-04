@@ -20,13 +20,18 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.fsimporter.chooser;
+package org.openmicroscopy.shoola.env.data.model;
 
 
 //Java imports
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+
+import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 
 //Third-party libraries
 
@@ -53,13 +58,11 @@ public class ImportableObject
 {
 
 	/** 
-	 * The collection of files to import. The flag indicate
-	 * to either archived the files or not.
+	 * The collection of files to import. The value is used if the file
+	 * is a directory to find out if the folder has to be turned into a 
+	 * dataset or screen.
 	 */
-	private Map<File, Boolean> 	files;
-	
-	/** Flag indicating to archive the files or not. */
-	private boolean 	archived;
+	private Map<File, Boolean> files;
 	
 	/** The depth. */
 	private int			depth;
@@ -69,14 +72,11 @@ public class ImportableObject
 	 */
 	private boolean		overrideName;
 	
-	/** 
-	 * If not <code>null</code>, this will indicate to use the selected folder
-	 * as a <code>Dataset</code> or a <code>Screen</code>.
-	 */
-	private Class		folderAsContainer;
-	
 	/** The collection of tags. */
 	private Collection<TagAnnotationData> tags;
+	
+	/** Flag indicating to archive the files. */
+	private boolean archived;
 	
 	/** The container where to import the data if set. */
 	private DataObject container;
@@ -84,49 +84,60 @@ public class ImportableObject
 	/** The array containing pixels size.*/
 	private double[]	pixelsSize;
 	
+	/** The objects to import. */
+	private List<ImportObject> toImport;
+	
+	/** The type to create if the folder has to be saved as a container. */
+	private Class type;
+	
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param files 	The collection of files to import.
-	 * @param archived 	Pass <code>true</code> to archive the files, 
-	 * 					<code>false</code> otherwise.
 	 * @param overrideName Pass <code>true</code> to override the name of the 
 	 *                     file set while importing the data,
 	 *                     <code>false</code> otherwise.
 	 */
-	ImportableObject(Map<File, Boolean> files, boolean archived, 
-			boolean overrideName)
+	public ImportableObject(Map<File, Boolean> files, boolean overrideName)
 	{
 		this.files = files;
-		this.archived = archived;
 		this.overrideName = overrideName;
-		folderAsContainer = null;
+		type = DatasetData.class;
 		depth = -1;
 	}
+	
+	/**
+	 * Sets the type to use when creating a folder as container.
+	 * 
+	 * @param type The type to use.
+	 */
+	public void setType(Class type) { this.type = type; }
+	
+	/**
+	 * Sets to <code>true</code> to archive the files, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @param archived Pass <code>true</code> to archive the files, 
+	 * 				   <code>false</code> otherwise.
+	 */
+	public void setArchived(boolean archived) { this.archived = archived; }
+	
+	/**
+	 * Returns <code>true</code> to archive the files, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isArchived() { return archived; }
 	
 	/**
 	 * Sets the container where to import the data if set.
 	 * 
 	 * @param container The container to set.
 	 */
-	void setContainer(DataObject container)
+	public void setContainer(DataObject container)
 	{
 		this.container = container;
-	}
-	
-	/**
-	 * Indicates to use the selected folders as a container. If, for example,
-	 * the passed value is of type <code>DatasetData</code>, then a Dataset
-	 * with the folder's name will be created and the images imported 
-	 * in that dataset.
-	 * 
-	 * @param type One of the following type: DatasetData, ScreenData.
-	 */
-	void setFolderAsContainer(Class type)
-	{
-		if (DatasetData.class.getName().equals(type.getName()) || 
-			ScreenData.class.getName().equals(type.getName()))
-			folderAsContainer = type;
 	}
 	
 	/**
@@ -134,14 +145,17 @@ public class ImportableObject
 	 * 
 	 * @param pixelsSize The value to set.
 	 */
-	void setPixelsSize(double[] pixelsSize) { this.pixelsSize = pixelsSize; }
+	public void setPixelsSize(double[] pixelsSize)
+	{ 
+		this.pixelsSize = pixelsSize;
+	}
 	
 	/** 
 	 * Sets the collection of tags.
 	 * 
 	 * @param tags The tags to use.
 	 */
-	void setTags(Collection<TagAnnotationData> tags)
+	public void setTags(Collection<TagAnnotationData> tags)
 	{
 		this.tags = tags;
 	}
@@ -151,7 +165,7 @@ public class ImportableObject
 	 * 
 	 * @param depth The value to set.
 	 */
-	void setDepth(int depth) { this.depth = depth; }
+	public void setDepth(int depth) { this.depth = depth; }
 	
 	/**
 	 * Returns the depth.
@@ -168,12 +182,35 @@ public class ImportableObject
 	public Map<File, Boolean> getFiles() { return files; }
 	
 	/**
-	 * Returns <code>true</code> to archive the files, 
-	 * <code>false</code> otherwise.
+	 * Returns the <code>DataObject</code> corresponding to the folder 
+	 * be saved as a container.
+	 * 
+	 * @param file The file to handle.
+	 * @return See above.
+	 */
+	public DataObject createFolderAsContainer(File file)
+	{
+		if (file == null || file.isFile()) return null;
+		Boolean b = files.get(file);
+		if (b == null || !b.booleanValue()) return null;
+		if (DatasetData.class.equals(type)) {
+			DatasetData dataset = new DatasetData();
+			dataset.setName(file.getName());
+			return dataset;
+		} else if (ScreenData.class.equals(type)) {
+			ScreenData screen = new ScreenData();
+			screen.setName(file.getName());
+			return screen;
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns the type used when creating the object.
 	 * 
 	 * @return See above.
 	 */
-	public boolean isArchived() { return archived; }
+	public Class getType() { return type; }
 	
 	/** 
 	 * Returns <code>true</code> if the name set while importing the data
@@ -189,7 +226,17 @@ public class ImportableObject
 	 * 
 	 * @return See above.
 	 */
-	public double[] getPixelsSize() { return pixelsSize; }
+	public Double[] getPixelsSize()
+	{ 
+		if (pixelsSize != null && pixelsSize.length > 0) {
+			Double[] array = new Double[pixelsSize.length];
+			for (int i = 0; i < pixelsSize.length; i++) {
+				array[i] = new Double(pixelsSize[i]);
+			}
+			return array;
+		}
+		return null; 
+	}
 	
 	/**
 	 * Returns the container where to import the data if set.
@@ -206,11 +253,19 @@ public class ImportableObject
 	public Collection<TagAnnotationData> getTags() { return tags; }
 
 	/**
-	 * Returns <code>null</code> or one of the following types:
-	 * DatasetData, ScreenData.
+	 * Sets the files to import.
+	 * 
+	 * @param toImport
+	 */
+	public void setFilesToImport(List<ImportObject> toImport)
+	{
+		this.toImport = toImport;
+	}
+	/**
+	 * Returns the files to import as <code>ImportObject</code>s.
 	 * 
 	 * @return See above.
 	 */
-	public Class getFolderAsContainer() { return folderAsContainer; }
+	public List<ImportObject> getFilesToImport() { return toImport; }
 	
 }

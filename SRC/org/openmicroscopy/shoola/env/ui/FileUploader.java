@@ -37,6 +37,7 @@ import java.util.Map;
 import org.openmicroscopy.shoola.agents.dataBrowser.DataBrowserLoader;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
+import org.openmicroscopy.shoola.env.data.model.ImportErrorObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.util.ui.FileTableNode;
 import org.openmicroscopy.shoola.util.ui.MessengerDetails;
@@ -59,7 +60,6 @@ class FileUploader
 	extends UserNotifierLoader
 {
 
-	
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle	handle;
     
@@ -69,7 +69,8 @@ class FileUploader
     /** The source dialog. */
     private MessengerDialog src;
     
-    private Map<File, FileTableNode> nodes;
+    /** The files to upload. */
+    private Map<ImportErrorObject, FileTableNode> nodes;
     
     /**
      * Creates a new instance.
@@ -87,14 +88,14 @@ class FileUploader
 			throw new IllegalArgumentException("No files to upload.");
 		this.details = details;
 		this.src = src;
-		nodes = new HashMap<File, FileTableNode>();
+		nodes = new HashMap<ImportErrorObject, FileTableNode>();
 		List l = (List) details.getObjectToSubmit();
 		if (l != null) {
 			Iterator i = l.iterator();
 			FileTableNode node;
 			while (i.hasNext()) {
 				node = (FileTableNode) i.next();
-				nodes.put(node.getFile(), node);
+				nodes.put(node.getFailure(), node);
 			}
 		}
 	}
@@ -105,7 +106,7 @@ class FileUploader
 	 */
 	public void load()
 	{
-		handle = mhView.submitFile(details, this);
+		handle = mhView.submitFiles(details, this);
 	}
     
 	/** 
@@ -123,7 +124,7 @@ class FileUploader
      */
     public void update(DSCallFeedbackEvent fe) 
     {
-        File f = (File) fe.getPartialResult();
+    	ImportErrorObject f = (ImportErrorObject) fe.getPartialResult();
         if (f != null) {
         	FileTableNode node = nodes.get(f);
         	if (node != null) node.setStatus(false);
@@ -131,7 +132,7 @@ class FileUploader
         }
         if (nodes.size() == 0) {
         	viewer.notifyInfo("Upload Files", "The files have been " +
-        			"successfully upload.");
+        			"successfully uploaded.");
         	if (src != null) {
         		src.setVisible(false);
             	src.dispose();

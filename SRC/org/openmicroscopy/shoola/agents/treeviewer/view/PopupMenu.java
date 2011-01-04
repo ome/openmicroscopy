@@ -70,6 +70,9 @@ class PopupMenu
 	/** Button to add existing element to the specified container. */
 	private JMenuItem           existingElement;
 
+	/** Button to import files to the specified container. */
+	private JMenuItem           importElement;
+	
 	/** Button to add element to the specified container. */
 	private JMenuItem           newElement;
 
@@ -221,6 +224,9 @@ class PopupMenu
 				tagElement = new JMenuItem(a);
 				initMenuItem(tagElement, a.getActionName());
 				
+				a = controller.getAction(TreeViewerControl.IMPORT);
+				importElement = new JMenuItem(a);
+				initMenuItem(importElement, a.getActionName());
 				a = controller.getAction(TreeViewerControl.CREATE_OBJECT);
 				newElement = new JMenuItem(a);
 				initMenuItem(newElement, a.getActionName());
@@ -363,6 +369,7 @@ class PopupMenu
 				add(downloadElement);
 				add(sendFeedbackElement);
 				add(new JSeparator(JSeparator.HORIZONTAL));
+				add(importElement);
 				add(newElement);
 				add(cutElement);
 				add(copyElement);

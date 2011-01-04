@@ -27,18 +27,16 @@ package org.openmicroscopy.shoola.util.ui;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.io.File;
 import javax.swing.Box;
-import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
-
 
 //Third-party libraries
 import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.ImportErrorObject;
 
 /**
  * Element to display the status of the upload of a file.
@@ -60,17 +58,11 @@ public class FileTableNode
 	/** The default size of the busy label. */
 	private static final Dimension SIZE = new Dimension(16, 16);
 	
-	/** The file to send. */
-	private File 		file;
-	
-	/** The exception to send. */
-	private Exception 	exception;
+	/** The object hosting information about the file that failed to import. */
+	private ImportErrorObject 		failure;
 	
 	/** The component displaying the status of the commit. */
 	private JXBusyLabel status;
-	
-	/** Box to select the file. If user changes his/her mind. */
-	private JCheckBox	selected;
 	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
@@ -78,53 +70,32 @@ public class FileTableNode
 		removeAll();
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		add(status);
-		add(Box.createHorizontalStrut(5));
-		add(selected);
 		add(new JSeparator(JSeparator.VERTICAL));
-		add(new JLabel(file.getName()));
+		add(new JLabel(failure.getFile().getName()));
 		add(Box.createHorizontalStrut(15));
 	}
 	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param file The file to display.
-	 * @param exception The associated exception.
+	 * @param failure The object hosting information about the file that failed 
+	 * 				  to import.
 	 */
-	FileTableNode(File file, Exception exception)
+	FileTableNode(ImportErrorObject failure)
 	{
-		if (file == null)
-			throw new IllegalArgumentException("No file");
-		this.file = file;
-		this.exception = exception;
+		if (failure == null)
+			throw new IllegalArgumentException("No Object to send");
+		this.failure = failure;
 		status = new JXBusyLabel(SIZE);
-		selected = new JCheckBox("Send file");
-		selected.setSelected(true);
-		//status.setBusy(true);
 		buildGUI();
 	}
-	
-	/**
-	 * Returns <code>true</code> if the file has to be sent, 
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return
-	 */
-	boolean isSelected() { return selected.isSelected(); }
 	
 	/**
 	 * Returns the file hosting by the node.
 	 * 
 	 * @return See above.
 	 */
-	public File getFile() { return file; }
-	
-	/**
-	 * Returns the exception hosting by the node.
-	 * 
-	 * @return See above.
-	 */
-	public Exception getException() { return exception; }
+	public ImportErrorObject getFailure() { return failure; }
 	
 	/**
 	 * Sets the status of the post.
@@ -146,7 +117,6 @@ public class FileTableNode
 	public void setBackground(Color color)
 	{
 		if (status != null) status.setBackground(color);
-		if (selected != null) selected.setBackground(color);
 		super.setBackground(color);
 	}
 	

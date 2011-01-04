@@ -38,6 +38,8 @@ import com.sun.opengl.util.texture.TextureData;
 //Application-internal dependencies
 import omero.constants.projection.ProjectionType;
 import omero.romio.PlaneDef;
+
+import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
@@ -448,23 +450,17 @@ public interface OmeroImageService
 	/**
 	 * Imports the collection of images into the specified container.
 	 *  
-	 * @param container The container where to import the images into or 
-	 * 					<code>null</code>.
+	 * @param object    The object hosting the information about the 
+	 * 					file to import.
 	 * @param file		The file to import. Mustn't be <code>null</code>.
 	 * @param status 	The component indicating status of the import.
 	 * @param userID	The id of the user.
 	 * @param groupID	The id of the group.
-	 * @param archived 	Pass <code>true</code> to archived the files, 
-	 * 					<code>false</code> otherwise.
-	 * @param name		The name of the imported image.
-	 * @param depth 	The depth used to set the name. This will be taken into
-	 * 					account if the file is a directory.
 	 * @return See above.
 	 * @throws ImportException If an error occurred while importing.                            
 	 */
-	public Object importImage(DataObject container, File file, 
-			StatusLabel status, long userID, long groupID, boolean archived,
-			String name, int depth)
+	public Object importFile(ImportableObject object, File file, 
+			StatusLabel status, long userID, long groupID)
 		throws ImportException;
 	
 	/**

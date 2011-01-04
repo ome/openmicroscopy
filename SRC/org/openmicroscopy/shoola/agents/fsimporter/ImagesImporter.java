@@ -25,14 +25,22 @@ package org.openmicroscopy.shoola.agents.fsimporter;
 
 
 //Java imports
+import java.io.File;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
+import org.openmicroscopy.shoola.agents.treeviewer.DataTreeViewerLoader;
+import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.ImportContext;
 import org.openmicroscopy.shoola.env.data.model.ImportObject;
+import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import pojos.DataObject;
 
@@ -59,23 +67,28 @@ public class ImagesImporter
     private CallHandle	handle; 
     
     /** The object hosting the information for the import. */
-    private ImportContext context;
+    private ImportableObject context;
+    
+    /** The identifier of the loader. */
+    private Integer loaderID;
     
 	/**
 	 * Creates a new instance.
 	 * 
 	 * @param viewer	The Importer this data loader is for.
      * 					Mustn't be <code>null</code>.
-	 * @param context	The container where to import the image to.
-	 * @param images	The images to import.
+	 * @param context	The context of the import.
+	 * @param loaderID  The identifier of the loader.
 	 */
-	public ImagesImporter(Importer viewer, ImportContext context)
+	public ImagesImporter(Importer viewer, ImportableObject context, 
+			Integer loaderID)
 	{
 		super(viewer);
 		if (context == null || context.getFiles() == null ||
 				context.getFiles().size() == 0)
 			throw new IllegalArgumentException("No Files to import.");
 		this.context = context;
+		this.loaderID = loaderID;
 	}
 
 	/** 
@@ -84,7 +97,7 @@ public class ImagesImporter
 	 */
 	public void load()
 	{
-		//handle = ivView.importImages(context, getCurrentUserID(), -1L, this);
+		handle = ivView.importFiles(context, getCurrentUserID(), groupID, this);
 	}
 	
 	/** 
@@ -94,12 +107,30 @@ public class ImagesImporter
 	public void cancel() { handle.cancel(); }
 
 	/** 
-     * Feeds the result back to the viewer.
-     * @see DataImporterLoader#handleResult(Object)
+     * Feeds the imported objects.
+     * @see DataTreeViewerLoader#update(DSCallFeedbackEvent)
      */
-    public void handleResult(Object result)
+    public void update(DSCallFeedbackEvent fe) 
     {
-        if (viewer.getState() == Importer.DISCARDED) return;  //Async cancel.
+        if (viewer.getState() == DataBrowser.DISCARDED) return;  //Async cancel.
+        Map m = (Map) fe.getPartialResult();
+        if (m != null) {
+        	Entry entry;
+        	Iterator i = m.entrySet().iterator();
+        	while (i.hasNext()) {
+				entry = (Entry) i.next();
+				viewer.setImportedFile((File) entry.getKey(), entry.getValue(), 
+						loaderID);
+			}
+        }
     }
 
+    /**
+     * Does nothing as the asynchronous call returns <code>null</code>.
+     * The actual pay-load (imported files) is delivered progressively
+     * during the updates.
+     * @see DataTreeViewerLoader#handleNullResult()
+     */
+    public void handleNullResult() {}
+    
 }

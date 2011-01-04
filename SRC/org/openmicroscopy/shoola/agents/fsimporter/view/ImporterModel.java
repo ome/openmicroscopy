@@ -26,7 +26,10 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
@@ -36,9 +39,7 @@ import org.openmicroscopy.shoola.agents.fsimporter.DataImporterLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.DirectoryMonitor;
 import org.openmicroscopy.shoola.agents.fsimporter.ImagesImporter;
 import org.openmicroscopy.shoola.agents.fsimporter.TagsLoader;
-import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportableObject;
-import org.openmicroscopy.shoola.env.data.model.ImportContext;
-
+import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import pojos.DataObject;
 
 /** 
@@ -68,9 +69,6 @@ class ImporterModel
 
 	/** Reference to the component that embeds this model. */
 	protected Importer			component;
-
-	/** The object where to import the images. */
-	private DataObject			container;
 	
 	/** 
 	 * Will either be a data loader or
@@ -78,13 +76,17 @@ class ImporterModel
 	 */
 	private DataImporterLoader 	currentLoader;
 	
-	/** The collection of exiting tags. */
+	/** The collection of existing tags. */
 	private Collection			tags;
+	
+	/** Keeps track of the different loaders. */
+	private Map<Integer, ImagesImporter> loaders;
 	
 	/** Creates a new instance. */
 	ImporterModel()
 	{
 		state = Importer.NEW;
+		loaders = new HashMap<Integer, ImagesImporter>();
 	}
 	
 	/**
@@ -134,20 +136,6 @@ class ImporterModel
 		}
 		state = Importer.READY;
 	}
-	
-	/**
-	 * Sets the container. 
-	 * 
-	 * @param container
-	 */
-	void setContainer(DataObject container) { this.container = container; }
-	
-	/**
-	 * Returns the container.
-	 * 
-	 * @return See above.
-	 */
-	DataObject getContainer() { return container; }
 
 	/**
 	 * Returns the list of the supported file formats.
@@ -167,8 +155,14 @@ class ImporterModel
 	 * 
 	 * @param data The file to import.
 	 */
-	void fireImportData(ImportableObject data)
+	Integer fireImportData(ImportableObject data)
 	{
+		if (data == null) return -1;
+		int index = loaders.size();
+		ImagesImporter loader = new ImagesImporter(component, data, index);
+		loaders.put(loaders.size(), loader);
+		loader.load();
+		return index;
 		//ImportContext metadata = new ImportContext();
 		//metadata.setTags(data.getTags());
 		//metadata.setPixelsSize(data.getPixelsSize());
@@ -182,19 +176,6 @@ class ImporterModel
 		currentLoader.load();
 		state = Importer.IMPORTING;
 		*/
-	}
-	
-	/**
-	 * Fires an asynchronous call to monitor the specified directory.
-	 * 
-	 * @param directory The directory to monitor.
-	 */
-	void fireMonitorDirectory(File directory)
-	{
-		if (currentLoader != null) cancel();
-		currentLoader = new DirectoryMonitor(component, directory, container);
-		currentLoader.load();
-		state = Importer.IMPORTING;
 	}
 	
 	/**

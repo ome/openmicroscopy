@@ -24,9 +24,14 @@ package org.openmicroscopy.shoola.svc.proxy;
 
 
 //Java imports
+import java.io.File;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 //Third-party libraries
 import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.PostMethod;
 
 //Application-internal dependencies
@@ -48,7 +53,7 @@ import org.openmicroscopy.shoola.svc.transport.TransportException;
 class MessengerRequest
 	extends Request
 {
-
+	
 	/** Identifies the <code>e-mail</code> address. */
 	private static final String EMAIL = "email";
 	
@@ -88,6 +93,21 @@ class MessengerRequest
 	/** Identifies the <code>application version</code>. */
 	private static final String APP_VERSION = "app_version";
 	
+	/** Identifies the name of <code>main file</code>. */
+	private static final String MAIN_FILE_NAME = "selected_file";
+	
+	/** Identifies the path <code>main file</code>. */
+	private static final String MAIN_FILE_PATH = "absolute_path";
+	
+	/** Identifies the name of <code>additional file</code>. */
+	private static final String ADDITIONAL_FILE_NAME = "additional_files";
+	
+	/** Identifies the path of <code>additional file</code>. */
+	private static final String ADDITIONAL_FILE_PATH = "additional_files_path";
+	
+	/** Identifies the size of <code>additional file</code>. */
+	private static final String ADDITIONAL_FILE_SIZE = "additional_files_size";
+	
 	/** The error message. */
 	private String error;
 	
@@ -109,6 +129,12 @@ class MessengerRequest
 	/** The version of the application. */
 	private String applicationVersion;
 	
+	/** The main file. */
+	private File mainFile;
+	
+	/** The associated files. */
+	private List<File> associatedFiles;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -119,10 +145,13 @@ class MessengerRequest
 	 * @param applicationNumber The reference number for the application.
 	 * @param invoker	The client posting the message.
 	 * @param applicationVersion The version of the application.
+	 * @param filesInfo The information about the files to submit or 
+	 * 					<code>null</code>.
 	 */
 	MessengerRequest(String email, String comment, String extra, String error,
 					String applicationNumber, String invoker, 
-					String applicationVersion)
+					String applicationVersion, File mainFile, 
+					List<File> associatedFiles)
 	{
 		super();
 		this.error = error;
@@ -132,6 +161,8 @@ class MessengerRequest
 		this.invoker = invoker;
 		this.applicationNumber = applicationNumber;
 		this.applicationVersion = applicationVersion;
+		this.mainFile = mainFile;
+		this.associatedFiles = associatedFiles;
 	}
 	
 	/**
@@ -143,7 +174,6 @@ class MessengerRequest
 	{
 		//Create request.
         PostMethod request = new PostMethod();
-        
         //Marshal.
         if (email != null) request.addParameter(EMAIL, email);
         if (comment != null) request.addParameter(COMMENT, comment);
@@ -163,6 +193,37 @@ class MessengerRequest
         request.addParameter(OS_NAME, System.getProperty("os.name"));
         request.addParameter(OS_ARCH, System.getProperty("os.arch"));
         request.addParameter(OS_VERSION, System.getProperty("os.version"));
+       
+        List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+        if (mainFile != null) {
+        	pairs.add(new NameValuePair(MAIN_FILE_NAME, mainFile.getName()));
+        	pairs.add(new NameValuePair(MAIN_FILE_PATH, 
+        			mainFile.getAbsolutePath()));
+        }
+        if (associatedFiles != null) {
+        	Iterator<File> i = associatedFiles.iterator();
+        	File f;
+        	while (i.hasNext()) {
+				f = i.next();
+				pairs.add(new NameValuePair(ADDITIONAL_FILE_NAME, f.getName()));
+				if (f.getParent() != null) 
+					pairs.add(new NameValuePair(ADDITIONAL_FILE_PATH, 
+							f.getParent()));
+	        	pairs.add(new NameValuePair(ADDITIONAL_FILE_SIZE, 
+	        			((Long) f.length()).toString()));
+			}
+        }
+        if (pairs.size() > 0) {
+        	Iterator<NameValuePair> j = pairs.iterator();
+        	NameValuePair[] values = new NameValuePair[pairs.size()];
+        	int index = 0;
+        	while (j.hasNext()) {
+        		values[index] = j.next();
+				index++;
+			}
+        	request.addParameters(values);
+        }
+        	
         return request;
 	}
     

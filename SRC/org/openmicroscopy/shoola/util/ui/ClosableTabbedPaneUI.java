@@ -141,8 +141,17 @@ class ClosableTabbedPaneUI
 			    			showMenu((Component) source, x, y);
 			    	} else {
 			    		Rectangle r = rectangles.get(tabIndex);
-			    		if (r != null && r.contains(x, y)) 
-			    			((ClosableTabbedPane) tabPane).remove(tabIndex);
+			    		if (r != null && r.contains(x, y)) {
+			    			Component c = tabPane.getComponentAt(tabIndex); 
+			    			boolean closable = true;
+			    			if (c instanceof ClosableTabbedPaneComponent) {
+			    				closable = 
+			    				((ClosableTabbedPaneComponent) c).isClosable();
+			    			}
+			    			if (closable)
+			    				((ClosableTabbedPane) tabPane).remove(tabIndex);
+			    		}
+			    			
 			    	}
 			    }
 			}
@@ -228,7 +237,8 @@ class ClosableTabbedPaneUI
 		int y = rect.y+2;
 		int w = 0, h = 0;
 		Image img = images.get(tabIndex);
-		if (img != null && closable) {
+		if (!closable) img = closeOverImage;
+		if (img != null) {// && closable) {
 			w = img.getWidth(null);
 			h = img.getHeight(null);
 			g2D.drawImage(img, x, y, w, h, null); 

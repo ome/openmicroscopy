@@ -365,7 +365,7 @@ public interface MetadataHandlerView
 	 * @param observer Call-back handler.
      * @return A handle that can be used to cancel the call.
 	 */
-	public CallHandle submitFile(MessengerDetails details, 
+	public CallHandle submitFiles(MessengerDetails details, 
 			AgentEventListener observer);
 	
 	/**

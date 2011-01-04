@@ -39,6 +39,8 @@ import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.NumberFormat;
@@ -260,9 +262,11 @@ public class UIUtilities
     private static final String 			DEFAULT_FOLDER = "defaultFolder";
     
     /** The pattern to format date. */
-    private static final String				WDMY_FORMAT = 
+    public static final String				WDMY_FORMAT = 
     											"E dd MMM yyyy, HH:mm:ss";
 
+    /** The pattern to format date. */
+    public static final String				D_M_Y_FORMAT = "dd-MM-yyyy";
     
     /** The text displayed in the tool tip of the calendar button. */
 	private static final String		DATE_TOOLTIP = "Bring up a calendar.";
@@ -1224,7 +1228,8 @@ public class UIUtilities
      */
     public static String formatShortDateTime(Timestamp time) 
     {
-    	if (time == null)  time = getDefaultTimestamp();
+    	if (time == null)  
+    		time = getDefaultTimestamp();
     	return DateFormat.getDateTimeInstance(
     			DateFormat.SHORT, DateFormat.SHORT).format(time);  
     }
@@ -1238,9 +1243,58 @@ public class UIUtilities
      */
     public static String formatWDMYDate(Timestamp time) 
     {
+    	return formatDate(time, WDMY_FORMAT);
+    }
+    
+    /**
+     * Formats as a <code>String</code> the specified time.
+     * format: E dd MMM yyyy, HH:mm:ss
+     * 
+     * @param time The timestamp to format.
+     * @param pattern The format pattern
+     * @return Returns the stringified version of the passed timestamp.
+     */
+    public static String formatDate(Timestamp time, String pattern) 
+    {
     	if (time == null) time = getDefaultTimestamp();
-    	SimpleDateFormat formatter = new SimpleDateFormat(WDMY_FORMAT);
+    	if (pattern == null || pattern.length() == 0) 
+    		pattern = WDMY_FORMAT;
+    	SimpleDateFormat formatter = new SimpleDateFormat(pattern);
     	return formatter.format(time);  
+    }
+    
+    /**
+     * Converts the time in seconds into hours, minutes and seconds.
+     * 
+     * @param timeInSeconds The time in seconds to convert.
+     * @return See above.
+     */
+    public static String calculateHMS(int timeInSeconds)
+    {
+        int hours = timeInSeconds/3600;
+        timeInSeconds = timeInSeconds-(hours*3600);
+        int minutes = timeInSeconds/60;
+        timeInSeconds = timeInSeconds-(minutes*60);
+        int seconds = timeInSeconds;
+        String text = "";
+        if (hours > 0) {
+        	text += hours;
+        	text += " hour";
+        }
+        if (hours > 1) text += "s";
+        if (minutes > 0) {
+        	text += " "; 
+        	text += minutes;
+        	text += " minute";
+        	if (minutes > 1) text += "s";
+        }
+        if (seconds > 0) {
+        	text += " "; 
+        	text += seconds;
+        	text += " second";
+        	if (seconds > 1) text += "s";
+        }
+        return text;
     }
     
     /**
@@ -1701,6 +1755,8 @@ public class UIUtilities
 	public static String getDisplayedFileName(String fullPath, Integer number)
 	{
 		if (fullPath == null) return fullPath;
+		if (number == null || number.intValue() < 0)
+			return fullPath;
 		String[] l = UIUtilities.splitString(fullPath);
     	String extension = null;
     	if (fullPath.endsWith("\\")) extension = "\\";
@@ -1901,4 +1957,18 @@ public class UIUtilities
 		return pow2;
 	}
 	
+	/**
+	 * Utility method to print an error message
+	 * 
+	 * @param e The exception to handle.
+	 * @return  See above.
+	 */
+    public static String printErrorText(Throwable e) 
+	{
+		if (e == null) return "";
+		StringWriter sw = new StringWriter();
+		PrintWriter pw = new PrintWriter(sw);
+		e.printStackTrace(pw);
+		return sw.toString();
+	}
 }

@@ -30,7 +30,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import javax.swing.Icon;
 import javax.swing.JFrame;
 
@@ -46,6 +45,7 @@ import org.openmicroscopy.shoola.env.data.model.DownloadAndZipParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadArchivedActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
 import org.openmicroscopy.shoola.env.data.model.FigureActivityParam;
+import org.openmicroscopy.shoola.env.data.model.ImportErrorObject;
 import org.openmicroscopy.shoola.env.data.model.MovieActivityParam;
 import org.openmicroscopy.shoola.env.data.model.OpenActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptActivityParam;
@@ -223,10 +223,10 @@ public class UserNotifierImpl
 
 	/** 
      * Implemented as specified by {@link UserNotifier}. 
-     * @see UserNotifier#notifyError(String, String, String, Map)
+     * @see UserNotifier#notifyError(String, String, String, List)
      */     
-	public void notifyError(String title, String summary, String email,
-			Map toSubmit)
+	public MessengerDialog notifyError(String title, String summary, 
+			String email, List<ImportErrorObject> toSubmit)
 	{
 		if (title == null || title.length() == 0) 
 			title = DEFAULT_ERROR_TITLE;
@@ -237,6 +237,7 @@ public class UserNotifierImpl
     	d.addPropertyChangeListener(manager);
     	d.setModal(true);
     	UIUtilities.centerAndShow(d);
+    	return d;
 	}
 
 	/** 

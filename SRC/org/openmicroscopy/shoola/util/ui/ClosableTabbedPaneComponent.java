@@ -78,6 +78,17 @@ public class ClosableTabbedPaneComponent
 	 * 
 	 * @param index	The index of the component.
 	 * @param name	The name of the tabbed component.
+	 */
+	public ClosableTabbedPaneComponent(int index, String name)
+	{
+		this(index, name, null, "");
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param index	The index of the component.
+	 * @param name	The name of the tabbed component.
 	 * @param icon	The icon related to the tabbed component.
 	 */
 	public ClosableTabbedPaneComponent(int index, String name, Icon icon)
@@ -140,7 +151,7 @@ public class ClosableTabbedPaneComponent
 	public Icon getIcon() { return icon; }
 
 	/**
-	 * Returns the pp0 of the tabbed component.
+	 * Returns the name of the tabbed component.
 	 * 
 	 * @return See above.
 	 */

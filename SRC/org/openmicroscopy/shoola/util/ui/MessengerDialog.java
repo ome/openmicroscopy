@@ -66,6 +66,7 @@ import javax.swing.text.TabSet;
 import javax.swing.text.TabStop;
 
 import org.jdesktop.swingx.JXBusyLabel;
+import org.openmicroscopy.shoola.env.data.model.ImportErrorObject;
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
@@ -151,9 +152,15 @@ public class MessengerDialog
 			"to work properly.";
 	
 	/** The default message displayed. */
-	private static final String		SUBMIT_MESSAGE = "Review TEXT.";
+	private static final String		SUBMIT_MESSAGE = "Submit to the " +
+			"development team the files that failed to import.\n\n" +
+			"To help us improve our software, please fill " +
+			"out the following form. Your personal details are purely " +
+			"optional, and will only be used for development purposes.\n\n" +
+			"Please note that your application may need to be restarted " +
+			"to work properly.";
 	
-	/** The default message displayed when an unvalid e-mail is entered. */
+	/** The default message displayed when a non valid e-mail is entered. */
 	private static final String		EMAIL_MESSAGE = "The e-mail address " +
 			"entered \n does not seem to be valid. \n Please enter a new " +
 			"e-mail address.";
@@ -243,8 +250,8 @@ public class MessengerDialog
 	{
 		setVisible(false);
 		dispose();
-		firePropertyChange(CLOSE_MESSENGER_PROPERTY, Boolean.FALSE, 
-				Boolean.TRUE);
+		firePropertyChange(CLOSE_MESSENGER_PROPERTY, Boolean.valueOf(false), 
+				 Boolean.valueOf(true));
 	}
 	
 	/** Copies the error message on the clipboard. */
@@ -500,7 +507,7 @@ public class MessengerDialog
 	 * 
 	 * @return See above.
 	 */
-	private JPanel buildFilesToSubmitPane(Map toSubmit)
+	private JPanel buildFilesToSubmitPane(List<ImportErrorObject> toSubmit)
 	{
 		JPanel panel = new JPanel();
 		//panel.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
@@ -555,7 +562,7 @@ public class MessengerDialog
 	 * @param toSubmit The collection of files to send.
 	 * @return See above
 	 */
-	private JTabbedPane buildExceptionPane(Map toSubmit)
+	private JTabbedPane buildExceptionPane(List<ImportErrorObject> toSubmit)
 	{
         JTabbedPane tPane = new JTabbedPane();
         tPane.setOpaque(false);
@@ -564,7 +571,7 @@ public class MessengerDialog
         if (dialogType == SUBMIT_ERROR_TYPE) {
         	tPane.addTab("Comments", null, buildCommentPane(COMMENT_FIELD), 
         		"Your comments go here.");
-        	tPane.addTab("Files to Submit", null, 
+        	tPane.addTab("Files to Send", null, 
         			buildFilesToSubmitPane(toSubmit),
         	"The files to send to the development team.");
         } else {
@@ -607,7 +614,7 @@ public class MessengerDialog
 	 * 
 	 * @param toSubmit The collection of files to send.
 	 */
-	private void buildGUI(Map toSubmit)
+	private void buildGUI(List<ImportErrorObject> toSubmit)
 	{
         JComponent component;
         Icon icon;
@@ -644,7 +651,7 @@ public class MessengerDialog
 	 *  @param title 	The title of the dialog.
 	 *  @param toSubmit The collection of files to send.
 	 */
-	private void initialize(String title, Map toSubmit)
+	private void initialize(String title, List<ImportErrorObject> toSubmit)
 	{
 		setTitle(title);
 		initComponents();
@@ -694,7 +701,7 @@ public class MessengerDialog
 	 * @param toSubmit		The object to submit.
 	 */
 	public MessengerDialog(JFrame parent, String title, String emailAddress, 
-						Map toSubmit)
+						List<ImportErrorObject> toSubmit)
 	{
 		super(parent);
 		this.dialogType = SUBMIT_ERROR_TYPE;

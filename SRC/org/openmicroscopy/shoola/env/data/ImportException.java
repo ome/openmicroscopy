@@ -22,10 +22,11 @@
  */
 package org.openmicroscopy.shoola.env.data;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
+
 
 //Java imports
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 //Third-party libraries
 
@@ -47,9 +48,6 @@ import java.io.StringWriter;
 public class ImportException 
 	extends Exception
 {
-
-	/** The type of reader used while trying to import an image. */
-	private String readerType;
 	
 	/**
 	 * Constructs a new exception with the specified detail message.
@@ -58,10 +56,9 @@ public class ImportException
 	 * @param readerType 	The type of reader used while trying to import an 
 	 * 						image.
 	 */
-	public ImportException(String message, String readerType)
+	public ImportException(String message)
 	{
 		super(message);
-		this.readerType = readerType;
 	}
 	
 	/**
@@ -72,21 +69,13 @@ public class ImportException
 	 * @param readerType 	The type of reader used while trying to import an 
 	 * 						image.
 	 */
-	public ImportException(String message, Throwable cause, String readerType) 
+	public ImportException(String message, Throwable cause) 
 	{
 		super(message, cause);
-		this.readerType = readerType;
 	}
 	
 	/**
-	 * Returns the type of reader used while trying to import an image.
-	 * 
-	 * @return See above
-	 */
-	public String getReaderType() { return readerType; }
-	
-	/**
-	 * Overridden to return the cause of the problem
+	 * Overridden to return the cause of the problem.
 	 * @see Exception#toString()
 	 */
 	public String toString()

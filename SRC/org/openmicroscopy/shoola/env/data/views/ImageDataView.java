@@ -36,6 +36,7 @@ import java.util.Map;
 import omero.romio.PlaneDef;
 import pojos.WorkflowData;
 import org.openmicroscopy.shoola.env.data.model.ImportContext;
+import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
@@ -250,7 +251,7 @@ public interface ImageDataView
 	 * @param observer	Call-back handler.
 	 * @return See above.
 	 */
-	public CallHandle importFiles(ImportContext context, long userID, 
+	public CallHandle importFiles(ImportableObject context, long userID, 
 			long groupID, AgentEventListener observer);
 
 	/**

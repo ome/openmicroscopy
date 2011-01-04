@@ -99,7 +99,7 @@ class FileSelectionTable
 	static {
 		COLUMNS = new Vector<String>(2);
 		COLUMNS.add("File or Folder");
-		COLUMNS.add("Archived");
+		COLUMNS.add("Folder as Dataset");
 	}
 	
 	/** The button to move an item from the remaining items to current items. */
@@ -138,31 +138,17 @@ class FileSelectionTable
 		removeButton.addActionListener(this);
 		removeAllButton.setActionCommand(""+REMOVE_ALL);
 		removeAllButton.addActionListener(this);
-		/*
-		if (model.canArchived()) {
-			table = new JXTable(new FileTableModel(COLUMNS));
-		} else {
-			table = new JXTable(new FileTableModel(COLUMNS_BASIC));
-		}
-		*/
 		table = new JXTable(new FileTableModel(COLUMNS));
 		
 		//add tool tip
 		TableColumnModel tcm = table.getColumnModel();
-		
-		//if (model.canArchived()) {
 		TableColumn tc = tcm.getColumn(SELECTED_INDEX);
 		tc.setCellEditor(table.getDefaultEditor(Boolean.class));  
 		tc.setCellRenderer(table.getDefaultRenderer(Boolean.class));  
-
-		//}
-		
 		Highlighter h = HighlighterFactory.createAlternateStriping(
 				UIUtilities.BACKGROUND_COLOUR_EVEN, 
 				UIUtilities.BACKGROUND_COLOUR_ODD);
 		table.addHighlighter(h);
-		
-		
 		TableCellRenderer renderer = new StringCellRenderer();
 		for (int i = 0; i < table.getColumnCount(); i++) {
 			tcm.getColumn(i).setHeaderRenderer(renderer);
@@ -195,7 +181,7 @@ class FileSelectionTable
 	{
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.PAGE_AXIS));
-		//p.add(new JLabel("Files or Folders to import"));
+
 		p.add(Box.createVerticalStrut(5));
 		p.add(new JScrollPane(table));
 		return p;
@@ -204,12 +190,9 @@ class FileSelectionTable
 	/** Builds and lays out the UI. */
 	private void builGUI()
 	{
-		//setLayout(new BoxLayout(this, BoxLayout.LINE_AXIS));
-		double[][] size = {{TableLayout.PREFERRED, 10, TableLayout.FILL}, 
-				{TableLayout.FILL}};
+		double[][] size = {{TableLayout.FILL}, {TableLayout.FILL}};
 		setLayout(new TableLayout(size));
-		//add(buildControls(), "0, 0, LEFT, CENTER");
-		add(buildTablePane(), "2, 0");
+		add(buildTablePane(), "0, 0");
 	}
 
 	/** Removes the selected files from the queue. */
@@ -266,43 +249,24 @@ class FileSelectionTable
 	boolean hasFilesToImport() { return table.getRowCount() > 0; }
 	
 	/** 
-	 * Returns the collection of files to import.
+	 * Returns the collection of files to import. 
 	 * 
 	 * @return See above.
 	 */
-	Map<FileElement, Boolean> getFilesToImport()
+	Map<File, Boolean> getFilesToImport()
 	{
-		Map<FileElement, Boolean> files = new HashMap<FileElement, Boolean>();
+		Map<File, Boolean> files = new HashMap<File, Boolean>();
 		int n = table.getRowCount();
 		DefaultTableModel dtm = (DefaultTableModel) table.getModel();
 		FileElement element;
-		List<File> list;
-		Iterator<File> j;
 		File file;
-		Boolean b;
-		int count = table.getColumnCount();
 		for (int i = 0; i < n; i++) {
 			element = (FileElement) dtm.getValueAt(i, FILE_INDEX);
-			b = (Boolean) dtm.getValueAt(i, SELECTED_INDEX);
-				
-			/*
-			if ((Boolean) dtm.getValueAt(i, SELECTED_INDEX)) {
-				if (element.isDirectory()) {
-					list = element.getFiles();
-					if (list != null) {
-						j = list.iterator();
-						while (j.hasNext()) {
-							file = j.next();
-							files.put(file, model.getDisplayedFileName(
-								file.getAbsolutePath()));
-						}
-					}
-				} else {
-					files.put(element.getFile(), element.getName());
-				}
-			}
-			*/
-			files.put(element, b);
+			file = element.getFile();
+			if (file.isFile()) 
+				files.put(file, Boolean.valueOf(false));
+			else files.put(file, Boolean.valueOf(
+						(Boolean) dtm.getValueAt(i, SELECTED_INDEX)));
 		}
 		return files;
 	}
@@ -346,26 +310,13 @@ class FileSelectionTable
 			inQueue.add(element.getFile().getAbsolutePath());
 		}
 		Iterator<File> i = files.iterator();
-		File[] list;
-		
 		while (i.hasNext()) {
 			f = i.next();
 			if (!inQueue.contains(f.getAbsolutePath())) {
 				element = new FileElement(f);
-				//set the name.
-				/*
-				if (f.isDirectory())  {
-					list = f.listFiles();
-					if (list != null && list.length > 0) {
-						element.setName(f.getAbsolutePath());
-					}
-				} else
-				*/ 
-				//element.setName(model.getDisplayedFileName(
-				//		f.getAbsolutePath()));	
 				element.setName(f.getName());
 				dtm.addRow(new Object[] {element, 
-						Boolean.valueOf(model.isArchived())});
+						Boolean.valueOf(f.isDirectory())});
 			}
 		}
 	}
@@ -442,10 +393,10 @@ class FileSelectionTable
 		public boolean isCellEditable(int row, int column)
 		{ 
 			switch (column) {
-				case FILE_INDEX:
-					return true;
+				case FILE_INDEX: return false;
 				case SELECTED_INDEX:
-					return model.canArchived();
+					FileElement f = (FileElement) getValueAt(row, FILE_INDEX);
+					return f.isDirectory();
 			}
 			return false; 
 		}

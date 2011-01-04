@@ -58,10 +58,10 @@ public class ImporterFactory
 {
 
 	/** The name associated to the component. */
-	private static final String NAME = "FS importer";
+	private static final String NAME = "Importer";
 	
 	/** The name of the windows menu. */
-	private static final String MENU_NAME = "FS importer";
+	private static final String MENU_NAME = "Importer";
 	
 	/** The sole instance. */
 	private static final ImporterFactory  singleton = new ImporterFactory();
@@ -74,19 +74,6 @@ public class ImporterFactory
 	public static Importer getImporter()
 	{
 		ImporterModel model = new ImporterModel();
-		return singleton.getImporter(model);
-	}
-	
-	/**
-	 * Returns a {@link Importer}.
-	 *  
-	 * @param container The container where to import the images into.
-	 * @return See above.
-	 */
-	public static Importer getImporter(DataObject container)
-	{
-		ImporterModel model = new ImporterModel();
-		model.setContainer(container);
 		return singleton.getImporter(model);
 	}
 	
@@ -148,6 +135,7 @@ public class ImporterFactory
 		if (importer != null) return importer;
 		ImporterComponent comp = new ImporterComponent(model);
 		model.initialize(comp);
+		comp.initialize();
 		//comp.addChangeListener(this);
 		importer = comp;
 		return importer;

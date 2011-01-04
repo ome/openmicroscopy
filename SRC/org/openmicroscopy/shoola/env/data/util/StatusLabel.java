@@ -24,16 +24,20 @@ package org.openmicroscopy.shoola.env.data.util;
 
 
 //Java imports
+import java.io.File;
+import java.util.Map;
 import javax.swing.JLabel;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.apache.taglibs.bsf.expression;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportEvent;
+import ome.formats.importer.util.ErrorHandler;
 
 /**
  * Component displaying the status of a specific import.
@@ -53,11 +57,33 @@ public class StatusLabel
 	implements IObserver
 {
 
+	/** Bound property indicating that children files have been set. */
+	public static final String FILES_SET_PROPERTY = "filesSet";
+	
+	/** Bound property indicating that the import of the file has started. */
+	public static final String FILE_IMPORT_STARTED_PROPERTY = 
+		"fileImportStarted";
+	
+	/** Bound property indicating that the file is imported. */
+	public static final String FILE_IMPORTED_PROPERTY = "fileImported";
+	
 	/** The number of planes. This value is used only for some file formats. */
 	private int maxPlanes;
 	
 	/** The number of imported files. */
 	private int numberOfFiles;
+	
+	/** The type of reader used. */
+	private String readerType;
+	
+	/** The files associated to the file that failed to import. */
+	private String[] usedFiles;
+	
+	/** The time at which the import started. */
+	private long     startTime;
+	
+	/** The time at which the import ended. */
+	private long     endTime;
 	
 	/** Creates a new instance. */
 	public StatusLabel()
@@ -65,8 +91,30 @@ public class StatusLabel
 		setForeground(UIUtilities.LIGHT_GREY);
 		maxPlanes = 0;
 		numberOfFiles = 0;
+		readerType = "";
 	}
-
+	
+	/**
+	 * Returns the duration of the import. 
+	 * 
+	 * @return See above.
+	 */
+	public long getDuration() { return endTime-startTime; }
+	
+	/**
+	 * Returns the type of reader used.
+	 * 
+	 * @return See above.
+	 */
+	public String getReaderType() { return readerType; }
+	
+	/**
+	 * Returns the files associated to the file failing to import.
+	 * 
+	 * @return See above.
+	 */
+	public String[] getUsedFiles() { return usedFiles; }
+	
 	/** 
 	 * Sets the status of the import.
 	 * 
@@ -78,6 +126,30 @@ public class StatusLabel
 		setText(value);
 	}
 	
+	/** 
+	 * Fires a property indicating to import the files.
+	 * 
+	 * @param files The file to handle.
+	 */
+	public void setFiles(Map<File, StatusLabel> files)
+	{
+		firePropertyChange(FILES_SET_PROPERTY, null, files);
+	}
+	
+	/** 
+	 * Fires a property indicating that the file has been imported.
+	 * 
+	 * @param file The file to import.
+	 * @param result The result.
+	 */
+	public void setFile(File file, Object result)
+	{
+		Object[] results = new Object[2];
+		results[0] = file;
+		results[1] = result;
+		firePropertyChange(FILE_IMPORTED_PROPERTY, null, results);
+	}
+	
 	/**
 	 * Displays the status of an on-going import.
 	 * @see IObserver#update(IObservable, ImportEvent)
@@ -86,13 +158,16 @@ public class StatusLabel
 	{
 		if (event == null) return;
 		if (event instanceof ImportEvent.LOADING_IMAGE) {
+			startTime = System.currentTimeMillis();
 			setText("prepping");
+			firePropertyChange(FILE_IMPORT_STARTED_PROPERTY, null, this);
 		} else if (event instanceof ImportEvent.LOADED_IMAGE) {
 			setText("analyzing");
 		} else if (event instanceof ImportEvent.IMPORT_DONE) {
 			if (numberOfFiles == 1) setText("one file");
 			else if (numberOfFiles == 0) setText("");
 			else setText(numberOfFiles+" files");
+			endTime = System.currentTimeMillis();
 		} else if (event instanceof ImportEvent.IMPORT_ARCHIVING) {
 			setText("archiving");
 		} else if (event instanceof ImportEvent.DATASET_STORED) {
@@ -117,6 +192,11 @@ public class StatusLabel
 			ImportCandidates.SCANNING ev = (ImportCandidates.SCANNING) event;
 			numberOfFiles = ev.totalFiles;
 			setText("scanning");
+		} else if (event instanceof ErrorHandler.FILE_EXCEPTION) {
+			endTime = System.currentTimeMillis();
+			ErrorHandler.FILE_EXCEPTION e = (ErrorHandler.FILE_EXCEPTION) event;
+			readerType = e.reader;
+			usedFiles = e.usedFiles;
 		}
 	}
 	

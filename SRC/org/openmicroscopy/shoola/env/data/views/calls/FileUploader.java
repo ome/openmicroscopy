@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Java imports
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -31,7 +32,7 @@ import java.util.List;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.LookupNames;
-import org.openmicroscopy.shoola.env.data.ImportException;
+import org.openmicroscopy.shoola.env.data.model.ImportErrorObject;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 import org.openmicroscopy.shoola.svc.SvcRegistry;
@@ -66,7 +67,12 @@ public class FileUploader
 	/** Partial result. Returns the uploaded file. */
 	private Object uploadedFile;
 	
-	private void uploadFile(File file, ImportException  exception)
+	/**
+	 * Uploads the specified files to the server.
+	 * 
+	 * @param object The object hosting the files to be uploaded.
+	 */
+	private void uploadFile(ImportErrorObject object)
 	{
 		String tokenURL = (String) context.lookup(LookupNames.TOKEN_URL);
 		String processURL = 
@@ -85,20 +91,34 @@ public class FileUploader
 				(HttpChannel.CONNECTION_PER_REQUEST, tokenURL, -1);
 			c = SvcRegistry.getCommunicator(desc);
 			StringBuilder token = new StringBuilder();
-			c.submitError("",
+			String[] usedFiles = object.getUsedFiles();
+			List<File> additionalFiles = null;
+			if (usedFiles != null && usedFiles.length > 0) {
+				additionalFiles = new ArrayList<File>();
+				for (int i = 0; i < usedFiles.length; i++) {
+					additionalFiles.add(new File(usedFiles[i]));
+				}
+			}
+			c.submitFilesError("",
 					details.getEmail(), details.getComment(), 
-					details.getExtra(), exception.toString(), appName, v, 
-					token);
+					details.getExtra(), object.getException().toString(), 
+					appName, v, object.getFile(), additionalFiles, token);
 			desc = new CommunicatorDescriptor(
 					HttpChannel.CONNECTION_PER_REQUEST, processURL, 
 					timeout);
 			c = SvcRegistry.getCommunicator(desc);
 			StringBuilder reply = new StringBuilder();
-			c.submitFile(token.toString(), file, exception.getReaderType(), 
-					reply); 
-			uploadedFile = file;
+			String reader = object.getReaderType();
+			if (object.getFile() != null)
+				c.submitFile(token.toString(), object.getFile(), reader, reply);
+			if (additionalFiles != null) {
+				Iterator<File> i = additionalFiles.iterator();
+				while (i.hasNext()) {
+					c.submitFile(token.toString(), i.next(), reader, reply);
+				}
+			}
+			uploadedFile = object;
 		} catch (Exception e) {
-			// TODO: handle exception
 		}
 	}
 	
@@ -133,10 +153,9 @@ public class FileUploader
 		while (i.hasNext()) {
 			node = (FileTableNode) i.next();
 			node.setStatus(true);
-			final File f = node.getFile();
-			final ImportException e = (ImportException) node.getException();
+			final ImportErrorObject f = node.getFailure();
 			add(new BatchCall(description) {
-        		public void doCall() { uploadFile(f, e); }
+        		public void doCall() { uploadFile(f); }
         	}); 
 		}
     }

@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.env.data.model.ImportObject
+ * org.openmicroscopy.shoola.agents.fsimporter.actions.ImporterAction 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2011 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,21 +20,28 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.env.data.model;
+package org.openmicroscopy.shoola.agents.fsimporter.actions;
 
 
 //Java imports
-import java.io.File;
+import java.awt.event.ActionEvent;
+import java.util.Iterator;
+import java.util.Map;
+
+import javax.swing.AbstractAction;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.env.data.util.StatusLabel;
+import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
+import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 
-/**
- * Helper class hosting information about the file to import.
+/** 
+ * Top class that each action should extend.
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
@@ -44,41 +51,31 @@ import org.openmicroscopy.shoola.env.data.util.StatusLabel;
  * </small>
  * @since 3.0-Beta4
  */
-public class ImportObject
+public class ImporterAction 
+	extends AbstractAction
 {
 
-	/** The file to import. */
-	private File 		file;
+	/** A reference to the Model. */
+	protected Importer model;
 	
-	/** The object displaying the import status. */
-	private StatusLabel status;
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param file 		The file to import.
-	 * @param status 	The object displaying the import status.
-	 */
-	public ImportObject(File file, StatusLabel status)
-	{
-		if (file == null)
-			throw new IllegalArgumentException("No file to import.");
-		this.file = file;
-		this.status = status;
-	}
-	
-	/**
-	 * Returns the file to import.
-	 * 
-	 * @return See above.
-	 */
-	public File getFile() { return file; }
-	
-	/**
-	 * Returns the component indicating the status of the import.
-	 * 
-	 * @return See above.
-	 */
-	public StatusLabel getStatus() { return status; }
-	
+	 /**
+     * Creates a new instance.
+     * 
+     * @param model Reference to the Model. Mustn't be <code>null</code>.
+     */
+    public ImporterAction(Importer model)
+    {
+        super();
+        setEnabled(false);
+        if (model == null) 
+        	throw new IllegalArgumentException("No Model");
+        this.model = model;   
+    }
+    
+    /** 
+     * Subclasses implement the method.
+     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     */
+    public void actionPerformed(ActionEvent e) {}
+    
 }

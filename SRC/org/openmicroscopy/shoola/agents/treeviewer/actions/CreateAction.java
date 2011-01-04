@@ -161,13 +161,19 @@ public class CreateAction
                     UIUtilities.formatToolTipText(DESCRIPTION_DATASET));
         } else if (ho instanceof ScreenData || ho instanceof DatasetData) {
         	//setEnabled(model.isUserOwner(ho) && !model.isImporting());
-        	setEnabled(false);
-        	//setEnabled(model.isUserOwner(ho));
+        	/*
+        	setEnabled(model.isUserOwner(ho));
             nodeType = CreateCmd.IMAGE;
             putValue(Action.SMALL_ICON, im.getIcon(IconManager.IMPORTER));
             name = NAME_IMAGE;
             putValue(Action.SHORT_DESCRIPTION, 
                     UIUtilities.formatToolTipText(DESCRIPTION_IMAGE));
+            */
+            name = NAME;  
+            putValue(Action.SHORT_DESCRIPTION, 
+                    UIUtilities.formatToolTipText(DESCRIPTION));
+            
+            
         } else if (ho instanceof TagAnnotationData) {
         	String ns = ((TagAnnotationData) ho).getNameSpace();
         	if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns)) {

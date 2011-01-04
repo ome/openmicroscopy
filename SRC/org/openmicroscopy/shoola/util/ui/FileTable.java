@@ -24,22 +24,19 @@ package org.openmicroscopy.shoola.util.ui;
 
 
 //Java imports
-import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
-
+import org.openmicroscopy.shoola.env.data.model.ImportErrorObject;
 
 /**
  * Table displaying the file to send post to the server. 
@@ -65,7 +62,7 @@ class FileTable
 	private JPanel	entries;
 	
 	/** The files to send. */
-	private Map<String, FileTableNode> files;
+	private List<FileTableNode> nodes;
 	
 	/**
 	 * Adds a new row.
@@ -87,22 +84,14 @@ class FileTable
 	/**
 	 * Builds the table.
 	 * 
-	 * @param map The map hosting information about the nodes to build.
+	 * @param files The collection of objects to submit to the development team.
 	 */
-	private void initialize(Map map)
+	private void initialize(List<ImportErrorObject> files)
 	{
-		Entry entry;
-		Iterator i = map.entrySet().iterator();
-		File f;
-		FileTableNode c;
-		files = new HashMap<String, FileTableNode>();
+		Iterator<ImportErrorObject> i = files.iterator();
+		nodes = new ArrayList<FileTableNode>();
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			f =  (File) entry.getKey();
-			if (!files.containsKey(f.getAbsolutePath())) {
-				c = new FileTableNode(f, (Exception) entry.getValue());
-				files.put(f.getAbsolutePath(), c);
-			}
+			nodes.add(new FileTableNode(i.next()));
 		}
 	}
 	
@@ -114,12 +103,10 @@ class FileTable
 		TableLayout layout = new TableLayout();
 		layout.setColumn(COLUMNS);
 		entries.setLayout(layout);
-		Entry entry;
-		Iterator i = files.entrySet().iterator();
+		Iterator<FileTableNode> i = nodes.iterator();
 		int index = 0;
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			addRow(layout, index, (FileTableNode) entry.getValue());
+			addRow(layout, index, i.next());
 			index++;
 		}
 		setOpaque(false);
@@ -129,11 +116,11 @@ class FileTable
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param map The map hosting the information to send.
+	 * @param files The collection of objects to submit to the development team.
 	 */
-	FileTable(Map map)
+	FileTable(List<ImportErrorObject> files)
 	{
-		initialize(map);
+		initialize(files);
 		buildGUI();
 	}
 
@@ -142,20 +129,6 @@ class FileTable
 	 * 
 	 * @return See above.
 	 */
-	List<FileTableNode> getSelectedFiles()
-	{
-		List<FileTableNode> nodes = new ArrayList<FileTableNode>();
-		Entry entry;
-		File f;
-		FileTableNode node;
-		Iterator i = files.entrySet().iterator();
-		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			node = (FileTableNode) entry.getValue();
-			if (node != null && node.isSelected())
-				nodes.add(node);
-		}
-		return nodes;
-	}
+	List<FileTableNode> getSelectedFiles() { return nodes; }
 	
 }

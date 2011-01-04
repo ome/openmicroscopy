@@ -27,9 +27,8 @@ package org.openmicroscopy.shoola.svc.proxy;
 //Java imports
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 //Third-party libraries
 
@@ -78,29 +77,7 @@ public class CommunicatorProxy
 		throws TransportException 
 	{
 		MessengerRequest out = new MessengerRequest(email, comment, extra, 
-				null, applicationName, invoker, applicationVersion);
-		MessengerReply in = new MessengerReply(reply);
-        
-        try {
-            channel.exchange(out, in);
-        } catch (IOException ioe) {
-            throw new TransportException(
-                    "Couldn't communicate with server (I/O error).", ioe);
-        }
-	}
-
-	/**
-	 * Implemented as specified by the {@link Communicator} interface.
-	 * @see Communicator#submitError(String, String, String, String, String,
-	 * 								String, String, StringBuilder)
-	 */
-	public void submitError(String invoker, String email, String comment, 
-							String extra, String error, String applicationName,
-							String applicationVersion, StringBuilder reply) 
-		throws TransportException
-	{
-		MessengerRequest out = new MessengerRequest(email, comment, extra, 
-				error, applicationName, invoker, applicationVersion);
+				null, applicationName, invoker, applicationVersion, null, null);
 		MessengerReply in = new MessengerReply(reply);
         
         try {
@@ -113,35 +90,42 @@ public class CommunicatorProxy
 	
 	/**
 	 * Implemented as specified by the {@link Communicator} interface.
-	 * @see Communicator#submitFiles(String, Map, StringBuilder)
+	 * @see Communicator#submitError(String, String, String, String, String,
+	 * 								String, String, Map, StringBuilder)
 	 */
-	public void submitFiles(String token, Map<File, String> files, 
-			StringBuilder reply) 
+	public void submitError(String invoker, String email, String comment, 
+							String extra, String error, String applicationName,
+							String applicationVersion, StringBuilder reply) 
 		throws TransportException
 	{
-		if (token == null)
-			throw new IllegalArgumentException("No token specified.");
-		if (files == null || files.size() == 0)
-			throw new IllegalArgumentException("No files to submit.");
-		//Get a token
-		MessengerFileRequest out;
+		submitFilesError(invoker, email, comment, extra, error, applicationName,
+				applicationVersion, null, null, reply);
+	}
+
+	/**
+	 * Implemented as specified by the {@link Communicator} interface.
+	 * @see Communicator#submitFilesError(String, String, String, String, 
+	 * String, String, String, File, List, StringBuilder)
+	 */
+	public void submitFilesError(String invoker, String email, String comment,
+			String extra, String error, String applicationName,
+			String applicationVersion, File mainFile,
+			List<File> associatedFiles, StringBuilder reply)
+			throws TransportException
+	{
+		MessengerRequest out = new MessengerRequest(email, comment, extra, 
+				error, applicationName, invoker, applicationVersion, 
+				mainFile, associatedFiles);
 		MessengerReply in = new MessengerReply(reply);
+
 		try {
-			Iterator i = files.entrySet().iterator();
-			Entry entry;
-			//Submit the files.
-			while (i.hasNext()) {
-				entry = (Entry) i.next();
-				out = new MessengerFileRequest(token, (File) entry.getKey(), 
-						(String) entry.getValue());
-				channel.exchange(out, in);
-			}
+			channel.exchange(out, in);
 		} catch (IOException ioe) {
 			throw new TransportException(
 					"Couldn't communicate with server (I/O error).", ioe);
 		}
 	}
-
+	
 	/**
 	 * Implemented as specified by the {@link Communicator} interface.
 	 * @see Communicator#submitFile(String, File, String, StringBuilder)

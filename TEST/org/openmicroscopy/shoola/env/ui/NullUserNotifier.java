@@ -27,11 +27,14 @@ package org.openmicroscopy.shoola.env.ui;
 //Java imports
 import java.io.File;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.Icon;
 
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
+import org.openmicroscopy.shoola.env.data.model.ImportErrorObject;
+import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 
 //Third-party libraries
 
@@ -67,12 +70,6 @@ public class NullUserNotifier
      * @see UserNotifier#notifyError(String, String, String)
      */
     public void notifyError(String title, String summary, String detail) {}
-
-    /**
-     * @see UserNotifier#notifyError(String, String, String, Map)
-     */
-    public void notifyError(String title, String summary, String email, 
-    		Map toSubmit) {}
     
     /**
      * @see UserNotifier#notifyError(String, String)
@@ -153,5 +150,14 @@ public class NullUserNotifier
 	 * @see UserNotifier#hasRunningActivities()
 	 */
 	public boolean hasRunningActivities() { return false; }
+
+	/**
+	 * @see UserNotifier#hasRunningActivities()
+	 */
+	public MessengerDialog notifyError(String title, String summary,
+			String email, List<ImportErrorObject> toSubmit)
+	{
+		return null;
+	}
 
 }

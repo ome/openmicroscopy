@@ -45,10 +45,15 @@ import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import omero.api.RenderingEnginePrx;
+import omero.model.Annotation;
 import omero.model.Channel;
+import omero.model.Dataset;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Pixels;
+import omero.model.Project;
+import omero.model.ProjectDatasetLink;
+import omero.model.ProjectDatasetLinkI;
 import omero.model.RenderingDef;
 import omero.romio.PlaneDef;
 import omero.sys.Parameters;
@@ -56,6 +61,7 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
+import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
@@ -71,6 +77,8 @@ import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -78,7 +86,9 @@ import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PixelsData;
+import pojos.ProjectData;
 import pojos.ROIData;
+import pojos.TagAnnotationData;
 import pojos.WorkflowData;
 
 /** 
@@ -656,39 +666,221 @@ class OmeroImageServiceImpl
 	public Collection loadPlaneInfo(long pixelsID, int z, int t, int channel)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		Collection planes = gateway.loadPlaneInfo(pixelsID, z, t, channel);
-		return planes;
+		return gateway.loadPlaneInfo(pixelsID, z, t, channel);
 	}
 
+	/**
+	 * Creates the default container where the images should be added.
+	 * 
+	 * @param container The container to handle.
+	 * @param userID The owner of the container.
+	 * @return See above.
+	 */
+	private IObject createDefaultContainer(DataObject container, long userID)
+	{
+		//images have to be added to a container.
+		//specified container
+		String date = UIUtilities.formatDate(null, UIUtilities.D_M_Y_FORMAT);
+		IObject io = null;
+		Map m = new HashMap();
+		try {
+			if (container != null) {
+				if (container instanceof DatasetData) {
+					io = container.asIObject();
+				} else if (container instanceof ProjectData) {
+					io = gateway.findIObjectByName(
+							DatasetData.class, date, userID);
+					if (io == null) {
+						DatasetData dataset = new DatasetData();
+						dataset.setName(date);
+						io = gateway.saveAndReturnObject(
+								dataset.asIObject(), m);
+						ProjectDatasetLink link = new ProjectDatasetLinkI();
+						link.setChild((Dataset) io);
+						link.setParent((Project) container.asProject());
+						link = (ProjectDatasetLink) 
+							gateway.saveAndReturnObject(link, m);
+						io = link.getChild();
+					}
+				}
+			} else {
+				io = gateway.findIObjectByName(
+						DatasetData.class, date, userID);
+				if (io == null) {
+					DatasetData dataset = new DatasetData();
+					dataset.setName(date);
+					io = gateway.saveAndReturnObject(
+							dataset.asIObject(), m);
+				}
+			}
+		} catch (Exception e) {
+			io = null;
+		}
+		return io;
+	}
+	
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroImageService#importImage(DataObject, File, StatusLabel, long, 
-	 * long, boolean, String, int)
+	 * @see OmeroImageService#importFile(ImportableObject, File, StatusLabel, 
+	 * long, long)
 	 */
-	public Object importImage(DataObject container, File file, 
-			StatusLabel status, long userID, long groupID, boolean archived, 
-			String name, int depth) 
+	public Object importFile(ImportableObject object, File file, 
+			StatusLabel status, long userID, long groupID) 
 		throws ImportException
 	{
 		if (file == null)
 			throw new IllegalArgumentException("No images to import.");
-		Object object;
-		if (file.isDirectory()) {
-			object = gateway.importFolder(container, file, status, 
-					archived, depth);
-		} else {
-			object = gateway.importImage(container, file, status, archived, 
-					name);
+		Object result = null;
+		DataObject container = object.getContainer();
+		IObject io = null;
+		Collection<TagAnnotationData> tags = object.getTags();
+		List<Annotation> list = new ArrayList<Annotation>();
+		List<IObject> l;
+		if (tags != null && tags.size() > 0) {
+			Iterator<TagAnnotationData> i = tags.iterator();
+			TagAnnotationData tag;
+			l = new ArrayList<IObject>();
+			
+			while (i.hasNext()) {
+				tag = i.next();
+				if (tag.getId() > 0) {
+					list.add((Annotation) tag.asIObject());
+				} else l.add(tag.asIObject());
+			}
+			//save the tag.
+			try {
+				l = gateway.saveAndReturnObject(l, new HashMap());
+				Iterator<IObject> j = l.iterator();
+				while (j.hasNext()) {
+					list.add((Annotation) j.next());
+				}
+			} catch (Exception e) {
+				//ignore
+			}
 		}
-				
-		if (!(object instanceof ImageData)) return object;
+		IObject link;
+		//prepare the container.
+		List<ImageData> images = new ArrayList<ImageData>();
+		if (file.isFile()) {
+			io = createDefaultContainer(container, userID);
+			if (container != null && container instanceof ProjectData) {
+				if (io instanceof Dataset) {
+					link = ModelMapper.linkParentToChild((Dataset) io, 
+							(Project) container.asProject());
+					try {
+						link = gateway.saveAndReturnObject(link, new HashMap());
+						io = ((ProjectDatasetLink)  link).getChild();
+					} catch (Exception e) {
+						io = null;
+					}
+				}
+			}
+			result = gateway.importImage(object, io, file, status);
+			if (!(result instanceof ImageData)) return object;
+			
+			ImageData image = (ImageData) result;
+			images.add(image);
+			annotatedImportedImage(list, images);
+			return createImportedImage(userID, image);
+		}
+		DataObject folder = object.createFolderAsContainer(file);
+		Map m = new HashMap();
+		if (folder != null) {
+			//we have to import the image in this container.
+			try {
+				io = gateway.saveAndReturnObject(folder.asIObject(), m);
+				//Link the dataset to the project.
+				if (container != null && container instanceof ProjectData &&
+					folder instanceof DatasetData) {
+					link = ModelMapper.linkParentToChild((Dataset) io, 
+							(Project) container.asProject());
+					link = gateway.saveAndReturnObject(link, m);
+					io = ((ProjectDatasetLink)  link).getChild();
+				}
+			} catch (Exception e) {
+				io = null;
+			}
+		} else {
+			io = createDefaultContainer(container, userID);
+		}
 		
-		ImageData image = (ImageData) object;
+		List<String> candidates = 
+			gateway.getImportCandidates(object, file, status);
+		if (candidates.size() == 0) return Boolean.valueOf(false);
+		Iterator<String> i = candidates.iterator();
+		String path;
+		Map<File, StatusLabel> files = new HashMap<File, StatusLabel>();
+		while (i.hasNext()) {
+			path = i.next();
+			files.put(new File(path), new StatusLabel());
+		}
+		status.setFiles(files);
+		Entry entry;
+		Iterator j = files.entrySet().iterator();
+		StatusLabel label = null;
+		while (j.hasNext()) {
+			entry = (Entry) j.next();
+			file = (File) entry.getKey();
+			label = (StatusLabel) entry.getValue();
+			result = gateway.importImage(object, io, file, label);
+			if (!(result instanceof ImageData))
+				label.setFile(file, result);
+			images.add((ImageData) result);
+			label.setFile(file, createImportedImage(userID, 
+					(ImageData) result));
+		}
+		annotatedImportedImage(list, images);
+		return Boolean.valueOf(true);
+	}
+
+	/**
+	 * Annotates the imported images.
+	 * 
+	 * @param annotations The annotations to add.
+	 * @param images The imported images.
+	 */
+	private void annotatedImportedImage(List<Annotation> annotations, 
+			List<ImageData> images)
+	{
+		if (annotations.size() == 0 || images.size() == 0) return;
+		Iterator<ImageData> i = images.iterator();
+		ImageData image;
+		Iterator<Annotation> j;
+		List<IObject> list = new ArrayList<IObject>();
+		IObject io;
+		while (i.hasNext()) {
+			image = i.next();
+			j = annotations.iterator();
+			while (j.hasNext()) {
+				io = ModelMapper.linkAnnotation(image.asIObject(), j.next());
+				if (io != null)
+					list.add(io);
+			}
+		}
+		if (list.size() == 0) return;
+		try {
+			gateway.saveAndReturnObject(list, new HashMap());
+		} catch (Exception e) {
+			//ignore 
+		}
+	}
+	
+	/**
+	 * Creates a thumbnail for the imported image.
+	 * 
+	 * @param userID  The identifier of the user.
+	 * @param image   The image to handle.
+	 * @return See above.
+	 * @throws ImportException
+	 */
+	private Object createImportedImage(long userID, ImageData image)
+		throws ImportException
+	{
 		if (image != null) {
 			try {
 				PixelsData pix = image.getDefaultPixels();
 				BufferedImage img = createImage(
-						gateway.getThumbnailByLongestSide(pix.getId(), 24));
+						gateway.getThumbnailByLongestSide(pix.getId(), 96));
 				ThumbnailData data = new ThumbnailData(image.getId(), img, 
 						userID, true);
 				data.setImage(image);
@@ -700,13 +892,12 @@ class OmeroImageServiceImpl
 				try {
 					context.getDataService().delete(l);
 				} catch (Exception ex) {}
-				throw new ImportException("Failed to create thumbnail", e, 
-						gateway.getReaderType());
+				throw new ImportException("Failed to import image", e);
 			}
 		}
 		return image;
 	}
-
+	
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#getSupportedFileFilters()

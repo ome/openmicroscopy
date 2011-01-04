@@ -37,8 +37,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-import pojos.DatasetData;
-import pojos.ScreenData;
 
 /**
  * Action to import images.
@@ -82,24 +80,11 @@ public class BrowserImportAction
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
-    	/*
-    	if (model.isImporting() || selectedDisplay == null) {
-    		setEnabled(false);
-            return;
-    	}
-        Object ho = selectedDisplay.getUserObject(); 
-        if ((ho instanceof DatasetData) || (ho instanceof ScreenData)) {
-        	TreeImageDisplay[] selected = model.getSelectedDisplays();
-        	if (selected.length > 1) setEnabled(false);
-        	else setEnabled(model.isUserOwner(ho));
-        } else setEnabled(false);
-        setEnabled(false);
-        */
         if (selectedDisplay == null) {
         	setEnabled(false);
             return;
         }
-        setEnabled(false);
+        setEnabled(true);
     }
     
     /**

@@ -79,15 +79,15 @@ public class ImporterAgent
 								LookupNames.CURRENT_USER_DETAILS);
 	}
 	
-	 /**
-     * Handles the {@link LoadImporter} event.
-     * 
-     * @param evt The event to handle.
-     */
-    private void handleLoadFS(LoadImporter evt)
+	/**
+	 * Handles the {@link LoadImporter} event.
+	 * 
+	 * @param evt The event to handle.
+	 */
+    private void handleLoadImporter(LoadImporter evt)
     {
     	if (evt == null) return;
-    	Importer importer = ImporterFactory.getImporter(evt.getContainer());
+    	Importer importer = ImporterFactory.getImporter();
     	if (importer != null) {
     		int type = evt.getType();
     		switch (evt.getType()) {
@@ -97,10 +97,10 @@ public class ImporterAgent
 				case LoadImporter.SCREEN_TYPE:
 					type = Importer.SCREEN_TYPE;
 			}
-    		importer.activate(type);
+    		importer.activate(type, evt.getContainer());
     	}
     }
-    
+
 	/** Creates a new instance. */
 	public ImporterAgent() {}
 	
@@ -153,7 +153,7 @@ public class ImporterAgent
     public void eventFired(AgentEvent e)
     {
     	if (e instanceof LoadImporter)
-			handleLoadFS((LoadImporter) e);
+			handleLoadImporter((LoadImporter) e);
     }
 
 }

@@ -23,13 +23,15 @@
 package org.openmicroscopy.shoola.env.ui;
 
 // Java Imports
-import java.util.Map;
+import java.util.List;
 import javax.swing.Icon;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
+import org.openmicroscopy.shoola.env.data.model.ImportErrorObject;
+import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 
 /** 
  * Acts as a centralized place where user notifications are collected and 
@@ -83,8 +85,8 @@ public interface UserNotifier
  	 * @param email		The e-mail address of the user.
  	 * @param toSubmit	The objects to submit to the development team.
      */
-	public void notifyError(String title, String summary, String email, 
-			Map toSubmit);
+	public MessengerDialog notifyError(String title, String summary, 
+			String email, List<ImportErrorObject> toSubmit);
 	
 	/**
 	 * Brings up a modal dialog to notify the user of an error.
@@ -179,5 +181,5 @@ public interface UserNotifier
      * @return See above.
      */
 	public boolean hasRunningActivities();
-    
+	
 }

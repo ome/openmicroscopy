@@ -117,7 +117,7 @@ class FileElement
 	 * 
 	 * @return See above.
 	 */
-	File getFile() { return file; }
+	public File getFile() { return file; }
 	
 	/** 
 	 * Overridden to return the name to give to the imported file.

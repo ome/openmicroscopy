@@ -22,14 +22,14 @@
  */
 package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
-
-
-
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -67,8 +67,6 @@ import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.UIManager;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
@@ -78,10 +76,9 @@ import org.jdesktop.swingx.JXTaskPane;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
-import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -105,7 +102,7 @@ import pojos.TagAnnotationData;
  * @since 3.0-Beta4
  */
 public class ImportDialog extends JDialog
-	implements ActionListener, ChangeListener, PropertyChangeListener
+	implements ActionListener, PropertyChangeListener
 {
 
 	/** Bound property indicating to load the tags. */
@@ -135,9 +132,6 @@ public class ImportDialog extends JDialog
 	/** Action id indicating to add tags to the file. */
 	private static final int	TAG = 5;
 	
-	/** Action id indicating to override the name or not. */
-	private static final int	OVERRIDE = 6;
-	
 	/** The title of the dialog. */
 	private static final String TITLE = "Import";
 	
@@ -159,6 +153,11 @@ public class ImportDialog extends JDialog
 	/** Warning when de-selecting the name overriding option. */
 	private static final List<String> WARNING;
 	
+	/** String used to retrieve if the value of the archived flag. */
+	private static final String ARCHIVED = "/options/Archived";
+	
+	/** String used to retrieve if the archived option is displayed. */
+	private static final String ARCHIVED_AVAILABLE = "/options/ArchivedAvailable";
 	
 	/** The length of a column. */
 	private static final int		COLUMN_WIDTH = 200;
@@ -223,15 +222,9 @@ public class ImportDialog extends JDialog
 	/** The title panel of the window. */
 	private TitlePanel			titlePane;
 	
-	/** Component indicating to use the folder as a tag. */
-	private JCheckBox			folderAsTag;
-	
 	/** Button to bring up the tags wizard. */
 	private JButton						tagButton;
 	
-	/** Button indicating to use the folder as a container. */
-	private JCheckBox					folderAsContainer;
-		
 	/** The fields hosting the pixels size. First
 	 * is for the size along the X-axis, then Y-axis, finally Z-axis
 	 */
@@ -246,6 +239,7 @@ public class ImportDialog extends JDialog
 	/** The action listener used to handle tag selection. */
 	private ActionListener				listener;
 	
+	/** The object where to import the data. */
 	private DataObject			container;
 	
 	/**
@@ -288,8 +282,7 @@ public class ImportDialog extends JDialog
 		while (i.hasNext()) {
 			tag = (TagAnnotationData) i.next();
 			entry = buildTagEntry(tag, icons.getIcon(IconManager.MINUS_11));
-			if (width+entry.getPreferredSize().width >= COLUMN_WIDTH)
-		    {
+			if (width+entry.getPreferredSize().width >= COLUMN_WIDTH) {
 		    	tagsPane.add(p);
 		    	p = initRow();
 				width = 0;
@@ -338,8 +331,7 @@ public class ImportDialog extends JDialog
 		p.add(b);
 		return p;
 	}
-	
-	
+
 	/**
 	 * Shows the selection wizard.
 	 * 
@@ -363,7 +355,7 @@ public class ImportDialog extends JDialog
 			text = "Select the Tags to add or remove, \nor Create new Tags";
 			icon = icons.getIcon(IconManager.TAGS_48);
 		} 
-		long userID = MetadataViewerAgent.getUserDetails().getId();
+		long userID = ImporterAgent.getUserDetails().getId();
 		SelectionWizard wizard = new SelectionWizard(
 				reg.getTaskBar().getFrame(), available, selected, type,
 				addCreation, userID);
@@ -396,10 +388,10 @@ public class ImportDialog extends JDialog
 	 * Initializes the components composing the display. 
 	 * 
 	 * @param container The container to import the data into.
-	 * @param type One of the type constants.
 	 */
-	private void initComponents(DataObject container, int type)
+	private void initComponents(DataObject container)
 	{
+		this.container = container;
 		listener = new ActionListener() {
 			
 			public void actionPerformed(ActionEvent e) {
@@ -415,44 +407,11 @@ public class ImportDialog extends JDialog
 		};
 		numberOfFolders = new NumericalTextField();
 		numberOfFolders.setMinimum(0);
-		numberOfFolders.addPropertyChangeListener(this);
 		numberOfFolders.setText("0");
 		numberOfFolders.setColumns(3);
-		numberOfFolders.setEnabled(false);
-		
+		//numberOfFolders.setEnabled(false);
+		numberOfFolders.addPropertyChangeListener(this);
 		tagsMap = new LinkedHashMap<JButton, TagAnnotationData>();
-		if (container == null || container instanceof ProjectData) {
-			switch (type) {
-				case Importer.PROJECT_TYPE:
-					folderAsContainer = new JCheckBox("Folder as Dataset");
-					folderAsContainer.setToolTipText("Create a Dataset " +
-							"using the name of the folder");
-					folderAsContainer.setEnabled(false);
-					numberOfFolders.setMinimum(1);
-					numberOfFolders.setText("1");
-					if (container == null)
-						this.container = new DatasetData();
-					break;
-				case Importer.SCREEN_TYPE:
-					folderAsContainer = new JCheckBox("Folder as Screen");
-					folderAsContainer.setToolTipText("Create a Screen " +
-					"using the name of the folder");
-					this.container = new ScreenData();
-					break;
-			}
-			if (folderAsContainer != null) {
-				folderAsContainer.setSelected(true);
-				folderAsContainer.addChangeListener(this);
-			}
-				
-		}
-		/*
-		if (container != null) {
-			folderAsTag = new JCheckBox("Folder as Tag");
-			folderAsTag.setToolTipText("Create a Tag using the name " +
-					"of the folder.");
-		}
-		*/
 		IconManager icons = IconManager.getInstance();
 		tagButton = new JButton(icons.getIcon(IconManager.PLUS_12));
 		UIUtilities.unifiedButtonLookAndFeel(tagButton);
@@ -464,25 +423,21 @@ public class ImportDialog extends JDialog
 		
 		archived = new JCheckBox();
 		archived.setText("Archived files");
-		Boolean b = 
-			(Boolean) ImporterAgent.getRegistry().lookup("/options/Archived");
-		archived.setSelected(b);
-		b = (Boolean) ImporterAgent.getRegistry().lookup(
-					"/options/ArchivedAvailable");
-		archived.setVisible(b);
+		Boolean b = (Boolean) ImporterAgent.getRegistry().lookup(ARCHIVED);
+		if (b != null) archived.setSelected(b);
+		b = (Boolean) ImporterAgent.getRegistry().lookup(ARCHIVED_AVAILABLE);
+		if (b != null) archived.setVisible(b);
 
-		overrideName = new JCheckBox("Override default naming " +
-				"using the File Name.");
+		overrideName = new JCheckBox("Override default File naming. " +
+				"Instead use");
 		overrideName.setToolTipText(UIUtilities.formatToolTipText(WARNING));
 		overrideName.setSelected(true);
-		overrideName.addChangeListener(this);
 		ButtonGroup group = new ButtonGroup();
-		fullName = new JRadioButton("Full Path+File name");
-		fullName.setSelected(true);
+		fullName = new JRadioButton("Full Path+File's name");
 		group.add(fullName);
 		partialName = new JRadioButton();
-		partialName.addChangeListener(this);
-		partialName.setText("Directories+File name");
+		partialName.setText("Partial Path+File's name with");
+		partialName.setSelected(true);
 		group.add(partialName);
 
 		chooser = new JFileChooser();
@@ -491,7 +446,6 @@ public class ImportDialog extends JDialog
 		chooser.addPropertyChangeListener(this);
 		chooser.setMultiSelectionEnabled(true);
 		chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-		//chooser.setAcceptAllFileFilterUsed(false);
 		chooser.setControlButtonsAreShown(false);
 		chooser.setApproveButtonText("Import");
 		chooser.setApproveButtonToolTipText("Import the selected files " +
@@ -553,8 +507,6 @@ public class ImportDialog extends JDialog
 	{
 		JPanel bar = new JPanel();
 		bar.setLayout(new FlowLayout(FlowLayout.RIGHT));
-		//bar.add(applyToAllButton);
-		//bar.add(Box.createHorizontalStrut(5));
 		bar.add(resetButton);
 		bar.add(Box.createHorizontalStrut(20));
 		bar.add(cancelButton);
@@ -586,11 +538,14 @@ public class ImportDialog extends JDialog
 	private String getContainerText(Object container)
 	{
 		if (container instanceof DatasetData) {
-			return MESSAGE+" into dataset: "+
-					((DatasetData) container).getName()+END;
+			return MESSAGE+" into Dataset: "+
+				((DatasetData) container).getName()+END;
 		} else if (container instanceof ScreenData) {
-			return MESSAGE_PLATE+" into screen: "+
+			return MESSAGE_PLATE+" into Screen: "+
 			((ScreenData) container).getName()+END;
+		} else if (container instanceof ProjectData) {
+			return MESSAGE_PLATE+" into Project: "+
+			((ProjectData) container).getName()+END;
 		}
 		return MESSAGE+END;
 	}
@@ -605,12 +560,9 @@ public class ImportDialog extends JDialog
 		JPanel p = new JPanel();
 		p.setLayout(new FlowLayout(FlowLayout.LEFT));
 		JLabel l = new JLabel();
-		l.setText("Depth: ");
-		p.add(l);
-		p.add(Box.createHorizontalStrut(5));
 		p.add(numberOfFolders);
 		l = new JLabel();
-		l.setText("Directories");
+		l.setText("Directories before File");
 		p.add(l);
 		return p;
 	}
@@ -624,6 +576,8 @@ public class ImportDialog extends JDialog
 	private JXTaskPane buildMetadataComponent()
 	{
 		JXTaskPane pane = new JXTaskPane();
+		Font font = pane.getFont();
+		pane.setFont(font.deriveFont(font.getStyle(), font.getSize()-2));
 		pane.setCollapsed(true);
 		pane.setTitle("Metadata Defaults");
 		pane.add(buildPixelSizeComponent());
@@ -668,48 +622,50 @@ public class ImportDialog extends JDialog
 	 */
 	private JComponent buildNamingComponent()
 	{
-		JPanel p = new JPanel();
-		double[][] size = {{15, TableLayout.PREFERRED}, 
-				{TableLayout.PREFERRED, TableLayout.PREFERRED, 
-			TableLayout.PREFERRED, TableLayout.PREFERRED, TableLayout.PREFERRED}};
-		p.setLayout(new TableLayout(size));
-		if (folderAsContainer != null) {
-			p.add(folderAsContainer, "0, 0, 1, 0");
-			p.add(buildPathComponent(), "1, 1");
-			p.add(overrideName, "0, 2, 1, 2");
-		}
 		
-		p.add(UIUtilities.buildComponentPanel(archived), "0, 3, 1, 3");
-		p.add(buildLocationComponent(), "0, 4, 1, 4");
+		JPanel content = new JPanel();
+		content.setBorder(BorderFactory.createTitledBorder("File Naming"));
+		
+		JPanel panel = new JPanel();
+		panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+		panel.add(fullName);
+		panel.add(partialName);
+		JPanel pp = new JPanel();
+		pp.setLayout(new BoxLayout(pp, BoxLayout.Y_AXIS));
+		pp.add(UIUtilities.buildComponentPanel(panel));
+		pp.add(buildPathComponent());
+		GridBagConstraints c = new GridBagConstraints();
+		content.setLayout(new GridBagLayout());
+		c.fill = GridBagConstraints.HORIZONTAL;
+		c.weightx = 0.0;
+		c.gridwidth = 2;
+		c.gridx = 0;
+		c.gridy = 0;
+		content.add(overrideName, c);
+		c.gridwidth = 1;
+		c.gridy++;
+		content.add(Box.createHorizontalStrut(15), c);
+		c.gridx++;
+		content.add(pp, c);
+		
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		p.add(content);
+		if (archived.isVisible())
+			p.add(UIUtilities.buildComponentPanel(archived));
+		p.add(buildAnnotationComponent());
 		return UIUtilities.buildComponentPanel(p);
-		/*
-		p.add(overrideName, "0, 0, 1, 0");
-		p.add(UIUtilities.buildComponentPanel(fullName), "1, 1");
-		p.add(buildPathComponent(), "1, 2");
-		p.add(UIUtilities.buildComponentPanel(archived), "0, 3, 1, 3");
-		JXTaskPane pane = new JXTaskPane();
-		pane.setTitle("Naming");
-		pane.add(p);
-		return pane;
-		*/
 	}
 	
 	/**
-	 * Builds the component indicating where to import the files.
+	 * Builds the component hosting the controls to add annotations.
 	 * 
 	 * @return See above.
 	 */
-	private JPanel buildLocationComponent()
+	private JPanel buildAnnotationComponent()
 	{
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		/*
-		if (folderAsContainer != null) 
-			p.add(UIUtilities.buildComponentPanel(folderAsContainer));
-		if (folderAsTag != null)
-			p.add(UIUtilities.buildComponentPanel(folderAsTag));
-		*/
-		//p.add(buildNamingComponent());
 		JLabel l = new JLabel();
 		l.setText("Add Tag");
 		JPanel tagPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
@@ -734,11 +690,10 @@ public class ImportDialog extends JDialog
 	{
 		//Lays out the options
 		JPanel options = new JPanel();
-		double[][] size = {{TableLayout.PREFERRED}, 
+		double[][] size = {{TableLayout.FILL}, 
 				{TableLayout.PREFERRED, TableLayout.PREFERRED, 
 			TableLayout.PREFERRED}};
 		options.setLayout(new TableLayout(size));
-		//options.add(buildLocationComponent(), "0, 0");
 		options.add(buildNamingComponent(), "0, 1");
 		options.add(buildMetadataComponent(), "0, 2");
 		return options;
@@ -762,15 +717,17 @@ public class ImportDialog extends JDialog
 		JTabbedPane tabbedPane = new JTabbedPane();
 		tabbedPane.add("Files to import", table);
 		tabbedPane.add("Options", buildOptionsPane());
+		
 		JPanel p = new JPanel();
-		p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
-		p.add(table.buildControls());
-		p.add(tabbedPane);
+		double[][] size = {{TableLayout.PREFERRED, 10, TableLayout.FILL}, 
+				{TableLayout.FILL}};
+		p.setLayout(new TableLayout(size));
+		p.add(table.buildControls(), "0, 0, LEFT, CENTER");
+		p.add(tabbedPane, "2, 0");
+		
 		JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, chooser, 
 				p);
 		c.add(pane, BorderLayout.CENTER);
-		
-		
 		JPanel controls = new JPanel();
 		controls.setLayout(new BoxLayout(controls, BoxLayout.Y_AXIS));
 		
@@ -810,48 +767,25 @@ public class ImportDialog extends JDialog
     	UIUtilities.setDefaultFolder(
     			chooser.getCurrentDirectory().toString());
 
-    	Map<File, Boolean> files = null;//table.getFilesToImport();
+    	Map<File, Boolean> files = table.getFilesToImport();
     	ImportableObject object = new ImportableObject(files,
-    			archived.isSelected(), overrideName.isSelected());
-    	
+    			overrideName.isSelected());
+    	object.setContainer(container);
+    	//tags
+    	if (tagsMap.size() > 0) object.setTags(tagsMap.values());
     	if (partialName.isSelected()) {
     		Integer number = (Integer) numberOfFolders.getValueAsNumber();
         	if (number != null && number >= 0) object.setDepth(number);
-    	} else { //fullName
-    		
-    	}
-    	//List of tags
-    	Collection tags = tagsMap.values();
-    	if (folderAsTag != null && folderAsTag.isSelected()) {
-    		List<TagAnnotationData> 
-    		folders = new ArrayList<TagAnnotationData>();
-    		Set<File> keys = files.keySet();
-    		Iterator<File> j = keys.iterator();
-    		File f;
-    		while (j.hasNext()) {
-				f = j.next();
-				if (f.isDirectory()) 
-					folders.add(new TagAnnotationData(f.getName()));
-			}
-    		if (folders.size() > 0)
-    			tags.addAll(folders);
-    	}
-    	object.setTags(tags);
-    	long id = container.getId();
-    	if (id >= 0 && container.isLoaded()) {
-    		object.setContainer(container);
-    	} else {
-    		object.setFolderAsContainer(container.getClass());
-    	}
-    	NumericalTextField f;
+    	} 
+    	NumericalTextField nf;
     	Iterator<NumericalTextField> i = pixelsSize.iterator();
     	Number n;
     	double[] size = new double[3];
     	int index = 0;
     	int count = 0;
     	while (i.hasNext()) {
-			f = i.next();
-			n = f.getValueAsNumber();
+			nf = i.next();
+			n = nf.getValueAsNumber();
 			if (n != null) {
 				count++;
 				size[index] = n.doubleValue();
@@ -953,7 +887,7 @@ public class ImportDialog extends JDialog
     	super(owner);
     	this.filters = filters;
     	setProperties();
-    	initComponents(container, type);
+    	initComponents(container);
     	buildGUI(container);
     	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     	setSize(7*(screenSize.width/10), 7*(screenSize.height/10));
@@ -964,8 +898,9 @@ public class ImportDialog extends JDialog
      * 
      * @param container The container where to import the files.
      */
-	public void resetObject(Object container)
+	public void resetContainer(DataObject container)
 	{
+		this.container = container;
 		titlePane.setTextHeader(getContainerText(container));
 		titlePane.setSubtitle(SUB_MESSAGE);
 		table.removeAllFiles();
@@ -1093,32 +1028,6 @@ public class ImportDialog extends JDialog
 				firePropertyChange(LOAD_TAGS_PROPERTY, Boolean.valueOf(false), 
 						Boolean.valueOf(true));
 				
-		}
-	}
-
-	/** 
-	 * Sets the enabled flag of the numerical field.
-	 * @see ChangeListener#stateChanged(ChangeEvent)
-	 */
-	public void stateChanged(ChangeEvent e)
-	{
-		Object src = e.getSource();
-		/*
-		if (src == overrideName) {
-			boolean b = overrideName.isSelected();
-			fullName.setEnabled(b);
-			partialName.setEnabled(b);
-			numberOfFolders.setEnabled(partialName.isSelected());
-		} else if (src == partialName) {
-			numberOfFolders.setEnabled(partialName.isSelected());
-			//table.applyToAll();
-			//applyToAllButton.setEnabled(partialName.isSelected());
-			//numberOfFolders.setEnabled(partialName.isSelected());
-		} 
-		*/
-		if (src == folderAsContainer) {
-			boolean b = folderAsContainer.isSelected();
-			numberOfFolders.setEnabled(b);
 		}
 	}
 	

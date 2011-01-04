@@ -84,6 +84,8 @@ class MessengerFileRequest
 	{
 		super();
 		this.token = token;
+		if (reader == null || reader.trim().length() == 0) 
+			reader = "unknown";
 		this.reader = reader;
 		this.file = file;
 	}
@@ -106,7 +108,6 @@ class MessengerFileRequest
         	request.setRequestEntity(new MultipartRequestEntity(
         			parts, request.getParams()));
 		} catch (Exception e) {
-			e.printStackTrace();
 			throw new TransportException("Cannot prepare file to submit", e);
 		}
         return request;

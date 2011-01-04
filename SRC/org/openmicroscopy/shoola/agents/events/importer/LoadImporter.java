@@ -33,7 +33,7 @@ import pojos.DataObject;
 
 
 /** 
- * Event to bring the Importer.
+ * Event to bring the Importer's chooser.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -95,6 +95,5 @@ public class LoadImporter
 	 * @return See above.
 	 */
 	public int getType() { return type; }
-	
-	
+
 }

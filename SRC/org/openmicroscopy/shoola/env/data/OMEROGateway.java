@@ -48,11 +48,13 @@ import java.util.Map.Entry;
 
 //Third-party libraries
 import loci.formats.FormatException;
+import loci.formats.IFormatReader;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
+import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
@@ -73,6 +75,7 @@ import ome.conditions.ResourceError;
 import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
+import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
 import ome.system.UpgradeCheck;
@@ -86,6 +89,7 @@ import omero.SecurityViolation;
 import omero.ServerError;
 import omero.SessionException;
 import omero.client;
+import omero.rtypes;
 import omero.api.ExporterPrx;
 import omero.api.IAdminPrx;
 import omero.api.IContainerPrx;
@@ -949,11 +953,7 @@ class OMEROGateway
 	 */
 	private String printErrorText(Throwable e) 
 	{
-		if (e == null) return "";
-		StringWriter sw = new StringWriter();
-		PrintWriter pw = new PrintWriter(sw);
-		e.printStackTrace(pw);
-		return sw.toString();
+		return UIUtilities.printErrorText(e);
 	}
 
 	/**
@@ -2235,6 +2235,18 @@ class OMEROGateway
 					*/
 				}
 			}
+			/*
+			Runtime run = Runtime.getRuntime();
+			String 
+			v = "env DYLD_LIBRARY_PATH=/Users/jburel/Documents/Volviewer/OMERO.cpp-4.3.0-DEV-darwin-gcc-4.0.1-32dbg/lib:$DYLD_LIBRARY_PATH";
+			v += " /Users/jburel/Documents/Volviewer/src.app/Contents/MacOS/src ";
+			v += "omero_server=localhost ";
+			v += "omero_sessionid="+secureClient.getSessionId()+" ";
+			//v += "omero_username=root omero_password=ome omero_port=4064 ";
+			v += "omero_imageid=52";
+			System.err.println(v);
+			run.exec(v);
+			*/
 			return exp;
 		} catch (Throwable e) {
 			e.printStackTrace();
@@ -3467,7 +3479,37 @@ class OMEROGateway
 					"object ID: "+o.getId());
 		}
 		return null;
-	} 
+	}
+	
+	/**
+	 * Retrieves an updated version of the specified object.
+	 * 
+	 * @param dataObjectThe object to retrieve.
+	 * @param name The name of the object.
+	 * @param 
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
+	IObject findIObjectByName(Class dataObject, String name, long ownerID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		try {
+			ParametersI param = new ParametersI();
+			param.map.put("name", rtypes.rstring(name));
+			param.map.put("ownerID", rtypes.rlong(ownerID));
+			IQueryPrx service = getQueryService();
+			String table = getTableForClass(dataObject);
+			String sql = "select o from "+table+" as o";
+			sql += " where o.name = :name";
+			sql += " and o.details.owner.id = :ownerID";
+			return service.findByQuery(sql, param);
+		} catch (Throwable t) {
+			handleException(t, "Cannot retrieve the requested object.");
+		}
+		return null;
+	}
 
 	/**
 	 * Retrieves an updated version of the specified object.
@@ -6028,36 +6070,38 @@ class OMEROGateway
 	/**
 	 * Imports the specified file. Returns the image.
 	 * 
-	 * @param container The container where to download the images into.
-	 * @param file The file to import.
-	 * @param archived 	Pass <code>true</code> to archived the files, 
-	 * 					<code>false</code> otherwise.
+	 * @param object Information about the file to import.
+	 * @param container The file where to import the image.
 	 * @param name		The name to give to the imported image.
 	 * @return See above.
 	 * @throws ImportException If an error occurred while importing.
 	 */
-	Object importImage(DataObject container, File file, StatusLabel status,
-			boolean archived, String name)
+	Object importImage(ImportableObject object, IObject container, File file, 
+			StatusLabel status)
 		throws ImportException
 	{
 		try {
-			ImportLibrary importLibrary = new ImportLibrary(getImportStore(), 
+			ImportLibrary library = new ImportLibrary(getImportStore(), 
 					new OMEROWrapper(new ImportConfig()));
-			importLibrary.addObserver(status);
-			IObject object = null;
-			if (container != null) object = container.asIObject();
-			if (name != null && name.trim().length() == 0) name = null;
-			List<Pixels> pixels = 
-				importLibrary.importImage(file, 0, 0, 1, name, null, 
-					archived, true, null, object);
+			library.addObserver(status);
+			//Double[] userPixels, String reader, String[] usedFiles, Boolean isSPW
+			ImportContainer ic = new ImportContainer(file, -1L, container, 
+					object.isArchived(), object.getPixelsSize(), null, null,
+					null);
+			ic.setUseMetadataFile(true);
+			if (object.isOverrideName()) {
+				int depth = object.getDepth();
+				ic.setCustomImageName(UIUtilities.getDisplayedFileName(
+						file.getAbsolutePath(), depth));
+			}
+			List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
 			if (pixels != null && pixels.size() > 0) {
 				Pixels p = pixels.get(0);
 				long id = p.getImage().getId().getValue();
 				return getImage(id, new Parameters());
 			}
 		} catch (Throwable e) {
-			String message = getImportFailureMessage(e);
-			throw new ImportException(message, e, getReaderType());
+			throw new ImportException(getImportFailureMessage(e), e);
 		}
 		return null;
 	}
@@ -6065,7 +6109,7 @@ class OMEROGateway
 	/**
 	 * Imports the specified file. Returns the image.
 	 * 
-	 * @param container The container where to import the images into.
+	 * @param object Host information about the file to import.
 	 * @param file 		The file to import.
 	 * @param archived 	Pass <code>true</code> to archived the files, 
 	 * 					<code>false</code> otherwise.
@@ -6074,79 +6118,23 @@ class OMEROGateway
 	 * @return See above.
 	 * @throws ImportException If an error occurred while importing.
 	 */
-	Object importFolder(DataObject container, File file, StatusLabel status,
-			boolean archived, int depth)
+	List<String> getImportCandidates(ImportableObject object, File file, 
+			StatusLabel status)
 		throws ImportException
 	{
 		try {
 			ImportConfig config = new ImportConfig();
 			OMEROWrapper reader = new OMEROWrapper(config);
 			ImportLibrary library = new ImportLibrary(getImportStore(), reader);
-			library.addObserver(status);
+			//library.addObserver(status);
 			String[] paths = new String[1];
 			paths[0] = file.getAbsolutePath();
 			ImportCandidates candidates = new ImportCandidates(reader, paths, 
 					status);
-			List<String> containers = 
-				new ArrayList<String>(candidates.getPaths());
-			IObject object = null;
-			if (container != null) object = container.asIObject();
-			List<Pixels> pixels = null;
-			Map<File, ImportException> 
-				results = new HashMap<File, ImportException>();
-			if (containers != null && containers.size() > 0) {
-				Iterator<String> i = containers.iterator();
-				String path;
-				
-				String name;
-				File f;
-				int count = 0;
-				int total = containers.size();
-				while (i.hasNext()) {
-					path = i.next();
-					f = new File(path);
-					name = UIUtilities.getDisplayedFileName(f.getAbsolutePath(),
-							depth);
-					try {
-						pixels = library.importImage(f, count, total-count, total, 
-								name, null, archived, true, null, object);
-						count++;
-					} catch (Throwable e) {
-						String message = getImportFailureMessage(e);
-						results.put(f, new ImportException(message, e, 
-								getReaderType()));
-					}
-				}
-			}
-			/*
-			if (pixels != null && pixels.size() > 0) {
-				Pixels p = pixels.get(0);
-				long id = p.getImage().getId().getValue();
-				return getImage(id, new Parameters());
-			}
-			*/
-			return results;
+			return new ArrayList<String>(candidates.getPaths());
 		} catch (Throwable e) {
-			String message = getImportFailureMessage(e);
-			
+			throw new ImportException(getImportFailureMessage(e), e);
 		}
-		return null;
-	}
-	
-	/**
-	 * Returns the latest reader used.
-	 * 
-	 * @return See above.
-	 */
-	String getReaderType()
-	{
-		try {
-			String reader = getImportStore().getReader().getFormat();
-			if (reader != null) return reader;
-	        return "";
-		} catch (Exception e) {
-		}
-		return "";
 	}
 	
 	/**
@@ -6267,7 +6255,8 @@ class OMEROGateway
 			RoiResult r;
 			ROIResult result;
 			if (measurements == null || measurements.size() == 0) {
-				r = svc.findByImage(imageID, new RoiOptions());
+				options = new RoiOptions();
+				r = svc.findByImage(imageID, options);
 				if (r == null) return results;
 				results.add(new ROIResult(PojoMapper.asDataObjects(r.rois)));
 			} else { //measurements

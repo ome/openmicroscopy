@@ -329,9 +329,9 @@ class MetadataHandlerViewImpl
 
 	/**
 	 * Implemented as specified by the view interface.
-	 * @see MetadataHandlerView#submitFile(MessengerDetails, AgentEventListener)
+	 * @see MetadataHandlerView#submitFiles(MessengerDetails, AgentEventListener)
 	 */
-	public CallHandle submitFile(MessengerDetails details,
+	public CallHandle submitFiles(MessengerDetails details,
 			AgentEventListener observer)
 	{
 		BatchCallTree cmd = new FileUploader(details);

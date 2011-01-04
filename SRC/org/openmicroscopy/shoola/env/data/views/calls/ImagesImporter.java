@@ -33,12 +33,11 @@ import java.util.Map;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
-import org.openmicroscopy.shoola.env.data.model.ImportContext;
 import org.openmicroscopy.shoola.env.data.model.ImportObject;
+import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
-import pojos.DataObject;
 
 /** 
  * Command to import images in a container if specified.
@@ -77,52 +76,24 @@ public class ImagesImporter
     private Map<File, Object> 		partialResult;
     
     /** The object hosting the information for the import. */
-    private ImportContext context;
+    private ImportableObject object;
     
     /** 
      * Imports the file.
      * 
      * @param f 	 The file to import.
      * @param status The element indicating the status of the import.
-     * @param name	 The name of the imported image.
-     * @param depth  The depth used to set the name.
      */
-    private void importFile(File f, StatusLabel status, String name)
+    private void importFile(File f, StatusLabel status)
     {
     	partialResult = new HashMap<File, Object>();
-    	/*
     	OmeroImageService os = context.getImageService();
     	try {
-    		Object ho = os.importImage(container, f, status, userID, groupID,
-    				archived, name, depth);
+    		Object ho = os.importFile(object, f, status, userID, groupID);
     		partialResult.put(f, ho);
 		} catch (Exception e) {
 			partialResult.put(f, e);
 		}
-		*/
-    }
-
-    /** 
-     * Imports the file.
-     * 
-     * @param f 	 The file to import.
-     * @param status The element indicating the status of the import.
-     * @param name	 The name of the imported image.
-     * @param depth  The depth used to set the name.
-     */
-    private void importFolder(File f, StatusLabel status, String name)
-    {
-    	partialResult = new HashMap<File, Object>();
-    	/*
-    	OmeroImageService os = context.getImageService();
-    	try {
-    		Object ho = os.importImage(container, f, status, userID, groupID,
-    				archived, name, depth);
-    		partialResult.put(f, ho);
-		} catch (Exception e) {
-			partialResult.put(f, e);
-		}
-		*/
     }
     
     /**
@@ -133,26 +104,17 @@ public class ImagesImporter
     protected void buildTree()
     { 
     	ImportObject io;
-    	
-    	List<ImportObject> files = context.getFiles();
+    	List<ImportObject> files = object.getFilesToImport();
 		Iterator<ImportObject> i = files.iterator();
 		File ho;
 		while (i.hasNext()) {
 			io = (ImportObject) i.next();
 			ho = io.getFile();
-			final String name = io.getName();
 			final StatusLabel label = io.getStatus();
 			final File f = io.getFile();
-			if (ho.isDirectory()) {
-				add(new BatchCall("Importing file") {
-	        		public void doCall() { importFolder(f, label, name); }
-	        	}); 
-			} else {
-				add(new BatchCall("Importing file") {
-	        		public void doCall() { importFile(f, label, name); }
-	        	}); 
-			}
-			
+			add(new BatchCall("Importing file") {
+        		public void doCall() { importFile(f, label); }
+        	}); 
 		}
     }
 
@@ -187,14 +149,14 @@ public class ImagesImporter
 	 * @param userID	The id of the user.
 	 * @param groupID	The id of the group.
      */
-    public ImagesImporter(ImportContext context, long userID, long groupID)
+    public ImagesImporter(ImportableObject object, long userID, long groupID)
     {
-    	if (context == null || context.getFiles() == null ||
-    			context.getFiles().size() == 0)
+    	if (object == null || object.getFiles() == null ||
+    			object.getFiles().size() == 0)
     		throw new IllegalArgumentException("No Files to import.");
     	this.userID = userID;
     	this.groupID = groupID;
-    	this.context = context;
+    	this.object = object;
     }
     
 }

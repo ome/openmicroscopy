@@ -317,8 +317,7 @@ public class ImportManager
 			f = (File) entry.getKey();
 			toImport.add(f);
 			c = new FileImportComponent(this, f);
-			obj = new ImportObject(f, c.getStatus(), (String) entry.getValue());
-			if (f.isDirectory()) obj.setDepth(depth);
+			obj = new ImportObject(f, c.getStatus());
 			list.add(obj);
 			c.addPropertyChangeListener(
 					FileImportComponent.SEND_FILE_PROPERTY, this);

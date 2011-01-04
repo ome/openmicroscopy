@@ -26,6 +26,10 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 //Java imports
 import java.io.File;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.swing.JFrame;
 
 
 //Third-party libraries
@@ -33,10 +37,12 @@ import java.util.Collection;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
-import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportableObject;
+import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
+
+import pojos.DataObject;
 
 /** 
  * Implements the {@link Importer} interface to provide the functionality
@@ -77,20 +83,24 @@ class ImporterComponent
 	/** Reference to the chooser used to select the files to import. */
 	private ImportDialog	chooser;
 	
+	/** Keeps track of the imports. */
+	private Map<Integer, ImporterUIElement> uiElements;
+	
 	/** 
 	 * Shows the dialog used to select the files to import. 
 	 * 
 	 * @param type One of the type constants.
+	 * @param container The container where to import the images.
 	 */
-	private void showChooser(int type)
+	private void showChooser(int type, DataObject container)
 	{
 		if (chooser == null) {
 			chooser = new ImportDialog(view, model.getSupportedFormats(), 
-					model.getContainer(), type);
+					container, type);
 			chooser.addPropertyChangeListener(controller);
 			chooser.pack();
 		} else {
-			
+			chooser.resetContainer(container);
 		}
 		UIUtilities.centerAndShow(chooser);
 	}
@@ -119,21 +129,27 @@ class ImporterComponent
 
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
-	 * @see Importer#activate(int)
+	 * @see Importer#activate(int, DataObject)
 	 */
-	public void activate(int type)
+	public void activate(int type, DataObject container)
 	{
 		switch (model.getState()) {
 			case NEW:
-				showChooser(type);
+				showChooser(type, container);
 				model.setState(READY);
 				break;
 			case DISCARDED:
 				throw new IllegalStateException(
-						"This method can't be invoked in the DISCARDED state.");
+					"This method can't be invoked in the DISCARDED state.");
 		} 
 	}
 
+	/** 
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#getView()
+	 */
+	public JFrame getView() { return view; }
+	
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
 	 * @see Importer#discard()
@@ -165,7 +181,7 @@ class ImporterComponent
 	 */
 	public void importData(ImportableObject data)
 	{
-		if (model.getState() != READY) return;
+		//if (model.getState() != READY) return;
 		if (data == null || data.getFiles() == null || 
 				data.getFiles().size() == 0) {
 			UserNotifier un = ImporterAgent.getRegistry().getUserNotifier();
@@ -173,27 +189,30 @@ class ImporterComponent
 			return;
 		}
 		//
+		if (uiElements == null) {
+			uiElements = new HashMap<Integer, ImporterUIElement>();
+		}
+		ImporterUIElement element = view.addImporterElement(data);
 		
-		//model.fireImportData(data);
+		int index = model.fireImportData(data);
+		if (element != null) {
+			uiElements.put(index, element);
+		}
 		fireStateChange();
 	}
 
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
-	 * @see Importer#monitorDirectory(File)
+	 * @see Importer#setImportedFile(File, Object, int)
 	 */
-	public void monitorDirectory(File dir)
+	public void setImportedFile(File f, Object result, int index)
 	{
-		if (model.getState() != READY) return;
-		if (dir == null) {
-			UserNotifier un = ImporterAgent.getRegistry().getUserNotifier();
-			un.notifyInfo("Import", "No directory to monitor.");
-			return;
-		}
-		model.fireMonitorDirectory(dir);
-		fireStateChange();
+		if (uiElements == null) return;
+		ImporterUIElement element = uiElements.get(index);
+		if (element != null)
+			element.setImportedFile(f, result);
 	}
-
+	
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
 	 * @see Importer#setExistingTags(Collection)
@@ -214,5 +233,11 @@ class ImporterComponent
 		if (tags != null) setExistingTags(tags);
 		else model.fireTagsLoading();	
 	}
+
+	/** 
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#submitFiles()
+	 */
+	public void submitFiles() { controller.submitFiles(); }
 	
 }

@@ -27,11 +27,15 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 import java.io.File;
 import java.util.Collection;
 
+import javax.swing.JFrame;
+
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportableObject;
+import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
+
+import pojos.DataObject;
 
 /** 
  * Defines the interface provided by the importer component. 
@@ -82,9 +86,10 @@ public interface Importer
 	 * window to front.
 	 * 
 	 * @param type One of the types constants defined by this class. 
+	 * @param container The container where to import the images.
 	 * @throws IllegalStateException If the current state is {@link #DISCARDED}.  
 	 */
-	public void activate(int type);
+	public void activate(int type, DataObject container);
 	
 	/**
 	 * Transitions the viewer to the {@link #DISCARDED} state.
@@ -110,13 +115,6 @@ public interface Importer
 	public void importData(ImportableObject data);
 
 	/**
-	 * Monitors the passed directory.
-	 * 
-	 * @param dir The directory to monitor.
-	 */
-	public void monitorDirectory(File dir);
-
-	/**
 	 * Sets the collection of existing tags if any.
 	 * 
 	 * @param tags The collection of tags.
@@ -126,5 +124,23 @@ public interface Importer
 	/** Invokes to load the existing tags if not already loaded. */
 	public void loadExistingTags();
 	
+	/**
+	 * Sets the imported file.
+	 * 
+	 * @param f The file imported.
+	 * @param result Depends on the result, it can be an image, an exception.
+	 * @param index The index of the UI components.
+	 */
+	public void setImportedFile(File f, Object result, int index);
+
+	/**
+	 * Returns the view.
+	 * 
+	 * @return See above.
+	 */
+	public JFrame getView();
+
+	/** Submits the files that failed to import. */
+	public void submitFiles();
 	
 }

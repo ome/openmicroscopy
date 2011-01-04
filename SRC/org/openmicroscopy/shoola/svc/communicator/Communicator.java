@@ -25,11 +25,13 @@ package org.openmicroscopy.shoola.svc.communicator;
 
 //Java imports
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.ImportErrorObject;
 import org.openmicroscopy.shoola.svc.transport.TransportException;
 
 /** 
@@ -60,6 +62,8 @@ public interface Communicator
 	 * @param error		The error message.
 	 * @param applicationName The name of the application.
 	 * @param applicationVersion The version of the application.
+	 * @param filesInfo The information about the files to submit or 
+	 * <code>null</code>.
 	 * @param reply		The result of the post.
 	 * @throws TransportException 	Thrown if an error occurred while trying 
 	 * 								to submit the error.
@@ -67,6 +71,30 @@ public interface Communicator
 	public void submitError(String invoker, String email, String comment,
 							String extra, String error, 
 							String applicationName, String applicationVersion,
+							StringBuilder reply)
+		throws TransportException;
+	
+	/**
+	 * Sends a message to the server collecting the errors and comments.
+	 * 
+	 * @param invoker	The client posting the message.
+	 * @param email		The <code>e-mail</code> address of the user
+	 * 					submitting the bug.
+	 * @param comment	The comment entered by the user.
+	 * @param extra		Extra information related to the bug.
+	 * @param error		The error message.
+	 * @param applicationName The name of the application.
+	 * @param applicationVersion The version of the application.
+	 * @param file      The main file.
+	 * @param associatedFiles The associated files.
+	 * @param reply		The result of the post.
+	 * @throws TransportException 	Thrown if an error occurred while trying 
+	 * 								to submit the error.
+	 */
+	public void submitFilesError(String invoker, String email, String comment,
+							String extra, String error, 
+							String applicationName, String applicationVersion,
+							File mainFile, List<File> associatedFiles,
 							StringBuilder reply)
 		throws TransportException;
 	
@@ -90,29 +118,16 @@ public interface Communicator
 		throws TransportException;
 	
 	/**
-	 * Submits files.
+	 * Submits the file that failed to import and its possible related files.
 	 * 
-	 * @param token		The token returned by previous call
-	 * @param files		The files to submit.
-	 * @param reply		The result of the post.
+	 * @param token The token returned by previous call
+	 * @param file  The file to send.
+	 * @param reader The reader used.
+	 * @param reply	The result of the post.
 	 * @throws TransportException 	Thrown if an error occurred while trying 
 	 * 								to submit the error.
 	 */
-	public void submitFiles(String token, Map<File, String> files, 
-			StringBuilder reply)
-		throws TransportException;
-	
-	/**
-	 * Submits files.
-	 * 
-	 * @param token		The token returned by previous call
-	 * @param file		The file to submit.
-	 * @param reader	The reader used to submit the file.
-	 * @param reply		The result of the post.
-	 * @throws TransportException 	Thrown if an error occurred while trying 
-	 * 								to submit the error.
-	 */
-	public void submitFile(String token, File file, String reader, 
+	public void submitFile(String token, File file, String reader,
 			StringBuilder reply)
 		throws TransportException;
 
