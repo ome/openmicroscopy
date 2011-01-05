@@ -1620,7 +1620,7 @@ class _BlitzGateway (object):
         if groupid not in self._ctx.memberOfGroups:
             return False
         self._lastGroupId = self._ctx.groupId
-        if hasattr(self.c, 'setSecurityContext'):
+        if hasattr(self.c.sf, 'setSecurityContext'):
             # Beta4.2
             self.c.sf.setSecurityContext(omero.model.ExperimenterGroupI(groupid, False))
         else:
