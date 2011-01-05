@@ -119,7 +119,11 @@ class ThumbnailLabel
 			 * Views the image.
 			 * @see ActionListener#actionPerformed(ActionEvent)
 			 */
-			public void mousePressed(MouseEvent e) { viewImage(); }
+			public void mousePressed(MouseEvent e)
+			{
+				if (e.getClickCount() == 2)
+					viewImage(); 
+			}
 		});
 	}
 	

@@ -28,6 +28,10 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -51,11 +55,14 @@ import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
+import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.ImportException;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
+import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ImageData;
@@ -130,9 +137,34 @@ public class FileImportComponent
 	/** Keep tracks of the components. */
 	private Map<File, FileImportComponent> components;
 	
+	/** The mouse adapter to view the image. */
+	private MouseAdapter adapter;
+	
+	/** Posts an event to view the image. */
+	private void viewImage()
+	{
+		if (image instanceof ThumbnailData) {
+			ThumbnailData data = (ThumbnailData) image;
+			EventBus bus = ImporterAgent.getRegistry().getEventBus();
+			ViewImage evt = new ViewImage(data.getImage(), null);
+			bus.post(evt);
+		}
+	}
+	
 	/** Initializes the components. */
 	private void initComponents()
 	{
+		adapter = new MouseAdapter() {
+			
+			/**
+			 * Views the image.
+			 * @see ActionListener#actionPerformed(ActionEvent)
+			 */
+			public void mousePressed(MouseEvent e)
+			{ 
+				if (e.getClickCount() == 2) viewImage(); 
+			}
+		};
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		busyLabel = new JXBusyLabel(SIZE);
 		busyLabel.setVisible(false);
@@ -304,6 +336,8 @@ public class FileImportComponent
 		} else if (image instanceof ThumbnailData) {
 			imageLabel.setThumbnail((ThumbnailData) image);
 			statusLabel.setVisible(false);
+			fileNameLabel.addMouseListener(adapter);
+			addMouseListener(adapter);
 			control = resultLabel;
 		} else if (image instanceof List) {
 			List list = (List) image;
