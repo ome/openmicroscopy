@@ -36,8 +36,6 @@ import javax.swing.event.ChangeListener;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 
-import pojos.DataObject;
-
 /** 
  * Factory to create {@link Importer} component.
  * This class keeps track of the {@link Importer} instance that has been 
@@ -136,7 +134,6 @@ public class ImporterFactory
 		ImporterComponent comp = new ImporterComponent(model);
 		model.initialize(comp);
 		comp.initialize();
-		//comp.addChangeListener(this);
 		importer = comp;
 		return importer;
 	}

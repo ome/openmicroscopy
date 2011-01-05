@@ -103,9 +103,6 @@ public interface Importer
 	 * @return One of the state flags defined by this interface.
 	 */
 	public int getState();
-	
-	/** Cancels any ongoing data loading. */
-	public void cancel();
 
 	/**
 	 * Imports the specified files.
@@ -143,4 +140,11 @@ public interface Importer
 	/** Submits the files that failed to import. */
 	public void submitFiles();
 	
+	/**
+	 * Removes the specified import element.
+	 * 
+	 * @param index The index of the import element.
+	 */
+	void removeImportElement(int index);
+
 }

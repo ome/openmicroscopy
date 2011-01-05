@@ -25,18 +25,15 @@ package org.openmicroscopy.shoola.agents.fsimporter.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
-import java.util.Iterator;
-import java.util.Map;
-
 import javax.swing.AbstractAction;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
-import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 
 /** 
  * Top class that each action should extend.
@@ -58,7 +55,13 @@ public class ImporterAction
 	/** A reference to the Model. */
 	protected Importer model;
 	
-	 /**
+	/** 
+	 * Call-back to notify a state change in the {@link Importer}. 
+	 * Subclasses override the method.
+	 */
+    protected void onStateChange() {}
+    
+    /**
      * Creates a new instance.
      * 
      * @param model Reference to the Model. Mustn't be <code>null</code>.
@@ -77,5 +80,16 @@ public class ImporterAction
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e) {}
+    
+    /** 
+     * Reacts to state changes in the {@link Importer}. 
+     * @see ChangeListener#stateChanged(ChangeEvent)
+     */
+    public void stateChanged(ChangeEvent e)
+    {
+        Object source = e.getSource();
+        if (source instanceof Importer) 
+            onStateChange();
+    }
     
 }

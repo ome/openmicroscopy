@@ -106,11 +106,14 @@ class ImporterUIElement
 	/** Flag indicating if the import is finished. */
 	private boolean done;
 	
+	/** The identifier of the component. */
+	private int id;
+	
 	/** Initializes the components. */
 	private void initialize()
 	{
 		countImported = 0;
-		setClosable(false);
+		setClosable(true);
 		entries = new JPanel();
 		entries.setBackground(UIUtilities.BACKGROUND);
 		components = new LinkedHashMap<String, FileImportComponent>();
@@ -277,13 +280,15 @@ class ImporterUIElement
 	/**
 	 * Creates a new instance.
 	 * 
+	 * @param id The identifier of the component.
 	 * @param index The index of the component.
 	 * @param name The name of the component.
 	 * @param object the object to handle.
 	 */
-	ImporterUIElement(int index, String name, ImportableObject object)
+	ImporterUIElement(int id, int index, String name, ImportableObject object)
 	{
 		super(index, name);
+		this.id = id;
 		if (object == null) 
 			throw new IllegalArgumentException("No object specified.");
 		this.object = object;
@@ -291,6 +296,13 @@ class ImporterUIElement
 		buildGUI();
 	}
 
+	/**
+	 * Returns the identifier of the component.
+	 * 
+	 * @return See above.
+	 */
+	int getID() { return id; }
+	
 	/**
 	 * Sets the result of the import for the specified file.
 	 * 
@@ -324,6 +336,13 @@ class ImporterUIElement
 	 */
 	boolean isDone() { return done; }
 	
+	/** Indicates that the import has started. */
+	void startImport()
+	{ 
+		setClosable(false); 
+		repaint();
+	}
+	
 	/**
 	 * Returns the collection of files that could not be imported.
 	 * 
@@ -347,5 +366,12 @@ class ImporterUIElement
 		}
 		return list;
 	}
+	
+	/**
+	 * Returns the object to import.
+	 * 
+	 * @return See above.
+	 */
+	ImportableObject getData() { return object; }
 	
 }

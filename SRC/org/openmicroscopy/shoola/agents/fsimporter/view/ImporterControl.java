@@ -23,7 +23,6 @@
 package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 //Java imports
-import java.awt.event.WindowAdapter;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -33,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.WindowConstants;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuKeyEvent;
 import javax.swing.event.MenuKeyListener;
@@ -43,6 +43,7 @@ import javax.swing.event.MenuListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.ActivateAction;
+import org.openmicroscopy.shoola.agents.fsimporter.actions.CloseAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.ImporterAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.SubmitFilesAction;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
@@ -50,6 +51,7 @@ import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
+import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
 import org.openmicroscopy.shoola.util.ui.MessengerDialog;
 import pojos.ExperimenterData;
 
@@ -73,6 +75,9 @@ class ImporterControl
 	/** Action ID indicating to send the files that could not imported. */
 	static final Integer SEND_BUTTON = 0;
 	
+	/** Action ID indicating to close the window. */
+	static final Integer CLOSE_BUTTON = 1;
+	
 	/** 
 	 * Reference to the {@link Importer} component, which, in this context,
 	 * is regarded as the Model.
@@ -93,6 +98,7 @@ class ImporterControl
 	{
 		actionsMap = new HashMap<Integer, ImporterAction>();
 		actionsMap.put(SEND_BUTTON, new SubmitFilesAction(model));
+		actionsMap.put(CLOSE_BUTTON, new CloseAction(model));
 	}
 	
 	/** 
@@ -105,16 +111,12 @@ class ImporterControl
 		menu.removeAll();
 		Importer viewer = ImporterFactory.getImporter();
 		menu.add(new JMenuItem(new ActivateAction(viewer)));
-			
 	}
 	
 	/** Attaches listener to the window listener. */
 	private void attachListeners()
 	{
-		//view.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-		view.addWindowListener(new WindowAdapter() {
-			//public void windowClosing(WindowEvent e) { model.closeWindow(); }
-		});
+		view.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		JMenu menu = ImporterFactory.getWindowMenu();
 		menu.addMenuListener(new MenuListener() {
 
@@ -257,6 +259,9 @@ class ImporterControl
 				fc.markAsSent();
 			}
 			markedFailed = null;
+		} else if (ClosableTabbedPane.CLOSE_TAB_PROPERTY.equals(name)) {
+			int index = (Integer) evt.getNewValue();
+			model.removeImportElement(index);
 		}
 	}
 	

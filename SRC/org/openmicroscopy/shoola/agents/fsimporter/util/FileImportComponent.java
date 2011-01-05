@@ -37,7 +37,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
@@ -45,7 +44,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.border.Border;
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
@@ -84,16 +82,8 @@ public class FileImportComponent
 	/** The default size of the busy label. */
 	private static final Dimension SIZE = new Dimension(16, 16);
 	
-	/** The border of the thumbnail label. */
-	private static final Border		LABEL_BORDER = 
-							BorderFactory.createLineBorder(Color.black, 1);
-	
 	/** Default text when a failure occurred. */
 	private static final String		FAILURE_TEXT = "failed";
-	
-	/** The text displayed in the tool tip when the image has been imported. */
-	private static final String		IMAGE_LABEL_TOOLTIP = 
-		"Click on thumbnail to launch the viewer.";
 	
 	/** Color used to indicate that a file could not be imported. */
 	private static final Color		ERROR_COLOR = Color.red;
@@ -145,7 +135,7 @@ public class FileImportComponent
 	{
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		busyLabel = new JXBusyLabel(SIZE);
-		busyLabel.setVisible(true);
+		busyLabel.setVisible(false);
 		busyLabel.setBusy(false);
 		
 		namePane = new JPanel();
@@ -180,8 +170,7 @@ public class FileImportComponent
 		errorBox.setToolTipText("Mark the file to send to the dev team.");
 		errorBox.setVisible(false);
 		statusLabel = new StatusLabel();
-		if (file.isDirectory())
-			statusLabel.addPropertyChangeListener(this);
+		statusLabel.addPropertyChangeListener(this);
 	}
 	
 	/** Builds and lays out the UI. */
@@ -465,13 +454,16 @@ public class FileImportComponent
 		if (StatusLabel.FILES_SET_PROPERTY.equals(name)) {
 			insertFiles((Map<File, StatusLabel>) evt.getNewValue());
 		} else if (StatusLabel.FILE_IMPORT_STARTED_PROPERTY.equals(name)) {
-			if (busyLabel != null) busyLabel.setBusy(true);
+			StatusLabel sl = (StatusLabel) evt.getNewValue();
+			if (sl == statusLabel && busyLabel != null) {
+				busyLabel.setBusy(true);
+				busyLabel.setVisible(true);
+			}
 		} else if (StatusLabel.FILE_IMPORTED_PROPERTY.equals(name)) {
 			Object[] results = (Object[]) evt.getNewValue();
 			File f = (File) results[0];
 			if (f.getAbsolutePath().equals(file.getAbsolutePath()))
 				setStatus(false, results[1]);
-			
 		}
 	}
 	

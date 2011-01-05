@@ -30,8 +30,11 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
-
+import java.util.Map;
+import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -80,9 +83,12 @@ class ImporterUI
 	/** Flag used to indicate that the component has been displayed or not. */
 	private boolean initialized;
 	
-	/** Button used to send files that could not be imported. */
-	private JButton sendButton;
-
+	/** The identifier of the UI element. */
+	private int uiElementID;
+	
+	/** Keeps track of the imports. */
+	private Map<Integer, ImporterUIElement> uiElements;
+	
 	/**
 	 * Builds and lays out the controls.
 	 * 
@@ -91,7 +97,9 @@ class ImporterUI
 	private JPanel buildControls()
 	{
 		JPanel p = new JPanel();
-		p.add(sendButton);
+		p.add(new JButton(controller.getAction(ImporterControl.CLOSE_BUTTON)));
+		p.add(Box.createHorizontalStrut(5));
+		p.add(new JButton(controller.getAction(ImporterControl.SEND_BUTTON)));
 		return UIUtilities.buildComponentPanelRight(p);
 	}
 	
@@ -120,11 +128,12 @@ class ImporterUI
 	/** Initializes the components. */
 	private void initComponents()
 	{
+		uiElementID = 0;
+		uiElements = new LinkedHashMap<Integer, ImporterUIElement>();
 		tabs = new ClosableTabbedPane(JTabbedPane.TOP, 
 				JTabbedPane.WRAP_TAB_LAYOUT);
 		tabs.setAlignmentX(LEFT_ALIGNMENT);
-		sendButton = new JButton(
-				controller.getAction(ImporterControl.SEND_BUTTON));
+		tabs.addPropertyChangeListener(controller);
 	}
 	
 	/** Creates a new instance. */
@@ -181,17 +190,69 @@ class ImporterUI
 		if (object == null) return null;
 		int n = tabs.getComponentCount();
 		String title = "Import #"+(total+1);
-		ImporterUIElement element = new ImporterUIElement(n, title, object);
-		element.addPropertyChangeListener(controller);
+		ImporterUIElement element = new ImporterUIElement(uiElementID, n, 
+				title, object);
 		IconManager icons = IconManager.getInstance();
 		tabs.insertTab(title, icons.getIcon(IconManager.IMPORT), 
 				element, "", total);
 		total++;
+		uiElements.put(uiElementID, element);
+		uiElementID++;
 		if (!isVisible()) {
 			setVisible(true);
 			display();
 		}
 		return element;
+	}
+	
+	/**
+	 * Returns the UI element corresponding to the passed index.
+	 * 
+	 * @param index The identifier of the component
+	 * @return See above.
+	 */
+	ImporterUIElement getUIElement(int index)
+	{
+		return uiElements.get(index);
+	}
+
+	/**
+	 * Returns the first element with data to import
+	 * @return See above.
+	 */
+	ImporterUIElement getElementToStartImportFor()
+	{
+		if (uiElements.size() == 0) return null;
+		Iterator<ImporterUIElement> i = uiElements.values().iterator();
+		ImporterUIElement element;
+		while (i.hasNext()) {
+			element = i.next();
+			if (!element.isDone())
+				return element;
+		}
+		return null;
+	}
+	
+	/**
+	 * Removes the specified element. Returns the element or <code>null</code>.
+	 * 
+	 * @param index The index of the import view.
+	 * @return See above.
+	 */
+	ImporterUIElement removeImportElement(int index)
+	{
+		Iterator<ImporterUIElement> i = uiElements.values().iterator();
+		ImporterUIElement element;
+		ImporterUIElement found = null;
+		while (i.hasNext()) {
+			element = i.next();
+			if (element.getIndex() == index) {
+				found = element;
+				break;
+			}
+		}
+		if (found != null) uiElements.remove(found);
+		return found;
 	}
 	
 }

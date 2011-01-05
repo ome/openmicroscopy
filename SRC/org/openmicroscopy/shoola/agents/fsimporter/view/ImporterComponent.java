@@ -26,11 +26,7 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 //Java imports
 import java.io.File;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.swing.JFrame;
-
 
 //Third-party libraries
 
@@ -43,7 +39,6 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
-
 import pojos.DataObject;
 
 /** 
@@ -84,9 +79,6 @@ class ImporterComponent
 	
 	/** Reference to the chooser used to select the files to import. */
 	private ImportDialog	chooser;
-	
-	/** Keeps track of the imports. */
-	private Map<Integer, ImporterUIElement> uiElements;
 	
 	/** 
 	 * Shows the dialog used to select the files to import. 
@@ -135,15 +127,8 @@ class ImporterComponent
 	 */
 	public void activate(int type, DataObject container)
 	{
-		switch (model.getState()) {
-			case NEW:
-				showChooser(type, container);
-				//model.setState(READY);
-				break;
-			case DISCARDED:
-				throw new IllegalStateException(
-					"This method can't be invoked in the DISCARDED state.");
-		} 
+		if (model.getState() == DISCARDED) return;
+		showChooser(type, container); 
 	}
 
 	/** 
@@ -158,8 +143,10 @@ class ImporterComponent
 	 */
 	public void discard()
 	{
-		if (model.getState() == DISCARDED)
+		if (model.getState() == READY) {
+			view.close();
 			model.discard();
+		}
 	}
 
 	/** 
@@ -170,54 +157,58 @@ class ImporterComponent
 
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
-	 * @see Importer#cancel()
-	 */
-	public void cancel()
-	{
-		model.cancel();
-	}
-
-	/** 
-	 * Implemented as specified by the {@link Importer} interface.
 	 * @see Importer#importData(ImportableObject)
 	 */
 	public void importData(ImportableObject data)
 	{
-		if (model.getState() == NEW)
-			model.setState(READY);
+		if (model.getState() == DISCARDED) return;
 		if (data == null || data.getFiles() == null || 
 				data.getFiles().size() == 0) {
 			UserNotifier un = ImporterAgent.getRegistry().getUserNotifier();
 			un.notifyInfo("Import", "No Files to import.");
 			return;
 		}
-		//
-		if (uiElements == null) {
-			uiElements = new HashMap<Integer, ImporterUIElement>();
-		}
+		
 		ImporterUIElement element = view.addImporterElement(data);
 		
-		int index = model.fireImportData(data);
-		if (element != null) {
-			uiElements.put(index, element);
-		}
+		if (model.getState() == IMPORTING) return;
+		importData(element);
+	}
+
+	/**
+	 * Imports the data for the specified import view.
+	 * 
+	 * @param element The import view. 
+	 */
+	private void importData(ImporterUIElement element)
+	{
+		if (element == null) return;
+		element.startImport();
+		model.fireImportData(element.getData(), element.getID());
 		EventBus bus = ImporterAgent.getRegistry().getEventBus();
 		bus.post(new ImportStatusEvent(true));
 		fireStateChange();
 	}
-
+	
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
 	 * @see Importer#setImportedFile(File, Object, int)
 	 */
 	public void setImportedFile(File f, Object result, int index)
 	{
-		if (uiElements == null) return;
-		ImporterUIElement element = uiElements.get(index);
+		if (model.getState() == DISCARDED) return;
+		ImporterUIElement element = view.getUIElement(index);
 		if (element != null) {
 			element.setImportedFile(f, result);
-			if (element.isDone())
+			if (element.isDone()) {
 				model.importCompleted(index);
+				//now check if we have other import to start.
+				element = view.getElementToStartImportFor();
+				if (element != null) {
+					importData(element);
+				}
+			}
+				
 		}
 	}
 	
@@ -227,6 +218,7 @@ class ImporterComponent
 	 */
 	public void setExistingTags(Collection tags)
 	{
+		if (model.getState() == DISCARDED) return;
 		model.setTags(tags);
 		if (chooser != null) chooser.setTags(tags);
 	}
@@ -237,6 +229,7 @@ class ImporterComponent
 	 */
 	public void loadExistingTags()
 	{
+		if (model.getState() == DISCARDED) return;
 		Collection tags = model.getTags();
 		if (tags != null) setExistingTags(tags);
 		else model.fireTagsLoading();	
@@ -247,5 +240,19 @@ class ImporterComponent
 	 * @see Importer#submitFiles()
 	 */
 	public void submitFiles() { controller.submitFiles(); }
+
+	/** 
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#removeImportElement(int)
+	 */
+	public void removeImportElement(int index)
+	{
+		if (model.getState() == DISCARDED) return;
+		ImporterUIElement element = view.removeImportElement(index);
+		if (element != null) {
+			model.cancel(element.getID());
+			fireStateChange();
+		}
+	}
 	
 }

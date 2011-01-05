@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.fsimporter.actions.SubmitFilesAction 
+ * org.openmicroscopy.shoola.agents.fsimporter.actions.CloseAction 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2011 University of Dundee. All rights reserved.
@@ -31,10 +31,11 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
+import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * Action to submit files to the development team.
+ * Closes the importer.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -46,44 +47,37 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since 3.0-Beta4
  */
-public class SubmitFilesAction 
+public class CloseAction 
 	extends ImporterAction
 {
 
-	/** The name of the action. */
-	private static final String NAME = "Submit Failures";
-	
+	/** The description of the action. */
+    private static final String NAME = "Close";
+    
     /** The description of the action. */
-    private static final String DESCRIPTION = "Submit the files that failed " +
-    		"to import to the development team.";
-
+    private static final String DESCRIPTION = "Close the Importer.";
+    
     /**
-     * Sets the <code>enabled</code> flag depending on the state.
-     * @see ImporterAction#onStateChange()
+     * Creates a new instance.
+     * 
+     * @param model Reference to the Model. Mustn't be <code>null</code>.
      */
-    protected void onStateChange()
+    public CloseAction(Importer model)
     {
-    	setEnabled(model.getState() != Importer.IMPORTING);
+        super(model);
+        setEnabled(true);
+        putValue(Action.NAME, NAME);
+        putValue(Action.SHORT_DESCRIPTION, 
+                UIUtilities.formatToolTipText(DESCRIPTION));
     }
     
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param model Reference to the model. Mustn't be <code>null</code>.
-	 */
-	public SubmitFilesAction(Importer model)
-	{
-		super(model);
-		setEnabled(true);
-		putValue(Action.NAME, NAME);
-		putValue(Action.SHORT_DESCRIPTION, 
-				UIUtilities.formatToolTipText(DESCRIPTION));
-	}
-	
-	/**
-     * Submit the files to the QA system.
+    /**
+     * Closes the {@link Importer}.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e) { model.submitFiles(); }
+    public void actionPerformed(ActionEvent e)
+    { 
+    	((TopWindow) model.getView()).close(); 
+    }
     
 }

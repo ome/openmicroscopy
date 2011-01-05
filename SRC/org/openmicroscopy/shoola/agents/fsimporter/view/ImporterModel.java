@@ -23,26 +23,21 @@
 package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 //Java imports
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.DataImporterLoader;
-import org.openmicroscopy.shoola.agents.fsimporter.DirectoryMonitor;
 import org.openmicroscopy.shoola.agents.fsimporter.ImagesImporter;
-import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.TagsLoader;
-import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
-import pojos.DataObject;
 
 /** 
  * The Model component in the <code>Importer</code> MVC triad.
@@ -84,15 +79,11 @@ class ImporterModel
 	/** Keeps track of the different loaders. */
 	private Map<Integer, ImagesImporter> loaders;
 	
-	/** The identifier of the loader. */
-	private int loaderID;
-	
 	/** Creates a new instance. */
 	ImporterModel()
 	{
 		state = Importer.NEW;
 		loaders = new HashMap<Integer, ImagesImporter>();
-		loaderID = 0;
 	}
 	
 	/**
@@ -140,9 +131,30 @@ class ImporterModel
 			currentLoader.cancel();
 			currentLoader = null;
 		}
+		if (loaders.size() > 0) {
+			Iterator<ImagesImporter> i = loaders.values().iterator();
+			while (i.hasNext()) {
+				i.next().cancel();
+			}
+			loaders.clear();
+		}
 		state = Importer.READY;
 	}
 
+	/**
+	 * Cancels the specified on-going import.
+	 * 
+	 * @param loaderID The identifier of the loader.
+	 */
+	void cancel(int loaderID)
+	{
+		ImagesImporter loader = loaders.get(loaderID);
+		if (loader != null) {
+			loader.cancel();
+			loaders.remove(loader);
+		}
+	}
+	
 	/**
 	 * Returns the list of the supported file formats.
 	 * 
@@ -157,16 +169,15 @@ class ImporterModel
 	 * Fires an asynchronous call to import the files in the object.
 	 * 
 	 * @param data The file to import.
+	 * @param loaderID The identifier of the component this loader is for.
 	 */
-	Integer fireImportData(ImportableObject data)
+	void fireImportData(ImportableObject data, int loaderID)
 	{
-		if (data == null) return -1;
+		if (data == null) return;
 		ImagesImporter loader = new ImagesImporter(component, data, loaderID);
 		loaders.put(loaders.size(), loader);
 		loader.load();
-		int index = loaderID;
-		loaderID++;
-		return index;
+		state = Importer.IMPORTING;
 	}
 	
 	/**
@@ -177,7 +188,7 @@ class ImporterModel
 	 */
 	void importCompleted(int loaderID)
 	{
-		state = Importer.NEW;
+		state = Importer.READY;
 		loaders.remove(loaderID);
 	}
 	
