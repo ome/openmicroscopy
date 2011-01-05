@@ -33,6 +33,9 @@ import java.awt.GridBagLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
@@ -60,12 +63,14 @@ import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JRadioButton;
 import javax.swing.JRootPane;
 import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
 
@@ -239,6 +244,31 @@ public class ImportDialog extends JDialog
 	/** The object where to import the data. */
 	private DataObject			container;
 	
+	/** Adds the files to the selection. */
+	private void addFiles()
+	{
+		File[] files = chooser.getSelectedFiles();
+		if (files == null || files.length == 0) return;
+		List<File> l = new ArrayList<File>();
+		for (int i = 0; i < files.length; i++) 
+			checkFile(files[i], l);
+		table.addFiles(l);
+		importButton.setEnabled(table.hasFilesToImport());
+	}
+
+	/** 
+	 * Handles <code>Enter</code> key pressed. 
+	 * 
+	 * @param source The source of the mouse pressed.
+	 */
+	private void handleEnterKeyPressed(Object source)
+	{
+		if (source instanceof JList || source instanceof JTable) {
+			JComponent c = (JComponent) source;
+			if (c.isFocusOwner()) addFiles();
+		}
+	}
+	
 	/**
 	 * Handles the selection of tags.
 	 * 
@@ -368,8 +398,14 @@ public class ImportDialog extends JDialog
 		setTitle(TITLE);
         setModal(true);
         setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-        addWindowListener(new WindowAdapter() {
+	}
+
+	/** Installs the listeners. */
+	private void installListeners()
+	{
 		
+        addWindowListener(new WindowAdapter() {
+    		
 			/** 
 			 * Cancels the selection.
 			 * @see WindowAdapter#windowClosing(WindowEvent)
@@ -380,7 +416,7 @@ public class ImportDialog extends JDialog
 		
 		});
 	}
-
+	
 	/** 
 	 * Initializes the components composing the display. 
 	 * 
@@ -431,6 +467,42 @@ public class ImportDialog extends JDialog
 		group.add(partialName);
 
 		chooser = new JFileChooser();
+		JList list = (JList) UIUtilities.findComponent(chooser, JList.class);
+		if (list != null) {
+			list.addKeyListener(new KeyAdapter() {
+				
+				/**
+				 * Adds the files to the import queue.
+				 * @see KeyListener#keyPressed(KeyEvent)
+				 */
+				public void keyPressed(KeyEvent e)
+				{
+					if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+						handleEnterKeyPressed(e.getSource());
+					}
+				}
+			});
+		}
+		if (list == null) {
+			JTable t = (JTable) UIUtilities.findComponent(chooser, 
+					JTable.class);
+			if (t != null) {
+				t.addKeyListener(new KeyAdapter() {
+					
+					/**
+					 * Adds the files to the import queue.
+					 * @see KeyListener#keyPressed(KeyEvent)
+					 */
+					public void keyPressed(KeyEvent e)
+					{
+						if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+							handleEnterKeyPressed(e.getSource());
+						}
+					}
+				});
+			}
+		}
+
 		File f = UIUtilities.getDefaultFolder();
 		if (f != null) chooser.setCurrentDirectory(f);
 		chooser.addPropertyChangeListener(this);
@@ -612,7 +684,6 @@ public class ImportDialog extends JDialog
 	 */
 	private JComponent buildNamingComponent()
 	{
-		
 		JPanel content = new JPanel();
 		content.setBorder(BorderFactory.createTitledBorder("File Naming"));
 		
@@ -819,14 +890,6 @@ public class ImportDialog extends JDialog
 		} else if (f.isDirectory()) {
 			File[] list = f.listFiles();
 			if (list != null && list.length > 0) l.add(f);
-			/*
-			File[] list = f.listFiles();
-			if (list != null && list.length > 0) {
-				for (int i = 0; i < list.length; i++) {
-					checkFile(list[i], l);
-				}
-			}
-			*/
 		}
 	}
 	
@@ -858,6 +921,7 @@ public class ImportDialog extends JDialog
     	this.filters = filters;
     	setProperties();
     	initComponents(container);
+    	installListeners();
     	buildGUI(container);
     	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     	setSize(7*(screenSize.width/10), 7*(screenSize.height/10));
@@ -936,13 +1000,7 @@ public class ImportDialog extends JDialog
 	{
 		String name = evt.getPropertyName();
 		if (FileSelectionTable.ADD_PROPERTY.equals(name)) {
-			File[] files = chooser.getSelectedFiles();
-			if (files == null || files.length == 0) return;
-			List<File> l = new ArrayList<File>();
-			for (int i = 0; i < files.length; i++) 
-				checkFile(files[i], l);
-			table.addFiles(l);
-			importButton.setEnabled(table.hasFilesToImport());
+			addFiles();
 		} else if (FileSelectionTable.REMOVE_PROPERTY.equals(name)) {
 			importButton.setEnabled(table.hasFilesToImport());
 		} else if (JFileChooser.SELECTED_FILES_CHANGED_PROPERTY.equals(name)) {

@@ -26,6 +26,9 @@ package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -163,7 +166,20 @@ class FileSelectionTable
 		b = (Boolean) ImporterAgent.getRegistry().lookup(ARCHIVED_AVAILABLE);
 		if (b != null) archivedTunable = b.booleanValue();
 		table = new JXTable(new FileTableModel(COLUMNS));
-		
+		table.addKeyListener(new KeyAdapter() {
+			
+			/**
+			 * Adds the files to the import queue.
+			 * @see KeyListener#keyPressed(KeyEvent)
+			 */
+			public void keyPressed(KeyEvent e)
+			{
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					if (table.isFocusOwner())
+						removeSelectedFiles();
+				}
+			}
+		});
 		//add tool tip
 		TableColumnModel tcm = table.getColumnModel();
 		TableColumn tc = tcm.getColumn(FOLDER_AS_CONTAINER_INDEX);
