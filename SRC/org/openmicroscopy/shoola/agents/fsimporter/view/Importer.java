@@ -147,4 +147,14 @@ public interface Importer
 	 */
 	void removeImportElement(int index);
 
+	/** Cancels any on-going import. */
+	public void cancel();
+	
+	/**
+	 * Cancels the loading of images.
+	 * 
+	 * @param id The identifier of the import element.
+	 */
+	public void cancelImagesLoading(int id);
+	
 }

@@ -67,21 +67,15 @@ public class Browse
 
     /** Event ID corresponding to a browse projects event. */
     public static final int PROJECTS = 4;
-
-    /** 
-     * Event ID indicating to browse all categories containing a 
-     * specified image. 
-     */
-    public static final int IMAGE_TO_CATEGORIES = 5;
     
     /** 
      * Event ID indicating to browse the images imported during a given 
      * period of time.
      */
-    public static final int IMAGE_PER_DATE = 6;
+    public static final int IMAGE_PER_DATE = 5;
     
     /** Event ID corresponding to a browse tags event. */
-    public static final int	TAGS = 7;
+    public static final int	TAGS = 6;
     
     /** ID of the top element in the hierarchy. */
     private long        		hierarchyObjectID;
@@ -186,10 +180,10 @@ public class Browse
     }
 
     /**
-     * Creates a new instance. This contructor should only be invoked to 
+     * Creates a new instance. This constructor should only be invoked to 
      * browse a list of images.
      * 
-     * @param ids       	The list of objects ids.
+     * @param ids       	The list of objects identifiers.
      * @param index     	The index of the browser. One of the constants
      *                  	defined by this class.
      * @param experimenter	The currently selected experimenter. 

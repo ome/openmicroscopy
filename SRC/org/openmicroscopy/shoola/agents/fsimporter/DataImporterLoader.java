@@ -35,7 +35,6 @@ import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
 import org.openmicroscopy.shoola.env.data.views.ImageDataView;
 import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
-import org.openmicroscopy.shoola.env.log.LogMessage;
 import pojos.ExperimenterData;
 
 /** 
@@ -144,22 +143,6 @@ public abstract class DataImporterLoader
 				info);
 	}
 
-	/**
-	 * Notifies the user that an error has occurred and discards the 
-	 * {@link #viewer}.
-	 * @see DSCallAdapter#handleException(Throwable) 
-	 */
-	public void handleException(Throwable exc) 
-	{
-		String s = "Data Retrieval Failure: ";
-        LogMessage msg = new LogMessage();
-        msg.print(s);
-        msg.print(exc);
-        registry.getLogger().error(this, msg);
-        registry.getUserNotifier().notifyError("Data Retrieval Failure", 
-                                               s, exc);
-		viewer.cancel();
-	}
 
 	/** Fires an asynchronous data loading. */
 	public abstract void load();

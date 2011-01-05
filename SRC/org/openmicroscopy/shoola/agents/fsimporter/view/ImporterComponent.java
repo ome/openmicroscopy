@@ -254,5 +254,25 @@ class ImporterComponent
 			fireStateChange();
 		}
 	}
+
+	/** 
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#cancel()
+	 */
+	public void cancel()
+	{
+		if (model.getState() != DISCARDED)
+			model.cancel();
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#cancelImagesLoading(int)
+	 */
+	public void cancelImagesLoading(int id)
+	{
+		if (model.getState() != DISCARDED)
+			model.cancel(id);
+	}
 	
 }

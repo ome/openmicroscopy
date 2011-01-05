@@ -30,7 +30,10 @@ import java.util.Collection;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
+import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import org.openmicroscopy.shoola.env.log.LogMessage;
+
 import pojos.TagAnnotationData;
 
 /** 
@@ -91,5 +94,22 @@ public class TagsLoader
     	//if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
     	viewer.setExistingTags((Collection) result);
     } 
+    
+	/**
+	 * Notifies the user that an error has occurred and discards the 
+	 * {@link #viewer}.
+	 * @see DSCallAdapter#handleException(Throwable) 
+	 */
+	public void handleException(Throwable exc) 
+	{
+		String s = "Data Retrieval Failure: ";
+        LogMessage msg = new LogMessage();
+        msg.print(s);
+        msg.print(exc);
+        registry.getLogger().error(this, msg);
+        registry.getUserNotifier().notifyError("Data Retrieval Failure", 
+                                               s, exc);
+		viewer.cancel();
+	}
 	
 }

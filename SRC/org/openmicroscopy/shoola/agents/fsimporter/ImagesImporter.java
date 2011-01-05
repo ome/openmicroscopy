@@ -36,9 +36,11 @@ import java.util.Map.Entry;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.treeviewer.DataTreeViewerLoader;
+import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.events.DSCallFeedbackEvent;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import org.openmicroscopy.shoola.env.log.LogMessage;
 
 /** 
  * Imports the images.
@@ -120,6 +122,22 @@ public class ImagesImporter
 			}
         }
     }
+
+	/**
+	 * Notifies the user that an error has occurred and discards the loader.
+	 * @see DSCallAdapter#handleException(Throwable) 
+	 */
+	public void handleException(Throwable exc) 
+	{
+		String s = "Data Import Failure: ";
+        LogMessage msg = new LogMessage();
+        msg.print(s);
+        msg.print(exc);
+        registry.getLogger().error(this, msg);
+        registry.getUserNotifier().notifyError("Data Import Failure", 
+                                               s, exc);
+		viewer.cancelImagesLoading(loaderID);
+	}
 
     /**
      * Does nothing as the asynchronous call returns <code>null</code>.

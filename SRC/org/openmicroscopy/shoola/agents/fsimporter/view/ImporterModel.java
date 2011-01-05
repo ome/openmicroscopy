@@ -118,6 +118,13 @@ class ImporterModel
 	void discard()
 	{
 		cancel();
+		if (loaders.size() > 0) {
+			Iterator<ImagesImporter> i = loaders.values().iterator();
+			while (i.hasNext()) {
+				i.next().cancel();
+			}
+			loaders.clear();
+		}
 		state = Importer.DISCARDED;
 	}
 
@@ -130,13 +137,6 @@ class ImporterModel
 		if (currentLoader != null) {
 			currentLoader.cancel();
 			currentLoader = null;
-		}
-		if (loaders.size() > 0) {
-			Iterator<ImagesImporter> i = loaders.values().iterator();
-			while (i.hasNext()) {
-				i.next().cancel();
-			}
-			loaders.clear();
 		}
 		state = Importer.READY;
 	}
