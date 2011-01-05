@@ -35,6 +35,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -153,9 +154,9 @@ public class FileImportComponent
 				if (e.getClickCount() == 2) {
 					if (image instanceof ThumbnailData) {
 						ThumbnailData data = (ThumbnailData) image;
-						EventBus bus = ImporterAgent.getRegistry().getEventBus();
-						ViewImage evt = new ViewImage(data.getImage(), null);
-						bus.post(evt);
+						EventBus bus = 
+							ImporterAgent.getRegistry().getEventBus();
+						bus.post(new ViewImage(data.getImage(), null));
 					}
 				}
 			}
@@ -189,13 +190,12 @@ public class FileImportComponent
 		namePane.add(Box.createHorizontalStrut(4));
 		namePane.add(fileNameLabel);
 		namePane.add(Box.createHorizontalStrut(10));
-		//Dimension d = nameLabel.getPreferredSize();
-		//nameLabel.setPreferredSize(new Dimension(d.width, 35));
 		resultLabel = new JLabel();
 		control = busyLabel;
 		errorBox = new JCheckBox("Mark to Send");
 		errorBox.setOpaque(false);
-		errorBox.setToolTipText("Mark the file to send to the dev team.");
+		errorBox.setToolTipText("Mark the file to send to the development " +
+				"team.");
 		errorBox.setVisible(false);
 		statusLabel = new StatusLabel();
 		statusLabel.addPropertyChangeListener(this);
@@ -380,8 +380,11 @@ public class FileImportComponent
 					resultLabel.setForeground(ERROR_COLOR);
 					ImportException ie = (ImportException) image;
 					setStatusText(ie.getMessage());
+					ie.printStackTrace();
+					String s = UIUtilities.printErrorText(ie.getCause());
+					String[] values = s.split("\n");
 					resultLabel.setToolTipText(
-							UIUtilities.printErrorText(ie.getCause()));
+							UIUtilities.formatToolTipText(values));
 					errorBox.setSelected(true);
 				}
 				control = resultLabel;

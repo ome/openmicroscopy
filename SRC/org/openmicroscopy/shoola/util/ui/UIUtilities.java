@@ -637,7 +637,7 @@ public class UIUtilities
 	 */
 	public static String formatToolTipText(List<String> toolTipText) 
 	{
-		if (toolTipText == null) toolTipText = new ArrayList<String>();
+		if (toolTipText == null) return "";
 		StringBuffer buf = new StringBuffer();
 		//buf.
 		//buf.append("<html><body bgcolor=#FFFCB7 text=#AD5B00>");
@@ -653,6 +653,32 @@ public class UIUtilities
 		buf.append("</font></body></html>");
 		return buf.toString();
 	} 
+	
+	/** 
+	 * Builds a tool tip in a fixed font and color.
+	 * You pass the tool tip text and get back an <i>HTML</i> string to be
+	 * passed, in turn, to the <code>setToolTipText</code> method of a 
+	 * {@link javax.swing.JComponent}.
+	 *
+	 * @param toolTipText     The textual content of the tool tip.
+	 * @return An <i>HTML</i> formatted string to be passed to 
+	 * 			<code>setToolTipText()</code>.
+	 */
+	public static String formatToolTipText(String[] toolTipText) 
+	{
+		if (toolTipText == null) return "";
+		StringBuffer buf = new StringBuffer();
+		buf.append("<html><body>");
+		buf.append("<font face=Arial size=2>");  
+		buf.append("<p>");
+		for (int i = 0; i < toolTipText.length; i++) {
+			buf.append(toolTipText[i]);
+			buf.append("<br>");
+		}
+		buf.append("</p>");
+		buf.append("</font></body></html>");
+		return buf.toString();
+	}
 	
     /**
      * Builds a tool tip in a fixed font and color.
