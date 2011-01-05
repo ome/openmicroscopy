@@ -34,9 +34,15 @@ import org.openmicroscopy.shoola.agents.events.importer.LoadImporter;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
+import org.openmicroscopy.shoola.agents.treeviewer.cmd.CreateCmd;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.DataObject;
+import pojos.DatasetData;
+import pojos.ProjectData;
+import pojos.ScreenData;
 
 /**
  * Action to import images.
@@ -109,6 +115,7 @@ public class BrowserImportAction
     {
     	//No container specified in that case
         //model.showImporter();
+    	/*
     	int type = -1;
     	switch (model.getBrowserType()) {
 			case Browser.PROJECTS_EXPLORER:
@@ -119,6 +126,31 @@ public class BrowserImportAction
 		}
     	EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
     	bus.post(new LoadImporter(type));
+    	*/
+    	TreeImageDisplay display = model.getLastSelectedDisplay();
+    	LoadImporter event = null;
+    	if (display != null) {
+    		Object node = display.getUserObject();
+    		if (node instanceof DatasetData || node instanceof ScreenData ||
+    			node instanceof ProjectData) {
+    			event = new LoadImporter((DataObject) node);
+    		}
+    	}
+    	if (event == null) {
+    		int type = -1;
+        	switch (model.getBrowserType()) {
+    			case Browser.PROJECTS_EXPLORER:
+    				type = LoadImporter.PROJECT_TYPE;
+    				break;
+    			case Browser.SCREENS_EXPLORER:
+    				type = LoadImporter.SCREEN_TYPE;
+    		}
+        	event = new LoadImporter(type);
+    	}
+    	if (event != null) {
+    		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+        	bus.post(event);
+    	}
     }
     
 }
