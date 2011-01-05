@@ -25,6 +25,10 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import javax.swing.Action;
 
 //Third-party libraries
@@ -34,11 +38,9 @@ import org.openmicroscopy.shoola.agents.events.importer.LoadImporter;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.treeviewer.cmd.CreateCmd;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ProjectData;
@@ -90,7 +92,7 @@ public class BrowserImportAction
         	setEnabled(false);
             return;
         }
-        setEnabled(true);
+        setEnabled(selectedDisplay.getUserObject() instanceof DataObject);
     }
     
     /**
@@ -127,13 +129,22 @@ public class BrowserImportAction
     	EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
     	bus.post(new LoadImporter(type));
     	*/
-    	TreeImageDisplay display = model.getLastSelectedDisplay();
+    	List list = model.getSelectedDataObjects();
+    	//TreeImageDisplay display = model.getLastSelectedDisplay();
     	LoadImporter event = null;
-    	if (display != null) {
-    		Object node = display.getUserObject();
-    		if (node instanceof DatasetData || node instanceof ScreenData ||
-    			node instanceof ProjectData) {
-    			event = new LoadImporter((DataObject) node);
+    	if (list != null && list.size() > 0) {
+    		Iterator i = list.iterator();
+    		List<DataObject> containers = new ArrayList<DataObject>();
+    		Object node;
+    		while (i.hasNext()) {
+				node = i.next();
+				if (node instanceof DatasetData || node instanceof ScreenData ||
+		    			node instanceof ProjectData) {
+					containers.add((DataObject) node);
+				}
+			}
+    		if (containers.size() > 0) {
+    			event = new LoadImporter(containers);
     		}
     	}
     	if (event == null) {

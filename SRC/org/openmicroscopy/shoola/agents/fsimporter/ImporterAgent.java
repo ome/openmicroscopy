@@ -97,7 +97,7 @@ public class ImporterAgent
 				case LoadImporter.SCREEN_TYPE:
 					type = Importer.SCREEN_TYPE;
 			}
-    		importer.activate(type, evt.getContainer());
+    		importer.activate(type, evt.getContainers());
     	}
     }
 

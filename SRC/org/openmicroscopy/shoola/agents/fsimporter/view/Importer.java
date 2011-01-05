@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 //Java imports
 import java.io.File;
 import java.util.Collection;
+import java.util.List;
 
 import javax.swing.JFrame;
 
@@ -34,7 +35,6 @@ import javax.swing.JFrame;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
-
 import pojos.DataObject;
 
 /** 
@@ -86,10 +86,10 @@ public interface Importer
 	 * window to front.
 	 * 
 	 * @param type One of the types constants defined by this class. 
-	 * @param container The container where to import the images.
+	 * @param containers The containers where to import the files.
 	 * @throws IllegalStateException If the current state is {@link #DISCARDED}.  
 	 */
-	public void activate(int type, DataObject container);
+	public void activate(int type, List<DataObject> containers);
 	
 	/**
 	 * Transitions the viewer to the {@link #DISCARDED} state.

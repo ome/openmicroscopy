@@ -35,7 +35,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -358,7 +357,7 @@ public class FileImportComponent
 					Font f = label.getFont();
 					label.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
 					label.setVisible(true);
-					String value = "and "+n+" more";
+					String value = "... "+n+" more";
 					label.setText(value);
 				}
 			}
@@ -383,8 +382,17 @@ public class FileImportComponent
 					ie.printStackTrace();
 					String s = UIUtilities.printErrorText(ie.getCause());
 					String[] values = s.split("\n");
+					//Display the first 20 lines
+					String[] lines = values;
+					int n = 20;
+					if (values.length > 20) {
+						lines = new String[n];
+						for (int i = 0; i < lines.length; i++) {
+							lines[i] = values[i];
+						}
+					}
 					resultLabel.setToolTipText(
-							UIUtilities.formatToolTipText(values));
+							UIUtilities.formatToolTipText(lines));
 					errorBox.setSelected(true);
 				}
 				control = resultLabel;

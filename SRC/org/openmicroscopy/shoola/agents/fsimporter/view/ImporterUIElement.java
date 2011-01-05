@@ -165,20 +165,29 @@ class ImporterUIElement
     	
     	c.gridy++; 	
     	c.gridx = 0;
-		DataObject ho = object.getContainer();
+    	List<DataObject> containers = object.getContainers();
+		DataObject ho;
 		String text = "Imported in ";
 		String name = "";
-		if (ho != null) {
-			if (ho instanceof DatasetData) {
-				text += "Dataset: ";
-				name = ((DatasetData) ho).getName();
-			} else if (ho instanceof ScreenData) {
-				text += "Screen: ";
-				name = ((ScreenData) ho).getName();
-			} else if (ho instanceof ProjectData) {
-				text += "Project: ";
-				name = ((ProjectData) ho).getName();
-			} else text = null;
+		if (containers != null && containers.size() > 0) {
+			Iterator<DataObject> i = containers.iterator();
+			int index = 0;
+			int n = containers.size()-1;
+			while (i.hasNext()) {
+				ho = i.next();
+				if (ho instanceof DatasetData) {
+					if (index == 0) text += "Dataset: ";
+					name += ((DatasetData) ho).getName();
+				} else if (ho instanceof ScreenData) {
+					if (index == 0) text += "Screen: ";
+					name += ((ScreenData) ho).getName();
+				} else if (ho instanceof ProjectData) {
+					if (index == 0) text += "Project: ";
+					name += ((ProjectData) ho).getName();
+				}
+				if (index < n) name += ", ";
+				index++;
+			}
 		} else {
 			if (DatasetData.class.equals(object.getType())) {
 				text += "Dataset: ";

@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 //Java imports
 import java.io.File;
 import java.util.Collection;
+import java.util.List;
+
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -80,28 +82,9 @@ class ImporterComponent
 	/** Reference to the chooser used to select the files to import. */
 	private ImportDialog	chooser;
 	
-	/** 
-	 * Shows the dialog used to select the files to import. 
-	 * 
-	 * @param type One of the type constants.
-	 * @param container The container where to import the images.
-	 */
-	private void showChooser(int type, DataObject container)
-	{
-		if (chooser == null) {
-			chooser = new ImportDialog(view, model.getSupportedFormats(), 
-					container, type);
-			chooser.addPropertyChangeListener(controller);
-			chooser.pack();
-		} else {
-			chooser.resetContainer(container);
-		}
-		UIUtilities.centerAndShow(chooser);
-	}
-	
 	/**
 	 * Creates a new instance.
-	 * The {@link #initialize() initialize} method should be called straigh 
+	 * The {@link #initialize() initialize} method should be called straight 
 	 * after to complete the MVC set up.
 	 * 
 	 * @param model The Model sub-component. Mustn't be <code>null</code>.
@@ -123,12 +106,20 @@ class ImporterComponent
 
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
-	 * @see Importer#activate(int, DataObject)
+	 * @see Importer#activate(int, List)
 	 */
-	public void activate(int type, DataObject container)
+	public void activate(int type, List<DataObject> containers)
 	{
 		if (model.getState() == DISCARDED) return;
-		showChooser(type, container); 
+		if (chooser == null) {
+			chooser = new ImportDialog(view, model.getSupportedFormats(), 
+					containers, type);
+			chooser.addPropertyChangeListener(controller);
+			chooser.pack();
+		} else {
+			chooser.resetContainer(containers);
+		}
+		UIUtilities.centerAndShow(chooser);
 	}
 
 	/** 

@@ -72,8 +72,8 @@ public class ImportableObject
 	/** The collection of tags. */
 	private Collection<TagAnnotationData> tags;
 	
-	/** The container where to import the data if set. */
-	private DataObject container;
+	/** The containers where to import the data if set. */
+	private List<DataObject> containers;
 	
 	/** The array containing pixels size.*/
 	private double[]	pixelsSize;
@@ -108,13 +108,13 @@ public class ImportableObject
 	public void setType(Class type) { this.type = type; }
 	
 	/**
-	 * Sets the container where to import the data if set.
+	 * Sets the containers where to import the data if set.
 	 * 
-	 * @param container The container to set.
+	 * @param containers The containers to set.
 	 */
-	public void setContainer(DataObject container)
+	public void setContainers(List<DataObject> containers)
 	{
-		this.container = container;
+		this.containers = containers;
 	}
 	
 	/**
@@ -234,11 +234,11 @@ public class ImportableObject
 	}
 	
 	/**
-	 * Returns the container where to import the data if set.
+	 * Returns the containers where to import the data if set.
 	 * 
 	 * @return See above.
 	 */
-	public DataObject getContainer() { return container; }
+	public List<DataObject> getContainers() { return containers; }
 	
 	/**
 	 * Returns the collection of tags.
@@ -256,6 +256,7 @@ public class ImportableObject
 	{
 		this.toImport = toImport;
 	}
+	
 	/**
 	 * Returns the files to import as <code>ImportObject</code>s.
 	 * 

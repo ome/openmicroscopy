@@ -106,7 +106,8 @@ import pojos.TagAnnotationData;
  * </small>
  * @since 3.0-Beta4
  */
-public class ImportDialog extends JDialog
+public class ImportDialog 
+	extends JDialog
 	implements ActionListener, PropertyChangeListener
 {
 
@@ -241,8 +242,8 @@ public class ImportDialog extends JDialog
 	/** The action listener used to handle tag selection. */
 	private ActionListener				listener;
 	
-	/** The object where to import the data. */
-	private DataObject			container;
+	/** The containers where to import the data. */
+	private List<DataObject>			containers;
 	
 	/** Adds the files to the selection. */
 	private void addFiles()
@@ -420,11 +421,11 @@ public class ImportDialog extends JDialog
 	/** 
 	 * Initializes the components composing the display. 
 	 * 
-	 * @param container The container to import the data into.
+	 * @param containers The containers to import the data into.
 	 */
-	private void initComponents(DataObject container)
+	private void initComponents(List<DataObject> containers)
 	{
-		this.container = container;
+		this.containers = containers;
 		listener = new ActionListener() {
 			
 			public void actionPerformed(ActionEvent e) {
@@ -599,7 +600,33 @@ public class ImportDialog extends JDialog
 	 */
 	private String getContainerText(Object container)
 	{
-		if (container instanceof DatasetData) {
+		if (container instanceof List) {
+			List l = (List) containers;
+			Iterator i = l.iterator();
+			String text = null;
+			Object c;
+			String name = "";
+			int index = 0;
+			int n = l.size()-1;
+			while (i.hasNext()) {
+				c = i.next();
+				if (c instanceof DatasetData) {
+					if (text == null)
+						text = MESSAGE+" into Dataset: ";
+					name += ((DatasetData) c).getName();
+				} else if (c instanceof ScreenData) {
+					if (text == null)
+						text = MESSAGE+" into Screen: ";
+					name += ((ScreenData) c).getName();
+				} else if (c instanceof ProjectData) {
+					if (text == null)
+						text = MESSAGE+" into Project: ";
+					name += ((ProjectData) c).getName();
+				}
+				if (index < n) name += ", ";
+				index++;
+			}
+		} else if (container instanceof DatasetData) {
 			return MESSAGE+" into Dataset: "+
 				((DatasetData) container).getName()+END;
 		} else if (container instanceof ScreenData) {
@@ -761,15 +788,15 @@ public class ImportDialog extends JDialog
 	/** 
 	 * Builds and lays out the UI. 
 	 * 
-	 * @param container The container where to import the files or 
+	 * @param containers The containers where to import the files or 
 	 * 					<code>null</code>.
 	 */
-	private void buildGUI(Object container)
+	private void buildGUI(Object containers)
 	{
 		Container c = getContentPane();
 		c.setLayout(new BorderLayout(0, 0));
 		IconManager icons = IconManager.getInstance();
-		titlePane = new TitlePanel(TITLE, getContainerText(container), 
+		titlePane = new TitlePanel(TITLE, getContainerText(containers), 
 				icons.getIcon(IconManager.IMPORT_48));
 		titlePane.setSubtitle(SUB_MESSAGE);
 		c.add(titlePane, BorderLayout.NORTH);
@@ -827,7 +854,7 @@ public class ImportDialog extends JDialog
     			chooser.getCurrentDirectory().toString());
     	ImportableObject object = new ImportableObject(table.getFilesToImport(),
     			overrideName.isSelected());
-    	object.setContainer(container);
+    	object.setContainers(containers);
     	//tags
     	if (tagsMap.size() > 0) object.setTags(tagsMap.values());
     	if (partialName.isSelected()) {
@@ -911,18 +938,18 @@ public class ImportDialog extends JDialog
      * 
      * @param owner 	The owner of the dialog.
      * @param filters 	The list of filters.
-     * @param container The container where to import the files.
+     * @param containers The container where to import the files.
      * @param type 		One of the type constants.
      */
-    public ImportDialog(JFrame owner, List<FileFilter> filters, DataObject 
-    		container, int type)
+    public ImportDialog(JFrame owner, List<FileFilter> filters, List<DataObject> 
+    		containers, int type)
     {
     	super(owner);
     	this.filters = filters;
     	setProperties();
-    	initComponents(container);
+    	initComponents(containers);
     	installListeners();
-    	buildGUI(container);
+    	buildGUI(containers);
     	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     	setSize(7*(screenSize.width/10), 7*(screenSize.height/10));
     }
@@ -930,12 +957,12 @@ public class ImportDialog extends JDialog
     /**
      * Resets the text and remove all the files to import.
      * 
-     * @param container The container where to import the files.
+     * @param containers The container where to import the files.
      */
-	public void resetContainer(DataObject container)
+	public void resetContainer(List<DataObject> containers)
 	{
-		this.container = container;
-		titlePane.setTextHeader(getContainerText(container));
+		this.containers = containers;
+		titlePane.setTextHeader(getContainerText(containers));
 		titlePane.setSubtitle(SUB_MESSAGE);
 		table.removeAllFiles();
 	}
@@ -1055,7 +1082,6 @@ public class ImportDialog extends JDialog
 			case TAG:
 				firePropertyChange(LOAD_TAGS_PROPERTY, Boolean.valueOf(false), 
 						Boolean.valueOf(true));
-				
 		}
 	}
 	

@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.agents.events.importer;
 
 
 //Java imports
+import java.util.ArrayList;
+import java.util.List;
 
 //Third-party libraries
 
@@ -55,8 +57,8 @@ public class LoadImporter
 	/** Indicates that the type is for Screening data. */
 	public static final int		SCREEN_TYPE = 1;
 	
-	/** The container where to load the image. */
-	private DataObject container;
+	/** The containers where to load the image. */
+	private List<DataObject> containers;
 	
 	/** The type of the import to handle. */
 	private int type;
@@ -74,20 +76,34 @@ public class LoadImporter
 	/**
 	 *  Creates a new instance. 
 	 * 
-	 * @param container The container where import the image.
+	 * @param container The container where import the files.
 	 */
 	public LoadImporter(DataObject container)
 	{
-		this.container = container;
+		if (container != null) {
+			containers = new ArrayList<DataObject>();
+			containers.add(container);
+		}
 		type = -1;
 	}
 	
 	/**
-	 * Returns the container.
+	 *  Creates a new instance. 
+	 * 
+	 * @param containers The containers where import the files.
+	 */
+	public LoadImporter(List<DataObject> containers)
+	{
+		this.containers = containers;
+		type = -1;
+	}
+	
+	/**
+	 * Returns the containers.
 	 * 
 	 * @return See above.
 	 */
-	public DataObject getContainer() { return container; }
+	public List<DataObject> getContainers() { return containers; }
 	
 	/**
 	 * Returns the type of import.
