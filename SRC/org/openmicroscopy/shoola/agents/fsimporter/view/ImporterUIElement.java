@@ -249,8 +249,6 @@ class ImporterUIElement
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			c = (FileImportComponent) entry.getValue();
-			if (first == 0)
-				c.setStatus(true, null);
 			addRow(layout, index, c);
 			index++;
 			first++;

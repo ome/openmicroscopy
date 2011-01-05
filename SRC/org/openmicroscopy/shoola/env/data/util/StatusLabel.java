@@ -91,6 +91,7 @@ public class StatusLabel
 	public StatusLabel()
 	{
 		setForeground(UIUtilities.LIGHT_GREY);
+		setText("on hold");
 		maxPlanes = 0;
 		numberOfFiles = 0;
 		seriesCount = 0;

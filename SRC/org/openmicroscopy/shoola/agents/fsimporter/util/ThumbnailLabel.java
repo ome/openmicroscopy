@@ -30,6 +30,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -40,8 +42,12 @@ import javax.swing.border.Border;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
+import org.openmicroscopy.shoola.agents.util.ui.RollOverThumbnailManager;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
@@ -82,6 +88,13 @@ class ThumbnailLabel
 		bus.post(evt);
 	}
 	
+	/** Rolls over the node. */
+	private void rollOver()
+	{
+		RollOverThumbnailManager.rollOverDisplay(data.getThumbnail(), 
+   			 getBounds(), getLocationOnScreen(), toString());
+	}
+	
 	/**  
 	 * Creates a new instance. 
 	 * 
@@ -117,13 +130,28 @@ class ThumbnailLabel
 			
 			/**
 			 * Views the image.
-			 * @see ActionListener#actionPerformed(ActionEvent)
+			 * @see MouseListener#mousePressed(MouseEvent)
 			 */
 			public void mousePressed(MouseEvent e)
 			{
 				if (e.getClickCount() == 2)
 					viewImage(); 
 			}
+
+			/**
+			 * Removes the zooming window from the display.
+			 * @see MouseListener#mouseExited(MouseEvent)
+			 */
+			public void mouseExited(MouseEvent e)
+			{
+				RollOverThumbnailManager.stopOverDisplay();
+			}
+			
+			/**
+			 * Zooms the image.
+			 * @see MouseListener#mouseEntered(MouseEvent)
+			 */
+			public void mouseEntered(MouseEvent e) { rollOver(); }
 		});
 	}
 	

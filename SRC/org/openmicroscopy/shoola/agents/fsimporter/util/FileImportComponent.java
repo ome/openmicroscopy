@@ -28,10 +28,9 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
@@ -139,18 +138,7 @@ public class FileImportComponent
 	
 	/** The mouse adapter to view the image. */
 	private MouseAdapter adapter;
-	
-	/** Posts an event to view the image. */
-	private void viewImage()
-	{
-		if (image instanceof ThumbnailData) {
-			ThumbnailData data = (ThumbnailData) image;
-			EventBus bus = ImporterAgent.getRegistry().getEventBus();
-			ViewImage evt = new ViewImage(data.getImage(), null);
-			bus.post(evt);
-		}
-	}
-	
+
 	/** Initializes the components. */
 	private void initComponents()
 	{
@@ -158,16 +146,24 @@ public class FileImportComponent
 			
 			/**
 			 * Views the image.
-			 * @see ActionListener#actionPerformed(ActionEvent)
+			 * @see MouseListener#mousePressed(MouseEvent)
 			 */
 			public void mousePressed(MouseEvent e)
 			{ 
-				if (e.getClickCount() == 2) viewImage(); 
+				if (e.getClickCount() == 2) {
+					if (image instanceof ThumbnailData) {
+						ThumbnailData data = (ThumbnailData) image;
+						EventBus bus = ImporterAgent.getRegistry().getEventBus();
+						ViewImage evt = new ViewImage(data.getImage(), null);
+						bus.post(evt);
+					}
+				}
 			}
 		};
+		
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		busyLabel = new JXBusyLabel(SIZE);
-		busyLabel.setVisible(false);
+		busyLabel.setVisible(true);
 		busyLabel.setBusy(false);
 		
 		namePane = new JPanel();
@@ -491,7 +487,6 @@ public class FileImportComponent
 			StatusLabel sl = (StatusLabel) evt.getNewValue();
 			if (sl == statusLabel && busyLabel != null) {
 				busyLabel.setBusy(true);
-				busyLabel.setVisible(true);
 			}
 		} else if (StatusLabel.FILE_IMPORTED_PROPERTY.equals(name)) {
 			Object[] results = (Object[]) evt.getNewValue();
