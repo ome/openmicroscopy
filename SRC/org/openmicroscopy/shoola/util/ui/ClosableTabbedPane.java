@@ -52,10 +52,7 @@ public class ClosableTabbedPane
 	implements ChangeListener
 {
 
-	/** 
-	 * Bound property indicating that a new element has been added to the
-	 * tab.
-	 */
+	/** Bound property indicating that an element has been closed. */
 	public static final String	CLOSE_TAB_PROPERTY = "closeTab";
 	
 	/**
@@ -143,14 +140,14 @@ public class ClosableTabbedPane
     
     /**
 	 * Overridden to fire a property change indicating that 
-	 * component is removed from the tabbed pane.
+	 * component is removed from the tab pane.
 	 * @see JTabbedPane#remove(int)
 	 */
     public void remove(int index) { removeTabAt(index); }
     
 	/**
 	 * Overridden to fire a property change indicating that 
-	 * component is removed from the tabbed pane.
+	 * component is removed from the tab pane.
 	 * @see JTabbedPane#removeTabAt(int)
 	 */
 	public void removeTabAt(int index)

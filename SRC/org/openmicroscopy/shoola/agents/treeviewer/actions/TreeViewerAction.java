@@ -82,7 +82,7 @@ public abstract class TreeViewerAction
      * 
      * @param browser The browser which fired the state change.
      */
-    protected void onBrowserStateChange(Browser browser) {} ;
+    protected void onBrowserStateChange(Browser browser) {}
     
     /**
      * Call-back to notify that a new browser is selected.
@@ -90,13 +90,13 @@ public abstract class TreeViewerAction
      * 
      * @param browser The selected browser.
      */
-    protected void onBrowserSelection(Browser browser) {};
+    protected void onBrowserSelection(Browser browser) {}
     
     /** Call-back to notify that the display mode has changed. */
-    protected void onDisplayMode() {};
+    protected void onDisplayMode() {}
     
     /** Call-back to notify any on-going image import. */
-    protected void onDataImport() {};
+    protected void onDataImport() {}
     
     /**
      * Creates a new instance.
