@@ -26,6 +26,8 @@ import ome.services.graphs.GraphState;
 import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
+import ome.util.SqlAction;
+
 import omero.LockTimeout;
 import omero.ServerError;
 import omero.api.delete.DeleteCommand;
@@ -369,7 +371,7 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
 
             StopWatch sw = new CommonsLogStopWatch();
             try {
-                steps(session, report);
+                steps(sql, session, report);
             } finally {
                 sw.stop("omero.delete.command." + i);
                 report.start = sw.getStartTime();

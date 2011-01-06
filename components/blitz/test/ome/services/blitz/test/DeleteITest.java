@@ -675,7 +675,7 @@ public class DeleteITest extends AbstractServantTest {
                                     ServiceFactory sf) {
 
                                 try {
-                                    GraphState ids = new GraphState(new DeleteStepFactory(ctx), session, spec);
+                                    GraphState ids = new GraphState(new DeleteStepFactory(ctx), null, session, spec);
                                     List<List<Long>> rv = new ArrayList<List<Long>>();
                                     fail("NYI");
                                     /*

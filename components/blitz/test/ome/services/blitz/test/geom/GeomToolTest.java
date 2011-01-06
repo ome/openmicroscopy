@@ -58,7 +58,7 @@ public class GeomToolTest extends TestCase {
     @BeforeTest
     public void setup() {
         ctx = OmeroContext.getManagedServerContext();
-        sql = (SqlAction) ctx.getBean("sqlAction");
+        sql = (SqlAction) ctx.getBean("simpleSqlAction");
         factory = (SessionFactory) ctx.getBean("omeroSessionFactory");
         data = new PixelData((PixelsService) ctx.getBean("/OMERO/Pixels"),
                 (IPixels) ctx.getBean("internal-ome.api.IPixels"));

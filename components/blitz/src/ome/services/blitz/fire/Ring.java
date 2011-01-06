@@ -349,18 +349,12 @@ public class Ring extends _ClusterNodeDisp implements Redirector.Context {
     @SuppressWarnings("unchecked")
     private int closeSessionsForManager(final String managerUuid) {
 
-        final String sql = "update Session set closed = now() where "
-                + "closed is null and node in "
-                + "(select id from Node where uuid = :uuid)";
-
         // First look up the sessions in on transaction
         return (Integer) executor.execute(principal, new Executor.SimpleWork(
                 this, "executeUpdate - set closed = now()") {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
-                Query q = session.createSQLQuery(sql);
-                q.setParameter("uuid", managerUuid);
-                return q.executeUpdate();
+                return getSqlAction().closeNodeSessions(managerUuid);
             }
         });
     }
@@ -370,10 +364,7 @@ public class Ring extends _ClusterNodeDisp implements Redirector.Context {
                 "setManagerDown") {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
-                Query q = session.createSQLQuery("update Node set down = now()" +
-                		" where uuid = :uuid");
-                q.setParameter("uuid", managerUuid);
-                return q.executeUpdate();
+                return getSqlAction().closeNode(managerUuid);
             }
         });
     }
