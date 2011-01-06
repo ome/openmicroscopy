@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans
-           http://www.springframework.org/schema/beans/spring-beans-2.5.xsd"
+       xmlns:util="http://www.springframework.org/schema/util"
+         xsi:schemaLocation="http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+           http://www.springframework.org/schema/util
+           http://www.springframework.org/schema/util/spring-util-2.0.xsd"
        default-lazy-init="true">
 <!--
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -89,7 +92,7 @@
       </bean>
     </constructor-arg>
   </bean>
-  
+
   <bean id="isolatedSqlAction" class="${omero.db.sql_action_class}">
     <description>
     Provides JDBC access WITHOUT taking part in Hibernate transactions
@@ -118,20 +121,26 @@
     <constructor-arg value="300000"/> <!--5 minutes of errors -->
   </bean>
 
+  <alias alias="dataSourceProperties" name="${omero.db.profile}DataSourceProperties"/>
+
+  <bean id="psqlDataSourceProperties" class="java.util.Properties">
+    <constructor-arg>
+      <props>
+        <prop key="driverClassName">${omero.db.driver}</prop>
+        <prop key="url">jdbc:postgresql://${omero.db.host}:${omero.db.port}/${omero.db.name}</prop>
+        <prop key="user">${omero.db.user}</prop>
+        <prop key="password">${omero.db.pass}</prop>
+      </props>
+    </constructor-arg>
+  </bean>
+
   <bean id="nonXaDataSource" class="bitronix.tm.resource.jdbc.PoolingDataSource">
     <property name="className" value="bitronix.tm.resource.jdbc.lrc.LrcXADataSource"/>
     <property name="uniqueName" ref="uuid"/>
     <property name="maxPoolSize" value="${omero.db.poolsize}"/>
     <!-- NPE ?? property name="loginTimeout" value="5" -->
     <property name="allowLocalTransactions" value="true"/>
-    <property name="driverProperties">
-      <props>
-        <prop key="driverClassName">org.postgresql.Driver</prop>
-        <prop key="url">jdbc:postgresql://${omero.db.host}:${omero.db.port}/${omero.db.name}</prop>
-        <prop key="user">${omero.db.user}</prop>
-        <prop key="password">${omero.db.pass}</prop>
-      </props>
-    </property>
+    <property name="driverProperties" ref="dataSourceProperties"/>
   </bean>
 
   <!--
