@@ -109,9 +109,16 @@ class ImporterUIElement
 	/** The identifier of the component. */
 	private int id;
 	
+	/** The collection of folders' name used as dataset. */
+	private List<String> foldersName;
+	
+	/** Flag indicating that the images will be added to the default dataset. */
+	private boolean orphanedFiles;
+	
 	/** Initializes the components. */
 	private void initialize()
 	{
+		foldersName = new ArrayList<String>();
 		countImported = 0;
 		setClosable(true);
 		entries = new JPanel();
@@ -124,10 +131,18 @@ class ImporterUIElement
 		Entry entry;
 		Iterator i = files.entrySet().iterator();
 		List<ImportObject> objects = new ArrayList<ImportObject>();
+		List<Boolean> l;
+		orphanedFiles = false;
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			f = (File) entry.getKey();
 			c = new FileImportComponent(f);
+			l = (List) entry.getValue();
+			if (f.isDirectory()) {
+				if (l.get(0))
+					foldersName.add(f.getName());
+				else orphanedFiles = true;
+			} else orphanedFiles = true;
 			obj = new ImportObject(f, c.getStatus());
 			objects.add(obj);
 			components.put(f.getAbsolutePath(), c);
@@ -167,10 +182,11 @@ class ImporterUIElement
 		DataObject ho;
 		String text = "Imported in ";
 		String name = "";
+		int n;
 		if (containers != null && containers.size() > 0) {
 			Iterator<DataObject> i = containers.iterator();
 			int index = 0;
-			int n = containers.size()-1;
+			n = containers.size()-1;
 			while (i.hasNext()) {
 				ho = i.next();
 				if (ho instanceof DatasetData) {
@@ -189,7 +205,17 @@ class ImporterUIElement
 		} else {
 			if (DatasetData.class.equals(object.getType())) {
 				text += "Dataset: ";
-				name = UIUtilities.formatDate(null, UIUtilities.D_M_Y_FORMAT);
+				Iterator<String> i = foldersName.iterator();
+				n = foldersName.size()-1;
+				for (int j = 0; j < foldersName.size(); j++) {
+					name += foldersName.get(j);
+					if (j < n) name += ", ";
+				}
+				if (orphanedFiles) {
+					if (foldersName.size() > 0) name += ", ";
+					name += UIUtilities.formatDate(null, 
+							UIUtilities.D_M_Y_FORMAT);
+				}
 			}
 		}
 		if (text != null) {
@@ -209,7 +235,7 @@ class ImporterUIElement
 			text = "";
 			Iterator<TagAnnotationData> i = tags.iterator();
 			int index = 0;
-			int n = tags.size()-1;
+			n = tags.size()-1;
 			while (i.hasNext()) {
 				text += (i.next()).getTagValue();
 				if (index < n) text +=", ";

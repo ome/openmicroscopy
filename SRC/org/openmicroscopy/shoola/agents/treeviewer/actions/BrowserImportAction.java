@@ -95,7 +95,9 @@ public class BrowserImportAction
         Object ho = selectedDisplay.getUserObject();
         if (ho == null) setEnabled(true);
         else {
-        	 setEnabled(model.isUserOwner(ho));
+        	if (ho instanceof ProjectData || ho instanceof DatasetData ||
+        		ho instanceof ScreenData) setEnabled(model.isUserOwner(ho));
+        	else setEnabled(true);
         }
        
     }
