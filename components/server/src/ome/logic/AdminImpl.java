@@ -68,6 +68,7 @@ import ome.system.Roles;
 import ome.system.SimpleEventContext;
 import ome.tools.hibernate.QueryBuilder;
 import ome.tools.hibernate.SecureMerge;
+import ome.tools.hibernate.SessionFactory;
 import ome.util.SqlAction;
 import ome.util.Utils;
 
@@ -75,7 +76,6 @@ import org.apache.commons.logging.Log;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
@@ -108,9 +108,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
     protected final SqlAction sql;
 
-    protected final SessionFactory sf;
-
-    protected final ome.tools.hibernate.SessionFactory osf;
+    protected final SessionFactory osf;
 
     protected final MailSender mailSender;
 
@@ -133,12 +131,12 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         this.context = (OmeroContext) ctx;
     }
     
-    public AdminImpl(SqlAction sql, SessionFactory sf,
+    public AdminImpl(SqlAction sql, SessionFactory osf,
             MailSender mailSender, SimpleMailMessage templateMessage,
             ACLVoter aclVoter, PasswordProvider passwordProvider,
             RoleProvider roleProvider, LdapImpl ldapUtil, PasswordUtil passwordUtil) {
         this.sql = sql;
-        this.sf = sf;
+        this.osf = osf;
         this.mailSender = mailSender;
         this.templateMessage = templateMessage;
         this.aclVoter = aclVoter;
@@ -146,7 +144,6 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         this.roleProvider = roleProvider;
         this.ldapUtil = ldapUtil;
         this.passwordUtil = passwordUtil;
-        this.osf = new ome.tools.hibernate.SessionFactory(sf);
     }
 
     public Class<? extends ServiceInterface> getServiceInterface() {
@@ -1245,8 +1242,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
 
     @SuppressWarnings("unchecked")
     private Set<String> classes() {
-        Set<String> classes = sf.getAllClassMetadata().keySet();
-        return classes;
+        return getExtendedMetadata().getClasses();
     }
 
     final static int GROUP_READ = Permissions.bit(Role.GROUP, Right.READ);

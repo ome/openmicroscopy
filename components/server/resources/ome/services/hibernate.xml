@@ -106,6 +106,7 @@
 
   <bean id="omeroSessionFactory" class="ome.tools.hibernate.SessionFactory">
     <constructor-arg ref="sessionFactory"/>
+    <constructor-arg ref="isolatedSqlAction"/>
   </bean>
 
   <bean id="sessionFactory" class="org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean">
