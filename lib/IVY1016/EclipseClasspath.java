@@ -20,8 +20,10 @@ package IVY1016;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -44,6 +46,26 @@ import org.w3c.dom.Text;
  * <code>ivy:resolve</code>. Supports attaching sources jars to entries if any are available.
  */
 public class EclipseClasspath extends IvyCacheTask {
+
+    private static List<String> IGNORE = Arrays.asList(
+        "blitz-test",
+        "blitz",
+        "server",
+        "common",
+        "model-",
+        "dsl",
+        "romio",
+        "rendering",
+        "common-test",
+        "dsl-test",
+        "OmeroImporter-test",
+        "OmeroImporter",
+        "omero_client"
+        //"postgresql", These are needed.
+        //"ice",
+        //"ice-db",
+    );
+
     private static final String ATTR_IVYGEN = "ivygen";
     private static final String TAG_CLASSPATH_ENTRY = "classpathentry";
 
@@ -56,8 +78,22 @@ public class EclipseClasspath extends IvyCacheTask {
         try {
             Map binMap = new HashMap();
             Map sourceMap = new HashMap();
+            OUTER:
             for (Iterator iter = getArtifactReports().iterator(); iter.hasNext();) {
                 ArtifactDownloadReport a = (ArtifactDownloadReport) iter.next();
+                org.apache.ivy.core.module.id.ArtifactRevisionId arid = a.getArtifact().getId();
+                org.apache.ivy.core.module.id.ArtifactId aid = arid.getArtifactId();
+                org.apache.ivy.core.module.id.ModuleId mid = aid.getModuleId();
+                String modOrg = mid.getOrganisation();
+                String modName = mid.getName();
+                if ("omero".equals(modOrg)) {
+                    for (String prefix : IGNORE) {
+                        if (modName.startsWith(prefix)) {
+                            continue OUTER;
+                        }
+                    }
+                }
+
                 String artifactName = a.getArtifact().getName();
                 if (a.getType().equals(sourceType)) {
                     sourceMap.put(artifactName, a.getLocalFile());
