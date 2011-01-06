@@ -674,7 +674,7 @@ public class DeleteITest extends AbstractServantTest {
                                     ServiceFactory sf) {
 
                                 try {
-                                    DeleteState ids = new DeleteState(ctx, session, spec);
+                                    DeleteState ids = new DeleteState(ctx, null, session, spec);
                                     List<List<Long>> rv = new ArrayList<List<Long>>();
                                     fail("NYI");
                                     /*
