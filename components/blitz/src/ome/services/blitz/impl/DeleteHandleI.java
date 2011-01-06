@@ -321,7 +321,7 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
                 @Transactional(readOnly = false)
                 public Object doWork(Session session, ServiceFactory sf) {
                     try {
-                        doRun(session);
+                        doRun(getSqlAction(), session);
                         state.compareAndSet(State.READY, State.FINISHED);
                     } catch (Cancel c) {
                         state.set(State.CANCELLED);
@@ -352,7 +352,7 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
         }
     }
 
-    public void doRun(Session session) throws Cancel {
+    public void doRun(SqlAction sql, Session session) throws Cancel {
         for (int i = 0; i < commands.length; i++) {
             Integer idx = Integer.valueOf(i);
             Report report = reports.get(idx);
@@ -378,13 +378,13 @@ public class DeleteHandleI extends _DeleteHandleDisp implements
         }
     }
 
-    public void steps(Session session, Report report) throws Cancel {
+    public void steps(SqlAction sql, Session session, Report report) throws Cancel {
         try {
 
             // Initialize. Any exceptions should cancel the process
             StopWatch sw = new CommonsLogStopWatch();
             DeleteStepFactory factory = new DeleteStepFactory(executor.getContext());
-            report.state = new GraphState(factory, session, report.spec);
+            report.state = new GraphState(factory, sql, session, report.spec);
             report.scheduledDeletes = report.state.getTotalFoundCount();
             if (report.scheduledDeletes == 0L) {
                 report.warning = "Object missing.";

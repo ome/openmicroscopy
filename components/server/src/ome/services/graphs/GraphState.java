@@ -25,6 +25,7 @@ import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.QueryBuilder;
+import ome.util.SqlAction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -82,6 +83,8 @@ public class GraphState implements GraphStep.Callback {
 
     private final GraphStepFactory factory;
 
+    private final SqlAction sql;
+
     /**
      * @param ctx
      *            Stored the {@link OmeroContext} instance for raising event
@@ -90,9 +93,9 @@ public class GraphState implements GraphStep.Callback {
      *            non-null, active Hibernate session that will be used to delete
      *            all necessary items as well as lookup items for deletion.
      */
-    public GraphState(GraphStepFactory factory, Session session, GraphSpec spec)
+    public GraphState(GraphStepFactory factory, SqlAction sql, Session session, GraphSpec spec)
             throws GraphException {
-
+        this.sql = sql;
         this.session = session;
         this.factory = factory;
 
@@ -114,7 +117,6 @@ public class GraphState implements GraphStep.Callback {
      * Walk throw the sub-spec graph actually loading the ids which must be
      * scheduled for delete.
      *
-     * @param session
      * @param spec
      * @param paths
      * @throws GraphException
@@ -538,41 +540,45 @@ public class GraphState implements GraphStep.Callback {
         return count;
     }
 
-    public void savepoint(String savepoint) {
-        call(session, "SAVEPOINT DEL", savepoint);
+    public String savepoint(DeleteStep step) {
+        add();
+        step.savepoint = UUID.randomUUID().toString();
+        step.savepoint = step.savepoint.replaceAll("-", "");
+        sql.createSavepoint(step.savepoint);
         log.debug(String.format("Enter savepoint %s: new depth=%s",
-                savepoint,
+                step.savepoint,
                 actualIds.size()));
-    }
+        return step.savepoint;
 
-    public void release(String savepoint, int count) {
-
-        call(session, "RELEASE SAVEPOINT DEL", savepoint);
+    public void release(DeleteStep savepoint, int count) {
+        sql.releaseSavepoint(step.savepoint);
 
         log.debug(String.format(
                 "Released savepoint %s with %s ids: new depth=%s", savepoint,
                 count, actualIds.size()));
 
     }
-    public void rollback(String savepoint, int count) {
 
-        call(session, "ROLLBACK TO SAVEPOINT DEL", savepoint);
+    public void rollback(DeleteStep step) throws DeleteException {
+
+        if (actualIds.size() == 0) {
+            throw new DeleteException("Release at depth 0!");
+        }
+
+        step.rollbackOnly = true;
+        int count = 0;
+        Map<String, Set<Long>> ids = actualIds.removeLast();
+        for (String key : ids.keySet()) {
+            Set<Long> old = ids.get(key);
+            count += old.size();
+        }
+
+        sql.rollbackSavepoint(step.savepoint);
 
         log.debug(String.format(
                 "Rolled back savepoint %s with %s ids: new depth=%s",
                 savepoint, count, actualIds.size()));
 
-    }
-
-    private void call(Session session, String call, String savepoint) {
-        try {
-            session.connection().prepareCall(call + savepoint).execute();
-        } catch (Exception e) {
-            RuntimeException re = new RuntimeException("Failed to '" + call
-                    + savepoint + "'");
-            re.initCause(e);
-            throw re;
-        }
     }
 
     //

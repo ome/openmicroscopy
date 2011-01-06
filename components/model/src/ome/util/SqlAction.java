@@ -10,6 +10,7 @@ package ome.util;
 import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -25,6 +26,7 @@ import ome.conditions.InternalException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
@@ -138,6 +140,12 @@ public interface SqlAction {
 
     // TODO this should probably return an iterator.
     List<Long> getDeletedIds(String entityType);
+
+    void createSavepoint(String savepoint);
+
+    void releaseSavepoint(String savepoint);
+
+    void rollbackSavepoint(String savepoint);
 
     //
     // Previously PgArrayHelper
@@ -531,6 +539,29 @@ public interface SqlAction {
 
             return list;
 
+        }
+
+        public void createSavepoint(String savepoint) {
+            call("SAVEPOINT DEL", savepoint);
+        }
+
+        public void releaseSavepoint(String savepoint) {
+            call("RELEASE SAVEPOINT DEL", savepoint);
+        }
+
+        public void rollbackSavepoint(String savepoint) {
+            call("ROLLBACK TO SAVEPOINT DEL", savepoint);
+        }
+
+        private void call(String call, String savepoint) {
+            try {
+                session.connection().prepareCall(call + savepoint).execute();
+            } catch (Exception e) {
+                RuntimeException re = new RuntimeException("Failed to '" + call
+                        + savepoint + "'");
+                re.initCause(e);
+                throw re;
+            }
         }
 
         public Set<String> currentUserNames() {
