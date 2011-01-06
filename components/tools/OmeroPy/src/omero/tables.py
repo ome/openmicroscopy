@@ -589,6 +589,7 @@ class TableI(omero.grid.Table, omero.util.SimpleServant):
     @remoted
     @perf
     def getWhereList(self, condition, variables, start, stop, step, current = None):
+        variables = unwrap(variables)
         if stop == 0:
             stop = None
         if step == 0:

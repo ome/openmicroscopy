@@ -209,6 +209,19 @@ class TestTables(lib.ITest):
         table.delete()
         table.close()
 
+    def test3714GetWhereListVars(self):
+        """
+        Tests that variables are correctly unwrapped
+        after transport
+        """
+        grid = self.client.sf.sharedResources()
+        table = grid.newTable(1, "/test")
+        self.assert_( table )
+
+        lc = omero.columns.LongColumnI('lc', 'desc', [1])
+        table.initialize([lc])
+        table.addData([lc])
+        self.assertEquals([0],table.getWhereList('(lc==var)',{"var":rlong(1)},0,0,0))
 
 def test_suite():
     return 1
