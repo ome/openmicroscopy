@@ -70,7 +70,7 @@ import edu.emory.mathcs.backport.java.util.Arrays;
  * 
  * @since Beta4.1
  */
-public class GeomTool implements ApplicationListener {
+public class GeomTool {
 
     protected Log log = LogFactory.getLog(GeomTool.class);
 
@@ -98,118 +98,6 @@ public class GeomTool implements ApplicationListener {
         this.factory = factory;
         this.ex = ex;
         this.uuid = uuid;
-        try {
-            jdbc.queryForObject("select pg_geom from shape limit 1",
-                    String.class);
-        } catch (EmptyResultDataAccessException erdae) {
-            // Ignore.
-        } catch (Exception e) {
-            jdbc.update("alter table shape add column pg_geom polygon;");
-            jdbc.update("create index pg_geom_idx on shape"
-                    + " using gist (pg_geom);");
-            log.info("Configured Shape.pg_geom");
-        }
-    }
-
-    //
-    // geometry creation
-    //
-
-    public void onApplicationEvent(ApplicationEvent event) {
-        if (event instanceof ShapeChangeMessage) {
-
-            if (ex != null) {
-                log.info("Setting hasShapes=true");
-                hasShapes.set(true);
-                return; // If there's an executor, no reason to make the user
-                // wait.
-            }
-
-            ShapeChangeMessage scm = (ShapeChangeMessage) event;
-            List<Long> shapeIds = new ArrayList<Long>();
-            for (EventLog log : scm) {
-                shapeIds.add(log.getEntityId());
-            }
-            synchronizeShapeGeometries(shapeIds);
-        }
-    }
-
-    public void backgroundSynchronizeShapeGeometries() {
-
-        if (ex == null || !hasShapes.get()) {
-            return; // Can't run in background or nothing to run on
-        }
-
-        if (!hasShapes.compareAndSet(true, false)) {
-            log.warn("hasShapes changed to false");
-        }
-
-        try {
-            int loops = 10;
-            final List<Long> nullShapes = new ArrayList<Long>();
-
-            // Do 10 loops of 1000.
-            do {
-                loops--;
-                ex.execute(new Principal(uuid, "system",
-                        "Internal"), new Executor.SimpleWork(this,
-                        "backgroundSynchronization") {
-                    @Transactional(readOnly = false)
-                    public Object doWork(Session session, ServiceFactory sf) {
-
-                        if (nullShapes.size() == 0) {
-                            nullShapes.addAll(getNullShapes()); // First invocation
-                        }
-
-                        if (nullShapes.size() > 0) {
-                            log.info(String.format(
-                                    "Batch processing %s shapes",
-                                    nullShapes.size()));
-                            synchronizeShapeGeometries(nullShapes);
-                            nullShapes.clear();
-                        }
-
-                        nullShapes.addAll(getNullShapes());
-                        return null;
-                    }
-                });
-            } while (loops > 0 && nullShapes.size() > 0);
-
-
-            // After 10 loops (10K shapes) there are more left. Set flag.
-            if (nullShapes.size() > 0) {
-                hasShapes.set(true);
-                log.info("Shapes remaining: " + nullShapes.size());
-            }
-
-        } catch (Exception e) {
-            hasShapes.set(true);
-            log.warn("Exception during batch processing: " +
-			"setting hasShapes=true");
-        }
-
-    }
-
-    public void synchronizeShapeGeometries(List<Long> shapeIds) {
-        for (Long shapeId : shapeIds) {
-            synchronizeShapeGeometry(shapeId);
-        }
-    }
-
-    public void synchronizeShapeGeometry(long shapeId) {
-        Session session = factory.getSession();
-        Shape s = justShapeById(shapeId, session);
-        String path = dbPath(s);
-        int results = savePath(shapeId, path);
-        if (results == 0) {
-            throw new RuntimeException("pg_geom missing: " + shapeId);
-        }
-    }
-
-    public int savePath(long shapeId, String path) {
-        return jdbc.update(String.format(
-                "update shape set pg_geom = %s::polygon where id = ?", path),
-                shapeId);
     }
 
     /**
@@ -338,119 +226,6 @@ public class GeomTool implements ApplicationListener {
     //
     // Database access methods
     //
-
-    /**
-     * String which will have blocks of "pg_geom && %s::polygon " attached to
-     * the end to create a full SQL statement.
-     */
-    static final String FIND_INTERESECTING_QUERY = "select distinct r.id from "
-            + "Shape s, Roi r where r.image = %s and r.id  = s.roi and ";
-
-    public List<Long> findIntersectingRois(long imageId, Shape... shapes) {
-        return findIntersectingRois(imageId, null, shapes);
-    }
-
-    public List<Long> findIntersectingRois(long imageId, RoiOptions opts,
-            Shape... shapes) {
-
-        if (shapes == null || shapes.length == 0) {
-            return null; // EARLY EXIT
-        }
-
-        StringBuilder sb = new StringBuilder();
-        sb.append(String.format(FIND_INTERESECTING_QUERY, imageId));
-
-        sb.append("( ");
-        boolean first = true;
-        for (Shape shape : shapes) {
-
-            if (first) {
-                first = false;
-            } else {
-                sb.append("or ");
-            }
-
-            sb.append("( ");
-
-            RInt z = shape.getTheZ();
-            RInt t = shape.getTheT();
-            RBool v = shape.getVisibility();
-            RBool l = shape.getLocked();
-
-            if (z != null) {
-                sb.append("s.theZ = ");
-                sb.append(z.getValue());
-                sb.append(" and ");
-            }
-            if (t != null) {
-                sb.append("s.theT = ");
-                sb.append(t.getValue());
-                sb.append(" and ");
-            }
-            if (v != null) {
-                sb.append("s.visibility = ");
-                sb.append(v.getValue());
-                sb.append(" and ");
-            }
-            if (l != null) {
-                sb.append("s.locked = ");
-                sb.append(l.getValue());
-                sb.append(" and ");
-            }
-            if (opts != null) {
-                if (opts.shapes != null && opts.shapes.size() > 0) {
-                    sb.append("s.discriminator in ( ");
-                    for (int i = 0; i < opts.shapes.size(); i++) {
-                        if (i > 0) {
-                            sb.append(", ");
-                        }
-                        sb.append("'");
-                        sb.append(discriminator(opts.shapes.get(i)));
-                        sb.append("'");
-                    }
-                    sb.append(") and ");
-                }
-            }
-            sb.append("s.pg_geom && ");
-            String path = dbPath(shape);
-            sb.append(path);
-            sb.append("::polygon ");
-            sb.append(") ");
-
-        }
-        sb.append(") ");
-
-        if (opts != null) {
-            // TODO if these were variables then the query could be cached
-            if (opts.userId != null) {
-                sb.append(" and r.owner_id = ");
-                sb.append(opts.userId.getValue());
-                sb.append(" ");
-            }
-            if (opts.groupId != null) {
-                sb.append(" and r.group_id = ");
-                sb.append(opts.groupId.getValue());
-                sb.append(" ");
-            }
-        }
-
-        sb.append("order by r.id ");
-        // FIXME This is not portable!
-        if (opts != null) {
-            if (opts.limit != null) {
-                sb.append("limit ");
-                sb.append(opts.limit.getValue());
-                sb.append(" ");
-            }
-            if (opts.offset != null) {
-                sb.append("offset ");
-                sb.append(opts.offset.getValue());
-                sb.append(" ");
-            }
-        }
-        List<Long> ids = jdbc.query(sb.toString(), new IdRowMapper());
-        return ids;
-    }
 
     public ShapePoints getPoints(long shapeId, Session session) {
         Shape shape = justShapeById(shapeId, session);
@@ -668,24 +443,6 @@ public class GeomTool implements ApplicationListener {
 
         SmartShape ss = (SmartShape) shape;
         return ss;
-    }
-
-    public List<Long> getNullShapes() {
-        List<Long> l = jdbc.query(
-                "select id from shape where pg_geom is null limit 1000",
-                new RowMapper<Long>() {
-                    public Long mapRow(ResultSet rs, int rowNum)
-                            throws SQLException {
-                        return rs.getLong("id");
-                    }
-                });
-        return l;
-    }
-
-    private static final class IdRowMapper implements RowMapper<Long> {
-        public Long mapRow(ResultSet rs, int rowNum) throws SQLException {
-            return (Long) rs.getLong(1);
-        }
     }
 
     private static class ShapeMapper extends IceMapper {
