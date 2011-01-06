@@ -16,10 +16,10 @@ import java.util.regex.Pattern;
 import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 import ome.conditions.InternalException;
+import ome.util.SqlAction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -38,11 +38,6 @@ public class DBEnumCheck {
 
     public final static Pattern readerClass = Pattern
             .compile("^.*?[.]?([^.]+)Reader$");
-
-    // Copied from data.vm
-    public final static String insertStatement = "insert into format "
-            + "(id,permissions,value)"
-            + " select ome_nextval('seq_format'),-35,?";
 
     /**
      * Hard-coded list of formats missing from 4.1 which should have a
@@ -101,14 +96,14 @@ public class DBEnumCheck {
 
     public void start() throws Exception {
         try {
-            executor.executeStateless(new Executor.SimpleStatelessWork(this,
+            executor.executeSql(new Executor.SimpleSqlWork(this,
                     "DBEnumCheck") {
                 @Transactional(readOnly = false)
-                public Object doWork(SimpleJdbcOperations jdbc) {
+                public Object doWork(SqlAction sql) {
                     for (String name : getReaderNames()) {
-                        addFormat(jdbc, name);
+                        addFormat(sql, name);
                         if (requiresCompanion(name)) {
-                            addFormat(jdbc, "Companion/" + name);
+                            addFormat(sql, "Companion/" + name);
                         }
                     }
                     return null;
@@ -131,22 +126,21 @@ public class DBEnumCheck {
      * @param name
      * @return true if the format was added.
      */
-    private boolean addFormat(SimpleJdbcOperations jdbc, String name) {
+    private boolean addFormat(SqlAction sql, String name) {
 
         if (shouldBeOmitted(name)) {
             log.debug("Omitting: " + name);
             return false;
         }
 
-        long count = jdbc.queryForLong(
-                "select count(*) from format where value = ?", name);
+        long count = sql.countFormat(name);
 
         if (count > 0) {
             log.debug("Found reader: " + name);
             return false;
         }
 
-        int inserts = jdbc.update(insertStatement, name);
+        int inserts = sql.insertFormat(name);
         if (inserts != 1) {
             throw new InternalException("Expected 1 insert. Found " + inserts
                     + " while adding: " + name);

@@ -28,6 +28,7 @@ import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
+import ome.util.SqlAction;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.AndFileFilter;
@@ -42,9 +43,6 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.hibernate.type.StringType;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -179,61 +177,52 @@ public class ScriptRepoHelper {
     }
 
     public int countInDb() {
-        return (Integer) ex.executeStateless(new Executor.SimpleStatelessWork(
+        return (Integer) ex.executeSql(new Executor.SimpleSqlWork(
                 this, "countInDb") {
             @Transactional(readOnly = true)
-            public Object doWork(SimpleJdbcOperations jdbc) {
-                return countInDb(jdbc);
+            public Object doWork(SqlAction sql) {
+                return countInDb(sql);
             }
         });
     }
 
-    public int countInDb(SimpleJdbcOperations jdbc) {
-        return jdbc.queryForInt("select count(id) from originalfile "
-                + "where repo = ? and mimetype = 'text/x-python'", uuid);
+    public int countInDb(SqlAction sql) {
+        return sql.repoScriptCount(uuid);
     }
 
     @SuppressWarnings("unchecked")
     public List<Long> idsInDb() {
         return (List<Long>) ex
-                .executeStateless(new Executor.SimpleStatelessWork(this,
+                .executeSql(new Executor.SimpleSqlWork(this,
                         "idsInDb") {
                     @Transactional(readOnly = true)
-                    public Object doWork(SimpleJdbcOperations jdbc) {
-                        return idsInDb(jdbc);
+                    public Object doWork(SqlAction sql) {
+                        return idsInDb(sql);
                     }
                 });
     }
 
-    public List<Long> idsInDb(SimpleJdbcOperations jdbc) {
+    public List<Long> idsInDb(SqlAction sql) {
         try {
-            return jdbc.query("select id from originalfile "
-                    + "where repo = ? and mimetype = 'text/x-python'", new RowMapper<Long>() {
-                public Long mapRow(ResultSet arg0, int arg1)
-                        throws SQLException {
-                    return arg0.getLong(1);
-                }
-            }, uuid);
+            return sql.fileIdsInDb(uuid);
         } catch (EmptyResultDataAccessException e) {
             return Collections.emptyList();
         }
     }
 
     public boolean isInRepo(final long id) {
-        return (Boolean) ex.executeStateless(new Executor.SimpleStatelessWork(
+        return (Boolean) ex.executeSql(new Executor.SimpleSqlWork(
                 this, "isInRepo", id) {
             @Transactional(readOnly = true)
-            public Object doWork(SimpleJdbcOperations jdbc) {
-                return isInRepo(jdbc, id);
+            public Object doWork(SqlAction sql) {
+                return isInRepo(sql, id);
             }
         });
     }
 
-    public boolean isInRepo(SimpleJdbcOperations jdbc, final long id) {
+    public boolean isInRepo(SqlAction sql, final long id) {
         try {
-            int count = jdbc.queryForInt("select count(id) from originalfile "
-                    + "where repo = ? and id = ? and mimetype = 'text/x-python'",
-                    uuid, id);
+            int count = sql.isFileInRepo(uuid, id);
             return count > 0;
         } catch (EmptyResultDataAccessException e) {
             return false;
@@ -246,11 +235,11 @@ public class ScriptRepoHelper {
     }
 
     public Long findInDb(final RepoFile file, final boolean scriptsOnly) {
-        return (Long) ex.executeStateless(new Executor.SimpleStatelessWork(
+        return (Long) ex.executeSql(new Executor.SimpleSqlWork(
                 this, "findInDb", file, scriptsOnly) {
             @Transactional(readOnly = true)
-            public Object doWork(SimpleJdbcOperations jdbc) {
-                return findInDb(jdbc, file, scriptsOnly);
+            public Object doWork(SqlAction sql) {
+                return findInDb(sql, file, scriptsOnly);
             }
         });
     }
@@ -258,11 +247,9 @@ public class ScriptRepoHelper {
     /**
      * Looks to see if a path is contained in the repository.
      */
-    public Long findInDb(SimpleJdbcOperations jdbc, RepoFile repoFile, boolean scriptsOnly) {
+    public Long findInDb(SqlAction sql, RepoFile repoFile, boolean scriptsOnly) {
         try {
-            return jdbc.queryForLong("select id from originalfile "
-                    + "where repo = ? and path = ? and name = ? " + scriptsOnly(scriptsOnly),
-                    uuid, repoFile.dirname(), repoFile.basename());
+            return sql.findRepoFile(uuid, repoFile.dirname(), repoFile.basename(), "text/x-python");
         } catch (EmptyResultDataAccessException e) {
             return null;
         }
@@ -293,7 +280,7 @@ public class ScriptRepoHelper {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
 
-                SimpleJdbcTemplate jdbc = (SimpleJdbcTemplate) sf.getContext().getBean("simpleJdbcTemplate");
+                SqlAction sql = (SqlAction) sf.getContext().getBean("sqlAction");
 
                 File f = null;
                 RepoFile file = null;
@@ -301,7 +288,7 @@ public class ScriptRepoHelper {
                 while (it.hasNext()) {
                     f = it.next();
                     file = new RepoFile(dir, f);
-                    Long id = findInDb(jdbc, file, false); // non-scripts count
+                    Long id = findInDb(sql, file, false); // non-scripts count
                     String sha1 = null;
                     OriginalFile ofile = null;
                     if (id == null) {
@@ -322,7 +309,7 @@ public class ScriptRepoHelper {
                     }
                     rv.add(ofile);
                 }
-                removeMissingFilesFromDb(jdbc, session, rv);
+                removeMissingFilesFromDb(sql, session, rv);
                 return rv;
             }});
     }
@@ -359,8 +346,8 @@ public class ScriptRepoHelper {
      * Given the current files on disk, {@link #unregister(Long, Session)}
      * all files which have been removed from disk.
      */
-    public long removeMissingFilesFromDb(SimpleJdbcOperations jdbc, Session session, List<OriginalFile> filesOnDisk) {
-        List<Long> idsInDb = idsInDb(jdbc);
+    public long removeMissingFilesFromDb(SqlAction sql, Session session, List<OriginalFile> filesOnDisk) {
+        List<Long> idsInDb = idsInDb(sql);
         if (idsInDb.size() != filesOnDisk.size()) {
             log.info(String.format(
                     "Script missing from disk: %s in db, %s on disk!",
@@ -489,16 +476,6 @@ public class ScriptRepoHelper {
         FileUtils.deleteQuietly(new File(dir, file.getPath()));
 
         return true;
-    }
-
-    // Helpers
-    // =========================================================================
-
-    private String scriptsOnly(boolean scriptsOnly) {
-        if (scriptsOnly) {
-            return "and mimetype = 'text/x-python'";
-        }
-        return "";
     }
 
 }

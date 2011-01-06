@@ -9,10 +9,10 @@ package ome.services.util;
 
 import ome.api.local.LocalConfig;
 import ome.conditions.InternalException;
+import ome.util.SqlAction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -55,9 +55,9 @@ public class DBPatchCheck {
 
         final String[] results = new String[3];
         try {
-            executor.executeStateless(new Executor.SimpleStatelessWork(this, "DBPatchCheck") {
+            executor.executeSql(new Executor.SimpleSqlWork(this, "DBPatchCheck") {
                 @Transactional(readOnly = true)
-                public Object doWork(SimpleJdbcOperations jdbc) {
+                public Object doWork(SqlAction sql) {
                     results[0] = config.getDatabaseVersion();
                     results[1] = config.getInternalValue("omero.db.version");
                     results[2] = config.getInternalValue("omero.db.patch");

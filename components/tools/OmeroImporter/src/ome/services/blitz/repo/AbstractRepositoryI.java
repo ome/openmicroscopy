@@ -13,10 +13,10 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
 import ome.services.blitz.fire.Registry;
-import ome.services.db.PgArrayHelper;
 import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
+import ome.util.SqlAction;
 import omero.ServerError;
 import omero.api.RawFileStorePrx;
 import omero.api.RawPixelsStorePrx;
@@ -33,7 +33,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
-import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
@@ -59,7 +58,7 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
 
     private final Principal p;
 
-    private final SimpleJdbcOperations jdbc;
+    private final SqlAction sql;
 
     private final FileMaker fileMaker;
 
@@ -76,18 +75,18 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
     }
 
     public AbstractRepositoryI(Ice.ObjectAdapter oa, Registry reg, Executor ex,
-            SimpleJdbcOperations jdbc, String sessionUuid, String repoDir) {
-        this(oa, reg, ex, jdbc, sessionUuid, new FileMaker(repoDir));
+            SqlAction sql, String sessionUuid, String repoDir) {
+        this(oa, reg, ex, sql, sessionUuid, new FileMaker(repoDir));
     }
 
     public AbstractRepositoryI(Ice.ObjectAdapter oa, Registry reg, Executor ex,
-            SimpleJdbcOperations jdbc, String sessionUuid, FileMaker fileMaker) {
+            SqlAction sql, String sessionUuid, FileMaker fileMaker) {
         this.state.set(State.EAGER);
         this.p = new Principal(sessionUuid, "system", "Internal");
         this.oa = oa;
         this.ex = ex;
         this.reg = reg;
-        this.jdbc = jdbc;
+        this.sql = sql;
         this.fileMaker = fileMaker;
         log.info("Initializing repository in " + fileMaker.getDir());
     }
@@ -281,7 +280,7 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
                 //
 
                 PublicRepositoryI pr = new PublicRepositoryI(new File(fileMaker
-                        .getDir()), r.getId(), ex, jdbc, p, new PgArrayHelper(jdbc));
+                        .getDir()), r.getId(), ex, sql, p);
 
                 Ice.ObjectPrx internalObj = addOrReplace("InternalRepository-", repo);
                 Ice.ObjectPrx externalObj = addOrReplace("PublicRepository-", pr);
@@ -344,14 +343,11 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
         }
 
         Map<String, Object> map = (Map<String, Object>) ex
-                .executeStateless(new Executor.SimpleStatelessWork(this,
+                .executeSql(new Executor.SimpleSqlWork(this,
                         "getFileRepo") {
                     @Transactional(readOnly = true)
-                    public Object doWork(SimpleJdbcOperations jdbc) {
-                        return jdbc.queryForMap(
-                                "select path, repo from originalfile "
-                                        + "where id = ?",
-                                        file.getId().getValue());
+                    public Object doWork(SqlAction sql) {
+                        return sql.repoFile(file.getId().getValue());
                     }
                 });
 

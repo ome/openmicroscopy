@@ -15,13 +15,13 @@ import java.util.List;
 import java.util.Set;
 
 import ome.services.sessions.events.UserGroupUpdateEvent;
+import ome.util.SqlAction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 
 /**
  * Hook run by the context at startup to create a drop-box directory per user.
@@ -38,11 +38,11 @@ public class DropBoxDirectoryCheck implements ApplicationListener, Runnable {
 
     final String omeroDataDir;
 
-    final SimpleJdbcOperations isolatedJdbc;
+    final SqlAction isolatedSql;
 
-    public DropBoxDirectoryCheck(String omeroDataDir, SimpleJdbcOperations jdbc) {
+    public DropBoxDirectoryCheck(String omeroDataDir, SqlAction sql) {
         this.omeroDataDir = omeroDataDir;
-        this.isolatedJdbc = jdbc;
+        this.isolatedSql = sql;;
     }
 
     public void onApplicationEvent(ApplicationEvent arg0) {
@@ -64,18 +64,7 @@ public class DropBoxDirectoryCheck implements ApplicationListener, Runnable {
 
     @SuppressWarnings("unchecked")
     public Set<String> getCurrentUserNames() {
-        List<String> names = isolatedJdbc.query(
-                "select distinct e.omename from experimenter e, " +
-                "groupexperimentermap m, experimentergroup g " +
-                "where e.id = m.child and m.parent = g.id and " +
-                "g.name = 'user'; ",
-                new RowMapper<String>() {
-                    public String mapRow(ResultSet arg0, int arg1)
-                            throws SQLException {
-                        return arg0.getString(1); // Bleck
-                    }
-                });
-        return new HashSet<String>(names);
+        return isolatedSql.currentUserNames();
     }
 
     public int createUserDirectories(Set<String> users) {

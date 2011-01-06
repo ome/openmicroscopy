@@ -43,12 +43,12 @@ import ome.security.auth.QueryNewUserGroupBean;
 import ome.security.auth.RoleProvider;
 import ome.system.OmeroContext;
 import ome.system.Roles;
+import ome.util.SqlAction;
 
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.ldap.core.ContextSource;
 import org.springframework.ldap.core.DistinguishedName;
 import org.springframework.ldap.core.LdapOperations;
@@ -79,7 +79,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class LdapImpl extends AbstractLevel2Service implements ILdap,
     ApplicationContextAware {
 
-    private final SimpleJdbcOperations jdbc;
+    private final SqlAction sql;
 
     private final RoleProvider provider;
 
@@ -98,9 +98,9 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
             LdapOperations ldap, Roles roles,
             LdapConfig config,
             RoleProvider roleProvider,
-            SimpleJdbcOperations jdbc) {
+            SqlAction sql) {
         this.ctx = ctx;
-        this.jdbc = jdbc;
+        this.sql = sql;
         this.ldap = ldap;
         this.roles = roles;
         this.config = config;
@@ -236,14 +236,7 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
     @RolesAllowed("system")
     @Transactional(readOnly = false)
     public void setDN(@NotNull Long experimenterID, String dn) {
-        int results = jdbc
-        .update(
-                "update password set dn = ? where experimenter_id = ? ",
-                dn, experimenterID);
-        if (results < 1) {
-                results = jdbc.update("insert into password values (?,?,?) ",
-                        experimenterID, null, dn);
-        }
+        sql.setUserDn(experimenterID, dn);
     }
 
     @RolesAllowed("system")

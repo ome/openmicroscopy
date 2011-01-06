@@ -14,8 +14,6 @@
 
 package ome.logic;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Date;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -36,11 +34,9 @@ import ome.conditions.SecurityViolation;
 import ome.security.basic.CurrentDetails;
 import ome.services.db.DatabaseIdentity;
 import ome.system.PreferenceContext;
+import ome.util.SqlAction;
 
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -95,7 +91,7 @@ public class ConfigImpl extends AbstractLevel2Service implements LocalConfig {
      * 
      * @see https://trac.openmicroscopy.org.uk/omero/ticket/173
      */
-    private transient SimpleJdbcOperations jdbc;
+    private transient SqlAction sql;
 
     private transient PreferenceContext prefs;
 
@@ -109,9 +105,9 @@ public class ConfigImpl extends AbstractLevel2Service implements LocalConfig {
     private final transient ReadWriteLock lock = new ReentrantReadWriteLock();
 
     /**
-     * {@link SimpleJdbcTemplate} setter for dependency injection.
+     * {@link SqlAction} setter for dependency injection.
      * 
-     * @param jdbcTemplate
+     * @param sql
      * @see ome.services.util.BeanHelper#throwIfAlreadySet(Object, Object)
      */
     /*
@@ -123,13 +119,10 @@ public class ConfigImpl extends AbstractLevel2Service implements LocalConfig {
      * manipulations. Therefore we've made all bean setters "final" and added a
      * call to "throwIfAlreadySet" which will only allow previously null fields
      * to be set.
-     * 
-     * Also, here we pass in SimpleJdbcOperations rather than ...Template,
-     * because testing the interface is more straight-forward.
      */
-    public final void setJdbcTemplate(SimpleJdbcOperations jdbcTemplate) {
-        getBeanHelper().throwIfAlreadySet(jdbc, jdbcTemplate);
-        this.jdbc = jdbcTemplate;
+    public final void setSqlAction(SqlAction sql) {
+        getBeanHelper().throwIfAlreadySet(this.sql, sql);
+        this.sql = sql;
     }
 
     /**
@@ -193,7 +186,7 @@ public class ConfigImpl extends AbstractLevel2Service implements LocalConfig {
     @PermitAll
     // see above
     public Date getDatabaseTime() {
-        Date date = jdbc.queryForObject("select now()", Date.class);
+        Date date = sql.now();
         return date;
     }
 
@@ -264,10 +257,7 @@ public class ConfigImpl extends AbstractLevel2Service implements LocalConfig {
             if (prefs.checkDatabase(key)) {
                 String current = fromDatabase(key);
                 if (current != null && current.length() > 0) {
-                    int count = jdbc
-                            .update(
-                                    "update configuration set value = ? where name = ?",
-                                    value, key);
+                    int count = sql.updateConfiguration(key, value);
                     if (count != 1) {
                         throw new OptimisticLockException(
                                 "Configuration tabled during modification of : "
@@ -337,19 +327,7 @@ public class ConfigImpl extends AbstractLevel2Service implements LocalConfig {
     @PermitAll
     // see above
     public String getDatabaseVersion() {
-        return jdbc.query(
-                "select currentversion, currentpatch from dbpatch "
-                        + "order by id desc limit 1",
-                new RowMapper<String>() {
-                    public String mapRow(ResultSet arg0, int arg1)
-                            throws SQLException {
-                        String v = arg0.getString("currentversion");
-                        int p = arg0.getInt("currentpatch");
-                        return v + "__" + p;
-                    }
-
-                }).get(0);
-    }
+        return sql.dbVersion();    }
 
     @PermitAll
     // see above
@@ -363,9 +341,7 @@ public class ConfigImpl extends AbstractLevel2Service implements LocalConfig {
     private String fromDatabase(String key) {
         String value = null;
         try {
-            value = jdbc.queryForObject(
-                    "select value from configuration where name = ?",
-                    String.class, key);
+            value = sql.configValue(key);
         } catch (EmptyResultDataAccessException erdae) {
             // ok returning null
         }

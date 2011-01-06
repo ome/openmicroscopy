@@ -40,7 +40,7 @@
     </description>
     <constructor-arg ref="currentDetails"/>
     <constructor-arg index="1"><null/></constructor-arg>
-    <constructor-arg ref="simpleJdbcTemplate"/>
+    <constructor-arg ref="simpleSqlAction"/>
     <constructor-arg index="3"><list/></constructor-arg>
   </bean>
   

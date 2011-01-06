@@ -7,13 +7,10 @@
 
 package ome.services.db;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import ome.util.SqlAction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 /**
  * Represents the unique identity of this database, consisting of the
@@ -42,17 +39,8 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
  */
 public class DatabaseIdentity {
 
-    private static String uuid(SimpleJdbcTemplate jdbc) {
-        return jdbc.query(
-                "select value from configuration where name = 'omero.db.uuid' ",
-                new RowMapper<String>() {
-                    public String mapRow(ResultSet arg0, int arg1)
-                            throws SQLException {
-                        String s = arg0.getString("value");
-                        return s;
-                    }
-
-                }).get(0);
+    private static String uuid(SqlAction sql) {
+        return sql.dbUuid();
     }
 
     private final static Log log = LogFactory.getLog(DatabaseIdentity.class);
@@ -63,8 +51,8 @@ public class DatabaseIdentity {
 
     private final String format;
 
-    public DatabaseIdentity(String authority, SimpleJdbcTemplate jdbc) {
-        this(authority, uuid(jdbc));
+    public DatabaseIdentity(String authority, SqlAction sql) {
+        this(authority, uuid(sql));
     }
 
     public DatabaseIdentity(String authority, String uuid) {

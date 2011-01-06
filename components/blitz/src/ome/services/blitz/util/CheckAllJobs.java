@@ -8,14 +8,13 @@
 package ome.services.blitz.util;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import ome.services.blitz.fire.TopicManager;
 import ome.services.util.Executor;
 import ome.tools.spring.OnContextRefreshedEventListener;
+import ome.util.SqlAction;
 import omero.constants.categories.PROCESSORCALLBACK;
 import omero.constants.topics.PROCESSORACCEPTS;
 import omero.grid.ProcessorCallbackPrx;
@@ -28,7 +27,6 @@ import org.apache.commons.logging.LogFactory;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
@@ -105,28 +103,12 @@ public class CheckAllJobs extends OnContextRefreshedEventListener {
             ids.addAll(cb.openJobs);
         }
 
-        final String sql = "update job set finished = now(), message = 'Forcibly closed', "
-                + "status = (select id from jobstatus where value = 'Error') "
-                + "where finished is null and "
-                + "("
-                + "(started < ( now() - interval '1 hour' )) "
-                + "OR "
-                + "(started is null and scheduledFor < ( now() - interval '1 day' ))"
-                + ")";
-
         try {
-            ex.executeStateless(new Executor.SimpleStatelessWork(this,
+            ex.executeSql(new Executor.SimpleSqlWork(this,
                     "synchronizeJobs") {
                 @Transactional(readOnly = false)
-                public Object doWork(SimpleJdbcOperations jdbc) {
-                    int count = 0;
-                    if (ids.size() > 0) {
-                        Map<String, Object> m = new HashMap<String, Object>();
-                        m.put("ids", ids);
-                        count += jdbc.update(sql + "and id not in (:ids)", m);
-                    } else {
-                        count += jdbc.update(sql);
-                    }
+                public Object doWork(SqlAction sql) {
+                    int count = sql.synchronizeJobs(ids);
                     if (count > 0) {
                         log.warn("Forcibly closed " + count
                                 + " abandoned job(s).");

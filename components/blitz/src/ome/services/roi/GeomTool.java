@@ -30,6 +30,7 @@ import ome.system.Principal;
 import ome.system.ServiceFactory;
 import ome.tools.hibernate.SessionFactory;
 import ome.util.Filterable;
+import ome.util.SqlAction;
 import omero.RBool;
 import omero.RInt;
 import omero.api.RoiOptions;
@@ -56,8 +57,6 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.transaction.annotation.Transactional;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
@@ -77,7 +76,7 @@ public class GeomTool implements ApplicationListener {
 
     protected final AtomicBoolean hasShapes = new AtomicBoolean(true);
 
-    protected final SimpleJdbcOperations jdbc;
+    protected final SqlAction sql;
 
     protected final SessionFactory factory;
 
@@ -87,15 +86,15 @@ public class GeomTool implements ApplicationListener {
 
     protected final String uuid;
 
-    public GeomTool(PixelData data, SimpleJdbcOperations jdbc,
+    public GeomTool(PixelData data, SqlAction sql,
             SessionFactory factory) {
-        this(data, jdbc, factory, null, null);
+        this(data, sql, factory, null, null);
     }
 
-    public GeomTool(PixelData data, SimpleJdbcOperations jdbc,
+    public GeomTool(PixelData data, SqlAction sql,
             SessionFactory factory, Executor ex, String uuid) {
         this.data = data;
-        this.jdbc = jdbc;
+        this.sql = sql;
         this.factory = factory;
         this.ex = ex;
         this.uuid = uuid;

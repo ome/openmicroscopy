@@ -33,14 +33,14 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.math.BigInteger;
 
 import javax.activation.MimetypesFileTypeMap;
 
@@ -59,12 +59,12 @@ import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
+import ome.parameters.Parameters;
 import ome.services.blitz.util.RegisterServantMessage;
-import ome.services.db.PgArrayHelper;
 import ome.services.util.Executor;
 import ome.system.Principal;
-import ome.parameters.Parameters;
 import ome.system.ServiceFactory;
+import ome.util.SqlAction;
 import ome.xml.model.primitives.PositiveInteger;
 import omero.ServerError;
 import omero.ValidationException;
@@ -95,7 +95,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 
 import Ice.Current;
 
@@ -124,11 +123,9 @@ public class PublicRepositoryI extends _RepositoryDisp {
 
     private final File root;
 
-    private final PgArrayHelper helper;
-
     private final Executor executor;
 
-    private final SimpleJdbcOperations jdbc;
+    private final SqlAction sql;
 
     private final Principal principal;
 
@@ -141,12 +138,11 @@ public class PublicRepositoryI extends _RepositoryDisp {
     private String repoUuid;
     
     public PublicRepositoryI(File root, long repoObjectId, Executor executor,
-            SimpleJdbcOperations jdbc, Principal principal, PgArrayHelper helper) throws Exception {
+            SqlAction sql, Principal principal) throws Exception {
         this.id = repoObjectId;
         this.executor = executor;
-        this.jdbc = jdbc;
+        this.sql = sql;
         this.principal = principal;
-        this.helper = helper;
 
         if (root == null || !root.isDirectory()) {
             throw new ValidationException(null, null,
@@ -225,7 +221,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
                 long id = sf.getUpdateService().saveAndReturnObject(omeFile).getId();
-                jdbc.update("update originalfile set repo = ? where id = ?", repoId, id);
+                sql.setFileRepo(id, repoId);
                 return id;
             }
         });
@@ -269,7 +265,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
                 long id = sf.getUpdateService().saveAndReturnObject(omeFile).getId();
-                jdbc.update("update originalfile set repo = ? where id = ?", repoId, id);
+                sql.setFileRepo(id, repoId);
                 return id;
             }
         });
@@ -297,11 +293,9 @@ public class PublicRepositoryI extends _RepositoryDisp {
                 public Object doWork(Session session, ServiceFactory sf) {
                     long id = sf.getUpdateService().saveAndReturnObject(omeObj).getId();
                     ome.model.IObject result = sf.getQueryService().findByQuery("select p from Pixels p where p.image = " + id, null);
-                    long pixId = result.getId();                  
-                    jdbc.update("update pixels set name = ? where id = ?", name, pixId);
-                    jdbc.update("update pixels set path = ? where id = ?", path, pixId);
-                    jdbc.update("update pixels set repo = ? where id = ?", repoId, pixId);
-                    helper.setPixelsParams(pixId, paramMap);
+                    long pixId = result.getId();
+                    sql.setPixelsNamePathRepo(pixId, name, path, repoId);
+                    sql.setPixelsParams(pixId, paramMap);
                     return id;
                 }
             });
@@ -331,6 +325,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
     	final String repoId = getRepoUuid();
         final String clientSessionUuid = __current.ctx.get(omero.constants.SESSIONUUID.value);
 
+        @SuppressWarnings("unchecked")
         Map<Integer, ome.model.core.Image> returnMap = (Map<Integer, ome.model.core.Image>) executor
         .execute(currentUser, new Executor.SimpleWork(this, "importFileSetMetadata") {
 
@@ -339,7 +334,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
 
             	Map<Integer, ome.model.core.Image> iMap = new HashMap<Integer, ome.model.core.Image>();
                 
-                List<BigInteger> pixIds = (List<BigInteger>) session.createSQLQuery(
+                List<BigInteger> pixIds = session.createSQLQuery(
                         "select id from Pixels " +
                         "where path = ? and name = ? and repo = ?")
                         .setParameter(0, path)
@@ -352,7 +347,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
                 
                 for (BigInteger pId : pixIds) {
                 	
-                    Map<String, String> params = helper.getPixelsParams(pId.longValue());
+                    Map<String, String> params = sql.getPixelsParams(pId.longValue());
                     
                     long pixelsId = pId.longValue();
                     BigInteger imageId = (BigInteger) session.createSQLQuery(
@@ -396,7 +391,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         }
         
         IceMapper mapper = new IceMapper();
-        Map<Integer, Image> imageMap = (Map<Integer, Image>) mapper.map(returnMap);
+        Map<Integer, Image> imageMap = mapper.map(returnMap);
         
         // Temporary logging
         for (Map.Entry<Integer, Image> entry : imageMap.entrySet() ) {
@@ -1177,6 +1172,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
         ome.model.core.Image image = (ome.model.core.Image) executor
                 .execute(currentUser, new Executor.SimpleWork(this, "getImage") {
 
+                    @SuppressWarnings("unchecked")
                     @Transactional(readOnly = true)
                     public Object doWork(Session session, ServiceFactory sf) {
                         List<BigInteger> pixIds = session.createSQLQuery(
@@ -1192,7 +1188,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
                         
                         long pixelsId = 0;
                         for (BigInteger pId : pixIds) {
-                            Map<String, String> params = helper.getPixelsParams(pId.longValue());
+                            Map<String, String> params = sql.getPixelsParams(pId.longValue());
                             if (Integer.parseInt(params.get(IMAGE_NO_KEY)) == count) {
                                 pixelsId = pId.longValue();
                                 break;
@@ -1227,6 +1223,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
      * @return List of Image objects, empty if the query returned no values.
      *
      */
+    @SuppressWarnings("unchecked")
     private Map<Integer, Image> getImageMap(OriginalFile keyFile, Principal currentUser)  {
 
         final String uuid = getRepoUuid();
@@ -1253,7 +1250,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
                         }
                         
                         for (BigInteger pId : pixIds) {
-                            Map<String, String> params = helper.getPixelsParams(pId.longValue());
+                            Map<String, String> params = sql.getPixelsParams(pId.longValue());
                             long pixelsId = pId.longValue();
                             BigInteger imageId = (BigInteger) session.createSQLQuery(
                                     "select image from Pixels " +
@@ -1268,7 +1265,7 @@ public class PublicRepositoryI extends _RepositoryDisp {
                 });
             
         IceMapper mapper = new IceMapper();
-        Map<Integer, Image> rv = (Map<Integer, Image>) mapper.map(imageMap);
+        Map<Integer, Image> rv = mapper.map(imageMap);
         return rv;
     }
 

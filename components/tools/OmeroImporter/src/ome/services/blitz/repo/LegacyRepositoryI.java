@@ -9,12 +9,12 @@ package ome.services.blitz.repo;
 import ome.io.nio.OriginalFilesService;
 import ome.services.blitz.fire.Registry;
 import ome.services.util.Executor;
+import ome.util.SqlAction;
 import omero.ServerError;
 import omero.model.OriginalFile;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 
 import Ice.Current;
 
@@ -32,13 +32,13 @@ public class LegacyRepositoryI extends AbstractRepositoryI {
     private final OriginalFilesService fs;
 
     public LegacyRepositoryI(Ice.ObjectAdapter oa, Registry reg, Executor ex,
-            SimpleJdbcOperations jdbc, String sessionUuid, String repoDir) {
-        this(oa, reg, ex, jdbc, sessionUuid, new FileMaker(repoDir));
+            SqlAction sql, String sessionUuid, String repoDir) {
+        this(oa, reg, ex, sql, sessionUuid, new FileMaker(repoDir));
     }
 
     public LegacyRepositoryI(Ice.ObjectAdapter oa, Registry reg, Executor ex,
-            SimpleJdbcOperations jdbc, String sessionUuid, FileMaker fileMaker) {
-        super(oa, reg, ex, jdbc, sessionUuid, fileMaker);
+            SqlAction sql, String sessionUuid, FileMaker fileMaker) {
+        super(oa, reg, ex, sql, sessionUuid, fileMaker);
         this.fs = new OriginalFilesService(fileMaker.getDir());
     }
 

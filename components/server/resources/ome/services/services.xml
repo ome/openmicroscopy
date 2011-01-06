@@ -151,7 +151,7 @@
     <constructor-arg ref="currentDetails"/>
     <constructor-arg ref="sessionFactory"/>
     <constructor-arg ref="executorInterceptors"/>
-    <constructor-arg ref="simpleJdbcTemplate"/>
+    <constructor-arg ref="simpleSqlAction"/>
   </bean>
 
   <bean id="queryFactory" class="ome.services.query.QueryFactory">
