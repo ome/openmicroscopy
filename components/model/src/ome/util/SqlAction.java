@@ -195,48 +195,39 @@ public interface SqlAction {
 
         public boolean activeSession(String sessionUUID) {
             int count = jdbc
-                    .queryForInt("select count(id) from session s "
-                            + "where s.closed is null " + "and s.uuid = ?",
+                    .queryForInt(Messages.getString("pg.active_session"), //$NON-NLS-1$
                             sessionUUID);
             return count > 0;
         }
 
         public String fileRepo(long fileId) {
             return jdbc.queryForObject(
-                    "select repo from OriginalFile where id = ?", String.class,
+                    Messages.getString("pg.file_repo"), String.class, //$NON-NLS-1$
                     fileId);
         }
 
-        private final static String synchronizeJobsSql = "update job set finished = now(), message = 'Forcibly closed', "
-                + "status = (select id from jobstatus where value = 'Error') "
-                + "where finished is null and "
-                + "("
-                + "(started < ( now() - interval '1 hour' )) "
-                + "OR "
-                + "(started is null and scheduledFor < ( now() - interval '1 day' ))"
-                + ")";
+        private final static String synchronizeJobsSql = Messages.getString("pg.sync_jobs"); //$NON-NLS-1$
 
         public int synchronizeJobs(List<Long> ids) {
             int count = 0;
             if (ids.size() > 0) {
                 Map<String, Object> m = new HashMap<String, Object>();
-                m.put("ids", ids);
+                m.put("ids", ids); //$NON-NLS-1$
                 count += jdbc.update(synchronizeJobsSql
-                        + "and id not in (:ids)", m);
+                        + Messages.getString("pg.id_not_in"), m); //$NON-NLS-1$
             } else {
                 count += jdbc.update(synchronizeJobsSql);
             }
             return count;
         }
 
-        private final static String findRepoFileSql = "select id from originalfile "
-                + "where repo = ? and path = ? and name = ? ";
+        private final static String findRepoFileSql = Messages.getString("pg.find_repo_file"); //$NON-NLS-1$
 
         public Long findRepoFile(String uuid, String dirname, String basename,
                 String mimetype) {
 
             if (mimetype != null) {
-                return jdbc.queryForLong(findRepoFileSql + " and mimetype = ?",
+                return jdbc.queryForLong(findRepoFileSql + Messages.getString("pg.and_mimetype"), //$NON-NLS-1$
                         uuid, dirname, basename, mimetype);
             } else {
                 return jdbc.queryForLong(findRepoFileSql, uuid, dirname,
@@ -246,18 +237,16 @@ public interface SqlAction {
         }
 
         public int repoScriptCount(String uuid) {
-            return jdbc.queryForInt("select count(id) from originalfile "
-                    + "where repo = ? and mimetype = 'text/x-python'", uuid);
+            return jdbc.queryForInt(Messages.getString("pg.repo_script_count"), uuid); //$NON-NLS-1$
 
         }
 
         public Long nextSessionId() {
-            return jdbc.queryForLong("select ome_nextval('seq_session'::text)");
+            return jdbc.queryForLong(Messages.getString("pg.next_session")); //$NON-NLS-1$
         }
 
         public List<Long> fileIdsInDb(String uuid) {
-            return jdbc.query("select id from originalfile "
-                    + "where repo = ? and mimetype = 'text/x-python'",
+            return jdbc.query(Messages.getString("pg.file_id_in_db"), //$NON-NLS-1$
                     new RowMapper<Long>() {
                         public Long mapRow(ResultSet arg0, int arg1)
                                 throws SQLException {
@@ -267,21 +256,18 @@ public interface SqlAction {
         }
 
         public Map<String, Object> repoFile(long value) {
-            return jdbc.queryForMap("select path, repo from originalfile "
-                    + "where id = ?", value);
+            return jdbc.queryForMap(Messages.getString("pg.repo_file"), value); //$NON-NLS-1$
 
         }
 
         public long countFormat(String name) {
             long count = jdbc.queryForLong(
-                    "select count(*) from format where value = ?", name);
+                    Messages.getString("pg.count_format"), name); //$NON-NLS-1$
             return count;
         }
 
         // Copied from data.vm
-        public final static String insertFormatSql = "insert into format "
-                + "(id,permissions,value)"
-                + " select ome_nextval('seq_format'),-35,?";
+        public final static String insertFormatSql = Messages.getString("pg.insert_format"); //$NON-NLS-1$
 
         public int insertFormat(String name) {
             int inserts = jdbc.update(insertFormatSql, name);
@@ -289,65 +275,58 @@ public interface SqlAction {
         }
 
         public int closeSessions(String uuid) {
-            int count = jdbc.update("UPDATE session SET closed = now() "
-                    + "WHERE uuid = ?", uuid);
+            int count = jdbc.update(Messages.getString("pg.update_format"), uuid); //$NON-NLS-1$
             return count;
         }
 
         public long nodeId(String internal_uuid) {
-            return jdbc.queryForLong("SELECT id FROM node where uuid = ?",
+            return jdbc.queryForLong(Messages.getString("pg.internal_uuid"), //$NON-NLS-1$
                     internal_uuid);
         }
 
         public int insertSession(Map<String, Object> params) {
-            int count = jdbc.update("insert into session "
-                    + "(id,permissions,timetoidle,timetolive,started,closed,"
-                    + "defaulteventtype,uuid,owner,node)"
-                    + "values (:sid,-35,:ttl,:tti,:start,null,"
-                    + ":type,:uuid,:owner,:node)", params);
+            int count = jdbc.update(Messages.getString("pg.insert_session"), params); //$NON-NLS-1$
             return count;
         }
 
         public Long sessionId(String uuid) {
             Long id = jdbc.queryForLong(
-                    "SELECT id FROM session WHERE uuid = ?", uuid);
+                    Messages.getString("pg.session_id"), uuid); //$NON-NLS-1$
             return id;
         }
 
         public int isFileInRepo(String uuid, long id) {
             int count = jdbc
                     .queryForInt(
-                            "select count(id) from originalfile "
-                                    + "where repo = ? and id = ? and mimetype = 'text/x-python'",
+                            Messages.getString("pg.is_file_in_repo"), //$NON-NLS-1$
                             uuid, id);
             return count;
         }
 
         public int removePassword(Long id) {
             return jdbc.update(
-                    "delete from password where experimenter_id = ?", id);
+                    Messages.getString("pg.remove_pass"), id); //$NON-NLS-1$
         }
 
         public Date now() {
-            return jdbc.queryForObject("select now()", Date.class);
+            return jdbc.queryForObject(Messages.getString("pg.now"), Date.class); //$NON-NLS-1$
         }
 
         public int updateConfiguration(String key, String value) {
             return jdbc.update(
-                    "update configuration set value = ? where name = ?", value,
+                    Messages.getString("pg.update_config"), value, //$NON-NLS-1$
                     key);
         }
 
         public String dbVersion() {
             return jdbc.query(
-                    "select currentversion, currentpatch from dbpatch "
-                            + "order by id desc limit 1",
+                    Messages.getString("pg.db_version"), //$NON-NLS-1$
                     new RowMapper<String>() {
                         public String mapRow(ResultSet arg0, int arg1)
                                 throws SQLException {
-                            String v = arg0.getString("currentversion");
-                            int p = arg0.getInt("currentpatch");
-                            return v + "__" + p;
+                            String v = arg0.getString("currentversion"); //$NON-NLS-1$
+                            int p = arg0.getInt("currentpatch"); //$NON-NLS-1$
+                            return v + "__" + p; //$NON-NLS-1$
                         }
 
                     }).get(0);
@@ -356,17 +335,17 @@ public interface SqlAction {
 
         public String configValue(String key) {
             return jdbc.queryForObject(
-                    "select value from configuration where name = ?",
+                    Messages.getString("pg.config_value"), //$NON-NLS-1$
                     String.class, key);
         }
 
         public String dbUuid() {
             return jdbc
-                    .query("select value from configuration where name = 'omero.db.uuid' ",
+                    .query(Messages.getString("pg.db_uuid"), //$NON-NLS-1$
                             new RowMapper<String>() {
                                 public String mapRow(ResultSet arg0, int arg1)
                                         throws SQLException {
-                                    String s = arg0.getString("value");
+                                    String s = arg0.getString("value"); //$NON-NLS-1$
                                     return s;
                                 }
 
@@ -374,10 +353,10 @@ public interface SqlAction {
 
         }
 
-        private final static String logLoaderQuerySql = "select value from configuration where name = ?";
-        private final static String logLoaderInsertSql = "insert into configuration (name, value) values (?,?)";
-        private final static String logLoaderUpdateSql = "update configuration set value = ? where name = ?";
-        private final static String logLoaderDeleteSql = "delete from configuration where name = ?";
+        private final static String logLoaderQuerySql = Messages.getString("pg.log_loader_query"); //$NON-NLS-1$
+        private final static String logLoaderInsertSql = Messages.getString("pg.log_loader_insert"); //$NON-NLS-1$
+        private final static String logLoaderUpdateSql = Messages.getString("pg.log_loader_update"); //$NON-NLS-1$
+        private final static String logLoaderDeleteSql = Messages.getString("pg.log_loader_delete"); //$NON-NLS-1$
 
         public long selectCurrentEventLog(String key) {
             return jdbc.queryForLong(logLoaderQuerySql, key);
@@ -397,74 +376,69 @@ public interface SqlAction {
 
         public long nextValue(String segmentValue, int incrementSize) {
             // FIXME take the datasource or similar???
-            return jdbc.queryForLong("select ome_nextval(?,?)", segmentValue,
+            return jdbc.queryForLong(Messages.getString("pg.next_val"), segmentValue, //$NON-NLS-1$
                     incrementSize);
 
         }
 
         public void insertLogs(List<Object[]> batchData) {
-            jdbc.batchUpdate("INSERT INTO eventlog "
-                    + "(id, permissions, entityid,entitytype, action, event) "
-                    + "values (?,?,?,?,?,?)", batchData);
+            jdbc.batchUpdate(Messages.getString("pg.insert_logs"), batchData); //$NON-NLS-1$
 
         }
 
         public List<Map<String, Object>> roiByImageAndNs(final long imageId,
                 final String ns) {
             String queryString;
-            queryString = "select id from roi where image = " + imageId
-                    + " and '" + ns + "'  = any (namespaces)";
-            List<Map<String, Object>> mapList = jdbc.queryForList(queryString);
+            queryString = Messages.getString("pg.roi_by_image_and_ns"); //$NON-NLS-1$
+            List<Map<String, Object>> mapList = jdbc.queryForList(queryString, imageId, ns);
             return mapList;
         }
 
         public List<Long> getShapeIds(long roiId) {
 
-            return jdbc.query("select id from shape where roi = ?",
+            return jdbc.query(Messages.getString("pg.shape_ids"), //$NON-NLS-1$
                     new IdRowMapper(), roiId);
         }
 
         public String dnForUser(Long id) {
-            return jdbc.queryForObject("select dn from password "
-                    + "where experimenter_id = ? ", String.class, id);
+            return jdbc.queryForObject(Messages.getString("pg.dn_for_user"), String.class, id); //$NON-NLS-1$
         }
 
         public List<Map<String, Object>> dnExperimenterMaps() {
             return jdbc
             .queryForList(
-                    "select dn, experimenter_id from password where dn is not null ");
+                    Messages.getString("pg.dn_exp_maps")); //$NON-NLS-1$
 
         }
 
         public void setUserDn(Long experimenterID, String dn) {
             int results = jdbc.update(
-                    "update password set dn = ? where experimenter_id = ? ",
+                    Messages.getString("pg.set_user_dn"), //$NON-NLS-1$
                     dn, experimenterID);
             if (results < 1) {
-                results = jdbc.update("insert into password values (?,?,?) ",
+                results = jdbc.update(Messages.getString("pg.insert_password"), //$NON-NLS-1$
                         experimenterID, null, dn);
             }
 
         }
 
         public void setFileRepo(long id, String repoId) {
-            jdbc.update("update originalfile set repo = ? where id = ?",
+            jdbc.update(Messages.getString("pg.set_file_repo"), //$NON-NLS-1$
                     repoId, id);
         }
 
         public void setPixelsNamePathRepo(long pixId, String name, String path,
                 String repoId) {
-            jdbc.update("update pixels set name = ? where id = ?", name, pixId);
-            jdbc.update("update pixels set path = ? where id = ?", path, pixId);
-            jdbc.update("update pixels set repo = ? where id = ?", repoId,
+            jdbc.update(Messages.getString("pg.update_pixels_name"), name, pixId); //$NON-NLS-1$
+            jdbc.update(Messages.getString("pg.update_pixels_path"), path, pixId); //$NON-NLS-1$
+            jdbc.update(Messages.getString("pg.update_pixels_repo"), repoId, //$NON-NLS-1$
                     pixId);
         }
 
         public List<Long> getDeletedIds(String entityType) {
             List<Long> list;
 
-            String sql = "select entityid from eventlog "
-                    + "where action = 'DELETE' and entitytype = ?";
+            String sql = Messages.getString("pg.get_delete_ids"); //$NON-NLS-1$
 
             RowMapper<Long> mapper = new RowMapper<Long>() {
                 public Long mapRow(ResultSet resultSet, int rowNum)
@@ -482,10 +456,7 @@ public interface SqlAction {
 
         public Set<String> currentUserNames() {
             List<String> names = jdbc.query(
-                    "select distinct e.omename from experimenter e, "
-                            + "groupexperimentermap m, experimentergroup g "
-                            + "where e.id = m.child and m.parent = g.id and "
-                            + "g.name = 'user'; ", new RowMapper<String>() {
+                    Messages.getString("pg.current_user_names"), new RowMapper<String>() { //$NON-NLS-1$
                         public String mapRow(ResultSet arg0, int arg1)
                                 throws SQLException {
                             return arg0.getString(1); // Bleck
@@ -513,24 +484,24 @@ public interface SqlAction {
         public int setFileParams(final long id, Map<String, String> params) {
             if (params == null || params.size() == 0) {
                 return jdbc.update(
-                        "update originalfile set params = null where id = ?",
+                        Messages.getString("pg.set_file_params_null"), //$NON-NLS-1$
                         id);
             } else {
                 boolean first = true;
                 StringBuilder sb = new StringBuilder();
                 List<Object> list = new ArrayList<Object>();
-                sb.append("update originalfile set params = array[");
+                sb.append(Messages.getString("pg.set_file_params_1")); //$NON-NLS-1$
                 for (String key : params.keySet()) {
                     if (first) {
                         first = false;
                     } else {
-                        sb.append(",");
+                        sb.append(Messages.getString("pg.set_file_params_2")); //$NON-NLS-1$
                     }
-                    sb.append("array[?,?]");
+                    sb.append(Messages.getString("pg.set_file_params_3")); //$NON-NLS-1$
                     list.add(key);
                     list.add(params.get(key));
                 }
-                sb.append("] where id = ?");
+                sb.append(Messages.getString("pg.set_file_params4")); //$NON-NLS-1$
                 list.add(id);
                 return jdbc.update(sb.toString(),
                         (Object[]) list.toArray(new Object[list.size()]));
@@ -542,7 +513,7 @@ public interface SqlAction {
                 throws InternalException {
             try {
                 return jdbc.queryForObject(
-                        "select params from originalfile where id = ?",
+                        Messages.getString("pg.get_file_params"), //$NON-NLS-1$
                         new RowMapper<Map<String, String>>() {
                             public Map<String, String> mapRow(ResultSet arg0,
                                     int arg1) throws SQLException {
@@ -561,15 +532,14 @@ public interface SqlAction {
             } catch (EmptyResultDataAccessException e) {
                 return null;
             } catch (UncategorizedSQLException e) {
-                throw new InternalException("Potential jdbc jar error.");
+                throw new InternalException("Potential jdbc jar error."); //$NON-NLS-1$
             }
         }
 
         public List<String> getFileParamKeys(long id) throws InternalException {
             try {
                 return jdbc.queryForObject(
-                        "select params[1:array_upper(params,1)][1:1] "
-                                + "from originalfile where id = ?",
+                        Messages.getString("pg.get_file_param_keys"), //$NON-NLS-1$
                         new RowMapper<List<String>>() {
                             public List<String> mapRow(ResultSet arg0, int arg1)
                                     throws SQLException {
@@ -588,7 +558,7 @@ public interface SqlAction {
             } catch (EmptyResultDataAccessException e) {
                 return null;
             } catch (UncategorizedSQLException e) {
-                throw new InternalException("Potential jdbc jar error.");
+                throw new InternalException("Potential jdbc jar error."); //$NON-NLS-1$
             }
         }
 
@@ -607,23 +577,23 @@ public interface SqlAction {
         public int setPixelsParams(final long id, Map<String, String> params) {
             if (params == null || params.size() == 0) {
                 return jdbc.update(
-                        "update pixels set params = null where id = ?", id);
+                        Messages.getString("pg.set_pixel_params_null"), id); //$NON-NLS-1$
             } else {
                 boolean first = true;
                 StringBuilder sb = new StringBuilder();
                 List<Object> list = new ArrayList<Object>();
-                sb.append("update pixels set params = array[");
+                sb.append(Messages.getString("pg.set_pixels_params_1")); //$NON-NLS-1$
                 for (String key : params.keySet()) {
                     if (first) {
                         first = false;
                     } else {
-                        sb.append(",");
+                        sb.append(Messages.getString("pg.set_pixels_params_2")); //$NON-NLS-1$
                     }
-                    sb.append("array[?,?]");
+                    sb.append(Messages.getString("pg.set_pixels_params_3")); //$NON-NLS-1$
                     list.add(key);
                     list.add(params.get(key));
                 }
-                sb.append("] where id = ?");
+                sb.append(Messages.getString("pg.set_pixels_params_4")); //$NON-NLS-1$
                 list.add(id);
                 return jdbc.update(sb.toString(),
                         (Object[]) list.toArray(new Object[list.size()]));
@@ -635,7 +605,7 @@ public interface SqlAction {
                 throws InternalException {
             try {
                 return jdbc.queryForObject(
-                        "select params from pixels where id = ?",
+                        Messages.getString("pg.get_pixels_params"), //$NON-NLS-1$
                         new RowMapper<Map<String, String>>() {
                             public Map<String, String> mapRow(ResultSet arg0,
                                     int arg1) throws SQLException {
@@ -654,7 +624,7 @@ public interface SqlAction {
             } catch (EmptyResultDataAccessException e) {
                 return null;
             } catch (UncategorizedSQLException e) {
-                throw new InternalException("Potential jdbc jar error.");
+                throw new InternalException("Potential jdbc jar error."); //$NON-NLS-1$
             }
         }
 
@@ -662,8 +632,7 @@ public interface SqlAction {
                 throws InternalException {
             try {
                 return jdbc.queryForObject(
-                        "select params[1:array_upper(params,1)][1:1] "
-                                + "from pixels where id = ?",
+                        Messages.getString("pg.get_pixels_params_keys"), //$NON-NLS-1$
                         new RowMapper<List<String>>() {
                             public List<String> mapRow(ResultSet arg0, int arg1)
                                     throws SQLException {
@@ -682,7 +651,7 @@ public interface SqlAction {
             } catch (EmptyResultDataAccessException e) {
                 return null;
             } catch (UncategorizedSQLException e) {
-                throw new InternalException("Potential jdbc jar error.");
+                throw new InternalException("Potential jdbc jar error."); //$NON-NLS-1$
             }
         }
 
