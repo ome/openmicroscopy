@@ -63,7 +63,11 @@ public class SubmitFilesAction
      */
     protected void onStateChange()
     {
-    	setEnabled(model.getState() != Importer.IMPORTING);
+    	if (model.getState() == Importer.IMPORTING) {
+    		setEnabled(false);
+    	} else {
+    		setEnabled(model.hasFailuresToSend());
+    	}
     }
     
 	/**

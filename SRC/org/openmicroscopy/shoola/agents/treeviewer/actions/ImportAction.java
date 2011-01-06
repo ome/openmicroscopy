@@ -93,8 +93,12 @@ public class ImportAction
     {
     	Browser browser = model.getSelectedBrowser();
     	setEnabled(false);
-        if (selectedDisplay == null || browser == null) 
+        if (browser == null) 
         	return;
+        if (selectedDisplay == null) {
+        	setEnabled(true);
+        	return;
+        }
         TreeImageDisplay[] nodes = browser.getSelectedDisplays();
         if (nodes.length > 1)
         	return;
@@ -105,30 +109,6 @@ public class ImportAction
         	setEnabled(model.isUserOwner(ho));
         	nodeType = CreateCmd.IMAGE;
         }
-    	/*
-    	if (model.isImporting()) {
-    		setEnabled(false);
-    		return;
-    	}
-        if (selectedDisplay == null) {
-        	setEnabled(true);
-            return;
-        }
-        Browser browser = model.getSelectedBrowser();
-        if (browser == null) {
-        	setEnabled(false);
-            return;
-        } 
-        TreeImageDisplay[] nodes = browser.getSelectedDisplays();
-        if (nodes.length > 1) {
-        	setEnabled(false);
-            return;
-        }
-        Object ho = selectedDisplay.getUserObject(); 
-        if (ho instanceof DatasetData) {
-        	setEnabled(model.isUserOwner(ho));
-        } else setEnabled(false);
-        */
     }
     
     /**

@@ -89,10 +89,15 @@ public class BrowserImportAction
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
         if (selectedDisplay == null) {
-        	setEnabled(false);
+        	setEnabled(true);
             return;
         }
-        setEnabled(selectedDisplay.getUserObject() instanceof DataObject);
+        Object ho = selectedDisplay.getUserObject();
+        if (ho == null) setEnabled(true);
+        else {
+        	 setEnabled(model.isUserOwner(ho));
+        }
+       
     }
     
     /**

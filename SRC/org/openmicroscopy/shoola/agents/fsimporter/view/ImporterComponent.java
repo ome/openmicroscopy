@@ -265,5 +265,16 @@ class ImporterComponent
 		if (model.getState() != DISCARDED)
 			model.cancel(id);
 	}
+
+	/** 
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#hasFailuresToSend()
+	 */
+	public boolean hasFailuresToSend()
+	{
+		if (model.getState() == DISCARDED || model.getState() == IMPORTING)
+			return false;
+		return true;
+	}
 	
 }

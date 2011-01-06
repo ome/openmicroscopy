@@ -156,5 +156,13 @@ public interface Importer
 	 * @param id The identifier of the import element.
 	 */
 	public void cancelImagesLoading(int id);
+
+	/**
+	 * Returns <code>true</code> if errors to send, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasFailuresToSend();
 	
 }
