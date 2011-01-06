@@ -47,20 +47,6 @@ File format:
 
 """ % command_pattern
 
-parser = optparse.OptionParser(usage = """usage: %%prog [options] file1 file2
-
-Use "-" as a file name to read from stdin.
-
-%s""" % FILE_FORMAT)
-
-parser.add_option('-l', '--list', action='store_true', help='list available commands')
-parser.add_option('-d', '--debug', action='store_true', help='use DEBUG log level')
-parser.add_option('-H', '--omero.host', action='store', help='host for connection')
-parser.add_option('-P', '--omero.port', action='store', help='port for connection')
-parser.add_option('-W', '--omero.pass', action='store', help='pass for connection')
-parser.add_option('-C', '--Ice.Config', action='store', help='config file for connection')
-#parser.add_option('-c', '--class', action='store', metavar='CLASS', help='special handler CLASS to instantiate')
-
 
 #
 # Main classes
@@ -200,18 +186,21 @@ class Context(object):
     for connecting to a single session.
     """
 
-    def __init__(self, id, reporter = None):
-
+    def __init__(self, id, reporter = None, client = None):
         self.reporters = []
         self.count = 0
         self.id = id
-        self.client = omero.client(id)
-        self.client.setAgent("OMERO.perf_test")
-        self.client.createSession()
+        if client is None:
+            self.client = omero.client(id)
+            self.client.setAgent("OMERO.perf_test")
+            self.client.createSession()
+        else:
+            self.client = client
         self.services = {}
         self.cli = omero.cli.CLI()
         self.cli.loadplugins()
         self.setup_dir()
+        log.debug("Running performance tests in %s", self.dir)
 
     def add_reporter(self, reporter):
         self.reporters.append(reporter)
@@ -378,57 +367,14 @@ class PlotReporter(Reporter):
 # Functions for the execution of this module
 #
 
-
-def usage(prog = sys.argv[0]):
-    return parser.format_help()
-
-
 def handle(handler, files):
     """
     Primary method used by the command-line execution of
     this module.
     """
 
-    for line in fileinput.input(files):
-        handler(line)
-    log.debug("Handled %s lines" % handler.ctx.count)
-
-
-def main(args, prog = sys.argv[0]):
-
-    parser.prog = prog
-    opts, files = parser.parse_args(args)
-    if opts.list:
-        ops = [ x[4:] for x in dir(Item) if x.startswith("_op_") ]
-        ops.sort()
-        for op in ops:
-            print op
-        sys.exit(0)
-    elif not files:
-        print "No files"
-        print usage()
-        sys.exit(2)
-
-    level = opts.debug and logging.DEBUG or logging.INFO
-    logging.basicConfig(level=level)
-
-    props = [""]+["--%s=%s" % (x, getattr(opts, x, "")) for x in ["omero.host", "omero.port", "omero.pass"]]
-    config = getattr(opts, "Ice.Config", "")
-    if config:
-        props.append("--Ice.Config="+config)
-    id = Ice.InitializationData()
-    id.properties = Ice.createProperties(props)
-
-    ctx = Context(id)
-    print "Running performance tests in %s" % ctx.dir
-    ctx.add_reporter(CsvReporter(ctx.dir))
-    ctx.add_reporter(HdfReporter(ctx.dir))
-    ctx.add_reporter(PlotReporter())
-    handler = PerfHandler(ctx)
-
     log.debug("Running perf on files: %s", files)
-    handle(handler, files)
-
-if __name__ == "__main__":
-    args = sys.argv[1:]
-    main(args)
+    for file in files:
+        for line in file:
+            handler(line)
+    log.debug("Handled %s lines" % handler.ctx.count)

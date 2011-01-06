@@ -13,24 +13,39 @@
 
 import sys
 from omero.cli import BaseControl, CLI
+from omero_ext.argparse import FileType
+import omero.install.perf_test as perf_test
 
-PROG_NAME = "%s perf" % sys.argv[0]
-HELP = "Run perf_test files"
+HELP = """Run perf_test files
+
+%s
+
+""" % perf_test.FILE_FORMAT
 
 class PerfControl(BaseControl):
 
     def _configure(self, parser):
-        parser.add_argument("--longhelp", action="store_true", help = "Prints help from perf_test.main")
-        parser.add_argument("arg", nargs="*", help = "Arguments to be passed to perf_test.main")
+        parser.add_argument("-l", "--list", action="store_true", help="List available commands")
+        parser.add_argument("file", nargs="*", type=FileType('r'), default=None, help="Read from files or standard in")
         parser.set_defaults(func=self.__call__)
 
     def __call__(self, args):
-        import omero.install.perf_test as perf_test
-        if args.longhelp:
-            self.ctx.out(perf_test.usage(prog = PROG_NAME))
-            return
-
-        perf_test.main(args.arg, prog = PROG_NAME)
+        if args.list:
+            ops = [ x[4:] for x in dir(perf_test.Item) if x.startswith("_op_") ]
+            ops.sort()
+            for op in ops:
+                print op
+        else:
+            if not args.file:
+                self.ctx.die(167, "No files given. Use '-' for stdin.")
+            client = self.ctx.conn(args)
+            ctx = perf_test.Context(None, client = client)
+            self.ctx.out("Saving performance results to %s" % ctx.dir)
+            ctx.add_reporter(perf_test.CsvReporter(ctx.dir))
+            #ctx.add_reporter(perf_test.HdfReporter(ctx.dir))
+            #ctx.add_reporter(perf_test.PlotReporter())
+            handler = perf_test.PerfHandler(ctx)
+            perf_test.handle(handler, args.file)
 
 try:
     register("perf", PerfControl, HELP)
