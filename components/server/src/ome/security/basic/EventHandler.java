@@ -27,7 +27,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.hibernate.engine.SessionImplementor;
-import org.hibernate.jdbc.Work;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAttribute;
@@ -78,7 +77,7 @@ public class EventHandler implements MethodInterceptor {
             TransactionAttributeSource txSource) {
         this(isolatedSql, simpleSql, securitySystem, factory, txSource, false);
     }
-    
+
     public EventHandler(SqlAction isolatedSql,
             SqlAction simpleSql,
             BasicSecuritySystem securitySystem, SessionFactory factory,
@@ -107,25 +106,16 @@ public class EventHandler implements MethodInterceptor {
         if (!readOnly && this.readOnly) {
             throw new ApiUsageException("This instance is read-only");
         }
-        
+
         // ticket:1254
-        Session session = factory.getSession();
-        session.doWork(new Work(){
-            public void execute(Connection connection) throws SQLException {
-                Statement statement = connection.createStatement();
-                statement.execute("set constraints all deferred;");
-            }});
-        
-        secSys.loadEventContext(readOnly, isClose);
-        
         // and ticket:1266
+        final Session session = factory.getSession();
+
         if (!readOnly) {
-            session.doWork(new Work(){
-                public void execute(Connection connection) throws SQLException {
-                    connection.createStatement().execute("COMMIT;");
-                    // Not calling BEGIN since it is inserted automatically.
-                }});
+            simpleSql.deferConstraints();
         }
+
+        secSys.loadEventContext(readOnly, isClose);
 
         // now the user can be considered to be logged in.
         EventContext ec = secSys.getEventContext();

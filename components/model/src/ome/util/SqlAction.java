@@ -147,6 +147,8 @@ public interface SqlAction {
 
     void rollbackSavepoint(String savepoint);
 
+    void deferConstraints();
+
     //
     // Previously PgArrayHelper
     //
@@ -553,15 +555,23 @@ public interface SqlAction {
             call("ROLLBACK TO SAVEPOINT DEL", savepoint);
         }
 
-        private void call(String call, String savepoint) {
-            try {
-                session.connection().prepareCall(call + savepoint).execute();
-            } catch (Exception e) {
-                RuntimeException re = new RuntimeException("Failed to '" + call
-                        + savepoint + "'");
-                re.initCause(e);
-                throw re;
-            }
+        private void call(final String call, final String savepoint) {
+            jdbc.getJdbcOperations().execute(new ConnectionCallback() {
+                    public Object doInConnection(java.sql.Connection connection) throws SQLException {
+                        connection.prepareCall(call + savepoint).execute(); // TODO Use a different callback
+                        return null;
+                    }
+            });
+        }
+
+        public void deferConstraints() {
+            jdbc.getJdbcOperations().execute(new ConnectionCallback() {
+                    public Object doInConnection(java.sql.Connection connection) throws SQLException {
+                        Statement statement = connection.createStatement();
+                        statement.execute("set constraints all deferred;");
+                        return null;
+                    }
+            });
         }
 
         public Set<String> currentUserNames() {
