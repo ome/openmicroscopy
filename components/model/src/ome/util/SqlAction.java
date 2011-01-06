@@ -72,6 +72,15 @@ public interface SqlAction {
 
     String fileRepo(long fileId);
 
+    /**
+     * Similar to {@link #fileRepo(long)}, but only returns values for files
+     * which are also scripts.
+     *
+     * @param fileId
+     * @return
+     */
+    String scriptRepo(long fileId);
+
     int synchronizeJobs(List<Long> ids);
 
     Long findRepoFile(String uuid, String dirname, String basename,
@@ -229,6 +238,10 @@ public interface SqlAction {
 
         protected abstract String _lookup(String key);
 
+        //
+        // SECURITY
+        //
+
         public int closeNodeSessions(String uuid) {
             return _jdbc().update(
                     _lookup("update_node_sessions"), uuid); //$NON-NLS-1$
@@ -248,6 +261,22 @@ public interface SqlAction {
                         experimenterID, password, null);
             }
             return results >= 1;
+        }
+
+        //
+        // FILES
+        //
+
+        public String fileRepo(long fileId) {
+            return _jdbc().queryForObject(
+                    _lookup("file_repo"), String.class, //$NON-NLS-1$
+                    fileId);
+        }
+
+        public String scriptRepo(long fileId) {
+            return _jdbc().queryForObject(
+                    _lookup("file_repo_of_script"), String.class, //$NON-NLS-1$
+                    fileId);
         }
 
     }

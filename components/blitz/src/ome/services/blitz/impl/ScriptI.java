@@ -489,7 +489,7 @@ public class ScriptI extends AbstractAmdServant implements _IScriptOperations,
                         Long id = files.get(0).getId();
 
                         if (official) {
-                            return scripts.load(id, session, true);
+                            return scripts.load(id, session,getSqlAction(),  true);
                         } else {
                             return sf.getQueryService()
                                     .get(OriginalFile.class, id);

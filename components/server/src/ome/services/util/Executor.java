@@ -21,6 +21,7 @@ import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
+import ome.tools.hibernate.SessionFactory;
 import ome.tools.spring.InternalServiceFactory;
 import ome.util.SqlAction;
 
@@ -30,7 +31,6 @@ import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
-import org.hibernate.SessionFactory;
 import org.hibernate.StatelessSession;
 import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.BeansException;
@@ -435,7 +435,7 @@ public interface Executor extends ApplicationContextAware {
 
             public Object invoke(final MethodInvocation mi) throws Throwable {
                 final Object[] args = mi.getArguments();
-                args[0] = SessionFactoryUtils.getSession(factory, false);
+                args[0] = factory.getSession();
                 return mi.proceed();
             }
         }

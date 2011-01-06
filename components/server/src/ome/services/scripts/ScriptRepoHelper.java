@@ -280,7 +280,7 @@ public class ScriptRepoHelper {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
 
-                SqlAction sql = (SqlAction) sf.getContext().getBean("simpleSqlAction");
+                SqlAction sqlAction = getSqlAction();
 
                 File f = null;
                 RepoFile file = null;
@@ -288,14 +288,14 @@ public class ScriptRepoHelper {
                 while (it.hasNext()) {
                     f = it.next();
                     file = new RepoFile(dir, f);
-                    Long id = findInDb(sql, file, false); // non-scripts count
+                    Long id = findInDb(sqlAction, file, false); // non-scripts count
                     String sha1 = null;
                     OriginalFile ofile = null;
                     if (id == null) {
-                        ofile = addOrReplace(session, sf, file, null);
+                        ofile = addOrReplace(sqlAction, sf, file, null);
                     } else {
 
-                        ofile = load(id, session, true); // checks for type & repo
+                        ofile = load(id, session, getSqlAction(), true); // checks for type & repo
                         if (ofile == null) {
                             continue; // wrong type or similar
                         }
@@ -303,13 +303,13 @@ public class ScriptRepoHelper {
                         if (modificationCheck) {
                             sha1 = file.sha1();
                             if (!sha1.equals(ofile.getSha1())) {
-                                ofile = addOrReplace(session, sf, file, id);
+                                ofile = addOrReplace(sqlAction, sf, file, id);
                             }
                         }
                     }
                     rv.add(ofile);
                 }
-                removeMissingFilesFromDb(sql, session, rv);
+                removeMissingFilesFromDb(sqlAction, session, rv);
                 return rv;
             }});
     }
@@ -325,29 +325,29 @@ public class ScriptRepoHelper {
                 "addOrReplace", repoFile, old) {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
-                return addOrReplace(session, sf, repoFile, old);
+                return addOrReplace(getSqlAction(), sf, repoFile, old);
             }
         });
     }
 
-    protected OriginalFile addOrReplace(Session session, ServiceFactory sf,
+    protected OriginalFile addOrReplace(SqlAction sqlAction, ServiceFactory sf,
             final RepoFile repoFile, final Long old) {
 
         if (old != null) {
-            unregister(old, session);
+            unregister(old, sqlAction);
             log.info("Unregistered " + old);
         }
 
         OriginalFile ofile = new OriginalFile();
-        return update(repoFile, session, sf, ofile);
+        return update(repoFile, sqlAction, sf, ofile);
     }
 
     /**
      * Given the current files on disk, {@link #unregister(Long, Session)}
      * all files which have been removed from disk.
      */
-    public long removeMissingFilesFromDb(SqlAction sql, Session session, List<OriginalFile> filesOnDisk) {
-        List<Long> idsInDb = idsInDb(sql);
+    public long removeMissingFilesFromDb(SqlAction sqlAction, Session session, List<OriginalFile> filesOnDisk) {
+        List<Long> idsInDb = idsInDb(sqlAction);
         if (idsInDb.size() != filesOnDisk.size()) {
             log.info(String.format(
                     "Script missing from disk: %s in db, %s on disk!",
@@ -366,7 +366,7 @@ public class ScriptRepoHelper {
         setInDb.removeAll(setOnDisk);
 
         for (Long l : setInDb) {
-            unregister(l, session);
+            unregister(l, sqlAction);
         }
 
         return setInDb.size();
@@ -376,11 +376,8 @@ public class ScriptRepoHelper {
      * Unregisters a given file from the script repository by setting its
      * Repo uuid to null.
      */
-    protected void unregister(final Long old, Session session) {
-        session.createSQLQuery(
-                "update originalfile set repo = ? where id = ?")
-                .setParameter(0, null, new StringType())
-                .setParameter(1, old).executeUpdate();
+    protected void unregister(final Long old, SqlAction sqlAction) {
+        sqlAction.setFileRepo(old, null);
     }
 
     public OriginalFile update(final RepoFile repoFile, final Long id) {
@@ -388,13 +385,13 @@ public class ScriptRepoHelper {
                 "update", repoFile, id) {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
-                OriginalFile ofile = load(id, session, true);
-                return update(repoFile, session, sf, ofile);
+                OriginalFile ofile = load(id, session, getSqlAction(), true);
+                return update(repoFile, getSqlAction(), sf, ofile);
             }
         });
     }
 
-    private OriginalFile update(final RepoFile repoFile, Session session,
+    private OriginalFile update(final RepoFile repoFile, SqlAction sqlAction,
             ServiceFactory sf, OriginalFile ofile) {
         ofile.setPath(repoFile.dirname());
         ofile.setName(repoFile.basename());
@@ -405,10 +402,8 @@ public class ScriptRepoHelper {
                 new ExperimenterGroup(roles.getUserGroupId(), false));
         ofile = sf.getUpdateService().saveAndReturnObject(ofile);
 
-        session.createSQLQuery(
-                "update originalfile set repo = ? where id = ?")
-                .setParameter(0, uuid).setParameter(1, ofile.getId())
-                .executeUpdate();
+        sqlAction.setFileRepo(ofile.getId(), uuid);
+
         return ofile;
     }
 
@@ -432,18 +427,14 @@ public class ScriptRepoHelper {
                 "load", id) {
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
-                return load(id, session, check);
+                return load(id, session, getSqlAction(), check);
             }
         });
     }
 
-    public OriginalFile load(final long id, Session s, boolean check) {
+    public OriginalFile load(final long id, Session s, SqlAction sqlAction, boolean check) {
         if (check) {
-            String repo = (String) s.createSQLQuery(
-                    "select repo from OriginalFile where id = ? " +
-                    "and mimetype = 'text/x-python'")
-                    .setParameter(0, id)
-                    .uniqueResult();
+            String repo = sqlAction.scriptRepo(id);
             if (!uuid.equals(repo)) {
                 return null;
             }
