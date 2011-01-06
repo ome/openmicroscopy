@@ -15,8 +15,7 @@ import ome.services.db.SelfCorrectingDataSource;
 
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
-import org.postgresql.util.PSQLException;
-import org.postgresql.util.PSQLState;
+
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -27,14 +26,17 @@ public class SelfCorrectingDatabaseUnitTest extends MockObjectTestCase {
     DataSource ds;
     SelfCorrectingDataSource self;
 
+    class MySQLException extends SQLException {
+
+    }
+
     @BeforeMethod
     public void setup() {
         mock = mock(DataSource.class);
         ds = (javax.sql.DataSource) mock.proxy();
         self = new SelfCorrectingDataSource(ds, 300000L, 0, 3000);
         mock.expects(atLeastOnce()).will(
-                throwException(new PSQLException("",
-                        PSQLState.ACTIVE_SQL_TRANSACTION)));
+                throwException(new MySQLException()));
     }
 
     @Test(expectedExceptions = DatabaseBusyException.class)
@@ -52,7 +54,7 @@ public class SelfCorrectingDatabaseUnitTest extends MockObjectTestCase {
         assertTrue(backOff2 <= backOff3);
         assertTrue(backOff3 <= backOff4);
     }
-    
+
     public void testLotsWithReductionNoRetries() throws Exception {
         self = new SelfCorrectingDataSource(ds, 1L, 0, 3000); // Short time
         long backOff1 = assertFailsAndReturnBackOff();
@@ -77,7 +79,7 @@ public class SelfCorrectingDatabaseUnitTest extends MockObjectTestCase {
     }
     // Helpers
     // =========================
-    
+
     private long assertFailsAndReturnBackOff() throws SQLException {
         try {
             self.getConnection();
