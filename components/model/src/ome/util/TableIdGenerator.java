@@ -10,8 +10,6 @@ package ome.util;
 import java.io.Serializable;
 import java.util.Properties;
 
-import javax.sql.DataSource;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.MappingException;
@@ -47,12 +45,6 @@ public class TableIdGenerator extends TableGenerator {
 
     private SqlAction sql = null;
 
-    private DataSource ds = null;
-
-    private TransactionTemplate tt = null;
-
-    private SimpleJdbcTemplate jdbc = null;
-
     @Override
     public void configure(Type type, Properties params, Dialect dialect)
             throws MappingException {
@@ -60,29 +52,9 @@ public class TableIdGenerator extends TableGenerator {
     }
 
     protected void init(SessionImplementor session) {
-        ConnectionProvider cp = session.getJDBCContext().getConnectionManager()
-                .getFactory().getConnectionProvider();
 
         if (sql != null) {
             return; // Already done.
-        }
-
-        if (cp instanceof TransactionAwareDataSourceConnectionProvider) {
-            TransactionAwareDataSourceConnectionProvider tadscp = (TransactionAwareDataSourceConnectionProvider) cp;
-            ds = tadscp.getDataSource();
-            if (ds instanceof TransactionAwareDataSourceProxy) {
-                TransactionAwareDataSourceProxy tadsp = (TransactionAwareDataSourceProxy) ds;
-                ds = tadsp.getTargetDataSource();
-                jdbc = new SimpleJdbcTemplate(ds);
-                tt = new TransactionTemplate(
-                        new DataSourceTransactionManager(ds));
-            }
-        }
-
-        if (ds == null) {
-            throw new RuntimeException(
-                    "Unexpected ConnectionProvider found. Last datasource = "
-                            + ds);
         }
 
     }
@@ -93,16 +65,11 @@ public class TableIdGenerator extends TableGenerator {
         init(session);
 
         if (hiValue < 0 || value >= hiValue) {
-            tt.execute(new TransactionCallback<Object>() {
-                public Object doInTransaction(TransactionStatus status) {
-                    hiValue = sql.nextValue(ds, getSegmentValue(), getIncrementSize());
-                    if (log.isDebugEnabled()) {
-                        log.debug("Loaded new hiValue " + hiValue + " for "
-                                + getSegmentValue());
-                    }
-                    return null;
-                }
-            });
+            hiValue = sql.nextValue(getSegmentValue(), getIncrementSize());
+            if (log.isDebugEnabled()) {
+                log.debug("Loaded new hiValue " + hiValue + " for "
+                        + getSegmentValue());
+            }
             value = hiValue - getIncrementSize();
         }
         value++;
