@@ -58,19 +58,6 @@
       <constructor-arg ref="internal-ome.api.IPixels"/>
       <constructor-arg ref="/OMERO/Pixels"/>
   </bean>
-  <bean id="pgGeomRun" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
-    <property name="targetObject" ref="geomTool" />
-    <property name="targetMethod" value="backgroundSynchronizeShapeGeometries" />
-    <property name="concurrent"   value="false"/>
-  </bean>
-  <bean id="pgGeomTrigger" class="org.springframework.scheduling.quartz.SimpleTriggerBean">
-    <description>
-    Runs periodically to give fill the pg_geom column of the Shape table.
-    </description>
-    <property name="jobDetail" ref="pgGeomRun" />
-    <property name="repeatInterval" value="86400000" /><!-- millis -->
-  </bean>
-
 
   <bean id="omero.api.IScript" class="omero.api._IScriptTie" singleton="false">
     <constructor-arg>
