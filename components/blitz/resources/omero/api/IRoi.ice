@@ -151,24 +151,6 @@ module omero {
                 RoiResult findByPlane(long imageId, int z, int t, RoiOptions opts) throws omero::ServerError;
 
                 /**
-                 * Find ROIs which intersect the given shape. If z/t/visible/locked are filled,
-                 * only intersections on the given plane(s) or with the given properties are
-                 * taken into account.
-                 *
-                 * Shape id is ignored, object should be properly loaded.
-                 *
-                 * Loads Rois as findByRoi.
-                 *
-                 **/
-                RoiResult findByIntersection(long imageId, omero::model::Shape shape, RoiOptions opts) throws omero::ServerError;
-
-                /**
-                 * Find ROIs which intersect any of the given shape.
-                 * Otherwise as findByIntersection.
-                 **/
-                RoiResult findByAnyIntersection(long imageId, ShapeList shapes, RoiOptions opts) throws omero::ServerError;
-
-                /**
                  * Calculate the points contained within a given shape
                  **/
                 ShapePoints getPoints(long shapeId) throws omero::ServerError;

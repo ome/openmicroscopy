@@ -14,7 +14,7 @@ import java.util.Map;
 import ome.services.blitz.impl.RoiI;
 import ome.services.blitz.test.AbstractServantTest;
 import ome.services.roi.GeomTool;
-import omero.api.AMD_IRoi_findByIntersection;
+import ome.util.SqlAction;
 import omero.api.AMD_IRoi_getRoiMeasurements;
 import omero.api.AMD_IRoi_getMeasuredRoisMap;
 import omero.api.RoiOptions;
@@ -31,8 +31,6 @@ import org.testng.annotations.Test;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
 
-import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
-
 /**
  *<pre>
  * // REMAINING TESTS:
@@ -48,7 +46,7 @@ public class AbstractRoiITest extends AbstractServantTest {
     protected RoiI user_roisvc, root_roisvc;
     protected GeomTool geomTool;
     protected Shape test;
-    protected SimpleJdbcOperations jdbc;
+    protected SqlAction sql;
 
     @Override
     @BeforeClass
@@ -56,12 +54,12 @@ public class AbstractRoiITest extends AbstractServantTest {
         super.setUp();
 
         geomTool = (GeomTool) ctx.getBean("geomTool");
-        jdbc = (SimpleJdbcOperations) ctx.getBean("simpleJdbcTemplate");
-        user_roisvc = new RoiI(be, geomTool, jdbc);
+        sql = (SqlAction) ctx.getBean("sqlAction");
+        user_roisvc = new RoiI(be, geomTool, sql);
         user_roisvc.setServiceFactory(user_sf);
         user_roisvc.setServiceFactory(user_sf);
 
-        root_roisvc = new RoiI(be, geomTool, jdbc);
+        root_roisvc = new RoiI(be, geomTool, sql);
         root_roisvc.setServiceFactory(root_sf);
         root_roisvc.setServiceFactory(root_sf);
     }
@@ -70,38 +68,6 @@ public class AbstractRoiITest extends AbstractServantTest {
     // assertions
     //
 
-    protected RoiResult assertFindIntersectingRois(long imageId, Shape shape,
-            RoiOptions opts) throws Exception {
-        final RV rv = new RV();
-        user_roisvc.findByIntersection_async(new AMD_IRoi_findByIntersection() {
-
-            public void ice_exception(Exception ex) {
-                rv.ex = ex;
-            }
-
-            public void ice_response(RoiResult __ret) {
-                rv.rv = __ret;
-            }
-        }, imageId, shape, opts, null);
-
-        rv.assertPassed();
-        return (RoiResult) rv.rv;
-    }
-
-    protected RoiResult assertIntersection(Roi roi, Shape test, int size)
-    throws Exception {
-        return assertIntersection(roi, test, size, null);
-    }
-    
-    protected RoiResult assertIntersection(Roi roi, Shape test, int size, RoiOptions opts)
-    throws Exception {
-        long imageId = roi.getImage().getId().getValue();
-        RoiResult rr = assertFindIntersectingRois(imageId, test, opts);
-        assertNotNull(rr);
-        assertEquals(size, rr.rois.size());
-        return rr;
-    }
-    
     protected List<FileAnnotation> assertGetImageMeasurements(long imageId)
     throws Exception {
         final RV rv = new RV();

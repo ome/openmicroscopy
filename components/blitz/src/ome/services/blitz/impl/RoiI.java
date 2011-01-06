@@ -97,61 +97,6 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
     // ~ Service methods
     // =========================================================================
 
-    public void findByIntersection_async(AMD_IRoi_findByIntersection __cb,
-            final long imageId, final Shape shape, final RoiOptions opts,
-            Current __current) throws ServerError {
-
-        final IceMapper mapper = new RoiResultMapper(opts);
-
-        runnableCall(__current, new Adapter(__cb, __current, mapper, factory
-                .getExecutor(), factory.principal, new SimpleWork(this,
-                "findByIntersection", imageId, shape) {
-
-            @Transactional(readOnly = true)
-            public Object doWork(Session session, ServiceFactory sf) {
-                List<Long> roiIds = geomTool.findIntersectingRois(imageId,
-                        opts, shape);
-                if (roiIds == null || roiIds.size() == 0) {
-                    return null;
-                } else {
-                    RoiQueryBuilder qb = new RoiQueryBuilder(roiIds);
-                    return qb.query(session).list();
-                }
-            }
-        }));
-    }
-
-    public void findByAnyIntersection_async(
-            AMD_IRoi_findByAnyIntersection __cb, final long imageId,
-            final List<Shape> shapes, final RoiOptions opts, Current __current)
-            throws ServerError {
-
-        final IceMapper mapper = new RoiResultMapper(opts);
-
-        runnableCall(__current, new Adapter(__cb, __current, mapper, factory
-                .getExecutor(), factory.principal, new SimpleWork(this,
-                "findByAnyIntersection", imageId, shapes) {
-
-            @Transactional(readOnly = true)
-            public Object doWork(Session session, ServiceFactory sf) {
-
-                if (shapes == null || shapes.size() == 0) {
-                    return null; // EARLY EXIT
-                }
-
-                List<Long> roiIds = geomTool.findIntersectingRois(imageId,
-                        opts, shapes.toArray(new Shape[shapes.size()]));
-                if (roiIds == null || roiIds.size() == 0) {
-                    return null;
-                } else {
-                    RoiQueryBuilder qb = new RoiQueryBuilder(roiIds);
-                    return qb.query(session).list();
-                }
-            }
-        }));
-
-    }
-
     public void findByImage_async(AMD_IRoi_findByImage __cb,
             final long imageId, final RoiOptions opts, Current __current)
             throws ServerError {
