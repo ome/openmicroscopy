@@ -43,6 +43,46 @@ class TestSearch(lib.ITest):
         searcher = self.new_client(group)
         self._3164(owner, searcher)
 
+    def test3721Ordering(self):
+        """
+        Creates two tags and checks that boosting
+        works properly on their namespaces.
+
+        tag1^10 OR tag2^1 should return a list
+        with tag1 first, and the reverse should
+        hold as well.
+        """
+        tags = list()
+        for x in range(2):
+            tag = omero.model.TagAnnotationI()
+            tag.ns = omero.rtypes.rstring(self.uuid())
+            tag = self.update.saveAndReturnObject(tag)
+            self.index(tag)
+            tags.append(tag.ns.val)
+
+        search = self.client.sf.createSearchService()
+        search.onlyType("TagAnnotation")
+
+        # Sanity check
+        for tag in tags:
+            search.byFullText(tag)
+            res = search.results()
+            self.assertEquals(tag, res[0].ns.val)
+
+        boost_query = "%s^10 OR %s^1"
+
+        # Boosted
+        search.byFullText(boost_query % tuple(tags))
+        res = search.results()
+        self.assertEquals(tags[0], res[0].ns.val)
+        self.assertEquals(tags[1], res[1].ns.val)
+
+        # Reversed
+        search.byFullText(boost_query % tuple(reversed(tags)))
+        res = search.results()
+        self.assertEquals(tags[0], res[1].ns.val)
+        self.assertEquals(tags[1], res[0].ns.val)
+
     #
     # Helpers
     #
