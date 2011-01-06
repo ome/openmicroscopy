@@ -1,7 +1,9 @@
 package ome.tools.hibernate;
 
 import java.io.Serializable;
+import java.lang.reflect.InvocationTargetException;
 import java.sql.Array;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,8 +11,10 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Properties;
 
 import org.hibernate.HibernateException;
+import org.hibernate.usertype.ParameterizedType;
 import org.hibernate.usertype.UserType;
 
 /**
@@ -21,11 +25,37 @@ import org.hibernate.usertype.UserType;
  *         References : http://forum.hibernate.org/viewtopic.php?t=946973
  *         http://archives.postgresql.org/pgsql-jdbc/2003-02/msg00141.php
  */
-public abstract class ListAsSQLArrayUserType<T> implements UserType {
+public abstract class ListAsSQLArrayUserType<T> implements UserType, ParameterizedType {
+
+    public interface ArrayFactory {
+        Array BOOLEAN(Connection conn, List<Boolean> value) throws SQLException;
+        Array DATE(Connection conn, List<Date> value) throws SQLException;
+        Array DOUBLE(Connection conn, List<Double> value) throws SQLException;
+        Array FLOAT(Connection conn, List<Float> value) throws SQLException;
+        Array INTEGER(Connection conn, List<Integer> value) throws SQLException;
+        Array STRING(Connection conn, List<String> value) throws SQLException;
+        Array STRING2(Connection conn, List<String[]> value) throws SQLException;
+    }
+
     private static final int SQL_TYPE = Types.ARRAY;
     private static final int[] SQL_TYPES = { SQL_TYPE };
+    private /*final*/ String profile;
+    protected ArrayFactory factory;
 
-    abstract protected Array getDataAsArray(Object value);
+    public void setParameterValues(Properties parameters) {
+        profile = parameters.getProperty("profile");
+        try {
+            factory = (ArrayFactory) ListAsSQLArrayUserType.class.getDeclaredMethod(profile).invoke(this);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to acquire factory for profile " + profile, e);
+        }
+    }
+
+    protected ArrayFactory oracle10g() {
+        return OracleSqlArray.FACTORY;
+    }
+
+    abstract protected Array getDataAsArray(Connection conn, Object value) throws SQLException;
 
     abstract protected List<T> getDataFromArray(Object primitivesArray);
 
@@ -37,8 +67,8 @@ public abstract class ListAsSQLArrayUserType<T> implements UserType {
     public static class BOOLEAN extends ListAsSQLArrayUserType<Boolean> {
         @Override
         @SuppressWarnings("unchecked")
-        protected Array getDataAsArray(Object value) {
-            return new SqlArray.BOOLEAN((List<Boolean>) value);
+        protected Array getDataAsArray(Connection conn, Object value) throws SQLException {
+            return factory.BOOLEAN(conn, (List<Boolean>) value);
         }
 
         @Override
@@ -60,8 +90,8 @@ public abstract class ListAsSQLArrayUserType<T> implements UserType {
     public static class INTEGER extends ListAsSQLArrayUserType<Integer> {
         @Override
         @SuppressWarnings("unchecked")
-        protected Array getDataAsArray(Object value) {
-            return new SqlArray.INTEGER((List<Integer>) value);
+        protected Array getDataAsArray(Connection conn, Object value) throws SQLException {
+            return factory.INTEGER(conn, (List<Integer>) value);
         }
 
         @Override
@@ -83,8 +113,8 @@ public abstract class ListAsSQLArrayUserType<T> implements UserType {
     public static class FLOAT extends ListAsSQLArrayUserType<Float> {
         @Override
         @SuppressWarnings("unchecked")
-        protected Array getDataAsArray(Object value) {
-            return new SqlArray.FLOAT((List<Float>) value);
+        protected Array getDataAsArray(Connection conn, Object value) throws SQLException {
+            return factory.FLOAT(conn, (List<Float>) value);
         }
 
         @Override
@@ -106,8 +136,8 @@ public abstract class ListAsSQLArrayUserType<T> implements UserType {
     public static class DOUBLE extends ListAsSQLArrayUserType<Double> {
         @Override
         @SuppressWarnings("unchecked")
-        protected Array getDataAsArray(Object value) {
-            return new SqlArray.DOUBLE((List<Double>) value);
+        protected Array getDataAsArray(Connection conn, Object value) throws SQLException {
+            return factory.DOUBLE(conn, (List<Double>) value);
         }
 
         @Override
@@ -129,8 +159,8 @@ public abstract class ListAsSQLArrayUserType<T> implements UserType {
     public static class STRING extends ListAsSQLArrayUserType<String> {
         @Override
         @SuppressWarnings("unchecked")
-        protected Array getDataAsArray(Object value) {
-            return new SqlArray.STRING((List<String>) value);
+        protected Array getDataAsArray(Connection conn, Object value) throws SQLException {
+            return factory.STRING(conn, (List<String>) value);
         }
 
         @Override
@@ -154,8 +184,8 @@ public abstract class ListAsSQLArrayUserType<T> implements UserType {
     public static class STRING2 extends ListAsSQLArrayUserType<String[]> {
         @Override
         @SuppressWarnings("unchecked")
-        protected Array getDataAsArray(Object value) {
-            return new SqlArray.STRING2((List<String[]>) value);
+        protected Array getDataAsArray(Connection conn, Object value) throws SQLException {
+            return factory.STRING2(conn, (List<String[]>) value);
         }
 
         @Override
@@ -189,8 +219,8 @@ public abstract class ListAsSQLArrayUserType<T> implements UserType {
     public static class DATE extends ListAsSQLArrayUserType<Date> {
         @Override
         @SuppressWarnings("unchecked")
-        protected Array getDataAsArray(Object value) {
-            return new SqlArray.DATE((List<Date>) value);
+        protected Array getDataAsArray(Connection conn, Object value) throws SQLException {
+            return factory.DATE(conn, (List<Date>) value);
         }
 
         @Override
@@ -228,13 +258,13 @@ public abstract class ListAsSQLArrayUserType<T> implements UserType {
 
         @Override
         @SuppressWarnings("unchecked")
-        protected Array getDataAsArray(Object value) {
+        protected Array getDataAsArray(Connection conn, Object value) throws SQLException {
             List<E> enums = (List<E>) value;
             List<Integer> integers = new ArrayList<Integer>(enums.size());
             for (E theEnum : enums)
                 integers.add(theEnum.ordinal());
 
-            return new SqlArray.INTEGER(integers);
+            return factory.INTEGER(conn, integers);
         }
 
         @Override
@@ -291,7 +321,8 @@ public abstract class ListAsSQLArrayUserType<T> implements UserType {
         if (null == value)
             preparedStatement.setNull(index, SQL_TYPE);
         else
-            preparedStatement.setArray(index, getDataAsArray(value));
+            preparedStatement.setArray(index,
+                    getDataAsArray(preparedStatement.getConnection(), value));
     }
 
     public int hashCode(Object x) throws HibernateException {
