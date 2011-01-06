@@ -34,8 +34,8 @@ import ome.services.sessions.SessionCallback;
 import ome.services.sessions.SessionContext;
 import ome.services.sessions.SessionContextImpl;
 import ome.services.sessions.events.UserGroupUpdateEvent;
-import ome.services.sessions.state.SessionCache;
 import ome.services.sessions.state.SessionCache.StaleCacheListener;
+import ome.services.sessions.state.SessionCache;
 import ome.services.sessions.stats.NullSessionStats;
 import ome.system.OmeroContext;
 
@@ -203,7 +203,7 @@ public class SessionCacheTest extends TestCase {
         public void run() {
             try {
                 barrier.await();
-                cache.getSessionContext(this.getName(), true);
+                cache.getSessionContext(this.getName());
             } catch (Exception e) {
                 this.ex = e;
             }
@@ -444,7 +444,7 @@ public class SessionCacheTest extends TestCase {
         for (int i = 0; i < 10; i++) {
             Thread.sleep(1 * 1000L);
             try {
-                cache.getSessionContext(s.getUuid(), true);
+                cache.getSessionContext(s.getUuid());
             } catch (RemovedSessionException rse) {
                 fail("Removed session on loop " + i);
             }
@@ -473,7 +473,7 @@ public class SessionCacheTest extends TestCase {
         for (int i = 0; i < 10; i++) {
             Thread.sleep(1 * 1000L);
             try {
-                cache.getSessionContext(s1.getUuid(), true);
+                cache.getSessionContext(s1.getUuid());
             } catch (RemovedSessionException rse) {
                 fail("Removed session on loop " + i);
             } catch (SessionTimeoutException ste) {
@@ -485,7 +485,7 @@ public class SessionCacheTest extends TestCase {
         cache.updateEvent(new UserGroupUpdateEvent(this));
         cache.doUpdate();
         try {
-            cache.getSessionContext(s2.getUuid(), false);
+            cache.getSessionContext(s2.getUuid());
             fail("Should fail for " + s2.getUuid());
         } catch (RemovedSessionException rse) {
             // ok.
@@ -503,7 +503,7 @@ public class SessionCacheTest extends TestCase {
         cache.putSession(s.getUuid(), sc(s));
         Thread.sleep(2L);
         try {
-            cache.getSessionContext(s.getUuid(), false);
+            cache.getSessionContext(s.getUuid());
             fail("should time out");
         } catch (SessionException se) {
             // Good.
@@ -541,7 +541,7 @@ public class SessionCacheTest extends TestCase {
 
     private void throwsSessionTimeout(String uuid) {
         try {
-            cache.getSessionContext(uuid, true);
+            cache.getSessionContext(uuid);
             fail("Should throw");
         } catch (SessionTimeoutException ste) {
             // ok;
@@ -550,7 +550,7 @@ public class SessionCacheTest extends TestCase {
 
     private void throwsRemovedSession(String uuid) {
         try {
-            cache.getSessionContext(uuid, true);
+            cache.getSessionContext(uuid);
             fail("Should throw");
         } catch (RemovedSessionException rse) {
             // ok;

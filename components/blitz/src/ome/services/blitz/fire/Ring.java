@@ -14,11 +14,10 @@ import java.util.List;
 import java.util.Set;
 
 import ome.model.meta.Node;
-import ome.services.blitz.redirect.Redirector;
 import ome.services.blitz.redirect.NullRedirector;
+import ome.services.blitz.redirect.Redirector;
 import ome.services.blitz.util.BlitzConfiguration;
 import ome.services.sessions.SessionManager;
-import ome.services.sessions.state.SessionCache;
 import ome.services.util.Executor;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
@@ -66,8 +65,6 @@ public class Ring extends _ClusterNodeDisp implements Redirector.Context {
 
     private final Redirector redirector;
 
-    private final SessionCache cache;
-
     private/* final */Ice.Communicator communicator;
 
     private/* final */Registry registry;
@@ -82,15 +79,13 @@ public class Ring extends _ClusterNodeDisp implements Redirector.Context {
      */
     private/* final */String directProxy;
 
-    public Ring(String uuid, Executor executor, SessionCache cache) {
-        this(uuid, executor, cache, new NullRedirector());
+    public Ring(String uuid, Executor executor) {
+        this(uuid, executor, new NullRedirector());
     }
 
-    public Ring(String uuid, Executor executor, SessionCache cache,
-            Redirector redirector) {
+    public Ring(String uuid, Executor executor, Redirector redirector) {
         this.uuid = uuid;
         this.executor = executor;
-        this.cache = cache;
         this.redirector = redirector;
         this.principal = new Principal(uuid, "system", "Internal");
     }

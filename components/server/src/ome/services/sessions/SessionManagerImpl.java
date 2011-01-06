@@ -9,6 +9,7 @@ package ome.services.sessions;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -41,7 +42,7 @@ import ome.services.messages.DestroySessionMessage;
 import ome.services.sessions.events.ChangeSecurityContextEvent;
 import ome.services.sessions.events.UserGroupUpdateEvent;
 import ome.services.sessions.state.SessionCache;
-import ome.services.sessions.state.SessionCache.StaleCacheListener;
+import ome.services.sessions.state.SessionCache;
 import ome.services.sessions.stats.CounterFactory;
 import ome.services.sessions.stats.SessionStats;
 import ome.services.util.Executor;
@@ -74,7 +75,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-public class SessionManagerImpl implements SessionManager, StaleCacheListener,
+public class SessionManagerImpl implements SessionManager, SessionCache.StaleCacheListener,
         ApplicationContextAware {
 
     private final static Log log = LogFactory.getLog(SessionManagerImpl.class);
@@ -214,7 +215,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         // If credentials exist as session, then return that
         try {
             SessionContext context = cache
-                    .getSessionContext(credentials, false);
+                    .getSessionContext(credentials);
             if (context != null) {
                 context.count().increment();
                 return context.getSession(); // EARLY EXIT!
@@ -263,8 +264,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
             final Session oldsession) {
         // If username exists as session, then return that
         try {
-            SessionContext context = cache.getSessionContext(principal
-                    .getName(), false);
+            SessionContext context = cache.getSessionContext(principal.getName());
             if (context != null) {
                 context.count().increment();
                 return context.getSession(); // EARLY EXIT!
@@ -340,7 +340,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
 
         final String uuid = session.getUuid();
         final Details details = session.getDetails();
-        final SessionContext ctx = cache.getSessionContext(uuid, true);
+        final SessionContext ctx = cache.getSessionContext(uuid);
         if (ctx == null) {
             throw new RemovedSessionException(
                     "Can't update; No session with uuid:" + uuid);
@@ -455,7 +455,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     }
 
     public Session find(String uuid) {
-        SessionContext sessionContext = cache.getSessionContext(uuid, true);
+        SessionContext sessionContext = cache.getSessionContext(uuid);
         return (sessionContext == null) ? null : sessionContext.getSession();
     }
 
@@ -473,7 +473,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
         for (Object[] arr : ids_uuids) {
             String uuid = (String) arr[1];
             try {
-                SessionContext sc = cache.getSessionContext(uuid, false);
+                SessionContext sc = cache.getSessionContext(uuid);
                 rv.add(sc.getSession());
             } catch (Exception e) {
                 // skip
@@ -503,17 +503,17 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     }
 
     public int getReferenceCount(String uuid) {
-        SessionContext ctx = cache.getSessionContext(uuid, true);
+        SessionContext ctx = cache.getSessionContext(uuid);
         return ctx.count().get();
     }
 
     public int detach(String uuid) {
-        SessionContext ctx = cache.getSessionContext(uuid, false);
+        SessionContext ctx = cache.getSessionContext(uuid);
         return ctx.count().decrement();
     }
 
     public SessionStats getSessionStats(String uuid) {
-        SessionContext ctx = cache.getSessionContext(uuid, true);
+        SessionContext ctx = cache.getSessionContext(uuid);
         return ctx.stats();
     }
 
@@ -522,7 +522,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     public int close(String uuid) {
         SessionContext ctx;
         try {
-            ctx = cache.getSessionContext(uuid, false);
+            ctx = cache.getSessionContext(uuid);
         } catch (SessionException se) {
             log.info("closeSession called but doesn't exist: " + uuid);
             return -1; // EARLY EXIT!
@@ -541,7 +541,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     }
 
     public int closeAll() {
-        List<String> ids = cache.getIds();
+        Collection<String> ids = cache.getIds();
         for (String id : ids) {
             if (asroot.getName().equals(id)) {
                 continue; // DON'T KILL OUR ROOT SESSION
@@ -562,7 +562,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     }
 
     public List<String> getUserRoles(String uuid) {
-        SessionContext ctx = cache.getSessionContext(uuid, true);
+        SessionContext ctx = cache.getSessionContext(uuid);
         if (ctx == null) {
             throw new RemovedSessionException("No session with uuid: " + uuid);
         }
@@ -669,8 +669,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
     // =========================================================================
 
     public EventContext getEventContext(Principal principal) {
-        final SessionContext ctx = cache.getSessionContext(principal.getName(),
-                true);
+        final SessionContext ctx = cache.getSessionContext(principal.getName());
         if (ctx == null) {
             throw new RemovedSessionException("No session with uuid:"
                     + principal.getName());
@@ -1081,7 +1080,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
             throw new ApiUsageException("Security context must be managed!");
         }
 
-        final SessionContext sc = cache.getSessionContext(principal.getName(), false);
+        final SessionContext sc = cache.getSessionContext(principal.getName());
         final long activeMethods = sc.stats().methodCount();
 
         if (activeMethods != 0) {
@@ -1145,7 +1144,7 @@ public class SessionManagerImpl implements SessionManager, StaleCacheListener,
                         }
 
                         SessionContext sc =
-                            cache.getSessionContext(principal.getName(), false);
+                            cache.getSessionContext(principal.getName());
                         Session s = sc.getSession();
 
                         // Store old value for rollback

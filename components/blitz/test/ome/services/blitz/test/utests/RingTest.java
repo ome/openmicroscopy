@@ -11,7 +11,6 @@ import java.util.HashSet;
 import ome.model.meta.Node;
 import ome.services.blitz.fire.Registry;
 import ome.services.blitz.fire.Ring;
-import ome.services.sessions.state.SessionCache;
 import ome.services.util.Executor;
 import ome.system.OmeroContext;
 import omero.grid.ClusterNodePrx;
@@ -52,12 +51,12 @@ public class RingTest extends MockObjectTestCase {
     public void testFirstTakesOver() throws Exception {
 
         prepareInit("one");
-        Ring one = new Ring("one", ex, new SessionCache());
+        Ring one = new Ring("one", ex);
         one.setRegistry(reg);
         one.init(oa, "one");
 
         prepareInit("two");
-        Ring two = new Ring("two", ex, new SessionCache());
+        Ring two = new Ring("two", ex);
         two.setRegistry(reg);
         two.init(oa, "two");
 
