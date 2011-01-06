@@ -63,12 +63,6 @@ public class PostgresSqlAction extends SqlAction.Impl {
         return count > 0;
     }
 
-    public String fileRepo(long fileId) {
-        return jdbc.queryForObject(
-                PsqlStrings.getString("sql_action.file_repo"), String.class, //$NON-NLS-1$
-                fileId);
-    }
-
     private final static String synchronizeJobsSql = PsqlStrings
             .getString("sql_action.sync_jobs"); //$NON-NLS-1$
 
