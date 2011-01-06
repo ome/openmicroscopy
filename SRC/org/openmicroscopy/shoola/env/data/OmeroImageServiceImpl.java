@@ -694,14 +694,6 @@ class OmeroImageServiceImpl
 						dataset.setName(date);
 						io = gateway.saveAndReturnObject(
 								dataset.asIObject(), m);
-						/*
-						ProjectDatasetLink link = new ProjectDatasetLinkI();
-						link.setChild((Dataset) io);
-						link.setParent((Project) container.asProject());
-						link = (ProjectDatasetLink) 
-							gateway.saveAndReturnObject(link, m);
-						io = link.getChild();
-						*/
 					}
 				}
 			} else {
@@ -773,6 +765,7 @@ class OmeroImageServiceImpl
 				if (container instanceof ProjectData) {
 					io = createDefaultContainer(container, userID);
 					ioList.add(io);
+					/*
 					while (j.hasNext()) {
 						container = j.next();
 						link = ModelMapper.linkParentToChild((Dataset) io, 
@@ -786,6 +779,7 @@ class OmeroImageServiceImpl
 						}
 					} catch (Exception e) {
 					}
+					*/
 				} else if (container instanceof DatasetData) {
 					while (j.hasNext()) {
 						container = j.next();
