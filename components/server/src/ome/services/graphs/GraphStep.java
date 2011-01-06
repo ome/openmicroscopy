@@ -7,7 +7,6 @@
 
 package ome.services.graphs;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +20,6 @@ import ome.system.EventContext;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Session;
 
 /**
  * Single action performed by {@link GraphState}.
@@ -39,11 +37,11 @@ public abstract class GraphStep {
 
         int size();
 
-        void rollback(String savepoint, int count);
+        void rollback(String savepoint, int count) throws GraphException;
 
         int collapse(boolean keep);
 
-        void release(String savepoint, int count);
+        void release(String savepoint, int count) throws GraphException;
 
         Class<IObject> getClass(String key);
 

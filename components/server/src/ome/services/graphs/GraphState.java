@@ -540,18 +540,22 @@ public class GraphState implements GraphStep.Callback {
         return count;
     }
 
-    public String savepoint(DeleteStep step) {
-        add();
-        step.savepoint = UUID.randomUUID().toString();
-        step.savepoint = step.savepoint.replaceAll("-", "");
-        sql.createSavepoint(step.savepoint);
-        log.debug(String.format("Enter savepoint %s: new depth=%s",
-                step.savepoint,
-                actualIds.size()));
-        return step.savepoint;
+    public void savepoint(String savepoint) {
 
-    public void release(DeleteStep savepoint, int count) {
-        sql.releaseSavepoint(step.savepoint);
+        sql.createSavepoint(savepoint);
+        log.debug(String.format("Enter savepoint %s: new depth=%s",
+                savepoint,
+                actualIds.size()));
+
+    }
+
+    public void release(String savepoint, int count) throws GraphException {
+
+        if (actualIds.size() == 0) {
+            throw new GraphException("Release at depth 0!");
+        }
+
+        sql.releaseSavepoint(savepoint);
 
         log.debug(String.format(
                 "Released savepoint %s with %s ids: new depth=%s", savepoint,
@@ -559,21 +563,13 @@ public class GraphState implements GraphStep.Callback {
 
     }
 
-    public void rollback(DeleteStep step) throws DeleteException {
+    public void rollback(String savepoint, int count) throws GraphException {
 
         if (actualIds.size() == 0) {
-            throw new DeleteException("Release at depth 0!");
+            throw new GraphException("Release at depth 0!");
         }
 
-        step.rollbackOnly = true;
-        int count = 0;
-        Map<String, Set<Long>> ids = actualIds.removeLast();
-        for (String key : ids.keySet()) {
-            Set<Long> old = ids.get(key);
-            count += old.size();
-        }
-
-        sql.rollbackSavepoint(step.savepoint);
+        sql.rollbackSavepoint(savepoint);
 
         log.debug(String.format(
                 "Rolled back savepoint %s with %s ids: new depth=%s",
