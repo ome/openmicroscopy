@@ -21,6 +21,7 @@ import ome.model.meta.EventLog;
 import ome.services.util.Executor.SimpleWork;
 import ome.system.ServiceFactory;
 import ome.tools.hibernate.QueryBuilder;
+import ome.util.SqlAction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -109,10 +110,21 @@ public class FullTextIndexer extends SimpleWork {
     }
 
     /**
+     * Since these instances are used repeatedly, we need to check for
+     * already set SqlAction
+     */
+    @Override
+    public synchronized void setSqlAction(SqlAction sql) {
+        if (getSqlAction() == null) {
+            super.setSqlAction(sql);
+        }
+    }
+
+    /**
      * Runs {@link #doIndexing(FullTextSession)} within a Lucene transaction.
      * {@link #doIndexing(FullTextSession)} will also be called
      */
-    @Transactional(readOnly = false, isolation = Isolation.READ_UNCOMMITTED)
+    @Transactional(readOnly = false, isolation = Isolation.SERIALIZABLE)
     public Object doWork(Session session, ServiceFactory sf) {
         int count = 1;
         int perbatch = 0;

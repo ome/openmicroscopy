@@ -239,5 +239,16 @@ public interface SqlAction {
                     _lookup("update_node"), uuid); //$NON-NLS-1$
         }
 
+
+        public boolean setUserPassword(Long experimenterID, String password) {
+            int results = _jdbc().update(_lookup("update_password"), //$NON-NLS-1$
+                    password, experimenterID);
+            if (results < 1) {
+                results = _jdbc().update(_lookup("insert_password"), //$NON-NLS-1$
+                        experimenterID, password, null);
+            }
+            return results >= 1;
+        }
+
     }
 }
