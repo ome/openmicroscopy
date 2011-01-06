@@ -112,7 +112,7 @@ public class DeleteSpecUnitTest extends MockDeleteTest {
         prepareGetRelationship();
 
         DeleteSpec roi = specXml.getBean("/Roi", BaseDeleteSpec.class);
-        DeleteState ids = new DeleteState(specXml, session, roi);
+        DeleteState ids = new DeleteState(specXml, null, session, roi);
         roi.initialize(1, null, null);
         // roi.delete(session, 0, ids); // Requires mock setup
     }
@@ -317,7 +317,7 @@ public class DeleteSpecUnitTest extends MockDeleteTest {
         spec.setExtendedMetadata(specXml.getBean(ExtendedMetadata.class));
         spec.postProcess(specXml);
 
-        final DeleteState ids = new DeleteState(specXml, session, spec);
+        final DeleteState ids = new DeleteState(specXml, null, session, spec);
         assertEquals(0, ids.getTotalFoundCount());
 
         // Now we try to ignore all the method calls on the session since

@@ -280,7 +280,7 @@ public class ScriptRepoHelper {
             @Transactional(readOnly = false)
             public Object doWork(Session session, ServiceFactory sf) {
 
-                SqlAction sql = (SqlAction) sf.getContext().getBean("sqlAction");
+                SqlAction sql = (SqlAction) sf.getContext().getBean("simpleSqlAction");
 
                 File f = null;
                 RepoFile file = null;

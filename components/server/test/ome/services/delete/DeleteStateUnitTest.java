@@ -72,7 +72,7 @@ public class DeleteStateUnitTest extends MockDeleteTest {
         prepareQueryBackupIds(table);
 
         // null ctx is okay until .release()
-        DeleteState state = new DeleteState(null, session, spec);
+        DeleteState state = new DeleteState(null, null, session, spec);
         assertEquals(1, state.getTotalFoundCount());
     }
 
@@ -97,7 +97,7 @@ public class DeleteStateUnitTest extends MockDeleteTest {
         table = Arrays.asList(Arrays.asList(2L));
         prepareQueryBackupIds(table);
 
-        DeleteState state = new DeleteState(null, session, spec);
+        DeleteState state = new DeleteState(null, null, session, spec);
         assertEquals(2, state.getTotalFoundCount());
 
     }
@@ -120,7 +120,7 @@ public class DeleteStateUnitTest extends MockDeleteTest {
         table = table(new long[] { 1L }, new long[] { 2L });
         prepareQueryBackupIds(table);
 
-        DeleteState state = new DeleteState(null, session, spec);
+        DeleteState state = new DeleteState(null, null, session, spec);
         assertEquals(2, state.getTotalFoundCount());
 
     }
@@ -138,7 +138,7 @@ public class DeleteStateUnitTest extends MockDeleteTest {
                 table(new long[] { 0L, 2L }), table(new long[] { 0L, 2L, 3L }));
         prepareTableLookups(rv);
 
-        DeleteState state = new DeleteState(null, session, spec);
+        DeleteState state = new DeleteState(null, null, session, spec);
         assertEquals(state.toString(), 5, state.getTotalFoundCount());
         // includes the one parent spec
 
@@ -165,7 +165,7 @@ public class DeleteStateUnitTest extends MockDeleteTest {
                 table(new long[] { 0L, 2L, 3L }, new long[] { 10L, 12L, 13L }));
         prepareTableLookups(rv);
 
-        DeleteState state = new DeleteState(null, session, spec);
+        DeleteState state = new DeleteState(null, null, session, spec);
         assertEquals(state.toString(), 10, state.getTotalFoundCount());
         // includes the one parent spec
 
@@ -243,7 +243,7 @@ public class DeleteStateUnitTest extends MockDeleteTest {
                 table(new long[] { 0L, 1L, 2L }));
         prepareTableLookups(rv);
 
-        DeleteState state = new DeleteState(null, session, spec);
+        DeleteState state = new DeleteState(null, null, session, spec);
         assertEquals(state.toString(), 4, state.getTotalFoundCount());
         // 4 for the parent spec
 
@@ -449,7 +449,7 @@ public class DeleteStateUnitTest extends MockDeleteTest {
 
         prepareTableLookups(rv);
 
-        DeleteState state = new DeleteState(null, session, spec);
+        DeleteState state = new DeleteState(null, null, session, spec);
         assertEquals(state.toString(), 3, state.getTotalFoundCount());
     }
 
@@ -469,7 +469,7 @@ public class DeleteStateUnitTest extends MockDeleteTest {
 
         prepareTableLookups(rv);
 
-        DeleteState state = new DeleteState(null, session, spec);
+        DeleteState state = new DeleteState(null, null, session, spec);
         assertEquals(state.toString(), 3, state.getTotalFoundCount());
     }
     //

@@ -75,7 +75,7 @@ public class DeleteUnitTest extends MockObjectTestCase {
         hm.expects(atLeastOnce()).method("createQuery").will(returnValue(query));
         xm.expects(atLeastOnce()).method("executeMethod").will(returnValue(0));
 
-        bean = new DeleteBean(a, new SessionFactory(null){
+        bean = new DeleteBean(a, new SessionFactory(null, null){
             @Override
             public Session getSession() {
                 return hibernate;

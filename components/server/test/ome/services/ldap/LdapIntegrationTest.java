@@ -172,7 +172,7 @@ public class LdapIntegrationTest extends LdapTest {
 
         fixture.ldap = new LdapImpl(source, fixture.template, new Roles(),
                 fixture.config, provider(),
-                (SqlAction) mCtx.getBean("sqlAction"));
+                (SqlAction) mCtx.getBean("simpleSqlAction"));
         return fixture;
     }
 
