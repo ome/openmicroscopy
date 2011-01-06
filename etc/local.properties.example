@@ -58,8 +58,3 @@ loci.resolver=omero-resolver
 # in via server/src/ome/services/util/OmeroAroundInvoke.java
 # and blitz/src/ome/services/icy/fire/SessionManagerI.java
 omero.hard-wired.interceptors="ome.security.basic.BasicSecurityWiring"
-
-# Used by tools/licences/build.xml to define
-# which class should be compiled into 
-# ome.services.licenses.LicenseBean
-ome.services.licenses.Store_class="ome.services.licenses.Store"
