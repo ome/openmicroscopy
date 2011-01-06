@@ -71,9 +71,11 @@ import omero.ValidationException;
 import omero.api.RawFileStorePrx;
 import omero.api.RawFileStorePrxHelper;
 import omero.api.RawPixelsStorePrx;
+import omero.api.RawPixelsStorePrxHelper;
 import omero.api.RenderingEnginePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.api._RawFileStoreTie;
+import omero.api._RawPixelsStoreTie;
 import omero.grid.FileSet;
 import omero.grid.RepositoryListConfig;
 import omero.grid.RepositoryPrx;
@@ -635,10 +637,48 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return null;
     }
 
-    public RawPixelsStorePrx pixels(String path, Current __current)
-            throws ServerError {
-        // TODO Auto-generated method stub
-        return null;
+    public RawPixelsStorePrx pixels(String path, Current __current) throws ServerError {
+        Principal currentUser = currentUser(__current);
+        
+        // See comment below in RawFileStorePrx
+        Ice.Current adjustedCurr = new Ice.Current();
+        adjustedCurr.ctx = __current.ctx;
+        adjustedCurr.operation = __current.operation;
+        String sessionUuid = __current.ctx.get(omero.constants.SESSIONUUID.value);
+        adjustedCurr.id = new Ice.Identity(__current.id.name, sessionUuid);
+
+        BfPixelsStoreI rps;
+        try {
+            rps = new BfPixelsStoreI(path);
+        } catch (Throwable t) {
+            if (t instanceof ServerError) {
+                throw (ServerError) t;
+            } else {
+                omero.InternalException ie = new omero.InternalException();
+                IceMapper.fillServerError(ie, t);
+                throw ie;
+            }
+        }
+        
+        // See comment below in RawFileStorePrx
+        _RawPixelsStoreTie tie = new _RawPixelsStoreTie(rps);
+        RegisterServantMessage msg = new RegisterServantMessage(this, tie, adjustedCurr);
+        try {
+            this.executor.getContext().publishMessage(msg);
+        } catch (Throwable t) {
+            if (t instanceof ServerError) {
+                throw (ServerError) t;
+            } else {
+                omero.InternalException ie = new omero.InternalException();
+                IceMapper.fillServerError(ie, t);
+                throw ie;
+            }
+        }
+        Ice.ObjectPrx prx = msg.getProxy();
+        if (prx == null) {
+            throw new omero.InternalException(null, null, "No ServantHolder for proxy.");
+        }
+        return RawPixelsStorePrxHelper.uncheckedCast(prx);
     }
 
     public RawFileStorePrx file(long fileId, Current __current) throws ServerError {
