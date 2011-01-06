@@ -132,8 +132,11 @@ def isUserConnected (f):
             logger.error(traceback.format_exc())
             return HttpResponseRedirect(reverse("weblogin")+(("?error=%s&url=%s") % (str(x),url)))
         if conn is None:
-            if request.session.get('version') is not None:
-                return HttpLoginRedirect(reverse("weblogin"))
+            # TODO: Should be changed to use HttpRequest.is_ajax()
+            # http://docs.djangoproject.com/en/dev/ref/request-response/
+            # Thu  6 Jan 2011 09:57:27 GMT -- callan at blackcat dot ca
+            #if request.session.get('version') is not None:
+            #    return HttpLoginRedirect(reverse("weblogin"))
             return HttpResponseRedirect(reverse("weblogin")+(("?url=%s") % (url)))
             
         conn_share = None       
