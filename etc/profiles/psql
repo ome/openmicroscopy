@@ -3,6 +3,7 @@
 #
 omero.db.port=5432
 omero.db.driver=org.postgresql.Driver
+omero.db.driver_type=UNUSED
 omero.db.dialect=org.hibernate.dialect.PostgreSQLDialect
 omero.db.sql_action_class=ome.util.actions.PostgresSqlAction
 omero.db.lob_handler=org.springframework.jdbc.support.lob.DefaultLobHandler
