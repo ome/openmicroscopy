@@ -13,20 +13,11 @@ import java.util.Properties;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.MappingException;
-import org.hibernate.connection.ConnectionProvider;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.engine.SessionImplementor;
 import org.hibernate.id.enhanced.OptimizerFactory;
 import org.hibernate.id.enhanced.TableGenerator;
 import org.hibernate.type.Type;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.jdbc.datasource.LazyConnectionDataSourceProxy;
-import org.springframework.jdbc.datasource.TransactionAwareDataSourceProxy;
-import org.springframework.orm.hibernate3.TransactionAwareDataSourceConnectionProvider;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
-import org.springframework.transaction.support.TransactionTemplate;
 
 /**
  * OMERO-specific id generation strategy. Combines both {@link TableGenerator}
@@ -51,18 +42,12 @@ public class TableIdGenerator extends TableGenerator {
         super.configure(type, params, dialect);
     }
 
-    protected void init(SessionImplementor session) {
-
-        if (sql != null) {
-            return; // Already done.
-        }
-
+    public void setSqlAction(SqlAction sql) {
+        this.sql = sql;
     }
 
     public synchronized Serializable generate(final SessionImplementor session,
             Object obj) {
-
-        init(session);
 
         if (hiValue < 0 || value >= hiValue) {
             hiValue = sql.nextValue(getSegmentValue(), getIncrementSize());
