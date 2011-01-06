@@ -338,8 +338,9 @@ java component.
 
     <target name="release-jdepend" description="Generates jdepend.xml for all components" depends="init">
        <path id="omero.classpath">
-           <fileset dir="${omero.home}/lib/repository" />
+           <fileset dir="${omero.home}/lib/repository"/>
        </path>
+
        <jdepend outputfile="target/jdepend.txt" fork="yes" classpathref="omero.classpath">
            <exclude name="java.*"/>
            <exclude name="java.lang.*"/>
