@@ -36,7 +36,6 @@
     <constructor-arg ref="uuid"/>
     <constructor-arg ref="executor"/>
     <constructor-arg ref="redirector"/>
-    <constructor-arg ref="sessionCache"/>
   </bean>
 
   <!-- Redirector configuration -->
