@@ -7,18 +7,21 @@
 package ome.tools.hibernate;
 
 import java.lang.reflect.Method;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.hibernate.Session;
+import ome.util.SqlAction;
+import ome.util.TableIdGenerator;
 
-import org.springframework.orm.hibernate3.SessionFactoryUtils;
-import org.springframework.aop.framework.ProxyFactory;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
+import org.hibernate.Session;
+import org.hibernate.id.IdentifierGenerator;
+import org.hibernate.impl.SessionFactoryImpl;
+import org.springframework.aop.framework.ProxyFactory;
+import org.springframework.orm.hibernate3.SessionFactoryUtils;
 
 /**
  * Simple source of Thread-aware {@link Session} instances. Wraps a
@@ -54,8 +57,16 @@ public class SessionFactory implements MethodInterceptor {
 
     private final org.hibernate.SessionFactory factory;
 
-    public SessionFactory(org.hibernate.SessionFactory factory) {
+    public SessionFactory(org.hibernate.SessionFactory factory, SqlAction isolatedSqlAction) {
         this.factory = factory;
+        for (Object k : this.factory.getAllClassMetadata().keySet()) {
+            IdentifierGenerator ig =
+                ((SessionFactoryImpl) factory).getIdentifierGenerator((String)k);
+            if (ig instanceof TableIdGenerator) {
+                ((TableIdGenerator) ig).setSqlAction(isolatedSqlAction);
+            }
+        }
+
     }
 
     /**
