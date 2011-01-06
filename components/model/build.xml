@@ -47,7 +47,10 @@
 	</target>
 
 	<target name="dsl" depends="dsl-init" if="dsl.needed">
-		<taskdef classname="ome.dsl.DSLTask" classpathref="omero.classpath" name="dsl"/>
+		<taskdef classname="ome.dsl.DSLTask" classpathref="omero.classpath" name="basedsl"/>
+		<presetdef name="dsl">
+			<basedsl profile="${omero.db.profile}"/>
+		</presetdef>
 		<dsl template="ome/dsl/object.vm" filepattern="${src.dest}/{package-dir}/{class-name}.java"><fileset dir="${resrc.dir}" includes="${dsl.pat}"/></dsl>
 		<dsl template="ome/dsl/cfg.vm" filepattern="${resrc.dest}/hibernate.cfg.xml"><fileset dir="${resrc.dir}" includes="${dsl.pat}"/></dsl>
 		<dsl template="ome/dsl/data.vm" filepattern="${resrc.dest}/data.sql"><fileset dir="${resrc.dir}" includes="${dsl.pat}"/></dsl>

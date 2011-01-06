@@ -47,8 +47,8 @@ public class SaxReader {
     /** SAXparser which does the actualy processing */
     javax.xml.parsers.SAXParser parser;
 
-    public SaxReader(File file) {
-        this(file, new DSLHandler());
+    public SaxReader(String profile, File file) {
+        this(file, new DSLHandler(profile));
     }
 
     public SaxReader(File file, DSLHandler dslHandler) {
@@ -108,6 +108,12 @@ class DSLHandler extends DefaultHandler {
 
     private Property property;
 
+    private final String profile;
+
+    DSLHandler(String profile) {
+        this.profile = profile;
+    }
+
     /** dispatches to output (printing) and handling (object-creation) routines */
     @Override
     public void startElement(String arg0, String arg1, String element,
@@ -154,7 +160,7 @@ class DSLHandler extends DefaultHandler {
                         + element + " from within type " + type);
             }
 
-            type = SemanticType.makeNew(element, attrs2props(attrs));
+            type = SemanticType.makeNew(profile, element, attrs2props(attrs));
 
         } else if ("types".equals(element)) {
             // also ok.
@@ -222,7 +228,7 @@ class DSLHandler extends DefaultHandler {
                 // Create link
                 Properties linkP = new Properties();
                 linkP.setProperty("id", newId);
-                LinkType l = new LinkType(linkP);
+                LinkType l = new LinkType(profile, linkP);
 
                 Properties parentP = new Properties();
                 parentP.setProperty("type", t.getId());

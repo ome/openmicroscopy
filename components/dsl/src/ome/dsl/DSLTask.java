@@ -50,6 +50,8 @@ public class DSLTask extends Task {
 
     private String _template;
 
+    private String _profile;
+
     private boolean singleType = false;
 
     public void setFilepattern(String filepattern) {
@@ -66,18 +68,25 @@ public class DSLTask extends Task {
         }
     }
 
+    public void setProfile(String profile) {
+        _profile = profile;
+    }
+
     public void addFileset(FileSet fileSet) {
         _fileSets.add(fileSet);
     }
 
     @Override
     public void execute() throws BuildException {
+        if (_profile == null) {
+            throw new BuildException("No profile specified.");
+        }
         if (_fileSets.isEmpty()) {
             throw new BuildException("No fileset specified");
         }
 
         List<SemanticType> types;
-        DSLHandler handler = new DSLHandler();
+        DSLHandler handler = new DSLHandler(_profile);
 
         java.util.Iterator<FileSet> p = _fileSets.iterator();
         while (p.hasNext()) {

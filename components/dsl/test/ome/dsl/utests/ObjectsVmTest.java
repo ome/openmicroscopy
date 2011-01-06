@@ -37,7 +37,7 @@ public class ObjectsVmTest extends TestCase {
     @BeforeMethod
     protected void setUp() throws Exception {
         File f = ResourceUtils.getFile("classpath:type.xml");
-        sr = new SaxReader(f);
+        sr = new SaxReader("psql", f);
     }
 
     @Override
