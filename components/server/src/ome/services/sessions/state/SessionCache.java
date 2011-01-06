@@ -324,7 +324,6 @@ public class SessionCache implements ApplicationContextAware {
     }
 
     private void internalRemove(String uuid, String reason) {
-        runUpdate.writeLock().lock();
         try {
 
             if (!sessions.isKeyInCache(uuid)) {
@@ -359,7 +358,7 @@ public class SessionCache implements ApplicationContextAware {
             ehmanager.removeCache("ondisk:" + uuid);
             sessions.remove(uuid);
         } finally {
-            runUpdate.writeLock().unlock();
+            // pass ticket:3181
         }
     }
 
