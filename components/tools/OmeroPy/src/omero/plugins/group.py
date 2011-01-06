@@ -38,7 +38,7 @@ class GroupControl(BaseControl):
         copy.add_argument("to_group", type=long, help = "Target group ID which will have new members added")
 
         insert = parser.add(sub, self.insert, "Insert one or more users into a group")
-        insert.add_argument("group", target="GROUP", type=long, help = "ID of the group which is to have users added")
+        insert.add_argument("GROUP", metavar="group", type=long, help = "ID of the group which is to have users added")
         insert.add_argument("user", type=long, nargs="+", help = "ID of user to be inserted")
 
     def parse_perms(self, args):
