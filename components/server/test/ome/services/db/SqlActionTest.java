@@ -12,6 +12,7 @@ import java.util.Map;
 import ome.model.core.Image;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
+import ome.model.meta.Experimenter;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.testing.ObjectFactory;
 import ome.util.SqlAction;
@@ -124,13 +125,37 @@ public class SqlActionTest extends AbstractManagedContextTest {
         assertNull(sql.getPixelsParamKeys(-1));
     }
 
+    @Test
+    public void testEmptyPasswordSetting() {
+        final Experimenter e = loginNewUser();
+        final String n = e.getOmeName();
+        loginRoot();
+        iAdmin.changeUserPassword(n, "");
+        assertTrue(iAdmin.checkPassword(n, "anything"));
+        assertTrue(iAdmin.checkPassword(n, ""));
+        assertTrue(iAdmin.checkPassword(n, null));
 
+        iAdmin.changeUserPassword(n, "ome");
+        assertTrue(iAdmin.checkPassword(n, "ome"));
+        assertFalse(iAdmin.checkPassword(n, ""));
+        assertFalse(iAdmin.checkPassword(n, null));
+
+        iAdmin.changeUserPassword(n, null);
+        assertFalse(iAdmin.checkPassword(n, "ome"));
+        assertFalse(iAdmin.checkPassword(n, ""));
+        assertFalse(iAdmin.checkPassword(n, null));
+
+    }
+
+    //
+    // HELPERS
+    //
 
     private OriginalFile makefile() {
         OriginalFile f = new OriginalFile();
         f.setName("name");
         f.setPath("path");
-        f.setSha1("");
+        f.setSha1(" ");
         f.setSize(0L);
         f = iUpdate.saveAndReturnObject(f);
         return f;
