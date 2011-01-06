@@ -19,6 +19,7 @@ import javax.xml.transform.TransformerException;
 
 import loci.common.services.DependencyException;
 import loci.common.services.ServiceException;
+import loci.formats.FormatTools;
 import loci.formats.ImageWriter;
 import loci.formats.MetadataTools;
 import loci.formats.meta.IMetadata;
@@ -352,7 +353,12 @@ public class ExporterI extends AbstractAmdServant implements
                                 int planeSize = raw.getPlaneSize();
                                 byte[] plane = new byte[planeSize];
                                 for (int i = 0; i < planeCount; i++) {
-                                    reader.openBytes(i, plane);
+                                    int[] zct = FormatTools.getZCTCoords(
+                                        retrieve.getPixelsDimensionOrder(0).getValue(),
+                                        reader.getSizeZ(), reader.getSizeC(), reader.getSizeT(),
+                                        planeCount, i);
+                                    int readerIndex = reader.getIndex(zct[0], zct[1], zct[2]);
+                                    reader.openBytes(readerIndex, plane);
                                     writer.saveBytes(i, plane);
                                 }
                                 retrieve = null;
