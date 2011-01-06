@@ -66,6 +66,9 @@ public class StatusLabel
 	/** Bound property indicating that the file is imported. */
 	public static final String FILE_IMPORTED_PROPERTY = "fileImported";
 	
+	/** Default text when a failure occurred. */
+	private static final String		FAILURE_TEXT = "failed";
+	
 	/** The number of planes. This value is used only for some file formats. */
 	private int maxPlanes;
 	
@@ -98,7 +101,7 @@ public class StatusLabel
 		numberOfFiles = 0;
 		seriesCount = 0;
 		readerType = "";
-		errorText = null;
+		errorText = FAILURE_TEXT;
 	}
 	
 	/**
@@ -220,13 +223,9 @@ public class StatusLabel
 			readerType = e.reader;
 			usedFiles = e.usedFiles;
 		} else if (event instanceof ErrorHandler.UNKNOWN_FORMAT) {
-			ErrorHandler.FILE_EXCEPTION e = (ErrorHandler.FILE_EXCEPTION) event;
 			errorText = "unknown format";
-			readerType = e.reader;
 		} else if (event instanceof ErrorHandler.MISSING_LIBRARY) {
-			ErrorHandler.FILE_EXCEPTION e = (ErrorHandler.FILE_EXCEPTION) event;
 			errorText = "missing required library";
-			readerType = e.reader;
 		} else if (event instanceof ImportEvent.IMPORT_THUMBNAILING) {
 			setText("thumbnailing");
 		} 

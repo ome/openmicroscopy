@@ -88,9 +88,6 @@ public class FileImportComponent
 	/** The default size of the busy label. */
 	private static final Dimension SIZE = new Dimension(16, 16);
 	
-	/** Default text when a failure occurred. */
-	private static final String		FAILURE_TEXT = "failed";
-	
 	/** Color used to indicate that a file could not be imported. */
 	private static final Color		ERROR_COLOR = Color.red;
 	
@@ -224,7 +221,7 @@ public class FileImportComponent
 	{
 		if (text == null) text = "";
 		text = text.trim();
-		if (text.length() == 0) resultLabel.setText(FAILURE_TEXT);
+		if (text.length() == 0) resultLabel.setText(statusLabel.getErrorText());
 		else resultLabel.setText(text);
 	}
 	
