@@ -669,7 +669,7 @@ public class SessMgrUnitTest extends MockObjectTestCase {
             throw new UnsupportedOperationException();
         }
 
-        public Object executeStateless(StatelessWork work) {
+        public Object executeSql(SqlWork work) {
             throw new UnsupportedOperationException();
         }
 

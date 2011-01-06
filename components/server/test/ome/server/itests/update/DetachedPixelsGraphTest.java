@@ -9,6 +9,7 @@ package ome.server.itests.update;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
 import ome.model.core.PlaneInfo;
+import ome.parameters.Parameters;
 import ome.testing.ObjectFactory;
 
 import org.testng.annotations.Test;
@@ -52,9 +53,9 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest {
         assertTrue("Related-to is null", p.getRelatedTo() != null);
         assertTrue("or it has no id", p.getRelatedTo().getId().longValue() > 0);
 
-        long id = this.jdbcTemplate.queryForLong(
-                "select relatedto from pixels where id = ?", new Object[] { p
-                        .getId() });
+        long id = (Long) iQuery.projection(
+                "select relatedto from Pixels where id = :id",
+                new Parameters().addId(p.getId())).get(0)[0];
         assertTrue("Id *really* has to be there.", p.getRelatedTo().getId()
                 .longValue() == id);
 

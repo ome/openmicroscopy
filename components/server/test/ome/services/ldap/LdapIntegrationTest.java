@@ -21,6 +21,7 @@ import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.Roles;
 import ome.system.ServiceFactory;
+import ome.util.SqlAction;
 
 import org.springframework.aop.target.HotSwappableTargetSource;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
@@ -171,7 +172,7 @@ public class LdapIntegrationTest extends LdapTest {
 
         fixture.ldap = new LdapImpl(source, fixture.template, new Roles(),
                 fixture.config, provider(),
-                (SimpleJdbcOperations) mCtx.getBean("simpleJdbcTemplate"));
+                (SqlAction) mCtx.getBean("sqlAction"));
         return fixture;
     }
 

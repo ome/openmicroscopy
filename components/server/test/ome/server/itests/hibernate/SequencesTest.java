@@ -18,6 +18,7 @@ import ome.model.core.Image;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.services.util.Executor;
 import ome.system.ServiceFactory;
+import ome.util.SqlAction;
 
 import org.hibernate.Session;
 import org.hibernate.annotations.GenericGenerator;
@@ -37,6 +38,7 @@ import org.testng.annotations.Test;
 @Test(groups = "ticket:1176")
 public class SequencesTest extends AbstractManagedContextTest {
 
+    SqlAction sql;
     GenericGenerator gg;
     String seq_name;
     int incr_value;
@@ -87,7 +89,7 @@ public class SequencesTest extends AbstractManagedContextTest {
         assertFalse(conn1.equals(conn2));
         log.warn("XXXX: GOT 2 CONNECTIONS");
     }
-    
+
     public void testBasics() throws Exception {
         String uuid = UUID.randomUUID().toString();
         assertEquals(-1, getCurrentNextValue(uuid));
@@ -135,7 +137,7 @@ public class SequencesTest extends AbstractManagedContextTest {
 
         // A manual load should increment by 1
         long bv = getCurrentNextValue(seq_name);
-        long nv = jdbcTemplate.queryForLong("select ome_nextval(?)", seq_name);
+        long nv = sql.nextValue(seq_name, 1);
         long cv = getCurrentNextValue(seq_name);
         assertEquals(bv, nv);
         assertEquals(nv + 1, cv);
@@ -288,20 +290,11 @@ public class SequencesTest extends AbstractManagedContextTest {
     }
 
     private <T extends IObject> long getCurrentNextValue(String seq_name) {
-        try {
-            long next_value = this.jdbcTemplate.queryForLong(
-                    "select next_val from seq_table where sequence_name = ?",
-                    seq_name);
-            return next_value;
-        } catch (EmptyResultDataAccessException erdae) {
-            return -1l;
-        }
+        return sql.currValue(seq_name);
     }
 
     private <T extends IObject> long callNextValue(String seq_name, int incr) {
-        long next_value = this.jdbcTemplate.queryForLong(
-                "select ome_nextval(?,?)", seq_name, incr);
-        return next_value;
+        return sql.nextValue(seq_name, incr);
     }
 
 }

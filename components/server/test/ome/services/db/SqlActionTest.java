@@ -3,7 +3,7 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
-package ome.util.itests;
+package ome.services.db;
 
 import java.util.HashMap;
 import java.util.List;

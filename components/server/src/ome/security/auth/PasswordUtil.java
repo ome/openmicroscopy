@@ -23,8 +23,6 @@ import ome.util.Utils;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.RowMapper;
 
 /**
  * Static methods for dealing with password hashes and the "password" table.
@@ -74,62 +72,25 @@ public class PasswordUtil {
     }
 
     public String getDnById(Long id) {
-        String expire;
-        try {
-            expire = sql.dnForUser(id);
-        } catch (EmptyResultDataAccessException e) {
-            expire = null; // This means there's not one.
-        }
-        return expire;
+        return sql.dnForUser(id);
     }
 
     public void changeUserPasswordById(Long id, String password) {
-        int results = sql.setUserPassword(id, preparePassword(password));
-        if (results < 1) {
+        if (! sql.setUserPassword(id, preparePassword(password))) {
             throw new InternalException("0 results for password insert.");
         }
     }
 
     public String getUserPasswordHash(Long id) {
-        String stored;
-        try {
-            stored = jdbc.queryForObject("select hash "
-                    + "from password where experimenter_id = ? ", String.class,
-                    id);
-        } catch (EmptyResultDataAccessException e) {
-            stored = null; // This means there's not one.
-        }
-        return stored;
+        return sql.getPasswordHash(id);
     }
 
     public Long userId(String name) {
-        Long id;
-        try {
-            id = jdbc.queryForObject(
-                    "select id from experimenter where omeName = ?",
-                    Long.class, name);
-        } catch (EmptyResultDataAccessException e) {
-            id = null; // This means there's not one.
-        }
-        return id;
+        return sql.getUserId(name);
     }
 
     public List<String> userGroups(String name) {
-        List<String> roles;
-        try {
-            roles = jdbc.query("select g.name from experimentergroup g, "
-                    + "groupexperimentermap m, experimenter e "
-                    + "where omeName = ? and " + "e.id = m.child and "
-                    + "m.parent = g.id", new RowMapper<String>() {
-                public String mapRow(ResultSet rs, int rowNum)
-                        throws SQLException {
-                    return rs.getString(1);
-                }
-            }, name);
-        } catch (EmptyResultDataAccessException e) {
-            roles = null; // This means there's not one.
-        }
-        return roles == null ? new ArrayList<String>() : roles;
+        return sql.getUserGroups(name);
     }
 
     public String preparePassword(String newPassword) {
