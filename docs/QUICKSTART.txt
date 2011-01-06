@@ -26,9 +26,9 @@ cd dist
 #
 # Setup database
 #
-bin/omero db script OMERO4.1 0 mypassword
+bin/omero db script -f QUICKSTART.sql "" "" mypassword
 createlang plpgsql omero || echo "Database already ready?"
-psql -U omero -h localhost omero < OMERO4.1__0.sql
+psql -U omero -h localhost omero < QUICKSTART.sql
 
 #
 # Start
