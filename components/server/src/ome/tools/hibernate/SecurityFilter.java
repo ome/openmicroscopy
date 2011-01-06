@@ -58,9 +58,9 @@ public class SecurityFilter extends FilterDefinitionFactoryBean {
 
     static Map<String, String> parameterTypes() {
         Map<String, String> parameterTypes = new HashMap<String, String>();
-        parameterTypes.put(is_share, "java.lang.Boolean");
-        parameterTypes.put(is_adminorpi, "java.lang.Boolean");
-        parameterTypes.put(is_nonprivate, "java.lang.Boolean");
+        parameterTypes.put(is_share, "int");
+        parameterTypes.put(is_adminorpi, "int");
+        parameterTypes.put(is_nonprivate, "int");
         parameterTypes.put(current_group, "long");
         parameterTypes.put(current_user, "long");
         return parameterTypes;
@@ -72,13 +72,13 @@ public class SecurityFilter extends FilterDefinitionFactoryBean {
                 // Should handle hidden groups at the top-level
                 // ticket:1784 - Allowing system objects to be read.
                 + "\n  ( group_id = :current_group AND "
-                + "\n     ( :is_nonprivate OR "
-                + "\n       :is_adminorpi OR "
+                + "\n     ( 1 = :is_nonprivate OR "
+                + "\n       1 = :is_adminorpi OR "
                 + "\n       owner_id = :current_user"
                 + "\n     )"
                 + "\n  ) OR"
                 + "\n  group_id = %s OR " // ticket:1794
-                + "\n :is_share"
+                + "\n 1 = :is_share"
                 + "\n)\n";
     }
 

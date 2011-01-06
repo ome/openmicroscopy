@@ -218,13 +218,19 @@ public class BasicSecuritySystem implements SecuritySystem,
         Filter filter = sess.enableFilter(SecurityFilter.filterName);
 
         Long shareId = ec.getCurrentShareId();
-        filter.setParameter(SecurityFilter.is_share,
-                    shareId != null); // ticket:2219, not checking -1 here.
-        filter.setParameter(SecurityFilter.is_adminorpi, ec.isCurrentUserAdmin()
-                || ec.getLeaderOfGroupsList().contains(ec.getCurrentGroupId()));
-        filter.setParameter(SecurityFilter.is_nonprivate,
-                ec.getCurrentGroupPermissions().isGranted(Role.GROUP, Right.READ)
-                || ec.getCurrentGroupPermissions().isGranted(Role.WORLD, Right.READ));
+        int share01 = shareId != null ? 1 : 0;
+
+        int admin01 = (ec.isCurrentUserAdmin() ||
+                ec.getLeaderOfGroupsList().contains(ec.getCurrentGroupId()))
+                ? 1 : 0;
+
+        int nonpriv01 = (ec.getCurrentGroupPermissions().isGranted(Role.GROUP, Right.READ)
+                || ec.getCurrentGroupPermissions().isGranted(Role.WORLD, Right.READ))
+                ? 1 : 0;
+
+        filter.setParameter(SecurityFilter.is_share, share01); // ticket:2219, not checking -1 here.
+        filter.setParameter(SecurityFilter.is_adminorpi, admin01);
+        filter.setParameter(SecurityFilter.is_nonprivate, nonpriv01);
         filter.setParameter(SecurityFilter.current_group, ec.getCurrentGroupId());
         filter.setParameter(SecurityFilter.current_user, ec.getCurrentUserId());
     }
