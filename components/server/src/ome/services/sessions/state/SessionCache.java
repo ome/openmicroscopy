@@ -404,42 +404,39 @@ public class SessionCache implements ApplicationContextAware {
     }
 
     private void internalRemove(String uuid, String reason) {
-        try {
 
-            if (!sessions.containsKey(uuid)) {
-                log.warn("Session not in cache: " + uuid);
-                return; // EARLY EXIT!
-            }
+        if (!sessions.containsKey(uuid)) {
+            log.warn("Session not in cache: " + uuid);
+            return; // EARLY EXIT!
+        }
 
-            log.info("Destroying session " + uuid + " due to : " + reason);
+        log.info("Destroying session " + uuid + " due to : " + reason);
 
-            // Announce to all callbacks.
-            Set<SessionCallback> cbs = sessionCallbackMap.get(uuid);
-            if (cbs != null) {
-                for (SessionCallback cb : cbs) {
-                    try {
-                        cb.close();
-                    } catch (Exception e) {
-                        final String msg = "SessionCallback %s throw exception for session %s";
-                        log.warn(String.format(msg, cb, uuid), e);
-                    }
+        // Announce to all callbacks.
+        Set<SessionCallback> cbs = sessionCallbackMap.get(uuid);
+        if (cbs != null) {
+            for (SessionCallback cb : cbs) {
+                try {
+                    cb.close();
+                } catch (Exception e) {
+                    final String msg = "SessionCallback %s throw exception for session %s";
+                    log.warn(String.format(msg, cb, uuid), e);
                 }
             }
-
-            // Announce to all listeners
-            try {
-                context.publishEvent(new DestroySessionMessage(this, uuid));
-            } catch (RuntimeException re) {
-                final String msg = "Session listener threw an exception for session %s";
-                log.warn(String.format(msg, uuid), re);
-            }
-
-            ehmanager.removeCache("memory:" + uuid);
-            ehmanager.removeCache("ondisk:" + uuid);
-            sessions.remove(uuid);
-        } finally {
-            // pass ticket:3181
         }
+
+        // Announce to all listeners
+        try {
+            context.publishEvent(new DestroySessionMessage(this, uuid));
+        } catch (RuntimeException re) {
+            final String msg = "Session listener threw an exception for session %s";
+            log.warn(String.format(msg, uuid), re);
+        }
+
+        ehmanager.removeCache("memory:" + uuid);
+        ehmanager.removeCache("ondisk:" + uuid);
+        sessions.remove(uuid);
+
     }
 
     /**
