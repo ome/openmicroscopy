@@ -259,7 +259,7 @@ public static class Impl extends OnContextRefreshedEventListener implements Exte
     }
 
     public Set<String> getClasses() {
-        return hibernateClasses.keySet();
+        return locksHolder.keySet();
     }
 
     public Class<IObject> getHibernateClass(String table) {

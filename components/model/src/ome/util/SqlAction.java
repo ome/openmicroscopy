@@ -225,6 +225,10 @@ public interface SqlAction {
 
     Set<String> currentUserNames();
 
+    int changeGroupPermissions(Long id, Long internal);
+
+    int changeTablePermissionsForGroup(String table, Long id, Long internal);
+
     //
     // End PgArrayHelper
     //
@@ -263,6 +267,17 @@ public interface SqlAction {
             return results >= 1;
         }
 
+        public int changeGroupPermissions(Long id, Long internal) {
+            return _jdbc().update(_lookup("update_permissions_for_group"),
+                    internal, id);
+        }
+
+        public int changeTablePermissionsForGroup(String table, Long id, Long internal) {
+            String sql = _lookup("update_permissions_for_table");
+            sql = String.format(sql, table);
+            return _jdbc().update(sql, internal, id);
+        }
+
         //
         // FILES
         //
@@ -280,4 +295,5 @@ public interface SqlAction {
         }
 
     }
+
 }

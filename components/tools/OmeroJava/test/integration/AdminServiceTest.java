@@ -866,12 +866,14 @@ public class AdminServiceTest
 	 * <code>ChangePermissions</code> method.
 	 * @throws Exception Thrown if an error occurred.
 	 */
-	@Test
+	@Test(groups = "changePermissions")
     public void testChangePermissions()
     	throws Exception
     {
-		IAdminPrx prx = root.getSession().getAdminService();
-		String uuid = UUID.randomUUID().toString();
+        root = newRootOmeroClient();
+        IAdminPrx prx = root.getSession().getAdminService();
+        String uuid = UUID.randomUUID().toString();
+
         // First group rwr---
         ExperimenterGroup g = new ExperimenterGroupI();
         g.setName(rstring(uuid));
