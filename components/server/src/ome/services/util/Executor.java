@@ -50,7 +50,7 @@ import org.springframework.transaction.support.TransactionCallback;
  * task, that a {@link TransactionCallback} and a {@link HibernateCallback}
  * surround the call, and that subsequently {@link SecuritySystem#logout()} is
  * called.
- * 
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
@@ -122,12 +122,12 @@ public interface Executor extends ApplicationContextAware {
      * Executes a {@link SqlWork} wrapped with a transaction. Since
      * {@link StatelessSession} does not return proxies, there is less concern
      * about returned values, but this method <em>completely</em> overrides
-     * OMERO security, and should be used <b>very</em> carefully. *
-     * 
+     * OMERO security, and should be used <b>very</em> carefully.
+     *
      * As with {@link #execute(Principal, Work)} the {@link SqlWork}
      * instance must be properly marked with an {@link Transactional}
      * annotation.
-     * 
+     *
      * @param work
      *            Non-null.
      * @return
@@ -152,7 +152,7 @@ public interface Executor extends ApplicationContextAware {
         /**
          * Work method. Must return all results coming from Hibernate via the
          * {@link Object} return method.
-         * 
+         *
          * @param status
          *            non null.
          * @param session
@@ -227,8 +227,33 @@ public interface Executor extends ApplicationContextAware {
      * Simple adapter which takes a String for {@link #description}
      */
     public abstract class SimpleWork extends Descriptive implements Work {
+
+        /**
+         * Member field set by the {@link Executor} instance before
+         * invoking {@link #doWork(Session, ServiceFactory)}. This
+         * was introduced to prevent strange contortions trying to
+         * get access to JDBC directly since the methods on Session
+         * are no longer usable. It was introduced as a setter-injection
+         * to prevent wide-scale changes to the code-base. It could
+         * equally have been added to the interface method as an argument.
+         *
+         * @see ticket:73
+         */
+        private /*final*/ SqlAction sql;
+
         public SimpleWork(Object o, String method, Object...params) {
             super(o, method, params);
+        }
+
+        public synchronized void setSqlAction(SqlAction sql) {
+            if (this.sql != null) {
+                throw new InternalException("Can only set SqlAction once!");
+            }
+            this.sql = sql;
+        }
+
+        public SqlAction getSqlAction() {
+            return sql;
         }
     }
 
@@ -292,7 +317,7 @@ public interface Executor extends ApplicationContextAware {
                 return new Principal(session);
             }
         }
-        
+
         /**
          * Executes a {@link Work} instance wrapped in two layers of AOP. The
          * first is intended to acquire the proper arguments for
@@ -307,6 +332,11 @@ public interface Executor extends ApplicationContextAware {
          * @param work
          */
         public Object execute(final Principal p, final Work work) {
+
+            if (work instanceof SimpleWork) {
+                ((SimpleWork) work).setSqlAction(sqlAction);
+            }
+
             Interceptor i = new Interceptor(factory);
             ProxyFactory factory = new ProxyFactory();
             factory.setTarget(work);
