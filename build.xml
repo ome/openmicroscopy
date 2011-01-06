@@ -173,6 +173,22 @@ java component.
         <iterate buildpathref="OmeroCpp.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
         <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
+        <if><isset property="env.NOMAKE"/><then>
+            <echo>
++------------------------------------------------------------------------+
+|                                                                        |
+|  ====================================================================  |
+|                                                                        |
+|  WARNING: NOMAKE was set. C++ bindings will not have built correctly.  |
+|                                                                        |
+|           If you used, 'build-default build-cpp' either use two        |
+|           commands './build.py build-default; ./build.py build-cpp'    |
+|           or use './build.py build-all'                                |
+|  ====================================================================  |
+|                                                                        |
++-------------------------------------------------------------------------
+            </echo></then>
+        </if>
     </target>
 
     <target name="build-java" description="Build OmeroJava bindings and copy to dist/lib" depends="init">
