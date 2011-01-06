@@ -45,7 +45,7 @@ public class TextualAnnotationData extends AnnotationData {
     /** Creates a new instance. */
     public TextualAnnotationData() {
         super(CommentAnnotationI.class);
-        setContent(null);
+        setContent("");
     }
 
     /**
