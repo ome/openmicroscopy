@@ -1245,35 +1245,6 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
         return getExtendedMetadata().getClasses();
     }
 
-    final static int GROUP_READ = Permissions.bit(Role.GROUP, Right.READ);
-
-    final static int WORLD_READ = Permissions.bit(Role.WORLD, Right.READ);
-
-    final static String GROUP_PERMS_SQL = "update %s " +
-        " set permissions = %s where %s";
-
-    private int executeUpdate(Session s, String className, long internal, String where) {
-
-        final Log log = getBeanHelper().getLogger();
-        final String str = String.format(GROUP_PERMS_SQL,
-                className, internal, where);
-        final org.hibernate.Query q = s.createSQLQuery(str);
-
-        int changed = 0;
-        try {
-            changed = q.executeUpdate();
-        } catch (RuntimeException e) {
-            log.error("SQL failed: "+str, e);
-            throw e;
-        }
-        if (changed > 0) {
-            log.info(
-                String.format("# of perms changed for %s: %s",
-                        className, changed));
-        }
-        return changed;
-    }
-
     private String table(String className) {
         try {
             Class<?> c = Class.forName(className);
@@ -1326,16 +1297,26 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
             throw new GroupSecurityViolation("Cannot remove world read: "+group);
         }
 
-        Long internal = (Long) Utils.internalForm(newPerms);
+        final Long internal = (Long) Utils.internalForm(newPerms);
+
+        final Log log = getBeanHelper().getLogger();
 
         for (String className : classes()) {
             String table = table(className);
             if (table == null) {
                 continue;
             }
-            executeUpdate(s, table, internal, "group_id = " + id);
+            int changed = sql.changeTablePermissionsForGroup(table, id, internal);
+            if (changed > 0) {
+                log.info(
+                        String.format("# of perms changed for %s: %s",
+                                className, changed));
+            }
         }
-        executeUpdate(s, "experimentergroup", internal, "id = " + id);
+
+        sql.changeGroupPermissions(id, internal);
+        log.info(String.format("Changed permissions for %s to %s", id, internal));
+
     }
 
     // ticket:1781 - group-owner admin privileges

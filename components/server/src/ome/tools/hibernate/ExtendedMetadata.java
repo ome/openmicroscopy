@@ -264,7 +264,7 @@ public static class Impl implements ExtendedMetadata, ApplicationListener {
     }
 
     public Set<String> getClasses() {
-        return hibernateClasses.keySet();
+        return locksHolder.keySet();
     }
 
     public Class<IObject> getHibernateClass(String table) {
