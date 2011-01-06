@@ -8,12 +8,12 @@ package ome.services.blitz.repo;
 
 import ome.services.blitz.fire.Registry;
 import ome.services.util.Executor;
+import ome.util.SqlAction;
 import omero.ServerError;
 import omero.model.OriginalFile;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 
 import Ice.Current;
 
@@ -31,8 +31,8 @@ public class TemporaryRepositoryI extends AbstractRepositoryI {
             .getLog(TemporaryRepositoryI.class);
 
     public TemporaryRepositoryI(Ice.ObjectAdapter oa, Registry reg,
-            Executor ex, SimpleJdbcOperations jdbc, String sessionUuid) {
-        super(oa, reg, ex, jdbc, sessionUuid, System.getProperty("java.io.tmpdir"));
+            Executor ex, SqlAction sql, String sessionUuid) {
+        super(oa, reg, ex, sql, sessionUuid, System.getProperty("java.io.tmpdir"));
     }
 
     /**

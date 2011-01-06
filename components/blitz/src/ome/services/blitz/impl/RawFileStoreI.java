@@ -16,6 +16,7 @@ import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.ServiceFactoryAware;
 import ome.services.blitz.util.TieAware;
 import ome.services.util.Executor;
+import ome.util.SqlAction;
 import omero.ServerError;
 import omero.api.AMD_RawFileStore_exists;
 import omero.api.AMD_RawFileStore_read;
@@ -32,7 +33,6 @@ import omero.grid.RepositoryPrxHelper;
 import omero.model.OriginalFile;
 import omero.util.IceMapper;
 
-import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
@@ -127,13 +127,11 @@ _RawFileStoreOperations, ServiceFactoryAware, TieAware {
             final Ice.Current current) throws ServerError {
 
         final String repo = (String) sf.executor
-                .executeStateless(new Executor.SimpleStatelessWork(this,
+                .executeSql(new Executor.SimpleSqlWork(this,
                         "__redirect", fileId) {
                     @Transactional(readOnly = true)
-                    public Object doWork(SimpleJdbcOperations jdbc) {
-                        return jdbc.queryForObject(
-                                "select repo from OriginalFile where id = ?",
-                                String.class, fileId);
+                    public Object doWork(SqlAction sql) {
+                        return sql.fileRepo(fileId);
                     }
                 });
 

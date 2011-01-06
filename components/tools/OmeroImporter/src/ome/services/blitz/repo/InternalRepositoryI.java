@@ -8,12 +8,12 @@ package ome.services.blitz.repo;
 
 import ome.services.blitz.fire.Registry;
 import ome.services.util.Executor;
+import ome.util.SqlAction;
 import omero.ServerError;
 import omero.model.OriginalFile;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 
 import Ice.Current;
 import Ice.ObjectAdapter;
@@ -29,8 +29,8 @@ public class InternalRepositoryI extends AbstractRepositoryI {
     private final static Log log = LogFactory.getLog(InternalRepositoryI.class);
 
     public InternalRepositoryI(ObjectAdapter oa, Registry reg, Executor ex,
-            SimpleJdbcOperations jdbc, String sessionUuid, String repoDir) {
-        super(oa, reg, ex, jdbc, sessionUuid, repoDir);
+            SqlAction sql, String sessionUuid, String repoDir) {
+        super(oa, reg, ex, sql, sessionUuid, repoDir);
     }
 
     /**

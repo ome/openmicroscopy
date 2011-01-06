@@ -21,10 +21,10 @@ import ome.io.nio.PixelsService;
 import ome.io.nio.ThumbnailService;
 import ome.tools.FileSystem;
 import ome.tools.RepositoryTask;
+import ome.util.SqlAction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -79,7 +79,7 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
     private transient OriginalFilesService fileService;
 
     /* JDBC operations for removedUnusedFiles */
-    private transient SimpleJdbcOperations jdbc;
+    private transient SqlAction sql;
 
     // Static state
     // =========================================================================
@@ -137,13 +137,13 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
     }
 
     /**
-     * Bean injection setter for JDBC operations
+     * Bean injection setter for SQL operations
      * 
      * @param rootdir
      */
-    public void setSimpleJdbcOperations(SimpleJdbcOperations jdbcOps) {
-        getBeanHelper().throwIfAlreadySet(this.jdbc, jdbcOps);
-        this.jdbc = jdbcOps;
+    public void setSqlAction(SqlAction sql) {
+        getBeanHelper().throwIfAlreadySet(this.sql, sql);
+        this.sql = sql;
     }
 
     /*
@@ -287,7 +287,7 @@ public class RepositoryInfoImpl extends AbstractLevel2Service implements
     @RolesAllowed("user")
     public void removeUnusedFiles() {
 
-        RepositoryTask task = new RepositoryTask(jdbc);
+        RepositoryTask task = new RepositoryTask(sql);
 
         // get ids for any objects marked as deleted
         List<Long> files = task.getFileIds();

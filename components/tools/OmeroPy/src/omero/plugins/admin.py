@@ -726,6 +726,7 @@ OMERO Diagnostics %s
         data_dir = re.compile(".*?Unable.to.initialize:.FullText.*?")
         pg_password = re.compile(".*?org.postgresql.util.PSQLException:.FATAL:.password.*?authentication.failed.for.user.*?")
         pg_user = re.compile(""".*?org.postgresql.util.PSQLException:.FATAL:.role.".*?".does.not.exist.*?""")
+        pg_conn = re.compile(""".*?org.postgresql.util.PSQLException:.Connection.refused.""")
 
 
         issues = {
@@ -733,7 +734,8 @@ OMERO Diagnostics %s
             db_ready : "Your database configuration is invalid",
             data_dir : "Did you create your omero.data.dir? E.g. /OMERO",
             pg_password : "Your postgres password seems to be invalid",
-            pg_user: "Your postgres user is invalid"
+            pg_user: "Your postgres user is invalid",
+            pg_conn: "Your postgres hostname and/or port is invalid"
         }
 
         try:

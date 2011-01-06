@@ -49,7 +49,7 @@
     accessing the database time. Safe to use ONLY from within another service!
     </description>
     <property name="databaseIdentity" ref="databaseIdentity"/>
-    <property name="jdbcTemplate" ref="simpleJdbcTemplate"/>
+    <property name="sqlAction" ref="simpleSqlAction"/>
     <property name="preferenceContext" ref="preferenceContext"/>
     <property name="currentDetails" ref="currentDetails"/>
   </bean>

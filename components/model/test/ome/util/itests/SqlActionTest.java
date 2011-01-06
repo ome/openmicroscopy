@@ -82,7 +82,7 @@ public class PgArrayHelperTest extends AbstractManagedContextTest {
     }
 
 
-    // Pixels 
+    // Pixels
     @Test(enabled=true)
     public void testGetEmptyPixelsParams() {
         Map<String, String> t = helper.getPixelsParams(p.getId());

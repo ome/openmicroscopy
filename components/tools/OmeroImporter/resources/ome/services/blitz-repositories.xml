@@ -23,7 +23,7 @@
       <constructor-arg index="0" ref="BlitzAdapter"/>
       <constructor-arg index="1" ref="Registry"/>
       <constructor-arg index="2" ref="executor"/>
-      <constructor-arg index="3" ref="simpleJdbcTemplate"/>
+      <constructor-arg index="3" ref="simpleSqlAction"/>
       <constructor-arg index="4" ref="uuid"/>
       <constructor-arg index="5" value="${omero.data.dir}"/>
   </bean>
@@ -51,7 +51,7 @@
       <constructor-arg index="0" ref="BlitzAdapter"/>
       <constructor-arg index="1" ref="Registry"/>
       <constructor-arg index="2" ref="executor"/>
-      <constructor-arg index="3" ref="simpleJdbcTemplate"/>
+      <constructor-arg index="3" ref="simpleSqlAction"/>
       <constructor-arg index="4" ref="uuid"/>
       <constructor-arg index="5" ref="scriptRepoHelper"/>
   </bean>
@@ -73,7 +73,7 @@
       <constructor-arg index="0" ref="BlitzAdapter"/>
       <constructor-arg index="1" ref="Registry"/>
       <constructor-arg index="2" ref="executor"/>
-      <constructor-arg index="3" ref="simpleJdbcTemplate"/>
+      <constructor-arg index="3" ref="simpleSqlAction"/>
       <constructor-arg index="4" ref="uuid"/>
   </bean>
   <bean id="temporaryTakeoverRun" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">

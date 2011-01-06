@@ -11,12 +11,12 @@ import ome.api.ITypes;
 import ome.conditions.InternalException;
 import ome.model.IEnum;
 import ome.model.meta.EventLog;
+import ome.util.SqlAction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 /**
  * {@link EventLogLoader} implementation which keeps tracks of the last
@@ -36,56 +36,19 @@ public class PersistentEventLogLoader extends EventLogLoader {
      */
     protected String key;
 
-    /**
-     * Query used with parameter 'name' to lookup configuration value
-     */
-    protected String query;
-
-    /**
-     * String use with parameters 'name', and 'value' to insert a new current id
-     */
-    protected String insert;
-
-    /**
-     * String used with parameters 'value' and 'name' to change the current id
-     */
-    protected String update;
-
-    /**
-     * String used with parameter 'name' to drop the current id;
-     */
-    protected String delete;
-
     protected ITypes types;
 
-    protected SimpleJdbcTemplate template;
+    protected SqlAction sql;
 
     public void setKey(String key) {
         this.key = key;
     }
-
-    public void setQuery(String query) {
-        this.query = query;
-    }
-
-    public void setInsert(String insert) {
-        this.insert = insert;
-    }
-
-    public void setUpdate(String update) {
-        this.update = update;
-    }
-
-    public void setDelete(String delete) {
-        this.delete = delete;
-    }
-
     public void setTypes(ITypes types) {
         this.types = types;
     }
 
-    public void setTemplate(SimpleJdbcTemplate template) {
-        this.template = template;
+    public void setSqlAction(SqlAction sql) {
+        this.sql = sql;
     }
 
     @Override
@@ -121,7 +84,7 @@ public class PersistentEventLogLoader extends EventLogLoader {
     public long getCurrentId() {
         long current_id;
         try {
-            current_id = template.queryForLong(query, key);
+            current_id = sql.selectCurrentEventLog(key);
         } catch (EmptyResultDataAccessException erdae) {
             // This event log loader has never been run. Initialize
             current_id = -1;
@@ -138,14 +101,11 @@ public class PersistentEventLogLoader extends EventLogLoader {
     }
 
     public void setCurrentId(long id) {
-        int count = template.update(update, id, key);
-        if (count == 0) {
-            template.update(insert, key, id);
-        }
+        sql.setCurrentEventLog(id, key);
     }
 
     public void deleteCurrentId() {
-        template.update(delete, key);
+        sql.delCurrentEventLog(key);
     }
 
     @Override

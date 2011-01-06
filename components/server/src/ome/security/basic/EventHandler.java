@@ -19,6 +19,7 @@ import ome.model.meta.Event;
 import ome.model.meta.EventLog;
 import ome.system.EventContext;
 import ome.tools.hibernate.SessionFactory;
+import ome.util.SqlAction;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
@@ -27,7 +28,6 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
 import org.hibernate.engine.SessionImplementor;
 import org.hibernate.jdbc.Work;
-import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAttribute;
@@ -60,7 +60,7 @@ public class EventHandler implements MethodInterceptor {
 
     protected final SessionFactory factory;
 
-    protected final SimpleJdbcOperations isolatedJdbc, simpleJdbc;
+    protected final SqlAction isolatedSql, simpleSql;
 
     protected final boolean readOnly;
 
@@ -73,23 +73,22 @@ public class EventHandler implements MethodInterceptor {
      * @param template
      *            Not null.
      */
-    public EventHandler(SimpleJdbcOperations isolatedJdbc,
-            SimpleJdbcOperations simpleJdbc,
+    public EventHandler(SqlAction isolatedSql, SqlAction simpleSql,
             BasicSecuritySystem securitySystem, SessionFactory factory,
             TransactionAttributeSource txSource) {
-        this(isolatedJdbc, simpleJdbc, securitySystem, factory, txSource, false);
+        this(isolatedSql, simpleSql, securitySystem, factory, txSource, false);
     }
     
-    public EventHandler(SimpleJdbcOperations isolatedJdbc,
-            SimpleJdbcOperations simpleJdbc,
+    public EventHandler(SqlAction isolatedSql,
+            SqlAction simpleSql,
             BasicSecuritySystem securitySystem, SessionFactory factory,
             TransactionAttributeSource txSource,
             boolean readOnly) {
         this.secSys = securitySystem;
         this.txSource = txSource;
         this.factory = factory;
-        this.simpleJdbc = simpleJdbc;
-        this.isolatedJdbc = isolatedJdbc;
+        this.simpleSql = simpleSql;
+        this.isolatedSql = isolatedSql;
         this.readOnly = readOnly;
     }
 
@@ -253,8 +252,7 @@ public class EventHandler implements MethodInterceptor {
         }
 
         try {
-            long lastValue = isolatedJdbc.queryForLong("select ome_nextval(?,?)",
-                    "seq_eventlog", logs.size());
+            long lastValue = isolatedSql.nextValue("seq_eventlog", logs.size());
             long id = lastValue - logs.size() + 1;
             List<Object[]> batchData = new ArrayList<Object[]>();
             for (EventLog l : logs) {
@@ -268,9 +266,7 @@ public class EventHandler implements MethodInterceptor {
                                 l.getEvent().getId() });
             }
 
-            simpleJdbc.batchUpdate("INSERT INTO eventlog "
-                    + "(id, permissions, entityid,entitytype, action, event) "
-                    + "values (?,?,?,?,?,?)", batchData);
+            simpleSql.insertLogs(batchData);
 
         } catch (Exception ex) {
             log.error("Error saving event logs: " + logs, ex);

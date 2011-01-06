@@ -37,16 +37,17 @@ import ome.services.throttling.Adapter;
 import ome.services.util.Executor.SimpleWork;
 import ome.system.ServiceFactory;
 import ome.tools.hibernate.QueryBuilder;
+import ome.util.SqlAction;
 import omero.ServerError;
 import omero.api.AMD_IRoi_findByAnyIntersection;
 import omero.api.AMD_IRoi_findByImage;
 import omero.api.AMD_IRoi_findByIntersection;
 import omero.api.AMD_IRoi_findByPlane;
 import omero.api.AMD_IRoi_findByRoi;
-import omero.api.AMD_IRoi_getRoiMeasurements;
 import omero.api.AMD_IRoi_getMeasuredRois;
 import omero.api.AMD_IRoi_getMeasuredRoisMap;
 import omero.api.AMD_IRoi_getPoints;
+import omero.api.AMD_IRoi_getRoiMeasurements;
 import omero.api.AMD_IRoi_getRoiStats;
 import omero.api.AMD_IRoi_getShapeStats;
 import omero.api.AMD_IRoi_getShapeStatsList;
@@ -65,8 +66,8 @@ import org.apache.commons.collections.MultiMap;
 import org.apache.commons.collections.map.MultiValueMap;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.transaction.annotation.Transactional;
+
 import Ice.Current;
 
 /**
@@ -81,12 +82,12 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
 
     protected final GeomTool geomTool;
     
-    protected final SimpleJdbcOperations jdbc;
+    protected final SqlAction sql;
 
-    public RoiI(BlitzExecutor be, GeomTool geomTool, SimpleJdbcOperations jdbc) {
+    public RoiI(BlitzExecutor be, GeomTool geomTool, SqlAction sql) {
     	super(null, be);
         this.geomTool = geomTool;
-    	this.jdbc = jdbc;
+	this.sql = sql;
     }
 
     public void setServiceFactory(ServiceFactoryI sf) {
@@ -169,10 +170,8 @@ public class RoiI extends AbstractAmdServant implements _IRoiOperations,
             			ns=true;
             	if (ns)
             	{
-                	String queryString;
-                	queryString = "select id from roi where image = " + imageId+
-                			" and '" + opts.namespace.getValue()+ "'  = any (namespaces)";
-                	List<Map<String, Object>> mapList = jdbc.queryForList(queryString);
+		    List<Map<String, Object>> mapList = sql.roiByImageAndNs(imageId,
+		            opts.namespace.getValue());
                 	List<Long> idList = new ArrayList<Long>();
                 	for(Map<String, Object> idMap : mapList)
                 		 idList.add((Long)idMap.get("id"));

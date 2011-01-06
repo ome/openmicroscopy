@@ -22,6 +22,7 @@ import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.ServiceFactory;
 import ome.tools.spring.InternalServiceFactory;
+import ome.util.SqlAction;
 
 import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
@@ -35,7 +36,6 @@ import org.springframework.aop.framework.ProxyFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
 import org.springframework.transaction.TransactionStatus;
@@ -119,12 +119,12 @@ public interface Executor extends ApplicationContextAware {
     public <T> T get(final Future<T> future);
 
     /**
-     * Executes a {@link StatelessWork} wrapped with a transaction. Since
+     * Executes a {@link SqlWork} wrapped with a transaction. Since
      * {@link StatelessSession} does not return proxies, there is less concern
      * about returned values, but this method <em>completely</em> overrides
      * OMERO security, and should be used <b>very</em> carefully. *
      * 
-     * As with {@link #execute(Principal, Work)} the {@link StatelessWork}
+     * As with {@link #execute(Principal, Work)} the {@link SqlWork}
      * instance must be properly marked with an {@link Transactional}
      * annotation.
      * 
@@ -132,7 +132,7 @@ public interface Executor extends ApplicationContextAware {
      *            Non-null.
      * @return
      */
-    public Object executeStateless(final StatelessWork work);
+    public Object executeSql(final SqlWork work);
 
     /**
      * Work SPI to perform actions within the server as if they were fully
@@ -182,7 +182,7 @@ public interface Executor extends ApplicationContextAware {
      * http://jira.springframework.org/browse/SPR-2495, that interface is not
      * currently supported in Spring's transaction management.
      */
-    public interface StatelessWork {
+    public interface SqlWork {
 
         /**
          * Return a description of what this work will be doing for logging
@@ -190,7 +190,7 @@ public interface Executor extends ApplicationContextAware {
          */
         String description();
 
-        Object doWork(SimpleJdbcOperations jdbc);
+        Object doWork(SqlAction sql);
     }
 
     public abstract class Descriptive {
@@ -235,9 +235,9 @@ public interface Executor extends ApplicationContextAware {
     /**
      * Simple adapter which takes a String for {@link #description}
      */
-    public abstract class SimpleStatelessWork extends Descriptive implements StatelessWork {
+    public abstract class SimpleSqlWork extends Descriptive implements SqlWork {
 
-        public SimpleStatelessWork(Object o, String method, Object...params) {
+        public SimpleSqlWork(Object o, String method, Object...params) {
             super(o, method, params);
         }
 
@@ -252,19 +252,19 @@ public interface Executor extends ApplicationContextAware {
         final protected CurrentDetails principalHolder;
         final protected String[] proxyNames;
         final protected SessionFactory factory;
-        final protected SimpleJdbcOperations jdbcOps;
+        final protected SqlAction sqlAction;
         final protected ExecutorService service;
 
         public Impl(CurrentDetails principalHolder, SessionFactory factory,
-                SimpleJdbcOperations jdbc, String[] proxyNames) {
-            this(principalHolder, factory, jdbc, proxyNames,
+                SqlAction sqlAction, String[] proxyNames) {
+            this(principalHolder, factory, sqlAction, proxyNames,
                     java.util.concurrent.Executors.newCachedThreadPool());
         }
 
         public Impl(CurrentDetails principalHolder, SessionFactory factory,
-                SimpleJdbcOperations jdbc, String[] proxyNames,
+                SqlAction sqlAction, String[] proxyNames,
                 ExecutorService service) {
-            this.jdbcOps = jdbc;
+            this.sqlAction = sqlAction;
             this.factory = factory;
             this.principalHolder = principalHolder;
             this.proxyNames = proxyNames;
@@ -367,13 +367,13 @@ public interface Executor extends ApplicationContextAware {
         }
 
         /**
-         * Executes a {@link StatelessWork} in transaction.
+         * Executes a {@link SqkWork} in transaction.
          * 
          * @param work
          *            Non-null.
          * @return
          */
-        public Object executeStateless(final StatelessWork work) {
+        public Object executeSql(final SqlWork work) {
 
             if (principalHolder.size() > 0) {
                 throw new IllegalStateException(
@@ -384,10 +384,10 @@ public interface Executor extends ApplicationContextAware {
 
             ProxyFactory factory = new ProxyFactory();
             factory.setTarget(work);
-            factory.setInterfaces(new Class[] { StatelessWork.class });
+            factory.setInterfaces(new Class[] { SqlWork.class });
             factory.addAdvice(advices.get(2)); // TX FIXME
-            StatelessWork wrapper = (StatelessWork) factory.getProxy();
-            return wrapper.doWork(this.jdbcOps);
+            SqlWork wrapper = (SqlWork) factory.getProxy();
+            return wrapper.doWork(this.sqlAction);
         }
 
         /**

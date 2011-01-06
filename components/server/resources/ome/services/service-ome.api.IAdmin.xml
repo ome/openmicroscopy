@@ -26,7 +26,7 @@
     Privileged bean which has several "private" references injected. This is not
     an example of what should be done.
     </description>
-    <constructor-arg ref="simpleJdbcTemplate"/>
+    <constructor-arg ref="simpleSqlAction"/>
     <constructor-arg ref="sessionFactory"/>
     <constructor-arg ref="mailSender"/>
     <constructor-arg ref="templateMessage"/>
@@ -65,7 +65,7 @@
   </bean>
 
   <bean id="passwordUtil" class="ome.security.auth.PasswordUtil">
-    <constructor-arg ref="simpleJdbcTemplate"/>
+    <constructor-arg ref="simpleSqlAction"/>
   </bean>
 
   <bean name="managed-ome.api.IAdmin" parent="managedService">

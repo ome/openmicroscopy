@@ -9,12 +9,12 @@ package ome.services.blitz.repo;
 import ome.services.blitz.fire.Registry;
 import ome.services.scripts.ScriptRepoHelper;
 import ome.services.util.Executor;
+import ome.util.SqlAction;
 import omero.ServerError;
 import omero.model.OriginalFile;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 
 import Ice.Current;
 import Ice.ObjectAdapter;
@@ -30,9 +30,9 @@ public class ScriptRepositoryI extends AbstractRepositoryI {
 
     private final ScriptRepoHelper helper;
 
-    public ScriptRepositoryI(ObjectAdapter oa, Registry reg, Executor ex, SimpleJdbcOperations jdbc,
+    public ScriptRepositoryI(ObjectAdapter oa, Registry reg, Executor ex, SqlAction sql,
             String sessionUuid, ScriptRepoHelper helper) {
-        super(oa, reg, ex, jdbc, sessionUuid, helper.getScriptDir());
+        super(oa, reg, ex, sql, sessionUuid, helper.getScriptDir());
         this.helper = helper;
     }
 

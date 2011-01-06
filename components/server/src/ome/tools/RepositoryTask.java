@@ -13,10 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ome.api.IRepositoryInfo;
+import ome.util.SqlAction;
 
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.simple.ParameterizedRowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 
 /**
  * Class implementation of various mechanised tasks, database queries, file I/O,
@@ -27,13 +26,13 @@ import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
  */
 public class RepositoryTask {
 
-	final private SimpleJdbcOperations template;
+	final private SqlAction sql;
 
 	/**
 	 * Constructor
 	 */
-	public RepositoryTask(SimpleJdbcOperations template) {
-	    this.template = template;
+	public RepositoryTask(SqlAction sql) {
+	    this.sql = sql;
 	}
 	
 	/**
@@ -43,22 +42,7 @@ public class RepositoryTask {
 	 * @return List<Long> representing the ids for files that were deleted
 	 */
 	public List<Long> getFileIds() {
-		List<Long> list;
-
-		String sql = "select entityid from eventlog " + 
-		"where action = 'DELETE' and entitytype = 'ome.model.core.OriginalFile'";
-
-		RowMapper<Long> mapper = new RowMapper<Long>() {
-			public Long mapRow(ResultSet resultSet, int rowNum)
-					throws SQLException {
-				Long id = new Long(resultSet.getString(1));
-				return id;
-			}
-		};
-
-		list = template.query(sql, mapper, (Object[]) null);
-
-		return list;
+	    return sql.getDeletedIds("ome.model.core.OriginalFile");
 	}
 	
 	/**
@@ -68,22 +52,7 @@ public class RepositoryTask {
 	 * @return List<Long> representing the ids for pixels that were deleted
 	 */
 	public List<Long> getPixelIds() {
-		List<Long> list;
-
-		String sql = "select entityid from eventlog " + 
-		"where action = 'DELETE' and entitytype = 'ome.model.core.Pixels'";
-
-		RowMapper<Long> mapper = new RowMapper<Long>() {
-			public Long mapRow(ResultSet resultSet, int rowNum)
-					throws SQLException {
-				Long id = new Long(resultSet.getString(1));
-				return id;
-			}
-		};
-
-		list = template.query(sql, mapper, (Object[]) null);
-
-		return list;
+	    return sql.getDeletedIds("ome.model.core.Pixels");
 	}
 	
 	/**
@@ -93,22 +62,7 @@ public class RepositoryTask {
 	 * @return List<Long> representing the ids for thumbnails that were deleted
 	 */
 	public List<Long> getThumbnailIds() {
-		List<Long> list;
-
-		String sql = "select entityid from eventlog " + 
-			"where action = 'DELETE' and entitytype = 'ome.model.display.Thumbnail'";
-		
-		RowMapper<Long> mapper = new RowMapper<Long>() {
-			public Long mapRow(ResultSet resultSet, int rowNum)
-					throws SQLException {
-				Long id = new Long(resultSet.getString(1));
-				return id;
-			}
-		};
-
-		list = template.query(sql, mapper, (Object[]) null);
-
-		return list;
+	    return sql.getDeletedIds("ome.model.display.Thumbnail");
 	}
 
 	/**

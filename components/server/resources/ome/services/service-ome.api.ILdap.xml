@@ -32,7 +32,7 @@
 		<constructor-arg ref="roles"/>
 		<constructor-arg ref="ldapConfig" />
 		<constructor-arg ref="roleProvider"/>
-		<constructor-arg ref="simpleJdbcTemplate"/>
+		<constructor-arg ref="simpleSqlAction"/>
 	</bean>
 
 	<bean name="managed-ome.api.ILdap" parent="managedService">

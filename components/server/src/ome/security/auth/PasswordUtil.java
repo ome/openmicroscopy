@@ -17,6 +17,7 @@ import java.util.Random;
 import ome.conditions.ApiUsageException;
 import ome.conditions.InternalException;
 import ome.security.SecuritySystem;
+import ome.util.SqlAction;
 import ome.util.Utils;
 
 import org.apache.commons.codec.binary.Base64;
@@ -24,7 +25,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 
 /**
  * Static methods for dealing with password hashes and the "password" table.
@@ -39,10 +39,10 @@ public class PasswordUtil {
 
     private final static Log log = LogFactory.getLog(PasswordUtil.class);
 
-    private final SimpleJdbcOperations jdbc;
+    private final SqlAction sql;
 
-    public PasswordUtil(SimpleJdbcOperations jdbc) {
-        this.jdbc = jdbc;
+    public PasswordUtil(SqlAction sql) {
+        this.sql = sql;
     }
 
     /**
@@ -76,8 +76,7 @@ public class PasswordUtil {
     public String getDnById(Long id) {
         String expire;
         try {
-            expire = jdbc.queryForObject("select dn from password "
-                    + "where experimenter_id = ? ", String.class, id);
+            expire = sql.dnForUser(id);
         } catch (EmptyResultDataAccessException e) {
             expire = null; // This means there's not one.
         }
