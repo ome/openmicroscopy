@@ -87,7 +87,7 @@ import ome.model.*;
 #set($superId = ${type.typeToColumn($type.superclass)} )
 #if(!$type.discriminator)
 @javax.persistence.PrimaryKeyJoinColumn(name="${superId}_id")
-@javax.persistence.Table(name = "${type.table}")
+@javax.persistence.Table(name = "${type.tableName()}")
 @org.hibernate.annotations.ForeignKey(name="FK${type.table}_${superId}_id_${superId}")
 #else
 ## SINGLETABLE SUBCLASS
@@ -95,7 +95,7 @@ import ome.model.*;
 #end
 #else##########################################################
 ## TOP OF HIERARCHY
-@javax.persistence.Table(name = "${type.table}", uniqueConstraints = {
+@javax.persistence.Table(name = "${type.tableName()}", uniqueConstraints = {
 #set( $comma = "0" )
 #foreach($cols in $type.uniqueConstraints)
 #if( $comma == ""  )#set( $comma = ",")#end
@@ -394,7 +394,7 @@ implements java.io.Serializable, IObject
     * one-to-many List ${type.id}.${prop.name} (${prop.type})
     * Values are indexed by the column "index" on ${prop.type}
     */
-    @javax.persistence.JoinColumn(name="${prop.inverse}", nullable=false)
+    @javax.persistence.JoinColumn(name="${type.inverse($prop)}", nullable=false)
     @javax.persistence.OneToMany(fetch=javax.persistence.FetchType.LAZY, cascade={${cascadeEjb}})
     @org.hibernate.annotations.IndexColumn(name="${prop.inverse}_index", nullable=false)
 #else
@@ -899,7 +899,7 @@ implements java.io.Serializable, IObject
     /* DISABLED:
     @org.hibernate.annotations.CollectionOfElements()
     @org.hibernate.annotations.MapKey(columns=@javax.persistence.Column(name="owner_id"))
-    @javax.persistence.JoinTable(name="count_${type.shortname}_${prop.name}_by_owner")
+    @javax.persistence.JoinTable(name="${type.countName($prop)}")
     */
     /**
      * If fetched, returns the count(*) of ${LinkType} that a user has.
@@ -909,8 +909,8 @@ implements java.io.Serializable, IObject
     @org.hibernate.annotations.ForeignKey(name="FK_count_to_${type.shortname}_${prop.name}") // for code-gen
     @javax.persistence.ElementCollection // new collection annotation
     @javax.persistence.MapKeyColumn(name="owner_id", insertable=false, updatable=false, nullable=false)
-    @javax.persistence.Column(name="\"count\"", insertable=false, updatable=false, nullable=false)
-    @javax.persistence.CollectionTable(name="count_${type.shortname}_${prop.name}_by_owner",
+    @javax.persistence.Column(name="count", insertable=false, updatable=false, nullable=false)
+    @javax.persistence.CollectionTable(name="${type.countName($prop)}",
         joinColumns = @javax.persistence.JoinColumn(name="${type.shortname}_id"))
     public java.util.Map<Long, Long> get${prop.nameCapped}CountPerOwner() {
         return this.${prop.name}CountPerOwner;
@@ -928,12 +928,7 @@ implements java.io.Serializable, IObject
     */
     @javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.${fetchType}, cascade = {${cascadeEjb}}, targetEntity = ${prop.type}.class)
     @org.hibernate.annotations.Cascade({${cascadeHib}})
-## Required by addition of Share.group #2327
-#set($PossGroupPropName = "${prop.name}")
-#if($PossGroupPropName == "group")
-#set($PossGroupPropName = "\"group\"")
-#end
-    @javax.persistence.JoinColumn(name="${PossGroupPropName}", nullable=${prop.nullable},
+    @javax.persistence.JoinColumn(name="${type.propName($prop)}", nullable=${prop.nullable},
         unique=${prop.unique}, insertable=${prop.insert}, updatable=${prop.update})
     @org.hibernate.annotations.ForeignKey(name="FK${type.shortname.toLowerCase()}_${prop.name}_${prop.shortType.toLowerCase()}")
 #if($type.isLink)## Need to convert from IObject to an implementation class
@@ -952,7 +947,7 @@ implements java.io.Serializable, IObject
    /**
     * Simple field ${type.id}.${prop.name} (${prop.type}) 
     */
-    ${prop.typeAnnotation}
+    ${type.typeAnnotation($prop)}
 #if($prop.type == "java.lang.String")
     @org.hibernate.search.annotations.Fields({
         @org.hibernate.search.annotations.Field(index = org.hibernate.search.annotations.Index.TOKENIZED),
@@ -976,11 +971,8 @@ implements java.io.Serializable, IObject
 #else
     // Not indexed
 #end
-#set($columnName="${prop.name}")
-#if($prop.name.equals("column"))
-#set($columnName="\"column\"")
-#end
-    @javax.persistence.Column(columnDefinition="${prop.def}", nullable=${prop.nullable}, unique=${prop.unique}, name="${columnName}", updatable=${prop.update})
+
+    @javax.persistence.Column(columnDefinition="${prop.def}", nullable=${prop.nullable}, unique=${prop.unique}, name="${type.columnName($prop)}", updatable=${prop.update})
     public ${prop.fieldType} get${prop.nameCapped}() {
         $errorIfUnloaded
         return this.${prop.name};

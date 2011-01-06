@@ -114,7 +114,10 @@
         <target name="icegen" depends="prepare,icegen-init,icegen1,icegen2"/>
 
         <target name="icegen1" unless="icegen.unneeded">
-		<taskdef classname="ome.dsl.DSLTask" classpathref="omero.classpath" name="dsl"/>
+		<taskdef classname="ome.dsl.DSLTask" classpathref="omero.classpath" name="basedsl"/>
+		<presetdef name="dsl">
+			<basedsl profile="${omero.db.profile}"/>
+		</presetdef>
 
 		<!-- Not "combined" files-->
 		<dsl template="${resrc.dir}/templates/java_ice_map.vm" filepattern="${gen.dir}/omero/util/IceMap.java">
