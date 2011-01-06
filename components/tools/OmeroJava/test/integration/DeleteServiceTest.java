@@ -273,20 +273,19 @@ public class DeleteServiceTest
      * }
      * </pre>
      */
-    private Map<IObject, String> createIObjects() 
+    private Map<String, IObject> createIObjects()
     	throws Exception 
     {
-        Map<IObject, String> objects = new HashMap<IObject, String>();
-        objects.put(iUpdate.saveAndReturnObject(mmFactory.createImage()), 
-        		REF_IMAGE);
-        objects.put(iUpdate.saveAndReturnObject(
-        		mmFactory.simpleDatasetData().asIObject()), REF_DATASET);
-        objects.put(iUpdate.saveAndReturnObject(
-        		mmFactory.simpleProjectData().asIObject()), REF_PROJECT);
-        objects.put(iUpdate.saveAndReturnObject(
-        		mmFactory.simplePlateData().asIObject()), REF_PLATE);
-        objects.put(iUpdate.saveAndReturnObject(
-        		mmFactory.simpleScreenData().asIObject()), REF_SCREEN);
+        Map<String, IObject> objects = new HashMap<String, IObject>();
+        objects.put(REF_IMAGE, iUpdate.saveAndReturnObject(mmFactory.createImage()) );
+        objects.put(REF_DATASET, iUpdate.saveAndReturnObject(
+			mmFactory.simpleDatasetData().asIObject()));
+        objects.put(REF_PROJECT, iUpdate.saveAndReturnObject(
+			mmFactory.simpleProjectData().asIObject()));
+        objects.put(REF_PLATE, iUpdate.saveAndReturnObject(
+			mmFactory.simplePlateData().asIObject()));
+        objects.put(REF_SCREEN, iUpdate.saveAndReturnObject(
+			mmFactory.simpleScreenData().asIObject()));
         return objects;
     }
 
@@ -1610,7 +1609,7 @@ public class DeleteServiceTest
     public void testDeleteObjectWithNonSharableAnnotations() 
     	throws Exception
     {
-    	Map<IObject, String> objects = createIObjects();
+	Map<String, IObject> objects = createIObjects();
     	IObject obj = null;
     	Long id = null;
     	String type = null;
@@ -1618,9 +1617,9 @@ public class DeleteServiceTest
     	ParametersI param;
     	String sql;
     	List<IObject> l;
-    	for (Map.Entry<IObject, String> entry : objects.entrySet()) {
-    		obj = entry.getKey();
-    		type = entry.getValue();
+	for (Map.Entry<String, IObject> entry : objects.entrySet()) {
+	    type = entry.getKey();
+		obj = entry.getValue();
     		id = obj.getId().getValue();
     		annotationIds = createNonSharableAnnotation(obj, null);	
 
@@ -1657,10 +1656,10 @@ public class DeleteServiceTest
     	String sql;
     	List l;
     	for (int j = 0; j < values.length; j++) {
-		    Map<IObject, String> objects = createIObjects();
-		    for (Map.Entry<IObject, String> entry : objects.entrySet()) {
-		    	obj = entry.getKey();
-		    	type = entry.getValue();
+		    Map<String, IObject> objects = createIObjects();
+		    for (Map.Entry<String, IObject> entry : objects.entrySet()) {
+		        type = entry.getKey();
+			obj = entry.getValue();
 		    	id = obj.getId().getValue();
 		    	annotationIds = createSharableAnnotation(obj, null);	
 		    	if (values[j])
@@ -2650,7 +2649,7 @@ public class DeleteServiceTest
     public void testDeleteObjectWithAnnotationWithNS()
         throws Exception
     {
-        Map<IObject, String> objects = createIObjects();
+        Map<String, IObject> objects = createIObjects();
         IObject obj = null;
         Long id = null;
         String type = null;
@@ -2660,9 +2659,9 @@ public class DeleteServiceTest
         String sql;
         List<IObject> l;
         Map<String, String> options;
-        for (Map.Entry<IObject, String> entry : objects.entrySet()) {
-            obj = entry.getKey();
-            type = entry.getValue();
+        for (Map.Entry<String, IObject> entry : objects.entrySet()) {
+            type = entry.getKey();
+            obj = entry.getValue();
             id = obj.getId().getValue();
             annotationIds = createNonSharableAnnotation(obj, null);
             annotationIdsNS = createNonSharableAnnotation(obj, NAMESPACE);
@@ -2703,7 +2702,7 @@ public class DeleteServiceTest
     public void testDeleteObjectWithAnnotationWithNSMultipleNS()
         throws Exception
     {
-        Map<IObject, String> objects = createIObjects();
+        Map<String, IObject> objects = createIObjects();
         IObject obj = null;
         Long id = null;
         String type = null;
@@ -2713,9 +2712,9 @@ public class DeleteServiceTest
         String sql;
         List<IObject> l;
         Map<String, String> options;
-        for (Map.Entry<IObject, String> entry : objects.entrySet()) {
-            obj = entry.getKey();
-            type = entry.getValue();
+        for (Map.Entry<String, IObject> entry : objects.entrySet()) {
+            type = entry.getKey();
+            obj = entry.getValue();
             id = obj.getId().getValue();
             annotationIds = createNonSharableAnnotation(obj, null);
             annotationIdsNS.addAll(createNonSharableAnnotation(obj, NAMESPACE));
@@ -2759,7 +2758,7 @@ public class DeleteServiceTest
     public void testDeleteObjectWithAnnotationWithoutNS()
         throws Exception
     {
-        Map<IObject, String> objects = createIObjects();
+        Map<String, IObject> objects = createIObjects();
         IObject obj = null;
         Long id = null;
         String type = null;
@@ -2769,9 +2768,9 @@ public class DeleteServiceTest
         String sql;
         List<IObject> l;
         Map<String, String> options;
-        for (Map.Entry<IObject, String> entry : objects.entrySet()) {
-            obj = entry.getKey();
-            type = entry.getValue();
+        for (Map.Entry<String, IObject> entry : objects.entrySet()) {
+            type = entry.getKey();
+            obj = entry.getValue();
             id = obj.getId().getValue();
             annotationIds = createNonSharableAnnotation(obj, null);
             annotationIdsNS = createNonSharableAnnotation(obj, NAMESPACE);
@@ -2811,7 +2810,7 @@ public class DeleteServiceTest
     public void testDeleteObjectWithAnnotationWithoutNSMultipleNS()
         throws Exception
     {
-        Map<IObject, String> objects = createIObjects();
+        Map<String, IObject> objects = createIObjects();
         IObject obj = null;
         Long id = null;
         String type = null;
@@ -2821,9 +2820,9 @@ public class DeleteServiceTest
         String sql;
         List<IObject> l;
         Map<String, String> options;
-        for (Map.Entry<IObject, String> entry : objects.entrySet()) {
-            obj = entry.getKey();
-            type = entry.getValue();
+        for (Map.Entry<String, IObject> entry : objects.entrySet()) {
+            type = entry.getKey();
+            obj = entry.getValue();
             id = obj.getId().getValue();
             annotationIds = createNonSharableAnnotation(obj, null);
             annotationIdsNS.addAll(createNonSharableAnnotation(obj, NAMESPACE));
