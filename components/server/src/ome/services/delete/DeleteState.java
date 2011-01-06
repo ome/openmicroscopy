@@ -29,6 +29,7 @@ import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.tools.hibernate.ExtendedMetadata;
 import ome.tools.hibernate.QueryBuilder;
+import ome.util.SqlAction;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -290,6 +291,8 @@ public class DeleteState {
 
     private final Session session;
 
+    private final SqlAction sql;
+
     /**
      * @param ctx
      *            Stored the {@link OmeroContext} instance for raising event
@@ -298,9 +301,10 @@ public class DeleteState {
      *            non-null, active Hibernate session that will be used to delete
      *            all necessary items as well as lookup items for deletion.
      */
-    public DeleteState(OmeroContext ctx, Session session, DeleteSpec spec)
+    public DeleteState(OmeroContext ctx, SqlAction sql, Session session, DeleteSpec spec)
             throws DeleteException {
         this.ctx = ctx;
+        this.sql = sql;
         this.session = session;
         add(); // Set the actualIds size==1
 
@@ -320,7 +324,6 @@ public class DeleteState {
      * Walk throw the sub-spec graph actually loading the ids which must be
      * scheduled for delete.
      *
-     * @param session
      * @param spec
      * @param paths
      * @throws DeleteException
@@ -697,22 +700,11 @@ public class DeleteState {
     // Transactions
     //
 
-    private void call(Session session, String call, String savepoint) {
-        try {
-            session.connection().prepareCall(call + savepoint).execute();
-        } catch (Exception e) {
-            RuntimeException re = new RuntimeException("Failed to '" + call
-                    + savepoint + "'");
-            re.initCause(e);
-            throw re;
-        }
-    }
-
     public String savepoint(DeleteStep step) {
         add();
         step.savepoint = UUID.randomUUID().toString();
         step.savepoint = step.savepoint.replaceAll("-", "");
-        call(session, "SAVEPOINT DEL", step.savepoint);
+        sql.createSavepoint(step.savepoint);
         log.debug(String.format("Enter savepoint %s: new depth=%s",
                 step.savepoint,
                 actualIds.size()));
@@ -764,7 +756,7 @@ public class DeleteState {
 
         }
 
-        call(session, "RELEASE SAVEPOINT DEL", step.savepoint);
+        sql.releaseSavepoint(step.savepoint);
 
         log.debug(String.format(
                 "Released savepoint %s with %s ids: new depth=%s", step.savepoint,
@@ -788,7 +780,7 @@ public class DeleteState {
             count += old.size();
         }
 
-        call(session, "ROLLBACK TO SAVEPOINT DEL", step.savepoint);
+        sql.rollbackSavepoint(step.savepoint);
 
         log.debug(String.format(
                 "Rolled back savepoint %s with %s ids: new depth=%s",
