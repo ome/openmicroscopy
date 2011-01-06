@@ -380,19 +380,14 @@ public class LdapImpl extends AbstractLevel2Service implements ILdap,
     }
 
     public List<Map<String, Object>> lookupLdapAuthExperimenters() {
-        return jdbc
-                .queryForList(
-                        "select dn, experimenter_id from password where dn is not null ");
+        return sql.dnExperimenterMaps();
     }
 
     public String lookupLdapAuthExperimenter(Long id) {
-        String s;
+        String s = null;
 
         try {
-            s = jdbc
-                    .queryForObject(
-                            "select dn from password where dn is not null and experimenter_id = ? ",
-                            String.class, id);
+            s = sql.dnForUser(id);
         } catch (EmptyResultDataAccessException e) {
             s = null;
         }

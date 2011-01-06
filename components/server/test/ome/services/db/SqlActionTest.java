@@ -3,17 +3,18 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
-package ome.services.db;
+package ome.util.itests;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ome.model.core.Image;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
-import ome.model.core.Image;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.testing.ObjectFactory;
+import ome.util.SqlAction;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -22,17 +23,17 @@ import org.testng.annotations.Test;
  * Tests the JDBC-based array methods of {@link PgArrayHelper}
  */
 @Test(groups = "integration")
-public class PgArrayHelperTest extends AbstractManagedContextTest {
+public class SqlActionTest extends AbstractManagedContextTest {
 
     String key;
     String value;
     OriginalFile f;
     Pixels p;
-    PgArrayHelper helper;
+    SqlAction sql;
 
     @BeforeMethod
     public void setup() {
-        helper = new PgArrayHelper(this.jdbcTemplate);
+        sql = (SqlAction) applicationContext.getBean("simpleSqlAction");
         f = makefile();
         p = makepixels();
         key = uuid();
@@ -42,7 +43,7 @@ public class PgArrayHelperTest extends AbstractManagedContextTest {
     // OriginalFile
     @Test(enabled=true)
     public void testGetEmptyFileParams() {
-        Map<String, String> t = helper.getFileParams(f.getId());
+        Map<String, String> t = sql.getFileParams(f.getId());
         assertEquals(t.size(), 0);
     }
 
@@ -50,8 +51,8 @@ public class PgArrayHelperTest extends AbstractManagedContextTest {
     public void testSetFileParams() {
         Map<String, String> params = new HashMap<String, String>();
         params.put(key, value);
-        helper.setFileParams(f.getId(), params);
-        Map<String, String> t = helper.getFileParams(f.getId());
+        sql.setFileParams(f.getId(), params);
+        Map<String, String> t = sql.getFileParams(f.getId());
         assertNotNull(t);
         assertEquals(params.size(), t.size());
         assertTrue(t.containsKey(key));
@@ -61,7 +62,7 @@ public class PgArrayHelperTest extends AbstractManagedContextTest {
     @Test(enabled=true)
     public void testFileGetKeys() {
         testSetFileParams();
-        List<String> keys = helper.getFileParamKeys(f.getId());
+        List<String> keys = sql.getFileParamKeys(f.getId());
         assertTrue(keys.contains(key));
     }
 
@@ -69,23 +70,23 @@ public class PgArrayHelperTest extends AbstractManagedContextTest {
     public void testSetSingleFileParam() {
         testSetFileParams();
         String uuid = uuid();
-        helper.setFileParam(f.getId(), key, uuid);
-        helper.setFileParam(f.getId(), uuid, uuid);
-        Map<String, String> params = helper.getFileParams(f.getId());
+        sql.setFileParam(f.getId(), key, uuid);
+        sql.setFileParam(f.getId(), uuid, uuid);
+        Map<String, String> params = sql.getFileParams(f.getId());
         assertEquals(uuid, params.get(key));
         assertEquals(uuid, params.get(uuid));
     }
 
     @Test(enabled=true)
     public void testBadGetFileParamsReturnsNull() {
-        assertNull(helper.getFileParamKeys(-1));
+        assertNull(sql.getFileParamKeys(-1));
     }
 
 
     // Pixels
     @Test(enabled=true)
     public void testGetEmptyPixelsParams() {
-        Map<String, String> t = helper.getPixelsParams(p.getId());
+        Map<String, String> t = sql.getPixelsParams(p.getId());
         assertEquals(t.size(), 0);
     }
 
@@ -93,8 +94,8 @@ public class PgArrayHelperTest extends AbstractManagedContextTest {
     public void testSetPixelsParams() {
         Map<String, String> params = new HashMap<String, String>();
         params.put(key, value);
-        helper.setPixelsParams(p.getId(), params);
-        Map<String, String> t = helper.getPixelsParams(p.getId());
+        sql.setPixelsParams(p.getId(), params);
+        Map<String, String> t = sql.getPixelsParams(p.getId());
         assertEquals(params.size(), t.size());
         assertTrue(t.containsKey(key));
         assertEquals(value, t.get(key));
@@ -103,7 +104,7 @@ public class PgArrayHelperTest extends AbstractManagedContextTest {
     @Test(enabled=true)
     public void testPixelsGetKeys() {
         testSetPixelsParams();
-        List<String> keys = helper.getPixelsParamKeys(p.getId());
+        List<String> keys = sql.getPixelsParamKeys(p.getId());
         assertTrue(keys.contains(key));
     }
 
@@ -111,16 +112,16 @@ public class PgArrayHelperTest extends AbstractManagedContextTest {
     public void testSetSinglePixelsParam() {
         testSetPixelsParams();
         String uuid = uuid();
-        helper.setPixelsParam(p.getId(), key, uuid);
-        helper.setPixelsParam(p.getId(), uuid, uuid);
-        Map<String, String> params = helper.getPixelsParams(p.getId());
+        sql.setPixelsParam(p.getId(), key, uuid);
+        sql.setPixelsParam(p.getId(), uuid, uuid);
+        Map<String, String> params = sql.getPixelsParams(p.getId());
         assertEquals(uuid, params.get(key));
         assertEquals(uuid, params.get(uuid));
     }
 
     @Test(enabled=true)
     public void testBadGetPixelsParamsReturnsNull() {
-        assertNull(helper.getPixelsParamKeys(-1));
+        assertNull(sql.getPixelsParamKeys(-1));
     }
 
 

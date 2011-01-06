@@ -12,8 +12,6 @@ import static omero.rtypes.rint;
 import static omero.rtypes.rlong;
 
 import java.lang.reflect.Method;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -23,14 +21,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import ome.conditions.ApiUsageException;
 import ome.model.IObject;
 import ome.model.core.Pixels;
-import ome.model.meta.EventLog;
 import ome.services.messages.ShapeChangeMessage;
 import ome.services.util.Executor;
-import ome.system.Principal;
-import ome.system.ServiceFactory;
 import ome.tools.hibernate.SessionFactory;
 import ome.util.Filterable;
 import ome.util.SqlAction;
+import ome.util.SqlAction.IdRowMapper;
 import omero.RBool;
 import omero.RInt;
 import omero.api.RoiOptions;
@@ -53,11 +49,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Query;
 import org.hibernate.Session;
-import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
-import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.jdbc.core.RowMapper;
-import org.springframework.transaction.annotation.Transactional;
 
 import edu.emory.mathcs.backport.java.util.Arrays;
 
@@ -246,11 +238,6 @@ public class GeomTool {
             sp.y[i] = ys.get(i);
         }
         return sp;
-    }
-
-    public List<Long> getShapeIds(long roiId) {
-        return jdbc.query("select id from shape where roi = ?",
-                new IdRowMapper(), roiId);
     }
 
     public RoiStats getStats(List<Long> shapeIds) {
