@@ -52,6 +52,8 @@ import org.springframework.context.event.ContextRefreshedEvent;
 @RevisionNumber("$Revision$")
 public interface ExtendedMetadata {
 
+    Set<String> getClasses();
+
     /**
      * Returns all the classes which implement {@link IAnnotated}
      */
@@ -259,6 +261,10 @@ public static class Impl implements ExtendedMetadata, ApplicationListener {
         annotatableTypes.addAll(anns);
         annotationTypes.addAll(anns2);
         initialized = true;
+    }
+
+    public Set<String> getClasses() {
+        return hibernateClasses.keySet();
     }
 
     public Class<IObject> getHibernateClass(String table) {

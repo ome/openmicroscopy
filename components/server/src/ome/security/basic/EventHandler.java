@@ -144,7 +144,7 @@ public class EventHandler implements MethodInterceptor {
         try {
             secSys.enableReadFilter(session);
             retVal = arg0.proceed();
-            saveLogs(readOnly, (SessionImplementor) session);
+            saveLogs(readOnly, session);
             return retVal;
         } catch (Throwable ex) {
             failure = true;
@@ -215,7 +215,7 @@ public class EventHandler implements MethodInterceptor {
      * and so this method may raise an event signalling such. This could
      * eventually be reworked to be fully within the security system.
      */
-    void saveLogs(boolean readOnly, SessionImplementor session) {
+    void saveLogs(boolean readOnly, Session session) {
 
         // Grabbing a copy to prevent ConcurrentModificationEx
         final List<EventLog> logs = new ArrayList<EventLog>(secSys.getLogs());
