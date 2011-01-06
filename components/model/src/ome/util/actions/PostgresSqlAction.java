@@ -301,8 +301,8 @@ public class PostgresSqlAction extends SqlAction.Impl {
     }
 
     public boolean setUserPassword(Long experimenterID, String password) {
-        int results = jdbc.update(PsqlStrings.getString("sql_action.update_password"), //$NON-NLS-1$
-                experimenterID, password);
+        int results = jdbc.update(_lookup("update_password"), //$NON-NLS-1$
+                password, experimenterID);
         if (results < 1) {
             results = jdbc.update(PsqlStrings.getString("sql_action.insert_password"), //$NON-NLS-1$
                     experimenterID, password, null);
