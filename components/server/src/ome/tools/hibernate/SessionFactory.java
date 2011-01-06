@@ -79,7 +79,10 @@ public class SessionFactory implements MethodInterceptor {
         Session unwrapped = SessionFactoryUtils.getSession(factory, false);
 
         ProxyFactory proxyFactory = new ProxyFactory();
-        proxyFactory.setInterfaces(new Class[]{Session.class});
+        proxyFactory.setInterfaces(new Class[]{
+            Session.class,
+            org.hibernate.classic.Session.class,
+            org.hibernate.event.EventSource.class});
         proxyFactory.setTarget(unwrapped);
         proxyFactory.addAdvice(0, this);
         return (Session) proxyFactory.getProxy();
