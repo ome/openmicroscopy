@@ -193,5 +193,9 @@
   </bean>
   -->
 
+  <alias alias="lobHandler" name="${omero.db.lob_handler}"/>
+
+  <bean id="org.springframework.jdbc.support.lob.DefaultLobHandler" class="org.springframework.jdbc.support.lob.DefaultLobHandler"/>
+
 </beans>
 

@@ -1,7 +1,7 @@
 package ome.tools.hibernate;
 
 import java.io.Serializable;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Field;
 import java.sql.Array;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -45,14 +45,14 @@ public abstract class ListAsSQLArrayUserType<T> implements UserType, Parameteriz
     public void setParameterValues(Properties parameters) {
         profile = parameters.getProperty("profile");
         try {
-            factory = (ArrayFactory) ListAsSQLArrayUserType.class.getDeclaredMethod(profile).invoke(this);
+            Class FACTORY = Class.forName("ome.tools.hibernate." + profile.toUpperCase());
+            Field field = FACTORY.getField("ARRAY_FACTORY");
+            factory = (ArrayFactory) field.get(null);
+        } catch (ClassNotFoundException e) {
+            factory = SqlArray.FACTORY; // DEFAULT
         } catch (Exception e) {
             throw new RuntimeException("Failed to acquire factory for profile " + profile, e);
         }
-    }
-
-    protected ArrayFactory oracle10g() {
-        return OracleSqlArray.FACTORY;
     }
 
     abstract protected Array getDataAsArray(Connection conn, Object value) throws SQLException;

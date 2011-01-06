@@ -1,7 +1,9 @@
 package ome.tools.hibernate;
 
 import java.sql.Array;
+import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.Calendar;
@@ -19,6 +21,40 @@ import java.util.Map;
  *         http://archives.postgresql.org/pgsql-jdbc/2003-02/msg00141.php
  */
 public class SqlArray<T> implements Array {
+
+    public final static ListAsSQLArrayUserType.ArrayFactory FACTORY =
+        new ListAsSQLArrayUserType.ArrayFactory() {
+
+            public Array BOOLEAN(Connection conn, List<Boolean> value) {
+                return new BOOLEAN(value);
+            }
+
+            public Array DATE(Connection conn, List<Date> value) {
+                return new DATE(value);
+            }
+
+            public Array DOUBLE(Connection conn, List<Double> value) {
+                return new DOUBLE(value);
+            }
+
+            public Array FLOAT(Connection conn, List<Float> value) {
+                return new FLOAT(value);
+            }
+
+            public Array INTEGER(Connection conn, List<Integer> value) {
+                return new INTEGER(value);
+            }
+
+            public Array STRING(Connection conn, List<String> value) throws SQLException {
+                return new STRING(value);
+            }
+
+            public Array STRING2(Connection conn, List<String[]> value) throws SQLException {
+                return new STRING2(value);
+            }
+
+        };
+
     private List<T> data;
     private int baseType;
     private String baseTypeName = null;
