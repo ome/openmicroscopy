@@ -22,7 +22,7 @@
     <dependency org="dom4j" name="dom4j" rev="${versions.dom4j}" conf="build,server->default"/>
     <dependency org="javassist" name="javassist" rev="${versions.javassist}" conf="build,server->default"/>
     <!-- Hibernate -->
-    <dependency org="omero" name="postgresql" rev="${versions.postgresql}" conf="build,server->default"/>
+    <dependency org="omero-db" name="${omero.db.jar}" rev="${omero.db.jar_version}" conf="build,server->default"/>
     <dependency org="org/hibernate" name="hibernate" rev="${versions.hibernate}" conf="build,server->default"/>
     <dependency org="hibernate" name="hibernate-search" rev="${versions.hibernate-search}" conf="build,server->default"/>
     <dependency org="hibernate" name="hibernate-validator" rev="${versions.hibernate-validator}" conf="build,server->default"/>

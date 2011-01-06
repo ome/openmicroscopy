@@ -76,6 +76,18 @@
 		<echo file="${classes.dir}/omero.properties" append="true">
 omero.version=${omero.version}
 		</echo>
+                <for list="${classes.dir},${resrc.dest}" param="dir">
+                  <sequential>
+                    <if><not><isfileselected file="@{dir}/hibernate.properties">
+                            <contains text="omero.db.port"/>
+                        </isfileselected></not>
+                    <then>
+                        <concat destfile="@{dir}/hibernate.properties" append="true">
+                            <filelist dir="${omero.home}/etc/profiles" files="${omero.db.profile}"/>
+                        </concat>
+                    </then></if>
+                  </sequential>
+                </for>
 		<!-- Used (at least) by server.xml and omero.xml -->
                 <property name="omero.db.url" value="jdbc:postgresql://${omero.db.host}/${omero.db.name}"/>
 		<presetdef name="sql_run">
