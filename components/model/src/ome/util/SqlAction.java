@@ -294,6 +294,34 @@ public interface SqlAction {
                     fileId);
         }
 
+        //
+        // CONFIGURATION
+        //
+
+        public long selectCurrentEventLog(String key) {
+            String value = _jdbc().queryForObject(
+                _lookup("log_loader_query"), String.class, key); //$NON-NLS-1$
+            return Long.valueOf(value);
+        }
+
+        public void setCurrentEventLog(long id, String key) {
+
+            int count = _jdbc().update(
+                _lookup("log_loader_update"), Long.toString(id), //$NON-NLS-1$
+                key);
+
+            if (count == 0) {
+                _jdbc().update(
+                        _lookup("log_loader_insert"),  //$NON-NLS-1$
+                        key, Long.toString(id));
+            }
+        }
+
+        public void delCurrentEventLog(String key) {
+            _jdbc().update(
+                _lookup("log_loader_delete"), key); //$NON-NLS-1$
+
+        }
     }
 
 }

@@ -147,6 +147,11 @@ public class SqlActionTest extends AbstractManagedContextTest {
 
     }
 
+    @Test
+    public void testGetCurrentEventLog() {
+        sql.setCurrentEventLog(1, "test.log");
+        sql.selectCurrentEventLog("test.log");
+    }
     //
     // HELPERS
     //
