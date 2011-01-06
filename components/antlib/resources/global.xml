@@ -128,6 +128,7 @@
                 <classpath id="ivy.classpath">
                     <fileset dir="${omero.home}/lib/repository" includes="ivy*.jar"/>
                     <fileset dir="${omero.home}/lib/repository" includes="jakarta-oro*.jar"/>
+                    <pathelement location="${omero.home}/lib/"/><!-- IVY1016/* -->
                 </classpath>
             </classloader>
             <taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" loaderref="ivy.loader"/>
