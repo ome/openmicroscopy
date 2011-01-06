@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.sql.DataSource;
+
 import ome.conditions.InternalException;
 
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -104,7 +106,9 @@ public interface SqlAction {
 
     void delCurrentEventLog(String key);
 
-    long nextValue(String segmentValue, int incrementSize);
+    long nextValue(String segmentName, int incrementSize);
+
+    long currValue(String segmentName);
 
     void insertLogs(List<Object[]> batchData);
 
@@ -118,6 +122,14 @@ public interface SqlAction {
     List<Map<String, Object>> dnExperimenterMaps();
 
     void setUserDn(Long experimenterID, String dn);
+
+    boolean setUserPassword(Long experimenterID, String password);
+
+    String getPasswordHash(Long experimenterID);
+
+    Long getUserId(String userName);
+
+    List<String> getUserGroups(String userName);
 
     void setFileRepo(long id, String repoId);
 
@@ -375,10 +387,18 @@ public interface SqlAction {
         }
 
         public long nextValue(String segmentValue, int incrementSize) {
-            // FIXME take the datasource or similar???
             return jdbc.queryForLong(Messages.getString("pg.next_val"), segmentValue, //$NON-NLS-1$
                     incrementSize);
 
+        }
+        public long currValue(String segmentName) {
+            try {
+                long next_value = jdbc.queryForLong(Messages.getString("pg.curr_val"), //$NON-NLS-1$
+                        segmentName);
+                return next_value;
+            } catch (EmptyResultDataAccessException erdae) {
+                return -1l;
+            }
         }
 
         public void insertLogs(List<Object[]> batchData) {
@@ -401,7 +421,13 @@ public interface SqlAction {
         }
 
         public String dnForUser(Long id) {
-            return jdbc.queryForObject(Messages.getString("pg.dn_for_user"), String.class, id); //$NON-NLS-1$
+            String expire;
+            try {
+                expire = jdbc.queryForObject(Messages.getString("pg.dn_for_user"), String.class, id); //$NON-NLS-1$
+            } catch (EmptyResultDataAccessException e) {
+                expire = null; // This means there's not one.
+            }
+            return expire;
         }
 
         public List<Map<String, Object>> dnExperimenterMaps() {
@@ -420,6 +446,59 @@ public interface SqlAction {
                         experimenterID, null, dn);
             }
 
+        }
+
+        public boolean setUserPassword(Long experimenterID, String password) {
+            int results = jdbc.update(
+                    Messages.getString("pg.update_password"), //$NON-NLS-1$
+                    experimenterID, password);
+            if (results < 1) {
+                results = jdbc.update(
+                    Messages.getString("pg.insert_password"), //$NON-NLS-1$
+                    experimenterID, password, null);
+            }
+            return results >= 1;
+        }
+
+        public String getPasswordHash(Long experimenterID) {
+            String stored;
+            try {
+                stored = jdbc.queryForObject(
+                        Messages.getString("pg.password_hash"), //$NON-NLS-1$
+                        String.class, experimenterID);
+            } catch (EmptyResultDataAccessException e) {
+                stored = null; // This means there's not one.
+            }
+            return stored;
+        }
+
+        public Long getUserId(String userName) {
+            Long id;
+            try {
+                id = jdbc.queryForObject(
+                        Messages.getString("pg.user_id"), //$NON-NLS-1$
+                        Long.class, userName);
+            } catch (EmptyResultDataAccessException e) {
+                id = null; // This means there's not one.
+            }
+            return id;
+        }
+
+        public List<String> getUserGroups(String userName) {
+            List<String> roles;
+            try {
+                roles = jdbc.query(
+                        Messages.getString("pg.user_groups"), //$NON-NLS-1$
+                        new RowMapper<String>() {
+                    public String mapRow(ResultSet rs, int rowNum)
+                            throws SQLException {
+                        return rs.getString(1);
+                    }
+                }, userName);
+            } catch (EmptyResultDataAccessException e) {
+                roles = null; // This means there's not one.
+            }
+            return roles == null ? new ArrayList<String>() : roles;
         }
 
         public void setFileRepo(long id, String repoId) {

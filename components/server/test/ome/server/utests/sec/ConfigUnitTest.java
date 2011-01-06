@@ -18,10 +18,10 @@ import ome.security.basic.CurrentDetails;
 import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.PreferenceContext;
+import ome.util.SqlAction;
 
 import org.jmock.Mock;
 import org.jmock.MockObjectTestCase;
-import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -32,8 +32,8 @@ public class ConfigUnitTest extends MockObjectTestCase {
     LocalConfig config;
     Current cd;
     PreferenceContext prefs;
-    SimpleJdbcOperations jdbc;
-    Mock jdbcMock, ecMock;
+    SqlAction sql;
+    Mock sqlMock, ecMock;
 
     class Current extends CurrentDetails {
         EventContext ec;
@@ -54,13 +54,13 @@ public class ConfigUnitTest extends MockObjectTestCase {
         ecMock = mock(EventContext.class);
         cd.ec = (EventContext) ecMock.proxy();
 
-        jdbcMock = mock(SimpleJdbcOperations.class);
-        jdbc = (SimpleJdbcOperations) jdbcMock.proxy();
+        sqlMock = mock(SqlAction.class);
+        sql = (SqlAction) sqlMock.proxy();
 
         ConfigImpl bean = new ConfigImpl();
 
         bean.setPreferenceContext(prefs);
-        bean.setJdbcTemplate(jdbc);
+        bean.setSqlAction(sql);
         bean.setCurrentDetails(cd);
         config = bean;
     }
@@ -172,15 +172,15 @@ public class ConfigUnitTest extends MockObjectTestCase {
     }
 
     private void notInDatabase() {
-        jdbcMock.expects(once()).method("queryForObject").will(returnValue(null));
+        sqlMock.expects(once()).method("queryForObject").will(returnValue(null));
     }
     
     private void inDatabase(String value) {
-        jdbcMock.expects(once()).method("queryForObject").will(returnValue(value));
+        sqlMock.expects(once()).method("queryForObject").will(returnValue(value));
     }
     
     private void updateDb(int count) {
-        jdbcMock.expects(once()).method("update").will(returnValue(count));
+        sqlMock.expects(once()).method("update").will(returnValue(count));
     }
     
     private void match(Pattern pattern, String goal, String text) {

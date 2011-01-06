@@ -12,8 +12,8 @@ import ome.security.auth.PasswordUtil;
 import ome.security.basic.BasicMethodSecurity;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.services.sessions.SessionManager;
+import ome.util.SqlAction;
 
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.testng.annotations.Test;
 
 @Test(groups = "integration")
@@ -25,15 +25,15 @@ public class MethodSecurityTest extends AbstractManagedContextTest {
     public void testUserRoles() throws Exception {
 
         // Using unsafe here since we are not within a hibernate session
-        SimpleJdbcTemplate jdbc = (SimpleJdbcTemplate) this.applicationContext
-                .getBean("isolatedJdbcTemplate");
+        SqlAction sql = (SqlAction) this.applicationContext
+                .getBean("isolatedSqlAction");
 
         SessionManager mgr = (SessionManager) this.applicationContext
                 .getBean("sessionManager");
 
         msec = new BasicMethodSecurity();
         msec.setSessionManager(mgr);
-        List<String> roles = new PasswordUtil(jdbc).userGroups("root");
+        List<String> roles = new PasswordUtil(sql).userGroups("root");
         assertTrue(roles.size() >= 2);
         boolean found = false;
         for (int i = 0; i < roles.size(); i++) {
