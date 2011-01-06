@@ -31,6 +31,7 @@
         <value>classpath:ome/config.xml</value>
         <value>classpath:ome/services/messaging.xml</value>
         <value>classpath:ome/services/datalayer.xml</value>
+        <value>classpath*:ome/services/db-*.xml</value>
         <value>classpath:ome/services/sec-primitives.xml</value>
         <value>classpath:ome/services/hibernate.xml</value>
         <value>classpath:ome/services/services.xml</value>
@@ -57,6 +58,7 @@
         <value>classpath:ome/config.xml</value>
         <value>classpath:ome/services/messaging.xml</value>
         <value>classpath:ome/services/datalayer.xml</value>
+        <value>classpath*:ome/services/db-*.xml</value>
         <value>classpath:ome/services/sec-primitives.xml</value>
         <value>classpath:ome/services/hibernate.xml</value>
         <value>classpath:ome/services/services.xml</value>
