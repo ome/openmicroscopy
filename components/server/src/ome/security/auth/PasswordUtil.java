@@ -84,14 +84,9 @@ public class PasswordUtil {
     }
 
     public void changeUserPasswordById(Long id, String password) {
-        int results = jdbc.update("update password set hash = ? "
-                + "where experimenter_id = ? ", preparePassword(password), id);
+        int results = sql.setUserPassword(id, preparePassword(password));
         if (results < 1) {
-            results = jdbc.update("insert into password values (?,?) ", id,
-                    preparePassword(password));
-            if (results < 1) {
-                throw new InternalException("0 results for password insert.");
-            }
+            throw new InternalException("0 results for password insert.");
         }
     }
 

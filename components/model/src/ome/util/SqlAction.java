@@ -24,6 +24,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 /**
  * Single wrapper for all JDBC activities.
@@ -39,6 +40,12 @@ import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
  * @see <a href="http://trac.openmicroscopy.org.uk/omero/ticket/2684">#2684</a>
  */
 public interface SqlAction {
+
+    public static class IdRowMapper implements RowMapper<Long> {
+        public Long mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return (Long) rs.getLong(1);
+        }
+    }
 
     /**
      * Returns true if the given string is the UUID of a session that is
@@ -104,7 +111,11 @@ public interface SqlAction {
     List<Map<String, Object>> roiByImageAndNs(final long imageId,
             final String ns);
 
+    List<Long> getShapeIds(long roiId);
+
     String dnForUser(Long id);
+
+    List<Map<String, Object>> dnExperimenterMaps();
 
     void setUserDn(Long experimenterID, String dn);
 
@@ -407,9 +418,22 @@ public interface SqlAction {
             return mapList;
         }
 
+        public List<Long> getShapeIds(long roiId) {
+
+            return jdbc.query("select id from shape where roi = ?",
+                    new IdRowMapper(), roiId);
+        }
+
         public String dnForUser(Long id) {
             return jdbc.queryForObject("select dn from password "
                     + "where experimenter_id = ? ", String.class, id);
+        }
+
+        public List<Map<String, Object>> dnExperimenterMaps() {
+            return jdbc
+            .queryForList(
+                    "select dn, experimenter_id from password where dn is not null ");
+
         }
 
         public void setUserDn(Long experimenterID, String dn) {
@@ -666,5 +690,6 @@ public interface SqlAction {
         // End PgArrayHelper
         //
     }
+
 
 }
