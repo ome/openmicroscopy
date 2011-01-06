@@ -304,9 +304,6 @@ public final class Container
 		}
 		
 		//TODO: activate services (EventBus, what else?).
-		//RenderingEngine re = RenderingEngine.getInstance(this);
-		//re.activate();
-		//TODO: RE threads should be spawn during an init task.
 			
 		//Get ready to interact with the user.
 		//TaskBar tb = singleton.registry.getTaskBar();

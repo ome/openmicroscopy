@@ -69,7 +69,7 @@ public class Initializer
     /**
      * Lists the tasks that will make up the initialization sequence.
      * Note that this list can be accessed by subclasses.  This is key in
-     * testing environments because intialization tasks can be replaced
+     * testing environments because initialization tasks can be replaced
      * with tasks that provide service stubs to remove problematic 
      * dependencies on external resources.
      */
@@ -140,8 +140,6 @@ public class Initializer
         return task;
     }
 
-    
-    
 	/** Queue to order the tasks to be executed. */
 	private List<InitializationTask>	processingQueue;
 	
@@ -228,7 +226,7 @@ public class Initializer
         throws StartupException
 	{
 		InitializationTask task;
-        Iterator type = initList.iterator();
+        Iterator<Class> type = initList.iterator();
         while (type.hasNext()) {
             task = createInitTask(type.next(), container,this); 
             task.configure();
@@ -245,14 +243,14 @@ public class Initializer
 	public void doInit()
 		throws StartupException
 	{
-		Iterator i = processingQueue.iterator();
+		Iterator<InitializationTask> i = processingQueue.iterator();
 		
 		//Tell all listeners that we're about to start.
 		notifyStart();
 		
 		//Execute all pending tasks. 
 		while (i.hasNext()) {
-			currentTask = (InitializationTask) i.next();
+			currentTask = i.next();
 			notifyExecute();  //Tell listeners we're about to exec a task.
 			currentTask.execute();
 			doneTasks.push(currentTask);  //For later rollback if needed.

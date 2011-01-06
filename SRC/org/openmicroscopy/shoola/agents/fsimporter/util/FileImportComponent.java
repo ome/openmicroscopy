@@ -386,10 +386,11 @@ public class FileImportComponent
 					String[] lines = values;
 					int n = 20;
 					if (values.length > 20) {
-						lines = new String[n];
-						for (int i = 0; i < lines.length; i++) {
+						lines = new String[n+1];
+						for (int i = 0; i < lines.length-1; i++) {
 							lines[i] = values[i];
 						}
+						lines[lines.length-1] = "... "+(values.length-n)+" more";
 					}
 					resultLabel.setToolTipText(
 							UIUtilities.formatToolTipText(lines));

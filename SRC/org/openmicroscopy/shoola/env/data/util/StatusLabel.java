@@ -87,16 +87,26 @@ public class StatusLabel
 	/** The time at which the import ended. */
 	private long     endTime;
 	
+	/** The text if an error occurred. */
+	private String	 errorText;
+	
 	/** Creates a new instance. */
 	public StatusLabel()
 	{
 		setForeground(UIUtilities.LIGHT_GREY);
-		setText("on hold");
 		maxPlanes = 0;
 		numberOfFiles = 0;
 		seriesCount = 0;
 		readerType = "";
+		errorText = null;
 	}
+	
+	/**
+	 * Returns the text if an error occurred.
+	 * 
+	 * @return See above.
+	 */
+	public String getErrorText() { return errorText; }
 	
 	/**
 	 * Returns the duration of the import. 
@@ -209,11 +219,17 @@ public class StatusLabel
 			ErrorHandler.FILE_EXCEPTION e = (ErrorHandler.FILE_EXCEPTION) event;
 			readerType = e.reader;
 			usedFiles = e.usedFiles;
+		} else if (event instanceof ErrorHandler.UNKNOWN_FORMAT) {
+			ErrorHandler.FILE_EXCEPTION e = (ErrorHandler.FILE_EXCEPTION) event;
+			errorText = "unknown format";
+			readerType = e.reader;
+		} else if (event instanceof ErrorHandler.MISSING_LIBRARY) {
+			ErrorHandler.FILE_EXCEPTION e = (ErrorHandler.FILE_EXCEPTION) event;
+			errorText = "missing required library";
+			readerType = e.reader;
 		} else if (event instanceof ImportEvent.IMPORT_THUMBNAILING) {
 			setText("thumbnailing");
-		} else if (event instanceof ImportEvent.DATA_STORED) {
-			//setText("saving data");
-		}
+		} 
 	}
 	
 }

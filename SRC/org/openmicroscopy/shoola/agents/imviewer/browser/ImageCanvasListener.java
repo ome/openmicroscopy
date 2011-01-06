@@ -31,7 +31,6 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
-
 import javax.swing.JComponent;
 import javax.swing.SwingUtilities;
 
@@ -135,7 +134,7 @@ class ImageCanvasListener
     /**
 	 * Zooms in and out the image if the <code>Shift</code> key is down,
 	 * pans if the <code>Alt</code> key is down.
-	 * Selects a new z-section and timepoint otherwise.
+	 * Selects a new z-section and time-point otherwise.
 	 * @see MouseMotionListener#mouseDragged(MouseEvent)
 	 */
 	public void mouseDragged(MouseEvent e)
@@ -175,7 +174,7 @@ class ImageCanvasListener
 	}
 
 	/**
-	 * Displays on the image the currently selected z-section and timepoint.
+	 * Displays on the image the currently selected z-section and time-point.
 	 * @see MouseListener#mousePressed(MouseEvent)
 	 */
 	public void mousePressed(MouseEvent e)
@@ -255,14 +254,14 @@ class ImageCanvasListener
 	public void mouseExited(MouseEvent e) { mouseOnCanvas = false; }
 	
 	/**
-	 * Required by the {@link MouseMotionListener} interface but no-op 
+	 * Required by the {@link MouseMotionListener} interface but no-operation 
 	 * implementation in our case.
 	 * @see MouseMotionListener#mouseMoved(MouseEvent)
 	 */
 	public void mouseMoved(MouseEvent e) {}
 
 	/**
-	 * Required by the {@link MouseMotionListener} interface but no-op 
+	 * Required by the {@link MouseMotionListener} interface but no-operation 
 	 * implementation in our case.
 	 * @see MouseListener#mouseClicked(MouseEvent)
 	 */

@@ -38,8 +38,7 @@ import org.openmicroscopy.shoola.env.ui.UIFactory;
 
 /** 
  * Creates the {@link TaskBar} and links it to the container's
- * {@link Registry}.  
- * Also configures the look and feel.
+ * {@link Registry}. Also configures the look and feel.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -153,17 +154,11 @@ public class ImportDialog
 	
 	/** Text of the sub-message. */
 	private static final String SUB_MESSAGE = "The name of the file will be, " +
-			"by default, the absolute path. \n You can either edit the name " +
-			"or set the number of directories before the file's name.";
+			"by default, the absolute path. \n You can modify the name " +
+			"by setting the number of directories before the file's name.";
 	
 	/** Warning when de-selecting the name overriding option. */
 	private static final List<String> WARNING;
-	
-	/** String used to retrieve if the value of the archived flag. */
-	private static final String ARCHIVED = "/options/Archived";
-	
-	/** String used to retrieve if the archived option is displayed. */
-	private static final String ARCHIVED_AVAILABLE = "/options/ArchivedAvailable";
 	
 	/** The length of a column. */
 	private static final int		COLUMN_WIDTH = 200;
@@ -173,7 +168,7 @@ public class ImportDialog
 		WARNING.add("NOTE: Some file formats do not include the file name " +
 				"in their metadata, ");
 		WARNING.add("and disabling this option may result in files being " +
-				"imported without a");
+				"imported without a ");
 		WARNING.add("reference to their file name e.g. " +
 				"'myfile.lsm [image001]'");
 		WARNING.add("would show up as 'image001' with this optioned " +
@@ -469,39 +464,24 @@ public class ImportDialog
 
 		chooser = new JFileChooser();
 		JList list = (JList) UIUtilities.findComponent(chooser, JList.class);
-		if (list != null) {
-			list.addKeyListener(new KeyAdapter() {
-				
-				/**
-				 * Adds the files to the import queue.
-				 * @see KeyListener#keyPressed(KeyEvent)
-				 */
-				public void keyPressed(KeyEvent e)
-				{
-					if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-						handleEnterKeyPressed(e.getSource());
-					}
+		KeyAdapter ka = new KeyAdapter() {
+			
+			/**
+			 * Adds the files to the import queue.
+			 * @see KeyListener#keyPressed(KeyEvent)
+			 */
+			public void keyPressed(KeyEvent e)
+			{
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					handleEnterKeyPressed(e.getSource());
 				}
-			});
-		}
-		if (list == null) {
-			JTable t = (JTable) UIUtilities.findComponent(chooser, 
-					JTable.class);
-			if (t != null) {
-				t.addKeyListener(new KeyAdapter() {
-					
-					/**
-					 * Adds the files to the import queue.
-					 * @see KeyListener#keyPressed(KeyEvent)
-					 */
-					public void keyPressed(KeyEvent e)
-					{
-						if (e.getKeyCode() == KeyEvent.VK_ENTER) {
-							handleEnterKeyPressed(e.getSource());
-						}
-					}
-				});
 			}
+		};
+		if (list != null) list.addKeyListener(ka);
+		if (list == null) {
+			JTable t = (JTable) 
+				UIUtilities.findComponent(chooser, JTable.class);
+			if (t != null) t.addKeyListener(ka);
 		}
 
 		File f = UIUtilities.getDefaultFolder();
@@ -515,9 +495,9 @@ public class ImportDialog
 				"or directories");
 		
 		if (filters != null) {
-			Iterator<FileFilter> i = filters.iterator();
-			while (i.hasNext()) {
-				chooser.setFileFilter(i.next());
+			Iterator<FileFilter> ff = filters.iterator();
+			while (ff.hasNext()) {
+				chooser.setFileFilter(ff.next());
 			}
 		}
 		chooser.setAcceptAllFileFilterUsed(true);

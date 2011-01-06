@@ -1933,10 +1933,9 @@ public class UIUtilities
 	public static String listToCSV(List<String> list)
 	{
 		String str = "";
-		for(int i = 0 ; i < list.size() ; i++)
-		{
+		for (int i = 0 ; i < list.size() ; i++) {
 			str = str + list.get(i);
-			if(i<list.size()-1)
+			if (i < list.size()-1)
 				str = str + ",";
 		}
 		return str;
@@ -1952,8 +1951,8 @@ public class UIUtilities
 	{
 		List<String> list = new ArrayList<String>();
 		String[] valueString = str.split(",");
-		for(String value : valueString)
-			if(!value.equals("[]"))
+		for (String value : valueString)
+			if (!value.equals("[]"))
 				list.add(value);
 		return list;
 	}

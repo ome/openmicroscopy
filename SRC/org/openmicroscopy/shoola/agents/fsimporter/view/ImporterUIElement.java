@@ -161,8 +161,6 @@ class ImporterUIElement
     	header.add(label, c);
     	c.gridx = c.gridx+2;
     	header.add(timeLabel, c);
-    	
-    	
     	c.gridy++; 	
     	c.gridx = 0;
     	List<DataObject> containers = object.getContainers();
