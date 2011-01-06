@@ -282,9 +282,10 @@ public abstract class SemanticType {
         String typeAnnotation = p.getTypeAnnotation();
         typeAnnotation = typeAnnotation.replace("@PROFILE@", profile);
         if (isRestrictive() && typeAnnotation.contains("TextType")) {
-            typeAnnotation = "@javax.persistence.Lob\n@org.hibernate.annotations.Formula(\"to_char("+
+            typeAnnotation = "@org.hibernate.annotations.ColumnTransformer(read=\"to_char("+
             columnName(p) + ")\")";
         }
+
         return typeAnnotation;
     }
 
