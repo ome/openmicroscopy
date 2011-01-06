@@ -82,7 +82,43 @@
     <property name="dataSource" ref="dataSource"/>
   </bean>
 
-  <bean id="simpleSqlAction" class="${omero.db.sql_action_class}">
+  <!-- Properties and actions: chooses between concrete implementations for
+       all JDBC calls -->
+
+  <alias alias="simpleSqlAction" name="simpleSqlActionWrapper"/>
+  <alias alias="isolatedSqlAction" name="isolatedSqlActionWrapper"/>
+
+  <bean id="loggingSqlAction" class="ome.util.SqlAction$LoggingSqlAction"/>
+
+  <bean id="simpleSqlActionWrapper" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="interceptorNames">
+      <list>
+        <value>loggingSqlAction</value>
+      </list>
+    </property>
+    <property name="proxyInterfaces">
+      <list>
+        <value>ome.util.SqlAction</value>
+      </list>
+    </property>
+    <property name="target" ref="simpleSqlActionImpl"/>
+  </bean>
+
+  <bean id="isolatedSqlActionWrapper" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="interceptorNames">
+      <list>
+        <value>loggingSqlAction</value>
+      </list>
+    </property>
+    <property name="proxyInterfaces">
+      <list>
+        <value>ome.util.SqlAction</value>
+      </list>
+    </property>
+    <property name="target" ref="isolatedSqlActionImpl"/>
+  </bean>
+
+  <bean id="simpleSqlActionImpl" class="${omero.db.sql_action_class}">
     <description>
     Takes part in any currently running Hibernate transaction.
     </description>
@@ -93,7 +129,7 @@
     </constructor-arg>
   </bean>
 
-  <bean id="isolatedSqlAction" class="${omero.db.sql_action_class}">
+  <bean id="isolatedSqlActionImpl" class="${omero.db.sql_action_class}">
     <description>
     Provides JDBC access WITHOUT taking part in Hibernate transactions
     </description>
@@ -123,15 +159,15 @@
 
   <alias alias="dataSourceProperties" name="${omero.db.profile}DataSourceProperties"/>
 
-  <bean id="psqlDataSourceProperties" class="java.util.Properties">
-    <constructor-arg>
+  <bean id="psqlDataSourceProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+    <property name="properties">
       <props>
         <prop key="driverClassName">${omero.db.driver}</prop>
         <prop key="url">jdbc:postgresql://${omero.db.host}:${omero.db.port}/${omero.db.name}</prop>
         <prop key="user">${omero.db.user}</prop>
         <prop key="password">${omero.db.pass}</prop>
       </props>
-    </constructor-arg>
+    </property>
   </bean>
 
   <bean id="nonXaDataSource" class="bitronix.tm.resource.jdbc.PoolingDataSource">
