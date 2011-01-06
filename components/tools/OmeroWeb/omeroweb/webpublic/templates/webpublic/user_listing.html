@@ -1,0 +1,55 @@
+{% extends "webpublic/base/base.html" %}
+
+{% block title %}OMERO.webpublic{% endblock %}
+
+{% block meta %}
+<style type="text/css" media="screen">
+table, tr, td, th {
+    margin: 0;
+    padding: 3px;
+}
+table {
+    width: 100%;
+    border: 1px solid black;
+    border-collapse: collapse;
+}
+td {
+    border: 1px solid gray;
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<table>
+    <tr>
+        <th>URL</th>
+        <th>Public URL</th>
+        <th>Submitted</th>
+        <th>Actions</th>
+    </tr>
+    {% for link in links %}
+        <tr>
+            <td><a href="{{ link.url }}">{{ link.url }}</a></td>
+            <td>
+                <a href="{% url webpublic_tinyurl link.to_base62 %}">
+                    {% url webpublic_tinyurl link.to_base62 %}
+                </a>
+            </td>
+            <td style="text-align: center">{{ link.submitted }}</td>
+            <td style="text-align: center">
+                <a href="{% url webpublic_de_publicise link.id %}">Remove</a>
+            </td>
+        </tr>
+    {% endfor %}
+</table>
+
+<script type="text/javascript">
+    $('#publicise').submit(function() {
+        var url = '{% url webpublic_publicise %}';
+        var data = {};
+        data['public_url'] = $('#public_url').val();
+        $('#status').html('&nbsp;').load(url, data);
+        return false;
+    });
+</script>
+{% endblock %}

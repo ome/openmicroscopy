@@ -1,0 +1,37 @@
+{% extends "webpublic/base/base.html" %}
+
+{% block title %}OMERO.webpublic{% endblock %}
+
+{% block body %}
+<form id="publicise" method="post" name="publicise">
+    <div style="text-align: center; margin-bottom: 7px;">
+        <img src="{% url webstatic "images/logo.jpg" %}" />
+            <table style="width: 100%;">
+                <tr>
+                    <td style="width: 100%;">
+                        <input id="public_url" type="text" name="public_url"
+                               maxlength="2048" style="width: 100%;"/>
+                    </td>
+                    <td style="padding: 10px">
+                        <input type="submit" name="go" value="Publicise"/>
+                    </td>
+                </tr>
+            </table>
+            <div id="status" style="text-align: left; margin-left: 5px; height: 40px;"/>
+        </div>
+    </div>
+</form>
+<div style="text-align: center;">
+    <a href="{% url webpublic_user_listing %}">My public URLs</a>
+</div>
+
+<script type="text/javascript">
+    $('#publicise').submit(function() {
+        var url = '{% url webpublic_publicise %}';
+        var data = {};
+        data['public_url'] = $('#public_url').val();
+        $('#status').html('&nbsp;').load(url, data);
+        return false;
+    });
+</script>
+{% endblock %}

@@ -106,6 +106,14 @@ def leave_none_unset(s):
     return s
 
 CUSTOM_SETTINGS_MAPPINGS = {
+    "omero.web.public.user": ["PUBLIC_USER", None, leave_none_unset],
+    "omero.web.public.password": ["PUBLIC_PASSWORD", None, leave_none_unset],
+    "omero.web.database_engine": ["DATABASE_ENGINE", None, leave_none_unset],
+    "omero.web.database_host": ["DATABASE_HOST", None, leave_none_unset],
+    "omero.web.database_name": ["DATABASE_NAME", None, leave_none_unset],
+    "omero.web.database_password": ["DATABASE_PASSWORD", None, leave_none_unset],
+    "omero.web.database_port": ["DATABASE_PORT", None, leave_none_unset],
+    "omero.web.database_user": ["DATABASE_USER", None, leave_none_unset],
     "omero.web.admins": ["ADMINS", '[]', json.loads],
     "omero.web.application_host": ["APPLICATION_HOST", "http://localhost:80", append_slash],
     "omero.web.application_server": ["APPLICATION_SERVER", DEFAULT_SERVER_TYPE, check_server_type],
@@ -261,6 +269,7 @@ TEMPLATE_DIRS = (
     os.path.join(os.path.join(os.path.dirname(__file__), 'webclient'), 'templates').replace('\\','/'),
     #os.path.join(os.path.join(os.path.dirname(__file__), 'webemdb'), 'templates').replace('\\','/'),
     os.path.join(os.path.join(os.path.dirname(__file__), 'webmobile'), 'templates').replace('\\','/'),
+    os.path.join(os.path.join(os.path.dirname(__file__), 'webpublic'), 'templates').replace('\\','/'),
 )
 
 INSTALLED_APPS = (
@@ -277,6 +286,7 @@ INSTALLED_APPS = (
     'omeroweb.webtest',
     #'omeroweb.webemdb',
     'omeroweb.webmobile',
+    'omeroweb.webpublic',
 )
 
 FEEDBACK_URL = "qa.openmicroscopy.org.uk:80"

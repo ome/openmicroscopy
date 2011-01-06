@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+    <title>{% block title %}{% endblock %}</title>
+    
+    {% block meta %}{% endblock %}
+    
+    {% block link %}{% endblock %}
+    
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.3.2.js" %}"></script>
+    {% block jscript %}{% endblock %}
+    
+    {% block script %}{% endblock %}
+
+</head>
+
+<body>
+    <div class="logout">
+        <strong>{{ client.user.getName}} ({{ client.getEventContext.groupName }})</strong> |
+        <a href="{% url webpublic_index %}">Home</a> |
+        <a href="{% url weblogout %}">Logout</a>
+    </div>
+    <hr/>
+    <div style="margin-left: auto; margin-right: auto; width: 600px;">
+{% block body %}{% endblock %}
+    </div>
+</body>
+
+</html>
