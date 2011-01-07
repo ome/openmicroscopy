@@ -484,7 +484,7 @@ class WebGatewayCache (object):
         @param size:            size of the thumbnail - tuple. E.g. (100,)
         """
         
-        if size is not None:
+        if size is not None and len(size):
             return 'thumb_%s/%s/%s' % (client_base, str(iid), 'x'.join([str(x) for x in size]))
         else:
             return 'thumb_%s/%s' % (client_base, str(iid))

@@ -12,6 +12,12 @@ from django.core.handlers.wsgi import WSGIRequest
 from django.conf import settings
 from django.http import QueryDict
 
+omero.gateway.BlitzGateway = omero.gateway._BlitzGateway
+omero.gateway.ProjectWrapper = omero.gateway._ProjectWrapper
+omero.gateway.DatasetWrapper = omero.gateway._DatasetWrapper
+omero.gateway.ImageWrapper = omero.gateway._ImageWrapper
+
+
 CLIENT_BASE='test'
 
 def fakeRequest (**kwargs):
@@ -133,12 +139,12 @@ class FileCacheTest(unittest.TestCase):
         self.cache._max_size = empty_size + 4*cache_block + 1
         # There is an overhead (8 bytes in my system) for timestamp per file,
         # and the limit is only enforced after we cross over it
-        for i in range(5):
+        for i in range(6):
             self.cache.set('date/test/%d' % i, 'abcdefgh'*127*cache_block)
         for i in range(4):
             self.assertEqual(self.cache.get('date/test/%d' % i), 'abcdefgh'*127*cache_block,
                              'Key %d not properly cached' % i)
-        self.assertEqual(self.cache.get('date/test/4'), None, 'Size limit failed')
+        self.assertEqual(self.cache.get('date/test/5'), None, 'Size limit failed')
 
     def testMaxEntries (self):
         self.cache._max_entries = 2
@@ -200,14 +206,14 @@ class WebGatewayCacheTest(unittest.TestCase):
 
     def testCacheSettings (self):
         empty_size, cache_block = _testCacheFSBlockSize(self.wcache._thumb_cache)
-        max_size = empty_size + 4*cache_block + 1
+        max_size = empty_size + 4 * cache_block + 1
         self.wcache._updateCacheSettings(self.wcache._thumb_cache, timeout=2, max_entries=5, max_size=max_size )
-        for i in range(5):
+        for i in range(6):
             self.wcache.setThumb(self.request, 'test', i, 'abcdefgh'*127*cache_block)
         for i in range(4):
-            self.assertEqual(self.wcache.getThumb(self.request, 'test', 0), 'abcdefgh'*127*cache_block,
+            self.assertEqual(self.wcache.getThumb(self.request, 'test', i), 'abcdefgh'*127*cache_block,
                              'Key %d not properly cached' % i)
-        self.assertEqual(self.wcache.getThumb(self.request, 'test', 4), None, 'Size limit failed')
+        self.assertEqual(self.wcache.getThumb(self.request, 'test', 5), None, 'Size limit failed')
         for i in range(10):
             self.wcache.setThumb(self.request, 'test', i, 'abcdefgh')
         for i in range(5):
@@ -219,7 +225,8 @@ class WebGatewayCacheTest(unittest.TestCase):
     def testThumbCache (self):
         self.assertEqual(self.wcache.getThumb(self.request, 'test', 1), None)
         self.wcache.setThumb(self.request, 'test', 1, 'thumbdata')
-        self.assertEqual(self.wcache.getThumb(self.request, 'test', 1), 'thumbdata', 'Thumb not properly cached')
+        self.assertEqual(self.wcache.getThumb(self.request, 'test', 1), 'thumbdata',
+                         'Thumb not properly cached (%s)' % self.wcache.getThumb(self.request, 'test', 1))
         self.wcache.clearThumb(self.request, 'test', 1)
         self.assertEqual(self.wcache.getThumb(self.request, 'test', 1), None)
         # Make sure clear() nukes this

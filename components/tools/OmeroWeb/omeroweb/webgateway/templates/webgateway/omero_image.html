@@ -469,12 +469,17 @@
     pos.top += $(self).parents('div').height();
     pos.left += 10;
     var tooltip = $('#' + ttid);
+    $('.popped').not(tooltip).removeClass('popped');
     tooltip.css(pos)
     .toggleClass('popped');
     if (tooltip.is('.popped')) {
       var ww = $(window).width() -5;
       if ((pos.left + tooltip.width()) > ww) {
         pos.left -= (pos.left + tooltip.width()) - ww;
+        tooltip.css(pos);
+      }
+      if (tooltip.offset().top + tooltip.height() >= $('#footer').offset().top) {
+        pos.top -= tooltip.height() + 20;
         tooltip.css(pos);
       }
       var auto = $('#' + ttid).find('.autoselect').get(0);

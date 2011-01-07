@@ -5,7 +5,7 @@
 # Copyright (c) 2007, 2010 Glencoe Software, Inc. All rights reserved.
 # 
 # This software is distributed under the terms described by the LICENCE file
-# you can find at the root of the distribution bundle, which states you are 
+# you can find at the root of the distribution bundle, which states you are
 # free to use it only for non commercial purposes.
 # If the file is missing please request a copy by contacting
 # jason@glencoesoftware.com.
@@ -26,11 +26,13 @@ import omero.clients
 from omero.util.decorators import timeit, TimeIt
 import Ice
 import Glacier2
-#import makemovie
 
 import traceback
 import time
 import array
+
+import omero_version
+omero_version = omero_version.omero_version.split('-')[1].split('.')
 
 import logging
 logger = logging.getLogger('blitz_gateway')
@@ -48,6 +50,10 @@ from math import sqrt
 import omero_Constants_ice  
 import omero_ROMIO_ice
 from omero.rtypes import rstring, rint, rlong, rbool, rtime, rlist
+
+if omero_version < ['4','2','0']:
+    import makemovie
+
 
 def omero_type(val):
     """
@@ -250,12 +256,16 @@ class BlitzObjectWrapper (object):
         @rtype:             Boolean
         """
         p = self.listParents()
-        if type(p) == type(newParent):
+        # p._obj.__class__ == p._obj.__class__ ImageWrapper(omero.model.DatasetI())
+        if p.OMERO_CLASS == newParent.OMERO_CLASS:
             link = self._conn.getQueryService().findAllByQuery("select l from %s as l where l.parent.id=%i and l.child.id=%i" % (p.LINK_CLASS, p.id, self.id), None)
             if len(link):
                 link[0].parent = newParent._obj
                 self._conn.getUpdateService().saveObject(link[0])
                 return True
+            logger.debug("## query didn't return objects: 'select l from %s as l where l.parent.id=%i and l.child.id=%i'" % (p.LINK_CLASS, p.id, self.id))
+        else:
+            logger.debug("## %s != %s ('%s' - '%s')" % (type(p), type(newParent), str(p), str(newParent)))
         return False
 
     def findChildByName (self, name, description=None):
@@ -400,10 +410,13 @@ class BlitzObjectWrapper (object):
         
         @rtype:     Boolean
         @return:    see above
+        --> Beta4.1: if self.isOwned() and not self.isReadOnly():
+        -->            return True
+        -->          return False
         """
-        if self.isOwned():
+        if self.isOwned() and (omero_version >= ['4','2','0'] or not self.isReadOnly()):
             return True
-        elif not self.isPrivate() and not self.isReadOnly():
+        elif omero_version >= ['4','2','0'] and not self.isPrivate() and not self.isReadOnly():
             return True
         return False
     
@@ -1189,37 +1202,18 @@ class _BlitzGateway (object):
         """
         
         self._connected = False
-        if self._sessionUuid:           # TODO: why test this? (self._sessionUuid not used?)- Exceptions? (not handled anyway)
-            s = omero.model.SessionI()              # TODO: Do these 2 lines do anything? 
-            s._uuid = omero_type(self._sessionUuid)
-            try:
-                #r = 1
-                #while r:
-                #    r = self.c.sf.getSessionService().closeSession(s)
-                # it is not neccessary to go through every workers.
-                # if cannot get session service for killSession will use closeSession
-                self.c.killSession()
-            except Ice.ObjectNotExistException:
-                pass
-            except omero.RemovedSessionException:
-                pass
-            except ValueError:
-                raise
-            except: #pragma: no cover
-                logger.warn(traceback.format_exc())
-        else:
-            try:
-                self.c.killSession()
-            except Glacier2.SessionNotExistException: #pragma: no cover
-                pass
-            except:
-                logger.warn(traceback.format_exc())
+        try:
+            self.c.killSession()
+        except Glacier2.SessionNotExistException: #pragma: no cover
+            pass
+        except:
+            logger.warn(traceback.format_exc())
         
         self._proxies = NoProxies()
         logger.info("closed connecion (uuid=%s)" % str(self._sessionUuid))
 
-    def __del__ (self):
-        logger.debug("##GARBAGE COLLECTOR KICK IN")
+#    def __del__ (self):
+#        logger.debug("##GARBAGE COLLECTOR KICK IN")
     
     def _createProxies (self):
         """
@@ -1292,6 +1286,12 @@ class _BlitzGateway (object):
         """ Returns 'True' if the underlying omero.clients.BaseClient is connected using SSL """
         return hasattr(self.c, 'isSecure') and self.c.isSecure() or False
 
+    def _getSessionId (self):
+        if omero_version >= ['4','2','0']:
+            return self.c.getSessionId()
+        else:
+            return self.c.sf.ice_getIdentity().name
+
     def _createSession (self, skipSUuid=False):
         """
         Creates a new session for the principal given in the constructor.
@@ -1302,7 +1302,7 @@ class _BlitzGateway (object):
         """
         s = self.c.createSession(self._ic_props[omero.constants.USERNAME],
                                  self._ic_props[omero.constants.PASSWORD])
-        self._sessionUuid = self.c.getSessionId()
+        self._sessionUuid = self._getSessionId()
         ss = self.c.sf.getSessionService()
         self._session = ss.getSession(self._sessionUuid)
         self._lastGroupId = None
@@ -1318,26 +1318,7 @@ class _BlitzGateway (object):
         Close session.
         """
         self._session_cb and self._session_cb.close(self)
-        if self._sessionUuid:
-            s = omero.model.SessionI()
-            s._uuid = omero_type(self._sessionUuid)
-            try:
-                #r = 1
-                #while r:
-                #    r = self.c.sf.getSessionService().closeSession(s)
-                # it is not neccessary to go through every workers.
-                # if cannot get session service for killSession will use closeSession
-                self.c.killSession()
-            except Ice.ObjectNotExistException:
-                pass
-            except omero.RemovedSessionException:
-                pass
-            except ValueError:
-                raise
-            except: #pragma: no cover
-                logger.warn(traceback.format_exc())
         try:
-            #self.c.closeSession()
             self.c.killSession()
         except Glacier2.SessionNotExistException: #pragma: no cover
             pass
@@ -3736,11 +3717,16 @@ class DoubleAnnotationWrapper (AnnotationWrapper):
 
 AnnotationWrapper._register(DoubleAnnotationWrapper)
 
-from omero_model_TermAnnotationI import TermAnnotationI
+if omero_version >= ['4','2','0']:
+    from omero_model_TermAnnotationI import TermAnnotationI
+else:
+    TermAnnotationI = None
 
 class TermAnnotationWrapper (AnnotationWrapper):
     """
     omero_model_TermAnnotationI class wrapper extends AnnotationWrapper.
+
+    only in 4.2+
     """
     OMERO_TYPE = TermAnnotationI
 
@@ -4503,27 +4489,49 @@ class _LogicalChannelWrapper (BlitzObjectWrapper):
     omero_model_LogicalChannelI class wrapper extends BlitzObjectWrapper.
     Specifies a number of _attrs for the channel metadata.
     """
-    _attrs = ('name',
-              'pinHoleSize',
-              '#illumination',
-              'contrastMethod',
-              'excitationWave',
-              'emissionWave',
-              'fluor',
-              'ndFilter',
-              'otf',
-              'detectorSettings|DetectorSettingsWrapper',
-              'lightSourceSettings|LightSettingsWrapper',
-              'filterSet|FilterSetWrapper',
-              'lightPath|LightPathWrapper',              
-              'secondaryEmissionFilter|FilterWrapper',
-              'secondaryExcitationFilter',
-              'samplesPerPixel',
-              '#photometricInterpretation',
-              'mode',
-              'pockelCellSetting',
-              'shapes',
-              'version')
+    if omero_version >= ['4','2','0']:
+        _attrs = ('name',
+                  'pinHoleSize',
+                  '#illumination',
+                  'contrastMethod',
+                  'excitationWave',
+                  'emissionWave',
+                  'fluor',
+                  'ndFilter',
+                  'otf',
+                  'detectorSettings|DetectorSettingsWrapper',
+                  'lightSourceSettings|LightSettingsWrapper',
+                  'filterSet|FilterSetWrapper',
+                  'lightPath|LightPathWrapper',              
+                  'secondaryEmissionFilter|FilterWrapper',
+                  'secondaryExcitationFilter',
+                  'samplesPerPixel',
+                  '#photometricInterpretation',
+                  'mode',
+                  'pockelCellSetting',
+                  'shapes',
+                  'version')
+    else:
+        _attrs = ('name',
+                  'pinHoleSize',
+                  '#illumination',
+                  'contrastMethod',
+                  'excitationWave',
+                  'emissionWave',
+                  'fluor',
+                  'ndFilter',
+                  'otf',
+                  'detectorSettings|DetectorSettingsWrapper',
+                  'lightSourceSettings|LightSettingsWrapper',
+                  'filterSet|FilterSetWrapper',
+                  'secondaryEmissionFilter|FilterWrapper',
+                  'secondaryExcitationFilter',
+                  'samplesPerPixel',
+                  '#photometricInterpretation',
+                  'mode',
+                  'pockelCellSetting',
+                  'shapes',
+                  'version')
 
 LogicalChannelWrapper = _LogicalChannelWrapper    
 
@@ -5609,7 +5617,7 @@ class _ImageWrapper (BlitzObjectWrapper):
     def createMovie (self, outpath, zstart, zend, tstart, tend, opts={}):
         """
         Creates a movie file from this image.
-        TODO:   makemovie import is commented out
+        TODO:   makemovie import is commented out in 4.2+
 
         @type outpath: string
         @type zstart: int
@@ -5640,6 +5648,8 @@ class _ImageWrapper (BlitzObjectWrapper):
                 if ratio > 1:
                     watermark = watermark.resize(map(lambda x: x*ratio, watermark.size), Image.ANTIALIAS)
             ww, wh = watermark.size
+        else:
+            ww, wh = 0, 0
         if minsize is not None and (w < minsize[0] or h < minsize[1]):
             w = max(w, minsize[0])
             h = max(h, minsize[1])
