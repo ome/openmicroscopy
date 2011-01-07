@@ -19,7 +19,7 @@ TESTIMG_URL = 'http://users.openmicroscopy.org.uk/~cneves-x/'
 
 #Gateway = omero.gateway.BlitzGateway
 
-def loginAsRoot ():
+def refreshConfig():
     bg = omero.gateway.BlitzGateway()
     ru = bg.c.ic.getProperties().getProperty('omero.rootuser')
     rp = bg.c.ic.getProperties().getProperty('omero.rootpass')
@@ -28,6 +28,8 @@ def loginAsRoot ():
     if rp:
         ROOT.passwd = rp
 
+def loginAsRoot ():
+    refreshConfig()
     return login(ROOT)
 
 def login (alias, pw=None):
