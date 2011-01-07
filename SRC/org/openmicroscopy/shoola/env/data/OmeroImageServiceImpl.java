@@ -764,27 +764,10 @@ class OmeroImageServiceImpl
 				container = containers.get(0);
 				if (container instanceof ProjectData) {
 					io = createDefaultContainer(container, userID);
-					ioList.add(io);
-					/*
-					while (j.hasNext()) {
-						container = j.next();
-						link = ModelMapper.linkParentToChild((Dataset) io, 
-								(Project) container.asProject());
-						links.add(link);
-					}
-					try {
-						if (links.size() > 0) {
-							links = gateway.saveAndReturnObject(links, 
-									new HashMap());
-						}
-					} catch (Exception e) {
-					}
-					*/
+					if (io != null) ioList.add(io);
 				} else if (container instanceof DatasetData) {
-					while (j.hasNext()) {
-						container = j.next();
-						ioList.add(container.asIObject());
-					}
+					while (j.hasNext())
+						ioList.add(j.next().asIObject());
 				}
 			}
 			result = gateway.importImage(object, ioList, file, status, 
@@ -827,10 +810,8 @@ class OmeroImageServiceImpl
 							}
 						}
 						try {
-							if (links.size() > 0) {
-								links = gateway.saveAndReturnObject(links, 
-										new HashMap());
-							}
+							if (links.size() > 0) 
+								links = gateway.saveAndReturnObject(links, m);
 						} catch (Exception e) {
 						}
 					}
@@ -843,12 +824,10 @@ class OmeroImageServiceImpl
 				container = containers.get(0);
 				if (container instanceof ProjectData) {
 					io = createDefaultContainer(container, userID);
-					ioList.add(io);
+					if (io != null) ioList.add(io);
 				} else if (container instanceof DatasetData) {
-					while (j.hasNext()) {
-						container = j.next();
-						ioList.add(container.asIObject());
-					}
+					while (j.hasNext())
+						ioList.add(j.next().asIObject());
 				}
 			}
 		}
@@ -857,12 +836,9 @@ class OmeroImageServiceImpl
 			gateway.getImportCandidates(object, file, status);
 		if (candidates.size() == 0) return Boolean.valueOf(false);
 		Iterator<String> i = candidates.iterator();
-		String path;
 		Map<File, StatusLabel> files = new HashMap<File, StatusLabel>();
-		while (i.hasNext()) {
-			path = i.next();
-			files.put(new File(path), new StatusLabel());
-		}
+		while (i.hasNext()) 
+			files.put(new File(i.next()), new StatusLabel());
 		status.setFiles(files);
 		Entry entry;
 		Iterator jj = files.entrySet().iterator();
@@ -872,12 +848,17 @@ class OmeroImageServiceImpl
 			entry = (Entry) jj.next();
 			file = (File) entry.getKey();
 			label = (StatusLabel) entry.getValue();
-			result = gateway.importImage(object, ioList, file, label, archived);
-			if (!(result instanceof ImageData))
-				label.setFile(file, result);
-			images.add((ImageData) result);
-			label.setFile(file, createImportedImage(userID, 
-					(ImageData) result));
+			try {
+				result = gateway.importImage(object, ioList, file, label, 
+						archived);
+				if (!(result instanceof ImageData))
+					label.setFile(file, result);
+				images.add((ImageData) result);
+				label.setFile(file, createImportedImage(userID, 
+						(ImageData) result));
+			} catch (ImportException e) {
+				label.setFile(file, e);
+			}
 		}
 		annotatedImportedImage(list, images);
 		return Boolean.valueOf(true);
