@@ -97,7 +97,7 @@ class BaseContainer(BaseController):
             if self.image._obj is None:
                 raise AttributeError("We are sorry, but that image (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
         elif o1_type == "well":
-            self.well = self.conn.lookupWell(o1_id)
+            self.well = self.conn.getWell(o1_id)
             if self.well is None:
                 raise AttributeError("We are sorry, but that well (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
             if self.well._obj is None:
@@ -141,15 +141,15 @@ class BaseContainer(BaseController):
     def loadTags(self, eid=None):
         if eid is not None:
             self.experimenter = self.conn.getExperimenter(eid)
-        self.tags = list(self.conn.lookupTags(eid))
+        self.tags = list(self.conn.listTags(eid))
         self.t_size = len(self.tags)
     
     def loadDataByTag(self):
-        pr_list = list(self.conn.listProjectsByTag([self.tag.id]))
-        ds_list = list(self.conn.listDatasetsByTag([self.tag.id]))
-        im_list = list(self.conn.listImagesByTag([self.tag.id]))
-        sc_list = list(self.conn.listScreensByTag([self.tag.id]))
-        pl_list = list(self.conn.listPlatesByTag([self.tag.id]))
+        pr_list = list(self.conn.getProjectsByTag([self.tag.id]))
+        ds_list = list(self.conn.getDatasetsByTag([self.tag.id]))
+        im_list = list(self.conn.getImagesByTag([self.tag.id]))
+        sc_list = list(self.conn.getScreensByTag([self.tag.id]))
+        pl_list = list(self.conn.getPlatesByTag([self.tag.id]))
         
         pr_list_with_counters = list()
         ds_list_with_counters = list()
@@ -204,7 +204,7 @@ class BaseContainer(BaseController):
         if eid is not None:
             self.experimenter = self.conn.getExperimenter(eid)  
         
-        im_list = list(self.conn.lookupImagesInDataset(oid=did, eid=eid, page=page))
+        im_list = list(self.conn.listImagesInDataset(oid=did, eid=eid, page=page))
         im_list_with_counters = list()
         
         im_ids = [im.id for im in im_list]
@@ -231,7 +231,7 @@ class BaseContainer(BaseController):
             elif i >= 26 and i < 702:
                 return chr(((i/26)-1)+ord("A")), chr(((i % 26))+ord("A"))        
         
-        wl_list = list(self.conn.lookupWellsInPlate(oid=plid, index=index))
+        wl_list = list(self.conn.listWellsInPlate(oid=plid, index=index))
         wl_list_with_counters = dict()
         wl_ids = list()
         self.fields = None
@@ -306,10 +306,10 @@ class BaseContainer(BaseController):
         #obj_list = list(self.conn.listContainerHierarchy('Project', eid=eid))
         #obj_list.extend(list(self.conn.listContainerHierarchy('Screen', eid=eid)))
             
-        pr_list = list(self.conn.lookupProjects(eid))
-        ds_list = list(self.conn.lookupOrphanedDatasets(eid))
-        sc_list = list(self.conn.lookupScreens(eid))
-        pl_list = list(self.conn.lookupOrphanedPlates(eid))
+        pr_list = list(self.conn.listProjects(eid))
+        ds_list = list(self.conn.listOrphanedDatasets(eid))
+        sc_list = list(self.conn.listScreens(eid))
+        pl_list = list(self.conn.listOrphanedPlates(eid))
 
         pr_list_with_counters = list()
         ds_list_with_counters = list()
@@ -360,7 +360,7 @@ class BaseContainer(BaseController):
         if eid is not None:
             self.experimenter = self.conn.getExperimenter(eid)
         
-        im_list = list(self.conn.lookupOrphanedImages(eid=eid))
+        im_list = list(self.conn.listOrphanedImages(eid=eid))
         im_list_with_counters = list()
         
         im_ids = [im.id for im in im_list]
@@ -421,37 +421,37 @@ class BaseContainer(BaseController):
         if self.long_annotations['votes'] > 0:
             self.long_annotations['rate'] /= self.long_annotations['votes']
     
-    def listTags(self):
+    def getTagsByObject(self):
         if self.image is not None:
-            return list(self.conn.listTags("image", self.image.id))
+            return list(self.conn.getTagsByObject("image", self.image.id))
         elif self.dataset is not None:
-            return list(self.conn.listTags("dataset", self.dataset.id))
+            return list(self.conn.getTagsByObject("dataset", self.dataset.id))
         elif self.project is not None:
-            return list(self.conn.listTags("project", self.project.id))
+            return list(self.conn.getTagsByObject("project", self.project.id))
         elif self.well is not None:
-            return list(self.conn.listTags("well", self.well.id))
+            return list(self.conn.getTagsByObject("well", self.well.id))
         elif self.plate is not None:
-            return list(self.conn.listTags("plate", self.plate.id))
+            return list(self.conn.getTagsByObject("plate", self.plate.id))
         elif self.screen is not None:
-            return list(self.conn.listTags("screen", self.screen.id))
+            return list(self.conn.getTagsByObject("screen", self.screen.id))
         else:
-            return list(self.conn.lookupTags())
+            return list(self.conn.listTags())
     
-    def listFiles(self):
+    def getFilesByObject(self):
         if self.image is not None:
-            return list(self.conn.listFiles("image", self.image.id))
+            return list(self.conn.getFilesByObject("image", self.image.id))
         elif self.dataset is not None:
-            return list(self.conn.listFiles("dataset", self.dataset.id))
+            return list(self.conn.getFilesByObject("dataset", self.dataset.id))
         elif self.project is not None:
-            return list(self.conn.listFiles("project", self.project.id))
+            return list(self.conn.getFilesByObject("project", self.project.id))
         elif self.well is not None:
-            return list(self.conn.listFiles("well", self.well.id))
+            return list(self.conn.getFilesByObject("well", self.well.id))
         elif self.plate is not None:
-            return list(self.conn.listFiles("plate", self.plate.id))
+            return list(self.conn.getFilesByObject("plate", self.plate.id))
         elif self.screen is not None:
-            return list(self.conn.listFiles("screen", self.screen.id))
+            return list(self.conn.getFilesByObject("screen", self.screen.id))
         else:
-            return list(self.conn.lookupFiles())
+            return list(self.conn.listFiles())
     ####################################################################
     # Creation
     

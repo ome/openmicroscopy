@@ -36,7 +36,7 @@ class BaseExperimenters(BaseController):
     def __init__(self, conn):
         BaseController.__init__(self, conn)
         self.experimentersList = list(self.conn.lookupExperimenters())
-        self.auth = self.conn.lookupLdapAuthExperimenters()
+        self.auth = self.conn.listLdapAuthExperimenters()
         self.experimenters = list()
         self.experimentersCount = {'experimenters': 0, 'active': 0, 'ldap': 0, 'admin': 0, 'guest': 0}
         for exp in self.experimentersList:
@@ -82,7 +82,7 @@ class BaseExperimenter(BaseController):
         BaseController.__init__(self, conn)
         if eid is not None:
             self.experimenter = self.conn.getExperimenter(eid)
-            self.ldapAuth = self.conn.lookupLdapAuthExperimenter(eid)
+            self.ldapAuth = self.conn.getLdapAuthExperimenter(eid)
             if self.experimenter.sizeOfGroupExperimenterMap() > 0:
                 self.defaultGroup = self.experimenter.copyGroupExperimenterMap()[0].parent.id.val
             else:
@@ -126,7 +126,7 @@ class BaseExperimenter(BaseController):
     
     def getMyDetails(self):
         self.experimenter = self.conn.getUser()
-        self.ldapAuth = self.conn.lookupLdapAuthExperimenter(self.conn._userid)
+        self.ldapAuth = self.conn.getLdapAuthExperimenter(self.conn._userid)
         self.defaultGroup = self.experimenter.copyGroupExperimenterMap()[0].parent.id.val
         self.otherGroups = list()
         for gem in self.experimenter.copyGroupExperimenterMap():

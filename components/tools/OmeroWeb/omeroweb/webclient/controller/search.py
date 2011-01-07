@@ -49,7 +49,7 @@ class BaseSearch(BaseController):
         for (plate_name, row, column) in query_list:
             row = int(row)
             column = int(column)
-            well = self.conn.searchWellFromPlate(plate_name, row, column)
+            well = self.conn.findWellInPlate(plate_name, row, column)
             if well is not None:
                 well_list.append(well)
         for well in well_list:

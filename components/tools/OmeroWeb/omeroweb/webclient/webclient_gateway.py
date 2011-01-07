@@ -76,10 +76,52 @@ logger = logging.getLogger('webclient_gateway')
 class OmeroWebGateway (omero.gateway.BlitzGateway):
 
     def __init__ (self, *args, **kwargs):
+        """
+        Create the connection wrapper. Does not attempt to connect at this stage
+        Initialises the omero.client
+        
+        @param username:    User name. If not specified, use 'omero.gateway.anon_user'
+        @type username:     String
+        @param passwd:      Password.
+        @type passwd:       String
+        @param client_obj:  omero.client
+        @param group:       name of group to try to connect to
+        @type group:        String
+        @param clone:       If True, overwrite anonymous with False
+        @type clone:        Boolean
+        @param try_super:   Try to log on as super user ('system' group) 
+        @type try_super:    Boolean
+        @param host:        Omero server host. 
+        @type host:         String
+        @param port:        Omero server port. 
+        @type port:         Integer
+        @param extra_config:    Dictionary of extra configuration
+        @type extra_config:     Dict
+        @param secure:      Initial underlying omero.client connection type (True=SSL/False=insecure)
+        @type secure:       Boolean
+        @param anonymous:   
+        @type anonymous:    Boolean
+        @param useragent:   Log which python clients use this connection. E.g. 'OMERO.webadmin'
+        @type useragent:    String
+        
+        @param _shareId:    Active share ID
+        @type _shareId:     Long
+        """
+        
         super(OmeroWebGateway, self).__init__(*args, **kwargs)
         self._shareId = None
 
     def connect (self, *args, **kwargs):
+        """
+        Creates or retrieves connection for the given sessionUuid and
+        removes some groups from the event context
+        Returns True if connected.
+        
+        @param sUuid:       session uuid
+        @type sUuid:        omero_model_SessionI
+        @return:            Boolean
+        """
+        
         rv = super(OmeroWebGateway, self).connect(*args,**kwargs)
         if rv: # No _ctx available otherwise #3218
             if self._ctx.userName!="guest":
@@ -87,19 +129,39 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         return rv
 
     def attachToShare (self, share_id):
+        """
+        Turns on the access control lists attached to the given share for the
+        current session. Warning: this will slow down the execution of the
+        current session for all database reads. Writing to the database will not
+        be allowed. If share does not exist or is not accessible (non-members) or
+        is disabled, then an ValidationException is thrown.
+        
+        @param shareId:     share id
+        @type shareId:      Long        
+        """
+        
         sh = self._proxies['share'].getShare(long(share_id))
         if self._shareId is None:
             self._proxies['share'].activate(sh.id.val)
         self._shareId = sh.id.val
 
     def getShareId(self):
+        """
+        Returns active share id .
+         
+        @return:    Share ID
+        @rtype:     Long
+        """
+        
         if self.getEventContext().shareId is not None:
             if self.getEventContext().shareId != self._shareId and self._shareId > 0:
                 self._shareId = self.getEventContext().shareId
         return self._shareId
 
     def removeGroupFromContext (self):
-        """ Removes group "User" from the current context."""
+        """
+        Removes group "User" from the current context.
+        """
 
         a = self.getAdminService()
         gr_u = a.lookupGroup('user')
@@ -113,11 +175,18 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     #    Session methods                         #
 
     def changeActiveGroup(self, gid): # TODO: should be moved to ISession
-        """ Every time session is created default group becomes active group 
-            and is loaded with the security for the current user and thread.
-            Public data has to be created in the context of the group where user,
-            who would like to look at these data, is a member of.
-            Public data can be only visible by the member of group and owners."""        
+        """ 
+        Every time session is created default group becomes active group 
+        and is loaded with the security for the current user and thread.
+        Public data has to be created in the context of the group where user,
+        who would like to look at these data, is a member of.
+        Public data can be only visible by the member of group and owners.
+        
+        @param gid:     New active group ID
+        @type gid:      Long
+        
+        @return:        Boolean
+        """        
         
         try:
             for k in self._proxies.keys():
@@ -139,8 +208,12 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     ##   Forgotten password                     ##
     
     def isForgottenPasswordSet(self):
-        """ Retrieves a configuration value "omero.resetpassword.config" for
-            Forgotten password form from the backend store. """
+        """
+        Retrieves a configuration value "omero.resetpassword.config" for
+        Forgotten password form from the backend store.
+        
+        @return:    Boolean
+        """
         
         conf = self.getConfigService()
         try:
@@ -150,18 +223,30 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             return False
     
     def reportForgottenPassword(self, username, email):
-        """ Allows to reset the password (temporary password is sent). The
-            given email must match the email for the user listed under the name
-            argument."""
+        """
+        Allows to reset the password (temporary password is sent). The
+        given email must match the email for the user listed under the name
+        argument.
+        
+        @param username:    omename
+        @type username:     String
+        @param email:       email address
+        @type email:        String
+        
+        """
         
         admin_serv = self.getAdminService()
-        return admin_serv.reportForgottenPassword(username, email)
+        admin_serv.reportForgottenPassword(username, email)
     
     ##############################################
     ##   IAdmin                                 ##
     
     def isAnythingCreated(self):
-        """ Checks if any of the experimenter was created before"""
+        """
+        Checks if any of the experimenter was created before
+        
+        @return:    Boolean
+        """
         
         q = self.getQueryService()
         p = omero.sys.Parameters()
@@ -179,6 +264,12 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         """ 
         Get experimenters for the given user ids. If ID is not set, return current user.
         TODO: omero.gateway.BlitzGateway has getExperimenter(id) method
+        
+        @param ids:     List of experimenter IDs
+        @type ids:      L{Long} 
+        @return:        Generator yielding experimetners list
+        @rtype:         L{ExperimenterWrapper} generator
+        
         """
         
         q = self.getQueryService()
@@ -198,6 +289,11 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         """ 
         Get group for for the given group ids. 
         TODO: omero.gateway.BlitzGateway has getGroup(id) method
+        
+        @param ids:     List of group IDs
+        @type ids:      L{Long} 
+        @return:        Generator yielding groups list
+        @rtype:         L{ExperimenterGroupWrapper} generator
         """
             
         q = self.getQueryService()
@@ -209,15 +305,28 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             if e.name.val != 'user':
                 yield ExperimenterGroupWrapper(self, e)
     
-    def lookupLdapAuthExperimenters(self):
-        """ Looks up all IDs of experimenters who are authenticated by LDAP
-            (has set dn on password table). """
+    def listLdapAuthExperimenters(self):
+        """
+        Lists all IDs of experimenters who are authenticated by LDAP
+        (has set dn on password table).
+        
+        @return:    List of experimetner IDs
+        @rtype:     L{Dict of String: Long}
+        """
         
         admin_serv = self.getAdminService()
         return admin_serv.lookupLdapAuthExperimenters()
     
-    def lookupLdapAuthExperimenter(self, eid):
-        """ Looks up all id of experimenters who uses LDAP authentication (has set dn on password table)."""
+    def getLdapAuthExperimenter(self, eid):
+        """
+        Return DN of the specific experimenter if uses LDAP authentication 
+        (has set dn on password table) or None.
+        
+        @param eid:     experimenter ID
+        @type eid:      L{Long} 
+        @return:        Distinguished Name 
+        @rtype:         String
+        """
         
         admin_serv = self.getAdminService()
         return admin_serv.lookupLdapAuthExperimenter(long(eid))
@@ -229,7 +338,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         TODO: omero.gateway.BlitzGateway has this exact same method & code already. 
         
         @param start:   Only if omero_model_ExperimenterI.omeName starts with. String.
-        @return:        Generator yielding _ExperimenterWrapper
+        @return:        Generator yielding experimenter list
+        @rtype:         L{ExperimenterWrapper} generator
         """
         
         if isinstance(start, UnicodeType):
@@ -237,33 +347,46 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         params = omero.sys.Parameters()
         params.map = {'start': rstring('%s%%' % start.lower())}
         q = self.getQueryService()
-        rv = q.findAllByQuery("from Experimenter e where lower(e.omeName) like :start", params)
+        sql = "from Experimenter e where lower(e.omeName) like :start"
+        rv = q.findAllByQuery(sql, params)
         rv.sort(lambda x,y: cmp(x.omeName.val,y.omeName.val))
         for e in rv:
             yield ExperimenterWrapper(self, e)
 
-    def getCurrentSupervisor(self):
-        """ Gets the owner of a group for current user."""
-        p = omero.sys.ParametersI()
-        p.map = {}
-        p.map["id"] = rlong(self.getEventContext().groupId)
+    #def getCurrentSupervisor(self):
+    #    """
+    #    Gets the owner of a group for current user.
+    #    
+    #    @return:        ExperimenterWrapper
+    #    """
+    #    
+    #    p = omero.sys.ParametersI()
+    #    p.map = {}
+    #    p.map["id"] = rlong(self.getEventContext().groupId)
 
-        # TODO: there can now be multiple supervisors
-        p.page(0,1)
-        supervisor = self.getQueryService().findByQuery(\
-            """select e from ExperimenterGroup as g join g.groupExperimenterMap as m join m.child as e
-               where m.owner = true and g.id = :id""", p)
-        return ExperimenterWrapper(self, supervisor)
+    #    # TODO: there can now be multiple supervisors
+    #    p.page(0,1)
+    #    supervisor = self.getQueryService().findByQuery(\
+    #        """select e from ExperimenterGroup as g 
+    #           join g.groupExperimenterMap as m join m.child as e
+    #           where m.owner = true and g.id = :id""", p)
+    #    return ExperimenterWrapper(self, supervisor)
     
-    def getScriptwithDetails(self, sid):
-        script_serv = self.getScriptService()
-        return script_serv.getScriptWithDetails(long(sid))
+    #def getScriptwithDetails(self, sid):
+    #    script_serv = self.getScriptService()
+    #    return script_serv.getScriptWithDetails(long(sid))
     
-    def lookupScripts(self):
-        script_serv = self.getScriptService()
-        return script_serv.getScripts()
+    #def lookupScripts(self):
+    #    script_serv = self.getScriptService()
+    #    return script_serv.getScripts()
     
     def getServerVersion(self):
+        """
+        Retrieves a configuration value "omero.version" from the backend store.
+        
+        @return:        String
+        """
+        
         conf = self.getConfigService()
         return conf.getConfigValue("omero.version")
 
@@ -271,7 +394,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     #########################################################
     ##  From Bram b(dot)gerritsen(at)nki(dot)nl            ##
     
-    def searchWellFromPlate (self, plate_name, row, column):
+    def findWellInPlate (self, plate_name, row, column):
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -279,11 +402,12 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map['row'] = rint(int(row))
         p.map['column'] = rint(int(column))
     
-        sql = "select well from Well as well "\
-              "left outer join fetch well.plate as pt "\
-              "left outer join fetch well.wellSamples as ws " \
-              "inner join fetch ws.image as img "\
-              "where well.plate.name = :pname and well.row = :row and well.column = :column"
+        sql = """select well from Well as well 
+              left outer join fetch well.plate as pt 
+              left outer join fetch well.wellSamples as ws 
+              inner join fetch ws.image as img 
+              where well.plate.name = :pname and well.row = :row 
+              and well.column = :column"""
         well = q.findByQuery(sql, p)
         if well is None:
             return None
@@ -294,10 +418,20 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     ##############################################
     ##   DATA RETRIVAL                          ##
 
-    def lookupProjects (self, eid=None, page=None):
+    def listProjects (self, eid=None, page=None):
+        """
+        List every Project controlled by the security system, ordered by id
+        If user id not set, owned by the current user.
+        
+        @param eid:         experimenter id
+        @type eid:          Long
+        @param page:        page number
+        @type page:         Long
+        @return:            Generator yielding Projects
+        @rtype:             L{ProjectWrapper} generator
+        """
+        
         """ 
-        Retrieves every Projects. If user id not set, owned by 
-        the current user.
         TODO: omero.gateway.BlitzGateway.listProjects(self, only_owned=False)  
         TODO: page ignored. 
         """
@@ -316,10 +450,19 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         for e in q.findAllByQuery(sql, p):
             yield ProjectWrapper(self, e)
     
-    def lookupOrphanedDatasets (self, eid=None, page=None):
-        """ Retrieves every orphaned Datasets. If user id not set, owned by
-            the current user."""
+    def listOrphanedDatasets (self, eid=None, page=None):
+        """
+        List every orphaned Datasets controlled by the security system, 
+        ordered by id. If user id not set, owned by the current user.
         
+        @param eid:         experimenter id
+        @type eid:          Long
+        @param page:        page number
+        @type page:         Long
+        @return:            Generator yielding Datasets
+        @rtype:             L{DatasetWrapper} generator
+        """
+                
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -337,9 +480,18 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         for e in q.findAllByQuery(sql, p):
             yield DatasetWrapper(self, e)
     
-    def lookupOrphanedImages (self, eid=None, page=None):
-        """ Retrieves every orphaned Images. If user id not set, owned by 
-            the current user."""
+    def listOrphanedImages (self, eid=None, page=None):
+        """
+        List every orphaned Images controlled by the security system, 
+        ordered by id. If user id not set, owned by the current user.
+        
+        @param eid:         experimenter id
+        @type eid:          Long
+        @param page:        page number
+        @type page:         Long
+        @return:            Generator yielding Images
+        @rtype:             L{ImageWrapper} generator
+        """
         
         q = self.getQueryService()
         p = omero.sys.Parameters()
@@ -361,10 +513,22 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         for e in q.findAllByQuery(sql,p):
             yield ImageWrapper(self, e)
     
-    def lookupImagesInDataset (self, oid, eid=None, page=None):
-        """ 
-        Retrieves every Images in the given Dataset. 
+    def listImagesInDataset (self, oid, eid=None, page=None):
+        """
+        List every Images in the given Dataset 
+        controlled by the security system, ordered by id.
         If user id not set, owned by the current user.
+        
+        @param eid:         experimenter id
+        @type eid:          Long
+        @param page:        page number
+        @type page:         Long
+        @return:            Generator yielding Images
+        @rtype:             L{ImageWrapper} generator
+        """
+        
+        
+        """ 
         TODO: omero.gateway.DatasetWrapper.listChildren
         """
         
@@ -389,9 +553,18 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             yield ImageWrapper(self, e, None, **kwargs)
     
     # SPW
-    def lookupScreens(self, eid=None, page=None):
-        """ Retrieves every Screens. If user id not set, owned by 
-            the current user."""
+    def listScreens(self, eid=None, page=None):
+        """
+        List every Screens controlled by the security system, ordered by id
+        If user id not set, owned by the current user.
+        
+        @param eid:         experimenter id
+        @type eid:          Long
+        @param page:        page number
+        @type page:         Long
+        @return:            Generator yielding Screens
+        @rtype:             L{ScreenWrapper} generator
+        """
         
         q = self.getQueryService()
         p = omero.sys.Parameters()
@@ -407,9 +580,18 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         for e in q.findAllByQuery(sql, p):
             yield ScreenWrapper(self, e)
             
-    def lookupOrphanedPlates (self, eid=None, page=None):
-        """ Retrieves every orphaned Datasets. If user id not set, owned by
-            the current user."""
+    def listOrphanedPlates (self, eid=None, page=None):
+        """
+        List every orphaned Plates controlled by the security system, 
+        ordered by id. If user id not set, owned by the current user.
+        
+        @param eid:         experimenter id
+        @type eid:          Long
+        @param page:        page number
+        @type page:         Long
+        @return:            Generator yielding Plates
+        @rtype:             L{PlateWrapper} generator
+        """
         
         q = self.getQueryService()
         p = omero.sys.Parameters()
@@ -428,9 +610,20 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         for e in q.findAllByQuery(sql, p):
             yield DatasetWrapper(self, e)
     
-    def lookupWellsInPlate(self, oid, index=None, eid=None):
-        """ Retrieves every Wells in a for the given Plate id. 
-            If user id not set, owned by the current user."""
+    def listWellsInPlate(self, oid, index=None, eid=None):
+        """
+        List every Plates in the given Well 
+        controlled by the security system, ordered by id.
+        If user id not set, owned by the current user.
+        
+        @param eid:         experimenter id
+        @type eid:          Long
+        @param page:        page number
+        @type page:         Long
+        @return:            Generator yielding Wells
+        @rtype:             L{WellWrapper} generator
+        """
+        
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -451,9 +644,20 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         for e in q.findAllByQuery(sql,p):
             yield WellWrapper(self, e, **kwargs)
     
-    def lookupWell(self, oid, index=None, eid=None):
-        """ Retrieves every Wells in a for the given Plate id. 
-            If user id not set, owned by the current user."""
+    def getWell(self, oid, index=None, eid=None):
+        """
+        Get filed in the given Well with the specific index
+        controlled by the security system, ordered by id.
+        If user id not set, owned by the current user.
+        
+        @param eid:         experimenter id
+        @type eid:          Long
+        @param page:        page number
+        @type page:         Long
+        @return:            Well
+        @rtype:             WellWrapper
+        """
+
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -478,8 +682,20 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         return WellWrapper(self, res, **kwargs)
     
     # LISTS selections
-    def listSelectedImages(self, ids):
-        """ Retrieves for the given Image ids.
+    def getImagesById(self, ids):
+        """
+        Retrieve images by given IDs
+        controlled by the security system, ordered by name.
+        If user id not set, owned by the current user.
+        
+        @param ids:         image IDs
+        @type ids:          L{Long}
+        @return:            Generator yielding Images
+        @rtype:             L{ImageWrapper} generator
+        """
+        
+        
+        """
         TODO: omero.gateway.BlitzGateway.getImage(id)
         """
         q = self.getQueryService()
@@ -490,8 +706,18 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         for e in q.findAllByQuery(sql, p):
             yield ImageWrapper(self, e)
 
-    def listSelectedDatasets(self, ids):
-        """ Retrieves for the given Dataset ids."""
+    def getDatasetsById(self, ids):
+        """
+        Retrieve datasets by given IDs
+        controlled by the security system, ordered by name.
+        If user id not set, owned by the current user.
+        
+        @param ids:         dataset IDs
+        @type ids:          L{Long}
+        @return:            Generator yielding Datasets
+        @rtype:             L{DatasetWrapper} generator
+        """
+        
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -500,8 +726,18 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         for e in q.findAllByQuery(sql, p):
             yield DatasetWrapper(self, e)
 
-    def listSelectedProjects(self, ids):
-        """ Retrieves for the given Project ids."""
+    def getProjectsById(self, ids):
+        """
+        Retrieve projects by given IDs
+        controlled by the security system, ordered by name.
+        If user id not set, owned by the current user.
+        
+        @param ids:         project IDs
+        @type ids:          L{Long}
+        @return:            Generator yielding Projects
+        @rtype:             L{ProjectWrapper} generator
+        """
+        
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -510,8 +746,18 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         for e in q.findAllByQuery(sql, p):
             yield ProjectWrapper(self, e)
     
-    def listSelectedScreens(self, ids):
-        """ Retrieves for the given Screen ids."""
+    def getScreensById(self, ids):
+        """
+        Retrieve screens by given IDs
+        controlled by the security system, ordered by name.
+        If user id not set, owned by the current user.
+        
+        @param ids:         screen IDs
+        @type ids:          L{Long}
+        @return:            Generator yielding Screens
+        @rtype:             L{ScreenWrapper} generator
+        """
+        
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -520,8 +766,18 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         for e in q.findAllByQuery(sql, p):
             yield ScreenWrapper(self, e)
 
-    def listSelectedPlates(self, ids):
-        """ Retrieves for the given Plate ids."""
+    def getPlatesById(self, ids):
+        """
+        Retrieve plates by given IDs
+        controlled by the security system, ordered by name.
+        If user id not set, owned by the current user.
+        
+        @param ids:         plate IDs
+        @type ids:          L{Long}
+        @return:            Generator yielding Plates
+        @rtype:             L{PlateWrapper} generator
+        """
+        
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -530,8 +786,18 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         for e in q.findAllByQuery(sql, p):
             yield PlateWrapper(self, e)
     
-    def listSelectedWells(self, ids):
-        """ Retrieves for the given Plate ids."""
+    def getWellsById(self, ids):
+        """
+        Retrieve wells by given IDs
+        controlled by the security system, ordered by name.
+        If user id not set, owned by the current user.
+        
+        @param ids:         well IDs
+        @type ids:          L{Long}
+        @return:            Generator yielding Wells
+        @rtype:             L{WellWrapper} generator
+        """
+        
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -546,19 +812,46 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             yield WellWrapper(self, e)
     
     # HIERARCHY RETRIVAL
-    def listContainerHierarchy(self, root, eid=None, gid=None):
-        """ Retrieves hierarchy trees rooted by a given node - Project, 
-            for the given user id linked to the objects in the tree,
-            filter them by parameters."""
+    #def listContainerHierarchy(self, root, eid=None, gid=None):
+    #    """ Retrieves hierarchy trees rooted by a given node - Project, 
+    #        for the given user id linked to the objects in the tree,
+    #        filter them by parameters."""
+    #        
+    #    q = self.getContainerService()
+    #    if eid is not None: 
+    #        p = ParametersI().orphan().exp(long(eid))
+    #    elif gid is not None: 
+    #        p = ParametersI().orphan().grp(self.getEventContext().groupId)
+    #    else: 
+    #        p = ParametersI().orphan().exp(self.getEventContext().userId)
+    #    for e in q.loadContainerHierarchy(root, None,  p):
+    #        if isinstance(e, ProjectI):
+    #            yield ProjectWrapper(self, e)
+    #        elif isinstance(e, DatasetI):
+    #            yield DatasetWrapper(self, e)
+    #        elif isinstance(e, ScreenI):
+    #            yield ScreenWrapper(self, e)
+    #        elif isinstance(e, PlateI):
+    #            yield PlateWrapper(self, e)
+
+    def findContainerHierarchies(self, nid):
+        """ 
+        Retrieves hierarchy trees in various hierarchies that contain the specified Images.
+        This method will look for all the containers containing the specified
+        Images and then for all containers containing those containers and on up
+        the container hierarchy.
+        
+        @param nid      Contains the ids of the Objects that sit at the bottom of the
+                        trees. Not null.
+        @type nid       L{Long}
+        @return:        Generator yielding Objects with all root nodes that were found.
+        @rtype:         L{BlitzObjectWrapper} generator
+        """
+        """TODO: #1015
+        It does not support SPW"""
             
         q = self.getContainerService()
-        if eid is not None: 
-            p = ParametersI().orphan().exp(long(eid))
-        elif gid is not None: 
-            p = ParametersI().orphan().grp(self.getEventContext().groupId)
-        else: 
-            p = ParametersI().orphan().exp(self.getEventContext().userId)
-        for e in q.loadContainerHierarchy(root, None,  p):
+        for e in q.findContainerHierarchies("Project", [long(nid)], None):
             if isinstance(e, ProjectI):
                 yield ProjectWrapper(self, e)
             elif isinstance(e, DatasetI):
@@ -567,21 +860,18 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 yield ScreenWrapper(self, e)
             elif isinstance(e, PlateI):
                 yield PlateWrapper(self, e)
-
-    def findContainerHierarchies(self, nid):
-        """ Finds hierarchy trees rooted by a given node - Project, 
-            for the given Image ids. TODO: #1015"""
-            
-        q = self.getContainerService()
-        for e in q.findContainerHierarchies("Project", [long(nid)], None):
-            if isinstance(e, ProjectI):
-                yield ProjectWrapper(self, e)
-            if isinstance(e, DatasetI):
-                yield DatasetWrapper(self, e)
     
     # DATA RETRIVAL BY TAGs
-    def listProjectsByTag(self, tids):
-        """ Retrieves Projects linked to the for the given tag ids."""
+    def getProjectsByTag(self, tids):
+        """
+        Retrieve projects linked to the given tag IDs
+        controlled by the security system, ordered by id.
+        
+        @param tids:        project IDs
+        @type tids:         L{Long}
+        @return:            Generator yielding Projects
+        @rtype:             L{ProjectWrapper} generator
+        """
         
         q = self.getQueryService()
         p = omero.sys.Parameters()
@@ -596,8 +886,16 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             kwargs = {'link': BlitzObjectWrapper(self, e.copyAnnotationLinks()[0])}
             yield ProjectWrapper(self, e, None, **kwargs)
     
-    def listDatasetsByTag(self, tids):
-        """ Retrieves Datasets linked to the for the given tag ids."""
+    def getDatasetsByTag(self, tids):
+        """
+        Retrieve datasets linked to the given tag IDs
+        controlled by the security system, ordered by id.
+        
+        @param tids:        dataset IDs
+        @type tids:         L{Long}
+        @return:            Generator yielding Datasets
+        @rtype:             L{DatasetWrapper} generator
+        """
         
         q = self.getQueryService()
         p = omero.sys.Parameters()
@@ -612,8 +910,16 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             kwargs = {'link': BlitzObjectWrapper(self, e.copyAnnotationLinks()[0])}
             yield DatasetWrapper(self, e, None, **kwargs)
     
-    def listImagesByTag(self, tids):
-        """ Retrieves Images linked to the for the given tag ids."""
+    def getImagesByTag(self, tids):
+        """
+        Retrieve images linked to the given tag IDs
+        controlled by the security system, ordered by id.
+        
+        @param tids:        images IDs
+        @type tids:         L{Long}
+        @return:            Generator yielding Images
+        @rtype:             L{ImageWrapper} generator
+        """
         
         q = self.getQueryService()
         p = omero.sys.Parameters()
@@ -628,8 +934,16 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             kwargs = {'link': BlitzObjectWrapper(self, e.copyAnnotationLinks()[0])}
             yield ImageWrapper(self, e, None, **kwargs)
                 
-    def listScreensByTag(self, tids):
-        """ Retrieves Datasets linked to the for the given tag ids."""
+    def getScreensByTag(self, tids):
+        """
+        Retrieve screens linked to the given tag IDs
+        controlled by the security system, ordered by id.
+        
+        @param tids:        screen IDs
+        @type tids:         L{Long}
+        @return:            Generator yielding Screens
+        @rtype:             L{ScreenWrapper} generator
+        """
         
         q = self.getQueryService()
         p = omero.sys.Parameters()
@@ -644,8 +958,16 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             kwargs = {'link': BlitzObjectWrapper(self, e.copyAnnotationLinks()[0])}
             yield ScreenWrapper(self, e, None, **kwargs)
     
-    def listPlatesByTag(self, tids):
-        """ Retrieves Datasets linked to the for the given tag ids."""
+    def getPlatesByTag(self, tids):
+        """
+        Retrieve plates linked to the given tag IDs
+        controlled by the security system, ordered by id.
+        
+        @param tids:        plate IDs
+        @type tids:         L{Long}
+        @return:            Generator yielding Plates
+        @rtype:             L{PlateWrapper} generator
+        """
         
         q = self.getQueryService()
         p = omero.sys.Parameters()
@@ -660,8 +982,18 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             kwargs = {'link': BlitzObjectWrapper(self, e.copyAnnotationLinks()[0])}
             yield PlateWrapper(self, e, None, **kwargs)
     
-    def listTags(self, o_type, oid):
-        """ Retrieves list of Tags not linked to the for the given Project/Dataset/Image id."""
+    def getTagsByObject(self, o_type, oid):
+        """
+        Retrieve tags linked to the given Project/Dataset/Image/Screen/Plate/Well ID
+        controlled by the security system.
+        
+        @param o_type:      type of Object
+        @type o_type:       String
+        @param oid:         Object ID
+        @type oid:          Long
+        @return:            Generator yielding Tags
+        @rtype:             L{TagAnnotationWrapper} generator
+        """
         
         q = self.getQueryService()        
         if o_type == "image":
@@ -695,47 +1027,57 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map["uid"] = rlong(self.getEventContext().userId)
         if self.getGroupFromContext().isReadOnly():
             p.map["eid"] = rlong(self.getEventContext().userId)
-            sql += "and a.ns is null and a.details.owner.id=:eid"
+            sql += " and a.ns is null and a.details.owner.id=:eid"
         for e in q.findAllByQuery(sql,p):
             yield TagAnnotationWrapper(self, e)
     
-    def listComments(self, o_type, oid):
-        """ Retrieves list of Comments not linked to the for the given Project/Dataset/Image id."""
-        
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["oid"] = rlong(long(oid))
-        p.map["eid"] = rlong(self.getEventContext().userId)
-        if o_type == "image":
-            sql = "select a from CommentAnnotation as a " \
-                "where not exists ( select ial from ImageAnnotationLink as ial where ial.child=a.id and ial.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid and a.ns is null"
-        elif o_type == "dataset":
-            sql = "select a from CommentAnnotation as a " \
-                "where not exists ( select dal from DatasetAnnotationLink as dal where dal.child=a.id and dal.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid and a.ns is null"
-        elif o_type == "project":
-            sql = "select a from CommentAnnotation as a " \
-                "where not exists ( select pal from ProjectAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid and a.ns is null"
-        elif o_type == "screen":
-            sql = "select a from CommentAnnotation as a " \
-                "where not exists ( select sal from ScreenAnnotationLink as sal where sal.child=a.id and sal.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid and a.ns is null"
-        elif o_type == "plate":
-            sql = "select a from CommentAnnotation as a " \
-                "where not exists ( select pal from PlateAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid and a.ns is null"
-        elif o_type == "well":
-            sql = "select a from CommentAnnotation as a " \
-                "where not exists ( select wal from WellAnnotationLink as wal where wal.child=a.id and wal.parent.id=:oid ) " \
-                "and a.details.owner.id=:eid and a.ns is null"
-        for e in q.findAllByQuery(sql,p):
-            yield CommentAnnotationWrapper(self, e)
+    #def listComments(self, o_type, oid):
+    #    """ Retrieves list of Comments not linked to the for the given Project/Dataset/Image id."""
+    #    
+    #    q = self.getQueryService()
+    #    p = omero.sys.Parameters()
+    #    p.map = {}
+    #    p.map["oid"] = rlong(long(oid))
+    #    p.map["eid"] = rlong(self.getEventContext().userId)
+    #    if o_type == "image":
+    #        sql = "select a from CommentAnnotation as a " \
+    #            "where not exists ( select ial from ImageAnnotationLink as ial where ial.child=a.id and ial.parent.id=:oid ) " \
+    #            "and a.details.owner.id=:eid and a.ns is null"
+    #    elif o_type == "dataset":
+    #        sql = "select a from CommentAnnotation as a " \
+    #            "where not exists ( select dal from DatasetAnnotationLink as dal where dal.child=a.id and dal.parent.id=:oid ) " \
+    #            "and a.details.owner.id=:eid and a.ns is null"
+    #    elif o_type == "project":
+    #        sql = "select a from CommentAnnotation as a " \
+    #            "where not exists ( select pal from ProjectAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid ) " \
+    #            "and a.details.owner.id=:eid and a.ns is null"
+    #    elif o_type == "screen":
+    #        sql = "select a from CommentAnnotation as a " \
+    #            "where not exists ( select sal from ScreenAnnotationLink as sal where sal.child=a.id and sal.parent.id=:oid ) " \
+    #            "and a.details.owner.id=:eid and a.ns is null"
+    #    elif o_type == "plate":
+    #        sql = "select a from CommentAnnotation as a " \
+    #            "where not exists ( select pal from PlateAnnotationLink as pal where pal.child=a.id and pal.parent.id=:oid ) " \
+    #            "and a.details.owner.id=:eid and a.ns is null"
+    #    elif o_type == "well":
+    #        sql = "select a from CommentAnnotation as a " \
+    #            "where not exists ( select wal from WellAnnotationLink as wal where wal.child=a.id and wal.parent.id=:oid ) " \
+    #            "and a.details.owner.id=:eid and a.ns is null"
+    #    for e in q.findAllByQuery(sql,p):
+    #        yield CommentAnnotationWrapper(self, e)
     
-    def listFiles(self, o_type, oid):
-        """ Retrieves list of Files not linked to the for the given Project/Dataset/Image id."""
+    def getFilesByObject(self, o_type, oid):
+        """
+        Retrieve files linked to the given Project/Dataset/Image/Screen/Plate/Well ID
+        controlled by the security system.
+        
+        @param o_type:      type of Object
+        @type o_type:       String
+        @param oid:         Object ID
+        @type oid:          Long
+        @return:            Generator yielding Files
+        @rtype:             L{FileAnnotationWrapper} generator
+        """
         
         q = self.getQueryService()
         p = omero.sys.Parameters()
@@ -770,42 +1112,50 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         for e in q.findAllByQuery(sql,p):
             yield FileAnnotationWrapper(self, e)
     
-    def listSpecifiedTags(self, ids):
-        """ Retrieves list of for the given Tag ids."""
-        
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["ids"] = rlist([rlong(a) for a in set(ids)])
-        sql = "select a from TagAnnotation a where a.id in (:ids) "
-        for e in q.findAllByQuery(sql,p):
-            yield TagAnnotationWrapper(self, e)
+    #def getTagsById(self, ids):
+    #    """ Retrieves list of for the given Tag ids."""
+    #    
+    #    q = self.getQueryService()
+    #    p = omero.sys.Parameters()
+    #    p.map = {}
+    #    p.map["ids"] = rlist([rlong(a) for a in set(ids)])
+    #    sql = "select a from TagAnnotation a where a.id in (:ids) "
+    #    for e in q.findAllByQuery(sql,p):
+    #        yield TagAnnotationWrapper(self, e)
     
-    def listSpecifiedComments(self, ids):
-        """ Retrieves list of for the given Comment ids."""
-        
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["ids"] = rlist([rlong(a) for a in set(ids)])
-        sql = "select a from CommentAnnotation a where a.id in (:ids) "
-        for e in q.findAllByQuery(sql,p):
-            yield CommentAnnotationWrapper(self, e)
+    #def getCommentsById(self, ids):
+    #    """ Retrieves list of for the given Comment ids."""
+    #    
+    #    q = self.getQueryService()
+    #    p = omero.sys.Parameters()
+    #    p.map = {}
+    #    p.map["ids"] = rlist([rlong(a) for a in set(ids)])
+    #    sql = "select a from CommentAnnotation a where a.id in (:ids) "
+    #    for e in q.findAllByQuery(sql,p):
+    #        yield CommentAnnotationWrapper(self, e)
     
-    def listSpecifiedFiles(self, ids):
-        """ Retrieves list of for the given Fiel ids."""
-        
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["ids"] = rlist([rlong(a) for a in set(ids)])
-        sql = "select a from FileAnnotation a where a.id in (:ids) "
-        for e in q.findAllByQuery(sql,p):
-            yield FileAnnotationWrapper(self, e)
+    #def getFilesById(self, ids):
+    #    """ Retrieves list of for the given Fiel ids."""
+    #    
+    #    q = self.getQueryService()
+    #    p = omero.sys.Parameters()
+    #    p.map = {}
+    #    p.map["ids"] = rlist([rlong(a) for a in set(ids)])
+    #    sql = "select a from FileAnnotation a where a.id in (:ids) "
+    #    for e in q.findAllByQuery(sql,p):
+    #        yield FileAnnotationWrapper(self, e)
     
-    def lookupTags(self, eid=None):
-        """ Retrieves list of Tags owned by current user.
-            This method is used by autocomplite."""
+    def listTags(self, eid=None):
+        """
+        List Tags controlled by the security system,
+        ordered by id. If user id not set, owned by the current user.
+        This method is used by autocomplite.
+        
+        @param eid:         experimenter id
+        @type eid:          Long
+        @return:            Generator yielding Tags
+        @rtype:             L{TagAnnotationWrapper} generator
+        """
 
         q = self.getQueryService()
         p = omero.sys.Parameters()
@@ -827,9 +1177,17 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         for e in q.findAllByQuery(sql,p):
             yield TagAnnotationWrapper(self, e)
     
-    def lookupFiles(self, eid=None):
-        """ Retrieves list of Tags owned by current user.
-            This method is used by autocomplite."""
+    def listFiles(self, eid=None):
+        """
+        List Files controlled by the security system,
+        ordered by id. If user id not set, owned by the current user.
+        This method is used by autocomplite.
+        
+        @param eid:         experimenter id
+        @type eid:          Long
+        @return:            Generator yielding Files
+        @rtype:             L{FileAnnotationWrapper} generator
+        """
 
         q = self.getQueryService()
         p = omero.sys.Parameters()
@@ -848,6 +1206,18 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     # GETTERs
         
     def getDatasetImageLink (self, parent, oid):
+        """
+        Get link between then specific Dataset and Image
+        controlled by the security system.
+        
+        @param parent:      Dataset ID
+        @type parent:       Long
+        @param oid:         Image ID
+        @type oid:          Long
+        @return:            DatasetImageLink
+        @rtype:             BlitzObjectWrapper
+        """
+        
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -859,6 +1229,16 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         return BlitzObjectWrapper(self, dsl)
 
     def getDatasetImageLinks (self, oid):
+        """
+        Get links between then specific Image and Datasets with the given Image ID
+        controlled by the security system.
+        
+        @param oid:         Image ID
+        @type oid:          Long
+        @return:            Generator yielding Dataset-Image links
+        @rtype:             L{BlitzObjectWrapper} generator
+        """
+        
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -869,6 +1249,18 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             yield BlitzObjectWrapper(self, dsl)
     
     def getProjectDatasetLink (self, parent, oid):
+        """
+        Get link between then specific Project and Dataset
+        controlled by the security system.
+        
+        @param parent:      Project ID
+        @type parent:       Long
+        @param oid:         Dataset ID
+        @type oid:          Long
+        @return:            ProjectDatasetLink
+        @rtype:             BlitzObjectWrapper
+        """
+        
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -880,6 +1272,18 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         return BlitzObjectWrapper(self, pdl)
     
     def getScreenPlateLink (self, parent, oid):
+        """
+        Get link between then specific Screen and Plate
+        controlled by the security system.
+        
+        @param parent:      Screen ID
+        @type parent:       Long
+        @param oid:         Plate ID
+        @type oid:          Long
+        @return:            ScreenPlateLink
+        @rtype:             BlitzObjectWrapper
+        """
+        
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -891,6 +1295,16 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         return BlitzObjectWrapper(self, pdl)
     
     def getProjectDatasetLinks (self, oid):
+        """
+        Get links between then specific Dataset and Projects with the given Dataset ID
+        controlled by the security system.
+        
+        @param oid:         Dataset ID
+        @type oid:          Long
+        @return:            Generator yielding Project-Dataset links
+        @rtype:             L{BlitzObjectWrapper} generator
+        """
+        
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -901,6 +1315,16 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             yield BlitzObjectWrapper(self, pdl)
     
     def getScreenPlateLinks (self, oid):
+        """
+        Get links between then specific Plate and Screens with the given Plate ID
+        controlled by the security system.
+        
+        @param oid:         Plate ID
+        @type oid:          Long
+        @return:            Generator yielding Screens-Plate links
+        @rtype:             L{BlitzObjectWrapper} generator
+        """
+        
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -911,6 +1335,18 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             yield BlitzObjectWrapper(self, pdl)
         
     def getImageAnnotationLink (self, parent, oid):
+        """
+        Get link between then specific Image and Annotation
+        controlled by the security system.
+        
+        @param parent:      Image ID
+        @type parent:       Long
+        @param oid:         Annotation ID
+        @type oid:          Long
+        @return:            ImageAnnotationLink
+        @rtype:             BlitzObjectWrapper
+        """
+        
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -925,6 +1361,18 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         return None
         
     def getDatasetAnnotationLink (self, parent, oid):
+        """
+        Get link between then specific Dataset and Annotation
+        controlled by the security system.
+        
+        @param parent:      Dataset ID
+        @type parent:       Long
+        @param oid:         Annotation ID
+        @type oid:          Long
+        @return:            DatasetAnnotationLink
+        @rtype:             BlitzObjectWrapper
+        """
+        
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -939,6 +1387,18 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         return None
     
     def getPlateAnnotationLink (self, parent, oid):
+        """
+        Get link between then specific Plate and Annotation
+        controlled by the security system.
+        
+        @param parent:      Plate ID
+        @type parent:       Long
+        @param oid:         Annotation ID
+        @type oid:          Long
+        @return:            PlateAnnotationLink
+        @rtype:             BlitzObjectWrapper
+        """
+        
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -953,6 +1413,18 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         return None
     
     def getProjectAnnotationLink (self, parent, oid):
+        """
+        Get link between then specific Project and Annotation
+        controlled by the security system.
+        
+        @param parent:      Project ID
+        @type parent:       Long
+        @param oid:         Annotation ID
+        @type oid:          Long
+        @return:            ProjectAnnotationLink
+        @rtype:             BlitzObjectWrapper
+        """
+        
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -967,6 +1439,18 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         return None
     
     def getScreenAnnotationLink (self, parent, oid):
+        """
+        Get link between then specific Screen and Annotation
+        controlled by the security system.
+        
+        @param parent:      Screen ID
+        @type parent:       Long
+        @param oid:         Annotation ID
+        @type oid:          Long
+        @return:            ScreenAnnotationLink
+        @rtype:             BlitzObjectWrapper
+        """
+        
         query_serv = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -980,18 +1464,31 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             return BlitzObjectWrapper(self, dsl)
         return None
     
-    def getSpecifiedDatasetsWithImages(self, oids):
-        query_serv = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {} 
-        p.map["ids"] = rlist([rlong(a) for a in oids])
-        sql = "select ds from Dataset ds join fetch ds.details.owner join fetch ds.details.group " \
-                "left outer join fetch ds.imageLinks dil left outer join fetch dil.child im " \
-                "where ds.id in (:ids) order by ds.name"
-        for e in query_serv.findAllByQuery(sql, p):
-            yield DatasetWrapper(self, e)
+    #def getDatasetsWithImages(self, oids):
+    #    query_serv = self.getQueryService()
+    #    p = omero.sys.Parameters()
+    #    p.map = {} 
+    #    p.map["ids"] = rlist([rlong(a) for a in oids])
+    #    sql = "select ds from Dataset ds join fetch ds.details.owner join fetch ds.details.group " \
+    #            "left outer join fetch ds.imageLinks dil left outer join fetch dil.child im " \
+    #            "where ds.id in (:ids) order by ds.name"
+    #    for e in query_serv.findAllByQuery(sql, p):
+    #        yield DatasetWrapper(self, e)
     
     def findTag (self, name, desc=None):
+        """ 
+        Retrieves Tag by given Name and description
+        
+        @param name     name of tag
+        @type name      String
+        @param desc     description of tag
+        @type desc      String
+        @return:        TagAnnotation
+        @rtype:         AnnotationWrapper
+        """
+        """TODO: #1015
+        It does not support SPW"""
+        
         query_serv = self.getQueryService()
         res = list()
         p = omero.sys.Parameters()
@@ -1010,17 +1507,52 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         sql+=" and tg.ns is null order by tg.textValue"
         res = query_serv.findAllByQuery(sql, p)
         if len(res) > 0:
-            return AnnotationWrapper(self, res[0])
+            return TagAnnotationWrapper(self, res[0])
         return None
     
     # AVATAR #
     def uploadMyUserPhoto(self, filename, format, data):
+        """
+        Uploads a photo for the user which will be displayed on his/her profile.
+        This photo will be saved as an OriginalFile object
+        with the given format, and attached to the user's Experimenter
+        object via an File Annotation with
+        the namespace: "openmicroscopy.org/omero/experimenter/photo" (NSEXPERIMENTERPHOTO).
+        If such an OriginalFile instance already exists,
+        it will be overwritten. If more than one photo is present, the oldest
+        version will be modified (i.e. the highest updateEvent id).
+        
+        Note: as outlined in ticket:1794, this photo will be placed in the "user"
+        group and therefore will be visible to everyone on the system.
+        
+        @param filename     name which will be used.
+        @type filename      String
+        @param format       Format.value string. 'image/jpeg' and 'image/png' are common values.
+        @type format        String
+        @param data         Data from the image. This will be written to disk.
+        @type data          String
+        
+        @return             ID of the overwritten or newly created user photo OriginalFile object.
+        @rtype              Long
+        """
+        
         admin_serv = self.getAdminService()
         pid = admin_serv.uploadMyUserPhoto(filename, format, data)
         if pid is not None:
             return pid
     
     def hasExperimenterPhoto(self, oid=None):
+        """
+        Check if File annotation with the namespace: 
+        "openmicroscopy.org/omero/experimenter/photo" (NSEXPERIMENTERPHOTO) is linked
+        to the given user ID. If user id not set, owned by the current user.
+        
+        @param oid      experimenter ID
+        @type oid       Long
+        @return         True or False
+        @rtype          Boolean
+        """
+        
         photo = None
         meta = self.getMetadataService()
         try:
@@ -1029,13 +1561,24 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             else:
                 ann = meta.loadAnnotations("Experimenter", [long(oid)], None, None, None).get(long(oid), [])[0]
             if ann is not None:
-                return FileAnnotationWrapper(self, ann)
+                return True
             else:
-                return None
+                return False
         except:
-            return None
+            return False
     
     def getExperimenterPhoto(self, oid=None):
+        """
+        Get File annotation with the namespace: 
+        "openmicroscopy.org/omero/experimenter/photo" (NSEXPERIMENTERPHOTO) linked
+        to the given user ID. If user id not set, owned by the current user.
+        
+        @param oid      experimenter ID
+        @type oid       Long
+        @return         Data from the image.
+        @rtype          String
+        """
+        
         photo = None
         meta = self.getMetadataService()
         try:
@@ -1058,6 +1601,17 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         return photo
     
     def getExperimenterPhotoSize(self, oid=None):
+        """
+        Get size of File annotation with the namespace: 
+        "openmicroscopy.org/omero/experimenter/photo" (NSEXPERIMENTERPHOTO) linked
+        to the given user ID. If user id not set, owned by the current user.
+        
+        @param oid      experimenter ID
+        @type oid       Long
+        @return         Tuple including dimention and size of the file
+        @rtype          Tuple
+        """
+        
         photo = None
         meta = self.getMetadataService()
         try:
@@ -1078,7 +1632,19 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             return None
     
     def cropExperimenterPhoto(self, box, oid=None):
+        """
+        Crop File annotation with the namespace: 
+        "openmicroscopy.org/omero/experimenter/photo" (NSEXPERIMENTERPHOTO) linked
+        to the given user ID. If user id not set, owned by the current user.
+        New dimentions are defined by squer positions box = (x1,y1,x2,y2)
+        
+        @param box      tuple of new square positions
+        @type box       Tuple
+        @param oid      experimenter ID
+        @type oid       Long
+        """
         # TODO: crop method could be moved to the server side
+        
         photo = None
         meta = self.getMetadataService()
         ann = None
@@ -1105,6 +1671,15 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 self.uploadMyUserPhoto(ann.file.name.val, ann.file.mimetype.val, imdata.getvalue())
             
     def getExperimenterDefaultPhoto(self):
+        """
+        If file annotation with the namespace: 
+        "openmicroscopy.org/omero/experimenter/photo" (NSEXPERIMENTERPHOTO) 
+        is not linked to experimenter this method generate default picture of the person.
+        
+        @return         Data from the image.
+        @rtype          String
+        """
+        
         img = Image.open(settings.DEFAULT_USER)
         img.thumbnail((32,32), Image.ANTIALIAS)
         draw = ImageDraw.Draw(img)
@@ -1114,6 +1689,12 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         return f.read()
     
     def getFileFormat(self, format):
+        """
+        Get file annotation format for the given value.
+        
+        @return         Omero File format
+        @rtype          String
+        """
         query_serv = self.getQueryService()
         return query_serv.findByString("Format", "value", format).getValue().val;
     
@@ -1121,6 +1702,18 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     ##   Counters
     
     def getCollectionCount(self, parent, child, ids):
+        """
+        Counts the number of members in a collection for a given object.
+        
+        @param parent       The fully-qualified classname of the object to be tested
+        @type parent        String
+        @param child        Name of the property on that class, omitting getters and setters.
+        @type child         String
+        @param ids          Set of Longs, the ids of the objects to test
+        @type ids           L{Long}
+        @return             A map from id integer to count integer
+        @rtype              L{(Long, Long)}
+        """
         container = self.getContainerService()
         return container.getCollectionCount(parent, child, ids, None)
 
@@ -1186,10 +1779,28 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     ##   Sets methods                           ##
     
     def changeUserPassword(self, omeName, password):
+        """
+        Change the password for the a given user.
+        
+        @param omeName      Experimetner omename
+        @type omeName       String
+        @param password     Must pass validation in the security sub-system.
+        @type password      String
+        """
         admin_serv = self.getAdminService()
         admin_serv.changeUserPassword(omeName, rstring(str(password)))
         
     def changeMyPassword(self, old_password, password):
+        """
+        Change the password for the current user by passing the old password.
+        
+        @param old_password     Old password
+        @type old_password      String
+        @param password         Must pass validation in the security sub-system.
+        @type password          String
+        @return                 None or error message if password could not be changed
+        @rtype                  String
+        """
         admin_serv = self.getAdminService() 
         try:
             admin_serv.changePasswordWithOldPassword(rstring(str(old_password)), rstring(str(password)))
@@ -1198,10 +1809,38 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         return None
 
     def createExperimenter(self, experimenter, defaultGroup, otherGroups, password):
+        """
+        Create and return a new user in the given groups with password.
+        
+        @param experimenter     A new Experimenter instance.
+        @type experimenter      ExperimenterI
+        @param defaultGroup     Instance of ExperimenterGroup selected as a first active group.
+        @type defaultGroup      ExperimenterGroupI
+        @param otherGroups      List of ExperimenterGroup instances. Can be empty.
+        @type otherGroups       L{ExperimenterGroupI}
+        @param password         Must pass validation in the security sub-system.
+        @type password          String
+        @return                 ID of the newly created Experimenter Not null.
+        @rtype                  Long
+        """
         admin_serv = self.getAdminService()
         return admin_serv.createExperimenterWithPassword(experimenter, rstring(str(password)), defaultGroup, otherGroups)
     
     def updateExperimenter(self, experimenter, defaultGroup, addGroups, rmGroups):
+        """
+        Update an existing user including groups user is a member of.
+        Password cannot be changed by calling that method.
+        
+        @param experimenter     An existing Experimenter instance.
+        @type experimenter      ExperimenterI
+        @param defaultGroup     Instance of ExperimenterGroup selected as a new active group.
+        @type defaultGroup      ExperimenterGroupI
+        @param addGroups        List of new ExperimenterGroup instances user will be a member of. Can be empty.
+        @type addGroups         L{ExperimenterGroupI}
+        @param rmGroups         List of old ExperimenterGroup instances user no longer be a member of. Can be empty.
+        @type rmGroups          L{ExperimenterGroupI}
+        """
+        
         admin_serv = self.getAdminService()
         admin_serv.updateExperimenter(experimenter)
         if len(addGroups) > 0:
@@ -1211,17 +1850,46 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             admin_serv.removeGroups(experimenter, rmGroups)
     
     def setMembersOfGroup(self, group, add_exps, rm_exps):
+        """
+        Change members of the group.
+        
+        @param group            An existing ExperimenterGroup instance.
+        @type group             ExperimenterGroupI
+        @param add_exps         List of new Experimenters instances. Can be empty.
+        @type add_exps          L{ExperimenterI}
+        @param rm_exps          List of old Experimenters instances no longer be a member of that group. Can be empty.
+        @type rm_exps           L{ExperimenterI}
+        """
+        
         admin_serv = self.getAdminService()
         for e in add_exps:
             admin_serv.addGroups(e, [group])
         for e in rm_exps:
             admin_serv.removeGroups(e, [group])
     
-    def deleteExperimenter(self, experimenter):
-        admin_serv = self.getAdminService()
-        admin_serv.deleteExperimenter(experimenter)
+    #def deleteExperimenter(self, experimenter):
+    #    """
+    #    Removes a user by removing the password information for that user as well
+    #    as all GroupExperimenterMap instances.
+    #    
+    #    @param user     Experimenter to be deleted. Not null.
+    #    @type user      ExperimenterI
+    #    """
+    #    admin_serv = self.getAdminService()
+    #    admin_serv.deleteExperimenter(experimenter)
     
     def createGroup(self, group, group_owners):
+        """
+        Create and return a new group with the given owners.
+        
+        @param group            A new ExperimenterGroup instance.
+        @type group             ExperimenterGroupI
+        @param group_owners     List of Experimenter instances. Can be empty.
+        @type group_owners      L{ExperimenterI}
+        @return                 ID of the newly created ExperimenterGroup Not null.
+        @rtype                  Long
+        """
+        
         admin_serv = self.getAdminService()
         gr_id = admin_serv.createGroup(group)
         new_gr = admin_serv.getGroup(gr_id)
@@ -1229,6 +1897,20 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         return gr_id
     
     def updateGroup(self, group, add_exps, rm_exps, perm=None):
+        """
+        Update an existing user including groups user is a member of.
+        Password cannot be changed by calling that method.
+        
+        @param group            An existing ExperimenterGroup instance.
+        @type group             ExperimenterGroupI
+        @param add_exps         List of new Experimenter instances. Can be empty.
+        @type add_exps          L{ExperimenterI}
+        @param rm_exps          List of old Experimenter instances who no longer will be a member of. Can be empty.
+        @type rm_exps           L{ExperimenterI}
+        @param perm             Permissions set on the given group
+        @type perm              PermissionsI
+        """
+        
         admin_serv = self.getAdminService()
         # Should we update updateGroup so this would be atomic?
         admin_serv.updateGroup(group)
@@ -1240,6 +1922,14 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         admin_serv.removeGroupOwners(group, rm_exps)
     
     def updateMyAccount(self, experimenter, defultGroup):
+        """
+        Allows a user to update his/her own information and set the default group for a given user.
+        @param experimenter     A data transfer object. Only the fields: firstName, middleName, 
+                                lastName, email, and institution are checked. Not null.
+        @type experimenter      ExperimenterI
+        @param defultGroup      The group which should be set as default group for this user. Not null
+        @type defultGroup       ExperimenterGroupI
+        """
         admin_serv = self.getAdminService()
         admin_serv.updateSelf(experimenter)
         admin_serv.setDefaultGroup(experimenter, defultGroup)
@@ -1247,6 +1937,14 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         self._user = self.getExperimenter(self._userid)
     
     def updatePermissions(self, obj, perm):
+        """
+        Allow to change the permission on the object.
+        
+        @param obj      An entity or an unloaded reference to an entity. Not null.
+        @type obj       ObjectI
+        @param perm     The permissions value for this entity. Not null.
+        @type perm      PermissionsI
+        """
         admin_serv = self.getAdminService()
         if perm is not None:
             logger.warning("WARNING: changePermissions was called!!!")
@@ -1255,16 +1953,45 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     
     def saveObject (self, obj):
         """
-        TODO: see omero.gateway.Ob
+        Provide method for directly updating object graphs. Act recursively on 
+        the entire object graph, replacing placeholders and details where necessary, 
+        and then "merging" the final graph. This means that the objects that are 
+        passed into methods are copied over to new instances which are then returned. 
+        The original objects should be discarded.
+        
+        @param obj      An entity or an unloaded reference to an entity. Not null.
+        @type obj       ObjectI
         """
         u = self.getUpdateService()
         u.saveObject(obj)
     
     def saveArray (self, objs):
+        """
+        Provide method for directly updating list of object graphs. Act recursively on 
+        the entire object graph, replacing placeholders and details where necessary, 
+        and then "merging" the final graph. This means that the objects that are 
+        passed into methods are copied over to new instances which are then returned. 
+        The original objects should be discarded.
+        
+        @param obj      List of entities or an unloaded references to an entity. Not null.
+        @type obj       L{ObjectI}
+        """
         u = self.getUpdateService()
         u.saveArray(objs)
     
     def saveAndReturnObject (self, obj):
+        """
+        Provide method for directly updating object graphs and return it. Act recursively on 
+        the entire object graph, replacing placeholders and details where necessary, 
+        and then "merging" the final graph. This means that the objects that are 
+        passed into methods are copied over to new instances which are then returned. 
+        The original objects should be discarded.
+        
+        @param obj      An entity or an unloaded reference to an entity. Not null.
+        @type obj       ObjectI
+        @return         Saved object
+        @rtype          ObjectI
+        """
         u = self.getUpdateService()
         res = u.saveAndReturnObject(obj)
         res.unload()
@@ -1272,6 +1999,18 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         return obj
     
     def saveAndReturnId (self, obj):
+        """
+        Provide method for directly updating object graphs and return ID. Act recursively on 
+        the entire object graph, replacing placeholders and details where necessary, 
+        and then "merging" the final graph. This means that the objects that are 
+        passed into methods are copied over to new instances which are then returned. 
+        The original objects should be discarded.
+
+        @param obj      An entity or an unloaded reference to an entity. Not null.
+        @type obj       ObjectI
+        @return         ID of saved object
+        @rtype          Long
+        """
         u = self.getUpdateService()
         res = u.saveAndReturnObject(obj)
         res.unload()
@@ -1447,19 +2186,19 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     ##############################################
     ##  History methods                        ##
     
-    def getLastAcquiredImages (self):
-        tm = self.getTimelineService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        f = omero.sys.Filter()
-        f.ownerId = rlong(self.getEventContext().userId)
-        f.groupId = rlong(self.getEventContext().groupId)
-        f.limit = rint(6)
-        p.theFilter = f
-        for e in tm.getMostRecentObjects(['Image'], p, False)["Image"]:
-            yield ImageWrapper(self, e)
+    #def getLastAcquiredImages (self):
+    #    tm = self.getTimelineService()
+    #    p = omero.sys.Parameters()
+    #    p.map = {}
+    #    f = omero.sys.Filter()
+    #    f.ownerId = rlong(self.getEventContext().userId)
+    #    f.groupId = rlong(self.getEventContext().groupId)
+    #    f.limit = rint(6)
+    #    p.theFilter = f
+    #    for e in tm.getMostRecentObjects(['Image'], p, False)["Image"]:
+    #        yield ImageWrapper(self, e)
     
-    def getLastImportedImages (self):
+    def listLastImportedImages (self):
         tm = self.getTimelineService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -1471,7 +2210,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         for e in tm.getMostRecentObjects(['Image'], p, False)["Image"]:
             yield ImageWrapper(self, e)
     
-    def getMostRecentShares (self):
+    def listMostRecentShares (self):
         tm = self.getTimelineService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -1482,7 +2221,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         for e in tm.getMostRecentShareCommentLinks(p):
             yield SessionAnnotationLinkWrapper(self, e)
     
-    def getMostRecentSharesCommentLinks (self):
+    def listMostRecentShareCommentLinks (self):
         tm = self.getTimelineService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -1493,7 +2232,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         for e in tm.getMostRecentShareCommentLinks(p):
             yield SessionAnnotationLinkWrapper(self, e)
     
-    def getMostRecentComments (self):
+    def listMostRecentComments (self):
         tm = self.getTimelineService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -1505,7 +2244,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         for e in tm.getMostRecentAnnotationLinks(None, ['CommentAnnotation'], None, p):
             yield BlitzObjectWrapper(self, e)
     
-    def getMostRecentTags (self):
+    def listMostRecentTags (self):
         tm = self.getTimelineService()
         p = omero.sys.Parameters()
         p.map = {}

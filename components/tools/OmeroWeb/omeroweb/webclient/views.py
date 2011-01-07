@@ -824,7 +824,7 @@ def autocomplete_tags(request, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
-    tags = [{'tag': t.textValue,'id':t.id, 'desc':t.description} for t in conn.lookupTags()]
+    tags = [{'tag': t.textValue,'id':t.id, 'desc':t.description} for t in conn.listTags()]
     json_data = simplejson.dumps(tags)
     return HttpResponse(json_data, mimetype='application/javascript')
 
@@ -1033,22 +1033,22 @@ def manage_annotation_multi(request, action=None, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError(x)
     
-    images = len(request.REQUEST.getlist('image')) > 0 and list(conn.listSelectedImages(request.REQUEST.getlist('image'))) or list()
-    datasets = len(request.REQUEST.getlist('dataset')) > 0 and list(conn.listSelectedDatasets(request.REQUEST.getlist('dataset'))) or list()
-    projects = len(request.REQUEST.getlist('project')) > 0 and list(conn.listSelectedProjects(request.REQUEST.getlist('project'))) or list()
-    screens = len(request.REQUEST.getlist('screen')) > 0 and list(conn.listSelectedScreens(request.REQUEST.getlist('screen'))) or list()
-    plates = len(request.REQUEST.getlist('plate')) > 0 and list(conn.listSelectedPlates(request.REQUEST.getlist('plate'))) or list()
-    wells = len(request.REQUEST.getlist('well')) > 0 and list(conn.listSelectedWells(request.REQUEST.getlist('well'))) or list()
+    images = len(request.REQUEST.getlist('image')) > 0 and list(conn.getImagesById(request.REQUEST.getlist('image'))) or list()
+    datasets = len(request.REQUEST.getlist('dataset')) > 0 and list(conn.getDatasetsById(request.REQUEST.getlist('dataset'))) or list()
+    projects = len(request.REQUEST.getlist('project')) > 0 and list(conn.getProjectsById(request.REQUEST.getlist('project'))) or list()
+    screens = len(request.REQUEST.getlist('screen')) > 0 and list(conn.getScreensById(request.REQUEST.getlist('screen'))) or list()
+    plates = len(request.REQUEST.getlist('plate')) > 0 and list(conn.getPlatesById(request.REQUEST.getlist('plate'))) or list()
+    wells = len(request.REQUEST.getlist('well')) > 0 and list(conn.getWellsById(request.REQUEST.getlist('well'))) or list()
 
     count = {'images':len(images), 'datasets':len(datasets), 'projects':len(projects), 'screens':len(screens), 'plates':len(plates), 'wells':len(wells)}
     
     form_multi = None
     if action == "annotatemany":
         selected = {'images':request.REQUEST.getlist('image'), 'datasets':request.REQUEST.getlist('dataset'), 'projects':request.REQUEST.getlist('project'), 'screens':request.REQUEST.getlist('screen'), 'plates':request.REQUEST.getlist('plate'), 'wells':request.REQUEST.getlist('well')}
-        form_multi = MultiAnnotationForm(initial={'tags':manager.listTags(), 'files':manager.listFiles(), 'selected':selected, 'images':images,  'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'wells':wells})
+        form_multi = MultiAnnotationForm(initial={'tags':manager.getTagsByObject(), 'files':manager.getFilesByObject(), 'selected':selected, 'images':images,  'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'wells':wells})
     else:
         if request.method == 'POST':
-            form_multi = MultiAnnotationForm(initial={'tags':manager.listTags(), 'files':manager.listFiles(), 'images':images, 'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'wells':wells}, data=request.REQUEST.copy(), files=request.FILES)
+            form_multi = MultiAnnotationForm(initial={'tags':manager.getTagsByObject(), 'files':manager.getFilesByObject(), 'images':images, 'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'wells':wells}, data=request.REQUEST.copy(), files=request.FILES)
             if form_multi.is_valid():
                 oids = {'image':request.REQUEST.getlist('image'), 'dataset':request.REQUEST.getlist('dataset'), 'project':request.REQUEST.getlist('project'), 'screen':request.REQUEST.getlist('screen'), 'plate':request.REQUEST.getlist('plate'), 'well':request.REQUEST.getlist('well')}
                 
@@ -1136,12 +1136,12 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
     elif action == 'newtag':
         template = "webclient/annotations/annotation_new_form.html"
         form_tag = TagAnnotationForm()
-        form_tags = TagListForm(initial={'tags':manager.listTags()})
+        form_tags = TagListForm(initial={'tags':manager.getTagsByObject()})
         context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tag':form_tag, 'form_tags':form_tags}
     elif action == 'newfile':
         template = "webclient/annotations/annotation_new_form.html"
         form_file = UploadFileForm()
-        form_files = FileListForm(initial={'files':manager.listFiles()})
+        form_files = FileListForm(initial={'files':manager.getFilesByObject()})
         context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_file':form_file, 'form_files':form_files}
     elif action == 'newsharecomment':
         template = "webclient/annotations/annotation_new_form.html"
@@ -1443,7 +1443,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
     elif action == 'usetag':
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers", args=["usetag", o_type, oid]))
-        tag_list = manager.listTags()
+        tag_list = manager.getTagsByObject()
         form_tags = TagListForm(data=request.REQUEST.copy(), initial={'tags':tag_list})
         if form_tags.is_valid() and o_type is not None and o_id > 0:
             tags = request.POST.getlist('tags')
@@ -1466,7 +1466,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
     elif action == 'usefile':
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers", args=["usefile", o_type, oid]))
-        file_list = manager.listFiles()
+        file_list = manager.getFilesByObject()
         form_files = FileListForm(data=request.REQUEST.copy(), initial={'files':file_list})
         if form_files.is_valid() and o_type is not None and o_id > 0:
             files = request.POST.getlist('files')

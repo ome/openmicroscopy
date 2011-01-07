@@ -38,10 +38,10 @@ class BaseIndex(BaseController):
     #    self.default_group = self.conn.getDefaultGroup(self.eContext['context'].userId)
     
     def loadMostRecent(self):
-        #shc.extend(list(self.conn.getMostRecentComments()))
-        self.mostRecentSharesComments = self.sortByAttr(list(self.conn.getMostRecentSharesCommentLinks()), 'child.details.creationEvent.time', True)
+        #shc.extend(list(self.conn.listMostRecentComments()))
+        self.mostRecentSharesComments = self.sortByAttr(list(self.conn.listMostRecentShareCommentLinks()), 'child.details.creationEvent.time', True)
         shares = list()
-        for sh in list(self.conn.getMostRecentShares()):
+        for sh in list(self.conn.listMostRecentShares()):
             flag = True
             for s in shares:
                 if sh.parent.id.val == s.id:
@@ -52,7 +52,7 @@ class BaseIndex(BaseController):
     
     def loadTagCloud(self):
         tags = dict()
-        for ann in list(self.conn.getMostRecentTags()):
+        for ann in list(self.conn.listMostRecentTags()):
             try:
                 if tags[ann.id]['count'] > 0:
                     tags[ann.id]['count'] = tags[ann.id]['count'] + 1
@@ -73,4 +73,4 @@ class BaseIndex(BaseController):
         self.mostRecentTags = tags
     
     def loadLastAcquisitions(self):
-        self.lastAcquiredImages = list(self.conn.getLastImportedImages())
+        self.lastAcquiredImages = list(self.conn.listLastImportedImages())
