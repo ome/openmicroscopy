@@ -189,7 +189,7 @@ public class FileImportComponent
 		namePane.add(fileNameLabel);
 		namePane.add(Box.createHorizontalStrut(10));
 		resultLabel = new JLabel();
-		control = busyLabel;
+		//control = busyLabel;
 		errorBox = new JCheckBox("Mark to Send");
 		errorBox.setOpaque(false);
 		errorBox.setToolTipText("Mark the file to send to the development " +
@@ -202,16 +202,18 @@ public class FileImportComponent
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		removeAll();
+		//removeAll();
 		add(namePane);
-		add(control);
-		if (statusLabel.isVisible())
-			add(statusLabel);
-		if (image instanceof ImportException) {
-			errorBox.setSelected(true);
-			errorBox.setVisible(true);
-			add(errorBox);
-		}
+		add(busyLabel);
+		add(resultLabel);
+		//add(control);
+		//if (statusLabel.isVisible())
+		add(statusLabel);
+		//if (image instanceof ImportException) {
+			//errorBox.setSelected(true);
+			//errorBox.setVisible(true);
+		add(errorBox);
+		//}
 	}
 	
 	/**
@@ -321,19 +323,22 @@ public class FileImportComponent
 	{
 		this.image = image;	
 		busyLabel.setBusy(status);
+		busyLabel.setVisible(false);
 		if (image instanceof ImageData) {
 			resultLabel.setText("Preview not available");
 			resultLabel.setToolTipText("");
 			resultLabel.setEnabled(false);
+			resultLabel.setVisible(true);
 			control = resultLabel;
-			statusLabel.setVisible(false);
 		} else if (image instanceof ThumbnailData) {
 			imageLabel.setThumbnail((ThumbnailData) image);
 			statusLabel.setVisible(false);
 			fileNameLabel.addMouseListener(adapter);
 			addMouseListener(adapter);
+			resultLabel.setVisible(true);
 			control = resultLabel;
 		} else if (image instanceof List) {
+			statusLabel.setVisible(false);
 			List list = (List) image;
 			int m = list.size();
 			ThumbnailData thumb = (ThumbnailData) list.get(0);
@@ -360,7 +365,7 @@ public class FileImportComponent
 					label.setText(value);
 				}
 			}
-			statusLabel.setVisible(false);
+			resultLabel.setVisible(true);
 			control = resultLabel;
 		} else if (image instanceof Boolean) {
 			setStatusText("Folder imported");
@@ -394,13 +399,14 @@ public class FileImportComponent
 					resultLabel.setToolTipText(
 							UIUtilities.formatToolTipText(lines));
 					errorBox.setSelected(true);
+					errorBox.setVisible(true);
 				}
 				control = resultLabel;
 			} else control = busyLabel;
 		}
-		if (!file.isDirectory())
-			buildGUI();
-		revalidate();
+		//if (!file.isDirectory())
+			//buildGUI();
+		//revalidate();
 		repaint();
 	}
 	

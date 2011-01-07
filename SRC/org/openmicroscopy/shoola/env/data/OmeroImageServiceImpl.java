@@ -758,6 +758,10 @@ class OmeroImageServiceImpl
 		DataObject container;
 		IObject io;
 		List<IObject> links = new ArrayList<IObject>();
+		Set<ImageData> ll;
+		ImageData image;
+		Iterator<ImageData> kk;
+		List<Object> converted;
 		if (file.isFile()) {
 			if (containers != null && containers.size() > 0) {
 				j = containers.iterator();
@@ -772,17 +776,16 @@ class OmeroImageServiceImpl
 			}
 			result = gateway.importImage(object, ioList, file, status, 
 					object.isArchivedFile(file));
-			ImageData image;
 			if (result instanceof ImageData) {
 				image = (ImageData) result;
 				images.add(image);
 				annotatedImportedImage(list, images);
 				return createImportedImage(userID, image);
 			} else if (result instanceof Set) {
-				Set<ImageData> ll = (Set<ImageData>) result;
+				ll = (Set<ImageData>) result;
 				annotatedImportedImage(list, ll);
-				Iterator<ImageData> kk = ll.iterator();
-				List<Object> converted = new ArrayList<Object>(ll.size());
+				kk = ll.iterator();
+				converted = new ArrayList<Object>(ll.size());
 				while (kk.hasNext()) {
 					converted.add(createImportedImage(userID, kk.next()));	
 				}
@@ -851,11 +854,21 @@ class OmeroImageServiceImpl
 			try {
 				result = gateway.importImage(object, ioList, file, label, 
 						archived);
-				if (!(result instanceof ImageData))
-					label.setFile(file, result);
-				images.add((ImageData) result);
-				label.setFile(file, createImportedImage(userID, 
-						(ImageData) result));
+				
+				if (result instanceof ImageData) {
+					image = (ImageData) result;
+					images.add(image);
+				} else if (result instanceof Set) {
+					ll = (Set<ImageData>) result;
+					annotatedImportedImage(list, ll);
+					images.addAll(ll);
+					kk = ll.iterator();
+					converted = new ArrayList<Object>(ll.size());
+					while (kk.hasNext()) {
+						converted.add(createImportedImage(userID, kk.next()));	
+					}
+					label.setFile(file, converted);
+				} else label.setFile(file, result);
 			} catch (ImportException e) {
 				label.setFile(file, e);
 			}

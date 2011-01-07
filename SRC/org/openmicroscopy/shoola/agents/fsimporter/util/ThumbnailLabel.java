@@ -120,12 +120,13 @@ class ThumbnailLabel
 		ImageIcon icon = new ImageIcon(Factory.magnifyImage(0.25, 
 				data.getThumbnail()));
 		setToolTipText(IMAGE_LABEL_TOOLTIP);
-		setIcon(icon);
-		setBorder(LABEL_BORDER);
-		if (icon != null)
-			setPreferredSize(new Dimension(icon.getIconWidth(), 
-					icon.getIconHeight()));
 		
+		setBorder(LABEL_BORDER);
+		if (icon != null) {
+			setIcon(icon);
+			//setPreferredSize(new Dimension(icon.getIconWidth(), 
+			//		icon.getIconHeight()));
+		}
 		addMouseListener(new MouseAdapter() {
 			
 			/**
