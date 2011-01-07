@@ -23,6 +23,7 @@
 package org.openmicroscopy.shoola.env.ui;
 
 // Java Imports
+import java.beans.PropertyChangeListener;
 import java.util.List;
 import javax.swing.Icon;
 
@@ -84,9 +85,11 @@ public interface UserNotifier
  	 * @param summary	A brief description of the error.
  	 * @param email		The e-mail address of the user.
  	 * @param toSubmit	The objects to submit to the development team.
+ 	 * @param listener  The listener to add.
      */
-	public MessengerDialog notifyError(String title, String summary, 
-			String email, List<ImportErrorObject> toSubmit);
+	public void notifyError(String title, String summary, 
+			String email, List<ImportErrorObject> toSubmit, 
+			PropertyChangeListener listener);
 	
 	/**
 	 * Brings up a modal dialog to notify the user of an error.

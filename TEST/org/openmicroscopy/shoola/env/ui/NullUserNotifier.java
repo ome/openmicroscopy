@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.ui;
 
 
 //Java imports
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
@@ -150,12 +151,10 @@ public class NullUserNotifier
 	public boolean hasRunningActivities() { return false; }
 
 	/**
-	 * @see UserNotifier#hasRunningActivities()
+	 * @see UserNotifier#notifyError(String, String, String, List, 
+	 * PropertyChangeListener)
 	 */
-	public MessengerDialog notifyError(String title, String summary,
-			String email, List<ImportErrorObject> toSubmit)
-	{
-		return null;
-	}
+	public void notifyError(String title, String summary, String email, 
+		List<ImportErrorObject> toSubmit, PropertyChangeListener listener) {}
 
 }

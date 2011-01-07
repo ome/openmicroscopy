@@ -939,12 +939,14 @@ public class ImportDialog
      * 
      * @param containers The container where to import the files.
      */
-	public void resetContainer(List<DataObject> containers)
+	public void reset(List<DataObject> containers)
 	{
 		this.containers = containers;
 		titlePane.setTextHeader(getContainerText(containers));
 		titlePane.setSubtitle(SUB_MESSAGE);
 		table.removeAllFiles();
+		File[] files = chooser.getSelectedFiles();
+		table.allowAddition(files != null && files.length > 0);
 	}
 	
     /**

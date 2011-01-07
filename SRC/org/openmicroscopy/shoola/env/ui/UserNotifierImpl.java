@@ -225,8 +225,9 @@ public class UserNotifierImpl
      * Implemented as specified by {@link UserNotifier}. 
      * @see UserNotifier#notifyError(String, String, String, List)
      */     
-	public MessengerDialog notifyError(String title, String summary, 
-			String email, List<ImportErrorObject> toSubmit)
+	public void notifyError(String title, String summary, 
+			String email, List<ImportErrorObject> toSubmit, 
+			PropertyChangeListener listener)
 	{
 		if (title == null || title.length() == 0) 
 			title = DEFAULT_ERROR_TITLE;
@@ -235,9 +236,9 @@ public class UserNotifierImpl
     			getEmail(email), toSubmit); 
     	d.setServerVersion(manager.getServerVersion());
     	d.addPropertyChangeListener(manager);
-    	d.setModal(true);
+    	if (listener != null)
+    		d.addPropertyChangeListener(listener);
     	UIUtilities.centerAndShow(d);
-    	return d;
 	}
 
 	/** 

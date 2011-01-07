@@ -405,4 +405,24 @@ class ImporterUIElement
 	 */
 	ImportableObject getData() { return object; }
 	
+	/**
+	 * Returns <code>true</code> if errors to send, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasFailuresToSend()
+	{
+		Entry entry;
+		Iterator i = components.entrySet().iterator();
+		FileImportComponent fc;
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			fc = (FileImportComponent) entry.getValue();
+			if (fc.hasFailuresToSend()) 
+				return true;
+		}
+		return false;
+	}
+	
 }

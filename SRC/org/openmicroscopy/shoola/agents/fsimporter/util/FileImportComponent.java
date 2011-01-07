@@ -432,13 +432,12 @@ public class FileImportComponent
 		} else {
 			if (components != null) {
 				Entry entry;
-				Iterator i = components.entrySet().iterator();
+				Iterator<FileImportComponent> i = components.values().iterator();
 				FileImportComponent fc;
 				l = new ArrayList<FileImportComponent>();
 				List<FileImportComponent> list;
 				while (i.hasNext()) {
-					entry = (Entry) i.next();
-					fc = (FileImportComponent) entry.getValue();
+					fc = i.next();
 					list = fc.getImportErrors();
 					if (list != null && list.size() > 0)
 						l.addAll(list);
@@ -472,6 +471,28 @@ public class FileImportComponent
 			errorBox.setText("Sent");
 			repaint();
 		}
+	}
+	
+	/**
+	 * Returns <code>true</code> if errors to send, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasFailuresToSend()
+	{
+		if (file.isFile()) {
+			if (errorBox.isVisible())
+				return errorBox.isEnabled() && errorBox.isSelected();
+			return true;
+		}
+		if (components == null) return false;
+		Iterator<FileImportComponent> i = components.values().iterator();
+		while (i.hasNext()) {
+			if (i.next().hasFailuresToSend()) 
+				return true;
+		}
+		return false;
 	}
 	
 	/**

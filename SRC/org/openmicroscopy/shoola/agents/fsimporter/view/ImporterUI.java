@@ -255,4 +255,21 @@ class ImporterUI
 		return found;
 	}
 	
+	/**
+	 * Returns <code>true</code> if errors to send, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasFailuresToSend()
+	{
+		Iterator<ImporterUIElement> i = uiElements.values().iterator();
+		ImporterUIElement element;
+		while (i.hasNext()) {
+			if (i.next().hasFailuresToSend())
+				return true;
+		}
+		return false;
+	}
+	
 }

@@ -50,6 +50,7 @@ import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
  */
 public class ImporterAction 
 	extends AbstractAction
+	implements ChangeListener
 {
 
 	/** A reference to the Model. */
@@ -73,6 +74,7 @@ public class ImporterAction
         if (model == null) 
         	throw new IllegalArgumentException("No Model");
         this.model = model;   
+        model.addChangeListener(this);
     }
     
     /** 

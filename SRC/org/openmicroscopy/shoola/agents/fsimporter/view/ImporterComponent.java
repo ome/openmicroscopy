@@ -117,7 +117,7 @@ class ImporterComponent
 			chooser.addPropertyChangeListener(controller);
 			chooser.pack();
 		} else {
-			chooser.resetContainer(containers);
+			chooser.reset(containers);
 		}
 		UIUtilities.centerAndShow(chooser);
 	}
@@ -196,11 +196,10 @@ class ImporterComponent
 				model.importCompleted(index);
 				//now check if we have other import to start.
 				element = view.getElementToStartImportFor();
-				if (element != null) {
+				if (element != null) 
 					importData(element);
-				}
-			}
-				
+				fireStateChange();
+			}	
 		}
 	}
 	
@@ -275,7 +274,7 @@ class ImporterComponent
 	{
 		if (model.getState() == DISCARDED || model.getState() == IMPORTING)
 			return false;
-		return true;
+		return view.hasFailuresToSend();
 	}
 	
 }

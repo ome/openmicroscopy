@@ -233,9 +233,8 @@ class ImporterControl
 		ExperimenterData exp = ImporterAgent.getUserDetails();
 		String email = exp.getEmail();
 		if (email == null) email = "";
-		MessengerDialog d = un.notifyError("Import Failures", 
-				"Files that failed to import", email, toSubmit);
-		d.addPropertyChangeListener(this);
+		un.notifyError("Import Failures", "Files that failed to import", email, 
+				toSubmit, this);
 	}
 	
 	/**
@@ -245,6 +244,7 @@ class ImporterControl
 	public void propertyChange(PropertyChangeEvent evt)
 	{
 		String name = evt.getPropertyName();
+		System.err.println(name);
 		if (ImportDialog.IMPORT_PROPERTY.equals(name)) {
 			model.importData((ImportableObject) evt.getNewValue());
 		} else if (ImportDialog.LOAD_TAGS_PROPERTY.equals(name)) {
@@ -258,6 +258,7 @@ class ImporterControl
 				fc = i.next();
 				fc.markAsSent();
 			}
+			getAction(SEND_BUTTON).setEnabled(model.hasFailuresToSend());
 			markedFailed = null;
 		} else if (ClosableTabbedPane.CLOSE_TAB_PROPERTY.equals(name)) {
 			int index = (Integer) evt.getNewValue();
