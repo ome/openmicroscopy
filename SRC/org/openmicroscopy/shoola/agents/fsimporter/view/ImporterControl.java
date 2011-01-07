@@ -244,7 +244,6 @@ class ImporterControl
 	public void propertyChange(PropertyChangeEvent evt)
 	{
 		String name = evt.getPropertyName();
-		System.err.println(name);
 		if (ImportDialog.IMPORT_PROPERTY.equals(name)) {
 			model.importData((ImportableObject) evt.getNewValue());
 		} else if (ImportDialog.LOAD_TAGS_PROPERTY.equals(name)) {
