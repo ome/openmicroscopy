@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.util.ui.RollOverThumbnailManager;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
@@ -84,8 +85,7 @@ class ThumbnailLabel
 	private void viewImage()
 	{
 		EventBus bus = ImporterAgent.getRegistry().getEventBus();
-		ViewImage evt = new ViewImage(data.getImage(), null);
-		bus.post(evt);
+		bus.post(new ViewImage(new ViewImageObject(data.getImage()), null));
 	}
 	
 	/** Rolls over the node. */

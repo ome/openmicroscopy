@@ -40,6 +40,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.RendererUnloadedEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsSaved;
 import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.events.measurement.MeasurementToolLoaded;
 import org.openmicroscopy.shoola.agents.events.measurement.SelectPlane;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DeleteObjectEvent;
@@ -141,7 +142,9 @@ public class ImViewerAgent
         Boolean available = (Boolean) 
         	registry.lookup(LookupNames.BINARY_AVAILABLE);
         if (available != null && !available.booleanValue()) return;
-        DataObject image = evt.getImage();
+        List<ViewImageObject> images = evt.getImages();
+        ViewImageObject object = images.get(0);
+        DataObject image = object.getImage();
         Rectangle r = evt.getRequesterBounds();
         ImViewer view = null;
         boolean b = evt.isSeparateWindow();
@@ -155,10 +158,10 @@ public class ImViewerAgent
         	if (pixels != null)
         		view = ImViewerFactory.getImageViewer(image, r, b);
         } else
-        	view = ImViewerFactory.getImageViewer(evt.getImageID(), r, b);
+        	view = ImViewerFactory.getImageViewer(object.getImageID(), r, b);
         if (view != null) {
-        	view.activate(evt.getSettings(), evt.getSelectedUserID());
-        	view.setContext(evt.getParent(), evt.getGrandParent());
+        	view.activate(object.getSettings(), object.getSelectedUserID());
+        	view.setContext(object.getParent(), object.getGrandParent());
         }
     }
     

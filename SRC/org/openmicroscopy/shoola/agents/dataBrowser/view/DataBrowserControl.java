@@ -64,6 +64,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.FilteringDialog;
 import org.openmicroscopy.shoola.agents.dataBrowser.util.QuickFiltering;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.agents.util.ui.RollOverThumbnailManager;
@@ -363,25 +364,26 @@ class DataBrowserControl
 			Object uo = node.getHierarchyObject();
 			ViewImage event;
 			Object go;
+			ViewImageObject object;
 			if (uo instanceof ImageData) {
-				event = new ViewImage((ImageData) uo, null);
+				object = new ViewImageObject((ImageData) uo);
 				go =  view.getParentOfNodes();
 				if (go instanceof DataObject) 
 					data = (DataObject) go;
-				event.setContext(data, null);
-				bus.post(event);
+				object.setContext(data, null);
+				bus.post(new ViewImage(object, null));
 				if (go instanceof DataObject) data = (DataObject) go;
 			} else if (uo instanceof WellSampleData) {
-				event = new ViewImage((WellSampleData) uo, null);
+				object = new ViewImageObject((WellSampleData) uo);
 				WellSampleNode wsn = (WellSampleNode) node;
 				Object parent = wsn.getParentObject();
 				if (parent instanceof DataObject) {
 					go =  view.getGrandParentOfNodes();
 					if (go instanceof DataObject)
 						data = (DataObject) go;
-					event.setContext((DataObject) parent, data);
+					object.setContext((DataObject) parent, data);
 				}
-				bus.post(event);
+				bus.post(new ViewImage(object, null));
 			}
 		}
 	}

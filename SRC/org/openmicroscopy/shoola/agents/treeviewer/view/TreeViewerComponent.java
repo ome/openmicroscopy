@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.agents.events.editor.ShowEditorEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.events.treeviewer.CopyItems;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DeleteObjectEvent;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
@@ -2241,8 +2242,8 @@ class TreeViewerComponent
 				model.browseTag(node);
 		} else if (uo instanceof ImageData) {
 			EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-			ViewImage evt = new ViewImage((ImageData) uo, view.getBounds());
-			evt.setSeparateWindow(model.isFullScreen());
+			ViewImageObject vo = new ViewImageObject((ImageData) uo);
+			
 			TreeImageDisplay p = node.getParentDisplay();
 			TreeImageDisplay gp = null;
 			DataObject po = null;
@@ -2262,7 +2263,9 @@ class TreeViewerComponent
 					}	
 				}
 			}
-			evt.setContext(po, gpo);
+			vo.setContext(po, gpo);
+			ViewImage evt = new ViewImage(vo, view.getBounds());
+			evt.setSeparateWindow(model.isFullScreen());
 			bus.post(evt);
 		} else if (node instanceof TreeImageTimeSet) {
 			model.browseTimeInterval((TreeImageTimeSet) node);

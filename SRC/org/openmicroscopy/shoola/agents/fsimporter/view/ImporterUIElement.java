@@ -354,7 +354,7 @@ class ImporterUIElement
 				String time = UIUtilities.calculateHMS((int) (duration/1000));
 				timeLabel.setText(text+" Duration: "+time);
 				EventBus bus = ImporterAgent.getRegistry().getEventBus();
-				bus.post(new ImportStatusEvent(false));
+				bus.post(new ImportStatusEvent(false, object.getContainers()));
 			}
 		}
 	}

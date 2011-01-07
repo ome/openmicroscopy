@@ -155,8 +155,6 @@ class UserNotifierManager
 		if (error == null || error.length() == 0) bug = false;
 		String url = (String) reg.lookup(LookupNames.TOKEN_URL);
 		String appName; 
-		//if (bug) url = (String) reg.lookup(LookupNames.DEBUG_URL_BUG);
-		//else url = (String) reg.lookup(LookupNames.DEBUG_URL_COMMENT);
 		if (bug) 
 			appName = (String) reg.lookup(LookupNames.APPLICATION_NAME_BUG);
 		else 

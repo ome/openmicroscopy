@@ -24,11 +24,13 @@ package org.openmicroscopy.shoola.agents.events.importer;
 
 
 //Java imports
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.event.RequestEvent;
+import pojos.DataObject;
 
 /** 
  * Event indicating if there are on-going imports.
@@ -50,6 +52,9 @@ public class ImportStatusEvent
 	/** Flag indicating if there are on-going import. */
 	private boolean importing;
 	
+	/** The collection of containers that will have to be refreshed. */
+	private List<DataObject> containers;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -60,6 +65,35 @@ public class ImportStatusEvent
 	{
 		this.importing = importing;
 	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param importing Pass <code>true</code> indicating of on-going imports,
+	 * 					<code>false</code> otherwise.
+	 * @param containers The containers to refresh.
+	 */
+	public ImportStatusEvent(boolean importing, List<DataObject> containers)
+	{
+		this.importing = importing;
+	}
+	
+	/**
+	 * Sets the containers that will have to be refreshed.
+	 * 
+	 * @param containers The containers to refresh.
+	 */
+	public void setContainers(List<DataObject> containers)
+	{
+		this.containers = containers;
+	}
+	
+	/**
+	 * Returns the containers that will have to be refreshed.
+	 * 
+	 * @return See above.
+	 */
+	public List<DataObject> getContainers() { return containers; }
 	
 	/**
 	 * Returns <code>true</code> if on-going imports, 

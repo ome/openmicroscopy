@@ -28,16 +28,13 @@ package org.openmicroscopy.shoola.agents.events.iviewer;
 
 //Java imports
 import java.awt.Rectangle;
+import java.util.ArrayList;
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.event.RequestEvent;
-import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
-
-import pojos.DataObject;
-import pojos.ImageData;
-import pojos.WellSampleData;
 
 /** 
  * Event to retrieve and view a given image.
@@ -58,29 +55,11 @@ public class ViewImage
     extends RequestEvent
 {
 
-    /** The image to view. */
-    private DataObject	image;
+    /** The images to view. */
+    private List<ViewImageObject>	images;
 
     /** The bounds of the component posting the event. */
     private Rectangle   requesterBounds;
-    
-    /** Rendering settings to set if any. */
-    private RndProxyDef	settings;
-    
-    /** The id of the user who set the rendering settings. */
-    private long		selectedUserID;
-    
-    /** The parent of the image or <code>null</code> if no context specified. */
-    private DataObject	parent;
-    
-    /** 
-     * The grandparent of the image or <code>null</code> if no 
-     * context specified. 
-     */
-    private DataObject	grandParent;
-    
-    /** The id of the image to view. Used when no <code>ImageData</code>set. */
-    private long		imageID;
     
     /**  
      * Flag indicating if the viewer should be opened as a separate window
@@ -91,110 +70,37 @@ public class ViewImage
     /**
      * Creates a new instance.
      * 
-     * @param imageID  	The id of the image to view.
+     * @param image  	The id of the image to view.
      * @param bounds    The bounds of the component posting the event.
      */
-    public ViewImage(long imageID, Rectangle bounds)
+    public ViewImage(ViewImageObject image, Rectangle bounds)
     {
-        if (imageID < 0l) 
-            throw new IllegalArgumentException("Image ID not valid.");
-        this.imageID = imageID;
-        requesterBounds = bounds;
-        selectedUserID = -1;
-        separateWindow = true;
+    	if (image == null) 
+    		throw new IllegalArgumentException("Image not null.");
+    	images = new ArrayList<ViewImageObject>();
+    	images.add(image);
+    	requesterBounds = bounds;
+    	separateWindow = true;
     }
-    
-    /**
-     * Creates a new instance.
-     * 
-     * @param image   	The image to view.
-     * @param bounds    The bounds of the component posting the event.
-     */
-    public ViewImage(DataObject image, Rectangle bounds)
-    {
-        if (image == null) 
-            throw new IllegalArgumentException("Image not null.");
-        if (!(image instanceof ImageData || image instanceof WellSampleData))
-        	throw new IllegalArgumentException("Object can either be a " +
-        			"WellSample or an Image.");
-        this.image = image;
-        requesterBounds = bounds;
-        selectedUserID = -1;
-        imageID = -1;
-        separateWindow = true;
-    }
-    
-    /**
-     * Sets the context of the node.
-     * 
-     * @param parent		The parent of the image or <code>null</code> 
-     * 						if no context specified.
-     * @param grandParent   The grandparent of the image or <code>null</code> 
-     * 						if no context specified.
-     */
-    public void setContext(DataObject parent, DataObject grandParent)
-    {
-    	this.parent = parent;
-    	this.grandParent = grandParent;
-    }
-    
-    /**
-     * Returns the id of the image to view. 
-     * 
-     * @return See above.
-     */
-    public long getImageID() { return imageID; }
-    
-    /**
-     * Returns the parent of the image or <code>null</code> 
-     * if no context specified.
-     * 
-     * @return See above.
-     */
-    public DataObject getParent() { return parent; }
-    
-    /**
-     * Returns the grandparent of the image or <code>null</code> 
-     * if no context specified.
-     * 
-     * @return See above.
-     */
-    public DataObject getGrandParent() { return grandParent; }
-    
-    /**
-     * Sets the rendering settings set by the selected user.
-     * 
-     * @param settings			The settings to set.
-     * @param selectedUserID	The id of the user who set the
-     * 							the rendering settings.
-     */
-    public void setSettings(RndProxyDef	settings, long selectedUserID)
-    {
-    	this.settings = settings;
-    	this.selectedUserID = selectedUserID;
-    }
-    
-    /**
-     * Returns the rendering settings set by the specified user.
-     * 
-     * @return See above.
-     */
-    public RndProxyDef getSettings() { return settings; }
-    
-    /**
-     * Returns the ID of the user the settings are related to.
-     * 
-     * @return See above. 
-     */
-    public long getSelectedUserID() { return selectedUserID; }
 
     /**
-     * Returns the image or well sample.
+     * Adds a new image to the list of images to view.
      * 
-     * @return See above. 
+     * @param image The image to view.
      */
-    public DataObject getImage() { return image; }
-
+    public void addImage(ViewImageObject image)
+    {
+    	if (image != null)
+    		images.add(image);
+    }
+    
+    /**
+     * Returns the images to view.
+     * 
+     * @return See above.
+     */
+    public List<ViewImageObject> getImages() { return images; }
+    
     /**
      * Returns the bounds of the component posting the event. 
      * Returns <code>null</code> if not available.

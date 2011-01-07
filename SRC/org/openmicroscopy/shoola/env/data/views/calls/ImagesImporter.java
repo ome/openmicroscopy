@@ -89,8 +89,8 @@ public class ImagesImporter
     	partialResult = new HashMap<File, Object>();
     	OmeroImageService os = context.getImageService();
     	try {
-    		Object ho = os.importFile(object, f, status, userID, groupID);
-    		partialResult.put(f, ho);
+    		partialResult.put(f, 
+    				os.importFile(object, f, status, userID, groupID));
 		} catch (Exception e) {
 			partialResult.put(f, e);
 		}

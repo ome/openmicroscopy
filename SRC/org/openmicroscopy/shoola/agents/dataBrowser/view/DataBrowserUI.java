@@ -47,6 +47,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.Layout;
 import org.openmicroscopy.shoola.agents.dataBrowser.visitor.MagnificationVisitor;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
@@ -516,7 +517,7 @@ class DataBrowserUI
     	if (!(node instanceof ImageNode)) return;
     	ImageData data = (ImageData) node.getHierarchyObject();
     	EventBus bus = DataBrowserAgent.getRegistry().getEventBus();
-    	bus.post(new ViewImage(data, null));
+    	bus.post(new ViewImage(new ViewImageObject(data), null));
     }
     
     /**

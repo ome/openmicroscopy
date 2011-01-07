@@ -68,6 +68,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.util.ui.RollOverThumbnailManager;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -618,8 +619,8 @@ class SlideShowView
         if (d instanceof ImageNode && !(d.getTitleBar() == src) 
             && e.getClickCount() == 2) {
         	EventBus bus = DataBrowserAgent.getRegistry().getEventBus();
-        	bus.post(new ViewImage(
-        				(ImageData) d.getHierarchyObject(), null));
+        	bus.post(new ViewImage(new ViewImageObject(
+        				(ImageData) d.getHierarchyObject()), null));
         }   
 	}
 	

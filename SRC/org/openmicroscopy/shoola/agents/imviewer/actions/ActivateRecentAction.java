@@ -33,6 +33,7 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.view.ImViewerRecentObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -85,7 +86,8 @@ public class ActivateRecentAction
     public void actionPerformed(ActionEvent e)
     { 
     	EventBus bus = ImViewerAgent.getRegistry().getEventBus();
-    	ViewImage event = new ViewImage(recent.getImageID(), null);
+    	ViewImage event = new ViewImage(
+    			new ViewImageObject(recent.getImageID()), null);
     	bus.post(event);
     }
     

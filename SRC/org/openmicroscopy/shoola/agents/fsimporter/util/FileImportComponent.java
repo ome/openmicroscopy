@@ -55,6 +55,7 @@ import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
@@ -152,7 +153,8 @@ public class FileImportComponent
 						ThumbnailData data = (ThumbnailData) image;
 						EventBus bus = 
 							ImporterAgent.getRegistry().getEventBus();
-						bus.post(new ViewImage(data.getImage(), null));
+						bus.post(new ViewImage(new ViewImageObject(
+								data.getImage()), null));
 					}
 				}
 			}

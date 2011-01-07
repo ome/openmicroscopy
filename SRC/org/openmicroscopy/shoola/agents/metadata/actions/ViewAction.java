@@ -22,24 +22,23 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.actions;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-
-import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
-import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
-import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
-import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
-import org.openmicroscopy.shoola.env.event.EventBus;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-import pojos.ImageData;
 
 //Java imports
+import java.awt.event.ActionEvent;
+import javax.swing.Action;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
+import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.ImageData;
 
 /** 
  * Opens the viewer.
@@ -85,7 +84,7 @@ public class ViewAction
 		ImageData image = model.getRefImage();
 		if (image == null) return;
 		EventBus bus = MetadataViewerAgent.getRegistry().getEventBus();
-		bus.post(new ViewImage(image, null));
+		bus.post(new ViewImage(new ViewImageObject(image), null));
 	}
 	
 }

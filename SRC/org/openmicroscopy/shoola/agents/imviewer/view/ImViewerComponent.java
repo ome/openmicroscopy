@@ -62,6 +62,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.iviewer.SaveRelatedData;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerCreated;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerState;
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
@@ -419,7 +420,7 @@ class ImViewerComponent
 		int option = msg.centerMsgBox();
 		if (option == MessageBox.YES_OPTION) {
 			EventBus bus = ImViewerAgent.getRegistry().getEventBus();
-			bus.post(new ViewImage(image, null));
+			bus.post(new ViewImage(new ViewImageObject(image), null));
 		}
 	}
 	

@@ -64,6 +64,7 @@ import javax.swing.text.Document;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.editor.EditFileEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
+import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DataObjectSelectionEvent;
 import org.openmicroscopy.shoola.agents.metadata.IconManager;
 import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
@@ -1342,7 +1343,8 @@ class PropertiesUI
 			long id = object.getId();
 			switch (object.getIndex()) {
 				case WikiDataObject.IMAGE:
-					if (id > 0) bus.post(new ViewImage(id, null));
+					if (id > 0) 
+						bus.post(new ViewImage(new ViewImageObject(id), null));
 					break;
 				case WikiDataObject.PROTOCOL:
 					bus.post(new EditFileEvent(id));
