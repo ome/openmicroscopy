@@ -24,8 +24,6 @@ package org.openmicroscopy.shoola.util.ui;
 
 
 //Java imports
-import java.io.File;
-import java.util.Map;
 
 //Third-party libraries
 
@@ -62,6 +60,9 @@ public class MessengerDetails
 	/** The object to submit. */
 	private Object toSubmit;
 
+	/** Flag indicating to submit the exception but not the files. */
+	private boolean exceptionOnly;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -73,6 +74,7 @@ public class MessengerDetails
 		this.email = email;
 		this.comment = comment;
 		error = null;
+		exceptionOnly = false;
 	}
 
 	/**
@@ -96,6 +98,25 @@ public class MessengerDetails
 	 */
 	public void setObjectToSubmit(Object toSubmit) { this.toSubmit = toSubmit; }
 
+	/**
+	 * Sets the flag indicating to submit only the exception not the files.
+	 * 
+	 * @param exceptionOnly Pass <code>true</code> to only send the exception
+	 *						and not the files, <code>false</code> otherwise.
+	 */
+	public void setExceptionOnly(boolean exceptionOnly)
+	{
+		this.exceptionOnly = exceptionOnly;
+	}
+	
+	/**
+	 * Returns <code>true</code> if only the exception should be sent,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isExceptionOnly() { return exceptionOnly; }
+	
 	/** 
 	 * Returns the object to submit.
 	 * 

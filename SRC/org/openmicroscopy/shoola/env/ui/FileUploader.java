@@ -130,8 +130,13 @@ class FileUploader
         	nodes.remove(f);
         }
         if (nodes.size() == 0) {
-        	viewer.notifyInfo("Upload Files", "The files have been " +
-        			"successfully uploaded.");
+        	if (details.isExceptionOnly()) {
+        		viewer.notifyInfo("Submit Exceptions", "The exceptions " +
+        				"have been submitted.");
+        	} else {
+        		viewer.notifyInfo("Submit Files", "The files have been " +
+    			"successfully submitted.");
+        	}
         	if (src != null) {
         		src.setVisible(false);
             	src.dispose();

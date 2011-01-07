@@ -91,32 +91,41 @@ public class FileUploader
 				(HttpChannel.CONNECTION_PER_REQUEST, tokenURL, -1);
 			c = SvcRegistry.getCommunicator(desc);
 			StringBuilder token = new StringBuilder();
-			String[] usedFiles = object.getUsedFiles();
-			List<File> additionalFiles = null;
-			if (usedFiles != null && usedFiles.length > 0) {
-				additionalFiles = new ArrayList<File>();
-				for (int i = 0; i < usedFiles.length; i++) {
-					additionalFiles.add(new File(usedFiles[i]));
+
+			if (details.isExceptionOnly()) {
+				c.submitError("",
+						details.getEmail(), details.getComment(), 
+						details.getExtra(), object.getException().toString(), 
+						appName, v, token);
+			} else {
+				String[] usedFiles = object.getUsedFiles();
+				List<File> additionalFiles = null;
+				if (usedFiles != null && usedFiles.length > 0) {
+					additionalFiles = new ArrayList<File>();
+					for (int i = 0; i < usedFiles.length; i++) {
+						additionalFiles.add(new File(usedFiles[i]));
+					}
+				}
+				c.submitFilesError("",
+						details.getEmail(), details.getComment(), 
+						details.getExtra(), object.getException().toString(), 
+						appName, v, object.getFile(), additionalFiles, token);
+				desc = new CommunicatorDescriptor(
+						HttpChannel.CONNECTION_PER_REQUEST, processURL, 
+						timeout);
+				c = SvcRegistry.getCommunicator(desc);
+				StringBuilder reply = new StringBuilder();
+				String reader = object.getReaderType();
+				if (object.getFile() != null)
+					c.submitFile(token.toString(), object.getFile(), reader, reply);
+				if (additionalFiles != null) {
+					Iterator<File> i = additionalFiles.iterator();
+					while (i.hasNext()) {
+						c.submitFile(token.toString(), i.next(), reader, reply);
+					}
 				}
 			}
-			c.submitFilesError("",
-					details.getEmail(), details.getComment(), 
-					details.getExtra(), object.getException().toString(), 
-					appName, v, object.getFile(), additionalFiles, token);
-			desc = new CommunicatorDescriptor(
-					HttpChannel.CONNECTION_PER_REQUEST, processURL, 
-					timeout);
-			c = SvcRegistry.getCommunicator(desc);
-			StringBuilder reply = new StringBuilder();
-			String reader = object.getReaderType();
-			if (object.getFile() != null)
-				c.submitFile(token.toString(), object.getFile(), reader, reply);
-			if (additionalFiles != null) {
-				Iterator<File> i = additionalFiles.iterator();
-				while (i.hasNext()) {
-					c.submitFile(token.toString(), i.next(), reader, reply);
-				}
-			}
+			
 			uploadedFile = object;
 		} catch (Exception e) {
 		}

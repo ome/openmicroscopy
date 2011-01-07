@@ -116,7 +116,7 @@ class ImporterControl
 	/** Attaches listener to the window listener. */
 	private void attachListeners()
 	{
-		view.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		//view.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 		JMenu menu = ImporterFactory.getWindowMenu();
 		menu.addMenuListener(new MenuListener() {
 

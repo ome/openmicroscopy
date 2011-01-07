@@ -37,12 +37,12 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -67,14 +67,13 @@ import javax.swing.text.TabStop;
 
 //Third-party libraries
 import org.jdesktop.swingx.JXBusyLabel;
-import org.openmicroscopy.shoola.util.file.ImportErrorObject;
-
 import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 
 /** 
- * A dialog used to collect and send  comments or error messages.
+ * A dialog used to collect and send comments or error messages.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -118,7 +117,10 @@ public class MessengerDialog
 	private static final int		SEND = 1;
 
 	/** Action ID to copy on the clipboard. */
-	private static final int		COPY = 4;
+	private static final int		COPY = 3;
+	
+	/** Action ID to indicate the consequence of not submitting files. */
+	private static final int		SUBMIT = 4;
 	
 	/** The default size of the window. */
 	private static final Dimension 	DEFAULT_SIZE = new Dimension(700, 400);
@@ -165,6 +167,14 @@ public class MessengerDialog
 			"entered \n does not seem to be valid. \n Please enter a new " +
 			"e-mail address.";
 	
+	/** 
+	 * The default message displayed if user decides not to submit the files. 
+	 */
+	private static final String		SUBMIT_FILES_MESSAGE = "Choosing not " +
+			"to submit to the files will make it more difficult to " +
+			"fix the problem you are experimenting.\nAre you sure " +
+			"you do not want to submit the files?";
+	
 	/** Value of the  comment field. */
 	private static final String		COMMENT_FIELD = "Comment: ";
 	
@@ -175,7 +185,7 @@ public class MessengerDialog
 	/** Value of the field. */
 	private static final String		EMAIL_FIELD = "Email: ";
 	
-	/** The default tooltip of the e-mail area. */
+	/** The default tool-tip of the e-mail area. */
 	private static final String 	EMAIL_TOOLTIP = "Enter your email " +
 												"address here.";
 	
@@ -226,6 +236,24 @@ public class MessengerDialog
 	
 	/** Indicates the status of the files submission. */
 	private JXBusyLabel		submitStatus;
+	
+	/** Component indicating to submit the files or not. */
+	private JCheckBox		submitFile;
+	
+	/** 
+	 * Displays the dialog indicating the consequence of not submitting
+	 * the files.
+	 */
+	private void submitFilesControl()
+	{
+		if (!submitFile.isSelected()) {
+			MessageBox dialog = new MessageBox(this, "Submit Files", 
+					SUBMIT_FILES_MESSAGE);
+			dialog.setResizable(false);
+			if (dialog.centerMsgBox() == MessageBox.NO_OPTION)
+				submitFile.setSelected(true);
+		}
+	}
 	
 	/**
 	 * Formats the specified button.
@@ -294,7 +322,6 @@ public class MessengerDialog
 			if (files == null || files.size() == 0) {
 				sendError(propertyName);
 			} else {
-				
 				String email = emailArea.getText().trim();
 				String comment = commentArea.getText().trim();
 				MessengerDetails details = new MessengerDetails(email, comment);
@@ -302,6 +329,7 @@ public class MessengerDialog
 				details.setObjectToSubmit(files);
 				submitStatus.setVisible(true);
 				submitStatus.setBusy(true);
+				details.setExceptionOnly(!submitFile.isSelected());
 				firePropertyChange(propertyName, null, details);
 			}
 		} else {
@@ -346,6 +374,10 @@ public class MessengerDialog
         submitStatus = new JXBusyLabel(new Dimension(16, 16));
         submitStatus.setText("Uploading files");
         submitStatus.setVisible(false);
+        submitFile = new JCheckBox("Submit Exception and Files");
+        submitFile.setSelected(true);
+        submitFile.addActionListener(this);
+        submitFile.setActionCommand(""+SUBMIT);
 	}
 
 	/**
@@ -593,7 +625,7 @@ public class MessengerDialog
     {
     	JPanel bars = new JPanel();
     	bars.setLayout(new BoxLayout(bars, BoxLayout.X_AXIS));
-    	JPanel p = UIUtilities.buildComponentPanel(submitStatus);
+    	JPanel p = UIUtilities.buildComponentPanel(submitFile);
     	//p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
     	bars.add(p);
     	JPanel bar = new JPanel();
@@ -763,6 +795,9 @@ public class MessengerDialog
 				break;
 			case COPY:
 				copy();
+				break;
+			case SUBMIT:
+				submitFilesControl();
 		}
 	}
 	
