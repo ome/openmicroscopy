@@ -392,6 +392,8 @@ class TabbedPaneUI
 	{
 		acceptButton.setEnabled(enabled);
 		revertButton.setEnabled(enabled);
+		if (enabled) parent.getRootPane().setDefaultButton(acceptButton);
+		else parent.getRootPane().setDefaultButton(cancelButton);
 	}
 	
 	/** 
