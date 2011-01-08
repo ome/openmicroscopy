@@ -59,6 +59,12 @@ public class StatusLabel
 	/** Bound property indicating that children files have been set. */
 	public static final String FILES_SET_PROPERTY = "filesSet";
 	
+	/** 
+	 * Bound property indicating that the file has to be reset
+	 * This should be invoked if the log file for example has been selected. 
+	 */
+	public static final String FILE_RESET_PROPERTY = "fileReset";
+	
 	/** Bound property indicating that the import of the file has started. */
 	public static final String FILE_IMPORT_STARTED_PROPERTY = 
 		"fileImportStarted";
@@ -152,6 +158,18 @@ public class StatusLabel
 	public void setFiles(Map<File, StatusLabel> files)
 	{
 		firePropertyChange(FILES_SET_PROPERTY, null, files);
+	}
+	
+	/**
+	 * Replaces the initial file by the specified one. This should only be 
+	 * invoked if the original file was an arbitrary one requiring to use the
+	 * import candidate e.g. <code>.log</code>
+	 * 
+	 * @param file The new file.
+	 */
+	public void resetFile(File file)
+	{
+		firePropertyChange(FILE_RESET_PROPERTY, null, file);
 	}
 	
 	/**

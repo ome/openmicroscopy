@@ -121,10 +121,7 @@ public class FileImportComponent
 	
 	/** The component displaying the status of the import. */
 	private JLabel			status;
-	
-	/** The default control. */
-	//private JComponent		control;
-	
+
 	/** The imported image. */
 	private Object			image;
 	
@@ -385,8 +382,8 @@ public class FileImportComponent
 			resultLabel.setVisible(true);
 			//control = resultLabel;
 		} else if (image instanceof Boolean) {
-			setStatusText("Folder imported");
-			return;
+			if (file.isDirectory()) setStatusText("Folder imported");
+			else setStatusText("File not valid");
 		} else {
 			if (!status) {
 				statusLabel.setVisible(false);
@@ -545,6 +542,9 @@ public class FileImportComponent
 			File f = (File) results[0];
 			if (f.getAbsolutePath().equals(file.getAbsolutePath()))
 				setStatus(false, results[1]);
+		} else if (StatusLabel.FILE_RESET_PROPERTY.equals(name)) {
+			file = (File) evt.getNewValue();
+			fileNameLabel.setText(file.getName());
 		}
 	}
 

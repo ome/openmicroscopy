@@ -107,6 +107,21 @@ class OmeroImageServiceImpl
  	implements OmeroImageService
 {
 
+	/** 
+	 * The collection of arbitrary files extensions to check
+	 * before importing. If a file has one of the extensions, we need
+	 * to check the import candidates.
+	 */
+	private static final List<String> ARBITRARY_FILES_EXTENSION;
+	
+	static {
+		ARBITRARY_FILES_EXTENSION = new ArrayList<String>();
+		ARBITRARY_FILES_EXTENSION.add("text");
+		ARBITRARY_FILES_EXTENSION.add("xml");
+		ARBITRARY_FILES_EXTENSION.add("exp");
+		ARBITRARY_FILES_EXTENSION.add("log");
+	}
+	
 	/** The collection of supported file filters. */
 	private List<FileFilter>		filters;
 	
@@ -118,6 +133,132 @@ class OmeroImageServiceImpl
 
 	/** Reference to the entry point to access the <i>OMERO</i> services. */
 	private OMEROGateway            gateway;
+	
+
+	/**
+	 * Imports the specified candidates.
+	 * 
+	 * @param candidates The file to import.
+	 * @param status The original status.
+	 * @param object The object hosting information about the import.
+	 * @param archived Pass <code>true</code> if the original file had to be
+	 * 					archived, <code>false</code> otherwise.
+	 * @param ioList The containers where to import the files.
+	 * @param list   The list of annotations.
+	 * @param userID The identifier of the user.
+	 */
+	private void importCandidates(List<String> candidates, StatusLabel status, 
+			ImportableObject object, boolean archived, List<IObject> ioList, 
+			List<Annotation> list, long userID)
+	{
+		Iterator<String> i = candidates.iterator();
+		Map<File, StatusLabel> files = new HashMap<File, StatusLabel>();
+		while (i.hasNext()) 
+			files.put(new File(i.next()), new StatusLabel());
+		status.setFiles(files);
+		Entry entry;
+		Iterator jj = files.entrySet().iterator();
+		StatusLabel label = null;
+		//boolean archived = object.isArchivedFile(file);
+		File file;
+		Object result;
+		List<ImageData> images = new ArrayList<ImageData>();
+		ImageData image;
+		Set<ImageData> ll;
+		Iterator<ImageData> kk;
+		List<Object> converted;
+		while (jj.hasNext()) {
+			entry = (Entry) jj.next();
+			file = (File) entry.getKey();
+			label = (StatusLabel) entry.getValue();
+			try {
+				result = gateway.importImage(object, ioList, file, label, 
+						archived);
+				if (result instanceof ImageData) {
+					image = (ImageData) result;
+					images.add(image);
+				} else if (result instanceof Set) {
+					ll = (Set<ImageData>) result;
+					annotatedImportedImage(list, ll);
+					images.addAll(ll);
+					kk = ll.iterator();
+					converted = new ArrayList<Object>(ll.size());
+					while (kk.hasNext()) {
+						converted.add(createImportedImage(userID, kk.next()));	
+					}
+					label.setFile(file, converted);
+				} else label.setFile(file, result);
+			} catch (ImportException e) {
+				label.setFile(file, e);
+			}
+		}
+		annotatedImportedImage(list, images);
+	}
+	
+	/**
+	 * Annotates the imported images.
+	 * 
+	 * @param annotations The annotations to add.
+	 * @param images The imported images.
+	 */
+	private void annotatedImportedImage(List<Annotation> annotations, 
+			Collection images)
+	{
+		if (annotations.size() == 0 || images.size() == 0) return;
+		Iterator i = images.iterator();
+		ImageData image;
+		Iterator<Annotation> j;
+		List<IObject> list = new ArrayList<IObject>();
+		IObject io;
+		while (i.hasNext()) {
+			image = (ImageData) i.next();
+			j = annotations.iterator();
+			while (j.hasNext()) {
+				io = ModelMapper.linkAnnotation(image.asIObject(), j.next());
+				if (io != null)
+					list.add(io);
+			}
+		}
+		if (list.size() == 0) return;
+		try {
+			gateway.saveAndReturnObject(list, new HashMap());
+		} catch (Exception e) {
+			//ignore 
+		}
+	}
+	
+	/**
+	 * Creates a thumbnail for the imported image.
+	 * 
+	 * @param userID  The identifier of the user.
+	 * @param image   The image to handle.
+	 * @return See above.
+	 * @throws ImportException
+	 */
+	private Object createImportedImage(long userID, ImageData image)
+		throws ImportException
+	{
+		if (image != null) {
+			try {
+				PixelsData pix = image.getDefaultPixels();
+				BufferedImage img = createImage(
+						gateway.getThumbnailByLongestSide(pix.getId(), 96));
+				ThumbnailData data = new ThumbnailData(image.getId(), img, 
+						userID, true);
+				data.setImage(image);
+				return data;
+			} catch (Exception e) {
+				DeletableObject d = new DeletableObject(image);
+				List<DeletableObject> l = new ArrayList<DeletableObject>(1);
+				l.add(d);
+				try {
+					context.getDataService().delete(l);
+				} catch (Exception ex) {}
+				throw new ImportException("Failed to import image", e);
+			}
+		}
+		return image;
+	}
 	
 	/**
 	 * Returns <code>true</code> if the binary data are available, 
@@ -712,6 +853,24 @@ class OmeroImageServiceImpl
 		return io;
 	}
 	
+	/**
+	 * Returns <code>true</code> if the extension of the specified
+	 * is arbitrary and so requires to use the import candidates,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param f The file to handle.
+	 * @return See above.
+	 */
+	private boolean isArbitraryFile(File f)
+	{
+		if (f == null) return false;
+		String name = f.getName();
+		if (!name.contains(".")) return false; 
+			
+		String ext = name.substring(name.lastIndexOf('.')+1, name.length());
+		return ARBITRARY_FILES_EXTENSION.contains(ext);
+	}
+	
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#importFile(ImportableObject, File, StatusLabel, 
@@ -733,7 +892,6 @@ class OmeroImageServiceImpl
 			Iterator<TagAnnotationData> i = tags.iterator();
 			TagAnnotationData tag;
 			l = new ArrayList<IObject>();
-			
 			while (i.hasNext()) {
 				tag = i.next();
 				if (tag.getId() > 0) {
@@ -747,9 +905,7 @@ class OmeroImageServiceImpl
 				while (j.hasNext()) {
 					list.add((Annotation) j.next());
 				}
-			} catch (Exception e) {
-				//ignore
-			}
+			} catch (Exception e) {}
 		}
 		IObject link;
 		//prepare the container.
@@ -762,7 +918,9 @@ class OmeroImageServiceImpl
 		ImageData image;
 		Iterator<ImageData> kk;
 		List<Object> converted;
+		List<String> candidates;
 		if (file.isFile()) {
+			//Need to check arbitrary file extensions.
 			if (containers != null && containers.size() > 0) {
 				j = containers.iterator();
 				container = containers.get(0);
@@ -774,24 +932,57 @@ class OmeroImageServiceImpl
 						ioList.add(j.next().asIObject());
 				}
 			}
-			result = gateway.importImage(object, ioList, file, status, 
-					object.isArchivedFile(file));
-			if (result instanceof ImageData) {
-				image = (ImageData) result;
-				images.add(image);
-				annotatedImportedImage(list, images);
-				return createImportedImage(userID, image);
-			} else if (result instanceof Set) {
-				ll = (Set<ImageData>) result;
-				annotatedImportedImage(list, ll);
-				kk = ll.iterator();
-				converted = new ArrayList<Object>(ll.size());
-				while (kk.hasNext()) {
-					converted.add(createImportedImage(userID, kk.next()));	
+			if (isArbitraryFile(file)) {
+				candidates = gateway.getImportCandidates(object, file, status);
+				int size = candidates.size();
+				if (size == 0) return Boolean.valueOf(false);
+				else if (size == 1) {
+					File f = new File(candidates.get(0));
+					status.resetFile(f);
+					result = gateway.importImage(object, ioList, f,
+							status, object.isArchivedFile(file));
+					if (result instanceof ImageData) {
+						image = (ImageData) result;
+						images.add(image);
+						annotatedImportedImage(list, images);
+						return createImportedImage(userID, image);
+					} else if (result instanceof Set) {
+						ll = (Set<ImageData>) result;
+						annotatedImportedImage(list, ll);
+						kk = ll.iterator();
+						converted = new ArrayList<Object>(ll.size());
+						while (kk.hasNext()) {
+							converted.add(createImportedImage(userID, 
+									kk.next()));	
+						}
+						return converted;
+					}
+					return result;
+				} else {
+					importCandidates(candidates, status, object, 
+							object.isArchivedFile(file), ioList, list, userID);
 				}
-				return converted;
+				
+			} else {
+				result = gateway.importImage(object, ioList, file, status, 
+						object.isArchivedFile(file));
+				if (result instanceof ImageData) {
+					image = (ImageData) result;
+					images.add(image);
+					annotatedImportedImage(list, images);
+					return createImportedImage(userID, image);
+				} else if (result instanceof Set) {
+					ll = (Set<ImageData>) result;
+					annotatedImportedImage(list, ll);
+					kk = ll.iterator();
+					converted = new ArrayList<Object>(ll.size());
+					while (kk.hasNext()) {
+						converted.add(createImportedImage(userID, kk.next()));	
+					}
+					return converted;
+				}
+				return result;
 			}
-			return result;
 		}
 		DataObject folder = object.createFolderAsContainer(file);
 		Map m = new HashMap();
@@ -835,111 +1026,11 @@ class OmeroImageServiceImpl
 			}
 		}
 		
-		List<String> candidates = 
-			gateway.getImportCandidates(object, file, status);
+		candidates = gateway.getImportCandidates(object, file, status);
 		if (candidates.size() == 0) return Boolean.valueOf(false);
-		Iterator<String> i = candidates.iterator();
-		Map<File, StatusLabel> files = new HashMap<File, StatusLabel>();
-		while (i.hasNext()) 
-			files.put(new File(i.next()), new StatusLabel());
-		status.setFiles(files);
-		Entry entry;
-		Iterator jj = files.entrySet().iterator();
-		StatusLabel label = null;
-		boolean archived = object.isArchivedFile(file);
-		while (jj.hasNext()) {
-			entry = (Entry) jj.next();
-			file = (File) entry.getKey();
-			label = (StatusLabel) entry.getValue();
-			try {
-				result = gateway.importImage(object, ioList, file, label, 
-						archived);
-				
-				if (result instanceof ImageData) {
-					image = (ImageData) result;
-					images.add(image);
-				} else if (result instanceof Set) {
-					ll = (Set<ImageData>) result;
-					annotatedImportedImage(list, ll);
-					images.addAll(ll);
-					kk = ll.iterator();
-					converted = new ArrayList<Object>(ll.size());
-					while (kk.hasNext()) {
-						converted.add(createImportedImage(userID, kk.next()));	
-					}
-					label.setFile(file, converted);
-				} else label.setFile(file, result);
-			} catch (ImportException e) {
-				label.setFile(file, e);
-			}
-		}
-		annotatedImportedImage(list, images);
+		importCandidates(candidates, status, object, 
+				object.isArchivedFile(file), ioList, list, userID);
 		return Boolean.valueOf(true);
-	}
-
-	/**
-	 * Annotates the imported images.
-	 * 
-	 * @param annotations The annotations to add.
-	 * @param images The imported images.
-	 */
-	private void annotatedImportedImage(List<Annotation> annotations, 
-			Collection images)
-	{
-		if (annotations.size() == 0 || images.size() == 0) return;
-		Iterator i = images.iterator();
-		ImageData image;
-		Iterator<Annotation> j;
-		List<IObject> list = new ArrayList<IObject>();
-		IObject io;
-		while (i.hasNext()) {
-			image = (ImageData) i.next();
-			j = annotations.iterator();
-			while (j.hasNext()) {
-				io = ModelMapper.linkAnnotation(image.asIObject(), j.next());
-				if (io != null)
-					list.add(io);
-			}
-		}
-		if (list.size() == 0) return;
-		try {
-			gateway.saveAndReturnObject(list, new HashMap());
-		} catch (Exception e) {
-			//ignore 
-		}
-	}
-	
-	/**
-	 * Creates a thumbnail for the imported image.
-	 * 
-	 * @param userID  The identifier of the user.
-	 * @param image   The image to handle.
-	 * @return See above.
-	 * @throws ImportException
-	 */
-	private Object createImportedImage(long userID, ImageData image)
-		throws ImportException
-	{
-		if (image != null) {
-			try {
-				PixelsData pix = image.getDefaultPixels();
-				BufferedImage img = createImage(
-						gateway.getThumbnailByLongestSide(pix.getId(), 96));
-				ThumbnailData data = new ThumbnailData(image.getId(), img, 
-						userID, true);
-				data.setImage(image);
-				return data;
-			} catch (Exception e) {
-				DeletableObject d = new DeletableObject(image);
-				List<DeletableObject> l = new ArrayList<DeletableObject>(1);
-				l.add(d);
-				try {
-					context.getDataService().delete(l);
-				} catch (Exception ex) {}
-				throw new ImportException("Failed to import image", e);
-			}
-		}
-		return image;
 	}
 	
 	/** 
