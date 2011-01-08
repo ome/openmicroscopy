@@ -3108,12 +3108,34 @@ class TreeViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#setImporting(boolean)
+	 * @see TreeViewer#setImporting(boolean, List)
 	 */
-	public void setImporting(boolean importing)
+	public void setImporting(boolean importing,  List<DataObject> containers)
 	{
 		if (model.getState() == DISCARDED) return;
 		model.setImporting(importing);
+		if (!importing) {
+			if (containers != null && containers.size() > 0) {
+				NodesFinder finder = new NodesFinder(containers);
+				Browser browser = null;
+				DataObject ho = containers.get(0);
+				if (ho instanceof DatasetData || ho instanceof ProjectData) {
+					browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
+					browser.accept(finder);
+				} else {
+					browser = model.getBrowser(Browser.SCREENS_EXPLORER);
+					browser.accept(finder);
+				}
+				Set<TreeImageDisplay> nodes = finder.getNodes();
+				//mark 
+				if (nodes != null && nodes.size() > 0) {
+					Iterator<TreeImageDisplay> i = nodes.iterator();
+					while (i.hasNext())
+						i.next().setToRefresh(true);
+					browser.getUI().repaint();
+				}
+			}
+		}
 		firePropertyChange(IMPORT_PROPERTY, importing, !importing);
 	}
 	

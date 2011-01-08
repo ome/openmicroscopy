@@ -978,7 +978,8 @@ public interface TreeViewer
 	 * Sets the flag indicating of any on-going imports.
 	 * 
 	 * @param importing The value to set.
+	 * @param containers The containers that need to be refreshed.
 	 */
-	void setImporting(boolean importing);
+	void setImporting(boolean importing, List<DataObject> containers);
 	
 }

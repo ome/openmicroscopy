@@ -111,6 +111,7 @@ public class RefreshVisitor
     {
         Object userObject = node.getUserObject();
         TreeImageDisplay parent;
+        node.setToRefresh(false);
         if ((userObject instanceof DatasetData) && node.isChildrenLoaded() 
         	&& node.isExpanded()) {
         	parent = node.getParentDisplay();

@@ -157,6 +157,9 @@ public abstract class TreeImageDisplay
     /** The number of items. */
     protected long						numberItems;
 
+    /** Flag indicating that the node has to be refreshed. */
+    protected boolean					toRefresh;
+    
     /**
      * Checks if the algorithm to visit the tree is one of the constants
      * defined by {@link TreeImageDisplayVisitor}.
@@ -577,6 +580,22 @@ public abstract class TreeImageDisplay
      * @return See above.
      */
     public long getNumberOfItems() { return numberItems; }
+    
+    /**
+     * Sets the flag indicating that the node needs to be refreshed.
+     * 
+     * @param toRefresh Pass <code>true</code> to indicate that the node needs
+     * 					to be refreshed, <code>false</code> otherwise.
+     */
+    public void setToRefresh(boolean toRefresh) { this.toRefresh = toRefresh; }
+    
+    /**
+     * Returns <code>true</code> to indicate that the node needs
+     * to be refreshed, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public boolean isToRefresh() { return toRefresh; }
     
     /** 
      * Overridden to return the name of the hierarchy object. 

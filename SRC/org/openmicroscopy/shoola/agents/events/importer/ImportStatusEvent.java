@@ -60,34 +60,14 @@ public class ImportStatusEvent
 	 * 
 	 * @param importing Pass <code>true</code> indicating of on-going imports,
 	 * 					<code>false</code> otherwise.
-	 */
-	public ImportStatusEvent(boolean importing)
-	{
-		this.importing = importing;
-	}
-	
-	/**
-	 * Creates a new instance.
-	 * 
-	 * @param importing Pass <code>true</code> indicating of on-going imports,
-	 * 					<code>false</code> otherwise.
 	 * @param containers The containers to refresh.
 	 */
 	public ImportStatusEvent(boolean importing, List<DataObject> containers)
 	{
 		this.importing = importing;
-	}
-	
-	/**
-	 * Sets the containers that will have to be refreshed.
-	 * 
-	 * @param containers The containers to refresh.
-	 */
-	public void setContainers(List<DataObject> containers)
-	{
 		this.containers = containers;
 	}
-	
+
 	/**
 	 * Returns the containers that will have to be refreshed.
 	 * 

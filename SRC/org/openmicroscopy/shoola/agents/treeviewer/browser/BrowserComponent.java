@@ -1185,11 +1185,16 @@ class BrowserComponent
 	    Collection foundNodes;
 	    Map topNodes;
 	    int type = model.getBrowserType();
+	    Iterator j;
 	    for (int i = 0; i < n; i++) {
 	    	expNode = (TreeImageSet) root.getChildAt(i);
 	    	expNode.accept(v, TreeImageDisplayVisitor.TREEIMAGE_SET_ONLY);
 	    	foundNodes = v.getFoundNodes();
 	    	topNodes = v.getExpandedTopNodes();
+	    	//reset the flag 
+	    	
+	    	
+	    	
 	    	if (type == Browser.IMAGES_EXPLORER)
 	    		countExperimenterImages(expNode);
 	    	def = new RefreshExperimenterDef(expNode, v.getFoundNodes(), 

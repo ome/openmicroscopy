@@ -92,7 +92,8 @@ public class ImportableObject
 	 *                     file set while importing the data,
 	 *                     <code>false</code> otherwise.
 	 */
-	public ImportableObject(Map<File, List<Boolean>> files, boolean overrideName)
+	public ImportableObject(Map<File, List<Boolean>> files, 
+			boolean overrideName)
 	{
 		this.files = files;
 		this.overrideName = overrideName;

@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.util.browser;
 //Java imports
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -60,6 +61,9 @@ public class NodesFinder
     /** Set of <code>TreeImageDisplay</code>s */
     private Set<TreeImageDisplay> nodes;
     
+    /** The collection of nodes to find. */
+    private List<DataObject> refObjects;
+    
 	/**
 	 * Checks if the node is of the desired type.
 	 * 
@@ -68,12 +72,31 @@ public class NodesFinder
 	private void findNode(TreeImageDisplay node)
 	{
 		Object userObject = node.getUserObject();
-		if (userObject != null && userObject.getClass().equals(type)) {
-			if (userObject instanceof DataObject) {
-				DataObject data = (DataObject) userObject;
-				if (ids.contains(data.getId())) nodes.add(node);
+		if (refObjects != null && refObjects.size() > 0) {
+			if (userObject != null) {
+				Iterator<DataObject> i = refObjects.iterator();
+				DataObject object;
+				Class k = userObject.getClass();
+				DataObject uo;
+				while (i.hasNext()) {
+					object = i.next();
+					if (object.getClass().equals(k)) {
+						uo = (DataObject) userObject;
+						if (uo.getId() == object.getId()) {
+							nodes.add(node);
+							break;
+						}
+					}
+				}
 			}
-		} 	
+		} else {
+			if (userObject != null && userObject.getClass().equals(type)) {
+				if (userObject instanceof DataObject) {
+					DataObject data = (DataObject) userObject;
+					if (ids.contains(data.getId())) nodes.add(node);
+				}
+			} 	
+		}
 	}
 	
 	/**
@@ -100,6 +123,18 @@ public class NodesFinder
 		this.type = type;
 		ids = new ArrayList<Long>(1);
 		ids.add(id);
+		nodes = new HashSet<TreeImageDisplay>();
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param refObjects The collection of objects to find.
+	 */
+	public NodesFinder(List<DataObject> refObjects)
+	{
+		type = null;
+		this.refObjects = refObjects;
 		nodes = new HashSet<TreeImageDisplay>();
 	}
 	

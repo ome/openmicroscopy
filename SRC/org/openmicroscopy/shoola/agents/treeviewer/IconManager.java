@@ -488,11 +488,29 @@ public class IconManager
     /** The 48x48 <code>Add existing</code> icon. */
     public static final int           ADD_EXISTING_48 = 144;
     
+    /** The <code>Annotated Dataset</code> to refresh icon. */
+    public static final int           DATASET_ANNOTATED_TO_REFRESH = 145;
+    
+    /** The <code>Dataset</code> to refresh icon. */
+    public static final int           DATASET_TO_REFRESH = 146;
+    
+    /** The <code>Annotated Project</code> to refresh icon. */
+    public static final int           PROJECT_ANNOTATED_TO_REFRESH = 147;
+    
+    /** The <code>Project</code> to refresh icon. */
+    public static final int           PROJECT_TO_REFRESH = 148;
+    
+    /** The <code>Annotated Screen</code> to refresh icon. */
+    public static final int           SCREEN_ANNOTATED_TO_REFRESH = 149;
+    
+    /** The <code>Screen</code> to refresh icon. */
+    public static final int           SCREEN_TO_REFRESH = 150;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 144;
+    private static final int          MAX_ID = 150;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -647,6 +665,14 @@ public class IconManager
         relPaths[APPLY_22] = "nuvola_apply22.png";
         relPaths[SEND_COMMENT] = "nuvola_mail_send16.png";
         relPaths[ADD_EXISTING_48] = "nuvola_window_new48.png";
+        relPaths[PROJECT_TO_REFRESH] = "nuvola_folder_darkblue_open16.png";
+        relPaths[DATASET_TO_REFRESH] = "nuvola_folder_image16.png";
+        relPaths[SCREEN_TO_REFRESH] = 
+        	"nuvola_folder_blue_open_modified_screen16.png";
+        relPaths[SCREEN_ANNOTATED_TO_REFRESH] =
+        	"nuvola_folder_blue_open_modified_screen_annotated16.png";
+        relPaths[PROJECT_ANNOTATED_TO_REFRESH] = "tagged_project_darkblue16.png";
+        relPaths[DATASET_ANNOTATED_TO_REFRESH] = "tagged_dataset16.png";
     }
     
     /** The sole instance. */

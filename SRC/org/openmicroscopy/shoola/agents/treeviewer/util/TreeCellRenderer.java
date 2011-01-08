@@ -100,13 +100,27 @@ public class TreeCellRenderer
     	Object usrObject = node.getUserObject();
         Icon icon = icons.getIcon(IconManager.FILE_TEXT);
         if (usrObject instanceof ProjectData) {
-        	if (EditorUtil.isAnnotated(usrObject))
-        		icon = icons.getIcon(IconManager.PROJECT_ANNOTATED);
-        	else icon = icons.getIcon(IconManager.PROJECT);
+        	if (node.isToRefresh()) {
+        		if (EditorUtil.isAnnotated(usrObject))
+            		icon = icons.getIcon(
+            				IconManager.PROJECT_ANNOTATED_TO_REFRESH);
+            	else icon = icons.getIcon(IconManager.PROJECT_TO_REFRESH);
+        	} else {
+        		if (EditorUtil.isAnnotated(usrObject))
+            		icon = icons.getIcon(IconManager.PROJECT_ANNOTATED);
+            	else icon = icons.getIcon(IconManager.PROJECT);
+        	}
         } else if (usrObject instanceof DatasetData) {
-            if (EditorUtil.isAnnotated(usrObject))
-        		icon = icons.getIcon(IconManager.DATASET_ANNOTATED);
-            else icon = icons.getIcon(IconManager.DATASET);
+        	if (node.isToRefresh()) {
+        		if (EditorUtil.isAnnotated(usrObject))
+            		icon = icons.getIcon(
+            				IconManager.DATASET_ANNOTATED_TO_REFRESH);
+                else icon = icons.getIcon(IconManager.DATASET_TO_REFRESH);
+        	} else {
+        		if (EditorUtil.isAnnotated(usrObject))
+            		icon = icons.getIcon(IconManager.DATASET_ANNOTATED);
+                else icon = icons.getIcon(IconManager.DATASET);
+        	}
         } else if (usrObject instanceof ImageData) {
             if (EditorUtil.isAnnotated(usrObject))
         		icon = icons.getIcon(IconManager.IMAGE_ANNOTATED);
@@ -123,15 +137,17 @@ public class TreeCellRenderer
         	if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(ns))
         		icon = icons.getIcon(IconManager.TAG_SET);
         	else icon = icons.getIcon(IconManager.TAG);
-        	
-        	
-        	
-        	
-        	
         } else if (usrObject instanceof ScreenData) {
-        	if (EditorUtil.isAnnotated(usrObject))
-        		icon = icons.getIcon(IconManager.SCREEN_ANNOTATED);
-        	else icon = icons.getIcon(IconManager.SCREEN);
+        	if (node.isToRefresh()) {
+        		if (EditorUtil.isAnnotated(usrObject))
+            		icon = icons.getIcon(
+            				IconManager.SCREEN_ANNOTATED_TO_REFRESH);
+            	else icon = icons.getIcon(IconManager.SCREEN_TO_REFRESH);
+        	} else {
+        		if (EditorUtil.isAnnotated(usrObject))
+            		icon = icons.getIcon(IconManager.SCREEN_ANNOTATED);
+            	else icon = icons.getIcon(IconManager.SCREEN);
+        	}
         } else if (usrObject instanceof PlateData) {
         	if (EditorUtil.isAnnotated(usrObject))
         		icon = icons.getIcon(IconManager.PLATE_ANNOTATED);
