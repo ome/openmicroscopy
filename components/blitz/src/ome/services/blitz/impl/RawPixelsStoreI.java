@@ -15,6 +15,7 @@ import omero.ServerError;
 import omero.api.AMD_RawPixelsStore_calculateMessageDigest;
 import omero.api.AMD_RawPixelsStore_getByteWidth;
 import omero.api.AMD_RawPixelsStore_getCol;
+import omero.api.AMD_RawPixelsStore_getHypercube;
 import omero.api.AMD_RawPixelsStore_getPixelsId;
 import omero.api.AMD_RawPixelsStore_getPlane;
 import omero.api.AMD_RawPixelsStore_getPlaneOffset;
@@ -102,6 +103,12 @@ public class RawPixelsStoreI extends AbstractAmdServant implements
 
     }
 
+    public void getHypercube_async(AMD_RawPixelsStore_getHypercube __cb,
+            List<Integer> offset, List<Integer> size, List<Integer> step, 
+            Current __current) throws ServerError {
+        throw new UnsupportedOperationException("NYI");
+    }
+    
     public void getRegion_async(AMD_RawPixelsStore_getRegion __cb, int size,
             long offset, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, size, offset);

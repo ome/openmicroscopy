@@ -133,6 +133,15 @@ module omero {
                 idempotent long getTimepointOffset(int t) throws ServerError;
 
                 /**
+                 * Retrieves a n-dimensional block from this pixel store.
+                 * @param start offset for each dimension within pixel store.
+                 * @param size of each dimension (dependent on dimension).
+                 * @param step needed of each dimension (dependent on dimension).
+                 * @return buffer containing the data.
+                 **/
+                idempotent Ice::ByteSeq getHypercube(omero::sys::IntList offset, omero::sys::IntList size, omero::sys::IntList step) throws ServerError;
+                
+                /**
                  * Retrieves a region from this pixel store.
                  * @param size byte width of the region to retrieve.
                  * @param offset offset within the pixel store.
