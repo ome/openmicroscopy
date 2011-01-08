@@ -665,8 +665,8 @@ public class IconManager
         relPaths[APPLY_22] = "nuvola_apply22.png";
         relPaths[SEND_COMMENT] = "nuvola_mail_send16.png";
         relPaths[ADD_EXISTING_48] = "nuvola_window_new48.png";
-        relPaths[PROJECT_TO_REFRESH] = "nuvola_folder_darkblue_open16.png";
-        relPaths[DATASET_TO_REFRESH] = "nuvola_folder_image16.png";
+        relPaths[PROJECT_TO_REFRESH] = "nuvola_folder_darkblue_open_ledred16.png";
+        relPaths[DATASET_TO_REFRESH] = "nuvola_folder_image_ledred16.png";
         relPaths[SCREEN_TO_REFRESH] = 
         	"nuvola_folder_blue_open_modified_screen16.png";
         relPaths[SCREEN_ANNOTATED_TO_REFRESH] =
