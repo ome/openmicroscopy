@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
 //Java imports
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -240,6 +239,9 @@ public class ImportDialog
 	/** The containers where to import the data. */
 	private List<DataObject>			containers;
 	
+	/** The component displaying the table, options etc. */
+	private JTabbedPane tabbedPane;
+	
 	/** Adds the files to the selection. */
 	private void addFiles()
 	{
@@ -434,6 +436,7 @@ public class ImportDialog
 				}
 			}
 		};
+		tabbedPane = new JTabbedPane();
 		numberOfFolders = new NumericalTextField();
 		numberOfFolders.setMinimum(0);
 		numberOfFolders.setText("0");
@@ -780,7 +783,6 @@ public class ImportDialog
 				icons.getIcon(IconManager.IMPORT_48));
 		titlePane.setSubtitle(SUB_MESSAGE);
 		c.add(titlePane, BorderLayout.NORTH);
-		JTabbedPane tabbedPane = new JTabbedPane();
 		tabbedPane.add("Files to import", table);
 		tabbedPane.add("Options", buildOptionsPane());
 		
@@ -947,6 +949,8 @@ public class ImportDialog
 		table.removeAllFiles();
 		File[] files = chooser.getSelectedFiles();
 		table.allowAddition(files != null && files.length > 0);
+		handleTagsSelection(new ArrayList());
+		tabbedPane.setSelectedIndex(0);
 	}
 	
     /**
