@@ -190,8 +190,8 @@ class ImporterUI
 		if (object == null) return null;
 		int n = tabs.getComponentCount();
 		String title = "Import #"+(total+1);
-		ImporterUIElement element = new ImporterUIElement(uiElementID, n, 
-				title, object);
+		ImporterUIElement element = new ImporterUIElement(controller,
+				uiElementID, n, title, object);
 		IconManager icons = IconManager.getInstance();
 		tabs.insertTab(title, icons.getIcon(IconManager.IMPORT), 
 				element, "", total);

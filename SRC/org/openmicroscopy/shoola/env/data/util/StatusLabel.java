@@ -102,6 +102,7 @@ public class StatusLabel
 		seriesCount = 0;
 		readerType = "";
 		errorText = FAILURE_TEXT;
+		setText("pending");
 	}
 	
 	/**

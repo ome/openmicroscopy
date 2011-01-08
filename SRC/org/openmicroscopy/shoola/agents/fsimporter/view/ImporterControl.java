@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.WindowConstants;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuKeyEvent;
 import javax.swing.event.MenuKeyListener;
@@ -262,6 +261,8 @@ class ImporterControl
 		} else if (ClosableTabbedPane.CLOSE_TAB_PROPERTY.equals(name)) {
 			int index = (Integer) evt.getNewValue();
 			model.removeImportElement(index);
+		} else if (FileImportComponent.SUBMIT_ERROR_PROPERTY.equals(name)) {
+			getAction(SEND_BUTTON).setEnabled(model.hasFailuresToSend());
 		}
 	}
 	

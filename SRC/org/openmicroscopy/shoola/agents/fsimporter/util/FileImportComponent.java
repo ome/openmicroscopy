@@ -44,9 +44,10 @@ import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JCheckBox;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
@@ -83,9 +84,14 @@ import pojos.ImageData;
  */
 public class FileImportComponent 
 	extends JPanel
-	implements PropertyChangeListener
+	implements ChangeListener, PropertyChangeListener
 {
 
+	/** 
+	 * Bound property indicating that the error to submit is selected or not. 
+	 */
+	public static final String SUBMIT_ERROR_PROPERTY = "submitError";
+	
 	/** The default size of the busy label. */
 	private static final Dimension SIZE = new Dimension(16, 16);
 	
@@ -117,7 +123,7 @@ public class FileImportComponent
 	private JLabel			status;
 	
 	/** The default control. */
-	private JComponent		control;
+	//private JComponent		control;
 	
 	/** The imported image. */
 	private Object			image;
@@ -195,6 +201,7 @@ public class FileImportComponent
 		errorBox.setToolTipText("Mark the file to send to the development " +
 				"team.");
 		errorBox.setVisible(false);
+		errorBox.setSelected(true);
 		statusLabel = new StatusLabel();
 		statusLabel.addPropertyChangeListener(this);
 	}
@@ -202,18 +209,12 @@ public class FileImportComponent
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		//removeAll();
+		removeAll();
 		add(namePane);
 		add(busyLabel);
 		add(resultLabel);
-		//add(control);
-		//if (statusLabel.isVisible())
 		add(statusLabel);
-		//if (image instanceof ImportException) {
-			//errorBox.setSelected(true);
-			//errorBox.setVisible(true);
 		add(errorBox);
-		//}
 	}
 	
 	/**
@@ -227,6 +228,21 @@ public class FileImportComponent
 		text = text.trim();
 		if (text.length() == 0) resultLabel.setText(statusLabel.getErrorText());
 		else resultLabel.setText(text);
+	}
+	
+	/** 
+	 * Attaches the listeners to the newly created component.
+	 * 
+	 * @param c The component to handle.
+	 */
+	private void attachListeners(FileImportComponent c)
+	{
+		PropertyChangeListener[] listeners = getPropertyChangeListeners();
+		if (listeners != null && listeners.length > 0) {
+			for (int j = 0; j < listeners.length; j++) {
+				c.addPropertyChangeListener(listeners[j]);
+			}
+		}
 	}
 	
 	/**
@@ -255,6 +271,7 @@ public class FileImportComponent
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			c = new FileImportComponent((File) entry.getKey());
+			attachListeners(c);
 			c.setStatusLabel((StatusLabel) entry.getValue());
 			if (index%2 == 0)
 				c.setBackground(UIUtilities.BACKGROUND_COLOUR_EVEN);
@@ -329,14 +346,14 @@ public class FileImportComponent
 			resultLabel.setToolTipText("");
 			resultLabel.setEnabled(false);
 			resultLabel.setVisible(true);
-			control = resultLabel;
+			//control = resultLabel;
 		} else if (image instanceof ThumbnailData) {
 			imageLabel.setThumbnail((ThumbnailData) image);
 			statusLabel.setVisible(false);
 			fileNameLabel.addMouseListener(adapter);
 			addMouseListener(adapter);
 			resultLabel.setVisible(true);
-			control = resultLabel;
+			//control = resultLabel;
 		} else if (image instanceof List) {
 			statusLabel.setVisible(false);
 			List list = (List) image;
@@ -366,7 +383,7 @@ public class FileImportComponent
 				}
 			}
 			resultLabel.setVisible(true);
-			control = resultLabel;
+			//control = resultLabel;
 		} else if (image instanceof Boolean) {
 			setStatusText("Folder imported");
 			return;
@@ -398,15 +415,12 @@ public class FileImportComponent
 					}
 					resultLabel.setToolTipText(
 							UIUtilities.formatToolTipText(lines));
-					errorBox.setSelected(true);
 					errorBox.setVisible(true);
+					errorBox.addChangeListener(this);
 				}
-				control = resultLabel;
-			} else control = busyLabel;
+				//control = resultLabel;
+			} //else control = busyLabel;
 		}
-		//if (!file.isDirectory())
-			//buildGUI();
-		//revalidate();
 		repaint();
 	}
 	
@@ -484,7 +498,7 @@ public class FileImportComponent
 		if (file.isFile()) {
 			if (errorBox.isVisible())
 				return errorBox.isEnabled() && errorBox.isSelected();
-			return true;
+			return false;
 		}
 		if (components == null) return false;
 		Iterator<FileImportComponent> i = components.values().iterator();
@@ -531,6 +545,18 @@ public class FileImportComponent
 			File f = (File) results[0];
 			if (f.getAbsolutePath().equals(file.getAbsolutePath()))
 				setStatus(false, results[1]);
+		}
+	}
+
+	/**
+	 * Sends a property when the error box is selected or not.
+	 * @see ChangeListener#stateChanged(ChangeEvent)
+	 */
+	public void stateChanged(ChangeEvent e)
+	{
+		if (e.getSource() == errorBox) {
+			boolean b = errorBox.isSelected();
+			firePropertyChange(SUBMIT_ERROR_PROPERTY, !b, b);
 		}
 	}
 	

@@ -115,6 +115,9 @@ class ImporterUIElement
 	/** Flag indicating that the images will be added to the default dataset. */
 	private boolean orphanedFiles;
 	
+	/** Reference to the controller. */
+	private ImporterControl controller;
+	
 	/** Initializes the components. */
 	private void initialize()
 	{
@@ -137,6 +140,7 @@ class ImporterUIElement
 			entry = (Entry) i.next();
 			f = (File) entry.getKey();
 			c = new FileImportComponent(f);
+			c.addPropertyChangeListener(controller);
 			l = (List) entry.getValue();
 			if (f.isDirectory()) {
 				if (l.get(0))
@@ -311,17 +315,22 @@ class ImporterUIElement
 	/**
 	 * Creates a new instance.
 	 * 
+	 * @param controller Reference to the control. Mustn't be <code>null</code>.
 	 * @param id The identifier of the component.
 	 * @param index The index of the component.
 	 * @param name The name of the component.
-	 * @param object the object to handle.
+	 * @param object the object to handle. Mustn't be <code>null</code>.
 	 */
-	ImporterUIElement(int id, int index, String name, ImportableObject object)
+	ImporterUIElement(ImporterControl controller, int id, int index, 
+			String name, ImportableObject object)
 	{
 		super(index, name);
-		this.id = id;
 		if (object == null) 
 			throw new IllegalArgumentException("No object specified.");
+		if (controller == null)
+			throw new IllegalArgumentException("No controller."); 
+		this.controller = controller;
+		this.id = id;
 		this.object = object;
 		initialize();
 		buildGUI();
@@ -424,5 +433,5 @@ class ImporterUIElement
 		}
 		return false;
 	}
-	
+
 }
