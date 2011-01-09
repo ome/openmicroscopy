@@ -1,45 +1,88 @@
 body {
-    font-family:Helvetica;
-    font-size:20px;
-    font-weight:bold;
-    color:#666;
+    font-family:Sans-Serif;
+    color:#000;
     padding:0px;
     margin:0px;
-    background:url(/webmobile/appmedia/img/pinstripes.png) repeat scroll 0 0 #C5CCD3;
+    background:#ddd;
 }
+
+#top-header {
+    background:white;
+    padding: 2px;
+    padding-left: 5px;
+    border: 1px solid gray;
+    border-width: 0px 0px 1px 0px;
+}
+
+#top-header-right {
+    float: right;
+    height: 30px;
+    padding-top: 5px;
+    padding-right: 5px;
+    padding-bottom: 0px;
+}
+
 .header {
-    padding: 12px;
-    background:url(/webmobile/appmedia/img/toolbar.png) repeat-x scroll 0 0 #6D84A2;
+    padding: 12px 7px;
+    background:url(/m/appmedia/img/toolbar.png) repeat-x scroll 0 0 #6D84A2;
     color:#fff;
 }
-.logout {
-    margin:10px;
-    position: absolute;
-    top:0;
-    right:0;
-    
+
+#header-title {
+    font-size:20px;
+    float: left;
 }
+
+#header-right {
+    float: right;
+    padding-top: 5px;
+    padding-right: 0px;
+    padding-bottom: 0px;
+}
+
+#footer {
+    font-family: Arial;
+    font-size: 10pt;
+    padding: 5px;
+}
+
+.gray {
+    color: #666;
+}
+.smallgray {
+    font-size: 75%;
+    color: #666;
+}
+
 .details {
     font-size: 16px;
 }
-.projects {
-    border: 1px 0 solid gray;
+
+.subtitle {
+    margin: 10px;
 }
-.project {
+
+.list-container {
     border: 1px solid gray;
     background-color:#fff;
     margin: 10px;
 }
-.project-name {padding: 12px;}
+
+.list-item {
+    border: 1px solid gray;
+    border-width: 0px 0px 1px 0px;
+    background-color:#fff;
+    margin: 0px;
+}
+.item-name {padding: 12px;}
+.item-selected {
+    padding: 12px;
+    color: #333399;
+}
+
 .datasets {
     margin-left: 10px;
 }
-.dataset {
-    border: 1px solid gray;
-    background-color:#fff; 
-    margin: 0 10px;
-}
-.dataset-name {padding: 12px; }
 
 .thumbs {
     list-style-type: none;
@@ -59,11 +102,28 @@ body {
     margin: 5px; 
 }
 
-.thumbnail img {
-    display:inline;
-    border:1px solid gray;
+img.thumbnail {
+    margin: 0px;
+    border: 0px;
     height:auto; 
     width: auto;
+}
+
+.page-content {
+    background: white;
+    padding: 5px;
+}
+
+.page-content-underline {
+    background: white;
+    padding: 5px;
+    border: 1px solid gray;
+    border-width: 0px 0px 1px 0px;
+}
+
+img.preview {
+    max-width: 250px;
+    max-height: 250px;
 }
 
 .linkClass {
@@ -91,10 +151,9 @@ img.enlarged {
 a {
     color: #333;
     text-decoration: none;
-    border: none;
 }
-a:hover,a:link,a:visited {
+a:hover,a:link {
+}
+a:visited {
     color: #333;
-    text-decoration: none;
-    border: none;
 }

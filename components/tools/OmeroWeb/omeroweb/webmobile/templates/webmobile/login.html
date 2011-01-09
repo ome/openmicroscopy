@@ -30,7 +30,7 @@ body {
     <tr><td valign="middle" align="center">
 <div id="login">
 
-<form action="." method="POST">
+<form action="{% url webmobile_login %}{% if url %}?url={{url}}{% endif %}" method="POST">
 <table>
     <tr><td align="center">
         <img id="ome-icon" width="128" height="128" src="{% url mobile_static 'img/ome.png' %}"/>

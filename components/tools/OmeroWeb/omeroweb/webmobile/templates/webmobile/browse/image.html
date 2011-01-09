@@ -1,0 +1,49 @@
+{% extends "webmobile/base/base_header.html" %}
+
+{% block header-title %}
+    {{ object.getName }}
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class='page-content-underline'>
+    <img class="preview" src="{% url webgateway.views.render_thumbnail object.id 200 %}" /> <br />
+    
+    <div>ID: {{ object.id }} </div>
+    <div>Owned by: {{ object.getOwnerFullName }}</div>
+    
+    {% if object.description %}
+        <p>{{ object.description }}</p>
+    {% endif %}
+    
+    {% if object.listParents %} 
+    <!-- TODO: handle multiple parents -->
+        <div>
+            Dataset: 
+            <a href="{% url webmobile_dataset object.listParents.id %}">
+                {{ object.listParents.getName }}
+            </a>
+        </div>
+    {% endif %}
+    
+</div>
+
+<div style="background:#ddd; padding:2px 6px">Annotations</div>
+
+<div class='page-content-underline'>
+    
+    {% include 'webmobile/includes/annotations.html' %}
+
+</div>
+
+<div class='page-content-underline'>
+    Comments:
+    
+    {% include 'webmobile/includes/comments.html' %}
+    
+</div>
+
+{% endblock %}
+

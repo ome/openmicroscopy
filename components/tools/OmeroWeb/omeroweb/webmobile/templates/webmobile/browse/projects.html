@@ -1,0 +1,26 @@
+{% extends "webmobile/base/base_header.html" %}
+
+{% block header-title %}
+    Projects{% if experimenter %} (owned by {{ experimenter.getFullName }}){% endif %}:
+{% endblock %}
+
+{% block header-right %}
+    {% if experimenter %}
+        <a href="{% url webmobile_groups_members %}">{{ experimenter.getFullName }} ></a>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="projects">
+{% for proj in projects %}
+
+    <a href="{% url webmobile_project proj.id %}">
+        <div class="list-item"> 
+            <div class="item-name">{{ proj.getName|slice:":20" }} </div>
+        </div>
+    </a>
+    
+{% endfor %}
+</div>
+
+{% endblock %}

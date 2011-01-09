@@ -1,0 +1,49 @@
+{% extends "webmobile/base/base_header.html" %}
+
+{% block header-title %}
+    {{ title }}: {{ object.name }}
+{% endblock %}
+
+{% block header-right %}
+    <a href="#">edit ></a>
+{% endblock %}
+
+
+{% block content %}
+
+<div class='page-content-underline'>
+    <div>ID: {{ object.id }}</div>
+    <div>Owned by: {{ object.getOwnerFullName }}</div>
+    
+    {% if object.description %}
+        <p>{{ object.description }}</p>
+    {% endif %}
+    
+    {% if object.listParents %} 
+    <!-- only Datasets have parents, not Projects. TODO: handle multiple parents -->
+        <div>
+            Project: 
+            <a href="{% url webmobile_project object.listParents.id %}">
+                {{ object.listParents.getName }}
+            </a>
+        </div>
+    {% endif %}
+    
+</div>
+
+<div style="background:#ddd; padding:2px 6px">Annotations</div>
+
+<div class='page-content-underline'>
+    
+    {% include 'webmobile/includes/annotations.html' %}
+
+</div>
+
+<div class='page-content-underline'>
+    Comments:
+    
+    {% include 'webmobile/includes/comments.html' %}
+    
+</div>
+
+{% endblock %}

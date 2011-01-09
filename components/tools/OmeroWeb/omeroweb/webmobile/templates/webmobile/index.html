@@ -1,48 +1,46 @@
-{% extends "webmobile/base/base.html" %}
+{% extends "webmobile/base/base_header.html" %}
 
-{% block title %} OMERO mobile: {{ client.user.getName }} {% endblock %}
-
-{% block meta %}<meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;">{% endblock %}
-
-{% block link %} 
-    <link rel="stylesheet" href="{% url mobile_static 'css/index.css' %}" type="text/css" />
+{% block header-title %}
+    OMERO mobile:
 {% endblock %}
 
-{% block jscript %}
-    <script type="text/javascript" src="{% url mobile_static 'js/index.js' %}"></script>
-{% endblock %}
-
-
-{% block body %}
-<div class="header">
-    <div class="title">OMERO mobile</div>  
-    <div class="logout"><a href="{% url webmobile_logout %}">logout</a></div>
-    <div class="details">User: {{ client.user.getName }} Group: {{ client.getEventContext.groupName }} </div>
-    
-</div>
-<div class="clear"></div>
-
-<div class="projects">
-{% for proj in client.listProjects %}
-
-    {% if proj.isOwned %}
-    <div class="project"> 
-        <div class="project-name">{{ proj.getName|slice:":20" }}</div>
-    </div>
-    <div class="datasets">
-    {% for ds in proj.listChildren %}
-        <div class="dataset" href="{% url webmobile.views.dataset ds.id %}">
-            <div class="dataset-name"> {{ ds.getName|slice:":20" }} </div>
-        </div>
-        <ul class="thumbs"></ul>
-        <div class="clear"></div>
-    {% endfor %}
-    
-    </div>
+{% block header-right %}
+    {% if experimenter %}
+        <a href="{% url webmobile_groups_members %}">{{ experimenter.getFullName }} ></a>
     {% endif %}
-    
-{% endfor %}
+{% endblock %}
+
+
+{% block content %}
+
+<div class="subtitle">
+    Browse{% if experimenter %} (owned by {{ experimenter.getFullName }}){% endif %}:
 </div>
-<div class="clear"></div>
+
+<div class="list-container"> 
+    <a href="{% url webmobile_projects %}{% if experimenter %}?experimenter={{ experimenter.id }}{% endif %}">
+        <div class="item-name">
+            Projects
+        </div>
+    </a>
+    
+    <a href="{% url webmobile_projects %}{% if experimenter %}?experimenter={{ experimenter.id }}{% endif %}">
+        <div class="item-name">
+            Screens
+        </div>
+    </a>
+    
+    <a href="{% url webmobile_projects %}{% if experimenter %}?experimenter={{ experimenter.id }}{% endif %}">
+        <div class="item-name">
+            Tags
+        </div>
+    </a>
+</div>
+
+<div class="list-container">
+    <a href="{% url webmobile_groups_members %}">
+        <div class="item-name">Switch Group / User</div></a>
+    </a>
+</div>
 
 {% endblock %}
