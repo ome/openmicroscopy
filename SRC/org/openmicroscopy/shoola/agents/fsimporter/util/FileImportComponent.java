@@ -507,6 +507,29 @@ public class FileImportComponent
 	}
 	
 	/**
+	 * Returns <code>true</code> if some files were imported, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean toRefresh()
+	{
+		if (file.isFile()) {
+			if (errorBox.isVisible())
+				return !(errorBox.isEnabled() && errorBox.isSelected());
+			return true;
+		}
+		if (components == null) return false;
+		Iterator<FileImportComponent> i = components.values().iterator();
+		int count = 0;
+		while (i.hasNext()) {
+			if (i.next().hasFailuresToSend()) 
+				count++;
+		}
+		return components.size() != count;
+	}
+	
+	/**
 	 * Overridden to make sure that all the components have the correct 
 	 * background.
 	 * @see JPanel#setBackground(Color)

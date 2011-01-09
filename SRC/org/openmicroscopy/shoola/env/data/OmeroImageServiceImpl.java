@@ -177,6 +177,7 @@ class OmeroImageServiceImpl
 				if (result instanceof ImageData) {
 					image = (ImageData) result;
 					images.add(image);
+					label.setFile(file, createImportedImage(userID, image));
 				} else if (result instanceof Set) {
 					ll = (Set<ImageData>) result;
 					annotatedImportedImage(list, ll);

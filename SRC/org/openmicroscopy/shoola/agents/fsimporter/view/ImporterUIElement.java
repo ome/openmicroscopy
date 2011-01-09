@@ -363,10 +363,35 @@ class ImporterUIElement
 				String time = UIUtilities.calculateHMS((int) (duration/1000));
 				timeLabel.setText(text+" Duration: "+time);
 				EventBus bus = ImporterAgent.getRegistry().getEventBus();
-				bus.post(new ImportStatusEvent(false, 
-						getData().getContainers()));
+				ImportStatusEvent event;
+				if (toRefresh()) 
+					event = new ImportStatusEvent(false, 
+							getData().getContainers());
+				else event = new ImportStatusEvent(false, null);
+				bus.post(event);
 			}
 		}
+	}
+	
+	/**
+	 * Returns <code>true</code> if some files were imported, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	private boolean toRefresh()
+	{
+		Entry entry;
+		Iterator i = components.entrySet().iterator();
+		FileImportComponent fc;
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			fc = (FileImportComponent) entry.getValue();
+			if (fc.toRefresh()) 
+				return true;
+		}
+		return false;
+		
 	}
 	
 	/**

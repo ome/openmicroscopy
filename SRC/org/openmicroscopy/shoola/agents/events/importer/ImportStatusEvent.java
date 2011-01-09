@@ -67,7 +67,7 @@ public class ImportStatusEvent
 		this.importing = importing;
 		this.containers = containers;
 	}
-
+	
 	/**
 	 * Returns the containers that will have to be refreshed.
 	 * 
