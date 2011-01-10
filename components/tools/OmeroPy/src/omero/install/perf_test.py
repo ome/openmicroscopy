@@ -13,7 +13,6 @@ import path
 import time
 import uuid
 import omero
-import tables
 import logging
 import optparse
 import fileinput
@@ -324,6 +323,7 @@ class CsvReporter(Reporter):
 class HdfReporter(Reporter):
 
     def __init__(self, dir):
+        import tables
         self.file = str(dir / "report.hdf")
         self.hdf = tables.openFile(self.file, "w")
         self.tbl = self.hdf.createTable("/", "report", {
