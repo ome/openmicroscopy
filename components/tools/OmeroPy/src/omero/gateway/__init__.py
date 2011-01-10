@@ -311,8 +311,8 @@ class BlitzObjectWrapper (object):
         return datetime.fromtimestamp(t/1000)
     
     def save (self):
-        """ Uses the updateService to save the wrapped object 
-        TODO: Always returns None - not the saved object? 
+        """ 
+        Uses the updateService to save the wrapped object.
         
         @rtype:     None
         """
@@ -328,9 +328,7 @@ class BlitzObjectWrapper (object):
         
         @param details:     The Details specifying owner to save to
         @type details:      L{DetailsWrapper}
-        @return:            None (if admin and saved to new owner)
-                            TODO: Otherwise returns result of L{save}, which is None
-        @rtype:     None
+        @return:            None
         """
         if self._conn.isAdmin():
             d = self.getDetails()
@@ -584,6 +582,7 @@ class BlitzObjectWrapper (object):
             p = p.listParents()
         return rv
 
+
     def _loadAnnotationLinks (self):
         """ Loads the annotation links for the object (if not already loaded) and saves them to the object """
         if not hasattr(self._obj, 'isAnnotationLinksLoaded'): #pragma: no cover
@@ -592,6 +591,7 @@ class BlitzObjectWrapper (object):
             links = self._conn.getQueryService().findAllByQuery("select l from %sAnnotationLink as l join fetch l.child as a where l.parent.id=%i" % (self.OMERO_CLASS, self._oid), None)
             self._obj._annotationLinksLoaded = True
             self._obj._annotationLinksSeq = links
+
 
     def _getAnnotationLinks (self, ns=None):
         """
@@ -609,6 +609,7 @@ class BlitzObjectWrapper (object):
             rv = filter(lambda x: x.getChild().getNs() and x.getChild().getNs().val == ns, rv)
         return rv
 
+
     def removeAnnotations (self, ns):
         """
         Uses updateService to delete annotations, with specified ns, and their links on the object
@@ -623,6 +624,7 @@ class BlitzObjectWrapper (object):
             update.deleteObject(a)
         self._obj.unloadAnnotationLinks()
     
+    
     def getAnnotation (self, ns=None):
         """
         Gets the first annotation on the object, filtered by ns if specified
@@ -633,8 +635,9 @@ class BlitzObjectWrapper (object):
         """
         rv = self._getAnnotationLinks(ns)
         if len(rv):
-            return AnnotationWrapper._wrap(self._conn, rv[0].child)     # TODO: add link=rv[0] to args? (see listAnnotations)
+            return AnnotationWrapper._wrap(self._conn, rv[0].child, link=rv[0])
         return None
+
 
     def listAnnotations (self, ns=None):
         """
@@ -645,6 +648,7 @@ class BlitzObjectWrapper (object):
         """
         for ann in self._getAnnotationLinks(ns):
             yield AnnotationWrapper._wrap(self._conn, ann.child, link=ann)
+
 
     def _linkAnnotation (self, ann):
         """
@@ -1092,7 +1096,9 @@ class _BlitzGateway (object):
                               port = self.port,
                               extra_config=self.extra_config,
                               clone=True,
-                              secure=self.secure)
+                              secure=self.secure,
+                              anonymous=self._anonymous, 
+                              useragent=self.useragent)
                               #self.server, self.port, clone=True)
 
     def setIdentity (self, username, passwd, _internal=False):
@@ -5198,7 +5204,9 @@ class _ImageWrapper (BlitzObjectWrapper):
     def _getProjectedThumbnail (self, size, pos):
         """
         Returns a string holding a rendered JPEG of the projected image, sized to mimic a thumbnail.
-        TODO: Don't see any projection code here?? Sure it's projected? 
+        This is an 'internal' method of this class, used to generate a thumbnail from a full-sized 
+        projected image (since thumbnails don't support projection). SetProjection should be called 
+        before this method is called, so that this returns a projected, scaled image.
         
         @param size:    The length of the longest size, in a list or tuple. E.g. (100,)
         @type size:     list or tuple
