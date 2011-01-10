@@ -594,7 +594,7 @@ class BaseContainer(BaseController):
         new_links = list() 
         for k in oids.keys():                
             if len(oids[k]) > 0:
-                listing = getattr(self.conn, "listSelected"+k.lower().title()+"s")
+                listing = getattr(self.conn, "get"+k.lower().title()+"sById")
                 for ob in list(listing(oids[k])):
                     if isinstance(ob._obj, omero.model.WellI):
                         t = 'Image'
@@ -625,7 +625,7 @@ class BaseContainer(BaseController):
         new_links = list()
         for k in oids:
             if len(oids[k]) > 0:
-                listing = getattr(self.conn, "listSelected"+k.lower().title()+"s")
+                listing = getattr(self.conn, "get"+k.lower().title()+"sById")
                 for ob in list(listing(oids[k])):
                     if isinstance(ob._obj, omero.model.WellI):
                         t = 'Image'
@@ -663,7 +663,7 @@ class BaseContainer(BaseController):
         new_links = list()
         for k in oids:
             if len(oids[k]) > 0:
-                listing = getattr(self.conn, "listSelected"+k.lower().title()+"s")
+                listing = getattr(self.conn, "get"+k.lower().title()+"sById")
                 for ob in list(listing(oids[k])):                    
                     if isinstance(ob._obj, omero.model.WellI):
                         t = 'Image'
@@ -692,7 +692,7 @@ class BaseContainer(BaseController):
         else:
             selfobject = getattr(self, otype)
         
-        listing = getattr(self.conn, "listSpecified"+atype.title()+"s")
+        listing = getattr(self.conn, "get"+atype.title()+"sById")
         anns = listing(ids)
         
         new_links = list()
@@ -718,12 +718,12 @@ class BaseContainer(BaseController):
         atype = str(atype).lower()
         if not atype.lower() in ("tag", "comment", "file"):
             raise AttributeError("Object type must be: tag, comment, file.")
-        alisting = getattr(self.conn, "listSpecified"+atype.title()+"s")
+        alisting = getattr(self.conn, "get"+atype.title()+"sById")
         
         new_links = list()
         for k in oids:
             if len(oids[k]) > 0:
-                listing = getattr(self.conn, "listSelected"+k.lower().title()+"s")
+                listing = getattr(self.conn, "get"+k.lower().title()+"sById")
                 for ob in list(listing(oids[k])):
                     for a in list(alisting(tids)):
                         if isinstance(ob._obj, omero.model.WellI):
