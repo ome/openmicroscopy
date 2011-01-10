@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.rnd;
 //Java imports
 import java.awt.Color;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.PrintWriter;
@@ -1894,6 +1895,30 @@ class RenderingControlProxy
 			l.add(def);
 		}
 		return settings;
+	}
+
+	/** 
+	 * Implemented as specified by {@link RenderingControl}. 
+	 * @see RenderingControl#getViewport()
+	 */
+	public Rectangle getViewport()
+	{
+		//tmp
+		//we can use roi or store value in rendering settings.
+		int sizeX = getPixelsDimensionsX();
+		int sizeY = getPixelsDimensionsY();
+		int v = sizeX/4;
+		int w = sizeY/4;
+		return new Rectangle(v, w, 2*v, 2*w);
+	}
+
+	/** 
+	 * Implemented as specified by {@link RenderingControl}. 
+	 * @see RenderingControl#getZoomFactor()
+	 */
+	public double getZoomFactor()
+	{
+		return 1;
 	}
 	
 }

@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.env.rnd;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Map;
@@ -795,5 +796,20 @@ public interface RenderingControl
 	 * @return See above.
 	 */
 	public Map<String, List<RndProxyDef>> getRenderingSettings();
+	
+	/**
+	 * Returns the viewport. This should only be available for big images.
+	 * 
+	 * @return See above.
+	 */
+	public Rectangle getViewport();
+	
+	/**
+	 * Returns the magnification factor at which the large image should 
+	 * be displayed.
+	 * 
+	 * @return See above.
+	 */
+	public double getZoomFactor();
 	
 }
