@@ -1298,13 +1298,10 @@ class _BlitzGateway (object):
         else:
             return self.c.sf.ice_getIdentity().name
 
-    def _createSession (self, skipSUuid=False):
+    def _createSession (self):
         """
         Creates a new session for the principal given in the constructor.
         Used during L{connect} method
-        
-        @param skipSUuid:   TODO: Never used (not specified in any calls from connect() either)
-        @type skipSUuid:    Boolean
         """
         s = self.c.createSession(self._ic_props[omero.constants.USERNAME],
                                  self._ic_props[omero.constants.PASSWORD])
@@ -1540,9 +1537,9 @@ class _BlitzGateway (object):
         @return:    True if gid specified and owner belongs to that group
                     Otherwise True if owner belongs to any group
         """
-        if not isinstance(gid, LongType) or not isinstance(gid, IntType):
-            gid = long(gid)     # TODO: this will fail if gid is None
         if gid is not None:
+            if gid not isinstance(gid, LongType) or not isinstance(gid, IntType):
+                gid = long(gid)
             for gem in self._user.copyGroupExperimenterMap():
                 if gem.parent.id.val == gid and gem.owner.val == True:
                     return True
@@ -4552,11 +4549,11 @@ class _LightPathWrapper (BlitzObjectWrapper):
 
     def copyEmissionFilters(self):
         """ TODO: not implemented """
-        pass
+        raise NotImplementedError
 
     def copyExcitationFilters(self):
         """ TODO: not implemented """
-        pass
+        raise NotImplementedError
         
 LightPathWrapper = _LightPathWrapper
 
@@ -5536,7 +5533,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         Return the data from rendering image, compressed (and projected).
         Projection (or not) is specified by calling L{setProjection} before renderJpeg.
         
-        @param z:               The Z index. TODO: Should be optional for projection? 
+        @param z:               The Z index. Ignored if projecting image. 
         @param t:               The T index. 
         @param compression:     Compression level for jpeg
         @type compression:      Float
@@ -5878,10 +5875,9 @@ class _ImageWrapper (BlitzObjectWrapper):
     LP_TRANSPARENT = 0 # Some color
     LP_BGCOLOR = 1 # Black
     LP_FGCOLOR = 2 # white
-    def prepareLinePlotCanvas (self, z, t):
+    def prepareLinePlotCanvas (self):
         """
         Common part of horizontal and vertical line plot rendering.
-        TODO: z and t ignored
         
         @returns: (Image, width, height).
         """
@@ -5916,7 +5912,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         self._pd.z = long(z)
         self._pd.t = long(t)
 
-        im, width, height = self.prepareLinePlotCanvas(z,t)
+        im, width, height = self.prepareLinePlotCanvas()
         base = height - 1
 
         draw = ImageDraw.ImageDraw(im)
@@ -5955,7 +5951,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         self._pd.z = long(z)
         self._pd.t = long(t)
 
-        im, width, height = self.prepareLinePlotCanvas(z,t)
+        im, width, height = self.prepareLinePlotCanvas()
 
         draw = ImageDraw.ImageDraw(im)
         # On your marks, get set... go!
