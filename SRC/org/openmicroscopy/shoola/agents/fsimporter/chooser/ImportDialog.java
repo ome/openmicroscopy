@@ -865,7 +865,24 @@ public class ImportDialog
     	setVisible(false);
     	dispose();
     }
-    
+
+	/**
+	 * Checks if the file can be added to the passed list.
+	 * 
+	 * @param f The file to handle.
+	 * @param l The list to populate.
+	 */
+	private void checkFile(File f, List<File> l)
+	{
+		if (f == null || f.isHidden()) return;
+		if (f.isFile()) {
+			if (isFileImportable(f)) l.add(f);
+		} else if (f.isDirectory()) {
+			File[] list = f.listFiles();
+			if (list != null && list.length > 0) l.add(f);
+		}
+	}
+	
 	/**
 	 * Returns <code>true</code> if the file can be imported, 
 	 * <code>false</code> otherwise.
@@ -888,23 +905,6 @@ public class ImportDialog
 	}
 	
 	/**
-	 * Checks if the file can be added to the passed list.
-	 * 
-	 * @param f The file to handle.
-	 * @param l The list to populate.
-	 */
-	private void checkFile(File f, List<File> l)
-	{
-		if (f == null || f.isHidden()) return;
-		if (f.isFile()) {
-			if (isFileImportable(f)) l.add(f);
-		} else if (f.isDirectory()) {
-			File[] list = f.listFiles();
-			if (list != null && list.length > 0) l.add(f);
-		}
-	}
-	
-	/**
 	 * Returns the name to display for a file.
 	 * 
 	 * @param fullPath The file's absolute path.
@@ -915,6 +915,19 @@ public class ImportDialog
 		if (fullPath == null || !partialName.isSelected()) return fullPath;
 		Integer number = (Integer) numberOfFolders.getValueAsNumber();
 		return UIUtilities.getDisplayedFileName(fullPath, number);
+	}
+	
+	/**
+	 * Returns <code>true</code> if the folder can be used as a container,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean useFolderAsContainer()
+	{
+		if (containers == null || containers.size() == 0) return false;
+		DataObject object = containers.get(0);
+		return !(object instanceof DatasetData);
 	}
 	
     /** 
@@ -950,7 +963,7 @@ public class ImportDialog
 		titlePane.setSubtitle(SUB_MESSAGE);
 		table.removeAllFiles();
 		File[] files = chooser.getSelectedFiles();
-		table.allowAddition(files != null && files.length > 0);
+		table.reset(files != null && files.length > 0);
 		handleTagsSelection(new ArrayList());
 		tabbedPane.setSelectedIndex(0);
 		FileFilter[] filters = chooser.getChoosableFileFilters();

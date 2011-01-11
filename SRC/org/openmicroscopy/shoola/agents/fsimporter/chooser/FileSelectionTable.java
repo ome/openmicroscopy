@@ -31,10 +31,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Vector;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -54,6 +52,7 @@ import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
+import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.treetable.renderers.StringCellRenderer;
@@ -112,11 +111,18 @@ class FileSelectionTable
 	/** The columns of the table. */
 	private static final Vector<String> COLUMNS;
 	
+	/** The columns of the table. */
+	private static final Vector<String> COLUMNS_NO_FOLDER_AS_CONTAINER;
+	
 	static {
 		COLUMNS = new Vector<String>(2);
 		COLUMNS.add("File or Folder");
 		COLUMNS.add("Folder as Dataset");
 		COLUMNS.add("Archived");
+		
+		COLUMNS_NO_FOLDER_AS_CONTAINER = new Vector<String>(2);
+		COLUMNS_NO_FOLDER_AS_CONTAINER.add("File or Folder");
+		COLUMNS_NO_FOLDER_AS_CONTAINER.add("Archived");
 	}
 	
 	/** The button to move an item from the remaining items to current items. */
@@ -139,6 +145,26 @@ class FileSelectionTable
 	
 	/** The default value of the archived file. */
 	private boolean archivedTunable;
+	
+	/** Formats the table model. */
+	private void formatTableModel()
+	{
+		TableColumnModel tcm = table.getColumnModel();
+		TableColumn tc = tcm.getColumn(FOLDER_AS_CONTAINER_INDEX);
+		tc.setCellEditor(table.getDefaultEditor(Boolean.class));  
+		tc.setCellRenderer(table.getDefaultRenderer(Boolean.class));  
+		
+		if (table.getColumnCount() == COLUMNS.size()) {
+			tc = tcm.getColumn(ARCHIVED_INDEX);
+			tc.setCellEditor(table.getDefaultEditor(Boolean.class));  
+			tc.setCellRenderer(table.getDefaultRenderer(Boolean.class));
+		}
+		/*
+		TableCellRenderer renderer = new StringCellRenderer();
+		for (int i = 0; i < table.getColumnCount(); i++) 
+			tcm.getColumn(i).setHeaderRenderer(renderer);
+			*/
+	}
 	
 	/** Initializes the components composing the display. */
 	private void initComponents()
@@ -165,7 +191,11 @@ class FileSelectionTable
 		if (b != null) archived = b.booleanValue();
 		b = (Boolean) ImporterAgent.getRegistry().lookup(ARCHIVED_AVAILABLE);
 		if (b != null) archivedTunable = b.booleanValue();
-		table = new JXTable(new FileTableModel(COLUMNS));
+		if (model.useFolderAsContainer())
+			table = new JXTable(new FileTableModel(COLUMNS));
+		else 
+			table = new JXTable(new FileTableModel(
+					COLUMNS_NO_FOLDER_AS_CONTAINER));
 		table.addKeyListener(new KeyAdapter() {
 			
 			/**
@@ -180,24 +210,11 @@ class FileSelectionTable
 				}
 			}
 		});
-		//add tool tip
-		TableColumnModel tcm = table.getColumnModel();
-		TableColumn tc = tcm.getColumn(FOLDER_AS_CONTAINER_INDEX);
-		tc.setCellEditor(table.getDefaultEditor(Boolean.class));  
-		tc.setCellRenderer(table.getDefaultRenderer(Boolean.class));  
-		
-		tc = tcm.getColumn(ARCHIVED_INDEX);
-		tc.setCellEditor(table.getDefaultEditor(Boolean.class));  
-		tc.setCellRenderer(table.getDefaultRenderer(Boolean.class));
-		
+		formatTableModel();
 		Highlighter h = HighlighterFactory.createAlternateStriping(
 				UIUtilities.BACKGROUND_COLOUR_EVEN, 
 				UIUtilities.BACKGROUND_COLOUR_ODD);
 		table.addHighlighter(h);
-		TableCellRenderer renderer = new StringCellRenderer();
-		for (int i = 0; i < table.getColumnCount(); i++) {
-			tcm.getColumn(i).setHeaderRenderer(renderer);
-		}
 	}
 	
 	/**
@@ -226,7 +243,6 @@ class FileSelectionTable
 	{
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.PAGE_AXIS));
-
 		p.add(Box.createVerticalStrut(5));
 		p.add(new JScrollPane(table));
 		return p;
@@ -247,9 +263,9 @@ class FileSelectionTable
 		if (rows == null || rows.length == 0) return;
 		DefaultTableModel model = (DefaultTableModel) table.getModel();
 		Vector v = model.getDataVector();
-		for (int i = 0; i < rows.length; i++) {
+		for (int i = 0; i < rows.length; i++) 
 			v.remove(rows[i]);
-		}
+		
 		table.repaint();
 		int n = table.getRowCount();
 		firePropertyChange(REMOVE_PROPERTY, n-1, n);
@@ -298,26 +314,49 @@ class FileSelectionTable
 	 * 
 	 * @return See above.
 	 */
-	Map<File, List<Boolean>> getFilesToImport()
+	List<ImportableFile> getFilesToImport()
 	{
-		Map<File, List<Boolean>> files = new HashMap<File, List<Boolean>>();
+		List<ImportableFile> files = new ArrayList<ImportableFile>();
 		int n = table.getRowCount();
 		DefaultTableModel dtm = (DefaultTableModel) table.getModel();
 		FileElement element;
 		File file;
-		List<Boolean> list;
+		ImportableFile importable;
+		int columns = table.getColumnCount();
+		boolean b;
 		for (int i = 0; i < n; i++) {
 			element = (FileElement) dtm.getValueAt(i, FILE_INDEX);
-			list = new ArrayList<Boolean>();
 			file = element.getFile();
-			if (file.isFile()) list.add(Boolean.valueOf(false));
-			else list.add(Boolean.valueOf((Boolean) dtm.getValueAt(i, 
-							FOLDER_AS_CONTAINER_INDEX)));
-			list.add(Boolean.valueOf((Boolean) dtm.getValueAt(i, 
-					ARCHIVED_INDEX)));
-			files.put(file, list);
+			if (columns == COLUMNS_NO_FOLDER_AS_CONTAINER.size()) {
+				importable = new ImportableFile(file, 
+						Boolean.valueOf((Boolean) dtm.getValueAt(i, 
+								FOLDER_AS_CONTAINER_INDEX)));
+			} else {
+				if (file.isFile()) b = false;
+				else b = Boolean.valueOf((Boolean) dtm.getValueAt(i, 
+						FOLDER_AS_CONTAINER_INDEX));
+				importable = new ImportableFile(file, 
+						Boolean.valueOf((Boolean) dtm.getValueAt(i, 
+					ARCHIVED_INDEX)), b);
+			}
+			files.add(importable);
 		}
 		return files;
+	}
+	
+	/**
+	 * Resets the components.
+	 * 
+	 * @param value The value to set.
+	 */
+	void reset(boolean value)
+	{ 
+		allowAddition(value); 
+		if (model.useFolderAsContainer())
+			table.setModel(new FileTableModel(COLUMNS));
+		else 
+			table.setModel(new FileTableModel(COLUMNS_NO_FOLDER_AS_CONTAINER));
+		formatTableModel();
 	}
 	
 	/**
@@ -325,7 +364,10 @@ class FileSelectionTable
 	 * 
 	 * @param value The value to set.
 	 */
-	void allowAddition(boolean value) { addButton.setEnabled(value); }
+	void allowAddition(boolean value)
+	{
+		addButton.setEnabled(value); 
+	}
 	
 	/** Removes all the files from the queue. */
 	void removeAllFiles()

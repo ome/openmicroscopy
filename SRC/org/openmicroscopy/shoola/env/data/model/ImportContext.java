@@ -64,7 +64,7 @@ public class ImportContext
 	private int 		depth;
 	
 	/** The files to import. */
-	private List<ImportObject> files;
+	private List<ImportableFile> files;
 	
 	/** The metadata to import with the object. */
 	private ImportMetadataContext metadata;
@@ -90,7 +90,7 @@ public class ImportContext
 	 * @param container The location where to import the data.
 	 * @param files The files to import.
 	 */
-	public ImportContext(DataObject container, List<ImportObject> files)
+	public ImportContext(DataObject container, List<ImportableFile> files)
 	{
 		if (files == null || files.size() == 0)
 			throw new IllegalArgumentException("No files to import");
@@ -104,7 +104,7 @@ public class ImportContext
 	 * @param container The location where to import the data.
 	 * @param files The files to import.
 	 */
-	public ImportContext(int folderAs, int depth, List<ImportObject> files)
+	public ImportContext(int folderAs, int depth, List<ImportableFile> files)
 	{
 		if (files == null || files.size() == 0)
 			throw new IllegalArgumentException("No files to import");
@@ -119,7 +119,7 @@ public class ImportContext
 	 * 
 	 * @return See above.
 	 */
-	public List<ImportObject> getFiles() { return files; }
+	public List<ImportableFile> getFiles() { return files; }
 	
 	/**
 	 * Returns the container.

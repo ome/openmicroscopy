@@ -33,7 +33,7 @@ import java.util.Map;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
-import org.openmicroscopy.shoola.env.data.model.ImportObject;
+import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
@@ -81,18 +81,17 @@ public class ImagesImporter
     /** 
      * Imports the file.
      * 
-     * @param f 	 The file to import.
-     * @param status The element indicating the status of the import.
+     * @param ImportableFile The file to import.
      */
-    private void importFile(File f, StatusLabel status)
+    private void importFile(ImportableFile importable)
     {
     	partialResult = new HashMap<File, Object>();
     	OmeroImageService os = context.getImageService();
     	try {
-    		partialResult.put(f, 
-    				os.importFile(object, f, status, userID, groupID));
+    		partialResult.put(importable.getFile(), 
+    				os.importFile(object, importable, userID, groupID));
 		} catch (Exception e) {
-			partialResult.put(f, e);
+			partialResult.put(importable.getFile(), e);
 		}
     }
     
@@ -103,17 +102,14 @@ public class ImagesImporter
      */
     protected void buildTree()
     { 
-    	ImportObject io;
-    	List<ImportObject> files = object.getFilesToImport();
-		Iterator<ImportObject> i = files.iterator();
-		File ho;
+    	ImportableFile io;
+    	List<ImportableFile> files = object.getFiles();
+		Iterator<ImportableFile> i = files.iterator();
 		while (i.hasNext()) {
-			io = (ImportObject) i.next();
-			ho = io.getFile();
-			final StatusLabel label = io.getStatus();
-			final File f = io.getFile();
+			io = (ImportableFile) i.next();
+			final ImportableFile f = io;
 			add(new BatchCall("Importing file") {
-        		public void doCall() { importFile(f, label); }
+        		public void doCall() { importFile(f); }
         	}); 
 		}
     }

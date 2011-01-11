@@ -43,12 +43,12 @@ import com.sun.opengl.util.texture.TextureData;
 //Application-internal dependencies
 import omero.romio.PlaneDef;
 
+import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
-import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
@@ -268,11 +268,11 @@ public class NullRenderingService
 
 	/**
      * No-op implementation
-     * @see OmeroImageService#importImage(ImportableObject, File, StatusLabel, 
+     * @see OmeroImageService#importImage(ImportableObject, ImportableFile, 
      * long, long)
      */
-	public Object importFile(ImportableObject object, File file, 
-			StatusLabel status, long userID, long groupID) 
+	public Object importFile(ImportableObject object, ImportableFile file, 
+			long userID, long groupID) 
 		throws ImportException
 	{
 		return null;
@@ -526,5 +526,4 @@ public class NullRenderingService
 	{
 		return null;
 	}
-
 }

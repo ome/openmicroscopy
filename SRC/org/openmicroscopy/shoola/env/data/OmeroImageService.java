@@ -39,6 +39,7 @@ import com.sun.opengl.util.texture.TextureData;
 import omero.constants.projection.ProjectionType;
 import omero.romio.PlaneDef;
 
+import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
@@ -436,12 +437,12 @@ public interface OmeroImageService
 	 * 
 	 * @param pixelsID 	The id of the pixels set.
 	 * @param z 		The selected z-section or <code>-1</code>.
-     * @param t 		The selected timepoint or <code>-1</code>.
-     * @param channel 	The selected timepoint or <code>-1</code>.
+     * @param t 		The selected time-point or <code>-1</code>.
+     * @param channel 	The selected time-point or <code>-1</code>.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
-	 * @throws DSAccessException        If an error occured while trying to 
+	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Collection loadPlaneInfo(long pixelsID, int z, int t, int channel)
@@ -452,15 +453,14 @@ public interface OmeroImageService
 	 *  
 	 * @param object    The object hosting the information about the 
 	 * 					file to import.
-	 * @param file		The file to import. Mustn't be <code>null</code>.
-	 * @param status 	The component indicating status of the import.
+	 * @param importable The file to import. Mustn't be <code>null</code>.
 	 * @param userID	The id of the user.
 	 * @param groupID	The id of the group.
 	 * @return See above.
 	 * @throws ImportException If an error occurred while importing.                            
 	 */
-	public Object importFile(ImportableObject object, File file, 
-			StatusLabel status, long userID, long groupID)
+	public Object importFile(ImportableObject object, ImportableFile importable,
+			long userID, long groupID)
 		throws ImportException;
 	
 	/**
@@ -539,7 +539,7 @@ public interface OmeroImageService
 	 * 
 	 * @param imageID 	The image's ID.
 	 * @param userID	The user's ID.
-	 * @param roiList	The list of roi to save.
+	 * @param roiList	The list of ROI to save.
 	 * @return True if save successful.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.

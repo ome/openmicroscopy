@@ -41,7 +41,6 @@ import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 import loci.formats.ImageReader;
-import loci.formats.gui.FormatFileFilter;
 import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
@@ -60,6 +59,7 @@ import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
+import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
@@ -874,15 +874,16 @@ class OmeroImageServiceImpl
 	
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroImageService#importFile(ImportableObject, File, StatusLabel, 
+	 * @see OmeroImageService#importFile(ImportableObject, ImportableFile, 
 	 * long, long)
 	 */
-	public Object importFile(ImportableObject object, File file, 
-			StatusLabel status, long userID, long groupID) 
+	public Object importFile(ImportableObject object, ImportableFile importable, 
+			long userID, long groupID) 
 		throws ImportException
 	{
-		if (file == null)
+		if (importable == null || importable.getFile() == null)
 			throw new IllegalArgumentException("No images to import.");
+		StatusLabel status = importable.getStatus();
 		Object result = null;
 		List<DataObject> containers = object.getContainers();
 		List<IObject> ioList = new ArrayList<IObject>();
@@ -920,6 +921,7 @@ class OmeroImageServiceImpl
 		Iterator<ImageData> kk;
 		List<Object> converted;
 		List<String> candidates;
+		File file = importable.getFile();
 		if (file.isFile()) {
 			//Need to check arbitrary file extensions.
 			if (containers != null && containers.size() > 0) {
@@ -941,7 +943,7 @@ class OmeroImageServiceImpl
 					File f = new File(candidates.get(0));
 					status.resetFile(f);
 					result = gateway.importImage(object, ioList, f,
-							status, object.isArchivedFile(file));
+							status, importable.isArchived());
 					if (result instanceof ImageData) {
 						image = (ImageData) result;
 						images.add(image);
@@ -961,12 +963,11 @@ class OmeroImageServiceImpl
 					return result;
 				} else {
 					importCandidates(candidates, status, object, 
-							object.isArchivedFile(file), ioList, list, userID);
+							importable.isArchived(), ioList, list, userID);
 				}
-				
 			} else {
 				result = gateway.importImage(object, ioList, file, status, 
-						object.isArchivedFile(file));
+						importable.isArchived());
 				if (result instanceof ImageData) {
 					image = (ImageData) result;
 					images.add(image);
@@ -985,7 +986,7 @@ class OmeroImageServiceImpl
 				return result;
 			}
 		}
-		DataObject folder = object.createFolderAsContainer(file);
+		DataObject folder = object.createFolderAsContainer(importable);
 		Map m = new HashMap();
 		if (folder != null) {
 			//we have to import the image in this container.
@@ -1030,7 +1031,7 @@ class OmeroImageServiceImpl
 		candidates = gateway.getImportCandidates(object, file, status);
 		if (candidates.size() == 0) return Boolean.valueOf(false);
 		importCandidates(candidates, status, object, 
-				object.isArchivedFile(file), ioList, list, userID);
+				importable.isArchived(), ioList, list, userID);
 		return Boolean.valueOf(true);
 	}
 	

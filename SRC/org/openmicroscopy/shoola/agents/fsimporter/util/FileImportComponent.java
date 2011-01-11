@@ -339,11 +339,14 @@ public class FileImportComponent
 		busyLabel.setBusy(status);
 		busyLabel.setVisible(false);
 		if (image instanceof ImageData) {
-			resultLabel.setText("Preview not available");
+			resultLabel.setText("View");
+			resultLabel.setForeground(Color.blue);
 			resultLabel.setToolTipText("");
 			resultLabel.setEnabled(false);
 			resultLabel.setVisible(true);
-			//control = resultLabel;
+			fileNameLabel.addMouseListener(adapter);
+			resultLabel.addMouseListener(adapter);
+			addMouseListener(adapter);
 		} else if (image instanceof ThumbnailData) {
 			imageLabel.setThumbnail((ThumbnailData) image);
 			statusLabel.setVisible(false);

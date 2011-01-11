@@ -53,13 +53,8 @@ import pojos.TagAnnotationData;
 public class ImportableObject
 {
 
-	/** 
-	 * The collection of files to import. The value is used if the file
-	 * is a directory to find out if the folder has to be turned into a 
-	 * dataset or screen for the first value and if the file has to be archived
-	 * for the second value.
-	 */
-	private Map<File, List<Boolean>> files;
+	/** The collection of files to import. */
+	private List<ImportableFile> files;
 	
 	/** The depth. */
 	private int			depth;
@@ -78,9 +73,6 @@ public class ImportableObject
 	/** The array containing pixels size.*/
 	private double[]	pixelsSize;
 	
-	/** The objects to import. */
-	private List<ImportObject> toImport;
-	
 	/** The type to create if the folder has to be saved as a container. */
 	private Class type;
 	
@@ -92,8 +84,7 @@ public class ImportableObject
 	 *                     file set while importing the data,
 	 *                     <code>false</code> otherwise.
 	 */
-	public ImportableObject(Map<File, List<Boolean>> files, 
-			boolean overrideName)
+	public ImportableObject(List<ImportableFile> files, boolean overrideName)
 	{
 		this.files = files;
 		this.overrideName = overrideName;
@@ -157,24 +148,7 @@ public class ImportableObject
 	 * 
 	 * @return See above.
 	 */
-	public Map<File, List<Boolean>> getFiles() { return files; }
-	
-	/**
-	 * Returns <code>true</code> if the file has to be archived.
-	 * <code>false</code> otherwise.
-	 * 
-	 * @param file The file to handle.
-	 * @return See above.
-	 */
-	public boolean isArchivedFile(File file)
-	{
-		if (file == null) return false;
-		List<Boolean> list = files.get(file);
-		if (list.size() < 2) return false;
-		Boolean b = list.get(1);
-		if (b == null) return false;
-		return b.booleanValue();
-	}
+	public List<ImportableFile> getFiles() { return files; }
 	
 	/**
 	 * Returns the <code>DataObject</code> corresponding to the folder 
@@ -183,19 +157,20 @@ public class ImportableObject
 	 * @param file The file to handle.
 	 * @return See above.
 	 */
-	public DataObject createFolderAsContainer(File file)
+	public DataObject createFolderAsContainer(ImportableFile file)
 	{
-		if (file == null || file.isFile()) return null;
-		List<Boolean> list = files.get(file);
-		Boolean b = list.get(0);
-		if (b == null || !b.booleanValue()) return null;
+		if (file == null) return null;
+		File f = file.getFile();
+		if (f.isFile()) return null;
+		boolean b = file.isFolderAsContainer();
+		if (!b) return null;
 		if (DatasetData.class.equals(type)) {
 			DatasetData dataset = new DatasetData();
-			dataset.setName(file.getName());
+			dataset.setName(f.getName());
 			return dataset;
 		} else if (ScreenData.class.equals(type)) {
 			ScreenData screen = new ScreenData();
-			screen.setName(file.getName());
+			screen.setName(f.getName());
 			return screen;
 		}
 		return null;
@@ -247,22 +222,5 @@ public class ImportableObject
 	 * @return See above.
 	 */
 	public Collection<TagAnnotationData> getTags() { return tags; }
-
-	/**
-	 * Sets the files to import.
-	 * 
-	 * @param toImport
-	 */
-	public void setFilesToImport(List<ImportObject> toImport)
-	{
-		this.toImport = toImport;
-	}
-	
-	/**
-	 * Returns the files to import as <code>ImportObject</code>s.
-	 * 
-	 * @return See above.
-	 */
-	public List<ImportObject> getFilesToImport() { return toImport; }
 	
 }

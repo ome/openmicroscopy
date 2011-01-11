@@ -51,7 +51,7 @@ import info.clearthought.layout.TableLayout;
 import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
-import org.openmicroscopy.shoola.env.data.model.ImportObject;
+import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
@@ -127,32 +127,26 @@ class ImporterUIElement
 		entries = new JPanel();
 		entries.setBackground(UIUtilities.BACKGROUND);
 		components = new LinkedHashMap<String, FileImportComponent>();
-		Map<File, List<Boolean>> files = object.getFiles();
+		List<ImportableFile> files = object.getFiles();
 		FileImportComponent c;
 		File f;
-		ImportObject obj;
-		Entry entry;
-		Iterator i = files.entrySet().iterator();
-		List<ImportObject> objects = new ArrayList<ImportObject>();
-		List<Boolean> l;
+		Iterator<ImportableFile> i = files.iterator();
 		orphanedFiles = false;
+		ImportableFile importable;
 		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			f = (File) entry.getKey();
+			importable = i.next();
+			f = (File) importable.getFile();
 			c = new FileImportComponent(f);
 			c.addPropertyChangeListener(controller);
-			l = (List) entry.getValue();
 			if (f.isDirectory()) {
-				if (l.get(0))
+				if (importable.isFolderAsContainer())
 					foldersName.add(f.getName());
 				else orphanedFiles = true;
 			} else orphanedFiles = true;
-			obj = new ImportObject(f, c.getStatus());
-			objects.add(obj);
+			importable.setStatus(c.getStatus());
 			components.put(f.getAbsolutePath(), c);
 		}
-		totalToImport = objects.size();
-		object.setFilesToImport(objects);
+		totalToImport = files.size();
 	}
 	
 	/** 
