@@ -2017,6 +2017,16 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         return res.id.val
     
     def saveAndReturnFile(self, binary, oFile_id):
+        """
+        Provide method for directly updating a file object and return binary.
+
+        @param binary       Binary. Not null.
+        @type binary        String
+        @param oFile_id     File Id in order to manage the state of the service. Not null.
+        @type oFile_id      Long
+        @return             Shallow copy of file.
+        """
+        
         store = self.createRawFileStore()
         store.setFileId(oFile_id);
         pos = 0
@@ -2199,6 +2209,14 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     #        yield ImageWrapper(self, e)
     
     def listLastImportedImages (self):
+        """
+        Retrieve most recent imported images 
+        controlled by the security system.
+        
+        @return:            Generator yielding Images
+        @rtype:             L{ImageWrapper} generator
+        """
+                
         tm = self.getTimelineService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -2211,6 +2229,14 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             yield ImageWrapper(self, e)
     
     def listMostRecentShares (self):
+        """
+        Retrieve most recent shares 
+        controlled by the security system.
+        
+        @return:    Generator yielding SessionAnnotationLink
+        @rtype:     L{SessionAnnotationLinkWrapper} generator
+        """
+        
         tm = self.getTimelineService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -2222,6 +2248,14 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             yield SessionAnnotationLinkWrapper(self, e)
     
     def listMostRecentShareCommentLinks (self):
+        """
+        Retrieve most recent share comments 
+        controlled by the security system.
+        
+        @return:    Generator yielding SessionAnnotationLink
+        @rtype:     L{SessionAnnotationLinkWrapper} generator
+        """
+        
         tm = self.getTimelineService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -2233,6 +2267,14 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             yield SessionAnnotationLinkWrapper(self, e)
     
     def listMostRecentComments (self):
+        """
+        Retrieve most recent comment annotations 
+        controlled by the security system.
+        
+        @return:    Generator yielding BlitzObjectWrapper
+        @rtype:     L{BlitzObjectWrapper} generator
+        """
+        
         tm = self.getTimelineService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -2245,6 +2287,14 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             yield BlitzObjectWrapper(self, e)
     
     def listMostRecentTags (self):
+        """
+        Retrieve most recent tag annotations 
+        controlled by the security system.
+        
+        @return:    Generator yielding BlitzObjectWrapper
+        @rtype:     L{BlitzObjectWrapper} generator
+        """
+        
         tm = self.getTimelineService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -2256,7 +2306,23 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         for e in tm.getMostRecentAnnotationLinks(None, ['TagAnnotation'], None, p):
             yield BlitzObjectWrapper(self, e.child)
     
-    def getDataByPeriod (self, start, end, date_type=None, page=None):
+    def getDataByPeriod (self, start, end, otype=None, page=None):
+        """
+        Retrieve given data objects by the given period of time 
+        controlled by the security system.
+        
+        @param start        Starting data
+        @type start         Long
+        @param end          Finishing data
+        @type end           Long
+        @param otype        Data type: Project, Dataset, Image
+        @type otype         String
+        @return:            Map of project, dataset and image lists
+        @rtype:             Map
+        """
+        
+        if not otype.lower() in ('project', 'dataset', 'image'):
+            raise AttributeError('It only retrieves: Project, Dataset or Image')
         tm = self.getTimelineService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -2272,19 +2338,20 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         im_list = list()
         ds_list = list()
         pr_list = list()
-        if date_type == 'image':
+        
+        if otype == 'image':
             try:
                 for e in tm.getByPeriod(['Image'], rtime(long(start)), rtime(long(end)), p, True)['Image']:
                     im_list.append(ImageWrapper(self, e))
             except:
                 pass
-        elif date_type == 'dataset':
+        elif otype == 'dataset':
             try:
                 for e in tm.getByPeriod(['Dataset'], rtime(long(start)), rtime(long(end)), p, True)['Dataset']:
                     ds_list.append(DatasetWrapper(self, e))
             except:
                 pass
-        elif date_type == 'project':
+        elif otype == 'project':
             try:
                 for e in tm.getByPeriod(['Project'], rtime(long(start)), rtime(long(end)), p, True)['Project']:
                     pr_list.append(ImageWrapper(self, e))
@@ -2309,7 +2376,21 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 pass
         return {'project': pr_list, 'dataset':ds_list, 'image':im_list}
     
-    def countDataByPeriod (self, start, end, date_type=None):
+    def countDataByPeriod (self, start, end, otype=None):
+        """
+        Counts given data objects by the given period of time 
+        controlled by the security system.
+        
+        @param start        Starting data
+        @type start         Long
+        @param end          Finishing data
+        @type end           Long
+        @param otype        Data type: Project, Dataset, Image
+        @type otype         String
+        @return:            Counter
+        @rtype:             Long
+        """
+        
         tm = self.getTimelineService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -2317,17 +2398,29 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f.ownerId = rlong(self.getEventContext().userId)
         f.groupId = rlong(self.getEventContext().groupId)
         p.theFilter = f
-        if date_type == 'image':
+        if otype == 'image':
             return tm.countByPeriod(['Image'], rtime(long(start)), rtime(long(end)), p)['Image']
-        elif date_type == 'dataset':
+        elif otype == 'dataset':
             return tm.countByPeriod(['Dataset'], rtime(long(start)), rtime(long(end)), p)['Dataset']
-        elif date_type == 'project':
+        elif otype == 'project':
             return tm.countByPeriod(['Project'], rtime(long(start)), rtime(long(end)), p)['Project']
         else:
             c = tm.countByPeriod(['Image', 'Dataset', 'Project'], rtime(long(start)), rtime(long(end)), p)
             return c['Image']+c['Dataset']+c['Project']
 
     def getEventsByPeriod (self, start, end):
+        """
+        Retrieve event log objects by the given period of time 
+        controlled by the security system.
+        
+        @param start        Starting data
+        @type start         Long
+        @param end          Finishing data
+        @type end           Long
+        @return:            List of event logs
+        @rtype:             List
+        """
+        
         tm = self.getTimelineService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -2347,7 +2440,7 @@ class OmeroWebObjectWrapper (object):
         """
         Lists available child objects.
 
-        @return: Generator yielding child objects and link to parent.
+        @return     Generator yielding child objects and link to parent.
         """
 
         childw = self._getChildWrapper()
@@ -2364,6 +2457,13 @@ class OmeroWebObjectWrapper (object):
             yield childw(self._conn, link.child, None, **kwargs)
     
     def countAnnotations (self):
+        """
+        Count on annotations linked to the object and set the value
+        on the custom fiels 'annotation_counter'.
+
+        @return     Counter
+        """
+        
         if self.annotation_counter is not None:
             return self.annotation_counter
         else:
@@ -2376,6 +2476,12 @@ class OmeroWebObjectWrapper (object):
                 return None
     
     def warpName(self):
+        """
+        Warp name of the object if names is longer then 30 characters.
+
+        @return     Warped string.
+        """
+        
         try: 
             l = len(self.name) 
             if l < 30: 
@@ -2390,11 +2496,18 @@ class OmeroWebObjectWrapper (object):
             return self.name
 
 class AnnotationLinkWrapper (omero.gateway.BlitzObjectWrapper):
-
+    """
+    omero_model_AnnotationLinkI class wrapper extends omero.gateway.BlitzObjectWrapper.
+    """
+    
     def getAnnotation(self):
         return AnnotationWrapper(self, self.child)
 
 class ProjectWrapper (OmeroWebObjectWrapper, omero.gateway.ProjectWrapper): 
+    """
+    omero_model_ProjectI class wrapper overwrite omero.gateway.ProjectWrapper
+    and extend OmeroWebObjectWrapper.
+    """
 
     annotation_counter = None
     
@@ -2405,6 +2518,10 @@ class ProjectWrapper (OmeroWebObjectWrapper, omero.gateway.ProjectWrapper):
 omero.gateway.ProjectWrapper = ProjectWrapper 
  	 
 class DatasetWrapper (OmeroWebObjectWrapper, omero.gateway.DatasetWrapper): 
+    """
+    omero_model_DatasetI class wrapper overwrite omero.gateway.DatasetWrapper
+    and extends OmeroWebObjectWrapper.
+    """
     
     annotation_counter = None
     
@@ -2417,6 +2534,10 @@ class DatasetWrapper (OmeroWebObjectWrapper, omero.gateway.DatasetWrapper):
 omero.gateway.DatasetWrapper = DatasetWrapper
 
 class ImageWrapper (OmeroWebObjectWrapper, omero.gateway.ImageWrapper):
+    """
+    omero_model_ImageI class wrapper overwrite omero.gateway.ImageWrapper
+    and extends OmeroWebObjectWrapper.
+    """
     
     annotation_counter = None
     
@@ -2440,6 +2561,11 @@ omero.gateway.ImageWrapper = ImageWrapper
 
 class PlateWrapper (OmeroWebObjectWrapper, omero.gateway.PlateWrapper):
     
+    """
+    omero_model_PlateI class wrapper overwrite omero.gateway.PlateWrapper
+    and extends OmeroWebObjectWrapper.
+    """
+    
     annotation_counter = None
 
     def __prepare__ (self, **kwargs):
@@ -2451,6 +2577,10 @@ class PlateWrapper (OmeroWebObjectWrapper, omero.gateway.PlateWrapper):
 omero.gateway.PlateWrapper = PlateWrapper
 
 class ScreenWrapper (OmeroWebObjectWrapper, omero.gateway.ScreenWrapper):
+    """
+    omero_model_ScreenI class wrapper overwrite omero.gateway.ScreenWrapper
+    and extends OmeroWebObjectWrapper.
+    """
     
     annotation_counter = None
 
@@ -2461,7 +2591,11 @@ class ScreenWrapper (OmeroWebObjectWrapper, omero.gateway.ScreenWrapper):
 omero.gateway.ScreenWrapper = ScreenWrapper
 
 class ShareWrapper (OmeroWebObjectWrapper, omero.gateway.ShareWrapper):
-            
+    """
+    omero_model_ShareI class wrapper overwrite omero.gateway.ShareWrapper
+    and extends OmeroWebObjectWrapper.
+    """
+    
     def truncateMessageForTree(self):
         try:
             msg = self.getMessage().val
@@ -2510,6 +2644,9 @@ class ShareWrapper (OmeroWebObjectWrapper, omero.gateway.ShareWrapper):
 omero.gateway.ShareWrapper = ShareWrapper
 
 class SessionAnnotationLinkWrapper (omero.gateway.BlitzObjectWrapper):
+    """
+    omero_model_AnnotationLinkI class wrapper extends omero.gateway.BlitzObjectWrapper.
+    """
     
     def getComment(self):
         return ShareCommentWrapper(self._conn, self.child)
@@ -2518,5 +2655,9 @@ class SessionAnnotationLinkWrapper (omero.gateway.BlitzObjectWrapper):
         return ShareWrapper(self._conn, self.parent)
     
 class EventLogWrapper (omero.gateway.BlitzObjectWrapper):
+    """
+    omero_model_EventLogI class wrapper extends omero.gateway.BlitzObjectWrapper.
+    """
+    
     LINK_CLASS = "EventLog"
 
