@@ -259,9 +259,9 @@ public class NullRenderingService
 
 	/**
      * No-op implementation
-     * @see OmeroImageService#getSupportedFileFilters()
+     * @see OmeroImageService#getSupportedFileFormats()
      */
-	public List<FileFilter> getSupportedFileFilters()
+	public FileFilter[] getSupportedFileFormats()
 	{
 		return null;
 	}

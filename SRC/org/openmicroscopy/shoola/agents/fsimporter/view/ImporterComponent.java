@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 
 //Java imports
+import java.awt.Cursor;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;

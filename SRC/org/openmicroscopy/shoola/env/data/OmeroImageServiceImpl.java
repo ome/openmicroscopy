@@ -123,7 +123,7 @@ class OmeroImageServiceImpl
 	}
 	
 	/** The collection of supported file filters. */
-	private List<FileFilter>		filters;
+	private FileFilter[]		filters;
 	
 	/** The extensions of the supported files formats. */
 	private String[]				supportedExtensions;
@@ -1036,25 +1036,20 @@ class OmeroImageServiceImpl
 	
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
-	 * @see OmeroImageService#getSupportedFileFilters()
+	 * @see OmeroImageService#getSupportedFileFormats()
 	 */
-	public List<FileFilter> getSupportedFileFilters()
+	public FileFilter[] getSupportedFileFormats()
 	{
 		if (filters != null) return filters;
 		//Retrieve values from bio-formats
-		filters = new ArrayList<FileFilter>();
+		//filters = new ArrayList<FileFilter>();
 		//improve that code.
 		ImageReader reader = new ImageReader();
 		FileFilter[] array = loci.formats.gui.GUITools.buildFileFilters(reader);
 		if (array != null) {
-			FileFilter f;
-			for (int i = 0; i < array.length; i++) {
-				f = array[i];
-				if ((f instanceof FormatFileFilter) && 
-						!f.toString().contains(OmeroImageService.ZIP_EXTENSION))
-					filters.add(f);
-			}
-		}
+			filters = new FileFilter[array.length];
+			System.arraycopy(array, 0, filters, 0, array.length);
+		} else filters = new FileFilter[0];
 		return filters;
 	}
 	
@@ -1062,15 +1057,14 @@ class OmeroImageServiceImpl
 			long userID, long groupID)
 	{
 		if (supportedExtensions == null) {
-			List<FileFilter> l = getSupportedFileFilters();
-			Iterator<FileFilter> i = l.iterator();
+			FileFilter[] l = getSupportedFileFormats();
 			List<String> formats = new ArrayList<String>();
 			String description;
 			String regEx = "\\*";
 			String[] terms;
 			String v;
-			while (i.hasNext()) {
-				description = (i.next()).getDescription();
+			for (int i = 0; i < l.length; i++) {
+				description = l[i].getDescription();
 				terms = description.split(regEx);
 				for (int j = 1; j < terms.length; j++) {
 					v = terms[j].trim();

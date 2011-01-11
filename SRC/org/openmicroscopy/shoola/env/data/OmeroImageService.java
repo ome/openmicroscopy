@@ -464,11 +464,11 @@ public interface OmeroImageService
 		throws ImportException;
 	
 	/**
-	 * Returns the collection of file filters supported.
+	 * Returns the collection of supported file formats.
 	 * 
 	 * @return See above.
 	 */
-	public List<FileFilter> getSupportedFileFilters();
+	public FileFilter[] getSupportedFileFormats();
 	
 	/**
 	 * Creates a movie. Returns script call-back.

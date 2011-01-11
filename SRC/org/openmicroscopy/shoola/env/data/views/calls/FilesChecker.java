@@ -70,14 +70,14 @@ public class FilesChecker
      * @param filters The collection of filters.
      * @return See above.
      */
-    private boolean isFileSupported(File f, List<FileFilter> filters)
+    private boolean isFileSupported(File f, FileFilter[] filters)
     {
     	String path = f.getAbsolutePath();
     	path = path.toLowerCase();
     	if (path.endsWith(OmeroImageService.ZIP_EXTENSION)) return true;
-    	Iterator<FileFilter> i = filters.iterator();
-    	while (i.hasNext()) 
-			if (i.next().accept(f)) return true;
+    	for (int i = 0; i < filters.length; i++) {
+    		if (filters[i].accept(f)) return true;
+		}	
     	return false;
     }
     
@@ -94,7 +94,7 @@ public class FilesChecker
             public void doCall() 
             {
                 OmeroImageService service = context.getImageService();
-                List<FileFilter> filters = service.getSupportedFileFilters();
+                FileFilter[] filters = service.getSupportedFileFormats();
             	
                 Map<Boolean, List<File>> m = new HashMap<Boolean, List<File>>();
                 m.put(Boolean.valueOf(false), new ArrayList<File>());

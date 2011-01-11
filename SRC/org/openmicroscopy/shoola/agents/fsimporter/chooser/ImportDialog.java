@@ -214,7 +214,7 @@ public class ImportDialog
 	private NumericalTextField	numberOfFolders;
 	
 	/** The collection of supported filters. */
-	private List<FileFilter> 	filters;
+	private FileFilter[]	filters;
 	
 	/** The title panel of the window. */
 	private TitlePanel			titlePane;
@@ -497,13 +497,15 @@ public class ImportDialog
 		chooser.setApproveButtonToolTipText("Import the selected files " +
 				"or directories");
 		
+		
 		if (filters != null) {
-			Iterator<FileFilter> ff = filters.iterator();
-			while (ff.hasNext()) {
-				chooser.setFileFilter(ff.next());
+			chooser.setAcceptAllFileFilterUsed(false);
+			for (int i = 0; i < filters.length; i++) {
+				chooser.addChoosableFileFilter(filters[i]);
 			}
-		}
-		chooser.setAcceptAllFileFilterUsed(true);
+			chooser.setFileFilter(filters[0]);
+		} else chooser.setAcceptAllFileFilterUsed(true);
+		
 		
 		table = new FileSelectionTable(this);
 		table.addPropertyChangeListener(this);
@@ -923,7 +925,7 @@ public class ImportDialog
      * @param containers The container where to import the files.
      * @param type 		One of the type constants.
      */
-    public ImportDialog(JFrame owner, List<FileFilter> filters, List<DataObject> 
+    public ImportDialog(JFrame owner, FileFilter[] filters, List<DataObject> 
     		containers, int type)
     {
     	super(owner);
@@ -951,6 +953,9 @@ public class ImportDialog
 		table.allowAddition(files != null && files.length > 0);
 		handleTagsSelection(new ArrayList());
 		tabbedPane.setSelectedIndex(0);
+		FileFilter[] filters = chooser.getChoosableFileFilters();
+		if (filters != null && filters.length > 0)
+			chooser.setFileFilter(filters[0]);
 	}
 	
     /**

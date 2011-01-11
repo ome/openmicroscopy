@@ -36,6 +36,7 @@ import javax.swing.filechooser.FileFilter;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.DataImporterLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.ImagesImporter;
+import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.TagsLoader;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 
@@ -160,9 +161,10 @@ class ImporterModel
 	 * 
 	 * @return See above.
 	 */
-	List<FileFilter> getSupportedFormats()
+	FileFilter[] getSupportedFormats()
 	{
-		return new ArrayList<FileFilter>();
+		return 
+		ImporterAgent.getRegistry().getImageService().getSupportedFileFormats();
 	}
 	
 	/**
