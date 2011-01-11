@@ -89,6 +89,9 @@ class WebControl(BaseControl):
 
         selenium = parser.add(sub, self.seleniumtest, "Developer use: runs selenium tests on a django app")
         selenium.add_argument("djangoapp", help = "Django-app to be tested")
+        selenium.add_argument("seleniumserver", help = "E.g. localhost")
+        selenium.add_argument("hostname", help = "E.g. http://localhost:4080")
+        selenium.add_argument("browser", help = "E.g. firefox")
 
         test = parser.add(sub, self.test, "Developer use: Runs 'coverage -x manage.py test'")
         test.add_argument("arg", nargs="*")
@@ -247,9 +250,14 @@ Alias / "%(ROOT)s/var/omero.fcgi/"
         rv = self.ctx.call(cargs, cwd = location)
 
     def seleniumtest (self, args):
-        if len(args.arg) < 1:
+        try:
+            appname = args.djangoapp
+            seleniumserver = args.seleniumserver
+            hostname = args.hostname
+            browser = args.browser
+        except:
             self.ctx.die(121, "usage: seleniumtest [path.]{djangoapp} [seleniumserver] [hostname] [browser]")
-        appname = args.arg[0]
+        
         if appname.find('.') > 0:
             appname = appname.split('.')
             appbase = appname[0]
@@ -259,8 +267,9 @@ Alias / "%(ROOT)s/var/omero.fcgi/"
             appbase = "omeroweb"
             location = self.ctx.dir / "lib" / "python" / "omeroweb"
 
-        cargs = ["python", location / appname / "tests" / "seleniumtests.py"]
-        cargs += args.arg[1:]
+        cargs = ["python", location / appname / "tests" / "seleniumtests.py", seleniumserver, hostname, browser]
+        #cargs += args.arg[1:]
+        self.ctx.out(cargs)
         rv = self.ctx.call(cargs, cwd = location )
         
     def call (self, args):
@@ -286,7 +295,6 @@ Alias / "%(ROOT)s/var/omero.fcgi/"
 
 
     def start(self, args):
-
         import omeroweb.settings as settings
         link = ("%s:%s" % (settings.APPLICATION_SERVER_HOST,
                            settings.APPLICATION_SERVER_PORT))
