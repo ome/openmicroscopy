@@ -27,6 +27,9 @@ package org.openmicroscopy.shoola.agents.util;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -71,7 +74,7 @@ public class SelectionWizardUI
 {
 
 	/** Bound property indicating that the selection has changed. */
-	static final String SELECTION_CHANGE = "selectionChangeProperty";
+	static final String SELECTION_CHANGE = "selectionChange";
 	
 	/** Action command ID to add a field to the result table. */
 	private static final int 		ADD = 0;
@@ -165,9 +168,37 @@ public class SelectionWizardUI
 	{
 		sorter = new ViewerSorter();
 		availableItemsListbox = new JList();
+		availableItemsListbox.addKeyListener(new KeyAdapter() {
+			
+			/**
+			 * Adds the items to the selected list.
+			 * @see KeyListener#keyPressed(KeyEvent)
+			 */
+			public void keyPressed(KeyEvent e)
+			{
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					if (availableItemsListbox.isFocusOwner())
+						addItem();
+				}
+			}
+		});
 		cellRendererLeft = new DataObjectListCellRenderer(userID, this);
 		availableItemsListbox.setCellRenderer(cellRendererLeft);
 		selectedItemsListbox = new JList();
+		selectedItemsListbox.addKeyListener(new KeyAdapter() {
+			
+			/**
+			 * Removes the selected elements from the selected list.
+			 * @see KeyListener#keyPressed(KeyEvent)
+			 */
+			public void keyPressed(KeyEvent e)
+			{
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					if (selectedItemsListbox.isFocusOwner())
+						removeItem();
+				}
+			}
+		});
 		cellRendererRight = new DataObjectListCellRenderer(userID, this);
 		selectedItemsListbox.setCellRenderer(cellRendererRight);
 		IconManager icons = IconManager.getInstance();

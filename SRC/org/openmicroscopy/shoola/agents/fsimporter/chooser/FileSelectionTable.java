@@ -159,11 +159,9 @@ class FileSelectionTable
 			tc.setCellEditor(table.getDefaultEditor(Boolean.class));  
 			tc.setCellRenderer(table.getDefaultRenderer(Boolean.class));
 		}
-		/*
 		TableCellRenderer renderer = new StringCellRenderer();
 		for (int i = 0; i < table.getColumnCount(); i++) 
 			tcm.getColumn(i).setHeaderRenderer(renderer);
-			*/
 	}
 	
 	/** Initializes the components composing the display. */
