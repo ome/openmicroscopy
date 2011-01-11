@@ -1538,7 +1538,7 @@ class _BlitzGateway (object):
                     Otherwise True if owner belongs to any group
         """
         if gid is not None:
-            if gid not isinstance(gid, LongType) or not isinstance(gid, IntType):
+            if not isinstance(gid, LongType) or not isinstance(gid, IntType):
                 gid = long(gid)
             for gem in self._user.copyGroupExperimenterMap():
                 if gem.parent.id.val == gid and gem.owner.val == True:
