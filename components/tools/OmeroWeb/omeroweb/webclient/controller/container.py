@@ -1058,7 +1058,7 @@ class BaseContainer(BaseController):
            if dataset is None:
                pass
            else:
-               ims = self.conn.getSpecifiedImages(images)
+               ims = self.conn.getImagesById(images)
                ds = self.conn.getDataset(dataset[1])
                link_array = list()
                for im in ims:
@@ -1085,7 +1085,7 @@ class BaseContainer(BaseController):
         if project is None:
             pass
         else:
-            dss = self.conn.getSpecifiedDatasets(datasets)
+            dss = self.conn.getDatasetsById(datasets)
             pr = self.conn.getProject(project[1])
             link_array = list()
             for ds in dss:
@@ -1112,7 +1112,7 @@ class BaseContainer(BaseController):
         if screen is None:
             pass
         else:
-            pls = self.conn.getSpecifiedPlates(plates)
+            pls = self.conn.getPlatesById(plates)
             sc = self.conn.getScreen(screen[1])
             link_array = list()
             for pl in pls:
@@ -1127,20 +1127,20 @@ class BaseContainer(BaseController):
     ##########################################################
     # Delete
     
-    def deleteItem(self, child=None, anns=None):
+    def deleteItem(self, child=False, anns=False):
         handle = None
         if self.image:
             handle = self.conn.deleteImage(self.image.id, anns)
         elif self.dataset:
-            handle = self.conn.deleteDataset(self.dataset, child, anns)
+            handle = self.conn.deleteDataset(self.dataset.id, child, anns)
         elif self.project:
-            handle = self.conn.deleteProject(self.project, child, anns)
+            handle = self.conn.deleteProject(self.project.id, child, anns)
         elif self.screen:
-            handle = self.conn.deleteScreen(self.screen, child, anns)
+            handle = self.conn.deleteScreen(self.screen.id, child, anns)
         elif self.plate:
             handle = self.conn.deletePlate(self.plate.id, anns)
         return handle
     
-    def deleteImages(self, ids, anns=None):
+    def deleteImages(self, ids, anns=False):
         return self.conn.deleteImages(ids, anns)
         

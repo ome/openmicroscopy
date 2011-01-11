@@ -84,7 +84,7 @@ from controller.share import BaseShare
 from omeroweb.webadmin.forms import MyAccountForm, UploadPhotoForm, LoginForm, ChangeMyPassword
 from omeroweb.webadmin.controller.experimenter import BaseExperimenter 
 from omeroweb.webadmin.controller.uploadfile import BaseUploadFile
-from omeroweb.webadmin.views import _checkVersion, _isServerOn
+from omeroweb.webadmin.views import _checkVersion, _isServerOn, toBoolean
 
 from omeroweb.webgateway.views import getBlitzConnection
 from omeroweb.webgateway import views as webgateway_views
@@ -1476,8 +1476,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             template = "webclient/annotations/annotation_new_form.html"
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_files':form_files}
     elif action == 'delete':
-        child = request.REQUEST.get('child')
-        anns = request.REQUEST.get('anns')
+        child = not toBoolean(request.REQUEST.get('child'))
+        anns = not toBoolean(request.REQUEST.get('anns'))
         try:
             handle = manager.deleteItem(child, anns)
             request.session['callback'][str(handle)] = {'delmany':False,'did':o_id, 'dtype':o_type, 'dstatus':'in progress', 'derror':handle.errors(), 'dreport':_formatReport(handle)}
@@ -1489,7 +1489,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         return HttpResponse()
     elif action == 'deletemany':
         ids = request.REQUEST.getlist('image')
-        anns = request.REQUEST.get('anns')
+        anns = not toBoolean(request.REQUEST.get('anns'))
         try:
             handle = manager.deleteImages(ids, anns)
             if len(ids) > 1:

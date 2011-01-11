@@ -2773,140 +2773,132 @@ class _BlitzGateway (object):
     ###################
     # Delete          #
     
-    def deleteAnnotation(self, oid, child=None, anns=None):
+    def deleteAnnotation(self, oid):
         """
         Adds a 'Delete Annotation' command to the delete queue. 
         
         @param oid:     Annotation ID
         @type oid:      Long
-        @param child:   TODO: Not used
-        @param anns:    TODO: Not used
         @return:        Delete handle
         @rtype:         L{omero.api.delete.DeleteHandle}
         """
         
-        op = dict()
-        dc = omero.api.delete.DeleteCommand('/Annotation', long(oid), op)
-        handle = self.getDeleteService().queueDelete([dc])
-        return handle
+        return self.simpleDelete('Annotation', [oid])
     
-    def deleteImage(self, oid, anns=None):
+    def deleteImage(self, oid, anns=False):
         """
         Adds a 'Delete Image' command to the delete queue, keeping annotations by default
         
         @param oid:     Image ID
         @type oid:      Long
-        @param anns:    If None, keep Tag, Term and File Annotations
+        @param anns:    If True, keep Tag, Term and File Annotations
+        @type anns:     Boolean
         @return:        Delete handle
         @rtype:         L{omero.api.delete.DeleteHandle}
         """
         
         op = dict()
-        if anns is None:
+        if anns:
             op["/TagAnnotation"] = "KEEP"
             op["/TermAnnotation"] = "KEEP"
             op["/FileAnnotation"] = "KEEP"
-        dc = omero.api.delete.DeleteCommand('/Image', long(oid), op)
-        handle = self.getDeleteService().queueDelete([dc])
-        return handle
+        return self.simpleDelete('Image', [oid], op)
         
-    def deleteImages(self, ids, anns=None):
+    def deleteImages(self, ids, anns=False):
         """
         Adds a 'Delete Images' command to the delete queue, keeping annotations by default
         
         @param ids:     Image ID
         @type ids:      Long list
-        @param anns:    If None, keep Tag, Term and File Annotations
+        @param anns:    If True, keep Tag, Term and File Annotations
+        @type anns:     Boolean
         @return:        Delete handle
         @rtype:         L{omero.api.delete.DeleteHandle}
         """
         
         op = dict()
-        if anns is None:
+        if anns:
             op["/TagAnnotation"] = "KEEP"
             op["/TermAnnotation"] = "KEEP"
             op["/FileAnnotation"] = "KEEP"
-        dcs = list()
-        for i in ids:            
-            dcs.append(omero.api.delete.DeleteCommand('/Image', long(i), op))
-        handle = self.getDeleteService().queueDelete(dcs)
-        return handle
+        return self.simpleDelete('Image', ids, op)
     
-    def deletePlate(self, oid, anns=None):
+    def deletePlate(self, oid, anns=False):
         """
         Adds a 'Delete Plate' command to the delete queue, keeping annotations by default
         
         @param oid:     Plate ID
         @type oid:      Long
-        @param anns:    If None, keep Tag, Term and File Annotations
+        @param anns:    If True, keep Tag, Term and File Annotations
+        @type anns:     Boolean
         @return:        Delete handle
         @rtype:         L{omero.api.delete.DeleteHandle}
         """
         
         op = dict()
-        if anns is None:            
+        if anns:            
             op["/TagAnnotation"] = "KEEP"
             op["/TermAnnotation"] = "KEEP"
             op["/FileAnnotation"] = "KEEP"
-        dc = omero.api.delete.DeleteCommand('/Plate', long(oid), op)
-        handle = self.getDeleteService().queueDelete([dc])
-        return handle
+        return self.simpleDelete('Plate', [oid], op)
         
-    def deleteDataset(self, obj, child=None, anns=None):
+    def deleteDataset(self, oid, child=False, anns=False):
         """
         Adds a 'Delete Dataset' command to the delete queue, keeping Annotations and Images by default
         
         @param oid:     Image ID
         @type oid:      Long
-        @param child:   If None, keep Images
-        @param anns:    If None, keep Tag, Term and File Annotations
+        @param child:   If True, keep Images
+        @type child:    Boolean
+        @param anns:    If True, keep Tag, Term and File Annotations
+        @type anns:     Boolean
         @return:        Delete handle
         @rtype:         L{omero.api.delete.DeleteHandle}
         """
         
         op = dict()
-        if anns is None:            
+        if anns:            
             op["/TagAnnotation"] = "KEEP"
             op["/TermAnnotation"] = "KEEP"
             op["/FileAnnotation"] = "KEEP"
-        if child is None:
+        if child:
             op["/Image"] = "KEEP"
-        dc = omero.api.delete.DeleteCommand('/Dataset', long(obj.id), op)
-        handle = self.getDeleteService().queueDelete([dc])
-        return handle
+        return self.simpleDelete('Dataset', [oid], op)
     
-    def deleteProject(self, obj, child=None, anns=None):
+    def deleteProject(self, oid, child=False, anns=False):
         """
         Adds a 'Delete Project' command to the delete queue, keeping Annotations, Datasets and Images by default
         
         @param oid:     Image ID
         @type oid:      Long
-        @param child:   If None, keep Datasets and Images
-        @param anns:    If None, keep Tag, Term and File Annotations
+        @param child:   If True, keep Datasets and Images
+        @type child:    Boolean
+        @param anns:    If True, keep Tag, Term and File Annotations
+        @type anns:     Boolean
         @return:        Delete handle
         @rtype:         L{omero.api.delete.DeleteHandle}
         """
         
         op = dict()
-        if anns is None:            
+        if anns:            
             op["/TagAnnotation"] = "KEEP"
             op["/TermAnnotation"] = "KEEP"
             op["/FileAnnotation"] = "KEEP"
-        if child is None:
+        if child:
             op["/Dataset"] = "KEEP"
             op["/Image"] = "KEEP"
-        dc = omero.api.delete.DeleteCommand('/Project', long(obj.id), op)
-        handle = self.getDeleteService().queueDelete([dc])
-        return handle
+        return self.simpleDelete('Project', [oid], op)
     
-    def deleteScreen(self, obj, child=None, anns=None):
+    def deleteScreen(self, oid, child=None, anns=None):
         """
         Adds a 'Delete Screen' command to the delete queue, keeping Annotations and Plates by default
         
-        @param obj:     Screen object
-        @type obj:      Object. TODO: why object when all others methods use ID? 
-        @param child:   If None, keep Plates
-        @param anns:    If None, keep Tag, Term and File Annotations
+        @param oid:     Image ID
+        @type oid:      Long
+        @param child:   If True, keep Plates
+        @type child:    Boolean
+        @param anns:    If True, keep Tag, Term and File Annotations
+        @type child:    Boolean
         @return:        Delete handle
         @rtype:         L{omero.api.delete.DeleteHandle}
         """
@@ -2918,8 +2910,36 @@ class _BlitzGateway (object):
             op["/FileAnnotation"] = "KEEP"
         if child is None:
             op["/Plate"] = "KEEP"
-        dc = omero.api.delete.DeleteCommand('/Screen', long(obj.id), op)
-        handle = self.getDeleteService().queueDelete([dc])
+        return self.simpleDelete('Screen', [oid], op)
+    
+    def simpleDelete(self, otype, oids, op=dict()):
+        """
+        Adds each object from the given list to command and then put them on delete queue,
+        keeping annotations by default
+        
+        @param otype:   Type of object to delete. Can be Project, Dataset, 
+                        Image, Screen, Plate, Well, Annotation
+        @type otype:    String
+        @param ids:     List of objects ID
+        @type ids:      Long list
+        @param op:      Dictionary of linked objects to keep
+        @type op:       Dict
+        @return:        Delete handle
+        @rtype:         L{omero.api.delete.DeleteHandle}
+        """
+        
+        if not str(otype) in ('Project', 'Dataset', 'Image', 'Screen', 'Plate', 'Well', 'Annotation'):
+            raise AttributeError("""%s is not an object type. Must be: Project, Dataset, 
+                                Image, Screen, Plate, Well, Annotation""" % otype.title())
+        otype = "/%s" % otype.title()
+        
+        if not isinstance(oids, list) and len(oids) < 1:
+            raise AttributeError('Must be a list of object IDs')
+        
+        dcs = list()
+        for oid in oids:            
+            dcs.append(omero.api.delete.DeleteCommand(otype, long(oid), op))
+        handle = self.getDeleteService().queueDelete(dcs)
         return handle
      
     ###################
