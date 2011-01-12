@@ -32,8 +32,6 @@ package pojos;
 import omero.RDouble;
 import omero.RString;
 import omero.rtypes;
-import omero.model.Ellipse;
-import omero.model.EllipseI;
 import omero.model.Shape;
 import omero.model.Label;
 import omero.model.LabelI;
@@ -144,7 +142,6 @@ public class TextData
 		shape.setX(rtypes.rdouble(x));
 	}
 
-	
 	/**
 	 * Returns the y-coordinate text field.
 	 * 
@@ -165,7 +162,7 @@ public class TextData
 	 */
 	public void setY(double y)
 	{
-		if(isReadOnly())
+		if (isReadOnly())
 			throw new IllegalArgumentException("Shape ReadOnly");
 		Label shape = (Label) asIObject();
 		if (shape == null) 

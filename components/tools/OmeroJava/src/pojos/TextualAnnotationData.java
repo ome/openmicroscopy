@@ -107,7 +107,9 @@ public class TextualAnnotationData extends AnnotationData {
      */
     @Override
     public String getContentAsString() {
-        return (String) getContent();
+    	Object o = getContent();
+    	if (o == null) return "";
+        return (String) o;
     }
 
     /**
@@ -130,8 +132,7 @@ public class TextualAnnotationData extends AnnotationData {
             throw new IllegalArgumentException(
                     "Annotation value cannot be null.");
         }
-        ((CommentAnnotation) asAnnotation())
-                .setTextValue(rstring(value));
+        ((CommentAnnotation) asAnnotation()).setTextValue(rstring(value));
     }
 
 }

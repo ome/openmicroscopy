@@ -27,7 +27,7 @@ package pojos;
 //Third-party libraries
 
 //Application-internal dependencies
-import static omero.rtypes.*;
+import static omero.rtypes.rlong;
 import omero.model.LongAnnotation;
 import omero.model.LongAnnotationI;
 
@@ -133,7 +133,7 @@ public class RatingAnnotationData extends AnnotationData {
      * Sets the rating value.
      * 
      * @param value
-     *            The value to set. Must be One of the contants defined by this
+     *            The value to set. Must be One of the constants defined by this
      *            class.
      */
     public void setRating(int value) {

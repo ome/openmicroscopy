@@ -138,7 +138,9 @@ public class TermAnnotationData extends AnnotationData {
      */
     @Override
     public String getContentAsString() {
-        return (String) getContent();
+    	Object o = getContent();
+    	if (o == null) return "";
+        return (String) o;
     }
 
     /**
