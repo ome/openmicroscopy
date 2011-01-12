@@ -147,16 +147,24 @@ public class SelectionWizardUI
 			Iterator<Object> i = availableItems.iterator();
 			TagAnnotationData ob;
 			String value = ((TagAnnotationData) object).getTagValue();
+			if (value == null) return false;
+			String v;
 			while (i.hasNext()) {
 				ob = (TagAnnotationData) i.next();
-				if (ob != null && ob.getTagValue().equals(value)) 
-					return true;
+				if (ob != null) {
+					v = ob.getTagValue();
+					if (v != null && v.equals(value))
+						return true;
+				}
 			}
 			i = selectedItems.iterator();
 			while (i.hasNext()) {
 				ob = (TagAnnotationData) i.next();
-				if (ob != null && ob.getTagValue().equals(value)) 
-					return true;
+				if (ob != null) {
+					v = ob.getTagValue();
+					if (v != null && v.equals(value))
+						return true;
+				}
 			}
 		}
 		return false;
