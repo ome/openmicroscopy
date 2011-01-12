@@ -24,7 +24,6 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 
 //Java imports
-import java.awt.Cursor;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
@@ -43,6 +42,7 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
+import pojos.DatasetData;
 
 /** 
  * Implements the {@link Importer} interface to provide the functionality
@@ -107,14 +107,15 @@ class ImporterComponent
 
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
-	 * @see Importer#activate(int, List)
+	 * @see Importer#activate(int, List, List)
 	 */
-	public void activate(int type, List<DataObject> containers)
+	public void activate(int type, List<DataObject> containers, 
+			List<DatasetData> datasets)
 	{
 		if (model.getState() == DISCARDED) return;
 		if (chooser == null) {
 			chooser = new ImportDialog(view, model.getSupportedFormats(), 
-					containers, type);
+					containers, type, datasets);
 			chooser.addPropertyChangeListener(controller);
 			chooser.pack();
 		} else {

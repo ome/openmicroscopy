@@ -814,14 +814,15 @@ class OmeroImageServiceImpl
 	 * Creates the default container where the images should be added.
 	 * 
 	 * @param container The container to handle.
+	 * @param dataset 	The default dataset where to import the orphaned images.
 	 * @param userID The owner of the container.
 	 * @return See above.
 	 */
-	private IObject createDefaultContainer(DataObject container, long userID)
+	private IObject createDefaultContainer(DataObject container, DatasetData
+			dataset, long userID)
 	{
 		//images have to be added to a container.
 		//specified container
-		String date = UIUtilities.formatDate(null, UIUtilities.D_M_Y_FORMAT);
 		IObject io = null;
 		Map m = new HashMap();
 		try {
@@ -829,21 +830,19 @@ class OmeroImageServiceImpl
 				if (container instanceof DatasetData) {
 					io = container.asIObject();
 				} else if (container instanceof ProjectData) {
+					if (dataset.getId() > 0) return dataset.asIObject();
 					io = gateway.findIObjectByName(
-							DatasetData.class, date, userID);
+							DatasetData.class, dataset.getName(), userID);
 					if (io == null) {
-						DatasetData dataset = new DatasetData();
-						dataset.setName(date);
 						io = gateway.saveAndReturnObject(
 								dataset.asIObject(), m);
 					}
 				}
 			} else {
+				if (dataset.getId() > 0) return dataset.asIObject();
 				io = gateway.findIObjectByName(
-						DatasetData.class, date, userID);
+						DatasetData.class, dataset.getName(), userID);
 				if (io == null) {
-					DatasetData dataset = new DatasetData();
-					dataset.setName(date);
 					io = gateway.saveAndReturnObject(
 							dataset.asIObject(), m);
 				}
@@ -928,7 +927,8 @@ class OmeroImageServiceImpl
 				j = containers.iterator();
 				container = containers.get(0);
 				if (container instanceof ProjectData) {
-					io = createDefaultContainer(container, userID);
+					io = createDefaultContainer(container, 
+							object.getDefaultDataset(), userID);
 					if (io != null) ioList.add(io);
 				} else if (container instanceof DatasetData) {
 					while (j.hasNext())
@@ -1019,7 +1019,8 @@ class OmeroImageServiceImpl
 				j = containers.iterator();
 				container = containers.get(0);
 				if (container instanceof ProjectData) {
-					io = createDefaultContainer(container, userID);
+					io = createDefaultContainer(container, 
+							object.getDefaultDataset(), userID);
 					if (io != null) ioList.add(io);
 				} else if (container instanceof DatasetData) {
 					while (j.hasNext())

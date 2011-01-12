@@ -921,6 +921,5 @@ class BrowserModel
 		}
 		return files;
 	}
-	
 
 }

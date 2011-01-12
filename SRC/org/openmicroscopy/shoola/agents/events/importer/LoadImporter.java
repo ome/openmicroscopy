@@ -32,6 +32,7 @@ import java.util.List;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 import pojos.DataObject;
+import pojos.DatasetData;
 
 
 /** 
@@ -59,6 +60,9 @@ public class LoadImporter
 	
 	/** The containers where to load the image. */
 	private List<DataObject> containers;
+	
+	/** The containers where to load the image. */
+	private List<DatasetData> datasets;
 	
 	/** The type of the import to handle. */
 	private int type;
@@ -111,5 +115,22 @@ public class LoadImporter
 	 * @return See above.
 	 */
 	public int getType() { return type; }
+	
+	/**
+	 * Returns the default datasets.
+	 * 
+	 * @return See above.
+	 */
+	public List<DatasetData> getDatasets() { return datasets; }
+	
+	/**
+	 * Returns the datasets.
+	 * 
+	 * @param datasets The values to set.
+	 */
+	public void setDatasets(List<DatasetData> datasets)
+	{
+		this.datasets = datasets;
+	}
 
 }

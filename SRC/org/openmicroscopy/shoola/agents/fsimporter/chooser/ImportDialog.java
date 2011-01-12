@@ -58,6 +58,7 @@ import javax.swing.ButtonGroup;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFileChooser;
@@ -71,6 +72,7 @@ import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.filechooser.FileFilter;
 
@@ -156,6 +158,14 @@ public class ImportDialog
 			"by default, the absolute path. \n You can modify the name " +
 			"by setting the number of directories before the file's name.";
 	
+	/** Message if no containers specified. */
+	private static final String NO_CONTAINER = "No container specified, " +
+			"orphaned images imported in Dataset: ";
+	
+	/** Message if projects are selected. */
+	private static final String OTHER_AS_CONTAINER = "Orphaned images " +
+			"imported in Dataset: ";
+	
 	/** Warning when de-selecting the name overriding option. */
 	private static final List<String> WARNING;
 	
@@ -240,7 +250,19 @@ public class ImportDialog
 	private List<DataObject>			containers;
 	
 	/** The component displaying the table, options etc. */
-	private JTabbedPane tabbedPane;
+	private JTabbedPane 				tabbedPane;
+	
+	/** The text field, displaying the default name of the container. */
+	private JTextField 					defaultContainerField;
+	
+	/** The collection of datasets to use by default. */
+	private List<DatasetData>			datasets;
+	
+	/** Component used to select the default dataset. */
+	private JComboBox					datasetsBox;
+	
+	/** The compoennt displaying where the data will be imported. */
+	private JPanel						locationPane;
 	
 	/** Adds the files to the selection. */
 	private void addFiles()
@@ -401,16 +423,13 @@ public class ImportDialog
 	/** Installs the listeners. */
 	private void installListeners()
 	{
-		
         addWindowListener(new WindowAdapter() {
     		
 			/** 
 			 * Cancels the selection.
 			 * @see WindowAdapter#windowClosing(WindowEvent)
 			 */
-			public void windowClosing(WindowEvent e) {
-				cancelSelection();
-			}
+			public void windowClosing(WindowEvent e) { cancelSelection(); }
 		
 		});
 	}
@@ -436,6 +455,13 @@ public class ImportDialog
 				}
 			}
 		};
+		locationPane = new JPanel();
+		locationPane.setLayout(new BoxLayout(locationPane, BoxLayout.Y_AXIS));
+		defaultContainerField = new JTextField();
+		defaultContainerField.setColumns(10);
+		defaultContainerField.setText(UIUtilities.formatDate(null, 
+				UIUtilities.D_M_Y_FORMAT));
+		
 		tabbedPane = new JTabbedPane();
 		numberOfFolders = new NumericalTextField();
 		numberOfFolders.setMinimum(0);
@@ -770,6 +796,69 @@ public class ImportDialog
 		return options;
 	}
 	
+	/**
+	 * Returns the file queue and indicates where the files will be imported.
+	 * 
+	 * @return See above.
+	 */
+	private void buildLocationPane()
+	{
+		locationPane.removeAll();
+		defaultContainerField.setVisible(false);
+		StringBuffer text = new StringBuffer();
+		JPanel row;
+		String v;
+		String message = NO_CONTAINER;
+		if (containers != null) {
+			row = new JPanel();
+			row.setLayout(new FlowLayout(FlowLayout.LEFT));
+			Iterator<DataObject> i = containers.iterator();
+			Object c;
+			String name = "";
+			int index = 0;
+			int n = containers.size()-1;
+			while (i.hasNext()) {
+				c = i.next();
+				if (c instanceof DatasetData) {
+					message = null;
+					if (index == 0)
+						text.append("Dataset: ");
+					name += ((DatasetData) c).getName();
+				} else if (c instanceof ScreenData) {
+					if (index == 0) {
+						message = OTHER_AS_CONTAINER;
+						text.append("Screen: ");
+					}
+					name += ((ScreenData) c).getName();
+				} else if (c instanceof ProjectData) {
+					if (index == 0) {
+						text.append("Project: ");
+						message = OTHER_AS_CONTAINER;
+					}
+					name += ((ProjectData) c).getName();
+				}
+				if (index < n) name += ", ";
+				index++;
+			}
+			v = "Import data in "+text.toString();
+			row.add(UIUtilities.setTextFont(v));
+			row.add(new JLabel(name));
+			locationPane.add(row);
+		}
+		if (message != null) {
+			defaultContainerField.setVisible(true);
+			row = new JPanel();
+			row.setLayout(new FlowLayout(FlowLayout.LEFT));
+			row.add(UIUtilities.setTextFont(message));
+			row.add(defaultContainerField);
+			if (datasets != null && datasets.size() > 0) {
+				datasetsBox = new JComboBox(datasets.toArray());
+				row.add(datasetsBox);
+			}
+			locationPane.add(row);
+		}
+	}
+
 	/** 
 	 * Builds and lays out the UI. 
 	 * 
@@ -783,7 +872,7 @@ public class ImportDialog
 		IconManager icons = IconManager.getInstance();
 		titlePane = new TitlePanel(TITLE, getContainerText(containers), 
 				icons.getIcon(IconManager.IMPORT_48));
-		titlePane.setSubtitle(SUB_MESSAGE);
+		//titlePane.setSubtitle(SUB_MESSAGE);
 		c.add(titlePane, BorderLayout.NORTH);
 		tabbedPane.add("Files to import", table);
 		tabbedPane.add("Options", buildOptionsPane());
@@ -797,7 +886,14 @@ public class ImportDialog
 		
 		JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, chooser, 
 				p);
-		c.add(pane, BorderLayout.CENTER);
+		JPanel body = new JPanel();
+		double[][] ss = {{TableLayout.FILL}, 
+				{TableLayout.PREFERRED, TableLayout.FILL}};
+		body.setLayout(new TableLayout(ss));
+		buildLocationPane();
+		body.add(locationPane, "0, 0");
+		body.add(pane, "0, 1");
+		c.add(body, BorderLayout.CENTER);
 		JPanel controls = new JPanel();
 		controls.setLayout(new BoxLayout(controls, BoxLayout.Y_AXIS));
 		
@@ -839,6 +935,14 @@ public class ImportDialog
     	ImportableObject object = new ImportableObject(table.getFilesToImport(),
     			overrideName.isSelected());
     	object.setContainers(containers);
+    	if (defaultContainerField.isVisible()) {
+    		String v = defaultContainerField.getText();
+    		if (v == null || v.trim().length() == 0)
+    			v = UIUtilities.formatDate(null, UIUtilities.D_M_Y_FORMAT);
+    		DatasetData dataset = new DatasetData();
+    		dataset.setName(v);
+    		object.setDefaultDataset(dataset);
+    	}
     	//tags
     	if (tagsMap.size() > 0) object.setTags(tagsMap.values());
     	if (partialName.isSelected()) {
@@ -937,12 +1041,14 @@ public class ImportDialog
      * @param filters 	The list of filters.
      * @param containers The container where to import the files.
      * @param type 		One of the type constants.
+     * @param datasets The collection of datasets to use by default.
      */
     public ImportDialog(JFrame owner, FileFilter[] filters, List<DataObject> 
-    		containers, int type)
+    		containers, int type, List<DatasetData> datasets)
     {
     	super(owner);
     	this.filters = filters;
+    	this.datasets = datasets;
     	setProperties();
     	initComponents(containers);
     	installListeners();
@@ -969,6 +1075,8 @@ public class ImportDialog
 		FileFilter[] filters = chooser.getChoosableFileFilters();
 		if (filters != null && filters.length > 0)
 			chooser.setFileFilter(filters[0]);
+		buildLocationPane();
+		locationPane.repaint();
 	}
 	
     /**

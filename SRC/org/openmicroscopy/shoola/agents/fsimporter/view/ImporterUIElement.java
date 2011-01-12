@@ -36,7 +36,6 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Map.Entry;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;

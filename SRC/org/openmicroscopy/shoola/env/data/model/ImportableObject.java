@@ -76,6 +76,9 @@ public class ImportableObject
 	/** The type to create if the folder has to be saved as a container. */
 	private Class type;
 	
+	/** The dataset where to import the orphaned images. */
+	private DatasetData defaultDataset;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -90,6 +93,26 @@ public class ImportableObject
 		this.overrideName = overrideName;
 		type = DatasetData.class;
 		depth = -1;
+	}
+	
+	/**
+	 * Sets the dataset where to import the orphaned images.
+	 * 
+	 * @param defaultDataset The value to set.
+	 */
+	public void setDefaultDataset(DatasetData defaultDataset)
+	{
+		this.defaultDataset = defaultDataset;
+	}
+	
+	/**
+	 * Returns the dataset where to import the orphaned images.
+	 * 
+	 * @return See above.
+	 */
+	public DatasetData getDefaultDataset()
+	{
+		return defaultDataset;
 	}
 	
 	/**
