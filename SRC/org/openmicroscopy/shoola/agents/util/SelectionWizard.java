@@ -276,8 +276,6 @@ public class SelectionWizard
 			for (int i = 0; i < names.length; i++) {
 				if (names[i] != null && names[i].length() > 0) {	
 					objects.add(new TagAnnotationData(names[i].trim()));
-					//if (!doesTagExist(data))
-					//	selectedItems.add(data);
 				}
 			}
 			uiDelegate.addObjects(objects);

@@ -142,18 +142,21 @@ public class SelectionWizardUI
 	 */
 	private boolean doesObjectExist(DataObject object)
 	{
-		Iterator<Object> i = availableItems.iterator();
+		if (object == null) return false;
 		if (object instanceof TagAnnotationData) {
+			Iterator<Object> i = availableItems.iterator();
 			TagAnnotationData ob;
 			String value = ((TagAnnotationData) object).getTagValue();
 			while (i.hasNext()) {
 				ob = (TagAnnotationData) i.next();
-				if (ob.getTagValue().equals(value)) return true;
+				if (ob != null && ob.getTagValue().equals(value)) 
+					return true;
 			}
 			i = selectedItems.iterator();
 			while (i.hasNext()) {
 				ob = (TagAnnotationData) i.next();
-				if (ob.getTagValue().equals(value)) return true;
+				if (ob != null && ob.getTagValue().equals(value)) 
+					return true;
 			}
 		}
 		return false;
