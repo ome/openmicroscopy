@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.agents.measurement.util.ui;
 //Java imports
 import java.awt.Color;
 import java.awt.Component;
+
+import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JTable;
@@ -62,6 +64,42 @@ public class ROIAssistantCellRenderer
 	/** The colour of the focused cell. */
 	private final static Color FOCUS_COLOUR = new Color(255, 135, 135);
 	
+	/** Reference to the <code>Ellipse</code> icon. */
+	private static final Icon ELLIPSE_ICON;
+	
+	/** Reference to the <code>Square</code> icon. */
+	private static final Icon SQUARE_ICON;
+	
+	/** Reference to the <code>Polyline</code> icon. */
+	private static final Icon POLYLINE_ICON;
+	
+	/** Reference to the <code>Polygon</code> icon. */
+	private static final Icon POLYGON_ICON;
+	
+	/** Reference to the <code>Line</code> icon. */
+	private static final Icon LINE_ICON;
+	
+	/** Reference to the <code>Point</code> icon. */
+	private static final Icon POINT_ICON;
+	
+	/** Reference to the <code>Line connection</code> icon. */
+	private static final Icon LINECONNECTION_ICON;
+	
+	/** Reference to the <code>Text</code> icon. */
+	private static final Icon TEXT_ICON;
+	
+	static { 
+		IconManager icons = IconManager.getInstance();
+		ELLIPSE_ICON = icons.getIcon(IconManager.ELLIPSE);
+		SQUARE_ICON = icons.getIcon(IconManager.SQUARE);
+		POLYLINE_ICON = icons.getIcon(IconManager.POLYLINE);
+		POLYGON_ICON = icons.getIcon(IconManager.POLYGON);
+		LINE_ICON = icons.getIcon(IconManager.LINE);
+		POINT_ICON = icons.getIcon(IconManager.POINT);
+		LINECONNECTION_ICON = icons.getIcon(IconManager.LINECONNECTION);
+		TEXT_ICON = icons.getIcon(IconManager.TEXT);
+	}
+	
 	/**
 	 * Creates a new instance. Sets the opacity of the label to 
 	 * <code>true</code>.
@@ -89,35 +127,35 @@ public class ROIAssistantCellRenderer
 		{
 			if (value.equals(FigureUtil.ELLIPSE_TYPE))
 			{
-				label.setIcon(icons.getImageIcon(IconManager.ELLIPSE));
+				label.setIcon(ELLIPSE_ICON);
 			}
 			else if(value.equals(FigureUtil.RECTANGLE_TYPE))
 			{
-				label.setIcon(icons.getImageIcon(IconManager.SQUARE));
+				label.setIcon(SQUARE_ICON);
 			}
 			else if(value.equals(FigureUtil.SCRIBBLE_TYPE))
 			{
-				label.setIcon(icons.getImageIcon(IconManager.POLYLINE));
+				label.setIcon(POLYLINE_ICON);
 			}
 			else if (value.equals(FigureUtil.POLYGON_TYPE))
 			{
-				label.setIcon(icons.getImageIcon(IconManager.POLYGON));
+				label.setIcon(POLYGON_ICON);
 			}
 			else if(value.equals(FigureUtil.LINE_TYPE))
 			{
-				label.setIcon(icons.getImageIcon(IconManager.LINE));
+				label.setIcon(LINE_ICON);
 			}
 			else if(value.equals(FigureUtil.LINE_CONNECTION_TYPE))
 			{
-				label.setIcon(icons.getImageIcon(IconManager.LINECONNECTION));
+				label.setIcon(LINECONNECTION_ICON);
 			}
 			else if(value.equals(FigureUtil.POINT_TYPE))
 			{
-				label.setIcon(icons.getImageIcon(IconManager.POINT));
+				label.setIcon(POINT_ICON);
 			}
 			else if(value.equals(FigureUtil.TEXT_TYPE))
 			{
-				label.setIcon(icons.getImageIcon(IconManager.TEXT));
+				label.setIcon(TEXT_ICON);
 			}
 			else 
 			{

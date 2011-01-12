@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.util;
 
 //Java imports
 import java.awt.Component;
+import javax.swing.Icon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
@@ -50,6 +51,34 @@ class DeletableTableRenderer
 	extends DefaultTreeCellRenderer
 {
 
+	/** Reference to the <code>Image</code> icon. */
+	private static final Icon IMAGE_ICON;
+	
+	/** Reference to the <code>Dataset</code> icon. */
+	private static final Icon DATASET_ICON;
+	
+	/** Reference to the <code>Project</code> icon. */
+	private static final Icon PROJECT_ICON;
+	
+	/** Reference to the <code>Screen</code> icon. */
+	private static final Icon SCREEN_ICON;
+	
+	/** Reference to the <code>Plate</code> icon. */
+	private static final Icon PLATE_ICON;
+	
+	/** Reference to the <code>File</code> icon. */
+	private static final Icon FILE_ICON;
+	
+	static { 
+		IconManager icons = IconManager.getInstance();
+		IMAGE_ICON = icons.getIcon(IconManager.IMAGE);
+		DATASET_ICON = icons.getIcon(IconManager.DATASET);
+		PROJECT_ICON = icons.getIcon(IconManager.PROJECT);
+		SCREEN_ICON = icons.getIcon(IconManager.SCREEN);
+		PLATE_ICON = icons.getIcon(IconManager.PLATE);
+		FILE_ICON = icons.getIcon(IconManager.FILE);
+	}
+	
 	/** Helper reference to the {@link IconManager}. */
 	private IconManager icons;
 	
@@ -57,7 +86,6 @@ class DeletableTableRenderer
 	DeletableTableRenderer()
 	{
 		setOpaque(true);
-		icons = IconManager.getInstance();
 	}
 	
 	/**
@@ -76,17 +104,17 @@ class DeletableTableRenderer
 		DeletableTableNode node = (DeletableTableNode) value;
 		String type = node.getType();
 		if (DeletableTableNode.IMAGE_TYPE.equals(type)) 
-			setIcon(icons.getIcon(IconManager.IMAGE));
+			setIcon(IMAGE_ICON);
 		else if (DeletableTableNode.DATASET_TYPE.equals(type)) 
-			setIcon(icons.getIcon(IconManager.DATASET));
+			setIcon(DATASET_ICON);
 		else if (DeletableTableNode.PROJECT_TYPE.equals(type)) 
-			setIcon(icons.getIcon(IconManager.PROJECT));
+			setIcon(PROJECT_ICON);
 		else if (DeletableTableNode.PLATE_TYPE.equals(type)) 
-			setIcon(icons.getIcon(IconManager.PLATE));
+			setIcon(PLATE_ICON);
 		else if (DeletableTableNode.SCREEN_TYPE.equals(type)) 
-			setIcon(icons.getIcon(IconManager.SCREEN));
+			setIcon(SCREEN_ICON);
 		else if (DeletableTableNode.FILE_TYPE.equals(type)) 
-			setIcon(icons.getIcon(IconManager.FILE));
+			setIcon(FILE_ICON);
 		setText(type);
 		return this;
 	}

@@ -64,8 +64,37 @@ public class TreeCellRenderer
 	extends DefaultTreeCellRenderer
 {
 
-	/** Reference to the {@link IconManager}. */
-    private IconManager         icons;
+	/** Reference to the <code>Image</code> icon. */
+	private static final Icon IMAGE_ICON;
+	
+	/** Reference to the <code>Dataset</code> icon. */
+	private static final Icon DATASET_ICON;
+	
+	/** Reference to the <code>Project</code> icon. */
+	private static final Icon PROJECT_ICON;
+	
+	/** Reference to the <code>Screen</code> icon. */
+	private static final Icon SCREEN_ICON;
+	
+	/** Reference to the <code>Plate</code> icon. */
+	private static final Icon PLATE_ICON;
+	
+	/** Reference to the <code>Tag</code> icon. */
+	private static final Icon TAG_ICON;
+	
+	/** Reference to the <code>Tag Set</code> icon. */
+	private static final Icon TAG_SET_ICON;
+	
+	static { 
+		IconManager icons = IconManager.getInstance();
+		IMAGE_ICON = icons.getIcon(IconManager.IMAGE);
+		DATASET_ICON = icons.getIcon(IconManager.DATASET);
+		PROJECT_ICON = icons.getIcon(IconManager.PROJECT);
+		SCREEN_ICON = icons.getIcon(IconManager.SCREEN);
+		PLATE_ICON = icons.getIcon(IconManager.PLATE);
+		TAG_ICON = icons.getIcon(IconManager.TAG);
+		TAG_SET_ICON = icons.getIcon(IconManager.TAG_SET);
+	}
     
 	/** The ID of the current user. */
     private long				currentUserID;
@@ -80,28 +109,26 @@ public class TreeCellRenderer
      */
     private void setIcon(Object usrObject)
     {
-        Icon icon = null;//icons.getIcon(IconManager.OWNER);
+        Icon icon = null;
         if (usrObject instanceof ProjectData) 
-        	icon = icons.getIcon(IconManager.PROJECT);
+        	icon = PROJECT_ICON;
         else if (usrObject instanceof DatasetData) 
-        	icon = icons.getIcon(IconManager.DATASET);
+        	icon = DATASET_ICON;
         else if (usrObject instanceof ImageData) 
-        	icon = icons.getIcon(IconManager.IMAGE);
-        else if (usrObject instanceof ImageData) 
-        	icon = icons.getIcon(IconManager.IMAGE);
+        	icon = IMAGE_ICON;
         else if (usrObject instanceof ScreenData) 
-        	icon = icons.getIcon(IconManager.SCREEN);
+        	icon = SCREEN_ICON;
         else if (usrObject instanceof PlateData) 
-        	icon = icons.getIcon(IconManager.PLATE);
+        	icon = PLATE_ICON;
         else if (usrObject instanceof TagAnnotationData) {
         	TagAnnotationData tag = (TagAnnotationData) usrObject;
         	if (TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag.getNameSpace()))
-        		icon = icons.getIcon(IconManager.TAG_SET);
+        		icon = TAG_SET_ICON;
         	else 
-        		icon = icons.getIcon(IconManager.TAG);
+        		icon = TAG_ICON;
         }
         else if (usrObject instanceof String)
-        	icon = null;//icons.getIcon(IconManager.ROOT);
+        	icon = null;
         setIcon(icon);
     }
     
@@ -112,7 +139,6 @@ public class TreeCellRenderer
 			(ExperimenterData) MetadataViewerAgent.getRegistry().lookup(
 					LookupNames.CURRENT_USER_DETAILS);
 		currentUserID = exp.getId();
-		icons = IconManager.getInstance();
 	}
 
 	/**

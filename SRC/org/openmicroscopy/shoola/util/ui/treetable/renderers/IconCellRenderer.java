@@ -29,7 +29,6 @@ import javax.swing.Icon;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableCellRenderer;
 
 //Third-party libraries
 

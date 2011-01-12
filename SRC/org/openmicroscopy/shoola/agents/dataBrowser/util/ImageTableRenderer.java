@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.agents.dataBrowser.util;
 
 //Java imports
 import java.awt.Component;
+
+import javax.swing.Icon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
@@ -55,14 +57,26 @@ public class ImageTableRenderer
 	extends DefaultTreeCellRenderer
 {
 
-	/** Helper reference to the {@link IconManager}. */
-	private IconManager icons;
+	/** Reference to the <code>Image</code> icon. */
+	private static final Icon IMAGE_ICON;
+	
+	/** Reference to the <code>Dataset</code> icon. */
+	private static final Icon DATASET_ICON;
+	
+	/** Reference to the <code>Project</code> icon. */
+	private static final Icon PROJECT_ICON;
+	
+	static { 
+		IconManager icons = IconManager.getInstance();
+		IMAGE_ICON = icons.getIcon(IconManager.IMAGE);
+		DATASET_ICON = icons.getIcon(IconManager.DATASET);
+		PROJECT_ICON = icons.getIcon(IconManager.PROJECT);
+	}
 	
 	/** Creates a new instance. */
 	public ImageTableRenderer()
 	{
 		setOpaque(true);
-		icons = IconManager.getInstance();
 	}
 	
 	/**
@@ -84,18 +98,13 @@ public class ImageTableRenderer
 		ImageTableNode node = (ImageTableNode) value;
 		Object v = node.getHierarchyObject();
 		if (v instanceof ImageData) {
-			/*
-			if (EditorUtil.isAnnotated(v))
-				setIcon(icons.getIcon(IconManager.IMAGE_ANNOTATED));
-		    else setIcon(icons.getIcon(IconManager.IMAGE));
-		    */
-			setIcon(icons.getIcon(IconManager.IMAGE));
+			setIcon(IMAGE_ICON);
 			setText(node.getUserObject().toString());
 		} else if (v instanceof DatasetData) {
-			setIcon(icons.getIcon(IconManager.DATASET));
+			setIcon(DATASET_ICON);
 			setText(node.getUserObject().toString());
 		} else if (v instanceof ProjectData) {
-			setIcon(icons.getIcon(IconManager.PROJECT));
+			setIcon(PROJECT_ICON);
 			setText(node.getUserObject().toString());
 		} else if (v instanceof ExperimenterData) {
 			setIcon(null);

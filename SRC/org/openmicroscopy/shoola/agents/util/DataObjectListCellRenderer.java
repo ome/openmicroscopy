@@ -67,8 +67,82 @@ public class DataObjectListCellRenderer
 	/** The foreground color when the object is a new object. */
 	public static final Color	NEW_FOREGROUND_COLOR = Color.red;
 	
-	/** Helper reference to the icon manager. */
-	private IconManager 		icons;
+	/** Reference to the <code>Dataset</code> icon. */
+	private static final Icon DATASET_ICON;
+	
+	/** Reference to the <code>File</code> icon. */
+	private static final Icon FILE_ICON;
+	
+	/** Reference to the <code>Tag</code> icon. */
+	private static final Icon TAG_ICON;
+	
+	/** Reference to the <code>Tag Set</code> icon. */
+	private static final Icon TAG_SET_ICON;
+
+	/** Reference to the <code>Owner</code> icon. */
+	private static final Icon OWNER_ICON;
+	
+	/** Reference to the <code>Text File</code> icon. */
+	private static final Icon FILE_TEXT_ICON;
+	
+	/** Reference to the <code>PDF File</code> icon. */
+	private static final Icon FILE_PDF_ICON;
+	
+	/** Reference to the <code>HTML File</code> icon. */
+	private static final Icon FILE_HTML_ICON;
+	
+	/** Reference to the <code>Power Point File</code> icon. */
+	private static final Icon FILE_PPT_ICON;
+	
+	/** Reference to the <code>Word File</code> icon. */
+	private static final Icon FILE_WORD_ICON;
+	
+	/** Reference to the <code>Excel File</code> icon. */
+	private static final Icon FILE_EXCEL_ICON;
+	
+	/** Reference to the <code>XML File</code> icon. */
+	private static final Icon FILE_XML_ICON;
+	
+	/** Reference to the <code>Editor File</code> icon. */
+	private static final Icon FILE_EDITOR_ICON;
+	
+	/** Reference to the <code>Experiment</code> icon. */
+	private static final Icon EDITOR_EXPERIMENT_ICON;
+	
+	/** Reference to the <code>Date</code> icon. */
+	private static final Icon GROUP_ICON;
+	
+	/** Reference to the <code>Date</code> icon. */
+	private static final Icon ONTOLOGY_ICON;
+	
+	/** Reference to the <code>Tag</code> icon. */
+	private static final Icon TAG_OTHER_OWNER_ICON;
+	
+	/** Reference to the <code>Tag set</code> icon. */
+	private static final Icon TAG_SET_OTHER_OWNER_ICON;
+	
+	static { 
+		IconManager icons = IconManager.getInstance();
+		DATASET_ICON = icons.getIcon(IconManager.DATASET);
+		FILE_ICON = icons.getIcon(IconManager.FILE);
+		TAG_ICON = icons.getIcon(IconManager.TAG);
+		TAG_SET_ICON = icons.getIcon(IconManager.TAG_SET);
+		OWNER_ICON = icons.getIcon(IconManager.OWNER);
+		FILE_TEXT_ICON = icons.getIcon(IconManager.FILE_TEXT);
+		FILE_PDF_ICON = icons.getIcon(IconManager.FILE_PDF);
+		FILE_HTML_ICON = icons.getIcon(IconManager.FILE_HTML);
+		FILE_PPT_ICON = icons.getIcon(IconManager.FILE_PPT);
+		FILE_WORD_ICON = icons.getIcon(IconManager.FILE_WORD);
+		FILE_EXCEL_ICON = icons.getIcon(IconManager.FILE_EXCEL);
+		FILE_XML_ICON = icons.getIcon(IconManager.FILE_XML);
+		FILE_EDITOR_ICON = icons.getIcon(IconManager.FILE_EDITOR);
+		EDITOR_EXPERIMENT_ICON = icons.getIcon(IconManager.EDITOR_EXPERIMENT);
+		GROUP_ICON = icons.getIcon(IconManager.GROUP);
+		ONTOLOGY_ICON = icons.getIcon(IconManager.ONTOLOGY);
+		TAG_OTHER_OWNER_ICON = icons.getIcon(IconManager.TAG_OTHER_OWNER);
+		TAG_SET_OTHER_OWNER_ICON = 
+			icons.getIcon(IconManager.TAG_SET_OTHER_OWNER);
+	}
 	
 	/** The id of the user currently logged in. */
 	private long				currentUserID;
@@ -130,7 +204,6 @@ public class DataObjectListCellRenderer
 	{
 		this.model = model;
 		this.currentUserID = currentUserID;
-		icons = IconManager.getInstance();
         filter = new EditorFileFilter();
 	}
 	
@@ -165,33 +238,32 @@ public class DataObjectListCellRenderer
 						exp = tag.getOwner();
 						long id = exp.getId();
 						if (id == currentUserID) 
-							setIcon(icons.getIcon(IconManager.TAG_SET));
+							setIcon(TAG_SET_ICON);
 						else  {
 							createTooltip(exp);
-							setIcon(icons.getIcon(
-									IconManager.TAG_SET_OTHER_OWNER));
+							setIcon(TAG_SET_OTHER_OWNER_ICON);
 						}
 					} catch (Exception e) {
-						setIcon(icons.getIcon(IconManager.TAG_SET));
+						setIcon(TAG_SET_ICON);
 					}
 				} else 
-					setIcon(icons.getIcon(IconManager.TAG_SET));
+					setIcon(TAG_SET_ICON);
 			} else {
 				if (currentUserID >= 0) {
 					try {
 						exp = tag.getOwner();
 						long id = exp.getId();
 						if (id == currentUserID) 
-							setIcon(icons.getIcon(IconManager.TAG));
+							setIcon(TAG_ICON);
 						else {
 							createTooltip(exp);
-							setIcon(icons.getIcon(IconManager.TAG_OTHER_OWNER));
+							setIcon(TAG_OTHER_OWNER_ICON);
 						}
 					} catch (Exception e) {
-						setIcon(icons.getIcon(IconManager.TAG));
+						setIcon(TAG_ICON);
 					}
 				} else 
-					setIcon(icons.getIcon(IconManager.TAG));
+					setIcon(TAG_ICON);
 			}
 			if (tag.getId() <= 0)
 				setForeground(NEW_FOREGROUND_COLOR);
@@ -201,50 +273,50 @@ public class DataObjectListCellRenderer
 			if (fad.getId() <= 0)
 				setForeground(NEW_FOREGROUND_COLOR);
 			String format = fad.getFileFormat();
-			Icon icon = icons.getIcon(IconManager.FILE);
+			Icon icon = FILE_ICON;
         	if (FileAnnotationData.PDF.equals(format)) 
-        		icon = icons.getIcon(IconManager.FILE_PDF);
+        		icon = FILE_PDF_ICON;
         	else if (FileAnnotationData.TEXT.equals(format) ||
         			FileAnnotationData.CSV.equals(format)) 
-        		icon = icons.getIcon(IconManager.FILE_TEXT);
+        		icon = FILE_TEXT_ICON;
         	else if (FileAnnotationData.HTML.equals(format) ||
         			FileAnnotationData.HTM.equals(format)) 
-        		icon = icons.getIcon(IconManager.FILE_HTML);
+        		icon = FILE_HTML_ICON;
         	else if (FileAnnotationData.MS_POWER_POINT.equals(format) ||
         			FileAnnotationData.MS_POWER_POINT_SHOW.equals(format) ||
         			FileAnnotationData.MS_POWER_POINT_X.equals(format)) 
-        		icon = icons.getIcon(IconManager.FILE_PPT);
+        		icon = FILE_PPT_ICON;
         	else if (FileAnnotationData.MS_WORD.equals(format) ||
         			FileAnnotationData.MS_WORD_X.equals(format)) 
-        		icon = icons.getIcon(IconManager.FILE_WORD);
+        		icon = FILE_WORD_ICON;
         	else if (FileAnnotationData.MS_EXCEL.equals(format)) 
-        		icon = icons.getIcon(IconManager.FILE_EXCEL);
+        		icon = FILE_EXCEL_ICON;
         	else if (FileAnnotationData.XML.equals(format) ||
         			FileAnnotationData.RTF.equals(format)) {
         		if (filter.accept(fad.getFileName())) {
         			if (FileAnnotationData.EDITOR_EXPERIMENT_NS.equals(
         					fad.getNameSpace()))
-        				icon = icons.getIcon(IconManager.EDITOR_EXPERIMENT);
-        			else icon = icons.getIcon(IconManager.FILE_EDITOR);
-        		} else icon = icons.getIcon(IconManager.FILE_XML);
-        	} else icon = icons.getIcon(IconManager.FILE);
+        				icon = EDITOR_EXPERIMENT_ICON;
+        			else icon = FILE_EDITOR_ICON;
+        		} else icon = FILE_XML_ICON;
+        	} else icon = FILE_ICON;
 			setIcon(icon);
 		} else if (value instanceof TermAnnotationData) {
 			TermAnnotationData term = (TermAnnotationData) value;
 			setText(term.getTerm());
-			setIcon(icons.getIcon(IconManager.ONTOLOGY));
+			setIcon(ONTOLOGY_ICON);
 		} else if (value instanceof DatasetData) {
 			DatasetData d = (DatasetData) value;
 			setText(d.getName());
-			setIcon(icons.getIcon(IconManager.DATASET));
+			setIcon(DATASET_ICON);
 		} else if (value instanceof GroupData) {
 			GroupData d = (GroupData) value;
 			setText(d.getName());
-			setIcon(icons.getIcon(IconManager.GROUP));
+			setIcon(GROUP_ICON);
 		} else if (value instanceof ExperimenterData) {
 			ExperimenterData exp = (ExperimenterData) value;
 			setText(EditorUtil.getExperimenterName(exp));
-			setIcon(icons.getIcon(IconManager.OWNER));
+			setIcon(OWNER_ICON);
 		}
 		setEnabled(!isImmutable(value));
 		return this;

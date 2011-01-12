@@ -28,6 +28,7 @@ package org.openmicroscopy.shoola.agents.util.tagging.util;
 //Java imports
 import java.awt.Component;
 import javax.swing.DefaultListCellRenderer;
+import javax.swing.Icon;
 import javax.swing.JList;
 
 //Third-party libraries
@@ -53,11 +54,20 @@ public class TagCellRenderer
 	extends DefaultListCellRenderer
 {
 
+	/** Reference to the <code>Tag</code> icon. */
+	private static final Icon TAG_OTHER_OWNER_ICON;
+	
+	/** Reference to the <code>Tag</code> icon. */
+	private static final Icon TAG_ICON;
+	
+	static { 
+		IconManager icons = IconManager.getInstance();
+		TAG_ICON = icons.getIcon(IconManager.TAG);
+		TAG_OTHER_OWNER_ICON = icons.getIcon(IconManager.TAG_OTHER_OWNER);
+	}
+	
 	/** The id of the currently logged in user. */
 	private long		userID;
-	
-	/** Helper reference to the icon manager. */
-	private IconManager icons;
 	
 	/** Creates a new instance. */
 	public TagCellRenderer()
@@ -73,7 +83,6 @@ public class TagCellRenderer
 	public TagCellRenderer(long userID)
 	{
 		this.userID = userID;
-		icons = IconManager.getInstance();
 	}
 	
 	/**
@@ -90,9 +99,8 @@ public class TagCellRenderer
 		if (value instanceof TagItem) {
 			TagItem v = (TagItem) value;
 			setText(v.getObjectName());
-			if (userID == v.getOwnerID())
-				setIcon(icons.getIcon(IconManager.TAG));
-			else setIcon(icons.getIcon(IconManager.TAG_OTHER_OWNER));
+			if (userID == v.getOwnerID()) setIcon(TAG_ICON);
+			else setIcon(TAG_OTHER_OWNER_ICON);
 		}
 		
 		return this;
