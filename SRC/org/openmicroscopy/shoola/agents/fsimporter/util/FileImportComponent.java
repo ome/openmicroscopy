@@ -158,6 +158,12 @@ public class FileImportComponent
 							ImporterAgent.getRegistry().getEventBus();
 						bus.post(new ViewImage(new ViewImageObject(
 								data.getImage()), null));
+					} else if (image instanceof ImageData) {
+						ImageData data = (ImageData) image;
+						EventBus bus = 
+							ImporterAgent.getRegistry().getEventBus();
+						bus.post(new ViewImage(new ViewImageObject(
+								data), null));
 					}
 				}
 			}
@@ -339,6 +345,7 @@ public class FileImportComponent
 		busyLabel.setBusy(status);
 		busyLabel.setVisible(false);
 		if (image instanceof ImageData) {
+			imageLabel.setImage((ImageData) image);
 			resultLabel.setText("View");
 			resultLabel.setForeground(Color.blue);
 			resultLabel.setToolTipText("");

@@ -27,7 +27,6 @@ package org.openmicroscopy.shoola.env.data.model;
 import java.io.File;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 //Third-party libraries
 
@@ -79,6 +78,9 @@ public class ImportableObject
 	/** The dataset where to import the orphaned images. */
 	private DatasetData defaultDataset;
 	
+	/** Flag indicating to load the thumbnails. */ 
+	private boolean loadThumbnail;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -93,7 +95,27 @@ public class ImportableObject
 		this.overrideName = overrideName;
 		type = DatasetData.class;
 		depth = -1;
+		loadThumbnail = true;
 	}
+	
+	/**
+	 * Sets to <code>true</code> if the thumbnail has to be loaded when 
+	 * the image is imported, <code>false</code> otherwise.
+	 * 
+	 * @param loadThumbnail  Pass <code>true</code> to load the thumbnail when 
+	 * 						 the image is imported, <code>false</code> otherwise.
+	 */
+	public void setLoadThumbnail(boolean loadThumbnail)
+	{
+		this.loadThumbnail = loadThumbnail;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the thumbnail has to be loaded when 
+	 * the image is imported, <code>false</code> otherwise.
+	 * @return
+	 */
+	public boolean isLoadThumbnail() { return loadThumbnail; }
 	
 	/**
 	 * Sets the dataset where to import the orphaned images.

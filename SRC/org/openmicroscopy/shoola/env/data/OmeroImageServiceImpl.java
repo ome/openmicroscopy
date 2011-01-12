@@ -921,6 +921,7 @@ class OmeroImageServiceImpl
 		List<Object> converted;
 		List<String> candidates;
 		File file = importable.getFile();
+		boolean thumbnail = object.isLoadThumbnail();
 		if (file.isFile()) {
 			//Need to check arbitrary file extensions.
 			if (containers != null && containers.size() > 0) {
@@ -948,6 +949,7 @@ class OmeroImageServiceImpl
 						image = (ImageData) result;
 						images.add(image);
 						annotatedImportedImage(list, images);
+						if (!thumbnail) return image;
 						return createImportedImage(userID, image);
 					} else if (result instanceof Set) {
 						ll = (Set<ImageData>) result;
@@ -955,7 +957,8 @@ class OmeroImageServiceImpl
 						kk = ll.iterator();
 						converted = new ArrayList<Object>(ll.size());
 						while (kk.hasNext()) {
-							converted.add(createImportedImage(userID, 
+							if (!thumbnail) converted.add(kk.next());
+							else converted.add(createImportedImage(userID, 
 									kk.next()));	
 						}
 						return converted;
@@ -972,6 +975,7 @@ class OmeroImageServiceImpl
 					image = (ImageData) result;
 					images.add(image);
 					annotatedImportedImage(list, images);
+					if (!thumbnail) return image;
 					return createImportedImage(userID, image);
 				} else if (result instanceof Set) {
 					ll = (Set<ImageData>) result;
@@ -979,7 +983,9 @@ class OmeroImageServiceImpl
 					kk = ll.iterator();
 					converted = new ArrayList<Object>(ll.size());
 					while (kk.hasNext()) {
-						converted.add(createImportedImage(userID, kk.next()));	
+						if (!thumbnail) converted.add(kk.next());
+						else converted.add(createImportedImage(userID, 
+								kk.next()));		
 					}
 					return converted;
 				}

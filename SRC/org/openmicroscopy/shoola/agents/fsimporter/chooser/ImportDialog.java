@@ -172,6 +172,9 @@ public class ImportDialog
 	/** The length of a column. */
 	private static final int		COLUMN_WIDTH = 200;
 	
+	/** String used to retrieve if the value of the archived flag. */
+	private static final String LOAD_THUMBNAIL = "/options/LoadThumbnail";
+	
 	static {
 		WARNING = new ArrayList<String>();
 		WARNING.add("NOTE: Some file formats do not include the file name " +
@@ -935,6 +938,10 @@ public class ImportDialog
     	ImportableObject object = new ImportableObject(table.getFilesToImport(),
     			overrideName.isSelected());
     	object.setContainers(containers);
+    	Boolean b = (Boolean) ImporterAgent.getRegistry().lookup(
+    			LOAD_THUMBNAIL);
+    	if (b != null)
+    		object.setLoadThumbnail(b.booleanValue());
     	if (defaultContainerField.isVisible()) {
     		String v = defaultContainerField.getText();
     		if (v == null || v.trim().length() == 0)

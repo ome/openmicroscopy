@@ -28,5 +28,7 @@
 <entry name="/options/Archived" type="boolean">false</entry>
 <!-- if set to true, the user can modify the value -->
 <entry name="/options/ArchivedTunable" type="boolean">true</entry>
+<!-- if set to true, the thumbnail is loaded when the image is imported -->
+<entry name="/options/LoadThumbnail" type="boolean">true</entry>
 </options>
 </agent>

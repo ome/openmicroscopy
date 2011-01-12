@@ -25,14 +25,9 @@ package org.openmicroscopy.shoola.agents.fsimporter.util;
 
 //Java imports
 import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.image.BufferedImage;
-
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -42,9 +37,6 @@ import javax.swing.border.Border;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
-import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
@@ -52,6 +44,8 @@ import org.openmicroscopy.shoola.agents.util.ui.RollOverThumbnailManager;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
+
+import pojos.ImageData;
 
 /** 
  * Component displaying the thumbnail.
@@ -75,24 +69,38 @@ class ThumbnailLabel
 							BorderFactory.createLineBorder(Color.black, 1);
 	
 	/** The text displayed in the tool tip when the image has been imported. */
-	private static final String		IMAGE_LABEL_TOOLTIP = 
+	private static final String		THUMBNAIL_LABEL_TOOLTIP = 
 		"Click on thumbnail to launch the viewer.";
 	
-	/** The thumbnail to host. */
-	private ThumbnailData data;
+	/** The text displayed in the tool tip when the image has been imported. */
+	private static final String		IMAGE_LABEL_TOOLTIP = 
+		"Click on icon to launch the viewer.";
+	
+	/** The thumbnail or the image to host. */
+	private Object data;
 	
 	/** Posts an event to view the image. */
 	private void viewImage()
 	{
 		EventBus bus = ImporterAgent.getRegistry().getEventBus();
-		bus.post(new ViewImage(new ViewImageObject(data.getImage()), null));
+		if (data instanceof ThumbnailData) {
+			ThumbnailData thumbnail = (ThumbnailData) data;
+			bus.post(new ViewImage(new ViewImageObject(
+					thumbnail.getImage()), null));
+		} else if (data instanceof ImageData) {
+			ImageData image = (ImageData) data;
+			bus.post(new ViewImage(new ViewImageObject(image), null));
+		}
 	}
 	
 	/** Rolls over the node. */
 	private void rollOver()
 	{
-		RollOverThumbnailManager.rollOverDisplay(data.getThumbnail(), 
-   			 getBounds(), getLocationOnScreen(), toString());
+		if (data instanceof ThumbnailData) {
+			ThumbnailData thumbnail = (ThumbnailData) data;
+			RollOverThumbnailManager.rollOverDisplay(thumbnail.getThumbnail(), 
+		   			 getBounds(), getLocationOnScreen(), toString());
+		} 
 	}
 	
 	/**  
@@ -108,6 +116,26 @@ class ThumbnailLabel
 	/** Creates a default new instance. */
 	ThumbnailLabel() {}
 	
+	/** Sets the image that have been imported. */
+	void setImage(ImageData data)
+	{
+		if (data == null) return;
+		this.data = data;
+		setToolTipText(IMAGE_LABEL_TOOLTIP);
+		addMouseListener(new MouseAdapter() {
+			
+			/**
+			 * Views the image.
+			 * @see MouseListener#mousePressed(MouseEvent)
+			 */
+			public void mousePressed(MouseEvent e)
+			{
+				if (e.getClickCount() == 2)
+					viewImage(); 
+			}
+		});
+	}
+
 	/** 
 	 * Sets the thumbnail to view. 
 	 * 
@@ -116,11 +144,10 @@ class ThumbnailLabel
 	void setThumbnail(ThumbnailData data)
 	{
 		if (data == null) return;
-		this.data = data;
 		ImageIcon icon = new ImageIcon(Factory.magnifyImage(0.25, 
 				data.getThumbnail()));
-		setToolTipText(IMAGE_LABEL_TOOLTIP);
-		
+		this.data = data;
+		setToolTipText(THUMBNAIL_LABEL_TOOLTIP);
 		setBorder(LABEL_BORDER);
 		if (icon != null) {
 			setIcon(icon);
@@ -149,7 +176,7 @@ class ThumbnailLabel
 			}
 			
 			/**
-			 * Zooms the image.
+			 * Zooms the thumbnail.
 			 * @see MouseListener#mouseEntered(MouseEvent)
 			 */
 			public void mouseEntered(MouseEvent e) { rollOver(); }
