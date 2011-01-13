@@ -37,7 +37,9 @@ import ome.model.containers.Dataset;
 import ome.model.containers.DatasetImageLink;
 import ome.model.containers.Project;
 import ome.model.containers.ProjectDatasetLink;
+import ome.model.core.Channel;
 import ome.model.core.Image;
+import ome.model.core.Pixels;
 import ome.model.roi.Roi;
 import ome.model.roi.Shape;
 import ome.security.basic.CurrentDetails;
@@ -257,6 +259,7 @@ public class MockGraphTest extends MockObjectTestCase {
 
         values = new HashMap<String, String>();
         values.put("LightPathEmissionFilterLink", "lightPathEmissionFilterLink");
+        values.put("LightPathExcitationFilterLink", "lightPathExcitationFilterLink");
         relationships.put("LightPath", values);
 
 
@@ -387,8 +390,10 @@ public class MockGraphTest extends MockObjectTestCase {
                     return AnnotationAnnotationLink.class;
                 } else if (name.equals("BooleanAnnotation")) {
                     return BooleanAnnotation.class;
-                } else if (name.equals("BooleanAnnotation")) {
-                    return BooleanAnnotation.class;
+                } else if (name.equals("Channel")) {
+                    return Channel.class;
+                } else if (name.equals("CommentAnnotation")) {
+                    return CommentAnnotation.class;
                 } else if (name.equals("Project")) {
                     return Project.class;
                 } else if (name.equals("ProjectAnnotationLink")) {
@@ -411,6 +416,8 @@ public class MockGraphTest extends MockObjectTestCase {
                     return ScreenAnnotationLink.class;
                 } else if (name.equals("ScreenPlateLink")) {
                     return ScreenPlateLink.class;
+                } else if (name.equals("Pixels")) {
+                    return Pixels.class;
                 } else if (name.equals("Plate")) {
                     return Plate.class;
                 } else if (name.equals("PlateAnnotationLink")) {
@@ -491,6 +498,12 @@ public class MockGraphTest extends MockObjectTestCase {
         // SPW
         final GraphQuery screenPlateLinks = query(2, "select ROOT0.id , ROOT1.id from Screen as ROOT0 join ROOT0.plateLinks as ROOT1 where ROOT0.id = :id ");
         final GraphQuery screenPlates = query(3, "select ROOT0.id , ROOT1.id , ROOT2.id from Screen as ROOT0 join ROOT0.plateLinks as ROOT1 join ROOT1.child as ROOT2 where ROOT0.id = :id ");
+        final GraphQuery screenPlateAnnLinks = query(3, "select ROOT0.id , ROOT1.id , ROOT2.id , ROOT3.id from Screen as ROOT0 join ROOT0.plateLinks as ROOT1 join ROOT1.child as ROOT2 join ROOT2.annotationLinks as ROOT3 where ROOT0.id = :id ");
+        final GraphQuery screenPlateAnnotations = query(4, "select ROOT0.id , ROOT1.id , ROOT2.id , ROOT3.id , ROOT4.id from Screen as ROOT0 join ROOT0.plateLinks as ROOT1 join ROOT1.child as ROOT2 join ROOT2.annotationLinks as ROOT3 join ROOT3.child as ROOT4 where ROOT0.id = :id ");
+        final GraphQuery screenPlateWells = query(4, "select ROOT0.id , ROOT1.id , ROOT2.id , ROOT3.id from Screen as ROOT0 join ROOT0.plateLinks as ROOT1 join ROOT1.child as ROOT2 join ROOT2.wells as ROOT3 where ROOT0.id = :id ");
+        final GraphQuery screenPlateAcquisitionAnnLinks = query(5, "select ROOT0.id , ROOT1.id , ROOT2.id , ROOT3.id , ROOT4.id from Screen as ROOT0 join ROOT0.plateLinks as ROOT1 join ROOT1.child as ROOT2 join ROOT2.plateAcquisition as ROOT3 join ROOT3.annotationLinks as ROOT4 where ROOT0.id = :id ");
+        final GraphQuery screenPlateAcquisitionAnnotations = query(6, "select ROOT0.id , ROOT1.id , ROOT2.id , ROOT3.id , ROOT4.id , ROOT5.id from Screen as ROOT0 join ROOT0.plateLinks as ROOT1 join ROOT1.child as ROOT2 join ROOT2.plateAcquisition as ROOT3 join ROOT3.annotationLinks as ROOT4 join ROOT4.child as ROOT5 where ROOT0.id = :id ");
+        final GraphQuery screenPlateAcquisition = query(4, "select ROOT0.id , ROOT1.id , ROOT2.id , ROOT3.id from Screen as ROOT0 join ROOT0.plateLinks as ROOT1 join ROOT1.child as ROOT2 join ROOT2.plateAcquisition as ROOT3 where ROOT0.id = :id ");
         final GraphQuery screenAnnotationLinks = query(2, "select ROOT0.id , ROOT1.id from Screen as ROOT0 join ROOT0.annotationLinks as ROOT1 where ROOT0.id = :id ");
         final GraphQuery screenAnnotations = query( 3, "select ROOT0.id , ROOT1.id , ROOT2.id from Screen as ROOT0 join ROOT0.annotationLinks as ROOT1 join ROOT1.child as ROOT2 where ROOT0.id = :id ");
         final GraphQuery reagentAnnotationLinks = query(3, "select ROOT0.id , ROOT1.id , ROOT2.id from Screen as ROOT0 join ROOT0.reagent as ROOT1 join ROOT1.annotationLinks as ROOT2 where ROOT0.id = :id ");
@@ -523,11 +536,17 @@ public class MockGraphTest extends MockObjectTestCase {
         final GraphQuery datasetAnnotationLinks = query(2, "select ROOT0.id , ROOT1.id from Dataset as ROOT0 join ROOT0.annotationLinks as ROOT1 where ROOT0.id = :id ");
         final GraphQuery datasetAnnotations = query(3, "select ROOT0.id , ROOT1.id , ROOT2.id from Dataset as ROOT0 join ROOT0.annotationLinks as ROOT1 join ROOT1.child as ROOT2 where ROOT0.id = :id ");
         final GraphQuery datasets = query(1, "select ROOT0.id from Dataset as ROOT0 where ROOT0.id = :id ");
+        final GraphQuery pdImageLinks = query(4, "select ROOT0.id , ROOT1.id , ROOT2.id , ROOT3.id from Project as ROOT0 join ROOT0.datasetLinks as ROOT1 join ROOT1.child as ROOT2 join ROOT2.imageLinks as ROOT3 where ROOT0.id = :id ");
+        final GraphQuery pdImages = query(5, "select ROOT0.id , ROOT1.id , ROOT2.id , ROOT3.id , ROOT4.id from Project as ROOT0 join ROOT0.datasetLinks as ROOT1 join ROOT1.child as ROOT2 join ROOT2.imageLinks as ROOT3 join ROOT3.child as ROOT4 where ROOT0.id = :id ");
+        final GraphQuery pdAnnLinks = query(4, "select ROOT0.id , ROOT1.id , ROOT2.id , ROOT3.id from Project as ROOT0 join ROOT0.datasetLinks as ROOT1 join ROOT1.child as ROOT2 join ROOT2.annotationLinks as ROOT3 where ROOT0.id = :id ");
+        final GraphQuery pdAnns = query(5, "select ROOT0.id , ROOT1.id , ROOT2.id , ROOT3.id , ROOT4.id from Project as ROOT0 join ROOT0.datasetLinks as ROOT1 join ROOT1.child as ROOT2 join ROOT2.annotationLinks as ROOT3 join ROOT3.child as ROOT4 where ROOT0.id = :id ");
+
         // Image etc.
         final GraphQuery rois = query(1, "select ROOT0.id from Roi as ROOT0 where ROOT0.id = :id ");
         final GraphQuery roiShapes = query(2, "select ROOT0.id , ROOT1.id from Roi as ROOT0 join ROOT0.shapes as ROOT1 where ROOT0.id = :id ");
         final GraphQuery roiAnnotationLinks = query(2, "select ROOT0.id , ROOT1.id from Roi as ROOT0 join ROOT0.annotationLinks as ROOT1 where ROOT0.id = :id ");
         final GraphQuery roiAnnotations = query(3, "select ROOT0.id , ROOT1.id , ROOT2.id from Roi as ROOT0 join ROOT0.annotationLinks as ROOT1 join ROOT1.child as ROOT2 where ROOT0.id = :id ");
+        final GraphQuery roiAnnotationsAnnotations = query(4, "select ROOT0.id , ROOT1.id , ROOT2.id , ROOT3.id from Roi as ROOT0 join ROOT0.annotationLinks as ROOT1 join ROOT1.child as ROOT2 join ROOT2.annotationLinks as ROOT3 where ROOT0.id = :id and (ROOT2.class = Annotation) ");
         final GraphQuery imageDatasetLinks = query(2, "select ROOT0.id , ROOT1.id from Image as ROOT0 join ROOT0.datasetLinks as ROOT1 where ROOT0.id = :id ");
         final GraphQuery images = query(1, "select ROOT0.id from Image as ROOT0 where ROOT0.id = :id ");
         final GraphQuery imageRois = query(2, "select ROOT0.id , ROOT1.id from Image as ROOT0 join ROOT0.rois as ROOT1 where ROOT0.id = :id ");
@@ -544,10 +563,14 @@ public class MockGraphTest extends MockObjectTestCase {
         final GraphQuery pixels = query(2, "select ROOT0.id , ROOT1.id from Image as ROOT0 join ROOT0.pixels as ROOT1 where ROOT0.id = :id ");
         final GraphQuery imageAnnotationLinks = query(2, "select ROOT0.id , ROOT1.id from Image as ROOT0 join ROOT0.annotationLinks as ROOT1 where ROOT0.id = :id ");
         final GraphQuery imageAnnotations = query(3, "select ROOT0.id , ROOT1.id , ROOT2.id from Image as ROOT0 join ROOT0.annotationLinks as ROOT1 join ROOT1.child as ROOT2 where ROOT0.id = :id ");
+        final GraphQuery imageAnnotationsAnnotation = query(4, "select ROOT0.id , ROOT1.id , ROOT2.id , ROOT3.id from Image as ROOT0 join ROOT0.annotationLinks as ROOT1 join ROOT1.child as ROOT2 join ROOT2.annotationLinks as ROOT3 where ROOT0.id = :id and (ROOT2.class = Annotation) ");
         final GraphQuery channelAnnotationLinks = query(4, "select ROOT0.id , ROOT1.id , ROOT2.id , ROOT3.id from Image as ROOT0 join ROOT0.pixels as ROOT1 join ROOT1.channels as ROOT2 join ROOT2.annotationLinks as ROOT3 where ROOT0.id = :id ");
         final GraphQuery channelAnnotations = query(5, "select ROOT0.id , ROOT1.id , ROOT2.id , ROOT3.id , ROOT4.id from Image as ROOT0 join ROOT0.pixels as ROOT1 join ROOT1.channels as ROOT2 join ROOT2.annotationLinks as ROOT3 join ROOT3.child as ROOT4 where ROOT0.id = :id ");
         final GraphQuery statsInfo = query(4, "select ROOT0.id , ROOT1.id , ROOT2.id , ROOT3.id from Image as ROOT0 join ROOT0.pixels as ROOT1 join ROOT1.channels as ROOT2 join ROOT2.statsInfo as ROOT3 where ROOT0.id = :id ");
         final GraphQuery logicalChannel = query(4, "select ROOT0.id , ROOT1.id , ROOT2.id , ROOT3.id from Image as ROOT0 join ROOT0.pixels as ROOT1 join ROOT1.channels as ROOT2 join ROOT2.logicalChannel as ROOT3 where ROOT0.id = :id ");
+        final GraphQuery lcLightPathEmissionFilterLink = query(6, "select ROOT0.id , ROOT1.id , ROOT2.id , ROOT3.id , ROOT4.id , ROOT5.id from Image as ROOT0 join ROOT0.pixels as ROOT1 join ROOT1.channels as ROOT2 join ROOT2.logicalChannel as ROOT3 join ROOT3.lightPath as ROOT4 join ROOT4.lightPathEmissionFilterLink as ROOT5 where ROOT0.id = :id ");
+        final GraphQuery lcLightPathExcitationFilterLink = query(6, "select ROOT0.id , ROOT1.id , ROOT2.id , ROOT3.id , ROOT4.id , ROOT5.id from Image as ROOT0 join ROOT0.pixels as ROOT1 join ROOT1.channels as ROOT2 join ROOT2.logicalChannel as ROOT3 join ROOT3.lightPath as ROOT4 join ROOT4.lightPathExcitationFilterLink as ROOT5 where ROOT0.id = :id ");
+        final GraphQuery lcLightPath = query(5, "select ROOT0.id , ROOT1.id , ROOT2.id , ROOT3.id , ROOT4.id from Image as ROOT0 join ROOT0.pixels as ROOT1 join ROOT1.channels as ROOT2 join ROOT2.logicalChannel as ROOT3 join ROOT3.lightPath as ROOT4 where ROOT0.id = :id ");
         final GraphQuery lightSourceSettings = query(5, "select ROOT0.id , ROOT1.id , ROOT2.id , ROOT3.id , ROOT4.id from Image as ROOT0 join ROOT0.pixels as ROOT1 join ROOT1.channels as ROOT2 join ROOT2.logicalChannel as ROOT3 join ROOT3.lightSourceSettings as ROOT4 where ROOT0.id = :id ");
         final GraphQuery lightSourceSettingsMicroBeam = query(6, "select ROOT0.id , ROOT1.id , ROOT2.id , ROOT3.id , ROOT4.id , ROOT5.id from Image as ROOT0 join ROOT0.pixels as ROOT1 join ROOT1.channels as ROOT2 join ROOT2.logicalChannel as ROOT3 join ROOT3.lightSourceSettings as ROOT4 join ROOT4.microbeamManipulation as ROOT5 where ROOT0.id = :id ");
         final GraphQuery detectorSettings = query(5, "select ROOT0.id , ROOT1.id , ROOT2.id , ROOT3.id , ROOT4.id from Image as ROOT0 join ROOT0.pixels as ROOT1 join ROOT1.channels as ROOT2 join ROOT2.logicalChannel as ROOT3 join ROOT3.detectorSettings as ROOT4 where ROOT0.id = :id ");
@@ -557,6 +580,8 @@ public class MockGraphTest extends MockObjectTestCase {
         final GraphQuery experiment = query(2, "select ROOT0.id , ROOT1.id from Image as ROOT0 join ROOT0.experiment as ROOT1 where ROOT0.id = :id ");
         final GraphQuery instrument = query(2, "select ROOT0.id , ROOT1.id from Image as ROOT0 join ROOT0.instrument as ROOT1 where ROOT0.id = :id ");
 
+        final Map<String, GraphQuery> roiAnnQueries = makeAnnQueries("Roi", 2);
+        final Map<String, GraphQuery> imgAnnQueries = makeAnnQueries("Image", 2);
 
         public GraphQuery get(String str) {
             return queries.get(str);
@@ -566,7 +591,7 @@ public class MockGraphTest extends MockObjectTestCase {
             rois.add(roi);
             roiAnnotationLinks.add(roi, link);
             roiAnnotations.add(roi, link, ann);
-            anns.add(ann);
+            anns.add(roi, link, ann);
         }
 
         //
@@ -594,6 +619,27 @@ public class MockGraphTest extends MockObjectTestCase {
         }
 
 
+        // select ROOT0.id                       from Roi as ROOT0                                                               where ROOT0.id = :id ");
+        // select ROOT0.id , ROOT1.id , ROOT2.id from Roi as ROOT0 join ROOT0.annotationLinks as ROOT1 join ROOT1.child as ROOT2 where ROOT0.id = :id and (ROOT2.class = FileAnnotation) ");
+        /**
+         * Unfinished implementation.
+         */
+        private Map<String, GraphQuery> makeAnnQueries(String type, int annRoot) {
+            Map<String, GraphQuery> gqs = new HashMap<String, GraphQuery>();
+            String base = "select ROOT0.id , ROOT1.id , ROOT2.id from %s as ROOT0 join ROOT0.annotationLinks as ROOT1 join ROOT1.child as ROOT2 where ROOT0.id = :id and (ROOT%s.class = %sAnnotation) ";
+            List<String> anns = Arrays.asList("Boolean", "List", "File", "Xml", "Tag", "Comment", "Long", "Term", "Timestamp", "Double");
+            for (String ann : anns) {
+                String str = String.format(base, type, annRoot, ann);
+                GraphQuery gq = query(3, str);
+                gqs.put(ann + "Annotation", gq);
+            }
+            GraphQuery qg = query(4, String.format(
+                    "select ROOT0.id , ROOT1.id , ROOT2.id , ROOT3.id from %s as ROOT0" +
+                    " join ROOT0.annotationLinks as ROOT1 join ROOT1.child as ROOT2" +
+                    " join ROOT2.file as ROOT3 where ROOT0.id = :id and (ROOT2.class = FileAnnotation) ", type));
+            gqs.put("File", qg);
+            return gqs;
+        }
     }
 
 }

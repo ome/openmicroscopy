@@ -229,7 +229,8 @@ public class GraphEntry {
     protected void postProcess(ListableBeanFactory factory) {
         if (name.equals(self.getName())) {
             return;
-        } else if (factory.containsBean(name)) {
+        } else if (factory.containsBeanDefinition(name) &&
+                GraphSpec.class.isAssignableFrom(factory.getType(name))) {
             this.subSpec = factory.getBean(name, GraphSpec.class);
             this.subSpec.postProcess(factory);
         }

@@ -134,34 +134,37 @@ public class GraphStateUnitTest extends MockGraphTest {
     @Test
     public void testSimpleRoiSubSpec() throws Exception {
         prepareGetRelationship();
-        GraphSpec spec = specXml.getBean("/Roi", GraphSpec.class);
+        GraphSpec spec = spec("/Roi");
 
         prepareGetHibernateClass();
 
         Queries q = new Queries();
-        q.rois.add(0);
-        q.roiAnnotationLinks.add(0, 2);
-        q.roiAnnotations.add(0, 2, 3);
+        GraphQuery boolAnn = q.roiAnnQueries.get("BooleanAnnotation");
+        q.roiWithAnnotation(0, 2, 3, boolAnn);
+
         prepareTableLookups(q);
 
         GraphState state = new GraphState(new DeleteStepFactory(specXml), null, session, spec);
-        assertEquals(state.toString(), 5, state.getTotalFoundCount());
-        // includes the one parent spec
+        assertEquals(state.toString(), 4, state.getTotalFoundCount());
 
     }
 
     @Test
     public void testComplexRoiSubSpec() throws Exception {
         prepareGetRelationship();
-        GraphSpec spec = specXml.getBean("/Roi", GraphSpec.class);
+        GraphSpec spec = spec("/Roi");
 
         prepareGetHibernateClass();
 
-        Queries q = new Queries();
-        q.roiWithAnnotation(0, 2, 3, q.booleanAnnotations);
+
+        final Queries q = new Queries();
+        final GraphQuery boolAnn = q.roiAnnQueries.get("BooleanAnnotation");
+        final GraphQuery commAnn = q.roiAnnQueries.get("CommentAnnotation");
+
+        q.roiWithAnnotation(0, 2, 3, boolAnn);
         q.roiShapes.add(0, 1);
 
-        q.roiWithAnnotation(10, 12, 13, q.commentAnnotations);
+        q.roiWithAnnotation(10, 12, 13, commAnn);
         q.roiShapes.add(10, 11);
 
         prepareTableLookups(q);
@@ -234,7 +237,7 @@ public class GraphStateUnitTest extends MockGraphTest {
     @Test
     public void testStackSizeForProject() throws Exception {
         prepareGetRelationship();
-        GraphSpec spec = specXml.getBean("/Project", GraphSpec.class);
+        GraphSpec spec = spec("/Project");
 
         prepareGetHibernateClass();
 
@@ -242,6 +245,7 @@ public class GraphStateUnitTest extends MockGraphTest {
         q.projects.add(0);
         q.projectDatasetLinks.add(0, 1);
         q.projectDatasets.add(0, 1, 2);
+        q.pdImageLinks.none();
 
         prepareTableLookups(q);
 
@@ -439,38 +443,34 @@ public class GraphStateUnitTest extends MockGraphTest {
     public void testSavepointsAreHandledProperly() throws Exception {
         prepareGetHibernateClass();
         prepareGetRelationship();
-        GraphSpec spec = specXml.getBean("/Screen", GraphSpec.class);
+        GraphSpec spec = spec("/Screen");
 
         Queries q = new Queries();
         q.screens.add(0);
         q.screenPlateLinks.add(0, 1);
         q.screenPlates.add(0, 1, 2);
-        q.plateWells.add(2, 3);
-        q.samples.add(3, 4);
 
         prepareTableLookups(q);
 
         GraphState state = new GraphState(new DeleteStepFactory(specXml), null, session, spec);
-        assertEquals(state.toString(), 3, state.getTotalFoundCount());
+        assertEquals(state.toString(), 4, state.getTotalFoundCount());
     }
 
     @Test(groups = {"ticket:3125", "ticket:3130"})
     public void testSavepointsAreHandledProperly2() throws Exception {
         prepareGetHibernateClass();
         prepareGetRelationship();
-        GraphSpec spec = specXml.getBean("/Screen", GraphSpec.class);
+        GraphSpec spec = spec("/Screen");
 
         Queries q = new Queries();
         q.screens.add(0);
         q.screenPlateLinks.add(0, 1);
         q.screenPlates.add(0, 1, 2);
-        q.plateWells.add(2, 3);
-        q.samples.add(3, 4);
 
         prepareTableLookups(q);
 
         GraphState state = new GraphState(new DeleteStepFactory(specXml), null, session, spec);
-        assertEquals(state.toString(), 3, state.getTotalFoundCount());
+        assertEquals(state.toString(), 4, state.getTotalFoundCount());
     }
 
     //
@@ -479,7 +479,7 @@ public class GraphStateUnitTest extends MockGraphTest {
 
     public void testGetProject() throws Exception {
         prepareGetRelationship();
-        GraphSpec spec = specXml.getBean("/Project", GraphSpec.class);
+        GraphSpec spec = spec("/Project");
 
         prepareGetHibernateClass();
 
@@ -517,7 +517,7 @@ public class GraphStateUnitTest extends MockGraphTest {
 
     public void testGetProjectOnExport() throws Exception {
         prepareGetRelationship();
-        GraphSpec spec = specXml.getBean("/Project", GraphSpec.class);
+        GraphSpec spec = spec("/Project");
 
         prepareGetHibernateClass();
 
@@ -536,25 +536,27 @@ public class GraphStateUnitTest extends MockGraphTest {
 
     public void testGetAnnotationRefOnExport() throws Exception {
         prepareGetRelationship();
-        GraphSpec spec = specXml.getBean("/Image", GraphSpec.class);
+        GraphSpec spec = spec("/Image");
 
         prepareGetHibernateClass();
 
         Queries q = new Queries();
+        GraphQuery boolAnn = q.imgAnnQueries.get("BooleanAnnotation");
         q.images.add(0);
         q.imageAnnotationLinks.add(0, 1);
         q.imageAnnotations.add(0, 1, 2);
+        boolAnn.add(0, 1, 2);
 
         prepareTableLookups(q);
 
         ExporterStepFactory factory = new ExporterStepFactory(null, null);
         GraphState state = new GraphState(factory, null, session, spec);
-        assertEquals(state.toString(), 4, state.getTotalFoundCount());
+        assertEquals(state.toString(), 5, state.getTotalFoundCount());
 
         // test the counts
-        assertEquals(1, factory.getCount("Image"));
-        assertEquals(1, factory.getCount("Annotation"));
-        assertEquals(1, factory.getCount("ImageAnnotationLink"));
+        assertEquals(state.toString(), 1, factory.getCount("Image"));
+        assertEquals(state.toString(), 1, factory.getCount("BooleanAnnotation"));
+        assertEquals(state.toString(), 1, factory.getCount("ImageAnnotationLink"));
         // UNSUPPORTED assertEquals(1, factory.getCount("ImageAnnotationRef"));
 
         // test the actual ids.
@@ -565,7 +567,7 @@ public class GraphStateUnitTest extends MockGraphTest {
 
     public void testGetChannelOnExport() throws Exception {
         prepareGetRelationship();
-        GraphSpec spec = specXml.getBean("/Image", GraphSpec.class);
+        GraphSpec spec = spec("/Image");
 
         prepareGetHibernateClass();
 
@@ -580,7 +582,7 @@ public class GraphStateUnitTest extends MockGraphTest {
 
         ExporterStepFactory factory = new ExporterStepFactory(null, null);
         GraphState state = new GraphState(factory, null, session, spec);
-        assertEquals(state.toString(), 4, state.getTotalFoundCount());
+        assertEquals(state.toString(), 7, state.getTotalFoundCount());
         assertEquals(1, factory.getCount("Image"));
         assertEquals(1, factory.getCount("Pixels"));
         assertEquals(3, factory.getCount("Channel"));
@@ -652,6 +654,13 @@ public class GraphStateUnitTest extends MockGraphTest {
                 .will(returnValue(query));
         queryMock.expects(once()).method("setParameter");
         queryMock.expects(once()).method("list").will(returnValue(table));
+    }
+
+
+    private GraphSpec spec(String name) throws GraphException {
+        GraphSpec spec = specXml.getBean(name, GraphSpec.class);
+        spec.initialize(1, null, null);
+        return spec;
     }
 
 }

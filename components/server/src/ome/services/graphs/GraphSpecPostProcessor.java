@@ -7,6 +7,9 @@
 
 package ome.services.graphs;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.context.ApplicationContext;
@@ -14,13 +17,16 @@ import org.springframework.context.ApplicationContextAware;
 
 /**
  * post processor which should be included in all Spring context files with
+ *
  * @author Josh Moore, josh at glencoesoftware.com
  * @since Beta4.2.3
  */
 public class GraphSpecPostProcessor implements BeanPostProcessor,
         ApplicationContextAware {
 
-    private ApplicationContext ctx;
+    private final Map<String, GraphSpec> specs = new HashMap<String, GraphSpec>();
+
+    private/* final */ApplicationContext ctx;
 
     public void setApplicationContext(ApplicationContext ctx)
             throws BeansException {
