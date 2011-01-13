@@ -10,13 +10,14 @@
 """
 
 import integration.library as lib
-import unittest, os, sys, uuid
+import unittest, os, sys
 
 import omero
 import omero.clients
 import omero.model
 import omero.api
 import omero_api_IScript_ice
+import omero_ext.uuid as uuid # see ticket:3774
 
 from omero.util.temp_files import create_path, remove_path
 from omero.rtypes import *
@@ -25,8 +26,9 @@ from omero.scripts import wait
 PINGFILE = """
 #!/usr/bin/env python
 
-import os, uuid
+import os
 import omero, omero.scripts as s
+import omero_ext.uuid as uuid # see ticket:3774
 
 #
 # Unique name so that IScript does not reject us

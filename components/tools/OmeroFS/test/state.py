@@ -17,7 +17,6 @@ import unittest
 LOGFORMAT =  """%(asctime)s %(levelname)-5s [%(name)40s] (%(threadName)-10s) %(message)s"""
 logging.basicConfig(level=0,format=LOGFORMAT)
 
-from uuid import uuid4
 from path import path
 from omero.util import make_logname
 from omero_ext.functional import wraps

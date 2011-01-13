@@ -48,10 +48,10 @@ sys.exit(popen.wait())
 
 import os
 import time
-import uuid
 import omero
 import omero.processor
 import omero.util
+import omero_ext.uuid as uuid # see ticket:3774
 
 ## To see the actions of the usermode
 ## processor, enable logging here.

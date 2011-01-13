@@ -25,8 +25,7 @@ class TestPermissions(lib.ITest):
 
     def testLoginToPublicGroupTicket1940(self):
         # As root create a new group
-        from uuid import uuid4
-        uuid = str(uuid4())
+        uuid = self.uuid()
         g = ExperimenterGroupI()
         g.name = rstring(uuid)
         g.details.permissions = PermissionsI("rwrwrw")
@@ -212,8 +211,7 @@ class TestPermissions(lib.ITest):
         new_exp1.lastName = rstring("Test")
         new_exp1.email = rstring("newtest@emaildomain.com")
 
-        from uuid import uuid4
-        uuid = str(uuid4())
+        uuid = self.uuid()
         uuidGroup = ExperimenterGroupI()
         uuidGroup.name = rstring(uuid)
         uuidGroupId = admin.createGroup(uuidGroup)

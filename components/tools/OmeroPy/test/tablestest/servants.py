@@ -11,12 +11,12 @@
 import Ice
 import exceptions
 import omero, omero.tables
+import omero_ext.uuid as uuid # see ticket:3774
 import unittest, sys, os, logging
 import tablestest.library as lib
 
 from omero.columns import *
 from path import path
-from uuid import uuid4
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -67,7 +67,7 @@ class mocked_internal_service_factory(object):
 
 class mocked_service_factory(object):
     def __init__(self):
-        self.db_uuid = str(uuid4())
+        self.db_uuid = str(uuid.uuid4())
         self.return_values = []
     def keepAlive(self, *args):
         pass

@@ -8,7 +8,6 @@
 import logging
 import threading
 import os, sys, traceback
-import uuid
 
 # Third party path package. It provides much of the 
 # functionality of os.path but without the complexity.

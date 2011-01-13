@@ -7,7 +7,6 @@
 """
 import logging
 import sys, traceback
-import uuid
 
 try:
     from hashlib import sha1 as sha

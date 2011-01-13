@@ -16,10 +16,10 @@ import threading
 import time
 import unittest
 
+import omero_ext.uuid as uuid # see ticket:3774
 import omero.grid.monitors as monitors
 import IceGrid
 
-from uuid import uuid4
 from path import path
 from omero.util import ServerContext
 from omero_ext.mox import Mox
@@ -285,7 +285,7 @@ class Simulator(monitors.MonitorClient):
                     if not file.isdir():
                         raise exceptions.Exception("%s is not a directory" % file)
                     self.log.info("Creating file in dir %s", file)
-                    new_file = file / str(uuid4())
+                    new_file = file / str(uuid.uuid4())
                     new_file.write_lines(["Writing new file to modify this directory on event: %s" % event])
                 else:
                     self.log.info("Modifying file %s", file)

@@ -9,7 +9,6 @@ import logging
 import copy
 import threading
 import sys, traceback
-import uuid
 import socket
 
 # Third party path package. It provides much of the 

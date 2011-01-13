@@ -11,7 +11,6 @@ import FSEvents
 
 import threading
 import sys, traceback
-import uuid
 import socket
 
 # Third party path package. It provides much of the 
@@ -20,6 +19,8 @@ import socket
 import path as pathModule
 
 from omero.grid import monitors
+import omero_ext.uuid as uuid # see ticket:3774
+
 from fsAbstractPlatformMonitor import AbstractPlatformMonitor
 import fsDirectory
 

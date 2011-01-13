@@ -9,7 +9,6 @@
 import os
 import sys
 import time
-import uuid
 import atexit
 import logging
 import threading

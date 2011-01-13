@@ -11,13 +11,13 @@
 
 import os
 import Ice
-import uuid
 import logging
 import exceptions
 
 import omero
 import omero_Scripts_ice
 import omero.util.concurrency
+import omero_ext.uuid as uuid # see ticket:3774
 
 from omero.rtypes import *
 

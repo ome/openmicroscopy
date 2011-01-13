@@ -41,7 +41,6 @@ import warnings as wrn
 import matplotlib as mpl
 mpl.use('Agg')
 
-import uuid as uuid
 import time as tim
 import resource as res
 import sys as sys
@@ -65,6 +64,7 @@ import omero_api_Gateway_ice
 import omero.util.pixelstypetopython as pixelstypetopython
 from omero.rtypes import *
 import omero_Constants_ice
+import omero_ext.uuid as uuid # see ticket:3774
 
 # Script Utility helper methods.
 import omero.util.script_utils as script_utils

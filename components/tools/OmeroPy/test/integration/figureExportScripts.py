@@ -25,6 +25,7 @@ from omero_model_PermissionsI import PermissionsI
 import omero_api_Gateway_ice
 import omero_api_IRoi_ice
 import omero.util.script_utils as scriptUtil
+import omero_ext.uuid as uuid # see ticket:3774
 from omero import ApiUsageException
 
 from numpy import *
@@ -417,14 +418,13 @@ def runScript(client, session, scriptId, argMap, returnKey=None):
         return results[returnKey]
 
 def uploadScript(scriptService, scriptPath):
-    from uuid import uuid4
-    uuid = str(uuid4())
+    _uuid = str(uuid.uuid4())
 
     file = open(scriptPath)
     scriptText = file.read()
     file.close()
     try:
-        scriptId = scriptService.uploadOfficialScript("/%s/%s" % (uuid, scriptPath), scriptText)
+        scriptId = scriptService.uploadOfficialScript("/%s/%s" % (_uuid, scriptPath), scriptText)
     except ApiUsageException:
         raise # The next line will never be run!
         scriptId = editScript(scriptService, scriptPath)

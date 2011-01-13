@@ -11,7 +11,6 @@ import sys
 import Ice
 import path
 import time
-import uuid
 import omero
 import IcePy
 import IceGrid
@@ -22,6 +21,7 @@ import threading
 import exceptions
 import logging.handlers
 import omero.util.concurrency
+import omero_ext.uuid as uuid # see ticket:3774
 
 from omero.util.decorators import locked
 

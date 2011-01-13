@@ -10,7 +10,7 @@
 """
 import unittest, time
 import integration.library as lib
-import omero, uuid
+import omero
 import omero_Constants_ice
 from omero_model_PixelsI import PixelsI
 from omero_model_ImageI import ImageI
@@ -22,7 +22,6 @@ from omero_model_GroupExperimenterMapI import GroupExperimenterMapI
 from omero_model_DatasetImageLinkI import DatasetImageLinkI
 from omero_model_ProjectDatasetLinkI import ProjectDatasetLinkI
 from omero_sys_ParametersI import ParametersI
-from omero.rtypes import *
 
 class TestTickets2000(lib.ITest):
 
@@ -88,7 +87,7 @@ class TestTickets2000(lib.ITest):
         self.client.sf.getAdminService().lookupLdapAuthExperimenters()
 
     def test1069(self):
-        unique = rstring(str(uuid.uuid4()))
+        unique = rstring(self.uuid())
         project = ProjectI()
         project.name = unique
         project.description = rstring("NOTME")

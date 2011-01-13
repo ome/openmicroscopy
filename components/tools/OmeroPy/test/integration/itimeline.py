@@ -12,7 +12,7 @@ import time
 import datetime
 import unittest
 import integration.library as lib
-import omero, uuid
+import omero
 import omero_Constants_ice
 from omero.rtypes import *
 

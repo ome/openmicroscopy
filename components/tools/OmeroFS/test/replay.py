@@ -19,7 +19,6 @@ from fsDropBoxMonitorClient import *
 from drivers import *
 
 from path import path
-from uuid import uuid4
 
 class TestReplay(unittest.TestCase):
 

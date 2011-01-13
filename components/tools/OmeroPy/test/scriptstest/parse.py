@@ -10,7 +10,6 @@
 
 import os
 import sys
-import uuid
 import logging
 import unittest
 

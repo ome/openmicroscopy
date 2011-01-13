@@ -11,7 +11,6 @@ log = logging.getLogger("fsclient.DropBox")
 
 import time, os, sys
 import string
-import uuid
 import threading
 import shutil
 
@@ -22,6 +21,7 @@ import path as pathModule
 
 import omero
 import omero.rtypes
+import omero_ext.uuid as uuid # see ticket:3774
 import Ice
 import IceGrid
 import Glacier2

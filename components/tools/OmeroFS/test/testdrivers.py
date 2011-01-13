@@ -16,9 +16,9 @@ import threading
 import time
 import unittest
 
+import omero_ext.uuid as uuid # see ticket:3774
 import omero.grid.monitors as monitors
 
-from uuid import uuid4
 from path import path
 from omero.util.temp_files import create_path
 from omero_ext.functional import wraps
@@ -58,7 +58,7 @@ class TestSimulator(unittest.TestCase):
     """
 
     def beforeMethod(self):
-        self.uuid = str(uuid4())
+        self.uuid = str(uuid.uuid4())
         self.dir = create_path(folder=True) / self.uuid
         self.dir.makedirs()
         self.sim = Simulator(self.dir)

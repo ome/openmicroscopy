@@ -7,8 +7,9 @@
 """
 import logging
 import sys, traceback
-import uuid
 import socket
+
+import omero_ext.uuid as uuid # see ticket:3774
 
 try:
     from hashlib import sha1 as sha

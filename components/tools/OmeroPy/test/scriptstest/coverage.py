@@ -9,7 +9,7 @@
 """
 
 import integration.library as lib
-import unittest, os, sys, uuid
+import unittest, os, sys
 
 import omero
 import omero.rtypes as OR

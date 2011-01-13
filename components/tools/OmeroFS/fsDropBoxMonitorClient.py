@@ -12,7 +12,6 @@ import exceptions
 import string
 import os
 import platform
-import uuid
 import threading
 import Queue
 import time

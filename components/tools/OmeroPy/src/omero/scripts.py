@@ -19,7 +19,6 @@
 
 import os
 import Ice
-import uuid
 import logging
 import exceptions
 

@@ -8,7 +8,6 @@
 import logging
 import threading, Queue
 import os, sys, traceback
-import uuid
 import time
 
 # Third party path package. It provides much of the 

@@ -23,7 +23,6 @@ import omero
 
 from omero.util.temp_files import create_path
 from omero.rtypes import rstring, rtime
-from uuid import uuid4 as uuid
 from path import path
 
 
@@ -95,7 +94,8 @@ class ITest(unittest.TestCase):
             self.fail("Could not find OmeroPy/; searched %s" % searched)
 
     def uuid(self):
-        return str(uuid())
+        import omero_ext.uuid as _uuid # see ticket:3774
+        return str(_uuid.uuid4())
 
     def login_args(self):
         p = self.client.ic.getProperties()
@@ -116,7 +116,7 @@ class ITest(unittest.TestCase):
 
     def new_group(self, experimenters = None, perms = None):
         admin = self.root.sf.getAdminService()
-        gname = str(uuid())
+        gname = self.uuid()
         group = omero.model.ExperimenterGroupI()
         group.name = rstring(gname)
         if perms:
