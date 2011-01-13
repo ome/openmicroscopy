@@ -204,7 +204,15 @@ class ImageCanvasListener
 	 */
 	public void mouseWheelMoved(MouseWheelEvent e)
 	{
-		if (!mouseOnCanvas) return;
+		//if (!mouseOnCanvas) return;
+		if (e.isAltDown() || e.isShiftDown() || e.isControlDown()) { //zooming
+			 if (e.getScrollType() == MouseWheelEvent.WHEEL_UNIT_SCROLL) {
+				 int v = e.getWheelRotation();
+				 model.zoom(v < 0); //zoom in and out.
+			 }
+			return;
+		}
+		//change the z-section.
 		int maxZ = model.getMaxZ();
 		int maxT = model.getMaxT();
 		if (maxZ <= 0 && maxT <= 0) return;
@@ -233,9 +241,7 @@ class ImageCanvasListener
             			((BrowserBICanvas) canvas).setPaintedString(-1, -1);
                 }
             }
-        } else {
-     
-        }
+        } 
 	}
 	
 	/**
