@@ -971,14 +971,14 @@ class AnnotationDataUI
 			} else {
 				while (i.hasNext()) {
 					tag = (TagAnnotationData) i.next();
-					if (!model.isAnnotationUsedByUser(tag)) {
+					if (tag != null && !model.isAnnotationUsedByUser(tag)) {
 						ids.add(tag.getId());
 					}
 				}
 				i = tags.iterator();
 				while (i.hasNext()) {
 					tag = (TagAnnotationData) i.next();
-					if (!ids.contains(tag.getId())) {
+					if (tag != null && !ids.contains(tag.getId())) {
 						tagFlag = true;
 						break;
 					}
@@ -996,12 +996,12 @@ class AnnotationDataUI
 			} else {
 				while (i.hasNext()) {
 					data = (FileAnnotationData) i.next();
-					ids.add(data.getId());
+					if  (data != null) ids.add(data.getId());
 				}
 				i = attachments.iterator();
 				while (i.hasNext()) {
 					data = (FileAnnotationData) i.next();
-					if (!ids.contains(data.getId())) {
+					if (data != null && !ids.contains(data.getId())) {
 						docFlag = true;
 						break;
 					}
