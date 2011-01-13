@@ -16,10 +16,14 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ome.model.IObject;
+import ome.model.core.Image;
 import ome.security.basic.CurrentDetails;
+import ome.server.utests.DummyExecutor;
 import ome.services.delete.DeleteStepFactory;
 import ome.services.export.ExporterStepFactory;
+import ome.services.util.Executor;
 import ome.system.EventContext;
+import ome.system.Principal;
 
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -549,7 +553,10 @@ public class GraphStateUnitTest extends MockGraphTest {
 
         prepareTableLookups(q);
 
-        ExporterStepFactory factory = new ExporterStepFactory(null, null);
+        Executor ex = new DummyExecutor(session, null);
+        Principal p = new Principal("foo");
+
+        ExporterStepFactory factory = new ExporterStepFactory(ex, p);
         GraphState state = new GraphState(factory, null, session, spec);
         assertEquals(state.toString(), 5, state.getTotalFoundCount());
 
@@ -560,8 +567,13 @@ public class GraphStateUnitTest extends MockGraphTest {
         // UNSUPPORTED assertEquals(1, factory.getCount("ImageAnnotationRef"));
 
         // test the actual ids.
-        assertEquals(0L, factory.getObject("Image", 0));
-        assertEquals(0L, factory.getObject("Annotation", 2));
+        sessionMock.expects(once()).method("get").with(eq("Image"), eq(0L));
+        factory.getObject("Image", 0);
+
+        sessionMock.expects(once()).method("get").with(eq("BooleanAnnotation"), eq(-1L));
+        assertEquals(0L, factory.getObject("BooleanAnnotation", 2));
+
+        sessionMock.expects(once()).method("get").with(eq("ImageAnnotationLink"), eq(-1L));
         assertEquals(0L, factory.getObject("ImageAnnotationLink", 0, 1));
     }
 

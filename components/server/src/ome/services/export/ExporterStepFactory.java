@@ -42,10 +42,15 @@ public class ExporterStepFactory implements GraphStepFactory {
 
     private final static String[] TOP_LEVEL = new String[] {
             "BooleanAnnotation", "CommentAnnotation", "Dataset",
-            "DoubleAnnotation", "Experiment", "Experimenter", "FileAnnotation",
-            "Group", "Image", "Instrument", "ListAnnotation", "LongAnnotation",
-            "Plate", "Project", "ROI", "Screen", "TagAnnotation",
-            "TermAnnotation", "TimestampAnnotation", "XMLAnnotation" };
+            "DoubleAnnotation", "Experiment", "Experimenter",
+            "ExperimenterGroup", "FileAnnotation", "Image", "Instrument",
+            "ListAnnotation", "LongAnnotation", "Plate", "Project", "Roi",
+            "Screen", "TagAnnotation", "TermAnnotation", "TimestampAnnotation",
+            "XMLAnnotation" };
+
+    static {
+        Arrays.sort(TOP_LEVEL);
+    }
 
     private final Executor ex;
 
@@ -118,7 +123,7 @@ public class ExporterStepFactory implements GraphStepFactory {
         for (int i = path.length - 1; i >= 0; i--) {
             String part = path[i];
             if (0 <= Arrays.binarySearch(TOP_LEVEL, part)) {
-                return path.length - i + 1; // length of search indexes needed
+                return path.length - i; // length of search indexes needed
             }
         }
         throw new GraphException("Path without top-level:"
@@ -137,7 +142,7 @@ public class ExporterStepFactory implements GraphStepFactory {
         }
 
         if (v.indicesNeeded != idx.length) {
-            throw new GraphException("Wrong index sizes! ExpectedL" +
+            throw new GraphException("Wrong index sizes! Expected:" +
                     v.indicesNeeded + ". Got: " + idx.length);
 
         }

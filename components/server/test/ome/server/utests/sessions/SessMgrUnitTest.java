@@ -9,9 +9,7 @@ package ome.server.utests.sessions;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import net.sf.ehcache.CacheManager;
@@ -33,19 +31,19 @@ import ome.model.meta.ExperimenterGroup;
 import ome.model.meta.Node;
 import ome.model.meta.Session;
 import ome.security.basic.CurrentDetails;
+import ome.server.utests.DummyExecutor;
 import ome.services.sessions.SessionContext;
 import ome.services.sessions.SessionContextImpl;
 import ome.services.sessions.SessionManagerImpl;
 import ome.services.sessions.events.UserGroupUpdateEvent;
-import ome.services.sessions.state.SessionCache.StaleCacheListener;
 import ome.services.sessions.state.SessionCache;
+import ome.services.sessions.state.SessionCache.StaleCacheListener;
 import ome.services.sessions.stats.CounterFactory;
 import ome.services.sessions.stats.SessionStats;
 import ome.services.util.Executor;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.Roles;
-import ome.system.ServiceFactory;
 import ome.testing.MockServiceFactory;
 
 import org.jmock.Mock;
@@ -53,8 +51,6 @@ import org.jmock.MockObjectTestCase;
 import org.jmock.core.Constraint;
 import org.jmock.core.Invocation;
 import org.jmock.core.Stub;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.ApplicationEventMulticaster;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -643,56 +639,4 @@ public class SessMgrUnitTest extends MockObjectTestCase {
         assertEquals(2, s1.count().get());
     }
 
-    //
-    // Helper
-    //
-
-    class DummyExecutor implements Executor {
-
-        org.hibernate.Session session;
-        ServiceFactory sf;
-
-        DummyExecutor(org.hibernate.Session session, ServiceFactory sf) {
-            this.session = session;
-            this.sf = sf;
-        }
-
-        public Object execute(Principal p, Work work) {
-            return work.doWork(session, sf);
-        }
-
-        public <T> Future<T> submit(Callable<T> callable) {
-            throw new UnsupportedOperationException();
-        }
-
-        public <T> T get(Future<T> future) {
-            throw new UnsupportedOperationException();
-        }
-
-        public Object executeSql(SqlWork work) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void setApplicationContext(ApplicationContext arg0)
-                throws BeansException {
-            throw new UnsupportedOperationException();
-        }
-
-        public OmeroContext getContext() {
-            throw new UnsupportedOperationException();
-        }
-
-        public Principal principal() {
-            throw new UnsupportedOperationException();
-        }
-
-        public void setCallGroup(long gid) {
-            throw new UnsupportedOperationException();
-        }
-
-        public void resetCallGroup() {
-            throw new UnsupportedOperationException();
-        }
-
-    }
 }
