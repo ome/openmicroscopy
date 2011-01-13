@@ -7,7 +7,6 @@
 
 package ome.services.export;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -56,7 +55,7 @@ public class ExporterStepFactory implements GraphStepFactory {
 
     private final Principal p;
 
-    private final Map<String, Index> data = new HashMap<String, Index>();
+    private final Map<String, ExporterIndex> data = new HashMap<String, ExporterIndex>();
 
     public ExporterStepFactory(Executor ex, Principal p) {
         this.ex = ex;
@@ -71,16 +70,17 @@ public class ExporterStepFactory implements GraphStepFactory {
     }
 
     public int getCount(String name) {
-        Index index = data.get(name);
+        ExporterIndex index = data.get(name);
         if (index == null) {
             return -1;
         }
-        return index.steps.size();
+        return index.size();
     }
 
-    public <T extends IObject> T getObject(String name, int...idx)
+    @SuppressWarnings("unchecked")
+    public <T extends IObject> T getObject(String name, int order)
             throws GraphException {
-        return (T) load(name, id(name, idx));
+        return (T) load(name, byOrder(name, order));
     }
 
     //
@@ -100,13 +100,13 @@ public class ExporterStepFactory implements GraphStepFactory {
 
         String[] path = entry.path(spec.getSuperSpec());
         String key = path[path.length - 1];
-        Index v = data.get(key);
+        ExporterIndex v = data.get(key);
         if (v == null) {
             int indicesNeeded = depth(path);
-            v = new Index(indicesNeeded);
+            v = new ExporterIndex(indicesNeeded);
             data.put(key, v);
         }
-        v.steps.add(step);
+        v.add(step, ids);
     }
 
     /**
@@ -131,25 +131,47 @@ public class ExporterStepFactory implements GraphStepFactory {
     }
 
     /**
-     * Lookup the object id for the object with the given name at the given
-     * indexes. If the length of the indexes does not match those stored
+     * Returns the {@link ExporterIndex} with the given name or throws a
+     * {@link GraphException}.
+     *
+     * @param name
+     * @return
+     * @throws GraphException
      */
-    private long id(String name, int...idx) throws GraphException {
-        Index v = data.get(name);
+    private ExporterIndex indexOrThrow(String name) throws GraphException {
+        ExporterIndex v = data.get(name);
         if (v == null) {
             throw new GraphException("No indexes for " + name
                     + ". Use getCount first!");
         }
+        return v;
+    }
+
+    /**
+     * Lookup the object id for the object with the given name at the given
+     * indexes. If the length of the indexes does not match those stored an
+     * exception will be thrown.
+     *
+     * UNUSED.
+     */
+    private long id(String name, int...idx) throws GraphException {
+        ExporterIndex v = indexOrThrow(name);
 
         if (v.indicesNeeded != idx.length) {
             throw new GraphException("Wrong index sizes! Expected:" +
                     v.indicesNeeded + ". Got: " + idx.length);
 
         }
-        return -1;
+
+        throw new UnsupportedOperationException("NYI");
     }
 
-    @SuppressWarnings("unchecked")
+
+    private long byOrder(String name, int order) throws GraphException {
+        ExporterIndex v = indexOrThrow(name);
+        return v.getIdByOrder(order);
+    }
+
     private IObject load(String name, long id) {
         return (IObject) ex.execute(p, new Load(this, name, id));
     }
@@ -175,20 +197,6 @@ public class ExporterStepFactory implements GraphStepFactory {
             return session.get(name, id);
         }
 
-    }
-
-    /**
-     *
-     */
-    private static class Index {
-
-        final private int indicesNeeded;
-
-        final private List<GraphStep> steps = new ArrayList<GraphStep>();
-
-        Index(int indicesNeeded) {
-            this.indicesNeeded = indicesNeeded;
-        }
     }
 
 }

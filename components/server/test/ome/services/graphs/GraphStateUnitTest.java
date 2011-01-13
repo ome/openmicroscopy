@@ -562,19 +562,21 @@ public class GraphStateUnitTest extends MockGraphTest {
 
         // test the counts
         assertEquals(state.toString(), 1, factory.getCount("Image"));
-        assertEquals(state.toString(), 1, factory.getCount("BooleanAnnotation"));
         assertEquals(state.toString(), 1, factory.getCount("ImageAnnotationLink"));
+        assertEquals(state.toString(), 1, factory.getCount("BooleanAnnotation"));
         // UNSUPPORTED assertEquals(1, factory.getCount("ImageAnnotationRef"));
 
         // test the actual ids.
         sessionMock.expects(once()).method("get").with(eq("Image"), eq(0L));
         factory.getObject("Image", 0);
 
-        sessionMock.expects(once()).method("get").with(eq("BooleanAnnotation"), eq(-1L));
-        assertEquals(0L, factory.getObject("BooleanAnnotation", 2));
+        sessionMock.expects(once()).method("get").with(eq("ImageAnnotationLink"), eq(1L));
+        factory.getObject("ImageAnnotationLink", 0);
 
-        sessionMock.expects(once()).method("get").with(eq("ImageAnnotationLink"), eq(-1L));
-        assertEquals(0L, factory.getObject("ImageAnnotationLink", 0, 1));
+        sessionMock.expects(once()).method("get").with(eq("BooleanAnnotation"), eq(2L));
+        factory.getObject("BooleanAnnotation", 0);
+
+
     }
 
     public void testGetChannelOnExport() throws Exception {
@@ -666,13 +668,6 @@ public class GraphStateUnitTest extends MockGraphTest {
                 .will(returnValue(query));
         queryMock.expects(once()).method("setParameter");
         queryMock.expects(once()).method("list").will(returnValue(table));
-    }
-
-
-    private GraphSpec spec(String name) throws GraphException {
-        GraphSpec spec = specXml.getBean(name, GraphSpec.class);
-        spec.initialize(1, null, null);
-        return spec;
     }
 
 }

@@ -125,6 +125,12 @@ public class MockGraphTest extends MockObjectTestCase {
                 new String[] { "classpath:ome/services/delete/spec.xml" }, sac);
     }
 
+    protected GraphSpec spec(String name) throws GraphException {
+        GraphSpec spec = specXml.getBean(name, GraphSpec.class);
+        spec.initialize(1, null, null);
+        return spec;
+    }
+
     //
     // Helpers
     //
