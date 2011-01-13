@@ -55,7 +55,7 @@ public class SaxReader {
         handler = dslHandler;
 
         try {
-            xmlFile = file.toURL();
+            xmlFile = file.toURI().toURL();
         } catch (MalformedURLException e) {
             throw new RuntimeException("Error determining file's path:" + file
                     + " :\n" + e.getMessage(), e);
