@@ -1198,13 +1198,10 @@ class _BlitzGateway (object):
             logger.debug("... error not reconnecting")
             return False
 
-    def seppuku (self, softclose=False): #pragma: no cover
+    def seppuku (self): #pragma: no cover
         """
         Terminates connection with killSession(). If softclose is False, the session is really
         terminate disregarding its connection refcount. 
-        TODO: softclose ignored
-        
-        @param softclose:   Boolean
         """
         
         self._connected = False
