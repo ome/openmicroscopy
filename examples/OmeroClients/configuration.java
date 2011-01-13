@@ -6,11 +6,13 @@ public class configuration {
     // --Ice.Config=file.config
     // No username, password entered
     omero.client client1 = new omero.client(args);
-        try {
+    try {
         client1.createSession();
-        } finally {
+    } catch (Ice.ConnectionRefusedException cre) {
+        // Bad address or port?
+    } finally {
         client1.closeSession();
-        }
+    }
 
     // Most basic configuration.
     // Uses default port 4064
@@ -18,6 +20,8 @@ public class configuration {
     omero.client client2 = new omero.client("localhost");
     try {
         client2.createSession("root", "ome");
+    } catch (Ice.ConnectionRefusedException cre) {
+        // Bad address or port?
     } finally {
         client2.closeSession();
     }
@@ -26,6 +30,8 @@ public class configuration {
     omero.client client3 = new omero.client("localhost", 24064);
     try {
         client3.createSession("root", "ome");
+    } catch (Ice.ConnectionRefusedException cre) {
+        // Bad address or port?
     } finally {
         client3.closeSession();
     }
@@ -38,6 +44,8 @@ public class configuration {
     omero.client client4 = new omero.client(data);
     try {
         client4.createSession("root", "ome");
+    } catch (Ice.ConnectionRefusedException cre) {
+        // Bad address or port?
     } finally {
         client4.closeSession();
     }
@@ -53,6 +61,8 @@ public class configuration {
     // be overridden.
     try {
         client5.createSession();
+    } catch (Ice.ConnectionRefusedException cre) {
+        // Bad address or port?
     } finally {
         client5.closeSession();
     }
