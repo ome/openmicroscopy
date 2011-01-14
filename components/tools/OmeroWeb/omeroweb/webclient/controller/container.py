@@ -594,8 +594,9 @@ class BaseContainer(BaseController):
         new_links = list() 
         for k in oids.keys():                
             if len(oids[k]) > 0:
-                listing = getattr(self.conn, "get"+k.lower().title()+"sById")
-                for ob in list(listing(oids[k])):
+                #listing = getattr(self.conn, "get"+k.lower().title()+"sById")
+                for ob in self.conn.getObjects(k.lower().title(), oids[k]):
+                    print "createCommentAnnotations", type(ob)
                     if isinstance(ob._obj, omero.model.WellI):
                         t = 'Image'
                         obj = ob.selectedWellSample().image()
@@ -1058,7 +1059,7 @@ class BaseContainer(BaseController):
            if dataset is None:
                pass
            else:
-               ims = self.conn.getImagesById(images)
+               ims = self.conn.getObjects("Image", images)
                ds = self.conn.getDataset(dataset[1])
                link_array = list()
                for im in ims:
@@ -1085,7 +1086,7 @@ class BaseContainer(BaseController):
         if project is None:
             pass
         else:
-            dss = self.conn.getDatasetsById(datasets)
+            dss = self.conn.getObjects("Dataset", datasets)
             pr = self.conn.getProject(project[1])
             link_array = list()
             for ds in dss:
@@ -1112,7 +1113,7 @@ class BaseContainer(BaseController):
         if screen is None:
             pass
         else:
-            pls = self.conn.getPlatesById(plates)
+            pls = self.conn.getObjects("Plate", plates)
             sc = self.conn.getScreen(screen[1])
             link_array = list()
             for pl in pls:

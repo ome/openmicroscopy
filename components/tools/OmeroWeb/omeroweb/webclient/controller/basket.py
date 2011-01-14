@@ -49,7 +49,7 @@ class BaseBasket(BaseController):
         #    dsInBasket.append(dsId)
 
         if len(imInBasket) > 0: 
-            self.imageInBasket = list(self.conn.getImagesById(imInBasket))
+            self.imageInBasket = list(self.conn.getObjects("Image", imInBasket))
             self.imgSize = len(self.imageInBasket)
         #if len(dsInBasket) > 0: 
         #    self.datasetInBasket = list(self.conn.getDatasetsWithImages(dsInBasket))

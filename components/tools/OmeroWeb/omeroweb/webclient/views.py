@@ -1033,12 +1033,12 @@ def manage_annotation_multi(request, action=None, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError(x)
     
-    images = len(request.REQUEST.getlist('image')) > 0 and list(conn.getImagesById(request.REQUEST.getlist('image'))) or list()
-    datasets = len(request.REQUEST.getlist('dataset')) > 0 and list(conn.getDatasetsById(request.REQUEST.getlist('dataset'))) or list()
-    projects = len(request.REQUEST.getlist('project')) > 0 and list(conn.getProjectsById(request.REQUEST.getlist('project'))) or list()
-    screens = len(request.REQUEST.getlist('screen')) > 0 and list(conn.getScreensById(request.REQUEST.getlist('screen'))) or list()
-    plates = len(request.REQUEST.getlist('plate')) > 0 and list(conn.getPlatesById(request.REQUEST.getlist('plate'))) or list()
-    wells = len(request.REQUEST.getlist('well')) > 0 and list(conn.getWellsById(request.REQUEST.getlist('well'))) or list()
+    images = len(request.REQUEST.getlist('image')) > 0 and list(conn.getObjects("Image", request.REQUEST.getlist('image'))) or list()
+    datasets = len(request.REQUEST.getlist('dataset')) > 0 and list(conn.getObjects("Dataset", request.REQUEST.getlist('dataset'))) or list()
+    projects = len(request.REQUEST.getlist('project')) > 0 and list(conn.getObjects("Project", request.REQUEST.getlist('project'))) or list()
+    screens = len(request.REQUEST.getlist('screen')) > 0 and list(conn.getObjects("Screen", request.REQUEST.getlist('screen'))) or list()
+    plates = len(request.REQUEST.getlist('plate')) > 0 and list(conn.getObjects("Plates", request.REQUEST.getlist('plate'))) or list()
+    wells = len(request.REQUEST.getlist('well')) > 0 and list(conn.getObjects("Well", request.REQUEST.getlist('well'))) or list()
 
     count = {'images':len(images), 'datasets':len(datasets), 'projects':len(projects), 'screens':len(screens), 'plates':len(plates), 'wells':len(wells)}
     
@@ -1075,7 +1075,7 @@ def manage_annotation_multi(request, action=None, **kwargs):
 
                 return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse(viewname="load_template", args=[menu]))
             
-    context = {'url':url, 'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager, 'form_multi':form_multi, 'count':count}
+    context = {'url':url, 'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager, 'form_multi':form_multi, 'count':count, 'images':images}
             
     t = template_loader.get_template(template)
     c = Context(request,context)

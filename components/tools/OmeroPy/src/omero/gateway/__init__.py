@@ -2441,78 +2441,40 @@ class _BlitzGateway (object):
         else:
             return None
     
-    def getSpecifiedImages(self, oids):
-        """
-        Gets Images by IDs with owner and group loaded, sorted  by image name
-        
-        @param oids:    Image IDs.
-        @type oids:     List of Longs
-        @return:        Generator of ImageWrapper
-        @rtype:         L{ImageWrapper} generator
-        """
-        
-        query_serv = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {} 
-        p.map["ids"] = rlist([rlong(a) for a in oids])
-        sql = "select im from Image im join fetch im.details.owner join fetch im.details.group where im.id in (:ids) order by im.name"
-        for e in query_serv.findAllByQuery(sql, p):
-            yield ImageWrapper(self, e)
 
-    def getSpecifiedDatasets(self, oids):
+    def getObjects(self, obj_type, ids):
         """
-        Gets Datasets by IDs with owner and group loaded, sorted  by dataset name
+        Retrieve Objects by type and given IDs.
+        Supported types are "Project", "Dataset", "Image", "Screen", "Plate", "Well"
+        Returns generator of L{ProjectWrapper}, L{DatasetWrapper}, L{ImageWrapper}
+        L{PlateWrapper} or L{WellWrapper}
         
-        @param oids:    Dataset IDs.
-        @type oids:     List of Longs
-        @return:        Generator of DatasetWrapper
-        @rtype:         L{DatasetWrapper} generator
+        @param obj_type:    Object type. E.g. "Project" see above
+        @type obj_type:     String
+        @param ids:         object IDs
+        @type ids:          List of Long
+        @return:            Generator yielding Images
+        @rtype:             see above
         """
         
-        query_serv = self.getQueryService()
+        wrappers = {"Project":ProjectWrapper,
+            "Dataset":DatasetWrapper,
+            "Image":ImageWrapper,
+            "Screen":ScreenWrapper,
+            "Plate":PlateWrapper,
+            "Well":WellWrapper}
+        
+        if obj_type not in wrappers:
+            raise TypeError     # TODO - maybe a better Error?
+        q = self.getQueryService()
         p = omero.sys.Parameters()
-        p.map = {} 
-        p.map["ids"] = rlist([rlong(a) for a in oids])
-        sql = "select ds from Dataset ds join fetch ds.details.owner join fetch ds.details.group where ds.id in (:ids) order by ds.name"
-        for e in query_serv.findAllByQuery(sql, p):
-            yield DatasetWrapper(self, e) 
-    
-    def getSpecifiedProjects(self, oids):
-        """
-        Gets Projects by IDs with owner and group loaded, sorted  by project name
-        
-        @param oids:    Project IDs.
-        @type oids:     List of Longs
-        @return:        Generator of ProjectWrapper
-        @rtype:         L{ProjectWrapper} generator
-        """
-        
-        query_serv = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {} 
-        p.map["ids"] = rlist([rlong(a) for a in oids])
-        sql = "select pr from Project pr join fetch pr.details.owner join fetch pr.details.group where pr.id in (:ids) order by pr.name"
-        for e in query_serv.findAllByQuery(sql, p):
-            yield ProjectWrapper(self, e)
-    
-    def getSpecifiedPlates(self, oids):
-        """
-        Gets Plates by IDs with owner and group loaded, sorted by plate name
-        
-        @param oids:    Plate IDs.
-        @type oids:     List of Longs
-        @return:        Generator of DatasetWrapper TODO: DatasetWrapper!?
-        @rtype:         L{DatasetWrapper} generator ?!
-        """
-        
-        query_serv = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {} 
-        p.map["ids"] = rlist([rlong(a) for a in oids])
-        sql = "select pl from Plate pl join fetch pl.details.owner join fetch pl.details.group where pl.id in (:ids) order by pl.name"
-        for e in query_serv.findAllByQuery(sql, p):
-            yield DatasetWrapper(self, e)
-    
+        p.map = {}
+        p.map["ids"] = rlist([rlong(a) for a in ids])
+        sql = "select obj from %s obj join fetch obj.details.owner join fetch obj.details.group where obj.id in (:ids) order by obj.name" % obj_type
+        for e in q.findAllByQuery(sql, p):
+            yield wrappers[obj_type](self, e)
+            
+            
     #################################
     # Annotations                   #
     
