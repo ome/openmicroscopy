@@ -983,38 +983,18 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         for e in q.findAllByQuery(sql,p):
             yield FileAnnotationWrapper(self, e)
     
-    def getTagsById(self, ids):
-        """ Retrieves list of for the given Tag ids."""
-        
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["ids"] = rlist([rlong(a) for a in set(ids)])
-        sql = "select a from TagAnnotation a where a.id in (:ids) "
-        for e in q.findAllByQuery(sql,p):
-            yield TagAnnotationWrapper(self, e)
     
-    def getCommentsById(self, ids):
-        """ Retrieves list of for the given Comment ids."""
-        
+    def getAnnotations(self, ids):
+        """ Retrieves list of L{AnnotationWrapper} for the given Annotation ids."""
+
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
         p.map["ids"] = rlist([rlong(a) for a in set(ids)])
-        sql = "select a from CommentAnnotation a where a.id in (:ids) "
+        sql = "select a from Annotation a where a.id in (:ids) "
         for e in q.findAllByQuery(sql,p):
-            yield CommentAnnotationWrapper(self, e)
+            yield AnnotationWrapper._wrap(self, e)
     
-    def getFilesById(self, ids):
-        """ Retrieves list of for the given Fiel ids."""
-        
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["ids"] = rlist([rlong(a) for a in set(ids)])
-        sql = "select a from FileAnnotation a where a.id in (:ids) "
-        for e in q.findAllByQuery(sql,p):
-            yield FileAnnotationWrapper(self, e)
     
     def listTags(self, eid=None):
         """
