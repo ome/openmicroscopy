@@ -36,6 +36,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -72,6 +75,9 @@ import pojos.WellData;
 public class DataBrowserFactory
 {
 
+	/** The default text. */ 
+	private static final String TEXT = "_";
+	
 	/** The sole instance. */
 	private static final DataBrowserFactory  
 						singleton = new DataBrowserFactory();
@@ -79,6 +85,7 @@ public class DataBrowserFactory
 	/** Discards all the tracked {@link DataBrowser}s. */
 	public static final void discardAll()
 	{
+		System.err.println("discardAll");
 		Iterator i = singleton.browsers.entrySet().iterator();
 		Entry entry;
 		while (i.hasNext()) {
@@ -133,13 +140,15 @@ public class DataBrowserFactory
 	 * @param grandParent	The grandparent of the node.
 	 * @param parent		The parent's node.
 	 * @param images		The collection to set.
+	 * @param node  		The node to handle.
 	 * @return See above.
 	 */
 	public static final DataBrowser getDataBrowser(Object grandParent, 
-										Object parent, 
-										Collection<ImageData> images)
+					Object parent, Collection<ImageData> images, 
+					TreeImageDisplay node)
 	{
-		return singleton.createImagesDataBrowser(grandParent, parent, images);
+		return singleton.createImagesDataBrowser(grandParent, parent, images, 
+				node);
 	}
 	
 	/**
@@ -201,18 +210,21 @@ public class DataBrowserFactory
 	/**
 	 * Creates a new {@link DataBrowser} for the passed node.
 	 * 
-	 * @param parent	The node.
+	 * @param parent  The node.
+	 * @param experimenter  The experimenter associated to the node.
 	 * @return See above.
 	 */
 	public static final DataBrowser getDataBrowser(Object parent)
 	{
 		if (parent == null) return null;
 		String key = parent.toString();
-		if (parent instanceof DataObject) 
+		if (parent instanceof DataObject)
 			key += ((DataObject) parent).getId();
+		else if (parent instanceof TreeImageTimeSet)
+			key = createPath((TreeImageTimeSet) parent, key);
 		return singleton.browsers.get(key);
 	}
-
+    
 	/**
 	 * Returns <code>true</code> if a {@link DataBrowser} has been discarded,
 	 * <code>false</code> otherwise.
@@ -334,7 +346,37 @@ public class DataBrowserFactory
 	{
 		return singleton.rndSettingsToCopy;
 	}
-	
+
+	/**
+     * Returns the node hosting the experimenter passing a child node.
+     * 
+     * @param node The child node.
+     * @param path The path to the top node.
+     * @return See above.
+     */
+    private static String createPath(TreeImageDisplay node, String path)
+    {
+    	if (node == null) return path;
+    	TreeImageDisplay parent = node.getParentDisplay();
+    	Object ho;
+    	if (parent == null) {
+    		ho = node.getUserObject();
+    		if (ho instanceof ExperimenterData) {
+    			path = ((ExperimenterData) ho).getId()+TEXT+path;
+    			return path;
+    		} 
+    		path = ho.toString()+TEXT+path;
+    		return path;
+    	}
+    	ho = parent.getUserObject();
+    	if (ho instanceof ExperimenterData) {
+    		path = ((ExperimenterData) ho).getId()+TEXT+path;
+    		return path;
+    	}
+    	path = ho.toString()+TEXT+path;
+    	return createPath(parent, path);
+    }
+    
 	/**
 	 * Returns the type of objects to copy or <code>null</code> if no objects
 	 * selected.
@@ -347,7 +389,7 @@ public class DataBrowserFactory
 	private Set<String>					discardedBrowsers;
 	
 	/** Map used to keep track of the browsers. */
-	private Map<String, DataBrowser> 	browsers;
+	private Map<Object, DataBrowser> 	browsers;
 	
 	/** The {@link DataBrowser} displaying the result of a search. */
 	private DataBrowser					searchBrowser;
@@ -361,7 +403,7 @@ public class DataBrowserFactory
 	/** Creates a new instance. */
 	private DataBrowserFactory()
 	{
-		browsers = new HashMap<String, DataBrowser>();
+		browsers = new HashMap<Object, DataBrowser>();
 		discardedBrowsers = new HashSet<String>();
 		searchBrowser = null;
 		rndSettingsToCopy = false;
@@ -415,10 +457,12 @@ public class DataBrowserFactory
 	 * @param grandParent	The grandParent of the node.
 	 * @param parent		The parent's node.
 	 * @param images		The collection to set.
+	 * @param experimenter  The experimenter associated to the node.
 	 * @return See above.
 	 */
 	private DataBrowser createImagesDataBrowser(Object grandParent, 
-									Object parent, Collection<ImageData> images)
+					Object parent, Collection<ImageData> images, 
+					TreeImageDisplay node)
 	{
 		DataBrowserModel model = new ImagesModel(parent, images);
 		model.setGrandParent(grandParent);
@@ -428,6 +472,7 @@ public class DataBrowserFactory
 		String key = parent.toString();
 		if (parent instanceof DataObject) 
 			key += ((DataObject) parent).getId();
+		else key = createPath(node, key);
 		browsers.put(key, comp);
 		return comp;
 	}

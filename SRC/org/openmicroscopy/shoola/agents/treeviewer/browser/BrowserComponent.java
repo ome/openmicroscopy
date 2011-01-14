@@ -337,7 +337,7 @@ class BrowserComponent
             	view.loadExperimenterData();
                 break;
             case READY:
-            	refreshBrowser();
+            	refreshBrowser(); //do we want to automatically refresh?
             	break;
             case DISCARDED:
                 throw new IllegalStateException(

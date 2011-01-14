@@ -1106,7 +1106,6 @@ class TreeViewerControl
 			while (i.hasNext()) {
 				entry = (Entry) i.next();
 				klass = (Class) entry.getKey();
-				
 				if (ExperimenterData.class.equals(klass)) {
 					list = (Collection<ExperimenterData>) entry.getValue();
 					node = model.getSelectedBrowser().getLastSelectedDisplay();

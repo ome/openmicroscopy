@@ -217,7 +217,30 @@ class TreeViewerComponent
 		if (display != null) parent = display.getParentDisplay();
 		List list;
 		List<ApplicationData> app = null;
+		if (display instanceof TreeImageTimeSet) {
+			db = DataBrowserFactory.getDataBrowser(display);
+			if (db != null) {
+				db.setComponentTitle("");
+				if (visible) {
+					view.removeAllFromWorkingPane();
+					view.displayBrowser(db);
+				}
+			}
+			return;
+		}
 		if (object instanceof ImageData) {
+			if (display.getParentDisplay() instanceof TreeImageTimeSet) {
+				db = DataBrowserFactory.getDataBrowser(
+						display.getParentDisplay());
+				if (db != null) {
+					db.setComponentTitle("");
+					if (visible) {
+						view.removeAllFromWorkingPane();
+						view.displayBrowser(db);
+					}
+				}
+				return;
+			}
 			if (parent != null) {
 				Object ho = parent.getUserObject();
 				db = DataBrowserFactory.getDataBrowser(ho);
@@ -300,14 +323,12 @@ class TreeViewerComponent
 				view.removeAllFromWorkingPane();
 			}
 		} else if (object instanceof ExperimenterData && 
-				model.getSelectedBrowser().getBrowserType() 
-				== Browser.ADMIN_EXPLORER) {
+				browser.getBrowserType() == Browser.ADMIN_EXPLORER) {
 			Object ho = null;
 			if (display.getParentDisplay() != null) {
 				ho = display.getParentDisplay().getUserObject();
 				db = DataBrowserFactory.getDataBrowser(ho);
 			} else db = null; 
-			
         	if (db != null) {
         		db.setComponentTitle("");
         		if (visible) {
@@ -374,8 +395,6 @@ class TreeViewerComponent
         								display.getUserObject());
         						list = browser.getSelectedDataObjects();
         						db.setSelectedNodes(list, app);
-        						
-        						
         					} else if (object instanceof TagAnnotationData) {
         						TagAnnotationData tag = 
         							(TagAnnotationData) object;
@@ -735,6 +754,7 @@ class TreeViewerComponent
 	 */
 	public void onSelectedDisplay()
 	{
+		//TODO: check why it is invoked twice.
 		switch (model.getState()) {
 			case DISCARDED:
 			case SAVE:  
@@ -754,14 +774,15 @@ class TreeViewerComponent
         if (display instanceof TreeImageTimeSet) {
         	 single = false;
         	 TreeImageTimeSet time = (TreeImageTimeSet) display;
+        	 view.removeAllFromWorkingPane();
         	 if (!time.containsImages()) {
         		 metadata.setRootObject(null, -1);
-        		 return;
         	 }
+        	 showDataBrowser(display.getUserObject(), display, true);
+        	 return;
         } 
-       
         metadata.setSelectionMode(single);
-        if (display != null) { // && !(display instanceof TreeImageTimeSet)) {
+        if (display != null) { 
         	  Object object = display.getUserObject();
         	  if (!single) {
         		  List l = new ArrayList();
@@ -1707,7 +1728,7 @@ class TreeViewerComponent
 			}
 		} else {
 			db = DataBrowserFactory.getDataBrowser(grandParentObject, 
-					parentObject, leaves);
+					parentObject, leaves, parent);
 			if (parent instanceof TreeImageTimeSet) {
 				ExperimenterData exp = getSelectedBrowser().getNodeOwner(parent);
 				db.setExperimenter(exp);
@@ -2151,13 +2172,15 @@ class TreeViewerComponent
 		TreeImageDisplay display = parent.getParentDisplay();
 		Object grandParentObject = null;
 		if (display != null) grandParentObject =  display.getUserObject();
-		DataBrowser db = DataBrowserFactory.getDataBrowser(grandParentObject,
-				parentObject, leaves);
+		ExperimenterData exp = null;
 		//Set the userID of the owner of the time interval.
 		if (parent != null) {
-			ExperimenterData exp = getSelectedBrowser().getNodeOwner(parent);
-			db.setExperimenter(exp);
+			exp = getSelectedBrowser().getNodeOwner(parent);
+			
 		}
+		DataBrowser db = DataBrowserFactory.getDataBrowser(grandParentObject,
+				parentObject, leaves, parent);
+		db.setExperimenter(exp);
 		db.addPropertyChangeListener(controller);
 		db.activate();
 		view.removeAllFromWorkingPane();

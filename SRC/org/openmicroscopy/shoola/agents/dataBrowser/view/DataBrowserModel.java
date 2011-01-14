@@ -720,7 +720,7 @@ abstract class DataBrowserModel
 	{
 		this.experimenter = experimenter;
 	}
-	
+
 	/**
 	 * Returns the collections of applications.
 	 * 
