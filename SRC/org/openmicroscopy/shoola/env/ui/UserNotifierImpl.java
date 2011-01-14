@@ -157,8 +157,10 @@ public class UserNotifierImpl
     		String email)
     {
     	Exception e;
-    	if (detail == null) e = new Exception(summary);
-    	else e = new Exception(detail);
+    	if (detail == null) {
+    		if (summary == null) summary = "";
+    		e = new Exception(summary);
+    	} else e = new Exception(detail);
     	if (title == null || title.length() == 0) 
     		title = DEFAULT_ERROR_TITLE;
     	MessengerDialog d = new MessengerDialog(SHARED_FRAME, title, 
