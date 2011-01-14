@@ -4547,9 +4547,7 @@ class OMEROGateway
 		isSessionAlive();
 		SearchPrx service = getSearchService();
 		try {
-			//service.clearQueries();
-			//service.resetDefaults();
-			service.setAllowLeadingWildcard(false);
+			service.setAllowLeadingWildcard(true);
 			service.setCaseSentivice(context.isCaseSensitive());
 			Timestamp start = context.getStart();
 			Timestamp end = context.getEnd();
@@ -4663,10 +4661,12 @@ class OMEROGateway
 					if (size instanceof Integer)
 						results.put(key, size);
 					service.clearQueries();
-					if (!(size instanceof Integer) && fSomeSec != null) {
+					if (!(size instanceof Integer) && fSomeSec != null &&
+							fSomeSec.size() > 0) {
 						service.bySomeMustNone(fSomeSec, fMustSec, 
 								fNoneSec);
-						size = handleSearchResult(Image.class.getName(), 
+						size = handleSearchResult(
+								convertTypeForSearch(Image.class), 
 								rType, service);
 						if (size instanceof Integer) 
 							results.put(key, size);
