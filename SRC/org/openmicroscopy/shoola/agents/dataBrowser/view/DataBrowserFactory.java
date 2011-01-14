@@ -85,7 +85,6 @@ public class DataBrowserFactory
 	/** Discards all the tracked {@link DataBrowser}s. */
 	public static final void discardAll()
 	{
-		System.err.println("discardAll");
 		Iterator i = singleton.browsers.entrySet().iterator();
 		Entry entry;
 		while (i.hasNext()) {
