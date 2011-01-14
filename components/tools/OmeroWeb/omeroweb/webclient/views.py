@@ -1075,7 +1075,7 @@ def manage_annotation_multi(request, action=None, **kwargs):
 
                 return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse(viewname="load_template", args=[menu]))
             
-    context = {'url':url, 'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager, 'form_multi':form_multi, 'count':count, 'images':images}
+    context = {'url':url, 'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager, 'form_multi':form_multi, 'count':count}
             
     t = template_loader.get_template(template)
     c = Context(request,context)
