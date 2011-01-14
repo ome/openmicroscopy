@@ -3,14 +3,25 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 from omeroweb.webgateway.views import getBlitzConnection, _session_logout
 from omeroweb.webgateway import views as webgateway_views
+
 import settings
 import logging
 import traceback
 import omero
+from omero.rtypes import rint
+import omero.gateway
 
-logger = logging.getLogger('webtest')
-
+logger = logging.getLogger('webtest')    
+    
 def login (request):
+    """
+    Attempts to get a connection to the server by calling L{omeroweb.webgateway.views.getBlitzConnection} with the 'request'
+    object. If a connection is created, the user is directed to the 'webfigure_index' page. 
+    If a connection is not created, this method returns a login page.
+    
+    @param request:     The django http request
+    @return:            The http response - webtest_index or login page
+    """
     if request.method == 'POST' and request.REQUEST['server']:
         blitz = settings.SERVER_LIST.get(pk=request.REQUEST['server'])
         request.session['server'] = blitz.id
@@ -22,6 +33,7 @@ def login (request):
     if conn is not None:
         return HttpResponseRedirect(reverse('webtest_index'))
     return render_to_response('webtest/login.html', {'gw':settings.SERVER_LIST})
+
 
 def logout (request):
     _session_logout(request, request.session['server'])

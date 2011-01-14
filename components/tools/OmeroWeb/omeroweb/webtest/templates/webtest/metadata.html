@@ -67,7 +67,7 @@
             </table>
 
             {% if global_metadata %}
-                <h1 class="can-collapse defclose">Global metadata: <input type="button" value="Download" onClick="document.location.href='{% url download_annotation "download" original_metadata.id %}';"/></h1>
+                <h1 class="can-collapse defclose">Global metadata: <input type="button" value="Download" onClick="document.location.href=' url download_annotation "download" original_metadata.id ';"/></h1>
                 <div><table class="metadata_details">            
                 {% for gm in global_metadata %}
                     <tr><td><label>{{ gm.0 }}</label></td><td>{{ gm.1 }}</td></tr>
@@ -76,7 +76,7 @@
                 </table></div>
             {% endif %}
             {% if series_metadata %}
-                <h1 class="can-collapse defclose">Series metadata: <input type="button" value="Download" onClick="document.location.href='{% url download_annotation "download" original_metadata.id %}';"/></h1>
+                <h1 class="can-collapse defclose">Series metadata: <input type="button" value="Download" onClick="document.location.href=' url download_annotation 'download' original_metadata.id ';"/></h1>
                 <div><table class="metadata_details">          
                 {% for sm in series_metadata %}
                     <tr><td><label>{{ sm.0 }}</label></td><td>{{ sm.1 }}</td></tr>
