@@ -1,5 +1,6 @@
 from django.conf.urls.defaults import *
 from django.views.static import serve
+import os
 
 from omeroweb.webfigure import views
 
@@ -23,8 +24,9 @@ Displays images (one per row) split into individual channels (one per column) in
 dataset_split_view = url( r'^dataset_split_view/(?P<datasetId>[0-9]+)/', views.dataset_split_view, name='webfigure_dataset_split_view' )
 """ view a dataset as two panels of images, each with a different rendering setting """
 
-image_dimensions = url( r'^image_dimensions/', views.image_dimensions, name='webfigure_image_dimensions' )
-""" view an image in grid with the Z, C, T dimensions split over the x or y axes as chosen by user """
+image_dimensions = url( r'^image_dimensions/(?P<imageId>[0-9]+)/', views.image_dimensions, name='webfigure_image_dimensions' )
+""" view an image in grid with the Z, C, T dimensions split over the x or y axes as chosen by user. 
+Also displays SPIM data if available in the http://www.ome-xml.org/wiki/SPIM/InitialSupport format. """
 
 add_annotations = url( r'^add_annotations/$', views.add_annotations, name="webfigure_add_annotations")
 """ 
@@ -32,6 +34,7 @@ post a comment annotation to images. parameters are in request:
      - imageIds=123,234 
      - comment=blah
 """
+
 
 urlpatterns = patterns('django.views.generic.simple',
     webfigure_index,
@@ -42,7 +45,8 @@ urlpatterns = patterns('django.views.generic.simple',
     image_dimensions,
     add_annotations,
     
+    #url(r'^appmedia/(?P<path>.*)$', 'django.views.static.serve', {'document_root': 'webmobile/media'}, name="mobile_static"),
     # define the sym link for media. 
-    #url( r'appmedia/webfigure/(?P<path>.*)$', serve ,{ 'document_root': os.path.join(os.path.dirname(__file__), 'media', 'webfigure').replace('\\','/') }, name="webfigure_media" ),
+    url( r'appmedia/(?P<path>.*)$', serve ,{ 'document_root': os.path.join(os.path.dirname(__file__), 'media').replace('\\','/') }, name="webfigure_media" ),
     
 )

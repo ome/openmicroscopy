@@ -12,10 +12,25 @@ form dir {
     margin:0px;
 }
 .img_panel {
-    {% if size.height %} max-height: {{ size.height }}px;{% endif %}
-    {% if size.width %} max-width: {{ size.width }}px;{% endif %}
-    border-width: 0px;
+    {% if size.height %} height: {{ size.height }}px;{% endif %}
+    {% if size.width %} width: {{ size.width }}px;{% endif %}
+    border: solid white 2px;
     margin: 5px;
+}
+
+.stage_positions {
+    background: #dde;
+    padding: 5px;
+}
+
+.spim_name {
+    border: solid gray;
+    border-width: 1px 0px 1px 0px;
+    padding: 5px;
+}
+
+.selected_panel {
+    border-color: red;
 }
 
 #header {
@@ -29,84 +44,133 @@ form dir {
 </style>
 
 <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.3.2.js" %}"></script>
-<script type="text/javascript">
-
-$(document).ready(function() {
-    
-});
-
-function hideHeader() {
-    if (document.getElementById) {
-        document.getElementById("header").style.display = 'none';
-    }
-    return false;
-}
-</script>
+<script type="text/javascript" src="{% url webfigure_media 'js/image_dims.js' %}"></script>
 
 </head>
 
 <body>
     
-<div id="header">
-    <div>
-        <a href="{% url webfigure_index %}">Home</a>
-    </div>
-    
-    <div style="float:left">
-    <form method='get' action="">
-        <div>
-            <label>Image ID</label>
-            <input type="text" name="imageId" {% if image %} value="{{ image.id }}" {% endif %} /> 
-            <a href="{% url webfigure_image_dimensions %}">Clear</a>
-        </div>
-    {% if image %}
-        <div style="float:left">
-            <div>
-                Dimensions:<br />
-                X:
-                <select name="xDim">
-                    <option value="T" {% ifequal xDim "T" %} selected=true {% endifequal %} >Time</option>
-                    <option value="Z" {% ifequal xDim "Z" %} selected=true {% endifequal %} >Z</option>
-                    <option value="C" {% ifequal xDim "C" %} selected=true {% endifequal %} >Channel</option>
-                </select>
-                <input type="text" name="xFrames" {% if xFrames %} value="{{ xFrames }}" {% endif %} /> <br />
-                
-                Y:
-                <select name="yDim">
-                    <option value="T" {% ifequal yDim "T" %} selected=true {% endifequal %} >Time</option>
-                    <option value="Z" {% ifequal yDim "Z" %} selected=true {% endifequal %} >Z</option>
-                    <option value="C" {% ifequal yDim "C" %} selected=true {% endifequal %} >Channel</option>
-                </select>
-                <input type="text" name="yFrames" {% if yFrames %} value="{{ yFrames }}" {% endif %} /> <br />
-                
-                Greyscale:
-                <input type="checkbox" name="mode" {% ifequal mode "g" %} checked="true" {% endifequal %} />
-            </div>
-        </div>
-    
-    {% else %}
+<!-- top elements span page -->
+<div id="top-nav">
+    <a href="{% url webfigure_index %}">Home</a> |
+    <a href="{% url webfigure_logout %}">Logout</a>
+</div>
 
-    Please start by entering Image ID
-    
-    {% endif %}
-        <div>
-            <input type="submit" value='update' />
+<div>
+    Displays SPIM data if available for an Image, in the format specified in the 
+    <a href="http://www.ome-xml.org/wiki/SPIM/InitialSupport">Initial SPIM Support</a> specification.
+</div>
+
+<div id="top-info">
+    {{ image.name }}
+</div>
+
+<!-- right hand panel for display of currently-selected plane info, objectives etc -->
+<div style="float:right; width:300px; border:black solid 1px">
+    <p>
+    {% for i in spim_data.images %}
+        <div class="spim_name" id="name{{ i.getId }}">
+            <div>Name: <span style="color:gray">{{ i.getName }}</span> </div>
+            <div>ID: <span style="color:gray">{{ i.getId }}</span> </div>
         </div>
-        <div style="clear: both"></div>
-    </form>
+    {% endfor %}
+    </p>
+
+    <div id='objective_info' style='display: none'>
+        {% for ob in spim_data.obs %}
+            <div>
+                Objective:
+                <table border=1>
+                {% for o in ob %}
+                    <tr>
+                        <td> {{ o.0 }}:</td><td> {{ o.1 }} </td>
+                    </tr>
+                {% endfor %}
+                </table>
+            </div>
+        {% endfor %}
+    
+        <div>
+        {% for obex in spim_data.objExtras %}
+            Objective extra attributes:
+            <table border=1>
+                <tr><td>ID</td><td>{{ obex.ID }}</td></tr>
+                <tr><td>Focal Length</td><td>{{ obex.FocalLength }}</td></tr>
+                <tr><td>Slit Aperture</td><td>{{ obex.SlitAperture }}</td></tr>
+                <tr><td>Light Sheet Width</td><td>{{ obex.LightSheetWidth }}</td></tr>
+            </table>
+        {% endfor %}
+        </div>
     </div>
     
-    <div style="clear: both"></div>
-    
-    <div style="float:right">
-        <a href="#" onclick="return hideHeader()">hide</a>
+    <div class='stage_positions'>
+        Stage Positions: <a href="#" id="show_all_stage_pos">show all</a>
+        <table>
+            <tr>
+                <td>Name</td>
+                <td>Z,C,T</td>
+                <td>X,Y,Z</td>
+            </tr>
+        {% for id, sps in spim_data.stagePositions.items %}
+                    
+                {% for sp in sps %}
+                    <tr class='stagePos' izct='{{ id }}L,{{ sp.TheZ }},{{ sp.TheC }},{{ sp.TheT }}'>
+                        <td>{{ sp.Name }}</td>
+                        <td>
+                            {{ sp.TheZ }},{{ sp.TheC }},{{ sp.TheT }}
+                        </td>
+                        <td>
+                            {% if sp.PositionX %} <div> X: {{ sp.PositionX }} </div> {% endif %}
+                            {% if sp.PositionY %} <div> Y: {{ sp.PositionY }} </div> {% endif %}
+                            {% if sp.PositionZ %} <div> Z: {{ sp.PositionZ }} </div> {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+        {% endfor %}
+        </table>
     </div>
-    <div style="clear: both"></div>
     
 </div>
-    
-{% if image %}
 
+
+<div>
+    
+<form method='get' action="">
+    <div>
+        Greyscale:
+        <input type="checkbox" name="mode" {% ifequal mode "g" %} checked="true" {% endifequal %} />
+    </div>
+    <div>
+        <input type="submit" value='update' />
+    </div>
+
+<!-- big table has dimension choosers and contains table of grid images -->
+<table>
+    <tr>
+        <td></td>
+        <td>
+            <select name="xDim">
+                <option value="T" {% ifequal xDim "T" %} selected=true {% endifequal %} >Time</option>
+                <option value="Z" {% ifequal xDim "Z" %} selected=true {% endifequal %} >Z</option>
+                <option value="C" {% ifequal xDim "C" %} selected=true {% endifequal %} >Channel</option>
+                <option value="Angle" {% ifequal xDim "Angle" %} selected=true {% endifequal %} >Angle</option>
+            </select>
+            <input type="text" size='2' name="xFrames" {% if xFrames %} value="{{ xFrames }}" {% endif %} />
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <select name="yDim">
+                <option value="T" {% ifequal yDim "T" %} selected=true {% endifequal %} >Time</option>
+                <option value="Z" {% ifequal yDim "Z" %} selected=true {% endifequal %} >Z</option>
+                <option value="C" {% ifequal yDim "C" %} selected=true {% endifequal %} >Channel</option>
+                <option value="Angle" {% ifequal yDim "Angle" %} selected=true {% endifequal %} >Angle</option>
+            </select>
+            <br />
+            <input type="text" size='2' name="yFrames" {% if yFrames %} value="{{ yFrames }}" {% endif %} />
+        </td>
+        <td>
+            
 <table border=0>
     {% for row in grid %}
     
@@ -127,13 +191,22 @@ function hideHeader() {
             {% endif %}
             
             <td> 
-                <img class='img_panel' src="{% url webgateway.views.render_image image.id cell.0 cell.2 %}?c={{ cell.1 }}&m={{ mode }}" />
+                <img class='img_panel' izct='{{ cell }}' src="{% url webgateway.views.render_image cell.0 cell.1 cell.3 %}?{% if cell.2 %}c={{ cell.2 }}&{% endif %}m={{ mode }}" />
             </td>
         {% endfor %}
     </tr>
     {% endfor %}
 </table>
+    
+        </td>
+    </tr>
+    </table>
 
-{% endif %}
+</form>
+
+
+</div>
+
+
 
 </body> </html>

@@ -68,7 +68,7 @@ function hideHeader() {
                     <input type="checkbox" name="cActiveRight{{c.index}}" {% if c.active_right %} checked="true" {% endif %} />
                 </td> 
                 <td>
-                <input type="text" size='3' name="cStart{{c.index}}" {% if c.start %} value="{{ c.start }}" {% endif %} />
+                <input type="text" size='3' name="cStart{{c.index}}" value="{{ c.start }}" />
                 -
                 <input type="text" size='3' name="cEnd{{c.index}}" {% if c.end %} value="{{ c.end }}" {% endif %} />
                 </td>

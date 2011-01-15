@@ -2,47 +2,158 @@ from django.http import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 from omeroweb.webgateway.views import getBlitzConnection, _session_logout
-from omeroweb.webgateway import views as webgateway_views
 import settings
 import logging
 import traceback
 import omero
 import omero.model
 from omero.rtypes import rstring
+from omero.gateway import XmlAnnotationWrapper
+import xml.sax
+
+# use the webclient's gateway connection wrapper
+from webclient.webclient_gateway import OmeroWebGateway
 
 logger = logging.getLogger('webfigure')
 
-def image_dimensions (request):
+def getSpimData (conn, image):
+    """
+    Returns a map of SPIM data according to the specification at http://www.ome-xml.org/wiki/SPIM/InitialSupport
+    where extra Objectives are stored in the Instrument, multiple Images are linked to the same 'spim-set' annotation, one
+    Image for each SPIM angle. 
+    Extra Objective attributes, SPIM angles and Stage Positions stored in XML annotations with 3 different namespaces.  
+    """
+    
+    instrument = image.getInstrument()
+    
+    obs = []
+    for o in instrument.getObjectives():
+        ob = []
+        ob.append( ('Model', o.model ) )
+        ob.append( ('Manufacturer', o.manufacturer ) )
+        ob.append( ('Serial Number', o.serialNumber ) )
+        ob.append( ('Nominal Magnification', o.nominalMagnification ) )
+        obs.append(ob)
+       
+    images = [] 
+    objExtras = []
+    spimAngles = []
+    stagePositions = {}     # iid: []
+    
+    def getLinkedImages(annId):
+        query = "select i from Image as i join i.annotationLinks as a_link join a_link.child as a where a.id='%s'" % annId
+        imgs = conn.getQueryService().findAllByQuery(query, None)
+        return [omero.gateway.ImageWrapper(conn, i) for i in imgs]
+    
+    # get the Objective attributes and Spim-set annotations (spim-set also linked to other images)
+    for ann in image.listAnnotations():
+        if isinstance(ann, XmlAnnotationWrapper):
+            print "ID:", ann.id
+            xmlText = ann.textValue
+            if ann.ns == "ome-xml.org:additions:post2010-06:objective":
+                elementNames = ['ObjectiveAdditions']
+            elif ann.ns == "ome-xml.org:additions:post2010-06:spim:set":
+                elementNames = ['SpimImage']
+                # also get the other images annotated with this 
+                images = getLinkedImages(ann.id)
+            else:
+                elementNames = []
+                
+            handler = AnnXmlHandler(elementNames)
+            xml.sax.parseString(xmlText, handler)
+            
+            if ann.ns == "ome-xml.org:additions:post2010-06:objective":
+                objExtras.extend(handler.attributes)
+            elif ann.ns == "ome-xml.org:additions:post2010-06:spim:set":
+                spimAngles.extend(handler.attributes)
+    
+    # for All images, get the spim-position data. 
+    for i in images:
+        spos = []
+        for ann in i.listAnnotations():
+            if isinstance(ann, XmlAnnotationWrapper) and ann.ns == "ome-xml.org:additions:post2010-06:spim:positions":
+                handler = AnnXmlHandler(['StagePosition'])
+                xml.sax.parseString(xmlText, handler)
+                spos.extend(handler.attributes)
+        
+        stagePositions[i.id] = spos
+        
+    #print "Object Extras"
+    #print objExtras
+    #print "Stage Positions"
+    #print stagePositions
+    #print "Spim Angles"
+    #print spimAngles
+    
+    if len(objExtras) == 0 and len(stagePositions) == 0 and len(spimAngles) == 0:
+        return None
+        
+    return {'images':images, 'obs': obs, 'objExtras':objExtras, 'stagePositions':stagePositions, 'spimAngles': spimAngles}
+   
+
+class AnnXmlHandler(xml.sax.handler.ContentHandler):
+    """ Parse XML to get Objective attributes """
+    def __init__(self, elementNames):
+        self.inElement = False
+        self.elementNames = elementNames
+        self.attributes = []
+ 
+    def startElement(self, name, attributes):
+        if name in self.elementNames:
+            kv = {}
+            for k, v in attributes.items():
+                kv[str(k)] = str(v) 
+            self.attributes.append(kv)
+            self.inElement = True
+            self.buffer = ""
+ 
+    def characters(self, data):
+        if self.inElement:
+            self.buffer += data
+ 
+    # if we're ending an element that we're interested in, save the text in map
+    def endElement(self, name):
+        self.inElement = False
+
+    
+def image_dimensions (request, imageId):
+    """
+    Prepare data to display various dimensions of a multi-dim image as axes of a grid of image planes. 
+    E.g. x-axis = Time, y-axis = Channel. 
+    If the image has spim data, then combine images with different SPIM angles to provide an additional
+    dimension. Also get the SPIM data from various XML annotations and display on page. 
+    """
     
     conn = getBlitzConnection (request, useragent="OMERO.webfigure")
     if conn is None or not conn.isConnected():
         return HttpResponseRedirect(reverse('webfigure_login'))
     
-    imageId = request.REQUEST.get('imageId', None)
-    image = None
-    if imageId:
-        image = conn.getImage(imageId)
-    else:
+    image = conn.getImage(imageId)
+    if image is None:
         return render_to_response('webfigure/image_dimensions.html', {}) 
     
     mode = request.REQUEST.get('mode', None) and 'g' or 'c'
     dims = {'Z':image.z_count(), 'C': image.c_count(), 'T': image.t_count()}
     
+    default_yDim = 'Z'
+    
+    spim_data = getSpimData(conn, image)
+    if spim_data is not None:
+        dims['Angle'] = len(spim_data['images'])
+        default_yDim = 'Angle'
+    
     xDim = request.REQUEST.get('xDim', 'T')
     if xDim not in dims.keys():
         xDim = 'T'
         
-    yDim = request.REQUEST.get('yDim', 'Z')
+    yDim = request.REQUEST.get('yDim', default_yDim)
     if yDim not in dims.keys():
         yDim = 'Z'
     
-    xFrames = int(request.REQUEST.get('xFrames', 1))
+    xFrames = int(request.REQUEST.get('xFrames', 5))
     xSize = dims[xDim]
-    yFrames = int(request.REQUEST.get('yFrames', 1))
+    yFrames = int(request.REQUEST.get('yFrames', 5))
     ySize = dims[yDim]
-    
-    print xFrames, xSize
-    print yFrames, ySize
     
     xFrames = min(xFrames, xSize)
     yFrames = min(yFrames, ySize)
@@ -55,29 +166,34 @@ def image_dimensions (request):
     for y in yRange:
         grid.append([])
         for x in xRange:
-            theZ, theC, theT = 0,0,0
+            iid, theZ, theC, theT = image.id, 0,None,0
             if xDim == 'Z':
                 theZ = x
             if xDim == 'C':
                 theC = x
             if xDim == 'T':
                 theT = x
+            if xDim == 'Angle':
+                iid = spim_data['images'][x].id
             if yDim == 'Z':
                 theZ = y
             if yDim == 'C':
                 theC = y
             if yDim == 'T':
                 theT = y
+            if yDim == 'Angle':
+                iid = spim_data['images'][y].id
                 
-            grid[y].append( (theZ, theC+1, theT) )
+            grid[y].append( (iid, theZ, theC is not None and theC+1 or None, theT) )
     
     for y in yRange:
         print ":".join( [str(d) for d in grid[y] ] )
         
     size = {"height": 125, "width": 125}
     
-    return render_to_response('webfigure/image_dimensions.html', {'image':image, 'grid': grid, "size": size, "mode":mode,
-        'xDim':xDim, 'xRange':xRange, 'yRange':yRange, 'yDim':yDim, 'xFrames':xFrames, 'yFrames':yFrames})
+    return render_to_response('webfigure/image_dimensions.html', {'image':image, 'spim_data':spim_data, 'grid': grid, 
+        "size": size, "mode":mode, 'xDim':xDim, 'xRange':xRange, 'yRange':yRange, 'yDim':yDim, 
+        'xFrames':xFrames, 'yFrames':yFrames})
     
 
 def add_annotations (request):
@@ -153,7 +269,13 @@ def dataset_split_view (request, datasetId):
     
     conn = getBlitzConnection (request, useragent="OMERO.webfigure")
     if conn is None or not conn.isConnected():
-        return HttpResponseRedirect(reverse('webfigure_login'))
+        # get the url that directed us here:
+        # reverse(viewname, urlconf=None, args=None, kwargs=None, prefix=None, current_app=None)
+        # url = reverse(dataset_split_view, kwargs={'datasetId':datasetId})
+        url = request.META.get("PATH_INFO")
+        # log in with the webclient login, redirecting back here:
+        loginUrl = "%s?url=%s" % (reverse('weblogin'), url)
+        return HttpResponseRedirect(loginUrl)
         
     dataset = conn.getDataset(datasetId)
     
@@ -173,8 +295,6 @@ def dataset_split_view (request, datasetId):
         channels = []
         i = 0;
         for i, c in enumerate(image.getChannels()):
-            print "Channel", i
-            print c.getLogicalChannel().getName()
             name = c.getLogicalChannel().getName()
             # if we have channel info from a form, we know that checkbox:None is unchecked (not absent)
             if request.REQUEST.get('cStart%s' % i, None):
@@ -189,6 +309,7 @@ def dataset_split_view (request, datasetId):
             render_all = (None != request.REQUEST.get('cRenderAll%s' % i, None) )
             channels.append({"name": name, "index": i, "active_left": active_left, "active_right": active_right, 
                 "colour": colour, "start": start, "end": end, "render_all": render_all})
+        print channels
         return channels
         
     images = []
@@ -377,6 +498,7 @@ def index (request):
     @param request:     The django http request
     @return:            The http response - webfigure index
     """
+    print "webfigure login..."
     conn = getBlitzConnection (request, useragent="OMERO.webfigure")
     if conn is None or not conn.isConnected():
         return HttpResponseRedirect(reverse('webfigure_login'))
