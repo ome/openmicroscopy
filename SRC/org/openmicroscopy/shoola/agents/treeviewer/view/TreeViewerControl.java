@@ -933,7 +933,7 @@ class TreeViewerControl
 				mv.saveData();
 			}
 		} else if (Browser.DATA_REFRESHED_PROPERTY.equals(name)) {
-			model.onSelectedDisplay();
+			model.onSelectedDisplay(); 
 		} else if (MetadataViewer.ADMIN_UPDATED_PROPERTY.equals(name)) {
 			Object data = pce.getNewValue();
 			Map browsers = model.getBrowsers();

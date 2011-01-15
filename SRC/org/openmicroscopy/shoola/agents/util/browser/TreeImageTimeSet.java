@@ -38,6 +38,8 @@ import java.util.List;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
+import pojos.ExperimenterData;
+
 /** 
  * Node used for smart folders.
  *
@@ -174,6 +176,10 @@ public class TreeImageTimeSet
 	/** A day in milliseconds. */
 	private static final long		DAY = UIUtilities.DAY;
 	
+	/** The default text. */ 
+	private static final String 	TEXT = "_";
+	
+	
 	/** The node's index. One of the constants defined by this class. */
 	private int 			type;
 	
@@ -281,6 +287,35 @@ public class TreeImageTimeSet
 		return gc.get(Calendar.MONTH);
 	}
 	
+	/**
+     * Returns the node hosting the experimenter passing a child node.
+     * 
+     * @param node The child node.
+     * @param path The path to the top node.
+     * @return See above.
+     */
+    public static String createPath(TreeImageDisplay node, String path)
+    {
+    	if (node == null) return path;
+    	TreeImageDisplay parent = node.getParentDisplay();
+    	Object ho;
+    	if (parent == null) {
+    		ho = node.getUserObject();
+    		if (ho instanceof ExperimenterData) {
+    			path = ((ExperimenterData) ho).getId()+TEXT+path;
+    			return path;
+    		} 
+    		path = ho.toString()+TEXT+path;
+    		return path;
+    	}
+    	ho = parent.getUserObject();
+    	if (ho instanceof ExperimenterData) {
+    		path = ((ExperimenterData) ho).getId()+TEXT+path;
+    		return path;
+    	}
+    	path = ho.toString()+TEXT+path;
+    	return createPath(parent, path);
+    }
 	/**
 	 * Creates a new instance.
 	 * 

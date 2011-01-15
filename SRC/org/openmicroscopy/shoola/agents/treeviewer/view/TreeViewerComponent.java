@@ -238,6 +238,11 @@ class TreeViewerComponent
 						view.removeAllFromWorkingPane();
 						view.displayBrowser(db);
 					}
+					List<DataObject> nodes = new ArrayList<DataObject>();
+            		nodes.add((DataObject) object);
+            		db.setSelectedNodes(nodes, 
+            				TreeViewerFactory.getApplications(
+							model.getObjectMimeType(object)));
 				}
 				return;
 			}
@@ -312,7 +317,6 @@ class TreeViewerComponent
 	                					db.setSelectedNodes(list, app);
 	        						}
 	        					} 
-	        					//else view.removeAllFromWorkingPane();
 	        				}
 	        			}
 					} else
@@ -754,7 +758,6 @@ class TreeViewerComponent
 	 */
 	public void onSelectedDisplay()
 	{
-		//TODO: check why it is invoked twice.
 		switch (model.getState()) {
 			case DISCARDED:
 			case SAVE:  
@@ -765,7 +768,6 @@ class TreeViewerComponent
 		Browser browser = model.getSelectedBrowser();
         if (browser == null) return;
         TreeImageDisplay display = browser.getLastSelectedDisplay();
-
         MetadataViewer metadata = model.getMetadataViewer();
         TreeImageDisplay[] selection = browser.getSelectedDisplays();
        

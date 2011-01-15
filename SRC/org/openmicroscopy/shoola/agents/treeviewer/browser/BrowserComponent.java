@@ -868,15 +868,11 @@ class BrowserComponent
      */
     public void setSelectedDisplays(TreeImageDisplay[] nodes)
     {
-    	/*
         if (nodes.length == 0) return;
-        boolean b = nodes.length == 1;
-        for (int i = 0; i < nodes.length; i++) {
-        	setSelectedDisplay(nodes[i], b);
-		}
-		*/
-        if (nodes.length == 0) return;
-        if (nodes.length == 1) setSelectedDisplay(nodes[0], true);
+        if (nodes.length == 1) {
+        	setSelectedDisplay(nodes[0], true);
+        	return;
+        }
         TreeImageDisplay[] oldNodes = model.getSelectedDisplays();
         boolean flush = false;
         if (oldNodes.length >= nodes.length) flush = true;

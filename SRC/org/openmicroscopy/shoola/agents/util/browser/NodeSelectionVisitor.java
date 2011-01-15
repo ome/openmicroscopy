@@ -73,18 +73,30 @@ public class NodeSelectionVisitor
 			}
 		} else {
 			Object uo = node.getUserObject();
-			
-			if (selected.getClass().equals(uo.getClass()) &&
-				selected.getId() == node.getUserObjectId()) {
-				TreeImageDisplay pN = node.getParentDisplay();
-				Object po = pN.getUserObject();
-				if (po.getClass().equals(parent.getClass()))
-					if (po instanceof DataObject 
-						&& parent instanceof DataObject) {
-						if (((DataObject) po).getId() == 
-							((DataObject) parent).getId())
-							selectedNode = node;
+			TreeImageDisplay pN;
+			if (parent instanceof String) {
+				String key = parent.toString();
+				if (uo instanceof DataObject) {
+					pN = node.getParentDisplay();
+					String n = pN.toString();
+					if (key.equals(n) && selected.getId() ==
+						((DataObject) uo).getId()) {
+						selectedNode = node;
 					}
+				}
+			} else {
+				if (selected.getClass().equals(uo.getClass()) &&
+						selected.getId() == node.getUserObjectId()) {
+					pN = node.getParentDisplay();
+					Object po = pN.getUserObject();
+					if (po.getClass().equals(parent.getClass()))
+						if (po instanceof DataObject 
+								&& parent instanceof DataObject) {
+							if (((DataObject) po).getId() == 
+								((DataObject) parent).getId())
+								selectedNode = node;
+						}
+				}
 			}
 		}
 	}

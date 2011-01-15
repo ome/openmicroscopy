@@ -74,9 +74,6 @@ import pojos.WellData;
  */
 public class DataBrowserFactory
 {
-
-	/** The default text. */ 
-	private static final String TEXT = "_";
 	
 	/** The sole instance. */
 	private static final DataBrowserFactory  
@@ -217,7 +214,7 @@ public class DataBrowserFactory
 		if (parent instanceof DataObject)
 			key += ((DataObject) parent).getId();
 		else if (parent instanceof TreeImageTimeSet)
-			key = createPath((TreeImageTimeSet) parent, key);
+			key = TreeImageTimeSet.createPath((TreeImageTimeSet) parent, key);
 		return singleton.browsers.get(key);
 	}
     
@@ -342,36 +339,6 @@ public class DataBrowserFactory
 	{
 		return singleton.rndSettingsToCopy;
 	}
-
-	/**
-     * Returns the node hosting the experimenter passing a child node.
-     * 
-     * @param node The child node.
-     * @param path The path to the top node.
-     * @return See above.
-     */
-    private static String createPath(TreeImageDisplay node, String path)
-    {
-    	if (node == null) return path;
-    	TreeImageDisplay parent = node.getParentDisplay();
-    	Object ho;
-    	if (parent == null) {
-    		ho = node.getUserObject();
-    		if (ho instanceof ExperimenterData) {
-    			path = ((ExperimenterData) ho).getId()+TEXT+path;
-    			return path;
-    		} 
-    		path = ho.toString()+TEXT+path;
-    		return path;
-    	}
-    	ho = parent.getUserObject();
-    	if (ho instanceof ExperimenterData) {
-    		path = ((ExperimenterData) ho).getId()+TEXT+path;
-    		return path;
-    	}
-    	path = ho.toString()+TEXT+path;
-    	return createPath(parent, path);
-    }
     
 	/**
 	 * Returns the type of objects to copy or <code>null</code> if no objects
@@ -468,7 +435,7 @@ public class DataBrowserFactory
 		String key = parent.toString();
 		if (parent instanceof DataObject) 
 			key += ((DataObject) parent).getId();
-		else key = createPath(node, key);
+		else key = TreeImageTimeSet.createPath(node, key);
 		browsers.put(key, comp);
 		return comp;
 	}
