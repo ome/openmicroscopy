@@ -371,6 +371,7 @@ public class TextualTwoKnobsSlider
 	private void handleFocusLost(Object field)
 	{
 		if (field == null) return;
+		/*
 		String s = formatValue((int) start);
 		String e = formatValue((int) end);
 		double v, value;
@@ -393,6 +394,9 @@ public class TextualTwoKnobsSlider
 			if (value > m || n == null) endField.setText(e);
 			if (v < start) startField.setText(formatValue((int) v));
 		}
+		*/
+		if (startField == field) setStartValue();
+		else if (endField == field) setEndValue();
 	}
 	
 	/**
@@ -827,7 +831,6 @@ public class TextualTwoKnobsSlider
 	 */
 	public void insertUpdate(DocumentEvent e)
 	{  
-		
 		//updateTextValue(e.getDocument());
 	}
 
@@ -839,20 +842,6 @@ public class TextualTwoKnobsSlider
 	{
 		updateTextValue(e.getDocument());
 	}
-
-	/**
-	 * Required by the {@link DocumentListener} I/F but not actually needed in
-     * our case, no-operation implementation.
-	 * @see DocumentListener#changedUpdate(DocumentEvent)
-	 */
-	public void changedUpdate(DocumentEvent e) {}
-	
-	/** 
-     * Required by {@link FocusListener} I/F but not actually needed in
-     * our case, no-operation implementation.
-     * @see FocusListener#focusGained(FocusEvent)
-     */ 
-    public void focusGained(FocusEvent e) {}
 
     /**
      * Sets the start or end value depending on the selected fields
@@ -866,6 +855,20 @@ public class TextualTwoKnobsSlider
 			else if (source == endField) setEndValue();
 		}
 	}
+	
+	/**
+	 * Required by the {@link DocumentListener} I/F but not actually needed in
+     * our case, no-operation implementation.
+	 * @see DocumentListener#changedUpdate(DocumentEvent)
+	 */
+	public void changedUpdate(DocumentEvent e) {}
+	
+	/** 
+     * Required by {@link FocusListener} I/F but not actually needed in
+     * our case, no-operation implementation.
+     * @see FocusListener#focusGained(FocusEvent)
+     */ 
+    public void focusGained(FocusEvent e) {}
 
 	/** 
      * Required by {@link KeyListener} I/F but not actually needed in
