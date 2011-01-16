@@ -16,7 +16,7 @@ Choose User from group '{{ client.getEventContext.groupName }}':
 
 <div class="list-container">
 {% for m in members %}
-    <a href="{% url webmobile_index %}?experimenter={{ m.id }}">
+    <a href="{% url webmobile_index m.id %}">
         <div class="item-name">{{ m.getFullName }}  ({{ m.getName }})</div>
     </a>
 {% endfor %}

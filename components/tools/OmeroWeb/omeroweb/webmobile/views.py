@@ -158,7 +158,7 @@ def viewer(request, imageId):
     
     
 @isUserConnected
-def projects (request, **kwargs):
+def projects (request, eid=None, **kwargs):
     """ List the projects owned by the current user, or another user specified by eId """
     
     conn = None
@@ -169,11 +169,16 @@ def projects (request, **kwargs):
         return HttpResponse(traceback.format_exc())
         
     #projects = filter(lambda x: x.isOwned(), conn.listProjects())
-    eId = request.REQUEST.get('experimenter', None)
+    #eId = request.REQUEST.get('experimenter', None)
     experimenter = None
-    if eId is not None:
-        experimenter = conn.getExperimenter(eId)
-    projs = conn.lookupProjects(eId)
+    if eid is not None:
+        experimenter = conn.getExperimenter(eid)
+    projs = conn.listProjects(eid=eid)
+    
+    if request.REQUEST.get('sort', None) == 'recent':
+        projs = list(projs)
+        projs.sort(key=lambda x: x.creationEventDate())
+        projs.reverse()
     
     return render_to_response('webmobile/browse/projects.html', {'client':conn, 'projects':projs, 'experimenter':experimenter })
 
@@ -279,6 +284,47 @@ def getAnnotations(obj):
 
 
 @isUserConnected
+def edit_object(request, obj_type, obj_id, **kwargs):
+    """
+    Display a page for editing Name and Description of Project/Dataset/Image etc
+    Page 'submit' redirects here with 'name' and 'description' in POST, which 
+    will do the edit and return to the object_details page. 
+    """
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return HttpResponse(traceback.format_exc())
+    
+    if obj_type == 'image': 
+        obj = conn.getImage(obj_id)
+        title = 'Image'
+        redirect = reverse('webmobile_image', kwargs={'imageId':obj_id})
+    elif obj_type == 'dataset':
+        obj = conn.getDataset(obj_id)
+        title = 'Dataset'
+        redirect = reverse('webmobile_dataset_details', kwargs={'id':obj_id})
+    elif obj_type == 'project':
+        obj = conn.getProject(obj_id)
+        title = 'Project'
+        redirect = reverse('webmobile_project_details', kwargs={'id':obj_id})
+        
+    # if name, description in request, edit and redirect to object_details
+    name = request.REQUEST.get('name', None)
+    if name:
+        obj.setName(name)
+        description = request.REQUEST.get('description', '').strip()
+        if len(description) == 0:
+            description = None
+        obj.setDescription(description)
+        obj.save()
+        return HttpResponseRedirect(redirect)
+    
+    return render_to_response('webmobile/browse/edit_object.html', {'client': conn, 'title':title, 'object':obj})
+    
+
+@isUserConnected
 def add_comment(request, obj_type, obj_id, **kwargs):
     """
     Adds a comment (from request 'comment') to object 'project', 'dataset', 'image' then 
@@ -358,7 +404,7 @@ def logout (request):
     return HttpResponseRedirect(reverse('webmobile_login'))
 
 @isUserConnected
-def index (request, **kwargs):
+def index (request, eid=None, **kwargs):
     conn = None
     try:
         conn = kwargs["conn"]
@@ -366,10 +412,9 @@ def index (request, **kwargs):
         logger.error(traceback.format_exc())
         return HttpResponse(traceback.format_exc())
     
-    eId = request.REQUEST.get('experimenter', None)
     experimenter = None
-    if eId is not None:
-        experimenter = conn.getExperimenter(eId)
+    if eid is not None:
+        experimenter = conn.getExperimenter(eid)
         
     return render_to_response('webmobile/index.html', {'client': conn, 'experimenter': experimenter})
 

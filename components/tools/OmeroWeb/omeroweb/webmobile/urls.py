@@ -6,12 +6,14 @@ from omeroweb.webmobile import views
 
 urlpatterns = patterns('',
     url( r'^$', views.index, name='webmobile_index' ),
+    url( r'^(?P<eid>[0-9]+)/$', views.index, name='webmobile_index' ),
     url( r'^login/$', views.login, name='webmobile_login' ),
     url( r'^logout/$', views.logout, name='webmobile_logout' ),
     url( r'^img_detail/(?P<iid>[0-9]+)/$', views.image_viewer, name="image_viewer"),
     
     # browsing P/D/I hierarchy
     url( r'^projects/$', views.projects, name='webmobile_projects' ),
+    url( r'^projects/(?P<eid>[0-9]+)/$', views.projects, name='webmobile_projects' ),
     url( r'^project/(?P<id>[0-9]+)/$', views.project, name='webmobile_project' ),
     url( r'^project_details/(?P<id>[0-9]+)/$', views.object_details, {"obj_type": "project"}, name='webmobile_project_details' ),
     url( r'^dataset/(?P<id>[0-9]+)/$', views.dataset, name='webmobile_dataset' ),
@@ -25,6 +27,8 @@ urlpatterns = patterns('',
     
     # add comment to 'project', 'dataset' or 'image', then redirect to object page
     url( r'^add_comment/(?P<obj_type>[a-z]+)/(?P<obj_id>[0-9]+)/$', views.add_comment, name='webmobile_add_comment' ),
+    # edit name & description of 'project', 'dataset' or 'image', then redirect to object page
+    url( r'^edit_object/(?P<obj_type>[a-z]+)/(?P<obj_id>[0-9]+)/$', views.edit_object, name='webmobile_edit_object' ),
     
     url(r'^appmedia/(?P<path>.*)$', 'django.views.static.serve', {'document_root': 'webmobile/media'}, name="mobile_static"),
 )

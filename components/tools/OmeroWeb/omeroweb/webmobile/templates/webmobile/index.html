@@ -18,7 +18,8 @@
 </div>
 
 <div class="list-container"> 
-    <a href="{% url webmobile_projects %}{% if experimenter %}?experimenter={{ experimenter.id }}{% endif %}">
+    <a {% if experimenter %} href="{% url webmobile_projects experimenter.id %}" 
+        {% else %} href="{% url webmobile_projects %}"{% endif %} >
         <div class="item-name">
             Projects
         </div>

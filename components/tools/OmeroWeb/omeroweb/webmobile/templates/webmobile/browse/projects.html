@@ -1,16 +1,28 @@
 {% extends "webmobile/base/base_header.html" %}
 
 {% block header-title %}
-    Projects{% if experimenter %} (owned by {{ experimenter.getFullName }}){% endif %}:
+    Projects:
 {% endblock %}
 
 {% block header-right %}
     {% if experimenter %}
+        Owned by: 
         <a href="{% url webmobile_groups_members %}">{{ experimenter.getFullName }} ></a>
     {% endif %}
 {% endblock %}
 
 {% block content %}
+<div id='bottom-header'>
+    <div id='bottom-header-left'> 
+        Sort by: 
+        <a href="?sort=name">Name</a> |
+        <a href="?sort=recent">Most Recent</a>
+    </div>
+    
+    <div style="clear:both"></div>
+</div>
+
+
 <div class="projects">
 {% for proj in projects %}
 

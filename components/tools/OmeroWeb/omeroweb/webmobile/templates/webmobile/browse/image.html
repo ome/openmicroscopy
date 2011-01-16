@@ -7,26 +7,47 @@
 
 {% block content %}
 
+<div id='bottom-header'>
+    <!-- TODO: handle multiple parents -->
+    {% if object.listParents %}
+    <div id='bottom-header-left'> 
+        <a href="{% url webmobile_dataset object.listParents.id %}">Dataset: {{ object.listParents.getName }}</a>
+    </div>
+    {% endif %}
+    <div style="clear:both"></div>
+</div>
 
 <div class='page-content-underline'>
     <img class="preview" src="{% url webgateway.views.render_thumbnail object.id 200 %}" /> <br />
     
     <div>ID: {{ object.id }} </div>
     <div>Owned by: {{ object.getOwnerFullName }}</div>
-    
+        
     {% if object.description %}
         <p>{{ object.description }}</p>
     {% endif %}
     
-    {% if object.listParents %} 
-    <!-- TODO: handle multiple parents -->
-        <div>
-            Dataset: 
-            <a href="{% url webmobile_dataset object.listParents.id %}">
-                {{ object.listParents.getName }}
-            </a>
-        </div>
-    {% endif %}
+    <!-- Table of image dimensions -->
+    <table class="small">
+        <tr><td>Dimensions (XY)</td><td class='gray'>{{ object.getWidth }} x {{ object.getHeight }}</td></tr>
+        <tr><td>Z sections, timepoints</td><td class='gray'>{{ object.z_count }}, {{ object.t_count }}</td></tr>
+        {% if object.getPixelSizeX %}
+            <tr><td>Pixel Size (XY{% if object.getPixelSizeZ %}Z{% endif %}) (um)</td>
+                <td class='gray'>
+                    {{ object.getPixelSizeX|stringformat:"0.3f" }}, 
+                    {{ object.getPixelSizeY|stringformat:"0.3f" }}{% if object.getPixelSizeZ %}, 
+                    {{ object.getPixelSizeZ|stringformat:"0.3f" }}{% endif %}
+                </td>
+            </tr>
+        {% endif %}
+    </table>
+    <table class="small">
+        <tr><td>Channels:</td>
+            <td class='gray'>
+            {% for c in object.getChannels %}{% if not forloop.first %}, {% endif %}{{ c.getLogicalChannel.getName }}{% endfor %}
+            </td></tr>
+        <tr><td>Created:</td><td class='gray'>{{ object.creationEventDate }}</td></tr>
+    </table>
     
 </div>
 

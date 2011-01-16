@@ -4,6 +4,8 @@ body {
     padding:0px;
     margin:0px;
     background:#ddd;
+    width: 240px;
+    height: 320px;
 }
 
 #top-header {
@@ -34,10 +36,24 @@ body {
 }
 
 #header-right {
+    color: black;
     float: right;
     padding-top: 5px;
     padding-right: 0px;
     padding-bottom: 0px;
+}
+
+#bottom-header {
+    padding: 1px 3px;
+    font-size:85%;
+    border: 1px solid gray;
+    border-width: 0px 0px 1px 0px;
+}
+#bottom-header-left {
+    float: left;
+}
+#bottom-header-right {
+    float: right;
 }
 
 #footer {
@@ -52,6 +68,9 @@ body {
 .smallgray {
     font-size: 75%;
     color: #666;
+}
+.small {
+    font-size: 75%;
 }
 
 .details {

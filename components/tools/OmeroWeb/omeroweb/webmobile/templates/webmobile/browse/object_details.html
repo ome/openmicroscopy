@@ -4,12 +4,22 @@
     {{ title }}: {{ object.name }}
 {% endblock %}
 
-{% block header-right %}
-    <a href="#">edit ></a>
-{% endblock %}
-
 
 {% block content %}
+<div id='bottom-header'>
+    <div id='bottom-header-left'>
+        {% ifequal obj_type 'project' %}
+            <a href='{% url webmobile_project object.id %}'>project</a>
+        {% endifequal %}
+        {% ifequal obj_type 'dataset' %}
+            <a href='{% url webmobile_dataset object.id %}'>dataset</a>
+        {% endifequal %}
+    </div>
+    <div id='bottom-header-right'>
+        <a href="{% url webmobile_edit_object obj_type object.id %}">edit</a>
+    </div>
+    <div style="clear:both"></div>
+</div>
 
 <div class='page-content-underline'>
     <div>ID: {{ object.id }}</div>

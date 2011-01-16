@@ -4,9 +4,17 @@
     Project: {{ project.name }}
 {% endblock %}
 
-{% block header-right %}<a href="{% url webmobile_project_details project.id %}">details ></a>{% endblock %}
-
 {% block content %}
+
+<div id='bottom-header'>
+    <div id='bottom-header-left'>
+        <a href="{% url webmobile_projects %}">All Projects</a>
+    </div>
+    <div id='bottom-header-right'>
+        <a href="{% url webmobile_project_details project.id %}">details</a>
+    </div>
+    <div style="clear:both"></div>
+</div>
 
 <div class="projects">
 {% for dataset in project.listChildren %}
