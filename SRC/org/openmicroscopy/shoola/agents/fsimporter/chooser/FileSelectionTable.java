@@ -399,13 +399,18 @@ class FileSelectionTable
 			inQueue.add(element.getFile().getAbsolutePath());
 		}
 		Iterator<File> i = files.iterator();
+		int n = table.getModel().getColumnCount();
+		boolean b = n == COLUMNS.size();
 		while (i.hasNext()) {
 			f = i.next();
 			if (!inQueue.contains(f.getAbsolutePath())) {
 				element = new FileElement(f);
 				element.setName(f.getName());
-				dtm.addRow(new Object[] {element, 
-						Boolean.valueOf(f.isDirectory()), 
+				if (b) 
+					dtm.addRow(new Object[] {element, 
+							Boolean.valueOf(f.isDirectory()), 
+							Boolean.valueOf(archived)});
+				else dtm.addRow(new Object[] {element, 
 						Boolean.valueOf(archived)});
 			}
 		}
@@ -485,6 +490,9 @@ class FileSelectionTable
 			switch (column) {
 				case FILE_INDEX: return false;
 				case FOLDER_AS_CONTAINER_INDEX:
+					if (getColumnCount() == 
+						COLUMNS_NO_FOLDER_AS_CONTAINER.size())
+						return archivedTunable;
 					FileElement f = (FileElement) getValueAt(row, FILE_INDEX);
 					return f.isDirectory();
 				case ARCHIVED_INDEX: return archivedTunable;

@@ -538,6 +538,20 @@ public class FileImportComponent
 		}
 		return components.size() != count;
 	}
+
+	/** Indicates the import has been cancelled. */
+	public void cancelLoading()
+	{
+		boolean isBusy = busyLabel.isBusy();
+		if (file.isFile() && isBusy) {
+			statusLabel.setText("cancelled");
+		}
+		if (components == null) return;
+		Iterator<FileImportComponent> i = components.values().iterator();
+		while (i.hasNext()) {
+			i.next().cancelLoading();
+		}
+	}
 	
 	/**
 	 * Overridden to make sure that all the components have the correct 

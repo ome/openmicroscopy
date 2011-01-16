@@ -177,7 +177,7 @@ class ImporterModel
 	{
 		if (data == null) return;
 		ImagesImporter loader = new ImagesImporter(component, data, loaderID);
-		loaders.put(loaders.size(), loader);
+		loaders.put(loaderID, loader);
 		loader.load();
 		state = Importer.IMPORTING;
 	}

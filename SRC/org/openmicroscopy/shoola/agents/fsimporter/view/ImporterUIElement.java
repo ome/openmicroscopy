@@ -122,7 +122,7 @@ class ImporterUIElement
 	{
 		foldersName = new ArrayList<String>();
 		countImported = 0;
-		setClosable(true);
+		setClosable(false);
 		entries = new JPanel();
 		entries.setBackground(UIUtilities.BACKGROUND);
 		components = new LinkedHashMap<String, FileImportComponent>();
@@ -274,14 +274,11 @@ class ImporterUIElement
 		
 		FileImportComponent c;
 		Iterator i = components.entrySet().iterator();
-		//index = 0;
-		int first = 0;
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			c = (FileImportComponent) entry.getValue();
 			addRow(layout, index, c);
 			index++;
-			first++;
 		}
 		entries.revalidate();
 		repaint();
@@ -303,6 +300,26 @@ class ImporterUIElement
 			c.setBackground(UIUtilities.BACKGROUND_COLOUR_ODD);
 		//entries.add(c.getNameLabel(), "0, "+index);
 		entries.add(c, "0, "+index+"");
+	}
+	
+	/**
+	 * Returns <code>true</code> if some files were imported, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	private boolean toRefresh()
+	{
+		Entry entry;
+		Iterator i = components.entrySet().iterator();
+		FileImportComponent fc;
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			fc = (FileImportComponent) entry.getValue();
+			if (fc.toRefresh()) 
+				return true;
+		}
+		return false;
 	}
 	
 	/**
@@ -364,27 +381,6 @@ class ImporterUIElement
 				bus.post(event);
 			}
 		}
-	}
-	
-	/**
-	 * Returns <code>true</code> if some files were imported, 
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	private boolean toRefresh()
-	{
-		Entry entry;
-		Iterator i = components.entrySet().iterator();
-		FileImportComponent fc;
-		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			fc = (FileImportComponent) entry.getValue();
-			if (fc.toRefresh()) 
-				return true;
-		}
-		return false;
-		
 	}
 	
 	/**
@@ -451,6 +447,19 @@ class ImporterUIElement
 				return true;
 		}
 		return false;
+	}
+
+	/** Indicates that the import has been cancel. */
+	void cancelLoading()
+	{
+		if (components == null || components.size() == 0) return;
+		Iterator<FileImportComponent> i = components.values().iterator();
+		FileImportComponent fc;
+		while (i.hasNext()) {
+			fc = i.next();
+			fc.cancelLoading();
+		}
+		
 	}
 
 }

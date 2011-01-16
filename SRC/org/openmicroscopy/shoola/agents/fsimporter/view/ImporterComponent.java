@@ -163,7 +163,6 @@ class ImporterComponent
 		}
 		
 		ImporterUIElement element = view.addImporterElement(data);
-		
 		if (model.getState() == IMPORTING) return;
 		importData(element);
 	}
@@ -195,7 +194,7 @@ class ImporterComponent
 		if (element != null) {
 			element.setImportedFile(f, result);
 			if (element.isDone()) {
-				model.importCompleted(index);
+				model.importCompleted(element.getID());
 				//now check if we have other import to start.
 				element = view.getElementToStartImportFor();
 				if (element != null) 
@@ -243,6 +242,7 @@ class ImporterComponent
 		if (model.getState() == DISCARDED) return;
 		ImporterUIElement element = view.removeImportElement(index);
 		if (element != null) {
+			element.cancelLoading();
 			model.cancel(element.getID());
 			fireStateChange();
 		}
