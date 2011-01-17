@@ -305,6 +305,13 @@ public abstract class SemanticType {
         return table;
     }
 
+    public String getSequenceName() {
+        // Since in the restrictive databases that we have at the moment
+        // sequences aren't objects but rows in a table, we can keep this
+        // as it is.
+        return getTable();
+    }
+
     private String reduce(String countName) {
         if (isRestrictive()) {
             if (countName.length() > 30) {
