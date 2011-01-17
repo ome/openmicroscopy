@@ -685,7 +685,7 @@ def oa_viewer(request, fileId):
         
     conn = getConnection(request)
     
-    ann = conn.getFileAnnotation(long(fileId))
+    ann = conn.getAnnotation(long(fileId))
     # determine mapType by name
     mapType = "map"
     if ann:
@@ -738,7 +738,7 @@ def getFile (request, fileId):
         
     # get the file by ID
     ann = None
-    ann = conn.getFileAnnotation(long(fileId))
+    ann = conn.getAnnotation(long(fileId))
 
     # determine mime type to assign
     if ann:

@@ -31,26 +31,20 @@ from webclient.controller import BaseController
 
 class BaseAnnotation(BaseController):
     
-    comment = None
-    attachment = None
-    tag = None
+    annotation = None
     
     def __init__(self, conn, o_type=None, oid=None, **kw):
         BaseController.__init__(self, conn)
         if oid is not None:
-            if o_type == "comment":
-                self.comment = self.conn.getCommentAnnotation(long(oid))
-                if self.comment is None:
-                    raise AttributeError("We are sorry, but that comment does not exist, or if it does, you have no permission to see it.")
-            elif o_type == "tag":
-                self.tag = self.conn.getTagAnnotation(long(oid))
-                if self.tag is None:
-                    raise AttributeError("We are sorry, but that tag does not exist, or if it does, you have no permission to see it.")
-            elif o_type == "file":
-                self.attachment = self.conn.getFileAnnotation(long(oid))
-                if self.attachment is None:
-                    raise AttributeError("We are sorry, but that tag does not exist, or if it does, you have no permission to see it.")
-            
+            self.annotation = self.conn.getAnnotation(long(oid))
+            if self.annotation is None:
+                raise AttributeError("We are sorry, but that annotation does not exist, or if it does, you have no permission to see it.")
+    
+    def remove(self, parent):
+        for al in self.annotation.getParentLinks(str(parent[0]), [long(parent[1])]):
+            if al is not None:
+                self.conn.deleteObject(al._obj)
+                        
     def saveCommentAnnotation(self, content):
         ann = self.comment._obj
         ann.textValue = rstring(str(content))

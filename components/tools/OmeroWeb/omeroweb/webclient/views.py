@@ -824,7 +824,9 @@ def autocomplete_tags(request, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
-    tags = [{'tag': t.textValue,'id':t.id, 'desc':t.description} for t in conn.listTags()]
+    eid = conn.getGroupFromContext().isReadOnly() and conn.getEventContext().userId or None
+        
+    tags = [{'tag': t.textValue,'id':t.id, 'desc':t.description} for t in conn.listTags(eid)]
     json_data = simplejson.dumps(tags)
     return HttpResponse(json_data, mimetype='application/javascript')
 
@@ -1208,37 +1210,30 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         return HttpResponse(rv)
     elif action == 'remove':
         parent = request.REQUEST['parent'].split('-')
-        source = request.REQUEST['source'].split('-')
+        #source = request.REQUEST['source'].split('-')
         try:
-            manager.remove(parent,source)
+            manager.remove(parent)
         except Exception, x:
             logger.error(traceback.format_exc())
             rv = "Error: %s" % x
             return HttpResponse(rv)
         
-        images = source[0] == 'img' and [source[1]] or None
-        datasets = source[0] == 'ds' and [source[1]] or None
-        plates = source[0] == 'pl' and [source[1]] or None        
-        request.session['clipboard'] = {'images': images, 'datasets': datasets, 'plates': plates}
+        if o_type == "dataset" or o_type == "image" or o_type == "plate":
+            images = o_type=='image' and [o_id] or None
+            datasets = o_type == 'dataset' and [o_id] or None
+            plates = o_type == 'plate' and [o_id] or None        
+            request.session['clipboard'] = {'images': images, 'datasets': datasets, 'plates': plates}
         return HttpResponseRedirect(url)
     elif action == 'removemany':
-        parent = request.REQUEST.get('parent')
-        if parent is not None:
-            parent = parent.split('-')
-            images = request.REQUEST.getlist('image')
-            datasets = request.REQUEST.getlist('dataset')
-            plates = request.REQUEST.getlist('plate')
-            source = {'images': images, 'datasets': datasets, 'plates': plates}
-            try:
-                manager.removemany(parent,source)
-            except Exception, x:
-                logger.error(traceback.format_exc())
-                rv = "Error: %s" % x
-                return HttpResponse(rv)
-            request.session['clipboard'] = source
-            return HttpResponse()
-        else:
-            raise AttributeError('Operation not supported.')
+        images = request.REQUEST.getlist('image')
+        try:
+            manager.removemany(images)
+        except Exception, x:
+            logger.error(traceback.format_exc())
+            rv = "Error: %s" % x
+            return HttpResponse(rv)
+        request.session['clipboard'] = source
+        return HttpResponse()
     elif action == 'removefromshare':
         image_id = request.REQUEST['source'].split('-')[1]
         try:
@@ -1518,7 +1513,7 @@ def download_annotation(request, action, iid, **kwargs):
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     try:
-        ann = conn.getFileAnnotation(iid)
+        ann = conn.getAnnotation(long(iid))
         
         from django.conf import settings 
         tempdir = settings.FILE_UPLOAD_TEMP_DIR

@@ -233,7 +233,7 @@ def add_annotations (request):
     ann.setValue(comment)
     """
     # get the wrapped annotation
-    #annotation = conn.getCommentAnnotation(annId)
+    #annotation = conn.getAnnotation(annId)
     
     images = []
     for iId in imageIds:

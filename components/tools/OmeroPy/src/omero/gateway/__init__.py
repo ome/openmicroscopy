@@ -581,7 +581,58 @@ class BlitzObjectWrapper (object):
             rv.append(p)
             p = p.listParents()
         return rv
-
+    
+    def getParentLinks(self, pids=None):
+        """
+        Get a list of parent objects links. 
+        
+        @param pids:    List of parent IDs
+        @type pids:     L{Long}
+        @rtype:         List of L{BlitzObjectWrapper}
+        @return:        List of parent object links
+        """
+        
+        if self.PARENT_WRAPPER_CLASS is None:
+            raise AttributeError("This object has no parent objects")
+        parentw = self._getParentWrapper()
+        query_serv = self._conn.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["child"] = rlong(self.id)                    
+        sql = "select pchl from %s as pchl " \
+                "left outer join fetch pchl.parent as parent " \
+                "left outer join fetch pchl.child as child " \
+                "where child.id=:child" % parentw().LINK_CLASS
+        if isinstance(pids, list) and len(pids) > 0:
+            p.map["parent"] = rlist([rlong(pa) for pa in pids])
+            sql+=" and parent.id in (:parent)"
+        for pchl in query_serv.findAllByQuery(sql, p):
+            yield BlitzObjectWrapper(self, pchl) 
+        
+    def getChildLinks(self, chids=None):
+        """
+        Get a list of child objects links. 
+        
+        @param chids:   List of children IDs
+        @type chids:    L{Long}
+        @rtype:         List of L{BlitzObjectWrapper}
+        @return:        List of child object links
+        """
+        
+        if self.CHILD_WRAPPER_CLASS is None:
+            raise AttributeError("This object has no child objects")
+        childw = self._getChildWrapper()
+        query_serv = self._conn.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["parent"] = rlong(self.id)                    
+        sql = "select pchl from %s as pchl left outer join fetch pchl.child as child \
+                left outer join fetch pchl.parent as parent where parent.id=:parent" % self.LINK_CLASS
+        if isinstance(chids, list) and len(chids) > 0:
+            p.map["children"] = rlist([rlong(ch) for ch in chids])
+            sql+=" and child.id in (:children)"
+        for pchl in query_serv.findAllByQuery(sql, p):
+            yield BlitzObjectWrapper(self, pchl)       
 
     def _loadAnnotationLinks (self):
         """ Loads the annotation links for the object (if not already loaded) and saves them to the object """
@@ -622,8 +673,7 @@ class BlitzObjectWrapper (object):
             update = self._conn.getUpdateService()
             update.deleteObject(al)
             update.deleteObject(a)
-        self._obj.unloadAnnotationLinks()
-    
+        self._obj.unloadAnnotationLinks()        
     
     def getAnnotation (self, ns=None):
         """
@@ -2474,11 +2524,58 @@ class _BlitzGateway (object):
         for e in q.findAllByQuery(sql, p):
             yield wrappers[obj_type](self, e)
             
-            
+    def getAnnotations(self, ids):
+        """
+        Retrieves list of L{AnnotationWrapper} for the given Annotation ids.
+        
+        @param ids:     list of annotation ids
+        @type ids:      L{Long}
+        """
+        
+        q = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["ids"] = rlist([rlong(a) for a in set(ids)])
+        sql = "select a from Annotation a where a.id in (:ids) "
+        for e in q.findAllByQuery(sql,p):
+            yield AnnotationWrapper._wrap(self, e)
+
+    def listAnnotations(self, eid=None, atype=None):
+        """
+        List Annotations controlled by the security system. 
+        
+        @param eid:         experimenter id
+        @type eid:          Long
+        @param ann_type:    Tag, File, Comment, Long, Boolean
+        @type ann_type:     String
+        
+        @return:            Generator yielding Annotations
+        @rtype:             L{AnnotationWrapper} generator
+        """
+        q = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        sql = "select a from"        
+        
+        if atype is not None:
+            if not atype in ('tag', 'comment', 'file', 'long', 'boolean'):
+                raise AttributeError("Annotation type myst be Tag, File, Comment, Rate, Boolean ")
+            sql+=" %sAnnotation a where a.ns is null" % atype.title()
+        else:
+            sql+=" Annotation a where a.ns is null"
+        
+        # experimenter filter
+        if eid is not None:
+            p.map["eid"] = rlong(long(eid))
+            sql += " and a.details.owner.id=:eid"
+       
+        for e in q.findAllByQuery(sql,p):
+            yield AnnotationWrapper._wrap(self, e)
+                    
     #################################
     # Annotations                   #
     
-    def getFileAnnotation (self, oid):
+    def getAnnotation (self, oid):
         """
         Gets file annotation by ID
         
@@ -2492,45 +2589,9 @@ class _BlitzGateway (object):
         p = omero.sys.Parameters()
         p.map = {} 
         p.map["oid"] = rlong(long(oid))
-        sql = "select f from FileAnnotation f join fetch f.file where f.id = :oid"
-        of = query_serv.findByQuery(sql, p)
-        return FileAnnotationWrapper(self, of)
-    
-    def getCommentAnnotation (self, oid):
-        """
-        Gets comment annotation by ID
-        
-        @param oid:     Comment Annotation ID.
-        @type oid:      Long
-        @return:        Annotation
-        @rtype:         L{AnnotationWrapper}
-        """
-        
-        query_serv = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {} 
-        p.map["oid"] = rlong(long(oid))
-        sql = "select ca from CommentAnnotation ca where ca.id = :oid"
-        ta = query_serv.findByQuery(sql, p)
-        return AnnotationWrapper(self, ta)
-    
-    def getTagAnnotation (self, oid):
-        """
-        Gets tag annotation by ID
-        
-        @param oid:     Tag Annotation ID.
-        @type oid:      Long
-        @return:        Annotation
-        @rtype:         L{AnnotationWrapper}
-        """
-        
-        query_serv = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {} 
-        p.map["oid"] = rlong(long(oid))
-        sql = "select tg from TagAnnotation tg where tg.id = :oid"
-        tg = query_serv.findByQuery(sql, p)
-        return AnnotationWrapper(self, tg)
+        sql = "select a from Annotation a where a.id = :oid"
+        e = query_serv.findByQuery(sql, p)
+        return AnnotationWrapper._wrap(self, e)
     
     def lookupTagAnnotation (self, name):
         """
@@ -2732,6 +2793,16 @@ class _BlitzGateway (object):
     ###################
     # Delete          #
     
+    def deleteObject(self, obj): 
+        """
+        Directly Delete object
+        
+        @param obj:     Object to delete
+        @type obj:      IObject"""
+        
+        u = self.getUpdateService() 
+        u.deleteObject(obj)
+     	
     def deleteAnnotation(self, oid):
         """
         Adds a 'Delete Annotation' command to the delete queue. 
@@ -3304,7 +3375,6 @@ class ProxyObjectWrapper (object):
         #self._conn.updateTimeout()
         return rv
 
-
 class AnnotationWrapper (BlitzObjectWrapper):
     """
     omero_model_AnnotationI class wrapper extends BlitzObjectWrapper.
@@ -3410,7 +3480,34 @@ class AnnotationWrapper (BlitzObjectWrapper):
     def setValue (self, val): #pragma: no cover
         """ Needs to be implemented by subclasses """
         raise NotImplementedError
+    
+    def getParentLinks(self, ptype, pids=None): 
+        ptype = ptype.lower()
+        if not ptype in ('project', 'dataset', 'image', 'screen', 'plate', 'well'):
+            AttributeError('Annotation can be linked only to: project, dataset, image, screen, plate, well')
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["aid"] = rlong(self.id)
+        sql = "select oal from %sAnnotationLink as oal left outer join fetch oal.child as ch " \
+                "left outer join fetch oal.parent as pa " \
+                "where ch.id=:aid " % (ptype.title())
+        if pids is not None:
+            p.map["pids"] = rlist([rlong(ob) for ob in pids])
+            sql+=" and pa.id in (:pids)" 
+            
+        for al in self._conn.getQueryService().findAllByQuery(sql, p):
+            yield AnnotationLinkWrapper(self, al)
 
+class _AnnotationLinkWrapper (BlitzObjectWrapper):
+    """
+    omero_model_AnnotationLinkI class wrapper extends omero.gateway.BlitzObjectWrapper.
+    """
+
+    def getAnnotation(self):
+        return AnnotationWrapper._wrap(self, self.child)
+
+AnnotationLinkWrapper = _AnnotationLinkWrapper
+                
 from omero_model_FileAnnotationI import FileAnnotationI
 
 class FileAnnotationWrapper (AnnotationWrapper):
@@ -4528,11 +4625,13 @@ class _LightPathWrapper (BlitzObjectWrapper):
 
     def copyEmissionFilters(self):
         """ TODO: not implemented """
-        raise NotImplementedError
-
+        #raise NotImplementedError
+        pass
+        
     def copyExcitationFilters(self):
         """ TODO: not implemented """
-        raise NotImplementedError
+        #raise NotImplementedError
+        pass
         
 LightPathWrapper = _LightPathWrapper
 

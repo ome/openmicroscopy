@@ -128,7 +128,7 @@ function manyFromBasket(productArray) {
 }
 
 function manyUnlink(parent) { 
-    if (!isCheckedById("dataset") && !isCheckedById("image") && !isCheckedById("plate")) {
+    if (!isCheckedById("image")) {
         alert ("Please select at least one object"); 
     } else { 
         unlink($("input[type='checkbox']:checked"), parent);
@@ -139,7 +139,7 @@ function selectAll() {
     $("INPUT[type='checkbox']").attr('checked', $('#checkAllAuto').is(':checked'));   
 }
 
-function unlink (productArray, parent) { 
+function unlink (productArray, parent) {
     var productListQuery = "parent="+parent;
     productArray.each(function() {
         if(this.checked) {
@@ -148,7 +148,7 @@ function unlink (productArray, parent) {
     });
     $.ajax({
         type: "POST",
-        url: "/webclient/action/removemany/", //this.href,
+        url: "/webclient/action/removemany/"+parobj[0]+"/"+parobj+"/", //this.href,
         data: productListQuery,
         contentType:'html',
         success: function(responce){

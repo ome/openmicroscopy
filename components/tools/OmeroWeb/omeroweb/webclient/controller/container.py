@@ -103,7 +103,7 @@ class BaseContainer(BaseController):
             if self.well._obj is None:
                 raise AttributeError("We are sorry, but that well (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
         elif o1_type == "tag" and o1_id is not None:
-            self.tag = self.conn.getTagAnnotation(o1_id)
+            self.tag = self.conn.getAnnotation(o1_id)
         elif o1_type == "orphaned":
             self.orphaned = True
     
@@ -141,7 +141,9 @@ class BaseContainer(BaseController):
     def loadTags(self, eid=None):
         if eid is not None:
             self.experimenter = self.conn.getExperimenter(eid)
-        self.tags = list(self.conn.listTags(eid))
+        else:            
+            eid = self.conn.getEventContext().userId
+        self.tags = list(self.conn.listAnnotations(eid, 'tag'))
         self.t_size = len(self.tags)
     
     def loadDataByTag(self):
@@ -435,7 +437,8 @@ class BaseContainer(BaseController):
         elif self.screen is not None:
             return list(self.conn.getTagsByObject("screen", self.screen.id))
         else:
-            return list(self.conn.listTags())
+            eid = self.conn.getGroupFromContext().isReadOnly() and self.conn.getEventContext().userId or None
+            return list(self.conn.listAnnotations(eid, 'tag'))
     
     def getFilesByObject(self):
         if self.image is not None:
@@ -451,7 +454,8 @@ class BaseContainer(BaseController):
         elif self.screen is not None:
             return list(self.conn.getFilesByObject("screen", self.screen.id))
         else:
-            return list(self.conn.listFiles())
+            eid = self.conn.getGroupFromContext().isReadOnly() and self.conn.getEventContext().userId or None
+            return list(self.conn.listAnnotations(eid, 'file'))
     ####################################################################
     # Creation
     
@@ -931,101 +935,30 @@ class BaseContainer(BaseController):
             return 'No data was choosen.'
         return 
     
-    def remove(self, parent, source):
-        if source[0] == 'ds':
+    def remove(self, parent):
+        if self.dataset is not None:
             if parent[0] == 'pr':
-                pdl = self.conn.getProjectDatasetLink(parent[1], source[1])
-                if pdl is not None:
-                    self.conn.deleteObject(pdl._obj)
-        elif source[0] == 'pl':
+                for pdl in self.dataset.getParentLinks([parent[1]]):
+                    if pdl is not None:
+                        self.conn.deleteObject(pdl._obj)
+        elif self.plate is not None:
             if parent[0] == 'sc':
-                spl = self.conn.getScreenPlateLink(parent[1], source[1])
-                if spl is not None:
-                    self.conn.deleteObject(spl._obj)
-        elif source[0] == 'img':
+                for spl in self.plate.getParentLinks([parent[1]]):
+                    if spl is not None:
+                        self.conn.deleteObject(spl._obj)
+        elif self.image is not None:
             if parent[0] == 'ds':
-                dil = self.conn.getDatasetImageLink(parent[1], source[1])
-                if dil is not None:
-                    self.conn.deleteObject(dil._obj)
-        elif source[0] == 'tann' or source[0] == 'cann' or source[0] == 'fann':
-            if parent[0] == 'pr':
-                pal = self.conn.getProjectAnnotationLink(parent[1], source[1])
-                if pal is not None:
-                    self.conn.deleteObject(pal._obj)
-            elif parent[0] == 'ds':
-                dal = self.conn.getDatasetAnnotationLink(parent[1], source[1])
-                if dal is not None:
-                    self.conn.deleteObject(dal._obj)
-            elif parent[0] == 'sc':
-                sal = self.conn.getScreenAnnotationLink(parent[1], source[1])
-                if sal is not None:
-                    self.conn.deleteObject(sal._obj)
-            elif parent[0] == 'pl':
-                pal = self.conn.getPlateAnnotationLink(parent[1], source[1])
-                if pal is not None:
-                    self.conn.deleteObject(pal._obj)
-            elif parent[0] == 'img':
-                ial = self.conn.getImageAnnotationLink(parent[1], source[1])
-                if ial is not None:
-                    self.conn.deleteObject(ial._obj)
+                for dil in self.image.getParentLinks([parent[1]]):
+                    if dil is not None:
+                        self.conn.deleteObject(dil._obj)
         else:
             raise AttributeError("Attribute not specified. Cannot be removed.")
     
-    def removemany(self, parent, source):
-        if parent[0] == 'pr':
-            try:
-                datasets = source['datasets']
-            except:
-                raise AttributeError("Object cannot be removed.")
-            for ds in datasets:
-                pdl = self.conn.getProjectDatasetLink(parent[1], ds)
-                if pdl is not None:
-                    self.conn.deleteObject(pdl._obj)
-        elif parent[0] == 'ds':
-            try:
-                images = source['images']
-            except:
-                raise AttributeError("Object cannot be removed.")
-            for im in images:
-                dil = self.conn.getDatasetImageLink(parent[1], im)
-                if dil is not None:
-                    self.conn.deleteObject(dil._obj)
-        elif parent[0] == 'sc':
-            try:
-                plates = source['plates']
-            except:
-                raise AttributeError("Object cannot be removed.")
-            for pl in plates:
-                spl = self.conn.getScreenPlateLink(parent[1], pl)
-                if spl is not None:
-                    self.conn.deleteObject(spl._obj)
-        elif parent[0] == 'tann' or parent[0] == 'cann' or parent[0] == 'fann' or parent[0] == 'uann':
-            if source['projects'] is not None or len(source['projects']) > 0:
-                for s in source['projects']:
-                    pal = self.conn.getProjectAnnotationLink(s, parent[1])
-                    if pal is not None:
-                        self.conn.deleteObject(pal._obj)
-            if source['datasets'] is not None or len(source['datasets']) > 0:
-                for s in source['projects']:
-                    dal = self.conn.getDatasetAnnotationLink(s, parent[1])
-                    if dal is not None:
-                        self.conn.deleteObject(dal._obj)
-            if source['screens'] is not None or len(source['screens']) > 0:
-                for s in source['screens']:
-                    sal = self.conn.getScreenAnnotationLink(s, parent[1])
-                    if sal is not None:
-                        self.conn.deleteObject(sal._obj)
-            if source['plates'] is not None or len(source['plates']) > 0:
-                for s in source['plates']:
-                    pal = self.conn.getPlateAnnotationLink(s, parent[1])
-                    if pal is not None:
-                        self.conn.deleteObject(pal._obj)
-            if source['images'] is not None or len(source['images']) > 0:
-                for s in source['images']:
-                    ial = self.conn.getImageAnnotationLink(s, parent[1])
-                    if ial is not None:
-                        self.conn.deleteObject(ial._obj)
-        
+    def removemany(self, images):
+        if self.dataset is not None:
+            dil = self.dataset.getParentLinks('image', images)
+            if dil is not None:
+                self.conn.deleteObject(dil._obj)            
         else:
             raise AttributeError("Attribute not specified. Cannot be removed.")
     
