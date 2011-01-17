@@ -26,16 +26,21 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Map.Entry;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
@@ -47,9 +52,11 @@ import javax.swing.border.LineBorder;
 import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
 import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -117,12 +124,75 @@ class ImporterUIElement
 	/** Reference to the controller. */
 	private ImporterControl controller;
 	
+	/** The components displaying the components. */
+	private Map<JLabel, Object> containerComponents;
+	
+	/**
+	 * Browses the specified object.
+	 * 
+	 * @param data The object to handle.
+	 */ 
+	private void browse(Object data)
+	{
+		if (data instanceof TreeImageDisplay || data instanceof DataObject) {
+			EventBus bus = ImporterAgent.getRegistry().getEventBus();
+			bus.post(new BrowseContainer(data));
+		}
+	}
+	
+	/**
+	 * Returns the label hosting the passed object.
+	 * 
+	 * @param data The object to handle.
+	 * @return See above.
+	 */
+	private JLabel createNameLabel(Object data)
+	{
+		JLabel label = new JLabel();
+		boolean browse = false;
+		String name = "";
+		if (data instanceof DatasetData) {
+			browse = true;
+			name = ((DatasetData) data).getName();
+		} else if (data instanceof ScreenData) {
+			browse = true;
+			name = ((ScreenData) data).getName();
+		} else if (data instanceof ProjectData) {
+			browse = true;
+			name = ((ProjectData) data).getName();
+		}
+		if (browse) {
+			label.setBackground(UIUtilities.BACKGROUND_COLOR);
+			label.setToolTipText("Double click to browse when import " +
+					"completed.");
+			label.addMouseListener(new MouseAdapter() {
+				
+				/**
+				 * Browses the object the image.
+				 * @see MouseListener#mousePressed(MouseEvent)
+				 */
+				public void mousePressed(MouseEvent e)
+				{
+					Object src = e.getSource();
+					if (e.getClickCount() == 2 && src instanceof JLabel) {
+						browse(containerComponents.get((JLabel) src));
+					}
+				}
+			});
+		}
+		
+		label.setText(name);
+		return label;
+	}
+	
 	/** Initializes the components. */
 	private void initialize()
 	{
+		containerComponents = new LinkedHashMap<JLabel, Object>();
 		foldersName = new ArrayList<String>();
 		countImported = 0;
-		setClosable(false);
+		setClosable(true);
+		addPropertyChangeListener(controller);
 		entries = new JPanel();
 		entries.setBackground(UIUtilities.BACKGROUND);
 		components = new LinkedHashMap<String, FileImportComponent>();
@@ -175,26 +245,31 @@ class ImporterUIElement
     	header.add(timeLabel, c);
     	c.gridy++; 	
     	c.gridx = 0;
-    	List<DataObject> containers = object.getContainers();
+    	List<Object> containers = object.getRefNodes();
 		DataObject ho;
 		String text = "Imported in ";
 		String name = "";
 		int n;
+		
 		if (containers != null && containers.size() > 0) {
-			Iterator<DataObject> i = containers.iterator();
+			Iterator<Object> i = containers.iterator();
 			int index = 0;
 			n = containers.size()-1;
+			TreeImageDisplay node;
+			Object h;
 			while (i.hasNext()) {
-				ho = i.next();
-				if (ho instanceof DatasetData) {
+				node = (TreeImageDisplay) i.next();
+				h = node.getUserObject();
+				containerComponents.put(createNameLabel(h), node);
+				if (h instanceof DatasetData) {
 					if (index == 0) text += "Dataset: ";
-					name += ((DatasetData) ho).getName();
-				} else if (ho instanceof ScreenData) {
+					name += ((DatasetData) h).getName();
+				} else if (h instanceof ScreenData) {
 					if (index == 0) text += "Screen: ";
-					name += ((ScreenData) ho).getName();
-				} else if (ho instanceof ProjectData) {
+					name += ((ScreenData) h).getName();
+				} else if (h instanceof ProjectData) {
 					if (index == 0) text += "Project: ";
-					name += ((ProjectData) ho).getName();
+					name += ((ProjectData) h).getName();
 				}
 				if (index < n) name += ", ";
 				index++;
@@ -217,11 +292,22 @@ class ImporterUIElement
 		}
 		if (text != null) {
 			label = UIUtilities.setTextFont(text, Font.BOLD);
-			value = UIUtilities.createComponent(null);
-	    	value.setText(name);
+			//value = UIUtilities.createComponent(null);
+	    	//value.setText(name);
 			header.add(label, c);
 	    	c.gridx = c.gridx+2;
-	    	header.add(value, c);
+	    	if (containerComponents.size() > 0) {
+	    		JPanel p = new JPanel();
+	    		p.setBackground(UIUtilities.BACKGROUND_COLOR);
+	    		p.setLayout(new FlowLayout(FlowLayout.LEFT));
+	    		Iterator<JLabel> l = containerComponents.keySet().iterator();
+	    		
+	    		while (l.hasNext()) {
+					p.add(l.next());
+				}
+	    		header.add(p, c);
+	    	}
+	    	
 	    	c.gridy++; 	
 	    	c.gridx = 0;
 		}
@@ -366,8 +452,13 @@ class ImporterUIElement
 			c.setStatus(false, result);
 			countImported++;
 			done = countImported == totalToImport;
-			setClosable(done);
+			//setClosable(done);
 			if (done) {
+				//setClosable
+				Iterator<JLabel> i = containerComponents.keySet().iterator();
+				while (i.hasNext()) {
+					i.next().setForeground(UIUtilities.HYPERLINK_COLOR);
+				}
 				long duration = System.currentTimeMillis()-startImport;
 				String text = timeLabel.getText();
 				String time = UIUtilities.calculateHMS((int) (duration/1000));
@@ -394,7 +485,7 @@ class ImporterUIElement
 	/** Indicates that the import has started. */
 	void startImport()
 	{ 
-		setClosable(false); 
+		//setClosable(false); test
 		repaint();
 	}
 	
@@ -454,12 +545,9 @@ class ImporterUIElement
 	{
 		if (components == null || components.size() == 0) return;
 		Iterator<FileImportComponent> i = components.values().iterator();
-		FileImportComponent fc;
 		while (i.hasNext()) {
-			fc = i.next();
-			fc.cancelLoading();
+			i.next().cancelLoading();
 		}
-		
 	}
 
 }

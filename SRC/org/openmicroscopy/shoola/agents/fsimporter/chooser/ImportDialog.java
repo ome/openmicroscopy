@@ -84,6 +84,7 @@ import org.jdesktop.swingx.JXTaskPane;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
@@ -250,7 +251,7 @@ public class ImportDialog
 	private ActionListener				listener;
 	
 	/** The containers where to import the data. */
-	private List<DataObject>			containers;
+	private List<TreeImageDisplay>		containers;
 	
 	/** The component displaying the table, options etc. */
 	private JTabbedPane 				tabbedPane;
@@ -442,7 +443,7 @@ public class ImportDialog
 	 * 
 	 * @param containers The containers to import the data into.
 	 */
-	private void initComponents(List<DataObject> containers)
+	private void initComponents(List<TreeImageDisplay> containers)
 	{
 		this.containers = containers;
 		listener = new ActionListener() {
@@ -815,13 +816,15 @@ public class ImportDialog
 		if (containers != null) {
 			row = new JPanel();
 			row.setLayout(new FlowLayout(FlowLayout.LEFT));
-			Iterator<DataObject> i = containers.iterator();
+			Iterator<TreeImageDisplay> i = containers.iterator();
+			TreeImageDisplay node;
 			Object c;
 			String name = "";
 			int index = 0;
 			int n = containers.size()-1;
 			while (i.hasNext()) {
-				c = i.next();
+				node = i.next();
+				c = node.getUserObject();
 				if (c instanceof DatasetData) {
 					message = null;
 					if (index == 0)
@@ -937,7 +940,19 @@ public class ImportDialog
     			chooser.getCurrentDirectory().toString());
     	ImportableObject object = new ImportableObject(table.getFilesToImport(),
     			overrideName.isSelected());
-    	object.setContainers(containers);
+    	if (containers != null) {
+    		List<DataObject> nodes = new ArrayList<DataObject>();
+    		List<Object> refNodes = new ArrayList<Object>();
+    		Iterator<TreeImageDisplay> i = containers.iterator();
+    		TreeImageDisplay node;
+    		while (i.hasNext()) {
+    			node = i.next();
+    			nodes.add((DataObject) node.getUserObject());
+    			refNodes.add(node);
+			}
+    		object.setRefNodes(refNodes);
+    		object.setContainers(nodes);
+    	}
     	Boolean b = (Boolean) ImporterAgent.getRegistry().lookup(
     			LOAD_THUMBNAIL);
     	if (b != null)
@@ -1037,7 +1052,8 @@ public class ImportDialog
 	boolean useFolderAsContainer()
 	{
 		if (containers == null || containers.size() == 0) return false;
-		DataObject object = containers.get(0);
+		TreeImageDisplay node = containers.get(0);
+		Object object = node.getUserObject();
 		return !(object instanceof DatasetData);
 	}
 	
@@ -1050,8 +1066,9 @@ public class ImportDialog
      * @param type 		One of the type constants.
      * @param datasets The collection of datasets to use by default.
      */
-    public ImportDialog(JFrame owner, FileFilter[] filters, List<DataObject> 
-    		containers, int type, List<DatasetData> datasets)
+    public ImportDialog(JFrame owner, FileFilter[] filters, 
+    		List<TreeImageDisplay> containers, int type,
+    		List<DatasetData> datasets)
     {
     	super(owner);
     	this.filters = filters;
@@ -1069,7 +1086,7 @@ public class ImportDialog
      * 
      * @param containers The container where to import the files.
      */
-	public void reset(List<DataObject> containers)
+	public void reset(List<TreeImageDisplay> containers)
 	{
 		this.containers = containers;
 		titlePane.setTextHeader(getContainerText(containers));

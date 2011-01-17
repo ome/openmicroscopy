@@ -35,6 +35,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
 import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
 import org.openmicroscopy.shoola.agents.events.iviewer.ImageProjected;
@@ -349,6 +350,26 @@ public class TreeViewerAgent
     }
     
     /**
+     * Browses the specified container.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleBrowseContainer(BrowseContainer evt)
+    {
+    	if (evt == null) return;
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (!env.isServerAvailable()) return;
+    	ExperimenterData exp = (ExperimenterData) registry.lookup(
+			        				LookupNames.CURRENT_USER_DETAILS);
+    	GroupData gp = exp.getDefaultGroup();
+    	long id = -1;
+    	if (gp != null) id = gp.getId();
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
+        if (viewer != null) 
+        	viewer.browseContainer(evt.getData());
+    }
+    
+    /**
      * Implemented as specified by {@link Agent}.
      * @see Agent#activate()
      */
@@ -390,6 +411,7 @@ public class TreeViewerAgent
         bus.register(this, UserGroupSwitched.class);
         bus.register(this, DataObjectSelectionEvent.class);
         bus.register(this, ImportStatusEvent.class);
+        bus.register(this, BrowseContainer.class);
     }
 
     /**
@@ -440,6 +462,8 @@ public class TreeViewerAgent
 	        handleViewObjectEvent((ViewObjectEvent) e);
 		else if (e instanceof ImportStatusEvent)
 	        handleImportStatusEvent((ImportStatusEvent) e);
+		else if (e instanceof BrowseContainer)
+			handleBrowseContainer((BrowseContainer) e);
 	}
 
 }

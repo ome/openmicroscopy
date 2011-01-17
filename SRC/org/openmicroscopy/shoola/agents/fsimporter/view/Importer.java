@@ -33,6 +33,7 @@ import javax.swing.JFrame;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.DataObject;
@@ -91,7 +92,7 @@ public interface Importer
 	 * @param datasets   The available datasets, to use by default.
 	 * @throws IllegalStateException If the current state is {@link #DISCARDED}.  
 	 */
-	public void activate(int type, List<DataObject> containers, 
+	public void activate(int type, List<TreeImageDisplay> containers, 
 			List<DatasetData> datasets);
 	
 	/**

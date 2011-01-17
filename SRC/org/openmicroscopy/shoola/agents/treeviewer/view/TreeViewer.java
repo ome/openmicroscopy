@@ -981,5 +981,12 @@ public interface TreeViewer
 	 * @param containers The containers that need to be refreshed.
 	 */
 	void setImporting(boolean importing, List<DataObject> containers);
+
+	/**
+	 * Browses the specified container.
+	 * 
+	 * @param data The data object browse.
+	 */
+	void browseContainer(Object data);
 	
 }

@@ -161,7 +161,7 @@ public class CreateCmd
         		Object node = display.getUserObject();
         		if (node instanceof DatasetData || node instanceof ScreenData ||
         			node instanceof ProjectData) {
-        			event = new LoadImporter((DataObject) node);
+        			event = new LoadImporter(display);
         		}
         	}
         	if (event == null) {

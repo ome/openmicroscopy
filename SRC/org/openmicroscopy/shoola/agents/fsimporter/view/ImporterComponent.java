@@ -36,6 +36,7 @@ import javax.swing.JFrame;
 import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
@@ -109,7 +110,7 @@ class ImporterComponent
 	 * Implemented as specified by the {@link Importer} interface.
 	 * @see Importer#activate(int, List, List)
 	 */
-	public void activate(int type, List<DataObject> containers, 
+	public void activate(int type, List<TreeImageDisplay> containers, 
 			List<DatasetData> datasets)
 	{
 		if (model.getState() == DISCARDED) return;

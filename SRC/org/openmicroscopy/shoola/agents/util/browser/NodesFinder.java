@@ -139,6 +139,21 @@ public class NodesFinder
 	}
 	
 	/**
+	 * Creates a new instance.
+	 * 
+	 * @param refObject The collection of objects to find.
+	 */
+	public NodesFinder(DataObject refObject)
+	{
+		type = null;
+		if (refObject == null)
+			throw new IllegalArgumentException("No object to find.");
+		refObjects = new ArrayList<DataObject>();
+		refObjects.add(refObject);
+		nodes = new HashSet<TreeImageDisplay>();
+	}
+	
+	/**
 	 * Returns the collection of nodes found.
 	 * 
 	 * @return See above.

@@ -81,6 +81,9 @@ public class ImportableObject
 	/** Flag indicating to load the thumbnails. */ 
 	private boolean loadThumbnail;
 	
+	/** The nodes of reference. */
+	private List<Object> refNodes;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -267,5 +270,19 @@ public class ImportableObject
 	 * @return See above.
 	 */
 	public Collection<TagAnnotationData> getTags() { return tags; }
+	
+	/**
+	 * Returns the nodes of reference.
+	 * 
+	 * @return See above.
+	 */
+	public List<Object> getRefNodes() { return refNodes; }
+	
+	/**
+	 * Returns the nodes of reference.
+	 * 
+	 * @param refNodes The value to set.
+	 */
+	public void setRefNodes(List<Object> refNodes) { this.refNodes = refNodes; }
 	
 }

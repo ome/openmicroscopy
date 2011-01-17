@@ -2268,7 +2268,6 @@ class TreeViewerComponent
 		} else if (uo instanceof ImageData) {
 			EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
 			ViewImageObject vo = new ViewImageObject((ImageData) uo);
-			
 			TreeImageDisplay p = node.getParentDisplay();
 			TreeImageDisplay gp = null;
 			DataObject po = null;
@@ -3147,7 +3146,7 @@ class TreeViewerComponent
 				if (ho instanceof DatasetData || ho instanceof ProjectData) {
 					browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
 					browser.accept(finder);
-				} else {
+				} else if (ho instanceof ScreenData) {
 					browser = model.getBrowser(Browser.SCREENS_EXPLORER);
 					browser.accept(finder);
 				}
@@ -3162,6 +3161,55 @@ class TreeViewerComponent
 			}
 		}
 		firePropertyChange(IMPORT_PROPERTY, importing, !importing);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#setImporting(boolean, List)
+	 */
+	public void browseContainer(Object data)
+	{
+		if (model.getState() == DISCARDED) return;
+		if (data == null) return;
+		Browser browser = null;
+		NodesFinder finder;
+		Set<TreeImageDisplay> nodes;
+		Iterator<TreeImageDisplay> i;
+		TreeImageDisplay n;
+		if (data instanceof TreeImageDisplay) {
+			view.setOnScreen();
+			TreeImageDisplay node = (TreeImageDisplay) data;
+			Object ho = node.getUserObject();
+			if (ho instanceof DatasetData || ho instanceof ProjectData) {
+				browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
+			} else if (ho instanceof ScreenData) {
+				browser = model.getBrowser(Browser.SCREENS_EXPLORER);
+			}
+			if (browser != null) {
+				finder = new NodesFinder((DataObject) ho);
+				browser.accept(finder);
+				nodes = finder.getNodes();
+				if (nodes.size() > 0) { //not found.
+					i = nodes.iterator();
+					while (i.hasNext()) {
+						n = i.next();
+						if (n == node) {
+							browse(node, true);
+							node.setToRefresh(false);
+						}
+					}
+				}
+			}
+		} else if (data instanceof DataObject) { //should be for new node
+			if (data instanceof DatasetData || data instanceof ProjectData) {
+				browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
+			} else if (data instanceof ScreenData) {
+				browser = model.getBrowser(Browser.SCREENS_EXPLORER);
+			}
+			if (browser != null) {
+				browser.refreshBrowser();//Find solution here.
+			}
+		}
 	}
 	
 }

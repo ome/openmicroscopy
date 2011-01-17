@@ -30,6 +30,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -59,9 +60,9 @@ public class LoadImporter
 	public static final int		SCREEN_TYPE = 1;
 	
 	/** The containers where to load the image. */
-	private List<DataObject> containers;
+	private List<TreeImageDisplay> containers;
 	
-	/** The containers where to load the image. */
+	/** The default datasets. */
 	private List<DatasetData> datasets;
 	
 	/** The type of the import to handle. */
@@ -82,10 +83,10 @@ public class LoadImporter
 	 * 
 	 * @param container The container where import the files.
 	 */
-	public LoadImporter(DataObject container)
+	public LoadImporter(TreeImageDisplay container)
 	{
 		if (container != null) {
-			containers = new ArrayList<DataObject>();
+			containers = new ArrayList<TreeImageDisplay>();
 			containers.add(container);
 		}
 		type = -1;
@@ -96,7 +97,7 @@ public class LoadImporter
 	 * 
 	 * @param containers The containers where import the files.
 	 */
-	public LoadImporter(List<DataObject> containers)
+	public LoadImporter(List<TreeImageDisplay> containers)
 	{
 		this.containers = containers;
 		type = -1;
@@ -107,7 +108,7 @@ public class LoadImporter
 	 * 
 	 * @return See above.
 	 */
-	public List<DataObject> getContainers() { return containers; }
+	public List<TreeImageDisplay> getContainers() { return containers; }
 	
 	/**
 	 * Returns the type of import.

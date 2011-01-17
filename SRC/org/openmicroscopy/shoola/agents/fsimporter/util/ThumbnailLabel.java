@@ -103,6 +103,9 @@ class ThumbnailLabel
 		} 
 	}
 	
+	/** Creates a default new instance. */
+	ThumbnailLabel() {}
+	
 	/**  
 	 * Creates a new instance. 
 	 * 
@@ -113,10 +116,10 @@ class ThumbnailLabel
 		super(icon);
 	}
 	
-	/** Creates a default new instance. */
-	ThumbnailLabel() {}
-	
-	/** Sets the image that have been imported. */
+	/** Sets the image that has been imported. 
+	 * 
+	 * @param data The imported image.
+	 */
 	void setImage(ImageData data)
 	{
 		if (data == null) return;
