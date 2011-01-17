@@ -246,7 +246,6 @@ class ImporterUIElement
     	c.gridy++; 	
     	c.gridx = 0;
     	List<Object> containers = object.getRefNodes();
-		DataObject ho;
 		String text = "Imported in ";
 		String name = "";
 		int n;
@@ -277,7 +276,6 @@ class ImporterUIElement
 		} else {
 			if (DatasetData.class.equals(object.getType())) {
 				text += "Dataset: ";
-				Iterator<String> i = foldersName.iterator();
 				n = foldersName.size()-1;
 				for (int j = 0; j < foldersName.size(); j++) {
 					name += foldersName.get(j);
@@ -452,9 +450,8 @@ class ImporterUIElement
 			c.setStatus(false, result);
 			countImported++;
 			done = countImported == totalToImport;
-			//setClosable(done);
+			setClosable(done);
 			if (done) {
-				//setClosable
 				Iterator<JLabel> i = containerComponents.keySet().iterator();
 				while (i.hasNext()) {
 					i.next().setForeground(UIUtilities.HYPERLINK_COLOR);
@@ -485,7 +482,7 @@ class ImporterUIElement
 	/** Indicates that the import has started. */
 	void startImport()
 	{ 
-		//setClosable(false); test
+		setClosable(false);
 		repaint();
 	}
 	
