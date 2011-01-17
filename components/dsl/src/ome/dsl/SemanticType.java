@@ -281,9 +281,14 @@ public abstract class SemanticType {
     public String typeAnnotation(Property p) {
         String typeAnnotation = p.getTypeAnnotation();
         typeAnnotation = typeAnnotation.replace("@PROFILE@", profile);
-        if (isRestrictive() && typeAnnotation.contains("TextType")) {
-            typeAnnotation = "@org.hibernate.annotations.ColumnTransformer(read=\"to_char("+
-            columnName(p) + ")\")";
+        if (isRestrictive()) {
+            if (typeAnnotation.contains("TextType")) {
+                typeAnnotation = "@org.hibernate.annotations.ColumnTransformer(read=\"to_char("+
+                columnName(p) + ")\")";
+            } else if ("java.lang.String".equals(p.getType()) && ! p.getNullable()) {
+                // See ticket:3884
+                typeAnnotation = "@org.hibernate.annotations.ColumnTransformer(write=\"coalesce(?, ' ')\")";
+            }
         }
 
         return typeAnnotation;
