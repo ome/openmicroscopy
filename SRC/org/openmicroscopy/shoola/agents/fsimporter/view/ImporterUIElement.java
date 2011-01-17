@@ -304,6 +304,10 @@ class ImporterUIElement
 					p.add(l.next());
 				}
 	    		header.add(p, c);
+	    	} else {
+	    		value = UIUtilities.createComponent(null);
+		    	value.setText(name);
+		    	header.add(value, c);
 	    	}
 	    	
 	    	c.gridy++; 	
