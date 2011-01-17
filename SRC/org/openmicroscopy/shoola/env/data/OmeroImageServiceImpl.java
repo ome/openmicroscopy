@@ -76,8 +76,6 @@ import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -87,6 +85,7 @@ import pojos.ImageData;
 import pojos.PixelsData;
 import pojos.ProjectData;
 import pojos.ROIData;
+import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.WorkflowData;
 
@@ -854,7 +853,7 @@ class OmeroImageServiceImpl
 	}
 	
 	/**
-	 * Returns <code>true</code> if the extension of the specified
+	 * Returns <code>true</code> if the extension of the specified file
 	 * is arbitrary and so requires to use the import candidates,
 	 * <code>false</code> otherwise.
 	 * 
@@ -865,8 +864,7 @@ class OmeroImageServiceImpl
 	{
 		if (f == null) return false;
 		String name = f.getName();
-		if (!name.contains(".")) return false; 
-			
+		if (!name.contains(".")) return false; 	
 		String ext = name.substring(name.lastIndexOf('.')+1, name.length());
 		return ARBITRARY_FILES_EXTENSION.contains(ext);
 	}
@@ -923,7 +921,6 @@ class OmeroImageServiceImpl
 		File file = importable.getFile();
 		boolean thumbnail = object.isLoadThumbnail();
 		if (file.isFile()) {
-			//Need to check arbitrary file extensions.
 			if (containers != null && containers.size() > 0) {
 				j = containers.iterator();
 				container = containers.get(0);
@@ -931,7 +928,8 @@ class OmeroImageServiceImpl
 					io = createDefaultContainer(container, 
 							object.getDefaultDataset(), userID);
 					if (io != null) ioList.add(io);
-				} else if (container instanceof DatasetData) {
+				} else if (container instanceof DatasetData || 
+						container instanceof ScreenData) {
 					while (j.hasNext())
 						ioList.add(j.next().asIObject());
 				}

@@ -39,13 +39,15 @@ import javax.swing.border.Border;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
+import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.util.ui.RollOverThumbnailManager;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
-
+import pojos.DataObject;
 import pojos.ImageData;
+import pojos.PlateData;
 
 /** 
  * Component displaying the thumbnail.
@@ -76,11 +78,15 @@ class ThumbnailLabel
 	private static final String		IMAGE_LABEL_TOOLTIP = 
 		"Click on icon to launch the viewer.";
 	
+	/** The text displayed in the tool tip when the plate has been imported. */
+	private static final String		PLATE_LABEL_TOOLTIP = 
+		"Click on icon to browse the plate.";
+	
 	/** The thumbnail or the image to host. */
 	private Object data;
 	
-	/** Posts an event to view the image. */
-	private void viewImage()
+	/** Posts an event to view the object. */
+	private void view()
 	{
 		EventBus bus = ImporterAgent.getRegistry().getEventBus();
 		if (data instanceof ThumbnailData) {
@@ -90,6 +96,8 @@ class ThumbnailLabel
 		} else if (data instanceof ImageData) {
 			ImageData image = (ImageData) data;
 			bus.post(new ViewImage(new ViewImageObject(image), null));
+		} else if (data instanceof PlateData) {
+			
 		}
 	}
 	
@@ -116,15 +124,22 @@ class ThumbnailLabel
 		super(icon);
 	}
 	
-	/** Sets the image that has been imported. 
+	/** 
+	 * Sets the object that has been imported. 
 	 * 
 	 * @param data The imported image.
 	 */
-	void setImage(ImageData data)
+	void setData(DataObject data)
 	{
 		if (data == null) return;
 		this.data = data;
-		setToolTipText(IMAGE_LABEL_TOOLTIP);
+		if (data instanceof ImageData) {
+			setToolTipText(IMAGE_LABEL_TOOLTIP);
+		} else if (data instanceof PlateData) {
+			setToolTipText(PLATE_LABEL_TOOLTIP);
+			IconManager icons = IconManager.getInstance();
+			setIcon(icons.getIcon(IconManager.PLATE));
+		}
 		addMouseListener(new MouseAdapter() {
 			
 			/**
@@ -134,7 +149,7 @@ class ThumbnailLabel
 			public void mousePressed(MouseEvent e)
 			{
 				if (e.getClickCount() == 2)
-					viewImage(); 
+					view(); 
 			}
 		});
 	}
@@ -154,8 +169,6 @@ class ThumbnailLabel
 		setBorder(LABEL_BORDER);
 		if (icon != null) {
 			setIcon(icon);
-			//setPreferredSize(new Dimension(icon.getIconWidth(), 
-			//		icon.getIconHeight()));
 		}
 		addMouseListener(new MouseAdapter() {
 			
@@ -166,7 +179,7 @@ class ThumbnailLabel
 			public void mousePressed(MouseEvent e)
 			{
 				if (e.getClickCount() == 2)
-					viewImage(); 
+					view(); 
 			}
 
 			/**

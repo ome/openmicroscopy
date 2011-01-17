@@ -79,14 +79,17 @@ public class IconManager
     /** The <code>Image</code> icon. */
     public static final int      IMAGE = 7;
     
-    /** The <code>Minus 11x11</code> icon. */
+    /** The <code>Directory</code> icon. */
     public static final int      DIRECTORY = 8;
+    
+    /** The <code>Plate</code> icon. */
+    public static final int      PLATE = 9;
     
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int	MAX_ID = 8;
+    private static final int	MAX_ID = 9;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -101,6 +104,7 @@ public class IconManager
         relPaths[TAGS_48] = "nuvola_knotes48.png";
         relPaths[IMAGE] = "nuvola_image16.png";
         relPaths[DIRECTORY] = "nuvola_folder_grey16.png";
+        relPaths[PLATE] = "plate16.png";
     }
     
     /** The sole instance. */

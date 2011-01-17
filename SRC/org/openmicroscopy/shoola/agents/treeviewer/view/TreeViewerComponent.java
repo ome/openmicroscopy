@@ -3138,6 +3138,7 @@ class TreeViewerComponent
 	{
 		if (model.getState() == DISCARDED) return;
 		model.setImporting(importing);
+		
 		if (!importing) {
 			if (containers != null && containers.size() > 0) {
 				NodesFinder finder = new NodesFinder(containers);

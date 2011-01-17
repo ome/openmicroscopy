@@ -83,6 +83,7 @@ import org.jdesktop.swingx.JXTaskPane;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
+import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.config.Registry;
@@ -267,6 +268,8 @@ public class ImportDialog
 	
 	/** The compoennt displaying where the data will be imported. */
 	private JPanel						locationPane;
+	
+	private int							type;
 	
 	/** Adds the files to the selection. */
 	private void addFiles()
@@ -813,7 +816,7 @@ public class ImportDialog
 		JPanel row;
 		String v;
 		String message = NO_CONTAINER;
-		if (containers != null) {
+		if (containers != null && containers.size() > 0) {
 			row = new JPanel();
 			row.setLayout(new FlowLayout(FlowLayout.LEFT));
 			Iterator<TreeImageDisplay> i = containers.iterator();
@@ -832,7 +835,7 @@ public class ImportDialog
 					name += ((DatasetData) c).getName();
 				} else if (c instanceof ScreenData) {
 					if (index == 0) {
-						message = OTHER_AS_CONTAINER;
+						message = null;
 						text.append("Screen: ");
 					}
 					name += ((ScreenData) c).getName();
@@ -851,6 +854,7 @@ public class ImportDialog
 			row.add(new JLabel(name));
 			locationPane.add(row);
 		}
+		if (type == Importer.SCREEN_TYPE) message = null;
 		if (message != null) {
 			defaultContainerField.setVisible(true);
 			row = new JPanel();
@@ -1051,10 +1055,12 @@ public class ImportDialog
 	 */
 	boolean useFolderAsContainer()
 	{
-		if (containers == null || containers.size() == 0) return false;
+		if (containers == null || containers.size() == 0) {
+			return !(type == Importer.SCREEN_TYPE);
+		}
 		TreeImageDisplay node = containers.get(0);
 		Object object = node.getUserObject();
-		return !(object instanceof DatasetData);
+		return (object instanceof DatasetData);
 	}
 	
     /** 
@@ -1085,10 +1091,13 @@ public class ImportDialog
      * Resets the text and remove all the files to import.
      * 
      * @param containers The container where to import the files.
+     * @param type       One of the constants used to identify the type of 
+     * 					 import.
      */
-	public void reset(List<TreeImageDisplay> containers)
+	public void reset(List<TreeImageDisplay> containers, int type)
 	{
 		this.containers = containers;
+		this.type = type;
 		titlePane.setTextHeader(getContainerText(containers));
 		titlePane.setSubtitle(SUB_MESSAGE);
 		table.removeAllFiles();

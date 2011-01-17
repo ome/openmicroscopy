@@ -41,6 +41,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
 import pojos.ProjectData;
 import pojos.ScreenData;
+
 /** 
  * Action to import the images.
  *

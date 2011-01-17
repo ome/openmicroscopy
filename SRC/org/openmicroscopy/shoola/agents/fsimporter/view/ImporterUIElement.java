@@ -155,12 +155,13 @@ class ImporterUIElement
 			browse = true;
 			name = ((DatasetData) data).getName();
 		} else if (data instanceof ScreenData) {
-			browse = true;
+			browse = false;
 			name = ((ScreenData) data).getName();
 		} else if (data instanceof ProjectData) {
 			browse = true;
 			name = ((ProjectData) data).getName();
 		}
+		label.setEnabled(browse);
 		if (browse) {
 			label.setBackground(UIUtilities.BACKGROUND_COLOR);
 			label.setToolTipText("Double click to browse when import " +
@@ -309,7 +310,6 @@ class ImporterUIElement
 		    	value.setText(name);
 		    	header.add(value, c);
 	    	}
-	    	
 	    	c.gridy++; 	
 	    	c.gridx = 0;
 		}
@@ -457,8 +457,11 @@ class ImporterUIElement
 			setClosable(done);
 			if (done) {
 				Iterator<JLabel> i = containerComponents.keySet().iterator();
+				JLabel label;
 				while (i.hasNext()) {
-					i.next().setForeground(UIUtilities.HYPERLINK_COLOR);
+					label = i.next();
+					if (label.isEnabled())
+						label.setForeground(UIUtilities.HYPERLINK_COLOR);
 				}
 				long duration = System.currentTimeMillis()-startImport;
 				String text = timeLabel.getText();
@@ -509,7 +512,6 @@ class ImporterUIElement
 			l = fc.getImportErrors();
 			if (l != null && l.size() > 0)
 				list.addAll(l);
-			
 		}
 		return list;
 	}

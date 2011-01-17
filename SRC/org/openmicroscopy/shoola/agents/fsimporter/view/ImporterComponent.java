@@ -120,7 +120,7 @@ class ImporterComponent
 			chooser.addPropertyChangeListener(controller);
 			chooser.pack();
 		} else {
-			chooser.reset(containers);
+			chooser.reset(containers, type);
 		}
 		UIUtilities.centerAndShow(chooser);
 	}

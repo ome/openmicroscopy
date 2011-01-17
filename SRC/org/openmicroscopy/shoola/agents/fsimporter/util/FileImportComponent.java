@@ -67,6 +67,7 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ImageData;
+import pojos.PlateData;
 
 /** 
  * Component hosting the file to import and displaying the status of the 
@@ -164,6 +165,8 @@ public class FileImportComponent
 							ImporterAgent.getRegistry().getEventBus();
 						bus.post(new ViewImage(new ViewImageObject(
 								data), null));
+					} else if (image instanceof PlateData) {
+						
 					}
 				}
 			}
@@ -345,9 +348,9 @@ public class FileImportComponent
 		busyLabel.setBusy(status);
 		busyLabel.setVisible(false);
 		if (image instanceof ImageData) {
-			imageLabel.setImage((ImageData) image);
+			imageLabel.setData((ImageData) image);
 			resultLabel.setText("View");
-			resultLabel.setForeground(Color.blue);
+			resultLabel.setForeground(UIUtilities.HYPERLINK_COLOR);
 			resultLabel.setToolTipText("");
 			resultLabel.setEnabled(false);
 			resultLabel.setVisible(true);
@@ -361,6 +364,15 @@ public class FileImportComponent
 			addMouseListener(adapter);
 			resultLabel.setVisible(true);
 			//control = resultLabel;
+		} else if (image instanceof PlateData) {
+			imageLabel.setData((PlateData) image);
+			resultLabel.setText("");
+			resultLabel.setForeground(UIUtilities.HYPERLINK_COLOR);
+			resultLabel.setToolTipText("");
+			resultLabel.setEnabled(false);
+			resultLabel.setVisible(true);
+			fileNameLabel.addMouseListener(adapter);
+			resultLabel.addMouseListener(adapter);
 		} else if (image instanceof List) {
 			statusLabel.setVisible(false);
 			List list = (List) image;

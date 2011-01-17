@@ -309,7 +309,20 @@ class OMEROGateway
 	/** The collection of scripts that have a UI available. */
 	private static final List<String>		SCRIPTS_NOT_AVAILABLE_TO_USER;
 	
+	/** 
+	 * The collection of HCS files extensions to check before importing. 
+	 */
+	private static final List<String> HCS_FILES_EXTENSION;
+	
 	static {
+		HCS_FILES_EXTENSION = new ArrayList<String>();
+		HCS_FILES_EXTENSION.add("flex");
+		HCS_FILES_EXTENSION.add("xdce");
+		HCS_FILES_EXTENSION.add("mea");
+		HCS_FILES_EXTENSION.add("res");
+		HCS_FILES_EXTENSION.add("htd");
+		HCS_FILES_EXTENSION.add("pnl");
+		
 		SUPPORTED_SPECIAL_CHAR = new ArrayList<Character>();
 		SUPPORTED_SPECIAL_CHAR.add(new Character('-'));
 		SUPPORTED_SPECIAL_CHAR.add(new Character('+'));
@@ -474,6 +487,22 @@ class OMEROGateway
 	/** Keep track of the file system view. */
 	private Map<Long, FSFileSystemView>				fsViews;
 
+	/**
+	 * Returns <code>true</code> if the extension of the specified file
+	 * is a HCS files, <code>false</code> otherwise.
+	 * 
+	 * @param f The file to handle.
+	 * @return See above.
+	 */
+	private boolean isHCSFile(File f)
+	{
+		if (f == null) return false;
+		String name = f.getName();
+		if (!name.contains(".")) return false; 
+		String ext = name.substring(name.lastIndexOf('.')+1, name.length());
+		return HCS_FILES_EXTENSION.contains(ext);
+	}
+	
 	/** Checks if the session is still alive. */
 	private void isSessionAlive()
 	{
@@ -5232,6 +5261,39 @@ class OMEROGateway
 		return null;
 	}
 	
+	PlateData getImportedPlate(long imageID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		try {
+			List results = null;
+			Set<DataObject> wells = new HashSet<DataObject>();
+			Iterator i;
+			IQueryPrx service = getQueryService();
+			StringBuilder sb = new StringBuilder();
+			ParametersI param = new ParametersI();
+			param.addLong("imageID", imageID);
+			sb.append("select well from Well as well ");
+			sb.append("left outer join fetch well.plate as pt ");
+			sb.append("left outer join fetch well.wellSamples as ws ");
+			sb.append("left outer join fetch ws.image as img ");
+			sb.append("left outer join fetch img.pixels as pix ");
+            sb.append("left outer join fetch pix.pixelsType as pt ");
+            sb.append("where img.id = :imageID");
+            results = service.findAllByQuery(sb.toString(), param);
+            if (results.size() > 0) {
+            	Well well = (Well) results.get(0);
+            	if (well.getPlate() != null)
+            		return new PlateData(well.getPlate());
+            	return null;
+            }
+			return null;
+		} catch (Exception e) {
+			handleException(e, "Cannot load plate");
+		}
+		return null;
+	}
+	
 	//TMP: 
 	Set loadPlateWells(long plateID, long acquisitionID, long userID)
 		throws DSOutOfServiceException, DSAccessException
@@ -6088,7 +6150,6 @@ class OMEROGateway
 				container = containers.get(0);
 			}
 				
-			//Double[] userPixels, String reader, String[] usedFiles, Boolean isSPW
 			ImportContainer ic = new ImportContainer(file, -1L, container, 
 					archived, object.getPixelsSize(), null, null, null);
 			ic.setUseMetadataFile(true);
@@ -6100,11 +6161,11 @@ class OMEROGateway
 			List<Pixels> pixels = library.importImage(ic, 0, 0, 1);
 			Iterator<Pixels> j;
 			Pixels p;
+			Image image;
 			if (pixels != null && pixels.size() > 0) {
 				if (containers != null && containers.size() > 1) {
 					//going to create dataset image link
 					if (containers.get(0) instanceof Dataset) {
-						Image image;
 						j = pixels.iterator();
 						Dataset d;
 						IObject link;
@@ -6126,14 +6187,17 @@ class OMEROGateway
 				long id;
 				List<Long> ids;
 				Parameters params = new Parameters();
+				p = pixels.get(0);
+				image = p.getImage();
+				id = image.getId().getValue();
+				if (isHCSFile(file)) {
+					return getImportedPlate(id);
+				}
+				
 				if (n == 1) {
-					p = pixels.get(0);
-					id = p.getImage().getId().getValue();
 					return getImage(id, params);
 				} else if (n == 2) {
 					ids = new ArrayList<Long>();
-					p = pixels.get(0);
-					id = p.getImage().getId().getValue();
 					ids.add(id);
 					p = pixels.get(1);
 					id = p.getImage().getId().getValue();

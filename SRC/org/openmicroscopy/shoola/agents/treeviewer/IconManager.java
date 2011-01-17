@@ -668,7 +668,7 @@ public class IconManager
         relPaths[PROJECT_TO_REFRESH] = "nuvola_folder_darkblue_open_ledred16.png";
         relPaths[DATASET_TO_REFRESH] = "nuvola_folder_image_ledred16.png";
         relPaths[SCREEN_TO_REFRESH] = 
-        	"nuvola_folder_blue_open_modified_screen16.png";
+        	"nuvola_folder_blue_open_modified_screen_ledred16.png";
         relPaths[SCREEN_ANNOTATED_TO_REFRESH] =
         	"nuvola_folder_blue_open_modified_screen_annotated16.png";
         relPaths[PROJECT_ANNOTATED_TO_REFRESH] = "tagged_project_darkblue16.png";
