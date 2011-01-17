@@ -450,11 +450,13 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         for e in q.findAllByQuery(sql, p):
             yield ProjectWrapper(self, e)
     
-    def listOrphanedDatasets (self, eid=None, page=None):
+    
+    def listOrphans (self, obj_type, eid=None, page=None):
         """
-        List every orphaned Datasets controlled by the security system, 
-        ordered by id. If user id not set, owned by the current user.
+        List orphaned Datasets, Images, Plates controlled by the security system, 
+        If user id not set, owned by the current user.
         
+        @param obj_type:    'Dataset', 'Image', 'Plate'
         @param eid:         experimenter id
         @type eid:          Long
         @param page:        page number
@@ -463,6 +465,14 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         @rtype:             L{DatasetWrapper} generator
         """
                 
+        links = {'Dataset':('ProjectDatasetLink', DatasetWrapper), 
+                'Image':('DatasetImageLink', ImageWrapper),
+                'Plate':('ScreenPlateLink', PlateWrapper)}
+        
+        print 'webclient_gateway.listOrphans'
+        if obj_type not in links:
+            raise TypeError("'%s' is not valid object type. Must use one of %s" % (obj_type, links.keys()) )
+            
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
@@ -470,48 +480,19 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             p.map["eid"] = rlong(long(eid))
         else:
             p.map["eid"] = rlong(self.getEventContext().userId)
-        sql = "select ds from Dataset as ds " \
-                "join fetch ds.details.creationEvent "\
-                "join fetch ds.details.owner join fetch ds.details.group " \
-                "where ds.details.owner.id=:eid and " \
-                "not exists ( "\
-                    "select pld from ProjectDatasetLink as pld where pld.child=ds.id "\
-                ") order by ds.id asc"
+        sql = "select obj from %s as obj " \
+                "join fetch obj.details.creationEvent "\
+                "join fetch obj.details.owner join fetch obj.details.group " \
+                "where obj.details.owner.id=:eid and " \
+                "not exists (select obl from %s as obl where " \
+                "obl.child=obj.id)" % (obj_type, links[obj_type][0])
+        if obj_type == 'Image':
+            sql += "and not exists ( "\
+                "select ws from WellSample as ws "\
+                "where ws.image=obj.id and ws.details.owner.id=:eid )"
         for e in q.findAllByQuery(sql, p):
-            yield DatasetWrapper(self, e)
-    
-    def listOrphanedImages (self, eid=None, page=None):
-        """
-        List every orphaned Images controlled by the security system, 
-        ordered by id. If user id not set, owned by the current user.
-        
-        @param eid:         experimenter id
-        @type eid:          Long
-        @param page:        page number
-        @type page:         Long
-        @return:            Generator yielding Images
-        @rtype:             L{ImageWrapper} generator
-        """
-        
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        if eid is not None:
-            p.map["eid"] = rlong(long(eid))
-        else:
-            p.map["eid"] = rlong(self.getEventContext().userId)
-        sql = "select im from Image as im "\
-                "join fetch im.details.owner join fetch im.details.group " \
-                "where im.details.owner.id=:eid and "\
-                "not exists ( "\
-                    "select dsl from DatasetImageLink as dsl "\
-                    "where dsl.child=im.id and dsl.details.owner.id=:eid "\
-                ") and not exists ( "\
-                    "select ws from WellSample as ws "\
-                    "where ws.image=im.id and ws.details.owner.id=:eid "\
-                ") order by im.id asc"
-        for e in q.findAllByQuery(sql,p):
-            yield ImageWrapper(self, e)
+            yield links[obj_type][1](self, e)
+            
     
     def listImagesInDataset (self, oid, eid=None, page=None):
         """
@@ -579,36 +560,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 "where sc.details.owner.id=:eid order by sc.id asc"
         for e in q.findAllByQuery(sql, p):
             yield ScreenWrapper(self, e)
-            
-    def listOrphanedPlates (self, eid=None, page=None):
-        """
-        List every orphaned Plates controlled by the security system, 
-        ordered by id. If user id not set, owned by the current user.
-        
-        @param eid:         experimenter id
-        @type eid:          Long
-        @param page:        page number
-        @type page:         Long
-        @return:            Generator yielding Plates
-        @rtype:             L{PlateWrapper} generator
-        """
-        
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        if eid is not None:
-            p.map["eid"] = rlong(long(eid))
-        else:
-            p.map["eid"] = rlong(self.getEventContext().userId)
-        sql = "select pl from Plate as pl " \
-                "join fetch pl.details.creationEvent "\
-                "join fetch pl.details.owner join fetch pl.details.group " \
-                "where pl.details.owner.id=:eid and " \
-                "not exists ( "\
-                    "select spl from ScreenPlateLink as spl where spl.child=pl.id "\
-                ") order by pl.id asc"
-        for e in q.findAllByQuery(sql, p):
-            yield DatasetWrapper(self, e)
+
     
     def listWellsInPlate(self, oid, index=None, eid=None):
         """
@@ -856,7 +808,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     def getTagsByObject(self, o_type, oid):
         """
         Retrieve tags linked to the given Project/Dataset/Image/Screen/Plate/Well ID
-        controlled by the security system.
+        controlled by the security system. 
         
         @param o_type:      type of Object
         @type o_type:       String

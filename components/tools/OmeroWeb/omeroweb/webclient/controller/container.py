@@ -307,9 +307,9 @@ class BaseContainer(BaseController):
         #obj_list.extend(list(self.conn.listContainerHierarchy('Screen', eid=eid)))
             
         pr_list = list(self.conn.listProjects(eid))
-        ds_list = list(self.conn.listOrphanedDatasets(eid))
+        ds_list = list(self.conn.listOrphans("Dataset", eid))
         sc_list = list(self.conn.listScreens(eid))
-        pl_list = list(self.conn.listOrphanedPlates(eid))
+        pl_list = list(self.conn.listOrphans("Plate", eid))
 
         pr_list_with_counters = list()
         ds_list_with_counters = list()
@@ -360,7 +360,7 @@ class BaseContainer(BaseController):
         if eid is not None:
             self.experimenter = self.conn.getExperimenter(eid)
         
-        im_list = list(self.conn.listOrphanedImages(eid=eid))
+        im_list = list(self.conn.listOrphans("Image", eid=eid))
         im_list_with_counters = list()
         
         im_ids = [im.id for im in im_list]
