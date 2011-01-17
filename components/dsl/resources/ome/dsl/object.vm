@@ -120,7 +120,7 @@ import ome.model.*;
         strategy = "ome.util.TableIdGenerator",
         parameters = {
             @org.hibernate.annotations.Parameter(name = "table_name", value = "seq_table"),
-            @org.hibernate.annotations.Parameter(name = "segment_value", value = "seq_${type.table}"),
+            @org.hibernate.annotations.Parameter(name = "segment_value", value = "seq_${type.sequenceName}"),
             @org.hibernate.annotations.Parameter(name = "optimizer", value = "pooled"),
             @org.hibernate.annotations.Parameter(name = "increment_size", value = "50")
         })

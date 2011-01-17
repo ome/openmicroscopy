@@ -17,6 +17,11 @@ import ome.server.itests.AbstractManagedContextTest;
 import ome.testing.ObjectFactory;
 import ome.util.SqlAction;
 
+import org.hibernate.SessionFactory;
+import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Parameter;
+import org.hibernate.metadata.ClassMetadata;
+import org.springframework.dao.DataAccessException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -152,6 +157,55 @@ public class SqlActionTest extends AbstractManagedContextTest {
         sql.setCurrentEventLog(1, "test.log");
         sql.selectCurrentEventLog("test.log");
     }
+
+    @Test(groups = "ticket:3886", expectedExceptions = DataAccessException.class)
+    public void testUnknownSequenceGet() {
+        sql.nextValue("This_is_unknown", 50);
+    }
+
+    /**
+     * Walks through all model object classes, and any that have a generator
+     * annotation:
+     * <pre>
+     * &#64;org.hibernate.annotations.GenericGenerator(name = "seq_lightpathemissionfilterlink",
+     *  strategy = "ome.util.TableIdGenerator",
+     *  parameters = {
+     *      &#64;org.hibernate.annotations.Parameter(name = "table_name", value = "seq_table"),
+     *      &#64;org.hibernate.annotations.Parameter(name = "segment_value", value = "seq_lightpathemissionfilterlink"),
+     *      &#64;org.hibernate.annotations.Parameter(name = "optimizer", value = "pooled"),
+     *      &#64;org.hibernate.annotations.Parameter(name = "increment_size", value = "50")
+     *  })
+     * </pre>
+     * will be tested.
+     */
+    @SuppressWarnings("unchecked")
+    @Test(groups = "ticket:3886")
+    public void testGetEachSequenceOnce() throws Exception {
+
+        final SessionFactory factory =
+            applicationContext.getBean("sessionFactory", SessionFactory.class);
+
+        @SuppressWarnings("unchecked")
+        final Map<String, ClassMetadata> m = factory.getAllClassMetadata();
+
+        for (String seq : m.keySet()) {
+            Class<?> k = Class.forName(seq);
+            GenericGenerator gg = k.getAnnotation(GenericGenerator.class);
+            if (gg == null) {
+                continue;
+            }
+            String segment_value = null;
+            for (Parameter p : gg.parameters()) {
+                if (p.name().equals("segment_value")) {
+                    segment_value = p.value();
+                    break;
+                }
+            }
+            assertNotNull(segment_value);
+            sql.nextValue(segment_value, 1);
+        }
+    }
+
     //
     // HELPERS
     //
