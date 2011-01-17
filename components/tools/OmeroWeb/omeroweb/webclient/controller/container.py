@@ -626,8 +626,7 @@ class BaseContainer(BaseController):
         new_links = list()
         for k in oids:
             if len(oids[k]) > 0:
-                listing = getattr(self.conn, "get"+k.lower().title()+"sById")
-                for ob in list(listing(oids[k])):
+                for ob in self.conn.getAnnotations(oids[k]):
                     if isinstance(ob._obj, omero.model.WellI):
                         t = 'Image'
                         obj = ob.selectedWellSample().image()
@@ -664,8 +663,7 @@ class BaseContainer(BaseController):
         new_links = list()
         for k in oids:
             if len(oids[k]) > 0:
-                listing = getattr(self.conn, "get"+k.lower().title()+"sById")
-                for ob in list(listing(oids[k])):                    
+                for ob in self.conn.getAnnotations(oids[k]):                    
                     if isinstance(ob._obj, omero.model.WellI):
                         t = 'Image'
                         obj = ob.selectedWellSample().image()
@@ -693,11 +691,8 @@ class BaseContainer(BaseController):
         else:
             selfobject = getattr(self, otype)
         
-        listing = getattr(self.conn, "get"+atype.title()+"sById")
-        anns = listing(ids)
-        
         new_links = list()
-        for a in anns:
+        for a in self.conn.getAnnotations(ids):
             ann = getattr(omero.model, otype.title()+"AnnotationLinkI")()
             ann.setParent(selfobject._obj)
             ann.setChild(a._obj)
@@ -724,8 +719,7 @@ class BaseContainer(BaseController):
         new_links = list()
         for k in oids:
             if len(oids[k]) > 0:
-                listing = getattr(self.conn, "get"+k.lower().title()+"sById")
-                for ob in list(listing(oids[k])):
+                for ob in self.conn.getAnnotations(oids[k]):
                     for a in list(alisting(tids)):
                         if isinstance(ob._obj, omero.model.WellI):
                             t = 'Image'
@@ -804,15 +798,15 @@ class BaseContainer(BaseController):
             container.description = None
         self.conn.saveObject(container)
     
-    def move(self, parent, source, destination):
-        if source[0] == "pr":
+    def move(self, parent, destination):
+        if self.project is not None:
             return 'Cannot move project.'
-        elif source[0] == "ds":
+        elif self.dataset is not None:
             if destination[0] == 'ds':
                 return 'Cannot move dataset to dataset'
             elif destination[0] == 'pr':
                 up_pdl = None
-                pdls = self.conn.getProjectDatasetLinks(source[1])
+                pdls = self.dataset.getParentLinks()
                 already_there = None
                 
                 for pdl in pdls:
@@ -829,14 +823,13 @@ class BaseContainer(BaseController):
                         up_pdl.setParent(new_pr._obj)
                         self.conn.saveObject(up_pdl._obj)
                     else:
-                        ds = self.conn.getDataset(source[1])
                         up_pdl = omero.model.ProjectDatasetLinkI()
-                        up_pdl.setChild(ds._obj)
+                        up_pdl.setChild(self.dataset._obj)
                         up_pdl.setParent(new_pr._obj)
                         self.conn.saveObject(up_pdl)
             elif destination[0] == '0':
                 up_pdl = None
-                pdls = list(self.conn.getProjectDatasetLinks(source[1]))
+                pdls = list(self.dataset.getParentLinks())
                 
                 if len(pdls) == 1:
                     # gets old parent to delete
@@ -849,10 +842,10 @@ class BaseContainer(BaseController):
                 return 'Cannot move dataset to orphaned images.'
             else:
                 return 'Destination not supported.'
-        elif source[0] == "img":
+        elif self.image is not None:
             if destination[0] == 'ds':
                 up_dsl = None
-                dsls = self.conn.getDatasetImageLinks(source[1]) #gets every links for child
+                dsls = self.image.getParentLinks() #gets every links for child
                 already_there = None
                 
                 #checks links
@@ -874,17 +867,16 @@ class BaseContainer(BaseController):
                         up_dsl.setParent(new_ds._obj)
                         self.conn.saveObject(up_dsl._obj)
                     else:
-                        im = self.conn.getImage(source[1])
                         up_dsl = omero.model.DatasetImageLinkI()
-                        up_dsl.setChild(im._obj)
+                        up_dsl.setChild(self.image._obj)
                         up_dsl.setParent(new_ds._obj)
                         self.conn.saveObject(up_dsl)
             elif destination[0] == 'pr':
                 return 'Cannot move image to project.'
-            elif destination[0] == '0' or destination[0] == 'orphan':
+            elif destination[0] == '0' or destination[0] == 'orphaned':
                 if parent[0] != destination[0]:
                     up_dsl = None
-                    dsls = list(self.conn.getDatasetImageLinks(source[1])) #gets every links for child
+                    dsls = list(self.image.getParentLinks()) #gets every links for child
                     if len(dsls) == 1:
                         # gets old parent to delete
                         if dsls[0].parent.id.val == long(parent[1]):
@@ -894,14 +886,14 @@ class BaseContainer(BaseController):
                         return 'This image is linked in multiple places. Please unlink the image first.'
             else:
                 return 'Destination not supported.'
-        elif source[0] == "sc":
+        elif self.screen is not None:
             return 'Cannot move screen.'
-        elif source[0] == "pl":
+        elif self.plate is not None:
             if destination[0] == 'pl':
                 return 'Cannot move plate to plate'
             elif destination[0] == 'sc':
                 up_spl = None
-                spls = self.conn.getScreenPlateLinks(source[1])
+                spls = self.plate.getParentLinks()
                 already_there = None
                 
                 for spl in spls:
@@ -918,15 +910,14 @@ class BaseContainer(BaseController):
                         up_spl.setParent(new_sc._obj)
                         self.conn.saveObject(up_spl._obj)
                     else:
-                        pl = self.conn.getPlate(source[1])
                         up_spl = omero.model.ScreenPlateLinkI()
-                        up_spl.setChild(pl._obj)
+                        up_spl.setChild(self.plate._obj)
                         up_spl.setParent(new_sc._obj)
                         self.conn.saveObject(up_spl)
             elif destination[0] == '0' or destination[0] == 'orphan':
                 if parent[0] != destination[0]:
                     up_spl = None
-                    spls = list(self.conn.getScreenPlateLinks(source[1])) #gets every links for child
+                    spls = list(self.plate.getParentLinks()) #gets every links for child
                     if len(spls) == 1:
                         # gets old parent to delete
                         if spls[0].parent.id.val == long(parent[1]):

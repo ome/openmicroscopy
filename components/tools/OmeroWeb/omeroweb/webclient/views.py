@@ -1195,14 +1195,14 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             context = {'url':url, 'nav':request.session['nav'], 'eContext': manager.eContext, 'share':manager, 'form':form}
     elif action == 'move':
         parent = request.REQUEST['parent'].split('-')
-        source = request.REQUEST['source'].split('-')
+        #source = request.REQUEST['source'].split('-')
         destination = request.REQUEST['destination'].split('-')
         try:
             if parent[1] == destination[1]:
                 return HttpResponse("Error: Cannot move to the same place.")
         except :
             pass
-        rv = manager.move(parent,source, destination)
+        rv = manager.move(parent,destination)
         if rv:
             rv = "Error: %s" % rv
         return HttpResponse(rv)

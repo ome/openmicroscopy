@@ -13,12 +13,13 @@
  *
  * @example $.cookie('the_cookie', 'the_value');
  * @desc Set the value of a cookie.
- * @example $.cookie('the_cookie', 'the_value', {expires: 7, path: '/', domain: 'jquery.com', secure: true});
+ * @example $.cookie('the_cookie', 'the_value', { expires: 7, path: '/', domain: 'jquery.com', secure: true });
  * @desc Create a cookie with all available options.
  * @example $.cookie('the_cookie', 'the_value');
  * @desc Create a session cookie.
  * @example $.cookie('the_cookie', null);
- * @desc Delete a cookie by passing null as value.
+ * @desc Delete a cookie by passing null as value. Keep in mind that you have to use the same path and domain
+ *       used when the cookie was set.
  *
  * @param String name The name of the cookie.
  * @param String value The value of the cookie.
@@ -70,8 +71,11 @@ jQuery.cookie = function(name, value, options) {
             }
             expires = '; expires=' + date.toUTCString(); // use expires attribute, max-age is not supported by IE
         }
-        var path = options.path ? '; path=' + options.path : '';
-        var domain = options.domain ? '; domain=' + options.domain : '';
+        // CAUTION: Needed to parenthesize options.path and options.domain
+        // in the following expressions, otherwise they evaluate to undefined
+        // in the packed version for some reason...
+        var path = options.path ? '; path=' + (options.path) : '';
+        var domain = options.domain ? '; domain=' + (options.domain) : '';
         var secure = options.secure ? '; secure' : '';
         document.cookie = [name, '=', encodeURIComponent(value), expires, path, domain, secure].join('');
     } else { // only name given, get cookie

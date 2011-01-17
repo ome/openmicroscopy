@@ -444,10 +444,25 @@ $.fn.simpleTree = function(opt){
 		TREE.moveNodeToLine = function(node){
 		    var parent = $(dragNode_source).parents('li:first');
 			var line = $(dragNode_source).prev('.line');
+			
+			var l = "/webclient/action/move/";
+			var src = $(dragNode_source).attr('id').split("-");
+			if(src[0].indexOf('pr')>=0){
+    		    l += "project/"+src[1]+"/";
+    		} else if(src[0].indexOf('ds')>=0){    
+		        l += "dataset/"+src[1]+"/";
+            } else if(src[0].indexOf('img')>=0){    
+		        l += "image/"+src[1]+"/";
+            } else if(src[0].indexOf('sc')>=0){    
+		        l += "screen/"+src[1]+"/";
+            } else if(src[0].indexOf('pl')>=0){    
+		        l += "plate/"+src[1]+"/";
+		    } 		    
+		    
 		    $.ajax({
 				type: "POST",
-				url: "/webclient/action/move/", 
-				data: "parent="+$(parent).attr('id')+"&source="+$(dragNode_source).attr('id')+"&destination="+$(node).parents('li:first').attr('id'),
+				url: l, 
+				data: "parent="+$(parent).attr('id')+"&destination="+$(node).parents('li:first').attr('id'),
 				contentType:'html',
 				cache:false,
 				async: false,

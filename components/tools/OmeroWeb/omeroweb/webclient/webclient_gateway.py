@@ -1055,7 +1055,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     ##  Specific Object Getters                 ##
     
     # GETTERs
-        
+    
     def getDatasetImageLink (self, parent, oid):
         """
         Get link between then specific Dataset and Image
@@ -1475,7 +1475,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             photo = store.read(0,long(ann.file.size.val))
             try:
                 im = Image.open(StringIO(photo))
-            except IOError:
+            except:
+                logger.error(traceback.format_exc())
                 return None
             else:
                 return (im.size, ann.file.size.val)
@@ -1508,6 +1509,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             store.setFileId(ann.file.id.val)
             photo = store.read(0,long(ann.file.size.val))
         except:
+            logger.error(traceback.format_exc())
             raise IOError("Photo does not exist.")
         else:
             region = None
@@ -1515,6 +1517,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 im = Image.open(StringIO(photo))
                 region = im.crop(box)
             except IOError:
+                logger.error(traceback.format_exc())
                 raise IOError("Cannot open that photo.")
             else:
                 imdata=StringIO()
