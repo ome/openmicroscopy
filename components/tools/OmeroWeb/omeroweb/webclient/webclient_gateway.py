@@ -419,8 +419,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
 
     def listProjects (self, eid=None, page=None):
         """
-        List every Project controlled by the security system, ordered by id
-        If user id not set, owned by the current user.
+        List all available Projects, ordered by Name.
+        Optionally filter by experimenter 'eid'
         
         @param eid:         experimenter id
         @type eid:          Long
@@ -438,14 +438,16 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
-        if eid is not None:
-            p.map["eid"] = rlong(long(eid))
-        else:
-            p.map["eid"] = rlong(self.getEventContext().userId)
         sql = "select pr from Project pr " \
                 "join fetch pr.details.creationEvent "\
-                "join fetch pr.details.owner join fetch pr.details.group " \
-                "where pr.details.owner.id=:eid order by pr.id asc"
+                "join fetch pr.details.owner join fetch pr.details.group"
+        
+        # experimenter filter
+        if eid is not None:
+            p.map["eid"] = rlong(long(eid))
+            sql += " where pr.details.owner.id=:eid"
+            
+        sql += " order by pr.name"
         for e in q.findAllByQuery(sql, p):
             yield ProjectWrapper(self, e)
     
@@ -453,7 +455,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     def listOrphans (self, obj_type, eid=None, page=None):
         """
         List orphaned Datasets, Images, Plates controlled by the security system, 
-        If user id not set, owned by the current user.
+        Optionally filter by experimenter 'eid'
         
         @param obj_type:    'Dataset', 'Image', 'Plate'
         @param eid:         experimenter id
@@ -477,14 +479,15 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         p.map = {}
         if eid is not None:
             p.map["eid"] = rlong(long(eid))
+            eidFilter = "obj.details.owner.id=:eid and " 
         else:
-            p.map["eid"] = rlong(self.getEventContext().userId)
+            eidFilter = ""
         sql = "select obj from %s as obj " \
                 "join fetch obj.details.creationEvent "\
                 "join fetch obj.details.owner join fetch obj.details.group " \
-                "where obj.details.owner.id=:eid and " \
+                "where %s" \
                 "not exists (select obl from %s as obl where " \
-                "obl.child=obj.id)" % (obj_type, links[obj_type][0])
+                "obl.child=obj.id)" % (obj_type, eidFilter, links[obj_type][0])
         if obj_type == 'Image':
             sql += "and not exists ( "\
                 "select ws from WellSample as ws "\
@@ -495,9 +498,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     
     def listImagesInDataset (self, oid, eid=None, page=None):
         """
-        List every Images in the given Dataset 
-        controlled by the security system, ordered by id.
-        If user id not set, owned by the current user.
+        List Images in the given Dataset.
+        Optinally filter by experimenter 'eid'
         
         @param eid:         experimenter id
         @type eid:          Long
@@ -505,11 +507,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         @type page:         Long
         @return:            Generator yielding Images
         @rtype:             L{ImageWrapper} generator
-        """
-        
-        
-        """ 
-        TODO: omero.gateway.DatasetWrapper.listChildren
         """
         
         q = self.getQueryService()
@@ -526,8 +523,12 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 "join fetch im.details.owner join fetch im.details.group " \
                 "left outer join fetch im.datasetLinks dil "\
                 "left outer join fetch dil.parent d " \
-                "where d.id = :oid " \
-                "order by im.id asc"
+                "where d.id = :oid"
+        
+        if eid is not None:
+            p.map["eid"] = rlong(long(eid))
+            sql += " and im.details.owner.id=:eid"
+            
         for e in q.findAllByQuery(sql, p):
             kwargs = {'link': BlitzObjectWrapper(self, e.copyDatasetLinks()[0])}
             yield ImageWrapper(self, e, None, **kwargs)
@@ -535,8 +536,8 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     # SPW
     def listScreens(self, eid=None, page=None):
         """
-        List every Screens controlled by the security system, ordered by id
-        If user id not set, owned by the current user.
+        List all available Screens.
+        Optionally filter by experimenter 'eid'
         
         @param eid:         experimenter id
         @type eid:          Long
@@ -549,23 +550,22 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
-        if eid is not None:
-            p.map["eid"] = rlong(long(eid))
-        else:
-            p.map["eid"] = rlong(self.getEventContext().userId)
         sql = "select sc from Screen sc " \
                 "join fetch sc.details.creationEvent "\
-                "join fetch sc.details.owner join fetch sc.details.group " \
-                "where sc.details.owner.id=:eid order by sc.id asc"
+                "join fetch sc.details.owner join fetch sc.details.group" \
+        
+        if eid is not None:
+            p.map["eid"] = rlong(long(eid))
+            sql += " where sc.details.owner.id=:eid"
+            
         for e in q.findAllByQuery(sql, p):
             yield ScreenWrapper(self, e)
 
     
     def listWellsInPlate(self, oid, index=None, eid=None):
         """
-        List every Plates in the given Well 
-        controlled by the security system, ordered by id.
-        If user id not set, owned by the current user.
+        List all available Wells in the given Plate.
+        Optionally filter by experimenter 'eid'
         
         @param eid:         experimenter id
         @type eid:          Long
@@ -578,10 +578,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
-        if eid is not None:
-            p.map["eid"] = rlong(long(eid))
-        else:
-            p.map["eid"] = rlong(self.getEventContext().userId)
         p.map["oid"] = rlong(long(oid))
         sql = "select well from Well as well "\
                 "join fetch well.details.creationEvent "\
@@ -590,10 +586,16 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 "left outer join fetch well.wellSamples as ws " \
                 "left outer join fetch ws.image as img "\
                 "where well.plate.id = :oid"
+                
+        if eid is not None:
+            p.map["eid"] = rlong(long(eid))
+            sql += " and well.details.owner.id=:eid"
+            
         index = index is None and 0 or index
         kwargs = {'index': index}
         for e in q.findAllByQuery(sql,p):
             yield WellWrapper(self, e, **kwargs)
+    
     
     def getWell(self, oid, index=None, eid=None):
         """
@@ -612,10 +614,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
-        if eid is not None:
-            p.map["eid"] = rlong(long(eid))
-        else:
-            p.map["eid"] = rlong(self.getEventContext().userId)
         p.map["oid"] = rlong(long(oid))
         sql = "select well from Well as well "\
                 "join fetch well.details.creationEvent "\
@@ -625,6 +623,11 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 "join fetch im.details.creationEvent "\
                 "join fetch im.details.owner join fetch im.details.group " \
                 "where well.id = :oid"
+        
+        if eid is not None:
+            p.map["eid"] = rlong(long(eid))
+            sql += " and well.details.owner.id=:eid"
+            
         res = q.findByQuery(sql,p)
         if res is None:
             return None
