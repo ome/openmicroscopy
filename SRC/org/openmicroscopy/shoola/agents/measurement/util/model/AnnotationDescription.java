@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.measurement.util.model;
 
 //Java imports
 import java.util.HashMap;
+import java.util.Map;
 
 //Third-party libraries
 import org.jhotdraw.draw.AttributeKey;
@@ -65,11 +66,11 @@ public class AnnotationDescription
 	 * The map of annotations/attributes to text descriptions in 
 	 * inspector, manager and results windows. 
 	 */
-	public final static HashMap<AttributeKey, String>	annotationDescription;
+	public final static Map<AttributeKey, String>	annotationDescription;
 	static
 	{
-		annotationDescription=new HashMap<AttributeKey, String>();
-		annotationDescription.put(AnnotationKeys.TEXT, "Annotation");
+		annotationDescription = new HashMap<AttributeKey, String>();
+		annotationDescription.put(AnnotationKeys.TEXT, "Text"); //J-M change to text
 		annotationDescription.put(AnnotationKeys.ANGLE, "Angle");
 		annotationDescription.put(AnnotationKeys.AREA, "Area");
 		annotationDescription.put(AnnotationKeys.CENTREX, "Centre(X)");

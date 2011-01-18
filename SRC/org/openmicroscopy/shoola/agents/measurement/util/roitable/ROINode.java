@@ -133,10 +133,11 @@ public class ROINode
 	{
 		Iterator<Coord3D> i = childCoordMap.keySet().iterator();
 		int index = 0;
+		Coord3D nodeCoord;
 		while (i.hasNext())
 		{
-			Coord3D nodeCoord = i.next();
-			if (nodeCoord.compare(nodeCoord, coord)!=-1)
+			nodeCoord = i.next();
+			if (nodeCoord.compare(nodeCoord, coord) != -1)
 				return index;
 			index++;
 		}
@@ -185,7 +186,7 @@ public class ROINode
 	 */
 	public boolean isEditable(int column)
 	{
-		switch(column)
+		switch (column)
 		{
 			case VISIBLE_COLUMN+1:
 			case ANNOTATION_COLUMN+1:
@@ -223,7 +224,7 @@ public class ROINode
 		 Object userObject = child.getUserObject();
 		 if (userObject instanceof ROIShape)
 		 {
-			 ROIShape shape = (ROIShape)userObject;
+			 ROIShape shape = (ROIShape) userObject;
 			 childMap.remove(shape);
 			 childCoordMap.remove(shape.getCoord3D());
 		 }
@@ -241,7 +242,7 @@ public class ROINode
 		 Object userObject = childNode.getUserObject();
 		 if (userObject instanceof ROIShape)
 		 {
-			 ROIShape shape = (ROIShape)userObject;
+			 ROIShape shape = (ROIShape) userObject;
 			 childMap.remove(shape);
 			 childCoordMap.remove(shape.getCoord3D());
 		 }
@@ -301,7 +302,9 @@ public class ROINode
 				case SHAPE_COLUMN+1:
 					return roiShape.getFigure().getType();
 				case ANNOTATION_COLUMN+1:
-					return AnnotationKeys.TEXT.get(roiShape);
+					return roiShape.getFigure().getAttribute(
+							MeasurementAttributes.TEXT);
+					//return AnnotationKeys.TEXT.get(roiShape);
 				case VISIBLE_COLUMN+1:
 					return Boolean.valueOf(roiShape.getFigure().isVisible());
 				default:

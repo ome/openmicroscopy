@@ -250,7 +250,7 @@ class MeasurementResults
 		        		t = (Integer) m.getValueAt(index, TIME_COLUMN)-1;
 		        		z = (Integer) m.getValueAt(index, Z_COLUMN)-1;
 	        			ROI roi = model.getROI(ROIID);
-	        			if(roi==null)
+	        			if (roi == null)
 	        				return;
 	        			view.selectFigure(ROIID, t, z);
 	        		}
@@ -309,9 +309,11 @@ class MeasurementResults
 	private void createAllFields()
 	{
 		allFields = new ArrayList<AnnotationField>();
+		/*
 		allFields.add(new AnnotationField(AnnotationKeys.TEXT,
 						AnnotationDescription.annotationDescription.get(
 							AnnotationKeys.TEXT), false)); 
+							*/
 		allFields.add(new AnnotationField(AnnotationKeys.CENTREX,
 			AnnotationDescription.annotationDescription.get(
 							AnnotationKeys.CENTREX), false)); 
@@ -362,9 +364,11 @@ class MeasurementResults
 	private void createDefaultFields()
 	{
 		fields = new ArrayList<AnnotationField>();	
+		/*
 		fields.add(new AnnotationField(AnnotationKeys.TEXT,
 			AnnotationDescription.annotationDescription.get(
 				AnnotationKeys.TEXT), false)); 
+				*/
 		fields.add(new AnnotationField(AnnotationKeys.CENTREX,
 			AnnotationDescription.annotationDescription.get(
 				AnnotationKeys.CENTREX), false)); 
@@ -387,17 +391,18 @@ class MeasurementResults
 			AnnotationDescription.annotationDescription.get(AnnotationKeys.ANGLE),
 			false)); 
 		columnNames = new ArrayList<KeyDescription>();
-		columnNames.add(new KeyDescription(	AnnotationDescription.ROIID_STRING,
-											AnnotationDescription.ROIID_STRING));
-		columnNames.add(new KeyDescription( AnnotationDescription.TIME_STRING,
-											AnnotationDescription.TIME_STRING));
-		columnNames.add(new KeyDescription( AnnotationDescription.ZSECTION_STRING,
-											AnnotationDescription.ZSECTION_STRING));
-		columnNames.add(new KeyDescription( AnnotationDescription.SHAPE_STRING,
-											AnnotationDescription.SHAPE_STRING));
+		columnNames.add(new KeyDescription(AnnotationDescription.ROIID_STRING,
+									AnnotationDescription.ROIID_STRING));
+		columnNames.add(new KeyDescription(AnnotationDescription.TIME_STRING,
+										AnnotationDescription.TIME_STRING));
+		columnNames.add(new KeyDescription(AnnotationDescription.ZSECTION_STRING,
+										AnnotationDescription.ZSECTION_STRING));
+		columnNames.add(new KeyDescription(AnnotationDescription.SHAPE_STRING,
+										AnnotationDescription.SHAPE_STRING));
 		for (int i = 0 ; i < fields.size(); i++)
-			columnNames.add(new KeyDescription(	fields.get(i).getKey().toString(),
-												fields.get(i).getName()));
+			columnNames.add(new KeyDescription(
+					fields.get(i).getKey().toString(),
+					fields.get(i).getName()));
 	}
 	
 	/**
@@ -453,7 +458,10 @@ class MeasurementResults
 				row.addElement(shape.getFigure().getType());
 				for (int k = 0; k < fields.size(); k++) {
 					key = fields.get(k).getKey();
-					Object value = key.get(shape);
+					Object value;
+					if (AnnotationKeys.TEXT.equals(key))
+						value = key.get(shape.getFigure());
+					else value = key.get(shape);
 					if (value instanceof List)
 					{
 						List valueArray = (List) value;

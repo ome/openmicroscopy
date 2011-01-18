@@ -42,11 +42,13 @@ import javax.swing.table.TableCellEditor;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
+import org.openmicroscopy.shoola.agents.measurement.util.model.AnnotationDescription;
 import org.openmicroscopy.shoola.agents.measurement.util.model.AttributeField;
 import org.openmicroscopy.shoola.agents.measurement.util.model.FigureTableModel;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.FigureTable;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 
 
@@ -96,21 +98,30 @@ class ObjectInspector
 	private void initComponents()
 	{
 		List<AttributeField> l = new ArrayList<AttributeField>();
-		l.add(new AttributeField(MeasurementAttributes.TEXT, "Text", true));
-		l.add(new AttributeField(MeasurementAttributes.WIDTH, "Width", true));
-		l.add(new AttributeField(MeasurementAttributes.HEIGHT, "Height", true));
+		l.add(new AttributeField(MeasurementAttributes.TEXT, 
+				AnnotationDescription.annotationDescription.get(
+				AnnotationKeys.TEXT), true));
+		l.add(new AttributeField(MeasurementAttributes.WIDTH, 
+				AnnotationDescription.annotationDescription.get(
+				AnnotationKeys.WIDTH), true));
+		l.add(new AttributeField(MeasurementAttributes.HEIGHT, 
+				AnnotationDescription.annotationDescription.get(
+				AnnotationKeys.HEIGHT), true));
 		//l.add(new AttributeField(AnnotationKeys.NAMESPACE, "Workflow", false));
 		//l.add(new AttributeField(AnnotationKeys.KEYWORDS, "Keywords", false));
 		l.add(new AttributeField(MeasurementAttributes.SHOWTEXT, "Show Text", 
 				false));
 		l.add(new AttributeField(MeasurementAttributes.SHOWMEASUREMENT, 
-			"Show Measurements", false)); 
+				AnnotationDescription.annotationDescription.get(
+						MeasurementAttributes.SHOWMEASUREMENT), false)); 
 		//l.add(new AttributeField(MeasurementAttributes.SHOWID, 
 			//"Show ID", false)); 
 		l.add(new AttributeField(MeasurementAttributes.FILL_COLOR, 
-				"Fill Colour", false));
+				AnnotationDescription.annotationDescription.get(
+						MeasurementAttributes.FILL_COLOR), false));
 		l.add(new AttributeField(MeasurementAttributes.STROKE_COLOR, 
-				"Line Colour", false));
+				AnnotationDescription.annotationDescription.get(
+						MeasurementAttributes.STROKE_COLOR), false));
 		//create the table
 		fieldTable = new FigureTable(new FigureTableModel(l, columnNames));
 		fieldTable.getTableHeader().setReorderingAllowed(false);

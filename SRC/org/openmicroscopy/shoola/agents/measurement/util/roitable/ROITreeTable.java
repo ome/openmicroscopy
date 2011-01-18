@@ -101,11 +101,8 @@ public class ROITreeTable
 		this.columnNames = columnNames;
 		this.setAutoResizeMode(JXTreeTable.AUTO_RESIZE_ALL_COLUMNS);
 		ROIMap = new HashMap<ROI, ROITreeNode>();
-		for( int i = 0 ; i < model.getColumnCount() ; i++)
-		{
-			TableColumn column = this.getColumn(i);
-			column.setResizable(true);
-		}
+		for (int i = 0 ; i < model.getColumnCount() ; i++)
+			getColumn(i).setResizable(true);
 		setDefaultRenderer(ShapeType.class, new ShapeRenderer());
 		setTreeCellRenderer(new ROITreeTableCellRenderer());
 	}
@@ -137,7 +134,7 @@ public class ROITreeTable
 	public void addROI(ROI roi)
 	{
 		TreeMap<Coord3D, ROIShape> shapeMap = roi.getShapes();
-		ArrayList<ROIShape> shapeList = new ArrayList<ROIShape>();
+		List<ROIShape> shapeList = new ArrayList<ROIShape>();
 		
 		Iterator<ROIShape> shapeIterator = shapeMap.values().iterator();
 		while (shapeIterator.hasNext())
@@ -198,8 +195,7 @@ public class ROITreeTable
 				parent.insert(newNode, 
 						parent.getInsertionPoint(shape.getCoord3D()));
 		}
-		this.setTreeTableModel(
-				new ROITreeTableModel(root, columnNames, fields));
+		setTreeTableModel(new ROITreeTableModel(root, columnNames, fields));
 		if (parent != null)
 			expandROIRow(parent);
 	}

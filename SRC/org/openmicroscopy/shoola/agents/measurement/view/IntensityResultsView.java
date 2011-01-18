@@ -65,7 +65,6 @@ import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.log.Logger;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ExcelWriter;
-import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
@@ -301,7 +300,7 @@ class IntensityResultsView
 		resultsModel.addColumn("Z");
 		resultsModel.addColumn("T");
 		resultsModel.addColumn("Channel");
-		resultsModel.addColumn("Annotation");
+		resultsModel.addColumn("Text");
 		resultsModel.addColumn("Min");
 		resultsModel.addColumn("Max");
 		resultsModel.addColumn("Sum");
@@ -361,7 +360,7 @@ class IntensityResultsView
 			rowData.add(shape.getCoord3D().getZSection()+1);
 			rowData.add(shape.getCoord3D().getTimePoint()+1);
 			rowData.add(cName);
-			rowData.add(AnnotationKeys.TEXT.get(shape));
+			rowData.add(MeasurementAttributes.TEXT.get(shape.getFigure()));
 			rowData.add(channelMin.get(channel));
 			rowData.add(channelMax.get(channel));
 			rowData.add(channelSum.get(channel));

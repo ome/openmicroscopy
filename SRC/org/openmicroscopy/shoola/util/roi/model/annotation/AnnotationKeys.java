@@ -157,7 +157,7 @@ public class AnnotationKeys
     
     static 
     {
-        HashSet<AnnotationKey> as = new HashSet<AnnotationKey>();
+        Set<AnnotationKey> as = new HashSet<AnnotationKey>();
         as.addAll(Arrays.asList(new AnnotationKey[] 
                                                   {
         		TEXT,

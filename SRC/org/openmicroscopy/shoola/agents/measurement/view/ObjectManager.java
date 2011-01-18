@@ -79,40 +79,40 @@ class ObjectManager
 	/** 
 	 * List of default column names.
 	 */
-	private static List<String>			columnNames;
+	private static Vector<String>			COLUMN_NAMES;
 	
 	static {
-		columnNames = new Vector<String>(6);
-		columnNames.add("ROI");
-		columnNames.add(AnnotationDescription.ROIID_STRING);
-		columnNames.add(AnnotationDescription.TIME_STRING);
-		columnNames.add(AnnotationDescription.ZSECTION_STRING);
-		columnNames.add(AnnotationDescription.SHAPE_STRING);
+		COLUMN_NAMES = new Vector<String>(6);
+		COLUMN_NAMES.add("ROI");
+		COLUMN_NAMES.add(AnnotationDescription.ROIID_STRING);
+		COLUMN_NAMES.add(AnnotationDescription.TIME_STRING);
+		COLUMN_NAMES.add(AnnotationDescription.ZSECTION_STRING);
+		COLUMN_NAMES.add(AnnotationDescription.SHAPE_STRING);
 		//columnNames.add(AnnotationDescription.annotationDescription.get(
 		//		AnnotationKeys.NAMESPACE));
 		//columnNames.add(AnnotationDescription.annotationDescription.get(
 		//		AnnotationKeys.KEYWORDS));
-		columnNames.add(AnnotationDescription.annotationDescription.get(
+		COLUMN_NAMES.add(AnnotationDescription.annotationDescription.get(
 			AnnotationKeys.TEXT));
-		columnNames.add("Visible");
+		COLUMN_NAMES.add("Visible");
 	}
 	
 	/**
 	 * List of default column sizes. 
 	 */
-	private static Map<String, Integer> columnWidths;
+	private static Map<String, Integer> COLUMN_WIDTHS;
 	
 	static{
-		columnWidths= new HashMap<String, Integer>();
-        columnWidths.put(columnNames.get(0), 80);
-        columnWidths.put(columnNames.get(1), 36);
-        columnWidths.put(columnNames.get(2), 36);
-        columnWidths.put(columnNames.get(3), 36);
-        columnWidths.put(columnNames.get(4), 36);
+		COLUMN_WIDTHS = new HashMap<String, Integer>();
+        COLUMN_WIDTHS.put(COLUMN_NAMES.get(0), 80);
+        COLUMN_WIDTHS.put(COLUMN_NAMES.get(1), 36);
+        COLUMN_WIDTHS.put(COLUMN_NAMES.get(2), 36);
+        COLUMN_WIDTHS.put(COLUMN_NAMES.get(3), 36);
+        COLUMN_WIDTHS.put(COLUMN_NAMES.get(4), 36);
         //columnWidths.put(columnNames.get(5), 36);
         //columnWidths.put(columnNames.get(6), 96);
-        columnWidths.put(columnNames.get(5), 96);
-        columnWidths.put(columnNames.get(6), 36);
+        COLUMN_WIDTHS.put(COLUMN_NAMES.get(5), 96);
+        COLUMN_WIDTHS.put(COLUMN_NAMES.get(6), 36);
 	}
 	
 	/** Index to identify tab */
@@ -140,10 +140,8 @@ class ObjectManager
 	private void initComponents()
 	{
 		ROINode root = new ROINode("root");
-        Vector cName = (Vector) columnNames;
-
-	    objectsTable = new ROITable(new ROITableModel(root, cName), cName, 
-	    		this);
+	    objectsTable = new ROITable(new ROITableModel(root, COLUMN_NAMES), 
+	    		COLUMN_NAMES, this);
 	    objectsTable.setRootVisible(false);
 	    objectsTable.setColumnSelectionAllowed(true);
 	    objectsTable.setRowSelectionAllowed(true);
@@ -194,7 +192,7 @@ class ObjectManager
 	    			TableColumnExt columnExt) 
 	    	{
 	    		columnExt.setPreferredWidth(
-	    				columnWidths.get(columnExt.getHeaderValue()));
+	    				COLUMN_WIDTHS.get(columnExt.getHeaderValue()));
 	    	}
 	    };
     	objectsTable.setHorizontalScrollEnabled(true);
