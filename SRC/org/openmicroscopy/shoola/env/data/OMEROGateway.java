@@ -2553,42 +2553,9 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IContainerPrx service = getPojosService();
-			Set values = PojoMapper.asDataObjects(
+			return PojoMapper.asDataObjects(
 					service.loadContainerHierarchy(
 					convertPojos(rootType).getName(), rootIDs, options));
-			if (ScreenData.class.equals(rootType)) {
-				Iterator i = values.iterator();
-				PlateAcquisitionData sa;
-				ScreenData screen;
-				Object object;
-				Set<PlateAcquisitionData> list;
-				Set<PlateData> plates;
-				Iterator<PlateData> j;
-				Set<PlateAcquisitionData> acquisitions;
-				while (i.hasNext()) {
-					object = i.next();
-					if (object instanceof ScreenData) {
-						screen = (ScreenData) object;
-						list = new HashSet<PlateAcquisitionData>();
-						/*
-						acquisitions = screen.getScreenAcquisitions();
-						if (acquisitions != null) 
-							list.addAll(acquisitions);
-						plates = screen.getPlates();
-						if (list != null && list.size() > 0) {
-							if (plates != null && plates.size() > 0) {
-								j = plates.iterator();
-								while (j.hasNext()) {
-									linkScreenAcquisitionPlate(list, 
-											(PlateData) j.next());
-								}
-							}
-						}
-						*/
-					}
-				}
-			}
-			return values;
 		} catch (Throwable t) {
 			handleException(t, "Cannot load hierarchy for " + rootType+".");
 		}
