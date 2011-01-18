@@ -286,7 +286,7 @@ class BrowserControl
         	if (node.isSelectable()) {
         		nodes = new TreeImageDisplay[1];
         		nodes[0] = node;
-            	model.setSelectedDisplays(nodes);
+            	model.setSelectedDisplays(nodes, false);
         		//model.setSelectedDisplay(node);
         	} else {
         		toRemove.add(paths[0]);
@@ -297,7 +297,7 @@ class BrowserControl
         			nodes[j] = 
         				(TreeImageDisplay) paths[j].getLastPathComponent();
         		}
-            	model.setSelectedDisplays(nodes);
+            	model.setSelectedDisplays(nodes, false);
         	}
     		return;
         }
@@ -368,7 +368,7 @@ class BrowserControl
     	for (int j = 0; j < paths.length; j++) {
 			nodes[j] = (TreeImageDisplay) paths[j].getLastPathComponent();
 		}
-    	model.setSelectedDisplays(nodes);
+    	model.setSelectedDisplays(nodes, false);
     }
     
     /**

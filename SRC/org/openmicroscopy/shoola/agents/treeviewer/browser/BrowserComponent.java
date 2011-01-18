@@ -741,10 +741,10 @@ class BrowserComponent
         if (nodes != null && nodes.length == 1) {
         	TreeImageDisplay n = nodes[0];
         	if (!(n.getUserObject() instanceof ExperimenterData)) {
-        		setSelectedDisplays(nodes);
+        		setSelectedDisplays(nodes, false);
         	}
         } else {
-        	 setSelectedDisplays(nodes);
+        	 setSelectedDisplays(nodes, false);
         }
         model.setSelected(b);
     }
@@ -864,23 +864,39 @@ class BrowserComponent
     
     /**
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#setSelectedDisplays(TreeImageDisplay[])
+     * @see Browser#setSelectedDisplays(TreeImageDisplay[], boolean)
      */
-    public void setSelectedDisplays(TreeImageDisplay[] nodes)
+    public void setSelectedDisplays(TreeImageDisplay[] nodes, 
+    		boolean expandParent)
     {
         if (nodes.length == 0) return;
         if (nodes.length == 1) {
         	setSelectedDisplay(nodes[0], true);
+        	if (expandParent) {
+        		TreeImageDisplay parent = nodes[0].getParentDisplay();
+        		if (parent.getUserObject() instanceof ExperimenterData)
+        			parent = nodes[0];
+        		view.expandNode(parent);
+        		view.setFoundNode(nodes);
+        	}
         	return;
         }
         TreeImageDisplay[] oldNodes = model.getSelectedDisplays();
         boolean flush = false;
         if (oldNodes.length >= nodes.length) flush = true;
         int n = nodes.length;
+        TreeImageDisplay parent = null;
         for (int i = 0; i < n; i++) {
+        	parent = nodes[i].getParentDisplay();
+        	if (parent.getUserObject() instanceof ExperimenterData)
+    			parent = nodes[i];
         	if (i == 0) model.setSelectedDisplay(nodes[i], flush);
         	else model.setSelectedDisplay(nodes[i], false);
 		}
+        if (parent != null && expandParent) {
+        	view.setFoundNode(nodes);
+        	view.expandNode(parent);
+        }
         firePropertyChange(SELECTED_TREE_NODE_DISPLAY_PROPERTY, null, 
         		nodes[n-1]);
     }
@@ -1110,7 +1126,7 @@ class BrowserComponent
 		Map<Long, RefreshExperimenterDef> 
 			m = new HashMap<Long, RefreshExperimenterDef>(1);
 		m.put(id, def);
-		model.loadRefreshExperimenterData(m, null, -1);
+		model.loadRefreshExperimenterData(m, null, -1, null, null);
 		fireStateChange();
 	}
 	
@@ -1142,15 +1158,15 @@ class BrowserComponent
 		Map<Long, RefreshExperimenterDef> 
 			m = new HashMap<Long, RefreshExperimenterDef>(1);
 		m.put(node.getUserObjectId(), def);
-		model.loadRefreshExperimenterData(m, null, -1);
+		model.loadRefreshExperimenterData(m, null, -1, null, null);
 		fireStateChange();
 	}
 	
 	/**
      * Implemented as specified by the {@link Browser} interface.
-     * @see Browser#refreshTree()
+     * @see Browser#refreshTree(Object, DataObject)
      */
-    public void refreshTree()
+    public void refreshTree(Object refNode, DataObject toBrowse)
     { 
     	switch (model.getState()) {
 	        case LOADING_DATA:
@@ -1188,16 +1204,13 @@ class BrowserComponent
 	    	foundNodes = v.getFoundNodes();
 	    	topNodes = v.getExpandedTopNodes();
 	    	//reset the flag 
-	    	
-	    	
-	    	
 	    	if (type == Browser.IMAGES_EXPLORER)
 	    		countExperimenterImages(expNode);
 	    	def = new RefreshExperimenterDef(expNode, v.getFoundNodes(), 
 					v.getExpandedTopNodes());
     		m.put(expNode.getUserObjectId(), def);
 		}
-	    model.loadRefreshExperimenterData(m, null, -1);
+	    model.loadRefreshExperimenterData(m, null, -1, refNode, toBrowse);
 		fireStateChange();
     }
 
@@ -1414,12 +1427,13 @@ class BrowserComponent
 
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
-	 * @see Browser#browse(TreeImageDisplay, boolean)
+	 * @see Browser#browse(TreeImageDisplay, DataObject, boolean)
 	 */
-	public void browse(TreeImageDisplay node, boolean withThumbnails)
+	public void browse(TreeImageDisplay node, DataObject data, 
+			boolean withThumbnails)
 	{
 		if (node == null) return;
-		model.getParentModel().browse(node, withThumbnails);
+		model.getParentModel().browse(node, data, withThumbnails);
 	}
 
 	/**
@@ -1779,7 +1793,7 @@ class BrowserComponent
 						v.getExpandedTopNodes());
 	    		m.put(expNode.getUserObjectId(), def);
 			}
-		    model.loadRefreshExperimenterData(m, type, id);
+		    model.loadRefreshExperimenterData(m, type, id, null, null);
 			fireStateChange();
 		}
 	}

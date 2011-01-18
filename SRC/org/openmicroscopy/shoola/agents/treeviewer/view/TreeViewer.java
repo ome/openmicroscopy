@@ -770,11 +770,13 @@ public interface TreeViewer
 	/**
 	 * Browses the passed node.
 	 * 
-	 * @param node The node to browse.
+	 * @param node The reference node to browse.
+	 * @param data The object to browse.
 	 * @param withThumbnails Pass <code>true</code> to load the thumbnails,
      * 						 <code>false</code> otherwise.
 	 */
-	public void browse(TreeImageDisplay node, boolean withThumbnails);
+	public void browse(TreeImageDisplay node, DataObject data, 
+			boolean withThumbnails);
 	
 	/**
 	 * Deletes the {@link DataObject}s hosted by the passed nodes.
@@ -985,8 +987,9 @@ public interface TreeViewer
 	/**
 	 * Browses the specified container.
 	 * 
-	 * @param data The data object browse.
+	 * @param data The data object to browse.
+	 * @param node The node hosting the object to browse or <code>null</code>.
 	 */
-	void browseContainer(Object data);
+	void browseContainer(Object data, Object node);
 	
 }

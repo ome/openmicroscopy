@@ -93,6 +93,12 @@ public class FileImportComponent
 	 */
 	public static final String SUBMIT_ERROR_PROPERTY = "submitError";
 	
+	/** Bound property indicating to browse the node. */
+	public static final String BROWSE_PROPERTY = "browse";
+	
+	/** The number of lines displayed for error. */
+	private static final int MAX_LINES = 20;
+	
 	/** The default size of the busy label. */
 	private static final Dimension SIZE = new Dimension(16, 16);
 	
@@ -166,7 +172,7 @@ public class FileImportComponent
 						bus.post(new ViewImage(new ViewImageObject(
 								data), null));
 					} else if (image instanceof PlateData) {
-						
+						firePropertyChange(BROWSE_PROPERTY, null, image);
 					}
 				}
 			}
@@ -184,6 +190,7 @@ public class FileImportComponent
 		if (file.isFile()) icon = icons.getIcon(IconManager.IMAGE);
 		else icon = icons.getIcon(IconManager.DIRECTORY);
 		imageLabel = new ThumbnailLabel(icon);
+		imageLabel.addPropertyChangeListener(this);
 		imageLabels = new ArrayList<ThumbnailLabel>();
 		ThumbnailLabel label;
 		for (int i = 0; i < NUMBER; i++) {
@@ -351,7 +358,7 @@ public class FileImportComponent
 			imageLabel.setData((ImageData) image);
 			resultLabel.setText("View");
 			resultLabel.setForeground(UIUtilities.HYPERLINK_COLOR);
-			resultLabel.setToolTipText("");
+			resultLabel.setToolTipText(ThumbnailLabel.IMAGE_LABEL_TOOLTIP);
 			resultLabel.setEnabled(false);
 			resultLabel.setVisible(true);
 			fileNameLabel.addMouseListener(adapter);
@@ -366,9 +373,9 @@ public class FileImportComponent
 			//control = resultLabel;
 		} else if (image instanceof PlateData) {
 			imageLabel.setData((PlateData) image);
-			resultLabel.setText("");
+			resultLabel.setText("Browse");
 			resultLabel.setForeground(UIUtilities.HYPERLINK_COLOR);
-			resultLabel.setToolTipText("");
+			resultLabel.setToolTipText(ThumbnailLabel.PLATE_LABEL_TOOLTIP);
 			resultLabel.setEnabled(false);
 			resultLabel.setVisible(true);
 			fileNameLabel.addMouseListener(adapter);
@@ -424,21 +431,20 @@ public class FileImportComponent
 					String[] values = s.split("\n");
 					//Display the first 20 lines
 					String[] lines = values;
-					int n = 20;
-					if (values.length > 20) {
-						lines = new String[n+1];
+					if (values.length > MAX_LINES) {
+						lines = new String[MAX_LINES+1];
 						for (int i = 0; i < lines.length-1; i++) {
 							lines[i] = values[i];
 						}
-						lines[lines.length-1] = "... "+(values.length-n)+" more";
+						lines[lines.length-1] = 
+							"... "+(values.length-MAX_LINES)+" more";
 					}
 					resultLabel.setToolTipText(
 							UIUtilities.formatToolTipText(lines));
 					errorBox.setVisible(true);
 					errorBox.addChangeListener(this);
 				}
-				//control = resultLabel;
-			} //else control = busyLabel;
+			}
 		}
 		repaint();
 	}
@@ -604,6 +610,9 @@ public class FileImportComponent
 		} else if (StatusLabel.FILE_RESET_PROPERTY.equals(name)) {
 			file = (File) evt.getNewValue();
 			fileNameLabel.setText(file.getName());
+		} else if (ThumbnailLabel.BROWSE_PLATE_PROPERTY.equals(name)) {
+			firePropertyChange(BROWSE_PROPERTY, evt.getOldValue(), 
+					evt.getNewValue());
 		}
 	}
 

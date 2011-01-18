@@ -66,21 +66,19 @@ class ThumbnailLabel
 	extends JLabel
 {
 
+	/** Bound property indicating to browse the specified plate. */
+	static final String BROWSE_PLATE_PROPERTY = "browsePlate";
+	
 	/** The border of the thumbnail label. */
-	private static final Border		LABEL_BORDER = 
+	private static final Border	LABEL_BORDER = 
 							BorderFactory.createLineBorder(Color.black, 1);
 	
 	/** The text displayed in the tool tip when the image has been imported. */
-	private static final String		THUMBNAIL_LABEL_TOOLTIP = 
-		"Click on thumbnail to launch the viewer.";
-	
-	/** The text displayed in the tool tip when the image has been imported. */
-	private static final String		IMAGE_LABEL_TOOLTIP = 
-		"Click on icon to launch the viewer.";
+	static final String	IMAGE_LABEL_TOOLTIP = "Double-Click to view the image.";
 	
 	/** The text displayed in the tool tip when the plate has been imported. */
-	private static final String		PLATE_LABEL_TOOLTIP = 
-		"Click on icon to browse the plate.";
+	static final String	PLATE_LABEL_TOOLTIP = 
+		"Double-Click to browse the plate.";
 	
 	/** The thumbnail or the image to host. */
 	private Object data;
@@ -97,7 +95,7 @@ class ThumbnailLabel
 			ImageData image = (ImageData) data;
 			bus.post(new ViewImage(new ViewImageObject(image), null));
 		} else if (data instanceof PlateData) {
-			
+			firePropertyChange(BROWSE_PLATE_PROPERTY, null, data);
 		}
 	}
 	
@@ -165,7 +163,7 @@ class ThumbnailLabel
 		ImageIcon icon = new ImageIcon(Factory.magnifyImage(0.25, 
 				data.getThumbnail()));
 		this.data = data;
-		setToolTipText(THUMBNAIL_LABEL_TOOLTIP);
+		setToolTipText(IMAGE_LABEL_TOOLTIP);
 		setBorder(LABEL_BORDER);
 		if (icon != null) {
 			setIcon(icon);

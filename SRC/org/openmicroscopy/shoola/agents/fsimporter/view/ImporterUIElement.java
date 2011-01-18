@@ -34,6 +34,8 @@ import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -131,12 +133,13 @@ class ImporterUIElement
 	 * Browses the specified object.
 	 * 
 	 * @param data The object to handle.
+	 * @param node The node hosting the object to browse or <code>null</code>.
 	 */ 
-	private void browse(Object data)
+	private void browse(Object data, Object node)
 	{
 		if (data instanceof TreeImageDisplay || data instanceof DataObject) {
 			EventBus bus = ImporterAgent.getRegistry().getEventBus();
-			bus.post(new BrowseContainer(data));
+			bus.post(new BrowseContainer(data, node));
 		}
 	}
 	
@@ -155,7 +158,7 @@ class ImporterUIElement
 			browse = true;
 			name = ((DatasetData) data).getName();
 		} else if (data instanceof ScreenData) {
-			browse = false;
+			browse = true;
 			name = ((ScreenData) data).getName();
 		} else if (data instanceof ProjectData) {
 			browse = true;
@@ -176,7 +179,7 @@ class ImporterUIElement
 				{
 					Object src = e.getSource();
 					if (e.getClickCount() == 2 && src instanceof JLabel) {
-						browse(containerComponents.get((JLabel) src));
+						browse(containerComponents.get((JLabel) src), null);
 					}
 				}
 			});
@@ -208,6 +211,19 @@ class ImporterUIElement
 			f = (File) importable.getFile();
 			c = new FileImportComponent(f);
 			c.addPropertyChangeListener(controller);
+			c.addPropertyChangeListener(new PropertyChangeListener() {
+				
+				public void propertyChange(PropertyChangeEvent evt) {
+					String name = evt.getPropertyName();
+					if (FileImportComponent.BROWSE_PROPERTY.equals(name)) {
+						List<Object> refNodes = object.getRefNodes();
+						Object node = null;
+						if (refNodes.size() > 0)
+							node = refNodes.get(0);
+						browse(evt.getNewValue(), node);
+					}
+				}
+			});
 			if (f.isDirectory()) {
 				if (importable.isFolderAsContainer())
 					foldersName.add(f.getName());

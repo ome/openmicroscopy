@@ -810,7 +810,7 @@ class TreeViewerComponent
         	  }
         	  if (!model.isFullScreen()) {
         		  showDataBrowser(object, display, false);
-        		  browse(display, true);
+        		  browse(display, null, true);
         	  } else showDataBrowser(object, display, true);
         } else {
         	DataBrowser db = model.getDataViewer();
@@ -890,7 +890,7 @@ class TreeViewerComponent
 						model.getObjectMimeType(selected)));
 		if (!model.isFullScreen()) {
 			//Browser browser = model.getSelectedBrowser();
-			browse(browser.getLastSelectedDisplay(), false);
+			browse(browser.getLastSelectedDisplay(), null, false);
 		}
 		
 		//Notifies actions.
@@ -1001,7 +1001,7 @@ class TreeViewerComponent
 		}
 		browser = model.getSelectedBrowser();
 		if (browser != null && operation != UPDATE_OBJECT) 
-			browser.refreshTree();
+			browser.refreshTree(null, null);
 		if (operation == REMOVE_OBJECT || operation == CREATE_OBJECT) {
 			DataBrowserFactory.discardAll();
 			view.removeAllFromWorkingPane();
@@ -2156,7 +2156,7 @@ class TreeViewerComponent
 		Browser b = model.getSelectedBrowser();
 		DataBrowserFactory.discardAll();
 	    view.removeAllFromWorkingPane();
-        if (b != null) b.refreshTree();
+        if (b != null) b.refreshTree(null, null);
         ExperimenterData exp = model.getUserDetails();
         model.getMetadataViewer().setRootObject(null, exp.getId());
 	}
@@ -2248,19 +2248,91 @@ class TreeViewerComponent
 	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#browse(TreeImageDisplay, boolean)
+	 * @see TreeViewer#browse(TreeImageDisplay, DataObject, boolean)
 	 */
-	public void browse(TreeImageDisplay node, boolean withThumbnails)
+	public void browse(TreeImageDisplay node, DataObject data, 
+			boolean withThumbnails)
 	{
-		if (node == null) return;
+		NodesFinder finder;
+		Set<TreeImageDisplay> nodes;
+		Iterator<TreeImageDisplay> i;
+		Browser browser = model.getSelectedBrowser();
+		if (node == null) {
+			if (browser == null) return;
+			if (data instanceof DatasetData) {
+				finder = new NodesFinder((DataObject) data);
+				browser.accept(finder);
+				nodes = finder.getNodes();
+				if (nodes.size() > 0) {
+					i = nodes.iterator();
+					while (i.hasNext()) {
+						node = i.next();
+						browser.loadExperimenterData(
+								BrowserFactory.getDataOwner(node), 
+			        			node);
+						break;
+					}
+				}
+				browser.loadExperimenterData(BrowserFactory.getDataOwner(node), 
+	        			node);
+			} else if (data instanceof PlateData) {
+				finder = new NodesFinder((DataObject) data);
+				browser.accept(finder);
+				nodes = finder.getNodes();
+				if (nodes.size() > 0) { //node found.
+					model.browsePlates(nodes, withThumbnails);
+				}
+			}
+			return;
+		}
 		Object uo = node.getUserObject();
 		if (uo instanceof ProjectData) {
 			model.browseProject(node);
 		} else if (uo instanceof DatasetData) {
-			//if (node.isChildrenLoaded()) return; //do not reload if already loaded
-			model.getSelectedBrowser().loadExperimenterData(
-					BrowserFactory.getDataOwner(node), 
+			if (browser != null)
+				browser.loadExperimenterData(BrowserFactory.getDataOwner(node), 
         			node);
+		} else if (uo instanceof ScreenData) {
+			if (data instanceof PlateData) {
+				//Find node
+				finder = new NodesFinder((DataObject) data);
+				browser.accept(finder);
+				nodes = finder.getNodes();
+				if (nodes.size() > 0) { //node found.
+					TreeImageDisplay[] values = 
+						new TreeImageDisplay[nodes.size()];
+					i = nodes.iterator();
+					int index = 0;
+					TreeImageDisplay n;
+					while (i.hasNext()) {
+						n = i.next();
+						node = n.getParentDisplay();
+						values[index] = n;
+						index++;
+					}
+					browser.setSelectedDisplays(values, true);
+					model.browsePlates(nodes, withThumbnails);
+				}
+			} else if (data instanceof ScreenData) {
+				//Find node
+				finder = new NodesFinder((DataObject) data);
+				browser.accept(finder);
+				nodes = finder.getNodes();
+				if (nodes.size() > 0) { //node found.
+					TreeImageDisplay[] values = 
+						new TreeImageDisplay[nodes.size()];
+					i = nodes.iterator();
+					int index = 0;
+					TreeImageDisplay n;
+					while (i.hasNext()) {
+						n = i.next();
+						node = n.getParentDisplay();
+						values[index] = n;
+						index++;
+					}
+					browser.setSelectedDisplays(values, true);
+				}
+			}
 		} else if (uo instanceof TagAnnotationData) {
 			TagAnnotationData tag = (TagAnnotationData) uo;
 			if (!TagAnnotationData.INSIGHT_TAGSET_NS.equals(tag.getNameSpace()))
@@ -2309,7 +2381,7 @@ class TreeViewerComponent
 				List l = node.getChildrenDisplay();
 				if (l != null && l.size() > 0) {
 					Set leaves = new HashSet();
-					Iterator i = l.iterator();
+					i = l.iterator();
 					Object object;
 					TreeImageDisplay child;
 					while (i.hasNext()) {
@@ -2539,7 +2611,7 @@ class TreeViewerComponent
 		DataBrowserFactory.discardAll();
 		
 		Browser browser = model.getSelectedBrowser();
-		browser.refreshTree();
+		browser.refreshTree(null, null);
 		/*
 		Map browsers = model.getBrowsers();
 		Iterator i = browsers.keySet().iterator();
@@ -3166,9 +3238,9 @@ class TreeViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#setImporting(boolean, List)
+	 * @see TreeViewer#browseContainer(Object, Object)
 	 */
-	public void browseContainer(Object data)
+	public void browseContainer(Object data, Object refNode)
 	{
 		if (model.getState() == DISCARDED) return;
 		if (data == null) return;
@@ -3177,38 +3249,44 @@ class TreeViewerComponent
 		Set<TreeImageDisplay> nodes;
 		Iterator<TreeImageDisplay> i;
 		TreeImageDisplay n;
+		moveToFront();
 		if (data instanceof TreeImageDisplay) {
-			view.setOnScreen();
 			TreeImageDisplay node = (TreeImageDisplay) data;
 			Object ho = node.getUserObject();
 			if (ho instanceof DatasetData || ho instanceof ProjectData) {
 				browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
-			} else if (ho instanceof ScreenData) {
-				browser = model.getBrowser(Browser.SCREENS_EXPLORER);
-			}
-			if (browser != null) {
-				finder = new NodesFinder((DataObject) ho);
-				browser.accept(finder);
-				nodes = finder.getNodes();
-				if (nodes.size() > 0) { //not found.
-					i = nodes.iterator();
-					while (i.hasNext()) {
-						n = i.next();
-						if (n == node) {
-							browse(node, true);
-							node.setToRefresh(false);
+				if (browser != null) {
+					finder = new NodesFinder((DataObject) ho);
+					browser.accept(finder);
+					nodes = finder.getNodes();
+					if (nodes.size() > 0) { //not found.
+						i = nodes.iterator();
+						while (i.hasNext()) {
+							n = i.next();
+							if (n == node) {
+								browse(node, null, true);
+								node.setToRefresh(false);
+							}
 						}
 					}
 				}
+			} else if (ho instanceof ScreenData) {
+				browser = model.getBrowser(Browser.SCREENS_EXPLORER);
+				DataBrowserFactory.discardAll();
+			    view.removeAllFromWorkingPane();
+			    browser.refreshTree(refNode, (DataObject) ho);
 			}
+			
 		} else if (data instanceof DataObject) { //should be for new node
 			if (data instanceof DatasetData || data instanceof ProjectData) {
 				browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
-			} else if (data instanceof ScreenData) {
+			} else if (data instanceof PlateData) {
 				browser = model.getBrowser(Browser.SCREENS_EXPLORER);
 			}
 			if (browser != null) {
-				browser.refreshBrowser();//Find solution here.
+				DataBrowserFactory.discardAll();
+			    view.removeAllFromWorkingPane();
+			    browser.refreshTree(refNode, (DataObject) data);
 			}
 		}
 	}

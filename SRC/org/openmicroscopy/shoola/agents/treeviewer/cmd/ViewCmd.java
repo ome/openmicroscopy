@@ -101,7 +101,7 @@ public class ViewCmd
 	{
 		Browser browser = model.getSelectedBrowser();
 		if (browser == null) return;
-		browser.browse(browser.getLastSelectedDisplay(), withThumbnails);
+		browser.browse(browser.getLastSelectedDisplay(), null, withThumbnails);
 	}
   
 }

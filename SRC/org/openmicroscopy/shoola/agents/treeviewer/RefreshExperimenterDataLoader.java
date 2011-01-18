@@ -39,6 +39,7 @@ import java.util.Map.Entry;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.util.browser.TreeFileSet;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageSet;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageTimeSet;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
@@ -85,6 +86,12 @@ public class RefreshExperimenterDataLoader
     
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  						handle;
+    
+    /** The node of reference hosting the node to browse. */
+    private Object 								refNode;
+    
+    /** The data object to browse. */
+    private DataObject 							toBrowse;
     
     /**
      * Controls if the passed class is supported.
@@ -167,17 +174,19 @@ public class RefreshExperimenterDataLoader
     /**
      * Creates a new instance. 
      * 
-     * @param viewer        	The viewer this data loader is for.
-     *                      	Mustn't be <code>null</code>.
-     * @param rootNodeType  	The root node either <code>Project</code> or 
-     *                      	<code>Screen</code>.
-     * @param expNodes			Collection of nodes hosting information about
-     * 							the nodes to refresh.
-     * 							Mustn't be <code>null</code>.
+     * @param viewer        The viewer this data loader is for.
+     *                      Mustn't be <code>null</code>.
+     * @param rootNodeType	The root node either <code>Project</code> or 
+     *                      <code>Screen</code>.
+     * @param expNodes		Collection of nodes hosting information about
+     * 						the nodes to refresh.
+     * 						Mustn't be <code>null</code>.
+     * @param refNode		The node of reference.
+     * @param toBrowse      The node to browse.
      */
     public RefreshExperimenterDataLoader(Browser viewer, 
     			Class rootNodeType, Map<Long, RefreshExperimenterDef> expNodes, 
-    			Class type, long id)
+    			Class type, long id, Object refNode, DataObject toBrowse)
     {
         super(viewer);
         if (expNodes == null || expNodes.size() == 0)
@@ -187,6 +196,8 @@ public class RefreshExperimenterDataLoader
         this.expNodes = expNodes;
         this.type = type;
         this.id = id;
+        this.refNode = refNode;
+        this.toBrowse = toBrowse;
     }
     
     /**
@@ -296,8 +307,9 @@ public class RefreshExperimenterDataLoader
             	setExperimenterResult(expId, entry.getValue());
     		}
         }
-        
         viewer.setRefreshExperimenterData(expNodes, type, id);
+        if (refNode instanceof TreeImageDisplay)
+        	viewer.browse((TreeImageDisplay) refNode, toBrowse, true);
     }
 
 }

@@ -367,8 +367,11 @@ public interface Browser
      * Reloads children of the currently selected node and rebuilds
      * the display if the <code>Browser</code> is currently selected, 
      * if not, all the children are removed and there is no data loading.
+     * 
+     * @param refNode  The node to hosting the data object to browse.
+     * @param toBrowse The data object to browse
      */
-    public void refreshTree();
+    public void refreshTree(Object refNode, DataObject toBrowse);
     
     /**
      * The id of the root level.
@@ -424,8 +427,11 @@ public interface Browser
      * <code>image</code> nodes.
      * 
      * @param nodes The nodes to set.
+     * @param expandParent Pass <code>true</code> to expand the parent, 
+     * 					  <code>false</code> otherwise.
      */
-    public void setSelectedDisplays(TreeImageDisplay[] nodes);
+    public void setSelectedDisplays(TreeImageDisplay[] nodes, 
+    		boolean expandParent);
     
     /**
      * Enables the components composing the display depending on the specified
@@ -566,11 +572,13 @@ public interface Browser
     /**
      * Browses the specified node.
      * 
-     * @param node The node to browse.
+     * @param node The node of reference. 
+     * @param data The object of reference.
 	 * @param withThumbnails Pass <code>true</code> to load the thumbnails,
      * 						 <code>false</code> otherwise.
      */
-	public void browse(TreeImageDisplay node, boolean withThumbnails);
+	public void browse(TreeImageDisplay node, DataObject data, 
+			boolean withThumbnails);
 	
 	/**
 	 * Updates the view when a node is selected in the thumbnail view

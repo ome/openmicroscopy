@@ -1798,9 +1798,9 @@ class BrowserUI
     	if (withListener) {
     		treeDisplay.expandPath(new TreePath(node.getPath()));
     	} else {
-    		 treeDisplay.removeTreeExpansionListener(listener);
-    	        treeDisplay.expandPath(new TreePath(node.getPath()));
-    	        treeDisplay.addTreeExpansionListener(listener);
+    		treeDisplay.removeTreeExpansionListener(listener);
+    		treeDisplay.expandPath(new TreePath(node.getPath()));
+    		treeDisplay.addTreeExpansionListener(listener);
     	}
     }
 	

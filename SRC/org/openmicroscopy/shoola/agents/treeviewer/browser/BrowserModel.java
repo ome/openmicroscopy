@@ -596,9 +596,11 @@ class BrowserModel
      * @param nodes The objects to refresh.
      * @param type  The type of node to select when refreshed
      * @param id    The identifier of the node.
+     * @param refNode  The node to hosting the data object to browse.
+     * @param toBrowse The data object to browse.
      */
     void loadRefreshExperimenterData(Map<Long, RefreshExperimenterDef> nodes, 
-    		Class type, long id)
+    		Class type, long id, Object refNode, DataObject toBrowse)
     {
         Class klass = null;
         switch (browserType) {
@@ -623,7 +625,7 @@ class BrowserModel
         state = Browser.LOADING_DATA;
         if (klass == null) return;
         currentLoader = new RefreshExperimenterDataLoader(component, klass,
-        					nodes, type, id);
+        					nodes, type, id, refNode, toBrowse);
         currentLoader.load();   
     }
 
@@ -739,11 +741,11 @@ class BrowserModel
 			*/
 			//parent.browse(node, true);
 		//}
-		if (object instanceof ImageData) parent.browse(node, true);
+		if (object instanceof ImageData) parent.browse(node, null, true);
 		else if (object instanceof PlateData) {
-			if (!node.hasChildrenDisplay()) parent.browse(node, true);
+			if (!node.hasChildrenDisplay()) parent.browse(node, null, true);
 		} else if (object instanceof PlateAcquisitionData)
-			parent.browse(node, true);
+			parent.browse(node, null, true);
 	}
 	
 	/**

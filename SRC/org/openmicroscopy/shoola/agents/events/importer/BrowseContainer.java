@@ -29,7 +29,6 @@ package org.openmicroscopy.shoola.agents.events.importer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.event.RequestEvent;
-import pojos.DataObject;
 
 /** 
  * Browses the container where the images have been imported.
@@ -51,6 +50,9 @@ public class BrowseContainer
 	/** The data object to handle. */
 	private Object data;
 	
+	/** The parent node if any specified. */
+	private Object node;
+	
 	/**
 	 * Creates the object to browse after import.
 	 * 
@@ -58,8 +60,29 @@ public class BrowseContainer
 	 */
 	public BrowseContainer(Object data)
 	{
-		this.data = data;
+		this(data, null);
 	}
+	
+	/**
+	 * Creates the object to browse after import.
+	 * 
+	 * @param data The object to handle.
+	 * @param node The node hosting the object to browse if any.
+	 */
+	public BrowseContainer(Object data, Object node)
+	{
+		if (data == null)
+			throw new IllegalArgumentException("No data to browse.");
+		this.data = data;
+		this.node = node;
+	}
+	
+	/**
+	 * Returns the node hosting the object to browse if any.
+	 * 
+	 * @return See above.
+	 */
+	public Object getNode() { return node; }
 	
 	/**
 	 * Returns the data object to browse.

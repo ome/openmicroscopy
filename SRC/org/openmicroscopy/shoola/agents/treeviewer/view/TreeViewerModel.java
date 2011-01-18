@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 //Java imports
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -828,7 +829,7 @@ class TreeViewerModel
 	 * @param withThumbnails Pass <code>true</code> to load the thumbnails,
      * 						 <code>false</code> otherwise.
 	 */
-	void browsePlates(List<TreeImageDisplay> nodes, boolean withThumbnails)
+	void browsePlates(Collection<TreeImageDisplay> nodes, boolean withThumbnails)
 	{
 		state = TreeViewer.LOADING_DATA;
 		List<TreeImageSet> plates = new ArrayList<TreeImageSet>();

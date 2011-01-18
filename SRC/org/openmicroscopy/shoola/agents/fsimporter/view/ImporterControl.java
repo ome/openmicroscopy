@@ -263,7 +263,7 @@ class ImporterControl
 			model.removeImportElement(index);
 		} else if (FileImportComponent.SUBMIT_ERROR_PROPERTY.equals(name)) {
 			getAction(SEND_BUTTON).setEnabled(model.hasFailuresToSend());
-		}
+		} 
 	}
 	
 }
