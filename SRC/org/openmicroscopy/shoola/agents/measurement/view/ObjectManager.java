@@ -44,7 +44,6 @@ import javax.swing.tree.TreeSelectionModel;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.table.ColumnFactory;
 import org.jdesktop.swingx.table.TableColumnExt;
-import org.jhotdraw.draw.Figure;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
@@ -89,10 +88,12 @@ class ObjectManager
 		columnNames.add(AnnotationDescription.TIME_STRING);
 		columnNames.add(AnnotationDescription.ZSECTION_STRING);
 		columnNames.add(AnnotationDescription.SHAPE_STRING);
+		/*
 		columnNames.add(AnnotationDescription.annotationDescription.get(
 				AnnotationKeys.NAMESPACE));
 		columnNames.add(AnnotationDescription.annotationDescription.get(
 				AnnotationKeys.KEYWORDS));
+				*/
 		columnNames.add(AnnotationDescription.annotationDescription.get(
 			AnnotationKeys.TEXT));
 		columnNames.add("Visible");
@@ -110,10 +111,10 @@ class ObjectManager
         columnWidths.put(columnNames.get(2), 36);
         columnWidths.put(columnNames.get(3), 36);
         columnWidths.put(columnNames.get(4), 36);
-        columnWidths.put(columnNames.get(5), 36);
-        columnWidths.put(columnNames.get(6), 96);
-        columnWidths.put(columnNames.get(7), 96);
-        columnWidths.put(columnNames.get(8), 36);
+        //columnWidths.put(columnNames.get(5), 36);
+        //columnWidths.put(columnNames.get(6), 96);
+        columnWidths.put(columnNames.get(5), 96);
+        columnWidths.put(columnNames.get(6), 36);
 	}
 	
 	/** Index to identify tab */

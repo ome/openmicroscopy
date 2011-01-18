@@ -100,8 +100,8 @@ class ObjectInspector
 		l.add(new AttributeField(MeasurementAttributes.TEXT, "Text", true));
 		l.add(new AttributeField(MeasurementAttributes.WIDTH, "Width", true));
 		l.add(new AttributeField(MeasurementAttributes.HEIGHT, "Height", true));
-		l.add(new AttributeField(AnnotationKeys.NAMESPACE, "Workflow", false));
-		l.add(new AttributeField(AnnotationKeys.KEYWORDS, "Keywords", false));
+		//l.add(new AttributeField(AnnotationKeys.NAMESPACE, "Workflow", false));
+		//l.add(new AttributeField(AnnotationKeys.KEYWORDS, "Keywords", false));
 		l.add(new AttributeField(MeasurementAttributes.SHOWTEXT, "Show Text", 
 				false));
 		l.add(new AttributeField(MeasurementAttributes.SHOWMEASUREMENT, 
