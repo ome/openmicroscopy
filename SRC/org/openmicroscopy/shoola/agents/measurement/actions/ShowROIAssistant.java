@@ -26,13 +26,11 @@ package org.openmicroscopy.shoola.agents.measurement.actions;
 //Java imports
 import java.awt.event.ActionEvent;
 import java.util.Collection;
-
 import javax.swing.Action;
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
 import org.openmicroscopy.shoola.agents.measurement.view.MeasurementViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -68,7 +66,7 @@ public class ShowROIAssistant
 	{
 		if (model.isHCSData()) setEnabled(false);
 		else {
-			if (model.getState() == ImViewer.READY) {
+			if (model.getState() == MeasurementViewer.READY) {
 				Collection values = model.getSelectedFigures();
 				if (values != null) {
 					setEnabled(values.size() == 1);
