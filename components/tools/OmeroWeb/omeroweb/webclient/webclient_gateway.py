@@ -470,7 +470,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 'Image':('DatasetImageLink', ImageWrapper),
                 'Plate':('ScreenPlateLink', PlateWrapper)}
         
-        print 'webclient_gateway.listOrphans'
         if obj_type not in links:
             raise TypeError("'%s' is not valid object type. Must use one of %s" % (obj_type, links.keys()) )
             
@@ -480,8 +479,10 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         if eid is not None:
             p.map["eid"] = rlong(long(eid))
             eidFilter = "obj.details.owner.id=:eid and " 
+            eidWsFilter = " and ws.details.owner.id=:eid"
         else:
             eidFilter = ""
+            eidWsFilter = ""
         sql = "select obj from %s as obj " \
                 "join fetch obj.details.creationEvent "\
                 "join fetch obj.details.owner join fetch obj.details.group " \
@@ -491,7 +492,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         if obj_type == 'Image':
             sql += "and not exists ( "\
                 "select ws from WellSample as ws "\
-                "where ws.image=obj.id and ws.details.owner.id=:eid )"
+                "where ws.image=obj.id %s)" % eidWsFilter
         for e in q.findAllByQuery(sql, p):
             yield links[obj_type][1](self, e)
             
