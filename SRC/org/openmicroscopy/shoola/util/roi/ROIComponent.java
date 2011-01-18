@@ -29,6 +29,7 @@ import java.awt.Component;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,6 +56,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ROIShapeRelationship;
 import org.openmicroscopy.shoola.util.roi.model.ROIShapeRelationshipList;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
@@ -489,9 +491,16 @@ public class ROIComponent
 		throws 	ROICreationException, NoSuchROIException
 	{
 		ROI newROI = roiCollection.createROI();
+		Map m = roiCollection.getROI(id).getAnnotation();
+		Iterator i = m.keySet().iterator();
+		while (i.hasNext()) {
+			AnnotationKey key = (AnnotationKey) i.next();
+			System.err.println(key.toString()+" "+m.get(key));
+		}
 		newROI.setAnnotations(roiCollection.getROI(id).getAnnotation());
 		return newROI;
 	}
+	
 	/**
 	 * Returns the roiMap which is the TreeMap containing the ROI, ROI.id pairs. 
 	 * It is an ordered Tree. 

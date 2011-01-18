@@ -82,16 +82,16 @@ class ObjectManager
 	private static List<String>			columnNames;
 	
 	static {
-		columnNames = new Vector<String>(8);
+		columnNames = new Vector<String>(6);
 		columnNames.add("ROI");
 		columnNames.add(AnnotationDescription.ROIID_STRING);
 		columnNames.add(AnnotationDescription.TIME_STRING);
 		columnNames.add(AnnotationDescription.ZSECTION_STRING);
 		columnNames.add(AnnotationDescription.SHAPE_STRING);
-		columnNames.add(AnnotationDescription.annotationDescription.get(
-				AnnotationKeys.NAMESPACE));
-		columnNames.add(AnnotationDescription.annotationDescription.get(
-				AnnotationKeys.KEYWORDS));
+		//columnNames.add(AnnotationDescription.annotationDescription.get(
+		//		AnnotationKeys.NAMESPACE));
+		//columnNames.add(AnnotationDescription.annotationDescription.get(
+		//		AnnotationKeys.KEYWORDS));
 		columnNames.add(AnnotationDescription.annotationDescription.get(
 			AnnotationKeys.TEXT));
 		columnNames.add("Visible");
@@ -109,10 +109,10 @@ class ObjectManager
         columnWidths.put(columnNames.get(2), 36);
         columnWidths.put(columnNames.get(3), 36);
         columnWidths.put(columnNames.get(4), 36);
-        columnWidths.put(columnNames.get(5), 36);
-        columnWidths.put(columnNames.get(6), 96);
-        columnWidths.put(columnNames.get(7), 96);
-        columnWidths.put(columnNames.get(8), 36);
+        //columnWidths.put(columnNames.get(5), 36);
+        //columnWidths.put(columnNames.get(6), 96);
+        columnWidths.put(columnNames.get(5), 96);
+        columnWidths.put(columnNames.get(6), 36);
 	}
 	
 	/** Index to identify tab */

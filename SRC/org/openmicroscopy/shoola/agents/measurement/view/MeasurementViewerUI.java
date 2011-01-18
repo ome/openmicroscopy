@@ -599,15 +599,16 @@ class MeasurementViewerUI
 			model.notifyDataChanged(true);
 			ROI newROI = model.cloneROI(id);
 			ROIShape newShape;
+			Drawing drawing = model.getDrawing();
 			for (ROIShape shape : shapeList)
 			{
 				newShape = new ROIShape(newROI, shape.getCoord3D(), shape);
 				if (newShape.getCoord3D().equals(model.getCurrentView()))
 				{
-					getDrawing().removeDrawingListener(controller);
-					this.getDrawing().add(newShape.getFigure());
+					drawing.removeDrawingListener(controller);
+					drawing.add(newShape.getFigure());
 					newShape.getFigure().addFigureListener(controller);
-					getDrawing().addDrawingListener(controller);
+					drawing.addDrawingListener(controller);
 				}
 				model.addShape(newROI.getID(), newShape.getCoord3D(), newShape);
 			}

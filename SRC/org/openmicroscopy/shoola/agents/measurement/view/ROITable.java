@@ -685,11 +685,10 @@ public class ROITable
 		else
 			manager.showMessage("Duplicate: ROIs must be from the same ROI " +
 					"and on separate planes.");
-				
 	}
 
 	/** 
-	 * Merges the ROI
+	 * Merges the ROI.
 	 * @see ROIActionController#mergeROI()
 	 */
 	public void mergeROI()

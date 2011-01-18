@@ -33,7 +33,6 @@ import java.util.TreeMap;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
@@ -61,28 +60,33 @@ public class ROINode
 {
 
 	/** ROI ID Column no for the wizard. */
-	private static final int				ROIID_COLUMN = 0;
+	private static final int				ROIID_COLUMN = 
+		ROITableModel.ROIID_COLUMN;
 
 	/** Time point Column no for the wizard. */
-	private static final int				TIME_COLUMN = 1;
+	private static final int				TIME_COLUMN = 
+		ROITableModel.TIME_COLUMN;
 	
 	/** Z-Section Column no for the wizard. */
-	private static final int				Z_COLUMN = 2;
+	private static final int				Z_COLUMN = ROITableModel.Z_COLUMN;
 
 	/** Type Column no for the wizard. */
-	private static final int				SHAPE_COLUMN = 3;
+	private static final int				SHAPE_COLUMN = 
+		ROITableModel.SHAPE_COLUMN;
 
 	/** Type Column no for the wizard. */
-	private static final int				NAMESPACE_COLUMN = 4;
+	//private static final int				NAMESPACE_COLUMN = 4;
 	
 	/** Type Column no for the wizard. */
-	private static final int				KEYWORDS_COLUMN = 5;
+	//private static final int				KEYWORDS_COLUMN = 5;
 	
 	/** Annotation Column no for the wizard. */
-	private static final int				ANNOTATION_COLUMN = 6;
+	private static final int				ANNOTATION_COLUMN = 
+		ROITableModel.ANNOTATION_COLUMN;
 
 	/** Visible Column no for the wizard. */
-	private static final int				VISIBLE_COLUMN = 7;
+	private static final int				VISIBLE_COLUMN = 
+		ROITableModel.VISIBLE_COLUMN;
 	
 	/** The map of the children, ROIShapes belonging to the ROINode. */
 	private Map<ROIShape, ROINode>				childMap;
@@ -265,11 +269,13 @@ public class ROINode
 					return roi.getZRange();
 				case SHAPE_COLUMN+1:
 					return roi.getShapeTypes();
+					/*
 				case NAMESPACE_COLUMN+1:
 					return EditorUtil.getWorkflowForDisplay(
 							AnnotationKeys.NAMESPACE.get(roi));
 				case KEYWORDS_COLUMN+1:
 					return AnnotationKeys.KEYWORDS.get(roi);
+					*/
 				case ANNOTATION_COLUMN+1:
 					return AnnotationKeys.TEXT.get(roi);
 				case VISIBLE_COLUMN+1:

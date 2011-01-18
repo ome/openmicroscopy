@@ -47,7 +47,6 @@ import org.openmicroscopy.shoola.agents.measurement.util.model.FigureTableModel;
 import org.openmicroscopy.shoola.agents.measurement.util.ui.FigureTable;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
-import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 
 
@@ -100,8 +99,8 @@ class ObjectInspector
 		l.add(new AttributeField(MeasurementAttributes.TEXT, "Text", true));
 		l.add(new AttributeField(MeasurementAttributes.WIDTH, "Width", true));
 		l.add(new AttributeField(MeasurementAttributes.HEIGHT, "Height", true));
-		l.add(new AttributeField(AnnotationKeys.NAMESPACE, "Workflow", false));
-		l.add(new AttributeField(AnnotationKeys.KEYWORDS, "Keywords", false));
+		//l.add(new AttributeField(AnnotationKeys.NAMESPACE, "Workflow", false));
+		//l.add(new AttributeField(AnnotationKeys.KEYWORDS, "Keywords", false));
 		l.add(new AttributeField(MeasurementAttributes.SHOWTEXT, "Show Text", 
 				false));
 		l.add(new AttributeField(MeasurementAttributes.SHOWMEASUREMENT, 
