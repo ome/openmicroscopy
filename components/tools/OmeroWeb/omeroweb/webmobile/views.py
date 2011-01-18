@@ -173,14 +173,22 @@ def projects (request, eid=None, **kwargs):
     experimenter = None
     if eid is not None:
         experimenter = conn.getExperimenter(eid)
+    else:
+        # show current user's projects by default
+        eid = conn.getEventContext().userId
+        
     projs = conn.listProjects(eid=eid)
     
     if request.REQUEST.get('sort', None) == 'recent':
         projs = list(projs)
         projs.sort(key=lambda x: x.creationEventDate())
         projs.reverse()
+        
+    ods = conn.listOrphans("Dataset", eid=eid)
+    orphanedDatasets = list(ods)
     
-    return render_to_response('webmobile/browse/projects.html', {'client':conn, 'projects':projs, 'experimenter':experimenter })
+    return render_to_response('webmobile/browse/projects.html', 
+        {'client':conn, 'projects':projs, 'datasets':orphanedDatasets, 'experimenter':experimenter })
 
 
 @isUserConnected
@@ -256,7 +264,21 @@ def image(request, imageId, **kwargs):
     return render_to_response('webmobile/browse/image.html', {'client': conn, 'object':img, 'obj_type':'image',
         'annotations': anns})
     
+@isUserConnected
+def orphaned_images(request, eid, **kwargs):
+    """ Show image summary: Name, dimensions, large thumbnail, description, annotations """
     
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return HttpResponse(traceback.format_exc())
+    
+    orphans = conn.listOrphans("Image", eid=eid)
+    return render_to_response('webmobile/browse/orphaned_images.html', {'client': conn, 'orphans':orphans})
+
+
 def getAnnotations(obj):
     """ List the annotations and sort into comments, tags, ratings, files etc """
     
@@ -354,12 +376,12 @@ def add_comment(request, obj_type, obj_id, **kwargs):
         redirect = reverse('webmobile_project_details', kwargs={'id':obj_id})
     
     comment = request.REQUEST.get('comment', None)
-    if comment is None:
+    if comment is None or (len(comment.strip()) == 0):
         return HttpResponseRedirect(redirect)
         
     updateService = conn.getUpdateService()
     ann = omero.model.CommentAnnotationI()
-    ann.setTextValue(rstring( str(comment) ))
+    ann.setTextValue(rstring(str( comment.strip() ) ))
     ann = updateService.saveAndReturnObject(ann)
     l.setParent(parent)
     l.setChild(ann)
@@ -416,6 +438,14 @@ def index (request, eid=None, **kwargs):
     if eid is not None:
         experimenter = conn.getExperimenter(eid)
         
+    rc = conn.listMostRecentComments()
+    rc = list(rc)
+    for link in rc:
+        print ""
+        print link.creationEventDate()
+        print link.child.textValue.val
+        print type(link.parent)
+      
     return render_to_response('webmobile/index.html', {'client': conn, 'experimenter': experimenter})
 
 

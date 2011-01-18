@@ -2,25 +2,13 @@
 
 
 {% block header-title %}
-    Dataset: {{ dataset.name }}
+    Orphaned Images
 {% endblock %}
 
 {% block content %}
-<div class='bottom-header'>
-    <!-- TODO: handle multiple parents -->
-    {% if dataset.listParents %}
-    <div id='bottom-header-left'> 
-        <a href="{% url webmobile_project dataset.listParents.id %}">Project: {{ dataset.listParents.getName }}</a>
-    </div>
-    {% endif %}
-    <div id='bottom-header-right'>
-        <a href="{% url webmobile_dataset_details dataset.id %}">details</a>
-    </div>
-    <div style="clear:both"></div>
-</div>
 
 <div class="page-content-underline" style="padding:1px">
-    {% for img in dataset.listChildren %}
+    {% for img in orphans %}
         <div style="float:left; width:75px; height:75px; background:#efefef; margin:2px">
             <a href="{% url webmobile_image img.id %}"><img class="thumbnail" 
                 id="{{ img.id }}" border="0" src="{% url webgateway.views.render_thumbnail img.id 75 %}" /></a>
@@ -30,4 +18,3 @@
 </div>
 
 {% endblock %}
-

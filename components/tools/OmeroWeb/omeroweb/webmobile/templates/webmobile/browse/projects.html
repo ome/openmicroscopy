@@ -12,7 +12,7 @@
 {% endblock %}
 
 {% block content %}
-<div id='bottom-header'>
+<div class='bottom-header'>
     <div id='bottom-header-left'> 
         Sort by: 
         <a href="?sort=name">Name</a> |
@@ -23,7 +23,7 @@
 </div>
 
 
-<div class="projects">
+<div>
 {% for proj in projects %}
 
     <a href="{% url webmobile_project proj.id %}">
@@ -34,5 +34,30 @@
     
 {% endfor %}
 </div>
+
+{% if datasets %}
+    <div class='sub-header'>Datasets</div>
+    
+    <div>
+        {% for ds in datasets %}
+            <a href="{% url webmobile_dataset ds.id %}">
+                <div class="list-item"> 
+                    <div class="item-name">{{ ds.getName|slice:":20" }} </div>
+                </div>
+            </a>
+
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% if experimenter %}
+    <a href="{% url webmobile_orphaned_images experimenter.id %}">
+{% else %}
+    <a href="{% url webmobile_orphaned_images client.getEventContext.userId %}">
+{% endif %}
+        <div class="list-item" style="background:#ddd">
+            <div class="item-name">Orphaned Images</div>
+        </div>
+    </a>
 
 {% endblock %}

@@ -20,6 +20,7 @@ urlpatterns = patterns('',
     url( r'^dataset_details/(?P<id>[0-9]+)/$', views.object_details, {"obj_type": "dataset"}, name='webmobile_dataset_details' ),
     url( r'^image/(?P<imageId>[0-9]+)/$', views.image, name='webmobile_image' ),
     url( r'^viewer/(?P<imageId>[0-9]+)/$', views.viewer, name='webmobile_viewer' ),     # 'full' viewer
+    url( r'^orphaned_images/(?P<eid>[0-9]+)/$', views.orphaned_images, name='webmobile_orphaned_images' ),
     
     url( r'^groups_members/$', views.groups_members, name='webmobile_groups_members' ),
     # switch group, then redirect to index page

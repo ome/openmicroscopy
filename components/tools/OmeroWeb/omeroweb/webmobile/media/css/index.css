@@ -4,8 +4,7 @@ body {
     padding:0px;
     margin:0px;
     background:#ddd;
-    width: 240px;
-    height: 320px;
+    width: 260px;
 }
 
 #top-header {
@@ -43,7 +42,7 @@ body {
     padding-bottom: 0px;
 }
 
-#bottom-header {
+.bottom-header {
     padding: 1px 3px;
     font-size:85%;
     border: 1px solid gray;
