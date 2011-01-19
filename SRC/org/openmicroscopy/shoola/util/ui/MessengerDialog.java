@@ -619,25 +619,24 @@ public class MessengerDialog
     /**
      * Builds and lays out the buttons.
      * 
+     * @param submit Pass <code>true</code> to display the submit files option,
+     * 				 <code>false</code> otherwise.
      * @return See above.
      */
-    private JPanel buildToolBar()
+    private JPanel buildToolBar(boolean submit)
     {
     	JPanel bars = new JPanel();
     	bars.setLayout(new BoxLayout(bars, BoxLayout.X_AXIS));
-    	JPanel p = UIUtilities.buildComponentPanel(submitFile);
-    	//p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
-    	bars.add(p);
+    	if (submit) {
+    		bars.add(UIUtilities.buildComponentPanel(submitFile));
+    	}
     	JPanel bar = new JPanel();
-    	//bar.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
     	bar.setLayout(new BoxLayout(bar, BoxLayout.X_AXIS));
     	bar.add(cancelButton);
     	bar.add(Box.createHorizontalStrut(5));
     	bar.add(sendButton);
     	bar.add(Box.createHorizontalStrut(10));
-    	p = UIUtilities.buildComponentPanelRight(bar);
-    	//p.setBackground(UIUtilities.WINDOW_BACKGROUND_COLOR);
-    	bars.add(p);
+    	bars.add(UIUtilities.buildComponentPanelRight(bar));
     	return bars;
     }
     
@@ -674,7 +673,8 @@ public class MessengerDialog
         c.setLayout(new BorderLayout(0, 0));
         c.add(tp, BorderLayout.NORTH);
 		c.add(component, BorderLayout.CENTER);
-		c.add(buildToolBar(), BorderLayout.SOUTH);
+		c.add(buildToolBar(toSubmit != null && toSubmit.size() >0), 
+				BorderLayout.SOUTH);
 	}
 	
 	/** 
