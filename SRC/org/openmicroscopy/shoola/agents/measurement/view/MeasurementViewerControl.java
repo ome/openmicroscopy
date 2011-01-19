@@ -197,11 +197,9 @@ class MeasurementViewerControl
 	 */
 	public static boolean isRightClick(MouseEvent e)
 	{
-		/*
 		return (e.getButton() == MouseEvent.BUTTON3 ||
 				(e.getButton() == MouseEvent.BUTTON1 && e.isControlDown()));
-				*/
-		return SwingUtilities.isRightMouseButton(e);
+		//return SwingUtilities.isRightMouseButton(e);
 	}
 	
     /**
