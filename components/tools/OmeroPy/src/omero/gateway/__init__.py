@@ -154,6 +154,7 @@ class BlitzObjectWrapper (object):
         self._obj = obj
         self._cache = cache
         self._conn = conn
+        self._creationDate = None
         if conn is None:
             return
         if hasattr(obj, 'id') and obj.id is not None:
@@ -294,6 +295,7 @@ class BlitzObjectWrapper (object):
             return omero.gateway.DetailsWrapper (self._conn, self._obj.getDetails())
         return None
     
+    
     def getDate(self):
         """
         Returns the object's acquisitionDate, or creation date (details.creationEvent.time)
@@ -301,14 +303,17 @@ class BlitzObjectWrapper (object):
         @return:    A L{datetime.datetime} object 
         @rtype:     datetime
         """
+        
         try:
             if self._obj.acquisitionDate.val is not None and self._obj.acquisitionDate.val > 0:
                 t = self._obj.acquisitionDate.val
-            else:
-                t = self._obj.details.creationEvent.time.val
+                return datetime.fromtimestamp(t/1000)
         except:
-            t = self._conn.getQueryService().get("Event", self._obj.details.creationEvent.id.val).time.val
-        return datetime.fromtimestamp(t/1000)
+            # object doesn't have acquisitionDate
+            pass
+        
+        return self.creationEventDate()
+    
     
     def save (self):
         """ 
@@ -965,6 +970,7 @@ class BlitzObjectWrapper (object):
         """
         return self.getDetails().getOwner().omeName
 
+    
     def creationEventDate(self):
         """
         Gets event time in timestamp format (yyyy-mm-dd hh:mm:ss.fffffff) when object was created.
@@ -973,14 +979,18 @@ class BlitzObjectWrapper (object):
         @rtype:     datetime.datetime
         """
         
+        if self._creationDate is not None:
+            return datetime.fromtimestamp(self._creationDate/1000)
+            
         try:
-            if self._obj.details.creationEvent.time is not None:
-                t = self._obj.details.creationEvent.time.val
+            if self._obj.details.creationEvent._time is not None:
+                self._creationDate = self._obj.details.creationEvent._time.val
             else:
-                t = self._conn.getQueryService().get("Event", self._obj.details.creationEvent.id.val).time.val
+                self._creationDate = self._conn.getQueryService().get("Event", self._obj.details.creationEvent.id.val).time.val
         except:
-            t = self._conn.getQueryService().get("Event", self._obj.details.creationEvent.id.val).time.val
-        return datetime.fromtimestamp(t/1000)
+            self._creationDate = self._conn.getQueryService().get("Event", self._obj.details.creationEvent.id.val).time.val
+        return datetime.fromtimestamp(self._creationDate/1000)
+        
 
     def updateEventDate(self):
         """
@@ -2494,10 +2504,10 @@ class _BlitzGateway (object):
 
     def getObjects(self, obj_type, ids):
         """
-        Retrieve Objects by type and given IDs.
+        Retrieve Objects by type and given IDs. Not Ordered. 
         Supported types are "Project", "Dataset", "Image", "Screen", "Plate", "Well"
         Returns generator of L{ProjectWrapper}, L{DatasetWrapper}, L{ImageWrapper}
-        L{PlateWrapper} or L{WellWrapper}
+        L{PlateWrapper} or L{WellWrapper}.
         
         @param obj_type:    Object type. E.g. "Project" see above
         @type obj_type:     String
@@ -2520,7 +2530,7 @@ class _BlitzGateway (object):
         p = omero.sys.Parameters()
         p.map = {}
         p.map["ids"] = rlist([rlong(a) for a in ids])
-        sql = "select obj from %s obj join fetch obj.details.owner join fetch obj.details.group where obj.id in (:ids) order by obj.name" % obj_type
+        sql = "select obj from %s obj join fetch obj.details.owner join fetch obj.details.group where obj.id in (:ids)" % obj_type
         for e in q.findAllByQuery(sql, p):
             yield wrappers[obj_type](self, e)
             
@@ -5117,24 +5127,6 @@ class _ImageWrapper (BlitzObjectWrapper):
             logger.debug('on getProject')
             logger.debug(traceback.format_exc())
             return None
-
-    def getDate(self):
-        """
-        Gets the creation date-time of the Image
-        
-        @return:    Creation date-time
-        @rtype:     datetime
-        """
-        
-        try:
-            query = self._conn.getQueryService()
-            event = query.findByQuery("select e from Event e where id = %i" % self._obj.details.creationEvent.id.val, None)
-            return datetime.fromtimestamp(event.time.val / 1000)
-        except: # pragma: no cover
-            logger.debug('on getDate')
-            logger.debug(traceback.format_exc())
-            #self._date = "Today"
-            return datetime.fromtimestamp(event.time.val / 1000) #"Today"
 
     def getObjectiveSettings (self):
         """
