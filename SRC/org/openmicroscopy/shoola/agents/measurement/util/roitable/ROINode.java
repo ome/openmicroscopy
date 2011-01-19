@@ -302,7 +302,9 @@ public class ROINode
 				case SHAPE_COLUMN+1:
 					return roiShape.getFigure().getType();
 				case ANNOTATION_COLUMN+1:
-					return AnnotationKeys.TEXT.get(roiShape);
+					return roiShape.getFigure().getAttribute(
+							MeasurementAttributes.TEXT);
+					//return AnnotationKeys.TEXT.get(roiShape);
 				case VISIBLE_COLUMN+1:
 					return Boolean.valueOf(roiShape.getFigure().isVisible());
 				default:

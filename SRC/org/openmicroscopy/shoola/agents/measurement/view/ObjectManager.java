@@ -44,6 +44,7 @@ import javax.swing.tree.TreeSelectionModel;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.table.ColumnFactory;
 import org.jdesktop.swingx.table.TableColumnExt;
+import org.jhotdraw.draw.Figure;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.measurement.IconManager;
@@ -468,6 +469,16 @@ class ObjectManager
 	void onSelectedFigures()
 	{
 		objectsTable.onSelectedFigures(model.getSelectedFigures());
+	}
+	
+	/** 
+	 * Returns the selected figures.
+	 * 
+	 * @return See above.
+	 */
+	Collection<Figure> getSelectedFigures()
+	{
+		return model.getSelectedFigures();
 	}
 	
 	/**

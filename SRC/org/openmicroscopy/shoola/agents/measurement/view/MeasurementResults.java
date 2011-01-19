@@ -309,9 +309,11 @@ class MeasurementResults
 	private void createAllFields()
 	{
 		allFields = new ArrayList<AnnotationField>();
+		/*
 		allFields.add(new AnnotationField(AnnotationKeys.TEXT,
 						AnnotationDescription.annotationDescription.get(
 							AnnotationKeys.TEXT), false)); 
+							*/
 		allFields.add(new AnnotationField(AnnotationKeys.CENTREX,
 			AnnotationDescription.annotationDescription.get(
 							AnnotationKeys.CENTREX), false)); 
@@ -361,10 +363,12 @@ class MeasurementResults
 	 */
 	private void createDefaultFields()
 	{
-		fields = new ArrayList<AnnotationField>();	
+		fields = new ArrayList<AnnotationField>();
+		/*
 		fields.add(new AnnotationField(AnnotationKeys.TEXT,
 			AnnotationDescription.annotationDescription.get(
 				AnnotationKeys.TEXT), false)); 
+				*/
 		fields.add(new AnnotationField(AnnotationKeys.CENTREX,
 			AnnotationDescription.annotationDescription.get(
 				AnnotationKeys.CENTREX), false)); 
