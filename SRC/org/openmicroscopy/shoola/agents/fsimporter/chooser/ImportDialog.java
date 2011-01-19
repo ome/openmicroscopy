@@ -86,8 +86,10 @@ import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
+import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -935,6 +937,19 @@ public class ImportDialog
     	dispose();
     }
     
+	/**
+	 * Helper method returning <code>true</code> if the connection is fast,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	private boolean isFastConnection()
+	{
+		int value = (Integer) ImporterAgent.getRegistry().lookup(
+				LookupNames.CONNECTION_SPEED);
+		return value == RenderingControl.UNCOMPRESSED;
+	}
+	
     /** Imports the selected files. */
     private void importFiles()
     {
@@ -961,6 +976,9 @@ public class ImportDialog
     			LOAD_THUMBNAIL);
     	if (b != null)
     		object.setLoadThumbnail(b.booleanValue());
+    	//if slow connection 
+    	if (!isFastConnection())
+    		object.setLoadThumbnail(false);
     	if (defaultContainerField.isVisible()) {
     		String v = defaultContainerField.getText();
     		if (v == null || v.trim().length() == 0)
