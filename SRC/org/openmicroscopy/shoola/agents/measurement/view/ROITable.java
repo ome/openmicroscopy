@@ -669,6 +669,20 @@ public class ROITable
 			}
 		}
 
+		if (selectedList.size() == 0) {//check model
+			Collection<Figure> figures = manager.getSelectedFigures();
+			if (figures != null && figures.size() > 0) {
+				Iterator<Figure> i = figures.iterator();
+				Figure figure;
+				while (i.hasNext()) {
+					figure = i.next();
+					if (figure instanceof ROIFigure) {
+						selectedList.add(((ROIFigure) figure).getROIShape());
+					}
+					
+				}
+			}
+		}
 		return selectedList;
 	}
 	

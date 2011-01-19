@@ -1438,7 +1438,7 @@ class MeasurementViewerUI
 		return workflowsUIMap.get(value);
 	}
 	
-	/** Invokes when the figures is selected. */
+	/** Invokes when the figures are selected. */
 	void onSelectedFigures()
 	{
 		roiManager.onSelectedFigures();
