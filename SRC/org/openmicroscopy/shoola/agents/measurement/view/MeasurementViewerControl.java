@@ -42,9 +42,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
 import javax.swing.JMenu;
-import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -198,11 +196,9 @@ class MeasurementViewerControl
 	 */
 	public static boolean isRightClick(MouseEvent e)
 	{
-		/*
 		return (e.getButton() == MouseEvent.BUTTON3 ||
 				(e.getButton() == MouseEvent.BUTTON1 && e.isControlDown()));
-				*/
-		return SwingUtilities.isRightMouseButton(e);
+		//return SwingUtilities.isRightMouseButton(e);
 	}
 	
     /**
