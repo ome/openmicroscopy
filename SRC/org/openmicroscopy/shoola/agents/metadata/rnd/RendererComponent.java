@@ -85,7 +85,10 @@ class RendererComponent
     		"the rendering settings.";
     
     /** The number of attempts to reload the rendering control. */
-    private static final int MAX_RETRY = 3;
+    private static final int MAX_RETRY = 1;
+    
+    /** The number of attempts to load the rendering control. */
+    private int loadingAttempt;
     
     /** The Model sub-component. */
     private RendererModel   model;
@@ -142,26 +145,36 @@ class RendererComponent
 				if (notify) {
 					JFrame f = 
 					MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
+					if (loadingAttempt == MAX_RETRY) {
+						un.notifyInfo("Rendering Error", 
+							"An error occurred while modifying the settings." +
+							"\nThe attempts to reload failed, " +
+							"the viewer will now close.");
+						discard();
+						fireStateChange();
+						return;
+					}
 					MessageBox box = new MessageBox(f, "Rendering Error", 
 							"An error occurred while modifying the settings." +
 							"\nDo you " +
-					"want to reload the settings?");
+					"want to reload the settings? " +
+					"If Not, the viewer will close.");
 					if (box.centerMsgBox() == MessageBox.YES_OPTION) {
+						loadingAttempt++;
 						logger.debug(this, "Reload rendering Engine.");
 						firePropertyChange(RELOAD_PROPERTY, 
 								Boolean.valueOf(false), 
 								Boolean.valueOf(true));
 					} else {
-						firePropertyChange(RELOAD_PROPERTY, 
-								Boolean.valueOf(true), 
-								Boolean.valueOf(false));
+						discard();
+						fireStateChange();
 					}
 				}
 			}
 		} else if (e instanceof DSOutOfServiceException) {
 			logger.debug(this, "Reload rendering Engine.");
 			un.notifyError(ERROR, "Out of service.", e.getCause());
-			model.discard();
+			discard();
 			fireStateChange();
 		}
 		return;
@@ -202,6 +215,8 @@ class RendererComponent
 	public void discard()
 	{
 		 model.discard();
+		 firePropertyChange(RELOAD_PROPERTY, Boolean.valueOf(true), 
+					Boolean.valueOf(false));
 	}
 
     /** 
@@ -610,6 +625,7 @@ class RendererComponent
 	public void onSettingsApplied(RenderingControl rndControl)
 	{ 
 		if (rndControl == null) return;
+		loadingAttempt = 0;
 		model.setRenderingControl(rndControl);
 		//TODO: changes state.
 	}
