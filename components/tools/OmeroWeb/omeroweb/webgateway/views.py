@@ -214,7 +214,7 @@ def _purge (force=False):
         for i in range(int(len(connectors)*CONNECTOR_POOL_KEEP)):
             try:
                 c = connectors.pop(keys[i])
-                c.seppuku()
+                c.seppuku(softclose=True)
             except:
                 logger.debug(traceback.format_exc())
         logger.info('reached connector_pool_size (%d), size after purge: (%d)' %
