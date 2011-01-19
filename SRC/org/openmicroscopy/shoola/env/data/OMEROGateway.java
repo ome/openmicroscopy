@@ -6475,8 +6475,10 @@ class OMEROGateway
 				for (int i = 0 ; i < serverRoi.sizeOfShapes(); i++)
 				{
 					s = serverRoi.getShape(i);
-					serverCoordMap.put(new ROICoordinate(
+					if (s != null) {
+						serverCoordMap.put(new ROICoordinate(
 							s.getTheZ().getValue(), s.getTheT().getValue()), s);
+					}
 				}
 				
 				/*
@@ -6510,6 +6512,7 @@ class OMEROGateway
 				 * if so replace the server roiShape with the client one.
 				 */
 				serverIterator = clientCoordMap.keySet().iterator();
+				Shape serverShape;
 				while (serverIterator.hasNext())
 				{
 					coord = serverIterator.next();
@@ -6521,11 +6524,16 @@ class OMEROGateway
 						shapeIndex = -1;
 						for (int j = 0 ; j < serverRoi.sizeOfShapes() ; j++)
 						{
-							if (serverRoi.getShape(j).getId().getValue() == 
-								shape.getId())
-							{
-								shapeIndex = j;
-								break;
+							if (serverRoi != null) {
+								serverShape = serverRoi.getShape(j);
+								if (serverShape != null) {
+									if (serverShape.getId().getValue() == 
+										shape.getId())
+									{
+										shapeIndex = j;
+										break;
+									}
+								}
 							}
 						}
 						if (shapeIndex == -1)
