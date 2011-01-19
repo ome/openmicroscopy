@@ -2248,7 +2248,12 @@ class OMEROGateway
 			connected = true;
 			ExperimenterData exp = getUserDetails(userName);
 			if (groupID >= 0) {
-				long defaultID = exp.getDefaultGroup().getId();
+				long defaultID = -1;
+				try {
+					defaultID = exp.getDefaultGroup().getId();
+				} catch (Exception e) {
+					// no default group
+				}
 				if (defaultID == groupID) return exp;
 				try {
 					changeCurrentGroup(exp, groupID);
@@ -2275,7 +2280,6 @@ class OMEROGateway
 			*/
 			return exp;
 		} catch (Throwable e) {
-			e.printStackTrace();
 			connected = false;
 			String s = "Can't connect to OMERO. OMERO info not valid.\n\n";
 			s += printErrorText(e);
