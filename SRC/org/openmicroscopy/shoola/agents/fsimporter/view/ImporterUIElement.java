@@ -206,10 +206,33 @@ class ImporterUIElement
 		Iterator<ImportableFile> i = files.iterator();
 		orphanedFiles = false;
 		ImportableFile importable;
+		int type = -1;
+		List<Object> containers = object.getRefNodes();
+		if (containers != null && containers.size() > 0) {
+			Iterator<Object> j = containers.iterator();
+			TreeImageDisplay node;
+			Object h;
+			while (j.hasNext()) {
+				node = (TreeImageDisplay) j.next();
+				h = node.getUserObject();
+				if (h instanceof DatasetData) {
+					type = FileImportComponent.DATASET_TYPE;
+				} else if (h instanceof ScreenData) {
+					type = FileImportComponent.SCREEN_TYPE;
+				} else if (h instanceof ProjectData) {
+					type = FileImportComponent.PROJECT_TYPE;
+				}
+				break;
+			}
+		} else {
+			type = FileImportComponent.NO_CONTAINER;
+		}
+		
 		while (i.hasNext()) {
 			importable = i.next();
 			f = (File) importable.getFile();
-			c = new FileImportComponent(f);
+			c = new FileImportComponent(f, importable.isFolderAsContainer());
+			c.setType(type);
 			c.addPropertyChangeListener(controller);
 			c.addPropertyChangeListener(new PropertyChangeListener() {
 				
@@ -489,6 +512,7 @@ class ImporterUIElement
 					event = new ImportStatusEvent(false, 
 							getData().getContainers());
 				else event = new ImportStatusEvent(false, null);
+				event.setToRefresh(hasToRefreshTree());
 				bus.post(event);
 			}
 		}
@@ -569,4 +593,24 @@ class ImporterUIElement
 		}
 	}
 
+	/**
+	 * Returns <code>true</code> if the view should be refreshed,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean hasToRefreshTree()
+	{
+		Entry entry;
+		Iterator i = components.entrySet().iterator();
+		FileImportComponent fc;
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			fc = (FileImportComponent) entry.getValue();
+			if (fc.hasToRefreshTree()) 
+				return true;
+		}
+		return false;
+	}
+	
 }

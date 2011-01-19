@@ -55,6 +55,9 @@ public class ImportStatusEvent
 	/** The collection of containers that will have to be refreshed. */
 	private List<DataObject> containers;
 	
+	/** Flag indicating that the tree needs to be refreshed. */
+	private boolean toRefresh;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -67,6 +70,23 @@ public class ImportStatusEvent
 		this.importing = importing;
 		this.containers = containers;
 	}
+	
+	/**
+	 * Sets to <code>true</code> to indicate to refresh the tree, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param toRefresh Pass <code>true</code> to indicate to refresh the tree, 
+	 * 				  <code>false</code> otherwise.
+	 */
+	public void setToRefresh(boolean toRefresh) { this.toRefresh = toRefresh; }
+	
+	/**
+	 * Returns <code>true</code> to indicate to refresh the tree, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isToRefresh() { return toRefresh; }
 	
 	/**
 	 * Returns the containers that will have to be refreshed.

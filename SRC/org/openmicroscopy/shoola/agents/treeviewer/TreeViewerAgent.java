@@ -388,7 +388,8 @@ public class TreeViewerAgent
     	if (gp != null) id = gp.getId();
         TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
         if (viewer != null) 
-        	viewer.setImporting(evt.isImporting(), evt.getContainers());
+        	viewer.setImporting(evt.isImporting(), evt.getContainers(), 
+        			evt.isToRefresh());
     }
     
     /**

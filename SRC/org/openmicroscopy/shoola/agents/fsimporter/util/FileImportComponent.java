@@ -90,6 +90,18 @@ public class FileImportComponent
 	implements ChangeListener, PropertyChangeListener
 {
 
+	/** Indicates that the container is of type <code>Project</code>. */
+	public static final int PROJECT_TYPE = 0;
+	
+	/** Indicates that the container is of type <code>Screen</code>. */
+	public static final int SCREEN_TYPE = 1;
+	
+	/** Indicates that the container is of type <code>Dataset</code>. */
+	public static final int DATASET_TYPE = 2;
+	
+	/** Indicates that no container specified. */
+	public static final int NO_CONTAINER = 3;
+	
 	/** 
 	 * Bound property indicating that the error to submit is selected or not. 
 	 */
@@ -109,6 +121,9 @@ public class FileImportComponent
 	
 	/** The number of extra labels for images to add. */
 	private static final int NUMBER = 3;
+	
+	/** One of the constants defined by this class. */
+	private int				type;
 	
 	/** The file to import. */
 	private File 			file;
@@ -149,6 +164,9 @@ public class FileImportComponent
 	/** The mouse adapter to view the image. */
 	private MouseAdapter adapter;
 
+	/** Flag indicating to use the folder as container. */
+	private boolean folderAsContainer;
+	
 	/** Initializes the components. */
 	private void initComponents()
 	{
@@ -286,7 +304,9 @@ public class FileImportComponent
 		p.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
-			c = new FileImportComponent((File) entry.getKey());
+			c = new FileImportComponent((File) entry.getKey(), 
+					folderAsContainer);
+			c.setType(getType());
 			attachListeners(c);
 			c.setStatusLabel((StatusLabel) entry.getValue());
 			if (index%2 == 0)
@@ -314,13 +334,18 @@ public class FileImportComponent
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param file 		The file to import.
+	 * @param file The file to import.
+	 * @param folderAsContainer Pass <code>true</code> if the passed file
+	 * 							has to be used as a container, 
+	 * 							<code>false</code> otherwise.
 	 */
-	public FileImportComponent(File file)
+	public FileImportComponent(File file, boolean folderAsContainer)
 	{
 		if (file == null)
 			throw new IllegalArgumentException("No file specified.");
 		this.file = file;
+		if (file.isFile()) folderAsContainer = false;
+		this.folderAsContainer = folderAsContainer;
 		initComponents();
 		buildGUI();
 	}
@@ -538,6 +563,37 @@ public class FileImportComponent
 	}
 	
 	/**
+	 * Returns <code>true</code> if refresh whole tree, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasToRefreshTree()
+	{
+		if (file.isFile()) {
+			if (errorBox.isVisible())
+				return false;
+			switch (type) {
+				case PROJECT_TYPE:
+				case NO_CONTAINER:
+					return true;
+				default:
+					return false;
+			}
+		}
+		if (components == null) return false;
+		if (folderAsContainer && type != PROJECT_TYPE) {
+			Iterator<FileImportComponent> i = components.values().iterator();
+			while (i.hasNext()) {
+				if (i.next().toRefresh()) 
+					return true;
+			}
+			return false;
+		}
+		return true;
+	}
+	
+	/**
 	 * Returns <code>true</code> if some files were imported, 
 	 * <code>false</code> otherwise.
 	 * 
@@ -573,6 +629,20 @@ public class FileImportComponent
 			i.next().cancelLoading();
 		}
 	}
+	
+	/**
+	 * Sets the type. 
+	 * 
+	 * @param type One of the constants defined by this class.
+	 */
+	public void setType(int type) { this.type = type; }
+	
+	/**
+	 * Returns the supported type. One of the constants defined by this class.
+	 * 
+	 * @return See above.
+	 */
+	public int getType() { return type; }
 	
 	/**
 	 * Overridden to make sure that all the components have the correct 

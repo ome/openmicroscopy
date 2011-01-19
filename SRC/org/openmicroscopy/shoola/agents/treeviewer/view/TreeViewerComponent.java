@@ -3204,9 +3204,10 @@ class TreeViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#setImporting(boolean, List)
+	 * @see TreeViewer#setImporting(boolean, List, boolean)
 	 */
-	public void setImporting(boolean importing,  List<DataObject> containers)
+	public void setImporting(boolean importing,  List<DataObject> containers, 
+			boolean refreshTree)
 	{
 		if (model.getState() == DISCARDED) return;
 		model.setImporting(importing);
@@ -3229,20 +3230,25 @@ class TreeViewerComponent
 					Iterator<TreeImageDisplay> i = nodes.iterator();
 					while (i.hasNext())
 						i.next().setToRefresh(true);
-					
+					browser.getUI().repaint();
 				} else {
+					if (refreshTree) {
+						TreeImageDisplay node = 
+							browser.getLoggedExperimenterNode();
+						if (node != null) {
+							node.setToRefresh(true);
+							browser.getUI().repaint();
+						}
+					}
+				}
+			} else {
+				if (refreshTree) {
+					browser = model.getSelectedBrowser();
 					TreeImageDisplay node = browser.getLoggedExperimenterNode();
 					if (node != null) {
 						node.setToRefresh(true);
 						browser.getUI().repaint();
 					}
-				}
-			} else {
-				browser = model.getSelectedBrowser();
-				TreeImageDisplay node = browser.getLoggedExperimenterNode();
-				if (node != null) {
-					node.setToRefresh(true);
-					browser.getUI().repaint();
 				}
 			}
 		}

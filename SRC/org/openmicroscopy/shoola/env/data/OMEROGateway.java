@@ -3621,6 +3621,7 @@ class OMEROGateway
 			try {
 				store.setFileId(of.getId().getValue()); 
 			} catch (Exception e) {
+				e.printStackTrace();
 				handleException(e, "Cannot set the file's id.");
 			}
 			fullPath = path+of.getName().getValue();
@@ -6468,7 +6469,8 @@ class OMEROGateway
 				{
 					shapeList = shapeIterator.next();
 					shape = shapeList.get(0);
-					clientCoordMap.put(shape.getROICoordinate(), shape);
+					if (shape != null)
+						clientCoordMap.put(shape.getROICoordinate(), shape);
 				}
 				
 				/*
@@ -6496,7 +6498,8 @@ class OMEROGateway
 					if (!clientCoordMap.containsKey(coord))
 					{
 						s = serverCoordMap.get(coord);
-						updateService.deleteObject(s);
+						if (s != null)
+							updateService.deleteObject(s);
 					}
 				}
 				
@@ -6521,31 +6524,33 @@ class OMEROGateway
 				{
 					coord = serverIterator.next();
 					shape = clientCoordMap.get(coord);
-					if (!serverCoordMap.containsKey(coord))
-						serverRoi.addShape((Shape) shape.asIObject());
-					else if (shape.isDirty())
-					{
-						shapeIndex = -1;
-						for (int j = 0 ; j < serverRoi.sizeOfShapes() ; j++)
+					if (shape != null) {
+						if (!serverCoordMap.containsKey(coord))
+							serverRoi.addShape((Shape) shape.asIObject());
+						else if (shape.isDirty())
 						{
-							if (serverRoi != null) {
-								serverShape = serverRoi.getShape(j);
-								if (serverShape != null) {
-									if (serverShape.getId().getValue() == 
-										shape.getId())
-									{
-										shapeIndex = j;
-										break;
+							shapeIndex = -1;
+							for (int j = 0 ; j < serverRoi.sizeOfShapes() ; j++)
+							{
+								if (serverRoi != null) {
+									serverShape = serverRoi.getShape(j);
+									if (serverShape != null) {
+										if (serverShape.getId().getValue() == 
+											shape.getId())
+										{
+											shapeIndex = j;
+											break;
+										}
 									}
 								}
 							}
+							if (shapeIndex == -1)
+								throw new Exception("serverRoi.shapeList is " +
+										"corrupted");
+							serverRoi.setShape(shapeIndex,
+									(Shape) shape.asIObject());
 						}
-						if (shapeIndex == -1)
-							throw new Exception("serverRoi.shapeList is " +
-									"corrupted");
-						serverRoi.setShape(shapeIndex,(Shape) shape.asIObject());
 					}
-					
 				}
 				
 				/* 
