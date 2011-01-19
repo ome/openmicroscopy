@@ -1785,6 +1785,7 @@ class BrowserUI
 			}
 		}
 	}
+	
 	/**
      * Expands the specified node. To avoid loop, we first need to 
      * remove the <code>TreeExpansionListener</code>.

@@ -1060,7 +1060,8 @@ public class ImportDialog
 		}
 		TreeImageDisplay node = containers.get(0);
 		Object object = node.getUserObject();
-		return (object instanceof DatasetData);
+		if (object instanceof ScreenData) return false;
+		return !(object instanceof DatasetData);
 	}
 	
     /** 

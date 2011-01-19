@@ -162,6 +162,9 @@ public class TreeCellRenderer
 	/** Reference to the <code>Root</code> icon. */
 	private static final Icon ROOT_ICON;
 	
+	/** Reference to the <code>Owner</code> to refresh icon. */
+	private static final Icon OWNER_TO_REFRESH_ICON;
+	
 	/** Reference to the <code>Text File</code> icon. */
 	private static final Icon FILE_TEXT_ICON;
 	
@@ -243,6 +246,7 @@ public class TreeCellRenderer
 		OWNER_ICON = icons.getIcon(IconManager.OWNER);
 		OWNER_NOT_ACTIVE_ICON = icons.getIcon(IconManager.OWNER_NOT_ACTIVE);
 		ROOT_ICON = icons.getIcon(IconManager.ROOT);
+		OWNER_TO_REFRESH_ICON = icons.getIcon(IconManager.OWNER_TO_REFRESH);
 		FILE_TEXT_ICON = icons.getIcon(IconManager.FILE_TEXT);
 		FILE_PDF_ICON = icons.getIcon(IconManager.FILE_PDF);
 		FILE_HTML_ICON = icons.getIcon(IconManager.FILE_HTML);
@@ -405,8 +409,11 @@ public class TreeCellRenderer
         	icon = ROOT_ICON;
         else if (usrObject instanceof ExperimenterData) {
         	ExperimenterData exp = (ExperimenterData) usrObject;
-        	if (exp.isActive()) icon = OWNER_ICON;
-        	else icon = OWNER_NOT_ACTIVE_ICON;
+        	if (node.isToRefresh()) icon = OWNER_TO_REFRESH_ICON;
+        	else {
+        		if (exp.isActive()) icon = OWNER_ICON;
+            	else icon = OWNER_NOT_ACTIVE_ICON;
+        	}
         } 
         setIcon(icon);
     }

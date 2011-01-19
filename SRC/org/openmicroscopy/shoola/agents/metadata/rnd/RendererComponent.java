@@ -84,6 +84,9 @@ class RendererComponent
     private static final String ERROR = " An error occurred while modifying  " +
     		"the rendering settings.";
     
+    /** The number of attempts to reload the rendering control. */
+    private static final int MAX_RETRY = 3;
+    
     /** The Model sub-component. */
     private RendererModel   model;
     

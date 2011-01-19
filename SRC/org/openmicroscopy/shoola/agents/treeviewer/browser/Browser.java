@@ -764,4 +764,11 @@ public interface Browser
 	 */
 	public boolean canDeleteObject(Object ho);
 	
+	/**
+	 * Returns the node corresponding to the experimenter currently logged in.
+	 * 
+	 * @return See above.
+	 */
+	public TreeImageDisplay getLoggedExperimenterNode();
+	
 }

@@ -40,6 +40,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
@@ -281,6 +283,7 @@ public class FileImportComponent
 		JPanel p = new JPanel();
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		int index = 0;
+		p.setBorder(BorderFactory.createLineBorder(Color.BLACK));
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			c = new FileImportComponent((File) entry.getKey());

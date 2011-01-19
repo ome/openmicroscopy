@@ -3212,9 +3212,9 @@ class TreeViewerComponent
 		model.setImporting(importing);
 		
 		if (!importing) {
+			Browser browser = null;
 			if (containers != null && containers.size() > 0) {
 				NodesFinder finder = new NodesFinder(containers);
-				Browser browser = null;
 				DataObject ho = containers.get(0);
 				if (ho instanceof DatasetData || ho instanceof ProjectData) {
 					browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
@@ -3229,6 +3229,19 @@ class TreeViewerComponent
 					Iterator<TreeImageDisplay> i = nodes.iterator();
 					while (i.hasNext())
 						i.next().setToRefresh(true);
+					
+				} else {
+					TreeImageDisplay node = browser.getLoggedExperimenterNode();
+					if (node != null) {
+						node.setToRefresh(true);
+						browser.getUI().repaint();
+					}
+				}
+			} else {
+				browser = model.getSelectedBrowser();
+				TreeImageDisplay node = browser.getLoggedExperimenterNode();
+				if (node != null) {
+					node.setToRefresh(true);
 					browser.getUI().repaint();
 				}
 			}

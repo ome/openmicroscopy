@@ -1132,6 +1132,15 @@ class BrowserComponent
 	
 	/**
      * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#getLoggedExperimenterNode()
+     */
+	public TreeImageDisplay getLoggedExperimenterNode()
+	{
+		return view.getLoggedExperimenterNode();
+	}
+	
+	/**
+     * Implemented as specified by the {@link Browser} interface.
      * @see Browser#refreshLoggedExperimenterData()
      */
 	public void refreshLoggedExperimenterData()

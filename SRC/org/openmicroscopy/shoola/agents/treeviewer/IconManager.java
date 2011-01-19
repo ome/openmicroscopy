@@ -506,11 +506,14 @@ public class IconManager
     /** The <code>Screen</code> to refresh icon. */
     public static final int           SCREEN_TO_REFRESH = 150;
     
+    /** The <code>Root</code>Refresh icon. */
+    public static final int           OWNER_TO_REFRESH = 151;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 150;
+    private static final int          MAX_ID = 151;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -673,6 +676,7 @@ public class IconManager
         	"nuvola_folder_blue_open_modified_screen_annotated16.png";
         relPaths[PROJECT_ANNOTATED_TO_REFRESH] = "tagged_project_darkblue16.png";
         relPaths[DATASET_ANNOTATED_TO_REFRESH] = "tagged_dataset16.png";
+        relPaths[OWNER_TO_REFRESH] = "nuvola_kdmconfig_ledred16.png";
     }
     
     /** The sole instance. */
