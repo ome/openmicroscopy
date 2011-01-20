@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<agent name="Importer">
+   <resources>
+     <iconFactories>
+	<!-- This entry is turned into an instance of: 
+       org.openmicroscopy.shoola.env.config.IconFactory
+       This object can then be used to retrieve any image file within
+       the directory pointed by the location tag. -->
+       <structuredEntry name="/resources/icons/Factory" type = "icons">
+         <!-- The location tag specifies the FQN of the package that contains
+         the icon files. -->
+         <location>org.openmicroscopy.shoola.agents.fsimporter.graphx</location>
+       </structuredEntry>
+
+     </iconFactories>
+     <fonts>
+       <!-- This entry is turned into an instance of java.awt.Font. --> 
+       <structuredEntry name="/resources/fonts/Titles" type="font">
+         <family>SansSerif</family>
+         <size>12</size>
+         <style>bold</style>
+       </structuredEntry>
+     </fonts>
+</resources>
+<!-- Indicate that option is turned on or off -->
+<options>
+<!-- The default value -->
+<entry name="/options/Archived" type="boolean">false</entry>
+<!-- if set to true, the user can modify the value -->
+<entry name="/options/ArchivedTunable" type="boolean">true</entry>
+<!-- if set to true, the thumbnail is loaded when the image is imported -->
+<entry name="/options/LoadThumbnail" type="boolean">true</entry>
+</options>
+</agent>

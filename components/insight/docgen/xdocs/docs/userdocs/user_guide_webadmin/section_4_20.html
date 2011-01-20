@@ -1,0 +1,86 @@
+<html>
+<head>
+<title>How to search and add new users from Ldap?</title>
+</head>
+<body>
+<p>The different possibility to add new users is to search them in
+Ldap server if Ldap server was configured on omero.properties. <br />
+Example of omero.properties configuration file:</p>
+
+<ul>
+	<li><b>omero.ldap.config=true/false</b> 'turn on/off plugin'</li>
+	<li><b>omero.ldap.urls=</b> 'ldap://host:port'</li>
+	<li><b>omero.ldap.username=</b> 'if log in to Ldap require special
+	user. Not required'</li>
+	<li><b>omero.ldap.password=</b> 'for above user'</li>
+	<li><b>omero.ldap.base=</b> 'place from where starts subtree'</li>
+	<li><b>omero.ldap.groups=</b> 'groups'</li>
+	<li><b>omero.ldap.attributes=</b> 'attributes'</li>
+	<li><b>omero.ldap.values=</b> 'values of attributes'</li>
+</ul>
+
+<p>To search and add new users click on the <b><i>Search</i></b>
+button in the toolbar to display the search page (see <a
+	href="section_4_1.html#figure_4_1_2">Figure 4.1-2</a>).</p>
+
+<p></p>
+<table width="100%" border="0" cellspacing="0" cellpadding="0"
+	align="center">
+	<tr>
+		<td align="center"><img src="images/searchInLdap.jpg"
+			alt="OMERO.webadmin search in Ldap"></img></td>
+	</tr>
+	<tr>
+		<td height="10">&#160;</td>
+	</tr>
+	<tr>
+		<td align="center"><a name="figure_4_20_1"><b>Figure
+		4.20-1</b></a><b>: Search in Ldap.</b></td>
+	</tr>
+	<tr>
+		<td height="40"></td>
+	</tr>
+</table>
+<p></p>
+
+<p>Select box contains various parameters for searching on Ldap,
+what is configured on web.xml (see <a href="section_3.html">Section
+3</a>). When searching parameter was specified and value was set, click
+search.</p>
+<p>Result of searching appear below (see <a href="#figure_4_20_2">Figure 4.20-2</a>).</p>
+
+<p></p>
+<table width="100%" border="0" cellspacing="0" cellpadding="0"
+	align="center">
+	<tr>
+		<td align="center"><img src="images/searchResults.jpg"
+			alt="OMERO.webadmin search results"></img></td>
+	</tr>
+	<tr>
+		<td height="10">&#160;</td>
+	</tr>
+	<tr>
+		<td align="center"><a name="figure_4_20_1"><b>Figure 4.20-2</b></a><b>:
+		Search results.</b></td>
+	</tr>
+	<tr>
+		<td height="40"></td>
+	</tr>
+</table>
+<p></p>
+
+<p>
+<div class="noteFrame">
+<div class="noteLabel">NB</div>
+<div class="noteContent">The <b><i>Actions</i></b> column includes
+checkboxes that allow us to specify which of users should be imported.
+If user has empty field it means that the user with this username or
+email address exists in the database.</div>
+</div>
+</p>
+<p>Click in the Actions column to select users to import. Select the
+import button. If the Import is successful the displey will return to
+the Experimenters page (see <a href="section_4_1.html#figure_4_1_2">Figure 4.1-2</a>).</p>
+
+</body>
+</html>
