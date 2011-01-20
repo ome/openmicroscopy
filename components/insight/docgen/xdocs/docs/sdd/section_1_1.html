@@ -1,0 +1,26 @@
+<html>
+<head>
+<title>Configuration Overview</title>
+</head>
+<body>
+<p>
+The container provides a flexible and extensible configuration mechanism. 
+Each agent has its own configuration file which is parsed at start-up by the container. 
+The configuration entries in this file are turned into objects 
+and collected into a map-like object, which is then passed to the agent. 
+This map object also contains pointers to the container's services. 
+Thus, we can think of this object as a <i>Registry</i> <a href="biblio.html#fow_03">[Fow03]</a>. 
+There is one 
+<code>Registry</code> for each agent, so configuration entries are 
+private to each agent - container's services are shared among all agents though. 
+The container also has its own configuration file and Registry.
+</p>
+<p>
+The container maintains a set of predefined bindings 
+that are used to convert a configuration entry into an object 
+- such as a <code>String</code>, <code>Integer</code>, <code>Font</code>, 
+<code>IconFactory</code>, etc. However, agents can specify custom handlers 
+for converting a configuration entry into an object.
+</p>
+</body>
+</html>

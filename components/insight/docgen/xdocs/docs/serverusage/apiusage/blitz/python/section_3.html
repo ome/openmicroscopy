@@ -1,0 +1,50 @@
+<html>
+<head>
+<title>Creating a Connection to the OMERO.Blitz Server</title>
+</head>
+<body>
+
+<div align="center">
+<p><b>Creating a Connection to the OMERO.Blitz Server</b></p>
+</div>
+
+<p>The OMERO.Blitz server functionality is grouped under a number of services. Each service may be accessed via a Session object which is created by the Client object.</p>
+
+<p>To create a client object you need to import the omero package and create a client object and then open a session.</p>
+<pre>
+<code>
+>>> import omero
+>>> client = omero.client(["--IceConfig=./etc/ice.config"])
+</code>
+</pre>
+<p>In the code above the <code>/etc/ice.config<code> file is contained in YOUR_OMERO_DIR/dist/etc.</p>
+<p>An example of the ice.config file contains the following information.</p>
+<pre>
+<code>
+Ice.Default.Router=OMEROGlacier2/router:tcp -p 9998 -h 127.0.0.1
+Ice.ACM.Client=0
+Ice.MonitorConnections=60
+Ice.RetryIntervals=-1
+Ice.Warn.Connections=1
+Ice.ImplicitContext=Shared
+omero.user=user
+omero.pass=CHANGE_ME
+omero.rootpass=omero
+
+#
+# Garbage collection times (in secs)
+#
+Ice.GC.Interval=60
+Ice.Trace.GC=1
+</code>
+</pre>
+
+<p>To create a session we pass the username and password of the session we wish to create. In the example below we will create a root session.</p>
+<pre>
+<code>
+>>> session = client.createSession("root","omero")
+</code>
+</pre>
+
+</body>
+</html>

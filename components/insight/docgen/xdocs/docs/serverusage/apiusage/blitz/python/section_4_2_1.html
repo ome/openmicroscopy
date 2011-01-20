@@ -1,0 +1,54 @@
+<html>
+<head>
+<title>Admin Service</title>
+</head>
+<body>
+
+<pre class="code"></pre>
+
+<div align="center">
+<p><b>Admin Service</b></p>
+</div>
+
+<p>The Admin Service is used to manage users, groups and user passwords and privileges</p>
+
+<p>The Admin Service has a number of methods to manage users.</p>
+
+	idempotent omero::model::Experimenter getExperimenter(long id) throws ServerError;
+	idempotent omero::model::Experimenter lookupExperimenter(string name) throws ServerError;
+	idempotent ExperimenterList lookupExperimenters() throws ServerError;
+	idempotent omero::model::ExperimenterGroup getGroup(long id) throws ServerError;
+	idempotent omero::model::ExperimenterGroup lookupGroup(string name) throws ServerError ; 
+	idempotent ExperimenterGroupList lookupGroups() throws ServerError;
+	idempotent ExperimenterList containedExperimenters(long groupId) throws ServerError;
+	idempotent ExperimenterGroupList containedGroups(long experimenterId) throws ServerError;
+	idempotent omero::model::ExperimenterGroup getDefaultGroup(long experimenterId) throws ServerError;
+    
+	// Mutators
+    
+	void updateExperimenter(omero::model::Experimenter experimenter) throws ServerError;
+	void updateGroup(omero::model::ExperimenterGroup group) throws ServerError;
+	long createUser(omero::model::Experimenter experimenter, string group) throws ServerError;
+	long createSystemUser(omero::model::Experimenter experimenter) throws ServerError;
+	long createExperimenter(omero::model::Experimenter user, 
+				omero::model::ExperimenterGroup defaultGroup, ExperimenterGroupList groups) throws ServerError; 
+	long createGroup(omero::model::ExperimenterGroup group) throws ServerError;
+	idempotent void addGroups(omero::model::Experimenter user, ExperimenterList groups) throws ServerError;
+	idempotent void removeGroups(omero::model::Experimenter user, ExperimenterGroupList groups) throws ServerError;
+	idempotent void setDefaultGroup(omero::model::Experimenter user, omero::model::ExperimenterGroup group) throws ServerError;
+	idempotent void setGroupOwner(omero::model::ExperimenterGroup group, omero::model::Experimenter owner) throws ServerError;
+	idempotent void deleteExperimenter(omero::model::Experimenter user) throws ServerError;
+	idempotent void changeOwner(omero::model::IObject obj, string omeName) throws ServerError;
+	idempotent void changeGroup(omero::model::IObject obj, string omeName) throws ServerError;
+	idempotent void changePermissions(omero::model::IObject obj, omero::model::Permissions perms) throws ServerError;
+	/* Leaving this non-idempotent, because of the overhead, though technically it is. */
+	Ice::BoolSeq unlock(IObjectList objects) throws ServerError;
+
+	// UAuth
+	idempotent void changePassword(omero::RString newPassword) throws ServerError;
+	idempotent void changeUserPassword(string omeName, omero::RString newPassword) throws ServerError;
+	idempotent void synchronizeLoginCache() throws ServerError;
+
+
+</body>
+</html>

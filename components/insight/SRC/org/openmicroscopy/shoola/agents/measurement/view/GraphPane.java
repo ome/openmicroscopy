@@ -1,0 +1,515 @@
+/*
+ * org.openmicroscopy.shoola.agents.measurement.view.GraphPane 
+ *
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2006-2007 University of Dundee. All rights reserved.
+ *
+ *
+ * 	This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ */
+package org.openmicroscopy.shoola.agents.measurement.view;
+
+
+//Java imports
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.Icon;
+import javax.swing.JPanel;
+import javax.swing.JSlider;
+
+//Third-party libraries
+
+//Application-internal dependencies
+import org.openmicroscopy.shoola.agents.measurement.IconManager;
+import org.openmicroscopy.shoola.agents.measurement.util.TabPaneInterface;
+import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper;
+import org.openmicroscopy.shoola.agents.measurement.util.model.AnalysisStatsWrapper.StatsType;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureBezierFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureLineFigure;
+import org.openmicroscopy.shoola.util.roi.figures.MeasureTextFigure;
+import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
+import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
+import org.openmicroscopy.shoola.util.ui.graphutils.HistogramPlot;
+import org.openmicroscopy.shoola.util.ui.graphutils.LinePlot;
+import org.openmicroscopy.shoola.util.ui.slider.OneKnobSlider;
+import pojos.ChannelData;
+
+/** 
+ * 
+ *
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * 	<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0
+ * <small>
+ * (<b>Internal version:</b> $Revision: $Date: $)
+ * </small>
+ * @since OME3.0
+ */
+class GraphPane
+	extends JPanel 
+	implements TabPaneInterface
+{
+	/** Ready state. */
+	final static int 						READY = 1;
+	
+	/** Analysing state. */
+	final static int 						ANALYSING = 0;
+	
+	/** Index to identify tab */
+	public final static int					INDEX = 
+										MeasurementViewerUI.GRAPH_INDEX;
+	
+	/** The name of the panel. */
+	private static final String				NAME = "Graph Pane";
+	
+	/** Reference to the model. */
+	private MeasurementViewerModel			model;
+
+	/** The map of <ROIShape, ROIStats> .*/
+	private Map								ROIStats;
+
+	/** The slider controlling the movement of the analysis through Z. */
+	private OneKnobSlider 					zSlider;
+
+	/** The slider controlling the movement of the analysis through T. */
+	private OneKnobSlider 					tSlider;
+	
+	/** The main panel holding the graphs. */
+	private JPanel 							mainPanel;
+			
+	/** The map of the shape stats to coord. */
+	private HashMap<Coord3D, Map<StatsType, Map>> shapeStatsList;
+	
+	/** Map of the pixel intensity values to coord. */
+	private Map<Coord3D, Map<Integer, double[]>> pixelStats;
+	
+	/** Map of the coord to a shape. */
+	private Map<Coord3D, ROIShape> 				shapeMap;
+	
+	/** List of channel Names. */
+	private List<String>	channelName ;
+	
+	/** List of channel colours. */
+	private List<Color>		channelColour;
+	
+	/** The current coord of the ROI being depicted in the slider. */
+	private Coord3D			coord;
+		
+	/** The line profile charts. */
+	private LinePlot		lineProfileChart;
+	
+	/** The histogram chart. */
+	private HistogramPlot	histogramChart;
+	
+	/** The state of the Graph pane. */
+	private int				state = READY;
+	
+	/** Reference to the view.*/
+	private MeasurementViewerUI 					view;
+	
+	/** Current shape. */
+	private ROIShape 								shape;
+	
+	/**
+	 * Overridden version of {@line TabPaneInterface#getIndex()}
+	 * @return the index of the tab.
+	 */
+	public int getIndex() { return INDEX; }
+		
+	/**
+	 * Returns <code>true</code> if the figure contained in the ROIShape
+	 * is a line or bezier path, <code>false</code> otherwise.
+	 * 
+	 * @param shape The ROIShape containing figure.
+	 * @return See above.
+	 */
+	private boolean lineProfileFigure(ROIShape shape)
+	{
+		ROIFigure f = shape.getFigure();
+		if (f instanceof MeasureLineFigure) return true;
+		if (f instanceof MeasureBezierFigure )
+		{
+			MeasureBezierFigure fig = (MeasureBezierFigure) f;
+			if (!fig.isClosed()) return true;
+		}
+		return false;
+	}
+	
+	/**
+	 * Finds the minimum value from the channelMin map.
+	 * 
+	 * @return See above.
+	 */
+	private double channelMinValue()
+	{
+		Map channels = model.getActiveChannels();
+		Entry entry;
+		Iterator i = channels.entrySet().iterator();
+		double value = 0;
+		int channel;
+		while (i.hasNext())
+		{
+			entry = (Entry) i.next();
+			channel = (Integer) entry.getKey();
+			value = Math.min(value, model.getMetadata(channel).getGlobalMin());
+		}
+		return value;
+	}
+	
+	/**
+	 * Finds the maximum value from the channelMin map.
+	 * 
+	 * @return See above.
+	 */
+	private double channelMaxValue()
+	{
+		Map channels = model.getActiveChannels();
+		Entry entry;
+		Iterator i = channels.entrySet().iterator();
+		double value = 0;
+		int channel;
+		while (i.hasNext())
+		{
+			entry = (Entry) i.next();
+			channel = (Integer) entry.getKey();
+			value = Math.max(value, model.getMetadata(channel).getGlobalMax());
+		}
+		return value;
+	}
+	
+	/**
+	 * The slider has changed value and the mouse button released. 
+	 */
+	private void handleSliderReleased()
+	{
+		if (zSlider == null || tSlider == null) return;
+		if (coord == null) return;
+		if (state == ANALYSING) return;
+		Coord3D thisCoord = new Coord3D(zSlider.getValue()-1, 
+				tSlider.getValue()-1);
+		if (coord.equals(thisCoord)) return;
+		if (!pixelStats.containsKey(thisCoord)) return;
+	
+		state = ANALYSING;
+		buildGraphsAndDisplay();
+		state = READY;
+		if (shape!=null)
+			view.selectFigure(shape.getFigure());
+	}
+	
+	/** Initializes the component composing the display. */
+	private void initComponents()
+	{
+		zSlider = new OneKnobSlider();
+		zSlider.setOrientation(JSlider.VERTICAL);
+		zSlider.setPaintTicks(false);
+		zSlider.setPaintLabels(false);
+		zSlider.setMajorTickSpacing(1);
+		zSlider.addMouseListener(new MouseAdapter()
+		{
+			public void mouseReleased(MouseEvent e)
+			{
+				handleSliderReleased();
+			}
+		});
+		zSlider.setShowArrows(true);
+		zSlider.setVisible(false);
+		zSlider.setEndLabel("Z");		
+		zSlider.setShowEndLabel(true);
+
+
+		tSlider = new OneKnobSlider();
+		tSlider.setPaintTicks(false);
+		tSlider.setPaintLabels(false);
+		tSlider.setMajorTickSpacing(1);
+		tSlider.setSnapToTicks(true);
+		tSlider.addMouseListener(new MouseAdapter()
+		{
+			public void mouseReleased(MouseEvent e)
+			{
+				handleSliderReleased();
+			}
+		});
+		tSlider.setShowArrows(true);
+		tSlider.setVisible(false);
+		tSlider.setEndLabel("T");
+		tSlider.setShowEndLabel(true);
+		mainPanel = new JPanel();
+		
+	}
+	
+	/** Builds and lays out the UI. */
+	private void buildGUI()
+	{
+		setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		JPanel centrePanel = new JPanel();
+		centrePanel.setLayout(new BoxLayout(centrePanel, BoxLayout.X_AXIS));
+		
+		centrePanel.add(zSlider);
+		centrePanel.add(Box.createHorizontalStrut(5));
+		centrePanel.add(mainPanel);
+		add(centrePanel);
+		add(tSlider);
+	}
+	
+	
+	/**
+	 * Draws the current data as a line plot in the graph.
+	 * 
+	 * @param title 			The graph title.
+	 * @param data 				The data to render.
+	 * @param channelNames 		The channel names.
+	 * @param channelColours	The channel colours.
+	 * @return See above.
+	 */
+	private LinePlot drawLineplot(String title,  List<String> channelNames, 
+			List<double[][]> data, List<Color> channelColours)
+	{
+		if (channelNames.size() == 0 || data.size() == 0 || 
+			channelColours.size() == 0)
+			return null;
+		if(channelNames.size() != channelColours.size() || channelNames.size() != data.size())
+			return null;
+		LinePlot plot = new LinePlot(title, channelNames, data, 
+			channelColours, channelMinValue(), channelMaxValue());
+		plot.setYAxisName("Intensity");
+		plot.setXAxisName("Pixel");
+		return plot;
+	}
+	
+	/**
+	 * Draws the current data as a histogram in the graph.
+	 * 
+	 * @param title 			The graph title.
+	 * @param data 				The data to render.
+	 * @param channelNames 		The channel names.
+	 * @param channelColours	The channel colours.
+	 * @param bins 				The number of bins in the histogram.
+	 * @return See above.
+	 */
+	private HistogramPlot drawHistogram(String title,  List<String> channelNames, 
+			List<double[]> data, List<Color> channelColours, int bins)
+	{
+		if (channelNames.size() == 0 || data.size() == 0 || 
+				channelColours.size() == 0)
+				return null;
+			if(channelNames.size() != channelColours.size() || channelNames.size() != data.size())
+				return null;
+		HistogramPlot plot = new HistogramPlot(title, channelNames, data, 
+			channelColours, bins, channelMinValue(), channelMaxValue());
+		plot.setXAxisName("Intensity");
+		plot.setYAxisName("Frequency");
+		return plot;
+	}
+	
+
+	/**
+	 * The method builds the graphs from the data that was constructed in the
+	 * display analysis method. This method should be called from either the 
+	 * display analysis method or the changelistener which uses the same ROI 
+	 * data generated in the displayAnalysis method.
+	 */
+	private void buildGraphsAndDisplay()
+	{
+		coord = new Coord3D(zSlider.getValue()-1, tSlider.getValue()-1);
+		Map<Integer, double[]> data = pixelStats.get(coord);
+		if (data == null) return;
+		shape = shapeMap.get(coord);
+		double[][] dataXY;
+		Color c;
+		int channel;
+		List<double[]> channelData = new ArrayList<double[]>();
+		List<double[][]> channelXYData = new ArrayList<double[][]>();
+		channelName.clear();
+		channelColour.clear();
+		channelXYData.clear();
+		channelData.clear();
+
+		ChannelData cData;
+		List<ChannelData> metadata = model.getMetadata();
+		Iterator<ChannelData> j = metadata.iterator();
+		double[] values;
+		while (j.hasNext()) {
+			cData = j.next();
+			channel = cData.getIndex();
+			if (model.isChannelActive(channel)) 
+			{
+				cData = model.getMetadata(channel);
+				if (cData != null)
+				channelName.add(channel+":"+cData.getChannelLabeling());
+				c = model.getActiveChannelColor(channel);
+				if (c == null) c = Color.WHITE;
+				channelColour.add(c);
+				values = data.get(channel);
+				if (values != null && values.length != 0) {
+					channelData.add(values);
+					
+					if (lineProfileFigure(shape)) {
+						dataXY = new double[2][values.length];
+						for (int i = 0 ; i < values.length ; i++)
+						{
+							dataXY[0][i] = i;
+							dataXY[1][i] = values[i];
+						}
+						channelXYData.add(dataXY);
+					}
+				}
+			}
+		}
+		mainPanel.removeAll();
+		if(channelData.size()==0)
+			return;
+		lineProfileChart = null;
+		histogramChart = null;
+		if (lineProfileFigure(shape))
+			lineProfileChart = drawLineplot("Line Profile", 
+					channelName, channelXYData, channelColour);
+		histogramChart = drawHistogram("Histogram", channelName, 
+				channelData, channelColour, 1001);
+			
+		if (lineProfileChart == null && histogramChart !=null)
+		{
+			mainPanel.setLayout(new BorderLayout());
+			mainPanel.add(histogramChart.getChart(), BorderLayout.CENTER);
+		}
+		
+		if (lineProfileChart != null && histogramChart !=null)
+		{
+			mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
+			mainPanel.add(lineProfileChart.getChart());
+			mainPanel.add(histogramChart.getChart());
+		}
+		mainPanel.validate();
+		mainPanel.repaint();
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param view 		 Reference to the View. Mustn't be <code>null</code>.
+	 * @param controller Reference to the Control. Mustn't be <code>null</code>.
+	 * @param model		 Reference to the Model. Mustn't be <code>null</code>.
+	 */
+	GraphPane(MeasurementViewerUI view, MeasurementViewerControl controller, 
+		MeasurementViewerModel model)
+	{
+		if (view == null)
+			throw new IllegalArgumentException("No view.");
+		if (controller == null)
+			throw new IllegalArgumentException("No control.");
+		if (model == null)
+			throw new IllegalArgumentException("No model.");
+		this.model = model;
+		this.view = view;
+		initComponents();
+		buildGUI();
+	}
+	
+	/**
+	 * Returns the name of the component.
+	 * 
+	 * @return See above.
+	 */
+	String getComponentName() { return NAME; }
+	
+	/**
+	 * Returns the icon of the component.
+	 * 
+	 * @return See above.
+	 */
+	Icon getComponentIcon()
+	{
+		IconManager icons = IconManager.getInstance();
+		return icons.getIcon(IconManager.GRAPHPANE);
+	}
+
+	/**
+	 * Returns the analysis results from the model and converts to the 
+	 * necessary array. data types using the ROIStats wrapper then
+	 * creates the approriate graph and plot.  
+	 */
+	void displayAnalysisResults()
+	{
+		this.ROIStats = model.getAnalysisResults();
+		if (ROIStats == null) return;
+		shapeStatsList = new HashMap<Coord3D, Map<StatsType, Map>>();
+		pixelStats = new HashMap<Coord3D, Map<Integer, double[]>>();
+		shapeMap = new HashMap<Coord3D, ROIShape>();
+		channelName = new ArrayList<String>();
+		channelColour = new ArrayList<Color>();
+		Entry entry;
+		Iterator i  = ROIStats.entrySet().iterator();
+		
+	
+		int minZ = Integer.MAX_VALUE, maxZ = Integer.MIN_VALUE;
+		int minT = Integer.MAX_VALUE, maxT = Integer.MIN_VALUE;
+		
+		Coord3D c3D;
+		Map<StatsType, Map> shapeStats;
+		Map<Integer, double[]> data;
+		while (i.hasNext())
+		{
+			entry = (Entry) i.next();
+			shape = (ROIShape) entry.getKey();
+			c3D = shape.getCoord3D();
+			minT = Math.min(minT, c3D.getTimePoint());
+			maxT = Math.max(maxT, c3D.getTimePoint());
+			minZ = Math.min(minZ, c3D.getZSection());
+			maxZ = Math.max(maxZ, c3D.getZSection());
+			
+			
+			shapeMap.put(c3D, shape);
+			if (shape.getFigure() instanceof MeasureTextFigure)
+				return;
+		
+			shapeStats = AnalysisStatsWrapper.convertStats(
+											(Map) entry.getValue());
+			shapeStatsList.put(c3D, shapeStats);
+
+	
+			data = shapeStats.get(StatsType.PIXELDATA);
+			pixelStats.put(c3D, data);
+		}
+		maxZ = maxZ+1;
+		minZ = minZ+1;
+		minT = minT+1;
+		maxT = maxT+1;
+		zSlider.setMaximum(maxZ);
+		zSlider.setMinimum(minZ);
+		tSlider.setMaximum(maxT);
+		tSlider.setMinimum(minT);
+		zSlider.setVisible((maxZ!=minZ));
+		tSlider.setVisible((maxT!=minT));
+		tSlider.setValue(model.getCurrentView().getTimePoint()+1);
+		zSlider.setValue(model.getCurrentView().getZSection()+1);
+
+		buildGraphsAndDisplay();
+	}
+	
+}

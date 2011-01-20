@@ -1,0 +1,46 @@
+<html>
+<head>
+<title>Slice and OMERO.Blitz</title>
+</head>
+<body>
+
+<pre class="code"></pre>
+
+<div align="center">
+<p><b>Slice and OMERO.Blitz</b></p>
+</div>
+
+<p><b>Interpreting the Slice definitions in API.ice</b></p>
+
+<p>This chapter is going to give an overview of the slice language as it pertains to
+intepreting the methods available in the OMERO.Blitz server. A more detailed manual
+on the Slice language can be found at 
+<a href="http://www.zeroc.com/doc/Ice-3.2.1/manual/Hello.4.2.html#49352">
+Slice Chapter -- ICE Manual</a>.</p>
+
+<p>The API.ice file contains all of the service alls that are exposed to the client.
+Slice files are broken into separate sections.</p>
+
+<ol>
+<li>
+	Module -- This is the namespace definitions in the Slice language.
+</li>
+<li>
+	Interface -- An interface definition can be thought of as the equivalent 
+	of a Java interface, and of operation definitions as (virtual) member 
+	functions. In an interface only the operation definitions are allowed to 
+	appear. You may not define types, exceptions or datamembers inside an interface.
+	This does not mean that an object which is defined by an Interface is stateless.
+</li>
+<li>
+	Class -- Similar to an interface a class can have exception, datatype and datamembers 
+	defined in it.
+</li>
+<li>
+	Struct -- A Stuct defines a datatype which may be used to pass intformation 
+	via the ICE interface.
+</li>
+</ol>
+
+</body>
+</html>

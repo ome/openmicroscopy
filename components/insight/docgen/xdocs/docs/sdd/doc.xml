@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xdoc>
+<xdoc-info>
+
+  <title>Software Build and Deployment Document</title>
+  <author name="Jean-Marie Burel" email="comments@openmicroscopy.org.uk" />
+  <author name="Andrea Falconi" email="comments@openmicroscopy.org.uk" />
+
+  <version number="Final"/>
+  <last-modified date="2007-02-15"/>
+</xdoc-info>
+
+ <toc name="Table of Contents" href="index.htm">
+   <section href="intro.html" name="Introduction"/>
+   <section href="section_1.html" name="Configuration">
+     <section href="section_1_1.html" name="Configuration Overview"/>
+    <section href="section_1_2.html" name="Structure"/>
+    <section href="section_1_3.html" name="Dynamics"/>
+    </section>
+    <section href="section_2.html" name="Event Bus">
+     <section href="section_2_1.html" name="Interactions"/>
+    <section href="section_2_2.html" name="Structure"/>
+    <section href="section_2_3.html" name="Dynamics"/>
+    </section>
+    <section href="section_3.html" name="Events">
+    <section href="section_3_1.html" name="Structure"/>
+    <section href="section_3_2.html" name="Dynamics"/>
+    </section>
+    <section href="section_4.html" name="TaskBar overview">
+    <section href="section_4_1.html" name="Structure and Dynamics"/>
+    <section href="section_4_2.html" name="How to"/>
+    </section>
+    <section href="biblio.html" name="Bibliography"/>
+  </toc>
+</xdoc>

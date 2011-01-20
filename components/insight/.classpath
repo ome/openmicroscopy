@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="SRC"/>
+	<classpathentry kind="src" path="TEST"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="LIB/TableLayout-2006-11-27.jar"/>
+	<classpathentry kind="lib" path="LIB/test/junit-3.8.1.jar"/>
+	<classpathentry kind="lib" path="LIB/log4j-1.2.14.jar"/>
+	<classpathentry kind="lib" path="LIB/commons-codec-1.3.jar"/>
+	<classpathentry kind="lib" path="LIB/JHotDraw-7.0.9.jar"/>
+	<classpathentry kind="lib" path="LIB/commons-collections-3.2.jar"/>
+	<classpathentry kind="lib" path="LIB/ehcache-1.5.0.jar" sourcepath="/Users/jeanmarie/Desktop/ehcache-1.5.0/ehcache-1.5.0-sources.jar"/>
+	<classpathentry kind="lib" path="LIB/backport-util-concurrent.jar"/>
+	<classpathentry kind="lib" path="LIB/swingx-0.9.4.jar" sourcepath="/Users/jeanmarie/Documents/workspace/swingx-0.9.4-src/src"/>
+	<classpathentry kind="lib" path="LIB/jfreechart-1.0.11.jar"/>
+	<classpathentry kind="lib" path="LIB/jcommon-1.0.14.jar"/>
+	<classpathentry kind="lib" path="LIB/commons-logging-1.1.1.jar"/>
+	<classpathentry kind="lib" path="LIB/commons-digester-1.8.jar"/>
+	<classpathentry kind="lib" path="LIB/commons-beanutils-1.8.0.jar"/>
+	<classpathentry kind="lib" path="LIB/commons-validator-1.3.1.jar"/>
+	<classpathentry kind="lib" path="LIB/commons-httpclient-3.1.jar"/>
+	<classpathentry kind="lib" path="LIB/wsdl4j-1.5.1.jar"/>
+	<classpathentry kind="lib" path="LIB/commons-discovery-0.2.jar"/>
+	<classpathentry kind="lib" path="LIB/jaxrpc-1.1.jar"/>
+	<classpathentry kind="lib" path="LIB/axis-1.4.jar"/>
+	<classpathentry kind="lib" path="LIB/poi-3.5-beta4-20081128.jar"/>
+	<classpathentry kind="lib" path="LIB/monitors.jar"/>
+	<classpathentry kind="lib" path="LIB/OmeroImporter-Beta-4.1.0-DEV.jar"/>
+	<classpathentry kind="lib" path="LIB/loci-common-r5720.jar"/>
+	<classpathentry kind="lib" path="LIB/bio-formats-r5720.jar"/>
+	<classpathentry kind="lib" path="LIB/ols-client-1.15.jar"/>
+	<classpathentry kind="lib" path="LIB/saaj-1.2.jar"/>
+	<classpathentry kind="lib" path="LIB/mdbtools-java-r5720.jar"/>
+	<classpathentry kind="lib" path="LIB/gluegen-rt.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/Users/jburel/Desktop/jogl-1.1.1-macosx-universal/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="LIB/jogl.jar">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/Users/jburel/Desktop/jogl-1.1.1-macosx-universal/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="LIB/omero_client.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

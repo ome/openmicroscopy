@@ -1,0 +1,45 @@
+<html>
+<head>
+  <title>Targets</title>
+</head>
+<body>
+<p>The following diagram depicts the dependencies among targets and the files in which 
+  they are contained.</p>
+<table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+  <tr>
+    <td align="center"><img src="images/targets.gif" width="620" height="550"/></td>
+  </tr>
+  <tr> 
+    <td height="10">&#160;</td>
+  </tr>
+  <tr> 
+    <td align="center"><a name="fig_5.2-1"><b>Fig 5.2-1</b></a>: Targets, dependencies, 
+	  and build files.</td>
+  </tr>
+  <tr> 
+    <td height="40"><hr width="80%" align="center"/></td>
+  </tr>
+</table>
+<p>The boxes labelled with <i>artifact</i> represent build files. The boxes with the 
+  target icon on the right are build targets. The placement of targets within build 
+  file boxes denotes containment -- for example, the <code>init</code> target is 
+  contained in the <i>build.xml</i> file. Dashed arrows denote build dependencies 
+  -- for example <code>app-init</code> in <i>app.xml</i> depends on <code>init</code> 
+  in <i>build.xml</i>. The boxes with a folded corner are notes.</p>
+<p>All the available public targets are highlighted in the diagram. All these targets 
+  have already been described in this document. You can find out more about them by 
+  reading the inline documentation that accompanies each build file. Also refer to 
+  the various build files for a description of what the private targets do.</p>
+<p>On a final note, it's worth mentioning that, by design, it's not possible to create 
+  a distribution bundle (either generic or OS X) if part of the application doesn't 
+  compile or any test fails. In fact, <code>dist</code> and <code>dist-osx</code> 
+  both depend (indirectly) on <code>dist-init</code> which, in turn, depends on <code>test</code>. 
+  This latter target fails the build if any test within the application test suite 
+  fails. The <code>compile</code> and <code>test-compile</code> targets both fail 
+  the build in the case of a compilation error. Because of the dependencies layout, 
+  <code>test</code> can't be executed if <code>compile</code> or <code>test-compile</code> 
+  fails. Which explains why it's not possible to create a distribution bundle in the 
+  case of a (even partial) compilation failure.</p>
+</body>
+</html>
+
