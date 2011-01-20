@@ -3,3 +3,5 @@ from EMAN2 import *
 produces no errors and then configure the following options:
 $ bin/omero config set omero.web.use_eman2 True
 $ bin/omero config set omero.web.cache_backend 'file:///var/tmp/django_cache'
+$ bin/omero config set omero.web.debug "True"
+
