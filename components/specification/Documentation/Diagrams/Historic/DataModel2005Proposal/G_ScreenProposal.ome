@@ -1,0 +1,211 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# Copyright (C) 2003 Open Microscopy Environment
+#       Massachusetts Institue of Technology,
+#       National Institutes of Health,
+#       University of Dundee
+#
+#
+#
+#    This library is free software; you can redistribute it and/or
+#    modify it under the terms of the GNU Lesser General Public
+#    License as published by the Free Software Foundation; either
+#    version 2.1 of the License, or (at your option) any later version.
+#
+#    This library is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#    Lesser General Public License for more details.
+#
+#    You should have received a copy of the GNU Lesser General Public
+#    License along with this library; if not, write to the Free Software
+#    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josiah Johnston <siah@nih.gov>
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<OME
+  xmlns=
+    "http://www.openmicroscopy.org/XMLschemas/OME/FC/ome.xsd"
+  xmlns:xsi=
+    "http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:STD=
+    "http://www.openmicroscopy.org/XMLschemas/STD/RC2/STD.xsd"
+  xsi:schemaLocation = "
+    http://www.openmicroscopy.org/XMLschemas/OME/FC/ome.xsd
+      http://www.openmicroscopy.org/XMLschemas/OME/FC/ome.xsd
+    http://www.openmicroscopy.org/XMLschemas/STD/RC2/STD.xsd
+      http://www.openmicroscopy.org/XMLschemas/STD/RC2/STD.xsd">
+
+	<SemanticTypeDefinitions xmlns="http://www.openmicroscopy.org/XMLschemas/STD/RC2/STD.xsd" xsi:schemaLocation="http://www.openmicroscopy.org/XMLschemas/STD/RC2/STD.xsd http://www.openmicroscopy.org/XMLschemas/STD/RC2/STD.xsd">
+		<SemanticType
+			Name= "Screen"
+			AppliesTo = "G">
+			<Description>Stores information about a high-throughput screen.</Description>
+			<Element
+				Name= "Name"
+				DBLocation = "SCREENS.NAME"
+				DataType = "string"/>
+			<Element
+				Name= "Description"
+				DBLocation = "SCREENS.DESCRIPTION"
+				DataType = "string"/>
+			<Element
+				Name= "ExternalReference"
+				DBLocation = "SCREENS.EXTERNAL_REFERENCE"
+				DataType = "string"/>
+		</SemanticType>
+		
+		<SemanticType
+			Name = "DatasetIsScreen"
+			AppliesTo = "D">
+			<Description>Asserts that this dataset contains every image
+			in a screen, and no other images.</Description>
+			<Element
+				Name = "Screen"
+				DBLocation = "DATASET_IS_SCREEN.SCREEN"
+				DataType = "reference"
+				RefersTo = "Screen"/>
+		</SemanticType>
+
+		<SemanticType
+			Name= "PlateScreen"
+			AppliesTo = "G">
+			<Description>Defines the relationship between Plates and Screens.</Description>
+			<Element
+				Name= "Plate"
+				DBLocation = "PLATE_SCREEN_MAP.PLATE"
+				DataType = "reference"
+				RefersTo = "Plate"/>
+			<Element
+				Name= "Screen"
+				DBLocation = "PLATE_SCREEN_MAP.SCREEN"
+				DataType = "reference"
+				RefersTo = "Screen"/>
+		</SemanticType>
+
+		<SemanticType
+			Name= "Plate"
+			AppliesTo = "G">
+			<Description>Stores information about the plates that make
+			up a high-throughput screen.  Plates may belong to more than
+			one screen, and have a many-to-many relationship to
+			screens.</Description>
+			<Element
+				Name= "Name"
+				DBLocation = "PLATES.NAME"
+				DataType = "string"/>
+			<Element
+				Name= "ExternalReference"
+				DBLocation = "PLATES.EXTERNAL_REFERENCE"
+				DataType = "string">
+				<Description>LSID to an external reference describing
+				this plate in more detail.</Description>
+			</Element>
+			<Element
+				Name= "Screen"
+				DBLocation = "PLATES.SCREEN"
+				DataType = "reference"
+				RefersTo = "Screen"/>
+			<Element
+				Name= "Num_rows"
+				DBLocation = "PLATES.NUM_ROWS"
+				DataType = "integer"/>
+			<Element
+				Name= "Num_cols"
+				DBLocation = "PLATES.NUM_COLS"
+				DataType = "integer"/>
+		</SemanticType>
+
+		<SemanticType
+			Name = "DatasetIsPlate"
+			AppliesTo = "D">
+			<Description>Asserts that this dataset contains every image
+			in a plate, and no other images.</Description>
+			<Element
+				Name = "Plate"
+				DBLocation = "DATASET_IS_PLATE.PLATE"
+				DataType = "reference"
+				RefersTo = "Plate"/>
+		</SemanticType>
+
+		<SemanticType
+			Name= "Well"
+			AppliesTo = "G">
+			<Description>Stores information about the plates that make
+			up a high-throughput screen.  Plates may belong to more than
+			one screen, and have a many-to-many relationship to
+			screens.</Description>
+			<Element
+				Name= "Treatment"
+				DBLocation = "WELL.TREATMENT"
+				DataType = "string">
+				<Description>Text description of the treatment of this
+				Well.</Description>
+			</Element>
+			<Element
+				Name= "ExternalReference"
+				DBLocation = "WELL.EXTERNAL_REFERENCE"
+				DataType = "string">
+				<Description>LSID to an external reference describing
+				the treatment of this Well</Description>
+			</Element>
+			<Element
+				Name= "Row"
+				DBLocation = "WELL.ROW"
+				DataType = "integer"/>
+			<Element
+				Name= "Column"
+				DBLocation = "WELL.COLUMN"
+				DataType = "integer"/>
+			<Element
+				Name= "Plate"
+				DBLocation = "WELL.PLATE"
+				DataType = "reference"
+				RefersTo = "Plate"/>
+		</SemanticType>
+		
+		<SemanticType
+			Name = "DatasetIsWell"
+			AppliesTo = "D">
+			<Description>Asserts that this dataset contains every image
+			taken from a well, and no other images.</Description>
+			<Element
+				Name = "Well"
+				DBLocation = "DATASET_IS_WELL.WELL"
+				DataType = "reference"
+				RefersTo = "Well"/>
+		</SemanticType>
+
+		<SemanticType
+			Name = "WellSample"
+			AppliesTo = "I">
+			<Description>States that an Image was taken from a well, and
+			describes where the image was taken in the
+			well.</Description>
+			<Element
+				Name= "Well"
+				DBLocation = "WELL_SAMPLE.WELL"
+				DataType = "reference"
+				RefersTo = "Well"/>
+			<Element
+				Name= "Position"
+				DBLocation = "WELL_SAMPLE.POSITION"
+				DataType = "string">
+				<Description>Replace this with a description of the
+				position within the well. What is needed? stage
+				position? Is physical position necessary or would sample
+				number do?</Description>
+			</Element>
+		</SemanticType>
+		
+	</SemanticTypeDefinitions>
+</OME>

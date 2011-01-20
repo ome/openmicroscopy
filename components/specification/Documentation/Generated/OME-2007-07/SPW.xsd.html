@@ -1,0 +1,3208 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+   <head>
+      <title>Documentation for ome - SPW.xsd</title>
+      <meta http-equiv="Content-Type" content="text/xml; charset=UTF-8"/>
+      <style type="text/css">
+@import url(auto-gen-doc.css);
+</style>
+      <script type="text/javascript">
+<!--
+          /* IDs of XML Instance Representation boxes */
+var xiBoxes = new Array('h-621985805_xibox', 'h-1090119776_xibox', 'h236153484_xibox', 'h846315087_xibox', 'h1114811332_xibox', 'h304491112_xibox', 'h-2023622865_xibox', 'h739567116_xibox', 'h-1587722524_xibox', 'h1097546974_xibox', 'h131492791_xibox', 'h-574051247_xibox', 'h63329070_xibox', 'h1738329435_xibox', 'h-1961340872_xibox', 'h470607675_xibox', 'h-2143375048_xibox');
+/* IDs of diagram boxes */
+var diagramBoxes = new Array('h-621985805_diagram', 'h-1090119776_diagram', 'h236153484_diagram', 'h846315087_diagram', 'h1114811332_diagram', 'h304491112_diagram', 'h-2023622865_diagram', 'h739567116_diagram', 'h-1587722524_diagram', 'h1097546974_diagram', 'h131492791_diagram', 'h-574051247_diagram', 'h63329070_diagram', 'h1738329435_diagram', 'h-1961340872_diagram', 'h470607675_diagram', 'h-2143375048_diagram');
+/* IDs of logical diagram boxes */
+var logicalDiagramBoxes = new Array('h-621985805_logicalDiagram', 'h-1090119776_logicalDiagram', 'h846315087_logicalDiagram', 'h1114811332_logicalDiagram', 'h-2023622865_logicalDiagram', 'h-1587722524_logicalDiagram', 'h1097546974_logicalDiagram', 'h-574051247_logicalDiagram', 'h1738329435_logicalDiagram', 'h470607675_logicalDiagram', 'h-2143375048_logicalDiagram');
+/* IDs of Schema Component Representation boxes */
+var scBoxes = new Array('schema_scbox', 'h-621985805_scbox', 'h-1090119776_scbox', 'h236153484_scbox', 'h846315087_scbox', 'h1114811332_scbox', 'h304491112_scbox', 'h-2023622865_scbox', 'h739567116_scbox', 'h-1587722524_scbox', 'h1097546974_scbox', 'h131492791_scbox', 'h-574051247_scbox', 'h63329070_scbox', 'h1738329435_scbox', 'h-1961340872_scbox', 'h470607675_scbox', 'h-2143375048_scbox');
+
+/**
+ * Can get the ID of the button controlling
+ * a collapseable box by concatenating
+ * this string onto the ID of the box itself.
+ */
+var B_SFIX = "_button";
+
+
+/**
+ * Returns an element in the current HTML document.
+ * 
+ * @param elementID Identifier of HTML element
+ * @return               HTML element object
+ */
+function getElementObject(elementID) {
+    var elemObj = null;
+    if (document.getElementById) {
+        elemObj = document.getElementById(elementID);
+    }
+    return elemObj;
+}             
+
+/**
+ * Closes a collapseable box.
+ * 
+ * @param boxObj       Collapseable box
+ * @param buttonObj Button controlling box
+ */
+function closeBox(boxObj, buttonObj) {
+  if (boxObj == null || buttonObj == null) {
+     // Box or button not found
+  } else {
+     // Change 'display' CSS property of box
+     boxObj.style.display="none";
+
+     // Change text of button 
+     if (boxObj.style.display=="none") {
+        buttonObj.value=" + ";
+     }
+  }
+}
+
+/**
+ * Opens a collapseable box.
+ * 
+ * @param boxObj       Collapseable box
+ * @param buttonObj Button controlling box
+ */
+function openBox(boxObj, buttonObj) {
+  if (boxObj == null || buttonObj == null) {
+     // Box or button not found
+  } else {
+     // Change 'display' CSS property of box
+     boxObj.style.display="block";
+
+     // Change text of button
+     if (boxObj.style.display=="block") {
+        buttonObj.value=" - ";
+     }
+  }
+}
+
+/**
+ * Sets the state of a collapseable box.
+ * 
+ * @param boxID Identifier of box
+ * @param open If true, box is "opened",
+ *             Otherwise, box is "closed".
+ */
+function setState(boxID, open) {
+  var boxObj = getElementObject(boxID);
+  var buttonObj = getElementObject(boxID+B_SFIX);
+  if (boxObj == null || buttonObj == null) {
+     // Box or button not found
+  } else if (open) {
+     openBox(boxObj, buttonObj);
+     // Make button visible
+     buttonObj.style.display="inline";
+  } else {
+     closeBox(boxObj, buttonObj);
+     // Make button visible
+     buttonObj.style.display="inline";
+  }
+}
+
+/**
+ * Switches the state of a collapseable box, e.g.
+ * if it's opened, it'll be closed, and vice versa.
+ * 
+ * @param boxID Identifier of box
+ */
+function switchState(boxID) {
+  var boxObj = getElementObject(boxID);
+  var buttonObj = getElementObject(boxID+B_SFIX);
+  if (boxObj == null || buttonObj == null) {
+     // Box or button not found
+  } else if (boxObj.style.display=="none") {
+     // Box is closed, so open it
+     openBox(boxObj, buttonObj);
+  } else if (boxObj.style.display=="block") {
+     // Box is opened, so close it
+     closeBox(boxObj, buttonObj);
+  }
+}
+
+/**
+ * Closes all boxes in a given list.
+ * 
+ * @param boxList Array of box IDs
+ */
+function collapseAll(boxList) {
+  var idx;
+  for (idx = 0; idx < boxList.length; idx++) {
+     var boxObj = getElementObject(boxList[idx]);
+     var buttonObj = getElementObject(boxList[idx]+B_SFIX);
+     closeBox(boxObj, buttonObj);
+  }
+}
+
+/**
+ * Open all boxes in a given list.
+ * 
+ * @param boxList Array of box IDs
+ */
+function expandAll(boxList) {
+  var idx;
+  for (idx = 0; idx < boxList.length; idx++) {
+     var boxObj = getElementObject(boxList[idx]);
+     var buttonObj = getElementObject(boxList[idx]+B_SFIX);
+     openBox(boxObj, buttonObj);
+  }
+}
+
+/**
+ * Makes all the control buttons of boxes appear.
+ * 
+ * @param boxList Array of box IDs
+ */
+function viewControlButtons(boxList) {
+    var idx;
+    for (idx = 0; idx < boxList.length; idx++) {
+        buttonObj = getElementObject(boxList[idx]+B_SFIX);
+        if (buttonObj != null) {
+            buttonObj.style.display = "inline";
+        }
+    }
+}
+
+/**
+ * Makes all the control buttons of boxes disappear.
+ * 
+ * @param boxList Array of box IDs
+ */
+function hideControlButtons(boxList) {
+    var idx;
+    for (idx = 0; idx < boxList.length; idx++) {
+        buttonObj = getElementObject(boxList[idx]+B_SFIX);
+        if (buttonObj != null) {
+            buttonObj.style.display = "none";
+        }
+    }
+}
+
+/**
+ * Sets the page for either printing mode
+ * or viewing mode. In printing mode, the page
+ * is made to be more readable when printing it out.
+ * In viewing mode, the page is more browsable.
+ *
+ * @param isPrinterVersion If true, display in
+ *                                 printing mode; otherwise, 
+ *                                 in viewing mode
+ */
+function displayMode(isPrinterVersion) {
+    var obj;
+    if (isPrinterVersion) {
+        // Hide global control buttons
+        obj = getElementObject("globalControls");
+        if (obj != null) {
+            obj.style.visibility = "hidden";
+        }
+        // Hide Legend
+        obj = getElementObject("legend");
+        if (obj != null) {
+            obj.style.display = "none";
+        }
+        obj = getElementObject("legendTOC");
+        if (obj != null) {
+            obj.style.display = "none";
+        }
+        // Hide Glossary
+        obj = getElementObject("glossary");
+        if (obj != null) {
+            obj.style.display = "none";
+        }
+        obj = getElementObject("glossaryTOC");
+        if (obj != null) {
+            obj.style.display = "none";
+        }
+
+        // Expand all diagrams
+        expandAll(diagramBoxes);
+        // Expand all logical diagrams
+        expandAll(logicalDiagramBoxes);        
+        // Expand all XML Instance Representation tables
+        expandAll(xiBoxes);
+        // Expand all Schema Component Representation tables
+        expandAll(scBoxes);
+
+        // Hide Control buttons
+        hideControlButtons(diagramBoxes);
+        hideControlButtons(logicalDiagramBoxes);
+        hideControlButtons(xiBoxes);
+        hideControlButtons(scBoxes);
+    } else {
+        // View global control buttons
+        obj = getElementObject("globalControls");
+        if (obj != null) {
+            obj.style.visibility = "visible";
+        }
+        // View Legend
+        obj = getElementObject("legend");
+        if (obj != null) {
+            obj.style.display = "block";
+        }
+        obj = getElementObject("legendTOC");
+        if (obj != null) {
+            obj.style.display = "block";
+        }
+        // View Glossary
+        obj = getElementObject("glossary");
+        if (obj != null) {
+            obj.style.display = "block";
+        }
+        obj = getElementObject("glossaryTOC");
+        if (obj != null) {
+            obj.style.display = "block";
+        }
+
+        // Expand all diagram boxes
+        expandAll(diagramBoxes);
+        // Collapse all logical diagram boxes.
+        collapseAll(logicalDiagramBoxes);
+        // Expand all XML Instance Representation tables
+        expandAll(xiBoxes);
+        // Collapse all Schema Component Representation tables
+        collapseAll(scBoxes);
+
+        // View Control buttons
+        viewControlButtons(diagramBoxes);
+        viewControlButtons(logicalDiagramBoxes);
+        viewControlButtons(xiBoxes);
+        viewControlButtons(scBoxes);
+    }
+}
+
+
+
+// -->
+</script>
+      <script type="text/javascript">
+<!--
+          
+         
+/**
+ * Counter of documentation windows
+ * Used to give each window a unique name
+ */
+var windowCount = 0;
+         
+/**
+ * Opens up a window displaying the documentation
+ * of a schema component in the XML Instance
+ * Representation table.
+ * 
+ * @param compDesc      Description of schema component 
+ * @param compName      Name of schema component 
+ * @param docTextArray Array containing the paragraphs 
+ *                           of the new document
+ */
+function viewDocumentation(compDesc, compName, docTextArray) {
+  var width = 400;
+  var height = 200;
+  var locX = 100;
+  var locY = 200;
+
+  /* Generate content */
+  var actualText = "<html>";
+  actualText += "<head><title>";
+  actualText += compDesc;
+  if (compName != '') {
+     actualText += ": " + compName;
+  }
+  actualText += "</title></head>";
+  actualText += "<body bgcolor=\"#FFFFEE\">";
+  // Title
+  actualText += "<p style=\"font-family: Arial, sans-serif; font-size: 12pt; font-weight: bold; letter-spacing:1px;\">";
+  actualText += compDesc;
+  if (compName != '') {
+     actualText += ": <span style=\"color:#006699\">" + compName + "</span>";
+  }
+  actualText += "</p>";
+  // Documentation
+  var idx;
+  for (idx = 0; idx < docTextArray.length; idx++) {
+     actualText += "<p style=\"font-family: Arial, sans-serif; font-size: 10pt;\">" + docTextArray[idx] + "</p>";
+  }
+  // Link to close window
+  actualText += "<a href=\"javascript:void(0)\" onclick=\"window.close();\" style=\"font-family: Arial, sans-serif; font-size: 8pt;\">Close</a>";
+  actualText += "</body></html>";
+
+  /* Display window */
+  windowCount++;
+  var docWindow = window.open("", "documentation"+windowCount, "toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable,alwaysRaised,dependent,titlebar=no,width="+width+",height="+height+",screenX="+locX+",left="+locX+",screenY="+locY+",top="+locY);
+  docWindow.document.write(actualText);
+}         
+      
+// -->
+</script>
+   </head>
+   <body>
+      <h1>
+         <a name="top">Documentation for ome</a>
+      </h1>
+      <div style="float: right;">
+         <div id="printerControls" style="display:none;">
+            <input type="checkbox" onclick="displayMode(this.checked)"/>Printer-friendly Version</div>
+         <script type="text/javascript">
+<!--
+          
+var pc = getElementObject("printerControls");
+if (pc != null) {
+   pc.style.display="block";
+}
+               
+// -->
+</script>
+         <div id="globalControls" style="display:none">
+            <strong>Logical Diagram:</strong>
+            <br/>
+            <span style="margin-left: 1em; white-space: nowrap">[ <a href="javascript:void(0)" onclick="expandAll(logicalDiagramBoxes)">Expand All</a> | <a href="javascript:void(0)" onclick="collapseAll(logicalDiagramBoxes)">Collapse All</a> ]</span>
+            <br/>
+            <br/>
+            <strong>XML Instance Representation:</strong>
+            <br/>
+            <span style="margin-left: 1em; white-space: nowrap">[ <a href="javascript:void(0)" onclick="expandAll(xiBoxes)">Expand All</a> | <a href="javascript:void(0)" onclick="collapseAll(xiBoxes)">Collapse All</a> ]</span>
+            <br/>
+            <br/>
+            <strong>Diagram:</strong>
+            <br/>
+            <span style="margin-left: 1em; white-space: nowrap">[ <a href="javascript:void(0)" onclick="expandAll(diagramBoxes)">Expand All</a> | <a href="javascript:void(0)" onclick="collapseAll(diagramBoxes)">Collapse All</a> ]</span>
+            <br/>
+            <br/>
+            <strong>Schema Component Representation:</strong>
+            <br/>
+            <span style="margin-left: 1em; white-space: nowrap">[ <a href="javascript:void(0)" onclick="expandAll(scBoxes)">Expand All</a> | <a href="javascript:void(0)" onclick="collapseAll(scBoxes)">Collapse All</a> ]</span>
+         </div>
+         <script type="text/javascript">
+<!--
+          
+var gc = getElementObject("globalControls");
+if (gc != null) {
+   gc.style.display="block";
+}
+               
+// -->
+</script>
+      </div>
+      <h2>Table of Contents</h2>
+      <ul>
+         <li>
+            <a href="#SchemaProperties">Schema Document Properties</a>
+         </li>
+         <li>
+            <a href="#SchemaDeclarations">Global Declarations</a>
+            <ul>
+               <li>
+                  <a href="#h470607675">Element: <strong>ImageRef</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#h-621985805">Element: <strong>Plate</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#h-1090119776">Element: <strong>PlateRef</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#h846315087">Element: <strong>Reagent</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#h1114811332">Element: <strong>ReagentRef</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#h-2023622865">Element: <strong>Screen</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#h1097546974">Element: <strong>ScreenAcquisition</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#h-1587722524">Element: <strong>ScreenRef</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#h-574051247">Element: <strong>Well</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#h1738329435">Element: <strong>WellSample</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#h-2143375048">Element: <strong>WellSampleRef</strong>
+                  </a>
+               </li>
+            </ul>
+         </li>
+         <li>
+            <a href="#SchemaDefinitions">Global Definitions</a>
+            <ul>
+               <li>
+                  <a href="#h236153484">Simple Type: <strong>PlateID</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#h304491112">Simple Type: <strong>ReagentID</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#h131492791">Simple Type: <strong>ScreenAcquisitionID</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#h739567116">Simple Type: <strong>ScreenID</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#h63329070">Simple Type: <strong>WellID</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#h-1961340872">Simple Type: <strong>WellSampleID</strong>
+                  </a>
+               </li>
+            </ul>
+         </li>
+      </ul>
+      <ul id="legendTOC" style="margin-top: 0em">
+         <li>
+            <a href="#Legend">Legend</a>
+         </li>
+      </ul>
+      <ul id="glossaryTOC" style="margin-top: 0em">
+         <li>
+            <a href="#Glossary">Glossary</a>
+         </li>
+      </ul>
+      <h4>Master schema documentation file: 
+            <a href="ome.xsd.html">ome.xsd.html</a>
+      </h4>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h2>
+         <a name="SchemaProperties">Schema Document Properties</a>
+      </h2>
+      <table class="properties">
+         <tr>
+            <th>
+               <a title="Look up 'Target Namespace' in glossary"
+                  href="SPW.xsd.html#term_TargetNS">Target Namespace</a>
+            </th>
+            <td>
+               <span class="targetNS">http://www.openmicroscopy.org/Schemas/SPW/2007-06</span>
+            </td>
+         </tr>
+         <tr>
+            <th>Version</th>
+            <td>2</td>
+         </tr>
+         <tr>
+            <th>Element and Attribute Namespaces</th>
+            <td>
+               <ul>
+                  <li>Global element and attribute declarations belong to this schema's target namespace.</li>
+                  <li>By default, local element declarations belong to this schema's target namespace.</li>
+                  <li>By default, local attribute declarations have no namespace.</li>
+               </ul>
+            </td>
+         </tr>
+         <tr>
+            <th>Schema Composition</th>
+            <td>
+               <ul>
+                  <li>This schema imports schema(s) from the following namespace(s):<ul>
+                        <li>
+                           <em>http://www.openmicroscopy.org/Schemas/OME/2007-06</em> (at <a title="Jump to schema documentation for 'http://www.openmicroscopy.org/Schemas/OME/2007-06/ome.xsd'."
+                              href="ome.xsd.html">http://www.openmicroscopy.org/Schemas/OME/2007-06/ome.xsd</a>)</li>
+                        <li>
+                           <em>http://www.openmicroscopy.org/Schemas/AnalysisModule/2007-06</em> (at <a title="Jump to schema documentation for 'http://www.openmicroscopy.org/Schemas/AnalysisModule/2007-06/AnalysisModule.xsd'."
+                              href="AnalysisModule.xsd.html">http://www.openmicroscopy.org/Schemas/AnalysisModule/2007-06/AnalysisModule.xsd</a>)</li>
+                     </ul>
+                  </li>
+               </ul>
+            </td>
+         </tr>
+         <tr>
+            <th>Documentation</th>
+            <td class="documentation">
+            Open Microscopy Environment
+            Screen, Plate, and Well XML Schema
+            Author:  Andrew J Patterson
+        </td>
+         </tr>
+      </table>
+      <h3>Declared Namespaces</h3>
+      <table class="namespaces">
+         <tr>
+            <th>Prefix</th>
+            <th>Namespace</th>
+         </tr>
+         <tr>
+            <td>
+               <a name="ns_">Default namespace</a>
+            </td>
+            <td>
+               <span class="targetNS">http://www.openmicroscopy.org/Schemas/SPW/2007-06</span>
+            </td>
+         </tr>
+         <tr>
+            <td>
+               <a name="ns_AML">AML</a>
+            </td>
+            <td>http://www.openmicroscopy.org/Schemas/AnalysisModule/2007-06</td>
+         </tr>
+         <tr>
+            <td>
+               <a name="ns_xml">xml</a>
+            </td>
+            <td>http://www.w3.org/XML/1998/namespace</td>
+         </tr>
+         <tr>
+            <td>
+               <a name="ns_xsd">xsd</a>
+            </td>
+            <td>http://www.w3.org/2001/XMLSchema</td>
+         </tr>
+         <tr>
+            <td>
+               <a name="ns_OME">OME</a>
+            </td>
+            <td>http://www.openmicroscopy.org/Schemas/OME/2007-06</td>
+         </tr>
+      </table>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="schema_scbox_button" class="control"
+                   onclick="switchState('schema_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="schema_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:schema</span> 
+               <span class="scTag">targetNamespace</span>="<span class="scContent">http://www.openmicroscopy.org/Schemas/SPW/2007-06</span>" <span class="scTag">version</span>="<span class="scContent">2</span>" <span class="scTag">elementFormDefault</span>="<span class="scContent">qualified</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:import</span> 
+                  <span class="scTag">namespace</span>="<span class="scContent">http://www.openmicroscopy.org/Schemas/OME/2007-06</span>" <span class="scTag">schemaLocation</span>="<span class="scContent">http://www.openmicroscopy.org/Schemas/OME/2007-06/ome.xsd</span>"/&gt;</div>
+               <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:import</span> 
+                  <span class="scTag">namespace</span>="<span class="scContent">http://www.openmicroscopy.org/Schemas/AnalysisModule/2007-06</span>" <span class="scTag">schemaLocation</span>="<span class="scContent">http://www.openmicroscopy.org/Schemas/AnalysisModule/2007-06/AnalysisModule.xsd</span>"/&gt;</div>
+               <div class="scContent" style="margin-left: 1.5em">...</div>&lt;/<span class="scTag">xsd:schema</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('schema_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h2>
+         <a name="SchemaDeclarations">Global Declarations</a>
+      </h2>
+      <h3>Element: <a name="h470607675" class="name">ImageRef</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>ImageRef</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#h1738329435">WellSample</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary" href="SPW.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary" href="SPW.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>Documentation</th>
+            <td class="documentation">
+                The ImageRef element is a reference to a OME:Image element.
+            </td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h470607675_logicalDiagram_button" class="control"
+                   onclick="switchState('h470607675_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="h470607675_logicalDiagram" class="contents">
+            <img usemap="#h1704627332" src="schemaDiagrams/h1704627332.png"/>
+            <!--
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h1704627332.map--><map name="h1704627332">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h470607675_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h470607675_xibox_button" class="control"
+                   onclick="switchState('h470607675_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="h470607675_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;ImageRef<br/>
+               <span style="margin-left: 0.5em"> ID="<span class="type">
+                     <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;ImageID&#34; type definition(located in external schema documentation)."
+                        href="ome.xsd.html#h-1653163119"
+                        class="externalLink">ImageID</a>
+                  </span> 
+                  <span class="occurs">[1]</span>"</span>/&gt; </div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h470607675_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h470607675_diagram_button" class="control"
+                   onclick="switchState('h470607675_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="h470607675_diagram" class="contents">
+            <img usemap="#h1180292026" src="schemaDiagrams/h1180292026.png"/>
+            <!--
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h1180292026.map--><map name="h1180292026">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h470607675_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="h470607675_scbox_button" class="control"
+                   onclick="switchState('h470607675_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="h470607675_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:element</span> 
+               <span class="scTag">name</span>="<span class="scContent">ImageRef</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexContent</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:extension</span> 
+                        <span class="scTag">base</span>="<span class="scContent">
+                           <span class="type">
+                              <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;Reference&#34; type definition(located in external schema documentation)."
+                                 href="ome.xsd.html#h401516646"
+                                 class="externalLink">Reference</a>
+                           </span>
+                        </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                           <span class="scTag">name</span>="<span class="scContent">ID</span>" <span class="scTag">type</span>="<span class="scContent">
+                              <span class="type">
+                                 <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;ImageID&#34; type definition(located in external schema documentation)."
+                                    href="ome.xsd.html#h-1653163119"
+                                    class="externalLink">ImageID</a>
+                              </span>
+                           </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>&lt;/<span class="scTag">xsd:extension</span>&gt;</div>&lt;/<span class="scTag">xsd:complexContent</span>&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>&lt;/<span class="scTag">xsd:element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h470607675_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="h-621985805" class="name">Plate</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>Plate</td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary" href="SPW.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary" href="SPW.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>Documentation</th>
+            <td class="documentation">
+                This element identifies microtiter plates within a screen.
+                A plate can belong to more than one screen.
+                The Screen(s) that a plate belongs to are specified by the ScreenRef element.
+                The Plate ID and Name attributes are required.
+				The Wells in a plate are numbers from the top-left corner in a grid starting at zero.
+				i.e The top-left well of a plate is index (0,0)
+            </td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h-621985805_logicalDiagram_button" class="control"
+                   onclick="switchState('h-621985805_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="h-621985805_logicalDiagram" class="contents">
+            <img usemap="#h1936933752" src="schemaDiagrams/h1936933752.png"/>
+            <!--
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h1936933752.map--><map name="h1936933752">
+               <area shape="rect" alt="h-1587722524" coords="436,265,786,324"
+                     href="SPW.xsd.html#h-1587722524"/>
+
+               <area shape="rect" alt="h-574051247" coords="436,334,786,393"
+                     href="SPW.xsd.html#h-574051247"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h-621985805_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h-621985805_xibox_button" class="control"
+                   onclick="switchState('h-621985805_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="h-621985805_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;Plate<br/>
+               <span style="margin-left: 0.5em"> ID="<span class="type">
+                     <a title="Jump to &#34;PlateID&#34; type definition." href="#h236153484">PlateID</a>
+                  </span> 
+                  <span class="occurs">[1]</span>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Name="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> 
+                  <span class="occurs">[1]</span> 
+                  <p class="documentation">'The Name identifies the plate to the user. It is used much like the ID, and so must be unique within the document.'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Description="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> 
+                  <span class="occurs">[0..1]</span>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Status="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'A textual annotation of the current state of the plate with respect to the experiment work-flow; e.g. 1. Seed cell: done; 2. Transfection: done; 3. Gel doc: todo.'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> ExternalIdentifier="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'The ExternalIdentifier attribute may contain a reference to an external database.'</p>"</span>&gt; <br/>
+               <div style="margin-left: 1.5em">&lt;<a title="Jump to &#34;ScreenRef&#34; element declaration." href="#h-1587722524">ScreenRef</a>&gt; ... &lt;/<a title="Jump to &#34;ScreenRef&#34; element declaration." href="#h-1587722524">ScreenRef</a>&gt; <span class="occurs">[0..*]</span>
+               </div>
+               <div style="margin-left: 1.5em">&lt;<a title="Jump to &#34;Well&#34; element declaration." href="#h-574051247">Well</a>&gt; ... &lt;/<a title="Jump to &#34;Well&#34; element declaration." href="#h-574051247">Well</a>&gt; <span class="occurs">[0..*]</span>
+               </div>&lt;/Plate&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h-621985805_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h-621985805_diagram_button" class="control"
+                   onclick="switchState('h-621985805_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="h-621985805_diagram" class="contents">
+            <img usemap="#h1503541250" src="schemaDiagrams/h1503541250.png"/>
+            <!--
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h1503541250.map--><map name="h1503541250">
+               <area shape="rect" alt="h-1587722524" coords="249,0,368,42"
+                     href="SPW.xsd.html#h-1587722524"/>
+
+               <area shape="rect" alt="h-574051247" coords="249,52,333,94"
+                     href="SPW.xsd.html#h-574051247"/>
+
+               <area shape="rect" alt="h236153484" coords="163,104,257,130"
+                     href="SPW.xsd.html#h236153484"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h-621985805_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="h-621985805_scbox_button" class="control"
+                   onclick="switchState('h-621985805_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="h-621985805_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:element</span> 
+               <span class="scTag">name</span>="<span class="scContent">Plate</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a title="Jump to &#34;ScreenRef&#34; element declaration." href="#h-1587722524">ScreenRef</a>
+                        </span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">unbounded</span>"/&gt;</div>
+                     <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a title="Jump to &#34;Well&#34; element declaration." href="#h-574051247">Well</a>
+                        </span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">unbounded</span>"/&gt;</div>&lt;/<span class="scTag">xsd:sequence</span>&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">ID</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a title="Jump to &#34;PlateID&#34; type definition." href="#h236153484">PlateID</a>
+                        </span>
+                     </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Name</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span>
+                     </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Description</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span>
+                     </span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Status</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span>
+                     </span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">ExternalIdentifier</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span>
+                     </span>"/&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>&lt;/<span class="scTag">xsd:element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h-621985805_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="h-1090119776" class="name">PlateRef</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>PlateRef</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#h-2023622865">Screen</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary" href="SPW.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary" href="SPW.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>Documentation</th>
+            <td class="documentation">
+                The PlateRef element is a reference to a Plate element.
+                Screen elements may have one or more PlateRef elements to define the plates that are part of the screen.
+                Plates may belong to more than one screen.
+            </td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h-1090119776_logicalDiagram_button" class="control"
+                   onclick="switchState('h-1090119776_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="h-1090119776_logicalDiagram" class="contents">
+            <img usemap="#h1007218431" src="schemaDiagrams/h1007218431.png"/>
+            <!--
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h1007218431.map--><map name="h1007218431">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h-1090119776_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h-1090119776_xibox_button" class="control"
+                   onclick="switchState('h-1090119776_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="h-1090119776_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;PlateRef<br/>
+               <span style="margin-left: 0.5em"> ID="<span class="type">
+                     <a title="Jump to &#34;PlateID&#34; type definition." href="#h236153484">PlateID</a>
+                  </span> 
+                  <span class="occurs">[1]</span>"</span>/&gt; </div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h-1090119776_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h-1090119776_diagram_button" class="control"
+                   onclick="switchState('h-1090119776_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="h-1090119776_diagram" class="contents">
+            <img usemap="#h482883125" src="schemaDiagrams/h482883125.png"/>
+            <!--
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h482883125.map--><map name="h482883125">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h-1090119776_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="h-1090119776_scbox_button" class="control"
+                   onclick="switchState('h-1090119776_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="h-1090119776_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:element</span> 
+               <span class="scTag">name</span>="<span class="scContent">PlateRef</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexContent</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:extension</span> 
+                        <span class="scTag">base</span>="<span class="scContent">
+                           <span class="type">
+                              <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;Reference&#34; type definition(located in external schema documentation)."
+                                 href="ome.xsd.html#h401516646"
+                                 class="externalLink">Reference</a>
+                           </span>
+                        </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                           <span class="scTag">name</span>="<span class="scContent">ID</span>" <span class="scTag">type</span>="<span class="scContent">
+                              <span class="type">
+                                 <a title="Jump to &#34;PlateID&#34; type definition." href="#h236153484">PlateID</a>
+                              </span>
+                           </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>&lt;/<span class="scTag">xsd:extension</span>&gt;</div>&lt;/<span class="scTag">xsd:complexContent</span>&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>&lt;/<span class="scTag">xsd:element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h-1090119776_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="h846315087" class="name">Reagent</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>Reagent</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#h-2023622865">Screen</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary" href="SPW.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary" href="SPW.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>Documentation</th>
+            <td class="documentation">
+                Reagent is used to describe a chemical or some other physical experimental parameter.
+            </td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h846315087_logicalDiagram_button" class="control"
+                   onclick="switchState('h846315087_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="h846315087_logicalDiagram" class="contents">
+            <img usemap="#h1496112668" src="schemaDiagrams/h1496112668.png"/>
+            <!--
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h1496112668.map--><map name="h1496112668">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h846315087_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h846315087_xibox_button" class="control"
+                   onclick="switchState('h846315087_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="h846315087_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;Reagent<br/>
+               <span style="margin-left: 0.5em"> ID="<span class="type">
+                     <a title="Jump to &#34;ReagentID&#34; type definition." href="#h304491112">ReagentID</a>
+                  </span> 
+                  <span class="occurs">[1]</span>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Description="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'A long description for the reagent'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Name="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'A short name for the reagent'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> ReagentIdentifier="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'This is a reference to an external (to OME) representation of the Reagent. It serves as a foreign key into an external database. - It is sometimes refereed to as ExternalIdentifier.'</p>"</span>/&gt; </div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h846315087_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h846315087_diagram_button" class="control"
+                   onclick="switchState('h846315087_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="h846315087_diagram" class="contents">
+            <img usemap="#h1617745958" src="schemaDiagrams/h1617745958.png"/>
+            <!--
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h1617745958.map--><map name="h1617745958">
+               <area shape="rect" alt="h304491112" coords="177,0,271,26"
+                     href="SPW.xsd.html#h304491112"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h846315087_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="h846315087_scbox_button" class="control"
+                   onclick="switchState('h846315087_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="h846315087_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:element</span> 
+               <span class="scTag">name</span>="<span class="scContent">Reagent</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">ID</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a title="Jump to &#34;ReagentID&#34; type definition." href="#h304491112">ReagentID</a>
+                        </span>
+                     </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Description</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span>
+                     </span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Name</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span>
+                     </span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">ReagentIdentifier</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span>
+                     </span>"/&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>&lt;/<span class="scTag">xsd:element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h846315087_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="h1114811332" class="name">ReagentRef</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>ReagentRef</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#h-574051247">Well</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary" href="SPW.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary" href="SPW.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h1114811332_logicalDiagram_button" class="control"
+                   onclick="switchState('h1114811332_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="h1114811332_logicalDiagram" class="contents">
+            <img usemap="#h-1778671141" src="schemaDiagrams/h-1778671141.png"/>
+            <!--
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-1778671141.map--><map name="h-1778671141">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h1114811332_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h1114811332_xibox_button" class="control"
+                   onclick="switchState('h1114811332_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="h1114811332_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;ReagentRef<br/>
+               <span style="margin-left: 0.5em"> ID="<span class="type">
+                     <a title="Jump to &#34;ReagentID&#34; type definition." href="#h304491112">ReagentID</a>
+                  </span> 
+                  <span class="occurs">[1]</span>"</span>/&gt; </div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h1114811332_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h1114811332_diagram_button" class="control"
+                   onclick="switchState('h1114811332_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="h1114811332_diagram" class="contents">
+            <img usemap="#h1141240721" src="schemaDiagrams/h1141240721.png"/>
+            <!--
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h1141240721.map--><map name="h1141240721">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h1114811332_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="h1114811332_scbox_button" class="control"
+                   onclick="switchState('h1114811332_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="h1114811332_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:element</span> 
+               <span class="scTag">name</span>="<span class="scContent">ReagentRef</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexContent</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:extension</span> 
+                        <span class="scTag">base</span>="<span class="scContent">
+                           <span class="type">
+                              <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;Reference&#34; type definition(located in external schema documentation)."
+                                 href="ome.xsd.html#h401516646"
+                                 class="externalLink">Reference</a>
+                           </span>
+                        </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                           <span class="scTag">name</span>="<span class="scContent">ID</span>" <span class="scTag">type</span>="<span class="scContent">
+                              <span class="type">
+                                 <a title="Jump to &#34;ReagentID&#34; type definition." href="#h304491112">ReagentID</a>
+                              </span>
+                           </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>&lt;/<span class="scTag">xsd:extension</span>&gt;</div>&lt;/<span class="scTag">xsd:complexContent</span>&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>&lt;/<span class="scTag">xsd:element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h1114811332_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="h-2023622865" class="name">Screen</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>Screen</td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary" href="SPW.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary" href="SPW.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>Documentation</th>
+            <td class="documentation">
+                The Screen element is a grouping for Plates.
+                The required attribute is the Screen's Name and ID - both must be unique within the document.
+                The Screen element may contain an ExternalRef attribute that refers to an external database.
+                A description of the screen may be specified in the Description element.
+                Screens may contain overlapping sets of Plates i.e.  Screens and Plates have a many-to-many relationship.
+                Plates contain one or more ScreenRef elements to specify what screens they belong to.
+            </td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h-2023622865_logicalDiagram_button" class="control"
+                   onclick="switchState('h-2023622865_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="h-2023622865_logicalDiagram" class="contents">
+            <img usemap="#h-1137559920" src="schemaDiagrams/h-1137559920.png"/>
+            <!--
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-1137559920.map--><map name="h-1137559920">
+               <area shape="rect" alt="h1538002713" coords="436,371,786,447"
+                     href="SPW.xsd.html#h1538002713"/>
+
+               <area shape="rect" alt="h846315087" coords="436,457,786,516"
+                     href="SPW.xsd.html#h846315087"/>
+
+               <area shape="rect" alt="h-1090119776" coords="436,526,786,585"
+                     href="SPW.xsd.html#h-1090119776"/>
+
+               <area shape="rect" alt="h1097546974" coords="436,595,786,654"
+                     href="SPW.xsd.html#h1097546974"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h-2023622865_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h-2023622865_xibox_button" class="control"
+                   onclick="switchState('h-2023622865_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="h-2023622865_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;Screen<br/>
+               <span style="margin-left: 0.5em"> ID="<span class="type">
+                     <a title="Jump to &#34;ScreenID&#34; type definition." href="#h739567116">ScreenID</a>
+                  </span> 
+                  <span class="occurs">[1]</span>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Name="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> 
+                  <span class="occurs">[1]</span>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> ProtocolIdentifier="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'A pointer to an externally defined protocol, usually in a screening database.'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> ProtocolDescription="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'A description of the screen protocol; may contain very detailed information to reproduce some of that found in a screening database.'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> ReagentSetDescription="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'A description of the set of reagents; may contain very detailed information to reproduce some of that information found in a screening database.'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> ReagentSetIdentifier="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'A pointer to an externally defined set of reagents, usually in a screening database/automation database.'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Type="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'A human readable identifier for the screen type; e.g. RNAi, cDNA, SiRNA, etc. This string is likely to become an enumeration in future releases.'</p>"</span>&gt; <br/>
+               <div style="margin-left: 1.5em">&lt;<a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;Description&#34; element declaration(located in external schema documentation)."
+                     href="ome.xsd.html#h1538002713"
+                     class="externalLink">Description</a>&gt; ... &lt;/<a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;Description&#34; element declaration(located in external schema documentation)."
+                     href="ome.xsd.html#h1538002713"
+                     class="externalLink">Description</a>&gt; <span class="occurs">[0..1]</span>
+               </div>
+               <div style="margin-left: 1.5em">&lt;<a title="Jump to &#34;Reagent&#34; element declaration." href="#h846315087">Reagent</a>&gt; ... &lt;/<a title="Jump to &#34;Reagent&#34; element declaration." href="#h846315087">Reagent</a>&gt; <span class="occurs">[0..*]</span>
+               </div>
+               <div style="margin-left: 1.5em">&lt;<a title="Jump to &#34;PlateRef&#34; element declaration." href="#h-1090119776">PlateRef</a>&gt; ... &lt;/<a title="Jump to &#34;PlateRef&#34; element declaration." href="#h-1090119776">PlateRef</a>&gt; <span class="occurs">[0..*]</span>
+               </div>
+               <div style="margin-left: 1.5em">&lt;<a title="Jump to &#34;ScreenAcquisition&#34; element declaration." href="#h1097546974">ScreenAcquisition</a>&gt; ... &lt;/<a title="Jump to &#34;ScreenAcquisition&#34; element declaration." href="#h1097546974">ScreenAcquisition</a>&gt; <span class="occurs">[0..*]</span>
+               </div>&lt;/Screen&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h-2023622865_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h-2023622865_diagram_button" class="control"
+                   onclick="switchState('h-2023622865_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="h-2023622865_diagram" class="contents">
+            <img usemap="#h-1687825594" src="schemaDiagrams/h-1687825594.png"/>
+            <!--
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-1687825594.map--><map name="h-1687825594">
+               <area shape="rect" alt="h1538002713" coords="256,0,417,42"
+                     href="ome.xsd.html#h1538002713"/>
+
+               <area shape="rect" alt="h846315087" coords="256,52,361,94"
+                     href="SPW.xsd.html#h846315087"/>
+
+               <area shape="rect" alt="h-1090119776" coords="256,104,368,146"
+                     href="SPW.xsd.html#h-1090119776"/>
+
+               <area shape="rect" alt="h1097546974" coords="256,156,431,198"
+                     href="SPW.xsd.html#h1097546974"/>
+
+               <area shape="rect" alt="h739567116" coords="170,208,264,234"
+                     href="SPW.xsd.html#h739567116"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h-2023622865_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="h-2023622865_scbox_button" class="control"
+                   onclick="switchState('h-2023622865_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="h-2023622865_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:element</span> 
+               <span class="scTag">name</span>="<span class="scContent">Screen</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;Description&#34; element declaration(located in external schema documentation)."
+                              href="ome.xsd.html#h1538002713"
+                              class="externalLink">Description</a>
+                        </span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div>
+                     <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a title="Jump to &#34;Reagent&#34; element declaration." href="#h846315087">Reagent</a>
+                        </span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">unbounded</span>"/&gt;</div>
+                     <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a title="Jump to &#34;PlateRef&#34; element declaration." href="#h-1090119776">PlateRef</a>
+                        </span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">unbounded</span>"/&gt;</div>
+                     <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a title="Jump to &#34;ScreenAcquisition&#34; element declaration." href="#h1097546974">ScreenAcquisition</a>
+                        </span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">unbounded</span>"/&gt;</div>&lt;/<span class="scTag">xsd:sequence</span>&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">ID</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a title="Jump to &#34;ScreenID&#34; type definition." href="#h739567116">ScreenID</a>
+                        </span>
+                     </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Name</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span>
+                     </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">ProtocolIdentifier</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span>
+                     </span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">ProtocolDescription</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span>
+                     </span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">ReagentSetDescription</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span>
+                     </span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">ReagentSetIdentifier</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span>
+                     </span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Type</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span>
+                     </span>"/&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>&lt;/<span class="scTag">xsd:element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h-2023622865_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="h1097546974" class="name">ScreenAcquisition</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>ScreenAcquisition</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#h-2023622865">Screen</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary" href="SPW.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary" href="SPW.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>Documentation</th>
+            <td class="documentation">
+                ScreenAcquisition is used to describe a single acquisition run for a screen.
+                Since Screens are abstract, this object is used to record the set of images
+                acquired in a single acquisition run.  The Images for this run are linked
+                to ScreenAcquisition through WellSample.
+            </td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h1097546974_logicalDiagram_button" class="control"
+                   onclick="switchState('h1097546974_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="h1097546974_logicalDiagram" class="contents">
+            <img usemap="#h-507445075" src="schemaDiagrams/h-507445075.png"/>
+            <!--
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-507445075.map--><map name="h-507445075">
+               <area shape="rect" alt="h-2143375048" coords="436,159,786,218"
+                     href="SPW.xsd.html#h-2143375048"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h1097546974_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h1097546974_xibox_button" class="control"
+                   onclick="switchState('h1097546974_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="h1097546974_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;ScreenAcquisition<br/>
+               <span style="margin-left: 0.5em"> ID="<span class="type">
+                     <a title="Jump to &#34;ScreenAcquisitionID&#34; type definition." href="#h131492791">ScreenAcquisitionID</a>
+                  </span> 
+                  <span class="occurs">[1]</span>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> EndTime="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:dateTime</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'Time when the last image of this acquisition was collected'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> StartTime="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:dateTime</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'Time when the first image of this acquisition was collected'</p>"</span>&gt; <br/>
+               <div style="margin-left: 1.5em">&lt;<a title="Jump to &#34;WellSampleRef&#34; element declaration." href="#h-2143375048">WellSampleRef</a>&gt; ... &lt;/<a title="Jump to &#34;WellSampleRef&#34; element declaration." href="#h-2143375048">WellSampleRef</a>&gt; <span class="occurs">[0..*]</span>
+               </div>&lt;/ScreenAcquisition&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h1097546974_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h1097546974_diagram_button" class="control"
+                   onclick="switchState('h1097546974_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="h1097546974_diagram" class="contents">
+            <img usemap="#h1304393271" src="schemaDiagrams/h1304393271.png"/>
+            <!--
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h1304393271.map--><map name="h1304393271">
+               <area shape="rect" alt="h-2143375048" coords="333,0,480,42"
+                     href="SPW.xsd.html#h-2143375048"/>
+
+               <area shape="rect" alt="h131492791" coords="247,52,341,78"
+                     href="SPW.xsd.html#h131492791"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h1097546974_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="h1097546974_scbox_button" class="control"
+                   onclick="switchState('h1097546974_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="h1097546974_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:element</span> 
+               <span class="scTag">name</span>="<span class="scContent">ScreenAcquisition</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a title="Jump to &#34;WellSampleRef&#34; element declaration." href="#h-2143375048">WellSampleRef</a>
+                        </span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">unbounded</span>"/&gt;</div>&lt;/<span class="scTag">xsd:sequence</span>&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">ID</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a title="Jump to &#34;ScreenAcquisitionID&#34; type definition." href="#h131492791">ScreenAcquisitionID</a>
+                        </span>
+                     </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">EndTime</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:dateTime</span>
+                     </span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">StartTime</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:dateTime</span>
+                     </span>"/&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>&lt;/<span class="scTag">xsd:element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h1097546974_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="h-1587722524" class="name">ScreenRef</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>ScreenRef</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#h-621985805">Plate</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary" href="SPW.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary" href="SPW.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>Documentation</th>
+            <td class="documentation">
+                The ScreenRef element is a reference to a Screen element.
+                Plate elements may have one or more ScreenRef elements to define the screen that a plate belongs to.
+                Plates may belong to more than one screen.
+            </td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h-1587722524_logicalDiagram_button" class="control"
+                   onclick="switchState('h-1587722524_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="h-1587722524_logicalDiagram" class="contents">
+            <img usemap="#h-1056176921" src="schemaDiagrams/h-1056176921.png"/>
+            <!--
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-1056176921.map--><map name="h-1056176921">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h-1587722524_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h-1587722524_xibox_button" class="control"
+                   onclick="switchState('h-1587722524_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="h-1587722524_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;ScreenRef<br/>
+               <span style="margin-left: 0.5em"> ID="<span class="type">
+                     <a title="Jump to &#34;ScreenID&#34; type definition." href="#h739567116">ScreenID</a>
+                  </span> 
+                  <span class="occurs">[1]</span>"</span>/&gt; </div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h-1587722524_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h-1587722524_diagram_button" class="control"
+                   onclick="switchState('h-1587722524_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="h-1587722524_diagram" class="contents">
+            <img usemap="#h-130702223" src="schemaDiagrams/h-130702223.png"/>
+            <!--
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-130702223.map--><map name="h-130702223">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h-1587722524_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="h-1587722524_scbox_button" class="control"
+                   onclick="switchState('h-1587722524_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="h-1587722524_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:element</span> 
+               <span class="scTag">name</span>="<span class="scContent">ScreenRef</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexContent</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:extension</span> 
+                        <span class="scTag">base</span>="<span class="scContent">
+                           <span class="type">
+                              <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;Reference&#34; type definition(located in external schema documentation)."
+                                 href="ome.xsd.html#h401516646"
+                                 class="externalLink">Reference</a>
+                           </span>
+                        </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                           <span class="scTag">name</span>="<span class="scContent">ID</span>" <span class="scTag">type</span>="<span class="scContent">
+                              <span class="type">
+                                 <a title="Jump to &#34;ScreenID&#34; type definition." href="#h739567116">ScreenID</a>
+                              </span>
+                           </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>&lt;/<span class="scTag">xsd:extension</span>&gt;</div>&lt;/<span class="scTag">xsd:complexContent</span>&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>&lt;/<span class="scTag">xsd:element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h-1587722524_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="h-574051247" class="name">Well</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>Well</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#h-621985805">Plate</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary" href="SPW.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary" href="SPW.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>Documentation</th>
+            <td class="documentation">
+                A Well is a component of the Well/Plate/Screen construct to describe screening applications.
+                A Well has a number of WellSample elements that link to the Images collected in this well.
+ 				The ReagentRef links any Reagents that were used in this Well. A well is part of one or more Plates.
+				The origin for the row and column identifiers is the top left corner of the plate starting at zero.
+				i.e The top left well of a plate is index (0,0)
+            </td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h-574051247_logicalDiagram_button" class="control"
+                   onclick="switchState('h-574051247_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="h-574051247_logicalDiagram" class="contents">
+            <img usemap="#h963029678" src="schemaDiagrams/h963029678.png"/>
+            <!--
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h963029678.map--><map name="h963029678">
+               <area shape="rect" alt="h1738329435" coords="436,318,786,377"
+                     href="SPW.xsd.html#h1738329435"/>
+
+               <area shape="rect" alt="h1114811332" coords="436,387,786,446"
+                     href="SPW.xsd.html#h1114811332"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h-574051247_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h-574051247_xibox_button" class="control"
+                   onclick="switchState('h-574051247_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="h-574051247_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;Well<br/>
+               <span style="margin-left: 0.5em"> ID="<span class="type">
+                     <a title="Jump to &#34;WellID&#34; type definition." href="#h63329070">WellID</a>
+                  </span> 
+                  <span class="occurs">[1]</span>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Column="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:integer</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'This is the column index of the well, the origin is the top left corner of the plate with the first column of cells being column zero. i.e top left is (0,0)'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> ExternalDescription="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'A description of the externally defined identifier for this plate.'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> ExternalIdentifier="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'The ExternalIdentifier attribute may contain a reference to an external database.'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Row="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:integer</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'This is the row index of the well, the origin is the top left corner of the plate with the first row of wells being row zero. i.e top left is (0,0)'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Type="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'A human readable identifier for the screening status. e.g. empty, positive control, negative control, control, experimental, etc. This string is likely to become an enumeration in future releases.'</p>"</span>&gt; <br/>
+               <div style="margin-left: 1.5em">&lt;<a title="Jump to &#34;WellSample&#34; element declaration." href="#h1738329435">WellSample</a>&gt; ... &lt;/<a title="Jump to &#34;WellSample&#34; element declaration." href="#h1738329435">WellSample</a>&gt; <span class="occurs">[0..*]</span>
+               </div>
+               <div style="margin-left: 1.5em">&lt;<a title="Jump to &#34;ReagentRef&#34; element declaration." href="#h1114811332">ReagentRef</a>&gt; ... &lt;/<a title="Jump to &#34;ReagentRef&#34; element declaration." href="#h1114811332">ReagentRef</a>&gt; <span class="occurs">[0..1]</span>
+               </div>&lt;/Well&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h-574051247_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h-574051247_diagram_button" class="control"
+                   onclick="switchState('h-574051247_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="h-574051247_diagram" class="contents">
+            <img usemap="#h-1960444700" src="schemaDiagrams/h-1960444700.png"/>
+            <!--
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-1960444700.map--><map name="h-1960444700">
+               <area shape="rect" alt="h1738329435" coords="242,0,368,42"
+                     href="SPW.xsd.html#h1738329435"/>
+
+               <area shape="rect" alt="h1114811332" coords="242,52,368,94"
+                     href="SPW.xsd.html#h1114811332"/>
+
+               <area shape="rect" alt="h63329070" coords="156,104,250,130"
+                     href="SPW.xsd.html#h63329070"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h-574051247_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="h-574051247_scbox_button" class="control"
+                   onclick="switchState('h-574051247_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="h-574051247_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:element</span> 
+               <span class="scTag">name</span>="<span class="scContent">Well</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a title="Jump to &#34;WellSample&#34; element declaration." href="#h1738329435">WellSample</a>
+                        </span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">unbounded</span>"/&gt;</div>
+                     <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a title="Jump to &#34;ReagentRef&#34; element declaration." href="#h1114811332">ReagentRef</a>
+                        </span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div>&lt;/<span class="scTag">xsd:sequence</span>&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">ID</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a title="Jump to &#34;WellID&#34; type definition." href="#h63329070">WellID</a>
+                        </span>
+                     </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Column</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:integer</span>
+                     </span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">ExternalDescription</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span>
+                     </span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">ExternalIdentifier</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span>
+                     </span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Row</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:integer</span>
+                     </span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Type</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span>
+                     </span>"/&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>&lt;/<span class="scTag">xsd:element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h-574051247_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="h1738329435" class="name">WellSample</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>WellSample</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#h-574051247">Well</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary" href="SPW.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary" href="SPW.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>Documentation</th>
+            <td class="documentation">
+				WellSample is an individual image that has been captured within a Well.
+            </td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h1738329435_logicalDiagram_button" class="control"
+                   onclick="switchState('h1738329435_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="h1738329435_logicalDiagram" class="contents">
+            <img usemap="#h228132836" src="schemaDiagrams/h228132836.png"/>
+            <!--
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h228132836.map--><map name="h228132836">
+               <area shape="rect" alt="h470607675" coords="436,265,786,324"
+                     href="SPW.xsd.html#h470607675"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h1738329435_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h1738329435_xibox_button" class="control"
+                   onclick="switchState('h1738329435_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="h1738329435_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;WellSample<br/>
+               <span style="margin-left: 0.5em"> ID="<span class="type">
+                     <a title="Jump to &#34;WellSampleID&#34; type definition." href="#h-1961340872">WellSampleID</a>
+                  </span> 
+                  <span class="occurs">[1]</span>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Index="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:integer</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'This is the main link to the core Image element'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> PosX="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:float</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'The X position of the image within the well'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> PosY="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:float</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'The Y position of the image within the well'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Timepoint="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:integer</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'The time-point at which the image started to be collected'</p>"</span>&gt; <br/>
+               <div style="margin-left: 1.5em">&lt;<a title="Jump to &#34;ImageRef&#34; element declaration." href="#h470607675">ImageRef</a>&gt; ... &lt;/<a title="Jump to &#34;ImageRef&#34; element declaration." href="#h470607675">ImageRef</a>&gt; <span class="occurs">[0..1]</span>
+               </div>&lt;/WellSample&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h1738329435_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h1738329435_diagram_button" class="control"
+                   onclick="switchState('h1738329435_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="h1738329435_diagram" class="contents">
+            <img usemap="#h-1146922598" src="schemaDiagrams/h-1146922598.png"/>
+            <!--
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-1146922598.map--><map name="h-1146922598">
+               <area shape="rect" alt="h470607675" coords="284,0,396,42"
+                     href="SPW.xsd.html#h470607675"/>
+
+               <area shape="rect" alt="h-1961340872" coords="198,52,292,78"
+                     href="SPW.xsd.html#h-1961340872"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h1738329435_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="h1738329435_scbox_button" class="control"
+                   onclick="switchState('h1738329435_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="h1738329435_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:element</span> 
+               <span class="scTag">name</span>="<span class="scContent">WellSample</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a title="Jump to &#34;ImageRef&#34; element declaration." href="#h470607675">ImageRef</a>
+                        </span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div>&lt;/<span class="scTag">xsd:sequence</span>&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">ID</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a title="Jump to &#34;WellSampleID&#34; type definition." href="#h-1961340872">WellSampleID</a>
+                        </span>
+                     </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Index</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:integer</span>
+                     </span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">PosX</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:float</span>
+                     </span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">PosY</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:float</span>
+                     </span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Timepoint</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:integer</span>
+                     </span>"/&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>&lt;/<span class="scTag">xsd:element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h1738329435_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="h-2143375048" class="name">WellSampleRef</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>WellSampleRef</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#h1097546974">ScreenAcquisition</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary" href="SPW.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary" href="SPW.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>Documentation</th>
+            <td class="documentation">
+                The WellSampleRef element is a reference to a WellSample element.
+            </td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h-2143375048_logicalDiagram_button" class="control"
+                   onclick="switchState('h-2143375048_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="h-2143375048_logicalDiagram" class="contents">
+            <img usemap="#h-1928477933" src="schemaDiagrams/h-1928477933.png"/>
+            <!--
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-1928477933.map--><map name="h-1928477933">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h-2143375048_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h-2143375048_xibox_button" class="control"
+                   onclick="switchState('h-2143375048_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="h-2143375048_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;WellSampleRef<br/>
+               <span style="margin-left: 0.5em"> ID="<span class="type">
+                     <a title="Jump to &#34;WellSampleID&#34; type definition." href="#h-1961340872">WellSampleID</a>
+                  </span> 
+                  <span class="occurs">[1]</span>"</span>/&gt; </div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h-2143375048_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h-2143375048_diagram_button" class="control"
+                   onclick="switchState('h-2143375048_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="h-2143375048_diagram" class="contents">
+            <img usemap="#h-806842979" src="schemaDiagrams/h-806842979.png"/>
+            <!--
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-806842979.map--><map name="h-806842979">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h-2143375048_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="h-2143375048_scbox_button" class="control"
+                   onclick="switchState('h-2143375048_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="h-2143375048_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:element</span> 
+               <span class="scTag">name</span>="<span class="scContent">WellSampleRef</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexContent</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:extension</span> 
+                        <span class="scTag">base</span>="<span class="scContent">
+                           <span class="type">
+                              <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;Reference&#34; type definition(located in external schema documentation)."
+                                 href="ome.xsd.html#h401516646"
+                                 class="externalLink">Reference</a>
+                           </span>
+                        </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                           <span class="scTag">name</span>="<span class="scContent">ID</span>" <span class="scTag">type</span>="<span class="scContent">
+                              <span class="type">
+                                 <a title="Jump to &#34;WellSampleID&#34; type definition." href="#h-1961340872">WellSampleID</a>
+                              </span>
+                           </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>&lt;/<span class="scTag">xsd:extension</span>&gt;</div>&lt;/<span class="scTag">xsd:complexContent</span>&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>&lt;/<span class="scTag">xsd:element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h-2143375048_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h2>
+         <a name="SchemaDefinitions">Global Definitions</a>
+      </h2>
+      <h3>Simple Type: <a name="h236153484" class="name">PlateID</a>
+      </h3>
+      <table class="hierarchy">
+         <tr>
+            <th>Super-types:</th>
+            <td>
+               <span class="type">
+                  <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;LSID&#34; type definition(located in external schema documentation)."
+                     href="ome.xsd.html#h518154951"
+                     class="externalLink">LSID</a>
+               </span> &lt; <strong>PlateID</strong> (by restriction)</td>
+         </tr>
+         <tr>
+            <th>Sub-types:</th>
+            <td>None</td>
+         </tr>
+      </table>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>PlateID</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#h-621985805">Plate</a>
+               </b>, Element <b>
+                  <a href="#h-1090119776">PlateRef</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Content</th>
+            <td>
+               <ul>
+                  <li>Base XSD Type: string</li>
+               </ul>
+               <ul>
+                  <li>
+                     <em>pattern</em> = (urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:\S+:\S+)|(\S+:\S+)</li>
+               </ul>
+               <ul>
+                  <li>
+                     <em>pattern</em> = (urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:Plate:\S+)|(Plate:\S+)</li>
+               </ul>
+            </td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h236153484_diagram_button" class="control"
+                   onclick="switchState('h236153484_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="h236153484_diagram" class="contents">
+            <img usemap="#h860669897" src="schemaDiagrams/h860669897.png"/>
+            <!--
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h860669897.map--><map name="h860669897">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h236153484_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="h236153484_scbox_button" class="control"
+                   onclick="switchState('h236153484_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="h236153484_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:simpleType</span> 
+               <span class="scTag">name</span>="<span class="scContent">PlateID</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:restriction</span> 
+                  <span class="scTag">base</span>="<span class="scContent">
+                     <span class="type">
+                        <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;LSID&#34; type definition(located in external schema documentation)."
+                           href="ome.xsd.html#h518154951"
+                           class="externalLink">LSID</a>
+                     </span>
+                  </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:pattern</span> 
+                     <span class="scTag">value</span>="<span class="scContent">(urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:Plate:\S+)|(Plate:\S+)</span>"/&gt;</div>&lt;/<span class="scTag">xsd:restriction</span>&gt;</div>&lt;/<span class="scTag">xsd:simpleType</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h236153484_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Simple Type: <a name="h304491112" class="name">ReagentID</a>
+      </h3>
+      <table class="hierarchy">
+         <tr>
+            <th>Super-types:</th>
+            <td>
+               <span class="type">
+                  <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;LSID&#34; type definition(located in external schema documentation)."
+                     href="ome.xsd.html#h518154951"
+                     class="externalLink">LSID</a>
+               </span> &lt; <strong>ReagentID</strong> (by restriction)</td>
+         </tr>
+         <tr>
+            <th>Sub-types:</th>
+            <td>None</td>
+         </tr>
+      </table>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>ReagentID</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#h846315087">Reagent</a>
+               </b>, Element <b>
+                  <a href="#h1114811332">ReagentRef</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Content</th>
+            <td>
+               <ul>
+                  <li>Base XSD Type: string</li>
+               </ul>
+               <ul>
+                  <li>
+                     <em>pattern</em> = (urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:\S+:\S+)|(\S+:\S+)</li>
+               </ul>
+               <ul>
+                  <li>
+                     <em>pattern</em> = (urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:Reagent:\S+)|(Reagent:\S+)</li>
+               </ul>
+            </td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h304491112_diagram_button" class="control"
+                   onclick="switchState('h304491112_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="h304491112_diagram" class="contents">
+            <img usemap="#h-37538195" src="schemaDiagrams/h-37538195.png"/>
+            <!--
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-37538195.map--><map name="h-37538195">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h304491112_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="h304491112_scbox_button" class="control"
+                   onclick="switchState('h304491112_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="h304491112_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:simpleType</span> 
+               <span class="scTag">name</span>="<span class="scContent">ReagentID</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:restriction</span> 
+                  <span class="scTag">base</span>="<span class="scContent">
+                     <span class="type">
+                        <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;LSID&#34; type definition(located in external schema documentation)."
+                           href="ome.xsd.html#h518154951"
+                           class="externalLink">LSID</a>
+                     </span>
+                  </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:pattern</span> 
+                     <span class="scTag">value</span>="<span class="scContent">(urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:Reagent:\S+)|(Reagent:\S+)</span>"/&gt;</div>&lt;/<span class="scTag">xsd:restriction</span>&gt;</div>&lt;/<span class="scTag">xsd:simpleType</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h304491112_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Simple Type: <a name="h131492791" class="name">ScreenAcquisitionID</a>
+      </h3>
+      <table class="hierarchy">
+         <tr>
+            <th>Super-types:</th>
+            <td>
+               <span class="type">
+                  <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;LSID&#34; type definition(located in external schema documentation)."
+                     href="ome.xsd.html#h518154951"
+                     class="externalLink">LSID</a>
+               </span> &lt; <strong>ScreenAcquisitionID</strong> (by restriction)</td>
+         </tr>
+         <tr>
+            <th>Sub-types:</th>
+            <td>None</td>
+         </tr>
+      </table>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>ScreenAcquisitionID</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#h1097546974">ScreenAcquisition</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Content</th>
+            <td>
+               <ul>
+                  <li>Base XSD Type: string</li>
+               </ul>
+               <ul>
+                  <li>
+                     <em>pattern</em> = (urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:\S+:\S+)|(\S+:\S+)</li>
+               </ul>
+               <ul>
+                  <li>
+                     <em>pattern</em> = (urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:ScreenAcquisition:\S+)|(ScreenAcquisition:\S+)</li>
+               </ul>
+            </td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h131492791_diagram_button" class="control"
+                   onclick="switchState('h131492791_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="h131492791_diagram" class="contents">
+            <img usemap="#h-2016880194" src="schemaDiagrams/h-2016880194.png"/>
+            <!--
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-2016880194.map--><map name="h-2016880194">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h131492791_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="h131492791_scbox_button" class="control"
+                   onclick="switchState('h131492791_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="h131492791_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:simpleType</span> 
+               <span class="scTag">name</span>="<span class="scContent">ScreenAcquisitionID</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:restriction</span> 
+                  <span class="scTag">base</span>="<span class="scContent">
+                     <span class="type">
+                        <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;LSID&#34; type definition(located in external schema documentation)."
+                           href="ome.xsd.html#h518154951"
+                           class="externalLink">LSID</a>
+                     </span>
+                  </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:pattern</span> 
+                     <span class="scTag">value</span>="<span class="scContent">(urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:ScreenAcquisition:\S+)|(ScreenAcquisition:\S+)</span>"/&gt;</div>&lt;/<span class="scTag">xsd:restriction</span>&gt;</div>&lt;/<span class="scTag">xsd:simpleType</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h131492791_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Simple Type: <a name="h739567116" class="name">ScreenID</a>
+      </h3>
+      <table class="hierarchy">
+         <tr>
+            <th>Super-types:</th>
+            <td>
+               <span class="type">
+                  <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;LSID&#34; type definition(located in external schema documentation)."
+                     href="ome.xsd.html#h518154951"
+                     class="externalLink">LSID</a>
+               </span> &lt; <strong>ScreenID</strong> (by restriction)</td>
+         </tr>
+         <tr>
+            <th>Sub-types:</th>
+            <td>None</td>
+         </tr>
+      </table>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>ScreenID</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#h-2023622865">Screen</a>
+               </b>, Element <b>
+                  <a href="#h-1587722524">ScreenRef</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Content</th>
+            <td>
+               <ul>
+                  <li>Base XSD Type: string</li>
+               </ul>
+               <ul>
+                  <li>
+                     <em>pattern</em> = (urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:\S+:\S+)|(\S+:\S+)</li>
+               </ul>
+               <ul>
+                  <li>
+                     <em>pattern</em> = (urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:Screen:\S+)|(Screen:\S+)</li>
+               </ul>
+            </td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h739567116_diagram_button" class="control"
+                   onclick="switchState('h739567116_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="h739567116_diagram" class="contents">
+            <img usemap="#h-880731063" src="schemaDiagrams/h-880731063.png"/>
+            <!--
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-880731063.map--><map name="h-880731063">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h739567116_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="h739567116_scbox_button" class="control"
+                   onclick="switchState('h739567116_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="h739567116_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:simpleType</span> 
+               <span class="scTag">name</span>="<span class="scContent">ScreenID</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:restriction</span> 
+                  <span class="scTag">base</span>="<span class="scContent">
+                     <span class="type">
+                        <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;LSID&#34; type definition(located in external schema documentation)."
+                           href="ome.xsd.html#h518154951"
+                           class="externalLink">LSID</a>
+                     </span>
+                  </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:pattern</span> 
+                     <span class="scTag">value</span>="<span class="scContent">(urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:Screen:\S+)|(Screen:\S+)</span>"/&gt;</div>&lt;/<span class="scTag">xsd:restriction</span>&gt;</div>&lt;/<span class="scTag">xsd:simpleType</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h739567116_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Simple Type: <a name="h63329070" class="name">WellID</a>
+      </h3>
+      <table class="hierarchy">
+         <tr>
+            <th>Super-types:</th>
+            <td>
+               <span class="type">
+                  <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;LSID&#34; type definition(located in external schema documentation)."
+                     href="ome.xsd.html#h518154951"
+                     class="externalLink">LSID</a>
+               </span> &lt; <strong>WellID</strong> (by restriction)</td>
+         </tr>
+         <tr>
+            <th>Sub-types:</th>
+            <td>None</td>
+         </tr>
+      </table>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>WellID</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#h-574051247">Well</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Content</th>
+            <td>
+               <ul>
+                  <li>Base XSD Type: string</li>
+               </ul>
+               <ul>
+                  <li>
+                     <em>pattern</em> = (urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:\S+:\S+)|(\S+:\S+)</li>
+               </ul>
+               <ul>
+                  <li>
+                     <em>pattern</em> = (urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:Well:\S+)|(Well:\S+)</li>
+               </ul>
+            </td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h63329070_diagram_button" class="control"
+                   onclick="switchState('h63329070_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="h63329070_diagram" class="contents">
+            <img usemap="#h-76313113" src="schemaDiagrams/h-76313113.png"/>
+            <!--
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-76313113.map--><map name="h-76313113">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h63329070_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="h63329070_scbox_button" class="control"
+                   onclick="switchState('h63329070_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="h63329070_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:simpleType</span> 
+               <span class="scTag">name</span>="<span class="scContent">WellID</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:restriction</span> 
+                  <span class="scTag">base</span>="<span class="scContent">
+                     <span class="type">
+                        <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;LSID&#34; type definition(located in external schema documentation)."
+                           href="ome.xsd.html#h518154951"
+                           class="externalLink">LSID</a>
+                     </span>
+                  </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:pattern</span> 
+                     <span class="scTag">value</span>="<span class="scContent">(urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:Well:\S+)|(Well:\S+)</span>"/&gt;</div>&lt;/<span class="scTag">xsd:restriction</span>&gt;</div>&lt;/<span class="scTag">xsd:simpleType</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h63329070_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Simple Type: <a name="h-1961340872" class="name">WellSampleID</a>
+      </h3>
+      <table class="hierarchy">
+         <tr>
+            <th>Super-types:</th>
+            <td>
+               <span class="type">
+                  <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;LSID&#34; type definition(located in external schema documentation)."
+                     href="ome.xsd.html#h518154951"
+                     class="externalLink">LSID</a>
+               </span> &lt; <strong>WellSampleID</strong> (by restriction)</td>
+         </tr>
+         <tr>
+            <th>Sub-types:</th>
+            <td>None</td>
+         </tr>
+      </table>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>WellSampleID</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#h1738329435">WellSample</a>
+               </b>, Element <b>
+                  <a href="#h-2143375048">WellSampleRef</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Content</th>
+            <td>
+               <ul>
+                  <li>Base XSD Type: string</li>
+               </ul>
+               <ul>
+                  <li>
+                     <em>pattern</em> = (urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:\S+:\S+)|(\S+:\S+)</li>
+               </ul>
+               <ul>
+                  <li>
+                     <em>pattern</em> = (urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:WellSample:\S+)|(WellSample:\S+)</li>
+               </ul>
+            </td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="h-1961340872_diagram_button" class="control"
+                   onclick="switchState('h-1961340872_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="h-1961340872_diagram" class="contents">
+            <img usemap="#h-1394504035" src="schemaDiagrams/h-1394504035.png"/>
+            <!--
+            Map ref: file:/Applications/oxygen.9.1/NewDocs2007-07-V2//schemaDiagrams/h-1394504035.map--><map name="h-1394504035">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h-1961340872_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="h-1961340872_scbox_button" class="control"
+                   onclick="switchState('h-1961340872_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="h-1961340872_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:simpleType</span> 
+               <span class="scTag">name</span>="<span class="scContent">WellSampleID</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:restriction</span> 
+                  <span class="scTag">base</span>="<span class="scContent">
+                     <span class="type">
+                        <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;LSID&#34; type definition(located in external schema documentation)."
+                           href="ome.xsd.html#h518154951"
+                           class="externalLink">LSID</a>
+                     </span>
+                  </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:pattern</span> 
+                     <span class="scTag">value</span>="<span class="scContent">(urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:WellSample:\S+)|(WellSample:\S+)</span>"/&gt;</div>&lt;/<span class="scTag">xsd:restriction</span>&gt;</div>&lt;/<span class="scTag">xsd:simpleType</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('h-1961340872_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <div id="legend">
+         <h2>
+            <a name="Legend">Legend</a>
+         </h2>
+         <div style="float: left; width: 15em;">
+            <h3 style="margin-bottom: 0px;">Complex Type:</h3>
+            <div class="hint" style="margin-left: 0em;">Schema Component Type</div>
+         </div>
+         <div style="float: left; width: 15em;">
+            <h3 style="margin-bottom: 0px;">
+               <span class="name">AusAddress</span>
+            </h3>
+            <div class="hint" style="margin-left: 0em;">Schema Component Name</div>
+         </div>
+         <table class="hierarchy" style="clear : both">
+            <tr>
+               <th>Super-types:</th>
+               <td>
+                  <span class="type" style="color: #0000FF; text-decoration:underline;">Address</span> &lt; <span class="current">AusAddress</span> (by extension)</td>
+            </tr>
+            <tr>
+               <th>Sub-types:</th>
+               <td>
+                  <ul>
+                     <li>
+                        <span class="type" style="color: #0000FF; text-decoration:underline;">QLDAddress</span> (by restriction)</li>
+                  </ul>
+               </td>
+            </tr>
+         </table>
+         <div class="hint">If this schema component is a type definition, its type hierarchy is shown in a gray-bordered box.</div>
+         <table class="properties">
+            <tr>
+               <th>Name</th>
+               <td>AusAddress</td>
+            </tr>
+            <tr>
+               <th>
+                  <a title="Look up 'Abstract' in glossary" href="SPW.xsd.html#term_Abstract">Abstract</a>
+               </th>
+               <td>no</td>
+            </tr>
+         </table>
+         <div class="hint">The table above displays the properties of this schema component.</div>
+         <div class="sample box">
+            <div>
+               <span class="caption">XML Instance Representation</span>
+            </div>
+            <div class="contents">
+               <span style="margin-left: 0em">&lt;...</span>
+               <span class="newFields">
+                  <span> country="<span class="fixed">Australia</span>"</span>
+               </span>&gt; <br/>
+               <span style="margin-left: 1.5em" class="inherited">&lt;unitNo&gt; <span class="type">string</span> &lt;/unitNo&gt; <span class="occurs">[0..1]</span>
+               </span>
+               <br/>
+               <span style="margin-left: 1.5em" class="inherited">&lt;houseNo&gt; <span class="type">string</span> &lt;/houseNo&gt; <span class="occurs">[1]</span>
+               </span>
+               <br/>
+               <span style="margin-left: 1.5em" class="inherited">&lt;street&gt; <span class="type">string</span> &lt;/street&gt; <span class="occurs">[1]</span>
+               </span>
+               <br/>
+               <span class="group" style="margin-left: 1.5em">Start <a title="Look up 'Choice' in glossary" href="#term_Choice">Choice</a>
+                  <span class="occurs">[1]</span>
+               </span>
+               <br/>
+               <span style="margin-left: 3em" class="inherited">&lt;city&gt; <span class="type">string</span> &lt;/city&gt; <span class="occurs">[1]</span>
+               </span>
+               <br/>
+               <span style="margin-left: 3em" class="inherited">&lt;town&gt; <span class="type">string</span> &lt;/town&gt; <span class="occurs">[1]</span>
+               </span>
+               <br/>
+               <span class="group" style="margin-left: 1.5em">End Choice</span>
+               <br/>
+               <span class="newFields">
+                  <span style="margin-left: 1.5em">&lt;state&gt; <span class="type" style="text-decoration:underline;">AusStates</span> &lt;/state&gt; <span class="occurs">[1]</span>
+                  </span>
+                  <br/>
+                  <span style="margin-left: 1.5em">&lt;postcode&gt; <span class="constraint">string &lt;&lt;<em>pattern</em> = [1-9][0-9]{3}&gt;&gt;</span> &lt;/postcode&gt; <span class="occurs">[1]</span>
+                     <a href="javascript:void(0)" title="View Documentation" class="documentation"
+                        onclick="docArray = new Array('Post code must be a four-digit number.'); viewDocumentation('Element', 'postcode', docArray);">?</a>
+                  </span>
+                  <br/>
+               </span>
+               <span style="margin-left: 0em">&lt;/...&gt;</span>
+               <br/>
+            </div>
+         </div>
+         <div class="hint">
+            <p>The XML Instance Representation table above shows the schema component's content as an XML instance.</p>
+            <ul>
+               <li>The minimum and maximum occurrence of elements and attributes are provided in square brackets, e.g. [0..1].</li>
+               <li>Model group information are shown in gray, e.g. Start Choice ... End Choice.</li>
+               <li>For type derivations, the elements and attributes that have been added to or changed from the base type's content are shown in <span style="font-weight: bold">bold</span>.</li>
+               <li>If an element/attribute has a fixed value, the fixed value is shown in green, e.g. country="Australia".</li>
+               <li>Otherwise, the type of the element/attribute is displayed.
+               <ul>
+                     <li>If the element/attribute's type is in the schema, a link is provided to it.</li>
+                     <li>For local simple type definitions, the constraints are displayed in angle brackets, e.g. &lt;&lt;<em>pattern</em> = [1-9][0-9]{3}&gt;&gt;.</li>
+                  </ul>
+               </li>
+               <li>If a local element/attribute has documentation, it will be displayed in a window that pops up when the question mark inside the attribute or next to the element is clicked, e.g. &lt;postcode&gt;.</li>
+            </ul>
+         </div>
+         <div class="schemaComponent box">
+            <div>
+               <span class="caption">Schema Component Representation</span>
+            </div>
+            <div class="contents">
+               <span style="margin-left: 0em">&lt;<span class="scTag">complexType</span>
+                  <span class="scTag">name</span>="<span class="scContent">AusAddress</span>"&gt;</span>
+               <br/>
+               <span style="margin-left: 1.5em">&lt;<span class="scTag">complexContent</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 3em">&lt;<span class="scTag">extension</span>
+                  <span class="scTag">base</span>="<span class="scContent">
+                     <span class="type" style="text-decoration:underline;">Address</span>
+                  </span>"&gt;</span>
+               <br/>
+               <span style="margin-left: 4.5em">&lt;<span class="scTag">sequence</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 6em">&lt;<span class="scTag">element</span>
+                  <span class="scTag">name</span>="<span class="scContent">state</span>" <span class="scTag">type</span>="<span class="scContent">
+                     <span class="type" style="text-decoration:underline;">AusStates</span>
+                  </span>"/&gt;</span>
+               <br/>
+               <span style="margin-left: 6em">&lt;<span class="scTag">element</span>
+                  <span class="scTag">name</span>="<span class="scContent">postcode</span>"&gt;</span>
+               <br/>
+               <span style="margin-left: 7.5em">&lt;<span class="scTag">simpleType</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 9em">&lt;<span class="scTag">restriction</span>
+                  <span class="scTag">base</span>="<span class="scContent">
+                     <span class="type">string</span>
+                  </span>"&gt;</span>
+               <br/>
+               <span style="margin-left: 10.5em">&lt;<span class="scTag">pattern</span>
+                  <span class="scTag">value</span>="<span class="scContent">[1-9][0-9]{3}</span>"/&gt;</span>
+               <br/>
+               <span style="margin-left: 9em">&lt;/<span class="scTag">restriction</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 7.5em">&lt;/<span class="scTag">simpleType</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 6em">&lt;/<span class="scTag">element</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 4.5em">&lt;/<span class="scTag">sequence</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 4.5em">&lt;<span class="scTag">attribute</span>
+                  <span class="scTag">name</span>="<span class="scContent">country</span>" <span class="scTag">type</span>="<span class="scContent">
+                     <span class="type">string</span>
+                  </span>" <span class="scTag">fixed</span>="<span class="scContent">Australia</span>"/&gt;</span>
+               <br/>
+               <span style="margin-left: 3em">&lt;/<span class="scTag">extension</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 1.5em">&lt;/<span class="scTag">complexContent</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 0em">&lt;/<span class="scTag">complexType</span>&gt;</span>
+               <br/>
+            </div>
+         </div>
+         <div class="hint">The Schema Component Representation table above displays the underlying XML representation of the schema component. (Annotations are not shown.)</div>
+         <div style="text-align: right; clear: both;">
+            <a href="#top">top</a>
+         </div>
+         <hr/>
+      </div>
+      <div id="glossary">
+         <h2>
+            <a name="Glossary">Glossary</a>
+         </h2>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_Abstract">Abstract</a> 
+            </span>(Applies to complex type definitions and element declarations). An abstract element or complex type cannot used to validate an element instance. If there is a reference to an abstract element, only element declarations that can substitute the abstract element can be used to validate the instance. For references to abstract type definitions, only derived types can be used.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_All">All Model Group</a> 
+            </span>Child elements can be provided <em>in any order</em> in instances. See: <a title="http://www.w3.org/TR/xmlschema-1/#element-all"
+               href="http://www.w3.org/TR/xmlschema-1/#element-all">http://www.w3.org/TR/xmlschema-1/#element-all</a>.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_Choice">Choice Model Group</a> 
+            </span>
+            <em>Only one</em> from the list of child elements and model groups can be provided in instances. See: <a title="http://www.w3.org/TR/xmlschema-1/#element-choice"
+               href="http://www.w3.org/TR/xmlschema-1/#element-choice">http://www.w3.org/TR/xmlschema-1/#element-choice</a>.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_CollapseWS">Collapse Whitespace Policy</a> 
+            </span>Replace tab, line feed, and carriage return characters with space character (Unicode character 32). Then, collapse contiguous sequences of space characters into single space character, and remove leading and trailing space characters.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_ElemBlock">Disallowed Substitutions</a> 
+            </span>(Applies to element declarations). If <em>substitution</em> is specified, then <a title="Look up 'substitution group' in glossary"
+               href="SPW.xsd.html#term_SubGroup">substitution group</a> members cannot be used in place of the given element declaration to validate element instances. If <em>derivation methods</em>, e.g. extension, restriction, are specified, then the given element declaration will not validate element instances that have types derived from the element declaration's type using the specified derivation methods. Normally, element instances can override their declaration's type by specifying an <code>xsi:type</code> attribute.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_Key">Key Constraint</a> 
+            </span>Like <a title="Look up 'Uniqueness Constraint' in glossary"
+               href="SPW.xsd.html#term_Unique">Uniqueness Constraint</a>, but additionally requires that the specified value(s) must be provided. See: <a title="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions"
+               href="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions">http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions</a>.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_KeyRef">Key Reference Constraint</a> 
+            </span>Ensures that the specified value(s) must match value(s) from a <a title="Look up 'Key Constraint' in glossary" href="SPW.xsd.html#term_Key">Key Constraint</a> or <a title="Look up 'Uniqueness Constraint' in glossary"
+               href="SPW.xsd.html#term_Unique">Uniqueness Constraint</a>. See: <a title="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions"
+               href="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions">http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions</a>.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_ModelGroup">Model Group</a> 
+            </span>Groups together element content, specifying the order in which the element content can occur and the number of times the group of element content may be repeated. See: <a title="http://www.w3.org/TR/xmlschema-1/#Model_Groups"
+               href="http://www.w3.org/TR/xmlschema-1/#Model_Groups">http://www.w3.org/TR/xmlschema-1/#Model_Groups</a>.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_Nillable">Nillable</a> 
+            </span>(Applies to element declarations). If an element declaration is nillable, instances can use the <code>xsi:nil</code> attribute. The <code>xsi:nil</code> attribute is the boolean attribute, <em>nil</em>, from the <em>http://www.w3.org/2001/XMLSchema-instance</em> namespace. If an element instance has an <code>xsi:nil</code> attribute set to true, it can be left empty, even though its element declaration may have required content.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_Notation">Notation</a> 
+            </span>A notation is used to identify the format of a piece of data. Values of elements and attributes that are of type, NOTATION, must come from the names of declared notations. See: <a title="http://www.w3.org/TR/xmlschema-1/#cNotation_Declarations"
+               href="http://www.w3.org/TR/xmlschema-1/#cNotation_Declarations">http://www.w3.org/TR/xmlschema-1/#cNotation_Declarations</a>.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_PreserveWS">Preserve Whitespace Policy</a> 
+            </span>Preserve whitespaces exactly as they appear in instances.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_TypeFinal">Prohibited Derivations</a> 
+            </span>(Applies to type definitions). Derivation methods that cannot be used to create sub-types from a given type definition.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_TypeBlock">Prohibited Substitutions</a> 
+            </span>(Applies to complex type definitions). Prevents sub-types that have been derived using the specified derivation methods from validating element instances in place of the given type definition.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_ReplaceWS">Replace Whitespace Policy</a> 
+            </span>Replace tab, line feed, and carriage return characters with space character (Unicode character 32).</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_Sequence">Sequence Model Group</a> 
+            </span>Child elements and model groups must be provided <em>in the specified order</em> in instances. See: <a title="http://www.w3.org/TR/xmlschema-1/#element-sequence"
+               href="http://www.w3.org/TR/xmlschema-1/#element-sequence">http://www.w3.org/TR/xmlschema-1/#element-sequence</a>.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_SubGroup">Substitution Group</a> 
+            </span>Elements that are <em>members</em> of a substitution group can be used wherever the <em>head</em> element of the substitution group is referenced.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_ElemFinal">Substitution Group Exclusions</a> 
+            </span>(Applies to element declarations). Prohibits element declarations from nominating themselves as being able to substitute a given element declaration, if they have types that are derived from the original element's type using the specified derivation methods.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_TargetNS">Target Namespace</a> 
+            </span>The target namespace identifies the namespace that components in this schema belongs to. If no target namespace is provided, then the schema components do not belong to any namespace.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_Unique">Uniqueness Constraint</a> 
+            </span>Ensures uniqueness of an element/attribute value, or a combination of values, within a specified scope. See: <a title="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions"
+               href="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions">http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions</a>.</p>
+         <div style="text-align: right; clear: both;">
+            <a href="#top">top</a>
+         </div>
+         <hr/>
+      </div>
+      <p class="footer">Generated by <a href="http://www.oxygenxml.com">&lt;oXygen/&gt; XML Editor</a> using a modified version of <a href="http://titanium.dstc.edu.au/xml/xs3p">xs3p</a> that adds schema diagrams and chunking support. Last modified: <script type="text/javascript">
+<!--
+          document.write(document.lastModified);
+// -->
+</script>
+      </p>
+   </body>
+</html>
