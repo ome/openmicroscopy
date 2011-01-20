@@ -54,6 +54,7 @@
 	<property name="OmeroJava.comp"     value="${tools.comp}/OmeroJava"/>
 	<property name="OmeroImporter.comp"     value="${tools.comp}/OmeroImporter"/>
 	<property name="OmeroImageJ.comp"     value="${tools.comp}/OmeroImageJ/Omero_ImageJ"/>
+	<property name="OmeroInsight.comp"     value="${tools.comp}/OmeroInsight"/>
 	<property name="OmeroWeb.comp"     value="${tools.comp}/OmeroWeb"/>
 	<property name="OmeroPy.comp"     value="${tools.comp}/OmeroPy"/>
 	<property name="OmeroFs.comp"     value="${tools.comp}/OmeroFS"/>
@@ -80,6 +81,9 @@
 	</path>
 	<path id="OmeroImageJ.buildpath">
 	  <pathelement location="${OmeroImageJ.comp}/build.xml"/>
+	</path>
+	<path id="OmeroInsight.buildpath">
+	  <pathelement location="${OmeroInsight.comp}/build.xml"/>
 	</path>
 	<path id="OmeroWeb.buildpath">
 	  <pathelement location="${OmeroWeb.comp}/build.xml"/>

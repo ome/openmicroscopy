@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project name="insight" default="dist" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# $Id$
+#
+# Copyright 2011 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore, josh at glencoesoftware.com
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+-->
+    <description>
+        Build framework for the OmeroInsight GUI code. The shipped application
+        is primarily built through the Eclipse .project and .classpath files,
+        but this build is here to allow continuous integration testing.
+    </description>
+
+    <!-- Overrides! -->
+    <property name="src.dir"         value="${basedir}/SRC" />
+    <property name="test.dir"         value="${basedir}/TEST" />
+
+    <property name="import.dir" value="${basedir}/../antlib/resources"/>
+    <import file="${import.dir}/global.xml"/>
+    <import file="${import.dir}/lifecycle.xml"/>
+
+</project>

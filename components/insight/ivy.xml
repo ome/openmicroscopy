@@ -1,0 +1,30 @@
+<ivy-module version="1.0">
+  <info
+      organisation="omero"
+      module="OmeroInsight"
+      status="integration"/>
+  <configurations>
+    <conf name="build"/>
+    <conf name="client"/>
+  </configurations>
+  <publications>
+    <artifact name="OmeroInsight" type="jar"/>
+  </publications>
+  <dependencies defaultconfmapping="build,client->default">
+    <!-- Internal -->
+    <dependency org="omero" name="blitz" rev="${omero.version}" changing="true" conf="build->build;client->client"/>
+    <!-- Loci -->
+    <!-- TODO: copied from OmeroImporter -->
+    <dependency org="OME" name="bio-formats" rev="${versions.bio-formats}"/>
+    <dependency org="OME" name="loci-common" rev="${versions.bio-formats}"/>
+    <dependency org="loci" name="xalan" rev="${versions.xalan}"/>
+    <dependency org="loci" name="serializer" rev="${versions.xalan}"/>
+    <dependency org="loci" name="poi-loci" rev="${versions.bio-formats}"/>
+    <dependency org="loci" name="ome-xml" rev="${versions.bio-formats}"/>
+    <dependency org="loci" name="mdbtools-java" rev="${versions.bio-formats}"/>
+    <dependency org="loci" name="jai_imageio" rev="${versions.bio-formats}"/>
+    <dependency org="loci" name="bufr" rev="1.1.00"/>
+    <dependency org="loci" name="grib" rev="5.1.03"/>
+    <dependency org="loci" name="netcdf" rev="4.0"/>
+  </dependencies>
+</ivy-module>

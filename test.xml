@@ -8,6 +8,7 @@
   </publications>
   <dependencies>
     <dependency name="blitz-test" rev="${omero.version}" changing="true" conf="test->test"/>
+    <dependency name="insight-test" rev="${omero.version}" changing="true" conf="test->test"/>
     <dependency name="OmeroImporter-test" rev="${omero.version}" changing="true" conf="test->test"/>
   </dependencies>
 </ivy-module>
