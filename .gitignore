@@ -25,6 +25,7 @@
 !/lib/repository/omero/postgresql
 target
 config.log
+scons.log
 *.dylib
 *.exe
 *.lo
