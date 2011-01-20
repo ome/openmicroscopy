@@ -1,0 +1,3120 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+   <head>
+      <title>XML Schema Documentation - AnalysisModule.xsd</title>
+      <meta http-equiv="Content-Type" content="text/xml; charset=UTF-8"/>
+      <style type="text/css">
+@import url(auto-gen-doc.css);
+</style>
+      <script type="text/javascript">
+<!--
+          /* IDs of XML Instance Representation boxes */
+var xiBoxes = new Array('element_Entry_xibox', 'element_LookupTable_xibox', 'element_FormalInput_xibox', 'element_FormalOutput_xibox', 'element_Declaration_xibox', 'element_AnalysisModule_xibox', 'element_InstallationScript_xibox', 'element_InstallationFile_xibox', 'element_Installed_xibox', 'element_Program_xibox', 'element_AnalysisModuleLibrary_xibox', 'type_Hex40_xibox', 'type_ModuleID_xibox', 'type_LSID_xibox', 'element_Description_xibox', 'element_Category_xibox');
+/* IDs of diagram boxes */
+var diagramBoxes = new Array('element_Entry_diagram', 'element_LookupTable_diagram', 'element_FormalInput_diagram', 'element_FormalOutput_diagram', 'element_Declaration_diagram', 'element_AnalysisModule_diagram', 'element_InstallationScript_diagram', 'element_InstallationFile_diagram', 'element_Installed_diagram', 'element_Program_diagram', 'element_AnalysisModuleLibrary_diagram', 'type_Hex40_diagram', 'type_ModuleID_diagram', 'type_LSID_diagram', 'element_Description_diagram', 'element_Category_diagram');
+/* IDs of logical diagram boxes */
+var logicalDiagramBoxes = new Array('element_Entry_logicalDiagram', 'element_LookupTable_logicalDiagram', 'element_FormalInput_logicalDiagram', 'element_FormalOutput_logicalDiagram', 'element_Declaration_logicalDiagram', 'element_AnalysisModule_logicalDiagram', 'element_InstallationScript_logicalDiagram', 'element_InstallationFile_logicalDiagram', 'element_Installed_logicalDiagram', 'element_Program_logicalDiagram', 'element_AnalysisModuleLibrary_logicalDiagram', 'element_Description_logicalDiagram', 'element_Category_logicalDiagram');
+/* IDs of Schema Component Representation boxes */
+var scBoxes = new Array('schema_scbox', 'element_Entry_scbox', 'element_LookupTable_scbox', 'element_FormalInput_scbox', 'element_FormalOutput_scbox', 'element_Declaration_scbox', 'element_AnalysisModule_scbox', 'element_InstallationScript_scbox', 'element_InstallationFile_scbox', 'element_Installed_scbox', 'element_Program_scbox', 'element_AnalysisModuleLibrary_scbox', 'type_Hex40_scbox', 'type_ModuleID_scbox', 'type_LSID_scbox', 'element_Description_scbox', 'element_Category_scbox');
+
+/**
+ * Can get the ID of the button controlling
+ * a collapseable box by concatenating
+ * this string onto the ID of the box itself.
+ */
+var B_SFIX = "_button";
+
+
+/**
+ * Returns an element in the current HTML document.
+ * 
+ * @param elementID Identifier of HTML element
+ * @return               HTML element object
+ */
+function getElementObject(elementID) {
+    var elemObj = null;
+    if (document.getElementById) {
+        elemObj = document.getElementById(elementID);
+    }
+    return elemObj;
+}             
+
+/**
+ * Closes a collapseable box.
+ * 
+ * @param boxObj       Collapseable box
+ * @param buttonObj Button controlling box
+ */
+function closeBox(boxObj, buttonObj) {
+  if (boxObj == null || buttonObj == null) {
+     // Box or button not found
+  } else {
+     // Change 'display' CSS property of box
+     boxObj.style.display="none";
+
+     // Change text of button 
+     if (boxObj.style.display=="none") {
+        buttonObj.value=" + ";
+     }
+  }
+}
+
+/**
+ * Opens a collapseable box.
+ * 
+ * @param boxObj       Collapseable box
+ * @param buttonObj Button controlling box
+ */
+function openBox(boxObj, buttonObj) {
+  if (boxObj == null || buttonObj == null) {
+     // Box or button not found
+  } else {
+     // Change 'display' CSS property of box
+     boxObj.style.display="block";
+
+     // Change text of button
+     if (boxObj.style.display=="block") {
+        buttonObj.value=" - ";
+     }
+  }
+}
+
+/**
+ * Sets the state of a collapseable box.
+ * 
+ * @param boxID Identifier of box
+ * @param open If true, box is "opened",
+ *             Otherwise, box is "closed".
+ */
+function setState(boxID, open) {
+  var boxObj = getElementObject(boxID);
+  var buttonObj = getElementObject(boxID+B_SFIX);
+  if (boxObj == null || buttonObj == null) {
+     // Box or button not found
+  } else if (open) {
+     openBox(boxObj, buttonObj);
+     // Make button visible
+     buttonObj.style.display="inline";
+  } else {
+     closeBox(boxObj, buttonObj);
+     // Make button visible
+     buttonObj.style.display="inline";
+  }
+}
+
+/**
+ * Switches the state of a collapseable box, e.g.
+ * if it's opened, it'll be closed, and vice versa.
+ * 
+ * @param boxID Identifier of box
+ */
+function switchState(boxID) {
+  var boxObj = getElementObject(boxID);
+  var buttonObj = getElementObject(boxID+B_SFIX);
+  if (boxObj == null || buttonObj == null) {
+     // Box or button not found
+  } else if (boxObj.style.display=="none") {
+     // Box is closed, so open it
+     openBox(boxObj, buttonObj);
+  } else if (boxObj.style.display=="block") {
+     // Box is opened, so close it
+     closeBox(boxObj, buttonObj);
+  }
+}
+
+/**
+ * Closes all boxes in a given list.
+ * 
+ * @param boxList Array of box IDs
+ */
+function collapseAll(boxList) {
+  var idx;
+  for (idx = 0; idx < boxList.length; idx++) {
+     var boxObj = getElementObject(boxList[idx]);
+     var buttonObj = getElementObject(boxList[idx]+B_SFIX);
+     closeBox(boxObj, buttonObj);
+  }
+}
+
+/**
+ * Open all boxes in a given list.
+ * 
+ * @param boxList Array of box IDs
+ */
+function expandAll(boxList) {
+  var idx;
+  for (idx = 0; idx < boxList.length; idx++) {
+     var boxObj = getElementObject(boxList[idx]);
+     var buttonObj = getElementObject(boxList[idx]+B_SFIX);
+     openBox(boxObj, buttonObj);
+  }
+}
+
+/**
+ * Makes all the control buttons of boxes appear.
+ * 
+ * @param boxList Array of box IDs
+ */
+function viewControlButtons(boxList) {
+    var idx;
+    for (idx = 0; idx < boxList.length; idx++) {
+        buttonObj = getElementObject(boxList[idx]+B_SFIX);
+        if (buttonObj != null) {
+            buttonObj.style.display = "inline";
+        }
+    }
+}
+
+/**
+ * Makes all the control buttons of boxes disappear.
+ * 
+ * @param boxList Array of box IDs
+ */
+function hideControlButtons(boxList) {
+    var idx;
+    for (idx = 0; idx < boxList.length; idx++) {
+        buttonObj = getElementObject(boxList[idx]+B_SFIX);
+        if (buttonObj != null) {
+            buttonObj.style.display = "none";
+        }
+    }
+}
+
+/**
+ * Sets the page for either printing mode
+ * or viewing mode. In printing mode, the page
+ * is made to be more readable when printing it out.
+ * In viewing mode, the page is more browsable.
+ *
+ * @param isPrinterVersion If true, display in
+ *                                 printing mode; otherwise, 
+ *                                 in viewing mode
+ */
+function displayMode(isPrinterVersion) {
+    var obj;
+    if (isPrinterVersion) {
+        // Hide global control buttons
+        obj = getElementObject("globalControls");
+        if (obj != null) {
+            obj.style.visibility = "hidden";
+        }
+        // Hide Legend
+        obj = getElementObject("legend");
+        if (obj != null) {
+            obj.style.display = "none";
+        }
+        obj = getElementObject("legendTOC");
+        if (obj != null) {
+            obj.style.display = "none";
+        }
+        // Hide Glossary
+        obj = getElementObject("glossary");
+        if (obj != null) {
+            obj.style.display = "none";
+        }
+        obj = getElementObject("glossaryTOC");
+        if (obj != null) {
+            obj.style.display = "none";
+        }
+
+        // Expand all diagrams
+        expandAll(diagramBoxes);
+        // Expand all logical diagrams
+        expandAll(logicalDiagramBoxes);        
+        // Expand all XML Instance Representation tables
+        expandAll(xiBoxes);
+        // Expand all Schema Component Representation tables
+        expandAll(scBoxes);
+
+        // Hide Control buttons
+        hideControlButtons(diagramBoxes);
+        hideControlButtons(logicalDiagramBoxes);
+        hideControlButtons(xiBoxes);
+        hideControlButtons(scBoxes);
+    } else {
+        // View global control buttons
+        obj = getElementObject("globalControls");
+        if (obj != null) {
+            obj.style.visibility = "visible";
+        }
+        // View Legend
+        obj = getElementObject("legend");
+        if (obj != null) {
+            obj.style.display = "block";
+        }
+        obj = getElementObject("legendTOC");
+        if (obj != null) {
+            obj.style.display = "block";
+        }
+        // View Glossary
+        obj = getElementObject("glossary");
+        if (obj != null) {
+            obj.style.display = "block";
+        }
+        obj = getElementObject("glossaryTOC");
+        if (obj != null) {
+            obj.style.display = "block";
+        }
+
+        // Expand all diagram boxes
+        expandAll(diagramBoxes);
+        // Collapse all logical diagram boxes.
+        collapseAll(logicalDiagramBoxes);
+        // Expand all XML Instance Representation tables
+        expandAll(xiBoxes);
+        // Collapse all Schema Component Representation tables
+        collapseAll(scBoxes);
+
+        // View Control buttons
+        viewControlButtons(diagramBoxes);
+        viewControlButtons(logicalDiagramBoxes);
+        viewControlButtons(xiBoxes);
+        viewControlButtons(scBoxes);
+    }
+}
+
+
+
+// -->
+</script>
+      <script type="text/javascript">
+<!--
+          
+         
+/**
+ * Counter of documentation windows
+ * Used to give each window a unique name
+ */
+var windowCount = 0;
+         
+/**
+ * Opens up a window displaying the documentation
+ * of a schema component in the XML Instance
+ * Representation table.
+ * 
+ * @param compDesc      Description of schema component 
+ * @param compName      Name of schema component 
+ * @param docTextArray Array containing the paragraphs 
+ *                           of the new document
+ */
+function viewDocumentation(compDesc, compName, docTextArray) {
+  var width = 400;
+  var height = 200;
+  var locX = 100;
+  var locY = 200;
+
+  /* Generate content */
+  var actualText = "<html>";
+  actualText += "<head><title>";
+  actualText += compDesc;
+  if (compName != '') {
+     actualText += ": " + compName;
+  }
+  actualText += "</title></head>";
+  actualText += "<body bgcolor=\"#FFFFEE\">";
+  // Title
+  actualText += "<p style=\"font-family: Arial, sans-serif; font-size: 12pt; font-weight: bold; letter-spacing:1px;\">";
+  actualText += compDesc;
+  if (compName != '') {
+     actualText += ": <span style=\"color:#006699\">" + compName + "</span>";
+  }
+  actualText += "</p>";
+  // Documentation
+  var idx;
+  for (idx = 0; idx < docTextArray.length; idx++) {
+     actualText += "<p style=\"font-family: Arial, sans-serif; font-size: 10pt;\">" + docTextArray[idx] + "</p>";
+  }
+  // Link to close window
+  actualText += "<a href=\"javascript:void(0)\" onclick=\"window.close();\" style=\"font-family: Arial, sans-serif; font-size: 8pt;\">Close</a>";
+  actualText += "</body></html>";
+
+  /* Display window */
+  windowCount++;
+  var docWindow = window.open("", "documentation"+windowCount, "toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable,alwaysRaised,dependent,titlebar=no,width="+width+",height="+height+",screenX="+locX+",left="+locX+",screenY="+locY+",top="+locY);
+  docWindow.document.write(actualText);
+}         
+      
+// -->
+</script>
+   </head>
+   <body>
+      <h1>
+         <a name="top">XML Schema Documentation</a>
+      </h1>
+      <div style="float: right;">
+         <div id="printerControls" style="display:none;">
+            <input type="checkbox" onclick="displayMode(this.checked)"/>Printer-friendly Version</div>
+         <script type="text/javascript">
+<!--
+          
+var pc = getElementObject("printerControls");
+if (pc != null) {
+   pc.style.display="block";
+}
+               
+// -->
+</script>
+         <div id="globalControls" style="display:none">
+            <strong>Logical Diagram:</strong>
+            <br/>
+            <span style="margin-left: 1em; white-space: nowrap">[ <a href="javascript:void(0)" onclick="expandAll(logicalDiagramBoxes)">Expand All</a> | <a href="javascript:void(0)" onclick="collapseAll(logicalDiagramBoxes)">Collapse All</a> ]</span>
+            <br/>
+            <br/>
+            <strong>XML Instance Representation:</strong>
+            <br/>
+            <span style="margin-left: 1em; white-space: nowrap">[ <a href="javascript:void(0)" onclick="expandAll(xiBoxes)">Expand All</a> | <a href="javascript:void(0)" onclick="collapseAll(xiBoxes)">Collapse All</a> ]</span>
+            <br/>
+            <br/>
+            <strong>Diagram:</strong>
+            <br/>
+            <span style="margin-left: 1em; white-space: nowrap">[ <a href="javascript:void(0)" onclick="expandAll(diagramBoxes)">Expand All</a> | <a href="javascript:void(0)" onclick="collapseAll(diagramBoxes)">Collapse All</a> ]</span>
+            <br/>
+            <br/>
+            <strong>Schema Component Representation:</strong>
+            <br/>
+            <span style="margin-left: 1em; white-space: nowrap">[ <a href="javascript:void(0)" onclick="expandAll(scBoxes)">Expand All</a> | <a href="javascript:void(0)" onclick="collapseAll(scBoxes)">Collapse All</a> ]</span>
+         </div>
+         <script type="text/javascript">
+<!--
+          
+var gc = getElementObject("globalControls");
+if (gc != null) {
+   gc.style.display="block";
+}
+               
+// -->
+</script>
+      </div>
+      <h2>Table of Contents</h2>
+      <ul>
+         <li>
+            <a href="#SchemaProperties">Schema Document Properties</a>
+         </li>
+         <li>
+            <a href="#SchemaDeclarations">Global Declarations</a>
+            <ul>
+               <li>
+                  <a href="#element_AnalysisModule">Element: <strong>AnalysisModule</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#element_AnalysisModuleLibrary">Element: <strong>AnalysisModuleLibrary</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#element_Category">Element: <strong>Category</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#element_Declaration">Element: <strong>Declaration</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#element_Description">Element: <strong>Description</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#element_Entry">Element: <strong>Entry</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#element_FormalInput">Element: <strong>FormalInput</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#element_FormalOutput">Element: <strong>FormalOutput</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#element_InstallationFile">Element: <strong>InstallationFile</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#element_InstallationScript">Element: <strong>InstallationScript</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#element_Installed">Element: <strong>Installed</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#element_LookupTable">Element: <strong>LookupTable</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#element_Program">Element: <strong>Program</strong>
+                  </a>
+               </li>
+            </ul>
+         </li>
+         <li>
+            <a href="#SchemaDefinitions">Global Definitions</a>
+            <ul>
+               <li>
+                  <a href="#type_Hex40">Simple Type: <strong>Hex40</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#type_LSID">Simple Type: <strong>LSID</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#type_ModuleID">Simple Type: <strong>ModuleID</strong>
+                  </a>
+               </li>
+            </ul>
+         </li>
+      </ul>
+      <ul id="legendTOC" style="margin-top: 0em">
+         <li>
+            <a href="#Legend">Legend</a>
+         </li>
+      </ul>
+      <ul id="glossaryTOC" style="margin-top: 0em">
+         <li>
+            <a href="#Glossary">Glossary</a>
+         </li>
+      </ul>
+      <h4>Master schema documentation file: 
+            <a href="ome.xsd.html">ome.xsd.html</a>
+      </h4>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h2>
+         <a name="SchemaProperties">Schema Document Properties</a>
+      </h2>
+      <table class="properties">
+         <tr>
+            <th>
+               <a title="Look up 'Target Namespace' in glossary"
+                  href="AnalysisModule.xsd.html#term_TargetNS">Target Namespace</a>
+            </th>
+            <td>
+               <span class="targetNS">http://www.openmicroscopy.org/XMLschemas/AnalysisModule/RC1/AnalysisModule.xsd</span>
+            </td>
+         </tr>
+         <tr>
+            <th>Version</th>
+            <td>RC1</td>
+         </tr>
+         <tr>
+            <th>Element and Attribute Namespaces</th>
+            <td>
+               <ul>
+                  <li>Global element and attribute declarations belong to this schema's target namespace.</li>
+                  <li>By default, local element declarations belong to this schema's target namespace.</li>
+                  <li>By default, local attribute declarations have no namespace.</li>
+               </ul>
+            </td>
+         </tr>
+         <tr>
+            <th>Schema Composition</th>
+            <td>
+               <ul>
+                  <li>This schema imports schema(s) from the following namespace(s):<ul>
+                        <li>
+                           <em>http://www.openmicroscopy.org/XMLschemas/CLI/RC1/CLI.xsd</em> (at <a title="Jump to schema documentation for 'http://www.openmicroscopy.org/XMLschemas/CLI/RC1/CLI.xsd'."
+                              href="CLI.xsd.html">http://www.openmicroscopy.org/XMLschemas/CLI/RC1/CLI.xsd</a>)</li>
+                        <li>
+                           <em>http://www.openmicroscopy.org/XMLschemas/BinaryFile/RC1/BinaryFile.xsd</em> (at <a title="Jump to schema documentation for 'http://www.openmicroscopy.org/XMLschemas/BinaryFile/RC1/BinaryFile.xsd'."
+                              href="BinaryFile.xsd.html">http://www.openmicroscopy.org/XMLschemas/BinaryFile/RC1/BinaryFile.xsd</a>)</li>
+                        <li>
+                           <em>http://www.openmicroscopy.org/XMLschemas/MLI/IR2/MLI.xsd</em> (at <a title="Jump to schema documentation for 'http://www.openmicroscopy.org/XMLschemas/MLI/IR2/MLI.xsd'."
+                              href="MLI.xsd.html">http://www.openmicroscopy.org/XMLschemas/MLI/IR2/MLI.xsd</a>)</li>
+                        <li>
+                           <em>http://www.w3.org/XML/1998/namespace</em> (at <a title="Jump to schema documentation for 'http://www.w3.org/2001/xml.xsd'."
+                              href="xml.xsd.html">http://www.w3.org/2001/xml.xsd</a>)</li>
+                     </ul>
+                  </li>
+               </ul>
+            </td>
+         </tr>
+      </table>
+      <h3>Declared Namespaces</h3>
+      <table class="namespaces">
+         <tr>
+            <th>Prefix</th>
+            <th>Namespace</th>
+         </tr>
+         <tr>
+            <td>
+               <a name="ns_">Default namespace</a>
+            </td>
+            <td>http://www.w3.org/2001/XMLSchema</td>
+         </tr>
+         <tr>
+            <td>
+               <a name="ns_xml">xml</a>
+            </td>
+            <td>http://www.w3.org/XML/1998/namespace</td>
+         </tr>
+         <tr>
+            <td>
+               <a name="ns_AML">AML</a>
+            </td>
+            <td>
+               <span class="targetNS">http://www.openmicroscopy.org/XMLschemas/AnalysisModule/RC1/AnalysisModule.xsd</span>
+            </td>
+         </tr>
+         <tr>
+            <td>
+               <a name="ns_CLI">CLI</a>
+            </td>
+            <td>http://www.openmicroscopy.org/XMLschemas/CLI/RC1/CLI.xsd</td>
+         </tr>
+         <tr>
+            <td>
+               <a name="ns_Bin">Bin</a>
+            </td>
+            <td>http://www.openmicroscopy.org/XMLschemas/BinaryFile/RC1/BinaryFile.xsd</td>
+         </tr>
+         <tr>
+            <td>
+               <a name="ns_MLI">MLI</a>
+            </td>
+            <td>http://www.openmicroscopy.org/XMLschemas/MLI/IR2/MLI.xsd</td>
+         </tr>
+         <tr>
+            <td>
+               <a name="ns_xsd">xsd</a>
+            </td>
+            <td>http://www.w3.org/2001/XMLSchema</td>
+         </tr>
+      </table>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="schema_scbox_button" class="control"
+                   onclick="switchState('schema_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="schema_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">schema</span> 
+               <span class="scTag">targetNamespace</span>="<span class="scContent">http://www.openmicroscopy.org/XMLschemas/AnalysisModule/RC1/AnalysisModule.xsd</span>" <span class="scTag">version</span>="<span class="scContent">RC1</span>" <span class="scTag">elementFormDefault</span>="<span class="scContent">qualified</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">import</span> 
+                  <span class="scTag">namespace</span>="<span class="scContent">http://www.openmicroscopy.org/XMLschemas/CLI/RC1/CLI.xsd</span>" <span class="scTag">schemaLocation</span>="<span class="scContent">http://www.openmicroscopy.org/XMLschemas/CLI/RC1/CLI.xsd</span>"/&gt;</div>
+               <div style="margin-left: 1.5em">&lt;<span class="scTag">import</span> 
+                  <span class="scTag">namespace</span>="<span class="scContent">http://www.openmicroscopy.org/XMLschemas/BinaryFile/RC1/BinaryFile.xsd</span>" <span class="scTag">schemaLocation</span>="<span class="scContent">http://www.openmicroscopy.org/XMLschemas/BinaryFile/RC1/BinaryFile.xsd</span>"/&gt;</div>
+               <div style="margin-left: 1.5em">&lt;<span class="scTag">import</span> 
+                  <span class="scTag">namespace</span>="<span class="scContent">http://www.openmicroscopy.org/XMLschemas/MLI/IR2/MLI.xsd</span>" <span class="scTag">schemaLocation</span>="<span class="scContent">http://www.openmicroscopy.org/XMLschemas/MLI/IR2/MLI.xsd</span>"/&gt;</div>
+               <div style="margin-left: 1.5em">&lt;<span class="scTag">import</span> 
+                  <span class="scTag">namespace</span>="<span class="scContent">http://www.w3.org/XML/1998/namespace</span>" <span class="scTag">schemaLocation</span>="<span class="scContent">http://www.w3.org/2001/xml.xsd</span>"/&gt;</div>
+               <div class="scContent" style="margin-left: 1.5em">...</div>&lt;/<span class="scTag">schema</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('schema_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h2>
+         <a name="SchemaDeclarations">Global Declarations</a>
+      </h2>
+      <h3>Element: <a name="element_AnalysisModule" class="name">AnalysisModule</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>AnalysisModule</td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary"
+                  href="AnalysisModule.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary"
+                  href="AnalysisModule.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>Documentation</th>
+            <td class="documentation">Describes an interface to use with a program.</td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_AnalysisModule_logicalDiagram_button" class="control"
+                   onclick="switchState('element_AnalysisModule_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="element_AnalysisModule_logicalDiagram" class="contents">
+            <img usemap="#logical_element_AnalysisModule_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd"
+                 src="schemaDiagrams/logical_element_AnalysisModule_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2003-no-hash//schemaDiagrams/logical_element_AnalysisModule_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.map--><map name="logical_element_AnalysisModule_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd">
+               <area shape="rect" alt="element_Description" coords="610,483,1134,559"
+                     href="AnalysisModule.xsd.html#element_Description"/>
+
+               <area shape="rect" alt="element_Declaration" coords="610,569,1134,612"
+                     href="AnalysisModule.xsd.html#element_Declaration"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_AnalysisModule_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_AnalysisModule_xibox_button" class="control"
+                   onclick="switchState('element_AnalysisModule_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="element_AnalysisModule_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:AnalysisModule<br/>
+               <span style="margin-left: 0.5em"> isStreamAlgorithm="<span class="type">boolean</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'This is a stub for future development. The database location doesn\'t even exist yet. If the output of the analysis will be the same when pixel positions are scrambled, the analysis is a stream algorithm. Examples of stream algorithms are: A statistics module that produces mean, geometric mean, standard deviation, etc. for pixel intensities. A module to cross correlate pixel intensities across wavelengths. Example of an algorithms that is not a stream algorithm is: FindSpots. (It\'s a module to find blobs in an image.) If a module is a stream algorithm, it can function across the x, y, z, and time dimensions. Tied to DB. Table PROGRAMS Column IS_STREAM_ALGORITHM'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> ModuleType="<span class="constraint">
+                     <span class="type">string</span> (<em>pattern</em> = OME::Analysis::.+)</span> 
+                  <span class="occurs">[1]</span> 
+                  <p class="documentation">'As more handlers, are added, this part of the schema needs to be changed Tied to DB. Table PROGRAMS Column MODULE_TYPE'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> FeatureIterator="<span class="constraint">
+                     <span class="type">string</span> (<em>length</em> &lt;= 128)</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'If the module iterates over a feature, specify the iterator here. It will reference a feature via the TAG column of the FEATURES table. An example of a module that does not iterate over a feature is Find Cells. It examines one image at a time, hence it iterates over an image, not a feature. It produces zero or more features (Çell) per image. These Cell features belong to an image. This module would not get a FeatureIterator attribute. An example of a module that iterates over a feature is Find Golgi. It examines one CELL at a time. A cell is a feature, hence the module iterates over features, not images or datasets. It produces zero or more Golgi features per Cell feature. These Golgi features belong to a Cell feature. This module would get a FeatureIterator attribute of \"CELL\". Tied to DB. Table PROGRAMS Column DEFAULT_ITERATOR'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> NewFeatureName="<span class="constraint">
+                     <span class="type">string</span> (<em>length</em> &lt;= 128)</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'If this module makes new features, then the new Feature\'s name needs to be specified here. If the module does not make new features, do not specify a value for this attribute. Tied to DB. PROGRAMS.NEW_FEATURE_TAG'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Category="<span class="constraint">
+                     <span class="type">string</span> (<em>length</em> &lt;= 32)</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'References a Category.'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> ProgramID="<span class="type">string</span> 
+                  <span class="occurs">[1]</span> 
+                  <p class="documentation">'Eventually will refer to a program. Currently program installation is NOT implemented. So this value is the path to the installed binary file.'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> ModuleName="<span class="constraint">
+                     <span class="type">string</span> (<em>length</em> &lt;= 64)</span> 
+                  <span class="occurs">[0..1]</span>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> ID="<span class="type">
+                     <a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;ModuleID&#34; type definition." href="#type_ModuleID">ModuleID</a>
+                  </span> 
+                  <span class="occurs">[1]</span>"</span>&gt; <div class="other" style="margin-left: 1.5em">&lt;!-- <br/>
+                  <a title="Look up 'Uniqueness' in glossary"
+                     href="AnalysisModule.xsd.html#term_Unique">Uniqueness</a> Constraint - <strong>
+                     <a name="key_FormalInput">FormalInput</a>
+                  </strong>
+                  <br/>Selector - <strong>AML:Declaration/AML:FormalInput</strong>
+                  <br/>Field(s) - <strong>@Name</strong>
+                  <br/>--&gt;</div>
+               <div class="other" style="margin-left: 1.5em">&lt;!-- <br/>
+                  <a title="Look up 'Uniqueness' in glossary"
+                     href="AnalysisModule.xsd.html#term_Unique">Uniqueness</a> Constraint - <strong>
+                     <a name="key_FormalOutput">FormalOutput</a>
+                  </strong>
+                  <br/>Selector - <strong>AML:Declaration/AML:FormalOutput</strong>
+                  <br/>Field(s) - <strong>@Name</strong>
+                  <br/>--&gt;</div>
+               <br/>
+               <div style="margin-left: 1.5em">&lt;<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;Description&#34; element declaration." href="#element_Description">Description</a>&gt; ... &lt;/<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;Description&#34; element declaration." href="#element_Description">Description</a>&gt; <span class="occurs">[0..1]</span>
+               </div>
+               <div style="margin-left: 1.5em">&lt;<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;Declaration&#34; element declaration." href="#element_Declaration">Declaration</a>&gt; ... &lt;/<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;Declaration&#34; element declaration." href="#element_Declaration">Declaration</a>&gt; <span class="occurs">[1]</span>
+               </div>
+               <span class="group" style="margin-left: 1.5em">Start <a title="Look up 'Choice' in glossary" href="AnalysisModule.xsd.html#term_Choice">Choice</a> 
+                  <span class="occurs">[0..1]</span>
+               </span>
+               <br/>
+               <div style="margin-left: 3em">&lt;<a href="#ns_CLI" title="Find out namespace of 'CLI' prefix">CLI</a>:<a title="Jump to &#34;ExecutionInstructions&#34; element declaration(located in external schema documentation)."
+                     href="CLI.xsd.html#element_ExecutionInstructions"
+                     class="externalLink">ExecutionInstructions</a>&gt; ... &lt;/<a href="#ns_CLI" title="Find out namespace of 'CLI' prefix">CLI</a>:<a title="Jump to &#34;ExecutionInstructions&#34; element declaration(located in external schema documentation)."
+                     href="CLI.xsd.html#element_ExecutionInstructions"
+                     class="externalLink">ExecutionInstructions</a>&gt; <span class="occurs">[1]</span>
+               </div>
+               <div style="margin-left: 3em">&lt;<a href="#ns_MLI" title="Find out namespace of 'MLI' prefix">MLI</a>:<a title="Jump to &#34;ExecutionInstructions&#34; element declaration(located in external schema documentation)."
+                     href="MLI.xsd.html#element_ExecutionInstructions"
+                     class="externalLink">ExecutionInstructions</a>&gt; ... &lt;/<a href="#ns_MLI" title="Find out namespace of 'MLI' prefix">MLI</a>:<a title="Jump to &#34;ExecutionInstructions&#34; element declaration(located in external schema documentation)."
+                     href="MLI.xsd.html#element_ExecutionInstructions"
+                     class="externalLink">ExecutionInstructions</a>&gt; <span class="occurs">[1]</span>
+               </div>
+               <span class="group" style="margin-left: 1.5em">End Choice</span>
+               <br/>&lt;/<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:AnalysisModule&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_AnalysisModule_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_AnalysisModule_diagram_button" class="control"
+                   onclick="switchState('element_AnalysisModule_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="element_AnalysisModule_diagram" class="contents">
+            <img usemap="#element_AnalysisModule_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd"
+                 src="schemaDiagrams/element_AnalysisModule_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2003-no-hash//schemaDiagrams/element_AnalysisModule_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.map--><map name="element_AnalysisModule_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd">
+               <area shape="rect" alt="element_Description" coords="312,0,473,42"
+                     href="AnalysisModule.xsd.html#element_Description"/>
+
+               <area shape="rect" alt="element_Declaration" coords="312,52,473,78"
+                     href="AnalysisModule.xsd.html#element_Declaration"/>
+
+               <area shape="rect" alt="element_ExecutionInstructions" coords="384,88,615,114"
+                     href="CLI.xsd.html#element_ExecutionInstructions"/>
+
+               <area shape="rect" alt="element_ExecutionInstructions" coords="384,124,615,150"
+                     href="MLI.xsd.html#element_ExecutionInstructions"/>
+
+               <area shape="rect" alt="type_ModuleID" coords="226,772,320,798"
+                     href="AnalysisModule.xsd.html#type_ModuleID"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_AnalysisModule_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="element_AnalysisModule_scbox_button" class="control"
+                   onclick="switchState('element_AnalysisModule_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="element_AnalysisModule_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">element</span> 
+               <span class="scTag">name</span>="<span class="scContent">AnalysisModule</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;Description&#34; element declaration." href="#element_Description">Description</a>
+                        </span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div>
+                     <div style="margin-left: 1.5em">&lt;<span class="scTag">element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;Declaration&#34; element declaration." href="#element_Declaration">Declaration</a>
+                        </span>"/&gt;</div>
+                     <div style="margin-left: 1.5em">&lt;<span class="scTag">choice</span> 
+                        <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">element</span> 
+                           <span class="scTag">ref</span>="<span class="scContent">
+                              <a href="#ns_CLI" title="Find out namespace of 'CLI' prefix">CLI</a>:<a title="Jump to &#34;ExecutionInstructions&#34; element declaration(located in external schema documentation)."
+                                 href="CLI.xsd.html#element_ExecutionInstructions"
+                                 class="externalLink">ExecutionInstructions</a>
+                           </span>"/&gt;</div>
+                        <div style="margin-left: 1.5em">&lt;<span class="scTag">element</span> 
+                           <span class="scTag">ref</span>="<span class="scContent">
+                              <a href="#ns_MLI" title="Find out namespace of 'MLI' prefix">MLI</a>:<a title="Jump to &#34;ExecutionInstructions&#34; element declaration(located in external schema documentation)."
+                                 href="MLI.xsd.html#element_ExecutionInstructions"
+                                 class="externalLink">ExecutionInstructions</a>
+                           </span>"/&gt;</div>&lt;/<span class="scTag">choice</span>&gt;</div>&lt;/<span class="scTag">sequence</span>&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">isStreamAlgorithm</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">boolean</span>
+                     </span>" <span class="scTag">default</span>="<span class="scContent">false</span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">ModuleType</span>" <span class="scTag">use</span>="<span class="scContent">required</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">simpleType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">restriction</span> 
+                           <span class="scTag">base</span>="<span class="scContent">
+                              <span class="type">string</span>
+                           </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">pattern</span> 
+                              <span class="scTag">value</span>="<span class="scContent">OME::Analysis::.+</span>"/&gt;</div>&lt;/<span class="scTag">restriction</span>&gt;</div>&lt;/<span class="scTag">simpleType</span>&gt;</div>&lt;/<span class="scTag">attribute</span>&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">FeatureIterator</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">simpleType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">restriction</span> 
+                           <span class="scTag">base</span>="<span class="scContent">
+                              <span class="type">string</span>
+                           </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">maxLength</span> 
+                              <span class="scTag">value</span>="<span class="scContent">128</span>"/&gt;</div>&lt;/<span class="scTag">restriction</span>&gt;</div>&lt;/<span class="scTag">simpleType</span>&gt;</div>&lt;/<span class="scTag">attribute</span>&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">NewFeatureName</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">simpleType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">restriction</span> 
+                           <span class="scTag">base</span>="<span class="scContent">
+                              <span class="type">string</span>
+                           </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">maxLength</span> 
+                              <span class="scTag">value</span>="<span class="scContent">128</span>"/&gt;</div>&lt;/<span class="scTag">restriction</span>&gt;</div>&lt;/<span class="scTag">simpleType</span>&gt;</div>&lt;/<span class="scTag">attribute</span>&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Category</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">simpleType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">restriction</span> 
+                           <span class="scTag">base</span>="<span class="scContent">
+                              <span class="type">string</span>
+                           </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">maxLength</span> 
+                              <span class="scTag">value</span>="<span class="scContent">32</span>"/&gt;</div>&lt;/<span class="scTag">restriction</span>&gt;</div>&lt;/<span class="scTag">simpleType</span>&gt;</div>&lt;/<span class="scTag">attribute</span>&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">ProgramID</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">string</span>
+                     </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">ModuleName</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">simpleType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">restriction</span> 
+                           <span class="scTag">base</span>="<span class="scContent">
+                              <span class="type">string</span>
+                           </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">maxLength</span> 
+                              <span class="scTag">value</span>="<span class="scContent">64</span>"/&gt;</div>&lt;/<span class="scTag">restriction</span>&gt;</div>&lt;/<span class="scTag">simpleType</span>&gt;</div>&lt;/<span class="scTag">attribute</span>&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">ID</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;ModuleID&#34; type definition." href="#type_ModuleID">ModuleID</a>
+                        </span>
+                     </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>&lt;/<span class="scTag">complexType</span>&gt;</div>
+               <div style="margin-left: 1.5em">&lt;<span class="scTag">unique</span> 
+                  <span class="scTag">name</span>="<span class="scContent">FormalInput</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">selector</span> 
+                     <span class="scTag">xpath</span>="<span class="scContent">AML:Declaration/AML:FormalInput</span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">field</span> 
+                     <span class="scTag">xpath</span>="<span class="scContent">@Name</span>"/&gt;</div>&lt;/<span class="scTag">unique</span>&gt;</div>
+               <div style="margin-left: 1.5em">&lt;<span class="scTag">unique</span> 
+                  <span class="scTag">name</span>="<span class="scContent">FormalOutput</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">selector</span> 
+                     <span class="scTag">xpath</span>="<span class="scContent">AML:Declaration/AML:FormalOutput</span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">field</span> 
+                     <span class="scTag">xpath</span>="<span class="scContent">@Name</span>"/&gt;</div>&lt;/<span class="scTag">unique</span>&gt;</div>&lt;/<span class="scTag">element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_AnalysisModule_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="element_AnalysisModuleLibrary" class="name">AnalysisModuleLibrary</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>AnalysisModuleLibrary</td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary"
+                  href="AnalysisModule.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary"
+                  href="AnalysisModule.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>Documentation</th>
+            <td class="documentation">An analysis module is defined by two things: 
+1) A program
+2) An interface
+A single program may have multiple interfaces. Why do you need multiple interfaces?
+Pretend you have a program that calculates simple statistics on the pixels of an image. You can specify which statistics you want via parameters.
+Typing
+./stats -mean -sigma image1
+will ouput
+Image | mean | sigma
+image1 12.4 1
+Typing
+./stats -geomean -mean image1
+will output
+Image | geomean | mean
+image1 12.2 12.4
+The outputs are completely different. You need to specify an interface for each of these behaviors. 
+Or pretend you have a powerful program that can do 10 unrelated tasks, each of which outputs an image. While the outputs are the same type and format, they represent 10 completely different things. In this case, it might make sense to define 10 corrosponding AnalysisModule to represent the 10 logical functions.
+In any case, use AnalysisModule to define an interface and Program to store installation software for a program.
+			</td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_AnalysisModuleLibrary_logicalDiagram_button"
+                   class="control"
+                   onclick="switchState('element_AnalysisModuleLibrary_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="element_AnalysisModuleLibrary_logicalDiagram" class="contents">
+            <img usemap="#logical_element_AnalysisModuleLibrary_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd"
+                 src="schemaDiagrams/logical_element_AnalysisModuleLibrary_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2003-no-hash//schemaDiagrams/logical_element_AnalysisModuleLibrary_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.map--><map name="logical_element_AnalysisModuleLibrary_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd">
+               <area shape="rect" alt="element_AnalysisModule" coords="610,72,1134,131"
+                     href="AnalysisModule.xsd.html#element_AnalysisModule"/>
+
+               <area shape="rect" alt="element_Category" coords="610,141,1134,200"
+                     href="AnalysisModule.xsd.html#element_Category"/>
+
+               <area shape="rect" alt="element_Program" coords="610,210,1134,269"
+                     href="AnalysisModule.xsd.html#element_Program"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_AnalysisModuleLibrary_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_AnalysisModuleLibrary_xibox_button" class="control"
+                   onclick="switchState('element_AnalysisModuleLibrary_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="element_AnalysisModuleLibrary_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:AnalysisModuleLibrary&gt; <div class="other" style="margin-left: 1.5em">&lt;!-- <br/>
+                  <a title="Look up 'Uniqueness' in glossary"
+                     href="AnalysisModule.xsd.html#term_Unique">Uniqueness</a> Constraint - <strong>
+                     <a name="key_AnalysisModule">AnalysisModule</a>
+                  </strong>
+                  <br/>Selector - <strong>AML:AnalysisModule</strong>
+                  <br/>Field(s) - <strong>@AML:ModuleName</strong>
+                  <br/>--&gt;</div>
+               <br/>
+               <div style="margin-left: 1.5em">&lt;<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;AnalysisModule&#34; element declaration."
+                     href="#element_AnalysisModule">AnalysisModule</a>&gt; ... &lt;/<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;AnalysisModule&#34; element declaration."
+                     href="#element_AnalysisModule">AnalysisModule</a>&gt; <span class="occurs">[1..*]</span>
+               </div>
+               <div style="margin-left: 1.5em">&lt;<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;Category&#34; element declaration." href="#element_Category">Category</a>&gt; ... &lt;/<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;Category&#34; element declaration." href="#element_Category">Category</a>&gt; <span class="occurs">[0..*]</span>
+               </div>
+               <div style="margin-left: 1.5em">&lt;<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;Program&#34; element declaration." href="#element_Program">Program</a>&gt; ... &lt;/<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;Program&#34; element declaration." href="#element_Program">Program</a>&gt; <span class="occurs">[0..*]</span>
+               </div>&lt;/<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:AnalysisModuleLibrary&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_AnalysisModuleLibrary_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_AnalysisModuleLibrary_diagram_button" class="control"
+                   onclick="switchState('element_AnalysisModuleLibrary_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="element_AnalysisModuleLibrary_diagram" class="contents">
+            <img usemap="#element_AnalysisModuleLibrary_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd"
+                 src="schemaDiagrams/element_AnalysisModuleLibrary_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2003-no-hash//schemaDiagrams/element_AnalysisModuleLibrary_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.map--><map name="element_AnalysisModuleLibrary_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd">
+               <area shape="rect" alt="element_AnalysisModule" coords="361,0,543,42"
+                     href="AnalysisModule.xsd.html#element_AnalysisModule"/>
+
+               <area shape="rect" alt="element_Category" coords="361,52,501,94"
+                     href="AnalysisModule.xsd.html#element_Category"/>
+
+               <area shape="rect" alt="element_Program" coords="361,104,494,146"
+                     href="AnalysisModule.xsd.html#element_Program"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_AnalysisModuleLibrary_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="element_AnalysisModuleLibrary_scbox_button" class="control"
+                   onclick="switchState('element_AnalysisModuleLibrary_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="element_AnalysisModuleLibrary_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">element</span> 
+               <span class="scTag">name</span>="<span class="scContent">AnalysisModuleLibrary</span>"&gt;<div class="comment" style="margin-left: 1.5em">&lt;--
+This was commented out by Josiah &lt;siah@nih.gov&gt; on July 3, 2003.
+We don't support Program installation yet, and are using the value of ProgramID
+in &lt;AnalysisModule&gt; to refer to the location of the installed program. 
+A temporary hack to be sure, but that's the way it works for now.
+		&lt;keyref name = "ProgramRef" refer = "AML:Program"&gt;
+			&lt;selector xpath = "AML:AnalysisModule"/&gt;
+			&lt;field xpath = "@ProgramID"/&gt;
+		&lt;/keyref&gt;
+		&lt;unique name = "Program"&gt;
+			&lt;selector xpath = "AML:Program"/&gt;
+			&lt;field xpath = "@ProgramID"/&gt;
+		&lt;/unique&gt;
+--&gt;</div>
+               <div style="margin-left: 1.5em">&lt;<span class="scTag">complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;AnalysisModule&#34; element declaration."
+                              href="#element_AnalysisModule">AnalysisModule</a>
+                        </span>" <span class="scTag">maxOccurs</span>="<span class="scContent">unbounded</span>"/&gt;</div>
+                     <div style="margin-left: 1.5em">&lt;<span class="scTag">element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;Category&#34; element declaration." href="#element_Category">Category</a>
+                        </span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">unbounded</span>"/&gt;</div>
+                     <div style="margin-left: 1.5em">&lt;<span class="scTag">element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;Program&#34; element declaration." href="#element_Program">Program</a>
+                        </span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">unbounded</span>"/&gt;</div>&lt;/<span class="scTag">sequence</span>&gt;</div>&lt;/<span class="scTag">complexType</span>&gt;</div>
+               <div style="margin-left: 1.5em">&lt;<span class="scTag">unique</span> 
+                  <span class="scTag">name</span>="<span class="scContent">AnalysisModule</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">selector</span> 
+                     <span class="scTag">xpath</span>="<span class="scContent">AML:AnalysisModule</span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">field</span> 
+                     <span class="scTag">xpath</span>="<span class="scContent">@AML:ModuleName</span>"/&gt;</div>&lt;/<span class="scTag">unique</span>&gt;</div>&lt;/<span class="scTag">element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_AnalysisModuleLibrary_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="element_Category" class="name">Category</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>Category</td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary"
+                  href="AnalysisModule.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary"
+                  href="AnalysisModule.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_Category_logicalDiagram_button" class="control"
+                   onclick="switchState('element_Category_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="element_Category_logicalDiagram" class="contents">
+            <img usemap="#logical_element_Category_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd"
+                 src="schemaDiagrams/logical_element_Category_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2003-no-hash//schemaDiagrams/logical_element_Category_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.map--><map name="logical_element_Category_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd">
+               <area shape="rect" alt="element_Description" coords="610,36,1134,96"
+                     href="AnalysisModule.xsd.html#element_Description"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Category_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_Category_xibox_button" class="control"
+                   onclick="switchState('element_Category_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="element_Category_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:Category<br/>
+               <span style="margin-left: 0.5em"> Path="<span class="constraint">
+                     <span class="type">string</span> (<em>pattern</em> = ^[A-Za-z0-9 ]+(\.[A-Za-z0-9 ]+)*$)</span> 
+                  <span class="occurs">[1]</span> 
+                  <p class="documentation">'Categories are organized into heirarchical structures. This specifies the full path of this category in the following format. Path = \"GrandParent name.Parent name.Category name\" If you defined a sub category, we Strongly encourage you to also define all ancestor categories that are not part of the core OME specification.'</p>"</span>&gt; <br/>
+               <div style="margin-left: 1.5em">&lt;<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;Description&#34; element declaration." href="#element_Description">Description</a>&gt; ... &lt;/<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;Description&#34; element declaration." href="#element_Description">Description</a>&gt; <span class="occurs">[1]</span>
+               </div>&lt;/<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:Category&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Category_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_Category_diagram_button" class="control"
+                   onclick="switchState('element_Category_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="element_Category_diagram" class="contents">
+            <img usemap="#element_Category_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd"
+                 src="schemaDiagrams/element_Category_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2003-no-hash//schemaDiagrams/element_Category_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.map--><map name="element_Category_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd">
+               <area shape="rect" alt="element_Description" coords="270,0,431,26"
+                     href="AnalysisModule.xsd.html#element_Description"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Category_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="element_Category_scbox_button" class="control"
+                   onclick="switchState('element_Category_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="element_Category_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">element</span> 
+               <span class="scTag">name</span>="<span class="scContent">Category</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;Description&#34; element declaration." href="#element_Description">Description</a>
+                        </span>"/&gt;</div>&lt;/<span class="scTag">sequence</span>&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Path</span>" <span class="scTag">use</span>="<span class="scContent">required</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">simpleType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">restriction</span> 
+                           <span class="scTag">base</span>="<span class="scContent">
+                              <span class="type">string</span>
+                           </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">pattern</span> 
+                              <span class="scTag">value</span>="<span class="scContent">^[A-Za-z0-9 ]+(\.[A-Za-z0-9 ]+)*$</span>"/&gt;</div>&lt;/<span class="scTag">restriction</span>&gt;</div>&lt;/<span class="scTag">simpleType</span>&gt;</div>&lt;/<span class="scTag">attribute</span>&gt;</div>&lt;/<span class="scTag">complexType</span>&gt;</div>&lt;/<span class="scTag">element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Category_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="element_Declaration" class="name">Declaration</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>Declaration</td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary"
+                  href="AnalysisModule.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary"
+                  href="AnalysisModule.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>Documentation</th>
+            <td class="documentation">States module requirements.
+Formal Inputs are optional because input requirements may be specified by guaranteed image attributes. For example, OME_Image_XYZ_stats requires a path to the OME repository file, and Dimensions.
+These are given by &lt;RawImageFilePath&gt;, &lt;sizeX&gt;, &lt;sizeY&gt;, &lt;sizeZ&gt;, &lt;sizeT&gt;, and &lt;sizeW&gt;.
+			</td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_Declaration_logicalDiagram_button" class="control"
+                   onclick="switchState('element_Declaration_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="element_Declaration_logicalDiagram" class="contents">
+            <img usemap="#logical_element_Declaration_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd"
+                 src="schemaDiagrams/logical_element_Declaration_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2003-no-hash//schemaDiagrams/logical_element_Declaration_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.map--><map name="logical_element_Declaration_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd">
+               <area shape="rect" alt="element_FormalInput" coords="610,0,1134,59"
+                     href="AnalysisModule.xsd.html#element_FormalInput"/>
+
+               <area shape="rect" alt="element_FormalOutput" coords="610,69,1134,128"
+                     href="AnalysisModule.xsd.html#element_FormalOutput"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Declaration_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_Declaration_xibox_button" class="control"
+                   onclick="switchState('element_Declaration_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="element_Declaration_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:Declaration&gt; <br/>
+               <div style="margin-left: 1.5em">&lt;<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;FormalInput&#34; element declaration." href="#element_FormalInput">FormalInput</a>&gt; ... &lt;/<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;FormalInput&#34; element declaration." href="#element_FormalInput">FormalInput</a>&gt; <span class="occurs">[0..*]</span>
+               </div>
+               <div style="margin-left: 1.5em">&lt;<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;FormalOutput&#34; element declaration."
+                     href="#element_FormalOutput">FormalOutput</a>&gt; ... &lt;/<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;FormalOutput&#34; element declaration."
+                     href="#element_FormalOutput">FormalOutput</a>&gt; <span class="occurs">[0..*]</span>
+               </div>&lt;/<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:Declaration&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Declaration_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_Declaration_diagram_button" class="control"
+                   onclick="switchState('element_Declaration_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="element_Declaration_diagram" class="contents">
+            <img usemap="#element_Declaration_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd"
+                 src="schemaDiagrams/element_Declaration_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2003-no-hash//schemaDiagrams/element_Declaration_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.map--><map name="element_Declaration_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd">
+               <area shape="rect" alt="element_FormalInput" coords="291,0,452,42"
+                     href="AnalysisModule.xsd.html#element_FormalInput"/>
+
+               <area shape="rect" alt="element_FormalOutput" coords="291,52,459,94"
+                     href="AnalysisModule.xsd.html#element_FormalOutput"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Declaration_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="element_Declaration_scbox_button" class="control"
+                   onclick="switchState('element_Declaration_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="element_Declaration_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">element</span> 
+               <span class="scTag">name</span>="<span class="scContent">Declaration</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;FormalInput&#34; element declaration." href="#element_FormalInput">FormalInput</a>
+                        </span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">unbounded</span>"/&gt;</div>
+                     <div style="margin-left: 1.5em">&lt;<span class="scTag">element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;FormalOutput&#34; element declaration."
+                              href="#element_FormalOutput">FormalOutput</a>
+                        </span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">unbounded</span>"/&gt;</div>&lt;/<span class="scTag">sequence</span>&gt;</div>&lt;/<span class="scTag">complexType</span>&gt;</div>&lt;/<span class="scTag">element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Declaration_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="element_Description" class="name">Description</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>Description</td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>
+               <span class="type">string</span>
+            </td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary"
+                  href="AnalysisModule.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary"
+                  href="AnalysisModule.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>Documentation</th>
+            <td class="documentation">
+				Just some free-form text to describe Images, Screens and Projects.
+				The content model is ANY, which means that en entire XML sub-document can be placed here.
+			</td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_Description_logicalDiagram_button" class="control"
+                   onclick="switchState('element_Description_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="element_Description_logicalDiagram" class="contents">
+            <img usemap="#logical_element_Description_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd"
+                 src="schemaDiagrams/logical_element_Description_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2003-no-hash//schemaDiagrams/logical_element_Description_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.map--><map name="logical_element_Description_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Description_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_Description_xibox_button" class="control"
+                   onclick="switchState('element_Description_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="element_Description_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:Description&gt; <span class="type">string</span> &lt;/<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:Description&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Description_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_Description_diagram_button" class="control"
+                   onclick="switchState('element_Description_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="element_Description_diagram" class="contents">
+            <img usemap="#element_Description_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd"
+                 src="schemaDiagrams/element_Description_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2003-no-hash//schemaDiagrams/element_Description_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.map--><map name="element_Description_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Description_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="element_Description_scbox_button" class="control"
+                   onclick="switchState('element_Description_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="element_Description_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">element</span> 
+               <span class="scTag">name</span>="<span class="scContent">Description</span>" <span class="scTag">type</span>="<span class="scContent">
+                  <span class="type">string</span>
+               </span>"/&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Description_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="element_Entry" class="name">Entry</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>Entry</td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary"
+                  href="AnalysisModule.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary"
+                  href="AnalysisModule.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_Entry_logicalDiagram_button" class="control"
+                   onclick="switchState('element_Entry_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="element_Entry_logicalDiagram" class="contents">
+            <img usemap="#logical_element_Entry_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd"
+                 src="schemaDiagrams/logical_element_Entry_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2003-no-hash//schemaDiagrams/logical_element_Entry_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.map--><map name="logical_element_Entry_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Entry_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_Entry_xibox_button" class="control"
+                   onclick="switchState('element_Entry_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="element_Entry_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:Entry<br/>
+               <span style="margin-left: 0.5em"> Value="<span class="constraint">
+                     <span class="type">string</span> (<em>length</em> &lt;= 256)</span> 
+                  <span class="occurs">[1]</span> 
+                  <p class="documentation">'Tied to DB. LOOKUP_TABLE_ENTRIES.VALUE'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Label="<span class="constraint">
+                     <span class="type">string</span> (<em>length</em> &lt;= 256)</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'Tied to DB. LOOKUP_TABLE_ENTRIES.LABEL'</p>"</span>/&gt; </div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Entry_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_Entry_diagram_button" class="control"
+                   onclick="switchState('element_Entry_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="element_Entry_diagram" class="contents">
+            <img usemap="#element_Entry_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd"
+                 src="schemaDiagrams/element_Entry_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2003-no-hash//schemaDiagrams/element_Entry_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.map--><map name="element_Entry_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Entry_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="element_Entry_scbox_button" class="control"
+                   onclick="switchState('element_Entry_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="element_Entry_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">element</span> 
+               <span class="scTag">name</span>="<span class="scContent">Entry</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Value</span>" <span class="scTag">use</span>="<span class="scContent">required</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">simpleType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">restriction</span> 
+                           <span class="scTag">base</span>="<span class="scContent">
+                              <span class="type">string</span>
+                           </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">maxLength</span> 
+                              <span class="scTag">value</span>="<span class="scContent">256</span>"/&gt;</div>&lt;/<span class="scTag">restriction</span>&gt;</div>&lt;/<span class="scTag">simpleType</span>&gt;</div>&lt;/<span class="scTag">attribute</span>&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Label</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">simpleType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">restriction</span> 
+                           <span class="scTag">base</span>="<span class="scContent">
+                              <span class="type">string</span>
+                           </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">maxLength</span> 
+                              <span class="scTag">value</span>="<span class="scContent">256</span>"/&gt;</div>&lt;/<span class="scTag">restriction</span>&gt;</div>&lt;/<span class="scTag">simpleType</span>&gt;</div>&lt;/<span class="scTag">attribute</span>&gt;</div>&lt;/<span class="scTag">complexType</span>&gt;</div>&lt;/<span class="scTag">element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Entry_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="element_FormalInput" class="name">FormalInput</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>FormalInput</td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary"
+                  href="AnalysisModule.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary"
+                  href="AnalysisModule.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>Documentation</th>
+            <td class="documentation">Specifies an input requirement for a module. Image dimensions and image file locations (repository or other format) should not be specified with this. Image dimensions are intrisic to an image. They do not represent a special requirement. Image file locations and contents are specified by other elements. Specifically, RawImageFile, RawImageFilePath, XYPlaneFile, and XYPlaneFilePath.
+			</td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_FormalInput_logicalDiagram_button" class="control"
+                   onclick="switchState('element_FormalInput_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="element_FormalInput_logicalDiagram" class="contents">
+            <img usemap="#logical_element_FormalInput_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd"
+                 src="schemaDiagrams/logical_element_FormalInput_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2003-no-hash//schemaDiagrams/logical_element_FormalInput_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.map--><map name="logical_element_FormalInput_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd">
+               <area shape="rect" alt="element_LookupTable" coords="610,178,1134,237"
+                     href="AnalysisModule.xsd.html#element_LookupTable"/>
+
+               <area shape="rect" alt="element_Description" coords="610,247,1134,323"
+                     href="AnalysisModule.xsd.html#element_Description"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_FormalInput_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_FormalInput_xibox_button" class="control"
+                   onclick="switchState('element_FormalInput_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="element_FormalInput_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:FormalInput<br/>
+               <span style="margin-left: 0.5em"> UserDefined="<span class="type">boolean</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'OME interprets this as a recommendation rather than a requirement. Tied to DB. Table FORMAL_INPUTS Column USER_DEFINED'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Count="<span class="constraint">
+                     <span class="type">string</span> (<em>value</em> comes from list: {'!'|'?'|'+'|'*'})</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'Specifies how many counts of this formal input are expected. Meanings are specified below ! = exactly one ? = zero or one + = one or more * = zero or more'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Name="<span class="constraint">
+                     <span class="type">string</span> (<em>pattern</em> = [A-Za-z0-9\-\^\(\)_ ]+)</span> 
+                  <span class="occurs">[1]</span> 
+                  <p class="documentation">'Valid characters are alphanumeric and spaces.'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> SemanticTypeName="<span class="type">string</span> 
+                  <span class="occurs">[1]</span>"</span>&gt; <br/>
+               <div style="margin-left: 1.5em">&lt;<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;LookupTable&#34; element declaration." href="#element_LookupTable">LookupTable</a>&gt; ... &lt;/<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;LookupTable&#34; element declaration." href="#element_LookupTable">LookupTable</a>&gt; <span class="occurs">[0..1]</span>
+               </div>
+               <div style="margin-left: 1.5em">&lt;<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;Description&#34; element declaration." href="#element_Description">Description</a>&gt; ... &lt;/<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;Description&#34; element declaration." href="#element_Description">Description</a>&gt; <span class="occurs">[0..1]</span>
+               </div>&lt;/<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:FormalInput&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_FormalInput_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_FormalInput_diagram_button" class="control"
+                   onclick="switchState('element_FormalInput_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="element_FormalInput_diagram" class="contents">
+            <img usemap="#element_FormalInput_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd"
+                 src="schemaDiagrams/element_FormalInput_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2003-no-hash//schemaDiagrams/element_FormalInput_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.map--><map name="element_FormalInput_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd">
+               <area shape="rect" alt="element_LookupTable" coords="291,0,452,42"
+                     href="AnalysisModule.xsd.html#element_LookupTable"/>
+
+               <area shape="rect" alt="element_Description" coords="291,52,452,94"
+                     href="AnalysisModule.xsd.html#element_Description"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_FormalInput_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="element_FormalInput_scbox_button" class="control"
+                   onclick="switchState('element_FormalInput_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="element_FormalInput_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">element</span> 
+               <span class="scTag">name</span>="<span class="scContent">FormalInput</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;LookupTable&#34; element declaration." href="#element_LookupTable">LookupTable</a>
+                        </span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div>
+                     <div style="margin-left: 1.5em">&lt;<span class="scTag">element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;Description&#34; element declaration." href="#element_Description">Description</a>
+                        </span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div>&lt;/<span class="scTag">sequence</span>&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">UserDefined</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">boolean</span>
+                     </span>" <span class="scTag">default</span>="<span class="scContent">false</span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Count</span>" <span class="scTag">default</span>="<span class="scContent">+</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">simpleType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">restriction</span> 
+                           <span class="scTag">base</span>="<span class="scContent">
+                              <span class="type">string</span>
+                           </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">enumeration</span> 
+                              <span class="scTag">value</span>="<span class="scContent">!</span>"/&gt;</div>
+                           <div style="margin-left: 1.5em">&lt;<span class="scTag">enumeration</span> 
+                              <span class="scTag">value</span>="<span class="scContent">?</span>"/&gt;</div>
+                           <div style="margin-left: 1.5em">&lt;<span class="scTag">enumeration</span> 
+                              <span class="scTag">value</span>="<span class="scContent">+</span>"/&gt;</div>
+                           <div style="margin-left: 1.5em">&lt;<span class="scTag">enumeration</span> 
+                              <span class="scTag">value</span>="<span class="scContent">*</span>"/&gt;</div>&lt;/<span class="scTag">restriction</span>&gt;</div>&lt;/<span class="scTag">simpleType</span>&gt;</div>&lt;/<span class="scTag">attribute</span>&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Name</span>" <span class="scTag">use</span>="<span class="scContent">required</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">simpleType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">restriction</span> 
+                           <span class="scTag">base</span>="<span class="scContent">
+                              <span class="type">string</span>
+                           </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">pattern</span> 
+                              <span class="scTag">value</span>="<span class="scContent">[A-Za-z0-9\-\^\(\)_ ]+</span>"/&gt;</div>&lt;/<span class="scTag">restriction</span>&gt;</div>&lt;/<span class="scTag">simpleType</span>&gt;</div>&lt;/<span class="scTag">attribute</span>&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">SemanticTypeName</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">string</span>
+                     </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>&lt;/<span class="scTag">complexType</span>&gt;</div>&lt;/<span class="scTag">element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_FormalInput_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="element_FormalOutput" class="name">FormalOutput</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>FormalOutput</td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary"
+                  href="AnalysisModule.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary"
+                  href="AnalysisModule.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>Documentation</th>
+            <td class="documentation">Specifies an output element of a module.</td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_FormalOutput_logicalDiagram_button" class="control"
+                   onclick="switchState('element_FormalOutput_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="element_FormalOutput_logicalDiagram" class="contents">
+            <img usemap="#logical_element_FormalOutput_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd"
+                 src="schemaDiagrams/logical_element_FormalOutput_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2003-no-hash//schemaDiagrams/logical_element_FormalOutput_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.map--><map name="logical_element_FormalOutput_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd">
+               <area shape="rect" alt="element_Description" coords="610,161,1134,237"
+                     href="AnalysisModule.xsd.html#element_Description"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_FormalOutput_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_FormalOutput_xibox_button" class="control"
+                   onclick="switchState('element_FormalOutput_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="element_FormalOutput_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:FormalOutput<br/>
+               <span style="margin-left: 0.5em"> IBelongTo="<span class="constraint">
+                     <span class="type">string</span> (<em>value</em> comes from list: {'[Feature]'|'[Iterator]'})</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'Concerning MakeNewFeature attribute of ExecutionInstructions, if a new feature type is made, then there are two possible places a formal output attribute can be stored: It can be stored as an attribute of the FeatureIterator, or it can be stored as an attribute of the new Feature. This tag is supposed to specify which. Can be left blank if module does not make new iterator. Tied to DB. FORMAL_OUTPUTS.FEATURE_TAG Processed before storage to DB'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Count="<span class="constraint">
+                     <span class="type">string</span> (<em>value</em> comes from list: {'!'|'?'|'+'|'*'})</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'Specifies how many counts of this formal output will be produced. Meanings are specified below ! = exactly one ? = zero or one + = one or more * = zero or more'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Name="<span class="constraint">
+                     <span class="type">string</span> (<em>pattern</em> = [A-Za-z0-9\-\^\(\)_ ]+)</span> 
+                  <span class="occurs">[1]</span>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> SemanticTypeName="<span class="type">string</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'THIS IS REQUIRED for every formal output outside of the importer. The importer doesn\'t know what it will run into before it executes, so it can\'t declare the semantic type of its outputs. If you are writing a module, I HIGHLY HIGHLY recommend that you type your formal outputs.'</p>"</span>&gt; <br/>
+               <div style="margin-left: 1.5em">&lt;<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;Description&#34; element declaration." href="#element_Description">Description</a>&gt; ... &lt;/<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;Description&#34; element declaration." href="#element_Description">Description</a>&gt; <span class="occurs">[0..1]</span>
+               </div>&lt;/<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:FormalOutput&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_FormalOutput_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_FormalOutput_diagram_button" class="control"
+                   onclick="switchState('element_FormalOutput_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="element_FormalOutput_diagram" class="contents">
+            <img usemap="#element_FormalOutput_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd"
+                 src="schemaDiagrams/element_FormalOutput_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2003-no-hash//schemaDiagrams/element_FormalOutput_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.map--><map name="element_FormalOutput_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd">
+               <area shape="rect" alt="element_Description" coords="298,0,459,42"
+                     href="AnalysisModule.xsd.html#element_Description"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_FormalOutput_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="element_FormalOutput_scbox_button" class="control"
+                   onclick="switchState('element_FormalOutput_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="element_FormalOutput_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">element</span> 
+               <span class="scTag">name</span>="<span class="scContent">FormalOutput</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;Description&#34; element declaration." href="#element_Description">Description</a>
+                        </span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div>&lt;/<span class="scTag">sequence</span>&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">IBelongTo</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">simpleType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">restriction</span> 
+                           <span class="scTag">base</span>="<span class="scContent">
+                              <span class="type">string</span>
+                           </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">enumeration</span> 
+                              <span class="scTag">value</span>="<span class="scContent">[Feature]</span>"/&gt;</div>
+                           <div style="margin-left: 1.5em">&lt;<span class="scTag">enumeration</span> 
+                              <span class="scTag">value</span>="<span class="scContent">[Iterator]</span>"/&gt;</div>&lt;/<span class="scTag">restriction</span>&gt;</div>&lt;/<span class="scTag">simpleType</span>&gt;</div>&lt;/<span class="scTag">attribute</span>&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Count</span>" <span class="scTag">default</span>="<span class="scContent">+</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">simpleType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">restriction</span> 
+                           <span class="scTag">base</span>="<span class="scContent">
+                              <span class="type">string</span>
+                           </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">enumeration</span> 
+                              <span class="scTag">value</span>="<span class="scContent">!</span>"/&gt;</div>
+                           <div style="margin-left: 1.5em">&lt;<span class="scTag">enumeration</span> 
+                              <span class="scTag">value</span>="<span class="scContent">?</span>"/&gt;</div>
+                           <div style="margin-left: 1.5em">&lt;<span class="scTag">enumeration</span> 
+                              <span class="scTag">value</span>="<span class="scContent">+</span>"/&gt;</div>
+                           <div style="margin-left: 1.5em">&lt;<span class="scTag">enumeration</span> 
+                              <span class="scTag">value</span>="<span class="scContent">*</span>"/&gt;</div>&lt;/<span class="scTag">restriction</span>&gt;</div>&lt;/<span class="scTag">simpleType</span>&gt;</div>&lt;/<span class="scTag">attribute</span>&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Name</span>" <span class="scTag">use</span>="<span class="scContent">required</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">simpleType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">restriction</span> 
+                           <span class="scTag">base</span>="<span class="scContent">
+                              <span class="type">string</span>
+                           </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">pattern</span> 
+                              <span class="scTag">value</span>="<span class="scContent">[A-Za-z0-9\-\^\(\)_ ]+</span>"/&gt;</div>&lt;/<span class="scTag">restriction</span>&gt;</div>&lt;/<span class="scTag">simpleType</span>&gt;</div>&lt;/<span class="scTag">attribute</span>&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">SemanticTypeName</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">string</span>
+                     </span>"/&gt;</div>&lt;/<span class="scTag">complexType</span>&gt;</div>&lt;/<span class="scTag">element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_FormalOutput_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="element_InstallationFile" class="name">InstallationFile</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>InstallationFile</td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary"
+                  href="AnalysisModule.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary"
+                  href="AnalysisModule.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>Documentation</th>
+            <td class="documentation">Contains a packaged or zipped installation files (binaries or source code).</td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_InstallationFile_logicalDiagram_button"
+                   class="control"
+                   onclick="switchState('element_InstallationFile_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="element_InstallationFile_logicalDiagram" class="contents">
+            <img usemap="#logical_element_InstallationFile_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd"
+                 src="schemaDiagrams/logical_element_InstallationFile_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2003-no-hash//schemaDiagrams/logical_element_InstallationFile_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.map--><map name="logical_element_InstallationFile_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd">
+               <area shape="rect" alt="element_BinaryFile" coords="610,53,1086,96"
+                     href="AnalysisModule.xsd.html#element_BinaryFile"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_InstallationFile_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_InstallationFile_xibox_button" class="control"
+                   onclick="switchState('element_InstallationFile_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="element_InstallationFile_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:InstallationFile<br/>
+               <span style="margin-left: 0.5em"> Format="<span class="type">string</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'This is a stub for future development. Don\'t bother with it unless you know more about it. Specifies the packaging and/or compression format of the Installation file.'</p>"</span>&gt; <br/>
+               <div style="margin-left: 1.5em">&lt;<a href="#ns_Bin" title="Find out namespace of 'Bin' prefix">Bin</a>:<a title="Jump to &#34;BinaryFile&#34; element declaration(located in external schema documentation)."
+                     href="BinaryFile.xsd.html#element_BinaryFile"
+                     class="externalLink">BinaryFile</a>&gt; ... &lt;/<a href="#ns_Bin" title="Find out namespace of 'Bin' prefix">Bin</a>:<a title="Jump to &#34;BinaryFile&#34; element declaration(located in external schema documentation)."
+                     href="BinaryFile.xsd.html#element_BinaryFile"
+                     class="externalLink">BinaryFile</a>&gt; <span class="occurs">[1]</span>
+               </div>&lt;/<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:InstallationFile&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_InstallationFile_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_InstallationFile_diagram_button" class="control"
+                   onclick="switchState('element_InstallationFile_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="element_InstallationFile_diagram" class="contents">
+            <img usemap="#element_InstallationFile_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd"
+                 src="schemaDiagrams/element_InstallationFile_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2003-no-hash//schemaDiagrams/element_InstallationFile_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.map--><map name="element_InstallationFile_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd">
+               <area shape="rect" alt="element_BinaryFile" coords="326,0,480,26"
+                     href="BinaryFile.xsd.html#element_BinaryFile"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_InstallationFile_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="element_InstallationFile_scbox_button" class="control"
+                   onclick="switchState('element_InstallationFile_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="element_InstallationFile_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">element</span> 
+               <span class="scTag">name</span>="<span class="scContent">InstallationFile</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a href="#ns_Bin" title="Find out namespace of 'Bin' prefix">Bin</a>:<a title="Jump to &#34;BinaryFile&#34; element declaration(located in external schema documentation)."
+                              href="BinaryFile.xsd.html#element_BinaryFile"
+                              class="externalLink">BinaryFile</a>
+                        </span>"/&gt;</div>&lt;/<span class="scTag">sequence</span>&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Format</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">string</span>
+                     </span>"/&gt;</div>&lt;/<span class="scTag">complexType</span>&gt;</div>&lt;/<span class="scTag">element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_InstallationFile_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="element_InstallationScript" class="name">InstallationScript</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>InstallationScript</td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary"
+                  href="AnalysisModule.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary"
+                  href="AnalysisModule.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>Documentation</th>
+            <td class="documentation">The script should interface with the OME API to find all information it needs. (i.e. installation path) It also needs to set the location of the program after the program is installed. The location should be set through the API, but it will propogate to the LOCATION column of the PROGRAMS table.</td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_InstallationScript_logicalDiagram_button"
+                   class="control"
+                   onclick="switchState('element_InstallationScript_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="element_InstallationScript_logicalDiagram" class="contents">
+            <img usemap="#logical_element_InstallationScript_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd"
+                 src="schemaDiagrams/logical_element_InstallationScript_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2003-no-hash//schemaDiagrams/logical_element_InstallationScript_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.map--><map name="logical_element_InstallationScript_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd">
+               <area shape="rect" alt="element_BinaryFile" coords="610,0,1086,43"
+                     href="AnalysisModule.xsd.html#element_BinaryFile"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_InstallationScript_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_InstallationScript_xibox_button" class="control"
+                   onclick="switchState('element_InstallationScript_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="element_InstallationScript_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:InstallationScript&gt; <br/>
+               <div style="margin-left: 1.5em">&lt;<a href="#ns_Bin" title="Find out namespace of 'Bin' prefix">Bin</a>:<a title="Jump to &#34;BinaryFile&#34; element declaration(located in external schema documentation)."
+                     href="BinaryFile.xsd.html#element_BinaryFile"
+                     class="externalLink">BinaryFile</a>&gt; ... &lt;/<a href="#ns_Bin" title="Find out namespace of 'Bin' prefix">Bin</a>:<a title="Jump to &#34;BinaryFile&#34; element declaration(located in external schema documentation)."
+                     href="BinaryFile.xsd.html#element_BinaryFile"
+                     class="externalLink">BinaryFile</a>&gt; <span class="occurs">[1]</span>
+               </div>&lt;/<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:InstallationScript&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_InstallationScript_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_InstallationScript_diagram_button" class="control"
+                   onclick="switchState('element_InstallationScript_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="element_InstallationScript_diagram" class="contents">
+            <img usemap="#element_InstallationScript_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd"
+                 src="schemaDiagrams/element_InstallationScript_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2003-no-hash//schemaDiagrams/element_InstallationScript_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.map--><map name="element_InstallationScript_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd">
+               <area shape="rect" alt="element_BinaryFile" coords="340,0,494,26"
+                     href="BinaryFile.xsd.html#element_BinaryFile"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_InstallationScript_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="element_InstallationScript_scbox_button" class="control"
+                   onclick="switchState('element_InstallationScript_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="element_InstallationScript_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">element</span> 
+               <span class="scTag">name</span>="<span class="scContent">InstallationScript</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a href="#ns_Bin" title="Find out namespace of 'Bin' prefix">Bin</a>:<a title="Jump to &#34;BinaryFile&#34; element declaration(located in external schema documentation)."
+                              href="BinaryFile.xsd.html#element_BinaryFile"
+                              class="externalLink">BinaryFile</a>
+                        </span>"/&gt;</div>&lt;/<span class="scTag">sequence</span>&gt;</div>&lt;/<span class="scTag">complexType</span>&gt;</div>&lt;/<span class="scTag">element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_InstallationScript_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="element_Installed" class="name">Installed</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>Installed</td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary"
+                  href="AnalysisModule.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary"
+                  href="AnalysisModule.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_Installed_logicalDiagram_button" class="control"
+                   onclick="switchState('element_Installed_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="element_Installed_logicalDiagram" class="contents">
+            <img usemap="#logical_element_Installed_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd"
+                 src="schemaDiagrams/logical_element_Installed_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2003-no-hash//schemaDiagrams/logical_element_Installed_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.map--><map name="logical_element_Installed_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Installed_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_Installed_xibox_button" class="control"
+                   onclick="switchState('element_Installed_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="element_Installed_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:Installed<br/>
+               <span style="margin-left: 0.5em"> location="<span class="type">string</span> 
+                  <span class="occurs">[1]</span>"</span>/&gt; </div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Installed_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_Installed_diagram_button" class="control"
+                   onclick="switchState('element_Installed_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="element_Installed_diagram" class="contents">
+            <img usemap="#element_Installed_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd"
+                 src="schemaDiagrams/element_Installed_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2003-no-hash//schemaDiagrams/element_Installed_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.map--><map name="element_Installed_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Installed_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="element_Installed_scbox_button" class="control"
+                   onclick="switchState('element_Installed_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="element_Installed_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">element</span> 
+               <span class="scTag">name</span>="<span class="scContent">Installed</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">location</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">string</span>
+                     </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>&lt;/<span class="scTag">complexType</span>&gt;</div>&lt;/<span class="scTag">element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Installed_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="element_LookupTable" class="name">LookupTable</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>LookupTable</td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary"
+                  href="AnalysisModule.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary"
+                  href="AnalysisModule.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>Documentation</th>
+            <td class="documentation">Describes valid values for an input. Think enumerations, (a list of valid values).</td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_LookupTable_logicalDiagram_button" class="control"
+                   onclick="switchState('element_LookupTable_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="element_LookupTable_logicalDiagram" class="contents">
+            <img usemap="#logical_element_LookupTable_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd"
+                 src="schemaDiagrams/logical_element_LookupTable_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2003-no-hash//schemaDiagrams/logical_element_LookupTable_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.map--><map name="logical_element_LookupTable_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd">
+               <area shape="rect" alt="element_Entry" coords="610,36,1134,95"
+                     href="AnalysisModule.xsd.html#element_Entry"/>
+
+               <area shape="rect" alt="element_Description" coords="610,105,1134,181"
+                     href="AnalysisModule.xsd.html#element_Description"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_LookupTable_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_LookupTable_xibox_button" class="control"
+                   onclick="switchState('element_LookupTable_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="element_LookupTable_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:LookupTable<br/>
+               <span style="margin-left: 0.5em"> Name="<span class="constraint">
+                     <span class="type">string</span> (<em>length</em> &lt;= 64)</span> 
+                  <span class="occurs">[1]</span> 
+                  <p class="documentation">'Tied to DB. LOOKUP_TABLES.NAME'</p>"</span>&gt; <br/>
+               <div style="margin-left: 1.5em">&lt;<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;Entry&#34; element declaration." href="#element_Entry">Entry</a>&gt; ... &lt;/<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;Entry&#34; element declaration." href="#element_Entry">Entry</a>&gt; <span class="occurs">[1..*]</span>
+               </div>
+               <div style="margin-left: 1.5em">&lt;<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;Description&#34; element declaration." href="#element_Description">Description</a>&gt; ... &lt;/<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;Description&#34; element declaration." href="#element_Description">Description</a>&gt; <span class="occurs">[0..1]</span>
+               </div>&lt;/<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:LookupTable&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_LookupTable_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_LookupTable_diagram_button" class="control"
+                   onclick="switchState('element_LookupTable_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="element_LookupTable_diagram" class="contents">
+            <img usemap="#element_LookupTable_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd"
+                 src="schemaDiagrams/element_LookupTable_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2003-no-hash//schemaDiagrams/element_LookupTable_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.map--><map name="element_LookupTable_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd">
+               <area shape="rect" alt="element_Entry" coords="291,0,410,42"
+                     href="AnalysisModule.xsd.html#element_Entry"/>
+
+               <area shape="rect" alt="element_Description" coords="291,52,452,94"
+                     href="AnalysisModule.xsd.html#element_Description"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_LookupTable_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="element_LookupTable_scbox_button" class="control"
+                   onclick="switchState('element_LookupTable_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="element_LookupTable_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">element</span> 
+               <span class="scTag">name</span>="<span class="scContent">LookupTable</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;Entry&#34; element declaration." href="#element_Entry">Entry</a>
+                        </span>" <span class="scTag">maxOccurs</span>="<span class="scContent">unbounded</span>"/&gt;</div>
+                     <div style="margin-left: 1.5em">&lt;<span class="scTag">element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;Description&#34; element declaration." href="#element_Description">Description</a>
+                        </span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div>&lt;/<span class="scTag">sequence</span>&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Name</span>" <span class="scTag">use</span>="<span class="scContent">required</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">simpleType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">restriction</span> 
+                           <span class="scTag">base</span>="<span class="scContent">
+                              <span class="type">string</span>
+                           </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">maxLength</span> 
+                              <span class="scTag">value</span>="<span class="scContent">64</span>"/&gt;</div>&lt;/<span class="scTag">restriction</span>&gt;</div>&lt;/<span class="scTag">simpleType</span>&gt;</div>&lt;/<span class="scTag">attribute</span>&gt;</div>&lt;/<span class="scTag">complexType</span>&gt;</div>&lt;/<span class="scTag">element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_LookupTable_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="element_Program" class="name">Program</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>Program</td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary"
+                  href="AnalysisModule.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary"
+                  href="AnalysisModule.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>Documentation</th>
+            <td class="documentation">Stores an installation package and installation script for a program.
+This currently is NOT implemented.
+			</td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_Program_logicalDiagram_button" class="control"
+                   onclick="switchState('element_Program_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="element_Program_logicalDiagram" class="contents">
+            <img usemap="#logical_element_Program_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd"
+                 src="schemaDiagrams/logical_element_Program_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2003-no-hash//schemaDiagrams/logical_element_Program_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.map--><map name="logical_element_Program_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd">
+               <area shape="rect" alt="element_Installed" coords="596,248,1120,291"
+                     href="AnalysisModule.xsd.html#element_Installed"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Program_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_Program_xibox_button" class="control"
+                   onclick="switchState('element_Program_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="element_Program_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:Program<br/>
+               <span style="margin-left: 0.5em"> Name="<span class="constraint">
+                     <span class="type">string</span> (<em>length</em> &lt;= 64)</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'Program name. Unclear how this would be used. DB location PROGRAMS.PROGRAM_NAME is populated by XML attribute AnalysisModule.Name.'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Version="<span class="type">string</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'Currently unused'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> ProgramID="<span class="type">string</span> 
+                  <span class="occurs">[1]</span>"</span>&gt; <br/>
+               <span class="group" style="margin-left: 1.5em">Start <a title="Look up 'Choice' in glossary" href="AnalysisModule.xsd.html#term_Choice">Choice</a> 
+                  <span class="occurs">[1]</span>
+               </span>
+               <br/>
+               <div style="margin-left: 3em">&lt;<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;InstallationScript&#34; element declaration."
+                     href="#element_InstallationScript">InstallationScript</a>&gt; ... &lt;/<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;InstallationScript&#34; element declaration."
+                     href="#element_InstallationScript">InstallationScript</a>&gt; <span class="occurs">[1]</span>
+               </div>
+               <div style="margin-left: 3em">&lt;<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;InstallationFile&#34; element declaration."
+                     href="#element_InstallationFile">InstallationFile</a>&gt; ... &lt;/<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;InstallationFile&#34; element declaration."
+                     href="#element_InstallationFile">InstallationFile</a>&gt; <span class="occurs">[1]</span>
+               </div>
+               <div style="margin-left: 3em">&lt;<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;Installed&#34; element declaration." href="#element_Installed">Installed</a>&gt; ... &lt;/<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;Installed&#34; element declaration." href="#element_Installed">Installed</a>&gt; <span class="occurs">[1]</span>
+               </div>
+               <span class="group" style="margin-left: 1.5em">End Choice</span>
+               <br/>&lt;/<a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:Program&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Program_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_Program_diagram_button" class="control"
+                   onclick="switchState('element_Program_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="element_Program_diagram" class="contents">
+            <img usemap="#element_Program_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd"
+                 src="schemaDiagrams/element_Program_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2003-no-hash//schemaDiagrams/element_Program_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.map--><map name="element_Program_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd">
+               <area shape="rect" alt="element_InstallationScript" coords="335,0,545,26"
+                     href="AnalysisModule.xsd.html#element_InstallationScript"/>
+
+               <area shape="rect" alt="element_InstallationFile" coords="335,36,531,62"
+                     href="AnalysisModule.xsd.html#element_InstallationFile"/>
+
+               <area shape="rect" alt="element_Installed" coords="249,72,396,98"
+                     href="AnalysisModule.xsd.html#element_Installed"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Program_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="element_Program_scbox_button" class="control"
+                   onclick="switchState('element_Program_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="element_Program_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">element</span> 
+               <span class="scTag">name</span>="<span class="scContent">Program</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">choice</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">element</span> 
+                           <span class="scTag">ref</span>="<span class="scContent">
+                              <a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;InstallationScript&#34; element declaration."
+                                 href="#element_InstallationScript">InstallationScript</a>
+                           </span>"/&gt;</div>
+                        <div style="margin-left: 1.5em">&lt;<span class="scTag">element</span> 
+                           <span class="scTag">ref</span>="<span class="scContent">
+                              <a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;InstallationFile&#34; element declaration."
+                                 href="#element_InstallationFile">InstallationFile</a>
+                           </span>"/&gt;</div>&lt;/<span class="scTag">sequence</span>&gt;</div>
+                     <div style="margin-left: 1.5em">&lt;<span class="scTag">element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;Installed&#34; element declaration." href="#element_Installed">Installed</a>
+                        </span>"/&gt;</div>&lt;/<span class="scTag">choice</span>&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Name</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">simpleType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">restriction</span> 
+                           <span class="scTag">base</span>="<span class="scContent">
+                              <span class="type">string</span>
+                           </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">maxLength</span> 
+                              <span class="scTag">value</span>="<span class="scContent">64</span>"/&gt;</div>&lt;/<span class="scTag">restriction</span>&gt;</div>&lt;/<span class="scTag">simpleType</span>&gt;</div>&lt;/<span class="scTag">attribute</span>&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Version</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">string</span>
+                     </span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">ProgramID</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">string</span>
+                     </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>&lt;/<span class="scTag">complexType</span>&gt;</div>&lt;/<span class="scTag">element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Program_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h2>
+         <a name="SchemaDefinitions">Global Definitions</a>
+      </h2>
+      <h3>Simple Type: <a name="type_Hex40" class="name">Hex40</a>
+      </h3>
+      <table class="hierarchy">
+         <tr>
+            <th>Super-types:</th>
+            <td>
+               <span class="type">hexBinary</span> &lt; <strong>Hex40</strong> (by restriction)</td>
+         </tr>
+         <tr>
+            <th>Sub-types:</th>
+            <td>None</td>
+         </tr>
+      </table>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>Hex40</td>
+         </tr>
+         <tr>
+            <th>Content</th>
+            <td>
+               <ul>
+                  <li>Base XSD Type: hexBinary</li>
+               </ul>
+               <ul>
+                  <li>
+                     <em>length</em> = 20</li>
+               </ul>
+            </td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="type_Hex40_diagram_button" class="control"
+                   onclick="switchState('type_Hex40_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="type_Hex40_diagram" class="contents">
+            <img usemap="#type_Hex40_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd"
+                 src="schemaDiagrams/type_Hex40_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2003-no-hash//schemaDiagrams/type_Hex40_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.map--><map name="type_Hex40_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('type_Hex40_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="type_Hex40_scbox_button" class="control"
+                   onclick="switchState('type_Hex40_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="type_Hex40_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">simpleType</span> 
+               <span class="scTag">name</span>="<span class="scContent">Hex40</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">restriction</span> 
+                  <span class="scTag">base</span>="<span class="scContent">
+                     <span class="type">hexBinary</span>
+                  </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">length</span> 
+                     <span class="scTag">value</span>="<span class="scContent">20</span>"/&gt;</div>&lt;/<span class="scTag">restriction</span>&gt;</div>&lt;/<span class="scTag">simpleType</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('type_Hex40_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Simple Type: <a name="type_LSID" class="name">LSID</a>
+      </h3>
+      <table class="hierarchy">
+         <tr>
+            <th>Super-types:</th>
+            <td>
+               <span class="type">string</span> &lt; <strong>LSID</strong> (by restriction)</td>
+         </tr>
+         <tr>
+            <th>Sub-types:</th>
+            <td>
+               <ul>
+                  <li>
+                     <span class="type">
+                        <a title="Jump to &#34;ModuleID&#34; type definition." href="#type_ModuleID">ModuleID</a>
+                     </span> (by restriction)</li>
+               </ul>
+            </td>
+         </tr>
+      </table>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>LSID</td>
+         </tr>
+         <tr>
+            <th>Content</th>
+            <td>
+               <ul>
+                  <li>Base XSD Type: string</li>
+               </ul>
+               <ul>
+                  <li>
+                     <em>pattern</em> = (urn:lsid:)?(\S+\.\S+)+(:\S+)(:\S+)</li>
+               </ul>
+            </td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="type_LSID_diagram_button" class="control"
+                   onclick="switchState('type_LSID_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="type_LSID_diagram" class="contents">
+            <img usemap="#type_LSID_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd"
+                 src="schemaDiagrams/type_LSID_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2003-no-hash//schemaDiagrams/type_LSID_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.map--><map name="type_LSID_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('type_LSID_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="type_LSID_scbox_button" class="control"
+                   onclick="switchState('type_LSID_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="type_LSID_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">simpleType</span> 
+               <span class="scTag">name</span>="<span class="scContent">LSID</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">restriction</span> 
+                  <span class="scTag">base</span>="<span class="scContent">
+                     <span class="type">string</span>
+                  </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">pattern</span> 
+                     <span class="scTag">value</span>="<span class="scContent">(urn:lsid:)?(\S+\.\S+)+(:\S+)(:\S+)</span>"/&gt;</div>&lt;/<span class="scTag">restriction</span>&gt;</div>&lt;/<span class="scTag">simpleType</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('type_LSID_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Simple Type: <a name="type_ModuleID" class="name">ModuleID</a>
+      </h3>
+      <table class="hierarchy">
+         <tr>
+            <th>Super-types:</th>
+            <td>
+               <span class="type">string</span> &lt; <span class="type">
+                  <a title="Jump to &#34;LSID&#34; type definition." href="#type_LSID">LSID</a>
+               </span> (by restriction) &lt; <strong>ModuleID</strong> (by restriction)</td>
+         </tr>
+         <tr>
+            <th>Sub-types:</th>
+            <td>None</td>
+         </tr>
+      </table>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>ModuleID</td>
+         </tr>
+         <tr>
+            <th>Content</th>
+            <td>
+               <ul>
+                  <li>Base XSD Type: string</li>
+               </ul>
+               <ul>
+                  <li>
+                     <em>pattern</em> = (urn:lsid:)?(\S+\.\S+)+(:\S+)(:\S+)</li>
+               </ul>
+               <ul>
+                  <li>
+                     <em>pattern</em> = (urn:lsid:)?(\S+\.\S+)+(:Module)(:\S+)</li>
+               </ul>
+            </td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="type_ModuleID_diagram_button" class="control"
+                   onclick="switchState('type_ModuleID_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="type_ModuleID_diagram" class="contents">
+            <img usemap="#type_ModuleID_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd"
+                 src="schemaDiagrams/type_ModuleID_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2003-no-hash//schemaDiagrams/type_ModuleID_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd.map--><map name="type_ModuleID_httpwww.openmicroscopy.orgXMLschemasAnalysisModuleRC1AnalysisModule.xsd">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('type_ModuleID_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="type_ModuleID_scbox_button" class="control"
+                   onclick="switchState('type_ModuleID_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="type_ModuleID_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">simpleType</span> 
+               <span class="scTag">name</span>="<span class="scContent">ModuleID</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">restriction</span> 
+                  <span class="scTag">base</span>="<span class="scContent">
+                     <span class="type">
+                        <a href="#ns_AML" title="Find out namespace of 'AML' prefix">AML</a>:<a title="Jump to &#34;LSID&#34; type definition." href="#type_LSID">LSID</a>
+                     </span>
+                  </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">pattern</span> 
+                     <span class="scTag">value</span>="<span class="scContent">(urn:lsid:)?(\S+\.\S+)+(:Module)(:\S+)</span>"/&gt;</div>&lt;/<span class="scTag">restriction</span>&gt;</div>&lt;/<span class="scTag">simpleType</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('type_ModuleID_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <div id="legend">
+         <h2>
+            <a name="Legend">Legend</a>
+         </h2>
+         <div style="float: left; width: 15em;">
+            <h3 style="margin-bottom: 0px;">Complex Type:</h3>
+            <div class="hint" style="margin-left: 0em;">Schema Component Type</div>
+         </div>
+         <div style="float: left; width: 15em;">
+            <h3 style="margin-bottom: 0px;">
+               <span class="name">AusAddress</span>
+            </h3>
+            <div class="hint" style="margin-left: 0em;">Schema Component Name</div>
+         </div>
+         <table class="hierarchy" style="clear : both">
+            <tr>
+               <th>Super-types:</th>
+               <td>
+                  <span class="type" style="color: #0000FF; text-decoration:underline;">Address</span> &lt; <span class="current">AusAddress</span> (by extension)</td>
+            </tr>
+            <tr>
+               <th>Sub-types:</th>
+               <td>
+                  <ul>
+                     <li>
+                        <span class="type" style="color: #0000FF; text-decoration:underline;">QLDAddress</span> (by restriction)</li>
+                  </ul>
+               </td>
+            </tr>
+         </table>
+         <div class="hint">If this schema component is a type definition, its type hierarchy is shown in a gray-bordered box.</div>
+         <table class="properties">
+            <tr>
+               <th>Name</th>
+               <td>AusAddress</td>
+            </tr>
+            <tr>
+               <th>
+                  <a title="Look up 'Abstract' in glossary"
+                     href="AnalysisModule.xsd.html#term_Abstract">Abstract</a>
+               </th>
+               <td>no</td>
+            </tr>
+         </table>
+         <div class="hint">The table above displays the properties of this schema component.</div>
+         <div class="sample box">
+            <div>
+               <span class="caption">XML Instance Representation</span>
+            </div>
+            <div class="contents">
+               <span style="margin-left: 0em">&lt;...</span>
+               <span class="newFields">
+                  <span> country="<span class="fixed">Australia</span>"</span>
+               </span>&gt; <br/>
+               <span style="margin-left: 1.5em" class="inherited">&lt;unitNo&gt; <span class="type">string</span> &lt;/unitNo&gt; <span class="occurs">[0..1]</span>
+               </span>
+               <br/>
+               <span style="margin-left: 1.5em" class="inherited">&lt;houseNo&gt; <span class="type">string</span> &lt;/houseNo&gt; <span class="occurs">[1]</span>
+               </span>
+               <br/>
+               <span style="margin-left: 1.5em" class="inherited">&lt;street&gt; <span class="type">string</span> &lt;/street&gt; <span class="occurs">[1]</span>
+               </span>
+               <br/>
+               <span class="group" style="margin-left: 1.5em">Start <a title="Look up 'Choice' in glossary" href="#term_Choice">Choice</a>
+                  <span class="occurs">[1]</span>
+               </span>
+               <br/>
+               <span style="margin-left: 3em" class="inherited">&lt;city&gt; <span class="type">string</span> &lt;/city&gt; <span class="occurs">[1]</span>
+               </span>
+               <br/>
+               <span style="margin-left: 3em" class="inherited">&lt;town&gt; <span class="type">string</span> &lt;/town&gt; <span class="occurs">[1]</span>
+               </span>
+               <br/>
+               <span class="group" style="margin-left: 1.5em">End Choice</span>
+               <br/>
+               <span class="newFields">
+                  <span style="margin-left: 1.5em">&lt;state&gt; <span class="type" style="text-decoration:underline;">AusStates</span> &lt;/state&gt; <span class="occurs">[1]</span>
+                  </span>
+                  <br/>
+                  <span style="margin-left: 1.5em">&lt;postcode&gt; <span class="constraint">string &lt;&lt;<em>pattern</em> = [1-9][0-9]{3}&gt;&gt;</span> &lt;/postcode&gt; <span class="occurs">[1]</span>
+                     <a href="javascript:void(0)" title="View Documentation" class="documentation"
+                        onclick="docArray = new Array('Post code must be a four-digit number.'); viewDocumentation('Element', 'postcode', docArray);">?</a>
+                  </span>
+                  <br/>
+               </span>
+               <span style="margin-left: 0em">&lt;/...&gt;</span>
+               <br/>
+            </div>
+         </div>
+         <div class="hint">
+            <p>The XML Instance Representation table above shows the schema component's content as an XML instance.</p>
+            <ul>
+               <li>The minimum and maximum occurrence of elements and attributes are provided in square brackets, e.g. [0..1].</li>
+               <li>Model group information are shown in gray, e.g. Start Choice ... End Choice.</li>
+               <li>For type derivations, the elements and attributes that have been added to or changed from the base type's content are shown in <span style="font-weight: bold">bold</span>.</li>
+               <li>If an element/attribute has a fixed value, the fixed value is shown in green, e.g. country="Australia".</li>
+               <li>Otherwise, the type of the element/attribute is displayed.
+               <ul>
+                     <li>If the element/attribute's type is in the schema, a link is provided to it.</li>
+                     <li>For local simple type definitions, the constraints are displayed in angle brackets, e.g. &lt;&lt;<em>pattern</em> = [1-9][0-9]{3}&gt;&gt;.</li>
+                  </ul>
+               </li>
+               <li>If a local element/attribute has documentation, it will be displayed in a window that pops up when the question mark inside the attribute or next to the element is clicked, e.g. &lt;postcode&gt;.</li>
+            </ul>
+         </div>
+         <div class="schemaComponent box">
+            <div>
+               <span class="caption">Schema Component Representation</span>
+            </div>
+            <div class="contents">
+               <span style="margin-left: 0em">&lt;<span class="scTag">complexType</span>
+                  <span class="scTag">name</span>="<span class="scContent">AusAddress</span>"&gt;</span>
+               <br/>
+               <span style="margin-left: 1.5em">&lt;<span class="scTag">complexContent</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 3em">&lt;<span class="scTag">extension</span>
+                  <span class="scTag">base</span>="<span class="scContent">
+                     <span class="type" style="text-decoration:underline;">Address</span>
+                  </span>"&gt;</span>
+               <br/>
+               <span style="margin-left: 4.5em">&lt;<span class="scTag">sequence</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 6em">&lt;<span class="scTag">element</span>
+                  <span class="scTag">name</span>="<span class="scContent">state</span>" <span class="scTag">type</span>="<span class="scContent">
+                     <span class="type" style="text-decoration:underline;">AusStates</span>
+                  </span>"/&gt;</span>
+               <br/>
+               <span style="margin-left: 6em">&lt;<span class="scTag">element</span>
+                  <span class="scTag">name</span>="<span class="scContent">postcode</span>"&gt;</span>
+               <br/>
+               <span style="margin-left: 7.5em">&lt;<span class="scTag">simpleType</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 9em">&lt;<span class="scTag">restriction</span>
+                  <span class="scTag">base</span>="<span class="scContent">
+                     <span class="type">string</span>
+                  </span>"&gt;</span>
+               <br/>
+               <span style="margin-left: 10.5em">&lt;<span class="scTag">pattern</span>
+                  <span class="scTag">value</span>="<span class="scContent">[1-9][0-9]{3}</span>"/&gt;</span>
+               <br/>
+               <span style="margin-left: 9em">&lt;/<span class="scTag">restriction</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 7.5em">&lt;/<span class="scTag">simpleType</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 6em">&lt;/<span class="scTag">element</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 4.5em">&lt;/<span class="scTag">sequence</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 4.5em">&lt;<span class="scTag">attribute</span>
+                  <span class="scTag">name</span>="<span class="scContent">country</span>" <span class="scTag">type</span>="<span class="scContent">
+                     <span class="type">string</span>
+                  </span>" <span class="scTag">fixed</span>="<span class="scContent">Australia</span>"/&gt;</span>
+               <br/>
+               <span style="margin-left: 3em">&lt;/<span class="scTag">extension</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 1.5em">&lt;/<span class="scTag">complexContent</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 0em">&lt;/<span class="scTag">complexType</span>&gt;</span>
+               <br/>
+            </div>
+         </div>
+         <div class="hint">The Schema Component Representation table above displays the underlying XML representation of the schema component. (Annotations are not shown.)</div>
+         <div style="text-align: right; clear: both;">
+            <a href="#top">top</a>
+         </div>
+         <hr/>
+      </div>
+      <div id="glossary">
+         <h2>
+            <a name="Glossary">Glossary</a>
+         </h2>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_Abstract">Abstract</a> 
+            </span>(Applies to complex type definitions and element declarations). An abstract element or complex type cannot used to validate an element instance. If there is a reference to an abstract element, only element declarations that can substitute the abstract element can be used to validate the instance. For references to abstract type definitions, only derived types can be used.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_All">All Model Group</a> 
+            </span>Child elements can be provided <em>in any order</em> in instances. See: <a title="http://www.w3.org/TR/xmlschema-1/#element-all"
+               href="http://www.w3.org/TR/xmlschema-1/#element-all">http://www.w3.org/TR/xmlschema-1/#element-all</a>.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_Choice">Choice Model Group</a> 
+            </span>
+            <em>Only one</em> from the list of child elements and model groups can be provided in instances. See: <a title="http://www.w3.org/TR/xmlschema-1/#element-choice"
+               href="http://www.w3.org/TR/xmlschema-1/#element-choice">http://www.w3.org/TR/xmlschema-1/#element-choice</a>.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_CollapseWS">Collapse Whitespace Policy</a> 
+            </span>Replace tab, line feed, and carriage return characters with space character (Unicode character 32). Then, collapse contiguous sequences of space characters into single space character, and remove leading and trailing space characters.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_ElemBlock">Disallowed Substitutions</a> 
+            </span>(Applies to element declarations). If <em>substitution</em> is specified, then <a title="Look up 'substitution group' in glossary"
+               href="AnalysisModule.xsd.html#term_SubGroup">substitution group</a> members cannot be used in place of the given element declaration to validate element instances. If <em>derivation methods</em>, e.g. extension, restriction, are specified, then the given element declaration will not validate element instances that have types derived from the element declaration's type using the specified derivation methods. Normally, element instances can override their declaration's type by specifying an <code>xsi:type</code> attribute.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_Key">Key Constraint</a> 
+            </span>Like <a title="Look up 'Uniqueness Constraint' in glossary"
+               href="AnalysisModule.xsd.html#term_Unique">Uniqueness Constraint</a>, but additionally requires that the specified value(s) must be provided. See: <a title="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions"
+               href="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions">http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions</a>.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_KeyRef">Key Reference Constraint</a> 
+            </span>Ensures that the specified value(s) must match value(s) from a <a title="Look up 'Key Constraint' in glossary"
+               href="AnalysisModule.xsd.html#term_Key">Key Constraint</a> or <a title="Look up 'Uniqueness Constraint' in glossary"
+               href="AnalysisModule.xsd.html#term_Unique">Uniqueness Constraint</a>. See: <a title="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions"
+               href="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions">http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions</a>.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_ModelGroup">Model Group</a> 
+            </span>Groups together element content, specifying the order in which the element content can occur and the number of times the group of element content may be repeated. See: <a title="http://www.w3.org/TR/xmlschema-1/#Model_Groups"
+               href="http://www.w3.org/TR/xmlschema-1/#Model_Groups">http://www.w3.org/TR/xmlschema-1/#Model_Groups</a>.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_Nillable">Nillable</a> 
+            </span>(Applies to element declarations). If an element declaration is nillable, instances can use the <code>xsi:nil</code> attribute. The <code>xsi:nil</code> attribute is the boolean attribute, <em>nil</em>, from the <em>http://www.w3.org/2001/XMLSchema-instance</em> namespace. If an element instance has an <code>xsi:nil</code> attribute set to true, it can be left empty, even though its element declaration may have required content.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_Notation">Notation</a> 
+            </span>A notation is used to identify the format of a piece of data. Values of elements and attributes that are of type, NOTATION, must come from the names of declared notations. See: <a title="http://www.w3.org/TR/xmlschema-1/#cNotation_Declarations"
+               href="http://www.w3.org/TR/xmlschema-1/#cNotation_Declarations">http://www.w3.org/TR/xmlschema-1/#cNotation_Declarations</a>.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_PreserveWS">Preserve Whitespace Policy</a> 
+            </span>Preserve whitespaces exactly as they appear in instances.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_TypeFinal">Prohibited Derivations</a> 
+            </span>(Applies to type definitions). Derivation methods that cannot be used to create sub-types from a given type definition.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_TypeBlock">Prohibited Substitutions</a> 
+            </span>(Applies to complex type definitions). Prevents sub-types that have been derived using the specified derivation methods from validating element instances in place of the given type definition.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_ReplaceWS">Replace Whitespace Policy</a> 
+            </span>Replace tab, line feed, and carriage return characters with space character (Unicode character 32).</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_Sequence">Sequence Model Group</a> 
+            </span>Child elements and model groups must be provided <em>in the specified order</em> in instances. See: <a title="http://www.w3.org/TR/xmlschema-1/#element-sequence"
+               href="http://www.w3.org/TR/xmlschema-1/#element-sequence">http://www.w3.org/TR/xmlschema-1/#element-sequence</a>.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_SubGroup">Substitution Group</a> 
+            </span>Elements that are <em>members</em> of a substitution group can be used wherever the <em>head</em> element of the substitution group is referenced.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_ElemFinal">Substitution Group Exclusions</a> 
+            </span>(Applies to element declarations). Prohibits element declarations from nominating themselves as being able to substitute a given element declaration, if they have types that are derived from the original element's type using the specified derivation methods.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_TargetNS">Target Namespace</a> 
+            </span>The target namespace identifies the namespace that components in this schema belongs to. If no target namespace is provided, then the schema components do not belong to any namespace.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_Unique">Uniqueness Constraint</a> 
+            </span>Ensures uniqueness of an element/attribute value, or a combination of values, within a specified scope. See: <a title="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions"
+               href="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions">http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions</a>.</p>
+         <div style="text-align: right; clear: both;">
+            <a href="#top">top</a>
+         </div>
+         <hr/>
+      </div>
+      <p class="footer">Generated by <a href="http://www.oxygenxml.com">&lt;oXygen/&gt; XML Editor</a> using a modified version of <a href="http://titanium.dstc.edu.au/xml/xs3p">xs3p</a> that adds schema diagrams and chunking support. Last modified: <script type="text/javascript">
+<!--
+          document.write(document.lastModified);
+// -->
+</script>
+      </p>
+   </body>
+</html>
