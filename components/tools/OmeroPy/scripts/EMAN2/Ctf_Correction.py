@@ -111,7 +111,7 @@ def uploadBdbsAsDataset(services, bdbContainer, imageIds, project = None, info =
     fileName = "original_metadata.txt"
     
     # loop through all the images. 
-    
+    datasets = []
     for db in dbs:
         dbpath = "bdb:particles#%s" % db 
         nimg = EMUtil.get_image_count(dbpath)    # eg images in bdb 'folder'
@@ -122,6 +122,7 @@ def uploadBdbsAsDataset(services, bdbContainer, imageIds, project = None, info =
         dataset.name = rstring(db)
         dataset.description = rstring(info)
         dataset = gateway.saveAndReturnObject(dataset)
+        datasets.append(dataset)
         if project:        # and put it in a new project
             link = omero.model.ProjectDatasetLinkI()
             link.parent = omero.model.ProjectI(project.id.val, False)
@@ -173,7 +174,8 @@ def uploadBdbsAsDataset(services, bdbContainer, imageIds, project = None, info =
             scriptUtil.uploadAndAttachFile(queryService, updateService, rawFileStore, image, fileName, "text/plain", None, namespace)
         # delete temp file
         os.remove(fileName)
-
+    return datasets
+    
 
 def downloadImages(services, imageIds, local2dStack):
     """
@@ -310,8 +312,8 @@ def runCtf(session, parameterMap):
     else:
         print "dbg file not created"
     
-    uploadBdbsAsDataset(services, 'particles', imageIds, project, ctfInfo)
-    
+    newDatasets = uploadBdbsAsDataset(services, 'particles', imageIds, project, ctfInfo)
+    return newDatasets
 
 
 def runAsScript():
@@ -349,7 +351,13 @@ See http://trac.openmicroscopy.org.uk/omero/wiki/EmPreviewFunctionality""",
             if client.getInput(key):
                 parameterMap[key] = client.getInput(key).getValue()
 
-        runCtf(session, parameterMap)
+        newDatasets = runCtf(session, parameterMap)
+        if newDatasets != None and len(newDatasets) > 0:
+            client.setOutput("Message", rstring("Ctf corrected images created in %s new Datasets" % len(newDatasets) ))
+            for d in newDatasets:    # return all the datasets 
+                client.setOutput("Dataset_%s" % d.getId().getValue(), robject(d))
+        else:
+            client.setOutput("Message", rstring("EMAN Ctf correction failed. See Errors"))
     finally:
         client.closeSession()
 
