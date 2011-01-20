@@ -269,7 +269,6 @@ Alias / "%(ROOT)s/var/omero.fcgi/"
 
         cargs = ["python", location / appname / "tests" / "seleniumtests.py", seleniumserver, hostname, browser]
         #cargs += args.arg[1:]
-        self.ctx.out(cargs)
         rv = self.ctx.call(cargs, cwd = location )
         
     def call (self, args):
