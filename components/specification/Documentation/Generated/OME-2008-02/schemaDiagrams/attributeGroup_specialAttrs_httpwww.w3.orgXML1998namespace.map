@@ -1,0 +1,26 @@
+<map xmlns='http://www.w3.org/1999/xhtml' name='attributeGroup_specialAttrs_httpwww.w3.orgXML1998namespace'>
+ <area
+  shape='rect'
+  alt='attribute_base'
+  coords='164,0,294,26'
+  href='xml.xsd.html#attribute_base'/>
+
+ <area
+  shape='rect'
+  alt='attribute_lang'
+  coords='164,36,294,62'
+  href='xml.xsd.html#attribute_lang'/>
+
+ <area
+  shape='rect'
+  alt='attribute_space'
+  coords='164,72,301,98'
+  href='xml.xsd.html#attribute_space'/>
+
+ <area
+  shape='rect'
+  alt='attribute_id'
+  coords='164,108,280,134'
+  href='xml.xsd.html#attribute_id'/>
+
+</map>

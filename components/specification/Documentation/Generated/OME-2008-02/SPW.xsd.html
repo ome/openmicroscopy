@@ -1,0 +1,3236 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+   <head>
+      <title>Documentation for ome - SPW.xsd</title>
+      <meta http-equiv="Content-Type" content="text/xml; charset=UTF-8"/>
+      <style type="text/css">
+@import url(auto-gen-doc.css);
+</style>
+      <script type="text/javascript">
+<!--
+          /* IDs of XML Instance Representation boxes */
+var xiBoxes = new Array('element_Plate_xibox', 'element_PlateRef_xibox', 'type_PlateID_xibox', 'element_Reagent_xibox', 'element_ReagentRef_xibox', 'type_ReagentID_xibox', 'element_Screen_xibox', 'type_ScreenID_xibox', 'element_ScreenRef_xibox', 'element_ScreenAcquisition_xibox', 'type_ScreenAcquisitionID_xibox', 'element_Well_xibox', 'type_WellID_xibox', 'element_WellSample_xibox', 'type_WellSampleID_xibox', 'element_ImageRef_xibox', 'element_WellSampleRef_xibox');
+/* IDs of diagram boxes */
+var diagramBoxes = new Array('element_Plate_diagram', 'element_PlateRef_diagram', 'type_PlateID_diagram', 'element_Reagent_diagram', 'element_ReagentRef_diagram', 'type_ReagentID_diagram', 'element_Screen_diagram', 'type_ScreenID_diagram', 'element_ScreenRef_diagram', 'element_ScreenAcquisition_diagram', 'type_ScreenAcquisitionID_diagram', 'element_Well_diagram', 'type_WellID_diagram', 'element_WellSample_diagram', 'type_WellSampleID_diagram', 'element_ImageRef_diagram', 'element_WellSampleRef_diagram');
+/* IDs of logical diagram boxes */
+var logicalDiagramBoxes = new Array('element_Plate_logicalDiagram', 'element_PlateRef_logicalDiagram', 'element_Reagent_logicalDiagram', 'element_ReagentRef_logicalDiagram', 'element_Screen_logicalDiagram', 'element_ScreenRef_logicalDiagram', 'element_ScreenAcquisition_logicalDiagram', 'element_Well_logicalDiagram', 'element_WellSample_logicalDiagram', 'element_ImageRef_logicalDiagram', 'element_WellSampleRef_logicalDiagram');
+/* IDs of Schema Component Representation boxes */
+var scBoxes = new Array('schema_scbox', 'element_Plate_scbox', 'element_PlateRef_scbox', 'type_PlateID_scbox', 'element_Reagent_scbox', 'element_ReagentRef_scbox', 'type_ReagentID_scbox', 'element_Screen_scbox', 'type_ScreenID_scbox', 'element_ScreenRef_scbox', 'element_ScreenAcquisition_scbox', 'type_ScreenAcquisitionID_scbox', 'element_Well_scbox', 'type_WellID_scbox', 'element_WellSample_scbox', 'type_WellSampleID_scbox', 'element_ImageRef_scbox', 'element_WellSampleRef_scbox');
+
+/**
+ * Can get the ID of the button controlling
+ * a collapseable box by concatenating
+ * this string onto the ID of the box itself.
+ */
+var B_SFIX = "_button";
+
+
+/**
+ * Returns an element in the current HTML document.
+ * 
+ * @param elementID Identifier of HTML element
+ * @return               HTML element object
+ */
+function getElementObject(elementID) {
+    var elemObj = null;
+    if (document.getElementById) {
+        elemObj = document.getElementById(elementID);
+    }
+    return elemObj;
+}             
+
+/**
+ * Closes a collapseable box.
+ * 
+ * @param boxObj       Collapseable box
+ * @param buttonObj Button controlling box
+ */
+function closeBox(boxObj, buttonObj) {
+  if (boxObj == null || buttonObj == null) {
+     // Box or button not found
+  } else {
+     // Change 'display' CSS property of box
+     boxObj.style.display="none";
+
+     // Change text of button 
+     if (boxObj.style.display=="none") {
+        buttonObj.value=" + ";
+     }
+  }
+}
+
+/**
+ * Opens a collapseable box.
+ * 
+ * @param boxObj       Collapseable box
+ * @param buttonObj Button controlling box
+ */
+function openBox(boxObj, buttonObj) {
+  if (boxObj == null || buttonObj == null) {
+     // Box or button not found
+  } else {
+     // Change 'display' CSS property of box
+     boxObj.style.display="block";
+
+     // Change text of button
+     if (boxObj.style.display=="block") {
+        buttonObj.value=" - ";
+     }
+  }
+}
+
+/**
+ * Sets the state of a collapseable box.
+ * 
+ * @param boxID Identifier of box
+ * @param open If true, box is "opened",
+ *             Otherwise, box is "closed".
+ */
+function setState(boxID, open) {
+  var boxObj = getElementObject(boxID);
+  var buttonObj = getElementObject(boxID+B_SFIX);
+  if (boxObj == null || buttonObj == null) {
+     // Box or button not found
+  } else if (open) {
+     openBox(boxObj, buttonObj);
+     // Make button visible
+     buttonObj.style.display="inline";
+  } else {
+     closeBox(boxObj, buttonObj);
+     // Make button visible
+     buttonObj.style.display="inline";
+  }
+}
+
+/**
+ * Switches the state of a collapseable box, e.g.
+ * if it's opened, it'll be closed, and vice versa.
+ * 
+ * @param boxID Identifier of box
+ */
+function switchState(boxID) {
+  var boxObj = getElementObject(boxID);
+  var buttonObj = getElementObject(boxID+B_SFIX);
+  if (boxObj == null || buttonObj == null) {
+     // Box or button not found
+  } else if (boxObj.style.display=="none") {
+     // Box is closed, so open it
+     openBox(boxObj, buttonObj);
+  } else if (boxObj.style.display=="block") {
+     // Box is opened, so close it
+     closeBox(boxObj, buttonObj);
+  }
+}
+
+/**
+ * Closes all boxes in a given list.
+ * 
+ * @param boxList Array of box IDs
+ */
+function collapseAll(boxList) {
+  var idx;
+  for (idx = 0; idx < boxList.length; idx++) {
+     var boxObj = getElementObject(boxList[idx]);
+     var buttonObj = getElementObject(boxList[idx]+B_SFIX);
+     closeBox(boxObj, buttonObj);
+  }
+}
+
+/**
+ * Open all boxes in a given list.
+ * 
+ * @param boxList Array of box IDs
+ */
+function expandAll(boxList) {
+  var idx;
+  for (idx = 0; idx < boxList.length; idx++) {
+     var boxObj = getElementObject(boxList[idx]);
+     var buttonObj = getElementObject(boxList[idx]+B_SFIX);
+     openBox(boxObj, buttonObj);
+  }
+}
+
+/**
+ * Makes all the control buttons of boxes appear.
+ * 
+ * @param boxList Array of box IDs
+ */
+function viewControlButtons(boxList) {
+    var idx;
+    for (idx = 0; idx < boxList.length; idx++) {
+        buttonObj = getElementObject(boxList[idx]+B_SFIX);
+        if (buttonObj != null) {
+            buttonObj.style.display = "inline";
+        }
+    }
+}
+
+/**
+ * Makes all the control buttons of boxes disappear.
+ * 
+ * @param boxList Array of box IDs
+ */
+function hideControlButtons(boxList) {
+    var idx;
+    for (idx = 0; idx < boxList.length; idx++) {
+        buttonObj = getElementObject(boxList[idx]+B_SFIX);
+        if (buttonObj != null) {
+            buttonObj.style.display = "none";
+        }
+    }
+}
+
+/**
+ * Sets the page for either printing mode
+ * or viewing mode. In printing mode, the page
+ * is made to be more readable when printing it out.
+ * In viewing mode, the page is more browsable.
+ *
+ * @param isPrinterVersion If true, display in
+ *                                 printing mode; otherwise, 
+ *                                 in viewing mode
+ */
+function displayMode(isPrinterVersion) {
+    var obj;
+    if (isPrinterVersion) {
+        // Hide global control buttons
+        obj = getElementObject("globalControls");
+        if (obj != null) {
+            obj.style.visibility = "hidden";
+        }
+        // Hide Legend
+        obj = getElementObject("legend");
+        if (obj != null) {
+            obj.style.display = "none";
+        }
+        obj = getElementObject("legendTOC");
+        if (obj != null) {
+            obj.style.display = "none";
+        }
+        // Hide Glossary
+        obj = getElementObject("glossary");
+        if (obj != null) {
+            obj.style.display = "none";
+        }
+        obj = getElementObject("glossaryTOC");
+        if (obj != null) {
+            obj.style.display = "none";
+        }
+
+        // Expand all diagrams
+        expandAll(diagramBoxes);
+        // Expand all logical diagrams
+        expandAll(logicalDiagramBoxes);        
+        // Expand all XML Instance Representation tables
+        expandAll(xiBoxes);
+        // Expand all Schema Component Representation tables
+        expandAll(scBoxes);
+
+        // Hide Control buttons
+        hideControlButtons(diagramBoxes);
+        hideControlButtons(logicalDiagramBoxes);
+        hideControlButtons(xiBoxes);
+        hideControlButtons(scBoxes);
+    } else {
+        // View global control buttons
+        obj = getElementObject("globalControls");
+        if (obj != null) {
+            obj.style.visibility = "visible";
+        }
+        // View Legend
+        obj = getElementObject("legend");
+        if (obj != null) {
+            obj.style.display = "block";
+        }
+        obj = getElementObject("legendTOC");
+        if (obj != null) {
+            obj.style.display = "block";
+        }
+        // View Glossary
+        obj = getElementObject("glossary");
+        if (obj != null) {
+            obj.style.display = "block";
+        }
+        obj = getElementObject("glossaryTOC");
+        if (obj != null) {
+            obj.style.display = "block";
+        }
+
+        // Expand all diagram boxes
+        expandAll(diagramBoxes);
+        // Collapse all logical diagram boxes.
+        collapseAll(logicalDiagramBoxes);
+        // Expand all XML Instance Representation tables
+        expandAll(xiBoxes);
+        // Collapse all Schema Component Representation tables
+        collapseAll(scBoxes);
+
+        // View Control buttons
+        viewControlButtons(diagramBoxes);
+        viewControlButtons(logicalDiagramBoxes);
+        viewControlButtons(xiBoxes);
+        viewControlButtons(scBoxes);
+    }
+}
+
+
+
+// -->
+</script>
+      <script type="text/javascript">
+<!--
+          
+         
+/**
+ * Counter of documentation windows
+ * Used to give each window a unique name
+ */
+var windowCount = 0;
+         
+/**
+ * Opens up a window displaying the documentation
+ * of a schema component in the XML Instance
+ * Representation table.
+ * 
+ * @param compDesc      Description of schema component 
+ * @param compName      Name of schema component 
+ * @param docTextArray Array containing the paragraphs 
+ *                           of the new document
+ */
+function viewDocumentation(compDesc, compName, docTextArray) {
+  var width = 400;
+  var height = 200;
+  var locX = 100;
+  var locY = 200;
+
+  /* Generate content */
+  var actualText = "<html>";
+  actualText += "<head><title>";
+  actualText += compDesc;
+  if (compName != '') {
+     actualText += ": " + compName;
+  }
+  actualText += "</title></head>";
+  actualText += "<body bgcolor=\"#FFFFEE\">";
+  // Title
+  actualText += "<p style=\"font-family: Arial, sans-serif; font-size: 12pt; font-weight: bold; letter-spacing:1px;\">";
+  actualText += compDesc;
+  if (compName != '') {
+     actualText += ": <span style=\"color:#006699\">" + compName + "</span>";
+  }
+  actualText += "</p>";
+  // Documentation
+  var idx;
+  for (idx = 0; idx < docTextArray.length; idx++) {
+     actualText += "<p style=\"font-family: Arial, sans-serif; font-size: 10pt;\">" + docTextArray[idx] + "</p>";
+  }
+  // Link to close window
+  actualText += "<a href=\"javascript:void(0)\" onclick=\"window.close();\" style=\"font-family: Arial, sans-serif; font-size: 8pt;\">Close</a>";
+  actualText += "</body></html>";
+
+  /* Display window */
+  windowCount++;
+  var docWindow = window.open("", "documentation"+windowCount, "toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable,alwaysRaised,dependent,titlebar=no,width="+width+",height="+height+",screenX="+locX+",left="+locX+",screenY="+locY+",top="+locY);
+  docWindow.document.write(actualText);
+}         
+      
+// -->
+</script>
+   </head>
+   <body>
+      <h1>
+         <a name="top">Documentation for ome</a>
+      </h1>
+      <div style="float: right;">
+         <div id="printerControls" style="display:none;">
+            <input type="checkbox" onclick="displayMode(this.checked)"/>Printer-friendly Version</div>
+         <script type="text/javascript">
+<!--
+          
+var pc = getElementObject("printerControls");
+if (pc != null) {
+   pc.style.display="block";
+}
+               
+// -->
+</script>
+         <div id="globalControls" style="display:none">
+            <strong>Logical Diagram:</strong>
+            <br/>
+            <span style="margin-left: 1em; white-space: nowrap">[ <a href="javascript:void(0)" onclick="expandAll(logicalDiagramBoxes)">Expand All</a> | <a href="javascript:void(0)" onclick="collapseAll(logicalDiagramBoxes)">Collapse All</a> ]</span>
+            <br/>
+            <br/>
+            <strong>XML Instance Representation:</strong>
+            <br/>
+            <span style="margin-left: 1em; white-space: nowrap">[ <a href="javascript:void(0)" onclick="expandAll(xiBoxes)">Expand All</a> | <a href="javascript:void(0)" onclick="collapseAll(xiBoxes)">Collapse All</a> ]</span>
+            <br/>
+            <br/>
+            <strong>Diagram:</strong>
+            <br/>
+            <span style="margin-left: 1em; white-space: nowrap">[ <a href="javascript:void(0)" onclick="expandAll(diagramBoxes)">Expand All</a> | <a href="javascript:void(0)" onclick="collapseAll(diagramBoxes)">Collapse All</a> ]</span>
+            <br/>
+            <br/>
+            <strong>Schema Component Representation:</strong>
+            <br/>
+            <span style="margin-left: 1em; white-space: nowrap">[ <a href="javascript:void(0)" onclick="expandAll(scBoxes)">Expand All</a> | <a href="javascript:void(0)" onclick="collapseAll(scBoxes)">Collapse All</a> ]</span>
+         </div>
+         <script type="text/javascript">
+<!--
+          
+var gc = getElementObject("globalControls");
+if (gc != null) {
+   gc.style.display="block";
+}
+               
+// -->
+</script>
+      </div>
+      <h2>Table of Contents</h2>
+      <ul>
+         <li>
+            <a href="#SchemaProperties">Schema Document Properties</a>
+         </li>
+         <li>
+            <a href="#SchemaDeclarations">Global Declarations</a>
+            <ul>
+               <li>
+                  <a href="#element_ImageRef">Element: <strong>ImageRef</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#element_Plate">Element: <strong>Plate</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#element_PlateRef">Element: <strong>PlateRef</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#element_Reagent">Element: <strong>Reagent</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#element_ReagentRef">Element: <strong>ReagentRef</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#element_Screen">Element: <strong>Screen</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#element_ScreenAcquisition">Element: <strong>ScreenAcquisition</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#element_ScreenRef">Element: <strong>ScreenRef</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#element_Well">Element: <strong>Well</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#element_WellSample">Element: <strong>WellSample</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#element_WellSampleRef">Element: <strong>WellSampleRef</strong>
+                  </a>
+               </li>
+            </ul>
+         </li>
+         <li>
+            <a href="#SchemaDefinitions">Global Definitions</a>
+            <ul>
+               <li>
+                  <a href="#type_PlateID">Simple Type: <strong>PlateID</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#type_ReagentID">Simple Type: <strong>ReagentID</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#type_ScreenAcquisitionID">Simple Type: <strong>ScreenAcquisitionID</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#type_ScreenID">Simple Type: <strong>ScreenID</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#type_WellID">Simple Type: <strong>WellID</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#type_WellSampleID">Simple Type: <strong>WellSampleID</strong>
+                  </a>
+               </li>
+            </ul>
+         </li>
+      </ul>
+      <ul id="legendTOC" style="margin-top: 0em">
+         <li>
+            <a href="#Legend">Legend</a>
+         </li>
+      </ul>
+      <ul id="glossaryTOC" style="margin-top: 0em">
+         <li>
+            <a href="#Glossary">Glossary</a>
+         </li>
+      </ul>
+      <h4>Master schema documentation file: 
+            <a href="ome.xsd.html">ome.xsd.html</a>
+      </h4>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h2>
+         <a name="SchemaProperties">Schema Document Properties</a>
+      </h2>
+      <table class="properties">
+         <tr>
+            <th>
+               <a title="Look up 'Target Namespace' in glossary"
+                  href="SPW.xsd.html#term_TargetNS">Target Namespace</a>
+            </th>
+            <td>
+               <span class="targetNS">http://www.openmicroscopy.org/Schemas/SPW/2008-02</span>
+            </td>
+         </tr>
+         <tr>
+            <th>Version</th>
+            <td>1</td>
+         </tr>
+         <tr>
+            <th>Element and Attribute Namespaces</th>
+            <td>
+               <ul>
+                  <li>Global element and attribute declarations belong to this schema's target namespace.</li>
+                  <li>By default, local element declarations belong to this schema's target namespace.</li>
+                  <li>By default, local attribute declarations have no namespace.</li>
+               </ul>
+            </td>
+         </tr>
+         <tr>
+            <th>Schema Composition</th>
+            <td>
+               <ul>
+                  <li>This schema imports schema(s) from the following namespace(s):<ul>
+                        <li>
+                           <em>http://www.openmicroscopy.org/Schemas/OME/2008-02</em> (at <a title="Jump to schema documentation for 'http://www.openmicroscopy.org/Schemas/OME/2008-02/ome.xsd'."
+                              href="ome.xsd.html">http://www.openmicroscopy.org/Schemas/OME/2008-02/ome.xsd</a>)</li>
+                     </ul>
+                  </li>
+               </ul>
+            </td>
+         </tr>
+         <tr>
+            <th>Documentation</th>
+            <td class="documentation">
+            Open Microscopy Environment
+            Screen, Plate, and Well XML Schema
+            Author:  Andrew J Patterson
+        </td>
+         </tr>
+      </table>
+      <h3>Declared Namespaces</h3>
+      <table class="namespaces">
+         <tr>
+            <th>Prefix</th>
+            <th>Namespace</th>
+         </tr>
+         <tr>
+            <td>
+               <a name="ns_">Default namespace</a>
+            </td>
+            <td>
+               <span class="targetNS">http://www.openmicroscopy.org/Schemas/SPW/2008-02</span>
+            </td>
+         </tr>
+         <tr>
+            <td>
+               <a name="ns_xml">xml</a>
+            </td>
+            <td>http://www.w3.org/XML/1998/namespace</td>
+         </tr>
+         <tr>
+            <td>
+               <a name="ns_xsd">xsd</a>
+            </td>
+            <td>http://www.w3.org/2001/XMLSchema</td>
+         </tr>
+         <tr>
+            <td>
+               <a name="ns_OME">OME</a>
+            </td>
+            <td>http://www.openmicroscopy.org/Schemas/OME/2008-02</td>
+         </tr>
+      </table>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="schema_scbox_button" class="control"
+                   onclick="switchState('schema_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="schema_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:schema</span> 
+               <span class="scTag">targetNamespace</span>="<span class="scContent">http://www.openmicroscopy.org/Schemas/SPW/2008-02</span>" <span class="scTag">version</span>="<span class="scContent">1</span>" <span class="scTag">elementFormDefault</span>="<span class="scContent">qualified</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:import</span> 
+                  <span class="scTag">namespace</span>="<span class="scContent">http://www.openmicroscopy.org/Schemas/OME/2008-02</span>" <span class="scTag">schemaLocation</span>="<span class="scContent">http://www.openmicroscopy.org/Schemas/OME/2008-02/ome.xsd</span>"/&gt;</div>
+               <div class="scContent" style="margin-left: 1.5em">...</div>&lt;/<span class="scTag">xsd:schema</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('schema_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h2>
+         <a name="SchemaDeclarations">Global Declarations</a>
+      </h2>
+      <h3>Element: <a name="element_ImageRef" class="name">ImageRef</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>ImageRef</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#element_WellSample">WellSample</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary" href="SPW.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary" href="SPW.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>Documentation</th>
+            <td class="documentation">
+                The ImageRef element is a reference to a OME:Image element.
+                Note: at present this is only used from SPW. If it is used more 
+                widely in the future it will be moved into the main OME schema.
+            </td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_ImageRef_logicalDiagram_button" class="control"
+                   onclick="switchState('element_ImageRef_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="element_ImageRef_logicalDiagram" class="contents">
+            <img usemap="#logical_element_ImageRef_httpwww.openmicroscopy.orgSchemasSPW200802"
+                 src="schemaDiagrams/logical_element_ImageRef_httpwww.openmicroscopy.orgSchemasSPW200802.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2008-02//schemaDiagrams/logical_element_ImageRef_httpwww.openmicroscopy.orgSchemasSPW200802.map--><map name="logical_element_ImageRef_httpwww.openmicroscopy.orgSchemasSPW200802">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_ImageRef_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_ImageRef_xibox_button" class="control"
+                   onclick="switchState('element_ImageRef_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="element_ImageRef_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;ImageRef<br/>
+               <span style="margin-left: 0.5em"> ID="<span class="type">
+                     <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;ImageID&#34; type definition(located in external schema documentation)."
+                        href="ome.xsd.html#type_ImageID"
+                        class="externalLink">ImageID</a>
+                  </span> 
+                  <span class="occurs">[1]</span>"</span>/&gt; </div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_ImageRef_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_ImageRef_diagram_button" class="control"
+                   onclick="switchState('element_ImageRef_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="element_ImageRef_diagram" class="contents">
+            <img usemap="#element_ImageRef_httpwww.openmicroscopy.orgSchemasSPW200802"
+                 src="schemaDiagrams/element_ImageRef_httpwww.openmicroscopy.orgSchemasSPW200802.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2008-02//schemaDiagrams/element_ImageRef_httpwww.openmicroscopy.orgSchemasSPW200802.map--><map name="element_ImageRef_httpwww.openmicroscopy.orgSchemasSPW200802">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_ImageRef_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="element_ImageRef_scbox_button" class="control"
+                   onclick="switchState('element_ImageRef_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="element_ImageRef_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:element</span> 
+               <span class="scTag">name</span>="<span class="scContent">ImageRef</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexContent</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:extension</span> 
+                        <span class="scTag">base</span>="<span class="scContent">
+                           <span class="type">
+                              <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;Reference&#34; type definition(located in external schema documentation)."
+                                 href="ome.xsd.html#type_Reference"
+                                 class="externalLink">Reference</a>
+                           </span>
+                        </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                           <span class="scTag">name</span>="<span class="scContent">ID</span>" <span class="scTag">type</span>="<span class="scContent">
+                              <span class="type">
+                                 <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;ImageID&#34; type definition(located in external schema documentation)."
+                                    href="ome.xsd.html#type_ImageID"
+                                    class="externalLink">ImageID</a>
+                              </span>
+                           </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>&lt;/<span class="scTag">xsd:extension</span>&gt;</div>&lt;/<span class="scTag">xsd:complexContent</span>&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>&lt;/<span class="scTag">xsd:element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_ImageRef_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="element_Plate" class="name">Plate</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>Plate</td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary" href="SPW.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary" href="SPW.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>Documentation</th>
+            <td class="documentation">
+                This element identifies microtiter plates within a screen.
+                A plate can belong to more than one screen.
+                The Screen(s) that a plate belongs to are specified by the ScreenRef element.
+                The Plate ID and Name attributes are required.
+				The Wells in a plate are numbers from the top-left corner in a grid starting at zero.
+				i.e The top-left well of a plate is index (0,0)
+            </td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_Plate_logicalDiagram_button" class="control"
+                   onclick="switchState('element_Plate_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="element_Plate_logicalDiagram" class="contents">
+            <img usemap="#logical_element_Plate_httpwww.openmicroscopy.orgSchemasSPW200802"
+                 src="schemaDiagrams/logical_element_Plate_httpwww.openmicroscopy.orgSchemasSPW200802.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2008-02//schemaDiagrams/logical_element_Plate_httpwww.openmicroscopy.orgSchemasSPW200802.map--><map name="logical_element_Plate_httpwww.openmicroscopy.orgSchemasSPW200802">
+               <area shape="rect" alt="element_ScreenRef" coords="436,265,786,324"
+                     href="SPW.xsd.html#element_ScreenRef"/>
+
+               <area shape="rect" alt="element_Well" coords="436,334,786,393"
+                     href="SPW.xsd.html#element_Well"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Plate_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_Plate_xibox_button" class="control"
+                   onclick="switchState('element_Plate_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="element_Plate_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;Plate<br/>
+               <span style="margin-left: 0.5em"> ID="<span class="type">
+                     <a title="Jump to &#34;PlateID&#34; type definition." href="#type_PlateID">PlateID</a>
+                  </span> 
+                  <span class="occurs">[1]</span>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Name="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> 
+                  <span class="occurs">[1]</span> 
+                  <p class="documentation">'The Name identifies the plate to the user. It is used much like the ID, and so must be unique within the document.'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Description="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> 
+                  <span class="occurs">[0..1]</span>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Status="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'A textual annotation of the current state of the plate with respect to the experiment work-flow; e.g. 1. Seed cell: done; 2. Transfection: done; 3. Gel doc: todo.'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> ExternalIdentifier="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'The ExternalIdentifier attribute may contain a reference to an external database.'</p>"</span>&gt; <br/>
+               <div style="margin-left: 1.5em">&lt;<a title="Jump to &#34;ScreenRef&#34; element declaration." href="#element_ScreenRef">ScreenRef</a>&gt; ... &lt;/<a title="Jump to &#34;ScreenRef&#34; element declaration." href="#element_ScreenRef">ScreenRef</a>&gt; <span class="occurs">[0..*]</span>
+               </div>
+               <div style="margin-left: 1.5em">&lt;<a title="Jump to &#34;Well&#34; element declaration." href="#element_Well">Well</a>&gt; ... &lt;/<a title="Jump to &#34;Well&#34; element declaration." href="#element_Well">Well</a>&gt; <span class="occurs">[0..*]</span>
+               </div>&lt;/Plate&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Plate_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_Plate_diagram_button" class="control"
+                   onclick="switchState('element_Plate_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="element_Plate_diagram" class="contents">
+            <img usemap="#element_Plate_httpwww.openmicroscopy.orgSchemasSPW200802"
+                 src="schemaDiagrams/element_Plate_httpwww.openmicroscopy.orgSchemasSPW200802.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2008-02//schemaDiagrams/element_Plate_httpwww.openmicroscopy.orgSchemasSPW200802.map--><map name="element_Plate_httpwww.openmicroscopy.orgSchemasSPW200802">
+               <area shape="rect" alt="element_ScreenRef" coords="249,0,368,42"
+                     href="SPW.xsd.html#element_ScreenRef"/>
+
+               <area shape="rect" alt="element_Well" coords="249,52,333,94"
+                     href="SPW.xsd.html#element_Well"/>
+
+               <area shape="rect" alt="type_PlateID" coords="163,104,257,130"
+                     href="SPW.xsd.html#type_PlateID"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Plate_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="element_Plate_scbox_button" class="control"
+                   onclick="switchState('element_Plate_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="element_Plate_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:element</span> 
+               <span class="scTag">name</span>="<span class="scContent">Plate</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a title="Jump to &#34;ScreenRef&#34; element declaration." href="#element_ScreenRef">ScreenRef</a>
+                        </span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">unbounded</span>"/&gt;</div>
+                     <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a title="Jump to &#34;Well&#34; element declaration." href="#element_Well">Well</a>
+                        </span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">unbounded</span>"/&gt;</div>&lt;/<span class="scTag">xsd:sequence</span>&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">ID</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a title="Jump to &#34;PlateID&#34; type definition." href="#type_PlateID">PlateID</a>
+                        </span>
+                     </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Name</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span>
+                     </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Description</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span>
+                     </span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Status</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span>
+                     </span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">ExternalIdentifier</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span>
+                     </span>"/&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>&lt;/<span class="scTag">xsd:element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Plate_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="element_PlateRef" class="name">PlateRef</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>PlateRef</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#element_Screen">Screen</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary" href="SPW.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary" href="SPW.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>Documentation</th>
+            <td class="documentation">
+                The PlateRef element is a reference to a Plate element.
+                Screen elements may have one or more PlateRef elements to define the plates that are part of the screen.
+                Plates may belong to more than one screen.
+            </td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_PlateRef_logicalDiagram_button" class="control"
+                   onclick="switchState('element_PlateRef_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="element_PlateRef_logicalDiagram" class="contents">
+            <img usemap="#logical_element_PlateRef_httpwww.openmicroscopy.orgSchemasSPW200802"
+                 src="schemaDiagrams/logical_element_PlateRef_httpwww.openmicroscopy.orgSchemasSPW200802.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2008-02//schemaDiagrams/logical_element_PlateRef_httpwww.openmicroscopy.orgSchemasSPW200802.map--><map name="logical_element_PlateRef_httpwww.openmicroscopy.orgSchemasSPW200802">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_PlateRef_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_PlateRef_xibox_button" class="control"
+                   onclick="switchState('element_PlateRef_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="element_PlateRef_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;PlateRef<br/>
+               <span style="margin-left: 0.5em"> ID="<span class="type">
+                     <a title="Jump to &#34;PlateID&#34; type definition." href="#type_PlateID">PlateID</a>
+                  </span> 
+                  <span class="occurs">[1]</span>"</span>/&gt; </div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_PlateRef_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_PlateRef_diagram_button" class="control"
+                   onclick="switchState('element_PlateRef_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="element_PlateRef_diagram" class="contents">
+            <img usemap="#element_PlateRef_httpwww.openmicroscopy.orgSchemasSPW200802"
+                 src="schemaDiagrams/element_PlateRef_httpwww.openmicroscopy.orgSchemasSPW200802.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2008-02//schemaDiagrams/element_PlateRef_httpwww.openmicroscopy.orgSchemasSPW200802.map--><map name="element_PlateRef_httpwww.openmicroscopy.orgSchemasSPW200802">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_PlateRef_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="element_PlateRef_scbox_button" class="control"
+                   onclick="switchState('element_PlateRef_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="element_PlateRef_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:element</span> 
+               <span class="scTag">name</span>="<span class="scContent">PlateRef</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexContent</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:extension</span> 
+                        <span class="scTag">base</span>="<span class="scContent">
+                           <span class="type">
+                              <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;Reference&#34; type definition(located in external schema documentation)."
+                                 href="ome.xsd.html#type_Reference"
+                                 class="externalLink">Reference</a>
+                           </span>
+                        </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                           <span class="scTag">name</span>="<span class="scContent">ID</span>" <span class="scTag">type</span>="<span class="scContent">
+                              <span class="type">
+                                 <a title="Jump to &#34;PlateID&#34; type definition." href="#type_PlateID">PlateID</a>
+                              </span>
+                           </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>&lt;/<span class="scTag">xsd:extension</span>&gt;</div>&lt;/<span class="scTag">xsd:complexContent</span>&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>&lt;/<span class="scTag">xsd:element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_PlateRef_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="element_Reagent" class="name">Reagent</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>Reagent</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#element_Screen">Screen</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary" href="SPW.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary" href="SPW.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>Documentation</th>
+            <td class="documentation">
+                Reagent is used to describe a chemical or some other physical experimental parameter.
+            </td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_Reagent_logicalDiagram_button" class="control"
+                   onclick="switchState('element_Reagent_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="element_Reagent_logicalDiagram" class="contents">
+            <img usemap="#logical_element_Reagent_httpwww.openmicroscopy.orgSchemasSPW200802"
+                 src="schemaDiagrams/logical_element_Reagent_httpwww.openmicroscopy.orgSchemasSPW200802.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2008-02//schemaDiagrams/logical_element_Reagent_httpwww.openmicroscopy.orgSchemasSPW200802.map--><map name="logical_element_Reagent_httpwww.openmicroscopy.orgSchemasSPW200802">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Reagent_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_Reagent_xibox_button" class="control"
+                   onclick="switchState('element_Reagent_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="element_Reagent_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;Reagent<br/>
+               <span style="margin-left: 0.5em"> ID="<span class="type">
+                     <a title="Jump to &#34;ReagentID&#34; type definition." href="#type_ReagentID">ReagentID</a>
+                  </span> 
+                  <span class="occurs">[1]</span>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Description="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'A long description for the reagent'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Name="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'A short name for the reagent'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> ReagentIdentifier="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'This is a reference to an external (to OME) representation of the Reagent. It serves as a foreign key into an external database. - It is sometimes refereed to as ExternalIdentifier.'</p>"</span>/&gt; </div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Reagent_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_Reagent_diagram_button" class="control"
+                   onclick="switchState('element_Reagent_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="element_Reagent_diagram" class="contents">
+            <img usemap="#element_Reagent_httpwww.openmicroscopy.orgSchemasSPW200802"
+                 src="schemaDiagrams/element_Reagent_httpwww.openmicroscopy.orgSchemasSPW200802.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2008-02//schemaDiagrams/element_Reagent_httpwww.openmicroscopy.orgSchemasSPW200802.map--><map name="element_Reagent_httpwww.openmicroscopy.orgSchemasSPW200802">
+               <area shape="rect" alt="type_ReagentID" coords="177,0,271,26"
+                     href="SPW.xsd.html#type_ReagentID"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Reagent_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="element_Reagent_scbox_button" class="control"
+                   onclick="switchState('element_Reagent_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="element_Reagent_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:element</span> 
+               <span class="scTag">name</span>="<span class="scContent">Reagent</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">ID</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a title="Jump to &#34;ReagentID&#34; type definition." href="#type_ReagentID">ReagentID</a>
+                        </span>
+                     </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Description</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span>
+                     </span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Name</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span>
+                     </span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">ReagentIdentifier</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span>
+                     </span>"/&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>&lt;/<span class="scTag">xsd:element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Reagent_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="element_ReagentRef" class="name">ReagentRef</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>ReagentRef</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#element_Well">Well</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary" href="SPW.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary" href="SPW.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_ReagentRef_logicalDiagram_button" class="control"
+                   onclick="switchState('element_ReagentRef_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="element_ReagentRef_logicalDiagram" class="contents">
+            <img usemap="#logical_element_ReagentRef_httpwww.openmicroscopy.orgSchemasSPW200802"
+                 src="schemaDiagrams/logical_element_ReagentRef_httpwww.openmicroscopy.orgSchemasSPW200802.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2008-02//schemaDiagrams/logical_element_ReagentRef_httpwww.openmicroscopy.orgSchemasSPW200802.map--><map name="logical_element_ReagentRef_httpwww.openmicroscopy.orgSchemasSPW200802">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_ReagentRef_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_ReagentRef_xibox_button" class="control"
+                   onclick="switchState('element_ReagentRef_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="element_ReagentRef_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;ReagentRef<br/>
+               <span style="margin-left: 0.5em"> ID="<span class="type">
+                     <a title="Jump to &#34;ReagentID&#34; type definition." href="#type_ReagentID">ReagentID</a>
+                  </span> 
+                  <span class="occurs">[1]</span>"</span>/&gt; </div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_ReagentRef_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_ReagentRef_diagram_button" class="control"
+                   onclick="switchState('element_ReagentRef_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="element_ReagentRef_diagram" class="contents">
+            <img usemap="#element_ReagentRef_httpwww.openmicroscopy.orgSchemasSPW200802"
+                 src="schemaDiagrams/element_ReagentRef_httpwww.openmicroscopy.orgSchemasSPW200802.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2008-02//schemaDiagrams/element_ReagentRef_httpwww.openmicroscopy.orgSchemasSPW200802.map--><map name="element_ReagentRef_httpwww.openmicroscopy.orgSchemasSPW200802">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_ReagentRef_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="element_ReagentRef_scbox_button" class="control"
+                   onclick="switchState('element_ReagentRef_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="element_ReagentRef_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:element</span> 
+               <span class="scTag">name</span>="<span class="scContent">ReagentRef</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexContent</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:extension</span> 
+                        <span class="scTag">base</span>="<span class="scContent">
+                           <span class="type">
+                              <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;Reference&#34; type definition(located in external schema documentation)."
+                                 href="ome.xsd.html#type_Reference"
+                                 class="externalLink">Reference</a>
+                           </span>
+                        </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                           <span class="scTag">name</span>="<span class="scContent">ID</span>" <span class="scTag">type</span>="<span class="scContent">
+                              <span class="type">
+                                 <a title="Jump to &#34;ReagentID&#34; type definition." href="#type_ReagentID">ReagentID</a>
+                              </span>
+                           </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>&lt;/<span class="scTag">xsd:extension</span>&gt;</div>&lt;/<span class="scTag">xsd:complexContent</span>&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>&lt;/<span class="scTag">xsd:element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_ReagentRef_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="element_Screen" class="name">Screen</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>Screen</td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary" href="SPW.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary" href="SPW.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>Documentation</th>
+            <td class="documentation">
+                The Screen element is a grouping for Plates.
+                The required attribute is the Screen's Name and ID - both must be unique within the document.
+                The Screen element may contain an ExternalRef attribute that refers to an external database.
+                A description of the screen may be specified in the Description element.
+                Screens may contain overlapping sets of Plates i.e.  Screens and Plates have a many-to-many relationship.
+                Plates contain one or more ScreenRef elements to specify what screens they belong to.
+            </td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_Screen_logicalDiagram_button" class="control"
+                   onclick="switchState('element_Screen_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="element_Screen_logicalDiagram" class="contents">
+            <img usemap="#logical_element_Screen_httpwww.openmicroscopy.orgSchemasSPW200802"
+                 src="schemaDiagrams/logical_element_Screen_httpwww.openmicroscopy.orgSchemasSPW200802.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2008-02//schemaDiagrams/logical_element_Screen_httpwww.openmicroscopy.orgSchemasSPW200802.map--><map name="logical_element_Screen_httpwww.openmicroscopy.orgSchemasSPW200802">
+               <area shape="rect" alt="element_Description" coords="436,371,786,430"
+                     href="SPW.xsd.html#element_Description"/>
+
+               <area shape="rect" alt="element_Reagent" coords="436,440,786,499"
+                     href="SPW.xsd.html#element_Reagent"/>
+
+               <area shape="rect" alt="element_PlateRef" coords="436,509,786,568"
+                     href="SPW.xsd.html#element_PlateRef"/>
+
+               <area shape="rect" alt="element_ScreenAcquisition" coords="436,578,786,637"
+                     href="SPW.xsd.html#element_ScreenAcquisition"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Screen_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_Screen_xibox_button" class="control"
+                   onclick="switchState('element_Screen_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="element_Screen_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;Screen<br/>
+               <span style="margin-left: 0.5em"> ID="<span class="type">
+                     <a title="Jump to &#34;ScreenID&#34; type definition." href="#type_ScreenID">ScreenID</a>
+                  </span> 
+                  <span class="occurs">[1]</span>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Name="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> 
+                  <span class="occurs">[1]</span>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> ProtocolIdentifier="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'A pointer to an externally defined protocol, usually in a screening database.'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> ProtocolDescription="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'A description of the screen protocol; may contain very detailed information to reproduce some of that found in a screening database.'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> ReagentSetDescription="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'A description of the set of reagents; may contain very detailed information to reproduce some of that information found in a screening database.'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> ReagentSetIdentifier="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'A pointer to an externally defined set of reagents, usually in a screening database/automation database.'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Type="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'A human readable identifier for the screen type; e.g. RNAi, cDNA, SiRNA, etc. This string is likely to become an enumeration in future releases.'</p>"</span>&gt; <br/>
+               <div style="margin-left: 1.5em">&lt;<a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;Description&#34; element declaration(located in external schema documentation)."
+                     href="ome.xsd.html#element_Description"
+                     class="externalLink">Description</a>&gt; ... &lt;/<a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;Description&#34; element declaration(located in external schema documentation)."
+                     href="ome.xsd.html#element_Description"
+                     class="externalLink">Description</a>&gt; <span class="occurs">[0..1]</span>
+               </div>
+               <div style="margin-left: 1.5em">&lt;<a title="Jump to &#34;Reagent&#34; element declaration." href="#element_Reagent">Reagent</a>&gt; ... &lt;/<a title="Jump to &#34;Reagent&#34; element declaration." href="#element_Reagent">Reagent</a>&gt; <span class="occurs">[0..*]</span>
+               </div>
+               <div style="margin-left: 1.5em">&lt;<a title="Jump to &#34;PlateRef&#34; element declaration." href="#element_PlateRef">PlateRef</a>&gt; ... &lt;/<a title="Jump to &#34;PlateRef&#34; element declaration." href="#element_PlateRef">PlateRef</a>&gt; <span class="occurs">[0..*]</span>
+               </div>
+               <div style="margin-left: 1.5em">&lt;<a title="Jump to &#34;ScreenAcquisition&#34; element declaration."
+                     href="#element_ScreenAcquisition">ScreenAcquisition</a>&gt; ... &lt;/<a title="Jump to &#34;ScreenAcquisition&#34; element declaration."
+                     href="#element_ScreenAcquisition">ScreenAcquisition</a>&gt; <span class="occurs">[0..*]</span>
+               </div>&lt;/Screen&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Screen_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_Screen_diagram_button" class="control"
+                   onclick="switchState('element_Screen_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="element_Screen_diagram" class="contents">
+            <img usemap="#element_Screen_httpwww.openmicroscopy.orgSchemasSPW200802"
+                 src="schemaDiagrams/element_Screen_httpwww.openmicroscopy.orgSchemasSPW200802.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2008-02//schemaDiagrams/element_Screen_httpwww.openmicroscopy.orgSchemasSPW200802.map--><map name="element_Screen_httpwww.openmicroscopy.orgSchemasSPW200802">
+               <area shape="rect" alt="element_Description" coords="256,0,417,42"
+                     href="ome.xsd.html#element_Description"/>
+
+               <area shape="rect" alt="element_Reagent" coords="256,52,361,94"
+                     href="SPW.xsd.html#element_Reagent"/>
+
+               <area shape="rect" alt="element_PlateRef" coords="256,104,368,146"
+                     href="SPW.xsd.html#element_PlateRef"/>
+
+               <area shape="rect" alt="element_ScreenAcquisition" coords="256,156,431,198"
+                     href="SPW.xsd.html#element_ScreenAcquisition"/>
+
+               <area shape="rect" alt="type_ScreenID" coords="170,208,264,234"
+                     href="SPW.xsd.html#type_ScreenID"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Screen_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="element_Screen_scbox_button" class="control"
+                   onclick="switchState('element_Screen_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="element_Screen_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:element</span> 
+               <span class="scTag">name</span>="<span class="scContent">Screen</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;Description&#34; element declaration(located in external schema documentation)."
+                              href="ome.xsd.html#element_Description"
+                              class="externalLink">Description</a>
+                        </span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div>
+                     <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a title="Jump to &#34;Reagent&#34; element declaration." href="#element_Reagent">Reagent</a>
+                        </span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">unbounded</span>"/&gt;</div>
+                     <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a title="Jump to &#34;PlateRef&#34; element declaration." href="#element_PlateRef">PlateRef</a>
+                        </span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">unbounded</span>"/&gt;</div>
+                     <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a title="Jump to &#34;ScreenAcquisition&#34; element declaration."
+                              href="#element_ScreenAcquisition">ScreenAcquisition</a>
+                        </span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">unbounded</span>"/&gt;</div>&lt;/<span class="scTag">xsd:sequence</span>&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">ID</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a title="Jump to &#34;ScreenID&#34; type definition." href="#type_ScreenID">ScreenID</a>
+                        </span>
+                     </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Name</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span>
+                     </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">ProtocolIdentifier</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span>
+                     </span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">ProtocolDescription</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span>
+                     </span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">ReagentSetDescription</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span>
+                     </span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">ReagentSetIdentifier</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span>
+                     </span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Type</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span>
+                     </span>"/&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>&lt;/<span class="scTag">xsd:element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Screen_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="element_ScreenAcquisition" class="name">ScreenAcquisition</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>ScreenAcquisition</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#element_Screen">Screen</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary" href="SPW.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary" href="SPW.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>Documentation</th>
+            <td class="documentation">
+                ScreenAcquisition is used to describe a single acquisition run for a screen.
+                Since Screens are abstract, this object is used to record the set of images
+                acquired in a single acquisition run.  The Images for this run are linked
+                to ScreenAcquisition through WellSample.
+            </td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_ScreenAcquisition_logicalDiagram_button"
+                   class="control"
+                   onclick="switchState('element_ScreenAcquisition_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="element_ScreenAcquisition_logicalDiagram" class="contents">
+            <img usemap="#logical_element_ScreenAcquisition_httpwww.openmicroscopy.orgSchemasSPW200802"
+                 src="schemaDiagrams/logical_element_ScreenAcquisition_httpwww.openmicroscopy.orgSchemasSPW200802.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2008-02//schemaDiagrams/logical_element_ScreenAcquisition_httpwww.openmicroscopy.orgSchemasSPW200802.map--><map name="logical_element_ScreenAcquisition_httpwww.openmicroscopy.orgSchemasSPW200802">
+               <area shape="rect" alt="element_WellSampleRef" coords="436,159,786,218"
+                     href="SPW.xsd.html#element_WellSampleRef"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_ScreenAcquisition_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_ScreenAcquisition_xibox_button" class="control"
+                   onclick="switchState('element_ScreenAcquisition_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="element_ScreenAcquisition_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;ScreenAcquisition<br/>
+               <span style="margin-left: 0.5em"> ID="<span class="type">
+                     <a title="Jump to &#34;ScreenAcquisitionID&#34; type definition."
+                        href="#type_ScreenAcquisitionID">ScreenAcquisitionID</a>
+                  </span> 
+                  <span class="occurs">[1]</span>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> EndTime="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:dateTime</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'Time when the last image of this acquisition was collected'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> StartTime="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:dateTime</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'Time when the first image of this acquisition was collected'</p>"</span>&gt; <br/>
+               <div style="margin-left: 1.5em">&lt;<a title="Jump to &#34;WellSampleRef&#34; element declaration."
+                     href="#element_WellSampleRef">WellSampleRef</a>&gt; ... &lt;/<a title="Jump to &#34;WellSampleRef&#34; element declaration."
+                     href="#element_WellSampleRef">WellSampleRef</a>&gt; <span class="occurs">[0..*]</span>
+               </div>&lt;/ScreenAcquisition&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_ScreenAcquisition_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_ScreenAcquisition_diagram_button" class="control"
+                   onclick="switchState('element_ScreenAcquisition_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="element_ScreenAcquisition_diagram" class="contents">
+            <img usemap="#element_ScreenAcquisition_httpwww.openmicroscopy.orgSchemasSPW200802"
+                 src="schemaDiagrams/element_ScreenAcquisition_httpwww.openmicroscopy.orgSchemasSPW200802.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2008-02//schemaDiagrams/element_ScreenAcquisition_httpwww.openmicroscopy.orgSchemasSPW200802.map--><map name="element_ScreenAcquisition_httpwww.openmicroscopy.orgSchemasSPW200802">
+               <area shape="rect" alt="element_WellSampleRef" coords="333,0,480,42"
+                     href="SPW.xsd.html#element_WellSampleRef"/>
+
+               <area shape="rect" alt="type_ScreenAcquisitionID" coords="247,52,341,78"
+                     href="SPW.xsd.html#type_ScreenAcquisitionID"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_ScreenAcquisition_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="element_ScreenAcquisition_scbox_button" class="control"
+                   onclick="switchState('element_ScreenAcquisition_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="element_ScreenAcquisition_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:element</span> 
+               <span class="scTag">name</span>="<span class="scContent">ScreenAcquisition</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a title="Jump to &#34;WellSampleRef&#34; element declaration."
+                              href="#element_WellSampleRef">WellSampleRef</a>
+                        </span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">unbounded</span>"/&gt;</div>&lt;/<span class="scTag">xsd:sequence</span>&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">ID</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a title="Jump to &#34;ScreenAcquisitionID&#34; type definition."
+                              href="#type_ScreenAcquisitionID">ScreenAcquisitionID</a>
+                        </span>
+                     </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">EndTime</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:dateTime</span>
+                     </span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">StartTime</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:dateTime</span>
+                     </span>"/&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>&lt;/<span class="scTag">xsd:element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_ScreenAcquisition_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="element_ScreenRef" class="name">ScreenRef</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>ScreenRef</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#element_Plate">Plate</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary" href="SPW.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary" href="SPW.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>Documentation</th>
+            <td class="documentation">
+                The ScreenRef element is a reference to a Screen element.
+                Plate elements may have one or more ScreenRef elements to define the screen that a plate belongs to.
+                Plates may belong to more than one screen.
+            </td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_ScreenRef_logicalDiagram_button" class="control"
+                   onclick="switchState('element_ScreenRef_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="element_ScreenRef_logicalDiagram" class="contents">
+            <img usemap="#logical_element_ScreenRef_httpwww.openmicroscopy.orgSchemasSPW200802"
+                 src="schemaDiagrams/logical_element_ScreenRef_httpwww.openmicroscopy.orgSchemasSPW200802.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2008-02//schemaDiagrams/logical_element_ScreenRef_httpwww.openmicroscopy.orgSchemasSPW200802.map--><map name="logical_element_ScreenRef_httpwww.openmicroscopy.orgSchemasSPW200802">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_ScreenRef_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_ScreenRef_xibox_button" class="control"
+                   onclick="switchState('element_ScreenRef_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="element_ScreenRef_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;ScreenRef<br/>
+               <span style="margin-left: 0.5em"> ID="<span class="type">
+                     <a title="Jump to &#34;ScreenID&#34; type definition." href="#type_ScreenID">ScreenID</a>
+                  </span> 
+                  <span class="occurs">[1]</span>"</span>/&gt; </div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_ScreenRef_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_ScreenRef_diagram_button" class="control"
+                   onclick="switchState('element_ScreenRef_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="element_ScreenRef_diagram" class="contents">
+            <img usemap="#element_ScreenRef_httpwww.openmicroscopy.orgSchemasSPW200802"
+                 src="schemaDiagrams/element_ScreenRef_httpwww.openmicroscopy.orgSchemasSPW200802.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2008-02//schemaDiagrams/element_ScreenRef_httpwww.openmicroscopy.orgSchemasSPW200802.map--><map name="element_ScreenRef_httpwww.openmicroscopy.orgSchemasSPW200802">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_ScreenRef_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="element_ScreenRef_scbox_button" class="control"
+                   onclick="switchState('element_ScreenRef_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="element_ScreenRef_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:element</span> 
+               <span class="scTag">name</span>="<span class="scContent">ScreenRef</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexContent</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:extension</span> 
+                        <span class="scTag">base</span>="<span class="scContent">
+                           <span class="type">
+                              <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;Reference&#34; type definition(located in external schema documentation)."
+                                 href="ome.xsd.html#type_Reference"
+                                 class="externalLink">Reference</a>
+                           </span>
+                        </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                           <span class="scTag">name</span>="<span class="scContent">ID</span>" <span class="scTag">type</span>="<span class="scContent">
+                              <span class="type">
+                                 <a title="Jump to &#34;ScreenID&#34; type definition." href="#type_ScreenID">ScreenID</a>
+                              </span>
+                           </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>&lt;/<span class="scTag">xsd:extension</span>&gt;</div>&lt;/<span class="scTag">xsd:complexContent</span>&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>&lt;/<span class="scTag">xsd:element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_ScreenRef_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="element_Well" class="name">Well</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>Well</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#element_Plate">Plate</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary" href="SPW.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary" href="SPW.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>Documentation</th>
+            <td class="documentation">
+                A Well is a component of the Well/Plate/Screen construct to describe screening applications.
+                A Well has a number of WellSample elements that link to the Images collected in this well.
+ 				The ReagentRef links any Reagents that were used in this Well. A well is part of one or more Plates.
+				The origin for the row and column identifiers is the top left corner of the plate starting at zero.
+				i.e The top left well of a plate is index (0,0)
+            </td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_Well_logicalDiagram_button" class="control"
+                   onclick="switchState('element_Well_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="element_Well_logicalDiagram" class="contents">
+            <img usemap="#logical_element_Well_httpwww.openmicroscopy.orgSchemasSPW200802"
+                 src="schemaDiagrams/logical_element_Well_httpwww.openmicroscopy.orgSchemasSPW200802.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2008-02//schemaDiagrams/logical_element_Well_httpwww.openmicroscopy.orgSchemasSPW200802.map--><map name="logical_element_Well_httpwww.openmicroscopy.orgSchemasSPW200802">
+               <area shape="rect" alt="element_WellSample" coords="436,318,786,377"
+                     href="SPW.xsd.html#element_WellSample"/>
+
+               <area shape="rect" alt="element_ReagentRef" coords="436,387,786,446"
+                     href="SPW.xsd.html#element_ReagentRef"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Well_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_Well_xibox_button" class="control"
+                   onclick="switchState('element_Well_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="element_Well_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;Well<br/>
+               <span style="margin-left: 0.5em"> ID="<span class="type">
+                     <a title="Jump to &#34;WellID&#34; type definition." href="#type_WellID">WellID</a>
+                  </span> 
+                  <span class="occurs">[1]</span>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Column="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:integer</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'This is the column index of the well, the origin is the top left corner of the plate with the first column of cells being column zero. i.e top left is (0,0)'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> ExternalDescription="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'A description of the externally defined identifier for this plate.'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> ExternalIdentifier="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'The ExternalIdentifier attribute may contain a reference to an external database.'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Row="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:integer</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'This is the row index of the well, the origin is the top left corner of the plate with the first row of wells being row zero. i.e top left is (0,0)'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Type="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'A human readable identifier for the screening status. e.g. empty, positive control, negative control, control, experimental, etc. This string is likely to become an enumeration in future releases.'</p>"</span>&gt; <br/>
+               <div style="margin-left: 1.5em">&lt;<a title="Jump to &#34;WellSample&#34; element declaration." href="#element_WellSample">WellSample</a>&gt; ... &lt;/<a title="Jump to &#34;WellSample&#34; element declaration." href="#element_WellSample">WellSample</a>&gt; <span class="occurs">[0..*]</span>
+               </div>
+               <div style="margin-left: 1.5em">&lt;<a title="Jump to &#34;ReagentRef&#34; element declaration." href="#element_ReagentRef">ReagentRef</a>&gt; ... &lt;/<a title="Jump to &#34;ReagentRef&#34; element declaration." href="#element_ReagentRef">ReagentRef</a>&gt; <span class="occurs">[0..1]</span>
+               </div>&lt;/Well&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Well_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_Well_diagram_button" class="control"
+                   onclick="switchState('element_Well_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="element_Well_diagram" class="contents">
+            <img usemap="#element_Well_httpwww.openmicroscopy.orgSchemasSPW200802"
+                 src="schemaDiagrams/element_Well_httpwww.openmicroscopy.orgSchemasSPW200802.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2008-02//schemaDiagrams/element_Well_httpwww.openmicroscopy.orgSchemasSPW200802.map--><map name="element_Well_httpwww.openmicroscopy.orgSchemasSPW200802">
+               <area shape="rect" alt="element_WellSample" coords="242,0,368,42"
+                     href="SPW.xsd.html#element_WellSample"/>
+
+               <area shape="rect" alt="element_ReagentRef" coords="242,52,368,94"
+                     href="SPW.xsd.html#element_ReagentRef"/>
+
+               <area shape="rect" alt="type_WellID" coords="156,104,250,130"
+                     href="SPW.xsd.html#type_WellID"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Well_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="element_Well_scbox_button" class="control"
+                   onclick="switchState('element_Well_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="element_Well_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:element</span> 
+               <span class="scTag">name</span>="<span class="scContent">Well</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a title="Jump to &#34;WellSample&#34; element declaration." href="#element_WellSample">WellSample</a>
+                        </span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>" <span class="scTag">maxOccurs</span>="<span class="scContent">unbounded</span>"/&gt;</div>
+                     <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a title="Jump to &#34;ReagentRef&#34; element declaration." href="#element_ReagentRef">ReagentRef</a>
+                        </span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div>&lt;/<span class="scTag">xsd:sequence</span>&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">ID</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a title="Jump to &#34;WellID&#34; type definition." href="#type_WellID">WellID</a>
+                        </span>
+                     </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Column</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:integer</span>
+                     </span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">ExternalDescription</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span>
+                     </span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">ExternalIdentifier</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span>
+                     </span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Row</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:integer</span>
+                     </span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Type</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:string</span>
+                     </span>"/&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>&lt;/<span class="scTag">xsd:element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_Well_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="element_WellSample" class="name">WellSample</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>WellSample</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#element_Well">Well</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary" href="SPW.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary" href="SPW.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>Documentation</th>
+            <td class="documentation">
+				WellSample is an individual image that has been captured within a Well.
+            </td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_WellSample_logicalDiagram_button" class="control"
+                   onclick="switchState('element_WellSample_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="element_WellSample_logicalDiagram" class="contents">
+            <img usemap="#logical_element_WellSample_httpwww.openmicroscopy.orgSchemasSPW200802"
+                 src="schemaDiagrams/logical_element_WellSample_httpwww.openmicroscopy.orgSchemasSPW200802.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2008-02//schemaDiagrams/logical_element_WellSample_httpwww.openmicroscopy.orgSchemasSPW200802.map--><map name="logical_element_WellSample_httpwww.openmicroscopy.orgSchemasSPW200802">
+               <area shape="rect" alt="element_ImageRef" coords="436,265,786,324"
+                     href="SPW.xsd.html#element_ImageRef"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_WellSample_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_WellSample_xibox_button" class="control"
+                   onclick="switchState('element_WellSample_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="element_WellSample_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;WellSample<br/>
+               <span style="margin-left: 0.5em"> ID="<span class="type">
+                     <a title="Jump to &#34;WellSampleID&#34; type definition." href="#type_WellSampleID">WellSampleID</a>
+                  </span> 
+                  <span class="occurs">[1]</span>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Index="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:integer</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'This is the main link to the core Image element'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> PosX="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:float</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'The X position of the image within the well'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> PosY="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:float</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'The Y position of the image within the well'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Timepoint="<span class="type">
+                     <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:integer</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'The time-point at which the image started to be collected'</p>"</span>&gt; <br/>
+               <div style="margin-left: 1.5em">&lt;<a title="Jump to &#34;ImageRef&#34; element declaration." href="#element_ImageRef">ImageRef</a>&gt; ... &lt;/<a title="Jump to &#34;ImageRef&#34; element declaration." href="#element_ImageRef">ImageRef</a>&gt; <span class="occurs">[0..1]</span>
+               </div>&lt;/WellSample&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_WellSample_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_WellSample_diagram_button" class="control"
+                   onclick="switchState('element_WellSample_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="element_WellSample_diagram" class="contents">
+            <img usemap="#element_WellSample_httpwww.openmicroscopy.orgSchemasSPW200802"
+                 src="schemaDiagrams/element_WellSample_httpwww.openmicroscopy.orgSchemasSPW200802.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2008-02//schemaDiagrams/element_WellSample_httpwww.openmicroscopy.orgSchemasSPW200802.map--><map name="element_WellSample_httpwww.openmicroscopy.orgSchemasSPW200802">
+               <area shape="rect" alt="element_ImageRef" coords="284,0,396,42"
+                     href="SPW.xsd.html#element_ImageRef"/>
+
+               <area shape="rect" alt="type_WellSampleID" coords="198,52,292,78"
+                     href="SPW.xsd.html#type_WellSampleID"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_WellSample_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="element_WellSample_scbox_button" class="control"
+                   onclick="switchState('element_WellSample_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="element_WellSample_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:element</span> 
+               <span class="scTag">name</span>="<span class="scContent">WellSample</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:sequence</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a title="Jump to &#34;ImageRef&#34; element declaration." href="#element_ImageRef">ImageRef</a>
+                        </span>" <span class="scTag">minOccurs</span>="<span class="scContent">0</span>"/&gt;</div>&lt;/<span class="scTag">xsd:sequence</span>&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">ID</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a title="Jump to &#34;WellSampleID&#34; type definition." href="#type_WellSampleID">WellSampleID</a>
+                        </span>
+                     </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Index</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:integer</span>
+                     </span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">PosX</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:float</span>
+                     </span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">PosY</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:float</span>
+                     </span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Timepoint</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_xsd" title="Find out namespace of 'xsd' prefix">xsd</a>:integer</span>
+                     </span>"/&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>&lt;/<span class="scTag">xsd:element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_WellSample_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="element_WellSampleRef" class="name">WellSampleRef</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>WellSampleRef</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#element_ScreenAcquisition">ScreenAcquisition</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary" href="SPW.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary" href="SPW.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>Documentation</th>
+            <td class="documentation">
+                The WellSampleRef element is a reference to a WellSample element.
+            </td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_WellSampleRef_logicalDiagram_button" class="control"
+                   onclick="switchState('element_WellSampleRef_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="element_WellSampleRef_logicalDiagram" class="contents">
+            <img usemap="#logical_element_WellSampleRef_httpwww.openmicroscopy.orgSchemasSPW200802"
+                 src="schemaDiagrams/logical_element_WellSampleRef_httpwww.openmicroscopy.orgSchemasSPW200802.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2008-02//schemaDiagrams/logical_element_WellSampleRef_httpwww.openmicroscopy.orgSchemasSPW200802.map--><map name="logical_element_WellSampleRef_httpwww.openmicroscopy.orgSchemasSPW200802">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_WellSampleRef_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_WellSampleRef_xibox_button" class="control"
+                   onclick="switchState('element_WellSampleRef_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="element_WellSampleRef_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;WellSampleRef<br/>
+               <span style="margin-left: 0.5em"> ID="<span class="type">
+                     <a title="Jump to &#34;WellSampleID&#34; type definition." href="#type_WellSampleID">WellSampleID</a>
+                  </span> 
+                  <span class="occurs">[1]</span>"</span>/&gt; </div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_WellSampleRef_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_WellSampleRef_diagram_button" class="control"
+                   onclick="switchState('element_WellSampleRef_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="element_WellSampleRef_diagram" class="contents">
+            <img usemap="#element_WellSampleRef_httpwww.openmicroscopy.orgSchemasSPW200802"
+                 src="schemaDiagrams/element_WellSampleRef_httpwww.openmicroscopy.orgSchemasSPW200802.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2008-02//schemaDiagrams/element_WellSampleRef_httpwww.openmicroscopy.orgSchemasSPW200802.map--><map name="element_WellSampleRef_httpwww.openmicroscopy.orgSchemasSPW200802">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_WellSampleRef_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="element_WellSampleRef_scbox_button" class="control"
+                   onclick="switchState('element_WellSampleRef_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="element_WellSampleRef_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:element</span> 
+               <span class="scTag">name</span>="<span class="scContent">WellSampleRef</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:complexContent</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:extension</span> 
+                        <span class="scTag">base</span>="<span class="scContent">
+                           <span class="type">
+                              <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;Reference&#34; type definition(located in external schema documentation)."
+                                 href="ome.xsd.html#type_Reference"
+                                 class="externalLink">Reference</a>
+                           </span>
+                        </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:attribute</span> 
+                           <span class="scTag">name</span>="<span class="scContent">ID</span>" <span class="scTag">type</span>="<span class="scContent">
+                              <span class="type">
+                                 <a title="Jump to &#34;WellSampleID&#34; type definition." href="#type_WellSampleID">WellSampleID</a>
+                              </span>
+                           </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>&lt;/<span class="scTag">xsd:extension</span>&gt;</div>&lt;/<span class="scTag">xsd:complexContent</span>&gt;</div>&lt;/<span class="scTag">xsd:complexType</span>&gt;</div>&lt;/<span class="scTag">xsd:element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_WellSampleRef_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h2>
+         <a name="SchemaDefinitions">Global Definitions</a>
+      </h2>
+      <h3>Simple Type: <a name="type_PlateID" class="name">PlateID</a>
+      </h3>
+      <table class="hierarchy">
+         <tr>
+            <th>Super-types:</th>
+            <td>
+               <span class="type">
+                  <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;LSID&#34; type definition(located in external schema documentation)."
+                     href="ome.xsd.html#type_LSID"
+                     class="externalLink">LSID</a>
+               </span> &lt; <strong>PlateID</strong> (by restriction)</td>
+         </tr>
+         <tr>
+            <th>Sub-types:</th>
+            <td>None</td>
+         </tr>
+      </table>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>PlateID</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#element_Plate">Plate</a>
+               </b>, Element <b>
+                  <a href="#element_PlateRef">PlateRef</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Content</th>
+            <td>
+               <ul>
+                  <li>Base XSD Type: string</li>
+               </ul>
+               <ul>
+                  <li>
+                     <em>pattern</em> = (urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:\S+:\S+)|(\S+:\S+)</li>
+               </ul>
+               <ul>
+                  <li>
+                     <em>pattern</em> = (urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:Plate:\S+)|(Plate:\S+)</li>
+               </ul>
+            </td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="type_PlateID_diagram_button" class="control"
+                   onclick="switchState('type_PlateID_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="type_PlateID_diagram" class="contents">
+            <img usemap="#type_PlateID_httpwww.openmicroscopy.orgSchemasSPW200802"
+                 src="schemaDiagrams/type_PlateID_httpwww.openmicroscopy.orgSchemasSPW200802.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2008-02//schemaDiagrams/type_PlateID_httpwww.openmicroscopy.orgSchemasSPW200802.map--><map name="type_PlateID_httpwww.openmicroscopy.orgSchemasSPW200802">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('type_PlateID_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="type_PlateID_scbox_button" class="control"
+                   onclick="switchState('type_PlateID_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="type_PlateID_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:simpleType</span> 
+               <span class="scTag">name</span>="<span class="scContent">PlateID</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:restriction</span> 
+                  <span class="scTag">base</span>="<span class="scContent">
+                     <span class="type">
+                        <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;LSID&#34; type definition(located in external schema documentation)."
+                           href="ome.xsd.html#type_LSID"
+                           class="externalLink">LSID</a>
+                     </span>
+                  </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:pattern</span> 
+                     <span class="scTag">value</span>="<span class="scContent">(urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:Plate:\S+)|(Plate:\S+)</span>"/&gt;</div>&lt;/<span class="scTag">xsd:restriction</span>&gt;</div>&lt;/<span class="scTag">xsd:simpleType</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('type_PlateID_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Simple Type: <a name="type_ReagentID" class="name">ReagentID</a>
+      </h3>
+      <table class="hierarchy">
+         <tr>
+            <th>Super-types:</th>
+            <td>
+               <span class="type">
+                  <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;LSID&#34; type definition(located in external schema documentation)."
+                     href="ome.xsd.html#type_LSID"
+                     class="externalLink">LSID</a>
+               </span> &lt; <strong>ReagentID</strong> (by restriction)</td>
+         </tr>
+         <tr>
+            <th>Sub-types:</th>
+            <td>None</td>
+         </tr>
+      </table>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>ReagentID</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#element_Reagent">Reagent</a>
+               </b>, Element <b>
+                  <a href="#element_ReagentRef">ReagentRef</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Content</th>
+            <td>
+               <ul>
+                  <li>Base XSD Type: string</li>
+               </ul>
+               <ul>
+                  <li>
+                     <em>pattern</em> = (urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:\S+:\S+)|(\S+:\S+)</li>
+               </ul>
+               <ul>
+                  <li>
+                     <em>pattern</em> = (urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:Reagent:\S+)|(Reagent:\S+)</li>
+               </ul>
+            </td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="type_ReagentID_diagram_button" class="control"
+                   onclick="switchState('type_ReagentID_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="type_ReagentID_diagram" class="contents">
+            <img usemap="#type_ReagentID_httpwww.openmicroscopy.orgSchemasSPW200802"
+                 src="schemaDiagrams/type_ReagentID_httpwww.openmicroscopy.orgSchemasSPW200802.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2008-02//schemaDiagrams/type_ReagentID_httpwww.openmicroscopy.orgSchemasSPW200802.map--><map name="type_ReagentID_httpwww.openmicroscopy.orgSchemasSPW200802">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('type_ReagentID_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="type_ReagentID_scbox_button" class="control"
+                   onclick="switchState('type_ReagentID_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="type_ReagentID_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:simpleType</span> 
+               <span class="scTag">name</span>="<span class="scContent">ReagentID</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:restriction</span> 
+                  <span class="scTag">base</span>="<span class="scContent">
+                     <span class="type">
+                        <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;LSID&#34; type definition(located in external schema documentation)."
+                           href="ome.xsd.html#type_LSID"
+                           class="externalLink">LSID</a>
+                     </span>
+                  </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:pattern</span> 
+                     <span class="scTag">value</span>="<span class="scContent">(urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:Reagent:\S+)|(Reagent:\S+)</span>"/&gt;</div>&lt;/<span class="scTag">xsd:restriction</span>&gt;</div>&lt;/<span class="scTag">xsd:simpleType</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('type_ReagentID_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Simple Type: <a name="type_ScreenAcquisitionID" class="name">ScreenAcquisitionID</a>
+      </h3>
+      <table class="hierarchy">
+         <tr>
+            <th>Super-types:</th>
+            <td>
+               <span class="type">
+                  <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;LSID&#34; type definition(located in external schema documentation)."
+                     href="ome.xsd.html#type_LSID"
+                     class="externalLink">LSID</a>
+               </span> &lt; <strong>ScreenAcquisitionID</strong> (by restriction)</td>
+         </tr>
+         <tr>
+            <th>Sub-types:</th>
+            <td>None</td>
+         </tr>
+      </table>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>ScreenAcquisitionID</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#element_ScreenAcquisition">ScreenAcquisition</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Content</th>
+            <td>
+               <ul>
+                  <li>Base XSD Type: string</li>
+               </ul>
+               <ul>
+                  <li>
+                     <em>pattern</em> = (urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:\S+:\S+)|(\S+:\S+)</li>
+               </ul>
+               <ul>
+                  <li>
+                     <em>pattern</em> = (urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:ScreenAcquisition:\S+)|(ScreenAcquisition:\S+)</li>
+               </ul>
+            </td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="type_ScreenAcquisitionID_diagram_button" class="control"
+                   onclick="switchState('type_ScreenAcquisitionID_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="type_ScreenAcquisitionID_diagram" class="contents">
+            <img usemap="#type_ScreenAcquisitionID_httpwww.openmicroscopy.orgSchemasSPW200802"
+                 src="schemaDiagrams/type_ScreenAcquisitionID_httpwww.openmicroscopy.orgSchemasSPW200802.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2008-02//schemaDiagrams/type_ScreenAcquisitionID_httpwww.openmicroscopy.orgSchemasSPW200802.map--><map name="type_ScreenAcquisitionID_httpwww.openmicroscopy.orgSchemasSPW200802">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('type_ScreenAcquisitionID_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="type_ScreenAcquisitionID_scbox_button" class="control"
+                   onclick="switchState('type_ScreenAcquisitionID_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="type_ScreenAcquisitionID_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:simpleType</span> 
+               <span class="scTag">name</span>="<span class="scContent">ScreenAcquisitionID</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:restriction</span> 
+                  <span class="scTag">base</span>="<span class="scContent">
+                     <span class="type">
+                        <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;LSID&#34; type definition(located in external schema documentation)."
+                           href="ome.xsd.html#type_LSID"
+                           class="externalLink">LSID</a>
+                     </span>
+                  </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:pattern</span> 
+                     <span class="scTag">value</span>="<span class="scContent">(urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:ScreenAcquisition:\S+)|(ScreenAcquisition:\S+)</span>"/&gt;</div>&lt;/<span class="scTag">xsd:restriction</span>&gt;</div>&lt;/<span class="scTag">xsd:simpleType</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('type_ScreenAcquisitionID_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Simple Type: <a name="type_ScreenID" class="name">ScreenID</a>
+      </h3>
+      <table class="hierarchy">
+         <tr>
+            <th>Super-types:</th>
+            <td>
+               <span class="type">
+                  <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;LSID&#34; type definition(located in external schema documentation)."
+                     href="ome.xsd.html#type_LSID"
+                     class="externalLink">LSID</a>
+               </span> &lt; <strong>ScreenID</strong> (by restriction)</td>
+         </tr>
+         <tr>
+            <th>Sub-types:</th>
+            <td>None</td>
+         </tr>
+      </table>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>ScreenID</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#element_Screen">Screen</a>
+               </b>, Element <b>
+                  <a href="#element_ScreenRef">ScreenRef</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Content</th>
+            <td>
+               <ul>
+                  <li>Base XSD Type: string</li>
+               </ul>
+               <ul>
+                  <li>
+                     <em>pattern</em> = (urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:\S+:\S+)|(\S+:\S+)</li>
+               </ul>
+               <ul>
+                  <li>
+                     <em>pattern</em> = (urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:Screen:\S+)|(Screen:\S+)</li>
+               </ul>
+            </td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="type_ScreenID_diagram_button" class="control"
+                   onclick="switchState('type_ScreenID_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="type_ScreenID_diagram" class="contents">
+            <img usemap="#type_ScreenID_httpwww.openmicroscopy.orgSchemasSPW200802"
+                 src="schemaDiagrams/type_ScreenID_httpwww.openmicroscopy.orgSchemasSPW200802.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2008-02//schemaDiagrams/type_ScreenID_httpwww.openmicroscopy.orgSchemasSPW200802.map--><map name="type_ScreenID_httpwww.openmicroscopy.orgSchemasSPW200802">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('type_ScreenID_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="type_ScreenID_scbox_button" class="control"
+                   onclick="switchState('type_ScreenID_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="type_ScreenID_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:simpleType</span> 
+               <span class="scTag">name</span>="<span class="scContent">ScreenID</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:restriction</span> 
+                  <span class="scTag">base</span>="<span class="scContent">
+                     <span class="type">
+                        <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;LSID&#34; type definition(located in external schema documentation)."
+                           href="ome.xsd.html#type_LSID"
+                           class="externalLink">LSID</a>
+                     </span>
+                  </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:pattern</span> 
+                     <span class="scTag">value</span>="<span class="scContent">(urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:Screen:\S+)|(Screen:\S+)</span>"/&gt;</div>&lt;/<span class="scTag">xsd:restriction</span>&gt;</div>&lt;/<span class="scTag">xsd:simpleType</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('type_ScreenID_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Simple Type: <a name="type_WellID" class="name">WellID</a>
+      </h3>
+      <table class="hierarchy">
+         <tr>
+            <th>Super-types:</th>
+            <td>
+               <span class="type">
+                  <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;LSID&#34; type definition(located in external schema documentation)."
+                     href="ome.xsd.html#type_LSID"
+                     class="externalLink">LSID</a>
+               </span> &lt; <strong>WellID</strong> (by restriction)</td>
+         </tr>
+         <tr>
+            <th>Sub-types:</th>
+            <td>None</td>
+         </tr>
+      </table>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>WellID</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#element_Well">Well</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Content</th>
+            <td>
+               <ul>
+                  <li>Base XSD Type: string</li>
+               </ul>
+               <ul>
+                  <li>
+                     <em>pattern</em> = (urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:\S+:\S+)|(\S+:\S+)</li>
+               </ul>
+               <ul>
+                  <li>
+                     <em>pattern</em> = (urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:Well:\S+)|(Well:\S+)</li>
+               </ul>
+            </td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="type_WellID_diagram_button" class="control"
+                   onclick="switchState('type_WellID_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="type_WellID_diagram" class="contents">
+            <img usemap="#type_WellID_httpwww.openmicroscopy.orgSchemasSPW200802"
+                 src="schemaDiagrams/type_WellID_httpwww.openmicroscopy.orgSchemasSPW200802.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2008-02//schemaDiagrams/type_WellID_httpwww.openmicroscopy.orgSchemasSPW200802.map--><map name="type_WellID_httpwww.openmicroscopy.orgSchemasSPW200802">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('type_WellID_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="type_WellID_scbox_button" class="control"
+                   onclick="switchState('type_WellID_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="type_WellID_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:simpleType</span> 
+               <span class="scTag">name</span>="<span class="scContent">WellID</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:restriction</span> 
+                  <span class="scTag">base</span>="<span class="scContent">
+                     <span class="type">
+                        <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;LSID&#34; type definition(located in external schema documentation)."
+                           href="ome.xsd.html#type_LSID"
+                           class="externalLink">LSID</a>
+                     </span>
+                  </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:pattern</span> 
+                     <span class="scTag">value</span>="<span class="scContent">(urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:Well:\S+)|(Well:\S+)</span>"/&gt;</div>&lt;/<span class="scTag">xsd:restriction</span>&gt;</div>&lt;/<span class="scTag">xsd:simpleType</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('type_WellID_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Simple Type: <a name="type_WellSampleID" class="name">WellSampleID</a>
+      </h3>
+      <table class="hierarchy">
+         <tr>
+            <th>Super-types:</th>
+            <td>
+               <span class="type">
+                  <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;LSID&#34; type definition(located in external schema documentation)."
+                     href="ome.xsd.html#type_LSID"
+                     class="externalLink">LSID</a>
+               </span> &lt; <strong>WellSampleID</strong> (by restriction)</td>
+         </tr>
+         <tr>
+            <th>Sub-types:</th>
+            <td>None</td>
+         </tr>
+      </table>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>WellSampleID</td>
+         </tr>
+         <tr>
+            <th>Used by (from the same schema document)</th>
+            <td>Element <b>
+                  <a href="#element_WellSample">WellSample</a>
+               </b>, Element <b>
+                  <a href="#element_WellSampleRef">WellSampleRef</a>
+               </b>
+            </td>
+         </tr>
+         <tr>
+            <th>Content</th>
+            <td>
+               <ul>
+                  <li>Base XSD Type: string</li>
+               </ul>
+               <ul>
+                  <li>
+                     <em>pattern</em> = (urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:\S+:\S+)|(\S+:\S+)</li>
+               </ul>
+               <ul>
+                  <li>
+                     <em>pattern</em> = (urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:WellSample:\S+)|(WellSample:\S+)</li>
+               </ul>
+            </td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="type_WellSampleID_diagram_button" class="control"
+                   onclick="switchState('type_WellSampleID_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="type_WellSampleID_diagram" class="contents">
+            <img usemap="#type_WellSampleID_httpwww.openmicroscopy.orgSchemasSPW200802"
+                 src="schemaDiagrams/type_WellSampleID_httpwww.openmicroscopy.orgSchemasSPW200802.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2008-02//schemaDiagrams/type_WellSampleID_httpwww.openmicroscopy.orgSchemasSPW200802.map--><map name="type_WellSampleID_httpwww.openmicroscopy.orgSchemasSPW200802">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('type_WellSampleID_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="type_WellSampleID_scbox_button" class="control"
+                   onclick="switchState('type_WellSampleID_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="type_WellSampleID_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">xsd:simpleType</span> 
+               <span class="scTag">name</span>="<span class="scContent">WellSampleID</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:restriction</span> 
+                  <span class="scTag">base</span>="<span class="scContent">
+                     <span class="type">
+                        <a href="#ns_OME" title="Find out namespace of 'OME' prefix">OME</a>:<a title="Jump to &#34;LSID&#34; type definition(located in external schema documentation)."
+                           href="ome.xsd.html#type_LSID"
+                           class="externalLink">LSID</a>
+                     </span>
+                  </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">xsd:pattern</span> 
+                     <span class="scTag">value</span>="<span class="scContent">(urn:lsid:([\w\-\.]+\.[\w\-\.]+)+:WellSample:\S+)|(WellSample:\S+)</span>"/&gt;</div>&lt;/<span class="scTag">xsd:restriction</span>&gt;</div>&lt;/<span class="scTag">xsd:simpleType</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('type_WellSampleID_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <div id="legend">
+         <h2>
+            <a name="Legend">Legend</a>
+         </h2>
+         <div style="float: left; width: 15em;">
+            <h3 style="margin-bottom: 0px;">Complex Type:</h3>
+            <div class="hint" style="margin-left: 0em;">Schema Component Type</div>
+         </div>
+         <div style="float: left; width: 15em;">
+            <h3 style="margin-bottom: 0px;">
+               <span class="name">AusAddress</span>
+            </h3>
+            <div class="hint" style="margin-left: 0em;">Schema Component Name</div>
+         </div>
+         <table class="hierarchy" style="clear : both">
+            <tr>
+               <th>Super-types:</th>
+               <td>
+                  <span class="type" style="color: #0000FF; text-decoration:underline;">Address</span> &lt; <span class="current">AusAddress</span> (by extension)</td>
+            </tr>
+            <tr>
+               <th>Sub-types:</th>
+               <td>
+                  <ul>
+                     <li>
+                        <span class="type" style="color: #0000FF; text-decoration:underline;">QLDAddress</span> (by restriction)</li>
+                  </ul>
+               </td>
+            </tr>
+         </table>
+         <div class="hint">If this schema component is a type definition, its type hierarchy is shown in a gray-bordered box.</div>
+         <table class="properties">
+            <tr>
+               <th>Name</th>
+               <td>AusAddress</td>
+            </tr>
+            <tr>
+               <th>
+                  <a title="Look up 'Abstract' in glossary" href="SPW.xsd.html#term_Abstract">Abstract</a>
+               </th>
+               <td>no</td>
+            </tr>
+         </table>
+         <div class="hint">The table above displays the properties of this schema component.</div>
+         <div class="sample box">
+            <div>
+               <span class="caption">XML Instance Representation</span>
+            </div>
+            <div class="contents">
+               <span style="margin-left: 0em">&lt;...</span>
+               <span class="newFields">
+                  <span> country="<span class="fixed">Australia</span>"</span>
+               </span>&gt; <br/>
+               <span style="margin-left: 1.5em" class="inherited">&lt;unitNo&gt; <span class="type">string</span> &lt;/unitNo&gt; <span class="occurs">[0..1]</span>
+               </span>
+               <br/>
+               <span style="margin-left: 1.5em" class="inherited">&lt;houseNo&gt; <span class="type">string</span> &lt;/houseNo&gt; <span class="occurs">[1]</span>
+               </span>
+               <br/>
+               <span style="margin-left: 1.5em" class="inherited">&lt;street&gt; <span class="type">string</span> &lt;/street&gt; <span class="occurs">[1]</span>
+               </span>
+               <br/>
+               <span class="group" style="margin-left: 1.5em">Start <a title="Look up 'Choice' in glossary" href="#term_Choice">Choice</a>
+                  <span class="occurs">[1]</span>
+               </span>
+               <br/>
+               <span style="margin-left: 3em" class="inherited">&lt;city&gt; <span class="type">string</span> &lt;/city&gt; <span class="occurs">[1]</span>
+               </span>
+               <br/>
+               <span style="margin-left: 3em" class="inherited">&lt;town&gt; <span class="type">string</span> &lt;/town&gt; <span class="occurs">[1]</span>
+               </span>
+               <br/>
+               <span class="group" style="margin-left: 1.5em">End Choice</span>
+               <br/>
+               <span class="newFields">
+                  <span style="margin-left: 1.5em">&lt;state&gt; <span class="type" style="text-decoration:underline;">AusStates</span> &lt;/state&gt; <span class="occurs">[1]</span>
+                  </span>
+                  <br/>
+                  <span style="margin-left: 1.5em">&lt;postcode&gt; <span class="constraint">string &lt;&lt;<em>pattern</em> = [1-9][0-9]{3}&gt;&gt;</span> &lt;/postcode&gt; <span class="occurs">[1]</span>
+                     <a href="javascript:void(0)" title="View Documentation" class="documentation"
+                        onclick="docArray = new Array('Post code must be a four-digit number.'); viewDocumentation('Element', 'postcode', docArray);">?</a>
+                  </span>
+                  <br/>
+               </span>
+               <span style="margin-left: 0em">&lt;/...&gt;</span>
+               <br/>
+            </div>
+         </div>
+         <div class="hint">
+            <p>The XML Instance Representation table above shows the schema component's content as an XML instance.</p>
+            <ul>
+               <li>The minimum and maximum occurrence of elements and attributes are provided in square brackets, e.g. [0..1].</li>
+               <li>Model group information are shown in gray, e.g. Start Choice ... End Choice.</li>
+               <li>For type derivations, the elements and attributes that have been added to or changed from the base type's content are shown in <span style="font-weight: bold">bold</span>.</li>
+               <li>If an element/attribute has a fixed value, the fixed value is shown in green, e.g. country="Australia".</li>
+               <li>Otherwise, the type of the element/attribute is displayed.
+               <ul>
+                     <li>If the element/attribute's type is in the schema, a link is provided to it.</li>
+                     <li>For local simple type definitions, the constraints are displayed in angle brackets, e.g. &lt;&lt;<em>pattern</em> = [1-9][0-9]{3}&gt;&gt;.</li>
+                  </ul>
+               </li>
+               <li>If a local element/attribute has documentation, it will be displayed in a window that pops up when the question mark inside the attribute or next to the element is clicked, e.g. &lt;postcode&gt;.</li>
+            </ul>
+         </div>
+         <div class="schemaComponent box">
+            <div>
+               <span class="caption">Schema Component Representation</span>
+            </div>
+            <div class="contents">
+               <span style="margin-left: 0em">&lt;<span class="scTag">complexType</span>
+                  <span class="scTag">name</span>="<span class="scContent">AusAddress</span>"&gt;</span>
+               <br/>
+               <span style="margin-left: 1.5em">&lt;<span class="scTag">complexContent</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 3em">&lt;<span class="scTag">extension</span>
+                  <span class="scTag">base</span>="<span class="scContent">
+                     <span class="type" style="text-decoration:underline;">Address</span>
+                  </span>"&gt;</span>
+               <br/>
+               <span style="margin-left: 4.5em">&lt;<span class="scTag">sequence</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 6em">&lt;<span class="scTag">element</span>
+                  <span class="scTag">name</span>="<span class="scContent">state</span>" <span class="scTag">type</span>="<span class="scContent">
+                     <span class="type" style="text-decoration:underline;">AusStates</span>
+                  </span>"/&gt;</span>
+               <br/>
+               <span style="margin-left: 6em">&lt;<span class="scTag">element</span>
+                  <span class="scTag">name</span>="<span class="scContent">postcode</span>"&gt;</span>
+               <br/>
+               <span style="margin-left: 7.5em">&lt;<span class="scTag">simpleType</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 9em">&lt;<span class="scTag">restriction</span>
+                  <span class="scTag">base</span>="<span class="scContent">
+                     <span class="type">string</span>
+                  </span>"&gt;</span>
+               <br/>
+               <span style="margin-left: 10.5em">&lt;<span class="scTag">pattern</span>
+                  <span class="scTag">value</span>="<span class="scContent">[1-9][0-9]{3}</span>"/&gt;</span>
+               <br/>
+               <span style="margin-left: 9em">&lt;/<span class="scTag">restriction</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 7.5em">&lt;/<span class="scTag">simpleType</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 6em">&lt;/<span class="scTag">element</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 4.5em">&lt;/<span class="scTag">sequence</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 4.5em">&lt;<span class="scTag">attribute</span>
+                  <span class="scTag">name</span>="<span class="scContent">country</span>" <span class="scTag">type</span>="<span class="scContent">
+                     <span class="type">string</span>
+                  </span>" <span class="scTag">fixed</span>="<span class="scContent">Australia</span>"/&gt;</span>
+               <br/>
+               <span style="margin-left: 3em">&lt;/<span class="scTag">extension</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 1.5em">&lt;/<span class="scTag">complexContent</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 0em">&lt;/<span class="scTag">complexType</span>&gt;</span>
+               <br/>
+            </div>
+         </div>
+         <div class="hint">The Schema Component Representation table above displays the underlying XML representation of the schema component. (Annotations are not shown.)</div>
+         <div style="text-align: right; clear: both;">
+            <a href="#top">top</a>
+         </div>
+         <hr/>
+      </div>
+      <div id="glossary">
+         <h2>
+            <a name="Glossary">Glossary</a>
+         </h2>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_Abstract">Abstract</a> 
+            </span>(Applies to complex type definitions and element declarations). An abstract element or complex type cannot used to validate an element instance. If there is a reference to an abstract element, only element declarations that can substitute the abstract element can be used to validate the instance. For references to abstract type definitions, only derived types can be used.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_All">All Model Group</a> 
+            </span>Child elements can be provided <em>in any order</em> in instances. See: <a title="http://www.w3.org/TR/xmlschema-1/#element-all"
+               href="http://www.w3.org/TR/xmlschema-1/#element-all">http://www.w3.org/TR/xmlschema-1/#element-all</a>.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_Choice">Choice Model Group</a> 
+            </span>
+            <em>Only one</em> from the list of child elements and model groups can be provided in instances. See: <a title="http://www.w3.org/TR/xmlschema-1/#element-choice"
+               href="http://www.w3.org/TR/xmlschema-1/#element-choice">http://www.w3.org/TR/xmlschema-1/#element-choice</a>.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_CollapseWS">Collapse Whitespace Policy</a> 
+            </span>Replace tab, line feed, and carriage return characters with space character (Unicode character 32). Then, collapse contiguous sequences of space characters into single space character, and remove leading and trailing space characters.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_ElemBlock">Disallowed Substitutions</a> 
+            </span>(Applies to element declarations). If <em>substitution</em> is specified, then <a title="Look up 'substitution group' in glossary"
+               href="SPW.xsd.html#term_SubGroup">substitution group</a> members cannot be used in place of the given element declaration to validate element instances. If <em>derivation methods</em>, e.g. extension, restriction, are specified, then the given element declaration will not validate element instances that have types derived from the element declaration's type using the specified derivation methods. Normally, element instances can override their declaration's type by specifying an <code>xsi:type</code> attribute.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_Key">Key Constraint</a> 
+            </span>Like <a title="Look up 'Uniqueness Constraint' in glossary"
+               href="SPW.xsd.html#term_Unique">Uniqueness Constraint</a>, but additionally requires that the specified value(s) must be provided. See: <a title="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions"
+               href="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions">http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions</a>.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_KeyRef">Key Reference Constraint</a> 
+            </span>Ensures that the specified value(s) must match value(s) from a <a title="Look up 'Key Constraint' in glossary" href="SPW.xsd.html#term_Key">Key Constraint</a> or <a title="Look up 'Uniqueness Constraint' in glossary"
+               href="SPW.xsd.html#term_Unique">Uniqueness Constraint</a>. See: <a title="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions"
+               href="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions">http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions</a>.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_ModelGroup">Model Group</a> 
+            </span>Groups together element content, specifying the order in which the element content can occur and the number of times the group of element content may be repeated. See: <a title="http://www.w3.org/TR/xmlschema-1/#Model_Groups"
+               href="http://www.w3.org/TR/xmlschema-1/#Model_Groups">http://www.w3.org/TR/xmlschema-1/#Model_Groups</a>.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_Nillable">Nillable</a> 
+            </span>(Applies to element declarations). If an element declaration is nillable, instances can use the <code>xsi:nil</code> attribute. The <code>xsi:nil</code> attribute is the boolean attribute, <em>nil</em>, from the <em>http://www.w3.org/2001/XMLSchema-instance</em> namespace. If an element instance has an <code>xsi:nil</code> attribute set to true, it can be left empty, even though its element declaration may have required content.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_Notation">Notation</a> 
+            </span>A notation is used to identify the format of a piece of data. Values of elements and attributes that are of type, NOTATION, must come from the names of declared notations. See: <a title="http://www.w3.org/TR/xmlschema-1/#cNotation_Declarations"
+               href="http://www.w3.org/TR/xmlschema-1/#cNotation_Declarations">http://www.w3.org/TR/xmlschema-1/#cNotation_Declarations</a>.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_PreserveWS">Preserve Whitespace Policy</a> 
+            </span>Preserve whitespaces exactly as they appear in instances.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_TypeFinal">Prohibited Derivations</a> 
+            </span>(Applies to type definitions). Derivation methods that cannot be used to create sub-types from a given type definition.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_TypeBlock">Prohibited Substitutions</a> 
+            </span>(Applies to complex type definitions). Prevents sub-types that have been derived using the specified derivation methods from validating element instances in place of the given type definition.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_ReplaceWS">Replace Whitespace Policy</a> 
+            </span>Replace tab, line feed, and carriage return characters with space character (Unicode character 32).</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_Sequence">Sequence Model Group</a> 
+            </span>Child elements and model groups must be provided <em>in the specified order</em> in instances. See: <a title="http://www.w3.org/TR/xmlschema-1/#element-sequence"
+               href="http://www.w3.org/TR/xmlschema-1/#element-sequence">http://www.w3.org/TR/xmlschema-1/#element-sequence</a>.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_SubGroup">Substitution Group</a> 
+            </span>Elements that are <em>members</em> of a substitution group can be used wherever the <em>head</em> element of the substitution group is referenced.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_ElemFinal">Substitution Group Exclusions</a> 
+            </span>(Applies to element declarations). Prohibits element declarations from nominating themselves as being able to substitute a given element declaration, if they have types that are derived from the original element's type using the specified derivation methods.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_TargetNS">Target Namespace</a> 
+            </span>The target namespace identifies the namespace that components in this schema belongs to. If no target namespace is provided, then the schema components do not belong to any namespace.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_Unique">Uniqueness Constraint</a> 
+            </span>Ensures uniqueness of an element/attribute value, or a combination of values, within a specified scope. See: <a title="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions"
+               href="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions">http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions</a>.</p>
+         <div style="text-align: right; clear: both;">
+            <a href="#top">top</a>
+         </div>
+         <hr/>
+      </div>
+      <p class="footer">Generated by <a href="http://www.oxygenxml.com">&lt;oXygen/&gt; XML Editor</a> using a modified version of <a href="http://titanium.dstc.edu.au/xml/xs3p">xs3p</a> that adds schema diagrams and chunking support. Last modified: <script type="text/javascript">
+<!--
+          document.write(document.lastModified);
+// -->
+</script>
+      </p>
+   </body>
+</html>

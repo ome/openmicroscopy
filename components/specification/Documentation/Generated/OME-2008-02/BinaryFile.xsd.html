@@ -1,0 +1,1319 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+   <head>
+      <title>Documentation for ome - BinaryFile.xsd</title>
+      <meta http-equiv="Content-Type" content="text/xml; charset=UTF-8"/>
+      <style type="text/css">
+@import url(auto-gen-doc.css);
+</style>
+      <script type="text/javascript">
+<!--
+          /* IDs of XML Instance Representation boxes */
+var xiBoxes = new Array('element_External_xibox', 'element_BinData_xibox', 'element_BinaryFile_xibox', 'type_Hex40_xibox');
+/* IDs of diagram boxes */
+var diagramBoxes = new Array('element_External_diagram', 'element_BinData_diagram', 'element_BinaryFile_diagram', 'type_Hex40_diagram');
+/* IDs of logical diagram boxes */
+var logicalDiagramBoxes = new Array('element_External_logicalDiagram', 'element_BinData_logicalDiagram', 'element_BinaryFile_logicalDiagram');
+/* IDs of Schema Component Representation boxes */
+var scBoxes = new Array('schema_scbox', 'element_External_scbox', 'element_BinData_scbox', 'element_BinaryFile_scbox', 'type_Hex40_scbox');
+
+/**
+ * Can get the ID of the button controlling
+ * a collapseable box by concatenating
+ * this string onto the ID of the box itself.
+ */
+var B_SFIX = "_button";
+
+
+/**
+ * Returns an element in the current HTML document.
+ * 
+ * @param elementID Identifier of HTML element
+ * @return               HTML element object
+ */
+function getElementObject(elementID) {
+    var elemObj = null;
+    if (document.getElementById) {
+        elemObj = document.getElementById(elementID);
+    }
+    return elemObj;
+}             
+
+/**
+ * Closes a collapseable box.
+ * 
+ * @param boxObj       Collapseable box
+ * @param buttonObj Button controlling box
+ */
+function closeBox(boxObj, buttonObj) {
+  if (boxObj == null || buttonObj == null) {
+     // Box or button not found
+  } else {
+     // Change 'display' CSS property of box
+     boxObj.style.display="none";
+
+     // Change text of button 
+     if (boxObj.style.display=="none") {
+        buttonObj.value=" + ";
+     }
+  }
+}
+
+/**
+ * Opens a collapseable box.
+ * 
+ * @param boxObj       Collapseable box
+ * @param buttonObj Button controlling box
+ */
+function openBox(boxObj, buttonObj) {
+  if (boxObj == null || buttonObj == null) {
+     // Box or button not found
+  } else {
+     // Change 'display' CSS property of box
+     boxObj.style.display="block";
+
+     // Change text of button
+     if (boxObj.style.display=="block") {
+        buttonObj.value=" - ";
+     }
+  }
+}
+
+/**
+ * Sets the state of a collapseable box.
+ * 
+ * @param boxID Identifier of box
+ * @param open If true, box is "opened",
+ *             Otherwise, box is "closed".
+ */
+function setState(boxID, open) {
+  var boxObj = getElementObject(boxID);
+  var buttonObj = getElementObject(boxID+B_SFIX);
+  if (boxObj == null || buttonObj == null) {
+     // Box or button not found
+  } else if (open) {
+     openBox(boxObj, buttonObj);
+     // Make button visible
+     buttonObj.style.display="inline";
+  } else {
+     closeBox(boxObj, buttonObj);
+     // Make button visible
+     buttonObj.style.display="inline";
+  }
+}
+
+/**
+ * Switches the state of a collapseable box, e.g.
+ * if it's opened, it'll be closed, and vice versa.
+ * 
+ * @param boxID Identifier of box
+ */
+function switchState(boxID) {
+  var boxObj = getElementObject(boxID);
+  var buttonObj = getElementObject(boxID+B_SFIX);
+  if (boxObj == null || buttonObj == null) {
+     // Box or button not found
+  } else if (boxObj.style.display=="none") {
+     // Box is closed, so open it
+     openBox(boxObj, buttonObj);
+  } else if (boxObj.style.display=="block") {
+     // Box is opened, so close it
+     closeBox(boxObj, buttonObj);
+  }
+}
+
+/**
+ * Closes all boxes in a given list.
+ * 
+ * @param boxList Array of box IDs
+ */
+function collapseAll(boxList) {
+  var idx;
+  for (idx = 0; idx < boxList.length; idx++) {
+     var boxObj = getElementObject(boxList[idx]);
+     var buttonObj = getElementObject(boxList[idx]+B_SFIX);
+     closeBox(boxObj, buttonObj);
+  }
+}
+
+/**
+ * Open all boxes in a given list.
+ * 
+ * @param boxList Array of box IDs
+ */
+function expandAll(boxList) {
+  var idx;
+  for (idx = 0; idx < boxList.length; idx++) {
+     var boxObj = getElementObject(boxList[idx]);
+     var buttonObj = getElementObject(boxList[idx]+B_SFIX);
+     openBox(boxObj, buttonObj);
+  }
+}
+
+/**
+ * Makes all the control buttons of boxes appear.
+ * 
+ * @param boxList Array of box IDs
+ */
+function viewControlButtons(boxList) {
+    var idx;
+    for (idx = 0; idx < boxList.length; idx++) {
+        buttonObj = getElementObject(boxList[idx]+B_SFIX);
+        if (buttonObj != null) {
+            buttonObj.style.display = "inline";
+        }
+    }
+}
+
+/**
+ * Makes all the control buttons of boxes disappear.
+ * 
+ * @param boxList Array of box IDs
+ */
+function hideControlButtons(boxList) {
+    var idx;
+    for (idx = 0; idx < boxList.length; idx++) {
+        buttonObj = getElementObject(boxList[idx]+B_SFIX);
+        if (buttonObj != null) {
+            buttonObj.style.display = "none";
+        }
+    }
+}
+
+/**
+ * Sets the page for either printing mode
+ * or viewing mode. In printing mode, the page
+ * is made to be more readable when printing it out.
+ * In viewing mode, the page is more browsable.
+ *
+ * @param isPrinterVersion If true, display in
+ *                                 printing mode; otherwise, 
+ *                                 in viewing mode
+ */
+function displayMode(isPrinterVersion) {
+    var obj;
+    if (isPrinterVersion) {
+        // Hide global control buttons
+        obj = getElementObject("globalControls");
+        if (obj != null) {
+            obj.style.visibility = "hidden";
+        }
+        // Hide Legend
+        obj = getElementObject("legend");
+        if (obj != null) {
+            obj.style.display = "none";
+        }
+        obj = getElementObject("legendTOC");
+        if (obj != null) {
+            obj.style.display = "none";
+        }
+        // Hide Glossary
+        obj = getElementObject("glossary");
+        if (obj != null) {
+            obj.style.display = "none";
+        }
+        obj = getElementObject("glossaryTOC");
+        if (obj != null) {
+            obj.style.display = "none";
+        }
+
+        // Expand all diagrams
+        expandAll(diagramBoxes);
+        // Expand all logical diagrams
+        expandAll(logicalDiagramBoxes);        
+        // Expand all XML Instance Representation tables
+        expandAll(xiBoxes);
+        // Expand all Schema Component Representation tables
+        expandAll(scBoxes);
+
+        // Hide Control buttons
+        hideControlButtons(diagramBoxes);
+        hideControlButtons(logicalDiagramBoxes);
+        hideControlButtons(xiBoxes);
+        hideControlButtons(scBoxes);
+    } else {
+        // View global control buttons
+        obj = getElementObject("globalControls");
+        if (obj != null) {
+            obj.style.visibility = "visible";
+        }
+        // View Legend
+        obj = getElementObject("legend");
+        if (obj != null) {
+            obj.style.display = "block";
+        }
+        obj = getElementObject("legendTOC");
+        if (obj != null) {
+            obj.style.display = "block";
+        }
+        // View Glossary
+        obj = getElementObject("glossary");
+        if (obj != null) {
+            obj.style.display = "block";
+        }
+        obj = getElementObject("glossaryTOC");
+        if (obj != null) {
+            obj.style.display = "block";
+        }
+
+        // Expand all diagram boxes
+        expandAll(diagramBoxes);
+        // Collapse all logical diagram boxes.
+        collapseAll(logicalDiagramBoxes);
+        // Expand all XML Instance Representation tables
+        expandAll(xiBoxes);
+        // Collapse all Schema Component Representation tables
+        collapseAll(scBoxes);
+
+        // View Control buttons
+        viewControlButtons(diagramBoxes);
+        viewControlButtons(logicalDiagramBoxes);
+        viewControlButtons(xiBoxes);
+        viewControlButtons(scBoxes);
+    }
+}
+
+
+
+// -->
+</script>
+      <script type="text/javascript">
+<!--
+          
+         
+/**
+ * Counter of documentation windows
+ * Used to give each window a unique name
+ */
+var windowCount = 0;
+         
+/**
+ * Opens up a window displaying the documentation
+ * of a schema component in the XML Instance
+ * Representation table.
+ * 
+ * @param compDesc      Description of schema component 
+ * @param compName      Name of schema component 
+ * @param docTextArray Array containing the paragraphs 
+ *                           of the new document
+ */
+function viewDocumentation(compDesc, compName, docTextArray) {
+  var width = 400;
+  var height = 200;
+  var locX = 100;
+  var locY = 200;
+
+  /* Generate content */
+  var actualText = "<html>";
+  actualText += "<head><title>";
+  actualText += compDesc;
+  if (compName != '') {
+     actualText += ": " + compName;
+  }
+  actualText += "</title></head>";
+  actualText += "<body bgcolor=\"#FFFFEE\">";
+  // Title
+  actualText += "<p style=\"font-family: Arial, sans-serif; font-size: 12pt; font-weight: bold; letter-spacing:1px;\">";
+  actualText += compDesc;
+  if (compName != '') {
+     actualText += ": <span style=\"color:#006699\">" + compName + "</span>";
+  }
+  actualText += "</p>";
+  // Documentation
+  var idx;
+  for (idx = 0; idx < docTextArray.length; idx++) {
+     actualText += "<p style=\"font-family: Arial, sans-serif; font-size: 10pt;\">" + docTextArray[idx] + "</p>";
+  }
+  // Link to close window
+  actualText += "<a href=\"javascript:void(0)\" onclick=\"window.close();\" style=\"font-family: Arial, sans-serif; font-size: 8pt;\">Close</a>";
+  actualText += "</body></html>";
+
+  /* Display window */
+  windowCount++;
+  var docWindow = window.open("", "documentation"+windowCount, "toolbar=no,location=no,status=no,menubar=no,scrollbars=yes,resizable,alwaysRaised,dependent,titlebar=no,width="+width+",height="+height+",screenX="+locX+",left="+locX+",screenY="+locY+",top="+locY);
+  docWindow.document.write(actualText);
+}         
+      
+// -->
+</script>
+   </head>
+   <body>
+      <h1>
+         <a name="top">Documentation for ome</a>
+      </h1>
+      <div style="float: right;">
+         <div id="printerControls" style="display:none;">
+            <input type="checkbox" onclick="displayMode(this.checked)"/>Printer-friendly Version</div>
+         <script type="text/javascript">
+<!--
+          
+var pc = getElementObject("printerControls");
+if (pc != null) {
+   pc.style.display="block";
+}
+               
+// -->
+</script>
+         <div id="globalControls" style="display:none">
+            <strong>Logical Diagram:</strong>
+            <br/>
+            <span style="margin-left: 1em; white-space: nowrap">[ <a href="javascript:void(0)" onclick="expandAll(logicalDiagramBoxes)">Expand All</a> | <a href="javascript:void(0)" onclick="collapseAll(logicalDiagramBoxes)">Collapse All</a> ]</span>
+            <br/>
+            <br/>
+            <strong>XML Instance Representation:</strong>
+            <br/>
+            <span style="margin-left: 1em; white-space: nowrap">[ <a href="javascript:void(0)" onclick="expandAll(xiBoxes)">Expand All</a> | <a href="javascript:void(0)" onclick="collapseAll(xiBoxes)">Collapse All</a> ]</span>
+            <br/>
+            <br/>
+            <strong>Diagram:</strong>
+            <br/>
+            <span style="margin-left: 1em; white-space: nowrap">[ <a href="javascript:void(0)" onclick="expandAll(diagramBoxes)">Expand All</a> | <a href="javascript:void(0)" onclick="collapseAll(diagramBoxes)">Collapse All</a> ]</span>
+            <br/>
+            <br/>
+            <strong>Schema Component Representation:</strong>
+            <br/>
+            <span style="margin-left: 1em; white-space: nowrap">[ <a href="javascript:void(0)" onclick="expandAll(scBoxes)">Expand All</a> | <a href="javascript:void(0)" onclick="collapseAll(scBoxes)">Collapse All</a> ]</span>
+         </div>
+         <script type="text/javascript">
+<!--
+          
+var gc = getElementObject("globalControls");
+if (gc != null) {
+   gc.style.display="block";
+}
+               
+// -->
+</script>
+      </div>
+      <h2>Table of Contents</h2>
+      <ul>
+         <li>
+            <a href="#SchemaProperties">Schema Document Properties</a>
+         </li>
+         <li>
+            <a href="#SchemaDeclarations">Global Declarations</a>
+            <ul>
+               <li>
+                  <a href="#element_BinData">Element: <strong>BinData</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#element_BinaryFile">Element: <strong>BinaryFile</strong>
+                  </a>
+               </li>
+               <li>
+                  <a href="#element_External">Element: <strong>External</strong>
+                  </a>
+               </li>
+            </ul>
+         </li>
+         <li>
+            <a href="#SchemaDefinitions">Global Definitions</a>
+            <ul>
+               <li>
+                  <a href="#type_Hex40">Simple Type: <strong>Hex40</strong>
+                  </a>
+               </li>
+            </ul>
+         </li>
+      </ul>
+      <ul id="legendTOC" style="margin-top: 0em">
+         <li>
+            <a href="#Legend">Legend</a>
+         </li>
+      </ul>
+      <ul id="glossaryTOC" style="margin-top: 0em">
+         <li>
+            <a href="#Glossary">Glossary</a>
+         </li>
+      </ul>
+      <h4>Master schema documentation file: 
+            <a href="ome.xsd.html">ome.xsd.html</a>
+      </h4>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h2>
+         <a name="SchemaProperties">Schema Document Properties</a>
+      </h2>
+      <table class="properties">
+         <tr>
+            <th>
+               <a title="Look up 'Target Namespace' in glossary"
+                  href="BinaryFile.xsd.html#term_TargetNS">Target Namespace</a>
+            </th>
+            <td>
+               <span class="targetNS">http://www.openmicroscopy.org/Schemas/BinaryFile/2008-02</span>
+            </td>
+         </tr>
+         <tr>
+            <th>Version</th>
+            <td>1</td>
+         </tr>
+         <tr>
+            <th>Element and Attribute Namespaces</th>
+            <td>
+               <ul>
+                  <li>Global element and attribute declarations belong to this schema's target namespace.</li>
+                  <li>By default, local element declarations belong to this schema's target namespace.</li>
+                  <li>By default, local attribute declarations have no namespace.</li>
+               </ul>
+            </td>
+         </tr>
+         <tr>
+            <th>Schema Composition</th>
+            <td>
+               <ul>
+                  <li>This schema imports schema(s) from the following namespace(s):<ul>
+                        <li>
+                           <em>http://www.w3.org/XML/1998/namespace</em> (at <a title="Jump to schema documentation for 'http://www.w3.org/2001/xml.xsd'."
+                              href="xml.xsd.html">http://www.w3.org/2001/xml.xsd</a>)</li>
+                     </ul>
+                  </li>
+               </ul>
+            </td>
+         </tr>
+         <tr>
+            <th>Documentation</th>
+            <td class="documentation">
+			The elements in this file are not yet represented by classes in the EA diagrams - ajp
+		</td>
+         </tr>
+      </table>
+      <h3>Declared Namespaces</h3>
+      <table class="namespaces">
+         <tr>
+            <th>Prefix</th>
+            <th>Namespace</th>
+         </tr>
+         <tr>
+            <td>
+               <a name="ns_">Default namespace</a>
+            </td>
+            <td>http://www.w3.org/2001/XMLSchema</td>
+         </tr>
+         <tr>
+            <td>
+               <a name="ns_xml">xml</a>
+            </td>
+            <td>http://www.w3.org/XML/1998/namespace</td>
+         </tr>
+         <tr>
+            <td>
+               <a name="ns_Bin">Bin</a>
+            </td>
+            <td>
+               <span class="targetNS">http://www.openmicroscopy.org/Schemas/BinaryFile/2008-02</span>
+            </td>
+         </tr>
+      </table>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="schema_scbox_button" class="control"
+                   onclick="switchState('schema_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="schema_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">schema</span> 
+               <span class="scTag">targetNamespace</span>="<span class="scContent">http://www.openmicroscopy.org/Schemas/BinaryFile/2008-02</span>" <span class="scTag">version</span>="<span class="scContent">1</span>" <span class="scTag">elementFormDefault</span>="<span class="scContent">qualified</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">import</span> 
+                  <span class="scTag">namespace</span>="<span class="scContent">http://www.w3.org/XML/1998/namespace</span>" <span class="scTag">schemaLocation</span>="<span class="scContent">http://www.w3.org/2001/xml.xsd</span>"/&gt;</div>
+               <div class="scContent" style="margin-left: 1.5em">...</div>&lt;/<span class="scTag">schema</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('schema_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h2>
+         <a name="SchemaDeclarations">Global Declarations</a>
+      </h2>
+      <h3>Element: <a name="element_BinData" class="name">BinData</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>BinData</td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary" href="BinaryFile.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary" href="BinaryFile.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>Documentation</th>
+            <td class="documentation">The contents of this element are base64-encoded.  These are not CDATA sections, just a base64 stream.</td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_BinData_logicalDiagram_button" class="control"
+                   onclick="switchState('element_BinData_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="element_BinData_logicalDiagram" class="contents">
+            <img usemap="#logical_element_BinData_httpwww.openmicroscopy.orgSchemasBinaryFile200802"
+                 src="schemaDiagrams/logical_element_BinData_httpwww.openmicroscopy.orgSchemasBinaryFile200802.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2008-02//schemaDiagrams/logical_element_BinData_httpwww.openmicroscopy.orgSchemasBinaryFile200802.map--><map name="logical_element_BinData_httpwww.openmicroscopy.orgSchemasBinaryFile200802">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_BinData_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_BinData_xibox_button" class="control"
+                   onclick="switchState('element_BinData_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="element_BinData_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;<a href="#ns_Bin" title="Find out namespace of 'Bin' prefix">Bin</a>:BinData<br/>
+               <span style="margin-left: 0.5em"> Compression="<span class="constraint">
+                     <span class="type">string</span> (<em>value</em> comes from list: {'zlib'|'bzip2'|'none'})</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'Specifies the compression scheme used to encode the data.'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Length="<span class="constraint">
+                     <span class="type">nonNegativeInteger</span>
+                  </span> 
+                  <span class="occurs">[1]</span> 
+                  <p class="documentation">'Character count attribute for the BinData field. This is the length of the base-64 encoded block. It allows easy skipping of the block when parsing the file. Added in response to Evolution document - ajp'</p>"</span>&gt; <br/>
+               <span style="margin-left: 1.5em"> 
+                  <span class="type">base64Binary</span> 
+               </span>
+               <br/>&lt;/<a href="#ns_Bin" title="Find out namespace of 'Bin' prefix">Bin</a>:BinData&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_BinData_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_BinData_diagram_button" class="control"
+                   onclick="switchState('element_BinData_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="element_BinData_diagram" class="contents">
+            <img usemap="#element_BinData_httpwww.openmicroscopy.orgSchemasBinaryFile200802"
+                 src="schemaDiagrams/element_BinData_httpwww.openmicroscopy.orgSchemasBinaryFile200802.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2008-02//schemaDiagrams/element_BinData_httpwww.openmicroscopy.orgSchemasBinaryFile200802.map--><map name="element_BinData_httpwww.openmicroscopy.orgSchemasBinaryFile200802">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_BinData_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="element_BinData_scbox_button" class="control"
+                   onclick="switchState('element_BinData_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="element_BinData_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">element</span> 
+               <span class="scTag">name</span>="<span class="scContent">BinData</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">simpleContent</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">extension</span> 
+                        <span class="scTag">base</span>="<span class="scContent">
+                           <span class="type">base64Binary</span>
+                        </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
+                           <span class="scTag">name</span>="<span class="scContent">Compression</span>" <span class="scTag">default</span>="<span class="scContent">none</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">simpleType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">restriction</span> 
+                                 <span class="scTag">base</span>="<span class="scContent">
+                                    <span class="type">string</span>
+                                 </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">enumeration</span> 
+                                    <span class="scTag">value</span>="<span class="scContent">zlib</span>"/&gt;</div>
+                                 <div style="margin-left: 1.5em">&lt;<span class="scTag">enumeration</span> 
+                                    <span class="scTag">value</span>="<span class="scContent">bzip2</span>"/&gt;</div>
+                                 <div style="margin-left: 1.5em">&lt;<span class="scTag">enumeration</span> 
+                                    <span class="scTag">value</span>="<span class="scContent">none</span>"/&gt;</div>&lt;/<span class="scTag">restriction</span>&gt;</div>&lt;/<span class="scTag">simpleType</span>&gt;</div>&lt;/<span class="scTag">attribute</span>&gt;</div>
+                        <div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
+                           <span class="scTag">name</span>="<span class="scContent">Length</span>" <span class="scTag">use</span>="<span class="scContent">required</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">simpleType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">restriction</span> 
+                                 <span class="scTag">base</span>="<span class="scContent">
+                                    <span class="type">nonNegativeInteger</span>
+                                 </span>"/&gt;</div>&lt;/<span class="scTag">simpleType</span>&gt;</div>&lt;/<span class="scTag">attribute</span>&gt;</div>&lt;/<span class="scTag">extension</span>&gt;</div>&lt;/<span class="scTag">simpleContent</span>&gt;</div>&lt;/<span class="scTag">complexType</span>&gt;</div>&lt;/<span class="scTag">element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_BinData_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="element_BinaryFile" class="name">BinaryFile</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>BinaryFile</td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary" href="BinaryFile.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary" href="BinaryFile.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>Documentation</th>
+            <td class="documentation">Describes a binary file.</td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_BinaryFile_logicalDiagram_button" class="control"
+                   onclick="switchState('element_BinaryFile_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="element_BinaryFile_logicalDiagram" class="contents">
+            <img usemap="#logical_element_BinaryFile_httpwww.openmicroscopy.orgSchemasBinaryFile200802"
+                 src="schemaDiagrams/logical_element_BinaryFile_httpwww.openmicroscopy.orgSchemasBinaryFile200802.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2008-02//schemaDiagrams/logical_element_BinaryFile_httpwww.openmicroscopy.orgSchemasBinaryFile200802.map--><map name="logical_element_BinaryFile_httpwww.openmicroscopy.orgSchemasBinaryFile200802">
+               <area shape="rect" alt="element_External" coords="464,89,856,132"
+                     href="BinaryFile.xsd.html#element_External"/>
+
+               <area shape="rect" alt="element_BinData" coords="464,142,856,185"
+                     href="BinaryFile.xsd.html#element_BinData"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_BinaryFile_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_BinaryFile_xibox_button" class="control"
+                   onclick="switchState('element_BinaryFile_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="element_BinaryFile_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;<a href="#ns_Bin" title="Find out namespace of 'Bin' prefix">Bin</a>:BinaryFile<br/>
+               <span style="margin-left: 0.5em"> FileName="<span class="constraint">
+                     <span class="type">string</span> (<em>length</em> &lt;= 64)</span> 
+                  <span class="occurs">[1]</span>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Size="<span class="type">integer</span> 
+                  <span class="occurs">[1]</span> 
+                  <p class="documentation">'Size (in bytes) of the uncompressed file.'</p>"</span>&gt; <br/>
+               <span class="group" style="margin-left: 1.5em">Start <a title="Look up 'Choice' in glossary" href="BinaryFile.xsd.html#term_Choice">Choice</a> 
+                  <span class="occurs">[1]</span>
+               </span>
+               <br/>
+               <div style="margin-left: 3em">&lt;<a href="#ns_Bin" title="Find out namespace of 'Bin' prefix">Bin</a>:<a title="Jump to &#34;External&#34; element declaration." href="#element_External">External</a>&gt; ... &lt;/<a href="#ns_Bin" title="Find out namespace of 'Bin' prefix">Bin</a>:<a title="Jump to &#34;External&#34; element declaration." href="#element_External">External</a>&gt; <span class="occurs">[1]</span>
+               </div>
+               <div style="margin-left: 3em">&lt;<a href="#ns_Bin" title="Find out namespace of 'Bin' prefix">Bin</a>:<a title="Jump to &#34;BinData&#34; element declaration." href="#element_BinData">BinData</a>&gt; ... &lt;/<a href="#ns_Bin" title="Find out namespace of 'Bin' prefix">Bin</a>:<a title="Jump to &#34;BinData&#34; element declaration." href="#element_BinData">BinData</a>&gt; <span class="occurs">[1]</span>
+               </div>
+               <span class="group" style="margin-left: 1.5em">End Choice</span>
+               <br/>&lt;/<a href="#ns_Bin" title="Find out namespace of 'Bin' prefix">Bin</a>:BinaryFile&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_BinaryFile_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_BinaryFile_diagram_button" class="control"
+                   onclick="switchState('element_BinaryFile_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="element_BinaryFile_diagram" class="contents">
+            <img usemap="#element_BinaryFile_httpwww.openmicroscopy.orgSchemasBinaryFile200802"
+                 src="schemaDiagrams/element_BinaryFile_httpwww.openmicroscopy.orgSchemasBinaryFile200802.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2008-02//schemaDiagrams/element_BinaryFile_httpwww.openmicroscopy.orgSchemasBinaryFile200802.map--><map name="element_BinaryFile_httpwww.openmicroscopy.orgSchemasBinaryFile200802">
+               <area shape="rect" alt="element_External" coords="270,0,410,26"
+                     href="BinaryFile.xsd.html#element_External"/>
+
+               <area shape="rect" alt="element_BinData" coords="270,36,403,62"
+                     href="BinaryFile.xsd.html#element_BinData"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_BinaryFile_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="element_BinaryFile_scbox_button" class="control"
+                   onclick="switchState('element_BinaryFile_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="element_BinaryFile_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">element</span> 
+               <span class="scTag">name</span>="<span class="scContent">BinaryFile</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">choice</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a href="#ns_Bin" title="Find out namespace of 'Bin' prefix">Bin</a>:<a title="Jump to &#34;External&#34; element declaration." href="#element_External">External</a>
+                        </span>"/&gt;</div>
+                     <div style="margin-left: 1.5em">&lt;<span class="scTag">element</span> 
+                        <span class="scTag">ref</span>="<span class="scContent">
+                           <a href="#ns_Bin" title="Find out namespace of 'Bin' prefix">Bin</a>:<a title="Jump to &#34;BinData&#34; element declaration." href="#element_BinData">BinData</a>
+                        </span>"/&gt;</div>&lt;/<span class="scTag">choice</span>&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">FileName</span>" <span class="scTag">use</span>="<span class="scContent">required</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">simpleType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">restriction</span> 
+                           <span class="scTag">base</span>="<span class="scContent">
+                              <span class="type">string</span>
+                           </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">maxLength</span> 
+                              <span class="scTag">value</span>="<span class="scContent">64</span>"/&gt;</div>&lt;/<span class="scTag">restriction</span>&gt;</div>&lt;/<span class="scTag">simpleType</span>&gt;</div>&lt;/<span class="scTag">attribute</span>&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Size</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">integer</span>
+                     </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>&lt;/<span class="scTag">complexType</span>&gt;</div>&lt;/<span class="scTag">element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_BinaryFile_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h3>Element: <a name="element_External" class="name">External</a>
+      </h3>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>External</td>
+         </tr>
+         <tr>
+            <th>Type</th>
+            <td>Locally-defined complex type</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Nillable' in glossary" href="BinaryFile.xsd.html#term_Nillable">Nillable</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>
+               <a title="Look up 'Abstract' in glossary" href="BinaryFile.xsd.html#term_Abstract">Abstract</a>
+            </th>
+            <td>no</td>
+         </tr>
+         <tr>
+            <th>Documentation</th>
+            <td class="documentation">Describes a file location.  Can optionally specify a portion of a file using Offset and a ReadLength.
+If Offset and ReadLength are specified in conjuction with Compression, then they point into the uncompressed file.
+			</td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_External_logicalDiagram_button" class="control"
+                   onclick="switchState('element_External_logicalDiagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Logical Diagram</span>
+         </div>
+         <div id="element_External_logicalDiagram" class="contents">
+            <img usemap="#logical_element_External_httpwww.openmicroscopy.orgSchemasBinaryFile200802"
+                 src="schemaDiagrams/logical_element_External_httpwww.openmicroscopy.orgSchemasBinaryFile200802.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2008-02//schemaDiagrams/logical_element_External_httpwww.openmicroscopy.orgSchemasBinaryFile200802.map--><map name="logical_element_External_httpwww.openmicroscopy.orgSchemasBinaryFile200802">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_External_logicalDiagram', false);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_External_xibox_button" class="control"
+                   onclick="switchState('element_External_xibox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">XML Instance Representation</span>
+         </div>
+         <div id="element_External_xibox" class="contents">
+            <div style="margin-left: 0em">&lt;<a href="#ns_Bin" title="Find out namespace of 'Bin' prefix">Bin</a>:External<br/>
+               <span style="margin-left: 0.5em"> href="<span class="type">anyURI</span> 
+                  <span class="occurs">[1]</span> 
+                  <p class="documentation">'file location'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> SHA1="<span class="type">
+                     <a href="#ns_Bin" title="Find out namespace of 'Bin' prefix">Bin</a>:<a title="Jump to &#34;Hex40&#34; type definition." href="#type_Hex40">Hex40</a>
+                  </span> 
+                  <span class="occurs">[1]</span> 
+                  <p class="documentation">'The digest of the file specified in href.'</p>"</span>
+               <br/>
+               <span style="margin-left: 0.5em"> Compression="<span class="constraint">
+                     <span class="type">string</span> (<em>value</em> comes from list: {'zlib'|'bzip2'|'none'})</span> 
+                  <span class="occurs">[0..1]</span> 
+                  <p class="documentation">'Specifies the compression scheme used to encode the data.'</p>"</span>/&gt; </div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_External_xibox', true);
+// -->
+</script>
+      </div>
+      <div class="sample box">
+         <div>
+            <input type="button" id="element_External_diagram_button" class="control"
+                   onclick="switchState('element_External_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="element_External_diagram" class="contents">
+            <img usemap="#element_External_httpwww.openmicroscopy.orgSchemasBinaryFile200802"
+                 src="schemaDiagrams/element_External_httpwww.openmicroscopy.orgSchemasBinaryFile200802.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2008-02//schemaDiagrams/element_External_httpwww.openmicroscopy.orgSchemasBinaryFile200802.map--><map name="element_External_httpwww.openmicroscopy.orgSchemasBinaryFile200802">
+               <area shape="rect" alt="type_Hex40" coords="184,36,286,62"
+                     href="BinaryFile.xsd.html#type_Hex40"/>
+
+            </map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_External_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="element_External_scbox_button" class="control"
+                   onclick="switchState('element_External_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="element_External_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">element</span> 
+               <span class="scTag">name</span>="<span class="scContent">External</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">complexType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">href</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">anyURI</span>
+                     </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">SHA1</span>" <span class="scTag">type</span>="<span class="scContent">
+                        <span class="type">
+                           <a href="#ns_Bin" title="Find out namespace of 'Bin' prefix">Bin</a>:<a title="Jump to &#34;Hex40&#34; type definition." href="#type_Hex40">Hex40</a>
+                        </span>
+                     </span>" <span class="scTag">use</span>="<span class="scContent">required</span>"/&gt;</div>
+                  <div style="margin-left: 1.5em">&lt;<span class="scTag">attribute</span> 
+                     <span class="scTag">name</span>="<span class="scContent">Compression</span>" <span class="scTag">default</span>="<span class="scContent">none</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">simpleType</span>&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">restriction</span> 
+                           <span class="scTag">base</span>="<span class="scContent">
+                              <span class="type">string</span>
+                           </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">enumeration</span> 
+                              <span class="scTag">value</span>="<span class="scContent">zlib</span>"/&gt;</div>
+                           <div style="margin-left: 1.5em">&lt;<span class="scTag">enumeration</span> 
+                              <span class="scTag">value</span>="<span class="scContent">bzip2</span>"/&gt;</div>
+                           <div style="margin-left: 1.5em">&lt;<span class="scTag">enumeration</span> 
+                              <span class="scTag">value</span>="<span class="scContent">none</span>"/&gt;</div>&lt;/<span class="scTag">restriction</span>&gt;</div>&lt;/<span class="scTag">simpleType</span>&gt;</div>&lt;/<span class="scTag">attribute</span>&gt;</div>&lt;/<span class="scTag">complexType</span>&gt;</div>&lt;/<span class="scTag">element</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('element_External_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <h2>
+         <a name="SchemaDefinitions">Global Definitions</a>
+      </h2>
+      <h3>Simple Type: <a name="type_Hex40" class="name">Hex40</a>
+      </h3>
+      <table class="hierarchy">
+         <tr>
+            <th>Super-types:</th>
+            <td>
+               <span class="type">hexBinary</span> &lt; <strong>Hex40</strong> (by restriction)</td>
+         </tr>
+         <tr>
+            <th>Sub-types:</th>
+            <td>None</td>
+         </tr>
+      </table>
+      <table class="properties">
+         <tr>
+            <th>Name</th>
+            <td>Hex40</td>
+         </tr>
+         <tr>
+            <th>Content</th>
+            <td>
+               <ul>
+                  <li>Base XSD Type: hexBinary</li>
+               </ul>
+               <ul>
+                  <li>
+                     <em>length</em> = 20</li>
+               </ul>
+            </td>
+         </tr>
+      </table>
+      <div class="sample box">
+         <div>
+            <input type="button" id="type_Hex40_diagram_button" class="control"
+                   onclick="switchState('type_Hex40_diagram'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Diagram</span>
+         </div>
+         <div id="type_Hex40_diagram" class="contents">
+            <img usemap="#type_Hex40_httpwww.openmicroscopy.orgSchemasBinaryFile200802"
+                 src="schemaDiagrams/type_Hex40_httpwww.openmicroscopy.orgSchemasBinaryFile200802.png"/>
+            <!--
+            Map ref: file:/Users/andrew/Work/SVN/Documentation/Generated/OME-2008-02//schemaDiagrams/type_Hex40_httpwww.openmicroscopy.orgSchemasBinaryFile200802.map--><map name="type_Hex40_httpwww.openmicroscopy.orgSchemasBinaryFile200802">
+</map>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('type_Hex40_diagram', true);
+// -->
+</script>
+      </div>
+      <div class="schemaComponent box">
+         <div>
+            <input type="button" id="type_Hex40_scbox_button" class="control"
+                   onclick="switchState('type_Hex40_scbox'); return false;"
+                   style="display: none"/> 
+            <span class="caption">Schema Component Representation</span>
+         </div>
+         <div id="type_Hex40_scbox" class="contents">
+            <div style="margin-left: 0em">&lt;<span class="scTag">simpleType</span> 
+               <span class="scTag">name</span>="<span class="scContent">Hex40</span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">restriction</span> 
+                  <span class="scTag">base</span>="<span class="scContent">
+                     <span class="type">hexBinary</span>
+                  </span>"&gt;<div style="margin-left: 1.5em">&lt;<span class="scTag">length</span> 
+                     <span class="scTag">value</span>="<span class="scContent">20</span>"/&gt;</div>&lt;/<span class="scTag">restriction</span>&gt;</div>&lt;/<span class="scTag">simpleType</span>&gt;</div>
+         </div>
+         <script type="text/javascript">
+<!--
+          setState('type_Hex40_scbox', false);
+// -->
+</script>
+      </div>
+      <div style="text-align: right; clear: both;">
+         <a href="#top">top</a>
+      </div>
+      <hr/>
+      <div id="legend">
+         <h2>
+            <a name="Legend">Legend</a>
+         </h2>
+         <div style="float: left; width: 15em;">
+            <h3 style="margin-bottom: 0px;">Complex Type:</h3>
+            <div class="hint" style="margin-left: 0em;">Schema Component Type</div>
+         </div>
+         <div style="float: left; width: 15em;">
+            <h3 style="margin-bottom: 0px;">
+               <span class="name">AusAddress</span>
+            </h3>
+            <div class="hint" style="margin-left: 0em;">Schema Component Name</div>
+         </div>
+         <table class="hierarchy" style="clear : both">
+            <tr>
+               <th>Super-types:</th>
+               <td>
+                  <span class="type" style="color: #0000FF; text-decoration:underline;">Address</span> &lt; <span class="current">AusAddress</span> (by extension)</td>
+            </tr>
+            <tr>
+               <th>Sub-types:</th>
+               <td>
+                  <ul>
+                     <li>
+                        <span class="type" style="color: #0000FF; text-decoration:underline;">QLDAddress</span> (by restriction)</li>
+                  </ul>
+               </td>
+            </tr>
+         </table>
+         <div class="hint">If this schema component is a type definition, its type hierarchy is shown in a gray-bordered box.</div>
+         <table class="properties">
+            <tr>
+               <th>Name</th>
+               <td>AusAddress</td>
+            </tr>
+            <tr>
+               <th>
+                  <a title="Look up 'Abstract' in glossary" href="BinaryFile.xsd.html#term_Abstract">Abstract</a>
+               </th>
+               <td>no</td>
+            </tr>
+         </table>
+         <div class="hint">The table above displays the properties of this schema component.</div>
+         <div class="sample box">
+            <div>
+               <span class="caption">XML Instance Representation</span>
+            </div>
+            <div class="contents">
+               <span style="margin-left: 0em">&lt;...</span>
+               <span class="newFields">
+                  <span> country="<span class="fixed">Australia</span>"</span>
+               </span>&gt; <br/>
+               <span style="margin-left: 1.5em" class="inherited">&lt;unitNo&gt; <span class="type">string</span> &lt;/unitNo&gt; <span class="occurs">[0..1]</span>
+               </span>
+               <br/>
+               <span style="margin-left: 1.5em" class="inherited">&lt;houseNo&gt; <span class="type">string</span> &lt;/houseNo&gt; <span class="occurs">[1]</span>
+               </span>
+               <br/>
+               <span style="margin-left: 1.5em" class="inherited">&lt;street&gt; <span class="type">string</span> &lt;/street&gt; <span class="occurs">[1]</span>
+               </span>
+               <br/>
+               <span class="group" style="margin-left: 1.5em">Start <a title="Look up 'Choice' in glossary" href="#term_Choice">Choice</a>
+                  <span class="occurs">[1]</span>
+               </span>
+               <br/>
+               <span style="margin-left: 3em" class="inherited">&lt;city&gt; <span class="type">string</span> &lt;/city&gt; <span class="occurs">[1]</span>
+               </span>
+               <br/>
+               <span style="margin-left: 3em" class="inherited">&lt;town&gt; <span class="type">string</span> &lt;/town&gt; <span class="occurs">[1]</span>
+               </span>
+               <br/>
+               <span class="group" style="margin-left: 1.5em">End Choice</span>
+               <br/>
+               <span class="newFields">
+                  <span style="margin-left: 1.5em">&lt;state&gt; <span class="type" style="text-decoration:underline;">AusStates</span> &lt;/state&gt; <span class="occurs">[1]</span>
+                  </span>
+                  <br/>
+                  <span style="margin-left: 1.5em">&lt;postcode&gt; <span class="constraint">string &lt;&lt;<em>pattern</em> = [1-9][0-9]{3}&gt;&gt;</span> &lt;/postcode&gt; <span class="occurs">[1]</span>
+                     <a href="javascript:void(0)" title="View Documentation" class="documentation"
+                        onclick="docArray = new Array('Post code must be a four-digit number.'); viewDocumentation('Element', 'postcode', docArray);">?</a>
+                  </span>
+                  <br/>
+               </span>
+               <span style="margin-left: 0em">&lt;/...&gt;</span>
+               <br/>
+            </div>
+         </div>
+         <div class="hint">
+            <p>The XML Instance Representation table above shows the schema component's content as an XML instance.</p>
+            <ul>
+               <li>The minimum and maximum occurrence of elements and attributes are provided in square brackets, e.g. [0..1].</li>
+               <li>Model group information are shown in gray, e.g. Start Choice ... End Choice.</li>
+               <li>For type derivations, the elements and attributes that have been added to or changed from the base type's content are shown in <span style="font-weight: bold">bold</span>.</li>
+               <li>If an element/attribute has a fixed value, the fixed value is shown in green, e.g. country="Australia".</li>
+               <li>Otherwise, the type of the element/attribute is displayed.
+               <ul>
+                     <li>If the element/attribute's type is in the schema, a link is provided to it.</li>
+                     <li>For local simple type definitions, the constraints are displayed in angle brackets, e.g. &lt;&lt;<em>pattern</em> = [1-9][0-9]{3}&gt;&gt;.</li>
+                  </ul>
+               </li>
+               <li>If a local element/attribute has documentation, it will be displayed in a window that pops up when the question mark inside the attribute or next to the element is clicked, e.g. &lt;postcode&gt;.</li>
+            </ul>
+         </div>
+         <div class="schemaComponent box">
+            <div>
+               <span class="caption">Schema Component Representation</span>
+            </div>
+            <div class="contents">
+               <span style="margin-left: 0em">&lt;<span class="scTag">complexType</span>
+                  <span class="scTag">name</span>="<span class="scContent">AusAddress</span>"&gt;</span>
+               <br/>
+               <span style="margin-left: 1.5em">&lt;<span class="scTag">complexContent</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 3em">&lt;<span class="scTag">extension</span>
+                  <span class="scTag">base</span>="<span class="scContent">
+                     <span class="type" style="text-decoration:underline;">Address</span>
+                  </span>"&gt;</span>
+               <br/>
+               <span style="margin-left: 4.5em">&lt;<span class="scTag">sequence</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 6em">&lt;<span class="scTag">element</span>
+                  <span class="scTag">name</span>="<span class="scContent">state</span>" <span class="scTag">type</span>="<span class="scContent">
+                     <span class="type" style="text-decoration:underline;">AusStates</span>
+                  </span>"/&gt;</span>
+               <br/>
+               <span style="margin-left: 6em">&lt;<span class="scTag">element</span>
+                  <span class="scTag">name</span>="<span class="scContent">postcode</span>"&gt;</span>
+               <br/>
+               <span style="margin-left: 7.5em">&lt;<span class="scTag">simpleType</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 9em">&lt;<span class="scTag">restriction</span>
+                  <span class="scTag">base</span>="<span class="scContent">
+                     <span class="type">string</span>
+                  </span>"&gt;</span>
+               <br/>
+               <span style="margin-left: 10.5em">&lt;<span class="scTag">pattern</span>
+                  <span class="scTag">value</span>="<span class="scContent">[1-9][0-9]{3}</span>"/&gt;</span>
+               <br/>
+               <span style="margin-left: 9em">&lt;/<span class="scTag">restriction</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 7.5em">&lt;/<span class="scTag">simpleType</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 6em">&lt;/<span class="scTag">element</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 4.5em">&lt;/<span class="scTag">sequence</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 4.5em">&lt;<span class="scTag">attribute</span>
+                  <span class="scTag">name</span>="<span class="scContent">country</span>" <span class="scTag">type</span>="<span class="scContent">
+                     <span class="type">string</span>
+                  </span>" <span class="scTag">fixed</span>="<span class="scContent">Australia</span>"/&gt;</span>
+               <br/>
+               <span style="margin-left: 3em">&lt;/<span class="scTag">extension</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 1.5em">&lt;/<span class="scTag">complexContent</span>&gt;</span>
+               <br/>
+               <span style="margin-left: 0em">&lt;/<span class="scTag">complexType</span>&gt;</span>
+               <br/>
+            </div>
+         </div>
+         <div class="hint">The Schema Component Representation table above displays the underlying XML representation of the schema component. (Annotations are not shown.)</div>
+         <div style="text-align: right; clear: both;">
+            <a href="#top">top</a>
+         </div>
+         <hr/>
+      </div>
+      <div id="glossary">
+         <h2>
+            <a name="Glossary">Glossary</a>
+         </h2>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_Abstract">Abstract</a> 
+            </span>(Applies to complex type definitions and element declarations). An abstract element or complex type cannot used to validate an element instance. If there is a reference to an abstract element, only element declarations that can substitute the abstract element can be used to validate the instance. For references to abstract type definitions, only derived types can be used.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_All">All Model Group</a> 
+            </span>Child elements can be provided <em>in any order</em> in instances. See: <a title="http://www.w3.org/TR/xmlschema-1/#element-all"
+               href="http://www.w3.org/TR/xmlschema-1/#element-all">http://www.w3.org/TR/xmlschema-1/#element-all</a>.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_Choice">Choice Model Group</a> 
+            </span>
+            <em>Only one</em> from the list of child elements and model groups can be provided in instances. See: <a title="http://www.w3.org/TR/xmlschema-1/#element-choice"
+               href="http://www.w3.org/TR/xmlschema-1/#element-choice">http://www.w3.org/TR/xmlschema-1/#element-choice</a>.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_CollapseWS">Collapse Whitespace Policy</a> 
+            </span>Replace tab, line feed, and carriage return characters with space character (Unicode character 32). Then, collapse contiguous sequences of space characters into single space character, and remove leading and trailing space characters.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_ElemBlock">Disallowed Substitutions</a> 
+            </span>(Applies to element declarations). If <em>substitution</em> is specified, then <a title="Look up 'substitution group' in glossary"
+               href="BinaryFile.xsd.html#term_SubGroup">substitution group</a> members cannot be used in place of the given element declaration to validate element instances. If <em>derivation methods</em>, e.g. extension, restriction, are specified, then the given element declaration will not validate element instances that have types derived from the element declaration's type using the specified derivation methods. Normally, element instances can override their declaration's type by specifying an <code>xsi:type</code> attribute.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_Key">Key Constraint</a> 
+            </span>Like <a title="Look up 'Uniqueness Constraint' in glossary"
+               href="BinaryFile.xsd.html#term_Unique">Uniqueness Constraint</a>, but additionally requires that the specified value(s) must be provided. See: <a title="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions"
+               href="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions">http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions</a>.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_KeyRef">Key Reference Constraint</a> 
+            </span>Ensures that the specified value(s) must match value(s) from a <a title="Look up 'Key Constraint' in glossary"
+               href="BinaryFile.xsd.html#term_Key">Key Constraint</a> or <a title="Look up 'Uniqueness Constraint' in glossary"
+               href="BinaryFile.xsd.html#term_Unique">Uniqueness Constraint</a>. See: <a title="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions"
+               href="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions">http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions</a>.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_ModelGroup">Model Group</a> 
+            </span>Groups together element content, specifying the order in which the element content can occur and the number of times the group of element content may be repeated. See: <a title="http://www.w3.org/TR/xmlschema-1/#Model_Groups"
+               href="http://www.w3.org/TR/xmlschema-1/#Model_Groups">http://www.w3.org/TR/xmlschema-1/#Model_Groups</a>.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_Nillable">Nillable</a> 
+            </span>(Applies to element declarations). If an element declaration is nillable, instances can use the <code>xsi:nil</code> attribute. The <code>xsi:nil</code> attribute is the boolean attribute, <em>nil</em>, from the <em>http://www.w3.org/2001/XMLSchema-instance</em> namespace. If an element instance has an <code>xsi:nil</code> attribute set to true, it can be left empty, even though its element declaration may have required content.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_Notation">Notation</a> 
+            </span>A notation is used to identify the format of a piece of data. Values of elements and attributes that are of type, NOTATION, must come from the names of declared notations. See: <a title="http://www.w3.org/TR/xmlschema-1/#cNotation_Declarations"
+               href="http://www.w3.org/TR/xmlschema-1/#cNotation_Declarations">http://www.w3.org/TR/xmlschema-1/#cNotation_Declarations</a>.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_PreserveWS">Preserve Whitespace Policy</a> 
+            </span>Preserve whitespaces exactly as they appear in instances.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_TypeFinal">Prohibited Derivations</a> 
+            </span>(Applies to type definitions). Derivation methods that cannot be used to create sub-types from a given type definition.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_TypeBlock">Prohibited Substitutions</a> 
+            </span>(Applies to complex type definitions). Prevents sub-types that have been derived using the specified derivation methods from validating element instances in place of the given type definition.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_ReplaceWS">Replace Whitespace Policy</a> 
+            </span>Replace tab, line feed, and carriage return characters with space character (Unicode character 32).</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_Sequence">Sequence Model Group</a> 
+            </span>Child elements and model groups must be provided <em>in the specified order</em> in instances. See: <a title="http://www.w3.org/TR/xmlschema-1/#element-sequence"
+               href="http://www.w3.org/TR/xmlschema-1/#element-sequence">http://www.w3.org/TR/xmlschema-1/#element-sequence</a>.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_SubGroup">Substitution Group</a> 
+            </span>Elements that are <em>members</em> of a substitution group can be used wherever the <em>head</em> element of the substitution group is referenced.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_ElemFinal">Substitution Group Exclusions</a> 
+            </span>(Applies to element declarations). Prohibits element declarations from nominating themselves as being able to substitute a given element declaration, if they have types that are derived from the original element's type using the specified derivation methods.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_TargetNS">Target Namespace</a> 
+            </span>The target namespace identifies the namespace that components in this schema belongs to. If no target namespace is provided, then the schema components do not belong to any namespace.</p>
+         <p>
+            <span class="glossaryTerm">
+               <a name="term_Unique">Uniqueness Constraint</a> 
+            </span>Ensures uniqueness of an element/attribute value, or a combination of values, within a specified scope. See: <a title="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions"
+               href="http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions">http://www.w3.org/TR/xmlschema-1/#cIdentity-constraint_Definitions</a>.</p>
+         <div style="text-align: right; clear: both;">
+            <a href="#top">top</a>
+         </div>
+         <hr/>
+      </div>
+      <p class="footer">Generated by <a href="http://www.oxygenxml.com">&lt;oXygen/&gt; XML Editor</a> using a modified version of <a href="http://titanium.dstc.edu.au/xml/xs3p">xs3p</a> that adds schema diagrams and chunking support. Last modified: <script type="text/javascript">
+<!--
+          document.write(document.lastModified);
+// -->
+</script>
+      </p>
+   </body>
+</html>
