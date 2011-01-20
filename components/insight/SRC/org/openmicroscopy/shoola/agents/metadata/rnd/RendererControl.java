@@ -1,0 +1,299 @@
+/*
+ * org.openmicroscopy.shoola.agents.metadata.rnd.RendererControl 
+ *
+ *------------------------------------------------------------------------------
+ *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *
+ *
+ * 	This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *  
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *------------------------------------------------------------------------------
+ */
+package org.openmicroscopy.shoola.agents.metadata.rnd;
+
+
+
+//Java imports
+import java.awt.Color;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+import javax.swing.Action;
+import javax.swing.JFrame;
+
+//Third-party libraries
+
+//Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
+import org.openmicroscopy.shoola.agents.metadata.actions.ColorModelAction;
+import org.openmicroscopy.shoola.agents.metadata.actions.ContrastStretchingAction;
+import org.openmicroscopy.shoola.agents.metadata.actions.HistogramAction;
+import org.openmicroscopy.shoola.agents.metadata.actions.NoiseReductionAction;
+import org.openmicroscopy.shoola.agents.metadata.actions.PlaneSlicingAction;
+import org.openmicroscopy.shoola.agents.metadata.actions.ReverseIntensityAction;
+import org.openmicroscopy.shoola.agents.metadata.actions.RndAction;
+import org.openmicroscopy.shoola.agents.util.ui.ChannelButton;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.colourpicker.ColourPicker;
+
+/** 
+ * The Renderer's controller.
+ *
+ * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
+ * @author	Andrea Falconi &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:a.falconi@dundee.ac.uk">a.falconi@dundee.ac.uk</a>
+ * @author	Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
+ * 				<a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
+ * @version 3.0
+ * <small>
+ * (<b>Internal version:</b> $Revision: $Date: $)
+ * </small>
+ * @since 3.0-Beta4
+ */
+class RendererControl 
+	implements PropertyChangeListener
+{
+
+    /** Identifies the action to select the bit resolution. */
+    static final Integer    BIT_RESOLUTION = Integer.valueOf(0);
+    
+    /** Identifies the action to select the family. */
+    static final Integer    FAMILY = Integer.valueOf(1);
+    
+    /** Identifies the action to select the coefficient. */
+    static final Integer    COEFFICIENT = Integer.valueOf(2);
+    
+    /** Identifies the action to select the noise reduction algorithm. */
+    static final Integer    NOISE_REDUCTION = Integer.valueOf(3);
+    
+    /** Identifies the action to select the reverse intensity transformation. */
+    static final Integer    REVERSE_INTENSITY = Integer.valueOf(4);
+    
+    /** Identifies the action to select the plane slicing transformation. */
+    static final Integer    PLANE_SLICING = Integer.valueOf(5);
+    
+    /**
+     * Identifies the action to select the contrast stretching transformation.
+     */
+    static final Integer    CONTRAST_STRETCHING = Integer.valueOf(6);
+    
+    /** Identifies the action to bring up the histogram widget. */
+    static final Integer    HISTOGRAM = Integer.valueOf(7);
+    
+    /** Identifies the action to modify the color model. */
+    static final Integer    COLOR_MODEL = Integer.valueOf(8);
+    
+    /**
+     * Reference to the {@link Renderer} component, which, in this context,
+     * is regarded as the Model.
+     */
+    private Renderer    			model;
+    
+    /** Reference to the View. */
+    private RendererUI  			view;
+    
+    /** Maps actions ids onto actual <code>Action</code> object. */
+    private Map<Integer, RndAction>	actionsMap;
+    
+    /** Index of the channel invoking the color picker. */
+	private int         			colorPickerIndex;
+	
+    /** Helper method to create all the UI actions. */
+    private void createActions()
+    {
+        actionsMap.put(REVERSE_INTENSITY, new ReverseIntensityAction(model));
+        actionsMap.put(PLANE_SLICING, new PlaneSlicingAction(model));
+        actionsMap.put(CONTRAST_STRETCHING, 
+                        new ContrastStretchingAction(model));
+        actionsMap.put(NOISE_REDUCTION, new NoiseReductionAction(model));
+        actionsMap.put(HISTOGRAM, new HistogramAction(model));
+        actionsMap.put(COLOR_MODEL, new ColorModelAction(model));
+    }
+    
+    /** 
+     * Attaches a window listener to the view and a property listener to the 
+     * model.
+     */
+    private void attachListeners()
+    {
+        model.addPropertyChangeListener(this);
+    }
+    
+    /**
+     * Brings up the color picker with the color associated to the passed
+     * channel.
+     * 
+     * @param channel The index of the selected channel.
+     */
+    private void showColorPicker(int channel)
+    {
+		colorPickerIndex = channel;
+		Color c = view.getChannelColor(channel);
+		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
+		ColourPicker dialog = new ColourPicker(f, c);
+		dialog.addPropertyChangeListener(this);
+		UIUtilities.centerAndShow(dialog);
+    }
+    
+    /** 
+     * Creates a new instance.
+     * The {@link #initialize(Renderer, RendererUI) initialize} method should 
+     * be called straight after to link this Controller to the other MVC
+     * components.
+     */
+    RendererControl()
+    {
+        actionsMap = new HashMap<Integer, RndAction>();
+    }
+    
+    /**
+     * Links this Controller to its Model and View.
+     * 
+     * @param model Reference to the {@link Renderer} component, which, in this
+     *              context, is regarded as the Model. Mustn't be
+     *              <code>null</code>.
+     * @param view  Reference to the View. Mustn't be <code>null</code>.
+     */
+    void initialize(Renderer model, RendererUI view)
+    {
+        if (model == null) throw new NullPointerException("No model.");
+        if (view == null) throw new NullPointerException("No view.");
+        this.model = model;
+        this.view = view;
+        createActions();
+        attachListeners();
+    }
+    
+    /**
+     * Returns the action corresponding to the specified id.
+     * 
+     * @param id One of the flags defined by this class.
+     * @return The specified action.
+     */
+    Action getAction(Integer id) { return actionsMap.get(id); }
+    
+    /**
+     * Registers the specified observer.
+     * 
+     * @param observer  The observer to register.
+     */
+    void addPropertyListener(PropertyChangeListener observer)
+    {
+        model.addPropertyChangeListener(observer);
+    }
+
+    /** 
+     * Sets the the pixels intensity interval for the
+     * currently selected channel.
+     * 
+     * @param s         The lower bound of the interval.
+     * @param e         The upper bound of the interval.
+     */
+    void setInputInterval(double s, double e)
+    {
+        model.setInputInterval(s, e);
+    }
+    
+    /** 
+     * Sets the sub-interval of the device space. 
+     * 
+     * @param s	The lower bound of the interval.
+     * @param e The upper bound of the interval.
+     */
+    void setCodomainInterval(int s, int e) { model.setCodomainInterval(s, e); }
+
+    /**
+     * Sets the selected plane.
+     * 
+     * @param z The selected z-section.
+     * @param t The selected timepoint.
+     */
+	void setSelectedXYPlane(int z, int t)
+	{
+		model.setSelectedXYPlane(z, t);
+	}
+	
+	/** Applies the rendering settings to the selected or displayed images. */
+	void applyToAll() { model.applyToAll(); }
+
+	/** Sets the maximum range for channels. */
+	void setRangeAllChannels() { model.setRangeAllChannels(); }
+
+    /**
+     * Reacts to property change events.
+     * @see PropertyChangeListener#propertyChange(PropertyChangeEvent)
+     */
+    public void propertyChange(PropertyChangeEvent evt)
+    {
+        String name = evt.getPropertyName();
+        /*
+        } else if (name.equals(
+            CodomainMapContextDialog.UPDATE_MAP_CONTEXT_PROPERTY)) {
+            CodomainMapContext ctx = (CodomainMapContext)  evt.getNewValue();
+            model.updateCodomainMap(ctx);
+        */
+        if (ControlPane.FAMILY_PROPERTY.equals(name)) {
+            String oldValue = (String) evt.getOldValue();
+            String newValue = (String) evt.getNewValue();
+            if (newValue.equals(oldValue)) return;
+            model.setFamily(newValue);
+            view.onCurveChange();
+        } else if (ControlPane.GAMMA_PROPERTY.equals(name)) {
+            Double oldValue = (Double) evt.getOldValue();
+            Double newValue = (Double) evt.getNewValue();
+            if (newValue.equals(oldValue)) return;
+            model.setCurveCoefficient(newValue.doubleValue());
+            view.onCurveChange();
+        } else if (ControlPane.BIT_RESOLUTION_PROPERTY.equals(name)) {
+            Integer oldValue = (Integer) evt.getOldValue();
+            Integer newValue = (Integer) evt.getNewValue();
+            if (newValue.equals(oldValue)) return;
+            model.setBitResolution(newValue.intValue());
+        } if (ChannelButton.CHANNEL_SELECTED_PROPERTY.equals(name)) {
+            Map map = (Map) evt.getNewValue();
+			if (map == null) return;
+			if (map.size() != 1) return;
+			Set set = map.entrySet();
+			Entry entry;
+			Iterator i = set.iterator();
+			Integer index;
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				index = (Integer) entry.getKey();
+				model.setChannelSelection(index.intValue(), 
+						(Boolean) entry.getValue());
+			}
+        } else if (ChannelButton.CHANNEL_COLOR_PROPERTY.equals(name)) {
+        	if (view.isSourceDisplayed(evt.getSource()))
+        		showColorPicker(((Integer) evt.getNewValue()).intValue());
+        } else if (Renderer.INPUT_INTERVAL_PROPERTY.equals(name)) {
+            view.setInputInterval();
+        } else if (ColourPicker.COLOUR_PROPERTY.equals(name)) { 
+			Color c = (Color) evt.getNewValue();
+			if (colorPickerIndex != -1) {
+				model.setChannelColor(colorPickerIndex, c);
+			}
+		} else if (Renderer.Z_SELECTED_PROPERTY.equals(name)) {
+			view.setZSection(((Integer) evt.getNewValue()).intValue());
+		} else if (Renderer.T_SELECTED_PROPERTY.equals(name)) {
+			view.setTimepoint(((Integer) evt.getNewValue()).intValue());
+		}
+    }
+
+}

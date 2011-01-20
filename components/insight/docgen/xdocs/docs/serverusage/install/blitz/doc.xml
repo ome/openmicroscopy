@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xdoc>
+<xdoc-info>
+
+  <title>Installing the OMERO.Blitz server</title>
+  <author name="Donald MacDonald" email="sendcomments@openmicroscopy.org.uk" />
+
+  <version number="Final"/>
+  <last-modified date="2008-02-8"/>
+</xdoc-info>
+
+ <toc name="Table of Contents" href="index.htm">
+	<section href="section_1.html" name="Prerequisite Software"/>
+	<section href="section_2.html" name="Setting Configuration Files"/>
+	<section href="section_3.html" name="Building OMERO.Blitz"/>
+	<section href="section_4.html" name="Weblitz Interface for OMERO.Blitz"/>
+	<section href="section_5.html" name="Troubleshooting"/>
+  </toc>
+</xdoc>

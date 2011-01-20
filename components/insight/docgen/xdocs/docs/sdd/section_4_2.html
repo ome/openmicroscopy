@@ -1,0 +1,202 @@
+<html>
+   <head>
+      <title>How To</title>
+   </head>
+   <body>
+<p>
+Agents can use the taskbar directly to add entries to the various menus and toolbars.  
+After retrieving the <code>TaskBar</code> from the <code>Registry</code>, the 
+<code>addXXX</code> and <code>removeXXX</code> are available to do the job.  
+Here's what the taskbar looks like:
+</p>
+      <table width="100%" border="0" cellpadding="0" cellspacing="10" align="center">
+        <tr>
+       <td align="center"><img src="images/taskbar.gif"/></td>
+		</tr>
+		 </table>
+<p>
+Agents can add entries to any of the menus within the menu bar - <i>File</i>, 
+<i>Connect</i>, <i>Tasks</i>, <i>Window</i>, <i>Help</i>.  
+Two toolbars, <i>Tasks
+</i> and <i>Quick-Launch</i>, are also provided for agents 
+to plug in their buttons. Buttons in the <i>Tasks</i> toolbar are usually 
+shortcuts to entries in the <i>Tasks</i> menu.  Similarly, buttons in 
+the <i>Quick-Launch</i> toolbar are usually shortcuts to entries in the
+ <i>Window</i> menu.  
+</p>
+<p>&#160;</p>
+<p>
+However, some utility classes provide agents with built-in functionality 
+to link their top-level windows to the taskbar and to manage the display 
+of those windows on screen.  
+</p>
+<p>
+The <code>TopWindow</code> class extends <code>JFrame</code> to provide 
+the base functionality for windows that are to be linked to the <code>TaskBar</code>
+by means of one quick-launch button and a menu entry in the <i>Window</i> menu. 
+The constructor of this class automatically adds a button to the 
+<i>Quick-Launch</i> toolbar and an entry in the <i>Window</i> menu -
+ subclasses use the <code>configureXXX</code> methods to specify icons, 
+ names, and tool tips. These are 
+display-trigger buttons that cause the window to be shown on screen.  
+This class uses the <code>TopWindowManager</code> to control mouse clicks on 
+these buttons as well as to manage the display state of the window - how this 
+display state is managed is specified by the <code>TopWindowManager</code> 
+state machine, which is represented in one of the previous diagrams.
+</p>
+<p>
+Here's an example of a window that inherits from <code>TopWindow</code>:
+</p>
+<pre class="code">
+class MainWindow 
+	extends TopWindow
+{
+
+	//Member fields omitted.		
+	
+
+	//Specifies names, icons, and tool tips for the quick-launch button and the
+	//window menu entry in the taskbar.
+	private void configureDisplayButtons()
+	{
+		configureQuickLaunchBtn(icons.getIcon("agent.png"), 
+						"Display the main window.");
+		configureWinMenuEntry("Example Agent", icons.getIcon("agent.png"));
+	}
+	
+	//Builds and lays out this window.
+	private void buildGUI() { /* Omitted. */ }
+	
+	
+
+
+	//Creates a new instance.
+	MainWindow(Registry config)
+	{
+		//We have to specify the title of the window to the superclass
+		//constructor and pass a reference to the TaskBar, which we get
+		//from the Registry.
+		super("Example Agent", config.getTaskBar());
+		
+		configureDisplayButtons();
+		buildGUI();
+	}
+
+}
+</pre>
+<p>
+The <code>TopWindowGroup</code> class links a group of windows to the 
+<code>TaskBar</code> and manages their display on screen. Rather than 
+adding a quick-launch button in the <i>Quick-Launch</i> toolbar and an 
+entry in the window menu for each window in the group, the constructor of 
+this class adds a drop-down button (a button that triggers the display of 
+a popup menu) to the <i>Quick-Launch</i> toolbar and a sub-menu to the 
+<i>Window</i> menu. These menus contain an entry for each window in the 
+group and are populated/depopulated via the <code>add/remove</code> methods. 
+All those menu entries are display-trigger buttons that cause the 
+corresponding window to be shown on screen. 
+This class uses the <code>TopWindowManager</code> to control mouse clicks on 
+these buttons as well as to manage the display state of each window in the group. 
+</p>
+<p>
+The following <code>UIManager</code> class provides an example of how to use 
+the <code>TopWindowGroup</code> class. This example class creates and controls
+an instance of <code>MainWindow</code> (which we have already seen in the
+ previous example) as well as  <code>AuxiliaryWindow</code> instances. This 
+ latter class is just a window which contains two buttons and its code is 
+ omitted. <code>UIManager</code> delegates to the <code>TopWindowGroup</code> 
+ class the linkage of <code>AuxiliaryWindow</code>'s to the <code>TaskBar</code>
+  as well as the management of their display state.
+</p>
+<p>
+Follows the code:
+</p>
+<pre class="code">
+class UIManager
+{
+
+	//Inherits from TopWindow, so it's automatically linked to the TaskBar.
+	//Contains a button that we listen to.  When a mouse click occurs we call
+	//createAuxWin().
+	private MainWindow		mainWindow;
+	
+	//Manages all the AuxiliaryWindow's that we've created and not destroyed yet.
+	private TopWindowGroup		auxWinGroup;
+	
+	//Counts how many {@link AuxiliaryWindow}'s we've created so far.
+	private int			auxWinCount;
+	
+	//Cached reference to access the icons.
+	private IconFactory		icons;
+
+	
+	//Creates a new instance.
+	UIManager(Registry config)
+	{
+		
+		auxWinCount = 0;
+		icons = (IconFactory) config.lookup("/resources/icons/MyFactory");
+		mainWindow = new MainWindow(config);
+
+		//The MainWindow contains a button (not shown in the previous example) 
+		//which we listen to in order to trigger the creation of new 
+		//AuxiliaryWindows.		
+		mainWindow.openAuxiliary.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ae) { createAuxWin(); }
+		});
+
+		
+
+
+		//We now create the window group.  The text we pass will be displayed by
+		//the sub-menu within the Window menu along with the icon, which will also
+		//be the icon displayed by the drop-down button in the Quick-Launch
+		//toolbar.
+		auxWinGroup = new TopWindowGroup("Aux Win", 
+					icons.getIcon("edu_languages.png"), 
+					config.getTaskBar());
+		
+	}
+	
+	//Creates an AuxiliaryWindow and adds it to the auxWinGroup.
+	//Every AuxiliaryWindow contains two buttons, one labeled "Close" and the other
+	//"Dispose".  We listen to mouse clicks on these buttons in order to hide the
+	//window when the "Close" button is clicked and to remove the window (and dispose
+	//of it) from the auxWinGroup when the "Dispose" button is clicked.
+	private void createAuxWin()
+	{
+		String title = "Aux Window "+(++auxWinCount);
+		final AuxiliaryWindow aw = new AuxiliaryWindow(title);
+		
+		//Attach listeners and specify actions.
+		aw.close.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent ae) {aw.setVisible(false);}
+		});
+		aw.dispose.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				//Remove from group and dispose.
+				auxWinGroup.remove(aw, true);
+			}
+		});
+		
+		//Add to the group.  An entry will be added both to the Window sub-menu
+		//and to the popup menu triggered by the drop-down button in the
+		//Quick-Launch toolbar.  We set the display text of those entries to be
+		//the same as the window's title, but we don't specify any icon.
+		auxWinGroup.add(aw, title, null);
+		
+		//Bring the window up.
+		aw.open();
+	}
+
+	//Releases all UI resources currently in use and returns them to the OS.
+	void disposeUI()
+	{
+		mainWindow.dispose();
+		auxWinGroup.removeAll(true);  //Empty group and dispose of all windows.
+	}
+	
+}
+</pre>
+</body>
+</html>

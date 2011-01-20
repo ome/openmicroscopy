@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<agent name="Data Browser">
+   <resources>
+     <iconFactories>
+	<!-- This entry is turned into an instance of: 
+       org.openmicroscopy.shoola.env.config.IconFactory
+       This object can then be used to retrieve any image file within
+       the directory pointed by the location tag. -->
+       <structuredEntry name="/resources/icons/Factory" type = "icons">
+         <!-- The location tag specifies the FQN of the package that contains
+         the icon files. -->
+         <location>org.openmicroscopy.shoola.agents.dataBrowser.graphx</location>
+       </structuredEntry>
+
+     </iconFactories>
+     <fonts>
+       <!-- This entry is turned into an instance of java.awt.Font. --> 
+       <structuredEntry name="/resources/fonts/Titles" type="font">
+         <family>SansSerif</family>
+         <size>12</size>
+         <style>bold</style>
+       </structuredEntry>
+     </fonts>
+<colors>
+<!-- This entry is turned into an instance of java.awt.Color. --> 
+<structuredEntry name="/resources/colors/TitleBarHighlight" type="color">
+<red>58</red>
+<green>116</green>
+<blue>215</blue>
+</structuredEntry>
+<structuredEntry name="/resources/colors/TitleBar" type="color">
+<red>189</red>
+<green>210</green>
+<blue>230</blue>
+</structuredEntry>
+<structuredEntry name="/resources/colors/TitleBarUnmodified" type="color">
+<red>215</red>
+<green>116</green>
+<blue>58</blue>
+</structuredEntry>
+</colors>
+<entry name="/views/MAX_ENTRIES" type="integer">100</entry>
+<entry name="/views/DisplayNonValidImage" type="boolean">false</entry>
+</resources>
+</agent>

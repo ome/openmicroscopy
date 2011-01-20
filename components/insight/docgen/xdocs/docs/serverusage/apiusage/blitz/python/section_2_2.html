@@ -1,0 +1,129 @@
+<html>
+<head>
+<title>OMERO.Blitz Abstact Data Types</title>
+</head>
+<body>
+
+<pre class="code"></pre>
+
+<div align="center">
+<p><b>OMERO.Blitz Abstract Data Types</b></p>
+</div>
+
+<p>These are the more complex ADT which wrap the functionality of the ADT provided by Java.</p>
+
+<p>Each OMERO.Blitz type is derived from a base type called RType.</p>
+
+<p><b>List of ADT RTypes</b></p>
+<ol>
+<li>
+	RCollection
+</li>
+<li>
+	RList - A list of containing data of any type. 
+</li>
+<li>
+	RMap
+</li>
+<li>
+	RArray - This type is created and used in a similar manner to the RList but should only contain elements of the same type.
+</li>
+</ol>
+
+<p><b>Creating an RType ADT object</b></p>
+<p>To create an more complex RType is simple. <code>string = omero.RList()</code></p>
+
+<p><b>Example Code</b></p>
+<p>The following code snippet creates a list of 3 RType objects.</p>
+<pre>
+<code>
+>>> import omero  
+>>> list = omero.RList()
+>>> list.val = [omero.RString("Donald"), omero.RInt(10), omero.RLong(100)]
+>>> list
+object #0 (::omero::RList)
+{
+    val = 
+    {
+        [0] = object #1 (::omero::RString)
+        {
+            val = Donald
+        }
+        [1] = object #2 (::omero::RInt)
+        {
+            val = 10
+        }
+        [2] = object #3 (::omero::RLong)
+        {
+            val = 100
+        }
+    }
+}
+</code>
+</pre>
+
+<p><b>Retrieving a value from an RType Object</b></p>
+<p>To access the contents of an RType object, just access it's val member.</p>
+<p><b>Example Code</b></p>
+<pre>
+<code>
+>>>list.val
+[object #0 (::omero::RString)
+{
+    val = Donald
+}, object #0 (::omero::RInt)
+{
+    val = 10
+}, object #0 (::omero::RLong)
+{
+    val = 100
+}]
+>>>list.val[0].val
+'Donald'
+</code>
+</pre>
+
+<p><b>Output of an RType from console</b></p>
+<code>
+<pre>
+>>> import omero
+>>> a = omero.RLong(100)
+>>> a
+object #0 (::omero::RLong)
+{
+    val = 100
+}
+>>> a.val
+100
+</pre>
+</code>
+
+<p><b>Creating an RMap Object</b></p>
+<p>To create an RMap object is slightly different as we use a string for the key and not an omero.RString.</p>
+<pre>
+<code>
+>>> import omero
+>>> map = omero.RMap()
+>>> map.val = {"Donald":omero.RInt(10)}
+>>> map
+object #0 (::omero::RMap)
+{
+    val = 
+    {
+        key = Donald
+        value = object #1 (::omero::RInt)
+        {
+            val = 10
+        }
+    }
+}
+>>>map.val.get("Donald")
+object #0 (::omero::RInt)
+{
+    val = 10
+}
+</code>
+</pre>
+
+</body>
+</html>
