@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xdoc>
+<xdoc-info>
+
+  <title>OMERO.importer User Guide</title>
+  <author name="William Moore" email="comments@openmicroscopy.org.uk" />
+  <version number="3.0-Beta"/>
+  <last-modified date="2008-05-02"/>
+</xdoc-info>
+
+ <toc name="Table of Contents" href="index.htm">
+  <section href="intro.html" name="Introduction"/>
+  <section href="section_1.html" name="Quick Start">
+  	<section href="section_1_1.html" name="Installing OMERO.editor"/>
+  	<section href="section_1_2.html" name="Creating new OMERO.editor files"/>
+  	<section href="section_1_3.html" name="Viewing example OMERO.editor files"/>
+  	<section href="section_1_4.html" name="Editing OMERO.editor files"/>
+  	
+  </section>
+  </toc>
+</xdoc>

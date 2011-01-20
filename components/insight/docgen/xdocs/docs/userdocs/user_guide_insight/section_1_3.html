@@ -1,0 +1,191 @@
+<html>
+<head>
+  <title>Importing images</title>
+</head>
+<body>
+<p>
+OMERO currently allows you to import the following file formats:
+<ul>
+<li>Bio-Rad PIC (*.pic)
+ <br/>Excluding
+<ul>
+<li>multi-plane "stitched" files; </li>
+<li>annotated ROI images.</li>
+</ul>
+</li>
+<li>Bitmap (*.bmp)
+<br/>Excluding
+<ul>
+<li>Compressed images; </li>
+<li>Mutli-plane Color images.</li>
+</ul>
+</li>
+<li>Deltavision (*.dv, *.r3d, *.r3d_d3d)</li>
+<li>Digital Imaging and Communications in Medicine (*.dcm, *.dicom, *.dic)
+<br/>Excluding
+<ul>
+<li>Compressed images.</li>
+</ul>
+</li>
+<li>Graphics Interchange Format (*.gif)</li>
+<li>Imaris Raw Images (*.ims): 5.0 format and 5.5 format.</li>
+<li>Improvision Tiff (*.tif)</li>
+<li>Joint Photographic Experts Group (*.jpeg, *.jpg)
+<br/>Excluding
+<ul>
+<li>JPEG2000 images.</li>
+</ul>
+</li>
+<li>Leica "lei" Format (*.lei)</li>
+<li>Leica Image Format (*.lif)</li>
+<li>Metamorph STK (*.stk)</li>
+<li>Openlab Raw (*.raw)</li>
+<li>Openlab LIFF (*.liff)</li>
+<li>Portable Gray Map (*.pgm)</li>
+<li>Portable Network Graphic (*.png)</li>
+<li>Tagged Image File Format (*.tif, *.tiff)
+
+
+</li>
+<li>Visitech XYS (*.xys)
+
+</li>
+<li>Zeiss Laser-Scanning Microscopy (*.lsm)</li>
+</ul>
+</p>
+<div class="noteFrame">
+  <div class="noteLabel">NB: Tagged Image File Format</div>
+  <div class="noteContent">
+ This is a very open standard, so expect a few variant types to be unsupported. 
+ We do however do extensive tiff testing so the format is
+ generally well supported.
+ </div>
+</div> 
+
+<div class="noteFrame">
+  <div class="noteLabel">NB: Visitech XYS</div>
+  <div class="noteContent">
+The Visitech importer does not fully support all Visitech metadata 
+included in the accompanying html file.
+ </div>
+</div>
+
+<div class="noteFrame">
+  <div class="noteLabel">NB</div>
+  <div class="noteContent">
+Since the following formats: <b>bmp</b>, <b>gif</b>, <b>jpeg</b>, <b>pgm</b>,
+<b>png</b>, 
+<b>tiff</b>, do not contain metadata, 
+the importer will 
+use default values for the pixel size and channel meta data. 
+ </div>
+</div> 
+<p>
+You can use OMERO.importer to select images from a storage disk and 
+import them into the OMERO system.
+</p>
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+  <tr>
+    <td align="left">
+    <img src="images/importerFileViewerMode.jpg" 
+    alt="OMERO.importer in File Viewer mode"></img></td> 
+  </tr>
+  <tr> 
+    <td height="10">&#160;</td></tr>
+  <tr> 
+    <td align="left"><a name="figure_2"><b>Figure 2.3-1</b></a><b>:
+    OMERO.importer in File Viewer mode</b></td>
+  </tr>
+  <tr> 
+    <td height="40"></td></tr>
+</table>
+</p>
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+  <tr>
+    <td align="left">
+    <img src="images/importWindow.jpg" 
+    alt="import window, showing images destination and filename options"></img></td> 
+  </tr>
+  <tr> 
+    <td height="10">&#160;</td></tr>
+  <tr> 
+    <td align="left"><a name="figure_3"><b>Figure 2.3-2</b></a>
+  <b>: import window, showing images destination and filename options</b></td>
+  </tr>
+  <tr> 
+    <td height="40"></td></tr>
+</table>
+</p>
+<p>
+To import images into OMERO:
+
+<ol>
+
+<li>Log into OMERO.importer. The application will open a window 
+similar to that shown in <a href="#figure_2"><b>Figure 2.3-1</b></a>.</li>
+<li>Use the <b><i>File Viewer</i></b> panel to browse and select one or more 
+images you would like to import. </li>
+<li>Add the selected images to the list of images for importing
+(referred to as the <b><i>Import Queue</i></b>) by selecting the plus button:
+<img src="images/add.jpg" width="16" height="16"/>
+ </li>
+<li>
+The import window appears - see <a href="#figure_3"><b>Figure 2.3-2</b></a>, 
+prompting you to select 
+a Project and Dataset - this will be the destination on the 
+OMERO.server for the imported images. In this window you can:
+<ol type="a">
+<li>Select an existing Project and Dataset from the menus shown, 
+if you have previously created them in either OMERO.importer or OMERO.insight.</li>
+<li>Or, for first-time OMERO users, use the Add button to create a new Project. 
+You can then create a new Dataset in your new Project, or a new Dataset in an 
+existing Project.</li>
+<li>The bottom half of the import window 
+(see <a href="#figure_3"><b>Figure 2.3-2</b></a>) also allows you 
+to select a filename from one of three options:
+<ol type="i">
+<li>the "short" file name e.g. "myImage.dv",</li>
+<li>the full path name e.g "c: important_work/stuff/myImage.dv", </li>
+<li>the short file name plus a number of leading directories, 
+e.g. if you choose to add one directory to the directory 
+"c:important_work/stuff/myImage.dv", your final imported image would be named 
+"stuff/myImage.dv".</li>
+</ol>
+</li>
+<li>You can also choose to import a copy of the image file in its original format.
+</li>
+</ol>
+</li>
+<li>You can continue to select more images to add to the Import Queue, 
+by following steps 2-4 above.</li>
+<li>Once you have finished selecting images, select the Import button at the 
+bottom right hand corner of the window. 
+The import process will now start. You can view the progress in the Status 
+column of the Import Queue window. You may also add additional images to the 
+import queue while an import is already running. This will only add the images 
+to a new queue - when you are ready to import these new images, click the 
+import button again to begin importing them.</li>
+<li>When all selected images have status of "done", your images have been 
+successfully imported, and you can then move to OMERO.insight to start working 
+with your images.
+</li>
+
+</ol>
+
+
+</p>
+<p>
+OMERO.importer has two additional options to File Viewer mode:
+<ul>
+<li>The Output Text mode: clicking on the <b><i>Output Text</i></b> tab
+shows you a brief 
+list of the current import status as files are being imported.</li>
+<li>The Debug Text mode: clicking on the <b><i>Debug Text</i></b>
+tab shows you more 
+technical information about the import status as files are being imported.</li>
+</ul>
+</p>
+</body>
+</html>

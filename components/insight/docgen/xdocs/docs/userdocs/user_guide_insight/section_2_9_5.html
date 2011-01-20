@@ -1,0 +1,127 @@
+<html>
+<head>
+  <title>Image Rendering options</title>
+</head>
+<body>
+<p>Options are also available to adjust rendering properties. 
+Here, you adjust how the raw pixels'
+ intensity values are mapped to the image displayed on your monitor.<br/>
+These are available by:
+<ul>
+<li>Either selecting the  <b><i>Rendering Options</i></b> toolbar button: 
+<img src="images/render16.jpg" width="16" height="16"/>.</li><li>Or opening the  <b><i>Controls</i></b> menu and selecting the 
+<b><i>Renderer</i></b> option.</li>
+</ul>
+This brings up the <b><i>Display Settings</i></b> window 
+(shown in <a href="#figure_41">Figure 3.9.5-1</a>).
+</p>
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+  <tr>
+    <td align="center">
+    <img src="images/displaySettings.jpg" 
+    alt="Display Settings"></img>
+    </td> 
+  </tr>
+  <tr> 
+    <td height="10">&#160;</td>
+</tr>
+  <tr> 
+    <td align="center"><a name="figure_41"><b>Figure 3.9.5-1</b></a>
+    <b>: Display Settings</b></td>  
+</tr>
+  <tr> 
+    <td height="40"></td>
+    </tr>
+</table>
+</p>
+<p>
+Adjusting the rendering parameters will result in an immediate visual 
+change to the image shown in the Image Viewer, except when adjusting 
+the values of the horizontal slider. By default, the image shown in the 
+Image Viewer will be updated when the knobs of the horizontal slider are 
+released. For an immediate update, check the <b><i>Immediate Update</i></b> 
+check box.
+</p>
+<p>
+The horizontal slider allows you to specify start and end values 
+for the interval of the raw data you wish to map. This is specified 
+separately for each channel. Alternatively you can manually enter 
+values in the <b><i>Start</i></b> and <b><i>End</i></b> fields.
+</p>
+<div class="noteFrame">
+  <div class="noteLabel">NB</div>
+  <div class="noteContent">
+   Currently you can only select values between the 
+displayed <b><i>Min</i></b> and <b><i>Max</i></b> values 
+(0 and 2484 in <a href="#figure_41">Figure 3.9.5-1</a>)
+ </div>
+</div> 
+<p>
+The vertical slider allows you to specify a range of the colour space i.e. 
+a sub-interval of [0, 255]. This allows you to increase or decrease 
+the overall brightness of the image.
+</p>
+<p>
+<table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+  <tr>
+    <td align="left">
+    <img src="images/displaySettingsAdvanced.jpg" 
+    alt="Display Settings window showing advanced options"></img>
+    </td> 
+  </tr>
+  <tr> 
+    <td height="10">&#160;</td>
+</tr>
+  <tr> 
+    <td align="left"><a name="figure_42"><b>Figure 3.9.5-2</b></a>: Display 
+    Settings window showing advanced options</td>  
+</tr>
+  <tr> 
+    <td height="40"></td>
+    </tr>
+</table>
+</p>
+<p>
+Advanced image rendering options are available by selecting the
+ <b><i>Show Advanced Options</i></b> button 
+ (<a href="#figure_42">Figure 3.9.5-2</a>), 
+ This expands the <b><i>Display Settings</i></b> window to include options to:
+<ul>
+<li>Select the mapping curve (from a choice of linear, polynomial, 
+exponential or logarithmic) for a channel.</li>
+<li>For polynomial or exponential curves, you can modify the shape of 
+the curve for a channel, by adjusting the gamma value.</li>
+<li>Adjust bit depth.</li>
+<li>Turn on or off noise reduction.</li>
+</ul>
+</p>
+<div class="noteFrame">
+  <div class="noteLabel">NB</div>
+  <div class="noteContent">
+    Bit depths and values for the vertical slider are the 
+same across all channels; the other parameters are specified for each channel. 
+ </div>
+</div> 
+<p>
+&#160;
+</p>
+<div class="noteFrame">
+  <div class="noteLabel">NB</div>
+  <div class="noteContent">
+    The <b><i>Device Settings</i></b> tab is not functional 
+in the current version of OMERO.insight, but will in future versions 
+enable features such as reverse intensity and plane slicing.
+ </div>
+</div> 
+<p>
+Use the <b><i>Save</i></b> button to save rendering settings back to the 
+database for future use.
+</p>
+<p>
+Use the <b><i>Undo All</i></b> button to reset to the default rendering 
+settings. Note that the default rendering settings are <b>not</b> the 
+ones previously saved but the internal defaults of the rendering facility.
+</p>
+</body>
+</html>
