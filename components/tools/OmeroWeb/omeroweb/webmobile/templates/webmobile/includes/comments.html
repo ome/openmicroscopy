@@ -10,7 +10,7 @@
 {% for c in annotations.comments %}
     <p> 
         <div class="gray">
-            {{ c.getOwnerFullName }} <span class="smallgray">{{ c.creationEventDate }}</span>
+            {{ c.getOwnerFullName }} <span class="smallgray">{{ c.getDate }}</span>
         </div>
         {{ c.textValue }}
     </p>

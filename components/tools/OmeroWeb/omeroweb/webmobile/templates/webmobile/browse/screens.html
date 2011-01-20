@@ -1,7 +1,7 @@
 {% extends "webmobile/base/base_header.html" %}
 
 {% block header-title %}
-    Projects:
+    Screens:
 {% endblock %}
 
 {% block header-right %}
@@ -24,25 +24,25 @@
 
 
 <div>
-{% for proj in projects %}
+{% for s in screens %}
 
-    <a href="{% url webmobile_project proj.id %}">
+    <a href="{% url webmobile_screen s.id %}">
         <div class="list-item"> 
-            <div class="item-name">{{ proj.getName|slice:":20" }}</div>
+            <div class="item-name">{{ s.getName|slice:":20" }} </div>
         </div>
     </a>
     
 {% endfor %}
 </div>
 
-{% if datasets %}
-    <div class='bottom-header'>Datasets</div>
+{% if orphans %}
+    <div class='sub-header'>Plates</div>
     
     <div>
-        {% for ds in datasets %}
-            <a href="{% url webmobile_dataset ds.id %}">
+        {% for o in orphans %}
+            <a href="{% url webmobile_plate o.id %}">
                 <div class="list-item"> 
-                    <div class="item-name">{{ ds.getName|slice:":20" }} </div>
+                    <div class="item-name">{{ o.getName|slice:":20" }} </div>
                 </div>
             </a>
 
@@ -50,14 +50,5 @@
     </div>
 {% endif %}
 
-{% if experimenter %}
-    <a href="{% url webmobile_orphaned_images experimenter.id %}">
-{% else %}
-    <a href="{% url webmobile_orphaned_images client.getEventContext.userId %}">
-{% endif %}
-        <div class="list-item" style="background:#ddd">
-            <div class="item-name">Orphaned Images</div>
-        </div>
-    </a>
 
 {% endblock %}

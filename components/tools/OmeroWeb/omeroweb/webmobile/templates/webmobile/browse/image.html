@@ -49,7 +49,8 @@
             <td class='gray'>
             {% for c in object.getChannels %}{% if not forloop.first %}, {% endif %}{{ c.getLogicalChannel.getName }}{% endfor %}
             </td></tr>
-        <tr><td>Created:</td><td class='gray'>{{ object.creationEventDate }}</td></tr>
+        <tr><td>Acquired:</td><td class='gray'>{{ object.getDate }}</td></tr>
+        <tr><td>Imported:</td><td class='gray'>{{ object.creationEventDate }}</td></tr>
     </table>
     
 </div>
