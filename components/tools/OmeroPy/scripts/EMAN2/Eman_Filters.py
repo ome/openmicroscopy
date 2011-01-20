@@ -168,7 +168,6 @@ def emanFilter(session, parameterMap):
             for theT in range(sizeT):
                 for z in range(sizeZ):
                     plane2D = scriptUtil.downloadPlane(rawPixelStore, pixels, z, theC, theT)
-                    plane2D.resize((sizeY, sizeX))  # not sure why we have to resize (y, x)
                     try:    # method seems to depend which version of EMAN2 you have
                         EMNumPy.numpy2em(plane2D, e)
                     except:
