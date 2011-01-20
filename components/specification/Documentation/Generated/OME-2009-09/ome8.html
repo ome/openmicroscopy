@@ -1,0 +1,2486 @@
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+      <title>Schema documentation for BinaryFile.xsd</title>
+      <link rel="stylesheet" href="xsdDocHtml.css" type="text/css" /><script type="text/javascript">
+         <!--
+        var propertiesBoxes= new Array('properties_id2', 
+				'properties_id208', 
+				'properties_id209', 
+				'properties_id214', 
+				'properties_id210', 
+				'properties_id211', 
+				'properties_id213', 
+				'properties_id215', 
+				'properties_id216', 
+				'properties_id217', 
+				'properties_id218', 
+				'properties_id219', 
+				'properties_id220');
+
+        var facetsBoxes= new Array('facets_id212', 
+				'facets_id211', 
+				'facets_id213', 
+				'facets_id215');
+
+        var usedByBoxes= new Array('usedBy_id208', 
+				'usedBy_id209', 
+				'usedBy_id214', 
+				'usedBy_id212', 
+				'usedBy_id210', 
+				'usedBy_id211', 
+				'usedBy_id213', 
+				'usedBy_id215', 
+				'usedBy_id216', 
+				'usedBy_id217', 
+				'usedBy_id218', 
+				'usedBy_id219', 
+				'usedBy_id220');
+
+        var sourceBoxes= new Array('source_id208', 
+				'source_id209', 
+				'source_id214', 
+				'source_id212', 
+				'source_id210', 
+				'source_id211', 
+				'source_id213', 
+				'source_id215', 
+				'source_id216', 
+				'source_id217', 
+				'source_id218', 
+				'source_id219', 
+				'source_id220');
+
+        var instanceBoxes= new Array('instance_id208');
+
+        var diagramBoxes= new Array('diagram_id208', 
+				'diagram_id209', 
+				'diagram_id214', 
+				'diagram_id212');
+
+        var annotationBoxes= new Array('annotations_id2', 
+				'annotations_id208', 
+				'annotations_id209', 
+				'annotations_id214', 
+				'annotations_id210', 
+				'annotations_id211', 
+				'annotations_id213', 
+				'annotations_id215', 
+				'annotations_id216', 
+				'annotations_id217', 
+				'annotations_id219');
+
+        var attributesBoxes= new Array('attributes_id208', 
+				'attributes_id209', 
+				'attributes_id214');
+
+        
+        var button_prefix = 'button_';
+        
+        /**
+        * Returns an element in the current HTML document.
+        *
+        * @param elementID Identifier of HTML element
+        * @return               HTML element object
+        */
+        function getElementObject(elementID) {
+            var elemObj = null;
+            if (document.getElementById) {
+                elemObj = document.getElementById(elementID);
+            }
+            return elemObj;
+        }
+        
+        /**
+        * Switches the state of a collapseable box, e.g.
+        * if it's opened, it'll be closed, and vice versa.
+        *
+        * @param boxID Identifier of box
+        */
+        function switchState(boxID) {
+            var boxObj = getElementObject(boxID);
+            var buttonObj = getElementObject(button_prefix + boxID);
+            if (boxObj == null || buttonObj == null) {
+                // Box or button not found
+            } else if (boxObj.style.display == "none") {
+                // Box is closed, so open it
+                openBox(boxObj, buttonObj);
+            } else if (boxObj.style.display == "block") {
+                // Box is opened, so close it
+                closeBox(boxObj, buttonObj);
+            }
+        }
+        
+        /**
+        * Opens a collapseable box.
+        *
+        * @param boxObj       Collapseable box
+        * @param buttonObj Button controlling box
+        */
+        function openBox(boxObj, buttonObj) {
+            if (boxObj == null || buttonObj == null) {
+                // Box or button not found
+            } else {
+                // Change 'display' CSS property of box
+                boxObj.style.display = "block";
+                
+                // Change text of button
+                if (boxObj.style.display == "block") {
+                    buttonObj.src = "images/button_minus.gif";
+                }
+            }
+        }
+        
+        /**
+        * Closes a collapseable box.
+        *
+        * @param boxObj       Collapseable box
+        * @param buttonObj Button controlling box
+        */
+        function closeBox(boxObj, buttonObj) {
+            if (boxObj == null || buttonObj == null) {
+                // Box or button not found
+            } else {
+                // Change 'display' CSS property of box
+                boxObj.style.display = "none";
+                
+                // Change text of button
+                if (boxObj.style.display == "none") {
+                    buttonObj.src = "images/button_plus.gif";
+                }
+            }
+        }
+    
+       function switchStateForAll(buttonObj, boxList) {
+            if (buttonObj == null) {
+                // button not found
+            } else if (buttonObj.value == "+") {
+                // Expand all
+                expandAll(boxList);
+                buttonObj.value = "-";
+            } else if (buttonObj.value == "-") {
+                // Collapse all
+                collapseAll(boxList);
+                buttonObj.value = "+";
+            }
+        }
+        
+        /**
+        * Closes all boxes in a given list.
+        *
+        * @param boxList Array of box IDs
+        */
+        function collapseAll(boxList) {
+            var idx;
+            for (idx = 0; idx < boxList.length; idx++) {
+                var boxObj = getElementObject(boxList[idx]);
+                var buttonObj = getElementObject(button_prefix + boxList[idx]);
+                closeBox(boxObj, buttonObj);
+            }
+        }
+            
+        /**
+        * Open all boxes in a given list.
+        *
+        * @param boxList Array of box IDs
+        */
+        function expandAll(boxList) {
+            var idx;
+            for (idx = 0; idx < boxList.length; idx++) {
+                var boxObj = getElementObject(boxList[idx]);
+                var buttonObj = getElementObject(button_prefix + boxList[idx]);
+                openBox(boxObj, buttonObj);
+            }
+        }
+        
+        /**
+         * Update the message presented in the title of the html page.
+         * - If the documentation was splited by namespace we present something like: "Documentation for namespace 'ns'"
+         * - If the documentation was splited by location we present somehing like: "Documentation for 'Schema.xsd'"
+         * - If no split we always present: "Documentation for 'MainSchema.xsd'"
+         */
+        function updatePageTitle(message) {
+            top.document.title = message;
+        }
+        
+          
+                    
+         /**
+          * Finds an HTML element by its ID and makes it floatable over the normal content.
+          *
+          * @param x_displacement The difference in pixels to the right side of the window from 
+          *           the left side of the element.
+          * @param y_displacement The difference in pixels to the right side of the window from 
+          *           the top of the element.          
+          */
+         function findAndFloat(id, x_displacement, y_displacement){
+
+            var element = getElementObject(id);            
+            
+            window[id + "_obj"] = element;
+            
+            if(document.layers) {
+               element.style = element;
+            }
+            
+            element.current_y = y_displacement;      
+            element.first_time = true;
+         
+            element.floatElement = function(){
+               // It may be closed by an user action.
+                
+               // Target X and Y coordinates.
+               var x, y;
+               
+               var myWidth = 0, myHeight = 0;
+               if( typeof( window.innerWidth ) == 'number' ) {
+                  //Non-IE
+                  myWidth = window.innerWidth;
+                  myHeight = window.innerHeight;
+               } else if( document.documentElement && ( document.documentElement.clientWidth || document.documentElement.clientHeight ) ) {
+                  //IE 6+ in 'standards compliant mode'
+                  myWidth = document.documentElement.clientWidth;
+                  myHeight = document.documentElement.clientHeight;
+               } else if( document.body && ( document.body.clientWidth || document.body.clientHeight ) ) {
+                  //IE 4 compatible
+                  myWidth = document.body.clientWidth;
+                  myHeight = document.body.clientHeight;
+               }
+               
+               
+               x = myWidth - x_displacement;
+               
+               var ns = (navigator.appName.indexOf("Netscape") != -1);               
+               y = ns ? pageYOffset : document.documentElement && document.documentElement.scrollTop ? 
+                  document.documentElement.scrollTop : document.body.scrollTop;               
+               y = y + y_displacement;               
+               
+               // The current y is the current coordinate of the floating element.
+               // This should be at the limit the y target coordinate.
+               this.current_y += (y - this.current_y)/1.25;
+               
+               // Add the pixels constant after the values
+               // and move the element.
+               var px = document.layers ? "" : "px";
+               this.style.left =  x + px;
+               this.style.top =  this.current_y + px;
+                              
+               setTimeout(this.id + "_obj.floatElement()", 100);
+            }
+            
+            element.floatElement();
+            return element;
+          }
+
+         /**
+          * Finds an HTML element by its ID and makes it floatable over the normal content.
+          *
+          * @param x_displacement The difference in pixels to the right side of the window from 
+          *           the left side of the element.
+          * @param y_displacement The difference in pixels to the right side of the window from 
+          *           the top of the element.          
+          */
+         function selectTOCGroupBy(id){
+            var selectIds = new Array('toc_group_by_namespace', 'toc_group_by_location', 'toc_group_by_component_type');
+            // Make all the tabs invisible.
+            for (i = 0; i < 3; i++){
+               var tab = getElementObject(selectIds[i]);
+               tab.style.display = 'none';
+            }
+            var selTab = getElementObject(id);
+            selTab.style.display = 'block';            
+         }
+          
+
+    --></script></head>
+   <body>
+      <div id="global_controls" class="globalControls" style="position:absolute;right:0;">
+         <table class="rt">
+            <tr>
+               <td class="rt_cornerTopLeft"></td>
+               <td class="rt_lineTop"></td>
+               <td class="rt_cornerTopRight"></td>
+            </tr>
+            <tr>
+               <td class="rt_lineLeft"></td>
+               <td class="rt_content">
+                  <h3>Showing:</h3>
+                  <table>
+                     <tr>
+                        <td><span><input type="checkbox" value="-" checked="checked"
+                                     onclick="switchStateForAll(this, annotationBoxes);"
+                                     class="control" /></span><span class="globalControlName">Annotations</span></td>
+                     </tr>
+                     <tr>
+                        <td><span><input type="checkbox" value="-" checked="checked"
+                                     onclick="switchStateForAll(this, attributesBoxes);"
+                                     class="control" /></span><span class="globalControlName">Attributes </span></td>
+                     </tr>
+                     <tr>
+                        <td><span><input type="checkbox" value="-" checked="checked"
+                                     onclick="switchStateForAll(this, diagramBoxes);"
+                                     class="control" /></span><span class="globalControlName">Diagrams</span></td>
+                     </tr>
+                     <tr>
+                        <td><span><input type="checkbox" value="-" checked="checked"
+                                     onclick="switchStateForAll(this, facetsBoxes);"
+                                     class="control" /></span><span class="globalControlName">Facets </span></td>
+                     </tr>
+                     <tr>
+                        <td><span><input type="checkbox" value="-" checked="checked"
+                                     onclick="switchStateForAll(this, instanceBoxes);"
+                                     class="control" /></span><span class="globalControlName">Instances</span></td>
+                     </tr>
+                     <tr>
+                        <td><span><input type="checkbox" value="-" checked="checked"
+                                     onclick="switchStateForAll(this, propertiesBoxes);"
+                                     class="control" /></span><span class="globalControlName">Properties </span></td>
+                     </tr>
+                     <tr>
+                        <td><span><input type="checkbox" value="-" checked="checked"
+                                     onclick="switchStateForAll(this, sourceBoxes);"
+                                     class="control" /></span><span class="globalControlName">Source</span></td>
+                     </tr>
+                     <tr>
+                        <td><span><input type="checkbox" value="-" checked="checked"
+                                     onclick="switchStateForAll(this, usedByBoxes);"
+                                     class="control" /></span><span class="globalControlName">Used by </span></td>
+                     </tr>
+                  </table>
+                  <div align="right"><span><input type="button"
+                               onclick="getElementObject('global_controls').style.display = 'none';"
+                               value="Close" /></span></div>
+               </td>
+               <td class="rt_lineRight"></td>
+            </tr>
+            <tr>
+               <td class="rt_cornerBottomLeft"></td>
+               <td class="rt_lineBottom"></td>
+               <td class="rt_cornerBottomRight"></td>
+            </tr>
+         </table>
+      </div><a id="id2"></a><div class="componentTitle">Imported schema <span class="qname">BinaryFile.xsd</span></div>
+      <table class="rt">
+         <tr>
+            <td class="rt_cornerTopLeft"></td>
+            <td class="rt_lineTop"></td>
+            <td class="rt_cornerTopRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_lineLeft"></td>
+            <td class="rt_content">
+               <table class="component">
+                  <tbody>
+                     <tr>
+                        <td class="firstColumn"><b>Namespace</b></td>
+                        <td>http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09</td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Annotations</b></div>
+                           <div class="floatRight"><input id="button_annotations_id2" type="image" src="images/button_minus.gif"
+                                     value="-"
+                                     onclick="switchState('annotations_id2');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="annotations_id2" style="display:block">
+                              <div class="annotation">
+                                 <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                        class="preWrapContainer">
+                                    <tr>
+                                       <td width="100%"><pre><span class="tokenText">The elements in this file are not yet represented by classes in the EA diagrams - ajp</span></pre></td>
+                                    </tr>
+                                 </table>
+                              </div>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Properties</b></div>
+                           <div class="floatRight"><input id="button_properties_id2" type="image" src="images/button_minus.gif" value="-"
+                                     onclick="switchState('properties_id2');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="properties_id2" style="display:block">
+                              <table class="propertiesTable">
+                                 <tr>
+                                    <td class="firstColumn">attribute form default:
+                                       
+                                    </td>
+                                    <td><b>unqualified</b></td>
+                                 </tr>
+                                 <tr>
+                                    <td class="firstColumn">element form default:
+                                       
+                                    </td>
+                                    <td><b>qualified</b></td>
+                                 </tr>
+                                 <tr>
+                                    <td class="firstColumn">version:
+                                       
+                                    </td>
+                                    <td><b>1</b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Schema location</b></td>
+                        <td>http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09/BinaryFile.xsd</td>
+                     </tr>
+                  </tbody>
+               </table>
+            </td>
+            <td class="rt_lineRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_cornerBottomLeft"></td>
+            <td class="rt_lineBottom"></td>
+            <td class="rt_cornerBottomRight"></td>
+         </tr>
+      </table><a id="id208"></a><div class="componentTitle">Element <span class="qname">Bin:BinaryFile</span></div>
+      <table class="rt">
+         <tr>
+            <td class="rt_cornerTopLeft"></td>
+            <td class="rt_lineTop"></td>
+            <td class="rt_cornerTopRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_lineLeft"></td>
+            <td class="rt_content">
+               <table class="component">
+                  <tbody>
+                     <tr>
+                        <td class="firstColumn"><b>Namespace</b></td>
+                        <td>http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09</td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Annotations</b></div>
+                           <div class="floatRight"><input id="button_annotations_id208" type="image" src="images/button_minus.gif"
+                                     value="-"
+                                     onclick="switchState('annotations_id208');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="annotations_id208" style="display:block">
+                              <div class="annotation">
+                                 <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                        class="preWrapContainer">
+                                    <tr>
+                                       <td width="100%"><pre><span class="tokenText">Describes a binary file.</span></pre></td>
+                                    </tr>
+                                 </table>
+                              </div>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Diagram</b></div>
+                           <div class="floatRight"><input id="button_diagram_id208" type="image" src="images/button_minus.gif" value="-"
+                                     onclick="switchState('diagram_id208');"
+                                     class="control" /></div>
+                        </td>
+                        <td class="diagram">
+                           <div id="diagram_id208" style="display:block"><img alt="Diagram" border="0" src="images/ome.html192.png" usemap="#ome_46_html192" /><map name="ome_46_html192" id="ome_46_html192">
+                                 <area alt="ome8.tmp#id218" href="ome8.html#id218" coords="124,40,220,64" />
+                                 <area alt="ome8.tmp#id219" href="ome8.html#id219" coords="124,74,196,98" />
+                                 <area alt="ome8.tmp#id220" href="ome8.html#id220" coords="124,108,225,132" />
+                                 <area alt="ome8.tmp#id209" href="ome8.html#id209" coords="181,149,275,173" />
+                                 <area alt="ome8.tmp#id214" href="ome8.html#id214" coords="181,183,271,207" /></map></div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Properties</b></div>
+                           <div class="floatRight"><input id="button_properties_id208" type="image" src="images/button_minus.gif"
+                                     value="-"
+                                     onclick="switchState('properties_id208');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="properties_id208" style="display:block">
+                              <table class="propertiesTable">
+                                 <tr>
+                                    <td class="firstColumn">content:
+                                       
+                                    </td>
+                                    <td><b>complex</b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Used by</b></div>
+                           <div class="floatRight"><input id="button_usedBy_id208" type="image" src="images/button_minus.gif" value="-"
+                                     onclick="switchState('usedBy_id208');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="usedBy_id208" style="display:block">
+                              <table class="usedByTable">
+                                 <tr>
+                                    <td class="firstColumn">Elements </td>
+                                    <td><b><a href="ome9.html#id511" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/AnalysisModule/2009-09"
+                                             onclick="updatePageTitle('Schema documentation for AnalysisModule.xsd')">AML:InstallationFile</a></b>, <b><a href="ome9.html#id510" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/AnalysisModule/2009-09"
+                                             onclick="updatePageTitle('Schema documentation for AnalysisModule.xsd')">AML:InstallationScript</a></b>, <b><a href="ome3.html#id333" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/SA/2009-09"
+                                             onclick="updatePageTitle('Schema documentation for SA.xsd')">FileAnnotation</a></b>, <b><a href="ome1.html#id200" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2009-09"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">OTF</a></b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Model</b></td>
+                        <td><b><a href="ome8.html#id209" target="mainFrame"
+                                 title="http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09"
+                                 onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:External</a></b> | <b><a href="ome8.html#id214" target="mainFrame"
+                                 title="http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09"
+                                 onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:BinData</a></b></td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Children</b></td>
+                        <td><b><a href="ome8.html#id214" target="mainFrame"
+                                 title="http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09"
+                                 onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:BinData</a></b>, <b><a href="ome8.html#id209" target="mainFrame"
+                                 title="http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09"
+                                 onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:External</a></b></td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Instance</b></div>
+                           <div class="floatRight"><input id="button_instance_id208" type="image" src="images/button_minus.gif" value="-"
+                                     onclick="switchState('instance_id208');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="instance_id208" style="display:block">
+                              <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                     class="preWrapContainer">
+                                 <tr>
+                                    <td width="100%"><pre><span class="tokenElement">&lt;Bin:BinaryFile</span><span class="tokenText"> </span><span class="tokenAttrName">FileName=</span><span class="tokenAttrValue">""</span><span class="tokenText"> </span><span class="tokenAttrName">MIMEType=</span><span class="tokenAttrValue">""</span><span class="tokenText"> </span><span class="tokenAttrName">Size=</span><span class="tokenAttrValue">""</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+  </span><span class="tokenElement">&lt;Bin:External</span><span class="tokenText"> </span><span class="tokenAttrName">Compression=</span><span class="tokenAttrValue">"none"</span><span class="tokenText"> </span><span class="tokenAttrName">href=</span><span class="tokenAttrValue">""</span><span class="tokenText"> </span><span class="tokenAttrName">SHA1=</span><span class="tokenAttrValue">""</span><span class="tokenElement">&gt;</span><span class="tokenText" style="white-space:normal">{1,1}</span><span class="tokenElement">&lt;/Bin:External&gt;</span><span class="tokenIndent">
+  </span><span class="tokenElement">&lt;Bin:BinData</span><span class="tokenText"> </span><span class="tokenAttrName">BigEndian=</span><span class="tokenAttrValue">""</span><span class="tokenText"> </span><span class="tokenAttrName">Compression=</span><span class="tokenAttrValue">"none"</span><span class="tokenText"> </span><span class="tokenAttrName">Length=</span><span class="tokenAttrValue">""</span><span class="tokenElement">&gt;</span><span class="tokenText" style="white-space:normal">{1,1}</span><span class="tokenElement">&lt;/Bin:BinData&gt;</span><span class="tokenIndent">
+</span><span class="tokenElement">&lt;/Bin:BinaryFile&gt;</span></pre></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Attributes</b></div>
+                           <div class="floatRight"><input id="button_attributes_id208" type="image" src="images/button_minus.gif"
+                                     value="-"
+                                     onclick="switchState('attributes_id208');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="attributes_id208" style="display:block">
+                              <table class="attributesTable">
+                                 <thead>
+                                    <tr>
+                                       <th>QName</th>
+                                       <th>Type</th>
+                                       <th>Fixed</th>
+                                       <th>Default</th>
+                                       <th>Use</th>
+                                       <th>Annotation</th>
+                                    </tr>
+                                 </thead>
+                                 <tr>
+                                    <td class="firstColumn"><b><a href="ome8.html#id218" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">FileName</a></b></td>
+                                    <td><b>xsd:string</b></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>required</td>
+                                    <td>
+                                       <div class="annotation"></div>
+                                    </td>
+                                 </tr>
+                                 <tr>
+                                    <td class="firstColumn"><b><a href="ome8.html#id220" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">MIMEType</a></b></td>
+                                    <td><b>xsd:string</b></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>optional</td>
+                                    <td>
+                                       <div class="annotation"></div>
+                                    </td>
+                                 </tr>
+                                 <tr>
+                                    <td class="firstColumn"><b><a href="ome8.html#id219" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Size</a></b></td>
+                                    <td><b>xsd:integer</b></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>required</td>
+                                    <td>
+                                       <div class="annotation">
+                                          <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                                 class="preWrapContainer">
+                                             <tr>
+                                                <td width="100%"><pre><span class="tokenText">Size (in bytes) of the uncompressed file.</span></pre></td>
+                                             </tr>
+                                          </table>
+                                       </div>
+                                    </td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Source</b></div>
+                           <div class="floatRight"><input id="button_source_id208" type="image" src="images/button_minus.gif" value="-"
+                                     onclick="switchState('source_id208');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="source_id208" style="display:block">
+                              <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                     class="preWrapContainer">
+                                 <tr>
+                                    <td width="100%"><pre><span class="tokenElement">&lt;xsd:element</span><span class="tokenAttrName"> name=</span><span class="tokenAttrValue">"BinaryFile"</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+  </span><span class="tokenComment">&lt;!-- top level definition --&gt;</span><span class="tokenIndent">
+  </span><span class="tokenElement">&lt;xsd:annotation</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+    </span><span class="tokenElement">&lt;xsd:documentation</span><span class="tokenElement">&gt;</span><span class="tokenText" style="white-space:normal">Describes a binary file.</span><span class="tokenElement">&lt;/xsd:documentation&gt;</span><span class="tokenIndent">
+  </span><span class="tokenElement">&lt;/xsd:annotation&gt;</span><span class="tokenIndent">
+  </span><span class="tokenElement">&lt;xsd:complexType</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+    </span><span class="tokenElement">&lt;xsd:choice</span><span class="tokenAttrName"> minOccurs=</span><span class="tokenAttrValue">"1"</span><span class="tokenAttrName"> maxOccurs=</span><span class="tokenAttrValue">"1"</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+      </span><span class="tokenElement">&lt;xsd:element</span><span class="tokenAttrName"> ref=</span><span class="tokenAttrValue">"Bin:External"</span><span class="tokenAttrName"> minOccurs=</span><span class="tokenAttrValue">"1"</span><span class="tokenAttrName"> maxOccurs=</span><span class="tokenAttrValue">"1"</span><span class="tokenElement">/&gt;</span><span class="tokenIndent">
+      </span><span class="tokenElement">&lt;xsd:element</span><span class="tokenAttrName"> ref=</span><span class="tokenAttrValue">"Bin:BinData"</span><span class="tokenAttrName"> minOccurs=</span><span class="tokenAttrValue">"1"</span><span class="tokenAttrName"> maxOccurs=</span><span class="tokenAttrValue">"1"</span><span class="tokenElement">/&gt;</span><span class="tokenIndent">
+    </span><span class="tokenElement">&lt;/xsd:choice&gt;</span><span class="tokenIndent">
+    </span><span class="tokenElement">&lt;xsd:attribute</span><span class="tokenAttrName"> name=</span><span class="tokenAttrValue">"FileName"</span><span class="tokenAttrName"> use=</span><span class="tokenAttrValue">"required"</span><span class="tokenAttrName"> type=</span><span class="tokenAttrValue">"xsd:string"</span><span class="tokenElement">/&gt;</span><span class="tokenIndent">
+    </span><span class="tokenElement">&lt;xsd:attribute</span><span class="tokenAttrName"> name=</span><span class="tokenAttrValue">"Size"</span><span class="tokenAttrName"> use=</span><span class="tokenAttrValue">"required"</span><span class="tokenAttrName"> type=</span><span class="tokenAttrValue">"xsd:integer"</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+      </span><span class="tokenElement">&lt;xsd:annotation</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+        </span><span class="tokenElement">&lt;xsd:documentation</span><span class="tokenElement">&gt;</span><span class="tokenText" style="white-space:normal">Size (in bytes) of the uncompressed file.</span><span class="tokenElement">&lt;/xsd:documentation&gt;</span><span class="tokenIndent">
+      </span><span class="tokenElement">&lt;/xsd:annotation&gt;</span><span class="tokenIndent">
+    </span><span class="tokenElement">&lt;/xsd:attribute&gt;</span><span class="tokenIndent">
+    </span><span class="tokenElement">&lt;xsd:attribute</span><span class="tokenAttrName"> name=</span><span class="tokenAttrValue">"MIMEType"</span><span class="tokenAttrName"> use=</span><span class="tokenAttrValue">"optional"</span><span class="tokenAttrName"> type=</span><span class="tokenAttrValue">"xsd:string"</span><span class="tokenElement">/&gt;</span><span class="tokenIndent">
+  </span><span class="tokenElement">&lt;/xsd:complexType&gt;</span><span class="tokenIndent">
+</span><span class="tokenElement">&lt;/xsd:element&gt;</span></pre></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Schema location</b></td>
+                        <td>http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09/BinaryFile.xsd</td>
+                     </tr>
+                  </tbody>
+               </table>
+            </td>
+            <td class="rt_lineRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_cornerBottomLeft"></td>
+            <td class="rt_lineBottom"></td>
+            <td class="rt_cornerBottomRight"></td>
+         </tr>
+      </table><a id="id209"></a><div class="componentTitle">Element <span class="qname">Bin:External</span></div>
+      <table class="rt">
+         <tr>
+            <td class="rt_cornerTopLeft"></td>
+            <td class="rt_lineTop"></td>
+            <td class="rt_cornerTopRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_lineLeft"></td>
+            <td class="rt_content">
+               <table class="component">
+                  <tbody>
+                     <tr>
+                        <td class="firstColumn"><b>Namespace</b></td>
+                        <td>http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09</td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Annotations</b></div>
+                           <div class="floatRight"><input id="button_annotations_id209" type="image" src="images/button_minus.gif"
+                                     value="-"
+                                     onclick="switchState('annotations_id209');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="annotations_id209" style="display:block">
+                              <div class="annotation">
+                                 <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                        class="preWrapContainer">
+                                    <tr>
+                                       <td width="100%"><pre><span class="tokenText">Describes a file location.  Can optionally specify a portion of a file using Offset and a ReadLength.</span><span class="tokenIndent">
+</span><span class="tokenText">If Offset and ReadLength are specified in conjuction with Compression, then they point into the uncompressed file.</span></pre></td>
+                                    </tr>
+                                 </table>
+                              </div>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Diagram</b></div>
+                           <div class="floatRight"><input id="button_diagram_id209" type="image" src="images/button_minus.gif" value="-"
+                                     onclick="switchState('diagram_id209');"
+                                     class="control" /></div>
+                        </td>
+                        <td class="diagram">
+                           <div id="diagram_id209" style="display:block"><img alt="Diagram" border="0" src="images/ome.html31.png" usemap="#ome_46_html31" /><map name="ome_46_html31" id="ome_46_html31">
+                                 <area alt="ome8.tmp#id210" href="ome8.html#id210" coords="117,40,189,64" />
+                                 <area alt="ome8.tmp#id211" href="ome8.html#id211" coords="117,74,194,98" />
+                                 <area alt="ome8.tmp#id213" href="ome8.html#id213" coords="117,108,237,132" /></map></div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Properties</b></div>
+                           <div class="floatRight"><input id="button_properties_id209" type="image" src="images/button_minus.gif"
+                                     value="-"
+                                     onclick="switchState('properties_id209');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="properties_id209" style="display:block">
+                              <table class="propertiesTable">
+                                 <tr>
+                                    <td class="firstColumn">content:
+                                       
+                                    </td>
+                                    <td><b>complex</b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Used by</b></div>
+                           <div class="floatRight"><input id="button_usedBy_id209" type="image" src="images/button_minus.gif" value="-"
+                                     onclick="switchState('usedBy_id209');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="usedBy_id209" style="display:block">
+                              <table class="usedByTable">
+                                 <tr>
+                                    <td class="firstColumn">Element </td>
+                                    <td><b><a href="ome8.html#id208" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09"
+                                             onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:BinaryFile</a></b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Attributes</b></div>
+                           <div class="floatRight"><input id="button_attributes_id209" type="image" src="images/button_minus.gif"
+                                     value="-"
+                                     onclick="switchState('attributes_id209');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="attributes_id209" style="display:block">
+                              <table class="attributesTable">
+                                 <thead>
+                                    <tr>
+                                       <th>QName</th>
+                                       <th>Type</th>
+                                       <th>Fixed</th>
+                                       <th>Default</th>
+                                       <th>Use</th>
+                                       <th>Annotation</th>
+                                    </tr>
+                                 </thead>
+                                 <tr>
+                                    <td class="firstColumn"><b><a href="ome8.html#id213" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Compression</a></b></td>
+                                    <td>restriction of <b>xsd:string</b></td>
+                                    <td></td>
+                                    <td>none</td>
+                                    <td>optional</td>
+                                    <td>
+                                       <div class="annotation">
+                                          <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                                 class="preWrapContainer">
+                                             <tr>
+                                                <td width="100%"><pre><span class="tokenText">Specifies the compression scheme used to encode the data.</span></pre></td>
+                                             </tr>
+                                          </table>
+                                       </div>
+                                    </td>
+                                 </tr>
+                                 <tr>
+                                    <td class="firstColumn"><b><a href="ome8.html#id211" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">SHA1</a></b></td>
+                                    <td><b><a href="ome8.html#id212" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09"
+                                             onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:Hex40</a></b></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>required</td>
+                                    <td>
+                                       <div class="annotation">
+                                          <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                                 class="preWrapContainer">
+                                             <tr>
+                                                <td width="100%"><pre><span class="tokenText">The digest of the file specified in href.</span></pre></td>
+                                             </tr>
+                                          </table>
+                                       </div>
+                                    </td>
+                                 </tr>
+                                 <tr>
+                                    <td class="firstColumn"><b><a href="ome8.html#id210" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">href</a></b></td>
+                                    <td><b>xsd:anyURI</b></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>required</td>
+                                    <td>
+                                       <div class="annotation">
+                                          <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                                 class="preWrapContainer">
+                                             <tr>
+                                                <td width="100%"><pre><span class="tokenText">file location</span></pre></td>
+                                             </tr>
+                                          </table>
+                                       </div>
+                                    </td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Source</b></div>
+                           <div class="floatRight"><input id="button_source_id209" type="image" src="images/button_minus.gif" value="-"
+                                     onclick="switchState('source_id209');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="source_id209" style="display:block">
+                              <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                     class="preWrapContainer">
+                                 <tr>
+                                    <td width="100%"><pre><span class="tokenElement">&lt;xsd:element</span><span class="tokenAttrName"> name=</span><span class="tokenAttrValue">"External"</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+  </span><span class="tokenComment">&lt;!-- top level definition --&gt;</span><span class="tokenIndent">
+  </span><span class="tokenElement">&lt;xsd:annotation</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+    </span><span class="tokenElement">&lt;xsd:documentation</span><span class="tokenElement">&gt;</span><span class="tokenText" style="white-space:normal">Describes a file location. Can optionally specify a portion of a file using Offset and a ReadLength. If Offset and ReadLength are specified in conjuction with Compression, then they point into the uncompressed file.</span><span class="tokenElement">&lt;/xsd:documentation&gt;</span><span class="tokenIndent">
+  </span><span class="tokenElement">&lt;/xsd:annotation&gt;</span><span class="tokenIndent">
+  </span><span class="tokenElement">&lt;xsd:complexType</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+    </span><span class="tokenElement">&lt;xsd:attribute</span><span class="tokenAttrName"> name=</span><span class="tokenAttrValue">"href"</span><span class="tokenAttrName"> use=</span><span class="tokenAttrValue">"required"</span><span class="tokenAttrName"> type=</span><span class="tokenAttrValue">"xsd:anyURI"</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+      </span><span class="tokenElement">&lt;xsd:annotation</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+        </span><span class="tokenElement">&lt;xsd:documentation</span><span class="tokenElement">&gt;</span><span class="tokenText" style="white-space:normal">file location</span><span class="tokenElement">&lt;/xsd:documentation&gt;</span><span class="tokenIndent">
+      </span><span class="tokenElement">&lt;/xsd:annotation&gt;</span><span class="tokenIndent">
+    </span><span class="tokenElement">&lt;/xsd:attribute&gt;</span><span class="tokenIndent">
+    </span><span class="tokenElement">&lt;xsd:attribute</span><span class="tokenAttrName"> name=</span><span class="tokenAttrValue">"SHA1"</span><span class="tokenAttrName"> use=</span><span class="tokenAttrValue">"required"</span><span class="tokenAttrName"> type=</span><span class="tokenAttrValue">"Bin:Hex40"</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+      </span><span class="tokenElement">&lt;xsd:annotation</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+        </span><span class="tokenElement">&lt;xsd:documentation</span><span class="tokenElement">&gt;</span><span class="tokenText" style="white-space:normal">The digest of the file specified in href.</span><span class="tokenElement">&lt;/xsd:documentation&gt;</span><span class="tokenIndent">
+      </span><span class="tokenElement">&lt;/xsd:annotation&gt;</span><span class="tokenIndent">
+    </span><span class="tokenElement">&lt;/xsd:attribute&gt;</span><span class="tokenIndent">
+    </span><span class="tokenElement">&lt;xsd:attribute</span><span class="tokenAttrName"> name=</span><span class="tokenAttrValue">"Compression"</span><span class="tokenAttrName"> default=</span><span class="tokenAttrValue">"none"</span><span class="tokenAttrName"> use=</span><span class="tokenAttrValue">"optional"</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+      </span><span class="tokenElement">&lt;xsd:annotation</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+        </span><span class="tokenElement">&lt;xsd:documentation</span><span class="tokenElement">&gt;</span><span class="tokenText" style="white-space:normal">Specifies the compression scheme used to encode the data.</span><span class="tokenElement">&lt;/xsd:documentation&gt;</span><span class="tokenIndent">
+      </span><span class="tokenElement">&lt;/xsd:annotation&gt;</span><span class="tokenIndent">
+      </span><span class="tokenElement">&lt;xsd:simpleType</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+        </span><span class="tokenElement">&lt;xsd:restriction</span><span class="tokenAttrName"> base=</span><span class="tokenAttrValue">"xsd:string"</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+          </span><span class="tokenElement">&lt;xsd:enumeration</span><span class="tokenAttrName"> value=</span><span class="tokenAttrValue">"zlib"</span><span class="tokenElement">/&gt;</span><span class="tokenIndent">
+          </span><span class="tokenElement">&lt;xsd:enumeration</span><span class="tokenAttrName"> value=</span><span class="tokenAttrValue">"bzip2"</span><span class="tokenElement">/&gt;</span><span class="tokenIndent">
+          </span><span class="tokenElement">&lt;xsd:enumeration</span><span class="tokenAttrName"> value=</span><span class="tokenAttrValue">"none"</span><span class="tokenElement">/&gt;</span><span class="tokenIndent">
+        </span><span class="tokenElement">&lt;/xsd:restriction&gt;</span><span class="tokenIndent">
+      </span><span class="tokenElement">&lt;/xsd:simpleType&gt;</span><span class="tokenIndent">
+    </span><span class="tokenElement">&lt;/xsd:attribute&gt;</span><span class="tokenIndent">
+  </span><span class="tokenElement">&lt;/xsd:complexType&gt;</span><span class="tokenIndent">
+</span><span class="tokenElement">&lt;/xsd:element&gt;</span></pre></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Schema location</b></td>
+                        <td>http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09/BinaryFile.xsd</td>
+                     </tr>
+                  </tbody>
+               </table>
+            </td>
+            <td class="rt_lineRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_cornerBottomLeft"></td>
+            <td class="rt_lineBottom"></td>
+            <td class="rt_cornerBottomRight"></td>
+         </tr>
+      </table><a id="id214"></a><div class="componentTitle">Element <span class="qname">Bin:BinData</span></div>
+      <table class="rt">
+         <tr>
+            <td class="rt_cornerTopLeft"></td>
+            <td class="rt_lineTop"></td>
+            <td class="rt_cornerTopRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_lineLeft"></td>
+            <td class="rt_content">
+               <table class="component">
+                  <tbody>
+                     <tr>
+                        <td class="firstColumn"><b>Namespace</b></td>
+                        <td>http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09</td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Annotations</b></div>
+                           <div class="floatRight"><input id="button_annotations_id214" type="image" src="images/button_minus.gif"
+                                     value="-"
+                                     onclick="switchState('annotations_id214');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="annotations_id214" style="display:block">
+                              <div class="annotation">
+                                 <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                        class="preWrapContainer">
+                                    <tr>
+                                       <td width="100%"><pre><span class="tokenText">The contents of this element are base64-encoded.  These are not CDATA sections, just a base64 stream.</span></pre></td>
+                                    </tr>
+                                 </table>
+                              </div>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Diagram</b></div>
+                           <div class="floatRight"><input id="button_diagram_id214" type="image" src="images/button_minus.gif" value="-"
+                                     onclick="switchState('diagram_id214');"
+                                     class="control" /></div>
+                        </td>
+                        <td class="diagram">
+                           <div id="diagram_id214" style="display:block"><img alt="Diagram" border="0" src="images/ome.html112.png" usemap="#ome_46_html112" /><map name="ome_46_html112" id="ome_46_html112">
+                                 <area alt="ome8.tmp#id215" href="ome8.html#id215" coords="113,76,233,100" />
+                                 <area alt="ome8.tmp#id216" href="ome8.html#id216" coords="113,110,213,134" />
+                                 <area alt="ome8.tmp#id217" href="ome8.html#id217" coords="113,144,198,168" /></map></div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Type</b></td>
+                        <td>extension of <b>xsd:base64Binary</b></td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Properties</b></div>
+                           <div class="floatRight"><input id="button_properties_id214" type="image" src="images/button_minus.gif"
+                                     value="-"
+                                     onclick="switchState('properties_id214');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="properties_id214" style="display:block">
+                              <table class="propertiesTable">
+                                 <tr>
+                                    <td class="firstColumn">content:
+                                       
+                                    </td>
+                                    <td><b>complex</b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Used by</b></div>
+                           <div class="floatRight"><input id="button_usedBy_id214" type="image" src="images/button_minus.gif" value="-"
+                                     onclick="switchState('usedBy_id214');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="usedBy_id214" style="display:block">
+                              <table class="usedByTable">
+                                 <tr>
+                                    <td class="firstColumn">Elements </td>
+                                    <td><b><a href="ome8.html#id208" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09"
+                                             onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:BinaryFile</a></b>, <b><a href="ome5.html#id360" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/ROI/2009-09"
+                                             onclick="updatePageTitle('Schema documentation for ROI.xsd')">Mask</a></b>, <b><a href="ome1.html#id249" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/OME/2009-09"
+                                             onclick="updatePageTitle('Schema documentation for ome.xsd')">Pixels</a></b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Attributes</b></div>
+                           <div class="floatRight"><input id="button_attributes_id214" type="image" src="images/button_minus.gif"
+                                     value="-"
+                                     onclick="switchState('attributes_id214');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="attributes_id214" style="display:block">
+                              <table class="attributesTable">
+                                 <thead>
+                                    <tr>
+                                       <th>QName</th>
+                                       <th>Type</th>
+                                       <th>Fixed</th>
+                                       <th>Default</th>
+                                       <th>Use</th>
+                                       <th>Annotation</th>
+                                    </tr>
+                                 </thead>
+                                 <tr>
+                                    <td class="firstColumn"><b><a href="ome8.html#id216" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">BigEndian</a></b></td>
+                                    <td><b>xsd:boolean</b></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>required</td>
+                                    <td>
+                                       <div class="annotation">
+                                          <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                                 class="preWrapContainer">
+                                             <tr>
+                                                <td width="100%"><pre><span class="tokenText">This is true if the binary data was written in BigEndian order. This is dependent on the system architecture of the machine that wrote the pixels. True for essentially all modern CPUs other than Intel and Alpha. All Binary data must be written in the same endian order.</span></pre></td>
+                                             </tr>
+                                          </table>
+                                       </div>
+                                    </td>
+                                 </tr>
+                                 <tr>
+                                    <td class="firstColumn"><b><a href="ome8.html#id215" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Compression</a></b></td>
+                                    <td>restriction of <b>xsd:string</b></td>
+                                    <td></td>
+                                    <td>none</td>
+                                    <td>optional</td>
+                                    <td>
+                                       <div class="annotation">
+                                          <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                                 class="preWrapContainer">
+                                             <tr>
+                                                <td width="100%"><pre><span class="tokenText">Specifies the compression scheme used to encode the data.</span></pre></td>
+                                             </tr>
+                                          </table>
+                                       </div>
+                                    </td>
+                                 </tr>
+                                 <tr>
+                                    <td class="firstColumn"><b><a href="ome8.html#id217" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Length</a></b></td>
+                                    <td><b>xsd:nonNegativeInteger</b></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>required</td>
+                                    <td>
+                                       <div class="annotation">
+                                          <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                                 class="preWrapContainer">
+                                             <tr>
+                                                <td width="100%"><pre><span class="tokenText">Character count attribute for the BinData field. This is the length of the base-64 encoded block. It allows easy skipping of the block when parsing the file.</span></pre></td>
+                                             </tr>
+                                          </table>
+                                       </div>
+                                    </td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Source</b></div>
+                           <div class="floatRight"><input id="button_source_id214" type="image" src="images/button_minus.gif" value="-"
+                                     onclick="switchState('source_id214');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="source_id214" style="display:block">
+                              <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                     class="preWrapContainer">
+                                 <tr>
+                                    <td width="100%"><pre><span class="tokenElement">&lt;xsd:element</span><span class="tokenAttrName"> name=</span><span class="tokenAttrValue">"BinData"</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+  </span><span class="tokenComment">&lt;!-- top level definition --&gt;</span><span class="tokenIndent">
+  </span><span class="tokenElement">&lt;xsd:annotation</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+    </span><span class="tokenElement">&lt;xsd:documentation</span><span class="tokenElement">&gt;</span><span class="tokenText" style="white-space:normal">The contents of this element are base64-encoded. These are not CDATA sections, just a base64 stream.</span><span class="tokenElement">&lt;/xsd:documentation&gt;</span><span class="tokenIndent">
+  </span><span class="tokenElement">&lt;/xsd:annotation&gt;</span><span class="tokenIndent">
+  </span><span class="tokenElement">&lt;xsd:complexType</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+    </span><span class="tokenElement">&lt;xsd:simpleContent</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+      </span><span class="tokenElement">&lt;xsd:extension</span><span class="tokenAttrName"> base=</span><span class="tokenAttrValue">"xsd:base64Binary"</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+        </span><span class="tokenElement">&lt;xsd:attribute</span><span class="tokenAttrName"> name=</span><span class="tokenAttrValue">"Compression"</span><span class="tokenAttrName"> default=</span><span class="tokenAttrValue">"none"</span><span class="tokenAttrName"> use=</span><span class="tokenAttrValue">"optional"</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+          </span><span class="tokenElement">&lt;xsd:annotation</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+            </span><span class="tokenElement">&lt;xsd:documentation</span><span class="tokenElement">&gt;</span><span class="tokenText" style="white-space:normal">Specifies the compression scheme used to encode the data.</span><span class="tokenElement">&lt;/xsd:documentation&gt;</span><span class="tokenIndent">
+          </span><span class="tokenElement">&lt;/xsd:annotation&gt;</span><span class="tokenIndent">
+          </span><span class="tokenElement">&lt;xsd:simpleType</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+            </span><span class="tokenElement">&lt;xsd:restriction</span><span class="tokenAttrName"> base=</span><span class="tokenAttrValue">"xsd:string"</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+              </span><span class="tokenElement">&lt;xsd:enumeration</span><span class="tokenAttrName"> value=</span><span class="tokenAttrValue">"zlib"</span><span class="tokenElement">/&gt;</span><span class="tokenIndent">
+              </span><span class="tokenElement">&lt;xsd:enumeration</span><span class="tokenAttrName"> value=</span><span class="tokenAttrValue">"bzip2"</span><span class="tokenElement">/&gt;</span><span class="tokenIndent">
+              </span><span class="tokenElement">&lt;xsd:enumeration</span><span class="tokenAttrName"> value=</span><span class="tokenAttrValue">"none"</span><span class="tokenElement">/&gt;</span><span class="tokenIndent">
+            </span><span class="tokenElement">&lt;/xsd:restriction&gt;</span><span class="tokenIndent">
+          </span><span class="tokenElement">&lt;/xsd:simpleType&gt;</span><span class="tokenIndent">
+        </span><span class="tokenElement">&lt;/xsd:attribute&gt;</span><span class="tokenIndent">
+        </span><span class="tokenElement">&lt;xsd:attribute</span><span class="tokenAttrName"> name=</span><span class="tokenAttrValue">"BigEndian"</span><span class="tokenAttrName"> use=</span><span class="tokenAttrValue">"required"</span><span class="tokenAttrName"> type=</span><span class="tokenAttrValue">"xsd:boolean"</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+          </span><span class="tokenElement">&lt;xsd:annotation</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+            </span><span class="tokenElement">&lt;xsd:documentation</span><span class="tokenElement">&gt;</span><span class="tokenText" style="white-space:normal">This is true if the binary data was written in BigEndian order. This is dependent on the system architecture of the machine that wrote the pixels. True for essentially all modern CPUs other than Intel and Alpha. All Binary data must be written in the same endian order.</span><span class="tokenElement">&lt;/xsd:documentation&gt;</span><span class="tokenIndent">
+          </span><span class="tokenElement">&lt;/xsd:annotation&gt;</span><span class="tokenIndent">
+        </span><span class="tokenElement">&lt;/xsd:attribute&gt;</span><span class="tokenIndent">
+        </span><span class="tokenElement">&lt;xsd:attribute</span><span class="tokenAttrName"> name=</span><span class="tokenAttrValue">"Length"</span><span class="tokenAttrName"> use=</span><span class="tokenAttrValue">"required"</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+          </span><span class="tokenElement">&lt;xsd:annotation</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+            </span><span class="tokenElement">&lt;xsd:documentation</span><span class="tokenElement">&gt;</span><span class="tokenText" style="white-space:normal">Character count attribute for the BinData field. This is the length of the base-64 encoded block. It allows easy skipping of the block when parsing the file.</span><span class="tokenElement">&lt;/xsd:documentation&gt;</span><span class="tokenIndent">
+          </span><span class="tokenElement">&lt;/xsd:annotation&gt;</span><span class="tokenIndent">
+          </span><span class="tokenElement">&lt;xsd:simpleType</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+            </span><span class="tokenElement">&lt;xsd:restriction</span><span class="tokenAttrName"> base=</span><span class="tokenAttrValue">"xsd:nonNegativeInteger"</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+            </span><span class="tokenElement">&lt;/xsd:restriction&gt;</span><span class="tokenIndent">
+          </span><span class="tokenElement">&lt;/xsd:simpleType&gt;</span><span class="tokenIndent">
+        </span><span class="tokenElement">&lt;/xsd:attribute&gt;</span><span class="tokenIndent">
+      </span><span class="tokenElement">&lt;/xsd:extension&gt;</span><span class="tokenIndent">
+    </span><span class="tokenElement">&lt;/xsd:simpleContent&gt;</span><span class="tokenIndent">
+  </span><span class="tokenElement">&lt;/xsd:complexType&gt;</span><span class="tokenIndent">
+</span><span class="tokenElement">&lt;/xsd:element&gt;</span></pre></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Schema location</b></td>
+                        <td>http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09/BinaryFile.xsd</td>
+                     </tr>
+                  </tbody>
+               </table>
+            </td>
+            <td class="rt_lineRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_cornerBottomLeft"></td>
+            <td class="rt_lineBottom"></td>
+            <td class="rt_cornerBottomRight"></td>
+         </tr>
+      </table><a id="id212"></a><div class="componentTitle">Simple Type <span class="qname">Bin:Hex40</span></div>
+      <table class="rt">
+         <tr>
+            <td class="rt_cornerTopLeft"></td>
+            <td class="rt_lineTop"></td>
+            <td class="rt_cornerTopRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_lineLeft"></td>
+            <td class="rt_content">
+               <table class="component">
+                  <tbody>
+                     <tr>
+                        <td class="firstColumn"><b>Namespace</b></td>
+                        <td>http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09</td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Diagram</b></div>
+                           <div class="floatRight"><input id="button_diagram_id212" type="image" src="images/button_minus.gif" value="-"
+                                     onclick="switchState('diagram_id212');"
+                                     class="control" /></div>
+                        </td>
+                        <td class="diagram">
+                           <div id="diagram_id212" style="display:block"><img alt="Diagram" border="0" src="images/ome.html135.png" /></div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Type</b></td>
+                        <td>restriction of <b>xsd:hexBinary</b></td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Facets</b></div>
+                           <div class="floatRight"><input id="button_facets_id212" type="image" src="images/button_minus.gif" value="-"
+                                     onclick="switchState('facets_id212');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="facets_id212" style="display:block">
+                              <table class="facetsTable">
+                                 <tr>
+                                    <td class="firstColumn">length</td>
+                                    <td width="30%"><b>20</b></td>
+                                    <td>
+                                       <div class="annotation"></div>
+                                    </td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Used by</b></div>
+                           <div class="floatRight"><input id="button_usedBy_id212" type="image" src="images/button_minus.gif" value="-"
+                                     onclick="switchState('usedBy_id212');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="usedBy_id212" style="display:block">
+                              <table class="usedByTable">
+                                 <tr>
+                                    <td class="firstColumn">Attribute </td>
+                                    <td><b><a href="ome8.html#id211" target="mainFrame" title="No namespace"
+                                             onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:External/@SHA1</a></b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Source</b></div>
+                           <div class="floatRight"><input id="button_source_id212" type="image" src="images/button_minus.gif" value="-"
+                                     onclick="switchState('source_id212');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="source_id212" style="display:block">
+                              <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                     class="preWrapContainer">
+                                 <tr>
+                                    <td width="100%"><pre><span class="tokenElement">&lt;xsd:simpleType</span><span class="tokenAttrName"> name=</span><span class="tokenAttrValue">"Hex40"</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+  </span><span class="tokenElement">&lt;xsd:restriction</span><span class="tokenAttrName"> base=</span><span class="tokenAttrValue">"xsd:hexBinary"</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+    </span><span class="tokenElement">&lt;xsd:length</span><span class="tokenAttrName"> value=</span><span class="tokenAttrValue">"20"</span><span class="tokenElement">/&gt;</span><span class="tokenIndent">
+  </span><span class="tokenElement">&lt;/xsd:restriction&gt;</span><span class="tokenIndent">
+</span><span class="tokenElement">&lt;/xsd:simpleType&gt;</span></pre></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Schema location</b></td>
+                        <td>http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09/BinaryFile.xsd</td>
+                     </tr>
+                  </tbody>
+               </table>
+            </td>
+            <td class="rt_lineRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_cornerBottomLeft"></td>
+            <td class="rt_lineBottom"></td>
+            <td class="rt_cornerBottomRight"></td>
+         </tr>
+      </table><a id="id210"></a><div class="componentTitle">Attribute <span class="qname"><b><a href="ome8.html#id209" target="mainFrame"
+                  title="http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09"
+                  onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:External</a></b> / @href</span></div>
+      <table class="rt">
+         <tr>
+            <td class="rt_cornerTopLeft"></td>
+            <td class="rt_lineTop"></td>
+            <td class="rt_cornerTopRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_lineLeft"></td>
+            <td class="rt_content">
+               <table class="component">
+                  <tbody>
+                     <tr>
+                        <td class="firstColumn"><b>Namespace</b></td>
+                        <td>No namespace</td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Annotations</b></div>
+                           <div class="floatRight"><input id="button_annotations_id210" type="image" src="images/button_minus.gif"
+                                     value="-"
+                                     onclick="switchState('annotations_id210');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="annotations_id210" style="display:block">
+                              <div class="annotation">
+                                 <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                        class="preWrapContainer">
+                                    <tr>
+                                       <td width="100%"><pre><span class="tokenText">file location</span></pre></td>
+                                    </tr>
+                                 </table>
+                              </div>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Type</b></td>
+                        <td><b>xsd:anyURI</b></td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Properties</b></div>
+                           <div class="floatRight"><input id="button_properties_id210" type="image" src="images/button_minus.gif"
+                                     value="-"
+                                     onclick="switchState('properties_id210');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="properties_id210" style="display:block">
+                              <table class="propertiesTable">
+                                 <tr>
+                                    <td class="firstColumn">use:
+                                       
+                                    </td>
+                                    <td><b>required</b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Used by</b></div>
+                           <div class="floatRight"><input id="button_usedBy_id210" type="image" src="images/button_minus.gif" value="-"
+                                     onclick="switchState('usedBy_id210');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="usedBy_id210" style="display:block">
+                              <table class="usedByTable">
+                                 <tr>
+                                    <td class="firstColumn">Element </td>
+                                    <td><b><a href="ome8.html#id209" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09"
+                                             onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:External</a></b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Source</b></div>
+                           <div class="floatRight"><input id="button_source_id210" type="image" src="images/button_minus.gif" value="-"
+                                     onclick="switchState('source_id210');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="source_id210" style="display:block">
+                              <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                     class="preWrapContainer">
+                                 <tr>
+                                    <td width="100%"><pre><span class="tokenElement">&lt;xsd:attribute</span><span class="tokenAttrName"> name=</span><span class="tokenAttrValue">"href"</span><span class="tokenAttrName"> use=</span><span class="tokenAttrValue">"required"</span><span class="tokenAttrName"> type=</span><span class="tokenAttrValue">"xsd:anyURI"</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+  </span><span class="tokenElement">&lt;xsd:annotation</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+    </span><span class="tokenElement">&lt;xsd:documentation</span><span class="tokenElement">&gt;</span><span class="tokenText" style="white-space:normal">file location</span><span class="tokenElement">&lt;/xsd:documentation&gt;</span><span class="tokenIndent">
+  </span><span class="tokenElement">&lt;/xsd:annotation&gt;</span><span class="tokenIndent">
+</span><span class="tokenElement">&lt;/xsd:attribute&gt;</span></pre></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Schema location</b></td>
+                        <td>http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09/BinaryFile.xsd</td>
+                     </tr>
+                  </tbody>
+               </table>
+            </td>
+            <td class="rt_lineRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_cornerBottomLeft"></td>
+            <td class="rt_lineBottom"></td>
+            <td class="rt_cornerBottomRight"></td>
+         </tr>
+      </table><a id="id211"></a><div class="componentTitle">Attribute <span class="qname"><b><a href="ome8.html#id209" target="mainFrame"
+                  title="http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09"
+                  onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:External</a></b> / @SHA1</span></div>
+      <table class="rt">
+         <tr>
+            <td class="rt_cornerTopLeft"></td>
+            <td class="rt_lineTop"></td>
+            <td class="rt_cornerTopRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_lineLeft"></td>
+            <td class="rt_content">
+               <table class="component">
+                  <tbody>
+                     <tr>
+                        <td class="firstColumn"><b>Namespace</b></td>
+                        <td>No namespace</td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Annotations</b></div>
+                           <div class="floatRight"><input id="button_annotations_id211" type="image" src="images/button_minus.gif"
+                                     value="-"
+                                     onclick="switchState('annotations_id211');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="annotations_id211" style="display:block">
+                              <div class="annotation">
+                                 <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                        class="preWrapContainer">
+                                    <tr>
+                                       <td width="100%"><pre><span class="tokenText">The digest of the file specified in href.</span></pre></td>
+                                    </tr>
+                                 </table>
+                              </div>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Type</b></td>
+                        <td><b><a href="ome8.html#id212" target="mainFrame"
+                                 title="http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09"
+                                 onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:Hex40</a></b></td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Properties</b></div>
+                           <div class="floatRight"><input id="button_properties_id211" type="image" src="images/button_minus.gif"
+                                     value="-"
+                                     onclick="switchState('properties_id211');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="properties_id211" style="display:block">
+                              <table class="propertiesTable">
+                                 <tr>
+                                    <td class="firstColumn">use:
+                                       
+                                    </td>
+                                    <td><b>required</b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Facets</b></div>
+                           <div class="floatRight"><input id="button_facets_id211" type="image" src="images/button_minus.gif" value="-"
+                                     onclick="switchState('facets_id211');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="facets_id211" style="display:block">
+                              <table class="facetsTable">
+                                 <tr>
+                                    <td class="firstColumn">length</td>
+                                    <td width="30%"><b>20</b></td>
+                                    <td>
+                                       <div class="annotation"></div>
+                                    </td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Used by</b></div>
+                           <div class="floatRight"><input id="button_usedBy_id211" type="image" src="images/button_minus.gif" value="-"
+                                     onclick="switchState('usedBy_id211');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="usedBy_id211" style="display:block">
+                              <table class="usedByTable">
+                                 <tr>
+                                    <td class="firstColumn">Element </td>
+                                    <td><b><a href="ome8.html#id209" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09"
+                                             onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:External</a></b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Source</b></div>
+                           <div class="floatRight"><input id="button_source_id211" type="image" src="images/button_minus.gif" value="-"
+                                     onclick="switchState('source_id211');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="source_id211" style="display:block">
+                              <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                     class="preWrapContainer">
+                                 <tr>
+                                    <td width="100%"><pre><span class="tokenElement">&lt;xsd:attribute</span><span class="tokenAttrName"> name=</span><span class="tokenAttrValue">"SHA1"</span><span class="tokenAttrName"> use=</span><span class="tokenAttrValue">"required"</span><span class="tokenAttrName"> type=</span><span class="tokenAttrValue">"Bin:Hex40"</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+  </span><span class="tokenElement">&lt;xsd:annotation</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+    </span><span class="tokenElement">&lt;xsd:documentation</span><span class="tokenElement">&gt;</span><span class="tokenText" style="white-space:normal">The digest of the file specified in href.</span><span class="tokenElement">&lt;/xsd:documentation&gt;</span><span class="tokenIndent">
+  </span><span class="tokenElement">&lt;/xsd:annotation&gt;</span><span class="tokenIndent">
+</span><span class="tokenElement">&lt;/xsd:attribute&gt;</span></pre></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Schema location</b></td>
+                        <td>http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09/BinaryFile.xsd</td>
+                     </tr>
+                  </tbody>
+               </table>
+            </td>
+            <td class="rt_lineRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_cornerBottomLeft"></td>
+            <td class="rt_lineBottom"></td>
+            <td class="rt_cornerBottomRight"></td>
+         </tr>
+      </table><a id="id213"></a><div class="componentTitle">Attribute <span class="qname"><b><a href="ome8.html#id209" target="mainFrame"
+                  title="http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09"
+                  onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:External</a></b> / @Compression</span></div>
+      <table class="rt">
+         <tr>
+            <td class="rt_cornerTopLeft"></td>
+            <td class="rt_lineTop"></td>
+            <td class="rt_cornerTopRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_lineLeft"></td>
+            <td class="rt_content">
+               <table class="component">
+                  <tbody>
+                     <tr>
+                        <td class="firstColumn"><b>Namespace</b></td>
+                        <td>No namespace</td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Annotations</b></div>
+                           <div class="floatRight"><input id="button_annotations_id213" type="image" src="images/button_minus.gif"
+                                     value="-"
+                                     onclick="switchState('annotations_id213');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="annotations_id213" style="display:block">
+                              <div class="annotation">
+                                 <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                        class="preWrapContainer">
+                                    <tr>
+                                       <td width="100%"><pre><span class="tokenText">Specifies the compression scheme used to encode the data.</span></pre></td>
+                                    </tr>
+                                 </table>
+                              </div>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Type</b></td>
+                        <td>restriction of <b>xsd:string</b></td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Properties</b></div>
+                           <div class="floatRight"><input id="button_properties_id213" type="image" src="images/button_minus.gif"
+                                     value="-"
+                                     onclick="switchState('properties_id213');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="properties_id213" style="display:block">
+                              <table class="propertiesTable">
+                                 <tr>
+                                    <td class="firstColumn">use:
+                                       
+                                    </td>
+                                    <td><b>optional</b></td>
+                                 </tr>
+                                 <tr>
+                                    <td class="firstColumn">default:
+                                       
+                                    </td>
+                                    <td><b>none</b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Facets</b></div>
+                           <div class="floatRight"><input id="button_facets_id213" type="image" src="images/button_minus.gif" value="-"
+                                     onclick="switchState('facets_id213');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="facets_id213" style="display:block">
+                              <table class="facetsTable">
+                                 <tr>
+                                    <td class="firstColumn">enumeration</td>
+                                    <td width="30%"><b>zlib</b></td>
+                                    <td>
+                                       <div class="annotation"></div>
+                                    </td>
+                                 </tr>
+                                 <tr>
+                                    <td class="firstColumn">enumeration</td>
+                                    <td width="30%"><b>bzip2</b></td>
+                                    <td>
+                                       <div class="annotation"></div>
+                                    </td>
+                                 </tr>
+                                 <tr>
+                                    <td class="firstColumn">enumeration</td>
+                                    <td width="30%"><b>none</b></td>
+                                    <td>
+                                       <div class="annotation"></div>
+                                    </td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Used by</b></div>
+                           <div class="floatRight"><input id="button_usedBy_id213" type="image" src="images/button_minus.gif" value="-"
+                                     onclick="switchState('usedBy_id213');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="usedBy_id213" style="display:block">
+                              <table class="usedByTable">
+                                 <tr>
+                                    <td class="firstColumn">Element </td>
+                                    <td><b><a href="ome8.html#id209" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09"
+                                             onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:External</a></b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Source</b></div>
+                           <div class="floatRight"><input id="button_source_id213" type="image" src="images/button_minus.gif" value="-"
+                                     onclick="switchState('source_id213');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="source_id213" style="display:block">
+                              <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                     class="preWrapContainer">
+                                 <tr>
+                                    <td width="100%"><pre><span class="tokenElement">&lt;xsd:attribute</span><span class="tokenAttrName"> name=</span><span class="tokenAttrValue">"Compression"</span><span class="tokenAttrName"> default=</span><span class="tokenAttrValue">"none"</span><span class="tokenAttrName"> use=</span><span class="tokenAttrValue">"optional"</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+  </span><span class="tokenElement">&lt;xsd:annotation</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+    </span><span class="tokenElement">&lt;xsd:documentation</span><span class="tokenElement">&gt;</span><span class="tokenText" style="white-space:normal">Specifies the compression scheme used to encode the data.</span><span class="tokenElement">&lt;/xsd:documentation&gt;</span><span class="tokenIndent">
+  </span><span class="tokenElement">&lt;/xsd:annotation&gt;</span><span class="tokenIndent">
+  </span><span class="tokenElement">&lt;xsd:simpleType</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+    </span><span class="tokenElement">&lt;xsd:restriction</span><span class="tokenAttrName"> base=</span><span class="tokenAttrValue">"xsd:string"</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+      </span><span class="tokenElement">&lt;xsd:enumeration</span><span class="tokenAttrName"> value=</span><span class="tokenAttrValue">"zlib"</span><span class="tokenElement">/&gt;</span><span class="tokenIndent">
+      </span><span class="tokenElement">&lt;xsd:enumeration</span><span class="tokenAttrName"> value=</span><span class="tokenAttrValue">"bzip2"</span><span class="tokenElement">/&gt;</span><span class="tokenIndent">
+      </span><span class="tokenElement">&lt;xsd:enumeration</span><span class="tokenAttrName"> value=</span><span class="tokenAttrValue">"none"</span><span class="tokenElement">/&gt;</span><span class="tokenIndent">
+    </span><span class="tokenElement">&lt;/xsd:restriction&gt;</span><span class="tokenIndent">
+  </span><span class="tokenElement">&lt;/xsd:simpleType&gt;</span><span class="tokenIndent">
+</span><span class="tokenElement">&lt;/xsd:attribute&gt;</span></pre></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Schema location</b></td>
+                        <td>http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09/BinaryFile.xsd</td>
+                     </tr>
+                  </tbody>
+               </table>
+            </td>
+            <td class="rt_lineRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_cornerBottomLeft"></td>
+            <td class="rt_lineBottom"></td>
+            <td class="rt_cornerBottomRight"></td>
+         </tr>
+      </table><a id="id215"></a><div class="componentTitle">Attribute <span class="qname"><b><a href="ome8.html#id214" target="mainFrame"
+                  title="http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09"
+                  onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:BinData</a></b> / @Compression</span></div>
+      <table class="rt">
+         <tr>
+            <td class="rt_cornerTopLeft"></td>
+            <td class="rt_lineTop"></td>
+            <td class="rt_cornerTopRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_lineLeft"></td>
+            <td class="rt_content">
+               <table class="component">
+                  <tbody>
+                     <tr>
+                        <td class="firstColumn"><b>Namespace</b></td>
+                        <td>No namespace</td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Annotations</b></div>
+                           <div class="floatRight"><input id="button_annotations_id215" type="image" src="images/button_minus.gif"
+                                     value="-"
+                                     onclick="switchState('annotations_id215');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="annotations_id215" style="display:block">
+                              <div class="annotation">
+                                 <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                        class="preWrapContainer">
+                                    <tr>
+                                       <td width="100%"><pre><span class="tokenText">Specifies the compression scheme used to encode the data.</span></pre></td>
+                                    </tr>
+                                 </table>
+                              </div>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Type</b></td>
+                        <td>restriction of <b>xsd:string</b></td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Properties</b></div>
+                           <div class="floatRight"><input id="button_properties_id215" type="image" src="images/button_minus.gif"
+                                     value="-"
+                                     onclick="switchState('properties_id215');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="properties_id215" style="display:block">
+                              <table class="propertiesTable">
+                                 <tr>
+                                    <td class="firstColumn">use:
+                                       
+                                    </td>
+                                    <td><b>optional</b></td>
+                                 </tr>
+                                 <tr>
+                                    <td class="firstColumn">default:
+                                       
+                                    </td>
+                                    <td><b>none</b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Facets</b></div>
+                           <div class="floatRight"><input id="button_facets_id215" type="image" src="images/button_minus.gif" value="-"
+                                     onclick="switchState('facets_id215');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="facets_id215" style="display:block">
+                              <table class="facetsTable">
+                                 <tr>
+                                    <td class="firstColumn">enumeration</td>
+                                    <td width="30%"><b>zlib</b></td>
+                                    <td>
+                                       <div class="annotation"></div>
+                                    </td>
+                                 </tr>
+                                 <tr>
+                                    <td class="firstColumn">enumeration</td>
+                                    <td width="30%"><b>bzip2</b></td>
+                                    <td>
+                                       <div class="annotation"></div>
+                                    </td>
+                                 </tr>
+                                 <tr>
+                                    <td class="firstColumn">enumeration</td>
+                                    <td width="30%"><b>none</b></td>
+                                    <td>
+                                       <div class="annotation"></div>
+                                    </td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Used by</b></div>
+                           <div class="floatRight"><input id="button_usedBy_id215" type="image" src="images/button_minus.gif" value="-"
+                                     onclick="switchState('usedBy_id215');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="usedBy_id215" style="display:block">
+                              <table class="usedByTable">
+                                 <tr>
+                                    <td class="firstColumn">Element </td>
+                                    <td><b><a href="ome8.html#id214" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09"
+                                             onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:BinData</a></b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Source</b></div>
+                           <div class="floatRight"><input id="button_source_id215" type="image" src="images/button_minus.gif" value="-"
+                                     onclick="switchState('source_id215');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="source_id215" style="display:block">
+                              <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                     class="preWrapContainer">
+                                 <tr>
+                                    <td width="100%"><pre><span class="tokenElement">&lt;xsd:attribute</span><span class="tokenAttrName"> name=</span><span class="tokenAttrValue">"Compression"</span><span class="tokenAttrName"> default=</span><span class="tokenAttrValue">"none"</span><span class="tokenAttrName"> use=</span><span class="tokenAttrValue">"optional"</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+  </span><span class="tokenElement">&lt;xsd:annotation</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+    </span><span class="tokenElement">&lt;xsd:documentation</span><span class="tokenElement">&gt;</span><span class="tokenText" style="white-space:normal">Specifies the compression scheme used to encode the data.</span><span class="tokenElement">&lt;/xsd:documentation&gt;</span><span class="tokenIndent">
+  </span><span class="tokenElement">&lt;/xsd:annotation&gt;</span><span class="tokenIndent">
+  </span><span class="tokenElement">&lt;xsd:simpleType</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+    </span><span class="tokenElement">&lt;xsd:restriction</span><span class="tokenAttrName"> base=</span><span class="tokenAttrValue">"xsd:string"</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+      </span><span class="tokenElement">&lt;xsd:enumeration</span><span class="tokenAttrName"> value=</span><span class="tokenAttrValue">"zlib"</span><span class="tokenElement">/&gt;</span><span class="tokenIndent">
+      </span><span class="tokenElement">&lt;xsd:enumeration</span><span class="tokenAttrName"> value=</span><span class="tokenAttrValue">"bzip2"</span><span class="tokenElement">/&gt;</span><span class="tokenIndent">
+      </span><span class="tokenElement">&lt;xsd:enumeration</span><span class="tokenAttrName"> value=</span><span class="tokenAttrValue">"none"</span><span class="tokenElement">/&gt;</span><span class="tokenIndent">
+    </span><span class="tokenElement">&lt;/xsd:restriction&gt;</span><span class="tokenIndent">
+  </span><span class="tokenElement">&lt;/xsd:simpleType&gt;</span><span class="tokenIndent">
+</span><span class="tokenElement">&lt;/xsd:attribute&gt;</span></pre></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Schema location</b></td>
+                        <td>http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09/BinaryFile.xsd</td>
+                     </tr>
+                  </tbody>
+               </table>
+            </td>
+            <td class="rt_lineRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_cornerBottomLeft"></td>
+            <td class="rt_lineBottom"></td>
+            <td class="rt_cornerBottomRight"></td>
+         </tr>
+      </table><a id="id216"></a><div class="componentTitle">Attribute <span class="qname"><b><a href="ome8.html#id214" target="mainFrame"
+                  title="http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09"
+                  onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:BinData</a></b> / @BigEndian</span></div>
+      <table class="rt">
+         <tr>
+            <td class="rt_cornerTopLeft"></td>
+            <td class="rt_lineTop"></td>
+            <td class="rt_cornerTopRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_lineLeft"></td>
+            <td class="rt_content">
+               <table class="component">
+                  <tbody>
+                     <tr>
+                        <td class="firstColumn"><b>Namespace</b></td>
+                        <td>No namespace</td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Annotations</b></div>
+                           <div class="floatRight"><input id="button_annotations_id216" type="image" src="images/button_minus.gif"
+                                     value="-"
+                                     onclick="switchState('annotations_id216');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="annotations_id216" style="display:block">
+                              <div class="annotation">
+                                 <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                        class="preWrapContainer">
+                                    <tr>
+                                       <td width="100%"><pre><span class="tokenText">This is true if the binary data was written in BigEndian order. This is dependent on the system architecture of the machine that wrote the pixels. True for essentially all modern CPUs other than Intel and Alpha. All Binary data must be written in the same endian order.</span></pre></td>
+                                    </tr>
+                                 </table>
+                              </div>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Type</b></td>
+                        <td><b>xsd:boolean</b></td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Properties</b></div>
+                           <div class="floatRight"><input id="button_properties_id216" type="image" src="images/button_minus.gif"
+                                     value="-"
+                                     onclick="switchState('properties_id216');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="properties_id216" style="display:block">
+                              <table class="propertiesTable">
+                                 <tr>
+                                    <td class="firstColumn">use:
+                                       
+                                    </td>
+                                    <td><b>required</b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Used by</b></div>
+                           <div class="floatRight"><input id="button_usedBy_id216" type="image" src="images/button_minus.gif" value="-"
+                                     onclick="switchState('usedBy_id216');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="usedBy_id216" style="display:block">
+                              <table class="usedByTable">
+                                 <tr>
+                                    <td class="firstColumn">Element </td>
+                                    <td><b><a href="ome8.html#id214" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09"
+                                             onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:BinData</a></b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Source</b></div>
+                           <div class="floatRight"><input id="button_source_id216" type="image" src="images/button_minus.gif" value="-"
+                                     onclick="switchState('source_id216');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="source_id216" style="display:block">
+                              <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                     class="preWrapContainer">
+                                 <tr>
+                                    <td width="100%"><pre><span class="tokenElement">&lt;xsd:attribute</span><span class="tokenAttrName"> name=</span><span class="tokenAttrValue">"BigEndian"</span><span class="tokenAttrName"> use=</span><span class="tokenAttrValue">"required"</span><span class="tokenAttrName"> type=</span><span class="tokenAttrValue">"xsd:boolean"</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+  </span><span class="tokenElement">&lt;xsd:annotation</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+    </span><span class="tokenElement">&lt;xsd:documentation</span><span class="tokenElement">&gt;</span><span class="tokenText" style="white-space:normal">This is true if the binary data was written in BigEndian order. This is dependent on the system architecture of the machine that wrote the pixels. True for essentially all modern CPUs other than Intel and Alpha. All Binary data must be written in the same endian order.</span><span class="tokenElement">&lt;/xsd:documentation&gt;</span><span class="tokenIndent">
+  </span><span class="tokenElement">&lt;/xsd:annotation&gt;</span><span class="tokenIndent">
+</span><span class="tokenElement">&lt;/xsd:attribute&gt;</span></pre></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Schema location</b></td>
+                        <td>http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09/BinaryFile.xsd</td>
+                     </tr>
+                  </tbody>
+               </table>
+            </td>
+            <td class="rt_lineRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_cornerBottomLeft"></td>
+            <td class="rt_lineBottom"></td>
+            <td class="rt_cornerBottomRight"></td>
+         </tr>
+      </table><a id="id217"></a><div class="componentTitle">Attribute <span class="qname"><b><a href="ome8.html#id214" target="mainFrame"
+                  title="http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09"
+                  onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:BinData</a></b> / @Length</span></div>
+      <table class="rt">
+         <tr>
+            <td class="rt_cornerTopLeft"></td>
+            <td class="rt_lineTop"></td>
+            <td class="rt_cornerTopRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_lineLeft"></td>
+            <td class="rt_content">
+               <table class="component">
+                  <tbody>
+                     <tr>
+                        <td class="firstColumn"><b>Namespace</b></td>
+                        <td>No namespace</td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Annotations</b></div>
+                           <div class="floatRight"><input id="button_annotations_id217" type="image" src="images/button_minus.gif"
+                                     value="-"
+                                     onclick="switchState('annotations_id217');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="annotations_id217" style="display:block">
+                              <div class="annotation">
+                                 <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                        class="preWrapContainer">
+                                    <tr>
+                                       <td width="100%"><pre><span class="tokenText">Character count attribute for the BinData field. This is the length of the base-64 encoded block. It allows easy skipping of the block when parsing the file.</span></pre></td>
+                                    </tr>
+                                 </table>
+                              </div>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Type</b></td>
+                        <td><b>xsd:nonNegativeInteger</b></td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Properties</b></div>
+                           <div class="floatRight"><input id="button_properties_id217" type="image" src="images/button_minus.gif"
+                                     value="-"
+                                     onclick="switchState('properties_id217');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="properties_id217" style="display:block">
+                              <table class="propertiesTable">
+                                 <tr>
+                                    <td class="firstColumn">use:
+                                       
+                                    </td>
+                                    <td><b>required</b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Used by</b></div>
+                           <div class="floatRight"><input id="button_usedBy_id217" type="image" src="images/button_minus.gif" value="-"
+                                     onclick="switchState('usedBy_id217');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="usedBy_id217" style="display:block">
+                              <table class="usedByTable">
+                                 <tr>
+                                    <td class="firstColumn">Element </td>
+                                    <td><b><a href="ome8.html#id214" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09"
+                                             onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:BinData</a></b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Source</b></div>
+                           <div class="floatRight"><input id="button_source_id217" type="image" src="images/button_minus.gif" value="-"
+                                     onclick="switchState('source_id217');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="source_id217" style="display:block">
+                              <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                     class="preWrapContainer">
+                                 <tr>
+                                    <td width="100%"><pre><span class="tokenElement">&lt;xsd:attribute</span><span class="tokenAttrName"> name=</span><span class="tokenAttrValue">"Length"</span><span class="tokenAttrName"> use=</span><span class="tokenAttrValue">"required"</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+  </span><span class="tokenElement">&lt;xsd:annotation</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+    </span><span class="tokenElement">&lt;xsd:documentation</span><span class="tokenElement">&gt;</span><span class="tokenText" style="white-space:normal">Character count attribute for the BinData field. This is the length of the base-64 encoded block. It allows easy skipping of the block when parsing the file.</span><span class="tokenElement">&lt;/xsd:documentation&gt;</span><span class="tokenIndent">
+  </span><span class="tokenElement">&lt;/xsd:annotation&gt;</span><span class="tokenIndent">
+  </span><span class="tokenElement">&lt;xsd:simpleType</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+    </span><span class="tokenElement">&lt;xsd:restriction</span><span class="tokenAttrName"> base=</span><span class="tokenAttrValue">"xsd:nonNegativeInteger"</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+    </span><span class="tokenElement">&lt;/xsd:restriction&gt;</span><span class="tokenIndent">
+  </span><span class="tokenElement">&lt;/xsd:simpleType&gt;</span><span class="tokenIndent">
+</span><span class="tokenElement">&lt;/xsd:attribute&gt;</span></pre></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Schema location</b></td>
+                        <td>http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09/BinaryFile.xsd</td>
+                     </tr>
+                  </tbody>
+               </table>
+            </td>
+            <td class="rt_lineRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_cornerBottomLeft"></td>
+            <td class="rt_lineBottom"></td>
+            <td class="rt_cornerBottomRight"></td>
+         </tr>
+      </table><a id="id218"></a><div class="componentTitle">Attribute <span class="qname"><b><a href="ome8.html#id208" target="mainFrame"
+                  title="http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09"
+                  onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:BinaryFile</a></b> / @FileName</span></div>
+      <table class="rt">
+         <tr>
+            <td class="rt_cornerTopLeft"></td>
+            <td class="rt_lineTop"></td>
+            <td class="rt_cornerTopRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_lineLeft"></td>
+            <td class="rt_content">
+               <table class="component">
+                  <tbody>
+                     <tr>
+                        <td class="firstColumn"><b>Namespace</b></td>
+                        <td>No namespace</td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Type</b></td>
+                        <td><b>xsd:string</b></td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Properties</b></div>
+                           <div class="floatRight"><input id="button_properties_id218" type="image" src="images/button_minus.gif"
+                                     value="-"
+                                     onclick="switchState('properties_id218');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="properties_id218" style="display:block">
+                              <table class="propertiesTable">
+                                 <tr>
+                                    <td class="firstColumn">use:
+                                       
+                                    </td>
+                                    <td><b>required</b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Used by</b></div>
+                           <div class="floatRight"><input id="button_usedBy_id218" type="image" src="images/button_minus.gif" value="-"
+                                     onclick="switchState('usedBy_id218');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="usedBy_id218" style="display:block">
+                              <table class="usedByTable">
+                                 <tr>
+                                    <td class="firstColumn">Element </td>
+                                    <td><b><a href="ome8.html#id208" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09"
+                                             onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:BinaryFile</a></b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Source</b></div>
+                           <div class="floatRight"><input id="button_source_id218" type="image" src="images/button_minus.gif" value="-"
+                                     onclick="switchState('source_id218');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="source_id218" style="display:block">
+                              <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                     class="preWrapContainer">
+                                 <tr>
+                                    <td width="100%"><pre><span class="tokenElement">&lt;xsd:attribute</span><span class="tokenAttrName"> name=</span><span class="tokenAttrValue">"FileName"</span><span class="tokenAttrName"> use=</span><span class="tokenAttrValue">"required"</span><span class="tokenAttrName"> type=</span><span class="tokenAttrValue">"xsd:string"</span><span class="tokenElement">/&gt;</span></pre></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Schema location</b></td>
+                        <td>http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09/BinaryFile.xsd</td>
+                     </tr>
+                  </tbody>
+               </table>
+            </td>
+            <td class="rt_lineRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_cornerBottomLeft"></td>
+            <td class="rt_lineBottom"></td>
+            <td class="rt_cornerBottomRight"></td>
+         </tr>
+      </table><a id="id219"></a><div class="componentTitle">Attribute <span class="qname"><b><a href="ome8.html#id208" target="mainFrame"
+                  title="http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09"
+                  onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:BinaryFile</a></b> / @Size</span></div>
+      <table class="rt">
+         <tr>
+            <td class="rt_cornerTopLeft"></td>
+            <td class="rt_lineTop"></td>
+            <td class="rt_cornerTopRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_lineLeft"></td>
+            <td class="rt_content">
+               <table class="component">
+                  <tbody>
+                     <tr>
+                        <td class="firstColumn"><b>Namespace</b></td>
+                        <td>No namespace</td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Annotations</b></div>
+                           <div class="floatRight"><input id="button_annotations_id219" type="image" src="images/button_minus.gif"
+                                     value="-"
+                                     onclick="switchState('annotations_id219');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="annotations_id219" style="display:block">
+                              <div class="annotation">
+                                 <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                        class="preWrapContainer">
+                                    <tr>
+                                       <td width="100%"><pre><span class="tokenText">Size (in bytes) of the uncompressed file.</span></pre></td>
+                                    </tr>
+                                 </table>
+                              </div>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Type</b></td>
+                        <td><b>xsd:integer</b></td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Properties</b></div>
+                           <div class="floatRight"><input id="button_properties_id219" type="image" src="images/button_minus.gif"
+                                     value="-"
+                                     onclick="switchState('properties_id219');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="properties_id219" style="display:block">
+                              <table class="propertiesTable">
+                                 <tr>
+                                    <td class="firstColumn">use:
+                                       
+                                    </td>
+                                    <td><b>required</b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Used by</b></div>
+                           <div class="floatRight"><input id="button_usedBy_id219" type="image" src="images/button_minus.gif" value="-"
+                                     onclick="switchState('usedBy_id219');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="usedBy_id219" style="display:block">
+                              <table class="usedByTable">
+                                 <tr>
+                                    <td class="firstColumn">Element </td>
+                                    <td><b><a href="ome8.html#id208" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09"
+                                             onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:BinaryFile</a></b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Source</b></div>
+                           <div class="floatRight"><input id="button_source_id219" type="image" src="images/button_minus.gif" value="-"
+                                     onclick="switchState('source_id219');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="source_id219" style="display:block">
+                              <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                     class="preWrapContainer">
+                                 <tr>
+                                    <td width="100%"><pre><span class="tokenElement">&lt;xsd:attribute</span><span class="tokenAttrName"> name=</span><span class="tokenAttrValue">"Size"</span><span class="tokenAttrName"> use=</span><span class="tokenAttrValue">"required"</span><span class="tokenAttrName"> type=</span><span class="tokenAttrValue">"xsd:integer"</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+  </span><span class="tokenElement">&lt;xsd:annotation</span><span class="tokenElement">&gt;</span><span class="tokenIndent">
+    </span><span class="tokenElement">&lt;xsd:documentation</span><span class="tokenElement">&gt;</span><span class="tokenText" style="white-space:normal">Size (in bytes) of the uncompressed file.</span><span class="tokenElement">&lt;/xsd:documentation&gt;</span><span class="tokenIndent">
+  </span><span class="tokenElement">&lt;/xsd:annotation&gt;</span><span class="tokenIndent">
+</span><span class="tokenElement">&lt;/xsd:attribute&gt;</span></pre></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Schema location</b></td>
+                        <td>http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09/BinaryFile.xsd</td>
+                     </tr>
+                  </tbody>
+               </table>
+            </td>
+            <td class="rt_lineRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_cornerBottomLeft"></td>
+            <td class="rt_lineBottom"></td>
+            <td class="rt_cornerBottomRight"></td>
+         </tr>
+      </table><a id="id220"></a><div class="componentTitle">Attribute <span class="qname"><b><a href="ome8.html#id208" target="mainFrame"
+                  title="http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09"
+                  onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:BinaryFile</a></b> / @MIMEType</span></div>
+      <table class="rt">
+         <tr>
+            <td class="rt_cornerTopLeft"></td>
+            <td class="rt_lineTop"></td>
+            <td class="rt_cornerTopRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_lineLeft"></td>
+            <td class="rt_content">
+               <table class="component">
+                  <tbody>
+                     <tr>
+                        <td class="firstColumn"><b>Namespace</b></td>
+                        <td>No namespace</td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Type</b></td>
+                        <td><b>xsd:string</b></td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Properties</b></div>
+                           <div class="floatRight"><input id="button_properties_id220" type="image" src="images/button_minus.gif"
+                                     value="-"
+                                     onclick="switchState('properties_id220');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="properties_id220" style="display:block">
+                              <table class="propertiesTable">
+                                 <tr>
+                                    <td class="firstColumn">use:
+                                       
+                                    </td>
+                                    <td><b>optional</b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Used by</b></div>
+                           <div class="floatRight"><input id="button_usedBy_id220" type="image" src="images/button_minus.gif" value="-"
+                                     onclick="switchState('usedBy_id220');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="usedBy_id220" style="display:block">
+                              <table class="usedByTable">
+                                 <tr>
+                                    <td class="firstColumn">Element </td>
+                                    <td><b><a href="ome8.html#id208" target="mainFrame"
+                                             title="http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09"
+                                             onclick="updatePageTitle('Schema documentation for BinaryFile.xsd')">Bin:BinaryFile</a></b></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn">
+                           <div class="floatLeft"><b>Source</b></div>
+                           <div class="floatRight"><input id="button_source_id220" type="image" src="images/button_minus.gif" value="-"
+                                     onclick="switchState('source_id220');"
+                                     class="control" /></div>
+                        </td>
+                        <td>
+                           <div id="source_id220" style="display:block">
+                              <table style="table-layout:fixed;white-space:pre-wrap;white-space:-moz-pre-wrap;white-space:-pre-wrap;white-space: -o-pre-wrap;word-wrap: break-word;_white-space:pre;"
+                                     class="preWrapContainer">
+                                 <tr>
+                                    <td width="100%"><pre><span class="tokenElement">&lt;xsd:attribute</span><span class="tokenAttrName"> name=</span><span class="tokenAttrValue">"MIMEType"</span><span class="tokenAttrName"> use=</span><span class="tokenAttrValue">"optional"</span><span class="tokenAttrName"> type=</span><span class="tokenAttrValue">"xsd:string"</span><span class="tokenElement">/&gt;</span></pre></td>
+                                 </tr>
+                              </table>
+                           </div>
+                        </td>
+                     </tr>
+                     <tr>
+                        <td class="firstColumn"><b>Schema location</b></td>
+                        <td>http://www.openmicroscopy.org/Schemas/BinaryFile/2009-09/BinaryFile.xsd</td>
+                     </tr>
+                  </tbody>
+               </table>
+            </td>
+            <td class="rt_lineRight"></td>
+         </tr>
+         <tr>
+            <td class="rt_cornerBottomLeft"></td>
+            <td class="rt_lineBottom"></td>
+            <td class="rt_cornerBottomRight"></td>
+         </tr>
+      </table>
+      <div class="footer">
+         <hr />
+         <div align="center">XML Schema documentation generated by <a href="http://www.oxygenxml.com" target="_parent"><span class="oXygenLogo"><span class="redX">&lt;</span>o<span class="redX">X</span>ygen<span class="redX">/&gt;</span></span></a><sup>®</sup> XML Editor.
+         </div>
+      </div><script type="text/javascript">
+         <!--                     
+                     // The namespace is the selected option in the TOC combo.
+                     
+                     // The corresponding div is already visible conf. to its style attr.                     
+                    
+                        	var selectToc = getElementObject('selectTOC');
+                        	if(selectToc != null){
+                        	    // It can be null when having chunking, the combo of the TOC is in another frame.
+                            	    selectToc.selectedIndex = 1;
+                                    }
+                        
+                    
+                     // Floats the toolbar.
+                     var globalControls = getElementObject("global_controls"); 
+                     
+                     if(globalControls != null){
+	                     var browser=navigator.appName;
+						 var version = parseFloat(navigator.appVersion.split('MSIE')[1]);
+						 
+						 var IE6 = false;
+						 if ((browser=="Microsoft Internet Explorer") && (version < 7)){
+						 	IE6 = true;
+						 }
+	
+	                     //alert (IE6 + " |V| " + version);
+	                     
+	                     if(IE6){
+	                     	// On IE 6 the 'fixed' property is not supported. We must use javascript. 
+	                         globalControls.style.position='absolute';                         
+	                         // The global controls will do not exist in the TOC frame, when chunking.
+	                         findAndFloat("global_controls", 225, 30);    
+	                     } else {
+	                      	  globalControls.style.position='fixed';                     	
+	                     }
+	                     
+	                     globalControls.style.right='0';                       
+                     }
+                --></script></body>
+</html>
