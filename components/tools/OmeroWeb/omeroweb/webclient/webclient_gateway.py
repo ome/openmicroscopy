@@ -414,8 +414,9 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             return WellWrapper(self, well, None)
     
     
-    ##############################################
-    ##   DATA RETRIVAL                          ##
+    ####################################################################################
+    ##   Container Queries                                                           ###
+    ####################################################################################
 
     def listProjects (self, eid=None, page=None):
         """
