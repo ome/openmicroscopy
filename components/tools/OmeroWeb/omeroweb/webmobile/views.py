@@ -187,8 +187,8 @@ def projects (request, eid=None, **kwargs):
     ods = conn.listOrphans("Dataset", eid=eid)
     orphanedDatasets = list(ods)
     
-    return render_to_response('webmobile/browse/projects.html', 
-        {'client':conn, 'projects':projs, 'datasets':orphanedDatasets, 'experimenter':experimenter })
+    return render_to_response('webmobile/browse/projects.html',
+        { 'client':conn, 'projects':projs, 'datasets':orphanedDatasets, 'experimenter':experimenter })
 
 
 @isUserConnected
@@ -277,6 +277,68 @@ def orphaned_images(request, eid, **kwargs):
     
     orphans = conn.listOrphans("Image", eid=eid)
     return render_to_response('webmobile/browse/orphaned_images.html', {'client': conn, 'orphans':orphans})
+
+
+@isUserConnected
+def screens(request, eid=None, **kwargs):
+    """  """
+    
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return HttpResponse(traceback.format_exc())
+
+    experimenter = None
+    if eid is not None:
+        experimenter = conn.getExperimenter(eid)
+    else:
+        # show current user's screens by default
+        eid = conn.getEventContext().userId
+        
+    scrs = conn.listScreens(eid=eid)
+    
+    if request.REQUEST.get('sort', None) == 'recent':
+        scrs = list(scrs)
+        scrs.sort(key=lambda x: x.creationEventDate())
+        scrs.reverse()
+        
+    ops = conn.listOrphans("Plate", eid=eid)
+    orphanedPlates = list(ops)
+    
+    return render_to_response('webmobile/browse/screens.html', 
+        {'client':conn, 'screens':scrs, 'orphans':orphanedPlates, 'experimenter':experimenter })
+ 
+
+@isUserConnected
+def screen(request, id, **kwargs):
+    """ Show plates in the specified scren """
+    
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return HttpResponse(traceback.format_exc())
+        
+    scrn = conn.getScreen(id)
+    return render_to_response('webmobile/browse/screen.html', {'client': conn, 'screen': scrn})   
+
+
+@isUserConnected
+def plate(request, id, **kwargs):
+    """ Show plate - grid of thumbs? """
+    
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return HttpResponse(traceback.format_exc())
+        
+    scrn = conn.getScreen(id)
+    return render_to_response('webmobile/browse/screen.html', {'client': conn, 'screen': scrn})
 
 
 def getAnnotations(obj):

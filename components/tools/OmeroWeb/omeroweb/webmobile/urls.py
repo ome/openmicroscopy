@@ -22,6 +22,11 @@ urlpatterns = patterns('',
     url( r'^viewer/(?P<imageId>[0-9]+)/$', views.viewer, name='webmobile_viewer' ),     # 'full' viewer
     url( r'^orphaned_images/(?P<eid>[0-9]+)/$', views.orphaned_images, name='webmobile_orphaned_images' ),
     
+    # browsing S/P/W hierarchy
+    url( r'^screens/$', views.screens, name='webmobile_screens' ),
+    url( r'^screens/(?P<eid>[0-9]+)/$', views.screens, name='webmobile_screens' ),
+    url( r'^plate/(?P<id>[0-9]+)/$', views.plate, name='webmobile_plate' ),
+    
     url( r'^groups_members/$', views.groups_members, name='webmobile_groups_members' ),
     # switch group, then redirect to index page
     url( r'^switch_group/(?P<groupId>[0-9]+)/$', views.switch_group, name='webmobile_switch_group' ),
