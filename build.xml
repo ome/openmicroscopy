@@ -236,7 +236,7 @@ java component.
 
     <macrodef name="launchSuite">
         <attribute name="suite"/>
-        <attribute name="excludes" default="**/tools/build.xml"/>
+        <attribute name="excludes" default="**/tools/build.xml,**/insight/**/*,**/specification/**/*"/>
         <sequential>
         <ivy:settings id="ivy.@{suite}"  file="${etc.dir}/ivysettings.xml"/>
         <ivy:buildlist reference="@{suite}.buildpath" settingsRef="ivy.@{suite}" ivyfilepath="test.xml">
