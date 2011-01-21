@@ -85,11 +85,20 @@ public class IconManager
     /** The <code>Plate</code> icon. */
     public static final int      PLATE = 9;
     
+    /** The <code>Delete</code> icon. */
+    public static final int      DELETE = 10;
+    
+    /** The 22x22 <code>Delete</code> icon. */
+    public static final int      DELETE_22 = 11;
+    
+    /** The 22x22 <code>Apply</code> icon. */
+    public static final int 	APPLY_22 = 12;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int	MAX_ID = 9;
+    private static final int	MAX_ID = 12;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -105,6 +114,9 @@ public class IconManager
         relPaths[IMAGE] = "nuvola_image16.png";
         relPaths[DIRECTORY] = "nuvola_folder_grey16.png";
         relPaths[PLATE] = "plate16.png";
+        relPaths[DELETE] = "nuvola_cancel16.png";
+        relPaths[DELETE_22] = "nuvola_cancel22.png";
+        relPaths[APPLY_22] = "nuvola_apply22.png";
     }
     
     /** The sole instance. */

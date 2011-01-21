@@ -28,6 +28,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -45,6 +47,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -61,13 +64,18 @@ import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
+import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.ImportException;
+import org.openmicroscopy.shoola.env.data.model.DeletableObject;
+import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.event.EventBus;
+import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.DataObject;
 import pojos.ImageData;
 import pojos.PlateData;
 
@@ -87,7 +95,7 @@ import pojos.PlateData;
  */
 public class FileImportComponent 
 	extends JPanel
-	implements ChangeListener, PropertyChangeListener
+	implements ActionListener, ChangeListener, PropertyChangeListener
 {
 
 	/** Indicates that the container is of type <code>Project</code>. */
@@ -115,6 +123,15 @@ public class FileImportComponent
 	
 	/** Color used to indicate that a file could not be imported. */
 	private static final Color		ERROR_COLOR = Color.red;
+	
+	/** Text to indicate to view the image. */
+	private static final String VIEW_TEXT = "View";
+	
+	/** Text to indicate to view the image. */
+	private static final String BROWSE_TEXT = "Browse";
+	
+	/** Text to indicate to view the image. */
+	private static final String NOT_VIEW_TEXT = "Image not viewable";
 	
 	/** The number of extra labels for images to add. */
 	private static final int NUMBER = 3;
@@ -163,6 +180,34 @@ public class FileImportComponent
 
 	/** Flag indicating to use the folder as container. */
 	private boolean folderAsContainer;
+	
+	/** Button to delete the imported image. */
+	private JButton deleteButton;
+	
+	/** Deletes the image that was imported but cannot be viewed. */
+	private void deleteImage()
+	{
+		List<DeletableObject> l = new ArrayList<DeletableObject>();
+		
+		if (image instanceof ThumbnailData) {
+			l.add(new DeletableObject(((ThumbnailData) image).getImage())); 
+		} else if (image instanceof ImageData) {
+			l.add(new DeletableObject((DataObject) image)); 
+		}
+		if (l.size() == 0) return;
+		IconManager icons = IconManager.getInstance();
+		DeleteActivityParam p = new DeleteActivityParam(
+				icons.getIcon(IconManager.APPLY_22), l);
+		p.setFailureIcon(icons.getIcon(IconManager.DELETE_22));
+		UserNotifier un = MeasurementAgent.getRegistry().getUserNotifier();
+		un.notifyActivity(p);
+		//the row enabled
+		deleteButton.setEnabled(false);
+		errorBox.setEnabled(false);
+		fileNameLabel.setEnabled(false);
+		resultLabel.setEnabled(false);
+		imageLabel.setEnabled(false);
+	}
 	
 	/** Initializes the components. */
 	private void initComponents()
@@ -234,6 +279,10 @@ public class FileImportComponent
 		errorBox.setSelected(true);
 		statusLabel = new StatusLabel();
 		statusLabel.addPropertyChangeListener(this);
+		deleteButton = new JButton(icons.getIcon(IconManager.DELETE));
+		deleteButton.setToolTipText("Delete the image");
+		UIUtilities.unifiedButtonLookAndFeel(deleteButton);
+		deleteButton.setVisible(false);
 	}
 	
 	/** Builds and lays out the UI. */
@@ -245,6 +294,7 @@ public class FileImportComponent
 		add(resultLabel);
 		add(statusLabel);
 		add(errorBox);
+		add(deleteButton);
 	}
 	
 	/**
@@ -380,25 +430,58 @@ public class FileImportComponent
 		busyLabel.setBusy(status);
 		busyLabel.setVisible(false);
 		if (image instanceof ImageData) {
-			imageLabel.setData((ImageData) image);
-			resultLabel.setText("View");
-			resultLabel.setForeground(UIUtilities.HYPERLINK_COLOR);
-			resultLabel.setToolTipText(ThumbnailLabel.IMAGE_LABEL_TOOLTIP);
-			resultLabel.setEnabled(false);
-			resultLabel.setVisible(true);
-			fileNameLabel.addMouseListener(adapter);
-			resultLabel.addMouseListener(adapter);
-			addMouseListener(adapter);
+			ImageData img = (ImageData) image;
+			Exception error = null;
+			try {
+				img.getDefaultPixels();
+			} catch (Exception e) {
+				error = e;
+			}
+			if (error != null) {
+				fileNameLabel.setForeground(ERROR_COLOR);
+				resultLabel.setForeground(ERROR_COLOR);
+				setStatusText(NOT_VIEW_TEXT);
+				resultLabel.setToolTipText(
+						UIUtilities.formatExceptionForToolTip(error));
+				errorBox.setVisible(true);
+				errorBox.addChangeListener(this);
+				deleteButton.setVisible(true);
+				deleteButton.addActionListener(this);
+			} else {
+				imageLabel.setData(img);
+				resultLabel.setText(VIEW_TEXT);
+				resultLabel.setForeground(UIUtilities.HYPERLINK_COLOR);
+				resultLabel.setToolTipText(ThumbnailLabel.IMAGE_LABEL_TOOLTIP);
+				resultLabel.setEnabled(false);
+				resultLabel.setVisible(true);
+				fileNameLabel.addMouseListener(adapter);
+				resultLabel.addMouseListener(adapter);
+				addMouseListener(adapter);
+			}
 		} else if (image instanceof ThumbnailData) {
-			imageLabel.setThumbnail((ThumbnailData) image);
-			statusLabel.setVisible(false);
-			fileNameLabel.addMouseListener(adapter);
-			addMouseListener(adapter);
-			resultLabel.setVisible(true);
-			//control = resultLabel;
+			ThumbnailData thumbnail = (ThumbnailData) image;
+			if (thumbnail.isValidImage()) {
+				imageLabel.setThumbnail((ThumbnailData) image);
+				statusLabel.setVisible(false);
+				fileNameLabel.addMouseListener(adapter);
+				addMouseListener(adapter);
+				resultLabel.setVisible(true);
+			} else {
+				fileNameLabel.setForeground(ERROR_COLOR);
+				resultLabel.setForeground(ERROR_COLOR);
+				setStatusText(NOT_VIEW_TEXT);
+				resultLabel.setToolTipText(
+						UIUtilities.formatExceptionForToolTip(
+								thumbnail.getError()));
+				errorBox.setVisible(true);
+				errorBox.addChangeListener(this);
+				deleteButton.setVisible(true);
+				deleteButton.addActionListener(this);
+			}
+
 		} else if (image instanceof PlateData) {
 			imageLabel.setData((PlateData) image);
-			resultLabel.setText("Browse");
+			resultLabel.setText(BROWSE_TEXT);
 			resultLabel.setForeground(UIUtilities.HYPERLINK_COLOR);
 			resultLabel.setToolTipText(ThumbnailLabel.PLATE_LABEL_TOOLTIP);
 			resultLabel.setEnabled(false);
@@ -555,7 +638,7 @@ public class FileImportComponent
 	public boolean hasToRefreshTree()
 	{
 		if (file.isFile()) {
-			if (errorBox.isVisible())
+			if (errorBox.isVisible() || deleteButton.isVisible())
 				return false;
 			switch (type) {
 				case PROJECT_TYPE:
@@ -586,7 +669,8 @@ public class FileImportComponent
 	public boolean toRefresh()
 	{
 		if (file.isFile()) {
-			if (errorBox.isVisible())
+			if (deleteButton.isVisible()) return false;
+			else if (errorBox.isVisible())
 				return !(errorBox.isEnabled() && errorBox.isSelected());
 			return true;
 		}
@@ -684,5 +768,11 @@ public class FileImportComponent
 			firePropertyChange(SUBMIT_ERROR_PROPERTY, !b, b);
 		}
 	}
+	
+	/**
+	 * Deletes the image if the image cannot be viewed.
+	 * @see ActionListener#actionPerformed(ActionEvent)
+	 */
+	public void actionPerformed(ActionEvent e) { deleteImage(); }
 	
 }

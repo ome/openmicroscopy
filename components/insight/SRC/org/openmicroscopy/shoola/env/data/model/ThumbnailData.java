@@ -71,6 +71,12 @@ public class ThumbnailData
     /** The object of reference. */
     private pojos.DataObject refObject;
     
+    /** 
+     * Exception if not possible to create the object. This should
+     * be used when imported.
+     */
+    private Exception		error;
+    
     /**
      * Creates a new instance.
      * 
@@ -141,6 +147,20 @@ public class ThumbnailData
     {
     	  this(refOjbect, thumbnail, true);
     }
+    
+    /**
+     * Sets the exception thrown when trying to create a thumbnail.
+     * 
+     * @param error The exception to set.
+     */
+    public void setError(Exception error) { this.error = error; }
+    
+    /**
+     * Returns the exception.
+     * 
+     * @return See above.
+     */
+    public Exception getError() { return error; }
     
     /** 
      * Sets the image.

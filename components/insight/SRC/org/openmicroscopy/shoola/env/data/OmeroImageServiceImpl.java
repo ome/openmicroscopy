@@ -58,7 +58,6 @@ import omero.sys.Parameters;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
-import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
@@ -236,25 +235,21 @@ class OmeroImageServiceImpl
 	 * @throws ImportException
 	 */
 	private Object createImportedImage(long userID, ImageData image)
-		throws ImportException
 	{
 		if (image != null) {
+			PixelsData pix = image.getDefaultPixels();
+			ThumbnailData data;
 			try {
-				PixelsData pix = image.getDefaultPixels();
 				BufferedImage img = createImage(
 						gateway.getThumbnailByLongestSide(pix.getId(), 96));
-				ThumbnailData data = new ThumbnailData(image.getId(), img, 
-						userID, true);
+				data = new ThumbnailData(image.getId(), img, userID, true);
 				data.setImage(image);
 				return data;
 			} catch (Exception e) {
-				DeletableObject d = new DeletableObject(image);
-				List<DeletableObject> l = new ArrayList<DeletableObject>(1);
-				l.add(d);
-				try {
-					context.getDataService().delete(l);
-				} catch (Exception ex) {}
-				throw new ImportException("Failed to import image", e);
+				data = new ThumbnailData(image.getId(), null, userID, false);
+				data.setImage(image);
+				data.setError(e);
+				return data;
 			}
 		}
 		return image;
