@@ -110,9 +110,6 @@ public class FileImportComponent
 	/** Bound property indicating to browse the node. */
 	public static final String BROWSE_PROPERTY = "browse";
 	
-	/** The number of lines displayed for error. */
-	private static final int MAX_LINES = 20;
-	
 	/** The default size of the busy label. */
 	private static final Dimension SIZE = new Dimension(16, 16);
 	
@@ -454,21 +451,8 @@ public class FileImportComponent
 					resultLabel.setForeground(ERROR_COLOR);
 					ImportException ie = (ImportException) image;
 					setStatusText(ie.getMessage());
-					ie.printStackTrace();
-					String s = UIUtilities.printErrorText(ie.getCause());
-					String[] values = s.split("\n");
-					//Display the first 20 lines
-					String[] lines = values;
-					if (values.length > MAX_LINES) {
-						lines = new String[MAX_LINES+1];
-						for (int i = 0; i < lines.length-1; i++) {
-							lines[i] = values[i];
-						}
-						lines[lines.length-1] = 
-							"... "+(values.length-MAX_LINES)+" more";
-					}
 					resultLabel.setToolTipText(
-							UIUtilities.formatToolTipText(lines));
+							UIUtilities.formatExceptionForToolTip(ie));
 					errorBox.setVisible(true);
 					errorBox.addChangeListener(this);
 				}

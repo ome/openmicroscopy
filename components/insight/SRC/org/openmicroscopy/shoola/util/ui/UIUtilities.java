@@ -103,6 +103,9 @@ import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 public class UIUtilities
 {
 
+	/** The number of lines displayed for error. */
+	public static final int MAX_LINES_EXCEPTION = 20;
+	
 	/** 
      * The size of the invisible components used to separate buttons
      * horizontally.
@@ -1996,4 +1999,45 @@ public class UIUtilities
 		e.printStackTrace(pw);
 		return sw.toString();
 	}
+    
+    /**
+     * Formats the exception to display in tool tip. Displays the first
+     * {@link #MAX_LINES_EXCEPTION} lines.
+     * 
+     * @param ex The exception to handle.
+     * @return See above.
+     */
+    public static String formatExceptionForToolTip(Exception ex)
+    {
+    	return formatExceptionForToolTip(ex, MAX_LINES_EXCEPTION);
+    }
+    
+    /**
+     * Formats the exception to display in tool tip. Displays the specified
+     * number of lines.
+     * 
+     * @param ex The exception to handle.
+     * @param n  The number of lines to display.
+     * @return See above.
+     */
+    public static String formatExceptionForToolTip(Exception ex, int n)
+    {
+    	if (ex == null) return "";
+    	if (n <= 0) n = MAX_LINES_EXCEPTION;
+    	ex.printStackTrace();
+   		String s = UIUtilities.printErrorText(ex.getCause());
+   		String[] values = s.split("\n");
+   		//Display the first 20 lines
+   		String[] lines = values;
+   		if (values.length > MAX_LINES_EXCEPTION) {
+   			lines = new String[MAX_LINES_EXCEPTION+1];
+   			for (int i = 0; i < lines.length-1; i++) {
+   				lines[i] = values[i];
+   			}
+   			lines[lines.length-1] = 
+   				"... "+(values.length-MAX_LINES_EXCEPTION)+" more";
+   		}
+   		return formatToolTipText(lines);
+    }
+    
 }
