@@ -164,6 +164,8 @@ def makeImagesFromRois(session, parameterMap):
         pType = plane2D.dtype.name
         pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
         
+        newDataset = None    # only created if not putting images in stack
+        
         # if making a single stack image...
         if imageStack:
             print "Making Image stack from ROIs of Image:", imageId
@@ -220,12 +222,13 @@ def makeImagesFromRois(session, parameterMap):
                 gateway.saveObject(pixels)
             
             newIds.append(dataset.getId().getValue())
+            newDataset = dataset
             
     if imageStack:
         message = "Created %s new Images. Refresh Dataset to view" % len(newIds)
     else:
         message = "Created %s new Datasets. Refresh Project to view" % len(newIds)
-    return message
+    return (message, newDataset)
 
 def runAsScript():
     """
@@ -236,7 +239,7 @@ def runAsScript():
     client = scripts.client('Images_From_ROIs.py', """Create new Images from the regions defined by Rectangle ROIs on other Images.
 Designed to work with single-plane images (Z=1 T=1) with multiple ROIs per image. 
 If you choose to make an image stack from all the ROIs, this script
-assumes that all the ROIs on an Image are the same size.""", 
+assumes that all the ROIs on each Image are the same size.""", 
     scripts.List("Image_IDs", optional=False, description="List the images to work with").ofType(rlong(0)),
     scripts.String("Container_Name", description="New Dataset name or Image name (if 'Make_Image_Stack')", default="From_ROIs"),
     scripts.Bool("Make_Image_Stack", description="If true, make a single Image (stack) from all the ROIs of each parent Image"),
@@ -257,12 +260,15 @@ assumes that all the ROIs on an Image are the same size.""",
 
         print parameterMap
 
-        message = makeImagesFromRois(session, parameterMap)
+        message, newDataset = makeImagesFromRois(session, parameterMap)
 
         if message:
             client.setOutput("Message", rstring(message))
         else:
             client.setOutput("Message", rstring("Script Failed. See 'error' or 'info'"))
+            
+        if newDataset:
+            client.setOutput("Dataset", robject(newDataset))
     finally:
         client.closeSession()
         printDuration()
