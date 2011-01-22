@@ -85,7 +85,9 @@ import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
+import org.openmicroscopy.shoola.agents.util.ViewerSorter;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
@@ -126,11 +128,14 @@ public class ImportDialog
 	/** Bound property indicating to import the selected files. */
 	public static final String	IMPORT_PROPERTY = "import";
 
+	/** The default text. */
+	private static final String	NEW_TXT = "new dataset";
+	
 	/** Action id indicating to import the selected files. */
-	public static final int		IMPORT = 0;
+	private static final int	IMPORT = 0;
 	
 	/** Action id indicating to close the dialog. */
-	public static final int		CANCEL = 1;
+	private static final int	CANCEL = 1;
 	
 	/** Action id indicating to refresh the file view. */
 	private static final int	REFRESH = 2;
@@ -143,6 +148,10 @@ public class ImportDialog
 	
 	/** Action id indicating to add tags to the file. */
 	private static final int	TAG = 5;
+	
+	/** Action id indicating to create a new dataset. */
+	private static final int	CREATE_DATASET = 6;
+	
 	
 	/** The title of the dialog. */
 	private static final String TITLE = "Import";
@@ -162,13 +171,13 @@ public class ImportDialog
 			"by default, the absolute path. \n You can modify the name " +
 			"by setting the number of directories before the file's name.";
 	
-	/** Message if no containers specified. */
-	private static final String NO_CONTAINER = "No container specified, " +
-			"orphaned images imported in Dataset: ";
-	
 	/** Message if projects are selected. */
-	private static final String OTHER_AS_CONTAINER = "Orphaned images " +
-			"imported in Dataset: ";
+	private static final String OTHER_AS_CONTAINER = "Images " +
+			"imported in Dataset (if folder not converted):";
+	
+	/** Message if no containers specified. */
+	//private static final String NO_CONTAINER = "No container specified, " +
+	//		"orphaned images imported in Dataset: ";
 	
 	/** Warning when de-selecting the name overriding option. */
 	private static final List<String> WARNING;
@@ -263,16 +272,53 @@ public class ImportDialog
 	private JTextField 					defaultContainerField;
 	
 	/** The collection of datasets to use by default. */
-	private List<DatasetData>			datasets;
+	private List<DataNode>				datasets;
 	
 	/** Component used to select the default dataset. */
 	private JComboBox					datasetsBox;
 	
-	/** The compoennt displaying where the data will be imported. */
+	/** The component displaying where the data will be imported. */
 	private JPanel						locationPane;
 	
+	/** The type associated to the import. */
 	private int							type;
 	
+	/** Button to create a new dataset. */
+	private JButton						addButton;
+	
+	/** Sorts the objects from the display. */
+	private ViewerSorter				sorter;
+	
+	/** 
+	 * Creates the dataset.
+	 * 
+	 * @param dataset The dataset to create.
+	 */
+	private void createDataset(DatasetData dataset)
+	{
+		if (dataset == null || dataset.getName().trim().length() == 0) return;
+		int n = datasets.size();
+		String name = dataset.getName();
+		datasets.add(new DataNode(dataset));
+		if (n == 0) {
+			defaultContainerField.setText(dataset.getName());
+		} else {
+			datasetsBox.removeAllItems();
+			List l = sorter.sort(datasets);
+			Iterator i = l.iterator();
+			DataNode v;
+			Object selected = null;
+			while (i.hasNext()) {
+				v = (DataNode) i.next();
+				datasetsBox.addItem(v);
+				if (v.isNewDataset(name)) 
+					selected = v;
+			}
+			if (selected != null) datasetsBox.setSelectedItem(selected);
+			repaint();
+		}
+	}
+
 	/** Adds the files to the selection. */
 	private void addFiles()
 	{
@@ -451,6 +497,12 @@ public class ImportDialog
 	private void initComponents(List<TreeImageDisplay> containers)
 	{
 		this.containers = containers;
+		sorter = new ViewerSorter();
+		datasets = new ArrayList<DataNode>();
+		addButton = new JButton("New...");
+		addButton.setToolTipText("Create a new Dataset.");
+		addButton.setActionCommand(""+CREATE_DATASET);
+		addButton.addActionListener(this);
 		listener = new ActionListener() {
 			
 			public void actionPerformed(ActionEvent e) {
@@ -813,16 +865,37 @@ public class ImportDialog
 	private void buildLocationPane()
 	{
 		locationPane.removeAll();
-		defaultContainerField.setVisible(false);
+		defaultContainerField.setText(ImportableObject.DEFAULT_DATASET_NAME);
 		StringBuffer text = new StringBuffer();
 		JPanel row;
 		String v;
-		String message = NO_CONTAINER;
+		String message = OTHER_AS_CONTAINER;
+		addButton.setVisible(true);
+		defaultContainerField.setVisible(false);
 		if (containers != null && containers.size() > 0) {
-			row = new JPanel();
-			row.setLayout(new FlowLayout(FlowLayout.LEFT));
+			datasets.clear();
 			Iterator<TreeImageDisplay> i = containers.iterator();
 			TreeImageDisplay node;
+			Object ho;
+			Iterator<TreeImageDisplay> j;
+			List<TreeImageDisplay> children;
+			while (i.hasNext()) {
+				node = i.next();
+				ho = node.getUserObject();
+				if (ho instanceof ProjectData) {
+					children = node.getChildrenDisplay();
+					if (children != null && children.size() > 0) {
+						j = children.iterator();
+						while (j.hasNext()) {
+							datasets.add(new DataNode(
+									(DatasetData) j.next().getUserObject()));
+						}
+					}
+				}
+			}
+			row = new JPanel();
+			row.setLayout(new FlowLayout(FlowLayout.LEFT));
+			i = containers.iterator();
 			Object c;
 			String name = "";
 			int index = 0;
@@ -832,11 +905,14 @@ public class ImportDialog
 				c = node.getUserObject();
 				if (c instanceof DatasetData) {
 					message = null;
-					if (index == 0)
+					if (index == 0) {
+						addButton.setVisible(false);
 						text.append("Dataset: ");
+					}
 					name += ((DatasetData) c).getName();
 				} else if (c instanceof ScreenData) {
 					if (index == 0) {
+						addButton.setVisible(false);
 						message = null;
 						text.append("Screen: ");
 					}
@@ -845,6 +921,8 @@ public class ImportDialog
 					if (index == 0) {
 						text.append("Project: ");
 						message = OTHER_AS_CONTAINER;
+						if (datasets.size() == 0)
+							defaultContainerField.setText(NEW_TXT);
 					}
 					name += ((ProjectData) c).getName();
 				}
@@ -858,14 +936,18 @@ public class ImportDialog
 		}
 		if (type == Importer.SCREEN_TYPE) message = null;
 		if (message != null) {
-			defaultContainerField.setVisible(true);
 			row = new JPanel();
 			row.setLayout(new FlowLayout(FlowLayout.LEFT));
 			row.add(UIUtilities.setTextFont(message));
-			row.add(defaultContainerField);
+			//row.add(defaultContainerField);
 			if (datasets != null && datasets.size() > 0) {
-				datasetsBox = new JComboBox(datasets.toArray());
+				List l = sorter.sort(datasets);
+				datasetsBox = new JComboBox(l.toArray());
 				row.add(datasetsBox);
+				row.add(addButton);
+			} else {
+				defaultContainerField.setVisible(true);
+				row.add(defaultContainerField);
 			}
 			locationPane.add(row);
 		}
@@ -982,10 +1064,13 @@ public class ImportDialog
     	if (defaultContainerField.isVisible()) {
     		String v = defaultContainerField.getText();
     		if (v == null || v.trim().length() == 0)
-    			v = UIUtilities.formatDate(null, UIUtilities.D_M_Y_FORMAT);
+    			v = ImportableObject.DEFAULT_DATASET_NAME;
     		DatasetData dataset = new DatasetData();
     		dataset.setName(v);
     		object.setDefaultDataset(dataset);
+    	} else if (datasetsBox != null) {
+    		DataNode node = (DataNode) datasetsBox.getSelectedItem();
+    		object.setDefaultDataset(node.getDataset());
     	}
     	//tags
     	if (tagsMap.size() > 0) object.setTags(tagsMap.values());
@@ -1089,15 +1174,12 @@ public class ImportDialog
      * @param filters 	The list of filters.
      * @param containers The container where to import the files.
      * @param type 		One of the type constants.
-     * @param datasets The collection of datasets to use by default.
      */
     public ImportDialog(JFrame owner, FileFilter[] filters, 
-    		List<TreeImageDisplay> containers, int type,
-    		List<DatasetData> datasets)
+    		List<TreeImageDisplay> containers, int type)
     {
     	super(owner);
     	this.filters = filters;
-    	this.datasets = datasets;
     	setProperties();
     	initComponents(containers);
     	installListeners();
@@ -1215,6 +1297,8 @@ public class ImportDialog
 				if (TagAnnotationData.class.getName().equals(type.getName()))
 					handleTagsSelection((Collection) entry.getValue());
 			}
+		} else if (EditorDialog.CREATE_NO_PARENT_PROPERTY.equals(name)) {
+			createDataset((DatasetData) evt.getNewValue());
 		}
 	}
 	
@@ -1246,6 +1330,12 @@ public class ImportDialog
 			case TAG:
 				firePropertyChange(LOAD_TAGS_PROPERTY, Boolean.valueOf(false), 
 						Boolean.valueOf(true));
+				break;
+			case CREATE_DATASET:
+				EditorDialog d = new EditorDialog(this, new DatasetData(), 
+						false);
+				d.addPropertyChangeListener(this);
+				UIUtilities.centerAndShow(d);
 		}
 	}
 	

@@ -436,6 +436,34 @@ public class EditorDialog
     	}
     }
     
+    /**
+     * Initializes.
+     * 
+     * @param data 			The type of object to create.
+     * @param withParent 	Sets to <code>true</code> if the object will 
+     * 						have a parent, <code>false</code> otherwise.
+     * @param type			The type of the dialog. 
+     */
+    private void init(DataObject data, boolean withParent, 
+    		int  type)
+    {
+    	switch (type) {
+    	case EDIT_TYPE:
+    		this.type = type;
+    		setTitle(TITLE_EDIT);
+    		break;
+    	case CREATE_TYPE:
+    	default:
+    		this.type = CREATE_TYPE;
+    		setTitle(TITLE);
+    	}
+    	checkData(data);
+    	this.data = data;
+    	this.withParent = withParent;
+    	initComponents();
+    	buildGUI();
+    	setSize(WIN_DIM);
+    }
     
     /**
      * Creates a new instance.
@@ -449,23 +477,8 @@ public class EditorDialog
     public EditorDialog(JFrame owner, DataObject data, boolean withParent, 
     		int  type)
     {
-        super(owner);
-        switch (type) {
-        	case EDIT_TYPE:
-        	this.type = type;
-        	setTitle(TITLE_EDIT);
-			break;
-	        case CREATE_TYPE:
-			default:
-				this.type = CREATE_TYPE;
-			setTitle(TITLE);
-		}
-        checkData(data);
-        this.data = data;
-        this.withParent = withParent;
-        initComponents();
-        buildGUI();
-        setSize(WIN_DIM);
+    	super(owner);
+    	init(data, withParent, type);
     }
     
     /**
@@ -479,6 +492,20 @@ public class EditorDialog
     public EditorDialog(JFrame owner, DataObject data, boolean withParent)
     {
         this(owner, data, withParent, CREATE_TYPE);
+    }
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param owner			The owner of the frame.
+     * @param data 			The type of object to create.
+     * @param withParent 	Sets to <code>true</code> if the object will 
+     * 						have a parent, <code>false</code> otherwise. 
+     */
+    public EditorDialog(JDialog owner, DataObject data, boolean withParent)
+    {
+    	super(owner);
+        init(data, withParent, CREATE_TYPE);
     }
     
     /**

@@ -36,8 +36,6 @@ import javax.swing.JFrame;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
-import pojos.DataObject;
-import pojos.DatasetData;
 
 /** 
  * Defines the interface provided by the importer component. 
@@ -89,11 +87,9 @@ public interface Importer
 	 * 
 	 * @param type One of the types constants defined by this class. 
 	 * @param containers The containers where to import the files.
-	 * @param datasets   The available datasets, to use by default.
 	 * @throws IllegalStateException If the current state is {@link #DISCARDED}.  
 	 */
-	public void activate(int type, List<TreeImageDisplay> containers, 
-			List<DatasetData> datasets);
+	public void activate(int type, List<TreeImageDisplay> containers);
 	
 	/**
 	 * Transitions the viewer to the {@link #DISCARDED} state.

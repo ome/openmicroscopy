@@ -92,11 +92,16 @@ public class BrowserImportAction
         Object ho = selectedDisplay.getUserObject();
         if (ho == null) setEnabled(true);
         else {
-        	if (ho instanceof ProjectData || ho instanceof DatasetData ||
-        		ho instanceof ScreenData) setEnabled(model.isUserOwner(ho));
-        	else setEnabled(true);
+        	TreeImageDisplay[] nodes = model.getSelectedDisplays();
+            if (nodes != null && nodes.length > 1) {
+            	setEnabled(false);
+            } else {
+            	if (ho instanceof ProjectData || ho instanceof DatasetData ||
+            			ho instanceof ScreenData) 
+            		setEnabled(model.isUserOwner(ho));
+            	else setEnabled(true);
+            }
         }
-       
     }
     
     /**
