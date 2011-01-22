@@ -13,10 +13,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 import ome.conditions.InternalException;
 import ome.model.core.Channel;
@@ -78,6 +80,24 @@ public interface SqlAction {
      * @param groupId
      */
     void prepareSession(long eventId, long userId, long groupId);
+
+    /**
+     * Allows the specific database implementations a chance to modify
+     * queries.
+     *
+     * @param query String query (non-null) which is in effect.
+     * @param key Key of the argument e.g. (:ids)
+     * @param value value which has been passed in for that parameter.
+     * @return Returns a query replacement.
+     * @see ticket:3961
+     */
+    String rewriteHql(String query, String key, Object value);
+
+    /**
+     * Creates a temporary table filled with the given ids and returns its
+     * name. The table is only available for the period if the transaction.
+     */
+    String createIdsTempTable(Collection<Long> ids);
 
     /**
      * Returns true if the given string is the UUID of a session that is
@@ -295,11 +315,11 @@ public interface SqlAction {
      */
     public static abstract class Impl implements SqlAction {
 
+        protected final Log log = LogFactory.getLog(this.getClass());
+
         protected abstract SimpleJdbcOperations _jdbc();
 
         protected abstract String _lookup(String key);
-
-        final protected Log log = LogFactory.getLog(getClass());
 
         protected String printThrowable(Throwable t) {
             StringWriter sw = new StringWriter();
@@ -307,6 +327,39 @@ public interface SqlAction {
             t.printStackTrace(pw);
             pw.close();
             return sw.toString();
+        }
+
+        public String rewriteHql(String query, String key, Object value) {
+            if (value instanceof Collection) {
+                @SuppressWarnings({ "rawtypes" })
+                Collection l = (Collection) value;
+                if (l.size() > 1000) {
+                    for (Object o : l) {
+                        if (!(o instanceof Long)) {
+                            log.debug("Not replacing query; non-long");
+                            return query;
+                        }
+                    }
+                    if (query.contains("(:ids)")) {
+                        @SuppressWarnings("unchecked")
+                        String temp = createIdsTempTable(l);
+                        String repl = "temp_ids_cursor('"+temp+"')";
+                        query = query.replace("(:ids)", "(" + repl + ")");
+                    }
+                }
+            }
+            return query;
+        }
+
+
+        public String createIdsTempTable(Collection<Long> ids) {
+            String name = UUID.randomUUID().toString().replaceAll("-", "");
+            List<Object[]> batch = new ArrayList<Object[]>();
+            for (Long id : ids) {
+                batch.add(new Object[]{name, id});
+            }
+            _jdbc().batchUpdate("insert into temp_ids (key, id) values (?, ?)", batch);
+            return name;
         }
 
         //
