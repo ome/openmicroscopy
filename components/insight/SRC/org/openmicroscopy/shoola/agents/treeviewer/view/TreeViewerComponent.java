@@ -3204,54 +3204,59 @@ class TreeViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#indicateToRefresh(List, boolean)
+	 */
+	public void indicateToRefresh(List<DataObject> containers, 
+			boolean refreshTree)
+	{
+		TreeImageDisplay node;
+		Browser browser = null;
+		if (containers != null && containers.size() > 0) {
+			NodesFinder finder = new NodesFinder(containers);
+			DataObject ho = containers.get(0);
+			if (ho instanceof DatasetData || ho instanceof ProjectData) {
+				browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
+				browser.accept(finder);
+			} else if (ho instanceof ScreenData) {
+				browser = model.getBrowser(Browser.SCREENS_EXPLORER);
+				browser.accept(finder);
+			}
+			Set<TreeImageDisplay> nodes = finder.getNodes();
+			//mark 
+			if (nodes != null && nodes.size() > 0) {
+				Iterator<TreeImageDisplay> i = nodes.iterator();
+				while (i.hasNext())
+					i.next().setToRefresh(refreshTree);
+				browser.getUI().repaint();
+			} else {
+				node = browser.getLoggedExperimenterNode();
+				if (node != null) {
+					node.setToRefresh(refreshTree);
+					browser.getUI().repaint();
+				}
+			}
+		} else {
+			browser = model.getSelectedBrowser();
+			node = browser.getLoggedExperimenterNode();
+			if (node != null) {
+				node.setToRefresh(refreshTree);
+				browser.getUI().repaint();
+			}
+		}
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#setImporting(boolean, List, boolean)
 	 */
-	public void setImporting(boolean importing,  List<DataObject> containers, 
+	public void setImporting(boolean importing, List<DataObject> containers, 
 			boolean refreshTree)
 	{
 		if (model.getState() == DISCARDED) return;
 		model.setImporting(importing);
 		
-		if (!importing) {
-			Browser browser = null;
-			if (containers != null && containers.size() > 0) {
-				NodesFinder finder = new NodesFinder(containers);
-				DataObject ho = containers.get(0);
-				if (ho instanceof DatasetData || ho instanceof ProjectData) {
-					browser = model.getBrowser(Browser.PROJECTS_EXPLORER);
-					browser.accept(finder);
-				} else if (ho instanceof ScreenData) {
-					browser = model.getBrowser(Browser.SCREENS_EXPLORER);
-					browser.accept(finder);
-				}
-				Set<TreeImageDisplay> nodes = finder.getNodes();
-				//mark 
-				if (nodes != null && nodes.size() > 0) {
-					Iterator<TreeImageDisplay> i = nodes.iterator();
-					while (i.hasNext())
-						i.next().setToRefresh(true);
-					browser.getUI().repaint();
-				} else {
-					if (refreshTree) {
-						TreeImageDisplay node = 
-							browser.getLoggedExperimenterNode();
-						if (node != null) {
-							node.setToRefresh(true);
-							browser.getUI().repaint();
-						}
-					}
-				}
-			} else {
-				if (refreshTree) {
-					browser = model.getSelectedBrowser();
-					TreeImageDisplay node = browser.getLoggedExperimenterNode();
-					if (node != null) {
-						node.setToRefresh(true);
-						browser.getUI().repaint();
-					}
-				}
-			}
-		}
+		if (!importing)
+			indicateToRefresh(containers, refreshTree);
 		firePropertyChange(IMPORT_PROPERTY, importing, !importing);
 	}
 

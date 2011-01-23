@@ -981,11 +981,21 @@ public interface TreeViewer
 	 * 
 	 * @param importing The value to set.
 	 * @param containers The containers that need to be refreshed.
-	 * @param refreshTree Flag to indicate that the tree has to be refreshed.
+	 * @param refresh Pass <code>true</code> to mark the node to refresh,
+	 * <code>false</code> otherwise.
 	 */
 	void setImporting(boolean importing, List<DataObject> containers, boolean
-			refreshTree);
+			refresh);
 
+	/**
+	 * Marks the passed nodes.
+	 * 
+	 * @param containers The containers that need to be refreshed.
+	 * @param refresh Pass <code>true</code> to mark the node to refresh,
+	 * <code>false</code> otherwise.
+	 */
+	void indicateToRefresh(List<DataObject> containers, boolean refresh);
+	
 	/**
 	 * Browses the specified container.
 	 * 

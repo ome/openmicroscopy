@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.ChannelData;
 import pojos.DataObject;
+import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
@@ -903,12 +904,14 @@ public interface ImViewer
 	 * 
 	 * @param image 		The projected image.
 	 * @param indexes 		The channel's indexes projected.
+	 * @param containers    The containers where the projected image has been 
+	 * 						added.
 	 * @param applySettings Pass <code>true</code> to set the rendering settings
 	 * 						of the original image to the new pixels set,
 	 * 						<code>false</code> otherwise.
 	 */
 	public void setProjectedImage(ImageData image, List<Integer> indexes, 
-			boolean applySettings);
+			List<DataObject> containers, boolean applySettings);
 
 	/**
 	 * Sets the settings created for the projected image.

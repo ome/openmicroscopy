@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.events.iviewer.ImageProjected 
+ * org.openmicroscopy.shoola.agents.events.treeviewer.NodeToRefreshEvent 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2009 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2011 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -11,7 +11,7 @@
  *  (at your option) any later version.
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details.
  *  
  *  You should have received a copy of the GNU General Public License along
@@ -20,43 +20,67 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.events.iviewer;
+package org.openmicroscopy.shoola.agents.events.treeviewer;
 
 
 //Java imports
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.event.RequestEvent;
-import pojos.ImageData;
+import pojos.DataObject;
 
 /** 
- * Event to indicating that the image has been projected.
+ * Request to indicate the <code>DataObject</code>s that need to be refreshed.
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
  * @version 3.0
+ * <small>
+ * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
  * @since 3.0-Beta4
  */
-public class ImageProjected
+public class NodeToRefreshEvent 
 	extends RequestEvent
 {
 
-	/** The image projected. */
-	private ImageData image;
+	/** The objects to delete. */
+	private List<DataObject> objects;
+	
+	/** Flag indicating to mark the nodes to refresh or not. */
+	private boolean refresh;
 	
 	/**
 	 * Creates a new instance.
 	 * 
-	 * @param image The image projected.
+	 * @param objects The objects to mark.
+	 * @param refresh Pass <code>true</code> to refresh the nodes, 
+	 * 				  <code>false</code> otherwise.
 	 */
-	public ImageProjected(ImageData image)
+	public NodeToRefreshEvent(List<DataObject> objects, boolean refresh)
 	{
-		this.image = image;
+		this.objects = objects;
+		this.refresh = refresh;
 	}
+	
+	/**
+	 * Returns the list of objects to refresh.
+	 * 
+	 * @return See above.
+	 */
+	public List<DataObject> getObjects() { return objects; }
+	
+	/**
+	 * Returns <code>true</code> to refresh the nodes, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean getRefresh() { return refresh; }
 	
 }

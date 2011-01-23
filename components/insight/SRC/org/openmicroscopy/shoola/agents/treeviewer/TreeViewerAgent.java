@@ -24,8 +24,6 @@
 package org.openmicroscopy.shoola.agents.treeviewer;
 
 
-
-
 //Java imports
 import java.util.HashSet;
 import java.util.Iterator;
@@ -38,10 +36,10 @@ import java.util.Set;
 import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
 import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
 import org.openmicroscopy.shoola.agents.events.iviewer.CopyRndSettings;
-import org.openmicroscopy.shoola.agents.events.iviewer.ImageProjected;
 import org.openmicroscopy.shoola.agents.events.iviewer.RndSettingsCopied;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerCreated;
 import org.openmicroscopy.shoola.agents.events.treeviewer.DataObjectSelectionEvent;
+import org.openmicroscopy.shoola.agents.events.treeviewer.NodeToRefreshEvent;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewerFactory;
 import org.openmicroscopy.shoola.env.Agent;
@@ -217,30 +215,6 @@ public class TreeViewerAgent
     private void handleRndSettingsCopied(RndSettingsCopied evt)
     {
     	TreeViewerFactory.onRndSettingsCopied(evt.getImagesIDs());
-    }
-    
-	/**
-     * Handles the {@link ImageProjected} event.
-     * 
-     * @param evt The event to handle.
-     */
-    private void handleImageProjected(ImageProjected evt)
-    {
-    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
-    	if (!env.isServerAvailable()) return;
-    	ExperimenterData exp = (ExperimenterData) registry.lookup(
-			        				LookupNames.CURRENT_USER_DETAILS);
-    	if (exp == null) return;
-    	GroupData gp = null;
-    	try {
-    		gp = exp.getDefaultGroup();
-		} catch (Exception e) {
-			//No default group
-		}
-    	long id = -1;
-    	if (gp != null) id = gp.getId();
-        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
-        if (viewer != null) viewer.refreshTree();
     }
     
     /**
@@ -419,6 +393,32 @@ public class TreeViewerAgent
     }
     
     /**
+     * Marks the nodes to refresh.
+     * 
+     * @param evt The event to handle.
+     */
+    private void handleNodeToRefreshEvent(NodeToRefreshEvent evt)
+    {
+    	if (evt == null) return;
+    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
+    	if (!env.isServerAvailable()) return;
+    	ExperimenterData exp = (ExperimenterData) registry.lookup(
+			        				LookupNames.CURRENT_USER_DETAILS);
+    	if (exp == null) return;
+    	GroupData gp = null;
+    	try {
+    		gp = exp.getDefaultGroup();
+		} catch (Exception e) {
+			//No default group
+		}
+    	long id = -1;
+    	if (gp != null) id = gp.getId();
+        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
+        if (viewer != null) 
+        	viewer.indicateToRefresh(evt.getObjects(), evt.getRefresh());
+    }
+    
+    /**
      * Implemented as specified by {@link Agent}.
      * @see Agent#activate()
      */
@@ -459,13 +459,13 @@ public class TreeViewerAgent
         bus.register(this, CopyRndSettings.class);
         bus.register(this, SaveEventRequest.class);
         bus.register(this, RndSettingsCopied.class);
-        bus.register(this, ImageProjected.class);
         bus.register(this, ActivityProcessEvent.class);
         bus.register(this, ViewerCreated.class);
         bus.register(this, UserGroupSwitched.class);
         bus.register(this, DataObjectSelectionEvent.class);
         bus.register(this, ImportStatusEvent.class);
         bus.register(this, BrowseContainer.class);
+        bus.register(this, NodeToRefreshEvent.class);
     }
 
     /**
@@ -502,8 +502,6 @@ public class TreeViewerAgent
 			handleSaveEventRequest((SaveEventRequest) e);
 		else if (e instanceof RndSettingsCopied)
     		handleRndSettingsCopied((RndSettingsCopied) e);
-		else if (e instanceof ImageProjected)
-    		handleImageProjected((ImageProjected) e);
 		else if (e instanceof ActivityProcessEvent)
 			handleActivityFinished((ActivityProcessEvent) e);
 		else if (e instanceof ViewerCreated)
@@ -518,6 +516,8 @@ public class TreeViewerAgent
 	        handleImportStatusEvent((ImportStatusEvent) e);
 		else if (e instanceof BrowseContainer)
 			handleBrowseContainer((BrowseContainer) e);
+		else if (e instanceof NodeToRefreshEvent)
+			handleNodeToRefreshEvent((NodeToRefreshEvent) e);
 	}
 
 }

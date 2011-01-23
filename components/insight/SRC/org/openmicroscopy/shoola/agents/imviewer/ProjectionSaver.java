@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.agents.imviewer;
 
 //Java imports
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import java.util.List;
 
 //Third-party libraries
 
@@ -34,6 +36,8 @@ import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
 import org.openmicroscopy.shoola.env.log.LogMessage;
+
+import pojos.DataObject;
 import pojos.ImageData;
 
 /** 
@@ -173,7 +177,7 @@ public class ProjectionSaver
 				viewer.setProjectionPreview(null);
 				break;
 			case PROJECTION:
-				viewer.setProjectedImage(null, null, false);
+				viewer.setProjectedImage(null, null, null, false);
 		}
     }
     
@@ -189,8 +193,12 @@ public class ProjectionSaver
 	        	viewer.setProjectionPreview(result);
 	        	break;
 	        case PROJECTION:
+	        	List<DataObject> l = new ArrayList<DataObject>();
+	        	if (ref.getDatasets() != null) {
+	        		l.addAll(ref.getDatasets());
+	        	}
 	        	viewer.setProjectedImage((ImageData) result, ref.getChannels(), 
-	        			applySettings);
+	        			l, applySettings);
         }
     }
     
