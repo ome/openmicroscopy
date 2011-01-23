@@ -22,23 +22,21 @@
  */
 package org.openmicroscopy.shoola.env.ui;
 
-import java.io.File;
-import java.util.List;
-import java.util.Map;
 
-import org.openmicroscopy.shoola.env.config.Registry;
-import org.openmicroscopy.shoola.env.data.views.CallHandle;
-
-import pojos.ImageData;
 
 //Java imports
+import java.util.List;
+import java.util.Map;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import pojos.ImageData;
 
 /** 
- * 
+ * Loads archived image.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -57,7 +55,7 @@ public class ArchivedLoader
 	/** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle  			handle;
     
-    /** The image to create a movie from. */
+    /** The archived image to load. */
     private ImageData 				image;
 
     /** The file where to export the image. */

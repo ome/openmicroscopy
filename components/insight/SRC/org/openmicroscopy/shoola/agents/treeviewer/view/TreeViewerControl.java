@@ -1013,12 +1013,15 @@ class TreeViewerControl
 					TreeImageDisplay pNode;
 
 					if (ho instanceof DatasetData) {
+						/*
 						klass = ho.getClass();
 						pNode = node.getParentDisplay();
 						if (pNode != null) {
 							p = pNode.getUserObject();
 							if (!(p instanceof ProjectData)) p = null;
 						}
+						*/
+						p = ho;
 					} else if (ho instanceof ImageData) {
 						klass = ho.getClass();
 						pNode = node.getParentDisplay();
