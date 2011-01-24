@@ -716,18 +716,20 @@ class BlitzObjectWrapper (object):
         """
         if not ann.getId():
             # Not yet in db, save it
-            ann.details.setPermissions(omero.model.PermissionsI())
-            ann.details.permissions.setWorldRead(True)
-            ann.details.permissions.setGroupWrite(True)
+            if omero_version < ['4','2','0']:
+                ann.details.setPermissions(omero.model.PermissionsI())
+                ann.details.permissions.setWorldRead(True)
+                ann.details.permissions.setGroupWrite(True)
             ann = ann.__class__(self._conn, self._conn.getUpdateService().saveAndReturnObject(ann._obj))
         #else:
         #    ann.save()
         lnktype = "%sAnnotationLinkI" % self.OMERO_CLASS
         lnk = getattr(omero.model, lnktype)()
-        lnk.details.setPermissions(omero.model.PermissionsI())
-        lnk.details.permissions.setWorldRead(True)
-        lnk.details.permissions.setGroupWrite(True)
-        lnk.details.permissions.setUserWrite(True)
+        if omero_version < ['4','2','0']:
+            lnk.details.setPermissions(omero.model.PermissionsI())
+            lnk.details.permissions.setWorldRead(True)
+            lnk.details.permissions.setGroupWrite(True)
+            lnk.details.permissions.setUserWrite(True)
         lnk.setParent(self._obj.__class__(self._obj.id, False))
         lnk.setChild(ann._obj.__class__(ann._obj.id, False))
         self._conn.getUpdateService().saveObject(lnk)
