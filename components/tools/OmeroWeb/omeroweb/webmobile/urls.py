@@ -11,6 +11,10 @@ urlpatterns = patterns('',
     url( r'^logout/$', views.logout, name='webmobile_logout' ),
     url( r'^img_detail/(?P<iid>[0-9]+)/$', views.image_viewer, name="image_viewer"),
     
+    # recent updates
+    url( r'^recent/$', views.recent, name='webmobile_recent_group' ),     # group
+    url( r'^recent/(?P<eid>[0-9]+)/$', views.recent, name='webmobile_recent' ),     #experimenter
+    
     # browsing P/D/I hierarchy
     url( r'^projects/$', views.projects, name='webmobile_projects' ),
     url( r'^projects/(?P<eid>[0-9]+)/$', views.projects, name='webmobile_projects' ),

@@ -13,36 +13,64 @@
 
 {% block content %}
 
-<div class="subtitle">
+<div class='bottom-header'>
+    Recent:
+</div>
+
+<div class='list-item'> 
+    <a href="{% url webmobile_recent client.user.getId %}">
+        <div class="tab-item">
+            My data
+        </div>
+    </a>
+    
+    <a href="{% url webmobile_recent_group %}">
+        <div class="tab-item">
+            Group data
+        </div>
+    </a>
+    <div style="clear:both"></div>
+</div>
+
+
+<div class='bottom-header'>
     Browse{% if experimenter %} (owned by {{ experimenter.getFullName }}){% endif %}:
 </div>
 
-<div class="list-container"> 
+<div class='list-item'> 
     <a {% if experimenter %} href="{% url webmobile_projects experimenter.id %}" 
         {% else %} href="{% url webmobile_projects %}"{% endif %} >
-        <div class="item-name">
+        <div class="tab-item">
             Projects
         </div>
     </a>
     
     <a {% if experimenter %} href="{% url webmobile_screens experimenter.id %}" 
         {% else %} href="{% url webmobile_screens %}"{% endif %} >
-        <div class="item-name">
+        <div class="tab-item">
             Screens
         </div>
     </a>
     
     <a href="{% url webmobile_projects %}{% if experimenter %}?experimenter={{ experimenter.id }}{% endif %}">
-        <div class="item-name">
+        <div class="tab-item">
             Tags
         </div>
     </a>
+
+    <div style="clear:both"></div>
 </div>
 
-<div class="list-container">
+<div class="bottom-header">
+    Switch:
+</div>
+
+<div class='list-item'>
     <a href="{% url webmobile_groups_members %}">
-        <div class="item-name">Switch Group / User</div></a>
+        <div class="tab-item"> Group / User</div></a>
     </a>
+
+    <div style="clear:both"></div>
 </div>
 
 {% endblock %}

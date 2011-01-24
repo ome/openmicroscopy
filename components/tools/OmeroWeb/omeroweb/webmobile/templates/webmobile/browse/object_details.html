@@ -16,7 +16,9 @@
         {% endifequal %}
     </div>
     <div id='bottom-header-right'>
-        <a href="{% url webmobile_edit_object obj_type object.id %}">edit</a>
+        {% if object.isOwned %}
+            <a href="{% url webmobile_edit_object obj_type object.id %}">edit</a>
+        {% endif %}
     </div>
     <div style="clear:both"></div>
 </div>

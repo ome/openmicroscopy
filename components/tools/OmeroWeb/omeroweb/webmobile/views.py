@@ -9,6 +9,7 @@ import traceback
 import omero
 # use the webclient's gateway connection wrapper
 from webclient.webclient_gateway import OmeroWebGateway
+import webmobile_util
 
 logger = logging.getLogger('webmobilewebmobile')
     
@@ -499,17 +500,28 @@ def index (request, eid=None, **kwargs):
     experimenter = None
     if eid is not None:
         experimenter = conn.getExperimenter(eid)
-        
-    rc = conn.listMostRecentComments()
-    rc = list(rc)
-    for link in rc:
-        print ""
-        print link.creationEventDate()
-        print link.child.textValue.val
-        print type(link.parent)
       
     return render_to_response('webmobile/index.html', {'client': conn, 'experimenter': experimenter})
 
+
+@isUserConnected
+def recent (request, eid=None, **kwargs):
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return HttpResponse(traceback.format_exc())
+    
+    recentResults = []
+    recentItems = webmobile_util.listMostRecentObjects(conn, 3, eid)
+    
+    for r in recentItems:
+        update = r.updateEventDate()
+        t = webmobile_util.formatTimeAgo(update)
+        recentResults.append( (r, t) )
+        
+    return render_to_response('webmobile/timeline/recent.html', {'client': conn, 'recent': recentResults })
 
 
 def image_viewer (request, iid, **kwargs):

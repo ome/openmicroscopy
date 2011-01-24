@@ -43,7 +43,7 @@ body {
 }
 
 .bottom-header {
-    padding: 1px 3px;
+    padding: 3px 3px 1px 3px;
     font-size:85%;
     border: 1px solid gray;
     border-width: 0px 0px 1px 0px;
@@ -93,6 +93,15 @@ body {
     margin: 0px;
 }
 .item-name {padding: 12px;}
+
+.tab-item {
+    padding: 4px;
+    margin: 4px;
+    float:left;
+    background-color:#eee;
+    border: 1px solid #ddd;
+}
+
 .item-selected {
     padding: 12px;
     color: #333399;
@@ -125,6 +134,11 @@ img.thumbnail {
     border: 0px;
     height:auto; 
     width: auto;
+}
+
+img.recent_thumb {
+    float:left;
+    margin-right: 5px;
 }
 
 .page-content {

@@ -1,0 +1,46 @@
+{% extends "webmobile/base/base_header.html" %}
+
+{% block header-title %}
+    Recent Activity - Group
+{% endblock %}
+
+
+{% block content %}
+<div class='bottom-header'>
+    <div id='bottom-header-left'> 
+        My recent
+    </div>
+    
+    <div style="clear:both"></div>
+</div>
+
+
+<div>
+{% for r in recent %}
+
+    <a href="#">
+        <div class="list-item"> 
+            <div style="padding:8px">
+                
+                {% ifequal r.0.OMERO_CLASS 'Image' %}
+                    <img class='recent_thumb' border='0' src="{% url webgateway.views.render_thumbnail r.0.id 40 %}" />
+                {% else %}
+                    <span class='gray'>{{ r.0.OMERO_CLASS }}</span>
+                {% endifequal %}
+                
+                {% if r.0.getName %} {{ r.0.getName }} {% endif %}
+                {% if r.0.textValue %} {{ r.0.textValue }} {% endif %}
+                    
+                <div class='small'>
+                    <span class='gray'>{{ r.1 }}</span> By {{ r.0.getOwnerFullName }}
+                </div>
+                <div style="clear:both"></div>
+            </div>
+        </div>
+    </a>
+    
+{% endfor %}
+</div>
+
+
+{% endblock %}
