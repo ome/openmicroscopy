@@ -620,6 +620,10 @@ class AbstractMeasurementCtx(object):
         self.table.initialize(columns)
         log.debug("Table init took %sms" % (int(time.time() * 1000) - t0))
         t0 = int(time.time() * 1000)
+        column_report = dict()
+        for column in columns:
+            column_report[column.name] = len(column.values)
+        log.debug("Column report: %r" % column_report)
         self.table.addData(columns)
         log.info("Table update took %sms" % (int(time.time() * 1000) - t0))
     
@@ -1110,6 +1114,10 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
                         well_data = None
                 else:
                     element.clear()
+            # Final row sparseness check
+            self.check_sparse_data(cells_columns.values())
+            self.check_sparse_data(nuclei_columns.values())
+            self.check_sparse_data(organelles_columns.values())
             log.info("Total ROI: %d" % n_roi)
             log.info("Total measurements: %d" % n_measurements)
             sets_of_columns = [cells_columns.values(), nuclei_columns.values(),
@@ -1121,10 +1129,15 @@ class InCellMeasurementCtx(AbstractMeasurementCtx):
     def parse_and_populate_roi(self, columns_as_list):
         # First sanity check our provided columns
         names = [column.name for column in columns_as_list]
+        log.debug('Parsing columns: %r' % names)
         cells_expected = [name in names for name in self.CELLS_CG_EXPECTED]
         nuclei_expected = [name in names for name in self.NUCLEI_CG_EXPECTED]
         if (False in cells_expected) and (False in nuclei_expected):
             log.warn("Missing CGs for InCell dataset: %r" % names)
+            log.warn('Removing resultant empty ROI column.')
+            for column in columns_as_list:
+                if RoiColumn == column.__class__:
+                    columns_as_list.remove(column)
             return
         # Reconstruct a column name to column map
         columns = dict()
@@ -1233,10 +1246,11 @@ if __name__ == "__main__":
     c.enableKeepAlive(60)
     try:
         if session_key is not None:
-            service_factory = c.createSession(session_key)
+            service_factory = c.joinSession(session_key)
         else:
             service_factory = c.createSession(username, password)
 
+        log.debug('Creating pool of %d threads' % thread_count)
         thread_pool = ThreadPool(thread_count)
         factory = PlateAnalysisCtxFactory(service_factory)
         analysis_ctx = factory.get_analysis_ctx(plate_id)
