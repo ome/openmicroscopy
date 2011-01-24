@@ -328,7 +328,7 @@ public interface ImViewer
 	 * 
 	 * @param image The image to display.
 	 */
-	public void setImage(BufferedImage image);
+	public void setImage(Object image);
 
 	/**
 	 * Plays a movie across channel i.e. one channel is selected at a time.
@@ -1057,13 +1057,6 @@ public interface ImViewer
 	 * @param bounds The rectangle to display if possible.
 	 */
 	public void scrollToViewport(Rectangle bounds);
-	
-	/**
-	 * Sets the image to display.
-	 * 
-	 * @param image The image to display.
-	 */
-	public void setImageAsTexture(TextureData image);
 
 	/**
 	 * Returns the images composing the grid. This should be invoked
@@ -1171,5 +1164,12 @@ public interface ImViewer
 	 * @param results The results to display.
 	 */
 	void displayFLIMResults(Map<FileAnnotationData, File> results);
+
+	/**
+	 * Sets the image displayed in the bird eye view.
+	 * 
+	 * @param result The value to set.
+	 */
+	void setBirdEyeView(Object result);
 	
 }

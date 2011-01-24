@@ -23,11 +23,9 @@
 package org.openmicroscopy.shoola.agents.imviewer;
 
 //Java imports
-import java.awt.image.BufferedImage;
 import java.util.Map;
 
 //Third-party libraries
-import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import omero.romio.PlaneDef;
@@ -110,11 +108,7 @@ public class OverlaysRenderer
     public void handleResult(Object result)
     {
         if (viewer.getState() == ImViewer.DISCARDED) return;  //Async cancel.
-        if ((ImViewerAgent.hasOpenGLSupport())) {
-        	viewer.setImageAsTexture((TextureData) result);
-    	} else {
-    		viewer.setImage((BufferedImage) result);
-    	}
+        viewer.setImage(result);
     }
     
 }

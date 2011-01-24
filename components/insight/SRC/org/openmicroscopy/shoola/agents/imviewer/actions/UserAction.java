@@ -85,28 +85,28 @@ public class UserAction
 	}
 	
 	/**
-	 * Required by the {@link MouseListener} I/F but no-op implementation 
+	 * Required by the {@link MouseListener} I/F but no-operation implementation 
 	 * in our case.
 	 * @see MouseListener#mouseClicked(MouseEvent)
 	 */
 	public void mouseClicked(MouseEvent me) {}
 
 	/**
-	 * Required by the {@link MouseListener} I/F but no-op implementation 
+	 * Required by the {@link MouseListener} I/F but no-operation implementation 
 	 * in our case.
 	 * @see MouseListener#mouseEntered(MouseEvent)
 	 */
 	public void mouseEntered(MouseEvent me) {}
 
 	/**
-	 * Required by the {@link MouseListener} I/F but no-op implementation 
+	 * Required by the {@link MouseListener} I/F but no-operation implementation 
 	 * in our case.
 	 * @see MouseListener#mouseExited(MouseEvent)
 	 */
 	public void mouseExited(MouseEvent me) {}
 
 	/**
-	 * Required by the {@link MouseListener} I/F but no-op implementation 
+	 * Required by the {@link MouseListener} I/F but no-operation implementation 
 	 * in our case.
 	 * @see MouseListener#mouseReleased(MouseEvent)
 	 */

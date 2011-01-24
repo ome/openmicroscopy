@@ -95,7 +95,6 @@ import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
 import pojos.ChannelData;
 import pojos.DataObject;
-import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
@@ -774,9 +773,9 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#setImage(BufferedImage)
+	 * @see ImViewer#setImage(Object)
 	 */
-	public void setImage(BufferedImage image)
+	public void setImage(Object image)
 	{
 		if (model.getState() != LOADING_IMAGE) 
 			throw new IllegalStateException("This method can only be invoked " +
@@ -787,12 +786,20 @@ class ImViewerComponent
 					"creating the image.");
 			return;
 		}
+		if (!(image instanceof BufferedImage || image instanceof TextureData))
+			return;
 			
 		if (newPlane) postMeasurePlane();
 		newPlane = false;
-
-		BufferedImage originalImage = model.getOriginalImage();
-		model.setImage(image);
+		Object originalImage;
+		if (ImViewerAgent.hasOpenGLSupport()) {
+			originalImage = model.getImageAsTexture();
+			model.setImageAsTexture((TextureData) image);
+		} else {
+			originalImage = model.getOriginalImage();
+			model.setImage((BufferedImage) image);
+		}
+		
 		view.setLeftStatus();
 		view.setPlaneInfoStatus();
 		if (originalImage == null && model.isZoomFitToWindow()) {
@@ -2724,13 +2731,13 @@ class ImViewerComponent
 	{
 		//if (model.isNumerousChannel()) model.setForLifetime();
 		model.onRndLoaded();
-		
 		if (!reload) {
 			int index = UnitBarSizeAction.getDefaultIndex(5*getPixelsSizeX());
 			setUnitBarSize(UnitBarSizeAction.getValue(index));
 			view.setDefaultScaleBarMenu(index);
 			colorModel = model.getColorModel();
 			view.buildComponents();
+			view.onRndLoaded();
 			if (model.isSeparateWindow()) {
 				view.setOnScreen();
 				view.toFront();
@@ -2747,7 +2754,9 @@ class ImViewerComponent
 			model.resetHistory();
 			view.switchRndControl();
 		}
-		renderXYPlane();
+		if (model.isBigImage()) { //bird eye loaded.
+			model.fireBirdEyeViewRetrieval();
+		} else renderXYPlane();
 		fireStateChange();
 	}
 
@@ -3139,9 +3148,20 @@ class ImViewerComponent
 	}
 	
 	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#displayFLIMResults(Map)
+	 */
+	public void setBirdEyeView(Object result) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	/** 
 	 * Overridden to return the name of the instance to save. 
 	 * @see #toString()
 	 */
 	public String toString() { return getTitle(); }
+
+
 
 }

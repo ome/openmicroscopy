@@ -22,19 +22,18 @@
  */
 package org.openmicroscopy.shoola.agents.imviewer.actions;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-
-import org.openmicroscopy.shoola.agents.imviewer.IconManager;
-import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 //Java imports
+import java.awt.event.ActionEvent;
+import javax.swing.Action;
+
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.imviewer.IconManager;
+import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
  * 

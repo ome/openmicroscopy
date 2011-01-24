@@ -38,7 +38,7 @@ import org.openmicroscopy.shoola.agents.imviewer.view.ImViewer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
- * Plays a movei without the movie displaying the player movie.
+ * Plays a movie without the movie displaying the player movie.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -102,13 +102,17 @@ public class PlayMovieAction
 				setEnabled(false);
 				break;
 			case ImViewer.READY:
-				if (model.isPlayingMovie()) {
-					setEnabled(model.getMovieIndex() == index);
+				if (model.isBigImage()) {
+					setEnabled(false);
 				} else {
-					if (index == ACROSS_T)
-						setEnabled(model.getMaxT() != 0);
-					else if (index == ACROSS_Z)
-						setEnabled(model.getMaxZ() != 0);
+					if (model.isPlayingMovie()) {
+						setEnabled(model.getMovieIndex() == index);
+					} else {
+						if (index == ACROSS_T)
+							setEnabled(model.getMaxT() != 0);
+						else if (index == ACROSS_Z)
+							setEnabled(model.getMaxZ() != 0);
+					}
 				}
 		}
     }
@@ -153,7 +157,7 @@ public class PlayMovieAction
 	}
 	
 	/** 
-     * Plays movie across z-sections or timepoints.
+     * Plays movie across z-sections or time-points.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
     public void actionPerformed(ActionEvent e)

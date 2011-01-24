@@ -725,7 +725,7 @@ class ImViewerModel
 			loader.load();
 		} else {
 			if (ImViewerAgent.hasOpenGLSupport()) 
-				component.setImageAsTexture(rnd.renderPlaneAsTexture(pDef));
+				component.setImage(rnd.renderPlaneAsTexture(pDef));
 			else component.setImage(rnd.renderPlane(pDef));
 		}
 	}
@@ -956,6 +956,7 @@ class ImViewerModel
 	 */
 	boolean allowSplitView()
 	{
+		if (isBigImage()) return false;
 		if (getMaxC() <= 1) return false;
 		if (isNumerousChannel()) return false;
 		//if (getMaxX() >= 2*IMAGE_MAX_WIDTH) return false;
@@ -2313,6 +2314,23 @@ class ImViewerModel
 	boolean isHCSImage()
 	{
 		return (image instanceof WellSampleData);
+	}
+
+	/**
+	 * Loads the bird eye view image for big image.
+	 */
+	void fireBirdEyeViewRetrieval()
+	{
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return;
+		PlaneDef pDef = new PlaneDef();
+		pDef.t = getDefaultT();
+		pDef.z = getDefaultZ();
+		pDef.slice = omero.romio.XY.value;
+		state = ImViewer.LOADING_IMAGE;
+		ImageLoader loader = new ImageLoader(component, getPixelsID(), 
+				pDef, isBigImage());
+		loader.load();
 	}
 	
 }
