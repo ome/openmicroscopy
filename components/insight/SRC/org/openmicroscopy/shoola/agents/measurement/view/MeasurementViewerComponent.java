@@ -439,7 +439,11 @@ class MeasurementViewerComponent
 		*/
 		//Post event indicating that we don't care about saving.
 		postEvent(MeasurementToolLoaded.REMOVE);
-		view.setVisible(false);
+		if (model.isHCSData()) {
+			List<FileAnnotationData> list = model.getMeasurements();
+			if (list == null || list.size() == 0) view.setVisible(false);
+			else discard();
+		} else view.setVisible(false);
 	}
 
 	/** 
