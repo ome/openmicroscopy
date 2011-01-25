@@ -55,6 +55,10 @@ class AdminTests (WebAdminTestBase):
         self.logout()
         super(AdminTests, self).tearDown()
 
+    def tearDown(self):
+        self.logout()
+        super(AdminTests, self).tearDown()
+
 
 if __name__ == "__main__":
    Utils.runAsScript('webadmin')
