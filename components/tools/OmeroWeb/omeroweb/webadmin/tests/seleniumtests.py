@@ -2,15 +2,19 @@ from omeroweb.webgateway.tests.seleniumbase import SeleniumTestBase, Utils
 from omero.gateway.scripts import dbhelpers
 
 class WebAdminTestBase (SeleniumTestBase):
-    
-    def setUp(self):
-        pass
+
         
     def login (self, u, p):
         if self.selenium.is_element_present('link=Log out'):
             print "logging out..."
             self.logout()
         print "logging in..."
+        sel.open("/webadmin/login")
+        sel.type("id_username", "root")
+        sel.type("id_password", "omero")
+        sel.click("//input[@value='Connect']")
+        self.waitForElementPresence('link=Scientists')
+        """
         self.selenium.click("link=Log in")
         self.selenium.wait_for_page_to_load("30000")
         self.selenium.type("username", u)
@@ -18,42 +22,25 @@ class WebAdminTestBase (SeleniumTestBase):
         self.selenium.click("//input[@value='LOG IN']")
         self.selenium.wait_for_page_to_load("30000")
         self.waitForElementPresence('link=Log out')
+        """
         
     def logout (self):
         self.selenium.click("link=Log out")
         self.selenium.wait_for_page_to_load("30000")
         self.waitForElementPresence('link=Log in')
         
-    def tearDown (self):
-        pass
         
-        
-class AdminTests (SeleniumTestBase):
+class AdminTests (WebAdminTestBase):
     
     from omero.gateway.scripts import dbhelpers
     
-    """
     def setUp(self):
-        super(SeleniumTestBase, self).setUp()
-        
-    
-    def tearDown (self):
-        super(SeleniumTestBase, self).tearDown()
-    """
-        
-        
-    def login (self, u, p):
-        if self.selenium.is_element_present('link=Log out'):
-            print "logging out..."
-            self.logout()
-        print "logging in..."
-        self.selenium.click("link=Log in")
-        self.selenium.wait_for_page_to_load("30000")
-        self.selenium.type("username", u)
-        self.selenium.type("password", p)
-        self.selenium.click("//input[@value='LOG IN']")
-        self.selenium.wait_for_page_to_load("30000")
-        self.waitForElementPresence('link=Log out')
+        super(AdminTests, self).setUp()
+        dbhelpers.refreshConfig()
+        user = dbhelpers.ROOT.name
+        password = dbhelpers.ROOT.passwd
+        print user, password    # seems to always be 'root', 'ome' 
+        self.login(user, 'omero')
         
     def testLoginAndPages (self):
         """
@@ -69,14 +56,8 @@ class AdminTests (SeleniumTestBase):
         print "testLoginAndPages", u, p  # root, ome  # etc/ice-config says root, omero! 
         self.login(u, 'omero')
         
-        #sel = self.selenium
-        sel.open("/webadmin/login")
-        sel.type("id_username", "root")
-        sel.type("id_password", "omero")
-        sel.click("//input[@value='Connect']")
         sel.wait_for_page_to_load("30000")
         self.assertEqual("WebAdmin - Scientists", sel.get_title())
-        self.failUnless(sel.is_element_present("link=Scientists"))
         sel.click("link=Groups")
         sel.wait_for_page_to_load("30000")
         sel.click("link=My Account")
@@ -85,6 +66,10 @@ class AdminTests (SeleniumTestBase):
         sel.wait_for_page_to_load("30000")
         sel.click("link=Logout")
         sel.wait_for_page_to_load("30000")
+
+    def tearDown(self):
+        self.logout()
+        super(AdminTests, self).tearDown()
 
 
 if __name__ == "__main__":
