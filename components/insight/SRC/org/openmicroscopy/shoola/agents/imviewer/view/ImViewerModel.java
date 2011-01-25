@@ -972,8 +972,11 @@ class ImViewerModel
 	 */
 	boolean isBigImage()
 	{
+		return true;
+		/*
 		return (getMaxX() > RenderingControl.MAX_SIZE_THREE ||
 				getMaxY() > RenderingControl.MAX_SIZE_THREE);
+				*/
 	}
 	
 	/**
@@ -2327,6 +2330,8 @@ class ImViewerModel
 		pDef.t = getDefaultT();
 		pDef.z = getDefaultZ();
 		pDef.slice = omero.romio.XY.value;
+		pDef.x = getMaxX()/2;
+		pDef.y = getMaxY()/2;
 		state = ImViewer.LOADING_IMAGE;
 		ImageLoader loader = new ImageLoader(component, getPixelsID(), 
 				pDef, isBigImage());

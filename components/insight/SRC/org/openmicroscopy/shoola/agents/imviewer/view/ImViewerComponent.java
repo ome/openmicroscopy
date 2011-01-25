@@ -3149,11 +3149,55 @@ class ImViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#displayFLIMResults(Map)
+	 * @see ImViewer#setBirdEyeView(Object)
 	 */
-	public void setBirdEyeView(Object result) {
-		// TODO Auto-generated method stub
+	public void setBirdEyeView(Object image)
+	{
+		if (model.getState() != LOADING_IMAGE) 
+			throw new IllegalStateException("This method can only be invoked " +
+			"in the LOADING_IMAGE state.");
+		if (image == null) {
+			UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
+			un.notifyInfo("Image retrieval", "An error occurred while " +
+					"creating the image.");
+			return;
+		}
+		if (!(image instanceof BufferedImage || image instanceof TextureData))
+			return;
+			
+		if (newPlane) postMeasurePlane();
+		newPlane = false;
+		Object originalImage;
+		if (ImViewerAgent.hasOpenGLSupport()) {
+			originalImage = model.getImageAsTexture();
+			model.setImageAsTexture((TextureData) image);
+		} else {
+			originalImage = model.getOriginalImage();
+			model.setImage((BufferedImage) image);
+		}
 		
+		view.setLeftStatus();
+		view.setPlaneInfoStatus();
+		if (originalImage == null && model.isZoomFitToWindow()) {
+			controller.setZoomFactor(ZoomAction.ZOOM_FIT_TO_WINDOW);
+		}
+		if (model.isPlayingChannelMovie())
+			model.setState(ImViewer.CHANNEL_MOVIE);
+		if (!model.isPlayingMovie()) {
+			//Post an event
+			EventBus bus = ImViewerAgent.getRegistry().getEventBus();
+			BufferedImage icon = model.getImageIcon();
+			bus.post(new ImageRendered(model.getPixelsID(), icon, 
+					model.getBrowser().getRenderedImage()));
+			//if (icon != null) view.setIconImage(icon);
+		}
+			
+		if (!model.isPlayingMovie() && !model.isPlayingChannelMovie()) {
+			if (view.isLensVisible()) view.setLensPlaneImage();
+			view.createHistoryItem(null);
+		}
+		view.setCursor(Cursor.getDefaultCursor());
+		fireStateChange();
 	}
 	
 	/** 

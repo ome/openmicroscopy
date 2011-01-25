@@ -281,8 +281,6 @@ class OmeroImageServiceImpl
 	{
 		try {
 			return WriterImage.bytesToImage(values);
-			//ByteArrayInputStream stream = new ByteArrayInputStream(values);
-			//return ImageIO.read(stream);
 		} catch (Exception e) {
 			throw new RenderingServiceException("Cannot create buffered image",
 					e);
