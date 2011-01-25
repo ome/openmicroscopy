@@ -1,4 +1,6 @@
 .classpath
+components/tools/OmeroCpp/compiler.log
+components/tools/OmeroCpp/scons.log
 .hg
 .hgignore
 .DS_Store
