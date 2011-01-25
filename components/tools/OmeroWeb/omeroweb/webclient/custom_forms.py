@@ -13,6 +13,10 @@ from django.forms import ModelChoiceField, ValidationError
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import smart_unicode
 
+from omero_model_FileAnnotationI import FileAnnotationI
+from omero_model_TagAnnotationI import TagAnnotationI
+from omero_model_LongAnnotationI import LongAnnotationI
+
 ##################################################################
 # Fields
 
@@ -109,9 +113,7 @@ class AnnotationQuerySetIterator(object):
         if self.empty_label is not None:
             yield (u"", self.empty_label)
         for obj in self.queryset:
-            textValue = None
-            from omero_model_FileAnnotationI import FileAnnotationI
-            from omero_model_TagAnnotationI import TagAnnotationI
+            textValue = None            
             if isinstance(obj._obj, FileAnnotationI):
                 textValue = (len(obj.getFileName()) < 45) and (obj.getFileName()) or (obj.getFileName()[:42]+"...")
             elif isinstance(obj._obj, TagAnnotationI):
@@ -120,12 +122,15 @@ class AnnotationQuerySetIterator(object):
                         textValue = (len(obj.textValue) < 45) and ("%s (tagset)" % obj.textValue) or ("%s (tagset)" % obj.textValue[:42]+"...")
                     else:
                         textValue = (len(obj.textValue) < 45) and (obj.textValue) or (obj.textValue[:42]+"...")
+            elif isinstance(obj._obj, LongAnnotationI):
+                textValue = obj.longValue
             else:
                 textValue = obj.textValue
             
-            l = len(textValue)
-            if l > 55:
-                textValue = "%s..." % textValue[:55]            
+            if isinstance(textValue, str):
+                l = len(textValue)
+                if l > 55:
+                    textValue = "%s..." % textValue[:55]            
             oid = obj.id
             yield (oid, smart_unicode(textValue))
         # Clear the QuerySet cache if required.

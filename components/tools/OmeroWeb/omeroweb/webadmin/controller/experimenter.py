@@ -35,7 +35,7 @@ class BaseExperimenters(BaseController):
     
     def __init__(self, conn):
         BaseController.__init__(self, conn)
-        self.experimentersList = list(self.conn.lookupExperimenters())
+        self.experimentersList = list(self.conn.listExperimenters())
         self.auth = self.conn.listLdapAuthExperimenters()
         self.experimenters = list()
         self.experimentersCount = {'experimenters': 0, 'active': 0, 'ldap': 0, 'admin': 0, 'guest': 0}
@@ -101,7 +101,7 @@ class BaseExperimenter(BaseController):
                     self.otherGroups.append(gem.parent.id.val)
                     self.others.append(gem.parent)
                     self.default.append((gem.parent.id.val, gem.parent.name.val))
-        self.groups = list(self.conn.lookupGroups())
+        self.groups = list(self.conn.listGroups())
     
     def otherGroupsInitialList(self, exclude=list()):
         formGroups = list()
@@ -136,7 +136,7 @@ class BaseExperimenter(BaseController):
                 self.otherGroups.append(gem.parent)
     
     def getOwnedGroups(self):
-        groupsList = list(self.conn.lookupOwnedGroups())
+        groupsList = list(self.conn.listOwnedGroups())
         self.groups = list()
         for gr in groupsList:
             if gr.name == "user" or gr.name == "system" or gr.name == "guest":
