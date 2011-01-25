@@ -251,7 +251,12 @@ class ImporterUIElement
 				if (importable.isFolderAsContainer())
 					foldersName.add(f.getName());
 				else orphanedFiles = true;
-			} else orphanedFiles = true;
+			} else {
+				DatasetData dataset = object.getDefaultDataset();
+				if (dataset != null) 
+					foldersName.add(dataset.getName());
+				else orphanedFiles = true;
+			}
 			importable.setStatus(c.getStatus());
 			components.put(f.getAbsolutePath(), c);
 		}

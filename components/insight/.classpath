@@ -7,7 +7,6 @@
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="/Users/jburel/Documents/workspace/InsightTrunkMain/LIB/osx-native"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="LIB/axis-1.4.jar"/>
 	<classpathentry kind="lib" path="LIB/backport-util-concurrent.jar"/>
 	<classpathentry kind="lib" path="LIB/bio-formats.jar"/>
 	<classpathentry kind="lib" path="LIB/commons-beanutils-1.8.0.jar"/>
@@ -31,7 +30,6 @@
 	<classpathentry kind="lib" path="LIB/loci-common.jar"/>
 	<classpathentry kind="lib" path="LIB/log4j-1.2.14.jar"/>
 	<classpathentry kind="lib" path="LIB/mdbtools-java.jar"/>
-	<classpathentry kind="lib" path="LIB/monitors.jar"/>
 	<classpathentry kind="lib" path="LIB/ols-client-1.15.jar"/>
 	<classpathentry kind="lib" path="LIB/ome-xml.jar"/>
 	<classpathentry kind="lib" path="LIB/omero_client.jar"/>
@@ -62,5 +60,6 @@
 	<classpathentry kind="lib" path="LIB/poi-3.6-20091214.jar"/>
 	<classpathentry kind="lib" path="LIB/activation-1.1.1.jar"/>
 	<classpathentry kind="lib" path="LIB/TableLayout-bin-jdk1.5-2009-08-26.jar"/>
+	<classpathentry kind="lib" path="LIB/axis-1.4.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

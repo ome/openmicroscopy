@@ -28,6 +28,8 @@ package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+
 import omero.IllegalArgumentException;
 import pojos.DatasetData;
 
@@ -50,6 +52,9 @@ class DataNode
 	/** The dataset to host. */
 	private DatasetData dataset;
 	
+	/** The node of reference. */
+	private TreeImageDisplay refNode;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -61,6 +66,20 @@ class DataNode
 			throw new IllegalArgumentException("No Dataset specified.");
 		this.dataset = dataset;
 	}
+	
+	/**
+	 * Sets the node of reference.
+	 * 
+	 * @param refNode The node of reference.
+	 */
+	void setRefNode(TreeImageDisplay refNode) { this.refNode = refNode; }
+	
+	/**
+	 * Returns the node of reference.
+	 * 
+	 * @return See above.
+	 */
+	TreeImageDisplay getRefNode() { return refNode; }
 	
 	/**
 	 * Returns the dataset.

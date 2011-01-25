@@ -3226,7 +3226,7 @@ class TreeViewerComponent
 			if (nodes != null && nodes.size() > 0) {
 				Iterator<TreeImageDisplay> i = nodes.iterator();
 				while (i.hasNext())
-					i.next().setToRefresh(refreshTree);
+					i.next().setToRefresh(true);
 				browser.getUI().repaint();
 			} else {
 				node = browser.getLoggedExperimenterNode();
@@ -3254,7 +3254,6 @@ class TreeViewerComponent
 	{
 		if (model.getState() == DISCARDED) return;
 		model.setImporting(importing);
-		
 		if (!importing)
 			indicateToRefresh(containers, refreshTree);
 		firePropertyChange(IMPORT_PROPERTY, importing, !importing);

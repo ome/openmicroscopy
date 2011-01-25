@@ -866,12 +866,14 @@ class OmeroImageServiceImpl
 					} else {
 						io = gateway.saveAndReturnObject(
 								dataset.asIObject(), m);
-						link =(ProjectDatasetLink) 
+						/*
+						link = (ProjectDatasetLink) 
 						ModelMapper.linkParentToChild((Dataset) io, 
 								(Project) container.asProject());
 						link = (ProjectDatasetLink) 
 						gateway.saveAndReturnObject(link, m);
 						io = link.getChild();
+						*/
 					}
 				}
 			}
@@ -955,7 +957,6 @@ class OmeroImageServiceImpl
 				j = containers.iterator();
 				container = containers.get(0);
 				if (container instanceof ProjectData) {
-					
 					io = createDefaultContainer(container, dataset, userID);
 					if (io != null) {
 						ioList.add(io);

@@ -93,10 +93,26 @@ public class NodesFinder
 			if (userObject != null && userObject.getClass().equals(type)) {
 				if (userObject instanceof DataObject) {
 					DataObject data = (DataObject) userObject;
-					if (ids.contains(data.getId())) nodes.add(node);
+					if (ids == null) {
+						nodes.add(node);
+					} else {
+						if (ids.contains(data.getId())) nodes.add(node);
+					}
 				}
 			} 	
 		}
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param type The type to data object.
+	 */
+	public NodesFinder(Class type)
+	{
+		this.type = type;
+		this.ids = null;
+		nodes = new HashSet<TreeImageDisplay>();
 	}
 	
 	/**

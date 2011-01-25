@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.events.importer;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 //Third-party libraries
@@ -62,8 +63,8 @@ public class LoadImporter
 	/** The containers where to load the image. */
 	private List<TreeImageDisplay> containers;
 	
-	/** The default datasets. */
-	private List<DatasetData> datasets;
+	/** The datasets or screens. */
+	private Collection<TreeImageDisplay> objects;
 	
 	/** The type of the import to handle. */
 	private int type;
@@ -118,20 +119,20 @@ public class LoadImporter
 	public int getType() { return type; }
 	
 	/**
-	 * Returns the default datasets.
+	 * Returns the datasets or the screens.
 	 * 
 	 * @return See above.
 	 */
-	public List<DatasetData> getDatasets() { return datasets; }
+	public Collection<TreeImageDisplay> getObjects() { return objects; }
 	
 	/**
-	 * Returns the datasets.
+	 * Returns the datasets or screens.
 	 * 
 	 * @param datasets The values to set.
 	 */
-	public void setDatasets(List<DatasetData> datasets)
+	public void setObjects(Collection<TreeImageDisplay> objects)
 	{
-		this.datasets = datasets;
+		this.objects = objects;
 	}
 
 }

@@ -152,7 +152,6 @@ public class ImportDialog
 	/** Action id indicating to create a new dataset. */
 	private static final int	CREATE_DATASET = 6;
 	
-	
 	/** The title of the dialog. */
 	private static final String TITLE = "Import";
 	
@@ -174,6 +173,9 @@ public class ImportDialog
 	/** Message if projects are selected. */
 	private static final String OTHER_AS_CONTAINER = "Images " +
 			"imported in Dataset (if folder not converted):";
+	
+	/** Message indicating where to import the data. */
+	private static final String IMPORT_DATA = "Import Data in ";
 	
 	/** Message if no containers specified. */
 	//private static final String NO_CONTAINER = "No container specified, " +
@@ -265,6 +267,9 @@ public class ImportDialog
 	/** The containers where to import the data. */
 	private List<TreeImageDisplay>		containers;
 	
+	/** The possible node. */
+	private Collection<TreeImageDisplay> 		objects;
+	
 	/** The component displaying the table, options etc. */
 	private JTabbedPane 				tabbedPane;
 	
@@ -288,6 +293,9 @@ public class ImportDialog
 	
 	/** Sorts the objects from the display. */
 	private ViewerSorter				sorter;
+	
+	/** The class of reference for the container. */
+	private Class						reference;
 	
 	/** 
 	 * Creates the dataset.
@@ -497,6 +505,7 @@ public class ImportDialog
 	private void initComponents(List<TreeImageDisplay> containers)
 	{
 		this.containers = containers;
+		reference = null;
 		sorter = new ViewerSorter();
 		datasets = new ArrayList<DataNode>();
 		addButton = new JButton("New...");
@@ -872,11 +881,15 @@ public class ImportDialog
 		String message = OTHER_AS_CONTAINER;
 		addButton.setVisible(true);
 		defaultContainerField.setVisible(false);
+		Iterator<TreeImageDisplay> i;
+		datasets.clear();
+		TreeImageDisplay node;
+		Object ho;
+		Object reference = null;
+		TreeImageDisplay child;
+		DataNode dn;
 		if (containers != null && containers.size() > 0) {
-			datasets.clear();
-			Iterator<TreeImageDisplay> i = containers.iterator();
-			TreeImageDisplay node;
-			Object ho;
+			i = containers.iterator();
 			Iterator<TreeImageDisplay> j;
 			List<TreeImageDisplay> children;
 			while (i.hasNext()) {
@@ -887,8 +900,11 @@ public class ImportDialog
 					if (children != null && children.size() > 0) {
 						j = children.iterator();
 						while (j.hasNext()) {
-							datasets.add(new DataNode(
-									(DatasetData) j.next().getUserObject()));
+							child = j.next();
+							dn = new DataNode(
+									(DatasetData) child.getUserObject());
+							dn.setRefNode((TreeImageDisplay) child);
+							datasets.add(dn);
 						}
 					}
 				}
@@ -900,17 +916,22 @@ public class ImportDialog
 			String name = "";
 			int index = 0;
 			int n = containers.size()-1;
+			Class klass = null;
 			while (i.hasNext()) {
 				node = i.next();
 				c = node.getUserObject();
 				if (c instanceof DatasetData) {
-					message = null;
+					message = IMPORT_DATA;
 					if (index == 0) {
-						addButton.setVisible(false);
+						reference = c;
+						addButton.setVisible(true);
+						this.reference = DatasetData.class;
 						text.append("Dataset: ");
+						message += text.toString();
 					}
 					name += ((DatasetData) c).getName();
 				} else if (c instanceof ScreenData) {
+					this.reference = ScreenData.class;
 					if (index == 0) {
 						addButton.setVisible(false);
 						message = null;
@@ -918,6 +939,7 @@ public class ImportDialog
 					}
 					name += ((ScreenData) c).getName();
 				} else if (c instanceof ProjectData) {
+					this.reference = ProjectData.class;
 					if (index == 0) {
 						text.append("Project: ");
 						message = OTHER_AS_CONTAINER;
@@ -929,10 +951,24 @@ public class ImportDialog
 				if (index < n) name += ", ";
 				index++;
 			}
-			v = "Import data in "+text.toString();
-			row.add(UIUtilities.setTextFont(v));
-			row.add(new JLabel(name));
-			locationPane.add(row);
+			if (!DatasetData.class.equals(this.reference)) {
+				v = IMPORT_DATA+text.toString();
+				row.add(UIUtilities.setTextFont(v));
+				row.add(new JLabel(name));
+				locationPane.add(row);
+			}
+		}
+		if (objects != null && objects.size() > 0) {
+			i = objects.iterator();
+			while (i.hasNext()) {
+				node = i.next();
+				ho = node.getUserObject();
+				if (ho instanceof DatasetData) {
+					dn = new DataNode((DatasetData) ho);
+					dn.setRefNode(node);
+					datasets.add(dn);
+				}
+			}
 		}
 		if (type == Importer.SCREEN_TYPE) message = null;
 		if (message != null) {
@@ -942,7 +978,18 @@ public class ImportDialog
 			//row.add(defaultContainerField);
 			if (datasets != null && datasets.size() > 0) {
 				List l = sorter.sort(datasets);
+				DataNode selected = null;
+				if (reference != null) {
+					Iterator j = l.iterator();
+					long id = ((DataObject) reference).getId();
+					while (j.hasNext()) {
+						dn = (DataNode) j.next();
+						if (dn.getDataset().getId() == id)
+							selected = dn;
+					}
+				}
 				datasetsBox = new JComboBox(l.toArray());
+				if (selected != null) datasetsBox.setSelectedItem(selected);
 				row.add(datasetsBox);
 				row.add(addButton);
 			} else {
@@ -1041,9 +1088,11 @@ public class ImportDialog
     			chooser.getCurrentDirectory().toString());
     	ImportableObject object = new ImportableObject(table.getFilesToImport(),
     			overrideName.isSelected());
-    	if (containers != null) {
-    		List<DataObject> nodes = new ArrayList<DataObject>();
-    		List<Object> refNodes = new ArrayList<Object>();
+    	List<DataObject> nodes;
+    	List<Object> refNodes;
+    	if (containers != null && !DatasetData.class.equals(reference)) {
+    		nodes = new ArrayList<DataObject>();
+    		refNodes = new ArrayList<Object>();
     		Iterator<TreeImageDisplay> i = containers.iterator();
     		TreeImageDisplay node;
     		while (i.hasNext()) {
@@ -1070,7 +1119,20 @@ public class ImportDialog
     		object.setDefaultDataset(dataset);
     	} else if (datasetsBox != null) {
     		DataNode node = (DataNode) datasetsBox.getSelectedItem();
-    		object.setDefaultDataset(node.getDataset());
+    		if (DatasetData.class.equals(reference)) {
+        		if (node.getRefNode() != null)  {
+        			nodes = new ArrayList<DataObject>();
+            		refNodes = new ArrayList<Object>();
+            		nodes.add(node.getDataset());
+            		refNodes.add(node.getRefNode());
+            		object.setRefNodes(refNodes);
+            		object.setContainers(nodes);
+        		} else {
+        			object.setDefaultDataset(node.getDataset());
+        		}
+    		} else {
+    			object.setDefaultDataset(node.getDataset());
+    		}
     	}
     	//tags
     	if (tagsMap.size() > 0) object.setTags(tagsMap.values());
@@ -1173,13 +1235,16 @@ public class ImportDialog
      * @param owner 	The owner of the dialog.
      * @param filters 	The list of filters.
      * @param containers The container where to import the files.
+     * @param objects    The possible objects.
      * @param type 		One of the type constants.
      */
     public ImportDialog(JFrame owner, FileFilter[] filters, 
-    		List<TreeImageDisplay> containers, int type)
+    		List<TreeImageDisplay> containers, 
+    		Collection<TreeImageDisplay> objects, int type)
     {
     	super(owner);
     	this.filters = filters;
+    	this.objects = objects;
     	setProperties();
     	initComponents(containers);
     	installListeners();
@@ -1192,12 +1257,15 @@ public class ImportDialog
      * Resets the text and remove all the files to import.
      * 
      * @param containers The container where to import the files.
+     * @param objects    The possible objects.
      * @param type       One of the constants used to identify the type of 
      * 					 import.
      */
-	public void reset(List<TreeImageDisplay> containers, int type)
+	public void reset(List<TreeImageDisplay> containers, 
+			Collection<TreeImageDisplay> objects, int type)
 	{
 		this.containers = containers;
+		this.objects = objects;
 		this.type = type;
 		titlePane.setTextHeader(getContainerText(containers));
 		titlePane.setSubtitle(SUB_MESSAGE);

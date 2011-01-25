@@ -42,8 +42,6 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
-import pojos.DataObject;
-import pojos.DatasetData;
 
 /** 
  * Implements the {@link Importer} interface to provide the functionality
@@ -108,18 +106,19 @@ class ImporterComponent
 
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
-	 * @see Importer#activate(int, List)
+	 * @see Importer#activate(int, List, Collection)
 	 */
-	public void activate(int type, List<TreeImageDisplay> containers)
+	public void activate(int type, List<TreeImageDisplay> containers, 
+			Collection<TreeImageDisplay> objects)
 	{
 		if (model.getState() == DISCARDED) return;
 		if (chooser == null) {
 			chooser = new ImportDialog(view, model.getSupportedFormats(), 
-					containers, type);
+					containers, objects, type);
 			chooser.addPropertyChangeListener(controller);
 			chooser.pack();
 		} else {
-			chooser.reset(containers, type);
+			chooser.reset(containers, objects, type);
 		}
 		UIUtilities.centerAndShow(chooser);
 	}

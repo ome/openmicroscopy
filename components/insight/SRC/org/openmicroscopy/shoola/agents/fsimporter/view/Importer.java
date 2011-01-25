@@ -87,9 +87,11 @@ public interface Importer
 	 * 
 	 * @param type One of the types constants defined by this class. 
 	 * @param containers The containers where to import the files.
+	 * @param objects The available containers.
 	 * @throws IllegalStateException If the current state is {@link #DISCARDED}.  
 	 */
-	public void activate(int type, List<TreeImageDisplay> containers);
+	public void activate(int type, List<TreeImageDisplay> containers, 
+			Collection<TreeImageDisplay> objects);
 	
 	/**
 	 * Transitions the viewer to the {@link #DISCARDED} state.
