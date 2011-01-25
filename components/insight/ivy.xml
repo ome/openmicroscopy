@@ -13,6 +13,30 @@
   <dependencies defaultconfmapping="build,client->default">
     <!-- Internal -->
     <dependency org="omero" name="blitz" rev="${omero.version}" changing="true" conf="build->build;client->client"/>
+    <!-- From classpath -->
+    <dependency org="insight" name="ai_path" rev="${versions.ai_path}"/>
+    <dependency org="insight" name="axis" rev="${versions.axis}"/>
+    <dependency org="insight" name="backport-util-concurrent" rev="${versions.backport}"/>
+    <dependency org="insight" name="commons-digester" rev="${versions.commons-digester}"/>
+    <dependency org="insight" name="commons-discovery" rev="${versions.commons-discovery}"/>
+    <dependency org="insight" name="commons-validator" rev="${versions.commons-validator}"/>
+    <dependency org="insight" name="gicentreUtils" rev="${versions.gicentreUtils}"/>
+    <dependency org="insight" name="gluegen-rt" rev="${versions.jogl}"/>
+    <dependency org="insight" name="jaxrpc" rev="${versions.jaxrpc}"/>
+    <dependency org="insight" name="jcommon" rev="${versions.jcommon}"/>
+    <dependency org="insight" name="jfreechart" rev="${versions.jfreechart}"/>
+    <dependency org="insight" name="JHotDraw" rev="${versions.JHotDraw}"/>
+    <dependency org="insight" name="jogl" rev="${versions.jogl}"/>
+    <dependency org="insight" name="nanoxml" rev="${versions.nanoxml}"/>
+    <dependency org="insight" name="ols-client" rev="${versions.ols-client}"/>
+    <dependency org="insight" name="physics" rev="${versions.physics}"/>
+    <dependency org="insight" name="poi" rev="${versions.poi}"/>
+    <dependency org="insight" name="processing-core" rev="${versions.processing-core}"/>
+    <dependency org="insight" name="processing-controlP5" rev="${versions.processing-controlP5}"/>
+    <dependency org="insight" name="saaj" rev="${versions.saaj}"/>
+    <dependency org="insight" name="swingx" rev="${versions.swingx}"/>
+    <dependency org="insight" name="TableLayout" rev="${versions.TableLayout}"/>
+    <dependency org="insight" name="wsdl4j" rev="${versions.wsdl4j}"/>
     <!-- Loci -->
     <!-- TODO: copied from OmeroImporter -->
     <dependency org="OME" name="bio-formats" rev="${versions.bio-formats}"/>

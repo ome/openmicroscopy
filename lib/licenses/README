@@ -68,6 +68,11 @@
   Follows the list, alphabetized (case-insenitively) by primary artifact:
 
 
+  Artifacts:    ai_path-*.jar
+  Project:      AI Path
+  License:      Lesser General Public License (LGPL) v2.1
+  License File: lgpl.txt
+
 
   Artifacts:    ant-*.jar ivy-*.jar
   Project:      The Apache Ant Project.  Ant is a Java-based build tool. (Ivy is a subproject
@@ -91,7 +96,6 @@
   License File: apache-v2.0.txt
 
 
-http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/server/apacheds-server-unit/1.5.5/apacheds-server-unit-1.5.5.jar
   Artifacts:    batik-*.jar
   Project:      The Apache Batik SVG Toolkit.
   Web Site:     http://xml.apache.org/batik/
@@ -208,6 +212,12 @@ http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/s
   Web Site:     http://geronimo.apache.org
   License:      Apache License, Version 2.0
   License File: apache-v2.0.txt
+
+
+  Artifacts:    gicentreUtils-*.jar
+  Project:      giCentreUtils
+  License:      Lesser General Public License (LGPL) v2.1
+  License File: lgpl.txt
 
 
   Artifacts:    grib-*.jar
@@ -373,6 +383,13 @@ http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/s
   License File: lgpl-v2.1.txt
 
 
+  Artifacts:    nanoxml-*.jar
+  Project:      NanoXML is a small XML parser for Java. NanoXML comes in three different components
+  Web Site:     http://devkix.com/nanoxml.php
+  License:      zlib/libpng License
+  License File: zlib.txt
+
+
   Artifacts:    nsisant-*.jar
   Project:      NsisAnt - An Ant Task used to compile NSIS scripts
   Web Site:     http://nsisant.sourceforge.net/
@@ -382,7 +399,7 @@ http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/s
 
   Artifacts:    PDFBox-*.jar
   Project:      Apache PDFBox - Java PDF Library
-  Web Site:      http://incubator.apache.org/pdfbox
+  Web Site:     http://incubator.apache.org/pdfbox
   License:      Apache License, Version 2.0
   License File: apache-v2.0.txt
 
@@ -392,6 +409,13 @@ http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/s
   Web Site:     http://perf4j.codehaus.org
   License:      Apache License, Version 2.0
   License File: apache-v2.0.txt
+
+
+  Artifacts:    physics-*.jar
+  Project:      TRAER.PHYSICS 3.0
+  Web Site:     http://murderandcreate.com/physics/
+  License:      Public Domain.
+                Use this code for whatever you want, just send me a link jeff@traer.cc
 
 
   Artifacts:    poi-*.jar
@@ -405,6 +429,20 @@ http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/s
   Web Site:     http://jdbc.postgresql.org
   License:      BSD
   License File: postgresql.txt
+
+
+  Artifacts:    processing-core-*.jar
+  Project:      Processing is an open source programming language and environment for people who want to create images, animations, and interactions.
+  Web Site:     http://processing.org/
+  License:      Lesser General Public License (LGPL) v2.1
+  License File: lgpl-v2.1.txt
+
+
+  Artifacts:    processing-controlP5-*.jar
+  Project:      controlp5, a gui library for the programming environment processing
+  Web Site:     http://www.sojamo.de/libraries/controlP5/
+  License:      Lesser General Public License (LGPL) v2.1
+  License File: lgpl-v2.1.txt
 
 
   Artifacts:    libquaqua-unknown.jnilib, quaqua-filechooser-only-unknown.jar
@@ -723,14 +761,15 @@ http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/s
   Web Site:     http://www.everaldo.com/crystal/
   License:      Lesser General Public License
   License File: crystalclear.txt
-  
-  
+
+
   Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/media/applet/OpenAstexViewer.java
   Project:      Open Astex Viewer
   Web Site:     http://www.openastexviewer.net/web/
   License:      GNU GENERAL PUBLIC LICENSE Version 3.
   License File: lgpl-3.0.txt
-  
+
+
   Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/media/js/3rdparty/raphael-min.js
   Project:      Raphael javascript library
   Web Site:     http://raphaeljs.com/
