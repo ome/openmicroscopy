@@ -42,6 +42,7 @@
             </fileset>
             <fileset dir="${blitz.comp}/target/classes">
                 <include name="ome/formats/**/*.class"/>
+                <include name="pojos/*.class"/>
                 <include name="omero/**/*.class"/>
                 <exclude name="omero/**/_*Tie.class"/>
                 <exclude name="omero/_*Del*.class"/>
