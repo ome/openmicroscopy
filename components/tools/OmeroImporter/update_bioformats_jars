@@ -42,7 +42,7 @@ def usage(error):
     """Prints usage so that we don't have to. :)"""
     cmd = sys.argv[0]
     print """%s
-Usage: %s [--subversion]
+Usage: %s [--git]
 Retrieves and updates Bio-Formats JARs from Hudson
 
 Options:
@@ -87,10 +87,10 @@ def update(revision, new_jars):
     old_revision = regex.match(properties).group(1)
     print "Old revision is: %s" % old_revision
 
-    args = ['svn', 'del', '--force'] + glob('*r%s.jar' % old_revision)
+    args = ['git', 'rm', '--f'] + glob('*r%s.jar' % old_revision)
     p = Popen(args)
     os.waitpid(p.pid, 0)
-    args = ['svn', 'add'] + glob('*r%s.jar' % revision)
+    args = ['git', 'add'] + glob('*r%s.jar' % revision)
     p = Popen(args)
     os.waitpid(p.pid, 0)
 
@@ -102,11 +102,11 @@ def update(revision, new_jars):
     
 if __name__ == "__main__":
     try:
-        options, args = getopt(sys.argv[1:], "", ['subversion'])
+        options, args = getopt(sys.argv[1:], "", ['git'])
     except GetoptError, (msg, opt):
         usage(msg)
 
     revision, new_jars = download()
     for option, argument in options:
-        if option == '--subversion':
+        if option == '--git':
             update(revision, new_jars)
