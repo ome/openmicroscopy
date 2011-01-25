@@ -36,7 +36,7 @@ post a comment annotation to images. parameters are in request:
 """
 
 # json method
-get_rois = url( r'^get_rois/$', views.get_rois, name='webfigure_get_rois' )     # request: imageId=
+get_rois = url( r'^get_rois/(?P<imageId>[0-9]+)$', views.get_rois, name='webfigure_get_rois' )   
 """
 gets all the ROIs for an Image as json. Image-ID is request: imageId=123
 [{'id':123, 'shapes':[{'type':'Rectangle', 'theZ':5, 'theT':0, 'x':250, 'y':100, 'width':10 'height':45} ]

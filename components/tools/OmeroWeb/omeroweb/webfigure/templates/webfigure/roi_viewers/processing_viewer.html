@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>Image Dimensions Viewer</title>
+
+<style type="text/css">
+
+#img_panel{
+    position: absolute;
+    top:50px;
+    left:10px;
+    z-index: 0;
+}
+
+#canvas{
+    position: absolute;
+    top:50px;
+    left:10px;
+    z-index: 1;
+}
+</style>
+
+<script type="text/javascript" src="{% url webstatic "javascript/jquery_1.3.2.js" %}"></script>
+<script type="text/javascript" src="{% url webfigure_media 'js/processing.js' %}"></script>
+
+<script id="script1" type="text/javascript">  
+
+$(document).ready(function() {
+
+    var cx = 200;
+    var cy = 100;
+    var radius = 50;
+    
+    // Simple way to attach js code to the canvas is by using a function  
+    function draw_rois(processing) {  
+        
+        processing.setup = function(){
+          // size( 256, 256 );
+          processing.strokeWeight( 2 );
+          processing.frameRate( 15 );
+          cx = processing.width / 2;
+          cy = processing.width / 2;    
+        }
+        
+        
+      // Override draw function, by default it will be called 60 times per second  
+      processing.draw = function() {  
+        
+        // processing.background( 0,255,0, 255 );
+        
+        //processing.loadPixels();
+        //for (int i = 0; i < processing.width * processing.height; i++) {
+        //    processing.pixels[i] = 0;
+        //}
+        //processing.updatePixels(); 
+        
+        
+        processing.fill( 0, 0,0,0 );    // black, transparent
+        
+        processing.stroke(255,0,0);
+        //processing.stroke(255); 
+        processing.ellipse( cx, cy, radius, radius );  
+      };  
+    
+    }  
+  
+    var canvas = document.getElementById("canvas"); 
+     
+    // attaching the sketchProc function to the canvas  
+    var p = new Processing(canvas, draw_rois);  
+    //p.exit(); //to detach it  
+});
+</script>
+
+</head>
+
+<body>
+    
+<!-- top elements span page -->
+<div id="top-nav">
+    <a href="{% url webfigure_index %}">Home</a> |
+    <a href="{% url webfigure_logout %}">Logout</a>
+</div>
+
+<div>
+    Test viewer for drawing ROIs on the image with <a href='http://processingjs.org/'>processing.js</a>.
+</div>
+
+<div>
+    {{ image.name }} <a id='load_rois' href="{% url webfigure_get_rois image.id %}">LOAD ROIS</a>
+</div>
+
+<div style='float:left'>
+    <img id='img_panel' src="{% url webgateway.views.render_image image.id 0 0 %}" width="{{ image.getWidth }}" height="{{ image.getHeight }}"/>
+    <canvas id="canvas" width="{{ image.getWidth }}" height="{{ image.getHeight }}"></canvas>
+</div>
+
+</body> </html>

@@ -23,8 +23,16 @@ def roi_viewer_processing(request, imageId):
     """
     Displays an image, using 'processing.js' to draw ROIs on the image. 
     """
+    conn = getBlitzConnection (request, useragent="OMERO.webroi")
+    if conn is None or not conn.isConnected():
+        return HttpResponseRedirect(reverse('webfigure_login'))
+    
+    image = conn.getImage(imageId)
+    
+    return render_to_response('webfigure/roi_viewers/processing_viewer.html', {'image':image})
 
-def get_rois(request):
+
+def get_rois(request, imageId):
     """
     Returns json data of the ROIs in the imageId in request. 
     """
@@ -34,7 +42,6 @@ def get_rois(request):
         
     rois = []
     
-    imageId = request.REQUEST.get('imageId', None)
     if imageId != None:
         roiService = conn.getRoiService()
         rois = webfigure_utils.getRoiShapes(roiService, long(imageId))  # gets a whole json list of ROIs
