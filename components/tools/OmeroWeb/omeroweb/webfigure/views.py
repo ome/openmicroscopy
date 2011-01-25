@@ -1,4 +1,4 @@
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 from omeroweb.webgateway.views import getBlitzConnection, _session_logout
@@ -10,11 +10,38 @@ import omero.model
 from omero.rtypes import rstring
 from omero.gateway import XmlAnnotationWrapper
 import xml.sax
+from django.utils import simplejson
 
 # use the webclient's gateway connection wrapper
 from webclient.webclient_gateway import OmeroWebGateway
 
 logger = logging.getLogger('webfigure')
+
+import webfigure_utils
+
+def roi_viewer_processing(request, imageId):
+    """
+    Displays an image, using 'processing.js' to draw ROIs on the image. 
+    """
+
+def get_rois(request):
+    """
+    Returns json data of the ROIs in the imageId in request. 
+    """
+    conn = getBlitzConnection (request, useragent="OMERO.webroi")
+    if conn is None or not conn.isConnected():
+        return HttpResponseRedirect(reverse('webfigure_login'))
+        
+    rois = []
+    
+    imageId = request.REQUEST.get('imageId', None)
+    if imageId != None:
+        roiService = conn.getRoiService()
+        rois = webfigure_utils.getRoiShapes(roiService, long(imageId))  # gets a whole json list of ROIs
+        rois.sort(key=lambda x: x['id']) # sort by ID - same as in measurement tool.
+    
+    return HttpResponse(simplejson.dumps(rois), mimetype='application/javascript')
+    
 
 def getSpimData (conn, image):
     """
