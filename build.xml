@@ -164,6 +164,15 @@ java component.
         <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
     </target>
 
+    <target name="build-insight" description="Build insight and copy to dist/lib and dist/bin" depends="init">
+        <!--
+        <iterate buildpathref="OmeroJava.buildpath" target="tools-dist"/>
+        <iterate buildpathref="tools.buildpath" target="dist"/>
+        <antcall target="build-dist" inheritRefs="true" inheritAll="true"/>
+        -->
+        <iterate buildpathref="insight.buildpath" target="dist"/>
+    </target>
+
     <target name="build-web" description="Build OmeroWeb and copy to dist" depends="init">
         <iterate buildpathref="OmeroWeb.buildpath" target="tools-dist"/>
         <iterate buildpathref="tools.buildpath" target="dist"/>
@@ -305,16 +314,19 @@ java component.
             <zipfileset dir="${blitz.comp}/target"      prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
             <zipfileset dir="${blitz.comp}/generated"   prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
             <zipfileset dir="${OmeroImporter.comp}/src" prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
+            <zipfileset dir="${insight.comp}/src"       prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
             <zipfileset dir="${OmeroJava.comp}/src"     prefix="OMERO.java-${omero.version}/src"  includes="**/*.java"/>
             <zipfileset dir="${dist.dir}/lib/client"    prefix="OMERO.java-${omero.version}/libs" includes="**/*.jar"/>
         </zip>
         <!-- TODO: This should probably be made into another tools target tools-zip -->
+        <!-- FIXME
         <ant antfile="${OmeroImporter.comp}/build.xml" dir="${OmeroImporter.comp}" target="release-win-zip" inheritAll="false"/>
         <ant antfile="${OmeroImporter.comp}/build.xml" dir="${OmeroImporter.comp}" target="release-osx-zip" inheritAll="false"/>
-        <ant antfile="${OmeroImageJ.comp}/build.xml" dir="${OmeroImageJ.comp}" target="tools-dist" inheritAll="false"/>
 	<copy todir="target">
 	    <fileset dir="components/tools/OmeroImporter/target" includes="*.zip"/>
 	</copy>
+        -->
+        <ant antfile="${OmeroImageJ.comp}/build.xml" dir="${OmeroImageJ.comp}" target="tools-dist" inheritAll="false"/>
 	<copy file="components/tools/OmeroM/target/OmeroMatlab.zip" tofile="target/OMERO.matlab-${omero.version}.zip"/>
 	<copy todir="target">
             <fileset dir="components/tools/OmeroPy/dist" includes="*.egg"/>
