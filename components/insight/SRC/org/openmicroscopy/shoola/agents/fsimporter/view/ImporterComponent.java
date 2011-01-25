@@ -108,15 +108,14 @@ class ImporterComponent
 
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
-	 * @see Importer#activate(int, List, List)
+	 * @see Importer#activate(int, List)
 	 */
-	public void activate(int type, List<TreeImageDisplay> containers, 
-			List<DatasetData> datasets)
+	public void activate(int type, List<TreeImageDisplay> containers)
 	{
 		if (model.getState() == DISCARDED) return;
 		if (chooser == null) {
 			chooser = new ImportDialog(view, model.getSupportedFormats(), 
-					containers, type, datasets);
+					containers, type);
 			chooser.addPropertyChangeListener(controller);
 			chooser.pack();
 		} else {

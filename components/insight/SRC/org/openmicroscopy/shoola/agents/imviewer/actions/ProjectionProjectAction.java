@@ -65,7 +65,7 @@ public class ProjectionProjectAction
      */
     protected void onStateChange(ChangeEvent e)
     {
-    	if (model.getState() == ImViewer.READY) {
+    	if (model.getState() == ImViewer.READY && !model.isBigImage()) {
     		if (model.getSelectedIndex() != ImViewer.PROJECTION_INDEX)
     			setEnabled(false);
     		else 
@@ -82,8 +82,6 @@ public class ProjectionProjectAction
     {
     	super(model, NAME);
     	putValue(Action.NAME, NAME);
-    	//IconManager icons = IconManager.getInstance();
-        //putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PROJECTION));
     	putValue(Action.SHORT_DESCRIPTION, 
     			UIUtilities.formatToolTipText(DESCRIPTION));
     }

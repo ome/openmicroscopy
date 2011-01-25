@@ -67,6 +67,10 @@ public class MovieAction
      */
     protected void onTabSelection()
     {
+    	if (model.isBigImage()) {
+    		setEnabled(false);
+    		return;
+    	}
     	if (model.getSelectedIndex() == ImViewer.PROJECTION_INDEX) {
 			setEnabled(false);
 		} else {
@@ -89,16 +93,8 @@ public class MovieAction
 				setEnabled(false);
 				break;
 			case ImViewer.READY:
-				if (model.getSelectedIndex() == ImViewer.PROJECTION_INDEX) {
-					setEnabled(false);
-				} else {
-					if (model.isPlayingMovie()) setEnabled(false);
-					else {
-						int max = Math.max(model.getMaxZ(), model.getMaxT());
-						setEnabled(max != 0);
-					}
-				}
-			}
+				onTabSelection();
+		}
     }
     
     /**

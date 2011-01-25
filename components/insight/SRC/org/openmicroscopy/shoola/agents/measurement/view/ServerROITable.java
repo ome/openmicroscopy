@@ -110,7 +110,7 @@ class ServerROITable
 	/** The table displaying the collection to files to import. */
 	private JTable						table;
 	
-	/* Map whose key is the id of the ROI and value its row. */
+	/** Map whose key is the id of the ROI and value its row. */
 	private Map<Long, Integer>			rowIDs;
 	
 	/** Button to export the data to excel. */
@@ -141,23 +141,28 @@ class ServerROITable
 		Object[][] data = tr.getData();
 		Object[][] rows = new Object[data.length][headers.length];
 		String[] columns = new String[headers.length];
+		int roiIndex = tr.getColumnIndex(TableResult.ROI_COLUMN_INDEX);
+		if (roiIndex < 0) roiIndex = 0;
 		for (int i = 0; i < headers.length; i++) {
-			if (i == 0) columns[i] = "Visible";
+			if (i == roiIndex) columns[i] = "Visible";
 			else columns[i] = headers[i];
 		}
+		
 		for (int i = 0; i < columns.length; i++) {
 			for (int j = 0; j < data.length; j++) {
-				if (i == 0) rows[j][i] = Boolean.valueOf(true);
-				else rows[j][i] = roundValue(data[j][i]);
-				if (i == 1) 
-					rowIDs.put((Long) rows[j][i], j);
+				if (i == roiIndex) {
+					rowIDs.put((Long) data[j][i], j);
+					rows[j][i] = Boolean.valueOf(true);
+				} else rows[j][i] = roundValue(data[j][i]);	
 			}
 		}
 		table = new JTable(new ServerROITableModel(rows, columns));
 		TableColumnModel tcm = table.getColumnModel();
+		
 		TableColumn tc = tcm.getColumn(VISIBILITY_INDEX);
 		tc.setCellEditor(table.getDefaultEditor(Boolean.class));  
 		tc.setCellRenderer(table.getDefaultRenderer(Boolean.class));  
+		
 		table.setShowGrid(true);
 		table.setGridColor(Color.LIGHT_GRAY);
 		table.setSelectionBackground(UIUtilities.SELECTED_BACKGROUND_COLOUR);

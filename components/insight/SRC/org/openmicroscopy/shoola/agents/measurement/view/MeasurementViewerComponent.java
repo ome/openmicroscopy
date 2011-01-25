@@ -241,14 +241,6 @@ class MeasurementViewerComponent
         							(int) (model.getSizeY()*f));
         		UIUtilities.setDefaultSize(model.getDrawingView(), d);
         		model.getDrawingView().setSize(d);
-        		//Load ROI from server or not.
-        		/*
-        		Boolean location = (Boolean) 
-        			MeasurementAgent.getRegistry().lookup(
-        					LookupNames.SERVER_ROI);
-        		if (location) model.fireLoadROIFromServer(measurements);
-        		else
-        		*/	
         		model.setHCSData(HCSData);
         		if (HCSData) {
         			if (measurements == null) {
@@ -447,7 +439,11 @@ class MeasurementViewerComponent
 		*/
 		//Post event indicating that we don't care about saving.
 		postEvent(MeasurementToolLoaded.REMOVE);
-		view.setVisible(false);
+		if (model.isHCSData()) {
+			List<FileAnnotationData> list = model.getMeasurements();
+			if (list == null || list.size() == 0) view.setVisible(false);
+			else discard();
+		} else view.setVisible(false);
 	}
 
 	/** 
@@ -855,15 +851,18 @@ class MeasurementViewerComponent
 					"be invoked in the LOADING_ROI state.");
 		try 
 		{
-			Iterator<ROIResult> i = result.iterator();
-			ROIResult roiResult;
 			boolean hasResult = false;
-			if (i.hasNext())
-			{
-				roiResult = i.next();
-				if (roiResult.getROIs().size() != 0)
-					hasResult = true;
+			if (result != null) {
+				Iterator<ROIResult> i = result.iterator();
+				ROIResult roiResult;
+				if (i.hasNext())
+				{
+					roiResult = i.next();
+					if (roiResult.getROIs().size() != 0)
+						hasResult = true;
+				}
 			}
+			
 			if (hasResult) {
 				//some ROI previously saved.
 				//result.ge

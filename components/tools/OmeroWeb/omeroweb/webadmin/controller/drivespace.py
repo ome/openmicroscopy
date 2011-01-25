@@ -35,7 +35,7 @@ class BaseDriveSpace(BaseController):
     def __init__(self, conn):
         BaseController.__init__(self, conn)
         self.freeSpace = self.conn.getFreeSpace()
-        self.experimenters = list(self.conn.lookupExperimenters())
+        self.experimenters = list(self.conn.listExperimenters())
 
 def _bytes_per_pixel(pixel_type):
     if pixel_type == "int8" or pixel_type == "uint8":
@@ -68,7 +68,7 @@ def _usage_map_helper(pixels_list,exps):
 
 def usersData(conn, offset=0):
     exps = dict()
-    for e in list(conn.lookupExperimenters()):
+    for e in list(conn.listExperimenters()):
         exps[e.id] = e.getFullName()
         
     PAGE_SIZE = 1000

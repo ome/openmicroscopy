@@ -474,7 +474,6 @@ public abstract class ActivityComponent
 	{
 		if (exception == null) return;
 		viewer.notifyError(type.getText(), messageLabel.getText(), exception);
-		
 	}
 	
 	/**
@@ -791,11 +790,17 @@ public abstract class ActivityComponent
 	public void notifyError(String text, String message, Throwable ex)
 	{
 		reset();
-		if (text != null) type.setText(text);
-		if (message != null) messageLabel.setText(message);
+		if (text != null) {
+			type.setText(text);
+			if (message != null)
+				type.setToolTipText(message);
+		}
+		//if (message != null) messageLabel.setText(message);
 		exception = ex;
 		if (exception != null) {
 			exceptionButton.setVisible(true);
+			exceptionButton.setToolTipText(
+					UIUtilities.formatExceptionForToolTip(ex));
 		}
 		notifyActivityError();
 		firePropertyChange(UNREGISTER_ACTIVITY_PROPERTY, null, this);

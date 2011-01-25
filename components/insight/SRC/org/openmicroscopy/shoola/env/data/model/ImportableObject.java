@@ -28,6 +28,8 @@ import java.io.File;
 import java.util.Collection;
 import java.util.List;
 
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -52,6 +54,14 @@ import pojos.TagAnnotationData;
 public class ImportableObject
 {
 
+	/** The default name for the dataset. */
+	public static final String DEFAULT_DATASET_NAME;
+	
+	static {
+		DEFAULT_DATASET_NAME = UIUtilities.formatDate(null, 
+				UIUtilities.D_M_Y_FORMAT);
+	}
+	
 	/** The collection of files to import. */
 	private List<ImportableFile> files;
 	

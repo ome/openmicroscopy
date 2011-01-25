@@ -50,10 +50,10 @@ public class ZoomGridAction
 	extends ViewerAction
 {
     
-    /** The maximun value of the zoom factor. */
+    /** The maximum value of the zoom factor. */
     public static final double  MAX_ZOOM_FACTOR = 4*ZoomCmd.INCREMENT;
     
-    /** The minimun value of the zoom factor. */
+    /** The minimum value of the zoom factor. */
     public static final double  MIN_ZOOM_FACTOR = ZoomCmd.INCREMENT;
     
     /** The default zooming factor. */
@@ -80,7 +80,7 @@ public class ZoomGridAction
     /** The maximum value of zooming index. */
     public static final int  	MAX_ZOOM_INDEX = ZOOM_100;
     
-    /** The number of supported ids. */
+    /** The number of supported identifiers. */
     private static final int    MAX = 4;
     
     /** The description of the action. */

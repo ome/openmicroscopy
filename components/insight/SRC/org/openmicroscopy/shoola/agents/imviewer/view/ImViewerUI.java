@@ -177,7 +177,7 @@ class ImViewerUI
 	/** The status bar. */
 	private StatusBar       					statusBar;
 
-	/** Lens component which will control all behaviour of the lens. */
+	/** Lens component which will control all behavior of the lens. */
 	private LensComponent						lens;
 
 	/** The tool bar. */
@@ -639,8 +639,29 @@ class ImViewerUI
 	 */
 	private JMenu createZoomMenu(ViewerPreferences pref, boolean full)
 	{
-		ViewerAction action = controller.getAction(ImViewerControl.ZOOM_25);
-		JCheckBoxMenuItem item = new JCheckBoxMenuItem(action);
+		ViewerAction action;
+		JCheckBoxMenuItem item;
+		if (model.isBigImage()) {
+			action = controller.getAction(ImViewerControl.ZOOM_100);
+			item = new JCheckBoxMenuItem();
+			item.setAction(action); 
+			zoomMenu.add(item);
+			action = controller.getAction(ImViewerControl.ZOOM_125);
+			item = new JCheckBoxMenuItem();
+			item.setAction(action); 
+			zoomMenu.add(item);
+			action = controller.getAction(ImViewerControl.ZOOM_150);
+			item = new JCheckBoxMenuItem();
+			item.setAction(action); 
+			zoomMenu.add(item);
+			action = controller.getAction(ImViewerControl.ZOOM_175);
+			item = new JCheckBoxMenuItem();
+			item.setAction(action); 
+			zoomMenu.add(item);
+			return zoomMenu;
+		}
+		action = controller.getAction(ImViewerControl.ZOOM_25);
+		item = new JCheckBoxMenuItem(action);
 		zoomMenu.add(item);
 		zoomingGroup.add(item);
 		action = controller.getAction(ImViewerControl.ZOOM_50);
@@ -656,7 +677,7 @@ class ImViewerUI
 		item.setAction(action); 
 		zoomMenu.add(item);
 		zoomingGroup.add(item);
-		if (full) {
+		//if (full) {
 			action = controller.getAction(ImViewerControl.ZOOM_125);
 			item = new JCheckBoxMenuItem(action);
 			zoomMenu.add(item);
@@ -689,7 +710,7 @@ class ImViewerUI
 			item = new JCheckBoxMenuItem(action);
 			zoomMenu.add(item);
 			zoomingGroup.add(item);
-		}
+		//}
 		
 		action = controller.getAction(ImViewerControl.ZOOM_FIT_TO_WINDOW);
 		item = new JCheckBoxMenuItem(action);
@@ -799,11 +820,6 @@ class ImViewerUI
 			tabs.insertTab(browser.getGridViewTitle(), 
 					browser.getGridViewIcon(), gridViewPanel, "", 
 					ImViewer.GRID_INDEX);
-			/*
-			if (model.isBigImage()) {
-				controller.setGridMagnificationFactor(0.1);
-			}
-			*/
 		}
 		
 		double[][] tl2 = {{TableLayout.PREFERRED, TableLayout.FILL}, 
@@ -1032,6 +1048,7 @@ class ImViewerUI
 		} 
 		if (reset) {
 			setSize(h, h);
+			/*
 			model.setZoomFactor(ZoomAction.ZOOM_FIT_FACTOR, false);
 			//Depending on the size 
 			clearZoomMenu(zoomingGroup, zoomMenu);
@@ -1039,6 +1056,7 @@ class ImViewerUI
 			ViewerPreferences pref = ImViewerFactory.getPreferences();
 			createZoomMenu(pref, false);
 			controlPane.resetZoomValues();
+			*/
 		}
 	}
 	
@@ -2426,6 +2444,18 @@ class ImViewerUI
 		
 	}
 
+	/** Invokes when the rendering control is loaded. */
+	void onRndLoaded()
+	{
+		//model.setZoomFactor(ZoomAction.ZOOM_FIT_FACTOR, false);
+		//Depending on the size 
+		clearZoomMenu(zoomingGroup, zoomMenu);
+		clearZoomMenu(zoomingGridGroup, zoomGridMenu);
+		ViewerPreferences pref = ImViewerFactory.getPreferences();
+		createZoomMenu(pref, false);
+		controlPane.resetZoomValues();
+	}
+	
 	/** 
 	 * Overridden to the set the location of the {@link ImViewer}.
 	 * @see TopWindow#setOnScreen() 

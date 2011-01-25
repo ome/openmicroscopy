@@ -104,16 +104,7 @@ public class ROIToolAction
         putValue(Action.SMALL_ICON, 
         		icons.getIcon(IconManager.MEASUREMENT_TOOL));
     }
-    
-    /** 
-     * Brings up the measurement tool.
-     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
-     */
-    public void actionPerformed(ActionEvent e)
-    {
-    	//model.showMeasurementTool();
-    }
-
+   
     /** 
      * Sets the location of the point where the <code>mousePressed</code>
      * event occurred. 

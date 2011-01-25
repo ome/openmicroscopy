@@ -83,7 +83,7 @@ public class UnitBarSizeAction
     private static final int	MAX = 7;
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Selects the size of " +
+    private static final String DESCRIPTION = "Select the size of " +
             "the Scale bar displayed on top of the image.";
      
     /** 

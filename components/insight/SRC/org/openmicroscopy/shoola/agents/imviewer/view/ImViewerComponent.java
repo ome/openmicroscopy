@@ -55,7 +55,6 @@ import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.events.iviewer.ChannelSelection;
-import org.openmicroscopy.shoola.agents.events.iviewer.ImageProjected;
 import org.openmicroscopy.shoola.agents.events.iviewer.ImageRendered;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurePlane;
 import org.openmicroscopy.shoola.agents.events.iviewer.MeasurementTool;
@@ -65,6 +64,7 @@ import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerCreated;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewerState;
+import org.openmicroscopy.shoola.agents.events.treeviewer.NodeToRefreshEvent;
 import org.openmicroscopy.shoola.agents.imviewer.IconManager;
 import org.openmicroscopy.shoola.agents.imviewer.ImViewerAgent;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ColorModelAction;
@@ -773,9 +773,9 @@ class ImViewerComponent
 
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#setImage(BufferedImage)
+	 * @see ImViewer#setImage(Object)
 	 */
-	public void setImage(BufferedImage image)
+	public void setImage(Object image)
 	{
 		if (model.getState() != LOADING_IMAGE) 
 			throw new IllegalStateException("This method can only be invoked " +
@@ -786,12 +786,20 @@ class ImViewerComponent
 					"creating the image.");
 			return;
 		}
+		if (!(image instanceof BufferedImage || image instanceof TextureData))
+			return;
 			
 		if (newPlane) postMeasurePlane();
 		newPlane = false;
-
-		BufferedImage originalImage = model.getOriginalImage();
-		model.setImage(image);
+		Object originalImage;
+		if (ImViewerAgent.hasOpenGLSupport()) {
+			originalImage = model.getImageAsTexture();
+			model.setImageAsTexture((TextureData) image);
+		} else {
+			originalImage = model.getOriginalImage();
+			model.setImage((BufferedImage) image);
+		}
+		
 		view.setLeftStatus();
 		view.setPlaneInfoStatus();
 		if (originalImage == null && model.isZoomFitToWindow()) {
@@ -2445,16 +2453,15 @@ class ImViewerComponent
 	
 	/** 
 	 * Implemented as specified by the {@link ImViewer} interface.
-	 * @see ImViewer#setProjectedImage(ImageData, List, boolean)
+	 * @see ImViewer#setProjectedImage(ImageData, List, List, boolean)
 	 */
 	public void setProjectedImage(ImageData image, List<Integer> indexes,
-							boolean applySettings)
+				List<DataObject> containers, boolean applySettings)
 	{
 		UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
 		String message;
 		if (image == null) {
-			message = "An error has occurred while creating the " +
-			"projected image.";
+			message = "An error occurred while creating the projected image.";
 			un.notifyInfo("Projection", message);
 			model.setState(READY);
 		} else {
@@ -2463,8 +2470,10 @@ class ImViewerComponent
 			else
 				notifyProjection("The projected image has been " +
 						"successfully created.", image);
-			EventBus bus = ImViewerAgent.getRegistry().getEventBus();
-			bus.post(new ImageProjected(image));
+			if (containers != null) {
+				EventBus bus = ImViewerAgent.getRegistry().getEventBus();
+				bus.post(new NodeToRefreshEvent(containers, true));
+			}
 		}
 		fireStateChange();
 	}
@@ -2722,13 +2731,13 @@ class ImViewerComponent
 	{
 		//if (model.isNumerousChannel()) model.setForLifetime();
 		model.onRndLoaded();
-		
 		if (!reload) {
 			int index = UnitBarSizeAction.getDefaultIndex(5*getPixelsSizeX());
 			setUnitBarSize(UnitBarSizeAction.getValue(index));
 			view.setDefaultScaleBarMenu(index);
 			colorModel = model.getColorModel();
 			view.buildComponents();
+			view.onRndLoaded();
 			if (model.isSeparateWindow()) {
 				view.setOnScreen();
 				view.toFront();
@@ -2745,7 +2754,9 @@ class ImViewerComponent
 			model.resetHistory();
 			view.switchRndControl();
 		}
-		renderXYPlane();
+		if (model.isBigImage()) { //bird eye loaded.
+			model.fireBirdEyeViewRetrieval();
+		} else renderXYPlane();
 		fireStateChange();
 	}
 
@@ -3137,9 +3148,20 @@ class ImViewerComponent
 	}
 	
 	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#displayFLIMResults(Map)
+	 */
+	public void setBirdEyeView(Object result) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	/** 
 	 * Overridden to return the name of the instance to save. 
 	 * @see #toString()
 	 */
 	public String toString() { return getTitle(); }
+
+
 
 }

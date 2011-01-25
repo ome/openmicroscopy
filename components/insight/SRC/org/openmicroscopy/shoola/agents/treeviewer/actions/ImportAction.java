@@ -101,8 +101,10 @@ public class ImportAction
         	return;
         }
         TreeImageDisplay[] nodes = browser.getSelectedDisplays();
-        if (nodes.length > 1)
+        if (nodes != null && nodes.length > 1) {
+        	setEnabled(false);
         	return;
+        }
         Object ho = selectedDisplay.getUserObject();
         if (ho instanceof ProjectData || ho instanceof ScreenData || 
         		ho instanceof DatasetData)

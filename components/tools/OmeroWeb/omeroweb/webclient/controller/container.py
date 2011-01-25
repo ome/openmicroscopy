@@ -147,11 +147,11 @@ class BaseContainer(BaseController):
         self.t_size = len(self.tags)
     
     def loadDataByTag(self):
-        pr_list = list(self.conn.getProjectsByTag([self.tag.id]))
-        ds_list = list(self.conn.getDatasetsByTag([self.tag.id]))
-        im_list = list(self.conn.getImagesByTag([self.tag.id]))
-        sc_list = list(self.conn.getScreensByTag([self.tag.id]))
-        pl_list = list(self.conn.getPlatesByTag([self.tag.id]))
+        pr_list = list(self.conn.getObjectsByAnnotations('Project',[self.tag.id]))
+        ds_list = list(self.conn.getObjectsByAnnotations('Dataset',[self.tag.id]))
+        im_list = list(self.conn.getObjectsByAnnotations('Image',[self.tag.id]))
+        sc_list = list(self.conn.getObjectsByAnnotations('Screen',[self.tag.id]))
+        pl_list = list(self.conn.getObjectsByAnnotations('Plate',[self.tag.id]))
         
         pr_list_with_counters = list()
         ds_list_with_counters = list()
@@ -427,35 +427,40 @@ class BaseContainer(BaseController):
             self.long_annotations['rate'] /= self.long_annotations['votes']
     
     def getTagsByObject(self):
+        eid = self.conn.getGroupFromContext().isReadOnly() and self.conn.getEventContext().userId or None
+        
         if self.image is not None:
-            return list(self.conn.getTagsByObject("image", self.image.id))
+            return list(self.image.listOrphanedAnnotations(eid=eid, anntype='Tag'))
         elif self.dataset is not None:
-            return list(self.conn.getTagsByObject("dataset", self.dataset.id))
+            return list(self.dataset.listOrphanedAnnotations(eid=eid, anntype='Tag'))
         elif self.project is not None:
-            return list(self.conn.getTagsByObject("project", self.project.id))
+            return list(self.project.listOrphanedAnnotations(eid=eid, anntype='Tag'))
         elif self.well is not None:
-            return list(self.conn.getTagsByObject("well", self.well.id))
+            return list(self.well.listOrphanedAnnotations(eid=eid, anntype='Tag'))
         elif self.plate is not None:
-            return list(self.conn.getTagsByObject("plate", self.plate.id))
+            return list(self.plate.listOrphanedAnnotations(eid=eid, anntype='Tag'))
         elif self.screen is not None:
-            return list(self.conn.getTagsByObject("screen", self.screen.id))
+            return list(self.screen.listOrphanedAnnotations(eid=eid, anntype='Tag'))
         else:
             eid = self.conn.getGroupFromContext().isReadOnly() and self.conn.getEventContext().userId or None
             return list(self.conn.listAnnotations(eid, 'tag'))
     
     def getFilesByObject(self):
+        eid = self.conn.getGroupFromContext().isReadOnly() and self.conn.getEventContext().userId or None
+        ns = [omero.constants.namespaces.NSCOMPANIONFILE, omero.constants.namespaces.NSEXPERIMENTERPHOTO]
+        
         if self.image is not None:
-            return list(self.conn.getFilesByObject("image", self.image.id))
+            return list(self.image.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
         elif self.dataset is not None:
-            return list(self.conn.getFilesByObject("dataset", self.dataset.id))
+            return list(self.dataset.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
         elif self.project is not None:
-            return list(self.conn.getFilesByObject("project", self.project.id))
+            return list(self.project.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
         elif self.well is not None:
-            return list(self.conn.getFilesByObject("well", self.well.id))
+            return list(self.well.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
         elif self.plate is not None:
-            return list(self.conn.getFilesByObject("plate", self.plate.id))
+            return list(self.plate.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
         elif self.screen is not None:
-            return list(self.conn.getFilesByObject("screen", self.screen.id))
+            return list(self.screen.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
         else:
             eid = self.conn.getGroupFromContext().isReadOnly() and self.conn.getEventContext().userId or None
             return list(self.conn.listAnnotations(eid, 'file'))

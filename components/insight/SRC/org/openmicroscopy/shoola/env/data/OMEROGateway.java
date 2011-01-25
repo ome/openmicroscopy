@@ -725,7 +725,8 @@ class OMEROGateway
 	 * @param length Number of rows of data to be copied.
 	 */
 	private void translateTableResult(Data src, Object[][] dst, int offset,
-	                                  int length) {
+	                                  int length, Map<Integer, Integer> indexes)
+	{
 		Column[] cols = src.columns;
 		Column column;
 		for (int i = 0; i < cols.length; i++) {
@@ -751,11 +752,13 @@ class OMEROGateway
 						((BoolColumn) column).values[j];
 				}
 			} else if (column instanceof RoiColumn) {
+				indexes.put(TableResult.ROI_COLUMN_INDEX, i);
 				for (int j = 0; j < length; j++) {
 					dst[j + offset][i] =
 						((RoiColumn) column).values[j];
 				}
 			} else if (column instanceof ImageColumn) {
+				indexes.put(TableResult.IMAGE_COLUMN_INDEX, i);
 				for (int j = 0; j < length; j++) {
 					dst[j + offset][i] =
 						((ImageColumn) column).values[j];
@@ -798,6 +801,7 @@ class OMEROGateway
 			int rowsToGo = totalRowCount;
 			int loopCount = 0;
 			long[] rowSubset;
+			Map<Integer, Integer> indexes = new HashMap<Integer, Integer>();
 			while (rowsToGo > 0) {
 				rowCount = (int) Math.min(MAX_TABLE_ROW_RETRIEVAL,
 				                          totalRowCount - rowOffset);
@@ -812,7 +816,7 @@ class OMEROGateway
 					//		"rowOffset:%d rowCount:%d rowsToGo:%d column:%d "+
 					//		"readTime(ms): %d", loopCount, totalRowCount,
 					//		rowOffset, rowCount, rowsToGo, i, t1 - t0));
-					translateTableResult(d, data, rowOffset, rowCount);
+					translateTableResult(d, data, rowOffset, rowCount, indexes);
 				}
 				long t2 = System.currentTimeMillis();
 				//System.err.println(String.format(
@@ -823,9 +827,10 @@ class OMEROGateway
 				loopCount++;
 			}
 			table.close();
-			return new TableResult(data, headers);
+			TableResult tr = new TableResult(data, headers);
+			tr.setIndexes(indexes);
+			return tr;
 		} catch (Exception e) {
-			e.printStackTrace();
 			try {
 				if (table != null) table.close();
 			} catch (Exception ex) {

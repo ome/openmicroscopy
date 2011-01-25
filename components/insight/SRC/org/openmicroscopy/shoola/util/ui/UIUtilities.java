@@ -2007,7 +2007,7 @@ public class UIUtilities
      * @param ex The exception to handle.
      * @return See above.
      */
-    public static String formatExceptionForToolTip(Exception ex)
+    public static String formatExceptionForToolTip(Throwable ex)
     {
     	return formatExceptionForToolTip(ex, MAX_LINES_EXCEPTION);
     }
@@ -2020,7 +2020,7 @@ public class UIUtilities
      * @param n  The number of lines to display.
      * @return See above.
      */
-    public static String formatExceptionForToolTip(Exception ex, int n)
+    public static String formatExceptionForToolTip(Throwable ex, int n)
     {
     	if (ex == null) return "";
     	if (n <= 0) n = MAX_LINES_EXCEPTION;

@@ -648,7 +648,7 @@ class BlitzObjectWrapper (object):
             self._obj._annotationLinksLoaded = True
             self._obj._annotationLinksSeq = links
 
-
+    # _listAnnotationLinks
     def _getAnnotationLinks (self, ns=None):
         """
         Checks links are loaded and returns a list of Annotation Links filtered by 
@@ -680,6 +680,7 @@ class BlitzObjectWrapper (object):
             update.deleteObject(a)
         self._obj.unloadAnnotationLinks()        
     
+    # findAnnotations(self, ns=[])
     def getAnnotation (self, ns=None):
         """
         Gets the first annotation on the object, filtered by ns if specified
@@ -693,7 +694,6 @@ class BlitzObjectWrapper (object):
             return AnnotationWrapper._wrap(self._conn, rv[0].child, link=rv[0])
         return None
 
-
     def listAnnotations (self, ns=None):
         """
         List annotations in the ns namespace, linked to this object
@@ -703,8 +703,45 @@ class BlitzObjectWrapper (object):
         """
         for ann in self._getAnnotationLinks(ns):
             yield AnnotationWrapper._wrap(self._conn, ann.child, link=ann)
-
-
+    
+    def listOrphanedAnnotations(self, eid=None, ns=None, anntype=None):
+        """
+        Retrieve all Annotations not linked to the given Project, Dataset, Image,
+        Screen, Plate, Well ID controlled by the security system. 
+        
+        @param o_type:      type of Object
+        @type o_type:       String
+        @param oid:         Object ID
+        @type oid:          Long
+        @return:            Generator yielding Tags
+        @rtype:             L{AnnotationWrapper} generator
+        """
+        
+        if anntype is not None:
+            if anntype.title() not in ('Text', 'Tag', 'File', 'Long', 'Boolean'):
+                raise AttributeError('It only retrieves: Text, Tag, File, Long, Boolean')
+            sql = "select an from %sAnnotation as an " % anntype.title()
+        else:
+            sql = "select an from Annotation as an " \
+        
+        sql += "where not exists ( select obal from %sAnnotationLink as obal "\
+                "where obal.child=an.id and obal.parent.id=:oid) " % self.OMERO_CLASS
+        
+        q = self._conn.getQueryService()                
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["oid"] = rlong(self._oid)
+        if ns is None:            
+            sql += " and an.ns is null"
+        else:
+            p.map["ns"] = rlist([rstring(n) for n in ns])
+            sql += " and (an.ns not in (:ns) or an.ns is null)"        
+        if eid is not None:
+            sql += " and an.details.owner.id=:eid"
+ 
+        for e in q.findAllByQuery(sql,p):
+            yield AnnotationWrapper._wrap(self._conn, e)
+    
     def _linkAnnotation (self, ann):
         """
         Saves the annotation to DB if needed - setting the permissions manually.
@@ -716,18 +753,20 @@ class BlitzObjectWrapper (object):
         """
         if not ann.getId():
             # Not yet in db, save it
-            ann.details.setPermissions(omero.model.PermissionsI())
-            ann.details.permissions.setWorldRead(True)
-            ann.details.permissions.setGroupWrite(True)
+            if omero_version < ['4','2','0']:
+                ann.details.setPermissions(omero.model.PermissionsI())
+                ann.details.permissions.setWorldRead(True)
+                ann.details.permissions.setGroupWrite(True)
             ann = ann.__class__(self._conn, self._conn.getUpdateService().saveAndReturnObject(ann._obj))
         #else:
         #    ann.save()
         lnktype = "%sAnnotationLinkI" % self.OMERO_CLASS
         lnk = getattr(omero.model, lnktype)()
-        lnk.details.setPermissions(omero.model.PermissionsI())
-        lnk.details.permissions.setWorldRead(True)
-        lnk.details.permissions.setGroupWrite(True)
-        lnk.details.permissions.setUserWrite(True)
+        if omero_version < ['4','2','0']:
+            lnk.details.setPermissions(omero.model.PermissionsI())
+            lnk.details.permissions.setWorldRead(True)
+            lnk.details.permissions.setGroupWrite(True)
+            lnk.details.permissions.setUserWrite(True)
         lnk.setParent(self._obj.__class__(self._obj.id, False))
         lnk.setChild(ann._obj.__class__(ann._obj.id, False))
         self._conn.getUpdateService().saveObject(lnk)
@@ -1951,7 +1990,7 @@ class _BlitzGateway (object):
         group = admin_service.getGroup(long(gid))
         return ExperimenterGroupWrapper(self, group)
     
-    def lookupGroup(self, name):
+    def findGroup(self, name):
         """ 
         Look up a Group and all contained users by group name.
         
@@ -2031,7 +2070,7 @@ class _BlitzGateway (object):
  
     # EXPERIMENTERS
         
-    def lookupExperimenters(self):
+    def listExperimenters(self):
         """ 
         Look up all experimenters and related groups.
         Groups are also loaded
@@ -2044,7 +2083,32 @@ class _BlitzGateway (object):
         for exp in admin_serv.lookupExperimenters():
             yield ExperimenterWrapper(self, exp)
     
-    def listExperimenters (self, start=''):
+    def getExperimenters(self, ids=None):
+        """ 
+        Get experimenters for the given user ids. If ID is not set, return current user.
+        TODO: omero.gateway.BlitzGateway has getExperimenter(id) method
+        
+        @param ids:     List of experimenter IDs
+        @type ids:      L{Long} 
+        @return:        Generator yielding experimetners list
+        @rtype:         L{ExperimenterWrapper} generator
+        
+        """
+        
+        q = self.getQueryService()
+        p = omero.sys.Parameters()
+        if ids is not None:
+            p.map = {}
+            p.map["ids"] = rlist([rlong(long(a)) for a in ids])
+            sql = "select e from Experimenter as e where e.id in (:ids)"
+        else:
+            p.map = {}
+            p.map["id"] = rlong(self.getEventContext().userId)
+            sql = "select e from Experimenter as e where e.id != :id "
+        for e in q.findAllByQuery(sql, p):
+            yield ExperimenterWrapper(self, e)
+    
+    def findExperimenters (self, start=''):
         """
         Return a generator for all Experimenters whose omeName starts with 'start'.
         Experimenters ordered by omeName.
@@ -2082,7 +2146,7 @@ class _BlitzGateway (object):
         except omero.ApiUsageException:
             return None
 
-    def lookupExperimenter(self, name):
+    def findExperimenter(self, name):
         """
         Return an Experimenter for the given username.
         
@@ -2114,7 +2178,7 @@ class _BlitzGateway (object):
         for exp in admin_serv.containedExperimenters(long(gid)):
             yield ExperimenterWrapper(self, exp)
     
-    def getColleagues(self):
+    def listColleagues(self):
         """
         Look up users who are a member of the current user active group.
         Returns None if the group is private and isn't lead by the current user
@@ -2129,7 +2193,7 @@ class _BlitzGateway (object):
                 if d.child.id.val != self.getEventContext().userId:
                     yield ExperimenterWrapper(self, d.child)
 
-    def getStaffs(self):
+    def listStaffs(self):
         """
         Look up users who are members of groups lead by the current user.
         
@@ -2138,41 +2202,17 @@ class _BlitzGateway (object):
         """
         
         q = self.getQueryService()
-        gr_list = self.getEventContext().leaderOfGroups
         p = omero.sys.Parameters()
         p.map = {}
-        p.map["gids"] = rlist([rlong(a) for a in set(gr_list)])
+        p.map["gids"] = rlist([rlong(a) for a in set(self.getEventContext().leaderOfGroups)])
         sql = "select e from Experimenter as e where " \
-                "exists ( select gem from GroupExperimenterMap as gem where gem.child = e.id and gem.parent.id in (:gids)) order by e.omeName"
-        for e in q.findAllByQuery(sql, p):
-            if e.id.val != self.getEventContext().userId:
-                yield ExperimenterWrapper(self, e)
-
-    def getColleaguesAndStaffs(self):
-        """
-        Look up users who are a member of the current user active group 
-        and users who are a member of the group owned by the current user.
-        TODO:   leaderOfGroups must be a subset of memberOfGroups ??
-        This returns all users who share group membership with current user?
-        
-        @return:    Members of groups that current user is a member of? 
-        @rtype:     L{ExperimenterWrapper} generator
-        """
-        
-        q = self.getQueryService()
-        gr_list = list()
-        gr_list.extend(self.getEventContext().memberOfGroups)
-        gr_list.extend(self.getEventContext().leaderOfGroups)
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["gids"] = rlist([rlong(a) for a in set(gr_list)])
-        sql = "select e from Experimenter as e where " \
-                "exists ( select gem from GroupExperimenterMap as gem where gem.child = e.id and gem.parent.id in (:gids)) order by e.omeName"
+                "exists ( select gem from GroupExperimenterMap as gem where gem.child = e.id " \
+                "and gem.parent.id in (:gids)) order by e.omeName"
         for e in q.findAllByQuery(sql, p):
             if e.id.val != self.getEventContext().userId:
                 yield ExperimenterWrapper(self, e)
     
-    def lookupGroups(self):
+    def listGroups(self):
         """
         Looks up all groups and all related experimenters. 
         TODO: The experimenters are also loaded?
@@ -2185,7 +2225,27 @@ class _BlitzGateway (object):
         for gr in admin_serv.lookupGroups():
             yield ExperimenterGroupWrapper(self, gr)
     
-    def lookupOwnedGroups(self):
+    def getExperimenterGroups(self, ids):
+        """ 
+        Get group for for the given group ids. 
+        TODO: omero.gateway.BlitzGateway has getGroup(id) method
+        
+        @param ids:     List of group IDs
+        @type ids:      L{Long} 
+        @return:        Generator yielding groups list
+        @rtype:         L{ExperimenterGroupWrapper} generator
+        """
+            
+        q = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["ids"] = rlist([rlong(a) for a in ids])
+        sql = "select e from ExperimenterGroup as e where e.id in (:ids)"
+        for e in q.findAllByQuery(sql, p):
+            if e.name.val != 'user':
+                yield ExperimenterGroupWrapper(self, e)
+    
+    def listOwnedGroups(self):
         """
         Looks up owned groups for the logged user.
         
@@ -2533,6 +2593,40 @@ class _BlitzGateway (object):
         p.map["ids"] = rlist([rlong(a) for a in ids])
         sql = "select obj from %s obj join fetch obj.details.owner join fetch obj.details.group where obj.id in (:ids)" % obj_type
         for e in q.findAllByQuery(sql, p):
+            yield wrappers[obj_type](self, e)
+    
+    def getObjectsByAnnotations(self, obj_type, annids):
+        """
+        Retrieve objects linked to the given annotation IDs
+        controlled by the security system.
+        
+        @param annids:      Annotation IDs
+        @type annids:       L{Long}
+        @return:            Generator yielding Objects
+        @rtype:             L{BlitzObjectWrapper} generator
+        """
+        
+        wrappers = {"Project":ProjectWrapper,
+            "Dataset":DatasetWrapper,
+            "Image":ImageWrapper,
+            "Screen":ScreenWrapper,
+            "Plate":PlateWrapper,
+            "Well":WellWrapper}
+            
+        if not obj_type in wrappers:
+            raise AttributeError('It only retrieves: Project, Dataset, Image, Screen, Plate or Well')
+        
+        sql = "select ob from %s ob " \
+              "left outer join fetch ob.annotationLinks obal " \
+              "left outer join fetch obal.child ann " \
+              "where ann.id in (:oids)" % obj_type
+            
+        q = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["oids"] = rlist([rlong(o) for o in set(annids)])
+        for e in q.findAllByQuery(sql,p):
+            kwargs = {'link': BlitzObjectWrapper(self, e.copyAnnotationLinks()[0])}
             yield wrappers[obj_type](self, e)
             
     def getAnnotations(self, ids):
@@ -3515,7 +3609,7 @@ class _AnnotationLinkWrapper (BlitzObjectWrapper):
     """
 
     def getAnnotation(self):
-        return AnnotationWrapper._wrap(self, self.child)
+        return AnnotationWrapper._wrap(self._conn, self.child)
 
 AnnotationLinkWrapper = _AnnotationLinkWrapper
                 

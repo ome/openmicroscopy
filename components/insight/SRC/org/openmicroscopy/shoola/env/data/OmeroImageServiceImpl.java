@@ -52,13 +52,13 @@ import omero.model.IObject;
 import omero.model.Image;
 import omero.model.Pixels;
 import omero.model.Project;
+import omero.model.ProjectDatasetLink;
 import omero.model.RenderingDef;
 import omero.romio.PlaneDef;
 import omero.sys.Parameters;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
-import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
@@ -236,25 +236,21 @@ class OmeroImageServiceImpl
 	 * @throws ImportException
 	 */
 	private Object createImportedImage(long userID, ImageData image)
-		throws ImportException
 	{
 		if (image != null) {
+			PixelsData pix = image.getDefaultPixels();
+			ThumbnailData data;
 			try {
-				PixelsData pix = image.getDefaultPixels();
 				BufferedImage img = createImage(
 						gateway.getThumbnailByLongestSide(pix.getId(), 96));
-				ThumbnailData data = new ThumbnailData(image.getId(), img, 
-						userID, true);
+				data = new ThumbnailData(image.getId(), img, userID, true);
 				data.setImage(image);
 				return data;
 			} catch (Exception e) {
-				DeletableObject d = new DeletableObject(image);
-				List<DeletableObject> l = new ArrayList<DeletableObject>(1);
-				l.add(d);
-				try {
-					context.getDataService().delete(l);
-				} catch (Exception ex) {}
-				throw new ImportException("Failed to import image", e);
+				data = new ThumbnailData(image.getId(), null, userID, false);
+				data.setImage(image);
+				data.setError(e);
+				return data;
 			}
 		}
 		return image;
@@ -824,26 +820,61 @@ class OmeroImageServiceImpl
 		//specified container
 		IObject io = null;
 		Map m = new HashMap();
+		String name;
+		ProjectDatasetLink link;
 		try {
 			if (container != null) {
 				if (container instanceof DatasetData) {
 					io = container.asIObject();
 				} else if (container instanceof ProjectData) {
 					if (dataset.getId() > 0) return dataset.asIObject();
-					io = gateway.findIObjectByName(
-							DatasetData.class, dataset.getName(), userID);
-					if (io == null) {
-						io = gateway.saveAndReturnObject(
-								dataset.asIObject(), m);
+					else {
+						name = dataset.getName();
+						if (ImportableObject.DEFAULT_DATASET_NAME.equals(name)) 
+						{
+							io = gateway.findIObjectByName(
+									DatasetData.class, dataset.getName(), 
+									userID);
+							if (io == null) {
+								io = gateway.saveAndReturnObject(
+										dataset.asIObject(), m);
+							}
+						} else {
+							io = gateway.saveAndReturnObject(
+									dataset.asIObject(), m);
+							//link project and dataset
+							link =(ProjectDatasetLink) 
+								ModelMapper.linkParentToChild((Dataset) io, 
+									(Project) container.asProject());
+							link = (ProjectDatasetLink) 
+								gateway.saveAndReturnObject(link, m);
+							io = link.getChild();
+						}
 					}
 				}
 			} else {
 				if (dataset.getId() > 0) return dataset.asIObject();
-				io = gateway.findIObjectByName(
-						DatasetData.class, dataset.getName(), userID);
-				if (io == null) {
-					io = gateway.saveAndReturnObject(
-							dataset.asIObject(), m);
+				else {
+					name = dataset.getName();
+					if (ImportableObject.DEFAULT_DATASET_NAME.equals(name)) 
+					{
+						io = gateway.findIObjectByName(
+								DatasetData.class, dataset.getName(), 
+								userID);
+						if (io == null) {
+							io = gateway.saveAndReturnObject(
+									dataset.asIObject(), m);
+						}
+					} else {
+						io = gateway.saveAndReturnObject(
+								dataset.asIObject(), m);
+						link =(ProjectDatasetLink) 
+						ModelMapper.linkParentToChild((Dataset) io, 
+								(Project) container.asProject());
+						link = (ProjectDatasetLink) 
+						gateway.saveAndReturnObject(link, m);
+						io = link.getChild();
+					}
 				}
 			}
 		} catch (Exception e) {
@@ -920,18 +951,32 @@ class OmeroImageServiceImpl
 		List<String> candidates;
 		File file = importable.getFile();
 		boolean thumbnail = object.isLoadThumbnail();
+		DatasetData dataset = object.getDefaultDataset();
 		if (file.isFile()) {
 			if (containers != null && containers.size() > 0) {
 				j = containers.iterator();
 				container = containers.get(0);
 				if (container instanceof ProjectData) {
-					io = createDefaultContainer(container, 
-							object.getDefaultDataset(), userID);
-					if (io != null) ioList.add(io);
+					
+					io = createDefaultContainer(container, dataset, userID);
+					if (io != null) {
+						ioList.add(io);
+						if (dataset.getId() <= 0)
+							object.setDefaultDataset(
+									new DatasetData((Dataset) io)); 
+					}
 				} else if (container instanceof DatasetData || 
 						container instanceof ScreenData) {
 					while (j.hasNext())
 						ioList.add(j.next().asIObject());
+				}
+			} else {
+				io = createDefaultContainer(null, dataset, userID);
+				if (io != null) {
+					ioList.add(io);
+					if (dataset.getId() <= 0)
+						object.setDefaultDataset(
+								new DatasetData((Dataset) io)); 
 				}
 			}
 			if (isArbitraryFile(file)) {
@@ -1023,12 +1068,25 @@ class OmeroImageServiceImpl
 				j = containers.iterator();
 				container = containers.get(0);
 				if (container instanceof ProjectData) {
-					io = createDefaultContainer(container, 
-							object.getDefaultDataset(), userID);
-					if (io != null) ioList.add(io);
+					dataset = object.getDefaultDataset();
+					io = createDefaultContainer(container, dataset, userID);
+					if (io != null) {
+						ioList.add(io);
+						if (dataset.getId() <= 0)
+							object.setDefaultDataset(
+									new DatasetData((Dataset) io)); 
+					}
 				} else if (container instanceof DatasetData) {
 					while (j.hasNext())
 						ioList.add(j.next().asIObject());
+				}
+			} else {
+				io = createDefaultContainer(null, dataset, userID);
+				if (io != null) {
+					ioList.add(io);
+					if (dataset.getId() <= 0)
+						object.setDefaultDataset(
+								new DatasetData((Dataset) io)); 
 				}
 			}
 		}
