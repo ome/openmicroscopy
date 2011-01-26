@@ -19,6 +19,20 @@ logger = logging.getLogger('webfigure')
 
 import webfigure_utils
 
+def roi_viewer_jquery(request, imageId):
+    """
+    Displays an image, using 'jquery.drawinglibrary.js' to draw ROIs on the image. 
+    """
+    conn = getBlitzConnection (request, useragent="OMERO.webroi")
+    if conn is None or not conn.isConnected():
+        return HttpResponseRedirect(reverse('webfigure_login'))
+    
+    image = conn.getImage(imageId)
+    default_z = image.z_count()/2
+    
+    return render_to_response('webfigure/roi_viewers/raphael_viewer.html', {'image':image, 'default_z':default_z})
+    
+    
 def roi_viewer_processing(request, imageId):
     """
     Displays an image, using 'processing.js' to draw ROIs on the image. 

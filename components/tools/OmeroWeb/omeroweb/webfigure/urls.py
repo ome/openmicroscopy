@@ -47,6 +47,11 @@ roi_viewer_processing = url( r'^roi_viewer_processing/(?P<imageId>[0-9]+)/$', vi
 Use 'processing.js' to display ROIs on an image.
 """
 
+roi_viewer_jquery = url( r'^roi_viewer_jquery/(?P<imageId>[0-9]+)/$', views.roi_viewer_jquery, name='webfigure_roi_viewer_jquery' )  
+"""
+Use 'processing.js' to display ROIs on an image.
+"""
+
 urlpatterns = patterns('django.views.generic.simple',
     webfigure_index,
     webfigure_login,
@@ -57,6 +62,7 @@ urlpatterns = patterns('django.views.generic.simple',
     add_annotations,
     get_rois,
     roi_viewer_processing,
+    roi_viewer_jquery,
     #url(r'^appmedia/(?P<path>.*)$', 'django.views.static.serve', {'document_root': 'webmobile/media'}, name="mobile_static"),
     # define the sym link for media. 
     url( r'appmedia/(?P<path>.*)$', serve ,{ 'document_root': os.path.join(os.path.dirname(__file__), 'media').replace('\\','/') }, name="webfigure_media" ),
