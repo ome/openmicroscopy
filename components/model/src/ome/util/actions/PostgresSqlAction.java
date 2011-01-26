@@ -96,6 +96,25 @@ public class PostgresSqlAction extends SqlAction.Impl {
         }
     }
 
+    public String findRepoFilePath(String uuid, long id) {
+        return (String) jdbc.queryForObject(PsqlStrings.getString("sql_action.find_repo_file_path"), //$NON-NLS-1$
+                String.class, id, uuid);
+    }
+
+    public List<Long> findRepoPixels(String uuid, String dirname, String basename){
+        return jdbc.query(PsqlStrings.getString("sql_action.find_repo_pixels"), //$NON-NLS-1$
+                new RowMapper<Long>() {
+                    public Long mapRow(ResultSet arg0, int arg1)
+                            throws SQLException {
+                        return arg0.getLong(1);
+                    }
+                }, uuid, dirname, basename);
+    }
+
+    public Long findRepoImageFromPixels(long id) {
+        return jdbc.queryForLong(PsqlStrings.getString("sql_action.find_repo_file_path"), id); //$NON-NLS-1$
+    }
+
     public int repoScriptCount(String uuid) {
         return jdbc.queryForInt(
                 PsqlStrings.getString("sql_action.repo_script_count"), uuid); //$NON-NLS-1$

@@ -86,6 +86,12 @@ public interface SqlAction {
     Long findRepoFile(String uuid, String dirname, String basename,
             String string);
 
+    String findRepoFilePath(String uuid, long id);
+
+    List<Long> findRepoPixels(String uuid, String dirname, String basename);
+
+    Long findRepoImageFromPixels(long id);
+
     int repoScriptCount(String uuid);
 
     Long nextSessionId();
