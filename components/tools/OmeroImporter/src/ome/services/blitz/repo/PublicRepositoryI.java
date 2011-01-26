@@ -96,6 +96,7 @@ import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Session;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.transaction.annotation.Transactional;
 
 import Ice.Current;
@@ -1131,11 +1132,12 @@ public class PublicRepositoryI extends _RepositoryDisp {
                 .execute(currentUser, new Executor.SimpleWork(this, "getOriginalFile", uuid, path, name) {
                     @Transactional(readOnly = true)
                     public Object doWork(Session session, ServiceFactory sf) {
-                        Long id = sql.findRepoFile(uuid, path, name, null);
-                        if (id == null) {
+                        try {
+                            Long id = sql.findRepoFile(uuid, path, name, null);
+                            return sf.getQueryService().find(ome.model.core.OriginalFile.class, id.longValue());
+                        } catch (EmptyResultDataAccessException e) {
                             return null;
-                        } 
-                        return sf.getQueryService().find(ome.model.core.OriginalFile.class, id.longValue());
+                        }
                     }
                 });
         
