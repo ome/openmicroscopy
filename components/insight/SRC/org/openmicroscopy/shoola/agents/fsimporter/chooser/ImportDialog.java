@@ -157,7 +157,7 @@ public class ImportDialog
 	
 	/** The message to display in the header. */
 	private static final String MESSAGE = "Selects the files or directories " +
-			"to import";
+			"to import.";
 	
 	/** The message to display in the header. */
 	private static final String MESSAGE_PLATE = "Selects the plates to import";
@@ -867,6 +867,19 @@ public class ImportDialog
 	}
 	
 	/**
+	 * Creates a row.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel createRow()
+	{
+		JPanel row = new JPanel();
+		row.setLayout(new FlowLayout(FlowLayout.LEFT));
+		row.setBackground(UIUtilities.BACKGROUND);
+		return row;
+	}
+	
+	/**
 	 * Returns the file queue and indicates where the files will be imported.
 	 * 
 	 * @return See above.
@@ -874,9 +887,12 @@ public class ImportDialog
 	private void buildLocationPane()
 	{
 		locationPane.removeAll();
+		JPanel row = createRow();
+		row.add(new JLabel(MESSAGE));
+		locationPane.add(row);
 		defaultContainerField.setText(ImportableObject.DEFAULT_DATASET_NAME);
 		StringBuffer text = new StringBuffer();
-		JPanel row;
+		
 		String v;
 		String message = OTHER_AS_CONTAINER;
 		addButton.setVisible(true);
@@ -909,8 +925,7 @@ public class ImportDialog
 					}
 				}
 			}
-			row = new JPanel();
-			row.setLayout(new FlowLayout(FlowLayout.LEFT));
+			row = createRow();
 			i = containers.iterator();
 			Object c;
 			String name = "";
@@ -972,8 +987,7 @@ public class ImportDialog
 		}
 		if (type == Importer.SCREEN_TYPE) message = null;
 		if (message != null) {
-			row = new JPanel();
-			row.setLayout(new FlowLayout(FlowLayout.LEFT));
+			row = createRow();
 			row.add(UIUtilities.setTextFont(message));
 			//row.add(defaultContainerField);
 			if (datasets != null && datasets.size() > 0) {
@@ -1014,7 +1028,7 @@ public class ImportDialog
 		titlePane = new TitlePanel(TITLE, getContainerText(containers), 
 				icons.getIcon(IconManager.IMPORT_48));
 		//titlePane.setSubtitle(SUB_MESSAGE);
-		c.add(titlePane, BorderLayout.NORTH);
+		//c.add(titlePane, BorderLayout.NORTH);
 		tabbedPane.add("Files to import", table);
 		tabbedPane.add("Options", buildOptionsPane());
 		
