@@ -6,70 +6,39 @@
 
 #img_panel{
     position: absolute;
-    top:50px;
-    left:10px;
+    top:0px;
+    left:0px;
     z-index: 0;
 }
 
 #canvas{
     position: absolute;
-    top:50px;
-    left:10px;
+    top:0px;
+    left:0px;
     z-index: 1;
+}
+#roi_table_div { 
+    border: 1px solid black;
+    position: absolute;
+    top:10px;
+    right:10px;
+}
+#roi_table thead {
+    background: #ddd;
+}
+
+.button {
+    background: #eee;
+    border: black 1px solid;
+    cursor: hand;
+    width: 50px;
 }
 </style>
 
 <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.3.2.js" %}"></script>
 <script type="text/javascript" src="{% url webfigure_media 'js/processing.js' %}"></script>
+<script type="text/javascript" src="{% url webfigure_media 'js/processing_rois.js' %}"></script>
 
-<script id="script1" type="text/javascript">  
-
-$(document).ready(function() {
-
-    var cx = 200;
-    var cy = 100;
-    var radius = 50;
-    
-    // Simple way to attach js code to the canvas is by using a function  
-    function draw_rois(processing) {  
-        
-        processing.setup = function(){
-          // size( 256, 256 );
-          processing.strokeWeight( 2 );
-          processing.frameRate( 15 );
-          cx = processing.width / 2;
-          cy = processing.width / 2;    
-        }
-        
-        
-      // Override draw function, by default it will be called 60 times per second  
-      processing.draw = function() {  
-        
-        // processing.background( 0,255,0, 255 );
-        
-        //processing.loadPixels();
-        //for (int i = 0; i < processing.width * processing.height; i++) {
-        //    processing.pixels[i] = 0;
-        //}
-        //processing.updatePixels(); 
-        
-        
-        processing.fill( 0, 0,0,0 );    // black, transparent
-        
-        processing.stroke(255,0,0);
-        //processing.stroke(255); 
-        processing.ellipse( cx, cy, radius, radius );  
-      };  
-    
-    }  
-  
-    var canvas = document.getElementById("canvas"); 
-     
-    // attaching the sketchProc function to the canvas  
-    var p = new Processing(canvas, draw_rois);  
-    //p.exit(); //to detach it  
-});
-</script>
 
 </head>
 
@@ -86,12 +55,40 @@ $(document).ready(function() {
 </div>
 
 <div>
-    {{ image.name }} <a id='load_rois' href="{% url webfigure_get_rois image.id %}">LOAD ROIS</a>
+    <p>
+        {{ image.name }} ID: <span id='imageId'>{{ image.id }}</span>
+        <a id='load_rois' href="{% url webfigure_get_rois image.id %}">LOAD ROIS</a>
+    </p>
+    <p>
+        Current Z index: <span id='theZ'>{{ default_z }}</span> / <span id='sizeZ'>{{ image.z_count }}</span> 
+        <span class='button' id="incZ">+</span> <span class='button' id="decZ">-</span> 
+    </p>
+    <p>
+        Current T index: <span id='theT'>0</span> / <span id='sizeT'>{{ image.t_count }}</span>
+        <span class='button' id="incTime">+</span> <span class='button' id="decTime">-</span> 
+    </p>
 </div>
 
-<div style='float:left'>
+<div id='roi_table_div'>
+    <table id='roi_table'>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>&nbsp T &nbsp</th>
+                <th>&nbsp Z &nbsp</th>
+                <th>Shape (count)</th>
+            <tr>
+        </thead>
+        <tbody>
+            <tr><td>test</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<div style='float:left; position:relative'>
     <img id='img_panel' src="{% url webgateway.views.render_image image.id 0 0 %}" width="{{ image.getWidth }}" height="{{ image.getHeight }}"/>
     <canvas id="canvas" width="{{ image.getWidth }}" height="{{ image.getHeight }}"></canvas>
 </div>
+
 
 </body> </html>

@@ -10,12 +10,13 @@ def getRoiShapes(roiService, imageId):
         roi = {}
         roi['id'] = r.getId().getValue()
         # go through all the shapes of the ROI
+        shapes = []
         for s in r.copyShapes():
-            shapes = []
             shape = {}
             shape['id'] = s.getId().getValue()
             shape['theT'] = s.getTheT().getValue()
             shape['theZ'] = s.getTheZ().getValue()
+            print type(s)
             if type(s) == omero.model.RectI:
                 shape['type'] = 'Rectangle'
                 shape['x'] = s.getX().getValue()
@@ -30,6 +31,12 @@ def getRoiShapes(roiService, imageId):
                 shape['cy'] = s.getCy().getValue()
                 shape['rx'] = s.getRx().getValue()
                 shape['ry'] = s.getRy().getValue()
+                if s.getTextValue():
+                    shape['textValue'] = s.getTextValue().getValue()
+            elif type(s) == omero.model.PolylineI:
+                shape['type'] = 'PolyLine'
+                shape['points'] = s.getPoints().getValue()
+                print shape['points']
                 if s.getTextValue():
                     shape['textValue'] = s.getTextValue().getValue()
             elif type(s) == omero.model.LineI:

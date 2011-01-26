@@ -28,8 +28,9 @@ def roi_viewer_processing(request, imageId):
         return HttpResponseRedirect(reverse('webfigure_login'))
     
     image = conn.getImage(imageId)
+    default_z = image.z_count()/2
     
-    return render_to_response('webfigure/roi_viewers/processing_viewer.html', {'image':image})
+    return render_to_response('webfigure/roi_viewers/processing_viewer.html', {'image':image, 'default_z':default_z})
 
 
 def get_rois(request, imageId):
