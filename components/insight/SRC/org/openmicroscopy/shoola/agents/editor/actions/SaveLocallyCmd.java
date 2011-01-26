@@ -55,9 +55,8 @@ import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
  * </small>
  * @since 3.0-Beta4
  */
-class SaveLocallyCmd 
-	implements ActionCmd,
-	PropertyChangeListener
+public class SaveLocallyCmd 
+	implements ActionCmd, PropertyChangeListener
 {
 	
 	/** Reference to the model */
@@ -75,7 +74,7 @@ class SaveLocallyCmd
 	 * 
 	 * @param model		The {@link Editor} model for saving. 
 	 */
-	SaveLocallyCmd(Editor model) 
+	public SaveLocallyCmd(Editor model) 
 	{
 		if (model == null)
 			throw new IllegalArgumentException("No model.");

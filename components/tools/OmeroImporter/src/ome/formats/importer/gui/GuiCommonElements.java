@@ -697,24 +697,25 @@ public class GuiCommonElements
     public static boolean quitConfirmed(Component parent, String message) {
         if (message == null)
         {
-            message = "Do you really want to quit?\n" +
+            message = "Do you really want to close the application?\n" +
             "Doing so will cancel any running imports.";
         }
-        String s1 = "Quit";
-        String s2 = "Don't Quit";
-        Object[] options = {s1, s2};
+        String s1 = "Yes";
+        String s2 = "No";
+        Object[] options = {s2, s1};
         int n = JOptionPane.showOptionDialog(parent,
                 message,
-                "Quit Confirmation",
+                "Exit Application",
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE,
                 null,
                 options,
                 s1);
+        //b/c of switch of location
         if (n == JOptionPane.YES_OPTION) {
-            return true;
+            return false;//true;
         } else {
-            return false;
+            return true;//false;
         }
     }
     

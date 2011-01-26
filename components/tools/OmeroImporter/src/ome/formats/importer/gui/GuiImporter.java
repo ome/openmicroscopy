@@ -591,7 +591,7 @@ WindowStateListener, WindowFocusListener
         } else if ("quit".equals(cmd)) {
         	String message = null;
         	if(error_notification == true)
-        		message = "Do you really want to quit?\n" +
+        		message = "Do you really want to close the application?\n" +
                 "Doing so will cancel any running imports.\n\n" +
                 "NOTE: You still have unsent error messages!";
         	
