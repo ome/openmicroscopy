@@ -1966,6 +1966,8 @@ class OMEROGateway
 	/** Clears the data. */
 	private void clear()
 	{
+		services.clear();
+		reServices.clear();
 		thumbnailService = null;
 		fileStore = null;
 		metadataService = null;
@@ -1985,8 +1987,6 @@ class OMEROGateway
 		exporterService = null;
 		timeService = null;
 		sharedResources = null;
-		services.clear();
-		reServices.clear();
 	}
 	
 	/**
