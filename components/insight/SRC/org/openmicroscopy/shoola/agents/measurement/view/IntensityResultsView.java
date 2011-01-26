@@ -33,7 +33,9 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -243,6 +245,9 @@ class IntensityResultsView
 	/** Current ROIShape. */
 	private 	ROIShape shape;
 	
+	/** The collection of rois that have been removed. */
+	private Set<Long> remove = new HashSet<Long>();
+	
 	/**
 	 * Implemented as specified by the I/F {@link TabPaneInterface}
 	 * @see TabPaneInterface#getIndex()
@@ -335,7 +340,7 @@ class IntensityResultsView
 	/** 
 	 * Populates the table with the data. 
 	 * 
-	 * @param shape The shape to be analysed. 
+	 * @param shape The analyzed shape. 
 	 */
 	private void getResults(ROIShape shape)
 	{
@@ -367,8 +372,10 @@ class IntensityResultsView
 			rowData.add(channelStdDev.get(channel));
 			rows.add(rowData);
 		}
-		for (Vector data : rows)
+		int n = resultsModel.getRowCount();
+		for (Vector data : rows) {
 			resultsModel.addRow(data);
+		}
 		results.repaint();
 	}
 	
@@ -417,16 +424,17 @@ class IntensityResultsView
 		UserNotifier un = reg.getUserNotifier();
 		un.notifyInfo("Save ROI results", "The ROI results have been " +
 											"successfully saved.");
-	
 	}
 	
 	/** Removes the selected results from the table. */
 	private void removeResults()
 	{
 		int [] rows = results.getSelectedRows();
-		for (int i = rows.length-1 ; i >= 0 ; i--)
+		for (int i = rows.length-1 ; i >= 0 ; i--) {
+			remove.add((Long) resultsModel.getValueAt(rows[i], 0));
 			resultsModel.removeRow(rows[i]);
-		setButtonsEnabled(results.getRowCount() >0);
+		}
+		setButtonsEnabled(results.getRowCount() > 0);
 	}
 	
 	/**
@@ -439,7 +447,7 @@ class IntensityResultsView
 		if (selectedFigures == null || selectedFigures.size() == 0)
 			return false;
 		for (Figure figure : selectedFigures)
-			if(figure instanceof MeasureTextFigure)
+			if (figure instanceof MeasureTextFigure)
 				return false;
 		return true;
 	}
@@ -458,13 +466,46 @@ class IntensityResultsView
 		List<ROIShape> shapeList = new ArrayList<ROIShape>();
 		Iterator<Figure> iterator =  selectedFigures.iterator();
 		ROIFigure fig;
-		while (iterator.hasNext())
-		{
+		Map map = model.getAnalysisResults();
+		Collection shapes = new HashSet();
+		if (map != null) shapes = map.keySet();
+		ROIShape shape;
+		while (iterator.hasNext()) {
 			fig = (ROIFigure) iterator.next();
-			shapeList.add(fig.getROIShape());
+			shape = fig.getROIShape();
+			if (shapes.contains(shape)) {
+				if (remove.contains(shape.getID())) {
+					removeShape(shape.getID());
+					shapeList.add(shape);
+				}
+			} else shapeList.add(shape);
 		}
-		view.calculateStats(shapeList);
+		if (shapeList.size() > 0) {
+			view.calculateStats(shapeList);
+			onFigureSelected();
+		}
 		state = State.READY;
+	}
+	
+	/**
+	 * Removes the shape from the table.
+	 * 
+	 * @param shapeID The identifier of the shape.
+	 */
+	private void removeShape(long shapeID)
+	{
+		remove.remove(shapeID);
+		List<Integer> indexes = new ArrayList<Integer>();
+		long id;
+		for (int i = 0; i < resultsModel.getRowCount(); i++) {
+			id = (Long) resultsModel.getValueAt(i, 0);
+			if (id == shapeID)
+				indexes.add(i);
+		}
+		Iterator<Integer> j = indexes.iterator();
+		while (j.hasNext()) {
+			resultsModel.removeRow(j.next());
+		}
 	}
 	
 	/**
@@ -475,33 +516,34 @@ class IntensityResultsView
 		Set<Figure> selectedFigures = 
 			view.getDrawingView().getSelectedFigures();
 		if (selectedFigures.size() == 0 || state == State.ANALYSING) return;
-		//if (selectedFigures.size() != 1)
-			//return;
 		state = State.ANALYSING;
 		List<ROIShape> shapeList = new ArrayList<ROIShape>();
 		
 		Iterator<Figure> i =  selectedFigures.iterator();
 		ROIFigure fig;
-		TreeMap<Coord3D, ROIShape> shapeMap;
+		TreeMap<Coord3D, ROIShape> treeMap;
 		Iterator<Coord3D> j;
 		ROIShape shape;
+		Map map = model.getAnalysisResults();
+		Collection shapes = new HashSet();
+		if (map != null) shapes = map.keySet();
 		while (i.hasNext()) {
 			fig = (ROIFigure) i.next();
 			if (!(fig instanceof MeasureTextFigure)) {
-				shapeMap = fig.getROI().getShapes();
-				j = shapeMap.keySet().iterator();
+				treeMap = fig.getROI().getShapes();
+				j = treeMap.keySet().iterator();
 				while (j.hasNext()) {
-					shape = shapeMap.get(j.next());
-					shapeList.add(shape);		
+					shape = treeMap.get(j.next());
+					if (!shapes.contains(shape))
+						shapeList.add(shape);		
 				}
 			}
 		}
-		if (shapeList.size() == 0)
-			return;
-		view.calculateStats(shapeList);
+		if (shapeList.size() > 0) {
+			view.calculateStats(shapeList);
+		}
 		state = State.READY;
 	}
-	
 	
 	/**
 	 * Creates a new instance.
@@ -566,9 +608,6 @@ class IntensityResultsView
 		int channel;
 		List<ChannelData> metadata = model.getMetadata();
 		Iterator<ChannelData> i;
-		
-		
-		
 		while (j.hasNext())
 		{
 			entry = (Entry) j.next();
@@ -646,6 +685,8 @@ class IntensityResultsView
 		int count = results.getRowCount();
 		for (int i = count-1 ; i >= 0 ; i--)
 			resultsModel.removeRow(i);
+		model.setAnalysisResults(null);
+		remove.clear();
 		setButtonsEnabled(false);
 		onFigureSelected();
 	}
