@@ -2,7 +2,7 @@ from django.http import HttpResponse
 
 class HttpJavascriptRedirect(HttpResponse):
     def __init__(self,content):
-        content = '<html><body onLoad="%s;"></body></html>' % content
+        content = '<html><body onLoad="javascript:window.top.location.href=\'%s\'"></body></html>' % content
         HttpResponse.__init__(self,content)
 
 
@@ -12,6 +12,6 @@ class HttpJavascriptResponse(HttpResponse):
 
 
 class HttpLoginRedirect(HttpResponse):
-    def __init__(self,content):        
+    def __init__(self,content): 
         content = """<html><body onLoad="top.location.replace('%s');"></body></html>""" % content
         HttpResponse.__init__(self,content)

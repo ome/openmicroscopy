@@ -608,7 +608,6 @@ class BaseContainer(BaseController):
             if len(oids[k]) > 0:
                 #listing = getattr(self.conn, "get"+k.lower().title()+"sById")
                 for ob in self.conn.getObjects(k.lower().title(), oids[k]):
-                    print "createCommentAnnotations", type(ob)
                     if isinstance(ob._obj, omero.model.WellI):
                         t = 'Image'
                         obj = ob.selectedWellSample().image()
@@ -726,13 +725,12 @@ class BaseContainer(BaseController):
         atype = str(atype).lower()
         if not atype.lower() in ("tag", "comment", "file"):
             raise AttributeError("Object type must be: tag, comment, file.")
-        alisting = getattr(self.conn, "get"+atype.title()+"sById")
         
         new_links = list()
         for k in oids:
             if len(oids[k]) > 0:
-                for ob in self.conn.getAnnotations(oids[k]):
-                    for a in list(alisting(tids)):
+                for ob in self.conn.getObjects(k.lower().title(), oids[k]):
+                    for a in self.conn.getAnnotations(tids):
                         if isinstance(ob._obj, omero.model.WellI):
                             t = 'Image'
                             obj = ob.selectedWellSample().image()

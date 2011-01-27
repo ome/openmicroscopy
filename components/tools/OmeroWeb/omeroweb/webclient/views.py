@@ -135,9 +135,9 @@ def isUserConnected (f):
             # TODO: Should be changed to use HttpRequest.is_ajax()
             # http://docs.djangoproject.com/en/dev/ref/request-response/
             # Thu  6 Jan 2011 09:57:27 GMT -- callan at blackcat dot ca
-            #if request.session.get('version') is not None:
-            #    return HttpLoginRedirect(reverse("weblogin"))
-            return HttpResponseRedirect(reverse("weblogin")+(("?url=%s") % (url)))
+            if request.is_ajax():
+                return HttpLoginRedirect(reverse("weblogin"))
+            return HttpLoginRedirect(reverse("weblogin")+(("?url=%s") % (url)))
             
         conn_share = None       
         share_id = kwargs.get('share_id', None)
@@ -446,13 +446,13 @@ def logout(request, **kwargs):
     webgateway_views._session_logout(request, request.session.get('server'))
      
     try:
-        for k in ('clipboard', 'imageInBasket', 'nav'):
-            if request.session.has_key(k):
-                del request.session[k]
         if request.session.get('shares') is not None:
             for key in request.session.get('shares').iterkeys():
                 session_key = "S:%s#%s#%s" % (request.session.session_key,request.session.get('server'), key)
                 webgateway_views._session_logout(request,request.session.get('server'), force_key=session_key)
+        for k in request.session.keys():
+            if request.session.has_key(k):
+                del request.session[k]      
     except:
         logger.error(traceback.format_exc())
     
@@ -1075,7 +1075,7 @@ def manage_annotation_multi(request, action=None, **kwargs):
                 if f is not None:
                     manager.createFileAnnotations(f, oids)
 
-                return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse(viewname="load_template", args=[menu]))
+                return HttpJavascriptRedirect(reverse(viewname="load_template", args=[menu]))
             
     context = {'url':url, 'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager, 'form_multi':form_multi, 'count':count}
             
@@ -1365,7 +1365,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                 name = request.REQUEST.get('name').encode('utf-8')
                 description = request.REQUEST.get('description').encode('utf-8')
                 manager.createDataset(name, description)
-                return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse(viewname="load_template", args=[menu])) 
+                return HttpJavascriptRedirect(reverse(viewname="load_template", args=[menu])) 
             else:
                 template = "webclient/data/container_new.html"
                 context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form}
@@ -1376,7 +1376,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                     name = request.REQUEST['name'].encode('utf-8')
                     description = request.REQUEST['description'].encode('utf-8')
                     manager.createDataset(name, description)
-                    return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse(viewname="load_template", args=[menu])) 
+                    return HttpJavascriptRedirect(reverse(viewname="load_template", args=[menu])) 
                 else:
                     template = "webclient/data/container_new.html"
                     context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form}
@@ -1386,7 +1386,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                     name = request.REQUEST['name'].encode('utf-8')
                     description = request.REQUEST['description'].encode('utf-8')
                     manager.createProject(name, description)
-                    return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse(viewname="load_template", args=[menu])) 
+                    return HttpJavascriptRedirect(reverse(viewname="load_template", args=[menu])) 
                 else:
                     template = "webclient/data/container_new.html"
                     context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form}
@@ -1396,7 +1396,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                     name = request.REQUEST['name'].encode('utf-8')
                     description = request.REQUEST['description'].encode('utf-8')
                     manager.createScreen(name, description)
-                    return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse(viewname="load_template", args=[menu])) 
+                    return HttpJavascriptRedirect(reverse(viewname="load_template", args=[menu])) 
                 else:
                     template = "webclient/data/container_new.html"
                     context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form}
@@ -1431,7 +1431,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             tag = request.REQUEST['tag'].encode('utf-8')
             desc = request.REQUEST['description'].encode('utf-8')
             manager.createTagAnnotationOnly(tag, desc)
-            return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse("load_template", args=["usertags"])) 
+            return HttpJavascriptRedirect(reverse("load_template", args=["usertags"])) 
         else:
             template = "webclient/annotations/annotation_new_form.html"
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_tag':form_tag}
@@ -1669,7 +1669,7 @@ def basket_action (request, action=None, **kwargs):
                 host = '%s://%s:%s%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], reverse("webindex"))
             share = BaseShare(conn)
             share.createShare(host, request.session.get('server'), images, message, members, enable, expiration)
-            return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse("load_template", args=["public"])) 
+            return HttpJavascriptRedirect(reverse("load_template", args=["public"])) 
         else:
             template = "webclient/basket/basket_share_action.html"
             context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'form':form}
@@ -1708,7 +1708,7 @@ def basket_action (request, action=None, **kwargs):
                 host = '%s://%s:%s%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], reverse("webindex"))
             share = BaseShare(conn)
             share.createDiscussion(host, request.session['server'], message, members, enable, expiration)
-            return HttpJavascriptRedirect("javascript:window.top.location.href=\'%s\'" % reverse("load_template", args=["public"])) 
+            return HttpJavascriptRedirect(reverse("load_template", args=["public"])) 
         else:
             template = "webclient/basket/basket_discussion_action.html"
             context = {'nav':request.session['nav'], 'eContext':basket.eContext, 'form':form}
