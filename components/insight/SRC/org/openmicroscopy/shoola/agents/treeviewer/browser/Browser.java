@@ -770,5 +770,5 @@ public interface Browser
 	 * @return See above.
 	 */
 	public TreeImageDisplay getLoggedExperimenterNode();
-	
+
 }

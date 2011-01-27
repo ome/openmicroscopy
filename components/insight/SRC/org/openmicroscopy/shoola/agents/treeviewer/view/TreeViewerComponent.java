@@ -2263,18 +2263,25 @@ class TreeViewerComponent
 				finder = new NodesFinder((DataObject) data);
 				browser.accept(finder);
 				nodes = finder.getNodes();
-				if (nodes.size() > 0) {
+				ExperimenterData exp;
+				MetadataViewer mv = model.getMetadataViewer();
+				int size = nodes.size();
+				if (size == 1) {
 					i = nodes.iterator();
+					TreeImageDisplay parent;
+					mv.setSelectionMode(size == 1);
 					while (i.hasNext()) {
 						node = i.next();
-						browser.loadExperimenterData(
-								BrowserFactory.getDataOwner(node), 
-			        			node);
+						parent = BrowserFactory.getDataOwner(node);
+						browser.loadExperimenterData(parent, node);
+						exp = (ExperimenterData) parent.getUserObject();
+						if (exp == null) exp = model.getUserDetails();
+						node.setExpanded(true);
+						mv.setRootObject(node.getUserObject(), exp.getId());
+						browser.onSelectedNode(null, node, false);
 						break;
 					}
 				}
-				browser.loadExperimenterData(BrowserFactory.getDataOwner(node), 
-	        			node);
 			} else if (data instanceof PlateData) {
 				finder = new NodesFinder((DataObject) data);
 				browser.accept(finder);

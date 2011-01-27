@@ -607,6 +607,24 @@ public abstract class ActivityComponent
 	}
 	
 	/**
+	 * Returns the text of the viewable object.
+	 * 
+	 * @param object The object to handle.
+	 * @return See above.
+	 */
+	String getViewTooltip(Object object)
+	{
+		String tp = "View Object";
+		if (!isViewable(object)) return tp;
+		if (object instanceof DatasetData) 
+			return "Browse Dataset: "+((DatasetData) object).getName();
+		else if (object instanceof ProjectData) 
+			return "Browse Project: "+((ProjectData) object).getName();
+		return tp;
+	}
+	
+	
+	/**
 	 * Returns <code>true</code> if the object can be viewed, 
 	 * <code>false</code> otherwise.
 	 * 
@@ -833,6 +851,7 @@ public abstract class ActivityComponent
 		downloadButton.setVisible(isDownloadable(this.result));
 		if (isViewable(this.result)) {
 			viewButton.setText(getViewText(this.result));
+			viewButton.setToolTipText(getViewTooltip(this.result));
 			viewButton.setVisible(true);
 		} else viewButton.setVisible(false);
 		

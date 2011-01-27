@@ -31,6 +31,7 @@ import java.util.Map;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -135,7 +136,10 @@ class ActivityResultRow
 		}
 		if (activity.isViewable(row)) {
 			add(Box.createHorizontalStrut(5));
-			add(activity.createButton(activity.getViewText(row), VIEW, this));
+			JButton button = activity.createButton(activity.getViewText(row), 
+					VIEW, this);
+			button.setToolTipText(activity.getViewTooltip(row));
+			add(button);
 		}
 	}
 	

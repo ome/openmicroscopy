@@ -59,6 +59,7 @@ import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
 import pojos.GroupData;
+import pojos.ImageData;
 import pojos.ProjectData;
 
 /** 
@@ -334,8 +335,9 @@ public class TreeViewerAgent
     		long id = -1;
 			if (gp != null) id = gp.getId();
 			TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
-			if (viewer != null)
-				viewer.findDataObject(data.getClass(), data.getId(), false);
+			if (viewer != null && !(data instanceof ImageData))
+				viewer.browseContainer(data, null);
+				//viewer.findDataObject(data.getClass(), data.getId(), false);
     	}
     }
     
@@ -466,6 +468,7 @@ public class TreeViewerAgent
         bus.register(this, ImportStatusEvent.class);
         bus.register(this, BrowseContainer.class);
         bus.register(this, NodeToRefreshEvent.class);
+        bus.register(this, ViewObjectEvent.class);
     }
 
     /**

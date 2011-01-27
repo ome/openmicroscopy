@@ -1441,7 +1441,7 @@ class BrowserComponent
 	public void browse(TreeImageDisplay node, DataObject data, 
 			boolean withThumbnails)
 	{
-		if (node == null) return;
+		//if (node == null) return;
 		model.getParentModel().browse(node, data, withThumbnails);
 	}
 
@@ -1452,20 +1452,26 @@ class BrowserComponent
 	public void onSelectedNode(Object parent, Object selected, 
 					Boolean multiSelection)
 	{
+		TreeImageDisplay foundNode;
 		if (selected instanceof DataObject) {
 			NodeSelectionVisitor visitor = new NodeSelectionVisitor(parent, 
 													(DataObject) selected);
 			accept(visitor);
-			TreeImageDisplay foundNode = visitor.getSelectedNode();
+			foundNode = visitor.getSelectedNode();
 			if (foundNode != null) {		
 				if (multiSelection) model.addFoundNode(foundNode);
 				else model.setSelectedDisplay(foundNode, true);
 				view.setFoundNode(model.getSelectedDisplays());
 			} else 
 				view.setFoundNode(null);
+		} else if (selected instanceof TreeImageDisplay) {
+			foundNode = (TreeImageDisplay) selected;
+			if (multiSelection) model.addFoundNode(foundNode);
+			else model.setSelectedDisplay(foundNode, true);
+			view.setFoundNode(model.getSelectedDisplays());
 		}
 	}
-
+	
 	/**
 	 * Implemented as specified by the {@link Browser} interface.
 	 * @see Browser#onDeselectedNode(Object, Object, Boolean)
