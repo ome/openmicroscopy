@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 
@@ -43,8 +44,10 @@ import javax.swing.JTabbedPane;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
+import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
+import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
@@ -68,6 +71,9 @@ class ImporterUI
 	extends TopWindow
 {
 
+	/** The window's title. */
+	private static final String TITLE = "Imports";
+	
 	/** Reference to the model. */
 	private ImporterModel	model;
 	
@@ -109,8 +115,9 @@ class ImporterUI
 		Container container = getContentPane();
 		container.setLayout(new BorderLayout(0, 0));
 		IconManager icons = IconManager.getInstance();
-		TitlePanel tp = new TitlePanel("Imports", "", "Displays " +
-				"the imports", icons.getIcon(IconManager.IMPORT_48));
+		TitlePanel tp = new TitlePanel(TITLE, "", "Displays " +
+				"the ongoing and done imports.", 
+				icons.getIcon(IconManager.IMPORT_48));
 		container.add(tp, BorderLayout.NORTH);
 		container.add(tabs, BorderLayout.CENTER);
 		container.add(buildControls(), BorderLayout.SOUTH);
@@ -136,10 +143,23 @@ class ImporterUI
 		tabs.addPropertyChangeListener(controller);
 	}
 	
+	/**
+     * Creates the menu bar.
+     * 
+     * @return The menu bar.
+     */
+    private JMenuBar createMenuBar()
+    {
+    	TaskBar tb = ImporterAgent.getRegistry().getTaskBar();
+    	JMenuBar bar = tb.getTaskBarMenuBar();
+    	
+    	return bar;
+    }
+    
 	/** Creates a new instance. */
 	ImporterUI()
 	{
-		super("");
+		super(TITLE);
 	}
 
 	/**
@@ -154,6 +174,7 @@ class ImporterUI
 		this.controller = controller;
 		total = 0;
 		initComponents();
+		setJMenuBar(createMenuBar());
 		buildGUI();
 	}
 
@@ -264,7 +285,6 @@ class ImporterUI
 	boolean hasFailuresToSend()
 	{
 		Iterator<ImporterUIElement> i = uiElements.values().iterator();
-		ImporterUIElement element;
 		while (i.hasNext()) {
 			if (i.next().hasFailuresToSend())
 				return true;

@@ -153,7 +153,7 @@ public class ImportDialog
 	private static final int	CREATE_DATASET = 6;
 	
 	/** The title of the dialog. */
-	private static final String TITLE = "Import";
+	private static final String TITLE = "Select Data to Import";
 	
 	/** The message to display in the header. */
 	private static final String MESSAGE = "Selects the files or directories " +
@@ -592,8 +592,7 @@ public class ImportDialog
 		chooser.setApproveButtonText("Import");
 		chooser.setApproveButtonToolTipText("Import the selected files " +
 				"or directories");
-		
-		
+
 		if (filters != null) {
 			chooser.setAcceptAllFileFilterUsed(false);
 			for (int i = 0; i < filters.length; i++) {
@@ -887,9 +886,9 @@ public class ImportDialog
 	private void buildLocationPane()
 	{
 		locationPane.removeAll();
-		JPanel row = createRow();
-		row.add(new JLabel(MESSAGE));
-		locationPane.add(row);
+		JPanel row;// = createRow();
+		//row.add(new JLabel(MESSAGE));
+		//locationPane.add(row);
 		defaultContainerField.setText(ImportableObject.DEFAULT_DATASET_NAME);
 		StringBuffer text = new StringBuffer();
 		
@@ -1012,6 +1011,9 @@ public class ImportDialog
 			}
 			locationPane.add(row);
 		}
+		row = createRow();
+		row.add(new JLabel(MESSAGE));
+		locationPane.add(row);
 	}
 
 	/** 
@@ -1038,7 +1040,6 @@ public class ImportDialog
 		p.setLayout(new TableLayout(size));
 		p.add(table.buildControls(), "0, 0, LEFT, CENTER");
 		p.add(tabbedPane, "2, 0");
-		
 		JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, chooser, 
 				p);
 		JPanel body = new JPanel();
