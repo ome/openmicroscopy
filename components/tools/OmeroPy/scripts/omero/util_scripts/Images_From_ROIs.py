@@ -117,21 +117,21 @@ def makeImagesFromRois(session, parameterMap):
     gateway = session.createGateway()
     re = session.createRenderingEngine()
     
-    # get the project and dataset from the first image...
+    # get the project and dataset from the first image, to use as containers for new Images / Datasets
     imageId = imageIds[0]
     query_string = "select i from Image i join fetch i.datasetLinks idl join fetch idl.parent d join fetch d.projectLinks pl join fetch pl.parent where i.id in (%s)" % imageId
     image = queryService.findByQuery(query_string, None)
     project = None
     dataset = None
     if image:
-        print "First Image is in:"
+        print "Ancestors of first Image (used for new Images/Datsets):"
         for link in image.iterateDatasetLinks():
             ds = link.parent
             dataset = gateway.getDataset(ds.id.val, True)
-            print " Dataset", dataset.name.val
+            print "  Dataset: ", dataset.name.val
             for dpLink in ds.iterateProjectLinks():
                 project = dpLink.parent
-                print " Project", project.name.val
+                print "  Project: ", project.name.val
                 break # only use 1st Project
             break    # only use 1st
     else:
@@ -152,9 +152,10 @@ def makeImagesFromRois(session, parameterMap):
         imageName = image.getName().getValue()
     
         pixels = gateway.getPixelsFromImage(imageId)[0]
-        physicalSizeX = pixels.getPhysicalSizeX().getValue()
-        physicalSizeY = pixels.getPhysicalSizeY().getValue()
-    
+        # note pixel sizes (if available) to set for the new images
+        physicalSizeX = pixels.getPhysicalSizeX() and pixels.getPhysicalSizeX().getValue() or None
+        physicalSizeY = pixels.getPhysicalSizeY() and pixels.getPhysicalSizeY().getValue() or None
+        
         # get plane of image
         plane2D = getImagePlane(queryService, rawPixelStore, imageId)
     
@@ -168,7 +169,8 @@ def makeImagesFromRois(session, parameterMap):
         
         # if making a single stack image...
         if imageStack:
-            print "Making Image stack from ROIs of Image:", imageId
+            print "\nMaking Image stack from ROIs of Image:", imageId
+            print "physicalSize X, Y:  %s, %s" % (physicalSizeX, physicalSizeY)
             plane2Dlist = []
             # use width and height from first rectangle to make sure that all are the same. 
             x,y,width,height = rects[0]    
@@ -185,8 +187,10 @@ def makeImagesFromRois(session, parameterMap):
             image = scriptUtil.createNewImage(pixelsService, rawPixelStore, re, pixelsType, gateway, plane2Dlist, newImageName, description, dataset)
         
             pixels = image.getPrimaryPixels()
-            pixels.setPhysicalSizeX(rdouble(physicalSizeX))
-            pixels.setPhysicalSizeY(rdouble(physicalSizeY))
+            if physicalSizeX:
+                pixels.setPhysicalSizeX(rdouble(physicalSizeX))
+            if physicalSizeY:
+                pixels.setPhysicalSizeY(rdouble(physicalSizeY))
             gateway.saveObject(pixels)
             
             newIds.append(image.getId().getValue())
@@ -194,8 +198,9 @@ def makeImagesFromRois(session, parameterMap):
         # ..else, make an image for each ROI (all in one dataset?)
         else:
             # create a new dataset for new images
-            datasetName = "%s_%s" % (os.path.basename(imageName), containerName)    # e.g. myImage.mrc_particles
-            print "Making Dataset: %s of Images from ROIs of Image: %s" % (datasetName, imageId)
+            datasetName = containerName    # e.g. myImage.mrc_particles
+            print "\nMaking Dataset '%s' of Images from ROIs of Image: %s" % (datasetName, imageId)
+            print "physicalSize X, Y:  %s, %s" % (physicalSizeX, physicalSizeY)
             dataset = omero.model.DatasetI()
             dataset.name = rstring(datasetName)
             desc = "Images in this Dataset are from ROIs of parent Image:\n  Name: %s\n  Image ID: %d" % (imageName, imageId)
@@ -208,12 +213,12 @@ def makeImagesFromRois(session, parameterMap):
     
             for r in rects:
                 x,y,w,h = r
+                print "  ROI x: %s y: %s w: %s h: %s" % (x, y, w, h)
                 x2 = x+w
                 y2 = y+h
                 array = plane2D[y:y2, x:x2]     # slice the ROI rectangle data out of the whole image-plane 2D array
             
                 description = "Created from image:\n  Name: %s\n  Image ID: %d \n x: %d y: %d" % (imageName, imageId, x, y)
-                print description
                 image = scriptUtil.createNewImage(pixelsService, rawPixelStore, re, pixelsType, gateway, [array], "from_roi", description, dataset)
             
                 pixels = image.getPrimaryPixels()
