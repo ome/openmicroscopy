@@ -43,6 +43,8 @@ class AdminTests (WebAdminTestBase):
         Visits each page in turn. Starts at experimenters and clicks links to each other main page '
         """
         # login done already in setUp()
+        print "testPages"
+        
         sel = self.selenium
         sel.open("/webadmin/experimenters")
         sel.wait_for_page_to_load("30000")
@@ -59,10 +61,10 @@ class AdminTests (WebAdminTestBase):
         """
         Creates a new experimenter. Tests that ommiting to fill in 'ome-name' gives a correct message to user.
         Checks that the new user is displayed in the table of experimenters 
-        
-        TODO: need to create a group first
         """
-        groupName = self.newGroupName
+        print "testCreateExperimenter"
+        #groupName = self.newGroupName
+        groupName = 'private'
         
         # uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
         uuid = random()
@@ -106,11 +108,13 @@ class AdminTests (WebAdminTestBase):
         """
         This needs to run before testCreateExperimenter()
         """
+        print "testCreateGroup"
         groupName = self.newGroupName
         
         sel = self.selenium
         sel.open("/webadmin/groups")
         sel.click("link=Add new group")
+        sel.wait_for_page_to_load("30000")
         sel.type("id_name", groupName)
         sel.click("//input[@value='Save']")
         sel.wait_for_page_to_load("30000")
@@ -120,10 +124,6 @@ class AdminTests (WebAdminTestBase):
         self.failUnless(sel.is_text_present(groupName))
         self.assert_(sel.is_element_present("jquery=#groupTable tbody tr td:containsExactly(%s)" % groupName))
         
-        
-    def tearDown(self):
-        self.logout()
-        super(AdminTests, self).tearDown()
 
     def tearDown(self):
         self.logout()
