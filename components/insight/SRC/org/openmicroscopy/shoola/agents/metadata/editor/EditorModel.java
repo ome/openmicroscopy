@@ -1013,7 +1013,7 @@ class EditorModel
 				ids.put(f.getId(), f);
 			}
 		}
-		List<Long> orderedIds =  (List<Long>) sorter.sort(ids.values());
+		List<Long> orderedIds =  (List<Long>) sorter.sort(ids.keySet());
 		if (orderedIds.size() == 0) return null;
 		int index = 0; //this should be modified.
 		Iterator<Long> j = orderedIds.iterator();
