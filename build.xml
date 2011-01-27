@@ -236,11 +236,11 @@ java component.
 
     <macrodef name="launchSuite">
         <attribute name="suite"/>
-        <attribute name="excludes" default="**/tools/build.xml,**/insight/**/*,**/specification/**/*"/>
+        <attribute name="excludes" default="**/tools/build.xml"/>
         <sequential>
         <ivy:settings id="ivy.@{suite}"  file="${etc.dir}/ivysettings.xml"/>
         <ivy:buildlist reference="@{suite}.buildpath" settingsRef="ivy.@{suite}" ivyfilepath="test.xml">
-            <fileset dir="${omero.home}/components" includes="**/build.xml" excludes="@{excludes}"/>
+            <fileset dir="${omero.home}/components" includes="**/build.xml" excludes="**/insight/**/*,**/specification/**/*,@{excludes}"/>
         </ivy:buildlist>
         <iterate buildpathref="@{suite}.buildpath" target="@{suite}"/>
         </sequential>
