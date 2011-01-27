@@ -19,15 +19,79 @@ $(document).ready(function() {
     var width = parseInt($img_panel.attr('width'));
     var height = parseInt($img_panel.attr('height'));
     
-    alert(width + " " + height);
+    var $imgAreaSelect = null
     
     // Creates Raphael canvas 320 × 200 at 10, 50
     var paper = Raphael('canvas', width, height);
     //$canvas.append(paper);
     
+    // when shape is selected, add imgAreaSelect to allow resize
+    var select_shape = function(event) {
+        
+        var shape = this;
+        var x = parseInt(this.attr('x'));
+        var y = parseInt(this.attr('y'));
+        var X2 = null;
+        var Y2 = null;
+        // if no 'x' attribute, we are not dealing with Rect, try Ellipse
+        if (isNaN(x)) {
+            var cx = parseInt(this.attr('cx'));
+            var cy = parseInt(this.attr('cy'));
+            var rx = parseInt(this.attr('rx'));
+            var ry = parseInt(this.attr('ry'));
+            x = cx - rx;
+            y = cy - ry;
+            X2 = cx + rx;
+            Y2 = cy + ry;
+        } else {
+            X2 = x + parseInt(this.attr('width'));
+            Y2 = y + parseInt(this.attr('height'));
+        }
+        
+        var resize = function(img, sel) {
+            shape.attr({
+                cx: sel.x1 + (sel.width/2),
+                cy: sel.y1 + (sel.height/2),
+                rx: sel.width/2,
+                ry: sel.height/2
+            })
+        }
+        
+        // launch selection tool, calling resize when done. 
+        $imgAreaSelect = $canvas.imgAreaSelect({ x1:x, y1:y, x2:X2, y2:Y2, 
+            handles:true,
+            instance: true,     // return instance to save ref
+            onSelectEnd: resize}); 
+    }
+    
     var plot_rois = function() {
         
+        if ($imgAreaSelect != null) {
+            //$imgAreaSelect.setOptions({ show: false });
+            $imgAreaSelect.hide();
+        }
         paper.clear();
+        
+        var start = function () {
+            // storing original coordinates
+            this.ox = this.attr("cx");
+            this.oy = this.attr("cy");
+            this.rectx = this.attr("x");
+            this.recty = this.attr("y");
+            this.attr({opacity: 0.5});
+        },
+        move = function (dx, dy) {
+            // move will be called with dx and dy
+            this.attr({cx: this.ox + dx, cy: this.oy + dy});
+        },
+        up = function () {
+            // restoring state
+            this.attr({opacity: .3});
+        },
+        moveRect = function (dx, dy) {
+            // move will be called with dx and dy
+            this.attr({x: this.rectx + dx, y: this.recty + dy});
+        }
         
         for (var r=0; r<json.length; r++) {
             var roi = json[r];
@@ -38,15 +102,34 @@ $(document).ready(function() {
                 if ((shape['theT'] == theT) && (shape['theZ'] == theZ)) {
                     if (shape['type'] == 'Ellipse') {
                         var circle = paper.ellipse(shape['cx'], shape['cy'], shape['rx'], shape['ry']);
-                        circle.attr("stroke", "#fff");
+                        //circle.attr("stroke", "#fff");
+                        circle.attr({
+                            fill: "#000",
+                            stroke: "#fff",
+                            opacity: 0.3
+                        });
+                        circle.drag(move, start, up);
+                        circle.click(select_shape);
                     }
                     else if (shape['type'] == 'Rectangle') {
                         var rect = paper.rect(shape['x'], shape['y'], shape['width'], shape['height']);
-                        rect.attr("stroke", "#fff");
+                        rect.attr({
+                            fill: "#000",
+                            stroke: "#fff",
+                            opacity: 0.3
+                        });
+                        rect.drag(moveRect, start, up);
+                        rect.click(select_shape);
                     }
                     else if (shape['type'] == 'Point') {
                         var point = paper.ellipse( shape['cx'], shape['cy'], 2, 2);
-                        point.attr("stroke", "#fff");
+                        point.attr({
+                            fill: "#000",
+                            stroke: "#fff",
+                            opacity: 0.3
+                        });
+                        point.drag(move, start, up);
+                        point.click(select_shape);
                     }
                 }
             }
