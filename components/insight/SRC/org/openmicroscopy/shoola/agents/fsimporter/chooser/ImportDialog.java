@@ -297,6 +297,9 @@ public class ImportDialog
 	/** The class of reference for the container. */
 	private Class						reference;
 	
+	/** Indicates to show thumbnails in import tab. */
+	private JCheckBox					showThumbnails;
+	
 	/** 
 	 * Creates the dataset.
 	 * 
@@ -504,6 +507,20 @@ public class ImportDialog
 	 */
 	private void initComponents(List<TreeImageDisplay> containers)
 	{
+		showThumbnails = new JCheckBox("Show Thumbnails when imported");
+		showThumbnails.setVisible(false);
+		Boolean b = (Boolean) ImporterAgent.getRegistry().lookup(
+    			LOAD_THUMBNAIL);
+    	if (b != null) {
+    		if (b.booleanValue()) {
+    			showThumbnails.setVisible(true);
+    			showThumbnails.setSelected(true);
+    		}
+    	}
+    	//if slow connection 
+    	if (!isFastConnection())
+    		showThumbnails.setVisible(false);
+		
 		this.containers = containers;
 		reference = null;
 		sorter = new ViewerSorter();
@@ -650,8 +667,8 @@ public class ImportDialog
 	{
 		JPanel bar = new JPanel();
 		bar.setLayout(new FlowLayout(FlowLayout.RIGHT));
-		bar.add(resetButton);
-		bar.add(Box.createHorizontalStrut(20));
+		//bar.add(resetButton);
+		//bar.add(Box.createHorizontalStrut(20));
 		bar.add(cancelButton);
 		bar.add(Box.createHorizontalStrut(5));
 		bar.add(importButton);
@@ -669,6 +686,8 @@ public class ImportDialog
 		JPanel bar = new JPanel();
 		bar.setLayout(new FlowLayout(FlowLayout.LEFT));
 		bar.add(refreshButton);
+		bar.add(Box.createHorizontalStrut(5));
+		bar.add(showThumbnails);
 		return bar;
 	}
 	
@@ -1125,6 +1144,9 @@ public class ImportDialog
     	//if slow connection 
     	if (!isFastConnection())
     		object.setLoadThumbnail(false);
+    	if (showThumbnails.isVisible()) {
+    		object.setLoadThumbnail(showThumbnails.isSelected());
+    	}
     	if (defaultContainerField.isVisible()) {
     		String v = defaultContainerField.getText();
     		if (v == null || v.trim().length() == 0)

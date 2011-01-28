@@ -253,8 +253,10 @@ class ImporterUIElement
 				else orphanedFiles = true;
 			} else {
 				DatasetData dataset = object.getDefaultDataset();
-				if (dataset != null) 
+				if (dataset != null) {
+					containerComponents.put(createNameLabel(dataset), dataset);
 					foldersName.add(dataset.getName());
+				}
 				else orphanedFiles = true;
 			}
 			importable.setStatus(c.getStatus());
@@ -513,10 +515,19 @@ class ImporterUIElement
 				timeLabel.setText(text+" Duration: "+time);
 				EventBus bus = ImporterAgent.getRegistry().getEventBus();
 				ImportStatusEvent event;
-				if (toRefresh()) 
-					event = new ImportStatusEvent(false, 
-							getData().getContainers());
-				else event = new ImportStatusEvent(false, null);
+				if (toRefresh()) {
+					List<DataObject> l = getData().getContainers();
+					if (l == null || l.size() > 0) {
+						DatasetData d = getData().getDefaultDataset();
+						if (d != null && d.getId() > 0) {
+							l = new ArrayList<DataObject>();
+							l.add(d);
+						}
+					}
+					event = new ImportStatusEvent(false, l);
+				} else {
+					event = new ImportStatusEvent(false, null);
+				}
 				event.setToRefresh(hasToRefreshTree());
 				bus.post(event);
 			}
