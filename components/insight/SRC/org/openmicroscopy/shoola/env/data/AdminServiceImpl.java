@@ -586,7 +586,7 @@ class AdminServiceImpl
 			throw new IllegalArgumentException("No experimenters" +
 					" specified");
 		if (AdminObject.RESET_PASSWORD != object.getIndex())
-			throw new IllegalArgumentException("No experimenters specified");
+			throw new IllegalArgumentException("Index not valid");
 		Map<ExperimenterData, UserCredentials> map = object.getExperimenters();
 		if (map == null) 
 			throw new IllegalArgumentException("No experimenters specified");
@@ -614,6 +614,45 @@ class AdminServiceImpl
 		return l;
 	}
 
+	/**
+	 * Implemented as specified by {@link AdminService}.
+	 * @see AdminService#activateExperimenters(AdminObject)
+	 */
+	public List<ExperimenterData> activateExperimenters(AdminObject object)
+			throws DSOutOfServiceException, DSAccessException
+	{
+		if (object == null)
+			throw new IllegalArgumentException("No experimenters" +
+					" specified");
+		if (AdminObject.ACTIVATE_USER != object.getIndex())
+			throw new IllegalArgumentException("Index not valid.");
+		Map<ExperimenterData, UserCredentials> map = object.getExperimenters();
+		if (map == null) 
+			throw new IllegalArgumentException("No experimenters specified");
+			
+		List<ExperimenterData> l = new ArrayList<ExperimenterData>();
+		UserCredentials uc;
+		Entry entry;
+		ExperimenterData exp;
+		Iterator i = map.entrySet().iterator();
+		List<ExperimenterData> toActivate = new ArrayList<ExperimenterData>();
+		List<ExperimenterData> toDeactivate = new ArrayList<ExperimenterData>();
+		
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			exp = (ExperimenterData) entry.getKey();
+			uc = (UserCredentials) entry.getValue();
+			if (uc.isActive()) toActivate.add(exp);
+			else toDeactivate.add(exp);
+		}
+		if (toActivate.size() > 0)
+			gateway.modifyExperimentersRoles(true, toActivate, GroupData.USER);
+		if (toDeactivate.size() > 0)
+			gateway.modifyExperimentersRoles(false, toDeactivate, 
+					GroupData.USER);
+		return l;
+	}
+	
 	/**
 	 * Implemented as specified by {@link AdminService}.
 	 * @see AdminService#reloadPIGroups(ExperimenterData)

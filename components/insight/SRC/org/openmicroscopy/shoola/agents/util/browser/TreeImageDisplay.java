@@ -28,7 +28,6 @@ package org.openmicroscopy.shoola.agents.util.browser;
 import java.awt.Color;
 import java.awt.Font;
 import java.io.File;
-import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;

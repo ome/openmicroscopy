@@ -1003,5 +1003,12 @@ public interface TreeViewer
 	 * @param node The node hosting the object to browse or <code>null</code>.
 	 */
 	void browseContainer(Object data, Object node);
+
+	/**
+	 * Activates the user or de-activates the user.
+	 * 
+	 * @param exp The experimenter to handle.
+	 */
+	void activateUser(ExperimenterData exp);
 	
 }

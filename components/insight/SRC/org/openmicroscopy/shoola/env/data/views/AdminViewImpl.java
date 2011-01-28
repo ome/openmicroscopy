@@ -184,6 +184,17 @@ class AdminViewImpl
 	
 	/**
 	 * Implemented as specified by the {@link AdminView} interface.
+	 * @see AdminView#activateExperimenters(AdminObject, AgentEventListener)
+	 */
+	public CallHandle activateExperimenters(AdminObject object,
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new AdminSaver(object);
+		return cmd.exec(observer);
+	}
+	
+	/**
+	 * Implemented as specified by the {@link AdminView} interface.
 	 * @see AdminView#loadExperimenterPhoto(ExperimenterData, 
 	 * AgentEventListener)
 	 */

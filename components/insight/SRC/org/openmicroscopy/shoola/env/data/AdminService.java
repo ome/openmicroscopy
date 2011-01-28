@@ -328,6 +328,19 @@ public interface AdminService
 		throws DSOutOfServiceException, DSAccessException;
 	
 	/**
+	 * Activates or not the specified experimenters.
+	 * 
+	 * @param object The object to handle.
+	 * @return See above
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service.
+	 */
+	public List<ExperimenterData> activateExperimenters(AdminObject object)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	
+	/**
 	 * Reloads the groups and experimenters for a group owners.
 	 * 
 	 * @param exp The owner of a group.

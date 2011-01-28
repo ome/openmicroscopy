@@ -63,6 +63,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.view.DataBrowser;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.ActivatedUserAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.ActivationAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.AddAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.BrowserSelectionAction;
@@ -89,7 +90,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.RefreshTreeAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RemoveExperimenterNode;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RollOverAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SearchAction;
-import org.openmicroscopy.shoola.agents.treeviewer.actions.SendFeedbackAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchUserAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TaggingAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
@@ -134,7 +134,6 @@ import pojos.ExperimenterData;
 import pojos.GroupData;
 import pojos.ImageData;
 import pojos.PlateData;
-import pojos.ProjectData;
 import pojos.WellData;
 import pojos.WellSampleData;
 
@@ -335,6 +334,9 @@ class TreeViewerControl
 	/** Identifies the <code>Send comment action</code>. */
 	static final Integer    SEND_COMMENT = Integer.valueOf(65);
 	
+	/** Identifies the <code>Activated action</code>. */
+	static final Integer    USER_ACTIVATED = Integer.valueOf(66);
+	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -514,7 +516,7 @@ class TreeViewerControl
 				new CreateTopContainerAction(model, 
 						CreateTopContainerAction.EXPERIMENTER));
 		actionsMap.put(RESET_PASSWORD,  new PasswordResetAction(model));
-		actionsMap.put(SEND_COMMENT,  new SendFeedbackAction(model));
+		actionsMap.put(USER_ACTIVATED,  new ActivatedUserAction(model));
 	}
 
 	/** 
@@ -753,6 +755,26 @@ class TreeViewerControl
 			l.add(new GroupSelectionAction(model, group));
 		}
 		return l;
+	}
+	
+	/**
+	 * Returns the last node selected.
+	 * 
+	 * @return See above.
+	 */
+	TreeImageDisplay getLastSelectedDisplay()
+	{
+		Browser browser = model.getSelectedBrowser();
+		if (browser == null) return null;
+		return browser.getLastSelectedDisplay();
+	}
+	
+	/** Activates or not the user. */
+	void activateUser()
+	{
+		TreeImageDisplay node = getLastSelectedDisplay();
+		if (node != null && node.getUserObject() instanceof ExperimenterData)
+			model.activateUser((ExperimenterData) node.getUserObject());
 	}
 	
 	/** Forwards call to the {@link TreeViewer}. */

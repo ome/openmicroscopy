@@ -73,6 +73,9 @@ public class AdminObject
 	/** Indicates to add experimenters to group. */
 	public static final int ADD_EXPERIMENTER_TO_GROUP = 5;
 	
+	/** Indicates to reset the password. */
+	public static final int ACTIVATE_USER = 6;
+	
 	/** Indicates that the group is <code>Private</code> i.e. RW----. */
 	public static final int PERMISSIONS_PRIVATE = 100;
 	
@@ -119,6 +122,7 @@ public class AdminObject
 			case UPDATE_EXPERIMENTER:
 			case RESET_PASSWORD:
 			case ADD_EXPERIMENTER_TO_GROUP:
+			case ACTIVATE_USER:
 				return;
 			default:
 				throw new IllegalArgumentException("Index not supported");

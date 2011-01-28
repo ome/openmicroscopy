@@ -92,6 +92,9 @@ public class AdminCreator
 			case AdminObject.RESET_PASSWORD:
 				handle = adminView.resetExperimentersPassword(object, this);
 				break;
+			case AdminObject.ACTIVATE_USER:
+				handle = adminView.activateExperimenters(object, this);
+				break;
 			case AdminObject.ADD_EXPERIMENTER_TO_GROUP:
 				Map m = new HashMap();
 				m.put(object.getGroup(), object.getExperimenters().keySet());
@@ -112,6 +115,7 @@ public class AdminCreator
     public void handleResult(Object result)
     {
         if (viewer.getState() == Browser.DISCARDED) return;  //Async cancel.
+        List l;
         switch (object.getIndex()) {
         	case AdminObject.CREATE_GROUP:
         	case AdminObject.CREATE_EXPERIMENTER:
@@ -119,7 +123,7 @@ public class AdminCreator
         		viewer.refreshTree();
 				break;
         	case AdminObject.RESET_PASSWORD:
-        		List l = (List) result;
+        		l = (List) result;
         		if (l.size() != 0) {
         			UserNotifier un = 
         				TreeViewerAgent.getRegistry().getUserNotifier();
@@ -136,6 +140,26 @@ public class AdminCreator
         			buffer.append(s);
         			un.notifyInfo("Reset password", buffer.toString());
         		}
+        		break;
+        	case AdminObject.ACTIVATE_USER:
+        		l = (List) result;
+        		if (l.size() != 0) {
+        			UserNotifier un = 
+        				TreeViewerAgent.getRegistry().getUserNotifier();
+        			Iterator i = l.iterator();
+        			ExperimenterData exp;
+        			String s = "";
+        			while (i.hasNext()) {
+        				exp = (ExperimenterData) i.next();
+						s += exp.getUserName()+"\n";
+					}
+        			StringBuffer buffer = new StringBuffer();
+        			buffer.append("Not possible to reset the status of ");
+        			buffer.append("the following experimenters:\n");
+        			buffer.append(s);
+        			un.notifyInfo("Activate", buffer.toString());
+        		} 
+        		viewer.refreshTree(); 
 		}
     }
     

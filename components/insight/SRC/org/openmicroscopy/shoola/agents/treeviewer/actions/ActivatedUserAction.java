@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.treeviewer.actions.PasswordResetAction 
+ * org.openmicroscopy.shoola.agents.treeviewer.actions.ActivatedUserAction 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2011 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -11,7 +11,7 @@
  *  (at your option) any later version.
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details.
  *  
  *  You should have received a copy of the GNU General Public License along
@@ -25,10 +25,8 @@ package org.openmicroscopy.shoola.agents.treeviewer.actions;
 
 //Java imports
 import java.awt.event.ActionEvent;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
-
 import javax.swing.Action;
+import javax.swing.Icon;
 
 //Third-party libraries
 
@@ -36,17 +34,15 @@ import javax.swing.Action;
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
-import org.openmicroscopy.shoola.agents.treeviewer.util.PasswordDialog;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ExperimenterData;
 
 /** 
- * Resets the password of the selected experimenters. 
- * This is only available to administrator.
+ * Indicates to activate or not a user.
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
@@ -56,16 +52,28 @@ import pojos.ExperimenterData;
  * </small>
  * @since 3.0-Beta4
  */
-public class PasswordResetAction 
+public class ActivatedUserAction 
 	extends TreeViewerAction
 {
 
 	/** The name of the action. */
-    private static final String NAME = "Reset Password...";
+    public static final String NAME = "Activated User";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Resets the password " +
-    		"of the selected experimenters.";
+    private static final String DESCRIPTION = "If selected the user is " +
+    		"active.";
+    
+    /** Icon to indicate that the user is activated. */
+    private static final Icon ACTIVATED_ICON;
+    
+    /** Icon to indicate that the user is not activated. */
+    private static final Icon NOT_ACTIVATED_ICON;
+    
+    static {
+    	IconManager icons = IconManager.getInstance();
+    	ACTIVATED_ICON = icons.getIcon(IconManager.OWNER);
+    	NOT_ACTIVATED_ICON = icons.getIcon(IconManager.OWNER_NOT_ACTIVE);
+    }
     
     /** 
      * Sets the action enabled depending on the state of the {@link Browser}.
@@ -109,8 +117,16 @@ public class PasswordResetAction
         }
         TreeImageDisplay[] nodes = browser.getSelectedDisplays();
         if (nodes.length > 1) setEnabled(false);
-        else setEnabled(selectedDisplay.getUserObject() 
-        		instanceof ExperimenterData);
+        else {
+        	if (selectedDisplay.getUserObject() instanceof ExperimenterData) {
+        		setEnabled(true);
+        		ExperimenterData exp = (ExperimenterData) 
+        			selectedDisplay.getUserObject();
+        		if (exp.isActive())
+        			putValue(Action.SMALL_ICON, ACTIVATED_ICON);
+        		else putValue(Action.SMALL_ICON, NOT_ACTIVATED_ICON);
+        	} else setEnabled(false);
+        }
     }
     
 	/**
@@ -118,12 +134,10 @@ public class PasswordResetAction
 	 * 
 	 * @param model Reference to the Model. Mustn't be <code>null</code>.
 	 */
-    public PasswordResetAction(TreeViewer model)
+    public ActivatedUserAction(TreeViewer model)
     {
         super(model);
         name = NAME;
-        IconManager icons = IconManager.getInstance();
-		putValue(Action.SMALL_ICON, icons.getIcon(IconManager.PASSWORD));
 		putValue(Action.SHORT_DESCRIPTION, 
 				UIUtilities.formatToolTipText(DESCRIPTION));
     } 
@@ -132,21 +146,6 @@ public class PasswordResetAction
      * Displays a modal dialog.
      * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
      */
-    public void actionPerformed(ActionEvent e)
-    {
-    	PasswordDialog d = new PasswordDialog(model.getUI());
-    	d.addPropertyChangeListener(new PropertyChangeListener() {
-			
-			public void propertyChange(PropertyChangeEvent evt) {
-				if (PasswordDialog.RESET_PASSWORD_PROPERTY.equals(
-						evt.getPropertyName())) {
-					String value = (String) evt.getNewValue();
-					model.resetPassword(value);
-				}
-				
-			}
-		});
-    	UIUtilities.centerAndShow(d);
-    }
-    
+    public void actionPerformed(ActionEvent e) {}
+ 
 }

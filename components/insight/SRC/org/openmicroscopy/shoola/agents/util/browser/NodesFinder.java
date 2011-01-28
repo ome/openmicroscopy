@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.util.browser;
 
 //Java imports
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -62,7 +63,7 @@ public class NodesFinder
     private Set<TreeImageDisplay> nodes;
     
     /** The collection of nodes to find. */
-    private List<DataObject> refObjects;
+    private Collection<DataObject> refObjects;
     
 	/**
 	 * Checks if the node is of the desired type.
@@ -147,7 +148,7 @@ public class NodesFinder
 	 * 
 	 * @param refObjects The collection of objects to find.
 	 */
-	public NodesFinder(List<DataObject> refObjects)
+	public NodesFinder(Collection<DataObject> refObjects)
 	{
 		type = null;
 		this.refObjects = refObjects;

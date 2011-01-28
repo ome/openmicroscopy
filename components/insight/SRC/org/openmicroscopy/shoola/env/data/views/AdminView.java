@@ -202,7 +202,17 @@ public interface AdminView
 	public CallHandle resetExperimentersPassword(AdminObject object, 
 			AgentEventListener observer);
 
-	
+	/**
+	 * Activates or no the passed experimenters.
+	 * 
+	 * @param object The object hosting information about the experimenters
+	 * 				to handle. 
+	 * @param observer	Call-back handler.
+	 * @return A handle that can be used to cancel the call.
+	 */
+	public CallHandle activateExperimenters(AdminObject object, 
+			AgentEventListener observer);
+
 	/**
 	 * Resets the password of the experimenters.
 	 * 

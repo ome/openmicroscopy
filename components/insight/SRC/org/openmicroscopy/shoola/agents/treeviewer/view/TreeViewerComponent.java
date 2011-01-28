@@ -3096,7 +3096,7 @@ class TreeViewerComponent
 	public void resetPassword(String password)
 	{
 		if (password == null)
-			throw new omero.IllegalArgumentException("No password specified.");
+			throw new IllegalArgumentException("No password specified.");
 		Browser browser = model.getSelectedBrowser();
 		if (browser == null) return;
 		List l = browser.getSelectedDataObjects();
@@ -3319,6 +3319,29 @@ class TreeViewerComponent
 			    browser.refreshTree(refNode, (DataObject) data);
 			}
 		}
+	}
+
+	/** 
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#activateUser(ExperimenterData)
+	 */
+	public void activateUser(ExperimenterData exp) {
+		if (exp == null)
+			throw new IllegalArgumentException("No password specified.");
+		Browser browser = model.getSelectedBrowser();
+		if (browser == null) return;
+		List l = browser.getSelectedDataObjects();
+		if (l == null) return;
+		Map<ExperimenterData, UserCredentials>
+			map = new HashMap<ExperimenterData, UserCredentials>();
+		UserCredentials uc = new UserCredentials(exp.getUserName(), "");
+		uc.setActive(!exp.isActive());
+		map.put(exp, uc);
+		if (map.size() == 0) return;
+		AdminObject admin = new AdminObject(null, map, 
+				AdminObject.ACTIVATE_USER);
+		model.fireAdmin(admin);
+		fireStateChange();
 	}
 	
 }
