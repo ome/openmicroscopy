@@ -529,10 +529,8 @@ def recent (request, obj_type, eid=None, **kwargs):
     recentResults = []
     recentItems = webmobile_util.listMostRecentObjects(conn, obj_count, obj_types, eid)
     
-    for r in recentItems:
-        update = r.updateEventDate()
-        t = webmobile_util.formatTimeAgo(update)
-        recentResults.append( (r, t) )
+    from webmobile_util import RecentEvent
+    recentResults = [ RecentEvent(r) for r in recentItems ]
         
     return render_to_response('webmobile/timeline/recent.html', {'client':conn, 'recent':recentResults, 'exp':experimenter })
 

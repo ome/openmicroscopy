@@ -1,5 +1,6 @@
 
 from datetime import datetime, timedelta
+from django.core.urlresolvers import reverse
 
 import omero
 from omero.rtypes import rlong, rint, rtime
@@ -10,7 +11,8 @@ from webclient.webclient_gateway import OmeroWebGateway
         
 def listMostRecentObjects(conn, limit, obj_types=None, eid=None):
     """
-    Get the most recent objects supported by the timeline service (Project, Dataset, Image), Specifying the 
+    Get the most recent objects supported by the timeline service: obj_types are 
+    ['Project', 'Dataset', 'Image', 'Annotation'), Specifying the 
     number of each you want 'limit', belonging to the specified experimenter 'eid'
     or current Group if 'eid' is None.
     """
@@ -73,13 +75,7 @@ def listMostRecentAnnotations (conn, limit, eid=None):
     f.limit = rint(limit)
     p.theFilter = f
     anns = []
-    types = {omero.gateway.CommentAnnotationWrapper:'Comment', 
-            omero.gateway.FileAnnotationWrapper:'File', 
-            omero.gateway.TimestampAnnotationWrapper:'Timestamp',
-            omero.gateway.BooleanAnnotationWrapper:'Boolean',
-            omero.gateway.TagAnnotationWrapper:'Tag',
-            omero.gateway.LongAnnotationWrapper:'Long',
-            omero.gateway.DoubleAnnotationWrapper:'Double'}
+    
     # get ALL parent-types, child-types, namespaces:
     annTypes = ['LongAnnotation', 'TagAnnotation', 'CommentAnnotation'] # etc. Only query 1 at at time! 
     for at in annTypes:
@@ -87,16 +83,10 @@ def listMostRecentAnnotations (conn, limit, eid=None):
         for a in tm.getMostRecentAnnotationLinks(None, [at], None, p):
             # TODO: maybe load parent for each link here
             wrapper = AnnotationWrapper._wrap(conn, a.child, a)
-            if wrapper.__class__ in types:
-                # Abuse of the OMERO_CLASS attribute (normally None for annotations)
-                wrapper.OMERO_CLASS = types[wrapper.__class__]
-                if types[wrapper.__class__] == 'Long' and a.child.ns:
-                    if a.child.ns.val == "openmicroscopy.org/omero/insight/rating":
-                        wrapper.OMERO_CLASS = 'Rating'
             anns.append(wrapper)
     return anns
 
-        
+
 def formatTimeAgo(eventDate):
     """
     Formats a datetime wrt 'now'. 
@@ -119,4 +109,47 @@ def formatTimeAgo(eventDate):
         return "Yesterday at %s" % eventDate.strftime("%H:%M")
     else:
         return "%s" % eventDate.strftime("%A, %d %b at %H:%M")
+        
+        
+class RecentEvent(object):
+    
+    def __init__(self, blitzWrapper):
+        
+        self.obj = blitzWrapper
+        
+        # Pick a suitable display name for the object. E.g. 'Image', 'Comment' etc. 
+        self.display_type = None
+        annTypes = {omero.gateway.CommentAnnotationWrapper:'Comment', 
+                omero.gateway.FileAnnotationWrapper:'File', 
+                omero.gateway.TimestampAnnotationWrapper:'Timestamp',
+                omero.gateway.BooleanAnnotationWrapper:'Boolean',
+                omero.gateway.TagAnnotationWrapper:'Tag',
+                omero.gateway.LongAnnotationWrapper:'Long',
+                omero.gateway.DoubleAnnotationWrapper:'Double'}
+        if self.obj.__class__ in annTypes:
+            self.display_type = annTypes[self.obj.__class__]
+            # Handle special case of Long annotations being 'Ratings'
+            if self.display_type == 'Long' and self.obj.ns:
+                if self.obj.ns == "openmicroscopy.org/omero/insight/rating":
+                    self.display_type = 'Rating'
+        else:
+            self.display_type = blitzWrapper.OMERO_CLASS
+            
+        # Create a suitable link, either to Object itself, or to the Parent (for comments, rating)
+        self.url = None
+        if self.display_type == 'Image':
+            self.url = reverse('webmobile_image', kwargs={'imageId':blitzWrapper.id})
+        elif self.display_type in ['Project', 'Dataset']:
+            self.url = reverse('webmobile_%s_details' % self.display_type.lower(), kwargs={'id':blitzWrapper.id})
+        elif self.display_type in ['Rating', 'Comment']:
+            if blitzWrapper.link:
+                parent = blitzWrapper.link.parent
+                print parent.id
+                print parent.__class__
+        
+        
+        self.timeAgo = formatTimeAgo(blitzWrapper.updateEventDate())
+        
+        
+
     
