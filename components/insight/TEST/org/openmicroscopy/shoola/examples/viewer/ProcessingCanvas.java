@@ -26,13 +26,11 @@ package org.openmicroscopy.shoola.examples.viewer;
 //Java imports
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
 import java.awt.image.BufferedImage;
 
 //Third-party libraries
-import processing.core.*;
+import processing.core.PApplet;
+import processing.core.PImage;
 
 //Application-internal dependencies
 
@@ -55,17 +53,51 @@ public class ProcessingCanvas
 	implements ImageCanvasInterface
 {
 
-
-	/** The image to display. */
-	private BufferedImage image;
-	
 	/** The processing image. */
 	private PImage pImage;
 	
-	float zoomFactor = 2;
+	/** The zoom factor. */
+	private float zoomFactor = 2;
 
-	boolean circleLens = false;
+	/** Flag indicating to use a circle lens or not. */
+	private boolean circleLens = false;
 	 
+	
+	/**
+	 * Creates a cylinder lens.
+	 * 
+	 * @param w
+	 * @param sides
+	 * @return
+	 */
+	private float[][] cylinder(float w, int sides)
+	{
+	  float angle;
+	  float[][] pts = new float[sides+1][sides+1];
+	 
+	  //get the x and z position on a circle for all the sides
+	  for (int i = 0; i < pts.length; i++) {
+		  angle = TWO_PI/(sides)*i;
+		  pts[i][0] = sin(angle)*w;
+		  pts[i][1] = cos(angle)*w;
+	  }
+	  return pts;
+	}
+
+	/**
+	 * Increases or decreases the zooming factor.
+	 * 
+	 * @param delta The value to modify the factor with.
+	 */
+	private void mouseWheel(int delta) 
+	{
+		zoomFactor = zoomFactor-(float)delta/10.0f;
+		if (zoomFactor < 1.5)
+			zoomFactor = 1.5f;
+		if (zoomFactor > 5)
+			zoomFactor = 5;
+	}
+	
 	/** Creates a new instance. */
 	public ProcessingCanvas()
 	{
@@ -80,21 +112,10 @@ public class ProcessingCanvas
 	 */
 	public void setImage(BufferedImage image)
 	{
-		this.image = image;
 		pImage = new PImage(image);
 		repaint();
 	}
 
-	void mouseWheel(int delta) 
-	{
-		zoomFactor = zoomFactor-(float)delta/10.0f;
-		if(zoomFactor<1.5)
-			zoomFactor=1.5f;
-		if(zoomFactor>5)
-			zoomFactor=5;
-	}
-		
-	
 	/**
 	 * Overridden from @see {@link PApplet#setup()}
 	 */
@@ -104,74 +125,59 @@ public class ProcessingCanvas
 		{ 
 			public void mouseWheelMoved(java.awt.event.MouseWheelEvent evt) 
 			{ 
-			      mouseWheel(evt.getWheelRotation());
+				mouseWheel(evt.getWheelRotation());
 			}
 		}); 
-			 
 
-		  size(640, 360, P3D);
-		  noStroke();
-	}
-	
-	float[][]  cylinder(float w, int sides)
-	{
-	  float angle;
-	  float[][] pts = new float[sides+1][sides+1];
-	 
-	  //get the x and z position on a circle for all the sides
-	  for(int i=0; i < pts.length; i++){
-	    angle = TWO_PI / (sides) * i;
-	    pts[i][0] = sin(angle) * w;
-	    pts[i][1] = cos(angle) * w;
-	  }
-	  return pts;
-	}
 
+		size(640, 360, P3D);
+		noStroke();
+	}
 	
 	/**
-	 * Overridden from @see {@link PApplet#draw()}
+	 * Overridden 
+	 * @see {@link PApplet#draw()}
 	 */
 	public void draw()
 	{
 		background(0);
 		float lensSizeX = 40;
 		float lensSizeY = 40;
+		if (pImage == null) return;
 		float[][] circle = cylinder(1, 20);
-		float ZF=lensSizeX/zoomFactor;
-		if(pImage!=null)
+		float ZF = lensSizeX/zoomFactor;
+		beginShape();
+		texture(pImage);
+		vertex(0, 0, 0, 0);
+		vertex(pImage.width, 0, pImage.width, 0);
+		vertex(pImage.width, pImage.height, pImage.width, pImage.height);
+		vertex(0, pImage.height, 0, pImage.height);
+		endShape();
+
+		if (circleLens)
 		{
-				beginShape();
-				texture(pImage);
-				vertex(0, 0, 0, 0);
-				vertex(pImage.width, 0, pImage.width, 0);
-				vertex(pImage.width, pImage.height, pImage.width, pImage.height);
-				vertex(0, pImage.height, 0, pImage.height);
-				endShape();
-				
-				if(circleLens)
-				{
-					pushMatrix();
-					translate(mouseX,mouseY);
-					scale(lensSizeX,lensSizeY);
-					beginShape(TRIANGLE_FAN);
-					texture(pImage);
-					for(int i=0; i < circle.length; i++)
-					{
-					vertex(circle[i][0], circle[i][1],circle[i][0]*ZF+mouseX,circle[i][1]*ZF+mouseY);
-					}
-					endShape();
-					popMatrix();
-				}
-				else
-				{
-					beginShape();
-					texture(pImage);
-					vertex(mouseX-lensSizeX, mouseY-lensSizeY, mouseX-ZF, mouseY-ZF);
-					vertex(mouseX+lensSizeX, mouseY-lensSizeY, mouseX+ZF, mouseY-ZF);
-					vertex(mouseX+lensSizeX, mouseY+lensSizeY, mouseX+ZF, mouseY+ZF);
-					vertex(mouseX-lensSizeX, mouseY+lensSizeY, mouseX-ZF, mouseY+ZF);
-					endShape();
-				}
+			pushMatrix();
+			translate(mouseX,mouseY);
+			scale(lensSizeX,lensSizeY);
+			beginShape(TRIANGLE_FAN);
+			texture(pImage);
+			for(int i=0; i < circle.length; i++)
+			{
+				vertex(circle[i][0], circle[i][1],circle[i][0]*ZF+mouseX,
+						circle[i][1]*ZF+mouseY);
+			}
+			endShape();
+			popMatrix();
+		}
+		else
+		{
+			beginShape();
+			texture(pImage);
+			vertex(mouseX-lensSizeX, mouseY-lensSizeY, mouseX-ZF, mouseY-ZF);
+			vertex(mouseX+lensSizeX, mouseY-lensSizeY, mouseX+ZF, mouseY-ZF);
+			vertex(mouseX+lensSizeX, mouseY+lensSizeY, mouseX+ZF, mouseY+ZF);
+			vertex(mouseX-lensSizeX, mouseY+lensSizeY, mouseX-ZF, mouseY+ZF);
+			endShape();
 		}
 	}
 
@@ -184,10 +190,10 @@ public class ProcessingCanvas
 		return this;
 	}
 
-	   /**
-     * Defined in interface.
-     * @see ImageCanvasInterface#setCanvasSize(Dimension)
-     */
+	/**
+	 * Defined in interface.
+	 * @see ImageCanvasInterface#setCanvasSize(Dimension)
+	 */
 	public void setCanvasSize(Dimension d)
 	{
 		size(d.width, d.height, P3D);
