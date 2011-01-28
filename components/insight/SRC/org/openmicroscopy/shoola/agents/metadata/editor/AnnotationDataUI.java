@@ -502,11 +502,24 @@ class AnnotationDataUI
 		//analysis results
 		List results = model.getAnalysisResults();
 		if (results != null && results.size() > 0) {
+			panel = new JPanel(new GridBagLayout());
+			panel.setBorder(null);
+			panel.setBackground(UIUtilities.BACKGROUND_COLOR);
+			c = new GridBagConstraints();
+			//c.fill = GridBagConstraints.HORIZONTAL;
+			c.anchor = GridBagConstraints.WEST;
+			c.gridwidth = GridBagConstraints.RELATIVE; //next-to-last
+			c.fill = GridBagConstraints.NONE;      //reset to default
+			c.insets = new Insets(0, 2, 2, 0);
+			c.gridy = 0;
+			c.gridx = 0;
+			
 			p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 			p.setBackground(UIUtilities.BACKGROUND_COLOR);
 			l = UIUtilities.setTextFont("analysis", Font.BOLD, size);
 			l.setToolTipText("Displays the results of analysis run.");
 			p.add(l);
+			panel.add(p, c);
 			Iterator i = results.iterator();
 			AnalysisResultsItem item;
 			JPanel list = new JPanel();
@@ -517,7 +530,12 @@ class AnnotationDataUI
 				item.addPropertyChangeListener(controller);
 				list.add(item);
 			}
-			p.add(list);
+			c.gridx++;
+			c.gridheight = 2;
+			panel.add(list, c);
+			//p.add(list);
+			p = UIUtilities.buildComponentPanel(panel, 0, 0);
+			p.setBackground(UIUtilities.BACKGROUND_COLOR);
 			content.add(p);
 		}
 		setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
