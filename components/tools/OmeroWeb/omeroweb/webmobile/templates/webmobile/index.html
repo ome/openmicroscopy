@@ -13,27 +13,34 @@
 
 {% block content %}
 
-<div class='bottom-header'>
-    Recent:
+<div class='sub-header'>
+    Recent Activity:
 </div>
 
 <div class='list-item'> 
-    <a href="{% url webmobile_recent client.user.getId %}">
+    <a href="{% url webmobile_recent 'all' client.user.getId %}">
         <div class="tab-item">
-            My data
+            Mine
         </div>
     </a>
     
-    <a href="{% url webmobile_recent_group %}">
+    <a href="{% url webmobile_recent 'all' %}">
         <div class="tab-item">
-            Group data
+            Group
         </div>
     </a>
+    {% if experimenter %}
+    <a href="{% url webmobile_recent 'all' experimenter.id %}">
+        <div class="tab-item">
+            {{ experimenter.getFullName }}'s
+        </div>
+    </a>
+    {% endif %}
     <div style="clear:both"></div>
 </div>
 
 
-<div class='bottom-header'>
+<div class='sub-header'>
     Browse{% if experimenter %} (owned by {{ experimenter.getFullName }}){% endif %}:
 </div>
 
@@ -61,7 +68,7 @@
     <div style="clear:both"></div>
 </div>
 
-<div class="bottom-header">
+<div class="sub-header">
     Switch:
 </div>
 

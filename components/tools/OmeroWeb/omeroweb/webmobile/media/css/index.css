@@ -48,6 +48,12 @@ body {
     border: 1px solid gray;
     border-width: 0px 0px 1px 0px;
 }
+.sub-header {
+    padding: 5px 5px 2px 5px;
+    font-size:90%;
+    border: 1px solid gray;
+    border-width: 0px 0px 1px 0px;
+}
 #bottom-header-left {
     float: left;
 }
@@ -96,7 +102,7 @@ body {
 
 .tab-item {
     padding: 4px;
-    margin: 4px;
+    margin: 1px;
     float:left;
     background-color:#eee;
     border: 1px solid #ddd;

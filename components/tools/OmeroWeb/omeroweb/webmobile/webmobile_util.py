@@ -8,7 +8,7 @@ from webclient.webclient_gateway import OmeroWebGateway
 
 
         
-def listMostRecentObjects(conn, limit, eid=None):
+def listMostRecentObjects(conn, limit, obj_types=None, eid=None):
     """
     Get the most recent objects supported by the timeline service (Project, Dataset, Image), Specifying the 
     number of each you want 'limit', belonging to the specified experimenter 'eid'
@@ -33,7 +33,9 @@ def listMostRecentObjects(conn, limit, eid=None):
     recent = tm.getMostRecentObjects(None, p, False)
 
     recentItems = []
-    for r in recent:
+    for r in recent: # 'Image', 'Project', 'Dataset', 'Annotation', 'RenderingSettings'
+        if obj_types and r not in obj_types:
+            continue
         for value in recent[r]:
             if r == 'Annotation':
                 recentItems.append(AnnotationWrapper._wrap(conn, value))
@@ -43,14 +45,10 @@ def listMostRecentObjects(conn, limit, eid=None):
                 pass    # RenderingSettings
                 # recentItems.append( BlitzObjectWrapper(conn, value) )  
     
-    anns = listMostRecentAnnotations(conn, limit, eid)
-    for e in anns:
-        print ""
-        print type(e.link.parent)
-        print type(e)
-        print e.updateEventDate()
+    if obj_types == None or 'Annotation' in obj_types:
+        anns = listMostRecentAnnotations(conn, limit, eid)
+        recentItems.extend(anns)
         
-    recentItems.extend(anns)
     recentItems.sort(key = lambda x: x.updateEventDate())
     recentItems.reverse()
     return recentItems

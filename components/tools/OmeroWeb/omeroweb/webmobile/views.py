@@ -505,7 +505,7 @@ def index (request, eid=None, **kwargs):
 
 
 @isUserConnected
-def recent (request, eid=None, **kwargs):
+def recent (request, obj_type, eid=None, **kwargs):
     conn = None
     try:
         conn = kwargs["conn"]
@@ -513,15 +513,28 @@ def recent (request, eid=None, **kwargs):
         logger.error(traceback.format_exc())
         return HttpResponse(traceback.format_exc())
     
+    experimenter = None
+    if eid:
+        experimenter = conn.getExperimenter(eid)
+        
+    # By default, get 3 each of Projects, Datasets, Images, Ratings, Comments, Tags
+    obj_count = 3   
+    obj_types = None
+    if obj_type == 'images':    # Get the last 12 images
+        obj_types = ['Image']
+        obj_count = 12
+    elif obj_type == 'anns':    # 4 each of Tags, Comments, Rating
+        obj_types = ['Annotation']
+        obj_count = 4
     recentResults = []
-    recentItems = webmobile_util.listMostRecentObjects(conn, 3, eid)
+    recentItems = webmobile_util.listMostRecentObjects(conn, obj_count, obj_types, eid)
     
     for r in recentItems:
         update = r.updateEventDate()
         t = webmobile_util.formatTimeAgo(update)
         recentResults.append( (r, t) )
         
-    return render_to_response('webmobile/timeline/recent.html', {'client': conn, 'recent': recentResults })
+    return render_to_response('webmobile/timeline/recent.html', {'client':conn, 'recent':recentResults, 'exp':experimenter })
 
 
 def image_viewer (request, iid, **kwargs):

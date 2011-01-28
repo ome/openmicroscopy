@@ -1,16 +1,26 @@
 {% extends "webmobile/base/base_header.html" %}
 
 {% block header-title %}
-    Recent Activity - Group
+    Recent:
+        {% if exp %} 
+            {{ exp.getFullName }}
+        {% else %}
+            Group
+        {% endif %}
 {% endblock %}
 
 
 {% block content %}
 <div class='bottom-header'>
-    <div id='bottom-header-left'> 
-        My recent
-    </div>
-    
+    {% if exp %}
+    <div class='tab-item'><a href="{% url webmobile_recent 'all' exp.id %}">All Recent</a></div>
+    <div class='tab-item'><a href="{% url webmobile_recent 'images' exp.id %}">Images</a></div>
+    <div class='tab-item'><a href="{% url webmobile_recent 'anns' exp.id %}">Annotations</a></div>
+    {% else %}
+    <div class='tab-item'><a href="{% url webmobile_recent 'all' %}">All Recent</a></div>
+    <div class='tab-item'><a href="{% url webmobile_recent 'images' %}">Images</a></div>
+    <div class='tab-item'><a href="{% url webmobile_recent 'anns' %}">Annotations</a></div>
+    {% endif %}
     <div style="clear:both"></div>
 </div>
 
