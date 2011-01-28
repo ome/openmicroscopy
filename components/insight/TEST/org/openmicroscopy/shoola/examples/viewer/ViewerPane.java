@@ -105,7 +105,7 @@ class ViewerPane
 	private JCheckBox compressed;
 	
 	/** The image canvas. */
-	private ImageCanvas canvas;
+	private ImageCanvasInterface canvas;
 	
 	/** The image currently viewed. */
 	private ImageData image;
@@ -171,8 +171,11 @@ class ViewerPane
 		
 	}
 	
-	/** Initializes the components. */
-	private void initComponents()
+	/** Initializes the components. 
+	 * @param viewType The type of viewer to display the image, JAVA, or 
+	 * Processing.
+	 */
+	private void initComponents(ViewType viewType)
 	{
 		compressed = new JCheckBox("Compressed Image");
 		compressed.addActionListener(new ActionListener() {
@@ -181,7 +184,14 @@ class ViewerPane
 				render();
 			}
 		});
-		canvas = new ImageCanvas();
+		switch(viewType)
+		{
+			case JAVA:
+				canvas = new ImageCanvas();
+				break;
+			case PROCESSING_OPENGL:
+				canvas = new ProcessingCanvas();
+		}
 		zSlider = new JSlider();
 		zSlider.setMinimum(0);
 		zSlider.setEnabled(false);
@@ -213,14 +223,17 @@ class ViewerPane
 		JPanel pp = new JPanel();
 		pp.setLayout(new FlowLayout(FlowLayout.LEFT));
 		pp.add(p);
-		add(new JScrollPane(canvas));
+		add(new JScrollPane(canvas.getCanvas()));
 		add(pp);
 	}
 	
-	/** Creates a new instance. */
-	ViewerPane()
+	/** Creates a new instance. 
+	 * @param viewType The type of viewer used to display the image, Java or 
+	 * processing.
+	 */
+	ViewerPane(ViewType viewType)
 	{
-		initComponents();
+		initComponents(viewType);
 		buildGUI();
 	}
 	
@@ -242,8 +255,7 @@ class ViewerPane
 		
 		PixelsData pixels = image.getDefaultPixels();
 		Dimension d = new Dimension(pixels.getSizeX(), pixels.getSizeY());
-		canvas.setPreferredSize(d);
-		canvas.setSize(d);
+		canvas.setCanvasSize(d);
 		zSlider.removeChangeListener(this);
 		tSlider.removeChangeListener(this);
 		zSlider.setMaximum(pixels.getSizeZ());

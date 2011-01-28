@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.examples.viewer;
 
 
 //Java imports
+import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -49,6 +51,7 @@ import javax.swing.JPanel;
  */
 class ImageCanvas 
 	extends JPanel
+	implements ImageCanvasInterface
 {
 
 	/** The image to display. */
@@ -65,7 +68,7 @@ class ImageCanvas
 	 * 
 	 * @param image The image to paint.
 	 */
-	void setImage(BufferedImage image)
+	public void setImage(BufferedImage image)
 	{
 		this.image = image;
 		repaint();
@@ -87,5 +90,24 @@ class ImageCanvas
     			RenderingHints.VALUE_INTERPOLATION_BILINEAR);
     	g2D.drawImage(image, null, 0, 0); 
     }
-    
+
+    /**
+     * Defined in interface.
+     * @see ImageCanvasInterface#getCanvas()
+     */
+	public Component getCanvas()
+	{
+		return this;
+	}
+
+	   /**
+     * Defined in interface.
+     * @see ImageCanvasInterface#setCanvasSize(Dimension)
+     */
+	public void setCanvasSize(Dimension d)
+	{
+		setPreferredSize(d);
+		setSize(d);
+	}
+       
 }

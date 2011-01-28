@@ -105,10 +105,10 @@ public class ViewerDemo
 	
 	/** 
 	 * Loads and displays the images owned by the user currently logged in.
-	 * 
+	 * @param viewType The type of viewer, java, processing, or other.
 	 * @return See above.
 	 */
-	private JComponent displayImages()
+	private JComponent displayImages(ViewType viewType)
 	{
 		//Retrieve the image.
 		List<ImageData> images = null;
@@ -130,7 +130,7 @@ public class ViewerDemo
 			mapImages.put(image.getId(), image);
 			index++;
 		}
-		viewer = new ViewerPane();
+		viewer = new ViewerPane(viewType);
 		JComboBox box = new JComboBox(items);
 		box.addActionListener(new ActionListener() {
 			
@@ -187,8 +187,9 @@ public class ViewerDemo
 	 * Creates a new instance. 
 	 * 
 	 * @param lc Credentials required to connect to server.
+	 * @param viewType The type of viewer to use to render the image.
 	 */
-	public ViewerDemo(LoginCredentials lc)
+	public ViewerDemo(LoginCredentials lc, ViewType viewType)
 	{
 		initialize();
 		gateway = new Gateway();
@@ -209,7 +210,7 @@ public class ViewerDemo
 			buffer.append("</body></html>");
 			label.setText(buffer.toString());
 			comp = label;
-		} else comp = displayImages();
+		} else comp = displayImages(viewType);
 		getContentPane().add(comp, BorderLayout.CENTER);
 		getContentPane().add(buildControls(), BorderLayout.SOUTH);
 	}
@@ -223,7 +224,7 @@ public class ViewerDemo
 	{
 		//read from arguments
 	
-		if (args == null || args.length < 3)
+		/*if (args == null || args.length < 3)
 			return;
 		String u = args[0];
 		String p = args[1];
@@ -233,10 +234,10 @@ public class ViewerDemo
 		if (args.length > 3) {
 			port = args[4];
 			lc.setPort(Integer.parseInt(port));
-		}
+		}*/
 		//or just comment code above and do for example
-		// lc = new LoginCredentials("root", "ome", "localhost");
-		ViewerDemo viewer = new ViewerDemo(lc);
+		LoginCredentials lc = new LoginCredentials("dzmacdonald", "dddddd!1D", "nightshade.openmicroscopy.org.uk");
+		ViewerDemo viewer = new ViewerDemo(lc, ViewType.PROCESSING_OPENGL);
 		viewer.setSize(500, 500);
 		viewer.setVisible(true);
 	}
