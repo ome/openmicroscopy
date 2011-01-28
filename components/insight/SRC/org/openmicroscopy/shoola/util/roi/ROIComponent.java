@@ -29,7 +29,6 @@ import java.awt.Component;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -142,7 +141,7 @@ public class ROIComponent
 		AttributeKeys.TEXT_COLOR.set(fig, TEXT_COLOR);
 		AttributeKeys.STROKE_WIDTH.set(fig, STROKE_WIDTH);
 		MeasurementAttributes.SHOWID.set(fig, false);
-		if(fig instanceof MeasureLineFigure)
+		if (fig instanceof MeasureLineFigure)
 			MeasurementAttributes.SHOWMEASUREMENT.set(fig, true);
 		else
 			MeasurementAttributes.SHOWMEASUREMENT.set(fig, false);
@@ -294,7 +293,8 @@ public class ROIComponent
      * @throws NoSuchROIException 
      * @throws ROICreationException 
      */
-    public ROI addROI(ROIFigure figure, Coord3D currentPlane, boolean addAttribs)
+    public ROI addROI(ROIFigure figure, Coord3D currentPlane, 
+    		boolean addAttribs)
     	throws ROICreationException, NoSuchROIException
     {
     	if (figure == null) 
@@ -491,12 +491,6 @@ public class ROIComponent
 		throws 	ROICreationException, NoSuchROIException
 	{
 		ROI newROI = roiCollection.createROI();
-		Map m = roiCollection.getROI(id).getAnnotation();
-		Iterator i = m.keySet().iterator();
-		while (i.hasNext()) {
-			AnnotationKey key = (AnnotationKey) i.next();
-			System.err.println(key.toString()+" "+m.get(key));
-		}
 		newROI.setAnnotations(roiCollection.getROI(id).getAnnotation());
 		return newROI;
 	}

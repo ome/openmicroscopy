@@ -846,10 +846,10 @@ class MeasurementViewerModel
 		ROI roi = roiComponent.addROI(figure, getCurrentView());
 		roi.setAnnotation(AnnotationKeys.NAMESPACE, this.workflowNamespace);
 		String keywordString = "";
-		for(int i = 0 ; i < keyword.size() ; i++)
+		for (int i = 0 ; i < keyword.size() ; i++)
 		{
 			keywordString = keywordString + keyword.get(i);
-			if(i<keyword.size()-1)
+			if (i < keyword.size()-1)
 				keywordString = keywordString + ",";
 		}
 		roi.setAnnotation(AnnotationKeys.KEYWORDS, keywordString);		
@@ -869,13 +869,13 @@ class MeasurementViewerModel
 	ROI createROI(ROIFigure figure, boolean addAttribs)
 		throws ROICreationException, NoSuchROIException
 	{
-		ROI roi = roiComponent.addROI(figure, getCurrentView(),addAttribs);
+		ROI roi = roiComponent.addROI(figure, getCurrentView(), addAttribs);
 		roi.setAnnotation(AnnotationKeys.NAMESPACE, this.workflowNamespace);
 		String keywordString = "";
-		for(int i = 0 ; i < keyword.size() ; i++)
+		for (int i = 0 ; i < keyword.size() ; i++)
 		{
 			keywordString = keywordString + keyword.get(i);
-			if(i<keyword.size()-1)
+			if (i < keyword.size()-1)
 				keywordString = keywordString + ",";
 		}
 		roi.setAnnotation(AnnotationKeys.KEYWORDS, keywordString);		

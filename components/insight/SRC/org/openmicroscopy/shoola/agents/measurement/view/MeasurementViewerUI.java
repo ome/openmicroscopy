@@ -42,9 +42,11 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 
 import javax.swing.AbstractButton;
 import javax.swing.ButtonGroup;
@@ -59,6 +61,8 @@ import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
+import org.jhotdraw.draw.AttributeKey;
+import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.draw.DelegationSelectionTool;
 import org.jhotdraw.draw.Drawing;
 import org.jhotdraw.draw.Figure;
@@ -80,6 +84,8 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
+import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
+import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.roi.figures.MeasureMaskFigure;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
@@ -88,6 +94,7 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
 import org.openmicroscopy.shoola.util.ui.LoadingWindow;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.drawingtools.attributes.DrawingAttributes;
 import org.openmicroscopy.shoola.util.ui.drawingtools.canvas.DrawingCanvasView;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 
@@ -612,6 +619,7 @@ class MeasurementViewerUI
 				}
 				model.addShape(newROI.getID(), newShape.getCoord3D(), newShape);
 			}
+			updateDrawingArea();
 		}
 		catch (Exception e)
 		{
@@ -979,7 +987,14 @@ class MeasurementViewerUI
     	if (figure == null) return;
     	ROI roi = null;
     	try {
-    		roi = model.createROI(figure,!getDrawingView().isDuplicate());
+    		boolean isDuplicate = getDrawingView().isDuplicate();
+    		roi = model.createROI(figure, !isDuplicate);
+    		if (!isDuplicate) {
+	    		MeasurementAttributes.SHOWTEXT.set(figure, 
+	    					roiInspector.isShowText());
+	        	MeasurementAttributes.SHOWMEASUREMENT.set(figure, 
+	        				roiInspector.isShowMeasurement());
+    		}
     		getDrawingView().unsetDuplicate();
     	} catch (Exception e) {
 			handleROIException(e, CREATE_MSG);
