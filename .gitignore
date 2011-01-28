@@ -11,6 +11,7 @@ components/tools/OmeroCpp/scons.log
 /etc/local.properties
 /dist
 /var
+/components/insight/bin/*
 /components/*/target
 /lib/cache
 /lib/repository/omero/*
