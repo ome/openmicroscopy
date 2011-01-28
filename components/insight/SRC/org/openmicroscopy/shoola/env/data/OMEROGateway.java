@@ -6848,9 +6848,10 @@ class OMEROGateway
 				uc = (UserCredentials) entry.getValue();
 				value = lookupExperimenter(uc.getUserName());
 				if (value == null) {
-					if (uc.isAdministrator()) 
+					if (uc.isAdministrator()) {
+						l.add(getSystemGroup(GroupData.USER));
 						l.add(getSystemGroup(GroupData.SYSTEM));
-					else l.add(getSystemGroup(GroupData.USER));
+					} else l.add(getSystemGroup(GroupData.USER));
 					if (g == null) {
 						g = l.get(0);
 						systemGroup = true;
@@ -6935,9 +6936,10 @@ class OMEROGateway
 				} else {
 					exp = (Experimenter) ModelMapper.createIObject(
 							(ExperimenterData) entry.getKey());
-					if (uc.isAdministrator()) 
+					if (uc.isAdministrator()) {
 						l.add(getSystemGroup(GroupData.SYSTEM));
-					else l.add(getSystemGroup(GroupData.USER));
+						l.add(getSystemGroup(GroupData.USER));
+					} else l.add(getSystemGroup(GroupData.USER));
 					exp.setOmeName(omero.rtypes.rstring(uc.getUserName()));
 					password = uc.getPassword();
 					if (password != null && password.length() > 0) {
