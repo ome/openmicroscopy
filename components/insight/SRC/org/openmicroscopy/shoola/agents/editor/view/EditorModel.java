@@ -242,6 +242,7 @@ class EditorModel
 	void discard()
 	{
 		cancel();
+		fileAnnotation = null;
 		state = Editor.DISCARDED;
 	}
 

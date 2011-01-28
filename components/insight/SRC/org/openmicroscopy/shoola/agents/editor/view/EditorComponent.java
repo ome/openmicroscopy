@@ -202,11 +202,6 @@ class EditorComponent
 					boolean saved = saveCurrentFile();
 					if (saved) discard();
 					else {
-						//notify user 
-						UserNotifier un = 
-							EditorAgent.getRegistry().getUserNotifier();
-						un.notifyInfo("Save Data", "An error occurred while" +
-								"trying to save the data. Saving as a new file");
 						SaveNewCmd save = new SaveNewCmd(this);
 						save.execute();
 						return;

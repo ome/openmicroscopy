@@ -158,7 +158,7 @@ public class UrlChooser
 			File downloadedFile = FileDownload.downloadFile(url, filePath);
 			model.openLocalFile(downloadedFile);
 			// set to edited, so that Save button is activated. 
-			//model.setEdited(true);
+			model.setEdited(true);
 			downloadedFile.delete();
 			
 			return true;
