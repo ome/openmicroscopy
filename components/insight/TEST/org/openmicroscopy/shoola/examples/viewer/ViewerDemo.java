@@ -236,7 +236,7 @@ public class ViewerDemo
 			lc.setPort(Integer.parseInt(port));
 		}*/
 		//or just comment code above and do for example
-		LoginCredentials lc = new LoginCredentials("dzmacdonald", "dddddd!1D", "nightshade.openmicroscopy.org.uk");
+		LoginCredentials lc = new LoginCredentials("user", "pass", "host");
 		ViewerDemo viewer = new ViewerDemo(lc, ViewType.PROCESSING_OPENGL);
 		viewer.setSize(500, 500);
 		viewer.setVisible(true);
