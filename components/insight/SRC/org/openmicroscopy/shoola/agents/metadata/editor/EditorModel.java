@@ -1035,23 +1035,7 @@ class EditorModel
 			item.addAttachment(ids.get(id));
 			index++;
 		}
-		/*
-		while (i.hasNext()) {
-			f = i.next();
-			ns = f.getNameSpace();
-			if (FileAnnotationData.FLIM_NS.equals(ns)) {
-				item = (AnalysisResultsItem) l.get(ns);
-				if (item == null) {
-					item = new AnalysisResultsItem((DataObject) getRefObject(), 
-							ns);
-					l.put(ns, item);
-				}
-				item.addAttachment(f);
-			} 
-		}
-		*/
-		return null;
-		//return (List<FileAnnotationData>) sorter.sort(l.values()); 
+		return results;
 	}
 	
 	/**
