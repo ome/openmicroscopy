@@ -220,8 +220,16 @@ public class FigureTableModel
 	 */
 	public Object getValueAt(int rowIndex, int columnIndex)
 	{
-		if (columnIndex == 0) return fieldList.get(rowIndex).getName();
-		return values.get(rowIndex);
+		int n;
+		if (columnIndex == 0) {
+			n = fieldList.size();
+			if (rowIndex < n)
+				return fieldList.get(rowIndex).getName();
+			return null;
+		}
+		n = values.size();
+		if (rowIndex < n) return values.get(rowIndex);
+		return null;
 	}
 	
 	/**

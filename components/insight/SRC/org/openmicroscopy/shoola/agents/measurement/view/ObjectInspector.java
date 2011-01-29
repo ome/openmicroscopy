@@ -204,7 +204,9 @@ class ObjectInspector
 	{
 		int col = fieldTable.getSelectedColumn();
 		int row = fieldTable.getSelectedRow();
-		Boolean value = (Boolean) fieldTable.getModel().getValueAt(row, col);
+		Object v = (Boolean) fieldTable.getModel().getValueAt(row, col);
+		Boolean value = Boolean.valueOf(false);
+		if (v != null) value = (Boolean) v;
 		boolean newValue = !(value.booleanValue()); 
 		fieldTable.getModel().setValueAt(Boolean.valueOf(newValue), row, col);
 		model.getDrawingView().repaint();
@@ -276,8 +278,11 @@ class ObjectInspector
 	{
 		if (fieldTable == null) return false;
 		int n = fieldTable.getRowCount();
-		if (n > 3) 
-			return (Boolean) fieldTable.getModel().getValueAt(SHOW_TEXT_ROW, 1);
+		if (n > 3) {
+			Object v = fieldTable.getModel().getValueAt(SHOW_TEXT_ROW, 1);
+			if (v == null) return false;
+			return (Boolean) v;
+		}
 		return false;
 	}
 	
@@ -292,9 +297,12 @@ class ObjectInspector
 	{
 		if (fieldTable == null) return false;
 		int n = fieldTable.getRowCount();
-		if (n > 4) 
-			return (Boolean) fieldTable.getModel().getValueAt(
-					SHOW_MEASUREMENT_ROW, 1);
+		if (n > 4) {
+			Object v = fieldTable.getModel().getValueAt(SHOW_MEASUREMENT_ROW, 
+					1);
+			if (v == null) return false;
+			return (Boolean) v;
+		}
 		return false;
 	}
 	

@@ -30,6 +30,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.table.AbstractTableModel;
 
@@ -115,7 +117,7 @@ public class WriterText
                                     AbstractTableModel table)
         throws Exception
     {
-        HashMap rowAttributes = new HashMap(), 
+        Map rowAttributes = new HashMap(), 
                 columnAttributes = new HashMap();
         String key = VALUE;
         int i, j;
@@ -138,16 +140,18 @@ public class WriterText
     }
     
     /** Follow basic methods to write the tag. NOT A XML editor. */
-    private static String writeOpenTag(String tagName, HashMap attributes, 
+    private static String writeOpenTag(String tagName, Map attributes, 
                                         boolean emptyTag)
     {
         String tag = "<"+tagName;
         if (attributes != null) {
-            Iterator i = attributes.keySet().iterator();
+        	Entry entry;
+            Iterator i = attributes.entrySet().iterator();
             String key, value;
             while (i.hasNext()) {
-                key = (String) i.next();
-                value = (String) attributes.get(key);
+            	entry = (Entry) i.next();
+                key = (String) entry.getKey();
+                value = (String)entry.getValue();
                 tag+= " "+key+"=\""+value+"\"";
             }
         }
