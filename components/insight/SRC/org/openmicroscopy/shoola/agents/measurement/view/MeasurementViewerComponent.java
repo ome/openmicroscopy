@@ -145,8 +145,10 @@ class MeasurementViewerComponent
 		filters.add(new XMLFilter());
 		FileChooser chooser = new FileChooser(view, type, title, text, filters,
 					false, true);
-		File f = UIUtilities.getDefaultFolder();
-		if (f != null) chooser.setCurrentDirectory(f);
+		try {
+			File f = UIUtilities.getDefaultFolder();
+			if (f != null) chooser.setCurrentDirectory(f);
+		} catch (Exception ex) {}
 		try
 		{
 			String s = FileMap.getSavedFile(model.getServerName(), 

@@ -73,8 +73,10 @@ class FolderChooser
         setFileSelectionMode(DIRECTORIES_ONLY);
         setApproveButtonText("Download");
         setApproveButtonToolTipText(FolderChooserDialog.TITLE);
-        File f = UIUtilities.getDefaultFolder();
-		if (f != null) setCurrentDirectory(f); 
+        try {
+			File f = UIUtilities.getDefaultFolder();
+			if (f != null) setCurrentDirectory(f);
+		} catch (Exception ex) {}
 	}
 	
 	/**

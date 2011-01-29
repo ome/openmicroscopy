@@ -195,8 +195,10 @@ class ServerROITable
 					"Save the Results data to a file which can be loaded " +
 					"by a spreadsheet.",
 					filterList);
-		File f = UIUtilities.getDefaultFolder();
-	    if (f != null) chooser.setCurrentDirectory(f);
+		try {
+			File f = UIUtilities.getDefaultFolder();
+			if (f != null) chooser.setCurrentDirectory(f);
+		} catch (Exception ex) {}
 		int choice = chooser.showDialog();
 		if (choice != JFileChooser.APPROVE_OPTION) return;
 		File file = chooser.getSelectedFile();

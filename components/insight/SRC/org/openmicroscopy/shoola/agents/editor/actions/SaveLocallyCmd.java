@@ -95,9 +95,10 @@ public class SaveLocallyCmd
 		FileChooser chooser = new FileChooser(null, FileChooser.SAVE, 
 				"Save File", "Choose a location and name to save the file", 
 				filters);
-		File startDir = UIUtilities.getDefaultFolder();
-		if (startDir != null)
-			chooser.setCurrentDirectory(startDir);
+		try {
+			File f = UIUtilities.getDefaultFolder();
+			if (f != null) chooser.setCurrentDirectory(f);
+		} catch (Exception ex) {}
 		// set default name according to the file title 
 		String text = model.getEditorTitle();
 		if (model.isExperiment()) text += Editor.EXPERIMENT_EXTENSION;

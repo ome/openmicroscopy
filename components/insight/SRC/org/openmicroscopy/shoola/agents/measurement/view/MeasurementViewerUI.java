@@ -1474,8 +1474,10 @@ class MeasurementViewerUI
 			new FileChooser(this, FileChooser.SAVE, "Save Results to Excel", 
 					"Save the Results data to a file which can be loaded by " +
 					"a spreadsheet.", filterList);
-		File f = UIUtilities.getDefaultFolder();
-		if (f != null) chooser.setCurrentDirectory(f);
+		try {
+			File f = UIUtilities.getDefaultFolder();
+			if (f != null) chooser.setCurrentDirectory(f);
+		} catch (Exception ex) {}
 		return chooser;
 	}
 	

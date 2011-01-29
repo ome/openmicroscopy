@@ -600,8 +600,13 @@ public class ImportDialog
 			if (t != null) t.addKeyListener(ka);
 		}
 
-		File f = UIUtilities.getDefaultFolder();
-		if (f != null) chooser.setCurrentDirectory(f);
+		try {
+			File f = UIUtilities.getDefaultFolder();
+			if (f != null) chooser.setCurrentDirectory(f);
+		} catch (Exception e) {
+			//Ignore: could not set the default container
+		}
+		
 		chooser.addPropertyChangeListener(this);
 		chooser.setMultiSelectionEnabled(true);
 		chooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
@@ -1118,8 +1123,8 @@ public class ImportDialog
     {
     	option = IMPORT;
     	//Set the current directory as the defaults
-    	UIUtilities.setDefaultFolder(
-    			chooser.getCurrentDirectory().toString());
+    	File dir = chooser.getCurrentDirectory();
+    	if (dir != null) UIUtilities.setDefaultFolder(dir.toString());
     	ImportableObject object = new ImportableObject(table.getFilesToImport(),
     			overrideName.isSelected());
     	List<DataObject> nodes;
