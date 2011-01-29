@@ -215,8 +215,8 @@ class RendererComponent
 	public void discard()
 	{
 		 model.discard();
-		 firePropertyChange(RELOAD_PROPERTY, Boolean.valueOf(true), 
-					Boolean.valueOf(false));
+		 //firePropertyChange(RELOAD_PROPERTY, Boolean.valueOf(true), 
+		//			Boolean.valueOf(false));
 	}
 
     /** 
