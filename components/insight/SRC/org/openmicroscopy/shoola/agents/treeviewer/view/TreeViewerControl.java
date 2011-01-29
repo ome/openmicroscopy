@@ -90,6 +90,7 @@ import org.openmicroscopy.shoola.agents.treeviewer.actions.RefreshTreeAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RemoveExperimenterNode;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.RollOverAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SearchAction;
+import org.openmicroscopy.shoola.agents.treeviewer.actions.SendFeedbackAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.SwitchUserAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TaggingAction;
 import org.openmicroscopy.shoola.agents.treeviewer.actions.TreeViewerAction;
@@ -517,6 +518,7 @@ class TreeViewerControl
 						CreateTopContainerAction.EXPERIMENTER));
 		actionsMap.put(RESET_PASSWORD,  new PasswordResetAction(model));
 		actionsMap.put(USER_ACTIVATED,  new ActivatedUserAction(model));
+		actionsMap.put(SEND_COMMENT,  new SendFeedbackAction(model));
 	}
 
 	/** 
