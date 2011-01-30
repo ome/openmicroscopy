@@ -29,6 +29,13 @@
             Group
         </div>
     </a>
+    
+    <a href="{% url webmobile_collab_my_data %}">
+        <div class="tab-item">
+            Collaborative
+        </div>
+    </a>
+    
     {% if experimenter %}
     <a href="{% url webmobile_recent 'all' experimenter.id %}">
         <div class="tab-item">

@@ -526,14 +526,38 @@ def recent (request, obj_type, eid=None, **kwargs):
     elif obj_type == 'anns':    # 4 each of Tags, Comments, Rating
         obj_types = ['Annotation']
         obj_count = 4
-    recentResults = []
-    recentItems = webmobile_util.listMostRecentObjects(conn, obj_count, obj_types, eid)
     
-    from webmobile_util import RecentEvent
-    recentResults = [ RecentEvent(r) for r in recentItems ]
+    if obj_type == 'rois':
+        recentResults = webmobile_util.listRois(conn, eid)
+    else:
+        recentItems = webmobile_util.listMostRecentObjects(conn, obj_count, obj_types, eid)
+        recentResults = [ webmobile_util.RecentEvent(r) for r in recentItems ]
+    
+    # list members for links to other's recent activity
+    groupId = conn.getEventContext().groupId
+    members = conn.containedExperimenters(groupId)
         
-    return render_to_response('webmobile/timeline/recent.html', {'client':conn, 'recent':recentResults, 'exp':experimenter })
+    return render_to_response('webmobile/timeline/recent.html', {'client':conn, 'recent':recentResults, 
+        'exp':experimenter, 'members':members, 'obj_type':str(obj_type) })
 
+
+@isUserConnected
+def collab_annotations (request, myData=True, **kwargs):
+    """
+    Page displays recent annotations of OTHER users on MY data (myData=True) or
+    MY annotations on data belonging to OTHER users. 
+    """
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return HttpResponse(traceback.format_exc())
+        
+    collabAnns = webmobile_util.listCollabAnnotations(conn, myData)
+    
+    return render_to_response('webmobile/timeline/recent_collab.html', {'client':conn, 'recent':collabAnns, 'myData':myData })
+    
 
 def image_viewer (request, iid, **kwargs):
     """ This view is responsible for showing pixel data as images """

@@ -11,12 +11,16 @@
     <!-- TODO: handle multiple parents -->
     {% if object.listParents %}
     <div id='bottom-header-left'> 
-        <a href="{% url webmobile_dataset object.listParents.id %}">Dataset: {{ object.listParents.getName }}</a>
+        <a href="{% url webmobile_dataset object.listParents.id %}">Back to Dataset: {{ object.listParents.getName }}</a>
     </div>
     {% endif %}
+    
+    {% if object.isOwned %}
     <div id='bottom-header-right'>
         <a href="{% url webmobile_edit_object obj_type object.id %}">edit</a>
     </div>
+    {% endif %}
+    
     <div style="clear:both"></div>
 </div>
 

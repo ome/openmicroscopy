@@ -13,9 +13,11 @@ urlpatterns = patterns('',
     
     # recent updates
     # group
-    url( r'^recent/(?P<obj_type>((?i)all|images|anns))/$', views.recent, name='webmobile_recent' ),
+    url( r'^recent/(?P<obj_type>((?i)all|images|anns|rois))/$', views.recent, name='webmobile_recent' ),
+    url( r'^collab_my_data/$', views.collab_annotations, name='webmobile_collab_my_data' ),
+    url( r'^collab_my_anns/$', views.collab_annotations, {'myData':False}, name='webmobile_collab_my_anns' ),
     #experimenter
-    url( r'^recent/(?P<obj_type>((?i)all|images|anns))/(?P<eid>[0-9]+)/$', views.recent, name='webmobile_recent' ),  
+    url( r'^recent/(?P<obj_type>((?i)all|images|anns|rois))/(?P<eid>[0-9]+)/$', views.recent, name='webmobile_recent' ), 
     
     # browsing P/D/I hierarchy
     url( r'^projects/$', views.projects, name='webmobile_projects' ),
