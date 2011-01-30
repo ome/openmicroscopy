@@ -1023,12 +1023,14 @@ class EditorModel
 		results = new ArrayList<AnalysisResultsItem>();
 		item = null;
 		int n = 6;
+		int number = 1;
 		while (j.hasNext()) {
 			id = j.next();
 			if (index == 0) {
 				item = new AnalysisResultsItem((DataObject) getRefObject(), 
-						FileAnnotationData.FLIM_NS);
+						FileAnnotationData.FLIM_NS, number);
 				results.add(item);
+				number++;
 			} else if (index == n) {
 				index = -1;
 			}
