@@ -118,6 +118,8 @@ class UserControl(BaseControl):
                 self.ctx.die(66, "User already exists: %s" % login)
             else:
                 self.ctx.die(67, "Unknown ValidationException: %s" % ve.message)
+        except omero.SecurityViolation, se:
+            self.ctx.die(68, "Security violation: %s" % se.message)
 
 try:
     register("user", UserControl, HELP)
