@@ -308,21 +308,8 @@ class OMEROGateway
 	
 	/** The collection of scripts that have a UI available. */
 	private static final List<String>		SCRIPTS_NOT_AVAILABLE_TO_USER;
-	
-	/** 
-	 * The collection of HCS files extensions to check before importing. 
-	 */
-	private static final List<String> HCS_FILES_EXTENSION;
-	
+
 	static {
-		HCS_FILES_EXTENSION = new ArrayList<String>();
-		HCS_FILES_EXTENSION.add("flex");
-		HCS_FILES_EXTENSION.add("xdce");
-		HCS_FILES_EXTENSION.add("mea");
-		HCS_FILES_EXTENSION.add("res");
-		HCS_FILES_EXTENSION.add("htd");
-		HCS_FILES_EXTENSION.add("pnl");
-		
 		SUPPORTED_SPECIAL_CHAR = new ArrayList<Character>();
 		SUPPORTED_SPECIAL_CHAR.add(new Character('-'));
 		SUPPORTED_SPECIAL_CHAR.add(new Character('+'));
@@ -486,22 +473,6 @@ class OMEROGateway
 	
 	/** Keep track of the file system view. */
 	private Map<Long, FSFileSystemView>				fsViews;
-
-	/**
-	 * Returns <code>true</code> if the extension of the specified file
-	 * is a HCS files, <code>false</code> otherwise.
-	 * 
-	 * @param f The file to handle.
-	 * @return See above.
-	 */
-	private boolean isHCSFile(File f)
-	{
-		if (f == null) return false;
-		String name = f.getName();
-		if (!name.contains(".")) return false; 
-		String ext = name.substring(name.lastIndexOf('.')+1, name.length());
-		return HCS_FILES_EXTENSION.contains(ext);
-	}
 	
 	/** Checks if the session is still alive. */
 	private void isSessionAlive()
@@ -6167,9 +6138,8 @@ class OMEROGateway
 				p = pixels.get(0);
 				image = p.getImage();
 				id = image.getId().getValue();
-				if (isHCSFile(file)) {
+				if (ImportableObject.isHCSFile(file))
 					return getImportedPlate(id);
-				}
 				
 				if (n == 1) {
 					return getImage(id, params);

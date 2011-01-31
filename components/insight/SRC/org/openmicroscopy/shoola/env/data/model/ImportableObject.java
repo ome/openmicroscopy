@@ -25,7 +25,9 @@ package org.openmicroscopy.shoola.env.data.model;
 
 //Java imports
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -57,9 +59,21 @@ public class ImportableObject
 	/** The default name for the dataset. */
 	public static final String DEFAULT_DATASET_NAME;
 	
+	/** 
+	 * The collection of HCS files extensions to check before importing. 
+	 */
+	private static final List<String> HCS_FILES_EXTENSION;
+
 	static {
 		DEFAULT_DATASET_NAME = UIUtilities.formatDate(null, 
 				UIUtilities.D_M_Y_FORMAT);
+		HCS_FILES_EXTENSION = new ArrayList<String>();
+		HCS_FILES_EXTENSION.add("flex");
+		HCS_FILES_EXTENSION.add("xdce");
+		HCS_FILES_EXTENSION.add("mea");
+		HCS_FILES_EXTENSION.add("res");
+		HCS_FILES_EXTENSION.add("htd");
+		HCS_FILES_EXTENSION.add("pnl");
 	}
 	
 	/** The collection of files to import. */
@@ -282,6 +296,24 @@ public class ImportableObject
 	public Collection<TagAnnotationData> getTags() { return tags; }
 	
 	/**
+	 * Returns <code>true</code> if new tags were created, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean hasNewTags()
+	{
+		if (tags == null || tags.size() == 0) return false;
+		Iterator<TagAnnotationData> i = tags.iterator();
+		TagAnnotationData tag;
+		while (i.hasNext()) {
+			tag = i.next();
+			if (tag.getId() <= 0) return true;
+		}
+		return false;
+	}
+	
+	/**
 	 * Returns the nodes of reference.
 	 * 
 	 * @return See above.
@@ -294,5 +326,21 @@ public class ImportableObject
 	 * @param refNodes The value to set.
 	 */
 	public void setRefNodes(List<Object> refNodes) { this.refNodes = refNodes; }
+	
+	/**
+	 * Returns <code>true</code> if the extension of the specified file
+	 * is a HCS files, <code>false</code> otherwise.
+	 * 
+	 * @param f The file to handle.
+	 * @return See above.
+	 */
+	public static boolean isHCSFile(File f)
+	{
+		if (f == null) return false;
+		String name = f.getName();
+		if (!name.contains(".")) return false; 
+		String ext = name.substring(name.lastIndexOf('.')+1, name.length());
+		return HCS_FILES_EXTENSION.contains(ext);
+	}
 	
 }

@@ -25,6 +25,8 @@ package org.openmicroscopy.shoola.env.data.model;
 
 //Java imports
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 
@@ -47,7 +49,7 @@ import org.openmicroscopy.shoola.env.data.util.StatusLabel;
  */
 public class ImportableFile
 {
-
+	
 	/** The file or folder to import. */
 	private File file;
 	

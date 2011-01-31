@@ -69,6 +69,7 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.env.data.ImportException;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
+import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.event.EventBus;
@@ -729,6 +730,19 @@ public class FileImportComponent
 	 * @return See above.
 	 */
 	public DataObject getContainerFromFolder() { return containerFromFolder; }
+	
+	/**
+	 * Returns <code>true</code> if the extension of the specified file
+	 * is a HCS files, <code>false</code> otherwise.
+	 * 
+	 * @param f The file to handle.
+	 * @return See above.
+	 */
+	public boolean isHCSFile()
+	{
+		if (isFolderAsContainer()) return false;
+		return ImportableObject.isHCSFile(file);
+	}
 	
 	/**
 	 * Overridden to make sure that all the components have the correct 

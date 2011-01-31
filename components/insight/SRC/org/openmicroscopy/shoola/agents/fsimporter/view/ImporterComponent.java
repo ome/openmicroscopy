@@ -161,7 +161,7 @@ class ImporterComponent
 			un.notifyInfo("Import", "No Files to import.");
 			return;
 		}
-		
+		if (data.hasNewTags()) model.setTags(null);
 		ImporterUIElement element = view.addImporterElement(data);
 		if (model.getState() == IMPORTING) return;
 		importData(element);
