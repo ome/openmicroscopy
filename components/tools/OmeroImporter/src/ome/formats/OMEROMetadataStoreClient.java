@@ -5900,8 +5900,10 @@ public class OMEROMetadataStoreClient
             ome.xml.model.enums.DimensionOrder dimensionOrder, int imageIndex)
     {
         Pixels o = getPixels(imageIndex);
+        // We're always the same dimension order in the server; force it to
+        // "XYZCT" (ticket:3124, ticket:3718, ticket:3668)
         o.setDimensionOrder((DimensionOrder) getEnumeration(
-            DimensionOrder.class, dimensionOrder.toString()));
+            DimensionOrder.class, "XYZCT"));
     }
 
     /* (non-Javadoc)
