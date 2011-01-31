@@ -14,6 +14,9 @@ from omero.cli import BaseControl, CLI, NewFileType
 
 HELP="""Support for exporting data in XML and TIFF formats"""
 
+# Default block read size when downloading exported data
+DEFAULT_READ_LENGTH = 1000*1000
+
 
 class ExportControl(BaseControl):
 
@@ -60,9 +63,10 @@ class ExportControl(BaseControl):
             remove = False
             offset = 0
             while True:
-                rv = e.read(offset, 1000*1000)
+                rv = e.read(offset, DEFAULT_READ_LENGTH)
                 if not rv:
                     break
+                rv = rv[:min(DEFAULT_READ_LENGTH, l - offset)]
                 offset += len(rv)
                 if handle == sys.stdout:
                     sys.stdout.buffer.write(rv)
