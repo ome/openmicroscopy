@@ -933,7 +933,7 @@ OMERO Diagnostics %s
         if args.prefix:
             for x in ("registry", "tcp", "ssl"):
                 setattr(args, x, "%s%s" % (args.prefix, getattr(args, x)))
-        change_ports(args.ssl, args.tcp, args.registry, args.revert)
+        change_ports(args.ssl, args.tcp, args.registry, args.revert, dir=self.ctx.dir)
 
     def cleanse(self, args):
         self.check_access()

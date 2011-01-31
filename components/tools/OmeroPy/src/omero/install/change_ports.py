@@ -18,17 +18,13 @@ import re, sys, exceptions
 import fileinput
 from path import path
 
-DIR = path(".")
-ETC = DIR / "etc"
-GRID = ETC / "grid"
-
 def line_has_port(line, port):
     m = re.match("^.*?\D%s\D.*?$" % port, line)
     if not m:
         m = re.match("^.*?\D%s$" % port, line)
     return m
 
-def change_ports(glacier2, glacier2insecure, registry, revert = False):
+def change_ports(glacier2, glacier2insecure, registry, revert = False, dir="."):
     """
     Parses the etc configuration files to change
     the current port values. If the files have
@@ -45,6 +41,9 @@ def change_ports(glacier2, glacier2insecure, registry, revert = False):
         ./master.cfg:IceGrid.Registry.Client.Endpoints=tcp -h 127.0.0.1 -p 4061
 
     """
+    DIR = path(dir)
+    ETC = DIR / "etc"
+    GRID = ETC / "grid"
 
     if revert:
         f_glacier2 = str(int(glacier2))
