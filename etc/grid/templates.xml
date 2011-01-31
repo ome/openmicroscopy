@@ -98,7 +98,9 @@
    </properties>
 
    <properties id="DropBox">
-       <!-- config settings for OmeroFS (moved from fsConfig) -->
+       <!-- config settings for OmeroFS (moved from fsConfig) 
+            All times are in seconds.
+       -->
        <!-- These duplicate info that could be got from elsewhere -->
        <!-- They should ultimately be removed from here. -->
        <property name="omero.fs.host"  value="localhost"/>
@@ -129,6 +131,8 @@
         <property name="omero.fs.whitelist"  value=""/>
         <property name="omero.fs.blacklist"  value=""/>
         <property name="omero.fs.timeout"  value="0.0"/>
+        <property name="omero.fs.timeToLive"  value="0"/>
+        <property name="omero.fs.timeToIdle"  value="600"/>
         <property name="omero.fs.blockSize"  value="0"/>
         <property name="omero.fs.ignoreSysFiles"  value="True"/>
         <property name="omero.fs.ignoreDirEvents"  value="True"/>
