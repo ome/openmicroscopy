@@ -1041,6 +1041,7 @@ class OmeroImageServiceImpl
 			try {
 				io = gateway.saveAndReturnObject(folder.asIObject(), m);
 				ioList.add(io);
+				status.setContainerFromFolder(PojoMapper.asDataObject(io));
 				if (folder instanceof DatasetData) {
 					if (containers != null && containers.size() > 0) {
 						j = containers.iterator();

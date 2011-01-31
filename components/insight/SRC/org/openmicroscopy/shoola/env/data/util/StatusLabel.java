@@ -37,6 +37,7 @@ import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.util.ErrorHandler;
+import pojos.DataObject;
 
 /**
  * Component displaying the status of a specific import.
@@ -71,6 +72,13 @@ public class StatusLabel
 	
 	/** Bound property indicating that the file is imported. */
 	public static final String FILE_IMPORTED_PROPERTY = "fileImported";
+	
+	/** 
+	 * Bound property indicating that the container corresponding to the
+	 * folder has been created. 
+	 * */
+	public static final String CONTAINER_FROM_FOLDER_PROPERTY = 
+		"containerFromFolder";
 	
 	/** Default text when a failure occurred. */
 	private static final String		FAILURE_TEXT = "failed";
@@ -158,6 +166,16 @@ public class StatusLabel
 	public void setFiles(Map<File, StatusLabel> files)
 	{
 		firePropertyChange(FILES_SET_PROPERTY, null, files);
+	}
+	
+	/**
+	 * Sets the container corresponding to the folder.
+	 * 
+	 * @param container The container to set.
+	 */
+	public void setContainerFromFolder(DataObject container)
+	{
+		firePropertyChange(CONTAINER_FROM_FOLDER_PROPERTY, null, container);
 	}
 	
 	/**

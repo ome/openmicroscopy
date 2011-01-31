@@ -184,6 +184,9 @@ public class FileImportComponent
 	/** Button to delete the imported image. */
 	private JButton deleteButton;
 	
+	/** The data object corresponding to the folder. */
+	private DataObject containerFromFolder;
+	
 	/** Deletes the image that was imported but cannot be viewed. */
 	private void deleteImage()
 	{
@@ -721,6 +724,13 @@ public class FileImportComponent
 	public boolean isFolderAsContainer() { return folderAsContainer; }
 	
 	/**
+	 * Returns the object corresponding to the folder.
+	 * 
+	 * @return See above.
+	 */
+	public DataObject getContainerFromFolder() { return containerFromFolder; }
+	
+	/**
 	 * Overridden to make sure that all the components have the correct 
 	 * background.
 	 * @see JPanel#setBackground(Color)
@@ -762,6 +772,8 @@ public class FileImportComponent
 		} else if (ThumbnailLabel.BROWSE_PLATE_PROPERTY.equals(name)) {
 			firePropertyChange(BROWSE_PROPERTY, evt.getOldValue(), 
 					evt.getNewValue());
+		} else if (StatusLabel.CONTAINER_FROM_FOLDER_PROPERTY.equals(name)) {
+			containerFromFolder = (DataObject) evt.getNewValue();
 		}
 	}
 

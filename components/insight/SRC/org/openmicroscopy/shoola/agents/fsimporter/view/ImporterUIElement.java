@@ -118,7 +118,7 @@ class ImporterUIElement
 	private int id;
 	
 	/** The collection of folders' name used as dataset. */
-	private List<String> foldersName;
+	private Map<JLabel, FileImportComponent> foldersName;
 	
 	/** Flag indicating that the images will be added to the default dataset. */
 	private boolean orphanedFiles;
@@ -135,6 +135,12 @@ class ImporterUIElement
 	/** Flag indicating to refresh the topContainer. */
 	private boolean topContainerToRefresh;
 	
+	/** The listener associated to the folder. */
+	private MouseAdapter folderListener;
+	
+	/** The listener associated to the container. */
+	private MouseAdapter containerListener;
+	
 	/**
 	 * Browses the specified object.
 	 * 
@@ -143,9 +149,12 @@ class ImporterUIElement
 	 */ 
 	private void browse(Object data, Object node)
 	{
+		EventBus bus = ImporterAgent.getRegistry().getEventBus();
 		if (data instanceof TreeImageDisplay || data instanceof DataObject) {
-			EventBus bus = ImporterAgent.getRegistry().getEventBus();
 			bus.post(new BrowseContainer(data, node));
+		} else if (data instanceof FileImportComponent) {
+			FileImportComponent fc = (FileImportComponent) data;
+			bus.post(new BrowseContainer(fc.getContainerFromFolder(), node));
 		}
 	}
 	
@@ -175,22 +184,7 @@ class ImporterUIElement
 			label.setBackground(UIUtilities.BACKGROUND_COLOR);
 			label.setToolTipText("Double click to browse when import " +
 					"completed.");
-			label.addMouseListener(new MouseAdapter() {
-				
-				/**
-				 * Browses the object the image.
-				 * @see MouseListener#mousePressed(MouseEvent)
-				 */
-				public void mousePressed(MouseEvent e)
-				{
-					Object src = e.getSource();
-					if (e.getClickCount() == 2 && src instanceof JLabel) {
-						browse(containerComponents.get((JLabel) src), null);
-					}
-				}
-			});
 		}
-		
 		label.setText(name);
 		return label;
 	}
@@ -200,7 +194,35 @@ class ImporterUIElement
 	{
 		containerComponents = new LinkedHashMap<JLabel, Object>();
 		topContainerComponents = new LinkedHashMap<JLabel, Object>();
-		foldersName = new ArrayList<String>();
+		foldersName = new LinkedHashMap<JLabel, FileImportComponent>();
+		folderListener = new MouseAdapter() {
+			
+			/**
+			 * Browses the object the image.
+			 * @see MouseListener#mousePressed(MouseEvent)
+			 */
+			public void mousePressed(MouseEvent e)
+			{
+				Object src = e.getSource();
+				if (e.getClickCount() == 2 && src instanceof JLabel) {
+					browse(foldersName.get((JLabel) src), null);
+				}
+			}
+		};
+		containerListener = new MouseAdapter() {
+			
+			/**
+			 * Browses the object the image.
+			 * @see MouseListener#mousePressed(MouseEvent)
+			 */
+			public void mousePressed(MouseEvent e)
+			{
+				Object src = e.getSource();
+				if (e.getClickCount() == 2 && src instanceof JLabel) {
+					browse(containerComponents.get((JLabel) src), null);
+				}
+			}
+		};
 		countImported = 0;
 		setClosable(true);
 		addPropertyChangeListener(controller);
@@ -234,6 +256,9 @@ class ImporterUIElement
 		} else {
 			type = FileImportComponent.NO_CONTAINER;
 		}
+		JLabel l;
+		int count = 0;
+		
 		
 		while (i.hasNext()) {
 			importable = i.next();
@@ -255,20 +280,21 @@ class ImporterUIElement
 				}
 			});
 			if (f.isDirectory()) {
-				if (importable.isFolderAsContainer())
-					foldersName.add(f.getName());
+				if (importable.isFolderAsContainer()) {
+					l = new JLabel(f.getName());
+					foldersName.put(l, c);
+				}
 				//else orphanedFiles = true;
 			} else {
-				DatasetData dataset = object.getDefaultDataset();
-				if (dataset != null) // && !foldersName.contains(dataset.getName())) 
-				{
-					containerComponents.put(createNameLabel(dataset), dataset);
-				}
+				count++;
 				//else orphanedFiles = true;
 			}
 			importable.setStatus(c.getStatus());
 			components.put(f.getAbsolutePath(), c);
 		}
+		DatasetData dataset = object.getDefaultDataset();
+		if (dataset != null && count > 0) 
+			containerComponents.put(createNameLabel(dataset), dataset);
 		totalToImport = files.size();
 	}
 	
@@ -304,7 +330,6 @@ class ImporterUIElement
 		String name = "";
 		int n;
 		String nameProject = "";
-		boolean set = false;
 		if (containers != null && containers.size() > 0) {
 			Iterator<Object> i = containers.iterator();
 			int index = 0;
@@ -332,6 +357,7 @@ class ImporterUIElement
 				index++;
 			}
 		} else {
+			/*
 			if (DatasetData.class.equals(object.getType())) {
 				set = true;
 				//text += "Dataset: ";
@@ -350,7 +376,9 @@ class ImporterUIElement
 							UIUtilities.D_M_Y_FORMAT);
 				}
 			}
+			*/
 		}
+		/*
 		if (DatasetData.class.equals(object.getType()) && !set) {
 			n = foldersName.size();
 			if (n > 0) {
@@ -361,6 +389,7 @@ class ImporterUIElement
 				}
 			}
 		}
+		*/
 		//Project List
 		if (topContainerComponents.size() > 0) {
 			label = UIUtilities.setTextFont("Imported in Project", Font.BOLD);
@@ -384,25 +413,22 @@ class ImporterUIElement
 	    	//value.setText(name);
 			header.add(label, c);
 	    	c.gridx = c.gridx+2;
+	    	JPanel p = new JPanel();
+    		p.setBackground(UIUtilities.BACKGROUND_COLOR);
+    		p.setLayout(new FlowLayout(FlowLayout.LEFT));
+    		Iterator<JLabel> l;
 	    	if (containerComponents.size() > 0) {
-	    		JPanel p = new JPanel();
-	    		p.setBackground(UIUtilities.BACKGROUND_COLOR);
-	    		p.setLayout(new FlowLayout(FlowLayout.LEFT));
-	    		Iterator<JLabel> l = containerComponents.keySet().iterator();
-	    		while (l.hasNext()) {
+	    		l = containerComponents.keySet().iterator();
+	    		while (l.hasNext())
 					p.add(l.next());
-				}
-	    		if (foldersName.size() > 0) {
-	    			value = UIUtilities.createComponent(null);
-			    	value.setText(", "+name);
-			    	p.add(value);
-	    		}
-	    		header.add(p, c);
-	    	} else {
-	    		value = UIUtilities.createComponent(null);
-		    	value.setText(name);
-		    	header.add(value, c);
-	    	}
+	    	} 
+	    	if (foldersName.size() > 0) {
+	    		l = foldersName.keySet().iterator();
+	    		while (l.hasNext())
+					p.add(l.next());
+    		}
+	    	
+	    	header.add(p, c);
 	    	c.gridy++; 	
 	    	c.gridx = 0;
 		}
@@ -504,15 +530,6 @@ class ImporterUIElement
 		return false;
 	}
 	
-	/** 
-	 * Indicates that only 
-	 * @return
-	 */
-	private boolean onlyImagesImported()
-	{
-		return true;
-	}
-	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -589,11 +606,12 @@ class ImporterUIElement
 				if (toRefresh) {
 					while (i.hasNext()) {
 						label = i.next();
-						if (label.isEnabled())
+						if (label.isEnabled()) {
 							label.setForeground(UIUtilities.HYPERLINK_COLOR);
+							label.addMouseListener(containerListener);
+						}
 					}
 				}
- 				
 				if (topContainerToRefresh) {
 					i = topContainerComponents.keySet().iterator();
 					while (i.hasNext()) {
@@ -602,7 +620,20 @@ class ImporterUIElement
 							label.setForeground(UIUtilities.HYPERLINK_COLOR);
 					}
 				}
-				
+				if (foldersName.size() > 0) {
+					Entry entry;
+					Iterator k = foldersName.entrySet().iterator();
+					FileImportComponent fc;
+					while (k.hasNext()) {
+						entry = (Entry) k.next();
+						label = (JLabel) entry.getKey();
+						fc = (FileImportComponent) entry.getValue();
+						if (fc.toRefresh()) {
+							label.setForeground(UIUtilities.HYPERLINK_COLOR);
+							label.addMouseListener(folderListener);
+						}
+					}
+				}
 				long duration = System.currentTimeMillis()-startImport;
 				String text = timeLabel.getText();
 				String time = UIUtilities.calculateHMS((int) (duration/1000));
