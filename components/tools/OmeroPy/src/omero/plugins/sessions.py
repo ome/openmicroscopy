@@ -265,7 +265,10 @@ class SessionsControl(BaseControl):
         self.ctx._event_context = ec
         self.ctx._client = client
 
-        msg = "%s session %s (%s@%s)." % (action, uuid, ec.userName, client.getProperty("omero.host"))
+        host = client.getProperty("omero.host")
+        port = client.getProperty("omero.port")
+
+        msg = "%s session %s (%s@%s:%s)." % (action, uuid, ec.userName, host, port)
         if idle:
             msg = msg + " Idle timeout: %s min." % (float(idle)/60/1000)
         if live:
@@ -327,7 +330,9 @@ class SessionsControl(BaseControl):
                     msg = "True"
                     grp = "Unknown"
                     started = "Unknown"
+                    port = None
                     try:
+                        if props: port = props.get("omero.port", port)
                         rv = store.attach(server, name, uuid)
                         grp = rv[0].sf.getAdminService().getEventContext().groupName
                         started = rv[0].sf.getSessionService().getSession(uuid).started.val
@@ -345,7 +350,11 @@ class SessionsControl(BaseControl):
                     if server == previous[0] and name == previous[1] and uuid == previous[2]:
                             msg = "Logged in"
 
-                    results["Server"].append(server)
+                    if port:
+                        results["Server"].append("%s:%s)" % (server, port))
+                    else:
+                        results["Server"].append(server)
+
                     results["User"].append(name)
                     results["Group"].append(grp)
                     results["Session"].append(uuid)
