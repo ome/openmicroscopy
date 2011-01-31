@@ -120,6 +120,7 @@ class ImporterComponent
 		} else {
 			chooser.reset(containers, objects, type);
 		}
+		view.setVisible(false);
 		UIUtilities.centerAndShow(chooser);
 	}
 

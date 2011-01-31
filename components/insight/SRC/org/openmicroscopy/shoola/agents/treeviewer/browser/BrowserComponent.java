@@ -546,6 +546,17 @@ class BrowserComponent
 
     /**
      * Implemented as specified by the {@link Browser} interface.
+     * @see Browser#expand(TreeImageDisplay)
+     */
+    public void expand(TreeImageDisplay node)
+    {
+        if (node == null) return;
+        view.expandNode(node);
+    }
+
+    
+    /**
+     * Implemented as specified by the {@link Browser} interface.
      * @see Browser#accept(TreeImageDisplayVisitor)
      */
     public void accept(TreeImageDisplayVisitor visitor)
@@ -980,6 +991,7 @@ class BrowserComponent
 		}   
         if (n == null) model.fireExperimenterDataLoading((TreeImageSet) exp);
         else {
+        	n.setToRefresh(false);
         	if (model.getBrowserType() == FILE_SYSTEM_EXPLORER) {
         		uo = n.getUserObject();
         		TreeImageDisplay expNode = BrowserFactory.getDataOwner(n);

@@ -3232,8 +3232,14 @@ class TreeViewerComponent
 			//mark 
 			if (nodes != null && nodes.size() > 0) {
 				Iterator<TreeImageDisplay> i = nodes.iterator();
-				while (i.hasNext())
-					i.next().setToRefresh(true);
+				TreeImageDisplay parent;
+				while (i.hasNext()) {
+					node = i.next();
+					node.setToRefresh(true);
+					parent = node.getParentDisplay();
+					if (parent != null && !parent.isExpanded())
+						browser.expand(parent);
+				}
 				browser.getUI().repaint();
 			} else {
 				node = browser.getLoggedExperimenterNode();
@@ -3325,7 +3331,8 @@ class TreeViewerComponent
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#activateUser(ExperimenterData)
 	 */
-	public void activateUser(ExperimenterData exp) {
+	public void activateUser(ExperimenterData exp)
+	{
 		if (exp == null)
 			throw new IllegalArgumentException("No password specified.");
 		Browser browser = model.getSelectedBrowser();

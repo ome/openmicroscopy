@@ -308,6 +308,13 @@ public interface Browser
      */
     public void collapse(TreeImageDisplay node);
     
+    /** 
+     * Expands the specified node. 
+     * 
+     * @param node The node to expand.
+     */
+    public void expand(TreeImageDisplay node);
+    
     /** Removes the {@link Browser} from the display. */
     public void close();
     

@@ -129,6 +129,12 @@ class ImporterUIElement
 	/** The components displaying the components. */
 	private Map<JLabel, Object> containerComponents;
 	
+	/** The components displaying the components. */
+	private Map<JLabel, Object> topContainerComponents;
+	
+	/** Flag indicating to refresh the topContainer. */
+	private boolean topContainerToRefresh;
+	
 	/**
 	 * Browses the specified object.
 	 * 
@@ -193,6 +199,7 @@ class ImporterUIElement
 	private void initialize()
 	{
 		containerComponents = new LinkedHashMap<JLabel, Object>();
+		topContainerComponents = new LinkedHashMap<JLabel, Object>();
 		foldersName = new ArrayList<String>();
 		countImported = 0;
 		setClosable(true);
@@ -250,14 +257,14 @@ class ImporterUIElement
 			if (f.isDirectory()) {
 				if (importable.isFolderAsContainer())
 					foldersName.add(f.getName());
-				else orphanedFiles = true;
+				//else orphanedFiles = true;
 			} else {
 				DatasetData dataset = object.getDefaultDataset();
-				if (dataset != null) {
+				if (dataset != null) // && !foldersName.contains(dataset.getName())) 
+				{
 					containerComponents.put(createNameLabel(dataset), dataset);
-					foldersName.add(dataset.getName());
 				}
-				else orphanedFiles = true;
+				//else orphanedFiles = true;
 			}
 			importable.setStatus(c.getStatus());
 			components.put(f.getAbsolutePath(), c);
@@ -293,10 +300,11 @@ class ImporterUIElement
     	c.gridy++; 	
     	c.gridx = 0;
     	List<Object> containers = object.getRefNodes();
-		String text = "Imported in ";
+		String text = "Imported in Dataset: ";
 		String name = "";
 		int n;
-		
+		String nameProject = "";
+		boolean set = false;
 		if (containers != null && containers.size() > 0) {
 			Iterator<Object> i = containers.iterator();
 			int index = 0;
@@ -306,34 +314,69 @@ class ImporterUIElement
 			while (i.hasNext()) {
 				node = (TreeImageDisplay) i.next();
 				h = node.getUserObject();
-				containerComponents.put(createNameLabel(h), node);
 				if (h instanceof DatasetData) {
-					if (index == 0) text += "Dataset: ";
+					containerComponents.put(createNameLabel(h), node);
+					//if (index == 0) text += "Dataset: ";
 					name += ((DatasetData) h).getName();
 				} else if (h instanceof ScreenData) {
-					if (index == 0) text += "Screen: ";
+					containerComponents.put(createNameLabel(h), node);
+					if (index == 0) text = "Imported in Screen: ";
 					name += ((ScreenData) h).getName();
 				} else if (h instanceof ProjectData) {
-					if (index == 0) text += "Project: ";
-					name += ((ProjectData) h).getName();
+					//if (index == 0) text += "Project: ";
+					//name += ((ProjectData) h).getName();
+					topContainerComponents.put(createNameLabel(h), node);
+					nameProject += ((ProjectData) h).getName();
 				}
 				if (index < n) name += ", ";
 				index++;
 			}
 		} else {
 			if (DatasetData.class.equals(object.getType())) {
-				text += "Dataset: ";
-				n = foldersName.size()-1;
-				for (int j = 0; j < foldersName.size(); j++) {
-					name += foldersName.get(j);
-					if (j < n) name += ", ";
+				set = true;
+				//text += "Dataset: ";
+				n = foldersName.size();
+				if (n > 0) {
+					n = n-1;
+					for (int j = 0; j < foldersName.size(); j++) {
+						name += foldersName.get(j);
+						if (j < n) name += ", ";
+					}
 				}
+				
 				if (orphanedFiles) {
 					if (foldersName.size() > 0) name += ", ";
 					name += UIUtilities.formatDate(null, 
 							UIUtilities.D_M_Y_FORMAT);
 				}
 			}
+		}
+		if (DatasetData.class.equals(object.getType()) && !set) {
+			n = foldersName.size();
+			if (n > 0) {
+				n = n-1;
+				for (int j = 0; j < foldersName.size(); j++) {
+					name += foldersName.get(j);
+					if (j < n) name += ", ";
+				}
+			}
+		}
+		//Project List
+		if (topContainerComponents.size() > 0) {
+			label = UIUtilities.setTextFont("Imported in Project", Font.BOLD);
+			//value = UIUtilities.createComponent(null);
+	    	//value.setText(name);
+			header.add(label, c);
+	    	c.gridx = c.gridx+2;
+	    	JPanel p = new JPanel();
+    		p.setBackground(UIUtilities.BACKGROUND_COLOR);
+    		p.setLayout(new FlowLayout(FlowLayout.LEFT));
+    		Iterator<JLabel> l = topContainerComponents.keySet().iterator();
+    		while (l.hasNext())
+				p.add(l.next());
+    		header.add(p, c);
+	    	c.gridy++; 	
+	    	c.gridx = 0;
 		}
 		if (text != null) {
 			label = UIUtilities.setTextFont(text, Font.BOLD);
@@ -346,10 +389,14 @@ class ImporterUIElement
 	    		p.setBackground(UIUtilities.BACKGROUND_COLOR);
 	    		p.setLayout(new FlowLayout(FlowLayout.LEFT));
 	    		Iterator<JLabel> l = containerComponents.keySet().iterator();
-	    		
 	    		while (l.hasNext()) {
 					p.add(l.next());
 				}
+	    		if (foldersName.size() > 0) {
+	    			value = UIUtilities.createComponent(null);
+			    	value.setText(", "+name);
+			    	p.add(value);
+	    		}
 	    		header.add(p, c);
 	    	} else {
 	    		value = UIUtilities.createComponent(null);
@@ -379,6 +426,7 @@ class ImporterUIElement
 	    	c.gridy++; 	
 	    	c.gridx = 0;
 		}
+		topContainerToRefresh = topContainerToRefresh();
 		JPanel content = UIUtilities.buildComponentPanel(header);
 		content.setBackground(UIUtilities.BACKGROUND_COLOR);
 		return content;
@@ -456,6 +504,15 @@ class ImporterUIElement
 		return false;
 	}
 	
+	/** 
+	 * Indicates that only 
+	 * @return
+	 */
+	private boolean onlyImagesImported()
+	{
+		return true;
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -488,6 +545,30 @@ class ImporterUIElement
 	int getID() { return id; }
 	
 	/**
+	 * Returns <code>true</code> if the top container has to be refreshed,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	private boolean topContainerToRefresh()
+	{
+		List<DataObject> l = getData().getContainers();
+		if (l == null || l.size() == 0) return false;
+		DataObject object = l.get(0);
+		if (!(object instanceof ProjectData)) return false;
+		DatasetData d = getData().getDefaultDataset();
+		if (d != null && d.getId() <= 0) return true;
+		Iterator<FileImportComponent> i = components.values().iterator();
+		FileImportComponent fc;
+		while (i.hasNext()) {
+			fc = i.next();
+			if (fc.isFolderAsContainer()) 
+				return true;
+		}
+		return false;
+	}
+	
+	/**
 	 * Sets the result of the import for the specified file.
 	 * 
 	 * @param f The file to import.
@@ -504,20 +585,33 @@ class ImporterUIElement
 			if (done) {
 				Iterator<JLabel> i = containerComponents.keySet().iterator();
 				JLabel label;
-				while (i.hasNext()) {
-					label = i.next();
-					if (label.isEnabled())
-						label.setForeground(UIUtilities.HYPERLINK_COLOR);
+				boolean toRefresh = toRefresh();
+				if (toRefresh) {
+					while (i.hasNext()) {
+						label = i.next();
+						if (label.isEnabled())
+							label.setForeground(UIUtilities.HYPERLINK_COLOR);
+					}
 				}
+ 				
+				if (topContainerToRefresh) {
+					i = topContainerComponents.keySet().iterator();
+					while (i.hasNext()) {
+						label = i.next();
+						if (label.isEnabled())
+							label.setForeground(UIUtilities.HYPERLINK_COLOR);
+					}
+				}
+				
 				long duration = System.currentTimeMillis()-startImport;
 				String text = timeLabel.getText();
 				String time = UIUtilities.calculateHMS((int) (duration/1000));
 				timeLabel.setText(text+" Duration: "+time);
 				EventBus bus = ImporterAgent.getRegistry().getEventBus();
 				ImportStatusEvent event;
-				if (toRefresh()) {
+				if (toRefresh) {
 					List<DataObject> l = getData().getContainers();
-					if (l == null || l.size() > 0) {
+					if (!topContainerToRefresh) {
 						DatasetData d = getData().getDefaultDataset();
 						if (d != null && d.getId() > 0) {
 							l = new ArrayList<DataObject>();

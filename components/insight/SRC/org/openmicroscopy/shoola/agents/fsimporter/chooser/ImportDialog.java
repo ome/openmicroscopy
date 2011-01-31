@@ -1321,6 +1321,8 @@ public class ImportDialog
 			chooser.setFileFilter(filters[0]);
 		buildLocationPane();
 		locationPane.repaint();
+		tagsPane.removeAll();
+		tagsMap.clear();
 	}
 	
     /**

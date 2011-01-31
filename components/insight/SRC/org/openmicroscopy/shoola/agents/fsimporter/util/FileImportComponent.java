@@ -713,6 +713,14 @@ public class FileImportComponent
 	public int getType() { return type; }
 	
 	/**
+	 * Returns <code>true</code> if the folder has been converted into a
+	 * container, <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isFolderAsContainer() { return folderAsContainer; }
+	
+	/**
 	 * Overridden to make sure that all the components have the correct 
 	 * background.
 	 * @see JPanel#setBackground(Color)

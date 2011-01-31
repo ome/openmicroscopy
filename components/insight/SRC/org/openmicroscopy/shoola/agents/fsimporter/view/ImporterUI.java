@@ -129,7 +129,7 @@ class ImporterUI
 		if (initialized) return;
 		initialized = true;
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        setSize(8*(screenSize.width/10), 8*(screenSize.height/10));
+        setSize(6*(screenSize.width/10), 8*(screenSize.height/10));
 	}
 	
 	/** Initializes the components. */
