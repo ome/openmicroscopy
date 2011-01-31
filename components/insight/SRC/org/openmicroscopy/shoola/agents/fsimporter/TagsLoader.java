@@ -67,6 +67,7 @@ public class TagsLoader
 	public TagsLoader(Importer viewer)
 	{
 		super(viewer);
+		setIds();
 	}
 	
 	/** 
@@ -91,7 +92,7 @@ public class TagsLoader
      */
     public void handleResult(Object result) 
     {
-    	//if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
+    	if (viewer.getState() == Importer.DISCARDED) return; //Async cancel.
     	viewer.setExistingTags((Collection) result);
     } 
     

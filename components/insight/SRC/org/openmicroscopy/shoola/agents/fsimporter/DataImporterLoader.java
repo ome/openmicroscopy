@@ -94,7 +94,7 @@ public abstract class DataImporterLoader
     void setIds()
     {
     	ExperimenterData exp = ImporterAgent.getUserDetails();
-		userID = exp.getId();
+		userID = getCurrentUserID();
 		groupID = exp.getDefaultGroup().getId();
 		int level = 
 			ImporterAgent.getRegistry().getAdminService().getPermissionLevel();

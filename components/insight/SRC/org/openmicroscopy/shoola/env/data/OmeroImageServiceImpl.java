@@ -1117,40 +1117,6 @@ class OmeroImageServiceImpl
 		return filters;
 	}
 	
-	public Object monitor(String directory, DataObject container, 
-			long userID, long groupID)
-	{
-		if (supportedExtensions == null) {
-			FileFilter[] l = getSupportedFileFormats();
-			List<String> formats = new ArrayList<String>();
-			String description;
-			String regEx = "\\*";
-			String[] terms;
-			String v;
-			for (int i = 0; i < l.length; i++) {
-				description = l[i].getDescription();
-				terms = description.split(regEx);
-				for (int j = 1; j < terms.length; j++) {
-					v = terms[j].trim();
-					v = v.replaceAll(",", "");
-					if (v.endsWith(")"))
-						v = v.substring(0, v.length()-1);
-					formats.add(v);
-				}
-			}
-			supportedExtensions = new String[formats.size()];
-			Iterator<String> k = formats.iterator();
-			int index = 0;
-			
-			while (k.hasNext()) {
-				supportedExtensions[index] = k.next();
-				index++;
-			}
-		}
-		gateway.monitor(directory, supportedExtensions, container);
-		return true;
-	}
-	
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#createMovie(long, long, List, MovieExportParam)
@@ -1170,8 +1136,6 @@ class OmeroImageServiceImpl
 
 		return gateway.createMovie(imageID, pixelsID, exp.getId(), channels, 
 				param);
-		//if (id < 0) return null;
-		//return context.getMetadataService().loadAnnotation(id);
 	}
 	
 	/** 

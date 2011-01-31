@@ -38,14 +38,12 @@ import com.sun.opengl.util.texture.TextureData;
 //Application-internal dependencies
 import omero.constants.projection.ProjectionType;
 import omero.romio.PlaneDef;
-
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
-import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
@@ -486,10 +484,7 @@ public interface OmeroImageService
 	public ScriptCallback createMovie(long imageID, long pixelsID, 
 			List<Integer> channels, MovieExportParam param)
 		throws DSOutOfServiceException, DSAccessException;
-
-	public Object monitor(String path, DataObject container, 
-			long userID, long groupID);
-
+	
 	/**
 	 * Loads the ROI related to the specified image and the file.
 	 * 
