@@ -25,12 +25,10 @@ package org.openmicroscopy.shoola.util.ui.login;
 
 //Java imports
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Image;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -311,42 +309,6 @@ public class ScreenLogin
 		return -1L;
 	}
 	
-	/**
-	 * Displays the menu with the available groups.
-	 * 
-	 * @param invoker The component invoking the menu.
-	 * @param p		  The location of the mouse pressed.
-	 */
-	private void groupSelection(Component invoker, Point p)
-	{
-		/*
-		JPopupMenu menu = new JPopupMenu();
-		String selected = groupsBox.getText();
-		String value;
-		JCheckBoxMenuItem item;
-		ButtonGroup group = new ButtonGroup();
-		for (int i = 0; i < groupValues.length; i++) {
-			value = groupValues[i];
-			item = new JCheckBoxMenuItem(value);
-			item.setSelected(value.equals(selected));
-			item.setActionCommand(""+getGroupId(value));
-			item.addActionListener(new ActionListener() {
-				
-				public void actionPerformed(ActionEvent e) {
-					Object src = e.getSource();
-					if (src instanceof JCheckBoxMenuItem) {
-						JCheckBoxMenuItem item = (JCheckBoxMenuItem) src;
-						groupsBox.setText(item.getText());
-					}
-				}
-			});
-			group.add(item);
-			menu.add(item);
-		}
-		menu.show(invoker, p.x, p.y);
-		*/
-	}
-	
 	/** 
 	 * Returns <code>true</code> if the group option can be displayed if
 	 * available, <code>false</code> otherwise.
@@ -531,24 +493,6 @@ public class ScreenLogin
 			groupsBox = new JComboBox(groupValues);
 			groupsBox.setSelectedItem(selectedGroup);
 		}
-		
-		
-		
-		/*
-		IconManager icons = IconManager.getInstance();
-		groupsBox = new JButton(icons.getIcon(IconManager.UP_DOWN_9_12));
-		groupsBox.setText(selectedGroup);
-		groupsBox.addMouseListener(new MouseAdapter() {
-			
-
-			public void mouseReleased(MouseEvent e) {
-				Object src = e.getSource();
-				if (src instanceof Component)
-					groupSelection((Component) src, e.getPoint());
-			}
-		});
-		*/
-		
 		ref = new ArrayList<JComponent>();
 		login = new JButton("Login");
 		defaultForeground = login.getForeground();
@@ -1183,6 +1127,7 @@ public class ScreenLogin
 	{
 		Preferences prefs = 
 			Preferences.userNodeForPackage(ScreenLogin.class);
+		System.err.println("groups "+groups);
 		if (groups == null) {
 			prefs.put(OMERO_USER_GROUP, "");
 			return;

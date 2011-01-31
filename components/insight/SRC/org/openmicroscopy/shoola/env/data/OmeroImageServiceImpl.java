@@ -40,6 +40,7 @@ import javax.imageio.ImageIO;
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
+import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 import com.sun.opengl.util.texture.TextureData;
 
