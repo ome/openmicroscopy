@@ -8,6 +8,8 @@ $(document).ready(function() {
     var sizeZ = parseInt( $("#sizeZ").text() );
     var sizeT = parseInt( $("#sizeT").text() );
     
+    var zoom = 100;
+    
     var $roi_table = $('#roi_table');
     var $img_panel = $("#img_panel");
     var $t = $("#theT")
@@ -16,14 +18,55 @@ $(document).ready(function() {
     var json;   // json ROI data for this image
     
     var $canvas = $("#canvas");
+    $canvas.css('border', 'solid red 1px');
     var width = parseInt($img_panel.attr('width'));
     var height = parseInt($img_panel.attr('height'));
     
     var $imgAreaSelect = null
     
-    // Creates Raphael canvas 320 × 200 at 10, 50
-    var paper = Raphael('canvas', width, height);
+    // Creates Raphael canvas. 
+    //var paper = Raphael('canvas', width, height);
+    // uses scale.raphael.js to provide paper.scaleAll(ratio);
+    var paper = new ScaleRaphael('canvas', width, height);
+    
     //$canvas.append(paper);
+    var roi_objects = new Array();
+    
+    Raphael.el.zoomRoi = function (zoomF) {
+        var zm = zoomF/100
+        this.scale(zm, zm, zm, zm);
+    };
+    
+    var initFunc = function() {
+        alert("onInit");
+        //$(this).setOptions({ handles: true });
+    }
+    $imgAreaSelect = $canvas.imgAreaSelect({
+        onInit: initFunc,
+        handles: true,
+        instance: true,     // return instance to save ref
+        });
+    
+    //$imgAreaSelect.setOptions({ handles: true }); 
+    
+    // handle zoom
+    var handleZoom = function(increment) {
+        zoom += increment;
+        var newWidth = parseInt((zoom*width)/100);
+        var newHeight = parseInt((zoom*height)/100);
+        $img_panel.attr({width: newWidth, height: newHeight});
+        
+        // resize canvas
+        $canvas.css({'width':newWidth, 'height':newHeight});
+        //paper.setAttribute('width', newWidth);
+        //paper.setAttribute('height', newHeight);
+        paper.scaleAll(zoom/100);
+        // need to scale ROI objects 
+        // alert("paper children " + roi_objects.length);
+        //for (var i = 0; i < roi_objects.length; i++) {
+        //    roi_objects[i].zoomRoi(zoom);
+        //}
+    }
     
     // when shape is selected, add imgAreaSelect to allow resize
     var select_shape = function(event) {
@@ -33,9 +76,10 @@ $(document).ready(function() {
         var y = parseInt(this.attr('y'));
         var X2 = null;
         var Y2 = null;
+        var cx = null;  // only set if ellipse
         // if no 'x' attribute, we are not dealing with Rect, try Ellipse
         if (isNaN(x)) {
-            var cx = parseInt(this.attr('cx'));
+            cx = parseInt(this.attr('cx'));
             var cy = parseInt(this.attr('cy'));
             var rx = parseInt(this.attr('rx'));
             var ry = parseInt(this.attr('ry'));
@@ -48,13 +92,31 @@ $(document).ready(function() {
             Y2 = y + parseInt(this.attr('height'));
         }
         
+        // resize method (bound to end of image area selection)
         var resize = function(img, sel) {
-            shape.attr({
-                cx: sel.x1 + (sel.width/2),
-                cy: sel.y1 + (sel.height/2),
-                rx: sel.width/2,
-                ry: sel.height/2
-            })
+            alert("resize");
+            if ((sel.x1 == 0) && (sel.y1 == 0) && (sel.width == 0) && (sel.height == 0)) {
+                alert("ignore deselect");
+                
+            } else {
+                if (cx != null) {
+                    // our shape is a circle - resize to bounding box
+                    shape.attr({
+                        cx: sel.x1 + (sel.width/2),
+                        cy: sel.y1 + (sel.height/2),
+                        rx: sel.width/2,
+                        ry: sel.height/2
+                    });
+                } else {
+                    // handle resize of rectangle
+                    shape.attr({
+                        x: sel.x1,
+                        y: sel.y1,
+                        width: sel.width,
+                        height: sel.height
+                    });
+                }
+            }
         }
         
         // launch selection tool, calling resize when done. 
@@ -66,11 +128,14 @@ $(document).ready(function() {
     
     var plot_rois = function() {
         
+        // TODO: Can't seem to get an instance of the imgAreaSelect object to control it after creation. 
         if ($imgAreaSelect != null) {
             //$imgAreaSelect.setOptions({ show: false });
-            $imgAreaSelect.hide();
+            //$imgAreaSelect.click();
         }
+        // clear the paper and the list of ROIs we have. 
         paper.clear();
+        roi_objects.length = 0;
         
         var start = function () {
             // storing original coordinates
@@ -100,6 +165,7 @@ $(document).ready(function() {
             for (var s=0; s<shapes.length; s++) {
                 shape = shapes[s];
                 if ((shape['theT'] == theT) && (shape['theZ'] == theZ)) {
+                    //alert(shape['type']);
                     if (shape['type'] == 'Ellipse') {
                         var circle = paper.ellipse(shape['cx'], shape['cy'], shape['rx'], shape['ry']);
                         //circle.attr("stroke", "#fff");
@@ -109,7 +175,9 @@ $(document).ready(function() {
                             opacity: 0.3
                         });
                         circle.drag(move, start, up);
-                        circle.click(select_shape);
+                        //circle.click(select_shape);   // TURN OFF imgAreaSelect for now. 
+                        roi_objects.push(circle);
+                        //circle.zoomRoi(zoom);
                     }
                     else if (shape['type'] == 'Rectangle') {
                         var rect = paper.rect(shape['x'], shape['y'], shape['width'], shape['height']);
@@ -119,7 +187,9 @@ $(document).ready(function() {
                             opacity: 0.3
                         });
                         rect.drag(moveRect, start, up);
-                        rect.click(select_shape);
+                        //rect.click(select_shape);
+                        roi_objects.push(rect);
+                        //rect.zoomRoi(zoom);
                     }
                     else if (shape['type'] == 'Point') {
                         var point = paper.ellipse( shape['cx'], shape['cy'], 2, 2);
@@ -129,7 +199,9 @@ $(document).ready(function() {
                             opacity: 0.3
                         });
                         point.drag(move, start, up);
-                        point.click(select_shape);
+                        //point.click(select_shape);
+                        roi_objects.push(point);
+                        //point.zoomRoi(zoom);
                     }
                 }
             }
@@ -255,5 +327,23 @@ $(document).ready(function() {
             $tbody.toggle();
         }
     });
+    
+    // bind mouse-wheel over the canvas to zoom
+    /**
+     * Handle Zoom by mousewheel (FF)
+     */
+    if ($canvas.get(0).addEventListener) {
+      // Respond to mouse wheel in Firefox - get(0) the underlying DOM object.
+      $canvas.get(0).addEventListener('DOMMouseScroll', function(e) {
+        if (e.detail > 0)
+          handleZoom(-1, true);
+        else if (e.detail < 0)
+          handleZoom(1, true);
+        
+        e.preventDefault();
+      }, false);
+    } else {
+        alert("can't add eventlistener");
+    }
     
 });
