@@ -125,12 +125,88 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
     public void getHypercube_async(AMD_RawPixelsStore_getHypercube __cb,
             List<Integer> offset, List<Integer> size, List<Integer> step, 
             Current __current) throws ServerError {
-        throw new UnsupportedOperationException("NYI");
+        /* Assuming XYZCT order. 
+         * Initial pass to get 5d cube of contiguous pixels only. 
+         *      treating step[0..4] as 1
+         */
+        int planeNumber;
+        int cubeOffset = 0;
+        
+        if( size.get(0) < 1 ||  size.get(1) < 1 ||  size.get(2) < 1 
+                ||  size.get(3) < 1 ||  size.get(4) < 1 )
+        {
+            throw new IllegalArgumentException("Invalid step size: steps sizes must be 1 or greater");
+        }
+        
+        try {
+            int tileRowSize = size.get(0)*getBytesPerPixel(pixelType);
+            int tileColSize = size.get(1)*getBytesPerPixel(pixelType);
+            int tileSize = tileRowSize*size.get(1);
+            int cubeSize = tileSize*size.get(2)*size.get(3)*size.get(4);
+            byte[] cube = new byte[cubeSize];
+            byte[] tile = new byte[tileSize];        
+            byte[] tileRow = new byte[tileRowSize];        
+            byte[] tileCol = new byte[tileColSize];        
+            for(int t = offset.get(4); t < size.get(4); t += step.get(4))
+            {
+                for(int c = offset.get(3); c < size.get(3); c += step.get(3))
+                {
+                    for(int z = offset.get(2); z < size.get(2); z += step.get(2))
+                    {
+                        planeNumber = reader.getIndex(z, c, t);
+                        if(step.get(0) == 1 && step.get(1) == 1)
+                        {
+                            reader.openBytes(planeNumber, tile, 
+                                    offset.get(0), offset.get(1), size.get(0), size.get(1));
+                            System.arraycopy(tile, 0, cube, cubeOffset, tileSize);
+                            cubeOffset += tileSize;
+                        } 
+                        else if(step.get(0) == 1 && step.get(1) > 1)
+                        {
+                            for(int y = offset.get(1); y < size.get(1); y += step.get(1))
+                            {
+                                reader.openBytes(planeNumber, tileRow, 
+                                        offset.get(0), y, size.get(0), 1);
+                                System.arraycopy(tileRow, 0, cube, cubeOffset, tileRowSize);
+                                cubeOffset += tileRowSize;
+                            }
+                        }
+                        else if(step.get(0) > 1 && step.get(1) == 1)
+                        {
+                            for(int x = offset.get(0); x < size.get(0); x += step.get(0))
+                            {
+                                reader.openBytes(planeNumber, tileRow, 
+                                        x, offset.get(1), 1, size.get(1));
+                                System.arraycopy(tileCol, 0, cube, cubeOffset, tileColSize);
+                                cubeOffset += tileColSize;
+                            }
+                        }
+                        else
+                        {
+                            throw new IllegalArgumentException("Invalid step size: X step and Y step cannot both be 1");
+                        }
+                    }
+                }
+            }
+            byte[] returnCube = new byte[cubeOffset];
+            System.arraycopy(cube, 0, returnCube, 0, cubeOffset);
+            __cb.ice_response(returnCube);
+        } catch (Exception e) {
+            __cb.ice_exception(e);
+        }
     }
     
     public void getCol_async(AMD_RawPixelsStore_getCol __cb, int x, int z,
             int c, int t, Current __current) throws ServerError {
-        throw new UnsupportedOperationException("NYI");
+        try {
+            int colSize = sizeX * getBytesPerPixel(pixelType);
+            byte[] col = new byte[colSize];
+            int planeNumber = reader.getIndex(z, c, t);
+            reader.openBytes(planeNumber, col, x, 0, 1, colSize);
+            __cb.ice_response(col);
+        } catch (Exception e) {
+            __cb.ice_exception(e);
+        }
     }
 
     public void getPlaneOffset_async(AMD_RawPixelsStore_getPlaneOffset __cb,
