@@ -465,7 +465,7 @@ public class FileImportComponent
 		} else if (image instanceof ThumbnailData) {
 			ThumbnailData thumbnail = (ThumbnailData) image;
 			if (thumbnail.isValidImage()) {
-				imageLabel.setThumbnail((ThumbnailData) image);
+				imageLabel.setData(thumbnail);
 				statusLabel.setVisible(false);
 				fileNameLabel.addMouseListener(adapter);
 				addMouseListener(adapter);
@@ -482,7 +482,6 @@ public class FileImportComponent
 				deleteButton.setVisible(true);
 				deleteButton.addActionListener(this);
 			}
-
 		} else if (image instanceof PlateData) {
 			imageLabel.setData((PlateData) image);
 			resultLabel.setText(BROWSE_TEXT);
@@ -496,19 +495,16 @@ public class FileImportComponent
 			statusLabel.setVisible(false);
 			List list = (List) image;
 			int m = list.size();
-			ThumbnailData thumb = (ThumbnailData) list.get(0);
-			imageLabel.setThumbnail(thumb);
+			imageLabel.setData(list.get(0));
 			list.remove(0);
 			ThumbnailLabel label = imageLabels.get(0);
 			label.setVisible(true);
-			thumb = (ThumbnailData) list.get(0);
-			label.setThumbnail(thumb);
+			label.setData(list.get(0));
 			list.remove(0);
 			if (list.size() > 0) {
 				label = imageLabels.get(1);
 				label.setVisible(true);
-				thumb = (ThumbnailData) list.get(0);
-				label.setThumbnail(thumb);
+				label.setData(list.get(0));
 				list.remove(0);
 				int n = statusLabel.getSeriesCount()-m;
 				if (n > 0) {

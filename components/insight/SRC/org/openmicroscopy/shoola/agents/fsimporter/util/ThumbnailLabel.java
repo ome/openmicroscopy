@@ -109,55 +109,13 @@ class ThumbnailLabel
 		} 
 	}
 	
-	/** Creates a default new instance. */
-	ThumbnailLabel() {}
-	
-	/**  
-	 * Creates a new instance. 
-	 * 
-	 * @param icon The icon to display.
-	 */
-	ThumbnailLabel(Icon icon)
-	{
-		super(icon);
-	}
-	
-	/** 
-	 * Sets the object that has been imported. 
-	 * 
-	 * @param data The imported image.
-	 */
-	void setData(DataObject data)
-	{
-		if (data == null) return;
-		this.data = data;
-		if (data instanceof ImageData) {
-			setToolTipText(IMAGE_LABEL_TOOLTIP);
-		} else if (data instanceof PlateData) {
-			setToolTipText(PLATE_LABEL_TOOLTIP);
-			IconManager icons = IconManager.getInstance();
-			setIcon(icons.getIcon(IconManager.PLATE));
-		}
-		addMouseListener(new MouseAdapter() {
-			
-			/**
-			 * Views the image.
-			 * @see MouseListener#mousePressed(MouseEvent)
-			 */
-			public void mousePressed(MouseEvent e)
-			{
-				if (e.getClickCount() == 2)
-					view(); 
-			}
-		});
-	}
 
 	/** 
 	 * Sets the thumbnail to view. 
 	 * 
 	 * @param data The value to set.
 	 */
-	void setThumbnail(ThumbnailData data)
+	private void setThumbnail(ThumbnailData data)
 	{
 		if (data == null) return;
 		ImageIcon icon = new ImageIcon(Factory.magnifyImage(0.25, 
@@ -194,6 +152,52 @@ class ThumbnailLabel
 			 * @see MouseListener#mouseEntered(MouseEvent)
 			 */
 			public void mouseEntered(MouseEvent e) { rollOver(); }
+		});
+	}
+	
+	/** Creates a default new instance. */
+	ThumbnailLabel() {}
+	
+	/**  
+	 * Creates a new instance. 
+	 * 
+	 * @param icon The icon to display.
+	 */
+	ThumbnailLabel(Icon icon)
+	{
+		super(icon);
+	}
+	
+	/** 
+	 * Sets the object that has been imported. 
+	 * 
+	 * @param data The imported image.
+	 */
+	void setData(Object data)
+	{
+		if (data == null) return;
+		this.data = data;
+		if (data instanceof ImageData) {
+			setToolTipText(IMAGE_LABEL_TOOLTIP);
+		} else if (data instanceof PlateData) {
+			setToolTipText(PLATE_LABEL_TOOLTIP);
+			IconManager icons = IconManager.getInstance();
+			setIcon(icons.getIcon(IconManager.PLATE));
+		} else if (data instanceof ThumbnailData) {
+			setThumbnail((ThumbnailData) data);
+			return;
+		}
+		addMouseListener(new MouseAdapter() {
+			
+			/**
+			 * Views the image.
+			 * @see MouseListener#mousePressed(MouseEvent)
+			 */
+			public void mousePressed(MouseEvent e)
+			{
+				if (e.getClickCount() == 2)
+					view(); 
+			}
 		});
 	}
 	
