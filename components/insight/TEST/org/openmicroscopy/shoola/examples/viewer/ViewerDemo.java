@@ -237,7 +237,7 @@ public class ViewerDemo
 		}*/
 		//or just comment code above and do for example
 		LoginCredentials lc = new LoginCredentials("root", "ome", "localhost");
-		ViewerDemo viewer = new ViewerDemo(lc, ViewType.PROCESSING_OPENGL);
+		ViewerDemo viewer = new ViewerDemo(lc, ViewType.PROCESSING);
 		viewer.setSize(500, 500);
 		viewer.setVisible(true);
 	}

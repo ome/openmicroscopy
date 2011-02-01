@@ -191,6 +191,9 @@ class ViewerPane
 				break;
 			case PROCESSING_OPENGL:
 				canvas = new ProcessingCanvas();
+				break;
+			case PROCESSING:
+				canvas = new ProcessingOnlyCanvas();
 		}
 		zSlider = new JSlider();
 		zSlider.setMinimum(0);

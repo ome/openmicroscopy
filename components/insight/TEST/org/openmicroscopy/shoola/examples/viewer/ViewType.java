@@ -29,7 +29,7 @@ package org.openmicroscopy.shoola.examples.viewer;
 //Application-internal dependencies
 
 /** 
- * The enum that defines the viewer type for the demo.
+ * The enumeration that defines the viewer type for the demo.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -44,5 +44,6 @@ package org.openmicroscopy.shoola.examples.viewer;
 public enum ViewType
 {
 	JAVA,
-	PROCESSING_OPENGL
+	PROCESSING_OPENGL, 
+	PROCESSING
 }

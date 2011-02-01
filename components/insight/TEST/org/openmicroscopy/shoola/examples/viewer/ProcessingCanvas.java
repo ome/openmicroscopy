@@ -36,7 +36,8 @@ import processing.core.PImage;
 
 /** 
  * This canvas is the processing canvas to demonstrate the use of processing 
- * for displaying images from OMERO.
+ * for displaying images from OMERO. Using OpengGL and Processing, see
+ * http://processing.org/
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -53,6 +54,9 @@ public class ProcessingCanvas
 	implements ImageCanvasInterface
 {
 
+	/** The default size. */
+	static final Dimension DIMENSION = new Dimension(640, 360);
+	
 	/** The processing image. */
 	private PImage pImage;
 	
@@ -62,7 +66,6 @@ public class ProcessingCanvas
 	/** Flag indicating to use a circle lens or not. */
 	private boolean circleLens = false;
 	 
-	
 	/**
 	 * Creates a cylinder lens.
 	 * 
@@ -129,8 +132,7 @@ public class ProcessingCanvas
 			}
 		}); 
 
-
-		size(640, 360, P3D);
+		setCanvasSize(DIMENSION);
 		noStroke();
 	}
 	
@@ -157,15 +159,13 @@ public class ProcessingCanvas
 		if (circleLens)
 		{
 			pushMatrix();
-			translate(mouseX,mouseY);
-			scale(lensSizeX,lensSizeY);
+			translate(mouseX, mouseY);
+			scale(lensSizeX, lensSizeY);
 			beginShape(TRIANGLE_FAN);
 			texture(pImage);
-			for(int i=0; i < circle.length; i++)
-			{
+			for (int i = 0; i < circle.length; i++)
 				vertex(circle[i][0], circle[i][1],circle[i][0]*ZF+mouseX,
 						circle[i][1]*ZF+mouseY);
-			}
 			endShape();
 			popMatrix();
 		}
@@ -198,6 +198,5 @@ public class ProcessingCanvas
 	{
 		size(d.width, d.height, P3D);
 	}
-    
 
 }
