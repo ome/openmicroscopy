@@ -42,9 +42,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
-
 import javax.swing.JMenu;
-import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -347,14 +345,30 @@ class MeasurementViewerControl
 
     		public void mouseReleased(MouseEvent e)
     		{
-    			setROIFigureStatus(ROIFigure.IDLE);
-    			if (isRightClick(e)) {
-    				Collection l = view.getDrawingView().getSelectedFigures();
-    				if (l != null && l.size() == 1)
-    					view.showROIManagementMenu(e.getX(), e.getY());
+    			if (!UIUtilities.isWindowsOS()) {
+    				setROIFigureStatus(ROIFigure.IDLE);
+        			if (isRightClick(e)) {
+        				Collection l = 
+        					view.getDrawingView().getSelectedFigures();
+        				if (l != null && l.size() == 1)
+        					view.showROIManagementMenu(e.getX(), e.getY());
+        			}
     			}
     		}
-
+    		
+    		public void mousePressed(MouseEvent e)
+    		{
+    			if (UIUtilities.isWindowsOS()) {
+    				setROIFigureStatus(ROIFigure.IDLE);
+        			if (isRightClick(e)) {
+        				Collection l = 
+        					view.getDrawingView().getSelectedFigures();
+        				if (l != null && l.size() == 1)
+        					view.showROIManagementMenu(e.getX(), e.getY());
+        			}
+    			}
+    		}
+    		
     	});
 
     	view.getDrawingView().addMouseMotionListener(new MouseMotionAdapter()
@@ -363,6 +377,7 @@ class MeasurementViewerControl
     		@Override
     		public void mouseDragged(MouseEvent e)
     		{
+    			if (isRightClick(e)) return;
     			setROIFigureStatus(ROIFigure.MOVING);
     		}
 
@@ -463,25 +478,21 @@ class MeasurementViewerControl
 	void analyseSelectedFigures()
 	{
 		Collection<Figure> figures = model.getSelectedFigures();
-		if (figures.size() == 1) 
+		if (figures.size() != 1 && !view.inDataView()) return;
+		ROIFigure figure = (ROIFigure) figures.iterator().next();
+		ROIShape shape = figure.getROIShape();
+		List<ROIShape> shapeList = new ArrayList<ROIShape>();
+		ROI roi = shape.getROI();
+		TreeMap<Coord3D, ROIShape> shapeMap = roi.getShapes();
+		Iterator<Coord3D> shapeIterator = shapeMap.keySet().iterator();
+		ROIShape currentShape;
+		while (shapeIterator.hasNext())
 		{
-			ROIFigure figure = (ROIFigure) figures.iterator().next();
-			ROIShape shape = figure.getROIShape();
-			if (view.inDataView()) 
-			{
-				List<ROIShape> shapeList = new ArrayList<ROIShape>();
-				ROI roi = shape.getROI();
-				TreeMap<Coord3D, ROIShape> shapeMap = roi.getShapes();
-				Iterator<Coord3D> shapeIterator = shapeMap.keySet().iterator();
-				while (shapeIterator.hasNext())
-				{
-					ROIShape currentShape = shapeMap.get(shapeIterator.next());
-					if(!(currentShape.getFigure() instanceof MeasureTextFigure))
-						shapeList.add(currentShape);
-				}
-				if (shapeList.size() != 0) model.analyseShapeList(shapeList);
-			}
+			currentShape = shapeMap.get(shapeIterator.next());
+			if (!(currentShape.getFigure() instanceof MeasureTextFigure))
+				shapeList.add(currentShape);
 		}
+		if (shapeList.size() != 0) model.analyseShapeList(shapeList);
 	}
 	
     /**
@@ -580,7 +591,6 @@ class MeasurementViewerControl
 		Collection<Figure> figures = evt.getView().getSelectedFigures();
 		if (figures == null) return;
 		
-	
 		if (view.inDataView() && figures.size() == 1) {
 			ROIFigure figure = (ROIFigure) figures.iterator().next();
 			if (figure == null) return;
