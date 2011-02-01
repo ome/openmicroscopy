@@ -2377,37 +2377,6 @@ def render_thumbnail_resize (request, size, iid, share_id=None, **kwargs):
     return HttpResponse(jpeg_data, mimetype='image/jpeg')
 
 @isUserConnected
-def render_big_thumbnail (request, iid, **kwargs):
-    conn = None
-    try:
-        conn = kwargs["conn"]
-    except:
-        logger.error(traceback.format_exc())
-        return handlerInternalError("Connection is not available. Please contact your administrator.")
-
-    img = conn.getImage(iid)
-    
-    size = 0
-    if img.getWidth() >= 200:
-        size = img.getWidth()
-    else:
-        size = 200
-    
-    if size <=750:
-        size = size
-    else:
-        size = 750
-        
-    if img is None:
-        jpeg_data = conn.defaultThumbnail(size=int(size))
-        logger.error("Image %s not found..." % (str(iid)))
-        #return handlerInternalError("Image %s not found..." % (str(iid)))
-    else:
-        jpeg_data = img.getThumbnailOrDefault(size=int(size))
-    return HttpResponse(jpeg_data, mimetype='image/jpeg')
-
-
-@isUserConnected
 def render_image (request, iid, z, t, share_id=None, **kwargs):
     """ Renders the image with id {{iid}} at {{z}} and {{t}} as jpeg.
         Many options are available from the request dict.
