@@ -189,6 +189,7 @@ class MoviePlayerUI
 
 		//Spinner timepoint granularity is 1, so must be stepSize  
 		int max = model.getMaximumTimer();
+		
 		fps = new JSpinner(new SpinnerNumberModel(model.getTimerDelay(), 
 				MoviePlayer.FPS_MIN, max, 1));
 		editor = new JTextField(""+model.getTimerDelay(), (""+max).length());
@@ -390,7 +391,7 @@ class MoviePlayerUI
 		c.insets = new Insets(10, 0, 10, 0);
 		c.gridx = 0;
 		c.gridy = 1;
-		//controls.add(createFPSControls(), c);
+		controls.add(createFPSControls(), c);
 
 
 		//lays out components

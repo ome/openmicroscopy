@@ -1127,7 +1127,6 @@ public class ScreenLogin
 	{
 		Preferences prefs = 
 			Preferences.userNodeForPackage(ScreenLogin.class);
-		System.err.println("groups "+groups);
 		if (groups == null) {
 			prefs.put(OMERO_USER_GROUP, "");
 			return;
