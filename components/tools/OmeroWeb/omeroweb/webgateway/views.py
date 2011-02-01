@@ -645,8 +645,9 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
         imgs.append(obj)
 
     if len(imgs) == 1:
+        obj = imgs[0]
         key = '_'.join((str(x.getId()) for x in obj.getAncestry())) + '_' + str(obj.getId()) + '_ome_tiff'
-        fpath, rpath, fobj = webgateway_tempfile.new(obj.getName() + '.ome.tiff', key=key)
+        fpath, rpath, fobj = webgateway_tempfile.new(str(obj.getId()) + '-'+obj.getName() + '.ome.tiff', key=key)
         if fobj is True:
             # already exists
             return HttpResponseRedirect('/appmedia/tfiles/' + rpath)
@@ -658,7 +659,7 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
             webgateway_cache.setOmeTiffImage(request, server_id, imgs[0], tiff_data)
         if fobj is None:
             rsp = HttpResponse(tiff_data, mimetype='application/x-ome-tiff')
-            rsp['Content-Disposition'] = 'attachment; filename="%s.ome.tiff"' % obj.getName()
+            rsp['Content-Disposition'] = 'attachment; filename="%s.ome.tiff"' % (str(obj.getId()) + '-'+obj.getName())
             rsp['Content-Length'] = len(tiff_data)
             return rsp
         else:
