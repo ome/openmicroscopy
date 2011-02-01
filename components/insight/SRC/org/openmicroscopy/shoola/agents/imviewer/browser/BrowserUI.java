@@ -363,6 +363,13 @@ class BrowserUI
 	 */
 	boolean isAdjusting() { return adjusting; }
 	
+	/** Locates the scroll bars. */
+	void locateScrollBars()
+	{
+		if (!scrollbarsVisible()) return;
+		scrollTo(getViewport().getViewRect(), false);
+	}
+	
 	/**
 	 * Sets the <code>adjusting</code> flag when the experimenter uses 
 	 * the scrollbars.
@@ -396,18 +403,6 @@ class BrowserUI
 		if (sibling != null) 
 			sibling.setBounds(sibling.getBounds());
 		layeredPane.setBounds(xLoc, yLoc, d.width, d.height);
-	}
-	
-	void locateScrollBars()
-	{
-		if (!scrollbarsVisible()) return;
-		Rectangle r = getViewport().getViewRect();
-		JScrollBar hBar = getHorizontalScrollBar();
-		JScrollBar vBar = getVerticalScrollBar();
-		Dimension dBar = hBar.getSize();
-		hBar.setValue((r.height-dBar.height)/2);
-		dBar = vBar.getSize();
-		vBar.setValue((r.width-dBar.width)/2);
 	}
 	
 	/**
