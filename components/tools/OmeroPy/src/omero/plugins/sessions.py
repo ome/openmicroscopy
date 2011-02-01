@@ -128,6 +128,11 @@ class SessionsControl(BaseControl):
         create = getattr(args, "create", None)
         store = self.store(args)
         previous = store.get_current()
+        try:
+            previous_props = store.get(*previous)
+            previous_port = previous_props.get("omero.port", str(omero.constants.GLACIER2PORT))
+        except:
+            previous_port = str(omero.constants.GLACIER2PORT)
 
         # Basic props, don't get fiddled with
         props = {}
@@ -194,7 +199,7 @@ class SessionsControl(BaseControl):
                         self.ctx.dbg("Exception on attach: %s" % traceback.format_exc(e))
                         self.ctx.dbg("Exception on attach: %s" % e)
 
-                    self.ctx.out("Previously logged in to %s as %s" % (previous[0], previous[1]))
+                    self.ctx.out("Previously logged in to %s:%s as %s" % (previous[0], previous_port, previous[1]))
 
         #
         # If we've reached here, then the user either does not have
@@ -351,7 +356,7 @@ class SessionsControl(BaseControl):
                             msg = "Logged in"
 
                     if port:
-                        results["Server"].append("%s:%s)" % (server, port))
+                        results["Server"].append("%s:%s" % (server, port))
                     else:
                         results["Server"].append(server)
 
