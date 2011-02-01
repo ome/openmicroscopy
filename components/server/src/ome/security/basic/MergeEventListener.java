@@ -72,6 +72,10 @@ public class MergeEventListener extends IdTransferringMergeEventListener {
             throw new SecurityViolation(
                     "The MergeEventListener has been disabled.");
         }
+
+        if (earlyExit(event)) {
+            return;
+        }
         super.onMerge(event);
     }
 
@@ -82,8 +86,29 @@ public class MergeEventListener extends IdTransferringMergeEventListener {
             throw new SecurityViolation(
                     "The MergeEventListener has been disabled.");
         }
+
+        if (earlyExit(event)) {
+            return;
+        }
         super.onMerge(event, copyCache);
     }
+
+    private boolean earlyExit(MergeEvent event) {
+
+        final Object entity = event.getEntity();
+        final EventSource source = event.getSession();
+
+        if ( entity instanceof IObject) {
+            IObject iobject = (IObject) entity;
+            if (!iobject.isLoaded()) {
+                log.trace("ignoring unloaded iobject");
+                event.setResult(source.load(event.getEntityName(), iobject.getId()));
+                return true; //EARLY EXIT!
+            }
+        }
+        return false;
+    }
+
 
     @Override
     protected void copyValues(EntityPersister persister, Object entity,

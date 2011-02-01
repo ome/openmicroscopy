@@ -17,6 +17,7 @@ import ome.model.acquisition.Instrument;
 import ome.model.acquisition.Objective;
 import ome.model.acquisition.ObjectiveSettings;
 import ome.model.annotations.CommentAnnotation;
+import ome.model.annotations.TagAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.containers.ProjectDatasetLink;
@@ -39,6 +40,8 @@ import ome.model.roi.Rect;
 import ome.model.roi.Roi;
 import ome.model.roi.Shape;
 import ome.parameters.Parameters;
+import ome.services.sessions.stats.SessionStats;
+import ome.system.EventContext;
 import ome.testing.ObjectFactory;
 
 import org.testng.annotations.Test;
@@ -571,6 +574,24 @@ public class UpdateTest extends AbstractUpdateTest {
         }
         iAdmin.removeGroups(e2, groups[j]);
         iAdmin.lookupGroups();
+    }
+
+    /**
+     * This method primarily used while walking through the debugger.
+     */
+    @Test(groups = "ticket:3978")
+    public void testSaveSingleAnnotation() {
+        TagAnnotation tag = new TagAnnotation();
+        tag.setTextValue("ticket:3978");
+        tag = iUpdate.saveAndReturnObject(tag);
+        // This prevents reloading annotationLinks
+        tag.putAt(tag.ANNOTATIONLINKS, null);
+        // This does not yet prevent reloading the previous event.
+        tag.getDetails().shallowCopy(tag.getDetails().shallowCopy());
+        tag = iUpdate.saveAndReturnObject(tag);
+        // EventContext ec = iAdmin.getEventContext();
+        // SessionStats stats = sessionManager.getSessionStats(ec.getCurrentSessionUuid());
+        // stats.sqlCount();
     }
 
     protected void assertLink(ProjectDatasetLink link) {

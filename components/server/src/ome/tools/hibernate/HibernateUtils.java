@@ -21,6 +21,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.EntityMode;
 import org.hibernate.Hibernate;
+import org.hibernate.collection.PersistentCollection;
 import org.hibernate.engine.SessionImplementor;
 import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.type.Type;
@@ -173,14 +174,26 @@ public abstract class HibernateUtils {
                 if (previous == null) {
                     // ignore. If the system gave it to us, it can handle it.
                 } else if (previous instanceof Collection) {
-                    log("Copying nulled collection ", propertyNames[i]);
-                    Collection copy = copy(((Collection) previous));
-                    persister.setPropertyValue(entity, i, copy, source
-                            .getEntityMode());
+                    if (!Hibernate.isInitialized(previous)) {
+                        log("Skipping uninitialized collection: ", propertyNames[i]);
+                        persister.setPropertyValue(entity, i, previous, source
+                                .getEntityMode());
+                    } else {
+                        log("Copying nulled collection: ", propertyNames[i]);
+                        Collection copy = copy(((Collection) previous));
+                        persister.setPropertyValue(entity, i, copy, source
+                                .getEntityMode());
+                    }
                 } else if (previous instanceof Map) {
-                    Map copy = copy((Map) previous);
-                    persister.setPropertyValue(entity, i, copy, source
+                    if (!Hibernate.isInitialized(previous)) {
+                        log("Skipping uninitialized map: ", propertyNames[i]);
+                        persister.setPropertyValue(entity, i, previous, source
+                                .getEntityMode());
+                    } else {
+                        Map copy = copy((Map) previous);
+                        persister.setPropertyValue(entity, i, copy, source
                             .getEntityMode());
+                    }
                 } else {
                     throw new InternalException(String.format(
                             "Invalid collection found for null "

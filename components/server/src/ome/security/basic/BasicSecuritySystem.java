@@ -378,6 +378,14 @@ public class BasicSecuritySystem implements SecuritySystem,
             grp = admin.groupProxy(groupId);
         }
 
+        long sessionId = ec.getCurrentSessionId().longValue();
+        ome.model.meta.Session sess = null;
+        if (isReadOnly) {
+            sess = new ome.model.meta.Session(sessionId, false);
+        } else {
+            sess = sf.getQueryService().get(ome.model.meta.Session.class, sessionId);
+        }
+
         // public groups (ticket:1940)
         if (!isAdmin && !ec.getMemberOfGroupsList().contains(grp.getId())) {
             // Only force loading the group if we would otherwise throw an exception.
@@ -403,14 +411,13 @@ public class BasicSecuritySystem implements SecuritySystem,
         }
         EventType type = new EventType(t);
         tokenHolder.setToken(type.getGraphHolder());
-        Event event = cd.newEvent(ec.getCurrentSessionId().longValue(), type,
-                tokenHolder);
+        Event event = cd.newEvent(sess, type, tokenHolder);
         tokenHolder.setToken(event.getGraphHolder());
 
         // If this event is not read only, then lets save this event to prevent
         // flushing issues later.
         if (!isReadOnly) {
-            cd.updateEvent(update.saveAndReturnObject(event));
+            cd.updateEvent(update.saveAndReturnObject(event)); // TODO use merge
         }
 
     }
