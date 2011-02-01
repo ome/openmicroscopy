@@ -11,43 +11,32 @@ $(document).ready(function() {
     var zoom = 100;
     
     var $roi_table = $('#roi_table');
-    var $img_panel = $("#img_panel");
     var $t = $("#theT")
     var $z = $("#theZ")
     
     var json;   // json ROI data for this image
     
-    var $canvas = $("#canvas");
-    $canvas.css('border', 'solid red 1px');
+    // 3 levels of panels that make up the image plane
+    var $img_panel = $("#img_panel");   // lowest level - has the image itself
+    var $canvas = $("#canvas");         // contains the 'paper' for ROIs
+    var $imgOverlay = $("#imgOverlay").css('border', 'solid red 1px').hide(); // div for imgAreaSelect (only shown when ROI is selected)
+    
     var width = parseInt($img_panel.attr('width'));
     var height = parseInt($img_panel.attr('height'));
     
-    var $imgAreaSelect = null
+    var $imgAreaSelect = null;  // TODO: remove - unless I can find how to get imgAreaSelect instance. 
     
-    // Creates Raphael canvas. 
-    //var paper = Raphael('canvas', width, height);
-    // uses scale.raphael.js to provide paper.scaleAll(ratio);
+    // Creates Raphael canvas. Uses scale.raphael.js to provide paper.scaleAll(ratio);
     var paper = new ScaleRaphael('canvas', width, height);
     
-    //$canvas.append(paper);
+    // for keeping track of objects - NOT used yet.
     var roi_objects = new Array();
     
+    // this is how to add functions to Raphael objects - NOT used now. 
     Raphael.el.zoomRoi = function (zoomF) {
         var zm = zoomF/100
         this.scale(zm, zm, zm, zm);
     };
-    
-    var initFunc = function() {
-        alert("onInit");
-        //$(this).setOptions({ handles: true });
-    }
-    $imgAreaSelect = $canvas.imgAreaSelect({
-        onInit: initFunc,
-        handles: true,
-        instance: true,     // return instance to save ref
-        });
-    
-    //$imgAreaSelect.setOptions({ handles: true }); 
     
     // handle zoom
     var handleZoom = function(increment) {
@@ -58,19 +47,14 @@ $(document).ready(function() {
         
         // resize canvas
         $canvas.css({'width':newWidth, 'height':newHeight});
-        //paper.setAttribute('width', newWidth);
-        //paper.setAttribute('height', newHeight);
+        // sclae the paper
         paper.scaleAll(zoom/100);
-        // need to scale ROI objects 
-        // alert("paper children " + roi_objects.length);
-        //for (var i = 0; i < roi_objects.length; i++) {
-        //    roi_objects[i].zoomRoi(zoom);
-        //}
+        // resize the overlay used for imgAreaSelect
+        $imgOverlay.css({'width':newWidth, 'height':newHeight});
     }
     
     // when shape is selected, add imgAreaSelect to allow resize
     var select_shape = function(event) {
-        
         var shape = this;
         var x = parseInt(this.attr('x'));
         var y = parseInt(this.attr('y'));
@@ -94,49 +78,54 @@ $(document).ready(function() {
         
         // resize method (bound to end of image area selection)
         var resize = function(img, sel) {
-            alert("resize");
             if ((sel.x1 == 0) && (sel.y1 == 0) && (sel.width == 0) && (sel.height == 0)) {
-                alert("ignore deselect");
-                
+                //$imgOverlay.hide();   // Doesn't have desired effect of hiding selection box. 
             } else {
+                var selx1 = sel.x1*100/zoom;
+                var sely1 = sel.y1*100/zoom;
+                var selh = sel.height*100/zoom;
+                var selw = sel.width*100/zoom;
                 if (cx != null) {
                     // our shape is a circle - resize to bounding box
                     shape.attr({
-                        cx: sel.x1 + (sel.width/2),
-                        cy: sel.y1 + (sel.height/2),
-                        rx: sel.width/2,
-                        ry: sel.height/2
+                        cx: selx1 + (selw/2),
+                        cy: sely1 + (selh/2),
+                        rx: selw/2,
+                        ry: selh/2
                     });
                 } else {
                     // handle resize of rectangle
                     shape.attr({
-                        x: sel.x1,
-                        y: sel.y1,
-                        width: sel.width,
-                        height: sel.height
+                        x: selx1,
+                        y: sely1,
+                        width: selw,
+                        height: selh
                     });
                 }
             }
         }
         
+        $imgOverlay.show();
         // launch selection tool, calling resize when done. 
-        $imgAreaSelect = $canvas.imgAreaSelect({ x1:x, y1:y, x2:X2, y2:Y2, 
+        x = x*zoom/100
+        y = y*zoom/100
+        X2 = X2*zoom/100
+        Y2 = Y2*zoom/100
+        $imgOverlay.imgAreaSelect({ x1:x, y1:y, x2:X2, y2:Y2, 
             handles:true,
-            instance: true,     // return instance to save ref
             onSelectEnd: resize}); 
     }
     
     var plot_rois = function() {
         
-        // TODO: Can't seem to get an instance of the imgAreaSelect object to control it after creation. 
-        if ($imgAreaSelect != null) {
-            //$imgAreaSelect.setOptions({ show: false });
-            //$imgAreaSelect.click();
-        }
+        // hide the layer that does ROI selection: imgAreaSelect
+        $imgOverlay.hide();
+        $imgOverlay.click();
         // clear the paper and the list of ROIs we have. 
         paper.clear();
         roi_objects.length = 0;
         
+        // The following functions are for handling drag n drop. May use imgAreaSelect instead? 
         var start = function () {
             // storing original coordinates
             this.ox = this.attr("cx");
@@ -165,43 +154,28 @@ $(document).ready(function() {
             for (var s=0; s<shapes.length; s++) {
                 shape = shapes[s];
                 if ((shape['theT'] == theT) && (shape['theZ'] == theZ)) {
-                    //alert(shape['type']);
+                    var newShape = null;
                     if (shape['type'] == 'Ellipse') {
-                        var circle = paper.ellipse(shape['cx'], shape['cy'], shape['rx'], shape['ry']);
-                        //circle.attr("stroke", "#fff");
-                        circle.attr({
-                            fill: "#000",
-                            stroke: "#fff",
-                            opacity: 0.3
-                        });
-                        circle.drag(move, start, up);
-                        //circle.click(select_shape);   // TURN OFF imgAreaSelect for now. 
-                        roi_objects.push(circle);
-                        //circle.zoomRoi(zoom);
+                        newShape = paper.ellipse(shape['cx'], shape['cy'], shape['rx'], shape['ry']);
                     }
                     else if (shape['type'] == 'Rectangle') {
-                        var rect = paper.rect(shape['x'], shape['y'], shape['width'], shape['height']);
-                        rect.attr({
-                            fill: "#000",
-                            stroke: "#fff",
-                            opacity: 0.3
-                        });
-                        rect.drag(moveRect, start, up);
-                        //rect.click(select_shape);
-                        roi_objects.push(rect);
-                        //rect.zoomRoi(zoom);
+                        newShape = paper.rect(shape['x'], shape['y'], shape['width'], shape['height']);
                     }
                     else if (shape['type'] == 'Point') {
-                        var point = paper.ellipse( shape['cx'], shape['cy'], 2, 2);
-                        point.attr({
-                            fill: "#000",
-                            stroke: "#fff",
-                            opacity: 0.3
-                        });
-                        point.drag(move, start, up);
-                        //point.click(select_shape);
-                        roi_objects.push(point);
-                        //point.zoomRoi(zoom);
+                        newShape = paper.ellipse( shape['cx'], shape['cy'], 2, 2);
+                    }
+                    else if (shape['type'] == 'PolyLine') {
+                        newShape = paper.path( shape['points'] );
+                    }
+                    else if (shape['type'] == 'Polygon') {
+                        newShape = paper.path( shape['points'] );
+                    }
+                    // rect.drag(moveRect, start, up);
+                    // point.drag(move, start, up);
+                    // roi_objects.push(rect);  // NOT used at the moment
+                    if (newShape != null) {
+                        newShape.attr({ fill: "#000", stroke: "#fff", opacity: 0.7 });
+                        newShape.click(select_shape);
                     }
                 }
             }
@@ -227,7 +201,6 @@ $(document).ready(function() {
     
     var refresh_roi_table = function() {
         
-        //alert("update table");
         $roi_table.find('tbody').remove();
         
         // populate table. Cols are: ID, T, Z, Shape

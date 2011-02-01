@@ -19,6 +19,16 @@
     width:{{ image.getWidth }};
     height:{{ image.getHeight }};
 }
+
+#imgOverlay {
+    position: absolute;
+    top:0px;
+    left:0px;
+    z-index: 2;
+    width:{{ image.getWidth }};
+    height:{{ image.getHeight }};
+}
+
 #roi_table_div { 
     border: 1px solid black;
     position: absolute;
@@ -38,14 +48,14 @@
 </style>
 
 <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.3.2.js" %}"></script>
-<!-- for raphael library -->
-<script type="text/javascript" src="{% url webfigure_media 'js/raphael-min.js' %}"></script>
-<!-- for scaling raphael paper -->
-<script type="text/javascript" src="{% url webfigure_media 'js/scale.raphael.js' %}"></script>
+<!-- raphael ROI library -->
+<script type="text/javascript" src="{% url webfigure_media 'js/3rdparty/raphael-min.js' %}"></script>
+<!-- for scaling raphael paper - see http://shapevent.com/scaleraphael/ -->
+<script type="text/javascript" src="{% url webfigure_media 'js/3rdparty/scale.raphael.js' %}"></script>
 <!-- for imgAreaSelect -->
-<script type="text/javascript" src="{% url webfigure_media 'js/jquery.drawinglibrary.js' %}"></script>
-<script type="text/javascript" src="{% url webfigure_media 'js/svg.js' %}"></script>
-<script type="text/javascript" src="{% url webfigure_media 'js/roi.js' %}"></script>
+<script type="text/javascript" src="{% url webfigure_media 'js/3rdparty/jquery.drawinglibrary.js' %}"></script>
+<script type="text/javascript" src="{% url webfigure_media 'js/3rdparty/svg.js' %}"></script>
+<script type="text/javascript" src="{% url webfigure_media 'js/3rdparty/roi.js' %}"></script>
 <!-- my code -->
 <script type="text/javascript" src="{% url webfigure_media 'js/raphael_rois_test.js' %}"></script>
 </head>
@@ -96,6 +106,7 @@
 <div style='float:left; position:relative'>
     <img id='img_panel' src="{% url webgateway.views.render_image image.id 0 0 %}" width="{{ image.getWidth }}" height="{{ image.getHeight }}"/>
     <div id='canvas' class="canvas"></div>
+    <div id='imgOverlay'></div>
 </div>
 
 

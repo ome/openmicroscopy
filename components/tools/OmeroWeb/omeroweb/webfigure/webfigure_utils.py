@@ -1,5 +1,18 @@
 import omero
-from omero.model import RectI, EllipseI, LineI, PointI
+from omero.model import RectI, EllipseI, LineI, PointI, PolygonI
+
+def stringToSvg(string):
+    """
+    Method for converting the string returned from omero.model.ShapeI.getPoints()
+    into an SVG for display on web.
+    E.g: "points[309,427, 366,503, 190,491] points1[309,427, 366,503, 190,491] points2[309,427, 366,503, 190,491]"
+    To: M 309 427 L 366 503 L 190 491 z
+    """
+    
+    firstList = string.strip().split("points")[1]
+    nums = firstList.strip("[]").replace(", ", " L").replace(",", " ")
+    return "M" + nums + "z"
+    
 def getRoiShapes(roiService, imageId):
     
     rois = []     
@@ -16,7 +29,6 @@ def getRoiShapes(roiService, imageId):
             shape['id'] = s.getId().getValue()
             shape['theT'] = s.getTheT().getValue()
             shape['theZ'] = s.getTheZ().getValue()
-            print type(s)
             if type(s) == omero.model.RectI:
                 shape['type'] = 'Rectangle'
                 shape['x'] = s.getX().getValue()
@@ -35,8 +47,7 @@ def getRoiShapes(roiService, imageId):
                     shape['textValue'] = s.getTextValue().getValue()
             elif type(s) == omero.model.PolylineI:
                 shape['type'] = 'PolyLine'
-                shape['points'] = s.getPoints().getValue()
-                print shape['points']
+                shape['points'] = stringToSvg(s.getPoints().getValue())
                 if s.getTextValue():
                     shape['textValue'] = s.getTextValue().getValue()
             elif type(s) == omero.model.LineI:
@@ -51,6 +62,11 @@ def getRoiShapes(roiService, imageId):
                 shape['type'] = 'Point'
                 shape['cx'] = s.getCx().getValue()
                 shape['cy'] = s.getCy().getValue()
+                if s.getTextValue():
+                    shape['textValue'] = s.getTextValue().getValue()
+            elif type(s) == omero.model.PolygonI:
+                shape['type'] = 'Polygon'
+                shape['points'] = stringToSvg(s.getPoints().getValue())
                 if s.getTextValue():
                     shape['textValue'] = s.getTextValue().getValue()
             shapes.append(shape)
