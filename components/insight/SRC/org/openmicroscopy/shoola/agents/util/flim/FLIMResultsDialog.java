@@ -712,6 +712,8 @@ public class FLIMResultsDialog
 		parseValues = parseFile(f);
 		initSlider();
 		plot();
+		//clear
+		tableIntervals.clearTable();
 	}
 	
 	/** Initializes the slider. */
