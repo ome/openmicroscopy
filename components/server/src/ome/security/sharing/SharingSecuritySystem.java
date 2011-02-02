@@ -75,6 +75,11 @@ public class SharingSecuritySystem implements SecuritySystem {
         return null;
     }
 
+    public EventContext getEventContext(boolean refresh) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
     public Roles getSecurityRoles() {
         // TODO Auto-generated method stub
         return null;
