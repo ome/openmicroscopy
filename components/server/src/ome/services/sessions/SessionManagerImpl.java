@@ -685,12 +685,18 @@ public class SessionManagerImpl implements SessionManager, SessionCache.StaleCac
             throw new RemovedSessionException("No session with uuid:"
                     + uuid);
         }
-        Future<EventContext> future = executor.submit(
-                new Callable<EventContext>(){
-                    public EventContext call() throws Exception {
+        Future<SessionContext> future = executor.submit(
+                new Callable<SessionContext>(){
+                    public SessionContext call() throws Exception {
                         return reload(ctx);
                     }});
-        return executor.get(future);
+
+        // Storing the freshly loaded context back in the SessionCache
+        // so that the users of getEventContext() can benefit from the
+        // newer view.
+        final SessionContext fresh = executor.get(future);
+        cache.refresh(uuid, fresh);
+        return fresh;
     }
 
     // ~ Notifications

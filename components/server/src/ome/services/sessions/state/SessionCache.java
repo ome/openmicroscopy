@@ -316,6 +316,29 @@ public class SessionCache implements ApplicationContextAware {
     }
 
     /**
+     * Used externally to refresh the {@link SessionContext} instance
+     * associated with the session uuid
+     * @param id
+     * @param replacement
+     */
+    public void refresh(String uuid, SessionContext replacement) {
+        Data data = getDataNullOrThrowOnTimeout(uuid, true);
+        refresh(uuid, data, replacement);
+    }
+
+    /**
+     *
+     * @param uuid
+     * @param data
+     * @param replacement
+     */
+    private void refresh(String uuid, Data data, SessionContext replacement) {
+        // Adding and upping hit information.
+        Data fresh = new Data(data, replacement, false);
+        this.sessions.put(uuid, fresh);
+    }
+
+    /**
      * Retrieve a session possibly raising either
      * {@link RemovedSessionException} or {@link SessionTimeoutException}.
      */
@@ -582,9 +605,7 @@ public class SessionCache implements ApplicationContextAware {
                     if (replacement == null) {
                         internalRemove(id, "Replacement null");
                     } else {
-                        // Adding and upping hit information.
-                        Data fresh = new Data(data, replacement, false);
-                        this.sessions.put(id, fresh);
+                        refresh(id, data, replacement);
                     }
                 } catch (Exception e) {
                     // If an exception occurs it MAY be transient, therefore
@@ -612,4 +633,5 @@ public class SessionCache implements ApplicationContextAware {
         }
 
     }
+
 }
