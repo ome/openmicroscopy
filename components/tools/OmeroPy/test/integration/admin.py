@@ -148,6 +148,24 @@ class TestAdmin(lib.ITest):
         self.assertEquals(len(ec1.memberOfGroups)+1, len(ec2.memberOfGroups))
         self.assertTrue(group.id.val in ec2.memberOfGroups)
 
+    def testUserRoles4056(self):
+        """
+        Tests for optimistic lock exception when modifying roles.
+        """
+        client = self.new_client()
+        admin = client.sf.getAdminService()
+        ec = admin.getEventContext()
+        roles = admin.getSecurityRoles()
+
+        exp = omero.model.ExperimenterI(ec.userId, False)
+        grp = omero.model.ExperimenterGroupI(roles.userGroupId, False)
+
+        root_admin = self.root.sf.getAdminService()
+        root_admin.removeGroups(exp, [grp])
+        root_admin.addGroups(exp, [grp])
+        root_admin.removeGroups(exp, [grp])
+        root_admin.addGroups(exp, [grp])
+
 
 if __name__ == '__main__':
     unittest.main()
