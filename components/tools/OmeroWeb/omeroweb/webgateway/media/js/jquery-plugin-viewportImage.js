@@ -295,6 +295,7 @@ $.fn.viewportImage = function(options) {
           changing = null;
 			      }, 20);
       }
+      image.trigger("instant_zoom", [cur_zoom])
       image.attr({width: width, height: height});
       overlay.attr({width: width, height: height});
      }

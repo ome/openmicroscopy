@@ -814,7 +814,6 @@
 
     /* Bind zoom changes to the zoom button */
     viewport.bind('zoom', function(e, percent) {
-        viewport.viewportimg.get(0).setRoiZoom(percent);
       $("#wblitz-zoom").attr('value', ''+percent /*+'%'*/);
       $(".popped").removeClass('popped');
     });
@@ -924,8 +923,8 @@
     viewport.viewportimg.roi_display({width:{{ image.getWidth }}, height:{{ image.getHeight }} });
     
     viewport.bind('imageChange', plot_rois);
-    viewport.bind('zoom', function(e, percent) {
-      //viewport.viewportimg.get(0).setRoiZoom(percent);
+    viewport.bind('instant_zoom', function(e, percent) {
+      viewport.viewportimg.get(0).setRoiZoom(percent);
     });
     
     
