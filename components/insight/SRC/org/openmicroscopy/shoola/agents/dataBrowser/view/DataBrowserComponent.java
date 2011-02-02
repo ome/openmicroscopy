@@ -103,6 +103,9 @@ class DataBrowserComponent
 	implements DataBrowser
 {
 
+	/** The maximum number of entries before switching to the table view. */
+	private static final String MAX_ENTRIES = "/views/MAX_ENTRIES";
+	
 	/** The Model sub-component. */
 	private DataBrowserModel     model;
 
@@ -182,10 +185,11 @@ class DataBrowserComponent
 	 */
 	public void activate()
 	{
-		//Determine the view depending on the 
+		//Determine the view depending on the number of image.
 		Integer max = (Integer) DataBrowserAgent.getRegistry().lookup(
-				          "/views/MAX_ENTRIES");
-		if (model.getNumberOfImages() <= max.intValue())
+				MAX_ENTRIES);
+		if (model.getNumberOfImages() <= max.intValue() ||
+				model.getType() == DataBrowserModel.WELLS)
 			model.loadData(false, null); 
 		else view.setSelectedView(DataBrowserUI.COLUMNS_VIEW);
 		if (model.getBrowser() != null) {
