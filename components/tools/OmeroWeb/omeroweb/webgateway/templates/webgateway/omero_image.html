@@ -41,6 +41,10 @@
     <script type="text/javascript" src="/appmedia/webgateway/js/jquery-plugin-rangewidget.js"></script>
     <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/farbtastic.js"></script>
     <script type="text/javascript" src="/appmedia/webgateway/js/gs_utils.js"></script>
+    <!-- for display of ROIs over the image -->
+    <script type="text/javascript" src="/appmedia/webgateway/js/roi_display-plugin.js"></script>
+    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/raphael-min.js"></script>
+    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/scale.raphael.js"></script>
 
 {% endblock %}
 
@@ -404,6 +408,12 @@
       viewport.refreshPlot();
     }
   };
+  
+  var plot_rois = function () {
+      var theT = viewport.getTPos();
+      var theZ = viewport.getZPos();
+      viewport.viewportimg.get(0).plot_rois(theT, theZ);
+  }
 
   var linePlotPos = function (ev, obj) {
     $('#wblitz-lp-editpos').val(obj);
@@ -537,6 +547,10 @@
                     }
                   });
     return false;
+  }
+  
+  function load_rois (url) {
+      viewport.viewportimg.get(0).load_rois(url, true);
   }
 
 {% if image.isOwned %}
@@ -769,6 +783,9 @@
                 Image Link
             </a><br />
           </div>
+          <div>
+              <a id='load_rois' href="#" onclick="load_rois('{% url webfigure_get_rois image.id %}')">LOAD ROIS</a>
+          </div>
           {% block current_image_tools %}{% endblock %}
         </div>
         <!-- Image Viewport -->
@@ -797,6 +814,7 @@
 
     /* Bind zoom changes to the zoom button */
     viewport.bind('zoom', function(e, percent) {
+        viewport.viewportimg.get(0).setRoiZoom(percent);
       $("#wblitz-zoom").attr('value', ''+percent /*+'%'*/);
       $(".popped").removeClass('popped');
     });
@@ -900,6 +918,17 @@
     $('input[name=wblitz-quality]').click(function () {
       viewport.setQuality(this.value);
     });
+    
+    // we have access to the viewportimg. so we can pass it to our plugin
+    // plugin will add methods such as viewport.viewportimg.get(0).load_rois(url);
+    viewport.viewportimg.roi_display({width:{{ image.getWidth }}, height:{{ image.getHeight }} });
+    
+    viewport.bind('imageChange', plot_rois);
+    viewport.bind('zoom', function(e, percent) {
+      //viewport.viewportimg.get(0).setRoiZoom(percent);
+    });
+    
+    
     /* And we're done! */
 
 {% block initial_resize %}
