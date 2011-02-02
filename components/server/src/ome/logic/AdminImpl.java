@@ -1139,7 +1139,7 @@ public class AdminImpl extends AbstractLevel2Service implements LocalAdmin,
     @PermitAll
     @Transactional(readOnly = true)
     public EventContext getEventContext() {
-        return new SimpleEventContext(getSecuritySystem().getEventContext());
+        return new SimpleEventContext(getSecuritySystem().getEventContext(true));
     }
 
     // ~ Helpers

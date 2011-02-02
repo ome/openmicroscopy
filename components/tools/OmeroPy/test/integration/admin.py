@@ -121,5 +121,33 @@ class TestAdmin(lib.ITest):
             joined_client.__del__()
         admin.changePassword(rstring("ome")) # could be an admin
 
+    def testGetEventContext4011(self):
+        """
+        Tests the "freshness" of the iAdmin.getEventContext() call.
+        """
+        client = self.new_client()
+        group = self.new_group()
+        admin = client.sf.getAdminService()
+        root_admin = self.root.sf.getAdminService()
+
+        ec1 = admin.getEventContext()
+        exp = omero.model.ExperimenterI(ec1.userId, False)
+        grps1 = root_admin.getMemberOfGroupIds(exp)
+
+        # Now add the user to a group and see if the
+        # event context is updated.
+        root_admin.addGroups(exp, [group])
+        ec2 = admin.getEventContext()
+        grps2 = root_admin.getMemberOfGroupIds(exp)
+
+        # Check via the groups
+        self.assertEquals(len(grps1)+1, len(grps2))
+        self.assertTrue(group.id.val in grps2)
+
+        # Check again via the contexts
+        self.assertEquals(len(ec1.memberOfGroups)+1, len(ec2.memberOfGroups))
+        self.assertTrue(group.id.val in ec2.memberOfGroups)
+
+
 if __name__ == '__main__':
     unittest.main()

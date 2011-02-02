@@ -65,11 +65,23 @@ public interface SecuritySystem {
     int logout();
 
     /**
-     * Returns the current {@link EventContext}. This
+     * Calls {@link #getEventContext(boolean)} with a false as "refresh".
+     * This is the previous, safer logic of the method since consumers
+     * are not expecting a long-method run.
      * 
      * @return
      */
     EventContext getEventContext();
+
+    /**
+     * If refresh is false, returns the current {@link EventContext} stored
+     * in the session. Otherwise, reloads the context to have the most
+     * up-to-date information.
+     *
+     * @see ticket:4011
+     * @return
+     */
+    EventContext getEventContext(boolean refresh);
 
     /**
      * Prepares the current {@link EventContext} instance with the current

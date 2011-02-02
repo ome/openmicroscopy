@@ -623,8 +623,17 @@ public class BasicSecuritySystem implements SecuritySystem,
         return roles;
     }
 
+    public EventContext getEventContext(boolean refresh) {
+        EventContext ec = cd.getCurrentEventContext();
+        if (refresh) {
+            String uuid = ec.getCurrentSessionUuid();
+            ec = sessionManager.reload(uuid);
+        }
+        return ec;
+    }
+
     public EventContext getEventContext() {
-        return cd.getCurrentEventContext();
+        return getEventContext(false);
     }
 
     // ~ Helpers

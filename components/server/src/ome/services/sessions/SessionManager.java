@@ -174,6 +174,19 @@ public interface SessionManager extends ApplicationListener {
     EventContext getEventContext(Principal principal)
             throws RemovedSessionException;
 
+    /**
+     * Similar to {@link #getEventContext(Principal)} but uses the internal
+     * reload logic to get a fresh representation of the context. This queries
+     * all of the user management tables (experimenter, experimentergroup, etc)
+     * and so should not be used anywhere in a critical path.
+     *
+     * @param uuid non null.
+     * @return
+     * @throws RemovedSessionException If the uuid does not exist.
+     */
+    EventContext reload(String uuid)
+            throws RemovedSessionException;
+
     java.util.List<String> getUserRoles(String uuid);
 
     void onApplicationEvent(ApplicationEvent event);
