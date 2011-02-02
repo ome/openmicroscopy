@@ -118,7 +118,19 @@ public class SessionCache implements ApplicationContextAware {
          * increments {@link #hitCount} by one. Used when reloading the session.
          */
         Data(Data old, boolean reset) {
-            this(old.sessionContext, reset ? System.currentTimeMillis() : old.lastAccessTime, old.hitCount+1);
+            this(old, old.sessionContext, reset);
+        }
+
+        /**
+         * Like {@link Data#Data(Data, boolean)} but allows setting the
+         * {@link SessionContext} which should be stored in the new instance.
+         * This is used on reload. See {@link SessionCache#doUpdate()}.
+         * @param old
+         * @param ctx
+         * @param reset
+         */
+        Data(Data old, SessionContext ctx, boolean reset) {
+            this(ctx, reset ? System.currentTimeMillis() : old.lastAccessTime, old.hitCount+1);
         }
 
         Data(SessionContext sc, long last, long count) {
@@ -571,7 +583,7 @@ public class SessionCache implements ApplicationContextAware {
                         internalRemove(id, "Replacement null");
                     } else {
                         // Adding and upping hit information.
-                        Data fresh = new Data(data, false);
+                        Data fresh = new Data(data, replacement, false);
                         this.sessions.put(id, fresh);
                     }
                 } catch (Exception e) {
