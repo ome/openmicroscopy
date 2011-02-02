@@ -35,40 +35,32 @@ def getRoiShapes(roiService, imageId):
                 shape['y'] = s.getY().getValue()
                 shape['width'] = s.getWidth().getValue()
                 shape['height'] = s.getHeight().getValue()
-                if s.getTextValue():
-                    shape['textValue'] = s.getTextValue().getValue()
             elif type(s) == omero.model.EllipseI:
                 shape['type'] = 'Ellipse'
                 shape['cx'] = s.getCx().getValue()
                 shape['cy'] = s.getCy().getValue()
                 shape['rx'] = s.getRx().getValue()
                 shape['ry'] = s.getRy().getValue()
-                if s.getTextValue():
-                    shape['textValue'] = s.getTextValue().getValue()
             elif type(s) == omero.model.PolylineI:
                 shape['type'] = 'PolyLine'
                 shape['points'] = stringToSvg(s.getPoints().getValue())
-                if s.getTextValue():
-                    shape['textValue'] = s.getTextValue().getValue()
             elif type(s) == omero.model.LineI:
                 shape['type'] = 'Line'
                 shape['x1'] = s.getX1().getValue()
                 shape['x2'] = s.getX2().getValue()
                 shape['y1'] = s.getY1().getValue()
                 shape['y2'] = s.getY2().getValue()
-                if s.getTextValue():
-                    shape['textValue'] = s.getTextValue().getValue()
             elif type(s) == omero.model.PointI:
                 shape['type'] = 'Point'
                 shape['cx'] = s.getCx().getValue()
                 shape['cy'] = s.getCy().getValue()
-                if s.getTextValue():
-                    shape['textValue'] = s.getTextValue().getValue()
             elif type(s) == omero.model.PolygonI:
                 shape['type'] = 'Polygon'
                 shape['points'] = stringToSvg(s.getPoints().getValue())
-                if s.getTextValue():
+            try:
+                if s.getTextValue() and s.getTextValue().getValue():
                     shape['textValue'] = s.getTextValue().getValue()
+            except AttributeError: pass
             shapes.append(shape)
         roi['shapes'] = shapes
         rois.append(roi)

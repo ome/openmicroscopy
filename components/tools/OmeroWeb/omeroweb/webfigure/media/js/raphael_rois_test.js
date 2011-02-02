@@ -56,25 +56,11 @@ $(document).ready(function() {
     // when shape is selected, add imgAreaSelect to allow resize
     var select_shape = function(event) {
         var shape = this;
-        var x = parseInt(this.attr('x'));
-        var y = parseInt(this.attr('y'));
-        var X2 = null;
-        var Y2 = null;
-        var cx = null;  // only set if ellipse
-        // if no 'x' attribute, we are not dealing with Rect, try Ellipse
-        if (isNaN(x)) {
-            cx = parseInt(this.attr('cx'));
-            var cy = parseInt(this.attr('cy'));
-            var rx = parseInt(this.attr('rx'));
-            var ry = parseInt(this.attr('ry'));
-            x = cx - rx;
-            y = cy - ry;
-            X2 = cx + rx;
-            Y2 = cy + ry;
-        } else {
-            X2 = x + parseInt(this.attr('width'));
-            Y2 = y + parseInt(this.attr('height'));
-        }
+        var bb = shape.getBBox();
+        x = bb.x;
+        y = bb.y
+        X2 = x + bb.width
+        Y2 = y + bb.height
         
         // resize method (bound to end of image area selection)
         var resize = function(img, sel) {
@@ -85,7 +71,7 @@ $(document).ready(function() {
                 var sely1 = sel.y1*100/zoom;
                 var selh = sel.height*100/zoom;
                 var selw = sel.width*100/zoom;
-                if (cx != null) {
+                if (shape.attr('cx') != null) {
                     // our shape is a circle - resize to bounding box
                     shape.attr({
                         cx: selx1 + (selw/2),
@@ -176,6 +162,9 @@ $(document).ready(function() {
                     if (newShape != null) {
                         newShape.attr({ fill: "#000", stroke: "#fff", opacity: 0.7 });
                         newShape.click(select_shape);
+                        if ((shape['textValue'] != null) && (shape['textValue'].length > 0)) {
+                            newShape.attr({ title:shape['textValue'] });
+                        }
                     }
                 }
             }
