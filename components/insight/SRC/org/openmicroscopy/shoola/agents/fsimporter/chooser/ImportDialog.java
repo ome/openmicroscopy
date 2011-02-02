@@ -526,6 +526,7 @@ public class ImportDialog
 		sorter = new ViewerSorter();
 		datasets = new ArrayList<DataNode>();
 		addButton = new JButton("New...");
+		addButton.setBackground(UIUtilities.BACKGROUND);
 		addButton.setToolTipText("Create a new Dataset.");
 		addButton.setActionCommand(""+CREATE_DATASET);
 		addButton.addActionListener(this);
@@ -1026,6 +1027,7 @@ public class ImportDialog
 					}
 				}
 				datasetsBox = new JComboBox(l.toArray());
+				datasetsBox.setBackground(UIUtilities.BACKGROUND);
 				if (selected != null) datasetsBox.setSelectedItem(selected);
 				row.add(datasetsBox);
 				row.add(addButton);
