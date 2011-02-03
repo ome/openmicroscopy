@@ -2,6 +2,62 @@ from omeroweb.webgateway.tests.seleniumbase import SeleniumTestBase, Utils
 from omero.gateway.scripts import dbhelpers
 from random import random
 
+
+def createGroup(sel, groupName):
+    """
+    Helper method for creating a new group with the give name. 
+    Must be logged in as root. Creates a private group. 
+    Returns true if creation sucessful (the groups page displays new group name)
+    """
+    sel.open("/webadmin/groups")
+    sel.click("link=Add new group")
+    sel.wait_for_page_to_load("30000")
+    sel.type("id_name", groupName)
+    sel.click("//input[@value='Save']")
+    sel.wait_for_page_to_load("30000")
+    
+    return sel.is_element_present("jquery=#groupTable tbody tr td:containsExactly(%s)" % groupName)
+
+
+def createExperimenter(sel, omeName, groupNames, password="ome", firstName="Selenium", lastName="Test"):
+    """
+    Helper method for creating an experimenter in the specified group. 
+    The group 'groupName' must already exist. 
+    Returns True if experimenter created successfully (omeName is found in table of experimenters)
+    """
+    sel.open("/webadmin/experimenters")
+    sel.click("link=Add new scientist")
+    sel.wait_for_page_to_load("30000")
+    sel.type("id_omename", omeName)
+    sel.type("id_first_name", firstName)
+    sel.type("id_last_name", lastName)
+    sel.type("id_password", password)
+    sel.type("id_confirmation", password)
+    
+    # choose existing group, add to new user, choose one as default group 
+    for gName in groupNames:
+        sel.add_selection("id_available_groups", "label=%s" % gName)
+        sel.click("add")
+    sel.click("default_group")
+    sel.click("//input[@value='Save']")
+    sel.wait_for_page_to_load("30000")
+    
+    if sel.is_element_present("jquery=#experimenterTable tbody tr td:containsExactly(%s)" % omeName):
+        # try to get experimenter ID
+        #expId = self.selenium.get_value("//div[@id='curr-link']/descendant::input") parent() children():first
+        print dir(sel)
+        expId = sel.get_text("jquery=#experimenterTable tbody tr td:containsExactly(%s)" % omeName)
+        print expId     # OmeName0.742919097585    OK
+        expId = sel.get_text("jquery=#experimenterTable tbody tr td:containsExactly(%s):parent" % omeName)
+        print expId     # OmeName0.742919097585     Strange?
+        expId = sel.get_text("jquery=#experimenterTable tbody tr td:containsExactly(%s):parent:parent td:containsExactly(%s)" % (omeName, omeName) )
+        print expId     # ERROR: element not found 
+        
+        expId = sel.get_text("jquery=#experimenterTable tbody tr td:containsExactly(%s):parent td:contains(id)" % omeName)
+        print expId
+        
+    return True
+
 class WebAdminTestBase (SeleniumTestBase):
 
         
@@ -12,8 +68,8 @@ class WebAdminTestBase (SeleniumTestBase):
             self.logout()
         print "logging in..."
         sel.open("/webadmin/login")
-        sel.type("id_username", "root")
-        sel.type("id_password", "omero")
+        sel.type("id_username", u)
+        sel.type("id_password", p)
         sel.click("//input[@value='Connect']")
         self.waitForElementPresence('link=Scientists')
         
@@ -34,7 +90,6 @@ class AdminTests (WebAdminTestBase):
         #password = dbhelpers.ROOT.passwd
         #print user, password    # seems to always be 'root', 'ome' 
         self.login('root', 'omero')
-        self.newGroupName = "SeleniumTestGroup%s" % random()
         
         
     def testPages (self):
@@ -59,12 +114,13 @@ class AdminTests (WebAdminTestBase):
 
     def testCreateExperimenter (self):
         """
-        Creates a new experimenter. Tests that ommiting to fill in 'ome-name' gives a correct message to user.
-        Checks that the new user is displayed in the table of experimenters 
+        Creates a new experimenter (creates group first). Tests that ommiting to fill 
+        in 'ome-name' gives a correct message to user.
+        Checks that the new user is displayed in the table of experimenters.
         """
         print "testCreateExperimenter"
-        #groupName = self.newGroupName
-        groupName = 'private'
+        
+        groupName = "Selenium-testCreateExp%s" % random()
         
         # uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
         uuid = random()
@@ -73,7 +129,10 @@ class AdminTests (WebAdminTestBase):
         lastName = 'Test'
         password = 'secretPassword'
         
+        # first create a group for the new experimenter
         sel = self.selenium
+        self.assertTrue(createGroup(sel, groupName))
+        
         sel.open("/webadmin/experimenters")
         sel.click("link=Add new scientist")
         sel.wait_for_page_to_load("30000")
@@ -109,21 +168,31 @@ class AdminTests (WebAdminTestBase):
         This needs to run before testCreateExperimenter()
         """
         print "testCreateGroup"
-        groupName = self.newGroupName
+        groupName = "Selenium-testCreateGroup%s" % random()
         
         sel = self.selenium
-        sel.open("/webadmin/groups")
-        sel.click("link=Add new group")
-        sel.wait_for_page_to_load("30000")
-        sel.type("id_name", groupName)
-        sel.click("//input[@value='Save']")
-        sel.wait_for_page_to_load("30000")
-        
         # check new Group is on the page of Groups. 
-        self.assertEqual("WebAdmin - Groups", sel.get_title())
-        self.failUnless(sel.is_text_present(groupName))
-        self.assert_(sel.is_element_present("jquery=#groupTable tbody tr td:containsExactly(%s)" % groupName))
+        self.assertTrue(createGroup(sel, groupName))
+    
+    
+    def testRemoveExpFromGroup(self):
         
+        print "testRemoveExpFromGroup"
+        
+        groupName1 = "Selenium-testCreateExp1%s" % random()
+        groupName2 = "Selenium-testCreateExp2%s" % random()
+        
+        omeName = 'OmeName%s' % random()
+        firstName = 'Selenium'
+        lastName = 'Test'
+        password = 'secretPassword'
+        sel = self.selenium
+        
+        # first create groups and a new experimenter in both groups
+        self.assertTrue(createGroup(sel, groupName1))
+        self.assertTrue(createGroup(sel, groupName2))
+        self.assertTrue(createExperimenter(sel, omeName, [groupName1, groupName2]) )
+    
 
     def tearDown(self):
         self.logout()
