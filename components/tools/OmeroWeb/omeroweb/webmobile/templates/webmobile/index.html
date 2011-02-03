@@ -58,19 +58,6 @@
             Projects
         </div>
     </a>
-    
-    <a {% if experimenter %} href="{% url webmobile_screens experimenter.id %}" 
-        {% else %} href="{% url webmobile_screens %}"{% endif %} >
-        <div class="tab-item">
-            Screens
-        </div>
-    </a>
-    
-    <a href="{% url webmobile_projects %}{% if experimenter %}?experimenter={{ experimenter.id }}{% endif %}">
-        <div class="tab-item">
-            Tags
-        </div>
-    </a>
 
     <div style="clear:both"></div>
 </div>

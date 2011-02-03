@@ -11,7 +11,16 @@
 
 
 {% block content %}
+
 <div class='bottom-header'>
+    <div>
+    {% if exp %} 
+        Recent updates from user: {{ exp.getFullName }}
+    {% else %}
+        Recent updates from group: {{ client.getEventContext.groupName }}
+    {% endif %}
+    </div>
+
     {% if exp %}
     <div class='tab-item{% ifequal obj_type 'all' %} selected{% endifequal %}'>
         <a href="{% url webmobile_recent 'all' exp.id %}">All</a>
