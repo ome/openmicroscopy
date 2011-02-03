@@ -167,7 +167,7 @@ public class DeltaVision implements PixelBuffer {
 	 */
 	public Long getPlaneOffset(Integer z, Integer c, Integer t)
 			throws DimensionsOutOfBoundsException {
-		checkBounds(null, z, c, t);
+		checkBounds(null, null, z, c, t);
 
 		long firstPlaneOffset = getFirstPlaneOffset();
 		int planeNumber = getPlaneNumber(z, c, t);
@@ -262,7 +262,7 @@ public class DeltaVision implements PixelBuffer {
 	 */
 	public Long getRowOffset(Integer y, Integer z, Integer c, Integer t)
 			throws DimensionsOutOfBoundsException {
-		checkBounds(y, z, c, t);
+		checkBounds(null, y, z, c, t);
 		Long planeOffset = getPlaneOffset(z, c, t);
 		int sizeY = getSizeX();
 		Integer rowSize = getRowSize();
@@ -346,7 +346,7 @@ public class DeltaVision implements PixelBuffer {
 	 */
 	public Long getStackOffset(Integer c, Integer t)
 			throws DimensionsOutOfBoundsException {
-		checkBounds(null, null, c, t);
+		checkBounds(null, null, null, c, t);
 
 		Integer timepointSize = getTimepointSize();
 		Integer stackSize = getStackSize();
@@ -386,7 +386,7 @@ public class DeltaVision implements PixelBuffer {
 	 */
 	public Long getTimepointOffset(Integer t)
 			throws DimensionsOutOfBoundsException {
-		checkBounds(null, null, null, t);
+		checkBounds(null, null, null, null, t);
 		Integer timepointSize = getTimepointSize();
 
 		return (long) timepointSize * t;
@@ -417,8 +417,13 @@ public class DeltaVision implements PixelBuffer {
 	/* (non-Javadoc)
 	 * @see ome.io.nio.PixelBuffer#checkBounds(java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
 	 */
-	public void checkBounds(Integer y, Integer z, Integer c, Integer t)
+	public void checkBounds(Integer x, Integer y, Integer z, Integer c, 
+			Integer t)
 			throws DimensionsOutOfBoundsException {
+    	if (x != null && (x > getSizeX() - 1 || x < 0)) {
+            throw new DimensionsOutOfBoundsException("X '" + x
+                    + "' greater than sizeX '" + getSizeX() + "'.");
+        }
 		if (y != null && (y > getSizeY() - 1 || y < 0)) {
 			throw new DimensionsOutOfBoundsException("Y '" + y
 					+ "' greater than sizeY '" + getSizeY() + "'.");
@@ -785,4 +790,16 @@ public class DeltaVision implements PixelBuffer {
 					"Unsupported DeltaVision pixel type: "+ pixelType);
 		}
 	}
+
+	/**
+     * Implemented as specified by {@link PixelBuffer} I/F.
+     * @see PixelBuffer#getPlaneRegion(Integer, Integer, Integer, Integer, 
+     * Integer, Integer, Integer)
+	 */
+    public PixelData getPlaneRegion(Integer x, Integer y, Integer width, 
+    		Integer height, Integer z, Integer c, Integer t)
+            throws IOException, DimensionsOutOfBoundsException {
+    	return null;
+    }
+	
 }

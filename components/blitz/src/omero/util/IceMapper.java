@@ -49,6 +49,7 @@ import ome.util.ReverseModelMapper;
 import ome.util.Utils;
 import omeis.providers.re.RGBBuffer;
 import omeis.providers.re.data.PlaneDef;
+import omeis.providers.re.data.RegionDef;
 import omero.ApiUsageException;
 import omero.RTime;
 import omero.RType;
@@ -549,9 +550,20 @@ public class IceMapper extends ome.util.ModelMapper implements
         return b;
     }
 
+    /**
+     * Converts the passed Ice Object and returns the converted object.
+     * 
+     * @param def The object to convert
+     * @return See above.
+     * @throws omero.ApiUsageException Thrown if the slice is unknown.
+     */
     public static PlaneDef convert(omero.romio.PlaneDef def)
             throws omero.ApiUsageException {
         PlaneDef pd = new PlaneDef(def.slice, def.t);
+        omero.romio.RegionDef r = def.region;
+        if (r != null) {
+        	pd.setRegion(new RegionDef(r.x, r.y, r.width, r.height));
+        }
         switch (def.slice) {
         case XY.value:
             pd.setZ(def.z);

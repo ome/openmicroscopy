@@ -73,9 +73,14 @@ public class InMemoryPlanarPixelBuffer implements PixelBuffer
         return md.digest();
     }
 
-    public void checkBounds(Integer y, Integer z, Integer c, Integer t)
+    public void checkBounds(Integer x, Integer y, Integer z, Integer c, 
+    		Integer t)
             throws DimensionsOutOfBoundsException
     {
+        if (x != null && (x > getSizeX() - 1 || x < 0)) {
+            throw new DimensionsOutOfBoundsException("X '" + x
+                    + "' greater than sizeX '" + getSizeX() + "'.");
+        }
         if (y != null && (y > getSizeY() - 1 || y < 0)) {
             throw new DimensionsOutOfBoundsException("Y '" + y
                     + "' greater than sizeY '" + getSizeY() + "'.");
@@ -136,6 +141,13 @@ public class InMemoryPlanarPixelBuffer implements PixelBuffer
                 "Not supported with in memory planar buffers.");
     }
 
+    public PixelData getPlaneRegion(Integer x, Integer y, Integer width, 
+    		Integer height, Integer z, Integer c, Integer t)
+    throws IOException, DimensionsOutOfBoundsException
+	{
+    	return null;
+	}
+    
     public byte[] getPlaneRegionDirect(Integer z, Integer c, Integer t,
             Integer count, Integer offset, byte[] buffer) throws IOException,
             DimensionsOutOfBoundsException
