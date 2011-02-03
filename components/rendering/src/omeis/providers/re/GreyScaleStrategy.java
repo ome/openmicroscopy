@@ -22,6 +22,7 @@ import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.PlaneFactory;
 import omeis.providers.re.data.Plane2D;
 import omeis.providers.re.data.PlaneDef;
+import omeis.providers.re.data.RegionDef;
 import omeis.providers.re.quantum.QuantizationException;
 import omeis.providers.re.quantum.QuantumStrategy;
 
@@ -47,36 +48,6 @@ class GreyScaleStrategy extends RenderingStrategy {
     
     /** The channel binding we're using */
     private ChannelBinding channelBinding;
-    
-    /**
-     * Initializes the <code>sizeX1</code> and <code>sizeX2</code> fields
-     * according to the specified {@link PlaneDef#getSlice() slice}.
-     * 
-     * @param pd
-     *            Reference to the plane definition defined for the strategy.
-     * @param pixels
-     *            Dimensions of the pixels set.
-     */
-    private void initAxesSize(PlaneDef pd, Pixels pixels) {
-        try {
-            switch (pd.getSlice()) {
-                case PlaneDef.XY:
-                    sizeX1 = pixels.getSizeX().intValue();
-                    sizeX2 = pixels.getSizeY().intValue();
-                    break;
-                case PlaneDef.XZ:
-                    sizeX1 = pixels.getSizeX().intValue();
-                    sizeX2 = pixels.getSizeZ().intValue();
-                    break;
-                case PlaneDef.ZY:
-                    sizeX1 = pixels.getSizeZ().intValue();
-                    sizeX2 = pixels.getSizeY().intValue();
-            }
-        } catch (NumberFormatException nfe) {
-            throw new RuntimeException("Invalid slice ID: " + pd.getSlice()
-                    + ".", nfe);
-        }
-    }
 
     /**
      * Implemented as specified by the superclass.

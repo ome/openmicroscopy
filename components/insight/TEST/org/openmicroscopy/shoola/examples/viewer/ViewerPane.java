@@ -55,6 +55,7 @@ import javax.swing.event.ChangeListener;
 //Application-internal dependencies
 import omero.api.RenderingEnginePrx;
 import omero.romio.PlaneDef;
+import omero.romio.RegionDef;
 import pojos.ImageData;
 import pojos.PixelsData;
 import sun.awt.image.IntegerInterleavedRaster;
@@ -145,17 +146,17 @@ class ViewerPane
 	private void render()
 	{
 		try {
+			int sizeX = image.getDefaultPixels().getSizeX();
+            int sizeY = image.getDefaultPixels().getSizeY();
 			PlaneDef pDef = new PlaneDef();
 			pDef.t = engine.getDefaultT();
 			pDef.z = engine.getDefaultZ();
 			pDef.slice = omero.romio.XY.value;
-			
+			pDef.region = new RegionDef(0, 0, sizeX, sizeY);
 			//now render the image. possible to render it compressed or not
 			//not compressed
 			BufferedImage img = null;
-			int sizeX = image.getDefaultPixels().getSizeX();
-            int sizeY = image.getDefaultPixels().getSizeY();
-			if (compressed.isSelected()) {
+			if (!compressed.isSelected()) {
 				int[] buf = engine.renderAsPackedInt(pDef);
 				img = createImage(buf, 32, sizeX, sizeY);
 			} else {
@@ -166,9 +167,35 @@ class ViewerPane
 			}
              canvas.setImage(img);
 		} catch (Exception e) {
-			// TODO: handle exception
 		}
-		
+	}
+	
+	/** Renders a region. */
+	private void renderRegion()
+	{
+		try {
+			int sizeX = image.getDefaultPixels().getSizeX()/2;
+            int sizeY =  image.getDefaultPixels().getSizeY()/2;
+			PlaneDef pDef = new PlaneDef();
+			pDef.t = engine.getDefaultT();
+			pDef.z = engine.getDefaultZ();
+			pDef.slice = omero.romio.XY.value;
+			pDef.region = new RegionDef(0, 0, sizeX, sizeY);
+			//now render the image. possible to render it compressed or not
+			//not compressed
+			BufferedImage img = null;
+			if (!compressed.isSelected()) {
+				int[] buf = engine.renderAsPackedInt(pDef);
+				img = createImage(buf, 32, sizeX, sizeY);
+			} else {
+				byte[] values = engine.renderCompressed(pDef);
+				ByteArrayInputStream stream = new ByteArrayInputStream(values);
+				img = ImageIO.read(stream);
+				img.setAccelerationPriority(1f);
+			}
+             canvas.setImage(img);
+		} catch (Exception e) {
+		}
 	}
 	
 	/** Initializes the components. 

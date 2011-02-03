@@ -35,6 +35,8 @@ public interface PixelBuffer
      * Checks to ensure that no one particular axis has an offset out of bounds.
      * <code>null</code> may be passed as the argument to any one of the offsets
      * to ignore it for the purposes of bounds checking.
+     * 
+     * @param x offset across the X-axis of the pixel buffer to check.
      * @param y offset across the Y-axis of the pixel buffer to check.
      * @param z offset across the Z-axis of the pixel buffer to check.
      * @param c offset across the C-axis of the pixel buffer to check.
@@ -42,7 +44,8 @@ public interface PixelBuffer
      * @throws DimensionsOutOfBoundsException if <code>y</code>,
      * <code>z</code>, <code>c</code> or <code>t</code> is out of bounds.
      */
-    public void checkBounds(Integer y, Integer z, Integer c, Integer t)
+    public void checkBounds(Integer x, Integer y, Integer z, Integer c, 
+    		Integer t)
     	throws DimensionsOutOfBoundsException;
     
     /**
@@ -272,6 +275,28 @@ public interface PixelBuffer
      * after checking with {@link checkBounds()}.
      */
     public PixelData getPlane(Integer z, Integer c, Integer t)
+            throws IOException, DimensionsOutOfBoundsException;
+    
+    /**
+     * Retrieves a particular region of a 2D image plane from this pixel buffer.
+     * 
+     * @param x offset across the X-axis of the pixel buffer.
+     * @param y offset across the Y-axis of the pixel buffer.
+     * @param width The number of pixels to retrieve along the X-axis.
+     * @param height The number of pixels to retrieve along the Y-axis.
+     * @param z offset across the Z-axis of the pixel buffer.
+     * @param c offset across the C-axis of the pixel buffer.
+     * @param t offset across the T-axis of the pixel buffer.
+     * @return buffer containing the data which comprises this 2D image plane.
+     * It is guaranteed that this buffer will have its <code>order</code> set 
+     * correctly but <b>not</b> that the backing buffer will have been byte 
+     * swapped.
+     * @throws IOException if there is a problem reading from the pixel buffer.
+     * @throws DimensionsOutOfBoundsException if offsets are out of bounds
+     * after checking with {@link checkBounds()}.
+     */
+    public PixelData getPlaneRegion(Integer x, Integer y, Integer width, Integer
+    		height, Integer z, Integer c, Integer t)
             throws IOException, DimensionsOutOfBoundsException;
     
     /**

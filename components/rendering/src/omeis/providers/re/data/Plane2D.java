@@ -94,8 +94,14 @@ public class Plane2D {
      */
     public Plane2D(PlaneDef pDef, Pixels pixels, PixelData data) {
         this.planeDef = pDef;
-        this.sizeX = pixels.getSizeX();
-        this.sizeY = pixels.getSizeY();
+        RegionDef region = pDef.getRegion();
+        if (region != null) {
+        	sizeX = region.getWidth();
+        	sizeY = region.getHeight();
+        } else {
+        	sizeX = pixels.getSizeX();
+            sizeY = pixels.getSizeY();
+        }
         this.data = data;
 
         // Grab the pixel type from the pixels set

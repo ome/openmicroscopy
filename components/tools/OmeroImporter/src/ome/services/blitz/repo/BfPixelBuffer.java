@@ -38,7 +38,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         return null;
     }
 
-    public void checkBounds(Integer y, Integer z, Integer c, Integer t)
+    public void checkBounds(Integer x, Integer y, Integer z, Integer c, Integer t)
             throws DimensionsOutOfBoundsException {
         // TODO Auto-generated method stub
         
@@ -290,5 +290,12 @@ throw new UnsupportedOperationException("Cannot write to repository");
         
     }
 
+	public PixelData getPlaneRegion(Integer x, Integer y, Integer width,
+			Integer height, Integer z, Integer c, Integer t)
+			throws IOException, DimensionsOutOfBoundsException
+			{
+		// TODO Auto-generated method stub
+		return null;
+	}
 
 }

@@ -18,6 +18,7 @@ import org.apache.commons.logging.LogFactory;
 import ome.model.core.Pixels;
 import ome.model.enums.RenderingModel;
 import omeis.providers.re.data.PlaneDef;
+import omeis.providers.re.data.RegionDef;
 import omeis.providers.re.quantum.QuantizationException;
 
 /**
@@ -71,6 +72,58 @@ abstract class RenderingStrategy {
      */
     protected int maxTasks;
     
+    
+    /**
+     * Checks if the passed region is valid.
+     * 
+     * @param region The region to handle.
+     */
+    private void isRegionValid(RegionDef region)
+    {
+    	if (region == null) return;
+   	 	//throw new RuntimeException("Invalid Region: "+region.toString());
+    }
+    
+    
+    /**
+     * Initializes the <code>sizeX1</code> and <code>sizeX2</code> fields
+     * according to the specified {@link PlaneDef#getSlice() slice}.
+     * 
+     * @param pd
+     *            Reference to the plane definition defined for the strategy.
+     * @param pixels
+     *            Dimensions of the pixels set.
+     */
+    protected void initAxesSize(PlaneDef pd, Pixels pixels) {
+    	RegionDef region = pd.getRegion();
+    	isRegionValid(region);
+    	
+        try {
+            switch (pd.getSlice()) {
+                case PlaneDef.XY:
+                	if (region != null) {
+                		sizeX1 = region.getWidth();
+                        sizeX2 = region.getHeight();
+                	} else {
+                		sizeX1 = pixels.getSizeX().intValue();
+                        sizeX2 = pixels.getSizeY().intValue();
+                	}
+                    
+                    break;
+                case PlaneDef.XZ:
+                    sizeX1 = pixels.getSizeX().intValue();
+                    sizeX2 = pixels.getSizeZ().intValue();
+                    break;
+                case PlaneDef.ZY:
+                    sizeX1 = pixels.getSizeZ().intValue();
+                    sizeX2 = pixels.getSizeY().intValue();
+            }
+        } catch (NumberFormatException nfe) {
+            throw new RuntimeException("Invalid slice ID: " + pd.getSlice()
+                    + ".", nfe);
+        }
+    }
+
     /**
      * Constructs a strategy.
      */
@@ -78,26 +131,30 @@ abstract class RenderingStrategy {
     {
     	maxTasks = Runtime.getRuntime().availableProcessors();
     }
-    
+
     /**
      * Returns an RGB buffer for usage. Note that the buffer is reallocated
      * upon each call. Should only be called within the context of a
      * "render" operation as it requires a {@link renderer}.
+     * 
+     * @param x1 The size to allocate along the X1-axis.
+     * @param x2 The size to allocate along the X2-axis.
      * @return See above.
      */
     protected RGBBuffer getRgbBuffer()
-	{
+    {
     	RenderingStats stats = renderer.getStats();
     	stats.startMalloc();
     	RGBBuffer buf = new RGBBuffer(sizeX1, sizeX2);
 		stats.endMalloc();
 		return buf;
-	}
+    }
 
-    /**
+	/**
      * Returns an RGB integer buffer for usage. Note that the buffer is
      * reallocated upon each call. Should only be called within the context of
      * a "render" operation as it requires a {@link renderer}.
+     * 
      * @return See above.
      */
 	protected RGBIntBuffer getIntBuffer()
@@ -108,11 +165,12 @@ abstract class RenderingStrategy {
     	stats.endMalloc();
     	return buf;
     }
-
+	
     /**
      * Returns an RGBA integer buffer for usage. Note that the buffer is
      * reallocated upon each call. Should only be called within the context of
      * a "render" operation as it requires a {@link renderer}.
+     * 
      * @return See above.
      */
 	protected RGBAIntBuffer getRGBAIntBuffer()

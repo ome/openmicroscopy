@@ -52,6 +52,7 @@ import omeis.providers.re.Renderer;
 import omeis.providers.re.RenderingEngine;
 import omeis.providers.re.codomain.CodomainMapContext;
 import omeis.providers.re.data.PlaneDef;
+import omeis.providers.re.data.RegionDef;
 import omeis.providers.re.quantum.QuantizationException;
 import omeis.providers.re.quantum.QuantumFactory;
 
@@ -500,6 +501,11 @@ public class RenderingBean implements RenderingEngine, Serializable {
             int[] buf = renderAsPackedInt(pd);
             int sizeX = pixelsObj.getSizeX();
             int sizeY = pixelsObj.getSizeY();
+            RegionDef region = pd.getRegion();
+            if (region != null) {
+            	sizeX = region.getWidth();
+            	sizeY = region.getHeight();
+            }
             BufferedImage image = ImageUtil.createBufferedImage(buf, sizeX,
                     sizeY);
             byteStream = new ByteArrayOutputStream();

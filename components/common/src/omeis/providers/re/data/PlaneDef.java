@@ -68,6 +68,9 @@ public class PlaneDef implements Serializable {
     /** The timepoint. */
     private int t;
 
+    /** The region to retrieve i.e. a rectangular section of the plane. */
+    private RegionDef region;
+    
     /**
      * Creates a new instance. This new object will identify the plane belonging
      * to the set specified by <code>slice</code> and <code>t</code> and
@@ -212,6 +215,20 @@ public class PlaneDef implements Serializable {
         return z;
     }
 
+    /**
+     * Sets the region to render.
+     * 
+     * @param region The region to render.
+     */
+    public void setRegion(RegionDef region) { this.region = region; }
+    
+    /**
+     * Returns the region to render.
+     * 
+     * @return See above.
+     */
+    public RegionDef getRegion() { return region; }
+    
     /**
      * Overridden to reflect equality of abstract values (data object) as
      * opposite to object identity.

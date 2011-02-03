@@ -203,15 +203,34 @@ public class PlaneFactory {
         Integer t = Integer.valueOf(planeDef.getT());
 
         try {
-            switch (planeDef.getSlice()) {
-                case PlaneDef.XY:
-                    return new Plane2D(planeDef, pixels, buffer.getPlane(z, c,
-                            t));
-                case PlaneDef.XZ:
-                    return new Plane2D(planeDef, pixels, buffer.getStack(c, t));
-                case PlaneDef.ZY:
-                    return new Plane2D(planeDef, pixels, buffer.getStack(c, t));
-            }
+        	RegionDef region = planeDef.getRegion();
+        	if (region != null) {
+        		switch (planeDef.getSlice()) {
+	                case PlaneDef.XY:
+	                    return new Plane2D(planeDef, pixels, 
+	                    		buffer.getPlaneRegion(region.getX(), 
+	                    				region.getY(), region.getWidth(), 
+	                    				region.getHeight(), z, c, t));
+	                case PlaneDef.XZ: //TODO
+	                    return new Plane2D(planeDef, pixels, 
+	                    		buffer.getStack(c, t));
+	                case PlaneDef.ZY: //TODO
+	                    return new Plane2D(planeDef, pixels, 
+	                    		buffer.getStack(c, t));
+        		}
+        	} else {
+        		switch (planeDef.getSlice()) {
+	                case PlaneDef.XY:
+	                    return new Plane2D(planeDef, pixels, 
+	                    		buffer.getPlane(z, c, t));
+	                case PlaneDef.XZ:
+	                    return new Plane2D(planeDef, pixels, 
+	                    		buffer.getStack(c, t));
+	                case PlaneDef.ZY:
+	                    return new Plane2D(planeDef, pixels, 
+	                    		buffer.getStack(c, t));
+        		}
+        	}
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (DimensionsOutOfBoundsException e) {

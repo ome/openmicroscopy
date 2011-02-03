@@ -38,6 +38,14 @@ module romio
       int sizeX2;
     };
 
+    class RegionDef
+    {
+      int x;
+      int y;
+      int width;
+      int height;
+    };
+    
     const int XY = 0;
     const int ZY = 1;
     const int XZ = 2;
@@ -49,8 +57,11 @@ module romio
       int y;
       int z;
       int t;
+      RegionDef region;
     };
 
+
+    
     class CodomainMapContext
     {
     };
