@@ -445,6 +445,13 @@ public class TempFileManager {
     }
 
     /**
+     * Calls {@link #getTempDir()} on {@link #manager}.
+     */
+    public static void gettempdir() {
+        manager.getTempDir();
+    }
+
+    /**
      * Command-line interface to the global {@link TempFileManager} instance (
      * {@link #manger}). Valid arguments: "--debug", "clean", "dir", and for
      * testing, "lock"
