@@ -37,7 +37,6 @@
 
 import logging
 import getopt, sys, os, subprocess
-import numpy;
 from struct import *
 
 import omero.clients
@@ -368,9 +367,10 @@ def readFileAsArray(rawFileService, iQuery, fileId, row, col, separator = ' '):
     @param sep the column separator.
     @return The file as an NumPy array.
     """
+    from numpy import fromstring, reshape
     textBlock = readFromOriginalFile(rawFileService, iQuery, fileId);
-    arrayFromFile = numpy.fromstring(textBlock,sep = separator);
-    return numpy.reshape(arrayFromFile, (row, col));
+    arrayFromFile = fromstring(textBlock,sep = separator);
+    return reshape(arrayFromFile, (row, col));
 
 def readFlimImageFile(rawPixelsStore, pixels):
     """
@@ -379,6 +379,7 @@ def readFlimImageFile(rawPixelsStore, pixels):
     @param pixels The pixels of the image.
     @return The Contents of the image for z = 0, t = 0, all channels;
     """
+    from numpy import zeros
     sizeC = pixels.getSizeC().getValue();
     sizeX = pixels.getSizeX().getValue();
     sizeY = pixels.getSizeY().getValue();
@@ -386,7 +387,7 @@ def readFlimImageFile(rawPixelsStore, pixels):
     pixelsType = pixels.getPixelsType().getValue().getValue();
     rawPixelsStore.setPixelsId(id , False);
     cRange = range(0, sizeC);
-    stack = numpy.zeros((sizeC, sizeX, sizeY),dtype=pixelstypetopython.toNumpy(pixelsType));
+    stack = zeros((sizeC, sizeX, sizeY),dtype=pixelstypetopython.toNumpy(pixelsType));
     for c in cRange:
         plane = downloadPlane(rawPixelsStore, pixels, 0, c, 0);
         stack[c,:,:]=plane;
@@ -403,6 +404,7 @@ def downloadPlane(rawPixelsStore, pixels, z, c, t):
     @param t The T-Section to retrieve.
     @return The Plane of the image for z, c, t
     """
+    from numpy import array
     rawPlane = rawPixelsStore.getPlane(z, c, t);
     sizeX = pixels.getSizeX().getValue();
     sizeY = pixels.getSizeY().getValue();
@@ -411,7 +413,7 @@ def downloadPlane(rawPixelsStore, pixels, z, c, t):
     convertType ='>'+str(sizeX*sizeY)+pixelstypetopython.toPython(pixelType);
     convertedPlane = unpack(convertType, rawPlane);
     numpyType = pixelstypetopython.toNumpy(pixelType)
-    remappedPlane = numpy.array(convertedPlane, numpyType);
+    remappedPlane = array(convertedPlane, numpyType);
     remappedPlane.resize(sizeY, sizeX);
     return remappedPlane;
 
@@ -422,14 +424,14 @@ def getPlaneFromImage(imagePath, rgbIndex=None):
 
     @param imagePath   Path to image.
     """
-    import numpy
+    from numpy import asarray
     try:
          from PIL import Image # see ticket:2597
     except ImportError:
          import Image # see ticket:2597
 
     i = Image.open(imagePath)
-    a = numpy.asarray(i)
+    a = asarray(i)
     if rgbIndex == None:
         return a
     else:
