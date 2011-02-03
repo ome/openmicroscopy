@@ -37,8 +37,8 @@ class TestScripts(lib.ITest):
         import omero
         import omero.scripts as OS
         import omero.grid as OG
-        OS.client("ping")
-        """)
+        OS.client("ping-%s")
+        """ % self.uuid())
         return pingfile
 
     def testBasicUsage(self):

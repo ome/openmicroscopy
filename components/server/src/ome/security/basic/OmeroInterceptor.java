@@ -291,7 +291,8 @@ public class OmeroInterceptor implements Interceptor {
 
     /**
      * asks {@link BasicSecuritySystem} to create a new managed {@link Details}
-     * based on the previous state of this entity.
+     * based on the previous state of this entity. If the previous state is null
+     * (see ticket:3929) then throw an exception.
      *
      * @param entity
      *            IObject to be updated
@@ -304,8 +305,15 @@ public class OmeroInterceptor implements Interceptor {
      */
     protected boolean resetDetails(IObject entity, Object[] currentState,
             Object[] previousState, int idx) {
-        Details previous = (Details) previousState[idx];
-        Details result = checkManagedDetails(entity, previous);
+
+        if (previousState == null) {
+            log.warn(String.format("Null previousState for %s(loaded=%s). Details=%s",
+                entity, entity.isLoaded(), currentState[idx]));
+            throw new InternalException("Previous state is null. Possibly caused by evict. See ticket:3929");
+        }
+
+        final Details previous = (Details) previousState[idx];
+        final Details result = checkManagedDetails(entity, previous);
 
         if (previous != result) {
             currentState[idx] = result;

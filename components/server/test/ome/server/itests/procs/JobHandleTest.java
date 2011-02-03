@@ -24,12 +24,20 @@ import ome.services.procs.ProcessManager;
 import ome.services.procs.ProcessorSkeleton;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
+import ome.system.Principal;
+import ome.system.ServiceFactory;
 import ome.util.ContextFilter;
+import omero.ApiUsageException;
+import omero.model.JobStatusI;
+import omero.util.IceMapper;
 
+import org.hibernate.ObjectNotFoundException;
+import org.hibernate.Session;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+import org.springframework.transaction.annotation.Transactional;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
@@ -45,7 +53,7 @@ public class JobHandleTest extends TestCase {
     protected PManager mgr;
 
     @Override
-    @BeforeClass
+    @BeforeMethod
     protected void setUp() throws Exception {
         super.setUp();
         fixture = new ManagedContextFixture();
@@ -64,7 +72,7 @@ public class JobHandleTest extends TestCase {
     }
 
     @Override
-    @AfterClass
+    @AfterMethod
     protected void tearDown() throws Exception {
         super.tearDown();
 
@@ -184,6 +192,94 @@ public class JobHandleTest extends TestCase {
         testJobIsSavedToDatabase();
         Job job = jh.getJob();
         job.acceptFilter(new ContextFilter() {
+        });
+    }
+
+    /**
+     * Reproduces use of jobs as seen in SharedResources.acquireProcessor()
+     * @throws Exception
+     */
+    @Test(groups = "ticket:3929")
+    public void testProcessorJobsDirect() throws Exception {
+
+        JobHandle handle = fixture.managedSf.createJobHandle();
+        Job job = new ScriptJob();
+        JobStatus status = new JobStatus();
+        status.setValue(JobHandle.WAITING);
+        job.setStatus(status);
+        id = handle.submit(job);
+        handle.close();
+
+        handle = fixture.managedSf.createJobHandle();
+        handle.attach(id);
+        handle.setStatusAndMessage(JobHandle.RUNNING, "ha!");
+        handle.close();
+
+    }
+
+    /**
+     * Reproduces use of jobs as seen in SharedResources.acquireProcessor()
+     * copying the methods themselves
+     * @throws Exception
+     */
+    @Test(groups = "ticket:3929")
+    public void testProcessorJobsViaMethods() throws Exception {
+
+        Job job = new ScriptJob();
+        JobStatus status = new JobStatus();
+        status.setValue(JobHandle.WAITING);
+
+        job = saveJob(fixture.ex, fixture.getPrincipal(), job);
+        updateJob(fixture.ex, fixture.getPrincipal(), job.getId(),
+                JobHandle.ERROR, "No processor");
+
+    }
+
+    private ome.model.jobs.Job saveJob(Executor ex, Principal p,
+            final Job job) {
+
+        // First create the job with a status of WAITING.
+        // The InteractiveProcessor will be responsible for its
+        // further lifetime.
+        final ome.model.jobs.Job savedJob = (ome.model.jobs.Job) ex.execute(p,
+                new Executor.SimpleWork(this, "submitJob") {
+                    @Transactional(readOnly = false)
+                    public ome.model.jobs.Job doWork(Session session,
+                            ServiceFactory sf) {
+
+                        final JobHandle handle = sf.createJobHandle();
+                        try {
+                            handle.submit(job);
+                            return handle.getJob();
+                        } catch (ome.conditions.ApiUsageException e) {
+                            return null;
+                        } catch (ObjectNotFoundException onfe) {
+                            return null;
+                        } finally {
+                            if (handle != null) {
+                                handle.close();
+                            }
+                        }
+                    }
+                });
+        return savedJob;
+    }
+
+    private void updateJob(Executor ex, Principal p, final long id,
+            final String status, final String message) {
+        ex.execute(p, new Executor.SimpleWork(this, "updateJob") {
+            @Transactional(readOnly = false)
+            public Object doWork(Session session, ServiceFactory sf) {
+
+                final JobHandle handle = sf.createJobHandle();
+                try {
+                    handle.attach(id);
+                    handle.setStatusAndMessage(status, message);
+                    return null;
+                } finally {
+                    handle.close();
+                }
+            }
         });
     }
 }

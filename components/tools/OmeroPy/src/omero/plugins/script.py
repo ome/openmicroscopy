@@ -404,9 +404,15 @@ class ScriptControl(BaseControl):
     def params(self, args):
         client = self.ctx.conn(args)
         script_id, ofile = self._file(args, client)
+        import omero
         import omero_api_IScript_ice
         svc = client.sf.getScriptService()
-        job_params = svc.getParams(script_id)
+
+        try:
+            job_params = svc.getParams(script_id)
+        except omero.ResourceError, re:
+            self.ctx.die(455, "Could not get params: %s" % re.message)
+
         if job_params:
             self.ctx.out("")
             self.ctx.out("id:  %s" % script_id)
