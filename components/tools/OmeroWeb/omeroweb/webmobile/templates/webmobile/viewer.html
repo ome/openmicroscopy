@@ -30,7 +30,6 @@ img#imagePlane {
     z-index: 3;
     color: white;
     padding:0px;
-    margin:0px;
 }
 
 #infoPanel {
@@ -70,8 +69,10 @@ img#imagePlane {
 }
 
 #zControls {
+    position: fixed;
     bottom:33px;
     left:0px;
+    top:0px;
     width: 32px;
     height: 80px;
 }
@@ -134,11 +135,13 @@ img#imagePlane {
 {% endblock %}
 
 {% block meta %}
-    <meta name="viewport" content="width={{ image.getWidth }}; maximum-scale=5.0; user-scalable=1;">
+    <!-- solution for android bug http://code.google.com/p/android/issues/detail?id=10775 -->
+    <meta name="viewport" content="user-scalable=yes, initial-scale=1.0, width=device-width">
 {% endblock %}
 
 
 {% block jscript %}
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.3.2.js" %}"></script>
     <script type="text/javascript" src="{% url mobile_static 'js/viewer.js' %}"></script>
 {% endblock %}
 

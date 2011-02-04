@@ -317,11 +317,14 @@ $(document).ready(function() {
         
         // otherwise, show scroll bars
         var scrollX = window.pageXOffset; 
-        var scrollY = window.pageYOffset; 
-        var scrollW = window.innerWidth;
-        var scrollH = window.innerHeight;
+        //var scrollY = window.pageYOffset; 
+        var scrollY = 0;
+        //var scrollW = window.innerWidth;
+        //var scrollH = window.innerHeight;
+        var scrollW = $(window).width();
+        var scrollH = $(window).height();
         
-        var w = scrollW / 8;
+        var w = Math.min(scrollW,scrollH) / 8;    // w is the size of buttons, menus etc. 
         var zHeight = scrollH - w
         var tWidth = scrollW - w
         
@@ -331,11 +334,12 @@ $(document).ready(function() {
         $("#tControls").css('top', scrollY+zHeight).css('left', scrollX+w).css('height', w).css('width', tWidth);
         $("#tBg").css('height', w).css('width', tWidth);
         $(".arrow").css('width', w).css('height', w);
-        $zSlider.css('top', w).css('height',zHeight-w-w-2 ).css('width',w-2);
+        $zSlider.css('top', w).css('height',zHeight-w-w-2);
+        $zSlider.css('width',w-2);
         $tSlider.css('height', w-2 ).css('width',tWidth-w-w-2).css('left',w).css('top',1);
         
         // info icon - top right corner
-        var iconW = scrollW / 8;
+        var iconW = Math.min(scrollW,scrollH) / 8;
         var margin = scrollW/70;
         $infoIcon.css('top', scrollY+margin).css('left', scrollX+scrollW-iconW-margin).css('width', iconW).css('height', iconW);
         
