@@ -37,6 +37,7 @@
          port using JBoss 1099
     -->
     <structuredEntry name="/services/OMERODS" type="OMERODS">
+      <hostName>localhost</hostName>
       <port>4063</port>
       <portSSL>4064</portSSL>
     </structuredEntry>

@@ -212,32 +212,6 @@ public class ServerEditor
 		firePropertyChange(REMOVE_PROPERTY, oldValue, newValue);
 	}
 	
-	/** Adds a new server to the list. */
-	private void addRow()
-	{
-		if (editing) {
-			TableCellEditor editor = table.getCellEditor();
-			if (editor != null) editor.stopCellEditing();
-			
-			//if (model.getRowCount() == 0) {
-				editing = false;
-				addRow();
-			//}
-			return;
-		}
-		addButton.setEnabled(false);
-		DefaultTableModel model= ((DefaultTableModel) table.getModel());
-		int m = model.getRowCount();
-		Object[] newRow = new Object[3];
-		newRow[0] = icons.getIcon(IconManager.SERVER_22);
-		newRow[1] = "";
-		newRow[2] = defaultPort;
-		model.insertRow(m, newRow);
-		model.fireTableDataChanged();
-		requestFocusOnEditedCell(m, 1);
-		setEditing(true);
-	}
-	
 	/** 
 	 * Initializes the components. 
 	 * 
@@ -265,7 +239,7 @@ public class ServerEditor
 			}
 		});
 		addButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) { addRow(); }
+			public void actionPerformed(ActionEvent e) { addRow(""); }
 		});
 		editButton = new JButton(icons.getIcon(IconManager.EDIT));
 		UIUtilities.unifiedButtonLookAndFeel(editButton);
@@ -432,6 +406,17 @@ public class ServerEditor
 	ServerEditor(String defaultPort)
 	{
 		this(null, null, defaultPort);
+	}
+	
+	/** 
+	 * Creates a new instance. 
+	 * 
+	 * @param activeServer  The server the user is currently connected to.
+	 * @param defaultPort The default port to use.
+	 */
+	ServerEditor(String activeServer, String defaultPort)
+	{
+		this(activeServer, null, defaultPort);
 	}
 	
 	/**
@@ -805,6 +790,52 @@ public class ServerEditor
 		String v = (String) model.getValueAt(table.getSelectedRow(), 1);
 		if (value == null) return false;
 		return (value.equals(v));
+	}
+	
+	/** 
+	 * Adds a new server to the list.
+	 * 
+	 *  @param hostName The name of the server.
+	 */
+	void addRow(String hostName)
+	{
+		if (editing) {
+			TableCellEditor editor = table.getCellEditor();
+			if (editor != null) editor.stopCellEditing();
+			
+			//if (model.getRowCount() == 0) {
+				editing = false;
+				addRow(hostName);
+			//}
+			return;
+		}
+		addButton.setEnabled(false);
+		DefaultTableModel model= ((DefaultTableModel) table.getModel());
+		int m = model.getRowCount();
+		Object[] newRow = new Object[3];
+		newRow[0] = icons.getIcon(IconManager.SERVER_22);
+		boolean editing = true;
+		if (hostName != null) {
+			newRow[1] = hostName;
+			setButtonsEnabled(true);
+			editing = false;
+		} else newRow[1] = "";
+		newRow[2] = defaultPort;
+		model.insertRow(m, newRow);
+		model.fireTableDataChanged();
+		requestFocusOnEditedCell(m, 1);
+		setEditing(editing);
+	}
+	
+	/** Removes the last row. */
+	void removeLastRow()
+	{
+		DefaultTableModel model= ((DefaultTableModel) table.getModel());
+		int m = model.getRowCount();
+		if (m > 0) {
+			model.removeRow(m-1);
+			model.fireTableDataChanged();
+		}	
 	}
 	
 }

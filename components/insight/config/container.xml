@@ -32,11 +32,12 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~--> 
   <services>
    <!-- OMERO Data Server (OMERO) configuration.
-         This entry specifies the hostname and the port to use to connect to 
+         This entry specifies the hostName and the port to use to connect to 
          OMERO using blitz
          port using JBoss 1099
     -->
     <structuredEntry name="/services/OMERODS" type="OMERODS">
+      <hostName>localhost</hostName>
       <port>4063</port>
       <portSSL>4064</portSSL>
     </structuredEntry>

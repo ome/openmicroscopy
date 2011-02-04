@@ -165,7 +165,8 @@ class SplashScreenManager
     		(OMEROInfo) container.getRegistry().lookup(LookupNames.OMERODS);
         
     	String port = ""+omeroInfo.getPortSSL();
-    	view = new ScreenLogin(Container.TITLE, splashLogin, img, v, port);
+    	view = new ScreenLogin(Container.TITLE, splashLogin, img, v, port, 
+    			omeroInfo.getHostName());
 		view.showConnectionSpeed(true);
 		Dimension d = viewTop.getExtendedSize();
 		Dimension dlogin = view.getPreferredSize();

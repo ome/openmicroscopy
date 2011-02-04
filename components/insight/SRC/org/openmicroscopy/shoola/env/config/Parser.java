@@ -170,8 +170,10 @@ class Parser
                registry.addEntry(entry);
             }
         } catch (ConfigException ce) {
+        	ce.printStackTrace();
         	throw ce;
         } catch (Exception e) { 
+        	e.printStackTrace();
         	rethrow(e);
         }   
     }

@@ -65,6 +65,12 @@ class OMEROEntry
      */
     private static final String     PORT_SSL_TAG = "portSSL";
     
+    /** 
+     * The name of the tag, within this <i>structuredEntry</i>, that specifies
+     * the <i>hostName</i> to connect to <i>OMERO</i>.
+     */
+    private static final String     HOST_NAME_TAG = "hostName";
+    
     /** Holds the contents of the entry. */
     private OMEROInfo value;
     
@@ -81,21 +87,27 @@ class OMEROEntry
     {
         String port = null; 
         String portSSL = null;
+        String hostName = null;
         NodeList children = tag.getChildNodes();
         int n = children.getLength();
-        Node child;
+        Node child, c;
         String tagName, tagValue;
         while (0 < n) {
             child = children.item(--n);
             if (child.getNodeType() == Node.ELEMENT_NODE) {
                 tagName = child.getNodeName();
-                tagValue = child.getFirstChild().getNodeValue();
-                if (PORT_TAG.equals(tagName)) port = tagValue;
-                else if (PORT_SSL_TAG.equals(tagName)) portSSL = tagValue;
-                else
-                    throw new ConfigException(
-                            "Unrecognized tag within the conf entry: "+
-                            tagName+".");
+                c = child.getFirstChild();
+                if (c != null) {
+                	 tagValue = c.getNodeValue();
+                     if (PORT_TAG.equals(tagName)) port = tagValue;
+                     else if (PORT_SSL_TAG.equals(tagName)) portSSL = tagValue;
+                     else if (HOST_NAME_TAG.equals(tagName)) 
+                    	 hostName = tagValue;
+                     else
+                         throw new ConfigException(
+                                 "Unrecognized tag within the conf entry: "+
+                                 tagName+".");
+                }
             }
         }
         if (port == null || port.trim().length() == 0)
@@ -103,7 +115,7 @@ class OMEROEntry
                                       " tag within omeds-conf entry.");
         if (portSSL == null || portSSL.trim().length() == 0)
         	portSSL = port;
-        return new OMEROInfo(port, portSSL);
+        return new OMEROInfo(port, portSSL, hostName);
     }
     
     

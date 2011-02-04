@@ -246,6 +246,7 @@ public class DataServicesFactory
      */
     private boolean checkClientServerCompatibility(String server, String client)
     {
+    	/*
     	if (server.contains("-"))
     		server = server.split("-")[0];
     	if (client.contains("-"))
@@ -262,6 +263,7 @@ public class DataServicesFactory
     	int c2 = Integer.parseInt(valuesClient[1]);
     	if (s1 < c1) return false;
     	if (c2 < s2) return false;
+    	*/
     	return true;
     }
     
@@ -318,8 +320,7 @@ public class DataServicesFactory
 				break;
 			case OMEROGateway.SERVER_OUT_OF_SERVICE:
 				message = "The server is no longer " +
-				"running. \nPlease contact your system administrator." +
-				"\nThe application will exit.";
+				"running. \nPlease contact your system administrator.";
 				un.notifyInfo("Connection Refused", message);
 				exitApplication();
 				break;	

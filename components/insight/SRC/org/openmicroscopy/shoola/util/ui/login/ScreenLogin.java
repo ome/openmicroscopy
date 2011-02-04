@@ -432,8 +432,9 @@ public class ScreenLogin
 	 * Creates and initializes the components
 	 * 
 	 * @param userName The name of the user.
+	 * @param hostName The default hostName.
 	 */
-	private void initialize(String userName)
+	private void initialize(String userName, String hostName)
 	{
 		originalName = userName;
 		user = new JTextField();
@@ -444,26 +445,53 @@ public class ScreenLogin
 		pass.setToolTipText("Enter your password.");
 		pass.setColumns(TEXT_COLUMN);
 		Map<String, String> servers = editor.getServers();
-		if (servers == null || servers.size() == 0) 
-			serverName = DEFAULT_SERVER;
-		else {
-			int n = servers.size()-1;
-			Iterator<String> i = servers.keySet().iterator();
-			int k = 0;
-			String value;
-			while (i.hasNext()) {
-				serverName = i.next();
-				if (k == n) {
-					value = servers.get(serverName);
-					if (value != null) {
-						try {
-							selectedPort = Integer.parseInt(value);
-						} catch (Exception e) {}
+		if (hostName != null && hostName.trim().length() > 0) {
+			serverName = hostName;
+			//if user did point to another server
+			if (servers != null && servers.size() > 0) {
+				int n = servers.size()-1;
+				Iterator<String> i = servers.keySet().iterator();
+				int k = 0;
+				String value;
+				while (i.hasNext()) {
+					serverName = i.next();
+					if (k == n) {
+						value = servers.get(serverName);
+						if (value != null) {
+							try {
+								selectedPort = Integer.parseInt(value);
+							} catch (Exception e) {}
+						}
 					}
+					k++;
 				}
-				k++;
+			} else {
+				editor.removeLastRow();
+				editor.addRow(hostName);
+			}
+		} else {
+			if (servers == null || servers.size() == 0) 
+				serverName = DEFAULT_SERVER;
+			else {
+				int n = servers.size()-1;
+				Iterator<String> i = servers.keySet().iterator();
+				int k = 0;
+				String value;
+				while (i.hasNext()) {
+					serverName = i.next();
+					if (k == n) {
+						value = servers.get(serverName);
+						if (value != null) {
+							try {
+								selectedPort = Integer.parseInt(value);
+							} catch (Exception e) {}
+						}
+					}
+					k++;
+				}
 			}
 		}
+		
 		if (!DEFAULT_SERVER.equals(serverName))
 			originalServerName = serverName;
 		connectionSpeedText = new JLabel(getConnectionSpeed());
@@ -919,9 +947,10 @@ public class ScreenLogin
 	 * @param frameIcon  The image icon for the window.
 	 * @param version	 The version of the software.
 	 * @param defaultPort The default port.
+	 * @param hostName   The default host name.
 	 */
 	public ScreenLogin(String title, Icon logo, Image frameIcon, String version,
-			String defaultPort)
+			String defaultPort, String hostName)
 	{
 		super();
 		selectedPort = -1;
@@ -935,7 +964,7 @@ public class ScreenLogin
 		editor = new ServerEditor(defaultPort);
 		editor.addPropertyChangeListener(ServerEditor.REMOVE_PROPERTY, this);
 		speedIndex = retrieveConnectionSpeed();
-		initialize(getUserName());
+		initialize(getUserName(), hostName);
 		initListeners();
 		buildGUI(logo, version);
 		encrypt();
@@ -954,6 +983,22 @@ public class ScreenLogin
 				requestFocusOnField();
 			}
 		});
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param title		 The frame's title.
+	 * @param logo		 The frame's background logo. 
+	 * 					 Mustn't be <code>null</code>.
+	 * @param frameIcon  The image icon for the window.
+	 * @param version	 The version of the software.
+	 * @param defaultPort The default port.
+	 */
+	public ScreenLogin(String title, Icon logo, Image frameIcon, String version,
+			String defaultPort)
+	{
+		this(title, logo, frameIcon, version, defaultPort, null);
 	}
 
 	/**
