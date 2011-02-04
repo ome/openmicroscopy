@@ -10,38 +10,44 @@ $.fn.roi_display = function(options) {
       var $viewportimg = $(this);
       var width = $viewportimg.attr('width');   // 0 initially
       var height = $viewportimg.attr('height');
+      var json_url = null;
       
       var $dragdiv = $viewportimg.parent();
       var $canvas =   $('<div id="roi_canvas" class="roi_canvas">').appendTo($dragdiv);
       
       var roi_json = null;
+      var rois_displayed = false;   // flag to toggle visability.
       
       if (options != null) {
           var orig_width = options.width;
           var orig_height = options.height;
+          var json_url = options.json_url;
       }
       
       // alert("orig sizes: " + orig_width + " " + orig_height);
       // Creates Raphael canvas. Uses scale.raphael.js to provide paper.scaleAll(ratio);
       var paper = new ScaleRaphael('roi_canvas', orig_width, orig_height);
       
-      this.load_rois = function(url, display_rois) {
+      this.load_rois = function(theZ, theT, display_rois) {
           
-          $.getJSON(url, function(data) {
+          if (json_url == undefined) return;
+          
+          $.getJSON(json_url, function(data) {
               roi_json = data;
 
               // plot the rois using processing.js
               if (display_rois) {
-                  plot_rois();
+                  rois_displayed = true;
+                  refresh_rois(theZ, theT);
               }
           });
       }
       
-      // clears paper and draws ROIs for the given T and Z. NB: indexes are 1-based. 
-      this.plot_rois = function(theT, theZ) {
+      // clears paper and draws ROIs (if rois_displayed) for the given T and Z. NB: indexes are 1-based. 
+      this.refresh_rois = function(theZ, theT) {
           
           paper.clear();
-          
+          if (!rois_displayed) return;
           if (roi_json == null) return;
           
           for (var r=0; r<roi_json.length; r++) {
@@ -82,14 +88,23 @@ $.fn.roi_display = function(options) {
           }
       }
       
+      this.show_rois = function(theZ, theT) {
+          if (roi_json == null) {
+              this.load_rois(theZ, theT, true);      // load and display
+          } else {
+              rois_displayed = true;
+              this.refresh_rois(theZ, theT);
+          }
+      }
+      
+      this.hide_rois = function() {
+          rois_displayed = false;
+          this.refresh_rois();
+      }
+      
       this.setRoiZoom = function(percent) {
           
-          //width = $viewportimg.attr('width');
-          //height = $viewportimg.attr('height');
-          
           paper.scaleAll(percent/100);
-          
-          
       }
       
   });
