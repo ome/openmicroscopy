@@ -617,3 +617,12 @@ input.spin-button {
 #rdef-postit .even {
   background-color: #C4CFD5;   
 }
+
+#roi_small_table th {
+    background-color: #ccc; 
+    padding: 1px;
+}
+#roi_small_table td {
+    background-color: #fff; 
+    text-align: center;
+}

@@ -425,6 +425,56 @@
       // hides the display of ROIs. 
       viewport.viewportimg.get(0).hide_rois();
   }
+  
+  // builds an html table of ROI data. All collapsed.
+  var build_roi_table = function() {
+      var json = viewport.viewportimg.get(0).get_roi_json();
+      
+      var $roi_table = $("#roi_small_table");
+      $roi_table.find('tbody').remove();
+      
+      // populate table. Cols are: ID, T, Z, Shape
+      for (var r=0; r<json.length; r++) {
+          var roi = json[r];
+          var shapes = roi['shapes'];
+          
+          // process the shapes first - note first shape
+          var firstShape = null;
+          var shapesHtml = '<tbody>';
+          var shape = null;
+          for (var s=0; s<shapes.length; s++) {
+              shape = shapes[s];
+              shapesHtml += "<tr id='shape_"+shape['id']+"' class='shape_row'>";
+              shapesHtml += "<td>" + shape['id'] + "</td>"
+              shapesHtml += "<td>" + (shape['theZ']+1) + "</td>";
+              shapesHtml += "<td>" + (shape['theT']+1) + "</td>";
+              shapesHtml += "<td>" + shape['type'] + "</td></tr>";
+              if (firstShape == null) firstShape = shape['type'];
+          }
+          shapesHtml += '</tbody>';
+          
+          // new tbody for each ROI
+          var roi_html = "<thead><tr class='roi_row'>";
+          roi_html += "<th> <a href='#' class='show_shapes'>[+]</a> " + roi['id'] + "</th>";
+          roi_html += "<th>Z</th>"; // no Z for ROI
+          roi_html += "<th>T</th>"; // no T for ROI
+          roi_html += "<th>" + firstShape + " (" + shapes.length + ")</th>"; // first shape (count)
+          roi_html += "</tr></thead>";
+          
+          $roi_table.append($(roi_html));      // add the roi thead
+          $roi_table.append($(shapesHtml));    // add the tbody
+      }
+  }
+  
+  // bound to clicks on shapes in the viewer
+    var handle_shape_selection = function(e, shape_id) {
+        build_roi_table();
+        $("#roi_small_table").find('thead').hide();
+        $("#roi_small_table").find('tbody tr').hide();
+        // show the row and the <thead> above the <tbody>
+        $("#shape_"+shape_id).show().children().css('background-color', '#d0d0ff');
+        $("#shape_"+shape_id).parent().prev().show();
+    }
 
   var linePlotPos = function (ev, obj) {
     $('#wblitz-lp-editpos').val(obj);
@@ -791,12 +841,15 @@
             </a><br />
           </div>
           <div>
-              ROIs:
-              <a href="#" onclick="show_rois()">Show</a> |
-              <a href="#" onclick="hide_rois()">Hide</a>
+                ROIs:
+                <a href="#" onclick="show_rois()">Show</a> |
+                <a href="#" onclick="hide_rois()">Hide</a>
+                <table id='roi_small_table' border='0' cellpadding='0' cellspacing='0'></table>
           </div>
+          
           {% block current_image_tools %}{% endblock %}
         </div>
+            
         <!-- Image Viewport -->
         <div id="weblitz-viewport"></div>
         <img id="z-axis-legend" src="/appmedia/webgateway/img/z_axis.gif" />
@@ -937,6 +990,15 @@
     viewport.bind('instant_zoom', function(e, percent) {
       viewport.viewportimg.get(0).setRoiZoom(percent);
     });
+    // expand ROI in table to show shapes
+    $("#roi_small_table").click(function(event) {
+        var $target = $(event.target);
+        if ($target.attr('class') == "show_shapes") {
+            $target.parent().parent().parent().next().children().show();
+        }
+    });
+    
+    viewport.viewportimg.bind("shape_click", handle_shape_selection);
     
     
     /* And we're done! */

@@ -62,6 +62,8 @@ def getRoiShapes(roiService, imageId):
                     shape['textValue'] = s.getTextValue().getValue()
             except AttributeError: pass
             shapes.append(shape)
+            # sort shapes by Z, then T. 
+            shapes.sort(key=lambda x: "%03d%03d"% (x['theZ'],x['theT']) );
         roi['shapes'] = shapes
         rois.append(roi)
     
