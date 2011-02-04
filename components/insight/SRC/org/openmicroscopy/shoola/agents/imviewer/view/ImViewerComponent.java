@@ -1040,8 +1040,8 @@ class ImViewerComponent
 			case NEW:
 			case DISCARDED:
 				throw new IllegalStateException(
-						"This method can't be invoked in the DISCARDED, NEW or" +
-				"LOADING_RENDERING_CONTROL state.");
+						"This method can't be invoked in the DISCARDED or NEW" +
+				"state.");
 		}
 		view.setChannelsSelection(ImViewerUI.ALL_VIEW);
 		renderXYPlane();
@@ -1057,8 +1057,8 @@ class ImViewerComponent
 			case NEW:
 			case DISCARDED:
 				throw new IllegalStateException(
-						"This method can't be invoked in the DISCARDED, " +
-						"NEW or LOADING_RENDERING_CONTROL state.");
+						"This method can't be invoked in the DISCARDED or " +
+						"NEW state.");
 		}
 		return model.getMaxC();
 	}
