@@ -12,8 +12,11 @@ import ome.security.auth.PasswordUtil;
 import ome.security.basic.BasicMethodSecurity;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.services.sessions.SessionManager;
-import ome.util.SqlAction;
+import ome.services.util.Executor;
+import ome.system.ServiceFactory;
 
+import org.hibernate.Session;
+import org.springframework.transaction.annotation.Transactional;
 import org.testng.annotations.Test;
 
 @Test(groups = "integration")
@@ -24,16 +27,21 @@ public class MethodSecurityTest extends AbstractManagedContextTest {
     @Test(groups = "ticket:645")
     public void testUserRoles() throws Exception {
 
-        // Using unsafe here since we are not within a hibernate session
-        SqlAction sql = (SqlAction) this.applicationContext
-                .getBean("isolatedSqlAction");
-
         SessionManager mgr = (SessionManager) this.applicationContext
                 .getBean("sessionManager");
 
         msec = new BasicMethodSecurity();
         msec.setSessionManager(mgr);
-        List<String> roles = new PasswordUtil(sql).userGroups("root");
+
+        @SuppressWarnings("unchecked")
+        List<String> roles = (List<String>)
+        executor.execute(this.loginAop.p, new Executor.SimpleWork(this, "getRoles") {
+            @Transactional(readOnly = true)
+            public Object doWork(Session session, ServiceFactory sf) {
+                return new PasswordUtil(getSqlAction()).userGroups("root");
+            }
+        });
+
         assertTrue(roles.size() >= 2);
         boolean found = false;
         for (int i = 0; i < roles.size(); i++) {

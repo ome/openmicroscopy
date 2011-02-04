@@ -136,6 +136,19 @@ public interface SqlAction {
 
     void delCurrentEventLog(String key);
 
+    /**
+     * The implementation of this method guarantees that even if the current
+     * transaction fails that the value found will not be used by another
+     * transaction. Database implementations can choose whether to do this
+     * at the procedure level or by using transaction PROPAGATION settings
+     * in Java.
+     *
+     * @param segmentName
+     * @param incrementSize
+     * @return
+     * @see ticket:3697
+     * @see ticket:3253
+     */
     long nextValue(String segmentName, int incrementSize);
 
     long currValue(String segmentName);

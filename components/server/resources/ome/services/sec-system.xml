@@ -55,8 +55,7 @@
     <description>
     Scope: private
     </description>
-    <constructor-arg index="0" ref="isolatedSqlAction"/>
-    <constructor-arg index="1" ref="simpleSqlAction"/>
+    <constructor-arg ref="simpleSqlAction"/>
     <constructor-arg ref="basicSecuritySystem"/>
     <constructor-arg ref="omeroSessionFactory"/>
     <constructor-arg ref="transactionAttributeSource"/>

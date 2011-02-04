@@ -43,7 +43,19 @@
 
   <bean id="databaseIdentity" class="ome.services.db.DatabaseIdentity">
     <constructor-arg index="0" value="${omero.db.authority}"/>
-    <constructor-arg index="1" ref="isolatedSqlAction"/>
+    <constructor-arg index="1">
+      <!-- This inline bean takes the place of the previous isolatedSqlAction
+           which should be avoided. It's needed here because the check is taking
+           place before server startup, i.e. not in a connected thread.
+           See #3253 and #3697 -->
+      <bean class="${omero.db.sql_action_class}">
+        <constructor-arg>
+          <bean class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">
+            <constructor-arg ref="selfCorrectingDataSource"/>
+          </bean>
+        </constructor-arg>
+      </bean>
+    </constructor-arg>
   </bean>
 
   <bean id="omero.db.uuid" factory-bean="databaseIdentity" factory-method="getUuid"/>
@@ -85,12 +97,11 @@
   <!-- Properties and actions: chooses between concrete implementations for
        all JDBC calls -->
 
-  <alias alias="simpleSqlAction" name="simpleSqlActionWrapper"/>
-  <alias alias="isolatedSqlAction" name="isolatedSqlActionWrapper"/>
+  <alias alias="simpleSqlAction" name="sqlActionWrapper"/>
 
   <bean id="loggingSqlAction" class="ome.util.SqlAction$LoggingSqlAction"/>
 
-  <bean id="simpleSqlActionWrapper" class="org.springframework.aop.framework.ProxyFactoryBean">
+  <bean id="sqlActionWrapper" class="org.springframework.aop.framework.ProxyFactoryBean">
     <property name="interceptorNames">
       <list>
         <value>loggingSqlAction</value>
@@ -104,38 +115,15 @@
     <property name="target" ref="simpleSqlActionImpl"/>
   </bean>
 
-  <bean id="isolatedSqlActionWrapper" class="org.springframework.aop.framework.ProxyFactoryBean">
-    <property name="interceptorNames">
-      <list>
-        <value>loggingSqlAction</value>
-      </list>
-    </property>
-    <property name="proxyInterfaces">
-      <list>
-        <value>ome.util.SqlAction</value>
-      </list>
-    </property>
-    <property name="target" ref="isolatedSqlActionImpl"/>
-  </bean>
-
   <bean id="simpleSqlActionImpl" class="${omero.db.sql_action_class}">
     <description>
     Takes part in any currently running Hibernate transaction.
+    Where necessary, implementations can using PROPAGATION
+    settings to temporarily run in an autonomous transaction.
     </description>
     <constructor-arg>
       <bean class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">
         <constructor-arg ref="dataSource"/>
-      </bean>
-    </constructor-arg>
-  </bean>
-
-  <bean id="isolatedSqlActionImpl" class="${omero.db.sql_action_class}">
-    <description>
-    Provides JDBC access WITHOUT taking part in Hibernate transactions
-    </description>
-    <constructor-arg>
-      <bean class="org.springframework.jdbc.core.simple.SimpleJdbcTemplate">
-        <constructor-arg ref="selfCorrectingDataSource"/>
       </bean>
     </constructor-arg>
   </bean>
