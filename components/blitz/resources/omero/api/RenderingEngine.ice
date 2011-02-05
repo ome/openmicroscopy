@@ -70,6 +70,7 @@ module omero {
                 bool isPixelsTypeSigned() throws ServerError;
                 double getPixelsTypeUpperBound(int w) throws ServerError;
                 double getPixelsTypeLowerBound(int w) throws ServerError;
+                void setZoomLevel(double level) throws ServerError;
             };
 
     };

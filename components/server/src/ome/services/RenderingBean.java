@@ -12,6 +12,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -91,10 +92,17 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class RenderingBean implements RenderingEngine, Serializable {
 
+	/** The serial number. */
     private static final long serialVersionUID = -4383698215540637039L;
 
+    /** Reference to the logger. */
     private static final Log log = LogFactory.getLog(RenderingBean.class);
 
+    /**
+     * Returns the service corresponding to this class.
+     * 
+     * @return See above.
+     */
     public Class<? extends ServiceInterface> getServiceInterface() {
         return RenderingEngine.class;
     }
@@ -107,11 +115,11 @@ public class RenderingBean implements RenderingEngine, Serializable {
      * call methods 4. optionally: return to 2. 5. destroy()
      * 
      * TODO: when a setXXX() method is called, when do I reload? always? or
-     * ondirty?
+     * on dirty?
      */
 
     /**
-     * Transforms the raw data. Entry point to the unsych parts of the
+     * Transforms the raw data. Entry point to the asynchronous parts of the
      * component. As soon as Renderer is not null, the Engine is ready to use.
      */
     private transient Renderer renderer;
@@ -128,17 +136,21 @@ public class RenderingBean implements RenderingEngine, Serializable {
     /**
      * read-write lock to prevent READ-calls during WRITE operations.
      *
-     * It is safe for the lock to be serialized. On deserialization, it will be
+     * It is safe for the lock to be serialized. On de-serialization, it will be
      * in the unlocked state.
      */
     private final ReentrantReadWriteLock rwl = new ReentrantReadWriteLock();
 
+    /** Reference to the executor. */
     private final Executor ex;
 
+    /** Reference to the security system. */
     private final SecuritySystem secSys;
     
+    /** Reference to the compression service. */
     private final LocalCompress compressionSrv;
     
+    /** Reference to file provider. */
     private final OriginalFileMetadataProvider metadataProvider;
 
     /** Notification that the bean has just returned from passivation. */
@@ -150,9 +162,9 @@ public class RenderingBean implements RenderingEngine, Serializable {
      * @param compressionService
      *            an <code>ICompress</code>.
      */
-
     public RenderingBean(PixelsService dataService, LocalCompress compress,
-            OriginalFileMetadataProvider provider, Executor ex, SecuritySystem secSys) {
+            OriginalFileMetadataProvider provider, Executor ex, 
+            SecuritySystem secSys) {
         this.ex = ex;
         this.secSys = secSys;
         this.pixDataSrv = dataService;
@@ -486,7 +498,6 @@ public class RenderingBean implements RenderingEngine, Serializable {
     	}
     }
 
-
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
      * 
@@ -545,8 +556,8 @@ public class RenderingBean implements RenderingEngine, Serializable {
             int projectedSizeC = 0;
             for (int i = 0; i < channelBindings.length; i++) {
                 if (channelBindings[i].getActive()) {
-                    planes[0][i][0] = projectStack(algorithm, timepoint, stepping, start, end,
-                            pixelsId, i);
+                    planes[0][i][0] = projectStack(algorithm, timepoint, 
+                    		stepping, start, end, pixelsId, i);
                     projectedSizeC += 1;
                 }
             }
@@ -1298,6 +1309,23 @@ public class RenderingBean implements RenderingEngine, Serializable {
             rwl.readLock().unlock();
         }
     }
+    
+    /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
+     * @see RenderingEngine#setZoomLevel(double)
+     */
+    @RolesAllowed("user")
+    public void setZoomLevel(double zoomLevel) {
+        rwl.writeLock().lock();
+
+        try {
+            errorIfInvalidState();
+            renderer.setZoomLevel(zoomLevel);
+        } finally {
+            rwl.writeLock().unlock();
+        }
+    }
 
     /**
      * Close the active renderer, cleaning up any potential messes left by the
@@ -1312,7 +1340,9 @@ public class RenderingBean implements RenderingEngine, Serializable {
     // ~ Error checking methods
     // =========================================================================
 
-    protected final static String NULL_RENDERER = "RenderingEngine not ready: renderer is null.\n"
+    /** Message if the rendering engine is not ready. */
+    protected final static String NULL_RENDERER = 
+    	"RenderingEngine not ready: renderer is null.\n"
             + "This method can only be called "
             + "after the renderer is properly "
             + "initialized (not-null).\n"
@@ -1325,13 +1355,18 @@ public class RenderingBean implements RenderingEngine, Serializable {
         errorIfNullRenderer();
     }
 
+    /** Throws an {@link ApiUsageException} if the pixels are not set. */
     protected void errorIfNullPixels() {
         if (pixelsObj == null) {
             throw new ApiUsageException(
                     "RenderingEngine not ready: Pixels object not set.");
         }
     }
-
+    
+    /** 
+     * Throws an {@link ApiUsageException} if the rendering settings are not 
+     * set. 
+     */
     protected void errorIfNullRenderingDef() {
         if (rendDefObj == null) {
             throw new ApiUsageException(
@@ -1339,6 +1374,11 @@ public class RenderingBean implements RenderingEngine, Serializable {
         }
     }
 
+    /** 
+     * Reloads the rendering engine if <code>null</code> and has been 
+     * made passive or throws an {@link ApiUsageException} if the rendering
+     * engine is not set. 
+     */
     protected void errorIfNullRenderer() {
         if (renderer == null && wasPassivated) {
             load();
@@ -1350,6 +1390,11 @@ public class RenderingBean implements RenderingEngine, Serializable {
     // ~ Copies
     // =========================================================================
 
+    /**
+     * Copies the specified pixels set.
+     * 
+     * @param pixels The pixels to set.
+     */
     @SuppressWarnings("unchecked")
     private Pixels copyPixels(Pixels pixels) {
         if (pixels == null) {
@@ -1362,14 +1407,27 @@ public class RenderingBean implements RenderingEngine, Serializable {
         return newPixels;
     }
 
+    /**
+     * Copies the channels from the Pixels source to another set of pixels.
+     * 
+     * @param from The pixels set to copy from.
+     * @param to The pixels set to copy to.
+     */
     private void copyChannels(Pixels from, Pixels to) {
-        java.util.Iterator<Channel> it = from.iterateChannels();
+        Iterator<Channel> it = from.iterateChannels();
         while (it.hasNext()) {
             to.addChannel(copyChannel(it.next()));
         }
     }
 
+    /**
+     * Copies the specified channel.
+     * 
+     * @param channel The channel to copy.
+     * @return See above.
+     */
     private Channel copyChannel(Channel channel) {
+    	if (channel == null) return null;
         Channel newChannel = new ShallowCopy().copy(channel);
         newChannel.setLogicalChannel(new ShallowCopy().copy(channel
                 .getLogicalChannel()));
@@ -1377,6 +1435,12 @@ public class RenderingBean implements RenderingEngine, Serializable {
         return newChannel;
     }
 
+    /**
+     * Copies the rendering model.
+     * 
+     * @param model The model to copy.
+     * @return See above.
+     */
     private RenderingModel copyRenderingModel(RenderingModel model) {
         if (model == null) {
             return null;
@@ -1390,6 +1454,12 @@ public class RenderingBean implements RenderingEngine, Serializable {
         return newModel;
     }
 
+    /**
+     * Copies the specified family.
+     * 
+     * @param family The family to copy.
+     * @return See above.
+     */
     private Family copyFamily(Family family) {
         if (family == null) {
             return null;
@@ -1406,6 +1476,12 @@ public class RenderingBean implements RenderingEngine, Serializable {
     // ~ All state access happens here
     // =========================================================================
     
+    /**
+     * Looks up for the passed argument
+     * 
+     * @param argument The argument to handle.
+     * @return See above.
+     */
     @SuppressWarnings("unchecked")
     private <T extends IObject> T lookup(final T argument) {
         if (argument == null) {
@@ -1414,7 +1490,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
         if (argument.getId() == null) {
             return argument;
         }
-        return (T) ex.execute(null, new Executor.SimpleWork(this,"lookup"){
+        return (T) ex.execute(null, new Executor.SimpleWork(this,"lookup") {
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
                 return (T) sf.getQueryService()
@@ -1422,8 +1498,15 @@ public class RenderingBean implements RenderingEngine, Serializable {
             }});
     }
 
+    /**
+     * Returns <code>true</code> if it is a critical graph,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above
+     */
     private boolean isGraphCritical() {
-        return (Boolean) ex.execute(/*ex*/null/*principal*/, new Executor.SimpleWork(
+        return (Boolean) ex.execute(/*ex*/null/*principal*/, 
+        		new Executor.SimpleWork(
                 this, "isGraphCritical") {
             @Transactional(readOnly = true)
             public Boolean doWork(Session session, ServiceFactory sf) {
@@ -1432,8 +1515,15 @@ public class RenderingBean implements RenderingEngine, Serializable {
         });
     }
 
+    /**
+     * Retrieves the pixels corresponding to the specified identifier.
+     * 
+     * @param pixelsId The identifier of the pixels.
+     * @return See above.
+     */
     private Pixels retrievePixels(final long pixelsId) {
-        return (Pixels) ex.execute(/*ex*/null/*principal*/, new Executor.SimpleWork(
+        return (Pixels) ex.execute(/*ex*/null/*principal*/, 
+        		new Executor.SimpleWork(
                 this, "retrievePixels") {
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
@@ -1443,6 +1533,13 @@ public class RenderingBean implements RenderingEngine, Serializable {
         });
     }
 
+    /**
+     * Retrieves the rendering settings corresponding to the specified pixels
+     * set.
+     * 
+     * @param pixelsId The identifier of the pixels.
+     * @return See above.
+     */
     private RenderingDef retrieveRndSettings(final long pixelsId) {
         // FIXME check for null here?
         // Do not move this below errorIfNullPixels()
@@ -1476,7 +1573,16 @@ public class RenderingBean implements RenderingEngine, Serializable {
         return rd;
     }
 
-    private RenderingDef retrieveRndSettingsFor(final long pixelsId, final long userId) {
+    /**
+     * Retrieves the rendering settings corresponding to the specified 
+     * pixels set and for a given user.
+     * 
+     * @param pixelsId The identifier of the pixels.
+     * @param userId The user's identifier.
+     * @return See above.
+     */
+    private RenderingDef retrieveRndSettingsFor(final long pixelsId, 
+    		final long userId) {
         return (RenderingDef) ex.execute(/*ex*/null/*principal*/,
                 new Executor.SimpleWork(this, "retrieveRndDefFor") {
                     @Transactional(readOnly = true)
@@ -1487,6 +1593,12 @@ public class RenderingBean implements RenderingEngine, Serializable {
                 });
     }
 
+    /**
+     * Loads the rendering settings corresponding to the specified identifier.
+     * 
+     * @param rdefId The identifier of the settings.
+     * @return See above.
+     */
     private RenderingDef loadRndSettings(final long rdefId) {
         return (RenderingDef) ex.execute(/*ex*/null/*principal*/,
                 new Executor.SimpleWork(this, "loadRndDef") {
@@ -1497,8 +1609,15 @@ public class RenderingBean implements RenderingEngine, Serializable {
                 });
     }
 
+    /**
+     * Retrieves all enumerations of a given type.
+     * 
+     * @param k The type of enumerations to retrieve.
+     * @return See above
+     */
     private List getAllEnumerations(final Class k) {
-        return (List) ex.execute(/*ex*/null/*principal*/, new Executor.SimpleWork(this,
+        return (List) ex.execute(/*ex*/null/*principal*/, 
+        		new Executor.SimpleWork(this,
                 "getAllEnumerations") {
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
@@ -1507,8 +1626,17 @@ public class RenderingBean implements RenderingEngine, Serializable {
         });
     }
 
+    /**
+     * Controls if the pixels sets are compatible. Returns <code>true</code>
+     * if compatible, <code>false</code> otherwise.
+     * 
+     * @param pix1 One of the set to handle.
+     * @param pix2 One of the set to handle.
+     * @return
+     */
     private boolean sanityCheckPixels(final Pixels pix1, final Pixels pix2) {
-        return (Boolean) ex.execute(/*ex*/null/*principal*/, new Executor.SimpleWork(
+        return (Boolean) ex.execute(/*ex*/null/*principal*/, 
+        		new Executor.SimpleWork(
                 this, "sanityCheck") {
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
@@ -1518,11 +1646,23 @@ public class RenderingBean implements RenderingEngine, Serializable {
         });
     }
     
-
+    /**
+     * Projects a given stack.
+     * 
+     * @param algorithm The projection algorithm.
+     * @param timepoint The selected time point.
+     * @param stepping  The step between z-section to project.
+     * @param start     The lower z-section to project.
+     * @param end       The upper z-section to project.
+     * @param pixelsId  The identifier of the pixels set.
+     * @param i         The channel.
+     * @return See above.
+     */
     private byte[] projectStack(final int algorithm, final int timepoint, 
-            final int stepping, final int start, final int end, final long pixelsId,
-            final int i){
-        return (byte[]) ex.execute(/* ex */null/* principal */, new Executor.SimpleWork(this,"projectStack"){
+            final int stepping, final int start, final int end, 
+            final long pixelsId, final int i) {
+        return (byte[]) ex.execute(/* ex */null/* principal */, 
+        		new Executor.SimpleWork(this,"projectStack") {
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
                 return sf.getProjectionService()
@@ -1531,18 +1671,31 @@ public class RenderingBean implements RenderingEngine, Serializable {
             }});
     }
     
+    /**
+     * Creates new rendering settings for the passed pixels set.
+     * 
+     * @param pixels The pixels set to handle.
+     * @return See above.
+     */
     private RenderingDef createNewRenderingDef(final Pixels pixels) {
-        return (RenderingDef) ex.execute(null, new Executor.SimpleWork(this, "createNewRenderingDef"){
+        return (RenderingDef) ex.execute(null, new Executor.SimpleWork(this, 
+        		"createNewRenderingDef") {
             @Transactional(readOnly = true)
             public Object doWork(Session session, ServiceFactory sf) {
-                return sf.getRenderingSettingsService().createNewRenderingDef(pixels);
+                return sf.getRenderingSettingsService().createNewRenderingDef(
+                		pixels);
             }
-            
         });
     }
     
+    /**
+     * Resets the default rendering settings for the pixels set.
+     * 
+     * @param def The rendering settings to handle.
+     * @param pixels The pixels set.
+     */
     private void _resetDefaults(final RenderingDef def, final Pixels pixels) {
-        ex.execute(null, new Executor.SimpleWork(this,"_resetDefualts"){
+        ex.execute(null, new Executor.SimpleWork(this,"_resetDefaults") {
             @Transactional(readOnly = false) // ticket:1434
             public Object doWork(Session session, ServiceFactory sf) {
                 sf.getRenderingSettingsService().resetDefaults(def, pixels);

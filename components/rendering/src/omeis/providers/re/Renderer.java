@@ -898,4 +898,13 @@ public class Renderer {
 		return qs.getPixelsTypeMax();
 	}
 	
+	/**
+	 * Sets the magnification level.
+	 * 
+	 * @param zoomLevel The value to set.
+	 */
+	public void setZoomLevel(double zoomLevel)
+	{
+		
+	}
 }
