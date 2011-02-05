@@ -561,5 +561,12 @@ public interface RenderingEngine extends StatefulServiceInterface {
      */
 	public double getPixelsTypeUpperBound(int w);
 	
+	/**
+	 * Sets the magnification level.
+	 * 
+	 * @param zoomLevel The value to set.
+	 */
+	public void setZoomLevel(double zoomLevel);
+	
 }
 

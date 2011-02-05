@@ -55,6 +55,7 @@ import omero.api.AMD_RenderingEngine_setOverlays;
 import omero.api.AMD_RenderingEngine_setQuantizationMap;
 import omero.api.AMD_RenderingEngine_setQuantumStrategy;
 import omero.api.AMD_RenderingEngine_setRGBA;
+import omero.api.AMD_RenderingEngine_setZoomLevel;
 import omero.api.AMD_RenderingEngine_updateCodomainMap;
 import omero.api.AMD_StatefulServiceInterface_activate;
 import omero.api.AMD_StatefulServiceInterface_close;
@@ -416,5 +417,11 @@ public class BfRenderingEngineI extends _RenderingEngineDisp {
         // TODO Auto-generated method stub
         
     }
+
+	public void setZoomLevel_async(AMD_RenderingEngine_setZoomLevel __cb,
+			double zoomLevel, Current __current) throws ServerError {
+		// TODO Auto-generated method stub
+		
+	}
 
 }
