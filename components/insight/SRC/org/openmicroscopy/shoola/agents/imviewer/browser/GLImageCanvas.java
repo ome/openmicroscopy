@@ -182,9 +182,9 @@ class GLImageCanvas
     		int length = 0;
     		if (text != null)
     			length = getFontMetrics(getFont()).stringWidth(text);
-        	float t = (float) (length) / width;
+        	float t = (float) (length)/width;
         	float xText = x1+(s-t)/2+0.01f;
-            float yText =  0.97f;
+            float yText = 0.97f;
             gl.glRasterPos2f(xText, yText);
         	glut.glutBitmapString(FONT, text);
         }

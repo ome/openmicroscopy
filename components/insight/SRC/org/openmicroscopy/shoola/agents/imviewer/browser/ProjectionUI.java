@@ -117,10 +117,10 @@ class ProjectionUI
 	/** Creates a preview of the projection. */
 	void initialize()
 	{
-		if (!init) {
-			model.projectionPreview();
-			init = true;
-		}
+		//if (!init) {
+			//model.projectionPreview();
+			//init = true;
+		//}
 	}
 	
 	/** Creates the image to save. */

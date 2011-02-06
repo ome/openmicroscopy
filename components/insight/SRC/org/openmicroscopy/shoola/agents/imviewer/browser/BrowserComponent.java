@@ -465,7 +465,7 @@ class BrowserComponent
 				break;
 			case ImViewer.PROJECTION_INDEX:	
 				projectionView.initialize();
-				projectionView.repaint();
+				//projectionView.repaint();
 				break;
 			case ImViewer.VIEW_INDEX:	
 				view.zoomImage();

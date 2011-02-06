@@ -2040,4 +2040,22 @@ public class UIUtilities
    		return formatToolTipText(lines);
     }
     
+    /**
+     * Returns <code>true</code> if the passed colors are the same, 
+     * <code>false</code> otherwise.
+     * 
+     * @param c1 One of the colors to check.
+     * @param c2 One of the colors to check.
+     * @return See above.
+     */
+    public static boolean isSameColors(Color c1, Color c2)
+    {
+    	if (c1 == null || c2 == null) return false;
+    	if (c1.getRed() != c2.getRed()) return false;
+    	if (c1.getGreen() != c2.getGreen()) return false;
+    	if (c1.getBlue() != c2.getBlue()) return false;
+    	if (c1.getAlpha() != c2.getAlpha()) return false;
+    	return true;
+    }
+    
 }

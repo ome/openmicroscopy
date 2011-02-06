@@ -24,13 +24,17 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 
 
 //Third-party libraries
+import javax.media.opengl.GL;
 import javax.media.opengl.GLAutoDrawable;
+
+import com.sun.opengl.util.texture.TextureData;
 
 //Application-internal dependencies
 
@@ -48,22 +52,14 @@ import javax.media.opengl.GLAutoDrawable;
  * @since 3.0-Beta4
  */
 class ProjectionCanvas 
-	extends GLImageCanvas//ImageCanvas
+	extends GLImageCanvas
 {
-
-	/** The default text. */
-	private static final String DEFAULT_TEXT = "Click here to preview\n" +
-			" a projection of all the z-sections.";
 	
     /** The mouse listener. */
     private MouseAdapter	listener;
     
-    /** Does a preview of the projected image. */
-    private void projectionPreview()
-    {
-    	model.projectionPreview();
-    	removeMouseListener(listener);
-    }
+    /** The text displayed when no projection preview. */
+    private String          text;
     
     /** Attaches the listener. */
     private void attachListener()
@@ -71,7 +67,10 @@ class ProjectionCanvas
     	if (listener != null) return;
     	listener = new MouseAdapter() {
 			public void mouseReleased(MouseEvent e) {
-				projectionPreview();
+				model.projectionPreview();
+				text = ProjectionBICanvas.CREATION_TEXT;
+		    	removeMouseListener(listener);
+		    	repaint();
 			}
 		};
 		addMouseListener(listener);
@@ -86,78 +85,32 @@ class ProjectionCanvas
 	ProjectionCanvas(BrowserModel model, BrowserUI view)
 	{
 		super(model, view);
+		text = ProjectionBICanvas.DEFAULT_TEXT;
 	}
 
-	/**
-     * Overridden to paint the image.
-     * @see javax.swing.JComponent#paintComponent(Graphics)
-     */
-	/*
-    public void paintComponent(Graphics g)
-    {
-        super.paintComponent(g);
-        BufferedImage img = model.getDisplayedProjectedImage();
-        Graphics2D g2D = (Graphics2D) g;
-        ImagePaintingFactory.setGraphicRenderingSettings(g2D);
-        if (img == null) {
-
-        	img = model.getDisplayedImage();
-
-        	if (img != null) {
-        		attachListener();
-        		int w = img.getWidth()-1;
-        		int h = img.getHeight()-1;
-        		g2D.setColor(Color.black);
-        		g2D.fillRect(0, 0, w, h);
-        		FontMetrics fm = g2D.getFontMetrics();
-        		g2D.setColor(Color.white);
-        		int width = fm.stringWidth(DEFAULT_TEXT);
-
-        		g2D.drawString(DEFAULT_TEXT, (w-width)/2, h/2);
-        	}
-        	return;
-        }
-       
-        g2D.drawImage(img, null, 0, 0); 
-        paintScaleBar(g2D, img.getWidth(), img.getHeight(), view.getViewport());
-        g2D.dispose();
-    }
-    */
-    
     /**
      * Paints the image.
      * 
      */
     public void display(GLAutoDrawable drawable) 
 	{
-    	/*
-		GL2 gl = drawable.getGL().getGL2();
-		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);	
-		texture = TextureIO.newTexture(model.getRenderedImageAsTexture());
-		if (texture != null) 
-		{
-			float x = 1;
-			float y = 1;
-			texture.enable();
-			texture.bind();
-			gl.glTexEnvi(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE,
-					GL2.GL_REPLACE);
-			TextureCoords coords = texture.getImageTexCoords();
-			coords = new TextureCoords(0, 0, 1, 1);
-			gl.glBegin(GL2.GL_QUADS);
-			gl.glTexCoord2f(coords.left(), coords.bottom());
-			gl.glVertex3f(0, 0, 0);
-			gl.glTexCoord2f(coords.right(), coords.bottom());
-			gl.glVertex3d(x, 0, 0);
-			gl.glTexCoord2f(coords.right(), coords.top());
-			gl.glVertex3f(x, y, 0);
-			gl.glTexCoord2f(coords.left(), coords.top());
-			gl.glVertex3f(0, y, 0);
-			gl.glEnd();
-			texture.disable();
-		}
-		*/
-    	onDisplay(drawable, model.getProjectedImageAsTexture());
+    	TextureData data = model.getProjectedImageAsTexture();
+    	if (data == null) {
+    		GL gl = drawable.getGL();
+    		// Clear The Screen And The Depth Buffer
+    		gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);	
+    		Color c = ProjectionBICanvas.BACKGROUND_COLOR;
+    		float[] array = new float[4];
+    		array = c.getRGBColorComponents(array);
+    		gl.glClearColor(array[0], array[1], array[2], array[3]);
+    		c = ProjectionBICanvas.TEXT_COLOR;
+    		gl.glColor3f(c.getRed()/255f, c.getGreen()/255f, c.getBlue()/255f);
+            gl.glRasterPos2f(0.25f, 0.5f);
+        	glut.glutBitmapString(FONT, text);
+        	attachListener();
+    		return;
+    	}
+    	onDisplay(drawable, data);
 	}
     
 }

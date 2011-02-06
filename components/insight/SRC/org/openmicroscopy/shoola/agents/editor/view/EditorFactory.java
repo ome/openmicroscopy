@@ -228,6 +228,7 @@ public class EditorFactory
 	public static List<Object> getInstancesToSave()
 	{
 		List<Object> instances = new ArrayList<Object>();
+		if (singleton == null) return instances;
 		if (singleton.editors.size() == 0) return instances;
 		Iterator i = singleton.editors.iterator();
 		EditorComponent comp;

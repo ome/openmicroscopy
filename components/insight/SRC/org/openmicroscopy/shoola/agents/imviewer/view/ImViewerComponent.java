@@ -902,7 +902,7 @@ class ImViewerComponent
 						"NEW state.");
 		}
 		//depends on model
-		model.setLastSettingsRef();
+		model.setLastSettingsRef(model.getTabbedIndex());
 		int uiIndex = -1;
 		if (model.getColorModel().equals(GREY_SCALE_MODEL)) {
 			if (model.getTabbedIndex() == ImViewer.GRID_INDEX) {
@@ -980,6 +980,7 @@ class ImViewerComponent
 			if (def != null) stop = model.isSameSettings(def, true);
 		}
 		//if (stop) return;
+		
 		if (index == PROJECTION_INDEX) {
 			if (stop) return;
 			previewProjection();
@@ -2547,20 +2548,6 @@ class ImViewerComponent
 		if (oldIndex == index) return;
 		
 		view.setSelectedPane(index);
-		/*
-		//Retrieve the color model of the selected pane
-		String cm = view.getSelectedPaneColorModel();
-		colorModel = model.getColorModel();
-		if (!colorModel.equals(cm)) {
-			int key = ColorModelAction.RGB_MODEL;
-			if (GREY_SCALE_MODEL.equals(cm))
-				key = ColorModelAction.GREY_SCALE_MODEL;
-			setColorModel(key);
-		}
-		firePropertyChange(TAB_SELECTION_PROPERTY, Boolean.FALSE, Boolean.TRUE);
-		renderXYPlane();
-		*/
-		
 		if (oldIndex == ImViewer.GRID_INDEX) {
 			int key = ColorModelAction.RGB_MODEL;
 			if (GREY_SCALE_MODEL.equals(colorModel))
@@ -2568,17 +2555,23 @@ class ImViewerComponent
 			setColorModel(key);
 		}
 		
-		firePropertyChange(TAB_SELECTION_PROPERTY, Boolean.FALSE, Boolean.TRUE);
-		if ((oldIndex == ImViewer.PROJECTION_INDEX && 
-				index == ImViewer.VIEW_INDEX) ||
-				(index == ImViewer.PROJECTION_INDEX && 
-						oldIndex == ImViewer.VIEW_INDEX)) {
-			if (model.getBrowser().hasProjectedPreview()) renderXYPlane();
+		firePropertyChange(TAB_SELECTION_PROPERTY, 
+				Boolean.valueOf(false), Boolean.valueOf(true));
+		if (oldIndex == ImViewer.PROJECTION_INDEX 
+				&& index == ImViewer.VIEW_INDEX) {
+			//check if settings have changed.
+			//model.setLastSettingsRef(oldIndex);
+			renderXYPlane();
+		} else if (index == ImViewer.PROJECTION_INDEX && 
+				oldIndex == ImViewer.VIEW_INDEX) {
+			//model.setLastSettingsRef(oldIndex);
+			if (model.getBrowser().hasProjectedPreview()) {
+				//renderXYPlane();
+			}
 		} else {
 			renderXYPlane();
 		}
 		model.getBrowser().getUI().setVisible(true);
-		//firePropertyChange(TAB_SELECTION_PROPERTY, Boolean.FALSE, Boolean.TRUE);
 	}
 
 	/** 

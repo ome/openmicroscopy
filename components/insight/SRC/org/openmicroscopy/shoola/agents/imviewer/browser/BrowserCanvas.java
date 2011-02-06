@@ -47,7 +47,7 @@ import javax.media.opengl.GLAutoDrawable;
  * @since OME2.2
  */
 class BrowserCanvas
-    extends GLImageCanvas//ImageCanvas
+    extends GLImageCanvas
 {
     
 	/**

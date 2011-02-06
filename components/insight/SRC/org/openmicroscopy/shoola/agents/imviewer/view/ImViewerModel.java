@@ -1328,13 +1328,23 @@ class ImViewerModel
 		return m;
 	}
 	
-	/** Sets the settings before turning on/off channels in the grid view. */
-	void setLastSettingsRef()
+	/** 
+	 * Sets the settings before turning on/off channels in the grid view. 
+	 * 
+	 * @param index The index specified.
+	 */
+	void setLastSettingsRef(int index)
 	{
-		if (getTabbedIndex() != ImViewer.GRID_INDEX) return;
 		Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return;
-		lastMainDef = rnd.getRndSettingsCopy();
+		switch (index) {
+			case ImViewer.GRID_INDEX:
+			case ImViewer.PROJECTION_INDEX:
+				lastMainDef = rnd.getRndSettingsCopy();
+				break;
+			case ImViewer.VIEW_INDEX:
+				lastProjDef = rnd.getRndSettingsCopy();	
+		}
 	}
 	
 	/** 

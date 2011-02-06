@@ -237,7 +237,7 @@ class ControlPane
     /** Button to play movie across T displayed in the split view. */
     private JButton					playZMovieGrid;
     
-    /** Button to bring up the color picker. */
+    /** Button to project the displayed image. */
     private JButton         		projectionProject;
 
     /** The type of supported projections. */
