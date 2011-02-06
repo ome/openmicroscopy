@@ -1328,6 +1328,24 @@ public class RenderingBean implements RenderingEngine, Serializable {
     }
 
     /**
+     * Implemented as specified by the {@link RenderingEngine} interface.
+     * 
+     * @see RenderingEngine#getZoomLevel()
+     */
+    @RolesAllowed("user")
+    public double getZoomLevel() {
+        rwl.readLock().lock();
+
+        try {
+            errorIfNullRenderingDef();
+            //TODO: modify
+            return 1.0;//rendDefObj.getDefaultT().intValue();
+        } finally {
+            rwl.readLock().unlock();
+        }
+    }
+    
+    /**
      * Close the active renderer, cleaning up any potential messes left by the
      * included pixel buffer.
      */

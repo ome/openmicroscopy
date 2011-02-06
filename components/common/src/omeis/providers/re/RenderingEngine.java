@@ -568,5 +568,12 @@ public interface RenderingEngine extends StatefulServiceInterface {
 	 */
 	public void setZoomLevel(double zoomLevel);
 	
+	/**
+	 * Returns the magnification level.
+	 * 
+	 * @return See above.
+	 */
+	public double getZoomLevel();
+	
 }
 

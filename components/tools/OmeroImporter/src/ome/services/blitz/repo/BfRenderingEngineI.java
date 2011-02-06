@@ -28,6 +28,7 @@ import omero.api.AMD_RenderingEngine_getPixelsTypeLowerBound;
 import omero.api.AMD_RenderingEngine_getPixelsTypeUpperBound;
 import omero.api.AMD_RenderingEngine_getQuantumDef;
 import omero.api.AMD_RenderingEngine_getRGBA;
+import omero.api.AMD_RenderingEngine_getZoomLevel;
 import omero.api.AMD_RenderingEngine_isActive;
 import omero.api.AMD_RenderingEngine_isPixelsTypeSigned;
 import omero.api.AMD_RenderingEngine_load;
@@ -420,8 +421,9 @@ public class BfRenderingEngineI extends _RenderingEngineDisp {
 
 	public void setZoomLevel_async(AMD_RenderingEngine_setZoomLevel __cb,
 			double zoomLevel, Current __current) throws ServerError {
-		// TODO Auto-generated method stub
-		
 	}
 
+	public void getZoomLevel_async(AMD_RenderingEngine_getZoomLevel __cb,
+			Current __current) throws ServerError {
+	}
 }

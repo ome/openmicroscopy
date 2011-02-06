@@ -71,6 +71,7 @@ module omero {
                 double getPixelsTypeUpperBound(int w) throws ServerError;
                 double getPixelsTypeLowerBound(int w) throws ServerError;
                 void setZoomLevel(double level) throws ServerError;
+                double getZoomLevel() throws ServerError;
             };
 
     };

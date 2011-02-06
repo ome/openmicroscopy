@@ -38,6 +38,7 @@ import omero.api.AMD_RenderingEngine_getPixelsTypeLowerBound;
 import omero.api.AMD_RenderingEngine_getPixelsTypeUpperBound;
 import omero.api.AMD_RenderingEngine_getQuantumDef;
 import omero.api.AMD_RenderingEngine_getRGBA;
+import omero.api.AMD_RenderingEngine_getZoomLevel;
 import omero.api.AMD_RenderingEngine_isActive;
 import omero.api.AMD_RenderingEngine_isPixelsTypeSigned;
 import omero.api.AMD_RenderingEngine_setOverlays;
@@ -456,5 +457,9 @@ public class RenderingEngineI extends AbstractAmdServant implements
         callInvokerOnRawArgs(__cb, __current, zoomLevel);
     }
 
+    public void getZoomLevel_async(AMD_RenderingEngine_getZoomLevel __cb,
+            Current __current) throws ServerError {
+        callInvokerOnRawArgs(__cb, __current);
+    }
 
 }
