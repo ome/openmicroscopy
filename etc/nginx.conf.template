@@ -12,15 +12,15 @@ http {
     access_log    %(ROOT)s/var/log/nginx_access.log;
     include       %(ROOT)s/etc/mime.types;
     default_type  application/octet-stream;
-    client_body_temp_path %(ROOT)s/tmp;
+    client_body_temp_path %(ROOT)s/var/nginx_tmp;
 
     keepalive_timeout  65;
 
     server {
         listen       %(HTTPPORT)d;
         server_name  _;
-        fastcgi_temp_path %(ROOT)s/var;
-        proxy_temp_path %(ROOT)s/var;
+        fastcgi_temp_path %(ROOT)s/var/nginx_tmp;
+        proxy_temp_path %(ROOT)s/var/nginx_tmp;
 
          # weblitz django apps serve media from here
         location /appmedia {
