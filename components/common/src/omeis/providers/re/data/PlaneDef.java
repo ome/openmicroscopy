@@ -71,6 +71,9 @@ public class PlaneDef implements Serializable {
     /** The region to retrieve i.e. a rectangular section of the plane. */
     private RegionDef region;
     
+    /** The step size. */
+    private int stride;
+    
     /**
      * Creates a new instance. This new object will identify the plane belonging
      * to the set specified by <code>slice</code> and <code>t</code> and
@@ -101,6 +104,7 @@ public class PlaneDef implements Serializable {
             throw new IllegalArgumentException("Negative timepoint: " + t + ".");
         }
         this.t = t;
+        stride = 0;
     }
 
     /**
@@ -228,6 +232,24 @@ public class PlaneDef implements Serializable {
      * @return See above.
      */
     public RegionDef getRegion() { return region; }
+    
+    /**
+     * Returns the stride.
+     * 
+     * @param stride The value to set.
+     */
+    public void setStride(int stride)
+    {
+    	if (stride < 0) stride = 0;
+    	this.stride = stride;
+    }
+    
+    /**
+     * Returns the stride.
+     * 
+     * @return See above.
+     */
+    public int getStride() { return stride; }
     
     /**
      * Overridden to reflect equality of abstract values (data object) as

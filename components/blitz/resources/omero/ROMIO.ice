@@ -58,6 +58,7 @@ module romio
       int z;
       int t;
       RegionDef region;
+      int stride;
     };
 
 

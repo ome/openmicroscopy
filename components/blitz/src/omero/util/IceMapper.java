@@ -560,6 +560,7 @@ public class IceMapper extends ome.util.ModelMapper implements
     public static PlaneDef convert(omero.romio.PlaneDef def)
             throws omero.ApiUsageException {
         PlaneDef pd = new PlaneDef(def.slice, def.t);
+        pd.setStride(def.stride);
         omero.romio.RegionDef r = def.region;
         if (r != null) {
         	pd.setRegion(new RegionDef(r.x, r.y, r.width, r.height));
