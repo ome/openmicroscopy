@@ -40,7 +40,6 @@ import javax.imageio.ImageIO;
 import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
-import loci.formats.IFormatReader;
 import loci.formats.ImageReader;
 import com.sun.opengl.util.texture.TextureData;
 
@@ -125,15 +124,11 @@ class OmeroImageServiceImpl
 	/** The collection of supported file filters. */
 	private FileFilter[]		filters;
 	
-	/** The extensions of the supported files formats. */
-	private String[]				supportedExtensions;
-	
 	/** Uses it to gain access to the container's services. */
 	private Registry                context;
 
 	/** Reference to the entry point to access the <i>OMERO</i> services. */
 	private OMEROGateway            gateway;
-	
 
 	/**
 	 * Imports the specified candidates.

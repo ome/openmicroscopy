@@ -132,69 +132,16 @@ class OmeroDataServiceImpl
 		if (links != null) 
 			gateway.deleteObjects(links);
 	}
-
-	/**
-	 * Returns the list of objects owned by other users.
-	 * 
-	 * @param objects The list to manipulate.
-	 * @return See above
-	 */
-	private List<IObject> isRelatedToOther(List<IObject> objects)
-	{
-		List<IObject> others = new ArrayList<IObject>();
-		if (objects == null) return others;
-		ExperimenterData exp = 
-			(ExperimenterData) context.lookup(LookupNames.CURRENT_USER_DETAILS);
-		long id = exp.getId();
-		Iterator i = objects.iterator();
-		IObject obj;
-		long ownerID;
-		while (i.hasNext()) {
-			obj = (IObject) i.next();
-			ownerID = obj.getDetails().getOwner().getId().getValue();
-			if (ownerID != id)
-				others.add(obj);
-		}
-		return others;
-	}
 	
 	/**
-	 * Removed the annotations links.
+	 * Deletes the tag set.
 	 * 
-	 * @param object
+	 * @param id The identifier of the set.
 	 * @return See above.
-	 * @throws DSOutOfServiceException
-	 * @throws DSAccessException
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMEDS service. 
 	 */
-	private List<DeletableObject> deleteTagLinks(IObject object)
-		throws DSOutOfServiceException, DSAccessException
-	{
-		//Delete the Tag-DataObject links
-		long id = object.getId().getValue();
-		List<Long> ids = new ArrayList<Long>();
-		ids.add(id);
-		List l = gateway.findAnnotationLinks(ImageData.class.getName(), -1, 
-				ids);
-		List links = new ArrayList();
-		//remove the links.
-		if (l != null && l.size() > 0) links.addAll(l);
-		l = gateway.findAnnotationLinks(DatasetData.class.getName(), -1, 
-				ids);
-		if (l != null && l.size() > 0) links.addAll(l);
-		l = gateway.findAnnotationLinks(ProjectData.class.getName(), -1, 
-				ids);
-		if (l != null && l.size() > 0) links.addAll(l);
-		l = gateway.findAnnotationLinks(TagAnnotationData.class.getName(), -1, 
-				ids);
-		if (l != null && l.size() > 0) links.addAll(l);
-		
-		if (links.size() > 0)
-			gateway.deleteObjects(links);
-		context.getMetadataService().clearAnnotation(TagAnnotationData.class, 
-									id, null);
-		return null;
-	}
-	
 	private List<DataObject> deleteTagSet(long id)
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -218,84 +165,7 @@ class OmeroDataServiceImpl
 		gateway.deleteObjects(l);
 		return tags;
 	}
-	
-	/**
-	 * Returns the collection of annotations to delete before deleting
-	 * the object.
-	 * 
-	 * @param types The type of annotations to delete.
-	 * @param annotations
-	 * @param parentType
-	 * @return See above.
-	 */
-	private List<IObject> annotationsLinkToDelete(List<Class> types, 
-								List<IObject> annotations, Class parentType)
-	{
-		List<IObject> toDelete = new ArrayList<IObject>();
-		if (types == null || types.size() == 0) return toDelete;
-		List<Class> annoTypes = convert(types);
-		
-		if (annoTypes.size() == 0) return toDelete;
-		Iterator k = annotations.iterator();
-		IObject ann;
-		IObject child = null;
-		while (k.hasNext()) {
-			ann = (IObject) k.next();
-			if (ImageData.class.equals(parentType)) 
-				child = ((ImageAnnotationLink) ann).getChild();
-			else if (DatasetData.class.equals(parentType)) 
-				child = ((DatasetAnnotationLink) ann).getChild();
-			else if (ProjectData.class.equals(parentType))
-				child = ((ProjectAnnotationLink) ann).getChild();
-			else if (ScreenData.class.equals(parentType))
-				child = ((ScreenAnnotationLink) ann).getChild();
-			else if (PlateData.class.equals(parentType))
-				child = ((PlateAnnotationLink) ann).getChild();
-			else if (WellData.class.equals(parentType))
-				child = ((WellAnnotationLink) ann).getChild();
-			else if (WellSampleData.class.equals(parentType))
-				child = ((WellSampleAnnotationLink) ann).getChild();
-			if (child != null) {
-				if (child instanceof LongAnnotation) {
-					LongAnnotation longA = (LongAnnotation) child;
-					RString name = longA.getNs();
-					if (name != null) {
-						if (name.getValue().equals(
-						RatingAnnotationData.INSIGHT_RATING_NS) &&
-							!annoTypes.contains(child.getClass())){
-							toDelete.add(ann);
-						}
-					}
-				} else {
-					if (!annoTypes.contains(child.getClass())) {
-						toDelete.add(ann);
-					}
-				}
-			}
-		}
-		return toDelete;
-	}
-	
-	/**
-	 * Converts the list of pojos into the corresponding class.
-	 * 
-	 * @param list The list to handle.
-	 * @return See above.
-	 */
-	private List<Class> convert(List<Class> list)
-	{
-		List<Class> newList = new ArrayList<Class>();
-		Iterator<Class> i = list.iterator();
-		Class klass, convertedClass;
-		while (i.hasNext()) {
-			klass = i.next();
-			convertedClass = gateway.convertPojos(klass);
-			if (convertedClass != null)
-				newList.add(convertedClass);
-		}
-		return newList;
-	}
-	
+
 	/**
 	 * Creates a new instance.
 	 * 
@@ -602,7 +472,6 @@ class OmeroDataServiceImpl
 		return m;
 	}
 
-
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#getArchivedFiles(String, long)
@@ -649,7 +518,6 @@ class OmeroDataServiceImpl
 		return data;
 	}
 
-	
 	/**
 	 * Implemented as specified by {@link OmeroDataService}.
 	 * @see OmeroDataService#getImagesPeriod(Timestamp, Timestamp, long, boolean)
@@ -762,7 +630,6 @@ class OmeroDataServiceImpl
 									nodes.add(img);
 								}
 							}
-							break;
 					}
 				}
 			}

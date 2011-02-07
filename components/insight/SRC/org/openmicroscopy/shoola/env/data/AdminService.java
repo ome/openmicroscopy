@@ -71,15 +71,14 @@ public interface AdminService
 	 * 
 	 * @param oldPassword	The password used to log in.
 	 * @param newPassword	The new password.
-	 * @return 	<code>Boolean.TRUE</code> if successfully modified,
-	 * 			<code>Boolean.FALSE</code> otherwise.
+	 * @return <code>true</code> if successfully modified,
+	 * 			<code>false</code> otherwise.
 	 * @throws DSOutOfServiceException If the connection is broken, or logged in
 	 * @throws DSAccessException If an error occurred while trying to 
 	 * retrieve data from OMERO service. 
 	 */
 	public Boolean changePassword(String oldPassword, String newPassword)
 		throws DSOutOfServiceException, DSAccessException;
-	
 
 	/**
 	 * Updates the specified experimenter.

@@ -22,9 +22,10 @@
  */
 package org.openmicroscopy.shoola.env.data.util;
 
-import java.util.List;
+
 
 //Java imports
+import java.util.List;
 
 //Third-party libraries
 

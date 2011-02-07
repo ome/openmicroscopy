@@ -471,29 +471,6 @@ class OmeroMetadataServiceImpl
 		TagAnnotation ho;
 		IObject link = null;
 		if (ann instanceof TagAnnotationData) {
-			/*
-			TagAnnotationData tag = (TagAnnotationData) ann;
-			TextualAnnotationData description = tag.getTagDescription();
-			//if (description != null) {
-			id = tag.getId();
-			if (id >= 0) {
-				gateway.removeTagDescription(id, getUserDetails().getId());
-			}	
-			ioType = gateway.convertPojos(TagAnnotationData.class).getName();
-			ho = (TagAnnotation) gateway.findIObject(ioType, id);
-			
-			ModelMapper.unloadCollections(ho);
-			link = ModelMapper.createAnnotationAndLink(ho, description);
-			if (link != null) 
-				gateway.createObject(link, (new PojoOptionsI()).map());
-			RString string = ho.getTextValue();
-			if (!tag.getTagValue().equals(string.getValue())) {
-				ho.setTextValue(omero.rtypes.rstring(tag.getTagValue()));
-				IObject object = 
-					gateway.updateObject(ho, (new PojoOptionsI()).map());
-				return PojoMapper.asDataObject(object);
-			}
-			*/
 			TagAnnotationData tag = (TagAnnotationData) ann;
 			id = tag.getId();
 			ioType = gateway.convertPojos(TagAnnotationData.class).getName();
@@ -1848,6 +1825,5 @@ class OmeroMetadataServiceImpl
 		}
 		return null;
 	}
-	
-	
+
 }

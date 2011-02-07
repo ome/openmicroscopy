@@ -123,70 +123,6 @@ public class ModelMapper
             throw new IllegalArgumentException("The object mustn't be null.");
         if (object.isLoaded())
         	object.unloadCollections();
-        /*
-        if (object instanceof Project) {
-        	ProjectI p = (ProjectI) object;
-        	p.toggleCollectionsLoaded(false);
-        } else if (object instanceof Dataset) {
-        	DatasetI p = (DatasetI) object;
-        	p.toggleCollectionsLoaded(false);
-        } else if (object instanceof LongAnnotation) {
-        	LongAnnotationI p = (LongAnnotationI) object;
-        	p.toggleCollectionsLoaded(false);
-        } else if (object instanceof TagAnnotation) {
-        	TagAnnotationI p = (TagAnnotationI) object;
-        	p.toggleCollectionsLoaded(false);
-        } else if (object instanceof UrlAnnotation) {
-        	UrlAnnotationI p = (UrlAnnotationI) object;
-        	p.toggleCollectionsLoaded(false);
-        } else if (object instanceof TextAnnotation) {
-        	TextAnnotationI p = (TextAnnotationI) object;
-        	p.toggleCollectionsLoaded(false);
-        } 
-        */
-    }
-
-    /**
-     * Unlinks the specified child from its parent and returns the link to 
-     * remove.
-     * 
-     * @param child     The child to unlink.
-     * @param parent    The child's parent.
-     * @return See above
-     */
-    public static IObject unlinkChildFromParent(IObject child, IObject parent)
-    {
-    	List links;
-    	Iterator i;
-        if (parent instanceof Dataset) {
-            if (!(child instanceof Image))
-                throw new IllegalArgumentException("Child not valid.");
-            links = ((Image) child).copyDatasetLinks();
-            i = links.iterator();
-            DatasetImageLink link = null;
-            long parentID = parent.getId().getValue();
-            while (i.hasNext()) {
-                link = (DatasetImageLink) i.next();
-                if (link.getParent().getId().getValue() == parentID) 
-                	break;  
-            }
-            return link;
-        } else if (parent instanceof Project) {
-            if (!(child instanceof Dataset))
-                throw new IllegalArgumentException("Child not valid.");
-            links = ((Project) parent).copyDatasetLinks();
-            i = links.iterator();
-            ProjectDatasetLink link = null;
-            long childID = child.getId().getValue();
-            while (i.hasNext()) {
-                link = (ProjectDatasetLink) i.next();
-                if (link.getChild().getId().getValue() == childID) {
-                    return link;  
-                }
-            }
-            //return link;
-        } 
-        throw new IllegalArgumentException("Parent not supported.");
     }
 
     /**
@@ -264,7 +200,6 @@ public class ModelMapper
         	if (ns == null || !ns.getValue().equals(
         			TagAnnotationData.INSIGHT_TAGSET_NS))
         		return null;
-        		//throw new IllegalArgumentException("Parent not valid.");
         	return linkAnnotation(parent, (TagAnnotation) child);
         } else if (parent instanceof ExperimenterGroup) {
         	 if (!(child instanceof Experimenter))
@@ -306,12 +241,15 @@ public class ModelMapper
             l = d.copyProjectLinks();
             if (l == null) return;
             ProjectDatasetLink link;
+            
             it = l.iterator();
             long id = p.getId().getValue();
             while (it.hasNext()) {
                 link = (ProjectDatasetLink) it.next();
-                if (id == link.getParent().getId().getValue())
-                	p.addProjectDatasetLink(link);
+                if (id == link.getParent().getId().getValue()) {
+                	p.addProjectDatasetLink(
+                			new ProjectDatasetLinkI(link.getId(), false));
+                }
             }
         } else if (parent instanceof Dataset) {
             if (!(child instanceof Image))
@@ -325,8 +263,10 @@ public class ModelMapper
             long id = p.getId().getValue();
             while (it.hasNext()) {
                 link = (DatasetImageLink) it.next();
-                if (id == link.getParent().getId().getValue())
-                	p.addDatasetImageLink(link);
+                if (id == link.getParent().getId().getValue()) {
+                 	p.addDatasetImageLink(
+                 			new DatasetImageLinkI(link.getId(), false));
+                }
             }
         } else
             throw new IllegalArgumentException("DataObject not supported.");
@@ -422,8 +362,11 @@ public class ModelMapper
             Project mParent = (Project) parent;
             List s = mParent.copyDatasetLinks();
             Iterator i = s.iterator();
+            ProjectDatasetLink link;
             while (i.hasNext()) { 
-                mParent.removeProjectDatasetLink((ProjectDatasetLink) i.next());
+            	link = (ProjectDatasetLink) i.next();
+                mParent.removeProjectDatasetLink(
+                		new ProjectDatasetLinkI(link.getId(), false));
             }
             return mParent;
         } 
@@ -561,23 +504,6 @@ public class ModelMapper
     }
     
     /**
-     * Links the annotated object and its annotation.
-     * 
-     * @param annotated		The annotated object.
-     * @param annotation	The annotation.
-     */
-    public static void setAnnotatedObject(IObject annotated, 
-            IObject annotation)  
-    {
-    	/*
-        if (annotation instanceof ImageAnnotation)
-            ((ImageAnnotation) annotation).setImage((Image) annotated);
-        if (annotation instanceof DatasetAnnotation)
-            ((DatasetAnnotation) annotation).setDataset((Dataset) annotated);
-            */
-    }
-    
-    /**
      * Returns the annotated IObject related to the specified annotation.
      * 
      * @param annotation    The annotation.
@@ -603,25 +529,25 @@ public class ModelMapper
     }
     
     /**
-     * Returns the annotated IObject related to the specified annotation.
+     * Returns the annotation represented by the specified link
      * 
-     * @param annotation    The annotation.
+     * @param link  The annotation.
      * @return  See above.
      */
-    public static IObject getAnnotationObject(IObject annotation)
+    public static IObject getAnnotationObject(IObject link)
     {
-    	if (annotation instanceof DatasetAnnotationLink)
-    		return ((DatasetAnnotationLink) annotation).getChild();
-    	else if (annotation instanceof ProjectAnnotationLink)
-    		return ((ProjectAnnotationLink) annotation).getChild();
-    	else if (annotation instanceof ImageAnnotationLink)
-    		return ((ImageAnnotationLink) annotation).getChild();
-    	else if (annotation instanceof PlateAnnotationLink)
-    		return ((PlateAnnotationLink) annotation).getChild();
-    	else if (annotation instanceof ScreenAnnotationLink)
-    		return ((ScreenAnnotationLink) annotation).getChild();
-    	else if (annotation instanceof WellAnnotationLink)
-    		return ((WellAnnotationLink) annotation).getChild();
+    	if (link instanceof DatasetAnnotationLink)
+    		return ((DatasetAnnotationLink) link).getChild();
+    	else if (link instanceof ProjectAnnotationLink)
+    		return ((ProjectAnnotationLink) link).getChild();
+    	else if (link instanceof ImageAnnotationLink)
+    		return ((ImageAnnotationLink) link).getChild();
+    	else if (link instanceof PlateAnnotationLink)
+    		return ((PlateAnnotationLink) link).getChild();
+    	else if (link instanceof ScreenAnnotationLink)
+    		return ((ScreenAnnotationLink) link).getChild();
+    	else if (link instanceof WellAnnotationLink)
+    		return ((WellAnnotationLink) link).getChild();
     	return null;
     }
     
