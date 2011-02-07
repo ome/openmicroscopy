@@ -43,6 +43,7 @@ import javax.imageio.ImageIO;
 import omero.client;
 import omero.api.IAdminPrx;
 import omero.api.IContainerPrx;
+import omero.api.RawPixelsStorePrx;
 import omero.api.RenderingEnginePrx;
 import omero.api.ServiceFactoryPrx;
 import omero.api.ServiceInterfacePrx;
@@ -451,4 +452,28 @@ public class Gateway
 		return images;
 	}
 	
+	/**
+	 * Returns the XY-plane identified by the passed z-section, time-point 
+	 * and wavelength.
+	 * 
+	 * @param pixelsID 	The id of pixels containing the requested plane.
+	 * @param z			The selected z-section.
+	 * @param t			The selected time-point.
+	 * @param c			The selected wavelength.
+	 * @return See above.
+	 */
+	 public synchronized byte[] getPlane(long pixelsID, int z, int t, int c)
+	 	throws Exception
+	 {
+		 RawPixelsStorePrx service = entryEncrypted.createRawPixelsStore();
+		 try {
+			 service.setPixelsId(pixelsID, false);
+			 return service.getPlane(z, c, t);
+		 } catch (Throwable e) {
+			 new Exception("Cannot retrieve the plane " +
+					 "(z="+z+", t="+t+", c="+c+") for pixelsID:  "+pixelsID, e);
+		 }
+		 return null;
+	}
+	 
 }

@@ -62,7 +62,8 @@ import sun.awt.image.IntegerInterleavedRaster;
 
 /** 
  * Displays the image and controls.
- *
+ * Thanks to  Galli Vanni vanni.galli@supsi.ch to add controls for 
+ * 
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
@@ -111,6 +112,15 @@ class ViewerPane
 	/** The image currently viewed. */
 	private ImageData image;
 	
+	/** JPanel displaying all the available channels **/
+	private JPanel channelsPane;
+	
+	/** Number of channels of the image **/
+	private int channelsNumber;
+	
+	/** Indicates that the channels are selected or not. */
+	private JCheckBox[] channels;
+	
 	/**
 	 * Creates a buffer image from the specified <code>array</code> of 
 	 * integers.
@@ -152,7 +162,7 @@ class ViewerPane
 			pDef.t = engine.getDefaultT();
 			pDef.z = engine.getDefaultZ();
 			pDef.slice = omero.romio.XY.value;
-			pDef.region = new RegionDef(0, 0, sizeX, sizeY);
+			//pDef.region = new RegionDef(0, 0, sizeX, sizeY);
 			//now render the image. possible to render it compressed or not
 			//not compressed
 			BufferedImage img = null;
@@ -232,6 +242,64 @@ class ViewerPane
 		tSlider.addChangeListener(this);
 	}
 	
+	/**
+	 * Builds the channel component.
+	 * 
+	 * @param n The number of channels.
+	 */
+	private void buildChannelsPane(int n)
+	{		
+		try
+		{
+			channelsPane.removeAll();
+			remove(channelsPane);
+			
+			channels = new JCheckBox[n];
+			
+			for (int i = 0; i < n; i ++)
+			{
+				channels[i] = new JCheckBox("Channel " + i);
+				channels[i].setSelected(true);         
+				channels[i].addActionListener(new ActionListener()
+				{
+					public void actionPerformed(ActionEvent e)
+					{
+						setActiveChannels(e);
+					}
+				});
+				
+				channelsPane.add(channels[i]);
+			}
+
+			add(channelsPane);
+		}
+		catch (Exception e)
+		{
+			
+		}
+	}
+	
+	/**
+	 * Sets the channel active or not.
+	 * 
+	 * @param evt The event to handle.
+	 */
+	private void setActiveChannels(ActionEvent evt)
+	{
+		try
+		{
+			for (int i = 0; i < channelsNumber; i ++)
+			{
+				engine.setActive(i, channels[i].isSelected());
+			}
+			render();
+		}
+		catch(Exception e)
+		{
+			// TODO: handle exception
+		}
+	}
+	
 	/** Builds and lays out the component. */
 	private void buildGUI()
 	{
@@ -250,6 +318,12 @@ class ViewerPane
 		content.setLayout(new FlowLayout(FlowLayout.LEFT));
 		content.add(compressed);
 		p.add(content);
+		
+		channelsPane = new JPanel();
+		channelsPane.setLayout(new FlowLayout(FlowLayout.LEFT));
+
+		p.add(channelsPane);
+		
 		JPanel pp = new JPanel();
 		pp.setLayout(new FlowLayout(FlowLayout.LEFT));
 		pp.add(p);
@@ -300,6 +374,9 @@ class ViewerPane
 		}
 		zSlider.addChangeListener(this);
 		tSlider.addChangeListener(this);
+		// number of channels in the image (RGB)
+		channelsNumber = image.getDefaultPixels().getSizeC();		
+		buildChannelsPane(channelsNumber);
 		render();
 	}
 
