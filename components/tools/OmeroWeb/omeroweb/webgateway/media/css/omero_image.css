@@ -618,6 +618,7 @@ input.spin-button {
   background-color: #C4CFD5;   
 }
 
+/* Styles for the ROI table */
 #roi_small_table th {
     background-color: #ccc; 
     padding: 1px;
@@ -625,4 +626,7 @@ input.spin-button {
 #roi_small_table td {
     background-color: #fff; 
     text-align: center;
+}
+.shape_cell {
+    cursor: pointer;
 }

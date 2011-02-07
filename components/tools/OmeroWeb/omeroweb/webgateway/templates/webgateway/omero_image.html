@@ -444,18 +444,19 @@
           var shape = null;
           for (var s=0; s<shapes.length; s++) {
               shape = shapes[s];
-              shapesHtml += "<tr id='shape_"+shape['id']+"' class='shape_row'>";
-              shapesHtml += "<td>" + shape['id'] + "</td>"
-              shapesHtml += "<td>" + (shape['theZ']+1) + "</td>";
-              shapesHtml += "<td>" + (shape['theT']+1) + "</td>";
-              shapesHtml += "<td>" + shape['type'] + "</td></tr>";
+              shapesHtml += "<tr id='"+shape['id']+"_shape' class='shape_row'>";
+              // clicking on any cell of a shape 'shape_cell' selects it
+              shapesHtml += "<td class='shape_cell'>" + shape['id'] + "</td>"
+              shapesHtml += "<td class='shape_cell'>" + (shape['theZ']+1) + "</td>";
+              shapesHtml += "<td class='shape_cell'>" + (shape['theT']+1) + "</td>";
+              shapesHtml += "<td class='shape_cell'>" + shape['type'] + "</td></tr>";
               if (firstShape == null) firstShape = shape['type'];
           }
           shapesHtml += '</tbody>';
           
           // new tbody for each ROI
           var roi_html = "<thead><tr class='roi_row'>";
-          roi_html += "<th> <a href='#' class='show_shapes'>[+]</a> " + roi['id'] + "</th>";
+          roi_html += "<th>" + roi['id'] + "</th>";
           roi_html += "<th>Z</th>"; // no Z for ROI
           roi_html += "<th>T</th>"; // no T for ROI
           roi_html += "<th>" + firstShape + " (" + shapes.length + ")</th>"; // first shape (count)
@@ -468,12 +469,17 @@
   
   // bound to clicks on shapes in the viewer
     var handle_shape_selection = function(e, shape_id) {
-        build_roi_table();
-        $("#roi_small_table").find('thead').hide();
-        $("#roi_small_table").find('tbody tr').hide();
-        // show the row and the <thead> above the <tbody>
-        $("#shape_"+shape_id).show().children().css('background-color', '#d0d0ff');
-        $("#shape_"+shape_id).parent().prev().show();
+        var $roi_table = $("#roi_small_table");
+        if ($roi_table.is(':empty')) {
+            build_roi_table();
+        }
+        $roi_table.find('thead').hide();
+        $roi_table.find('tbody tr').hide();
+        // show the rows and the ROI <thead> above the Shapes <tbody>
+        var $row = $("#"+shape_id+"_shape");
+        $row.show().children().css('background-color', '#d0d0ff');      // show this row blue
+        $row.siblings().show().children().css('background-color', '#fff');// other rows white
+        $row.parent().prev().show();
     }
 
   var linePlotPos = function (ev, obj) {
@@ -990,11 +996,19 @@
     viewport.bind('instant_zoom', function(e, percent) {
       viewport.viewportimg.get(0).setRoiZoom(percent);
     });
-    // expand ROI in table to show shapes
+    
     $("#roi_small_table").click(function(event) {
         var $target = $(event.target);
-        if ($target.attr('class') == "show_shapes") {
-            $target.parent().parent().parent().next().children().show();
+        // a shape td click selects the shape.
+        if ($target.attr('class') == "shape_cell") {
+            var $shapeRow = $target.parent();
+            $shapeRow.parent().children().children().css('background-color', '#fff'); // all rows white
+            $shapeRow.children().css('background-color', '#d0d0ff'); // selected row coloured
+            var shape_id = parseInt($shapeRow.attr('id'));      // E.g. id='123_shape'
+            var z = parseInt( $shapeRow.find('td:nth-child(2)').text() );
+            var t = parseInt( $shapeRow.find('td:nth-child(3)').text() );
+            viewport.setZPos(z);
+            viewport.setTPos(t);
         }
     });
     

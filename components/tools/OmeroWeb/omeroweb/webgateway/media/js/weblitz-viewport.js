@@ -155,6 +155,28 @@ jQuery._WeblitzViewport = function (container, server, options) {
       }
         _load();
      });
+     
+  
+  // Sets the Z position (1-based index) of the image viewer by delegating to the slider. 
+  // Setting the slider should also result in the image plane changing. 
+  this.setZPos = function(pos) {
+      if (this.getZPos() != pos) {  // don't reload etc if we don't have to
+          if (_this.loadedImg.rdefs.invertAxis) {
+              this.tslider.get(0).setSliderPos(pos);
+          } else {
+              this.zslider.get(0).setSliderPos(pos);
+          }
+      }
+  };
+  this.setTPos = function(pos) {
+      if (this.getTPos() != pos) {
+          if (_this.loadedImg.rdefs.invertAxis) {
+              this.zslider.get(0).setSliderPos(pos);
+          } else {
+              this.tslider.get(0).setSliderPos(pos);
+          }
+      }
+  }
 
   var after_img_load_cb = function (callback) {
     hideLoading();
