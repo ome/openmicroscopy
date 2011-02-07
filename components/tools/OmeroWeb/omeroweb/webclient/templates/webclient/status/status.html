@@ -57,7 +57,7 @@
                                     {% ifequal v.dstatus "failed" %}
                                         <a onclick="loadMetadata('{% url load_metadata_details "image" iid %}');">{{ v.dtype }} {{ iid }}</a>, 
                                     {% else %}
-                                        {{ iid }},
+                                        {{ v.dtype }} {{ iid }},
                                     {% endifequal %}
                                 {% endfor %}
                             {% else %}
