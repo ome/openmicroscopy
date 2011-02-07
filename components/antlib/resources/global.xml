@@ -33,10 +33,10 @@
         file any build script will have had to define the import.dir variable-->
         <import file="${import.dir}/directories.xml"/>
 
-        <taskdef resource="net/sf/antcontrib/antcontrib.properties"
-                 classpath="${lib.dir}/repository/ant-contrib-1.0b1.jar"/>
-        <taskdef resource="net/sf/antcontrib/antlib.xml"
-                 classpath="${lib.dir}/repository/ant-contrib-1.0b1.jar"/>
+         <taskdef resource="net/sf/antcontrib/antcontrib.properties"
+                  classpath="${lib.dir}/repository/ant-contrib-1.0b3.jar"/>
+         <taskdef resource="net/sf/antcontrib/antlib.xml"
+                  classpath="${lib.dir}/repository/ant-contrib-1.0b3.jar"/>
 
         <!-- Define properties :
                 The user's environment (env) overrides all other
