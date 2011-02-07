@@ -480,7 +480,22 @@
             {% if manager.fileannSize %}
             <div class="lnfiles">
                 {% for fileann in manager.file_annotations %}
-                <p><a href="#" onClick="document.location.href='{% url download_annotation "download" fileann.id %}';" title="Linked by {{ fileann.link.getDetails.getOwner.getNameWithInitial }}">{{ fileann.getFileName|shortening:40 }}</a> ({{ fileann.getFileSize|default_if_none:0|filesizeformat }}) {% trans "by" %} {{ fileann.getDetails.getOwner.getNameWithInitial }} {% trans "at" %} {{ fileann.creationEventDate|date:"Y-m-d H:i:s" }} {% if fileann.link.isOwned and not fileann.isOriginalMetadata %}<a href="{% url manage_action_containers "remove" %}file/{{ fileann.id }}/?parent={% if manager.image %}image-{{ manager.image.id}}{% else %}{% if manager.dataset %}dataset-{{ manager.dataset.id}}{% else %}{% if manager.project %}project-{{ manager.project.id}}{% endif %}{% endif %}{% endif %}&url={{ url }}" onClick="return confirm('Unlink file?');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a>{% endif %}{% if fileann.canDelete and not fileann.isOriginalMetadata %} <input class="button" type="image" src="{% url webstatic "images/block.png" %}" alt="Delete" title="Delete" onclick="deleteItem('file', '{{ fileann.id }}');" />{% endif %}</p>
+                <p>
+                    <a href="#" onClick="document.location.href='{% url download_annotation "download" fileann.id %}';" title="Linked by {{ fileann.link.getDetails.getOwner.getNameWithInitial }}">{{ fileann.getFileName|shortening:40 }}</a>
+                    ({{ fileann.getFileSize|default_if_none:0|filesizeformat }}) {% trans "by" %} {{ fileann.getDetails.getOwner.getNameWithInitial }} {% trans "at" %} {{ fileann.creationEventDate|date:"Y-m-d H:i:s" }} 
+                    {% if fileann.link.isOwned and not fileann.isOriginalMetadata %}
+                        <a href="{% url manage_action_containers "remove" %}file/{{ fileann.id }}/?parent={% if manager.image %}image-{{ manager.image.id}}{% else %}{% if manager.dataset %}dataset-{{ manager.dataset.id}}{% else %}{% if manager.project %}project-{{ manager.project.id}}{% endif %}{% endif %}{% endif %}&url={{ url }}" onClick="return confirm('Unlink file?');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a>
+                    {% endif %}
+                    {% if fileann.canDelete and not fileann.isOriginalMetadata %}
+                        <input class="button" type="image" src="{% url webstatic "images/block.png" %}" alt="Delete" title="Delete" onclick="deleteItem('file', '{{ fileann.id }}');" />
+                    {% endif %}
+                    {% ifequal fileann.getFileName|slice:"-3:" 'map' %}
+                        <a href="#" onclick="return openPopup('{% url open_astex_viewer fileann.id %}')">Volume viewer</a>
+                    {% endifequal %}
+                    {% ifequal fileann.getFileName|slice:"-3:" 'bit' %}
+                        <a href="#" onclick="return openPopup('{% url open_astex_viewer fileann.id %}')">Volume viewer</a>
+                    {% endifequal %}
+                </p>
                 {% endfor %}
             </div>
             {% else %}

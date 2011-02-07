@@ -85,6 +85,11 @@ urlpatterns = patterns('django.views.generic.simple',
     url( r'^load_tags/(?:(?P<o_type>((?i)tag|dataset))/(?P<o_id>[0-9]+)/)?$', views.load_data_by_tag, name="load_data_by_tag" ),
     url( r'^autocompletetags/$', views.autocomplete_tags, name="autocomplete_tags" ),
     
+    # Open Astex Viewer will try to show file as volume, e.g. mrc.map file. 
+    url( r'^open_astex_viewer/file/(?P<fileAnnId>[0-9]+)/$', views.open_astex_viewer, name='open_astex_viewer' ),  # html page
+    url( r'^file/(?P<iid>[0-9]+)\.map$', views.download_annotation, {'action':'download'}, name='open_astex_map' ),# download file
+    url( r'^file/(?P<iid>[0-9]+)\.bit$', views.download_annotation, {'action':'download'}, name='open_astex_bit' ),# download file
+    
     # render thumbnails
     url( r'^render_thumbnail/(?P<iid>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.render_thumbnail, name="render_thumbnail" ),
     url( r'^render_thumbnail/size/(?P<size>[0-9]+)/(?P<iid>[0-9]+)/(?:(?P<share_id>[0-9]+)/)?$', views.render_thumbnail_resize, name="render_thumbnail_resize" ),

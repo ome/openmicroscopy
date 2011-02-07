@@ -831,6 +831,27 @@ def autocomplete_tags(request, **kwargs):
     return HttpResponse(json_data, mimetype='application/javascript')
 
 @isUserConnected
+def open_astex_viewer(request, fileAnnId, **kwargs):
+    conn = None
+    try:
+        conn = kwargs["conn"]        
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+    
+    ann = conn.getAnnotation(long(fileAnnId))
+    # determine mapType by name
+    mapType = "map"
+    if ann:
+        fileName = ann.getFileName()
+        if fileName.endswith(".bit"):
+            mapType = "bit"
+            
+    print "fileAnnId", fileAnnId
+    return render_to_response('webclient/annotations/open_astex_viewer.html', {'fileAnnId': fileAnnId, 'mapType': mapType})
+    
+    
+@isUserConnected
 def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):  
     conn = None
     try:

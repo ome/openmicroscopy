@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<body>
+<applet
+      width="100%" height="100%" name="av"
+      code="MoleculeViewerApplet.class"
+      archive="{% url webstatic 'applet/OpenAstexViewer.jar' %} ">
+         
+         <param name="script" value="
+         {% ifequal mapType 'bit' %}
+         map load mapA '{% url open_astex_bit fileAnnId %}'; 
+         {% else %}
+         map load mapA '{% url open_astex_map fileAnnId %}'; 
+         {% endifequal %}
+         center map mapA;
+         map mapA contour 0 on;
+         background '0xDDDDDD';
+         map mapA contour 0 'solid';
+         map mapA contour 0 'green';
+         ">
+</applet>
+
+</body>
