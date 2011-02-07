@@ -1231,7 +1231,7 @@ class _BlitzGateway (object):
         """
         if self.isAdmin():
             if group is None:
-                e = self.lookupExperimenter(username)
+                e = self.findExperimenter(username)
                 if e is None:
                     return
                 group = e._obj._groupExperimenterMapSeq[0].parent.name.val
@@ -3806,7 +3806,7 @@ class TagAnnotationWrapper (AnnotationWrapper):
         @type val:      String
         """
         
-        self._obj.textValue = rbool(not not val)
+        self._obj.textValue = omero_type(val)
     
 AnnotationWrapper._register(TagAnnotationWrapper)
 
