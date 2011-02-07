@@ -181,6 +181,10 @@ jQuery._WeblitzViewport = function (container, server, options) {
   var after_img_load_cb = function (callback) {
     hideLoading();
     _this.viewportimg.show();
+    
+    //tiles
+    _this.viewportimg.get(0).initial_tiles();
+    
     _this.zslider.get(0).pos = -1;
     if (_this.loadedImg.rdefs.projection.toLowerCase().substring(3,0) == 'int') {
 	_this.zslider.get(0).setSliderRange(1, 1, _this.getPos().z+1, false);
@@ -193,7 +197,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
     }
     if (_this.hasLinePlot()) {
       _this.viewportimg.one('zoom', function () {_this.refreshPlot();});
-    }
+    }    
   }
   
   /**

@@ -12,6 +12,22 @@
  * Author: Carlos Neves <carlos(at)glencoesoftware.com>
  */
 
+div.weblitz-viewport-tiles {
+  background: transparent;
+  margin: 0;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+}
+div.weblitz-viewport-tiles img {
+ border: medium none;
+ margin: 0;
+ padding: 0;
+ position: absolute;
+ opacity: 0.5;
+}
+  
 .weblitz-viewport-vp {
   position: absolute;
   display: block;
@@ -52,6 +68,7 @@
   position: absolute;
   top: 0px;
   left: 0px;
+  /*opacity: 0;*/
 }
 
 /* Customizing the jquery-plugin-viewportImage classes */
