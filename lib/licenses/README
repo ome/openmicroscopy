@@ -676,7 +676,13 @@ http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/s
   Web Site:     http://www.everaldo.com/crystal/
   License:      Lesser General Public License
   License File: crystalclear.txt
-
+  
+  
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webclient/media/applet/OpenAstexViewer.java
+  Project:      Open Astex Viewer
+  Web Site:     http://www.openastexviewer.net/web/
+  License:      GNU GENERAL PUBLIC LICENSE Version 3.
+  License File: lgpl-3.0.txt
 
   //
   // Used but not distributed
