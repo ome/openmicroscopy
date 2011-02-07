@@ -295,14 +295,13 @@ class InputServerStrategy
 				x, y, width, height, data.isReadOnly(), 
 					data.isClientObject());
 		fig.setEllipse(x, y, width, height);
+		fig.setText(data.getText());
 		addShapeSettings(fig, data.getShapeSettings());
 		AffineTransform transform;
 		try {
 			transform = SVGTransform.toTransform(data.getTransform());
 			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {
-			
-		}
+		} catch (IOException e) {}
 		
 		return fig;
 	}
@@ -327,10 +326,7 @@ class InputServerStrategy
 		try {
 			transform = SVGTransform.toTransform(data.getTransform());
 			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			// e.printStackTrace();
-		}
+		} catch (IOException e) {}
 		
 		return fig;
 	}
@@ -354,10 +350,7 @@ class InputServerStrategy
 		try {
 			transform = SVGTransform.toTransform(data.getTransform());
 			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			// e.printStackTrace();
-		}
+		} catch (IOException e) {}
 		
 		return fig;
 	}
@@ -411,10 +404,7 @@ class InputServerStrategy
 		try {
 			transform = SVGTransform.toTransform(data.getTransform());
 			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			//e.printStackTrace();
-		}
+		} catch (IOException e) {}
 		return fig;
 	}
 	
@@ -445,10 +435,7 @@ class InputServerStrategy
 		try {
 			transform = SVGTransform.toTransform(data.getTransform());
 			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			// e.printStackTrace();
-		}
+		} catch (IOException e) {}
 		
 		return fig;
 	}
@@ -476,15 +463,15 @@ class InputServerStrategy
 		}
 		
 		addShapeSettings(fig, data.getShapeSettings());
-		fig.setText(data.getText());
+		String text = data.getText();
+		if (text == null || text.trim().length() == 0)
+			text = ROIFigure.DEFAULT_TEXT;
+		fig.setText(text);
 		AffineTransform transform;
 		try {
 			transform = SVGTransform.toTransform(data.getTransform());
 			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			// e.printStackTrace();
-		}
+		} catch (IOException e) {}
 		fig.setClosed(true);		
 		return fig;
 	}
@@ -534,10 +521,7 @@ class InputServerStrategy
 		try {
 			transform = SVGTransform.toTransform(data.getTransform());
 			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			// e.printStackTrace();
-		}	
+		} catch (IOException e) {}	
 		return fig;
 	}
 	
@@ -555,16 +539,15 @@ class InputServerStrategy
 		List<Integer> mask = data.getMaskPoints();
 		MeasureBezierFigure fig = new MeasureBezierFigure(false, 
 				data.isReadOnly(), data.isClientObject());
-	
-		for (int i=0; i<points.size(); i++)
-		{
-			Node newNode = new Node(mask.get(i), points.get(i), 
-					points1.get(i), points2.get(i));
-			fig.addNode(newNode);
-		}
+		for (int i = 0; i < points.size(); i++)
+			fig.addNode(new Node(mask.get(i), points.get(i), 
+					points1.get(i), points2.get(i)));
 		
 		addShapeSettings(fig, data.getShapeSettings());
-		fig.setText(data.getText());
+		String text = data.getText();
+		if (text == null || text.trim().length() == 0)
+			text = ROIFigure.DEFAULT_TEXT;
+		fig.setText(text);
 		AffineTransform transform;
 		try {
 			transform = SVGTransform.toTransform(data.getTransform());
