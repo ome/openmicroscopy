@@ -239,6 +239,11 @@ class BaseClient(object):
                 raise ClientError("Ice.ImplicitContext not set to Shared")
             ctx.put(omero.constants.CLIENTUUID, self.__uuid)
 
+            # ticket:2951 - sending user group
+            group = id.properties.getPropertyWithDefault("omero.group", "")
+            if group:
+                ctx.put("omero.group", group)
+
             # Register the default client callback
             self.__oa = self.__ic.createObjectAdapter("omero.ClientCallback")
             cb = BaseClient.CallbackI(self.__ic, self.__oa)

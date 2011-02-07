@@ -360,6 +360,12 @@ public class client {
         }
         ctx.put(omero.constants.CLIENTUUID.value, __uuid);
 
+        // ticket:2951 - sending user group
+        String group = id.properties.getPropertyWithDefault("omero.group", "");
+        if (group.length() > 0) {
+            ctx.put("omero.group", group);
+        }
+
         // Register the default client callback.
         __oa = __ic.createObjectAdapter("omero.ClientCallback");
         CallbackI cb = new CallbackI(this.__ic, this.__oa);

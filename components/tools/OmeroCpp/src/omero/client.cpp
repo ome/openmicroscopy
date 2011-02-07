@@ -147,6 +147,12 @@ namespace omero {
 	}
 	ctx->put(omero::constants::CLIENTUUID, __uuid);
 
+        // ticket:2951 - sending user group
+        std::string group = id.properties->getPropertyWithDefault("omero.group", "");
+        if (group.length() > 0) {
+            ctx->put("omero.group", group);
+        }
+
 	// Register the default client callback.
 	__oa = __ic->createObjectAdapter("omero.ClientCallback");
 	CallbackIPtr cb = new CallbackI(__ic, __oa);
