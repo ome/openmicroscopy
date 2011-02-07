@@ -317,12 +317,9 @@ $(document).ready(function() {
         
         // otherwise, show scroll bars
         var scrollX = window.pageXOffset; 
-        //var scrollY = window.pageYOffset; 
-        var scrollY = 0;
-        //var scrollW = window.innerWidth;
-        //var scrollH = window.innerHeight;
-        var scrollW = $(window).width();
-        var scrollH = $(window).height();
+        var scrollY = window.pageYOffset; 
+        var scrollW = window.innerWidth;
+        var scrollH = window.innerHeight;
         
         var w = Math.min(scrollW,scrollH) / 8;    // w is the size of buttons, menus etc. 
         var zHeight = scrollH - w
