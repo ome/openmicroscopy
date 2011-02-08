@@ -68,6 +68,9 @@ public class AbstractTest
 
     /** The OME-XML format. */
     public static final String OME_FORMAT = "ome";
+    
+    /** The OME-XML format. */
+    public static final String OME_XML_FORMAT = "ome.xml";
 
     /** Identifies the <code>system</code> group. */
 	public String SYSTEM_GROUP = "system";

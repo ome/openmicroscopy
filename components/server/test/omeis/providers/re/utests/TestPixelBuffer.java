@@ -26,12 +26,6 @@ public class TestPixelBuffer implements PixelBuffer {
 		return null;
 	}
 
-	public void checkBounds(Integer arg0, Integer arg1, Integer arg2,
-			Integer arg3) throws DimensionsOutOfBoundsException {
-		// TODO Auto-generated method stub
-
-	}
-
 	public void close() throws IOException {
 		// TODO Auto-generated method stub
 
@@ -278,6 +272,19 @@ public class TestPixelBuffer implements PixelBuffer {
 			DimensionsOutOfBoundsException, BufferOverflowException {
 		// TODO Auto-generated method stub
 
+	}
+
+	public void checkBounds(Integer arg0, Integer arg1, Integer arg2,
+			Integer arg3, Integer arg4) throws DimensionsOutOfBoundsException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public PixelData getPlaneRegion(Integer arg0, Integer arg1, Integer arg2,
+			Integer arg3, Integer arg4, Integer arg5, Integer arg6, Integer arg7)
+			throws IOException, DimensionsOutOfBoundsException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

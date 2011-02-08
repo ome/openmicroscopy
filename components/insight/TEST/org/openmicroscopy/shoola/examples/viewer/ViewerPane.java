@@ -37,7 +37,6 @@ import java.awt.image.DirectColorModel;
 import java.awt.image.SinglePixelPackedSampleModel;
 import java.awt.image.WritableRaster;
 import java.io.ByteArrayInputStream;
-
 import javax.imageio.ImageIO;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
