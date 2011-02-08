@@ -274,24 +274,24 @@ throw new UnsupportedOperationException("Cannot write to repository");
     public void setStack(byte[] buffer, Integer z, Integer c, Integer t)
             throws IOException, DimensionsOutOfBoundsException,
             BufferOverflowException {
-throw new UnsupportedOperationException("Cannot write to repository");
+    	throw new UnsupportedOperationException("Cannot write to repository");
         
     }
 
     public void setTimepoint(ByteBuffer buffer, Integer t) throws IOException,
             DimensionsOutOfBoundsException, BufferOverflowException {
-throw new UnsupportedOperationException("Cannot write to repository");
+    	throw new UnsupportedOperationException("Cannot write to repository");
         
     }
 
     public void setTimepoint(byte[] buffer, Integer t) throws IOException,
             DimensionsOutOfBoundsException, BufferOverflowException {
-throw new UnsupportedOperationException("Cannot write to repository");
+    	throw new UnsupportedOperationException("Cannot write to repository");
         
     }
 
 	public PixelData getPlaneRegion(Integer x, Integer y, Integer width,
-			Integer height, Integer z, Integer c, Integer t)
+			Integer height, Integer z, Integer c, Integer t, Integer stride)
 			throws IOException, DimensionsOutOfBoundsException
 			{
 		// TODO Auto-generated method stub
