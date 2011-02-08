@@ -666,6 +666,18 @@ class BlitzObjectWrapper (object):
         return rv
 
 
+    def unlinkAnnotations (self, ns):
+        """
+        Uses updateService to unlink annotations, with specified ns
+        
+        @param ns:      Namespace
+        @type ns:       String
+        """
+        for al in self._getAnnotationLinks(ns=ns):
+            update = self._conn.getUpdateService()
+            update.deleteObject(al)
+        self._obj.unloadAnnotationLinks()        
+
     def removeAnnotations (self, ns):
         """
         Uses updateService to delete annotations, with specified ns, and their links on the object
