@@ -71,20 +71,41 @@ abstract class RenderingStrategy {
      * The maximum number of tasks that we will be using during rendering.
      */
     protected int maxTasks;
-    
-    
+
     /**
      * Checks if the passed region is valid.
      * 
      * @param region The region to handle.
+     * @param pixels The pixels set.
      */
-    private void isRegionValid(RegionDef region)
+    private void isRegionValid(RegionDef region, Pixels pixels)
     {
     	if (region == null) return;
-   	 	//throw new RuntimeException("Invalid Region: "+region.toString());
+    	int x = region.getX();
+    	if (x < 0)
+   	 		throw new RuntimeException("Invalid Region, X-coordinate of the " +
+   	 				"top-left corner cannot be negative:"+x);
+    	int y = region.getY();
+    	if (y < 0)
+   	 		throw new RuntimeException("Invalid Region, y-coordinate of the " +
+   	 				"top-left corner cannot be negative:"+y);
+    	int w = region.getWidth();
+    	if (w <= 0)
+   	 		throw new RuntimeException("Invalid Region, the width must be " +
+   	 				"positive:"+w);
+    	int h = region.getHeight();
+    	if (h <= 0)
+   	 		throw new RuntimeException("Invalid Region, the height must be " +
+   	 				"positive:"+h);
+    	//for now only check of XY plane
+    	int sizeX = pixels.getSizeX().intValue();
+    	int sizeY = pixels.getSizeY().intValue();
+    	if (x+w > sizeX)
+    		throw new RuntimeException("Invalid Region");
+    	if (y+h > sizeY)
+    		throw new RuntimeException("Invalid Region");
     }
-    
-    
+
     /**
      * Initializes the <code>sizeX1</code> and <code>sizeX2</code> fields
      * according to the specified {@link PlaneDef#getSlice() slice}.
@@ -96,8 +117,10 @@ abstract class RenderingStrategy {
      */
     protected void initAxesSize(PlaneDef pd, Pixels pixels) {
     	RegionDef region = pd.getRegion();
-    	isRegionValid(region);
-    	
+    	isRegionValid(region, pixels);
+    	int stride = pd.getStride();
+    	if (stride <= 0) stride = 0;
+    	stride++;
         try {
             switch (pd.getSlice()) {
                 case PlaneDef.XY:
@@ -108,7 +131,8 @@ abstract class RenderingStrategy {
                 		sizeX1 = pixels.getSizeX().intValue();
                         sizeX2 = pixels.getSizeY().intValue();
                 	}
-                    
+                	sizeX1 = sizeX1/stride;
+                	sizeX2 = sizeX2/stride;
                     break;
                 case PlaneDef.XZ:
                     sizeX1 = pixels.getSizeX().intValue();

@@ -110,8 +110,7 @@ class QuantumManager {
             gMax = statsInfo.getGlobalMax().doubleValue();
 
             stg.setExtent(gMin, gMax);
-            stg
-                    .setMapping(waves[w].getFamily(), waves[w].getCoefficient()
+            stg.setMapping(waves[w].getFamily(), waves[w].getCoefficient()
                             .doubleValue(), waves[w].getNoiseReduction()
                             .booleanValue());
             stg.setWindow(waves[w].getInputStart(), waves[w].getInputEnd());

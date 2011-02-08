@@ -142,7 +142,7 @@ public class InMemoryPlanarPixelBuffer implements PixelBuffer
     }
 
     public PixelData getPlaneRegion(Integer x, Integer y, Integer width, 
-    		Integer height, Integer z, Integer c, Integer t)
+    		Integer height, Integer z, Integer c, Integer t, Integer stride)
     throws IOException, DimensionsOutOfBoundsException
 	{
     	return null;

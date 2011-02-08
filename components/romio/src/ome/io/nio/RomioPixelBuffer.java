@@ -421,24 +421,48 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
     /**
      * Implemented as specified by {@link PixelBuffer} I/F.
      * @see PixelBuffer#getPlaneRegion(Integer, Integer, Integer, Integer, 
-     * Integer, Integer, Integer)
+     * Integer, Integer, Integer, Integer)
 	 */
     public PixelData getPlaneRegion(Integer x, Integer y, Integer width, 
-    		Integer height, Integer z, Integer c, Integer t)
+    		Integer height, Integer z, Integer c, Integer t, Integer stride)
             throws IOException, DimensionsOutOfBoundsException {
+    	if (stride == null || stride < 0) stride = 0;
     	checkBounds(x, y, z, c, t);
     	checkBounds(x+width-1, y+height-1, null, null, null);
     	
     	PixelData plane = getPlane(z, c, t);
-        Integer size =  width*height*getByteWidth();
-        ByteBuffer buf = ByteBuffer.wrap(new byte[size]);
-        PixelData region = new PixelData(pixels.getPixelsType(), buf);
-        int offset;
-        for (int i = 0; i < height; i++) {
-        	for (int j = 0; j < width; j++) {
+    	Integer size;
+    	ByteBuffer buf;
+    	PixelData region = null;
+    	int offset;
+    	
+    	if (stride == 0) {
+    		size =  width*height*getByteWidth();
+            buf = ByteBuffer.wrap(new byte[size]);
+            region = new PixelData(pixels.getPixelsType(), buf);
+            for (int i = 0; i < height; i++) {
+            	for (int j = 0; j < width; j++) {
+            		offset = (i+y)*getSizeX()+x+j;
+            		region.setPixelValue(i*width+j, plane.getPixelValue(offset));
+            	}
+            }
+            return region;
+    	}
+    	stride++;
+    	int w = width/stride;
+    	size = width*height*getByteWidth()/(stride*stride);
+        buf = ByteBuffer.wrap(new byte[size]);
+        region = new PixelData(pixels.getPixelsType(), buf);
+    	int k = 0;
+    	int l = 0;
+    	for (int i = 0; i < height; i = i+stride) {
+    		l = 0;
+        	for (int j = 0; j < width; j = j+stride) {
         		offset = (i+y)*getSizeX()+x+j;
-        		region.setPixelValue(i*width+j, plane.getPixelValue(offset));
+        		region.setPixelValue(k*w+l, plane.getPixelValue(offset));
+        		l++;
         	}
+        	k++;
         }
         return region;
     }

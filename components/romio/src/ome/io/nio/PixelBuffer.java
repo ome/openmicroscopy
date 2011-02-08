@@ -260,7 +260,7 @@ public interface PixelBuffer
     public byte[] getColDirect(Integer x, Integer z, Integer c, 
                                Integer t, byte[] buffer)
             throws IOException, DimensionsOutOfBoundsException;
-
+    
     /**
      * Retrieves a particular 2D image plane from this pixel buffer.
      * @param z offset across the Z-axis of the pixel buffer.
@@ -287,6 +287,7 @@ public interface PixelBuffer
      * @param z offset across the Z-axis of the pixel buffer.
      * @param c offset across the C-axis of the pixel buffer.
      * @param t offset across the T-axis of the pixel buffer.
+     * @param stride The step size.
      * @return buffer containing the data which comprises this 2D image plane.
      * It is guaranteed that this buffer will have its <code>order</code> set 
      * correctly but <b>not</b> that the backing buffer will have been byte 
@@ -296,7 +297,7 @@ public interface PixelBuffer
      * after checking with {@link checkBounds()}.
      */
     public PixelData getPlaneRegion(Integer x, Integer y, Integer width, Integer
-    		height, Integer z, Integer c, Integer t)
+    		height, Integer z, Integer c, Integer t, Integer stride)
             throws IOException, DimensionsOutOfBoundsException;
     
     /**

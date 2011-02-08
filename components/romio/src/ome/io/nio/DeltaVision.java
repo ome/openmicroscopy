@@ -794,10 +794,10 @@ public class DeltaVision implements PixelBuffer {
 	/**
      * Implemented as specified by {@link PixelBuffer} I/F.
      * @see PixelBuffer#getPlaneRegion(Integer, Integer, Integer, Integer, 
-     * Integer, Integer, Integer)
+     * Integer, Integer, Integer, Integer)
 	 */
     public PixelData getPlaneRegion(Integer x, Integer y, Integer width, 
-    		Integer height, Integer z, Integer c, Integer t)
+    		Integer height, Integer z, Integer c, Integer t, Integer stride)
             throws IOException, DimensionsOutOfBoundsException {
     	return null;
     }

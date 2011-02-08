@@ -93,7 +93,7 @@ class HSBStrategy extends RenderingStrategy {
         ChannelBinding[] channelBindings = renderer.getChannelBindings();
         Pixels metadata = renderer.getMetadata();
         PixelBuffer pixels = renderer.getPixels();
-        ArrayList<Plane2D> wData = null;
+        List<Plane2D> wData = null;
         try
         {
         	RenderingStats performanceStats = renderer.getStats();
@@ -111,7 +111,7 @@ class HSBStrategy extends RenderingStrategy {
         	if (overlays != null)
         	{
         		PixelsType bitType = new PixelsType();
-        		bitType.setValue("bit");
+        		bitType.setValue(PlaneFactory.BIT);
         		for (byte[] overlay : overlays.keySet())
         		{
         			PixelData data =
@@ -145,7 +145,7 @@ class HSBStrategy extends RenderingStrategy {
      */
     private List<int[]> getColors() {
         ChannelBinding[] channelBindings = renderer.getChannelBindings();
-        ArrayList<int[]> colors = new ArrayList<int[]>();
+        List<int[]> colors = new ArrayList<int[]>();
 
         for (int w = 0; w < channelBindings.length; w++) {
             ChannelBinding cb = channelBindings[w];
@@ -178,7 +178,7 @@ class HSBStrategy extends RenderingStrategy {
     private List<QuantumStrategy> getStrategies() {
         ChannelBinding[] channelBindings = renderer.getChannelBindings();
         QuantumManager qManager = renderer.getQuantumManager();
-        ArrayList<QuantumStrategy> strats = new ArrayList<QuantumStrategy>();
+        List<QuantumStrategy> strats = new ArrayList<QuantumStrategy>();
 
         for (int w = 0; w < channelBindings.length; w++) {
             if (channelBindings[w].getActive()) {
@@ -190,7 +190,7 @@ class HSBStrategy extends RenderingStrategy {
     	{
     		QuantumDef def = new QuantumDef();  // Just to fulfill interface
     		PixelsType bitType = new PixelsType();
-    		bitType.setValue("bit");
+    		bitType.setValue(PlaneFactory.BIT);
     		for (int i = 0; i < overlays.size(); i++)
     		{
     			strats.add(new BinaryMaskQuantizer(def, bitType));

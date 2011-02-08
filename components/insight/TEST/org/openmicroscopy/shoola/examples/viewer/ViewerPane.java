@@ -162,7 +162,9 @@ class ViewerPane
 			pDef.t = engine.getDefaultT();
 			pDef.z = engine.getDefaultZ();
 			pDef.slice = omero.romio.XY.value;
-			//pDef.region = new RegionDef(0, 0, sizeX, sizeY);
+			pDef.stride = 1;
+			sizeX = sizeX/(pDef.stride+1);
+			sizeY = sizeY/(pDef.stride+1);
 			//now render the image. possible to render it compressed or not
 			//not compressed
 			BufferedImage img = null;
@@ -177,6 +179,7 @@ class ViewerPane
 			}
              canvas.setImage(img);
 		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	
