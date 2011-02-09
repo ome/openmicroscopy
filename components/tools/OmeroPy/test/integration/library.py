@@ -161,6 +161,70 @@ class ITest(unittest.TestCase):
                     pix_ids.append(imageId)
                 except: pass
         return pix_ids
+    
+    
+    def createTestImage(self, sizeX = 256, sizeY = 256, sizeZ = 5, sizeC = 3, sizeT = 1):
+        """
+        Creates a test image of the required dimensions, where each pixel value is set 
+        to the value of x+y. 
+        Returns the image (omero.model.ImageI)
+        """
+        from numpy import fromfunction, int16
+        from omero.util import script_utils
+        import random
+        
+        session = self.root.sf
+        gateway = session.createGateway()
+        renderingEngine = session.createRenderingEngine()
+        queryService = session.getQueryService()
+        pixelsService = session.getPixelsService()
+        rawPixelStore = session.createRawPixelsStore()
+
+        def f1(x,y):
+            return y
+        def f2(x,y):
+            return (x+y)/2
+        def f3(x,y):
+            return x
+
+        pType = "int16"
+        # look up the PixelsType object from DB
+        pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
+        if pixelsType == None and pType.startswith("float"):    # e.g. float32
+            pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % "float", None) # omero::model::PixelsType
+        if pixelsType == None:
+            print "Unknown pixels type for: " % pType
+            return
+
+        # code below here is very similar to combineImages.py
+        # create an image in OMERO and populate the planes with numpy 2D arrays
+        channelList = range(sizeC)
+        iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, "testImage", "description")
+        image = gateway.getImage(iId.getValue())
+
+        pixelsId = image.getPrimaryPixels().getId().getValue()
+        rawPixelStore.setPixelsId(pixelsId, True)
+
+        colourMap = {0: (0,0,255,255), 1:(0,255,0,255), 2:(255,0,0,255), 3:(255,0,255,255)}
+        fList = [f1, f2, f3]
+        for theC in range(sizeC):
+            minValue = 0
+            maxValue = 0
+            f = fList[theC % len(fList)]
+            for theZ in range(sizeZ):
+                for theT in range(sizeT):
+                    plane2D = fromfunction(f,(sizeY,sizeX),dtype=int16)
+                    print plane2D
+                    script_utils.uploadPlane(rawPixelStore, plane2D, theZ, theC, theT)
+                    minValue = min(minValue, plane2D.min())
+                    maxValue = max(maxValue, plane2D.max())
+            pixelsService.setChannelGlobalMinMax(pixelsId, theC, float(minValue), float(maxValue))
+            rgba = None
+            if theC in colourMap:
+                rgba = colourMap[theC]
+            script_utils.resetRenderingSettings(renderingEngine, pixelsId, theC, minValue, maxValue, rgba)
+
+        return image
 
     def index(self, *objs):
         if objs:
