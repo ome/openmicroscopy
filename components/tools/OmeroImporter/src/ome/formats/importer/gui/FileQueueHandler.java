@@ -255,11 +255,15 @@ public class FileQueueHandler extends JPanel
                     || fileExt.equals("mea")
                     || fileExt.equals("res")
                     || fileExt.equals("htd")
+                    || fileExt.equals("dib")
+                    || fileExt.equals("c01")
                     || fileExt.equals("pnl"))
                 {
                     isSPW = true;
                 } 
                 else if (fileExt.equals("txt")
+                         || fileExt.startsWith("tif")
+                         || fileExt.startsWith("dat")
                          || fileExt.equals("xml")
                          || fileExt.equals("exp")
                          || fileExt.equals("log"))
