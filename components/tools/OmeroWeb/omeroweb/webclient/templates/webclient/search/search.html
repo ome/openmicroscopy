@@ -53,6 +53,10 @@
                 $("#search_button").click(function() { 
                     var url = null;
                     var query = $("input[name='query']"); 
+                    if (query.val().length ==1 && query.val().indexOf("*") == 0) {
+                        alert("Wildcard searches (*) must contain more than a single wildcard.");
+                        return false;
+                    }
                     var dateperiodinput = $("input[name='dateperiodinput']"); 
                     if(query.val()!=null && query.val()!="") {
                         url = "query="+query.val();
