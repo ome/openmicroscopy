@@ -95,7 +95,8 @@
     var w = dim.width - dim.left  - zl.width() - {% block vpRightMargin %}0{% endblock %};
 
     /* The following is needed as a hack for IE */
-    viewport.viewport.height(10);
+    //TEMP CHANGE, causing extra step of tiling
+    //viewport.viewport.height(10);
 
     viewport.self
       .height(h - tl.height())
