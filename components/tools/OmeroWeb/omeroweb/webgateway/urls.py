@@ -29,6 +29,17 @@ Params in render_image/<iid>/<z>/<t>/ are:
     - t:    T index
 """
 
+render_image_region = (r'^render_image_region/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/$', 'webgateway.views.render_image_region')
+"""
+Returns a jpeg of the OMERO image, rendering only a region specified in query string as
+region=x,y,width,height. E.g. region=0,512,256,256 See L{views.render_image_region}. 
+Rendering settings can be specified in the request parameters.
+Params in render_image/<iid>/<z>/<t>/ are:
+    - iid:  Image ID
+    - z:    Z index
+    - t:    T index
+"""
+
 render_split_channel = (r'^render_split_channel/(?P<iid>[^/]+)/(?P<z>[^/]+)/(?P<t>[^/]+)/$', 'webgateway.views.render_split_channel')
 """
 Returns a jpeg of OMERO Image with channels split into different panes in a grid. See L{views.render_split_channel}.
@@ -201,6 +212,7 @@ Returns 'true' if switch went OK.
 urlpatterns = patterns('',
     appmedia,
     render_image,
+    render_image_region,
     render_split_channel,
     render_row_plot,
     render_col_plot,

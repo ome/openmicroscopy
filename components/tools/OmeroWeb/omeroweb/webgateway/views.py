@@ -570,6 +570,55 @@ def _get_prepared_image (request, iid, server_id=None, _conn=None, with_session=
                 raise
     return (img, compress_quality)
 
+
+def render_image_region(request, iid, z, t, server_id=None, _conn=None, **kwargs):
+    """
+    Returns a jpeg of the OMERO image, rendering only a region specified in query string as
+    region=x,y,width,height. E.g. region=0,512,256,256 
+    Rendering settings can be specified in the request parameters.
+    
+    @param request:     http request
+    @param iid:         image ID
+    @param z:           Z index
+    @param t:           T index
+    @param server_id:   
+    @param _conn:       L{omero.gateway.BlitzGateway} connection
+    @return:            http response wrapping jpeg
+    """
+    
+    region = request.REQUEST.get('region', None)
+    h = None
+    if region:
+        try:
+            xywh = region.split(",")
+            x = int(xywh[0])
+            y = int(xywh[1])
+            w = int(xywh[2])
+            h = int(xywh[3])
+        except:
+            logger.debug("render_image_region: %s" % region)
+    
+    # if the region=x,y,w,h is not parsed correctly to give 4 ints then we simply provide whole image plane. 
+    # alternatively, could return a 404?    
+    if h == None:
+        return render_image (request, iid, z, t, server_id=None, _conn=None, **kwargs)
+    
+    USE_SESSION = False
+    pi = _get_prepared_image(request, iid, server_id=server_id, _conn=_conn, with_session=USE_SESSION)
+    if pi is None:
+        raise Http404
+    img, compress_quality = pi
+    # region details in request are used as key for caching. 
+    jpeg_data = webgateway_cache.getImage(request, server_id, img, z, t)
+    if jpeg_data is None:
+        jpeg_data = img.renderJpegRegion(z,t, x,y,w,h, compression=compress_quality)
+        if jpeg_data is None:
+            raise Http404
+        webgateway_cache.setImage(request, server_id, img, z, t, jpeg_data)
+    rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
+    return rsp
+    
+    
 def render_image (request, iid, z, t, server_id=None, _conn=None, **kwargs):
     """ 
     Renders the image with id {{iid}} at {{z}} and {{t}} as jpeg.

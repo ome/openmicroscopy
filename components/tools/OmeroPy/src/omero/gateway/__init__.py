@@ -5713,7 +5713,56 @@ class _ImageWrapper (BlitzObjectWrapper):
         @rtype:     Boolean
         """
         return self.getRenderingModel().value.lower() == 'greyscale'
+
+
+    @assert_re
+    def renderJpegRegion (self, z, t, x, y, width, height, compression=0.9):
+        """
+        Return the data from rendering a region of an image plane.
+        NB. Projection not supported by the API currently. 
         
+        @param z:               The Z index. Ignored if projecting image. 
+        @param t:               The T index. 
+        @param x:               The x coordinate of region (int)
+        @param y:               The y coordinate of region (int)
+        @param width:           The width of region (int)
+        @param height:          The height of region (int)
+        @param compression:     Compression level for jpeg
+        @type compression:      Float
+        """
+
+        self._pd.z = long(z)
+        self._pd.t = long(t)
+
+        regionDef = omero.romio.RegionDef()
+        regionDef.x = x
+        regionDef.y = y
+        regionDef.width = width
+        regionDef.height = height
+        self._pd.region = regionDef
+        try:
+            if compression is not None:
+                try:
+                    self._re.setCompressionLevel(float(compression))
+                except omero.SecurityViolation: #pragma: no cover
+                    self._obj.clearPixels()
+                    self._obj.pixelsLoaded = False
+                    self._re = None
+                    return self.renderJpeg(z,t,None)
+            rv = self._re.renderCompressed(self._pd)
+            return rv
+        except omero.InternalException: #pragma: no cover
+            logger.debug('On renderJpegRegion');
+            logger.debug(traceback.format_exc())
+            return None
+        except Ice.MemoryLimitException: #pragma: no cover
+            # Make sure renderCompressed isn't called again on this re, as it hangs
+            self._obj.clearPixels()
+            self._obj.pixelsLoaded = False
+            self._re = None
+            raise
+
+
     @assert_re
     def renderJpeg (self, z, t, compression=0.9):
         """

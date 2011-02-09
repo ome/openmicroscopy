@@ -563,7 +563,8 @@ class WebGatewayCache (object):
                                     omero.constants.projection.ProjectionType): #pragma: nocover
                 p = ''
             q = r.get('q', '')
-            rv = 'img_%s/%s/%%s-c%s-m%s-q%s' % (client_base, str(iid), c, m, q)
+            region = r.get('region', '')
+            rv = 'img_%s/%s/%%s-c%s-m%s-q%s-r%s' % (client_base, str(iid), c, m, q, region)
             if p:
                 return rv % ('%s-%s' % (p, str(t)))
             else:
