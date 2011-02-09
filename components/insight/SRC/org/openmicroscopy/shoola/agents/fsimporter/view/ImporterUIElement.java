@@ -185,7 +185,7 @@ class ImporterUIElement
 		label.setEnabled(browse);
 		if (browse) {
 			label.setBackground(UIUtilities.BACKGROUND_COLOR);
-			label.setToolTipText("Double click to browse when import " +
+			label.setToolTipText("Double-click to browse when import " +
 					"completed.");
 		}
 		label.setText(name);
@@ -399,6 +399,12 @@ class ImporterUIElement
 		    		l = foldersName.keySet().iterator();
 		    		while (l.hasNext())
 						p.add(l.next());
+	    		}
+	    		if (containerComponents.size() == 0) {
+	    			DatasetData dataset = object.getDefaultDataset();
+	    			if (dataset != null) {
+	    				p.add(createNameLabel(dataset));
+	    			}
 	    		}
 		    	header.add(p, c);
 		    	c.gridy++; 	
