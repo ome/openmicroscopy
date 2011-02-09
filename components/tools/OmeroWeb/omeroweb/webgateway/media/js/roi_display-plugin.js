@@ -23,8 +23,15 @@ $.fn.roi_display = function(options) {
 
         var roi_json = null;          // load ROI data as json when needed
         var rois_displayed = false;   // flag to toggle visability.
-
-        // alert("orig sizes: " + orig_width + " " + orig_height);
+        
+        // for keeping track of objects - E.g. de-select all. 
+        var shape_objects = new Array();
+        var shape_default = { fill: "#000", 
+            stroke: "#fff", 
+            'stroke-width': 1.5, 
+            opacity: 0.5 }
+        var shape_selected = { fill: null, stroke: "#08a6fb", opacity: 1.0 }
+        
         // Creates Raphael canvas. Uses scale.raphael.js to provide paper.scaleAll(ratio);
         var paper = new ScaleRaphael('roi_canvas', orig_width, orig_height);
 
@@ -33,8 +40,14 @@ $.fn.roi_display = function(options) {
         handle_shape_click = function(event) {
             var shape = this;
             var shape_id = parseInt(shape.id);
-            shape_data = {'id':shape_id, 'cx':shape.attr('cx'), 'cy':shape.attr('cy')}
             $viewportimg.trigger("shape_click", [shape_id]);
+            
+            // deselect all shapes
+            for (var i=0; i<shape_objects.length; i++) {
+               shape_objects[i].attr(shape_default);
+            }
+            // select current shape
+            shape.attr(shape_selected);
         }
 
         // load the ROIs from json call and display
@@ -62,6 +75,7 @@ $.fn.roi_display = function(options) {
         this.refresh_rois = function(theZ, theT) {
 
             paper.clear();
+            shape_objects.length = 0;
             if (!rois_displayed) return;
             if (roi_json == null) return;
 
@@ -96,15 +110,15 @@ $.fn.roi_display = function(options) {
                         }
                         // rect.drag(moveRect, start, up);
                         // point.drag(move, start, up);
-                        // roi_objects.push(rect);  // NOT used at the moment
                         if (newShape != null) {
-                            newShape.attr({ fill: "#000", stroke: "#fff", opacity: 0.7 });
+                            newShape.attr(shape_default);   // sets fill, stroke etc. 
                             if ((shape['textValue'] != null) && (shape['textValue'].length > 0)) {
                                 toolTip = shape['textValue'] + "  " + toolTip;
-                                newShape.click(handle_shape_click);
                             }
+                            newShape.click(handle_shape_click);
                             newShape.attr({ title: toolTip });
                             newShape.id = shape['id'] + "_shape";
+                            shape_objects.push(newShape);
                         }
 
                     }
