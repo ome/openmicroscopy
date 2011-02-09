@@ -25,7 +25,6 @@ div.weblitz-viewport-tiles img {
  margin: 0;
  padding: 0;
  position: absolute;
- /*opacity: 0.5;*/
 }
   
 .weblitz-viewport-vp {
@@ -68,7 +67,6 @@ div.weblitz-viewport-tiles img {
   position: absolute;
   top: 0px;
   left: 0px;
-  opacity: 0;
 }
 
 /* Customizing the jquery-plugin-viewportImage classes */

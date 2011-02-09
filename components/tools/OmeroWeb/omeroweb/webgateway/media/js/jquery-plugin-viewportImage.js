@@ -34,8 +34,8 @@ $.fn.viewportImage = function(options) {
     overlay.addClass('weblitz-viewport-img').hide();
 
     //tiles container
+    var bigimage = false;
     var tiles = new Array();
-    	
     var tilescontainer = $('<div id="weblitz-viewport-tiles"></div>').appendTo(dragdiv);
     tilescontainer.addClass('weblitz-viewport-tiles');
     
@@ -264,24 +264,25 @@ $.fn.viewportImage = function(options) {
         dragdiv.css({left: left, top: top});
       }
       
-      if (imagewidth <= wrapwidth) {
-          cols = Math.floor(imagewidth/X_TILE_SIZE) + ((imagewidth%X_TILE_SIZE > 0) ? 1 : 0);
-          tiles_left = (imagewidth-wrapwidth<0) ? 0 : imagewidth-wrapwidth;
-      } else {
-          cols = Math.floor(wrapwidth/X_TILE_SIZE) + ((wrapwidth%X_TILE_SIZE > 0) ? 1 : 0);
-          tiles_left = left;
-      }
-      
-      if (imageheight <= wrapheight) {
-          rows = Math.floor(imageheight/Y_TILE_SIZE) + ((imageheight%Y_TILE_SIZE > 0) ? 1 : 0);
-          tiles_top = (imageheight-wrapheight<0) ? 0 : imageheight-wrapheight;
-      } else {
-          rows = Math.floor(wrapheight/Y_TILE_SIZE) + ((wrapheight%Y_TILE_SIZE > 0) ? 1 : 0) ;
-          tiles_top = top;
-      }
-      
-      console.log('DO move');
-      redraw(rows, cols, tiles_left, tiles_top);
+      if(bigimage){
+          if (imagewidth <= wrapwidth) {
+                cols = Math.floor(imagewidth/X_TILE_SIZE) + ((imagewidth%X_TILE_SIZE > 0) ? 1 : 0);
+                tiles_left = (imagewidth-wrapwidth<0) ? 0 : imagewidth-wrapwidth;
+            } else {
+                cols = Math.floor(wrapwidth/X_TILE_SIZE) + ((wrapwidth%X_TILE_SIZE > 0) ? 1 : 0);
+                tiles_left = left;
+            }
+
+            if (imageheight <= wrapheight) {
+                rows = Math.floor(imageheight/Y_TILE_SIZE) + ((imageheight%Y_TILE_SIZE > 0) ? 1 : 0);
+                tiles_top = (imageheight-wrapheight<0) ? 0 : imageheight-wrapheight;
+            } else {
+                rows = Math.floor(wrapheight/Y_TILE_SIZE) + ((wrapheight%Y_TILE_SIZE > 0) ? 1 : 0) ;
+                tiles_top = top;
+            }
+            
+            redraw(rows, cols, tiles_left, tiles_top);
+        }
       
     }
 
@@ -324,24 +325,28 @@ $.fn.viewportImage = function(options) {
       image.trigger("instant_zoom", [cur_zoom])
       image.attr({width: width, height: height});
       overlay.attr({width: width, height: height});
-      tilescontainer.css({width: width, height: height});
       
-      if (width <= wrapwidth) {
-            cols = Math.floor(width/X_TILE_SIZE) + ((width%X_TILE_SIZE > 0) ? 1 : 0);
-        } else {
-            cols = Math.floor(wrapwidth/X_TILE_SIZE) + ((wrapwidth%X_TILE_SIZE > 0) ? 1 : 0);
-        }
-        if (height <= wrapheight) {
-            rows = Math.floor(height/Y_TILE_SIZE) + ((height%Y_TILE_SIZE > 0) ? 1 : 0);
-        } else {
-            rows = Math.floor(wrapheight/Y_TILE_SIZE) + ((wrapheight%Y_TILE_SIZE > 0) ? 1 : 0) ;
-        }
-              
-      tilescontainer.empty();
-      delete tails;
-      tiles = new Array();
+      if(bigimage){
+          tilescontainer.css({width: width, height: height});
+
+            if (width <= wrapwidth) {
+                  cols = Math.floor(width/X_TILE_SIZE) + ((width%X_TILE_SIZE > 0) ? 1 : 0);
+              } else {
+                  cols = Math.floor(wrapwidth/X_TILE_SIZE) + ((wrapwidth%X_TILE_SIZE > 0) ? 1 : 0);
+              }
+              if (height <= wrapheight) {
+                  rows = Math.floor(height/Y_TILE_SIZE) + ((height%Y_TILE_SIZE > 0) ? 1 : 0);
+              } else {
+                  rows = Math.floor(wrapheight/Y_TILE_SIZE) + ((wrapheight%Y_TILE_SIZE > 0) ? 1 : 0) ;
+              }
+
+            tilescontainer.empty();
+            delete tails;
+            tiles = new Array();
+
+            draw_tiles(rows,cols);
+      }
       
-      draw_tiles(rows,cols);
      }
 
     this.setZoomToFit = function (only_shrink, width, height) {
@@ -452,6 +457,7 @@ $.fn.viewportImage = function(options) {
   	var X_TILE_SIZE = 256;
 
     this.initial_tiles = function() {
+        bigimage = true;
         if (image.width() <= wrapwidth) {
               cols = Math.floor(image.width()/X_TILE_SIZE) + ((image.width()%X_TILE_SIZE > 0) ? 1 : 0);
           } else {
@@ -469,7 +475,6 @@ $.fn.viewportImage = function(options) {
     var redraw = function(rows, cols, tiles_left, tiles_top) {
         tiles_left = (tiles_left == null) ? 0 : tiles_left;
         tiles_top = (tiles_top == null) ? 0 : tiles_top;
-        console.log('ZOOM:'+cur_zoom+'ROWS:'+rows+',COLS:'+cols+',TOP:'+tiles_top+',LEFT'+tiles_left)
         
         var ratio = 1/(cur_zoom/100);
         
@@ -520,7 +525,6 @@ $.fn.viewportImage = function(options) {
     var draw_tiles = function(rows, cols) {
         rows = (rows < 1) ? 1 : rows;
         cols = (cols < 1) ? 1 : cols;
-        console.log('ZOOM:'+cur_zoom+'ROWS:'+rows+',COLS:'+cols)
         
         href=image.attr('src');
         
@@ -564,7 +568,6 @@ $.fn.viewportImage = function(options) {
     }
     
     this.refresh = function () {
-        console.log('Refresh')
       imagewidth = image.width();
       imageheight = image.height();
       wrapwidth = wrapdiv.width();
@@ -573,18 +576,20 @@ $.fn.viewportImage = function(options) {
       //orig_height = image.get(0).clientHeight;
       
       //reorganize tiles
-      if (imagewidth <= wrapwidth) {
-          cols = Math.floor(imagewidth/X_TILE_SIZE) + ((imagewidth%X_TILE_SIZE > 0) ? 1 : 0);
-      } else {
-          cols = Math.floor(wrapwidth/X_TILE_SIZE) + ((wrapwidth%X_TILE_SIZE > 0) ? 1 : 0);
-      }
-      if (imageheight <= wrapheight) {
-          rows = Math.floor(imageheight/Y_TILE_SIZE) + ((imageheight%Y_TILE_SIZE > 0) ? 1 : 0);
-      } else {
-          rows = Math.floor(wrapheight/Y_TILE_SIZE) + ((wrapheight%Y_TILE_SIZE > 0) ? 1 : 0);
-      }
-      
-      draw_tiles(rows, cols);
+      if(bigimage){
+          if (imagewidth <= wrapwidth) {
+                cols = Math.floor(imagewidth/X_TILE_SIZE) + ((imagewidth%X_TILE_SIZE > 0) ? 1 : 0);
+            } else {
+                cols = Math.floor(wrapwidth/X_TILE_SIZE) + ((wrapwidth%X_TILE_SIZE > 0) ? 1 : 0);
+            }
+            if (imageheight <= wrapheight) {
+                rows = Math.floor(imageheight/Y_TILE_SIZE) + ((imageheight%Y_TILE_SIZE > 0) ? 1 : 0);
+            } else {
+                rows = Math.floor(wrapheight/Y_TILE_SIZE) + ((wrapheight%Y_TILE_SIZE > 0) ? 1 : 0);
+            }
+
+            draw_tiles(rows, cols);
+       }
       
       if (panbars) {
       pantop.center();

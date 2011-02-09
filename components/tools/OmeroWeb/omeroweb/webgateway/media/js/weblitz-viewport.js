@@ -183,7 +183,10 @@ jQuery._WeblitzViewport = function (container, server, options) {
     _this.viewportimg.show();
     
     //tiles
-    _this.viewportimg.get(0).initial_tiles();
+    if(_this.loadedImg.tiles) {
+        _this.viewportimg.hide();
+        _this.viewportimg.get(0).initial_tiles();
+    }
     
     _this.zslider.get(0).pos = -1;
     if (_this.loadedImg.rdefs.projection.toLowerCase().substring(3,0) == 'int') {
