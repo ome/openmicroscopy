@@ -153,7 +153,7 @@ public class SchemaCurrent_TO_2003_FC_Test
 			else if (name.equals(XMLWriter.DIMENSION_ORDER_ATTRIBUTE))
 				dimensionOrder = n.getNodeValue();
 		}
-		
+		String bigEndianDst = "";
 		NamedNodeMap attributes = destNode.getAttributes();
 		for (int i = 0; i < attributes.getLength(); i++) {
 			n = attributes.item(i);
@@ -177,6 +177,8 @@ public class SchemaCurrent_TO_2003_FC_Test
 					assertEquals(n.getNodeValue(), pixelsType);
 				else if (name.equals(XMLWriter.DIMENSION_ORDER_ATTRIBUTE))
 					assertEquals(n.getNodeValue(), dimensionOrder);
+				else if (name.equals(XMLWriter.BIG_ENDIAN_ATTRIBUTE))
+					bigEndianDst = n.getNodeValue();
 			}
 		}
 		//check the tag now.
@@ -204,6 +206,17 @@ public class SchemaCurrent_TO_2003_FC_Test
 		assertEquals(binDataNodeSrc.size(), binDataNodeDest.size());
 		for (int i = 0; i < binDataNodeDest.size(); i++) {
 			checkBinDataNode(binDataNodeDest.get(i), binDataNodeSrc.get(i));
+		}
+		n = binDataNodeSrc.get(0);
+		attributesSrc = n.getAttributes();
+		//now check that 
+		for (int i = 0; i < attributesSrc.getLength(); i++) {
+			n = attributesSrc.item(i);
+			if (n != null) {
+				name = n.getNodeName();
+				if (name.contains(XMLWriter.BIG_ENDIAN_ATTRIBUTE))
+					assertEquals(n.getNodeValue(), bigEndianDst);
+			}
 		}
 	}
 	
