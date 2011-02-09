@@ -7,6 +7,7 @@
 package integration;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
@@ -14,6 +15,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
 import junit.framework.TestCase;
 import ome.formats.OMEROMetadataStoreClient;
@@ -54,6 +62,7 @@ import org.apache.commons.logging.LogFactory;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.w3c.dom.Document;
 
 
 /**
@@ -638,7 +647,7 @@ public class AbstractTest
      * @param file The file to import.
      * @param format The format of the file to import.
      * @return The collection of imported pixels set.
-     * @throws Exception Thrown if an error occurred while encoding the image.
+     * @throws Throwable Thrown if an error occurred while encoding the image.
      */
     protected List<Pixels> importFile(File file, String format, boolean metadata)
         throws Throwable
@@ -654,7 +663,7 @@ public class AbstractTest
 	 * @param file The file to import.
 	 * @param format The format of the file to import.
 	 * @return The collection of imported pixels set.
-	 * @throws Exception Thrown if an error occurred while encoding the image.
+	 * @throws Throwable Thrown if an error occurred while encoding the image.
 	 */
 	protected List<Pixels> importFile(OMEROMetadataStoreClient importer,
 			File file, String format)
@@ -673,7 +682,7 @@ public class AbstractTest
 	 * @param metadata Pass <code>true</code> to only import the metadata,
 	 *                 <code>false</code> otherwise.
 	 * @return The collection of imported pixels set.
-	 * @throws Exception Thrown if an error occurred while encoding the image.
+	 * @throws Throwable Thrown if an error occurred while encoding the image.
 	 */
 	protected List<Pixels> importFile(OMEROMetadataStoreClient importer,
 			File file, String format, boolean metadata)
@@ -782,7 +791,8 @@ public class AbstractTest
      * @throws ServerError
      * @throws InterruptedException
      */
-    private DeleteReport[] deleteWithReports(IDeletePrx proxy, omero.client c, DeleteCommand...dc)
+    private DeleteReport[] deleteWithReports(IDeletePrx proxy, omero.client c, 
+    		DeleteCommand...dc)
     throws ApiUsageException, ServerError,
     InterruptedException
     {
@@ -812,4 +822,46 @@ public class AbstractTest
         }
         return handle.report();
     }
+    
+    /**
+     * Transforms the input file using the specified stylesheet.
+     * 
+     * @param input  The file to transform.
+     * @param output The destination file.
+     * @param xslt   The stylesheet to use.
+     * @throws Exception Thrown if an error occurred while encoding the image.
+     */
+    protected void transformFile(File input, File output, File xslt)
+    	throws Exception
+    {
+    	if (input == null) 
+    		throw new IllegalArgumentException("No file to transform.");
+    	if (output == null) 
+    		throw new IllegalArgumentException("No destination file.");
+    	if (xslt == null) 
+    		throw new IllegalArgumentException("No stylesheet provided.");
+    	TransformerFactory factory = TransformerFactory.newInstance();
+		Transformer transformer = factory.newTransformer(
+				new StreamSource(xslt));
+		StreamResult result = new StreamResult(new FileOutputStream(output));
+		transformer.transform(new StreamSource(input), result);
+    }
+    
+    /**
+     * Parses the specified file and returns the document.
+     * 
+     * @param file The file to parse.
+     * @return
+     * @throws Exception Thrown if an error occurred while encoding the image.
+     */
+    protected Document parseFile(File file)
+    	throws Exception
+    {
+    	if (file == null) 
+    		throw new IllegalArgumentException("No file to parse.");
+    	DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilder builder = dbf.newDocumentBuilder();
+		return builder.parse(file);
+    }
+    
 }

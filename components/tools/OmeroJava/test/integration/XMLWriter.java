@@ -62,7 +62,55 @@ import ome.xml.model.OME;
  */
 public class XMLWriter
 {
-
+	
+	/** Identifies the <code>ID</code> attribute. */
+	public static final String ID_ATTRIBUTE = "ID";
+	
+	/** Identifies the <code>Name</code> attribute. */
+	public static final String NAME_ATTRIBUTE = "Name";
+	
+	/** Identifies the <code>DimensionOrder</code> attribute. */
+	public static final String DIMENSION_ORDER_ATTRIBUTE = "DimensionOrder";
+	
+	/** Identifies the <code>PixelType</code> attribute. */
+	public static final String PIXELS_TYPE_ATTRIBUTE = "PixelType";
+	
+	/** Identifies the <code>SizeC</code> attribute. */
+	public static final String SIZE_C_ATTRIBUTE = "SizeC";
+	
+	/** Identifies the <code>SizeT</code> attribute. */
+	public static final String SIZE_T_ATTRIBUTE = "SizeT";
+	
+	/** Identifies the <code>SizeZ</code> attribute. */
+	public static final String SIZE_Z_ATTRIBUTE = "SizeZ";
+	
+	/** Identifies the <code>SizeX</code> attribute. */
+	public static final String SIZE_X_ATTRIBUTE = "SizeX";
+	
+	/** Identifies the <code>SizeY</code> attribute. */
+	public static final String SIZE_Y_ATTRIBUTE = "SizeY";
+	
+	/** Identifies the <code>Compression</code> attribute. */
+	public static final String COMPRESSION_ATTRIBUTE = "Compression";
+	
+	/** Identifies the <code>BigEndian</code> attribute. */
+	public static final String BIG_ENDIAN_ATTRIBUTE = "BigEndian";
+	
+	/** Identifies the <code>Length</code> attribute. */
+	public static final String LENGTH_ATTRIBUTE = "Length";
+	
+	/** Identifies the <code>OME</code> tag. */
+	public static final String OME_TAG = "OME";
+	
+	/** Identifies the <code>Image</code> tag. */
+	public static final String IMAGE_TAG = "Image";
+	
+	/** Identifies the <code>Pixels</code> tag. */
+	public static final String PIXELS_TAG = "Pixels";
+	
+	/** Identifies the <code>BinData</code> tag. */
+	public static final String BIN_DATA_TAG = "BinData";
+	
 	/** The schema language. */
 	private static final String JAXP_SCHEMA_LANGUAGE =
 	    "http://java.sun.com/xml/jaxp/properties/schemaLanguage";
@@ -149,7 +197,7 @@ public class XMLWriter
 		
 		//Add Planar data
 		if (binaryData) {
-			NodeList nodes = document.getElementsByTagName("BinData");
+			NodeList nodes = document.getElementsByTagName(BIN_DATA_TAG);
 			for (int i = 0; i < nodes.getLength(); i++) {
 				nodes.item(i).setTextContent(PLANE);
 			}
