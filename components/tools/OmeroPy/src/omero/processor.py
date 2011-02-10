@@ -653,7 +653,7 @@ class ProcessorI(omero.grid.Processor, omero.util.Servant):
 
         omero.util.Servant.__init__(self, ctx, needs_session = needs_session)
         if cfg is None:
-            self.cfg = os.path.join(os.curdir, "etc", "ice.config")
+            self.cfg = os.path.join(omero_home, "etc", "ice.config")
             self.cfg = os.path.abspath(self.cfg)
         else:
             self.cfg = cfg
