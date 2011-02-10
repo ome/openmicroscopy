@@ -32,8 +32,9 @@
 		</macrodef>
 		<checkdsl template="object" dependfile="${src.dest}/ome/model/core/Image.java"/>
 		<checkdsl template="cfg"    dependfile="${resrc.dest}/hibernate.cfg.xml"/>
-		<checkdsl template="data"   dependfile="${resrc.dest}/data.sql"/>
 		<checkdsl template="views"  dependfile="${resrc.dest}/views.sql"/>
+		<checkdsl template="${omero.db.profile}-header"  dependfile="${resrc.dest}/${omero.db.profile}-header.sql"/>
+		<checkdsl template="${omero.db.profile}-footer"  dependfile="${resrc.dest}/${omero.db.profile}-footer.sql"/>
 		<checkdsl template="enums"  dependfile="${blitz.comp}/target/generated/resources/enums.properties"/>
 		<condition property="dsl.needed">
 			<not><and>
@@ -42,6 +43,8 @@
 				<isset property="dsl.data.unneeded"/>
 				<isset property="dsl.views.unneeded"/>
 				<isset property="dsl.enums.unneeded"/>
+				<isset property="dsl.${omero.db.profile}-header.unneeded"/>
+				<isset property="dsl.${omero.db.profile}-footer.unneeded"/>
 			</and></not>
 		</condition>
 	</target>
@@ -53,10 +56,11 @@
 		</presetdef>
 		<dsl template="ome/dsl/object.vm" filepattern="${src.dest}/{package-dir}/{class-name}.java"><fileset dir="${resrc.dir}" includes="${dsl.pat}"/></dsl>
 		<dsl template="ome/dsl/cfg.vm" filepattern="${resrc.dest}/hibernate.cfg.xml"><fileset dir="${resrc.dir}" includes="${dsl.pat}"/></dsl>
-		<dsl template="ome/dsl/data.vm" filepattern="${resrc.dest}/data.sql"><fileset dir="${resrc.dir}" includes="${dsl.pat}"/></dsl>
 		<dsl template="ome/dsl/views.vm" filepattern="${resrc.dest}/views.sql"><fileset dir="${resrc.dir}" includes="${dsl.pat}"/></dsl>
 		<dsl template="ome/dsl/enums.vm" filepattern="${blitz.comp}/target/generated/resources/enums.properties"><fileset dir="${resrc.dir}" includes="${dsl.pat}"/></dsl>
 		<dsl template="ome/dsl/enums_update.vm" filepattern="${resrc.dest}/enums_update.sql"><fileset dir="${resrc.dir}" includes="${dsl.pat}"/></dsl>
+                <dsl template="ome/dsl/${omero.db.profile}-header.vm" filepattern="${resrc.dest}/${omero.db.profile}-header.sql"><fileset dir="${resrc.dir}" includes="${dsl.pat}"/></dsl>
+                <dsl template="ome/dsl/${omero.db.profile}-footer.vm" filepattern="${resrc.dest}/${omero.db.profile}-footer.sql"><fileset dir="${resrc.dir}" includes="${dsl.pat}"/></dsl>
 		<delete>
 			<fileset dir="${src.dest}" includes="**/*.java">
 				<present present="both" targetdir="${src.dir}"/>
@@ -90,11 +94,12 @@
         <target name="publish-schema" depends="generate-schema" description="Copies SQL from generate-schema to main sql/ directory">
 		<mkdir dir="${sql.dir}"/>
 		<copy file="${resrc.dest}/ddl.sql" tofile="${sql.dir}/schema.sql"/>
-		<copy file="${resrc.dest}/data.sql" tofile="${sql.dir}/data.sql"/>
 		<copy file="${resrc.dest}/views.sql" tofile="${sql.dir}/views.sql"/>
 		<copy file="${resrc.dest}/enums_update.sql" tofile="${sql.dir}/enums_update.sql"/>
-		<replace file="${sql.dir}/data.sql" token="@DBPATCH@" value="${omero.db.patch}"/>
-		<replace file="${sql.dir}/data.sql" token="@DBVERSION@" value="${omero.db.version}"/>
+		<copy file="${resrc.dest}/${omero.db.profile}-header.sql" tofile="${sql.dir}/${omero.db.profile}-header.sql"/>
+		<copy file="${resrc.dest}/${omero.db.profile}-footer.sql" tofile="${sql.dir}/${omero.db.profile}-footer.sql"/>
+		<replace file="${sql.dir}/${omero.db.profile}-footer.sql" token="@DBPATCH@" value="${omero.db.patch}"/>
+		<replace file="${sql.dir}/${omero.db.profile}-footer.sql" token="@DBVERSION@" value="${omero.db.version}"/>
 	</target>
 
     <!-- = = = = = = = = = = = = = = = = =
