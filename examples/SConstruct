@@ -27,6 +27,7 @@
 #     run=1              # Causes all the files to be executed
 #     run_java=1         # Causes Java files to be executed
 #     run_cpp=1          # Causes C++ files to be executed
+#     no_cpp=1           # Prevents building the C++ files
 #     run_py=1           # Causes Python files to be executed
 #
 #
@@ -70,6 +71,7 @@ opts.Add(BoolVariable('run', 'Execute all build artifacts', 0))
 opts.Add(BoolVariable('run_java', 'Execute Java build artifacts', 0))
 opts.Add(BoolVariable('run_cpp', 'Execute C++ build artifacts', 0))
 opts.Add(BoolVariable('run_py', 'Execute Python build artifacts', 0))
+opts.Add(BoolVariable('no_cpp', 'Skip building all C++ artifacts', 0))
 
 #
 # ENVIRONMENT: ===================================================
@@ -173,13 +175,14 @@ def get_targets(env, subdir, name):
         targets.append(run)
 
     # C++
-    make = env.Program("%s.exe" % subdir, "%s.cpp" % name, LIBS = libs)
-    targets.append(make)
-    if env["run"] or env["run_cpp"]:
-        run = env.Command("%s/%s.out" % (subdir,name), "%s.exe" % subdir, "./$SOURCE ")
-        env.Depends(run, make)
-        env.AlwaysBuild(run)
-        targets.append(run)
+    if not env["no_cpp"]:
+        make = env.Program("%s.exe" % subdir, "%s.cpp" % name, LIBS = libs)
+        targets.append(make)
+        if env["run"] or env["run_cpp"]:
+            run = env.Command("%s/%s.out" % (subdir,name), "%s.exe" % subdir, "./$SOURCE ")
+            env.Depends(run, make)
+            env.AlwaysBuild(run)
+            targets.append(run)
 
     return targets
 
@@ -245,16 +248,17 @@ for src_dir in glob.glob("*"):
         #
         # C++
         #
-        cpp_files = glob.glob(os.path.join(src_dir,"*.cpp"))
-        for file in cpp_files:
-            base = os.path.splitext(file)[0]
-            make = env.Program(base+".exe", file, LIBS=libs)
-            targets.append(make)
-            if env["run"] or env["run_cpp"]:
-                run = env.Command(base+".out", base+".exe", "./$SOURCE")
-                env.Depends(run, make)
-                env.AlwaysBuild(run)
-                targets.append(run)
+        if not env["no_cpp"]:
+            cpp_files = glob.glob(os.path.join(src_dir,"*.cpp"))
+            for file in cpp_files:
+                base = os.path.splitext(file)[0]
+                make = env.Program(base+".exe", file, LIBS=libs)
+                targets.append(make)
+                if env["run"] or env["run_cpp"]:
+                    run = env.Command(base+".out", base+".exe", "./$SOURCE")
+                    env.Depends(run, make)
+                    env.AlwaysBuild(run)
+                    targets.append(run)
 
 
 # PREPARING SCONS EXECUTION: =================================

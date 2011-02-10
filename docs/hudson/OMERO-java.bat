@@ -15,7 +15,7 @@ python build.py -f components\tools\OmeroJava\build.xml -Dtest.with.fail=true in
 if errorlevel 1 goto ERROR
 
 cd examples
-python ..\target\scons\scons.py run_java=1
+python ..\target\scons\scons.py run_java=1 no_cpp=1
 if errorlevel 1 goto ERROR
 
 exit /b 0

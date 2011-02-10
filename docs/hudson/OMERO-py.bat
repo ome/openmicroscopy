@@ -8,7 +8,7 @@ python build.py -f components\tools\OmeroPy\build.xml -Dtest.with.fail=true inte
 if errorlevel 1 goto ERROR
 
 cd examples
-python ..\target\scons\scons.py run_py=1
+python ..\target\scons\scons.py run_py=1 no_cpp=1
 if errorlevel 1 goto ERROR
 
 exit /b 0
