@@ -281,7 +281,7 @@ class OutputServerStrategy
 		double y = fig.getBounds().getY();
 		String text = fig.getText();
 		if (text != null && text.trim().length() > 0 && 
-				!text.equals(ROIFigure.DEFAULT_TEXT))
+				text.equals(ROIFigure.DEFAULT_TEXT))
 			text = "";
 		TextData data = new TextData(text, x, y); 
 		data.setDirty(fig.isDirty());
