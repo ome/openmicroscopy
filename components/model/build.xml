@@ -89,6 +89,13 @@ hibernate.dialect=${omero.db.dialect}
 			</annotationconfiguration>
 			<hbm2ddl destdir="${resrc.dest}" outputfilename="ddl.sql" drop="false" console="false" format="true" export="false" delimiter="${omero.db.delimiter}"/>
 		</hibernatetool>
+		<replaceregexp
+			match="alter\stable\s(.*?)\sadd\sconstraint\s(.*?\w);"
+			replace="alter table \1 add constraint \2 ${omero.db.defer} ;"
+			flags="gs" byline="false">
+                        <!-- Extra space before ';' prevents multiple replacements -->
+			<fileset dir="${resrc.dest}" includes="ddl.sql"/>
+		</replaceregexp>
 		<taskdef name="schemavalidator" classname="org.hibernate.tool.hbm2ddl.SchemaValidatorTask" classpathref="omero.classpath"/>
 		<!-- Disabled -->
 		<!--schemavalidator properties="${resrc.dest}/local.properties" config="${basedir}/test/test.cfg.xml"/-->
