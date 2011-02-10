@@ -154,10 +154,15 @@ public class RectangleTextFigure
 		drawText(g);
 	}
 	
+	/**
+	 * Overridden to handle the {@link MeasurementAttributes#HEIGHT}
+	 * and {@link MeasurementAttributes#WIDTH}.
+	 * @see #setAttribute(AttributeKey, Object)
+	 */
 	public void setAttribute(AttributeKey key, Object newValue) 
 	{
 		super.setAttribute(key, newValue);
-		if(key.getKey().equals(MeasurementAttributes.HEIGHT.getKey()))
+		if (MeasurementAttributes.HEIGHT.getKey().equals(key.getKey()))
 		{
 			double newHeight = MeasurementAttributes.HEIGHT.get(this);
 			Rectangle2D.Double bounds = getBounds();
@@ -170,7 +175,7 @@ public class RectangleTextFigure
 			this.setBounds(newBounds);
 			fromAttributeUpdate = false;
 		}
-		if(key.getKey().equals(MeasurementAttributes.WIDTH.getKey()))
+		if (MeasurementAttributes.WIDTH.getKey().equals(key.getKey()))
 		{
 			double newWidth = MeasurementAttributes.WIDTH.get(this);
 			Rectangle2D.Double bounds = getBounds();
@@ -184,13 +189,17 @@ public class RectangleTextFigure
 			fromAttributeUpdate = false;
 		}
 	}
-		  
-	public void setBounds(Point2D.Double anchor, Point2D.Double lead) {
+		 
+	/**
+	 * Overridden to handle the {@link MeasurementAttributes#HEIGHT}
+	 * and {@link MeasurementAttributes#WIDTH}.
+	 * @see #setBounds(Point2D.Double, Point2D.Double)
+	 */
+	public void setBounds(Point2D.Double anchor, Point2D.Double lead)
+	{
 		super.setBounds(anchor, lead);
-
-		if(!fromAttributeUpdate)
+		if (!fromAttributeUpdate)
 		{
-
 			MeasurementAttributes.HEIGHT.set(this, getBounds().getHeight());
 			MeasurementAttributes.WIDTH.set(this, getBounds().getWidth());
 		}

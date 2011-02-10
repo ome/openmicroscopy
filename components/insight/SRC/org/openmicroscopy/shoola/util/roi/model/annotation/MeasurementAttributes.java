@@ -50,22 +50,15 @@ public class MeasurementAttributes
 	extends DrawingAttributes 
 {
 	
-	/**
-	 * Should the figure show the measurement text.
-	 */
+	/** Should the figure show the measurement text. */
 	public static final AttributeKey<Boolean> SHOWMEASUREMENT = 
 		new AttributeKey<Boolean>("ShowMeasurement", false);
 	
-
-	/**
-	 * Should the figure show the measurement text.
-	 */
+	/** Should the figure show the measurement text. */
 	public static final AttributeKey<Boolean> SHOWID = 
 		new AttributeKey<Boolean>("ShowID", false);
 	
-	/**
-	 * The colour of the measurement text.
-	 */
+	/** The colour of the measurement text. */
 	public static final AttributeKey<Color> MEASUREMENTTEXT_COLOUR = 
 		new AttributeKey<Color>("MeasurementTextColour", 
 				IOConstants.DEFAULT_MEASUREMENT_TEXT_COLOUR);

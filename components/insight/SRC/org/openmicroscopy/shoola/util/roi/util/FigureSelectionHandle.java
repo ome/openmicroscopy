@@ -69,8 +69,8 @@ public class FigureSelectionHandle
 	public void draw(Graphics2D g) 
 	{
 		Figure f = getOwner();
-		Color colour = (Color)f.getAttribute(AttributeKeys.STROKE_COLOR);
-		double width = (Double)f.getAttribute(AttributeKeys.STROKE_WIDTH);
+		Color colour = (Color) f.getAttribute(AttributeKeys.STROKE_COLOR);
+		double width = (Double) f.getAttribute(AttributeKeys.STROKE_WIDTH);
 		Color strokeColour = colour.brighter();
 		if (strokeColour == colour) strokeColour = Color.red;
 				

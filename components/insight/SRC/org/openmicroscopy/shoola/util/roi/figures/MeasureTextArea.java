@@ -36,6 +36,7 @@ import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.text.AttributedCharacterIterator;
 import java.text.AttributedString;
+import java.text.CharacterIterator;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -57,7 +58,7 @@ import org.jhotdraw.xml.DOMOutput;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 
 /** 
- * 
+ * Area with measurement.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -73,25 +74,43 @@ public class MeasureTextArea
 	extends AbstractAttributedDecoratedFigure 
 	implements TextHolderFigure 
 {
+	
+	/** The bounds of the area. */
     private Rectangle2D.Double bounds = new Rectangle2D.Double();
+    
+    /** Flag indicating if the area can be edited. */
     private boolean editable = true;
-     // cache of the TextFigure's layout
+    
+    /** Copies of the layout. */
     transient private TextLayout textLayout;
     
     /** Creates a new instance. */
-    public MeasureTextArea() {
+    public MeasureTextArea()
+    {
         this(ROIFigure.DEFAULT_TEXT);
     }
-    public MeasureTextArea(String text) {
+    
+    /**
+     * Creates a new instance.
+     * 
+     * @param text The text to display.
+     */
+    public MeasureTextArea(String text)
+    {
         setText(text);
     }
     
-    // DRAWING
-    protected void drawText(Graphics2D g) {
+    /**
+     * Overridden to draw the text.
+     * @see #drawText(Graphics2D)
+     */
+    protected void drawText(Graphics2D g)
+    {
         if (getText() != null || isEditable()) {
             
             Font font = getFont();
-            boolean isUnderlined = MeasurementAttributes.FONT_UNDERLINE.get(this);
+            boolean isUnderlined = MeasurementAttributes.FONT_UNDERLINE.get(
+            		this);
             Insets2D.Double insets = getInsets();
             Rectangle2D.Double textRect = new Rectangle2D.Double(
                     bounds.x + insets.left,
@@ -100,14 +119,17 @@ public class MeasureTextArea
                     bounds.height - insets.top - insets.bottom
                     );
             float leftMargin = (float) textRect.x;
-            float rightMargin = (float) Math.max(leftMargin + 1, textRect.x + textRect.width);
+            float rightMargin = (float) Math.max(leftMargin + 1, 
+            		textRect.x + textRect.width);
             float verticalPos = (float) textRect.y;
             float maxVerticalPos = (float) (textRect.y + textRect.height);
             if (leftMargin < rightMargin) {
-                float tabWidth = (float) (getTabSize() * g.getFontMetrics(font).charWidth('m'));
+                float tabWidth = (float) (getTabSize() * 
+                		g.getFontMetrics(font).charWidth('m'));
                 float[] tabStops = new float[(int) (textRect.width / tabWidth)];
                 for (int i=0; i < tabStops.length; i++) {
-                    tabStops[i] = (float) (textRect.x + (int) (tabWidth * (i + 1)));
+                    tabStops[i] = (float) (textRect.x + 
+                    		(int) (tabWidth * (i + 1)));
                 }
                 
                 if (getText() != null) {
@@ -120,10 +142,14 @@ public class MeasureTextArea
                         AttributedString as = new AttributedString(paragraphs[i]);
                         as.addAttribute(TextAttribute.FONT, font);
                         if (isUnderlined) {
-                            as.addAttribute(TextAttribute.UNDERLINE, TextAttribute.UNDERLINE_LOW_ONE_PIXEL);
+                            as.addAttribute(TextAttribute.UNDERLINE, 
+                            		TextAttribute.UNDERLINE_LOW_ONE_PIXEL);
                         }
-                        int tabCount = new StringTokenizer(paragraphs[i], "\t").countTokens() - 1;
-                        verticalPos = drawParagraph(g, as.getIterator(), verticalPos, maxVerticalPos, leftMargin, rightMargin, tabStops, tabCount);
+                        int tabCount = new StringTokenizer(
+                        		paragraphs[i], "\t").countTokens() - 1;
+                        verticalPos = drawParagraph(g, as.getIterator(), 
+                        		verticalPos, maxVerticalPos, leftMargin, 
+                        		rightMargin, tabStops, tabCount);
                         if (verticalPos > maxVerticalPos) {
                             break;
                         }
@@ -132,7 +158,8 @@ public class MeasureTextArea
                 }
             }
             
-            if (leftMargin >= rightMargin || verticalPos > textRect.y + textRect.height) {
+            if (leftMargin >= rightMargin || verticalPos > 
+            textRect.y + textRect.height) {
             //    g.setColor(Color.red);
                 //g.draw(new Line2D.Double(textRect.x, textRect.y + textRect.height - 1, textRect.x + textRect.width - 1, textRect.y + textRect.height - 1));
             }
@@ -143,7 +170,11 @@ public class MeasureTextArea
      * Draws a paragraph of text at the specified y location and returns
      * the y position for the next paragraph.
      */
-    private float drawParagraph(Graphics2D g, AttributedCharacterIterator styledText, float verticalPos, float maxVerticalPos, float leftMargin, float rightMargin, float[] tabStops, int tabCount) {
+    private float drawParagraph(Graphics2D g, 
+    		AttributedCharacterIterator styledText, float verticalPos, 
+    		float maxVerticalPos, float leftMargin, float rightMargin, 
+    		float[] tabStops, int tabCount)
+    {
         
         // assume styledText is an AttributedCharacterIterator, and the number
         // of tabs in styledText is tabCount
@@ -151,7 +182,8 @@ public class MeasureTextArea
         int[] tabLocations = new int[tabCount+1];
         
         int i = 0;
-        for (char c = styledText.first(); c != styledText.DONE; c = styledText.next()) {
+        for (char c = styledText.first(); c != CharacterIterator.DONE; 
+        c = styledText.next()) {
             if (c == '\t') {
                 tabLocations[i++] = styledText.getIndex();
             }
@@ -162,7 +194,8 @@ public class MeasureTextArea
         // the text.  For convenience, the last entry is tabLocations
         // is the offset of the last character in the text.
         
-        LineBreakMeasurer measurer = new LineBreakMeasurer(styledText, getFontRenderContext());
+        LineBreakMeasurer measurer = new LineBreakMeasurer(styledText, 
+        		getFontRenderContext());
         int currentTab = 0;
         
         while (measurer.getPosition() < styledText.getEndIndex() &&
@@ -211,7 +244,8 @@ public class MeasureTextArea
                 
                 if (measurer.getPosition() == styledText.getEndIndex())
                     lineComplete = true;
-                else if (tabStops.length == 0 || horizontalPos >= tabStops[tabStops.length-1])
+                else if (tabStops.length == 0 || horizontalPos >= 
+                	tabStops[tabStops.length-1])
                     lineComplete = true;
                 
                 if (!lineComplete) {

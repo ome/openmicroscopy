@@ -132,24 +132,27 @@ public class EllipseTextFigure
 	}	
 	
 	/**
-	 * Overridden to the value of the transform.
+	 * Overridden to set the value of the transform.
+	 * @see #setAttribute(AttributeKey, Object)
 	 */
 	public void setAttribute(AttributeKey key, Object newValue) 
 	{
 		super.setAttribute(key, newValue);
+		/* TODO: To fix
 		if (!fromTransformUpdate)
 		{
-			if(key.getKey().equals(MeasurementAttributes.HEIGHT.getKey()))
+			if (key.getKey().equals(MeasurementAttributes.HEIGHT.getKey()))
 			{
 				double newHeight = MeasurementAttributes.HEIGHT.get(this);
 				this.setHeight(newHeight);	
 			}
-			if(key.getKey().equals(MeasurementAttributes.WIDTH.getKey()))
+			if (key.getKey().equals(MeasurementAttributes.WIDTH.getKey()))
 			{
 				double newWidth = MeasurementAttributes.WIDTH.get(this);
 				this.setWidth(newWidth);	
 			}
 		}
+		*/
 	}
 	
 	/**
@@ -161,13 +164,16 @@ public class EllipseTextFigure
 	{
 		super.transform(tx);
 		fromTransformUpdate = true;
-		MeasurementAttributes.HEIGHT.set(this, getTransformedEllipse().getBounds2D().getHeight());
-		MeasurementAttributes.WIDTH.set(this, getTransformedEllipse().getBounds2D().getWidth());
+		MeasurementAttributes.HEIGHT.set(this, 
+				getTransformedEllipse().getBounds2D().getHeight());
+		MeasurementAttributes.WIDTH.set(this,
+				getTransformedEllipse().getBounds2D().getWidth());
 		fromTransformUpdate = false;
 	}
 	
 	/**
-	 * Set the bounds of the ellipse from the anchor to lead. 
+	 * Set the bounds of the ellipse from the anchor to lead.
+	 *  
 	 * @param anchor The start point of the drawing action.
 	 * @param lead The end point the drawing action.
 	 * 
@@ -176,19 +182,22 @@ public class EllipseTextFigure
 	{
 		super.setBounds(anchor, lead);
 		fromTransformUpdate = true;
-		MeasurementAttributes.HEIGHT.set(this, getTransformedEllipse().getBounds2D().getHeight());
-		MeasurementAttributes.WIDTH.set(this, getTransformedEllipse().getBounds2D().getWidth());
+		Rectangle2D r = getTransformedEllipse().getBounds2D();
+		MeasurementAttributes.HEIGHT.set(this, r.getHeight());
+		MeasurementAttributes.WIDTH.set(this, r.getWidth());
 		fromTransformUpdate = false;
 	}
 
+	/**
+	 * Overridden to add the handle only if the passed value is <code>0</code>.
+	 * @see #createHandles(int)
+	 */
 	@Override 
 	public Collection<Handle> createHandles(int detailLevel) 
 	{
 		LinkedList<Handle> handles = new LinkedList<Handle>();
 	    if (detailLevel == 0) 
-	    {
-	            TransformHandleKit.addTransformHandles(this, handles);
-	    }
+	    	TransformHandleKit.addTransformHandles(this, handles);
 	    return handles;
 	}
 	   
@@ -220,7 +229,7 @@ public class EllipseTextFigure
 		if (isEditable() && contains(p)) 
 		{
 			invalidate();
-			return new TransformedDrawingTextTool(this, this.getTransformedShape()); 
+			return new TransformedDrawingTextTool(this, getTransformedShape()); 
 		}
 		return null;
 	}
@@ -389,8 +398,9 @@ public class EllipseTextFigure
 	 */
 	public void setFontSize(float size)  {}
 
-	/* (non-Javadoc)
-	 * @see org.jhotdraw.draw.TextHolderFigure#isTextOverflow()
+	/**
+	 * Overridden to always return <code>false</code>.
+	 * @see TextHolderFigure#isTextOverflow()
 	 */
 	public boolean isTextOverflow()	{ return false; }
 

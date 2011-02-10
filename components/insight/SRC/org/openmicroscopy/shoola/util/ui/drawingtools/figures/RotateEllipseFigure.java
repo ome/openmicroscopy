@@ -47,8 +47,6 @@ import org.jhotdraw.draw.TransformHandleKit;
 import org.jhotdraw.geom.Geom;
 import org.jhotdraw.samples.svg.Gradient;
 import org.jhotdraw.samples.svg.SVGAttributeKeys;
-import static org.jhotdraw.draw.AttributeKeys.STROKE_WIDTH;
-import static org.jhotdraw.draw.AttributeKeys.TRANSFORM;
 
 //Application-internal dependencies
 
@@ -108,8 +106,9 @@ public class RotateEllipseFigure
 	 */
 	public void setAttribute(AttributeKey key, Object newValue)
 	{
-		if (key == TRANSFORM)
+		if (key == AttributeKeys.TRANSFORM) {
 			invalidate();
+		} 
 		super.setAttribute(key, newValue);
 	} 
 
@@ -168,7 +167,8 @@ public class RotateEllipseFigure
 		Point2D.Double startPt = new Point2D.Double(1,0);
 		Point2D.Double a = (Point2D.Double)aT.transform(startPt, null);
 		// Calculate the starting rotation point.
-		double thetaStart = Math.acos(startPt.y/Math.sqrt(startPt.x*startPt.x+startPt.y*startPt.y));
+		double thetaStart = Math.acos(startPt.y/Math.sqrt
+				(startPt.x*startPt.x+startPt.y*startPt.y));
 		
 		// Calculate the current rotation the ellipse has undergone.
 		double rotation = Math.acos(a.y/Math.sqrt(a.x*a.x+a.y*a.y));
@@ -355,7 +355,7 @@ public class RotateEllipseFigure
 	
 	/**
 	 * Set the width of the ellipse to the newWidth, the new ellipse will 
-	 * still be centred around the same point as the original ellipse.
+	 * still be centered around the same point as the original ellipse.
 	 * 
 	 * @param newWidth see above.
 	 */
@@ -581,7 +581,7 @@ public class RotateEllipseFigure
 			drawFill(g);
 		}
 		paint = SVGAttributeKeys.getStrokePaint(this);
-		if (paint != null && STROKE_WIDTH.get(this) > 0)
+		if (paint != null && AttributeKeys.STROKE_WIDTH.get(this) > 0)
 		{
 			g.setPaint(paint);
 			g.setStroke(AttributeKeys.getStroke(this));

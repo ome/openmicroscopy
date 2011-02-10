@@ -836,31 +836,6 @@ class MeasurementViewerModel
 	 * the passed figure.
 	 * 
 	 * @param figure The figure to create the <code>ROI</code> from.
-	 * @return Returns the created <code>ROI</code>.
-	 * @throws ROICreationException If the ROI cannot be created.
-	 * @throws NoSuchROIException If the ROI does not exist.
-	 */
-	ROI createROI(ROIFigure figure)
-		throws ROICreationException, NoSuchROIException
-	{
-		ROI roi = roiComponent.addROI(figure, getCurrentView());
-		roi.setAnnotation(AnnotationKeys.NAMESPACE, this.workflowNamespace);
-		String keywordString = "";
-		for (int i = 0 ; i < keyword.size() ; i++)
-		{
-			keywordString = keywordString + keyword.get(i);
-			if (i < keyword.size()-1)
-				keywordString = keywordString + ",";
-		}
-		roi.setAnnotation(AnnotationKeys.KEYWORDS, keywordString);		
-		return roi;
-	}
-
-	/**
-	 * Returns the ROIComponent to create a <code>ROI</code> from 
-	 * the passed figure.
-	 * 
-	 * @param figure The figure to create the <code>ROI</code> from.
 	 * @param addAttribs add attributes to figure
 	 * @return Returns the created <code>ROI</code>.
 	 * @throws ROICreationException If the ROI cannot be created.

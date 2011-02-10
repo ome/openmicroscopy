@@ -41,7 +41,7 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 //Application-internal dependencies
 
 /**
- *
+ * Mask with measurement
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -78,8 +78,9 @@ public class MeasureMaskFigure
     
     /** 
      * Creates a new instance.
-     * @param x    coord of the figure. 
-     * @param y    coord of the figure. 
+     * 
+     * @param x    coordinate of the figure. 
+     * @param y    coordinate of the figure. 
      * @param width of the figure. 
      * @param height of the figure. 
      * */
@@ -91,8 +92,9 @@ public class MeasureMaskFigure
 
     /** 
      * Creates a new instance.
-     * @param x    coord of the figure. 
-     * @param y    coord of the figure. 
+     * 
+     * @param x    coordinate of the figure. 
+     * @param y    coordinate of the figure. 
      * @param width of the figure. 
      * @param height of the figure. 
      * @param readOnly Is the figure read only.
@@ -107,9 +109,10 @@ public class MeasureMaskFigure
     
     /** 
      * Creates a new instance.
+     * 
      * @param text text of the ellipse. 
-     * @param x    coord of the figure. 
-     * @param y    coord of the figure. 
+     * @param x    coordinate of the figure. 
+     * @param y    coordinate of the figure. 
      * @param width of the figure. 
      * @param height of the figure. 
      * @param readOnly the figure is readOnly
@@ -148,10 +151,14 @@ public class MeasureMaskFigure
 	 */
 	public String getType() { return FigureUtil.MASK_TYPE; }
     
+	/**
+	 * Draws the image.
+	 * @see #draw(Graphics2D)
+	 */
 	public void draw(Graphics2D g)
 	{
-		g.drawImage(mask, (int)getX(), (int)getY(), (int)getWidth(), 
-				(int)getHeight(), null);
+		g.drawImage(mask, (int) getX(), (int) getY(), (int) getWidth(), 
+				(int) getHeight(), null);
 	}
     
 	/**
@@ -183,10 +190,9 @@ public class MeasureMaskFigure
 		return vector;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * @see org.openmicroscopy.shoola.util.ui.drawingtools.figures.
-	 * MeasureMaskFigure#clone()
+	/**
+	 * Clones the mask.
+	 * @see  MeasureMaskFigure#clone()
 	 */
 	public MeasureMaskFigure clone()
 	{
@@ -206,8 +212,8 @@ public class MeasureMaskFigure
 	{
 		List<FigureListener> figListeners = new ArrayList<FigureListener>();
 		Object[] listeners = listenerList.getListenerList();
-		for(Object listener : listeners)
-			if(listener instanceof FigureListener)
+		for (Object listener : listeners)
+			if (listener instanceof FigureListener)
 				figListeners.add((FigureListener)listener);
 		return figListeners;
 	}

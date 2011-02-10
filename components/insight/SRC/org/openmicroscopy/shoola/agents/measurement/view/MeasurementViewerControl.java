@@ -345,8 +345,8 @@ class MeasurementViewerControl
 
     		public void mouseReleased(MouseEvent e)
     		{
+    			setROIFigureStatus(ROIFigure.IDLE);
     			if (!UIUtilities.isWindowsOS()) {
-    				setROIFigureStatus(ROIFigure.IDLE);
         			if (isRightClick(e)) {
         				Collection l = 
         					view.getDrawingView().getSelectedFigures();
@@ -358,8 +358,8 @@ class MeasurementViewerControl
     		
     		public void mousePressed(MouseEvent e)
     		{
+    			setROIFigureStatus(ROIFigure.IDLE);
     			if (UIUtilities.isWindowsOS()) {
-    				setROIFigureStatus(ROIFigure.IDLE);
         			if (isRightClick(e)) {
         				Collection l = 
         					view.getDrawingView().getSelectedFigures();
@@ -548,7 +548,6 @@ class MeasurementViewerControl
 	{
 		Figure f = e.getFigure();
 		if (!(f instanceof ROIFigure)) return;
-
 		ROIFigure roiFigure = (ROIFigure) f;
 		roiFigure.setStatus(ROIFigure.MOVING);
 		view.addROI(roiFigure);

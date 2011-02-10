@@ -55,7 +55,7 @@ import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.LineTextFigure;
 
 /** 
- * 
+ * Line with measurement.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -81,7 +81,7 @@ public class MeasureLineFigure
 	/** has the figure been modified. */
 	private boolean dirty;
 	
-	/** The bounds of the bezier figure. */
+	/** The bounds of the Line figure. */
 	private List<Rectangle2D> 		boundsArray;
 	
 	/** The list of lengths of sections on the line. */
@@ -182,16 +182,18 @@ public class MeasureLineFigure
 		{
 			if (getPointCount() == 2)
 			{
-				NumberFormat formatter = new DecimalFormat("###.#");
+				NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
 				double angle = getAngle(0, 1);
 				if(angle>90)
 					angle = Math.abs(angle-180);
 				angleArray.add(angle);
 				String lineAngle = formatter.format(angle);
 				lineAngle = addDegrees(lineAngle);
-				double sz = ((Double)this.getAttribute(MeasurementAttributes.FONT_SIZE));
-				g.setFont(new Font("Arial",Font.PLAIN, (int)sz));
-				Rectangle2D rect = g.getFontMetrics().getStringBounds(lineAngle, g);
+				double sz = ((Double)this.getAttribute(
+						MeasurementAttributes.FONT_SIZE));
+				g.setFont(new Font(FONT_NAME, FONT_STYLE, (int) sz));
+				Rectangle2D rect = g.getFontMetrics().getStringBounds(
+						lineAngle, g);
 				Point2D.Double lengthPoint = getLengthPosition(0, 1);
 				Rectangle2D bounds = new Rectangle2D.Double(lengthPoint.x,
 						lengthPoint.y+rect.getHeight()*2, rect.getWidth(),
@@ -202,29 +204,33 @@ public class MeasureLineFigure
 			}
 			for( int x = 1 ; x < this.getPointCount()-1; x++)
 			{
-				NumberFormat formatter = new DecimalFormat("###.#");
+				NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
 				double angle = getAngle(x-1, x, x+1);
 				angleArray.add(angle);
 				String lineAngle = formatter.format(angle);
 				lineAngle = addDegrees(lineAngle);
-				double sz = ((Double)this.getAttribute(MeasurementAttributes.FONT_SIZE));
-				g.setFont(new Font("Arial",Font.PLAIN, (int)sz));
-				Rectangle2D rect = g.getFontMetrics().getStringBounds(lineAngle, g);
+				double sz = ((Double) this.getAttribute(
+						MeasurementAttributes.FONT_SIZE));
+				g.setFont(new Font(FONT_NAME, FONT_STYLE, (int) sz));
+				Rectangle2D rect = g.getFontMetrics().getStringBounds(lineAngle,
+						g);
 				Rectangle2D bounds = new Rectangle2D.Double(getPoint(x).x,
 						getPoint(x).y, rect.getWidth(), rect.getHeight());
-				g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
-				g.drawString(lineAngle, (int)bounds.getX(), (int)bounds.getY());
+				g.setColor(
+						MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
+				g.drawString(lineAngle, (int) bounds.getX(), (int) bounds.getY());
 				boundsArray.add(bounds);
 			}
 			for( int x = 1 ; x < this.getPointCount(); x++)
 			{
-				NumberFormat formatter = new DecimalFormat("###.#");
+				NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
 				double length = getLength(x-1, x);
 				lengthArray.add(length);
 				String lineLength = formatter.format(length);
 				lineLength = addUnits(lineLength);
-				double sz = ((Double)this.getAttribute(MeasurementAttributes.FONT_SIZE));
-				g.setFont(new Font("Arial",Font.PLAIN, (int)sz));
+				double sz = ((Double)this.getAttribute(
+						MeasurementAttributes.FONT_SIZE));
+				g.setFont(new Font(FONT_NAME, FONT_STYLE, (int)sz));
 				Point2D.Double lengthPoint = getLengthPosition(x-1, x);
 				Rectangle2D rect = g.getFontMetrics().getStringBounds(lineLength, g);
 				Rectangle2D bounds = new Rectangle2D.Double(lengthPoint.x-15, 
@@ -235,22 +241,22 @@ public class MeasureLineFigure
 				boundsArray.add(bounds);
 			}
 		}
-		if(MeasurementAttributes.SHOWID.get(this))
+		if (MeasurementAttributes.SHOWID.get(this))
 		{
 			Rectangle2D 		bounds;
-			
 			g.setColor(this.getTextColor());
 			bounds = g.getFontMetrics().getStringBounds(getROI().getID()+"", g);
 			bounds = new Rectangle2D.Double(
 						path.getCenter().getX()-bounds.getWidth()/2,
 						path.getCenter().getY()+bounds.getHeight()/2,
 					bounds.getWidth(), bounds.getHeight());
-			g.drawString(this.getROI().getID()+"", (int)bounds.getX(), (int)bounds.getY());
+			g.drawString(getROI().getID()+"", (int) bounds.getX(), 
+					(int)bounds.getY());
 		}
 	}
 	
 	/**
-	 * Overridden to stop updating shape if read only
+	 * Overridden to stop updating shape if read-only
 	 * @see AbstractAttributedFigure#transform(AffineTransform)
 	 */
 	public void transform(AffineTransform tx)
@@ -467,7 +473,10 @@ public class MeasureLineFigure
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#setROI(ROI)
 	 */
-	public void setROI(ROI roi) { this.roi = roi; }
+	public void setROI(ROI roi)
+	{ 
+		this.roi = roi; 
+	}
 
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
@@ -813,5 +822,3 @@ public class MeasureLineFigure
 		return figListeners;
 	}
 }
-
-

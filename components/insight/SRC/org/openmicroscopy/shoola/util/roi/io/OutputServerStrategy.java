@@ -33,7 +33,6 @@ import java.util.List;
 import java.util.TreeMap;
 
 //Third-party libraries
-import static org.jhotdraw.draw.AttributeKeys.TRANSFORM;
 import org.jhotdraw.draw.AttributeKeys;
 import org.jhotdraw.geom.BezierPath;
 
@@ -222,7 +221,7 @@ class OutputServerStrategy
 		if (text != null && text.trim().length() > 0 && 
 				!text.equals(ROIFigure.DEFAULT_TEXT))
 			ellipse.setText(text);
-		AffineTransform t = TRANSFORM.get(fig);
+		AffineTransform t = AttributeKeys.TRANSFORM.get(fig);
 		if (t != null)
 			ellipse.setTransform(toTransform(t));
 		return ellipse;
@@ -260,7 +259,7 @@ class OutputServerStrategy
 		if (text != null && text.trim().length() > 0 && 
 				!text.equals(ROIFigure.DEFAULT_TEXT))
 			point.setText(fig.getText());
-		AffineTransform t = TRANSFORM.get(fig);
+		AffineTransform t = AttributeKeys.TRANSFORM.get(fig);
 		if (t != null)
 			point.setTransform(toTransform(t));
 		return point;
@@ -288,7 +287,7 @@ class OutputServerStrategy
 		data.setDirty(fig.isDirty());
 		data.setT(shape.getT());
 		data.setZ(shape.getZ());
-		AffineTransform t = TRANSFORM.get(fig);
+		AffineTransform t = AttributeKeys.TRANSFORM.get(fig);
 		if (t != null)
 			data.setTransform(toTransform(t));
 		if (!fig.isClientObject())
@@ -319,7 +318,7 @@ class OutputServerStrategy
 				!text.equals(ROIFigure.DEFAULT_TEXT))
 			rectangle.setText(fig.getText());
 		
-		AffineTransform t = TRANSFORM.get(fig);
+		AffineTransform t = AttributeKeys.TRANSFORM.get(fig);
 		if (t != null)
 			rectangle.setTransform(toTransform(t));
 		
@@ -338,7 +337,7 @@ class OutputServerStrategy
 		throws ParsingException
 	{
 		MeasureBezierFigure fig = (MeasureBezierFigure) shape.getFigure();
-		AffineTransform t = TRANSFORM.get(fig);
+		AffineTransform t = AttributeKeys.TRANSFORM.get(fig);
 		List<Point2D.Double> points = new LinkedList<Point2D.Double>();
 		List<Point2D.Double> points1 = new LinkedList<Point2D.Double>();
 		List<Point2D.Double> points2 = new LinkedList<Point2D.Double>();
@@ -375,7 +374,7 @@ class OutputServerStrategy
 				throws ParsingException
 	{
 		MeasureLineFigure fig = (MeasureLineFigure)shape.getFigure();
-		AffineTransform t = TRANSFORM.get(fig);
+		AffineTransform t = AttributeKeys.TRANSFORM.get(fig);
 		List<Point2D.Double> points = new LinkedList<Point2D.Double>();
 		List<Point2D.Double> points1 = new LinkedList<Point2D.Double>();
 		List<Point2D.Double> points2 = new LinkedList<Point2D.Double>();
@@ -412,7 +411,7 @@ class OutputServerStrategy
 		throws ParsingException
 	{
 		MeasureBezierFigure fig = (MeasureBezierFigure)shape.getFigure();
-		AffineTransform t = TRANSFORM.get(fig);
+		AffineTransform t = AttributeKeys.TRANSFORM.get(fig);
 		List<Point2D.Double> points = new LinkedList<Point2D.Double>();
 		List<Point2D.Double> points1 = new LinkedList<Point2D.Double>();
 		List<Point2D.Double> points2 = new LinkedList<Point2D.Double>();

@@ -55,7 +55,6 @@ import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.ROIShapeRelationship;
 import org.openmicroscopy.shoola.util.roi.model.ROIShapeRelationshipList;
 import org.openmicroscopy.shoola.util.roi.model.ShapeList;
-import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKey;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
@@ -87,7 +86,6 @@ public class ROIComponent
 	/** The default color of the text. */
 	private static final Color	TEXT_COLOR = IOConstants.DEFAULT_TEXT_COLOUR;
 
-	
 	/** The default color of the measurement text. */
 	private static final Color	MEASUREMENT_COLOR = 
 									IOConstants.DEFAULT_MEASUREMENT_TEXT_COLOUR;
@@ -257,30 +255,6 @@ public class ROIComponent
 	 * @return See above.
 	 */
 	public double getMicronsPixelZ() { return units.getMicronsPixelZ(); }
-
-    /**
-     * Adds the specified figure to the display.
-     * 
-     * @param figure The figure to add.
-     * @param currentPlane The plane to add figure to.
-     * @return returns the newly created ROI. 
-     * @throws NoSuchROIException 
-     * @throws ROICreationException 
-     */
-    public ROI addROI(ROIFigure figure, Coord3D currentPlane)
-    	throws ROICreationException, NoSuchROIException
-    {
-    	if (figure == null) 
-    		throw new NullPointerException("Figure param null.");
-    	setFigureAttributes(figure);
-    	ROI roi = null;
-    	roi = createROI(figure, currentPlane);
-		if (roi == null) 
-			throw new ROICreationException("Unable to create ROI.");
-    	ROIShape shape = figure.getROIShape();
-    	setShapeAnnotations(shape);
-    	return roi;
-    }
     
     /**
      * Adds the specified figure to the display.
