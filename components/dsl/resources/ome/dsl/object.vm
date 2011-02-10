@@ -88,7 +88,9 @@ import ome.model.*;
 #if(!$type.discriminator)
 @javax.persistence.PrimaryKeyJoinColumn(name="${superId}_id")
 @javax.persistence.Table(name = "${type.tableName()}")
-@org.hibernate.annotations.ForeignKey(name="FK${type.table}_${superId}_id_${superId}")
+#set($fkvalue = "FK${type.table}_${superId}_id_${superId}")
+#set($fkvalue = "${type.fk($fkvalue)}")
+@org.hibernate.annotations.ForeignKey(name="${fkvalue}")
 #else
 ## SINGLETABLE SUBCLASS
 @javax.persistence.DiscriminatorValue("${type.discriminator}")
@@ -906,7 +908,9 @@ implements java.io.Serializable, IObject
      * If unfetched, returns null. No entries in the collection should be null.
      */
     @org.hibernate.annotations.Persister(impl = ome.util.CountCollectionPersister.class) // prevents deletes
-    @org.hibernate.annotations.ForeignKey(name="FK_count_to_${type.shortname}_${prop.name}") // for code-gen
+#set($fkvalue = "FK_count_to_${type.shortname}_${prop.name}")
+#set($fkvalue = "${type.fk($fkvalue)}")
+    @org.hibernate.annotations.ForeignKey(name="${fkvalue}") // for code-gen
     @javax.persistence.ElementCollection // new collection annotation
     @javax.persistence.MapKeyColumn(name="owner_id", insertable=false, updatable=false, nullable=false)
     @javax.persistence.Column(name="count", insertable=false, updatable=false, nullable=false)
@@ -930,7 +934,9 @@ implements java.io.Serializable, IObject
     @org.hibernate.annotations.Cascade({${cascadeHib}})
     @javax.persistence.JoinColumn(name="${type.propName($prop)}", nullable=${prop.nullable},
         unique=${prop.unique}, insertable=${prop.insert}, updatable=${prop.update})
-    @org.hibernate.annotations.ForeignKey(name="FK${type.shortname.toLowerCase()}_${prop.name}_${prop.shortType.toLowerCase()}")
+#set($fkvalue = "FK${type.shortname.toLowerCase()}_${prop.name}_${prop.shortType.toLowerCase()}")
+#set($fkvalue = "${type.fk($fkvalue)}")
+    @org.hibernate.annotations.ForeignKey(name="${fkvalue}")
 #if($type.isLink)## Need to convert from IObject to an implementation class
     @org.hibernate.annotations.Target(${prop.type}.class)
 #end
@@ -1273,7 +1279,9 @@ implements java.io.Serializable, IObject
         @javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY, cascade = {${cascadeEjb}})
         @org.hibernate.annotations.Cascade({${cascadeHib}})
         @javax.persistence.JoinColumn(name = "external_id", nullable = true, unique = true, insertable = true, updatable = false)
-        @org.hibernate.annotations.ForeignKey(name = "FK${type.table}_external_id_externalinfo")
+#set($fkvalue = "FK${type.table}_external_id_externalinfo")
+#set($fkvalue = "${type.fk($fkvalue)}")
+        @org.hibernate.annotations.ForeignKey(name = "${fkvalue}")
         public ome.model.meta.ExternalInfo getExternalInfo() {
             return super.getExternalInfo();
         }
@@ -1283,7 +1291,9 @@ implements java.io.Serializable, IObject
         @javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY, cascade = {${cascadeEjb}})
         @org.hibernate.annotations.Cascade({${cascadeHib}})
         @javax.persistence.JoinColumn(name = "owner_id", nullable = false, unique = false, insertable = true, updatable = true)
-        @org.hibernate.annotations.ForeignKey(name = "FK${type.table}_owner_id_experimenter")
+#set($fkvalue = "FK${type.table}_owner_id_experimenter")
+#set($fkvalue = "${type.fk($fkvalue)}")
+        @org.hibernate.annotations.ForeignKey(name = "${fkvalue}")
         public ome.model.meta.Experimenter getOwner() {
             return super.getOwner();
         }
@@ -1292,7 +1302,9 @@ implements java.io.Serializable, IObject
         @javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY, cascade = {${cascadeEjb}})
         @org.hibernate.annotations.Cascade({${cascadeHib}})
         @javax.persistence.JoinColumn(name = "creation_id", nullable = false, unique = false, insertable = true, updatable = false)
-        @org.hibernate.annotations.ForeignKey(name = "FK${type.table}_creation_id_event")
+#set($fkvalue = "FK${type.table}_creation_id_event")
+#set($fkvalue = "${type.fk($fkvalue)}")
+        @org.hibernate.annotations.ForeignKey(name = "${fkvalue}")
         public ome.model.meta.Event getCreationEvent() {
             return super.getCreationEvent();
         }
@@ -1301,7 +1313,9 @@ implements java.io.Serializable, IObject
         @javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY, cascade = {${cascadeEjb}})
         @org.hibernate.annotations.Cascade({${cascadeHib}})
         @javax.persistence.JoinColumn(name = "group_id", nullable = false, unique = false, insertable = true, updatable = true)
-        @org.hibernate.annotations.ForeignKey(name = "FK${type.table}_group_id_experimentergroup")
+#set($fkvalue = "FK${type.table}_group_id_experimentergroup")
+#set($fkvalue = "${type.fk($fkvalue)}")
+        @org.hibernate.annotations.ForeignKey(name = "${fkvalue}")
         public ome.model.meta.ExperimenterGroup getGroup() {
             return super.getGroup();
         }
@@ -1311,7 +1325,9 @@ implements java.io.Serializable, IObject
         @javax.persistence.ManyToOne(fetch = javax.persistence.FetchType.LAZY, cascade = {${cascadeEjb}})
         @org.hibernate.annotations.Cascade({${cascadeHib}})
         @javax.persistence.JoinColumn(name = "update_id", nullable = false, unique = false, insertable = true, updatable = true)
-        @org.hibernate.annotations.ForeignKey(name = "FK${type.table}_update_id_event")
+#set($fkvalue = "FK${type.table}_update_id_event")
+#set($fkvalue = "${type.fk($fkvalue)}")
+        @org.hibernate.annotations.ForeignKey(name = "${fkvalue}")
         public ome.model.meta.Event getUpdateEvent() {
             return super.getUpdateEvent();
         }

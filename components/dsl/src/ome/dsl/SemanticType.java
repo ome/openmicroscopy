@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 // Third-party libraries
 
@@ -33,6 +34,14 @@ import java.util.Set;
  * @since OMERO-3.0
  */
 public abstract class SemanticType {
+
+    // Patterns for reducing name lengths
+    final static private Pattern annPattern = Pattern.compile("annotation");
+    final static private Pattern cntPattern = Pattern.compile("FK_count_to");
+    final static private Pattern grpPattern = Pattern.compile("experimentergroup");
+    final static private Pattern acqPattern = Pattern.compile("screenacquisition");
+
+    final static private String VM_QUOTE = "\\\"";
 
     public final static Set<String> RESTRICTED_COLUMNS = Collections
     .unmodifiableSet(new HashSet<String>(Arrays.asList("column",
@@ -80,7 +89,7 @@ public abstract class SemanticType {
      *
      * @see ticket:73
      */
-    private final String profile;
+    public final String profile;
 
     // all properties
     private List<Property> properties = new ArrayList<Property>();
@@ -250,20 +259,39 @@ public abstract class SemanticType {
                 "count_%s_%s_by_owner",
                 getShortname(),
                 p.getName());
-        countName = reduce(countName);
-        return countName;
+        return reduce(replace(countName));
+    }
+
+    /**
+     * Read-only property. Introduced during ticket:73 in order to handle
+     * databases with relation name length restrictions.
+     */
+    public String indexName(Property p) {
+        String indexName = String.format(
+                "i_%s_%s",
+                getShortname(),
+                p.getName());
+        return reduce(replace(indexName));
     }
 
     public String columnName(Property p) {
+        return columnName(p, VM_QUOTE);
+    }
+
+    public String columnName(Property p, String quote) {
         String columnName = p.getName();
         if (RESTRICTED_COLUMNS.contains(columnName)) {
-            columnName = quote(columnName);
+            columnName = quote(columnName, quote);
         }
         return columnName;
     }
 
     public String tableName() {
-        String tableName = getTable();
+        SemanticType base = this;
+        while (base.superclass != null && base.getDiscriminator() != null) {
+            base = base.superclass;
+        }
+        String tableName = base.getTable();
         if (isRestrictive() && RESTRICTED_TABLE.contains(tableName)) {
             tableName = tableName + "_";
         }
@@ -317,20 +345,40 @@ public abstract class SemanticType {
         return getTable();
     }
 
-    private String reduce(String countName) {
-        if (isRestrictive()) {
-            if (countName.length() > 30) {
-                String keep = countName.substring(0, 27);
-                String reduce = countName.substring(28);
-                countName = keep + reduce.length();
-            }
-        }
-        return countName;
+    public String fk(String fkvalue) {
+        return reduce(replace(fkvalue));
     }
 
-    private String quote(String columnName) {
-        columnName = "\\\"" + columnName + "\\\"";
-        return columnName;
+    private String replace(String name) {
+
+        if (isRestrictive()) {
+            name = annPattern.matcher(name).replaceAll("ann");
+            name = cntPattern.matcher(name).replaceAll("FK_cnt_");
+            name = grpPattern.matcher(name).replaceAll("group");
+            name = acqPattern.matcher(name).replaceAll("scr_acq");
+        }
+        return name;
+    }
+
+    private String reduce(String name) {
+
+        if (isRestrictive()) {
+            if (name.length() > 30) {
+                String keep = name.substring(0, 27);
+                String reduce = name.substring(28);
+                name = keep + reduce.length();
+            }
+        }
+        return name;
+    }
+
+    private String quote(String name) {
+        return quote(name, VM_QUOTE);
+    }
+
+    private String quote(String name, String quote) {
+        name = quote + name + quote;
+        return name;
     }
 
     /*
@@ -339,6 +387,10 @@ public abstract class SemanticType {
      */
     public void setActualSuperClass(SemanticType st) {
         this.superclass = st;
+    }
+
+    public SemanticType getActualSuperClass() {
+        return this.superclass;
     }
 
     public void setSuperclass(String superclass) {
