@@ -3328,7 +3328,6 @@ public class DeleteServiceTest
 		assertDoesNotExist(d);
 		assertExists(img);
 		assertExists(pixels);
-
     }
     
     /**
@@ -3742,7 +3741,6 @@ public class DeleteServiceTest
 
         assertExists(wells.get(0));
         assertExists(images.get(0));
-
     }
 
     /**
@@ -3924,7 +3922,6 @@ public class DeleteServiceTest
             prx.close();
         }
         assertTrue(Arrays.equals(new byte[]{1,2,3,4}, buf));
-
     }
 
     /**
@@ -4073,6 +4070,7 @@ public class DeleteServiceTest
      * Tests to delete an object already deleted.
      * @throws Exception Thrown if an error occurred.
      */
+    @Test
     public void testDeleteTwice()
     	throws Exception
     {
@@ -4088,6 +4086,7 @@ public class DeleteServiceTest
      * using the <code>deleteImage</code> method.
      * @throws Exception Thrown if an error occurred.
      */
+    @Test
     public void testDeleteFullImage()
     	throws Exception
     {
@@ -4107,6 +4106,7 @@ public class DeleteServiceTest
      * using the <code>deleteImage</code> method.
      * @throws Exception Thrown if an error occurred.
      */
+    @Test
     public void testDeleteImageWithPlaneInfo()
     	throws Exception
     {
@@ -4282,4 +4282,3 @@ public class DeleteServiceTest
     }
  
  }
-

@@ -76,6 +76,10 @@ public class SpwDeleteTest extends AbstractTest {
 
     }
 
+    /**
+     * Tests to delete a screen and keep the plate.
+     * @throws Exception Thrown if an error occurred.
+     */
     @Test
     public void testScreenKeepPlates() throws Exception {
 

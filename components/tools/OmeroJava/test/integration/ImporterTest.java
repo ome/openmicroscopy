@@ -804,7 +804,7 @@ public class ImporterTest
      * Tests the import of an OME-XML file with an image with acquisition data.
      * @throws Exception Thrown if an error occurred.
      */
-	@Test
+	@Test(enabled = false)
 	public void testImportImageWithAcquisitionData()
 		throws Exception
 	{

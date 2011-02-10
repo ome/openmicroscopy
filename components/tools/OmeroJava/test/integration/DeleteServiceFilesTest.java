@@ -83,6 +83,97 @@ public class DeleteServiceFilesTest
 	/** Reference to the standard directory. */
 	private String dataDir; 
 
+
+    /**
+     * Creates an original file.
+     * 
+     * @return See above.
+     * @throws ServerError Thrown if an error occurred. 
+     * @throws Exception Thrown if an error occurred. 
+     */
+    private OriginalFile makeFile() 
+    	throws ServerError, Exception
+    {
+        OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
+                mmFactory.createOriginalFile());
+
+        long ofId = of.getId().getValue();
+        RawFileStorePrx rfPrx = factory.createRawFileStore();
+        try {
+            rfPrx.setFileId(ofId);
+            rfPrx.write(new byte[]{1, 2, 3, 4}, 0, 4);
+            of = rfPrx.save();
+        } finally {
+            rfPrx.close();
+        }
+        return of;
+    }
+
+    /**
+     * Makes an image with pixels.
+     * 
+     * @return See above.
+     * @throws ServerError Thrown if an error occurred. 
+     * @throws Exception Thrown if an error occurred. 
+     */
+    private Image makeImageWithPixelsFile() throws ServerError, Exception {
+        Image img = (Image) iUpdate.saveAndReturnObject(
+                mmFactory.createImage());
+        Pixels pix = img.getPrimaryPixels();
+        IRenderingSettingsPrx rsPrx = factory.getRenderingSettingsService();
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(pix.getId().getValue());
+        rsPrx.resetDefaultsInSet(Pixels.class.getName(), ids);
+        return img;
+    }
+    
+    /**
+     * Checks if thumbnails, files and pixels have not been deleted.
+     * 
+     * @param report The report from the delete operation
+     */
+    private void assertNoUndeletedBinaries(DeleteReport report)
+    {
+        assertNoUndeletedThumbnails(report);
+        assertNoUndeletedFiles(report);
+        assertNoUndeletedPixels(report);
+    }
+
+    /**
+     * Checks if the thumbnails have been deleted.
+     * 
+     * @param report The report from the delete operation
+     */
+    private void assertNoUndeletedThumbnails(DeleteReport report)
+    {
+        long[] tbIds = report.undeletedFiles.get(REF_THUMBNAIL);
+        assertTrue(Arrays.toString(tbIds), tbIds == null || tbIds.length == 0);
+    }
+
+    /**
+     * Checks if the files have been deleted.
+     * 
+     * @param report The report from the delete operation
+     */
+    private void assertNoUndeletedFiles(DeleteReport report)
+    {
+        long[] fileIds = report.undeletedFiles.get(REF_ORIGINAL_FILE);
+        assertTrue(Arrays.toString(fileIds), fileIds == null || 
+        		fileIds.length == 0);
+    }
+
+    /**
+     * Checks if the pixels have been deleted.
+     * 
+     * @param report The report from the delete operation
+     */
+    private void assertNoUndeletedPixels(DeleteReport report)
+    {
+        long[] pixIds = report.undeletedFiles.get(REF_PIXELS);
+        assertTrue(Arrays.toString(pixIds), pixIds == null || 
+        		pixIds.length == 0);
+    }
+    
 	/**
 	 * Set the data directory for the tests. This is needed to find the 
 	 * correct repository to test whether deletes have been successful.
@@ -566,7 +657,6 @@ public class DeleteServiceFilesTest
         assertNoneExist(ds, img1, img2, pix1, pix2);
         assertFileDoesNotExist(pix1.getId().getValue(), REF_PIXELS);
         assertFileDoesNotExist(pix2.getId().getValue(), REF_PIXELS);
-
     }
     
     /**
@@ -576,8 +666,9 @@ public class DeleteServiceFilesTest
      * @throws Exception Thrown if an error occurred.
      */
     @Test(groups = "ticket:3148")
-    public void testDeletingImageWithSeveralOriginalFiles() throws Exception {
-
+    public void testDeletingImageWithSeveralOriginalFiles() 
+    	throws Exception
+    {
         Image img = (Image) iUpdate.saveAndReturnObject(
                 mmFactory.createImage()).proxy();
 
@@ -693,6 +784,10 @@ public class DeleteServiceFilesTest
         assertNoUndeletedBinaries(report);
     }
 
+    /**
+     * Test to remove a file and try to save it using the RawFileStore.
+     * @throws Exception Thrown if an error occurred.  
+     */
     @Test(groups = "ticket:3140", expectedExceptions = ResourceError.class)
     public void testSaveThrowsResourceErrorIfDeleted() throws Exception {
         OriginalFile of = makeFile();
@@ -708,6 +803,11 @@ public class DeleteServiceFilesTest
         }
     }
 
+    /**
+     * Test to check the <code>close</code> method of the RawFileStore
+     * after the file has been deleted.
+     * @throws Exception Thrown if an error occurred.  
+     */
     @Test(groups = "ticket:3140", expectedExceptions = ResourceError.class)
     public void testCloseThrowsResourceErrorIfDeleted() throws Exception {
         OriginalFile of = makeFile();
@@ -720,59 +820,6 @@ public class DeleteServiceFilesTest
         } finally {
             rfs.close();
         }
-    }
-
-    //
-    // Helpers
-    //
-
-    private OriginalFile makeFile() throws ServerError, Exception {
-
-        OriginalFile of = (OriginalFile) iUpdate.saveAndReturnObject(
-                mmFactory.createOriginalFile());
-
-        long ofId = of.getId().getValue();
-        RawFileStorePrx rfPrx = factory.createRawFileStore();
-        try {
-            rfPrx.setFileId(ofId);
-            rfPrx.write(new byte[]{1, 2, 3, 4}, 0, 4);
-            of = rfPrx.save();
-        } finally {
-            rfPrx.close();
-        }
-        return of;
-    }
-
-    private Image makeImageWithPixelsFile() throws ServerError, Exception {
-        Image img = (Image) iUpdate.saveAndReturnObject(
-                mmFactory.createImage());
-        Pixels pix = img.getPrimaryPixels();
-        IRenderingSettingsPrx rsPrx = factory.getRenderingSettingsService();
-        List<Long> ids = new ArrayList<Long>();
-        ids.add(pix.getId().getValue());
-        rsPrx.resetDefaultsInSet(Pixels.class.getName(), ids);
-        return img;
-    }
-    
-    private void assertNoUndeletedBinaries(DeleteReport report) {
-        assertNoUndeletedThumbnails(report);
-        assertNoUndeletedFiles(report);
-        assertNoUndeletedPixels(report);
-    }
-
-    private void assertNoUndeletedThumbnails(DeleteReport report) {
-        long[] tbIds = report.undeletedFiles.get(REF_THUMBNAIL);
-        assertTrue(Arrays.toString(tbIds), tbIds == null || tbIds.length == 0);
-    }
-
-    private void assertNoUndeletedFiles(DeleteReport report) {
-        long[] fileIds = report.undeletedFiles.get(REF_ORIGINAL_FILE);
-        assertTrue(Arrays.toString(fileIds), fileIds == null || fileIds.length == 0);
-    }
-
-    private void assertNoUndeletedPixels(DeleteReport report) {
-        long[] pixIds = report.undeletedFiles.get(REF_PIXELS);
-        assertTrue(Arrays.toString(pixIds), pixIds == null || pixIds.length == 0);
     }
 
 }

@@ -152,4 +152,5 @@ public class ClientUsageTest
         assertEquals(0, srvs.size());
         sf.setSecurityContext(new omero.model.ExperimenterGroupI(1L, false));
     }
+    
 }

@@ -473,83 +473,6 @@ public class PojosServiceTest
     	assertTrue(v.longValue() == 0);
     }
     
-    
-
-    @Test(groups = "EJBExceptions")
-    public void testCountingApiExceptions() throws Exception{
-
-    	/*
-        List ids = Collections.singletonList(new Long(1));
-
-        // Does not exist
-        try {
-            iContainer.getCollectionCount("DoesNotExist", "meNeither", ids, 
-            		null);
-            fail("An exception should have been thrown");
-        } catch (ApiUsageException e) {
-            // ok.
-        }
-
-        // Missing plural on dataset
-        try {
-            iContainer.getCollectionCount("ome.model.containers.Project",
-                    "dataset", ids, null);
-            fail("An exception should have been thrown");
-        } catch (ApiUsageException e) {
-            // ok.
-        }
-
-        // Null ids
-        try {
-            iContainer.getCollectionCount("ome.model.containers.Project",
-                    "datasets", null, null);
-            fail("An exception should have been thrown");
-        } catch (ApiUsageException e) {
-            // ok.
-        }
-
-        // Poorly formed
-        try {
-            iContainer.getCollectionCount("hackers.rock!!!", "", ids, null);
-            fail("An exception should have been thrown");
-        } catch (ApiUsageException e) {
-            // ok.
-        }
-
-        // Empty Class string
-        try {
-            iContainer.getCollectionCount("", "datasets", ids, null);
-            fail("An exception should have been thrown");
-        } catch (ApiUsageException e) {
-            // ok.
-        }
-
-        // Empty Class string
-        try {
-            iContainer.getCollectionCount(null, "datasets", ids, null);
-            fail("An exception should have been thrown");
-        } catch (ApiUsageException e) {
-            // ok.
-        }
-
-        // Empty property string
-        try {
-            iContainer.getCollectionCount("ome.model.core.Image", "", ids, null);
-            fail("An exception should have been thrown");
-        } catch (ApiUsageException e) {
-            // ok.
-        }
-
-        // Null property string
-        try {
-            iContainer.getCollectionCount("ome.model.core.Image", null, ids, null);
-            fail("An exception should have been thrown");
-        } catch (ApiUsageException e) {
-            // ok.
-        }
-*/
-    }
-    
     /**
      * Tests the retrieval of images filtering by owners.
      * @throws Exception Thrown if an error occurred.
@@ -783,7 +706,7 @@ public class PojosServiceTest
      * 
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(groups = "ticket:318")
+    @Test(enabled = false)
     public void testFindContainerHierarchiesProjectAsRootFilterByOwner() 
     	throws Exception
     {
@@ -816,14 +739,9 @@ public class PojosServiceTest
     	List results = iContainer.findContainerHierarchies(
         		Project.class.getName(), ids, param);
     	assertTrue(results.size() == 1);
-    	try {
-    		Project pp = (Project) results.get(0);
-        	assertTrue(pp.getId().getValue() == p.getId().getValue());
-        	//Should return a project not an image.
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
-    	
+    	Project pp = (Project) results.get(0);
+    	assertTrue(pp.getId().getValue() == p.getId().getValue());
+    	//Should return a project not an image.
     }
     
     /**

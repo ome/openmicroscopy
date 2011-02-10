@@ -75,6 +75,18 @@ public class AbstractTest
 	extends TestCase
 {
 
+	/** Path the schema language. */
+	public static final String JAXP_SCHEMA_LANGUAGE = 
+		"http://java.sun.com/xml/jaxp/properties/schemaLanguage";
+
+	/** W3C. */
+	public static final String W3C_XML_SCHEMA = 
+		"http://www.w3.org/2001/XMLSchema";
+
+	/** The source. */
+	public static final String JAXP_SCHEMA_SOURCE = 
+		"http://java.sun.com/xml/jaxp/properties/schemaSource";
+
     /** The OME-XML format. */
     public static final String OME_FORMAT = "ome";
     
@@ -851,15 +863,23 @@ public class AbstractTest
      * Parses the specified file and returns the document.
      * 
      * @param file The file to parse.
+     * @param schema The schema used to validate the specified file.
      * @return
      * @throws Exception Thrown if an error occurred while encoding the image.
      */
-    protected Document parseFile(File file)
+    protected Document parseFile(File file, File schema)
     	throws Exception
     {
     	if (file == null) 
     		throw new IllegalArgumentException("No file to parse.");
     	DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+    	if (schema != null) {
+    		dbf.setValidating(true);   
+			dbf.setNamespaceAware(true);
+			dbf.setAttribute(JAXP_SCHEMA_LANGUAGE, W3C_XML_SCHEMA);
+	        // Set the schema file
+	        dbf.setAttribute(JAXP_SCHEMA_SOURCE, schema);
+    	}
 		DocumentBuilder builder = dbf.newDocumentBuilder();
 		return builder.parse(file);
     }

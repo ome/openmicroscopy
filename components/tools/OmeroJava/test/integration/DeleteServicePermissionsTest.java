@@ -8,8 +8,8 @@ package integration;
 
 //Java imports
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+
 //Third-party libraries
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
@@ -38,8 +38,6 @@ import omero.model.ScreenPlateLinkI;
 import omero.model.TagAnnotation;
 import omero.model.TagAnnotationI;
 import omero.sys.EventContext;
-import omero.sys.ParametersI;
-
 
 /** 
  * Collections of tests for the <code>Delete</code> service related to permissions.
@@ -181,7 +179,7 @@ public class DeleteServicePermissionsTest
      * i.e. RW----
      * @throws Exception Thrown if an error occurred.     
      */
-    @Test
+    @Test(enabled = false)
     public void testDeleteObjectByGroupOwner()
     	throws Exception
     {
@@ -359,7 +357,6 @@ public class DeleteServicePermissionsTest
 
     	assertNoneExist(c, link);
     	assertExists(img);
-
     }
 
 	/**
@@ -400,7 +397,6 @@ public class DeleteServicePermissionsTest
     	delete(client, new DeleteCommand(
     			DeleteServiceTest.REF_IMAGE, imageID, null));
     	assertNoneExist(image, ownerDef, otherDef);
-
     }
     
     /**

@@ -48,7 +48,10 @@ public class SchemaCurrent_TO_2003_FC_Test
 	private List<File> files;
 	
 	/** The schema file. Decide where to put it. */
-	private File SCHEMA = new File("2010-06-TO-2003-FC.xsl");
+	private File STYLESHEET = new File("2010-06-TO-2003-FC.xsl");
+	
+	/** The schema file. Decide where to put it. */
+	private File SCHEMA_2003_FC = new File("2010-06-TO-2003-FC.xsl");
 	
 	/** The path in front of ID. */
 	private String XSLT_PATH_ID = "xslt.fix";
@@ -287,11 +290,10 @@ public class SchemaCurrent_TO_2003_FC_Test
      * An XML file with an image is created and the stylesheet is applied.
      * @throws Exception Thrown if an error occurred.
      */
-	@Test
+    @Test(enabled = false)
 	public void testDowngradeTo2003FCImageNoMetadata()
 		throws Exception
 	{
-		/* TODO: decide of repository organisation.
 		File f = File.createTempFile("testDowngradeTo2003FCImageNoMetadata",
 				"."+OME_XML_FORMAT);
 		files.add(f);
@@ -302,8 +304,8 @@ public class SchemaCurrent_TO_2003_FC_Test
 		XMLMockObjects xml = new  XMLMockObjects();
 		XMLWriter writer = new XMLWriter();
 		writer.writeFile(f, xml.createImage(), true);
-		transformFile(f, output, SCHEMA);
-		Document doc = parseFile(output);
+		transformFile(f, output, STYLESHEET);
+		Document doc = parseFile(output, SCHEMA_2003_FC);
 		assertNotNull(doc);
 		//Should only have one root node i.e. OME node
 		NodeList list = doc.getChildNodes();
@@ -314,7 +316,7 @@ public class SchemaCurrent_TO_2003_FC_Test
 		list = root.getChildNodes();
 		String name;
 		Node n;
-		Document docSrc = parseFile(f);
+		Document docSrc = parseFile(f, null);
 		Node rootSrc = docSrc.getChildNodes().item(0);
 		Node imageNode = null;
 		NodeList listSrc = rootSrc.getChildNodes();
@@ -336,7 +338,6 @@ public class SchemaCurrent_TO_2003_FC_Test
 					checkImageNode(n, imageNode);
 			}
 		}
-		*/
 	}
 	
 }
