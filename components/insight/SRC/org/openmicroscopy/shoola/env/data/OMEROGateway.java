@@ -414,9 +414,6 @@ class OMEROGateway
 	/** The ROI (Region of Interest) service. */
 	private IRoiPrx									roiService;
 	
-	/** The exporter service. */
-	private ExporterPrx								exporterService;
-	
 	/** The time service. */
 	private ITimelinePrx							timeService;
 	
@@ -1565,13 +1562,9 @@ class OMEROGateway
 	{ 
 		try {
 			ExporterPrx store = null;
-			//if (exporterService == null) {
-				if (entryUnencrypted != null)
-					store = entryUnencrypted.createExporter();
-				else 
-					store = entryEncrypted.createExporter();
-				//services.add(exporterService);
-			//}
+			if (entryUnencrypted != null)
+				store = entryUnencrypted.createExporter();
+			else store = entryEncrypted.createExporter();
 			return store;//exporterService; 
 		} catch (Throwable e) {
 			handleException(e, "Cannot access Exporter service.");
@@ -1914,7 +1907,6 @@ class OMEROGateway
 		pixelsStore = null;
 		updateService = null;
 		scriptService = null;
-		exporterService = null;
 		timeService = null;
 		sharedResources = null;
 	}
@@ -6605,7 +6597,6 @@ class OMEROGateway
 			}
 		} catch (Throwable t) {
 			if (f != null) f.delete();
-			exporterService = null;
 			handleException(t, "Cannot export the image as an OME-TIFF");
 			return null;
 		}

@@ -8,11 +8,14 @@ package integration;
 
 
 //Java imports
+import java.util.Iterator;
+import java.util.List;
 
 //Third-party libraries
 import org.testng.annotations.Test;
 
 //Application-internal dependencies
+import omero.api.IScriptPrx;
 import omero.api.RawFileStorePrx;
 import omero.model.OriginalFile;
 
@@ -85,9 +88,8 @@ public class RawFileStoreTest
     	svc.close();
     }
     
-
     /**
-     * Tests the download of a file. This tests uses the <code>read</code>
+     * Tests the download of the scripts. This tests uses the <code>read</code>
      * method.
      * @throws Exception Thrown if an error occurred.
      * @see #testUploadFile() 
@@ -96,8 +98,24 @@ public class RawFileStoreTest
     public void testDownloadScript() 
     	throws Exception 
     {
-    	
+    	IScriptPrx svc = factory.getScriptService();
+    	List<OriginalFile> scripts = svc.getScripts();
+    	Iterator<OriginalFile> i = scripts.iterator();
+    	OriginalFile f;
+    	RawFileStorePrx store;
+    	byte[] values;
+    	int size;
+    	assertTrue(scripts.size() > 0);
+    	while (i.hasNext()) {
+			f = i.next();
+			store = factory.createRawFileStore();
+			store.setFileId(f.getId().getValue());
+			size = (int) f.getSize().getValue();
+	    	values = store.read(0, size);
+	    	assertNotNull(values);
+	    	assertTrue(values.length > 0);
+	    	store.close();
+		}
     }
-    
     
 }

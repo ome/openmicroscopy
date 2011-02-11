@@ -200,10 +200,13 @@ class WellsModel
 		if (d1 == null && d2 == null) return true;
 		if (d1 == null && d2 != null) return false;
 		if (d1 != null && d2 == null) return false;
-		String t1 = d1.trim();
-		String t2 = d2.trim();
-		if (t1 != null && t2 != null)
-			return t1.equals(t2);
+		if (d1 != null && d2 != null) {
+			String t1 = d1.trim();
+			String t2 = d2.trim();
+			if (t1 != null && t2 != null)
+				return t1.equals(t2);
+			return false;
+		}
 		return false;
 	}
 	
