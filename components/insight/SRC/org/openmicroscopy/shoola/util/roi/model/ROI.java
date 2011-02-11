@@ -48,7 +48,7 @@ import org.openmicroscopy.shoola.util.roi.model.attachment.AttachmentMap;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 
 /** 
- * 
+ * The ROI object.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -69,7 +69,7 @@ public class ROI
 	/** The id of the ROI. */
 	private long							id;
 	
-	/** Is the object a serverside or clientside object. */
+	/** Is the object a server-side or client-side object. */
 	private boolean clientSide;
 	
 	/** The TreeMap containing the ROI shapes of the ROI. */ 
@@ -109,6 +109,7 @@ public class ROI
 		this.id = id;
 		this.clientSide = clientSide;
 		roiShapes = new TreeMap<Coord3D, ROIShape>(new Coord3D());
+		attachments = new AttachmentMap();
 	}
 	
     /**

@@ -150,7 +150,7 @@ class ImporterModel
 		ImagesImporter loader = loaders.get(loaderID);
 		if (loader != null) {
 			loader.cancel();
-			loaders.remove(loader);
+			loaders.remove(loaderID);
 		}
 	}
 	

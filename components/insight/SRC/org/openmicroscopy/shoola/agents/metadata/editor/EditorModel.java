@@ -1561,8 +1561,9 @@ class EditorModel
 		else if (refObject instanceof WellSampleData) {
 			WellSampleData wsd = (WellSampleData) refObject;
 			data = wsd.getImage();
-			if (data == null || data.getId() < 0) data = null;
+			if (data != null && data.getId() < 0) data = null;
 		}
+		if (data == null) return;
 		try {
 			PixelsData pixs = data.getDefaultPixels();
 			ChannelDataLoader loader = new ChannelDataLoader(component, 

@@ -682,9 +682,8 @@ class OMEROGateway
 			} catch (Exception ex) {
 				//Digest exception
 			}
-			new DSAccessException("Unable to read the table.");
+			throw new DSAccessException("Unable to read the table.");
 		}
-		return null;
 	}
 
 	/**
@@ -832,54 +831,15 @@ class OMEROGateway
 			long[] rows = table.getWhereList(
 					String.format("(Image==%d)", imageID), null, 0,
 					totalRowCount, 1L);
-			//System.err.println(String.format(
-			//		"imageId based creation; imageId:%d rowCount:%d",
-			//		imageID, rows.length));
 			return createTableResult(table, rows);
 		} catch (Exception e) {
-			e.printStackTrace();
 			try {
 				if (table != null) table.close();
 			} catch (Exception ex) {
 				//Digest exception
 			}
-			new DSAccessException("Unable to read the table.");
+			throw new DSAccessException("Unable to read the table.");
 		}
-		return null;
-	}
-
-	/**
-	 * Transforms the passed table.
-	 * 
-	 * @param table The table to convert.
-	 * @return See above
-	 * @throws DSAccessException If an error occurred while trying to 
-	 *                           retrieve data from OMEDS service.
-	 */
-	private TableResult createTableResult(TablePrx table)
-		throws DSAccessException
-	{
-		if (table == null) return null;
-		try {
-			int totalRowCount = (int) table.getNumberOfRows();
-			long[] rows = new long[totalRowCount];
-			for (int i = 0; i < totalRowCount; i++) {
-				rows[i] = i;
-			}
-			//System.err.println(String.format(
-			//		"full table based creation; rowCount:%d",
-			//		rows.length));
-			return createTableResult(table, rows);
-		} catch (Exception e) {
-			e.printStackTrace();
-			try {
-				if (table != null) table.close();
-			} catch (Exception ex) {
-				//Digest exception
-			}
-			new DSAccessException("Unable to read the table.");
-		}
-		return null;
 	}
 
 	/**
@@ -1772,8 +1732,8 @@ class OMEROGateway
 		try {
 			if (projService == null) {
 				if (entryUnencrypted != null)
-					projService = entryEncrypted.getProjectionService(); 
-				else projService = entryUnencrypted.getProjectionService();
+					projService = entryUnencrypted.getProjectionService(); 
+				else projService = entryEncrypted.getProjectionService();
 				services.add(projService);
 			}
 			return projService;
@@ -2494,7 +2454,7 @@ class OMEROGateway
 			entryEncrypted = null;
 		}
 		try {
-			if (unsecureClient != null) secureClient.closeSession();
+			if (unsecureClient != null) unsecureClient.closeSession();
 			unsecureClient = null;
 			entryUnencrypted = null;
 		} catch (Exception e) {
@@ -4197,7 +4157,7 @@ class OMEROGateway
 		try {
 			IRenderingSettingsPrx service = getRenderingSettingsService();
 			String klass = convertPojos(rootNodeType).getName();
-			if (klass.equals(Image.class)) failure.addAll(nodes);
+			if (klass.equals(Image.class.getName())) failure.addAll(nodes);
 			if (klass.equals(Image.class.getName()) 
 					|| klass.equals(Dataset.class.getName()) ||
 					klass.equals(Plate.class.getName()))
@@ -4242,7 +4202,7 @@ class OMEROGateway
 		try {
 			IRenderingSettingsPrx service = getRenderingSettingsService();
 			String klass = convertPojos(rootNodeType).getName();
-			if (klass.equals(Image.class)) failure.addAll(nodes);
+			if (klass.equals(Image.class.getName())) failure.addAll(nodes);
 			if (klass.equals(Image.class.getName()) 
 				|| klass.equals(Dataset.class.getName()) || 
 						klass.equals(Plate.class.getName()))
@@ -4287,7 +4247,7 @@ class OMEROGateway
 		try {
 			IRenderingSettingsPrx service = getRenderingSettingsService();
 			String klass = convertPojos(rootNodeType).getName();
-			if (klass.equals(Image.class)) failure.addAll(nodes);
+			if (klass.equals(Image.class.getName())) failure.addAll(nodes);
 			if (klass.equals(Image.class.getName()) 
 				|| klass.equals(Dataset.class.getName()) || 
 						klass.equals(Plate.class.getName()))
@@ -6644,12 +6604,12 @@ class OMEROGateway
 				return f;
 			}
 		} catch (Throwable t) {
-			exporterService = null;
 			if (f != null) f.delete();
 			try {
 				exporterService.close();
 				exporterService = null;
 			} catch (Exception e) {}
+			exporterService = null;
 			handleException(t, "Cannot export the image as an OME-TIFF");
 			return null;
 		}

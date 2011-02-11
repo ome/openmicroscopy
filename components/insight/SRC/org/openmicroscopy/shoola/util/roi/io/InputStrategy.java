@@ -402,16 +402,6 @@ public class InputStrategy
 		return shape;
 	}
 		
-	/** 
-	 * Return true if the name is an annotation.
-	 * @param name see above.
-	 * @return see above.
-	 */
-	private boolean isAnnotation(String name)
-	{
-		return (AnnotationKeys.supportedAnnotations.contains(name));
-	}
-		
 	/**
 	 * Add the annotation to the shape from the XML element.
 	 * @param annotationElement the element.
@@ -419,8 +409,9 @@ public class InputStrategy
 	 */
 	private void addAnnotation(IXMLElement annotationElement, ROIShape shape)
 	{
-		String key=annotationElement.getName();
-		AnnotationKey v=new AnnotationKey(key);
+		if (annotationElement == null || shape == null) return;
+		String key = annotationElement.getName();
+		AnnotationKey v = new AnnotationKey(key);
 		shape.setAnnotation(v, createAnnotationData(annotationElement));
 	}
 		

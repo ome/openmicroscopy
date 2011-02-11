@@ -262,7 +262,7 @@ public class FileMap
 		}
 		catch (Exception e)
 		{
-			new ParsingException(e.getMessage());
+			throw new ParsingException(e.getMessage());
 		}
 	}
 	

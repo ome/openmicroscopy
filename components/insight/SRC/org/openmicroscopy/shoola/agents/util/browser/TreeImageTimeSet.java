@@ -273,7 +273,9 @@ public class TreeImageTimeSet
 			return t.before(endTime);
 		if (startTime != null && endTime == null)
 			return t.after(startTime);
-		return (t.after(startTime) && t.before(endTime));
+		if (startTime != null && endTime != null)
+			return (t.after(startTime) && t.before(endTime));
+		return false;
 	}
 	
 	/**

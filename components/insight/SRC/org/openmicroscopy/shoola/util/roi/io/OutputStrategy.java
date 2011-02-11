@@ -122,11 +122,13 @@ public class OutputStrategy
 	/**
 	 * In this hash map we store all elements to which we have assigned an id.
 	 */
-	private HashMap<IXMLElement, String>			identifiedElements;
+	private Map<IXMLElement, String>			identifiedElements;
 	
+	/** Creates a new instance. */
 	OutputStrategy()
 	{
-		nextId=0;
+		nextId = 0;
+		identifiedElements = new HashMap<IXMLElement, String>();
 	}
 
 	/**

@@ -272,7 +272,7 @@ class ImporterUI
 				break;
 			}
 		}
-		if (found != null) uiElements.remove(found);
+		if (found != null) uiElements.remove(found.getIndex());
 		return found;
 	}
 	

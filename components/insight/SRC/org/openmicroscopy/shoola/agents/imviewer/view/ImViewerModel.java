@@ -1729,8 +1729,8 @@ class ImViewerModel
 	void fireImageProjection(int startZ, int endZ, int stepping, int type, 
 							String typeName, ProjectionRef ref)
 	{
-		startZ = ref.getStartZ();
-		endZ = ref.getEndZ();
+		if (startZ < 0) startZ = ref.getStartZ();
+		if (endZ < startZ) endZ = ref.getEndZ();
 		state = ImViewer.PROJECTING;
 		StringBuffer buf = new StringBuffer();
 		buf.append("Original Image: "+getImageName());

@@ -258,7 +258,6 @@ public class AdminDialog
 		if (GroupData.class.equals(type)) setTitle(TITLE_GROUP);
 		else if (ExperimenterData.class.equals(type)) 
 			setTitle(TITLE_EXPERIMENTER);
-		else new IllegalArgumentException("Type not supported/");
 	}
 	
 	/** 

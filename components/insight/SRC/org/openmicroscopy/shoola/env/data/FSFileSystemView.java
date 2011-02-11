@@ -345,10 +345,10 @@ public class FSFileSystemView
 				}
     			return mi;
 			} catch (Exception e) {
-				new FSAccessException("Cannot register the multi-images file:" +
+				throw new FSAccessException(
+						"Cannot register the multi-images file:" +
 						" "+mi.getName(), e);
 			}
-    		
     	}  else if (file instanceof FileData) {
     		FileData f = (FileData) file;
     		of = (OriginalFile) file.asIObject();
@@ -391,8 +391,8 @@ public class FSFileSystemView
         			return proxy.getThumbnailByIndex(name, index);
         		return proxy.getThumbnail(name);
     		} catch (Exception e) {
-    			new FSAccessException("Cannot retrieve the thumbnail for: " +
-    					""+name, e);
+    			throw new FSAccessException("Cannot retrieve the thumbnail " +
+    					"for: "+name, e);
     		}
     	}
     	return null;
@@ -421,7 +421,8 @@ public class FSFileSystemView
     		RepositoryPrx proxy = (RepositoryPrx) entry.getValue();
     		populate(root, files, proxy.listFileSets(s, config));
 		} catch (Exception e) { 
-			new FSAccessException("Cannot retrieves the files contained in: " +
+			throw new FSAccessException(
+					"Cannot retrieves the files contained in: " +
 					dir.getAbsolutePath(), e);
 		}
     	return (DataObject[]) files.toArray(new DataObject[files.size()]);

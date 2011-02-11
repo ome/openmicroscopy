@@ -168,7 +168,8 @@ class RenderingControlProxy
     	i = channels.iterator();
 		while (i.hasNext()) {
 			index = (Integer) i.next();
-			if (colourIndex(index) != NON_PRIMARY_INDEX) rgb.add(true);
+			if (colourIndex(index).intValue() != NON_PRIMARY_INDEX.intValue()) 
+				rgb.add(true);
 		}
 		return (n == rgb.size());
     }

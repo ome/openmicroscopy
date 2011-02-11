@@ -255,6 +255,7 @@ public class TaskBarManager
 	private void handleSaveEventResponse(SaveEventResponse e)
 	{
 		if (e == null) return;
+		/*
 		Agent a = e.getAgent();
 		Integer r = exitResponses.get(a);
 		if (r != null) {
@@ -263,6 +264,7 @@ public class TaskBarManager
 			//else exitResponses.put(a, v);
 		}
 		if (exitResponses.size() == 0) container.exit();
+		*/
 	}
 
 	/**

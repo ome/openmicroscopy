@@ -111,11 +111,9 @@ public class FilesLoader
                 OmeroMetadataService service = context.getMetadataService();
                 FileAnnotationData fa = (FileAnnotationData) 
                 	service.loadAnnotation(id);
-                Map<FileAnnotationData, File> m = 
-                	new HashMap<FileAnnotationData, File>();
                 File f = service.downloadFile(new File(fa.getFileName()), 
                 		fa.getFileID(), fa.getFileSize());
- 
+
                 result = f;
             }
         };
@@ -229,7 +227,7 @@ public class FilesLoader
     protected void buildTree()
     { 
     	if (files == null && loadCall != null) add(loadCall);
-    	else {
+    	else if (files != null) {
     		result = null;
     		Iterator i = files.entrySet().iterator();
     		Entry entry;

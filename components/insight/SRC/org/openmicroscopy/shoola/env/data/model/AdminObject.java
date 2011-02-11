@@ -176,7 +176,6 @@ public class AdminObject
 	 */
 	public AdminObject(GroupData group, Collection<ExperimenterData> values)
 	{
-		checkIndex(index);
 		if (values != null) {
 			Iterator<ExperimenterData> i = values.iterator();
 			experimenters = new HashMap<ExperimenterData, UserCredentials>();

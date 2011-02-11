@@ -285,6 +285,7 @@ public class FLIMResultsDialog
 			if (image != null) {
 				w = image.getWidth();
 				h = image.getHeight();
+				if (imageName == null) imageName = "image";
 				writer.addImageToWorkbook(imageName, image); 
 				if (p == null) row = 0;
 				writer.writeImage(p.y+2, index, w, h, imageName);

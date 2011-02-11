@@ -39,7 +39,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 import javax.swing.Icon;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 
@@ -2917,49 +2916,6 @@ class TreeViewerComponent
 		if (group.getId() == oldId) return;
 		Registry reg = TreeViewerAgent.getRegistry();
 		reg.getEventBus().post(new SwitchUserGroup(exp, group.getId()));
-		/*
-		try {
-			//Review that code.
-			reg.getAdminService().changeExperimenterGroup(exp, group.getId());
-		} catch (Exception e) {
-			LogMessage msg = new LogMessage();
-	        msg.print("Cannot modify current group.");
-	        msg.print(e);
-			reg.getLogger().error(this, msg);
-			UserNotifier un = reg.getUserNotifier();
-			un.notifyInfo("Group change", "Cannot modify current group.");
-			return;
-		}
-		
-		model.setGroupId(group.getId());
-		reg.getEventBus().post(new ChangeUserGroupEvent(group.getId(), oldId));
-		Map browsers = model.getBrowsers();
-		Entry entry;
-		Browser browser;
-		Iterator i = browsers.entrySet().iterator();
-		while (i.hasNext()) {
-			entry = (Entry) i.next();
-			browser = (Browser) entry.getValue();
-			browser.reActivate();
-		}
-		model.setDataViewer(null);
-		firePropertyChange(GROUP_CHANGED_PROPERTY, oldId, 
-				model.getUserGroupID());
-				*/
-	}
-
-	/** 
-	 * Implemented as specified by the {@link TreeViewer} interface.
-	 * @see TreeViewer#displayViewer(JComponent, JComponent, boolean, boolean)
-	 */
-	public void displayViewer(JComponent viewer, JComponent controls,
-			boolean toAdd, boolean toDetach)
-	{
-		if (toAdd) {
-			if (viewer == null || controls == null) return;
-		}
-		toDetach = false;
-		view.displayViewer(viewer, controls, toAdd, toDetach);
 	}
 
 	/** 
@@ -3250,10 +3206,12 @@ class TreeViewerComponent
 			}
 		} else {
 			browser = model.getSelectedBrowser();
-			node = browser.getLoggedExperimenterNode();
-			if (node != null) {
-				node.setToRefresh(refreshTree);
-				browser.getUI().repaint();
+			if (browser != null) {
+				node = browser.getLoggedExperimenterNode();
+				if (node != null) {
+					node.setToRefresh(refreshTree);
+					browser.getUI().repaint();
+				}
 			}
 		}
 	}

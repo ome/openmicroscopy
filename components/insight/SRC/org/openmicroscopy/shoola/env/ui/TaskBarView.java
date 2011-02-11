@@ -576,32 +576,6 @@ class TaskBarView
 		menus[menuID].remove(entry);
 	}
 
-	/**
-	 * Implemented as specified by {@link TaskBar}.
-	 * @see TaskBar#addToToolBar(int, AbstractButton)
-	 */
-	public void addToToolBar(int toolBarID, AbstractButton entry) 
-	{
-		if (toolBarID < 0 || toolbars.length <= toolBarID)
-			throw new IllegalArgumentException(
-				"Invalid menu id: "+toolBarID+".");
-		if (entry == null)
-			throw new NullPointerException("No entry");
-		toolbars[toolBarID].add(entry);
-	}
-
-	/**
-	 * Implemented as specified by {@link TaskBar}.
-	 * @see TaskBar#removeFromToolBar(int, AbstractButton)
-	 */
-	public void removeFromToolBar(int toolBarID, AbstractButton entry)
-	{
-		if (toolBarID < 0 || toolbars.length <= toolBarID)
-			throw new IllegalArgumentException(
-				"Invalid menu id: "+toolBarID+".");
-		toolbars[toolBarID].remove(entry);
-	}
-
     /**
      * Overridden so that the task bar is never brought up on screen.
      * @see JFrame#setVisible(boolean)

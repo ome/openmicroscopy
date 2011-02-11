@@ -879,19 +879,6 @@ public interface TreeViewer
 	 */
 	void setUserGroup(GroupData group);
 
-	/**
-	 * Displays the passed viewer in the working area.
-	 * 
-	 * @param viewer	The viewer to display.
-	 * @param controls 	Reference to the controls.
-	 * @param toAdd  	Pass <code>true</code> to add the component, 
-	 * 				 	<code>false</code> otherwise.
-	 * @param toDetach 	Pass <code>true</code> to detach the viewer, 
-	 * 					<code>false</code> otherwise.
-	 */
-	void displayViewer(JComponent viewer, JComponent controls, boolean toAdd,
-			boolean toDetach);
-
 	/** Opens the image in a separate window or in the main viewer. */
 	void setFullScreen();
 

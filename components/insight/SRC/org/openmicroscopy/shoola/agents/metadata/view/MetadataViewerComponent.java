@@ -879,7 +879,7 @@ class MetadataViewerComponent
 		if (index != AnalysisParam.FRAP) return;
 		Object refObject = model.getRefObject();
 		if (!(refObject instanceof ImageData)) return;
-		List<ChannelData> channels = null;
+		List<ChannelData> channels = new ArrayList<ChannelData>();
 		Map m = model.getEditor().getChannelData();
 		if (m != null && m.size() == 1) {
 			controller.analyseFRAP(0);
@@ -887,7 +887,6 @@ class MetadataViewerComponent
 		}
 		if (m != null) {
 			Iterator j = m.keySet().iterator();
-			channels = new ArrayList<ChannelData>();
 			while (j.hasNext()) {
 				channels.add((ChannelData) j.next());
 			}

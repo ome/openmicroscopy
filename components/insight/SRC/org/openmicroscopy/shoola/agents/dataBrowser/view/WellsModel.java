@@ -184,12 +184,7 @@ class WellsModel
 	 */
 	private boolean isSameColor(Color c1, Color c2)
 	{
-		if (c1 == null && c2 == null) return true;
-		if (c1 == null && c2 != null) return false;
-		if (c1 != null && c2 == null) return false;
-		return (c1.getRed() == c2.getRed() && c1.getBlue() == c2.getBlue() &&
-				c1.getGreen() == c2.getGreen() && 
-				c1.getAlpha() == c2.getAlpha());
+		return UIUtilities.isSameColors(c1, c2);
 	}
 	
 	/**

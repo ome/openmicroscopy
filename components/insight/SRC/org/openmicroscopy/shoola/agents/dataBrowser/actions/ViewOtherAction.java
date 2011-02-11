@@ -87,11 +87,8 @@ public class ViewOtherAction
              return;
     	}
     	Object ho = node.getHierarchyObject();
-    	if (ho instanceof ImageData) {
-        	ImageData img = (ImageData) ho;
-        	//setEnabled(img.isArchived());
-        	setEnabled(true);
-        } else setEnabled(ho instanceof FileAnnotationData);
+        setEnabled(ho instanceof ImageData || 
+        		ho instanceof FileAnnotationData);
     }
     
 	/**

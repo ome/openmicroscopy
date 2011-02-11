@@ -126,30 +126,7 @@ public interface TaskBar
 	 * @throws IllegalArgumentException	If <code>menuID</code> is not valid.
 	 */
 	public void removeFromMenu(int menuID, JMenuItem entry);
-	
-	/**
-	 * Adds <code>entry</code> to the specified toolbar.
-	 * The <code>entry</code> is assumed to have a <code>16x16</code> icon and
-	 * no text.
-	 * 
-	 * @param toolBarID	ID of one of the toolbars supported by the task bar. 
-	 * 					Must be one of the constants defined by this interface.
-	 * @param entry		The item to add.
-	 * @throws IllegalArgumentException	If <code>toolBarID</code> is not valid.
-	 * @throws NullPointerException	If <code>entry</code> is <code>null</code>.
-	 */
-	public void addToToolBar(int toolBarID, AbstractButton entry);
-	
-	/**
-	 * Removes <code>entry</code> from the specified toolbar.  
-	 * 
-	 * @param toolBarID	ID of one of the toolbars supported by the task bar. 
-	 * 					Must be one of the constants defined by this interface.
-	 * @param entry		The item to remove.
-	 * @throws IllegalArgumentException	If <code>toolBarID</code> is not valid.
-	 */
-	public void removeFromToolBar(int toolBarID, AbstractButton entry);
-    
+
     /**
      * Returns a reference to the task bar window.
      * 
