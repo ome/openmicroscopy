@@ -23,6 +23,7 @@
 package integration;
 
 //Java imports
+import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -125,6 +126,9 @@ import ome.xml.model.primitives.PositiveInteger;
 public class XMLMockObjects 
 {
 
+	/** The default color. */
+	public static final Color	DEFAULT_COLOR = new Color(100, 150, 200, 255);
+	
 	/** The default power of a light source. */
 	public static final Double LIGHTSOURCE_POWER = 200.0;
 
@@ -1017,7 +1021,7 @@ public class XMLMockObjects
 		Channel channel = new Channel();
 		channel.setID("Channel:"+index);
 		channel.setAcquisitionMode(AcquisitionMode.FLUORESCENCELIFETIME);
-		channel.setColor(255);
+		channel.setColor(DEFAULT_COLOR.getRGB());
 		channel.setName("Name");
 		channel.setIlluminationType(IlluminationType.OBLIQUE);
 		channel.setPinholeSize(0.5);

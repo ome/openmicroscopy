@@ -925,16 +925,22 @@ public class ImporterTest
     	ids.clear();
     	
     	ome.xml.model.Channel xmlChannel = xml.createChannel(0);
-    	Color xmlColor = new Color(xmlChannel.getColor());
     	Channel channel;
     	List<Channel> channels = p.copyChannels();
     	Iterator<Channel> i = channels.iterator();
+    	assertTrue(xmlChannel.getColor().intValue() == 
+    		XMLMockObjects.DEFAULT_COLOR.getRGB());
+    	Color c;
     	while (i.hasNext()) {
 			channel = i.next();
-			assertEquals(channel.getAlpha().getValue(), xmlColor.getAlpha());
-			assertEquals(channel.getRed().getValue(), xmlColor.getRed());
-			assertEquals(channel.getGreen().getValue(), xmlColor.getGreen());
-			assertEquals(channel.getBlue().getValue(), xmlColor.getBlue());
+			assertEquals(channel.getAlpha().getValue(), 
+					XMLMockObjects.DEFAULT_COLOR.getAlpha());
+			assertEquals(channel.getRed().getValue(), 
+					XMLMockObjects.DEFAULT_COLOR.getRed());
+			assertEquals(channel.getGreen().getValue(), 
+					XMLMockObjects.DEFAULT_COLOR.getGreen());
+			assertEquals(channel.getBlue().getValue(), 
+					XMLMockObjects.DEFAULT_COLOR.getBlue());
 			ids.add(channel.getLogicalChannel().getId().getValue());
 		}
     	List<LogicalChannel> l = 
