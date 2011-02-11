@@ -143,8 +143,6 @@ public class TaskBarManager
     /** Flag indicating if the connection was successful or not. */
     private boolean					success;
     
-	private Map<Agent, Integer> 	exitResponses;
-	
 	/** 
 	 * Parses the passed file to determine the value of the URL.
 	 * 

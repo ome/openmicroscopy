@@ -3184,6 +3184,7 @@ class TreeViewerComponent
 				browser = model.getBrowser(Browser.SCREENS_EXPLORER);
 				browser.accept(finder);
 			}
+			if (browser == null) return;
 			Set<TreeImageDisplay> nodes = finder.getNodes();
 			//mark 
 			if (nodes != null && nodes.size() > 0) {

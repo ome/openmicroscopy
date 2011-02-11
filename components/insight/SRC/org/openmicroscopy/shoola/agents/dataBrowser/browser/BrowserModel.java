@@ -176,21 +176,20 @@ class BrowserModel
 	 */
 	private boolean isSameNode(ImageDisplay n1, ImageDisplay n2)
 	{
-		if (n1 == null && n2 == null) return false;
-		if (n1 == null && n2 != null) return false;
-		if (n1 != null && n2 == null) return false;
-		Object o1 = n1.getHierarchyObject();
-		Object o2 = n2.getHierarchyObject();
-		if (o1 == null || o2 == null) return false;
-		if (!o1.getClass().equals(o2.getClass())) return false;
-		if ((o1 instanceof DataObject) && (o2 instanceof DataObject)) {
-			long id1 = ((DataObject) o1).getId();
-			long id2 = ((DataObject) o2).getId();
-			return id1 == id2;
-		} else if ((o1 instanceof File) && (o2 instanceof File)) {
-			String s1 = ((File) o1).getAbsolutePath();
-			String s2 = ((File) o2).getAbsolutePath();
-			return s1.equals(s2);
+		if (n1 != null && n2 != null) {
+			Object o1 = n1.getHierarchyObject();
+			Object o2 = n2.getHierarchyObject();
+			if (o1 == null || o2 == null) return false;
+			if (!o1.getClass().equals(o2.getClass())) return false;
+			if ((o1 instanceof DataObject) && (o2 instanceof DataObject)) {
+				long id1 = ((DataObject) o1).getId();
+				long id2 = ((DataObject) o2).getId();
+				return id1 == id2;
+			} else if ((o1 instanceof File) && (o2 instanceof File)) {
+				String s1 = ((File) o1).getAbsolutePath();
+				String s2 = ((File) o2).getAbsolutePath();
+				return s1.equals(s2);
+			}
 		}
 		return false;
 	}

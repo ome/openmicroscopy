@@ -287,8 +287,10 @@ public class FLIMResultsDialog
 				h = image.getHeight();
 				if (imageName == null) imageName = "image";
 				writer.addImageToWorkbook(imageName, image); 
+				int y = 0;
 				if (p == null) row = 0;
-				writer.writeImage(p.y+2, index, w, h, imageName);
+				if (p != null) y = p.y;
+				writer.writeImage(y+2, index, w, h, imageName);
 				String v = f.getAbsolutePath();
 				WriterImage.saveImage(new File(v+"."+PNGFilter.PNG), 
 						image, PNGFilter.PNG);

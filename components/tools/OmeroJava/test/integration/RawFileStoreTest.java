@@ -84,5 +84,20 @@ public class RawFileStoreTest
 		}
     	svc.close();
     }
+    
 
+    /**
+     * Tests the download of a file. This tests uses the <code>read</code>
+     * method.
+     * @throws Exception Thrown if an error occurred.
+     * @see #testUploadFile() 
+     */
+    @Test
+    public void testDownloadScript() 
+    	throws Exception 
+    {
+    	
+    }
+    
+    
 }

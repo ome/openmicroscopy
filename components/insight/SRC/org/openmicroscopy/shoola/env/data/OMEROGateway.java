@@ -806,9 +806,8 @@ class OMEROGateway
 			} catch (Exception ex) {
 				//Digest exception
 			}
-			new DSAccessException("Unable to read the table.");
+			throw new DSAccessException("Unable to read the table.");
 		}
-		return null;
 	}
 
 	/**
@@ -6594,9 +6593,10 @@ class OMEROGateway
 					} catch (Exception e) {
 						if (stream != null) stream.close();
 						if (f != null) f.delete();
+						handleException(e, 
+								"Cannot export the image as an OME-TIFF");
 					}
 				}
-				
 			} finally {
 				try {
 					if (store != null) store.close();
@@ -6605,10 +6605,6 @@ class OMEROGateway
 			}
 		} catch (Throwable t) {
 			if (f != null) f.delete();
-			try {
-				exporterService.close();
-				exporterService = null;
-			} catch (Exception e) {}
 			exporterService = null;
 			handleException(t, "Cannot export the image as an OME-TIFF");
 			return null;

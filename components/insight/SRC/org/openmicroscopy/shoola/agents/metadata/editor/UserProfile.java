@@ -147,10 +147,7 @@ class UserProfile
     
     /** The original index. */
     private int						originalIndex;
-    
-    /** The currently selected index. */
-    private int						selectedIndex;
-    
+
     /** The user's details. */
     private Map						details;
     
@@ -961,7 +958,6 @@ class UserProfile
 	 */
 	public void actionPerformed(ActionEvent e)
 	{
-		selectedIndex = groups.getSelectedIndex();
 		buildGUI();
 		firePropertyChange(EditorControl.SAVE_PROPERTY, Boolean.valueOf(false), 
 				Boolean.valueOf(true));

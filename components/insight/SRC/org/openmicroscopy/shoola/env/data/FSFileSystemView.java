@@ -317,7 +317,7 @@ public class FSFileSystemView
     				img.setRegisteredFile((Image) objects.get(1));
     			return img;
 			} catch (Exception e) {
-				new FSAccessException("Cannot register the image: " +
+				throw new FSAccessException("Cannot register the image: " +
 						""+img.getName(), e);
 			}
     	} else if (file instanceof MultiImageData) {
@@ -357,7 +357,7 @@ public class FSFileSystemView
     			f.setRegisteredFile((OriginalFile) r);
     			return f;
 			} catch (Exception e) {
-				new FSAccessException("Cannot register the file: " +
+				throw new FSAccessException("Cannot register the file: " +
 						""+f.getAbsolutePath(), e);
 			}
     	}
