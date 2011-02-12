@@ -26,11 +26,8 @@ $.fn.roi_display = function(options) {
         
         // for keeping track of objects - E.g. de-select all. 
         var shape_objects = new Array();
-        var shape_default = { fill: "#000", 
-            stroke: "#fff", 
-            'stroke-width': 1.5, 
-            opacity: 0.5 }
-        var shape_selected = { fill: null, stroke: "#08a6fb", opacity: 1.0 }
+        var shape_default = {'fill-opacity':0.5, opacity:0.7}
+        var shape_selected = {'fill-opacity':0.25, opacity:1}
         
         // Creates Raphael canvas. Uses scale.raphael.js to provide paper.scaleAll(ratio);
         var paper = new ScaleRaphael('roi_canvas', orig_width, orig_height);
@@ -78,6 +75,7 @@ $.fn.roi_display = function(options) {
             shape_objects.length = 0;
             if (!rois_displayed) return;
             if (roi_json == null) return;
+            
 
             for (var r=0; r<roi_json.length; r++) {
                 var roi = roi_json[r];
@@ -90,7 +88,6 @@ $.fn.roi_display = function(options) {
                         var toolTip = ""
                         if (shape['type'] == 'Ellipse') {
                           newShape = paper.ellipse(shape['cx'], shape['cy'], shape['rx'], shape['ry']);
-                          newShape['type'] = "Ellipse";
                           toolTip = "cx:"+ shape['cx'] +" cy:"+ shape['cy'] +" rx:"+ shape['rx'] + " ry: "+  shape['ry'];
                         }
                         else if (shape['type'] == 'Rectangle') {
@@ -108,12 +105,47 @@ $.fn.roi_display = function(options) {
                         else if (shape['type'] == 'Polygon') {
                           newShape = paper.path( shape['points'] );
                         }
-                        // rect.drag(moveRect, start, up);
-                        // point.drag(move, start, up);
+                        // Add text - NB: text is not 'attached' to shape in any way. 
                         if (newShape != null) {
                             newShape.attr(shape_default);   // sets fill, stroke etc. 
                             if ((shape['textValue'] != null) && (shape['textValue'].length > 0)) {
-                                toolTip = shape['textValue'] + "  " + toolTip;
+                                // Show text 
+                                var bb = newShape.getBBox();
+                                var textx = bb.x + (bb.width/2);
+                                var texty = bb.y + (bb.height/2);
+                                var txt = paper.text(textx, texty, shape['textValue']);
+                                var txtAttr = {'fill': '#ffffff'};
+                                if (shape['fontFamily']) {  // Courier, Helvetical, 
+                                    txtAttr['font-family'] = shape['fontFamily'];
+                                }
+                                if (shape['fontSize']) {
+                                    txtAttr['font-size'] = shape['fontSize'];
+                                }
+                                if (shape['fontStyle']) { // only 'Bold' is recognised 
+                                    txtAttr['font-weight'] = shape['fontStyle'];
+                                }
+                                txt.attr(txtAttr);
+                            }
+                            if (shape['fillColor']) { newShape.attr({'fill': shape['fillColor']}); }
+                            if (shape['strokeColor']) { newShape.attr({'stroke': shape['strokeColor']}); }
+                            else { newShape.attr({'stroke': '#ffffff'}); }  // white is default
+                            if (shape['strokeWidth']) { newShape.attr({'stroke-width': shape['strokeWidth']}); }
+                            // handle transforms. Insight supports: translate(354.05 83.01) and rotate(0 407.0 79.0)
+                            if (shape['transform']) {
+                                if (shape['transform'].substr(0, 'translate'.length) === 'translate'){
+                                    var tt = shape['transform'].replace('translate(', '').replace(')', '').split(" ");
+                                    var tx = parseInt(tt[0]);   // only int is supported by Raphael
+                                    var ty = parseInt(tt[1]);
+                                    newShape.translate(tx,ty);
+                                }
+                                if (shape['transform'].substr(0, 'rotate'.length) === 'rotate'){
+                                    var tt = shape['transform'].replace('rotate(', '').replace(')', '').split(" ");
+                                    var deg = parseFloat(tt[0]);
+                                    var rotx = parseFloat(tt[1]);
+                                    var roty = parseFloat(tt[2]);
+                                    console.log(deg + " " + rotx + " "+ roty);
+                                    newShape.rotate(deg, rotx, roty);
+                                }
                             }
                             newShape.click(handle_shape_click);
                             newShape.attr({ title: toolTip });
