@@ -412,15 +412,25 @@
   
   var refresh_rois = function () {
       // re-plots the ROIs (if currently shown) for new Z and T position
-      var theT = viewport.getTPos();
-      var theZ = viewport.getZPos();
-      viewport.viewportimg.get(0).refresh_rois(theZ, theT);
+      if (viewport.viewportimg.get(0).refresh_rois) {
+          var theT = viewport.getTPos();
+          var theZ = viewport.getZPos();
+          viewport.viewportimg.get(0).refresh_rois(theZ, theT);
+      }
   }
   var show_rois = function () {
-      // loads ROIs (if needed) and shows 
-        var theT = viewport.getTPos();
+      var theT = viewport.getTPos();
         var theZ = viewport.getZPos();
-        viewport.viewportimg.get(0).show_rois(theZ, theT);
+        
+        // if the ROI plugin has not been initialised (method not available...)
+      if (!viewport.viewportimg.get(0).show_rois) {
+            viewport.viewportimg.roi_display({width:{{ image.getWidth }}, 
+                                            height:{{ image.getHeight }},
+                                            json_url:'{% url webfigure_get_rois image.id %}' });
+      }                           
+             
+      // loads ROIs (if needed) and shows 
+    viewport.viewportimg.get(0).show_rois(theZ, theT);
   }
   var hide_rois = function() {
       // hides the display of ROIs. 
@@ -987,15 +997,11 @@
       viewport.setQuality(this.value);
     });
     
-    // we have access to the viewportimg. so we can pass it to our plugin
-    // plugin will add methods such as viewport.viewportimg.get(0).load_rois(url);
-    viewport.viewportimg.roi_display({width:{{ image.getWidth }}, 
-                                    height:{{ image.getHeight }},
-                                    json_url:'{% url webfigure_get_rois image.id %}' });
-    
     viewport.bind('imageChange', refresh_rois);
     viewport.bind('instant_zoom', function(e, percent) {
-      viewport.viewportimg.get(0).setRoiZoom(percent);
+        if (viewport.viewportimg.get(0).setRoiZoom) {
+            viewport.viewportimg.get(0).setRoiZoom(percent);
+        }
     });
     
     $("#roi_small_table").click(function(event) {
