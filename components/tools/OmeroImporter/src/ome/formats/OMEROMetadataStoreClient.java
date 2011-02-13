@@ -1334,6 +1334,10 @@ public class OMEROMetadataStoreClient
     {
     	Hashtable<?,?> globalMetadata = reader.getGlobalMetadata();
     	Hashtable<?,?> seriesMetadata = reader.getSeriesMetadata();
+        if (globalMetadata.size() == 0 && seriesMetadata.size() == 0)
+        {
+            return null;
+        }
     	FileOutputStream stream = null;
     	OutputStreamWriter writer= null;
     	try
@@ -1505,25 +1509,28 @@ public class OMEROMetadataStoreClient
     		{
     		    String uuid = UUID.randomUUID().toString();
     			File metadataFile = createSeriesMetadataFile(uuid);
-    			metadataFiles.add(metadataFile);
-				LinkedHashMap<Index, Integer> indexes = 
-					new LinkedHashMap<Index, Integer>();
-				indexes.put(Index.ORIGINAL_FILE_INDEX, originalFileIndex);
-				String format = "text/plain";
-				OriginalFile originalFile = 
-					createOriginalFileFromFile(metadataFile, indexes, format);
-				log.debug("originalFile created");
-				originalFile.setPath(toRType(String.format("%s%s/",
-					omero.constants.namespaces.NSORIGINALMETADATA.value, uuid)));
-				originalFile.setName(toRType("original_metadata.txt"));
-				log.debug("originalFile path created");
-                indexes = new LinkedHashMap<Index, Integer>();
-                indexes.put(Index.IMAGE_INDEX, series);
-                indexes.put(Index.ORIGINAL_FILE_INDEX, originalFileIndex);
-                addCompanionFileAnnotationTo(imageKey, indexes,
-                		                     originalFileIndex);
-                
-				originalFileIndex++;
+    			if (metadataFile != null)
+    			{
+        			metadataFiles.add(metadataFile);
+    				LinkedHashMap<Index, Integer> indexes =
+    					new LinkedHashMap<Index, Integer>();
+    				indexes.put(Index.ORIGINAL_FILE_INDEX, originalFileIndex);
+    				String format = "text/plain";
+    				OriginalFile originalFile = createOriginalFileFromFile(
+    				        metadataFile, indexes, format);
+    				log.debug("originalFile created");
+    				originalFile.setPath(toRType(String.format("%s%s/",
+    				        omero.constants.namespaces.NSORIGINALMETADATA.value,
+    				        uuid)));
+    				originalFile.setName(toRType("original_metadata.txt"));
+    				log.debug("originalFile path created");
+                    indexes = new LinkedHashMap<Index, Integer>();
+                    indexes.put(Index.IMAGE_INDEX, series);
+                    indexes.put(Index.ORIGINAL_FILE_INDEX, originalFileIndex);
+                    addCompanionFileAnnotationTo(imageKey, indexes,
+                                                 originalFileIndex);
+                    originalFileIndex++;
+                }
     		}
     		
     		// Create all original file objects for later population based on
