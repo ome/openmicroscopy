@@ -143,7 +143,7 @@ class TestISession(lib.ITest):
         svc.getMyOpenAgentSessions("OMERO.web")
         svc.getMyOpenClientSessions()
 
-    def testTicket2196SetSecurityContext(self):
+    def XtestTicket2196SetSecurityContext(self):
         ec = self.client.sf.getAdminService().getEventContext()
         exp0 = omero.model.ExperimenterI(ec.userId, False)
         grp0 = omero.model.ExperimenterGroupI(ec.groupId, False)
