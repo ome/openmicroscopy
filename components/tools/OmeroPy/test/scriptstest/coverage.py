@@ -28,7 +28,7 @@ class TestCoverage(lib.ITest):
         self.assert_( len(self.us.getScripts()) > 0 )
         self.assertEquals(0, len(self.us.getUserScripts([]))) # New user. No scripts
 
-    def testGetScriptWithDetails(self):
+    def XtestGetScriptWithDetails(self):
         scriptList = self.us.getScripts()
         script = scriptList[0]
         scriptMap = self.us.getScriptWithDetails(script.id.val)
@@ -37,7 +37,7 @@ class TestCoverage(lib.ITest):
         scriptText = scriptMap.keys()[0]
         scriptObj = scriptMap.values()[0]
 
-    def testUploadAndScript(self):
+    def XtestUploadAndScript(self):
         scriptID = self.us.uploadScript("/OME/Foo.py", """if True:
         import omero
         import omero.grid as OG
@@ -49,7 +49,7 @@ class TestCoverage(lib.ITest):
         return scriptID
 
 
-    def testUserCantUploadOfficalScript(self):
+    def XtestUserCantUploadOfficalScript(self):
         self.assertRaises(omero.SecurityViolation,\
             self.us.uploadOfficialScript,\
             "/%s/fails.py" % self.uuid(), """if True:
