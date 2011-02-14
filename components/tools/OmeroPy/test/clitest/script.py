@@ -29,7 +29,7 @@ class TestScript(ITest):
         cli.register("s", ScriptControl, "TEST")
         return cli
 
-    def test1(self):
+    def Xtest1(self):
         cli = self.cli()
         cmd = self.login_args() + ["s", "list"]
         cli.invoke(cmd, strict=True) # Throws NonZeroReturnCode
@@ -76,7 +76,7 @@ client.closeSession()
         cli.invoke(replaceArgs, strict=True)
         
     
-    def testReplaceOfficial(self):
+    def XtestReplaceOfficial(self):
         cli = self.cli()
         p = create_path(suffix=".py")
         p.write_text("""
