@@ -16,7 +16,7 @@ from omero.rtypes import *
 
 class TestTickets4000(lib.ITest):
 
-    def test3138(self):
+    def Xtest3138(self):
         """
         Try multiple logins to see if they slow down
         """
