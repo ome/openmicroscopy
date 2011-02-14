@@ -138,13 +138,35 @@ $.fn.roi_display = function(options) {
                                     var ty = parseInt(tt[1]);
                                     newShape.translate(tx,ty);
                                 }
-                                if (shape['transform'].substr(0, 'rotate'.length) === 'rotate'){
+                                else if (shape['transform'].substr(0, 'rotate'.length) === 'rotate'){
                                     var tt = shape['transform'].replace('rotate(', '').replace(')', '').split(" ");
                                     var deg = parseFloat(tt[0]);
                                     var rotx = parseFloat(tt[1]);
                                     var roty = parseFloat(tt[2]);
                                     console.log(deg + " " + rotx + " "+ roty);
                                     newShape.rotate(deg, rotx, roty);
+                                }
+                                else if (shape['transform'].substr(0, 'matrix'.length) === 'matrix'){
+                                    var tt = shape['transform'].replace('matrix(', '').replace(')', '').split(" ");
+                                    var a1 = parseFloat(tt[0]);
+                                    var a2 = parseFloat(tt[1]);
+                                    var b1 = parseFloat(tt[2]);
+                                    var b2 = parseFloat(tt[3]);
+                                    var c1 = parseFloat(tt[4]);
+                                    var c2 = parseFloat(tt[5]);
+                                    // scale
+                                    var scale = Math.sqrt(a1*a1 + a2*a2)
+                                    console.log("scale " + scale);
+                                    newShape.scale(scale, scale);
+                                    // rotation
+                                    var rad = Math.atan2(a2,a1);
+                                    var rotation = rad * 180/Math.PI;
+                                    console.log("rad " + rad);
+                                    console.log("rotation " + rotation);
+                                    newShape.rotate(rotation);
+                                    // translation
+                                    console.log("translation x: " + c1 + " y: " + c2);
+                                    newShape.translate(c1, c2);
                                 }
                             }
                             newShape.click(handle_shape_click);
