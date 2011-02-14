@@ -128,7 +128,7 @@ class TestParse(unittest.TestCase):
         self.assertEquals("belong", groupings["A"]["2"], str(groupings))
         self.assertEquals("together", groupings["A"]["3"], str(groupings))
 
-    def testParseAllOfficialScripts(self):
+    def XtestParseAllOfficialScripts(self):
         for script in SCRIPTS.walk("*.py"):
             try:
                 params = parse_file(str(script))
