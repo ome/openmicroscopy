@@ -188,7 +188,7 @@ class TestScripts(lib.ITest):
             impl.cleanup()
 
 
-    def testEditScript(self):
+    def XtestEditScript(self):
         scriptService = self.root.sf.getScriptService()
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
 
@@ -225,7 +225,7 @@ client.closeSession()
         self.assertEquals(editedScript, editedText)
         
 
-    def testScriptValidation(self):
+    def XtestScriptValidation(self):
         scriptService = self.root.sf.getScriptService()
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
 
@@ -338,7 +338,7 @@ client.closeSession()
         finally:
             impl.cleanup()
 
-    def testSpeedOfThumbnailFigure(self):
+    def XtestSpeedOfThumbnailFigure(self):
         svc = self.client.sf.getScriptService()
         svc.getScripts()
         pixID = self.import_image()[0]
