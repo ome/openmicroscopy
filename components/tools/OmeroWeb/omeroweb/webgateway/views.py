@@ -366,7 +366,7 @@ def getBlitzConnection (request, server_id=None, with_session=False, retry=True,
         # session could expire or be closed by another client. webclient needs to recreate connection with new uuid
         # otherwise it will forward user to login screen.
         logger.info("Failed keepalive for connection %s" % ckey)
-        del request.session[browsersession_connection_key]
+        #del request.session[browsersession_connection_key]
         del connectors[ckey]
         #_session_logout(request, server_id)
         #return blitzcon
@@ -912,6 +912,9 @@ def jsonp (f):
             return HttpResponseServerError('("error in call","%s")' % traceback.format_exc(), mimetype='application/javascript')
         except:
             logger.debug(traceback.format_exc())
+            if kwargs.get('_internal', False):
+                raise
+            return HttpResponseServerError('("error in call","%s")' % traceback.format_exc(), mimetype='application/javascript')
     wrap.func_name = f.func_name
     return wrap
 
