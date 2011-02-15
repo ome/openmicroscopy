@@ -213,22 +213,24 @@ class SessionsControl(BaseControl):
         props["omero.user"] = name
 
         rv = None
-        if not create:
+        #
+        # For session key access, we now need to lookup the stored_name
+        # since otherwise, all access to the directory under ~/omero/sessions
+        # will fail. Then, if no session can be found, we exit immediately
+        # rather than asking for a password. See #4223
+        #
+        if args.key:
+            stored_name = store.find_name_by_key(server, args.key)
+            if stored_name:
+                rv = self.check_and_attach(store, server, stored_name, args.key, props)
+                action = "Joined"
+            if not rv:
+                self.ctx.die(523, "Bad session key")
+        elif not create:
             available = store.available(server, name)
             for uuid in available:
-                conflicts = store.conflicts(server, name, uuid, props)
-                if conflicts:
-                    self.ctx.dbg("Skipping %s due to conflicts: %s" % (uuid, conflicts))
-                    continue
-                try:
-                    rv = store.attach(server, name, uuid)
-                    store.set_current(server, name, uuid)
-                    action = "Reconnected to"
-                    break
-                except:
-                    self.ctx.dbg("Removing %s" % uuid)
-                    store.clear(server, name, uuid)
-                    continue
+                rv = self.check_and_attach(store, server, name, uuid, props)
+                action = "Reconnected to"
 
         if not rv:
             tries = 3
@@ -256,6 +258,25 @@ class SessionsControl(BaseControl):
             action = "Created"
 
         return self.handle(rv, action)
+
+    def check_and_attach(self, store, server, name, uuid, props):
+        """
+        Checks for conflicts in the settings for this session,
+        and if there are none, then attempts an "attach()". If
+        that fails, the session is removed.
+        """
+        rv = None
+        conflicts = store.conflicts(server, name, uuid, props)
+        if conflicts:
+            self.ctx.dbg("Skipping %s due to conflicts: %s" % (uuid, conflicts))
+        else:
+            try:
+                rv = store.attach(server, name, uuid)
+                store.set_current(server, name, uuid)
+            except:
+                self.ctx.dbg("Removing %s" % uuid)
+                store.clear(server, name, uuid)
+        return rv
 
     def handle(self, rv, action):
         """

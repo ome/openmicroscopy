@@ -680,8 +680,17 @@ def edit_path(path_or_obj, start_text):
         else:
             editor = "vi"
     f.write_text(start_text)
-    from which import which
-    editor_path = which(editor)
+
+    # If absolute, then use the path
+    # as is (ticket:4246). Otherwise,
+    # use which.py to find it.
+    editor_obj = path.path(editor)
+    if editor_obj.isabs():
+        editor_path = editor
+    else:
+        from which import which
+        editor_path = which(editor)
+
     pid = os.spawnl(os.P_WAIT, editor_path, editor_path, f)
     if pid:
         re = RuntimeError("Couldn't spawn editor: %s" % editor)
