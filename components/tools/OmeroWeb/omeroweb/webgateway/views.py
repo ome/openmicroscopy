@@ -654,30 +654,7 @@ def render_image (request, iid, z, t, server_id=None, _conn=None, **kwargs):
         except:
             logger.error("You need to install the Python Imaging Library. Get it at http://www.pythonware.com/products/pil/")
             logger.error(traceback.format_exc())
-
-    from StringIO import StringIO
-    
-    pos = request.REQUEST.get('pos')
-    
-    if pos is not None:
-        pos = pos.split(",")
-        x1=long(pos[0])
-        y1=long(pos[1])
-        width=long(pos[2])
-        height=long(pos[3])
-        region = None
-        try:
-            box = (x1,y1,x1+width,y1+height)
-            im = Image.open(StringIO(jpeg_data))
-            region = im.crop(box)
-        except IOError:
-            logger.error(traceback.format_exc())
-            raise IOError("Cannot crop image")
-        else:
-            imdata=StringIO()
-            region.save(imdata, format=im.format)
-            jpeg_data = imdata.getvalue()
-            
+        
     rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
     return rsp
 
@@ -1034,7 +1011,9 @@ def imageMarshal (image, key=None):
     ds = image.getDataset()
     try:
         rv = {
-            'tiles': False, #BIG IMAGE -> True
+            'tiles': True, #BIG IMAGE -> True
+            'tile_size': {'width': 200,
+                          'height': 100},
             'id': image.id,
             'size': {'width': image.getWidth(),
                      'height': image.getHeight(),

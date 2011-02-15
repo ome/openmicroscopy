@@ -182,12 +182,6 @@ jQuery._WeblitzViewport = function (container, server, options) {
     hideLoading();
     _this.viewportimg.show();
     
-    //tiles
-    if(_this.loadedImg.tiles) {
-        _this.viewportimg.hide();
-        _this.viewportimg.get(0).initial_tiles();
-    }
-    
     _this.zslider.get(0).pos = -1;
     if (_this.loadedImg.rdefs.projection.toLowerCase().substring(3,0) == 'int') {
 	_this.zslider.get(0).setSliderRange(1, 1, _this.getPos().z+1, false);
@@ -248,19 +242,28 @@ jQuery._WeblitzViewport = function (container, server, options) {
   var _load = function (callback) {
     if (_this.loadedImg._loaded) {
       var href;
-      if (_this.loadedImg.rdefs.projection.toLowerCase() != 'split') {
+      if (_this.loadedImg.tiles) {
+        href = server + '/render_image_region/' + _this.getRelUrl();
+      } else if (_this.loadedImg.rdefs.projection.toLowerCase() != 'split') {
         href = server + '/render_image/' + _this.getRelUrl();
       } else {
         href = server + '/render_split_channel/' + _this.getRelUrl();
       }
+      
       var rcb = function () {
         after_img_load_cb(callback);
         _this.viewportimg.unbind('load', rcb);
         _this.self.trigger('imageChange', [_this]);
       };
+      
       showLoading();
-      _this.viewportimg.load(rcb);
-      _this.viewportimg.attr('src', href);
+      if (_this.loadedImg.tiles) {
+          rcb()
+          _this.viewportimg.get(0).setUpTiles(_this.loadedImg.tile_size.width, _this.loadedImg.tile_size.height, href);
+      } else {
+          _this.viewportimg.load(rcb);
+          _this.viewportimg.attr('src', href);
+      }      
     }
   }
 
