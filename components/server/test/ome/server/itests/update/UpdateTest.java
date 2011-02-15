@@ -13,10 +13,12 @@ import java.util.List;
 import java.util.Set;
 
 import ome.api.ITypes;
+import ome.api.Search;
 import ome.model.acquisition.Instrument;
 import ome.model.acquisition.Objective;
 import ome.model.acquisition.ObjectiveSettings;
 import ome.model.annotations.CommentAnnotation;
+import ome.model.annotations.LongAnnotation;
 import ome.model.annotations.TagAnnotation;
 import ome.model.containers.Dataset;
 import ome.model.containers.Project;
@@ -40,7 +42,6 @@ import ome.model.roi.Rect;
 import ome.model.roi.Roi;
 import ome.model.roi.Shape;
 import ome.parameters.Parameters;
-import ome.services.sessions.stats.SessionStats;
 import ome.system.EventContext;
 import ome.testing.ObjectFactory;
 
@@ -607,4 +608,38 @@ public class UpdateTest extends AbstractUpdateTest {
                 && test.child().sizeOfProjectLinks() == 0);
     }
 
+    /**
+     * iobject->details->events->sessions->events grows with each new
+     * write action. These should be stripped periodically from return
+     * values.
+     */
+    @Test(groups = "ticket:3131")
+    public void testEventsInSessionsAreCleared() throws Exception {
+        LongAnnotation la = new LongAnnotation();
+        la.setNs("ticket:3131-A");
+        la = iUpdate.saveAndReturnObject(la);
+        la.setNs("ticket:3131-B");
+        la = iUpdate.saveAndReturnObject(la);
+        la.setNs("ticket:3131-C");
+        la = iUpdate.saveAndReturnObject(la);
+
+        assertEquals(-1,
+                la.getDetails().getUpdateEvent().getSession().sizeOfEvents());
+
+        indexObject(la);
+
+        Search search = factory.createSearchService();
+        search.onlyType(LongAnnotation.class);
+        search.byFullText("3131");
+        la = (LongAnnotation) search.next();
+
+        // In this case, the session is not even loaded.
+        assertFalse(la.getDetails().getUpdateEvent().getSession().isLoaded());
+
+        /*
+        assertEquals(-1,
+                la.getDetails().getUpdateEvent().getSession().sizeOfEvents());
+        */
+
+    }
 }

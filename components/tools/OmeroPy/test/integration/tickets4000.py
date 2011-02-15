@@ -181,5 +181,16 @@ class TestTickets4000(lib.ITest):
         
         testLogin(omeName, "ccc")
 
+    def test3131(self):
+        _ = omero.rtypes.rstring
+        la = omero.model.LongAnnotationI()
+        la.ns = _(self.uuid())
+        la = self.update.saveAndReturnObject(la)
+        la.ns = _(self.uuid())
+        la = self.update.saveAndReturnObject(la)
+        la.ns = _(self.uuid())
+        la = self.update.saveAndReturnObject(la)
+        self.assertEquals(-1, la.details.updateEvent.session.sizeOfEvents())
+
 if __name__ == '__main__':
     unittest.main()

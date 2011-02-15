@@ -40,6 +40,7 @@ import ome.security.basic.PrincipalHolder;
 import ome.services.fulltext.FullTextThread;
 import ome.services.sessions.SessionManager;
 import ome.services.util.Executor;
+import ome.system.EventContext;
 import ome.system.OmeroContext;
 import ome.system.Principal;
 import ome.system.Roles;
@@ -50,7 +51,6 @@ import ome.testing.OMEData;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.aop.interceptor.JamonPerformanceMonitorInterceptor;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.ldap.core.LdapTemplate;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.util.ResourceUtils;
@@ -253,12 +253,24 @@ public class AbstractManagedContextTest extends TestCase {
         login(omeName, groupName, "Test");
     }
 
+    protected Principal login(EventContext ec) {
+        return login(ec.getCurrentUserName(), ec.getCurrentGroupName(),
+                ec.getCurrentEventType());
+    }
+
     protected Principal login(String userName, String groupName,
             String eventType) {
         Principal p = new Principal(userName, groupName, eventType);
         Session s = sessionManager.createWithAgent(p, "AbstractManagedContext");
         loginAop.p = new Principal(s.getUuid(), groupName, eventType);
         return loginAop.p;
+    }
+
+    protected void indexObject(IObject obj) {
+        EventContext ec = iAdmin.getEventContext();
+        loginRootKeepGroup();
+        iUpdate.indexObject(obj);
+        login(ec);
     }
 
     protected String uuid() {
