@@ -21,6 +21,7 @@ import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
@@ -74,7 +75,7 @@ public interface SqlAction {
 
     /**
      * Similar to {@link #fileRepo(long)}, but only returns values for files
-     * which are also scripts.
+     * which are also scripts. Null may be returned
      *
      * @param fileId
      * @return
@@ -308,9 +309,13 @@ public interface SqlAction {
         }
 
         public String scriptRepo(long fileId) {
-            return _jdbc().queryForObject(
+            try {
+                return _jdbc().queryForObject(
                     _lookup("file_repo_of_script"), String.class, //$NON-NLS-1$
                     fileId);
+            } catch (EmptyResultDataAccessException erdae) {
+                return null;
+            }
         }
 
         //

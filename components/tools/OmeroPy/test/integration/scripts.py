@@ -225,7 +225,7 @@ client.closeSession()
         self.assertEquals(editedScript, editedText)
         
 
-    def XtestScriptValidation(self):
+    def testScriptValidation(self):
         scriptService = self.root.sf.getScriptService()
         uuid = self.root.sf.getAdminService().getEventContext().sessionUuid
 
