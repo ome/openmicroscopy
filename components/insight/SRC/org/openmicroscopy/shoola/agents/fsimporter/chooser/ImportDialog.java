@@ -710,26 +710,18 @@ public class ImportDialog
 			Iterator i = l.iterator();
 			String text = null;
 			Object c;
-			String name = "";
-			int index = 0;
-			int n = l.size()-1;
 			while (i.hasNext()) {
 				c = i.next();
 				if (c instanceof DatasetData) {
 					if (text == null)
 						text = MESSAGE+" into Dataset: ";
-					name += ((DatasetData) c).getName();
 				} else if (c instanceof ScreenData) {
 					if (text == null)
 						text = MESSAGE+" into Screen: ";
-					name += ((ScreenData) c).getName();
 				} else if (c instanceof ProjectData) {
 					if (text == null)
 						text = MESSAGE+" into Project: ";
-					name += ((ProjectData) c).getName();
 				}
-				if (index < n) name += ", ";
-				index++;
 			}
 		} else if (container instanceof DatasetData) {
 			return MESSAGE+" into Dataset: "+
@@ -753,9 +745,8 @@ public class ImportDialog
 	{
 		JPanel p = new JPanel();
 		p.setLayout(new FlowLayout(FlowLayout.LEFT));
-		JLabel l = new JLabel();
 		p.add(numberOfFolders);
-		l = new JLabel();
+		JLabel l = new JLabel();
 		l.setText("Directories before File");
 		p.add(l);
 		return p;

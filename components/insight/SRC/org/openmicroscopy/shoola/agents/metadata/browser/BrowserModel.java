@@ -52,9 +52,6 @@ import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 class BrowserModel
 {
 
-	/** Position of the last pop-up trigger within the browser. */
-    private Point           			popupPoint;
-    
 	/** The selected node. */
 	private List<TreeBrowserDisplay>	selectedNodes;
 	

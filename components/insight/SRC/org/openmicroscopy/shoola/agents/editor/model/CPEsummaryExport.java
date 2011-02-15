@@ -157,24 +157,23 @@ public class CPEsummaryExport {
 			if (units != null) 		name = name + " (" + units + ")";
 		}
 		CPEexport.addChildContent(parameter, PreviewPanel.NAME, name);
-		// Add value
-		String value = "";
 		String v;
 		Object o;
 		int valueCount = param.getValueCount();
-		for (int i=0; i<valueCount; i++) {
-			if (i > 0) value = value + ", ";
-			
+		StringBuffer buffer = new StringBuffer();
+		for (int i = 0; i < valueCount; i++) {
+			if (i > 0) buffer.append(", ");
 			o = param.getValueAt(i);
 			if (o == null) continue;
 			v = o.toString();
 			if (param instanceof DateTimeParam) {
 				v = DateTimeParam.formatDate(v);
 			}
-			value = value + v;
+			buffer.append(v);
 		}
 		
-		CPEexport.addChildContent(parameter, PreviewPanel.VALUE, value);
+		CPEexport.addChildContent(parameter, PreviewPanel.VALUE, 
+				buffer.toString());
 		
 		return parameter;
 	}

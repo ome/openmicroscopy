@@ -828,7 +828,6 @@ class AnnotationDataUI
 		layoutAttachments(v);
 		
 		//Viewed by
-		Object refObject = model.getRefObject();
 		if (!model.isMultiSelection()) {
 			l = model.getTags();
 			if (l != null) count += l.size();
@@ -1257,7 +1256,6 @@ class AnnotationDataUI
 		Iterator j;
 		List<Long> ids;
 		Collection original;
-		List<Long> added = new ArrayList<Long>();
 		long id;
 		if (tagFlag) {
 			original = model.getTags();

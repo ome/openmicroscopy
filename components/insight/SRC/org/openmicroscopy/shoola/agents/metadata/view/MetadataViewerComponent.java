@@ -136,7 +136,6 @@ class MetadataViewerComponent
 	private void createMovie(MovieExportParam parameters)
 	{
 		if (parameters == null) return;
-		if (parameters == null) return;
 		Object refObject = model.getRefObject();
 		ImageData img = null;
 		if (refObject instanceof ImageData)
@@ -602,7 +601,6 @@ class MetadataViewerComponent
 	{
 		Object o = data;
 		if (data instanceof Map) {
-			o = model.getRefObject();
 			Map l = (Map) data;
 			if (l.size() > 0) {
 				UserNotifier un = 
@@ -919,7 +917,6 @@ class MetadataViewerComponent
 					"analyzing the data.");
 		} else {
 			if (folder == null) folder = UIUtilities.getDefaultFolder();
-			if (data == null) return;
 			OriginalFile f = (OriginalFile) data.getContent();
 			IconManager icons = IconManager.getInstance();
 			

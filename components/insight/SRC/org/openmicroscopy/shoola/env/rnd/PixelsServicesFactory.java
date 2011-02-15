@@ -209,7 +209,7 @@ public class PixelsServicesFactory
 	{
 		if (c == null)
 			throw new NullPointerException();  //An agent called this method?
-		if (singleton == null)  {
+		if (PixelsServicesFactory.singleton == null)  {
 			registry = c.getRegistry();
 			singleton = new PixelsServicesFactory();
 			//Retrieve the maximum heap size.

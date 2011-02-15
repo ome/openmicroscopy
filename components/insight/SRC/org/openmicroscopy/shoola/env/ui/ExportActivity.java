@@ -108,10 +108,11 @@ public class ExportActivity
 	public ExportActivity(UserNotifier viewer, Registry registry,
 			ExportActivityParam parameters)
 	{
-		super(viewer, registry, CREATION_AS_OME_TIFF, parameters.getIcon());
+		super(viewer, registry);
 		if (parameters == null)
 			throw new IllegalArgumentException("Parameters not valid.");
 		this.parameters = parameters;
+		initialize(CREATION_AS_OME_TIFF, parameters.getIcon());
 		messageLabel.setText(getFileName());
 		switch (parameters.getIndex()) {
 			case ExportActivityParam.EXPORT_AS_OME_TIFF:

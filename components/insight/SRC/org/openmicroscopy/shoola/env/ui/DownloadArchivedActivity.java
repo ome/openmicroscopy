@@ -73,8 +73,11 @@ public class DownloadArchivedActivity
 	DownloadArchivedActivity(UserNotifier viewer, Registry registry,
 			DownloadArchivedActivityParam parameters) 
 	{
-		super(viewer, registry, "Downloaded Archived Image", 
-				parameters.getIcon());
+		super(viewer, registry);
+		if (parameters == null)
+			throw new IllegalArgumentException("No parameters");
+		this.parameters = parameters;
+		initialize("Downloaded Archived Image", parameters.getIcon());
 		messageLabel.setText("in "+parameters.getLocation());
 		this.parameters = parameters;
 	}

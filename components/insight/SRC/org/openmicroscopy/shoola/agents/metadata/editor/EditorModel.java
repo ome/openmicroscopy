@@ -169,10 +169,7 @@ class EditorModel
     
     /** Collection of loaders. */
     private List<EditorLoader>		loaders;
-    
-    /** The retrieved thumbnails. */
-    private Map<Long, BufferedImage> thumbnails;
-    
+
     /** Collection of existing tags if any. */
     private Collection				existingTags;
     
@@ -583,8 +580,6 @@ class EditorModel
 	{ 
 		StructuredDataResults data = parent.getStructuredData();
 		if (data == null) return refObject;
-		Object o = data.getRelatedObject();
-		//if (o != null && o instanceof FolderData) return o;
 		return refObject; 
 	}
 	
@@ -702,7 +697,6 @@ class EditorModel
 		if (data == null) return list;
 		Map m = data.getLinks();
 		if (m == null) return list;
-		long id = MetadataViewerAgent.getUserDetails().getId();
 		Entry entry;
 		Iterator i = m.entrySet().iterator();
 		DataObject o;
@@ -1018,7 +1012,6 @@ class EditorModel
 		int index = 0; //this should be modified.
 		Iterator<Long> j = orderedIds.iterator();
 		Long id;
-		DataObject object = (DataObject) getRefObject();
 		List<AnalysisResultsItem> 
 		results = new ArrayList<AnalysisResultsItem>();
 		item = null;
@@ -1341,8 +1334,6 @@ class EditorModel
 		boolean b = isSameObject(refObject);
 		this.refObject = refObject; 
 		parentRefObject = null;
-		if (thumbnails != null) thumbnails.clear();
-		thumbnails = null;
 		if (existingTags != null) existingTags.clear();
 		existingTags = null;
 		if (textualAnnotationsByUsers != null) 
@@ -1420,79 +1411,6 @@ class EditorModel
 		if (ref instanceof DataObject)
 			return getOwner((DataObject) ref);
 		return null;
-	}
-	
-	/**
-	 * Returns <code>true</code> if the thumbnails are loaded, 
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	boolean isThumbnailsLoaded() { return thumbnails != null; }
-
-	/**
-	 * Sets the retrieved thumbnails.
-	 * 
-	 * @param thumbnails The value to set.
-	 */
-	void setThumbnails(Map<Long, BufferedImage> thumbnails)
-	{
-		/*
-		this.thumbnails = thumbnails;
-		Iterator i = loaders.iterator();
-		EditorLoader loader = null;
-		while (i.hasNext()) {
-			loader = (EditorLoader) i.next();
-			if (loader instanceof ThumbnailLoader)
-				break;
-		}
-		if (loader != null) loaders.remove(loader);
-		*/
-	}
-	
-	/** 
-	 * Returns the thumbnails.
-	 * 
-	 * @return See above.
-	 */
-	Map<Long, BufferedImage> getThumbnails() { return thumbnails; }
-	
-	/** Fires an asynchronous retrieval of thumbnails. */
-	void loadThumbnails()
-	{
-		/*
-		Set<Long> ids = new HashSet<Long>();
-		Collection l = getViewedBy();
-		if (l == null) return;
-		Iterator i = l.iterator();
-		ViewedByDef def = null;
-		while (i.hasNext()) {
-			def = (ViewedByDef) i.next();
-			ids.add(def.getExperimenter().getId());
-		}
-		ThumbnailLoader loader = new ThumbnailLoader(component, 
-								(ImageData) getRefObject(), ids);
-		loader.load();
-		loaders.add(loader);
-		*/
-	}
-
-	/** Cancels any ongoing thumbnails retrieval. */
-	void cancelThumbnailsLoading()
-	{
-		/*
-		Iterator i = loaders.iterator();
-		EditorLoader loader;
-		List<EditorLoader> toKeep = new ArrayList<EditorLoader>();
-		while (i.hasNext()) {
-			loader = (EditorLoader) i.next();
-			if (loader instanceof ThumbnailLoader) {
-				loader.cancel();
-			} else toKeep.add(loader);
-		}
-		loaders.clear();
-		loaders.addAll(toKeep);
-		*/
 	}
 
 	/** Fires an asynchronous retrieval of existing tags. */
@@ -1773,7 +1691,6 @@ class EditorModel
 	 */
 	void download(File folder)
 	{
-		Object ref = getRefObject();
 		if (refObject instanceof ImageData) {
 			downloadImages(folder);
 		} else if (refObject instanceof FileAnnotationData) {
@@ -2508,7 +2425,6 @@ class EditorModel
 		}
 		//sort the scripts.
 		Map<Long, ScriptObject> map = new LinkedHashMap<Long, ScriptObject>();
-		if (scripts == null) return;
 		List l = sorter.sort(scripts);
 		Iterator i = l.iterator();
 		ScriptObject s;

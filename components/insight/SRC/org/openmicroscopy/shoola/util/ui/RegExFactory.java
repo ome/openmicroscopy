@@ -55,13 +55,13 @@ public class RegExFactory
 	
 	static {
 		SUPPORTED_SPECIAL_CHAR = new ArrayList<Character>();
-		SUPPORTED_SPECIAL_CHAR.add(new Character('-'));
-		SUPPORTED_SPECIAL_CHAR.add(new Character('['));
-		SUPPORTED_SPECIAL_CHAR.add(new Character(']'));
-		SUPPORTED_SPECIAL_CHAR.add(new Character('?'));
-		SUPPORTED_SPECIAL_CHAR.add(new Character('+'));
-		SUPPORTED_SPECIAL_CHAR.add(new Character('*'));
-		SUPPORTED_SPECIAL_CHAR.add(new Character('.'));
+		SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('-'));
+		SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('['));
+		SUPPORTED_SPECIAL_CHAR.add(Character.valueOf(']'));
+		SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('?'));
+		SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('+'));
+		SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('*'));
+		SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('.'));
 	}
 	
     /**
@@ -125,6 +125,7 @@ public class RegExFactory
     	int n;
     	char[] arr;
     	String v;
+    	StringBuffer buffer;
     	while (i.hasNext()) {
 			value = i.next();
 			if (value == null) value = "";
@@ -132,12 +133,13 @@ public class RegExFactory
 			arr = new char[n];
 			v = "";
 			value.getChars(0, n, arr, 0);  
+			buffer = new StringBuffer();
 			for (int k = 0; k < arr.length; k++) {
 				if (SUPPORTED_SPECIAL_CHAR.contains(arr[k])) 
-					v += "\\"+arr[k];
-				else v += arr[k];
+					buffer.append("\\"+arr[k]);
+				else buffer.append(arr[k]);
 			}
-			formattedTerms[j] = v;
+			formattedTerms[j] = buffer.toString();
 			j++;
 		}
     	return formattedTerms;
@@ -153,11 +155,11 @@ public class RegExFactory
     {
     	if (terms == null) return "";
     	String[] formattedTerms = formatSearchText(terms);
-    	String text = "";
+    	StringBuffer text = new StringBuffer();
     	for (int i = 0; i < formattedTerms.length; i++) 
-			text += formattedTerms[i];
+			text.append(formattedTerms[i]);
 		
-    	return text;
+    	return text.toString();
     }
     
 }

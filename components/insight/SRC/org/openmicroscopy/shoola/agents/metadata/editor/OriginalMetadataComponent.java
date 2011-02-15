@@ -252,6 +252,7 @@ class OriginalMetadataComponent
 					s = values[values.length-1];
 					numbers = s.split(" ");
 					if (numbers != null) {
+						StringBuffer buffer = new StringBuffer();
 						count = 0;
 						for (int j = 0; j < numbers.length; j++) {
 							try {
@@ -264,20 +265,20 @@ class OriginalMetadataComponent
 							//It is a number.
 							s = "";
 							for (int j = 0; j < values.length-1; j++) {
-								s += values[j];
-								if (j < values.length-2) s += "=";
+								buffer.append(values[j]);
+								if (j < values.length-2) buffer.append("=");
 							}
 							
-							data[index][0] = s;
+							data[index][0] = buffer.toString();
 							data[index][1] = values[values.length-1];
 						} else {
 							data[index][0] = values[0];
 							s = "";
 							for (int j = 1; j < values.length; j++) {
-								s += values[j];
-								if (j < values.length-1) s += "=";
+								buffer.append(values[j]);
+								if (j < values.length-1) buffer.append("=");
 							}
-							data[index][1] = s;
+							data[index][1] = buffer.toString();
 						}
 					} else data[index][0] = line;
 			}

@@ -95,7 +95,8 @@ public class DataServicesFactory
 	{
 		if (c == null)
 			throw new NullPointerException();  //An agent called this method?
-		if (singleton == null)	singleton = new DataServicesFactory(c);
+		if (singleton == null)	
+			singleton = new DataServicesFactory(c);
 		return singleton;
 	}
 	

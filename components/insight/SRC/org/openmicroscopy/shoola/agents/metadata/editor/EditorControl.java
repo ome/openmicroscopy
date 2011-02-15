@@ -589,6 +589,7 @@ class EditorControl
 						break;
 					case ScriptMenuItem.MOVIE_EXPORT_SCRIPT:
 						view.makeMovie(-1, null);
+						break;
 					case ScriptMenuItem.FLIM_SCRIPT:
 						openFLIM();
 				}

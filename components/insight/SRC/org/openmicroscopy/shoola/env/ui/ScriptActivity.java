@@ -102,16 +102,17 @@ public class ScriptActivity
 	public ScriptActivity(UserNotifier viewer, Registry registry,
 			ScriptObject script, int index)
 	{
-		super(viewer, registry, 
-				DESCRIPTION_RUN_CREATION+script.getDisplayedName(), 
+		super(viewer, registry);
+		if (script == null)
+			throw new IllegalArgumentException("Parameters not valid.");
+		initialize(DESCRIPTION_RUN_CREATION+script.getDisplayedName(), 
 				script.getIcon());
 		switch (index) {
 			case UPLOAD:
 				type.setText(DESCRIPTION_UPLOAD_CREATION+script.getName());
 				break;
 		}
-		if (script == null)
-			throw new IllegalArgumentException("Parameters not valid.");
+		
 		this.script = script;
 		this.index = index;
 		Icon icon = script.getIcon();

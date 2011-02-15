@@ -334,7 +334,6 @@ class ImporterUIElement
     	c.gridx = 0;
     	List<Object> containers = object.getRefNodes();
 		String text = "Imported in Dataset: ";
-		String name = "";
 		int n;
 		String nameProject = "";
 		if (containers != null && containers.size() > 0) {
@@ -347,21 +346,16 @@ class ImporterUIElement
 				node = (TreeImageDisplay) i.next();
 				h = node.getUserObject();
 				if (h instanceof DatasetData) {
-					containerComponents.put(createNameLabel(h), node);
-					//if (index == 0) text += "Dataset: ";
-					name += ((DatasetData) h).getName();
+					containerComponents.put(createNameLabel(h), node);;
 				} else if (h instanceof ScreenData) {
 					containerComponents.put(createNameLabel(h), node);
 					if (index == 0) text = "Imported in Screen: ";
-					name += ((ScreenData) h).getName();
 				} else if (h instanceof ProjectData) {
 					//if (index == 0) text += "Project: ";
 					//name += ((ProjectData) h).getName();
 					topContainerComponents.put(createNameLabel(h), node);
-					nameProject += ((ProjectData) h).getName();
+					nameProject = ((ProjectData) h).getName();
 				}
-				if (index < n) name += ", ";
-				index++;
 			}
 		} 
 		//Project List
@@ -434,16 +428,16 @@ class ImporterUIElement
 		if (tags != null && tags.size() > 0) {
 			label = UIUtilities.setTextFont("Images Tagged with: ", Font.BOLD);
 			value = UIUtilities.createComponent(null);
-			text = "";
+			StringBuffer buffer = new StringBuffer();
 			Iterator<TagAnnotationData> i = tags.iterator();
 			int index = 0;
 			n = tags.size()-1;
 			while (i.hasNext()) {
-				text += (i.next()).getTagValue();
-				if (index < n) text +=", ";
+				buffer.append((i.next()).getTagValue());
+				if (index < n) buffer.append(", ");
 				index++;
 			}
-			value.setText(text);
+			value.setText(buffer.toString());
 			header.add(label, c);
 	    	c.gridx = c.gridx+2;
 	    	header.add(value, c);

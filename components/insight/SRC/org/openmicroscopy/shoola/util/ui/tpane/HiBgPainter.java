@@ -77,13 +77,13 @@ public class HiBgPainter
     protected void doPaint(Graphics2D g2D, int width, int height)
     {
         //Top half.
-        Paint p = new GradientPaint(0, height/2, Color.WHITE, 0, 0,
+        Paint p = new GradientPaint(0, ((float) height)/2, Color.WHITE, 0, 0,
                 					highlightColor);
         g2D.setPaint(p);
         g2D.fillRect(0, 0, width, height/2);
         
         //Bottom half.
-        p = new GradientPaint(0, height/2, Color.WHITE, 0, height,
+        p = new GradientPaint(0, ((float) height)/2, Color.WHITE, 0, height,
                 				highlightColor);
         g2D.setPaint(p);
         g2D.fillRect(0, height/2, width, height/2);

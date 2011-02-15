@@ -426,8 +426,8 @@ class InputServerStrategy
 		MeasureLineFigure fig = new MeasureLineFigure(data.isReadOnly(), 
 				data.isClientObject());
 		fig.removeAllNodes();
-		fig.addNode(new Node(new Double(x1), new Double(y1)));
-		fig.addNode(new Node(new Double(x2), new Double(y2)));
+		fig.addNode(new Node(x1, y1));
+		fig.addNode(new Node(x2, y2));
 		
 		addShapeSettings(fig, data.getShapeSettings());
 		fig.setText(data.getText());

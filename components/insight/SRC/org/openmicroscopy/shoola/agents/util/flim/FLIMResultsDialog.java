@@ -410,10 +410,8 @@ public class FLIMResultsDialog
 		if (body == null) return new JPanel();
 		if (data == null) return body;
 		JPanel p = new JPanel();
-		Dimension d = slider.getPreferredSize();
 		Dimension dd = canvas.getPreferredSize();
 		int h = dd.height;
-		//slider.setPreferredSize(new Dimension(dd.width, d.height));
 		double[][] size = {{TableLayout.PREFERRED, TableLayout.PREFERRED}, 
 				{h, 200, 200}};
 		p.setLayout(new TableLayout(size));

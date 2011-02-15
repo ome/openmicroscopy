@@ -273,25 +273,23 @@ public class CPEexport {
 		}
 		IXMLElement params = new XMLElement(elementName);
 		
-		String stepDescription = "";
-		
 		IFieldContent content;
 		IXMLElement parameter;
 		String paramID;
-		for (int i=0; i<contentCount; i++) {
+		StringBuffer buffer = new StringBuffer();
+		for (int i = 0; i < contentCount; i++) {
 			content = field.getContentAt(i);
 			if (content instanceof IParam) {
 				parameter = createParamElement((IParam)content);
 				params.addChild(parameter);
 				paramID = parameter.getFirstChildNamed(CPEimport.ID)
 																.getContent();
-				stepDescription = stepDescription + CPEimport.ID_START 
-					+ paramID + CPEimport.ID_END;
+				buffer.append(CPEimport.ID_START+paramID +CPEimport.ID_END);
 			} else {
-				stepDescription = stepDescription + content.toString();
+				buffer.append(content.toString());
 			}
 		}
-		addChildContent(step, CPEimport.DESCRIPTION, stepDescription);
+		addChildContent(step, CPEimport.DESCRIPTION, buffer.toString());
 		
 		// if any parameters, add parameters element to step. 
 		if (params.getChildrenCount() > 0) {

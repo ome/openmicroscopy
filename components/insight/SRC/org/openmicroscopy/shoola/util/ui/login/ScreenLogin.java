@@ -707,8 +707,8 @@ public class ScreenLogin
 		background.setBounds(0, 0, width, height);
 		p.setBounds(0, 0, width, height);
 
-		layers.add(background, new Integer(0));
-		layers.add(p, new Integer(1));
+		layers.add(background, Integer.valueOf(0));
+		layers.add(p, Integer.valueOf(1));
 		getContentPane().add(layers); 
 	}
 
@@ -1183,18 +1183,19 @@ public class ScreenLogin
 		int n = groups.size()-1;
 		int index = 0;
 		String list = "";
-		String value;
 		Long id;
+		StringBuffer buffer = new StringBuffer();
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			id = (Long) entry.getKey();
-			list += ""+id;
-			list += ServerEditor.SERVER_PORT_SEPARATOR;
+			buffer.append(""+id);
+			buffer.append(ServerEditor.SERVER_PORT_SEPARATOR);
 			if (entry.getValue() != null)
-				list += (String) entry.getValue();
-			if (index != n)  list += ServerEditor.SERVER_NAME_SEPARATOR;
+				buffer.append((String) entry.getValue());
+			if (index != n) buffer.append(ServerEditor.SERVER_NAME_SEPARATOR);
 			index++;
 		}
+		list = buffer.toString();
 		if (list.length() != 0) {
 			prefs.put(OMERO_USER_GROUP, "");
 			prefs.put(OMERO_USER_GROUP, list);

@@ -292,7 +292,6 @@ class UserProfile
     	oldPassword.setBackground(UIUtilities.BACKGROUND_COLOR);
     	items = new HashMap<String, JTextField>();
     	ExperimenterData user = (ExperimenterData) model.getRefObject();
-    	List userGroups = user.getGroups();
     	GroupData defaultGroup = user.getDefaultGroup();
 
     	permissionsPane = new PermissionsPane(defaultGroup.getPermissions(), 
@@ -527,7 +526,6 @@ class UserProfile
 		//Add log in name but cannot edit.
 		c.gridx = 0;
 		c.gridy = 0;
-		c.gridwidth = 3;
 		c.gridwidth = GridBagConstraints.REMAINDER;     //end row
 		c.fill = GridBagConstraints.HORIZONTAL;
 		content.add(userPicture, c);

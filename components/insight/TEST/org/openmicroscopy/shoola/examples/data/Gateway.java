@@ -282,7 +282,7 @@ public class Gateway
 	        executor.scheduleWithFixedDelay(kca, 60, 60, TimeUnit.SECONDS);
 			
 		} catch (Exception e) {
-			new Exception("Cannot log in");
+			throw new Exception("Cannot log in");
 		}
 		return connected;
 	}
@@ -333,7 +333,7 @@ public class Gateway
 				images.add(new ImageData(i.next()));
 			}
 		} catch (Exception e) {
-			new Exception("Cannot retrieve the images", e);
+			throw new Exception("Cannot retrieve the images", e);
 		}
 		return images;
 	}
@@ -369,10 +369,8 @@ public class Gateway
 			}
 			return datasets;
 		} catch (Exception e) {
-			new Exception("Cannot retrieve the datasets", e);
+			throw new Exception("Cannot retrieve the datasets", e);
 		}
-		
-		return datasets;
 	}
 	
 	/**
@@ -399,9 +397,8 @@ public class Gateway
 			service.load();
 			return service;
 		} catch (Throwable t) {
-			new Exception("Cannot load rendering engine", t);
+			throw new Exception("Cannot load rendering engine", t);
 		}
-		return null;
 	}
 	
 	/**
@@ -470,10 +467,9 @@ public class Gateway
 			 service.setPixelsId(pixelsID, false);
 			 return service.getPlane(z, c, t);
 		 } catch (Throwable e) {
-			 new Exception("Cannot retrieve the plane " +
+			 throw new Exception("Cannot retrieve the plane " +
 					 "(z="+z+", t="+t+", c="+c+") for pixelsID:  "+pixelsID, e);
 		 }
-		 return null;
 	}
 	 
 }

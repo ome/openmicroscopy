@@ -64,7 +64,6 @@ import org.openmicroscopy.shoola.agents.editor.model.IAttributes;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.CustomButton;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.ImagePreview;
 import org.openmicroscopy.shoola.agents.editor.uiComponents.PopupMenuButton;
-import org.openmicroscopy.shoola.util.ui.BrowserLauncher;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 
@@ -84,6 +83,7 @@ public class DataRefEditor
 	implements PropertyChangeListener,
 	ActionListener
 {
+	
 	/**
 	 * A bound property, to indicate that this data-reference should be deleted
 	 */
@@ -128,7 +128,7 @@ public class DataRefEditor
 	private	JPanel 				imagePreview;
 	
 	/**
-	 * Initialises the UI components
+	 * Initializes the UI components
 	 */
 	private void initialise() 
 	{
@@ -174,7 +174,7 @@ public class DataRefEditor
 	}
 	
 	/**
-	 * Simple method for formatting UTC millisecs (as a string) into 
+	 * Simple method for formatting UTC milliseconds (as a string) into 
 	 * a date. 
 	 * 
 	 * @param utcMillis
@@ -398,6 +398,7 @@ public class DataRefEditor
 			firePropertyChange(DATA_REF_DELETED, false, true);
 		} else if (GO_TO_LINK.equals(cmd)) {
 			
+			/*
 			if (ref != null) {
 				try {
 					URL validUrl = new URL(ref);
@@ -413,6 +414,7 @@ public class DataRefEditor
 				ref = ref.replace(" ", "%20");
 				new BrowserLauncher().openURL(ref);
 			}
+			*/
 		}
 	}
 	

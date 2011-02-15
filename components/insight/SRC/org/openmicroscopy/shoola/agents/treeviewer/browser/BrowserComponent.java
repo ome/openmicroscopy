@@ -1672,10 +1672,6 @@ class BrowserComponent
 		view.setGroups(nodes, expanded);
 		model.setState(READY);
 		countItems(null);
-		TreeImageDisplay d = model.getLastSelectedDisplay();
-		if (d instanceof TreeImageNode) d = d.getParentDisplay();
-		//model.getParentModel().setLeaves((TreeImageSet) d, groups);
-
         model.getParentModel().setStatus(false, "", true);
         fireStateChange();
 	}

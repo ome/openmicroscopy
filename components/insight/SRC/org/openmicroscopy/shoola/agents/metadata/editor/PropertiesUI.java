@@ -1093,16 +1093,16 @@ class PropertiesUI
 	void setChannelData(Map channels)
 	{
 		if (channels == null) return;
-		String s = "";
 		int n = channels.size()-1;
 		Iterator k = channels.keySet().iterator();
 		int j = 0;
+		StringBuffer buffer = new StringBuffer();
 		while (k.hasNext()) {
-			s += ((ChannelData) k.next()).getChannelLabeling();
-			if (j != n) s +=", ";
+			buffer.append(((ChannelData) k.next()).getChannelLabeling());
+			if (j != n) buffer.append(", ");
 			j++;
 		}
-		channelsArea.setText(s);
+		channelsArea.setText(buffer.toString());
 		channelsArea.revalidate();
 		channelsArea.repaint();
 	}
@@ -1297,19 +1297,6 @@ class PropertiesUI
 			}
 			//namePane.select(0, 0);
 			//namePane.setCaretPosition(0);
-		} else if (src == descriptionPane) {
-			String text = descriptionPane.getText();
-			if (text != null) {
-				/*
-				if (DEFAULT_DESCRIPTION_TEXT.equals(text.trim())) {
-					descriptionPane.selectAll();
-				} else {
-					int n = text.length()-1;
-					if (n >= 0) descriptionPane.setCaretPosition(n);
-				}
-				*/
-				//descriptionPane.selectAll();
-			}
 		}
 	}
 	

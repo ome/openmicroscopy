@@ -122,7 +122,6 @@ public class ROIAssistantCellRenderer
 		label.setHorizontalAlignment(SwingConstants.CENTER);
 		label.setOpaque(true);
 		label.setBackground(Color.white);
-		IconManager icons = IconManager.getInstance(); 
 		if (value instanceof String)
 		{
 			if (value.equals(FigureUtil.ELLIPSE_TYPE))

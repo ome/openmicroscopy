@@ -129,15 +129,15 @@ public class AdminCreator
         				TreeViewerAgent.getRegistry().getUserNotifier();
         			Iterator i = l.iterator();
         			ExperimenterData exp;
-        			String s = "";
+        			StringBuffer s = new StringBuffer();
         			while (i.hasNext()) {
         				exp = (ExperimenterData) i.next();
-						s += exp.getUserName()+"\n";
+						s.append(exp.getUserName()+"\n");
 					}
         			StringBuffer buffer = new StringBuffer();
         			buffer.append("The password could not be reset for ");
         			buffer.append("the following experimenters:\n");
-        			buffer.append(s);
+        			buffer.append(s.toString());
         			un.notifyInfo("Reset password", buffer.toString());
         		}
         		break;
@@ -148,15 +148,16 @@ public class AdminCreator
         				TreeViewerAgent.getRegistry().getUserNotifier();
         			Iterator i = l.iterator();
         			ExperimenterData exp;
-        			String s = "";
+        			StringBuffer s = new StringBuffer();
         			while (i.hasNext()) {
         				exp = (ExperimenterData) i.next();
-						s += exp.getUserName()+"\n";
+						s.append(exp.getUserName());
+						s.append("\n");
 					}
         			StringBuffer buffer = new StringBuffer();
         			buffer.append("Not possible to reset the status of ");
         			buffer.append("the following experimenters:\n");
-        			buffer.append(s);
+        			buffer.append(s.toString());
         			un.notifyInfo("Activate", buffer.toString());
         		} 
         		viewer.refreshTree(); 

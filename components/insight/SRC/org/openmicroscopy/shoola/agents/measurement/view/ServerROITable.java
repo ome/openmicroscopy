@@ -255,7 +255,6 @@ class ServerROITable
 	 */
 	private void handleVisibility(int row, boolean value)
 	{
-		DefaultTableModel dtm = (DefaultTableModel) table.getModel();
 		Iterator i = rowIDs.entrySet().iterator();
 		Entry entry;
 		long id = -1;

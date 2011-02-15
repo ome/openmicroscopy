@@ -67,31 +67,47 @@ public class FileDownload
 	{
 		
 		File outputFile = new File(newFileName);
-		
+		FileWriter fw = null;
+		Reader reader = null;
+		InputStream in = null;
+		BufferedReader bufferedReader = null;
 		try {
 			URL url = new URL (fileUrl);
-			InputStream in = url.openStream();
+			in = url.openStream();
 			
-			FileWriter fw = new FileWriter(outputFile);
-			
-			Reader reader = new InputStreamReader(in);
-			BufferedReader bufferedReader = new BufferedReader(reader);
+			fw = new FileWriter(outputFile);
+			reader = new InputStreamReader(in);
+			bufferedReader = new BufferedReader(reader);
 			String strLine = "";
 			
 			strLine = bufferedReader.readLine();
-			while(strLine != null) {
+			while (strLine != null) {
 				fw.write(strLine);
 			    strLine = bufferedReader.readLine();
 			}
-			fw.close();
-			
 		} catch (MalformedURLException e) {
+			if (fw != null) fw.close();
+			if (in != null) in.close();
+			if (reader != null) reader.close();
+			if (bufferedReader != null) bufferedReader.close();
 			throw e;
 		} catch (IOException e) {
+			if (fw != null) fw.close();
+			if (in != null) in.close();
+			if (reader != null) reader.close();
+			if (bufferedReader != null) bufferedReader.close();
 			throw e;
 		}catch (IllegalArgumentException e) {
+			if (fw != null) fw.close();
+			if (in != null) in.close();
+			if (reader != null) reader.close();
+			if (bufferedReader != null) bufferedReader.close();
 			throw e;
 		}
+		if (fw != null) fw.close();
+		if (in != null) in.close();
+		if (reader != null) reader.close();
+		if (bufferedReader != null) bufferedReader.close();
 		return outputFile;
 	}
 	

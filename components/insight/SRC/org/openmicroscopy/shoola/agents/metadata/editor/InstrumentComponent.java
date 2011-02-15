@@ -386,7 +386,6 @@ class InstrumentComponent
 	{
 		String name = evt.getPropertyName();
 		if (JLabelButton.SELECTED_PROPERTY.equals(name)) {
-			int id = ((Long) evt.getNewValue()).intValue();
 			displayUnsetMicroscopeFields();
 		}
 	}

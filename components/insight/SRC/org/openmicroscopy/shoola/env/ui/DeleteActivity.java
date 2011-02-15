@@ -106,10 +106,11 @@ public class DeleteActivity
 	public DeleteActivity(UserNotifier viewer, Registry registry,
 			DeleteActivityParam parameters)
 	{
-		super(viewer, registry, DESCRIPTION_START, parameters.getIcon());
+		super(viewer, registry);
 		if (parameters == null)
 			throw new IllegalArgumentException("Parameters not valid.");
 		this.parameters = parameters;
+		initialize(DESCRIPTION_START, parameters.getIcon());
 		messageLabel.setText(createMessage());
 	}
 	

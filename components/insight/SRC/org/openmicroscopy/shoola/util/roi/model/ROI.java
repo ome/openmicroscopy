@@ -209,7 +209,6 @@ public class ROI
 	 */
 	public String getShapeTypes()
 	{
-		String shapes = "";
 		HashMap<String,Integer> shapeTypes = new HashMap<String, Integer>();
 		Iterator<ROIShape> shapeIterator = roiShapes.values().iterator();
 		ROIShape shape;
@@ -229,19 +228,18 @@ public class ROI
 		
 		Iterator<String> typeIterator = shapeTypes.keySet().iterator();
 		boolean first = true;
-		
+		StringBuffer buffer = new StringBuffer();
 		while (typeIterator.hasNext())
 		{
 			type = typeIterator.next();
 			if (!first)
 			{
-				shapes = shapes + ",";
+				buffer.append(",");
 				first = false;
 			}
-			shapes = shapes+type;
+			buffer.append(type);
 		}
-		shapes = shapes + "";
-		return shapes;
+		return buffer.toString();
 	}
 
 	/**

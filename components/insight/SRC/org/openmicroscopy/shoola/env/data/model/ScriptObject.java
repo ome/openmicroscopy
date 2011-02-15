@@ -123,12 +123,6 @@ public class ScriptObject
 	/** The version of the script. */
 	private String version;
 
-	/** The parameters of the script. */
-	private Map<String, Class> parameterTypes;
-	
-	/** The values to pass to the script. */
-	private Map<String, Object> parameterValues;
-	
 	/** The input parameters. */
 	private Map<String, ParamData> inputs;
 	

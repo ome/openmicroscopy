@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.util.roi.model.util;
 
 
 //Java imports
+import java.io.Serializable;
 import java.util.Comparator;
 
 //Third-party libraries
@@ -31,7 +32,7 @@ import java.util.Comparator;
 //Application-internal dependencies
 
 /** 
- * 
+ * Compares <code>Long</code>.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * 	<a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -43,17 +44,22 @@ import java.util.Comparator;
  * </small>
  * @since OME3.0
  */
-public class LongComparator implements Comparator
+public class LongComparator 
+	implements Comparator, Serializable
 {
 
-	/* (non-Javadoc)
-	 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+	/** 
+	 * Compares the passed objects.
+	 * @see Comparator#compare(Object, Object)
 	 */
-	public int compare(Object o1, Object o2) {
-		Long a = (Long)o1;
-		Long b = (Long)o2;
-		if(a<b) return -1;
-		else if(a>b) return 1;
+	public int compare(Object o1, Object o2)
+	{
+		if (!(o1 instanceof Long || o2 instanceof Long))
+			return 0;
+		Long a = (Long) o1;
+		Long b = (Long) o2;
+		if (a < b) return -1;
+		else if (a > b) return 1;
 		return 0;
 	}
 	

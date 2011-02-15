@@ -73,9 +73,12 @@ public class OpenObjectActivity
 	public OpenObjectActivity(UserNotifier viewer, Registry registry,
 			OpenActivityParam parameters)
 	{
-		super(viewer, registry, DESCRIPTION_STARTING+parameters.getLabel(),
-				parameters.getIcon());
+		super(viewer, registry);
+		if (parameters == null)
+			throw new IllegalArgumentException("No parameters");
 		this.parameters = parameters;
+		initialize(DESCRIPTION_STARTING+parameters.getLabel(),
+				parameters.getIcon());
 	}
 	
 	/**

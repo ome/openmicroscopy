@@ -23,6 +23,8 @@
 
 package org.openmicroscopy.shoola.util.math.geom2D;
 
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 
 //Java imports
 
@@ -110,9 +112,8 @@ public class Segment
         } else if (direction.x1 != 0 && direction.x2 !=0) {
             k1 = (p.x1-origin.x1)/direction.x1;
             k2 = (p.x2-origin.x2)/direction.x2;
-            if (k1 == k2) {
-                if (k1 < 0 || k1 > 1) result = false;
-                else result = true;
+            if (Math.abs(k1-k2) < UIUtilities.EPSILON) {
+                return (!(k1 < 0 || k1 > 1));
             }
         }
         return result;
@@ -125,12 +126,9 @@ public class Segment
      */
     public boolean equals(Object o)
     {
-        boolean isEqual = false;
-        if (o != null && o instanceof Line) {
-            Line other = (Line) o;
-            isEqual = (origin == other.origin && direction == other.direction);
-        }
-        return isEqual;
+        if (o == null || !(o instanceof Line)) return false;
+        Line other = (Line) o;
+        return (origin == other.origin && direction == other.direction);
     }
     
     /**

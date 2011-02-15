@@ -34,6 +34,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Map.Entry;
 
 //Third-party libraries
 
@@ -126,7 +127,7 @@ class OmeroDataServiceImpl
 		Iterator i = children.iterator();
 		List<Long> ids = new ArrayList<Long>(children.size());
 		while (i.hasNext()) {  
-			ids.add(new Long(((DataObject) i.next()).getId())); 
+			ids.add(Long.valueOf(((DataObject) i.next()).getId())); 
 		}
 		List links = gateway.findLinks(mParent, ids);
 		if (links != null) 
@@ -198,7 +199,6 @@ class OmeroDataServiceImpl
 				(ExperimenterData) context.lookup(
 						LookupNames.CURRENT_USER_DETAILS);
 			if (userID < 0) userID = exp.getId();
-			if (groupID < 0) groupID = exp.getDefaultGroup().getId();
 			param.exp(omero.rtypes.rlong(userID));
 		}
 		if (withLeaves) param.leaves();
@@ -434,20 +434,23 @@ class OmeroDataServiceImpl
 		if (toCut == null) toCut = new HashMap();
 		Iterator i;
 		Object parent;
-		i = toCut.keySet().iterator();
+		i = toCut.entrySet().iterator();
+		Entry entry;
 		while (i.hasNext()) {
-			parent = i.next();
+			entry = (Entry) i.next();
+			parent = entry.getKey();
 			if (parent instanceof DataObject) //b/c of orphaned container
-				cut((DataObject) parent, (Set) toCut.get(parent));
+				cut((DataObject) parent, (Set) entry.getValue());
 		}
 
 		i = toPaste.keySet().iterator();
 
 		while (i.hasNext()) {
-			parent = i.next();
+			entry = (Entry) i.next();
+			parent = entry.getKey();
 			if (parent instanceof DataObject)
 				addExistingObjects((DataObject) parent, 
-						(Set) toPaste.get(parent));
+						(Set) entry.getValue());
 		}
 	}
 
@@ -577,7 +580,6 @@ class OmeroDataServiceImpl
 		Map<Integer, Object> results = new HashMap<Integer, Object>();
 		
 		if (!context.hasTextToSearch()) {
-			List<ExperimenterData> l = context.getOwners();
 			results.put(SearchDataContext.TIME, gateway.searchByTime(context));
 			return results;
 		}
@@ -585,7 +587,7 @@ class OmeroDataServiceImpl
 		//Should returns a search context for the moment.
 		//collection of images only.
 		Map m = (Map) result;
-		Iterator i = m.keySet().iterator();
+		
 		Integer key;
 		List value;
 		Iterator k;
@@ -601,10 +603,12 @@ class OmeroDataServiceImpl
 		
 		Set<DataObject> nodes;
 		Object v;
-		
+		Iterator i = m.entrySet().iterator();
+		Entry entry;
 		while (i.hasNext()) {
-			key = (Integer) i.next();
-			v =  m.get(key);
+			entry = (Entry) i.next();
+			key = (Integer) entry.getKey();
+			v =  entry.getValue();
 			if (v instanceof Integer) {
 				results.put(key, v);
 			} else {

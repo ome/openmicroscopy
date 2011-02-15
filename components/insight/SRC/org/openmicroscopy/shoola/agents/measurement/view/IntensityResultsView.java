@@ -372,7 +372,6 @@ class IntensityResultsView
 			rowData.add(channelStdDev.get(channel));
 			rows.add(rowData);
 		}
-		int n = resultsModel.getRowCount();
 		for (Vector data : rows) {
 			resultsModel.addRow(data);
 		}

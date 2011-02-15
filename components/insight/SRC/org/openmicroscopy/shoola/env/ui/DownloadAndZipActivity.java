@@ -80,8 +80,11 @@ public class DownloadAndZipActivity
 	public DownloadAndZipActivity(UserNotifier viewer, Registry registry,
     		DownloadAndZipParam parameters)
 	{
-		super(viewer, registry, "Download", parameters.getIcon());
+		super(viewer, registry);
+		if (parameters == null)
+			throw new IllegalArgumentException("No parameters");
 		this.parameters = parameters;
+		initialize("Download", parameters.getIcon());
 		File folder = parameters.getFolder();
 		if (!folder.exists()) {
 			folder.mkdir();
@@ -89,8 +92,8 @@ public class DownloadAndZipActivity
 		} else if (folder.isFile()) {
 			File parent = folder.getParentFile();
 			File f = new File(parent, folder.getName()+"_zip");
-			f.mkdir();
-			zipFolder = f;
+			if (f.mkdir())
+				zipFolder = f;
 		}
 	}
 	

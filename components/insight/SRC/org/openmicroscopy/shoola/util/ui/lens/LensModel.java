@@ -341,7 +341,6 @@ class LensModel
 																		null);
 			return scaleBufferedImage(img, zoomFactor, zoomFactor);
 		} catch (Exception e) {
-			Runtime.getRuntime().gc();
 		}
 		return null;
 	}

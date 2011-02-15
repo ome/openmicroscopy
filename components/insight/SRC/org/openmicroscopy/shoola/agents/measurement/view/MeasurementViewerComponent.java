@@ -325,10 +325,7 @@ class MeasurementViewerComponent
 		//if (model.getState() != LOADING_ROI || input == null) return;
 		if (model.getState() != LOADING_ROI) return;
 		if (input == null) {
-			try {
-				model.setROI(input);
-			} catch (Exception e) {}
-			
+			model.setState(MeasurementViewer.READY);
 			view.rebuildManagerTable();
 			view.updateDrawingArea();
 			view.setReadyStatus();

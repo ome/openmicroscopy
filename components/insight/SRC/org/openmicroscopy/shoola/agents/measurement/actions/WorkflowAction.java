@@ -27,8 +27,7 @@ package org.openmicroscopy.shoola.agents.measurement.actions;
 //Java imports
 import java.awt.event.ActionEvent;
 import javax.swing.JComboBox;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -53,6 +52,9 @@ public class WorkflowAction
 
 	/** Create a new workflow string. */
 	private String CREATEWORKFLOW = "Create Workflow";
+	
+	/** Create a new workflow string. */
+	private String COMBOBOX_CHANGED = "comboBoxChanged";
 	
 	/** If <code>true</code> create a new workflow when activated. */
 	private boolean createWorkflow;
@@ -80,11 +82,11 @@ public class WorkflowAction
      */
 	public void actionPerformed(ActionEvent e) 
 	{
-		if (e.getActionCommand()==CREATEWORKFLOW)
+		if (CREATEWORKFLOW.equals(e.getActionCommand()))
 			model.createWorkflow();
 		else
 		{
-			if(e.getActionCommand() == "comboBoxChanged")
+			if (COMBOBOX_CHANGED.equals(e.getActionCommand()))
 			{
 				JComboBox comboBox = (JComboBox)e.getSource();
 				model.setWorkflow((String) comboBox.getSelectedItem());

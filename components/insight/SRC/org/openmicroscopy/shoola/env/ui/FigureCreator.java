@@ -64,9 +64,6 @@ public class FigureCreator
     /** The type of object to handle. */
     private Class					type;
     
-    /** The result. */
-    private FileAnnotationData		data;
-    
     /** The call-back returned by the server. */
     private ProcessCallback 		callBack;
    

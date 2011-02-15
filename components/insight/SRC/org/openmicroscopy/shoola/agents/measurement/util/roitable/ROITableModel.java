@@ -113,7 +113,7 @@ public class ROITableModel
 		{
 			ROINode node = (ROINode) nodeObject;
 			if (column == ANNOTATION_COLUMN+1) {
-				if (value == null) value = new String("");
+				if (value == null) value = "";
 				else if (value.equals("")) value = " ";
 			}
 				

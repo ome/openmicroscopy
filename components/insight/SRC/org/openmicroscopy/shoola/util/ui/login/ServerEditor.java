@@ -710,18 +710,19 @@ public class ServerEditor
 		int index = 0;
 		String list = "";
 		String value;
+		StringBuffer buffer = new StringBuffer();
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
-			value = (String) entry.getKey();
-			list += value;
-			list += SERVER_PORT_SEPARATOR;
+			buffer.append((String) entry.getKey());
+			buffer.append(SERVER_PORT_SEPARATOR);
 			if (entry.getValue() != null)
-				list += (String) entry.getValue();
-			else list += defaultPort;
+				buffer.append((String) entry.getValue());
+			else buffer.append(defaultPort);
 			
-			if (index != n)  list += SERVER_NAME_SEPARATOR;
+			if (index != n) buffer.append(SERVER_NAME_SEPARATOR);
 			index++;
 		}
+		list = buffer.toString();
 		if (list.length() != 0) prefs.put(OMERO_SERVER, list);
 	}
 

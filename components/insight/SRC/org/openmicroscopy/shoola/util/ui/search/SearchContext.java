@@ -390,6 +390,7 @@ public class SearchContext
 			case CREATION_TIME:
 			case UPDATED_TIME:
 				timeType = index;
+				break;
 			default:
 				timeType = -1;
 		}
@@ -412,6 +413,7 @@ public class SearchContext
 			case XML:
 			case TEXT:
 				attachmentType = type;
+				break;
 			default:
 				attachmentType = ALL_FORMATS;
 		}

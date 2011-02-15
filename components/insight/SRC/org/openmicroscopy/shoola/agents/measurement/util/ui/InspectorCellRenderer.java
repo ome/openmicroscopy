@@ -82,9 +82,11 @@ public class InspectorCellRenderer
 	public Component getTableCellRendererComponent(JTable table, Object value,
 			boolean isSelected, boolean hasFocus, int row, int column)
 	{
+		if (!(table instanceof FigureTable))
+			return new JLabel();
 		FigureTable figureTable = (FigureTable) table;
-		Component thisComponent = new JLabel();
 		AttributeField field = figureTable.getFieldAt(row);
+		Component thisComponent = new JLabel();
 		if (column == 0)
 		{
 			JLabel label = new JLabel();

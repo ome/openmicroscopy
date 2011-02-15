@@ -450,9 +450,7 @@ class ToolBar
      */
 	int getUICompressionLevel()
 	{ 
-		int index = compressionBox.getSelectedIndex();
-		if (!view.isBigImage()) return index;
-		return index++;
+		return compressionBox.getSelectedIndex();
 	}
 	
 }

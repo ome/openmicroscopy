@@ -23,6 +23,8 @@
 
 package org.openmicroscopy.shoola.util.math.geom2D;
 
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 
 //Java imports
 
@@ -134,7 +136,7 @@ public class Line
         if (direction.x2 == 0) return (p.x2 == origin.x2);
         double k1 = (p.x1-origin.x1)/direction.x1,
                 k2 = (p.x2-origin.x2)/direction.x2;
-        return (k1 == k2);
+        return Math.abs(k1-k2) < UIUtilities.EPSILON;
     }
     
     /**

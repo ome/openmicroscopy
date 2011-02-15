@@ -333,7 +333,7 @@ class OmeroImageServiceImpl
 	{
 		RenderingControl proxy = 
 			PixelsServicesFactory.getRenderingControl(context, 
-					new Long(pixelsID), true);
+					Long.valueOf(pixelsID), true);
 		if (proxy == null) {
 			UserCredentials uc = 
 				(UserCredentials) context.lookup(LookupNames.USER_CREDENTIALS);
@@ -379,8 +379,8 @@ class OmeroImageServiceImpl
 	{
 		try {
 			if (!largeImage)
-				return PixelsServicesFactory.render(context, new Long(pixelsID), 
-						pDef, asTexture);
+				return PixelsServicesFactory.render(context, 
+						Long.valueOf(pixelsID), pDef, asTexture);
 			List<Long> ids = new ArrayList<Long>();
 			ids.add(pixelsID);
 			int w = pDef.x;
@@ -542,7 +542,7 @@ class OmeroImageServiceImpl
 	{
 		RenderingControl proxy = 
 			PixelsServicesFactory.getRenderingControl(context, 
-					new Long(pixelsID), false);
+					Long.valueOf(pixelsID), false);
 		if (proxy == null) return null;
 		try {
 			RenderingEnginePrx re = gateway.createRenderingEngine(pixelsID);
@@ -563,7 +563,7 @@ class OmeroImageServiceImpl
 	{
 		RenderingControl proxy = 
 			PixelsServicesFactory.getRenderingControl(context, 
-					new Long(pixelsID), false);
+					Long.valueOf(pixelsID), false);
 		if (proxy == null) return null;
 		try {
 			RenderingEnginePrx re = gateway.createRenderingEngine(pixelsID);
@@ -1052,7 +1052,7 @@ class OmeroImageServiceImpl
 						}
 						try {
 							if (links.size() > 0) 
-								links = gateway.saveAndReturnObject(links, m);
+								gateway.saveAndReturnObject(links, m);
 						} catch (Exception e) {
 						}
 					}

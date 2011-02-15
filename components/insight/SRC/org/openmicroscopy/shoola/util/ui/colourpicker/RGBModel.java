@@ -26,6 +26,8 @@ package org.openmicroscopy.shoola.util.ui.colourpicker;
 //Java imports
 import java.awt.Color;
 
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
 //Third-party libraries
 
 //Application-internal dependencies
@@ -325,9 +327,12 @@ class RGBModel
 		
 		h = 0;
 		
-		if (red == max) h = (green-blue)/delta;		
-		else if (green == max) h = 2.0f + (blue-red)/delta;	
-		else if (blue == max) h = 4.0f+(red-green)/delta;
+		if (Math.abs(red-max) < UIUtilities.EPSILON) 
+			h = (green-blue)/delta;		
+		else if (Math.abs(green-max) < UIUtilities.EPSILON)
+			h = 2.0f + (blue-red)/delta;	
+		else if (Math.abs(blue-max) < UIUtilities.EPSILON)
+			h = 4.0f+(red-green)/delta;
 		
 		h = h * 60.0f;			
 		if (h < 0) h += 360.0f;	

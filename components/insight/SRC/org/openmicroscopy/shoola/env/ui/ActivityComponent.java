@@ -485,13 +485,22 @@ public abstract class ActivityComponent
      * @param text		The text of the activity.
      * @param icon		The icon to display then done.
      */
-	ActivityComponent(UserNotifier viewer, Registry registry, String 
-			text, Icon icon)
+	ActivityComponent(UserNotifier viewer, Registry registry)
 	{
 		if (viewer == null) throw new NullPointerException("No viewer.");
     	if (registry == null) throw new NullPointerException("No registry.");
     	this.viewer = viewer;
     	this.registry = registry;
+	}
+	
+	/**
+	 * Initializes the components.
+	 * 
+	 * @param text		The text of the activity.
+     * @param icon		The icon to display then done.
+	 */
+	void initialize(String text, Icon icon)
+	{
 		initComponents(text, icon);
 		buildGUI();
 	}

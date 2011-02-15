@@ -132,8 +132,11 @@ class OmeroMetadataServiceImpl
 			throw new IllegalArgumentException("No annotation to remove.");
 		if (object == null)
 			throw new IllegalArgumentException("No object to handle.");
-		IObject ho = gateway.findIObject(annotation.asIObject());
 		ExperimenterData exp = getUserDetails();
+		if (exp == null) return null;
+		IObject ho = gateway.findIObject(annotation.asIObject());
+		if (ho == null)
+			throw new IllegalArgumentException("No object to handle.");
 		IObject link = gateway.findAnnotationLink(object.getClass(), 
 				       object.getId(), ho.getId().getValue(), exp.getId());
 		if (ho != null && link != null) {
@@ -1217,7 +1220,6 @@ class OmeroMetadataServiceImpl
 		Map map = gateway.loadAnnotations(nodeType, nodeIds, types, ids, 
 				new Parameters());
 		if (map == null || map.size() == 0) return results;
-		ExperimenterData exp = getUserDetails();
 		long id;
 		Collection l;
 		AnnotationData data;
@@ -1473,11 +1475,12 @@ class OmeroMetadataServiceImpl
 						annotationsIds.add((Long) i.next());
 				}
 
-				i = map.keySet().iterator();
+				i = map.entrySet().iterator();
 				
 				while (i.hasNext()) {
-					id = (Long) i.next();
-					l = (Collection) map.get(id);
+					entry = (Entry) i.next();
+					id = (Long) entry.getKey();
+					l = (Collection) entry.getValue();
 					j = l.iterator();
 					while (j.hasNext()) {
 						data = (AnnotationData) j.next();
@@ -1568,7 +1571,6 @@ class OmeroMetadataServiceImpl
 		
 		if (r.size() == 0) return filteredNodes;
 		
-		i = r.keySet().iterator();
 		int index = 0;
 		type = null;
 		/*
@@ -1582,11 +1584,13 @@ class OmeroMetadataServiceImpl
 		}
 		r.remove(type);
 		*/
-		i = r.keySet().iterator();
+		i = r.entrySet().iterator();
 		while (i.hasNext()) {
-			type = (Class) i.next();
-			if (filteredNodes.size() == 0) filteredNodes.addAll(r.get(type));
-			else filteredNodes = ListUtils.intersection(filteredNodes, r.get(type));
+			entry = (Entry) i.next();
+			if (filteredNodes.size() == 0) 
+				filteredNodes.addAll((List) entry.getValue());
+			else filteredNodes = ListUtils.intersection(filteredNodes, 
+					(List) entry.getValue());
 		}
 		return filteredNodes;
 	}

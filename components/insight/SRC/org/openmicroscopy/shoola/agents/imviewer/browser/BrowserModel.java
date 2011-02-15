@@ -1147,7 +1147,7 @@ class BrowserModel
     	Iterator<ChannelData> i = l.iterator();
     	int index;
     	GridImage image;
-    	boolean[] rgb;
+    	//boolean[] rgb;
     	ChannelData data;
     	String label;
     	boolean b = isRenderedImageRGB();
@@ -1156,7 +1156,7 @@ class BrowserModel
     		data = i.next();
 			index = data.getIndex();
 			label = data.getChannelLabeling();
-			rgb = new boolean[3];
+			//rgb = new boolean[3];
 			if (parent.isChannelActive(index)) {
 				/*
 				if (b) {

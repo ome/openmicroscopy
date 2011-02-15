@@ -74,10 +74,11 @@ public class MovieActivity
 	public MovieActivity(UserNotifier viewer,  Registry registry,
 			MovieActivityParam	parameters)
 	{
-		super(viewer, registry, DESCRIPTION_CREATION, parameters.getIcon());
+		super(viewer, registry);
 		if (parameters == null)
 			throw new IllegalArgumentException("Parameters not valid.");
 		this.parameters = parameters;
+		initialize(DESCRIPTION_CREATION, parameters.getIcon());
 		String name = parameters.getImage().getName();
 		messageLabel.setText(UIUtilities.getPartialName(name));
 		messageLabel.setToolTipText(name);

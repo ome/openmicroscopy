@@ -247,7 +247,7 @@ class RenderingControlProxy
         	if (cacheID >= 0) {
         		int index = pd.z+getPixelsDimensionsZ()*pd.t;
         		context.getCacheService().addElement(cacheID, 
-        				new Integer(index), object);
+        				Integer.valueOf(index), object);
         	}
         }
     }
@@ -462,37 +462,6 @@ class RenderingControlProxy
 			handleException(e, ERROR+"color for: "+w+".");
 		}
     }
-
-    /**
-	 * Renders the compressed image.
-	 * 
-	 * @param pDef A plane orthogonal to one of the <i>X</i>, <i>Y</i>,
-     *            or <i>Z</i> axes.
-	 * @return See above.
-	 * @throws RenderingServiceException 	If an error occurred while setting 
-     * 										the value.
-     * @throws DSOutOfServiceException  	If the connection is broken.
-	 */
-	private int[] renderPlaneCompressed(PlaneDef pDef)
-		throws RenderingServiceException, DSOutOfServiceException
-	{
-		//Need to adjust the cache.
-		Object array = getFromCache(pDef);
-		try {
-			byte[] values = servant.renderCompressed(pDef);
-			values = WriterImage.bytesToBytes(values);
-			/*
-			byte[] values = servant.renderCompressed(pDef);
-			imageSize = values.length;
-			//initializeCache(pDef);
-			//cache(pDef, values);
-			return WriterImage.bytesToDataBuffer(values);
-			*/
-		} catch (Throwable e) {
-			handleException(e, ERROR+"cannot render the compressed image.");
-		} 
-		return null;
-	}
 
 	/**
 	 * Renders the compressed image.

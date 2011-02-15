@@ -74,15 +74,15 @@ public class JPEGFilter
 		extensions[0] = JPEG;
 		extensions[1] = JPG;
 		extensions[2] = JPE;
-		
-		String s = "JPEG (";
+		StringBuffer s = new StringBuffer();
+		s.append("JPEG (");
 		for (int i = 0; i < extensions.length; i++) {
-			s += "*."+extensions[i];
+			s.append("*."+extensions[i]);
 			if (i < extensions.length-1)
-				s += ", ";
+				s.append(", ");
 		}
-		s += ")";
-		description = s;
+		s.append(")");
+		description = s.toString();
 	}
 	
 	/**

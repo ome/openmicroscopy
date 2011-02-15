@@ -142,39 +142,7 @@ public class FilesLoader
             }
         };
     }
-    
-    /**
-     * Creates a {@link BatchCall} to download files previously loaded.
-     * 
-	 * @param files	The files to download.
-     * @return The {@link BatchCall}.
-     */
-    private BatchCall makeBatchCall(final Map<FileAnnotationData, File> files)
-    {
-        return new BatchCall("Downloading files.") {
-            public void doCall() throws Exception
-            {
-                OmeroMetadataService service = context.getMetadataService();
-                Map<FileAnnotationData, File> m = 
-                	new HashMap<FileAnnotationData, File>();
-                Entry entry;
-                FileAnnotationData fa;
-                File f ;
-                OriginalFile of;
-                Iterator i = files.entrySet().iterator();
-                while (i.hasNext()) {
-                	entry = (Entry) i.next();
-					fa = (FileAnnotationData) entry.getKey();
-					f = (File) entry.getValue();
-					of = ((FileAnnotation) fa.asAnnotation()).getFile();
-					service.downloadFile(f, of.getId().getValue(), 
-							of.getSize().getValue());
-				}
-                result = files;
-            }
-        };
-    }
-    
+
     /** 
      * Loads the specified file.
      * 

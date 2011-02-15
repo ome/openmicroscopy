@@ -185,8 +185,6 @@ class EditorComponent
 	{
 		view.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
 		view.layoutUI();
-		if (model.hasBeenViewedBy() && !model.isThumbnailsLoaded())
-			model.loadThumbnails();
 	}
 
 	/** 

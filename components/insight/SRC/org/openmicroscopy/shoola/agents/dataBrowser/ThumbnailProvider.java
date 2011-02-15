@@ -188,8 +188,7 @@ public class ThumbnailProvider
         computeDims();
         valid = true;
     }
-    
-    
+
     /**
      * Implemented as specified by the {@link Thumbnail} I/F.
      * @see Thumbnail#setImageNode(ImageNode)

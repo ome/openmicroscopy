@@ -439,8 +439,8 @@ public class TinyPane
      */
     public void setTitleBarType(int type)
     {
-        Integer oldValue = new Integer(model.getTitleBarType()),
-                newValue = new Integer(type);
+        Integer oldValue = Integer.valueOf(model.getTitleBarType()),
+                newValue = Integer.valueOf(type);
         if (model.setTitleBarType(type)) 
             firePropertyChange(TITLEBAR_TYPE_PROPERTY, oldValue, newValue);
     }

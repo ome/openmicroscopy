@@ -103,6 +103,9 @@ import org.openmicroscopy.shoola.util.ui.border.TitledLineBorder;
 public class UIUtilities
 {
 
+	/** The value used to compare double and float. */
+	public final static double EPSILON = 0.00001;
+	
 	/** The number of lines displayed for error. */
 	public static final int MAX_LINES_EXCEPTION = 20;
 	
@@ -966,12 +969,12 @@ public class UIUtilities
      */
     public static void unifiedButtonLookAndFeel(AbstractButton b)
     {
+    	if (b == null) return;
         //b.setMargin(new Insets(0, 2, 0, 3));
         //b.setBorderPainted(false);
         //b.setFocusPainted(false);
     	b.setOpaque(false);
-    	if (b != null)
-    		b.setBorder(new EmptyBorder(2, 2, 2, 2));
+    	b.setBorder(new EmptyBorder(2, 2, 2, 2));
     }
 
     /**
@@ -1740,6 +1743,7 @@ public class UIUtilities
     {
     	String name = originalName;
     	String[] l = UIUtilities.splitString(originalName);
+    	StringBuffer buffer;
     	if (l != null) {
     		 int n = l.length;
              if (n >= 1) name = l[n-1]; 
@@ -1749,10 +1753,12 @@ public class UIUtilities
         		if (l.length >= 1) {
         			name = "";
         			int n = l.length-1;
+        			buffer = new StringBuffer();
             		for (int i = 0; i < n; i++) {
-        				name += l[i];
-        				if (i < (n-1)) name += ".";
+            			buffer.append(l[i]);
+        				if (i < (n-1)) buffer.append(".");
         			}
+            		name = buffer.toString();
         		}
         	}
     		if (name.length() == 0) name = originalName;
@@ -1764,10 +1770,12 @@ public class UIUtilities
     		if (l.length >= 1) {
     			name = "";
     			int n = l.length-1;
+    			buffer = new StringBuffer();
         		for (int i = 0; i < n; i++) {
-    				name += l[i];
-    				if (i < (n-1)) name += ".";
+        			buffer.append(l[i]);
+    				if (i < (n-1)) buffer.append(".");
     			}
+        		name = buffer.toString();
     		}
     	}
     	if (name.length() == 0) name = originalName;
@@ -1935,13 +1943,13 @@ public class UIUtilities
 	*/
 	public static String listToCSV(List<String> list)
 	{
-		String str = "";
+		StringBuffer buffer = new StringBuffer();
 		for (int i = 0 ; i < list.size() ; i++) {
-			str = str + list.get(i);
+			buffer.append(list.get(i));
 			if (i < list.size()-1)
-				str = str + ",";
+				buffer.append(",");
 		}
-		return str;
+		return buffer.toString();
 	}
 	
 	/**

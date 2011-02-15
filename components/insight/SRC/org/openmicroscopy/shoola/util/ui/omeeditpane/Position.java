@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.util.ui.omeeditpane;
 
 
 //Java imports
+import java.io.Serializable;
 import java.util.Comparator;
 
 //Third-party libraries
@@ -46,7 +47,7 @@ import java.util.Comparator;
  * @since OME3.0
  */
 public class Position
-	implements Comparable<Position>, Comparator
+	implements Comparable<Position>, Comparator, Cloneable, Serializable
 {	
 	
 	/** The start position of the text object. */
@@ -181,7 +182,7 @@ public class Position
 	 * Clones the object.
 	 * @see java.lang.Object#clone()
 	 */
-	public Position clone() { return new Position(this.start, this.end); }
+	protected Position clone() { return new Position(this.start, this.end); }
 
 	/**
 	 * Returns the string of the position.

@@ -71,26 +71,29 @@ public class WriterText
         if (table == null)
             throw new Exception("Table cannot be null.");
         BufferedWriter output = new BufferedWriter(new FileWriter(f));
-        String s = "", tail = "";
+        String tail = "";
         int col = table.getColumnCount();
+        StringBuffer buffer = new StringBuffer();
         for (int k = 0; k < col; k++) {
             if (k < col-1) tail = ",";
-            s += table.getColumnName(k)+tail;
+            buffer.append(table.getColumnName(k));
+            buffer.append(tail);
             tail = "";
         }
-        output.write(s);
+        output.write(buffer.toString());
         output.newLine();
-        s = "";
+       
         int i, j;
         for (i = 0; i < table.getRowCount(); i++) {
-            for (j = 0; j < col; j++) {
-                if (j < col-1) tail = ",";
-                s += table.getValueAt(i, j)+tail;
-                tail = "";
-            }
-            output.write(s);
+        	buffer = new StringBuffer();
+        	for (j = 0; j < col; j++) {
+        		if (j < col-1) tail = ",";
+        		buffer.append(table.getValueAt(i, j));
+        		buffer.append(tail);
+        		tail = "";
+        	}
+            output.write(buffer.toString());
             output.newLine();
-            s = "";
         } 
         output.close();
     }

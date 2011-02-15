@@ -64,9 +64,6 @@ public class Analyser
     /** The type of object to handle. */
     private Class					type;
     
-    /** The result. */
-    private FileAnnotationData		data;
-    
     /** The type of analysis to perform. */
     private int						index;
     

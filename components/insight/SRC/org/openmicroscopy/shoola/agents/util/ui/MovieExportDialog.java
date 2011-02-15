@@ -365,7 +365,6 @@ public class MovieExportDialog
         i = i+1;
         JLabel l = new JLabel();
         JPanel p = new JPanel();
-        p = new JPanel();
         p.setLayout(new BoxLayout(p, BoxLayout.X_AXIS));
         p.add(UIUtilities.setTextFont("If interval not selected, " +
         		"select the time-point", Font.ITALIC, 

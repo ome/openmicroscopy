@@ -180,13 +180,15 @@ public class FileChooser
     	}
     	if (Pattern.compile(".").matcher(name).find()) {
     		l = name.split("\\.");
+    		
     		if (l.length >= 1) {
-    			name = "";
+    			StringBuffer buffer = new StringBuffer();
     			int n = l.length-1;
         		for (int i = 0; i < n; i++) {
-    				name += l[i];
-    				if (i < (n-1)) name += ".";
+    				buffer.append(l[i]);
+    				if (i < (n-1)) buffer.append(".");
     			}
+        		name = buffer.toString();
     		}
     	}
         return name;

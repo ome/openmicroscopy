@@ -680,17 +680,19 @@ class IntensityView
 		sizeX = (int) (maxX-minX)+1;
 		sizeY = (int) ((maxY-minY)+1);
 		Double[][] data = new Double[sizeX][sizeY];
-		pixelIterator = pixels.keySet().iterator();
+		Iterator i = pixels.entrySet().iterator();
 		int x, y;
 		Double value;
-		while (pixelIterator.hasNext())
+		Entry entry;
+		while (i.hasNext())
 		{
-			point = pixelIterator.next();
+			entry = (Entry) i.next();
+			point = (Point) entry.getKey();
 			x = (int) (point.getX()-minX);
 			y = (int) (point.getY()-minY);
 			if (x >= sizeX || y >= sizeY) continue;
 			
-			if (pixels.containsKey(point)) value = pixels.get(point);
+			if (pixels.containsKey(point)) value = (Double) entry.getValue();
 			else value = new Double(0);
 			data[x][y] = value;
 		}

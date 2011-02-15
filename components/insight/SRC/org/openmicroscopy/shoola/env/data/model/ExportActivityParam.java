@@ -62,10 +62,7 @@ public class ExportActivityParam
     
     /** The icon associated to the parameters. */
     private Icon		icon;
-      
-    /** The name to give to the exported image. */
-    private String		name;
-    
+
 	/**
 	 * Creates a new instance.
 	 * 

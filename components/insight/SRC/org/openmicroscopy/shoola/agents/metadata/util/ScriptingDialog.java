@@ -319,8 +319,6 @@ public class ScriptingDialog
 		String parent;
 		Map<String, List<ScriptComponent>> childrenMap = 
 			new HashMap<String, List<ScriptComponent>>();
-		Map<String, ScriptComponent> 
-			parents = new HashMap<String, ScriptComponent>();
 		List<ScriptComponent> l;
 		while (i.hasNext()) {
 			text = "";
@@ -529,16 +527,16 @@ public class ScriptingDialog
 		JLabel l;
 		if (authors != null && authors.length > 0) {
 			l = UIUtilities.setTextFont("Authors:");
-			String v = "";
+			StringBuffer buffer = new StringBuffer();
 			int n = authors.length-1;
 			for (int i = 0; i < authors.length; i++) {
-				v += authors[i];
-				if (i < n) v += ", ";
+				buffer.append(authors[i]);
+				if (i < n) buffer.append(", ");
 			}
 			layout.insertRow(row, TableLayout.PREFERRED);
 			p.add(l, "0,"+row);
 			l = new JLabel();
-			l.setText(v);
+			l.setText(buffer.toString());
 			p.add(l, "2,"+row);
 			row++;
 		}

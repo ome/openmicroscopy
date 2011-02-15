@@ -337,6 +337,7 @@ public class CreateTopContainerAction
 					case EXPERIMENTER:
 						if (uo instanceof ExperimenterData) 
 							withParent = false;//true;
+						break;
 					case TAG:
 						if (fromTopMenu) withParent = false;
 						else {

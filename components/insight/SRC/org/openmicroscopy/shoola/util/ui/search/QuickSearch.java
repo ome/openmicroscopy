@@ -641,9 +641,10 @@ public class QuickSearch
     	Iterator<String> i = text.iterator();
     	String value;
     	List<String> values = new ArrayList<String>();
-    	String term = "";
+    	StringBuffer term = new StringBuffer();
     	int index = 0;
     	int n = text.size()-1;
+    	
     	while (i.hasNext()) {
     		value = i.next();
 			if (value != null) {
@@ -651,10 +652,11 @@ public class QuickSearch
 				if (!l.contains(value)) 
 					values.add(value);
 				else {
-					term += value;
-					if (index < n)
-						term += SearchUtil.COMMA_SEPARATOR+
-							SearchUtil.SPACE_SEPARATOR;
+					term.append(value);
+					if (index < n) {
+						term.append(SearchUtil.COMMA_SEPARATOR);
+						term.append(SearchUtil.SPACE_SEPARATOR);
+					}	
 					index++;
 				}
 			}
@@ -663,13 +665,15 @@ public class QuickSearch
     	i = values.iterator();
     	index = 0;
     	while (i.hasNext()) {
-    		term += i.next();
-			if (index < n)
-				term += SearchUtil.COMMA_SEPARATOR+SearchUtil.SPACE_SEPARATOR;
+    		term.append(i.next());
+			if (index < n) {
+				term.append(SearchUtil.COMMA_SEPARATOR);
+				term.append(SearchUtil.SPACE_SEPARATOR);
+			}
 			index++;
 		}
     	searchArea.getDocument().removeDocumentListener(this);
-    	searchArea.setText(term);
+    	searchArea.setText(term.toString());
     	searchArea.getDocument().addDocumentListener(this);
     	//setSearchValue(term, removeLast);
 	}

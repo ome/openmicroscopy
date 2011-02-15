@@ -440,29 +440,35 @@ class SearchPanel
 		int dateIndex = ctx.getDateIndex();
 		if (dateIndex != -1) dates.setSelectedIndex(dateIndex);
 		String[] none = ctx.getNone();
-		String v = "";
+		StringBuffer v = new StringBuffer();
 		for (int i = 0; i < none.length; i++) {
-			v += SearchUtil.QUOTE_SEPARATOR+none[i]+SearchUtil.QUOTE_SEPARATOR;
+			v.append(SearchUtil.QUOTE_SEPARATOR);
+			v.append(none[i]);
+			v.append(SearchUtil.QUOTE_SEPARATOR);
 			if (i != (none.length-1))
-				v += SearchUtil.SPACE_SEPARATOR;
+				v.append(SearchUtil.SPACE_SEPARATOR);
 		}
-		withoutTermsArea.setText(v);
+		withoutTermsArea.setText(v.toString());
 		String[] must = ctx.getMust();
-		v = "";
+		v = new StringBuffer();
 		for (int i = 0; i < must.length; i++) {
-			v += SearchUtil.QUOTE_SEPARATOR+must[i]+SearchUtil.QUOTE_SEPARATOR;
-			if (i != (none.length-1))
-				v += SearchUtil.SPACE_SEPARATOR;
+			v.append(SearchUtil.QUOTE_SEPARATOR);
+			v.append(must[i]);
+			v.append(SearchUtil.QUOTE_SEPARATOR);
+			if (i != (must.length-1))
+				v.append(SearchUtil.SPACE_SEPARATOR);
 		}
-		allTermsArea.setText(v);
+		allTermsArea.setText(v.toString());
 		String[] some = ctx.getSome();
-		v = "";
+		v = new StringBuffer();
 		for (int i = 0; i < some.length; i++) {
-			v += SearchUtil.QUOTE_SEPARATOR+some[i]+SearchUtil.QUOTE_SEPARATOR;
-			if (i != (none.length-1))
-				v += SearchUtil.SPACE_SEPARATOR;
+			v.append(SearchUtil.QUOTE_SEPARATOR);
+			v.append(some[i]);
+			v.append(SearchUtil.QUOTE_SEPARATOR);
+			if (i != (some.length-1))
+				v.append(SearchUtil.SPACE_SEPARATOR);
 		}
-		atLeastTermsArea.setText(v);
+		atLeastTermsArea.setText(v.toString());
 		
 		//initialize
 		setDateIndex();
@@ -531,16 +537,19 @@ class SearchPanel
 			String value;
 			boolean exist = false;
 			int index = 0;
+			StringBuffer buffer = new StringBuffer();
 			while (i.hasNext()) {
 				value = (String) i.next();
 				if (!value.equals(name)) {
-					v += SearchUtil.QUOTE_SEPARATOR+value;
-					v += SearchUtil.QUOTE_SEPARATOR;
+					buffer.append(SearchUtil.QUOTE_SEPARATOR);
+					buffer.append(value);
+					buffer.append(SearchUtil.QUOTE_SEPARATOR);
 					if (index < n)
-						v += SearchUtil.SPACE_SEPARATOR;
+						buffer.append(SearchUtil.SPACE_SEPARATOR);
 				}
 				index++;
 			}
+			v = buffer.toString();
 			if (!exist) 
 				v += SearchUtil.QUOTE_SEPARATOR+name+SearchUtil.QUOTE_SEPARATOR;
 		}
@@ -1121,14 +1130,15 @@ class SearchPanel
 	void setSomeValues(List<String> values)
 	{
 		if (values == null || values.size() == 0) return;
-		String text = "";
+		StringBuffer text = new StringBuffer();
 		Iterator<String> i = values.iterator();
-		if (text != null) {
-			while (i.hasNext())
-				text += i.next()+SearchUtil.SPACE_SEPARATOR;
+		while (i.hasNext()) {
+			text.append(i.next());
+			text.append(SearchUtil.SPACE_SEPARATOR);
 		}
-		if (!advancedSearch) fullTextArea.setText(text);
-		else atLeastTermsArea.setText(text);
+			
+		if (!advancedSearch) fullTextArea.setText(text.toString());
+		else atLeastTermsArea.setText(text.toString());
 	}
 	
 	/**
@@ -1346,7 +1356,7 @@ class SearchPanel
 	{
 		String s = e.getActionCommand();
 		int index = Integer.parseInt(s);
-		otherOwners.remove(new Long(index));
+		otherOwners.remove(Long.valueOf(index));
 		layoutOtherOwners();
 		validate();
 		repaint();

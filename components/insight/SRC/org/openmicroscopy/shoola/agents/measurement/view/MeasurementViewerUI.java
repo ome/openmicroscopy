@@ -915,6 +915,7 @@ class MeasurementViewerUI
      */
     void setTableSelectedFigure(List<ROIFigure> figures)
     {
+    	if (figures == null) return;
     	DrawingCanvasView dv = model.getDrawingView();
     	Iterator<ROIFigure> k = figures.iterator();
     	ROIFigure figure;

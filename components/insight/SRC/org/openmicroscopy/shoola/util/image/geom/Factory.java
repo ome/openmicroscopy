@@ -197,12 +197,13 @@ public class Factory
     public static BufferedImage createDefaultImageThumbnail(int width, 
     														int height)
     {
-    	IconManager icons = IconManager.getInstance();
     	ImageIcon img = null;//icons.getImageIcon(IconManager.BROKEN_FILE_96);
-    	if (img == null) {
+    	//if (img == null) {
     		if (width == 0) width = THUMB_DEFAULT_WIDTH;
         	if (height == 0) height = THUMB_DEFAULT_HEIGHT;
-    		return createDefaultThumbnail(width, height, null);     	}
+    		return createDefaultThumbnail(width, height, null);     	
+    	//}
+    		/*
     	if (width == 0) width = THUMB_DEFAULT_WIDTH;
     	if (height == 0) height = THUMB_DEFAULT_HEIGHT;
     	//if (h == height && w == width)
@@ -214,6 +215,7 @@ public class Factory
         g.drawImage(img.getImage(), 0, 0, width, height, null);
         g.dispose();
         return thumbPix;
+        */
     }
     
     /**
@@ -351,7 +353,6 @@ public class Factory
         g.dispose();
         bimg.flush();
         rescaleBuff.flush();
-        System.gc();
         return rescaleBuff;
     }   
     
@@ -858,8 +859,8 @@ public class Factory
 	            int i = 0, j = 0, l = values.length/3;
 	    		int[] buffer = new int[l];
 	    		while (i<l)
-	        		buffer[i++] = (values[j++]) | (values[j++]<<8) | 
-	        						(values[j++]<<16);
+	        		buffer[i++] = (values[j++] & 0xff) | (values[j++] & 0xff <<8) | 
+	        						(values[j++] & 0xff <<16);
 				return Factory.createImage(buffer, 24, masks, sizeX, sizeY);
 			case DataBuffer.TYPE_INT:
 				return Factory.createImage(buf, 32, masks, sizeX, sizeY);

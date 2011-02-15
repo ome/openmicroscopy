@@ -126,7 +126,7 @@ public class DMRefreshLoader
                 i = containers.iterator();
                 ids = new ArrayList<Long>(containers.size());
                 while (i.hasNext()) {
-                    ids.add(new Long(((DataObject) i.next()).getId()));
+                    ids.add(Long.valueOf(((DataObject) i.next()).getId()));
                 }
                 j = set.iterator();
                 children = null;
@@ -153,7 +153,7 @@ public class DMRefreshLoader
                     	c = children.iterator();
                         while (c.hasNext()) {
                             child = (DataObject) c.next();
-                            id = new Long(child.getId());
+                            id = Long.valueOf(child.getId());
                             if (ids.contains(id)) {
                                 cIds = new ArrayList(1);
                                 cIds.add(id);

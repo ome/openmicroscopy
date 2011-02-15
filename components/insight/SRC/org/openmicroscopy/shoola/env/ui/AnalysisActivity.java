@@ -79,10 +79,11 @@ public class AnalysisActivity
 	public AnalysisActivity(UserNotifier viewer, Registry registry,
 			AnalysisActivityParam parameters)
 	{
-		super(viewer, registry, DESCRIPTION_CREATION, parameters.getIcon());
+		super(viewer, registry);
 		if (parameters == null)
 			throw new IllegalArgumentException("Parameters not valid.");
 		this.parameters = parameters;
+		initialize(DESCRIPTION_CREATION, parameters.getIcon());
 	}
 
 	/**

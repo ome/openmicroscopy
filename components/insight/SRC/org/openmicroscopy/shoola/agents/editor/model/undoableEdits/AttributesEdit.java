@@ -114,7 +114,7 @@ public class AttributesEdit
 		// tree.clearSelection();
 		TreeModelMethods.selectNode(node, tree);
 		
-		DefaultMutableTreeNode dmtNode = (DefaultMutableTreeNode)node;
+		DefaultMutableTreeNode dmtNode = (DefaultMutableTreeNode) node;
 		tree.startEditingAtPath(new TreePath(dmtNode.getPath()));
 	}
 
@@ -125,11 +125,8 @@ public class AttributesEdit
 	 */
 	private void notifyNodeChanged() 
 	{
-		if ((tree != null) && (node != null)) {
-			
-			DefaultMutableTreeNode dmtNode = (DefaultMutableTreeNode)node;
-			
-			DefaultTreeModel treeModel = (DefaultTreeModel)tree.getModel();
+		if (tree != null && node != null) {
+			DefaultTreeModel treeModel = (DefaultTreeModel) tree.getModel();
 			treeModel.nodeChanged(node);
 		}
 	}
@@ -142,9 +139,9 @@ public class AttributesEdit
 	{	
 		if (canDo()) {
 			
-			Iterator iterator = newValues.keySet().iterator();
+			Iterator<String> iterator = newValues.keySet().iterator();
 			while (iterator.hasNext()) {
-				String key = (String)iterator.next();
+				String key = iterator.next();
 				oldValues.put(key, attributes.getAttribute(key));
 				attributes.setAttribute(key, newValues.get(key));
 			}

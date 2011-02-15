@@ -55,14 +55,7 @@ import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 public class ImagesImporter 
 	extends BatchCallTree
 {
-
-    /** The results of the call. */
-    private Object 		results;
-    
-    /** Loads the specified tree. */
-    private BatchCall   			loadCall;
-    
-    
+     
     /** The id of the user currently logged in. */
     private long 		 			userID;
     
@@ -131,8 +124,6 @@ public class ImagesImporter
      */
     protected Object getResult()
     { 
-    	
-    	if (loadCall != null) return results; 
     	return null;
     }
     

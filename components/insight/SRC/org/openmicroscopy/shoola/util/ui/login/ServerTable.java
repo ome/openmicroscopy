@@ -86,15 +86,7 @@ class ServerTable
 	private void handleClickCount()
 	{
 		TableCellEditor editor = getCellEditor();
-		boolean editing = parent.isEditing();
 		if (editor != null) editor.stopCellEditing();
-		if (editing) {
-			/*
-			if (getSelectedColumn() == 2)
-				parent.requestFocusOnEditedCell(getSelectedRow(), 
-						getSelectedColumn());
-						*/
-		}
 	}
 	
 	/**

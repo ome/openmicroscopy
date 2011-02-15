@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 //Third-party libraries
 
@@ -321,19 +322,21 @@ public class FigureParam
 		checkFormat(format);
 		checkLabel(label);
 		this.name = name;
-		Iterator<Integer> i = channels.keySet().iterator();
+		//Iterator<Integer> i = channels.keySet().iterator();
 		Color c;
 		Integer index;
 		mergeChannels = new LinkedHashMap<Integer, Integer>(channels.size());
 		int value;
+		Entry entry;
+		Iterator i = channels.entrySet().iterator();
 		while (i.hasNext()) {
-			index = i.next();
-			c = (Color) channels.get(index);
+			entry = (Entry) i.next();
+			c = (Color) entry.getKey();
 			value = ((c.getAlpha() & 0xFF) << 24) |
             	((c.getRed() & 0xFF) << 16) |
             ((c.getGreen() & 0xFF) << 8)  |
             ((c.getBlue() & 0xFF) << 0);
-			mergeChannels.put(index, value);
+			mergeChannels.put((Integer) entry.getValue(), value);
 		}
 	}
 	

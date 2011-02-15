@@ -43,7 +43,6 @@ import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTree;
 import javax.swing.border.Border;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreePath;
 
@@ -86,9 +85,7 @@ import org.openmicroscopy.shoola.agents.editor.uiComponents.UIUtilities;
 */
 public class FieldPanel 
 	extends JPanel 
-	implements 
-	PropertyChangeListener,
-	ActionListener
+	implements ActionListener, PropertyChangeListener
 {
 	
 	/**
@@ -97,9 +94,9 @@ public class FieldPanel
 	 * Change in this property indicates that the field is currently being 
 	 * edited and needs refreshing. 
 	 * 
-	 * @ see refreshEditingOfPanel()
+	 * @see refreshEditingOfPanel()
 	 */
-	public static final String UPDATE_EDITING_PROPERTY = "sizeChangedPropery";
+	public static final String UPDATE_EDITING_PROPERTY = "updateEditingPropery";
 	
 	/**
 	 * This Field listens for changes to this property in the parameter
@@ -142,7 +139,7 @@ public class FieldPanel
 	private IField 					field;
 	
 	/**
-	 * The controller for managing undo/redo. Eg manages attribute editing...
+	 * The controller for managing undo/redo, e.g. manages attribute editing...
 	 */
 	private BrowserControl 			controller;
 	
@@ -154,9 +151,9 @@ public class FieldPanel
 	
 	/**
 	 * A reference to the node represented by this field. 
-	 * Used eg. to set the selected field to this node with undo/redo
+	 * Used e.g. to set the selected field to this node with undo/redo
 	 */
-	private DefaultMutableTreeNode	treeNode;
+	private FieldNode				treeNode;
 	
 	/**
 	 * This panel (BorderLayout) contains nameLabel in the WEST of this,
@@ -222,7 +219,7 @@ public class FieldPanel
 	private Border 					imageBorderHighlight;
 	
 	/**
-	 * Initialises the UI components. 
+	 * Initializes the UI components. 
 	 */
 	private void initialise() 
 	{
@@ -325,10 +322,12 @@ public class FieldPanel
 		} else {
 			int paramCount = field.getContentCount();
 			JComponent edit;
-			for (int i=0; i<paramCount; i++) {
-				IFieldContent content = field.getContentAt(i);
+			IFieldContent content;
+			IParam param;
+			for (int i = 0; i < paramCount; i++) {
+				content = field.getContentAt(i);
 				if (content instanceof IParam) {
-					IParam param = (IParam)content;
+					param = (IParam) content;
 					edit = ParamUIFactory.getEditingComponent(param);
 					if (edit != null) {
 						addFieldComponent(edit);
@@ -396,12 +395,7 @@ public class FieldPanel
 	 */
 	private void setDescriptionText() 
 	{
-		String description = getDescription();
-		boolean showDesc = false;
-		if (treeNode instanceof FieldNode) {
-			showDesc = ((FieldNode)treeNode).getDescriptionVisisibility();
-		}
-		
+		String description = getDescription();		
 		if ((description != null) && (description.trim().length() > 0)) {
 			String htmlDescription = 
 				"<html><div style='width:250px; padding-left:30px;'>" + 
@@ -409,7 +403,7 @@ public class FieldPanel
 				"</div></html>";
 			descriptionButton.setToolTipText(htmlDescription);
 			descriptionButton.setVisible(true);
-			descriptionLabel.setVisible(showDesc);
+			descriptionLabel.setVisible(treeNode.getDescriptionVisisibility());
 			descriptionLabel.setFont(new Font("SansSerif", Font.PLAIN, 9));
 			descriptionLabel.setText(htmlDescription);
 		}
@@ -435,12 +429,12 @@ public class FieldPanel
 		IFieldContent content;
 		StringBuffer buf = new StringBuffer();
 
-		for (int i=0; i< contentCount; i++) {
+		for (int i = 0; i< contentCount; i++) {
 			content = field.getContentAt(i);
 			// don't print parameters unless followed by text 
 			if (content instanceof IParam) {
 				boolean followedByText = false;
-				for (int c=i; c<contentCount; c++) {
+				for (int c = i; c < contentCount; c++) {
 					if (field.getContentAt(c) instanceof TextContent) {
 						followedByText = true;
 						continue;
@@ -454,7 +448,8 @@ public class FieldPanel
 			}
 		}
 		String text = buf.toString();
-		if (text.length() == 0) 	return null;	// don't return blank string
+		if (text.length() == 0) 	
+			return null;	// don't return blank string
 		return text;
 	}
 
@@ -551,13 +546,13 @@ public class FieldPanel
 	 * @param tree		The JTree where this panel is displayed
 	 * @param treeNode	The node that this panel represents
 	 */
-	public FieldPanel(IField field, JTree tree, DefaultMutableTreeNode treeNode,
+	public FieldPanel(IField field, JTree tree, FieldNode treeNode,
 			BrowserControl controller) 
 	{
 		
 		this.field = field;
 		this.tree = tree;
-		this.treeNode = (FieldNode) treeNode;
+		this.treeNode = treeNode;
 		this.controller = controller;
 		
 		initialise();	
@@ -665,9 +660,7 @@ public class FieldPanel
 		String cmd = e.getActionCommand();
 		 
 		if (TOGGLE_DESCRIPTION_CMD.equals(cmd)) {
-			if (treeNode instanceof FieldNode) {
-				((FieldNode)treeNode).toggleDescriptionVisibility();
-			}
+			treeNode.toggleDescriptionVisibility();
 			refreshEditingOfPanel();
 		}
 		

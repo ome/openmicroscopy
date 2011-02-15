@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.util;
 
 
 //Java imports
+import java.io.Serializable;
 import java.util.Comparator;
 
 //Third-party libraries
@@ -44,7 +45,7 @@ import java.util.Comparator;
  * @since 3.0-Beta4
  */
 public class StringComparator 
-	implements Comparator
+	implements Comparator, Serializable
 {
 
 	/**

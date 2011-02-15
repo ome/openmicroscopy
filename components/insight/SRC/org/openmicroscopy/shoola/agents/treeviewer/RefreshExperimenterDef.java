@@ -76,7 +76,6 @@ public class RefreshExperimenterDef
     {
     	if (expNode == null)
         	throw new IllegalArgumentException("Node not valid.");
-    	Object uo = expNode.getUserObject();
     	this.expandedNodes = expandedNodes;
         this.expandedTopNodes = expandedTopNodes;
         this.expNode = expNode;

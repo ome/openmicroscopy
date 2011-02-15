@@ -311,18 +311,18 @@ class OMEROGateway
 
 	static {
 		SUPPORTED_SPECIAL_CHAR = new ArrayList<Character>();
-		SUPPORTED_SPECIAL_CHAR.add(new Character('-'));
-		SUPPORTED_SPECIAL_CHAR.add(new Character('+'));
-		SUPPORTED_SPECIAL_CHAR.add(new Character('['));
-		SUPPORTED_SPECIAL_CHAR.add(new Character(']'));
-		SUPPORTED_SPECIAL_CHAR.add(new Character(')'));
-		SUPPORTED_SPECIAL_CHAR.add(new Character('('));
-		SUPPORTED_SPECIAL_CHAR.add(new Character(':'));
-		SUPPORTED_SPECIAL_CHAR.add(new Character('|'));
-		SUPPORTED_SPECIAL_CHAR.add(new Character('!'));
-		SUPPORTED_SPECIAL_CHAR.add(new Character('{'));
-		SUPPORTED_SPECIAL_CHAR.add(new Character('}'));
-		SUPPORTED_SPECIAL_CHAR.add(new Character('^'));
+		SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('-'));
+		SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('+'));
+		SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('['));
+		SUPPORTED_SPECIAL_CHAR.add(Character.valueOf(']'));
+		SUPPORTED_SPECIAL_CHAR.add(Character.valueOf(')'));
+		SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('('));
+		SUPPORTED_SPECIAL_CHAR.add(Character.valueOf(':'));
+		SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('|'));
+		SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('!'));
+		SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('{'));
+		SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('}'));
+		SUPPORTED_SPECIAL_CHAR.add(Character.valueOf('^'));
 		WILD_CARDS = new ArrayList<String>();
 		WILD_CARDS.add("*");
 		WILD_CARDS.add("?");
@@ -377,10 +377,7 @@ class OMEROGateway
 
 	/** The projection service. */
 	private IProjectionPrx							projService;
-	
-	/** The search state-full service. */
-	private SearchPrx								searchService;
-	
+
 	/** The Admin service. */
 	private IAdminPrx								adminService;
 	
@@ -458,10 +455,7 @@ class OMEROGateway
 	
 	/** Collection of services to keep alive. */
 	private Map<Long, StatefulServiceInterfacePrx>	reServices;
-	
-	/** Collection of monitors to end if any.*/
-	private List<String>							monitorIDs;
-	
+
 	/** The service to import files. */
 	private OMEROMetadataStoreClient				importStore;
 	
@@ -507,7 +501,6 @@ class OMEROGateway
 	         ScriptProcessPrx prx = svc.runScript(scriptID, parameters, null);
 	         cb = new ScriptCallback(scriptID, secureClient, prx);
 		} catch (Exception e) {
-			if (cb != null) cb.close();
 			throw new ProcessException("Cannot run script with ID:"+scriptID, 
 					e);
 		}
@@ -934,7 +927,7 @@ class OMEROGateway
 			int size = 0;
 			if (e instanceof InternalException) size = -1;
 			else svc.getBatchSize();
-			return new Integer(size);
+			return Integer.valueOf(size);
 		}
 		if (!hasNext) return r;
 		List l = svc.results();
@@ -991,8 +984,7 @@ class OMEROGateway
 		String v;
 		while (j.hasNext()) {
 			v = j.next();
-			value = firstField+":"+v+" "+sep+" ";
-			value += secondField+":"+v;
+			value = firstField+":"+v+" "+sep+" "+secondField+":"+v;
 			formatted.add(value);
 		}
 		return formatted;
@@ -1697,17 +1689,13 @@ class OMEROGateway
 		throws DSAccessException, DSOutOfServiceException
 	{
 		try {
-			//if (searchService == null) {
-				//searchService = entry.createSearchService(); 
-				//services.add(searchService);
-			//}
 			if (entryUnencrypted != null)
 				return entryUnencrypted.createSearchService();
 			return entryEncrypted.createSearchService();
 		} catch (Throwable e) {
 			handleException(e, "Cannot access Search service.");
 		}
-		return searchService;
+		return null;
 	}
 	
 	/**
@@ -1896,7 +1884,6 @@ class OMEROGateway
 		metadataService = null;
 		pojosService = null;
 		projService = null;
-		searchService = null;
 		adminService = null;
 		queryService = null;
 		rndSettingsService = null;
@@ -3600,6 +3587,7 @@ class OMEROGateway
 	synchronized File downloadFile(File file, long fileID, long size)
 		throws DSAccessException, DSOutOfServiceException
 	{
+		if (file == null) return null;
 		isSessionAlive();
 		if (size <= 0) {
 			OriginalFile of = getOriginalFile(fileID);
@@ -3668,8 +3656,6 @@ class OMEROGateway
 			closeService(pixelsStore);
 		if (fileStore != null)
 			closeService(fileStore);
-		if (searchService != null)
-			closeService(searchService);
 		Collection<StatefulServiceInterfacePrx> l = reServices.values();
 		if (l != null && rendering) {
 			Iterator<StatefulServiceInterfacePrx> i = l.iterator();
@@ -3680,7 +3666,6 @@ class OMEROGateway
 		}
 		thumbnailService = null;
 		pixelsStore = null;
-		searchService = null;
 		fileStore = null;
 	}
 	
@@ -4284,7 +4269,6 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			IRenderingSettingsPrx service = getRenderingSettingsService();
-			Iterator i = nodes.iterator();
 			long id;
 			if (DatasetData.class.equals(rootNodeType) ||
 					PlateData.class.equals(rootNodeType) ||
@@ -4364,7 +4348,6 @@ class OMEROGateway
 	List<RndProxyDef> getRenderingSettingsFor(long pixelsID, long userID)
 		throws DSOutOfServiceException, DSAccessException
 	{
-		Map map = new HashMap();
 		isSessionAlive();
 		try {
 			IPixelsPrx service = getPixelsService();
@@ -4722,10 +4705,6 @@ class OMEROGateway
 					fSome = formatText(some, "url");
 					fMust = formatText(must, "url");
 					fNone = formatText(none, "url");
-				} else if (key == SearchDataContext.CUSTOMIZED) {
-					fSome = formatText(some, "");
-					fMust = formatText(must, "");
-					fNone = formatText(none, "");
 				} else {
 					fSome = formatText(some, "");
 					fMust = formatText(must, "");
@@ -4922,7 +4901,7 @@ class OMEROGateway
 				param.addLong("tagID", id);
 				l = service.findAllByQuery(sb.toString(), param);
 				if (l != null) 
-					m.put(id, new Long(l.size()));
+					m.put(id, Long.valueOf(l.size()));
 			}
             //Dataset
             sb = new StringBuilder();
@@ -5166,7 +5145,6 @@ class OMEROGateway
 		isSessionAlive();
 		try {
 			List results = null;
-			Set<DataObject> wells = new HashSet<DataObject>();
 			Iterator i;
 			IQueryPrx service = getQueryService();
 			StringBuilder sb = new StringBuilder();
@@ -6140,8 +6118,6 @@ class OMEROGateway
 		try {
 			ImportConfig config = new ImportConfig();
 			OMEROWrapper reader = new OMEROWrapper(config);
-			ImportLibrary library = new ImportLibrary(getImportStore(), reader);
-			//library.addObserver(status);
 			String[] paths = new String[1];
 			paths[0] = file.getAbsolutePath();
 			ImportCandidates candidates = new ImportCandidates(reader, paths, 
@@ -6278,12 +6254,13 @@ class OMEROGateway
 				Map<Long, RoiResult> map = svc.getMeasuredRoisMap(imageID, 
 						measurements, options);
 				if (map == null) return results;
-				Iterator<Long> i = map.keySet().iterator();
+				Iterator i = map.entrySet().iterator();
 				Long id;
-				
+				Entry entry;
 				while (i.hasNext()) {
-					id = i.next();
-					r = map.get(id);
+					entry = (Entry) i.next();
+					id = (Long) entry.getKey();
+					r = (RoiResult) entry.getValue();
 					//get the table
 					result = new ROIResult(PojoMapper.asDataObjects(r.rois), 
 							id);
@@ -6403,27 +6380,30 @@ class OMEROGateway
 				 * Step 3. create the server roiShape map.
 				 */
 				serverCoordMap  = new HashMap<ROICoordinate, Shape>();
-				
-				for (int i = 0 ; i < serverRoi.sizeOfShapes(); i++)
-				{
-					s = serverRoi.getShape(i);
-					if (s != null) {
-						serverCoordMap.put(new ROICoordinate(
-							s.getTheZ().getValue(), s.getTheT().getValue()), s);
+				if (serverRoi != null) {
+					for (int i = 0 ; i < serverRoi.sizeOfShapes(); i++)
+					{
+						s = serverRoi.getShape(i);
+						if (s != null) {
+							serverCoordMap.put(new ROICoordinate(
+								s.getTheZ().getValue(), s.getTheT().getValue()),
+								s);
+						}
 					}
 				}
-				
 				/*
 				 * Step 4. delete any shapes in the server that have been deleted
 				 * in the client.
 				 */
-				serverIterator = serverCoordMap.keySet().iterator();
-				while (serverIterator.hasNext())
+				Iterator si = serverCoordMap.entrySet().iterator();
+				Entry entry;
+				while (si.hasNext())
 				{
-					coord = serverIterator.next();
+					entry = (Entry) si.next();
+					coord = (ROICoordinate) entry.getKey();
 					if (!clientCoordMap.containsKey(coord))
 					{
-						s = serverCoordMap.get(coord);
+						s = (Shape) entry.getValue();
 						if (s != null)
 							updateService.deleteObject(s);
 					}
@@ -6432,24 +6412,28 @@ class OMEROGateway
 				/*
 				 * Step 5. retrieve new roi as some are stale.
 				 */
-				id = serverRoi.getId().getValue();
-				tempResults = svc.findByImage(imageID, new RoiOptions());
-				for (Roi r : tempResults.rois)
-				{
-					if (r.getId().getValue() == id)
-						serverRoi = r;
+				if (serverRoi != null) {
+					id = serverRoi.getId().getValue();
+					tempResults = svc.findByImage(imageID, new RoiOptions());
+					for (Roi r : tempResults.rois)
+					{
+						if (r.getId().getValue() == id)
+							serverRoi = r;
+					}
 				}
 				
 				/*
 				 * Step 6. Check to see if the roi in the cleint has been updated
 				 * if so replace the server roiShape with the client one.
 				 */
-				serverIterator = clientCoordMap.keySet().iterator();
+				si  = clientCoordMap.entrySet().iterator();
 				Shape serverShape;
-				while (serverIterator.hasNext())
+				
+				while (si.hasNext())
 				{
-					coord = serverIterator.next();
-					shape = clientCoordMap.get(coord);
+					entry = (Entry) si.next();
+					coord = (ROICoordinate) entry.getKey();
+					shape = (ShapeData) entry.getValue();
 					if (shape != null) {
 						if (!serverCoordMap.containsKey(coord))
 							serverRoi.addShape((Shape) shape.asIObject());
@@ -6483,10 +6467,14 @@ class OMEROGateway
 				 * Step 7. update properties of ROI, if they are changed.
 				 * 
 				 */
-				serverRoi.setDescription(((Roi)roi.asIObject()).getDescription());
-				serverRoi.setNamespaces(((Roi)roi.asIObject()).getNamespaces());
-				serverRoi.setKeywords(((Roi)roi.asIObject()).getKeywords());
-				updateService.saveAndReturnObject(serverRoi);
+				if (serverRoi != null) {
+					Roi ri = (Roi) roi.asIObject();
+					serverRoi.setDescription(ri.getDescription());
+					serverRoi.setNamespaces(ri.getNamespaces());
+					serverRoi.setKeywords(ri.getKeywords());
+					updateService.saveAndReturnObject(serverRoi);
+				}
+				
 			}
 			return roiList;
 		} catch (Exception e) {
@@ -6688,9 +6676,10 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
+		FileInputStream stream = null;
 		try {
 			IScriptPrx svc = getScriptService(); 
-			FileInputStream stream = null;
+			
 			StringBuffer buf = new StringBuffer("");
 			try {
 				File file = new File(script.getPath());
@@ -6698,6 +6687,9 @@ class OMEROGateway
 				int c;
 				while ((c = stream.read()) != -1)
 					buf.append((char) c);
+				try {
+					if (stream != null) stream.close();
+				} catch (Exception e) {}
 			} catch (Exception e) {
 				try {
 					stream.close();
@@ -6713,8 +6705,13 @@ class OMEROGateway
 						buf.toString());
 			return svc.uploadScript(script.getFolder(), buf.toString());
 		} catch (Exception e) {
+			
 			handleException(e, 
 					"Cannot upload the script: "+script.getName()+".");
+		}
+		try {
+			if (stream != null) stream.close();
+		} catch (Exception e) {
 		}
 		return -1;
 	}
@@ -7152,7 +7149,6 @@ class OMEROGateway
 		IAdminPrx svc = getAdminService();
 		Iterator<ExperimenterData> i = experimenters.iterator();
 		ExperimenterData exp;
-		String name = group.getName();
 		List<ExperimenterGroup> groups = new ArrayList<ExperimenterGroup>();
 		groups.add(group.asGroup());
 		while (i.hasNext()) {
@@ -7235,7 +7231,6 @@ class OMEROGateway
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
-		IAdminPrx svc = getAdminService();
 		try {
 			//First check that no user with the name already exists
 
@@ -7396,10 +7391,8 @@ class OMEROGateway
 					handleException(e, "Unable to save Object : "+ workflow);
 				}
 			}
-		return new Boolean(true);
+		return Boolean.valueOf(true);
 	}
-	
-	
 	
 	/**
 	 * Reads the file hosting the user photo.
@@ -7488,7 +7481,6 @@ class OMEROGateway
 	         DeleteHandlePrx prx = svc.queueDelete(commands);
 	         cb = new DeleteCallback(secureClient, prx);
 		} catch (Exception e) {
-			if (cb != null) cb.close();
 			throw new ProcessException("Cannot delete the speficied objects.", 
 					e);
 		}

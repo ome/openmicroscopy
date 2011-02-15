@@ -251,23 +251,6 @@ public class TreeViewerAgent
      */
     private void handleViewerCreated(ViewerCreated evt)
     {
-    	Environment env = (Environment) registry.lookup(LookupNames.ENV);
-    	if (!env.isServerAvailable()) return;
-    	ExperimenterData exp = (ExperimenterData) registry.lookup(
-			        				LookupNames.CURRENT_USER_DETAILS);
-    	if (exp == null) return;
-    	GroupData gp = null;
-    	try {
-    		gp = exp.getDefaultGroup();
-		} catch (Exception e) {
-			//No default group
-		}
-    	long id = -1;
-    	if (gp != null) id = gp.getId();
-        TreeViewer viewer = TreeViewerFactory.getTreeViewer(exp, id);
-        //if (viewer != null)
-        	//viewer.displayViewer(evt.getViewer(), evt.getControls(), 
-        	//		evt.isToAdd(), evt.isToDetach());
     }
     
     /**

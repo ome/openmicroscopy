@@ -157,9 +157,6 @@ public class FileImportComponent
 	
 	/** Keeps track of the extra images if any. */
 	private List<ThumbnailLabel> imageLabels;
-	
-	/** The component displaying the status of the import. */
-	private JLabel			status;
 
 	/** The imported image. */
 	private Object			image;
@@ -556,8 +553,6 @@ public class FileImportComponent
 			if (errorBox != null && errorBox.isVisible()) {
 				if (errorBox.isSelected() && errorBox.isEnabled() && 
 						image instanceof Exception) {
-					ImportErrorObject object = new ImportErrorObject(file, 
-							(ImportException) image);
 					l = new ArrayList<FileImportComponent>();
 					l.add(this);
 					return l;
@@ -753,7 +748,6 @@ public class FileImportComponent
 			for (int i = 0; i < namePane.getComponentCount(); i++) 
 				namePane.getComponent(i).setBackground(color);
 		}
-		if (status != null) status.setBackground(color);
 		super.setBackground(color);
 	}
 

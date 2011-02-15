@@ -26,6 +26,9 @@ package org.openmicroscopy.shoola.util.math.geom2D;
 //Java imports
 import java.awt.Rectangle;
 import java.util.ArrayList;
+import java.util.List;
+
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 //Third-party libraries
 
@@ -52,6 +55,20 @@ class RectangleAreaAdapter
     implements PlaneArea
 {
 
+
+    /**
+     * Returns <code>true</code> if the difference between the number is less
+     * than {@link UIUtilities#EPSILON}, <code>false</code> otherwise.
+     * 
+     * @param a One of the values to handle.
+     * @param b One of the values to handle.
+     * @return See above.
+     */
+    private boolean inBounds(double a, double b)
+    {
+    	return Math.abs(a-b) < UIUtilities.EPSILON;
+    }
+    
     /** 
      * Constructs a new {@link Rectangle} whose top-left corner is (0, 0) 
      * and whose width and height are both zero.
@@ -94,7 +111,7 @@ class RectangleAreaAdapter
     public PlanePoint[] getPoints()
     {
         Rectangle r = getBounds();
-        ArrayList vector = new ArrayList(r.height*r.width);
+        List vector = new ArrayList(r.height*r.width);
         int xEnd = r.x+r.width, yEnd = r.y+r.height;
         int x, y;
         for (y = r.y; y < yEnd; ++y) 
@@ -111,16 +128,15 @@ class RectangleAreaAdapter
     {
         double xCorner = getX(), yCorner = getY();
         double w = getWidth(), h = getHeight();
-        return ((x == xCorner && y >= yCorner && y <= yCorner+h) ||
-                (x == xCorner+w && y >= yCorner && y <= yCorner+h) ||
-                (y == yCorner && x >= xCorner && x <= xCorner+w) ||
-                (y == yCorner+h && x >= xCorner && x <= xCorner+w));
+        return ((inBounds(x, xCorner) && y >= yCorner && y <= yCorner+h) ||
+                (inBounds(x, xCorner+w)  && y >= yCorner && y <= yCorner+h) ||
+                (inBounds(y, yCorner) && x >= xCorner && x <= xCorner+w) ||
+                (inBounds(y, yCorner+h) && x >= xCorner && x <= xCorner+w));
     }
-
+    
     /** 
-     * Implemented as specified in the 
-     * {@link org.openmicroscopy.shoola.util.mem.Copiable Copiable} I/F. 
-     * @see org.openmicroscopy.shoola.util.mem.Copiable#copy()
+     * Implemented as specified in the {@link Copiable} I/F. 
+     * @see Copiable#copy()
      */
     public Object copy() { return super.clone(); }
 

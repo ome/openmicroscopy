@@ -338,13 +338,11 @@ class TreeViewerComponent
         			view.removeAllFromWorkingPane();
             		view.addComponent(db.getUI(model.isFullScreen()));
         		}
-        		if (object instanceof DataObject) {
-        			List<DataObject> nodes = new ArrayList<DataObject>();
-            		nodes.add((DataObject) object);
-            		db.setSelectedNodes(nodes, 
-            				TreeViewerFactory.getApplications(
-							model.getObjectMimeType(object)));
-        		}
+        		List<DataObject> nodes = new ArrayList<DataObject>();
+        		nodes.add((DataObject) object);
+        		db.setSelectedNodes(nodes, 
+        				TreeViewerFactory.getApplications(
+						model.getObjectMimeType(object)));
         	}
         } else {
         	db = DataBrowserFactory.getDataBrowser(object);
@@ -1604,7 +1602,7 @@ class TreeViewerComponent
 		} else {
 			DataBrowser db = model.getDataViewer();
 			String message = "";
-			String s = "";
+			StringBuffer buffer;
 			if (db != null) {
 				Set<DataObject> images = db.getBrowser().getImages();
 				Map<Long, ImageData> m = new HashMap<Long, ImageData>();
@@ -1622,20 +1620,21 @@ class TreeViewerComponent
 					
 					Iterator i = failure.iterator();
 					long id;
+					buffer = new StringBuffer();
 					while (i.hasNext()) {
 						id = (Long) i.next();
 						if (m.containsKey(id)) {
-							s += EditorUtil.getPartialName(m.get(id).getName());
-							s += "\n";
+							buffer.append(EditorUtil.getPartialName(
+									m.get(id).getName()));
+							buffer.append("\n");
 						}
 					}
-					s = s.trim();
 					message = text+"\ncould not be applied to the following " +
-							"images:\n"+s;
+							"images:\n"+buffer.toString();
 				}
 			} 
 			if (message.length() == 0) {
-				s = " image";
+				String s = " image";
 				if (n > 1) s+="s";
 				s += ".";
 				message = text+"\ncould not be applied to "+n+s;
@@ -1909,37 +1908,8 @@ class TreeViewerComponent
 		}
 
 		Browser browser = model.getSelectedBrowser();
-		MetadataViewer mv = model.getMetadataViewer();
-		//Check siblings first.
-
-		//boolean multi = (Boolean) multiSelection;
-
 		browser.onDeselectedNode(parent, selected, (Boolean) multiSelection);
-		/*
-		ExperimenterData exp = null;
-		TreeImageDisplay last = browser.getLastSelectedDisplay();
-		if (last != null) exp = browser.getNodeOwner(last);
-		if (exp == null) exp = model.getUserDetails();
-		*/
 		onSelectedDisplay();
-		/*
-		if (!multi) {
-			mv.setRootObject(selected, exp.getId());
-			mv.setSelectionMode(true);
-		} else {
-			TreeImageDisplay[] nodes = browser.getSelectedDisplays();
-			
-			if (nodes != null && nodes.length == 1) {
-				mv.setRootObject(nodes[0].getUserObject(), exp.getId());
-				mv.setSelectionMode(true);
-			} else {
-				exp = model.getUserDetails();
-				mv.setRootObject(null, exp.getId());
-			}
-		}
-		firePropertyChange(SELECTION_PROPERTY, Boolean.valueOf(false), 
-				Boolean.valueOf(true));
-				*/
 	}
 
 	/**
@@ -2168,17 +2138,15 @@ class TreeViewerComponent
 	{
 		if (leaves == null) return;
 		
-		//TODO create db browser for children of parent if any
-		Object parentObject = parent.getUserObject();
-		TreeImageDisplay display = parent.getParentDisplay();
-		Object grandParentObject = null;
-		if (display != null) grandParentObject =  display.getUserObject();
+		if (parent == null) return;
+		Object parentObject = null;
 		ExperimenterData exp = null;
+		Object grandParentObject = null;
 		//Set the userID of the owner of the time interval.
-		if (parent != null) {
-			exp = getSelectedBrowser().getNodeOwner(parent);
-			
-		}
+		parentObject = parent.getUserObject();
+		TreeImageDisplay display = parent.getParentDisplay();
+		if (display != null) grandParentObject =  display.getUserObject();
+		exp = getSelectedBrowser().getNodeOwner(parent);
 		DataBrowser db = DataBrowserFactory.getDataBrowser(grandParentObject,
 				parentObject, leaves, parent);
 		db.setExperimenter(exp);
@@ -2884,7 +2852,6 @@ class TreeViewerComponent
 			}
 			return;
 		}
-		if (browser == null) return;
 		TreeImageDisplay d = browser.getLastSelectedDisplay();
 		if (d == null) return;
 		Object uo = d.getUserObject();

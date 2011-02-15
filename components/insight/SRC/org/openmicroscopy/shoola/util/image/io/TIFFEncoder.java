@@ -80,7 +80,7 @@ public class TIFFEncoder
     /**
      * Writes the 6 bytes of data required by the RGB BitsPerSample tag. 
      * 
-     * @throws IOException Exception thrown if an error occured during the
+     * @throws IOException Exception thrown if an error occurred during the
      * encoding process.
      */
     private void writeBitsPerPixel()
@@ -94,7 +94,7 @@ public class TIFFEncoder
     /**
      * Writes one Image File Directory. 
      * 
-     * @throws IOException Exception thrown if an error occured during the
+     * @throws IOException Exception thrown if an error occurred during the
      * encoding process.
      */
     private void writeIFD()
@@ -133,7 +133,7 @@ public class TIFFEncoder
      * @param fieldType The field type.
      * @param count
      * @param value
-     * @throws IOException Exception thrown if an error occured during the
+     * @throws IOException Exception thrown if an error occurred during the
      * encoding process.
      */
     private void writeEntry(int tag, int fieldType, int count, int value) 
@@ -149,7 +149,7 @@ public class TIFFEncoder
     
     /**
      * Writes the pixel value, band model. 
-     * @throws IOException Exception thrown if an error occured during the
+     * @throws IOException Exception thrown if an error occurred during the
      * encoding process.
      */
     private void writeRGBPixels()
@@ -167,7 +167,7 @@ public class TIFFEncoder
      * Writes the data for <code>int</code> values.
      * 
      * @param dbi   The buffer containing the data.
-     * @throws IOException Exception thrown if an error occured during the
+     * @throws IOException Exception thrown if an error occurred during the
      * encoding process.
      */
     private void writeRGBDataBufferInt(DataBufferInt dbi)
@@ -195,7 +195,7 @@ public class TIFFEncoder
      * Writes the data for <code>byte</code> values.
      * 
      * @param bufferByte   The buffer containing the data.
-     * @throws IOException Exception thrown if an error occured during the
+     * @throws IOException Exception thrown if an error occurred during the
      * encoding process.
      */
     private void writeRGBDataBufferByte(DataBufferByte bufferByte)
@@ -232,7 +232,7 @@ public class TIFFEncoder
      * @param red The byte array for the red band.
      * @param green The byte array for the green band.
      * @param blue The byte array for the blue band.
-     * @throws IOException Exception thrown if an error occured during the
+     * @throws IOException Exception thrown if an error occurred during the
      * encoding process.
      */
     private void writeColorMap(byte[] red, byte[] green, byte[] blue)
@@ -241,8 +241,8 @@ public class TIFFEncoder
         byte[] colorTable16 = new byte[TIFFEncoderCst.MAP_SIZE*2];
         int j = 0;
         int max = 251;
-        if (red.length < max) max = red.length;
-        for (int i = 0 ; i < 251; i++) {
+        //if (red.length < max) max = red.length;
+        for (int i = 0 ; i < max; i++) {
             colorTable16[j] = red[i];
             colorTable16[512+j] = green[i];
             colorTable16[1024+j] = blue[i];
@@ -254,7 +254,7 @@ public class TIFFEncoder
     /**
      * Writes the scale. 
      *
-     * @throws IOException Exception thrown if an error occured during the
+     * @throws IOException Exception thrown if an error occurred during the
      * encoding process.
      */
     private void writeScale()
@@ -326,6 +326,5 @@ public class TIFFEncoder
         }
         imageSize = imageWidth*imageHeight*bytesPerPixel;
     }
-	
-    
+ 
 }

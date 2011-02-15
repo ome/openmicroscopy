@@ -902,10 +902,9 @@ public class EditorUtil
     		return false;
     	if (!(ho instanceof DataObject)) return false;
     	DataObject data = (DataObject) ho;
-        PermissionData permissions = data.getPermissions();
         try {
         	if (userID == data.getOwner().getId())
-                return true; //permissions.isUserWrite();
+                return true; // data.getPermissions().isUserWrite();
 		} catch (Exception e) { //owner not loaded
 			return false;
 		}
@@ -1509,7 +1508,7 @@ public class EditorUtil
 		details.putAll(m);
 		details.put(ATTENUATION, new Double(0));
 		if (data == null) {
-			details.put(WAVELENGTH, new Integer(0));
+			details.put(WAVELENGTH, Integer.valueOf(0));
 			notSet.add(ATTENUATION);
         	notSet.add(WAVELENGTH);
         	details.put(NOT_SET, notSet);

@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.Vector;
+import java.util.Map.Entry;
 
 import javax.swing.table.TableColumn;
 import javax.swing.tree.TreePath;
@@ -573,13 +574,16 @@ public class ROITreeTable
 			{
 				ROI roi = (ROI) node;
 				TreeMap<Coord3D, ROIShape> shapeMap =  roi.getShapes();
-				Iterator<Coord3D> coordIterator = shapeMap.keySet().iterator();
-				while (coordIterator.hasNext())
+				Iterator i = shapeMap.entrySet().iterator();
+				Entry entry;
+				Coord3D coord;
+				while (i.hasNext())
 				{
-					Coord3D coord = coordIterator.next();
+					entry = (Entry) i.next();
+					coord = (Coord3D) entry.getKey();
 					if (planeMap.containsKey(coord))
 						return null;
-					planeMap.put(coord, shapeMap.get(coord));
+					planeMap.put(coord, (ROIShape) entry.getValue());
 				}
 			} else if (node instanceof ROIShape)
 			{

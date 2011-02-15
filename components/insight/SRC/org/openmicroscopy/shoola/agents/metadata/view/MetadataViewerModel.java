@@ -264,8 +264,6 @@ class MetadataViewerModel
 	Object getRefObject()
 	{ 
 		if (data == null) return refObject;
-		Object o = data.getRelatedObject();
-		//if (o != null && o instanceof FolderData) return o;
 		return refObject; 
 	}
 	

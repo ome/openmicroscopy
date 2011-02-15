@@ -19,7 +19,6 @@
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  *------------------------------------------------------------------------------
- *	author Will Moore will@lifesci.dundee.ac.uk
  */
 
 package org.openmicroscopy.shoola.agents.editor.model;
@@ -61,7 +60,8 @@ import org.openmicroscopy.shoola.agents.editor.model.tables.TableModelFactory;
  */
 public class Field 
 	implements IField,
-	Cloneable {
+	Cloneable
+{
 	
 	/**
 	 * A property of this field. The attribute for an (optional) Name.
@@ -94,9 +94,9 @@ public class Field
 
 	/**
 	 * A map of the template attributes for this Field. 
-	 * eg Name, Description etc. 
+	 * e.g. Name, Description etc. 
 	 */
-	private HashMap<String, String> 	templateAttributesMap;
+	private Map<String, String> 	templateAttributesMap;
 	
 	/**
 	 * If the parameters of this field have multiple values, they can be 
@@ -134,22 +134,31 @@ public class Field
 	 */
 	public IField clone() 
 	{
+		try {
+			super.clone();
+		} catch (Exception e) {
+			//Ignore
+		}
+		
 		Field newField = new Field();
 		
 		// duplicate attributes
-		HashMap<String,String> newAtt = new HashMap<String,String>(getAllAttributes());
+		Map<String,String> newAtt = new HashMap<String,String>(
+				getAllAttributes());
 		newField.setAllAttributes(newAtt);
 		
 		IFieldContent newContent;
 		// duplicate parameters 
-		for (int i=0; i<getContentCount(); i++) {
+		IParam param;
+		TextContent text;
+		for (int i = 0; i < getContentCount(); i++) {
 			IFieldContent content = getContentAt(i);
 			if (content instanceof IParam) {
-				IParam param = (IParam)content;
+				param = (IParam) content;
 				newContent = param.cloneParam();
 				newField.addContent(newContent);
 			} else if (content instanceof TextContent) {
-				TextContent text = (TextContent)content;
+				text = (TextContent) content;
 				newContent = new TextContent(text);	// clone content
 				newField.addContent(newContent);
 			}
@@ -204,7 +213,7 @@ public class Field
 	 * 
 	 * @param newAtt	The new attribute map
 	 */
-	public void setAllAttributes(HashMap<String,String> newAtt) {
+	public void setAllAttributes(Map<String,String> newAtt) {
 		templateAttributesMap = newAtt;
 	}
 	
@@ -238,13 +247,11 @@ public class Field
 		return DataFieldConstants.TRUE.equals(value);
 	}
 	
-
-	
 	/**
 	 * Implemented as specified by the {@link IField} interface.
 	 * This method tests to see whether the field has any parameters 
 	 * that have not been filled. 
-	 * ie, Has the user entered a "valid" value into the Form. 
+	 * i.e. Has the user entered a "valid" value into the Form. 
 	 * 
 	 * @return	number of parameters have not been filled out by user.  
 	 */
@@ -423,19 +430,18 @@ public class Field
 	 */
 	public String getToolTipText() 
 	{
-		String toolTipText = "";
+		//String toolTipText = "";
 		
 		String paramText;
-		
+		StringBuffer buffer = new StringBuffer();
 		List<IParam> params = getAtomicParams();
 		for (IParam param : params) {
 			paramText = param.toString();
-			if (toolTipText.length() > 0) 
-				toolTipText = toolTipText + ", ";
-			toolTipText = toolTipText + paramText;
+			if (buffer.length() > 0) 
+				buffer.append(", ");
+			buffer.append(paramText);
 		}
-		
-		return toolTipText;
+		return buffer.toString();
 	}
 	
 	/**
@@ -504,4 +510,5 @@ public class Field
 		dataRefs.remove(ref);
 		return index;
 	}
+	
 }

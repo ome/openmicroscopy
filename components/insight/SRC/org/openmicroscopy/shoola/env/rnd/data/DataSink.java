@@ -172,7 +172,7 @@ public class DataSink
 		if (t < 0 || source.getSizeT() <= t) 
 			throw new IllegalArgumentException(
 					"t out of range [0, "+source.getSizeT()+"): "+t+".");
-		return new Integer(sizeZ*sizeC*t + sizeZ*w + z);
+		return Integer.valueOf(sizeZ*sizeC*t + sizeZ*w + z);
 	}
 
 	/**

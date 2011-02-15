@@ -815,7 +815,7 @@ class EditorUI
 	 */
 	void discardRenderer(Object ref)
 	{
-		if (ref != model.getRefObject());
+		if (ref != model.getRefObject()) return;
 		model.discardRenderer();
 		clearData();
 	}

@@ -195,9 +195,9 @@ class ColouredButtonUI
         
         // Using the font metrics, centre the text in the button face.
         final int x = (int) ((buttonRect.width/2.0f)-
-        		fm.stringWidth(button.getText())/2);
+        		fm.stringWidth(button.getText())/2.0f);
         final int y = (int) ((buttonRect.height/2.0f) + 
-                (fm.getHeight()-fm.getDescent())/2);
+                (fm.getHeight()-fm.getDescent())/2.0f);
         
         // If the button face is dark or does not contrast well with the 
         // black text turn the text white.
@@ -450,7 +450,6 @@ class ColouredButtonUI
 		int startY = 6;
 		int colourStartX = (int) (getWidth()*0.3);
 		int colourStartY = 18;
-		int radius = (int) Math.max(18, getWidth()*0.9);
 		int matteEndX = 10;
 		int matteEndY = 18;
 		
@@ -458,11 +457,11 @@ class ColouredButtonUI
 		MattePainter gradientWhite = new MattePainter(
 			    new GradientPaint(new Point2D.Double(0.0, 0.0), c,
 			    new Point2D.Double(matteEndX, matteEndY), Color.white));
-		
+		/*
 		MattePainter gradientBrighterColour = new MattePainter(
 			    new GradientPaint(new Point2D.Double(0.0, 0.0), c,
 			    new Point2D.Double(matteEndX, matteEndY), colour));
-		
+		*/
 		MattePainter gradientBrighterDarker = new MattePainter(
 			    new GradientPaint(new Point2D.Double(0.0, 0.0), c,
 			    new Point2D.Double(matteEndX, matteEndY), colour.darker()));

@@ -76,10 +76,11 @@ public class FigureActivity
 	public FigureActivity(UserNotifier viewer, Registry registry,
 			FigureActivityParam	parameters)
 	{
-		super(viewer, registry, DESCRIPTION_CREATION, parameters.getIcon());
+		super(viewer, registry);
 		if (parameters == null)
 			throw new IllegalArgumentException("Parameters not valid.");
 		this.parameters = parameters;
+		initialize(DESCRIPTION_CREATION, parameters.getIcon());
 	}
 
 	/**

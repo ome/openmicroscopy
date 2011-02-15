@@ -492,6 +492,16 @@ class MeasurementViewerModel
 		getDrawingView().repaint();
 	}
 	
+	/**
+	 * Sets the state.
+	 * 
+	 * @param state The value to set.
+	 */
+	void setState(int state)
+	{
+		this.state = state;
+	}
+	
 	/** 
 	 * Sets the ROI for the pixels set. Returns <code>true</code>
 	 * if the ROI are compatible with the image, <code>false</code> otherwise.
@@ -846,14 +856,14 @@ class MeasurementViewerModel
 	{
 		ROI roi = roiComponent.addROI(figure, getCurrentView(), addAttribs);
 		roi.setAnnotation(AnnotationKeys.NAMESPACE, this.workflowNamespace);
-		String keywordString = "";
+		StringBuffer buffer = new StringBuffer();
 		for (int i = 0 ; i < keyword.size() ; i++)
 		{
-			keywordString = keywordString + keyword.get(i);
+			buffer.append(keyword.get(i));
 			if (i < keyword.size()-1)
-				keywordString = keywordString + ",";
+				buffer.append(",");
 		}
-		roi.setAnnotation(AnnotationKeys.KEYWORDS, keywordString);		
+		roi.setAnnotation(AnnotationKeys.KEYWORDS, buffer.toString());		
 		return roi;
 	}
 	
@@ -1508,7 +1518,7 @@ class MeasurementViewerModel
 	 */
 	WorkflowData getWorkflow()
 	{
-		if (workflowNamespace != WorkflowData.DEFAULTWORKFLOW)
+		if (!WorkflowData.DEFAULTWORKFLOW.equals(workflowNamespace))
 			return workflows.get(workflowNamespace);
 		return null;
 	}

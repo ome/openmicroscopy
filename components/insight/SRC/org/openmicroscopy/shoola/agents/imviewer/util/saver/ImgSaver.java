@@ -288,9 +288,6 @@ public class ImgSaver
     /** Invokes when the openGL flag is turned on. */
     private void saveAsTexture()
     {
-    	boolean unitBar = model.isUnitBar();
-    	String v = getUnitBarValue(); 
-    	int s = (int) getUnitBarSize();
     	UserNotifier un = ImViewerAgent.getRegistry().getUserNotifier();
     	try {
     		BufferedImage img = model.createImageFromTexture(
@@ -304,18 +301,6 @@ public class ImgSaver
     	un.notifyInfo("Saving Image", saveMessage);
     	if (uiDelegate.isSetDefaultFolder())
     		UIUtilities.setDefaultFolder(uiDelegate.getCurrentDirectory());
-   
-        
-    	/*
-    	String extendedName = getExtendedName(name, format);
-        SaveObject object = new SaveObject(extendedName, format, 
-        		uiDelegate.getSavingType());
-        object.setIncludeROI(uiDelegate.includeROI());
-        if (uiDelegate.isSetDefaultFolder())
-        	UIUtilities.setDefaultFolder(uiDelegate.getCurrentDirectory());
-        firePropertyChange(SAVE_IMAGE_PROPERTY, null, object);
-        close();
-        */
     }
     
     /**

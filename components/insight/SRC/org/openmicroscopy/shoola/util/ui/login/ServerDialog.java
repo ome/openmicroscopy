@@ -246,7 +246,7 @@ class ServerDialog
 	private void showMessagePanel(boolean warning, JComponent p)
 	{
 		if (warning) {
-            titleLayer.add(p, new Integer(1));
+            titleLayer.add(p, Integer.valueOf(1));
             titleLayer.validate();
             titleLayer.repaint();
         } else {
@@ -349,15 +349,15 @@ class ServerDialog
 					switch (index) {
 						case HIGH_SPEED:
 							firePropertyChange(CONNECTION_SPEED_PROPERTY, null, 
-										new Integer(LoginCredentials.HIGH));
+									Integer.valueOf(LoginCredentials.HIGH));
 							break;
 						case MEDIUM_SPEED:
 							firePropertyChange(CONNECTION_SPEED_PROPERTY, null, 
-										new Integer(LoginCredentials.MEDIUM));
+									Integer.valueOf(LoginCredentials.MEDIUM));
 							break;
 						case LOW_SPEED:
 							firePropertyChange(CONNECTION_SPEED_PROPERTY, null, 
-											new Integer(LoginCredentials.LOW));
+									Integer.valueOf(LoginCredentials.LOW));
 					}
 				}
 			}
