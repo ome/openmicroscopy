@@ -15,7 +15,7 @@ import omero
 import omero_Constants_ice
 
 from path import path
-from omero.cli import Context, BaseControl, CLI
+from omero.cli import Context, BaseControl, CLI, NonZeroReturnCode
 from omero.util.sessions import SessionsStore
 from omero.util.temp_files import create_path
 from omero.plugins.sessions import SessionsControl
@@ -241,8 +241,9 @@ class TestSessions(unittest.TestCase):
 
     def test4(self):
         cli = MyCLI()
-        cli.creates_client(name="key")
-        cli.invoke(["-s", "localhost","-k", "key", "s", "login"])
+        cli.STORE.add("testhost","testuser","key", {})
+        cli.creates_client(sess="key", new=False)
+        cli.invoke(["-s", "testuser@testhost","-k", "key", "s", "login"])
         self.assertEquals(0, cli.rv)
 
     def testReuseWorks(self):
@@ -306,31 +307,37 @@ class TestSessions(unittest.TestCase):
         cli.invoke("s login") # Should work. No conflict
         del cli
 
-    def testBadSessionKeyGracefullyDegrades(self):
+    def testBadSessionKeyDies(self):
         """
         As seen in ticket 4223, when a bad session is
         provided, a password shouldn't be asked for.
         """
         cli = MyCLI()
 
+        MOCKKEY = "MOCKKEY"
+
         # First, successful login
-        cli.creates_client()
-        cli.requests_host()
-        cli.requests_user()
+        cli.creates_client(sess=MOCKKEY)
         cli.requests_pass()
-        cli.invoke("s login")
+        cli.invoke("-s testuser@testhost s login")
         cli.assertReqSize(self, 0) # All were requested
         cli._client = None # Forcing new instance
 
+        key_login = "-s testuser@testhost -k %s s login" % MOCKKEY
+
         # Now try with session when it's still available
-        cli.creates_client()
-        cli.invoke("-s testuser@testhost -k MOCKKEY s login")
+        cli.creates_client(sess=MOCKKEY, new=False)
+        cli.invoke(key_login)
         cli._client = None # Forcing new instance
 
         # Don't do creates_client, so the session key
         # is now bad.
         cli.throw_on_create(Glacier2.PermissionDeniedException("MOCKKEY EXPIRED"))
-        cli.invoke("-s testuser@testhost -k MOCKKEY s login")
+        try:
+            cli.invoke(key_login)
+            self.fail("This must throw 'Bad session key'")
+        except NonZeroReturnCode:
+            pass
         cli._client = None # Forcing new instance
 
         del cli

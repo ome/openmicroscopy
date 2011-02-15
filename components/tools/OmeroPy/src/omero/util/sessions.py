@@ -171,6 +171,28 @@ class SessionsStore(object):
             return "localhost"
         return text
 
+    def find_name_by_key(self, server, uuid):
+        """
+        Returns the name of a user for which the
+        session key exists. This value is taken
+        from the path rather than from the properties
+        file since that value may have been overwritten.
+        An exception is raised if there is more than one
+        name since keys should be UUIDs. A None may be
+        returned.
+        """
+        s = self.dir / server
+        if not s.exists():
+            return None
+        else:
+            n = [x.basename() for x in s.dirs() if (x/uuid).exists()]
+            if not n:
+                return None
+            elif len(n) == 1:
+                return n[0]
+            else:
+                raise exceptions.Exception("Multiple names found for uuid=%s: %s" % (uuid, ", ".join(n)))
+
     def contents(self):
         """
         Returns a map of maps with all the contents
