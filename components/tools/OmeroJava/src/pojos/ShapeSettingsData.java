@@ -30,7 +30,6 @@ import java.awt.Font;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.RFloat;
 import omero.RInt;
 import omero.RString;
 import omero.rtypes;
@@ -93,7 +92,6 @@ public class ShapeSettingsData
 	
 	/** Set if font bold. */
 	public final static String FONT_BOLD = "bold";
-	
 
 	/**
 	 * Creates a new instance.
@@ -138,7 +136,7 @@ public class ShapeSettingsData
 	 * 
 	 * @return See above.
 	 */
-	public Color getFillColor()
+	public Color getFill()
 	{
 		Shape shape = (Shape) asIObject();
 		RInt value = shape.getFillColor();
@@ -151,7 +149,7 @@ public class ShapeSettingsData
 	 * 
 	 * @param fillColour See above.
 	 */
-	public void setFillColor(Color fillColour)
+	public void setFill(Color fillColour)
 	{
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
@@ -166,7 +164,7 @@ public class ShapeSettingsData
 	 * 
 	 * @return See above.
 	 */
-	public Color getStrokeColor()
+	public Color getStroke()
 	{
 		Shape shape = (Shape) asIObject();
 		RInt value = shape.getStrokeColor();
@@ -179,7 +177,7 @@ public class ShapeSettingsData
 	 * 
 	 * @param strokeColour See above.
 	 */
-	public void setStrokeColor(Color strokeColour)
+	public void setStroke(Color strokeColour)
 	{
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
@@ -252,7 +250,7 @@ public class ShapeSettingsData
 	}
 	
 	/**
-	 * Returns the stroke.
+	 * Returns the shape of the end of the line..
 	 * 
 	 * @return See above.
 	 */
@@ -269,7 +267,7 @@ public class ShapeSettingsData
 	}
 	
 	/**
-	 * Set the line cap.
+	 * Sets the line cap.
 	 * 
 	 * @param lineCap See above.
 	 */
@@ -303,11 +301,10 @@ public class ShapeSettingsData
 	public Font getFont()
 	{
 		int style = Font.PLAIN;
-		if(getFontWeight()==FONT_BOLD)
+		if (isFontBold())
 			style = style | Font.BOLD;
-		if(getFontWeight()==FONT_ITALIC)
+		if (isFontItalic())
 			style = style | Font.ITALIC;
-		
 		return new Font(getFontFamily(), style,getFontSize());
 	}
 	
@@ -382,7 +379,7 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		if(shape.getFontStyle()!=null)
+		if (shape.getFontStyle() != null)
 			return shape.getFontStyle().getValue();
 		else
 			return DEFAULT_FONT_STYLE;
@@ -401,40 +398,9 @@ public class ShapeSettingsData
 		shape.setFontStyle(rtypes.rstring(fontStyle));
 		setDirty(true);
 	}
-	
+
 	/**
-	 * Get the weight of the font.
-	 * 
-	 * @return See above.
-	 */
-	public String getFontWeight()
-	{
-		Shape shape = (Shape) asIObject();
-		if (shape == null) 
-			throw new IllegalArgumentException("No shape specified.");
-		if(shape.getFontWeight()!=null)
-			return shape.getFontWeight().getValue();
-		else
-			return DEFAULT_FONT_WEIGHT;
-	}
-	
-	/**
-	 * Set the weight of the font.
-	 * 
-	 * @return See above.
-	 */
-	public void setFontWeight(String fontWeight)
-	{
-		Shape shape = (Shape) asIObject();
-		if (shape == null) 
-			throw new IllegalArgumentException("No shape specified.");
-		shape.setFontWeight(rtypes.rstring(fontWeight));
-		setDirty(true);
-	}
-	
-	
-	/**
-	 * Returns the stroke.
+	 * Returns the marker start.
 	 * 
 	 * @return See above.
 	 */
@@ -444,7 +410,7 @@ public class ShapeSettingsData
 	}
 	
 	/**
-	 * Returns the stroke.
+	 * Returns the marker end.
 	 * 
 	 * @return See above.
 	 */
@@ -454,11 +420,21 @@ public class ShapeSettingsData
 	}
 	
 	/**
-	 * Returns the stroke.
+	 * Returns the marker start.
 	 * 
-	 * @return See above.
+	 * @param start The value to set.
 	 */
-	public String getText()
+	public String setMarkerStart(String start)
+	{
+		return "";
+	}
+	
+	/**
+	 * Returns the marker end.
+	 * 
+	 * @param start The value to set.
+	 */
+	public String setMarkerEnd(String end)
 	{
 		return "";
 	}
@@ -477,6 +453,6 @@ public class ShapeSettingsData
 	 * 
 	 * @return See above.
 	 */
-	public boolean isFontBold() { return getFontWeight() == FONT_BOLD; }
+	public boolean isFontBold() { return getFontStyle() == FONT_BOLD; }
 	
 }

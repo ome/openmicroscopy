@@ -55,10 +55,10 @@ class MaskClass
 	/** The points in the mask. */
 	private Set<Point> points;
 	
-	/** The colour of the mask. */
+	/** The color of the mask. */
 	private int colour;
 	
-	/** The min and max (x,y) coordinates of the mask. */
+	/** The minimum and maximum (x,y) coordinates of the mask. */
 	private Point min, max;
 	
 	/** The mask Width. */
@@ -79,14 +79,11 @@ class MaskClass
 	}
 
 	/**
-	 * Returns the colour of the mask.
+	 * Returns the color of the mask.
 	 * 
 	 * @return See above.
 	 */
-	public Color getColour()
-	{
-		return new Color(colour);
-	}
+	public Color getColour() { return new Color(colour); }
 	
 	/**
 	 * Converts the mask data to a byte array.
@@ -158,8 +155,8 @@ class MaskClass
 		mask.setT(t);
 		mask.setZ(z);
 		mask.setC(c);
-		mask.getShapeSettings().setFillColor(new Color(colour));
-		mask.setMask(this.asBytes());
+		mask.getShapeSettings().setFill(new Color(colour));
+		mask.setMask(asBytes());
 		return mask;
 	}
 	
@@ -184,14 +181,13 @@ class MaskClass
 	 * value.
 	 * @param data See above.
 	 * @param bit See above.
-	 * @param val See above.
 	 */
 	byte getBit(byte[] data, int bit) 
 	{
 		int bytePosition = bit/8;
 		int bitPosition = 7-bit%8;
 		return (byte) ((byte)(data[bytePosition] & (0x1<<bitPosition)) !=0 ? 
-				(byte)1 : (byte)0);
+				(byte) 1 : (byte)0);
 	} 
 
 }

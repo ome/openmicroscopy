@@ -251,6 +251,7 @@ public class MaskData
 	{
 		byte[] data = new byte[(int) (getWidth()*getHeight())];
 		boolean colourSet = false;
+		ShapeSettingsData settings = getShapeSettings();
 		for (int y = 0 ; y < getHeight(); y++)
 			for (int x = 0; x < getWidth(); x++)
 				if (image.getRGB(x,y) == 0)
@@ -259,13 +260,11 @@ public class MaskData
 				{
 					if (!colourSet)
 					{
-						getShapeSettings().setFillColor(
-								new Color(image.getRGB(x,y), true));
+						settings.setFill(new Color(image.getRGB(x,y), true));
 						colourSet = true;
 					}
 					setBit(data, (int)(y*getWidth()+x), 1);
 				}
-
 	}
 	
 	/**
@@ -285,7 +284,7 @@ public class MaskData
 		BufferedImage bufferedImage = new BufferedImage((int) width, 
 				(int) height, BufferedImage.TYPE_INT_ARGB);
 		int offset = 0;
-		int colourValue = getShapeSettings().getFillColor().getRGB();
+		int colourValue = getShapeSettings().getFill().getRGB();
 		for (int y = 0 ; y < (int)height ; y++)
 		{
 			for (int x = 0 ; x < (int)width ; x++)
