@@ -125,7 +125,9 @@ public class ROINode
 	}
 
 	/**
-	 * Get the point in the parent where a child with coord should be inserted.
+	 * Get the point in the parent where a child with coordinate should be 
+	 * inserted.
+	 * 
 	 * @param coord see above.
 	 * @return see above.
 	 */
@@ -321,12 +323,11 @@ public class ROINode
 	 */
 	public void setValueAt(Object value, int column)
 	{
-		Object userObject=getUserObject();
+		Object userObject = getUserObject();
 		if (userObject instanceof ROI)
 		{
 			ROI roi = (ROI) userObject;
-			switch (column)
-			{
+			switch (column) {
 				case 0:
 				case ROIID_COLUMN+1:
 				case TIME_COLUMN+1:
@@ -345,39 +346,34 @@ public class ROINode
 						while(roiIterator.hasNext())
 						{
 							ROIShape shape = roiIterator.next();
-							shape.getFigure().setVisible((Boolean)value);
+							shape.getFigure().setVisible((Boolean) value);
 						}
 					}
 					break;
 					default:
 					break;
 			}
-		}
-		else if (userObject instanceof ROIShape)
-		{
-			ROIShape roiShape=(ROIShape) userObject;
+		} else if (userObject instanceof ROIShape) {
+			ROIShape roiShape = (ROIShape) userObject;
 			ROIFigure figure = roiShape.getFigure();
-			switch (column)
-			{
+			switch (column) {
 				case 0:
 				case ROIID_COLUMN+1:
 				case TIME_COLUMN+1:
 				case Z_COLUMN+1:
 				case SHAPE_COLUMN+1:
 				case ANNOTATION_COLUMN+1:
-					if(value instanceof String)
+					if (value instanceof String)
 					{
 						AnnotationKeys.TEXT.set(roiShape, (String)value);
 						MeasurementAttributes.TEXT.set(figure, (String)value);
-						if(((String)value).equals(""))
-							MeasurementAttributes.SHOWTEXT.set(figure, false);
-						else
-							MeasurementAttributes.SHOWTEXT.set(figure, true);
+						MeasurementAttributes.SHOWTEXT.set(figure, 
+								!((String) value).equals(""));
 					}
 					break;
 				case VISIBLE_COLUMN+1:
 					if(value instanceof Boolean)
-						roiShape.getFigure().setVisible((Boolean)value);
+						roiShape.getFigure().setVisible((Boolean) value);
 					break;
 				default:
 					break;

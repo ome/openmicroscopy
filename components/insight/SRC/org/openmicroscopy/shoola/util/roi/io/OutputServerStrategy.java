@@ -193,10 +193,8 @@ class OutputServerStrategy
 		throws ParsingException
 	{
 		MeasureBezierFigure fig = (MeasureBezierFigure) shape.getFigure();
-		if (fig.isClosed())
-			return createPolygonFigure(shape);
-		else
-			return createPolylineFigure(shape);
+		if (fig.isClosed()) return createPolygonFigure(shape);
+		return createPolylineFigure(shape);
 	}
 	
 	/**
@@ -217,6 +215,7 @@ class OutputServerStrategy
 		double cy = fig.getEllipse().getCenterY();
 		
 		EllipseData ellipse = new EllipseData(cx, cy, rx, ry); 
+		ellipse.setVisible(fig.isVisible());
 		String text = fig.getText();
 		if (text != null && text.trim().length() > 0 && 
 				!text.equals(ROIFigure.DEFAULT_TEXT))
@@ -255,6 +254,7 @@ class OutputServerStrategy
 		double cy = fig.getCentre().getY();
 		
 		PointData point = new PointData(cx, cy); 
+		point.setVisible(fig.isVisible());
 		String text = fig.getText();
 		if (text != null && text.trim().length() > 0 && 
 				!text.equals(ROIFigure.DEFAULT_TEXT))
@@ -317,7 +317,7 @@ class OutputServerStrategy
 		if (text != null && text.trim().length() > 0 && 
 				!text.equals(ROIFigure.DEFAULT_TEXT))
 			rectangle.setText(fig.getText());
-		
+		rectangle.setVisible(fig.isVisible());
 		AffineTransform t = AttributeKeys.TRANSFORM.get(fig);
 		if (t != null)
 			rectangle.setTransform(toTransform(t));
@@ -352,6 +352,7 @@ class OutputServerStrategy
 			maskList.add(Integer.valueOf(node.getMask()));
 		}
 		PolygonData poly = new PolygonData();
+		poly.setVisible(fig.isVisible());
 		poly.setPoints(points, points1, points2, maskList);
 		if (t != null)
 			poly.setTransform(toTransform(t));
@@ -389,6 +390,7 @@ class OutputServerStrategy
 			maskList.add(Integer.valueOf(node.getMask()));
 		}
 		PolylineData line = new PolylineData();
+		line.setVisible(fig.isVisible());
 		line.setPoints(points, points1, points2, maskList);
 		if (t != null)
 			line.setTransform(toTransform(t));
@@ -426,6 +428,7 @@ class OutputServerStrategy
 			maskList.add(Integer.valueOf(node.getMask()));
 		}
 		PolylineData poly = new PolylineData();
+		poly.setVisible(fig.isVisible());
 		poly.setPoints(points, points1, points2, maskList);
 		if (t != null)
 			poly.setTransform(toTransform(t));
