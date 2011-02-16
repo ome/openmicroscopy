@@ -566,8 +566,8 @@ class InputServerStrategy
 	private void addShapeSettings(ROIFigure figure, ShapeSettingsData data)
 	{
 		STROKE_WIDTH.set(figure, data.getStrokeWidth());
-		STROKE_COLOR.set(figure, data.getStrokeColor());
-		FILL_COLOR.set(figure, data.getFillColor());
+		STROKE_COLOR.set(figure, data.getStroke());
+		FILL_COLOR.set(figure, data.getFill());
 		FONT_FACE.set(figure, data.getFont());
 		FONT_SIZE.set(figure, new Double(data.getFontSize()));
 		FONT_ITALIC.set(figure, data.isFontItalic());

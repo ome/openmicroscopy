@@ -448,10 +448,10 @@ class OutputServerStrategy
 		if (AttributeKeys.FILL_COLOR.get(fig) != null)
 		{
 			Color c = AttributeKeys.FILL_COLOR.get(fig);
-			settings.setFillColor(c);
+			settings.setFill(c);
 		}
 		if (MeasurementAttributes.STROKE_COLOR.get(fig) != null)
-			settings.setStrokeColor(
+			settings.setStroke(
 					MeasurementAttributes.STROKE_COLOR.get(fig));
 		if (MeasurementAttributes.STROKE_WIDTH.get(fig) != null)
 			settings.setStrokeWidth(
@@ -467,9 +467,9 @@ class OutputServerStrategy
 		else
 			settings.setFontSize(ShapeSettingsData.DEFAULT_FONT_SIZE);
 		if (MeasurementAttributes.FONT_BOLD.get(fig) != null)
-			settings.setFontWeight(ShapeSettingsData.FONT_BOLD);
+			settings.setFontStyle(ShapeSettingsData.FONT_BOLD);
 		else
-			settings.setFontWeight(ShapeSettingsData.DEFAULT_FONT_WEIGHT);
+			settings.setFontStyle(ShapeSettingsData.DEFAULT_FONT_WEIGHT);
 		if (MeasurementAttributes.FONT_ITALIC.get(fig) != null)
 			settings.setFontStyle(ShapeSettingsData.FONT_ITALIC);
 		else
