@@ -220,6 +220,8 @@ public class MeasureBezierFigure
 			boolean clientObject)
 	{
 		super(text, closed);
+		setAttribute(MeasurementAttributes.FONT_FACE, DEFAULT_FONT);
+		setAttribute(MeasurementAttributes.FONT_SIZE, new Double(FONT_SIZE));
 		this.readOnly = readOnly;
 		pointArrayX = new ArrayList<Double>();
 		pointArrayY = new ArrayList<Double>();
@@ -247,7 +249,7 @@ public class MeasureBezierFigure
 				polygonArea = addAreaUnits(polygonArea);
 				double sz = ((Double) this.getAttribute(
 							MeasurementAttributes.FONT_SIZE));
-				g.setFont(new Font(FONT_NAME, FONT_STYLE, (int) sz));
+				g.setFont(new Font(FONT_FAMILY, FONT_STYLE, (int) sz));
 				bounds = g.getFontMetrics().getStringBounds(polygonArea, g);
 				bounds = new Rectangle2D.Double(
 						this.getBounds().getCenterX()-bounds.getWidth()/2,
@@ -273,9 +275,9 @@ public class MeasureBezierFigure
 				NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
 				String polygonLength = formatter.format(getLength());
 				polygonLength = addLineUnits(polygonLength);
-				double sz = ((Double) 
-						this.getAttribute(MeasurementAttributes.FONT_SIZE));
-				g.setFont(new Font(FONT_NAME, FONT_STYLE, (int) sz));
+				double sz = (Double) 
+						getAttribute(MeasurementAttributes.FONT_SIZE);
+				g.setFont(new Font(FONT_FAMILY, FONT_STYLE, (int) sz));
 				bounds = g.getFontMetrics().getStringBounds(polygonLength, g);
 				
 				if (super.getNodeCount() > 1)

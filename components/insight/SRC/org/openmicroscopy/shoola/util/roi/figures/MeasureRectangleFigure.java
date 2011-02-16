@@ -104,7 +104,9 @@ public class MeasureRectangleFigure
         this(DEFAULT_TEXT, 0, 0, 0, 0, false, true);
     }
 
-    /** Creates a new instance. 
+    /** 
+     * Creates a new instance.
+     *  
 	 * @param readOnly The figure is read only.
 	 */
     public MeasureRectangleFigure(boolean readOnly, boolean clientObject) 
@@ -169,6 +171,8 @@ public class MeasureRectangleFigure
 		setAttributeEnabled(MeasurementAttributes.WIDTH, true);
 		setAttribute(MeasurementAttributes.WIDTH, width);
 		setAttribute(MeasurementAttributes.HEIGHT, height);
+		setAttribute(MeasurementAttributes.FONT_FACE, DEFAULT_FONT);
+		setAttribute(MeasurementAttributes.FONT_SIZE, new Double(FONT_SIZE));
         shape = null;
 		roi = null;
 		status = IDLE;
@@ -263,9 +267,10 @@ public class MeasureRectangleFigure
 			NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
 			String rectangleArea = formatter.format(getArea());
 			rectangleArea = addUnits(rectangleArea);
-			double sz = ((Double)this.getAttribute(
-					MeasurementAttributes.FONT_SIZE));
-			g.setFont(new Font(FONT_NAME, FONT_STYLE, (int) sz));
+			//double sz = (Double) getAttribute(MeasurementAttributes.FONT_SIZE);
+			Font font = (Font) getAttribute(MeasurementAttributes.FONT_FACE);
+			if (font != null) 
+				g.setFont(font);
 			bounds = g.getFontMetrics().getStringBounds(rectangleArea, g);
 			bounds = new Rectangle2D.Double(
 						getBounds().getCenterX()-bounds.getWidth()/2,
@@ -279,7 +284,7 @@ public class MeasureRectangleFigure
 				g.drawString(rectangleArea, (int) bounds.getX(), (int) 
 							bounds.getY()); 
 			}
-			if(MeasurementAttributes.SHOWID.get(this))
+			if (MeasurementAttributes.SHOWID.get(this))
 			{
 				g.setColor(this.getTextColor());
 				bounds = g.getFontMetrics().getStringBounds(getROI().getID()+"", 

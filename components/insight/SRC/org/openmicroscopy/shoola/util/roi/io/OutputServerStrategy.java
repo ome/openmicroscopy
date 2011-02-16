@@ -445,6 +445,8 @@ class OutputServerStrategy
 	private void addShapeAttributes(ROIFigure fig, ShapeData shape)
 	{
 		ShapeSettingsData settings = shape.getShapeSettings();
+		Boolean bold;
+		Boolean italic;
 		if (AttributeKeys.FILL_COLOR.get(fig) != null)
 		{
 			Color c = AttributeKeys.FILL_COLOR.get(fig);
@@ -466,14 +468,29 @@ class OutputServerStrategy
 					MeasurementAttributes.FONT_SIZE.get(fig).intValue());
 		else
 			settings.setFontSize(ShapeSettingsData.DEFAULT_FONT_SIZE);
-		if (MeasurementAttributes.FONT_BOLD.get(fig) != null)
-			settings.setFontStyle(ShapeSettingsData.FONT_BOLD);
-		else
-			settings.setFontStyle(ShapeSettingsData.DEFAULT_FONT_WEIGHT);
-		if (MeasurementAttributes.FONT_ITALIC.get(fig) != null)
-			settings.setFontStyle(ShapeSettingsData.FONT_ITALIC);
-		else
-			settings.setFontStyle(ShapeSettingsData.DEFAULT_FONT_STYLE);
+		bold = MeasurementAttributes.FONT_BOLD.get(fig);
+		italic = MeasurementAttributes.FONT_ITALIC.get(fig);
+		if (bold != null) {
+			if (bold.booleanValue()) {
+				if (italic != null && italic.booleanValue()) {
+					settings.setFontStyle(ShapeSettingsData.FONT_BOLD_ITALIC);
+				} else settings.setFontStyle(ShapeSettingsData.FONT_BOLD);
+			} else {
+				if (italic != null && italic.booleanValue()) {
+					settings.setFontStyle(ShapeSettingsData.FONT_ITALIC);
+				} else settings.setFontStyle(ShapeSettingsData.FONT_REGULAR);
+			}
+		} else if (italic != null) {
+			if (italic.booleanValue()) {
+				if (bold != null && bold.booleanValue()) {
+					settings.setFontStyle(ShapeSettingsData.FONT_BOLD_ITALIC);
+				} else settings.setFontStyle(ShapeSettingsData.FONT_ITALIC);
+			} else {
+				if (bold != null && bold.booleanValue()) {
+					settings.setFontStyle(ShapeSettingsData.FONT_BOLD);
+				} else settings.setFontStyle(ShapeSettingsData.FONT_REGULAR);
+			}
+		} else settings.setFontStyle(ShapeSettingsData.FONT_REGULAR);
 	}
 	
 	/**

@@ -36,6 +36,8 @@ import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 
+import pojos.ShapeSettingsData;
+
 /** 
  * Interface that all areas of the Euclidean space <b>R</b><sup>2</sup> must
  * implement.
@@ -58,10 +60,18 @@ public interface ROIFigure
 	public static final String FORMAT_PATTERN = "###.#";
 	
 	/** The default font name. */
-	public static final String FONT_NAME = "Arial";
+	public static final String FONT_FAMILY = 
+		ShapeSettingsData.DEFAULT_FONT_FAMILY;
 	
 	/** The default font name. */
-	public static final int    FONT_STYLE = Font.PLAIN;
+	public static final int FONT_SIZE = ShapeSettingsData.DEFAULT_FONT_SIZE;
+	
+	/** The default font name. */
+	public static final int    FONT_STYLE = Font.PLAIN; 
+	
+	/** The default font. */
+	public static final Font  DEFAULT_FONT = new Font(FONT_FAMILY, FONT_STYLE, 
+			FONT_SIZE);
 	
 	/** The default text. */
 	public static final String DEFAULT_TEXT = "Text";

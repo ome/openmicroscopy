@@ -98,6 +98,9 @@ public class MeasureTextArea
     public MeasureTextArea(String text)
     {
         setText(text);
+		setAttribute(MeasurementAttributes.FONT_FACE, ROIFigure.DEFAULT_FONT);
+		setAttribute(MeasurementAttributes.FONT_SIZE, 
+				new Double(ROIFigure.FONT_SIZE));
     }
     
     /**

@@ -112,6 +112,8 @@ public class MeasurePointFigure
     {
     	super(text, x, y, width, height);
     	setAttributeEnabled(MeasurementAttributes.TEXT_COLOR, true);
+		setAttribute(MeasurementAttributes.FONT_FACE, DEFAULT_FONT);
+		setAttribute(MeasurementAttributes.FONT_SIZE, new Double(FONT_SIZE));
 	    shape = null;
 		roi = null;
 		status = IDLE;
@@ -248,8 +250,9 @@ public class MeasurePointFigure
 				"("+formatter.format(getMeasurementCentre().getX()) 
 				+ ","+formatter.format(getMeasurementCentre().getY())+")";
 			//ellipseArea = addUnits(ellipseArea);
-			double sz = ((Double)this.getAttribute(MeasurementAttributes.FONT_SIZE));
-			g.setFont(new Font(FONT_NAME, FONT_STYLE, (int)sz));
+			double sz = ((Double) this.getAttribute(
+					MeasurementAttributes.FONT_SIZE));
+			g.setFont(new Font(FONT_FAMILY, FONT_STYLE, (int) sz));
 			bounds = g.getFontMetrics().getStringBounds(pointCentre, g);
 			bounds = new Rectangle2D.Double(
 					this.getBounds().getCenterX()-bounds.getWidth()/2,

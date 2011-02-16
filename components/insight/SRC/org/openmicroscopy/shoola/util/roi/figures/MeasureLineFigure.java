@@ -156,6 +156,8 @@ public class MeasureLineFigure
 	public MeasureLineFigure(String text, boolean readOnly, boolean clientObject)
 	{
 		super(text);
+		setAttribute(MeasurementAttributes.FONT_FACE, DEFAULT_FONT);
+		setAttribute(MeasurementAttributes.FONT_SIZE, new Double(FONT_SIZE));
 		boundsArray = new ArrayList<Rectangle2D>();
 		lengthArray = new ArrayList<Double>();
 		angleArray = new ArrayList<Double>();
@@ -189,9 +191,9 @@ public class MeasureLineFigure
 				angleArray.add(angle);
 				String lineAngle = formatter.format(angle);
 				lineAngle = addDegrees(lineAngle);
-				double sz = ((Double)this.getAttribute(
+				double sz = ((Double) getAttribute(
 						MeasurementAttributes.FONT_SIZE));
-				g.setFont(new Font(FONT_NAME, FONT_STYLE, (int) sz));
+				g.setFont(new Font(FONT_FAMILY, FONT_STYLE, (int) sz));
 				Rectangle2D rect = g.getFontMetrics().getStringBounds(
 						lineAngle, g);
 				Point2D.Double lengthPoint = getLengthPosition(0, 1);
@@ -209,9 +211,9 @@ public class MeasureLineFigure
 				angleArray.add(angle);
 				String lineAngle = formatter.format(angle);
 				lineAngle = addDegrees(lineAngle);
-				double sz = ((Double) this.getAttribute(
-						MeasurementAttributes.FONT_SIZE));
-				g.setFont(new Font(FONT_NAME, FONT_STYLE, (int) sz));
+				double sz = (Double) getAttribute(
+						MeasurementAttributes.FONT_SIZE);
+				g.setFont(new Font(FONT_FAMILY, FONT_STYLE, (int) sz));
 				Rectangle2D rect = g.getFontMetrics().getStringBounds(lineAngle,
 						g);
 				Rectangle2D bounds = new Rectangle2D.Double(getPoint(x).x,
@@ -228,15 +230,17 @@ public class MeasureLineFigure
 				lengthArray.add(length);
 				String lineLength = formatter.format(length);
 				lineLength = addUnits(lineLength);
-				double sz = ((Double)this.getAttribute(
-						MeasurementAttributes.FONT_SIZE));
-				g.setFont(new Font(FONT_NAME, FONT_STYLE, (int)sz));
+				double sz = (Double) getAttribute(
+						MeasurementAttributes.FONT_SIZE);
+				g.setFont(new Font(FONT_FAMILY, FONT_STYLE, (int) sz));
 				Point2D.Double lengthPoint = getLengthPosition(x-1, x);
-				Rectangle2D rect = g.getFontMetrics().getStringBounds(lineLength, g);
+				Rectangle2D rect = g.getFontMetrics().getStringBounds(
+						lineLength, g);
 				Rectangle2D bounds = new Rectangle2D.Double(lengthPoint.x-15, 
 						lengthPoint.y-15,rect.getWidth()+30, 
 						rect.getHeight()+30);
-				g.setColor(MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
+				g.setColor(
+						MeasurementAttributes.MEASUREMENTTEXT_COLOUR.get(this));
 				g.drawString(lineLength, (int)lengthPoint.x, (int)lengthPoint.y);
 				boundsArray.add(bounds);
 			}

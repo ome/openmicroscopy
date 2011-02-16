@@ -39,6 +39,7 @@ import org.jhotdraw.draw.TextFigure;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.model.ROI;
 import org.openmicroscopy.shoola.util.roi.model.ROIShape;
+import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.MeasurementUnits;
 import org.openmicroscopy.shoola.util.roi.figures.ROIFigure;
 import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
@@ -128,9 +129,11 @@ public class MeasureTextFigure
     							boolean clientObject) 
     {
     	super();
-    	this.willChange();
-    	this.setBounds(new Point2D.Double(x, y), new Point2D.Double(x, y));
-    	this.changed();
+    	setAttribute(MeasurementAttributes.FONT_FACE, ROIFigure.DEFAULT_FONT);
+		setAttribute(MeasurementAttributes.FONT_SIZE, new Double(FONT_SIZE));
+    	willChange();
+    	setBounds(new Point2D.Double(x, y), new Point2D.Double(x, y));
+    	changed();
     	shape = null;
    		roi = null;
    		status = IDLE;
@@ -327,4 +330,5 @@ public class MeasureTextFigure
 				figListeners.add((FigureListener)listener);
 		return figListeners;
 	}
+	
 }

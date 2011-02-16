@@ -118,6 +118,8 @@ public class MeasureEllipseFigure
 	{
 		super(text, x, y, width, height);
 		setAttributeEnabled(MeasurementAttributes.TEXT_COLOR, true);
+		setAttribute(MeasurementAttributes.FONT_FACE, DEFAULT_FONT);
+		setAttribute(MeasurementAttributes.FONT_SIZE, new Double(FONT_SIZE));
 	   	shape = null;
 		roi = null;
 		status = IDLE;
@@ -281,9 +283,9 @@ public class MeasureEllipseFigure
 			NumberFormat formatter = new DecimalFormat(FORMAT_PATTERN);
 			String ellipseArea = formatter.format(getArea());
 			ellipseArea = addUnits(ellipseArea);
-			double sz= ((Double) this.getAttribute(
+			double sz = ((Double) this.getAttribute(
 					MeasurementAttributes.FONT_SIZE));
-			g.setFont(new Font(FONT_NAME, FONT_STYLE, (int) sz));
+			g.setFont(new Font(FONT_FAMILY, FONT_STYLE, (int) sz));
 			Rectangle2D stringBoundsbounds = 
 				g.getFontMetrics().getStringBounds(ellipseArea, g);
 			measurementBounds =

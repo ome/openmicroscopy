@@ -36,9 +36,10 @@ import java.util.List;
 
 //Third-party libraries
 import org.jhotdraw.draw.FigureListener;
-import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
+import org.openmicroscopy.shoola.util.ui.drawingtools.figures.FigureUtil;
 
 /**
  * Mask with measurement
@@ -123,7 +124,9 @@ public class MeasureMaskFigure
     	boolean clientObject) 
     {
 		super(text, x, y, width, height, readOnly, clientObject);
-		this.mask = mask;
+		setAttribute(MeasurementAttributes.FONT_FACE, DEFAULT_FONT);
+		setAttribute(MeasurementAttributes.FONT_SIZE, new Double(FONT_SIZE));
+		setMask(mask);
     }
     
     /**
@@ -132,6 +135,8 @@ public class MeasureMaskFigure
      */
     public void setMask(BufferedImage mask)
     {
+    	if (mask == null)
+    		throw new IllegalArgumentException("No Mask");
     	this.mask = mask;
     }    
     
@@ -139,12 +144,8 @@ public class MeasureMaskFigure
      * get the mask of the maskFigure.
      * return See above.
      */
-    public BufferedImage getMask()
-    {
-    	return this.mask;
-    }
+    public BufferedImage getMask() { return mask; }
     
-
 	/**
 	 * Implemented as specified by the {@link ROIFigure} interface.
 	 * @see ROIFigure#getType()
@@ -169,7 +170,7 @@ public class MeasureMaskFigure
 	private boolean hasColour(int rgb)
 	{
 		Color toColor = new Color(rgb);
-		return (toColor.getAlpha()!=0);
+		return (toColor.getAlpha() != 0);
 	}
 	
 	/**

@@ -149,21 +149,20 @@ public class BezierTextFigure
 	{
 		if (!(DrawingAttributes.SHOWTEXT.get(this))) return;
 		String text = getText();
-		if (text != null  && isEditable()) 
+		if (text != null)//  && isEditable()) 
 		{	
-			if(text!=null)
-				text = text.trim();
-		
+			text = text.trim();
 			TextLayout layout = getTextLayout();
 			Rectangle2D.Double r = getBounds();
-			FontMetrics fm = 
-					g.getFontMetrics(AttributeKeys.FONT_FACE.get(this));
+			Font font = AttributeKeys.FONT_FACE.get(this);
+			FontMetrics fm = g.getFontMetrics(font);
 			double textWidth = fm.stringWidth(text);
 			double textHeight = fm.getAscent();
 			double x = r.x+r.width/2-textWidth/2;
 			double y = r.y+textHeight/2+r.height/2;
-			Font font = AttributeKeys.FONT_FACE.get(this);
-			Font viewFont = font.deriveFont(AttributeKeys.FONT_SIZE.get(this).intValue());
+			
+			Font viewFont = font.deriveFont(
+					AttributeKeys.FONT_SIZE.get(this).intValue());
 			g.setFont(viewFont);
 			g.setColor(AttributeKeys.TEXT_COLOR.get(this));
 			textBounds = new Rectangle2D.Double(x, y, textWidth, textHeight);

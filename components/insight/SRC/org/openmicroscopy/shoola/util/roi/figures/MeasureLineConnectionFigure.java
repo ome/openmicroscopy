@@ -125,6 +125,8 @@ public class MeasureLineConnectionFigure
 	public MeasureLineConnectionFigure(String text, boolean readOnly)
 	{
 		super(text);
+		setAttribute(MeasurementAttributes.FONT_FACE, DEFAULT_FONT);
+		setAttribute(MeasurementAttributes.FONT_SIZE, new Double(FONT_SIZE));
 		lengthArray = new ArrayList<Double>();
 		angleArray = new ArrayList<Double>();
 		pointArrayX = new ArrayList<Double>();
@@ -158,9 +160,9 @@ public class MeasureLineConnectionFigure
 				angleArray.add(angle);
 				String lineAngle = formatter.format(angle);
 				lineAngle = addDegrees(lineAngle);
-				double sz = ((Double)this.getAttribute(
-						MeasurementAttributes.FONT_SIZE));
-				g.setFont(new Font(FONT_NAME, FONT_STYLE, (int)sz));
+				double sz = ( Double) getAttribute(
+						MeasurementAttributes.FONT_SIZE);
+				g.setFont(new Font(FONT_FAMILY, FONT_STYLE, (int) sz));
 				Rectangle2D rect = g.getFontMetrics().getStringBounds(lineAngle,
 						g);
 				Point2D.Double lengthPoint = getLengthPosition(0, 1);
@@ -180,9 +182,9 @@ public class MeasureLineConnectionFigure
 				angleArray.add(angle);
 				String lineAngle = formatter.format(angle);
 				lineAngle = addDegrees(lineAngle);
-				double sz = ((Double) getAttribute(
-						MeasurementAttributes.FONT_SIZE));
-				g.setFont(new Font(FONT_NAME, FONT_STYLE, (int)sz));
+				double sz = (Double) getAttribute(
+						MeasurementAttributes.FONT_SIZE);
+				g.setFont(new Font(FONT_FAMILY, FONT_STYLE, (int)sz));
 				Rectangle2D rect = g.getFontMetrics().getStringBounds(lineAngle,
 						g);
 				Rectangle2D bounds = new Rectangle2D.Double(getPoint(x).x, 
@@ -201,7 +203,7 @@ public class MeasureLineConnectionFigure
 				lineLength = addUnits(lineLength);
 				double sz = ((Double)
 						getAttribute(MeasurementAttributes.FONT_SIZE));
-				g.setFont(new Font(FONT_NAME, FONT_STYLE, (int) sz));
+				g.setFont(new Font(FONT_FAMILY, FONT_STYLE, (int) sz));
 				Rectangle2D rect = g.getFontMetrics().getStringBounds(
 						lineLength, g);
 				Rectangle2D bounds = new Rectangle2D.Double(getPoint(x).x-15, 

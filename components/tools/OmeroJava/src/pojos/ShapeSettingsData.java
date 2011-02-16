@@ -75,24 +75,42 @@ public class ShapeSettingsData
 	/** The default font size. */
 	public static final int 	DEFAULT_FONT_SIZE = 12;
 	
-	/** The default font style. */
-	public static final String 	DEFAULT_FONT_STYLE = "normal";
-	
-	/** The default font weight. */
-	public static final String 	DEFAULT_FONT_WEIGHT = "normal";
-	
 	/** The default font family. */
-	public static final String 	DEFAULT_FONT_FAMILY = "Courier";
+	public static final String 	DEFAULT_FONT_FAMILY = "Arial";
 	
 	/** The default stroke width. */
 	public final static double DEFAULT_STROKE_WIDTH =  1.0f;
 
 	/** Set if font italic. */
-	public final static String FONT_ITALIC = "italic";
+	public final static String FONT_ITALIC = "Italic";
 	
 	/** Set if font bold. */
-	public final static String FONT_BOLD = "bold";
+	public final static String FONT_BOLD = "Bold";
 
+	/** Set if font bold. */
+	public final static String FONT_BOLD_ITALIC = "BoldItalic";
+	
+	/** Set if font bold. */
+	public final static String FONT_REGULAR = "Regular";
+	
+	/**
+	 * Returns the font style is supported.
+	 * 
+	 * @param value The value to format.
+	 * @return See above.
+	 */
+	private String formatFontStyle(String value)
+	{
+		if (value == null) return FONT_REGULAR;
+		String v = value.trim();
+		v = v.toLowerCase();
+		if (FONT_ITALIC.toLowerCase().equals(v)) return FONT_ITALIC;
+		else if (FONT_BOLD.toLowerCase().equals(v)) return FONT_BOLD;
+		else if (FONT_BOLD_ITALIC.toLowerCase().equals(v)) 
+			return FONT_BOLD_ITALIC;
+		return FONT_REGULAR;
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -102,6 +120,7 @@ public class ShapeSettingsData
 	{
 		super();
 		setValue(shape);
+		setFontStyle(FONT_REGULAR);
 	}
 	
 	/**
@@ -241,11 +260,12 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		String values = "";
+		if (dashArray == null || dashArray.length < 2) return;
+		StringBuffer values = new StringBuffer();
 		for(int i = 0 ; i < dashArray.length-1 ; i++)
-			values = values + dashArray[i] + ",";
-		values = values + dashArray[dashArray.length-1];
-		shape.setStrokeDashArray(rtypes.rstring(values));
+			values.append(dashArray[i]+ ",");
+		String v = values.toString() + dashArray[dashArray.length-1];
+		shape.setStrokeDashArray(rtypes.rstring(v));
 		setDirty(true);
 	}
 	
@@ -305,7 +325,7 @@ public class ShapeSettingsData
 			style = style | Font.BOLD;
 		if (isFontItalic())
 			style = style | Font.ITALIC;
-		return new Font(getFontFamily(), style,getFontSize());
+		return new Font(getFontFamily(), style, getFontSize());
 	}
 	
 	/**
@@ -318,10 +338,9 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		if(shape.getFontFamily()!=null)
-			return shape.getFontFamily().getValue();
-		else
-			return DEFAULT_FONT_FAMILY;
+		RString family = shape.getFontFamily();
+		if (family != null) return family.getValue();
+		return DEFAULT_FONT_FAMILY;
 	}
 
 	/**
@@ -348,10 +367,9 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		if(shape.getFontSize()!=null)
-			return shape.getFontSize().getValue();
-		else
-			return DEFAULT_FONT_SIZE;
+		RInt size = shape.getFontSize();
+		if (size != null) return size.getValue();
+		return DEFAULT_FONT_SIZE;
 	}
 
 	/**
@@ -364,10 +382,10 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
+		if (fontSize <= 0) fontSize = DEFAULT_FONT_SIZE;
 		shape.setFontSize(rtypes.rint(fontSize));
 		setDirty(true);
 	}
-
 	
 	/**
 	 * Returns the font style.
@@ -379,10 +397,9 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		if (shape.getFontStyle() != null)
-			return shape.getFontStyle().getValue();
-		else
-			return DEFAULT_FONT_STYLE;
+		RString style = shape.getFontStyle();
+		if (style != null) return style.getValue();
+		return FONT_REGULAR;
 	}
 
 	/**
@@ -395,7 +412,7 @@ public class ShapeSettingsData
 		Shape shape = (Shape) asIObject();
 		if (shape == null) 
 			throw new IllegalArgumentException("No shape specified.");
-		shape.setFontStyle(rtypes.rstring(fontStyle));
+		shape.setFontStyle(rtypes.rstring(formatFontStyle(fontStyle)));
 		setDirty(true);
 	}
 
@@ -445,7 +462,11 @@ public class ShapeSettingsData
 	 * 
 	 * @return See above.
 	 */
-	public boolean isFontItalic() { return getFontStyle() == FONT_ITALIC; }
+	public boolean isFontItalic()
+	{ 
+		String value = getFontStyle();
+		return (FONT_ITALIC.equals(value) || FONT_BOLD_ITALIC.equals(value));
+	}
 	
 	/**
 	 * Returns <code>true</code> if it is bold, <code>false</code>
@@ -453,6 +474,10 @@ public class ShapeSettingsData
 	 * 
 	 * @return See above.
 	 */
-	public boolean isFontBold() { return getFontStyle() == FONT_BOLD; }
+	public boolean isFontBold()
+	{ 
+		String value = getFontStyle();
+		return (FONT_BOLD.equals(value) || FONT_BOLD_ITALIC.equals(value));
+	}
 	
 }

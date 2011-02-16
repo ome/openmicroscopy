@@ -116,8 +116,8 @@ class InputServerStrategy
 			IOConstants.DEFAULT_TEXT_COLOUR);
 		DEFAULT_ATTRIBUTES.put(MeasurementAttributes.FONT_SIZE, 
 				ShapeSettingsData.DEFAULT_FONT_SIZE);
-		DEFAULT_ATTRIBUTES.put(MeasurementAttributes.FONT_BOLD, 
-				ShapeSettingsData.DEFAULT_FONT_STYLE);
+		//DEFAULT_ATTRIBUTES.put(MeasurementAttributes.FONT_BOLD, 
+		//		ShapeSettingsData.DEFAULT_FONT_STYLE);
 		DEFAULT_ATTRIBUTES.put(MeasurementAttributes.STROKE_WIDTH, 
 				ShapeSettingsData.DEFAULT_STROKE_WIDTH);
 		DEFAULT_ATTRIBUTES.put(MeasurementAttributes.TEXT, "Text");
