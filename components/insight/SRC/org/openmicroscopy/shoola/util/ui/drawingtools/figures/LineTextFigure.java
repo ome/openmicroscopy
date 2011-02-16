@@ -229,7 +229,8 @@ public class LineTextFigure
 	 */
 	public void setText(String newText) 
 	{
-		setAttribute(DrawingAttributes.SHOWTEXT, true);
+		boolean b = (newText != null && newText.trim().length() > 0);
+		setAttribute(DrawingAttributes.SHOWTEXT, b);
 		setAttribute(AttributeKeys.TEXT, newText);
 	}
 	

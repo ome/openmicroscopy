@@ -106,28 +106,31 @@ class ObjectInspector
 		List<AttributeField> l = new ArrayList<AttributeField>();
 		l.add(new AttributeField(MeasurementAttributes.TEXT, 
 				AnnotationDescription.annotationDescription.get(
-				AnnotationKeys.TEXT), true));
+				AnnotationKeys.TEXT), Boolean.valueOf(true)));
 		l.add(new AttributeField(MeasurementAttributes.WIDTH, 
 				AnnotationDescription.annotationDescription.get(
-				AnnotationKeys.WIDTH), true));
+				AnnotationKeys.WIDTH), Boolean.valueOf(true)));
 		l.add(new AttributeField(MeasurementAttributes.HEIGHT, 
 				AnnotationDescription.annotationDescription.get(
-				AnnotationKeys.HEIGHT), true));
+				AnnotationKeys.HEIGHT), Boolean.valueOf(true)));
 		//l.add(new AttributeField(AnnotationKeys.NAMESPACE, "Workflow", false));
 		//l.add(new AttributeField(AnnotationKeys.KEYWORDS, "Keywords", false));
 		l.add(new AttributeField(MeasurementAttributes.SHOWTEXT, "Show Text", 
-				false));
+				Boolean.valueOf(false)));
 		l.add(new AttributeField(MeasurementAttributes.SHOWMEASUREMENT, 
 				AnnotationDescription.annotationDescription.get(
-						MeasurementAttributes.SHOWMEASUREMENT), false)); 
+						MeasurementAttributes.SHOWMEASUREMENT), 
+						Boolean.valueOf(false))); 
 		//l.add(new AttributeField(MeasurementAttributes.SHOWID, 
 			//"Show ID", false)); 
 		l.add(new AttributeField(MeasurementAttributes.FILL_COLOR, 
 				AnnotationDescription.annotationDescription.get(
-						MeasurementAttributes.FILL_COLOR), false));
+						MeasurementAttributes.FILL_COLOR), 
+						Boolean.valueOf(false)));
 		l.add(new AttributeField(MeasurementAttributes.STROKE_COLOR, 
 				AnnotationDescription.annotationDescription.get(
-						MeasurementAttributes.STROKE_COLOR), false));
+						MeasurementAttributes.STROKE_COLOR), 
+						Boolean.valueOf(false)));
 		//create the table
 		fieldTable = new FigureTable(new FigureTableModel(l, COLUMN_NAMES));
 		fieldTable.getTableHeader().setReorderingAllowed(false);
@@ -162,7 +165,6 @@ class ObjectInspector
 				}
 			}
 		});
-
 	}
 	
 	/**

@@ -118,7 +118,7 @@ public class RectangleTextFigure
 		super(x, y, w, h);
 		setAttributeEnabled(AttributeKeys.TEXT_COLOR, true);
 		setAttribute(AttributeKeys.TEXT, text);
-		setAttribute(DrawingAttributes.SHOWTEXT, true);
+		//setAttribute(DrawingAttributes.SHOWTEXT, true);
 		textLayout = null;
 		textBounds = null;
 		editable = true;
@@ -293,7 +293,8 @@ public class RectangleTextFigure
 	 */
 	public void setText(String newText) 
 	{
-		setAttribute(DrawingAttributes.SHOWTEXT, true);
+		boolean b = (newText != null && newText.trim().length() > 0);
+		setAttribute(DrawingAttributes.SHOWTEXT, b);
 		setAttribute(AttributeKeys.TEXT, newText);
 	}
 	

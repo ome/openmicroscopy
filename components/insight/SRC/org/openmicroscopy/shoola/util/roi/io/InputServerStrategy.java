@@ -45,10 +45,10 @@ import static org.jhotdraw.draw.AttributeKeys.FONT_SIZE;
 import static org.jhotdraw.draw.AttributeKeys.STROKE_CAP;
 import static org.jhotdraw.draw.AttributeKeys.STROKE_COLOR;
 import static org.jhotdraw.draw.AttributeKeys.STROKE_WIDTH;
-
-//Application-internal dependencies
 import org.jhotdraw.draw.AttributeKey;
 import org.jhotdraw.geom.BezierPath.Node;
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.util.roi.ROIComponent;
 import org.openmicroscopy.shoola.util.roi.exception.NoSuchROIException;
 import org.openmicroscopy.shoola.util.roi.exception.ROICreationException;
@@ -113,16 +113,15 @@ class InputServerStrategy
 		DEFAULT_ATTRIBUTES.put(MeasurementAttributes.STROKE_COLOR,
 			ShapeSettingsData.DEFAULT_STROKE_COLOUR);
 		DEFAULT_ATTRIBUTES.put(MeasurementAttributes.TEXT_COLOR,
-			IOConstants.DEFAULT_TEXT_COLOUR);
+				ShapeSettingsData.DEFAULT_FILL_COLOUR);
 		DEFAULT_ATTRIBUTES.put(MeasurementAttributes.FONT_SIZE, 
 				ShapeSettingsData.DEFAULT_FONT_SIZE);
-		//DEFAULT_ATTRIBUTES.put(MeasurementAttributes.FONT_BOLD, 
-		//		ShapeSettingsData.DEFAULT_FONT_STYLE);
 		DEFAULT_ATTRIBUTES.put(MeasurementAttributes.STROKE_WIDTH, 
 				ShapeSettingsData.DEFAULT_STROKE_WIDTH);
-		DEFAULT_ATTRIBUTES.put(MeasurementAttributes.TEXT, "Text");
+		DEFAULT_ATTRIBUTES.put(MeasurementAttributes.TEXT, 
+				ROIFigure.DEFAULT_TEXT);
 		DEFAULT_ATTRIBUTES.put(MeasurementAttributes.MEASUREMENTTEXT_COLOUR,
-			IOConstants.DEFAULT_MEASUREMENT_TEXT_COLOUR);
+				ShapeSettingsData.DEFAULT_FILL_COLOUR);
 		DEFAULT_ATTRIBUTES.put(MeasurementAttributes.SHOWMEASUREMENT, 
 				Boolean.valueOf(false));
 		DEFAULT_ATTRIBUTES.put(MeasurementAttributes.SHOWTEXT, 
