@@ -2948,14 +2948,14 @@ class _BlitzGateway (object):
         
         @param oid:     Image ID
         @type oid:      Long
-        @param anns:    If True, keep Tag, Term and File Annotations
+        @param anns:    If True, delete Tag, Term and File Annotations
         @type anns:     Boolean
         @return:        Delete handle
         @rtype:         L{omero.api.delete.DeleteHandle}
         """
         
         op = dict()
-        if anns:
+        if not anns:
             op["/TagAnnotation"] = "KEEP"
             op["/TermAnnotation"] = "KEEP"
             op["/FileAnnotation"] = "KEEP"
@@ -2967,14 +2967,14 @@ class _BlitzGateway (object):
         
         @param ids:     Image ID
         @type ids:      Long list
-        @param anns:    If True, keep Tag, Term and File Annotations
+        @param anns:    If True, delete Tag, Term and File Annotations
         @type anns:     Boolean
         @return:        Delete handle
         @rtype:         L{omero.api.delete.DeleteHandle}
         """
         
         op = dict()
-        if anns:
+        if not anns:
             op["/TagAnnotation"] = "KEEP"
             op["/TermAnnotation"] = "KEEP"
             op["/FileAnnotation"] = "KEEP"
@@ -2986,14 +2986,14 @@ class _BlitzGateway (object):
         
         @param oid:     Plate ID
         @type oid:      Long
-        @param anns:    If True, keep Tag, Term and File Annotations
+        @param anns:    If True, delete Tag, Term and File Annotations
         @type anns:     Boolean
         @return:        Delete handle
         @rtype:         L{omero.api.delete.DeleteHandle}
         """
         
         op = dict()
-        if anns:            
+        if not anns:            
             op["/TagAnnotation"] = "KEEP"
             op["/TermAnnotation"] = "KEEP"
             op["/FileAnnotation"] = "KEEP"
@@ -3005,20 +3005,20 @@ class _BlitzGateway (object):
         
         @param oid:     Image ID
         @type oid:      Long
-        @param child:   If True, keep Images
+        @param child:   If True, delete Images
         @type child:    Boolean
-        @param anns:    If True, keep Tag, Term and File Annotations
+        @param anns:    If True, delete Tag, Term and File Annotations
         @type anns:     Boolean
         @return:        Delete handle
         @rtype:         L{omero.api.delete.DeleteHandle}
         """
         
         op = dict()
-        if anns:            
+        if not anns:            
             op["/TagAnnotation"] = "KEEP"
             op["/TermAnnotation"] = "KEEP"
             op["/FileAnnotation"] = "KEEP"
-        if child:
+        if not child:
             op["/Image"] = "KEEP"
         return self.simpleDelete('Dataset', [oid], op)
     
@@ -3028,44 +3028,44 @@ class _BlitzGateway (object):
         
         @param oid:     Image ID
         @type oid:      Long
-        @param child:   If True, keep Datasets and Images
+        @param child:   If True, delete Datasets and Images
         @type child:    Boolean
-        @param anns:    If True, keep Tag, Term and File Annotations
+        @param anns:    If True, delete Tag, Term and File Annotations
         @type anns:     Boolean
         @return:        Delete handle
         @rtype:         L{omero.api.delete.DeleteHandle}
         """
         
         op = dict()
-        if anns:            
+        if not anns:            
             op["/TagAnnotation"] = "KEEP"
             op["/TermAnnotation"] = "KEEP"
             op["/FileAnnotation"] = "KEEP"
-        if child:
+        if not child:
             op["/Dataset"] = "KEEP"
             op["/Image"] = "KEEP"
         return self.simpleDelete('Project', [oid], op)
     
-    def deleteScreen(self, oid, child=None, anns=None):
+    def deleteScreen(self, oid, child=False, anns=False):
         """
         Adds a 'Delete Screen' command to the delete queue, keeping Annotations and Plates by default
         
         @param oid:     Image ID
         @type oid:      Long
-        @param child:   If True, keep Plates
+        @param child:   If True, delete Plates
         @type child:    Boolean
-        @param anns:    If True, keep Tag, Term and File Annotations
+        @param anns:    If True, delete Tag, Term and File Annotations
         @type child:    Boolean
         @return:        Delete handle
         @rtype:         L{omero.api.delete.DeleteHandle}
         """
         
         op = dict()
-        if anns is None:            
+        if not anns:            
             op["/TagAnnotation"] = "KEEP"
             op["/TermAnnotation"] = "KEEP"
             op["/FileAnnotation"] = "KEEP"
-        if child is None:
+        if not child:
             op["/Plate"] = "KEEP"
         return self.simpleDelete('Screen', [oid], op)
     
