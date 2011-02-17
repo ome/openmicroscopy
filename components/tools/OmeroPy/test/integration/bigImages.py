@@ -24,6 +24,16 @@ from numpy import asarray
 class TestFigureExportScripts(lib.ITest):
 
     def testRenderRegion(self):
+        """
+        Test attempts to compare a full image plane, cropped to a region, with a region retrieved from
+        rendering engine. 
+        Uses PIL to convert compressed strings into 2D numpy arrays for cropping and comparison.
+        ** Although cropped images and retrieved regions APPEAR identical, there appear to be rounding
+        or rendering errors, either in the 'renderCompressed' method of the rendering engine or in PIL **
+        For this reason, there are small differences in the pixel values of rendered regions. 
+        This functionality is also tested in Java.
+        Therefore this test is not 'Activated' currently. 
+        """
 
         print "testRenderRegion"
 
