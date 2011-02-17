@@ -51,7 +51,8 @@ public class SchemaCurrent_TO_2003_FC_Test
 	private File STYLESHEET = new File("2010-06-TO-2003-FC.xsl");
 	
 	/** The schema file. Decide where to put it. */
-	private File SCHEMA_2003_FC = new File("2010-06-TO-2003-FC.xsl");
+	private File SCHEMA_2003_FC = new File("ome.xsd");
+	//XML/Release/2003-FC/V2
 	
 	/** The path in front of ID. */
 	private String XSLT_PATH_ID = "xslt.fix";
