@@ -206,7 +206,6 @@ class RenderHSBRegionTask implements RenderingTask {
         int[] buf = ((RGBIntBuffer) dataBuffer).getDataBuffer();
         boolean isPrimaryColor = optimizations.isPrimaryColorEnabled();
         boolean isAlphaless = optimizations.isAlphalessRendering();
-        log.info("renderPackedInt: "+width+" "+buf.length);
         for (Plane2D plane : wData) {
             int[] color = colors.get(i);
             QuantumStrategy qs = strategies.get(i);

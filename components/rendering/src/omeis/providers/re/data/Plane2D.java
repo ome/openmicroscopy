@@ -102,6 +102,11 @@ public class Plane2D {
         	sizeX = pixels.getSizeX();
             sizeY = pixels.getSizeY();
         }
+        int stride = pDef.getStride();
+        if (stride < 0) stride = 0;
+        stride++;
+        sizeX = sizeX/stride;
+        sizeY = sizeY/stride;
         this.data = data;
 
         // Grab the pixel type from the pixels set
@@ -173,7 +178,7 @@ public class Plane2D {
     {
     	return (slice == PlaneDef.XY);
     }
-    
+
     /**
      * Returns the pixel data that is used to back this Plane.
      * 

@@ -509,6 +509,9 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
         ByteArrayOutputStream byteStream = null;
         try {
+        	int stride = pd.getStride();
+        	if (stride < 0) stride = 0;
+        	stride++;
             int[] buf = renderAsPackedInt(pd);
             int sizeX = pixelsObj.getSizeX();
             int sizeY = pixelsObj.getSizeY();
@@ -517,6 +520,8 @@ public class RenderingBean implements RenderingEngine, Serializable {
             	sizeX = region.getWidth();
             	sizeY = region.getHeight();
             }
+            sizeX = sizeX/stride;
+            sizeY = sizeY/stride;
             BufferedImage image = ImageUtil.createBufferedImage(buf, sizeX,
                     sizeY);
             byteStream = new ByteArrayOutputStream();

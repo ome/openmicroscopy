@@ -119,7 +119,7 @@ abstract class RenderingStrategy {
     	RegionDef region = pd.getRegion();
     	isRegionValid(region, pixels);
     	int stride = pd.getStride();
-    	if (stride <= 0) stride = 0;
+    	if (stride < 0) stride = 0;
     	stride++;
         try {
             switch (pd.getSlice()) {
