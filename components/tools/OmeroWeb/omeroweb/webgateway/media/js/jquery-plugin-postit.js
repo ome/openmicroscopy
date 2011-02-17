@@ -121,10 +121,11 @@ $.fn.postit = function(cfg) {
       if (boundaries.top < 0) {
         self.css('top', 0);
       } else if (boundaries.bottom > viewport.height) {
-        self.css('top', viewport.height - self.height());
+        var top = Math.max(viewport.height - self.height(), 0);
+        self.css('top', top);
       }
     };
-    self.jqDrag('h1:first').bind('mouseup', dropEvent);
-
+    self.jqDrag('h1:first');
+    self.find('h1:first').bind('mouseup', dropEvent)
   });
 }
