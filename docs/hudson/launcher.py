@@ -109,7 +109,12 @@ if __name__ == "__main__":
     if axises and job != "start":
         build_url = os.environ["BUILD_URL"]
         build_url = build_url.replace("component=%s" % job, "component=start")
-        build_url = "%s/%s" % (build_url, "artifact/src/%s.config" % branch)
+        # These jobs don't have their own
+        # "start" component, so let them use
+        # the "linux" label.
+        if job == "macosx" or job == "matlab":
+            build_url = build_url.replace("label=%s" % job, "label=linux")
+        build_url = "%s/%s" % (build_url, "ws/src/%s.config" % branch)
         urllib.urlretrieve(build_url, filename=config_file)
 
 
