@@ -379,6 +379,13 @@ INPUT.changed {
   /* max-width: 600px; */
 }
 
+#roi_table_postit {
+    width:200px;
+}
+#roi_table_postit table {
+    width: 100%;
+}
+
 .thumbslider {
   position: absolute;
   left: 165px;
@@ -627,6 +634,9 @@ input.spin-button {
     background-color: #fff; 
     text-align: center;
 }
-.shape_cell {
+#roi_small_table .shape_cell {
+    cursor: pointer;
+}
+#roi_small_table .roi_row th {
     cursor: pointer;
 }

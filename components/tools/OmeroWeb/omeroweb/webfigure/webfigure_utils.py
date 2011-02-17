@@ -11,7 +11,7 @@ def stringToSvg(string):
     
     firstList = string.strip().split("points")[1]
     nums = firstList.strip("[]").replace(", ", " L").replace(",", " ")
-    return "M" + nums + "z"
+    return "M" + nums
 
 
 def rgb_int2css(rgbint):
@@ -33,7 +33,6 @@ def getRoiShapes(roiService, imageId):
         # go through all the shapes of the ROI
         shapes = []
         for s in r.copyShapes():
-            print type(s)
             shape = {}
             shape['id'] = s.getId().getValue()
             shape['theT'] = s.getTheT().getValue()
@@ -44,7 +43,7 @@ def getRoiShapes(roiService, imageId):
                 shape['y'] = s.getY().getValue()
                 shape['width'] = s.getWidth().getValue()
                 shape['height'] = s.getHeight().getValue()
-            if type(s) == omero.model.MaskI:
+            elif type(s) == omero.model.MaskI:
                 shape['type'] = 'Mask'
                 shape['x'] = s.getX().getValue()
                 shape['y'] = s.getY().getValue()
@@ -74,7 +73,13 @@ def getRoiShapes(roiService, imageId):
                 shape['cy'] = s.getCy().getValue()
             elif type(s) == omero.model.PolygonI:
                 shape['type'] = 'Polygon'
-                shape['points'] = stringToSvg(s.getPoints().getValue())
+                shape['points'] = stringToSvg(s.getPoints().getValue()) + "z" # z = closed line
+            elif type(s) == omero.model.LabelI:
+                shape['type'] = 'Label'
+                shape['x'] = s.getX().getValue()
+                shape['y'] = s.getY().getValue()
+            else:
+                print "Shape type not supported:", type(s)
             try:
                 if s.getTextValue() and s.getTextValue().getValue():
                     shape['textValue'] = s.getTextValue().getValue()

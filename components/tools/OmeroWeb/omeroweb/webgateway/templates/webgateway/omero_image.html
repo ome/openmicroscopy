@@ -410,12 +410,18 @@
     }
   };
   
+  /**
+  *     ROI load & table methods 
+  */
+
   var refresh_rois = function () {
       // re-plots the ROIs (if currently shown) for new Z and T position
       if (viewport.viewportimg.get(0).refresh_rois) {
           var theT = viewport.getTPos();
           var theZ = viewport.getZPos();
           viewport.viewportimg.get(0).refresh_rois(theZ, theT);
+          // clear any selected rows in roi table
+          $('#roi_small_table tbody').children().children().css('background-color', '#fff');
       }
   }
   var show_rois = function () {
@@ -427,21 +433,30 @@
             viewport.viewportimg.roi_display({width:{{ image.getWidth }}, 
                                             height:{{ image.getHeight }},
                                             json_url:'{% url webfigure_get_rois image.id %}' });
-      }                           
+      }
+      else {
+          // if ROIs already loaded, there won't be a callback to show table - do it manually
+          $("#roi_table_postit").show();
+      }                        
              
-      // loads ROIs (if needed) and shows 
+      // loads ROIs (if needed) and shows. 
     viewport.viewportimg.get(0).show_rois(theZ, theT);
   }
+  
+  
   var hide_rois = function() {
       // hides the display of ROIs. 
-      viewport.viewportimg.get(0).hide_rois();
+      if (viewport.viewportimg.get(0).hide_rois) {
+          viewport.viewportimg.get(0).hide_rois();
+      }
+      $("#roi_table_postit").hide();
   }
   
   // builds an html table of ROI data. All collapsed.
   var build_roi_table = function() {
+      var $roi_table = $("#roi_small_table");
       var json = viewport.viewportimg.get(0).get_roi_json();
       
-      var $roi_table = $("#roi_small_table");
       $roi_table.find('tbody').remove();
       
       // populate table. Cols are: ID, T, Z, Shape
@@ -478,19 +493,27 @@
       }
   }
   
+  // bound to call-back on roi plugin when ROIs loaded
+  var handle_rois_loaded = function(e) {
+      build_roi_table();
+      $("#roi_table_postit").show();
+      var $roi_table = $("#roi_small_table");
+      $roi_table.find('tbody').hide();  // hides the shapes
+      
+      //var roi_count = $roi_table.find('thead').length;
+      //var shape_count = $roi_table.find('tbody tr').length;
+      //alert("ROIs: " + roi_count + " Shapes: " + shape_count);
+  }
+  
   // bound to clicks on shapes in the viewer
     var handle_shape_selection = function(e, shape_id) {
         var $roi_table = $("#roi_small_table");
-        if ($roi_table.is(':empty')) {
-            build_roi_table();
-        }
-        $roi_table.find('thead').hide();
-        $roi_table.find('tbody tr').hide();
-        // show the rows and the ROI <thead> above the Shapes <tbody>
+        $roi_table.find('tbody').hide();
+        // show the rows
         var $row = $("#"+shape_id+"_shape");
-        $row.show().children().css('background-color', '#d0d0ff');      // show this row blue
-        $row.siblings().show().children().css('background-color', '#fff');// other rows white
-        $row.parent().prev().show();
+        $roi_table.find('tbody').children().css('background-color', '#fff');// all rows white...
+        $row.children().css('background-color', '#d0d0ff');      // ...show this row blue
+        $row.parent().show();   // show this 'tbody' set of shapes
     }
 
   var linePlotPos = function (ev, obj) {
@@ -684,6 +707,11 @@
       </table>
     </div>
 
+    <div id="roi_table_postit" class="postit">
+        <h1>ROIs</h1>
+        <table id='roi_small_table' border='0' cellpadding='0' cellspacing='1'></table>
+    </div>
+    
     <div id="metadata-postit" class="postit">
       <h1>Image Information</h1>
       <h3 class="can-collapse">Basic Information</h3>
@@ -861,7 +889,6 @@
                 ROIs:
                 <a href="#" onclick="show_rois()">Show</a> |
                 <a href="#" onclick="hide_rois()">Hide</a>
-                <table id='roi_small_table' border='0' cellpadding='0' cellspacing='0'></table>
           </div>
           
           {% block current_image_tools %}{% endblock %}
@@ -1004,23 +1031,31 @@
         }
     });
     
+    
     $("#roi_small_table").click(function(event) {
         var $target = $(event.target);
         // a shape td click selects the shape.
         if ($target.attr('class') == "shape_cell") {
             var $shapeRow = $target.parent();
-            $shapeRow.parent().children().children().css('background-color', '#fff'); // all rows white
+            $('#roi_small_table tbody').children().children().css('background-color', '#fff');// all rows white...
             $shapeRow.children().css('background-color', '#d0d0ff'); // selected row coloured
             var shape_id = parseInt($shapeRow.attr('id'));      // E.g. id='123_shape'
             var z = parseInt( $shapeRow.find('td:nth-child(2)').text() );
             var t = parseInt( $shapeRow.find('td:nth-child(3)').text() );
             viewport.setZPos(z);
             viewport.setTPos(t);
+        } else if ($target.get(0).nodeName.toLowerCase() == 'th'){
+            // a ROI (th) click toggles the ROI-shapes 'tbody' below
+            var $roiThead = $target.parent().parent();
+            $roiThead.next().toggle();
         }
+        return false;
     });
     
-    viewport.viewportimg.bind("shape_click", handle_shape_selection);
     
+    // we can bind events to viewportimg for roi_display-plugin to trigger (plugin not created yet)
+    viewport.viewportimg.bind("shape_click", handle_shape_selection);
+    viewport.viewportimg.bind("rois_loaded", handle_rois_loaded);
     
     /* And we're done! */
 

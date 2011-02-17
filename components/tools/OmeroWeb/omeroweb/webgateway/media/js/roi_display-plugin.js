@@ -59,6 +59,7 @@ $.fn.roi_display = function(options) {
                   rois_displayed = true;
                   refresh_rois(theZ, theT);
                 }
+                $viewportimg.trigger("rois_loaded");
             });
         }
 
@@ -105,15 +106,25 @@ $.fn.roi_display = function(options) {
                         else if (shape['type'] == 'Polygon') {
                           newShape = paper.path( shape['points'] );
                         }
+                        else if (shape['type'] == 'Label') {
+                          if (shape['textValue']) {
+                              newShape = paper.text(shape['x'], shape['y'], shape['textValue']);
+                          }
+                        }
                         // Add text - NB: text is not 'attached' to shape in any way. 
                         if (newShape != null) {
                             newShape.attr(shape_default);   // sets fill, stroke etc. 
                             if ((shape['textValue'] != null) && (shape['textValue'].length > 0)) {
                                 // Show text 
-                                var bb = newShape.getBBox();
-                                var textx = bb.x + (bb.width/2);
-                                var texty = bb.y + (bb.height/2);
-                                var txt = paper.text(textx, texty, shape['textValue']);
+                                if (shape['type'] == 'Label') {
+                                    var txt = newShape; // if shape is label itself, use it
+                                } else {
+                                    // otherwise, add a new label in the centre of the shape.
+                                    var bb = newShape.getBBox();
+                                    var textx = bb.x + (bb.width/2);
+                                    var texty = bb.y + (bb.height/2);
+                                    var txt = paper.text(textx, texty, shape['textValue']);
+                                }
                                 var txtAttr = {'fill': '#ffffff'};
                                 if (shape['fontFamily']) {  // Courier, Helvetical, 
                                     txtAttr['font-family'] = shape['fontFamily'];
@@ -143,7 +154,6 @@ $.fn.roi_display = function(options) {
                                     var deg = parseFloat(tt[0]);
                                     var rotx = parseFloat(tt[1]);
                                     var roty = parseFloat(tt[2]);
-                                    console.log(deg + " " + rotx + " "+ roty);
                                     newShape.rotate(deg, rotx, roty);
                                 }
                                 else if (shape['transform'].substr(0, 'matrix'.length) === 'matrix'){
@@ -156,16 +166,12 @@ $.fn.roi_display = function(options) {
                                     var c2 = parseFloat(tt[5]);
                                     // scale
                                     var scale = Math.sqrt(a1*a1 + a2*a2)
-                                    console.log("scale " + scale);
                                     newShape.scale(scale, scale);
                                     // rotation
                                     var rad = Math.atan2(a2,a1);
                                     var rotation = rad * 180/Math.PI;
-                                    console.log("rad " + rad);
-                                    console.log("rotation " + rotation);
-                                    newShape.rotate(rotation);
+                                    newShape.rotate(rotation, 0, 0);
                                     // translation
-                                    console.log("translation x: " + c1 + " y: " + c2);
                                     newShape.translate(c1, c2);
                                 }
                             }
