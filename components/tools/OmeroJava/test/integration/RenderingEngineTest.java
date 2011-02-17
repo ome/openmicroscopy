@@ -8,6 +8,7 @@ package integration;
 
 
 //Java imports
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -26,6 +27,9 @@ import omero.model.Pixels;
 import omero.model.QuantumDef;
 import omero.model.RenderingDef;
 import omero.model.RenderingModel;
+import omero.romio.PlaneDef;
+import omero.romio.RGBBuffer;
+import omero.romio.RegionDef;
 
 /** 
  * Collection of tests for the <code>RenderingEngine</code>.
@@ -44,6 +48,27 @@ import omero.model.RenderingModel;
 public class RenderingEngineTest
 	extends AbstractTest
 {
+	
+	/**
+	 * Checks the value of the bytes are the same.
+	 * 
+	 * @param region The region.
+	 * @param plane  The plane.
+	 * @param w The width of a step.
+	 * @param rWidth The width of the region.
+	 */
+	private void checkBuffer(byte[] region, byte[] plane, int w, int rWidth)
+	{
+		int j;
+		int k = 0;
+		for (int i = 0; i < region.length; i++) { 
+			j = w*k+i;
+			byte b = region[i];
+			assertEquals(b, plane[j]);
+			if (i%rWidth == rWidth-1)
+				k++;
+		}
+	}
 	
 	/**
 	 * Tests the creation of the rendering engine for a given pixels set w/o
@@ -248,7 +273,7 @@ public class RenderingEngineTest
 	 * database using the <code>resetDefaultsNoSave</code> method.
 	 * @throws Exception Thrown if an error occurred.
 	 */
-	@Test
+	@Test(enabled=false)
 	public void testResetDefaultsNoSave()
 		throws Exception
 	{
@@ -338,17 +363,182 @@ public class RenderingEngineTest
 		long id = pixels.getId().getValue();
 		RenderingEnginePrx re = factory.createRenderingEngine();
 		re.lookupPixels(id);
-		re.resetDefaults();
-		re.lookupRenderingDef(id);
+		if (!(re.lookupRenderingDef(id))) {
+			re.resetDefaults();
+			re.lookupRenderingDef(id);
+		}
 		re.load();
 		int t = re.getDefaultT();
 		int v = t+1;
 		re.setDefaultT(v);
 		re.saveCurrentSettings();
-		
 		assertTrue(re.getDefaultT() == v);
 		RenderingDef def = factory.getPixelsService().retrieveRndSettings(id);
 		assertTrue(def.getDefaultT().getValue() == v);
+		re.close();
+	}
+	
+	/**
+	 * Tests to render a plane.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	@Test
+	public void testRenderPlane()
+		throws Exception
+	{
+		File f = File.createTempFile("testRenderPlane", "."+OME_FORMAT);
+		XMLMockObjects xml = new XMLMockObjects();
+		XMLWriter writer = new XMLWriter();
+		writer.writeFile(f, xml.createImage(), true);
+		List<Pixels> pixels = null;
+		try {
+			pixels = importFile(f, OME_FORMAT);
+		} catch (Throwable e) {
+			throw new Exception("cannot import image", e);
+		}
+		Pixels p = pixels.get(0);
+		long id = p.getId().getValue();
+		RenderingEnginePrx re = factory.createRenderingEngine();
+		re.lookupPixels(id);
+		if (!(re.lookupRenderingDef(id))) {
+			re.resetDefaults();
+			re.lookupRenderingDef(id);
+		}
+		re.load();
+		PlaneDef pDef = new PlaneDef();
+		pDef.t = re.getDefaultT();
+		pDef.z = re.getDefaultZ();
+		pDef.slice = omero.romio.XY.value;
+		//delete the file.
+		RGBBuffer buffer = re.render(pDef);
+		assertNotNull(buffer);
+		assertEquals(p.getSizeX().getValue(), buffer.sizeX1);
+		assertEquals(p.getSizeY().getValue(), buffer.sizeX2);
+		f.delete();
+		re.close();
+	}
+	
+	/**
+	 * Tests to render a given region of plane.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	@Test
+	public void testRenderRegion()
+		throws Exception
+	{
+		File f = File.createTempFile("testRenderRegion", "."+OME_FORMAT);
+		XMLMockObjects xml = new XMLMockObjects();
+		XMLWriter writer = new XMLWriter();
+		writer.writeFile(f, xml.createImage(), true);
+		List<Pixels> pixels = null;
+		try {
+			pixels = importFile(f, OME_FORMAT);
+		} catch (Throwable e) {
+			throw new Exception("cannot import image", e);
+		}
+		Pixels p = pixels.get(0);
+		long id = p.getId().getValue();
+		RenderingEnginePrx re = factory.createRenderingEngine();
+		re.lookupPixels(id);
+		if (!(re.lookupRenderingDef(id))) {
+			re.resetDefaults();
+			re.lookupRenderingDef(id);
+		}
+		re.load();
+		int[] values = {1, 2, 3, 4, 5};
+		int v;
+		int sizeX = p.getSizeX().getValue();
+		int sizeY = p.getSizeY().getValue();
+		PlaneDef pDef;
+		RGBBuffer bufferRegion, bufferPlane;
+		byte[] region, plane;
+		for (int i = 0; i < values.length; i++) {
+			v = values[i];
+			pDef = new PlaneDef();
+			pDef.t = re.getDefaultT();
+			pDef.z = re.getDefaultZ();
+			pDef.slice = omero.romio.XY.value;
+			RegionDef r = new RegionDef();
+			r.x = 0;
+			r.y = 0;
+			r.width = sizeX/v;
+			r.height = sizeY/v;
+			pDef.region = r;
+			bufferRegion = re.render(pDef);
+			assertNotNull(bufferRegion);
+			assertEquals(r.width, bufferRegion.sizeX1);
+			assertEquals(r.height, bufferRegion.sizeX2);
+			//now render a plane and compare the renderer value.
+			pDef = new PlaneDef();
+			pDef.t = re.getDefaultT();
+			pDef.z = re.getDefaultZ();
+			pDef.slice = omero.romio.XY.value;
+			bufferPlane = re.render(pDef);
+			assertNotNull(bufferPlane);
+			//red band
+			region = bufferRegion.bands[0];
+			plane = bufferPlane.bands[0];
+			assertNotNull(region);
+			assertNotNull(plane);
+			checkBuffer(region, plane, sizeX-r.width, r.width);
+			//green band
+			region = bufferRegion.bands[1];
+			plane = bufferPlane.bands[1];
+			assertNotNull(region);
+			assertNotNull(plane);
+			checkBuffer(region, plane, sizeX-r.width, r.width);
+			//blue band
+			region = bufferRegion.bands[2];
+			plane = bufferPlane.bands[2];
+			assertNotNull(region);
+			assertNotNull(plane);
+			checkBuffer(region, plane, sizeX-r.width, r.width);
+		}	
+		f.delete();
+		re.close();
+	}
+
+	/**
+	 * Tests to render a given region of plane.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	@Test(enabled = false)
+	public void testRenderStridePlane()
+		throws Exception
+	{
+		File f = File.createTempFile("testRenderStridePlane", "."+OME_FORMAT);
+		XMLMockObjects xml = new XMLMockObjects();
+		XMLWriter writer = new XMLWriter();
+		writer.writeFile(f, xml.createImage(), true);
+		List<Pixels> pixels = null;
+		try {
+			pixels = importFile(f, OME_FORMAT);
+		} catch (Throwable e) {
+			throw new Exception("cannot import image", e);
+		}
+		Pixels p = pixels.get(0);
+		long id = p.getId().getValue();
+		RenderingEnginePrx re = factory.createRenderingEngine();
+		re.lookupPixels(id);
+		if (!(re.lookupRenderingDef(id))) {
+			re.resetDefaults();
+			re.lookupRenderingDef(id);
+		}
+		re.load();
+		PlaneDef pDef = new PlaneDef();
+		pDef.t = re.getDefaultT();
+		pDef.z = re.getDefaultZ();
+		pDef.slice = omero.romio.XY.value;
+		pDef.stride = 1;
+		//delete the file.
+		int sizeX = p.getSizeX().getValue();
+		int sizeY = p.getSizeX().getValue();
+		RGBBuffer buffer = re.render(pDef);
+		assertNotNull(buffer);
+		assertEquals(sizeX/(pDef.stride+1), buffer.sizeX1);
+		assertEquals(sizeY/(pDef.stride+1), buffer.sizeX2);
+		f.delete();
+		re.close();
 	}
 	
 }

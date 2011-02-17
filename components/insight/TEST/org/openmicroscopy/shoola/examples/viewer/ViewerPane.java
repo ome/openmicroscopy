@@ -161,7 +161,7 @@ class ViewerPane
 			pDef.t = engine.getDefaultT();
 			pDef.z = engine.getDefaultZ();
 			pDef.slice = omero.romio.XY.value;
-			pDef.stride = 1;
+			pDef.stride = 2;
 			sizeX = sizeX/(pDef.stride+1);
 			sizeY = sizeY/(pDef.stride+1);
 			//now render the image. possible to render it compressed or not
