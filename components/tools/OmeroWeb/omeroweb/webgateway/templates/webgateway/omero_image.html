@@ -432,7 +432,7 @@
       if (!viewport.viewportimg.get(0).show_rois) {
             viewport.viewportimg.roi_display({width:{{ image.getWidth }}, 
                                             height:{{ image.getHeight }},
-                                            json_url:'{% url webfigure_get_rois image.id %}' });
+                                            json_url:'{% url webgateway_get_rois_json image.id %}' });
       }
       else {
           // if ROIs already loaded, there won't be a callback to show table - do it manually
