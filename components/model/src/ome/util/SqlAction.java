@@ -52,10 +52,12 @@ public interface SqlAction {
         final private static Log log = LogFactory.getLog(SqlAction.class);
 
         public Object invoke(MethodInvocation arg0) throws Throwable {
-            log.info(String.format("%s.%s(%s)",
-                    arg0.getThis(),
-                    arg0.getMethod().getName(),
-                    Arrays.deepToString(arg0.getArguments())));
+            if (log.isDebugEnabled()) {
+                log.debug(String.format("%s.%s(%s)",
+                        arg0.getThis(),
+                        arg0.getMethod().getName(),
+                        Arrays.deepToString(arg0.getArguments())));
+            }
             return arg0.proceed();
         }
 
