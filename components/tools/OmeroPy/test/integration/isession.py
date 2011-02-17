@@ -143,13 +143,14 @@ class TestISession(lib.ITest):
         svc.getMyOpenAgentSessions("OMERO.web")
         svc.getMyOpenClientSessions()
 
-    def XtestTicket2196SetSecurityContext(self):
+    def testTicket2196SetSecurityContext(self):
         ec = self.client.sf.getAdminService().getEventContext()
         exp0 = omero.model.ExperimenterI(ec.userId, False)
         grp0 = omero.model.ExperimenterGroupI(ec.groupId, False)
         grp1 = self.new_group([exp0])
 
         # Change: should pass
+        self.client.sf.getAdminService().getEventContext() # Force reload #4011
         self.client.sf.setSecurityContext(grp1)
 
         # Make a stateful service, and change again
