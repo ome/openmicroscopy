@@ -20,21 +20,6 @@ public class Main {
             RoiResult rr2 = roiService.findByPlane( image.getId().getValue(), 0, 1, null );
             RoiResult rr3 = roiService.findByRoi( roi.getId().getValue(), null );
 
-            Rect shape1 = new RectI();
-            shape1.setX(rdouble(0.0));
-            shape1.setY(rdouble(0.0));
-            shape1.setWidth(rdouble(10));
-            shape1.setHeight(rdouble(10));
-            RoiResult rr4 = roiService.findByIntersection( image.getId().getValue(), shape1, null );
-
-            Rect shape2 = new RectI();
-            shape2.setX(rdouble(0.0));
-            shape2.setY(rdouble(0.0));
-            shape2.setWidth(rdouble(20));
-            shape2.setHeight(rdouble(20));
-            RoiResult rr5 = roiService.findByAnyIntersection(
-                image.getId().getValue(), java.util.Arrays.<Shape>asList( shape1, shape2 ), null );
-
             //
             // The other methods -- getPoints and get*Stats()
             // all require actual data and so are omitted here.
