@@ -123,8 +123,8 @@ if __name__ == "__main__":
         if job == "macosx" or job == "matlab":
             build_url = build_url.replace("label=%s" % job, "label=linux")
         build_url = "%s/%s" % (build_url, "artifact/src/%s.config" % branch)
-        print "Downloading %s ... " % url
-        ConfigOpener().retrieve(url, filename=config_file)
+        print "Downloading %s ... " % build_url
+        ConfigOpener().retrieve(build_url, filename=config_file)
         os.environ["ICE_CONFIG"] = config_file
 
 
