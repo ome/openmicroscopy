@@ -46,6 +46,7 @@ import java.awt.image.BufferedImage;
  */
 public interface ImageCanvasInterface
 {
+	
 	/**
 	 * Sets the image.
 	 * 

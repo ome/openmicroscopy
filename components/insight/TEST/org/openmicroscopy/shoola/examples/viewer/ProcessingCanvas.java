@@ -107,17 +107,6 @@ public class ProcessingCanvas
 		init();
 		pImage = null;
 	}
-	
-	/**
-	 * Sets the image.
-	 * 
-	 * @param image The image to paint.
-	 */
-	public void setImage(BufferedImage image)
-	{
-		pImage = new PImage(image);
-		repaint();
-	}
 
 	/**
 	 * Overridden from @see {@link PApplet#setup()}
@@ -182,7 +171,7 @@ public class ProcessingCanvas
 	}
 
     /**
-     * Defined in interface.
+     * Implemented as specified by the {@link ImageCanvasInterface} I/F.
      * @see ImageCanvasInterface#getCanvas()
      */
 	public Component getCanvas()
@@ -191,12 +180,22 @@ public class ProcessingCanvas
 	}
 
 	/**
-	 * Defined in interface.
+	 * Implemented as specified by the {@link ImageCanvasInterface} I/F.
 	 * @see ImageCanvasInterface#setCanvasSize(Dimension)
 	 */
 	public void setCanvasSize(Dimension d)
 	{
 		size(d.width, d.height, P3D);
+	}
+
+	/**
+	 * Implemented as specified by the {@link ImageCanvasInterface} I/F.
+	 * @see ImageCanvasInterface#setImage(BufferedImage)
+	 */
+	public void setImage(BufferedImage image)
+	{
+		pImage = new PImage(image);
+		repaint();
 	}
 
 }

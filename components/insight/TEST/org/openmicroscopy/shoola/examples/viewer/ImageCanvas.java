@@ -63,11 +63,10 @@ class ImageCanvas
 		setDoubleBuffered(true);
 	}
 	
-	/**
-	 * Sets the image.
-	 * 
-	 * @param image The image to paint.
-	 */
+    /**
+     * Implemented as specified by the {@link ImageCanvasInterface} I/F.
+     * @see ImageCanvasInterface#setImage(BufferedImage)
+     */
 	public void setImage(BufferedImage image)
 	{
 		this.image = image;
@@ -92,7 +91,7 @@ class ImageCanvas
     }
 
     /**
-     * Defined in interface.
+     * Implemented as specified by the {@link ImageCanvasInterface} I/F.
      * @see ImageCanvasInterface#getCanvas()
      */
 	public Component getCanvas()
@@ -100,10 +99,10 @@ class ImageCanvas
 		return this;
 	}
 
-	   /**
-     * Defined in interface.
-     * @see ImageCanvasInterface#setCanvasSize(Dimension)
-     */
+	/**
+	 * Implemented as specified by the {@link ImageCanvasInterface} I/F.
+	 * @see ImageCanvasInterface#setCanvasSize(Dimension)
+	 */
 	public void setCanvasSize(Dimension d)
 	{
 		setPreferredSize(d);

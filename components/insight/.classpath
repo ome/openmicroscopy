@@ -62,5 +62,6 @@
 	<classpathentry kind="lib" path="LIB/axis-1.4.jar"/>
 	<classpathentry kind="lib" path="LIB/gluegen-rt.jar"/>
 	<classpathentry kind="lib" path="LIB/jogl.jar"/>
+	<classpathentry kind="lib" path="LIB/controlP5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

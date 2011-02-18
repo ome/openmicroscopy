@@ -89,6 +89,7 @@ public class ViewerDemo
 	 */
 	private void viewImage(long id)
 	{
+		id = 1001;
 		ImageData image = mapImages.get(id);
 		if (image == null) return;
 		try {
@@ -97,9 +98,9 @@ public class ViewerDemo
 			//interact with proxy to change z-section etc.
 			viewer.setRenderingControl(image, proxy);
 		} catch (Exception e) {
+			e.printStackTrace();
 			JOptionPane.showMessageDialog(this, e.getMessage());
 		}
-		
 		pack();
 	}
 	

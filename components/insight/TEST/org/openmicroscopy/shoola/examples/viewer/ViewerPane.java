@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.examples.viewer;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Point;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
@@ -36,17 +37,22 @@ import java.awt.image.DataBufferInt;
 import java.awt.image.DirectColorModel;
 import java.awt.image.SinglePixelPackedSampleModel;
 import java.awt.image.WritableRaster;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.io.ByteArrayInputStream;
 import javax.imageio.ImageIO;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+
+import org.openmicroscopy.shoola.util.image.geom.Factory;
 
 
 //Third-party libraries
@@ -120,6 +126,11 @@ class ViewerPane
 	/** Indicates that the channels are selected or not. */
 	private JCheckBox[] channels;
 	
+	/** The canvas. */
+	private BirdEyeCanvas birdEye;
+	
+	private double factor = 0.25;
+	
 	/**
 	 * Creates a buffer image from the specified <code>array</code> of 
 	 * integers.
@@ -161,9 +172,6 @@ class ViewerPane
 			pDef.t = engine.getDefaultT();
 			pDef.z = engine.getDefaultZ();
 			pDef.slice = omero.romio.XY.value;
-			pDef.stride = 2;
-			sizeX = sizeX/(pDef.stride+1);
-			sizeY = sizeY/(pDef.stride+1);
 			//now render the image. possible to render it compressed or not
 			//not compressed
 			BufferedImage img = null;
@@ -177,36 +185,41 @@ class ViewerPane
 				img.setAccelerationPriority(1f);
 			}
              canvas.setImage(img);
+             birdEye.setImage(Factory.magnifyImage(factor, img));
 		} catch (Exception e) {
-			e.printStackTrace();
 		}
 	}
 	
-	/** Renders a region. */
-	private void renderRegion()
+	/** 
+	 * Renders a region. 
+	 * 
+	 * @param region The region to render
+	 */
+	private void renderRegion(Rectangle region)
 	{
 		try {
-			int sizeX = image.getDefaultPixels().getSizeX()/2;
-            int sizeY =  image.getDefaultPixels().getSizeY()/2;
 			PlaneDef pDef = new PlaneDef();
 			pDef.t = engine.getDefaultT();
 			pDef.z = engine.getDefaultZ();
 			pDef.slice = omero.romio.XY.value;
-			pDef.region = new RegionDef(0, 0, sizeX, sizeY);
+			int factor = 4;
+			pDef.region = new RegionDef(0, 0, 
+					region.width*factor, region.height*factor);
 			//now render the image. possible to render it compressed or not
 			//not compressed
 			BufferedImage img = null;
 			if (!compressed.isSelected()) {
 				int[] buf = engine.renderAsPackedInt(pDef);
-				img = createImage(buf, 32, sizeX, sizeY);
+				img = createImage(buf, 32, pDef.region.width, pDef.region.height);
 			} else {
 				byte[] values = engine.renderCompressed(pDef);
 				ByteArrayInputStream stream = new ByteArrayInputStream(values);
 				img = ImageIO.read(stream);
 				img.setAccelerationPriority(1f);
 			}
-             canvas.setImage(img);
+			canvas.setImage(Factory.magnifyImage(2, img)); //for testing purpose only
 		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 	
@@ -233,6 +246,18 @@ class ViewerPane
 				break;
 			case PROCESSING:
 				canvas = new ProcessingOnlyCanvas();
+				birdEye = new BirdEyeCanvas();
+				birdEye.addPropertyChangeListener(new PropertyChangeListener() {
+					
+					public void propertyChange(PropertyChangeEvent evt) {
+						String name = evt.getPropertyName();
+						if (BirdEyeCanvas.RENDER_REGION_PROPERTY.endsWith(name)) 
+						{
+							renderRegion((Rectangle) evt.getNewValue());
+						}
+						
+					}
+				});
 		}
 		zSlider = new JSlider();
 		zSlider.setMinimum(0);
@@ -329,7 +354,13 @@ class ViewerPane
 		JPanel pp = new JPanel();
 		pp.setLayout(new FlowLayout(FlowLayout.LEFT));
 		pp.add(p);
-		add(new JScrollPane(canvas.getCanvas()));
+		if (birdEye != null) {
+			JLayeredPane pane = new JLayeredPane();
+			pane.add(canvas.getCanvas(), Integer.valueOf(0));
+			pane.add(birdEye, Integer.valueOf(1));
+			add(pane);
+		} else
+			add(new JScrollPane(canvas.getCanvas()));
 		add(pp);
 	}
 	
@@ -360,8 +391,14 @@ class ViewerPane
 		}
 		
 		PixelsData pixels = image.getDefaultPixels();
-		Dimension d = new Dimension(pixels.getSizeX(), pixels.getSizeY());
+		int sizeX = pixels.getSizeX();
+		int sizeY = pixels.getSizeY();
+		Dimension d = new Dimension(sizeX, sizeY);
 		canvas.setCanvasSize(d);
+		if (birdEye != null) {
+			birdEye.setCanvasSize((int) (sizeX*factor)+2*BirdEyeCanvas.BORDER, 
+					(int) (sizeY*factor)+2*BirdEyeCanvas.BORDER);
+		}
 		zSlider.removeChangeListener(this);
 		tSlider.removeChangeListener(this);
 		zSlider.setMaximum(pixels.getSizeZ());
@@ -398,8 +435,5 @@ class ViewerPane
 			
 		}
 	}
-	
-	
-	
-	
+
 }
