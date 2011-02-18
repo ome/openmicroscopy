@@ -27,11 +27,18 @@ import sys
 import urllib
 import platform
 import subprocess
+import exceptions
 
 
 LOG_URL = "http://hudson.openmicroscopy.org.uk/job/OMERO-%(BRANCH)s/lastSuccessfulBuild/artifact/src/target/%(BRANCH)s.log"
 JOB_NAME_STR = "^OMERO-([^-]+)-(.*?)(/(.*))?$"
 JOB_NAME_REG = re.compile(JOB_NAME_STR)
+
+
+class ConfigOpener(urllib.FancyURLopener):
+    def http_error_default(self, url, fp, errcode, errmsg, headers):
+        if errcode and errcode > 400:
+             raise exceptions.Exception("Error loading %s: %s" % (url, errcode))
 
 
 if __name__ == "__main__":
@@ -74,7 +81,8 @@ if __name__ == "__main__":
     # LOG FILES
     #
     log_url = LOG_URL % {"BRANCH": branch}
-    url = urllib.urlopen(LOG_URL % {"BRANCH": branch})
+    print "Loading %s ..." % log_url
+    url = urllib.urlopen(log_url)
     build_log_text = url.read()
     url.close()
 
@@ -115,7 +123,8 @@ if __name__ == "__main__":
         if job == "macosx" or job == "matlab":
             build_url = build_url.replace("label=%s" % job, "label=linux")
         build_url = "%s/%s" % (build_url, "ws/src/%s.config" % branch)
-        urllib.urlretrieve(build_url, filename=config_file)
+        print "Downloading %s ... " % url
+        ConfigOpener().retrieve(url, filename=config_file)
         os.environ["ICE_CONFIG"] = config_file
 
 
