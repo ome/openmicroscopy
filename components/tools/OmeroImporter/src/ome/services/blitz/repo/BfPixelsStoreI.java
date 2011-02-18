@@ -7,8 +7,13 @@
 package ome.services.blitz.repo;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.IntBuffer;
+import java.nio.LongBuffer;
+import java.nio.ShortBuffer;
 import java.util.List;
 
+import loci.common.DataTools;
 import loci.formats.FormatException;
 import loci.formats.ImageReader;
 import omero.ServerError;
@@ -74,8 +79,12 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
     
     private final int sizeT;
     
+    private final int rgbChannels;
+    
     private final int pixelType;
     
+    private final int pixelSize;
+
     private final int rowSize;
 
     private final int planeSize;
@@ -98,8 +107,10 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
         sizeZ = reader.getSizeZ();
         sizeC = reader.getSizeC();
         sizeT = reader.getSizeT();
+        rgbChannels = reader.getRGBChannelCount();
         pixelType = reader.getPixelType();
-        rowSize = sizeX * getBytesPerPixel(pixelType);
+        pixelSize = getBytesPerPixel(pixelType);
+        rowSize = sizeX * pixelSize;
         planeSize = sizeY * rowSize;
         stackSize = sizeZ * planeSize;
         timepointSize = sizeC * stackSize;
@@ -115,7 +126,7 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
     public void getByteWidth_async(AMD_RawPixelsStore_getByteWidth __cb,
             Current __current) throws ServerError {
         try {
-            __cb.ice_response(getBytesPerPixel(pixelType));
+            __cb.ice_response(pixelSize);
         } catch (Exception e) {
             __cb.ice_exception(e);
         }
@@ -125,13 +136,6 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
     public void getHypercube_async(AMD_RawPixelsStore_getHypercube __cb,
             List<Integer> offset, List<Integer> size, List<Integer> step, 
             Current __current) throws ServerError {
-        /* Assuming XYZCT order. 
-         * Initial pass to get 5d cube of contiguous pixels only. 
-         *      treating step[0..4] as 1
-         */
-        int planeNumber;
-        int cubeOffset = 0;
-        
         if( size.get(0) < 1 ||  size.get(1) < 1 ||  size.get(2) < 1 
                 ||  size.get(3) < 1 ||  size.get(4) < 1 )
         {
@@ -139,58 +143,54 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
         }
         
         try {
-            int tileRowSize = size.get(0)*getBytesPerPixel(pixelType);
-            int tileColSize = size.get(1)*getBytesPerPixel(pixelType);
-            int tileSize = tileRowSize*size.get(1);
-            int cubeSize = tileSize*size.get(2)*size.get(3)*size.get(4);
+            int cubeOffset = 0;
+            int tStripes = (size.get(4) + step.get(4) - 1) / step.get(4);
+            int cStripes = (size.get(3) + step.get(3) - 1) / step.get(3);
+            int zStripes = (size.get(2) + step.get(2) - 1) / step.get(2);
+            int yStripes = (size.get(1) + step.get(1) - 1) / step.get(1);
+            int xStripes = (size.get(0) + step.get(0) - 1) / step.get(0);
+            int tileRowSize = pixelSize * xStripes;
+            int cubeSize = tileRowSize * yStripes * zStripes * cStripes * tStripes;
             byte[] cube = new byte[cubeSize];
-            byte[] tile = new byte[tileSize];        
-            byte[] tileRow = new byte[tileRowSize];        
-            byte[] tileCol = new byte[tileColSize];        
-            for(int t = offset.get(4); t < size.get(4); t += step.get(4))
+            byte[] plane = new byte[planeSize];      
+            for(int t = offset.get(4); t < size.get(4)+offset.get(4); t += step.get(4))
             {
-                for(int c = offset.get(3); c < size.get(3); c += step.get(3))
+                for(int c = offset.get(3); c < size.get(3)+offset.get(3); c += step.get(3))
                 {
-                    for(int z = offset.get(2); z < size.get(2); z += step.get(2))
+                    for(int z = offset.get(2); z < size.get(2)+offset.get(2); z += step.get(2))
                     {
-                        planeNumber = reader.getIndex(z, c, t);
-                        if(step.get(0) == 1 && step.get(1) == 1)
+                        getWholePlane(z,c,t,plane);
+                        int rowOffset = offset.get(1)*rowSize;
+                        if(step.get(0)==1)
                         {
-                            reader.openBytes(planeNumber, tile, 
-                                    offset.get(0), offset.get(1), size.get(0), size.get(1));
-                            System.arraycopy(tile, 0, cube, cubeOffset, tileSize);
-                            cubeOffset += tileSize;
-                        } 
-                        else if(step.get(0) == 1 && step.get(1) > 1)
-                        {
-                            for(int y = offset.get(1); y < size.get(1); y += step.get(1))
+                            int byteOffset = rowOffset + offset.get(0)*pixelSize;
+                            for(int y = offset.get(1); y < size.get(1)+offset.get(1); y += step.get(1))
                             {
-                                reader.openBytes(planeNumber, tileRow, 
-                                        offset.get(0), y, size.get(0), 1);
-                                System.arraycopy(tileRow, 0, cube, cubeOffset, tileRowSize);
+                                System.arraycopy(plane, byteOffset, cube, cubeOffset, tileRowSize);
                                 cubeOffset += tileRowSize;
+                                byteOffset += rowSize*step.get(1);
                             }
-                        }
-                        else if(step.get(0) > 1 && step.get(1) == 1)
-                        {
-                            for(int x = offset.get(0); x < size.get(0); x += step.get(0))
-                            {
-                                reader.openBytes(planeNumber, tileRow, 
-                                        x, offset.get(1), 1, size.get(1));
-                                System.arraycopy(tileCol, 0, cube, cubeOffset, tileColSize);
-                                cubeOffset += tileColSize;
-                            }
-                        }
+                        } 
                         else
                         {
-                            throw new IllegalArgumentException("Invalid step size: X step and Y step cannot both be 1");
+                            for(int y = offset.get(1); y < size.get(1)+offset.get(1); y += step.get(1))
+                            {
+                                int byteOffset = offset.get(0)*pixelSize;
+                                for(int x = offset.get(0); x < size.get(0)+offset.get(0); x += step.get(0))
+                                {
+                                    System.arraycopy(plane, rowOffset+byteOffset, cube, cubeOffset, pixelSize);
+                                    cubeOffset += pixelSize;
+                                    byteOffset += step.get(0)*pixelSize;
+                                }
+                                rowOffset += rowSize*step.get(1);
+                            }
                         }
+                        
                     }
                 }
             }
-            byte[] returnCube = new byte[cubeOffset];
-            System.arraycopy(cube, 0, returnCube, 0, cubeOffset);
-            __cb.ice_response(returnCube);
+            swapIfRequired(cube);
+            __cb.ice_response(cube);
         } catch (Exception e) {
             __cb.ice_exception(e);
         }
@@ -199,10 +199,14 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
     public void getCol_async(AMD_RawPixelsStore_getCol __cb, int x, int z,
             int c, int t, Current __current) throws ServerError {
         try {
-            int colSize = sizeX * getBytesPerPixel(pixelType);
-            byte[] col = new byte[colSize];
-            int planeNumber = reader.getIndex(z, c, t);
-            reader.openBytes(planeNumber, col, x, 0, 1, colSize);
+            byte[] col = new byte[sizeX * pixelSize];
+            byte[] plane = new byte[planeSize];
+            getWholePlane(z,c,t,plane);
+            for(int y = 0; y < sizeY; y++) { 
+                System.arraycopy(plane, (y*rowSize)+(x*pixelSize), 
+                        col, y*pixelSize, pixelSize);
+            }
+            swapIfRequired(col);
             __cb.ice_response(col);
         } catch (Exception e) {
             __cb.ice_exception(e);
@@ -240,13 +244,12 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
             int t, Current __current) throws ServerError {
         try {
             byte[] plane = new byte[planeSize];
-            int planeNumber = reader.getIndex(z, c, t);
-            reader.openBytes(planeNumber, plane);
+            getWholePlane(z,c,t,plane);
+            swapIfRequired(plane);
             __cb.ice_response(plane);
         } catch (Exception e) {
             __cb.ice_exception(e);
         }
-
     }
 
     public void getRegion_async(AMD_RawPixelsStore_getRegion __cb, int size,
@@ -280,8 +283,10 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
                 throw new IllegalArgumentException("Invalid Y index: " + y + "/" + sizeY);
             }
             byte[] row = new byte[rowSize];
-            int planeNumber = reader.getIndex(z, c, t);
-            reader.openBytes(planeNumber, row, 0, y, rowSize, 1);
+            byte[] plane = new byte[planeSize];
+            getWholePlane(z,c,t,plane);
+            System.arraycopy(plane, y*rowSize, row, 0, rowSize);
+            swapIfRequired(row);
             __cb.ice_response(row);
         } catch (Exception e) {
             __cb.ice_exception(e);
@@ -312,6 +317,7 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
         try {
             byte[] stack = new byte[stackSize];
             getWholeStack(c,t,stack);
+            swapIfRequired(stack);
             __cb.ice_response(stack);
         } catch (Exception e) {
             __cb.ice_exception(e);
@@ -344,6 +350,7 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
         try {
             byte[] timepoint = new byte[timepointSize];
             getWholeTimepoint(t,timepoint);
+            swapIfRequired(timepoint);
             __cb.ice_response(timepoint);
         } catch (Exception e) {
             __cb.ice_exception(e);
@@ -438,7 +445,7 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
     public void close_async(AMD_StatefulServiceInterface_close __cb,
             Current __current) throws ServerError {
         try {
-            reader.close(true);
+            reader.close();
         } catch (Exception e) {
             __cb.ice_exception(e);
         }
@@ -494,20 +501,49 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
     }
 
     /*
-     * Get multiple planes
+     * Get a plane dealing with rgb/interleaving if necessary
      */
+    private byte[] getWholePlane(int z, int c, int t, byte[] plane) 
+            throws IOException, FormatException 
+    {
+        int planeNumber;
+        if(rgbChannels == 1) {
+            planeNumber = reader.getIndex(z, c, t);
+            reader.openBytes(planeNumber, plane);
+        } else {
+            byte[] fullPlane = new byte[planeSize*rgbChannels];
+            planeNumber = reader.getIndex(z, 0, t);
+            reader.openBytes(planeNumber, fullPlane);
+            if(reader.isInterleaved()) {
+                for(int p = 0; p < planeSize; p += pixelSize) {
+                    System.arraycopy(fullPlane, c*pixelSize + p*rgbChannels, 
+                        plane, p, pixelSize);
+                }
+            } else {
+                System.arraycopy(fullPlane, c*planeSize, plane, 0, planeSize);
+            }
+        }
+        return plane;
+    }
     
-    private byte[] getWholeStack(int c, int t, byte[] stack) throws IOException, FormatException {
+    /*
+     * Get multiple planes
+     */   
+    private byte[] getWholeStack(int c, int t, byte[] stack) 
+            throws IOException, FormatException 
+    {
         byte[] plane = new byte[planeSize];        
         for(int z = 0; z < sizeZ; z++)
         {
-            int planeNumber = reader.getIndex(z, c, t);
-            reader.openBytes(planeNumber, plane);
+            getWholePlane(z,c,t,plane);
             System.arraycopy(plane, 0, stack, z*planeSize, planeSize);
         }
         return stack;
     }
     
+    /*
+     * Get multiple stacks
+     */   
     private byte[] getWholeTimepoint(int t, byte[] timepoint) throws IOException, FormatException {
         byte[] stack = new byte[stackSize];      
         for(int c = 0; c < sizeC; c++)
@@ -588,6 +624,56 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
                 return false;  // INT8, UINT8, INT16, UINT16, INT32 or UINT32
         }
         throw new RuntimeException("Unknown type with id: '" + type + "'");
+    }
+
+    /**
+     * cgb - stolen from ImportLibrary - slightly modified
+     * 
+     * Examines a byte array to see if it needs to be byte swapped and modifies
+     * the byte array directly.
+     * @param bytes The byte array to check and modify if required.
+     * @return the <i>byteArray</i> either swapped or not for convenience.
+     * @throws IOException if there is an error read from the file.
+     * @throws FormatException if there is an error during metadata parsing.
+     */
+    private byte[] swapIfRequired(byte[] bytes)
+        throws FormatException, IOException
+    {
+        // We've got nothing to do if the samples are only 8-bits wide.
+        if (pixelSize == 1)
+            return bytes;
+        
+        boolean isLittleEndian = reader.isLittleEndian();
+        ByteBuffer buffer = ByteBuffer.wrap(bytes);
+        int length;
+        if (isLittleEndian) {
+            if (pixelSize == 2) { // short/ushort
+                ShortBuffer buf = buffer.asShortBuffer();
+                length = buffer.limit() / 2;
+                for (int i = 0; i < length; i++) {
+                    buf.put(i, DataTools.swap(buf.get(i)));
+                }
+            } else if (pixelSize == 4) { // int/uint/float
+                IntBuffer buf = buffer.asIntBuffer();
+                length = buffer.limit() / 4;
+                for (int i = 0; i < length; i++) {
+                    buf.put(i, DataTools.swap(buf.get(i)));
+                }
+            } else if (pixelSize == 8) // long/double
+            {
+                LongBuffer buf = buffer.asLongBuffer();
+                length = buffer.limit() / 8;
+                for (int i = 0; i < length ; i++) {
+                    buf.put(i, DataTools.swap(buf.get(i)));
+                }
+            } else {
+                throw new FormatException(String.format(
+                        "Unsupported sample bit width: %d", pixelSize));
+            }
+        }
+        // We've got a big-endian file with a big-endian byte array.
+        bytes = buffer.array();
+        return bytes;
     }
 
     
