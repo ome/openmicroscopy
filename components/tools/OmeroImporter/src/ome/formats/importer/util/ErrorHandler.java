@@ -282,7 +282,7 @@ public abstract class ErrorHandler implements IObserver, IObservable {
             postList.add(new StringPart("email", errorContainer.getEmail()));
             postList.add(new StringPart("app_name", "2"));
             postList.add(new StringPart("import_session", "test"));
-            postList.add(new StringPart("absolute_path", errorContainer.getAbsolutePath()));
+            postList.add(new StringPart("absolute_path", errorContainer.getAbsolutePath() + "/"));
 
             String sendUrl = config.getTokenUrl();
 
@@ -302,9 +302,8 @@ public abstract class ErrorHandler implements IObserver, IObservable {
                         File file = new File(f);
                         postList.add(new StringPart("additional_files", file.getName()));
                         if (file.getParent() != null)
-                            postList.add(new StringPart("additional_files_path", file.getParent()));
-                        postList.add(new StringPart("additional_files_size",
-                                ((Long) file.length()).toString()));
+                            postList.add(new StringPart("additional_files_path", file.getParent() + "/"));
+                        postList.add(new StringPart("additional_files_size", ((Long) file.length()).toString()));
                     }
                 }
             }

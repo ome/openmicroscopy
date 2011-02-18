@@ -174,7 +174,8 @@ public class FileUploader implements IObservable
                     	if (cancelUpload) errorFilePart.cancel = true;
                     	
                         long partsDone = 0;
-                        if (fileLength != 0) partsDone = bytesRead / (fileLength/10);
+                        long parts = (long) Math.ceil(fileLength / 10.0f);
+                        if (fileLength != 0) partsDone = bytesRead / parts;
                                                 
                         if (partsTotal == partsDone) {
                             return;
