@@ -7,7 +7,8 @@ def createGroup(sel, groupName):
     """
     Helper method for creating a new group with the give name. 
     Must be logged in as root. Creates a private group. 
-    Returns true if creation sucessful (the groups page displays new group name)
+    Returns groupId if creation sucessful (the groups page displays new group name)
+    Otherwise returns 0
     """
     sel.open("/webadmin/groups")
     sel.click("link=Add new group")
@@ -16,14 +17,24 @@ def createGroup(sel, groupName):
     sel.click("//input[@value='Save']")
     sel.wait_for_page_to_load("30000")
     
-    return sel.is_element_present("jquery=#groupTable tbody tr td:containsExactly(%s)" % groupName)
-
+    gId = 0
+    if sel.is_element_present("jquery=#groupTable tbody tr td:containsExactly(%s)" % groupName):
+        # find group in the table
+        i = 1
+        while sel.get_text("//table[@id='groupTable']/tbody/tr[%s]/td[2]" % i) != groupName:
+           i+=1
+           # raises exception if out of bounds for the html table
+        idTxt = sel.get_text("//table[@id='groupTable']/tbody/tr[%s]/td[1]" % i)
+        gId = long(idTxt.strip("id:"))
+    return gId
+    
 
 def createExperimenter(sel, omeName, groupNames, password="ome", firstName="Selenium", lastName="Test"):
     """
     Helper method for creating an experimenter in the specified group. 
     The group 'groupName' must already exist. 
-    Returns True if experimenter created successfully (omeName is found in table of experimenters)
+    Returns the expId if experimenter created successfully (omeName is found in table of experimenters)
+    Otherwise returns 0
     """
     sel.open("/webadmin/experimenters")
     sel.click("link=Add new scientist")
@@ -42,21 +53,17 @@ def createExperimenter(sel, omeName, groupNames, password="ome", firstName="Sele
     sel.click("//input[@value='Save']")
     sel.wait_for_page_to_load("30000")
     
+    eId = 0
     if sel.is_element_present("jquery=#experimenterTable tbody tr td:containsExactly(%s)" % omeName):
-        # try to get experimenter ID
-        #expId = self.selenium.get_value("//div[@id='curr-link']/descendant::input") parent() children():first
-        print dir(sel)
-        expId = sel.get_text("jquery=#experimenterTable tbody tr td:containsExactly(%s)" % omeName)
-        print expId     # OmeName0.742919097585    OK
-        expId = sel.get_text("jquery=#experimenterTable tbody tr td:containsExactly(%s):parent" % omeName)
-        print expId     # OmeName0.742919097585     Strange?
-        expId = sel.get_text("jquery=#experimenterTable tbody tr td:containsExactly(%s):parent:parent td:containsExactly(%s)" % (omeName, omeName) )
-        print expId     # ERROR: element not found 
+        # try to get experimenter ID, look in the table
+        i = 0   # jquery selector uses 0-based index
+        while sel.get_text('jquery=#experimenterTable tbody tr td.action+td+td:eq(%d)' % i) != omeName:
+           i+=1
+           # raises exception if out of bounds for the html table
+        idTxt = sel.get_text("//table[@id='experimenterTable']/tbody/tr[%d]/td[1]" % (i+1) ) # 1-based index
+        eId = long(idTxt.strip("id:"))  # 'id:123'
         
-        expId = sel.get_text("jquery=#experimenterTable tbody tr td:containsExactly(%s):parent td:contains(id)" % omeName)
-        print expId
-        
-    return True
+    return eId
 
 class WebAdminTestBase (SeleniumTestBase):
 
@@ -172,7 +179,8 @@ class AdminTests (WebAdminTestBase):
         
         sel = self.selenium
         # check new Group is on the page of Groups. 
-        self.assertTrue(createGroup(sel, groupName))
+        gId = createGroup(sel, groupName)
+        self.assertTrue(gId > 0)
     
     
     def testRemoveExpFromGroup(self):
@@ -189,10 +197,17 @@ class AdminTests (WebAdminTestBase):
         sel = self.selenium
         
         # first create groups and a new experimenter in both groups
-        self.assertTrue(createGroup(sel, groupName1))
-        self.assertTrue(createGroup(sel, groupName2))
-        self.assertTrue(createExperimenter(sel, omeName, [groupName1, groupName2]) )
-    
+        group1Id = createGroup(sel, groupName1)
+        self.assertTrue(group1Id > 0)
+        group2Id = createGroup(sel, groupName2)
+        self.assertTrue(group2Id > 0)
+        print "group IDs", group1Id, group2Id
+        eId = createExperimenter(sel, omeName, [groupName1, groupName2])
+        print "eId", eId
+        self.assertTrue(eId > 0)
+        sel.open("/webadmin/experimenter/edit/%d" % eId)
+        sel.wait_for_page_to_load("30000")
+        self.assertEqual("WebAdmin - Edit scientist", sel.get_title())
 
     def tearDown(self):
         self.logout()
