@@ -423,8 +423,6 @@
           var theT = viewport.getTPos();
           var theZ = viewport.getZPos();
           viewport.viewportimg.get(0).refresh_rois(theZ, theT);
-          // clear any selected rows in roi table
-          $('#roi_small_table tbody').children().children().css('background-color', '#fff');
       }
   }
   var show_rois = function () {
@@ -511,10 +509,10 @@
   // bound to clicks on shapes in the viewer
     var handle_shape_selection = function(e, shape_id) {
         var $roi_table = $("#roi_small_table");
-        $roi_table.find('tbody').hide();
         // show the rows
         var $row = $("#"+shape_id+"_shape");
-        $roi_table.find('tbody').children().css('background-color', '#fff');// all rows white...
+        $roi_table.find('tbody').children().children().css('background-color', '#fff');// all rows white...
+        // $roi_table.find('tbody').hide();
         $row.children().css('background-color', '#d0d0ff');      // ...show this row blue
         $row.parent().show();   // show this 'tbody' set of shapes
     }
@@ -973,6 +971,9 @@
     $(".postit").each(function () {
       if (this.id == 'metadata-postit') {
         $(this).postit({noResize: false, resizeTarget: '#wblitz-image-description'});//.css($("#weblitz-viewport-vp").offset());
+      } else if (this.id == 'roi_table_postit') {
+          $(this).postit({noResize: true})
+            .css(layout_pos);
       } else {
         layout_pos.left += 20;
         layout_pos.top += 20;
@@ -1040,9 +1041,8 @@
         // a shape td click selects the shape.
         if ($target.attr('class') == "shape_cell") {
             var $shapeRow = $target.parent();
-            $('#roi_small_table tbody').children().children().css('background-color', '#fff');// all rows white...
-            $shapeRow.children().css('background-color', '#d0d0ff'); // selected row coloured
             var shape_id = parseInt($shapeRow.attr('id'));      // E.g. id='123_shape'
+            viewport.viewportimg.get(0).set_selected_shape(shape_id);
             var z = parseInt( $shapeRow.find('td:nth-child(2)').text() );
             var t = parseInt( $shapeRow.find('td:nth-child(3)').text() );
             viewport.setZPos(z);

@@ -7,6 +7,8 @@
 $.fn.roi_display = function(options) {
     return this.each(function(){
 
+        var self = this;
+        
         if (options != null) {
             var orig_width = options.width;
             var orig_height = options.height;
@@ -24,6 +26,9 @@ $.fn.roi_display = function(options) {
         var roi_json = null;          // load ROI data as json when needed
         var rois_displayed = false;   // flag to toggle visability.
         
+        var selected_shape_id = null;  // html page is kept in sync with this
+        var selectedClone = null;      // a highlighted shape cloned from currently selected shape
+        
         // for keeping track of objects - E.g. de-select all. 
         var shape_objects = new Array();
         var shape_default = {'fill-opacity':0.5, opacity:0.7}
@@ -32,19 +37,34 @@ $.fn.roi_display = function(options) {
         // Creates Raphael canvas. Uses scale.raphael.js to provide paper.scaleAll(ratio);
         var paper = new ScaleRaphael('roi_canvas', orig_width, orig_height);
 
-
+        
+        // if the currently selected shape is visible - highlight it
+        display_selected = function() {
+            
+            if (selectedClone != null)  selectedClone.remove();
+            if (selected_shape_id == null) return;
+            
+            for (var i=0; i<shape_objects.length; i++) {
+                var s = shape_objects[i];
+                var shape_id = parseInt(s.id);
+                if (shape_id == selected_shape_id) {
+                    selectedClone = s.clone();
+                    selectedClone.attr({'stroke': '#00a8ff'})
+                }
+            }
+        }
+        
+        this.set_selected_shape = function(shape_id) {
+            selected_shape_id = shape_id;
+            $viewportimg.trigger("shape_click", [shape_id]);
+            display_selected();
+        }
+        
         // called when user clicks on ROI
         handle_shape_click = function(event) {
             var shape = this;
             var shape_id = parseInt(shape.id);
-            $viewportimg.trigger("shape_click", [shape_id]);
-            
-            // deselect all shapes
-            for (var i=0; i<shape_objects.length; i++) {
-               shape_objects[i].attr(shape_default);
-            }
-            // select current shape
-            shape.attr(shape_selected);
+            self.set_selected_shape(shape_id);
         }
 
         // load the ROIs from json call and display
@@ -62,7 +82,6 @@ $.fn.roi_display = function(options) {
                 $viewportimg.trigger("rois_loaded");
             });
         }
-
 
         // returns the ROI data as json. May be null if not yet loaded! 
         this.get_roi_json = function() {
@@ -184,6 +203,8 @@ $.fn.roi_display = function(options) {
                     }
                 }
             }
+            // if the new display includes selected-shape - show it
+            display_selected();
         }
 
 
