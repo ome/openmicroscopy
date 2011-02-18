@@ -100,10 +100,10 @@ abstract class RenderingStrategy {
     	//for now only check of XY plane
     	int sizeX = pixels.getSizeX().intValue();
     	int sizeY = pixels.getSizeY().intValue();
-    	if (x+w > sizeX)
-    		throw new RuntimeException("Invalid Region");
-    	if (y+h > sizeY)
-    		throw new RuntimeException("Invalid Region");
+    	if (x+w > sizeX) //reset the width.
+    		region.setWidth(sizeX-x); 
+    	if (y+h > sizeY) //reset the height.
+    		region.setHeight(sizeY-y); 
     }
 
     /**

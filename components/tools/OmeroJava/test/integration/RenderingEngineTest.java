@@ -1307,4 +1307,111 @@ public class RenderingEngineTest
 		re.close();
 	}
 	
+	/**
+	 * Tests to render a given region of plane using the <code>render</code>
+	 * method. The region requested it outside the size of the image.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	@Test
+	public void testRenderRegionOutsideRange()
+		throws Exception
+	{
+		File f = File.createTempFile("testRenderRegionOutsideRange",
+				"."+OME_FORMAT);
+		XMLMockObjects xml = new XMLMockObjects();
+		XMLWriter writer = new XMLWriter();
+		writer.writeFile(f, xml.createImage(), true);
+		List<Pixels> pixels = null;
+		try {
+			pixels = importFile(f, OME_FORMAT);
+		} catch (Throwable e) {
+			throw new Exception("cannot import image", e);
+		}
+		Pixels p = pixels.get(0);
+		long id = p.getId().getValue();
+		RenderingEnginePrx re = factory.createRenderingEngine();
+		re.lookupPixels(id);
+		if (!(re.lookupRenderingDef(id))) {
+			re.resetDefaults();
+			re.lookupRenderingDef(id);
+		}
+		re.load();
+		int sizeX = p.getSizeX().getValue();
+		int sizeY = p.getSizeY().getValue();
+		PlaneDef pDef;
+		RGBBuffer bufferRegion;
+		pDef = new PlaneDef();
+		pDef.t = re.getDefaultT();
+		pDef.z = re.getDefaultZ();
+		pDef.slice = omero.romio.XY.value;
+		RegionDef r = new RegionDef();
+		int w = 8;
+		int h = 8;
+		r.x = sizeX-w;
+		r.y = sizeY-h;
+		r.width = 2*w;
+		r.height = 2*h;
+		pDef.region = r;
+		bufferRegion = re.render(pDef);
+		assertNotNull(bufferRegion);
+		assertEquals(w, bufferRegion.sizeX1);
+		assertEquals(h, bufferRegion.sizeX2);
+		f.delete();
+		re.close();
+	}
+	
+	/**
+	 * Tests to render a given region of plane using the 
+	 * <code>renderAsPackedInt</code> method. 
+	 * The region requested it outside the size of the image.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	@Test
+	public void testRenderAsPacketIntRegionOutsideRange()
+		throws Exception
+	{
+		File f = File.createTempFile("testRenderRegionOutsideRange",
+				"."+OME_FORMAT);
+		XMLMockObjects xml = new XMLMockObjects();
+		XMLWriter writer = new XMLWriter();
+		writer.writeFile(f, xml.createImage(), true);
+		List<Pixels> pixels = null;
+		try {
+			pixels = importFile(f, OME_FORMAT);
+		} catch (Throwable e) {
+			throw new Exception("cannot import image", e);
+		}
+		Pixels p = pixels.get(0);
+		long id = p.getId().getValue();
+		RenderingEnginePrx re = factory.createRenderingEngine();
+		re.lookupPixels(id);
+		if (!(re.lookupRenderingDef(id))) {
+			re.resetDefaults();
+			re.lookupRenderingDef(id);
+		}
+		re.load();
+		int sizeX = p.getSizeX().getValue();
+		int sizeY = p.getSizeY().getValue();
+		PlaneDef pDef;
+		int[] bufferRegion;
+		pDef = new PlaneDef();
+		pDef.t = re.getDefaultT();
+		pDef.z = re.getDefaultZ();
+		pDef.slice = omero.romio.XY.value;
+		RegionDef r = new RegionDef();
+		int w = 8;
+		int h = 8;
+		r.x = sizeX-w;
+		r.y = sizeY-h;
+		r.width = 2*w;
+		r.height = 2*h;
+		pDef.region = r;
+		bufferRegion = re.renderAsPackedInt(pDef);
+		assertNotNull(bufferRegion);
+		BufferedImage image = createImage(bufferRegion, 32, w, h);
+		assertNotNull(image);
+		f.delete();
+		re.close();
+	}
+	
 }
