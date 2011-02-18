@@ -30,19 +30,12 @@ $.fn.viewportImage = function(options) {
     var dragdiv = jQuery('#'+insideId);
     var dragdiv_dom = dragdiv.get(0);
     var wrapdiv = jQuery(dragdiv_dom.parentNode);
-    var overlay =   $('<img id="'+insideId+'-ovl">').appendTo(dragdiv);
+    var overlay = $('<img id="'+insideId+'-ovl">').appendTo(dragdiv);
     overlay.addClass('weblitz-viewport-img').hide();
-
-    //tiles container
-    var bigimage = false;
-    var Y_TILE_SIZE = 256;
-  	var X_TILE_SIZE = 256;
-  	var last_col = -1;
-  	var last_row = -1;
-  	var tile_url = null;
-    var tiles = new Array();
-    var tilescontainer = $('<div id="weblitz-viewport-tiles"></div>').appendTo(dragdiv);
-    tilescontainer.addClass('weblitz-viewport-tiles');
+    
+    $('<div id="weblitz-viewport-tiles"><div class="well"><!-- --></div><div class="surface"><!-- --></div></div>').appendTo(wrapdiv);
+    var tilecontainer = jQuery('#weblitz-viewport-tiles');
+    var viewerBean = null;
     
     var panbars = options == null || options.panbars;
     var mediaroot = options == null ? null : options.mediaroot;
@@ -268,130 +261,10 @@ $.fn.viewportImage = function(options) {
       } else {
         dragdiv.css({left: left, top: top});
       }
-      
-      if(bigimage){
-          if (imagewidth <= wrapwidth) {
-                cols = Math.floor(imagewidth/X_TILE_SIZE) + ((imagewidth%X_TILE_SIZE > 0) ? 1 : 0);
-                tiles_left = (imagewidth-wrapwidth<0) ? 0 : imagewidth-wrapwidth;
-            } else {
-                cols = Math.floor(wrapwidth/X_TILE_SIZE) + ((wrapwidth%X_TILE_SIZE > 0) ? 1 : 0);
-                tiles_left = left;
-            }
-
-            if (imageheight <= wrapheight) {
-                rows = Math.floor(imageheight/Y_TILE_SIZE) + ((imageheight%Y_TILE_SIZE > 0) ? 1 : 0);
-                tiles_top = (imageheight-wrapheight<0) ? 0 : imageheight-wrapheight;
-            } else {
-                rows = Math.floor(wrapheight/Y_TILE_SIZE) + ((wrapheight%Y_TILE_SIZE > 0) ? 1 : 0) ;
-                tiles_top = top;
-            }
             
-            //reorganize tiles
-            last_col = Math.floor(imagewidth/X_TILE_SIZE) + ((imagewidth%X_TILE_SIZE > 0) ? 1 : 0);
-            last_row = Math.floor(imageheight/Y_TILE_SIZE) + ((imageheight%Y_TILE_SIZE > 0) ? 1 : 0);
-                        
-            redraw(rows, cols, tiles_left, tiles_top);
-        }
-      
     }
     
-    var redraw = function(rows, cols, tiles_left, tiles_top) {
-        tiles_left = (tiles_left == null) ? 0 : tiles_left;
-        tiles_top = (tiles_top == null) ? 0 : tiles_top;
-                
-        var ratio = 1/(cur_zoom/100);
-        
-        //rows
-        if (tiles_top<0 && (tiles.length*Y_TILE_SIZE+tiles_top)<wrapheight) {
-            var r = tiles.length;
-            for(var i = r; i <r+1; ++i) {
-                var new_row = new Array();
-                for(var j = 0; j < tiles[0].length; ++j) {
-                    
-                    tile_height = Y_TILE_SIZE;
-                    tile_width = X_TILE_SIZE;
-                    
-                    if (i == (last_row-1)) tile_height = (image.height()-i*Y_TILE_SIZE);
-                    if (j == (last_col-1)) tile_width = (image.width()-j*X_TILE_SIZE);
-                    
-                    var img = $("<img />");
-                    img.attr('alt', i+'/'+j);
-                    img.attr('id', _this.id+'-tile-'+i+'-'+j);
-                    //img.attr('src', '/appmedia/webgateway/img/blank_tile.png');
-                    img.attr('src', tile_url+'&region='+Math.floor(j*ratio*X_TILE_SIZE)+','+Math.floor(i*ratio*Y_TILE_SIZE)+','+Math.floor(ratio*tile_width)+','+Math.floor(ratio*tile_height));
-                    
-                    img.css('left', j*X_TILE_SIZE);
-                    img.css('top', i*Y_TILE_SIZE);
-                    img.attr('width',tile_width);
-                    img.attr('height',tile_height);
-                    new_row.push(img);
-                    tilescontainer.append(img);
-                }
-                tiles.push(new_row);
-            }           
-        }
-        
-        //cols
-        if (tiles_left<0 && (tiles[0].length*X_TILE_SIZE+tiles_left)<wrapwidth) {
-            for(var i = 0; i < tiles.length; ++i) {
-                var c = tiles[ i ].length;
-                
-                for(var j = c; j < (c+1); ++j) {
-                    
-                    tile_height = Y_TILE_SIZE;
-                    tile_width = X_TILE_SIZE;
-
-                    if (i == (last_row-1)) tile_height = (image.height()-i*Y_TILE_SIZE);
-                    if (j == (last_col-1)) tile_width = (image.width()-j*X_TILE_SIZE);
-                                        
-                    var img = $("<img />");
-                    img.attr('alt', i+'/'+j);
-                    img.attr('id', _this.id+'-tile-'+i+'-'+j);
-                    //img.attr('src', '/appmedia/webgateway/img/blank_tile.png');
-                    img.attr('src', tile_url+'&region='+Math.floor(j*ratio*X_TILE_SIZE)+','+Math.floor(i*ratio*Y_TILE_SIZE)+','+Math.floor(ratio*tile_width)+','+Math.floor(ratio*tile_height));
-                    
-                    img.css('left', j*X_TILE_SIZE);
-                    img.css('top', i*Y_TILE_SIZE);
-                    img.attr('width',tile_width);
-                    img.attr('height',tile_height);
-                    tiles[ i ].push(img);
-                    tilescontainer.append(img);
-                }
-            }     
-                        
-        }
-        
-        // remove unused        
-        /*
-        tile_height = Y_TILE_SIZE;
-        tile_width = X_TILE_SIZE;
-
-        if (i == (last_row-1)) tile_height = (image.height()-i*Y_TILE_SIZE);
-        if (j == (last_col-1)) tile_width = (image.width()-j*X_TILE_SIZE);                    
-
-        if (tiles_top<0 && (tiles.length*Y_TILE_SIZE+tiles_top)<wrapheight) {
-            ii = Math.abs(Math.floor(tiles_top/Y_TILE_SIZE)) + i;
-        } else {
-            ii = i;
-        }
-        
-        if (tiles_left<0 && (tiles[0].length*X_TILE_SIZE+tiles_left)<wrapwidth) {
-            jj = Math.abs(Math.floor(tiles_left/X_TILE_SIZE)) + j;                            
-        } else {
-            jj = j;
-        }                     
-        
-        var src = tile_url+'&region='+Math.floor(jj*ratio*X_TILE_SIZE)+','+Math.floor(ii*ratio*Y_TILE_SIZE)+','+Math.floor(ratio*tile_width)+','+Math.floor(ratio*tile_height);
-        jQuery('#'+ _this.id+'-tile-'+i+'-'+j).attr('src', src);
-        jQuery('#'+ _this.id+'-tile-'+i+'-'+j).attr('alt', ii+'/'+jj);                      
-        jQuery('#'+ _this.id+'-tile-'+i+'-'+j).attr('width',tile_width);
-        jQuery('#'+ _this.id+'-tile-'+i+'-'+j).attr('height',tile_height);
-
-        jQuery('#'+ _this.id+'-tile-'+i+'-'+j).css('left', jj*X_TILE_SIZE);
-        jQuery('#'+ _this.id+'-tile-'+i+'-'+j).css('top', ii*Y_TILE_SIZE);
-        */
-        
-    }
+    
 
     var cur_zoom = 100;
     var orig_width;
@@ -413,6 +286,13 @@ $.fn.viewportImage = function(options) {
     this.setYOffset = function (yoffset) {dragdiv.css('top', -yoffset); this.doMove(0,0);};
 
     this.setZoom = function (val, width, height) {
+        if (viewerBean != null) {            
+            if (val!=cur_zoom) {
+              viewerBean.zoom(val < cur_zoom ? -1 : 1);
+        	  //viewerBean.recenter({'x':400 ,'y':800}, true);
+        	 }
+        }
+          
       if (width != null && height != null) {
         orig_width = width;
         orig_height = height;
@@ -432,38 +312,8 @@ $.fn.viewportImage = function(options) {
       image.trigger("instant_zoom", [cur_zoom])
       image.attr({width: width, height: height});
       overlay.attr({width: width, height: height});
-      
-      if(bigimage){
-          
-            if (width <= wrapwidth) {
-                  cols = Math.floor(width/X_TILE_SIZE) + ((width%X_TILE_SIZE > 0) ? 1 : 0);
-                  w = width;
-              } else {
-                  cols = Math.floor(wrapwidth/X_TILE_SIZE) + ((wrapwidth%X_TILE_SIZE > 0) ? 1 : 0);
-                  w = width;//wrapwidth;
-              }
-              if (height <= wrapheight) {
-                  rows = Math.floor(height/Y_TILE_SIZE) + ((height%Y_TILE_SIZE > 0) ? 1 : 0);
-                  h = height;
-              } else {
-                  rows = Math.floor(wrapheight/Y_TILE_SIZE) + ((wrapheight%Y_TILE_SIZE > 0) ? 1 : 0) ;
-                  h = height;//wrapheight;
-              }
-
-              tilescontainer.css({width: w, height: h});
-              
-            tilescontainer.empty();
-            delete tails;
-            tiles = new Array();
-
-            //reorganize tiles
-            last_col = Math.floor(width/X_TILE_SIZE) + ((width%X_TILE_SIZE > 0) ? 1 : 0);
-            last_row = Math.floor(height/Y_TILE_SIZE) + ((height%Y_TILE_SIZE > 0) ? 1 : 0);
-                        
-            draw_tiles(rows,cols);
-      }
-      
-     }
+            
+     }     
 
     this.setZoomToFit = function (only_shrink, width, height) {
       if (width != null && height != null) {
@@ -471,7 +321,11 @@ $.fn.viewportImage = function(options) {
         orig_height = height;
         cur_zoom = 100;
       }
-      var ztf = Math.min(wrapwidth * 100.0 / orig_width, wrapheight * 100.0 / orig_height);
+      if (viewerBean != null) {
+          var ztf = Math.min(wrapwidth * 100.0 / orig_width, wrapheight * 100.0 / orig_height);
+      } else {
+          var ztf = 100;
+      }
       if (only_shrink && ztf >= 100.0) {
         ztf = 100.0;
       }
@@ -499,10 +353,6 @@ $.fn.viewportImage = function(options) {
       
       e.preventDefault();
     })
-  
-    this.getZoom = function() {
-        return cur_zoom;
-    }
   
     /**
      * Handle Zoom by mousewheel (FF)
@@ -572,98 +422,37 @@ $.fn.viewportImage = function(options) {
       }
     });
 
-    this.setUpTiles = function (xtilesize,ytilesize, href) {
-        bigimage = true;
+    
+    function initializeGraphic(e) {
+        // opera triggers the onload twice
+    	if (viewerBean == null) {
+    		viewerBean = new PanoJS('weblitz-viewport-tiles', {
+    			tileBaseUri: tile_url,
+    			tileSizeX: X_TILE_SIZE,
+    			tileSizeY: Y_TILE_SIZE,
+    			maxZoom: TILE_MAX_ZOOM,
+    			initialZoom: TILE_MAX_ZOOM,
+    			blankTile: '/appmedia/webgateway/img/panojs/blank.gif',
+    			//loadingTile: '/appmedia/webgateway/img/panojs/spinner.gif'
+    		});
+    		//viewerBean.fitToWindow(0);
+    		viewerBean.init();
+    		//viewerBean.recenter({'x':400 ,'y':800}, true);
+    	}
+    }
+    
+    
+    this.setUpTiles = function (xtilesize,ytilesize, max_zoom, href) {
+        
         X_TILE_SIZE = xtilesize;
         Y_TILE_SIZE = ytilesize;
         tile_url = href;
+        TILE_MAX_ZOOM = max_zoom;
+        tilecontainer.css({width: wrapwidth, height: wrapheight});
+        initializeGraphic();
         
-        
-        if (imagewidth <= wrapwidth) {
-              cols = Math.floor(image.width()/X_TILE_SIZE) + ((image.width()%X_TILE_SIZE > 0) ? 1 : 0);
-              w = imagewidth;
-          } else {
-              cols = Math.floor(wrapwidth/X_TILE_SIZE) + ((wrapwidth%X_TILE_SIZE > 0) ? 1 : 0);
-              w = wrapwidth;
-          }
-          if (image.height() <= wrapheight) {
-              rows = Math.floor(image.height()/Y_TILE_SIZE) + ((image.height()%Y_TILE_SIZE > 0) ? 1 : 0);
-              h = imageheight;
-          } else {
-              rows = Math.floor(wrapheight/Y_TILE_SIZE) + ((wrapheight%Y_TILE_SIZE > 0) ? 1 : 0);
-              h = wrapheight;
-          }
-        
-        //reorganize tiles
-        last_col = Math.floor(image.width()/X_TILE_SIZE) + ((image.width()%X_TILE_SIZE > 0) ? 1 : 0);
-        last_row = Math.floor(image.height()/Y_TILE_SIZE) + ((image.height()%Y_TILE_SIZE > 0) ? 1 : 0);
-        
-        tilescontainer.css({width: w, height: h});
-        
-        draw_tiles(rows,cols); 
     }
-
-    var draw_tiles = function(rows, cols) {
-        rows = (rows < 1) ? 1 : rows;
-        cols = (cols < 1) ? 1 : cols;
-        
-        var ratio = 1/(cur_zoom/100);
-                
-        if (rows < tiles.length) {
-            for(var j = tiles.length-1; j >= rows; --j) {
-                for(var i = 0; i < tiles[ j ].length; ++i) {
-                    $(tiles[ j ][ i ]).remove();
-                }
-                tiles.pop();
-            }
-        }
-        
-        for(var i = 0; i < rows; ++i) 
-        {
-            if (!jQuery.isArray(tiles[ i ])) {
-                tiles[ i ] = new Array();
-            }
-            if (cols >= tiles[ i ].length) {
-                for(var j = tiles[ i ].length; j < cols; ++j) 
-                {
-                    
-                    var img = $("<img />");
-                    img.attr('alt', i+'/'+j);
-                    img.attr('id', _this.id+'-tile-'+i+'-'+j);
-                    img.attr('src', '/appmedia/webgateway/img/blank_tile.png');
-                    img.css('left', j*X_TILE_SIZE);
-                    img.css('top', i*Y_TILE_SIZE);
-                    img.attr('width', X_TILE_SIZE);
-                    img.attr('height', Y_TILE_SIZE);
-                    tiles[ i ].push(img);
-                    tilescontainer.append(img);                    
-                }
-            } else {
-                for(var j = tiles[ i ].length-1; j >= cols; --j) {
-                    $(tiles[ i ][ j ]).remove();
-                    tiles[ i ].pop();
-                }                
-            }
-        }
-        
-        if (tile_url != null) {
-            for(var i = 0; i < tiles.length; ++i) {
-                for(var j = 0; j < tiles[ i ].length; ++j) {
-                    tile_height = Y_TILE_SIZE;
-                    tile_width = X_TILE_SIZE;
-                    
-                    if (i == (last_row-1)) tile_height = (image.height()-i*Y_TILE_SIZE);
-                    if (j == (last_col-1)) tile_width = (image.width()-j*X_TILE_SIZE);                    
-                    
-                    var src = tile_url+'&region='+Math.floor(j*ratio*X_TILE_SIZE)+','+Math.floor(i*ratio*Y_TILE_SIZE)+','+Math.floor(ratio*tile_width)+','+Math.floor(ratio*tile_height);
-                    jQuery('#'+ _this.id+'-tile-'+i+'-'+j).attr('src', src);
-                    jQuery('#'+ _this.id+'-tile-'+i+'-'+j).attr('width',tile_width);
-                    jQuery('#'+ _this.id+'-tile-'+i+'-'+j).attr('height',tile_height);
-                    
-                }
-            }
-        }
-    }
+    
     
     this.refresh = function () {
         
@@ -672,28 +461,12 @@ $.fn.viewportImage = function(options) {
       wrapwidth = wrapdiv.width();
       wrapheight = wrapdiv.height();
       //orig_width = image.get(0).clientWidth;
-      //orig_height = image.get(0).clientHeight;
-      
-      if (bigimage){
-          if (imagewidth <= wrapwidth) {
-                  cols = Math.floor(imagewidth/X_TILE_SIZE) + ((imagewidth%X_TILE_SIZE > 0) ? 1 : 0);
-              } else {
-                  cols = Math.floor(wrapwidth/X_TILE_SIZE) + ((wrapwidth%X_TILE_SIZE > 0) ? 1 : 0);
-              }
-              if (imageheight <= wrapheight) {
-                  rows = Math.floor(imageheight/Y_TILE_SIZE) + ((imageheight%Y_TILE_SIZE > 0) ? 1 : 0);
-              } else {
-                  rows = Math.floor(wrapheight/Y_TILE_SIZE) + ((wrapheight%Y_TILE_SIZE > 0) ? 1 : 0);
-              }
-
-            //reorganize tiles
-            last_col = Math.floor(image.width()/X_TILE_SIZE) + ((image.width()%X_TILE_SIZE > 0) ? 1 : 0);
-            last_row = Math.floor(image.height()/Y_TILE_SIZE) + ((image.height()%Y_TILE_SIZE > 0) ? 1 : 0);
-
-            
-            draw_tiles(rows,cols)
+      //orig_height = image.get(0).clientHeight;   
+         
+      if (viewerBean != null) {
+          tilecontainer.css({width: wrapwidth, height: wrapheight});
+          viewerBean.resize();
       }
-      
       
       if (panbars) {
       pantop.center();

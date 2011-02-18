@@ -569,8 +569,7 @@ def _get_prepared_image (request, iid, server_id=None, _conn=None, with_session=
             else:
                 raise
     return (img, compress_quality)
-
-
+    
 def render_image_region(request, iid, z, t, server_id=None, _conn=None, **kwargs):
     """
     Returns a jpeg of the OMERO image, rendering only a region specified in query string as
@@ -586,28 +585,35 @@ def render_image_region(request, iid, z, t, server_id=None, _conn=None, **kwargs
     @return:            http response wrapping jpeg
     """
     
-    region = request.REQUEST.get('region', None)
-    h = None
-    if region:
-        try:
-            xywh = region.split(",")
-            x = int(xywh[0])
-            y = int(xywh[1])
-            w = int(xywh[2])
-            h = int(xywh[3])
-        except:
-            logger.debug("render_image_region: %s" % region)
-    
     # if the region=x,y,w,h is not parsed correctly to give 4 ints then we simply provide whole image plane. 
     # alternatively, could return a 404?    
-    if h == None:
-        return render_image (request, iid, z, t, server_id=None, _conn=None, **kwargs)
+    #if h == None:
+    #    return render_image (request, iid, z, t, server_id=None, _conn=None, **kwargs)
     
     USE_SESSION = False
     pi = _get_prepared_image(request, iid, server_id=server_id, _conn=_conn, with_session=USE_SESSION)
+    
     if pi is None:
         raise Http404
     img, compress_quality = pi
+    
+    tilesizex = 187
+    tilesizey = 140
+    region = request.REQUEST.get('region', None)
+    if region:
+        try:
+            zxy = region.split(",")
+            level = int(zxy[0])
+            tiles = pow(2,level)
+            
+            w = img.getWidth()/tiles
+            h = img.getHeight()/tiles
+            
+            x = int(zxy[1])*w
+            y = int(zxy[2])*h
+        except:
+            logger.debug("render_image_region: %s" % region)    
+    
     # region details in request are used as key for caching. 
     jpeg_data = webgateway_cache.getImage(request, server_id, img, z, t)
     if jpeg_data is None:
@@ -1011,9 +1017,10 @@ def imageMarshal (image, key=None):
     ds = image.getDataset()
     try:
         rv = {
-            'tiles': True, #BIG IMAGE -> True
-            'tile_size': {'width': 200,
-                          'height': 100},
+            'tiles': False, #BIG IMAGE -> True
+            'tile_size': {'width': 187,
+                          'height': 140},
+            'max_zoom': 4,
             'id': image.id,
             'size': {'width': image.getWidth(),
                      'height': image.getHeight(),

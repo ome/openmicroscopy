@@ -1,0 +1,73 @@
+#weblitz-viewport-tiles {
+	position: relative;
+	top: 0;
+	left: 0;
+	/* NOTE: the size and width should be set dynamically when initialized */
+	width: 0;
+	height: 0;
+}
+#weblitz-viewport-tiles .well, #weblitz-viewport-tiles .surface {
+	margin: 0;
+	padding: 0;
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	/* FIXME: let's apply this in GSV.js */
+	/*cursor: grab;*/
+	cursor: -moz-grab;
+		_cursor: url(/appmedia/webgateway/img/panojs/grab.cur);
+}
+#weblitz-viewport-tiles .surface {
+	z-index: 20;
+	/*background: url(../gfx/center.gif) no-repeat center center;*/
+		_background: url(/appmedia/webgateway/img/panojs/blank.gif) no-repeat center center; /* NOTE: required for IE to"see" the surface */
+}
+#weblitz-viewport-tiles .well {
+	overflow: hidden;
+	z-index: 10;
+}
+#weblitz-viewport-tiles .well .tile
+{
+	border: 0;
+	margin: 0;
+	padding: 0;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	display: block;
+	/*-moz-outline: 1px dashed #FF0000;*/
+}
+#weblitz-viewport-tiles .controls        
+{
+	background-color: #FFFFFF;
+	position: absolute;
+	/* NOTE: the right and bottom can be adjusted when initialized */
+	right: 0;
+	bottom: 0;
+	width: 44px;
+	height: 20px;
+	margin: 0;
+	padding: 0 0 0 4px;
+	font-size: 12px;
+	line-height: 20px;
+	vertical-align: middle;
+	font-weight: bold;
+	border: 1px solid #000000;
+	z-index: 30;
+}
+#weblitz-viewport-tiles .controls a, #weblitz-viewport-tiles .controls span
+{
+	color: #000000;
+	text-decoration: none;
+	-moz-outline: none;
+	cursor: pointer;
+}
+#weblitz-viewport-tiles .controls a img, #weblitz-viewport-tiles .controls span img {
+	border: 0;
+	vertical-align: middle;
+}
+#weblitz-viewport-tiles .controls a:active, #weblitz-viewport-tiles .controls span:active {
+	color: #FF0000;
+}

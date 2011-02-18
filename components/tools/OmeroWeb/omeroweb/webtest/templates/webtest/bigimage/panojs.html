@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+	<head>
+ 		<meta http-equiv="imagetoolbar" content="no" />
+		<script type="text/javascript" src="/webtest/statictest/js/panojs/EventUtils.js"></script>
+		<script type="text/javascript" src="/webtest/statictest/js/panojs/PanoJS.js"></script>
+		<script type="text/javascript">
+// <![CDATA[
+
+var viewerBean = null;
+var maximized = false;
+
+function initializeGraphic(e) {
+	// opera triggers the onload twice
+	if (viewerBean == null) {
+		viewerBean = new PanoJS('weblitz-viewport-tiles', {
+			tileBaseUri: '/webgateway/render_image_region/1453/0/0/?c=1|0:255$FF0000,2|0:255$00FF00,3|0:255$0000FF&m=c&p=normal&ia=0&q=0.9&zm=100&x=0&y=0',
+			tileSizeX: 187,
+			tileSizeY: 140,
+			maxZoom: 4,
+			initialZoom: 4,
+			blankTile: '/webtest/statictest/img/panojs/blank.gif',
+		});
+		//viewerBean.fitToWindow(0);
+		viewerBean.init();
+		//viewerBean.recenter({'x':400 ,'y':800}, true);
+	}
+}
+
+function reinitializeGraphic(e) {
+	viewerBean.resize();
+}
+
+// uses the callback format PanoJS.{className}Handler
+PanoJS.maximizeHandler = function(e) {
+	if (maximized) {
+		// HACK: remove auto-fit to window (this needs to be a function)
+		viewerBean.border = -1;
+		document.body.style.padding = '10px';
+		document.getElementById('header').style.display = 'block';
+		document.getElementById('footer').style.display = 'block';
+		document.getElementById('weblitz-viewport-tiles').style.width = '100%';
+		document.getElementById('weblitz-viewport-tiles').style.height = '400px';
+	}
+	else {
+		document.body.style.padding = '0';
+		document.getElementById('header').style.display = 'none';
+		document.getElementById('footer').style.display = 'none';
+		// HACK allow auto-fit to window (this needs to be a function)
+		viewerBean.border = 0;
+		viewerBean.resize();
+	}
+
+	maximized = !maximized;
+}
+
+EventUtils.addEventListener(window, 'load', initializeGraphic, false);
+EventUtils.addEventListener(window, 'resize', reinitializeGraphic, false);
+
+// ]]>
+		</script>
+		<style type="text/css">
+@import url(/appmedia/webgateway/css/panojs.css);
+		</style>
+		<style type="text/css">
+body {
+	font-family: sans-serif;
+	margin: 0;
+	padding: 10px;
+	color: #FFFFFF;
+	background-color: #000000;
+	font-size: 0.7em;
+}
+#weblitz-viewport-tiles {
+	background-color: #000000;
+	width: 100%;
+	height: 400px;
+}
+		</style>
+	</head>
+	<body>
+		<div id="header">
+		<h1>Panoramic JavaScript Image Viewer</h1>
+		<p id="description">A javascript-based pan and zoom interface for large, high-resolution images, with a <a href="../scripts/tilemaker.py">python script</a> for creating required tiles. Similar in spirit to Google Maps and Zoomify.</p>
+		<p id="explanation">The original image is 5587 x 1637 pixels, but the javascript on this page requests only the visible 256 x 256 pixel tiles needed to fill the smaller window. As the image is dragged, tiles are repositioned and images re-requested to maintain the illusion of a single large image. <em>Yes, the loading image is configurable.</em></p>
+		</div>
+		<div id="weblitz-viewport-tiles">
+			<div class="well"><!-- --></div>
+			<div class="surface"><!-- --></div>
+			<p class="controls">
+				<span class="zoomIn" title="Zoom In">+</span>
+				<span class="zoomOut" title="Zoom Out">-</span>
+				<span class="maximize"><img src="/webtest/statictest/img/panojs/window.gif" style="position: absolute; bottom: 4px; right: 5px;" title="Maximize"/></span>
+			</p>
+		</div>
+		<div id="footer">
+		<p style="text-align: right;">Courtesy NASA/JPL-Caltech</p>
+		</div>
+	</body>
+</html>

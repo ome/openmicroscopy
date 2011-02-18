@@ -123,7 +123,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
   this.viewport = jQuery('#'+viewportid);
   this.viewport.append('<img id="'+viewportimgid+'">');
   this.viewportimg = jQuery('#'+viewportimgid);
-  this.viewport.append('<div id="'+viewportmsgid+'" class="weblitz-viewport-msg"></div>');
+  this.viewport.append('<div id="'+viewportmsgid+'" class="weblitz-viewport-msg"></div>');  
   this.viewportmsg = jQuery('#'+viewportmsgid);
   this.self.append('<div id="'+bottomid+'" class="weblitz-viewport-bot">');
   this.bottom = jQuery('#'+bottomid);
@@ -134,7 +134,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
     return _this.viewportmsg.is(':hidden');
   };
 
-  this.viewportimg.viewportImage(options);
+  this.viewportimg.viewportImage(options);  
   this.viewportimg.bind('zoom', function (e,z) { _this.loadedImg.current.zoom = z; });
   this.zslider.gs_slider({ orientation: 'v', min:0, max:0, tooltip_prefix: 'Z=', repeatCallback: done_reload });
   this.tslider.gs_slider({ tooltip_prefix: 'T=', min:0, max:0, repeatCallback: done_reload });
@@ -259,7 +259,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
       showLoading();
       if (_this.loadedImg.tiles) {
           rcb()
-          _this.viewportimg.get(0).setUpTiles(_this.loadedImg.tile_size.width, _this.loadedImg.tile_size.height, href);
+          _this.viewportimg.get(0).setUpTiles(_this.loadedImg.tile_size.width, _this.loadedImg.tile_size.height, _this.loadedImg.max_zoom, href);
       } else {
           _this.viewportimg.load(rcb);
           _this.viewportimg.attr('src', href);

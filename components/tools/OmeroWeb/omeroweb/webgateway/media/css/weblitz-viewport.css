@@ -12,7 +12,7 @@
  * Author: Carlos Neves <carlos(at)glencoesoftware.com>
  */
 
-div.weblitz-viewport-tiles {
+/*div.weblitz-viewport-tiles {
   background: transparent;
   margin: 0;
   overflow: hidden;
@@ -25,7 +25,7 @@ div.weblitz-viewport-tiles img {
  margin: 0;
  padding: 0;
  position: absolute;
-}
+}*/
   
 .weblitz-viewport-vp {
   position: absolute;
