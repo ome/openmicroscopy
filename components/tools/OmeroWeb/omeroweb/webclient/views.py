@@ -1492,8 +1492,8 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             template = "webclient/annotations/annotation_new_form.html"
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form_files':form_files}
     elif action == 'delete':
-        child = not toBoolean(request.REQUEST.get('child'))
-        anns = not toBoolean(request.REQUEST.get('anns'))
+        child = toBoolean(request.REQUEST.get('child'))
+        anns = toBoolean(request.REQUEST.get('anns'))
         try:
             handle = manager.deleteItem(child, anns)
             request.session['callback'][str(handle)] = {'delmany':False,'did':o_id, 'dtype':o_type, 'dstatus':'in progress', 'derror':handle.errors(), 'dreport':_formatReport(handle)}
@@ -1505,7 +1505,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         return HttpResponse()
     elif action == 'deletemany':
         ids = request.REQUEST.getlist('image')
-        anns = not toBoolean(request.REQUEST.get('anns'))
+        anns = toBoolean(request.REQUEST.get('anns'))
         try:
             handle = manager.deleteImages(ids, anns)
             if len(ids) > 1:

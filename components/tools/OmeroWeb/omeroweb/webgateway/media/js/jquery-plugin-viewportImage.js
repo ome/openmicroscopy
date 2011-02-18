@@ -321,7 +321,7 @@ $.fn.viewportImage = function(options) {
         orig_height = height;
         cur_zoom = 100;
       }
-      if (viewerBean != null) {
+      if (viewerBean == null) {
           var ztf = Math.min(wrapwidth * 100.0 / orig_width, wrapheight * 100.0 / orig_height);
       } else {
           var ztf = 100;
