@@ -127,26 +127,28 @@ if os.environ.has_key("ICE_HOME"):
 # env.Decider('MD5-timestamp')
 
 # CONFIGURATION: ==============================================
-#
-# Check C++ libraries
-#
-conf = Configure(env)
-if not conf.CheckCXXHeader('Ice/Ice.h'):
-    print 'Ice must be installed!'
-    Exit(1)
 
-if platform.name == "posix" or platform.name == "linux":
-    if not conf.CheckLib('Ice'):
-        print 'Ice library must be in path'
+if not env["no_cpp"]:
+    #
+    # Check C++ libraries
+    #
+    conf = Configure(env)
+    if not conf.CheckCXXHeader('Ice/Ice.h'):
+        print 'Ice must be installed!'
         Exit(1)
 
-#
-# Use C++ libraries
-#
-if platform.name == "posix" or platform.name == "linux" or platform.name == "darwin":
-    libs = Split("Ice IceUtil Glacier2")+link
-else:
-    libs = Split("Ice.lib")
+    if platform.name == "posix" or platform.name == "linux":
+        if not conf.CheckLib('Ice'):
+            print 'Ice library must be in path'
+            Exit(1)
+
+    #
+    # Use C++ libraries
+    #
+    if platform.name == "posix" or platform.name == "linux" or platform.name == "darwin":
+        libs = Split("Ice IceUtil Glacier2")+link
+    else:
+        libs = Split("Ice.lib")
 
 
 # TARGETS / EXECUTION: ==========================================

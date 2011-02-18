@@ -10,10 +10,9 @@ if errorlevel 1 goto ERROR
 REM
 REM Try DropBox, Hudson will look for ERROR in the output log.
 REM
-dir ..\..\..\..\
-copy "..\..\..\..\test11_R3D with spaces.dv" .
+wget http://hudson.openmicroscopy.org.uk/userContent/very_small.d3d%20with%20spaces.dv
 if errorlevel 1 goto ERROR
-echo omero.fstest.srcFile=test11_R3D with spaces.dv >> etc\testdropbox.config
+echo omero.fstest.srcFile=very_small.d3d with spaces.dv >> etc\testdropbox.config
 echo omero.fs.watchDir=TestDropBox >> etc\testdropbox.config
 if errorlevel 1 goto ERROR
 
