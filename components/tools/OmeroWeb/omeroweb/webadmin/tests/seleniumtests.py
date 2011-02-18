@@ -187,8 +187,9 @@ class AdminTests (WebAdminTestBase):
         
         print "testRemoveExpFromGroup"
         
-        groupName1 = "Selenium-testCreateExp1%s" % random()
-        groupName2 = "Selenium-testCreateExp2%s" % random()
+        groupName1 = "Sel-test1%s" % random()
+        groupName2 = "Sel-test2%s" % random()
+        groupName3 = "Sel-test3%s" % random()
         
         omeName = 'OmeName%s' % random()
         firstName = 'Selenium'
@@ -201,13 +202,31 @@ class AdminTests (WebAdminTestBase):
         self.assertTrue(group1Id > 0)
         group2Id = createGroup(sel, groupName2)
         self.assertTrue(group2Id > 0)
-        print "group IDs", group1Id, group2Id
+        group3Id = createGroup(sel, groupName3)
+        self.assertTrue(group2Id > 0)
+        print "group IDs", group1Id, group2Id, group3Id
+        
+        # create the experimenter in 2 groups
         eId = createExperimenter(sel, omeName, [groupName1, groupName2])
         print "eId", eId
         self.assertTrue(eId > 0)
         sel.open("/webadmin/experimenter/edit/%d" % eId)
         sel.wait_for_page_to_load("30000")
         self.assertEqual("WebAdmin - Edit scientist", sel.get_title())
+        
+        # try promoting the user to admin and adding to new group
+        sel.click("id_administrator")
+        sel.add_selection("id_available_groups", "label=%s" % groupName3)
+        sel.click("add")
+        sel.click("//input[@value='Save']")
+        sel.wait_for_page_to_load("30000")
+        # find experimenter in table - look for 'admin' icon
+        i = 1
+        while sel.get_text("//table[@id='experimenterTable']/tbody/tr[%s]/td[3]" % i) != omeName:
+           i+=1
+           # raises exception if out of bounds for the html table
+        self.assert_(sel.is_element_present("//table[@id='experimenterTable']/tbody/tr[%s]/td[5]/img[@alt='admin']" % i))
+        
 
     def tearDown(self):
         self.logout()
