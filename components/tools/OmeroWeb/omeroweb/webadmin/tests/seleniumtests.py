@@ -87,18 +87,17 @@ class WebAdminTestBase (SeleniumTestBase):
         
         
 class AdminTests (WebAdminTestBase):
-    
+
     from omero.gateway.scripts import dbhelpers
-    
+
     def setUp(self):
         super(AdminTests, self).setUp()
-        #dbhelpers.refreshConfig()
-        #user = dbhelpers.ROOT.name
-        #password = dbhelpers.ROOT.passwd
-        #print user, password    # seems to always be 'root', 'ome' 
-        self.login('root', 'omero')
-        
-        
+        dbhelpers.refreshConfig()
+        user = dbhelpers.ROOT.name
+        password = dbhelpers.ROOT.passwd
+        self.login(user, password)
+
+
     def testPages (self):
         """
         This checks that the links exist for the main pages. 
