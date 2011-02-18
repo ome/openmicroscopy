@@ -177,6 +177,7 @@ img.recent_thumb {
 img.preview {
     max-width: 250px;
     max-height: 250px;
+    padding-bottom: 10px;
 }
 
 .linkClass {

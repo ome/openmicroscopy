@@ -97,7 +97,7 @@ def formatTimeAgo(eventDate):
     month = now.month
     day = now.day
     one_day = timedelta(1)
-    yesterday_start = datetime(year, month, day-1)
+    yesterday_start = datetime(year, month, day) - timedelta(1)
     ago = now - eventDate
     
     if ago < one_day:

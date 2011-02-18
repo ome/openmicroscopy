@@ -11,10 +11,19 @@
 
 
 {% block content %}
+
 <div class='bottom-header'>
+    <div>
+    {% if exp %} 
+        Recent updates from user: {{ exp.getFullName }}
+    {% else %}
+        Recent updates from group: {{ client.getEventContext.groupName }}
+    {% endif %}
+    </div>
+
     {% if exp %}
     <div class='tab-item{% ifequal obj_type 'all' %} selected{% endifequal %}'>
-        <a href="{% url webmobile_recent 'all' exp.id %}">All Recent</a>
+        <a href="{% url webmobile_recent 'all' exp.id %}">All</a>
     </div>
     <div class='tab-item{% ifequal obj_type 'images' %} selected{% endifequal %}'>
         <a href="{% url webmobile_recent 'images' exp.id %}">Images</a>
@@ -27,7 +36,7 @@
     </div>
     {% else %}
     <div class='tab-item{% ifequal obj_type 'all' %} selected{% endifequal %}'>
-        <a href="{% url webmobile_recent 'all' %}">All Recent</a>
+        <a href="{% url webmobile_recent 'all' %}">All</a>
     </div>
     <div class='tab-item{% ifequal obj_type 'images' %} selected{% endifequal %}'>
         <a href="{% url webmobile_recent 'images' %}">Images</a>

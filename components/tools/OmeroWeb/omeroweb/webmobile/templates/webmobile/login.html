@@ -33,11 +33,12 @@ body {
     <tr><td align="center">
         <img id="ome-icon" width="128" height="128" src="{% url mobile_static 'img/ome.png' %}"/>
     </td></tr>
-    <tr><td align="right">
+    <tr><td align="right" 
+        {% ifequal gw.all|length 1 %} style='display:none' {% endifequal %} />
         Server
         <select id="server" name="server">
             {% for e in gw.all %}
-            <option value="{{ e.name }}">{{ e }}</option>
+              <option value="{{ e.id }}">{{ e.host }}</option>
             {% endfor %}
         </select>
     </td></tr>
