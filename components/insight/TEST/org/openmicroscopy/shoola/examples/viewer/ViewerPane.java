@@ -67,7 +67,8 @@ import sun.awt.image.IntegerInterleavedRaster;
 
 /** 
  * Displays the image and controls.
- * Thanks to  Galli Vanni vanni.galli@supsi.ch to add controls for 
+ * Thanks to  Galli Vanni vanni.galli@supsi.ch to add controls for turning
+ * channels on and off.
  * 
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -203,7 +204,7 @@ class ViewerPane
 			pDef.z = engine.getDefaultZ();
 			pDef.slice = omero.romio.XY.value;
 			int factor = 4;
-			pDef.region = new RegionDef(0, 0, 
+			pDef.region = new RegionDef(region.x*factor, region.y*factor, 
 					region.width*factor, region.height*factor);
 			//now render the image. possible to render it compressed or not
 			//not compressed
@@ -217,7 +218,7 @@ class ViewerPane
 				img = ImageIO.read(stream);
 				img.setAccelerationPriority(1f);
 			}
-			canvas.setImage(Factory.magnifyImage(2, img)); //for testing purpose only
+			canvas.setImage(Factory.magnifyImage(5, img)); //for testing purpose only
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
