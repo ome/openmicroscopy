@@ -210,7 +210,10 @@ for src_dir in glob.glob("*"):
         #
         sconscript = os.path.join(src_dir, "SConscript")
         if os.path.exists(sconscript):
-            rv = env.SConscript(sconscript, 'env libs ice_config get_targets')
+            exports = 'env ice_config get_targets'
+            if not env['no_cpp']:
+                exports += ' libs'
+            rv = env.SConscript(sconscript, exports)
             continue
 
         #
