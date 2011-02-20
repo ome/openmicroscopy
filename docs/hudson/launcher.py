@@ -120,8 +120,8 @@ if __name__ == "__main__":
         # These jobs don't have their own
         # "start" component, so let them use
         # the "linux" label.
-        if job == "macosx" or job == "matlab":
-            build_url = build_url.replace("label=%s" % job, "label=linux")
+        if label == "macosx" or label == "matlab":
+            build_url = build_url.replace("label=%s" % label, "label=linux")
         build_url = "%s/%s" % (build_url, "artifact/src/%s.config" % branch)
         print "Downloading %s ... " % build_url
         ConfigOpener().retrieve(build_url, filename=config_file)
