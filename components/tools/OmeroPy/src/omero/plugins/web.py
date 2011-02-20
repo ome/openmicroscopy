@@ -220,8 +220,7 @@ Alias / "%(ROOT)s/var/omero.fcgi/"
     def gateway(self, args):
         location = self.ctx.dir / "lib" / "python" / "omeroweb"
         args = ["python", "-i", location / "../omero/gateway/scripts/dbhelpers.py"]
-        os.environ['ICE_CONFIG'] = self.ctx.dir / "etc" / "ice.config"
-        os.environ['PATH'] = os.environ.get('PATH', '.') + ':' + self.ctx.dir / 'bin'
+        self.set_environ()
         os.environ['DJANGO_SETTINGS_MODULE'] = os.environ.get('DJANGO_SETTINGS_MODULE', 'omeroweb.settings')
         rv = self.ctx.call(args, cwd = location)
 
@@ -245,8 +244,7 @@ Alias / "%(ROOT)s/var/omero.fcgi/"
         cargs.extend([ "manage.py", "test"])
         if test:
             cargs.append(test)
-        os.environ['ICE_CONFIG'] = self.ctx.dir / "etc" / "ice.config"
-        os.environ['PATH'] = os.environ.get('PATH', '.') + ':' + self.ctx.dir / 'bin'
+        self.set_environ()
         rv = self.ctx.call(cargs, cwd = location)
 
     def seleniumtest (self, args):
@@ -285,8 +283,7 @@ Alias / "%(ROOT)s/var/omero.fcgi/"
             cargs.extend([location / appname / "scripts" / scriptname] + args.arg)
             print cargs
             os.environ['DJANGO_SETTINGS_MODULE'] = 'omeroweb.settings'
-            os.environ['ICE_CONFIG'] = self.ctx.dir / "etc" / "ice.config"
-            os.environ['PATH'] = os.environ.get('PATH', '.') + ':' + self.ctx.dir / 'bin'
+            self.set_environ()
             rv = self.ctx.call(cargs, cwd = location)
         except:
             import traceback
@@ -420,6 +417,10 @@ using bin\omero web start on Windows with FastCGI.
                     pid_path.remove()
         else:
             self.ctx.err("DEVELOPMENT: You will have to kill processes by hand!")
+
+    def set_environ(self):
+        os.environ['ICE_CONFIG'] = str(self.ctx.dir / "etc" / "ice.config")
+        os.environ['PATH'] = str(os.environ.get('PATH', '.') + ':' + self.ctx.dir / 'bin')
 
 try:
     register("web", WebControl, HELP)
