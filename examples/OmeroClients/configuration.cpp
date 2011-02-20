@@ -48,13 +48,14 @@ int main(int argc, char* argv[]) {
     }
 
     // std::map to be added (ticket:1278)
-    data.properties->setProperty("omero.user", "root");
-    data.properties->setProperty("omero.pass", "ome");
-    omero::client client5(data);
-    // Again, no username or password needed
-    // since present in the data. But they *can*
-    // be overridden.
     try {
+        Ice::InitializationData data;
+        data.properties->setProperty("omero.user", "root");
+        data.properties->setProperty("omero.pass", "ome");
+        omero::client client5(data);
+        // Again, no username or password needed
+        // since present in the data. But they *can*
+        // be overridden.
         client5.createSession();
         client5.closeSession();
     } catch (const Ice::ConnectionRefusedException& cre) {

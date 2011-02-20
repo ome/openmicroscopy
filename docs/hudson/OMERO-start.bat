@@ -69,6 +69,25 @@ python bin\omero import %FILE%
 if errorlevel 1 goto ERROR
 
 REM
+REM Try DropBox, Hudson will look for ERROR in the output log.
+REM Must happen from the -start since it runs in the main
+REM icegridnode process
+REM
+cd dist
+wget http://hudson.openmicroscopy.org.uk/userContent/very_small.d3d%20with%20spaces.dv
+if errorlevel 1 goto ERROR
+echo omero.fstest.srcFile=very_small.d3d with spaces.dv >> etc\testdropbox.config
+echo omero.fs.watchDir=TestDropBox >> etc\testdropbox.config
+if errorlevel 1 goto ERROR
+
+mkdir TestDropBox
+if errorlevel 1 goto ERROR
+python bin\omero admin ports --prefix=%OMERO_PREFIX%
+if errorlevel 1 goto ERROR
+python bin\omero admin ice server start TestDropBox
+if errorlevel 1 goto ERROR
+
+REM
 REM Write test file for OMERO-start jobs
 REM
 cd ..

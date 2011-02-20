@@ -149,6 +149,8 @@ if not env["no_cpp"]:
         libs = Split("Ice IceUtil Glacier2")+link
     else:
         libs = Split("Ice.lib")
+else:
+    libs = [] # Placeholder for no_cpp builds
 
 
 # TARGETS / EXECUTION: ==========================================
@@ -210,10 +212,7 @@ for src_dir in glob.glob("*"):
         #
         sconscript = os.path.join(src_dir, "SConscript")
         if os.path.exists(sconscript):
-            exports = 'env ice_config get_targets'
-            if not env['no_cpp']:
-                exports += ' libs'
-            rv = env.SConscript(sconscript, exports)
+            rv = env.SConscript(sconscript, 'env libs ice_config get_targets')
             continue
 
         #
