@@ -33,7 +33,7 @@ except Ice.ConnectionRefusedException:
 # Advanced configuration can also be done
 # via an InitializationData instance.
 data = Ice.InitializationData()
-data.properties = Ice.Util.createProperties()
+data.properties = Ice.createProperties()
 data.properties.setProperty("omero.host", "localhost")
 try:
     client4 = omero.client(data)
