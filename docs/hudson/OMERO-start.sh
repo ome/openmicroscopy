@@ -79,7 +79,6 @@ python bin/omero import "$FILE"
 # Must happen from the -start since it runs in the main
 # icegridnode process
 #
-cd dist
 wget 'http://hudson.openmicroscopy.org.uk/userContent/very_small.d3d%20with%20spaces.dv'
 echo omero.fstest.srcFile=very_small.d3d with spaces.dv >> etc/testdropbox.config
 echo omero.fs.watchDir=TestDropBox >> etc/testdropbox.config
