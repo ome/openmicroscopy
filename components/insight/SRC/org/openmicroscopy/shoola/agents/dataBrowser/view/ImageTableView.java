@@ -64,7 +64,7 @@ class ImageTableView
 	 */
 	static final String	TABLE_NODES_SELECTION_PROPERTY = "tableNodesSelection";
 	
-	/** Bound property indicating to display a popup menu. */
+	/** Bound property indicating to display a pop-up menu. */
 	static final String TABLE_SELECTION_MENU_PROPERTY = "tableSelectionMenu";
 	
 	/** 

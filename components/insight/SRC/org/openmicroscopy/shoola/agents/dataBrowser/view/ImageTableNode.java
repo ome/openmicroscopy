@@ -27,12 +27,15 @@ package org.openmicroscopy.shoola.agents.dataBrowser.view;
 import java.awt.Color;
 import java.sql.Timestamp;
 
+import javax.swing.Icon;
+
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeNode;
@@ -59,6 +62,9 @@ public class ImageTableNode
 	
 	/** Helper reference to the icon manager. */
 	private IconManager icons;
+	
+	/** The icon associated to the image. */
+	private Icon icon;
 	
 	/**
 	 * Creates a new instance.
@@ -95,6 +101,27 @@ public class ImageTableNode
 	}
 	
 	/**
+	 * Returns the icon representing the thumbnail.
+	 * 
+	 * @return See above.
+	 */
+	public Icon getThumbnailIcon()
+	{
+		if (icon != null) return icon;
+		Object o = getUserObject();
+		if (o instanceof ImageNode) {
+			ImageNode n = (ImageNode) o;
+			Thumbnail thumb = n.getThumbnail();
+			if (thumb != null) {
+				icon = thumb.getIcon();
+				return icon;
+			}
+			return null;
+		}
+		return null;
+	}
+	
+	/**
 	 * Overridden to return the correct value depending on the column
 	 * @see OMETreeNode#getValueAt(int)
 	 */
@@ -114,7 +141,8 @@ public class ImageTableNode
 					Timestamp time = 
 						EditorUtil.getAcquisitionTime((ImageData) ho);
 					if (time == null) return "--";
-					return UIUtilities.formatWDMYDate(time);
+					String s = UIUtilities.formatShortDateTime(time);
+					return s.split(" ")[0];
 				} else if (ho instanceof ExperimenterData) {
 					return node.toString();
 				}

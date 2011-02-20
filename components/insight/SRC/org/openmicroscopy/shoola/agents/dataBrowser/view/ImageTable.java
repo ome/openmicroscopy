@@ -34,6 +34,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
+
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
@@ -47,6 +50,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.util.ImageTableRenderer;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.treetable.OMETreeTable;
 import org.openmicroscopy.shoola.util.ui.treetable.model.OMETreeTableModel;
+import org.openmicroscopy.shoola.util.ui.treetable.renderers.IconCellRenderer;
 import org.openmicroscopy.shoola.util.ui.treetable.renderers.NumberCellRenderer;
 import pojos.DataObject;
 
@@ -104,7 +108,7 @@ class ImageTable
 	private static Map<Integer, Class> RENDERERS_GROUPS;
 	
 	static {
-		COLUMNS = new Vector<String>(3);
+		COLUMNS = new Vector<String>(2);
 		COLUMNS.add(NAME);
 		COLUMNS.add(DATE);
 		
@@ -198,6 +202,7 @@ class ImageTable
 		setTreeCellRenderer(new ImageTableRenderer());
 		setAutoResizeMode(JXTreeTable.AUTO_RESIZE_ALL_COLUMNS);
 		setDefaultRenderer(String.class, new NumberCellRenderer());
+		//setDefaultRenderers();
 		setRootVisible(false);
 		setColumnSelectionAllowed(true);
 		setRowSelectionAllowed(true);
@@ -403,6 +408,6 @@ class ImageTable
 			if (e.isPopupTrigger()) view.showMenu(e.getPoint());
 		}
 	}
-	
+
 }
 

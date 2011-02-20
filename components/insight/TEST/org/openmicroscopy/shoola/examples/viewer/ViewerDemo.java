@@ -89,7 +89,7 @@ public class ViewerDemo
 	 */
 	private void viewImage(long id)
 	{
-		//id = 1001;
+		id = 1001;
 		ImageData image = mapImages.get(id);
 		if (image == null) return;
 		try {

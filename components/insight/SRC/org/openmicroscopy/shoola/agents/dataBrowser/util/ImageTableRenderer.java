@@ -24,7 +24,10 @@ package org.openmicroscopy.shoola.agents.dataBrowser.util;
 
 
 //Java imports
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FontMetrics;
 
 import javax.swing.Icon;
 import javax.swing.JTree;
@@ -34,6 +37,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.dataBrowser.IconManager;
+import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.view.ImageTableNode;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
@@ -41,7 +45,7 @@ import pojos.ImageData;
 import pojos.ProjectData;
 
 /** 
- * Renders. 
+ * Renders the table. 
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -90,16 +94,22 @@ public class ImageTableRenderer
 			boolean leaf, int row, boolean hasFocus)
 	{
 		if (selected) {
+			/*
 			if (value instanceof ImageTableNode) {
 				setBackground(((ImageTableNode) value).getHighLight());
-			} else setBackground(getBackgroundSelectionColor());
+			} else 
+			*/
+			setBackground(getBackgroundSelectionColor());
 		} else setBackground(getBackgroundNonSelectionColor());
+		
 		if (!(value instanceof ImageTableNode)) return this;
 		ImageTableNode node = (ImageTableNode) value;
 		Object v = node.getHierarchyObject();
 		if (v instanceof ImageData) {
-			setIcon(IMAGE_ICON);
-			setText(node.getUserObject().toString());
+			Icon icon = node.getThumbnailIcon();
+			if (icon == null) icon = IMAGE_ICON;
+			setIcon(icon);
+			setText(((ImageDisplay) node.getUserObject()).toString());
 		} else if (v instanceof DatasetData) {
 			setIcon(DATASET_ICON);
 			setText(node.getUserObject().toString());

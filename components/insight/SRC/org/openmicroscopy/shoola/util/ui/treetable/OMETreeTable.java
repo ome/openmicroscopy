@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.util.ui.treetable;
 //Java imports
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -107,7 +108,7 @@ public class OMETreeTable
 	protected TreeExpansionListener	treeExpansionListener;
 
 	/** The mouse listener. */
-	protected MouseListener			mouseListener;
+	//protected MouseListener			mouseListener;
 	
 	/** Initializes the table. */
 	private void initialize()
@@ -172,9 +173,9 @@ public class OMETreeTable
 	 * Sets the mouse listener for mouse events and attach it to the methods
 	 * onLeftMouseDown(), onRightMouseDown()
 	 */
-	protected void setMouseListener()
+	protected void setListeners()
 	{
-		mouseListener = new MouseListener()
+		MouseListener mouseListener = new MouseListener()
 		{
 
 			public void mouseClicked(MouseEvent e) { onMouseClicked(e); }
@@ -188,7 +189,7 @@ public class OMETreeTable
 			public void mouseReleased(MouseEvent e) { onMouseReleased(e); }
 			
 		};
-		this.addMouseListener(mouseListener);
+		addMouseListener(mouseListener);
 	}
 	
 	/**
@@ -461,7 +462,7 @@ public class OMETreeTable
 		setRowSelectionAllowed(true);
 		setCellSelectionEnabled(false);
 		setTreeExpansionListener();
-		setMouseListener();
+		setListeners();
 		setDefaultRenderers();
 		setDefaultEditors();
 		setDefaultHighLighter();

@@ -53,7 +53,7 @@ class BirdEyeCanvas
 	/** The region to render. */
 	static final String RENDER_REGION_PROPERTY = "renderRegion";
 	
-	static final int BORDER = 2;
+	static final int BORDER = 0;
 
 	/** The processing image. */
 	private PImage pImage;
@@ -90,12 +90,12 @@ class BirdEyeCanvas
 			by = 2*BORDER;
 			return false;
 		}
-		if (bx+w > imageRectangle.width) {
-			bx = imageRectangle.width-w;
+		if (bx+w > imageRectangle.width-2) {
+			bx = imageRectangle.width-w-2;
 			return false;
 		}
-		if (by+h > imageRectangle.height) {
-			by = imageRectangle.height-h;
+		if (by+h > imageRectangle.height-2) {
+			by = imageRectangle.height-h-2;
 			return false;
 		}
 		return true;
