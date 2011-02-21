@@ -40,7 +40,7 @@ import omero.clients
 from omero.rtypes import rdouble, rstring, rint
 from omero.model import DatasetAnnotationLink, DatasetI, FileAnnotationI, \
                         OriginalFileI, PlateI, PlateAnnotationLinkI
-from omero.grid import ImageColumn, WellColumn, StringColumn
+from omero.grid import ImageColumn, LongColumn, StringColumn, WellColumn
 from omero.util.temp_files import create_path, remove_path
 from omero import client
 
@@ -96,6 +96,8 @@ class HeaderResolver(object):
     plate_keys = {
             'well': WellColumn,
             'field': ImageColumn,
+            'row': LongColumn,
+            'column': LongColumn,
             'wellsample': ImageColumn
     }
 
@@ -185,6 +187,13 @@ class ValueResolver(object):
             column = m.group(2)
             log.debug('Parsed "%s" row: %s column: %s' % (value, row, column))
             return self.wells_by_location[row][column].id.val
+        if column.name.lower() in ('row', 'column') \
+           and column_class is LongColumn:
+            try:
+                # The value is not 0 offsetted
+                return long(value) - 1
+            except ValueError:
+                return self.AS_ALPHA.index(value.lower())
         if StringColumn is column_class:
             return value
         raise MetadataError('Unsupported column class: %s' % column_class)
