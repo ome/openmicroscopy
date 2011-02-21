@@ -47,6 +47,15 @@ cd examples
 python ..\target\scons\scons.py builddir=%OMERO_CPP% run_cpp=1
 if errorlevel 1 exit /b 1
 
+REM
+REM Write test file for OMERO-cpp jobs
+REM
+cd ..
+if not exist target mkdir target
+if not exist target\reports mkdir target\reports
+set FILE=cpp.xml
+wget -O - http://hudson.openmicroscopy.org.uk/userContent/%FILE% > target\reports\%FILE%
+
 exit /b 0
 :ERROR
   echo Failed %ERRORLEVEL%
