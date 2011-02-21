@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.metadata.TagsLoader 
+ * org.openmicroscopy.shoola.agents.metadata.TabularDataLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2011 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -11,7 +11,7 @@
  *  (at your option) any later version.
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details.
  *  
  *  You should have received a copy of the GNU General Public License along
@@ -24,21 +24,18 @@ package org.openmicroscopy.shoola.agents.metadata;
 
 
 //Java imports
-import java.util.Collection;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
+import org.openmicroscopy.shoola.env.data.model.TableParameters;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
-import pojos.TagAnnotationData;
 
 /** 
- * Loads the existing tags.
- * This class calls one of the <code>loadExistingAnnotations</code> methods 
- * in the <code>MetadataHandlerView</code>.
+ * Loads the tabular data.
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
@@ -46,11 +43,14 @@ import pojos.TagAnnotationData;
  * <small>
  * (<b>Internal version:</b> $Revision: $Date: $)
  * </small>
- * @since OME3.0
+ * @since 3.0-Beta4
  */
-public class TagsLoader 
+public class TabularDataLoader 
 	extends EditorLoader
 {
+
+	/** Parameters to load the table. */
+	private TableParameters parameters;
 
     /** Handle to the asynchronous call so that we can cancel it. */
     private CallHandle	handle;
@@ -61,20 +61,23 @@ public class TagsLoader
      * @param viewer The viewer this data loader is for.
      *               Mustn't be <code>null</code>.
      */
-    public TagsLoader(Editor viewer)
+    public TabularDataLoader(Editor viewer, long originalFileID)
     {
     	 super(viewer);
+    	 if (originalFileID < 0)
+    		 throw new IllegalArgumentException("No file to retrieve.");
+    	 parameters = new TableParameters();
+    	 parameters.setOriginalFileID(originalFileID);
     }
     
-	/** 
+    /** 
 	 * Loads the tags. 
 	 * @see EditorLoader#cancel()
 	 */
 	public void load()
 	{
 		setIds();
-		handle = mhView.loadExistingAnnotations(TagAnnotationData.class, 
-				userID, groupID, this);
+		handle = mhView.loadTabularData(parameters, userID, this);
 	}
 	
 	/** 
@@ -90,7 +93,8 @@ public class TagsLoader
     public void handleResult(Object result) 
     {
     	//if (viewer.getState() == MetadataViewer.DISCARDED) return;  //Async cancel.
-    	viewer.setExistingTags((Collection) result);
+    	//viewer.setExistingTags((Collection) result);
+    	//decide what to do with result
     } 
-	
+
 }

@@ -287,7 +287,6 @@ class ObjectInspector
 		}
 		return false;
 	}
-	
 
 	/**
 	 * Returns <code>true</code> if the measurement has to be shown, 

@@ -66,6 +66,8 @@ import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.TableParameters;
+import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
@@ -1830,4 +1832,17 @@ class OmeroMetadataServiceImpl
 		return null;
 	}
 
+	/** 
+	 * Implemented as specified by {@link OmeroImageService}. 
+	 * @see OmeroMetadataService#loadTabularData(TableParameters, long)
+	 */
+	public List<TableResult> loadTabularData(TableParameters parameters, 
+			long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		if (parameters == null)
+			throw new IllegalArgumentException("No parameters specified.");
+		return gateway.loadTabularData(parameters, userID);
+	}
+	
 }

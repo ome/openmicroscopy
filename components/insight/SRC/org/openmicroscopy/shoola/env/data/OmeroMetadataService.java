@@ -50,6 +50,9 @@ import omero.model.Medium;
 import omero.model.MicroscopeType;
 import omero.model.PhotometricInterpretation;
 import omero.model.Pulse;
+
+import org.openmicroscopy.shoola.env.data.model.TableParameters;
+import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
@@ -601,6 +604,22 @@ public interface OmeroMetadataService
 	 *                                  retrieve data from OMEDS service.
 	 */
 	public Object loadInstrument(long instrumentID)
+		throws DSOutOfServiceException, DSAccessException;
+	
+	/**
+	 * Returns a collection of tabular data corresponding to the specified
+	 * parameters.
+	 * 
+	 * @param parameters The parameters to handle.
+	 * @param userID     The user's identifier.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public List<TableResult> loadTabularData(TableParameters parameters, 
+			long userID)
 		throws DSOutOfServiceException, DSAccessException;
 	
 }

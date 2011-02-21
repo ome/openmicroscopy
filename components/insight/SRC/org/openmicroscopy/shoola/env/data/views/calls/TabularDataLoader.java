@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.env.data.views.calls.ScriptUploader 
+ * org.openmicroscopy.shoola.env.data.views.calls.TabularDataLoader 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2011 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -11,7 +11,7 @@
  *  (at your option) any later version.
  *  This program is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
  *  GNU General Public License for more details.
  *  
  *  You should have received a copy of the GNU General Public License along
@@ -29,14 +29,16 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
+import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.data.model.TableParameters;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
 /** 
- * Creates a batch call to upload a script.
+ * Creates a batch call to load the tabular data.
  *
- * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
+ * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
  * @author Donald MacDonald &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:donald@lifesci.dundee.ac.uk">donald@lifesci.dundee.ac.uk</a>
@@ -46,7 +48,7 @@ import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
  * </small>
  * @since 3.0-Beta4
  */
-public class ScriptUploader 
+public class TabularDataLoader 
 	extends BatchCallTree
 {
 
@@ -57,18 +59,20 @@ public class ScriptUploader
     private BatchCall   		loadCall;
     
     /**
-     * Creates a {@link BatchCall} to upload the script.
+     * Creates a {@link BatchCall} to load the tabular data.
      * 
-     * @param script The script to upload. 
+     * @param parameters The parameters to handle.
+     * @param userID The identifier of the user.
      * @return The {@link BatchCall}.
      */
-    private BatchCall makeCall(final ScriptObject script)
+    private BatchCall makeCall(final TableParameters parameters, 
+    		final long userID)
     {
-    	return new BatchCall("Upload the script") {
+    	return new BatchCall("Load tabular data") {
     		public void doCall() throws Exception
     		{
-    			OmeroImageService os = context.getImageService();
-    			result = os.uploadScript(script);
+    			OmeroMetadataService os = context.getMetadataService();
+    			result = os.loadTabularData(parameters, userID);
     		}
         };
     }
@@ -89,13 +93,14 @@ public class ScriptUploader
     /**
      * Creates a new instance.
      * 
-     * @param script The script to upload.
+     * @param parameters The parameters to handle.
+     * @param userID The identifier of the user.
      */
-    public ScriptUploader(ScriptObject script)
-    {
-    	if (script == null) 
-    		throw new IllegalArgumentException("No script specified."); 
-		loadCall = makeCall(script);
-    }
-    
+	public TabularDataLoader(TableParameters parameters, long userID)
+	{
+		if (parameters == null) 
+    		throw new IllegalArgumentException("No data to load."); 
+		loadCall = makeCall(parameters, userID);
+	}
+	
 }

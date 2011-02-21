@@ -56,6 +56,7 @@ import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
+import org.openmicroscopy.shoola.env.data.model.TableParameters;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
@@ -128,6 +129,7 @@ import omero.grid.ScriptProcessPrx;
 import omero.grid.SharedResourcesPrx;
 import omero.grid.StringColumn;
 import omero.grid.TablePrx;
+import omero.grid.WellColumn;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;
 import omero.model.BooleanAnnotation;
@@ -723,6 +725,12 @@ class OMEROGateway
 					dst[j + offset][i] =
 						((ImageColumn) column).values[j];
 				}
+			} else if (column instanceof WellColumn) { 
+				indexes.put(TableResult.WELL_COLUMN_INDEX, i);
+				for (int j = 0; j < length; j++) {
+					dst[j + offset][i] =
+						((WellColumn) column).values[j];
+				}
 			}
 		}
 	}
@@ -759,7 +767,6 @@ class OMEROGateway
 			int rowOffset = 0;
 			int rowCount = 0;
 			int rowsToGo = totalRowCount;
-			int loopCount = 0;
 			long[] rowSubset;
 			Map<Integer, Integer> indexes = new HashMap<Integer, Integer>();
 			while (rowsToGo > 0) {
@@ -767,24 +774,12 @@ class OMEROGateway
 				                          totalRowCount - rowOffset);
 				rowSubset = new long[rowCount];
 				System.arraycopy(rows, rowOffset, rowSubset, 0, rowCount);
-				long t0 = System.currentTimeMillis();
 				d = table.slice(columns, rowSubset);
-				long t1 = System.currentTimeMillis();
 				for (int i = 0; i < cols.length; i++) {
-					//System.err.println(String.format(
-					//		"Transforming; loopCount:%d totalRowCount:%d " +
-					//		"rowOffset:%d rowCount:%d rowsToGo:%d column:%d "+
-					//		"readTime(ms): %d", loopCount, totalRowCount,
-					//		rowOffset, rowCount, rowsToGo, i, t1 - t0));
 					translateTableResult(d, data, rowOffset, rowCount, indexes);
 				}
-				long t2 = System.currentTimeMillis();
-				//System.err.println(String.format(
-				//		"totalLoopTime:%d loopArrayCopyTime:%d",
-				//		t2 - t0, t2 - t1));
 				rowOffset += rowCount;
 				rowsToGo -= rowCount;
-				loopCount++;
 			}
 			table.close();
 			TableResult tr = new TableResult(data, headers);
@@ -804,21 +799,20 @@ class OMEROGateway
 	 * Transforms the passed table data for a given image.
 	 * 
 	 * @param table The table to convert.
-	 * @param imageID The <code>Image</code> to retrieve rows for.
+	 * @param key The key of the <code>where</code> clause.
+	 * @param id The identifier of the object to retrieve rows for.
 	 * @return See above
 	 * @throws DSAccessException If an error occurred while trying to 
 	 *                           retrieve data from OMEDS service.
 	 */
-	private TableResult createTableResult(TablePrx table, long imageID)
+	private TableResult createTableResult(TablePrx table, String key, long id)
 		throws DSAccessException
 	{
 		if (table == null) return null;
 		try {
+			key = "("+key+"=%d)";
 			long totalRowCount = table.getNumberOfRows();
-			Map<String, RType> variables = new HashMap<String, RType>();
-			variables.put("imageId", omero.rtypes.rlong(imageID));
-			long[] rows = table.getWhereList(
-					String.format("(Image==%d)", imageID), null, 0,
+			long[] rows = table.getWhereList(String.format(key, id), null, 0,
 					totalRowCount, 1L);
 			return createTableResult(table, rows);
 		} catch (Exception e) {
@@ -6223,6 +6217,43 @@ class OMEROGateway
 		return null;
 	}
 	
+	
+	/**
+	 * Loads the table associated to a given node.
+	 * 
+	 * @param parameters The parameters used to retrieve the table.
+	 * @param userID     The user's identifier.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	List<TableResult> loadTabularData(TableParameters parameters, long userID)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		TablePrx tablePrx = null;
+		long id = -1;
+		List<TableResult> results = new ArrayList<TableResult>();
+		try {
+			id = parameters.getOriginalFileID();
+			if (id > 0) {
+				tablePrx = getSharedResources().openTable(
+						new OriginalFileI(id, false));
+				long[] rows = new long[(int) tablePrx.getNumberOfRows()];
+				for (int i = 0; i < rows.length; i++)
+					rows[i] = i;
+				TableResult result = createTableResult(tablePrx, rows);
+				if (result != null)
+					results.add(result);
+			}
+		} catch (Exception e) {
+			handleException(e, "Cannot load the table: "+id);
+		}
+		return results;
+	}
+	
 	/**
 	 * Loads the ROI related to the specified image.
 	 * 
@@ -6265,7 +6296,7 @@ class OMEROGateway
 					result = new ROIResult(PojoMapper.asDataObjects(r.rois), 
 							id);
 					result.setResult(createTableResult(
-							svc.getTable(id), imageID));
+							svc.getTable(id), "Image", imageID));
 					results.add(result);
 				}
 			}

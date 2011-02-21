@@ -22,9 +22,9 @@
  */
 package org.openmicroscopy.shoola.env.data.model;
 
-import java.util.Map;
 
 //Java imports
+import java.util.Map;
 
 //Third-party libraries
 
@@ -46,11 +46,14 @@ import java.util.Map;
 public class TableResult
 {
 
-	/** Identifies the index of the ROI column. */
+	/** Identifies the index of the <code>ROI</code> column. */
 	public static final Integer ROI_COLUMN_INDEX = 0;
 	
-	/** Identifies the index of the Image column. */
+	/** Identifies the index of the <code>Image</code> column. */
 	public static final Integer IMAGE_COLUMN_INDEX = 1;
+	
+	/** Identifies the index of the <code>Well</code> column. */
+	public static final Integer WELL_COLUMN_INDEX = 2;
 	
 	/** The id of the table hosting the result. */
 	private long tableID;

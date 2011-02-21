@@ -32,6 +32,7 @@ import java.util.Set;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.TableParameters;
 import org.openmicroscopy.shoola.env.data.model.TimeRefObject;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.views.calls.ArchivedFilesLoader;
@@ -385,6 +386,17 @@ class MetadataHandlerViewImpl
 		BatchCallTree cmd = new ScriptsLoader(scriptID, 
 				ScriptsLoader.SINGLE_SCRIPT);
 		return cmd.exec(observer);
+	}
+
+	/**
+	 * Implemented as specified by the view interface.
+	 * @see MetadataHandlerView#loadTabularData(TableParameters, long, 
+	 * AgentEventListener)
+	 */
+	public CallHandle loadTabularData(TableParameters parameters, long userID,
+			AgentEventListener observer) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }
