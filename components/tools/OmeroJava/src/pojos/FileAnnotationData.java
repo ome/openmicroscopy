@@ -87,6 +87,13 @@ public class FileAnnotationData extends AnnotationData {
     public static final String MEASUREMENT_NS = 
     	omero.constants.namespaces.NSMEASUREMENT.value;
     
+    /** 
+     * The name space used to indicate that the <code>FileAnnotation</code> 
+     * is a <code>Bulk Annotations</code> file.
+     */
+    public static final String BULK_ANNOTATIONS_NS = 
+    	omero.constants.namespaces.NSBULKANNOTATIONS.value;
+    
     /** Identifies the FLIM namespace. */
     public static final String FLIM_NS = 
     	omero.constants.analysis.flim.NSFLIM.value;

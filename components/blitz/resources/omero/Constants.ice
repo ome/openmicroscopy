@@ -123,6 +123,8 @@ module omero {
         const string NSEDITORPROTOCOL = "openmicroscopy.org/omero/editor/protocol";
         const string NSEDITOREXPERIMENT = "openmicroscopy.org/omero/editor/experiment";
         const string NSMOVIE = "openmicroscopy.org/omero/movie";
+        
+
     };
 
     /**
@@ -133,7 +135,7 @@ module omero {
         const string NSCOMPANIONFILE = "openmicroscopy.org/omero/import/companionFile";
         const string NSORIGINALMETADATA = "/openmicroscopy.org/omero/image_files/";
         const string NSEXPERIMENTERPHOTO = "openmicroscopy.org/omero/experimenter/photo";
-
+        const string NSBULKANNOTATIONS = "openmicroscopy.org/omero/bulk_annotations";
         //
         // omero.grid.Param.namespaces in Scripts.ice
         //
