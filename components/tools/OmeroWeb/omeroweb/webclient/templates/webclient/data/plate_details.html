@@ -23,7 +23,8 @@
                         $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
             		    $('td.ui-selected', this).each(function(){  
             		        var h = $(window).height()-169;
-            		        $("div#metadata_details").html('<iframe width="370" height="'+h+'" src="/webclient/metadata_details/well/'+this.id+'/" id="metadata_details" name="metadata_details"></iframe>');
+                            var td = $(this);
+                            $("div#metadata_details").html('<iframe width="370" height="'+h+'" src="/webclient/metadata_details/image/'+td.attr('image')+'/" id="metadata_details" name="metadata_details"></iframe>'); 
                             $('iframe#metadata_details').load();
                         });
             		} else {
@@ -84,7 +85,7 @@
         <th>{{ row.0 }}</th>
         {% for col in row.1 %}
         {% if col.1.isWellSample %}
-        <td class="full" id="{{ col.1.id }}"><img class="imgzoom" src="{% url render_thumbnail_resize 25 col.1.selectedWellSample.image.id %}" alt="" title="{{ row.0 }}-{{ col.0 }}"/><input type="checkbox" name="well" id="{{ col.1.id }}" class="hide"></td>
+        <td class="full" id="{{ col.1.id }}" image="{{ col.1.selectedWellSample.image.id }}"><img class="imgzoom" src="{% url render_thumbnail_resize 25 col.1.selectedWellSample.image.id %}" alt="" title="{{ row.0 }}-{{ col.0 }}"/><input type="checkbox" name="well" id="{{ col.1.id }}" class="hide"></td> 
         {% else %}
         <td></td>
         {% endif %}
