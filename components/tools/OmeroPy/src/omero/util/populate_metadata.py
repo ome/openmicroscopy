@@ -52,7 +52,7 @@ try:
 except ImportError:
         from cElementTree import XML, Element, SubElement, ElementTree, dump, iterparse
 
-log = logging.getLogger("omero.util.populate_roi")
+log = logging.getLogger("omero.util.populate_metadata")
 
 def usage(error):
     """Prints usage so that we don't have to. :)"""
