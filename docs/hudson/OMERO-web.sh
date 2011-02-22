@@ -7,4 +7,4 @@ set -x
 #
 ./build.py clean
 ./build.py
-python dist/bin/omero web unittest webadmin
+python dist/bin/omero web unittest --test=webadmin
