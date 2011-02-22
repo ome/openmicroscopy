@@ -61,7 +61,7 @@ from webclient_http import HttpJavascriptRedirect, HttpJavascriptResponse, HttpL
 
 from webclient_utils import _formatReport, _purgeCallback
 from forms import ShareForm, BasketShareForm, ShareCommentForm, \
-                    ContainerForm, CommentAnnotationForm, TagAnnotationForm, \
+                    ContainerForm, CommentAnnotationForm, CommentAnnotationSmallForm, TagAnnotationForm, \
                     UploadFileForm, UsersForm, ActiveGroupForm, HistoryTypeForm, \
                     MetadataFilterForm, MetadataDetectorForm, MetadataChannelForm, \
                     MetadataEnvironmentForm, MetadataObjectiveForm, MetadataStageLabelForm, \
@@ -987,7 +987,11 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
     if c_type in ("share", "discussion", "tag"):
         context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager}
     else:
-        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_channels':form_channels, 'form_environment':form_environment, 'form_objective':form_objective, 'form_microscope':form_microscope, 'form_filters':form_filters, 'form_detectors':form_detectors, 'form_lasers':form_lasers, 'form_stageLabel':form_stageLabel}
+        form_comment = CommentAnnotationSmallForm() # for displaying a 'new comment' field
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 
+        'form_channels':form_channels, 'form_environment':form_environment, 'form_objective':form_objective, 
+        'form_microscope':form_microscope, 'form_filters':form_filters, 'form_detectors':form_detectors, 
+        'form_lasers':form_lasers, 'form_stageLabel':form_stageLabel, 'form_comment':form_comment}
 
     t = template_loader.get_template(template)
     c = Context(request,context)

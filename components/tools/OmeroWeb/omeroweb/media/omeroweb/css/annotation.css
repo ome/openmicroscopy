@@ -60,7 +60,7 @@ div.lnfiles{
 #annotation_tabs {
     margin: 5px 0 0 ;
     width: 100%;
-    background:none repeat scroll 0 0 #F3F3F3;
+    background:none repeat scroll 0 0 #FFFFFF;
     border: 0;
 }
 
@@ -159,18 +159,17 @@ div.lnfiles{
 	padding: 0px 20px;
 }
 
-#ann_comment_wrapper {
+.ann_comment_wrapper {
     width: 100%;
 
 }
-#ann_comment_wrapper div.avatar {
+.ann_comment_wrapper div.avatar {
     float: left;
-    width:50px;
 }
-#ann_comment_wrapper div.ann_comment{
+.ann_comment_wrapper div.ann_comment{
     width: 100%;
 }
-#ann_comment_wrapper .ann_comment_header{
+.ann_comment_wrapper .ann_comment_header{
     font-weight: bold;
 }
 
@@ -192,4 +191,11 @@ table.metadata_details td{
 .defclosed,.closed{
     background:transparent url(/appmedia/omeroweb/images/table/asc-big.gif) no-repeat scroll top right;
     background-color: #fff;
+}
+
+.attrName {
+    font-weight:bold;
+}
+.attrValue {
+    color: #666;
 }
