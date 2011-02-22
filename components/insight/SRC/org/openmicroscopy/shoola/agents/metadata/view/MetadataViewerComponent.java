@@ -368,6 +368,7 @@ class MetadataViewerComponent
 				pixelsID = data.getDefaultPixels().getId();
 			}
 			//check if I can save first
+			/*
 			if (model.isWritable()) {
 				Registry reg = MetadataViewerAgent.getRegistry();
 				RndProxyDef def = null;
@@ -389,9 +390,11 @@ class MetadataViewerComponent
 					MetadataViewerAgent.getRegistry().getEventBus();
 				bus.post(new RndSettingsSaved(pixelsID, def));
 			}
+			
 			if (imageID >= 0 && model.isWritable()) {
 				firePropertyChange(RENDER_THUMBNAIL_PROPERTY, -1, imageID);
 			}
+			*/
 		}
 		model.setRootObject(root);
 		view.setRootObject();
@@ -1121,6 +1124,54 @@ class MetadataViewerComponent
 	{
 		firePropertyChange(UPLOAD_SCRIPT_PROPERTY, Boolean.valueOf(false), 
 				Boolean.valueOf(true));
+	}
+	
+	/** Saves the settings. */
+	public void saveSettings() 
+	{
+		//Previewed the image.
+		Renderer rnd = model.getEditor().getRenderer();
+		if (rnd != null && getRndIndex() == RND_GENERAL) {
+			//save settings 
+			long imageID = -1;
+			long pixelsID = -1;
+			Object obj = model.getRefObject();
+			if (obj instanceof WellSampleData) {
+				WellSampleData wsd = (WellSampleData) obj;
+				obj = wsd.getImage();
+			}
+			if (obj instanceof ImageData) {
+				ImageData data = (ImageData) obj;
+				imageID = data.getId();
+				pixelsID = data.getDefaultPixels().getId();
+			}
+			//check if I can save first
+			if (model.isWritable()) {
+				Registry reg = MetadataViewerAgent.getRegistry();
+				RndProxyDef def = null;
+				try {
+					def = rnd.saveCurrentSettings();
+				} catch (Exception e) {
+					try {
+						reg.getImageService().resetRenderingService(pixelsID);
+						def = rnd.saveCurrentSettings();
+					} catch (Exception ex) {
+						String s = "Data Retrieval Failure: ";
+				    	LogMessage msg = new LogMessage();
+				        msg.print(s);
+				        msg.print(e);
+				        reg.getLogger().error(this, msg);
+					}
+				}
+				EventBus bus = 
+					MetadataViewerAgent.getRegistry().getEventBus();
+				bus.post(new RndSettingsSaved(pixelsID, def));
+			}
+			
+			if (imageID >= 0 && model.isWritable()) {
+				firePropertyChange(RENDER_THUMBNAIL_PROPERTY, -1, imageID);
+			}
+		}	
 	}
     
 	/** 

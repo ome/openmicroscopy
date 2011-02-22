@@ -122,6 +122,9 @@ class RendererControl
     /** Identifies the action to set the intensity values to min, max. */
     static final Integer    RND_ABSOLUTE_MIN_MAX = Integer.valueOf(15);
     
+    /** Identifies the action to save the rendering settings. */
+    static final Integer    SAVE = Integer.valueOf(16);
+    
     /**
      * Reference to the {@link Renderer} component, which, in this context,
      * is regarded as the Model.
@@ -160,6 +163,8 @@ class RendererControl
         		ManageRndSettingsAction.APPLY_TO_ALL));
         actionsMap.put(RND_ABSOLUTE_MIN_MAX, new ManageRndSettingsAction(model, 
         		ManageRndSettingsAction.ABSOLUTE_MIN_MAX));
+        actionsMap.put(SAVE, new ManageRndSettingsAction(model, 
+        		ManageRndSettingsAction.SAVE));
     }
     
     /** 

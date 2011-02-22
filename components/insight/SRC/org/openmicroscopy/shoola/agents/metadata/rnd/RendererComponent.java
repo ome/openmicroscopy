@@ -818,7 +818,7 @@ class RendererComponent
 
 	/** 
      * Implemented as specified by the {@link Renderer} interface.
-     * @see Renderer#saveCurrentSettings()
+     * @see Renderer#saveCurrentSettings(boolean)
      */
 	public RndProxyDef saveCurrentSettings()
 		throws RenderingServiceException, DSOutOfServiceException
@@ -826,6 +826,16 @@ class RendererComponent
 		return model.saveCurrentSettings();
 	}
 
+	/** 
+     * Implemented as specified by the {@link Renderer} interface.
+     * @see Renderer#saveSettings()
+     */
+	public void saveSettings()
+	{
+		firePropertyChange(SAVE_SETTINGS_PROPERTY,  Boolean.valueOf(false), 
+	 			Boolean.valueOf(true));
+	}
+	
 	/** 
      * Implemented as specified by the {@link Renderer} interface.
      * @see Renderer#setActive(int, boolean)
