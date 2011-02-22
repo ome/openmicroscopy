@@ -21,7 +21,7 @@ import omero.api.ServiceFactoryPrx;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.testng.annotations.Test;
 
-@Test(groups = { "client", "integration", "security" })
+@Test(enabled = false, groups = { "broken", "client", "integration", "security" })
 public class AbstractSecurityTest extends TestCase {
     
     protected OmeroContext context = OmeroContext.getInstance("OMERO.security.test");
