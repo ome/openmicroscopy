@@ -1,4 +1,5 @@
 import omero
+import omero.clients
 from omero.rtypes import *
 
 i = omero.model.ImageI()
