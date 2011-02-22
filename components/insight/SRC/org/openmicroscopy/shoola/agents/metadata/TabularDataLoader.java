@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.agents.metadata;
 
 
 //Java imports
+import java.util.ArrayList;
+import java.util.List;
 
 //Third-party libraries
 
@@ -66,8 +68,9 @@ public class TabularDataLoader
     	 super(viewer);
     	 if (originalFileID < 0)
     		 throw new IllegalArgumentException("No file to retrieve.");
-    	 parameters = new TableParameters();
-    	 parameters.setOriginalFileID(originalFileID);
+    	 List<Long> ids = new ArrayList<Long>();
+    	 ids.add(originalFileID);
+    	 parameters = new TableParameters(ids);
     }
     
     /** 

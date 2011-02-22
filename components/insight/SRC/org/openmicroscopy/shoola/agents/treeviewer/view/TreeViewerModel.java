@@ -1150,5 +1150,4 @@ class TreeViewerModel
 	 */
 	boolean isFullScreen() { return true; }
 	
-	
 }

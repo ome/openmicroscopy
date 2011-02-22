@@ -25,7 +25,6 @@ package org.openmicroscopy.shoola.agents.metadata.editor;
 
 //Java imports
 import java.awt.Color;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
@@ -2691,5 +2690,31 @@ class EditorModel
     	return false;
     }
     
+	/**
+	 * Returns the collection of the attachments linked to the 
+	 * <code>DataObject</code>.
+	 * 
+	 * @return See above.
+	 */
+	List<FileAnnotationData> getTabularData()
+	{ 
+		StructuredDataResults data = parent.getStructuredData();
+		List<FileAnnotationData> l = new ArrayList<FileAnnotationData>();
+		if (data == null) return l;
+		Collection<FileAnnotationData> attachements = data.getAttachments(); 
+		if (attachements == null) return l;
+		Iterator<FileAnnotationData> i = attachements.iterator();
+		FileAnnotationData f;
+		String ns;
+		while (i.hasNext()) {
+			f = i.next();
+			ns = f.getNameSpace();
+			if (FileAnnotationData.BULK_ANNOTATIONS_NS.equals(ns)) {
+				l.add(f);
+			}
+		}
+		return l; 
+	}
+	
 }
 	

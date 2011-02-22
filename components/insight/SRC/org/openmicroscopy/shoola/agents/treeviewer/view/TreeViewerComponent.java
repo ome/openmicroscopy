@@ -2178,6 +2178,7 @@ class TreeViewerComponent
 		DataBrowser db = null;
 		if (n == 1) {
 			Map<Class, Object> m = new HashMap<Class, Object>();
+			
 			while (i.hasNext()) {
 				entry = (Entry) i.next();
 				parent = (TreeImageSet) entry.getKey();

@@ -1008,5 +1008,5 @@ class EditorComponent
 			}
 		}
 	}
-	
+
 }

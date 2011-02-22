@@ -62,6 +62,7 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
+import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
@@ -75,6 +76,7 @@ import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 import pojos.DataObject;
 import pojos.DatasetData;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.TagAnnotationData;
 import pojos.TextualAnnotationData;
@@ -189,9 +191,12 @@ class DataBrowserComponent
 		Integer max = (Integer) DataBrowserAgent.getRegistry().lookup(
 				MAX_ENTRIES);
 		if (model.getNumberOfImages() <= max.intValue() ||
-				model.getType() == DataBrowserModel.WELLS)
+				model.getType() == DataBrowserModel.WELLS) {
 			model.loadData(false, null); 
-		else view.setSelectedView(DataBrowserUI.COLUMNS_VIEW);
+			if (model.getType() == DataBrowserModel.WELLS) {
+				model.fireTabularDataLoading(null);
+			}
+		} else view.setSelectedView(DataBrowserUI.COLUMNS_VIEW);
 		if (model.getBrowser() != null) {
 			Browser browser = model.getBrowser();
 	    	ResetNodesVisitor visitor = new ResetNodesVisitor(null, false);
@@ -1438,6 +1443,16 @@ class DataBrowserComponent
 	 * @see DataBrowser#getParentOfNodes()
 	 */
 	public Object getParentOfNodes() { return model.getParent(); }
+	
+	/**
+	 * Implemented as specified by the {@link DataBrowser} interface.
+	 * @see DataBrowser#setTabularData(List)
+	 */
+	public void setTabularData(List<TableResult> data)
+	{
+		if (data == null) return;
+		model.setTabularData(data);
+	}
 	
 	/** 
 	 * Overridden to return the name of the instance to save. 

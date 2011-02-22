@@ -67,7 +67,7 @@ public class AnnotatedNodesVisitor
 	private List<ImageDisplay> 	foundNodes;
 	
 	/**
-	 * Creates a new instace.
+	 * Creates a new instance.
 	 * 
 	 * @param annotated Pass <code>true</code> to show the annotated nodes,
 	 * 					<code>false</code> to show the nodes not yet annotated.

@@ -6123,43 +6123,6 @@ class OMEROGateway
 	}
 	
 	/**
-	 * Monitors the specified directory.
-	 * 
-	 * @param directory The directory to watch.
-	 * @param whiteList	The types of images to watch.
-	 * @return See above.
-	 */
-	Object monitor(String directory, String[] whiteList, DataObject container)
-	{
-		/*
-		String[] blackList = new String[1];
-		blackList[0] = "";
-		MonitorClientImpl mClient = new MonitorClientImpl(metadataStore, 
-				container);
-		Communicator c = getIceCommunicator();
-		String name = "monitorClient";
-		ObjectAdapter adapter = c.createObjectAdapter("omerofs.MonitorClient");
-		adapter.add(mClient, c.stringToIdentity(name));
-		adapter.activate();
-
-		MonitorClientPrx mClientProxy =
-			monitors.MonitorClientPrxHelper.uncheckedCast(                
-				adapter.createProxy(c.stringToIdentity(name)));
-		try {
-			System.err.println(directory);
-			String id = monitorPrx.createMonitor(EventType.Create, directory, 
-					whiteList, blackList, PathMode.Flat, mClientProxy);
-			monitorIDs.add(id);
-			monitorPrx.startMonitor(id);
-			System.err.println(id);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		*/
-		return null;
-	}
-	
-	/**
 	 * Removes the rendering service corresponding to the pixels set ID.
 	 * 
 	 * @param pixelsID The pixels set Id to handle.
@@ -6237,16 +6200,37 @@ class OMEROGateway
 		long id = -1;
 		List<TableResult> results = new ArrayList<TableResult>();
 		try {
-			id = parameters.getOriginalFileID();
-			if (id > 0) {
-				tablePrx = getSharedResources().openTable(
-						new OriginalFileI(id, false));
-				long[] rows = new long[(int) tablePrx.getNumberOfRows()];
-				for (int i = 0; i < rows.length; i++)
-					rows[i] = i;
-				TableResult result = createTableResult(tablePrx, rows);
-				if (result != null)
-					results.add(result);
+			long[] rows;
+			TableResult result;
+			List<Long> ids;
+			if (parameters.getNodeType() != null) {
+				//TMP solution
+				List<String> toInclude = new ArrayList<String>();
+				toInclude.add(FileAnnotationData.BULK_ANNOTATIONS_NS);
+				Set set = loadSpecificAnnotation(FileAnnotationData.class, 
+						toInclude, 
+						new ArrayList<String>(), new ParametersI());
+				Iterator j = set.iterator();
+				FileAnnotationData fa;
+				ids = new ArrayList<Long>();
+				while (j.hasNext()) {
+					fa = (FileAnnotationData) j.next();
+					ids.add(fa.getFileID());
+				}
+			} else ids = parameters.getOriginalFileIDs();
+			if (ids != null) {
+				Iterator<Long> i = ids.iterator();
+				while (i.hasNext()) {
+					id = i.next();
+					tablePrx = getSharedResources().openTable(
+							new OriginalFileI(id, false));
+					rows = new long[(int) tablePrx.getNumberOfRows()];
+					for (int j = 0; j < rows.length; j++)
+						rows[j] = j;
+					result = createTableResult(tablePrx, rows);
+					if (result != null)
+						results.add(result);
+				}
 			}
 		} catch (Exception e) {
 			handleException(e, "Cannot load the table: "+id);

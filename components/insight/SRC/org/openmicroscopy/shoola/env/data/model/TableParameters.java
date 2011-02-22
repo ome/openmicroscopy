@@ -22,14 +22,16 @@
  */
 package org.openmicroscopy.shoola.env.data.model;
 
+
 //Java imports
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
 
 /** 
- * 
+ * Hosts parameters required to load the tabular data.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -51,13 +53,16 @@ public class TableParameters
 	private long nodeID;
 		
 	/** The identifier of the original file. */
-	private long originalFileID;
-	
-	
-	/** Creates a new instance. */
-	public TableParameters()
+	private List<Long> originalFileIDs;
+
+	/** 
+	 * Creates a new instance. 
+	 * 
+	 * @param originalFileIDs The collection of files to load.
+	 */
+	public TableParameters(List<Long> originalFileIDs)
 	{
-		originalFileID = -1;
+		this.originalFileIDs = originalFileIDs;
 	}
 	
 	/**
@@ -70,25 +75,15 @@ public class TableParameters
 	{
 		this.nodeType = nodeType;
 		this.nodeID = nodeID;
-		originalFileID = -1;
+		originalFileIDs = null;
 	}
-	
+
 	/**
-	 * Sets the original file identifier.
-	 * 
-	 * @param originalFileID The value to set.
-	 */
-	public void setOriginalFileID(long originalFileID)
-	{
-		this.originalFileID = originalFileID;
-	}
-	
-	/**
-	 * Returns the identifier of the original file.
+	 * Returns the identifier of the original files.
 	 * 
 	 * @return See above.
 	 */
-	public long getOriginalFileID() { return originalFileID; }
+	public List<Long> getOriginalFileIDs() { return originalFileIDs; }
 	
 	/**
 	 * Returns the type of node.

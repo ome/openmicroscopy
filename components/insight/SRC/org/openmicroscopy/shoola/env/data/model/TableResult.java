@@ -54,7 +54,7 @@ public class TableResult
 	
 	/** Identifies the index of the <code>Well</code> column. */
 	public static final Integer WELL_COLUMN_INDEX = 2;
-	
+		
 	/** The id of the table hosting the result. */
 	private long tableID;
 	

@@ -46,6 +46,7 @@ import org.openmicroscopy.shoola.env.data.views.calls.RelatedContainersLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ScriptsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.StructuredAnnotationLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.StructuredAnnotationSaver;
+import org.openmicroscopy.shoola.env.data.views.calls.TabularDataLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.ThumbnailLoader;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.util.ui.MessengerDetails;
@@ -394,9 +395,10 @@ class MetadataHandlerViewImpl
 	 * AgentEventListener)
 	 */
 	public CallHandle loadTabularData(TableParameters parameters, long userID,
-			AgentEventListener observer) {
-		// TODO Auto-generated method stub
-		return null;
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new TabularDataLoader(parameters, userID);
+		return cmd.exec(observer);
 	}
 	
 }

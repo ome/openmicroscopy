@@ -448,5 +448,5 @@ public interface Editor
 	 * @param analysis Object hosting information about the results.
 	 */
 	void analysisResultsLoaded(AnalysisResultsItem analysis);
-	
+    
 }

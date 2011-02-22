@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.Thumbnail;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellImageSet;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.WellSampleNode;
 import org.openmicroscopy.shoola.agents.dataBrowser.layout.LayoutFactory;
+import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.PlateGrid;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -492,6 +493,23 @@ class WellsModel
 			list.add(plate);
 			DataBrowserLoader loader = new PlateSaver(component, list);
 			loader.load();
+		}
+	}
+	
+	/**
+	 * Sets the tabular data.
+	 * 
+	 * @param data The value to set.
+	 */
+	void setTabularData(List<TableResult> data)
+	{
+		List<ImageDisplay> nodes = getNodes();
+		if (nodes == null || nodes.size() == 0) return;
+		Iterator<ImageDisplay> i = nodes.iterator();
+		WellImageSet well;
+		while (i.hasNext()) {
+			well = (WellImageSet) i.next();
+			well.setTabularData(data);
 		}
 	}
 	

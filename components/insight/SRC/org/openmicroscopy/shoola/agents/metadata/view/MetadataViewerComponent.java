@@ -1122,7 +1122,7 @@ class MetadataViewerComponent
 		firePropertyChange(UPLOAD_SCRIPT_PROPERTY, Boolean.valueOf(false), 
 				Boolean.valueOf(true));
 	}
-	
+    
 	/** 
 	 * Overridden to return the name of the instance to save. 
 	 * @see #toString()

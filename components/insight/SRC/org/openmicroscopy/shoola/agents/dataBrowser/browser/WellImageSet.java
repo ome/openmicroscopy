@@ -28,12 +28,16 @@ package org.openmicroscopy.shoola.agents.dataBrowser.browser;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.ImageData;
 import pojos.WellData;
@@ -71,6 +75,11 @@ public class WellImageSet
 	/** The description of the well. */
 	private String 					description;
 	
+	/** The tabular data. */
+	private Map<String[], Object[]> tabularData;
+	
+	private List<String> text;
+	
 	/** 
 	 * Sets the default value for the row and column display.
 	 * Sets the text displayed in the tool tip.
@@ -87,6 +96,36 @@ public class WellImageSet
 		}
 		String txt = UIUtilities.formatToolTipText(buf.toString());
 		Iterator i = samples.iterator();
+		ImageNode n;
+		while (i.hasNext()) {
+			n = (ImageNode) i.next();
+			n.setToolTipText(txt);
+			n.setCanvasToolTip(txt);
+		}
+	}
+	
+	/** Formats the tool tips. */
+	private void formatDisplay()
+	{
+		Entry entry;
+		int size = tabularData.size()-1;
+		int index = 0;
+		Iterator i = tabularData.entrySet().iterator();
+		String[] headers;
+		Object[] values;
+		text = new ArrayList<String>();
+ 		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			headers = (String[]) entry.getKey();
+			values = (Object[]) entry.getValue();
+			for (int j = 0; j < headers.length; j++) {
+				text.add(" "+headers[j]+":"+values[j]);
+			}
+			if (index < size) text.add("--------------");
+			index++;
+		}
+ 		String txt = UIUtilities.formatToolTipText(text);
+		i = samples.iterator();
 		ImageNode n;
 		while (i.hasNext()) {
 			n = (ImageNode) i.next();
@@ -279,6 +318,43 @@ public class WellImageSet
     	setDefault();
     }
 	
+    /**
+     * Sets the tabular data for the well.
+     * 
+     * @param tables The tables to handle.
+     */
+    public void setTabularData(List<TableResult> tables)
+    {
+		Iterator<TableResult> i = tables.iterator();
+		TableResult table;
+		int index;
+		Object[][] data;
+		long id;
+		long wellID = ((WellData) getHierarchyObject()).getId();
+		Object[] values;
+		tabularData = new HashMap<String[], Object[]>();
+		String[] headers;
+		while (i.hasNext()) {
+			table = i.next();
+			index = table.getColumnIndex(TableResult.WELL_COLUMN_INDEX);
+			data = table.getData();
+			headers = table.getHeaders();
+			values = new Object[headers.length];
+			for (int j = 0; j < data.length; j++) {
+				id = (Long) data[j][index];
+				if (id == wellID) {
+					for (int k = 0; k < values.length; k++) {
+						values[k] = data[j][k];
+					}
+				}
+			}
+			tabularData.put(headers, values);
+		}
+		formatDisplay();
+    }
+    
+    public List<String> getText() { return text; }
+    
     /**
      * Overridden to make sure that the default color is set.
      * @see ImageSet#setHighlight(Color) 

@@ -24,11 +24,7 @@ package org.openmicroscopy.shoola.agents.dataBrowser.util;
 
 
 //Java imports
-import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.FontMetrics;
-
 import javax.swing.Icon;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;

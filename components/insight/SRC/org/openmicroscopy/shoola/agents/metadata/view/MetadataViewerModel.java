@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.metadata.view;
 
 
 //Java imports
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -144,6 +145,32 @@ class MetadataViewerModel
 	
 	/** The collection of rendering settings related to the image. */
 	private Map										viewedBy;
+	
+	/**
+	 * Returns the collection of the attachments linked to the 
+	 * <code>DataObject</code>.
+	 * 
+	 * @return See above.
+	 */
+	private List<FileAnnotationData> getTabularData()
+	{ 
+		StructuredDataResults data = getStructuredData();
+		List<FileAnnotationData> l = new ArrayList<FileAnnotationData>();
+		if (data == null) return l;
+		Collection<FileAnnotationData> attachements = data.getAttachments(); 
+		if (attachements == null) return l;
+		Iterator<FileAnnotationData> i = attachements.iterator();
+		FileAnnotationData f;
+		String ns;
+		while (i.hasNext()) {
+			f = i.next();
+			ns = f.getNameSpace();
+			if (FileAnnotationData.BULK_ANNOTATIONS_NS.equals(ns)) {
+				l.add(f);
+			}
+		}
+		return l; 
+	}
 	
 	/**
 	 * Creates a new object and sets its state to {@link MetadataViewer#NEW}.
@@ -799,5 +826,5 @@ class MetadataViewerModel
 		if (editor == null) return false;
 		return editor.isWritable();
 	}
-	
+
 }

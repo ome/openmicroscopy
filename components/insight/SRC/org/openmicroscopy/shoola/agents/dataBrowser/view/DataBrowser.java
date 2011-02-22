@@ -41,11 +41,13 @@ import org.openmicroscopy.shoola.agents.dataBrowser.browser.CellDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageDisplay;
 import org.openmicroscopy.shoola.agents.dataBrowser.browser.ImageNode;
 import org.openmicroscopy.shoola.env.data.model.ApplicationData;
+import org.openmicroscopy.shoola.env.data.model.TableResult;
 import org.openmicroscopy.shoola.env.data.util.FilterContext;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 import pojos.DataObject;
 import pojos.ExperimenterData;
+import pojos.FileAnnotationData;
 
 
 /** 
@@ -678,5 +680,12 @@ public interface DataBrowser
 	 * @return See above.
 	 */
 	Object getParentOfNodes();
+
+	/**
+	 * Sets the tabular data.
+	 * 
+	 * @param data The value to set.
+	 */
+	void setTabularData(List<TableResult> data);
 	
 }
