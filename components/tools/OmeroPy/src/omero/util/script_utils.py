@@ -354,7 +354,7 @@ def readFromOriginalFile(rawFileService, iQuery, fileId, maxBlockSize = 10000):
         block = rawFileService.read(cnt, blockSize);
         data = data + block;
         cnt = cnt+blockSize;
-    return data;
+    return data[0:fileSize];
 
 def readFileAsArray(rawFileService, iQuery, fileId, row, col, separator = ' '):
     """
