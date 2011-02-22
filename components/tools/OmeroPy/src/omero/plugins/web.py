@@ -93,8 +93,10 @@ class WebControl(BaseControl):
         selenium.add_argument("hostname", help = "E.g. http://localhost:4080")
         selenium.add_argument("browser", help = "E.g. firefox")
 
-        test = parser.add(sub, self.test, "Developer use: Runs 'coverage -x manage.py test'")
-        test.add_argument("arg", nargs="*")
+        unittest = parser.add(sub, self.unittest, "Developer use: Runs 'coverage -x manage.py test'")
+        unittest.add_argument("--test", action="store", help = "Specific test case(-s).")
+        unittest.add_argument("--path", action="store", help = "Path to Django-app. Must include '/'.")
+
 
     def host_and_port(self, APPLICATION_HOST):
         parts = APPLICATION_HOST.split(':')
@@ -224,23 +226,30 @@ Alias / "%(ROOT)s/var/omero.fcgi/"
         os.environ['DJANGO_SETTINGS_MODULE'] = os.environ.get('DJANGO_SETTINGS_MODULE', 'omeroweb.settings')
         rv = self.ctx.call(args, cwd = location)
 
-    def test(self, args):
-        param = args.arg[0]
-        if param.find('/') >= 0:
-            path = param.split('/')
+    def unittest(self, args):
+        try:
+            test = args.test
+            testpath = args.path
+        except:
+            self.ctx.die(121, "usage: unittest --test=appname.TestCase --path=/external/path/")
+            
+        if testpath is not None and testpath.find('/') >= 0:
+            path = testpath.split('/')
             test = path[len(path)-1]
-            if param.startswith('/'):
+            if testpath.startswith('/'):
                 location = "/".join(path[:(len(path)-1)])
             else:
                 appbase = test.split('.')[0]
                 location = self.ctx.dir / "/".join(path[:(len(path)-1)])
-        else:
+        
+        if testpath is None:
             location = self.ctx.dir / "lib" / "python" / "omeroweb"
-            test = param        
-        if len(args.arg) > 1:
-            cargs = args.arg[1:]
+                    
+        if testpath is not None and len(testpath) > 1:
+            cargs = [testpath]
         else:
             cargs = ['python']
+        
         cargs.extend([ "manage.py", "test"])
         if test:
             cargs.append(test)
