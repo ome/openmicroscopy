@@ -32,6 +32,7 @@ from custom_forms import ServerModelChoiceField, \
         GroupModelChoiceField, GroupModelMultipleChoiceField, \
         ExperimenterModelChoiceField, ExperimenterModelMultipleChoiceField, \
         DefaultGroupField, OmeNameField
+from custom_widgets import DefaultGroupRadioSelect
 
 
 #################################################################
@@ -70,7 +71,7 @@ class ExperimenterForm(forms.Form):
         self.email_check=email_check 
         
         try:
-            self.fields['default_group'] = DefaultGroupField(choices=kwargs['initial']['default'], widget=forms.RadioSelect(), required=True, label="Groups")
+            self.fields['default_group'] = DefaultGroupField(choices=kwargs['initial']['default'], widget=DefaultGroupRadioSelect(), required=True, label="Groups")
             self.fields['other_groups'] = GroupModelMultipleChoiceField(queryset=kwargs['initial']['others'], initial=kwargs['initial']['others'], required=False, widget=forms.SelectMultiple(attrs={'size':10}))
         except:
             self.fields['default_group'] = forms.ChoiceField(choices=list(), widget=forms.RadioSelect(), required=True, label="Groups")
