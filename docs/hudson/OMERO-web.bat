@@ -5,7 +5,7 @@ python build.py clean
 if errorlevel 1 goto ERROR
 python build.py
 if errorlevel 1 goto ERROR
-python dist\bin\omero web test webadmin
+python dist\bin\omero web unittest webadmin
 if errorlevel 1 goto ERROR
 
 exit /b 0
