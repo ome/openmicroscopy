@@ -79,11 +79,14 @@ opts.Add(BoolVariable('no_cpp', 'Skip building all C++ artifacts', 0))
 map = { "options" : opts,
         "CPPPATH" : cpppath + [os.path.join(builddir,"include"), os.path.curdir],
         "LIBPATH" : libpath + [os.path.join(builddir,"lib")],
-        "PYTHONPATH" : pypath + [os.path.join(builddir,"lib","python")],
         "CXXFLAGS" : [],
         "CPPDEFINES" : [],
         "LINKFLAGS" : [],
-        "JAVACFLAGS" : []}
+        "JAVACFLAGS" : [],
+        "ENV" : {
+            "ICE_CONFIG" : ice_config,
+            "PATH": os.environ["PATH"],
+            "PYTHONPATH" : pypath + [os.path.join(builddir,"lib","python")] }}
 
 if platform.name == "posix" or platform.name == "linux" or platform.name == "darwin":
     #
@@ -91,19 +94,17 @@ if platform.name == "posix" or platform.name == "linux" or platform.name == "dar
     #
     map["LIBPATH"].append(os.path.join(builddir, 'lib'))
     #
-    map["ENV"] = {
-        "ICE_CONFIG" : ice_config,
-        "PATH": os.environ["PATH"],
-        "PYTHONPATH": map["PYTHONPATH"],
+    map["ENV"].update({
         "LD_LIBRARY_PATH": map["LIBPATH"],
         "DYLD_LIBRARY_PATH": map["LIBPATH"],
-    }
+    })
 
     if mode == "debug":
         map["CXXFLAGS"] = ["-g","-O0"]
 
 # Windows
 else:
+
     if mode == "debug":
         map["CXXFLAGS"]   = ['-W1', '-GX', '-EHsc', '-D_DEBUG', '/MDd', '/Zi']
         map["LIBPATH"]    = ["bin/windows/debug"]
