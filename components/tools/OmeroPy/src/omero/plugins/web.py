@@ -94,6 +94,7 @@ class WebControl(BaseControl):
         selenium.add_argument("browser", help = "E.g. firefox")
 
         unittest = parser.add(sub, self.unittest, "Developer use: Runs 'coverage -x manage.py test'")
+        unittest.add_argument("--config", action="store", help = "ice.config location")
         unittest.add_argument("--test", action="store", help = "Specific test case(-s).")
         unittest.add_argument("--path", action="store", help = "Path to Django-app. Must include '/'.")
 
@@ -228,6 +229,7 @@ Alias / "%(ROOT)s/var/omero.fcgi/"
 
     def unittest(self, args):
         try:
+            ice_config = args.config
             test = args.test
             testpath = args.path
         except:
@@ -254,6 +256,8 @@ Alias / "%(ROOT)s/var/omero.fcgi/"
         if test:
             cargs.append(test)
         self.set_environ()
+        if ice_config is not None:
+            os.environ['ICE_CONFIG'] = str(ice_config)
         rv = self.ctx.call(cargs, cwd = location)
 
     def seleniumtest (self, args):

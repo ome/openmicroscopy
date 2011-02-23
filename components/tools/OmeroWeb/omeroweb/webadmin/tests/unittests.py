@@ -25,7 +25,7 @@ class WebAdminUrlTest(WebClientTest):
         params = {
             'username': 'root',
             'password': self.root_password,
-            'server':1,
+            'server':self.server_id,
             'ssl':'on'
         }
         
@@ -134,25 +134,36 @@ class WebAdminUrlTest(WebClientTest):
         response = self.client.get(reverse(viewname="wamanagegroupid", args=["save", "2"]))
         self.failUnlessEqual(response.status_code, 404)
      
-     
-# Testing controllers, and forms
-class WebAdminTest(WebTest):
+class WebAdminConfigTest(unittest.TestCase):
+    
+    def setUp (self):
+        c = omero.client(pmap=['--Ice.Config='+(os.environ.get("ICE_CONFIG"))])
+        try:
+            self.root_password = c.ic.getProperties().getProperty('omero.rootpass')
+            self.omero_host = c.ic.getProperties().getProperty('omero.host')
+            self.omero_port = c.ic.getProperties().getProperty('omero.port')
+            print self.omero_host, self.omero_port
+        finally:
+            c.__del__()
     
     def test_isServerOn(self):
         from omeroweb.webadmin.views import _isServerOn
-        if not _isServerOn('localhost', 4064):
+        if not _isServerOn(self.omero_host, self.omero_port):
             self.fail('Server is offline')
             
     def test_checkVersion(self):
         from omeroweb.webadmin.views import _checkVersion
-        if not _checkVersion('localhost', 4064):
+        if not _checkVersion(self.omero_host, self.omero_port):
             self.fail('Client version does not match server')
     
+# Testing controllers, and forms
+class WebAdminTest(WebTest):
+        
     def test_loginFromRequest(self):
         params = {
             'username': 'root',
             'password': self.root_password,
-            'server':1,
+            'server':self.server_id,
             'ssl':'on'
         }        
         request = fakeRequest(method="post", path="/webadmin/login", params=params)
@@ -176,7 +187,7 @@ class WebAdminTest(WebTest):
         params = {
             'username': 'root',
             'password': self.root_password,
-            'server':1,
+            'server':self.server_id,
             'ssl':'on'
         }        
         request = fakeRequest(method="post", params=params)
@@ -207,7 +218,7 @@ class WebAdminTest(WebTest):
         params = {
             'username': 'notauser',
             'password': 'nonsence',
-            'server':1
+            'server':self.server_id
         }        
         request = fakeRequest(method="post", params=params)
         
