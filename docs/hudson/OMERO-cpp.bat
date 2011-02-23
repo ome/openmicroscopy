@@ -37,7 +37,7 @@ python C:\hudson\unzip.py -z target\OMERO.cpp*dbg.zip -o target\
 if errorlevel 1 exit /b 1
 
 FOR /F %%I IN ('DIR target\OMERO.cpp*dbg /B') DO SET OMERO_CPP=%%I
-SET OMERO_CPP=%cd%\%OMERO_CPP%
+SET OMERO_CPP=%cd%\target\%OMERO_CPP%
 if not exist %OMERO_CPP%\etc mkdir %OMERO_CPP%\etc
 copy %OMERO_BRANCH%.config %OMERO_CPP%\etc\
 dir %OMERO_CPP%
