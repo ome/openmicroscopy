@@ -912,10 +912,21 @@ class TreeViewerWin
 			if (leftComponent == null)
 				leftComponent = splitPane.getLeftComponent();
 			dividerLocation = splitPane.getDividerLocation();
-			splitPane.remove(leftComponent);
+			Component[] components = splitPane.getComponents();
+			if (components != null) {
+				boolean b = false;
+				for (int i = 0; i < components.length; i++) {
+					if (components[i] == leftComponent)
+						b = true;
+				}
+				if (b && leftComponent != null)
+					splitPane.remove(leftComponent);
+			}
 		} else {
-			splitPane.add(leftComponent);
-			splitPane.setDividerLocation(dividerLocation);
+			if (leftComponent != null) {
+				splitPane.add(leftComponent);
+				splitPane.setDividerLocation(dividerLocation);
+			}
 		}
 		treeVisible = !treeVisible;
 	}
@@ -927,11 +938,21 @@ class TreeViewerWin
 			if (rightComponent == null)
 				rightComponent = rightPane.getRightComponent();
 			dividerRightLocation = rightPane.getDividerLocation();
-			rightPane.remove(rightComponent);
+			Component[] components = rightPane.getComponents();
+			if (components != null) {
+				boolean b = false;
+				for (int i = 0; i < components.length; i++) {
+					if (components[i] == rightComponent)
+						b = true;
+				}
+				if (b && rightComponent != null)
+					rightPane.remove(rightComponent);
+			}
 		} else {
-			rightPane.add(rightComponent);
-			rightPane.setResizeWeight(WEIGHT);
-			//rightPane.setDividerLocation(dividerRightLocation);
+			if (rightComponent != null) {
+				rightPane.add(rightComponent);
+				rightPane.setDividerLocation(dividerRightLocation);
+			}
 		}
 		metadataVisible = !metadataVisible;
 	}
