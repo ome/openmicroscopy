@@ -142,7 +142,6 @@ class WebAdminConfigTest(unittest.TestCase):
             self.root_password = c.ic.getProperties().getProperty('omero.rootpass')
             self.omero_host = c.ic.getProperties().getProperty('omero.host')
             self.omero_port = c.ic.getProperties().getProperty('omero.port')
-            print self.omero_host, self.omero_port
         finally:
             c.__del__()
     
