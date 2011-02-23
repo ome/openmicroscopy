@@ -1414,4 +1414,137 @@ public class RenderingEngineTest
 		re.close();
 	}
 	
+	/**
+	 * Tests to modify the rendering settings using the rendering engine 
+	 * and save the current settings using the <code>saveCurrentSettings</code>
+	 * method multiple times in a short period of time.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	@Test
+	public void testSaveCurrentSettingsMultipleTimes()
+		throws Exception
+	{
+		Image image = mmFactory.createImage();
+    	image = (Image) iUpdate.saveAndReturnObject(image);
+		Pixels pixels = image.getPrimaryPixels();
+		long id = pixels.getId().getValue();
+		RenderingEnginePrx re = factory.createRenderingEngine();
+		re.lookupPixels(id);
+		if (!(re.lookupRenderingDef(id))) {
+			re.resetDefaults();
+			re.lookupRenderingDef(id);
+		}
+		re.load();
+		int n = 5;
+		int diff = 20;
+		long start, end;
+		long time = 0;
+		for (int i = 0; i < n; i++) {
+			start = System.currentTimeMillis();
+			re.saveCurrentSettings();
+			end =  System.currentTimeMillis()-start;
+			if (i == 0) time = end;
+			else assertTrue(end >= (time-diff) & end <= (time+diff));
+		}
+		re.close();
+	}
+	
+	/**
+	 * Tests to modify the rendering settings using the rendering engine 
+	 * and save the current settings using the <code>saveCurrentSettings</code>
+	 * method multiple times in a short period of time.
+	 * @throws Exception Thrown if an error occurred.
+	 */
+	@Test
+	public void testSaveCurrentSettingsAll()
+		throws Exception
+	{
+		int sizeC = 2;
+		Image image = mmFactory.createImage(10, 10, 4, 2, sizeC);
+    	image = (Image) iUpdate.saveAndReturnObject(image);
+		Pixels pixels = image.getPrimaryPixels();
+		long id = pixels.getId().getValue();
+		RenderingEnginePrx re = factory.createRenderingEngine();
+		re.lookupPixels(id);
+		if (!(re.lookupRenderingDef(id))) {
+			re.resetDefaults();
+			re.lookupRenderingDef(id);
+		}
+		re.load();
+		//z
+		int z = 0;
+		re.setDefaultZ(z);
+		re.saveCurrentSettings();
+		assertEquals(re.getDefaultZ(), z);
+		//t
+		int t = 1;
+		re.setDefaultT(t);
+		re.saveCurrentSettings();
+		assertEquals(re.getDefaultT(), t);
+		//tested in PixelsService
+		IPixelsPrx svc = factory.getPixelsService();
+    	List<IObject> families = svc.getAllEnumerations(Family.class.getName());
+    	List<IObject> models = svc.getAllEnumerations(
+    			RenderingModel.class.getName());
+    	RenderingModel rm = re.getModel();
+    	Iterator<IObject> i;
+    	RenderingModel m;
+    	i = models.iterator();
+    	while (i.hasNext()) {
+			m = (RenderingModel) i.next();
+			if (m.getId().getValue() != rm.getId().getValue()) {
+				rm = m;	
+				break;
+			}
+		}
+    	re.setModel(rm);
+    	re.saveCurrentSettings();
+    	assertEquals(re.getModel().getId().getValue(), rm.getId().getValue());
+    	
+    	
+    	int start = re.getQuantumDef().getCdStart().getValue()+10;
+    	int end = re.getQuantumDef().getCdEnd().getValue()-10;
+    	re.setCodomainInterval(start, end);
+    	re.saveCurrentSettings();
+    	assertEquals(re.getQuantumDef().getCdStart().getValue(), start);
+    	int DEPTH_7BIT = 127; 
+    	re.setQuantumStrategy(DEPTH_7BIT);
+    	re.saveCurrentSettings();
+    	assertEquals(re.getQuantumDef().getBitResolution().getValue(), 
+    			DEPTH_7BIT);
+    	
+    	//channels now
+    	double min = 0;
+    	double max = 10;
+    	int[] RGBA = {255, 0, 10, 200};
+    	int[] rgba;
+    	Family f = (Family) families.get(families.size()-1);
+    	double coefficient = 0.5;
+    	boolean b;
+    	for (int j = 0; j < sizeC; j++) {
+			re.setActive(j, j == 0);
+			re.saveCurrentSettings();
+			assertEquals(j == 0, re.isActive(j));
+			re.setChannelWindow(j, min, max);
+			re.saveCurrentSettings();
+			assertEquals(re.getChannelWindowStart(j), min);
+			assertEquals(re.getChannelWindowEnd(j), max);
+			//color
+			re.setRGBA(j, RGBA[0], RGBA[1], RGBA[2], RGBA[3]);
+			re.saveCurrentSettings();
+			rgba = re.getRGBA(j);
+			for (int k = 0; k < rgba.length; k++) {
+				assertEquals(rgba[k], RGBA[k]);
+			}
+			b = !re.getChannelNoiseReduction(j);
+			re.setQuantizationMap(j, f, coefficient, b);
+			re.saveCurrentSettings();
+			assertEquals(re.getChannelCurveCoefficient(j), coefficient);
+			assertEquals(re.getChannelNoiseReduction(j), b);
+			assertEquals(re.getChannelFamily(j).getId().getValue(), 
+					f.getId().getValue());
+		}
+		re.close();
+	}
+	
 }

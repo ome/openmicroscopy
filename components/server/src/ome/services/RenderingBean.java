@@ -736,22 +736,60 @@ public class RenderingBean implements RenderingEngine, Serializable {
             // itself or one of its children in the object graph has been
             // updated. FIXME: This should be implemented using IUpdate.touch()
             // or similar once that functionality exists.
-            rendDefObj.setVersion(rendDefObj.getVersion() + 1);
+            RenderingDef old = rendDefObj;
+            rendDefObj = createNewRenderingDef(pixelsObj);
+            rendDefObj.setId(old.getId());
+            rendDefObj.setDefaultZ(old.getDefaultZ());
+            rendDefObj.setDefaultT(old.getDefaultT());
+            rendDefObj.setCompression(old.getCompression());
+            rendDefObj.setName(old.getName());
+            QuantumDef qDefNew = rendDefObj.getQuantization();
+            QuantumDef qDefOld = old.getQuantization();
+            qDefNew.setId(qDefOld.getId());
+            qDefNew.setBitResolution(qDefOld.getBitResolution());
+            qDefNew.setCdStart(qDefOld.getCdStart());
+            qDefNew.setCdEnd(qDefOld.getCdEnd());
+            
+            rendDefObj.setVersion(old.getVersion() + 1);
 
             // Unload the model object to avoid transactional headaches
-            RenderingModel unloadedModel = new RenderingModel(rendDefObj
+            
+           
+            RenderingModel unloadedModel = new RenderingModel(old
                     .getModel().getId(), false);
+            
             rendDefObj.setModel(unloadedModel);
-
             // Unload the family of each channel binding to avoid transactional
             // headaches.
-            for (ChannelBinding binding : rendDefObj
+            /*
+            for (ChannelBinding binding : old
                     .unmodifiableWaveRendering()) {
                 Family unloadedFamily = new Family(binding.getFamily().getId(),
                         false);
                 binding.setFamily(unloadedFamily);
             }
-
+            */
+            Family family;
+            int index = 0;
+            ChannelBinding cb;
+            for (ChannelBinding binding : old.unmodifiableWaveRendering()) {
+                family = new Family(binding.getFamily().getId(), false);
+                cb = rendDefObj.getChannelBinding(index);
+                cb.setFamily(family);
+                cb.setActive(binding.getActive());
+                cb.setAlpha(binding.getAlpha());
+                cb.setBlue(binding.getBlue());
+                cb.setRed(binding.getRed());
+                cb.setGreen(binding.getGreen());
+                cb.setId(binding.getId());
+                cb.setInputStart(binding.getInputStart());
+                cb.setInputEnd(binding.getInputEnd());
+                cb.setCoefficient(binding.getCoefficient());
+                cb.setNoiseReduction(binding.getNoiseReduction());
+                //binding.setFamily(unloadedFamily);
+                index++;
+            }
+            
             // Actually save and reload the rendering settings
             rendDefObj = (RenderingDef) ex.execute(/*ex*/null/*principal*/,
                     new Executor.SimpleWork(this,"saveCurrentSettings"){
@@ -766,7 +804,6 @@ public class RenderingBean implements RenderingEngine, Serializable {
             // the next save.
             Pixels unloadedPixels = new Pixels(pixelsObj.getId(), false);
             rendDefObj.setPixels(unloadedPixels);
- 
             // The above save and reload step sets the rendDefObj instance
             // (for which the renderer hold a reference) unloaded, which *will*
             // cause IllegalStateExceptions if we're not careful. To compensate
