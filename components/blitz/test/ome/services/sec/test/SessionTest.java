@@ -26,18 +26,16 @@ import org.testng.annotations.Test;
 @Test(enabled=false, groups = { "broken" })
 public class SessionTest extends TestCase {
 
-    Login rootLogin = (Login) OmeroContext.getInstance("ome.client.test")
-            .getBean("rootLogin");
-    Principal rootPrincipal = new Principal(rootLogin.getName(), "system",
-            "Test");
+    Login rootLogin = null; // (Login) OmeroContext.getInstance("ome.client.test") .getBean("rootLogin");
+    Principal rootPrincipal = null; // new Principal(rootLogin.getName(), "system", "Test");
 
-    @Test
+    @Test(enabled=false)
     public void testServiceFactoryWithNormalUsageAcquiresSession() {
         ServiceFactory sf = new ServiceFactory(rootLogin);
         sf.getQueryService().get(Experimenter.class, 0L);
     }
 
-    @Test
+    @Test(enabled=false)
     public void AndIfSessionIsLostReacquires() {
         ServiceFactory sf = new ServiceFactory();
         IConfig c1 = sf.getConfigService(), c2;
@@ -63,7 +61,7 @@ public class SessionTest extends TestCase {
 
     }
 
-    @Test
+    @Test(enabled=false)
     public void testSimpleCreate() throws Exception {
         ServiceFactory sf = new ServiceFactory();
         ISession service = sf.getServiceByClass(ISession.class);
@@ -76,7 +74,7 @@ public class SessionTest extends TestCase {
         service.closeSession(s);
     }
 
-    @Test
+    @Test(enabled=false)
     public void testCreationByRoot() throws Exception {
         ServiceFactory sf = new ServiceFactory("ome.client.test");
         String name = sf.getAdminService().getEventContext()
@@ -90,7 +88,7 @@ public class SessionTest extends TestCase {
         sessionedSf.getConfigService().getServerTime();
     }
 
-    @Test(expectedExceptions = RemovedSessionException.class)
+    @Test(enabled=false, expectedExceptions = RemovedSessionException.class)
     public void testOthersCanKillASession() {
         ServiceFactory sf1 = new ServiceFactory(rootLogin), sf2 = new ServiceFactory(
                 rootLogin);

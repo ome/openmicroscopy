@@ -274,7 +274,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
     // =========================================================================
 
     @Override
-    @Test(groups = { "broken", "ticket:374" })
+    @Test(enabled=false, groups = { "broken", "ticket:374" })
     public void test_U_Pixels_And_U_Thumbnails() throws Exception {
         ownsfA = u;
         ownerA = user;
@@ -694,7 +694,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
     // ~ unidirectional many-to-one
     // =========================================================================
     @Override
-    @Test(groups = { "broken", "ticket:374" })
+    @Test(enabled=false, groups = { "broken", "ticket:374" })
     public void test_U_Instrument_And_U_Microscope() throws Exception {
 
         ownsfA = u;
@@ -1008,7 +1008,7 @@ public class WriteSecurityTest extends AbstractPermissionsTest {
     // =========================================================================
 
     @Override
-    @Test
+    @Test(enabled=false)
     public void test_U_Image_U_Pixels() throws Exception {
         ownsfA = ownsfB = u;
         ownerA = ownerB = user;

@@ -841,7 +841,7 @@ public class ReadSecurityTest extends AbstractPermissionsTest {
     // =========================================================================
 
     @Override
-    @Test
+    @Test(enabled=false)
     public void test_U_Image_U_Pixels() throws Exception {
         ownsfA = ownsfB = u;
         ownerA = ownerB = user;

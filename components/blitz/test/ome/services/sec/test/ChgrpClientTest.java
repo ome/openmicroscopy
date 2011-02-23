@@ -29,22 +29,22 @@ public class ChgrpClientTest extends AbstractChangeDetailClientTest {
     // ~ AS USER TO ROOT
     // =========================================================================
 
-    @Test(expectedExceptions = SecurityViolation.class)
+    @Test(enabled=false, expectedExceptions = SecurityViolation.class)
     public void test_NewImageAsUserChgrpToSystem() throws Exception {
         createAsUserToGroup(asUser, toSystem);
     }
 
-    @Test(expectedExceptions = SecurityViolation.class)
+    @Test(enabled=false, expectedExceptions = SecurityViolation.class)
     public void test_UserImageAsUserChgrpToSystem() throws Exception {
         updateAsUserToGroup(managedImage(asUser), asUser, toSystem);
     }
 
-    @Test(expectedExceptions = SecurityViolation.class)
+    @Test(enabled=false, expectedExceptions = SecurityViolation.class)
     public void test_OtherImageAsUserChgrpToSystem() throws Exception {
         updateAsUserToGroup(managedImage(asOther), asUser, toSystem);
     }
 
-    @Test
+    @Test(enabled=false)
     // already belongs to system group
     public void test_RootImageAsUserChgrpToSystem() throws Exception {
         updateAsUserToGroup(managedImage(asRoot), asUser, toSystem);
@@ -52,23 +52,23 @@ public class ChgrpClientTest extends AbstractChangeDetailClientTest {
 
     // ~ AS USER TO USER
     // =========================================================================
-    @Test
+    @Test(enabled=false)
     public void test_NewImageAsUserChgrpToUserGroup() throws Exception {
         createAsUserToGroup(asUser, toUserGroup);
     }
 
-    @Test
+    @Test(enabled=false)
     public void test_UserImageAsUserChgrpToUserGroup() throws Exception {
         updateAsUserToGroup(managedImage(asUser), asUser, toUserGroup);
     }
 
-    @Test(expectedExceptions = SecurityViolation.class)
+    @Test(enabled=false, expectedExceptions = SecurityViolation.class)
     // default permissions causes this to be illegal
     public void test_OtherImageAsUserChgrpToUserGroup() throws Exception {
         updateAsUserToGroup(managedImage(asOther), asUser, toUserGroup);
     }
 
-    @Test
+    @Test(enabled=false)
     public void test_OtherGroupWritableImageAsUserChgrpToUserGroup()
             throws Exception {
         Long groupWritableImage = managedImage(asOther);
@@ -85,7 +85,7 @@ public class ChgrpClientTest extends AbstractChangeDetailClientTest {
         updateAsUserToGroup(groupWritableImage, asUser, toUserGroup);
     }
 
-    @Test(expectedExceptions = SecurityViolation.class)
+    @Test(enabled=false, expectedExceptions = SecurityViolation.class)
     // because root logged into sys.
     public void test_RootImageAsUserChgrpToUserGroup() throws Exception {
         updateAsUserToGroup(managedImage(asRoot), asUser, toUserGroup);
@@ -93,66 +93,66 @@ public class ChgrpClientTest extends AbstractChangeDetailClientTest {
 
     // ~ AS USER TO OTHER
     // =========================================================================
-    @Test(expectedExceptions = SecurityViolation.class)
+    @Test(enabled=false, expectedExceptions = SecurityViolation.class)
     public void test_NewImageAsUserChgrpToOtherGroup() throws Exception {
         createAsUserToGroup(asUser, toOtherGroup);
     }
 
-    @Test(expectedExceptions = SecurityViolation.class)
+    @Test(enabled=false, expectedExceptions = SecurityViolation.class)
     public void test_UserImageAsUserChgrpToOtherGroup() throws Exception {
         updateAsUserToGroup(managedImage(asUser), asUser, toOtherGroup);
     }
 
-    @Test(expectedExceptions = SecurityViolation.class)
+    @Test(enabled=false, expectedExceptions = SecurityViolation.class)
     public void test_OtherImageAsUserChgrpToOtherGroup() throws Exception {
         updateAsUserToGroup(managedImage(asOther), asUser, toOtherGroup);
     }
 
-    @Test(expectedExceptions = SecurityViolation.class)
+    @Test(enabled=false, expectedExceptions = SecurityViolation.class)
     public void test_RootImageAsUserChgrpToOtherGroup() throws Exception {
         updateAsUserToGroup(managedImage(asRoot), asUser, toOtherGroup);
     }
 
     // ~ AS ROOT TO USER
     // =========================================================================
-    @Test
+    @Test(enabled=false)
     public void test_NewImageAsRootChgrpToUserGroup() throws Exception {
         createAsUserToGroup(asRoot, toUserGroup);
     }
 
-    @Test
+    @Test(enabled=false)
     public void test_UserImageAsRootChgrpToUserGroup() throws Exception {
         updateAsUserToGroup(managedImage(asUser), asRoot, toUserGroup);
     }
 
-    @Test
+    @Test(enabled=false)
     public void test_OtherImageAsRootChgrpToUserGroup() throws Exception {
         updateAsUserToGroup(managedImage(asOther), asRoot, toUserGroup);
     }
 
-    @Test
+    @Test(enabled=false)
     public void test_RootImageAsRootChgrpToUserGroup() throws Exception {
         updateAsUserToGroup(managedImage(asRoot), asRoot, toUserGroup);
     }
 
     // ~ AS ROOT TO OTHER
     // =========================================================================
-    @Test
+    @Test(enabled=false)
     public void test_NewImageAsRootChgrpToOtherGroup() throws Exception {
         createAsUserToGroup(asRoot, toOtherGroup);
     }
 
-    @Test
+    @Test(enabled=false)
     public void test_UserImageAsRootChgrpToOtherGroup() throws Exception {
         updateAsUserToGroup(managedImage(asUser), asRoot, toOtherGroup);
     }
 
-    @Test
+    @Test(enabled=false)
     public void test_OtherImageAsRootChgrpToOtherGroup() throws Exception {
         updateAsUserToGroup(managedImage(asOther), asRoot, toOtherGroup);
     }
 
-    @Test
+    @Test(enabled=false)
     public void test_RootImageAsRootChgrpToOtherGroup() throws Exception {
         updateAsUserToGroup(managedImage(asRoot), asRoot, toOtherGroup);
     }
@@ -160,22 +160,22 @@ public class ChgrpClientTest extends AbstractChangeDetailClientTest {
     // ~ AS ROOT TO ROOT
     // =========================================================================
 
-    @Test
+    @Test(enabled=false)
     public void test_NewImageAsRootChgrpToSystem() throws Exception {
         createAsUserToGroup(asRoot, toSystem);
     }
 
-    @Test
+    @Test(enabled=false)
     public void test_UserImageAsRootChgrpToSystem() throws Exception {
         updateAsUserToGroup(managedImage(asUser), asRoot, toSystem);
     }
 
-    @Test
+    @Test(enabled=false)
     public void test_OtherImageAsRootChgrpToSystem() throws Exception {
         updateAsUserToGroup(managedImage(asOther), asRoot, toSystem);
     }
 
-    @Test
+    @Test(enabled=false)
     public void test_RootImageAsRootChgrpToSystem() throws Exception {
         updateAsUserToGroup(managedImage(asRoot), asRoot, toSystem);
     }

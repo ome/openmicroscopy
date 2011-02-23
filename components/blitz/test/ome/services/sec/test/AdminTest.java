@@ -41,7 +41,7 @@ public class AdminTest extends AbstractAccountTest {
     // ~ chown / chgrp / chmod
     // =========================================================================
 
-    @Test
+    @Test(enabled=false)
     public void testChownThroughIUpdateActuallyWorks() throws Exception {
         
         ServiceFactoryPrx u = createUser();
@@ -62,7 +62,7 @@ public class AdminTest extends AbstractAccountTest {
         assertEquals(test.getDetails().getOwner().getId(), target.getId());
     }
 
-    @Test(groups = "ticket:397")
+    @Test(enabled=false, groups = "ticket:397")
     public void testChangePermissionsCantMisuseAdminAction() throws Exception {
 
         ServiceFactoryPrx u = createUser();
@@ -91,7 +91,7 @@ public class AdminTest extends AbstractAccountTest {
      * Here the only change made was to allow all users to get the default group
      * for another user. Since this is visible anyway, there's no major concern.
      */
-    @Test(groups = "ticket:688")
+    @Test(enabled=false, groups = "ticket:688")
     public void testGetDefaultGroup() throws Exception {
         ServiceFactoryPrx u = createUser();
         IAdminPrx uAdmin = u.getAdminService();
@@ -105,7 +105,7 @@ public class AdminTest extends AbstractAccountTest {
      * the admin, then we must be careful to not allow them to change other
      * user's groups, nor to elevate their privileges
      */
-    @Test(groups = "ticket:688")
+    @Test(enabled=false, groups = "ticket:688")
     public void testSetDefaultGroup() throws Exception {
 
         Roles roles = rootAdmin.getSecurityRoles();
@@ -154,7 +154,7 @@ public class AdminTest extends AbstractAccountTest {
 
     }
 
-    @Test(groups = "ticket:688")
+    @Test(enabled=false, groups = "ticket:688")
     public void testUpdateUser() throws Exception {
 
         // A new user
@@ -227,7 +227,7 @@ public class AdminTest extends AbstractAccountTest {
         assertEquals(dfault.getId(), rootAdmin.getDefaultGroup(id).getId());
     }
     
-    @Test(groups = "ticket:1104")
+    @Test(enabled=false, groups = "ticket:1104")
     public void testCreateAndUpdateUserWithPassword() throws Exception {
         Roles roles = rootAdmin.getSecurityRoles();
 

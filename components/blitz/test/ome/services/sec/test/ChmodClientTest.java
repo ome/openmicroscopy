@@ -27,37 +27,37 @@ public class ChmodClientTest extends AbstractChangeDetailClientTest {
     // 2. as user or root
     // 3. changing to various permissions
 
-    @Test
+    @Test(enabled=false)
     public void test_user_RWRW_user_PUBLIC() throws Exception {
         newUserImagePermissionsAsUserToPermissions(true, asUser,
                 Permissions.GROUP_PRIVATE, asUser, Permissions.PUBLIC);
     }
 
-    @Test
+    @Test(enabled=false)
     public void test_user_RWRW_other_PUBLIC() throws Exception {
         newUserImagePermissionsAsUserToPermissions(false, asUser,
                 Permissions.GROUP_PRIVATE, asOther, Permissions.PUBLIC);
     }
 
-    @Test
+    @Test(enabled=false)
     public void test_user_RWRW_world_PUBLIC() throws Exception {
         newUserImagePermissionsAsUserToPermissions(false, asUser,
                 Permissions.GROUP_PRIVATE, asWorld, Permissions.PUBLIC);
     }
 
-    @Test
+    @Test(enabled=false)
     public void test_user_RWRW_pi_PUBLIC() throws Exception {
         newUserImagePermissionsAsUserToPermissions(true, asUser,
                 Permissions.GROUP_PRIVATE, asPI, Permissions.PUBLIC);
     }
 
-    @Test
+    @Test(enabled=false)
     public void test_user_RWRW_root_PUBLIC() throws Exception {
         newUserImagePermissionsAsUserToPermissions(true, asUser,
                 Permissions.GROUP_PRIVATE, asRoot, Permissions.PUBLIC);
     }
 
-    @Test(groups = { "ticket:397", "broken" })
+    @Test(enabled=false, groups = { "ticket:397", "broken" })
     public void testCheckInitialParameters() throws Exception {
         fail("USER CAN CURRENTLY JUST PASS IN WHATEVER OWNER THEY WANT.");
         // UNTAINT

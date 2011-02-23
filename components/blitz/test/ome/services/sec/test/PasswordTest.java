@@ -28,7 +28,7 @@ public class PasswordTest extends AbstractAccountTest {
     // ~ SUDO WITH FILLED PASSWORD
     // =========================================================================
 
-    @Test
+    @Test(enabled=false)
     public void testSudoCanChangePassword() throws Exception {
         try {
             IAdminPrx sudoAdmin = getSudoAdmin("ome");
@@ -48,7 +48,7 @@ public class PasswordTest extends AbstractAccountTest {
         }
     }
 
-    @Test
+    @Test(enabled=false)
     public void testSudoCanChangeOthersPassword() throws Exception {
 
         omero.model.Experimenter e = createNewUser(rootAdmin);
@@ -69,7 +69,7 @@ public class PasswordTest extends AbstractAccountTest {
     // ~ USER WITH FILLED PASSWORD
     // =========================================================================
 
-    @Test
+    @Test(enabled=false)
     public void testUserCanChangeOwnPassword() throws Exception {
         Experimenter e = createNewUser(rootAdmin);
         resetPasswordTo_ome(e);
@@ -83,7 +83,7 @@ public class PasswordTest extends AbstractAccountTest {
 
     }
 
-    @Test(expectedExceptions = SecurityViolation.class)
+    @Test(enabled=false, expectedExceptions = SecurityViolation.class)
     public void testUserCantChangeOthersPassword() throws Exception {
         Experimenter e = createNewUser(getSudoAdmin("ome"));
         resetPasswordTo_ome(e);
@@ -103,7 +103,7 @@ public class PasswordTest extends AbstractAccountTest {
     // ~ EMPTY PASSWORD
     // =========================================================================
 
-    @Test
+    @Test(enabled=false)
     public void testAnyOneCanLoginWithEmptyPassword() throws Exception {
 
         Experimenter e = createNewUser(rootAdmin);
@@ -137,7 +137,7 @@ public class PasswordTest extends AbstractAccountTest {
     // ~ MISSING PASSWORD (Locked account)
     // =========================================================================
 
-    @Test
+    @Test(enabled=false)
     public void testNoOneCanLoginWithMissingPassword() throws Exception {
 
         Experimenter e = createNewUser(rootAdmin);
@@ -169,7 +169,7 @@ public class PasswordTest extends AbstractAccountTest {
 
     }
 
-    @Test
+    @Test(enabled=false)
     public void testNoOneCanLoginWithNullPassword() throws Exception {
 
         Experimenter e = createNewUser(rootAdmin);
@@ -201,7 +201,7 @@ public class PasswordTest extends AbstractAccountTest {
 
     }
 
-    @Test(groups = "special")
+    @Test(enabled=false, groups = "special")
     public void testSpecialCaseOfSudosOldPassword() throws Exception {
         resetPasswordTo_ome(sudo);
         assertTrue(OME_HASH.equals(getPasswordFromDb(sudo)));

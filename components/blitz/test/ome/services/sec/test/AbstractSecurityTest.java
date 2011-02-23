@@ -28,14 +28,13 @@ public class AbstractSecurityTest extends TestCase {
     
     protected client c;
     
-    protected ome.system.ServiceFactory tmp = new ome.system.ServiceFactory(context);
+    protected ome.system.ServiceFactory tmp = null; // new ome.system.ServiceFactory(context);
 
-    protected DataSource dataSource = (DataSource) tmp.getContext().getBean(
-            "omero.security.test");
+    protected DataSource dataSource = null; // (DataSource) tmp.getContext().getBean( "omero.security.test");
 
-    protected SimpleJdbcTemplate jdbc = new SimpleJdbcTemplate(dataSource);
+    protected SimpleJdbcTemplate jdbc = null; // new SimpleJdbcTemplate(dataSource);
 
-    protected Login rootLogin = (Login) tmp.getContext().getBean("rootLogin");
+    protected Login rootLogin = null; // (Login) tmp.getContext().getBean("rootLogin");
 
     protected ServiceFactoryPrx rootServices;
 
