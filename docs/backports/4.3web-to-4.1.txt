@@ -1,0 +1,12 @@
+Synchronization record for develop --> dev_4_1_custom
+omero.gateway and omeroweb.webgateway
+=====================================================
+
+List of latest commits merged from develop into dev_4_1_custom
+
+*** 2011-02-23  ***
+
+-- omeroweb.webgateway
+8cf7ea3cf0e9a43d27496d24b5808936fe0f2839 this solved the problem with saving rendering settings fixes #4408
+-- omero.gateway
+779b2b5d6a5ae1a49c5bcd2f1d5e6f2c9307556d Fixing delete default options in blitz gateway to keep child & annotations by default. See #3649
