@@ -123,6 +123,9 @@ if __name__ == "__main__":
         if label == "macosx" or label == "matlab":
             build_url = build_url.replace("label=%s" % label, "label=linux")
         build_url = "%s/%s" % (build_url, "artifact/src/%s.config" % branch)
+        if os.path.exists(config_file):
+            print "Removing %s ..." % config_file
+            os.remove(config_file)
         print "Downloading %s ... " % build_url
         ConfigOpener().retrieve(build_url, filename=config_file)
         os.environ["ICE_CONFIG"] = config_file

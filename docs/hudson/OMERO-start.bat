@@ -18,7 +18,7 @@ set ICE_CONFIG=%cd%\%OMERO_CONFIG%.config
 set OMERO_DATA=%cd%\target\datadir
 
 echo omero.host=localhost >> %ICE_CONFIG%
-echo omero.user=user >> %ICE_CONFIG%
+echo omero.user=hudson >> %ICE_CONFIG%
 echo omero.pass=ome >> %ICE_CONFIG%
 echo omero.rootpass=ome >> %ICE_CONFIG%
 echo omero.host=%OMERO_HOST% >> %ICE_CONFIG%
