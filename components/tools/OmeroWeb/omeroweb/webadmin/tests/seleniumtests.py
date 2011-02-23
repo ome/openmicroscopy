@@ -213,12 +213,23 @@ class AdminTests (WebAdminTestBase):
         sel.wait_for_page_to_load("30000")
         self.assertEqual("WebAdmin - Edit scientist", sel.get_title())
         
-        # try promoting the user to admin and adding to new group
+        # try promoting the user to admin and adding to new group, making that group the default
         sel.click("id_administrator")
         sel.add_selection("id_available_groups", "label=%s" % groupName3)
         sel.click("add")
+        self.waitForElementVisibility('id_default_group_%d' % group3Id, True)  # radio button for 'default group'
+        sel.click('id_default_group_%d' % group3Id)
+        
+        # try remove one of the original groups
+        sel.click("default_group_%d" % group1Id)
+        print "clicked:", "default_group_%d" % group1Id
+        #self.waitForElementVisibility('id_default_group_%d' % group1Id, False)
+        self.waitForElementVisibility('default_group_%d' % group1Id, False)     # BUG: this is not working at the moment. 
+        
+        # save
         sel.click("//input[@value='Save']")
         sel.wait_for_page_to_load("30000")
+        
         # find experimenter in table - look for 'admin' icon
         i = 1
         while sel.get_text("//table[@id='experimenterTable']/tbody/tr[%s]/td[3]" % i) != omeName:
