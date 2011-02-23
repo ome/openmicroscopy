@@ -14,7 +14,7 @@ import omero.model.Permissions;
 import omero.model.PermissionsI;
 import omero.api.IAdminPrx;
 
-@Test(groups = { "client", "integration", "security", "ticket:52", "chgrp" })
+@Test(enabled=false, groups = { "broken", "client", "integration", "security", "ticket:52", "chgrp" })
 public class ChgrpClientTest extends AbstractChangeDetailClientTest {
 
     // design parameters:

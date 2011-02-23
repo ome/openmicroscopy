@@ -23,6 +23,7 @@ import org.testng.annotations.Test;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta2
  */
+@Test(enabled=false, groups = { "broken" })
 public class SessionTest extends TestCase {
 
     Login rootLogin = (Login) OmeroContext.getInstance("ome.client.test")

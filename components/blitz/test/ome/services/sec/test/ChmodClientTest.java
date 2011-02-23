@@ -15,7 +15,7 @@ import ome.model.internal.Permissions;
 import ome.system.Login;
 import ome.system.ServiceFactory;
 
-@Test(groups = { "client", "integration", "security", "ticket:365", "chmod" })
+@Test(enabled=false, groups = { "broken", "client", "integration", "security", "ticket:365", "chmod" })
 public class ChmodClientTest extends AbstractChangeDetailClientTest {
 
     // TODO : This series of tests (AbstractChangeDetailClientTest)

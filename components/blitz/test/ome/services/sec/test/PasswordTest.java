@@ -16,7 +16,7 @@ import omero.api.IAdminPrx;
 
 import org.testng.annotations.Test;
 
-@Test(groups = { "client", "integration", "security", "ticket:181",
+@Test(enabled=false, groups = { "broken", "client", "integration", "security", "ticket:181",
         "ticket:199", "password" })
 public class PasswordTest extends AbstractAccountTest {
 

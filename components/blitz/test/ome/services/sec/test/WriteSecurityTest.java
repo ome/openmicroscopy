@@ -42,7 +42,7 @@ import static omero.rtypes.rstring;
 
 import org.testng.annotations.Test;
 
-@Test(groups = { "ticket:236", "security", "integration" })
+@Test(enabled=false, groups = { "broken", "ticket:236", "security", "integration" })
 public class WriteSecurityTest extends AbstractPermissionsTest {
 
     /*

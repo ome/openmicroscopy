@@ -10,7 +10,7 @@ import org.testng.annotations.*;
 
 import ome.conditions.SecurityViolation;
 
-@Test(groups = { "client", "integration", "security", "ticket:52", "chown" })
+@Test(enabled=false, groups = { "broken", "client", "integration", "security", "ticket:52", "chown" })
 public class ChownClientTest extends AbstractChangeDetailClientTest {
 
     // design parameters:

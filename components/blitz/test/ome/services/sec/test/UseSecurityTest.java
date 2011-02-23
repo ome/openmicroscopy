@@ -41,7 +41,7 @@ import omero.util.IceMapper;
 
 import org.testng.annotations.Test;
 
-@Test(groups = { "ticket:337", "security", "integration" })
+@Test(enabled=false, groups = { "broken", "ticket:337", "security", "integration" })
 public class UseSecurityTest extends AbstractPermissionsTest {
 
     // unlike READ and WRITE tests, we don't need to repeat the tests for each

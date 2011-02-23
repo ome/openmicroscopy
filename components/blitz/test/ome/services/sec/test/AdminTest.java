@@ -35,6 +35,7 @@ import org.testng.annotations.Test;
 import Glacier2.CannotCreateSessionException;
 import Glacier2.PermissionDeniedException;
 
+@Test(enabled = false, groups="broken")
 public class AdminTest extends AbstractAccountTest {
 
     // ~ chown / chgrp / chmod
