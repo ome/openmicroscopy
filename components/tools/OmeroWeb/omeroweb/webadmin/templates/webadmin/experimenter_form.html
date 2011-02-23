@@ -31,7 +31,6 @@
         
         $('.removeButton').live("click", function() {
             var val = $('#id_'+this.id).attr('value');
-            console.log(val)
             $("option:selected", "select[name=other_groups]").each(function(){
                 if(this.value == val) {
                     if (val > 0) $('<option value="'+this.value+'">'+$(this).html()+'</option>').appendTo("#id_available_groups");
