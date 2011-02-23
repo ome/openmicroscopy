@@ -233,7 +233,7 @@ Alias / "%(ROOT)s/var/omero.fcgi/"
             test = args.test
             testpath = args.path
         except:
-            self.ctx.die(121, "usage: unittest --test=appname.TestCase --path=/external/path/")
+            self.ctx.die(121, "usage: unittest --config=/path/to/ice.config --test=appname.TestCase --path=/external/path/")
             
         if testpath is not None and testpath.find('/') >= 0:
             path = testpath.split('/')
@@ -255,9 +255,7 @@ Alias / "%(ROOT)s/var/omero.fcgi/"
         cargs.extend([ "manage.py", "test"])
         if test:
             cargs.append(test)
-        self.set_environ()
-        if ice_config is not None:
-            os.environ['ICE_CONFIG'] = str(ice_config)
+        self.set_environ(ice_config=ice_config)
         rv = self.ctx.call(cargs, cwd = location)
 
     def seleniumtest (self, args):
@@ -431,8 +429,8 @@ using bin\omero web start on Windows with FastCGI.
         else:
             self.ctx.err("DEVELOPMENT: You will have to kill processes by hand!")
 
-    def set_environ(self):
-        os.environ['ICE_CONFIG'] = str(self.ctx.dir / "etc" / "ice.config")
+    def set_environ(self, ice_config=None):
+        os.environ['ICE_CONFIG'] = ice_config is None and str(self.ctx.dir / "etc" / "ice.config") or str(ice_config)
         os.environ['PATH'] = str(os.environ.get('PATH', '.') + ':' + self.ctx.dir / 'bin')
 
 try:

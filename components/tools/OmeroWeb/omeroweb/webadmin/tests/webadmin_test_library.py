@@ -44,10 +44,6 @@ class WebTest(unittest.TestCase):
         else:
             raise exceptions.Exception("'%s' is not on omero.web.server_list")
 
-
-            omero.web.server_list=[["localhost", 4064, "omero"],["nightshade.openmicroscopy.org.uk", 4064, "nightshade"],["gretzky.openmicroscopy.org.uk", 4064, "gretzky"],["mage.openmicroscopy.org.uk", 4064, "mage"],["warlock.openmicroscopy.org.uk", 4064, "warlock"],["141.52.175.71", 4064, "kit"]]
-
-
 class WebClientTest(unittest.TestCase):
         
     def setUp (self):
