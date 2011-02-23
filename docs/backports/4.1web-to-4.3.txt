@@ -1,0 +1,13 @@
+Synchronization record for dev_4_1_custom --> develop
+omero.gateway and omeroweb.webgateway
+=====================================================
+
+List of latest commits merged from dev_4_1_custom into develop
+
+*** 2011-02-23  ***
+
+-- omeroweb.webgateway
+445c12e1d6494d7147ff38f69281646a1f987bad Adding jQuery 1.5 to webgateway js
+-- omero.gateway
+7820c8987b10cbbaac7c72c08eb504136d9bb7dc Adding omero.gateway.unlinkAnnotations
+
