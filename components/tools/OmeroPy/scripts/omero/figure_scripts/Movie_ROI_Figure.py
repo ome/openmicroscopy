@@ -43,8 +43,6 @@ import omero.util.figureUtil as figUtil
 import omero.util.script_utils as scriptUtil
 from omero.model import ImageI
 from omero.rtypes import *      # includes wrap()
-import omero.gateway
-import omero_api_Gateway_ice    # see http://tinyurl.com/icebuserror
 import omero_api_IRoi_ice
 # import util.figureUtil as figUtil    # need to comment out for upload to work. But need import for script to work!!
 import getopt, sys, os, subprocess
@@ -159,7 +157,10 @@ def getROImovieView    (re, queryService, pixels, timeShapeMap, mergedIndexes, m
     # set up rendering engine with the pixels
     pixelsId = pixels.getId().getValue()
     re.lookupPixels(pixelsId)
-    re.lookupRenderingDef(pixelsId)
+    if not re.lookupRenderingDef(pixelsId):
+        re.resetDefaults()
+    if not re.lookupRenderingDef(pixelsId):
+        raise "Failed to lookup Rendering Def"
     re.load()
     
     # now get each channel in greyscale (or colour)
@@ -365,7 +366,6 @@ def getSplitView(session, imageIds, pixelIds, mergedIndexes,
     @ spacer        the gap between images and around the figure. Doubled between rows. 
     """
     
-    gateway = session.createGateway()
     roiService = session.getRoiService()
     re = session.createRenderingEngine()
     queryService = session.getQueryService()    # only needed for movie
@@ -378,7 +378,7 @@ def getSplitView(session, imageIds, pixelIds, mergedIndexes,
     
     if roiZoom == None:
         # get the pixels for priamry image. 
-        pixels = gateway.getPixels(pixelIds[0])
+        pixels = queryService.get("Pixels", pixelIds[0])
         sizeY = pixels.getSizeY().getValue()
     
         roiZoom = float(height) / float(roiHeight)
@@ -426,7 +426,7 @@ def getSplitView(session, imageIds, pixelIds, mergedIndexes,
             continue
         roiX, roiY, roiWidth, roiHeight, timeShapeMap = roi
         
-        pixels = gateway.getPixels(pixelsId)
+        pixels = queryService.get("Pixels", pixelsId)
         sizeX = pixels.getSizeX().getValue()
         sizeY = pixels.getSizeY().getValue()
         
@@ -506,6 +506,7 @@ def roiFigure(session, commandArgs):
     queryService = session.getQueryService()
     updateService = session.getUpdateService()
     rawFileStore = session.createRawFileStore()
+    containerService = session.getContainerService()
     
     log("ROI figure created by OMERO on %s" % date.today())
     log("")
@@ -514,7 +515,6 @@ def roiFigure(session, commandArgs):
     imageIds = []
     imageLabels = []
     imageNames = {}
-    gateway = session.createGateway()
     omeroImage = None    # this is set as the first image, to link figure to
 
     # function for getting image labels.
@@ -538,7 +538,7 @@ def roiFigure(session, commandArgs):
     if "Image_IDs" in commandArgs:
         for idCount, imageId in enumerate(commandArgs["Image_IDs"]):
             iId = imageId.getValue()
-            image = gateway.getImage(iId)
+            image = containerService.getImages("Image", [iId], None)[0]
             if image == None:
                 print "Image not found for ID:", iId
                 continue
@@ -571,7 +571,7 @@ def roiFigure(session, commandArgs):
     
     # use the first image to define dimensions, channel colours etc. 
     pixelsId = pixelIds[0]
-    pixels = gateway.getPixels(pixelsId)
+    pixels = queryService.get("Pixels", pixelsId)
 
     sizeX = pixels.getSizeX().getValue();
     sizeY = pixels.getSizeY().getValue();
@@ -769,7 +769,6 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIMovieFigure"""
     
     try:
         session = client.getSession();
-        gateway = session.createGateway();
         commandArgs = {"Image_IDs":client.getInput("Image_IDs").getValue()}
 
         # process the list of args above. 

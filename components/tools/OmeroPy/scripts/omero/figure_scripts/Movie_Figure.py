@@ -43,9 +43,6 @@ import omero.util.figureUtil as figUtil
 import omero.util.script_utils as scriptUtil
 import omero
 from omero.rtypes import *
-import omero.gateway
-import omero_api_Gateway_ice    # see http://tinyurl.com/icebuserror
-# import util.figureUtil as figUtil    # need to comment out for upload to work. But need import for script to work!!
 import getopt, sys, os, subprocess
 import StringIO
 from omero_sys_ParametersI import ParametersI
@@ -126,7 +123,7 @@ def getImageFrames(session, pixelIds, tIndexes, zStart, zEnd, width, height, spa
     
     # create a rendering engine
     re = session.createRenderingEngine()
-    gateway = session.createGateway()
+    queryService = session.getQueryService()
     
     rowPanels = []
     totalHeight = 0
@@ -137,7 +134,7 @@ def getImageFrames(session, pixelIds, tIndexes, zStart, zEnd, width, height, spa
     for row, pixelsId in enumerate(pixelIds):
         log("Rendering row %d" % (row))
         
-        pixels = gateway.getPixels(pixelsId)
+        pixels = queryService.get("Pixels", pixelsId)
         sizeX = pixels.getSizeX().getValue()
         sizeY = pixels.getSizeY().getValue()
         sizeZ = pixels.getSizeZ().getValue()
@@ -165,7 +162,10 @@ def getImageFrames(session, pixelIds, tIndexes, zStart, zEnd, width, height, spa
         
         # set up rendering engine with the pixels
         re.lookupPixels(pixelsId)
-        re.lookupRenderingDef(pixelsId)
+        if not re.lookupRenderingDef(pixelsId):
+            re.resetDefaults()
+        if not re.lookupRenderingDef(pixelsId):
+            raise "Failed to lookup Rendering Def"
         re.load()
         
         proStart = zStart
@@ -348,6 +348,7 @@ def movieFigure(session, commandArgs):
     queryService = session.getQueryService()
     updateService = session.getUpdateService()
     rawFileStore = session.createRawFileStore()
+    containerService = session.getContainerService()
     
     log("Movie figure created by OMERO on %s" % date.today())
     log("")
@@ -369,7 +370,6 @@ def movieFigure(session, commandArgs):
     imageIds = []
     imageLabels = []
     imageNames = {}
-    gateway = session.createGateway()
     omeroImage = None    # this is set as the first image, to link figure to
 
     # function for getting image labels.
@@ -393,7 +393,7 @@ def movieFigure(session, commandArgs):
     if "Image_IDs" in commandArgs:
         for idCount, imageId in enumerate(commandArgs["Image_IDs"]):
             iId = long(imageId.getValue())
-            image = gateway.getImage(iId)
+            image = containerService.getImages("Image", [iId], None)[0]
             if image == None:
                 print "Image not found for ID:", iId
                 continue
@@ -427,7 +427,7 @@ def movieFigure(session, commandArgs):
     
     # use the first image to define dimensions, channel colours etc. 
     pixelsId = pixelIds[0]
-    pixels = gateway.getPixels(pixelsId)
+    pixels = queryService.get("Pixels", pixelsId)
                 
     sizeX = pixels.getSizeX().getValue()
     sizeY = pixels.getSizeY().getValue()
@@ -571,7 +571,6 @@ def runAsScript():
     
     try:
         session = client.getSession();
-        gateway = session.createGateway();
         commandArgs = {}
     
         for key in client.getInputKeys():

@@ -41,8 +41,6 @@ import omero.util.imageUtil as imgUtil
 import omero.util.script_utils as scriptUtil
 import omero
 from omero.rtypes import *
-import omero.gateway
-import omero_api_Gateway_ice    # see http://tinyurl.com/icebuserror
 #import omero.util.figureUtil as figUtil    # need to comment out for upload to work. But need import for script to work!!
 import getopt, sys, os, subprocess
 import StringIO
@@ -132,7 +130,7 @@ def getSplitView(session, pixelIds, zStart, zEnd, splitIndexes, channelNames, co
     
     # create a rendering engine
     re = session.createRenderingEngine()
-    gateway = session.createGateway()
+    queryService = session.getQueryService()
     
     rowPanels = []
     totalHeight = 0
@@ -153,7 +151,7 @@ def getSplitView(session, pixelIds, zStart, zEnd, splitIndexes, channelNames, co
     for row, pixelsId in enumerate(pixelIds):
         log("Rendering row %d" % (row+1))
         
-        pixels = gateway.getPixels(pixelsId)
+        pixels = queryService.get("Pixels", pixelsId)
         sizeX = pixels.getSizeX().getValue()
         sizeY = pixels.getSizeY().getValue()
         sizeZ = pixels.getSizeZ().getValue()
@@ -180,7 +178,10 @@ def getSplitView(session, pixelIds, zStart, zEnd, splitIndexes, channelNames, co
         
         # set up rendering engine with the pixels
         re.lookupPixels(pixelsId)
-        re.lookupRenderingDef(pixelsId)
+        if not re.lookupRenderingDef(pixelsId):
+            re.resetDefaults()
+        if not re.lookupRenderingDef(pixelsId):
+            raise "Failed to lookup Rendering Def"
         re.load()
         
         proStart = zStart
@@ -457,6 +458,7 @@ def splitViewFigure(session, commandArgs):
     queryService = session.getQueryService()
     updateService = session.getUpdateService()
     rawFileStore = session.createRawFileStore()
+    containerService = session.getContainerService()
     
     log("Split-View figure created by OMERO on %s" % date.today())
     log("")
@@ -465,7 +467,6 @@ def splitViewFigure(session, commandArgs):
     imageIds = []
     imageLabels = []
     imageNames = {}
-    gateway = session.createGateway()
     omeroImage = None    # this is set as the first image, to link figure to
 
     # function for getting image labels.
@@ -489,7 +490,7 @@ def splitViewFigure(session, commandArgs):
     if "Image_IDs" in commandArgs:
         for idCount, imageId in enumerate(commandArgs["Image_IDs"]):
             iId = long(imageId.getValue())
-            image = gateway.getImage(iId)
+            image = containerService.getImages("Image", [iId], None)[0]
             if image == None:
                 print "Image not found for ID:", iId
                 continue
@@ -523,7 +524,7 @@ def splitViewFigure(session, commandArgs):
     
     # use the first image to define dimensions, channel colours etc. 
     pixelsId = pixelIds[0]
-    pixels = gateway.getPixels(pixelsId)
+    pixels = queryService.get("Pixels", pixelsId)
 
     sizeX = pixels.getSizeX().getValue();
     sizeY = pixels.getSizeY().getValue();
@@ -708,8 +709,7 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#Split-viewFigure"
     ) 
     
     try:
-        session = client.getSession();
-        gateway = session.createGateway();
+        session = client.getSession()
         commandArgs = {}
     
         # process the list of args above. 

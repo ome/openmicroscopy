@@ -39,8 +39,6 @@ back to the server as a FileAnnotation attached to the parent dataset or project
 import omero.scripts as scripts
 import omero.util.script_utils as scriptUtil
 from omero.rtypes import *
-import omero.gateway
-import omero_api_Gateway_ice    # see http://tinyurl.com/icebuserror
 import omero.util.imageUtil as imgUtil
 from datetime import date
 
@@ -80,7 +78,6 @@ def paintDatasetCanvas(session, images, title, tagIds=None, showUntagged = False
     figCanvas = None
     spacing = length/40 + 2
     
-    gateway = session.createGateway()        # requires import omero_api_Gateway_ice
     thumbnailStore = session.createThumbnailStore()        # returns  omero.api.ThumbnailStorePrx
     metadataService = session.getMetadataService()
     
@@ -210,9 +207,9 @@ def makeThumbnailFigure(client, session, commandArgs):
         
     log("Thumbnail figure created by OMERO")
     log("")
-    
-    gateway = session.createGateway()
 
+    queryService = session.getQueryService()
+    containerService = session.getContainerService()
     parent = None        # figure will be attached to this object 
 
     imageIds = []
@@ -226,11 +223,13 @@ def makeThumbnailFigure(client, session, commandArgs):
         if "Parent_ID" in commandArgs and len(imageIds) > 1:
             pId = commandArgs["Parent_ID"]
             if pId >0:
-                parent = gateway.getDataset(pId, False)
-                if parent:
+                try:
+                    parent = queryService.get("Dataset", pId)
                     log("Figure will be linked to Dataset: %s" % parent.getName().getValue())
+                except:
+                    log("Dataset ID: %s not found for linking figure to" % pId)
         if parent == None:
-            parent = gateway.getImage(imageIds[0])
+            parent = queryService.get("Image", imageIds[0])
             if parent:
                 log("Figure will be linked to Image: %s" % parent.getName().getValue())
                 
@@ -244,14 +243,19 @@ def makeThumbnailFigure(client, session, commandArgs):
         if "Parent_ID" in commandArgs and len(datasetIds) > 1:
             pId = commandArgs["Parent_ID"]
             if pId >0:
-                pros = gateway.getProjects([pId], False)
-                if len(pros) > 0:
-                    parent = pros[0]
+                try:
+                    parent = queryService.get("Project", pId)
                     log("Figure will be linked to Project: %s" % parent.getName().getValue())
+                except:
+                    log("Project ID: %s not found for linking figure to" % pId)
+                    
         if parent == None:
-            parent = gateway.getDataset(datasetIds[0], False)
-            if parent:
+            try:    # will throw if ID is not valid
+                parent = queryService.get("Dataset", datasetIds[0])
                 log("Figure will be linked to Dataset: %s" % parent.getName().getValue())
+            except:
+                log("Dataset ID: %s not found" % datasetIds[0])
+                pass
     
     if len(imageIds) == 0 and len(datasetIds) == 0:
         print "No image IDs or dataset IDs found"       
@@ -284,12 +288,13 @@ def makeThumbnailFigure(client, session, commandArgs):
     
 
     for datasetId in datasetIds:
-        dataset = gateway.getDataset(datasetId, False)
-        if dataset == None: 
-            print "No dataset found for ID: %s" % datasetId
+        try:    # will throw if Dataset ID not found
+            dataset = queryService.get("Dataset", datasetId)
+        except:
+            log("No dataset found for ID: %s" % datasetId)
             continue
         datasetName = dataset.getName().getValue()
-        images = gateway.getImages(omero.api.ContainerClass.Dataset, [datasetId])
+        images = containerService.getImages("Dataset", [datasetId], None)
         log("Dataset: %s     ID: %d     Images: %d" % (datasetName, datasetId, len(images)))
         dsCanvas = paintDatasetCanvas(session, images, datasetName, tagIds, showUntagged, length=thumbSize, colCount=maxColumns)
         if dsCanvas == None:
@@ -300,8 +305,7 @@ def makeThumbnailFigure(client, session, commandArgs):
         
     if len(datasetIds) == 0:
         images = []
-        for imageId in imageIds:
-            images.append(gateway.getImage(imageId))
+        images = containerService.getImages("Image", imageIds, None)
         imageCanvas = paintDatasetCanvas(session, images, "", tagIds, showUntagged, length=thumbSize, colCount=maxColumns)
         dsCanvases.append(imageCanvas)
         figHeight += imageCanvas.size[1]
