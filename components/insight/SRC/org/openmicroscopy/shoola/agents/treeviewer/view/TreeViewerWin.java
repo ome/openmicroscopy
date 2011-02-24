@@ -65,6 +65,7 @@ import org.openmicroscopy.shoola.env.ui.ActivityComponent;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.JXTaskPaneContainerSingle;
+import org.openmicroscopy.shoola.util.ui.ScrollablePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 
@@ -548,14 +549,20 @@ class TreeViewerWin
     /** Adds the metadata editor. */
     void initializeDisplay()
     {
-    	rightComponent = model.getMetadataViewer().getEditorUI();
-    	/*
-    	if (rightPane.getRightComponent() == null)
-    		rightPane.setRightComponent(
-    				model.getMetadataViewer().getEditorUI());
-    				*/
-    	if (metadataVisible && rightComponent != null)
-    		rightPane.setRightComponent(rightComponent);
+    	if (rightComponent == null) {
+			rightComponent = new JScrollPane(
+					model.getMetadataViewer().getEditorUI());
+    	}
+    	if (metadataVisible) {
+    		Component[] components = rightPane.getComponents();
+    		boolean b = false;
+    		for (int i = 0; i < components.length; i++) {
+				if (components[i] == rightComponent) {
+					b = true;
+				}
+			}
+    		if (!b) rightPane.setRightComponent(rightComponent);
+    	}
     }
     
     /**
@@ -952,8 +959,11 @@ class TreeViewerWin
     /** Shows or hides the Tree Viewer. */
 	void setMetadataVisibility()
 	{
-		if (rightComponent == null)
-			rightComponent = model.getMetadataViewer().getEditorUI();
+		if (rightComponent == null) {
+			rightComponent = new JScrollPane(
+					model.getMetadataViewer().getEditorUI());
+    	}
+			
 		if (metadataVisible) {
 			Component[] components = rightPane.getComponents();
 			if (components != null && components.length > 0) {
@@ -969,7 +979,9 @@ class TreeViewerWin
 		} else {
 			if (rightComponent != null) {
 				rightPane.add(rightComponent);
-				rightPane.setResizeWeight(WEIGHT);
+				if (dividerRightLocation > 0) 
+					rightPane.setDividerLocation(dividerRightLocation);
+				else rightPane.setResizeWeight(WEIGHT);
 			}
 		}
 		metadataVisible = !metadataVisible;
