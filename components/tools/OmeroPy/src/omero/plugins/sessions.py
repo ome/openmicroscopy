@@ -221,9 +221,11 @@ class SessionsControl(BaseControl):
         #
         if args.key:
             stored_name = store.find_name_by_key(server, args.key)
-            if stored_name:
-                rv = self.check_and_attach(store, server, stored_name, args.key, props)
-                action = "Joined"
+            if not stored_name:
+                self.ctx.dbg("No name found for %s." % args.key)
+                stored_name = args.key
+            rv = self.check_and_attach(store, server, stored_name, args.key, props)
+            action = "Joined"
             if not rv:
                 self.ctx.die(523, "Bad session key")
         elif not create:
@@ -265,17 +267,25 @@ class SessionsControl(BaseControl):
         and if there are none, then attempts an "attach()". If
         that fails, the session is removed.
         """
+
+        exists = store.exists(server, name, uuid)
+
+        if exists:
+            conflicts = store.conflicts(server, name, uuid, props)
+            if conflicts:
+                self.ctx.dbg("Skipping %s due to conflicts: %s" % (uuid, conflicts))
+                return None
+
         rv = None
-        conflicts = store.conflicts(server, name, uuid, props)
-        if conflicts:
-            self.ctx.dbg("Skipping %s due to conflicts: %s" % (uuid, conflicts))
-        else:
-            try:
+        try:
+            if exists:
                 rv = store.attach(server, name, uuid)
-                store.set_current(server, name, uuid)
-            except:
-                self.ctx.dbg("Removing %s" % uuid)
-                store.clear(server, name, uuid)
+            else:
+                rv = store.create(server, name, uuid)
+            store.set_current(server, name, uuid)
+        except exceptions.Exception, e:
+            self.ctx.dbg("Removing %s: %s" % (uuid, e))
+            store.clear(server, name, uuid)
         return rv
 
     def handle(self, rv, action):

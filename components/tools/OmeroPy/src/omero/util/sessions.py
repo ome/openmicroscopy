@@ -115,6 +115,17 @@ class SessionsStore(object):
         """
         (self.dir / host / name / uuid).remove()
 
+    def exists(self, host, name, uuid):
+        """
+        Checks if the given file exists.
+        """
+        d = self.dir
+        for x in (host, name, uuid):
+            d = d / x
+            if not d.exists():
+                return False
+        return True
+
     def get(self, host, name, uuid):
         """
         Returns the properties stored in the given session file

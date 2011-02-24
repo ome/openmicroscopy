@@ -342,5 +342,21 @@ class TestSessions(unittest.TestCase):
 
         del cli
 
+    def testCopiedSessionWorks(self):
+        """
+        Found by Colin while using a session key from
+        a non-CLI-source.
+        """
+        cli = MyCLI()
+
+        MOCKKEY = "MOCKKEY"
+
+        key_login = "-s testuser@testhost -k %s s login" % MOCKKEY
+
+        # Try with session when it's still available
+        cli.creates_client(sess=MOCKKEY, new=True)
+        cli.invoke(key_login)
+        cli._client = None # Forcing new instance
+
 if __name__ == '__main__':
     unittest.main()
