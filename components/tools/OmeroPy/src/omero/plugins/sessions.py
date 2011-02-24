@@ -281,7 +281,7 @@ class SessionsControl(BaseControl):
             if exists:
                 rv = store.attach(server, name, uuid)
             else:
-                rv = store.create(server, name, uuid)
+                rv = store.create(server, name, props)
             store.set_current(server, name, uuid)
         except exceptions.Exception, e:
             self.ctx.dbg("Removing %s: %s" % (uuid, e))
