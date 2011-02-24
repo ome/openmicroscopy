@@ -5133,6 +5133,16 @@ class OMEROGateway
 		return null;
 	}
 	
+	/**
+	 * Returns the plate where the specified image has been imported.
+	 * 
+	 * @param imageID The identifier of the image.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
 	PlateData getImportedPlate(long imageID)
 		throws DSOutOfServiceException, DSAccessException
 	{
@@ -6205,6 +6215,21 @@ class OMEROGateway
 			List<Long> ids;
 			if (parameters.getNodeType() != null) {
 				//TMP solution
+				List<Long> objects = new ArrayList<Long>(1);
+				objects.add(parameters.getNodeID());
+				Map map = loadAnnotations(PlateData.class, objects, null, null, 
+						new Parameters());
+				Collection list = (Collection) map.get(parameters.getNodeID());
+				Iterator j = list.iterator();
+				FileAnnotationData fa;
+				ids = new ArrayList<Long>();
+				while (j.hasNext()) {
+					fa = (FileAnnotationData) j.next();
+					if (FileAnnotationData.BULK_ANNOTATIONS_NS.equals(
+							fa.getNameSpace()))
+						ids.add(fa.getFileID());
+				}
+				/*
 				List<String> toInclude = new ArrayList<String>();
 				toInclude.add(FileAnnotationData.BULK_ANNOTATIONS_NS);
 				Set set = loadSpecificAnnotation(FileAnnotationData.class, 
@@ -6217,6 +6242,7 @@ class OMEROGateway
 					fa = (FileAnnotationData) j.next();
 					ids.add(fa.getFileID());
 				}
+				*/
 			} else ids = parameters.getOriginalFileIDs();
 			if (ids != null) {
 				Iterator<Long> i = ids.iterator();
