@@ -163,7 +163,7 @@ class ITest(unittest.TestCase):
         return pix_ids
     
     
-    def createTestImage(self, sizeX = 256, sizeY = 256, sizeZ = 5, sizeC = 3, sizeT = 1):
+    def createTestImage(self, sizeX = 16, sizeY = 16, sizeZ = 1, sizeC = 1, sizeT = 1):
         """
         Creates a test image of the required dimensions, where each pixel value is set 
         to the value of x+y. 
@@ -174,11 +174,11 @@ class ITest(unittest.TestCase):
         import random
         
         session = self.root.sf
-        gateway = session.createGateway()
         renderingEngine = session.createRenderingEngine()
         queryService = session.getQueryService()
         pixelsService = session.getPixelsService()
         rawPixelStore = session.createRawPixelsStore()
+        containerService = session.getContainerService()
 
         def f1(x,y):
             return y
@@ -194,13 +194,14 @@ class ITest(unittest.TestCase):
             pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % "float", None) # omero::model::PixelsType
         if pixelsType == None:
             print "Unknown pixels type for: " % pType
-            return
+            raise "Unknown pixels type for: " % pType
 
         # code below here is very similar to combineImages.py
         # create an image in OMERO and populate the planes with numpy 2D arrays
         channelList = range(sizeC)
         iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, "testImage", "description")
-        image = gateway.getImage(iId.getValue())
+        imageId = iId.getValue()
+        image = containerService.getImages("Image", [imageId], None)[0]
 
         pixelsId = image.getPrimaryPixels().getId().getValue()
         rawPixelStore.setPixelsId(pixelsId, True)
@@ -214,7 +215,6 @@ class ITest(unittest.TestCase):
             for theZ in range(sizeZ):
                 for theT in range(sizeT):
                     plane2D = fromfunction(f,(sizeY,sizeX),dtype=int16)
-                    print plane2D
                     script_utils.uploadPlane(rawPixelStore, plane2D, theZ, theC, theT)
                     minValue = min(minValue, plane2D.min())
                     maxValue = max(maxValue, plane2D.max())
@@ -224,6 +224,9 @@ class ITest(unittest.TestCase):
                 rgba = colourMap[theC]
             script_utils.resetRenderingSettings(renderingEngine, pixelsId, theC, minValue, maxValue, rgba)
 
+        renderingEngine.close()
+        rawPixelStore.close()
+        
         return image
 
     def index(self, *objs):

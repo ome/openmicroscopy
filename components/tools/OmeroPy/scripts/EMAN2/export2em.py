@@ -91,8 +91,11 @@ def run(commandArgs):
         return 
     
     # get the most recent (highest ID) original file with the correct script name
-    scriptName = "/EMAN2/Save_Image_As_Em.py"
-    scriptId = scriptService.getScriptID(scriptName)
+    scriptName = "Save_Image_As_Em.py"
+    scriptId = -1
+    for s in scriptService.getScripts():
+        if s.getName().getValue() == scriptName:
+            scriptId = max(scriptId, s.getId().getValue())
     
     print "Running script %s with ID: %s" % (scriptName, scriptId)
     

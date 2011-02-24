@@ -35,7 +35,6 @@ the regions within the ROIs, and saves them back to the server.
 
 import omero
 import omero.scripts as scripts
-import omero_api_Gateway_ice
 import omero_api_IRoi_ice
 from omero.rtypes import *
 import omero.util.script_utils as scriptUtil
@@ -112,10 +111,9 @@ def makeImagesFromRois(session, parameterMap):
     print "Processing Image IDs: ", imageIds
     
     queryService = session.getQueryService()
-    pixelsService = session.getPixelsService()
     rawPixelStore = session.createRawPixelsStore()
-    gateway = session.createGateway()
-    re = session.createRenderingEngine()
+    updateService = session.getUpdateService()
+    containerService = session.getContainerService()
     
     # get the project and dataset from the first image, to use as containers for new Images / Datasets
     imageId = imageIds[0]
@@ -126,10 +124,10 @@ def makeImagesFromRois(session, parameterMap):
     if image:
         print "Ancestors of first Image (used for new Images/Datsets):"
         for link in image.iterateDatasetLinks():
-            ds = link.parent
-            dataset = gateway.getDataset(ds.id.val, True)
+            dataset = link.parent
+            # dataset = queryService.get("Dataset", ds.id.val)
             print "  Dataset: ", dataset.name.val
-            for dpLink in ds.iterateProjectLinks():
+            for dpLink in dataset.iterateProjectLinks():
                 project = dpLink.parent
                 print "  Project: ", project.name.val
                 break # only use 1st Project
@@ -145,13 +143,13 @@ def makeImagesFromRois(session, parameterMap):
     newIds = []
     for imageId in imageIds:
     
-        image = gateway.getImage(imageId)
+        image = containerService.getImages("Image", [imageId], None)[0]
         if image == None:
             print "Image ID: %s not found." % imageId
             continue
         imageName = image.getName().getValue()
     
-        pixels = gateway.getPixelsFromImage(imageId)[0]
+        pixels = image.getPrimaryPixels()
         # note pixel sizes (if available) to set for the new images
         physicalSizeX = pixels.getPhysicalSizeX() and pixels.getPhysicalSizeX().getValue() or None
         physicalSizeY = pixels.getPhysicalSizeY() and pixels.getPhysicalSizeY().getValue() or None
@@ -161,9 +159,6 @@ def makeImagesFromRois(session, parameterMap):
     
         # get ROI Rectangles, as (x, y, width, height)
         rects = getRectangles(session, imageId)
-    
-        pType = plane2D.dtype.name
-        pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
         
         newDataset = None    # only created if not putting images in stack
         
@@ -184,14 +179,14 @@ def makeImagesFromRois(session, parameterMap):
         
             description = "Image from ROIS on parent Image:\n  Name: %s\n  Image ID: %d" % (imageName, imageId)
             print description
-            image = scriptUtil.createNewImage(pixelsService, rawPixelStore, re, pixelsType, gateway, plane2Dlist, newImageName, description, dataset)
+            image = scriptUtil.createNewImage(session, plane2Dlist, newImageName, description, dataset)
         
             pixels = image.getPrimaryPixels()
             if physicalSizeX:
                 pixels.setPhysicalSizeX(rdouble(physicalSizeX))
             if physicalSizeY:
                 pixels.setPhysicalSizeY(rdouble(physicalSizeY))
-            gateway.saveObject(pixels)
+            updateService.saveObject(pixels)
             
             newIds.append(image.getId().getValue())
     
@@ -204,12 +199,12 @@ def makeImagesFromRois(session, parameterMap):
             dataset = omero.model.DatasetI()
             dataset.name = rstring(datasetName)
             desc = "Images in this Dataset are from ROIs of parent Image:\n  Name: %s\n  Image ID: %d" % (imageName, imageId)
-            dataset = gateway.saveAndReturnObject(dataset)
+            dataset = updateService.saveAndReturnObject(dataset)
             if project:        # and put it in the current project
                 link = omero.model.ProjectDatasetLinkI()
                 link.parent = omero.model.ProjectI(project.id.val, False)
                 link.child = omero.model.DatasetI(dataset.id.val, False)
-                gateway.saveAndReturnObject(link)
+                updateService.saveAndReturnObject(link)
     
             for r in rects:
                 x,y,w,h = r
@@ -219,12 +214,12 @@ def makeImagesFromRois(session, parameterMap):
                 array = plane2D[y:y2, x:x2]     # slice the ROI rectangle data out of the whole image-plane 2D array
             
                 description = "Created from image:\n  Name: %s\n  Image ID: %d \n x: %d y: %d" % (imageName, imageId, x, y)
-                image = scriptUtil.createNewImage(pixelsService, rawPixelStore, re, pixelsType, gateway, [array], "from_roi", description, dataset)
+                image = scriptUtil.createNewImage(session, [array], "from_roi", description, dataset)
             
                 pixels = image.getPrimaryPixels()
                 pixels.setPhysicalSizeX(rdouble(physicalSizeX))
                 pixels.setPhysicalSizeY(rdouble(physicalSizeY))
-                gateway.saveObject(pixels)
+                updateService.saveObject(pixels)
             
             newIds.append(dataset.getId().getValue())
             newDataset = dataset

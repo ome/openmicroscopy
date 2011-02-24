@@ -84,7 +84,7 @@ class TestFigureExportScripts(lib.ITest):
         # put some images in dataset
         imageIds = []
         for i in range(50):
-            imageId = createTestImage(services, 100, 100, 1, 1, 1)  # x,y,z,c,t
+            imageId = self.createTestImage(100, 100, 1, 1, 1).getId().getValue()  # x,y,z,c,t
             imageIds.append(omero.rtypes.rlong(imageId))
             dlink = omero.model.DatasetImageLinkI()
             dlink.parent = omero.model.DatasetI(dataset.id.val, False)
@@ -165,7 +165,7 @@ class TestFigureExportScripts(lib.ITest):
         # put some images in dataset
         imageIds = []
         for i in range(5):
-            imageId = createTestImage(services, 256,200,5,4,1)    # x,y,z,c,t
+            imageId = self.createTestImage(256,200,5,4,1).getId().getValue()    # x,y,z,c,t
             imageIds.append(omero.rtypes.rlong(imageId))
             dlink = omero.model.DatasetImageLinkI()
             dlink.parent = omero.model.DatasetI(dataset.id.val, False)
@@ -257,7 +257,7 @@ class TestFigureExportScripts(lib.ITest):
         # put some images in dataset
         imageIds = []
         for i in range(5):
-            imageId = createTestImage(services, 256,256,10,3,1)    # x,y,z,c,t
+            imageId = self.createTestImage(256,256,10,3,1).getId().getValue()    # x,y,z,c,t
             imageIds.append(omero.rtypes.rlong(imageId))
             dlink = omero.model.DatasetImageLinkI()
             dlink.parent = omero.model.DatasetI(dataset.id.val, False)
@@ -348,7 +348,7 @@ class TestFigureExportScripts(lib.ITest):
         # put some images in dataset
         imageIds = []
         for i in range(5):
-            imageId = createTestImage(services, 256,256,5,3,20)    # x,y,z,c,t
+            imageId = self.createTestImage(256,256,5,3,20).getId().getValue()    # x,y,z,c,t
             imageIds.append(omero.rtypes.rlong(imageId))
             dlink = omero.model.DatasetImageLinkI()
             dlink.parent = omero.model.DatasetI(dataset.id.val, False)
@@ -492,53 +492,7 @@ def addRectangleRoi(updateService, x, y, width, height, imageId):
     rect.setRoi(r)
     r.addShape(rect)    
     updateService.saveAndReturnObject(rect)
-        
-def createTestImage(services, sizeX = 256, sizeY = 256, sizeZ = 5, sizeC = 3, sizeT = 1):
     
-    renderingEngine = services["renderingEngine"]
-    queryService = services["queryService"]
-    pixelsService = services["pixelsService"]
-    rawPixelStore = services["rawPixelStore"]
-    containerService = services["containerService"]
-    
-    def f(x,y):
-        return x+y
-    
-    pType = "int16"
-    # look up the PixelsType object from DB
-    pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
-    if pixelsType == None and pType.startswith("float"):    # e.g. float32
-        pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % "float", None) # omero::model::PixelsType
-    if pixelsType == None:
-        print "Unknown pixels type for: " % pType
-        return
-    
-    # code below here is very similar to combineImages.py
-    # create an image in OMERO and populate the planes with numpy 2D arrays
-    channelList = range(sizeC)
-    iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, "testImage", "description")
-    image = containerService.getImages("Image", [long(iId.getValue())], None)[0]
-    
-    pixelsId = image.getPrimaryPixels().getId().getValue()
-    rawPixelStore.setPixelsId(pixelsId, True)
-    
-    colourMap = {0: (0,0,255,255), 1:(0,255,0,255), 2:(255,0,0,255), 3:(255,0,255,255)}
-    for theC in range(sizeC):
-        minValue = 0
-        maxValue = 0
-        for theZ in range(sizeZ):
-            for theT in range(sizeT):
-                plane2D = fromfunction(f,(sizeX,sizeY),dtype=int16)
-                scriptUtil.uploadPlane(rawPixelStore, plane2D, theZ, theC, theT)
-                minValue = min(minValue, plane2D.min())
-                maxValue = max(maxValue, plane2D.max())
-        pixelsService.setChannelGlobalMinMax(pixelsId, theC, float(minValue), float(maxValue))
-        rgba = None
-        if theC in colourMap:
-            rgba = colourMap[theC]
-        #scriptUtil.resetRenderingSettings(renderingEngine, pixelsId, theC, minValue, maxValue, rgba)
-    
-    return image.getId().getValue()
 
 if __name__ == '__main__':
     unittest.main()

@@ -30,8 +30,11 @@ class TestGateway(lib.ITest):
         gateway.getProjects([0],False)
 
         try:
+            # query below does not find image if created with self.createTestImage() even though it 
+            # uses 'identical' code to createTestImage(self.client.sf), which uses script_utils 
+            #iid = self.createTestImage().getId().getValue() 
             iid = createTestImage(self.client.sf)
-            
+            print iid, type(iid)
             query = self.client.sf.getQueryService()
     
             params = omero.sys.Parameters()
@@ -40,8 +43,10 @@ class TestGateway(lib.ITest):
             params.theFilter = omero.sys.Filter()
             params.theFilter.offset = rint(0)
             params.theFilter.limit = rint(1)
-            pixel = query.findByQuery("select p from Pixels as p left outer join fetch p.image i where i.id=:oid", params)
+            pixel = query.findByQuery("select p from Pixels as p left outer join fetch p.image as i where i.id=:oid", params)
+            print pixel
             imgid = pixel.image.id.val
+            print imgid
             gateway.getRenderedImage(pixel.id.val, 0, 0)
         except omero.ValidationException, ve:
             print " testBasicUsage - createTestImage has failed. This fixture method needs to be fixed."

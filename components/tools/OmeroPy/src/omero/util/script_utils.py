@@ -992,23 +992,28 @@ def resetRenderingSettings(renderingEngine, pixelsId, cIndex, minValue, maxValue
     renderingEngine.saveCurrentSettings()
 
 
-def createNewImage(pixelsService, rawPixelStore, renderingEngine, pixelsType, gateway, plane2Dlist, imageName, description, dataset=None):
+def createNewImage(session, plane2Dlist, imageName, description, dataset=None):
     """
     Creates a new single-channel, single-timepoint image from the list of 2D numpy arrays in plane2Dlist 
     with each numpy 2D plane becoming a Z-section.
     
-    @param pixelsService        The OMERO pixelsService
-    @param rawPixelStore        The OMERO rawPixelsStore
-    @param renderingEngine        The OMERO renderingEngine
-    @param pixelsType            The pixelsType object     omero::model::PixelsType
-    @param gateway                The OMERO gateway service
-    @param plane2Dlist            A list of numpy 2D arrays, corresponding to Z-planes of new image. 
-    @param imageName            Name of new image
-    @param description            Description for the new image
-    @param dataset                If specified, put the image in this dataset. omero.model.Dataset object
+    @param session          An OMERO service factory or equivalent with getQueryService() etc. 
+    @param plane2Dlist      A list of numpy 2D arrays, corresponding to Z-planes of new image. 
+    @param imageName        Name of new image
+    @param description      Description for the new image
+    @param dataset          If specified, put the image in this dataset. omero.model.Dataset object
     
     @return The new OMERO image: omero.model.ImageI 
     """
+    queryService = session.getQueryService()
+    pixelsService = session.getPixelsService()
+    rawPixelStore = session.createRawPixelsStore()
+    renderingEngine = session.createRenderingEngine()
+    containerService = session.getContainerService()
+    
+    pType = plane2Dlist[0].dtype.name
+    pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
+    
     theC, theT = (0,0)
     
     # all planes in plane2Dlist should be same shape.
@@ -1022,7 +1027,7 @@ def createNewImage(pixelsService, rawPixelStore, renderingEngine, pixelsType, ga
     sizeZ, sizeT = (len(plane2Dlist),1)
     iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, imageName, description)
     imageId = iId.getValue()
-    image = gateway.getImage(imageId)
+    image = containerService.getImages("Image", [imageId], None)[0]
     
     # upload plane data
     pixelsId = image.getPrimaryPixels().getId().getValue()
@@ -1042,8 +1047,10 @@ def createNewImage(pixelsService, rawPixelStore, renderingEngine, pixelsType, ga
         link = omero.model.DatasetImageLinkI()
         link.parent = omero.model.DatasetI(dataset.id.val, False)
         link.child = omero.model.ImageI(image.id.val, False)
-        gateway.saveAndReturnObject(link)
+        session.getUpdateService().saveObject(link)
         
+    renderingEngine.close()
+    rawPixelStore.close()
     return image
 
 

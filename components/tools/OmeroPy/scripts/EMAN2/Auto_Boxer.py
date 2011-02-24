@@ -453,7 +453,7 @@ See http://trac.openmicroscopy.org.uk/omero/wiki/EmPreviewFunctionality""",
 
         imgCount = doAutoBoxing(session, parameterMap)
         image = imgCount==1 and "image" or "images"
-        client.setOutput("Message", rstring("Auto-Boxing added boxes to %s %s" (imgCount, image)))
+        client.setOutput("Message", rstring("Auto-Boxing added boxes to %s %s" % (imgCount, image)))
     finally:
         client.closeSession()
 

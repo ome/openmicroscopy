@@ -112,7 +112,7 @@ import omero.util.script_utils as scriptUtil
 #from omero.util.script_utils import *
     
 
-def uploadImageToDataset(services, pixelsType, localImage, dataset=None, description="", imageName=None):
+def uploadImageToDataset(session, services, pixelsType, localImage, dataset=None, description="", imageName=None):
     
     """
     Uploads a local Spider image to an OMERO dataset. Same function exists in spider2omero.py.
@@ -140,7 +140,7 @@ def uploadImageToDataset(services, pixelsType, localImage, dataset=None, descrip
     plane2D = spider2array(localImage)
     plane2Dlist = [plane2D]        # single plane image
     
-    image = scriptUtil.createNewImage(pixelsService, rawPixelStore, renderingEngine, pixelsType, gateway, plane2Dlist, imageName, description, dataset)
+    image = scriptUtil.createNewImage(session, plane2Dlist, imageName, description, dataset)
     
     # header is a list of values corresponding to attributes 
     header = getSpiderHeader(localImage)
@@ -347,7 +347,7 @@ def runSpf(session, parameterMap):
         name = None
         if imageId in imageNames:   name = imageNames[imageId]
         description = "Created from Image ID: %s with the Spider Procedure\n%s" % (imageId, spfText)
-        image = uploadImageToDataset(services, pixelsType, outputImage, dataset, description, name)
+        image = uploadImageToDataset(session, services, pixelsType, outputImage, dataset, description, name)
         newImages.append(image)
         # attach Spf to new image (not so important, since we add the text to image description)
         # This creates a new FileAnnotationI for each image. Really want a singe FA linked to all images. 

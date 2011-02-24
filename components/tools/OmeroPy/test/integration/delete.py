@@ -242,7 +242,6 @@ class TestDelete(lib.ITest):
         update = self.client.sf.getUpdateService()
         store = self.client.sf.createRawFileStore()
         
-        from integration.helpers import createTestImage
         
         def _formatReport(delete_handle):
             """
@@ -259,8 +258,8 @@ class TestDelete(lib.ITest):
             
         images = list()
         for i in range(0,10):
-            iid = createTestImage(self.client.sf)
-            img = query.find('Image', iid)
+            img = self.createTestImage()
+            iid = img.getId().getValue()
             
             oFile = omero.model.OriginalFileI()
             oFile.setName(omero.rtypes.rstring('companion_file.txt'));

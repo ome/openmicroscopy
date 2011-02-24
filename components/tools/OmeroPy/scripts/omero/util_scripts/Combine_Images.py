@@ -40,7 +40,6 @@ import omero
 import omero.scripts as scripts
 import omero.constants
 from omero.rtypes import *
-import omero_api_Gateway_ice    # see http://tinyurl.com/icebuserror
 import omero.util.script_utils as scriptUtil
 
 COLOURS = scriptUtil.COLOURS
@@ -254,7 +253,6 @@ def makeSingleImage(services, parameterMap, imageIds, dataset, colourMap):
     if len(imageIds) == 0:
         return
         
-    gateway = services["gateway"]
     renderingEngine = services["renderingEngine"]
     queryService = services["queryService"]
     pixelsService = services["pixelsService"]
@@ -262,6 +260,7 @@ def makeSingleImage(services, parameterMap, imageIds, dataset, colourMap):
     rawPixelStoreUpload = services["rawPixelStoreUpload"]
     updateService = services["updateService"]
     rawFileStore = services["rawFileStore"]
+    containerService = services["containerService"]
     
     print "imageIds", len(imageIds)
     idNameMap = None
@@ -311,7 +310,7 @@ def makeSingleImage(services, parameterMap, imageIds, dataset, colourMap):
     
     channelList = range(sizeC)
     iId = pixelsService.createImage(sizeX, sizeY, sizeZ, sizeT, channelList, pixelsType, imageName, description)
-    image = gateway.getImage(iId.getValue())
+    image = containerService.getImages("Image", [iId.getValue()], None)[0]
     
     pixelsId = image.getPrimaryPixels().getId().getValue()
     rawPixelStoreUpload.setPixelsId(pixelsId, True)
@@ -344,13 +343,13 @@ def makeSingleImage(services, parameterMap, imageIds, dataset, colourMap):
         scriptUtil.resetRenderingSettings(renderingEngine, pixelsId, theC, minValue, maxValue, rgba)
     
     # rename new channels
-    pixels = gateway.getPixels(pixelsId)
+    pixels = renderingEngine.getPixels()    # has channels loaded - (getting Pixels from image doesn't)
     i = 0
     for c in pixels.iterateChannels():        # c is an instance of omero.model.ChannelI
         if i >= len(cNames): break
         lc = c.getLogicalChannel()            # returns omero.model.LogicalChannelI
         lc.setName(rstring(cNames[i]))
-        gateway.saveObject(lc)
+        updateService.saveObject(lc)
         i += 1
             
     # put the image in dataset, if specified. 
@@ -358,7 +357,7 @@ def makeSingleImage(services, parameterMap, imageIds, dataset, colourMap):
         link = omero.model.DatasetImageLinkI()
         link.parent = omero.model.DatasetI(dataset.id.val, False)
         link.child = omero.model.ImageI(image.id.val, False)
-        gateway.saveAndReturnObject(link)
+        updateService.saveAndReturnObject(link)
     
     return image
     
@@ -366,7 +365,7 @@ def combineImages(session, parameterMap):
     
     # get the services we need 
     services = {}
-    services["gateway"] = session.createGateway()
+    services["containerService"] = session.getContainerService()
     services["renderingEngine"] = session.createRenderingEngine()
     services["queryService"] = session.getQueryService()
     services["pixelsService"] = session.getPixelsService()
@@ -376,7 +375,7 @@ def combineImages(session, parameterMap):
     services["rawFileStore"] = session.createRawFileStore()
     
     queryService = services["queryService"]
-    gateway = services["gateway"]
+    containerService = services["containerService"]
     
     colourMap = {}
     if "Channel_Colours" in parameterMap:
@@ -400,7 +399,7 @@ def combineImages(session, parameterMap):
         if image:
             for link in image.iterateDatasetLinks():
                 ds = link.parent
-                dataset = gateway.getDataset(ds.id.val, True)
+                dataset = queryService.get("Dataset", ds.id.val)
                 print "Dataset", dataset.name.val
                 break    # only use 1st dataset
         else:
@@ -412,13 +411,13 @@ def combineImages(session, parameterMap):
             # TODO: This will only work on one dataset. Should process list! 
             datasetId = long(dId.getValue())
             
-            images = gateway.getImages(omero.api.ContainerClass.Dataset, [datasetId])
+            images = containerService.getImages("Dataset", [datasetId], None)
             if images == None or len(images) == 0:
                 print "No images found for Dataset ID: %s" % datasetId
                 continue
             images.sort(key=lambda x:(x.getName().getValue()))
             imageIds = [i.getId().getValue() for i in images]
-            dataset = gateway.getDataset(datasetId, False)
+            dataset = queryService.get("Dataset", datasetId)
             outputImage = makeSingleImage(services, parameterMap, imageIds, dataset, colourMap)
             
     # try and close any stateful services     
