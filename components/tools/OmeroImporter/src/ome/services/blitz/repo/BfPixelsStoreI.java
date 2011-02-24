@@ -16,6 +16,8 @@ import java.util.List;
 import loci.common.DataTools;
 import loci.formats.FormatException;
 import loci.formats.ImageReader;
+import ome.formats.importer.OMEROWrapper;
+import ome.formats.importer.ImportConfig;
 import omero.ServerError;
 import omero.api.AMD_RawPixelsStore_calculateMessageDigest;
 import omero.api.AMD_RawPixelsStore_getByteWidth;
@@ -67,6 +69,8 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
 
     private final ImageReader reader = new ImageReader();
 
+    //private final OMEROWrapper reader;
+
     private final String path;
     
     private final int sizeX;
@@ -96,6 +100,7 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
     
     public BfPixelsStoreI(String path) throws IOException, FormatException {
         this.path = path;
+        //reader = new OMEROWrapper(new ImportConfig());
         reader.setId(path);
         
         /* Get some data that is widely used elsewhere.

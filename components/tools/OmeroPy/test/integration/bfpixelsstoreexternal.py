@@ -50,7 +50,7 @@ class TestBfPixelsStore(lib.ITest):
     
     # Rather than have one import per test or do a better workaround
     # for now just lump all the tests together.
-    def testBMP(self):
+    def offtestBMP(self):
         self.setUpTestFile("test.bmp")
         self.allTests()
         self.tidyUp()
@@ -60,7 +60,7 @@ class TestBfPixelsStore(lib.ITest):
         self.allTests()
         self.tidyUp()
         
-    def testJPG(self):
+    def offtestJPG(self):
         self.setUpTestFile("test.jpg")
         self.allTests()
         self.tidyUp()
