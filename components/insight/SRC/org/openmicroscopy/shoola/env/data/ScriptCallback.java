@@ -154,13 +154,15 @@ public class ScriptCallback
 			}
 			if (adapter != null) adapter.handleResult(results);
 		} catch (Exception e) {
-		    if (adapter != null) adapter.handleResult(null);
+			finished = false;
 		}
 		
-		try {
-			close();
-		} catch (Exception e) {
-			//ignore the exception.
+		if (finished) {
+			try {
+				close();
+			} catch (Exception e) {
+				//ignore the exception.
+			}
 		}
 	}
 	

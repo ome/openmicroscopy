@@ -107,14 +107,16 @@ public class DeleteCallback
 			}
 			if (adapter != null) adapter.handleResult(this.reports);
 		} catch (Exception e) {
-		    if (adapter != null) adapter.handleResult(null);
+			finished = false;
+		    //if (adapter != null) adapter.handleResult(null);
 		}
 		
-		
-		try {
-			close();
-		} catch (Exception e) {
-			//ignore the exception.
+		if (finished) {
+			try {
+				close();
+			} catch (Exception e) {
+				//ignore the exception.
+			}
 		}
 	}
 	
