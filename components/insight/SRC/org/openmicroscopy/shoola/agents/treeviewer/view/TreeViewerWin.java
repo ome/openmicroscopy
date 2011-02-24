@@ -34,6 +34,8 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -86,7 +88,7 @@ class TreeViewerWin
 	static final String			JXTASKPANE_TYPE = "JXTaskPane";
 
 	/** Indicates how much to give to the Metadata View. */
-	private static final double WEIGHT = 0.7;
+	private static final double WEIGHT = 0.8;
 	
     /** The default title of the window. */
     private static final String TITLE = "Data Manager";
@@ -459,6 +461,17 @@ class TreeViewerWin
     	rightPane.setLeftComponent(workingPane);
     	rightPane.setRightComponent(null);
     	rightPane.setResizeWeight(WEIGHT);
+    	rightPane.addPropertyChangeListener(new PropertyChangeListener() {
+			
+			public void propertyChange(PropertyChangeEvent evt) {
+				if (JSplitPane.DIVIDER_LOCATION_PROPERTY.equals(
+						evt.getPropertyName())) {
+					if (metadataVisible)
+						dividerRightLocation = rightPane.getDividerLocation();
+				}
+				
+			}
+		});
     	splitPane = new JSplitPane();
         //splitPane.setResizeWeight(1);
         splitPane.setOrientation(JSplitPane.HORIZONTAL_SPLIT);
@@ -951,15 +964,12 @@ class TreeViewerWin
 				}
 				if (b) {
 					rightPane.remove(rightComponent);
-					dividerRightLocation = rightPane.getDividerLocation();
 				}
 			}
 		} else {
 			if (rightComponent != null) {
 				rightPane.add(rightComponent);
-				if (dividerRightLocation > 0) 
-					rightPane.setDividerLocation(dividerRightLocation);
-				else rightPane.setResizeWeight(WEIGHT);
+				rightPane.setResizeWeight(WEIGHT);
 			}
 		}
 		metadataVisible = !metadataVisible;
