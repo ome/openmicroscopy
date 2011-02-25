@@ -27,6 +27,7 @@ python dist/bin/omero user add web_user Web User web_group --userpassword abc ||
 python dist/bin/omero logout
 
 python dist/bin/omero config set omero.web.server_list '[["'$OMERO_HOST'", '$WEBPORT', "omero"]]'
+python dist/bin/omero config set omero.web.debug True
 python dist/bin/omero web unittest --config=$ICE_CONFIG --test=webadmin
 
 python dist/bin/omero web start
