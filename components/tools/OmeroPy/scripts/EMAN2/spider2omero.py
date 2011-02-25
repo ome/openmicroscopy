@@ -47,7 +47,6 @@ import getopt, sys, os
 import omero
 import omero.constants
 from omero.rtypes import *
-import omero_api_Gateway_ice    # see http://tinyurl.com/icebuserror
 import omero.util.script_utils as scriptUtil
 
 spiderHeaderMap = {
@@ -108,15 +107,11 @@ def uploadImageToDataset(services, pixelsType, imageArray, imageName, dataset=No
     @param imageName    The local file, for getting image header info
     @param dataset      Dataset to put images in, if specified. omero.model.Dataset
     """
-    
-    gateway = services["gateway"]
-    renderingEngine = services["renderingEngine"]
+
+    session = services["session"]
     queryService = services["queryService"]
-    pixelsService = services["pixelsService"]
-    rawPixelStore = services["rawPixelStore"]
     updateService = services["updateService"]
     rawFileStore = services["rawFileStore"]
-
     
     namespace = omero.constants.namespaces.NSCOMPANIONFILE 
     fileName = "original_metadata.txt"
@@ -129,7 +124,7 @@ def uploadImageToDataset(services, pixelsType, imageArray, imageName, dataset=No
         plane2Dlist = [imageArray]  # single plane image
     
     name = os.path.basename(imageName)
-    image = scriptUtil.createNewImage(pixelsService, rawPixelStore, renderingEngine, pixelsType, gateway, plane2Dlist, name, description, dataset)
+    image = scriptUtil.createNewImage(session, plane2Dlist, name, description, dataset)
     
     # header is a list of values corresponding to attributes 
     header = getSpiderHeader(imageName)
@@ -141,7 +136,7 @@ def uploadImageToDataset(services, pixelsType, imageArray, imageName, dataset=No
         pixels = image.getPrimaryPixels()
         pixels.setPhysicalSizeX(rdouble(physicalSizeX))
         pixels.setPhysicalSizeY(rdouble(physicalSizeY))
-        gateway.saveObject(pixels)
+        updateService.saveObject(pixels)
     
     # make a temp text file. 
     f = open(fileName, 'w')
@@ -176,16 +171,16 @@ def getPixelsType(queryService, numpyArray):
         print "Using pixels type ", pixelsType.getValue().getValue()
     return pixelsType
 
-def createDataset(gateway, project, datasetName):
+def createDataset(updateService, project, datasetName):
     # create dataset
     dataset = omero.model.DatasetI()
     dataset.name = rstring(datasetName)
-    dataset = gateway.saveAndReturnObject(dataset)
+    dataset = updateService.saveAndReturnObject(dataset)
     # put dataset in project 
     link = omero.model.ProjectDatasetLinkI()
     link.parent = omero.model.ProjectI(project.id.val, False)
     link.child = omero.model.DatasetI(dataset.id.val, False)
-    gateway.saveAndReturnObject(link)
+    updateService.saveAndReturnObject(link)
     return dataset
 
 def spiderToOmero(commandArgs):
@@ -195,16 +190,13 @@ def spiderToOmero(commandArgs):
     
     # create the services we need
     services = {}
-    services["gateway"] = session.createGateway()
-    services["renderingEngine"] = session.createRenderingEngine()
+    services["session"] = session
     services["queryService"] = session.getQueryService()
-    services["pixelsService"] = session.getPixelsService()
-    services["rawPixelStore"] = session.createRawPixelsStore()
     services["updateService"] = session.getUpdateService()
     services["rawFileStore"] = session.createRawFileStore()
     
-    gateway = services["gateway"]
     queryService = services["queryService"]
+    updateService = services["updateService"]
     
     # get a name for the project 
     path = commandArgs["dir"]
@@ -214,7 +206,7 @@ def spiderToOmero(commandArgs):
     # create project
     project = omero.model.ProjectI()
     project.name = rstring(projectName)
-    project = gateway.saveAndReturnObject(project)
+    project = updateService.saveAndReturnObject(project)
     
     arg = path
     
@@ -238,7 +230,7 @@ def spiderToOmero(commandArgs):
                     pixelsType = getPixelsType(queryService, imageArray)
                 if dataset == None:     
                     print "Dataset" , datasetName
-                    dataset = createDataset(gateway, project, datasetName)
+                    dataset = createDataset(updateService, project, datasetName)
                 uploadImageToDataset(services, pixelsType, imageArray, fullname, dataset)
         
     os.path.walk(path, visit, arg)

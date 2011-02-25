@@ -47,7 +47,6 @@ import numpy
 import omero
 import omero.scripts as scripts
 from omero.rtypes import *
-import omero_api_Gateway_ice    # see http://tinyurl.com/icebuserror
 import omero_api_IRoi_ice
 import omero.util.script_utils as scriptUtil
 
@@ -151,8 +150,8 @@ class Target():
         
         # create the service and image for adding ROIs later...
         self.updateService = self.session.getUpdateService()
-        gateway = self.session.createGateway()
-        self.image = gateway.getImage(self.imageId)
+        self.containerService = self.session.getContainerService()
+        self.image = self.containerService.getImages("Image", [self.imageId], None)[0]
         self.imageY = self.image.getPrimaryPixels().getSizeY().getValue()
     
     # code from emboxerbase.EMBoxerModule
@@ -387,14 +386,14 @@ def doAutoBoxing(session, parameterMap):
         boxSize = parameterMap["Box_Size"]
         print "Using user-specified box_size: ", boxSize
     
-    gateway = session.createGateway()
     roiService = session.getRoiService()
     updateService = session.getUpdateService()
+    queryService = session.getQueryService()
     
     for imageId in imageIds:
         
         # download the image as a local temp tiff image
-        image_name = gateway.getImage(imageId).getName().getValue()
+        image_name = queryService.get("Image", imageId).getName().getValue()
         if not image_name.endswith(".tiff"):
             image_name = "%s.tiff" % image_name
         imgW, imgH = downloadImage(session, imageId, image_name)

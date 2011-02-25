@@ -57,17 +57,16 @@ import getopt, sys, os
 import omero
 import omero.constants
 from omero.rtypes import *
-import omero_api_Gateway_ice    # see http://tinyurl.com/icebuserror
 import omero.util.script_utils as scriptUtil
 
 # declare the global services here, so we don't have to pass them around so much
-gateway = None
 queryService= None
 pixelsService= None
 rawPixelStore= None
 re= None
 updateService= None
 rawFileStore= None
+session = None
 
 demo = True
 newImageMap = {}    # map of imported images. EMAN-ID : OMERO-ID
@@ -186,7 +185,7 @@ def uploadBdbAsDataset(infile, dataset):
                     link = omero.model.DatasetImageLinkI()
                     link.parent = omero.model.DatasetI(dataset.id.val, False)
                     link.child = omero.model.ImageI(particleId, False)
-                    gateway.saveAndReturnObject(link)
+                    updateService.saveAndReturnObject(link)
                     continue
         
         # if we are dealing with a class average:
@@ -201,7 +200,7 @@ def uploadBdbAsDataset(infile, dataset):
             
         # create new Image from numpy data.
         print "Creating image in OMERO and uploading data..."
-        image = scriptUtil.createNewImage(pixelsService, rawPixelStore, re, pixelsType, gateway, plane2Dlist, newImageName, description, dataset)
+        image = scriptUtil.createNewImage(session, plane2Dlist, newImageName, description, dataset)
         imageId = image.getId().getValue()
         
         
@@ -217,7 +216,7 @@ def uploadBdbAsDataset(infile, dataset):
             pixels = image.getPrimaryPixels()
             pixels.setPhysicalSizeX(rdouble(physicalSizeX))
             pixels.setPhysicalSizeY(rdouble(physicalSizeY))
-            gateway.saveObject(pixels)
+            updateService.saveObject(pixels)
              
         # make a map of name: imageId, for creating image links
         if particleExt != None and particleExt.endswith("all4"):
@@ -269,12 +268,12 @@ def importMicrographs(path, datasetName="raw_data", project=None):
     
     dataset = omero.model.DatasetI()
     dataset.name = rstring(datasetName)
-    dataset = gateway.saveAndReturnObject(dataset)
+    dataset = updateService.saveAndReturnObject(dataset)
     if project:        # and put it in project
         link = omero.model.ProjectDatasetLinkI()
         link.parent = omero.model.ProjectI(project.id.val, False)
         link.child = omero.model.DatasetI(dataset.id.val, False)
-        gateway.saveAndReturnObject(link)  
+        updateService.saveAndReturnObject(link)  
     uploadBdbAsDataset(imageList, dataset)
                 
 
@@ -311,28 +310,28 @@ def createDataset(datasetName, project=None, imageIds=None, desc=None):
     dataset = omero.model.DatasetI()
     dataset.name = rstring(datasetName)
     if desc:    dataset.description = rstring(desc)
-    dataset = gateway.saveAndReturnObject(dataset)
+    dataset = updateService.saveAndReturnObject(dataset)
     if project:        # and put it in a new project
         link = omero.model.ProjectDatasetLinkI()
         link.parent = omero.model.ProjectI(project.id.val, False)
         link.child = omero.model.DatasetI(dataset.id.val, False)
-        gateway.saveAndReturnObject(link)
+        updateService.saveAndReturnObject(link)
         
     if imageIds:
         for iId in imageIds:
             link = omero.model.DatasetImageLinkI()
             link.parent = omero.model.DatasetI(dataset.id.val, False)
             link.child = omero.model.ImageI(iId, False)
-            gateway.saveAndReturnObject(link)
+            updateService.saveAndReturnObject(link)
     return dataset
 
 
 def emanToOmero(commandArgs):
     #print commandArgs
     client = omero.client(commandArgs["host"])
+    global session
     session = client.createSession(commandArgs["username"], commandArgs["password"])
     
-    global gateway
     global re
     global queryService
     global pixelsService
@@ -340,7 +339,6 @@ def emanToOmero(commandArgs):
     global updateService
     global rawFileStore
     
-    gateway = session.createGateway()
     re = session.createRenderingEngine()
     queryService = session.getQueryService()
     pixelsService = session.getPixelsService()
@@ -358,7 +356,7 @@ def emanToOmero(commandArgs):
     # create project
     project = omero.model.ProjectI()
     project.name = rstring(projectName)
-    project = gateway.saveAndReturnObject(project)
+    project = updateService.saveAndReturnObject(project)
     
     if projectName.find("#") > -1:
         if path.lower()[:4]!="bdb:" : path="bdb:"+path

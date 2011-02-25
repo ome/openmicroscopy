@@ -48,7 +48,6 @@ import getopt, sys, os
 import omero
 import omero.constants
 from omero.rtypes import *
-import omero_api_Gateway_ice    # see http://tinyurl.com/icebuserror
 import omero.util.script_utils as scriptUtil
 
 
@@ -91,18 +90,17 @@ def omeroToEm(commandArgs):
     updateService = session.getUpdateService()
     rawFileStore = session.createRawFileStore()
     rawPixelStore = session.createRawPixelsStore()
-    gateway = session.createGateway()
+    containerService = session.getContainerService()
     
     images = []
-    d = omero.api.ContainerClass.Dataset
     
     if "image" in commandArgs:
         iId = long(commandArgs["image"])
-        i = gateway.getImage(iId)
+        i = containerService.getImages("Image", [iId], None)[0]
         images.append(i)
     elif "dataset" in commandArgs:
         dIds = [long(commandArgs["dataset"])]
-        images = gateway.getImages(d, dIds)
+        images = containerService.getImages("Dataset", dIds, None)
     else:
         print "No image or dataset ID given"
         return

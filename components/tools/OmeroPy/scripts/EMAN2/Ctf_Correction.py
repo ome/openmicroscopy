@@ -40,7 +40,6 @@ import os
 import numpy
 
 import omero
-import omero_api_Gateway_ice    # see http://tinyurl.com/icebuserror
 import omero.scripts as scripts
 from omero.rtypes import *
 import omero.util.script_utils as scriptUtil
@@ -73,7 +72,6 @@ def uploadBdbsAsDataset(services, bdbContainer, imageIds, project = None, info =
     
     """
     
-    gateway = services["gateway"]
     re = services["renderingEngine"]
     queryService = services["queryService"]
     pixelsService = services["pixelsService"]
@@ -94,18 +92,6 @@ def uploadBdbsAsDataset(services, bdbContainer, imageIds, project = None, info =
     dbpath = "bdb:particles#%s" % dbs[0]
     d.read_image(dbpath, 0)
     plane2D = EMNumPy.em2numpy(d)
-    pType = plane2D.dtype.name
-    print pType
-    pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % pType, None) # omero::model::PixelsType
-    
-    if pixelsType == None and pType.startswith("float"):
-        # try 'float'
-        pixelsType = queryService.findByQuery("from PixelsType as p where p.value='%s'" % "float", None) # omero::model::PixelsType
-    if pixelsType == None:
-        print "Unknown pixels type for: " % pType
-        return
-    else:
-        print "Using pixels type ", pixelsType.getValue().getValue()
     
     namespace = omero.constants.namespaces.NSCOMPANIONFILE 
     fileName = "original_metadata.txt"
@@ -121,13 +107,13 @@ def uploadBdbsAsDataset(services, bdbContainer, imageIds, project = None, info =
         dataset = omero.model.DatasetI()
         dataset.name = rstring(db)
         dataset.description = rstring(info)
-        dataset = gateway.saveAndReturnObject(dataset)
+        dataset = updateService.saveAndReturnObject(dataset)
         datasets.append(dataset)
         if project:        # and put it in a new project
             link = omero.model.ProjectDatasetLinkI()
             link.parent = omero.model.ProjectI(project.id.val, False)
             link.child = omero.model.DatasetI(dataset.id.val, False)
-            gateway.saveAndReturnObject(link)
+            updateService.saveAndReturnObject(link)
             
         for i in range(nimg):
             newImageName = str(db)
@@ -141,8 +127,7 @@ def uploadBdbsAsDataset(services, bdbContainer, imageIds, project = None, info =
             #print plane2D
             plane2Dlist = [plane2D]        # single plane image
         
-
-            image = scriptUtil.createNewImage(pixelsService, rawPixelStore, re, pixelsType, gateway, plane2Dlist, newImageName, description, dataset)
+            image = scriptUtil.createNewImage(plane2Dlist, newImageName, description, dataset)
             attributes = d.get_attr_dict()
             # if we know the pixel size, set it in the new image
             if "apix_x" in attributes:
@@ -156,7 +141,7 @@ def uploadBdbsAsDataset(services, bdbContainer, imageIds, project = None, info =
                 pixels = image.getPrimaryPixels()
                 pixels.setPhysicalSizeX(rdouble(physicalSizeX))
                 pixels.setPhysicalSizeY(rdouble(physicalSizeY))
-                gateway.saveObject(pixels)
+                updateService.saveObject(pixels)
             
             f = open(fileName, 'w')        # will overwrite each time. 
             f.write("[GlobalMetadata]\n")
@@ -219,15 +204,14 @@ def runCtf(session, parameterMap):
     """
     
     services = {}
-    services["gateway"] = session.createGateway()
     services["renderingEngine"] = session.createRenderingEngine()
     services["queryService"] = session.getQueryService()
     services["pixelsService"] = session.getPixelsService()
     services["rawPixelsStore"] = session.createRawPixelsStore()
     services["updateService"] = session.getUpdateService()
     services["rawFileStore"] = session.createRawFileStore()
+    containerService = session.getContainerService()
     
-    gateway = services["gateway"]
     queryService = services["queryService"]
     
     imageIds = []
@@ -245,7 +229,7 @@ def runCtf(session, parameterMap):
                 datasetIds.append(dId)
             except: pass
             # simply aggregate all images from the datasets
-            images = gateway.getImages(omero.api.ContainerClass.Dataset, datasetIds)
+            images = containerService.getImages("Dataset", datasetIds, None)
             for i in images:
                 imageIds.append(i.getId().getValue())
             
