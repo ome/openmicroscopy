@@ -153,7 +153,7 @@ module omero {
 
 	    // Central OMERO.blitz stateful services.
 
-	    Gateway*         createGateway() throws ServerError;
+	    ["deprecated:createGateway() is deprecated. see http://trac.openmicroscopy.org.uk/ome/wiki/Api/DeprecatedServices."] Gateway*         createGateway() throws ServerError;
 	    Exporter*        createExporter() throws ServerError;
 	    JobHandle*       createJobHandle() throws ServerError;
 	    RawFileStore*    createRawFileStore() throws ServerError;
