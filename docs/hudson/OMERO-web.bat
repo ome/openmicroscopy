@@ -28,6 +28,15 @@ if errorlevel 1 goto ERROR
 python dist\bin\omero web unittest --config=$ICE_CONFIG --test=webadmin
 if errorlevel 1 goto ERROR
 
+REM
+REM Write test file for OMERO-web jobs
+REM
+cd ..
+if not exist target mkdir target
+if not exist target\reports mkdir target\reports
+set FILE=web.xml
+wget -O - http://hudson.openmicroscopy.org.uk/userContent/%FILE% > target\reports\%FILE%
+
 exit /b 0
 :ERROR
   echo Failed %ERRORLEVEL%

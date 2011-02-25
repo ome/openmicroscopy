@@ -28,3 +28,12 @@ python dist/bin/omero web unittest --config=$ICE_CONFIG --test=webadmin
 python dist/bin/omero web start
 
 python dist/bin/omero web seleniumtest webadmin localhost 'http://'$OMERO_HOST':'$WEBPORT firefox --config=$ICE_CONFIG
+
+
+#
+# Write test file for OMERO-web jobs
+#
+cd ..
+FILE=web.xml
+mkdir -p target/reports
+wget -O - "http://hudson.openmicroscopy.org.uk/userContent/$FILE" > target/reports/$FILE
