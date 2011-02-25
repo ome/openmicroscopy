@@ -88,7 +88,7 @@ class WebAdminUrlTest(WebClientTest):
 
     def test_urlsAsUser(self):
         # TODO:Create experimenter 
-        self.client.login('user', 'abc')
+        self.client.login('web_user', 'abc')
         
         # response 200
         response = self.client.get(reverse(viewname="wamyaccount"))

@@ -14,5 +14,13 @@ else
     WEBPORT=$OMERO_PREFIX'4064'
 fi
 
+#
+# Create a user
+#
+python dist/bin/omero login -s $OMERO_HOST -p $WEBPORT -u root -w ome
+python dist/bin/omero group add web_group --perms=rwrw--
+python dist/bin/omero user add web_user Web User web_group --userpassword abc
+python dist/bin/omero logout
+
 python dist/bin/omero config set omero.web.server_list '[["'$OMERO_HOST'", '$WEBPORT', "omero"]]'
 python dist/bin/omero web unittest --config=$ICE_CONFIG --test=webadmin
