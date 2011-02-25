@@ -683,6 +683,12 @@ http://people.apache.org/repo/m2-ibiblio-rsync-repository/org/apache/directory/s
   Web Site:     http://www.openastexviewer.net/web/
   License:      GNU GENERAL PUBLIC LICENSE Version 3.
   License File: lgpl-3.0.txt
+  
+  Artifacts:    components/tools/OmeroWeb/omeroweb/webgateway/media/js/3rdparty/raphael-min.js
+  Project:      Raphael javascript library
+  Web Site:     http://raphaeljs.com/
+  License:      MIT license.
+  License File: jquery.txt
 
   //
   // Used but not distributed
