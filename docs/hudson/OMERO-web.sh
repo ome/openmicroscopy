@@ -20,9 +20,10 @@ fi
 #
 # Create a user
 #
+
 python dist/bin/omero login -s $OMERO_HOST -p $WEBPORT -u root -w ome
-python dist/bin/omero group add web_group --perms=rwrw--
-python dist/bin/omero user add web_user Web User web_group --userpassword abc
+python dist/bin/omero group add web_group --perms=rwrw-- || echo "Web Group already exists?"
+python dist/bin/omero user add web_user Web User web_group --userpassword abc || echo "Web User already exists?"
 python dist/bin/omero logout
 
 python dist/bin/omero config set omero.web.server_list '[["'$OMERO_HOST'", '$WEBPORT', "omero"]]'
