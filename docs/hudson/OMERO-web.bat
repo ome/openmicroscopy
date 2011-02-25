@@ -14,7 +14,7 @@ set webport=%OMERO_PREFIX%4064
 REM
 REM Create a user
 REM
-python dist\bin\omero -s localhost -p %ROUTER% -u root -w ome login
+python dist\bin\omero -s localhost -p %webport% -u root -w ome login
 if errorlevel 1 goto ERROR
 python dist\bin\omero group add web_group --perms=rwrw--
 if errorlevel 1 goto ERROR
