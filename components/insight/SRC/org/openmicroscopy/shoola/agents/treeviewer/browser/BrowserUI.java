@@ -1830,4 +1830,30 @@ class BrowserUI
     	repaint();
     }
     
+    /**
+     * Returns the nodes corresponding to the passed user.
+     * 
+     * @param userID The id of the user.
+     * @return See above.
+     */
+    List<TreeImageDisplay> getNodesForUser(long userID)
+    {
+    	TreeImageDisplay root = getTreeRoot();
+		TreeImageDisplay element;
+		Object ho;
+		ExperimenterData exp;
+		long id = model.getUserID();
+		for (int i = 0; i < root.getChildCount(); i++) {
+			element = (TreeImageDisplay) root.getChildAt(i);
+			ho = element.getUserObject();
+			if (ho instanceof ExperimenterData) {
+				exp = (ExperimenterData) ho;
+				if (exp.getId() == id) {
+					return element.getChildrenDisplay();
+				}
+			}
+		}
+		return null;
+    }
+    
 }

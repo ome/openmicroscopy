@@ -106,19 +106,19 @@ class ImporterComponent
 
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
-	 * @see Importer#activate(int, List, Collection)
+	 * @see Importer#activate(int, TreeImageDisplay, Collection)
 	 */
-	public void activate(int type, List<TreeImageDisplay> containers, 
+	public void activate(int type, TreeImageDisplay selectedContainer, 
 			Collection<TreeImageDisplay> objects)
 	{
 		if (model.getState() == DISCARDED) return;
 		if (chooser == null) {
 			chooser = new ImportDialog(view, model.getSupportedFormats(), 
-					containers, objects, type);
+					selectedContainer, objects, type);
 			chooser.addPropertyChangeListener(controller);
 			chooser.pack();
 		} else {
-			chooser.reset(containers, objects, type);
+			chooser.reset(selectedContainer, objects, type);
 		}
 		view.setVisible(false);
 		UIUtilities.centerAndShow(chooser);

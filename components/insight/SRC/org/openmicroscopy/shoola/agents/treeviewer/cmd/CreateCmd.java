@@ -29,13 +29,10 @@ package org.openmicroscopy.shoola.agents.treeviewer.cmd;
 //Third-party libraries
 
 //Application-internal dependencies
-import java.awt.Cursor;
-
 import org.openmicroscopy.shoola.agents.events.importer.LoadImporter;
 import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
-import org.openmicroscopy.shoola.agents.util.browser.NodesFinder;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import pojos.DataObject;
@@ -158,40 +155,18 @@ public class CreateCmd
         if (browser == null) return;
         if (userObject == null) return; //shouldn't happen.
         if (userObject instanceof ImageData) {
-        	Class klass = null;
         	TreeImageDisplay display = browser.getLastSelectedDisplay();
         	LoadImporter event = null;
-        	if (display != null) {
-        		Object node = display.getUserObject();
-        		if (node instanceof DatasetData || node instanceof ScreenData ||
-        			node instanceof ProjectData) {
-					if (node instanceof DatasetData)
-						klass = node.getClass();
-        			event = new LoadImporter(display);
-        		}
+        	int type = LoadImporter.PROJECT_TYPE;
+        	switch (browser.getBrowserType()) {
+				case Browser.SCREENS_EXPLORER:
+					type = LoadImporter.SCREEN_TYPE;
         	}
-        	if (event == null) {
-        		int type = -1;
-            	switch (browser.getBrowserType()) {
-        			case Browser.PROJECTS_EXPLORER:
-        				klass = DatasetData.class;
-        				type = LoadImporter.PROJECT_TYPE;
-        				break;
-        			case Browser.SCREENS_EXPLORER:
-        				//klass = ScreenData.class;
-        				type = LoadImporter.SCREEN_TYPE;
-        		}
-            	event = new LoadImporter(type);
-        	}
-        	if (event != null) {
-            	if (klass != null) {
-            		NodesFinder finder = new NodesFinder(klass);
-            		browser.accept(finder);
-            		event.setObjects(finder.getNodes());
-            	}
-        		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-            	bus.post(event);
-        	}
+        	event = new LoadImporter(display, type);
+        	long id = TreeViewerAgent.getUserDetails().getId();
+        	event.setObjects(browser.getNodesForUser(id));
+        	EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
+        	bus.post(event);
         } else {
         	model.createDataObject(userObject, withParent);
         }	

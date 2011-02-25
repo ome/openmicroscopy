@@ -301,6 +301,14 @@ public interface Browser
      */
     public TreeImageDisplay[] getSelectedDisplays();
     
+    /**
+     * Returns the nodes linked to the specified user.
+     * 
+     * @param userID The identifier of the user.
+     * @return See above.
+     */
+    public List<TreeImageDisplay> getNodesForUser(long userID);
+    
     /** 
      * Collapses the specified node. 
      * 

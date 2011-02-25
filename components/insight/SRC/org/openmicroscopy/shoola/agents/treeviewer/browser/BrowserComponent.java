@@ -1846,5 +1846,16 @@ class BrowserComponent
 			//model.getParentModel().browse(display, true);
 		}
 	}
+
+	/**
+	 * Implemented as specified by the {@link Browser} interface.
+	 * @see Browser#getNodesForUser(long)
+	 */
+	public List<TreeImageDisplay> getNodesForUser(long userID)
+	{
+		if (model.getState() == DISCARDED) return null;
+		if (userID < 0) return null;
+		return view.getNodesForUser(userID);
+	}
 	
 }

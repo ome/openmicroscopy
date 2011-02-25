@@ -125,64 +125,18 @@ public class BrowserImportAction
      */
     public void actionPerformed(ActionEvent e)
     {
-    	//No container specified in that case
-        //model.showImporter();
-    	/*
-    	int type = -1;
+    	TreeImageDisplay display = model.getLastSelectedDisplay();
+    	LoadImporter event = null;
+    	int type = LoadImporter.PROJECT_TYPE;
     	switch (model.getBrowserType()) {
-			case Browser.PROJECTS_EXPLORER:
-				type = LoadImporter.PROJECT_TYPE;
-				break;
 			case Browser.SCREENS_EXPLORER:
 				type = LoadImporter.SCREEN_TYPE;
-		}
+    	}
+    	event = new LoadImporter(display, type);
+    	long id = TreeViewerAgent.getUserDetails().getId();
+    	event.setObjects(model.getNodesForUser(id));
     	EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-    	bus.post(new LoadImporter(type));
-    	*/
-    	TreeImageDisplay[] list = model.getSelectedDisplays();
-    	//TreeImageDisplay display = model.getLastSelectedDisplay();
-    	LoadImporter event = null;
-		Class klass = null;
-    	if (list != null && list.length > 0) {
-    		List<TreeImageDisplay> containers = new ArrayList<TreeImageDisplay>();
-    		TreeImageDisplay node;
-    		Object ho;
-    		for (int j = 0; j < list.length; j++) {
-    			node = list[j];
-    			ho = node.getUserObject();
-    			if (ho instanceof DatasetData || ho instanceof ScreenData ||
-		    			ho instanceof ProjectData) {
-					containers.add(node);
-					klass = null;
-					if (ho instanceof DatasetData) klass = ho.getClass();
-				}
-			}
-    		if (containers.size() > 0) {
-    			event = new LoadImporter(containers);
-    		}
-    	}
-    	if (event == null) {
-    		int type = -1;
-        	switch (model.getBrowserType()) {
-    			case Browser.PROJECTS_EXPLORER:
-    				klass = DatasetData.class;
-    				type = LoadImporter.PROJECT_TYPE;
-    				break;
-    			case Browser.SCREENS_EXPLORER:
-    				klass = null;//ScreenData.class;
-    				type = LoadImporter.SCREEN_TYPE;
-    		}
-        	event = new LoadImporter(type);
-    	}
-    	if (event != null) {
-    		if (klass != null) {
-        		NodesFinder finder = new NodesFinder(klass);
-        		model.accept(finder);
-        		event.setObjects(finder.getNodes());
-        	}
-    		EventBus bus = TreeViewerAgent.getRegistry().getEventBus();
-        	bus.post(event);
-    	}
+    	bus.post(event);
     }
     
 }

@@ -55,6 +55,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ButtonGroup;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -131,6 +132,15 @@ public class ImportDialog
 	/** The default text. */
 	private static final String	NEW_TXT = "new dataset";
 	
+	/** The default text. */
+	private static final String	PROJECT_TXT = "Project";
+	
+	/** The default text. */
+	private static final String	SCREEN_TXT = "Screen";
+	
+	/** The default text. */
+	private static final String	DATASET_TXT = "Dataset";
+	
 	/** Action id indicating to import the selected files. */
 	private static final int	IMPORT = 0;
 	
@@ -151,6 +161,9 @@ public class ImportDialog
 	
 	/** Action id indicating to create a new dataset. */
 	private static final int	CREATE_DATASET = 6;
+	
+	/** Action id indicating to create a new dataset. */
+	private static final int	CREATE_PROJECT = 7;
 	
 	/** The title of the dialog. */
 	private static final String TITLE = "Select Data to Import";
@@ -264,8 +277,8 @@ public class ImportDialog
 	/** The action listener used to handle tag selection. */
 	private ActionListener				listener;
 	
-	/** The containers where to import the data. */
-	private List<TreeImageDisplay>		containers;
+	/** The selected container where to import the data. */
+	private TreeImageDisplay		selectedContainer;
 	
 	/** The possible node. */
 	private Collection<TreeImageDisplay> 		objects;
@@ -282,14 +295,20 @@ public class ImportDialog
 	/** Component used to select the default dataset. */
 	private JComboBox					datasetsBox;
 	
+	/** Component used to select the default dataset. */
+	private JComboBox					parentsBox;
+	
 	/** The component displaying where the data will be imported. */
 	private JPanel						locationPane;
 	
 	/** The type associated to the import. */
 	private int							type;
 	
-	/** Button to create a new dataset. */
+	/** Button to create a new dataset or screen. */
 	private JButton						addButton;
+	
+	/** Button to create a new dataset or screen. */
+	private JButton						addProjectButton;
 	
 	/** Sorts the objects from the display. */
 	private ViewerSorter				sorter;
@@ -300,6 +319,9 @@ public class ImportDialog
 	/** Indicates to show thumbnails in import tab. */
 	private JCheckBox					showThumbnails;
 	
+	/** The listener linked to the parents box. */
+	private ActionListener				parentsBoxListener;
+	
 	/** 
 	 * Creates the dataset.
 	 * 
@@ -308,28 +330,90 @@ public class ImportDialog
 	private void createDataset(DatasetData dataset)
 	{
 		if (dataset == null || dataset.getName().trim().length() == 0) return;
-		int n = datasets.size();
-		String name = dataset.getName();
-		datasets.add(new DataNode(dataset));
-		if (n == 0) {
-			defaultContainerField.setText(dataset.getName());
-		} else {
-			datasetsBox.removeAllItems();
-			List l = sorter.sort(datasets);
-			Iterator i = l.iterator();
-			DataNode v;
-			Object selected = null;
-			while (i.hasNext()) {
-				v = (DataNode) i.next();
-				datasetsBox.addItem(v);
-				if (v.isNewDataset(name)) 
-					selected = v;
-			}
-			if (selected != null) datasetsBox.setSelectedItem(selected);
-			repaint();
+		List<DataNode> nodes = new ArrayList<DataNode>();
+		DataNode n;
+		for (int i = 0; i < datasetsBox.getItemCount(); i++) {
+			n = (DataNode) datasetsBox.getItemAt(i);
+			if (!n.isDefaultNode()) 
+				nodes.add(n);
 		}
+		DataNode node = (DataNode) parentsBox.getSelectedItem();
+		n = new DataNode(dataset, node);
+		nodes.add(n);
+		datasetsBox.removeAllItems();
+		List l = sorter.sort(nodes);
+		Iterator i = l.iterator();
+		while (i.hasNext()) {
+			datasetsBox.addItem((DataNode) i.next());
+		}
+		datasetsBox.setSelectedItem(n);
+		repaint();
 	}
 
+	/**
+	 * Creates a project.
+	 * 
+	 * @param project The project to create.
+	 */
+	private void createProject(ProjectData project)
+	{
+		if (project == null || project.getName().trim().length() == 0) return;
+		List<DataNode> nodes = new ArrayList<DataNode>();
+		DataNode n;
+		DataNode defaultNode = null;
+		for (int i = 0; i < parentsBox.getItemCount(); i++) {
+			n = (DataNode) parentsBox.getItemAt(i);
+			if (!n.isDefaultNode()) 
+				nodes.add(n);
+			else defaultNode = n;
+		}
+		n = new DataNode(project);
+		n.addNode(new DataNode(DataNode.createDefaultDataset()));
+		nodes.add(n);
+		List l = sorter.sort(nodes);
+		if (defaultNode != null) l.add(defaultNode);
+		parentsBox.removeActionListener(parentsBoxListener);
+		parentsBox.removeAllItems();
+		parentsBox.addActionListener(parentsBoxListener);
+		Iterator i = l.iterator();
+		while (i.hasNext()) {
+			parentsBox.addItem((DataNode) i.next());
+		}
+		parentsBox.setSelectedItem(n);
+		repaint();
+	}
+	
+	/**
+	 * Creates a screen.
+	 * 
+	 * @param screen The screen to create.
+	 */
+	private void createScreen(ScreenData screen)
+	{
+		if (screen == null || screen.getName().trim().length() == 0) return;
+		List<DataNode> nodes = new ArrayList<DataNode>();
+		DataNode n;
+		DataNode defaultNode = null;
+		for (int i = 0; i < parentsBox.getItemCount(); i++) {
+			n = (DataNode) parentsBox.getItemAt(i);
+			if (!n.isDefaultNode()) 
+				nodes.add(n);
+			else defaultNode = n;
+		}
+		n = new DataNode(screen);
+		nodes.add(n);
+		List l = sorter.sort(nodes);
+		if (defaultNode != null) l.add(defaultNode);
+		parentsBox.removeAllItems();
+		Iterator i = l.iterator();
+		while (i.hasNext()) {
+			parentsBox.addItem((DataNode) i.next());
+		}
+		parentsBox.setSelectedItem(n);
+		repaint();
+	}
+	
+	
 	/** Adds the files to the selection. */
 	private void addFiles()
 	{
@@ -500,12 +584,8 @@ public class ImportDialog
 		});
 	}
 	
-	/** 
-	 * Initializes the components composing the display. 
-	 * 
-	 * @param containers The containers to import the data into.
-	 */
-	private void initComponents(List<TreeImageDisplay> containers)
+	/** Initializes the components composing the display. */
+	private void initComponents()
 	{
 		showThumbnails = new JCheckBox("Show Thumbnails when imported");
 		showThumbnails.setVisible(false);
@@ -520,16 +600,34 @@ public class ImportDialog
     	//if slow connection 
     	if (!isFastConnection())
     		showThumbnails.setVisible(false);
-		
-		this.containers = containers;
 		reference = null;
+		parentsBox = new JComboBox();
+		parentsBoxListener = new ActionListener() {
+			
+			public void actionPerformed(ActionEvent e) {
+				populateDatasetsBox();
+			}
+		};
+		parentsBox.addActionListener(parentsBoxListener);
+		datasetsBox = new JComboBox();
 		sorter = new ViewerSorter();
 		datasets = new ArrayList<DataNode>();
+		addProjectButton = new JButton("New...");
+		addProjectButton.setBackground(UIUtilities.BACKGROUND);
+		addProjectButton.setToolTipText("Create a new Project.");
+		if (type == Importer.SCREEN_TYPE) {
+			addProjectButton.setToolTipText("Create a new Screen.");
+		}
+		
+		addProjectButton.setActionCommand(""+CREATE_PROJECT);
+		addProjectButton.addActionListener(this);
+		
 		addButton = new JButton("New...");
 		addButton.setBackground(UIUtilities.BACKGROUND);
 		addButton.setToolTipText("Create a new Dataset.");
 		addButton.setActionCommand(""+CREATE_DATASET);
 		addButton.addActionListener(this);
+
 		listener = new ActionListener() {
 			
 			public void actionPerformed(ActionEvent e) {
@@ -662,6 +760,7 @@ public class ImportDialog
 			field.setColumns(2);
 			pixelsSize.add(field);
 		}
+		initializeLocationBoxes();
 	}
 	
 	/** 
@@ -705,25 +804,7 @@ public class ImportDialog
 	 */
 	private String getContainerText(Object container)
 	{
-		if (container instanceof List) {
-			List l = (List) containers;
-			Iterator i = l.iterator();
-			String text = null;
-			Object c;
-			while (i.hasNext()) {
-				c = i.next();
-				if (c instanceof DatasetData) {
-					if (text == null)
-						text = MESSAGE+" into Dataset: ";
-				} else if (c instanceof ScreenData) {
-					if (text == null)
-						text = MESSAGE+" into Screen: ";
-				} else if (c instanceof ProjectData) {
-					if (text == null)
-						text = MESSAGE+" into Project: ";
-				}
-			}
-		} else if (container instanceof DatasetData) {
+		if (container instanceof DatasetData) {
 			return MESSAGE+" into Dataset: "+
 				((DatasetData) container).getName()+END;
 		} else if (container instanceof ScreenData) {
@@ -894,6 +975,114 @@ public class ImportDialog
 		return row;
 	}
 	
+	/** Initializes the selection boxes. */
+	private void initializeLocationBoxes()
+	{
+		parentsBox.removeActionListener(parentsBoxListener);
+		parentsBox.removeAllItems();
+		parentsBox.addActionListener(parentsBoxListener);
+		datasetsBox.removeAllItems();
+		List<DataNode> topList = new ArrayList<DataNode>();
+		List<DataNode> datasetsList = new ArrayList<DataNode>();
+		DataNode n;
+		Object ho;
+		TreeImageDisplay node;
+		if (objects != null && objects.size() > 0) {
+			Iterator<TreeImageDisplay> i = objects.iterator();
+			while (i.hasNext()) {
+				node = i.next();
+				ho = node.getUserObject();
+				if (ho instanceof ProjectData || ho instanceof ScreenData) {
+					n = new DataNode((DataObject) ho);
+					n.setRefNode(node);
+					topList.add(n); 
+				} else if (ho instanceof DatasetData) {
+					n = new DataNode((DataObject) ho);
+					n.setRefNode(node);
+					datasetsList.add(n);
+				}
+			}
+		}
+		List sortedList = new ArrayList();
+		if (topList.size() > 0) {
+			sortedList = sorter.sort(topList);
+		}
+		int size;
+		if (type == Importer.PROJECT_TYPE) {
+			//sort the node
+			if (datasetsList.size() > 0) { //orphaned datasets.
+				n = new DataNode(datasetsList);
+			} else {
+				n = new DataNode(new ArrayList<DataNode>());
+			}
+			sortedList.add(n);
+			
+			parentsBox.removeActionListener(parentsBoxListener);
+			parentsBox.setModel(new DefaultComboBoxModel(sortedList.toArray()));
+			parentsBox.addActionListener(parentsBoxListener);
+			//Determine the node to select.
+			size = parentsBox.getItemCount();
+			if (selectedContainer != null) {
+				ho = selectedContainer.getUserObject();
+				ProjectData p = null;
+				if (ho instanceof ProjectData) {
+					p = (ProjectData) ho;
+				} else if (ho instanceof DatasetData) {
+					node = selectedContainer.getParentDisplay();
+					if (node.getUserObject() instanceof ProjectData) {
+						p = (ProjectData) node.getUserObject();
+					}
+				}
+				if (p != null) {
+					long id = p.getId();
+					int index = 0;
+					for (int i = 0; i < size; i++) {
+						n = (DataNode) parentsBox.getItemAt(i);
+						if (n.getDataObject().getId() == id) {
+							index = i;
+							break;
+						}
+					}
+					parentsBox.setSelectedIndex(index);
+				} else { //orphaned dataset
+					parentsBox.setSelectedIndex(size-1);
+				}
+			} else { //nothing selected so we will select the first item
+				if (size > 0)
+					parentsBox.setSelectedIndex(0);
+			}
+		} else if (type == Importer.SCREEN_TYPE) {
+			sortedList.add(new DataNode(DataNode.createDefaultScreen()));
+			parentsBox.removeActionListener(parentsBoxListener);
+			parentsBox.setModel(new DefaultComboBoxModel(sortedList.toArray()));
+			parentsBox.addActionListener(parentsBoxListener);
+			size = sortedList.size();
+			if (selectedContainer != null) {
+				ho = selectedContainer.getUserObject();
+				if (ho instanceof ScreenData) {
+					long id = ((ScreenData) ho).getId();
+					for (int i = 0; i < size; i++) {
+						n = (DataNode) parentsBox.getItemAt(i);
+						if (n.getDataObject().getId() == id) {
+							parentsBox.setSelectedIndex(i);
+							break;
+						}
+					}
+				}
+			}
+		}
+	}
+	
+	/** Populates the datasets box depending on the selected project. */
+	private void populateDatasetsBox()
+	{
+		DataNode n = (DataNode) parentsBox.getSelectedItem();
+		List<DataNode> list = n.getDatasetNodes();
+		List l = sorter.sort(list);
+		datasetsBox.removeAllItems();
+		datasetsBox.setModel(new DefaultComboBoxModel(l.toArray()));
+	}
+	
 	/**
 	 * Returns the file queue and indicates where the files will be imported.
 	 * 
@@ -902,9 +1091,34 @@ public class ImportDialog
 	private void buildLocationPane()
 	{
 		locationPane.removeAll();
-		JPanel row;// = createRow();
-		//row.add(new JLabel(MESSAGE));
-		//locationPane.add(row);
+		JPanel row = createRow();
+		String message = PROJECT_TXT;
+		String text = MESSAGE;
+		if (type == Importer.SCREEN_TYPE) {
+			message = SCREEN_TXT;
+			text = MESSAGE_PLATE;
+		}
+		row.add(new JLabel(text));
+		locationPane.add(row);
+		row = createRow();
+		
+		row.add(UIUtilities.setTextFont(message));
+		row.add(parentsBox);
+		row.add(addProjectButton);
+		locationPane.add(row);
+		if (type == Importer.PROJECT_TYPE) {
+			row = createRow();
+			row.add(UIUtilities.setTextFont(DATASET_TXT));
+			row.add(datasetsBox);
+			row.add(addButton);
+			locationPane.add(row);
+		}
+		
+		//Maybe add general option for archived and folder as dataset
+		
+		/*
+		locationPane.removeAll();
+		JPanel row;
 		defaultContainerField.setText(ImportableObject.DEFAULT_DATASET_NAME);
 		StringBuffer text = new StringBuffer();
 		
@@ -1013,7 +1227,7 @@ public class ImportDialog
 					long id = ((DataObject) reference).getId();
 					while (j.hasNext()) {
 						dn = (DataNode) j.next();
-						if (dn.getDataset().getId() == id)
+						if (dn.getDataObject().getId() == id)
 							selected = dn;
 					}
 				}
@@ -1031,20 +1245,19 @@ public class ImportDialog
 		row = createRow();
 		row.add(new JLabel(MESSAGE));
 		locationPane.add(row);
+		*/
 	}
 
 	/** 
 	 * Builds and lays out the UI. 
 	 * 
-	 * @param containers The containers where to import the files or 
-	 * 					<code>null</code>.
 	 */
-	private void buildGUI(Object containers)
+	private void buildGUI()
 	{
 		Container c = getContentPane();
 		c.setLayout(new BorderLayout(0, 0));
 		IconManager icons = IconManager.getInstance();
-		titlePane = new TitlePanel(TITLE, getContainerText(containers), 
+		titlePane = new TitlePanel(TITLE, getContainerText(selectedContainer), 
 				icons.getIcon(IconManager.IMPORT_48));
 		//titlePane.setSubtitle(SUB_MESSAGE);
 		//c.add(titlePane, BorderLayout.NORTH);
@@ -1122,6 +1335,7 @@ public class ImportDialog
     			overrideName.isSelected());
     	List<DataObject> nodes;
     	List<Object> refNodes;
+    	/*
     	if (containers != null && !DatasetData.class.equals(reference)) {
     		nodes = new ArrayList<DataObject>();
     		refNodes = new ArrayList<Object>();
@@ -1135,6 +1349,7 @@ public class ImportDialog
     		object.setRefNodes(refNodes);
     		object.setContainers(nodes);
     	}
+    	*/
     	Boolean b = (Boolean) ImporterAgent.getRegistry().lookup(
     			LOAD_THUMBNAIL);
     	if (b != null)
@@ -1158,15 +1373,15 @@ public class ImportDialog
         		if (node.getRefNode() != null)  {
         			nodes = new ArrayList<DataObject>();
             		refNodes = new ArrayList<Object>();
-            		nodes.add(node.getDataset());
+            		nodes.add(node.getDataObject());
             		refNodes.add(node.getRefNode());
             		object.setRefNodes(refNodes);
             		object.setContainers(nodes);
         		} else {
-        			object.setDefaultDataset(node.getDataset());
+        			//object.setDefaultDataset(node.getDataObject());
         		}
     		} else {
-    			object.setDefaultDataset(node.getDataset());
+    			//object.setDefaultDataset(node.getDataObject());
     		}
     	}
     	//tags
@@ -1255,13 +1470,7 @@ public class ImportDialog
 	 */
 	boolean useFolderAsContainer()
 	{
-		if (containers == null || containers.size() == 0) {
-			return !(type == Importer.SCREEN_TYPE);
-		}
-		TreeImageDisplay node = containers.get(0);
-		Object object = node.getUserObject();
-		if (object instanceof ScreenData) return false;
-		return !(object instanceof DatasetData);
+		return (type != Importer.SCREEN_TYPE);
 	}
 	
     /** 
@@ -1274,16 +1483,18 @@ public class ImportDialog
      * @param type 		One of the type constants.
      */
     public ImportDialog(JFrame owner, FileFilter[] filters, 
-    		List<TreeImageDisplay> containers, 
+    		TreeImageDisplay selectedContainer, 
     		Collection<TreeImageDisplay> objects, int type)
     {
     	super(owner);
     	this.filters = filters;
     	this.objects = objects;
+    	this.type = type;
+    	this.selectedContainer = selectedContainer;
     	setProperties();
-    	initComponents(containers);
+    	initComponents();
     	installListeners();
-    	buildGUI(containers);
+    	buildGUI();
     	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     	setSize(7*(screenSize.width/10), 7*(screenSize.height/10));
     }
@@ -1291,18 +1502,18 @@ public class ImportDialog
     /**
      * Resets the text and remove all the files to import.
      * 
-     * @param containers The container where to import the files.
+     * @param selectedContainer The container where to import the files.
      * @param objects    The possible objects.
      * @param type       One of the constants used to identify the type of 
      * 					 import.
      */
-	public void reset(List<TreeImageDisplay> containers, 
+	public void reset(TreeImageDisplay selectedContainer, 
 			Collection<TreeImageDisplay> objects, int type)
 	{
-		this.containers = containers;
+		this.selectedContainer = selectedContainer;
 		this.objects = objects;
 		this.type = type;
-		titlePane.setTextHeader(getContainerText(containers));
+		//titlePane.setTextHeader(getContainerText(containers));
 		titlePane.setSubtitle(SUB_MESSAGE);
 		table.removeAllFiles();
 		File[] files = chooser.getSelectedFiles();
@@ -1312,6 +1523,7 @@ public class ImportDialog
 		FileFilter[] filters = chooser.getChoosableFileFilters();
 		if (filters != null && filters.length > 0)
 			chooser.setFileFilter(filters[0]);
+		initializeLocationBoxes();
 		buildLocationPane();
 		locationPane.repaint();
 		tagsPane.removeAll();
@@ -1403,7 +1615,13 @@ public class ImportDialog
 					handleTagsSelection((Collection) entry.getValue());
 			}
 		} else if (EditorDialog.CREATE_NO_PARENT_PROPERTY.equals(name)) {
-			createDataset((DatasetData) evt.getNewValue());
+			Object ho = evt.getNewValue();
+			if (ho instanceof DatasetData)
+				createDataset((DatasetData) ho);
+			else if (ho instanceof ProjectData)
+				createProject((ProjectData) ho);
+			else if (ho instanceof ScreenData)
+				createScreen((ScreenData) ho);
 		}
 	}
 	
@@ -1414,9 +1632,10 @@ public class ImportDialog
 	public void actionPerformed(ActionEvent evt)
 	{
 		int index = Integer.parseInt(evt.getActionCommand());
+		EditorDialog d;
 		switch (index) {
 			case IMPORT:
-				importFiles();
+				//importFiles();
 				break;
 			case CANCEL:
 				cancelSelection();
@@ -1437,8 +1656,14 @@ public class ImportDialog
 						Boolean.valueOf(true));
 				break;
 			case CREATE_DATASET:
-				EditorDialog d = new EditorDialog(this, new DatasetData(), 
-						false);
+				d = new EditorDialog(this, new DatasetData(), false);
+				d.addPropertyChangeListener(this);
+				UIUtilities.centerAndShow(d);
+				break;
+			case CREATE_PROJECT:
+				if (type == Importer.PROJECT_TYPE)
+					d = new EditorDialog(this, new ProjectData(), false);
+				else d = new EditorDialog(this, new ScreenData(), false);
 				d.addPropertyChangeListener(this);
 				UIUtilities.centerAndShow(d);
 		}
