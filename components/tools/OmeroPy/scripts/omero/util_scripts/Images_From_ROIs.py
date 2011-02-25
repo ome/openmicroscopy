@@ -139,14 +139,16 @@ def makeImagesFromRois(session, parameterMap):
     if "Container_Name" in parameterMap:
         containerName = parameterMap["Container_Name"]
     
+    newDataset = None    # only created if not putting images in stack
     imageStack = ("Make_Image_Stack" in parameterMap) and (parameterMap["Make_Image_Stack"])
     newIds = []
     for imageId in imageIds:
     
-        image = containerService.getImages("Image", [imageId], None)[0]
-        if image == None:
+        iList = containerService.getImages("Image", [imageId], None)
+        if len(iList) == 0:
             print "Image ID: %s not found." % imageId
             continue
+        image = iList[0]
         imageName = image.getName().getValue()
     
         pixels = image.getPrimaryPixels()
@@ -159,8 +161,6 @@ def makeImagesFromRois(session, parameterMap):
     
         # get ROI Rectangles, as (x, y, width, height)
         rects = getRectangles(session, imageId)
-        
-        newDataset = None    # only created if not putting images in stack
         
         # if making a single stack image...
         if imageStack:
@@ -192,20 +192,7 @@ def makeImagesFromRois(session, parameterMap):
     
         # ..else, make an image for each ROI (all in one dataset?)
         else:
-            # create a new dataset for new images
-            datasetName = containerName    # e.g. myImage.mrc_particles
-            print "\nMaking Dataset '%s' of Images from ROIs of Image: %s" % (datasetName, imageId)
-            print "physicalSize X, Y:  %s, %s" % (physicalSizeX, physicalSizeY)
-            dataset = omero.model.DatasetI()
-            dataset.name = rstring(datasetName)
-            desc = "Images in this Dataset are from ROIs of parent Image:\n  Name: %s\n  Image ID: %d" % (imageName, imageId)
-            dataset = updateService.saveAndReturnObject(dataset)
-            if project:        # and put it in the current project
-                link = omero.model.ProjectDatasetLinkI()
-                link.parent = omero.model.ProjectI(project.id.val, False)
-                link.child = omero.model.DatasetI(dataset.id.val, False)
-                updateService.saveAndReturnObject(link)
-    
+            iIds = []
             for r in rects:
                 x,y,w,h = r
                 print "  ROI x: %s y: %s w: %s h: %s" % (x, y, w, h)
@@ -214,20 +201,44 @@ def makeImagesFromRois(session, parameterMap):
                 array = plane2D[y:y2, x:x2]     # slice the ROI rectangle data out of the whole image-plane 2D array
             
                 description = "Created from image:\n  Name: %s\n  Image ID: %d \n x: %d y: %d" % (imageName, imageId, x, y)
-                image = scriptUtil.createNewImage(session, [array], "from_roi", description, dataset)
+                image = scriptUtil.createNewImage(session, [array], "from_roi", description)
             
                 pixels = image.getPrimaryPixels()
                 pixels.setPhysicalSizeX(rdouble(physicalSizeX))
                 pixels.setPhysicalSizeY(rdouble(physicalSizeY))
                 updateService.saveObject(pixels)
-            
-            newIds.append(dataset.getId().getValue())
-            newDataset = dataset
-            
+                
+                iIds.append(image.getId().getValue())
+                
+            if len(iIds) > 0:
+                # create a new dataset for new images
+                datasetName = containerName    # e.g. myImage.mrc_particles
+                print "\nMaking Dataset '%s' of Images from ROIs of Image: %s" % (datasetName, imageId)
+                print "physicalSize X, Y:  %s, %s" % (physicalSizeX, physicalSizeY)
+                dataset = omero.model.DatasetI()
+                dataset.name = rstring(datasetName)
+                desc = "Images in this Dataset are from ROIs of parent Image:\n  Name: %s\n  Image ID: %d" % (imageName, imageId)
+                dataset.description = rstring(desc)
+                dataset = updateService.saveAndReturnObject(dataset)
+                if project:        # and put it in the current project
+                    link = omero.model.ProjectDatasetLinkI()
+                    link.parent = omero.model.ProjectI(project.id.val, False)
+                    link.child = omero.model.DatasetI(dataset.id.val, False)
+                    updateService.saveAndReturnObject(link)
+                    
+                for iid in iIds:
+                    link = omero.model.DatasetImageLinkI()
+                    link.parent = omero.model.DatasetI(dataset.id.val, False)
+                    link.child = omero.model.ImageI(iid, False)
+                    session.getUpdateService().saveObject(link)
+                newIds.append(dataset.getId().getValue())
+                newDataset = dataset
+
+    plural = (len(newIds) == 1) and "." or "s."
     if imageStack:
-        message = "Created %s new Images. Refresh Dataset to view" % len(newIds)
+        message = "Created %s new Image%s Refresh Dataset to view" % (len(newIds), plural)
     else:
-        message = "Created %s new Datasets. Refresh Project to view" % len(newIds)
+        message = "Created %s new Dataset%s Refresh Project to view" % (len(newIds), plural)
     return (message, newDataset)
 
 def runAsScript():
