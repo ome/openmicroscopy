@@ -10,16 +10,20 @@
 import os
 import sys
 
-from omero.cli import BaseControl, CLI
+from omero.cli import BaseControl, CLI, ExceptionHandler
 
 HELP = "Support for adding and managing users"
 
 class UserControl(BaseControl):
 
     def _configure(self, parser):
+
+        self.exc = ExceptionHandler()
+
         sub = parser.sub()
 
         add = parser.add(sub, self.add, help = "Add users")
+        add.add_argument("--ignore-existing", action="store_true", default=False, help="Do not fail if user already exists")
         add.add_argument("-m", "--middlename", help = "Middle name, if available")
         add.add_argument("-e", "--email")
         add.add_argument("-i", "--institution")
@@ -95,6 +99,17 @@ class UserControl(BaseControl):
         admin = c.getSession().getAdminService()
 
         try:
+            usr = admin.lookupExperimenter(login)
+            if usr:
+                if args.ignore_existing:
+                    self.ctx.out("User exists: %s (id=%s)" % (login, usr.id.val))
+                    return
+                else:
+                    self.ctx.die(3, "User exists: %s (id=%s)" % (login, usr.id.val))
+        except omero.ApiUsageException, aue:
+            pass # Apparently no such user exists
+
+        try:
             groups = [admin.lookupGroup(group) for group in args.member_of]
         except omero.ApiUsageException, aue:
             self.ctx.die(68, aue.message)
@@ -114,7 +129,8 @@ class UserControl(BaseControl):
                 id = admin.createExperimenterWithPassword(e, rstring(pasw), group, groups)
                 self.ctx.out("Added user %s with password" % id)
         except omero.ValidationException, ve:
-            if "org.hibernate.exception.ConstraintViolationException: could not insert" in str(ve):
+            # Possible, though unlikely after previous check
+            if self.exc.is_constraint_violation(ve):
                 self.ctx.die(66, "User already exists: %s" % login)
             else:
                 self.ctx.die(67, "Unknown ValidationException: %s" % ve.message)

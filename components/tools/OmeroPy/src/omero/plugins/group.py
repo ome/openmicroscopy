@@ -10,15 +10,19 @@
 import os
 import sys
 
-from omero.cli import BaseControl, CLI
+from omero.cli import BaseControl, CLI, ExceptionHandler
 
 HELP="""Group administration methods"""
 
 class GroupControl(BaseControl):
 
     def _configure(self, parser):
+
+        self.exc = ExceptionHandler()
+
         sub = parser.sub()
         add = parser.add(sub, self.add, "Add a new group with given permissions")
+        add.add_argument("--ignore-existing", action="store_true", default=False, help="Do not fail if user already exists")
         add.add_argument("name", help="ExperimenterGroup.name value")
 
         perms = parser.add(sub, self.perms, "Modify a group's permissions")
@@ -68,8 +72,31 @@ class GroupControl(BaseControl):
         g.name = rstring(args.name)
         g.details.permissions = Perms(perms)
         admin = c.getSession().getAdminService()
-        id = admin.createGroup(g)
-        self.ctx.out("Added group %s (id=%s) with permissions %s" % (id, args.name, perms))
+        try:
+            grp = admin.lookupGroup(args.name)
+            if grp:
+                if args.ignore_existing:
+                    self.ctx.out("Group exists: %s (id=%s)" % (args.name, grp.id.val))
+                    return
+                else:
+                    self.ctx.die(3, "Group exists: %s (id=%s)" % (args.name, grp.id.val))
+        except omero.ApiUsageException, aue:
+            pass # Apparently no such group exists
+
+        try:
+            id = admin.createGroup(g)
+            self.ctx.out("Added group %s (id=%s) with permissions %s" % (id, args.name, perms))
+        except omero.ValidationException, ve:
+            # Possible, though unlikely after previous check
+            if self.exc.is_constraint_violation(ve):
+                self.ctx.die(66, "Group already exists: %s" % args.name)
+            else:
+                self.ctx.die(67, "Unknown ValidationException: %s" % ve.message)
+        except omero.SecurityViolation, se:
+            self.ctx.die(68, "Security violation: %s" % se.message)
+        except omero.ServerError, se:
+            self.ctx.die(4, "%s: %s" % (type(se), se.message))
+
 
     def perms(self, args):
 

@@ -202,6 +202,18 @@ class DirectoryType(FileType):
         return str(p.abspath())
 
 
+class ExceptionHandler(object):
+    """
+    Location for all logic which maps from server exceptions
+    to specific states. This could likely be moved elsewhere
+    for general client-side usage.
+    """
+    def is_constraint_violation(self, ve):
+        if isinstance(ve, omero.ValidationException):
+            if "org.hibernate.exception.ConstraintViolationException: could not insert" in str(ve):
+                return True
+
+
 class Context:
     """Simple context used for default logic. The CLI registry which registers
     the plugins installs itself as a fully functional Context.
