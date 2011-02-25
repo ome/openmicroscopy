@@ -39,8 +39,6 @@ import omero.scripts as scripts
 import omero.util.script_utils as scriptUtil
 import omero.util.figureUtil as figUtil
 from omero.rtypes import *
-import omero.gateway
-import omero_api_Gateway_ice	# see http://tinyurl.com/icebuserror
 import omero_api_IRoi_ice
 import omero.util.imageUtil as imgUtil
 import StringIO
@@ -237,7 +235,6 @@ def makeFrapFigure(session, commandArgs):
 	Main method called to make the figure. 
 	Returns fileID object of the child of the fileAnnotation
 	"""
-	gateway = session.createGateway()
 	roiService = session.getRoiService()
 	queryService = session.getQueryService()
 	updateService = session.getUpdateService()
@@ -251,7 +248,7 @@ def makeFrapFigure(session, commandArgs):
 	if "theC" in commandArgs:
 		theC = commandArgs["theC"]
 	
-	image = gateway.getImage(imageId)
+	image = queryService.get("Image", imageId)
 	imageName = image.getName().getValue()
 	
 	query_string = "select p from Pixels p join fetch p.image i join fetch p.pixelsType pt where i.id='%d'" % imageId
