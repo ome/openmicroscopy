@@ -29,6 +29,7 @@ python dist/bin/omero web start
 
 python dist/bin/omero web seleniumtest webadmin localhost 'http://'$OMERO_HOST':'$WEBPORT firefox --config=$ICE_CONFIG
 
+python dist/bin/omero web stop
 
 #
 # Write test file for OMERO-web jobs
