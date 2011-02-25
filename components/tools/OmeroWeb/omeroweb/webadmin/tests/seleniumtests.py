@@ -1,7 +1,8 @@
+import os
+import omero
 from omeroweb.webgateway.tests.seleniumbase import SeleniumTestBase, Utils
-from omero.gateway.scripts import dbhelpers
 from random import random
-
+from django.conf import settings
 
 def createGroup(sel, groupName):
     """
@@ -66,9 +67,8 @@ def createExperimenter(sel, omeName, groupNames, password="ome", firstName="Sele
     return eId
 
 class WebAdminTestBase (SeleniumTestBase):
-
         
-    def login (self, u, p):
+    def login (self, u, p, sid):
         sel = self.selenium
         if self.selenium.is_element_present('link=Log out'):
             print "logging out..."
@@ -77,6 +77,7 @@ class WebAdminTestBase (SeleniumTestBase):
         sel.open("/webadmin/login")
         sel.type("id_username", u)
         sel.type("id_password", p)
+        sel.type("id_server", sid)
         sel.click("//input[@value='Connect']")
         self.waitForElementPresence('link=Scientists')
         
@@ -88,14 +89,17 @@ class WebAdminTestBase (SeleniumTestBase):
         
 class AdminTests (WebAdminTestBase):
 
-    from omero.gateway.scripts import dbhelpers
-
     def setUp(self):
         super(AdminTests, self).setUp()
-        dbhelpers.refreshConfig()
-        user = dbhelpers.ROOT.name
-        password = dbhelpers.ROOT.passwd
-        self.login(user, password)
+        
+        c = omero.client(pmap=['--Ice.Config='+(os.environ.get("ICE_CONFIG"))])
+        try:
+            root_password = c.ic.getProperties().getProperty('omero.rootpass')
+            omero_host = c.ic.getProperties().getProperty('omero.host')
+        finally:
+            c.__del__()
+        server_id = settings.SERVER_LIST.find(server_host=omero_host).id
+        self.login('root', root_password, server_id)
 
 
     def testPages (self):

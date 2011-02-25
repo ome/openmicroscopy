@@ -88,6 +88,7 @@ class WebControl(BaseControl):
         gateway = parser.add(sub, self.gateway, "Developer use: Loads the blitz gateway into a Python interpreter")
 
         selenium = parser.add(sub, self.seleniumtest, "Developer use: runs selenium tests on a django app")
+        selenium.add_argument("--config", action="store", help = "ice.config location")
         selenium.add_argument("djangoapp", help = "Django-app to be tested")
         selenium.add_argument("seleniumserver", help = "E.g. localhost")
         selenium.add_argument("hostname", help = "E.g. http://localhost:4080")
@@ -260,6 +261,7 @@ Alias / "%(ROOT)s/var/omero.fcgi/"
 
     def seleniumtest (self, args):
         try:
+            ice_config = args.config
             appname = args.djangoapp
             seleniumserver = args.seleniumserver
             hostname = args.hostname
@@ -278,6 +280,8 @@ Alias / "%(ROOT)s/var/omero.fcgi/"
 
         cargs = ["python", location / appname / "tests" / "seleniumtests.py", seleniumserver, hostname, browser]
         #cargs += args.arg[1:]
+        self.set_environ(ice_config=ice_config)
+        os.environ['DJANGO_SETTINGS_MODULE'] = 'omeroweb.settings'
         rv = self.ctx.call(cargs, cwd = location )
         
     def call (self, args):
