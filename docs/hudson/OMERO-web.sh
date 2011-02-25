@@ -2,6 +2,9 @@ set -e
 set -u
 set -x
 
+test -e dist/bin/omero && \
+    (python dist/bin/omero web stop || echo 'Not running?')
+
 #
 # Run tests
 #
