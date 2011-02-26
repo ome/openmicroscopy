@@ -47,14 +47,18 @@ import java.util.List;
  */
 class FileElement
 {
-
+	
 	/** The file to host. */
 	private File file;
 	
 	/** The name of the imported file. */
 	private String name;
 	
-	/** Creates a new instance. */
+	/** 
+	 * Creates a new instance. 
+	 * 
+	 * @param file The file to import.
+	 */
 	FileElement(File file)
 	{
 		if (file == null)

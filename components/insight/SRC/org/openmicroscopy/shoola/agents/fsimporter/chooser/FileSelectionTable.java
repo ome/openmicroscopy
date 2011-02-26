@@ -52,6 +52,7 @@ import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
+import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -100,13 +101,19 @@ class FileSelectionTable
 	private static final int		FILE_INDEX = 0;
 	
 	/** 
+	 * The index of the column indicating the container where files will
+	 * be imported
+	 */
+	private static final int		CONTAINER_INDEX = 1;
+	
+	/** 
 	 * The index of the column indicating to use the folder
 	 * as a dataset. 
 	 */
-	private static final int		FOLDER_AS_CONTAINER_INDEX = 1;
+	private static final int		FOLDER_AS_CONTAINER_INDEX = 2;
 	
 	/** The index of the column indicating to archive the file. */
-	private static final int		ARCHIVED_INDEX = 2;
+	private static final int		ARCHIVED_INDEX = 3;
 	
 	/** The columns of the table. */
 	private static final Vector<String> COLUMNS;
@@ -115,14 +122,16 @@ class FileSelectionTable
 	private static final Vector<String> COLUMNS_NO_FOLDER_AS_CONTAINER;
 	
 	static {
-		COLUMNS = new Vector<String>(2);
+		COLUMNS = new Vector<String>(4);
 		COLUMNS.add("File or Folder");
-		COLUMNS.add("Folder as Dataset");
-		COLUMNS.add("Archived");
+		COLUMNS.add("Container");
+		COLUMNS.add("FaD");
+		COLUMNS.add("A");
 		
-		COLUMNS_NO_FOLDER_AS_CONTAINER = new Vector<String>(2);
+		COLUMNS_NO_FOLDER_AS_CONTAINER = new Vector<String>(3);
 		COLUMNS_NO_FOLDER_AS_CONTAINER.add("File or Folder");
-		COLUMNS_NO_FOLDER_AS_CONTAINER.add("Archived");
+		COLUMNS_NO_FOLDER_AS_CONTAINER.add("Container");
+		COLUMNS_NO_FOLDER_AS_CONTAINER.add("A");
 	}
 	
 	/** The button to move an item from the remaining items to current items. */
@@ -322,8 +331,10 @@ class FileSelectionTable
 		ImportableFile importable;
 		int columns = table.getColumnCount();
 		boolean b;
+		DataNodeElement dne;
 		for (int i = 0; i < n; i++) {
 			element = (FileElement) dtm.getValueAt(i, FILE_INDEX);
+			dne = (DataNodeElement) dtm.getValueAt(i, CONTAINER_INDEX);
 			file = element.getFile();
 			if (columns == COLUMNS_NO_FOLDER_AS_CONTAINER.size()) {
 				importable = new ImportableFile(file, 
@@ -401,16 +412,22 @@ class FileSelectionTable
 		Iterator<File> i = files.iterator();
 		int n = table.getModel().getColumnCount();
 		boolean b = n == COLUMNS.size();
+		DataNode node = model.getImportLocation();
+		String value = null;
 		while (i.hasNext()) {
 			f = i.next();
 			if (!inQueue.contains(f.getAbsolutePath())) {
+				value = null;
 				element = new FileElement(f);
 				element.setName(f.getName());
-				if (b) 
+				if (b) {
+					if (f.isDirectory()) value = f.getName();
 					dtm.addRow(new Object[] {element, 
+							new DataNodeElement(node, value),
 							Boolean.valueOf(f.isDirectory()), 
 							Boolean.valueOf(archived)});
-				else dtm.addRow(new Object[] {element, 
+				} else dtm.addRow(new Object[] {element, 
+						new DataNodeElement(node, null),
 						Boolean.valueOf(archived)});
 			}
 		}
@@ -488,7 +505,9 @@ class FileSelectionTable
 		public boolean isCellEditable(int row, int column)
 		{ 
 			switch (column) {
-				case FILE_INDEX: return false;
+				case FILE_INDEX: 
+				case CONTAINER_INDEX:
+					return false;
 				case FOLDER_AS_CONTAINER_INDEX:
 					if (getColumnCount() == 
 						COLUMNS_NO_FOLDER_AS_CONTAINER.size())
@@ -506,9 +525,19 @@ class FileSelectionTable
 		 */
 		public void setValueAt(Object value, int row, int col)
 		{   
-			FileElement f = (FileElement) getValueAt(row, FILE_INDEX);
-			if (value instanceof String) f.setName((String) value);
+			//FileElement f = (FileElement) getValueAt(row, FILE_INDEX);
+			//if (value instanceof String) f.setName((String) value);
 			if (value instanceof Boolean) {
+				if (col == FOLDER_AS_CONTAINER_INDEX) {
+					DataNodeElement element = (DataNodeElement) getValueAt(row, 
+							CONTAINER_INDEX);
+					FileElement f = (FileElement) getValueAt(row, FILE_INDEX);
+					if (f.isDirectory()) {
+						boolean b = ((Boolean) value).booleanValue();
+						if (b) element.setName(f.getName());
+						else element.setName(null);
+					}
+				}
 				super.setValueAt(value, row, col);
 			}
 			fireTableCellUpdated(row, col);

@@ -25,14 +25,13 @@ package org.openmicroscopy.shoola.env.data.model;
 
 //Java imports
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-import org.openmicroscopy.shoola.env.data.util.StatusLabel;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.util.StatusLabel;
+
+import pojos.DatasetData;
 
 /** 
  * Store information about the file or folder to import.
@@ -62,6 +61,12 @@ public class ImportableFile
 	/** Object used to find result back. */
 	private StatusLabel status;
 	
+	/** Indicate where to import the file, either a project or screen. */
+	private DataObject parent;
+	
+	/** Indicate where to import the images. */
+	private DatasetData dataset;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -90,6 +95,32 @@ public class ImportableFile
 		this.archived = archived;
 		this.folderAsContainer = folderAsContainer;
 	}
+	
+	/**
+	 * Sets where to import the files.
+	 * 
+	 * @param parent The parent either a project or a screen.
+	 * @param dataset The dataset where to import the images.
+	 */
+	public void setLocation(DataObject parent, DatasetData dataset)
+	{
+		this.parent = parent;
+		this.dataset = dataset;
+	}
+	
+	/**
+	 * Returns the parent, either a project or a screen.
+	 * 
+	 * @return See above.
+	 */
+	public DataObject getParent() { return parent; }
+	
+	/**
+	 * Returns the parent, either a project or a screen.
+	 * 
+	 * @return See above.
+	 */
+	public DatasetData getDataset() { return dataset; }
 	
 	/**
 	 * Returns the object to import.

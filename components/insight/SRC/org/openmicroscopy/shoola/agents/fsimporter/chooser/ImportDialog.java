@@ -1473,6 +1473,23 @@ public class ImportDialog
 		return (type != Importer.SCREEN_TYPE);
 	}
 	
+	/**
+	 * Returns where to import the file when selected.
+	 * 
+	 * @return See above.
+	 */
+	DataNode getImportLocation()
+	{
+		if (type == Importer.SCREEN_TYPE) {
+			if (parentsBox.getItemCount() > 0) 
+				return (DataNode) parentsBox.getSelectedItem();
+			return null;
+		}
+		if (datasetsBox.getItemCount() > 0)
+			return (DataNode) datasetsBox.getSelectedItem();
+		return null;
+	}
+	
     /** 
      * Creates a new instance.
      * 
