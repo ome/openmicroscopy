@@ -6011,14 +6011,14 @@ class OMEROGateway
 	 * Imports the specified file. Returns the image.
 	 * 
 	 * @param object Information about the file to import.
-	 * @param container The file where to import the image.
+	 * @param container The folder to import the image.
 	 * @param name		The name to give to the imported image.
 	 * @param archived  Pass <code>true</code> if the image has to be archived,
 	 * 					<code>false</code> otherwise.
 	 * @return See above.
 	 * @throws ImportException If an error occurred while importing.
 	 */
-	Object importImage(ImportableObject object, List<IObject> containers, 
+	Object importImage(ImportableObject object, IObject container, 
 			File file, StatusLabel status, boolean archived)
 		throws ImportException
 	{
@@ -6026,11 +6026,7 @@ class OMEROGateway
 			ImportLibrary library = new ImportLibrary(getImportStore(), 
 					new OMEROWrapper(new ImportConfig()));
 			library.addObserver(status);
-			IObject container = null;
-			if (containers != null && containers.size() > 0) {
-				container = containers.get(0);
-			}
-				
+
 			ImportContainer ic = new ImportContainer(file, -1L, container, 
 					archived, object.getPixelsSize(), null, null, null);
 			ic.setUseMetadataFile(true);
@@ -6044,25 +6040,24 @@ class OMEROGateway
 			Pixels p;
 			Image image;
 			if (pixels != null && pixels.size() > 0) {
-				if (containers != null && containers.size() > 1) {
-					//going to create dataset image link
-					if (containers.get(0) instanceof Dataset) {
-						j = pixels.iterator();
-						Dataset d;
-						IObject link;
-						List<IObject> links = new ArrayList<IObject>();
-						while (j.hasNext()) {
-							p = j.next();
-							image = p.getImage();
-							for (int k = 1; k < containers.size(); k++)
-								links.add(ModelMapper.linkParentToChild(image, 
-										(Dataset) containers.get(k)));
-						}
-						if (links.size() > 0) {
-							saveAndReturnObject(links, new HashMap());
-						}
+				//going to create dataset image link
+				/*
+				if (container instanceof Dataset) {
+					j = pixels.iterator();
+					Dataset d;
+					IObject link;
+					List<IObject> links = new ArrayList<IObject>();
+					while (j.hasNext()) {
+						p = j.next();
+						image = p.getImage();
+						links.add(ModelMapper.linkParentToChild(image, 
+								(Dataset) container));	
+					}
+					if (links.size() > 0) {
+						saveAndReturnObject(links, new HashMap());
 					}
 				}
+				*/
 				int n = pixels.size();
 				
 				long id;

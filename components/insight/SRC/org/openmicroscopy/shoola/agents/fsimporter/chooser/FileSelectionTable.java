@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
 
 //Java imports
+import info.clearthought.layout.TableLayout;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -45,14 +47,13 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
 //Third-party libraries
-import info.clearthought.layout.TableLayout;
+//import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
-import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -162,11 +163,13 @@ class FileSelectionTable
 		TableColumn tc = tcm.getColumn(FOLDER_AS_CONTAINER_INDEX);
 		tc.setCellEditor(table.getDefaultEditor(Boolean.class));  
 		tc.setCellRenderer(table.getDefaultRenderer(Boolean.class));  
+		tc.setPreferredWidth(20);
 		
 		if (table.getColumnCount() == COLUMNS.size()) {
 			tc = tcm.getColumn(ARCHIVED_INDEX);
 			tc.setCellEditor(table.getDefaultEditor(Boolean.class));  
 			tc.setCellRenderer(table.getDefaultRenderer(Boolean.class));
+			tc.setPreferredWidth(20);
 		}
 		TableCellRenderer renderer = new StringCellRenderer();
 		for (int i = 0; i < table.getColumnCount(); i++) 
@@ -198,11 +201,13 @@ class FileSelectionTable
 		if (b != null) archived = b.booleanValue();
 		b = (Boolean) ImporterAgent.getRegistry().lookup(ARCHIVED_AVAILABLE);
 		if (b != null) archivedTunable = b.booleanValue();
-		if (model.useFolderAsContainer())
+		if (model.useFolderAsContainer()) {
 			table = new JXTable(new FileTableModel(COLUMNS));
-		else 
+		} else {
 			table = new JXTable(new FileTableModel(
 					COLUMNS_NO_FOLDER_AS_CONTAINER));
+		}
+		table.getTableHeader().setReorderingAllowed(false);
 		table.addKeyListener(new KeyAdapter() {
 			
 			/**
@@ -348,6 +353,8 @@ class FileSelectionTable
 						Boolean.valueOf((Boolean) dtm.getValueAt(i, 
 					ARCHIVED_INDEX)), b);
 			}
+			importable.setLocation(dne.getParent(), dne.getLocation());
+			importable.setRefNode(dne.getRefNode());
 			files.add(importable);
 		}
 		return files;

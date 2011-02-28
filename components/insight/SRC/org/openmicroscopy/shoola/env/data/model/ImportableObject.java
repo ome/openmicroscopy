@@ -27,8 +27,10 @@ package org.openmicroscopy.shoola.env.data.model;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
@@ -37,6 +39,7 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
 //Application-internal dependencies
 import pojos.DataObject;
 import pojos.DatasetData;
+import pojos.ProjectData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 
@@ -108,6 +111,32 @@ public class ImportableObject
 	/** The nodes of reference. */
 	private List<Object> refNodes;
 	
+	/** The collection of new objects. */
+	private List<DataObject> newObjects;
+
+	/** The collection of new object. */
+	private Map<Long, List<DatasetData>> projectDatasetMap;
+
+	/**
+	 * Returns the name of the object.
+	 * 
+	 * @param object The object to handle.
+	 * @return See above.
+	 */
+	private String getObjectName(DataObject object)
+	{
+		if (object instanceof DatasetData) {
+			return ((DatasetData) object).getName();
+		}
+		if (object instanceof ProjectData) {
+			return ((ProjectData) object).getName();
+		}
+		if (object instanceof ScreenData) {
+			return ((ScreenData) object).getName();
+		}
+		return "";
+	}
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -123,6 +152,8 @@ public class ImportableObject
 		type = DatasetData.class;
 		depth = -1;
 		loadThumbnail = true;
+		newObjects = new ArrayList<DataObject>();
+		projectDatasetMap = new HashMap<Long, List<DatasetData>>();
 	}
 	
 	/**
@@ -341,6 +372,82 @@ public class ImportableObject
 		if (!name.contains(".")) return false; 
 		String ext = name.substring(name.lastIndexOf('.')+1, name.length());
 		return HCS_FILES_EXTENSION.contains(ext);
+	}
+	
+	/**
+	 * Adds a new object.
+	 * 
+	 * @param object The object to add.
+	 */
+	public void addNewDataObject(DataObject object)
+	{
+		if (object != null) newObjects.add(object);
+	}
+	
+	/**
+	 * Returns the object if it has already been created, 
+	 * <code>null</code> otherwise.
+	 * 
+	 * @param object The object to check.
+	 * @return See above.
+	 */
+	public DataObject hasObjectBeenCreated(DataObject object)
+	{
+		if (object == null) return null;
+		Iterator<DataObject> i = newObjects.iterator();
+		DataObject data;
+		String name = getObjectName(object);
+		String n;
+		while (i.hasNext()) {
+			data = i.next();
+			n = getObjectName(data);
+			if (data.getClass().equals(object.getClass()) && n.equals(name)) {
+				return data;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Returns the dataset if already created.
+	 * 
+	 * @param projectID The id of the project.
+	 * @param dataset The dataset to register.
+	 * @return See above.s
+	 */
+	public DatasetData isDatasetCreated(long projectID, DatasetData dataset)
+	{
+		List<DatasetData> datasets = projectDatasetMap.get(projectID);
+		if (datasets == null || datasets.size() == 0) return null;
+		Iterator<DatasetData> i = datasets.iterator();
+		DatasetData data;
+		String name = dataset.getName();
+		String n;
+		while (i.hasNext()) {
+			data = i.next();
+			n = data.getName();
+			if (n.equals(name)) {
+				return data;
+			}
+		}
+		return null;
+	}
+	
+	/**
+	 * Registers the dataset.
+	 * 
+	 * @param projectID The id of the project.
+	 * @param dataset The dataset to register.
+	 */
+	public void registerDataset(long projectID, DatasetData dataset)
+	{
+		if (dataset == null) return;
+		List<DatasetData> datasets = projectDatasetMap.get(projectID);
+		if (datasets == null) {
+			datasets = new ArrayList<DatasetData>();
+			projectDatasetMap.put(projectID, datasets);
+		}
+		datasets.add(dataset);
 	}
 	
 }

@@ -149,7 +149,7 @@ class ImporterModel
 	{
 		ImagesImporter loader = loaders.get(loaderID);
 		if (loader != null) {
-			loader.cancel();
+			//loader.cancel();
 			loaders.remove(loaderID);
 		}
 	}

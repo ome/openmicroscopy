@@ -30,7 +30,6 @@ import java.io.File;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.util.StatusLabel;
-
 import pojos.DatasetData;
 
 /** 
@@ -62,10 +61,13 @@ public class ImportableFile
 	private StatusLabel status;
 	
 	/** Indicate where to import the file, either a project or screen. */
-	private DataObject parent;
+	private pojos.DataObject parent;
 	
 	/** Indicate where to import the images. */
 	private DatasetData dataset;
+	
+	/** The node of reference if set. */
+	private Object refNode;
 	
 	/**
 	 * Creates a new instance.
@@ -102,7 +104,7 @@ public class ImportableFile
 	 * @param parent The parent either a project or a screen.
 	 * @param dataset The dataset where to import the images.
 	 */
-	public void setLocation(DataObject parent, DatasetData dataset)
+	public void setLocation(pojos.DataObject parent, DatasetData dataset)
 	{
 		this.parent = parent;
 		this.dataset = dataset;
@@ -113,7 +115,7 @@ public class ImportableFile
 	 * 
 	 * @return See above.
 	 */
-	public DataObject getParent() { return parent; }
+	public pojos.DataObject getParent() { return parent; }
 	
 	/**
 	 * Returns the parent, either a project or a screen.
@@ -159,4 +161,18 @@ public class ImportableFile
 	 */
 	public StatusLabel getStatus() { return status; }
 	
+	/**
+	 * Returns the node of reference if set.
+	 * 
+	 * @return See above. 
+	 */
+	public Object getRefNode() { return refNode; }
+	
+	/**
+	 * Sets the node of reference if set.
+	 *  
+	 * @param refNode The node to set.
+	 */
+	public void setRefNode(Object refNode) { this.refNode = refNode; }
+		
 }

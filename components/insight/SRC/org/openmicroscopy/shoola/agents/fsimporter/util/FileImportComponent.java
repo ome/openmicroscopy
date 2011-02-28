@@ -66,6 +66,7 @@ import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.measurement.MeasurementAgent;
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.data.ImportException;
 import org.openmicroscopy.shoola.env.data.model.DeletableObject;
 import org.openmicroscopy.shoola.env.data.model.DeleteActivityParam;
@@ -77,8 +78,11 @@ import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.file.ImportErrorObject;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
+import pojos.DatasetData;
 import pojos.ImageData;
 import pojos.PlateData;
+import pojos.ProjectData;
+import pojos.ScreenData;
 
 /** 
  * Component hosting the file to import and displaying the status of the 
@@ -137,6 +141,21 @@ public class FileImportComponent
 	/** The number of extra labels for images to add. */
 	private static final int NUMBER = 3;
 	
+	/** Action id to delete the image. */
+	private static final int DELETE_ID = 0;
+	
+	/** Action id to cancel the import before it starts. */
+	private static final int CANCEL_ID = 1;
+	
+	/** Action id to browse the container. */
+	private static final int BROWSE_ID = 2;
+
+	/** Text indicating where the images where imported. */
+	private static final String TEXT_DATASET = "Imported in Dataset:";
+	
+	/** Text indicating where the plates where imported. */
+	private static final String TEXT_SCREEN = "Imported in Screen:";
+	
 	/** One of the constants defined by this class. */
 	private int				type;
 	
@@ -184,6 +203,38 @@ public class FileImportComponent
 	
 	/** The data object corresponding to the folder. */
 	private DataObject containerFromFolder;
+	
+	/** Button to browse the container. */
+	private JButton	browseButton;
+	
+	/** Button to cancel the import for that file. */
+	private JButton	cancelButton;
+	
+	/** The node where to import the folder. */
+	private DataObject data;
+	
+	/** The dataset if any. */
+	private DatasetData dataset;
+	
+	/** The node of reference if any. */
+	private Object refNode;
+	
+	/** The container displaying where it was imported. */
+	private JLabel containerLabel;
+	
+	/** Indicates that the file will not be imported. */
+	private void cancel()
+	{
+		//boolean isBusy = busyLabel.isBusy();
+		//if (file.isFile()) { // && isBusy) {
+		statusLabel.setText("cancelled");
+		statusLabel.markedAsCancel();
+		cancelButton.setEnabled(false);
+		cancelButton.setVisible(false);
+		busyLabel.setBusy(false);
+		busyLabel.setVisible(false);
+		//}
+	}
 	
 	/** Deletes the image that was imported but cannot be viewed. */
 	private void deleteImage()
@@ -246,6 +297,19 @@ public class FileImportComponent
 		busyLabel.setVisible(true);
 		busyLabel.setBusy(false);
 		
+		cancelButton = UIUtilities.createHyperLinkButton("Cancel");
+		cancelButton.addActionListener(this);
+		cancelButton.setActionCommand(""+CANCEL_ID);
+		cancelButton.setVisible(true);
+		
+		browseButton = UIUtilities.createHyperLinkButton("Browse");
+		browseButton.addActionListener(this);
+		browseButton.setActionCommand(""+BROWSE_ID);
+		browseButton.setVisible(false);
+		
+		containerLabel = UIUtilities.setTextFont("");
+		containerLabel.setVisible(false);
+		
 		namePane = new JPanel();
 		namePane.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
 		IconManager icons = IconManager.getInstance();
@@ -292,10 +356,14 @@ public class FileImportComponent
 		removeAll();
 		add(namePane);
 		add(busyLabel);
+		add(cancelButton);
 		add(resultLabel);
 		add(statusLabel);
 		add(errorBox);
 		add(deleteButton);
+		add(Box.createHorizontalStrut(10));
+		//add(containerLabel);
+		add(browseButton);
 	}
 	
 	/**
@@ -399,6 +467,47 @@ public class FileImportComponent
 	}
 	
 	/**
+	 * Sets the location where to import the files.
+	 * 
+	 * @param data The data where to import the folder or screening data.
+	 * @param dataset The dataset if any.
+	 * @param refNode The node of reference.
+	 */
+	public void setLocation(DataObject data, DatasetData dataset, 
+			Object refNode)
+	{
+		this.data = data;
+		this.dataset = dataset;
+		this.refNode = refNode;
+		System.err.println("refNode:"+refNode);
+		if (refNode != null && refNode instanceof TreeImageDisplay) {
+			TreeImageDisplay n = (TreeImageDisplay) refNode;
+			Object ho = n.getUserObject();
+			if (ho instanceof DatasetData) {
+				containerLabel.setText(TEXT_DATASET);
+				browseButton.setText(((DatasetData) ho).getName());
+			} else if (ho instanceof ProjectData)
+				browseButton.setText(((ProjectData) data).getName());
+			else if (ho instanceof ScreenData) {
+				containerLabel.setText(TEXT_SCREEN);
+				browseButton.setText(((ScreenData) data).getName());
+			}
+		}
+		/*
+		if (dataset != null) {
+			browseButton.setText(dataset.getName());
+			return;
+		}
+		if (data != null) {
+			if (data instanceof ProjectData)
+				browseButton.setText(((ProjectData) data).getName());
+			else if (data instanceof ScreenData)
+				browseButton.setText(((ScreenData) data).getName());
+		}
+		*/
+	}
+	
+	/**
 	 * Replaces the initial status label.
 	 * 
 	 * @param label The value to replace.
@@ -458,6 +567,8 @@ public class FileImportComponent
 				fileNameLabel.addMouseListener(adapter);
 				resultLabel.addMouseListener(adapter);
 				addMouseListener(adapter);
+				browseButton.setVisible(true);
+				containerLabel.setVisible(true);
 			}
 		} else if (image instanceof ThumbnailData) {
 			ThumbnailData thumbnail = (ThumbnailData) image;
@@ -516,8 +627,10 @@ public class FileImportComponent
 			resultLabel.setVisible(true);
 			//control = resultLabel;
 		} else if (image instanceof Boolean) {
-			if (file.isDirectory()) setStatusText("Folder imported");
-			else setStatusText("File not valid");
+			if (!statusLabel.isMarkedAsCancel()) {
+				if (file.isDirectory()) setStatusText("Folder imported");
+				else setStatusText("File not valid");
+			}
 		} else {
 			if (!status) {
 				statusLabel.setVisible(false);
@@ -682,10 +795,7 @@ public class FileImportComponent
 	/** Indicates the import has been cancelled. */
 	public void cancelLoading()
 	{
-		boolean isBusy = busyLabel.isBusy();
-		if (file.isFile() && isBusy) {
-			statusLabel.setText("cancelled");
-		}
+		cancel();
 		if (components == null) return;
 		Iterator<FileImportComponent> i = components.values().iterator();
 		while (i.hasNext()) {
@@ -764,6 +874,7 @@ public class FileImportComponent
 			StatusLabel sl = (StatusLabel) evt.getNewValue();
 			if (sl == statusLabel && busyLabel != null) {
 				busyLabel.setBusy(true);
+				cancelButton.setVisible(false);
 			}
 		} else if (StatusLabel.FILE_IMPORTED_PROPERTY.equals(name)) {
 			Object[] results = (Object[]) evt.getNewValue();
@@ -797,6 +908,19 @@ public class FileImportComponent
 	 * Deletes the image if the image cannot be viewed.
 	 * @see ActionListener#actionPerformed(ActionEvent)
 	 */
-	public void actionPerformed(ActionEvent e) { deleteImage(); }
+	public void actionPerformed(ActionEvent e)
+	{ 
+		int index = Integer.parseInt(e.getActionCommand());
+		switch (index) {
+			case DELETE_ID:
+				deleteImage(); 
+				break;
+			case CANCEL_ID:
+				cancel(); 
+				break;
+			case BROWSE_ID:
+				break;
+		}
+	}
 	
 }

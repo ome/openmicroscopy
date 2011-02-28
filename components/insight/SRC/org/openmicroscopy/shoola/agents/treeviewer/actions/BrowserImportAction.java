@@ -86,23 +86,26 @@ public class BrowserImportAction
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
-        if (selectedDisplay == null) {
-        	setEnabled(true);
-            return;
-        }
-        Object ho = selectedDisplay.getUserObject();
-        if (ho == null) setEnabled(true);
-        else {
-        	TreeImageDisplay[] nodes = model.getSelectedDisplays();
-            if (nodes != null && nodes.length > 1) {
-            	setEnabled(false);
-            } else {
-            	if (ho instanceof ProjectData || ho instanceof DatasetData ||
-            			ho instanceof ScreenData) 
-            		setEnabled(model.isUserOwner(ho));
-            	else setEnabled(true);
+    	int t = model.getBrowserType();
+    	if (t == Browser.PROJECTS_EXPLORER || t == Browser.SCREENS_EXPLORER) {
+    		if (selectedDisplay == null) {
+            	setEnabled(true);
+                return;
             }
-        }
+            Object ho = selectedDisplay.getUserObject();
+            if (ho == null) setEnabled(true);
+            else {
+            	TreeImageDisplay[] nodes = model.getSelectedDisplays();
+                if (nodes != null && nodes.length > 1) {
+                	setEnabled(false);
+                } else {
+                	if (ho instanceof ProjectData || ho instanceof DatasetData ||
+                			ho instanceof ScreenData) 
+                		setEnabled(model.isUserOwner(ho));
+                	else setEnabled(true);
+                }
+            }
+    	} else setEnabled(false);
     }
     
     /**

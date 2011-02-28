@@ -24,17 +24,13 @@ package org.openmicroscopy.shoola.agents.events.importer;
 
 
 //Java imports
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.event.RequestEvent;
-import pojos.DataObject;
-import pojos.DatasetData;
 
 
 /** 

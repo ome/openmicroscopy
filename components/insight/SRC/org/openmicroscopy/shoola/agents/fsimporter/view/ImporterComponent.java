@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 //Java imports
 import java.io.File;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JFrame;
@@ -260,12 +261,33 @@ class ImporterComponent
 
 	/** 
 	 * Implemented as specified by the {@link Importer} interface.
-	 * @see Importer#cancelImagesLoading(int)
+	 * @see Importer#cancelImport(int)
 	 */
-	public void cancelImagesLoading(int id)
+	public void cancelImport(int id)
 	{
-		if (model.getState() != DISCARDED)
-			model.cancel(id);
+		//if (model.getState() != DISCARDED)
+		//	model.cancel(id);
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#cancelImport()
+	 */
+	public void cancelImport()
+	{
+		if (model.getState() != DISCARDED) {
+			//cancel all the on-going import.
+			List<ImporterUIElement> list = view.getElementsWithDataToImport();
+			if (list.size() > 0) {
+				Iterator<ImporterUIElement> i = list.iterator();
+				ImporterUIElement element;
+				while (i.hasNext()) {
+					element = i.next();
+					element.cancelLoading();
+					model.cancel(element.getID());
+				}
+			}
+		}
 	}
 
 	/** 

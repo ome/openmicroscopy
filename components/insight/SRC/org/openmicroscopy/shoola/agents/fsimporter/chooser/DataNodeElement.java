@@ -23,6 +23,7 @@
 package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
 import pojos.DataObject;
+import pojos.DatasetData;
 
 //Java imports
 
@@ -108,11 +109,29 @@ class DataNodeElement
 		return parent.getDataObject();
 	}
 	
-	DataObject getLocation()
+	/**
+	 * Returns the location.
+	 * 
+	 * @return See above.
+	 */
+	DatasetData getLocation()
 	{
 		if (location == null) return null;
 		if (location.isDefaultNode()) return null;
-		return location.getDataObject();
+		if (location.getDataObject() instanceof DatasetData)
+			return (DatasetData) location.getDataObject();
+		return null;
+	}
+	
+	/**
+	 * Returns the node of reference if set.
+	 * 
+	 * @return See above. 
+	 */
+	Object getRefNode()
+	{
+		if (location == null) return null;
+		return location.getRefNode();
 	}
 	
 	/** 

@@ -2066,4 +2066,23 @@ public class UIUtilities
     	return true;
     }
     
+    /**
+     * Creates a button looking like an hyper-link.
+     * 
+     * @param text The text to display
+     * @return See above.
+     */
+    public static JButton createHyperLinkButton(String text)
+    {
+    	if (text == null || text.trim().length() == 0)
+    		text = "hyperlink";
+    	JButton b = new JButton(text);
+    	Font f = b.getFont();
+    	b.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
+		b.setOpaque(false);
+		b.setForeground(UIUtilities.HYPERLINK_COLOR);
+		unifiedButtonLookAndFeel(b);
+		return b;
+    }
+    
 }

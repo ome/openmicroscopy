@@ -26,8 +26,6 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 //Java imports
 import java.io.File;
 import java.util.Collection;
-import java.util.List;
-
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -157,8 +155,11 @@ public interface Importer
 	 * 
 	 * @param id The identifier of the import element.
 	 */
-	public void cancelImagesLoading(int id);
+	public void cancelImport(int id);
 
+	/** Cancels the on-going import. */
+	public void cancelImport();
+	
 	/**
 	 * Returns <code>true</code> if errors to send, <code>false</code>
 	 * otherwise.

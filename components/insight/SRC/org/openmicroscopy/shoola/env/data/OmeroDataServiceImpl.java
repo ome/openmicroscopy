@@ -39,7 +39,6 @@ import java.util.Map.Entry;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.RString;
 import omero.api.delete.DeleteCommand;
 import omero.model.Annotation;
 import omero.model.AnnotationAnnotationLink;

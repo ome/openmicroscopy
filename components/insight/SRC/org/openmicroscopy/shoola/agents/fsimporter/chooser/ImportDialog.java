@@ -91,6 +91,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.agents.util.ui.EditorDialog;
 import org.openmicroscopy.shoola.env.LookupNames;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
@@ -1081,6 +1082,20 @@ public class ImportDialog
 		List l = sorter.sort(list);
 		datasetsBox.removeAllItems();
 		datasetsBox.setModel(new DefaultComboBoxModel(l.toArray()));
+		if (selectedContainer != null) {
+			Object o = selectedContainer.getUserObject();
+			if (o instanceof DatasetData) {
+				DatasetData d = (DatasetData) o;
+				Iterator<DataNode> i = l.iterator();
+				while (i.hasNext()) {
+					n = i.next();
+					if (n.getDataObject().getId() == d.getId()) {
+						datasetsBox.setSelectedItem(n);
+						break;
+					}
+				}
+			}
+		}
 	}
 	
 	/**
@@ -1331,7 +1346,8 @@ public class ImportDialog
     	//Set the current directory as the defaults
     	File dir = chooser.getCurrentDirectory();
     	if (dir != null) UIUtilities.setDefaultFolder(dir.toString());
-    	ImportableObject object = new ImportableObject(table.getFilesToImport(),
+    	List<ImportableFile> files = table.getFilesToImport();
+    	ImportableObject object = new ImportableObject(files,
     			overrideName.isSelected());
     	List<DataObject> nodes;
     	List<Object> refNodes;
@@ -1360,6 +1376,7 @@ public class ImportDialog
     	if (showThumbnails.isVisible()) {
     		object.setLoadThumbnail(showThumbnails.isSelected());
     	}
+    	/*
     	if (defaultContainerField.isVisible()) {
     		String v = defaultContainerField.getText();
     		if (v == null || v.trim().length() == 0)
@@ -1384,6 +1401,7 @@ public class ImportDialog
     			//object.setDefaultDataset(node.getDataObject());
     		}
     	}
+    	*/
     	//tags
     	if (tagsMap.size() > 0) object.setTags(tagsMap.values());
     	if (partialName.isSelected()) {
@@ -1652,7 +1670,7 @@ public class ImportDialog
 		EditorDialog d;
 		switch (index) {
 			case IMPORT:
-				//importFiles();
+				importFiles();
 				break;
 			case CANCEL:
 				cancelSelection();

@@ -520,14 +520,9 @@ public abstract class ActivityComponent
      */
     JButton createButton(String text, int actionID, ActionListener l)
     {
-    	JButton b = new JButton(text);
-    	Font f = b.getFont();
-    	b.setFont(f.deriveFont(f.getStyle(), f.getSize()-2));
+    	JButton b = UIUtilities.createHyperLinkButton(text);
 		b.setActionCommand(""+actionID);
 		b.addActionListener(l);
-		b.setOpaque(false);
-		b.setForeground(UIUtilities.HYPERLINK_COLOR);
-		UIUtilities.unifiedButtonLookAndFeel(b);
 		return b;
     }
 

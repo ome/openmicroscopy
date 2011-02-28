@@ -42,6 +42,7 @@ import javax.swing.event.MenuListener;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.ActivateAction;
+import org.openmicroscopy.shoola.agents.fsimporter.actions.CancelAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.CloseAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.ImporterAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.SubmitFilesAction;
@@ -77,6 +78,9 @@ class ImporterControl
 	/** Action ID indicating to close the window. */
 	static final Integer CLOSE_BUTTON = 1;
 	
+	/** Action ID indicating to cancel. */
+	static final Integer CANCEL_BUTTON = 2;
+	
 	/** 
 	 * Reference to the {@link Importer} component, which, in this context,
 	 * is regarded as the Model.
@@ -98,6 +102,7 @@ class ImporterControl
 		actionsMap = new HashMap<Integer, ImporterAction>();
 		actionsMap.put(SEND_BUTTON, new SubmitFilesAction(model));
 		actionsMap.put(CLOSE_BUTTON, new CloseAction(model));
+		actionsMap.put(CANCEL_BUTTON, new CancelAction(model));
 	}
 	
 	/** 

@@ -103,6 +103,8 @@ class ImporterUI
 	private JPanel buildControls()
 	{
 		JPanel p = new JPanel();
+		p.add(new JButton(controller.getAction(ImporterControl.CANCEL_BUTTON)));
+		p.add(Box.createHorizontalStrut(5));
 		p.add(new JButton(controller.getAction(ImporterControl.CLOSE_BUTTON)));
 		p.add(Box.createHorizontalStrut(5));
 		p.add(new JButton(controller.getAction(ImporterControl.SEND_BUTTON)));
@@ -152,7 +154,6 @@ class ImporterUI
     {
     	TaskBar tb = ImporterAgent.getRegistry().getTaskBar();
     	JMenuBar bar = tb.getTaskBarMenuBar();
-    	
     	return bar;
     }
     
@@ -238,7 +239,8 @@ class ImporterUI
 	}
 
 	/**
-	 * Returns the first element with data to import
+	 * Returns the first element with data to import.
+	 * 
 	 * @return See above.
 	 */
 	ImporterUIElement getElementToStartImportFor()
@@ -274,6 +276,24 @@ class ImporterUI
 		}
 		if (found != null) uiElements.remove(found.getIndex());
 		return found;
+	}
+	
+	/**
+	 * Returns the elements with data to import.
+	 * 
+	 * @return See above.
+	 */
+	List<ImporterUIElement> getElementsWithDataToImport()
+	{
+		ImporterUIElement element;
+		List<ImporterUIElement> elements = new ArrayList<ImporterUIElement>();
+		Iterator<ImporterUIElement> i = uiElements.values().iterator();
+		while (i.hasNext()) {
+			element = i.next();
+			if (!element.isDone())
+				elements.add(element);
+		}
+		return elements;
 	}
 	
 	/**

@@ -107,6 +107,9 @@ public class StatusLabel
 	/** The text if an error occurred. */
 	private String	 errorText;
 	
+	/** Flag indicating that the import has been cancelled. */
+	private boolean  markedAsCancel;
+	
 	/** Creates a new instance. */
 	public StatusLabel()
 	{
@@ -117,7 +120,19 @@ public class StatusLabel
 		readerType = "";
 		errorText = FAILURE_TEXT;
 		setText("pending");
+		markedAsCancel = false;
 	}
+	
+	/** Marks the import has cancelled. */
+	public void markedAsCancel() { this.markedAsCancel = true; }
+	
+	/**
+	 * Returns <code>true</code> if the import is marked as cancel, 
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isMarkedAsCancel() { return markedAsCancel; }
 	
 	/**
 	 * Returns the text if an error occurred.

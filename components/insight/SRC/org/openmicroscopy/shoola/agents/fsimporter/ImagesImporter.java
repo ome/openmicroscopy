@@ -136,7 +136,7 @@ public class ImagesImporter
         registry.getLogger().error(this, msg);
         registry.getUserNotifier().notifyError("Data Import Failure", 
                                                s, exc);
-		viewer.cancelImagesLoading(loaderID);
+		viewer.cancelImport(loaderID);
 	}
 
     /**
