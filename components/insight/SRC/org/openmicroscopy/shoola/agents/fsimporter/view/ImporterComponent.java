@@ -82,6 +82,22 @@ class ImporterComponent
 	
 	/** Reference to the chooser used to select the files to import. */
 	private ImportDialog	chooser;
+
+	/**
+	 * Imports the data for the specified import view.
+	 * 
+	 * @param element The import view. 
+	 */
+	private void importData(ImporterUIElement element)
+	{
+		if (element == null) return;
+		element.startImport();
+		model.fireImportData(element.getData(), element.getID());
+		EventBus bus = ImporterAgent.getRegistry().getEventBus();
+		bus.post(new ImportStatusEvent(true, 
+				element.getData().getContainers()));
+		fireStateChange();
+	}
 	
 	/**
 	 * Creates a new instance.
@@ -166,22 +182,6 @@ class ImporterComponent
 		ImporterUIElement element = view.addImporterElement(data);
 		if (model.getState() == IMPORTING) return;
 		importData(element);
-	}
-
-	/**
-	 * Imports the data for the specified import view.
-	 * 
-	 * @param element The import view. 
-	 */
-	private void importData(ImporterUIElement element)
-	{
-		if (element == null) return;
-		element.startImport();
-		model.fireImportData(element.getData(), element.getID());
-		EventBus bus = ImporterAgent.getRegistry().getEventBus();
-		bus.post(new ImportStatusEvent(true, 
-				element.getData().getContainers()));
-		fireStateChange();
 	}
 	
 	/** 
@@ -287,6 +287,7 @@ class ImporterComponent
 					model.cancel(element.getID());
 				}
 			}
+			model.setState(READY);
 		}
 	}
 

@@ -56,6 +56,15 @@ public class CancelAction
     /** The description of the action. */
     private static final String DESCRIPTION = "Cancel the on-going import.";
     
+	/** 
+	 * Sets the enabled flag depending on the state.
+	 * @see #onStateChange()
+	 */
+    protected void onStateChange()
+    {
+    	setEnabled(model.getState() == Importer.IMPORTING);
+    }
+    
     /**
      * Creates a new instance.
      * 

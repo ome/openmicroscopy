@@ -225,15 +225,15 @@ public class FileImportComponent
 	/** Indicates that the file will not be imported. */
 	private void cancel()
 	{
-		//boolean isBusy = busyLabel.isBusy();
-		//if (file.isFile()) { // && isBusy) {
+		if (busyLabel.isBusy() || 
+				StatusLabel.PREPPING_TEXT.equals(statusLabel.getText())) 
+			return;
 		statusLabel.setText("cancelled");
 		statusLabel.markedAsCancel();
 		cancelButton.setEnabled(false);
 		cancelButton.setVisible(false);
 		busyLabel.setBusy(false);
 		busyLabel.setVisible(false);
-		//}
 	}
 	
 	/** Deletes the image that was imported but cannot be viewed. */

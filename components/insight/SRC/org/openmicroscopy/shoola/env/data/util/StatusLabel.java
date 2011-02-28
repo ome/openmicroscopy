@@ -57,6 +57,9 @@ public class StatusLabel
 	implements IObserver
 {
 
+	/** The text displayed when loading the image to import. */
+	public static final String PREPPING_TEXT = "prepping";
+	
 	/** Bound property indicating that children files have been set. */
 	public static final String FILES_SET_PROPERTY = "filesSet";
 	
@@ -235,7 +238,7 @@ public class StatusLabel
 		if (event == null) return;
 		if (event instanceof ImportEvent.LOADING_IMAGE) {
 			startTime = System.currentTimeMillis();
-			setText("prepping");
+			setText(PREPPING_TEXT);
 			firePropertyChange(FILE_IMPORT_STARTED_PROPERTY, null, this);
 		} else if (event instanceof ImportEvent.LOADED_IMAGE) {
 			setText("analyzing");
