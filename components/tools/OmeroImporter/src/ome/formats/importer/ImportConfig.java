@@ -101,6 +101,7 @@ public class ImportConfig {
 
     public final StrValue sessionKey;
     public final LongValue group;
+    public final BoolValue doThumbnails;
     public final StrValue email;
     public final StrValue serverList;
     public final StrValue imageName;
@@ -208,6 +209,7 @@ public class ImportConfig {
         
         sessionKey   = new StrValue("session", this);
         group		 = new LongValue("group", this, 0L);
+        doThumbnails = new BoolValue("doThumbnails", this, true);
         email        = new StrValue("email", this);
         serverList   = new StrValue("serverList", this);
         imageName    = new StrValue("imageName", this);

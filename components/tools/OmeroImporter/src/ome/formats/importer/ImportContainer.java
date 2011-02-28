@@ -71,6 +71,7 @@ public class ImportContainer
     private String customImageDescription;
     private String customPlateName;
     private String customPlateDescription;
+    private boolean doThumbnails = true;
     private boolean useMetadataFile;
     private List<Annotation> customAnnotationList;
     private IObject target;
@@ -115,6 +116,30 @@ public class ImportContainer
 	public void setBfImageNames(List<String> bfImageNames) {
 		this.bfImageNames = bfImageNames;
 	}
+
+    /**
+     * Retrieves whether or not we are performing thumbnail creation upon
+     * import completion.
+     * return <code>true</code> if we are to perform thumbnail creation and
+     * <code>false</code> otherwise.
+     * @since OMERO Beta 4.3.0.
+     */
+    public boolean getDoThumbnails()
+    {
+        return doThumbnails;
+    }
+
+    /**
+     * Sets whether or not we are performing thumbnail creation upon import
+     * completion.
+     * @param v <code>true</code> if we are to perform thumbnail creation and
+     * <code>false</code> otherwise.
+     * @since OMERO Beta 4.3.0.
+     */
+    public void setDoThumbnails(boolean v)
+    {
+        doThumbnails = v;
+    }
 
     /**
      * Retrieves the current custom image name string.

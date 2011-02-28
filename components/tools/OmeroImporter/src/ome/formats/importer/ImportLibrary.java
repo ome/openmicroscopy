@@ -650,9 +650,17 @@ public class ImportLibrary implements IObservable
             notifyObservers(new ImportEvent.IMPORT_OVERLAYS(
                     index, null, userSpecifiedTarget, null, 0, null));
             importOverlays(pixList, plateIds);
-            notifyObservers(new ImportEvent.IMPORT_THUMBNAILING(
-                    index, null, userSpecifiedTarget, null, 0, null));
-            store.resetDefaultsAndGenerateThumbnails(plateIds, pixelsIds);
+            if (container.getDoThumbnails())
+            {
+                notifyObservers(new ImportEvent.IMPORT_THUMBNAILING(
+                        index, null, userSpecifiedTarget, null, 0, null));
+                store.resetDefaultsAndGenerateThumbnails(plateIds, pixelsIds);
+            }
+            else
+            {
+                log.warn("Not creating thumbnails at user request!");
+            }
+            
             store.launchProcessing(); // Use or return value here later. TODO
             notifyObservers(new ImportEvent.IMPORT_DONE(
                     index, null, userSpecifiedTarget, null, 0, null, pixList));

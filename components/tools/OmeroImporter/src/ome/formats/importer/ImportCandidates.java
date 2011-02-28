@@ -411,6 +411,7 @@ public class ImportCandidates extends DirectoryWalker
 
                 ImportContainer ic = new ImportContainer(file, null,
                         null, false, null, format, usedFiles, isSPW);
+                ic.setDoThumbnails(config.doThumbnails.get());
                 ic.setBfImageCount(reader.getSeriesCount());
                 ic.setBfPixels(getPixelsWithDimensions());
                 ic.setBfImageNames(getImageNames());

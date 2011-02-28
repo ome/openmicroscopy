@@ -187,6 +187,7 @@ public class CommandLineImporter {
                                         + "  -p\tOMERO server port [defaults to 4064]\n"
                                         + "  -h\tDisplay this help and exit\n"
                                         + "\n"
+                                        + "  --no_thumbnails\tDo not perform thumbnailing after import\n"
                                         + "  --plate_name\t\tPlate name to use\n"
                                         + "  --plate_description\tPlate description to use\n"
                                         + "  --debug[=ALL|DEBUG|ERROR|FATAL|INFO|TRACE|WARN]\tTurn debug logging on (optional level)\n"
@@ -243,9 +244,11 @@ public class CommandLineImporter {
                 "plate_name", LongOpt.REQUIRED_ARGUMENT, null, 6);
         LongOpt plateDescription = new LongOpt(
                 "plate_description", LongOpt.REQUIRED_ARGUMENT, null, 7);
+        LongOpt noThumbnails = new LongOpt(
+            "no_thumbnails", LongOpt.NO_ARGUMENT, null, 8);
         Getopt g = new Getopt(APP_NAME, args, "acfl:s:u:w:d:r:k:x:n:p:h",
                 new LongOpt[] { debug, report, upload, logs, email,
-                                plateName, plateDescription});
+                                plateName, plateDescription, noThumbnails});
         int a;
 
         boolean getUsedFiles = false;
@@ -279,6 +282,10 @@ public class CommandLineImporter {
             case 7: {
                 config.plateDescription.set(g.getOptarg());
                 break;
+            }
+            case 8: {
+              config.doThumbnails.set(false);
+              break;
             }
             case 's': {
                 config.hostname.set(g.getOptarg());
