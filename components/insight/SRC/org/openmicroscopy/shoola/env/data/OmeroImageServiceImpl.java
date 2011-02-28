@@ -83,7 +83,6 @@ import pojos.ExperimenterData;
 import pojos.FileAnnotationData;
 import pojos.ImageData;
 import pojos.PixelsData;
-import pojos.ProjectData;
 import pojos.ROIData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
@@ -951,6 +950,8 @@ class OmeroImageServiceImpl
 		DataObject createdData;
 		IObject project = null;
 		if (file.isFile()) {
+			if (ImportableObject.isHCSFile(file))
+				dataset = null;
 			if (dataset != null) { //dataset
 				try {
 					ioContainer = determineContainer(dataset, container, object);
