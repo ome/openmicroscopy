@@ -156,6 +156,10 @@ class ToolBar
         		TreeViewerControl.EDITOR_NO_SELECTION));
         UIUtilities.unifiedButtonLookAndFeel(b);
         bar.add(b);
+        b = new JButton(controller.getAction(
+        		TreeViewerControl.IMPORT_NO_SELECTION));
+        UIUtilities.unifiedButtonLookAndFeel(b);
+        bar.add(b);
         bar.add(new JSeparator(JSeparator.VERTICAL));
         fullScreen = new JToggleButton(
         		controller.getAction(TreeViewerControl.FULLSCREEN));

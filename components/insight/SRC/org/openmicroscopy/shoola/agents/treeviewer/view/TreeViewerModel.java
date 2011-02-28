@@ -397,7 +397,7 @@ class TreeViewerModel
 	 * 
 	 * @return See above.
 	 */
-	Map getBrowsers() { return browsers; }
+	Map<Integer, Browser> getBrowsers() { return browsers; }
 
 	/**
 	 * Returns the current state.

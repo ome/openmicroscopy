@@ -151,10 +151,10 @@ public class CreateCmd
     /** Implemented as specified by {@link ActionCmd}. */
     public void execute()
     {
-        Browser browser = model.getSelectedBrowser();
-        if (browser == null) return;
         if (userObject == null) return; //shouldn't happen.
         if (userObject instanceof ImageData) {
+            Browser browser = model.getDefaultBrowser();
+            if (withParent) browser = model.getSelectedBrowser();
         	TreeImageDisplay display = browser.getLastSelectedDisplay();
         	LoadImporter event = null;
         	int type = LoadImporter.PROJECT_TYPE;

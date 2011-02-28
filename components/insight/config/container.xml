@@ -141,7 +141,6 @@
          This entry specifies the name of the server and 
          and e-mail address to submit comment.
     -->
-<entry name="/services/DEBUGGER/email">comments@openmicroscopy.org.uk</entry>
 <entry name="/services/DEBUGGER/hostnameToken">http://qa.openmicroscopy.org.uk/qa/initial/</entry>
 <entry name="/services/DEBUGGER/hostnameProcessing">http://qa.openmicroscopy.org.uk/qa/upload_processing/</entry>
 <entry name="/services/DEBUGGER/applicationNameBug">4</entry>

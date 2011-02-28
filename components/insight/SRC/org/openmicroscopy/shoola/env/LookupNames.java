@@ -224,9 +224,6 @@ public class LookupNames
     /** Field to access the timeout value. */
     public static final String POST_TIMEOUT = "/services/DEBUGGER/postTimeout";
     
-    /** Field to access the e-mail address used to collect comments. */
-    public static final String DEBUG_EMAIL = "/services/DEBUGGER/email";
-    
     /** Field to access the file keeping track of the various ROIs files. */
     public static final String	ROI_MAIN_FILE = "/roi/mainFileName";
     

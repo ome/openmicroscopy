@@ -187,6 +187,19 @@ public class TreeViewerAgent
 	}
 	
     /**
+     * Returns <code>true</code> if the Screening data are displayed first,
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    public static boolean isSPWFirst()
+    {
+    	Boolean type = (Boolean) registry.lookup("BrowserSPW");
+    	if (type == null) return false;
+		return type;
+    }
+    
+    /**
      * Handles the {@link CopyRndSettings} event.
      * 
      * @param evt The event to handle.

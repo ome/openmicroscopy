@@ -159,7 +159,7 @@ class UserNotifierManager
 			appName = (String) reg.lookup(LookupNames.APPLICATION_NAME_BUG);
 		else 
 			appName = (String) reg.lookup(LookupNames.APPLICATION_NAME_COMMENT);
-		String teamAddress = (String) reg.lookup(LookupNames.DEBUG_EMAIL);
+		String teamAddress = "";
 		CommunicatorDescriptor desc = new CommunicatorDescriptor
 						(HttpChannel.CONNECTION_PER_REQUEST, url, -1);
 		Object version = reg.lookup(LookupNames.VERSION);

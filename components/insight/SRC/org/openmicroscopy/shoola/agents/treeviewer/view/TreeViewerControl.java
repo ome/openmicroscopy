@@ -338,6 +338,9 @@ class TreeViewerControl
 	/** Identifies the <code>Activated action</code>. */
 	static final Integer    USER_ACTIVATED = Integer.valueOf(66);
 	
+	/** Identifies the <code>Import</code> in the menu. */
+	static final Integer    IMPORT_NO_SELECTION = Integer.valueOf(67);
+	
 	/** 
 	 * Reference to the {@link TreeViewer} component, which, in this context,
 	 * is regarded as the Model.
@@ -502,7 +505,7 @@ class TreeViewerControl
 		actionsMap.put(EDITOR_NEW_WITH_SELECTION, new EditorAction(model, 
 				EditorAction.NEW_WITH_SELECTION));
 		actionsMap.put(INSPECTOR, new InspectorVisibilityAction(model));
-		actionsMap.put(IMPORT, new ImportAction(model));
+		actionsMap.put(IMPORT, new ImportAction(model, false));
 		actionsMap.put(DOWNLOAD, new DownloadAction(model));
 		actionsMap.put(VIEWER_WITH_OTHER, new ViewOtherAction(model, null));
 		actionsMap.put(PERSONAL, new PersonalManagementAction(model));
@@ -519,6 +522,7 @@ class TreeViewerControl
 		actionsMap.put(RESET_PASSWORD,  new PasswordResetAction(model));
 		actionsMap.put(USER_ACTIVATED,  new ActivatedUserAction(model));
 		actionsMap.put(SEND_COMMENT,  new SendFeedbackAction(model));
+		actionsMap.put(IMPORT_NO_SELECTION, new ImportAction(model, true));
 	}
 
 	/** 

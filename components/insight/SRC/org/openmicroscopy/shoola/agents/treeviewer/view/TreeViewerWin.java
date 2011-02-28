@@ -40,6 +40,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
@@ -65,7 +67,6 @@ import org.openmicroscopy.shoola.env.ui.ActivityComponent;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.JXTaskPaneContainerSingle;
-import org.openmicroscopy.shoola.util.ui.ScrollablePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 
@@ -145,9 +146,6 @@ class TreeViewerWin
 	/** The location of the divider. */
 	private int					dividerLocation;
 	
-	/** Dialog displaying the supported file formats. */
-	private TinyDialog			formatDialog;
-	
 	/** Flag indicating that the tree is visible or hidden. */
 	private boolean				treeVisible;
 	
@@ -167,20 +165,6 @@ class TreeViewerWin
     private JSplitPane			viewerPane;
     
     /**
-     * Returns <code>true</code> if the Screening data are displayed first,
-     * <code>false</code> otherwise.
-     * 
-     * @return See above.
-     */
-    private boolean isSPWFirst()
-    {
-    	Boolean type = (Boolean) 
-		TreeViewerAgent.getRegistry().lookup("BrowserSPW");
-    	if (type == null) return false;
-		return type;
-    }
-    
-    /**
      * Checks if the specified {@link Browser} is already visible.
      * 
      * @param browser The specified {@link Browser}.
@@ -198,41 +182,41 @@ class TreeViewerWin
     /** Creates the components hosting the browsers. */
     private void layoutBrowsers()
     {
-    	Map browsers = model.getBrowsers();
+    	Map<Integer, Browser> browsers = model.getBrowsers();
     	Browser browser;
     	if (getLayoutType().equals(JXTASKPANE_TYPE)) {
     		container = new JXTaskPaneContainerSingle();
     		container.addPropertyChangeListener(controller);
     		JXTaskPane pane;
-    		if (isSPWFirst()) {
-    			 browser = (Browser) browsers.get(Browser.SCREENS_EXPLORER);
+    		if (TreeViewerAgent.isSPWFirst()) {
+    			 browser = browsers.get(Browser.SCREENS_EXPLORER);
     			 pane = new TaskPaneBrowser(browser);
     			 firstPane = pane;
     			 container.add(pane);
-    			 browser = (Browser) browsers.get(Browser.PROJECTS_EXPLORER);
+    			 browser = browsers.get(Browser.PROJECTS_EXPLORER);
     			 container.add(new TaskPaneBrowser(browser));
     		} else {
-    			browser = (Browser) browsers.get(Browser.PROJECTS_EXPLORER);
+    			browser = browsers.get(Browser.PROJECTS_EXPLORER);
     			pane = new TaskPaneBrowser(browser);
    			 	firstPane = pane;
    			 	container.add(pane);
-   			 	browser = (Browser) browsers.get(Browser.SCREENS_EXPLORER);
+   			 	browser = browsers.get(Browser.SCREENS_EXPLORER);
    			 	container.add(new TaskPaneBrowser(browser));
     		}
             
     		//browser = (Browser) browsers.get(Browser.FILE_SYSTEM_EXPLORER);
     		//container.add(new TaskPaneBrowser(browser));
              
-            browser = (Browser) browsers.get(Browser.FILES_EXPLORER);
+            browser = browsers.get(Browser.FILES_EXPLORER);
             container.add(new TaskPaneBrowser(browser));
             
-            browser = (Browser) browsers.get(Browser.TAGS_EXPLORER);
+            browser = browsers.get(Browser.TAGS_EXPLORER);
             container.add(new TaskPaneBrowser(browser));
             
-            browser = (Browser) browsers.get(Browser.IMAGES_EXPLORER);
+            browser = browsers.get(Browser.IMAGES_EXPLORER);
             container.add(new TaskPaneBrowser(browser));
             if (model.isLeader() || model.isAdministrator()) {
-            	browser = (Browser) browsers.get(Browser.ADMIN_EXPLORER);
+            	browser = browsers.get(Browser.ADMIN_EXPLORER);
                 container.add(new TaskPaneBrowser(browser));
             }
             AdvancedFinder finder = model.getAdvancedFinder();
@@ -349,24 +333,24 @@ class TreeViewerWin
         JMenu menu = new JMenu("View");
         menu.setMnemonic(KeyEvent.VK_V);
         JCheckBoxMenuItem item = new JCheckBoxMenuItem();
-        Map browsers = model.getBrowsers();
-        Browser browser = (Browser) browsers.get(Browser.PROJECTS_EXPLORER);
+        Map<Integer, Browser> browsers = model.getBrowsers();
+        Browser browser = browsers.get(Browser.PROJECTS_EXPLORER);
         item.setSelected(browser.isDisplayed());
         item.setAction(
                 controller.getAction(TreeViewerControl.HIERARCHY_EXPLORER));
         menu.add(item);
         item = new JCheckBoxMenuItem();
-        browser = (Browser) browsers.get(Browser.FILES_EXPLORER);
+        browser = browsers.get(Browser.FILES_EXPLORER);
         item.setSelected(browser.isDisplayed());
         item.setAction(controller.getAction(TreeViewerControl.FILES_EXPLORER));
         menu.add(item);
         item = new JCheckBoxMenuItem();
-        browser = (Browser) browsers.get(Browser.TAGS_EXPLORER);
+        browser = browsers.get(Browser.TAGS_EXPLORER);
         item.setSelected(browser.isDisplayed());
         item.setAction(controller.getAction(TreeViewerControl.TAGS_EXPLORER));
         menu.add(item);
         item = new JCheckBoxMenuItem();
-        browser = (Browser) browsers.get(Browser.IMAGES_EXPLORER);
+        browser = browsers.get(Browser.IMAGES_EXPLORER);
         item.setSelected(browser.isDisplayed());
         item.setAction(controller.getAction(TreeViewerControl.IMAGES_EXPLORER));
         menu.add(item);
@@ -644,11 +628,11 @@ class TreeViewerWin
                     model.setSelectedBrowser(null);
                     return;
                 }
-                Map browsers = model.getBrowsers();
-                Iterator i = browsers.values().iterator();
+                Map<Integer, Browser> browsers = model.getBrowsers();
+                Iterator<Browser> i = browsers.values().iterator();
                 boolean selected = false;
                 while (i.hasNext()) {
-                    browser = (Browser) i.next();
+                    browser = i.next();
                     if (c.equals(browser.getUI())) {
                         model.setSelectedBrowser(browser);
                         selected = true;
@@ -875,11 +859,14 @@ class TreeViewerWin
      */
     void onStateChanged(boolean b)
     { 
-        Map browsers = model.getBrowsers();
+    	Map<Integer, Browser> browsers = model.getBrowsers();
         if (browsers != null) {
-            Iterator i = browsers.keySet().iterator();
-            while (i.hasNext())
-                ((Browser) browsers.get(i.next())).onComponentStateChange(b);
+        	Entry entry;
+            Iterator i = browsers.entrySet().iterator();
+            while (i.hasNext()) {
+            	entry = (Entry) i.next();
+            	((Browser) entry.getValue()).onComponentStateChange(b);
+            }    
 
         }
         //if (browser != null) browser.onComponentStateChange(b);

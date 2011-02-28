@@ -545,7 +545,7 @@ class TreeViewerComponent
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#getBrowsers()
 	 */
-	public Map getBrowsers() { return model.getBrowsers(); }
+	public Map<Integer, Browser> getBrowsers() { return model.getBrowsers(); }
 
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
@@ -567,6 +567,18 @@ class TreeViewerComponent
 	 */
 	public Browser getSelectedBrowser() { return model.getSelectedBrowser(); }
 
+	/**
+	 * Implemented as specified by the {@link TreeViewer} interface.
+	 * @see TreeViewer#getDefaultBrowser()
+	 */
+	public Browser getDefaultBrowser()
+	{ 
+		Map<Integer, Browser> browsers = model.getBrowsers();
+		if (TreeViewerAgent.isSPWFirst())
+			return browsers.get(Browser.SCREENS_EXPLORER);
+		return browsers.get(Browser.PROJECTS_EXPLORER);
+	}
+	
 	/**
 	 * Implemented as specified by the {@link TreeViewer} interface.
 	 * @see TreeViewer#setSelectedBrowser(Browser)
@@ -616,8 +628,8 @@ class TreeViewerComponent
 						"This method cannot be invoked in the DISCARDED " +
 						"or SAVE state.");
 		}
-		Map browsers = model.getBrowsers();
-		Browser browser = (Browser) browsers.get(browserType);
+		Map<Integer, Browser> browsers = model.getBrowsers();
+		Browser browser = browsers.get(browserType);
 		if (browser.isDisplayed()) {
 			view.removeBrowser(browser);
 		} else {
@@ -1120,12 +1132,14 @@ class TreeViewerComponent
 			throw new IllegalStateException(
 					"This method cannot be invoked in the DISCARDED state.");
 		if (experimenter == null) return;
-		Map browsers = model.getBrowsers();
-		Iterator i = browsers.keySet().iterator();
+		Map<Integer, Browser> browsers = model.getBrowsers();
+		Iterator i = browsers.entrySet().iterator();
 		Browser browser;
+		Entry entry;
 		Browser selected = model.getSelectedBrowser();
 		while (i.hasNext()) {
-			browser = (Browser) browsers.get(i.next());
+			entry = (Entry) i.next();
+			browser = (Browser) entry.getValue();
 			browser.addExperimenter(experimenter, browser == selected);
 		}
 	}
@@ -1510,10 +1524,12 @@ class TreeViewerComponent
 		Object uo = expNode.getUserObject();
 		if (uo == null || !(uo instanceof ExperimenterData)) return;
 		ExperimenterData exp = (ExperimenterData) uo;
-		Map browsers = model.getBrowsers();
-		Iterator i = browsers.keySet().iterator();
+		Map<Integer, Browser> browsers = model.getBrowsers();
+		Iterator i = browsers.entrySet().iterator();
+		Entry entry;
 		while (i.hasNext()) {
-			browser = (Browser) browsers.get(i.next());
+			entry = (Entry) i.next();
+			browser = (Browser) entry.getValue();
 			browser.removeExperimenter(exp);
 		}
 	}
@@ -3060,7 +3076,7 @@ class TreeViewerComponent
 			view.removeAllFromWorkingPane();
 			model.setDataViewer(null);
 			//model.resetMetadataViewer();
-			Map browsers = model.getBrowsers();
+			Map<Integer, Browser> browsers = model.getBrowsers();
 			Entry entry;
 			Browser browser;
 			Iterator i = browsers.entrySet().iterator();

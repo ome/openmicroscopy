@@ -32,7 +32,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -268,6 +267,14 @@ public interface TreeViewer
 	 */
 	Browser getSelectedBrowser();
 
+	/**
+	 * Returns the {@link Browser} displayed when the application is first
+	 * launched. This should not be <code>null</code>.
+	 * 
+	 * @return See above.
+	 */
+	Browser getDefaultBrowser();
+	
 	/**
 	 * Sets the currently selected {@link Browser} or <code>null</code>
 	 * if no {@link Browser} is selected.

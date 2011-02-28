@@ -37,7 +37,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.CreateCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
 import pojos.DatasetData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -63,10 +62,11 @@ public class ImportAction
     private static final String NAME = "Import...";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Import the selected images.";
+    private static final String DESCRIPTION = "Import the selected files or " +
+    		"folders.";
     
-    /** The type of node to create. */
-    private int nodeType;
+    /** Flag indicating not to select any node. */
+    private boolean noNode;
     
     /** 
      * Sets the action enabled depending on the state of the {@link Browser}.
@@ -92,6 +92,10 @@ public class ImportAction
      */
     protected void onDisplayChange(TreeImageDisplay selectedDisplay)
     {
+    	if (noNode) {
+    		setEnabled(true);
+    		return;
+    	}
     	Browser browser = model.getSelectedBrowser();
     	setEnabled(false);
         if (browser == null) 
@@ -108,20 +112,20 @@ public class ImportAction
         Object ho = selectedDisplay.getUserObject();
         if (ho instanceof ProjectData || ho instanceof ScreenData || 
         		ho instanceof DatasetData)
-        {
         	setEnabled(model.isUserOwner(ho));
-        	nodeType = CreateCmd.IMAGE;
-        }
     }
     
     /**
      * Creates a new instance.
      * 
      * @param model Reference to the Model. Mustn't be <code>null</code>.
+     * @param noNode Pass <code>true</code> if no nodes need to be specified,
+     * 				 <code>false</code> otherwise.
      */
-	public ImportAction(TreeViewer model)
+	public ImportAction(TreeViewer model, boolean noNode)
 	{
 		super(model);
+		this.noNode = noNode;
 		name = NAME;  
 		putValue(Action.SHORT_DESCRIPTION, 
 				UIUtilities.formatToolTipText(DESCRIPTION));
@@ -136,6 +140,7 @@ public class ImportAction
     public void actionPerformed(ActionEvent e)
     {
        CreateCmd cmd = new CreateCmd(model, CreateCmd.IMAGE);
+       cmd.setWithParent(!noNode);
        cmd.execute();
     }
     
