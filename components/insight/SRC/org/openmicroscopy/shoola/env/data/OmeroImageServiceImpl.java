@@ -146,6 +146,7 @@ class OmeroImageServiceImpl
 			List<Annotation> list, long userID)
 	{
 		Iterator<String> i = candidates.iterator();
+		boolean thumbnail = object.isLoadThumbnail();
 		Map<File, StatusLabel> files = new HashMap<File, StatusLabel>();
 		while (i.hasNext()) 
 			files.put(new File(i.next()), new StatusLabel());
@@ -171,7 +172,9 @@ class OmeroImageServiceImpl
 				if (result instanceof ImageData) {
 					image = (ImageData) result;
 					images.add(image);
-					label.setFile(file, createImportedImage(userID, image));
+					if (thumbnail)
+						label.setFile(file, createImportedImage(userID, image));
+					else label.setFile(file, image);
 				} else if (result instanceof Set) {
 					ll = (Set<ImageData>) result;
 					annotatedImportedImage(list, ll);
@@ -179,7 +182,10 @@ class OmeroImageServiceImpl
 					kk = ll.iterator();
 					converted = new ArrayList<Object>(ll.size());
 					while (kk.hasNext()) {
-						converted.add(createImportedImage(userID, kk.next()));	
+						if (thumbnail)
+							converted.add(createImportedImage(userID, 
+									kk.next()));	
+						else converted.add(kk.next());
 					}
 					label.setFile(file, converted);
 				} else label.setFile(file, result);

@@ -94,8 +94,7 @@ class ImporterComponent
 		element.startImport();
 		model.fireImportData(element.getData(), element.getID());
 		EventBus bus = ImporterAgent.getRegistry().getEventBus();
-		bus.post(new ImportStatusEvent(true, 
-				element.getData().getContainers()));
+		bus.post(new ImportStatusEvent(true, element.getExistingContainers()));
 		fireStateChange();
 	}
 	

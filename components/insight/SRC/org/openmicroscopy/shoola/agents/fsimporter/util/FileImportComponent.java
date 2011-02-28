@@ -60,6 +60,7 @@ import org.jdesktop.swingx.JXBusyLabel;
 import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImage;
 import org.openmicroscopy.shoola.agents.events.iviewer.ViewImageObject;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
@@ -151,10 +152,13 @@ public class FileImportComponent
 	private static final int BROWSE_ID = 2;
 
 	/** Text indicating where the images where imported. */
-	private static final String TEXT_DATASET = "Imported in Dataset:";
+	private static final String TEXT_DATASET = "Imported in:";
 	
 	/** Text indicating where the plates where imported. */
-	private static final String TEXT_SCREEN = "Imported in Screen:";
+	private static final String TEXT_SCREEN = "Imported in:";
+	
+	/** Text indicating where the plates where imported. */
+	private static final String TEXT_PROJECT = "Imported in:";
 	
 	/** One of the constants defined by this class. */
 	private int				type;
@@ -221,6 +225,15 @@ public class FileImportComponent
 	
 	/** The container displaying where it was imported. */
 	private JLabel containerLabel;
+	
+	/** Browses the node or the data object. */
+	private void browse()
+	{
+		EventBus bus = ImporterAgent.getRegistry().getEventBus();
+		Object d = dataset;
+		if (dataset == null || data instanceof ScreenData) d = data;
+		bus.post(new BrowseContainer(d, refNode));
+	}
 	
 	/** Indicates that the file will not be imported. */
 	private void cancel()
@@ -307,7 +320,7 @@ public class FileImportComponent
 		browseButton.setActionCommand(""+BROWSE_ID);
 		browseButton.setVisible(false);
 		
-		containerLabel = UIUtilities.setTextFont("");
+		containerLabel = new JLabel();//UIUtilities.setTextFont("");
 		containerLabel.setVisible(false);
 		
 		namePane = new JPanel();
@@ -361,8 +374,8 @@ public class FileImportComponent
 		add(statusLabel);
 		add(errorBox);
 		add(deleteButton);
-		add(Box.createHorizontalStrut(10));
-		//add(containerLabel);
+		add(Box.createHorizontalStrut(15));
+		add(containerLabel);
 		add(browseButton);
 	}
 	
@@ -418,10 +431,22 @@ public class FileImportComponent
 		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		int index = 0;
 		p.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		File f;
+		DatasetData d = dataset;
+		Object node = refNode;
+		if (folderAsContainer) {
+			node = null;
+			d = new DatasetData();
+			d.setName(file.getName());
+		}
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
-			c = new FileImportComponent((File) entry.getKey(), 
-					folderAsContainer);
+			f = (File) entry.getKey();
+			c = new FileImportComponent(f, folderAsContainer);
+			if (f.isFile()) {
+				c.setLocation(data, d, node);
+			}
+				
 			c.setType(getType());
 			attachListeners(c);
 			c.setStatusLabel((StatusLabel) entry.getValue());
@@ -479,33 +504,45 @@ public class FileImportComponent
 		this.data = data;
 		this.dataset = dataset;
 		this.refNode = refNode;
-		System.err.println("refNode:"+refNode);
 		if (refNode != null && refNode instanceof TreeImageDisplay) {
 			TreeImageDisplay n = (TreeImageDisplay) refNode;
 			Object ho = n.getUserObject();
 			if (ho instanceof DatasetData) {
 				containerLabel.setText(TEXT_DATASET);
 				browseButton.setText(((DatasetData) ho).getName());
-			} else if (ho instanceof ProjectData)
+			} else if (ho instanceof ProjectData) {
+				containerLabel.setText(TEXT_PROJECT);
 				browseButton.setText(((ProjectData) data).getName());
-			else if (ho instanceof ScreenData) {
+			} else if (ho instanceof ScreenData) {
 				containerLabel.setText(TEXT_SCREEN);
 				browseButton.setText(((ScreenData) data).getName());
 			}
+			return;
 		}
-		/*
 		if (dataset != null) {
+			containerLabel.setText(TEXT_DATASET);
 			browseButton.setText(dataset.getName());
 			return;
 		}
-		if (data != null) {
-			if (data instanceof ProjectData)
-				browseButton.setText(((ProjectData) data).getName());
-			else if (data instanceof ScreenData)
-				browseButton.setText(((ScreenData) data).getName());
+		if (data != null && data instanceof ScreenData) {
+			containerLabel.setText(TEXT_SCREEN);
+			browseButton.setText(((ScreenData) data).getName());	
 		}
-		*/
 	}
+	
+	/**
+	 * Returns the dataset or <code>null</code>.
+	 * 
+	 * @return See above.
+	 */
+	public DatasetData getDataset() { return dataset; }
+	
+	/**
+	 * Returns the object or <code>null</code>.
+	 * 
+	 * @return See above.
+	 */
+	public DataObject getDataObject() { return data; }
 	
 	/**
 	 * Replaces the initial status label.
@@ -578,6 +615,8 @@ public class FileImportComponent
 				fileNameLabel.addMouseListener(adapter);
 				addMouseListener(adapter);
 				resultLabel.setVisible(true);
+				browseButton.setVisible(true);
+				containerLabel.setVisible(true);
 			} else {
 				fileNameLabel.setForeground(ERROR_COLOR);
 				resultLabel.setForeground(ERROR_COLOR);
@@ -919,6 +958,7 @@ public class FileImportComponent
 				cancel(); 
 				break;
 			case BROWSE_ID:
+				browse();
 				break;
 		}
 	}

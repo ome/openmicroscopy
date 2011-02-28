@@ -39,6 +39,7 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.LinkedHashMap;
@@ -143,6 +144,9 @@ class ImporterUIElement
 	
 	/** The type of container to handle. */
 	private int type;
+	
+	/** The existing containers. */
+	private List<DataObject> existingContainers;
 	
 	/**
 	 * Browses the specified object.
@@ -261,8 +265,6 @@ class ImporterUIElement
 		}
 		JLabel l;
 		int count = 0;
-		
-		
 		while (i.hasNext()) {
 			importable = i.next();
 			f = (File) importable.getFile();
@@ -334,9 +336,11 @@ class ImporterUIElement
     	header.add(timeLabel, c);
     	c.gridy++; 	
     	c.gridx = 0;
+    	int n;
+    	/*
     	List<Object> containers = object.getRefNodes();
 		String text = "Imported in Dataset: ";
-		int n;
+		
 		String nameProject = "";
 		if (containers != null && containers.size() > 0) {
 			Iterator<Object> i = containers.iterator();
@@ -424,8 +428,8 @@ class ImporterUIElement
 	    		c.gridy++; 	
 		    	c.gridx = 0;
 	    	}
-	    	
 		}
+		*/
 		Collection<TagAnnotationData> tags = object.getTags();
 		if (tags != null && tags.size() > 0) {
 			label = UIUtilities.setTextFont("Images Tagged with: ", Font.BOLD);
@@ -563,7 +567,7 @@ class ImporterUIElement
 	 */
 	private boolean topContainerToRefresh()
 	{
-		List<DataObject> l = getData().getContainers();
+		List<DataObject> l = getExistingContainers();
 		if (l == null || l.size() == 0) return false;
 		DataObject object = l.get(0);
 		if (!(object instanceof ProjectData)) return false;
@@ -642,7 +646,8 @@ class ImporterUIElement
 				EventBus bus = ImporterAgent.getRegistry().getEventBus();
 				ImportStatusEvent event;
 				if (toRefresh) {
-					List<DataObject> l = getData().getContainers();
+					List<DataObject> l = getExistingContainers();
+					/*
 					if (!topContainerToRefresh) {
 						DatasetData d = getData().getDefaultDataset();
 						if (d != null && d.getId() > 0) {
@@ -650,6 +655,7 @@ class ImporterUIElement
 							l.add(d);
 						}
 					}
+					*/
 					event = new ImportStatusEvent(false, l);
 				} else {
 					event = new ImportStatusEvent(false, null);
@@ -704,6 +710,54 @@ class ImporterUIElement
 	 * @return See above.
 	 */
 	ImportableObject getData() { return object; }
+	
+	/**
+	 * Returns the existing containers.
+	 * 
+	 * @return See above.
+	 */
+	List<DataObject> getExistingContainers()
+	{
+		if (existingContainers != null) return existingContainers;
+		existingContainers = new ArrayList<DataObject>();
+		Entry entry;
+		Iterator i = components.entrySet().iterator();
+		FileImportComponent fc;
+		Map<Long, DatasetData> datasets = new HashMap<Long, DatasetData>(); 
+		Map<Long, DataObject> projects = new HashMap<Long, DataObject>(); 
+		Map<Long, DataObject> screens = new HashMap<Long, DataObject>(); 
+		DatasetData d;
+		DataObject object;
+		while (i.hasNext()) {
+			entry = (Entry) i.next();
+			fc = (FileImportComponent) entry.getValue();
+			d = fc.getDataset();
+			if (d != null && d.getId() > 0)
+				datasets.put(d.getId(), d);
+			object = fc.getDataObject();
+			if (object instanceof ScreenData && object.getId() > 0)
+				screens.put(object.getId(), object);
+			if (object instanceof ProjectData && object.getId() > 0) {
+				if (d != null && d.getId() <= 0)
+					projects.put(object.getId(), object);
+			}
+		}
+		existingContainers.addAll(datasets.values());
+		existingContainers.addAll(projects.values());
+		existingContainers.addAll(screens.values());
+		return existingContainers;
+	}
+	
+	/**
+	 * Returns the new containers.
+	 * 
+	 * @return See above.
+	 */
+	List<DataObject> getNewContainers()
+	{
+		return null;
+	}
+	
 	
 	/**
 	 * Returns <code>true</code> if errors to send, <code>false</code>
