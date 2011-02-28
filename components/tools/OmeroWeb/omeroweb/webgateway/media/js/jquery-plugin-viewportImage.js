@@ -437,7 +437,10 @@ $.fn.viewportImage = function(options) {
     		});
     		//viewerBean.fitToWindow(0);
     		viewerBean.init();
-    		//viewerBean.recenter({'x':400 ,'y':800}, true);
+    		//viewerBean.recenter({'x':wrapdiv.width()/2 ,'y':wrapdiv.height()/2}, true);
+    	} else {
+    	    viewerBean.tileUrlProvider.baseUri=tile_url;
+    	    viewerBean.resize();
     	}
     }
     
@@ -462,7 +465,7 @@ $.fn.viewportImage = function(options) {
       wrapheight = wrapdiv.height();
       //orig_width = image.get(0).clientWidth;
       //orig_height = image.get(0).clientHeight;   
-         
+      
       if (viewerBean != null) {
           tilecontainer.css({width: wrapwidth, height: wrapheight});
           viewerBean.resize();
