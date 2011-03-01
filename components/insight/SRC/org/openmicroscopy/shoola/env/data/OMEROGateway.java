@@ -731,7 +731,7 @@ class OMEROGateway
 					dst[j + offset][i] =
 						((WellColumn) column).values[j];
 				}
-			}
+			} 
 		}
 	}
 
@@ -6218,28 +6218,18 @@ class OMEROGateway
 				Iterator j = list.iterator();
 				FileAnnotationData fa;
 				ids = new ArrayList<Long>();
+				Object k;
 				while (j.hasNext()) {
-					fa = (FileAnnotationData) j.next();
-					if (FileAnnotationData.BULK_ANNOTATIONS_NS.equals(
-							fa.getNameSpace()))
-						ids.add(fa.getFileID());
+					k = j.next();
+					if (k instanceof FileAnnotationData) {
+						fa = (FileAnnotationData) k;
+						if (FileAnnotationData.BULK_ANNOTATIONS_NS.equals(
+								fa.getNameSpace()))
+							ids.add(fa.getFileID());
+					}
 				}
-				/*
-				List<String> toInclude = new ArrayList<String>();
-				toInclude.add(FileAnnotationData.BULK_ANNOTATIONS_NS);
-				Set set = loadSpecificAnnotation(FileAnnotationData.class, 
-						toInclude, 
-						new ArrayList<String>(), new ParametersI());
-				Iterator j = set.iterator();
-				FileAnnotationData fa;
-				ids = new ArrayList<Long>();
-				while (j.hasNext()) {
-					fa = (FileAnnotationData) j.next();
-					ids.add(fa.getFileID());
-				}
-				*/
 			} else ids = parameters.getOriginalFileIDs();
-			if (ids != null) {
+			if (ids != null && ids.size() > 0) {
 				Iterator<Long> i = ids.iterator();
 				while (i.hasNext()) {
 					id = i.next();
