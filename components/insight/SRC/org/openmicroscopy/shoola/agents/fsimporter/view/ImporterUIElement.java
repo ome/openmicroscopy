@@ -278,6 +278,7 @@ class ImporterUIElement
 				public void propertyChange(PropertyChangeEvent evt) {
 					String name = evt.getPropertyName();
 					if (FileImportComponent.BROWSE_PROPERTY.equals(name)) {
+						//TODO: review that code
 						List<Object> refNodes = object.getRefNodes();
 						Object node = null;
 						if (refNodes.size() > 0)

@@ -232,7 +232,7 @@ public class FileImportComponent
 		EventBus bus = ImporterAgent.getRegistry().getEventBus();
 		Object d = dataset;
 		if (dataset == null || data instanceof ScreenData) d = data;
-		bus.post(new BrowseContainer(d, refNode));
+		bus.post(new BrowseContainer(d, null));
 	}
 	
 	/** Indicates that the file will not be imported. */
@@ -307,7 +307,7 @@ public class FileImportComponent
 		
 		setLayout(new FlowLayout(FlowLayout.LEFT));
 		busyLabel = new JXBusyLabel(SIZE);
-		busyLabel.setVisible(true);
+		busyLabel.setVisible(false);
 		busyLabel.setBusy(false);
 		
 		cancelButton = UIUtilities.createHyperLinkButton("Cancel");
@@ -316,6 +316,7 @@ public class FileImportComponent
 		cancelButton.setVisible(true);
 		
 		browseButton = UIUtilities.createHyperLinkButton("Browse");
+		browseButton.setToolTipText("Browse the container.");
 		browseButton.addActionListener(this);
 		browseButton.setActionCommand(""+BROWSE_ID);
 		browseButton.setVisible(false);
@@ -913,6 +914,7 @@ public class FileImportComponent
 			StatusLabel sl = (StatusLabel) evt.getNewValue();
 			if (sl == statusLabel && busyLabel != null) {
 				busyLabel.setBusy(true);
+				busyLabel.setVisible(true);
 				cancelButton.setVisible(false);
 			}
 		} else if (StatusLabel.FILE_IMPORTED_PROPERTY.equals(name)) {
