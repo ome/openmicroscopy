@@ -24,8 +24,6 @@ package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
 
 //Java imports
-import info.clearthought.layout.TableLayout;
-
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -47,12 +45,12 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 
 //Third-party libraries
-//import info.clearthought.layout.TableLayout;
-
-//Application-internal dependencies
+import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.Highlighter;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
+
+//Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.util.ui.IconManager;
@@ -116,6 +114,9 @@ class FileSelectionTable
 	/** The columns of the table. */
 	private static final Vector<String> COLUMNS_NO_FOLDER_AS_CONTAINER;
 	
+	/** The width of the column. */
+	private static final int COLUMN_WIDTH = 20;
+	
 	static {
 		COLUMNS = new Vector<String>(4);
 		COLUMNS.add("File or Folder");
@@ -157,13 +158,15 @@ class FileSelectionTable
 		TableColumn tc = tcm.getColumn(FOLDER_AS_CONTAINER_INDEX);
 		tc.setCellEditor(table.getDefaultEditor(Boolean.class));  
 		tc.setCellRenderer(table.getDefaultRenderer(Boolean.class));  
-		tc.setPreferredWidth(20);
+		tc.setPreferredWidth(COLUMN_WIDTH);
+		tc.setResizable(false);
 		
 		if (table.getColumnCount() == COLUMNS.size()) {
 			tc = tcm.getColumn(ARCHIVED_INDEX);
 			tc.setCellEditor(table.getDefaultEditor(Boolean.class));  
 			tc.setCellRenderer(table.getDefaultRenderer(Boolean.class));
-			tc.setPreferredWidth(20);
+			tc.setPreferredWidth(COLUMN_WIDTH);
+			tc.setResizable(false);
 		}
 		TableCellRenderer renderer = new StringCellRenderer();
 		for (int i = 0; i < table.getColumnCount(); i++) 
@@ -454,8 +457,11 @@ class FileSelectionTable
 		int m = table.getColumnCount();
 		if (COLUMNS_NO_FOLDER_AS_CONTAINER.size() == m) return;
 		DefaultTableModel model = (DefaultTableModel) table.getModel();
+		FileElement element;
 		for (int i = 0; i < n; i++) {
-			model.setValueAt(fad, i, FOLDER_AS_CONTAINER_INDEX);
+			element = (FileElement) model.getValueAt(i, FILE_INDEX);
+			if (element.isDirectory())
+				model.setValueAt(fad, i, FOLDER_AS_CONTAINER_INDEX);
 		}
 	}
 	
