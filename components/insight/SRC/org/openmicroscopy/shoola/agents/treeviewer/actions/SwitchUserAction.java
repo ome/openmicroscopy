@@ -122,7 +122,7 @@ public class SwitchUserAction
 		putValue(Action.SHORT_DESCRIPTION, 
                 UIUtilities.formatToolTipText(DESCRIPTION));
         IconManager im = IconManager.getInstance();
-        putValue(Action.SMALL_ICON, im.getIcon(IconManager.OWNER));
+        putValue(Action.SMALL_ICON, im.getIcon(IconManager.OWNER_GROUP));
 	}
 	
     /**

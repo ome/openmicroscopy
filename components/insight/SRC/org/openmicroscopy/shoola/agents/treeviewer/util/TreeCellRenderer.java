@@ -210,8 +210,12 @@ public class TreeCellRenderer
 	/** Reference to the <code>Date</code> icon. */
 	private static final Icon DATE_ICON;
 	
+	/** Reference to the <code>Date</code> icon. */
+	private static final Icon OWNER_GROUP_ICON;
+	
 	static { 
 		IconManager icons = IconManager.getInstance();
+		OWNER_GROUP_ICON = icons.getIcon(IconManager.OWNER_GROUP);
 		IMAGE_ICON = icons.getIcon(IconManager.IMAGE);
 		IMAGE_ANNOTATED_ICON = icons.getIcon(IconManager.IMAGE_ANNOTATED);
 		IMAGE_UNREGISTERED_ICON = icons.getIcon(IconManager.IMAGE_UNREGISTERED);
@@ -336,7 +340,7 @@ public class TreeCellRenderer
         } else if (usrObject instanceof PlateAcquisitionData) {
             icon = PLATE_ACQUISITION_ICON; 
         } else if (usrObject instanceof GroupData) {
-        	icon = PERSONAL_ICON;
+        	icon = OWNER_GROUP_ICON;
         } else if (usrObject instanceof FileAnnotationData) {
         	FileAnnotationData data = (FileAnnotationData) usrObject;
         	String format = data.getFileFormat();

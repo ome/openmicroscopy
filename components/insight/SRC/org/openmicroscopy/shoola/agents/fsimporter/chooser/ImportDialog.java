@@ -630,7 +630,7 @@ public class ImportDialog
     		}
     	}
     	if (!isFastConnection()) //slow connection
-    		showThumbnails.setVisible(false);
+    		showThumbnails.setSelected(false);
     	boolean archived = false; 
     	boolean archivedTunable = true;
     	b = (Boolean) ImporterAgent.getRegistry().lookup(ARCHIVED);
