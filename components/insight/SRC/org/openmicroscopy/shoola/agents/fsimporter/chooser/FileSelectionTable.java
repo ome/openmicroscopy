@@ -91,7 +91,7 @@ class FileSelectionTable
 	private static final int 		REMOVE_ALL = 2;
 	
 	/** The index of the file's name column. */
-	private static final int		FILE_INDEX = 0;
+	static final int		FILE_INDEX = 0;
 	
 	/** 
 	 * The index of the column indicating the container where files will
@@ -160,6 +160,9 @@ class FileSelectionTable
 		tc.setCellRenderer(table.getDefaultRenderer(Boolean.class));  
 		tc.setPreferredWidth(COLUMN_WIDTH);
 		tc.setResizable(false);
+		
+		tc = tcm.getColumn(FILE_INDEX);
+		tc.setCellRenderer(new FileTableRenderer());  
 		
 		if (table.getColumnCount() == COLUMNS.size()) {
 			tc = tcm.getColumn(ARCHIVED_INDEX);
