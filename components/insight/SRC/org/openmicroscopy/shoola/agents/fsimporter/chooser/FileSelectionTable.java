@@ -83,12 +83,6 @@ class FileSelectionTable
 	/** Bound property indicating to remove files to the queue. */
 	static final String REMOVE_PROPERTY = "remove";
 	
-	/** String used to retrieve if the value of the archived flag. */
-	private static final String ARCHIVED = "/options/Archived";
-	
-	/** String used to retrieve if the archived option is displayed. */
-	private static final String ARCHIVED_AVAILABLE = "/options/ArchivedTunable";
-	
 	/** Action command ID to add a field to the result table. */
 	private static final int 		ADD = 0;
 	
@@ -126,13 +120,13 @@ class FileSelectionTable
 		COLUMNS = new Vector<String>(4);
 		COLUMNS.add("File or Folder");
 		COLUMNS.add("Container");
-		COLUMNS.add("FaD");
-		COLUMNS.add("A");
+		COLUMNS.add(ImportDialog.FAD_ABBREVIATION);
+		COLUMNS.add(ImportDialog.ARCHIVED_ABBREVIATION);
 		
 		COLUMNS_NO_FOLDER_AS_CONTAINER = new Vector<String>(3);
 		COLUMNS_NO_FOLDER_AS_CONTAINER.add("File or Folder");
 		COLUMNS_NO_FOLDER_AS_CONTAINER.add("Container");
-		COLUMNS_NO_FOLDER_AS_CONTAINER.add("A");
+		COLUMNS_NO_FOLDER_AS_CONTAINER.add(ImportDialog.ARCHIVED_ABBREVIATION);
 	}
 	
 	/** The button to move an item from the remaining items to current items. */
@@ -197,9 +191,11 @@ class FileSelectionTable
 		removeButton.addActionListener(this);
 		removeAllButton.setActionCommand(""+REMOVE_ALL);
 		removeAllButton.addActionListener(this);
-		Boolean b = (Boolean) ImporterAgent.getRegistry().lookup(ARCHIVED);
+		Boolean b = (Boolean) ImporterAgent.getRegistry().lookup(
+				ImportDialog.ARCHIVED);
 		if (b != null) archived = b.booleanValue();
-		b = (Boolean) ImporterAgent.getRegistry().lookup(ARCHIVED_AVAILABLE);
+		b = (Boolean) ImporterAgent.getRegistry().lookup(
+				ImportDialog.ARCHIVED_AVAILABLE);
 		if (b != null) archivedTunable = b.booleanValue();
 		if (model.useFolderAsContainer()) {
 			table = new JXTable(new FileTableModel(COLUMNS));
@@ -421,6 +417,9 @@ class FileSelectionTable
 		boolean b = n == COLUMNS.size();
 		DataNode node = model.getImportLocation();
 		String value = null;
+		boolean fad = model.isFolderAsDataset();
+		boolean v = false;
+		boolean a = model.isToArchive();
 		while (i.hasNext()) {
 			f = i.next();
 			if (!inQueue.contains(f.getAbsolutePath())) {
@@ -428,18 +427,58 @@ class FileSelectionTable
 				element = new FileElement(f);
 				element.setName(f.getName());
 				if (b) {
-					if (f.isDirectory()) value = f.getName();
+					if (f.isDirectory()) {
+						value = f.getName();
+						v = fad; 
+					}
 					dtm.addRow(new Object[] {element, 
 							new DataNodeElement(node, value),
-							Boolean.valueOf(f.isDirectory()), 
-							Boolean.valueOf(archived)});
+							Boolean.valueOf(v), Boolean.valueOf(a)});
 				} else dtm.addRow(new Object[] {element, 
 						new DataNodeElement(node, null),
-						Boolean.valueOf(archived)});
+						Boolean.valueOf(a)});
 			}
 		}
 	}
 
+	/**
+	 * Marks the folder as a dataset.
+	 * 
+	 * @param fad Pass <code>true</code> to mark the folder as a dataset,
+	 * 			  <code>false</code> otherwise.
+	 */
+	void markFolderAsDataset(boolean fad)
+	{
+		int n = table.getRowCount();
+		if (n == 0) return;
+		int m = table.getColumnCount();
+		if (COLUMNS_NO_FOLDER_AS_CONTAINER.size() == m) return;
+		DefaultTableModel model = (DefaultTableModel) table.getModel();
+		for (int i = 0; i < n; i++) {
+			model.setValueAt(fad, i, FOLDER_AS_CONTAINER_INDEX);
+		}
+	}
+	
+	/**
+	 * Marks to archive the images.
+	 * 
+	 * @param archive Pass <code>true</code> to archive the images,
+	 * 			      <code>false</code> otherwise.
+	 */
+	void markFileToArchive(boolean archive)
+	{
+		int n = table.getRowCount();
+		if (n == 0) return;
+		DefaultTableModel model = (DefaultTableModel) table.getModel();
+		int m = table.getColumnCount();
+		int index = ARCHIVED_INDEX;
+		if (COLUMNS_NO_FOLDER_AS_CONTAINER.size() == m)
+			index = index-1;
+		for (int i = 0; i < n; i++) {
+			model.setValueAt(archive, i, index);
+		}
+	}
+	
 	/** Resets the names of all selected files. */
 	void resetFilesName()
 	{
