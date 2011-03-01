@@ -1020,7 +1020,7 @@ def imageMarshal (image, key=None):
     ds = image.getDataset()
     try:
         rv = {
-            'tiles': False, #BIG IMAGE -> True
+            'tiles': True, #BIG IMAGE -> True
             'tile_size': {'width': 187,
                           'height': 140},
             'max_zoom': 4,
