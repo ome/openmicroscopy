@@ -176,7 +176,11 @@ public interface SqlAction {
 
     String dbVersion();
 
-    String configValue(String key);
+    String configValue(String name);
+
+    int delConfigValue(String name);
+
+    int updateOrInsertConfigValue(String name, String value);
 
     String dbUuid();
 
@@ -474,6 +478,21 @@ public interface SqlAction {
             } catch (EmptyResultDataAccessException erdae) {
                 return null;
             }
+        }
+
+        public int delConfigValue(String key) {
+            return _jdbc().update(_lookup("config_value_delete"), //$NON-NLS-1$
+                    key);
+        }
+
+        public int updateOrInsertConfigValue(String name, String value) {
+            int count = _jdbc().update(_lookup("config_value_update"), // $NON-NLS-1$
+                   value, name);
+            if (count == 0) {
+                count = _jdbc().update(_lookup("config_value_insert"), // $NON-NLS-1$
+                        name, value);
+            }
+            return count;
         }
 
         public long selectCurrentEventLog(String key) {
