@@ -79,6 +79,8 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
+import loci.formats.gui.ComboFileFilter;
+
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXTaskPane;
@@ -354,6 +356,15 @@ public class ImportDialog
 	/** Indicates to turn the folder as dataset. */
 	private JCheckBox					fadBox;
 	
+	/** The collection of <code>HCS</code> filters. */
+	private List<FileFilter> 			hcsFilters;
+	
+	/** The collection of general filters. */
+	private List<FileFilter> 			generalFilters;
+	
+	/** The combine filter. */
+	private FileFilter				    combinedFilter;
+	
 	/** 
 	 * Creates the dataset.
 	 * 
@@ -616,8 +627,12 @@ public class ImportDialog
 		});
 	}
 	
-	/** Initializes the components composing the display. */
-	private void initComponents()
+	/** 
+	 * Initializes the components composing the display. 
+	 * 
+	 * @param filters The filters to handle.
+	 */
+	private void initComponents(FileFilter[] filters)
 	{
 		showThumbnails = new JCheckBox("Show Thumbnails when imported");
 		showThumbnails.setVisible(false);
@@ -776,12 +791,31 @@ public class ImportDialog
 		chooser.setApproveButtonText("Import");
 		chooser.setApproveButtonToolTipText("Import the selected files " +
 				"or directories");
-
+		hcsFilters = new ArrayList<FileFilter>();
+		generalFilters = new ArrayList<FileFilter>();
 		if (filters != null) {
 			chooser.setAcceptAllFileFilterUsed(false);
+			FileFilter filter;
 			for (int i = 0; i < filters.length; i++) {
-				chooser.addChoosableFileFilter(filters[i]);
+				filter = filters[i];
+				if (filter instanceof ComboFileFilter) {
+					combinedFilter = filter;
+				} else {
+					if (hcsFilters.size() <= 
+						ImportableObject.HCS_FILES_EXTENSION.size() && 
+						ImportableObject.isHCSFormat(filter.toString())) {
+						hcsFilters.add(filter);
+					} else {
+						generalFilters.add(filter);
+					}
+				}
 			}
+			Iterator<FileFilter> j;
+			if (type == Importer.SCREEN_TYPE)  j = hcsFilters.iterator();
+			else j = generalFilters.iterator();
+			chooser.addChoosableFileFilter(combinedFilter);
+			while (j.hasNext())
+				chooser.addChoosableFileFilter(j.next());
 			chooser.setFileFilter(filters[0]);
 		} else chooser.setAcceptAllFileFilterUsed(true);
 		
@@ -1617,12 +1651,11 @@ public class ImportDialog
     		Collection<TreeImageDisplay> objects, int type)
     {
     	super(owner);
-    	this.filters = filters;
     	this.objects = objects;
     	this.type = type;
     	this.selectedContainer = selectedContainer;
     	setProperties();
-    	initComponents();
+    	initComponents(filters);
     	installListeners();
     	buildGUI();
     	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -1642,10 +1675,27 @@ public class ImportDialog
 	{
 		this.selectedContainer = selectedContainer;
 		this.objects = objects;
+		int oldType = this.type;
 		this.type = type;
 		//titlePane.setTextHeader(getContainerText(containers));
 		titlePane.setSubtitle(SUB_MESSAGE);
 		table.removeAllFiles();
+		if (oldType != this.type) { 
+			//change filters.
+			FileFilter[] filters = chooser.getChoosableFileFilters();
+			for (int i = 0; i < filters.length; i++) {
+				chooser.removeChoosableFileFilter(filters[i]);
+			}
+			Iterator<FileFilter> j;
+			if (type == Importer.SCREEN_TYPE)
+				j = hcsFilters.iterator();
+			else j = generalFilters.iterator();
+			chooser.addChoosableFileFilter(combinedFilter);
+			while (j.hasNext()) {
+				chooser.addChoosableFileFilter(j.next());
+			}
+			chooser.setFileFilter(combinedFilter);
+		}
 		File[] files = chooser.getSelectedFiles();
 		table.reset(files != null && files.length > 0);
 		handleTagsSelection(new ArrayList());

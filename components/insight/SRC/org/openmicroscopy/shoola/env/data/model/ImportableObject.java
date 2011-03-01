@@ -65,7 +65,7 @@ public class ImportableObject
 	/** 
 	 * The collection of HCS files extensions to check before importing. 
 	 */
-	private static final List<String> HCS_FILES_EXTENSION;
+	public static final List<String> HCS_FILES_EXTENSION;
 
 	static {
 		DEFAULT_DATASET_NAME = UIUtilities.formatDate(null, 
@@ -372,6 +372,23 @@ public class ImportableObject
 		if (!name.contains(".")) return false; 
 		String ext = name.substring(name.lastIndexOf('.')+1, name.length());
 		return HCS_FILES_EXTENSION.contains(ext);
+	}
+	
+	/**
+	 * Returns <code>true</code> if the passed format is a HCS format,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param format The format to handle.
+	 * @return See above.
+	 */
+	public static boolean isHCSFormat(String format)
+	{
+		Iterator<String> i = HCS_FILES_EXTENSION.iterator();
+		while (i.hasNext()) {
+			if (format.contains(i.next()))
+				return true;
+		}
+		return false;
 	}
 	
 	/**
