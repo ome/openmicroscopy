@@ -377,6 +377,10 @@ class TreeViewerWin
         item = new JMenuItem(a);
         menu.add(item);
         item.setText(a.getActionName());
+        a = controller.getAction(TreeViewerControl.IMPORT_NO_SELECTION);
+        item = new JMenuItem(a);
+        menu.add(item);
+        item.setText(a.getActionName());
         menu.add(new JSeparator(JSeparator.HORIZONTAL));
         a = controller.getAction(TreeViewerControl.BROWSE);
         item = new JMenuItem(a);
