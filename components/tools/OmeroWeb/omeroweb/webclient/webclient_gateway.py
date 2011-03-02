@@ -54,6 +54,9 @@ from omero.model import FileAnnotationI, TagAnnotationI, \
                         DatasetI, ProjectI, ImageI, ScreenI, PlateI, \
                         DetectorI, FilterI, ObjectiveI, InstrumentI, \
                         LaserI
+
+from omero.gateway import TagAnnotationWrapper, ExperimenterWrapper, WellWrapper
+
 from omero.sys import ParametersI
 
 
