@@ -104,6 +104,9 @@ table.contentWrapper {
     float:right;
     text-align: right;
 }
+.align_center {
+    text-align: center;
+}
 #searching {
     padding: 10px;
     overflow: auto;
@@ -243,7 +246,7 @@ h1 {
     padding: 10px 0;
 }
 h2 {
-    font-size: 12px;
+    font-size: 13px;
     text-align: left;
 }
 
@@ -258,13 +261,10 @@ iframe {
 }
 
 table {
-    text-align: center;
     table-layout:fixed;
 }
 
 td {
-    text-align: left;
-    padding: 0px;
     vertical-align:top;
 }
 
@@ -302,18 +302,15 @@ textarea {
 }
 
 form table {
-    text-align: center;
     border: 0px;
     table-layout: auto;
 }
 
 form td {
-    text-align: left;
     padding: 2px;
 }
 
 form th {
-    text-align: left;
     border: 0px;
 }
 
@@ -366,9 +363,7 @@ ul.criteria li{
 .details {
     border-bottom:1px solid #BBBBBB;
 }
-.center {
-    text-align: center;
-}
+
 label {
     font-weight: bold;
 }

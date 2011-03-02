@@ -111,13 +111,9 @@ class ContainerForm(forms.Form):
     name = forms.CharField(max_length=250, widget=forms.TextInput(attrs={'size':45}))
     description = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 39}), required=False, help_text=help_wiki)
 
-class CommentAnnotationSmallForm(forms.Form):
-    
-    content = forms.CharField(widget=forms.Textarea(attrs={'rows': 1, 'cols': 39}))
-    
 class CommentAnnotationForm(forms.Form):
     
-    content = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 39}))
+    content = forms.CharField(widget=forms.Textarea(attrs={'rows': 2, 'cols': 39}))
 
 class TagFilterForm(forms.Form):
     

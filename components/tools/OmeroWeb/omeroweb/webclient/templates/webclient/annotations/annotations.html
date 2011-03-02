@@ -117,9 +117,12 @@
                 <li><a href="#metadata_tab">{% trans "General" %}</a></li>
             {% else %}
                 <li><a href="#annotation_tab">{% trans "General" %}</a></li>
-                <li><a href="#metadata_tab">{% trans "Acquisition" %}</a></li>
                 {% if manager.image or manager.well %}
+                    <li><a href="#metadata_tab">{% trans "Acquisition" %}</a></li>                
                     <li><a href="#preview_tab">{% trans "Preview" %}</a></li>
+                {% else %}
+                    <li>{% trans "Acquisition" %}</li>                
+                    <li>{% trans "Preview" %}</li>
                 {% endif %}
             {% endif %}
         </ul>
@@ -141,6 +144,7 @@
             <div class="miniview" id="viewport"></div>
         </div>
         {% endif %}
+        
         
         <!-- METADATA "Acquisition" -->
         <div id="metadata_tab">
@@ -306,243 +310,263 @@
             {% endif %}
             <div class="clear"></div>
         </div>        
-        
+                
         {% if not manager.tag %}
         <!-- ANNOTATIONS "General" -->
         <div id="annotation_tab">
             {% if manager.image %}
-            <table>
+            <h1>
+                {{ manager.image.name|warphtml:"30" }}
+                {% if manager.image.isOwned %} <a href="{% url manage_action_containers "edit" "image" manager.image.id %}?url={{url}}"><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/></a>{% endif %}
+            </h1>            
+            <h2 id='image_id'>Image ID: {{ manager.image.id }}</h2>            
+            <div class="description">
+                {% if manager.image.isOwned %} <a href="{% url manage_action_containers "edit" "image" manager.image.id %}?url={{url}}" class="align_left"><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit" /></a>{% endif %}
+                {{ manager.image.description|default_if_none:"Description:"|linebreaks }}
+            </div>            
+            <table>                    
+                {% if not manager.image.isOwned %}
                 <tr>
-                    <td>
-                        <h1>{{ manager.image.name|warphtml:"30" }}
-                        {% if manager.image.isOwned %} <a href="{% url manage_action_containers "edit" "image" manager.image.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit" width='12' height='12'/></a>{% endif %}
-                        </h1>
-                    </td>
+                    <th>Owner:</th>
+                    <td id='owner_fullname'>{{ manager.image.getOwner.getFullName }}</td>                    
                 </tr>
-                <tr><td>
-                    <span class='attrName'>Image ID:</span>
-                    <span class='attrValue' id='image_id'>{{ manager.image.id }}</span>
-                    {% if not manager.image.isOwned %}
-                    <span class='attrName'>Owner:</span>
-                    <span class='attrValue' id='owner_fullname'>{{ manager.image.getOwner.getFullName }}</span>
-                    {% endif %}
-                </td></tr>
-                <tr><td>
-                    <label>
-                    {% if manager.image.isOwned %} <a href="{% url manage_action_containers "edit" "image" manager.image.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit" width='12' height='12' style='float:left'/></a>{% endif %}
-                    {{ manager.image.description|default_if_none:"Description:"|linebreaks }}
-                    </label>
-                </td></tr>
-            </table>
-            <table> 
+                {% endif %}
                 <tr>
-                    <td class='attrName'>Acquisition Date</td>
-                    <td class='attrValue' id='acqu_date'>{{ manager.image.getDate|date:"Y-m-d H:i:s" }}</td> <!-- TODO: Insight is m/d/yy h:min AM/PM -->
+                    <th>Acquisition Date:</th>
+                    <td id='acqu_date'>{{ manager.image.getDate|date:"Y-m-d H:i:s" }}</td> <!-- TODO: Insight is m/d/yy h:min AM/PM -->
                 </tr>
                 <tr>
-                    <td class='attrName'>Imported Date</td>
-                    <td class='attrValue' id='import_date'>{{ manager.image.creationEventDate|date:"Y-m-d H:i:s" }}</td>
+                    <th>Imported Date:</th>
+                    <td id='import_date'>{{ manager.image.creationEventDate|date:"Y-m-d H:i:s" }}</td>
                 </tr>
                 <tr>
-                    <td class='attrName'>Dimensions (XY)</td>
-                    <td class='attrValue' id='dims_xy'>{{ manager.image.getWidth }} x {{ manager.image.getHeight }}</td>
-                </tr>
-                <!-- TODO? Pixels type? -->
-                <tr>
-                    <td class='attrName'>Pixels Size (XYZ) (&#181m)</td>
-                    <td class='attrValue' id='pixels_size'>{{ manager.image.getPixelSizeX }} x {{ manager.image.getPixelSizeY }} x {{ manager.image.getPixelSizeZ }}</td>
+                    <th>Dimensions (XY):</th>
+                    <td id='dims_xy'>{{ manager.image.getWidth }} x {{ manager.image.getHeight }}</td>
                 </tr>
                 <tr>
-                    <td class='attrName'>z-sections/timepoints</td>
-                    <td class='attrValue' id='dims_zt'>{{ manager.image.z_count }} x {{ manager.image.t_count }}</td>
+                    <th>Pixels Type:</th>
+                    <td id='pixels_size'>{{ manager.image.getPixelsType }}</td>
                 </tr>
-                <tr><td class='attrName'>Channels:</td>
-                    <td class='attrValue' id='channel_names'>
+                <tr>
+                    <th>Pixels Size (XYZ) (&#181m):</th>
+                    <td id='pixels_size'>{{ manager.image.getPixelSizeX|floatformat:4 }} x {{ manager.image.getPixelSizeY|floatformat:4 }} x {{ manager.image.getPixelSizeZ|floatformat:4 }}</td>
+                </tr>
+                <tr>
+                    <th>Z-sections/Timepoints:</th>
+                    <td id='dims_zt'>{{ manager.image.z_count }} x {{ manager.image.t_count }}</td>
+                </tr>
+                <tr>
+                    <th>Channels:</th>
+                    <td id='channel_names'>
                     {% for c in manager.image.getChannels %}{% if not forloop.first %}, {% endif %}{{ c.getLogicalChannel.getName }}{% endfor %}
-                    </td>
-                </tr>
-                <tr>
-                    <td class='attrName'>Permissions</td>
-                    <td class='attrValue' id='permission_setting'>
-                {% if manager.image.isPublic %}<img src="{% url webstatic "images/network16.png" %}" alt="p" title="{{ manager.image.details.permissions }}"/> Public{% else %}{% if manager.image.isShared %}<img src="{% url webstatic "images/kuser16.png" %}" alt="s" title="{{ manager.image.details.permissions }}"/> Shared{% else %}{% if manager.image.isPrivate %} Private{% endif %}{% endif %}{% endif %}
-                {% if manager.image.isReadOnly %} (read-only){% endif %}                    
                     </td>
                 </tr>
             </table>
             {% else %}
                 {% if manager.dataset %}
+                <h1>
+                    {{ manager.dataset.name|warphtml:"30" }}
+                    {% if manager.dataset.isOwned %} <a href="{% url manage_action_containers "edit" "dataset" manager.dataset.id %}?url={{url}}"><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/></a>{% endif %}
+                </h1>                
+                <h2 id='dataset_id'>Dataset ID: {{ manager.dataset.id }}</h2>
+                <div class="description">
+                    {% if manager.dataset.isOwned %} <a href="{% url manage_action_containers "edit" "dataset" manager.dataset.id %}?url={{url}}" class="align_left"><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit" /></a>{% endif %}
+                    {{ manager.dataset.description|default_if_none:"Description:"|linebreaks }}
+                </div>
                 <table>
+                    {% if not manager.dataset.isOwned %}
                     <tr>
-                        <td>
-                            <h1>{{ manager.dataset.name|warphtml:"30" }}
-                            {% if manager.dataset.isOwned %} <a href="{% url manage_action_containers "edit" "dataset" manager.dataset.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit" width='12' height='12'/></a>{% endif %}
-                            </h1>
-                        </td>
+                        <th>Owner:</th>
+                        <td id='owner_fullname'>{{ manager.dataset.getOwner.getFullName }}</td>                    
                     </tr>
-                    <tr><td>
-                        <span class='attrName'>Dataset ID:</span>
-                        <span class='attrValue' id='dataset_id'>{{ manager.dataset.id }}</span>
-                        {% if not manager.dataset.isOwned %}
-                        <span class='attrName'>Owner:</span>
-                        <span class='attrValue' id='owner_fullname'>{{ manager.dataset.getOwner.getFullName }}</span>
-                        {% endif %}
-                    </td></tr>
-                    <tr><td>
-                        <label>
-                        {% if manager.dataset.isOwned %} <a href="{% url manage_action_containers "edit" "dataset" manager.dataset.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit" width='12' height='12' style='float:left'/></a>{% endif %}
-                        {{ manager.dataset.description|default_if_none:"Description:"|linebreaks }}
-                        </label>
-                    </td></tr>
+                    {% endif %}
+                    <tr>
+                        <th>Creation Date:</th>
+                        <td id='creation_date'>{{ manager.dataset.getDate|date:"Y-m-d H:i:s" }}</td>
+                    </tr>                    
+                    <tr>
+                        <th>Image Count:</th>
+                        <td id='child_count'>{{ manager.dataset.countChildren }} {% plural manager.dataset.countChildren 'image' 'images' %}</td>
+                    </tr>
                 </table>
-                <table>
-                    <tr>
-                        <td class='attrName'>Creation Date</td>
-                        <td class='attrValue' id='creation_date'>{{ manager.dataset.getDate|date:"Y-m-d H:i:s" }}</td>
-                    </tr>
-                    <tr>
-                        <td class='attrName'>Permissions</td>
-                        <td class='attrValue' id='permission_setting'>
-                    {% if manager.dataset.isPublic %}<img src="{% url webstatic "images/network16.png" %}" alt="p" title="{{ manager.image.details.permissions }}"/> Public{% else %}{% if manager.dataset.isShared %}<img src="{% url webstatic "images/kuser16.png" %}" alt="s" title="{{ manager.dataset.details.permissions }}"/> Shared{% else %}{% if manager.dataset.isPrivate %} Private{% endif %}{% endif %}{% endif %}
-                    {% if manager.dataset.isReadOnly %} (read-only){% endif %}                    
-                        </td>
-                    </tr>
-                    <td class='attrName'>Image Count</td>
-                    <td class='attrValue' id='child_count'>{{ manager.dataset.countChildren }} {% plural manager.dataset.countChildren 'image' 'images' %}</td>
-                </table>
-                
                 {% else %}
                     {% if manager.project %}
+                    <h1>
+                        {{ manager.project.name|warphtml:"30" }}
+                        {% if manager.project.isOwned %} <a href="{% url manage_action_containers "edit" "project" manager.project.id %}?url={{url}}"><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/></a>{% endif %}
+                    </h1>
+                    <h2 id='project_id'>Project ID: {{ manager.project.id }}</h2>
+                    <div class="description">
+                        {% if manager.project.isOwned %} <a href="{% url manage_action_containers "edit" "project" manager.project.id %}?url={{url}}" class="align_left"><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit" /></a>{% endif %}
+                        {{ manager.project.description|default_if_none:"Description:"|linebreaks }}
+                    </div>
                     <table>
+                        {% if not manager.project.isOwned %}
                         <tr>
-                            <td>
-                                <h1>{{ manager.project.name|warphtml:"30" }}
-                                {% if manager.project.isOwned %} <a href="{% url manage_action_containers "edit" "project" manager.project.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit" width='12' height='12'/></a>{% endif %}
-                                </h1>
-                            </td>
+                            <th>Owner:</th>
+                            <td id='owner_fullname'>{{ manager.project.getOwner.getFullName }}</td>                    
                         </tr>
-                        <tr><td>
-                            <span class='attrName'>Project ID:</span>
-                            <span class='attrValue' id='project_id'>{{ manager.project.id }}</span>
-                            {% if not manager.project.isOwned %}
-                            <span class='attrName'>Owner:</span>
-                            <span class='attrValue' id='owner_fullname'>{{ manager.project.getOwner.getFullName }}</span>
-                            {% endif %}
-                        </td></tr>
-                        <tr><td>
-                            <label>
-                            {% if manager.project.isOwned %} <a href="{% url manage_action_containers "edit" "project" manager.project.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit" width='12' height='12' style='float:left'/></a>{% endif %}
-                            {{ manager.project.description|default_if_none:"Description:"|linebreaks }}
-                            </label>
-                        </td></tr>
-                    </table>
-                    <table>
+                        {% endif %}
                         <tr>
-                            <td class='attrName'>Creation Date</td>
-                            <td class='attrValue' id='creation_date'>{{ manager.project.getDate|date:"Y-m-d H:i:s" }}</td>
+                            <th>Creation Date:</th>
+                            <td id='creation_date'>{{ manager.project.getDate|date:"Y-m-d H:i:s" }}</td>
                         </tr>
                         <tr>
-                            <td class='attrName'>Permissions</td>
-                            <td class='attrValue' id='permission_setting'>
-                        {% if manager.project.isPublic %}<img src="{% url webstatic "images/network16.png" %}" alt="p" title="{{ manager.image.details.permissions }}"/> Public{% else %}{% if manager.project.isShared %}<img src="{% url webstatic "images/kuser16.png" %}" alt="s" title="{{ manager.project.details.permissions }}"/> Shared{% else %}{% if manager.project.isPrivate %} Private{% endif %}{% endif %}{% endif %}
-                        {% if manager.project.isReadOnly %} (read-only){% endif %}                    
-                            </td>
+                            <th>Dataset Count:</th>
+                            <td id='child_count'>{{ manager.project.countChildren }} {% plural manager.project.countChildren 'dataset' 'datasets' %}</td>
                         </tr>
-                        <td class='attrName'>Dataset Count</td>
-                        <td class='attrValue' id='child_count'>{{ manager.project.countChildren }} {% plural manager.project.countChildren 'dataset' 'datasets' %}</td>
                     </table>
                     {% endif %}
                 {% endif %}
             {% endif %}
             
-            {% if manager.well %}
-            <table>
-                <tr><td><a href="#" onclick="return openPopup('{% url web_image_viewer manager.well.selectedWellSample.image.id %}')" alt="View" title="Open full viewer"><img id="{{ manager.well.selectedWellSample.image.id }}" src="{% url render_thumbnail_resize 64 manager.well.selectedWellSample.image.id %}" alt="image" title="image" class="thumbnail"/></a></td>
-                    <td><label>{{ manager.well.selectedWellSample.image.name|warphtml:"30"|linebreaks }}</label>{% if manager.well.selectedWellSample.image.isOwned %} <a href="{% url manage_action_containers "edit" "image" manager.well.selectedWellSample.image.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %} (id: {{ manager.well.selectedWellSample.image.id }})</td></tr>
-                <tr><td colspan="2">Created on:{{ manager.well.selectedWellSample.image.getDate|date:"Y-m-d H:i:s" }}</td></tr>
-                <tr><td colspan="2">{% if manager.well.selectedWellSample.image.countAnnotations %}<img src="{% url webstatic "images/knotes12.png" %}" alt="annotations" title="Annotations"/> [{{ manager.well.selectedWellSample.image.countAnnotations }}]{% endif %}</td></tr>
-                <tr><td colspan="2"><label>{{ manager.well.selectedWellSample.image.description|default_if_none:""|linebreaks }}</label></td></tr>
+            {% if manager.well %}            
+            <h1>
+                {{ manager.well.selectedWellSample.image.name|warphtml:"30" }}
+                {% if manager.well.selectedWellSample.image.isOwned %} <a href="{% url manage_action_containers "edit" "image" manager.well.selectedWellSample.image.id %}?url={{url}}"><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/></a>{% endif %}
+            </h1>            
+            <h2 id='well_id'>Well ID: {{ manager.well.selectedWellSample.image.id }}</h2>            
+            <div class="description">
+                {% if manager.well.selectedWellSample.image.isOwned %} <a href="{% url manage_action_containers "edit" "image" manager.well.selectedWellSample.image.id %}?url={{url}}" class="align_left"><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit" /></a>{% endif %}
+                {{ manager.well.selectedWellSample.image.description|default_if_none:"Description:"|linebreaks }}
+            </div>            
+            <table>                    
+                {% if not manager.well.selectedWellSample.image.isOwned %}
+                <tr>
+                    <th>Owner:</th>
+                    <td id='owner_fullname'>{{ manager.well.selectedWellSample.image.getOwner.getFullName }}</td>                    
+                </tr>
+                {% endif %}
+                <tr>
+                    <th>Acquisition Date:</th>
+                    <td id='acqu_date'>{{ manager.well.selectedWellSample.image.getDate|date:"Y-m-d H:i:s" }}</td> <!-- TODO: Insight is m/d/yy h:min AM/PM -->
+                </tr>
+                <tr>
+                    <th>Imported Date:</th>
+                    <td id='import_date'>{{ manager.well.selectedWellSample.image.creationEventDate|date:"Y-m-d H:i:s" }}</td>
+                </tr>
+                <tr>
+                    <th>Dimensions (XY):</th>
+                    <td id='dims_xy'>{{ manager.well.selectedWellSample.image.getWidth }} x {{ manager.well.selectedWellSample.image.getHeight }}</td>
+                </tr>
+                <tr>
+                    <th>Pixels Type:</th>
+                    <td id='pixels_size'>{{ manager.well.selectedWellSample.image.getPixelsType }}</td>
+                </tr>
+                <tr>
+                    <th>Pixels Size (XYZ) (&#181m):</th>
+                    <td id='pixels_size'>{{ manager.well.selectedWellSample.image.getPixelSizeX|floatformat:4 }} x {{ manager.well.selectedWellSample.image.getPixelSizeY|floatformat:4 }} x {{ manager.well.selectedWellSample.image.getPixelSizeZ|floatformat:4 }}</td>
+                </tr>
+                <tr>
+                    <th>Z-sections/Timepoints:</th>
+                    <td id='dims_zt'>{{ manager.well.selectedWellSample.image.z_count }} x {{ manager.well.selectedWellSample.image.t_count }}</td>
+                </tr>
+                <tr>
+                    <th>Channels:</th>
+                    <td id='channel_names'>
+                    {% for c in manager.well.selectedWellSample.image.getChannels %}{% if not forloop.first %}, {% endif %}{{ c.getLogicalChannel.getName }}{% endfor %}
+                    </td>
+                </tr>
             </table>
             {% else %}
                 {% if manager.plate %}
+                <h1>
+                    {{ manager.plate.name|warphtml:"30" }}
+                    {% if manager.plate.isOwned %} <a href="{% url manage_action_containers "edit" "plate" manager.plate.id %}?url={{url}}"><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/></a>{% endif %}
+                </h1>                
+                <h2 id='plate_id'>Plate ID: {{ manager.plate.id }}</h2>
+                <div class="description">
+                    {% if manager.plate.isOwned %} <a href="{% url manage_action_containers "edit" "plate" manager.plate.id %}?url={{url}}" class="align_left"><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit" /></a>{% endif %}
+                    {{ manager.plate.description|default_if_none:"Description:"|linebreaks }}
+                </div>
                 <table>
-                    <tr><td><img src="{% url webstatic "images/folder_plate64.png" %}" alt="plate" title="plate"/></td>
-                        <td><label>{{ manager.plate.name|warphtml:"30"|linebreaks }}</label>{% if manager.plate.isOwned %} <a href="{% url manage_action_containers "edit" "plate" manager.plate.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %} (id: {{ manager.plate.id }})</td></tr>
-                    <tr><td colspan="2">Created on: {{ manager.plate.getDate|date:"Y-m-d H:i:s" }}</td></tr>
-                    <tr><td colspan="2">
-                        {% if manager.plate.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="annotations" title="Annotations"/>{% endif %}{% if not manager.plate.isOwned %} <img src="{% url webstatic "images/personal16.png" %}" alt="owner by" title="Owner"/>{% endif %}
-                        {% if manager.plate.isPublic %}<img src="{% url webstatic "images/network16.png" %}" alt="p" title="{{ manager.plate.details.permissions }}"/>Public{% else %}{% if manager.plate.isShared %}<img src="{% url webstatic "images/kuser16.png" %}" alt="s" title="{{ manager.plate.details.permissions }}"/>Shared{% else %}{% if manager.plate.isPrivate %}Private{% endif %}{% endif %}{% endif %}
-                        {% if manager.plate.isReadOnly %} (read-only){% endif %}
-                        {% if not manager.plate.isOwned %} <img src="{% url webstatic "images/personal16.png" %}" alt="owner by" title="Owner"/>{{ manager.project.getOwner.getFullName }}{% endif %}
-                        </td></tr>
-                    <tr><td colspan="2"><label>{{ manager.plate.description|default_if_none:""|linebreaks }}</label></td></tr>
+                    {% if not manager.plate.isOwned %}
+                    <tr>
+                        <th>Owner:</th>
+                        <td id='owner_fullname'>{{ manager.plate.getOwner.getFullName }}</td>                    
+                    </tr>
+                    {% endif %}
+                    <tr>
+                        <th>Creation Date:</th>
+                        <td id='creation_date'>{{ manager.plate.getDate|date:"Y-m-d H:i:s" }}</td>
+                    </tr>                    
+                    <!--<tr>
+                        <th>Well Count:</th>
+                        <td id='child_count'>{{ manager.plate.countChildren }} {% plural manager.plate.countChildren 'well' 'Wells' %}</td>
+                    </tr>-->
                 </table>
                 {% else %}
                     {% if manager.screen %}
+                    <h1>
+                        {{ manager.screen.name|warphtml:"30" }}
+                        {% if manager.screen.isOwned %} <a href="{% url manage_action_containers "edit" "screen" manager.screen.id %}?url={{url}}"><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/></a>{% endif %}
+                    </h1>                
+                    <h2 id='screen_id'>Screen ID: {{ manager.screen.id }}</h2>
+                    <div class="description">
+                        {% if manager.screen.isOwned %} <a href="{% url manage_action_containers "edit" "screen" manager.screen.id %}?url={{url}}" class="align_left"><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit" /></a>{% endif %}
+                        {{ manager.screen.description|default_if_none:"Description:"|linebreaks }}
+                    </div>
                     <table>
-                        <tr><td rowspan="2"><img src="{% url webstatic "images/folder_screen64.png" %}" alt="plate" title="plate"/></td>
-                            <td><label>{{ manager.screen.name|warphtml:"30"|linebreaks }}</label>{% if manager.screen.isOwned %} <a href="{% url manage_action_containers "edit" "screen" manager.screen.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %} (id: {{ manager.screen.id }})</td></tr>
-                        <tr><td>Includes {{ manager.screen.countChildren }} {% plural manager.screen.countChildren 'plate' 'plates' %}</td></tr>
-                        <tr><td colspan="2">Created on: {{ manager.screen.getDate|date:"Y-m-d H:i:s" }}</td></tr>
-                        <tr><td colspan="2">
-                            {% if manager.screen.countAnnotations %} <img src="{% url webstatic "images/knotes12.png" %}" alt="annotations" title="Annotations"/>{% endif %}{% if not manager.screen.isOwned %} <img src="{% url webstatic "images/personal16.png" %}" alt="owner by" title="Owner"/>{% endif %}
-                            {% if manager.screen.isPublic %}<img src="{% url webstatic "images/network16.png" %}" alt="p" title="{{ manager.screen.details.permissions }}"/>Public{% else %}{% if manager.screen.isShared %}<img src="{% url webstatic "images/kuser16.png" %}" alt="s" title="{{ manager.screen.details.permissions }}"/>Shared{% else %}{% if manager.screen.isPrivate %}Private{% endif %}{% endif %}{% endif %}
-                            {% if manager.screen.isReadOnly %} (read-only){% endif %}
-                            {% if not manager.screen.isOwned %} <img src="{% url webstatic "images/personal16.png" %}" alt="owner by" title="Owner"/>{{ manager.screen.getOwner.getFullName }}{% endif %}
-                            </td></tr>
-                        <tr><td colspan="2"><label>{{ manager.screen.description|default_if_none:""|linebreaks }}</label></td></tr>
+                        {% if not manager.screen.isOwned %}
+                        <tr>
+                            <th>Owner:</th>
+                            <td id='owner_fullname'>{{ manager.screen.getOwner.getFullName }}</td>                    
+                        </tr>
+                        {% endif %}
+                        <tr>
+                            <th>Creation Date:</th>
+                            <td id='creation_date'>{{ manager.screen.getDate|date:"Y-m-d H:i:s" }}</td>
+                        </tr>                    
+                        <tr>
+                            <th>Screen Count:</th>
+                            <td id='child_count'>{{ manager.screen.countChildren }} {% plural manager.screen.countChildren 'screen' 'screens' %}</td>
+                        </tr>
                     </table>
                     {% endif %}
                 {% endif %}
             {% endif %}
             
             {% if manager.tag %}
+            <h1>
+                {{ manager.tag.name|warphtml:"30" }}
+                {% if manager.tag.isOwned %} <a href="{% url manage_action_containers "edit" "tag" manager.tag.id %}?url={{url}}"><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/></a>{% endif %}
+            </h1>                
+            <h2 id='tag_id'>Tag ID: {{ manager.tag.id }}</h2>
+            <div class="description">
+                {% if manager.tag.isOwned %} <a href="{% url manage_action_containers "edit" "tag" manager.tag.id %}?url={{url}}" class="align_left"><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit" /></a>{% endif %}
+                {{ manager.tag.description|default_if_none:"Description:"|linebreaks }}
+            </div>
             <table>
-                <tr><td rowspan="2"><img src="{% url webstatic "images/knotes64.png" %}" alt="tag" title="tag"/></td>
-                    <td><label>{{ manager.tag.textValue|warphtml:"30"|linebreaks }}</label>{% if manager.tag.isOwned %} <a href="{% url manage_action_containers "edit" "tag" manager.tag.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="edit"/></a>{% endif %} (id: {{ manager.tag.id }})</td></tr>
-                <tr><td colspan="2">Created on: {{ manager.tag.getDate|date:"Y-m-d H:i:s" }}</td></tr>
-                <tr><td colspan="2">
-                    {% if manager.tag.isPublic %}<img src="{% url webstatic "images/network16.png" %}" alt="p" title="{{ manager.screen.details.permissions }}"/>Public{% else %}{% if manager.tag.isShared %}<img src="{% url webstatic "images/kuser16.png" %}" alt="s" title="{{ manager.screen.details.permissions }}"/>Shared{% else %}{% if manager.tag.isPrivate %}Private{% endif %}{% endif %}{% endif %}
-                    {% if manager.tag.isReadOnly %} (read-only){% endif %}
-                    {% if not manager.tag.isOwned %} <img src="{% url webstatic "images/personal16.png" %}" alt="owner by" title="Owner"/>{{ manager.tag.getOwner.getFullName }}{% endif %}
-                    </td></tr>
-                <tr><td colspan="2"><label>{{ manager.tag.description|default_if_none:""|linebreaks }}</label></td></tr>
+                {% if not manager.tag.isOwned %}
+                <tr>
+                    <th>Owner:</th>
+                    <td id='owner_fullname'>{{ manager.tag.getOwner.getFullName }}</td>                    
+                </tr>
+                {% endif %}
+                <tr>
+                    <th>Creation Date:</th>
+                    <td id='creation_date'>{{ manager.tag.getDate|date:"Y-m-d H:i:s" }}</td>
+                </tr>                    
+                <tr>
+                    <th>Image Count:</th>
+                    <td id='child_count'>{{ manager.tag.countChildren }} {% plural manager.tag.countChildren 'tag' 'tags' %}</td>
+                </tr>
             </table>
             {% endif %}
         
         
-        <!-- annotations -->
-        <div style="border: 1px solid gray; margin: 20px 0px 5px 0px; padding: 3px 7px; background: #eee">
-            <h1 style="padding: 0px">
-                Annotations
-                <span id='ann_count'>
-                {% if manager.image.countAnnotations %}[{{ manager.image.countAnnotations }}]{% endif %}
-                {% if manager.dataset.countAnnotations %}[{{ manager.dataset.countAnnotations }}]{% endif %}
-                {% if manager.project.countAnnotations %}[{{ manager.project.countAnnotations }}]{% endif %}
-                </span>
-            </h1>
-        </div>
-        
+        <!-- ANNOTATIONS -->
+        <h1>{% trans "Annotations" %}:</h1>
         <table>
-            <tr>
-            <td>
             <!-- RATING -->
-                <span class='attrName'>{% trans "Rate" %}:</span>
-            </td>
-            <td>
-                {% if manager.long_annotations.votes %}
-                    {{ manager.long_annotations.rate }} ({{ manager.long_annotations.votes }} {% plural manager.long_annotations.votes 'vote' 'votes' %})
-                {% else %}
-                    None
-                {% endif %}
-            </td>
-            </tr>
-                
-                
-                
             <tr>
-            <td>
-            <!-- TAGS -->
-                <span class='attrName'>{% trans "Tags" %}: 
+                <th colspan="2">{% trans "Rate" %}:</th>
+                <td>{{ manager.long_annotations.rate|default_if_none:"0" }} ({{ manager.long_annotations.votes|default_if_none:"0" }} {% plural manager.long_annotations.votes 'vote' 'votes' %})</td>
+            </tr> 
+            <!-- TAGS -->               
+            <tr>
+                <th>{% trans "Tag" %}:</th>
+                <td>
                     {% if manager.project.isEditable %}<a href="{% url manage_action_containers "newtag" "project" manager.project.id %}?url={{url}}"><img src="{% url webstatic "images/plus_11.png" %}" alt="e" title="Create new tag or use an existing one."/></a>{% else %}
                     {% if manager.dataset.isEditable %}<a href="{% url manage_action_containers "newtag" "dataset" manager.dataset.id %}?url={{url}}"><img src="{% url webstatic "images/plus_11.png" %}" alt="e" title="Create new tag or use an existing one."/></a>{% else %}
                     {% if manager.image.isEditable %}<a href="{% url manage_action_containers "newtag" "image" manager.image.id %}?url={{url}}"><img src="{% url webstatic "images/plus_11.png" %}" height='11' width='11' alt="e" title="Create new tag or use an existing one."/></a>{% else %}
@@ -550,24 +574,23 @@
                     {% if manager.plate.isEditable %}<a href="{% url manage_action_containers "newtag" "plate" manager.plate.id %}?url={{url}}"><img src="{% url webstatic "images/plus_11.png" %}" alt="e" title="Create new tag or use an existing one."/></a>{% else %}
                     {% if manager.well.isEditable %}<a href="{% url manage_action_containers "newtag" "well" manager.well.id %}?url={{url}}"><img src="{% url webstatic "images/plus_11.png" %}" alt="e" title="Create new tag or use an existing one."/></a>
                     {% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}
-                </span>
-            </td>
-            <td>
-                {% if manager.tgannSize %}
-                <div class="lntags">
-                {% for tag in manager.tag_annotations %}
-                    <a href="{% url load_template "usertags" %}{% if not tag.isOwned %}?experimenter={{ tag.getOwner.id }}{% endif %}" target="_top" title="Owned by {{ tag.getDetails.getOwner.getNameWithInitial }}; Linked by {{ tag.link.getDetails.getOwner.getNameWithInitial }}. {{ tag.description|default_if_none:""  }}"> {{ tag.textValue }}</a> {% if tag.link.isOwned %}<a href="{% url manage_action_containers "remove" %}tag/{{ tag.id }}/?parent={% if manager.image %}image-{{ manager.image.id}}{% else %}{% if manager.dataset %}dataset-{{ manager.dataset.id}}{% else %}{% if manager.project %}project-{{ manager.project.id}}{% else %}{% if manager.screen %}screen-{{ manager.screen.id}}{% else %}{% if manager.plate %}plate-{{ manager.plate.id}}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}&url={{ url }}" onClick="return confirm('Unlink tag?');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a>{% endif %}, 
-                {% endfor %}
-                </div>
-                {% else %}
-                    None
-                {% endif %}
-            </td>
+                </td>
+                <td>
+                    {% if manager.tgannSize %}
+                    <div class="lntags">
+                    {% for tag in manager.tag_annotations %}
+                        <a href="{% url load_template "usertags" %}{% if not tag.isOwned %}?experimenter={{ tag.getOwner.id }}{% endif %}" target="_top" title="Owned by {{ tag.getDetails.getOwner.getNameWithInitial }}; Linked by {{ tag.link.getDetails.getOwner.getNameWithInitial }}. {{ tag.description|default_if_none:""  }}"> {{ tag.textValue }}</a> {% if tag.link.isOwned %}<a href="{% url manage_action_containers "remove" %}tag/{{ tag.id }}/?parent={% if manager.image %}image-{{ manager.image.id}}{% else %}{% if manager.dataset %}dataset-{{ manager.dataset.id}}{% else %}{% if manager.project %}project-{{ manager.project.id}}{% else %}{% if manager.screen %}screen-{{ manager.screen.id}}{% else %}{% if manager.plate %}plate-{{ manager.plate.id}}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}&url={{ url }}" onClick="return confirm('Unlink tag?');"><img src="{% url webstatic "images/minus_11.png" %}" alt="u" title="unlink"/></a>{% endif %}, 
+                    {% endfor %}
+                    </div>
+                    {% else %}
+                        {% trans "No tags" %}
+                    {% endif %}
+                </td>
             </tr>
+            <!-- FILES -->
             <tr>
-            <td>
-                <!-- FILES -->
-                <span class='attrName'>{% trans "Files" %}:
+                <th>{% trans "Attach" %}:</th>
+                <td>
                     {% if manager.project.isEditable %}<a href="{% url manage_action_containers "newfile" "project" manager.project.id %}?url={{url}}"><img src="{% url webstatic "images/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
                     {% if manager.dataset.isEditable %}<a href="{% url manage_action_containers "newfile" "dataset" manager.dataset.id %}?url={{url}}"><img src="{% url webstatic "images/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
                     {% if manager.image.isEditable %}<a href="{% url manage_action_containers "newfile" "image" manager.image.id %}?url={{url}}"><img src="{% url webstatic "images/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
@@ -575,78 +598,79 @@
                     {% if manager.plate.isEditable %}<a href="{% url manage_action_containers "newfile" "plate" manager.plate.id %}?url={{url}}"><img src="{% url webstatic "images/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>{% else %}
                     {% if manager.well.isEditable %}<a href="{% url manage_action_containers "newfile" "well" manager.well.id %}?url={{url}}"><img src="{% url webstatic "images/plus_11.png" %}" alt="e" title="Attache new file or use an existing one."/></a>
                     {% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}
-                </span>
-            </td>
-            <td>
-                {% if manager.fileannSize %}
-                <div class="lnfiles">
-                    {% for fileann in manager.file_annotations %}
-                    <p>
-                        <a href="#" onClick="document.location.href='{% url download_annotation "download" fileann.id %}';" 
-                            title="Linked by {{ fileann.link.getDetails.getOwner.getNameWithInitial }} {% trans "at" %} {{ fileann.creationEventDate|date:"Y-m-d H:i:s" }}. {% trans "Owner:" %} {{ fileann.getDetails.getOwner.getNameWithInitial }}">
-                            {{ fileann.getFileName|shortening:40 }}
-                        </a>
-                        ({{ fileann.getFileSize|default_if_none:0|filesizeformat }})
-                        {% if fileann.link.isOwned and not fileann.isOriginalMetadata %}
-                            <a href="{% url manage_action_containers "remove" %}file/{{ fileann.id }}/?parent={% if manager.image %}image-{{ manager.image.id}}{% else %}{% if manager.dataset %}dataset-{{ manager.dataset.id}}{% else %}{% if manager.project %}project-{{ manager.project.id}}{% endif %}{% endif %}{% endif %}&url={{ url }}" onClick="return confirm('Unlink file?');"><img src="{% url webstatic "images/cut16.png" %}" alt="u" title="unlink"/></a>
-                        {% endif %}
-                        {% if fileann.canDelete and not fileann.isOriginalMetadata %}
-                            <input class="button" type="image" src="{% url webstatic "images/block.png" %}" alt="Delete" title="Delete" onclick="deleteItem('file', '{{ fileann.id }}');" />
-                        {% endif %}
-                        <!-- if we have 'volume' data attached - link for viewing in Open-Astex Viewer -->
-                        {% ifequal fileann.getFileName|slice:"-3:" 'map' %}
-                            <a href="#" onclick="return openPopup('{% url open_astex_viewer fileann.id %}')">Volume viewer</a>
-                        {% endifequal %}
-                        {% ifequal fileann.getFileName|slice:"-3:" 'bit' %}
-                            <a href="#" onclick="return openPopup('{% url open_astex_viewer fileann.id %}')">Volume viewer</a>
-                        {% endifequal %}
-                    </p>
-                    {% endfor %}
-                </div>
-                {% else %}
-                    None
-                {% endif %}
-            </td>
-            </tr>
-            </table>
-            
-            <div class="clear"></div>
-            
-            <!-- COMMENTS -->
-            <span class='attrName'>{% trans "Comments" %}:</span>            
-            <div class="clear"></div>
-            {% if manager.project.isEditable or manager.dataset.isEditable or manager.image.isEditable %}
-                <form action="{% if manager.project %}{% url manage_action_containers "addcomment" "project" manager.project.id %}{% else %}{% if manager.dataset %}{% url manage_action_containers "addcomment" "dataset" manager.dataset.id %}{% else %}{% if manager.image %}{% url manage_action_containers "addcomment" "image" manager.image.id %}{% else %}{% if manager.screen %}{% url manage_action_containers "addcomment" "screen" manager.screen.id %}{% else %}{% if manager.plate %}{% url manage_action_containers "addcomment" "plate" manager.plate.id %}{% else %}{% if manager.well %}{% url manage_action_containers "addcomment" "well" manager.well.id %}{% else %}{{ url }}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}?url={{url}}" method="post">
-                <table>
-                    {% for field in form_comment %}
-                        <tr>
-                            <td colspan="2">{% if field.errors %}{{ field.errors }}{% endif %}</td>
-                        </tr>
-                        <tr>
-                            <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
-                        </tr>
-                    {% endfor %}
-                        <tr><td colspan="2"><input type="submit" value="{% trans 'Add Comment' %}" /></td></tr>
-                </table>
-                </form>
-            {% endif %}
-            
-            
-            {% if manager.txannSize %}
-            <div class="lncomments">            
-                {% for tann in manager.text_annotations %}
-                <div class="ann_comment_wrapper">
-                    <div class="avatar"><img src="{% url load_photo tann.details.owner.id.val %}" alt="{{ tann.getOwner.getFullName }}" title="{{ tann.getOwner.getFullName }}" width="20" height="20" /></div>
-                    <div class="ann_comment"><span class="ann_comment_header">{{ tann.getOwner.getFullName }} {% trans "at" %} {{ tann.creationEventDate|date:"Y-m-d H:i:s" }}</span>{% if tann.canDelete %} <input class="button" type="image" src="{% url webstatic "images/block.png" %}" alt="Delete" title="Delete" onclick="deleteItem('comment', '{{ tann.id }}');" />{% endif %}<br/>
-                        {{ tann.textValue|safe|linebreaks }}
+                </td>
+                <td>
+                    {% if manager.fileannSize %}
+                    <div class="lnfiles">
+                        {% for fileann in manager.file_annotations %}
+                        <p>
+                            <a href="#" onClick="document.location.href='{% url download_annotation "download" fileann.id %}';" 
+                                title="Linked by {{ fileann.link.getDetails.getOwner.getNameWithInitial }} {% trans "at" %} {{ fileann.creationEventDate|date:"Y-m-d H:i:s" }}. {% trans "Owner:" %} {{ fileann.getDetails.getOwner.getNameWithInitial }}">
+                                {{ fileann.getFileName|shortening:40 }}
+                            </a>
+                            ({{ fileann.getFileSize|default_if_none:0|filesizeformat }})
+                            {% if fileann.link.isOwned and not fileann.isOriginalMetadata %}
+                                <a href="{% url manage_action_containers "remove" %}file/{{ fileann.id }}/?parent={% if manager.image %}image-{{ manager.image.id}}{% else %}{% if manager.dataset %}dataset-{{ manager.dataset.id}}{% else %}{% if manager.project %}project-{{ manager.project.id}}{% endif %}{% endif %}{% endif %}&url={{ url }}" onClick="return confirm('Unlink file?');"><img src="{% url webstatic "images/minus_11.png" %}" alt="u" title="unlink"/></a>
+                            {% endif %}
+                            {% if fileann.canDelete and not fileann.isOriginalMetadata %}
+                                <input class="button" type="image" src="{% url webstatic "images/cancel12.png" %}" alt="Delete" title="Delete" onclick="deleteItem('file', '{{ fileann.id }}');" />
+                            {% endif %}
+                            <!-- if we have 'volume' data attached - link for viewing in Open-Astex Viewer -->
+                            {% ifequal fileann.getFileName|slice:"-3:" 'map' %}
+                                <a href="#" onclick="return openPopup('{% url open_astex_viewer fileann.id %}')">Volume viewer</a>
+                            {% endifequal %}
+                            {% ifequal fileann.getFileName|slice:"-3:" 'bit' %}
+                                <a href="#" onclick="return openPopup('{% url open_astex_viewer fileann.id %}')">Volume viewer</a>
+                            {% endifequal %}
+                        </p>
+                        {% endfor %}
                     </div>
-                </div>
-                {% endfor %}
-            </div>
-            {% else %}
-                None
-            {% endif %}
-            <div class="clear"></div>
+                    {% else %}
+                        {% trans "No attachments." %}
+                    {% endif %}
+                </td>
+            </tr>            
+            <!-- COMMENT -->
+            <tr>
+                <th colspan="3">                
+                    {% trans "Comment:" %}
+                    {% if manager.project.isEditable or manager.dataset.isEditable or manager.image.isEditable %}
+                    <form action="{% if manager.project %}{% url manage_action_containers "addcomment" "project" manager.project.id %}{% else %}{% if manager.dataset %}{% url manage_action_containers "addcomment" "dataset" manager.dataset.id %}{% else %}{% if manager.image %}{% url manage_action_containers "addcomment" "image" manager.image.id %}{% else %}{% if manager.screen %}{% url manage_action_containers "addcomment" "screen" manager.screen.id %}{% else %}{% if manager.plate %}{% url manage_action_containers "addcomment" "plate" manager.plate.id %}{% else %}{% if manager.well %}{% url manage_action_containers "addcomment" "well" manager.well.id %}{% else %}{{ url }}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}{% endif %}?url={{url}}" method="post">
+                    <table>
+                        {% for field in form_comment %}
+                            <tr>
+                                <td colspan="2">{% if field.errors %}{{ field.errors }}{% endif %}</td>
+                            </tr>
+                            <tr>
+                                <td>{{ field }}</td><td>{{ field.help_text|safe }}</td>
+                            </tr>
+                        {% endfor %}
+                            <tr><td colspan="2"><input type="submit" value="{% trans 'Add Comment' %}" /></td></tr>
+                    </table>
+                    </form>
+                    {% endif %}                        
+                </th>
+            </tr>
+            <tr>
+                <td colspan="3">
+                    {% if manager.txannSize %}
+                    <div class="lncomments">            
+                        {% for tann in manager.text_annotations %}
+                        <div class="ann_comment_wrapper">
+                            <div class="avatar"><img src="{% url load_photo tann.details.owner.id.val %}" alt="{{ tann.getOwner.getFullName }}" title="{{ tann.getOwner.getFullName }}" width="20" height="20" /></div>
+                            <div><span class="ann_comment_header">{{ tann.getOwner.getFullName }} {% trans "at" %} {{ tann.creationEventDate|date:"Y-m-d H:i:s" }}</span>{% if tann.canDelete %} <input class="button" type="image" src="{% url webstatic "images/cancel12.png" %}" alt="Delete" title="Delete" onclick="deleteItem('comment', '{{ tann.id }}');" />{% endif %}<br/>
+                                {{ tann.textValue|safe|linebreaks }}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                        {% trans "No comments." %}                        
+                    {% endif %}
+                </td>
+            </tr>            
+            </table>            
+            <div class="clear"></div>          
         </div>
         {% endif %}
     </div>

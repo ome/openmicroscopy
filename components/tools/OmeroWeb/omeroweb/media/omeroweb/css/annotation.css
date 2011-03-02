@@ -11,6 +11,13 @@ select.existing {
     width: 300px;
 }
 
+div.description {
+    min-height:60px;
+    overflow: auto;
+    border: 1px solid #bbb;
+    padding: 5px;
+    background-color: #fff;
+}
 div.comment {
     float: left;
 }
@@ -60,7 +67,7 @@ div.lnfiles{
 #annotation_tabs {
     margin: 5px 0 0 ;
     width: 100%;
-    background:none repeat scroll 0 0;
+    background:none repeat scroll 0 0 #F3F3F3;
     border: 0;
 }
 
@@ -72,7 +79,6 @@ div.lnfiles{
     margin: 4px 0 ;
     list-style:none;
 }
-
 
 /* comment display page */
 #comment_wrapper {
@@ -165,10 +171,9 @@ div.lnfiles{
 }
 .ann_comment_wrapper div.avatar {
     float: left;
+    width:25px; 
 }
-.ann_comment_wrapper div.ann_comment{
-    width: 100%;
-}
+
 .ann_comment_wrapper .ann_comment_header{
     font-weight: bold;
 }
@@ -191,11 +196,4 @@ table.metadata_details td{
 .defclosed,.closed{
     background:transparent url(/appmedia/omeroweb/images/table/asc-big.gif) no-repeat scroll top right;
     background-color: #fff;
-}
-
-.attrName {
-    font-weight:bold;
-}
-.attrValue {
-    color: #666;
 }

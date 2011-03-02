@@ -61,7 +61,7 @@ from webclient_http import HttpJavascriptRedirect, HttpJavascriptResponse, HttpL
 
 from webclient_utils import _formatReport, _purgeCallback
 from forms import ShareForm, BasketShareForm, ShareCommentForm, \
-                    ContainerForm, CommentAnnotationForm, CommentAnnotationSmallForm, TagAnnotationForm, \
+                    ContainerForm, CommentAnnotationForm, TagAnnotationForm, \
                     UploadFileForm, UsersForm, ActiveGroupForm, HistoryTypeForm, \
                     MetadataFilterForm, MetadataDetectorForm, MetadataChannelForm, \
                     MetadataEnvironmentForm, MetadataObjectiveForm, MetadataStageLabelForm, \
@@ -643,7 +643,7 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
     else:
         template = "webclient/data/containers.html"
     
-    context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_well_index':form_well_index}
+    context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_well_index':form_well_index, 'index':index}
     
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -846,8 +846,7 @@ def open_astex_viewer(request, fileAnnId, **kwargs):
         fileName = ann.getFileName()
         if fileName.endswith(".bit"):
             mapType = "bit"
-            
-    print "fileAnnId", fileAnnId
+    
     return render_to_response('webclient/annotations/open_astex_viewer.html', {'fileAnnId': fileAnnId, 'mapType': mapType})
     
     
@@ -887,10 +886,10 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
         else:
             if conn_share is not None:
                 template = "webclient/annotations/annotations_share.html"                
-                manager = BaseContainer(conn_share, c_type, c_id)
+                manager = BaseContainer(conn_share, c_type, c_id, index=index)
             else:
                 template = "webclient/annotations/annotations.html"                
-                manager = BaseContainer(conn, c_type, c_id)
+                manager = BaseContainer(conn, c_type, c_id, index=index)
                 manager.annotationList()
     except AttributeError, x:
         logger.error(traceback.format_exc())
@@ -904,6 +903,7 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
     form_detectors = list()
     form_channels = list()
     form_lasers = list()
+    form_comment = CommentAnnotationForm()
     
     if c_type == 'well' or c_type == 'image':
         if conn_share is None:
@@ -987,7 +987,6 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
     if c_type in ("share", "discussion", "tag"):
         context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager}
     else:
-        form_comment = CommentAnnotationSmallForm() # for displaying a 'new comment' field
         context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 
         'form_channels':form_channels, 'form_environment':form_environment, 'form_objective':form_objective, 
         'form_microscope':form_microscope, 'form_filters':form_filters, 'form_detectors':form_detectors, 

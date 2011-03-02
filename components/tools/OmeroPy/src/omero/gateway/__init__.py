@@ -6011,7 +6011,18 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
         
         return self._pd.t
-
+    
+    @assert_pixels
+    def getPixelsType (self):
+        """
+        Gets the physical size X of pixels in microns
+        
+        @return:    Size of pixel in x or O
+        @rtype:     float
+        """
+        rv = self._obj.getPrimaryPixels().getPixelsType().value
+        return rv is not None and rv.val or 'unknown'
+    
     @assert_pixels
     def getPixelSizeX (self):
         """
@@ -6020,7 +6031,6 @@ class _ImageWrapper (BlitzObjectWrapper):
         @return:    Size of pixel in x or O
         @rtype:     float
         """
-        
         rv = self._obj.getPrimaryPixels().getPhysicalSizeX()
         return rv is not None and rv.val or 0
 

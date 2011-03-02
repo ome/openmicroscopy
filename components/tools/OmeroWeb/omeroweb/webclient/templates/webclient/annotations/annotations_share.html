@@ -347,16 +347,16 @@
         <div id="annotation_tab">
             <h1>{% trans "Comments" %}: {% if manager.share.isExpired %}This {% if manager.share.isEmpty %}discussion{% else %}share{% endif %} has expired and you no longer can make any comments.{% else %}<a href="{% url manage_action_containers "newsharecomment" "share" manager.share.id %}?url={{url}}"><img src="{% url webstatic "images/color_line16.png" %}" alt="e" title="Create new comment."/></a>{% endif %}</h1>            
             <div class="lncomments">
-                <div id="ann_comment_wrapper">
+                <div class="ann_comment_wrapper">
                     <div class="avatar"><img src="{% url load_photo manager.share.getOwner.id %}" alt="{{ manager.share.getOwner.getNameWithInitial }}" title="{{ manager.share.getOwner.getNameWithInitial }}" width="40" height="40" /></div>
-                    <div class="ann_comment"><span class="ann_comment_header">{{ manager.share.getOwner.getNameWithInitial }} {% trans "posted comment at" %} {{ manager.share.getStartDate|date:"Y-m-d H:i:s" }}</span><br/>
+                    <div><span class="ann_comment_header">{{ manager.share.getOwner.getNameWithInitial }} {% trans "posted comment at" %} {{ manager.share.getStartDate|date:"Y-m-d H:i:s" }}</span><br/>
                         {{ manager.share.message|sharewikify|safe|linebreaks }}
                     </div>
                 </div>
                 {% for cm in manager.comments %}
-                <div id="ann_comment_wrapper">
+                <div class="ann_comment_wrapper">
                     <div class="avatar"><img src="{% url load_photo cm.details.owner.id.val %}" alt="{{ cm.getOwner.getNameWithInitial }}" title="{{ cm.getOwner.getNameWithInitial }}" width="40" height="40" /></div>
-                    <div class="ann_comment"><span class="ann_comment_header">{{ cm.getOwner.getNameWithInitial }} {% trans "posted comment at" %} {{ cm.creationEventDate|date:"Y-m-d H:i:s" }}</span><br/>
+                    <div><span class="ann_comment_header">{{ cm.getOwner.getNameWithInitial }} {% trans "posted comment at" %} {{ cm.creationEventDate|date:"Y-m-d H:i:s" }}</span><br/>
                         {{ cm.textValue|sharewikify|safe|linebreaks }}
                     </div>
                 </div>
