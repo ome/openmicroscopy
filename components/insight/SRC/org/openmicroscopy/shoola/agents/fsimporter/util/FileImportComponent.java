@@ -139,6 +139,14 @@ public class FileImportComponent
 	/** Text to indicate to view the image. */
 	private static final String NOT_VIEW_TEXT = "Image not viewable";
 	
+	/** Tool tip text to indicate to browse the container. */
+	private static final String BROWSE_CONTAINER_TOOLTIP = 
+		"Double-click to browse.";
+	
+	/** Text to indicate to browse the container. */
+	private static final String BROWSE_CONTAINER_TEXT = 
+		"Browse container";
+	
 	/** The number of extra labels for images to add. */
 	private static final int NUMBER = 3;
 	
@@ -209,7 +217,7 @@ public class FileImportComponent
 	private DataObject containerFromFolder;
 	
 	/** Button to browse the container. */
-	private JButton	browseButton;
+	private JLabel	browseButton;
 	
 	/** Button to cancel the import for that file. */
 	private JButton	cancelButton;
@@ -225,6 +233,9 @@ public class FileImportComponent
 	
 	/** The container displaying where it was imported. */
 	private JLabel containerLabel;
+	
+	/** Flag indicating to show/hide the container label. */
+	private boolean showContainerLabel;
 	
 	/** Browses the node or the data object. */
 	private void browse()
@@ -277,6 +288,7 @@ public class FileImportComponent
 	/** Initializes the components. */
 	private void initComponents()
 	{
+		showContainerLabel = true;
 		adapter = new MouseAdapter() {
 			
 			/**
@@ -315,10 +327,23 @@ public class FileImportComponent
 		cancelButton.setActionCommand(""+CANCEL_ID);
 		cancelButton.setVisible(true);
 		
-		browseButton = UIUtilities.createHyperLinkButton("Browse");
-		browseButton.setToolTipText("Browse the container.");
-		browseButton.addActionListener(this);
-		browseButton.setActionCommand(""+BROWSE_ID);
+		browseButton = new JLabel(BROWSE_CONTAINER_TEXT);
+		browseButton.setForeground(UIUtilities.HYPERLINK_COLOR);
+		browseButton.setToolTipText(BROWSE_CONTAINER_TOOLTIP);
+		browseButton.addMouseListener(new MouseAdapter() {
+			
+			/**
+			 * Browses the object the image.
+			 * @see MouseListener#mousePressed(MouseEvent)
+			 */
+			public void mousePressed(MouseEvent e)
+			{
+				Object src = e.getSource();
+				if (e.getClickCount() == 2 && src instanceof JLabel) {
+					browse();
+				}
+			}
+		});
 		browseButton.setVisible(false);
 		
 		containerLabel = new JLabel();//UIUtilities.setTextFont("");
@@ -447,7 +472,7 @@ public class FileImportComponent
 			if (f.isFile()) {
 				c.setLocation(data, d, node);
 			}
-				
+			c.showContainerLabel(showContainerLabel);
 			c.setType(getType());
 			attachListeners(c);
 			c.setStatusLabel((StatusLabel) entry.getValue());
@@ -605,8 +630,8 @@ public class FileImportComponent
 				fileNameLabel.addMouseListener(adapter);
 				resultLabel.addMouseListener(adapter);
 				addMouseListener(adapter);
-				browseButton.setVisible(true);
-				containerLabel.setVisible(true);
+				browseButton.setVisible(showContainerLabel);
+				containerLabel.setVisible(showContainerLabel);
 			}
 		} else if (image instanceof ThumbnailData) {
 			ThumbnailData thumbnail = (ThumbnailData) image;
@@ -616,8 +641,8 @@ public class FileImportComponent
 				fileNameLabel.addMouseListener(adapter);
 				addMouseListener(adapter);
 				resultLabel.setVisible(true);
-				browseButton.setVisible(true);
-				containerLabel.setVisible(true);
+				browseButton.setVisible(showContainerLabel);
+				containerLabel.setVisible(showContainerLabel);
 			} else {
 				fileNameLabel.setForeground(ERROR_COLOR);
 				resultLabel.setForeground(ERROR_COLOR);
@@ -639,6 +664,8 @@ public class FileImportComponent
 			resultLabel.setVisible(true);
 			fileNameLabel.addMouseListener(adapter);
 			resultLabel.addMouseListener(adapter);
+			browseButton.setVisible(showContainerLabel);
+			containerLabel.setVisible(showContainerLabel);
 		} else if (image instanceof List) {
 			statusLabel.setVisible(false);
 			List list = (List) image;
@@ -665,6 +692,8 @@ public class FileImportComponent
 				}
 			}
 			resultLabel.setVisible(true);
+			browseButton.setVisible(showContainerLabel);
+			containerLabel.setVisible(showContainerLabel);
 			//control = resultLabel;
 		} else if (image instanceof Boolean) {
 			if (!statusLabel.isMarkedAsCancel()) {
@@ -883,6 +912,18 @@ public class FileImportComponent
 	{
 		if (isFolderAsContainer()) return false;
 		return ImportableObject.isHCSFile(file);
+	}
+	
+	/**
+	 * Sets the flag indicating to show or hide the container where the file
+	 * has been imported.
+	 * 
+	 * @param show  Pass <code>true</code> to show, <code>false</code>
+	 * 				otherwise.
+	 */
+	public void showContainerLabel(boolean show)
+	{
+		showContainerLabel = show;
 	}
 	
 	/**

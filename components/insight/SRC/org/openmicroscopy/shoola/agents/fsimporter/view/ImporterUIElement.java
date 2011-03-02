@@ -26,7 +26,6 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -298,6 +297,25 @@ class ImporterUIElement
 			importable.setStatus(c.getStatus());
 			components.put(f.getAbsolutePath(), c);
 		}
+		List<DataObject> objects = getExistingContainers();
+		int n = objects.size();
+		if (n == 1) { //only one.
+			DataObject o = objects.get(0);
+			containerComponents.put(createNameLabel(o), o);
+			Iterator<FileImportComponent> j = components.values().iterator();
+			while (j.hasNext()) {
+				j.next().showContainerLabel(false);
+			}
+		} else if (n == 0) {
+			if (foldersName.size() == 1) {
+				Iterator<FileImportComponent> j = components.values().iterator();
+				while (j.hasNext()) {
+					j.next().showContainerLabel(false);
+				}
+			}
+		}
+		
+		/*
 		DatasetData dataset = object.getDefaultDataset();
 		if (type != FileImportComponent.SCREEN_TYPE) {
 			if (dataset != null && count > 0) 
@@ -306,7 +324,7 @@ class ImporterUIElement
 			if (dataset != null && count > 0) 
 				foldersName.put(createNameLabel(dataset), dataset);
 		}
-		
+		*/
 		totalToImport = files.size();
 	}
 	
@@ -338,6 +356,51 @@ class ImporterUIElement
     	c.gridy++; 	
     	c.gridx = 0;
     	int n;
+    	Entry entry;
+		Object h;
+    	n = containerComponents.size();
+    	if (n == 1) {
+    		String text = "";
+			Iterator i = containerComponents.entrySet().iterator();
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				h = entry.getValue();
+				if (h instanceof DatasetData) {
+					text = "Imported in Dataset: ";
+				} else if (h instanceof ScreenData) {
+					text = "Imported in Screen: ";
+				} else if (h instanceof ProjectData) {
+					text = "Imported in Project: ";
+				}
+				header.add(UIUtilities.setTextFont(text, Font.BOLD), c);
+				c.gridx = c.gridx+2;
+				header.add((JLabel) entry.getKey(), c);
+			}
+			c.gridy++; 	
+	    	c.gridx = 0;
+		} else if (n == 0 && foldersName.size() == 1) {
+			String text = "";
+			Iterator i = foldersName.entrySet().iterator();
+			FileImportComponent fic;
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				h = entry.getValue();
+				if (h instanceof FileImportComponent) {
+					fic = (FileImportComponent) h;
+					h = fic.getDataset();
+					text = "Imported in Dataset: ";
+					header.add(UIUtilities.setTextFont(text, Font.BOLD), c);
+					c.gridx = c.gridx+2;
+					header.add((JLabel) entry.getKey(), c);
+				}
+			}
+			c.gridy++; 	
+	    	c.gridx = 0;
+		}
+    	
+    	
+    	
+    	
     	/*
     	List<Object> containers = object.getRefNodes();
 		String text = "Imported in Dataset: ";
@@ -748,17 +811,6 @@ class ImporterUIElement
 		existingContainers.addAll(screens.values());
 		return existingContainers;
 	}
-	
-	/**
-	 * Returns the new containers.
-	 * 
-	 * @return See above.
-	 */
-	List<DataObject> getNewContainers()
-	{
-		return null;
-	}
-	
 	
 	/**
 	 * Returns <code>true</code> if errors to send, <code>false</code>
