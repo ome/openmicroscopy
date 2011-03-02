@@ -1173,6 +1173,7 @@ public class ImportDialog
 	/** Populates the datasets box depending on the selected project. */
 	private void populateDatasetsBox()
 	{
+		if (type == Importer.SCREEN_TYPE) return;
 		DataNode n = (DataNode) parentsBox.getSelectedItem();
 		List<DataNode> list = n.getDatasetNodes();
 		List l = sorter.sort(list);
