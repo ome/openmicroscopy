@@ -87,6 +87,10 @@ class ImporterUIElement
 	extends ClosableTabbedPaneComponent
 {
 
+	/** Description of the component. */
+	private static final String DESCRIPTION = 
+		"Closing will cancel imports that have not yet started.";
+	
 	/** The object hosting information about files to import. */
 	private ImportableObject object;
 	
@@ -604,7 +608,7 @@ class ImporterUIElement
 	ImporterUIElement(ImporterControl controller, int id, int index, 
 			String name, ImportableObject object)
 	{
-		super(index, name);
+		super(index, name, DESCRIPTION);
 		if (object == null) 
 			throw new IllegalArgumentException("No object specified.");
 		if (controller == null)
@@ -741,7 +745,7 @@ class ImporterUIElement
 	/** Indicates that the import has started. */
 	void startImport()
 	{ 
-		setClosable(false);
+		setClosable(true);
 		repaint();
 	}
 	
