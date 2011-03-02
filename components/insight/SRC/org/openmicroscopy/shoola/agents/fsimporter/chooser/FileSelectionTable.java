@@ -277,9 +277,10 @@ class FileSelectionTable
 		if (rows == null || rows.length == 0) return;
 		DefaultTableModel model = (DefaultTableModel) table.getModel();
 		Vector v = model.getDataVector();
-		for (int i = 0; i < rows.length; i++) 
+		for (int i = 0; i < rows.length; i++) {
 			v.remove(rows[i]);
-		
+			model.fireTableRowsDeleted(rows[i], rows[i]);
+		}
 		table.repaint();
 		int n = table.getRowCount();
 		firePropertyChange(REMOVE_PROPERTY, n-1, n);
@@ -295,10 +296,6 @@ class FileSelectionTable
 	{
 		removeButton.setEnabled(value);
 		removeAllButton.setEnabled(value);
-		if (value) {
-			//int[] rows = table.getSelectedRows();
-			//removeButton.setEnabled(rows != null && rows.length > 0);
-		}
 	}
 	
 	/** 
