@@ -53,7 +53,7 @@ class BirdEyeCanvas
 	/** The region to render. */
 	static final String RENDER_REGION_PROPERTY = "renderRegion";
 	
-	static final int BORDER = 0;
+	static final int BORDER = 3;
 
 	/** The processing image. */
 	private PImage pImage;
@@ -78,24 +78,26 @@ class BirdEyeCanvas
 	float x = 0;
 	float y = 0;
 	
+	private int strokeWeight = 1;
+	
 	private Rectangle imageRectangle;
 	
 	private boolean inImage()
 	{
-		if (bx < imageRectangle.x) {
-			bx = 2*BORDER;
+		if (bx-strokeWeight < imageRectangle.x) {
+			bx = BORDER+strokeWeight;
 			return false;
 		}
-		if (by < imageRectangle.y) {
-			by = 2*BORDER;
+		if (by-strokeWeight < imageRectangle.y) {
+			by = BORDER+strokeWeight;
 			return false;
 		}
-		if (bx+w > imageRectangle.width-2) {
-			bx = imageRectangle.width-w-2;
+		if (bx+w > imageRectangle.width) {
+			bx = imageRectangle.width-w;
 			return false;
 		}
-		if (by+h > imageRectangle.height-2) {
-			by = imageRectangle.height-h-2;
+		if (by+h > imageRectangle.height) {
+			by = imageRectangle.height-h;
 			return false;
 		}
 		return true;
@@ -137,6 +139,7 @@ class BirdEyeCanvas
 		image(pImage, BORDER, BORDER);
 		stroke(color);
 		noFill();
+		
 		//strokeWeight(1.5f);
 		// Test if the cursor is over the box 
 		if (mouseX > bx-w && mouseX < bx+w && 
