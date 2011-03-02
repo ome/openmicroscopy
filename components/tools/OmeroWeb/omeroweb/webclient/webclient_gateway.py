@@ -55,11 +55,7 @@ from omero.model import FileAnnotationI, TagAnnotationI, \
                         DetectorI, FilterI, ObjectiveI, InstrumentI, \
                         LaserI
 from omero.sys import ParametersI
-from omero.gateway import AnnotationWrapper, TagAnnotationWrapper, \
-                        FileAnnotationWrapper, CommentAnnotationWrapper, \
-                        ExperimenterGroupWrapper, ExperimenterWrapper, \
-                        EnumerationWrapper, BlitzObjectWrapper, \
-                        ShareCommentWrapper, ShareWrapper, WellWrapper
+
 
 from django.utils.translation import ugettext as _
 from django.conf import settings
@@ -466,7 +462,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             sql += " and im.details.owner.id=:eid"
             
         for e in q.findAllByQuery(sql, p):
-            kwargs = {'link': BlitzObjectWrapper(self, e.copyDatasetLinks()[0])}
+            kwargs = {'link': omero.gateway.BlitzObjectWrapper(self, e.copyDatasetLinks()[0])}
             yield ImageWrapper(self, e, None, **kwargs)
     
     # SPW
@@ -1200,7 +1196,146 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
             store.write(chunk, pos, rlen)
             pos = pos + rlen
         return store.save()
+    
+    ##############################################
+    ##   IShare
+    
+    def getShare (self, oid):
+           """
+           Gets share for the given share id.
 
+           @param oid:     Share ID.
+           @type oid:      Long
+           @return:        ShareWrapper or None
+           @rtype:         L{ShareWrapper}
+           """
+
+           sh_serv = self.getShareService()
+           sh = sh_serv.getShare(long(oid))
+           if sh is not None:
+               return ShareWrapper(self, sh)
+           else:
+               return None
+    
+    def getOwnShares(self):
+        """
+        Gets all owned shares for the current user.
+        
+        @return:    Shares that user owns
+        @rtype:     L{ShareWrapper} generator
+        """
+        
+        sh = self.getShareService()
+        for e in sh.getOwnShares(False):
+            yield ShareWrapper(self, e)
+    
+    def getMemberShares(self):
+        """
+        Gets all shares where current user is a member.
+        
+        @return:    Shares that user is a member of
+        @rtype:     L{ShareWrapper} generator
+        """
+        
+        sh = self.getShareService()
+        for e in sh.getMemberShares(False):
+            yield ShareWrapper(self, e)
+    
+    def getMemberCount(self, share_ids):
+        """
+        Returns a map from share id to the count of total members (including the
+        owner). This is represented by ome.model.meta.ShareMember links.
+        
+        @param share_ids:   List of IDs
+        @type share_ids:    List of Longs
+        @return:            Dict of shareId: member-count
+        @rtype:             Dict of long: long
+        """
+        
+        sh = self.getShareService()
+        return sh.getMemberCount(share_ids)
+    
+    def getCommentCount(self, share_ids):
+        """ 
+        Returns a map from share id to comment count.
+        
+        @param share_ids:   List of IDs
+        @type share_ids:    List of Longs
+        @return:            Dict of shareId: comment-count
+        @rtype:             Dict of long: long 
+        """
+        
+        sh = self.getShareService()
+        return sh.getCommentCount(share_ids)
+    
+    def getContents(self, share_id):
+        """ 
+        Looks up all items belonging to the share, wrapped in object wrapper
+        
+        @param share_id:    share ID
+        @type share_id:     Long
+        @return:            Share contents
+        @rtype:             L{ShareContentWrapper} generator
+        """
+        
+        sh = self.getShareService()
+        for e in sh.getContents(long(share_id)):
+            yield ShareContentWrapper(self, e)
+    
+    def getComments(self, share_id):
+        """
+        Looks up all comments which belong to the share, wrapped in object wrapper
+        
+        @param share_id:    share ID
+        @type share_id:     Long
+        @return:            Share comments
+        @rtype:             L{ShareCommentWrapper} generator
+        """
+        
+        sh = self.getShareService()
+        for e in sh.getComments(long(share_id)):
+            yield ShareCommentWrapper(self, e)
+    
+    def getAllMembers(self, share_id):
+        """
+        Get all {@link Experimenter users} who are a member of the share.
+        
+        @param share_id:    share ID
+        @type share_id:     Long
+        @return:            Members of share
+        @rtype:             L{ExperimenterWrapper} generator
+        """
+        
+        sh = self.getShareService()
+        for e in sh.getAllMembers(long(share_id)):
+            yield ExperimenterWrapper(self, e)
+
+    def getAllGuests(self, share_id):
+        """
+        Get the email addresses for all share guests.
+        
+        @param share_id:    share ID
+        @type share_id:     Long
+        @return:            List of e-mail addresses
+        @rtype:             List of Strings
+        """
+        
+        sh = self.getShareService()
+        return sh.getAllGuests(long(share_id))
+
+    def getAllUsers(self, share_id):
+        """
+        Get a single set containing the login names of the users as well email addresses for guests.
+        
+        @param share_id:    share ID
+        @type share_id:     Long
+        @return:            List of usernames and e-mail addresses
+        @rtype:             List of Strings
+        """
+        
+        sh = self.getShareService()
+        return sh.getAllUsers(long(share_id))
+    
     def prepareRecipients(self, recipients):
         recps = list()
         for m in recipients:
@@ -1616,7 +1751,7 @@ class OmeroWebObjectWrapper (object):
                 "where c.parent.id=:dsid " \
                 "order by c.child.name" % self.LINK_CLASS
         for link in self._conn.getQueryService().findAllByQuery(query, params):
-            kwargs = {'link': BlitzObjectWrapper(self._conn, link)}
+            kwargs = {'link': omero.gateway.BlitzObjectWrapper(self._conn, link)}
             yield childw(self._conn, link.child, None, **kwargs)
     
     def countAnnotations (self):
@@ -1746,7 +1881,7 @@ class ScreenWrapper (OmeroWebObjectWrapper, omero.gateway.ScreenWrapper):
 
 omero.gateway.ScreenWrapper = ScreenWrapper
 
-class ShareWrapper (OmeroWebObjectWrapper, omero.gateway.ShareWrapper):
+class ShareWrapper (OmeroWebObjectWrapper):
     """
     omero_model_ShareI class wrapper overwrite omero.gateway.ShareWrapper
     and extends OmeroWebObjectWrapper.
@@ -1796,8 +1931,6 @@ class ShareWrapper (OmeroWebObjectWrapper, omero.gateway.ShareWrapper):
         except:
             logger.info(traceback.format_exc())
         return None
-    
-omero.gateway.ShareWrapper = ShareWrapper
 
 class SessionAnnotationLinkWrapper (omero.gateway.BlitzObjectWrapper):
     """
@@ -1817,3 +1950,84 @@ class EventLogWrapper (omero.gateway.BlitzObjectWrapper):
     
     LINK_CLASS = "EventLog"
 
+class ShareWrapper (omero.gateway.BlitzObjectWrapper):
+    """
+    omero_model_ShareI class wrapper extends BlitzObjectWrapper.
+    """
+    
+    def getStartDate(self):
+        """
+        Gets the start date of the share
+        
+        @return:    Start Date-time
+        @rtype:     datetime object
+        """
+        
+        return datetime.fromtimestamp(self.getStarted().val/1000)
+        
+    def getExpirationDate(self):
+        """
+        Gets the end date for the share
+        
+        @return:    End Date-time
+        @rtype:     datetime object
+        """
+        
+        try:
+            return datetime.fromtimestamp((self.getStarted().val+self.getTimeToLive().val)/1000)
+        except ValueError:
+            pass
+        return None
+    
+    def isExpired(self):
+        """
+        Returns True if we are past the end date of the share
+        
+        @return:    True if share expired
+        @rtype:     Boolean
+        """
+        
+        try:
+            if (self.getStarted().val+self.getTimeToLive().val)/1000 <= time.time():
+                return True
+            else:
+                return False
+        except:
+            return True
+    
+    def isOwned(self):
+        """
+        Returns True if share is owned by the current user
+        
+        @return:    True if owned
+        @rtype:     Boolean
+        """
+        
+        try:
+            if self.owner.id.val == self._conn.getEventContext().userId:
+                return True
+        except:
+            logger.error(traceback.format_exc())
+        return False
+    
+    def getOwner(self):
+        """
+        The owner of this share
+        
+        @return:    Owner
+        @rtype:     L{ExperimenterWrapper}
+        """
+        
+        return omero.gateway.ExperimenterWrapper(self, self.owner)
+
+class ShareContentWrapper (omero.gateway.BlitzObjectWrapper):
+    """
+    wrapper for share content, extends BlitzObjectWrapper.
+    """
+    pass
+
+class ShareCommentWrapper (omero.gateway.AnnotationWrapper):
+    """
+    wrapper for share comment, extends BlitzObjectWrapper.
+    """
+    pass

@@ -60,7 +60,7 @@ div.lnfiles{
 #annotation_tabs {
     margin: 5px 0 0 ;
     width: 100%;
-    background:none repeat scroll 0 0 #FFFFFF;
+    background:none repeat scroll 0 0;
     border: 0;
 }
 
