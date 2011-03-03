@@ -25,6 +25,7 @@ package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 //Java imports
 import java.awt.Component;
 import javax.swing.Icon;
+import javax.swing.JCheckBox;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
@@ -83,6 +84,21 @@ public class FileTableRenderer
 			if (element.isDirectory()) setIcon(DIRECTORY_ICON);
 			else setIcon(FILE_ICON);
 			setText(element.toString());
+		} else if (column == FileSelectionTable.FOLDER_AS_CONTAINER_INDEX) {
+			DefaultTableModel dtm = (DefaultTableModel) table.getModel();
+			FileElement element = (FileElement) dtm.getValueAt(row, 
+					FileSelectionTable.FILE_INDEX);
+			Component 
+			c = table.getDefaultRenderer(
+					Boolean.class).getTableCellRendererComponent(
+							table, value, isSelected, hasFocus, row, column);
+
+			if (element.getFile().isFile()) {
+				c.setVisible(false);
+				((JCheckBox) c).setOpaque(true);
+				c.setEnabled(false);
+			}
+			return c;
 		}
 		return this;
 	}

@@ -102,13 +102,13 @@ class FileSelectionTable
 	 * The index of the column indicating the container where files will
 	 * be imported
 	 */
-	private static final int		CONTAINER_INDEX = 1;
+	static final int		CONTAINER_INDEX = 1;
 	
 	/** 
 	 * The index of the column indicating to use the folder
 	 * as a dataset. 
 	 */
-	private static final int		FOLDER_AS_CONTAINER_INDEX = 2;
+	static final int		FOLDER_AS_CONTAINER_INDEX = 2;
 	
 	/** The index of the column indicating to archive the file. */
 	private static final int		ARCHIVED_INDEX = 3;
@@ -206,6 +206,7 @@ class FileSelectionTable
 		tc = tcm.getColumn(FOLDER_AS_CONTAINER_INDEX);
 		tc.setCellEditor(table.getDefaultEditor(Boolean.class));  
 		tc.setCellRenderer(table.getDefaultRenderer(Boolean.class));  
+		tc.setCellRenderer(new FileTableRenderer());
 		tc.setResizable(false);
 
 		String[] tips;
@@ -227,7 +228,9 @@ class FileSelectionTable
 		for (int i = 0; i < table.getColumnCount(); i++) 
 			tcm.getColumn(i).setHeaderRenderer(renderer);
 		if (n == COLUMNS.size()) {
-			tcm.getColumn(FOLDER_AS_CONTAINER_INDEX).setHeaderRenderer(
+			tc = tcm.getColumn(FOLDER_AS_CONTAINER_INDEX);
+			tc.setCellRenderer(new FileTableRenderer());
+			tc.setHeaderRenderer(
 					new MultilineHeaderSelectionRenderer(fadBox));
 			tcm.getColumn(ARCHIVED_INDEX).setHeaderRenderer(
 					new MultilineHeaderSelectionRenderer(archivedBox));
