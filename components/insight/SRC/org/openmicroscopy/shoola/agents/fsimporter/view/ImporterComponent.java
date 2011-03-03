@@ -91,6 +91,7 @@ class ImporterComponent
 	private void importData(ImporterUIElement element)
 	{
 		if (element == null) return;
+		view.setSelectedPane(element);
 		element.startImport();
 		model.fireImportData(element.getData(), element.getID());
 		EventBus bus = ImporterAgent.getRegistry().getEventBus();
@@ -135,6 +136,7 @@ class ImporterComponent
 			chooser.pack();
 		} else {
 			chooser.reset(selectedContainer, objects, type);
+			chooser.requestFocusInWindow();
 		}
 		view.setVisible(false);
 		UIUtilities.centerAndShow(chooser);

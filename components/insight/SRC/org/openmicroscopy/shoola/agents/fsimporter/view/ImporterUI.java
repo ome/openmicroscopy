@@ -228,6 +228,23 @@ class ImporterUI
 	}
 	
 	/**
+	 * Sets the selected pane when the import start.
+	 * 
+	 * @param element The element to select.
+	 */
+	void setSelectedPane(ImporterUIElement element)
+	{
+		int n = tabs.getComponentCount();
+		if (n == 0 || element == null) return;
+		if (tabs.getSelectedComponent() == element) return;
+		Component[] components = tabs.getComponents();
+		for (int i = 0; i < components.length; i++) {
+			if (components[i] == element)
+				tabs.setSelectedComponent(element);
+		}
+	}
+	
+	/**
 	 * Returns the UI element corresponding to the passed index.
 	 * 
 	 * @param index The identifier of the component
