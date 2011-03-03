@@ -53,7 +53,7 @@ class BirdEyeCanvas
 	/** The region to render. */
 	static final String RENDER_REGION_PROPERTY = "renderRegion";
 	
-	static final int BORDER = 3;
+	static final int BORDER = 5;
 
 	/** The processing image. */
 	private PImage pImage;
@@ -72,11 +72,16 @@ class BirdEyeCanvas
 	boolean bover = false;
 	boolean locked = false;
 	boolean canvasMove = false;
+	boolean canvasLocked = false;
 	float bdifx = 0.0f; 
 	float bdify = 0.0f; 
 
 	float x = 0;
 	float y = 0;
+	
+	private int canvasWidth;
+	
+	private int canvasHeight;
 	
 	private int strokeWeight = 1;
 	
@@ -92,16 +97,18 @@ class BirdEyeCanvas
 			by = BORDER+strokeWeight;
 			return false;
 		}
-		if (bx+w > imageRectangle.width) {
-			bx = imageRectangle.width-w;
+		if (bx+w-strokeWeight > imageRectangle.width) {
+			bx = imageRectangle.width-w+strokeWeight;
 			return false;
 		}
-		if (by+h > imageRectangle.height) {
-			by = imageRectangle.height-h;
+		if (by+h-strokeWeight > imageRectangle.height) {
+			by = imageRectangle.height-h+strokeWeight;
 			return false;
 		}
 		return true;
 	}
+	
+	private Rectangle cross = new Rectangle(0, 0, 5, 5);
 	
 	/** Creates a new instance. */
 	BirdEyeCanvas()
@@ -121,6 +128,7 @@ class BirdEyeCanvas
 		noStroke();
 		bx = BORDER;
 		by = BORDER;
+		fullDisplay = true;
 	}
 	
 	/**
@@ -130,12 +138,21 @@ class BirdEyeCanvas
 	public void draw()
 	{
 		if (pImage == null) return;
+		if (!fullDisplay) {
+			fill(0);
+			rect(cross.x, cross.y, cross.width, cross.height);
+			setSize(cross.width, cross.height);
+			return;
+		}
 		if (imageRectangle == null) {
 			imageRectangle = new Rectangle(BORDER, BORDER, pImage.width, 
 					pImage.height);
 		}
+		setSize(canvasWidth, canvasHeight);
 		stroke(255);
-		rect(0, 0, width, height);
+		rect(0, 0, canvasWidth, canvasHeight);
+		fill(0);
+		rect(cross.x, cross.y, cross.width, cross.height);
 		image(pImage, BORDER, BORDER);
 		stroke(color);
 		noFill();
@@ -163,6 +180,8 @@ class BirdEyeCanvas
 	void setCanvasSize(int w, int h)
 	{
 		size(w, h, P2D);
+		canvasWidth = w;
+		canvasHeight = h;
 	}
 	
 	/**
@@ -175,7 +194,21 @@ class BirdEyeCanvas
 		repaint();
 	}
 	
-	public void mousePressed() {
+	private boolean fullDisplay = true;
+	
+	private boolean onControl()
+	{
+		return cross.contains(mouseX, mouseY);
+	}
+	
+	public void mousePressed()
+	{
+		if (onControl()) {
+			fullDisplay = !fullDisplay;
+			draw();
+			return;
+		}
+		fullDisplay = true;
 		if (bover) { 
 			locked = true; 
 		} else {
@@ -186,20 +219,24 @@ class BirdEyeCanvas
 	}
 
 	public	void mouseDragged() {
-		if (!inImage()) locked = false;
-		if (locked) {
-			bx = mouseX-bdifx; 
-			by = mouseY-bdify; 
+		if (canvasLocked) {
+			
+		} else {
+			if (!inImage()) locked = false;
+			if (locked) {
+				bx = mouseX-bdifx; 
+				by = mouseY-bdify; 
+			}
+			x = mouseX;
 		}
-		x = mouseX;
-		
 	}
 
 	public	void mouseReleased() {
-		locked = false;
-		Rectangle r = new Rectangle((int) bx, (int) by, w, h);
-		firePropertyChange(RENDER_REGION_PROPERTY, null, r);
+		if (locked) {
+			locked = false;
+			Rectangle r = new Rectangle((int) bx, (int) by, w, h);
+			firePropertyChange(RENDER_REGION_PROPERTY, null, r);
+		} 
 	}
-
 
 }
