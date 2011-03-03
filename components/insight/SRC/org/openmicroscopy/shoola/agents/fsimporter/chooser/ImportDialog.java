@@ -75,17 +75,15 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.filechooser.FileFilter;
 
-import loci.formats.gui.ComboFileFilter;
-
 //Third-party libraries
+import loci.formats.gui.ComboFileFilter;
 import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
+
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
@@ -133,21 +131,6 @@ public class ImportDialog
 	
 	/** Bound property indicating to import the selected files. */
 	public static final String	IMPORT_PROPERTY = "import";
-
-	/** String used to retrieve if the value of the archived flag. */
-	static final String ARCHIVED = "/options/Archived";
-	
-	/** String used to retrieve if the archived option is displayed. */
-	static final String ARCHIVED_AVAILABLE = "/options/ArchivedTunable";
-
-	/** The abbreviation used for <code>Folder as Dataset</code>. */
-	static final String FAD_ABBREVIATION = "FaD";
-	
-	/** The abbreviation used for <code>Archived</code>. */
-	static final String ARCHIVED_ABBREVIATION = "A";
-	
-	/** The default value for the <code>Folder as Dataset</code>. */
-	static final Boolean DEFAULT_FAD = Boolean.valueOf(true);
 	
 	/** The default text. */
 	private static final String	NEW_TXT = "new dataset";
@@ -223,15 +206,7 @@ public class ImportDialog
 	/** String used to retrieve if the value of the archived flag. */
 	private static final String LOAD_THUMBNAIL = "/options/LoadThumbnail";
 	
-	/** The text displayed to use the folder as container. */
-	private static final String FAD_TEXT;
-	
-	/** The text displayed to archived the files. */
-	private static final String ARCHIVED_TEXT;
-	
 	static {
-		FAD_TEXT = "Folder as Dataset ("+FAD_ABBREVIATION+")";
-		ARCHIVED_TEXT = "Archived ("+ARCHIVED_ABBREVIATION+")";
 		WARNING = new ArrayList<String>();
 		WARNING.add("NOTE: Some file formats do not include the file name " +
 				"in their metadata, ");
@@ -349,12 +324,6 @@ public class ImportDialog
 	
 	/** The listener linked to the parents box. */
 	private ActionListener				parentsBoxListener;
-	
-	/** Indicates to archive the files. */
-	private JCheckBox					archivedBox;
-	
-	/** Indicates to turn the folder as dataset. */
-	private JCheckBox					fadBox;
 	
 	/** The collection of <code>HCS</code> filters. */
 	private List<FileFilter> 			hcsFilters;
@@ -646,38 +615,6 @@ public class ImportDialog
     	}
     	if (!isFastConnection()) //slow connection
     		showThumbnails.setSelected(false);
-    	boolean archived = false; 
-    	boolean archivedTunable = true;
-    	b = (Boolean) ImporterAgent.getRegistry().lookup(ARCHIVED);
-		if (b != null) archived = b.booleanValue();
-		b = (Boolean) ImporterAgent.getRegistry().lookup(ARCHIVED_AVAILABLE);
-		if (b != null) archivedTunable = b.booleanValue();
-		archivedBox = new JCheckBox(ARCHIVED_TEXT);
-		archivedBox.setBackground(UIUtilities.BACKGROUND);
-		//archivedBox.setHorizontalTextPosition(SwingConstants.LEFT);
-		archivedBox.setSelected(archived);
-		archivedBox.setEnabled(archivedTunable);
-    	if (archivedTunable) {
-    		archivedBox.addChangeListener(new ChangeListener() {
-				
-				public void stateChanged(ChangeEvent e) {
-					table.markFileToArchive(archivedBox.isSelected());
-				}
-			});
-    	}
-    	fadBox = new JCheckBox(FAD_TEXT);
-    	fadBox.setVisible(type != Importer.SCREEN_TYPE);
-    	fadBox.setBackground(UIUtilities.BACKGROUND);
-    	//fadBox.setHorizontalTextPosition(SwingConstants.LEFT); 
-    	fadBox.setSelected(DEFAULT_FAD);
-    	fadBox.addChangeListener(new ChangeListener() {
-			
-			public void stateChanged(ChangeEvent e) {
-				if (type == Importer.SCREEN_TYPE) return;
-				table.markFolderAsDataset(fadBox.isSelected());
-			}
-		});
-
 		reference = null;
 		parentsBox = new JComboBox();
 		parentsBoxListener = new ActionListener() {
@@ -1360,21 +1297,6 @@ public class ImportDialog
 		*/
 	}
 
-	/**
-	 * Builds the controls.
-	 * 
-	 * @return See above.
-	 */
-	private JPanel buildControls()
-	{
-		JPanel p = new JPanel();
-		p.setBackground(UIUtilities.BACKGROUND);
-		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
-		p.add(fadBox);
-		p.add(archivedBox);
-		return p;
-	}
-	
 	/** 
 	 * Builds and lays out the UI. 
 	 * 
@@ -1400,14 +1322,13 @@ public class ImportDialog
 		JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, chooser, 
 				p);
 		JPanel body = new JPanel();
-		double[][] ss = {{TableLayout.FILL, TableLayout.PREFERRED}, 
-				{TableLayout.PREFERRED, TableLayout.PREFERRED, TableLayout.FILL}};
+		double[][] ss = {{TableLayout.FILL}, 
+				{TableLayout.PREFERRED, TableLayout.FILL}};
 		body.setLayout(new TableLayout(ss));
 		buildLocationPane();
 		body.setBackground(UIUtilities.BACKGROUND);
-		body.add(locationPane, "0, 0, 0, 1");
-		body.add(buildControls(), "1, 1");
-		body.add(pane, "0, 2, 1, 2");
+		body.add(locationPane, "0, 0");
+		body.add(pane, "0, 1");
 		c.add(body, BorderLayout.CENTER);
 		JPanel controls = new JPanel();
 		controls.setLayout(new BoxLayout(controls, BoxLayout.Y_AXIS));
@@ -1604,23 +1525,7 @@ public class ImportDialog
 	{
 		return (type != Importer.SCREEN_TYPE);
 	}
-	
-	/**
-	 * Returns <code>true</code> if the folder has to be turned into a dataset,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	boolean isFolderAsDataset() { return fadBox.isSelected(); }
-	
-	/**
-	 * Returns <code>true</code> if the file has to be archived, 
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	boolean isToArchive() { return archivedBox.isSelected(); }
-	
+
 	/**
 	 * Returns where to import the file when selected.
 	 * 
@@ -1704,7 +1609,6 @@ public class ImportDialog
 		FileFilter[] filters = chooser.getChoosableFileFilters();
 		if (filters != null && filters.length > 0)
 			chooser.setFileFilter(filters[0]);
-		fadBox.setVisible(type != Importer.SCREEN_TYPE);
 		initializeLocationBoxes();
 		buildLocationPane();
 		locationPane.repaint();

@@ -37,8 +37,11 @@ import java.util.Vector;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
@@ -54,6 +57,8 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.util.ui.IconManager;
+import org.openmicroscopy.shoola.util.ui.MultilineHeaderSelectionRenderer;
+import org.openmicroscopy.shoola.util.ui.TooltipTableHeader;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.treetable.renderers.StringCellRenderer;
 
@@ -114,20 +119,54 @@ class FileSelectionTable
 	/** The columns of the table. */
 	private static final Vector<String> COLUMNS_NO_FOLDER_AS_CONTAINER;
 	
-	/** The width of the column. */
-	private static final int COLUMN_WIDTH = 20;
+	/** The tool-tip of the columns. */
+	private static final String[] COLUMNS_TOOLTIP;
+	
+	/** The tool-tip of the columns if no folder specified. */
+	private static final String[] COLUMNS_NO_FOLDER_AS_CONTAINER_TOOLTIP;
+	
+	/** String used to retrieve if the value of the archived flag. */
+	private static final String ARCHIVED = "/options/Archived";
+	
+	/** String used to retrieve if the archived option is displayed. */
+	private static final String ARCHIVED_AVAILABLE = "/options/ArchivedTunable";
+	
+	/** The default value for the <code>Folder as Dataset</code>. */
+	private static final Boolean DEFAULT_FAD = Boolean.valueOf(true);
+
+	/** The text displayed to use the folder as container. */
+	private static final String FAD_TEXT = "Folder as\nDataset";
+	
+	/** The text displayed to archived the files. */
+	private static final String ARCHIVED_TEXT = "Archive";
+	
+	/** The text displayed to select the files. */
+	private static final String FILE_TEXT = "File or Folder";
+	
+	/** The text displayed to select the files. */
+	private static final String CONTAINER_TEXT = "Container";
 	
 	static {
 		COLUMNS = new Vector<String>(4);
-		COLUMNS.add("File or Folder");
-		COLUMNS.add("Container");
-		COLUMNS.add(ImportDialog.FAD_ABBREVIATION);
-		COLUMNS.add(ImportDialog.ARCHIVED_ABBREVIATION);
+		COLUMNS.add(FILE_TEXT);
+		COLUMNS.add(CONTAINER_TEXT);
+		COLUMNS.add(FAD_TEXT);
+		COLUMNS.add(ARCHIVED_TEXT);
+		COLUMNS_TOOLTIP = new String[4];
+		COLUMNS_TOOLTIP[0] = "File or Folder to import.";
+		COLUMNS_TOOLTIP[1] = "The container where the data will be imported.";
+		COLUMNS_TOOLTIP[2] = "Convert the folder as dataset.";
+		COLUMNS_TOOLTIP[3] = "Archive the data.";
 		
 		COLUMNS_NO_FOLDER_AS_CONTAINER = new Vector<String>(3);
-		COLUMNS_NO_FOLDER_AS_CONTAINER.add("File or Folder");
-		COLUMNS_NO_FOLDER_AS_CONTAINER.add("Container");
-		COLUMNS_NO_FOLDER_AS_CONTAINER.add(ImportDialog.ARCHIVED_ABBREVIATION);
+		COLUMNS_NO_FOLDER_AS_CONTAINER.add(FILE_TEXT);
+		COLUMNS_NO_FOLDER_AS_CONTAINER.add(CONTAINER_TEXT);
+		COLUMNS_NO_FOLDER_AS_CONTAINER.add(ARCHIVED_TEXT);
+		
+		COLUMNS_NO_FOLDER_AS_CONTAINER_TOOLTIP = new String[3];
+		COLUMNS_NO_FOLDER_AS_CONTAINER_TOOLTIP[0] = COLUMNS_TOOLTIP[0];
+		COLUMNS_NO_FOLDER_AS_CONTAINER_TOOLTIP[1] = COLUMNS_TOOLTIP[1];
+		COLUMNS_NO_FOLDER_AS_CONTAINER_TOOLTIP[2] = COLUMNS_TOOLTIP[3];
 	}
 	
 	/** The button to move an item from the remaining items to current items. */
@@ -151,29 +190,51 @@ class FileSelectionTable
 	/** The default value of the archived file. */
 	private boolean archivedTunable;
 	
+	/** Indicates to archive the files. */
+	private JCheckBox			archivedBox;
+	
+	/** Indicates to turn the folder as dataset. */
+	private JCheckBox			fadBox;
+	
 	/** Formats the table model. */
 	private void formatTableModel()
 	{
 		TableColumnModel tcm = table.getColumnModel();
-		TableColumn tc = tcm.getColumn(FOLDER_AS_CONTAINER_INDEX);
+		TableColumn tc = tcm.getColumn(FILE_INDEX);
+		tc.setCellRenderer(new FileTableRenderer()); 
+		
+		tc = tcm.getColumn(FOLDER_AS_CONTAINER_INDEX);
 		tc.setCellEditor(table.getDefaultEditor(Boolean.class));  
 		tc.setCellRenderer(table.getDefaultRenderer(Boolean.class));  
-		tc.setPreferredWidth(COLUMN_WIDTH);
 		tc.setResizable(false);
-		
-		tc = tcm.getColumn(FILE_INDEX);
-		tc.setCellRenderer(new FileTableRenderer());  
-		
-		if (table.getColumnCount() == COLUMNS.size()) {
+
+		String[] tips;
+		int n = table.getColumnCount();
+		if (n == COLUMNS.size()) {
 			tc = tcm.getColumn(ARCHIVED_INDEX);
 			tc.setCellEditor(table.getDefaultEditor(Boolean.class));  
 			tc.setCellRenderer(table.getDefaultRenderer(Boolean.class));
-			tc.setPreferredWidth(COLUMN_WIDTH);
 			tc.setResizable(false);
-		}
+			tips = COLUMNS_TOOLTIP;
+		} else 
+			tips = COLUMNS_NO_FOLDER_AS_CONTAINER_TOOLTIP;
+
+		TooltipTableHeader header = new TooltipTableHeader(tcm, tips);
+		table.setTableHeader(header);
+		
 		TableCellRenderer renderer = new StringCellRenderer();
+		//renderer = new MultiLineHeader();
 		for (int i = 0; i < table.getColumnCount(); i++) 
 			tcm.getColumn(i).setHeaderRenderer(renderer);
+		if (n == COLUMNS.size()) {
+			tcm.getColumn(FOLDER_AS_CONTAINER_INDEX).setHeaderRenderer(
+					new MultilineHeaderSelectionRenderer(fadBox));
+			tcm.getColumn(ARCHIVED_INDEX).setHeaderRenderer(
+					new MultilineHeaderSelectionRenderer(archivedBox));
+		} else {
+			tcm.getColumn(FOLDER_AS_CONTAINER_INDEX).setHeaderRenderer(
+					new MultilineHeaderSelectionRenderer(archivedBox));
+		}
 	}
 	
 	/** Initializes the components composing the display. */
@@ -197,11 +258,9 @@ class FileSelectionTable
 		removeButton.addActionListener(this);
 		removeAllButton.setActionCommand(""+REMOVE_ALL);
 		removeAllButton.addActionListener(this);
-		Boolean b = (Boolean) ImporterAgent.getRegistry().lookup(
-				ImportDialog.ARCHIVED);
+		Boolean b = (Boolean) ImporterAgent.getRegistry().lookup(ARCHIVED);
 		if (b != null) archived = b.booleanValue();
-		b = (Boolean) ImporterAgent.getRegistry().lookup(
-				ImportDialog.ARCHIVED_AVAILABLE);
+		b = (Boolean) ImporterAgent.getRegistry().lookup(ARCHIVED_AVAILABLE);
 		if (b != null) archivedTunable = b.booleanValue();
 		if (model.useFolderAsContainer()) {
 			table = new JXTable(new FileTableModel(COLUMNS));
@@ -224,11 +283,38 @@ class FileSelectionTable
 				}
 			}
 		});
-		formatTableModel();
+		
 		Highlighter h = HighlighterFactory.createAlternateStriping(
 				UIUtilities.BACKGROUND_COLOUR_EVEN, 
 				UIUtilities.BACKGROUND_COLOUR_ODD);
 		table.addHighlighter(h);
+		
+
+		archivedBox = new JCheckBox();
+		archivedBox.setBackground(UIUtilities.BACKGROUND);
+		//archivedBox.setHorizontalTextPosition(SwingConstants.LEFT);
+		archivedBox.setSelected(archived);
+		archivedBox.setEnabled(archivedTunable);
+    	if (archivedTunable) {
+    		archivedBox.addChangeListener(new ChangeListener() {
+				
+				public void stateChanged(ChangeEvent e) {
+					markFileToArchive(archivedBox.isSelected());
+				}
+			});
+    	}
+    	fadBox = new JCheckBox();
+    	//fadBox.setVisible(type != Importer.SCREEN_TYPE);
+    	fadBox.setBackground(UIUtilities.BACKGROUND);
+    	//fadBox.setHorizontalTextPosition(SwingConstants.LEFT); 
+    	fadBox.setSelected(true);
+    	fadBox.addChangeListener(new ChangeListener() {
+			
+			public void stateChanged(ChangeEvent e) {
+				markFolderAsDataset(fadBox.isSelected());
+			}
+		});
+    	formatTableModel();
 	}
 	
 	/**
@@ -279,7 +365,6 @@ class FileSelectionTable
 		Vector v = model.getDataVector();
 		for (int i = 0; i < rows.length; i++) {
 			v.remove(rows[i]);
-			model.fireTableRowsDeleted(rows[i], rows[i]);
 		}
 		table.repaint();
 		int n = table.getRowCount();
@@ -420,9 +505,9 @@ class FileSelectionTable
 		boolean b = n == COLUMNS.size();
 		DataNode node = model.getImportLocation();
 		String value = null;
-		boolean fad = model.isFolderAsDataset();
+		boolean fad = fadBox.isSelected();
 		boolean v = false;
-		boolean a = model.isToArchive();
+		boolean a = archivedBox.isSelected();
 		while (i.hasNext()) {
 			f = i.next();
 			if (!inQueue.contains(f.getAbsolutePath())) {
@@ -577,8 +662,6 @@ class FileSelectionTable
 		 */
 		public void setValueAt(Object value, int row, int col)
 		{   
-			//FileElement f = (FileElement) getValueAt(row, FILE_INDEX);
-			//if (value instanceof String) f.setName((String) value);
 			if (value instanceof Boolean) {
 				if (col == FOLDER_AS_CONTAINER_INDEX) {
 					DataNodeElement element = (DataNodeElement) getValueAt(row, 

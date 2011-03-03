@@ -63,13 +63,10 @@ public class FileTableRenderer
 		DIRECTORY_ICON = icons.getIcon(IconManager.DIRECTORY);
 		FILE_ICON = icons.getIcon(IconManager.IMAGE);
 	}
-	
+
 	/** Creates a default instance. */
-	public FileTableRenderer()
-	{
-		
-	}
-	
+	public FileTableRenderer() {}
+
 	/**
 	 * Overridden to set the correct renderer.
 	 * @see DefaultTableCellRenderer#getTableCellRendererComponent(JTable, 
