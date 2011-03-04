@@ -2097,7 +2097,7 @@ class _BlitzGateway (object):
     
     def getExperimenters(self, ids=None):
         """ 
-        Get experimenters for the given user ids. If ID is not set, return current user.
+        Get experimenters for the given user ids. If ID is not set, return all apart from current user.
         TODO: omero.gateway.BlitzGateway has getExperimenter(id) method
         
         @param ids:     List of experimenter IDs
