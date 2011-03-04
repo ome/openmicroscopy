@@ -17,6 +17,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -380,6 +381,30 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
 
         return buffer;
     }
+
+    /**
+     * Implemented as specified by {@link PixelBuffer} I/F.
+     * @see PixelBuffer#getHypercube(List<Integer>, IList<Integer>, List<Integer>)
+	 */
+    public PixelData getHypercube(List<Integer> offset, List<Integer> size, 
+            List<Integer> step) throws IOException, DimensionsOutOfBoundsException 
+    {
+        throw new UnsupportedOperationException(
+            "Not yet supported.");
+	}
+                
+    /**
+     * Implemented as specified by {@link PixelBuffer} I/F.
+     * @see PixelBuffer#getHypercubeDirect(List<Integer>, IList<Integer>, List<Integer>, byte[])
+	 */
+    public byte[] getHypercubeDirect(List<Integer> offset, List<Integer> size, 
+            List<Integer> step, byte[] buffer) 
+            throws IOException, DimensionsOutOfBoundsException 
+    {
+        throw new UnsupportedOperationException(
+            "Not yet supported.");
+	}
+                
     
     /**
      * Implemented as specified by {@link PixelBuffer} I/F.

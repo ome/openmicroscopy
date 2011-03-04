@@ -18,6 +18,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileChannel.MapMode;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 
 import ome.conditions.ApiUsageException;
 import ome.io.nio.DimensionsOutOfBoundsException;
@@ -122,6 +123,27 @@ public class DeltaVision implements PixelBuffer {
 		return header.getExtendedHeaderSize() + 1024;
 	}
 
+	/* (non-Javadoc)
+	 * @see ome.io.nio.PixelBuffer#getHypercube
+	 */
+    public PixelData getHypercube(List<Integer> offset, List<Integer> size, 
+            List<Integer> step) throws IOException, DimensionsOutOfBoundsException 
+    {
+        throw new UnsupportedOperationException(
+            "Not supported with DeltaVision pixel buffers.");
+	}
+                
+	/* (non-Javadoc)
+	 * @see ome.io.nio.PixelBuffer#getHypercubeDirect
+	 */
+    public byte[] getHypercubeDirect(List<Integer> offset, List<Integer> size, 
+            List<Integer> step, byte[] buffer) 
+            throws IOException, DimensionsOutOfBoundsException 
+    {
+        throw new UnsupportedOperationException(
+            "Not supported with DeltaVision pixel buffers.");
+	}
+                
 	/* (non-Javadoc)
 	 * @see ome.io.nio.PixelBuffer#getPlaneRegionDirect(java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, byte[])
 	 */

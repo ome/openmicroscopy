@@ -10,6 +10,7 @@ package ome.io.nio;
 import java.io.IOException;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
+import java.util.List;
 
 /**
  * 
@@ -142,6 +143,30 @@ public interface PixelBuffer
     public Long getTimepointOffset(Integer t)
             throws DimensionsOutOfBoundsException;
     
+    /**
+     * Retrieves a hypercube from this pixel buffer.
+     * @param offset The offset of each dimension of the pixel buffer.
+     * @param size The number of pixels to retrieve along each dimension .
+     * @param step The step size across each dimension .
+     * @return buffer containing the data. 
+     * @throws IOException if there is a problem reading from the pixel buffer.
+     */
+    public PixelData getHypercube(List<Integer> offset, List<Integer> size, 
+            List<Integer> step) throws IOException, DimensionsOutOfBoundsException; 
+                
+    /**
+     * Retrieves a hypercube from the given pixels directly.
+     * @param offset The offset of each dimension of the pixel buffer.
+     * @param size The number of pixels to retrieve along each dimension .
+     * @param step The step size across each dimension .
+     * @param buffer pre-allocated buffer, <code>count</code> in size.
+     * @return buffer containing the data. 
+     * @throws IOException if there is a problem reading from the pixel buffer.
+     */
+    public byte[] getHypercubeDirect(List<Integer> offset, List<Integer> size, 
+            List<Integer> step, byte[] buffer) 
+            throws IOException, DimensionsOutOfBoundsException; 
+                
     /**
      * Retrieves a region from a given plane directly.
      * @param z offset across the Z-axis of the pixel buffer.

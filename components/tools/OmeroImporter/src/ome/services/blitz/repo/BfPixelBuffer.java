@@ -10,8 +10,12 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
+import java.util.List;
 
+import loci.formats.FormatException;
 import loci.formats.ImageReader;
+import ome.formats.importer.ImportConfig;
+import ome.formats.importer.OMEROWrapper;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelData;
@@ -27,10 +31,22 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
 
     private final static Log log = LogFactory.getLog(BfPixelBuffer.class);
 
-    private final ImageReader reader = new ImageReader();
+    //private final ImageReader reader = new ImageReader();
+    private final OMEROWrapper reader;
+
+    private final String path;
     
-    public BfPixelBuffer() {
-        
+    
+    /**
+     * We may want a constructor that takes the id of an imported file
+     * or that takes a File object? 
+     * There should ultimately be some sort of check here that the 
+     * file is in a/the repository.
+     */
+    public BfPixelBuffer(String path) throws IOException, FormatException {
+        this.path = path;
+        reader = new OMEROWrapper(new ImportConfig());
+        reader.setId(path);
     }
     
     public byte[] calculateMessageDigest() throws IOException {
@@ -290,6 +306,19 @@ throw new UnsupportedOperationException("Cannot write to repository");
         
     }
 
+    public PixelData getHypercube(List<Integer> offset, List<Integer> size, 
+            List<Integer> step) throws IOException, DimensionsOutOfBoundsException 
+    {
+		return null;
+	}
+                
+    public byte[] getHypercubeDirect(List<Integer> offset, List<Integer> size, 
+            List<Integer> step, byte[] buffer) 
+            throws IOException, DimensionsOutOfBoundsException 
+    {
+		return null;
+	}
+                
 	public PixelData getPlaneRegion(Integer x, Integer y, Integer width,
 			Integer height, Integer z, Integer c, Integer t, Integer stride)
 			throws IOException, DimensionsOutOfBoundsException
