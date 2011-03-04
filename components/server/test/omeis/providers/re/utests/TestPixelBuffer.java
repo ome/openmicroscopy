@@ -3,6 +3,7 @@ package omeis.providers.re.utests;
 import java.io.IOException;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
+import java.util.List;
 
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
@@ -286,5 +287,21 @@ public class TestPixelBuffer implements PixelBuffer {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+    public PixelData getHypercube(List<Integer> arg0, List<Integer> arg1, 
+            List<Integer> arg2) throws IOException, DimensionsOutOfBoundsException 
+    {
+		// TODO Auto-generated method stub
+		return null;
+	}
+                
+    public byte[] getHypercubeDirect(List<Integer> arg0, List<Integer> arg1, 
+            List<Integer> arg2, byte[] arg3) 
+            throws IOException, DimensionsOutOfBoundsException 
+    {
+		// TODO Auto-generated method stub
+		return null;
+	}
+                
 
 }
