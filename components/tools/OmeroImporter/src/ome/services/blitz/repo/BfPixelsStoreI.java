@@ -16,8 +16,9 @@ import java.util.List;
 import loci.common.DataTools;
 import loci.formats.FormatException;
 import loci.formats.ImageReader;
-import ome.formats.importer.OMEROWrapper;
 import ome.formats.importer.ImportConfig;
+import ome.formats.importer.OMEROWrapper;
+import ome.formats.importer.Plane2D;
 import omero.ServerError;
 import omero.api.AMD_RawPixelsStore_calculateMessageDigest;
 import omero.api.AMD_RawPixelsStore_getByteWidth;
@@ -67,9 +68,7 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
 
     private final static Log log = LogFactory.getLog(BfPixelsStoreI.class);
 
-    private final ImageReader reader = new ImageReader();
-
-    //private final OMEROWrapper reader;
+    private final OMEROWrapper reader;
 
     private final String path;
     
@@ -100,12 +99,11 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
     
     public BfPixelsStoreI(String path) throws IOException, FormatException {
         this.path = path;
-        //reader = new OMEROWrapper(new ImportConfig());
+        reader = new OMEROWrapper(new ImportConfig());
         reader.setId(path);
         
         /* Get some data that is widely used elsewhere.
          * As there are no setters this is reasonable here.
-         * Could this be done using a getMetadata method in the reader?
          */
         sizeX = reader.getSizeX();
         sizeY = reader.getSizeY();
@@ -507,6 +505,30 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
 
     /*
      * Get a plane dealing with rgb/interleaving if necessary
+     *     - using openPlane2d doesn't seem to work
+     */
+    /*
+    private byte[] getWholePlane(int z, int c, int t, byte[] plane) 
+            throws IOException, FormatException 
+    {
+        if(rgbChannels == 1) {
+            int planeNumber = reader.getIndex(z, c, t);
+            Plane2D plane2d = reader.openPlane2D(path, planeNumber, plane);
+            plane = plane2d.getData().array(); 
+        } else {
+            // Separate channels as openPlane2D doesn't do this
+            byte[] fullPlane = new byte[planeSize*rgbChannels];
+            int planeNumber = reader.getIndex(z, 0, t);
+            Plane2D plane2d = reader.openPlane2D(path, planeNumber, plane);
+            fullPlane = plane2d.getData().array(); 
+            System.arraycopy(fullPlane, c*planeSize, plane, 0, planeSize);
+        }
+        return plane;
+    }
+    */
+    
+    /*
+     * Get a plane dealing with rgb/interleaving if necessary
      */
     private byte[] getWholePlane(int z, int c, int t, byte[] plane) 
             throws IOException, FormatException 
@@ -530,6 +552,7 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
         }
         return plane;
     }
+    
     
     /*
      * Get multiple planes

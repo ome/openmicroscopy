@@ -20,19 +20,18 @@ class TestBfPixelsStore(lib.ITest):
     
     def setUpTestFile(self, name):
         filename = self.OmeroPy / ".." / ".." / ".." / "components" / "common" / "test" / name
-        tmp_dir = self.uuid()
-        repo_filename = path("/OMERO") / tmp_dir / name
+        dataDir = "OMERO" # should try to get this from config first
+        self.tmp_dir = path("/") / dataDir / self.uuid()
+        self.repo_filename = self.tmp_dir / name
         # Copy file into repository subdirectory
-        path.mkdir(path("/OMERO") / tmp_dir)
-        shutil.copyfile(filename, repo_filename)
+        path.mkdir(self.tmp_dir)
+        shutil.copyfile(filename, self.repo_filename)
         # Import the same file
         self.pix_id = long(self.import_image(filename)[0])
-        # Get the raw pixels store on the imported file.
         self.rp = self.client.sf.createRawPixelsStore()
         self.rp.setPixelsId(self.pix_id, True)
-        # This code will deprecated on API unification.
-        gateway = self.client.sf.createGateway()
-        pixels = gateway.getPixels(self.pix_id)
+        ### This line will deprecated on API unification.
+        pixels = self.client.sf.createGateway().getPixels(self.pix_id)
         self.sizeX = pixels.getSizeX().getValue()
         self.sizeY = pixels.getSizeY().getValue()
         self.sizeZ = pixels.getSizeZ().getValue()
@@ -40,17 +39,23 @@ class TestBfPixelsStore(lib.ITest):
         self.sizeT = pixels.getSizeT().getValue()
         # Get repository and the bf pixels store on the copied file
         repoMap = self.root.sf.sharedResources().repositories()
-        repoPrx = repoMap.proxies[1] # THIS IS NOT SAFE NEED TO GET "/OMERO" repo.
-        self.bf = repoPrx.pixels(repo_filename)
+        for r in range(len(repoMap.descriptions)):
+            if repoMap.descriptions[r].name.val == dataDir:
+                repoIndex = r
+
+        repoPrx = repoMap.proxies[repoIndex]
+        self.bf = repoPrx.pixels(self.repo_filename)
 
     def tidyUp(self):
-        #self.bf_rps.close()
+        path.remove(self.repo_filename)
+        path.rmdir(self.tmp_dir)
+        #self.bf.close() # close() hangs at present
         self.rp.close()
         
     
     # Rather than have one import per test or do a better workaround
     # for now just lump all the tests together.
-    def offtestBMP(self):
+    def testBMP(self):
         self.setUpTestFile("test.bmp")
         self.allTests()
         self.tidyUp()
@@ -60,7 +65,7 @@ class TestBfPixelsStore(lib.ITest):
         self.allTests()
         self.tidyUp()
         
-    def offtestJPG(self):
+    def testJPG(self):
         self.setUpTestFile("test.jpg")
         self.allTests()
         self.tidyUp()
@@ -141,7 +146,7 @@ class TestBfPixelsStore(lib.ITest):
         bf_data = self.bf.getRow(y,z,c,t)
         rp_data = self.rp.getRow(y,z,c,t)
         self.assert_(bf_size == len(bf_data))
-
+        
         bf_md5 = hashlib.md5(bf_data)
         rp_md5 = hashlib.md5(rp_data)
         self.assert_(bf_md5.digest() == rp_md5.digest())
