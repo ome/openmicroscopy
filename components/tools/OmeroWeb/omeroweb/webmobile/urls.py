@@ -33,6 +33,7 @@ urlpatterns = patterns('',
     
     # image viewers
     url( r'^viewer/(?P<imageId>[0-9]+)/$', views.viewer, name='webmobile_viewer' ),     # 'full' viewer
+    url( r'^viewer/big/(?P<imageId>[0-9]+)/$', views.viewer_big, name='webmobile_viewer_big' ),     # 'big-image' viewer
     
     # browsing S/P/W hierarchy
     url( r'^screens/$', views.screens, name='webmobile_screens' ),

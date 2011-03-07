@@ -157,6 +157,24 @@ def viewer(request, imageId):
     
     return render_to_response('webmobile/viewer.html', {'image':image})
     
+
+@isUserConnected
+def viewer_big(request, imageId, **kwargs):
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return HttpResponse(traceback.format_exc())
+        
+    image = conn.getImage(imageId)
+    w = image.getWidth() 
+    h = image.getHeight() 
+    z = image.z_count() /2
+    print z
+    
+    return render_to_response('webmobile/viewers/big_iphone.html', {'image':image, 'w':w, 'h': h, 'z':z})
+    
     
 @isUserConnected
 def projects (request, eid=None, **kwargs):
