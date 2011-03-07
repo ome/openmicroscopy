@@ -48,15 +48,17 @@
                     'loader': 'span.loading'
                 });
                 
-                $("#annotation_tabs").tabs();               
-                {% if manager.image %}
-                    var viewport = $.WeblitzViewport($("#viewport"), "/webclient" );
-                    viewport.load({{ manager.image.id }});
-                {% endif %}
-                {% if manager.well %}
-                    var viewport = $.WeblitzViewport($("#viewport"), "/webclient" );
-                    viewport.load({{ manager.well.selectedWellSample.image.id }});
-                {% endif %}                
+                $("#annotation_tabs").tabs();   
+                
+                var loaded = false;
+                $('a[href="#preview_tab"]').click(function() {
+                    if (!loaded) {
+                        var viewport = $.WeblitzViewport($("#viewport"), "/webclient" );
+                        {% if manager.image %} viewport.load({{ manager.image.id }}); {% endif %}
+                        {% if manager.well %} viewport.load({{ manager.well.selectedWellSample.image.id }}); {% endif %}
+                        loaded = true;
+                    }
+                });       
                 
                 $("{% for t in manager.tag_annotations %}#tagdesc{{ t.id }}, {% endfor %}#tag").tooltip({ 
                     track: true, 
@@ -120,9 +122,6 @@
                 {% if manager.image or manager.well %}
                     <li><a href="#metadata_tab">{% trans "Acquisition" %}</a></li>                
                     <li><a href="#preview_tab">{% trans "Preview" %}</a></li>
-                {% else %}
-                    <li>{% trans "Acquisition" %}</li>                
-                    <li>{% trans "Preview" %}</li>
                 {% endif %}
             {% endif %}
         </ul>
@@ -131,16 +130,12 @@
         {% if manager.image %}
         <!-- VIEWER "Preview"-->
         <div id="preview_tab">
-            <h1>{{ manager.image.name|warphtml:"30"|linebreaks }}</h1>
-            <p>{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% url web_image_viewer manager.image.id %}')"><img id="{{ manager.image.id }}" src="{% url webstatic "images/kview16.png" %}" alt="View" title="Open full viewer"/></a></p>
             <div class="miniview" id="viewport"></div>
         </div>
         {% endif %}
         {% if manager.well %}
         <!-- VIEWER "Preview" -->
         <div id="preview_tab">
-            <h1>{{ manager.well.selectedWellSample.image.name|warphtml:"30"|linebreaks }}</h1>
-            <p>{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% url web_image_viewer manager.well.selectedWellSample.image.id %}')"><img id="{{ manager.image.id }}" src="{% url webstatic "images/kview16.png" %}" alt="View" title="Open full viewer"/></a></p>
             <div class="miniview" id="viewport"></div>
         </div>
         {% endif %}
@@ -325,7 +320,15 @@
                 {{ manager.image.name|warphtml:"30" }}
                 {% if manager.image.isOwned %} <a href="{% url manage_action_containers "edit" "image" manager.image.id %}?url={{url}}"><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/></a>{% endif %}
             </h1>            
-            <h2 id='image_id'>Image ID: {{ manager.image.id }}</h2>            
+            <h2 id='image_id'>Image ID: {{ manager.image.id }}</h2>    
+            <!-- open-image link -->
+            {% if manager.image %}
+                <p>{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% url web_image_viewer manager.image.id %}')"><img id="{{ manager.image.id }}" src="{% url webstatic "images/kview16.png" %}" alt="View" title="Open full viewer"/></a></p>
+            {% endif %}
+            {% if manager.well %}
+                <p>{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% url web_image_viewer manager.well.selectedWellSample.image.id %}')"><img id="{{ manager.image.id }}" src="{% url webstatic "images/kview16.png" %}" alt="View" title="Open full viewer"/></a></p>
+            {% endif %}
+                    
             <div class="description">
                 {% if manager.image.isOwned %} <a href="{% url manage_action_containers "edit" "image" manager.image.id %}?url={{url}}" class="align_left"><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit" /></a>{% endif %}
                 {{ manager.image.description|default_if_none:"Description:"|linebreaks }}
