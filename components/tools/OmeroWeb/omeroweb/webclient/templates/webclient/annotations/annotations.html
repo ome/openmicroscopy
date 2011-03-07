@@ -563,7 +563,30 @@
             <!-- RATING -->
             <tr>
                 <th colspan="2">{% trans "Rate" %}:</th>
-                <td>{{ manager.long_annotations.rate|default_if_none:"0" }} ({{ manager.long_annotations.votes|default_if_none:"0" }} {% plural manager.long_annotations.votes 'vote' 'votes' %})</td>
+                <td>
+                    {% if manager.rating_annotations %}
+                    <div class="lntags">
+                        <table>
+                    {% for rating in manager.rating_annotations %}
+                    <tr><td valign="middle">
+                        {% ifequal rating.getValue 0 %}<img src="{% url webstatic "images/rating0.png" %}">{% endifequal %}
+                        {% ifequal rating.getValue 1 %}<img src="{% url webstatic "images/rating1.png" %}">{% endifequal %}
+                        {% ifequal rating.getValue 2 %}<img src="{% url webstatic "images/rating2.png" %}">{% endifequal %}
+                        {% ifequal rating.getValue 3 %}<img src="{% url webstatic "images/rating3.png" %}">{% endifequal %}
+                        {% ifequal rating.getValue 4 %}<img src="{% url webstatic "images/rating4.png" %}">{% endifequal %}
+                        {% ifequal rating.getValue 5 %}<img src="{% url webstatic "images/rating5.png" %}">{% endifequal %}
+                        </td>
+                        <td>
+                        {{ rating.getDetails.getOwner.getNameWithInitial }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                        </table>
+                    </div>
+                    {% else %}
+                        {% trans "No ratings" %}
+                    {% endif %}
+                </td>
             </tr> 
             <!-- TAGS -->               
             <tr>

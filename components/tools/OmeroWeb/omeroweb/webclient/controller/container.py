@@ -28,6 +28,8 @@ from django.core.urlresolvers import reverse
 
 from webclient.controller import BaseController
 
+RATING_NS = "openmicroscopy.org/omero/insight/rating"
+
 class BaseContainer(BaseController):
     
     project = None
@@ -386,9 +388,10 @@ class BaseContainer(BaseController):
     # Annotation list
     def annotationList(self):
         self.text_annotations = list()
-        self.long_annotations = {'rate': 0.00 , 'votes': 0}
+        self.rating_annotations = list()
         self.file_annotations = list()
         self.tag_annotations = list()
+        self.custom_annotations = list()  # not displayed currently
             
         aList = list()
         if self.image is not None:
@@ -407,24 +410,24 @@ class BaseContainer(BaseController):
         for ann in aList:
             if isinstance(ann._obj, omero.model.CommentAnnotationI):
                 self.text_annotations.append(ann)
-            elif isinstance(ann._obj, omero.model.LongAnnotationI):
-                self.long_annotations['votes'] += 1
-                self.long_annotations['rate'] += int(ann.longValue)
+            elif isinstance(ann._obj, omero.model.LongAnnotationI) and ann.ns == RATING_NS:
+                self.rating_annotations.append(ann)
             elif isinstance(ann._obj, omero.model.FileAnnotationI):
                 self.file_annotations.append(ann)
             elif isinstance(ann._obj, omero.model.TagAnnotationI):
                 self.tag_annotations.append(ann)
+            else:
+                self.custom_annotations.append(ann)
 
         self.text_annotations = self.sortByAttr(self.text_annotations, "details.creationEvent.time", True)
         self.file_annotations = self.sortByAttr(self.file_annotations, "details.creationEvent.time")
+        self.rating_annotations = self.sortByAttr(self.rating_annotations, "details.creationEvent.time")
         self.tag_annotations = self.sortByAttr(self.tag_annotations, "textValue")
         
         self.txannSize = len(self.text_annotations)
         self.fileannSize = len(self.file_annotations)
         self.tgannSize = len(self.tag_annotations)
 
-        if self.long_annotations['votes'] > 0:
-            self.long_annotations['rate'] /= self.long_annotations['votes']
     
     def getTagsByObject(self):
         eid = self.conn.getGroupFromContext().isReadOnly() and self.conn.getEventContext().userId or None
