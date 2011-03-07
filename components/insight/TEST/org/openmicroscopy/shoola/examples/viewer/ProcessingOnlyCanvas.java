@@ -26,13 +26,17 @@ package org.openmicroscopy.shoola.examples.viewer;
 //Java imports
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Point;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.awt.image.BufferedImage;
 
+
 //Third-party libraries
 import processing.core.PApplet;
+import processing.core.PConstants;
 import processing.core.PImage;
+import processing.core.PVector;
 
 //Application-internal dependencies
 
@@ -55,6 +59,8 @@ public class ProcessingOnlyCanvas
 	implements ImageCanvasInterface
 {
 
+	static final String PANNING_OFFSET_PROPERTY = "panningOffset";
+	
 	/** The minimum zooming value. */
 	private static final float MIN_ZOOM = 0.25f;
 	
@@ -78,6 +84,11 @@ public class ProcessingOnlyCanvas
 
 	/** The control .*/
 	private ControlPalette controlP5;
+	
+	private PVector mousePos;  // Stores the mouse position.
+	                   // For pretty formatting of mouse coordinates.
+	
+	private PVector panPos;
 	
 	/**
 	 * Increases or decreases the zooming factor.
@@ -136,7 +147,7 @@ public class ProcessingOnlyCanvas
 		pImage = null;
 		splitView = false;
 		scaleBarDisplay = true;  
-		attachListeners();
+		//attachListeners();
 	}
 
 	/**
@@ -146,9 +157,7 @@ public class ProcessingOnlyCanvas
 	{
 		setCanvasSize(ProcessingCanvas.DIMENSION);
 		hint(ENABLE_NATIVE_FONTS);
-		//controlP5 = new ControlPalette(this);
-		// Group menu items
-		//controlP5.controlUI(color(255, 255, 255, 100)); 
+		smooth();
 		noStroke();
 	}
 	
@@ -174,10 +183,19 @@ public class ProcessingOnlyCanvas
 			tint(255, 255, 255);
 			image(pImage, 0, 0);
 		}
+		/*
 		scale(zoomFactor); //zooming factor;
+		
+		
 		image(pImage, 0, 0);
 		drawScaleBar();
-		//controlP5.draw();
+		*/
+
+		// Do some drawing that can be zoomed and panned.  
+		image(pImage, 0, 0);
+		drawScaleBar();
+		noStroke();
+		
 	}
 	
 	/**
@@ -204,5 +222,5 @@ public class ProcessingOnlyCanvas
 	{
 		size(d.width, d.height, P2D);
 	}
-	
+
 }

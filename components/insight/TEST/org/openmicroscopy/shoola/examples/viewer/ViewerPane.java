@@ -226,7 +226,13 @@ class ViewerPane
 		}
 	}
 	
-	/** Initializes the components. 
+	private void setSelection(Point p)
+	{
+		birdEye.setSelection((float) (p.x*factor), (float) (p.y*factor));
+	}
+	
+	/** 
+	 * Initializes the components. 
 	 * @param viewType The type of viewer to display the image, JAVA, or 
 	 * Processing.
 	 */
@@ -249,6 +255,18 @@ class ViewerPane
 				break;
 			case PROCESSING:
 				canvas = new ProcessingOnlyCanvas();
+				((ProcessingOnlyCanvas) canvas).addPropertyChangeListener(
+						new PropertyChangeListener() {
+					
+					public void propertyChange(PropertyChangeEvent evt) {
+						String name = evt.getPropertyName();
+						if (ProcessingOnlyCanvas.PANNING_OFFSET_PROPERTY.endsWith(name)) 
+						{
+							setSelection((Point) evt.getNewValue());
+						}
+						
+					}
+				});
 				birdEye = new BirdEyeCanvas();
 				birdEye.addPropertyChangeListener(new PropertyChangeListener() {
 					

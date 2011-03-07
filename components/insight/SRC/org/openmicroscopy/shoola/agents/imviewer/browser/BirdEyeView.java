@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.examples.viewer.BirdEyeCanvas 
+ * org.openmicroscopy.shoola.agents.imviewer.browser.BirdEyeView 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2011 University of Dundee. All rights reserved.
@@ -20,22 +20,22 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.examples.viewer;
+package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 
 //Java imports
-import java.awt.Color;
-import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
 
 //Third-party libraries
+import java.awt.Color;
+import java.awt.Rectangle;
+
 import processing.core.PApplet;
 import processing.core.PImage;
 
 //Application-internal dependencies
 
 /** 
- * The Bird eye view.
+ * Bird eye view using processing.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -47,16 +47,21 @@ import processing.core.PImage;
  * </small>
  * @since 3.0-Beta4
  */
-class BirdEyeCanvas 
+class BirdEyeView 
 	extends PApplet
 {
-	
-	/** The region to render. */
+
+	/** Property indicating to render a region. */
 	static final String RENDER_REGION_PROPERTY = "renderRegion";
 	
+	/** The width of the border. */
 	static final int BORDER = 2;
 
+	/** The width of the border x 5. */
 	static final int BORDER_5 = 5*BORDER;
+	
+	/** The default fill color. */
+	private static final int FILL_COLOR = Color.LIGHT_GRAY.getRGB();
 	
 	/** The processing image. */
 	private PImage pImage;
@@ -65,31 +70,74 @@ class BirdEyeCanvas
 	private int color;
 	
 	/** The width of the rectangle. */
-	private int w = 30;
+	private int w = 30; //to change
 	
 	/** The width of the rectangle. */
-	private int h = 20;
+	private int h = 20;   //to change
 	
-	float bx;
-	float by;
-	boolean bover = false;
+	/** The X-coordinate of the top-left corner. */
+	private float bx;
+	
+	/** The Y-coordinate of the top-left corner. */
+	private float by;
+	
+	/** Flag indicating the mouse is over the image. */
+	private boolean bover;
+	
+	/** Flag indicating the mouse is locked. */
 	boolean locked = false;
-	boolean canvasMove = false;
-	boolean canvasLocked = false;
-	float bdifx = 0.0f; 
-	float bdify = 0.0f; 
+	
+	/** 
+	 * The difference of <code>bx</code>and the X-coordinate of the mouse 
+	 * clicked. 
+	 */
+	private float bdifx = 0.0f; 
+	
+	/** 
+	 * The difference of <code>by</code>and the Y-coordinate of the mouse 
+	 * clicked. 
+	 */
+	private float bdify = 0.0f; 
 
-	float x = 0;
-	float y = 0;
+	/** The X-location of the mouse. */
+	private float x = 0;
 	
-	private int canvasWidth;
+	/** The Y-location of the mouse. */
+	private float y = 0;
 	
-	private int canvasHeight;
+	/** Flag indicating to display the full image or only the arrow. */
+	private boolean fullDisplay;
 	
+	/** The length of the side of the arrow. */
+	private int v = 4;
+	
+	/** The X-coordinate of the arrow. */
+	private int xArrow = 2;
+	
+	/** The Y-coordinate of the arrow. */
+	private int yArrow = 2;
+	
+	/** The weight of the stroke. */
 	private int strokeWeight = 1;
 	
+	/** The area covered by the image. */
 	private Rectangle imageRectangle;
 	
+	/** The area covered by the cross. */
+	private Rectangle cross;
+	
+	/** The width of the canvas. */
+	private int canvasWidth;
+	
+	/** The height of the canvas. */
+	private int canvasHeight;
+	
+	/**
+	 * Returns <code>true</code> if the rectangle is image, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
 	private boolean inImage()
 	{
 		if (bx-strokeWeight < imageRectangle.x) {
@@ -111,91 +159,27 @@ class BirdEyeCanvas
 		return true;
 	}
 	
-	private Rectangle cross = new Rectangle(0, 0, BORDER_5, BORDER_5);
-	
 	/** Creates a new instance. */
-	BirdEyeCanvas()
+	BirdEyeView()
 	{
 		init();
+		fullDisplay = true;
 		pImage = null;
+		cross = new Rectangle(0, 0, BORDER_5, BORDER_5);
 	}
 	
+	/**
+	 * Sets the location of the selection rectangle.
+	 * 
+	 * @param x The X-coordinate of the location.
+	 * @param y The Y-coordinate of the location.
+	 */
 	void setSelection(float x, float y)
 	{
 		bx = x;
 		by = y;
+		inImage();
 		draw();
-	}
-	
-	/**
-	 * Overridden from @see {@link PApplet#setup()}
-	 */
-	public void setup()
-	{
-		size(100, 100, P2D);
-		hint(ENABLE_NATIVE_FONTS);
-		color = color(0, 0, 255, 100); 
-		noStroke();
-		bx = BORDER;
-		by = BORDER;
-		fullDisplay = true;
-	}
-	
-	int v = 4;
-	int xArrow = 2;
-	int yArrow = 2;
-	/**
-	 * Overridden 
-	 * @see {@link PApplet#draw()}
-	 */
-	public void draw()
-	{
-		if (pImage == null) return;
-
-		if (!fullDisplay) {
-			fill(192, 192, 192);
-			rect(cross.x, cross.y, cross.width, cross.height);
-			stroke(0);
-			line(xArrow, yArrow, BORDER_5-xArrow, BORDER_5-yArrow);
-			line(BORDER_5-xArrow, BORDER_5-yArrow, BORDER_5-xArrow, BORDER_5-yArrow-v);
-			line(BORDER_5-xArrow, BORDER_5-yArrow, BORDER_5-xArrow-v, BORDER_5-yArrow);
-			setSize(cross.width, cross.height);
-			return;
-		}
-		if (imageRectangle == null) {
-			imageRectangle = new Rectangle(BORDER, BORDER, pImage.width, 
-					pImage.height);
-		}
-		setSize(canvasWidth, canvasHeight);
-		stroke(255);
-		rect(0, 0, canvasWidth, canvasHeight);
-		
-		
-		image(pImage, BORDER, BORDER);
-		
-		fill(192, 192, 192);
-		rect(cross.x, cross.y, cross.width, cross.height);
-		stroke(0);
-		line(xArrow, yArrow, xArrow+v, yArrow);
-		line(xArrow, yArrow, xArrow, yArrow+v);
-		line(xArrow, yArrow, BORDER_5, BORDER_5);
-		fill(color);
-		stroke(color);
-		
-		
-		//strokeWeight(1.5f);
-		// Test if the cursor is over the box 
-		if (mouseX > bx-w && mouseX < bx+w && 
-				mouseY > by-h && mouseY < by+h) {
-			bover = true;  
-		} else {
-			bover = false;
-		}
-		rect(bx, by, w, h);
-		if (mouseY < BORDER) {
-			canvasMove = true;
-		}
-		noFill();
 	}
 	
 	/**
@@ -212,25 +196,71 @@ class BirdEyeCanvas
 	}
 	
 	/**
-	 * 
-	 * @param image
+	 * Overridden from @see {@link PApplet#setup()}
 	 */
-	void setImage(BufferedImage image)
+	public void setup()
 	{
-		pImage = new PImage(image);
-		repaint();
+		size(100, 100, P2D);
+		hint(ENABLE_NATIVE_FONTS);
+		color = color(0, 0, 255, 100); 
+		noStroke();
+		bx = BORDER;
+		by = BORDER;
+		fullDisplay = true;
 	}
 	
-	private boolean fullDisplay = true;
-	
-	private boolean onControl()
+	/**
+	 * Overridden 
+	 * @see {@link PApplet#draw()}
+	 */
+	public void draw()
 	{
-		return cross.contains(mouseX, mouseY);
+		if (pImage == null) return;
+
+		if (!fullDisplay) {
+			fill(FILL_COLOR);
+			rect(cross.x, cross.y, cross.width, cross.height);
+			stroke(0);
+			line(xArrow, yArrow, BORDER_5-xArrow, BORDER_5-yArrow);
+			line(BORDER_5-xArrow, BORDER_5-yArrow, BORDER_5-xArrow, 
+					BORDER_5-yArrow-v);
+			line(BORDER_5-xArrow, BORDER_5-yArrow, BORDER_5-xArrow-v, 
+					BORDER_5-yArrow);
+			setSize(cross.width, cross.height);
+			return;
+		}
+		if (imageRectangle == null) {
+			imageRectangle = new Rectangle(BORDER, BORDER, pImage.width, 
+					pImage.height);
+		}
+		setSize(canvasWidth, canvasHeight);
+		stroke(255);
+		rect(0, 0, canvasWidth, canvasHeight);
+
+		image(pImage, BORDER, BORDER);
+		
+		fill(FILL_COLOR);
+		rect(cross.x, cross.y, cross.width, cross.height);
+		stroke(0);
+		line(xArrow, yArrow, xArrow+v, yArrow);
+		line(xArrow, yArrow, xArrow, yArrow+v);
+		line(xArrow, yArrow, BORDER_5, BORDER_5);
+		fill(color);
+		stroke(color);	
+		// Test if the cursor is over the box 
+		bover = (mouseX > bx-w && mouseX < bx+w && 
+				mouseY > by-h && mouseY < by+h);
+		rect(bx, by, w, h);
+		noFill();
 	}
 	
+	/**
+	 * Overridden to handle mouse pressed event.
+	 * @see {@link PApplet#mousePressed()}
+	 */
 	public void mousePressed()
 	{
-		if (onControl()) {
+		if (cross.contains(mouseX, mouseY)) {
 			fullDisplay = !fullDisplay;
 			draw();
 			return;
@@ -245,26 +275,32 @@ class BirdEyeCanvas
 		bdify = mouseY-by; 
 	}
 
-	public	void mouseDragged() {
-		if (canvasLocked) {
-			
-		} else {
-			if (!inImage()) locked = false;
-			if (locked) {
-				bx = mouseX-bdifx; 
-				by = mouseY-bdify; 
-				
-			}
-			x = mouseX;
+	/**
+	 * Overridden to handle mouse pressed event.
+	 * @see {@link PApplet#mouseDragged()}
+	 */
+	public	void mouseDragged()
+	{
+		if (!inImage()) 
+			locked = false;
+		if (locked) {
+			bx = mouseX-bdifx; 
+			by = mouseY-bdify; 
 		}
+		x = mouseX;
 	}
 
-	public	void mouseReleased() {
+	/**
+	 * Overridden to handle mouse pressed event.
+	 * @see {@link PApplet#mouseReleased()}
+	 */
+	public	void mouseReleased()
+	{
 		if (locked) {
 			locked = false;
 			Rectangle r = new Rectangle((int) bx, (int) by, w, h);
 			firePropertyChange(RENDER_REGION_PROPERTY, null, r);
 		} 
 	}
-
+	
 }
