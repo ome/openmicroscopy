@@ -151,62 +151,35 @@
             
             {% if manager.well or manager.image%}
 
-            {% if manager.global_metadata %}
-                <h1 class="can-collapse defclose">{% trans "Global metadata" %}: <input type="button" value="Download" onClick="document.location.href='{% url download_annotation "download" manager.original_metadata.id %}';"/></h1>                
+            {% if manager.global_metadata or manager.series_metadata %}
+            <h1 class="can-collapse defclose">{% trans "Original Metadata" %}: <input type="button" value="Download" onClick="document.location.href='{% url download_annotation "download" manager.original_metadata.id %}';"/></h1>                
                 <div>
-                    <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% url webstatic "images/spinner.gif" %}"></span></form>
-                    <table id="original_metadata" class="metadata_details"><tbody>
-                        {% for gm in manager.global_metadata %}
-                        <tr><td><label>{{ gm.0 }}</label></td><td>{{ gm.1 }}</td></tr>
-                        {% endfor %}
-                    <tr><th colspan="2"><br/></th></tr>
-                    </tbody></table>
-                </div>
-            {% endif %}
-            {% if manager.series_metadata %}
-                <h1 class="can-collapse defclose">{% trans "Series metadata" %}: <input type="button" value="Download" onClick="document.location.href='{% url download_annotation "download" manager.original_metadata.id %}';"/></h1>
-                
-                <div>
-                    <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% url webstatic "images/spinner.gif" %}"></span></form>
-                    <table id="original_metadata" class="metadata_details"><tbody>
-                        {% for sm in manager.series_metadata %}
-                        <tr><td><label>{{ sm.0 }}</label></td><td>{{ sm.1 }}</td></tr>
-                        {% endfor %}
+                    <h1>Global Metadata</h1>
+                    <div style="height:250px; overflow:auto">
+                        <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% url webstatic "images/spinner.gif" %}"></span></form>
+                        <table id="original_metadata" class="metadata_details"><tbody>
+                            {% for gm in manager.global_metadata %}
+                            <tr><td><label>{{ gm.0 }}</label></td><td>{{ gm.1 }}</td></tr>
+                            {% endfor %}
                         <tr><th colspan="2"><br/></th></tr>
-                    </tbody></table>
+                        </tbody></table>
+                    </div>
+            
+                    <hr />
+                    <h1>Series Metadata</h1>
+                    <div style="height:250px; overflow:auto">
+                        <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% url webstatic "images/spinner.gif" %}"></span></form>
+                        <table id="original_metadata" class="metadata_details"><tbody>
+                            {% for sm in manager.series_metadata %}
+                            <tr><td><label>{{ sm.0 }}</label></td><td>{{ sm.1 }}</td></tr>
+                            {% endfor %}
+                            <tr><th colspan="2"><br/></th></tr>
+                        </tbody></table>
+                    </div>
                 </div>
             {% endif %}
                         
-            {% if form_objective or form_environment or form_stageLabel %}
-            <h1 class="can-collapse defclose">{% trans "Image" %}:</h1>
-            <div><table class="metadata_details">
-                {% if form_objective %}
-                <tr><th><br/>{% trans "Objective" %}:</th><th colspan="2"></th></tr>
-                    {% for field in form_objective %}
-                    <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
-                    </tr>
-                    {% endfor %}
-                {% endif %}
-                {% if form_environment %}
-                <tr><th><br/>{% trans "Environment" %}:</th><th colspan="2"></th></tr>
-                    {% for field in form_environment %}
-                    <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
-                    </tr>
-                    {% endfor %}
-                {% endif %}
-                {% if form_stageLabel %}
-                <tr><th><br/>{% trans "Stage label" %}:</th><th colspan="2"></th></tr>
-                    {% for field in form_stageLabel %}
-                    <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
-                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
-                    </tr>
-                    {% endfor %}
-                {% endif %}
-                <tr><th colspan="3"><br/></th></tr>
-            </table></div>
-            {% endif %}
+            <!-- Microscope -->
             {% if form_objective or form_filters or form_detectors %}
             <h1 class="can-collapse defclose">{% trans "Microscope" %}:</h1>
             <div><table class="metadata_details">
@@ -253,6 +226,39 @@
             </table></div>
             {% endif %}
             
+            <!-- Image -->
+            {% if form_objective or form_environment or form_stageLabel %}
+            <h1 class="can-collapse defclose">{% trans "Image" %}:</h1>
+            <div><table class="metadata_details">
+                {% if form_objective %}
+                <tr><th><br/>{% trans "Objective" %}:</th><th colspan="2"></th></tr>
+                    {% for field in form_objective %}
+                    <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
+                    </tr>
+                    {% endfor %}
+                {% endif %}
+                {% if form_environment %}
+                <tr><th><br/>{% trans "Environment" %}:</th><th colspan="2"></th></tr>
+                    {% for field in form_environment %}
+                    <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
+                    </tr>
+                    {% endfor %}
+                {% endif %}
+                {% if form_stageLabel %}
+                <tr><th><br/>{% trans "Stage label" %}:</th><th colspan="2"></th></tr>
+                    {% for field in form_stageLabel %}
+                    <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
+                        <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
+                    </tr>
+                    {% endfor %}
+                {% endif %}
+                <tr><th colspan="3"><br/></th></tr>
+            </table></div>
+            {% endif %}
+            
+            <!-- Channels -->
             {% for ch in form_channels %}
             <h1 class="can-collapse defclose"><span style="padding:0 3px; color:#000; border:1px solid #000; background-color: #{{ ch.color }};">&nbsp&nbsp</span> {{ ch.name }}</h1>
             <div><table class="metadata_details">
