@@ -217,7 +217,7 @@ jQuery._WeblitzViewport = function (container, server, options) {
     _this.refresh();
     _load(function () {
       //_this.refresh();
-      if (!_this.loadedImg.current.query.zm) {
+      if (!_this.loadedImg.current.query.zm && !_this.loadedImg.tiles) {
         var size = getSizeDict();
         _this.viewportimg.get(0).setZoomToFit(true, size.width, size.height);
       }

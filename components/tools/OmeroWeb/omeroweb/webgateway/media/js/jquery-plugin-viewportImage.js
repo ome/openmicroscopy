@@ -336,6 +336,8 @@ $.fn.viewportImage = function(options) {
       if (justDirection) {
         var t = Math.max(1,((imagewidth+3)*cur_zoom/imagewidth) - cur_zoom);
         increment = cur_zoom + (increment>0?t:-t);
+      } else if (viewerBean != null) {
+        increment = 100;
       }
       this.setZoom(parseInt(increment));
     }
@@ -446,7 +448,6 @@ $.fn.viewportImage = function(options) {
     
     
     this.setUpTiles = function (xtilesize,ytilesize, init_zoom, max_zoom, href) {
-        console.log(xtilesize,ytilesize)
         X_TILE_SIZE = xtilesize;
         Y_TILE_SIZE = ytilesize;
         tile_url = href;

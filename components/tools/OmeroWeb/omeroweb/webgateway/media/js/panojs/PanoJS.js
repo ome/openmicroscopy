@@ -557,6 +557,7 @@ PanoJS.prototype = {
 	 */
 	notifyViewerZoomed : function() {
 		var percentage = (100/(this.maxZoomLevel + 1)) * (this.zoomLevel + 1);
+	    document.getElementById("wblitz-zoom").value = percentage;
 		for (var i = 0; i < this.viewerZoomedListeners.length; i++) {
 			this.viewerZoomedListeners[i].viewerZoomed(
 				new PanoJS.ZoomEvent(this.x, this.y, this.zoomLevel, percentage)
