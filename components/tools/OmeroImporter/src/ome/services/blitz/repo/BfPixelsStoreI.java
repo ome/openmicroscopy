@@ -582,7 +582,6 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
         return timepoint;
     }
     
-    
     /**
      * cgb - stolen from ImportLibrary - is there a better way to do this?
      * 
@@ -702,7 +701,5 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
         // We've got a big-endian file with a big-endian byte array.
         bytes = buffer.array();
         return bytes;
-    }
-
-    
+    } 
 }
