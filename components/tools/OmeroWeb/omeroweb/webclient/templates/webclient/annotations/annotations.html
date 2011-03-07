@@ -149,6 +149,7 @@
             {% if manager.global_metadata or manager.series_metadata %}
             <h1 class="can-collapse defclose">{% trans "Original Metadata" %}: <input type="button" value="Download" onClick="document.location.href='{% url download_annotation "download" manager.original_metadata.id %}';"/></h1>                
                 <div>
+                    {% if manager.global_metadata %}
                     <h1>Global Metadata</h1>
                     <div style="height:250px; overflow:auto">
                         <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% url webstatic "images/spinner.gif" %}"></span></form>
@@ -159,7 +160,9 @@
                         <tr><th colspan="2"><br/></th></tr>
                         </tbody></table>
                     </div>
+                    {% endif %}
             
+                    {% if manager.series_metadata %}
                     <hr />
                     <h1>Series Metadata</h1>
                     <div style="height:250px; overflow:auto">
@@ -171,6 +174,7 @@
                             <tr><th colspan="2"><br/></th></tr>
                         </tbody></table>
                     </div>
+                    {% endif %}
                 </div>
             {% endif %}
                         
