@@ -1157,7 +1157,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         u = self.getUpdateService()
         res = u.saveAndReturnObject(obj)
         res.unload()
-        obj = BlitzObjectWrapper(self, res)
+        obj = omero.gateway.BlitzObjectWrapper(self, res)
         return obj
     
     def saveAndReturnId (self, obj):
@@ -1585,7 +1585,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f.limit = rint(10)
         p.theFilter = f
         for e in tm.getMostRecentAnnotationLinks(None, ['CommentAnnotation'], None, p):
-            yield BlitzObjectWrapper(self, e)
+            yield omero.gateway.BlitzObjectWrapper(self, e)
     
     def listMostRecentTags (self):
         """
@@ -1605,7 +1605,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         f.limit = rint(200)
         p.theFilter = f
         for e in tm.getMostRecentAnnotationLinks(None, ['TagAnnotation'], None, p):
-            yield BlitzObjectWrapper(self, e.child)
+            yield omero.gateway.BlitzObjectWrapper(self, e.child)
     
     def getDataByPeriod (self, start, end, otype=None, page=None):
         """
