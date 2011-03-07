@@ -489,11 +489,13 @@
                     <tr>
                         <th>Creation Date:</th>
                         <td id='creation_date'>{{ manager.plate.getDate|date:"Y-m-d H:i:s" }}</td>
-                    </tr>                    
-                    <!--<tr>
+                    </tr>
+                    <!--{% comment %}
+                    <tr>
                         <th>Well Count:</th>
                         <td id='child_count'>{{ manager.plate.countChildren }} {% plural manager.plate.countChildren 'well' 'Wells' %}</td>
-                    </tr>-->
+                    </tr>
+                    {% endcomment %}-->
                 </table>
                 {% else %}
                     {% if manager.screen %}
