@@ -17,5 +17,8 @@ urlpatterns = patterns('django.views.generic.simple',
     # big image examples
     url( r'^panojs/$', 'direct_to_template', {'template': 'webtest/bigimage/panojs.html'}, name="panojs" ),
     url( r'^kasuari/$', 'direct_to_template', {'template': 'webtest/bigimage/kasuari.html'}, name="kasuari" ),
-
+    
+    # roi examples, testing various roi libraries for displaying ROIs. 
+    url( r'^roi_viewer/(?:(?P<roi_library>((?i)processing|jquery|raphael))/(?P<imageId>[0-9]+)/)?$', views.roi_viewer, name="webfigure_roi_viewer" ),
+    
 )

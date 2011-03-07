@@ -177,6 +177,26 @@ def metadata (request, iid):
     return render_to_response('webtest/metadata.html', {'image': image, 'text_annotations': text_annotations, 'txannSize':txannSize, 'long_annotations': long_annotations, 'url_annotations': url_annotations, 'urlannSize':urlannSize, 'file_annotations': file_annotations, 'fileannSize':fileannSize, 'tag_annotations': tag_annotations, 'tgannSize':tgannSize, 'global_metadata':global_metadata, 'serial_metadata':series_metadata, 'form_channels':form_channels, 'form_environment':form_environment, 'form_objective':form_objective, 'form_microscope':form_microscope, 'form_filters':form_filters, 'form_detectors':form_detectors, 'form_lasers':form_lasers, 'form_stageLabel':form_stageLabel})
     
 
+def roi_viewer(request, roi_library, imageId):
+    """
+    Displays an image, using 'jquery.drawinglibrary.js' to draw ROIs on the image. 
+    """
+    conn = getBlitzConnection (request, useragent="OMERO.webroi")
+    if conn is None or not conn.isConnected():
+        return HttpResponseRedirect(reverse('webfigure_login'))
+    
+    image = conn.getImage(imageId)
+    default_z = image.z_count()/2
+    
+    templates = {"processing":'webtest/roi_viewers/processing_viewer.html',
+            "jquery": "webtest/roi_viewers/jquery_drawing.html",
+            "raphael":"webtest/roi_viewers/raphael_viewer.html"}
+    
+    template = templates[roi_library]
+    
+    return render_to_response(template, {'image':image, 'default_z':default_z})
+
+
 def image_viewer (request, iid, **kwargs):
     """ This view is responsible for showing pixel data as images """
     
