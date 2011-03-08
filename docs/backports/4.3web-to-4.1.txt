@@ -4,6 +4,15 @@ omero.gateway and omeroweb.webgateway
 
 List of latest commits merged from develop into dev_4_1_custom
 
+*** 2011-03-07 ***
+
+-- omeroweb.webgateway
+9ef1e8b455b9d00beaa6206ce58791cd894a4014 automated initial if image > 1024, see #4499
+(dev_4_1_custom: 34d3a33e200f5184baf563718cea6674fe6cc15d)
+-- omero.gateway
+f0e2fe8dab128001726f7f55bd0cbc9bf3214079 Fixed docs typo in gateway init.py See #3649
+(dev_4_1_custom: ca71bc04aea152057f25ea5ce66cb42f13524401)
+
 *** 2011-02-23  ***
 
 -- omeroweb.webgateway

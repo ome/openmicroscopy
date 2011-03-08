@@ -4,6 +4,11 @@ omero.gateway and omeroweb.webgateway
 
 List of latest commits merged from dev_4_1_custom into develop
 
+*** 2011-03-07 ***
+
+-- omeroweb.webgateway
+-- omero.gateway
+
 *** 2011-02-23  ***
 
 -- omeroweb.webgateway
