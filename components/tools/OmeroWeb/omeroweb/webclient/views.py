@@ -61,7 +61,8 @@ from webclient_http import HttpJavascriptRedirect, HttpJavascriptResponse, HttpL
 
 from webclient_utils import _formatReport, _purgeCallback
 from forms import ShareForm, BasketShareForm, ShareCommentForm, \
-                    ContainerForm, CommentAnnotationForm, TagAnnotationForm, \
+                    ContainerForm, ContainerNameForm, ContainerDescriptionForm, \
+                    CommentAnnotationForm, TagAnnotationForm, \
                     UploadFileForm, UsersForm, ActiveGroupForm, HistoryTypeForm, \
                     MetadataFilterForm, MetadataDetectorForm, MetadataChannelForm, \
                     MetadataEnvironmentForm, MetadataObjectiveForm, MetadataStageLabelForm, \
@@ -1203,6 +1204,49 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             template = "webclient/data/container_form.html"
             form = ContainerForm(initial={'name': manager.image.name, 'description':manager.image.description})
             context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
+        elif o_type =="comment" and o_id > 0:
+            template = "webclient/annotations/annotation_form.html"
+            form = CommentAnnotationForm(initial={'content':manager.comment.textValue})
+            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
+        elif o_type =="tag" and o_id > 0:
+            template = "webclient/annotations/annotation_form.html"
+            form = TagAnnotationForm(initial={'tag':manager.tag.textValue, 'description':manager.tag.description})
+            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
+        elif o_type == "share" and o_id > 0:
+            template = "webclient/public/share_form.html"
+            manager.getMembers(o_id)
+            manager.getComments(o_id)
+            experimenters = list(conn.getExperimenters())
+            if manager.share.getExpirationDate() is not None:
+                form = ShareForm(initial={'message': manager.share.message, 'expiration': manager.share.getExpirationDate().strftime("%Y-%m-%d"), \
+                                        'shareMembers': manager.membersInShare, 'enable': manager.share.active, \
+                                        'experimenters': experimenters}) #'guests': share.guestsInShare,
+            else:
+                form = ShareForm(initial={'message': manager.share.message, 'expiration': "", \
+                                        'shareMembers': manager.membersInShare, 'enable': manager.share.active, \
+                                        'experimenters': experimenters}) #'guests': share.guestsInShare,
+            context = {'url':url, 'nav':request.session['nav'], 'eContext': manager.eContext, 'share':manager, 'form':form}
+    elif action == 'editname':
+        if o_type == "dataset":
+            template = "webclient/ajax_form/container_form_ajax.html"
+            form = ContainerNameForm(initial={'name': manager.dataset.name})
+            context = {'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager, 'form':form}
+        elif o_type == "project":
+            template = "webclient/ajax_form/container_form_ajax.html"
+            form = ContainerNameForm(initial={'name': manager.project.name})
+            context = {'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager, 'form':form}
+        elif o_type == "screen":
+            template = "webclient/ajax_form/container_form_ajax.html"
+            form = ContainerNameForm(initial={'name': manager.screen.name})
+            context = {'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager, 'form':form}
+        elif o_type == "plate":
+            template = "webclient/ajax_form/container_form_ajax.html"
+            form = ContainerNameForm(initial={'name': manager.plate.name})
+            context = {'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager, 'form':form}
+        elif o_type =="image" and o_id > 0:
+            template = "webclient/ajax_form/container_form_ajax.html"
+            form = ContainerNameForm(initial={'name': manager.image.name})
+            context = {'nav':request.session['nav'], 'manager':manager, 'eContext':manager.eContext, 'form':form}
         elif o_type =="comment" and o_id > 0:
             template = "webclient/annotations/annotation_form.html"
             form = CommentAnnotationForm(initial={'content':manager.comment.textValue})

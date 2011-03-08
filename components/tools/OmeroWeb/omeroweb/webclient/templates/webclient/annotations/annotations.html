@@ -20,6 +20,7 @@
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.autocomplete.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.quicksearch.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.tooltip.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.jeditable.js" %}"></script>
   
     <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.core.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.tabs.js" %}"></script>
@@ -45,6 +46,11 @@
     <script type="text/javascript">
         $(document).ready(function() 
             {
+                {% if manager.image.isOwned %}
+                $( "#imagename-{{ manager.image.id }} img" ).editable('{% url manage_action_containers "editname" "image" manager.image.id %}', '{% url manage_action_containers "save" "image" manager.image.id %}' );
+                
+                {% endif %}
+
                 // hide any unset fields. 
                 var invalidRows = $(".metadata_details input:not([value])").parent().parent();
                 invalidRows.hide();
@@ -73,8 +79,7 @@
                     };
                 };
                 $(".metadata_details").click(toggleInvalidRows);
-                
-                
+                                
                 $('input#search_global').quicksearch('table#global_metadata tbody tr', {
                 	'delay': 300,
                     'loader': 'span.loading_global'
@@ -412,8 +417,7 @@
         <div id="annotation_tab">
             {% if manager.image %}
             <h1>
-                {{ manager.image.name|warphtml:"30" }}
-                {% if manager.image.isOwned %} <a href="{% url manage_action_containers "edit" "image" manager.image.id %}?url={{url}}"><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/></a>{% endif %}
+                {% if manager.image.isOwned %}<div id="imagename-{{ manager.image.id }}">{{ manager.image.name|warphtml:"30" }}<img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/></div>{% else %}{{ manager.image.name|warphtml:"30" }}{% endif %}
             </h1>            
             <h2 id='image_id'>Image ID: {{ manager.image.id }}</h2>    
             <!-- open-image link -->
@@ -421,7 +425,7 @@
                     
             <div class="description">
                 {% if manager.image.isOwned %} <a href="{% url manage_action_containers "edit" "image" manager.image.id %}?url={{url}}" class="align_left"><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit" /></a>{% endif %}
-                {{ manager.image.description|default_if_none:"Description:"|linebreaks }}
+                <span id='image_desc'>{{ manager.image.description|default_if_none:"Description:"|linebreaks }}</span>
             </div>            
             <table>                    
                 {% if not manager.image.isOwned %}
