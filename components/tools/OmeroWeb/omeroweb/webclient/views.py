@@ -2404,6 +2404,30 @@ def render_image (request, iid, z, t, share_id=None, **kwargs):
 
     return webgateway_views.render_image(request, iid, z, t, _conn=conn, **kwargs)
 
+@isUserConnected
+def render_image_region (request, iid, z, t, server_id=None, share_id=None, _conn=None, **kwargs):
+    """ Renders the image with id {{iid}} at {{z}} and {{t}} as jpeg.
+        Many options are available from the request dict.
+    I am assuming a single Pixels object on image with id='iid'. May be wrong """
+
+    conn = None
+    if share_id is not None:
+        try:
+            conn = kwargs["conn_share"]
+        except:
+            logger.error(traceback.format_exc())
+            return handlerInternalError("Connection is not available. Please contact your administrator.")
+    else:
+        try:
+            conn = kwargs["conn"]
+        except:
+            logger.error(traceback.format_exc())
+            return handlerInternalError("Connection is not available. Please contact your administrator.")
+         
+    if conn is None:
+        raise Exception("Share connection not available")
+
+    return webgateway_views.render_image_region(request, iid, z, t, server_id=None, _conn=conn, **kwargs)
 
 @isUserConnected
 def image_viewer (request, iid, share_id=None, **kwargs):
