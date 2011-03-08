@@ -8,6 +8,7 @@ List of latest commits merged from dev_4_1_custom into develop
 
 -- omeroweb.webgateway
 445c12e1d6494d7147ff38f69281646a1f987bad Adding jQuery 1.5 to webgateway js
+(develop: ae618e3fae341c58859c6bb528b53b9d0ffbd182)
 -- omero.gateway
 7820c8987b10cbbaac7c72c08eb504136d9bb7dc Adding omero.gateway.unlinkAnnotations
-
+(develop: 2574b4347cea41f0b4a9f01a54d8628f095fb91f)
