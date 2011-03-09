@@ -285,7 +285,8 @@
             <!-- Channels -->
             {% for ch in form_channels %}
             <h1 class="can-collapse defclose"><span style="padding:0 3px; color:#000; border:1px solid #000; background-color: #{{ ch.color }};">&nbsp&nbsp</span> {{ ch.name }}</h1>
-            <div><table class="metadata_details">
+            <div>
+            <table id="channel_{{ forloop.counter }}" class="metadata_details">
                 {% for field in ch.form %}
                 <tr><td>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</td>
                     <td>{{ field }}</td><td>{% if field.errors %}{{ field.errors }}{% endif %}<br/>{{ field.help_text|safe }}</td>
@@ -333,7 +334,8 @@
                 {% endfor %}
                 {% endif %}
                 <tr><th colspan="3"><br/></th></tr>
-            </table></div>
+            </table>
+            </div>
             {% endfor %}
                         
             <br/><p>*{% trans "N/A - this value is not available." %}</p>
