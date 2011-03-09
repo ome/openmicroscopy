@@ -100,7 +100,7 @@ class TestClientConstructors(unittest.TestCase):
         finally:
             c.__del__()
 
-    def XtestTwoDifferentHosts(self):
+    def testTwoDifferentHosts(self):
         try:
             c1 = omero.client(host="foo")
             c1.createSession()
