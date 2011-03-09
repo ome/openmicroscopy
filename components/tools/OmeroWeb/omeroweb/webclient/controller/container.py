@@ -391,7 +391,22 @@ class BaseContainer(BaseController):
         self.rating_annotations = list()
         self.file_annotations = list()
         self.tag_annotations = list()
-        self.custom_annotations = list()  # not displayed currently
+        self.xml_annotations = list()
+        self.boolean_annotations = list()
+        self.double_annotations = list()
+        self.long_annotations = list()
+        self.term_annotations = list()
+        self.time_annotations = list()
+        
+        annTypes = {omero.model.CommentAnnotationI: self.text_annotations,
+                    omero.model.LongAnnotationI: self.long_annotations,
+                    omero.model.FileAnnotationI: self.file_annotations,
+                    omero.model.TagAnnotationI: self.tag_annotations,
+                    omero.model.XmlAnnotationI: self.xml_annotations,
+                    omero.model.BooleanAnnotationI: self.boolean_annotations,
+                    omero.model.DoubleAnnotationI: self.double_annotations,
+                    omero.model.TermAnnotationI: self.term_annotations,
+                    omero.model.TimestampAnnotationI: self.time_annotations}
             
         aList = list()
         if self.image is not None:
@@ -408,16 +423,12 @@ class BaseContainer(BaseController):
             aList = list(self.well.selectedWellSample().image().listAnnotations())
         
         for ann in aList:
-            if isinstance(ann._obj, omero.model.CommentAnnotationI):
-                self.text_annotations.append(ann)
-            elif isinstance(ann._obj, omero.model.LongAnnotationI) and ann.ns == RATING_NS:
-                self.rating_annotations.append(ann)
-            elif isinstance(ann._obj, omero.model.FileAnnotationI):
-                self.file_annotations.append(ann)
-            elif isinstance(ann._obj, omero.model.TagAnnotationI):
-                self.tag_annotations.append(ann)
-            else:
-                self.custom_annotations.append(ann)
+            annClass = ann._obj.__class__
+            if annClass in annTypes:
+                if ann.ns == RATING_NS:
+                    self.rating_annotations.append(ann)
+                else:
+                    annTypes[annClass].append(ann)
 
         self.text_annotations = self.sortByAttr(self.text_annotations, "details.creationEvent.time", True)
         self.file_annotations = self.sortByAttr(self.file_annotations, "details.creationEvent.time")

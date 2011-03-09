@@ -197,3 +197,8 @@ table.metadata_details td{
     background:transparent url(/appmedia/omeroweb/images/table/asc-big.gif) no-repeat scroll top right;
     background-color: #fff;
 }
+
+.show_xml {
+    color: #1B7BC7;
+    cursor: pointer;
+}

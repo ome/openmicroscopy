@@ -71,8 +71,31 @@
                     showBody: " - ", 
                     top: -15, 
                     left: 5 
-                });              
+                }); 
                 
+                $("#custom_annotations td span").hide() // hide the tool tip source elements
+                $("#custom_annotations td").tooltip({ 
+                    bodyHandler: function() { 
+                            return $(this).children("span").html(); 
+                        },
+                    track: true, 
+                    delay: 0, 
+                    showURL: false, 
+                    fixPNG: true, 
+                    showBody: " - ", 
+                    top: 10, 
+                    left: -100 
+                });       
+                
+                $(".show_xml").next().hide();   // hide any XML annotation blocks
+                // display in a new window      
+                $(".show_xml").click(function() {
+                    var xml = $(this).next().html();
+                    var newWindow=window.open('','name','height=500,width=500,scrollbars=yes, top=50, left=100');
+                    newWindow.document.write(xml);
+                    newWindow.document.close();
+                    return false;
+                });
                 
                 $('.can-collapse').click(function () {
                   $(this).toggleClass('closed').next().slideToggle();
@@ -665,7 +688,77 @@
                         {% trans "No attachments." %}
                     {% endif %}
                 </td>
-            </tr>            
+            </tr>  
+            <!-- CUSTOM ANNOTATIONS -->
+            <tr>
+                <th>{% trans "Others" %}:</th>
+                <td>
+                    <!-- no editing of custom annotations-->
+                </td>
+                <td>
+                    <!-- tool tips for each <td> is contained in child <span>, which are also hidden -->
+                    <table id="custom_annotations">
+                        {% for ann in manager.xml_annotations %}
+                        <tr><th>XML:</th>
+                            <td>
+                                <div>{{ ann.getValue|escape|slice:"0:30" }}...</div>
+                                <div class="show_xml">Open in window</div><div>{{ ann.getValue }}</div>
+                                <span>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
+                                    {% if ann.description %}<b>Description:</b> {{ ann.description }}<br />{% endif %}
+                                    <b>Owner:</b> {{ ann.getOwner.getFullName }}<br />
+                                    <b>Date:</b> {{ ann.creationEventDate|date:"Y-m-d H:i:s" }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        
+                        {% for ann in manager.boolean_annotations %}
+                        <tr><th>Boolean:</th>
+                            <td>
+                                {{ ann.getValue }}
+                                <span>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
+                                    {% if ann.description %}<b>Description:</b> {{ ann.description }}<br />{% endif %}
+                                    <b>Owner:</b> {{ ann.getOwner.getFullName }}<br />
+                                    <b>Date:</b> {{ ann.creationEventDate|date:"Y-m-d H:i:s" }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% for ann in manager.double_annotations %}
+                        <tr><th>Double:</th>
+                            <td>
+                                {{ ann.getValue }}
+                                <span>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
+                                    {% if ann.description %}<b>Description:</b> {{ ann.description }}<br />{% endif %}
+                                    <b>Owner:</b> {{ ann.getOwner.getFullName }}<br />
+                                    <b>Date:</b> {{ ann.creationEventDate|date:"Y-m-d H:i:s" }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% for ann in manager.term_annotations %}
+                        <tr><th>Term:</th>
+                            <td>
+                                {{ ann.getValue }}
+                                <span>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
+                                    {% if ann.description %}<b>Description:</b> {{ ann.description }}<br />{% endif %}
+                                    <b>Owner:</b> {{ ann.getOwner.getFullName }}<br />
+                                    <b>Date:</b> {{ ann.creationEventDate|date:"Y-m-d H:i:s" }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% for ann in manager.time_annotations %}
+                        <tr><th>Time:</th>
+                            <td>
+                                {{ ann.getValue }}
+                                <span>{% if ann.ns %}<b>Namespace:</b> {{ ann.ns }}<br />{% endif %}
+                                    {% if ann.description %}<b>Description:</b> {{ ann.description }}<br />{% endif %}
+                                    <b>Owner:</b> {{ ann.getOwner.getFullName }}<br />
+                                    <b>Date:</b> {{ ann.creationEventDate|date:"Y-m-d H:i:s" }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </td>
+            </tr>
+                      
             <!-- COMMENT -->
             <tr>
                 <th colspan="3">                
