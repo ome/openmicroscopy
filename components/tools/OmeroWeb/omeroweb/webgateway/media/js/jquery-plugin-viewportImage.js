@@ -285,6 +285,9 @@ $.fn.viewportImage = function(options) {
     };
     this.setYOffset = function (yoffset) {dragdiv.css('top', -yoffset); this.doMove(0,0);};
 
+    this.getZoom = function () {
+        return cur_zoom;
+    };
     this.setZoom = function (val, width, height) {
         if (viewerBean != null) {            
             if (val!=cur_zoom) {

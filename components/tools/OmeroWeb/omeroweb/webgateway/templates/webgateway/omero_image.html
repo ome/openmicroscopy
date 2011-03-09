@@ -434,6 +434,8 @@
             viewport.viewportimg.roi_display({width:{{ image.getWidth }}, 
                                             height:{{ image.getHeight }},
                                             json_url:'{% url webgateway_get_rois_json image.id %}' });
+            var zm = viewport.getZoom();
+            viewport.viewportimg.get(0).setRoiZoom(zm);
       }
       else {
           // if ROIs already loaded, there won't be a callback to show table - do it manually
