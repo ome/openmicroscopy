@@ -393,7 +393,7 @@
                 <tr>
                     <th>Channels:</th>
                     <td id='channel_names'>
-                    {% for c in manager.image.getChannels %}{% if not forloop.first %}, {% endif %}{{ c.getLogicalChannel.getName }}{% endfor %}
+                    {% if manager.image.getChannels %}{% for c in manager.image.getChannels %}{% if not forloop.first %}, {% endif %}{{ c.getLogicalChannel.getName }}{% endfor %}{% else %}<span class="error">No channel specified</span>{% endif %}
                     </td>
                 </tr>
             </table>
@@ -500,7 +500,7 @@
                 <tr>
                     <th>Channels:</th>
                     <td id='channel_names'>
-                    {% for c in manager.well.selectedWellSample.image.getChannels %}{% if not forloop.first %}, {% endif %}{{ c.getLogicalChannel.getName }}{% endfor %}
+                    {% if manager.well.selectedWellSample.image.getChannels %}{% for c in manager.well.selectedWellSample.image.getChannels %}{% if not forloop.first %}, {% endif %}{{ c.getLogicalChannel.getName }}{% endfor %}{% else %}<span class="error">No channel specified</span>{% endif %}
                     </td>
                 </tr>
             </table>

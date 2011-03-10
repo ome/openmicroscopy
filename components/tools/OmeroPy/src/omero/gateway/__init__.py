@@ -4896,14 +4896,17 @@ class _ImageWrapper (BlitzObjectWrapper):
         @rtype:     Boolean
         """
         
-        self._loadPixels()
-        if self._re is None:
-            if self._obj.sizeOfPixels() < 1:
-                return False
-            if self._pd is None:
-                self._pd = omero.romio.PlaneDef(self.PLANEDEF)
-            self._re = self._prepareRE()
-        return self._re is not None
+        try:
+            self._loadPixels()
+            if self._re is None:
+                if self._obj.sizeOfPixels() < 1:
+                    return False
+                if self._pd is None:
+                    self._pd = omero.romio.PlaneDef(self.PLANEDEF)
+                self._re = self._prepareRE()
+            return self._re is not None
+        except:
+            return None
 
     def resetRDefs (self):
         logger.debug('resetRDefs')
