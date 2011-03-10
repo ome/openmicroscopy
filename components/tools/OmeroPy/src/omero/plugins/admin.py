@@ -932,6 +932,10 @@ OMERO Diagnostics %s
         from omero.install.change_ports import change_ports
         if 0 == self.status(args, node_only=True):
             self.ctx.die(100, "Can't change ports while the server is running!")
+
+        # Resetting return value.
+        self.ctx.rv = 0
+
         if args.prefix:
             for x in ("registry", "tcp", "ssl"):
                 setattr(args, x, "%s%s" % (args.prefix, getattr(args, x)))
