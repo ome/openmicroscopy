@@ -35,7 +35,7 @@ cd dist
 
 dropdb $OMERO_CONFIG || echo Already gone maybe
 createdb -h localhost -U postgres -O hudson $OMERO_CONFIG
-createlang -h localhost -U postgres plpgsql $OMERO_CONFIG
+createlang -h localhost -U postgres plpgsql $OMERO_CONFIG || echo Already installed maybe
 
 python bin/omero db script "" "" ome -f omero.sql
 psql $OMERO_CONFIG -f omero.sql
