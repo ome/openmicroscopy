@@ -132,16 +132,36 @@ public class SpwDeleteTest extends AbstractTest {
 
     }
 
+    @Test(groups = "ticket:3890")
+    public void testImportMultiplePlates() throws Exception {
+        create(new Creator(){
+            public OME create(XMLMockObjects xml) {
+                return xml.createPopulatedScreen(2, 2, 2, 2, 2);
+            }});
+    }
+
     //
     // Helpers
     //
 
+    interface Creator {
+        OME create(XMLMockObjects xml);
+    }
+
     private List<Pixels> createScreen() throws IOException, Exception {
+        return create(new Creator(){
+            public OME create(XMLMockObjects xml) {
+                return xml.createPopulatedScreen();
+            }});
+    }
+
+    private List<Pixels> create(Creator creator) throws Exception {
+
         File f = File.createTempFile("testImportPlate", "." + OME_FORMAT);
 
         XMLMockObjects xml = new XMLMockObjects();
         XMLWriter writer = new XMLWriter();
-        OME ome = xml.createPopulatedScreen();
+        OME ome = creator.create(xml);
         writer.writeFile(f, ome, true);
         List<Pixels> pixels = null;
         try {
@@ -151,5 +171,5 @@ public class SpwDeleteTest extends AbstractTest {
         }
         return pixels;
     }
-    
+
 }
