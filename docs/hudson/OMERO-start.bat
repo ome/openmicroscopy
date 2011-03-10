@@ -83,7 +83,7 @@ if errorlevel 1 goto ERROR
 
 mkdir TestDropBox
 if errorlevel 1 goto ERROR
-python bin\omero admin ports --prefix=%OMERO_PREFIX%
+python bin\omero admin ports --skipcheck --prefix=%OMERO_PREFIX%
 if errorlevel 1 goto ERROR
 python bin\omero admin ice server start TestDropBox
 if errorlevel 1 goto ERROR

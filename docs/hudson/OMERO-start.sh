@@ -49,7 +49,7 @@ python bin/omero config set omero.db.user hudson
 # Fix TestTables.testBlankTable failure
 python bin/omero config set omero.grid.registry_timeout 15000
 
-python bin/omero admin ports --prefix "$OMERO_PREFIX"
+python bin/omero admin ports --skipcheck --prefix "$OMERO_PREFIX"
 python bin/omero admin stop || echo Not running
 BUILD_ID=DONT_KILL_ME python bin/omero admin start
 python bin/omero admin deploy memcfg omero.blitz.maxmemory=-Xmx1024M omero.blitz.permgen=-XX:MaxPermSize=256m
@@ -85,7 +85,6 @@ echo omero.fs.watchDir=TestDropBox >> etc/testdropbox.config
 
 mkdir -p TestDropBox
 
-python bin/omero admin ports --prefix=$OMERO_PREFIX
 python bin/omero admin ice server start TestDropBox
 
 #

@@ -147,7 +147,8 @@ LIMITATION: omero.db.pass values do not currently get passed to the Java process
         ports = Action("ports", """Allows modifying the ports from a standard OMERO install
 
 To have two OMERO's running on the same machine, several ports must be modified from their default values.
-Internally, this command uses the omero.install.change_ports module.
+Internally, this command uses the omero.install.change_ports module. Changing the ports on a running server
+is usually not what you want and will be prevented. Use --skipcheck to change the ports anyway.
 
 Examples:
 
@@ -161,6 +162,7 @@ Examples:
         ports.add_argument("--tcp", help = "The tcp port to be used by Glacier2 (default: %(default)s)", default = "4063")
         ports.add_argument("--ssl", help = "The ssl port to be used by Glacier2 (default: %(default)s", default = "4064")
         ports.add_argument("--revert", action="store_true", help = "Used to rollback from the given settings to the defaults")
+        ports.add_argument("--skipcheck", action="store_true", help = "Skips the check if the server is already running")
 
         cleanse = Action("cleanse", """Remove binary data files from OMERO.
 
@@ -930,7 +932,7 @@ OMERO Diagnostics %s
     def ports(self, args):
         self.check_access()
         from omero.install.change_ports import change_ports
-        if 0 == self.status(args, node_only=True):
+        if args.skipcheck and 0 == self.status(args, node_only=True):
             self.ctx.die(100, "Can't change ports while the server is running!")
 
         # Resetting return value.
