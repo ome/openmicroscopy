@@ -79,6 +79,7 @@ def download(job, regex):
     """Grabs platform specific distribution targets from Hudson"""
     url = urllib.urlopen("/".join([HUDSON_ROOT, job, HUDSON_XML_SUFFIX]))
     hudson_xml = url.read()
+    hudson_xml = hudson_xml.replace('origin/', 'origin_')
     url.close()
     root = XML(hudson_xml)
 
