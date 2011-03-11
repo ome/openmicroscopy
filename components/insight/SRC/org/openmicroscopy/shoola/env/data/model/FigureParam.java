@@ -331,12 +331,12 @@ public class FigureParam
 		Iterator i = channels.entrySet().iterator();
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
-			c = (Color) entry.getKey();
+			c = (Color) entry.getValue();
 			value = ((c.getAlpha() & 0xFF) << 24) |
             	((c.getRed() & 0xFF) << 16) |
             ((c.getGreen() & 0xFF) << 8)  |
             ((c.getBlue() & 0xFF) << 0);
-			mergeChannels.put((Integer) entry.getValue(), value);
+			mergeChannels.put((Integer) entry.getKey(), value);
 		}
 	}
 	
