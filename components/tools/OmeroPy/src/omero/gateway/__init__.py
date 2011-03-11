@@ -750,6 +750,7 @@ class BlitzObjectWrapper (object):
             sql += " and (an.ns not in (:ns) or an.ns is null)"        
         if eid is not None:
             sql += " and an.details.owner.id=:eid"
+            p.map["eid"] = rlong(eid)
  
         for e in q.findAllByQuery(sql,p):
             yield AnnotationWrapper._wrap(self._conn, e)
