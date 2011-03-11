@@ -166,13 +166,27 @@
         {% endif %}
         
         
-        <!-- METADATA "Acquisition" -->
+        <!-- METADATA "Acquisition" TAB -->
         <div id="metadata_tab">
             
             {% if manager.well or manager.image%}
-
+            
+            {% if manager.companion_files %}
+            <h1 class="can-collapse defclose">{% trans "Companion Files" %}</h1>                
+            <div>
+                {% for fileann in manager.companion_files %}
+                <p>
+                    <a href="#" onClick="document.location.href='{% url download_annotation "download" fileann.id %}';">
+                        {{ fileann.getFileName|shortening:40 }}
+                    </a>
+                    ({{ fileann.getFileSize|default_if_none:0|filesizeformat }})
+                </p>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
             {% if manager.global_metadata or manager.series_metadata %}
-            <h1 class="can-collapse defclose">{% trans "Original Metadata" %}: <input type="button" value="Download" onClick="document.location.href='{% url download_annotation "download" manager.original_metadata.id %}';"/></h1>                
+            <h1 class="can-collapse defclose">{% trans "Original Metadata" %} <input type="button" value="Download" onClick="document.location.href='{% url download_annotation "download" manager.original_metadata.id %}';"/></h1>                
                 <div>
                     {% if manager.global_metadata %}
                     <h1>Global Metadata</h1>
@@ -205,7 +219,7 @@
                         
             <!-- Microscope -->
             {% if form_objective or form_filters or form_detectors %}
-            <h1 class="can-collapse defclose">{% trans "Microscope" %}:</h1>
+            <h1 class="can-collapse defclose">{% trans "Microscope" %}</h1>
             <div><table class="metadata_details">
                 {% if form_microscope %}
                     {% for field in form_microscope %}
@@ -252,7 +266,7 @@
             
             <!-- Image -->
             {% if form_objective or form_environment or form_stageLabel %}
-            <h1 class="can-collapse defclose">{% trans "Image" %}:</h1>
+            <h1 class="can-collapse defclose">{% trans "Image" %}</h1>
             <div><table class="metadata_details">
                 {% if form_objective %}
                 <tr><th><br/>{% trans "Objective" %}:</th><th colspan="2"></th></tr>

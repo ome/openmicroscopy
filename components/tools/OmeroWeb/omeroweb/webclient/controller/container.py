@@ -29,6 +29,8 @@ from django.core.urlresolvers import reverse
 from webclient.controller import BaseController
 
 RATING_NS = "openmicroscopy.org/omero/insight/rating"
+COMPANION_NS = "openmicroscopy.org/omero/import/companionFile"
+ORIGINAL_METADATA = "original_metadata.txt"
 
 class BaseContainer(BaseController):
     
@@ -397,6 +399,7 @@ class BaseContainer(BaseController):
         self.long_annotations = list()
         self.term_annotations = list()
         self.time_annotations = list()
+        self.companion_files =  list()
         
         annTypes = {omero.model.CommentAnnotationI: self.text_annotations,
                     omero.model.LongAnnotationI: self.long_annotations,
@@ -427,6 +430,9 @@ class BaseContainer(BaseController):
             if annClass in annTypes:
                 if ann.ns == RATING_NS:
                     self.rating_annotations.append(ann)
+                elif ann.ns == COMPANION_NS:
+                    if ann.getFileName != ORIGINAL_METADATA:
+                        self.companion_files.append(ann)
                 else:
                     annTypes[annClass].append(ann)
 
