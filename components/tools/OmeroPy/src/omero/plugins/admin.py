@@ -932,11 +932,12 @@ OMERO Diagnostics %s
     def ports(self, args):
         self.check_access()
         from omero.install.change_ports import change_ports
-        if args.skipcheck and 0 == self.status(args, node_only=True):
-            self.ctx.die(100, "Can't change ports while the server is running!")
+        if not args.skipcheck:
+            if 0 == self.status(args, node_only=True):
+                self.ctx.die(100, "Can't change ports while the server is running!")
 
-        # Resetting return value.
-        self.ctx.rv = 0
+            # Resetting return value.
+            self.ctx.rv = 0
 
         if args.prefix:
             for x in ("registry", "tcp", "ssl"):
