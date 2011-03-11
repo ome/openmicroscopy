@@ -999,7 +999,35 @@ class MetadataDetectorForm(forms.Form):
             self.fields['amplificationGain'].widget.attrs['disabled'] = True 
             self.fields['amplificationGain'].widget.attrs['class'] = 'disabled'
         
-        self.fields.keyOrder = ['manufacturer', 'model', 'type', 'gain', 'voltage', 'offsetValue', 'zoom', 'amplificationGain']
+        # Read out rate
+        try:
+            if kwargs['initial']['detectorSettings'] is not None:
+                self.fields['readOutRate'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'readOutRate\', this.value);'}), initial=kwargs['initial']['detectorSettings'].readOutRate, label="Read out rate", required=False)
+            else:
+                self.fields['readOutRate'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'readOutRate\', this.value);'}), label="Read out rate", required=False)
+            self.fields['readOutRate'].widget.attrs['disabled'] = True 
+            self.fields['readOutRate'].widget.attrs['class'] = 'disable'
+        except:
+            logger.error(traceback.format_exc())
+            self.fields['readOutRate'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Read out rate", required=False)
+            self.fields['readOutRate'].widget.attrs['disabled'] = True 
+            self.fields['readOutRate'].widget.attrs['class'] = 'disabled'
+            
+        # Binning
+        try:
+            if kwargs['initial']['detectorSettings'].getBinning() is not None:
+                self.fields['binning'] = MetadataModelChoiceField(queryset=kwargs['initial']['binnings'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'binning\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['binning'], required=False) 
+            else:
+                self.fields['binning'] = MetadataModelChoiceField(queryset=kwargs['initial']['binnings'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'binning\', this.options[this.selectedIndex].value);'}), required=False) 
+            self.fields['binning'].widget.attrs['disabled'] = True 
+            self.fields['binning'].widget.attrs['class'] = 'disable'
+        except:
+            logger.error(traceback.format_exc())
+            self.fields['binning'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
+            self.fields['binning'].widget.attrs['disabled'] = True 
+            self.fields['binning'].widget.attrs['class'] = 'disabled'
+        
+        self.fields.keyOrder = ['manufacturer', 'model', 'type', 'gain', 'voltage', 'offsetValue', 'zoom', 'amplificationGain', 'readOutRate', 'binning']
 
 
 class MetadataLightSourceForm(forms.Form):
