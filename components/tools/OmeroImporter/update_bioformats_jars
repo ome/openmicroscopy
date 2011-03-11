@@ -59,6 +59,7 @@ def download():
     ignore = ["loci_tools.jar"]
     url = urllib.urlopen("http://hudson.openmicroscopy.org.uk/job/BIOFORMATS-trunk/lastBuild/api/xml")
     hudson_xml = url.read()
+    hudson_xml = hudson_xml.replace('origin/', 'origin_')
     url.close()
     root = XML(hudson_xml)
 
