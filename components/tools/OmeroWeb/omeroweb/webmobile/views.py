@@ -540,6 +540,23 @@ def recent (request, obj_type, eid=None, **kwargs):
     return render_to_response('webmobile/timeline/recent.html', {'client':conn, 'recent':recentResults, 
         'exp':experimenter, 'members':members, 'obj_type':str(obj_type) })
 
+@isUserConnected
+def recent_full_page (request, **kwargs):
+    """
+    Mock-up full page for Usability testing of recent views. 
+    """
+    conn = None
+    try:
+        conn = kwargs["conn"]
+    except:
+        logger.error(traceback.format_exc())
+        return HttpResponse(traceback.format_exc())
+    
+    exp = conn.getExperimenter(conn.getEventContext().userId)
+        
+    return render_to_response('webmobile/timeline/recent_full_page.html', {'client':conn, 'exp':exp })
+    
+    
 
 @isUserConnected
 def collab_annotations (request, myData=True, **kwargs):

@@ -18,6 +18,8 @@ urlpatterns = patterns('',
     url( r'^collab_my_anns/$', views.collab_annotations, {'myData':False}, name='webmobile_collab_my_anns' ),
     #experimenter
     url( r'^recent/(?P<obj_type>((?i)all|images|anns|rois))/(?P<eid>[0-9]+)/$', views.recent, name='webmobile_recent' ), 
+    # full page (mock-up for UI testing)
+    url( r'^recent_test/$', views.recent_full_page, name='webmobile_recent_full_page' ),
     
     # browsing P/D/I hierarchy
     url( r'^projects/$', views.projects, name='webmobile_projects' ),
