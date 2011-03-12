@@ -602,10 +602,12 @@ def render_image_region(request, iid, z, t, server_id=None, _conn=None, **kwargs
     tilesizex = math.ceil(img.getWidth()/max_zoom)
     tilesizey = math.ceil(img.getHeight()/max_zoom)
 
+    tile = request.REQUEST.get('tile', None)
     region = request.REQUEST.get('region', None)
-    if region:
+    
+    if tile:
         try:
-            zxy = region.split(",")
+            zxy = tile.split(",")
             level = int(zxy[0])
             tiles = pow(2,level)
             
@@ -615,8 +617,19 @@ def render_image_region(request, iid, z, t, server_id=None, _conn=None, **kwargs
             x = int(zxy[1])*w
             y = int(zxy[2])*h
         except:
-            logger.debug("render_image_region: %s" % region)    
-    
+            logger.debug("render_image_region: tile=%s" % tile)
+
+    elif region:
+        try:
+            xywh = tile.split(",")
+
+            x = int(xywh[0])
+            y = int(xywh[1])
+            w = int(xywh[2])
+            h = int(xywh[3])
+        except:
+            logger.debug("render_image_region: region=%s" % region)
+
     # region details in request are used as key for caching. 
     jpeg_data = webgateway_cache.getImage(request, server_id, img, z, t)
     if jpeg_data is None:

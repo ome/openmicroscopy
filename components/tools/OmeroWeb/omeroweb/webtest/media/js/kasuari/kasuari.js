@@ -126,7 +126,7 @@ Kasuari.prototype = {
         var index = this.dirIndex % this.dirLength;
         var dir = this.dir[index];
         //return dir + '/' + iz + '.' + ix + '.' + iy + this.ext;        
-        return dir + '&region=' + iz + ',' + ix + ',' + iy;
+        return dir + '&tile=' + iz + ',' + ix + ',' + iy;
     },
 
     start: function() {

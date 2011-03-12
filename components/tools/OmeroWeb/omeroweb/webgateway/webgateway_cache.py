@@ -564,7 +564,8 @@ class WebGatewayCache (object):
                 p = ''
             q = r.get('q', '')
             region = r.get('region', '')
-            rv = 'img_%s/%s/%%s-c%s-m%s-q%s-r%s' % (client_base, str(iid), c, m, q, region)
+            tile = r.get('tile', '')
+            rv = 'img_%s/%s/%%s-c%s-m%s-q%s-r%s-t%s' % (client_base, str(iid), c, m, q, region, tile)
             if p:
                 return rv % ('%s-%s' % (p, str(t)))
             else:

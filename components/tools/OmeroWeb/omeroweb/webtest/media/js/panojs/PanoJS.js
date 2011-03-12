@@ -833,7 +833,7 @@ PanoJS.TileUrlProvider.prototype = {
 		/*return this.baseUri + '/' +
 			this.prefix + zoom + '-' + xIndex + '-' + yIndex + '.' + this.extension +
 			(PanoJS.REVISION_FLAG ? '?r=' + PanoJS.REVISION_FLAG : '');*/
-		return this.baseUri+'&region='+zoom+','+xIndex+','+yIndex
+		return this.baseUri+'&tile='+zoom+','+xIndex+','+yIndex
 	}
 }
 
