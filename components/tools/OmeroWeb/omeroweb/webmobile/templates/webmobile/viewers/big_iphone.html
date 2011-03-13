@@ -43,7 +43,7 @@ var checkViewportMove = function() {
 
 var refreshViewport =  function() {
     
-    $wrapper.empty();
+    //$wrapper.empty();
     
     var imgWidth = parseInt($wrapper.attr("width"));
     var imgHeight = parseInt($wrapper.attr("height"));
@@ -62,31 +62,43 @@ var refreshViewport =  function() {
     var colCount = (rightEdge / tileSizeX ) - firstCol;
     var rowCount = (bottomEdge / tileSizeY ) - firstRow;
     
-    //alert("firstCol: " + firstCol + " firstRow: " + firstRow);
+    // remove any existing tiles outside view port
+    $wrapper.children(".tile").each(function() {
+        var row_col = $(this).attr('id');
+        try{
+            var rowCol = row_col.split("_");
+            var rrr = rowCol[0];
+            var ccc = rowCol[1];
+            if ((rrr < firstRow) || (rrr > firstRow+rowCount) || 
+                    (ccc < firstCol) || (ccc > firstCol+colCount)) {
+                $(this).remove();
+            }
+        }catch (ex) {}
+
+    })
     
-    // lay them out
+    // add any new tiles required
     for (var c=0; c<colCount; c++) {
         
         for (var r=0; r<rowCount; r++) {
             
             var col = firstCol+c;
             var row = firstRow+r;
-            log("col: " + col);
-            log("row: " + row);
-            var left = col * tileSizeX;
-            var top = row * tileSizeY;
-            var tileHtml = "<div class='tile' style='top:"+top+"px; left:"+left+"px; width:"+tileSizeX+"px; height:"+tileSizeY+"px'>";
-            //tileHtml += "Col: " + col + " cCount: " + c + "<br />";
-            //tileHtml += "Row: " + row + " rCount: " + r;
-            tileHtml += "<img src='" + imgSrc + "?region="+left+","+top+","+tileSizeX+","+tileSizeY+"' />";
+            var tileId = row+"_"+col
             
-            tileHtml += "</div>"
-            //alert(tileHtml);
-            log(tileHtml);
-            $wrapper.append($(tileHtml));
+            if (($wrapper.children("#"+tileId).length == 0)) {
+                var left = col * tileSizeX;
+                var top = row * tileSizeY;
+                var tileHtml = "<div id='"+tileId+"' class='tile' style='top:"+top+"px; left:"+left+"px; width:"+tileSizeX+"px; height:"+tileSizeY+"px'>";
+                tileHtml += "<img src='" + imgSrc + "?region="+left+","+top+","+tileSizeX+","+tileSizeY+"' />";
+
+                tileHtml += "</div>"
+                $wrapper.append($(tileHtml));
+            }
         }
         
     }
+    log("Total tile count: " + $wrapper.children(".tile").length);
 }
 
 $(document).ready(function() {
