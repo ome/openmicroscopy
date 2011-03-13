@@ -621,7 +621,7 @@ def render_image_region(request, iid, z, t, server_id=None, _conn=None, **kwargs
 
     elif region:
         try:
-            xywh = tile.split(",")
+            xywh = region.split(",")
 
             x = int(xywh[0])
             y = int(xywh[1])
