@@ -73,7 +73,7 @@ public class DeleteUnitTest extends MockObjectTestCase {
         xm = mock(Query.class);
         query = (Query) xm.proxy();
         hm.expects(atLeastOnce()).method("createQuery").will(returnValue(query));
-        xm.expects(atLeastOnce()).method("executeMethod").will(returnValue(0));
+        xm.expects(atLeastOnce()).method("executeUpdate").will(returnValue(0));
 
         bean = new DeleteBean(a, new SessionFactory(null, null){
             @Override

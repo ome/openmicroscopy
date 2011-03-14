@@ -18,8 +18,9 @@ public class ApiConsistencyCheckTest extends TestCase {
 
     @Test
     public void testCreateContextAndHopeItDoesntExplode() {
-        new ome.system.OmeroContext(
-                "classpath:ome/services/blitz-servantDefinitions.xml");
+        new ome.system.OmeroContext(new String[]{
+                "classpath:omero/test.xml",
+                "classpath:ome/services/blitz-servantDefinitions.xml"});
     }
 
 }

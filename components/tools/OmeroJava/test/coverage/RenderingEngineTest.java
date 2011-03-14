@@ -26,13 +26,11 @@ public class RenderingEngineTest
     public void testRenderingEngineInit()
     	throws Exception
     {
-        File f1 = ResourceUtils.getFile("classpath:ice.config");
-        File f2 = ResourceUtils.getFile("classpath:local.properties");
-        omero.client ice = new omero.client(f1, f2);
+        omero.client ice = new omero.client();
         ServiceFactoryPrx factory = ice.createSession(null, null);
         RenderingEnginePrx prx = factory.createRenderingEngine();
         assertNotNull(prx);
-        prx.load();
+        // prx.load(); Requires IDs
         ice.closeSession();
         //factory.destroy();
     }

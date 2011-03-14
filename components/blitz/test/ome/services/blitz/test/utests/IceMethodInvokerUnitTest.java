@@ -100,6 +100,7 @@ public class IceMethodInvokerUnitTest extends MockObjectTestCase {
     @Override
     @BeforeMethod
     protected void setUp() throws Exception {
+        new GlobalMulticaster().removeAllListeners(); // Static singleton.
         tb = new Destroyable();
         ctx = new OmeroContext("classpath:ome/services/messaging.xml");
         multicaster = (GlobalMulticaster) ctx

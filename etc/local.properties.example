@@ -20,8 +20,8 @@ javac.target=1.5
 javac.debug=on
 javac.debuglevel=lines,vars,source
 # "300m" suffices on 32 bit machines
-javac.maxmem=400000000
-javadoc.maxmem=400000000
+javac.maxmem=500000000
+javadoc.maxmem=500000000
 exe4j.home=/opt/exe4j
 
 # This will be set by antlib/resources/global.xml

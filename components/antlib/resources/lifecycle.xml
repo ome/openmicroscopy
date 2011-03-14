@@ -175,6 +175,7 @@ omero.version=${omero.version}
 			</classpath>
 			<files/>
 			<jvmarg value="-Xmx${javac.maxmem}"/>
+			<jvmarg value="-XX:MaxPermSize=256m"/>
 			<jvmarg value="-Demma.coverage.out.file=${target.dir}/coverage.emma" />
 			<jvmarg value="-Dlog4j.configuration=log4j-build.xml"/>
 			<jvmarg value="-Domero.db.name=${omero.db.name}"/>
