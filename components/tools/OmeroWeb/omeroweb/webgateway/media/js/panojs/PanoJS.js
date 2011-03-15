@@ -15,6 +15,7 @@
  *     <a href="#" class="zoomIn">+</a>
  *     <a href="#" class="zoomOut">-</a>
  *   </div>
+ *   <div class="birdeye"><!-- --></div>
  * </div>
  * 
  * The "well" node is where generated IMG elements are appended. It
@@ -70,7 +71,10 @@ function PanoJS(viewer, options) {
 	else {
 		this.viewer = viewer;
 	}
-
+	
+	this.birdeye = document.getElementById("birdeye");
+	this.birdeyeRatio = 0;
+	
 	if (typeof options == 'undefined') {
 		options = {};
 	}
@@ -91,7 +95,7 @@ function PanoJS(viewer, options) {
 
 	this.tileSizeX = (options.tileSizeX ? options.tileSizeX : PanoJS.TILE_SIZE);
     this.tileSizeY = (options.tileSizeY ? options.tileSizeY : PanoJS.TILE_SIZE);
-
+    
 	// assign and do some validation on the zoom levels to ensure sanity
 	this.zoomLevel = (typeof options.initialZoom == 'undefined' ? -1 : parseInt(options.initialZoom));
 	this.maxZoomLevel = (typeof options.maxZoom == 'undefined' ? 0 : Math.abs(parseInt(options.maxZoom)));
@@ -303,12 +307,31 @@ PanoJS.prototype = {
 			}
 		}
 
+        this.birdeyeRatio = Math.ceil(fullSizeX/200);
 		this.viewer.backingBean = this;
 		this.surface.style.cursor = PanoJS.GRAB_MOUSE_CURSOR;
 		this.prepareTiles();
 		this.initialized = true;
+		this.positionBirdEye();
+		
 	},
-
+    
+    positionBirdEye : function(motion) {
+        if (typeof motion == 'undefined') {
+			motion = { 'x' : 0, 'y' : 0 };
+		}
+        l = Math.ceil(-(this.x + motion.x)/this.birdeyeRatio);
+		t = Math.ceil(-(this.y + motion.y)/this.birdeyeRatio);
+		w = Math.ceil((this.width/this.birdeyeRatio)*(this.maxZoomLevel-this.zoomLevel+1));
+		h = Math.ceil((this.height/this.birdeyeRatio)*(this.maxZoomLevel-this.zoomLevel+1));
+		 
+		this.birdeye.style.left = l + 'px';
+        this.birdeye.style.top = t + 'px';
+        this.birdeye.style.width = w + 'px';
+        this.birdeye.style.height = h + 'px';        
+        
+    },
+    
 	prepareTiles : function() {
 		var rows = Math.ceil(this.height / this.tileSizeY) + 1;
 		var cols = Math.ceil(this.width / this.tileSizeX) + 1;
@@ -346,8 +369,9 @@ PanoJS.prototype = {
 			window.onkeypress = PanoJS.keyboardMoveHandler;
 			window.onkeydown = PanoJS.keyboardZoomHandler;
 		}
-
-		this.positionTiles();
+        
+        this.positionTiles();
+        
 	},
 
 	/**
@@ -360,14 +384,13 @@ PanoJS.prototype = {
 		if (typeof motion == 'undefined') {
 			motion = { 'x' : 0, 'y' : 0 };
 		}
-
 		for (var c = 0; c < this.tiles.length; c++) {
 			for (var r = 0; r < this.tiles[c].length; r++) {
 				var tile = this.tiles[c][r];
 
 				tile.posx = (tile.xIndex * this.tileSizeX) + this.x + motion.x;
 				tile.posy = (tile.yIndex * this.tileSizeY) + this.y + motion.y;
-
+                
 				var visible = true;
 
 				if (tile.posx > this.width) {
@@ -443,6 +466,7 @@ PanoJS.prototype = {
 			this.x += motion.x;
 			this.y += motion.y;
 		}
+		
 	},
 
 	/**
@@ -467,6 +491,7 @@ PanoJS.prototype = {
 			if (high || left || low || right) {
 				useBlankImage = true;
 			}
+	    
 		}
 
 		if (useBlankImage) {
@@ -475,8 +500,8 @@ PanoJS.prototype = {
 		}
 		else {
 			tileImgId = src = this.tileUrlProvider.assembleUrl(tile.xIndex, tile.yIndex, this.zoomLevel);
-		}
-
+		}        
+        
 		// only remove tile if identity is changing
 		if (tile.element != null &&
 			tile.element.parentNode != null &&
@@ -563,6 +588,7 @@ PanoJS.prototype = {
 				new PanoJS.ZoomEvent(this.x, this.y, this.zoomLevel, percentage)
 			);
 		}
+		this.positionBirdEye();
 	},
 
 	/**
@@ -572,8 +598,7 @@ PanoJS.prototype = {
 		if (typeof coords == 'undefined') {
 			coords = { 'x' : 0, 'y' : 0 };
 		}
-
-		for (var i = 0; i < this.viewerMovedListeners.length; i++) {
+        for (var i = 0; i < this.viewerMovedListeners.length; i++) {
 			this.viewerMovedListeners[i].viewerMoved(
 				new PanoJS.MoveEvent(
 					this.x + (coords.x - this.mark.x),
@@ -581,6 +606,7 @@ PanoJS.prototype = {
 				)
 			);
 		}
+		this.positionBirdEye({ 'x' : (coords.x - this.mark.x), 'y' : (coords.y - this.mark.y) });
 	},
 
 	zoom : function(direction) {

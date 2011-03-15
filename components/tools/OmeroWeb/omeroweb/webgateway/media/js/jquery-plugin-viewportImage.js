@@ -33,7 +33,7 @@ $.fn.viewportImage = function(options) {
     var overlay = $('<img id="'+insideId+'-ovl">').appendTo(dragdiv);
     overlay.addClass('weblitz-viewport-img').hide();
     
-    $('<div id="weblitz-viewport-tiles"><div class="well"><!-- --></div><div class="surface"><!-- --></div><p class="controls"><span class="zoomIn" title="Zoom In">+</span><span class="zoomOut" title="Zoom Out">-</span><span class="maximize"><img src="/webtest/statictest/img/panojs/window.gif" style="position: absolute; bottom: 4px; right: 5px;" title="Maximize"/></span></p></div>').appendTo(wrapdiv);
+    $('<div id="weblitz-viewport-tiles"><div class="well"><!-- --></div><div class="surface"><!-- --></div><p class="controls"><span class="zoomIn" title="Zoom In">+</span><span class="zoomOut" title="Zoom Out">-</span></p><div class="birdeye"><img id="birdeye-img" src="/appmedia/webgateway/img/panojs/blank.gif"/><div id="birdeye"></div></div>').appendTo(wrapdiv);
     var tilecontainer = jQuery('#weblitz-viewport-tiles');
     var viewerBean = null;
     
@@ -450,15 +450,15 @@ $.fn.viewportImage = function(options) {
     }
     
     
-    this.setUpTiles = function (xtilesize,ytilesize, init_zoom, max_zoom, href) {
+    this.setUpTiles = function (xtilesize,ytilesize, init_zoom, max_zoom, href, thumbnail) {
         X_TILE_SIZE = xtilesize;
         Y_TILE_SIZE = ytilesize;
         tile_url = href;
         TILE_MAX_ZOOM = max_zoom;
         TILE_INIT_ZOOM = init_zoom;
-        tilecontainer.css({width: wrapwidth, height: wrapheight});
-        initializeGraphic();
-        
+        tilecontainer.css({width: wrapwidth, height: wrapheight});        
+        jQuery('#birdeye-img').attr('src', thumbnail);
+        initializeGraphic();     
     }
     
     

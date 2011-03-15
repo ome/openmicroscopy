@@ -598,6 +598,7 @@ def render_image_region(request, iid, z, t, server_id=None, _conn=None, **kwargs
     img, compress_quality = pi
     
     import math
+    
     max_zoom = math.ceil(math.log(max(img.getWidth(), img.getHeight()),2))-1
     tilesizex = math.ceil(img.getWidth()/max_zoom)
     tilesizey = math.ceil(img.getHeight()/max_zoom)

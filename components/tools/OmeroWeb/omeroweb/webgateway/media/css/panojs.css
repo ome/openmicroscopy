@@ -44,9 +44,9 @@
 	background-color: #FFFFFF;
 	position: absolute;
 	/* NOTE: the right and bottom can be adjusted when initialized */
-	right: 0;
+	right: 200px;
 	bottom: 0;
-	width: 44px;
+	width: 20px;
 	height: 20px;
 	margin: 0;
 	padding: 0 0 0 4px;
@@ -57,6 +57,31 @@
 	border: 1px solid #000000;
 	z-index: 30;
 }
+#weblitz-viewport-tiles .birdeye
+{
+	background-color: #FFFFFF;
+	position: absolute;
+	/* NOTE: the right and bottom can be adjusted when initialized */
+	right: 0;
+	bottom: 0;
+	margin: -1px;
+	padding: 0;
+	vertical-align: middle;
+	border: 1px solid #000000;
+	z-index: 30;
+}
+#weblitz-viewport-tiles .birdeye #birdeye
+{
+    position: absolute;
+    width:0;
+    height:0;
+	top:0;
+	left:0;
+	border: 1px solid #ff0000;
+	z-index: 31;
+	cursor: pointer;	
+}
+
 #weblitz-viewport-tiles .controls a, #weblitz-viewport-tiles .controls span
 {
 	color: #000000;
