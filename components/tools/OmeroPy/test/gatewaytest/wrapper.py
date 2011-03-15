@@ -193,7 +193,7 @@ class WrapperTest (lib.GTest):
         self.assert_('parents' not in m)
         self.assertEqual(m['child_count'], p.countChildren_cached())
         # Verify canOwnerWrite
-        self.loginAsAdmin()
+        # self.loginAsAdmin()
         p = self.getTestProject()
         self.assertEqual(p.canOwnerWrite(), True)
         p.getDetails().permissions.setUserWrite(False)
@@ -233,7 +233,7 @@ class WrapperTest (lib.GTest):
 
     def testExperimenterWrapper (self):
         self.loginAsAdmin()
-        e = self.gateway.lookupExperimenter(self.USER.name)
+        e = self.gateway.findExperimenter(self.USER.name)
         self.assertEqual(e.getDetails().getOwner().omeName, self.USER.name)
 
     def testDetailsWrapper (self):
