@@ -13,7 +13,7 @@ REM will be test output available. In the future, though
 REM we may want to actually run tests in Matlab.
 python build.py test-compile
 if errorlevel 1 goto ERROR
-python build.py -f components\tools\OmeroJava\build.xml -Dtest.with.fail=true test
+python build.py -f components\model\build.xml test
 if errorlevel 1 goto ERROR
 
 set OMERO_HOME=%CD%\dist
