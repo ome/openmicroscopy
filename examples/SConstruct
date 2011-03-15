@@ -104,17 +104,22 @@ if platform.name == "posix" or platform.name == "linux" or platform.name == "dar
 
 # Windows
 else:
+    # from components/blitz/blitz_tools.py
+    if "LIB" in os.environ:
+        # Only LIB contains the path to the Windows SDK x64 library when starting
+        # from the VS2008 x64 command line batch.
+        map["LIBPATH"]    = map["LIBPATH"] + os.environ["LIB"].split(os.path.pathsep)
 
     if mode == "debug":
-        map["CXXFLAGS"]   = ['-W1', '-GX', '-EHsc', '-D_DEBUG', '/MDd', '/Zi']
-        map["LIBPATH"]    = ["bin/windows/debug"]
-        map["CPPDEFINES"] = ["WIN32", "_DEBUG", "_WINDOWS"],
+        map["CXXFLAGS"]   = ['-W1', '-EHsc', '/MDd', '/Zi']
+        map["LIBPATH"]    = map["LIBPATH"] + ["bin/windows/debug"]
+        map["CPPDEFINES"] = ["WIN32_LEAN_AND_MEAN", "DEBUG"],
         map["LINKFLAGS"]  = '/DEBUG'
 
     else:
         map["CXXFLAGS"]   = ['-O2', '-EHsc', '-DNDEBUG', '/MD']
-        map["LIBPATH"]    = ["bin/windows/release"]
-        map["CPPDEFINES"] = ["WIN32", "NDEBUG", "_WINDOWS"]
+        map["LIBPATH"]    = map["LIBPATH"] + ["bin/windows/release"]
+        map["CPPDEFINES"] = ["WIN32_LEAN_AND_MEAN", "NDEBUG"]
 
 
 env = Environment(**map)
@@ -147,9 +152,9 @@ if not env["no_cpp"]:
     # Use C++ libraries
     #
     if platform.name == "posix" or platform.name == "linux" or platform.name == "darwin":
-        libs = Split("Ice IceUtil Glacier2")+link
+        libs = Split("Ice IceUtil Glacier2 omero_client")+link
     else:
-        libs = Split("Ice.lib")
+        libs = Split("Ice.lib IceUtil.lib Glacier2.lib omero_client.lib")
 else:
     libs = [] # Placeholder for no_cpp builds
 
