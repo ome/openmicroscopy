@@ -11,6 +11,7 @@ import os
 import sys
 
 from omero.cli import BaseControl, CLI, ExceptionHandler
+from omero.rtypes import unwrap as _
 
 HELP = "Support for adding and managing users"
 
@@ -39,6 +40,55 @@ class UserControl(BaseControl):
 
         password = parser.add(sub, self.password, help = "Set user's password")
         password.add_argument("username", nargs="?", help = "Username if not the current user")
+
+        email = parser.add(sub, self.email, help = "List users' email addresses")
+        email.add_argument("-n", "--names", action="store_true", default=False, help = "Print user names along with email addresses")
+        email.add_argument("-1", "--one", action="store_true", default=False, help = "Print one user per line")
+        email.add_argument("-i", "--ignore", action="store_true", default=False, help = "Ignore users without email addresses")
+
+    def format_name(self, exp):
+        record = ""
+        fn = _(exp.firstName)
+        mn = " "
+        if _(exp.middleName):
+            mn = " %s " % _(exp.middleName)
+        ln = _(exp.lastName)
+        record += "%s%s%s" % (fn, mn, ln)
+        return record
+
+    def email(self, args):
+        c = self.ctx.conn(args)
+        a = c.sf.getAdminService()
+
+        skipped = []
+        records = []
+        for exp in a.lookupExperimenters():
+
+            # Handle users without email
+            if not _(exp.email):
+                if not args.ignore:
+                    skipped.append(exp)
+                continue
+
+            record = ""
+            if args.names:
+                record += '"%s"' % self.format_name(exp)
+                record += " <%s>" % _(exp.email)
+            else:
+                record += _(exp.email)
+
+            records.append(record)
+
+        if args.one:
+            for record in records:
+                self.ctx.out(record)
+        else:
+            self.ctx.out(", ".join(records))
+
+        if skipped:
+            self.ctx.err("Missing email addresses:")
+            for s in skipped:
+                self.ctx.err(self.format_name(s))
 
     def password(self, args):
         from omero.rtypes import rstring
