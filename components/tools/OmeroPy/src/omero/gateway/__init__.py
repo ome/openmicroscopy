@@ -4672,7 +4672,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
         if self._obj.logicalChannel is not None:
             return LogicalChannelWrapper(self._conn, self._obj.logicalChannel)
     
-    def getEmissionWave (self):
+    def getName (self):
         """
         Returns the logical channel name, emission wave or index. The first that is not null
         in the described order.
@@ -4688,6 +4688,17 @@ class _ChannelWrapper (BlitzObjectWrapper):
         if rv is None:
             rv = self._idx
         return unicode(rv)
+
+    def getEmissionWave (self):
+        """
+        Returns the emission wave or None.
+
+        @return:    The logical channel string representation
+        @rtype:     int
+        """
+
+        lc = self.getLogicalChannel()
+        return lc.emissionWave
 
     def getColor (self):
         """
