@@ -240,7 +240,7 @@ java component.
         <sequential>
         <ivy:settings id="ivy.@{suite}"  file="${etc.dir}/ivysettings.xml"/>
         <ivy:buildlist reference="@{suite}.buildpath" settingsRef="ivy.@{suite}" ivyfilepath="test.xml">
-            <fileset dir="${omero.home}/components" includes="**/build.xml" excludes="**/insight/**/*,**/specification/**/*,@{excludes}"/>
+            <fileset dir="${omero.home}/components" includes="**/build.xml" excludes="**/insight/**/*,@{excludes}"/>
         </ivy:buildlist>
         <iterate buildpathref="@{suite}.buildpath" target="@{suite}"/>
         </sequential>
