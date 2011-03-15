@@ -120,7 +120,7 @@ class ConnectionMethodsTest (lib.GTest):
         obj.removeAnnotations(ns)
         self.assertEqual(obj.getAnnotation(ns), None)
 
-    def testCloseSession (self):
+    def XtestCloseSession (self):
         #74 the failed connection for a user not in the system group does not get closed
         self.gateway.setIdentity(self.USER.name, self.USER.passwd)
         setprop = self.gateway.c.ic.getProperties().setProperty
