@@ -186,7 +186,7 @@ public class DetectorData
 	public String getLotNumber()
 	{
 		Detector detector = (Detector) asIObject();
-		RString value = detector.getSerialNumber();
+		RString value = null;//detector.getLotNumber();
 		if (value == null) return "";
 		return value.getValue();
 	}

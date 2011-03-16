@@ -106,7 +106,7 @@ public class DichroicData
 	public String getSerialNumber()
 	{
 		Dichroic f = (Dichroic) asIObject();
-		RString value = f.getLotNumber();
+		RString value = null;//f.getSerialNumber();
 		if (value == null) return "";
 		return value.getValue();
 	}
