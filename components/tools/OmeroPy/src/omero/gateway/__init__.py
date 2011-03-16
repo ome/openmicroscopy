@@ -6264,7 +6264,7 @@ class _DetectorSettingsWrapper (BlitzObjectWrapper):
               'gain',
               'offsetValue',
               'readOutRate',
-              'binning',
+              'binning|BinningWrapper',
               'detector|DetectorWrapper',
               'version')
 
@@ -6272,6 +6272,16 @@ class _DetectorSettingsWrapper (BlitzObjectWrapper):
         self.OMERO_CLASS = 'DetectorSettings'
 
 DetectorSettingsWrapper = _DetectorSettingsWrapper
+
+class _BinningWrapper (BlitzObjectWrapper):
+    """
+    omero_model_BinningI class wrapper extends BlitzObjectWrapper.
+    """
+
+    def __bstrap__ (self):
+        self.OMERO_CLASS = 'Binning'
+
+BinningWrapper = _BinningWrapper
 
 class _DetectorWrapper (BlitzObjectWrapper):
     """

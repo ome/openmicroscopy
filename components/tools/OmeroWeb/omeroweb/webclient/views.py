@@ -930,8 +930,12 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
                                             'types':list(conn.getEnumerationEntries("FilterTypeI"))}))
 
                 if ch.getLogicalChannel().getDetectorSettings()._obj is not None and ch.getLogicalChannel().getDetectorSettings().getDetector():
-                    channel['form_detector_settings'] = MetadataDetectorForm(initial={'detectorSettings':ch.getLogicalChannel().getDetectorSettings(), 'detector': ch.getLogicalChannel().getDetectorSettings().getDetector(),
-                                        'types':list(conn.getEnumerationEntries("DetectorTypeI"))})
+                    binning = ch.getLogicalChannel().getDetectorSettings().getBinning()
+                    channel['form_detector_settings'] = MetadataDetectorForm(initial={'detectorSettings':ch.getLogicalChannel().getDetectorSettings(),
+                        'detector': ch.getLogicalChannel().getDetectorSettings().getDetector(),
+                        'types':list(conn.getEnumerationEntries("DetectorTypeI")),
+                        'binning':binning and binning.getValue() or None,
+                        'binnings':list(conn.getEnumerationEntries("Binning"))})
                 if ch.getLogicalChannel().getLightSourceSettings()._obj is not None and ch.getLogicalChannel().getLightSourceSettings().getLightSource() is not None:      
                     channel['form_light_source'] = MetadataLightSourceForm(initial={'lightSource': ch.getLogicalChannel().getLightSourceSettings().getLightSource(),
                                         'types':list(conn.getEnumerationEntries("FilterTypeI")), 
