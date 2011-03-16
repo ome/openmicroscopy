@@ -1203,6 +1203,28 @@ def imageData_json (request, server_id=None, _conn=None, _internal=False, **kwar
     return rv
 
 @jsonp
+def plateGrid_json (request, pid, server_id=None, _conn=None, **kwargs):
+    """
+    """
+    try:
+        plate = _conn.getPlate(long(pid))
+    except:
+        return 'exception'
+    if plate is None:
+        return plate
+        return HttpResponseServerError('""', mimetype='application/javascript')
+    grid = []
+    prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
+    def urlprefix(iid):
+        return reverse(prefix, args=(iid,64,48))
+    xtra = {'thumbUrlPrefix': urlprefix}
+    for row in plate.getWellGrid():
+        grid.append(map(lambda x: x is not None and x.simpleMarshal(xtra=xtra) or None, [x.getImage() for x in row]))
+    return {'grid': grid,
+            'collabels': plate.getColumnLabels(),
+            'rowlabels': plate.getRowLabels()}
+
+@jsonp
 def listImages_json (request, did, server_id=None, _conn=None, **kwargs):
     """
     lists all Images in a Dataset, as json
