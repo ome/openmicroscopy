@@ -2434,14 +2434,24 @@ class _BlitzGateway (object):
             return PlateWrapper(self, pl)
         else:
             return None
-    
+
+
+
+    def getObject(self, obj_type, oid):
+        """
+        Convenience method for L{getObjects}. Returns a single wrapped object or None. 
+        """
+        result = self.getObjects(obj_type, [oid])
+        try:
+            return result.next()
+        except StopIteration:
+            return None
+
 
     def getObjects(self, obj_type, ids):
         """
-        Retrieve Objects by type and given IDs. Not Ordered. 
-        Supported types are "Project", "Dataset", "Image", "Screen", "Plate", "Well"
-        Returns generator of L{ProjectWrapper}, L{DatasetWrapper}, L{ImageWrapper}
-        L{PlateWrapper} or L{WellWrapper}.
+        Retrieve Objects by type E.g. "Image" and given IDs. Not Ordered. 
+        Returns generator of appropriate L{BlitzObjectWrapper} type. E.g. L{ImageWrapper}.
         
         @param obj_type:    Object type. E.g. "Project" see above
         @type obj_type:     String
@@ -2450,23 +2460,33 @@ class _BlitzGateway (object):
         @return:            Generator yielding Images
         @rtype:             see above
         """
-        
-        wrappers = {"Project":ProjectWrapper,
-            "Dataset":DatasetWrapper,
-            "Image":ImageWrapper,
-            "Screen":ScreenWrapper,
-            "Plate":PlateWrapper,
-            "Well":WellWrapper}
-        
-        if obj_type not in wrappers:
-            raise TypeError     # TODO - maybe a better Error?
+
+        if type(obj_type) is type(''):
+            # resolve class
+            wrapperName = '%sWrapper' % obj_type
+            if not hasattr(omero.gateway, wrapperName):
+                wrapperName = "BlitzObjectWrapper"
+            objWrapper = getattr(omero.gateway, wrapperName)
+        else:
+            raise AttributeError("getObjects uses a string to define obj_type, E.g. 'Image'")
+
         q = self.getQueryService()
         p = omero.sys.Parameters()
         p.map = {}
         p.map["ids"] = rlist([rlong(a) for a in ids])
-        sql = "select obj from %s obj join fetch obj.details.owner join fetch obj.details.group where obj.id in (:ids)" % obj_type
-        for e in q.findAllByQuery(sql, p):
-            yield wrappers[obj_type](self, e)
+        if obj_type in ["Project", "Dataset", "Image", "Screen", "Plate"]:
+            query = "select obj from %s obj join fetch obj.details.owner join fetch obj.details.group where obj.id in (:ids)" % obj_type
+            result = q.findAllByQuery(query, p)
+        else:
+            query = "select obj from %s obj where obj.id in (:ids)" % obj_type
+            result = q.findAllByQuery(query, p)
+        if obj_type == "Annotation":
+            for r in result:
+                yield AnnotationWrapper._wrap(self, r)
+        else:
+            for r in result:
+                yield objWrapper(self, r)
+
     
     def getObjectsByAnnotations(self, obj_type, annids):
         """
