@@ -1014,7 +1014,7 @@ def channelMarshal (channel):
     """
     
     return {'emissionWave': channel.getEmissionWave(),
-            'label': channel.getEmissionWave(),
+            'label': channel.getLabel(),
             'color': channel.getColor().getHtml(),
             'window': {'min': channel.getWindowMin(),
                        'max': channel.getWindowMax(),
@@ -1361,7 +1361,7 @@ def list_compatible_imgs_json (request, server_id, iid, _conn=None, **kwargs):
         # Filter the ones that would pass the applySettingsToImages call
         img_ptype = img.getPrimaryPixels().getPixelsType().getValue()
         img_ccount = img.c_count()
-        img_ew = [x.getEmissionWave() for x in img.getChannels()]
+        img_ew = [x.getLabel() for x in img.getChannels()]
         img_ew.sort()
         def compat (i):
             if long(i.getId()) == long(iid):
@@ -1371,7 +1371,7 @@ def list_compatible_imgs_json (request, server_id, iid, _conn=None, **kwargs):
                i.getPrimaryPixels().getPixelsType().getValue() != img_ptype or \
                i.c_count() != img_ccount:
                 return False
-            ew = [x.getEmissionWave() for x in i.getChannels()]
+            ew = [x.getLabel() for x in i.getChannels()]
             ew.sort()
             if ew != img_ew:
                 return False
