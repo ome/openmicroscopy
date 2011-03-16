@@ -944,7 +944,7 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
                                         'pulses': list(conn.getEnumerationEntries("PulseI"))})
                 if ch.getLogicalChannel().getFilterSet()._obj is not None and ch.getLogicalChannel().getFilterSet().getDichroic() is not None:
                         channel['form_dichroic'] = MetadataDichroicForm(initial={'logicalchannel': ch.getLogicalChannel().getFilterSet().getDichroic()})
-                channel['name'] = ch.getEmissionWave()
+                channel['name'] = ch.getName()
                 channel['color'] = ch.getColor().getHtml()
                 form_channels.append(channel)
                 
