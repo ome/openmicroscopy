@@ -14,6 +14,91 @@ import omero
 import gatewaytest.library as lib
 
 class WrapperTest (lib.GTest):
+    
+    def setUp (self):
+        super(WrapperTest, self).setUp()
+        self.loginAsAuthor()
+        self.TESTIMG = self.getTestImage()
+        
+    def testGetExperimenter(self):
+        self.loginAsAdmin()
+        e = self.gateway.findExperimenter(self.USER.name)
+        exp = self.gateway.getObject("Experimenter", e.id) # uses iQuery
+        experimenter = self.gateway.getExperimenter(e.id)  # uses IAdmin
+        
+        # groupExperimenterMap not loaded for exp
+        #for groupExpMap in exp.copyGroupExperimenterMap():
+            #self.assertEqual(e.id, groupExpMap.child.id.val)
+            
+        for groupExpMap in experimenter.copyGroupExperimenterMap():
+            self.assertEqual(e.id, groupExpMap.child.id.val)
+            
+            
+        self.assertEqual(exp.getDetails().getOwner().omeName, experimenter.getDetails().getOwner().omeName)
+        
+    def testGetAnnotations(self):
+        
+        obj = self.TESTIMG
+        ns = "omero.gateway.test_wrapper.test_get_annotations"
+        
+        # create Comment
+        ann = omero.gateway.CommentAnnotationWrapper(self.gateway)
+        ann.setNs(ns)
+        ann.setValue("Test Comment")
+        obj.linkAnnotation(ann)
+        ann = obj.getAnnotation(ns)
+        # create Tag
+        tag = omero.gateway.TagAnnotationWrapper(self.gateway)
+        tag.setNs(ns)
+        tag.setValue("Test Tag")
+        tag = obj.linkAnnotation(tag)
+        
+        # get the Comment 
+        a = self.gateway.getAnnotation(ann.id)
+        annotation = self.gateway.getObject("Annotation", ann.id)
+        self.assertEqual(a.id, annotation.id)
+        self.assertEqual(a.ns, annotation.ns)
+        self.assertEqual("Test Comment", annotation.textValue)
+        self.assertEqual(a.OMERO_TYPE, annotation.OMERO_TYPE)
+        self.assertEqual(ann.OMERO_TYPE, annotation.OMERO_TYPE)
+        
+        # get the Comment and Tag
+        annGen = self.gateway.getObjects("Annotation", [ann.id, tag.id])
+        anns = list(annGen)
+        self.assertEqual(len(anns), 2)
+        self.assertEqual(anns[0].ns, ns)
+        self.assertEqual(anns[1].ns, ns)
+        self.assertNotEqual(anns[0].OMERO_TYPE, anns[1].OMERO_TYPE)
+        
+        
+    def testGetImage (self):
+        testImage = self.TESTIMG
+        # This should return image wrapper
+        image = self.gateway.getObject("Image", testImage.id)
+        pr = image.getProject()
+        ds = image.getDataset()
+        
+        # test a few methods that involve lazy loading, rendering etc. 
+        self.assertEqual(image.getWidth(), testImage.getWidth())
+        self.assertEqual(image.getHeight(), testImage.getHeight())
+        image.isGreyscaleRenderingModel()       # loads rendering engine
+        testImage.isGreyscaleRenderingModel()
+        self.assertEqual(image._re.getDefaultZ(), testImage._re.getDefaultZ())
+        self.assertEqual(image._re.getDefaultT(), testImage._re.getDefaultT())
+        self.assertEqual(image.getOwnerOmeName, testImage.getOwnerOmeName)
+        
+        
+    def testGetProject (self):
+        self.loginAsAuthor()
+        testProj = self.getTestProject()
+        p = self.gateway.getObject("Project", 12334334)
+        self.assertEqual(testProj.getName(), p.getName())
+        self.assertEqual(testProj.getDescription(), p.getDescription())
+        self.assertEqual(testProj.getId(), p.getId())
+        self.assertEqual(testProj.OMERO_CLASS, p.OMERO_CLASS)
+        self.assertEqual(testProj.countChildren_cached(), p.countChildren_cached())
+        self.assertEqual(testProj.getOwnerOmeName, p.getOwnerOmeName)
+        
     def testProjectWrapper (self):
         self.loginAsAuthor()
         p = self.getTestProject()
