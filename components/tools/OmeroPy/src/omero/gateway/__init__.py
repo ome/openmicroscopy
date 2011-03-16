@@ -4671,8 +4671,9 @@ class _ChannelWrapper (BlitzObjectWrapper):
         
         if self._obj.logicalChannel is not None:
             return LogicalChannelWrapper(self._conn, self._obj.logicalChannel)
-    
-    def getName (self):
+
+
+    def getLabel (self):
         """
         Returns the logical channel name, emission wave or index. The first that is not null
         in the described order.
@@ -4680,7 +4681,7 @@ class _ChannelWrapper (BlitzObjectWrapper):
         @return:    The logical channel string representation
         @rtype:     String
         """
-        
+
         lc = self.getLogicalChannel()
         rv = lc.name
         if rv is None:
@@ -4688,6 +4689,21 @@ class _ChannelWrapper (BlitzObjectWrapper):
         if rv is None:
             rv = self._idx
         return unicode(rv)
+
+
+    def getName (self):
+        """
+        Returns the logical channel name or None
+
+        @return:    The logical channel string representation
+        @rtype:     String
+        """
+        
+        lc = self.getLogicalChannel()
+        rv = lc.name
+        if rv is not None:
+            return unicode(rv)
+
 
     def getEmissionWave (self):
         """
@@ -5957,7 +5973,7 @@ class _ImageWrapper (BlitzObjectWrapper):
                 img = self.renderImage(z,t, compression)
                 if fsize > 0:
                     draw = ImageDraw.ImageDraw(img)
-                    draw.text((2,2), "%s" % (str(self.getChannels()[i].getEmissionWave())), font=font, fill="#fff")
+                    draw.text((2,2), "%s" % (str(self.getChannels()[i].getLabel())), font=font, fill="#fff")
                 canvas.paste(img, (px, py))
             pxc += 1
             if pxc < dims['gridx']:
