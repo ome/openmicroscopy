@@ -936,9 +936,10 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
                         'types':list(conn.getEnumerationEntries("DetectorTypeI")),
                         'binning':binning and binning.value or None,
                         'binnings':list(conn.getEnumerationEntries("Binning"))})
+
                 if ch.getLogicalChannel().getLightSourceSettings()._obj is not None and ch.getLogicalChannel().getLightSourceSettings().getLightSource() is not None:      
                     channel['form_light_source'] = MetadataLightSourceForm(initial={'lightSource': ch.getLogicalChannel().getLightSourceSettings().getLightSource(),
-                                        'types':list(conn.getEnumerationEntries("FilterTypeI")), 
+                                        'lstypes': list(conn.getEnumerationEntries("LaserType")), 
                                         'mediums': list(conn.getEnumerationEntries("LaserMediumI")),
                                         'pulses': list(conn.getEnumerationEntries("PulseI"))})
                 if ch.getLogicalChannel().getFilterSet()._obj is not None and ch.getLogicalChannel().getFilterSet().getDichroic() is not None:
@@ -983,7 +984,7 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
             if len(lasers) > 0:
                 for l in lasers:
                     form_laser = MetadataLightSourceForm(initial={'lightSource': l, 
-                                    'types':list(conn.getEnumerationEntries("FilterTypeI")), 
+                                    'lstypes':list(conn.getEnumerationEntries("LaserType")),
                                     'mediums': list(conn.getEnumerationEntries("LaserMediumI")),
                                     'pulses': list(conn.getEnumerationEntries("PulseI"))})
                     form_lasers.append(form_laser)

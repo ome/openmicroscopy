@@ -304,12 +304,10 @@ class MetadataChannelForm(forms.Form):
             else:
                 self.fields['ndFilter'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'name\', this.value);'}), label="ND filter [%]", required=False)
             self.fields['ndFilter'].widget.attrs['disabled'] = True 
-            self.fields['ndFilter'].widget.attrs['class'] = 'disable'
         except:
             logger.error(traceback.format_exc())
             self.fields['ndFilter'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="ND filter [%]", required=False)
-            self.fields['ndFilter'].widget.attrs['disabled'] = True 
-            self.fields['ndFilter'].widget.attrs['class'] = 'disabled'
+            self.fields['ndFilter'].widget.attrs['disabled'] = True
         
         # pinHoleSize
         try:
@@ -318,12 +316,10 @@ class MetadataChannelForm(forms.Form):
             else:
                 self.fields['pinHoleSize'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'name\', this.value);'}), label="Pin hole size", required=False)
             self.fields['pinHoleSize'].widget.attrs['disabled'] = True 
-            self.fields['pinHoleSize'].widget.attrs['class'] = 'disable'
         except:
             logger.error(traceback.format_exc())
             self.fields['pinHoleSize'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Pin hole size", required=False)
-            self.fields['pinHoleSize'].widget.attrs['disabled'] = True 
-            self.fields['pinHoleSize'].widget.attrs['class'] = 'disabled'
+            self.fields['pinHoleSize'].widget.attrs['disabled'] = True
         
         # fluor
         try:
@@ -331,13 +327,11 @@ class MetadataChannelForm(forms.Form):
                 self.fields['fluor'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'name\', this.value);'}), initial=kwargs['initial']['logicalChannel'].fluor, required=False)
             else:
                 self.fields['fluor'] = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':25, 'onchange':'javascript:saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'name\', this.value);'}), required=False)
-            self.fields['fluor'].widget.attrs['disabled'] = True 
-            self.fields['fluor'].widget.attrs['class'] = 'disable'
+            self.fields['fluor'].widget.attrs['disabled'] = True
         except:
             logger.error(traceback.format_exc())
             self.fields['fluor'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
-            self.fields['fluor'].widget.attrs['disabled'] = True 
-            self.fields['fluor'].widget.attrs['class'] = 'disabled'
+            self.fields['fluor'].widget.attrs['disabled'] = True
         
         # Illumination
         try:
@@ -345,13 +339,11 @@ class MetadataChannelForm(forms.Form):
                 self.fields['illumination'] = MetadataModelChoiceField(queryset=kwargs['initial']['illuminations'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'illumination\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['logicalChannel'].getIllumination(), required=False) 
             else:
                 self.fields['illumination'] = MetadataModelChoiceField(queryset=kwargs['initial']['illuminations'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['logicalChannel'].id)+', \'illumination\', this.options[this.selectedIndex].value);'}), required=False) 
-            self.fields['illumination'].widget.attrs['disabled'] = True 
-            self.fields['illumination'].widget.attrs['class'] = 'disable'
+            self.fields['illumination'].widget.attrs['disabled'] = True
         except:
             logger.error(traceback.format_exc())
             self.fields['illumination'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
-            self.fields['illumination'].widget.attrs['disabled'] = True 
-            self.fields['illumination'].widget.attrs['class'] = 'disabled'
+            self.fields['illumination'].widget.attrs['disabled'] = True
         
         # contrastMethods
         try:
@@ -1186,30 +1178,30 @@ class MetadataLightSourceForm(forms.Form):
         # Type
         try:
             if kwargs['initial']['lightSource'].getLightSourceType() is not None:
-                self.fields['type'] = MetadataModelChoiceField(queryset=kwargs['initial']['types'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'type\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['lightSource'].getLightSourceType().value, required=False) 
+                self.fields['lstype'] = MetadataModelChoiceField(queryset=kwargs['initial']['lstypes'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'type\', this.options[this.selectedIndex].value);'}), label="Type", initial=kwargs['initial']['lightSource'].getLightSourceType().value, required=False) 
             else:
-                self.fields['type'] = MetadataModelChoiceField(queryset=kwargs['initial']['types'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'type\', this.options[this.selectedIndex].value);'}), required=False) 
-            self.fields['type'].widget.attrs['disabled'] = True 
-            self.fields['type'].widget.attrs['class'] = 'disable'
+                self.fields['lstype'] = MetadataModelChoiceField(queryset=kwargs['initial']['lstypes'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'type\', this.options[this.selectedIndex].value);'}), label="Type", required=False) 
+            self.fields['lstype'].widget.attrs['disabled'] = True 
+            self.fields['lstype'].widget.attrs['class'] = 'disable'
         except:
             logger.error(traceback.format_exc())
-            self.fields['type'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
-            self.fields['type'].widget.attrs['disabled'] = True 
-            self.fields['type'].widget.attrs['class'] = 'disabled'
+            self.fields['lstype'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Type", required=False)
+            self.fields['lstype'].widget.attrs['disabled'] = True 
+            self.fields['lstype'].widget.attrs['class'] = 'disabled'
         
         # Medium
         try:
             if kwargs['initial']['lightSource'].getLaserMedium() is not None:
-                self.fields['medium'] = MetadataModelChoiceField(queryset=kwargs['initial']['mediums'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['lightSource'].getLaserMedium(), required=False) 
+                self.fields['lmedium'] = MetadataModelChoiceField(queryset=kwargs['initial']['mediums'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['lightSource'].getLaserMedium().value, label="Medium", required=False) 
             else:
-                self.fields['medium'] = MetadataModelChoiceField(queryset=kwargs['initial']['mediums'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), required=False) 
-            self.fields['medium'].widget.attrs['disabled'] = True 
-            self.fields['medium'].widget.attrs['class'] = 'disable'
+                self.fields['lmedium'] = MetadataModelChoiceField(queryset=kwargs['initial']['mediums'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['lightSource'].id)+', \'medium\', this.options[this.selectedIndex].value);'}), label="Medium", required=False) 
+            self.fields['lmedium'].widget.attrs['disabled'] = True 
+            self.fields['lmedium'].widget.attrs['class'] = 'disable'
         except:
             logger.error(traceback.format_exc())
-            self.fields['medium'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
-            self.fields['medium'].widget.attrs['disabled'] = True 
-            self.fields['medium'].widget.attrs['class'] = 'disabled'
+            self.fields['lmedium'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", label="Medium", required=False)
+            self.fields['lmedium'].widget.attrs['disabled'] = True 
+            self.fields['lmedium'].widget.attrs['class'] = 'disabled'
         
         # Wavelength
         try:
@@ -1309,7 +1301,7 @@ class MetadataLightSourceForm(forms.Form):
         #    self.fields['attenuation'].widget.attrs['disabled'] = True 
         #    self.fields['attenuation'].widget.attrs['class'] = 'disabled'
         
-        self.fields.keyOrder = ['manufacturer', 'model', 'serialNumber', 'lotNumber', 'power', 'type', 'medium', 'wavelength', 'frequencyMultiplication', 'tuneable', 'pulse' , 'repetitionRate', 'pockelCell']
+        self.fields.keyOrder = ['manufacturer', 'model', 'serialNumber', 'lotNumber', 'power', 'lstype', 'lmedium', 'wavelength', 'frequencyMultiplication', 'tuneable', 'pulse' , 'repetitionRate', 'pockelCell']
     
 
 class MetadataEnvironmentForm(forms.Form):
