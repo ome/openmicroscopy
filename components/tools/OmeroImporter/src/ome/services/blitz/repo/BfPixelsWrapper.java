@@ -100,14 +100,12 @@ public class BfPixelsWrapper {
     
     public byte[] getMessageDigest() throws IOException {
         MessageDigest md;
-
         try {
             md = MessageDigest.getInstance("SHA-1");
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(
                     "Required SHA-1 message digest algorithm unavailable.");
         }
-
         for (int t = 0; t < sizeT; t++) {
             try {
                 byte[] buffer = new byte[timepointSize];
@@ -117,7 +115,6 @@ public class BfPixelsWrapper {
                 throw new RuntimeException(e);
             }
         }
-
         return md.digest();
     }
 
@@ -131,17 +128,14 @@ public class BfPixelsWrapper {
             throw new DimensionsOutOfBoundsException("Y '" + y
                     + "' greater than sizeY '" + getSizeY() + "'.");
         }
-
         if (z != null && (z > sizeZ - 1 || z < 0)) {
             throw new DimensionsOutOfBoundsException("Z '" + z
                     + "' greater than sizeZ '" + getSizeZ() + "'.");
         }
-
         if (c != null && (c > sizeC - 1 || c < 0)) {
             throw new DimensionsOutOfBoundsException("C '" + c
                     + "' greater than sizeC '" + getSizeC() + "'.");
         }
-
         if (t != null && (t > sizeT - 1 || t < 0)) {
             throw new DimensionsOutOfBoundsException("T '" + t
                     + "' greater than sizeT '" + getSizeT() + "'.");
@@ -161,8 +155,7 @@ public class BfPixelsWrapper {
     }
     
     public void close() throws IOException {
-        // TODO Auto-generated method stub
-        
+        // TODO
     }
 
     public long getId() {
@@ -269,7 +262,6 @@ public class BfPixelsWrapper {
         return (long) t * timepointSize;
     }
 
-
     public byte[] getCol(Integer x, Integer z, Integer c, Integer t,
             byte[] buffer) throws IOException, DimensionsOutOfBoundsException {
         checkBounds(x, null, z, c, t);
@@ -304,13 +296,11 @@ public class BfPixelsWrapper {
     public byte[] getPlaneRegion(Integer z, Integer c, Integer t,
             Integer count, Integer offset, byte[] buffer) throws IOException,
             DimensionsOutOfBoundsException {
-        // TODO Auto-generated method stub
         return null;
     }
 
     public byte[] getRegion(Integer size, Long offset, byte[] buffer)
             throws IOException {
-        // TODO Auto-generated method stub
         return null;
     }
 
@@ -564,13 +554,13 @@ public class BfPixelsWrapper {
      * @throws IOException if there is an error read from the file.
      * @throws FormatException if there is an error during metadata parsing.
      */
-    private byte[] swapIfRequired(byte[] bytes)
+    public byte[] swapIfRequired(byte[] bytes)
         throws FormatException, IOException
     {
         // We've got nothing to do if the samples are only 8-bits wide.
         if (pixelSize == 1)
             return bytes;
-        
+
         boolean isLittleEndian = reader.isLittleEndian();
         ByteBuffer buffer = ByteBuffer.wrap(bytes);
         int length;
