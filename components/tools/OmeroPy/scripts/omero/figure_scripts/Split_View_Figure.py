@@ -218,8 +218,12 @@ def getSplitView(session, pixelIds, zStart, zEnd, splitIndexes, channelNames, co
                 re.setActive(index, True)                # turn channel on
                 if colourChannels:                            # if split channels are coloured...
                     if index in mergedIndexes:            # and this channel is in the combined image
-                        rgba = tuple(mergedColours[index])
-                        re.setRGBA(index, *rgba)        # set coloured 
+                        if index in mergedColours: 
+                            rgba = tuple(mergedColours[index])
+                            print "Setting channel to color", index, rgba
+                            re.setRGBA(index, *rgba)        # set coloured 
+                        else:
+                            mergedColours[index] = re.getRGBA(index)
                     else:
                         re.setRGBA(index,255,255,255,255)    # otherwise set white (max alpha)
                 else:
@@ -564,8 +568,7 @@ def splitViewFigure(session, commandArgs):
         for index in commandArgs["Split_Indexes"]:
             splitIndexes.append(index.getValue())
     else:
-        for c in range(sizeC):
-            splitIndexes = range(sizeC)
+        splitIndexes = range(sizeC)
     
     # Make channel-names map. If argument wasn't specified, name by index
     channelNames = {}
@@ -590,14 +593,7 @@ def splitViewFigure(session, commandArgs):
         mergedIndexes.sort()
         print mergedIndexes
     else:
-        mergedIndexes = range(sizeC)[1:]
-        for c in mergedIndexes:    # make up some colours 
-            if c%3 == 0:
-                mergedColours[c] = (0,0,255,255)    # blue
-            if c%3 == 1:
-                mergedColours[c] = (0,255,0,255)    # green
-            if c%3 == 2:
-                mergedColours[c] = (255,0,0,255)    # red
+        mergedIndexes = range(sizeC)
     
     colourChannels = True
     if "Split_Panels_Grey" in commandArgs and commandArgs["Split_Panels_Grey"]:
@@ -636,7 +632,13 @@ def splitViewFigure(session, commandArgs):
     mergedNames = False
     if "Merged_Names" in commandArgs:
         mergedNames = commandArgs["Merged_Names"]
-        
+    
+    print splitIndexes, "splitIndexes" 
+    print channelNames, "channelNames"
+    print colourChannels, "colourChannels"
+    print mergedIndexes, "mergedIndexes" 
+    print mergedColours, "mergedColours" 
+    print mergedNames, "mergedNames" 
     fig = makeSplitViewFigure(session, pixelIds, zStart, zEnd, splitIndexes, channelNames, colourChannels, 
                         mergedIndexes, mergedColours, mergedNames, width, height, imageLabels, algorithm, stepping, scalebar, overlayColour)
                                                     
@@ -684,23 +686,23 @@ def runAsScript():
      
     client = scripts.client('Split_View_Figure.py', """Create a figure of split-view images.
 See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#Split-viewFigure""", 
-    scripts.List("Image_IDs", optional=False, description="List of image IDs. Resulting figure will be attached to first image.").ofType(rlong(0)),
-    scripts.Int("Z_Start", description="Projection range (if not specified, use defaultZ only - no projection)", min=0),
-    scripts.Int("Z_End", description="Projection range (if not specified, use defaultZ only - no projection)", min=0),
-    scripts.Map("Channel_Names", description="Map of index: channel name for all channels"),
-    scripts.List("Split_Indexes", description="List of the channels in the split view").ofType(rint(0)),
-    scripts.Bool("Split_Panels_Grey", description="If true, all split panels are greyscale"),
-    scripts.Map("Merged_Colours", description="Map of index:int colours for each merged channel"),
-    scripts.Bool("Merged_Names", description="If true, label the merged panel with channel names. Otherwise label with 'Merged'"),
-    scripts.Int("Width", description="The max width of each image panel. Default is first image width", min=1),
-    scripts.Int("Height", description="The max height of each image panel. Default is first image height", min=1),
-    scripts.String("Image_Labels", description="Label images with Image name (default) or datasets or tags", values=labels),
-    scripts.String("Algorithm", description="Algorithum for projection.", values=algorithums),
-    scripts.Int("Stepping", description="The Z increment for projection.",default=1, min=1),
-    scripts.Int("Scalebar", description="Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
-    scripts.String("Format", description="Format to save image", values=formats, default='JPEG'),
-    scripts.String("Figure_Name", description="File name of the figure to save."),
-    scripts.String("Overlay_Colour", description="The colour of the scalebar.",default='White',values=oColours),
+    scripts.List("Image_IDs", grouping="1", optional=False, description="List of image IDs. Resulting figure will be attached to first image.").ofType(rlong(0)),
+    scripts.String("Algorithm", grouping="2", description="Algorithum for projection.", values=algorithums),
+    scripts.Int("Z_Start", grouping="2.1", description="Projection range (if not specified, use defaultZ only - no projection)", min=0),
+    scripts.Int("Z_End", grouping="2.2", description="Projection range (if not specified, use defaultZ only - no projection)", min=0),
+    scripts.Map("Channel_Names", grouping="4", description="Map of index: channel name for all channels"),
+    scripts.List("Split_Indexes", grouping="5", description="List of the channels in the split view").ofType(rint(0)),
+    scripts.Bool("Split_Panels_Grey", grouping="6", description="If true, all split panels are greyscale"),
+    scripts.Map("Merged_Colours", grouping="7", description="Map of index:int colours for each merged channel"),
+    scripts.Bool("Merged_Names", grouping="8", description="If true, label the merged panel with channel names. Otherwise label with 'Merged'"),
+    scripts.Int("Width", grouping="9", description="The max width of each image panel. Default is first image width", min=1),
+    scripts.Int("Height", grouping="91", description="The max height of each image panel. Default is first image height", min=1),
+    scripts.String("Image_Labels", grouping="92", description="Label images with Image name (default) or datasets or tags", values=labels),
+    scripts.Int("Stepping", grouping="93", description="The Z increment for projection.",default=1, min=1),
+    scripts.Int("Scalebar", grouping="94", description="Scale bar size in microns. Only shown if image has pixel-size info.", min=1),
+    scripts.String("Format", grouping="95", description="Format to save image", values=formats, default='JPEG'),
+    scripts.String("Figure_Name", grouping="96", description="File name of the figure to save."),
+    scripts.String("Overlay_Colour", grouping="97", description="The colour of the scalebar.",default='White',values=oColours),
     
     version = "4.2.0",
     authors = ["William Moore", "OME Team"],
