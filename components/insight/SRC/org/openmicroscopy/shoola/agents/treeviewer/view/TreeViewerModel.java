@@ -572,7 +572,7 @@ class TreeViewerModel
 	}
 
 	/**
-	 * Returns the first name and the last name of the currently 
+	 * Returns the first name and the last name of the currently
 	 * selected experimenter as a String.
 	 * 
 	 * @return See above.

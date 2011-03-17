@@ -51,18 +51,13 @@ import omero.model.FileAnnotation;
 import omero.model.IObject;
 import omero.model.Image;
 import omero.model.ImageAnnotationLink;
-import omero.model.LongAnnotation;
 import omero.model.Pixels;
-import omero.model.PlateAnnotationLink;
 import omero.model.Project;
 import omero.model.ProjectAnnotationLink;
 import omero.model.ProjectDatasetLink;
 import omero.model.Screen;
-import omero.model.ScreenAnnotationLink;
 import omero.model.ScreenPlateLink;
 import omero.model.TagAnnotation;
-import omero.model.WellAnnotationLink;
-import omero.model.WellSampleAnnotationLink;
 import omero.sys.Parameters;
 import omero.sys.ParametersI;
 import org.openmicroscopy.shoola.env.LookupNames;
@@ -442,13 +437,13 @@ class OmeroDataServiceImpl
 				cut((DataObject) parent, (Set) entry.getValue());
 		}
 
-		i = toPaste.keySet().iterator();
+		i = toPaste.entrySet().iterator();
 
 		while (i.hasNext()) {
 			entry = (Entry) i.next();
 			parent = entry.getKey();
 			if (parent instanceof DataObject)
-				addExistingObjects((DataObject) parent, 
+				addExistingObjects((DataObject) parent,
 						(Set) entry.getValue());
 		}
 	}
