@@ -26,15 +26,27 @@ class WrapperTest (lib.GTest):
         exp = self.gateway.getObject("Experimenter", e.id) # uses iQuery
         experimenter = self.gateway.getExperimenter(e.id)  # uses IAdmin
         
+        self.assertEqual(exp.getDetails().getOwner().omeName, experimenter.getDetails().getOwner().omeName)
+        
         # groupExperimenterMap not loaded for exp
         #for groupExpMap in exp.copyGroupExperimenterMap():
             #self.assertEqual(e.id, groupExpMap.child.id.val)
-            
+        groupIds = []
         for groupExpMap in experimenter.copyGroupExperimenterMap():
             self.assertEqual(e.id, groupExpMap.child.id.val)
+            groupIds.append(groupExpMap.parent.id.val)
             
-            
-        self.assertEqual(exp.getDetails().getOwner().omeName, experimenter.getDetails().getOwner().omeName)
+        groupGen = self.gateway.getObjects("ExperimenterGroup", groupIds)
+        gGen = self.gateway.getExperimenterGroups(groupIds)  # uses iQuery
+        groups = list(groupGen)
+        gs = list(gGen)
+        self.assertEqual(len(groups), len(groupIds))
+        for g in groups:
+            self.assertTrue(g.getId() in groupIds)
+            for m in g.copyGroupExperimenterMap():  # check exps are loaded
+                ex = m.child
+        for g in gs:
+            self.assertTrue(g.getId() in groupIds)
         
     def testGetAnnotations(self):
         
