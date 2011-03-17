@@ -45,9 +45,13 @@
     <script type="text/javascript">
         $(document).ready(function() 
             {
-                $('input#id_search').quicksearch('table#original_metadata tbody tr', {
+                $('input#search_global').quicksearch('table#global_metadata tbody tr', {
                 	'delay': 300,
-                    'loader': 'span.loading'
+                    'loader': 'span.loading_global'
+                });
+                $('input#search_series').quicksearch('table#series_metadata tbody tr', {
+                	'delay': 300,
+                    'loader': 'span.loading_series'
                 });
                 
                 $("#annotation_tabs").tabs();   
@@ -191,8 +195,8 @@
                     {% if manager.global_metadata %}
                     <h1>Global Metadata</h1>
                     <div style="height:250px; overflow:auto">
-                        <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% url webstatic "images/spinner.gif" %}"></span></form>
-                        <table id="original_metadata" class="metadata_details"><tbody>
+                        <form class="quicksearch" id="quicksearch_global" action="#"><label for="id_search">Filter:</label> <input type="text" id="search_global" value="search"> <span class="loading_global"><img class="loader" alt="Loading" src="{% url webstatic "images/spinner.gif" %}"></span></form>
+                        <table id="global_metadata" class="metadata_details"><tbody>
                             {% for gm in manager.global_metadata %}
                             <tr><td><label>{{ gm.0 }}</label></td><td>{{ gm.1 }}</td></tr>
                             {% endfor %}
@@ -205,8 +209,8 @@
                     <hr />
                     <h1>Series Metadata</h1>
                     <div style="height:250px; overflow:auto">
-                        <form class="quicksearch" id="quicksearch" action="#"><label for="id_search">Filter:</label> <input type="text" id="id_search" value="search"> <span class="loading"><img class="loader" alt="Loading" src="{% url webstatic "images/spinner.gif" %}"></span></form>
-                        <table id="original_metadata" class="metadata_details"><tbody>
+                        <form class="quicksearch" id="quicksearch_series" action="#"><label for="id_search">Filter:</label> <input type="text" id="search_series" value="search"> <span class="loading_series"><img class="loader" alt="Loading" src="{% url webstatic "images/spinner.gif" %}"></span></form>
+                        <table id="series_metadata" class="metadata_details"><tbody>
                             {% for sm in manager.series_metadata %}
                             <tr><td><label>{{ sm.0 }}</label></td><td>{{ sm.1 }}</td></tr>
                             {% endfor %}
