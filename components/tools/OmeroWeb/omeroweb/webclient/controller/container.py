@@ -126,8 +126,8 @@ class BaseContainer(BaseController):
             om = self.well.selectedWellSample().image().loadOriginalMetadata()
         if om is not None:
             self.original_metadata = om[0]
-            self.global_metadata = sorted(om[1])
-            self.series_metadata = sorted(om[2])
+            self.global_metadata = om[1]
+            self.series_metadata = om[2]
 
     def channelMetadata(self):
         self.channel_metadata = None
