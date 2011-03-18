@@ -826,6 +826,8 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
                 tiff_data = webgateway_cache.getOmeTiffImage(request, server_id, obj)
                 if tiff_data is None:
                     tiff_data = obj.exportOmeTiff()
+                    if tiff_data is None:
+                        continue
                     webgateway_cache.setOmeTiffImage(request, server_id, obj, tiff_data)
                 zobj.writestr(str(obj.getId()) + '-'+obj.getName() + '.ome.tiff', tiff_data)
             zobj.close()
@@ -1216,10 +1218,11 @@ def plateGrid_json (request, pid, server_id=None, _conn=None, **kwargs):
     grid = []
     prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
     def urlprefix(iid):
-        return reverse(prefix, args=(iid,64,48))
+        return reverse(prefix, args=(iid,64))
     xtra = {'thumbUrlPrefix': urlprefix}
+    plate.setGridSizeConstraints(8,12)
     for row in plate.getWellGrid():
-        grid.append(map(lambda x: x is not None and x.simpleMarshal(xtra=xtra) or None, [x.getImage() for x in row]))
+        grid.append(map(lambda x: x is not None and x.simpleMarshal(xtra=xtra) or None, [( x and x.getImage() ) for x in row]))
     return {'grid': grid,
             'collabels': plate.getColumnLabels(),
             'rowlabels': plate.getRowLabels()}

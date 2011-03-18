@@ -50,7 +50,7 @@ jQuery._WeblitzPlateview = function (container, options) {
   var _this = this;
   var thisid = this.self.attr('id');
 
-  var _reset = function (data, textStatus) {
+    var _reset = function (result, data) {
       _this.self.html("");
       var table = $('<table></table>').appendTo(_this.self);
       var tr = $('<tr></tr>').appendTo(table);
@@ -68,10 +68,12 @@ jQuery._WeblitzPlateview = function (container, options) {
           tr.append('<th>'+data.rowlabels[i]+'</th>');
           for (j in data.grid[i]) {
               if (data.grid[i][j] == null) {
-		  tr.append('<td>&nbsp</td>');
+		  tr.append('<td><div class="placeholder"></div></td>');
 	      } else {
-		  var td = $('<td><img src="'+ data.grid[i][j].thumb_url+'"></td>');
-		  $('img', td).click(tclick(data.grid[i][j]));
+		  var td = $('<td><div class="waiting"></div><img class="loading" src="'+ data.grid[i][j].thumb_url+'"></td>');
+		  $('img', td)
+		      .click(tclick(data.grid[i][j]))
+		      .load(function() { $(this).removeClass('loading').siblings().remove(); });
 		  tr.append(td);
 		  _this.self.trigger('thumbNew', [data.grid[i][j], $('img', td)]);
 	      }
@@ -80,7 +82,8 @@ jQuery._WeblitzPlateview = function (container, options) {
   }
 
   this.load = function (pid) {
-    jQuery.getJSON(opts.baseurl+'/plate/'+pid+'/?callback=?', _reset);
+      gs_modalJson(opts.baseurl+'/plate/'+pid+'/?callback=?', {}, _reset);
+//    jQuery.getJSON(opts.baseurl+'/plate/'+pid+'/?callback=?', _reset);
   }
 
   this.setFocus = function (elm, evt) {
