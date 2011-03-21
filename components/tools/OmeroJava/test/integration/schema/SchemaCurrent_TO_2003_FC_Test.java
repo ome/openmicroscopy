@@ -47,12 +47,13 @@ public class SchemaCurrent_TO_2003_FC_Test
 	/** The collection of files that have to be deleted. */
 	private List<File> files;
 	
-	/** The schema file. Decide where to put it. */
-	private File STYLESHEET = new File("2010-06-TO-2003-FC.xsl");
+	/** The transform file */
+	private File STYLESHEET = new File("../../../../../specification/Xslt/2010-06-TO-2003-FC.xsl");
+	//components/specification/Xslt/
 	
-	/** The schema file. Decide where to put it. */
-	private File SCHEMA_2003_FC = new File("ome.xsd");
-	//XML/Release/2003-FC/V2
+	/** The target schema file */
+	private File SCHEMA_2008_02 = new File("../../../../../specification/Released-Schema/2003-FC/V2/ome.xsd");
+	//components/specification/Released-Schema/2003-FC/V2/ome.xsd
 	
 	/** The path in front of ID. */
 	private String XSLT_PATH_ID = "xslt.fix";

@@ -49,13 +49,13 @@ public class SchemaCurrent_TO_2008_02_Test
 	/** The collection of files that have to be deleted. */
 	private List<File> files;
 	
-	/** The schema file. Decide where to put it. */
-	private File STYLESHEET = new File("2010-06-TO-2008-02.xsl");
+	/** The transform file */
+	private File STYLESHEET = new File("../../../../../specification/Xslt/2010-06-TO-2008-02.xsl");
 	//components/specification/Xslt/
 	
-	/** The schema file. Decide where to put it. */
-	private File SCHEMA_2008_02 = new File("ome.xsd");
-	//components/specification/Xml/Release/2008-02/V2/
+	/** The target schema file */
+	private File SCHEMA_2008_02 = new File("../../../../../specification/Released-Schema/2008-02/V2/ome.xsd");
+	//components/specification/Released-Schema/2008-02/V2/ome.xsd 
 	
 	/**
 	 * Checks if the <code>Image</code> tag was correctly transformed.
