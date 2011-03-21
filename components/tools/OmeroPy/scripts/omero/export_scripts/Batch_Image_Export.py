@@ -151,7 +151,7 @@ def makeImageName(originalName, cName, zRange, t, extension):
     E.g. imported/myImage.dv -> myImage_DAPI_z13_t01.png
     """
     name = originalName.split("/")[-1]
-    name = name.rsplit(".",1)[0]
+    #name = name.rsplit(".",1)[0]  # remove extension
     if len(zRange) == 2:
         z = "%02d-%02d" % (zRange[0], zRange[1])
     else:
@@ -276,13 +276,13 @@ def batchImageExport(session, scriptParams):
                 tRange = (min(sizeT-1,tStart), min(sizeT-1,tEnd) )
         return tRange
     
-    # images to export
-    images = containerService.getImages(dataType, ids, None)
-    print "Processing %s images" % len(images)
-    
     # services we need
     renderingEngine = session.createRenderingEngine()
     containerService = session.getContainerService()
+    
+    # images to export
+    images = containerService.getImages(dataType, ids, None)
+    print "Processing %s images" % len(images)
     
     # somewhere to put images
     curr_dir = os.getcwd()
