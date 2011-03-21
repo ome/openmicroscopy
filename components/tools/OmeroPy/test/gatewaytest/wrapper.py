@@ -19,6 +19,51 @@ class WrapperTest (lib.GTest):
         super(WrapperTest, self).setUp()
         self.loginAsAuthor()
         self.TESTIMG = self.getTestImage()
+
+
+    def testListProjects(self):
+        self.loginAsAuthor()
+        
+        # params limit query by owner
+        params = omero.sys.Parameters()
+        params.theFilter = omero.sys.Filter()
+        
+        # should be no Projects owned by root (in the current group)
+        params.theFilter.ownerId = omero.rtypes.rlong(0) # owned by 'root'
+        pros = self.gateway.getObjects("Project", None, params)
+        self.assertEqual(len(list(pros)), 0, "Should be no Projects owned by root")
+        
+        # filter by current user should get same as above.
+        params.theFilter.ownerId = omero.rtypes.rlong(self.gateway.getEventContext().userId) # owned by 'author'
+        pros = list( self.gateway.getObjects("Project", None, params) )
+        projects = list( self.gateway.listProjects(only_owned=True) )
+        self.assertEqual(len(pros), len(projects))  # check unordered lists are the same length & ids
+        projectIds = [p.getId() for p in projects]
+        for p in pros:
+            self.assertTrue(p.getId() in projectIds)
+
+
+    def testListExperimentersAndGroups(self):
+        self.loginAsAdmin()
+        
+        # experimenters
+        experimenters = list( self.gateway.listExperimenters() )
+        exps = list( self.gateway.getObjects("Experimenter", None) )
+        
+        self.assertEqual(len(exps), len(experimenters))  # check unordered lists are the same length & ids
+        eIds = [e.getId() for e in experimenters]
+        for e in exps:
+            self.assertTrue(e.getId() in eIds)
+            
+        # groups
+        groups = list( self.gateway.listGroups() )
+        gps = list( self.gateway.getObjects("ExperimenterGroup", None) )
+        
+        self.assertEqual(len(gps), len(groups))  # check unordered lists are the same length & ids
+        gIds = [g.getId() for g in gps]
+        for g in groups:
+            self.assertTrue(g.getId() in gIds)
+
         
     def testGetExperimenter(self):
         self.loginAsAdmin()
@@ -47,7 +92,8 @@ class WrapperTest (lib.GTest):
                 ex = m.child
         for g in gs:
             self.assertTrue(g.getId() in groupIds)
-        
+
+
     def testGetAnnotations(self):
         
         obj = self.TESTIMG
@@ -103,7 +149,7 @@ class WrapperTest (lib.GTest):
     def testGetProject (self):
         self.loginAsAuthor()
         testProj = self.getTestProject()
-        p = self.gateway.getObject("Project", 12334334)
+        p = self.gateway.getObject("Project", testProj.getId())
         self.assertEqual(testProj.getName(), p.getName())
         self.assertEqual(testProj.getDescription(), p.getDescription())
         self.assertEqual(testProj.getId(), p.getId())

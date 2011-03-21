@@ -2447,7 +2447,7 @@ class _BlitzGateway (object):
             return None
 
 
-    def getObjects(self, obj_type, ids):
+    def getObjects(self, obj_type, ids, params=None):
         """
         Retrieve Objects by type E.g. "Image" and given IDs. Not Ordered. 
         Returns generator of appropriate L{BlitzObjectWrapper} type. E.g. L{ImageWrapper}.
@@ -2470,17 +2470,31 @@ class _BlitzGateway (object):
             raise AttributeError("getObjects uses a string to define obj_type, E.g. 'Image'")
 
         q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["ids"] = rlist([rlong(a) for a in ids])
-        if obj_type in ["Project", "Dataset", "Image", "Screen", "Plate"]:
-            query = "select obj from %s obj join fetch obj.details.owner join fetch obj.details.group where obj.id in (:ids)" % obj_type
-        elif obj_type == "ExperimenterGroup":
-            query = "select distinct g from ExperimenterGroup as g join fetch g.groupExperimenterMap as map join fetch map.child e where g.id in (:ids)"
-        else:
-            query = "select obj from %s obj where obj.id in (:ids)" % obj_type
+        if params == None:
+            params = omero.sys.Parameters()
+        if params.map == None:
+            params.map = {}
 
-        result = q.findAllByQuery(query, p)
+        if obj_type in ["Project", "Dataset", "Image", "Screen", "Plate"]:
+            query = "select obj from %s obj join fetch obj.details.owner as owner join fetch obj.details.group" % obj_type
+        elif obj_type == "ExperimenterGroup":
+            query = "select distinct obj from ExperimenterGroup as obj left outer join fetch obj.groupExperimenterMap as map left outer join fetch map.child e"
+        else:
+            query = "select obj from %s obj" % obj_type
+
+        if ids != None:
+            print ids
+            query += " where obj.id in (:ids)"
+            params.map["ids"] = rlist([rlong(a) for a in ids])
+
+        # support filtering by owner for some object types
+        if params.theFilter and params.theFilter.ownerId and obj_type in ["Project", "Dataset", "Image", "Screen", "Plate"]:
+            query += (ids != None) and " and" or " where"
+            query += " owner.id = (:eid)"
+            eid = params.theFilter.ownerId
+            params.map["eid"] = eid
+
+        result = q.findAllByQuery(query, params)
         if obj_type == "Annotation":
             for r in result:
                 yield AnnotationWrapper._wrap(self, r)
