@@ -230,6 +230,26 @@ public class FileImportComponent
 	/** Flag indicating to show/hide the container label. */
 	private boolean showContainerLabel;
 	
+	/** The component used when importing a folder. */
+	private JXTaskPane pane;
+	
+	/** The parent of the node. */
+	private FileImportComponent parent;
+	
+	/** The total number of files to import. */
+	private int totalFiles;
+	
+	/** The value indicating the number of imports in the folder. */
+	private int importCount;
+	
+	/** Sets the text indicating the number of import. */
+	private void setNumberOfImport()
+	{
+		if (pane == null) return;
+		String text = file.getName()+": "+importCount+"/"+totalFiles+" files";//
+		pane.setTitle(text);
+	}
+	
 	/** Browses the node or the data object. */
 	private void browse()
 	{
@@ -438,9 +458,9 @@ public class FileImportComponent
 			return;
 		}
 		components = new HashMap<File, FileImportComponent>();
-		int n = files.size();
-		String text = "Importing "+n+" file";
-		if (n > 1) text += "s";
+		totalFiles = files.size();
+		String text = "Importing "+totalFiles+" file";
+		if (totalFiles > 1) text += "s";
 		statusLabel.setText(text);
 		
 		Entry entry;
@@ -464,6 +484,7 @@ public class FileImportComponent
 			c = new FileImportComponent(f, folderAsContainer);
 			if (f.isFile()) {
 				c.setLocation(data, d, node);
+				c.setParent(this);
 			}
 			c.showContainerLabel(showContainerLabel);
 			c.setType(getType());
@@ -478,7 +499,10 @@ public class FileImportComponent
 			index++;
 		}
 		removeAll();
-		JXTaskPane pane = EditorUtil.createTaskPane(file.getName()+": "+text);
+		pane = EditorUtil.createTaskPane("");
+		setNumberOfImport();
+		
+		
 		IconManager icons = IconManager.getInstance();
 		pane.setIcon(icons.getIcon(IconManager.DIRECTORY));
 		Font font = pane.getFont();
@@ -504,6 +528,7 @@ public class FileImportComponent
 		if (file == null)
 			throw new IllegalArgumentException("No file specified.");
 		this.file = file;
+		importCount = 0;
 		if (file.isFile()) folderAsContainer = false;
 		this.folderAsContainer = folderAsContainer;
 		initComponents();
@@ -577,6 +602,23 @@ public class FileImportComponent
 		repaint();
 	}
 	
+	/** Increases the number of imports. */
+	void increaseNumberOfImport()
+	{
+		importCount++;
+		setNumberOfImport();
+	}
+	
+	/** 
+	 * Sets the parent of the component.
+	 * 
+	 * @param parent The value to set.
+	 */
+	void setParent(FileImportComponent parent)
+	{
+		this.parent = parent;
+	}
+	
 	/**
 	 * Returns the components displaying the status of an on-going import.
 	 * 
@@ -595,6 +637,8 @@ public class FileImportComponent
 		this.image = image;	
 		busyLabel.setBusy(status);
 		busyLabel.setVisible(false);
+		importCount++;
+		if (parent != null) parent.increaseNumberOfImport();
 		if (image instanceof ImageData) {
 			ImageData img = (ImageData) image;
 			Exception error = null;

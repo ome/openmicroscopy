@@ -115,6 +115,9 @@ class ImporterUIElement
 	/** The component displaying the duration of the import. */
 	private JLabel timeLabel;
 	
+	/** The component displaying the number of files to import. */
+	private JLabel numberOfImportLabel;
+	
 	/** Flag indicating if the import is finished. */
 	private boolean done;
 	
@@ -150,6 +153,12 @@ class ImporterUIElement
 	
 	/** The existing containers. */
 	private List<DataObject> existingContainers;
+
+	/** Sets the text of indicating the number of imports. */
+	private void setNumberOfImport()
+	{
+		numberOfImportLabel.setText(countImported+"/"+totalToImport);
+	}
 	
 	/**
 	 * Browses the specified object.
@@ -201,6 +210,7 @@ class ImporterUIElement
 	/** Initializes the components. */
 	private void initialize()
 	{
+		numberOfImportLabel = UIUtilities.createComponent(null);
 		containerComponents = new LinkedHashMap<JLabel, Object>();
 		topContainerComponents = new LinkedHashMap<JLabel, Object>();
 		foldersName = new LinkedHashMap<JLabel, Object>();
@@ -348,8 +358,15 @@ class ImporterUIElement
 		c.insets = new Insets(0, 2, 2, 0);
 		c.gridy = 0;
 		c.gridx = 0;
-		JLabel label = UIUtilities.setTextFont("Import Time:", Font.BOLD);
+		JLabel label = UIUtilities.setTextFont("Number of Files/Folders:", 
+				Font.BOLD);
 		JLabel value;
+    	header.add(label, c);
+    	c.gridx = c.gridx+2;
+    	header.add(numberOfImportLabel, c);
+    	c.gridy++;
+    	c.gridx = 0;
+    	label = UIUtilities.setTextFont("Import Time:", Font.BOLD);
 		startImport = System.currentTimeMillis();
 		timeLabel = UIUtilities.createComponent(null);
 		timeLabel.setText(UIUtilities.formatShortDateTime(null));
@@ -555,6 +572,7 @@ class ImporterUIElement
 		}
 		entries.revalidate();
 		repaint();
+		setNumberOfImport();
 	}
 	
 	/**
@@ -663,6 +681,7 @@ class ImporterUIElement
 			c.setStatus(false, result);
 			countImported++;
 			done = countImported == totalToImport;
+			setNumberOfImport();
 			setClosable(done);
 			if (done) {
 				Iterator<JLabel> i = containerComponents.keySet().iterator();
