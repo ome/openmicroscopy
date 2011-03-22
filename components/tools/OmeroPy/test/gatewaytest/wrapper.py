@@ -21,6 +21,19 @@ class WrapperTest (lib.GTest):
         self.TESTIMG = self.getTestImage()
 
 
+    def testSearchObjects(self):
+        self.loginAsAuthor()
+
+        # search for Projects
+        projects = list( self.gateway.searchProjects("weblitz_test_priv_project") )
+        pros = list( self.gateway.searchObjects(["Project"], "weblitz_test_priv_project") )
+        self.assertEqual(len(pros), len(projects))  # check unordered lists are the same length & ids
+        projectIds = [p.getId() for p in projects]
+        for p in pros:
+            self.assertTrue(p.getId() in projectIds)
+            self.assertEqual(p.OMERO_CLASS, "Project", "Should only return Projects")
+
+
     def testListProjects(self):
         self.loginAsAuthor()
         
