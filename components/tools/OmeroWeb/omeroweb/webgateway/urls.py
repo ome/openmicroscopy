@@ -160,7 +160,7 @@ json method: returns list of Images belonging to specified Dataset. See L{views.
     - did:  Dataset ID
 """
 
-webgateway_plategrid_json = url(r'^plate/(?P<pid>[^/]+)/$', 'webgateway.views.plateGrid_json', name="webgateway_plategrid_json")
+webgateway_plategrid_json = url(r'^plate/(?P<pid>[^/]+)/(?:(?P<field>[^/]+)/)?$', 'webgateway.views.plateGrid_json', name="webgateway_plategrid_json")
 """
 """
 

@@ -1205,13 +1205,17 @@ def imageData_json (request, server_id=None, _conn=None, _internal=False, **kwar
     return rv
 
 @jsonp
-def plateGrid_json (request, pid, server_id=None, _conn=None, **kwargs):
+def plateGrid_json (request, pid, field=0, server_id=None, _conn=None, **kwargs):
     """
     """
     try:
         plate = _conn.getPlate(long(pid))
     except:
         return 'exception'
+    try:
+        field = int(field)
+    except ValueError:
+        field = 0
     if plate is None:
         return plate
         return HttpResponseServerError('""', mimetype='application/javascript')
@@ -1221,7 +1225,7 @@ def plateGrid_json (request, pid, server_id=None, _conn=None, **kwargs):
         return reverse(prefix, args=(iid,64))
     xtra = {'thumbUrlPrefix': urlprefix}
     plate.setGridSizeConstraints(8,12)
-    for row in plate.getWellGrid():
+    for row in plate.getWellGrid(field):
         grid.append(map(lambda x: x is not None and x.simpleMarshal(xtra=xtra) or None, [( x and x.getImage() ) for x in row]))
     return {'grid': grid,
             'collabels': plate.getColumnLabels(),

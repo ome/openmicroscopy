@@ -81,8 +81,11 @@ jQuery._WeblitzPlateview = function (container, options) {
       }
   }
 
-  this.load = function (pid) {
-      gs_modalJson(opts.baseurl+'/plate/'+pid+'/?callback=?', {}, _reset);
+  this.load = function (pid,field) {
+      if (field === undefined) {
+	  field = 0;
+      }
+      gs_modalJson(opts.baseurl+'/plate/'+pid+'/'+field+'/?callback=?', {}, _reset);
 //    jQuery.getJSON(opts.baseurl+'/plate/'+pid+'/?callback=?', _reset);
   }
 
