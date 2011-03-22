@@ -20,19 +20,8 @@ from omero.grid import monitors
 from fsAbstractPlatformMonitor import AbstractPlatformMonitor
 
 importlog = logging.getLogger("fsserver."+__name__)     
-import pyinotify
-try:
-    # pyinotify 0.8
-    importlog.info("Imported pyinotify version %s", str(pyinotify.__version__))
-    EventsCodes = pyinotify
-except AttributeError:
-    # pyinotify 0.7 or below
-    importlog.info("Imported pyinotify version <= 0.7.x")
-    try:
-        from pyinotify import EventsCodes
-    except:
-        from pyinotify import pyinotify
-        from pyinotify.pyinotify import EventsCodes
+from omero_ext import pyinotify
+importlog.info("Imported pyinotify version %s", str(pyinotify.__version__))
 
 class PlatformMonitor(AbstractPlatformMonitor):
     """
@@ -89,7 +78,7 @@ class PlatformMonitor(AbstractPlatformMonitor):
         
         self.wm = MyWatchManager()
         self.notifier = pyinotify.ThreadedNotifier(self.wm, ProcessEvent(wm=self.wm, cb=self.propagateEvents, et=self.eTypes,  ignoreDirEvents=self.ignoreDirEvents))      
-        self.wm.addBaseWatch(self.pathsToMonitor, (EventsCodes.ALL_EVENTS), rec=recurse, auto_add=follow)
+        self.wm.addBaseWatch(self.pathsToMonitor, (pyinotify.ALL_EVENTS), rec=recurse, auto_add=follow)
         self.log.info('Monitor set-up on %s', str(self.pathsToMonitor))
         self.log.info('Monitoring %s events', str(self.eTypes))
 
@@ -228,8 +217,8 @@ class ProcessEvent(pyinotify.ProcessEvent):
             name = name.replace('-unknown-path','')
             
         # New directory within watch area, either created or moved into.
-        if event.mask == (EventsCodes.IN_CREATE | EventsCodes.IN_ISDIR) \
-                or event.mask ==  (EventsCodes.IN_MOVED_TO | EventsCodes.IN_ISDIR):
+        if event.mask == (pyinotify.IN_CREATE | pyinotify.IN_ISDIR) \
+                or event.mask ==  (pyinotify.IN_MOVED_TO | pyinotify.IN_ISDIR):
             self.log.info('New directory event of type %s at: %s', maskname, name)
             if "Creation" in self.et:
                 if name.find('untitled folder') == -1:
@@ -267,8 +256,8 @@ class ProcessEvent(pyinotify.ProcessEvent):
                 self.log.info('Not propagated.')
                 
         # Deleted directory or one moved out of the watch area.
-        elif event.mask ==  (EventsCodes.IN_MOVED_FROM | EventsCodes.IN_ISDIR) \
-                or event.mask ==  (EventsCodes.IN_DELETE | EventsCodes.IN_ISDIR):
+        elif event.mask ==  (pyinotify.IN_MOVED_FROM | pyinotify.IN_ISDIR) \
+                or event.mask ==  (pyinotify.IN_DELETE | pyinotify.IN_ISDIR):
             self.log.info('Deleted directory event of type %s at: %s', maskname, name)
             if "Deletion" in self.et:
                 if name.find('untitled folder') == -1:
@@ -286,7 +275,7 @@ class ProcessEvent(pyinotify.ProcessEvent):
         # New file within watch area, either created or moved into.
         # The file may have been created but it may not be complete and closed.
         # Modifications should be watched
-        elif event.mask == EventsCodes.IN_CREATE:
+        elif event.mask == pyinotify.IN_CREATE:
             self.log.info('New file event of type %s at: %s', maskname, name)
             if "Creation" in self.et:
                 self.waitingCreates.add(name)
@@ -294,7 +283,7 @@ class ProcessEvent(pyinotify.ProcessEvent):
                 self.log.info('Not propagated.')
 
         # New file within watch area.
-        elif event.mask == EventsCodes.IN_MOVED_TO:
+        elif event.mask == pyinotify.IN_MOVED_TO:
             self.log.info('New file event of type %s at: %s', maskname, name)
             if "Creation" in self.et:
                 el.append((name, monitors.EventType.Create))
@@ -302,7 +291,7 @@ class ProcessEvent(pyinotify.ProcessEvent):
                 self.log.info('Not propagated.')
 
         # Modified file within watch area.
-        elif event.mask == EventsCodes.IN_CLOSE_WRITE:
+        elif event.mask == pyinotify.IN_CLOSE_WRITE:
             self.log.info('Modified file event of type %s at: %s', maskname, name)
             if name in self.waitingCreates:
                 if "Creation" in self.et:
@@ -317,7 +306,7 @@ class ProcessEvent(pyinotify.ProcessEvent):
                     self.log.info('Not propagated.')
 
         # Modified file within watch area, only notify if file is not waitingCreate.
-        elif event.mask == EventsCodes.IN_MODIFY:
+        elif event.mask == pyinotify.IN_MODIFY:
             self.log.info('Modified file event of type %s at: %s', maskname, name)
             if name not in self.waitingCreates:
                 if "Modification" in self.et:
@@ -327,7 +316,7 @@ class ProcessEvent(pyinotify.ProcessEvent):
                     
 
         # Deleted file  or one moved out of the watch area.
-        elif event.mask == EventsCodes.IN_MOVED_FROM or event.mask == EventsCodes.IN_DELETE:
+        elif event.mask == pyinotify.IN_MOVED_FROM or event.mask == pyinotify.IN_DELETE:
             self.log.info('Deleted file event of type %s at: %s', maskname, name)
             if "Deletion" in self.et:
                 el.append((name, monitors.EventType.Delete))
@@ -335,31 +324,31 @@ class ProcessEvent(pyinotify.ProcessEvent):
                 self.log.info('Not propagated.')
 
         # These are all the currently ignored events.
-        elif event.mask == EventsCodes.IN_ATTRIB:
+        elif event.mask == pyinotify.IN_ATTRIB:
             # Attributes have changed? Useful?
             self.log.debug('Ignored event of type %s at: %s', maskname, name)
-        elif event.mask == EventsCodes.IN_DELETE_SELF or event.mask == EventsCodes.IN_IGNORED:
+        elif event.mask == pyinotify.IN_DELETE_SELF or event.mask == pyinotify.IN_IGNORED:
             # This is when a directory being watched is removed, handled above.
             self.log.debug('Ignored event of type %s at: %s', maskname, name)
-        elif event.mask == EventsCodes.IN_MOVE_SELF:
+        elif event.mask == pyinotify.IN_MOVE_SELF:
             # This is when a directory being watched is moved out of the watch area (itself!), handled above.
             self.log.debug('Ignored event of type %s at: %s', maskname, name)
-        elif event.mask == EventsCodes.IN_OPEN | EventsCodes.IN_ISDIR :
+        elif event.mask == pyinotify.IN_OPEN | pyinotify.IN_ISDIR :
             # Event, dir open, we can ignore for now to reduce the log volume at any rate.
             self.log.debug('Ignored event of type %s at: %s', maskname, name)
-        elif event.mask == EventsCodes.IN_CLOSE_NOWRITE | EventsCodes.IN_ISDIR :
+        elif event.mask == pyinotify.IN_CLOSE_NOWRITE | pyinotify.IN_ISDIR :
             # Event, dir close, we can ignore for now to reduce the log volume at any rate.
             self.log.debug('Ignored event of type %s at: %s', maskname, name)
-        elif event.mask == EventsCodes.IN_ACCESS | EventsCodes.IN_ISDIR :
+        elif event.mask == pyinotify.IN_ACCESS | pyinotify.IN_ISDIR :
             # Event, dir access, we can ignore for now to reduce the log volume at any rate.
             self.log.debug('Ignored event of type %s at: %s', maskname, name)
-        elif event.mask == EventsCodes.IN_OPEN :
+        elif event.mask == pyinotify.IN_OPEN :
             # Event, file open, we can ignore for now to reduce the log volume at any rate.
             self.log.debug('Ignored event of type %s at: %s', maskname, name)
-        elif event.mask == EventsCodes.IN_CLOSE_NOWRITE :
+        elif event.mask == pyinotify.IN_CLOSE_NOWRITE :
             # Event, file close, we can ignore for now to reduce the log volume at any rate.
             self.log.debug('Ignored event of type %s at: %s', maskname, name)
-        elif event.mask == EventsCodes.IN_ACCESS :
+        elif event.mask == pyinotify.IN_ACCESS :
             # Event, file access, we can ignore for now to reduce the log volume at any rate.
             self.log.debug('Ignored event of type %s at: %s', maskname, name)
         
