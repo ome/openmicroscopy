@@ -192,8 +192,7 @@ class ImporterUIElement
 		label.setEnabled(browse);
 		if (browse) {
 			label.setBackground(UIUtilities.BACKGROUND_COLOR);
-			label.setToolTipText("Double-click to browse when import " +
-					"completed.");
+			label.setToolTipText("Browse when import completed.");
 		}
 		label.setText(name);
 		return label;
@@ -214,7 +213,7 @@ class ImporterUIElement
 			public void mousePressed(MouseEvent e)
 			{
 				Object src = e.getSource();
-				if (e.getClickCount() == 2 && src instanceof JLabel) {
+				if (e.getClickCount() == 1 && src instanceof JLabel) {
 					browse(foldersName.get((JLabel) src), null);
 				}
 			}
@@ -228,7 +227,7 @@ class ImporterUIElement
 			public void mousePressed(MouseEvent e)
 			{
 				Object src = e.getSource();
-				if (e.getClickCount() == 2 && src instanceof JLabel) {
+				if (e.getClickCount() == 1 && src instanceof JLabel) {
 					browse(containerComponents.get((JLabel) src), null);
 				}
 			}
@@ -370,11 +369,11 @@ class ImporterUIElement
 				entry = (Entry) i.next();
 				h = entry.getValue();
 				if (h instanceof DatasetData) {
-					text = "Imported in Dataset: ";
+					text = "Imported to Dataset: ";
 				} else if (h instanceof ScreenData) {
-					text = "Imported in Screen: ";
+					text = "Imported to Screen: ";
 				} else if (h instanceof ProjectData) {
-					text = "Imported in Project: ";
+					text = "Imported to Project: ";
 				}
 				header.add(UIUtilities.setTextFont(text, Font.BOLD), c);
 				c.gridx = c.gridx+2;
@@ -392,7 +391,7 @@ class ImporterUIElement
 				if (h instanceof FileImportComponent) {
 					fic = (FileImportComponent) h;
 					h = fic.getDataset();
-					text = "Imported in Dataset: ";
+					text = "Imported to Dataset: ";
 					header.add(UIUtilities.setTextFont(text, Font.BOLD), c);
 					c.gridx = c.gridx+2;
 					header.add((JLabel) entry.getKey(), c);

@@ -140,13 +140,11 @@ public class FileImportComponent
 	private static final String NOT_VIEW_TEXT = "Image not viewable";
 	
 	/** Tool tip text to indicate to browse the container. */
-	private static final String BROWSE_CONTAINER_TOOLTIP = 
-		"Double-click to browse.";
-	
+	private static final String BROWSE_CONTAINER_TOOLTIP = "Click to browse.";
+
 	/** Text to indicate to browse the container. */
-	private static final String BROWSE_CONTAINER_TEXT = 
-		"Browse container";
-	
+	private static final String BROWSE_CONTAINER_TEXT = "Browse container";
+
 	/** The number of extra labels for images to add. */
 	private static final int NUMBER = 3;
 	
@@ -160,14 +158,9 @@ public class FileImportComponent
 	private static final int BROWSE_ID = 2;
 
 	/** Text indicating where the images where imported. */
-	private static final String TEXT_DATASET = "Imported in:";
-	
-	/** Text indicating where the plates where imported. */
-	private static final String TEXT_SCREEN = "Imported in:";
-	
-	/** Text indicating where the plates where imported. */
-	private static final String TEXT_PROJECT = "Imported in:";
-	
+	private static final String TEXT_IMPORTED = "Imported to:";
+
+
 	/** One of the constants defined by this class. */
 	private int				type;
 	
@@ -297,7 +290,7 @@ public class FileImportComponent
 			 */
 			public void mousePressed(MouseEvent e)
 			{ 
-				if (e.getClickCount() == 2) {
+				if (e.getClickCount() == 1) {
 					if (image instanceof ThumbnailData) {
 						ThumbnailData data = (ThumbnailData) image;
 						EventBus bus = 
@@ -534,24 +527,24 @@ public class FileImportComponent
 			TreeImageDisplay n = (TreeImageDisplay) refNode;
 			Object ho = n.getUserObject();
 			if (ho instanceof DatasetData) {
-				containerLabel.setText(TEXT_DATASET);
+				containerLabel.setText(TEXT_IMPORTED);
 				browseButton.setText(((DatasetData) ho).getName());
 			} else if (ho instanceof ProjectData) {
-				containerLabel.setText(TEXT_PROJECT);
+				containerLabel.setText(TEXT_IMPORTED);
 				browseButton.setText(((ProjectData) data).getName());
 			} else if (ho instanceof ScreenData) {
-				containerLabel.setText(TEXT_SCREEN);
+				containerLabel.setText(TEXT_IMPORTED);
 				browseButton.setText(((ScreenData) data).getName());
 			}
 			return;
 		}
 		if (dataset != null) {
-			containerLabel.setText(TEXT_DATASET);
+			containerLabel.setText(TEXT_IMPORTED);
 			browseButton.setText(dataset.getName());
 			return;
 		}
 		if (data != null && data instanceof ScreenData) {
-			containerLabel.setText(TEXT_SCREEN);
+			containerLabel.setText(TEXT_IMPORTED);
 			browseButton.setText(((ScreenData) data).getName());	
 		}
 	}
