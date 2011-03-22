@@ -44,7 +44,7 @@ form dir {
 </style>
 
 <script type="text/javascript" src="{% url webstatic "javascript/jquery_1.3.2.js" %}"></script>
-<script type="text/javascript" src="{% url webfigure_media 'js/image_dims.js' %}"></script>
+<script type="text/javascript" src="{% url statictest 'js/image_dims.js' %}"></script>
 
 </head>
 
@@ -52,8 +52,8 @@ form dir {
     
 <!-- top elements span page -->
 <div id="top-nav">
-    <a href="{% url webfigure_index %}">Home</a> |
-    <a href="{% url webfigure_logout %}">Logout</a>
+    <a href="{% url webtest_index %}">Home</a> |
+    <a href="{% url webtest_logout %}">Logout</a>
 </div>
 
 <div>
