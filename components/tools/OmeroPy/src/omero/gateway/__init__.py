@@ -3069,6 +3069,48 @@ class _BlitzGateway (object):
         
         return self.simpleSearch(text=text, created=created, types=(PlateWrapper,))
 
+
+    def searchObjects(self, obj_types, text, created=None):
+        """
+        Search objects of type "Project", "Dataset", "Image", "Screen", "Plate"
+        Returns a list of results
+        
+        @param obj_types:   E.g. ["Dataset", "Image"]
+        @param text:        The text to search for
+        @param created:     L{omero.rtime} list or tuple (start, stop)
+        @return:            List of Object wrappers. E.g. L{ImageWrapper}
+        """
+        if not text:
+            return []
+        if isinstance(text, UnicodeType):
+            text = text.encode('utf8')
+        if obj_types is None:
+            types = (ProjectWrapper, DatasetWrapper, ImageWrapper)
+        else:
+            def getWrapper(obj_type):
+                if obj_type not in ["Project", "Dataset", "Image", "Screen", "Plate"]:
+                    raise AttributeError("Can only search for 'Project', 'Dataset', 'Image', 'Screen', 'Plate'")
+                return getattr(omero.gateway, '%sWrapper' % obj_type)
+            types = [getWrapper(o) for o in obj_types]
+        search = self.createSearchService()
+        if created:
+            search.onlyCreatedBetween(created[0], created[1]);
+        if text[0] in ('?','*'):
+            search.setAllowLeadingWildcard(True)
+        rv = []
+        for t in types:
+            def actualSearch ():
+                search.onlyType(t().OMERO_CLASS)
+                search.byFullText(text)
+            timeit(actualSearch)()
+            if search.hasNext():
+                def searchProcessing ():
+                    rv.extend(map(lambda x: t(self, x), search.results()))
+                timeit(searchProcessing)()
+        search.close()
+        return rv
+
+
     def simpleSearch (self, text, created=None, types=None):
         """
         Fulltext search on Projects, Datasets and Images. Used by other search methods above.
