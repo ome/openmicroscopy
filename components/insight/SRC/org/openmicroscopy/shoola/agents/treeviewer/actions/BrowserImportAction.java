@@ -38,6 +38,7 @@ import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DatasetData;
+import pojos.ImageData;
 import pojos.ProjectData;
 import pojos.ScreenData;
 
@@ -58,9 +59,6 @@ public class BrowserImportAction
 	extends BrowserAction
 {
 
-    /** The description of the action. */
-    private static final String DESCRIPTION = "Import the selected images.";
-    
     /** 
      * Sets the action enabled depending on the state of the {@link Browser}.
      * @see BrowserAction#onStateChange()
@@ -92,6 +90,7 @@ public class BrowserImportAction
             Object ho = selectedDisplay.getUserObject();
             if (ho == null) setEnabled(true);
             else {
+            	/*
             	TreeImageDisplay[] nodes = model.getSelectedDisplays();
                 if (nodes != null && nodes.length > 1) {
                 	setEnabled(false);
@@ -101,6 +100,11 @@ public class BrowserImportAction
                 		setEnabled(model.isUserOwner(ho));
                 	else setEnabled(true);
                 }
+                */
+            	if (ho instanceof ProjectData || ho instanceof DatasetData ||
+            			ho instanceof ScreenData || ho instanceof ImageData) 
+            		setEnabled(model.isUserOwner(ho));
+            	else setEnabled(true);
             }
     	} else setEnabled(false);
     }
@@ -113,8 +117,19 @@ public class BrowserImportAction
 	public BrowserImportAction(Browser model)
 	{
 		super(model);
-		putValue(Action.SHORT_DESCRIPTION, 
-				UIUtilities.formatToolTipText(DESCRIPTION));
+		switch (model.getBrowserType()) {
+			case Browser.SCREENS_EXPLORER:
+				putValue(Action.SHORT_DESCRIPTION, 
+						UIUtilities.formatToolTipText(
+								ImportAction.DESCRIPTION_SCREEN));
+				break;
+			case Browser.PROJECTS_EXPLORER:
+			default:
+				putValue(Action.SHORT_DESCRIPTION, 
+						UIUtilities.formatToolTipText(
+								ImportAction.DESCRIPTION_DATASET));
+				break;
+		}
 		IconManager im = IconManager.getInstance();
 		putValue(Action.SMALL_ICON, im.getIcon(IconManager.IMPORTER));
 	}
@@ -126,6 +141,12 @@ public class BrowserImportAction
     public void actionPerformed(ActionEvent e)
     {
     	TreeImageDisplay display = model.getLastSelectedDisplay();
+    	Object o = display.getUserObject();
+    	if (o instanceof ImageData) {
+    		TreeImageDisplay p = display.getParentDisplay();
+    		if (p == null) return;
+    		display = p;
+    	}
     	LoadImporter event = null;
     	int type = LoadImporter.PROJECT_TYPE;
     	switch (model.getBrowserType()) {

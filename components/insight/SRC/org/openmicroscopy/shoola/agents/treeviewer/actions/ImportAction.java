@@ -32,6 +32,7 @@ import javax.swing.Action;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.treeviewer.IconManager;
+import org.openmicroscopy.shoola.agents.treeviewer.TreeViewerAgent;
 import org.openmicroscopy.shoola.agents.treeviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.treeviewer.cmd.CreateCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
@@ -58,12 +59,16 @@ public class ImportAction
 	extends TreeViewerAction
 {
 
-	/** The name of the action. */
-    private static final String NAME = "Import...";
+    /** The description of the action. */
+    static final String DESCRIPTION_DATASET = 
+    	"Launch the Importer. Import data to Project, Datasets...";
     
     /** The description of the action. */
-    private static final String DESCRIPTION = "Import the selected files or " +
-    		"folders.";
+    static final String DESCRIPTION_SCREEN = 
+    	"Launch the Importer. Import data to Screen...";
+    
+	/** The name of the action. */
+    private static final String NAME = "Import...";
     
     /** Flag indicating not to select any node. */
     private boolean noNode;
@@ -127,8 +132,12 @@ public class ImportAction
 		super(model);
 		this.noNode = noNode;
 		name = NAME;  
-		putValue(Action.SHORT_DESCRIPTION, 
-				UIUtilities.formatToolTipText(DESCRIPTION));
+		if (TreeViewerAgent.isSPWFirst()) 
+			putValue(Action.SHORT_DESCRIPTION, 
+					UIUtilities.formatToolTipText(DESCRIPTION_SCREEN));
+		else 
+			putValue(Action.SHORT_DESCRIPTION, 
+					UIUtilities.formatToolTipText(DESCRIPTION_DATASET));
 		IconManager im = IconManager.getInstance();
 		putValue(Action.SMALL_ICON, im.getIcon(IconManager.IMPORTER));
 	}
