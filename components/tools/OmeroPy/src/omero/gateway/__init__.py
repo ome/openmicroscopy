@@ -3085,7 +3085,7 @@ class _BlitzGateway (object):
             def getWrapper(obj_type):
                 if obj_type not in ["Project", "Dataset", "Image", "Screen", "Plate"]:
                     raise AttributeError("Can only search for 'Project', 'Dataset', 'Image', 'Screen', 'Plate'")
-                return getattr(omero.gateway, '%sWrapper' % obj_type)
+                return KNOWN_WRAPPERS.get(obj_type.lower(), None)
             types = [getWrapper(o) for o in obj_types]
         search = self.createSearchService()
         if created:
