@@ -185,18 +185,7 @@ public class ImportDialog
 	private static final String SUB_MESSAGE = "The name of the file will be, " +
 			"by default, the absolute path. \n You can modify the name " +
 			"by setting the number of directories before the file's name.";
-	
-	/** Message if projects are selected. */
-	private static final String OTHER_AS_CONTAINER = "Images " +
-			"imported in Dataset (if folder not converted):";
-	
-	/** Message indicating where to import the data. */
-	private static final String IMPORT_DATA = "Import Data in ";
-	
-	/** Message if no containers specified. */
-	//private static final String NO_CONTAINER = "No container specified, " +
-	//		"orphaned images imported in Dataset: ";
-	
+
 	/** Warning when de-selecting the name overriding option. */
 	private static final List<String> WARNING;
 	
@@ -1143,20 +1132,25 @@ public class ImportDialog
 		JPanel row = createRow();
 		String message = PROJECT_TXT;
 		String text = MESSAGE;
+		IconManager icons = IconManager.getInstance();
+		Icon icon = icons.getIcon(IconManager.PROJECT);
 		if (type == Importer.SCREEN_TYPE) {
 			message = SCREEN_TXT;
 			text = MESSAGE_PLATE;
+			icon = icons.getIcon(IconManager.SCREEN);
 		}
 		row.add(new JLabel(text));
 		locationPane.add(row);
 		row = createRow();
 		
+		row.add(new JLabel(icon));
 		row.add(UIUtilities.setTextFont(message));
 		row.add(parentsBox);
 		row.add(addProjectButton);
 		locationPane.add(row);
 		if (type == Importer.PROJECT_TYPE) {
 			row = createRow();
+			row.add(new JLabel(icons.getIcon(IconManager.DATASET)));
 			row.add(UIUtilities.setTextFont(DATASET_TXT));
 			row.add(datasetsBox);
 			row.add(addButton);
