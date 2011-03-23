@@ -2442,7 +2442,7 @@ class _BlitzGateway (object):
             return None
 
 
-    def getObject(self, obj_type, oid):
+    def getObject (self, obj_type, oid):
         """
         Convenience method for L{getObjects}. Returns a single wrapped object or None. 
         """
@@ -2453,17 +2453,17 @@ class _BlitzGateway (object):
             return None
 
 
-    def getObjects(self, obj_type, ids, params=None):
+    def getObjects (self, obj_type, ids, params=None):
         """
-        Retrieve Objects by type E.g. "Image" and given IDs. Not Ordered. 
+        Retrieve Objects by type E.g. "Image". Not Ordered. 
         Returns generator of appropriate L{BlitzObjectWrapper} type. E.g. L{ImageWrapper}.
+        If ids == None, all available objects will be returned. i.e. listObjects()
         
         @param obj_type:    Object type. E.g. "Project" see above
         @type obj_type:     String
         @param ids:         object IDs
         @type ids:          List of Long
-        @return:            Generator yielding Images
-        @rtype:             see above
+        @return:            Generator yielding wrapped objects.
         """
 
         if type(obj_type) is type(''):
@@ -2496,6 +2496,58 @@ class _BlitzGateway (object):
         result = q.findAllByQuery(query, params)
         for r in result:
             yield wrapper(self, r)
+
+
+    def getAnnotationLinks (self, parent_type, parent_ids=None, ann_ids=None, ns=None, params=None):
+        """
+        Retrieve Annotation Links by parent_type E.g. "Image". Not Ordered. 
+        Returns generator of L{AnnotationLinkWrapper}
+        If parent_ids == None, all available objects will be returned. i.e. listObjects()
+
+        @param obj_type:    Object type. E.g. "Project" see above
+        @type obj_type:     String
+        @param ids:         object IDs
+        @type ids:          List of Long
+        @return:            Generator yielding wrapped objects.
+        """
+
+        if parent_type not in ["Project", "Dataset", "Image", "Screen", "Plate"]:
+            raise AttributeError("Can only get Annotations on 'Project', 'Dataset', 'Image', 'Screen', 'Plate'")
+        wrapper = KNOWN_WRAPPERS.get(parent_type.lower(), None)
+
+        query = "select annLink from %sAnnotationLink as annLink join fetch annLink.details.owner as owner " \
+                "join fetch annLink.details.creationEvent " \
+                "join fetch annLink.child as ann join fetch annLink.parent as parent" % wrapper().OMERO_CLASS
+
+        q = self.getQueryService()
+        if params == None:
+            params = omero.sys.Parameters()
+        if params.map == None:
+            params.map = {}
+
+        clauses = []
+        if parent_ids:
+            clauses.append("parent.id in (:pids)")
+            params.map["pids"] = rlist([rlong(a) for a in parent_ids])
+
+        if ann_ids:
+            clauses.append("ann.id in (:ann_ids)")
+            params.map["ann_ids"] = rlist([rlong(a) for a in ann_ids])
+
+        if ns:
+            clauses.append("ann.ns in (:ns)")
+            params.map["ns"] = rstring(ns)
+
+        if params.theFilter and params.theFilter.ownerId:
+            clauses.append("owner.id = (:eid)")
+            params.map["eid"] = params.theFilter.ownerId
+
+        if len(clauses) > 0:
+            query += " where %s" % (" and ".join(clauses))
+
+        result = q.findAllByQuery(query, params)
+        for r in result:
+            yield AnnotationLinkWrapper(self, r)
 
 
     def getObjectsByAnnotations(self, obj_type, annids):
