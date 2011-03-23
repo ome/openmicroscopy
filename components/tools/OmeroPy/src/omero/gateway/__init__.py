@@ -191,6 +191,12 @@ class BlitzObjectWrapper (object):
         if hasattr(self, '_oid'):
             return '<%s id=%s>' % (self.__class__.__name__, str(self._oid))
         return super(BlitzObjectWrapper, self).__repr__()
+        
+    def getQueryString(self):
+        """
+        Used for building queries in generic methods such as getObjects("Project")
+        """
+        return "select obj from %s obj join fetch obj.details.owner as owner join fetch obj.details.group" % self.OMERO_CLASS
 
     def _getChildWrapper (self):
         """
@@ -2473,12 +2479,8 @@ class _BlitzGateway (object):
         if params.map == None:
             params.map = {}
 
-        if obj_type in ["Project", "Dataset", "Image", "Screen", "Plate"]:
-            query = "select obj from %s obj join fetch obj.details.owner as owner join fetch obj.details.group" % obj_type
-        elif obj_type == "ExperimenterGroup":
-            query = "select distinct obj from ExperimenterGroup as obj left outer join fetch obj.groupExperimenterMap as map left outer join fetch map.child e"
-        else:
-            query = "select obj from %s obj" % obj_type
+        # get the base query from the instantiated object itself. E.g "select obj Project as obj"
+        query = wrapper().getQueryString()
 
         if ids != None:
             query += " where obj.id in (:ids)"
@@ -3459,6 +3461,12 @@ class AnnotationWrapper (BlitzObjectWrapper):
         """
         return type(a) == type(self) and self._obj.id == a._obj.id and self.getValue() == a.getValue() and self.getNs() == a.getNs()
 
+    def getQueryString(self):
+        """
+        Used for building queries in generic methods such as getObjects("Annotation")
+        """
+        return "select obj from Annotation obj join fetch obj.details.owner as owner join fetch obj.details.group"
+        
     @classmethod
     def _register (klass, regklass):
         """
@@ -3470,7 +3478,7 @@ class AnnotationWrapper (BlitzObjectWrapper):
         klass.registry[regklass.OMERO_TYPE] = regklass
 
     @classmethod
-    def _wrap (klass, conn, obj, link=None):
+    def _wrap (klass, conn=None, obj=None, link=None):
         """
         Class method for creating L{AnnotationWrapper} subclasses based on the type of 
         annotation object, using previously registered mapping between OMERO types and wrapper classes
@@ -3484,6 +3492,8 @@ class AnnotationWrapper (BlitzObjectWrapper):
         @return:    Wrapped AnnotationWrapper object or None if obj.__class__ not registered
         @rtype:     L{AnnotationWrapper} subclass
         """
+        if obj == None:
+            return AnnotationWrapper()
         if obj.__class__ in klass.registry:
             kwargs = dict()
             if link is not None:
@@ -3934,6 +3944,12 @@ class _ExperimenterWrapper (BlitzObjectWrapper):
                    })
         return rv
 
+    def getQueryString(self):
+        """ 
+        Returns string for building queries, loading Experimenters only. 
+        """
+        return "select distinct obj from Experimenter as obj"
+
     def getRawPreferences (self):
         """
         Returns the experimenter's preferences annotation contents, as a ConfigParser instance
@@ -4158,6 +4174,15 @@ class _ExperimenterGroupWrapper (BlitzObjectWrapper):
         if self._conn.getEventContext().groupId in self._conn.getEventContext().leaderOfGroups:
             return True
         return False
+        
+    def getQueryString(self):
+        """ 
+        Returns string for building queries, loading Experimenters for each group. 
+        """
+        query = "select distinct obj from ExperimenterGroup as obj left outer join fetch obj.groupExperimenterMap " \
+            "as map left outer join fetch map.child e"
+        return query
+        
 
 ExperimenterGroupWrapper = _ExperimenterGroupWrapper
 
