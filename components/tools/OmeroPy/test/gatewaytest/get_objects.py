@@ -133,7 +133,7 @@ class GetObjectTest (lib.GTest):
         
         # get the Comment 
         a = self.gateway.getAnnotation(ann.id)
-        annotation = self.gateway.getObject("Annotation", ann.id)
+        annotation = self.gateway.getObject("CommentAnnotation", ann.id)
         self.assertEqual(a.id, annotation.id)
         self.assertEqual(a.ns, annotation.ns)
         self.assertEqual("Test Comment", annotation.textValue)
