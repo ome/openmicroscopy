@@ -25,13 +25,23 @@ class WrapperTest (lib.GTest):
         self.loginAsAuthor()
 
         # search for Projects
-        projects = list( self.gateway.searchProjects("weblitz_test_priv_project") )
-        pros = list( self.gateway.searchObjects(["Project"], "weblitz_test_priv_project") )
+        projects = list( self.gateway.searchProjects("weblitz") )
+        pros = list( self.gateway.searchObjects(["Project"], "weblitz") )
         self.assertEqual(len(pros), len(projects))  # check unordered lists are the same length & ids
         projectIds = [p.getId() for p in projects]
         for p in pros:
             self.assertTrue(p.getId() in projectIds)
             self.assertEqual(p.OMERO_CLASS, "Project", "Should only return Projects")
+
+        # P/D/I is default objects to search
+        pdis = list( self.gateway.simpleSearch("weblitz") )
+        pdis.sort(key=lambda r: "%s%s"%(r.OMERO_CLASS, r.getId()) )
+        pdiResult = list( self.gateway.searchObjects(None, "weblitz") )
+        pdiResult.sort(key=lambda r: "%s%s"%(r.OMERO_CLASS, r.getId()) )
+        # can directly check that sorted lists are the same
+        for r1, r2 in zip(pdis, pdiResult):
+            self.assertEqual(r1.OMERO_CLASS, r2.OMERO_CLASS)
+            self.assertEqual(r1.getId(), r2.getId())
 
 
     def testListProjects(self):
