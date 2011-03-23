@@ -47,9 +47,11 @@ temp-testng-customsuite.xml
 .settings
 .springBeans
 /components/tools/OmeroCpp/compiler.log
+/components/xsd-fu/xsd_fu.egg-info/
 # Scons output files
 .sconsign.dblite
 *.dylib
+*.egg
 *.os
 omero_version.py
 eclipse.log
