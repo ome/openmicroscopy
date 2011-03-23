@@ -243,7 +243,7 @@ class ImporterUIElement
 			}
 		};
 		countImported = 0;
-		setClosable(true);
+		//setClosable(true);
 		addPropertyChangeListener(controller);
 		entries = new JPanel();
 		entries.setBackground(UIUtilities.BACKGROUND);
@@ -763,7 +763,7 @@ class ImporterUIElement
 	/** Indicates that the import has started. */
 	void startImport()
 	{ 
-		setClosable(true);
+		//setClosable(true);
 		repaint();
 	}
 	
