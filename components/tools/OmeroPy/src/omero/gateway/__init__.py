@@ -2461,11 +2461,9 @@ class _BlitzGateway (object):
         """
 
         if type(obj_type) is type(''):
-            # resolve class
-            wrapperName = '%sWrapper' % obj_type
-            if not hasattr(omero.gateway, wrapperName):
-                wrapperName = "BlitzObjectWrapper"
-            objWrapper = getattr(omero.gateway, wrapperName)
+            wrapper = KNOWN_WRAPPERS.get(obj_type.lower(), None)
+            if wrapper == None:
+                raise KeyError("obj_type of %s not supported by getOjbects(). E.g. use 'Image' etc" % obj_type)
         else:
             raise AttributeError("getObjects uses a string to define obj_type, E.g. 'Image'")
 
@@ -2483,7 +2481,6 @@ class _BlitzGateway (object):
             query = "select obj from %s obj" % obj_type
 
         if ids != None:
-            print ids
             query += " where obj.id in (:ids)"
             params.map["ids"] = rlist([rlong(a) for a in ids])
 
@@ -2495,12 +2492,8 @@ class _BlitzGateway (object):
             params.map["eid"] = eid
 
         result = q.findAllByQuery(query, params)
-        if obj_type == "Annotation":
-            for r in result:
-                yield AnnotationWrapper._wrap(self, r)
-        else:
-            for r in result:
-                yield objWrapper(self, r)
+        for r in result:
+            yield wrapper(self, r)
 
 
     def getObjectsByAnnotations(self, obj_type, annids):
@@ -6886,3 +6879,23 @@ class _InstrumentWrapper (BlitzObjectWrapper):
         return rv
 
 InstrumentWrapper = _InstrumentWrapper
+
+KNOWN_WRAPPERS = {}
+
+
+def refreshWrappers ():
+    """
+    this needs to be called by modules that extend the base wrappers
+    """
+    KNOWN_WRAPPERS.update({"project":ProjectWrapper,
+                  "dataset":DatasetWrapper,
+                  "image":ImageWrapper,
+                  "screen":ScreenWrapper,
+                  "plate":PlateWrapper,
+                  "well":WellWrapper,
+                  "experimenter":ExperimenterWrapper,
+                  "experimentergroup":ExperimenterGroupWrapper,
+                  "commentannotation":CommentAnnotationWrapper, # could add other annotation types...?
+                  "annotation":AnnotationWrapper._wrap})        # ...or let them all be handled here.
+
+refreshWrappers()
