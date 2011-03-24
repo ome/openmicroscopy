@@ -3011,11 +3011,52 @@ class _BlitzGateway (object):
         if not child:
             op["/Plate"] = "KEEP"
         return self.simpleDelete('Screen', [oid], op)
-    
+
+
+    def deleteObjects(self, obj_type, obj_ids, deleteAnns=False, deleteChildren=False):
+        """
+        TODO: - deleteObjects should be the only delete method. simpleDelete should be removed and the code
+        ported to the deleteObjects method.
+        
+        Generic method for deleting using the delete queue. 
+        Supports deletion of 'Project', 'Dataset', 'Image', 'Screen', 'Plate', 'Well', 'Annotation'.
+        Options allow to delete 'independent' Annotations (Tag, Term, File) and to delete child objects.
+        
+        @param obj_type:        String to indicate 'Project', 'Image' etc. 
+        @param obj_ids:         List of IDs for the objects to delete
+        @param deleteAnns:      If true, delete linked Tag, Term and File annotations
+        @param deleteChildren:  If true, delete children. E.g. Delete Project AND it's Datasets & Images.  
+        @return:                Delete handle
+        @rtype:                 L{omero.api.delete.DeleteHandle}
+        """
+
+        op = dict()
+        if not deleteAnns:            
+            op["/TagAnnotation"] = "KEEP"
+            op["/TermAnnotation"] = "KEEP"
+            op["/FileAnnotation"] = "KEEP"
+
+        childTypes = {'Project':['/Dataset', '/Image'], 
+                'Dataset':['/Image'],
+                'Image':[],
+                'Screen':['/Plate'],
+                'Plate':[],
+                'Well':[],
+                'Annotation':[] }
+        if obj_type not in childTypes:
+            raise AttributeError("""%s is not an object type. Must be: Project, Dataset, 
+                                Image, Screen, Plate, Well, Annotation""" % obj_type)
+        if not deleteChildren:
+            for c in childTypes[obj_type]:
+                op[c] = "KEEP"
+
+        return self.simpleDelete(obj_type, obj_ids, op)
+
+        
     def simpleDelete(self, otype, oids, op=dict()):
         """
-        Adds each object from the given list to command and then put them on delete queue,
-        keeping annotations by default
+        TODO: - deleteObjects should be the only delete method. simpleDelete should be removed and the code
+        ported to the deleteObjects method. 
         
         @param otype:   Type of object to delete. Can be Project, Dataset, 
                         Image, Screen, Plate, Well, Annotation
