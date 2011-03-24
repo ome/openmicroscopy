@@ -183,15 +183,8 @@ $.fn.roi_display = function(options) {
                                     var b2 = parseFloat(tt[3]);
                                     var c1 = parseFloat(tt[4]);
                                     var c2 = parseFloat(tt[5]);
-                                    // scale
-                                    var scale = Math.sqrt(a1*a1 + a2*a2)
-                                    newShape.scale(scale, scale);
-                                    // rotation
-                                    var rad = Math.atan2(a2,a1);
-                                    var rotation = rad * 180/Math.PI;
-                                    newShape.rotate(rotation, 0, 0);
-                                    // translation
-                                    newShape.translate(c1, c2);
+                                    var tmatrix = "m"+a1+","+a2+","+b1+","+b2+","+c1+","+c2;
+                                    newShape.transform(tmatrix);
                                 }
                             }
                             newShape.click(handle_shape_click);
