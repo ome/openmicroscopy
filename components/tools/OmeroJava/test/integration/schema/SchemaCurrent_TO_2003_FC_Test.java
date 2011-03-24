@@ -52,7 +52,7 @@ public class SchemaCurrent_TO_2003_FC_Test
 	//components/specification/Xslt/
 	
 	/** The target schema file */
-	private File SCHEMA_2008_02 = new File("../../../../../specification/Released-Schema/2003-FC/V2/ome.xsd");
+	private File SCHEMA_2003_FC = new File("../../../../../specification/Released-Schema/2003-FC/V2/ome.xsd");
 	//components/specification/Released-Schema/2003-FC/V2/ome.xsd
 	
 	/** The path in front of ID. */
