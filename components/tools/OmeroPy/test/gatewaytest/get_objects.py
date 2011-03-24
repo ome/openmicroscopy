@@ -67,7 +67,76 @@ class DeleteObjectTest (lib.GTest):
         # check datasets gone too
         for dId in datasetIds:
             self.assertTrue(self.gateway.getObject("Dataset", dId) == None)
-        
+
+
+class FindObjectTest (lib.GTest):
+
+    def setUp (self):
+        super(FindObjectTest, self).setUp()
+        self.loginAsAuthor()
+        self.TESTIMG = self.getTestImage()
+
+
+    def testFindProject(self):
+
+        self.loginAsAuthor()
+
+        project = self.getTestProject()
+        pName = project.getName()
+
+        findProjects = list (self.gateway.getObjects("Project", None, attributes={"name":pName}) )
+        self.assertTrue(len(findProjects) > 0, "Did not find Project by name")
+        for p in findProjects:
+            self.assertEqual(p.getName(), pName, "All projects should have queried name")
+
+
+    def testFindExperimenter(self):
+
+        self.loginAsAdmin()
+
+        omeName = self.TESTIMG.getOwnerOmeName()
+        # findObjects
+        findAuthor = list (self.gateway.getObjects("Experimenter", None, attributes={"omeName":omeName}) )
+        self.assertTrue(len(findAuthor) == 1, "Did not find Experimenter by omeName")
+        self.assertEqual(findAuthor[0].omeName, omeName)
+
+        # findObject
+        author = self.gateway.getObject("Experimenter", None, attributes={"omeName":omeName})
+        self.assertTrue(author != None)
+        self.assertEqual(author.omeName, omeName)
+
+        # find group
+        group = self.TESTIMG.getDetails().getGroup()
+        groupName = group.getName()
+        grp = self.gateway.getObject("ExperimenterGroup", None, attributes={"name":groupName})
+        self.assertTrue(grp != None)
+        self.assertEqual(grp.getName(), groupName)
+
+
+    def testFindAnnotation(self):
+
+        # create Tag
+        find_ns = "omero.gateway.test.test_find_annotations"
+        tag_value = "FindThisTag"
+        tag = omero.gateway.TagAnnotationWrapper(self.gateway)
+        tag.setNs(find_ns)
+        tag.setValue(tag_value)
+        tag.save()
+        tagId = tag.getId()
+
+        # findObject by name
+        find_tag = self.gateway.getObject("Annotation", None, attributes={"textValue":tag_value})
+        self.assertTrue(find_tag != None)
+        self.assertEqual(find_tag.getValue(), tag_value)
+
+        # find by namespace
+        find_tag = self.gateway.getObject("Annotation", None, attributes={"ns":find_ns})
+        self.assertTrue(find_tag != None)
+        self.assertEqual(find_tag.getNs(), find_ns)
+
+        self.gateway.deleteObject(tag._obj)  # direct delete
+        self.assertTrue( self.gateway.getObject("Annotation", tagId) == None)
+
 
 class GetObjectTest (lib.GTest):
     
