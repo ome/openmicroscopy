@@ -7,8 +7,67 @@
 
 import unittest
 import omero
+import time
 
 import gatewaytest.library as lib
+
+class DeleteObjectTest (lib.GTest):
+    
+    def setUp (self):
+        super(DeleteObjectTest, self).setUp()
+        self.loginAsAuthor()
+        self.TESTIMG = self.getTestImage()
+
+
+    def testDeleteImage(self):
+        
+        self.loginAsAuthor()
+        
+        image = self.TESTIMG
+        imageId = image.getId()
+        project = self.getTestProject()
+        projectId = project.getId()
+        ns = "omero.gateway.test.get_objects.test_delete_annotations_comment"
+        ns_tag = "omero.gateway.test.get_objects.test_delete_annotations_tag"
+        
+        # create Comment
+        ann = omero.gateway.CommentAnnotationWrapper(self.gateway)
+        ann.setNs(ns)
+        ann.setValue("Test Comment")
+        ann = image.linkAnnotation(ann)
+        # create Tag
+        tag = omero.gateway.TagAnnotationWrapper(self.gateway)
+        tag.setNs(ns_tag)
+        tag.setValue("Test Tag")
+        tag = image.linkAnnotation(tag)
+        
+        # check the Comment 
+        self.assertTrue(self.gateway.getObject("Annotation", ann.id) != None)
+        self.assertTrue(self.gateway.getObject("Annotation", tag.id) != None)
+        
+        # check Image, delete (wait) and check
+        self.assertTrue(self.gateway.getObject("Image", imageId) != None)
+        self.gateway.deleteObjects("Image", [imageId])
+        time.sleep(5)   # time enough for delete queue
+        self.assertTrue(self.gateway.getObject("Image", imageId) == None)
+        
+        # Comment should be deleted but not the Tag (becomes orphan)
+        self.assertTrue(self.gateway.getObject("Annotation", ann.id) == None)
+        self.assertTrue(self.gateway.getObject("Annotation", tag.id) != None)
+        
+        # Add the tag to project and delete (with Tags)
+        self.assertTrue(self.gateway.getObject("Project", projectId) != None)
+        project.linkAnnotation(tag)
+        datasetIds = [d.getId() for d in project.listChildren()]
+        self.assertTrue(len(datasetIds) > 0)
+        self.gateway.deleteObjects("Project", [projectId], deleteAnns=True, deleteChildren=True)
+        time.sleep(5)   # time enough for delete queue
+        self.assertTrue(self.gateway.getObject("Project", projectId) == None)
+        self.assertTrue(self.gateway.getObject("Annotation", tag.id) == None) # Tag should be gone
+        # check datasets gone too
+        for dId in datasetIds:
+            self.assertTrue(self.gateway.getObject("Dataset", dId) == None)
+        
 
 class GetObjectTest (lib.GTest):
     
@@ -127,8 +186,7 @@ class GetObjectTest (lib.GTest):
         ann = omero.gateway.CommentAnnotationWrapper(self.gateway)
         ann.setNs(ns)
         ann.setValue("Test Comment")
-        obj.linkAnnotation(ann)
-        ann = obj.getAnnotation(ns)
+        ann = obj.linkAnnotation(ann)
         # create Tag
         tag = omero.gateway.TagAnnotationWrapper(self.gateway)
         tag.setNs(ns_tag)
