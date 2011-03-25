@@ -91,7 +91,7 @@ class BaseContainer(BaseController):
             if self.dataset._obj is None:
                 raise AttributeError("We are sorry, but that dataset (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
         elif o1_type == "image":
-            self.image = self.conn.getImage(o1_id)
+            self.image = self.conn.getObject("Image", o1_id)
             if self.image is None:
                 raise AttributeError("We are sorry, but that image (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
             if self.image._obj is None:
@@ -993,7 +993,7 @@ class BaseContainer(BaseController):
             for dsl in dsls:
                 self.conn.deleteObject(dsl._obj)
         else:
-            im = self.conn.getImage(source[1])
+            im = self.conn.getObject("Image", source[1])
             ds = self.conn.getObject("Dataset", destination[1])
             new_dsl = omero.model.DatasetImageLinkI()
             new_dsl.setChild(im._obj)

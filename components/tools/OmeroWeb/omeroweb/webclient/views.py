@@ -2346,7 +2346,7 @@ def render_thumbnail (request, iid, share_id=None, **kwargs):
          
     if conn is None:
         raise Exception("Share connection not available")
-    img = conn.getImage(iid)
+    img = conn.getObject("Image", iid)
     
     if img is None:
         jpeg_data = conn.defaultThumbnail(80)
@@ -2374,7 +2374,7 @@ def render_thumbnail_resize (request, size, iid, share_id=None, **kwargs):
          
     if conn is None:
         raise Exception("Share connection not available")
-    img = conn.getImage(iid)
+    img = conn.getObject("Image", iid)
     
     if img is None:
         jpeg_data = conn.defaultThumbnail(size=int(size))
@@ -2501,7 +2501,7 @@ def render_row_plot (request, iid, z, t, y, share_id=None, w=1, **kwargs):
          
     if conn is None:
         raise Exception("Share connection not available")
-    img = conn.getImage(iid)
+    img = conn.getObject("Image", iid)
 
     return webgateway_views.render_row_plot(request, iid=iid, z=z, t=t, y=y, w=w, _conn=conn, **kwargs)
 
@@ -2524,7 +2524,7 @@ def render_col_plot (request, iid, z, t, x, share_id=None, w=1, **kwargs):
          
     if conn is None:
         raise Exception("Share connection not available")
-    img = conn.getImage(iid)
+    img = conn.getObject("Image", iid)
 
     return webgateway_views.render_col_plot(request, iid=iid, z=z, t=t, x=x, w=w, _conn=conn, **kwargs)
 
@@ -2547,7 +2547,7 @@ def render_split_channel (request, iid, z, t, share_id=None, **kwargs):
          
     if conn is None:
         raise Exception("Share connection not available")
-    img = conn.getImage(iid)
+    img = conn.getObject("Image", iid)
 
     return webgateway_views.render_split_channel(request, iid, z, t, _conn=conn, **kwargs)
 

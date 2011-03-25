@@ -1391,7 +1391,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 
     def removeImage(self, share_id, image_id):
         sh = self.getShareService()
-        img = self.getImage(image_id)
+        img = self.getObject("Image", image_id)
         sh.removeObject(long(share_id), img._obj)
             
     def createShare(self, host, blitz_id, image, message, members, enable, expiration=None):
