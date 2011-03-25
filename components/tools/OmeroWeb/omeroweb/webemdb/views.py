@@ -503,7 +503,7 @@ def mapmodel(request, imageId, entryId=None):
     
     conn = getConnection(request)
     
-    image = conn.getImage(imageId)
+    image = conn.getObject("Image", imageId)
     
     z = image.z_count()/2
     
@@ -516,7 +516,7 @@ def image(request, imageId):
     """
     conn = getConnection(request)
     
-    image = conn.getImage(imageId)
+    image = conn.getObject("Image", imageId)
     
     scriptService = conn.getScriptService()
     scripts = []
