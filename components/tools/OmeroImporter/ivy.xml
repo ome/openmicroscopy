@@ -26,7 +26,7 @@
     <!-- Test engine -->
     <dependency org="asm" name="asm" rev="${versions.asm}"/>
     <dependency org="asm" name="asm-attrs" rev="${versions.asm}"/>
-    <dependency org="cglib" name="cglib" rev="${versions.cglib}"/>
+    <dependency org="cglib" name="cglib-nodep" rev="${versions.cglib}"/>
     <dependency org="perf4j" name="perf4j" rev="${versions.perf4j}"/>
     <!-- Gui -->
     <dependency org="gui" name="TableLayout" rev="${versions.tablelayout}"/>

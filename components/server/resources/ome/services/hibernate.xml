@@ -128,4 +128,10 @@
     <property name="lobHandler" ref="lobHandler"/>
   </bean>
 
+  <!-- Note: it was necessary to overwrite org.hibernate.stat.ConcurrentStatisticsImpl to prevent memory issues -->
+  <bean id="hibernateMBean" class="org.hibernate.jmx.StatisticsService">
+   <property name="sessionFactory" ref="sessionFactory"/>
+   <property name="statisticsEnabled" value="${omero.db.statistics}"/>
+  </bean>
+
 </beans>
