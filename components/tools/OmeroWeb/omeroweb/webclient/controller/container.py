@@ -73,13 +73,13 @@ class BaseContainer(BaseController):
             if self.screen._obj is None:
                 raise AttributeError("We are sorry, but that screen (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
             if o2_type == "plate":
-                self.plate = self.conn.getPlate(o2_id)
+                self.plate = self.conn.getObject("Plate", o2_id)
                 if self.plate is None:
                     raise AttributeError("We are sorry, but that plate (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o2_id))
                 if self.plate._obj is None:
                     raise AttributeError("We are sorry, but that plate (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o2_id)) 
         elif o1_type == "plate":
-            self.plate = self.conn.getPlate(o1_id)
+            self.plate = self.conn.getObject("Plate", o1_id)
             if self.plate is None:
                 raise AttributeError("We are sorry, but that plate (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
             if self.plate._obj is None:
@@ -1047,7 +1047,7 @@ class BaseContainer(BaseController):
         if destination is None:
             pass
         else:
-            pl = self.conn.getPlate(source[1])
+            pl = self.conn.getObject("Plate", source[1])
             sc = self.conn.getObject("Screen", destination[1])
             new_spl = omero.model.ScreenPlateLinkI()
             new_spl.setChild(pl._obj)
