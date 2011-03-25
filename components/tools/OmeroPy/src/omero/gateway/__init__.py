@@ -2349,22 +2349,6 @@ class _BlitzGateway (object):
             return ProjectWrapper(self, pr[0])
         return None
 
-    def getImage (self, oid):
-        """
-        Return Image for the given ID.
-        
-        @param oid: Image ID.
-        @type oid:      Long
-        @return:    _ImageWrapper or None
-        @rtype:     L{ImageWrapper}
-        """
-        
-        q = self.getQueryService()
-        img = q.find("Image", long(oid))
-        if img is not None:
-            img = ImageWrapper(self, img)
-        return img
-    
     def getScreen (self, oid):
         """
         Gets a Screen for given ID, with owner and group loaded
