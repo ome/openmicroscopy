@@ -707,7 +707,7 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
             imgs.extend(list(d.listChildren()))
         name = obj.getName()
     elif ctx == 'd':
-        obj = _conn.getDataset(cid)
+        obj = _conn.getObject("Dataset", cid)
         if obj is None:
             raise Http404
         imgs.extend(list(obj.listChildren()))
@@ -1133,7 +1133,7 @@ def listImages_json (request, did, server_id=None, _conn=None, **kwargs):
     """
     
     blitzcon = _conn
-    dataset = blitzcon.getDataset(did)
+    dataset = blitzcon.getObject("Dataset", did)
     if dataset is None:
         return HttpResponseServerError('""', mimetype='application/javascript')
     prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
@@ -1169,7 +1169,7 @@ def datasetDetail_json (request, did, server_id=None, _conn=None, **kwargs):
     TODO: cache
     """
     blitzcon = _conn
-    ds = blitzcon.getDataset(did)
+    ds = blitzcon.getObject("Dataset", did)
     return ds.simpleMarshal()
 
 @jsonp
