@@ -203,7 +203,7 @@ def project(request, id, **kwargs):
         logger.error(traceback.format_exc())
         return HttpResponse(traceback.format_exc())
         
-    prj = conn.getProject(id)
+    prj = conn.getObject("Project", id)
     return render_to_response('webmobile/browse/project.html', {'client':conn, 'project':prj})
 
 
@@ -219,7 +219,7 @@ def object_details(request, obj_type, id, **kwargs):
         return HttpResponse(traceback.format_exc())
         
     if obj_type == 'project':
-        obj = conn.getProject(id)
+        obj = conn.getObject("Project", id)
         title = 'Project'
     elif obj_type == 'dataset':
         obj = conn.getDataset(id)
@@ -391,7 +391,7 @@ def edit_object(request, obj_type, obj_id, **kwargs):
         title = 'Dataset'
         redirect = reverse('webmobile_dataset_details', kwargs={'id':obj_id})
     elif obj_type == 'project':
-        obj = conn.getProject(obj_id)
+        obj = conn.getObject("Project", obj_id)
         title = 'Project'
         redirect = reverse('webmobile_project_details', kwargs={'id':obj_id})
         
