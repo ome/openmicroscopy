@@ -2349,27 +2349,6 @@ class _BlitzGateway (object):
             return ProjectWrapper(self, pr[0])
         return None
 
-    def getScreen (self, oid):
-        """
-        Gets a Screen for given ID, with owner and group loaded
-        
-        @param oid:     Screen ID.
-        @type oid:      Long
-        @return:        ScreenWrapper or None
-        @rtype:         L{ScreenWrapper}
-        """
-        
-        query_serv = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["oid"] = rlong(long(oid))
-        sql = "select sc from Screen sc join fetch sc.details.owner join fetch sc.details.group where sc.id=:oid "
-        sc = query_serv.findByQuery(sql,p)
-        if sc is not None:
-            return ScreenWrapper(self, sc)
-        else:
-            return None
-    
     def getPlate (self, oid):
         """
         Gets a Plate for given ID, with owner, group and screens loaded
