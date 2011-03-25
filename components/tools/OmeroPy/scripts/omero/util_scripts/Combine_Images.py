@@ -468,7 +468,7 @@ greater Z, C, T dimensions.
 See http://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/running-util-scripts""", 
     
     scripts.String("Data_Type", optional=False, grouping="1",
-        description="Use all the images in specified 'Datasets' or choose individual 'Images'.", values=dataTypes, default="Dataset"),
+        description="Use all the images in specified 'Datasets' or choose individual 'Images'.", values=dataTypes, default="Images"),
         
     scripts.List("IDs", optional=False, grouping="2",
         description="List of Dataset IDs or Image IDs to combine.").ofType(rlong(0)),

@@ -100,10 +100,15 @@ def makeImagesFromRois(session, parameterMap):
     """
     
     imageIds = []
-    if "Image_IDs" in parameterMap:
-        for idCount, imageId in enumerate(parameterMap["Image_IDs"]):
-            iId = long(imageId.getValue())
-            imageIds.append(iId)
+    dataType = parameterMap["Data_Type"]
+    ids = parameterMap["IDs"]
+    
+    containerService = session.getContainerService()
+    
+    # images to export
+    images = containerService.getImages(dataType, ids, None)
+    for image in images:
+        imageIds.append(image.getId().getValue())
     
     if len(imageIds) == 0:
         return "No image-IDs in list."
@@ -113,7 +118,6 @@ def makeImagesFromRois(session, parameterMap):
     queryService = session.getQueryService()
     rawPixelStore = session.createRawPixelsStore()
     updateService = session.getUpdateService()
-    containerService = session.getContainerService()
     
     # get the project and dataset from the first image, to use as containers for new Images / Datasets
     imageId = imageIds[0]
@@ -246,14 +250,25 @@ def runAsScript():
     The main entry point of the script, as called by the client via the scripting service, passing the required parameters. 
     """
     printDuration(False)    # start timer
+    dataTypes = [rstring('Dataset'),rstring('Image')]
     
     client = scripts.client('Images_From_ROIs.py', """Create new Images from the regions defined by Rectangle ROIs on other Images.
 Designed to work with single-plane images (Z=1 T=1) with multiple ROIs per image. 
 If you choose to make an image stack from all the ROIs, this script
-assumes that all the ROIs on each Image are the same size.""", 
-    scripts.List("Image_IDs", optional=False, description="List the images to work with").ofType(rlong(0)),
-    scripts.String("Container_Name", description="New Dataset name or Image name (if 'Make_Image_Stack')", default="From_ROIs"),
-    scripts.Bool("Make_Image_Stack", description="If true, make a single Image (stack) from all the ROIs of each parent Image"),
+assumes that all the ROIs on each Image are the same size.""",
+
+    scripts.String("Data_Type", optional=False, grouping="1",
+        description="Choose Images via their 'Dataset' or directly by 'Image' IDs.", values=dataTypes, default="Image"),
+        
+    scripts.List("IDs", optional=False, grouping="2",
+        description="List of Dataset IDs or Image IDs to process.").ofType(rlong(0)),
+        
+    scripts.String("Container_Name", grouping="3",
+        description="New Dataset name or Image name (if 'Make_Image_Stack')", default="From_ROIs"),
+        
+    scripts.Bool("Make_Image_Stack", grouping="4",
+        description="If true, make a single Image (stack) from all the ROIs of each parent Image"),
+        
     version = "4.2.0",
     authors = ["William Moore", "OME Team"],
     institutions = ["University of Dundee"],
@@ -267,7 +282,7 @@ assumes that all the ROIs on each Image are the same size.""",
         parameterMap = {}
         for key in client.getInputKeys():
             if client.getInput(key):
-                parameterMap[key] = client.getInput(key).getValue()
+                parameterMap[key] = unwrap( client.getInput(key).getValue() )
 
         print parameterMap
 

@@ -295,7 +295,7 @@ def getRectangle(roiService, imageId, roiLabel):
                 z = shape.getTheZ().getValue()
                 x = int(shape.getX().getValue())
                 y = int(shape.getY().getValue())
-                text = shape.getTextValue().getValue()
+                text = shape.getTextValue() and shape.getTextValue().getValue() or None
                 
                 # build a map of tIndex: (x,y,zMin,zMax)
                 if t in timeShapeMap:
@@ -535,21 +535,21 @@ def roiFigure(session, commandArgs):
             
     # process the list of images. If imageIds is not set, script can't run. 
     log("Image details:")
-    if "Image_IDs" in commandArgs:
-        for idCount, imageId in enumerate(commandArgs["Image_IDs"]):
-            iId = imageId.getValue()
-            image = containerService.getImages("Image", [iId], None)[0]
-            if image == None:
-                print "Image not found for ID:", iId
-                continue
-            imageIds.append(iId)
-            if idCount == 0:
-                omeroImage = image        # remember the first image to attach figure to
-            pixelIds.append(image.getPrimaryPixels().getId().getValue())
-            imageNames[iId] = image.getName().getValue()
-    
+    dataType = commandArgs["Data_Type"]
+    ids = commandArgs["IDs"]
+    images = containerService.getImages(dataType, ids, None)
+
+    for idCount, image in enumerate(images):
+        iId = image.getId().getValue()
+        imageIds.append(iId)
+        if idCount == 0:
+            omeroImage = image        # remember the first image to attach figure to
+        pixelIds.append(image.getPrimaryPixels().getId().getValue())
+        imageNames[iId] = image.getName().getValue()
+
     if len(imageIds) == 0:
         print "No image IDs specified."
+        return
             
     pdMap = figUtil.getDatasetsProjectsFromImages(queryService, imageIds)    # a map of imageId : list of (project, dataset) names. 
     tagMap = figUtil.getTagsFromImages(metadataService, imageIds)
@@ -608,8 +608,8 @@ def roiFigure(session, commandArgs):
     mergedColours = {}    # if no colours added, use existing rendering settings.
     if "Merged_Colours" in commandArgs:
         for i, c in enumerate(commandArgs["Merged_Colours"]):
-            if c.getValue() in COLOURS: 
-                mergedColours[i] = COLOURS[c.getValue()]
+            if c in COLOURS: 
+                mergedColours[i] = COLOURS[c]
     
     algorithm = omero.constants.projection.ProjectionType.MAXIMUMINTENSITY
     if "Algorithm" in commandArgs:
@@ -700,6 +700,7 @@ def runAsScript():
     The main entry point of the script, as called by the client via the scripting service, passing the required parameters. 
     """
     
+    dataTypes = [rstring('Dataset'),rstring('Image')]
     labels = [rstring('Image Name'), rstring('Datasets'), rstring('Tags')]
     algorithums = [rstring('Maximum Intensity'),rstring('Mean Intensity')]
     roiLabel = """Specify an ROI to pick by specifying it's shape label. 'FigureROI' by default,
@@ -713,8 +714,11 @@ def runAsScript():
     client = scripts.client('Movie_ROI_Figure.py', """Create a figure of movie frames from ROI region of image.
 See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIMovieFigure""",
 
-    scripts.List("Image_IDs", optional=False, grouping="1",
-        description="List of Images. Figure will be attached to first image").ofType(rlong(0)),
+    scripts.String("Data_Type", optional=False, grouping="1.1",
+        description="The data you want to work with.", values=dataTypes, default="Image"),
+
+    scripts.List("IDs", optional=False, grouping="1.2",
+        description="List of Dataset IDs or Image IDs").ofType(rlong(0)),
     
     scripts.List("Merged_Colours", grouping="2",
         description="A list of colours to apply to merged channels.", values=cOptions),
@@ -769,20 +773,23 @@ See http://trac.openmicroscopy.org.uk/shoola/wiki/FigureExport#ROIMovieFigure"""
     
     try:
         session = client.getSession();
-        commandArgs = {"Image_IDs":client.getInput("Image_IDs").getValue()}
+        commandArgs = {}
 
         # process the list of args above. 
         for key in client.getInputKeys():
             if client.getInput(key):
-                commandArgs[key] = client.getInput(key).getValue()
+                commandArgs[key] = unwrap(client.getInput(key))
 
         print commandArgs
         # call the main script, attaching resulting figure to Image. Returns the id of the originalFileLink child. (ID object, not value)
-        fileAnnotation, image = roiFigure(session, commandArgs)
-        # return this fileAnnotation to the client. 
-        if fileAnnotation:
-            client.setOutput("Message", rstring("ROI Movie Figure Attached to Image: %s" % image.name.val))
-            client.setOutput("File_Annotation", robject(fileAnnotation))
+        result = roiFigure(session, commandArgs)
+        if result:
+            fileAnnotation, image = result
+            # return this fileAnnotation to the client. 
+            if fileAnnotation:
+                client.setOutput("Message", rstring("ROI Movie Figure Attached to Image: %s" % image.name.val))
+                client.setOutput("File_Annotation", robject(fileAnnotation))
+
     finally: client.closeSession()
 
 if __name__ == "__main__":
