@@ -2330,22 +2330,6 @@ class _BlitzGateway (object):
     ###########################
     # Specific Object Getters #
 
-    def getProject (self, oid):
-        """
-        Return Project for the given ID.
-        
-        @param oid:     Project ID.
-        @type oid:      Long
-        @return:        _ProjectWrapper or None
-        @rtype:         L{ProjectWrapper}
-        """
-        
-        q = self.getQueryService()
-        pr = q.find("Project", long(oid))
-        if pr is not None:
-            pr = ProjectWrapper(self, pr)
-        return pr
-    
     def findProject (self, name):
         """
         Return Project with the given name.
