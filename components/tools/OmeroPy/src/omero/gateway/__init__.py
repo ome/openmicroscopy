@@ -2349,22 +2349,6 @@ class _BlitzGateway (object):
             return ProjectWrapper(self, pr[0])
         return None
 
-    def getDataset (self, oid):
-        """
-        Return Dataset for the given ID.
-        
-        @param oid: Dataset ID.
-        @type oid:      Long
-        @return:    _DatasetWrapper or None
-        @rtype:     L{DatasetWrapper}
-        """
-        
-        q = self.getQueryService()
-        ds = q.find("Dataset", long(oid))
-        if ds is not None:
-            ds = DatasetWrapper(self, ds)
-        return ds
-
     def getImage (self, oid):
         """
         Return Image for the given ID.
