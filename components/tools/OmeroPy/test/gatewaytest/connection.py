@@ -89,7 +89,7 @@ class ConnectionMethodsTest (lib.GTest):
         ##
         # Test getDataset
         dataset_id = parents[0].getId()
-        self.assertEqual(self.gateway.getDataset(dataset_id).getId(), dataset_id)
+        self.assertEqual(self.gateway.getObject("Dataset", dataset_id).getId(), dataset_id)
         ##
         # Test listExperimenters
         exps = map(lambda x: x.omeName, self.gateway.listExperimenters())
