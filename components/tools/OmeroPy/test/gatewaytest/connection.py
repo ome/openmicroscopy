@@ -85,7 +85,7 @@ class ConnectionMethodsTest (lib.GTest):
         ##
         # Test getProject
         self.loginAsAuthor()
-        self.assertEqual(self.gateway.getProject(project_id).getId(), project_id)
+        self.assertEqual(self.gateway.getObject("Project", project_id).getId(), project_id)
         ##
         # Test getDataset
         dataset_id = parents[0].getId()
