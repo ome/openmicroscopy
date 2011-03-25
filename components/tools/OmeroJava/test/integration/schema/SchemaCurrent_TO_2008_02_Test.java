@@ -50,11 +50,11 @@ public class SchemaCurrent_TO_2008_02_Test
 	private List<File> files;
 	
 	/** The transform file */
-	private File STYLESHEET = new File("../../../../../specification/Xslt/2010-06-TO-2008-02.xsl");
+	private File STYLESHEET = new File("components/specification/Xslt/2010-06-TO-2008-02.xsl");
 	//components/specification/Xslt/
 	
 	/** The target schema file */
-	private File SCHEMA_2008_02 = new File("../../../../../specification/Released-Schema/2008-02/V2/ome.xsd");
+	private File SCHEMA_2008_02 = new File("components/specification/Released-Schema/2008-02/V2/ome.xsd");
 	//components/specification/Released-Schema/2008-02/V2/ome.xsd 
 	
 	/**
@@ -311,7 +311,7 @@ public class SchemaCurrent_TO_2008_02_Test
      * An XML file with an image is created and the stylesheet is applied.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test(enabled = true)
 	public void testDowngradeTo200802ImageNoMetadata()
 		throws Exception
 	{

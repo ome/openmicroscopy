@@ -48,11 +48,11 @@ public class SchemaCurrent_TO_2003_FC_Test
 	private List<File> files;
 	
 	/** The transform file */
-	private File STYLESHEET = new File("../../../../../specification/Xslt/2010-06-TO-2003-FC.xsl");
+	private File STYLESHEET = new File("components/specification/Xslt/2010-06-TO-2003-FC.xsl");
 	//components/specification/Xslt/
 	
 	/** The target schema file */
-	private File SCHEMA_2003_FC = new File("../../../../../specification/Released-Schema/2003-FC/V2/ome.xsd");
+	private File SCHEMA_2003_FC = new File("components/specification/Released-Schema/2003-FC/V2/ome.xsd");
 	//components/specification/Released-Schema/2003-FC/V2/ome.xsd
 	
 	/** The path in front of ID. */
@@ -292,7 +292,7 @@ public class SchemaCurrent_TO_2003_FC_Test
      * An XML file with an image is created and the stylesheet is applied.
      * @throws Exception Thrown if an error occurred.
      */
-    @Test(enabled = false)
+    @Test(enabled = true)
 	public void testDowngradeTo2003FCImageNoMetadata()
 		throws Exception
 	{
