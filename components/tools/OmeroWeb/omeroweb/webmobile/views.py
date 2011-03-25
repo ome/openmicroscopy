@@ -323,7 +323,7 @@ def screen(request, id, **kwargs):
         logger.error(traceback.format_exc())
         return HttpResponse(traceback.format_exc())
         
-    scrn = conn.getScreen(id)
+    scrn = conn.getObject("Screen", id)
     return render_to_response('webmobile/browse/screen.html', {'client': conn, 'screen': scrn})   
 
 
@@ -338,7 +338,7 @@ def plate(request, id, **kwargs):
         logger.error(traceback.format_exc())
         return HttpResponse(traceback.format_exc())
         
-    scrn = conn.getScreen(id)
+    scrn = conn.getObject("Screen", id)
     return render_to_response('webmobile/browse/screen.html', {'client': conn, 'screen': scrn})
 
 

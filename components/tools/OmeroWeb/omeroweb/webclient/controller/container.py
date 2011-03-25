@@ -67,7 +67,7 @@ class BaseContainer(BaseController):
                 if self.dataset._obj is None:
                     raise AttributeError("We are sorry, but that dataset (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o2_id))
         elif o1_type == "screen":
-            self.screen = self.conn.getScreen(o1_id)
+            self.screen = self.conn.getObject("Screen", o1_id)
             if self.screen is None:
                 raise AttributeError("We are sorry, but that screen (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
             if self.screen._obj is None:
@@ -931,7 +931,7 @@ class BaseContainer(BaseController):
                     if long(parent[1]) != long(destination[1]):
                         self.conn.deleteObject(up_spl._obj)
                 else:
-                    new_sc = self.conn.getScreen(destination[1])
+                    new_sc = self.conn.getObject("Screen", destination[1])
                     if len(parent) > 1:
                         up_spl.setParent(new_sc._obj)
                         self.conn.saveObject(up_spl._obj)
@@ -1048,7 +1048,7 @@ class BaseContainer(BaseController):
             pass
         else:
             pl = self.conn.getPlate(source[1])
-            sc = self.conn.getScreen(destination[1])
+            sc = self.conn.getObject("Screen", destination[1])
             new_spl = omero.model.ScreenPlateLinkI()
             new_spl.setChild(pl._obj)
             new_spl.setParent(sc._obj)
@@ -1060,7 +1060,7 @@ class BaseContainer(BaseController):
             pass
         else:
             pls = self.conn.getObjects("Plate", plates)
-            sc = self.conn.getScreen(screen[1])
+            sc = self.conn.getObject("Screen", screen[1])
             link_array = list()
             for pl in pls:
                 new_spl = omero.model.ScreenPlateLinkI()
