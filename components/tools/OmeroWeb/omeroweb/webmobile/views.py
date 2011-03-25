@@ -222,7 +222,7 @@ def object_details(request, obj_type, id, **kwargs):
         obj = conn.getObject("Project", id)
         title = 'Project'
     elif obj_type == 'dataset':
-        obj = conn.getDataset(id)
+        obj = conn.getObject("Dataset", id)
         title = 'Dataset'
     anns = getAnnotations(obj)
     
@@ -244,7 +244,7 @@ def dataset(request, id, **kwargs):
         logger.error(traceback.format_exc())
         return HttpResponse(traceback.format_exc())
         
-    ds = conn.getDataset(id)
+    ds = conn.getObject("Dataset", id)
     return render_to_response('webmobile/browse/dataset.html', {'client': conn, 'dataset': ds})
     
         
@@ -387,7 +387,7 @@ def edit_object(request, obj_type, obj_id, **kwargs):
         title = 'Image'
         redirect = reverse('webmobile_image', kwargs={'imageId':obj_id})
     elif obj_type == 'dataset':
-        obj = conn.getDataset(obj_id)
+        obj = conn.getObject("Dataset", obj_id)
         title = 'Dataset'
         redirect = reverse('webmobile_dataset_details', kwargs={'id':obj_id})
     elif obj_type == 'project':

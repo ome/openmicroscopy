@@ -371,7 +371,7 @@ def dataset_split_view (request, datasetId):
         loginUrl = "%s?url=%s" % (reverse('weblogin'), url)
         return HttpResponseRedirect(loginUrl)
         
-    dataset = conn.getDataset(datasetId)
+    dataset = conn.getObject("Dataset", datasetId)
     
     try:
         w = request.REQUEST.get('width', 100)

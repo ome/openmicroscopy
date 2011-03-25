@@ -302,7 +302,7 @@ def dataset_stack(request, datasetId):
         plane2D = scriptUtil.downloadPlane(rawPixelStore, pixels, theZ, theC, theT)
         return plane2D
         
-    dataset = conn.getDataset(datasetId)
+    dataset = conn.getObject("Dataset", datasetId)
     
     em = None
     for z, i in enumerate(dataset.listChildren()):
@@ -548,7 +548,7 @@ def dataset(request, datasetId):
     """
     conn = getConnection(request)
 
-    dataset = conn.getDataset(datasetId)
+    dataset = conn.getObject("Dataset", datasetId)
     
     entryId = None
     
