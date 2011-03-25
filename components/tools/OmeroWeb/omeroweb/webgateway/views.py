@@ -700,7 +700,7 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
         return HttpResponseServerError('""', mimetype='application/javascript')
     imgs = []
     if ctx == 'p':
-        obj = _conn.getProject(cid)
+        obj = _conn.getObject("Project", cid)
         if obj is None:
             raise Http404
         for d in obj.listChildren():
@@ -1156,7 +1156,7 @@ def listDatasets_json (request, pid, server_id=None, _conn=None, **kwargs):
     """
     
     blitzcon = _conn
-    project = blitzcon.getProject(pid)
+    project = blitzcon.getObject("Project", pid)
     rv = []
     if project is None:
         return HttpResponse('[]', mimetype='application/javascript')
@@ -1204,7 +1204,7 @@ def projectDetail_json (request, pid, server_id=None, _conn=None, **kwargs):
     """
     
     blitzcon = _conn
-    pr = blitzcon.getProject(pid)
+    pr = blitzcon.getObject("Project", pid)
     rv = pr.simpleMarshal()
     return rv
 
