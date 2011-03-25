@@ -55,7 +55,7 @@ class BaseContainer(BaseController):
     def __init__(self, conn, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, tag=None, index=None, **kwargs):
         BaseController.__init__(self, conn)
         if o1_type == "project":
-            self.project = self.conn.getProject(o1_id)
+            self.project = self.conn.getObject("Project", o1_id)
             if self.project is None:
                 raise AttributeError("We are sorry, but that project (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
             if self.project._obj is None:
@@ -844,7 +844,7 @@ class BaseContainer(BaseController):
                     if long(parent[1]) != long(destination[1]):
                         self.conn.deleteObject(up_pdl._obj)
                 else:
-                    new_pr = self.conn.getProject(destination[1])
+                    new_pr = self.conn.getObject("Project", destination[1])
                     if len(parent) > 1:
                         up_pdl.setParent(new_pr._obj)
                         self.conn.saveObject(up_pdl._obj)
@@ -1021,7 +1021,7 @@ class BaseContainer(BaseController):
             pass
         else:
             ds = self.conn.getDataset(source[1])
-            pr = self.conn.getProject(destination[1])
+            pr = self.conn.getObject("Project", destination[1])
             new_pdl = omero.model.ProjectDatasetLinkI()
             new_pdl.setChild(ds._obj)
             new_pdl.setParent(pr._obj)
@@ -1033,7 +1033,7 @@ class BaseContainer(BaseController):
             pass
         else:
             dss = self.conn.getObjects("Dataset", datasets)
-            pr = self.conn.getProject(project[1])
+            pr = self.conn.getObject("Project", project[1])
             link_array = list()
             for ds in dss:
                 new_pdl = omero.model.ProjectDatasetLinkI()
