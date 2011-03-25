@@ -61,7 +61,7 @@ class BaseContainer(BaseController):
             if self.project._obj is None:
                 raise AttributeError("We are sorry, but that project (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
             if o2_type == "dataset":
-                self.dataset = self.conn.getDataset(o2_id)
+                self.dataset = self.conn.getObject("Dataset", o2_id)
                 if self.dataset is None:
                     raise AttributeError("We are sorry, but that dataset (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o2_id))
                 if self.dataset._obj is None:
@@ -85,7 +85,7 @@ class BaseContainer(BaseController):
             if self.plate._obj is None:
                 raise AttributeError("We are sorry, but that plate (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))  
         elif o1_type == "dataset":
-            self.dataset = self.conn.getDataset(o1_id)
+            self.dataset = self.conn.getObject("Dataset", o1_id)
             if self.dataset is None:
                 raise AttributeError("We are sorry, but that dataset (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
             if self.dataset._obj is None:
@@ -888,7 +888,7 @@ class BaseContainer(BaseController):
                         self.conn.deleteObject(up_dsl._obj)
                 else:
                     # update link to new destination
-                    new_ds = self.conn.getDataset(destination[1])
+                    new_ds = self.conn.getObject("Dataset", destination[1])
                     if len(parent) > 1:
                         up_dsl.setParent(new_ds._obj)
                         self.conn.saveObject(up_dsl._obj)
@@ -994,7 +994,7 @@ class BaseContainer(BaseController):
                 self.conn.deleteObject(dsl._obj)
         else:
             im = self.conn.getImage(source[1])
-            ds = self.conn.getDataset(destination[1])
+            ds = self.conn.getObject("Dataset", destination[1])
             new_dsl = omero.model.DatasetImageLinkI()
             new_dsl.setChild(im._obj)
             new_dsl.setParent(ds._obj)
@@ -1006,7 +1006,7 @@ class BaseContainer(BaseController):
                pass
            else:
                ims = self.conn.getObjects("Image", images)
-               ds = self.conn.getDataset(dataset[1])
+               ds = self.conn.getObject("Dataset", dataset[1])
                link_array = list()
                for im in ims:
                    new_dsl = omero.model.DatasetImageLinkI()
@@ -1020,7 +1020,7 @@ class BaseContainer(BaseController):
         if destination is None:
             pass
         else:
-            ds = self.conn.getDataset(source[1])
+            ds = self.conn.getObject("Dataset", source[1])
             pr = self.conn.getObject("Project", destination[1])
             new_pdl = omero.model.ProjectDatasetLinkI()
             new_pdl.setChild(ds._obj)
