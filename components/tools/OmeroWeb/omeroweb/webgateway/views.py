@@ -489,7 +489,7 @@ def render_thumbnail (request, iid, server_id=None, w=None, h=None, **kwargs):
         if blitzcon is None or not blitzcon.isConnected():
             logger.debug("failed connect, HTTP404")
             raise Http404
-        img = blitzcon.getImage(iid)
+        img = blitzcon.getObject("Image", iid)
         if img is None:
             logger.debug("(b)Image %s not found..." % (str(iid)))
             raise Http404
@@ -536,7 +536,7 @@ def _get_prepared_image (request, iid, server_id=None, _conn=None, with_session=
         _conn = getBlitzConnection(request, server_id=server_id, with_session=with_session, useragent="OMERO.webgateway")
     if _conn is None or not _conn.isConnected():
         return HttpResponseServerError('""', mimetype='application/javascript')
-    img = _conn.getImage(iid)
+    img = _conn.getObject("Image", iid)
     if r.has_key('c'):
         logger.debug("c="+r['c'])
         channels, windows, colors =  _split_channel_info(r['c'])
@@ -721,7 +721,7 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
                 raise Http404
         name = '%s-%s' % (obj.listParents().getName(), obj.getName())
     else:
-        obj = _conn.getImage(cid)
+        obj = _conn.getObject("Image", cid)
         if obj is None:
             raise Http404
         imgs.append(obj)
@@ -1113,7 +1113,7 @@ def imageData_json (request, server_id=None, _conn=None, _internal=False, **kwar
     iid = kwargs['iid']
     key = kwargs.get('key', None)
     blitzcon = _conn
-    image = blitzcon.getImage(iid)
+    image = blitzcon.getObject("Image", iid)
     if image is None:
         return HttpResponseServerError('""', mimetype='application/javascript')
     rv = imageMarshal(image, key)
@@ -1351,7 +1351,7 @@ def list_compatible_imgs_json (request, server_id, iid, _conn=None, **kwargs):
     if blitzcon is None or not blitzcon.isConnected():
         img = None
     else:
-        img = blitzcon.getImage(iid)
+        img = blitzcon.getObject("Image", iid)
 
     if img is not None:
         # List all images in project
@@ -1412,7 +1412,7 @@ def copy_image_rdef_json (request, server_id, _conn=None, **kwargs):
             blitzcon = _conn
 
             
-        fromimg = blitzcon.getImage(fromid)
+        fromimg = blitzcon.getObject("Image", fromid)
         details = fromimg.getDetails()
         frompid = fromimg.getPixelsId()
         newConn = None
@@ -1430,13 +1430,13 @@ def copy_image_rdef_json (request, server_id, _conn=None, **kwargs):
             newConn.setGroupForSession(details.getGroup().getId())
 
         if newConn is not None and newConn.isConnected():
-            frompid = newConn.getImage(fromid).getPixelsId()
+            frompid = newConn.getObject("Image", fromid).getPixelsId()
             rsettings = newConn.getRenderingSettingsService()
             json_data = rsettings.applySettingsToImages(frompid, list(toids))
             if fromid in json_data[True]:
                 del json_data[True][json_data[True].index(fromid)]
             for iid in json_data[True]:
-                img = newConn.getImage(iid)
+                img = newConn.getObject("Image", iid)
                 img is not None and webgateway_cache.invalidateObject(server_id, img)
             json_data = simplejson.dumps(json_data)
 
@@ -1464,7 +1464,7 @@ def reset_image_rdef_json (request, iid, server_id=None, _conn=None, **kwargs):
     if blitzcon is None or not blitzcon.isConnected():
         img = None
     else:
-        img = blitzcon.getImage(iid)
+        img = blitzcon.getObject("Image", iid)
 
     if img is not None and img.resetRDefs():
         webgateway_cache.invalidateObject(server_id, img)
@@ -1503,7 +1503,7 @@ def full_viewer (request, iid, server_id=None, _conn=None, **kwargs):
             _conn = getBlitzConnection(request, server_id=server_id, useragent="OMERO.webgateway")
         if _conn is None or not _conn.isConnected():
             raise Http404
-        image = _conn.getImage(iid)
+        image = _conn.getObject("Image", iid)
         if image is None:
             logger.debug("(a)Image %s not found..." % (str(iid)))
             raise Http404
