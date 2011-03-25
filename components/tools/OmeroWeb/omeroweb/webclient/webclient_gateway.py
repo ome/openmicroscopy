@@ -1884,6 +1884,9 @@ class ScreenWrapper (OmeroWebObjectWrapper, omero.gateway.ScreenWrapper):
 
 omero.gateway.ScreenWrapper = ScreenWrapper
 
+# IMPORTANT to update the map of wrappers 'project', 'dataset', 'image' etc. returned by getObjects()
+omero.gateway.refreshWrappers()
+
 class ShareWrapper (OmeroWebObjectWrapper):
     """
     omero_model_ShareI class wrapper overwrite omero.gateway.ShareWrapper
