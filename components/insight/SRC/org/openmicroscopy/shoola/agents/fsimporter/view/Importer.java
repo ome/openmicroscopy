@@ -32,6 +32,7 @@ import javax.swing.JFrame;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
 
@@ -168,4 +169,18 @@ public interface Importer
 	 */
 	public boolean hasFailuresToSend();
 	
+	/** 
+	 * Sets the used and available disk space.
+	 * 
+	 * @param qota The value to set.
+	 */
+	public void setDiskSpace(DiskQuota quota);
+	
+	/** 
+	 * Closes the dialog and cancels the import in the queue if 
+	 * selected by user.
+	 */
+	public void close();
+	
+
 }

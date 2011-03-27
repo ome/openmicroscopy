@@ -1,8 +1,8 @@
 /*
- * org.openmicroscopy.shoola.agents.util.flim.ImageCanvas 
+ * org.openmicroscopy.shoola.env.data.model.UserDiskQuota 
  *
  *------------------------------------------------------------------------------
- *  Copyright (C) 2006-2010 University of Dundee. All rights reserved.
+ *  Copyright (C) 2006-2011 University of Dundee. All rights reserved.
  *
  *
  * 	This program is free software; you can redistribute it and/or modify
@@ -20,24 +20,16 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.util.flim;
-
+package org.openmicroscopy.shoola.env.data.model;
 
 //Java imports
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-
-import javax.swing.JPanel;
-
 
 //Third-party libraries
 
 //Application-internal dependencies
-import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
 
 /** 
- * 
+ * Store the disk space used and available for a given user.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -49,49 +41,62 @@ import org.openmicroscopy.shoola.agents.imviewer.util.ImagePaintingFactory;
  * </small>
  * @since 3.0-Beta4
  */
-class ImageCanvas 
-	extends JPanel
+public class DiskQuota
 {
 
-	/** The image to display. */
-	private BufferedImage image;
+	/** Indicates that the values retrieved are for a given group. */
+	public static final int GROUP = 0;
 	
-	/** Creates a new instance. */
-	ImageCanvas()
-	{
-		 setDoubleBuffered(true);
-	}
+	/** Indicates that the values retrieved are for a given user. */
+	public static final int USER = 1;
+	
+	/** The disk space used. */
+	private long used;
+	
+	/** The disk space available. */
+	private long available;
+	
+	/** The identifier of the user or the group. */
+	private long id;
+	
+	/** One of the constants defined by this class. */
+	private int type;
 	
 	/**
-	 * Sets the image. 
+	 * Creates a new instance.
 	 * 
-	 * @param image The image to display.
+	 * @param type One of the constants defined by this class.
+	 * @param id
+	 * @param used
+	 * @param available
 	 */
-	void setImage(BufferedImage image)
+	public DiskQuota(int type, long id, long used, long available)
 	{
-		this.image = image;
-		repaint();
+		this.type = type;
+		this.used = used;
+		this.id = id;
+		this.available = available;
 	}
 	
 	/**
-	 * Returns the image.
+	 * Returns the identifier of the user or group depending on the type.
 	 * 
 	 * @return See above.
 	 */
-	BufferedImage getImage() { return image; }
+	public long getID() { return id; }
 	
 	/**
-     * Overridden to paint the image.
-     * @see javax.swing.JComponent#paintComponent(Graphics)
-     */
-    public void paintComponent(Graphics g)
-    {
-        //super.paintComponent(g);
-        if (image == null) return;
-        Graphics2D g2D = (Graphics2D) g;
-        ImagePaintingFactory.setGraphicRenderingSettings(g2D);
-        g2D.drawImage(image, null, 0, 0); 
-        g2D.dispose();
-    }
-    
+	 * Returns the used space.
+	 * 
+	 * @return See above.
+	 */
+	public long getUsedSpace() { return used; }
+	
+	/**
+	 * Returns the available space.
+	 * 
+	 * @return See above.
+	 */
+	public long getAvailableSpace() { return available; }
+
 }

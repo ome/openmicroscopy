@@ -33,6 +33,7 @@ import javax.swing.filechooser.FileFilter;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.DataImporterLoader;
+import org.openmicroscopy.shoola.agents.fsimporter.DiskSpaceLoader;
 import org.openmicroscopy.shoola.agents.fsimporter.ImagesImporter;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.TagsLoader;
@@ -214,6 +215,13 @@ class ImporterModel
 	{
 		if (tags != null) return; //already loading tags
 		TagsLoader loader = new TagsLoader(component);
+		loader.load();
+	}
+	
+	/** Starts an asynchronous call to load the available disk space. */
+	void fireDiskSpaceLoading()
+	{
+		DiskSpaceLoader loader = new DiskSpaceLoader(component);
 		loader.load();
 	}
 	

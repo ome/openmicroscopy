@@ -78,7 +78,7 @@ public class ImagesImporter
 	 * @param context	The context of the import.
 	 * @param loaderID  The identifier of the loader.
 	 */
-	public ImagesImporter(Importer viewer, ImportableObject context, 
+	public ImagesImporter(Importer viewer, ImportableObject context,
 			Integer loaderID)
 	{
 		super(viewer);
@@ -97,7 +97,7 @@ public class ImagesImporter
 	{
 		handle = ivView.importFiles(context, getCurrentUserID(), groupID, this);
 	}
-	
+
 	/** 
 	 * Cancels the import.
 	 * @see DataImporterLoader#load()
@@ -134,8 +134,7 @@ public class ImagesImporter
         msg.print(s);
         msg.print(exc);
         registry.getLogger().error(this, msg);
-        registry.getUserNotifier().notifyError("Data Import Failure", 
-                                               s, exc);
+        registry.getUserNotifier().notifyError("Data Import Failure", s, exc);
 		viewer.cancelImport(loaderID);
 	}
 
@@ -146,5 +145,5 @@ public class ImagesImporter
      * @see DataTreeViewerLoader#handleNullResult()
      */
     public void handleNullResult() {}
-    
+
 }

@@ -34,6 +34,8 @@ import java.util.Map;
 //Application-internal dependencies
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.env.data.model.DiskQuota;
+
 import pojos.ExperimenterData;
 import pojos.GroupData;
 
@@ -393,4 +395,18 @@ public interface AdminService
 			ExperimenterData experimenter)
 		throws DSOutOfServiceException, DSAccessException;
 
+	/**
+	 * Returns the disk space.
+	 * 
+	 * @param f The file to upload.
+	 * @param format The format of the file.
+	 * @param experimenter The experimenter to handle.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service.
+	 */
+	public DiskQuota getQuota(Class type, long id)
+		throws DSOutOfServiceException, DSAccessException;
+	
 }

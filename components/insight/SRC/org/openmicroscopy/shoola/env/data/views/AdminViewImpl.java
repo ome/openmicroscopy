@@ -95,11 +95,12 @@ class AdminViewImpl
 
 	/**
 	 * Implemented as specified by the {@link AdminView} interface.
-	 * @see AdminView#getDiskSpace(long, Class, AgentEventListener)
+	 * @see AdminView#getDiskSpace(Class, long, AgentEventListener)
 	 */
-	public CallHandle getDiskSpace(long id, AgentEventListener observer)
+	public CallHandle getDiskSpace(Class type, long id, 
+			AgentEventListener observer)
 	{
-		BatchCallTree cmd = new AdminLoader(id, AdminLoader.SPACE);
+		BatchCallTree cmd = new AdminLoader(type, id);
 		return cmd.exec(observer);
 	}
 
@@ -220,22 +221,13 @@ class AdminViewImpl
 
 	/**
 	 * Implemented as specified by the {@link AdminView} interface.
-	 * @see AdminView#getGroupUsageDiskSpace(long, AgentEventListener)
+	 * @see AdminView#getDiskSpace(Class, List, AgentEventListener)
 	 */
-	public CallHandle getGroupUsageDiskSpace(long id,
+	public CallHandle getDiskSpace(Class type, List<Long> ids,
 			AgentEventListener observer)
 	{
-		return null;
-	}
-
-	/**
-	 * Implemented as specified by the {@link AdminView} interface.
-	 * @see AdminView#getGroupsUsageDiskSpace(List, AgentEventListener)
-	 */
-	public CallHandle getGroupsUsageDiskSpace(List<Long> ids,
-			AgentEventListener observer)
-	{
-		return null;
+		BatchCallTree cmd = new AdminLoader(type, ids);
+		return cmd.exec(observer);
 	}
 
 	/**

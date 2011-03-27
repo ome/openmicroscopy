@@ -1700,11 +1700,13 @@ class EditorModel
 	/** 
 	 * Starts an asynchronous call to retrieve disk space information. 
 	 * 
-	 * @param id The identifier of the user.
+	 * @param type 	Either <code>ExperimenterData</code> or
+	 * 				<code>GroupData</code>.
+	 * @param id 	The identifier of the user or group.
 	 */
-	void loadDiskSpace(long id)
+	void loadDiskSpace(Class type, long id)
 	{
-		DiskSpaceLoader loader = new DiskSpaceLoader(component, id);
+		DiskSpaceLoader loader = new DiskSpaceLoader(component, type, id);
 		loader.load();
 		loaders.add(loader);
 	}

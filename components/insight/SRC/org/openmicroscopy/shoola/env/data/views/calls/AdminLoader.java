@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.env.data.views.calls;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +37,7 @@ import java.util.Map;
 import org.openmicroscopy.shoola.env.data.AdminService;
 import org.openmicroscopy.shoola.env.data.OmeroImageService;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
+import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.views.BatchCall;
 import org.openmicroscopy.shoola.env.data.views.BatchCallTree;
 
@@ -85,23 +87,47 @@ public class AdminLoader
      * Creates a {@link BatchCall} to retrieve the available and used
      * disk space.
      * 
+     * @param type Either ExperimenterData or GroupData class.
      * @param id The id of the user, group or <code>-1</code>.
      * @param type Either experimenter or group.
      * @return The {@link BatchCall}.
      */
-    private BatchCall availableSpaceCall(final long id)
+    private BatchCall availableSpaceCall(final Class type, final long id)
     {
         return new BatchCall("Loading disk space information") {
             public void doCall() throws Exception
             {
                 AdminService os = context.getAdminService();
-                List<Long> l = new ArrayList<Long>();
-                l.add(os.getSpace(AdminService.FREE, id));
-                l.add(os.getSpace(AdminService.USED, id));
-                result = l;
+                result = os.getQuota(type, id);
             }
         };
     }
+    
+    /**
+     * Creates a {@link BatchCall} to retrieve the available and used
+     * disk space.
+     * 
+     * @param type Either ExperimenterData or GroupData class.
+     * @param ids The id of the users or groups.
+     * @param type Either experimenter or group.
+     * @return The {@link BatchCall}.
+     */
+    private BatchCall availableSpaceCall(final Class type, final List<Long> ids)
+    {
+        return new BatchCall("Loading disk space information") {
+            public void doCall() throws Exception
+            {
+                AdminService os = context.getAdminService();
+                List<DiskQuota> list = new ArrayList<DiskQuota>();
+                Iterator<Long> i = ids.iterator();
+                while (i.hasNext()) {
+                	list.add(os.getQuota(type, i.next()));
+				}
+                result = list;
+            }
+        };
+    }
+    
     
     /**
      * Creates a {@link BatchCall} to change the password
@@ -276,7 +302,7 @@ public class AdminLoader
     {
     	switch (index) {
 			case SPACE:
-				loadCall = availableSpaceCall(id);
+				loadCall = availableSpaceCall(ExperimenterData.class, id);
 				break;
 			case GROUPS:
 				loadCall = loadGroup(id);
@@ -285,7 +311,31 @@ public class AdminLoader
 				loadCall = loadExperimenters(id);
 		}
     }
+    
+    /** 
+     * Creates a new instance. 
+     * 
+     * @param type	Either <code>ExperimenterData</code> or
+     * 				<code>GroupData</code>
+     * @param id	The id of the user or <code>-1</code>.
+     */
+    public AdminLoader(Class type, long id)
+    {
+    	loadCall = availableSpaceCall(type, id);
+    }
 
+    /** 
+     * Creates a new instance. 
+     * 
+     * @param type	Either <code>ExperimenterData</code> or
+     * 				<code>GroupData</code>
+     * @param ids	The id of the user or groups.
+     */
+    public AdminLoader(Class type, List<Long> ids)
+    {
+    	loadCall = availableSpaceCall(type, ids);
+    }
+    
     /**
      * Creates a new instance.
      * 

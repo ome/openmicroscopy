@@ -32,6 +32,7 @@ import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.events.DSCallAdapter;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.env.data.views.AdminView;
 import org.openmicroscopy.shoola.env.data.views.DataManagerView;
 import org.openmicroscopy.shoola.env.data.views.ImageDataView;
 import org.openmicroscopy.shoola.env.data.views.MetadataHandlerView;
@@ -73,6 +74,9 @@ public abstract class DataImporterLoader
     
     /** Convenience reference for subclasses. */
     protected final MetadataHandlerView		mhView;
+    
+    /** Convenience reference for subclasses. */
+    protected final AdminView        	adminView;
     
     /** The id of the user or <code>-1</code>. */
     protected long 						userID;
@@ -120,6 +124,7 @@ public abstract class DataImporterLoader
 			registry.getDataServicesView(ImageDataView.class);
 		mhView = (MetadataHandlerView) 
 			registry.getDataServicesView(MetadataHandlerView.class);
+		adminView = (AdminView) registry.getDataServicesView(AdminView.class);
 	}
 
 	/** Notifies the {@link #viewer} that the data retrieval is finished. */

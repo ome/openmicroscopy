@@ -31,6 +31,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /**
  * Hosts information about the file to import.
@@ -54,6 +55,9 @@ class FileElement
 	/** The name of the imported file. */
 	private String name;
 	
+	/** The size of the file. */
+	private double length;
+	
 	/** 
 	 * Creates a new instance. 
 	 * 
@@ -64,6 +68,42 @@ class FileElement
 		if (file == null)
 			throw new IllegalArgumentException("No file set");
 		this.file = file;
+		length = -1;
+	}
+	
+	/**
+	 * Returns the length of the file
+	 * 
+	 * @return See above.
+	 */
+	double getFileLength()
+	{
+		if (length > 0) return length;
+		if (file.isFile())
+			length = file.length()/1000;
+		else { //directory.
+			File[] files = file.listFiles();
+			if (files != null) {
+				double value = 0;
+				for (int i = 0; i < files.length; i++) {
+					value += files[i].length();
+				}
+				length = value/1000;
+			}
+		}
+		return length;
+	}
+	
+	/**
+	 * Returns the length of the file in as a formatted string.
+	 * 
+	 * @return See above.
+	 */
+	String getFileLengthAsString()
+	{
+		long l = (long) (getFileLength());
+		if (l <= 0) return "--";
+		return UIUtilities.formatFileSize(l);
 	}
 	
 	/**

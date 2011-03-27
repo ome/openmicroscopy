@@ -47,6 +47,7 @@ import org.openmicroscopy.shoola.env.config.AgentInfo;
 import org.openmicroscopy.shoola.env.config.Registry;
 import org.openmicroscopy.shoola.env.data.login.UserCredentials;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.util.PojoMapper;
 
 import pojos.DataObject;
@@ -186,14 +187,31 @@ class AdminServiceImpl
 	{
 		try {
 			switch (index) {
-				case USED: return gateway.getUsedSpace(id);
-				case FREE: return gateway.getFreeSpace();
+				case USED: return gateway.getUsedSpace(
+						ExperimenterData.class, id);
+				case FREE: return gateway.getFreeSpace(ExperimenterData.class,
+						id);
 			}
 		} catch (Exception e) {
 			return -1;
 		}
 		
 		return -1;
+	}
+	
+	/**
+	 * Implemented as specified by {@link AdminService}.
+	 * @see AdminService#getQuota(Class, long)
+	 */
+	public DiskQuota getQuota(Class type, long id)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		long used = gateway.getUsedSpace(type, id);
+		long available = gateway.getFreeSpace(type, id);
+		int t = DiskQuota.USER;
+		if (GroupData.class.equals(type))
+			t = DiskQuota.GROUP;
+		return new DiskQuota(t, id, used, available);
 	}
 	
 	/**

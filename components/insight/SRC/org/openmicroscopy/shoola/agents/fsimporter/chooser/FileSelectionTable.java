@@ -55,6 +55,7 @@ import org.jdesktop.swingx.decorator.HighlighterFactory;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
+import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.util.ui.IconManager;
 import org.openmicroscopy.shoola.util.ui.MultilineHeaderSelectionRenderer;
@@ -98,20 +99,23 @@ class FileSelectionTable
 	/** The index of the file's name column. */
 	static final int		FILE_INDEX = 0;
 	
+	/** The index of the file's length column. */
+	static final int		SIZE_INDEX = 1;
+	
 	/** 
 	 * The index of the column indicating the container where files will
 	 * be imported
 	 */
-	static final int		CONTAINER_INDEX = 1;
+	static final int		CONTAINER_INDEX = 2;
 	
 	/** 
 	 * The index of the column indicating to use the folder
 	 * as a dataset. 
 	 */
-	static final int		FOLDER_AS_CONTAINER_INDEX = 2;
+	static final int		FOLDER_AS_CONTAINER_INDEX = 3;
 	
 	/** The index of the column indicating to archive the file. */
-	private static final int		ARCHIVED_INDEX = 3;
+	private static final int		ARCHIVED_INDEX = 4;
 	
 	/** The columns of the table. */
 	private static final Vector<String> COLUMNS;
@@ -131,9 +135,6 @@ class FileSelectionTable
 	/** String used to retrieve if the archived option is displayed. */
 	private static final String ARCHIVED_AVAILABLE = "/options/ArchivedTunable";
 	
-	/** The default value for the <code>Folder as Dataset</code>. */
-	private static final Boolean DEFAULT_FAD = Boolean.valueOf(true);
-
 	/** The text displayed to use the folder as container. */
 	private static final String FAD_TEXT = "Folder as\nDataset";
 	
@@ -143,30 +144,54 @@ class FileSelectionTable
 	/** The text displayed to select the files. */
 	private static final String FILE_TEXT = "File or Folder";
 	
-	/** The text displayed to select the files. */
-	private static final String CONTAINER_TEXT = "Container";
+	/** The text displayed to indicate the size of the file or folder. */
+	private static final String SIZE_TEXT = "Size";
+	
+	/** 
+	 * The text displayed where to import the data to if importing
+	 * to Project / Dataset.
+	 */
+	private static final String CONTAINER_PROJECT_TEXT = "Project/Dataset";
+	
+	/** 
+	 * The text displayed where to import the data to if importing
+	 * to Screen.
+	 */
+	private static final String CONTAINER_SCREEN_TEXT = "Screen";
 	
 	static {
-		COLUMNS = new Vector<String>(4);
+		int n = 5;
+		COLUMNS = new Vector<String>(n);
 		COLUMNS.add(FILE_TEXT);
-		COLUMNS.add(CONTAINER_TEXT);
+		COLUMNS.add(SIZE_TEXT);
+		COLUMNS.add(CONTAINER_PROJECT_TEXT);
 		COLUMNS.add(FAD_TEXT);
 		COLUMNS.add(ARCHIVED_TEXT);
-		COLUMNS_TOOLTIP = new String[4];
-		COLUMNS_TOOLTIP[0] = "File or Folder to import.";
-		COLUMNS_TOOLTIP[1] = "The container where the data will be imported.";
-		COLUMNS_TOOLTIP[2] = "Convert the folder as dataset.";
-		COLUMNS_TOOLTIP[3] = "Archive the data.";
+		COLUMNS_TOOLTIP = new String[n];
+		COLUMNS_TOOLTIP[FILE_INDEX] = "File or Folder to import.";
+		COLUMNS_TOOLTIP[SIZE_INDEX] = "Size of File or Folder.";
+		COLUMNS_TOOLTIP[CONTAINER_INDEX] = 
+			"The container where the data will be imported to.";
+		COLUMNS_TOOLTIP[FOLDER_AS_CONTAINER_INDEX] = 
+			"Convert the folder as dataset.";
+		COLUMNS_TOOLTIP[ARCHIVED_INDEX] = "Archive the data.";
 		
-		COLUMNS_NO_FOLDER_AS_CONTAINER = new Vector<String>(3);
+		n = 4;
+		COLUMNS_NO_FOLDER_AS_CONTAINER = new Vector<String>(n);
 		COLUMNS_NO_FOLDER_AS_CONTAINER.add(FILE_TEXT);
-		COLUMNS_NO_FOLDER_AS_CONTAINER.add(CONTAINER_TEXT);
+		COLUMNS_NO_FOLDER_AS_CONTAINER.add(SIZE_TEXT);
+		COLUMNS_NO_FOLDER_AS_CONTAINER.add(CONTAINER_PROJECT_TEXT);
 		COLUMNS_NO_FOLDER_AS_CONTAINER.add(ARCHIVED_TEXT);
 		
-		COLUMNS_NO_FOLDER_AS_CONTAINER_TOOLTIP = new String[3];
-		COLUMNS_NO_FOLDER_AS_CONTAINER_TOOLTIP[0] = COLUMNS_TOOLTIP[0];
-		COLUMNS_NO_FOLDER_AS_CONTAINER_TOOLTIP[1] = COLUMNS_TOOLTIP[1];
-		COLUMNS_NO_FOLDER_AS_CONTAINER_TOOLTIP[2] = COLUMNS_TOOLTIP[3];
+		COLUMNS_NO_FOLDER_AS_CONTAINER_TOOLTIP = new String[n];
+		COLUMNS_NO_FOLDER_AS_CONTAINER_TOOLTIP[FILE_INDEX] = 
+			COLUMNS_TOOLTIP[FILE_INDEX];
+		COLUMNS_NO_FOLDER_AS_CONTAINER_TOOLTIP[SIZE_INDEX] = 
+			COLUMNS_TOOLTIP[SIZE_INDEX];
+		COLUMNS_NO_FOLDER_AS_CONTAINER_TOOLTIP[CONTAINER_INDEX] = 
+			COLUMNS_TOOLTIP[CONTAINER_INDEX];
+		COLUMNS_NO_FOLDER_AS_CONTAINER_TOOLTIP[ARCHIVED_INDEX-1] = 
+			COLUMNS_TOOLTIP[ARCHIVED_INDEX];
 	}
 	
 	/** The button to move an item from the remaining items to current items. */
@@ -238,6 +263,13 @@ class FileSelectionTable
 			tcm.getColumn(FOLDER_AS_CONTAINER_INDEX).setHeaderRenderer(
 					new MultilineHeaderSelectionRenderer(archivedBox));
 		}
+		String text = CONTAINER_PROJECT_TEXT;
+		if (model.getType() == Importer.SCREEN_TYPE)
+			text = CONTAINER_SCREEN_TEXT;
+		tc = tcm.getColumn(CONTAINER_INDEX);
+		tc.setHeaderValue(text);
+		table.getTableHeader().resizeAndRepaint();
+		table.getTableHeader().setReorderingAllowed(false);
 	}
 	
 	/** Initializes the components composing the display. */
@@ -321,23 +353,6 @@ class FileSelectionTable
 	}
 	
 	/**
-	 * Builds and lays out the controls.
-	 * 
-	 * @return See above.
-	 */
-	JPanel buildControls()
-	{
-		JPanel p = new JPanel();
-		p.setLayout(new BoxLayout(p, BoxLayout.PAGE_AXIS));
-		p.add(addButton);
-		p.add(Box.createVerticalStrut(5));
-		p.add(removeButton);
-		p.add(Box.createVerticalStrut(5));
-		p.add(removeAllButton);
-		return p;
-	}
-	
-	/**
 	 * Returns the component hosting the collection of files to import.
 	 * 
 	 * @return See above.
@@ -364,8 +379,8 @@ class FileSelectionTable
 	{
 		int[] rows = table.getSelectedRows();
 		if (rows == null || rows.length == 0) return;
-		DefaultTableModel model = (DefaultTableModel) table.getModel();
-		Vector v = model.getDataVector();
+		DefaultTableModel dtm = (DefaultTableModel) table.getModel();
+		Vector v = dtm.getDataVector();
 		for (int i = 0; i < rows.length; i++) {
 			v.remove(rows[i]);
 		}
@@ -373,6 +388,7 @@ class FileSelectionTable
 		int n = table.getRowCount();
 		firePropertyChange(REMOVE_PROPERTY, n-1, n);
 		enabledControl(table.getRowCount() > 0);
+		model.onSelectionChanged();
 	}
 	
 	/**
@@ -400,6 +416,23 @@ class FileSelectionTable
 		builGUI();
 	}
 
+	/**
+	 * Builds and lays out the controls.
+	 * 
+	 * @return See above.
+	 */
+	JPanel buildControls()
+	{
+		JPanel p = new JPanel();
+		p.setLayout(new BoxLayout(p, BoxLayout.PAGE_AXIS));
+		p.add(addButton);
+		p.add(Box.createVerticalStrut(5));
+		p.add(removeButton);
+		p.add(Box.createVerticalStrut(5));
+		p.add(removeAllButton);
+		return p;
+	}
+	
 	/**
 	 * Returns <code>true</code> if there are files to import,
 	 * <code>false</code> otherwise.
@@ -477,11 +510,12 @@ class FileSelectionTable
 	{
 		int n = table.getRowCount();
 		if (n == 0) return;
-		DefaultTableModel model = (DefaultTableModel) table.getModel();
-		model.getDataVector().clear();
+		DefaultTableModel dtm = (DefaultTableModel) table.getModel();
+		dtm.getDataVector().clear();
 		table.repaint();
 		firePropertyChange(REMOVE_PROPERTY, -1, 0);
 		enabledControl(false);
+		model.onSelectionChanged();
 	}
 	
 	/**
@@ -504,7 +538,7 @@ class FileSelectionTable
 			inQueue.add(element.getFile().getAbsolutePath());
 		}
 		Iterator<File> i = files.iterator();
-		int n = table.getModel().getColumnCount();
+		int n = dtm.getColumnCount();
 		boolean b = n == COLUMNS.size();
 		DataNode node = model.getImportLocation();
 		String value = null;
@@ -523,15 +557,35 @@ class FileSelectionTable
 						v = fad; 
 					}
 					dtm.addRow(new Object[] {element, 
+							element.getFileLengthAsString(),
 							new DataNodeElement(node, value),
 							Boolean.valueOf(v), Boolean.valueOf(a)});
 				} else dtm.addRow(new Object[] {element, 
+						element.getFileLengthAsString(),
 						new DataNodeElement(node, null),
 						Boolean.valueOf(a)});
 			}
 		}
+		model.onSelectionChanged();
 	}
 
+	/**
+	 * Returns the size of the files to import.
+	 * 
+	 * @return See above.
+	 */
+	long getSizeFilesInQueue()
+	{
+		DefaultTableModel dtm = (DefaultTableModel) table.getModel();
+		FileElement element;
+		long size = 0;
+		for (int i = 0; i < table.getRowCount(); i++) {
+			element = (FileElement) dtm.getValueAt(i, FILE_INDEX);
+			size += element.getFileLength();
+		}
+		return size;
+	}
+	
 	/**
 	 * Marks the folder as a dataset.
 	 * 
@@ -647,6 +701,7 @@ class FileSelectionTable
 			switch (column) {
 				case FILE_INDEX: 
 				case CONTAINER_INDEX:
+				case SIZE_INDEX:
 					return false;
 				case FOLDER_AS_CONTAINER_INDEX:
 					if (getColumnCount() == 

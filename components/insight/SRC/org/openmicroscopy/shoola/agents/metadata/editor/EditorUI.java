@@ -50,6 +50,7 @@ import org.openmicroscopy.shoola.agents.metadata.MetadataViewerAgent;
 import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.env.data.model.AdminObject;
+import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
@@ -243,12 +244,11 @@ class EditorUI
     	setDataToSave(false);
     	boolean add = true;
     	if (uo instanceof ExperimenterData)  {
-    		
 			//if (current.getId() == exp.getId()) {
-				toolBar.buildUI();
-	    		userUI.buildUI();
-	    		userUI.repaint();
-	    		component = userTabbedPane; 
+    		toolBar.buildUI();
+    		userUI.buildUI();
+    		userUI.repaint();
+    		component = userTabbedPane; 
 			//} else add = false;
     	} else if (uo instanceof GroupData) {
     		toolBar.buildUI();
@@ -474,9 +474,9 @@ class EditorUI
 	/**
 	 * Sets the disk space information.
 	 * 
-	 * @param space The value to set.
+	 * @param quota The value to set.
 	 */
-	void setDiskSpace(List space) { userUI.setDiskSpace(space); }
+	void setDiskSpace(DiskQuota quota) { userUI.setDiskSpace(quota); }
 
 	/**
 	 * Handles the expansion or collapsing of the passed component.

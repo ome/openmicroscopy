@@ -38,9 +38,11 @@ import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
+import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
+import org.openmicroscopy.shoola.util.ui.MessageBox;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
@@ -138,6 +140,8 @@ class ImporterComponent
 			chooser.reset(selectedContainer, objects, type);
 			chooser.requestFocusInWindow();
 		}
+		//load available disk space
+		model.fireDiskSpaceLoading();
 		view.setVisible(false);
 		UIUtilities.centerAndShow(chooser);
 	}
@@ -280,6 +284,11 @@ class ImporterComponent
 			//cancel all the on-going import.
 			List<ImporterUIElement> list = view.getElementsWithDataToImport();
 			if (list.size() > 0) {
+				MessageBox box = new MessageBox(view, "Cancel Import",
+						"Are you sure you want to cancel all imports " +
+						"from queue?");
+				if (box.centerMsgBox() == MessageBox.NO_OPTION)
+					return;
 				Iterator<ImporterUIElement> i = list.iterator();
 				ImporterUIElement element;
 				while (i.hasNext()) {
@@ -303,4 +312,26 @@ class ImporterComponent
 		return view.hasFailuresToSend();
 	}
 	
+	/** 
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#setDiskSpace(DiskQuota)
+	 */
+	public void setDiskSpace(DiskQuota quota)
+	{
+		if (quota == null) return;
+		if (model.getState() == DISCARDED) return;
+		if (chooser != null && chooser.isVisible())
+			chooser.setDiskSpace(quota);
+	}
+	
+	/** 
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#close()
+	 */
+	public void close()
+	{
+		cancelImport();
+		view.setVisible(false);
+	}
+
 }

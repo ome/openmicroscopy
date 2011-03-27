@@ -38,6 +38,7 @@ import org.openmicroscopy.shoola.agents.metadata.util.AnalysisResultsItem;
 import org.openmicroscopy.shoola.agents.metadata.view.MetadataViewer;
 import org.openmicroscopy.shoola.agents.metadata.rnd.Renderer;
 import org.openmicroscopy.shoola.env.data.OmeroMetadataService;
+import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.component.ObservableComponent;
@@ -181,9 +182,9 @@ public interface Editor
 	/**
 	 * Sets the used and free disk space.
 	 * 
-	 * @param list The value to set.
+	 * @param quota The value to set.
 	 */
-	public void setDiskSpace(List list);
+	public void setDiskSpace(DiskQuota quota);
 
 	/**
 	 * Indicates that the password was successfully modified or not.

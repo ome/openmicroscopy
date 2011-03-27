@@ -39,6 +39,7 @@ import org.jdesktop.swingx.VerticalLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
+import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.AnnotationData;
 import pojos.ExperimenterData;
@@ -77,7 +78,7 @@ class UserUI
 	private JXTaskPane		diskTask;
 	
 	/** The disk space. */
-	private List			space;
+	private DiskQuota		quota;
 	
 	/** 
 	 * Initializes the components composing the display. 
@@ -139,16 +140,16 @@ class UserUI
 	/**
 	 * Sets the disk space information.
 	 * 
-	 * @param space The value to set.
+	 * @param quota The value to set.
 	 */
-	void setDiskSpace(List space) { this.space = space; }
+	void setDiskSpace(DiskQuota quota) { this.quota = quota; }
 	
 	/** 
 	 * Returns the list with disk space information.
 	 * 
 	 * @return See above.
 	 */
-	List isDiskSpaceLoaded() { return space; }
+	DiskQuota isDiskSpaceLoaded() { return quota; }
 
 	/** 
 	 * Sets the photo of the user.
@@ -178,7 +179,7 @@ class UserUI
 	 */
 	protected void clearData()
 	{
-		space = null;
+		quota = null;
 		clearDisplay();
 	}
 
@@ -239,7 +240,8 @@ class UserUI
 	{
 		if (!(model.getRefObject() instanceof ExperimenterData)) return;
 		if (diskTask.isCollapsed()) model.cancelDiskSpaceLoading();
-		else model.loadDiskSpace(model.getRefObjectID());
+		else model.loadDiskSpace(model.getRefObject().getClass(),
+				model.getRefObjectID());
 	}
 
 }

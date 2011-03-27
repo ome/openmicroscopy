@@ -23,13 +23,15 @@
 package org.openmicroscopy.shoola.agents.metadata;
 
 //Java imports
-import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
+import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.views.CallHandle;
+import pojos.ExperimenterData;
+import pojos.GroupData;
 
 /** 
  * Loads the space used and the space available on the server for the
@@ -55,27 +57,37 @@ public class DiskSpaceLoader
     /** The id of the user or group. */
     private long		id;
 
+    /** Either <code>ExperimenterData</code> or <code>GroupData</code>. */
+    private Class		type;
+    
     /**
      * Creates a new instance.
      * 
      * @param viewer Reference to the viewer. Mustn't be <code>null</code>.
+     * @param type	Either <code>ExperimenterData</code> or
+     * 				<code>GroupData</code>.
      * @param id The identifier of the user or the group.
      */
-	public DiskSpaceLoader(Editor viewer, long id)
+	public DiskSpaceLoader(Editor viewer, Class type, long id)
 	{
 		super(viewer);
+		if (!(ExperimenterData.class.equals(type) ||
+			GroupData.class.equals(type)))
+			throw new IllegalArgumentException("Type can only by " +
+					"ExperimenterData or GroupData.");
 		this.id = id;
+		this.type = type;
 	}
-	
+
     /** 
      * Loads the used and free space.
      * @see EditorLoader#load()
      */
     public void load()
     { 
-    	handle = adminView.getDiskSpace(id, this); 
+    	handle = adminView.getDiskSpace(type, id, this); 
     }
-    
+
     /** 
      * Cancels the data loading. 
      * @see EditorLoader#cancel()
@@ -88,7 +100,7 @@ public class DiskSpaceLoader
      */
     public void handleResult(Object result) 
     {
-        viewer.setDiskSpace((List) result);
+        viewer.setDiskSpace((DiskQuota) result);
     }
-    
+
 }

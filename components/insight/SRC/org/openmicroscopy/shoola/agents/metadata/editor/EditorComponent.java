@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import org.openmicroscopy.shoola.agents.util.SelectionWizard;
 import org.openmicroscopy.shoola.agents.util.flim.FLIMResultsDialog;
 import org.openmicroscopy.shoola.env.config.Registry;
+import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ExportActivityParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
@@ -295,12 +296,12 @@ class EditorComponent
 
 	/** 
 	 * Implemented as specified by the {@link Editor} interface.
-	 * @see Editor#setDiskSpace(List)
+	 * @see Editor#setDiskSpace(DiskQuota)
 	 */
-	public void setDiskSpace(List list)
+	public void setDiskSpace(DiskQuota quota)
 	{
-		if (list == null || list.size() != 2) return;
-		view.setDiskSpace(list);
+		if (quota == null) return;
+		view.setDiskSpace(quota);
 		view.layoutUI();
 	}
 

@@ -42,6 +42,7 @@ import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.util.Rotation;
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -95,12 +96,12 @@ class UserDiskSpace
 	void buildGUI()
 	{
 		data.removeAll();
-		List list = view.isDiskSpaceLoaded();
-		if (list != null && list.size() == 2) {
+		DiskQuota quota = view.isDiskSpaceLoaded();
+		if (quota != null) {
 			DefaultPieDataset dataset = new DefaultPieDataset();
-			long free = (Long) list.get(0);
-			long used = (Long) list.get(1);
-			if (free < 0 || used  <0) {
+			long free = quota.getAvailableSpace();
+			long used = quota.getUsedSpace();
+			if (free < 0 || used < 0) {
 				buildChartNotAvailable();
 				return;
 			}

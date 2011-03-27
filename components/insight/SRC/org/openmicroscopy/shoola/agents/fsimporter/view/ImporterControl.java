@@ -23,6 +23,8 @@
 package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 //Java imports
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
@@ -32,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
+import javax.swing.WindowConstants;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuKeyEvent;
 import javax.swing.event.MenuKeyListener;
@@ -120,7 +123,10 @@ class ImporterControl
 	/** Attaches listener to the window listener. */
 	private void attachListeners()
 	{
-		//view.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		view.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+		view.addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) { model.close(); }
+		});
 		JMenu menu = ImporterFactory.getWindowMenu();
 		menu.addMenuListener(new MenuListener() {
 

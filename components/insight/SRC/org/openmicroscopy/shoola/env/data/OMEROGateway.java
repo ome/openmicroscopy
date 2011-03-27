@@ -4012,13 +4012,16 @@ class OMEROGateway
 	 * Returns the free or available space (in Kilobytes) on the file system
 	 * including nested sub-directories.
 	 * 
+	 * @param Either a group or a user.
+	 * @param id The identifier of the user or group or <code>-1</code> 
+	 * 			 if not specified.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	long getFreeSpace()
+	long getFreeSpace(Class type, long id)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();
@@ -4034,14 +4037,16 @@ class OMEROGateway
 	 * Returns the used space (in Kilobytes) on the file system
 	 * including nested sub-directories.
 	 * 
-	 * @param id The identifier of the user or <code>-1</code> if not specified.
+	 * @param Either a group or a user.
+	 * @param id The identifier of the user or group or <code>-1</code> 
+	 * 			 if not specified.
 	 * @return See above.
 	 * @throws DSOutOfServiceException  If the connection is broken, or logged
 	 *                                  in.
 	 * @throws DSAccessException        If an error occurred while trying to 
 	 *                                  retrieve data from OMEDS service.
 	 */
-	long getUsedSpace(long id)
+	long getUsedSpace(Class type, long id)
 		throws DSOutOfServiceException, DSAccessException
 	{
 		isSessionAlive();

@@ -47,6 +47,4 @@ public enum ShapeType
 	ELLIPSE,
 	/** The rectangle to render. */
 	RECTANGLE
-};
-
-
+}

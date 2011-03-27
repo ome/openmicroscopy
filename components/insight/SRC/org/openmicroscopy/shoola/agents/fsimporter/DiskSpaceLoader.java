@@ -1,5 +1,5 @@
 /*
- * org.openmicroscopy.shoola.agents.fsimporter.actions.CloseAction 
+ * org.openmicroscopy.shoola.agents.fsimporter.DiskSpaceLoader 
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2011 University of Dundee. All rights reserved.
@@ -20,22 +20,26 @@
  *
  *------------------------------------------------------------------------------
  */
-package org.openmicroscopy.shoola.agents.fsimporter.actions;
+package org.openmicroscopy.shoola.agents.fsimporter;
+
 
 
 //Java imports
-import java.awt.event.ActionEvent;
-import javax.swing.Action;
+import java.util.List;
 
 //Third-party libraries
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
-import org.openmicroscopy.shoola.env.ui.TopWindow;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.agents.metadata.EditorLoader;
+import org.openmicroscopy.shoola.agents.metadata.editor.Editor;
+import org.openmicroscopy.shoola.env.data.model.DiskQuota;
+import org.openmicroscopy.shoola.env.data.views.CallHandle;
+
+import pojos.ExperimenterData;
 
 /** 
- * Closes the importer.
+ * Loads the available and used disk space.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -47,37 +51,46 @@ import org.openmicroscopy.shoola.util.ui.UIUtilities;
  * </small>
  * @since 3.0-Beta4
  */
-public class CloseAction 
-	extends ImporterAction
+public class DiskSpaceLoader 
+	extends DataImporterLoader
 {
 
-	/** The description of the action. */
-    private static final String NAME = "Close";
-    
-    /** The description of the action. */
-    private static final String DESCRIPTION = "Close the Importer.";
-    
+    /** Handle to the asynchronous call so that we can cancel it. */
+    private CallHandle  handle;
+
     /**
      * Creates a new instance.
      * 
-     * @param model Reference to the Model. Mustn't be <code>null</code>.
+     * @param viewer Reference to the viewer. Mustn't be <code>null</code>.
      */
-    public CloseAction(Importer model)
-    {
-        super(model);
-        setEnabled(true);
-        putValue(Action.NAME, NAME);
-        putValue(Action.SHORT_DESCRIPTION, 
-                UIUtilities.formatToolTipText(DESCRIPTION));
+	public DiskSpaceLoader(Importer viewer)
+	{
+		super(viewer);
+	}
+
+    /** 
+     * Loads the used and free space.
+     * @see EditorLoader#load()
+     */
+    public void load()
+    { 
+    	handle = adminView.getDiskSpace(ExperimenterData.class,
+    			getCurrentUserID(), this); 
     }
+
+    /** 
+     * Cancels the data loading. 
+     * @see EditorLoader#cancel()
+     */
+    public void cancel() { handle.cancel(); }
     
     /**
-     * Closes the {@link Importer}.
-     * @see java.awt.event.ActionListener#actionPerformed(ActionEvent)
+     * Feeds the result back to the viewer.
+     * @see EditorLoader#handleResult(Object)
      */
-    public void actionPerformed(ActionEvent e)
-    { 
-    	model.close(); 
+    public void handleResult(Object result) 
+    {
+    	viewer.setDiskSpace((DiskQuota) result);
     }
-    
+
 }
