@@ -1214,7 +1214,7 @@ public class ImportDialog
 		p.add(table.buildControls(), "0, 0, LEFT, CENTER");
 		p.add(tabbedPane, "2, 0");
 		JPanel cp = new JPanel();
-		//cp.setLayout(new BoxLayout(cp, BoxLayout.Y_AXIS));
+		cp.setLayout(new BoxLayout(cp, BoxLayout.Y_AXIS));
 		cp.add(UIUtilities.buildComponentPanel(folderAsDatasetBox));
 		cp.add(chooser);
 		JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, cp, 
@@ -1394,60 +1394,11 @@ public class ImportDialog
 	 */
 	private boolean isFileImportable(File f)
 	{
-		/*
-		Iterator<FileFilter> i = filters.iterator();
-		FileFilter filter;
-		while (i.hasNext()) {
-			filter = i.next();
-			if (filter.accept(f)) return true;
-		}
-		return false;
-		*/
+		if (f == null || f.isHidden()) return false;
 		return true;
 	}
-	
-	/**
-	 * Returns the name to display for a file.
-	 * 
-	 * @param fullPath The file's absolute path.
-	 * @return See above.
-	 */
-	String getDisplayedFileName(String fullPath)
-	{
-		if (fullPath == null || !partialName.isSelected()) return fullPath;
-		Integer number = (Integer) numberOfFolders.getValueAsNumber();
-		return UIUtilities.getDisplayedFileName(fullPath, number);
-	}
-	
-	/**
-	 * Returns <code>true</code> if the folder can be used as a container,
-	 * <code>false</code> otherwise.
-	 * 
-	 * @return See above.
-	 */
-	boolean useFolderAsContainer()
-	{
-		return (type != Importer.SCREEN_TYPE);
-	}
 
-	/**
-	 * Returns where to import the file when selected.
-	 * 
-	 * @return See above.
-	 */
-	DataNode getImportLocation()
-	{
-		if (type == Importer.SCREEN_TYPE) {
-			if (parentsBox.getItemCount() > 0) 
-				return (DataNode) parentsBox.getSelectedItem();
-			return null;
-		}
-		if (datasetsBox.getItemCount() > 0)
-			return (DataNode) datasetsBox.getSelectedItem();
-		return null;
-	}
-	
-    /** 
+	/** 
      * Creates a new instance.
      * 
      * @param owner 	The owner of the dialog.
@@ -1492,7 +1443,58 @@ public class ImportDialog
 			sizeImportLabel.setToolTipText(v);
 		}
     }
-    
+
+    /**
+     * Returns <code>true</code> if the folder containing an image has to be
+     * used as a dataset, <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    boolean isParentFolderAsDataset()
+    {
+    	return folderAsDatasetBox.isSelected();
+    }
+    /**
+	 * Returns the name to display for a file.
+	 * 
+	 * @param fullPath The file's absolute path.
+	 * @return See above.
+	 */
+	String getDisplayedFileName(String fullPath)
+	{
+		if (fullPath == null || !partialName.isSelected()) return fullPath;
+		Integer number = (Integer) numberOfFolders.getValueAsNumber();
+		return UIUtilities.getDisplayedFileName(fullPath, number);
+	}
+	
+	/**
+	 * Returns <code>true</code> if the folder can be used as a container,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean useFolderAsContainer()
+	{
+		return (type != Importer.SCREEN_TYPE);
+	}
+
+	/**
+	 * Returns where to import the file when selected.
+	 * 
+	 * @return See above.
+	 */
+	DataNode getImportLocation()
+	{
+		if (type == Importer.SCREEN_TYPE) {
+			if (parentsBox.getItemCount() > 0) 
+				return (DataNode) parentsBox.getSelectedItem();
+			return null;
+		}
+		if (datasetsBox.getItemCount() > 0)
+			return (DataNode) datasetsBox.getSelectedItem();
+		return null;
+	}
+	
     /**
      * Resets the text and remove all the files to import.
      * 

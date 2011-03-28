@@ -78,11 +78,9 @@ import pojos.ImageData;
 import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
-import pojos.RatingAnnotationData;
 import pojos.ScreenData;
 import pojos.TagAnnotationData;
 import pojos.WellData;
-import pojos.WellSampleData;
 
 /** 
  * Implementation of the {@link OmeroDataService} I/F.

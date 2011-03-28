@@ -93,18 +93,12 @@ public class ImportableObject
 	/** The collection of tags. */
 	private Collection<TagAnnotationData> tags;
 	
-	/** The containers where to import the data if set. */
-	private List<DataObject> containers;
-	
 	/** The array containing pixels size.*/
 	private double[]	pixelsSize;
 	
 	/** The type to create if the folder has to be saved as a container. */
 	private Class type;
-	
-	/** The dataset where to import the orphaned images. */
-	private DatasetData defaultDataset;
-	
+
 	/** Flag indicating to load the thumbnails. */ 
 	private boolean loadThumbnail;
 	
@@ -176,41 +170,11 @@ public class ImportableObject
 	public boolean isLoadThumbnail() { return loadThumbnail; }
 	
 	/**
-	 * Sets the dataset where to import the orphaned images.
-	 * 
-	 * @param defaultDataset The value to set.
-	 */
-	public void setDefaultDataset(DatasetData defaultDataset)
-	{
-		this.defaultDataset = defaultDataset;
-	}
-	
-	/**
-	 * Returns the dataset where to import the orphaned images.
-	 * 
-	 * @return See above.
-	 */
-	public DatasetData getDefaultDataset()
-	{
-		return defaultDataset;
-	}
-	
-	/**
 	 * Sets the type to use when creating a folder as container.
 	 * 
 	 * @param type The type to use.
 	 */
 	public void setType(Class type) { this.type = type; }
-	
-	/**
-	 * Sets the containers where to import the data if set.
-	 * 
-	 * @param containers The containers to set.
-	 */
-	public void setContainers(List<DataObject> containers)
-	{
-		this.containers = containers;
-	}
 	
 	/**
 	 * Sets the default size of the pixels if the value is not found.
@@ -264,16 +228,27 @@ public class ImportableObject
 	{
 		if (file == null) return null;
 		File f = file.getFile();
-		if (f.isFile()) return null;
+		//if (f.isFile()) return null;
 		boolean b = file.isFolderAsContainer();
 		if (!b) return null;
+		File parentFile;
 		if (DatasetData.class.equals(type)) {
 			DatasetData dataset = new DatasetData();
-			dataset.setName(f.getName());
+			if (f.isFile()) {
+				parentFile = f.getParentFile();
+				if (parentFile == null)
+					return null;
+				dataset.setName(parentFile.getName());
+			} else dataset.setName(f.getName());
 			return dataset;
 		} else if (ScreenData.class.equals(type)) {
 			ScreenData screen = new ScreenData();
-			screen.setName(f.getName());
+			if (f.isFile()) {
+				parentFile = f.getParentFile();
+				if (parentFile == null)
+					return null;
+				screen.setName(parentFile.getName());
+			} else screen.setName(f.getName());
 			return screen;
 		}
 		return null;
@@ -311,13 +286,6 @@ public class ImportableObject
 		}
 		return null; 
 	}
-	
-	/**
-	 * Returns the containers where to import the data if set.
-	 * 
-	 * @return See above.
-	 */
-	public List<DataObject> getContainers() { return containers; }
 	
 	/**
 	 * Returns the collection of tags.

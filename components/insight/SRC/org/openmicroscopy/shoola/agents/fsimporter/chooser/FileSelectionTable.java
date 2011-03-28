@@ -63,6 +63,8 @@ import org.openmicroscopy.shoola.util.ui.TooltipTableHeader;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.treetable.renderers.StringCellRenderer;
 
+import pojos.DatasetData;
+
 /**
  * Component displaying the files to import.
  *
@@ -381,11 +383,15 @@ class FileSelectionTable
 		if (rows == null || rows.length == 0) return;
 		DefaultTableModel dtm = (DefaultTableModel) table.getModel();
 		Vector v = dtm.getDataVector();
+		int index;
+		int n = v.size();
 		for (int i = 0; i < rows.length; i++) {
-			v.remove(rows[i]);
+			index = rows[i];
+			if (index < n)
+				v.remove(index);
 		}
 		table.repaint();
-		int n = table.getRowCount();
+		n = table.getRowCount();
 		firePropertyChange(REMOVE_PROPERTY, n-1, n);
 		enabledControl(table.getRowCount() > 0);
 		model.onSelectionChanged();
@@ -457,23 +463,30 @@ class FileSelectionTable
 		int columns = table.getColumnCount();
 		boolean b;
 		DataNodeElement dne;
+		DatasetData dataset;
 		for (int i = 0; i < n; i++) {
 			element = (FileElement) dtm.getValueAt(i, FILE_INDEX);
 			dne = (DataNodeElement) dtm.getValueAt(i, CONTAINER_INDEX);
 			file = element.getFile();
+			dataset = dne.getLocation();
 			if (columns == COLUMNS_NO_FOLDER_AS_CONTAINER.size()) {
 				importable = new ImportableFile(file, 
 						Boolean.valueOf((Boolean) dtm.getValueAt(i, 
 								FOLDER_AS_CONTAINER_INDEX)));
 			} else {
+				/*
 				if (file.isFile()) b = false;
 				else b = Boolean.valueOf((Boolean) dtm.getValueAt(i, 
+						FOLDER_AS_CONTAINER_INDEX));
+						*/
+				b = Boolean.valueOf((Boolean) dtm.getValueAt(i, 
 						FOLDER_AS_CONTAINER_INDEX));
 				importable = new ImportableFile(file, 
 						Boolean.valueOf((Boolean) dtm.getValueAt(i, 
 					ARCHIVED_INDEX)), b);
+				if (b) dataset = null;
 			}
-			importable.setLocation(dne.getParent(), dne.getLocation());
+			importable.setLocation(dne.getParent(), dataset);
 			importable.setRefNode(dne.getRefNode());
 			files.add(importable);
 		}
@@ -555,6 +568,11 @@ class FileSelectionTable
 					if (f.isDirectory()) {
 						value = f.getName();
 						v = fad; 
+					} else {
+						if (model.isParentFolderAsDataset()) {
+							value = f.getParentFile().getName();
+							v = true;
+						}
 					}
 					dtm.addRow(new Object[] {element, 
 							element.getFileLengthAsString(),

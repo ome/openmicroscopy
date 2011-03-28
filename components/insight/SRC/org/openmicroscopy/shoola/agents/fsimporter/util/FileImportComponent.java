@@ -529,7 +529,7 @@ public class FileImportComponent
 			throw new IllegalArgumentException("No file specified.");
 		this.file = file;
 		importCount = 0;
-		if (file.isFile()) folderAsContainer = false;
+		//if (file.isFile()) folderAsContainer = false;
 		this.folderAsContainer = folderAsContainer;
 		initComponents();
 		buildGUI();

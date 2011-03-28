@@ -141,12 +141,15 @@ public class BrowserImportAction
     public void actionPerformed(ActionEvent e)
     {
     	TreeImageDisplay display = model.getLastSelectedDisplay();
-    	Object o = display.getUserObject();
-    	if (o instanceof ImageData) {
-    		TreeImageDisplay p = display.getParentDisplay();
-    		if (p == null) return;
-    		display = p;
+    	if (display != null) {
+    		Object o = display.getUserObject();
+        	if (o instanceof ImageData) {
+        		TreeImageDisplay p = display.getParentDisplay();
+        		if (p == null) return;
+        		display = p;
+        	}
     	}
+    	
     	LoadImporter event = null;
     	int type = LoadImporter.PROJECT_TYPE;
     	switch (model.getBrowserType()) {

@@ -305,6 +305,24 @@ class ImporterUIElement
 					foldersName.put(l, c);
 				}
 			} else {
+				if (importable.isFolderAsContainer()) {
+					String name = f.getParentFile().getName();
+					//first check if the name is already there.
+					Entry entry;
+					Iterator k = foldersName.entrySet().iterator();
+					boolean exist = false;
+					while (k.hasNext()) {
+						entry = (Entry) k.next();
+						l = (JLabel) entry.getKey();
+						if (l.getText().equals(name)) {
+							exist = true;
+							break;
+						}
+					}
+					if (!exist) {
+						foldersName.put(new JLabel(name), c);
+					}
+				}
 				if (!c.isHCSFile()) count++;
 			}
 			importable.setStatus(c.getStatus());
@@ -327,17 +345,6 @@ class ImporterUIElement
 				}
 			}
 		}
-		
-		/*
-		DatasetData dataset = object.getDefaultDataset();
-		if (type != FileImportComponent.SCREEN_TYPE) {
-			if (dataset != null && count > 0) 
-				containerComponents.put(createNameLabel(dataset), dataset);
-		} else {
-			if (dataset != null && count > 0) 
-				foldersName.put(createNameLabel(dataset), dataset);
-		}
-		*/
 		totalToImport = files.size();
 	}
 	
@@ -656,8 +663,8 @@ class ImporterUIElement
 		if (l == null || l.size() == 0) return false;
 		DataObject object = l.get(0);
 		if (!(object instanceof ProjectData)) return false;
-		DatasetData d = getData().getDefaultDataset();
-		if (d != null && d.getId() <= 0) return true;
+		//DatasetData d = getData().getDefaultDataset();
+		//if (d != null && d.getId() <= 0) return true;
 		Iterator<FileImportComponent> i = components.values().iterator();
 		FileImportComponent fc;
 		while (i.hasNext()) {

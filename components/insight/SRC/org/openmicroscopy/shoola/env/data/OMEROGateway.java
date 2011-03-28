@@ -6045,26 +6045,7 @@ class OMEROGateway
 			Pixels p;
 			Image image;
 			if (pixels != null && pixels.size() > 0) {
-				//going to create dataset image link
-				/*
-				if (container instanceof Dataset) {
-					j = pixels.iterator();
-					Dataset d;
-					IObject link;
-					List<IObject> links = new ArrayList<IObject>();
-					while (j.hasNext()) {
-						p = j.next();
-						image = p.getImage();
-						links.add(ModelMapper.linkParentToChild(image, 
-								(Dataset) container));	
-					}
-					if (links.size() > 0) {
-						saveAndReturnObject(links, new HashMap());
-					}
-				}
-				*/
 				int n = pixels.size();
-				
 				long id;
 				List<Long> ids;
 				Parameters params = new Parameters();

@@ -913,7 +913,6 @@ class OmeroImageServiceImpl
 		StatusLabel status = importable.getStatus();
 		if (status.isMarkedAsCancel()) return Boolean.valueOf(false);
 		Object result = null;
-		//List<DataObject> containers = object.getContainers();
 		Collection<TagAnnotationData> tags = object.getTags();
 		List<Annotation> list = new ArrayList<Annotation>();
 		List<IObject> l;
@@ -948,17 +947,30 @@ class OmeroImageServiceImpl
 		List<String> candidates;
 		File file = importable.getFile();
 		boolean thumbnail = object.isLoadThumbnail();
-		//DatasetData dataset = object.getDefaultDataset();
 		DatasetData dataset = importable.getDataset();
 		DataObject container = importable.getParent();
 		IObject ioContainer = null;
 		Map parameters = new HashMap();
 		DataObject createdData;
 		IObject project = null;
+		DataObject folder = null;
 		if (file.isFile()) {
 			if (ImportableObject.isHCSFile(file))
 				dataset = null;
-			if (dataset != null) { //dataset
+			//added for test.
+			if (importable.isFolderAsContainer()) {
+				//we have to import the image in this container.
+				folder = object.createFolderAsContainer(importable);
+				if (folder != null && folder instanceof DatasetData) {
+					try {
+						ioContainer = determineContainer((DatasetData) folder, 
+								container, object); 
+						status.setContainerFromFolder(PojoMapper.asDataObject(
+								ioContainer));
+					} catch (Exception e) {}
+				} 
+			}
+			if (folder == null && dataset != null) { //dataset
 				try {
 					ioContainer = determineContainer(dataset, container, object);
 				} catch (Exception e) {
@@ -1039,7 +1051,7 @@ class OmeroImageServiceImpl
 				return result;
 			}
 		}
-		DataObject folder = object.createFolderAsContainer(importable);
+		folder = object.createFolderAsContainer(importable);
 		if (folder != null) { //folder
 			//we have to import the image in this container.
 			try {
