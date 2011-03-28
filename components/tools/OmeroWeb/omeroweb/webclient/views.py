@@ -839,7 +839,7 @@ def open_astex_viewer(request, fileAnnId, **kwargs):
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
-    ann = conn.getAnnotation(long(fileAnnId))
+    ann = conn.getObject("Annotation", long(fileAnnId))
     # determine mapType by name
     mapType = "map"
     if ann:
@@ -1542,7 +1542,7 @@ def download_annotation(request, action, iid, **kwargs):
         return handlerInternalError("Connection is not available. Please contact your administrator.")
     
     try:
-        ann = conn.getAnnotation(long(iid))
+        ann = conn.getObject("Annotation", long(iid))
         
         from django.conf import settings 
         tempdir = settings.FILE_UPLOAD_TEMP_DIR

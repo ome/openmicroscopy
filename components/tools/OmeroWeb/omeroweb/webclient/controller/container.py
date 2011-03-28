@@ -103,7 +103,7 @@ class BaseContainer(BaseController):
             if self.well._obj is None:
                 raise AttributeError("We are sorry, but that well (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
         elif o1_type == "tag" and o1_id is not None:
-            self.tag = self.conn.getAnnotation(o1_id)
+            self.tag = self.conn.getObject("Annotation", o1_id)
         elif o1_type == "orphaned":
             self.orphaned = True
     
