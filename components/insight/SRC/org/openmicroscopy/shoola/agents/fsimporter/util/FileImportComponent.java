@@ -256,6 +256,7 @@ public class FileImportComponent
 		EventBus bus = ImporterAgent.getRegistry().getEventBus();
 		Object d = dataset;
 		if (dataset == null || data instanceof ScreenData) d = data;
+		if (d == null) return;
 		bus.post(new BrowseContainer(d, null));
 	}
 	

@@ -684,7 +684,7 @@ public class IconManager
         	"tagged_project_darkblue_reload16.png";
         	//"tagged_project_darkblue_ledgreen16.png";
         relPaths[DATASET_ANNOTATED_TO_REFRESH] = "tagged_dataset_reload16.png";//"tagged_dataset_ledgreen16.png";
-        relPaths[OWNER_TO_REFRESH] = "nuvola_kdmconfig_modified_ledgreen16.png";
+        relPaths[OWNER_TO_REFRESH] = "nuvola_kdmconfig_reload_16.png";//"nuvola_kdmconfig_modified_ledgreen16.png";
         relPaths[OWNER_GROUP] = "nuvola_kdmconfig16.png";
     }
     
