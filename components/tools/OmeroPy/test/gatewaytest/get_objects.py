@@ -241,6 +241,10 @@ class GetObjectTest (lib.GTest):
         for g in gs:
             self.assertTrue(g.getId() in groupIds)
 
+        # uses getGroups - check this doesn't throw
+        for e in self.gateway.listColleagues():
+            eName = e.getOmeName()
+
 
     def testGetAnnotations(self):
         
