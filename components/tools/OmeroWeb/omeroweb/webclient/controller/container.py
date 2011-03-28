@@ -653,7 +653,7 @@ class BaseContainer(BaseController):
         new_links = list()
         for k in oids:
             if len(oids[k]) > 0:
-                for ob in self.conn.getAnnotations(oids[k]):
+                for ob in self.conn.getObjects("Annotation", oids[k]):
                     if isinstance(ob._obj, omero.model.WellI):
                         t = 'Image'
                         obj = ob.selectedWellSample().image()
@@ -690,7 +690,7 @@ class BaseContainer(BaseController):
         new_links = list()
         for k in oids:
             if len(oids[k]) > 0:
-                for ob in self.conn.getAnnotations(oids[k]):                    
+                for ob in self.conn.getObjects("Annotation", oids[k]):
                     if isinstance(ob._obj, omero.model.WellI):
                         t = 'Image'
                         obj = ob.selectedWellSample().image()
@@ -719,7 +719,7 @@ class BaseContainer(BaseController):
             selfobject = getattr(self, otype)
         
         new_links = list()
-        for a in self.conn.getAnnotations(ids):
+        for a in self.conn.getObjects("Annotation", ids):
             ann = getattr(omero.model, otype.title()+"AnnotationLinkI")()
             ann.setParent(selfobject._obj)
             ann.setChild(a._obj)
@@ -746,7 +746,7 @@ class BaseContainer(BaseController):
         for k in oids:
             if len(oids[k]) > 0:
                 for ob in self.conn.getObjects(k.lower().title(), oids[k]):
-                    for a in self.conn.getAnnotations(tids):
+                    for a in self.conn.getObjects("Annotation", tids):
                         if isinstance(ob._obj, omero.model.WellI):
                             t = 'Image'
                             obj = ob.selectedWellSample().image()
