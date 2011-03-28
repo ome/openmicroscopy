@@ -1994,20 +1994,6 @@ class _BlitzGateway (object):
     
     # GROUPS
     
-    def getGroup(self, gid):
-        """ 
-        Fetch a Group and all contained users, by group ID.
-        
-        @param gid:     Group Id
-        @type gid:      Long
-        @return:        The group
-        @rtype:         L{ExperimenterGroupWrapper}
-        """
-        
-        admin_service = self.getAdminService()
-        group = admin_service.getGroup(long(gid))
-        return ExperimenterGroupWrapper(self, group)
-    
     def findGroup(self, name):
         """ 
         Look up a Group and all contained users by group name.
@@ -2205,7 +2191,7 @@ class _BlitzGateway (object):
         @rtype:     L{ExperimenterWrapper} generator
         """
                 
-        default = self.getGroup(self.getEventContext().groupId)
+        default = self.getObject("ExperimenterGroup", self.getEventContext().groupId)
         if not default.isPrivate() or default.isLeader():
             for d in default.copyGroupExperimenterMap():
                 if d.child.id.val != self.getEventContext().userId:
