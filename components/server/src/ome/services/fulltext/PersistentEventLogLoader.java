@@ -1,7 +1,7 @@
 /*
  *   $Id$
  *
- *   Copyright 2008 Glencoe Software, Inc. All rights reserved.
+ *   Copyright 2011 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
@@ -26,92 +26,22 @@ import org.springframework.dao.EmptyResultDataAccessException;
  * @author Josh Moore, josh at glencoesoftware.com
  * @since 3.0-Beta3
  */
-public class PersistentEventLogLoader extends EventLogLoader {
+public class PersistentEventLogLoader extends ome.services.eventlogs.PersistentEventLogLoader {
 
     private final static Log log = LogFactory
             .getLog(PersistentEventLogLoader.class);
 
     /**
-     * Key used to look configuration value; 'name'
-     */
-    protected String key;
-
-    protected ITypes types;
-
-    protected SqlAction sql;
-
-    public void setKey(String key) {
-        this.key = key;
-    }
-    public void setTypes(ITypes types) {
-        this.types = types;
-    }
-
-    public void setSqlAction(SqlAction sql) {
-        this.sql = sql;
-    }
-
-    @Override
-    protected EventLog query() {
-
-        long current_id = getCurrentId();
-
-        EventLog el = nextEventLog(current_id);
-        if (el != null) {
-            setCurrentId(el.getId());
-        }
-        return el;
-
-    }
-
-    /**
      * Called when the configuration database does not contain a valid
      * current_id. Used to index all the data which does not have an EventLog.
      */
+    @Override
     public void initialize() {
         for (Class<IEnum> cls : types.getEnumerationTypes()) {
             for (IEnum e : queryService.findAll(cls, null)) {
                 addEventLog(cls, e.getId());
             }
         }
-    }
-
-    /**
-     * Get current {@link EventLog} id. If the lookup throws an exception,
-     * either the configuration has been deleted or renamed, in which we need to
-     * reinitialize, or the table is missing and something is wrong.
-     */
-    public long getCurrentId() {
-        long current_id;
-        try {
-            current_id = sql.selectCurrentEventLog(key);
-        } catch (EmptyResultDataAccessException erdae) {
-            // This event log loader has never been run. Initialize
-            current_id = -1;
-            setCurrentId(-1);
-            initialize();
-        } catch (DataAccessException dae) {
-            // Most likely there's no configuration table.
-            throw new InternalException(
-                    "The configuration table seems to be missing \n"
-                            + "from your database. Please check your server installation instructions \n"
-                            + "for possible reasons.");
-        }
-        return current_id;
-    }
-
-    public void setCurrentId(long id) {
-        sql.setCurrentEventLog(id, key);
-    }
-
-    public void deleteCurrentId() {
-        sql.delCurrentEventLog(key);
-    }
-
-    @Override
-    public long more() {
-        long diff = lastEventLog().getEntityId() - getCurrentId();
-        return diff < 0 ? 0 : diff;
     }
 
 }

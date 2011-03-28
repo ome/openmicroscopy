@@ -7,7 +7,7 @@
 package ome.server.utests;
 
 import ome.model.meta.EventLog;
-import ome.services.fulltext.EventBacklog;
+import ome.services.eventlogs.EventBacklog;
 
 import org.jmock.MockObjectTestCase;
 import org.testng.annotations.BeforeMethod;

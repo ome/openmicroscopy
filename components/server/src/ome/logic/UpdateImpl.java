@@ -31,7 +31,7 @@ import ome.conditions.ValidationException;
 import ome.model.IObject;
 import ome.model.meta.EventLog;
 import ome.parameters.Parameters;
-import ome.services.fulltext.EventLogLoader;
+import ome.services.eventlogs.EventLogLoader;
 import ome.services.fulltext.FullTextBridge;
 import ome.services.fulltext.FullTextIndexer;
 import ome.services.fulltext.FullTextThread;

@@ -5,7 +5,7 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
-package ome.services.fulltext;
+package ome.services.eventlogs;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -57,6 +57,10 @@ public abstract class EventLogLoader implements Iterator<EventLog>,
      */
     public void setBatchSize(int batchSize) {
         this.batchSize = batchSize;
+    }
+
+    public int getBatchSize() {
+        return this.batchSize;
     }
 
     /**

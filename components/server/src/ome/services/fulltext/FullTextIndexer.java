@@ -18,6 +18,7 @@ import ome.model.IGlobal;
 import ome.model.IMutable;
 import ome.model.IObject;
 import ome.model.meta.EventLog;
+import ome.services.eventlogs.*;
 import ome.services.util.Executor.SimpleWork;
 import ome.system.ServiceFactory;
 import ome.tools.hibernate.QueryBuilder;
@@ -232,7 +233,7 @@ public class FullTextIndexer extends SimpleWork {
      * to catch up.
      */
     public boolean doMore(int count) {
-        if (count < this.reps && loader.more() > loader.batchSize * 100) {
+        if (count < this.reps && loader.more() > loader.getBatchSize() * 100) {
             log.info(String
                     .format("Suggesting round %s of "
                             + "indexing to reduce backlog of %s:", count,

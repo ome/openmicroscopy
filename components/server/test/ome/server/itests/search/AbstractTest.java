@@ -11,7 +11,7 @@ import ome.io.nio.OriginalFilesService;
 import ome.model.core.Image;
 import ome.model.meta.EventLog;
 import ome.server.itests.AbstractManagedContextTest;
-import ome.services.fulltext.EventLogLoader;
+import ome.services.eventlogs.EventLogLoader;
 import ome.services.fulltext.FullTextBridge;
 import ome.services.fulltext.FullTextIndexer;
 import ome.services.fulltext.FullTextThread;

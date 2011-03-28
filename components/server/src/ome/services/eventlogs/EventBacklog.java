@@ -5,7 +5,7 @@
  *   Use is subject to license terms supplied in LICENSE.txt
  */
 
-package ome.services.fulltext;
+package ome.services.eventlogs;
 
 import java.util.ArrayList;
 import java.util.HashMap;

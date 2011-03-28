@@ -15,10 +15,10 @@ import ome.model.containers.Dataset;
 import ome.model.containers.Project;
 import ome.model.core.Image;
 import ome.model.meta.EventLog;
-import ome.services.fulltext.AllEntitiesPseudoLogLoader;
-import ome.services.fulltext.AllEventsLogLoader;
-import ome.services.fulltext.EventBacklog;
-import ome.services.fulltext.EventLogLoader;
+import ome.services.eventlogs.AllEntitiesPseudoLogLoader;
+import ome.services.eventlogs.AllEventsLogLoader;
+import ome.services.eventlogs.EventBacklog;
+import ome.services.eventlogs.EventLogLoader;
 import ome.services.fulltext.FullTextIndexer;
 
 import org.jmock.Mock;
