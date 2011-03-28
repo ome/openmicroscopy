@@ -1288,23 +1288,7 @@ public class ImportDialog
     	List<ImportableFile> files = table.getFilesToImport();
     	ImportableObject object = new ImportableObject(files,
     			overrideName.isSelected());
-    	List<DataObject> nodes;
-    	List<Object> refNodes;
-    	/*
-    	if (containers != null && !DatasetData.class.equals(reference)) {
-    		nodes = new ArrayList<DataObject>();
-    		refNodes = new ArrayList<Object>();
-    		Iterator<TreeImageDisplay> i = containers.iterator();
-    		TreeImageDisplay node;
-    		while (i.hasNext()) {
-    			node = i.next();
-    			nodes.add((DataObject) node.getUserObject());
-    			refNodes.add(node);
-			}
-    		object.setRefNodes(refNodes);
-    		object.setContainers(nodes);
-    	}
-    	*/
+    	object.setScanningDepth(ImporterAgent.getScanningDepth());
     	Boolean b = (Boolean) ImporterAgent.getRegistry().lookup(
     			LOAD_THUMBNAIL);
     	if (b != null)
@@ -1315,37 +1299,11 @@ public class ImportDialog
     	if (showThumbnails.isVisible()) {
     		object.setLoadThumbnail(showThumbnails.isSelected());
     	}
-    	/*
-    	if (defaultContainerField.isVisible()) {
-    		String v = defaultContainerField.getText();
-    		if (v == null || v.trim().length() == 0)
-    			v = ImportableObject.DEFAULT_DATASET_NAME;
-    		DatasetData dataset = new DatasetData();
-    		dataset.setName(v);
-    		object.setDefaultDataset(dataset);
-    	} else if (datasetsBox != null) {
-    		DataNode node = (DataNode) datasetsBox.getSelectedItem();
-    		if (DatasetData.class.equals(reference)) {
-        		if (node.getRefNode() != null)  {
-        			nodes = new ArrayList<DataObject>();
-            		refNodes = new ArrayList<Object>();
-            		nodes.add(node.getDataObject());
-            		refNodes.add(node.getRefNode());
-            		object.setRefNodes(refNodes);
-            		object.setContainers(nodes);
-        		} else {
-        			//object.setDefaultDataset(node.getDataObject());
-        		}
-    		} else {
-    			//object.setDefaultDataset(node.getDataObject());
-    		}
-    	}
-    	*/
     	//tags
     	if (tagsMap.size() > 0) object.setTags(tagsMap.values());
     	if (partialName.isSelected()) {
     		Integer number = (Integer) numberOfFolders.getValueAsNumber();
-        	if (number != null && number >= 0) object.setDepth(number);
+        	if (number != null && number >= 0) object.setDepthForName(number);
     	} 
     	NumericalTextField nf;
     	Iterator<NumericalTextField> i = pixelsSize.iterator();

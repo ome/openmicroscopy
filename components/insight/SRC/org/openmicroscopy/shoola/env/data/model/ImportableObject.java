@@ -82,8 +82,11 @@ public class ImportableObject
 	/** The collection of files to import. */
 	private List<ImportableFile> files;
 	
-	/** The depth. */
-	private int			depth;
+	/** The depth when the name is overridden. */
+	private int			depthForName;
+	
+	/** The depth used when scanning a folder. */
+	private int			scanningDepth;
 	
 	/** 
 	 * Flag indicating to override the name set by B-F when importing the data. 
@@ -144,7 +147,7 @@ public class ImportableObject
 		this.files = files;
 		this.overrideName = overrideName;
 		type = DatasetData.class;
-		depth = -1;
+		depthForName = -1;
 		loadThumbnail = true;
 		newObjects = new ArrayList<DataObject>();
 		projectDatasetMap = new HashMap<Long, List<DatasetData>>();
@@ -197,18 +200,38 @@ public class ImportableObject
 	}
 
 	/**
-	 * Sets the depth.
+	 * Sets the depth used scanning a folder.
 	 * 
 	 * @param depth The value to set.
 	 */
-	public void setDepth(int depth) { this.depth = depth; }
+	public void setScanningDepth(int scanningDepth)
+	{
+		this.scanningDepth = scanningDepth;
+	}
 	
 	/**
-	 * Returns the depth.
+	 * Returns the depth used scanning a folder.
 	 * 
 	 * @return See above.
 	 */
-	public int getDepth() { return depth; }
+	public int getScanningDepth() { return scanningDepth; }
+	
+	/**
+	 * Sets the depth used when the name is overridden.
+	 * 
+	 * @param depth The value to set.
+	 */
+	public void setDepthForName(int depthForName)
+	{
+		this.depthForName = depthForName;
+	}
+	
+	/**
+	 * Returns the depth used when the name is overridden.
+	 * 
+	 * @return See above.
+	 */
+	public int getDepthForName() { return depthForName; }
 	
 	/**
 	 * Returns the collection of files to import.

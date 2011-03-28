@@ -31,6 +31,7 @@ import java.util.List;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /**
@@ -72,6 +73,30 @@ class FileElement
 	}
 	
 	/**
+	 * Determines the length of the directory depending on the actual
+	 * level reached and the scanning depth.
+	 * 
+	 * @param file	The directory to scan.
+	 * @param depth The scanning depth set in configuration.
+	 * @param level The level reached. 
+	 */
+	private void determineLength(File file, int depth, int level)
+	{
+		if (file.isFile()) length += file.length();
+		else {
+			if (level == depth) return;
+			level++;
+			File[] files = file.listFiles();
+			if (files != null) {
+				for (int i = 0; i < files.length; i++) {
+					determineLength(files[i], depth, level);
+				}
+			}
+			
+		}
+	}
+	
+	/**
 	 * Returns the length of the file
 	 * 
 	 * @return See above.
@@ -81,15 +106,9 @@ class FileElement
 		if (length > 0) return length;
 		if (file.isFile())
 			length = file.length()/1000;
-		else { //directory.
-			File[] files = file.listFiles();
-			if (files != null) {
-				double value = 0;
-				for (int i = 0; i < files.length; i++) {
-					value += files[i].length();
-				}
-				length = value/1000;
-			}
+		else { 
+			determineLength(file, ImporterAgent.getScanningDepth(), 0);
+			length = length/1000;
 		}
 		return length;
 	}

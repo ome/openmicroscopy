@@ -80,6 +80,18 @@ public class ImporterAgent
 	}
 	
 	/**
+	 * Returns how deep to scan when a folder is selected.
+	 * 
+	 * @return See above.
+	 */
+	public static int getScanningDepth()
+	{
+		Integer value = (Integer) registry.lookup("/options/ScanningDepth");
+		if (value == null || value.intValue() < 0) return 1;
+		return value.intValue();
+	}
+	
+	/**
 	 * Handles the {@link LoadImporter} event.
 	 * 
 	 * @param evt The event to handle.
