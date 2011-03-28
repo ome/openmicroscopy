@@ -2547,25 +2547,7 @@ class _BlitzGateway (object):
                     
     #################################
     # Annotations                   #
-    
-    def getAnnotation (self, oid):
-        """
-        Gets file annotation by ID
-        
-        @param oid:     File Annotation ID.
-        @type oid:      Long
-        @return:        File Annotation
-        @rtype:         L{FileAnnotationWrapper}
-        """
-        
-        query_serv = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {} 
-        p.map["oid"] = rlong(long(oid))
-        sql = "select a from Annotation a where a.id = :oid"
-        e = query_serv.findByQuery(sql, p)
-        return AnnotationWrapper._wrap(self, e)
-    
+
     def lookupTagAnnotation (self, name):
         """
         Gets tag by name, owned by the current user
