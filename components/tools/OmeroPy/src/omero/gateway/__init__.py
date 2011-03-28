@@ -2501,22 +2501,7 @@ class _BlitzGateway (object):
         for e in q.findAllByQuery(sql,p):
             kwargs = {'link': BlitzObjectWrapper(self, e.copyAnnotationLinks()[0])}
             yield wrappers[obj_type](self, e)
-            
-    def getAnnotations(self, ids):
-        """
-        Retrieves list of L{AnnotationWrapper} for the given Annotation ids.
-        
-        @param ids:     list of annotation ids
-        @type ids:      L{Long}
-        """
-        
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["ids"] = rlist([rlong(a) for a in set(ids)])
-        sql = "select a from Annotation a where a.id in (:ids) "
-        for e in q.findAllByQuery(sql,p):
-            yield AnnotationWrapper._wrap(self, e)
+
 
     def listAnnotations(self, eid=None, atype=None, ns=None):
         """
