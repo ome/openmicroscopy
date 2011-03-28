@@ -40,6 +40,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
@@ -382,16 +383,13 @@ class FileSelectionTable
 		int[] rows = table.getSelectedRows();
 		if (rows == null || rows.length == 0) return;
 		DefaultTableModel dtm = (DefaultTableModel) table.getModel();
-		Vector v = dtm.getDataVector();
-		int index;
-		int n = v.size();
-		for (int i = 0; i < rows.length; i++) {
-			index = rows[i];
-			if (index < n)
-				v.remove(index);
+		for (int row : rows) {
+			dtm.removeRow(table.convertRowIndexToModel(row));
 		}
+		table.clearSelection();
+
 		table.repaint();
-		n = table.getRowCount();
+		int n = table.getRowCount();
 		firePropertyChange(REMOVE_PROPERTY, n-1, n);
 		enabledControl(table.getRowCount() > 0);
 		model.onSelectionChanged();
@@ -525,6 +523,7 @@ class FileSelectionTable
 		if (n == 0) return;
 		DefaultTableModel dtm = (DefaultTableModel) table.getModel();
 		dtm.getDataVector().clear();
+		table.clearSelection();
 		table.repaint();
 		firePropertyChange(REMOVE_PROPERTY, -1, 0);
 		enabledControl(false);
