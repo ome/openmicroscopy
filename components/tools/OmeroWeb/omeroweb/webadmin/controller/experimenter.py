@@ -153,7 +153,7 @@ class BaseExperimenter(BaseController):
         up_exp.email = rstring(str(email))
         up_exp.institution = (institution!="" and institution is not None) and rstring(str(institution)) or None
         
-        defaultGroup = self.conn.getGroup(long(dGroup))._obj
+        defaultGroup = self.conn.getObject("ExperimenterGroup", long(dGroup))._obj
         self.conn.updateMyAccount(up_exp, defaultGroup)
     
     def createExperimenter(self, omeName, firstName, lastName, email, admin, active, dGroup, otherGroups, password, middleName=None, institution=None):

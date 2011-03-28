@@ -58,7 +58,7 @@ class BaseGroup(BaseController):
     def __init__(self, conn, gid=None):
         BaseController.__init__(self, conn)
         if gid is not None:
-            self.group = self.conn.getGroup(gid)
+            self.group = self.conn.getObject("ExperimenterGroup", gid)
         
             self.owners = list()
             for gem in self.group.copyGroupExperimenterMap():
