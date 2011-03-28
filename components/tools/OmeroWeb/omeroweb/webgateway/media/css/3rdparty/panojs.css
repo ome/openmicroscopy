@@ -30,13 +30,13 @@
   /* FIXME: let's apply this in GSV.js */
   cursor: grab;
   cursor: -moz-grab;
-  _cursor: url(images/grab.cur);
+  _cursor: url(/appmedia/webgateway/img/3rdparty/panojs/grab.cur);
 }
 
 .viewer .surface {
   z-index: 20;
   /*background: url(../gfx/center.gif) no-repeat center center;*/
-  _background: url(images/blank.gif) no-repeat center center; /* NOTE: required for IE to"see" the surface */
+  _background: url(/appmedia/webgateway/img/3rdparty/panojs/blank.gif) no-repeat center center; /* NOTE: required for IE to"see" the surface */
 }
 
 .viewer .well {
@@ -73,9 +73,7 @@
   overflow: hidden; 
   z-index: 30;
 
-  border: 4px solid #000000;
-  border-radius: 5px;   
-  -moz-border-radius: 5px;    
+  border: 1px solid #000000;
   
   opacity:0.8;
   filter:alpha(opacity=80);   

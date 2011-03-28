@@ -597,29 +597,30 @@ def render_image_region(request, iid, z, t, server_id=None, _conn=None, **kwargs
         raise Http404
     img, compress_quality = pi
     
-    import math
-    
-    max_zoom = math.ceil(math.log(max(img.getWidth(), img.getHeight()),2))-1
-    tilesizex = math.ceil(img.getWidth()/max_zoom)
-    tilesizey = math.ceil(img.getHeight()/max_zoom)
-
     tile = request.REQUEST.get('tile', None)
     region = request.REQUEST.get('region', None)
     
     if tile:
         try:
-            zxy = tile.split(",")
-            level = int(zxy[0])
-            tiles = pow(2,level)
+            img._prepareRenderingEngine()
+            tiles = img._re.hasPixelsPyramid()
+            width, height = img._re.getTileSize()
+            init_zoom = img._re.getResolutionLevel()
+            max_zoom = img._re.getResolutionLevels()-1
             
-            w = img.getWidth()/tiles
-            h = img.getHeight()/tiles
+            zxyt = tile.split(",")
             
-            x = int(zxy[1])*w
-            y = int(zxy[2])*h
+            tilesize = int(zxyt[3])
+            level = max_zoom-int(zxyt[0])
+
+            w = tilesize
+            h = tilesize
+            x = int(zxyt[1])*w
+            y = int(zxyt[2])*h
         except:
             logger.debug("render_image_region: tile=%s" % tile)
-
+            logger.debug(traceback.format_exc())
+            
     elif region:
         try:
             xywh = region.split(",")
@@ -630,17 +631,17 @@ def render_image_region(request, iid, z, t, server_id=None, _conn=None, **kwargs
             h = int(xywh[3])
         except:
             logger.debug("render_image_region: region=%s" % region)
+            logger.debug(traceback.format_exc())
 
     # region details in request are used as key for caching. 
     jpeg_data = webgateway_cache.getImage(request, server_id, img, z, t)
     if jpeg_data is None:
-        jpeg_data = img.renderJpegRegion(z,t, x,y,w,h, compression=compress_quality)
+        jpeg_data = img.renderJpegRegion(z,t,x,y,w,h,level=level, compression=compress_quality)
         if jpeg_data is None:
             raise Http404
         webgateway_cache.setImage(request, server_id, img, z, t, jpeg_data)
     rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
-    return rsp
-    
+    return rsp    
     
 def render_image (request, iid, z, t, server_id=None, _conn=None, **kwargs):
     """ 
@@ -1036,14 +1037,13 @@ def imageMarshal (image, key=None):
     pr = image.getProject()
     ds = image.getDataset()
     
+    image._prepareRenderingEngine()
+    
     #big images
-    tiles = (max(image.getWidth(), image.getHeight()) > 1024) and True or False
-    import math
-    max_zoom = tiles and math.ceil(math.log(max(image.getWidth(), image.getHeight()),2))-1 or None
-    width = tiles and math.ceil(image.getWidth()/max_zoom) or None
-    height = tiles and math.ceil(image.getHeight()/max_zoom) or None
-    init_zoom = tiles and max(math.ceil(math.log(image.getWidth()/width)), math.ceil(math.log(image.getHeight()/height))) or None
-    max_zoom = tiles and max(math.ceil(math.log(image.getWidth()/width)), math.ceil(math.log(image.getHeight()/height))) or None
+    tiles = image._re.hasPixelsPyramid()
+    width, height = image._re.getTileSize()
+    init_zoom = image._re.getResolutionLevel()
+    max_zoom = image._re.getResolutionLevels()-1
     try:
         rv = {
             'tiles': tiles,

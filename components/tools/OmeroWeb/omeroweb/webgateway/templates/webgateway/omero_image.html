@@ -27,7 +27,7 @@
     <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/3rdparty/JQuerySpinBtn.css" />
     <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/3rdparty/jquery-ui-1.7.2.custom.css" media="all" />
     <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/omero_image.css" media="all" />
-    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/panojs.css" media="all" />
+    <link rel="stylesheet" type="text/css" href="/appmedia/webgateway/css/3rdparty/panojs.css" media="all" />
 {% endblock %}
 
 {% block extra_js %}
@@ -47,7 +47,16 @@
     <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/raphael.js"></script>
     <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/scale.raphael.js"></script>
 
-    <script type="text/javascript" src="/appmedia/webgateway/js/panojs/PanoJS.js"></script>
+    <!-- big images -->
+    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/utils.js"></script>    
+    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/PanoJS.js"></script>
+    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/controls.js"></script>
+    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/pyramid_Bisque.js"></script>
+    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/pyramid_imgcnv.js"></script>
+    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/pyramid_Zoomify.js"></script>        
+    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/control_thumbnail.js"></script>
+    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/control_info.js"></script>
+    <script type="text/javascript" src="/appmedia/webgateway/js/3rdparty/panojs/control_svg.js"></script>
     
 {% endblock %}
 
@@ -282,7 +291,7 @@
       })
       .bind('hiding', function () {$(this).parent().siblings('.picker-selected').html('&nbsp;')})
       .bind('prepared', function () {
-        zindex_automator('.postit', 10, $('#cbpicker-box'));
+        zindex_automator('.postit', 210, $('#cbpicker-box'));
       })
       .bind('changed', function () {
         $(this).parents('tr:first').next().find('.ui-slider-range').css('background-color', $(this).css('background-color'));
@@ -997,7 +1006,7 @@
     };
     $("#legend-postit").bind('opening', legend_open);
 
-    zindex_automator('.postit', 10);
+    zindex_automator('.postit', 210);
 
     /* Make (kind of) sure that closing the rendering defs window closes an eventually opened color picker */
     $("#rdef-postit").bind('closed',

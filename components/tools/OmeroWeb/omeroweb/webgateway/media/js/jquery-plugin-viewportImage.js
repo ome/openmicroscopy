@@ -33,8 +33,7 @@ $.fn.viewportImage = function(options) {
     var overlay = $('<img id="'+insideId+'-ovl">').appendTo(dragdiv);
     overlay.addClass('weblitz-viewport-img').hide();
     
-    $('<div id="weblitz-viewport-tiles"><div class="well"><!-- --></div><div class="surface"><!-- --></div><p class="controls"><span class="zoomIn" title="Zoom In">+</span><span class="zoomOut" title="Zoom Out">-</span></p><div class="birdeye"><img id="birdeye-img" src="/appmedia/webgateway/img/panojs/blank.gif"/><div id="birdeye"></div></div>').appendTo(wrapdiv);
-    var tilecontainer = jQuery('#weblitz-viewport-tiles');
+    // big images
     var viewerBean = null;
     
     var panbars = options == null || options.panbars;
@@ -289,13 +288,6 @@ $.fn.viewportImage = function(options) {
         return cur_zoom;
     };
     this.setZoom = function (val, width, height) {
-        if (viewerBean != null) {            
-            if (val!=cur_zoom) {
-              viewerBean.zoom(val < cur_zoom ? -1 : 1);
-        	  //viewerBean.recenter({'x':400 ,'y':800}, true);
-        	 }
-        }
-          
       if (width != null && height != null) {
         orig_width = width;
         orig_height = height;
@@ -324,11 +316,7 @@ $.fn.viewportImage = function(options) {
         orig_height = height;
         cur_zoom = 100;
       }
-      if (viewerBean == null) {
-          var ztf = Math.min(wrapwidth * 100.0 / orig_width, wrapheight * 100.0 / orig_height);
-      } else {
-          var ztf = 100;
-      }
+      var ztf = 100;
       if (only_shrink && ztf >= 100.0) {
         ztf = 100.0;
       }
@@ -339,8 +327,6 @@ $.fn.viewportImage = function(options) {
       if (justDirection) {
         var t = Math.max(1,((imagewidth+3)*cur_zoom/imagewidth) - cur_zoom);
         increment = cur_zoom + (increment>0?t:-t);
-      } else if (viewerBean != null) {
-        increment = 100;
       }
       this.setZoom(parseInt(increment));
     }
@@ -427,38 +413,42 @@ $.fn.viewportImage = function(options) {
       }
     });
 
-    
-    function initializeGraphic(e) {
-        // opera triggers the onload twice
-    	if (viewerBean == null) {
-    		viewerBean = new PanoJS('weblitz-viewport-tiles', {
-    			tileBaseUri: tile_url,
-    			tileSizeX: X_TILE_SIZE,
-    			tileSizeY: Y_TILE_SIZE,
-    			maxZoom: TILE_MAX_ZOOM,
-    			initialZoom: TILE_INIT_ZOOM,
-    			blankTile: '/appmedia/webgateway/img/panojs/blank.gif',
-    			//loadingTile: '/appmedia/webgateway/img/panojs/spinner.gif'
-    		});
-    		//viewerBean.fitToWindow(0);
-    		viewerBean.init();
-    		//viewerBean.recenter({'x':wrapdiv.width()/2 ,'y':wrapdiv.height()/2}, true);
-    	} else {
-    	    viewerBean.tileUrlProvider.baseUri=tile_url;
-    	    viewerBean.resize();
-    	}
-    }
-    
-    
-    this.setUpTiles = function (xtilesize,ytilesize, init_zoom, max_zoom, href, thumbnail) {
-        X_TILE_SIZE = xtilesize;
-        Y_TILE_SIZE = ytilesize;
-        tile_url = href;
-        TILE_MAX_ZOOM = max_zoom;
-        TILE_INIT_ZOOM = init_zoom;
-        tilecontainer.css({width: wrapwidth, height: wrapheight});        
-        jQuery('#birdeye-img').attr('src', thumbnail);
-        initializeGraphic();     
+    this.setUpTiles = function (imagewidth, imageheight, xtilesize,ytilesize, init_zoom, max_zoom, href) {
+        $('<div id="weblitz-viewport-tiles" class="viewer" style="width: 100%; height: 100%;" ></div>').appendTo(wrapdiv);
+        var tilecontainer = jQuery('#weblitz-viewport-tiles').css({width: wrapwidth, height: wrapheight});
+        var myPyramid = new BisqueISPyramid( imagewidth, imageheight, xtilesize);
+        var myProvider = new PanoJS.TileUrlProvider('','','');
+        myProvider.assembleUrl = function(xIndex, yIndex, zoom) {
+            return href+'&'+myPyramid.tile_filename( zoom, xIndex, yIndex )
+            //return MY_URL + '/' + MY_PREFIX + myPyramid.tile_filename( zoom, xIndex, yIndex );
+        }
+        
+        if (viewerBean == null) {
+
+            viewerBean = new PanoJS('weblitz-viewport-tiles', {
+                infoControl    : false,
+                tileUrlProvider : myProvider,
+                tileSize        : myPyramid.tilesize,
+                maxZoom         : myPyramid.getMaxLevel(),
+                imageWidth      : myPyramid.width,
+                imageHeight     : myPyramid.height,
+                initialZoom     : max_zoom - init_zoom,
+                blankTile       : '/appmedia/webgateway/img/3rdparty/panojs/blank.gif',
+                loadingTile     : '/appmedia/webgateway/img/3rdparty/panojs/progress.gif'
+            });
+            
+            // cause conflict with channels, needs more investigation !!!
+            //Ext.EventManager.addListener( window, 'resize', callback(viewerBean, viewerBean.resize) );
+            viewerBean.init();
+            // not supported elements
+            jQuery('#wblitz-zoom').parent().hide();
+            jQuery('#wblitz-lp-enable').parent().hide();
+            jQuery('#wblitz-invaxis').attr('disable', true);
+        } else {            
+            viewerBean.tileUrlProvider = myProvider;
+            viewerBean.update_url();
+        }
+        cur_zoom = viewerBean.zoomLevel   
     }
     
     

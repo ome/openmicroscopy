@@ -112,6 +112,7 @@ function PanoJS(viewer, options) {
   this.moveCount = 0;
   this.slideMonitor = 0;
   this.slideAcceleration = 0;
+  this.info_control = options.infoControl ? options.infoControl : PanoJS.CREATE_INFO_CONTROLS;
 }
 
 // project specific variables
@@ -689,6 +690,13 @@ PanoJS.prototype.zoom = function(direction) {
 PanoJS.prototype.update = function() {        
     this.blank();
     this.resetCache();
+    this.positionTiles();
+    if (this.thumbnail_control) this.thumbnail_control.update();
+};
+
+PanoJS.prototype.update_url = function() {        
+    this.blank();
+    //this.resetCache();
     this.positionTiles();
     if (this.thumbnail_control) this.thumbnail_control.update();
 };    
