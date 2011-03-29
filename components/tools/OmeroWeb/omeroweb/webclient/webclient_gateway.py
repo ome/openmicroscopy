@@ -285,6 +285,23 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         admin_serv = self.getAdminService()
         return admin_serv.lookupLdapAuthExperimenter(long(eid))
 
+    def getExperimenters(self):
+        """
+        Return all experimenters apart from current user.
+
+        @return:        Generator yielding experimetners list
+        @rtype:         L{ExperimenterWrapper} generator
+
+        """
+
+        q = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["id"] = rlong(self.getEventContext().userId)
+        sql = "select e from Experimenter as e where e.id != :id "
+        for e in q.findAllByQuery(sql, p):
+            yield ExperimenterWrapper(self, e)
+
     #def getCurrentSupervisor(self):
     #    """
     #    Gets the owner of a group for current user.
