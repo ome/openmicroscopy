@@ -34,17 +34,14 @@ import omero.api.AMD_RawPixelsStore_getTimepointSize;
 import omero.api.AMD_RawPixelsStore_getTotalSize;
 import omero.api.AMD_RawPixelsStore_isFloat;
 import omero.api.AMD_RawPixelsStore_isSigned;
-import omero.api.AMD_RawPixelsStore_setPixelsId;
 import omero.api.AMD_RawPixelsStore_prepare;
+import omero.api.AMD_RawPixelsStore_save;
+import omero.api.AMD_RawPixelsStore_setPixelsId;
 import omero.api.AMD_RawPixelsStore_setPlane;
 import omero.api.AMD_RawPixelsStore_setRegion;
 import omero.api.AMD_RawPixelsStore_setRow;
 import omero.api.AMD_RawPixelsStore_setStack;
 import omero.api.AMD_RawPixelsStore_setTimepoint;
-import omero.api.AMD_StatefulServiceInterface_activate;
-import omero.api.AMD_StatefulServiceInterface_close;
-import omero.api.AMD_StatefulServiceInterface_passivate;
-import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
 import omero.api._RawPixelsStoreOperations;
 import Ice.Current;
 
@@ -244,4 +241,8 @@ public class RawPixelsStoreI extends AbstractAmdServant implements
 
     }
 
+    public void save_async(AMD_RawPixelsStore_save __cb, Current __current)
+            throws ServerError {
+        callInvokerOnRawArgs(__cb, __current);
+    }
 }

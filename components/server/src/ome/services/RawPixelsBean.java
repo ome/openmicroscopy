@@ -7,13 +7,16 @@
 
 package ome.services;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.BufferOverflowException;
+import java.nio.BufferUnderflowException;
 import java.nio.ByteBuffer;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import ome.annotations.RolesAllowed;
 import ome.api.IPixels;
@@ -22,13 +25,19 @@ import ome.api.RawPixelsStore;
 import ome.api.ServiceInterface;
 import ome.conditions.ApiUsageException;
 import ome.conditions.ResourceError;
+import ome.conditions.RootException;
 import ome.conditions.ValidationException;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
+import ome.model.IObject;
 import ome.model.core.Pixels;
 import ome.parameters.Parameters;
+import ome.security.basic.BasicSecuritySystem;
+import ome.services.messages.EventLogMessage;
+import ome.util.ShallowCopy;
+import ome.util.Utils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -138,14 +147,81 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     }
 
     @RolesAllowed("user")
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = false)
+    public synchronized Pixels save() {
+        if (isModified()) {
+            Long id = (pixelsInstance == null) ? null : pixelsInstance.getId();
+            if (id == null) {
+                return null;
+            }
+
+            String path = dataService.getPixelsPath(id);
+            try {
+
+                byte[] hash = Utils.pathToSha1(path);
+                pixelsInstance.setSha1(Utils.bytesToHex(hash));
+
+            } catch (RuntimeException re) {
+                // ticket:3140
+                if (re.getCause() instanceof FileNotFoundException) {
+                    String msg = "Cannot find path. Deleted? " + path;
+                    log.warn(msg);
+                    clean(); // Prevent a second exception on close.
+                    throw new ResourceError(msg);
+                }
+                throw re;
+            }
+
+            iUpdate.flush();
+            modified = false;
+            triggerCompletePixelData();
+            return new ShallowCopy().copy(pixelsInstance);
+        }
+        return null;
+    }
+
+    /**
+     * If a saving of the Pixels instance, which sets the correct SHA1 etc, is
+     * successful, then the background generation of artifacts from the data
+     * can begin. This is accomplished by adding an EventLog with the action
+     * "PIXELDATA".
+     *
+     * @see ticket:4737
+     */
+    protected void triggerCompletePixelData() {
+        ((BasicSecuritySystem) this.sec).onApplicationEvent(
+                new EventLogMessage(this, "PIXELDATA",
+                        Pixels.class,
+                        Arrays.asList(id)));
+    }
+
+    @RolesAllowed("user")
+    @Transactional(readOnly = false)
     public void close() {
+        try {
+            save();
+        } catch (RootException root) {
+            // ticket:3140
+            // if one of our exceptions, then just rethrow
+            throw root;
+        } catch (RuntimeException re) {
+            Long id = (pixelsInstance == null ? null : pixelsInstance.getId());
+            log.error("Failed to update pixels: " + id, re);
+        } finally {
+            clean();
+        }
+    }
+
+    public void clean() {
         dataService = null;
         pixelsInstance = null;
-        closePixelBuffer();
-        buffer = null;
-        readBuffer = null;
-        pixelsCache = null;
+        try {
+            closePixelBuffer();
+        } finally {
+            buffer = null;
+            readBuffer = null;
+            pixelsCache = null;
+        }
     }
 
     /**
@@ -474,6 +550,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
 
         try {
             buffer.setPlane(arg0, arg1, arg2, arg3);
+            modified();
         } catch (Exception e) {
             handleException(e);
         }
@@ -489,6 +566,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
 
         try {
             buffer.setRegion(arg0, arg1, arg2);
+            modified();
         } catch (Exception e) {
             handleException(e);
         }
@@ -505,6 +583,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
         try {
             ByteBuffer buf = ByteBuffer.wrap(arg0);
             buffer.setRow(buf, arg1, arg2, arg3, arg4);
+            modified();
         } catch (Exception e) {
             handleException(e);
         }
@@ -520,6 +599,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
 
         try {
             buffer.setStack(arg0, arg1, arg2, arg3);
+            modified();
         } catch (Exception e) {
             handleException(e);
         }
@@ -535,6 +615,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
 
         try {
             buffer.setTimepoint(arg0, arg1);
+            modified();
         } catch (Exception e) {
             handleException(e);
         }
