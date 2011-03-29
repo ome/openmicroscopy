@@ -68,7 +68,7 @@ class BaseGroup(BaseController):
     
     def getOwnersNames(self):
         owners = list()
-        for e in self.conn.getExperimenters(self.owners):
+        for e in self.conn.getObjects("Experimenter", self.owners):
             owners.append(e.getFullName())
         return ", ".join(owners)
     
