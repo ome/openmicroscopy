@@ -34,7 +34,7 @@ class BaseGroups(BaseController):
     
     def __init__(self, conn):
         BaseController.__init__(self, conn)
-        groupsList = list(self.conn.listGroups())
+        groupsList = list(self.conn.getObjects("ExperimenterGroup"))
         self.groups = list()
         for gr in groupsList:
             self.groups.append({'group': gr, 'locked': self.isLocked(gr.name), 'permissions': self.getPermissions(gr)})

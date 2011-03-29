@@ -101,7 +101,7 @@ class BaseExperimenter(BaseController):
                     self.otherGroups.append(gem.parent.id.val)
                     self.others.append(gem.parent)
                     self.default.append((gem.parent.id.val, gem.parent.name.val))
-        self.groups = list(self.conn.listGroups())
+        self.groups = list(self.conn.getObjects("ExperimenterGroup"))
     
     def otherGroupsInitialList(self, exclude=list()):
         formGroups = list()
