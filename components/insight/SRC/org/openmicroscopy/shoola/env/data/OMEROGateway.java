@@ -791,7 +791,7 @@ class OMEROGateway
 			} catch (Exception ex) {
 				//Digest exception
 			}
-			throw new DSAccessException("Unable to read the table.");
+			throw new DSAccessException("Unable to read the table.", e);
 		}
 	}
 
@@ -821,7 +821,7 @@ class OMEROGateway
 			} catch (Exception ex) {
 				//Digest exception
 			}
-			throw new DSAccessException("Unable to read the table.");
+			throw new DSAccessException("Unable to read the table.", e);
 		}
 	}
 
