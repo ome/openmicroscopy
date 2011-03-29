@@ -2203,27 +2203,7 @@ class _BlitzGateway (object):
         admin_serv = self.getAdminService()
         for gr in admin_serv.lookupGroups():
             yield ExperimenterGroupWrapper(self, gr)
-    
-    def getExperimenterGroups(self, ids):
-        """ 
-        Get group for for the given group ids. 
-        TODO: omero.gateway.BlitzGateway has getGroup(id) method
-        
-        @param ids:     List of group IDs
-        @type ids:      L{Long} 
-        @return:        Generator yielding groups list
-        @rtype:         L{ExperimenterGroupWrapper} generator
-        """
-            
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        p.map["ids"] = rlist([rlong(a) for a in ids])
-        sql = "select e from ExperimenterGroup as e where e.id in (:ids)"
-        for e in q.findAllByQuery(sql, p):
-            if e.name.val != 'user':
-                yield ExperimenterGroupWrapper(self, e)
-    
+
     def listOwnedGroups(self):
         """
         Looks up owned groups for the logged user.
