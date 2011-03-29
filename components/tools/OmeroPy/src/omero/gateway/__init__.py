@@ -2086,32 +2086,7 @@ class _BlitzGateway (object):
         admin_serv = self.getAdminService()
         for exp in admin_serv.lookupExperimenters():
             yield ExperimenterWrapper(self, exp)
-    
-    def getExperimenters(self, ids=None):
-        """ 
-        Get experimenters for the given user ids. If ID is not set, return all apart from current user.
-        TODO: omero.gateway.BlitzGateway has getExperimenter(id) method
-        
-        @param ids:     List of experimenter IDs
-        @type ids:      L{Long} 
-        @return:        Generator yielding experimetners list
-        @rtype:         L{ExperimenterWrapper} generator
-        
-        """
-        
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        if ids is not None:
-            p.map = {}
-            p.map["ids"] = rlist([rlong(long(a)) for a in ids])
-            sql = "select e from Experimenter as e where e.id in (:ids)"
-        else:
-            p.map = {}
-            p.map["id"] = rlong(self.getEventContext().userId)
-            sql = "select e from Experimenter as e where e.id != :id "
-        for e in q.findAllByQuery(sql, p):
-            yield ExperimenterWrapper(self, e)
-    
+
     def findExperimenters (self, start=''):
         """
         Return a generator for all Experimenters whose omeName starts with 'start'.
