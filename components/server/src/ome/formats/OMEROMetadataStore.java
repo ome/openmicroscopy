@@ -135,7 +135,8 @@ public class OMEROMetadataStore
     	new LinkedHashMap<Integer, Plate>();
 
     /** A map of wellIndex vs. Well object ordered by first access. */
-    private Map<Integer, Well> wellList = new LinkedHashMap<Integer, Well>();
+    private Map<Integer, Map<Integer, Well>> wellList = 
+        new LinkedHashMap<Integer, Map<Integer, Well>>();
     
     /** A map of instrumentIndex vs. Instrument object ordered by first access. */
     private Map<Integer, Instrument> instrumentList = 
@@ -781,7 +782,7 @@ public class OMEROMetadataStore
                         Map<String, Integer> indexes)
     {
     	int plateIndex = indexes.get("plateIndex");
-        wellList = new LinkedHashMap<Integer, Well>();
+        wellList.put(plateIndex, new LinkedHashMap<Integer, Well>());
         plateList.put(plateIndex, sourceObject);
     }
 
@@ -797,8 +798,8 @@ public class OMEROMetadataStore
     {
         int plateIndex = indexes.get("plateIndex");
         int wellIndex = indexes.get("wellIndex");
-        getPlate(plateIndex).addWell(sourceObject);  
-        wellList.put(wellIndex, sourceObject);
+        getPlate(plateIndex).addWell(sourceObject);
+        wellList.get(plateIndex).put(wellIndex, sourceObject);
     }
 
     /**
@@ -1360,7 +1361,7 @@ public class OMEROMetadataStore
      */ 
     private Well getWell(int plateIndex, int wellIndex)
     {
-        return wellList.get(wellIndex);
+        return wellList.get(plateIndex).get(wellIndex);
     }
 
     /**
@@ -1421,7 +1422,7 @@ public class OMEROMetadataStore
         pixelsList = new LinkedHashMap<Integer, Pixels>();
         screenList = new LinkedHashMap<Integer, Screen>();
         plateList = new LinkedHashMap<Integer, Plate>();
-        wellList = new LinkedHashMap<Integer, Well>();
+        wellList = new LinkedHashMap<Integer, Map<Integer, Well>>();
         instrumentList = new LinkedHashMap<Integer, Instrument>();
         lsidMap = new LinkedHashMap<LSID, IObject>();
     }
