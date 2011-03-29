@@ -43,6 +43,7 @@ import omero.api.AMD_RawPixelsStore_getTotalSize;
 import omero.api.AMD_RawPixelsStore_isFloat;
 import omero.api.AMD_RawPixelsStore_isSigned;
 import omero.api.AMD_RawPixelsStore_prepare;
+import omero.api.AMD_RawPixelsStore_save;
 import omero.api.AMD_RawPixelsStore_setPixelsId;
 import omero.api.AMD_RawPixelsStore_setPlane;
 import omero.api.AMD_RawPixelsStore_setRegion;
@@ -282,6 +283,11 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
 
     public void prepare_async(AMD_RawPixelsStore_prepare __cb,
             List<Long> pixelsIds, Current __current) throws ServerError {
+        throw new UnsupportedOperationException("NYI");
+    }
+
+    public void save_async(AMD_RawPixelsStore_save __cb, Current __current)
+            throws ServerError {
         throw new UnsupportedOperationException("NYI");
     }
 
