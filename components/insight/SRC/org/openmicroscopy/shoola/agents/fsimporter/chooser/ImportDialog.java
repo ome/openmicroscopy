@@ -609,7 +609,8 @@ public class ImportDialog
 	private void initComponents(FileFilter[] filters)
 	{
     	folderAsDatasetBox = new JCheckBox();
-    	folderAsDatasetBox.setText("Create a dataset using the folder's name");
+    	folderAsDatasetBox.setText("Make the folder containing " +
+    			"the image a Dataset.");
 		sizeImportLabel = new JLabel();
 		diskSpacePane = new JPanel();
 		diskSpacePane.setLayout(new BoxLayout(diskSpacePane, BoxLayout.Y_AXIS));
