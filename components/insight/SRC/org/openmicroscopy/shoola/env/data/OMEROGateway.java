@@ -810,7 +810,7 @@ class OMEROGateway
 	{
 		if (table == null) return null;
 		try {
-			key = "("+key+"=%d)";
+			key = "("+key+"==%d)";
 			long totalRowCount = table.getNumberOfRows();
 			long[] rows = table.getWhereList(String.format(key, id), null, 0,
 					totalRowCount, 1L);
