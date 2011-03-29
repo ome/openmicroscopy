@@ -19,6 +19,8 @@ import ome.model.core.Pixels;
 import ome.server.itests.AbstractManagedContextTest;
 import ome.services.OmeroOriginalFileMetadataProvider;
 
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -88,9 +90,8 @@ public class PlaneReadUnitTest extends AbstractManagedContextTest {
         }
     }
 
-    @Override
-    protected void onSetUp() throws Exception {
-        super.onSetUp();
+    @BeforeClass
+    protected void setup() throws Exception {
 
         ROOT = getOmeroDataDir();
 
@@ -163,15 +164,13 @@ public class PlaneReadUnitTest extends AbstractManagedContextTest {
         }
     }
 
-    @Override
-    protected void onTearDown() throws Exception {
+    @AfterClass
+    protected void tearDown() throws Exception {
         // Tear down the resources created as part of the base fixture
         baseFixture.tearDown();
 
         // Tear down the resources create in this fixture
         File f = new File(path);
         f.delete();
-
-        super.onTearDown();
     }
 }

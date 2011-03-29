@@ -69,7 +69,7 @@ public class PixelsService extends AbstractFileSystemService {
 	 */
 	public PixelBuffer createPixelBuffer(Pixels pixels) throws IOException {
 		RomioPixelBuffer pixbuf = new RomioPixelBuffer(getPixelsPath(pixels
-				.getId()), pixels);
+				.getId()), pixels, true);
 		initPixelBuffer(pixbuf);
 		return pixbuf;
 	}
@@ -88,9 +88,12 @@ public class PixelsService extends AbstractFileSystemService {
 			                          OriginalFileMetadataProvider provider,
 			                          boolean bypassOriginalFile)
 	{
-		String pixelsFilePath = getPixelsPath(pixels.getId());
-		if (!(new File(pixelsFilePath).exists()) && !bypassOriginalFile)
+		final String pixelsFilePath = getPixelsPath(pixels.getId());
+		final File pixelsFile = new File(pixelsFilePath);
+		if (!pixelsFile.exists())
 		{
+		    if (!bypassOriginalFile)
+		    {
 			OriginalFile originalFile =
 				provider.getOriginalFileWhereFormatStartsWith(pixels, DV_FORMAT);
 			if (originalFile != null)
@@ -105,10 +108,15 @@ public class PixelsService extends AbstractFileSystemService {
 					return new DeltaVision(originalFilePath, originalFile);
 				}
 			}
+		    }
+
+		    log.info("Creating Pixel buffer.");
+		    createSubpath(pixelsFilePath);
+		    return new RomioPixelBuffer(pixelsFilePath, pixels, true);
 		}
-		log.info("Pixel buffer file exists returning ROMIO pixel buffer.");
-		createSubpath(pixelsFilePath);
-		return new RomioPixelBuffer(pixelsFilePath, pixels);
+
+		log.info("Pixel buffer file exists returning read-only ROMIO pixel buffer.");
+        return new RomioPixelBuffer(pixelsFilePath, pixels);
 	}
 	
 	/**

@@ -10,6 +10,7 @@ package ome.api;
 import java.util.Set;
 
 import ome.annotations.Validate;
+import ome.model.core.Pixels;
 
 /**
  * Binary data provider. Initialized with the id of a
@@ -106,5 +107,7 @@ public interface RawPixelsStore extends StatefulServiceInterface {
     public boolean isFloat();
 
     public byte[] calculateMessageDigest();
+
+    public Pixels save();
 
 }
