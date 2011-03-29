@@ -196,23 +196,33 @@ class GetObjectTest (lib.GTest):
         
         # experimenters
         experimenters = list( self.gateway.listExperimenters() )
-        exps = list( self.gateway.getObjects("Experimenter", None) )
+        exps = list( self.gateway.getObjects("Experimenter") )  # all experimenters
         
         self.assertEqual(len(exps), len(experimenters))  # check unordered lists are the same length & ids
         eIds = [e.getId() for e in experimenters]
         for e in exps:
             self.assertTrue(e.getId() in eIds)
+
+        # returns all experimenters except current user - now moved to webclient_gateway
+        #allBarOne = list( self.gateway.getExperimenters() )
+        #self.assertEqual(len(allBarOne)+1, len(exps))
+        #for e in allBarOne:
+        #    self.assertTrue(e.getId() in eIds)
             
         # groups
         groups = list( self.gateway.listGroups() )
-        gps = list( self.gateway.getObjects("ExperimenterGroup", None) )
+        gps = list( self.gateway.getObjects("ExperimenterGroup") )
         
         self.assertEqual(len(gps), len(groups))  # check unordered lists are the same length & ids
         gIds = [g.getId() for g in gps]
         for g in groups:
             self.assertTrue(g.getId() in gIds)
-
         
+        # uses gateway.getObjects("ExperimenterGroup") - check this doesn't throw
+        colleagues = self.gateway.listColleagues()
+        for e in colleagues:
+            cName = e.getOmeName()
+
     def testGetExperimenter(self):
         self.loginAsAdmin()
         e = self.gateway.findExperimenter(self.USER.name)
@@ -240,10 +250,6 @@ class GetObjectTest (lib.GTest):
                 ex = m.child
         for g in gs:
             self.assertTrue(g.getId() in groupIds)
-
-        # uses getGroups - check this doesn't throw
-        for e in self.gateway.listColleagues():
-            eName = e.getOmeName()
 
 
     def testGetAnnotations(self):
