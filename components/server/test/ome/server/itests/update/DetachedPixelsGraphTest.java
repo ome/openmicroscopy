@@ -12,6 +12,7 @@ import ome.model.core.PlaneInfo;
 import ome.parameters.Parameters;
 import ome.testing.ObjectFactory;
 
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 public class DetachedPixelsGraphTest extends AbstractUpdateTest {
@@ -28,9 +29,8 @@ public class DetachedPixelsGraphTest extends AbstractUpdateTest {
 
     int channelsSizeBefore;
 
-    @Override
-    protected void onSetUp() throws Exception {
-        super.onSetUp();
+    @BeforeClass
+    protected void setup() throws Exception {
 
         example = ObjectFactory.createPixelGraph(null);
 

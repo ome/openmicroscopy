@@ -17,6 +17,7 @@ import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
 import ome.server.itests.AbstractManagedContextTest;
 
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 /**
@@ -95,9 +96,8 @@ public class PlaneWriteUnitTest extends AbstractManagedContextTest {
         assertEquals(originalDigest, Helper.bytesToHex(newMD));
     }
 
-    @Override
-    protected void onSetUp() throws Exception {
-        super.onSetUp();
+    @BeforeMethod
+    protected void setup() throws Exception {
 
         ROOT = getOmeroDataDir();
 
@@ -110,8 +110,8 @@ public class PlaneWriteUnitTest extends AbstractManagedContextTest {
         pixbuf = service.createPixelBuffer(pixels);
     }
 
-    @Override
-    protected void onTearDown() throws Exception {
+    @BeforeMethod
+    protected void tearDown() throws Exception {
         // Tear down the resources create in this fixture
         String path = pixbuf.getPath();
         File f = new File(path);
@@ -119,6 +119,5 @@ public class PlaneWriteUnitTest extends AbstractManagedContextTest {
 
         // Tear down the resources created as part of the base fixture
         baseFixture.tearDown();
-        super.onTearDown();
     }
 }

@@ -16,6 +16,8 @@ import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
 import ome.server.itests.AbstractManagedContextTest;
 
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -51,9 +53,8 @@ public class PixbufCreationUnitTest extends AbstractManagedContextTest {
         }
     }
 
-    @Override
-    protected void onSetUp() throws Exception {
-        super.onSetUp();
+    @BeforeClass
+    protected void setup() throws Exception {
 
         ROOT = getOmeroDataDir();
 
@@ -67,8 +68,8 @@ public class PixbufCreationUnitTest extends AbstractManagedContextTest {
 
     }
 
-    @Override
-    protected void onTearDown() throws Exception {
+    @AfterClass
+    protected void tearDown() throws Exception {
         // Tear down the resources create in this fixture
         String path = pixbuf.getPath();
         File f = new File(path);
@@ -76,7 +77,5 @@ public class PixbufCreationUnitTest extends AbstractManagedContextTest {
 
         // Tear down the resources created as part of the base fixture
         baseFixture.tearDown();
-
-        super.onTearDown();
     }
 }

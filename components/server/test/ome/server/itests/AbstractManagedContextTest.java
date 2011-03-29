@@ -113,7 +113,7 @@ public class AbstractManagedContextTest extends TestCase {
      * @see org.springframework.test.AbstractDependencyInjectionSpringContextTests#onSetUp()
      */
     @BeforeClass
-    protected void onSetUp() throws Exception {
+    protected final void onSetUp() throws Exception {
         this.applicationContext = OmeroContext.getManagedServerContext();
         applicationContext.refreshAllIfNecessary();
 
@@ -160,7 +160,7 @@ public class AbstractManagedContextTest extends TestCase {
     }
 
     @AfterClass
-    protected void onTearDown() throws Exception {
+    protected final void onTearDown() throws Exception {
         sessionManager.closeAll();
     }
 

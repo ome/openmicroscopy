@@ -71,11 +71,10 @@ public class MetadataServiceTest
     /** 
      * Sets the service.
      */
-    @Override
-    protected void onSetUp() 
+    @BeforeClass
+    protected void setup()
     	throws Exception
     {
-        super.onSetUp();
         iMetadata = factory.getMetadataService();
     }
     
