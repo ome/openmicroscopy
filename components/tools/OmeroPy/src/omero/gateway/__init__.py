@@ -2190,19 +2190,6 @@ class _BlitzGateway (object):
         for e in q.findAllByQuery(sql, p):
             if e.id.val != self.getEventContext().userId:
                 yield ExperimenterWrapper(self, e)
-    
-    def listGroups(self):
-        """
-        Looks up all groups and all related experimenters. 
-        TODO: The experimenters are also loaded?
-        
-        @return:    All groups
-        @rtype:     L{ExperimenterGroupWrapper} generator
-        """
-            
-        admin_serv = self.getAdminService()
-        for gr in admin_serv.lookupGroups():
-            yield ExperimenterGroupWrapper(self, gr)
 
     def listOwnedGroups(self):
         """
