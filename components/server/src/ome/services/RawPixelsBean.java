@@ -285,7 +285,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     @RolesAllowed("user")
     public void prepare(Set<Long> pixelsIds)
     {
-    	pixelsCache = new HashMap<Long, Pixels>(pixelsIds.size());
+	pixelsCache = new ConcurrentHashMap<Long, Pixels>(pixelsIds.size());
     	List<Pixels> pixelsList = iQuery.findAllByQuery(
     			"select p from Pixels as p join fetch p.pixelsType " +
         		"where p.id in (:ids)", new Parameters().addIds(pixelsIds));
@@ -632,6 +632,10 @@ public class RawPixelsBean extends AbstractStatefulBean implements
 
     private void handleException(Exception e) {
 
+        if (e instanceof RootException) {
+            throw (RootException) e; // Allow our own exceptions.
+        }
+
         if (log.isDebugEnabled()) {
             log.debug("Error handling pixels.", e);
         }
@@ -642,8 +646,11 @@ public class RawPixelsBean extends AbstractStatefulBean implements
         if (e instanceof DimensionsOutOfBoundsException) {
             throw new ApiUsageException(e.getMessage());
         }
+        if (e instanceof BufferUnderflowException) {
+            throw new ResourceError("BufferUnderflowException: " + e.getMessage());
+        }
         if (e instanceof BufferOverflowException) {
-            throw new ResourceError(e.getMessage());
+            throw new ResourceError("BufferOverflowException: " + e.getMessage());
         }
 
         // Fallthrough
