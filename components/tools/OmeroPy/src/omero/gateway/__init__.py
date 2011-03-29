@@ -49,7 +49,7 @@ from math import sqrt
 
 import omero_Constants_ice  
 import omero_ROMIO_ice
-from omero.rtypes import rstring, rint, rlong, rbool, rtime, rlist
+from omero.rtypes import rstring, rint, rlong, rbool, rtime, rlist, rdouble
 
 if omero_version < ['4','2','0']:
     import makemovie
@@ -3498,6 +3498,12 @@ class FileAnnotationWrapper (AnnotationWrapper):
         if not self._obj.file.loaded:
             self._obj._file = self._conn.getQueryService().find('OriginalFile', self._obj.file.id.val)
 
+    def getQueryString(self):
+        """
+        Used for building queries in generic methods such as getObjects("FileAnnotation")
+        """
+        return "select obj from FileAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group"
+
     def getValue (self):
         """ Not implemented """
         pass
@@ -3591,6 +3597,12 @@ class TimestampAnnotationWrapper (AnnotationWrapper):
     
     OMERO_TYPE = TimestampAnnotationI
 
+    def getQueryString(self):
+        """
+        Used for building queries in generic methods such as getObjects("TimestampAnnotation")
+        """
+        return "select obj from TimestampAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group"
+
     def getValue (self):
         """
         Returns a datetime object of the timestamp in seconds
@@ -3627,6 +3639,12 @@ class BooleanAnnotationWrapper (AnnotationWrapper):
     
     OMERO_TYPE = BooleanAnnotationI
 
+    def getQueryString(self):
+        """
+        Used for building queries in generic methods such as getObjects("BooleanAnnotation")
+        """
+        return "select obj from BooleanAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group"
+
     def getValue (self):
         """
         Gets boolean value
@@ -3656,6 +3674,12 @@ class TagAnnotationWrapper (AnnotationWrapper):
     """
     
     OMERO_TYPE = TagAnnotationI
+
+    def getQueryString(self):
+        """
+        Used for building queries in generic methods such as getObjects("TagAnnotation")
+        """
+        return "select obj from TagAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group"
 
     def getValue (self):
         """ 
@@ -3688,6 +3712,12 @@ class CommentAnnotationWrapper (AnnotationWrapper):
     
     OMERO_TYPE = CommentAnnotationI
 
+    def getQueryString(self):
+        """
+        Used for building queries in generic methods such as getObjects("CommentAnnotation")
+        """
+        return "select obj from CommentAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group"
+
     def getValue (self):
         """ 
         Gets the value of the Comment
@@ -3718,6 +3748,12 @@ class LongAnnotationWrapper (AnnotationWrapper):
     """
     OMERO_TYPE = LongAnnotationI
 
+    def getQueryString(self):
+        """
+        Used for building queries in generic methods such as getObjects("LongAnnotation")
+        """
+        return "select obj from LongAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group"
+
     def getValue (self):
         """ 
         Gets the value of the Long annotation
@@ -3747,6 +3783,12 @@ class DoubleAnnotationWrapper (AnnotationWrapper):
     omero_model_DoubleAnnotationI class wrapper extends AnnotationWrapper.
     """
     OMERO_TYPE = DoubleAnnotationI
+
+    def getQueryString(self):
+        """
+        Used for building queries in generic methods such as getObjects("DoubleAnnotation")
+        """
+        return "select obj from DoubleAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group"
 
     def getValue (self):
         """ 
@@ -3782,6 +3824,12 @@ class TermAnnotationWrapper (AnnotationWrapper):
     only in 4.2+
     """
     OMERO_TYPE = TermAnnotationI
+
+    def getQueryString(self):
+        """
+        Used for building queries in generic methods such as getObjects("TermAnnotation")
+        """
+        return "select obj from TermAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group"
 
     def getValue (self):
         """ 
@@ -6835,7 +6883,14 @@ def refreshWrappers ():
                   "well":WellWrapper,
                   "experimenter":ExperimenterWrapper,
                   "experimentergroup":ExperimenterGroupWrapper,
-                  "commentannotation":CommentAnnotationWrapper, # could add other annotation types...?
-                  "annotation":AnnotationWrapper._wrap})        # ...or let them all be handled here.
+                  "commentannotation":CommentAnnotationWrapper,
+                  "tagannotation":TagAnnotationWrapper,
+                  "longannotation":LongAnnotationWrapper,
+                  "booleanannotation":BooleanAnnotationWrapper,
+                  "fileannotation":FileAnnotationWrapper,
+                  "doubleannotation":DoubleAnnotationWrapper,
+                  "termannotation":TermAnnotationWrapper,
+                  "timestampannotation":TimestampAnnotationWrapper,
+                  "annotation":AnnotationWrapper._wrap})    # allows for getObjects("Annotation", ids)
 
 refreshWrappers()
