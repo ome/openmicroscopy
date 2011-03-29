@@ -19,11 +19,11 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import ome.conditions.ApiUsageException;
 import ome.model.core.Pixels;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * Class implementation of the PixelBuffer interface for standard "proprietary"
@@ -66,19 +66,42 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
     private Integer totalSize;
 
     /**
-     * Creates a new instance.
+     * Whether or not any of the mutators to write data can be called.
+     * If not, an internal exception will be raised since it represents
+     * a programming error.
+     */
+    private final boolean permitModification;
+
+    /**
+     * Creates a new instance. {@link #permitModification} defaults to false.
      * 
      * @param path The path to the file.
      * @param pixels The pixels object to handle.
      */
     public RomioPixelBuffer(String path, Pixels pixels) {
+        this(path, pixels, false);
+    }
+
+    /**
+     * Creates a new instance, with manual setting of {@link #permitModification}.
+     *
+     * @param path The path to the file.
+     * @param pixels The pixels object to handle.
+     */
+    public RomioPixelBuffer(String path, Pixels pixels, boolean permitModification) {
         super(path);
         if (pixels == null) {
             throw new NullPointerException(
                     "Expecting a not-null pixels element.");
         }
-
         this.pixels = pixels;
+        this.permitModification = permitModification;
+    }
+
+    private void throwIfReadOnly() {
+        if (!permitModification) {
+            throw new ApiUsageException("Write-method not permitted.");
+        }
     }
 
     /**
@@ -564,6 +587,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
 	 */
     public void setRegion(Integer size, Long offset, byte[] buffer)
             throws IOException {
+        throwIfReadOnly();
     	ByteBuffer buf = MappedByteBuffer.wrap(buffer);
     	buf.limit(size);
     	setRegion(size, offset, buf);
@@ -575,6 +599,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
 	 */
     public void setRegion(Integer size, Long offset, ByteBuffer buffer)
             throws IOException {
+        throwIfReadOnly();
         FileChannel fileChannel = getFileChannel();
 
         /*
@@ -590,6 +615,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
 	 */
     public void setRow(ByteBuffer buffer, Integer y, Integer z, Integer c,
             Integer t) throws IOException, DimensionsOutOfBoundsException {
+        throwIfReadOnly();
         Long offset = getRowOffset(y, z, c, t);
         Integer size = getRowSize();
 
@@ -602,6 +628,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
 	 */
     public void setPlane(ByteBuffer buffer, Integer z, Integer c, Integer t)
             throws IOException, DimensionsOutOfBoundsException {
+        throwIfReadOnly();
         Long offset = getPlaneOffset(z, c, t);
         Integer size = getPlaneSize();
         if (buffer.limit() != size)
@@ -621,6 +648,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
 	 */
     public void setPlane(byte[] buffer, Integer z, Integer c, Integer t)
             throws IOException, DimensionsOutOfBoundsException {
+        throwIfReadOnly();
     	setPlane(ByteBuffer.wrap(buffer), z, c, t);
     }
 
@@ -630,6 +658,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
 	 */
     public void setStack(ByteBuffer buffer, Integer z, Integer c, Integer t)
             throws IOException, DimensionsOutOfBoundsException {
+        throwIfReadOnly();
         Long offset = getStackOffset(c, t);
         Integer size = getStackSize();
         if (buffer.limit() != size)
@@ -649,6 +678,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
 	 */
     public void setStack(byte[] buffer, Integer z, Integer c, Integer t)
             throws IOException, DimensionsOutOfBoundsException {
+        throwIfReadOnly();
     	setStack(MappedByteBuffer.wrap(buffer), z, c, t);
     }
 
@@ -658,6 +688,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
 	 */
     public void setTimepoint(ByteBuffer buffer, Integer t) throws IOException,
             DimensionsOutOfBoundsException {
+        throwIfReadOnly();
         Long offset = getTimepointOffset(t);
         Integer size = getTimepointSize();
         if (buffer.limit() != size)
@@ -677,6 +708,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
 	 */
     public void setTimepoint(byte[] buffer, Integer t) throws IOException,
             DimensionsOutOfBoundsException {
+        throwIfReadOnly();
     	setTimepoint(MappedByteBuffer.wrap(buffer), t);
     }
 
