@@ -170,11 +170,11 @@ public class ImportDialog
 	private static final String TITLE = "Select Data to Import";
 	
 	/** The message to display in the header. */
-	private static final String MESSAGE_LOCATION = "Selects where to import " +
+	private static final String MESSAGE_LOCATION = "Select where to import " +
 			"the data:";
 	
 	/** The message to display in the header. */
-	private static final String MESSAGE = "Selects the files or directories " +
+	private static final String MESSAGE = "Select the files or directories " +
 			"to import:";
 	
 	/** The message to display in the header. */
@@ -797,7 +797,7 @@ public class ImportDialog
 		refreshButton.setActionCommand(""+REFRESH);
 		refreshButton.addActionListener(this);
 		resetButton = new JButton("Reset");
-		resetButton.setToolTipText("Resets the name of all files to either " +
+		resetButton.setToolTipText("Reset the name of all files to either " +
 				"the full path or the partial name if selected.");
 		resetButton.setActionCommand(""+RESET);
 		resetButton.addActionListener(this);

@@ -246,7 +246,7 @@ public class FileImportComponent
 	private void setNumberOfImport()
 	{
 		if (pane == null) return;
-		String text = file.getName()+": "+importCount+"/"+totalFiles+" files";//
+		String text = file.getName()+": "+importCount+"/"+totalFiles+" files";
 		pane.setTitle(text);
 	}
 	
@@ -353,14 +353,14 @@ public class FileImportComponent
 			public void mousePressed(MouseEvent e)
 			{
 				Object src = e.getSource();
-				if (e.getClickCount() == 2 && src instanceof JLabel) {
+				if (e.getClickCount() == 1 && src instanceof JLabel) {
 					browse();
 				}
 			}
 		});
 		browseButton.setVisible(false);
 		
-		containerLabel = new JLabel();//UIUtilities.setTextFont("");
+		containerLabel = new JLabel();
 		containerLabel.setVisible(false);
 		
 		namePane = new JPanel();
@@ -502,8 +502,7 @@ public class FileImportComponent
 		removeAll();
 		pane = EditorUtil.createTaskPane("");
 		setNumberOfImport();
-		
-		
+
 		IconManager icons = IconManager.getInstance();
 		pane.setIcon(icons.getIcon(IconManager.DIRECTORY));
 		Font font = pane.getFont();
@@ -678,7 +677,12 @@ public class FileImportComponent
 				statusLabel.setVisible(false);
 				fileNameLabel.addMouseListener(adapter);
 				addMouseListener(adapter);
+				resultLabel.setText(VIEW_TEXT);
+				resultLabel.setForeground(UIUtilities.HYPERLINK_COLOR);
+				resultLabel.setToolTipText(ThumbnailLabel.IMAGE_LABEL_TOOLTIP);
+				resultLabel.setEnabled(false);
 				resultLabel.setVisible(true);
+				resultLabel.addMouseListener(adapter);
 				browseButton.setVisible(showContainerLabel);
 				containerLabel.setVisible(showContainerLabel);
 			} else {

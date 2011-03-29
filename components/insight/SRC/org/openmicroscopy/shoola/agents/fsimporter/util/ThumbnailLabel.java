@@ -74,7 +74,7 @@ class ThumbnailLabel
 							BorderFactory.createLineBorder(Color.black, 1);
 	
 	/** The text displayed in the tool tip when the image has been imported. */
-	static final String	IMAGE_LABEL_TOOLTIP = "Double-Click to view the image.";
+	static final String	IMAGE_LABEL_TOOLTIP = "Click to view the image.";
 	
 	/** The text displayed in the tool tip when the plate has been imported. */
 	static final String	PLATE_LABEL_TOOLTIP = 
@@ -134,7 +134,7 @@ class ThumbnailLabel
 			 */
 			public void mousePressed(MouseEvent e)
 			{
-				if (e.getClickCount() == 2)
+				if (e.getClickCount() == 1)
 					view(); 
 			}
 
@@ -195,7 +195,7 @@ class ThumbnailLabel
 			 */
 			public void mousePressed(MouseEvent e)
 			{
-				if (e.getClickCount() == 2)
+				if (e.getClickCount() == 1)
 					view(); 
 			}
 		});
