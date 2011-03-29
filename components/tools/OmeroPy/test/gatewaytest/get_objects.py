@@ -134,7 +134,79 @@ class FindObjectTest (lib.GTest):
         self.assertTrue(find_tag != None)
         self.assertEqual(find_tag.getNs(), find_ns)
 
-        self.gateway.deleteObject(tag._obj)  # direct delete
+        # create some other annotations... (not linked!)
+        longAnn = omero.gateway.LongAnnotationWrapper(self.gateway)
+        longAnn.setValue(12345)
+        longAnn.save()
+        longId = longAnn.getId()
+        boolAnn = omero.gateway.BooleanAnnotationWrapper(self.gateway)
+        boolAnn.setValue(True)
+        boolAnn.save()
+        boolId = boolAnn.getId()
+        commAnn = omero.gateway.CommentAnnotationWrapper(self.gateway)
+        commAnn.setValue("This is a blitz gatewaytest Comment.")
+        commAnn.save()
+        commId = commAnn.getId()
+        fileAnn = omero.gateway.FileAnnotationWrapper(self.gateway)
+        fileAnn.save()
+        fileId = fileAnn.getId()
+        doubleAnn = omero.gateway.DoubleAnnotationWrapper(self.gateway)
+        doubleAnn.setValue(1.23456)
+        doubleAnn.save()
+        doubleId = doubleAnn.getId()
+        termAnn = omero.gateway.TermAnnotationWrapper(self.gateway)
+        termAnn.setValue("Metaphase")
+        termAnn.save()
+        termId = termAnn.getId()
+        timeAnn = omero.gateway.TimestampAnnotationWrapper(self.gateway)
+        timeAnn.setValue(1000)
+        timeAnn.save()
+        timeId = timeAnn.getId()
+
+        # list annotations of various types - check they include ones from above
+        tags =  list( self.gateway.getObjects("TagAnnotation") )
+        for t in tags:
+            self.assertEqual(t.OMERO_TYPE, tag.OMERO_TYPE)
+        self.assertTrue(tagId in [t.getId() for t in tags])
+        longs =  list( self.gateway.getObjects("LongAnnotation") )
+        for l in longs:
+            self.assertEqual(l.OMERO_TYPE, longAnn.OMERO_TYPE)
+        self.assertTrue(longId in [l.getId() for l in longs])
+        bools =  list( self.gateway.getObjects("BooleanAnnotation") )
+        for b in bools:
+            self.assertEqual(b.OMERO_TYPE, boolAnn.OMERO_TYPE)
+        self.assertTrue(boolId in [b.getId() for b in bools])
+        comms =  list( self.gateway.getObjects("CommentAnnotation") )
+        for c in comms:
+            self.assertEqual(c.OMERO_TYPE, commAnn.OMERO_TYPE)
+        self.assertTrue(commId in [c.getId() for c in comms])
+        files =  list( self.gateway.getObjects("FileAnnotation") )
+        for f in files:
+            self.assertEqual(f.OMERO_TYPE, fileAnn.OMERO_TYPE)
+        self.assertTrue(fileId in [f.getId() for f in files])
+        doubles =  list( self.gateway.getObjects("DoubleAnnotation") )
+        for d in doubles:
+            self.assertEqual(d.OMERO_TYPE, doubleAnn.OMERO_TYPE)
+        self.assertTrue(doubleId in [d.getId() for d in doubles])
+        terms =  list( self.gateway.getObjects("TermAnnotation") )
+        for t in terms:
+            self.assertEqual(t.OMERO_TYPE, termAnn.OMERO_TYPE)
+        self.assertTrue(termId in [t.getId() for t in terms])
+        times =  list( self.gateway.getObjects("TimestampAnnotation") )
+        for t in times:
+            self.assertEqual(t.OMERO_TYPE, timeAnn.OMERO_TYPE)
+        self.assertTrue(timeId in [t.getId() for t in times])
+
+        # delete what we created
+        self.gateway.deleteObject(longAnn._obj)  # direct delete
+        self.assertTrue( self.gateway.getObject("Annotation", longId) == None)
+        self.gateway.deleteObject(boolAnn._obj)
+        self.assertTrue( self.gateway.getObject("Annotation", boolId) == None)
+        self.gateway.deleteObject(fileAnn._obj)
+        self.assertTrue( self.gateway.getObject("Annotation", fileId) == None)
+        self.gateway.deleteObject(commAnn._obj)
+        self.assertTrue( self.gateway.getObject("Annotation", commId) == None)
+        self.gateway.deleteObject(tag._obj)
         self.assertTrue( self.gateway.getObject("Annotation", tagId) == None)
 
 
