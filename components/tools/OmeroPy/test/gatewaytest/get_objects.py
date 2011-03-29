@@ -210,13 +210,13 @@ class GetObjectTest (lib.GTest):
         #    self.assertTrue(e.getId() in eIds)
             
         # groups
-        groups = list( self.gateway.listGroups() )
+        #groups = list( self.gateway.listGroups() )     # now removed from blitz gateway.
         gps = list( self.gateway.getObjects("ExperimenterGroup") )
         
-        self.assertEqual(len(gps), len(groups))  # check unordered lists are the same length & ids
-        gIds = [g.getId() for g in gps]
-        for g in groups:
-            self.assertTrue(g.getId() in gIds)
+        #self.assertEqual(len(gps), len(groups))  # check unordered lists are the same length & ids
+        #gIds = [g.getId() for g in gps]
+        #for g in groups:
+        #    self.assertTrue(g.getId() in gIds)
         
         # uses gateway.getObjects("ExperimenterGroup") - check this doesn't throw
         colleagues = self.gateway.listColleagues()
