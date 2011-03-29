@@ -2431,48 +2431,6 @@ class _BlitzGateway (object):
             yield wrappers[obj_type](self, e)
 
 
-    def listAnnotations(self, eid=None, atype=None, ns=None):
-        """
-        List Annotations controlled by the security system. 
-        
-        @param eid:         experimenter id
-        @type eid:          Long
-        @param ann_type:    Tag, File, Comment, Long, Boolean
-        @type ann_type:     String
-        @param ns:          Optional namespace, if not provided or None, only annotations without
-                            namespace set are returned
-        @type ns:           String
-        
-        @return:            Generator yielding Annotations
-        @rtype:             L{AnnotationWrapper} generator
-        """
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        sql = "select a from"        
-
-        if atype is None:
-            atype = ""
-        else:
-            if not atype in ('tag', 'comment', 'file', 'long', 'boolean'):
-                raise AttributeError("Annotation type myst be Tag, File, Comment, Rate, Boolean ")
-            atype = atype.title()
-        
-        sql+=" %sAnnotation a" % atype
-        if ns is not None:
-            p.map["ns"] = rstring(ns)
-            sql+=" where a.ns=:ns"
-        else:
-            sql+=" where a.ns is null"
-
-        # experimenter filter
-        if eid is not None:
-            p.map["eid"] = rlong(long(eid))
-            sql += " and a.details.owner.id=:eid"
-       
-        for e in q.findAllByQuery(sql,p):
-            yield AnnotationWrapper._wrap(self, e)
-                    
     #################################
     # Annotations                   #
 
