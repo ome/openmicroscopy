@@ -121,7 +121,7 @@ class BaseExperimenter(BaseController):
     
     def getSelectedGroups(self, ids):
         if len(ids)>0:
-            return list(self.conn.getExperimenterGroups(ids))
+            return list(self.conn.getObjects("ExperimenterGroup", ids))
         return list()
     
     def getMyDetails(self):
