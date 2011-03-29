@@ -265,7 +265,7 @@ for src_dir in glob.glob("*"):
                 make = env.Program(base+".exe", file, LIBS=libs)
                 targets.append(make)
                 if env["run"] or env["run_cpp"]:
-                    run = env.Command(base+".out", base+".exe", "./$SOURCE")
+                    run = env.Command(base+".out", base+".exe",  os.path.sep.join([".","$SOURCE"])
                     env.Depends(run, make)
                     env.AlwaysBuild(run)
                     targets.append(run)
