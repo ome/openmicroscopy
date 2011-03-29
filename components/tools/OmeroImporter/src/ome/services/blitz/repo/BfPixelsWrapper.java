@@ -144,13 +144,20 @@ public class BfPixelsWrapper {
 
     private void checkCubeBounds(List<Integer> offset, List<Integer> size, List<Integer> step)
             throws DimensionsOutOfBoundsException {
+        // At the moment the array must contain 5 values
+        if(offset.size()!=5 || size.size()!=5 || step.size()!=5)
+        {
+            throw new DimensionsOutOfBoundsException(
+                    "Invalid List length: each list must contain 5 elements XYZCT");
+        }
         checkBounds(offset.get(0),offset.get(1),offset.get(2),offset.get(3),offset.get(4));
         checkBounds(offset.get(0)+size.get(0)-1,offset.get(1)+size.get(1)-1,
                 offset.get(2)+size.get(2)-1,offset.get(3)+size.get(3)-1,offset.get(4)+size.get(4)-1);
         if(step.get(0) < 1 ||  step.get(1) < 1 ||  step.get(2) < 1 
                 ||  step.get(3) < 1 ||  step.get(4) < 1)
         {
-            throw new DimensionsOutOfBoundsException("Invalid step size: steps sizes must be 1 or greater");
+            throw new DimensionsOutOfBoundsException(
+                    "Invalid step size: steps sizes must be 1 or greater");
         }
     }
     

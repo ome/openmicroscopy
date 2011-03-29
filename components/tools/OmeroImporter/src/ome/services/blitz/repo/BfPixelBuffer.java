@@ -15,6 +15,7 @@ import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.List;
 
 import loci.common.DataTools;
@@ -127,8 +128,8 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
     public byte[] getPlaneRegionDirect(Integer z, Integer c, Integer t,
             Integer count, Integer offset, byte[] buffer) throws IOException,
             DimensionsOutOfBoundsException {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException(
+                "Not yet supported, raise ticket to implement if required");
     }
 
     public Integer getPlaneSize() {
@@ -136,14 +137,14 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
     }
 
     public PixelData getRegion(Integer size, Long offset) throws IOException {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException(
+                "Not yet supported, raise ticket to implement if required");
     }
 
     public byte[] getRegionDirect(Integer size, Long offset, byte[] buffer)
             throws IOException {
-        // TODO Auto-generated method stub
-        return null;
+        throw new UnsupportedOperationException(
+                "Not yet supported, raise ticket to implement if required");
     }
 
     public PixelData getRow(Integer y, Integer z, Integer c, Integer t)
@@ -268,48 +269,41 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
     public void setPlane(ByteBuffer buffer, Integer z, Integer c, Integer t)
             throws IOException, DimensionsOutOfBoundsException,
             BufferOverflowException {
-throw new UnsupportedOperationException("Cannot write to repository");
-        
+        throw new UnsupportedOperationException("Cannot write to repository");
     }
 
     public void setPlane(byte[] buffer, Integer z, Integer c, Integer t)
             throws IOException, DimensionsOutOfBoundsException,
             BufferOverflowException {
-throw new UnsupportedOperationException("Cannot write to repository");
-        
+        throw new UnsupportedOperationException("Cannot write to repository");
     }
 
     public void setRegion(Integer size, Long offset, byte[] buffer)
             throws IOException, BufferOverflowException {
-throw new UnsupportedOperationException("Cannot write to repository");
-        
+        throw new UnsupportedOperationException("Cannot write to repository");
     }
 
     public void setRegion(Integer size, Long offset, ByteBuffer buffer)
             throws IOException, BufferOverflowException {
-throw new UnsupportedOperationException("Cannot write to repository");
-        
+        throw new UnsupportedOperationException("Cannot write to repository");
     }
 
     public void setRow(ByteBuffer buffer, Integer y, Integer z, Integer c,
             Integer t) throws IOException, DimensionsOutOfBoundsException,
             BufferOverflowException {
-throw new UnsupportedOperationException("Cannot write to repository");
-        
+        throw new UnsupportedOperationException("Cannot write to repository");
     }
 
     public void setStack(ByteBuffer buffer, Integer z, Integer c, Integer t)
             throws IOException, DimensionsOutOfBoundsException,
             BufferOverflowException {
-throw new UnsupportedOperationException("Cannot write to repository");
-        
+        throw new UnsupportedOperationException("Cannot write to repository");
     }
 
     public void setStack(byte[] buffer, Integer z, Integer c, Integer t)
             throws IOException, DimensionsOutOfBoundsException,
             BufferOverflowException {
         throw new UnsupportedOperationException("Cannot write to repository");
-        
     }
 
     public void setTimepoint(ByteBuffer buffer, Integer t) throws IOException,
@@ -336,8 +330,7 @@ throw new UnsupportedOperationException("Cannot write to repository");
 
     public byte[] getHypercubeDirect(List<Integer> offset, List<Integer> size, 
             List<Integer> step, byte[] buffer) 
-            throws IOException, DimensionsOutOfBoundsException 
-    {
+            throws IOException, DimensionsOutOfBoundsException {
         try {
             reader.getHypercube(offset,size,step,buffer);
             reader.swapIfRequired(buffer);
@@ -351,7 +344,9 @@ throw new UnsupportedOperationException("Cannot write to repository");
             Integer height, Integer z, Integer c, Integer t, Integer stride)
             throws IOException, DimensionsOutOfBoundsException
             {
-        // TODO Auto-generated method stub
-        return null;
+        List<Integer> offset = Arrays.asList(new Integer[]{x,y,z,c,t});
+        List<Integer> size = Arrays.asList(new Integer[]{width,height,1,1,1});
+        List<Integer> step = Arrays.asList(new Integer[]{stride+1,stride+1,1,1,1});
+        return getHypercube(offset, size, step);
     }
 }

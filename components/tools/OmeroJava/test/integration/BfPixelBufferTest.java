@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -100,6 +101,7 @@ public class BfPixelBufferTest extends AbstractTest {
         testgetTimepointDirect();
         testgetStackDirect();
         testgetPlaneDirect();
+        testgetPlaneAsHypercube();
         testgetRowDirect();
         testgetColDirect();
         tidyUp();
@@ -123,6 +125,7 @@ public class BfPixelBufferTest extends AbstractTest {
         testgetTimepointDirect();
         testgetStackDirect();
         testgetPlaneDirect();
+        testgetPlaneAsHypercube();
         testgetRowDirect();
         testgetColDirect();
         tidyUp();
@@ -146,6 +149,7 @@ public class BfPixelBufferTest extends AbstractTest {
         testgetTimepointDirect();
         testgetStackDirect();
         testgetPlaneDirect();
+        testgetPlaneAsHypercube();
         testgetRowDirect();
         testgetColDirect();
         tidyUp();
@@ -185,6 +189,23 @@ public class BfPixelBufferTest extends AbstractTest {
         buff2 = rps.getPlane(midZ,midC,midT);
         assertEquals(sha1(buff1), sha1(buff2));
     }
+
+    private void testgetPlaneAsHypercube() throws IOException, DimensionsOutOfBoundsException, ServerError{
+        int sizeX = bf.getSizeX();
+        int sizeY = bf.getSizeY();
+        int midZ = bf.getSizeZ()/2;
+        int midC = bf.getSizeC()/2;
+        int midT = bf.getSizeT()/2;
+        List<Integer> offset = Arrays.asList(new Integer[]{0,0,midZ,midC,midT});
+        List<Integer> size = Arrays.asList(new Integer[]{sizeX,sizeY,1,1,1});
+        List<Integer> step = Arrays.asList(new Integer[]{1,1,1,1,1});
+        byte[] buff1 = new byte[bf.getPlaneSize()];
+        byte[] buff2 = new byte[bf.getPlaneSize()];
+        bf.getPlaneDirect(midZ,midC,midT,buff1);
+        bf.getHypercubeDirect(offset,size,step,buff2);
+        assertEquals(sha1(buff1), sha1(buff2));
+    }
+
 
     private void testgetStackDirect() throws IOException, DimensionsOutOfBoundsException, ServerError {
         int midC = bf.getSizeC()/2;
