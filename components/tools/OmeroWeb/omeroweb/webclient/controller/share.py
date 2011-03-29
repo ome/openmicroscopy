@@ -100,7 +100,7 @@ class BaseShare(BaseController):
             expiration_date = rtime(long(time.mktime(d1.timetuple())+1e-6*d1.microsecond)*1000)
         
         old_groups =  [m._obj for m in self.conn.getAllMembers(self.share.id)]
-        new_groups = [e._obj for e in self.conn.getExperimenters(members)]
+        new_groups = [e._obj for e in self.conn.getObjects("Experimenter", members)]
         
         add_mem = list()
         rm_mem = list()
