@@ -2323,7 +2323,7 @@ class _BlitzGateway (object):
             return None
 
 
-    def getObjects (self, obj_type, ids, params=None, attributes=None):
+    def getObjects (self, obj_type, ids=None, params=None, attributes=None):
         """
         Retrieve Objects by type E.g. "Image". Not Ordered. 
         Returns generator of appropriate L{BlitzObjectWrapper} type. E.g. L{ImageWrapper}.
