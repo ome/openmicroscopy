@@ -353,12 +353,12 @@ class BaseContainer(BaseController):
             for pl in pl_list:
                 pl.annotation_counter = pl_annotation_counter.get(pl.id)
                 pl_list_with_counters.append(pl)
-                
-        pr_list_with_counters = self.sortByAttr(pr_list_with_counters, 'name')
-        ds_list_with_counters = self.sortByAttr(ds_list_with_counters, 'name')
-        sc_list_with_counters = self.sortByAttr(sc_list_with_counters, "name")
-        pl_list_with_counters = self.sortByAttr(pl_list_with_counters, "name")
-        
+
+        pr_list_with_counters.sort(key=lambda x: x.getName() and x.getName().lower())
+        ds_list_with_counters.sort(key=lambda x: x.getName() and x.getName().lower())
+        sc_list_with_counters.sort(key=lambda x: x.getName() and x.getName().lower())
+        pl_list_with_counters.sort(key=lambda x: x.getName() and x.getName().lower())
+
         self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters, 'screens': sc_list_with_counters, 'plates': pl_list_with_counters}
         self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)+len(sc_list_with_counters)+len(pl_list_with_counters)
     
