@@ -46,6 +46,7 @@ import ome.model.meta.Experimenter;
 import ome.parameters.Parameters;
 import ome.testing.FileUploader;
 
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /** 
