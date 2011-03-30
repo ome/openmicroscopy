@@ -4,7 +4,9 @@
    Integration test focused on the BfPixelsStore API
    
    This test compares data got through BFPixelsStore and
-   RawPixelsStore on the same image file.
+   RawPixelsStore on the same image file. It essentially
+   compares method for method between the two implementaions
+   on the same binary data.
    
    Copyright 2011 Glencoe Software, Inc. All rights reserved.
    Use is subject to license terms supplied in LICENSE.txt
