@@ -2447,38 +2447,7 @@ class _BlitzGateway (object):
               "where tg.textValue=:text and tg.details.owner.id=:eid and tg.ns is null order by tg.textValue"
         tg = query_serv.findByQuery(sql, p)
         return AnnotationWrapper(self, tg)
-    
-    ##############################
-    # Annotation based iterators #
-    
-    def listImages (self, ns, params=None):
-        """
-        Lists all images with annotations in the given namespace, ordered by reverse annotation id.
-        
-        @param ns:      Annotation namespace
-        @type ns:       String
-        @param params:  Additional query parameters
-        @type params:   L{omero.sys.Parameters}
-        @return:        Generator of Images
-        @rtype:         L{ImageWrapper} generator
-        """
-        
-        if not params:
-            params = omero.sys.Parameters()
-        if not params.map:
-            params.map = {}
-        params.map["ns"] = omero_type(ns)
-        query = """
-                 select i
-                   from Image i
-                   join i.annotationLinks ial
-                   join ial.child as a
-                   where a.ns = :ns
-                   order by a.id desc """
-        for i in self.getQueryService().findAllByQuery(query, params):
-            yield ImageWrapper(self, i)
 
-    
     ################
     # Enumerations #
     
