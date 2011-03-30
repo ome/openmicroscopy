@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
 //Java imports
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -33,6 +34,7 @@ import java.awt.GridBagLayout;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+//import java.awt.event.KeyAdapter;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -818,6 +820,45 @@ public class ImportDialog
 			pixelsSize.add(field);
 		}
 		initializeLocationBoxes();
+		
+		List<Component> boxes = 
+			UIUtilities.findComponents(chooser, JComboBox.class);
+		if (boxes != null) {
+			JComboBox box;
+			JComboBox filerBox = null;
+			Iterator<Component> i = boxes.iterator();
+			while (i.hasNext()) {
+				box = (JComboBox) i.next();
+				Object o = box.getItemAt(0);
+				if (o instanceof FileFilter) {
+					filerBox = box;
+					break;
+				}
+			}
+			if (filerBox != null) {
+				filerBox.addKeyListener(new KeyAdapter() {
+					
+					public void keyPressed(KeyEvent e) {
+						String value = KeyEvent.getKeyText(e.getKeyCode());
+						JComboBox box = (JComboBox) e.getSource();
+						int n = box.getItemCount();
+						FileFilter filter;
+						FileFilter selectedFilter = null;
+						String d;
+						for (int j = 0; j < n; j++) {
+							filter = (FileFilter) box.getItemAt(j);
+							d = filter.getDescription();
+							if (d.startsWith(value)) {
+								selectedFilter = filter;
+								break;
+							}
+						}
+						if (selectedFilter != null)
+							box.setSelectedItem(selectedFilter);
+					}
+				});
+			}
+		}
 	}
 	
 	/** 
