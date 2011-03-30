@@ -36,6 +36,9 @@ public class PixelsService extends AbstractFileSystemService {
 	/** The DeltaVision file format enumeration value */
 	public static final String DV_FORMAT = "DV";
 
+    /** Suffix for an the image pyramid of a given pixels set. */
+    public static final String PYRAMID_SUFFIX = "_pyramid";
+
 	/** Null plane size constant. */
 	public static final int NULL_PLANE_SIZE = 64;
 
@@ -48,7 +51,10 @@ public class PixelsService extends AbstractFileSystemService {
 			-128, 127, -128, 127, -128, 127, -128, 127, -128, 127, // 50
 			-128, 127, -128, 127, -128, 127, -128, 127, -128, 127, // 60
 			-128, 127, -128, 127 }; // 64
-	
+
+    /** Pyramid pixel buffer provider for this pixels service. */
+    private PyramidPixelBufferProvider pyramidPixelBufferProvider;
+
 	/**
 	 * Constructor.
 	 * 
@@ -58,6 +64,26 @@ public class PixelsService extends AbstractFileSystemService {
 	public PixelsService(String path) {
 		super(path);
 	}
+
+    /**
+     * Retrives the current pyramid pixel buffer provider.
+     * @return See above.
+     */
+    public PyramidPixelBufferProvider getPyramidPixelBufferProvider()
+    {
+        return pyramidPixelBufferProvider;
+    }
+
+    /**
+     * Sets the pyramid pixel buffer provider to be used when a pyramid pixel
+     * buffer file is available.
+     * @param pyramidPixelBufferProvider Provider to use.
+     */
+    public void setPyramidPixelBufferProvider(
+            PyramidPixelBufferProvider pyramidPixelBufferProvider)
+    {
+        this.pyramidPixelBufferProvider = pyramidPixelBufferProvider;
+    }
 
 	/**
 	 * Creates a PixelBuffer for a given pixels set.
@@ -90,6 +116,13 @@ public class PixelsService extends AbstractFileSystemService {
 	{
 		final String pixelsFilePath = getPixelsPath(pixels.getId());
 		final File pixelsFile = new File(pixelsFilePath);
+		final String pixelsPyramidFilePath = pixelsFilePath + PYRAMID_SUFFIX;
+		final File pixelsPyramidFile = new File(pixelsPyramidFilePath);
+        if (pixelsPyramidFile.exists() && pyramidPixelBufferProvider != null)
+        {
+            return pyramidPixelBufferProvider.getPyramidPixelBuffer(
+                    pixels, pixelsPyramidFilePath);
+        }
 		if (!pixelsFile.exists())
 		{
 		    if (!bypassOriginalFile)
