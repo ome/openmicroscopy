@@ -143,7 +143,10 @@ class BaseContainer(BaseController):
             self.experimenter = self.conn.getExperimenter(eid)
         else:            
             eid = self.conn.getEventContext().userId
-        self.tags = list(self.conn.listAnnotations(eid, 'tag'))
+        params = omero.sys.Parameters()
+        params.theFilter = omero.sys.Filter()
+        params.theFilter.ownerId = omero.rtypes.rlong(eid)
+        self.tags = list(self.conn.getObjects("TagAnnotation", params=params))
         self.t_size = len(self.tags)
     
     def loadDataByTag(self):
@@ -459,7 +462,12 @@ class BaseContainer(BaseController):
             return list(self.screen.listOrphanedAnnotations(eid=eid, anntype='Tag'))
         else:
             eid = self.conn.getGroupFromContext().isReadOnly() and self.conn.getEventContext().userId or None
-            return list(self.conn.listAnnotations(eid, 'tag'))
+            if eid is not None:
+                params = omero.sys.Parameters()
+                params.theFilter = omero.sys.Filter()
+                params.theFilter.ownerId = omero.rtypes.rlong(eid)
+                return list(self.conn.getObjects("TagAnnotation", params=params))
+            return list(self.conn.getObjects("TagAnnotation"))
     
     def getFilesByObject(self):
         eid = self.conn.getGroupFromContext().isReadOnly() and self.conn.getEventContext().userId or None
@@ -479,7 +487,12 @@ class BaseContainer(BaseController):
             return list(self.screen.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
         else:
             eid = self.conn.getGroupFromContext().isReadOnly() and self.conn.getEventContext().userId or None
-            return list(self.conn.listAnnotations(eid, 'file'))
+            if eid is not None:
+                params = omero.sys.Parameters()
+                params.theFilter = omero.sys.Filter()
+                params.theFilter.ownerId = omero.rtypes.rlong(eid)
+                return = list(self.conn.getObjects("FileAnnotation", params=params))
+            return list(self.conn.getObjects("FileAnnotation"))
     ####################################################################
     # Creation
     
