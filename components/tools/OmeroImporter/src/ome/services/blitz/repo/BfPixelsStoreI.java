@@ -159,7 +159,8 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
 
     public void getRegion_async(AMD_RawPixelsStore_getRegion __cb, int size,
             long offset, Current __current) throws ServerError {
-        throw new UnsupportedOperationException("NYI");
+        throw new UnsupportedOperationException(
+                "Not yet supported, raise ticket to implement if required");
     }
 
     public void getRowOffset_async(AMD_RawPixelsStore_getRowOffset __cb, int y,
