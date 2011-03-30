@@ -491,7 +491,7 @@ class BaseContainer(BaseController):
                 params = omero.sys.Parameters()
                 params.theFilter = omero.sys.Filter()
                 params.theFilter.ownerId = omero.rtypes.rlong(eid)
-                return = list(self.conn.getObjects("FileAnnotation", params=params))
+                return list(self.conn.getObjects("FileAnnotation", params=params))
             return list(self.conn.getObjects("FileAnnotation"))
     ####################################################################
     # Creation
