@@ -55,17 +55,17 @@ class ConnectionMethodsTest (lib.GTest):
         self._has_connected = False
         self.doDisconnect()
 
-    def XtestTopLevelObjects (self):
+    def testTopLevelObjects (self):
         ##
         # Test listProjects as root (sees, does not own)
-        self.loginAsAdmin()
         parents = self.TESTIMG.getAncestry()
         project_id = parents[-1].getId()
-        #print parents[-1].getDetails().group.id.val
-        # Test fails since projects listed below are in group 0, but the project
+        # Original (4.1) test fails since 'admin' is logged into group 0, but the project
         # created above is in new group.
+        # self.loginAsAdmin()   # test passes if we remain logged in as Author
         ids = map(lambda x: x.getId(), self.gateway.listProjects(only_owned=False))
         self.assert_(project_id in ids)
+        self.loginAsAdmin()   # test passes if we NOW log in as Admin (different group)
         ids = map(lambda x: x.getId(), self.gateway.listProjects(only_owned=True))
         self.assert_(project_id not in ids)
         ##
@@ -95,25 +95,29 @@ class ConnectionMethodsTest (lib.GTest):
         exps = map(lambda x: x.omeName, self.gateway.listExperimenters())
         for omeName in (self.USER.name, self.AUTHOR.name, self.ADMIN.name.decode('utf-8')):
             self.assert_(omeName in exps)
-            self.assert_(len(list(self.gateway.listExperimenters(omeName))) > 0)
-        self.assert_(len(list(self.gateway.listExperimenters(self.USER.name+self.AUTHOR.name+self.ADMIN.name))) ==  0)
+            self.assert_(len(list(self.gateway.getObjects("Experimenter", attributes={'omeName':omeName}))) > 0)
+        comboName = self.USER.name+self.AUTHOR.name+self.ADMIN.name
+        self.assert_(len(list(self.gateway.getObjects("Experimenter", attributes={'omeName':comboName}))) ==  0)
         ##
         # Test lookupExperimenter
-        self.assertEqual(self.gateway.lookupExperimenter(self.USER.name).omeName, self.USER.name)
-        self.assertEqual(self.gateway.lookupExperimenter(self.USER.name+self.AUTHOR.name+self.ADMIN.name), None)
+        self.assertEqual(self.gateway.getObject("Experimenter", attributes={'omeName':self.USER.name}).omeName, self.USER.name)
+        self.assertEqual(self.gateway.getObject("Experimenter", attributes={'omeName':comboName}), None)
         ##
         # still logged in as Author, test listImages(ns)
+        def listImages(ns=None):
+            imageAnnLinks = self.gateway.getAnnotationLinks("Image", ns=ns)
+            return [omero.gateway.ImageWrapper(self.gateway, link.parent) for link in imageAnnLinks]
         ns = 'weblitz.test_annotation'
         obj = self.getTestImage()
         # Make sure it doesn't yet exist
         obj.removeAnnotations(ns)
         self.assertEqual(obj.getAnnotation(ns), None)
         # Check without the ann
-        self.assertEqual(len(list(self.gateway.listImages(ns=ns))), 0)
+        self.assertEqual(len(listImages(ns=ns)), 0)
         annclass = omero.gateway.CommentAnnotationWrapper
         # createAndLink
         annclass.createAndLink(target=obj, ns=ns, val='foo')
-        imgs = list((self.gateway.listImages(ns=ns)))
+        imgs = listImages(ns=ns)
         self.assertEqual(len(imgs), 1)
         self.assertEqual(imgs[0], obj)
         # and clean up
