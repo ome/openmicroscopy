@@ -24,6 +24,9 @@ public interface PyramidPixelBufferProvider
      * @param path Path to the pyramid pixel buffer file.
      * starts with.
      * @return <b>Read-only</b> pixel buffer instance.
+     * @throws PyramidPixelBufferException If there is an error during the
+     * instantiation of the pixel buffer.
      */
-    PixelBuffer getPyramidPixelBuffer(Pixels pixels, String path);
+    PixelBuffer getPyramidPixelBuffer(Pixels pixels, String path)
+        throws PyramidPixelBufferException;
 }

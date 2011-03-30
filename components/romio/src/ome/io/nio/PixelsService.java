@@ -118,10 +118,20 @@ public class PixelsService extends AbstractFileSystemService {
 		final File pixelsFile = new File(pixelsFilePath);
 		final String pixelsPyramidFilePath = pixelsFilePath + PYRAMID_SUFFIX;
 		final File pixelsPyramidFile = new File(pixelsPyramidFilePath);
-        if (pixelsPyramidFile.exists() && pyramidPixelBufferProvider != null)
+        if (pyramidPixelBufferProvider != null && pixelsPyramidFile.exists())
         {
-            return pyramidPixelBufferProvider.getPyramidPixelBuffer(
-                    pixels, pixelsPyramidFilePath);
+            try
+            {
+                log.info("Using pyramid: " + pixelsPyramidFilePath);
+                return pyramidPixelBufferProvider.getPyramidPixelBuffer(
+                        pixels, pixelsPyramidFilePath);
+            }
+            catch (PyramidPixelBufferException e)
+            {
+                String msg = "Error instantiating pyramid pixel buffer.";
+                log.error(msg, e);
+                throw new ResourceError(msg);
+            }
         }
 		if (!pixelsFile.exists())
 		{
