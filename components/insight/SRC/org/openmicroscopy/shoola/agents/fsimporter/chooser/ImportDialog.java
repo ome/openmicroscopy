@@ -180,7 +180,7 @@ public class ImportDialog
 			"to import:";
 	
 	/** The message to display in the header. */
-	private static final String MESSAGE_PLATE = "Selects the plates to import:";
+	private static final String MESSAGE_PLATE = "Select the plates to import:";
 	
 	/** The message to display in the header. */
 	private static final String END = ".";

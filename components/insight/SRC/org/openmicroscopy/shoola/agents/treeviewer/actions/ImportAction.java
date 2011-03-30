@@ -38,6 +38,9 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.CreateCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import com.mdl.dbbrowser.client.SetSortDialog;
+
 import pojos.DatasetData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -73,6 +76,20 @@ public class ImportAction
     /** Flag indicating not to select any node. */
     private boolean noNode;
     
+    /**
+     * Sets the description of the action depending on the active browser.
+     * 
+     * @param browserType The type of browser.
+     */
+    private void setActionDescription(int browserType)
+    {
+    	if (browserType == Browser.SCREENS_EXPLORER)
+    		putValue(Action.SHORT_DESCRIPTION, 
+					UIUtilities.formatToolTipText(DESCRIPTION_SCREEN));
+    	else 
+			putValue(Action.SHORT_DESCRIPTION, 
+					UIUtilities.formatToolTipText(DESCRIPTION_DATASET));
+    }
     /** 
      * Sets the action enabled depending on the state of the {@link Browser}.
      * @see TreeViewerAction#onBrowserStateChange(Browser)
@@ -89,6 +106,23 @@ public class ImportAction
 	        default:
 	        	onDisplayChange(browser.getLastSelectedDisplay());
         }
+    }
+    
+    /** 
+     * Sets the description of this action depending on the browser 
+     * {@link Browser}.
+     * @see TreeViewerAction#onBrowserSelection(Browser)
+     */
+    protected void onBrowserSelection(Browser browser)
+    {
+    	int type = Browser.PROJECTS_EXPLORER;
+    	if (browser == null) {
+    		if (TreeViewerAgent.isSPWFirst()) 
+    			type = Browser.SCREENS_EXPLORER;
+    	}
+    	if (browser.getBrowserType() == Browser.SCREENS_EXPLORER)
+    		type = Browser.SCREENS_EXPLORER;
+    	setActionDescription(type);
     }
     
     /**
@@ -131,13 +165,11 @@ public class ImportAction
 	{
 		super(model);
 		this.noNode = noNode;
-		name = NAME;  
+		name = NAME;
+		int type = Browser.PROJECTS_EXPLORER;
 		if (TreeViewerAgent.isSPWFirst()) 
-			putValue(Action.SHORT_DESCRIPTION, 
-					UIUtilities.formatToolTipText(DESCRIPTION_SCREEN));
-		else 
-			putValue(Action.SHORT_DESCRIPTION, 
-					UIUtilities.formatToolTipText(DESCRIPTION_DATASET));
+			type = Browser.SCREENS_EXPLORER;
+		setActionDescription(type);
 		IconManager im = IconManager.getInstance();
 		putValue(Action.SMALL_ICON, im.getIcon(IconManager.IMPORTER));
 	}

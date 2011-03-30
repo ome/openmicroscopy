@@ -155,6 +155,16 @@ public class CreateCmd
         if (userObject instanceof ImageData) {
             Browser browser = model.getDefaultBrowser();
             if (withParent) browser = model.getSelectedBrowser();
+            else {
+            	Browser selectedBrowser = model.getSelectedBrowser();
+            	if (selectedBrowser != null) {
+            		switch (selectedBrowser.getBrowserType()) {
+						case Browser.SCREENS_EXPLORER:
+						case Browser.PROJECTS_EXPLORER:
+							browser = selectedBrowser;
+					}
+            	}
+            }
         	TreeImageDisplay display = browser.getLastSelectedDisplay();
         	LoadImporter event = null;
         	int type = LoadImporter.PROJECT_TYPE;

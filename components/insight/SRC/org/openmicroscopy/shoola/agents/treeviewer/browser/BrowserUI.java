@@ -260,7 +260,7 @@ class BrowserUI
 		} else {
 			button = new JButton(controller.getAction(BrowserControl.IMPORT));
 			button.setBorderPainted(false);
-			rightMenuBar.add(button);
+			//rightMenuBar.add(button);
 		}
 		rightMenuBar.add(Box.createHorizontalStrut(6));
 		rightMenuBar.add(new JSeparator());
@@ -324,12 +324,10 @@ class BrowserUI
                 				(UIUtilities.isMacOS() && 
                 						SwingUtilities.isLeftMouseButton(me)
                 						&& me.isControlDown())) { //(me.isPopupTrigger()) {
-
                 	if (model.getBrowserType() == Browser.ADMIN_EXPLORER) 
                 		controller.showPopupMenu(TreeViewer.ADMIN_MENU);
                 	else 
                 		controller.showPopupMenu(TreeViewer.FULL_POP_UP_MENU);
-
                 } 
                // }
             } else if (me.getClickCount() == 2 && released && !(me.isMetaDown()
