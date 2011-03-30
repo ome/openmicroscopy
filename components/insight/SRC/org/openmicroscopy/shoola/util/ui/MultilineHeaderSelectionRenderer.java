@@ -124,6 +124,11 @@ public class MultilineHeaderSelectionRenderer
 		}
 	}
 	
+	/**
+	 * Adds listener and format the text of the table header.
+	 * @see TableCellRenderer#getTableCellRendererComponent(JTable, Object, 
+	 * boolean, boolean, int, int)
+	 */
 	public Component getTableCellRendererComponent(JTable table, Object value,
             boolean isSelected, boolean hasFocus, int row, int column)
 	{
@@ -144,7 +149,7 @@ public class MultilineHeaderSelectionRenderer
 			}
 		}
 		this.column = column;
-		setFont(table.getFont());
+		if (table != null) setFont(table.getFont());
 		String str = (value == null) ? "" : value.toString();
 		BufferedReader br = new BufferedReader(new StringReader(str));
 		String line;

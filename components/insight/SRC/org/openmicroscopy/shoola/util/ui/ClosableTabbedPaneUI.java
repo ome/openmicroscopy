@@ -228,8 +228,10 @@ class ClosableTabbedPaneUI
 		
 		Component c = tabPane.getComponentAt(tabIndex); 
 		boolean closable = true;
+		boolean closeVisible = true;
 		if (c instanceof ClosableTabbedPaneComponent) {
 			closable = ((ClosableTabbedPaneComponent) c).isClosable();
+			closeVisible = ((ClosableTabbedPaneComponent) c).isCloseVisible();
 		}
 		if (!(images.containsKey(tabIndex)))
 			images.put(tabIndex, closeImage);
@@ -238,7 +240,7 @@ class ClosableTabbedPaneUI
 		int w = 0, h = 0;
 		Image img = images.get(tabIndex);
 		if (!closable) img = closeOverImage;
-		if (img != null) {// && closable) {
+		if (img != null && closeVisible) {
 			w = img.getWidth(null);
 			h = img.getHeight(null);
 			g2D.drawImage(img, x, y, w, h, null); 

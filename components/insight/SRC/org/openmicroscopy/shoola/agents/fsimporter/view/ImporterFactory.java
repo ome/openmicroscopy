@@ -97,8 +97,10 @@ public class ImporterFactory
 	static void attachWindowMenuToTaskBar()
 	{
 		if (isWindowMenuAttachedToTaskBar()) return;
+		/*
 		TaskBar tb = ImporterAgent.getRegistry().getTaskBar();
 		tb.addToMenu(TaskBar.WINDOW_MENU, singleton.windowMenu);
+		*/
 		singleton.isAttached = true;
 	}
 	

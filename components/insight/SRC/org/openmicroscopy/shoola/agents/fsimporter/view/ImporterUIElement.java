@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -45,6 +46,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -54,6 +56,7 @@ import javax.swing.border.LineBorder;
 import info.clearthought.layout.TableLayout;
 
 //Application-internal dependencies
+import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
 import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
@@ -91,6 +94,12 @@ class ImporterUIElement
 	private static final String DESCRIPTION = 
 		"Closing will cancel imports that have not yet started.";
 	
+	/** The columns for the layout of the {@link #entries}. */
+	private static final double[] COLUMNS = {TableLayout.FILL};
+	
+	/** The default size of the icon. */
+	private static final Dimension ICON_SIZE = new Dimension(16, 16);
+	
 	/** The object hosting information about files to import. */
 	private ImportableObject object;
 	
@@ -99,10 +108,7 @@ class ImporterUIElement
 
 	/** Component hosting the entries. */
 	private JPanel	entries;
-	
-	/** The columns for the layout of the {@link #entries}. */
-	private static final double[] COLUMNS = {TableLayout.FILL};
-	
+
 	/** The number of files imported. */
 	private int countImported;
 	
@@ -154,6 +160,9 @@ class ImporterUIElement
 	/** The existing containers. */
 	private List<DataObject> existingContainers;
 
+	/** The busy label. */
+	private JXBusyLabel		busyLabel;
+	
 	/** Sets the text of indicating the number of imports. */
 	private void setNumberOfImport()
 	{
@@ -210,6 +219,7 @@ class ImporterUIElement
 	/** Initializes the components. */
 	private void initialize()
 	{
+		busyLabel = new JXBusyLabel(ICON_SIZE);
 		numberOfImportLabel = UIUtilities.createComponent(null);
 		containerComponents = new LinkedHashMap<JLabel, Object>();
 		topContainerComponents = new LinkedHashMap<JLabel, Object>();
@@ -771,6 +781,7 @@ class ImporterUIElement
 	void startImport()
 	{ 
 		//setClosable(true);
+		busyLabel.setBusy(true);
 		repaint();
 	}
 	
@@ -890,5 +901,15 @@ class ImporterUIElement
 		}
 		return false;
 	}
+	
+	/**
+	 * Returns the icon indicating the busy status.
+	 * 
+	 * @return See above.
+	 */
+	Icon getBusyIcon() { return busyLabel.getIcon(); }
+	
+	/** Invokes when the import is finished. */
+	void onImportEnded() { busyLabel.setBusy(false); }
 	
 }

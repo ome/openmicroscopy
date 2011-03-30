@@ -115,9 +115,11 @@ class ImporterControl
 	 */
 	private void createWindowsMenuItems(JMenu menu)
 	{
+		/*
 		menu.removeAll();
 		Importer viewer = ImporterFactory.getImporter();
 		menu.add(new JMenuItem(new ActivateAction(viewer)));
+		*/
 	}
 	
 	/** Attaches listener to the window listener. */
@@ -258,6 +260,8 @@ class ImporterControl
 			model.importData((ImportableObject) evt.getNewValue());
 		} else if (ImportDialog.LOAD_TAGS_PROPERTY.equals(name)) {
 			model.loadExistingTags();
+		} else if (ImportDialog.CANCEL_SELECTION_PROPERTY.equals(name)) {
+			model.close();
 		} else if (MessengerDialog.SEND_PROPERTY.equals(name)) {
 			//mark the files.
 			if (markedFailed == null) return;

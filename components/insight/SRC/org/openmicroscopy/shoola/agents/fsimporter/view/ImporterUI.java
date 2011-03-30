@@ -36,13 +36,17 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
@@ -95,6 +99,9 @@ class ImporterUI
 	/** Keeps track of the imports. */
 	private Map<Integer, ImporterUIElement> uiElements;
 	
+	/** The controls bar. */
+	private JComponent controlsBar;
+	
 	/**
 	 * Builds and lays out the controls.
 	 * 
@@ -116,13 +123,15 @@ class ImporterUI
 	{
 		Container container = getContentPane();
 		container.setLayout(new BorderLayout(0, 0));
+		/*
 		IconManager icons = IconManager.getInstance();
 		TitlePanel tp = new TitlePanel(TITLE, "", "Displays " +
 				"the ongoing and done imports.", 
 				icons.getIcon(IconManager.IMPORT_48));
 		container.add(tp, BorderLayout.NORTH);
+		*/
 		container.add(tabs, BorderLayout.CENTER);
-		container.add(buildControls(), BorderLayout.SOUTH);
+		container.add(controlsBar, BorderLayout.SOUTH);
 	}
 	
 	/** Displays the window. */
@@ -137,12 +146,20 @@ class ImporterUI
 	/** Initializes the components. */
 	private void initComponents()
 	{
+		controlsBar = buildControls();
+		controlsBar.setVisible(false);
 		uiElementID = 0;
 		uiElements = new LinkedHashMap<Integer, ImporterUIElement>();
 		tabs = new ClosableTabbedPane(JTabbedPane.TOP, 
 				JTabbedPane.WRAP_TAB_LAYOUT);
 		tabs.setAlignmentX(LEFT_ALIGNMENT);
 		tabs.addPropertyChangeListener(controller);
+		tabs.addChangeListener(new ChangeListener() {
+			
+			public void stateChanged(ChangeEvent e) {
+				controlsBar.setVisible(tabs.getSelectedIndex() != 0);
+			}
+		});
 	}
 	
 	/**
@@ -173,12 +190,23 @@ class ImporterUI
 	{
 		this.model = model;
 		this.controller = controller;
-		total = 0;
+		total = 1;
 		initComponents();
 		setJMenuBar(createMenuBar());
 		buildGUI();
 	}
 
+	void addComponent(JComponent chooser)
+	{
+		tabs.insertTab("Select Data to Import", null, 
+				chooser, "", 0);
+	}
+	
+	void selectChooser()
+	{
+		tabs.setSelectedIndex(0);
+	}
+	
 	/**
 	 * Returns the collection of files that could not be imported.
 	 * 
@@ -211,12 +239,11 @@ class ImporterUI
 	{
 		if (object == null) return null;
 		int n = tabs.getComponentCount();
-		String title = "Import #"+(total+1);
+		String title = "Import #"+total;
 		ImporterUIElement element = new ImporterUIElement(controller,
 				uiElementID, n, title, object);
-		IconManager icons = IconManager.getInstance();
-		tabs.insertTab(title, icons.getIcon(IconManager.IMPORT), 
-				element, "", total);
+		//IconManager icons = IconManager.getInstance();
+		tabs.insertTab(title, element.getBusyIcon(), element, "", total);
 		total++;
 		uiElements.put(uiElementID, element);
 		uiElementID++;
@@ -225,6 +252,21 @@ class ImporterUI
 			display();
 		}
 		return element;
+	}
+	
+	/**
+	 * Modifies the icon corresponding to the specified component when 
+	 * the import has ended.
+	 * 
+	 * @param element The element to handle.
+	 */
+	void onImportEnded(ImporterUIElement element)
+	{
+		if (element == null) return;
+		int index = element.getIndex();
+		element.onImportEnded();
+		IconManager icons = IconManager.getInstance();
+		tabs.setIconAt(index, icons.getIcon(IconManager.APPLY));
 	}
 	
 	/**

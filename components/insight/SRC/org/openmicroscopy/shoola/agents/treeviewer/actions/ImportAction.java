@@ -38,9 +38,6 @@ import org.openmicroscopy.shoola.agents.treeviewer.cmd.CreateCmd;
 import org.openmicroscopy.shoola.agents.treeviewer.view.TreeViewer;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-import com.mdl.dbbrowser.client.SetSortDialog;
-
 import pojos.DatasetData;
 import pojos.ProjectData;
 import pojos.ScreenData;
