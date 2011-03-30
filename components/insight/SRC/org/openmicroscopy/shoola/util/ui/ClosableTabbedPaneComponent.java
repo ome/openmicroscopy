@@ -63,6 +63,9 @@ public class ClosableTabbedPaneComponent
 	/** Flag indicating if the component can be removed. */
 	private boolean		closable;
 	
+	/** Flag indicating to show the close icon. */
+	private boolean		closeVisible;
+	
 	/**
 	 * Creates a new instance.
 	 * 
@@ -125,7 +128,29 @@ public class ClosableTabbedPaneComponent
 		this.icon = icon;
 		this.description = description;
 		closable = true;
+		closeVisible = true;
 	}
+	
+	/**
+	 * Sets to <code>true</code> if the icon is shown, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @param closeVisible Pass <code>true</code> if the icon is shown,
+	 * 						<code>false</code> otherwise.
+	 */
+	public void setCloseVisible(boolean closeVisible)
+	{
+		this.closeVisible = closeVisible;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the icon is shown, <code>false</code>
+	 * otherwise.
+	 * 
+	 * @return See above.
+	 */
+	public boolean isCloseVisible() { return closeVisible; }
+	
 	
 	/**
 	 * Sets to <code>true</code> if the component can be closed,

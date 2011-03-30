@@ -99,6 +99,7 @@ import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ImportableFile;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
+import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
@@ -122,7 +123,7 @@ import pojos.TagAnnotationData;
  * @since 3.0-Beta4
  */
 public class ImportDialog 
-	extends JDialog
+	extends ClosableTabbedPaneComponent//JDialog
 	implements ActionListener, PropertyChangeListener
 {
 
@@ -340,6 +341,9 @@ public class ImportDialog
 	 * Used to create a dataset using the folder containing the selected images. 
 	 */
 	private JCheckBox					folderAsDatasetBox;
+	
+	/** The owner related to the component. */
+	private JFrame						owner;
 	
 	/** 
 	 * Creates the dataset.
@@ -584,23 +588,25 @@ public class ImportDialog
 	/** Sets the properties of the dialog. */
 	private void setProperties()
 	{
+		/*
 		setTitle(TITLE);
         setModal(true);
         setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+        */
 	}
 
 	/** Installs the listeners. */
 	private void installListeners()
 	{
-        addWindowListener(new WindowAdapter() {
+        //addWindowListener(new WindowAdapter() {
     		
 			/** 
 			 * Cancels the selection.
 			 * @see WindowAdapter#windowClosing(WindowEvent)
 			 */
-			public void windowClosing(WindowEvent e) { cancelSelection(); }
+			//public void windowClosing(WindowEvent e) { cancelSelection(); }
 		
-		});
+		//});
 	}
 	
 	/** 
@@ -1239,8 +1245,9 @@ public class ImportDialog
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		Container c = getContentPane();
-		c.setLayout(new BorderLayout(0, 0));
+		//Container c = getContentPane();
+		//c.setLayout(new BorderLayout(0, 0));
+		setLayout(new BorderLayout(0, 0));
 		IconManager icons = IconManager.getInstance();
 		titlePane = new TitlePanel(TITLE, getContainerText(selectedContainer), 
 				icons.getIcon(IconManager.IMPORT_48));
@@ -1275,7 +1282,8 @@ public class ImportDialog
 		header.add(right);
 		body.add(header, "0, 0");
 		body.add(pane, "0, 1");
-		c.add(body, BorderLayout.CENTER);
+		//c.add(body, BorderLayout.CENTER);
+		add(body, BorderLayout.CENTER);
 		JPanel controls = new JPanel();
 		controls.setLayout(new BoxLayout(controls, BoxLayout.Y_AXIS));
 		
@@ -1287,7 +1295,8 @@ public class ImportDialog
 		controls.add(new JSeparator());
 		controls.add(bar);
 		
-		c.add(controls, BorderLayout.SOUTH);
+		//c.add(controls, BorderLayout.SOUTH);
+		add(controls, BorderLayout.SOUTH);
 		if (JDialog.isDefaultLookAndFeelDecorated()) {
 			boolean supportsWindowDecorations = 
 				UIManager.getLookAndFeel().getSupportsWindowDecorations();
@@ -1302,9 +1311,13 @@ public class ImportDialog
     {
     	firePropertyChange(CANCEL_SELECTION_PROPERTY, Boolean.valueOf(false), 
     			Boolean.valueOf(true));
+    	/*
+    	firePropertyChange(CANCEL_SELECTION_PROPERTY, Boolean.valueOf(false), 
+    			Boolean.valueOf(true));
     	option = CANCEL;
     	setVisible(false);
     	dispose();
+    	*/
     }
     
 	/**
@@ -1364,8 +1377,9 @@ public class ImportDialog
 		}
     	if (count > 0) object.setPixelsSize(size);	
     	firePropertyChange(IMPORT_PROPERTY, null, object);
-    	setVisible(false);
-    	dispose();
+    	table.removeAllFiles();
+    	//setVisible(false);
+    	//dispose();
     }
 
 	/**
@@ -1411,7 +1425,11 @@ public class ImportDialog
     		TreeImageDisplay selectedContainer, 
     		Collection<TreeImageDisplay> objects, int type)
     {
-    	super(owner);
+    	//super(owner);
+    	super(0, TITLE, TITLE);
+    	this.owner = owner;
+    	setClosable(false);
+    	setCloseVisible(false);
     	this.objects = objects;
     	this.type = type;
     	this.selectedContainer = selectedContainer;
@@ -1419,8 +1437,8 @@ public class ImportDialog
     	initComponents(filters);
     	installListeners();
     	buildGUI();
-    	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    	setSize(7*(screenSize.width/10), 7*(screenSize.height/10));
+    	//Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    	//setSize(7*(screenSize.width/10), 7*(screenSize.height/10));
     }
 
     /** 
@@ -1714,14 +1732,14 @@ public class ImportDialog
 						Boolean.valueOf(true));
 				break;
 			case CREATE_DATASET:
-				d = new EditorDialog(this, new DatasetData(), false);
+				d = new EditorDialog(owner, new DatasetData(), false);
 				d.addPropertyChangeListener(this);
 				UIUtilities.centerAndShow(d);
 				break;
 			case CREATE_PROJECT:
 				if (type == Importer.PROJECT_TYPE)
-					d = new EditorDialog(this, new ProjectData(), false);
-				else d = new EditorDialog(this, new ScreenData(), false);
+					d = new EditorDialog(owner, new ProjectData(), false);
+				else d = new EditorDialog(owner, new ScreenData(), false);
 				d.addPropertyChangeListener(this);
 				UIUtilities.centerAndShow(d);
 		}

@@ -135,15 +135,19 @@ class ImporterComponent
 			chooser = new ImportDialog(view, model.getSupportedFormats(), 
 					selectedContainer, objects, type);
 			chooser.addPropertyChangeListener(controller);
-			chooser.pack();
+			//chooser.pack();
+			view.addComponent(chooser);
 		} else {
 			chooser.reset(selectedContainer, objects, type);
 			chooser.requestFocusInWindow();
+			view.selectChooser();
 		}
+		
 		//load available disk space
 		model.fireDiskSpaceLoading();
-		view.setVisible(false);
-		UIUtilities.centerAndShow(chooser);
+		view.setOnScreen();
+		//view.setVisible(false);
+		//UIUtilities.centerAndShow(chooser);
 	}
 
 	/** 
@@ -201,6 +205,7 @@ class ImporterComponent
 			element.setImportedFile(f, result);
 			if (element.isDone()) {
 				model.importCompleted(element.getID());
+				view.onImportEnded(element);
 				//now check if we have other import to start.
 				element = view.getElementToStartImportFor();
 				if (element != null) 

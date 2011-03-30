@@ -103,11 +103,14 @@ public class IconManager
     /** The <code>Screen</code> icon. */
     public static final int 	SCREEN = 15;
     
+    /** The <code>Apply</code> icon. */
+    public static final int 	APPLY = 16;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int	MAX_ID = 15;
+    private static final int	MAX_ID = 16;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -129,6 +132,7 @@ public class IconManager
         relPaths[PROJECT] = "nuvola_folder_darkblue_open16.png";
         relPaths[DATASET] = "nuvola_folder_image16.png";
         relPaths[SCREEN] = "nuvola_folder_blue_open_modified_screen16.png";
+        relPaths[APPLY] = "nuvola_apply16.png";
     }
     
     /** The sole instance. */
