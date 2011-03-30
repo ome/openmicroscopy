@@ -2325,8 +2325,8 @@ class _BlitzGateway (object):
             clauses.append("obj.id in (:ids)")
             params.map["ids"] = rlist([rlong(a) for a in ids])
 
-        # support filtering by owner for some object types
-        if params.theFilter and params.theFilter.ownerId and obj_type in ["Project", "Dataset", "Image", "Screen", "Plate"]:
+        # support filtering by owner (not for some object types)
+        if params.theFilter and params.theFilter.ownerId and obj_type.lower() not in ["experimentergroup", "experimenter"]:
             clauses.append("owner.id = (:eid)")
             params.map["eid"] = params.theFilter.ownerId
 
