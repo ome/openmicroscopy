@@ -2249,25 +2249,6 @@ class _BlitzGateway (object):
     ###########################
     # Specific Object Getters #
 
-    def findProject (self, name):
-        """
-        Return Project with the given name.
-        
-        @param name: Project name.
-        @return:    _ProjectWrapper or None
-        @rtype:     L{ProjectWrapper}
-        """
-        
-        q = self.getQueryService()
-        params = omero.sys.Parameters()
-        if not params.map:
-            params.map = {}
-        params.map['name'] = rstring(name)
-        pr = q.findAllByQuery("from Project as p where p.name=:name", params)
-        if len(pr):
-            return ProjectWrapper(self, pr[0])
-        return None
-
 
     def getObject (self, obj_type, oid=None, params=None, attributes=None):
         """
