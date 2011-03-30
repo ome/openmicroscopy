@@ -473,7 +473,7 @@ def mapmodelemdb(request, entryId):
     conn = getConnection(request)
     
     entryName = str(entryId)
-    project = conn.findProject(entryName)
+    project = conn.getObject("Project", attributes={'name':entryName})
     
     if project == None:
         raise Http404
@@ -587,7 +587,7 @@ def data(request, entryId):
     conn = getConnection(request)
 
     entryName = str(entryId)
-    project = conn.findProject(entryName)
+    project = conn.getObject("Project", attributes={'name':entryName})
     
     # only want the first few images from each dataset
     p = omero.sys.Parameters()
@@ -621,7 +621,7 @@ def entry (request, entryId):
     conn = getConnection(request)
         
     entryName = str(entryId)
-    project = conn.findProject(entryName)
+    project = conn.getObject("Project", attributes={'name':entryName})
     
     if project == None:
         # project not found (None) handled by template
@@ -710,7 +710,7 @@ def gif (request, entryId):
     conn = getConnection(request)
         
     entryName = str(entryId)
-    project = conn.findProject(entryName)
+    project = conn.getObject("Project", attributes={'name':entryName})
     
     if project == None: return HttpResponse()
         
@@ -819,7 +819,7 @@ def index (request):
     
     projects = []
     for entryName in lastIds:
-        p = conn.findProject(entryName)
+        p = conn.getObject("Project", attributes={'name':entryName})
         rows = p.getDescription().split("\n")
         title = rows[0]
         if len(rows) > 1: sample = rows[1]
