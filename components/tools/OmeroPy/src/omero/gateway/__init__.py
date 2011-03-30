@@ -1961,33 +1961,24 @@ class _BlitzGateway (object):
 
     #############################
     # Top level object fetchers #
-    
-    def listProjects (self, only_owned=False):
-        """
-        List every Project controlled by the security system, ordered by name
-        
-        @param only_owned:  If True, only return Projects owned by current user
-        @type only_owned:   Boolean
-        @return:            Generator yielding L{ProjectWrapper}
-        @rtype:             L{ProjectWrapper} generator
-        """
-        
-        q = self.getQueryService()
-        cache = {}
-        if only_owned:
-            params = omero.sys.Parameters()
-            params.map = {'owner_id': rlong(self._userid)}
-            for e in q.findAllByQuery("from Project as p where p.details.owner.id=:owner_id order by p.name", params):
-                yield ProjectWrapper(self, e, cache)
-        else:
-            for e in q.findAll('Project', None):
-                yield ProjectWrapper(self, e, cache)
 
-#    def listCategoryGroups (self):
-#        q = self.getQueryService()
-#        cache = {}
-#        for e in q.findAll("CategoryGroup", None):
-#            yield CategoryGroupWrapper(self, e, cache)
+    def listProjects (self, eid=None, only_owned=False):
+        """
+        List every Project controlled by the security system.
+
+        @param eid:         Filters Projects by owner ID
+        @param only_owned:  Short-cut for filtering Projects by current user
+        @rtype:             L{ProjectWrapper} list
+        """
+
+        params = omero.sys.Parameters()
+        params.theFilter = omero.sys.Filter()
+        if only_owned:
+            params.theFilter.ownerId = rlong(self._userid)
+        elif eid is not None:
+            params.theFilter.ownerId = rlong(eid)
+
+        return self.getObjects("Project", params=params)
 
     #################################################
     ## IAdmin
