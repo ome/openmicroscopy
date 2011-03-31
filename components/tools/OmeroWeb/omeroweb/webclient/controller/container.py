@@ -28,10 +28,6 @@ from django.core.urlresolvers import reverse
 
 from webclient.controller import BaseController
 
-RATING_NS = "openmicroscopy.org/omero/insight/rating"
-COMPANION_NS = "openmicroscopy.org/omero/import/companionFile"
-ORIGINAL_METADATA = "original_metadata.txt"
-
 class BaseContainer(BaseController):
     
     project = None
@@ -428,10 +424,10 @@ class BaseContainer(BaseController):
         for ann in aList:
             annClass = ann._obj.__class__
             if annClass in annTypes:
-                if ann.ns == RATING_NS:
+                if ann.ns == omero.constants.metadata.NSINSIGHTRATING:
                     self.rating_annotations.append(ann)
-                elif ann.ns == COMPANION_NS:
-                    if ann.getFileName != ORIGINAL_METADATA:
+                elif ann.ns == omero.constants.namespaces.NSCOMPANIONFILE:
+                    if ann.getFileName != omero.constants.annotation.file.ORIGINALMETADATA:
                         self.companion_files.append(ann)
                 else:
                     annTypes[annClass].append(ann)

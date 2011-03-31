@@ -47,33 +47,26 @@ public class BfPixelBufferTest extends AbstractTest {
     
     private void setUpTestFile(String fileName) throws Throwable, NoSuchAlgorithmException {
         File srcFile = ResourceUtils.getFile("classpath:" + fileName); 
-        
-        // Some absolute references need to be fixed!
+
+        // This absolute reference needs to be fixed!
+        String dataDirName = "/OMERO";
         String destPathName = UUID.randomUUID().toString();
-        File dataDir = new File("/OMERO");
+        File dataDir = new File(dataDirName);
         destPath = new File(dataDir, destPathName);
         File destFile = new File(destPath, fileName);
         destPath.mkdir();
 
+        // Copy file into repo
         FileUtils.copyFile(srcFile, destFile);
-
+        // Import file
         List<Pixels> pixList = importFile(srcFile, fileName);
         log.debug(String.format("Imported: %s, pixid: %d",srcFile,pixList.get(0).getId().getValue()));
 
-        // What is the right way to get the PixelBuffer given the Pixels Id?
-        // How do I get to pb giving me access to the pixel data?
-        // This gets me to the other data!!
-        Pixels p = factory.getPixelsService().retrievePixDescription(pixList.get(0).getId().getValue());        
-        IceMapper mapper = new IceMapper();
-        ome.model.core.Pixels pix = (ome.model.core.Pixels) mapper.reverse(p);
-        PixelsService ps = new PixelsService("/OMERO/Pixels");
-        pb = ps.getPixelBuffer(pix,null,true);
-
-        // Access the imported file via a RawPixelsStore
+        // Access the imported pixels via a RawPixelsStore
         rps = factory.createRawPixelsStore();
         rps.setPixelsId(pixList.get(0).getId().getValue(), false);
 
-        // Access the data from original file via BfPixelBuffer
+        // Access the data from file via BfPixelBuffer
         destFileName = destFile.getCanonicalPath();
         bf = new BfPixelBuffer(destFileName);
     }
@@ -227,29 +220,29 @@ public class BfPixelBufferTest extends AbstractTest {
         assertEquals(sha1(buff1), sha1(buff2));
     }
 
-    private void testMessageDigest() throws IOException {
-        assertEquals(bf.calculateMessageDigest(), pb.calculateMessageDigest());
+    private void testMessageDigest() throws IOException, ServerError {
+        assertEquals(bf.calculateMessageDigest(), rps.calculateMessageDigest());
     }
     
     private void testOtherGetters() {
         assertEquals(bf.getPath(), destFileName);
     }
 
-    private void testDimensionGetters() {
-        assertEquals(pb.getSizeX(), bf.getSizeX());
-        assertEquals(pb.getSizeY(), bf.getSizeY());
-        assertEquals(pb.getSizeZ(), bf.getSizeZ());
-        assertEquals(pb.getSizeC(), bf.getSizeC());
-        assertEquals(pb.getSizeT(), bf.getSizeT());
+    private void testDimensionGetters() throws ServerError {
+        assertEquals(rps.getRowSize()/rps.getByteWidth(), bf.getSizeX());
+        assertEquals(rps.getPlaneSize()/rps.getRowSize(), bf.getSizeY());
+        assertEquals(rps.getStackSize()/rps.getPlaneSize(), bf.getSizeZ());
+        assertEquals(rps.getTimepointSize()/rps.getStackSize(), bf.getSizeC());
+        assertEquals(rps.getTotalSize()/rps.getTimepointSize(), bf.getSizeT());
     }
     
-    private void testSizeGetters() {
-        assertEquals(pb.getRowSize(), bf.getRowSize());
-        assertEquals(pb.getColSize(), bf.getColSize());
-        assertEquals(pb.getPlaneSize(), bf.getPlaneSize());
-        assertEquals(pb.getStackSize(), bf.getStackSize());
-        assertEquals(pb.getTimepointSize(), bf.getTimepointSize());
-        assertEquals(pb.getTotalSize(), bf.getTotalSize());
+    private void testSizeGetters() throws ServerError {
+        assertEquals((int)rps.getRowSize(), (int)bf.getRowSize());
+        assertEquals((int)rps.getPlaneSize()*rps.getByteWidth()/rps.getRowSize(), (int)bf.getColSize());
+        assertEquals((int)rps.getPlaneSize(), (int)bf.getPlaneSize());
+        assertEquals((int)rps.getStackSize(), (int)bf.getStackSize());
+        assertEquals((int)rps.getTimepointSize(), (int)bf.getTimepointSize());
+        assertEquals((int)rps.getTotalSize(), (int)bf.getTotalSize());
     }
 
     private void testOffsetGettersZero() throws DimensionsOutOfBoundsException {
@@ -259,15 +252,15 @@ public class BfPixelBufferTest extends AbstractTest {
         assertTrue(bf.getTimepointOffset(0) == 0);
     }
 
-    private void testOffsetGetters() throws DimensionsOutOfBoundsException {
+    private void testOffsetGetters() throws DimensionsOutOfBoundsException, ServerError {
         int midY = bf.getSizeY()/2;
         int midZ = bf.getSizeZ()/2;
         int midC = bf.getSizeC()/2;
         int midT = bf.getSizeT()/2;
-        assertEquals(pb.getRowOffset(midY,midZ,midC,midT), bf.getRowOffset(midY,midZ,midC,midT));
-        assertEquals(pb.getPlaneOffset(midZ,midC,midT), bf.getPlaneOffset(midZ,midC,midT));
-        assertEquals(pb.getStackOffset(midC,midT), bf.getStackOffset(midC,midT));
-        assertEquals(pb.getTimepointOffset(midT), bf.getTimepointOffset(midT));
+        assertEquals((long)rps.getRowOffset(midY,midZ,midC,midT), (long)bf.getRowOffset(midY,midZ,midC,midT));
+        assertEquals((long)rps.getPlaneOffset(midZ,midC,midT), (long)bf.getPlaneOffset(midZ,midC,midT));
+        assertEquals((long)rps.getStackOffset(midC,midT), (long)bf.getStackOffset(midC,midT));
+        assertEquals((long)rps.getTimepointOffset(midT), (long)bf.getTimepointOffset(midT));
     }
     
     private void testCheckBounds() {

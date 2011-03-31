@@ -115,6 +115,17 @@ module omero {
     };
 
     /**
+     * General constatnts used for annotations.
+     **/
+    module annotation {
+
+        /** Constatnts used for file annotations. **/
+        module file {
+            const string ORIGINALMETADATA = "original_metadata.txt";
+        };
+    };
+
+    /**
      * Namespaces for the [omero::api::IMetadata] interface.
      **/
     module metadata {
