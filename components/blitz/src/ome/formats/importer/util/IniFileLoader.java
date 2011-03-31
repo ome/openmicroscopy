@@ -13,7 +13,7 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU General Public License along
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -44,7 +44,7 @@ import org.ini4j.IniFile.Mode;
 /**
  * This class loads in the default importer.ini file (or one specified from the
  * command line when starting the app)
- * 
+ *
  * @author Brian W. Loranger
  */
 public class IniFileLoader {
@@ -75,7 +75,7 @@ public class IniFileLoader {
 
     /**
      * Load given file
-     * 
+     *
      * @param userConfigFile
      */
     public IniFileLoader(File userConfigFile) {
@@ -126,7 +126,7 @@ public class IniFileLoader {
     public int getDebugLevel() {
         return userPrefs.node("General").getInt("debug", -1);
     }
-    
+
     /**
      * @return if quaqua should be used on mac
      */
@@ -138,49 +138,49 @@ public class IniFileLoader {
      * @return location of log file
      */
     public String getLogFile() {
-    	
+
         return staticPref("General", "logfile", LOGFILE);
     }
-    
+
     /**
      * @return URL for product feature list
      */
-    public String getHomeUrl() 
+    public String getHomeUrl()
     {
         return staticPref("General", "url", "https://www.openmicroscopy.org/site/support/omero4/products/feature-list");
     }
-    
+
     /**
      * @return URL for community forums
      */
-    public String getForumUrl() 
+    public String getForumUrl()
     {
         return staticPref("General", "forumUrl", "https://www.openmicroscopy.org/community/");
     }
-    
+
     /**
      * @return application title
      */
-    public String getAppTitle() 
+    public String getAppTitle()
     {
         return staticPref("General", "appTitle", "OMERO.importer");
     }
 
     /**
      * Set debug level for application
-     * 
+     *
      * @param level
      */
-    public void setDebugLevel(int level) 
+    public void setDebugLevel(int level)
     {
         userPrefs.node("General").putInt("debug", level);
         this.flushPreferences();
     }
-    
+
     /**
      * @param b - set to use quaqua yes/no
      */
-    public void setUseQuaqua(boolean b) 
+    public void setUseQuaqua(boolean b)
     {
         userPrefs.node("General").putBoolean("useQuaqua", b);
         this.flushPreferences();
@@ -189,7 +189,7 @@ public class IniFileLoader {
     /**
      * @return application version note
      */
-    public String getVersionNote() 
+    public String getVersionNote()
     {
         // return Main.versionNumber;
         return staticPref("General", "appVersionNote", Version.versionNote);
@@ -198,16 +198,16 @@ public class IniFileLoader {
     /**
      * @return application version number
      */
-    public String getVersionNumber() 
+    public String getVersionNumber()
     {
         // return Main.versionNumber;
         return staticPref("General", "appVersionNumber", "Dev Build");
-    }    
-    
+    }
+
     /**
-     * @return if debug console should be shown 
+     * @return if debug console should be shown
      */
-    public Boolean isDebugConsole() 
+    public Boolean isDebugConsole()
     {
         return staticBoolPref("General", "displayDebugConsole", true);
     }
@@ -215,7 +215,7 @@ public class IniFileLoader {
     /**
      * @return server port
      */
-    public String getServerPort() 
+    public String getServerPort()
     {
         return staticPref("General", "port", "4064");
     }
@@ -223,7 +223,7 @@ public class IniFileLoader {
     /**
      * Updates the Flex reader server maps from the configuration file.
      */
-    public void updateFlexReaderServerMaps() 
+    public void updateFlexReaderServerMaps()
     {
         Preferences maps = userPrefs.node("FlexReaderServerMaps");
         Map<String, List<String>> values = parseFlexMaps(maps);
@@ -236,43 +236,43 @@ public class IniFileLoader {
             }
         }
     }
-    
+
     /**
      * Parse Flex reader server maps
-     * 
+     *
      * @param maps
      * @return
      */
-    public Map<String, List<String>> parseFlexMaps(Preferences maps) 
+    public Map<String, List<String>> parseFlexMaps(Preferences maps)
     {
         Map<String, List<String>> rv = new HashMap<String, List<String>>();
         try {
-            for (String key : maps.keys()) 
+            for (String key : maps.keys())
             {
                 String mapValues = maps.get(key, null);
                 log.info("Raw Flex reader map values: " + mapValues);
-                if (mapValues == null) 
+                if (mapValues == null)
                 {
                     continue;
                 }
                 List<String> list = new ArrayList<String>();
                 rv.put(key, list);
-                for(String value : mapValues.split(";")) 
+                for(String value : mapValues.split(";"))
                 {
                     value = value.trim();
                     list.add(value);
                 }
             }
-        } catch (BackingStoreException e) 
+        } catch (BackingStoreException e)
         {
             log.warn("Error updating Flex reader server maps.", e);
         }
         return rv;
     }
-    
+
     /**
      * Append kep to server map
-     * 
+     *
      * @param key
      * @param mapValue
      */
@@ -290,8 +290,8 @@ public class IniFileLoader {
     }
 
     // ////////////// [UI] Section ////////////////
-    
-    
+
+
     /**
      * @return is debug ui present
      */
@@ -304,7 +304,7 @@ public class IniFileLoader {
     /**
      * @return the ui bounds of the application
      */
-    public Rectangle getUIBounds() 
+    public Rectangle getUIBounds()
     {
         Rectangle rect = new Rectangle();
 
@@ -318,10 +318,10 @@ public class IniFileLoader {
 
     /**
      * Set ui bounds for application
-     * 
-     * @param bounds 
+     *
+     * @param bounds
      */
-    public void setUIBounds(Rectangle bounds) 
+    public void setUIBounds(Rectangle bounds)
     {
 
         if (bounds.x < 0)
@@ -341,38 +341,38 @@ public class IniFileLoader {
 
     public boolean getUserFullPath()
     {
-    	return userPrefs.node("UI").getBoolean("userFullPath", true);	
+	return userPrefs.node("UI").getBoolean("userFullPath", true);
     }
-    
+
     public void setUserFullPath(boolean b)
     {
-    	userPrefs.node("UI").putBoolean("userFullPath", b);
+	userPrefs.node("UI").putBoolean("userFullPath", b);
     }
 
     public boolean getCustomImageNaming()
     {
-    	return userPrefs.node("UI").getBoolean("customImageNaming", true);	
+	return userPrefs.node("UI").getBoolean("customImageNaming", true);
     }
-    
+
     public void setCustomImageNaming(boolean b)
     {
-    	userPrefs.node("UI").putBoolean("customImageNaming", b);
+	userPrefs.node("UI").putBoolean("customImageNaming", b);
     }
 
     public int getNumOfDirectories()
     {
-    	return userPrefs.node("UI").getInt("numOfDirectories", 0);	
+	return userPrefs.node("UI").getInt("numOfDirectories", 0);
     }
-    
+
     public void setNumOfDirectories(int i)
     {
-    	userPrefs.node("UI").putInt("numOfDirectories", i);
+	userPrefs.node("UI").putInt("numOfDirectories", i);
     }
-    
+
     /**
      * @return uploader token URL for QA
      */
-    public String getUploaderTokenURL() 
+    public String getUploaderTokenURL()
     {
         return staticPref("Uploader", "TokenURL",
                 "http://qa.openmicroscopy.org.uk/qa/initial/");
@@ -381,7 +381,7 @@ public class IniFileLoader {
     /**
      * @return uploader URL for QA
      */
-    public String getUploaderURL() 
+    public String getUploaderURL()
     {
         return staticPref("Uploader", "URL",
                 "http://qa.openmicroscopy.org.uk/qa/upload_processing/");
@@ -390,7 +390,7 @@ public class IniFileLoader {
     /**
      * @return bug tracker URL for QA
      */
-    public String getBugTrackerURL() 
+    public String getBugTrackerURL()
     {
         return staticPref("Uploader", "BugTrackerURL",
                 "http://qa.openmicroscopy.org.uk/qa/upload_processing/");
@@ -399,7 +399,7 @@ public class IniFileLoader {
     /**
      * @return Returns the userSettingsDirectory.
      */
-    public String getUserSettingsDirectory() 
+    public String getUserSettingsDirectory()
     {
         return userSettingsDirectory;
     }
@@ -407,7 +407,7 @@ public class IniFileLoader {
     private Preferences staticPrefsOrNull()
     {
         File staticFile = new File(staticConfigFile);
-        if (!staticFile.exists() || !staticFile.canRead()) 
+        if (!staticFile.exists() || !staticFile.canRead())
         {
             return null;
         }

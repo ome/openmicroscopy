@@ -74,8 +74,8 @@ public abstract class ErrorHandler implements IObserver, IObservable {
          */
         @Override
         public String toLog() {
-        	return String.format("%s: %s\n%s", super.toLog(), filename,
-        			             getStackTrace(exception));
+		return String.format("%s: %s\n%s", super.toLog(), filename,
+				             getStackTrace(exception));
         }
     }
 
@@ -86,14 +86,14 @@ public abstract class ErrorHandler implements IObserver, IObservable {
      * than a {@link FILE_EXCEPTION}, but if the user is specifically saying
      * that a file should be imported, and an {@link UNKNOWN_FORMAT} is raised,
      * then perhaps there is a configuration issue.
-     * 
+     *
      * @author Brian W. Loranger
      * @author Josh Moore
      */
     public static class UNKNOWN_FORMAT extends EXCEPTION_EVENT {
         public final String filename;
         public final Object source;
-        
+
         /**
          * @param filename
          * @param exception
@@ -163,21 +163,21 @@ public abstract class ErrorHandler implements IObserver, IObservable {
     protected boolean cancelUploads = false;
 
     protected boolean sendFiles = true;
-    
+
     protected boolean sendLogs = true;
 
 	public boolean fileUploadErrors = false;
-    
+
     protected int totalErrors = 0;
 
     private FileUploader fileUploader;
 
     /**
-     * Initialize 
-     * 
+     * Initialize
+     *
      * @param config
      */
-    public ErrorHandler(ImportConfig config) 
+    public ErrorHandler(ImportConfig config)
     {
         this.config = config;
     }
@@ -225,14 +225,14 @@ public abstract class ErrorHandler implements IObserver, IObservable {
     /**
      * @return number of errors in ErrorContainer array
      */
-    public int errorCount() 
+    public int errorCount()
     {
         return errors.size();
     }
 
     /**
      * abstract on update method
-     * 
+     *
      * @param importLibrary
      * @param event - importEvent
      */
@@ -245,12 +245,12 @@ public abstract class ErrorHandler implements IObserver, IObservable {
 
         for (int i = 0; i < errors.size(); i++) {
 
-            if (!isSend(i)) 
+            if (!isSend(i))
             {
                 onSent(i);
                 continue; // Don't send file if not selected
             }
-            
+
             if (cancelUploads) {
                 onCancel();
                 break;
@@ -294,9 +294,9 @@ public abstract class ErrorHandler implements IObserver, IObservable {
                 {
                     errorContainer.addFile(config.getLogFile());
                 }
-                
+
                 String[] files = errorContainer.getFiles();
-                
+
                 if (files != null && files.length > 0) {
                     for (String f : errorContainer.getFiles()) {
                         File file = new File(f);
@@ -335,8 +335,8 @@ public abstract class ErrorHandler implements IObserver, IObservable {
             finishCancelled();
         }
         if (fileUploadErrors) {
-        	finishWithErroredFiles();
-        	notifyObservers(new ImportEvent.ERRORS_COMPLETE());
+		finishWithErroredFiles();
+		notifyObservers(new ImportEvent.ERRORS_COMPLETE());
         } else {
             finishComplete();
             notifyObservers(new ImportEvent.ERRORS_COMPLETE());
@@ -347,7 +347,7 @@ public abstract class ErrorHandler implements IObserver, IObservable {
     /**
      * Add detailed error to error container array
      * @param error - error thrown
-     * @param file - head file for error 
+     * @param file - head file for error
      * @param files - all files in import collection
      * @param readerType - reader type supplied from bio-formats
      */
@@ -368,10 +368,10 @@ public abstract class ErrorHandler implements IObserver, IObservable {
         errorContainer.setError(error);
         addError(errorContainer);
     }
-    
+
     /**
      * add simple error to error container array
-     * 
+     *
      * @param errorContainer
      */
     private void addError(ErrorContainer errorContainer) {
@@ -392,11 +392,11 @@ public abstract class ErrorHandler implements IObserver, IObservable {
     //
     // OBSERVER PATTERN
     //
-    
+
     /* (non-Javadoc)
      * @see ome.formats.importer.IObservable#addObserver(ome.formats.importer.IObserver)
      */
-    public final boolean addObserver(IObserver object) 
+    public final boolean addObserver(IObserver object)
     {
         return observers.add(object);
     }
@@ -404,7 +404,7 @@ public abstract class ErrorHandler implements IObserver, IObservable {
     /* (non-Javadoc)
      * @see ome.formats.importer.IObservable#deleteObserver(ome.formats.importer.IObserver)
      */
-    public final boolean deleteObserver(IObserver object) 
+    public final boolean deleteObserver(IObserver object)
     {
         return observers.remove(object);
 
@@ -413,86 +413,86 @@ public abstract class ErrorHandler implements IObserver, IObservable {
     /* (non-Javadoc)
      * @see ome.formats.importer.IObservable#notifyObservers(ome.formats.importer.ImportEvent)
      */
-    public final void notifyObservers(ImportEvent event) 
+    public final void notifyObservers(ImportEvent event)
     {
-        for (IObserver observer : observers) 
+        for (IObserver observer : observers)
         {
             observer.update(this, event);
         }
     }
-    
-    
+
+
     //
     // OVERRIDEABLE METHODS
     //
-    
+
     /**
      * action to take on cancel
      */
-    protected void onCancel() 
+    protected void onCancel()
     {
         fileUploader.cancel();
     }
- 
-    
+
+
     /**
      * Action to take on adding an error to container
-     * 
+     *
      * @param errorContainer - error container
      * @param message - message string for action (if needed)
      */
-    protected void onAddError(ErrorContainer errorContainer, String message) 
+    protected void onAddError(ErrorContainer errorContainer, String message)
     {
     }
- 
+
     /**
      * Check if files need sending at error container index
      * @param index - index in error container
      * @return - true if file is to be sent
      */
-    protected boolean isSend(int index) 
+    protected boolean isSend(int index)
     {
         if (errors.get(index).getSelectedFile() == null) {
             return false;
         }
         return true;
     }
- 
+
     /**
      * @param index
      */
-    protected void onSending(int index) 
-    { 
+    protected void onSending(int index)
+    {
     }
-    
+
     /**
      * @param index
      */
-    protected void onSent(int index) 
-    {  
+    protected void onSent(int index)
+    {
     }
-    
+
     /**
      * @param index
      * @param serverReply
      */
-    protected void onNotSending(int index, String serverReply) 
-    {   
+    protected void onNotSending(int index, String serverReply)
+    {
     }
-    
+
     /**
      * Action to take on exception
      * @param exception
      */
-    protected void onException(Exception exception) 
+    protected void onException(Exception exception)
     {
         notifyObservers(new ImportEvent.ERRORS_FAILED());
     }
-    
+
     /**
      * Action to take when finish cancelled
      */
-    protected void finishCancelled() 
+    protected void finishCancelled()
     {
         fileUploader.cancel();
     }
@@ -500,25 +500,25 @@ public abstract class ErrorHandler implements IObserver, IObservable {
     /**
      * Action to take when finish completed
      */
-    protected void finishComplete() 
+    protected void finishComplete()
     {
     }
-    
+
     /**
      * Action to take when finish completed but with some errors
      * (For example, missing files)
      */
-    protected void finishWithErroredFiles() 
+    protected void finishWithErroredFiles()
     {
-    }    
-    
-    
+    }
+
+
     /**
      * Return stack trace from throwable
      * @param throwable
      * @return stack trace
      */
-    public static String getStackTrace(Throwable throwable) 
+    public static String getStackTrace(Throwable throwable)
     {
         final Writer writer = new StringWriter();
         final PrintWriter printWriter = new PrintWriter(writer);

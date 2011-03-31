@@ -13,27 +13,50 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU General Public License along
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  *------------------------------------------------------------------------------
- */
-
-package ome.formats.importer;
-
-/**
- * @author Brian Loranger brain at lifesci.dundee.ac.uk
  *
  */
-public interface IObserver
+
+package ome.formats;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import loci.formats.meta.DummyMetadata;
+
+/**
+ * Stores all Image names consumed by the interface.
+ * @author Chris Allan <callan at blackcat dot ca>
+ *
+ */
+public class ImageNameMetadataStore extends DummyMetadata
 {
     /**
-     * Update observable on event
-     * 
-     * @param observable
-     * @param event
+     * The Map of Image index vs. Image name. This is map because of the
+     * potential out of order population via metadata store usage.
      */
-    void update(IObservable observable, ImportEvent event);
+    private Map<Integer, String> imageNames = new HashMap<Integer, String>();
+
+    /* (non-Javadoc)
+     * @see loci.formats.meta.MetadataStore#setImageName(java.lang.String, int)
+     */
+    @Override
+    public void setImageName(String imageName, int imageIndex)
+    {
+        imageNames.put(imageIndex, imageName);
+    }
+
+    /**
+     * Retrieves the current map of Image names held.
+     * @return Map of Image index vs. Image name.
+     */
+    public Map<Integer, String> getImageNames()
+    {
+        return imageNames;
+    }
 }

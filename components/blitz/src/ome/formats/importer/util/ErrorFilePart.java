@@ -13,7 +13,7 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU General Public License along
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -41,17 +41,17 @@ public class ErrorFilePart extends FilePart
 {
 
 	public boolean cancel = false;
-	
+
     /**
      * Calls parent 'FilePart' class
-     * 
+     *
      * @param name
      * @param file
      * @throws FileNotFoundException
      */
     public ErrorFilePart(String name, File file) throws FileNotFoundException
     {
-        super(name, file);        
+        super(name, file);
     }
 
     /* (non-Javadoc)
@@ -62,16 +62,16 @@ public class ErrorFilePart extends FilePart
         // Content slurped and modified from superclass.
         // Chris Allan <callan@glencoesoftware.com>
         PartSource source = getSource();
-        
+
         byte[] tmp = new byte[4096];
         InputStream instream = source.createInputStream();
         try {
             int rlen;
             while ((rlen = instream.read(tmp)) >= 0) {
-            	if (cancel) {
-            		//System.err.println("cancelled");
-            		break;
-            	}
+		if (cancel) {
+			//System.err.println("cancelled");
+			break;
+		}
                 out.write(tmp, 0, rlen);
                 //System.err.println("ding");
             }
@@ -80,5 +80,5 @@ public class ErrorFilePart extends FilePart
             instream.close();
         }
     }
- 
+
 }

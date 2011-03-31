@@ -11,7 +11,7 @@ import omero.model.Pixels;
 
 /**
  * Calculates the various dimensions of an image from a {@link Pixels} instance.
- * 
+ *
  * @since Beta4.1
  */
 

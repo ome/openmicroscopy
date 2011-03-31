@@ -13,7 +13,7 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU General Public License along
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -77,7 +77,7 @@ public class OMEROWrapper extends MinMaxCalculator {
 
     /**
      * Wrapper for bio-formats
-     * 
+     *
      * @param config - ImportConfit
      */
     public OMEROWrapper(ImportConfig config)
@@ -118,7 +118,7 @@ public class OMEROWrapper extends MinMaxCalculator {
         }
         reader = separator  = new ChannelSeparator(filler);
 
-        // Force unreadable characters to be removed from metadata key/value pairs 
+        // Force unreadable characters to be removed from metadata key/value pairs
         iReader.setMetadataFiltered(true);
         filler.setMetadataFiltered(true);
         separator.setMetadataFiltered(true);
@@ -239,13 +239,13 @@ public class OMEROWrapper extends MinMaxCalculator {
 
     /**
      * Return the base image reader
-     * 
+     *
      * @return See above.
      */
     public ImageReader getImageReader() {
         return iReader;
     }
-    
+
     /**
      * @return true if using SPW reader
      */

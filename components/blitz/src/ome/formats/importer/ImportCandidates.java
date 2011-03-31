@@ -44,12 +44,12 @@ import org.apache.commons.logging.LogFactory;
  * Utility class which given any {@link File} object will determine the correct
  * number and members of a given import. This facility permits iterating over a
  * directory.
- * 
+ *
  * This class is NOT thread-safe.
- * 
+ *
  * @since Beta4.1
  */
-public class ImportCandidates extends DirectoryWalker 
+public class ImportCandidates extends DirectoryWalker
 {
 
     /**
@@ -57,16 +57,16 @@ public class ImportCandidates extends DirectoryWalker
      * {@link ImportCandidates}. A {@link Scanning} event will not necessarily
      * be raised for every file or directory, but the values will be valid for
      * each event.
-     * 
+     *
      * If {@link #totalFiles} is less than 0, then the directory is currently be
      * scanned and the count is unknown. Once {@link #totalFiles} is positive,
      * it will remain constant.
-     * 
+     *
      * If {@link #cancel()} is called, then directory searching will cease. The
      * {@link ImportCandidates} instance will be left with <em>no</em>
      * {@link ImportContainer}s.
      */
-    public static class SCANNING extends ImportEvent 
+    public static class SCANNING extends ImportEvent
     {
         public final File file;
         public final int depth;
@@ -74,7 +74,7 @@ public class ImportCandidates extends DirectoryWalker
         public final int totalFiles;
         private boolean cancel = false;
 
-        public SCANNING(File file, int depth, int numFiles, int totalFiles) 
+        public SCANNING(File file, int depth, int numFiles, int totalFiles)
         {
             this.file = file;
             this.depth = depth;
@@ -85,15 +85,15 @@ public class ImportCandidates extends DirectoryWalker
         /**
          * Can be called to cancel the current action.
          */
-        public void cancel() 
+        public void cancel()
         {
             this.cancel = true;
         }
 
-        public String toLog() 
+        public String toLog()
         {
             int l = file.toString().length() - 16;
-            if (l < 0) 
+            if (l < 0)
             {
                 l = 0;
             }
@@ -110,7 +110,7 @@ public class ImportCandidates extends DirectoryWalker
     public static class CANCEL extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;};
-    
+
     final private static Log log = LogFactory.getLog(ImportCandidates.class);
 
     final public static int DEPTH = Integer.valueOf(
@@ -135,7 +135,7 @@ public class ImportCandidates extends DirectoryWalker
      * Current count of calls to {@link IFormatReader#setId()}.
      */
     int setids = 0;
-    
+
     /**
      * Number of times UNKNOWN_EVENT was raised
      */
@@ -162,7 +162,7 @@ public class ImportCandidates extends DirectoryWalker
     /**
      * Calls {@link #ImportCandidates(int, OMEROWrapper, String[], IObserver)}
      * with {@link #DEPTH} as the first argument.
-     * 
+     *
      * @param reader
      *            instance used for parsing each of the paths. Not used once the
      *            constructor completes.
@@ -174,18 +174,18 @@ public class ImportCandidates extends DirectoryWalker
      *            reporting takes place.
      */
     public ImportCandidates(OMEROWrapper reader, String[] paths,
-            IObserver observer) 
+            IObserver observer)
     {
         this(DEPTH, reader, paths, observer);
     }
-    
+
     /**
      * Main constructor which iterates over all the paths calling
      * {@link #walk(File, Collection)} and permitting a descent to the given
      * depth.
-     * 
+     *
      * @param depth
-     *            number of directory levels to search down. 
+     *            number of directory levels to search down.
      * @param reader
      *            instance used for parsing each of the paths. Not used once the
      *            constructor completes.
@@ -197,7 +197,7 @@ public class ImportCandidates extends DirectoryWalker
      *            reporting takes place.
      */
     public ImportCandidates(int depth, OMEROWrapper reader, String[] paths,
-            IObserver observer) 
+            IObserver observer)
     {
         super(TrueFileFilter.INSTANCE, depth);
         this.reader = reader;
@@ -206,7 +206,7 @@ public class ImportCandidates extends DirectoryWalker
                 METADATA_LEVEL));
 
         if (paths != null && paths.length == 2 && "".equals(paths[0])
-                && "".equals(paths[1])) 
+                && "".equals(paths[1]))
         {
             // Easter egg for testing.
             // groups is not null, therefore usage() won't need to be
@@ -215,7 +215,7 @@ public class ImportCandidates extends DirectoryWalker
             return;
         }
 
-        if (paths == null || paths.length == 0) 
+        if (paths == null || paths.length == 0)
         {
             return;
         }
@@ -233,7 +233,7 @@ public class ImportCandidates extends DirectoryWalker
                     + "%s group(s) with %s call(s) to setId in "
                     + "%sms. (%sms total) [%s unknowns]", this.total, size(), this.setids,
                     readerTime, totalElapsed, unknown));
-        } catch (CANCEL c) 
+        } catch (CANCEL c)
         {
             log.info(String.format("Cancelling search after %sms "
                     + "with %s containers found (%sms in %s calls to setIds)",
@@ -253,23 +253,23 @@ public class ImportCandidates extends DirectoryWalker
      * other software layers. The format is: 1) any empty lines are ignored, 2)
      * any blocks of comments separate groups, 3) each group is begun by the
      * "key", 4) all other files in a group will also be imported.
-     * 
+     *
      * Similar logic is contained in {@link Groups#print()} but it does not
      * take the ordering of the used files into account.
      */
-    public void print() 
+    public void print()
     {
-        if (containers == null) 
+        if (containers == null)
         {
             return;
         }
-        for (ImportContainer container : containers) 
+        for (ImportContainer container : containers)
         {
             System.out.println("#======================================");
             System.out.println(String.format(
                     "# Group: %s SPW: %s Reader: %s", container.getFile(),
                     container.getIsSPW(), container.getReader()));
-            for (String file : container.getUsedFiles()) 
+            for (String file : container.getUsedFiles())
             {
                 System.out.println(file);
             }
@@ -279,7 +279,7 @@ public class ImportCandidates extends DirectoryWalker
     /**
      * @return containers size
      */
-    public int size() 
+    public int size()
     {
         return containers.size();
     }
@@ -287,7 +287,7 @@ public class ImportCandidates extends DirectoryWalker
     /**
      * @return if import was cancelled
      */
-    public boolean wasCancelled() 
+    public boolean wasCancelled()
     {
         return cancelled;
     }
@@ -295,10 +295,10 @@ public class ImportCandidates extends DirectoryWalker
     /**
      * @return array of string paths for files in containers
      */
-    public List<String> getPaths() 
+    public List<String> getPaths()
     {
         List<String> paths = new ArrayList<String>();
-        for (ImportContainer i : containers) 
+        for (ImportContainer i : containers)
         {
             paths.add(i.getFile().getAbsolutePath());
         }
@@ -307,11 +307,11 @@ public class ImportCandidates extends DirectoryWalker
 
     /**
      * Retrieve reader type for file specified in path
-     * 
+     *
      * @param path - absolute path for container
      * @return reader type
      */
-    public String getReaderType(String path) 
+    public String getReaderType(String path)
     {
         for (ImportContainer i : containers) {
             if (i.getFile().getAbsolutePath().equals(path)) {
@@ -323,15 +323,15 @@ public class ImportCandidates extends DirectoryWalker
 
     /**
      * Return string of files used by container item at path
-     * 
+     *
      * @param path - absolute path for container
      * @return string array of used files
      */
-    public String[] getUsedFiles(String path) 
+    public String[] getUsedFiles(String path)
     {
-        for (ImportContainer i : containers) 
+        for (ImportContainer i : containers)
         {
-            if (i.getFile().getAbsolutePath().equals(path)) 
+            if (i.getFile().getAbsolutePath().equals(path))
             {
                 return i.getUsedFiles();
             }
@@ -342,7 +342,7 @@ public class ImportCandidates extends DirectoryWalker
     /**
      * @return all containers as a array list
      */
-    public List<ImportContainer> getContainers() 
+    public List<ImportContainer> getContainers()
     {
         return new ArrayList<ImportContainer>(containers);
     }
@@ -356,23 +356,23 @@ public class ImportCandidates extends DirectoryWalker
      *
      * @param paths
      */
-    protected void execute(String[] paths) 
+    protected void execute(String[] paths)
     {
-        for (String string : paths) 
+        for (String string : paths)
         {
             try {
                 File f = new File(string);
-                if (f.isDirectory()) 
+                if (f.isDirectory())
                 {
                     walk(f, null);
-                } else 
+                } else
                 {
                     handleFile(f, 0, null);
                 }
                 // Forcing an event for each path, so that at least one
                 // event is raised per file despite the count of handlefile.
                 scanWithCancel(f, 0);
-            } catch (IOException e) 
+            } catch (IOException e)
             {
                 throw new RuntimeException(e);
             }
@@ -423,20 +423,20 @@ public class ImportCandidates extends DirectoryWalker
                 ic.setCustomAnnotationList(config.annotations.get());
                 ic.setUseMetadataFile(config.companionFile.get());
                 return ic;
-            } finally 
+            } finally
             {
                 readerTime += (System.currentTimeMillis() - start);
                 reader.close();
             }
 
-        } catch (UnknownFormatException ufe) 
+        } catch (UnknownFormatException ufe)
         {
             unknown++;
             safeUpdate(new ErrorHandler.UNKNOWN_FORMAT(path, ufe, this));
-        } catch (MissingLibraryException mle) 
+        } catch (MissingLibraryException mle)
         {
             safeUpdate(new ErrorHandler.MISSING_LIBRARY(path, mle, usedFiles, format));
-        } catch (Exception e) 
+        } catch (Exception e)
         {
             safeUpdate(new ErrorHandler.FILE_EXCEPTION(path, e, usedFiles, format));
         }
@@ -465,10 +465,10 @@ public class ImportCandidates extends DirectoryWalker
      * @return A list of Pixels objects, in the order of <i>series</i>
      * populated with dimensions X, Y, Z, C and T.
      */
-    private List<Pixels> getPixelsWithDimensions() 
+    private List<Pixels> getPixelsWithDimensions()
     {
         List<Pixels> toReturn = new ArrayList<Pixels>();
-        for (int i = 0; i < reader.getSeriesCount(); i++) 
+        for (int i = 0; i < reader.getSeriesCount(); i++)
         {
             reader.setSeries(i);
             Pixels pixels = new PixelsI();
@@ -495,7 +495,7 @@ public class ImportCandidates extends DirectoryWalker
 
         FileInfo[] infos = reader.getAdvancedUsedFiles(false);
         String[] usedFiles = new String[infos.length];
-        
+
         int count = 0;
         for (int i = 0; i < usedFiles.length; i++) {
             if (infos[i].usedToInitialize) {
@@ -509,7 +509,7 @@ public class ImportCandidates extends DirectoryWalker
         }
         return usedFiles;
     }
-    
+
     /**
      * @param f
      * @param d
@@ -522,10 +522,10 @@ public class ImportCandidates extends DirectoryWalker
             throw new CANCEL();
         }
     }
-    
+
     /**
-     * Update observers with event 
-     * 
+     * Update observers with event
+     *
      * @param event
      */
     private void safeUpdate(ImportEvent event) {
@@ -540,7 +540,7 @@ public class ImportCandidates extends DirectoryWalker
 
     /**
      * Handle a file import
-     * 
+     *
      * @param file - file selected
      * @param depth - depth of scan
      * @param collection
@@ -592,7 +592,7 @@ public class ImportCandidates extends DirectoryWalker
      * The {@link Groups} class servers as an algorithm for sorting the usedBy
      * map from the {@link ImportCandidates#walk(File, Collection)} method.
      * These objects should never leave the outer class.
-     * 
+     *
      * It is important that the Groups keep their used files ordered.
      * @see ImportCandidates#getOrderedFiles()
      */

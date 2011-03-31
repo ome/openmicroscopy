@@ -1,5 +1,5 @@
 /*
- * ome.formats.importer.HTMLMessengerException
+ * ome.formats.importer.gui.GuiCommonElements
  *
  *------------------------------------------------------------------------------
  *  Copyright (C) 2006-2008 University of Dundee. All rights reserved.
@@ -13,7 +13,7 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU General Public License along
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -21,22 +21,34 @@
  *------------------------------------------------------------------------------
  */
 
-package ome.formats.importer.util;
-
+package ome.formats.importer;
 
 /**
- * @author Brian W. Loranger
+ * @author Brian Loranger brain at lifesci.dundee.ac.uk
  *
  */
-@SuppressWarnings("serial")
-public class HtmlMessengerException extends Exception
+public interface IObservable
 {
     /**
-     * @param message
-     * @param exception
+     * Add observer for notification
+     *
+     * @param object - observer object
+     * @return true if added
      */
-    public HtmlMessengerException(String message, Exception exception)
-    {
-        super(message, exception);
-    }
+    boolean addObserver(IObserver object);
+
+    /**
+     * Delete observer
+     *
+     * @param object - observer to delete
+     * @return true if deleted
+     */
+    boolean deleteObserver(IObserver object);
+
+    /**
+     * Notify observers of event
+     *
+     * @param event - event that happened
+     */
+    void notifyObservers(ImportEvent event);
 }

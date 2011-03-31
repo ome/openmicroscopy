@@ -13,7 +13,7 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU General Public License along
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -28,7 +28,7 @@ import java.util.List;
 
 /**
  * Container for errors
- * 
+ *
  * @author Brian W. Loranger
  *
  */
@@ -54,7 +54,7 @@ public class ErrorContainer
     private String absolute_path;
     private int status = -1;
     private int index = 0;
-    
+
     /**
      * @param s - file to add to container
      */
@@ -62,7 +62,7 @@ public class ErrorContainer
     {
         filesArray.add(s);
     }
-    
+
     /**
      * @return Returns the files in this container.
      */
@@ -71,7 +71,7 @@ public class ErrorContainer
         String[] files = new String[filesArray.size()];
         return filesArray.toArray(files);
     }
-    
+
     /**
      * @param files - files to set.
      */
@@ -82,7 +82,7 @@ public class ErrorContainer
             filesArray.add(f);
         }
     }
-    
+
     /**
      * @return Returns the java_version.
      */
@@ -90,7 +90,7 @@ public class ErrorContainer
     {
         return java_version;
     }
-    
+
     /**
      * @param java_version The java_version to set.
      */
@@ -98,10 +98,10 @@ public class ErrorContainer
     {
         if (java_version == null)
             java_version = "";
-        
+
         this.java_version = java_version;
     }
-    
+
     /**
      * @return Returns the java_classpath.
      */
@@ -109,7 +109,7 @@ public class ErrorContainer
     {
         return java_classpath;
     }
-    
+
     /**
      * @param java_classpath The java_classpath to set.
      */
@@ -117,10 +117,10 @@ public class ErrorContainer
     {
         if (java_classpath == null)
             java_classpath = "";
-        
+
         this.java_classpath = java_classpath;
     }
-    
+
     /**
      * @return Returns the os_name.
      */
@@ -128,7 +128,7 @@ public class ErrorContainer
     {
         return os_name;
     }
-    
+
     /**
      * @param os_name The os_name to set.
      */
@@ -136,10 +136,10 @@ public class ErrorContainer
     {
         if (os_name == null)
             os_name = "";
-        
+
         this.os_name = os_name;
     }
-    
+
     /**
      * @return Returns the os_arch.
      */
@@ -147,7 +147,7 @@ public class ErrorContainer
     {
         return os_arch;
     }
-    
+
     /**
      * @param os_arch The os_arch to set.
      */
@@ -155,10 +155,10 @@ public class ErrorContainer
     {
         if (os_arch == null)
             os_arch = "";
-        
+
         this.os_arch = os_arch;
     }
-    
+
     /**
      * @return Returns the os_version.
      */
@@ -166,7 +166,7 @@ public class ErrorContainer
     {
         return os_version;
     }
-    
+
     /**
      * @param os_version The os_version to set.
      */
@@ -174,10 +174,10 @@ public class ErrorContainer
     {
         if (os_version == null)
             os_version = "";
-        
+
         this.os_version = os_version;
     }
-    
+
     /**
      * @return Returns the extra.
      */
@@ -185,7 +185,7 @@ public class ErrorContainer
     {
         return extra;
     }
-    
+
     /**
      * @param extra The extra to set.
      */
@@ -193,10 +193,10 @@ public class ErrorContainer
     {
         if (extra == null)
             extra = "";
-        
+
         this.extra = extra;
     }
-    
+
     /**
      * @return Returns the error.
      */
@@ -204,15 +204,15 @@ public class ErrorContainer
     {
         return error;
     }
-    
+
     /**
      * @param error The error to set.
      */
     public void setError(Throwable error)
-    {       
+    {
         this.error = error;
     }
-    
+
     /**
      * @return Returns the comment_type.
      */
@@ -220,7 +220,7 @@ public class ErrorContainer
     {
         return comment_type;
     }
-    
+
     /**
      * @param comment_type The comment_type to set.
      */
@@ -228,10 +228,10 @@ public class ErrorContainer
     {
         if (comment_type == null)
             comment_type = "";
-        
+
         this.comment_type = comment_type;
     }
-    
+
     /**
      * @return Returns the app_version.
      */
@@ -239,7 +239,7 @@ public class ErrorContainer
     {
         return app_version;
     }
-    
+
     /**
      * @param app_version The app_version to set.
      */
@@ -247,10 +247,10 @@ public class ErrorContainer
     {
         if (app_version == null)
             app_version = "";
-        
+
         this.app_version = app_version;
     }
-    
+
     /**
      * @return Returns the comment.
      */
@@ -258,7 +258,7 @@ public class ErrorContainer
     {
         return comment;
     }
-    
+
     /**
      * @param comment The comment to set.
      */
@@ -266,10 +266,10 @@ public class ErrorContainer
     {
         if (comment == null)
             comment = "";
-        
+
         this.comment = comment;
     }
-    
+
     /**
      * @return Returns the email.
      */
@@ -277,7 +277,7 @@ public class ErrorContainer
     {
         return email;
     }
-    
+
     /**
      * @param email The email to set.
      */
@@ -285,10 +285,10 @@ public class ErrorContainer
     {
         if (email == null)
             email = "";
-        
+
         this.email = email;
     }
-    
+
     /**
      * @return Returns the session_id.
      */
@@ -296,7 +296,7 @@ public class ErrorContainer
     {
         return session_id;
     }
-    
+
     /**
      * @param session_id The session_id to set.
      */
@@ -304,10 +304,10 @@ public class ErrorContainer
     {
         if (session_id == null)
             session_id = "";
-        
+
         this.session_id = session_id;
     }
-    
+
     /**
      * @return Returns the selected_file.
      */
@@ -315,7 +315,7 @@ public class ErrorContainer
     {
         return selected_file;
     }
-    
+
     /**
      * @param selected_file The selected_file to set.
      */
@@ -328,7 +328,7 @@ public class ErrorContainer
             setAbsolutePath(parentPath);
         }
     }
-    
+
     /**
      * @return Returns the file_type.
      */
@@ -336,7 +336,7 @@ public class ErrorContainer
     {
         return file_type;
     }
-    
+
     /**
      * @param file_type The file_type to set.
      */
@@ -344,11 +344,11 @@ public class ErrorContainer
     {
         if (file_type == null)
             file_type = "";
-        
+
         this.file_type = file_type;
     }
 
-    
+
     /**
      * @return Returns the uploadURL.
      */
@@ -357,7 +357,7 @@ public class ErrorContainer
         return uploadUrl;
     }
 
-    
+
     /**
      * @param uploadURL The uploadURL to set.
      */
@@ -367,18 +367,18 @@ public class ErrorContainer
     }
 
     /**
-     * set file format for import 
-     * 
+     * set file format for import
+     *
      * @param file_format
      */
     public void setReaderType(String file_format)
     {
         this.file_format = file_format;
-    }  
-    
+    }
+
     /**
      * get the file format for import
-     * 
+     *
      * @return
      */
     public String getFileFormat()
@@ -387,16 +387,16 @@ public class ErrorContainer
     }
 
     /**
-     * set path for file 
-     * 
+     * set path for file
+     *
      * @param absolute_path
      */
     public void setAbsolutePath(String absolute_path)
     {
-    	this.absolute_path = absolute_path;
-        
+	this.absolute_path = absolute_path;
+
     }
-    
+
     /**
      * get path for file
      * @return
@@ -408,7 +408,7 @@ public class ErrorContainer
 
 	/**
 	 * return the error status
-	 * 
+	 *
 	 * @return
 	 */
 	public int getStatus() {
@@ -432,7 +432,7 @@ public class ErrorContainer
 	}
 
 	/**
-	 * Set index 
+	 * Set index
 	 * @param index
 	 */
 	public void setIndex(int index) {

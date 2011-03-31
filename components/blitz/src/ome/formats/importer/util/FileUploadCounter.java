@@ -13,7 +13,7 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU General Public License along
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -31,7 +31,7 @@ import org.apache.commons.httpclient.methods.RequestEntity;
 /**
  * @author "Brian W. Loranger"
  */
-public class FileUploadCounter implements RequestEntity 
+public class FileUploadCounter implements RequestEntity
 {
 
     private final RequestEntity entity;
@@ -39,7 +39,7 @@ public class FileUploadCounter implements RequestEntity
 
     /**
      * Initialize class
-     * 
+     *
      * @param entity - request entity
      * @param listener - progress listener
      */
@@ -61,8 +61,8 @@ public class FileUploadCounter implements RequestEntity
         private long bytes_transferred;
 
         /**
-         * counter in bytes 
-         * 
+         * counter in bytes
+         *
          * @param out - output stream
          * @param listener - progress listener
          */
@@ -107,15 +107,15 @@ public class FileUploadCounter implements RequestEntity
     /**
      * @author "Brian W. Loranger"
      */
-    public static interface ProgressListener 
+    public static interface ProgressListener
     {
         void update(long num);
     }
-    
+
     /* (non-Javadoc)
      * @see org.apache.commons.httpclient.methods.RequestEntity#getContentLength()
      */
-    public long getContentLength() 
+    public long getContentLength()
     {
         return this.entity.getContentLength();
     }
@@ -123,7 +123,7 @@ public class FileUploadCounter implements RequestEntity
     /* (non-Javadoc)
      * @see org.apache.commons.httpclient.methods.RequestEntity#getContentType()
      */
-    public String getContentType() 
+    public String getContentType()
     {
         return this.entity.getContentType();
     }
@@ -131,8 +131,8 @@ public class FileUploadCounter implements RequestEntity
     /* (non-Javadoc)
      * @see org.apache.commons.httpclient.methods.RequestEntity#isRepeatable()
      */
-    public boolean isRepeatable() 
+    public boolean isRepeatable()
     {
         return this.entity.isRepeatable();
     }
-} 
+}

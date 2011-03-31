@@ -13,7 +13,7 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU General Public License along
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -39,11 +39,11 @@ import org.apache.commons.httpclient.methods.multipart.StringPart;
 import org.apache.commons.httpclient.params.HttpClientParams;
 
 /**
- * This class allows you to submit a URL and a String hash map of 
+ * This class allows you to submit a URL and a String hash map of
  * key-value pairs to be posted to the URL in question.
- * 
+ *
  * @author Brian W. Loranger
- */ 
+ */
 public class HtmlMessenger
 {
 
@@ -61,20 +61,20 @@ public class HtmlMessenger
 
 	/**
 	 * Instantiate html messenger
-	 * 
+	 *
 	 * @param url
 	 * @param postList - variables list in post
 	 * @throws HtmlMessengerException
 	 */
 	public HtmlMessenger(String url,  List<Part> postList) throws HtmlMessengerException
 	{
-		try 
+		try
 		{
 			HostConfiguration cfg = new HostConfiguration();
 			cfg.setHost(url);
 			String proxyHost = System.getProperty(PROXY_HOST);
 			String proxyPort = System.getProperty(PROXY_PORT);
-			if (proxyHost != null && proxyPort != null) 
+			if (proxyHost != null && proxyPort != null)
 			{
 				int port = Integer.parseInt(proxyPort);
 				cfg.setProxy(proxyHost, port);
@@ -98,7 +98,7 @@ public class HtmlMessenger
 				i++;
 			}
 
-			MultipartRequestEntity mpre = 
+			MultipartRequestEntity mpre =
 				new MultipartRequestEntity(parts, method.getParams());
 
 			ProgressListener listener = new ProgressListener()
@@ -115,7 +115,7 @@ public class HtmlMessenger
 
 			method.setRequestEntity(hfre);
 
-		} 
+		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
@@ -127,7 +127,7 @@ public class HtmlMessenger
 	/**
 	 * Execute a post action and retrieve server reply
 	 * This method executes the post created when this class is instantiated
-	 * 
+	 *
 	 * @return server reply
 	 * @throws HtmlMessengerException
 	 */
@@ -140,7 +140,7 @@ public class HtmlMessenger
 			int statusCode = client.executeMethod( method );
 			if( statusCode != -1 ) {
 				reader = new InputStreamReader(
-						method.getResponseBodyAsStream(), 
+						method.getResponseBodyAsStream(),
 						method.getRequestCharSet());
 				char[] buf = new char[32678];
 				StringBuilder str = new StringBuilder();
@@ -167,7 +167,7 @@ public class HtmlMessenger
 
 	 /**
 	  * Login to website
-	  * 
+	  *
 	 * @param url
 	 * @param username
 	 * @param password
@@ -183,11 +183,11 @@ public class HtmlMessenger
 			 PostMethod loginMethod = new PostMethod( url );
 
 			 Part[] parts = {
-					 new StringPart("username", username), 
+					 new StringPart("username", username),
 					 new StringPart("password", password)
 			 };
 
-			 MultipartRequestEntity mpre = 
+			 MultipartRequestEntity mpre =
 				 new MultipartRequestEntity(parts, loginMethod.getParams());
 
 			 ProgressListener listener = new ProgressListener()
@@ -198,7 +198,7 @@ public class HtmlMessenger
 				public void update(long bytesRead)
 				 {
 				 }
-			 };        	
+			 };
 
 			 FileUploadCounter hfre = new FileUploadCounter(mpre, listener);
 
@@ -207,7 +207,7 @@ public class HtmlMessenger
 			 int statusCode = client.executeMethod( loginMethod );
 			 if( statusCode != -1 ) {
 				 reader = new InputStreamReader(
-						 loginMethod.getResponseBodyAsStream(), 
+						 loginMethod.getResponseBodyAsStream(),
 						 loginMethod.getRequestCharSet());
 				 char[] buf = new char[32678];
 				 StringBuilder str = new StringBuilder();

@@ -13,7 +13,7 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU General Public License along
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -77,8 +77,8 @@ public class ImportContainer
     private IObject target;
 
 	public ImportContainer(File file, Long projectID,
-			IObject target, 
-			Boolean archive, 
+			IObject target,
+			Boolean archive,
 			Double[] userPixels, String reader, String[] usedFiles, Boolean isSPW)
 	{
 		this.file = file;
@@ -90,9 +90,9 @@ public class ImportContainer
 		this.usedFiles = usedFiles;
 		this.isSPW = isSPW;
 	}
-	
+
 	// Various Getters and Setters //
-	
+
     public Integer getBfImageCount() {
 		return bfImageCount;
 	}
@@ -291,14 +291,14 @@ public class ImportContainer
 	public void setIsSPW(Boolean isSPW) {
 		this.isSPW = isSPW;
 	}
-	
+
 	/**
 	 * @return the File
 	 */
 	public File getFile() {
 		return file;
 	}
-	
+
 	/**
 	 * Package-private setter added during the 4.1 release to fix name ordering.
 	 * A better solution would be to have a copy-constructor which also takes
@@ -324,26 +324,26 @@ public class ImportContainer
     {
         this.projectID = projectID;
     }
-    	
+
 	public IObject getTarget()
 	{
 	    return target;
 	}
-	
+
 	public void setTarget(IObject obj) {
 	    this.target = obj;
 	}
-	
+
 	public Double[] getUserPixels()
 	{
         return userPixels;
     }
-	
+
     public void setUserPixels(Double[] userPixels)
     {
         this.userPixels = userPixels;
-    }   
-    
+    }
+
     public void setArchive(boolean archive)
     {
         this.archive = archive;

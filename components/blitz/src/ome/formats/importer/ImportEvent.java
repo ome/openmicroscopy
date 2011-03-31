@@ -15,7 +15,7 @@ import omero.model.Pixels;
 /**
  * Simple event base-class used by {@link IObservable} and {@link IObserver}
  * implementations.
- * 
+ *
  * @since Beta4.1
  */
 public class ImportEvent {
@@ -26,7 +26,7 @@ public class ImportEvent {
     public static final int GROUP_COLLAB_READ_LINK = 2;
     public static final int GROUP_PRIVATE = 3;
     public static final int GROUP_SYSTEM = 4;
-	
+
     public String toLog() {
         return getClass().getSimpleName();
     }
@@ -110,7 +110,7 @@ public class ImportEvent {
     public static class ERRORS_FAILED extends ImportEvent {
 
     }
-    
+
     public static class ERRORS_UPLOAD_CANCELLED extends ImportEvent {
 
     }
@@ -122,17 +122,17 @@ public class ImportEvent {
     public static class LOGGED_IN extends ImportEvent {
 
     }
-    
+
     public static class LOGGED_OUT extends ImportEvent {
-    	
+
     }
 
     public static class IMPORT_QUEUE_STARTED extends ImportEvent {
-        
+
     }
-    
+
     public static class IMPORT_QUEUE_DONE extends ImportEvent {
-        
+
     }
 
     // file-upload events
@@ -203,13 +203,13 @@ public class ImportEvent {
     public static class FILE_SIZE_STEP extends ImportEvent {
         public final long total_files;
         public final long total_files_length;
-        
+
         public FILE_SIZE_STEP(long totalFiles, long totalFileLength) {
             this.total_files = totalFiles;
             this.total_files_length = totalFileLength;
         }
     }
-    
+
     public static class DEBUG_SEND extends ImportEvent {
         public final boolean sendFiles;
         public final boolean sendLogs;
@@ -249,7 +249,7 @@ public class ImportEvent {
                 Integer total) {
             super(shortName, index, numDone, total);
         }
-        
+
         @Override
         public String toLog() {
             return String.format("%s: %s", super.toLog(), shortName);
@@ -261,7 +261,7 @@ public class ImportEvent {
                 Integer total) {
             super(shortName, index, numDone, total);
         }
-        
+
         @Override
         public String toLog() {
             return String.format("%s: %s", super.toLog(), shortName);
@@ -288,7 +288,7 @@ public class ImportEvent {
             super(index, filename, target, pixId, series, size, null, null);
         }
     }
-    
+
     public static class BEGIN_SAVE_TO_DB extends PROGRESS_EVENT {
         public BEGIN_SAVE_TO_DB(int index, String filename, IObject target,
                 Long pixId, int series, ImportSize size) {
@@ -302,7 +302,7 @@ public class ImportEvent {
             super(index, filename, target, pixId, series, size, null, null);
         }
     }
-    
+
     public static class DATASET_STORED extends PROGRESS_EVENT {
         public DATASET_STORED(int index, String filename, IObject target,
                 Long pixId, int series, ImportSize size, Integer numDone, Integer total) {
@@ -323,7 +323,7 @@ public class ImportEvent {
             super(index, filename, target, pixId, series, size, null, null);
         }
     }
-    
+
     public static class IMPORT_OVERLAYS extends PROGRESS_EVENT {
         public IMPORT_OVERLAYS(int index, String filename, IObject target,
                 Long pixId, int series, ImportSize size) {
@@ -346,7 +346,7 @@ public class ImportEvent {
             this.pixels = pixels;
         }
     }
-    
+
     //
     // Events which should be housed elsewhere
     //
@@ -354,15 +354,15 @@ public class ImportEvent {
     public static class QUICKBAR_UPDATE extends ImportEvent {
 
     }
-    
+
     public static class GROUP_SET extends ImportEvent {
-    	public final String groupName;
-    	public final int groupType;
-    	
-    	public GROUP_SET(String groupName, int groupType) {
-    		this.groupName = groupName;
-    		this.groupType = groupType;
-    	}
+	public final String groupName;
+	public final int groupType;
+
+	public GROUP_SET(String groupName, int groupType) {
+		this.groupName = groupName;
+		this.groupType = groupType;
+	}
     }
-    
+
 }

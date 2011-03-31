@@ -52,14 +52,14 @@ import org.apache.commons.logging.LogFactory;
  *
  */
 public class FileUploader implements IObservable
-{   
+{
 
     private static Log         log = LogFactory.getLog(FileUploader.class);
 
     private String[] files;
 
     private String session_id;
-    
+
     private PostMethod method = null;
 
 
@@ -71,7 +71,7 @@ public class FileUploader implements IObservable
 
     /**
      * Initialize upload with httpClient
-     * 
+     *
      * @param httpClient
      */
     public FileUploader(HttpClient httpClient)
@@ -81,7 +81,7 @@ public class FileUploader implements IObservable
 
     /**
      * Set specific sessionID
-     * 
+     *
      * @param sessionId
      */
     public void setSessionId(String sessionId)
@@ -103,36 +103,36 @@ public class FileUploader implements IObservable
     {
         return this.session_id;
     }
-    
+
     /**
      * Upload files from error container to url
-     * 
+     *
      * @param url - url to send to
-     * @param timeout - timeout 
+     * @param timeout - timeout
      * @param upload - error container with files in it
      */
     public void uploadFiles(String url, int timeout, ErrorContainer upload)
     {
         if (client == null)
             client = new HttpClient();
-        
+
         this.files = upload.getFiles();
         setSessionId(upload.getToken());
 
         int fileCount = 0;
-        
+
         for (String f : files)
-        {                 
+        {
             if (cancelUpload)
             {
                 System.err.println(cancelUpload);
                 continue;
             }
-            
+
             fileCount++;
             final int count = fileCount;
             final File file = new File(f);
-           
+
             try {
                 HttpClientParams params = new HttpClientParams();
                 params.setConnectionManagerTimeout(timeout);
@@ -141,24 +141,24 @@ public class FileUploader implements IObservable
                 method = new PostMethod(url);
 
                 String format = "";
-                
+
                 if (upload.getFileFormat() != null)
                     format = upload.getFileFormat();
                 else
                     format = "unknown";
-                    
-                
+
+
                 final ErrorFilePart errorFilePart = new ErrorFilePart("Filedata", file);
-                
-                Part[] parts ={ 
-                        new StringPart("token", upload.getToken()), 
-                        new StringPart("file_format", format), 
-                        errorFilePart 
+
+                Part[] parts ={
+                        new StringPart("token", upload.getToken()),
+                        new StringPart("file_format", format),
+                        errorFilePart
                         };
-                
+
                 final long fileLength = file.length();
 
-                MultipartRequestEntity mpre = 
+                MultipartRequestEntity mpre =
                     new MultipartRequestEntity(parts, method.getParams());
 
                 ProgressListener listener = new ProgressListener(){
@@ -169,14 +169,14 @@ public class FileUploader implements IObservable
                      * @see ome.formats.importer.util.FileUploadCounter.ProgressListener#update(long)
                      */
                     public void update(long bytesRead)
-                    {   
-                    	
-                    	if (cancelUpload) errorFilePart.cancel = true;
-                    	
+                    {
+
+			if (cancelUpload) errorFilePart.cancel = true;
+
                         long partsDone = 0;
                         long parts = (long) Math.ceil(fileLength / 10.0f);
                         if (fileLength != 0) partsDone = bytesRead / parts;
-                                                
+
                         if (partsTotal == partsDone) {
                             return;
                         }
@@ -206,11 +206,11 @@ public class FileUploader implements IObservable
 
                 int status = client.executeMethod(method);
 
-                if (status == HttpStatus.SC_OK) {   
-                    
+                if (status == HttpStatus.SC_OK) {
+
                     notifyObservers(new ImportEvent.FILE_UPLOAD_COMPLETE(
                             file.getName(), count, files.length, null, null, null));
-                    log.info("Uploaded file '" + file.getName() + "' to QA system"); 
+                    log.info("Uploaded file '" + file.getName() + "' to QA system");
                     upload.setStatus(1);
 
                 } else {
@@ -225,12 +225,12 @@ public class FileUploader implements IObservable
 
         notifyObservers(new ImportEvent.FILE_UPLOAD_FINISHED(
                 null, 0, 0, null, null, null));
-        
+
     }
 
     // Observable methods
-    
-    
+
+
     /* (non-Javadoc)
      * @see ome.formats.importer.IObservable#addObserver(ome.formats.importer.IObserver)
      */
@@ -269,9 +269,9 @@ public class FileUploader implements IObservable
 
     /**
      * Main for testing (debugging only)
-     * 
+     *
      * @param args
-     * @throws Exception 
+     * @throws Exception
      */
     public static void main(String[] args)
     {
@@ -280,7 +280,7 @@ public class FileUploader implements IObservable
         String dvPath = "/Users/TheBrain/test_images_shortrun/dv/";
         String[] files = {dvPath + "CFPNEAT01_R3D.dv", dvPath + "IAGFP-Noc01_R3D.dv"};
 
-        
+
         FileUploader uploader = new FileUploader(new HttpClient());
         ErrorContainer upload = new ErrorContainer();
         upload.setFiles(files);

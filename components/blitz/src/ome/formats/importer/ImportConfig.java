@@ -38,7 +38,7 @@ import org.apache.log4j.Logger;
 
 /**
  * Utility class which configures the Import.
- * 
+ *
  * @since Beta4.1
  */
 public class ImportConfig {
@@ -159,7 +159,7 @@ public class ImportConfig {
      * with user preferences, a local {@link PreferenceContext}, an
      * {@link IniFileLoader} initialized with the given argument, and
      * {@link System#getProperties()}.
-     * 
+     *
      * @param configFile
      *            Can be null.
      */
@@ -170,7 +170,7 @@ public class ImportConfig {
 
     /**
      * Complete constructor. All values can be null.
-     * 
+     *
      * @param prefs
      * @param ctx
      * @param ini
@@ -184,11 +184,11 @@ public class ImportConfig {
         this.ini = ini;
 
         // Various startup requirements
-        
+
         ResourceBundle bundle = ResourceBundle.getBundle("omero");
         omeroVersion = bundle.getString("omero.version");
         log.info("OMERO Version: " + omeroVersion);
-        
+
         if (ini != null) {
             ini.updateFlexReaderServerMaps();
         }
@@ -210,7 +210,7 @@ public class ImportConfig {
                 }
             }
         };
-        
+
         sessionKey   = new StrValue("session", this);
         group		 = new LongValue("group", this, 0L);
         doThumbnails = new BoolValue("doThumbnails", this, true);
@@ -289,7 +289,7 @@ public class ImportConfig {
 
     /**
      * Confirm all information for login is supplied
-     * 
+     *
      * @return true if all is ok
      */
     public boolean canLogin() {
@@ -317,12 +317,12 @@ public class ImportConfig {
     public String getHomeUrl() {
         return ini.getHomeUrl();
     }
-    
+
     /**
      * @return ini forum URL
      */
     public String getForumUrl() {
-    	return ini.getForumUrl();
+	return ini.getForumUrl();
     }
 
     /**
@@ -340,16 +340,16 @@ public class ImportConfig {
     }
 
     public void setVersionNumber(String s) {
-    	this.omeroVersion = s;
+	this.omeroVersion = s;
     }
-    
+
     /**
      * @return ini version number
      */
     public String getIniVersionNumber() {
-    	return ini.getVersionNumber();
+	return ini.getVersionNumber();
     }
-    
+
     /**
      * @return ini user settings directory
      */
@@ -387,7 +387,7 @@ public class ImportConfig {
     {
         return ini.getDebugLevel();
     }
-    
+
     /**
      * @return UI bounds for application window
      */
@@ -428,21 +428,21 @@ public class ImportConfig {
      */
     public boolean getUserFullPath() {
         return ini.getUserFullPath();
-    }    
+    }
 
     /**
      * @return ini user full path
      */
     public void setUserFullPath(boolean b) {
         ini.setUserFullPath(b);
-    }  
+    }
 
     /**
      * @return ini user full path
      */
     public boolean getCustomImageNaming() {
         return ini.getCustomImageNaming();
-    }    
+    }
 
     /**
      * @return ini user full path
@@ -456,7 +456,7 @@ public class ImportConfig {
      */
     public int getNumOfDirectories() {
         return ini.getNumOfDirectories();
-    }    
+    }
 
     /**
      * @return ini user full path
@@ -464,7 +464,7 @@ public class ImportConfig {
     public void setNumOfDirectories(int i) {
         ini.setNumOfDirectories(i);
     }
-    
+
     //
     // Server list
     //
@@ -538,7 +538,7 @@ public class ImportConfig {
 
     /**
      * Build prompt
-     * 
+     *
      * @param value
      * @param prompt
      * @param hide - use *s for characters
@@ -564,7 +564,7 @@ public class ImportConfig {
                 }
                 value.set(value.fromString(input));
             } catch (IOException e) {
-            	log.error("IGNORING: ", e);
+		log.error("IGNORING: ", e);
                 continue;
             }
         }
@@ -606,7 +606,7 @@ public class ImportConfig {
         return rv;
     }
 
-    
+
     /**
      * Loads gui specific values for which it makes sense to have a preferences values.
      *
@@ -626,7 +626,7 @@ public class ImportConfig {
           email.store();
           archiveImage.store();
      }
-     
+
     /**
      * Loads all the values for which it makes sense to have a preferences values.
      *
@@ -647,7 +647,7 @@ public class ImportConfig {
         numOfDirectories.load();
         savedDirectory.load();
         companionFile.load();
-        
+
         sendLogFile.load();
         sendFiles.load();
         sendReport.load();
@@ -655,7 +655,7 @@ public class ImportConfig {
         port.load();
     }
 
-   
+
     /**
      * @see #loadAll()
      */
@@ -675,7 +675,7 @@ public class ImportConfig {
         numOfDirectories.store();
         savedDirectory.store();
         companionFile.store();
-        
+
         sendLogFile.store();
         sendFiles.store();
         sendReport.store();
@@ -692,7 +692,7 @@ public class ImportConfig {
     /**
      * Container which thread-safely makes a generic configuration value
      * available, without requiring getters and setters.
-     * 
+     *
      * @param <T>
      */
     public static abstract class Value<T> {
@@ -790,7 +790,7 @@ public class ImportConfig {
          * default value.
          */
         public synchronized void load() {
-        	
+
             if (empty() && props != null) {
                 set(fromString(props.getProperty(key)));
                 if (!empty()) {
@@ -799,7 +799,7 @@ public class ImportConfig {
                     return;
                 }
             }
-        	
+
             if (empty() && prefs != null) {
                 set(fromString(prefs.get(key, "")));
                 if (!empty()) {
@@ -808,7 +808,7 @@ public class ImportConfig {
                     return;
                 }
             }
-            
+
             if (empty() && ini != null) {
                 // set(fromString((ini.getProperty(key));
                 log.debug("Loaded " + key + " from " + ini);
@@ -857,7 +857,7 @@ public class ImportConfig {
 
     public static class AnnotationListValue extends Value<List<Annotation>> {
 
-        public AnnotationListValue(String key, ImportConfig config, 
+        public AnnotationListValue(String key, ImportConfig config,
                                    List<Annotation> defValue) {
             super(key, config, defValue);
         }
@@ -870,7 +870,7 @@ public class ImportConfig {
 
     public static class DoubleArrayValue extends Value<Double[]> {
 
-        public DoubleArrayValue(String key, ImportConfig config, 
+        public DoubleArrayValue(String key, ImportConfig config,
                                 Double[] defValue) {
             super(key, config, defValue);
         }
