@@ -13,7 +13,7 @@ import java.io.IOException;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
-import ome.io.nio.PixelData;
+import ome.util.PixelData;
 import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
 import ome.server.itests.AbstractManagedContextTest;
@@ -75,7 +75,7 @@ public class PlaneReadUnitTest extends AbstractManagedContextTest {
     }
 
     private void createPlanes() throws IOException {
-        int byteWidth = PixelsService.getBitDepth(pixels.getPixelsType()) / 8;
+        int byteWidth = PixelData.getBitDepth(pixels.getPixelsType().getValue()) / 8;
         planeCount = pixels.getSizeZ() * pixels.getSizeC() * pixels.getSizeT();
         planeSize = pixels.getSizeX() * pixels.getSizeY() * byteWidth;
         path = new PixelsService(ROOT).getPixelsPath(pixels.getId());

@@ -9,7 +9,7 @@ import java.security.NoSuchAlgorithmException;
 
 import ome.conditions.ResourceError;
 import ome.io.nio.DeltaVision;
-import ome.io.nio.PixelData;
+import ome.util.PixelData;
 import ome.model.core.OriginalFile;
 
 import org.apache.commons.logging.Log;

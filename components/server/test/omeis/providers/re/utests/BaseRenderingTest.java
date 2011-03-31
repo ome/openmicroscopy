@@ -9,7 +9,7 @@ import org.testng.annotations.BeforeClass;
 import ome.api.IPixels;
 import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
-import ome.io.nio.PixelData;
+import ome.util.PixelData;
 import ome.logic.RenderingSettingsImpl;
 import ome.model.core.Channel;
 import ome.model.core.Pixels;
@@ -57,7 +57,7 @@ public class BaseRenderingTest extends TestCase
 		PixelsType pixelsType = getPixelsType();
 		
 		byte[] plane = getPlane();
-		data = new PixelData(pixelsType, ByteBuffer.wrap(plane));
+		data = new PixelData(pixelsType.getValue(), ByteBuffer.wrap(plane));
 
 		pixels = createDummyPixels(pixelsType, data);
 		pixelsService = new TestPixelsService();

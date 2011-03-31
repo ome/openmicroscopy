@@ -25,7 +25,7 @@ import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
-import ome.io.nio.PixelData;
+import ome.util.PixelData;
 import ome.model.enums.PixelsType;
 
 import org.apache.commons.logging.Log;
@@ -73,7 +73,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         PixelData d;
         byte[] buffer = new byte[reader.getColSize()];
         reader.getCol(x,z,c,t,buffer);
-        d = new PixelData(reader.getPixelsType(), ByteBuffer.wrap(buffer));
+        d = new PixelData(reader.getPixelsType().getValue(), ByteBuffer.wrap(buffer));
         return d;
     }
 
@@ -105,7 +105,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         PixelData d;
         byte[] buffer = new byte[reader.getPlaneSize()];
         reader.getPlane(z,c,t,buffer);
-        d = new PixelData(reader.getPixelsType(), ByteBuffer.wrap(buffer));
+        d = new PixelData(reader.getPixelsType().getValue(), ByteBuffer.wrap(buffer));
         return d;
     }
 
@@ -152,7 +152,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         PixelData d;
         byte[] buffer = new byte[reader.getRowSize()];
         reader.getRow(y,z,c,t,buffer);
-        d = new PixelData(reader.getPixelsType(), ByteBuffer.wrap(buffer));
+        d = new PixelData(reader.getPixelsType().getValue(), ByteBuffer.wrap(buffer));
         return d;
     }
 
@@ -201,7 +201,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         PixelData d;
         byte[] buffer = new byte[reader.getColSize()];
         reader.getStack(c,t,buffer);
-        d = new PixelData(reader.getPixelsType(), ByteBuffer.wrap(buffer));
+        d = new PixelData(reader.getPixelsType().getValue(), ByteBuffer.wrap(buffer));
         return d;
     }
 
@@ -230,7 +230,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         PixelData d;
         byte[] buffer = new byte[reader.getTimepointSize()];
         reader.getTimepoint(t,buffer);
-        d = new PixelData(reader.getPixelsType(), ByteBuffer.wrap(buffer));
+        d = new PixelData(reader.getPixelsType().getValue(), ByteBuffer.wrap(buffer));
         return d;
     }
 
@@ -324,7 +324,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         PixelData d;
         byte[] buffer = new byte[reader.getCubeSize(offset,size,step)];
         reader.getHypercube(offset,size,step,buffer);
-        d = new PixelData(reader.getPixelsType(), ByteBuffer.wrap(buffer));
+        d = new PixelData(reader.getPixelsType().getValue(), ByteBuffer.wrap(buffer));
         return d;
     }
 

@@ -16,6 +16,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import ome.model.core.Pixels;
+import ome.util.PixelData;
 
 /**
  * Class implementation of the PixelBuffer interface for in memory planar pixel
@@ -109,7 +110,7 @@ public class InMemoryPlanarPixelBuffer implements PixelBuffer
 
     public int getByteWidth()
     {
-        return PixelsService.getBitDepth(pixels.getPixelsType()) / 8;
+        return PixelData.getBitDepth(pixels.getPixelsType().getValue()) / 8;
     }
 
     public long getId()
@@ -141,7 +142,7 @@ public class InMemoryPlanarPixelBuffer implements PixelBuffer
             throws IOException, DimensionsOutOfBoundsException
     {
         ByteBuffer buf = ByteBuffer.wrap(planes[z][c][t]);
-        return new PixelData(pixels.getPixelsType(), buf);
+        return new PixelData(pixels.getPixelsType().getValue(), buf);
     }
 
     public byte[] getPlaneDirect(Integer z, Integer c, Integer t, byte[] buffer)
@@ -327,14 +328,14 @@ public class InMemoryPlanarPixelBuffer implements PixelBuffer
     public boolean isFloat()
     {
         MappedByteBuffer b = null;
-        PixelData d = new PixelData(pixels.getPixelsType(), b);
+        PixelData d = new PixelData(pixels.getPixelsType().getValue(), b);
         return d.isFloat();
     }
 
     public boolean isSigned()
     {
         MappedByteBuffer b = null;
-        PixelData d = new PixelData(pixels.getPixelsType(), b);
+        PixelData d = new PixelData(pixels.getPixelsType().getValue(), b);
         return d.isSigned();
     }
 

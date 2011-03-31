@@ -11,7 +11,7 @@ import java.io.IOException;
 
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
-import ome.io.nio.PixelData;
+import ome.util.PixelData;
 import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
 import ome.server.itests.AbstractManagedContextTest;

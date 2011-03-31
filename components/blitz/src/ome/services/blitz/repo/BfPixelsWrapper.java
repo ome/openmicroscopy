@@ -24,7 +24,7 @@ import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
-import ome.io.nio.PixelData;
+import ome.util.PixelData;
 import ome.model.enums.PixelsType;
 
 import org.apache.commons.logging.Log;

@@ -25,11 +25,11 @@ import org.apache.commons.logging.LogFactory;
 // Application-internal dependencies
 import ome.conditions.ResourceError;
 import ome.io.nio.PixelBuffer;
-import ome.io.nio.PixelData;
 import ome.model.core.Pixels;
 import ome.model.display.ChannelBinding;
 import ome.model.display.QuantumDef;
 import ome.model.enums.PixelsType;
+import ome.util.PixelData;
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.PlaneFactory;
 import omeis.providers.re.data.Plane2D;
@@ -110,12 +110,10 @@ class HSBStrategy extends RenderingStrategy {
         	Map<byte[], Integer> overlays = renderer.getOverlays();
         	if (overlays != null)
         	{
-        		PixelsType bitType = new PixelsType();
-        		bitType.setValue(PlaneFactory.BIT);
         		for (byte[] overlay : overlays.keySet())
         		{
-        			PixelData data =
-        				new PixelData(bitType, ByteBuffer.wrap(overlay));
+				ome.util.PixelData data =
+					new PixelData(PlaneFactory.BIT, ByteBuffer.wrap(overlay));
         			wData.add(new Plane2D(pDef, metadata, data));
         		}
         	}

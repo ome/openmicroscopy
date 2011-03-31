@@ -7,7 +7,7 @@ import java.util.List;
 
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
-import ome.io.nio.PixelData;
+import ome.util.PixelData;
 import ome.model.enums.PixelsType;
 
 public class TestPixelBuffer implements PixelBuffer {
@@ -68,7 +68,7 @@ public class TestPixelBuffer implements PixelBuffer {
 	public PixelData getPlane(Integer arg0, Integer arg1, Integer arg2)
 			throws IOException, DimensionsOutOfBoundsException
 	{
-		return new PixelData(pixelsType, ByteBuffer.wrap(dummyPlane));
+		return new PixelData(pixelsType.getValue(), ByteBuffer.wrap(dummyPlane));
 	}
 
 	public byte[] getPlaneDirect(Integer arg0, Integer arg1, Integer arg2,

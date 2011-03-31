@@ -12,6 +12,8 @@ import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.util.List;
 
+import ome.util.PixelData;
+
 /**
  * 
  * This interface declares the I/O responsibilities of a buffer, file or

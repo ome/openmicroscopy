@@ -11,7 +11,7 @@ import java.nio.ByteOrder;
 import java.nio.ByteBuffer;
 
 import ome.conditions.ApiUsageException;
-import ome.model.enums.PixelsType;
+import ome.util.PixelData;
 
 /**
  * Represents a block of pixel data that needs to be re-ordered in accordance 
@@ -33,11 +33,11 @@ public class ReorderedPixelData extends PixelData
 	/**
 	 * Default constructor.
 	 * 
-	 * @param pixelsType The pixels type.
+	 * @param pixelsType The OME pixels type.
 	 * @param data The raw pixel data.
 	 * @param rowSize The size of each pixels row in bytes.
 	 */
-	public ReorderedPixelData(PixelsType pixelsType, ByteBuffer data,
+	public ReorderedPixelData(String pixelsType, ByteBuffer data,
 			                  int rowSize)
 	{
 		super(pixelsType, data);

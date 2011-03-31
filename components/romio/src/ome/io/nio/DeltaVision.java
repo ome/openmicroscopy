@@ -23,6 +23,7 @@ import java.util.List;
 import ome.conditions.ApiUsageException;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.model.core.OriginalFile;
+import ome.util.PixelData;
 
 /**
  * Class implementation of the PixelBuffer interface for a DeltaVision specific
@@ -216,7 +217,7 @@ public class DeltaVision implements PixelBuffer {
 		ByteBuffer buf = fileChannel.map(MapMode.READ_ONLY, offset, size);
 		if (!header.isNative())
 			buf.order(ByteOrder.LITTLE_ENDIAN);
-		return new PixelData(header.getOmeroPixelType(), buf);
+		return new PixelData(header.getOmeroPixelType().getValue(), buf);
 	}
 	
 	/* (non-Javadoc)

@@ -25,7 +25,7 @@ import ome.conditions.ValidationException;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
-import ome.io.nio.PixelData;
+import ome.util.PixelData;
 import ome.io.nio.PixelsService;
 import ome.logic.AbstractLevel2Service;
 import ome.model.core.Channel;
@@ -114,7 +114,7 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
                 ctx.planeSizeInPixels * (iPixels.getBitDepth(pixelsType) / 8);
             byte[] buf = new byte[planeSize];
             ctx.from = pixelBuffer.getStack(channelIndex, timepoint);
-            ctx.to = new PixelData(pixelsType, ByteBuffer.wrap(buf));
+            ctx.to = new PixelData(pixelsType.getValue(), ByteBuffer.wrap(buf));
 
             switch (algorithm)
             {
@@ -219,7 +219,7 @@ public class ProjectionBean extends AbstractLevel2Service implements IProjection
         int planeSize = 
             ctx.planeSizeInPixels * (iPixels.getBitDepth(pixelsType) / 8);
         byte[] buf = new byte[planeSize];
-        ctx.to = new PixelData(pixelsType, ByteBuffer.wrap(buf));
+        ctx.to = new PixelData(pixelsType.getValue(), ByteBuffer.wrap(buf));
         int newC = 0;
         try
         {

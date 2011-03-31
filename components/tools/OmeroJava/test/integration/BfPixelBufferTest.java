@@ -19,7 +19,7 @@ import junit.framework.TestCase;
 import ome.io.nio.AbstractFileSystemService;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.OriginalFileMetadataProvider;
-import ome.io.nio.PixelData;
+import ome.util.PixelData;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.io.nio.RomioPixelBuffer;
