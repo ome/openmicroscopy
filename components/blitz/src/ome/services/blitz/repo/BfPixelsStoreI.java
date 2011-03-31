@@ -18,7 +18,6 @@ import loci.formats.FormatException;
 import loci.formats.ImageReader;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.OMEROWrapper;
-import ome.formats.importer.Plane2D;
 import omero.ServerError;
 import omero.api.AMD_RawPixelsStore_calculateMessageDigest;
 import omero.api.AMD_RawPixelsStore_getByteWidth;

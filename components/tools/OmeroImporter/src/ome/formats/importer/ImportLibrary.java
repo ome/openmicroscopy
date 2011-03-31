@@ -39,6 +39,7 @@ import ome.formats.OMEROMetadataStoreClient;
 import ome.formats.OverlayMetadataStore;
 import ome.formats.importer.util.ErrorHandler;
 import ome.formats.model.InstanceProvider;
+import ome.util.PixelData;
 import omero.ServerError;
 import omero.api.ServiceFactoryPrx;
 import omero.model.Annotation;
@@ -802,7 +803,7 @@ public class ImportLibrary implements IObservable
                         planeNumber, pixelsToRead, arrayBufSize, offset,
                         width, height, posY));
             }
-            Plane2D data = reader.openPlane2D(
+            PixelData data = reader.openPlane2D(
                     fileName, planeNumber, arrayBuf, 0, posY,
                     width, height);
             ByteBuffer buf = data.getData();
@@ -857,7 +858,7 @@ public class ImportLibrary implements IObservable
             arrayBuf = new byte[bytesToRead];
         }
         int planeNumber = reader.getIndex(z, c, t);
-        Plane2D data = reader.openPlane2D(fileName, planeNumber, arrayBuf);
+        PixelData data = reader.openPlane2D(fileName, planeNumber, arrayBuf);
         ByteBuffer buf = data.getData();
         arrayBuf = swapIfRequired(buf, fileName);
         try

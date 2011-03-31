@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
@@ -45,6 +46,7 @@ import loci.formats.in.MetadataLevel;
 import loci.formats.in.MetadataOptions;
 import loci.formats.in.ZipReader;
 import loci.formats.meta.MetadataStore;
+import ome.util.PixelData;
 import omero.model.Channel;
 import omero.model.Pixels;
 
@@ -140,7 +142,7 @@ public class OMEROWrapper extends MinMaxCalculator {
      * @throws IOException If there is an error reading from the file or
      * acquiring permissions to read the file.
      */
-    public Plane2D openPlane2D(String id, int planeNumber, byte[] buf)
+    public PixelData openPlane2D(String id, int planeNumber, byte[] buf)
             throws FormatException, IOException
     {
         return openPlane2D(id, planeNumber, buf, 0, 0, getSizeX(), getSizeY());
@@ -162,7 +164,7 @@ public class OMEROWrapper extends MinMaxCalculator {
      * @throws IOException If there is an error reading from the file or
      * acquiring permissions to read the file.
      */
-    public Plane2D openPlane2D(String id, int planeNumber, byte[] buf,
+    public PixelData openPlane2D(String id, int planeNumber, byte[] buf,
                                int x, int y, int w, int h)
             throws FormatException, IOException
     {
@@ -179,8 +181,10 @@ public class OMEROWrapper extends MinMaxCalculator {
             // System.err.println("Not RGB, using cached buffer.");
             plane = ByteBuffer.wrap(openBytes(planeNumber, buf, x, y, w, h));
         }
-        return new Plane2D(plane, getPixelType(), isLittleEndian(), getSizeX(),
-                getSizeY());
+        plane.order(isLittleEndian()? ByteOrder.LITTLE_ENDIAN
+                : ByteOrder.BIG_ENDIAN);
+        return new PixelData(
+                FormatTools.getPixelTypeString(getPixelType()), plane);
     }
 
     /**
