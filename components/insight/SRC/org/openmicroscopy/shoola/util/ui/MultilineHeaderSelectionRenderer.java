@@ -79,6 +79,9 @@ public class MultilineHeaderSelectionRenderer
 	/** Flag indicating that the listeners have been installed. */
 	private boolean initListener;
 	
+	/** The table of reference if set. */
+	private JTable table;
+	
 	/**
 	 * Handles the mouse clicked event. 
 	 * 
@@ -87,25 +90,29 @@ public class MultilineHeaderSelectionRenderer
 	private void handleClickEvent(MouseEvent event)
 	{  
 		if (!mousePressed) return;
-		mousePressed = false;  
-		JTableHeader header = (JTableHeader) (event.getSource());  
-		JTable tableView = header.getTable();  
-		TableColumnModel columnModel = tableView.getColumnModel();  
-		int vc = columnModel.getColumnIndexAtX(event.getX());  
-		int c = tableView.convertColumnIndexToModel(vc);  
-		if (vc == this.column && event.getClickCount() == 1 && c != -1) 
-			box.doClick();  
+		mousePressed = false;
+		JTableHeader header = (JTableHeader) (event.getSource());
+		if (header == null) return;
+		if (table == null) table =  header.getTable();
+		if (table == null) return;
+		TableColumnModel columnModel = table.getColumnModel();
+		int vc = columnModel.getColumnIndexAtX(event.getX());
+		int c = table.convertColumnIndexToModel(vc);
+		if (vc == this.column && event.getClickCount() == 1 && c != -1)
+			box.doClick();
 		header.repaint();
 	} 
 	
 	/** 
 	 * Creates a new instance. 
 	 * 
+	 * @param table The table of reference if set.
 	 * @param box The check box to handle.
 	 */
-	public MultilineHeaderSelectionRenderer(JCheckBox box)
+	public MultilineHeaderSelectionRenderer(JTable table, JCheckBox box)
 	{
-	    setOpaque(true);
+		this.table = table;
+		setOpaque(true);
 	    setForeground(UIManager.getColor("TableHeader.foreground"));
 	    JLabel l = new JLabel();
 	    setBackground(l.getBackground());
@@ -124,14 +131,25 @@ public class MultilineHeaderSelectionRenderer
 		}
 	}
 	
+	/** 
+	 * Creates a new instance. 
+	 * 
+	 * @param box The check box to handle.
+	 */
+	public MultilineHeaderSelectionRenderer(JCheckBox box)
+	{
+	    this(null, box);
+	}
+	
 	/**
 	 * Adds listener and format the text of the table header.
 	 * @see TableCellRenderer#getTableCellRendererComponent(JTable, Object, 
 	 * boolean, boolean, int, int)
 	 */
-	public Component getTableCellRendererComponent(JTable table, Object value,
+	public Component getTableCellRendererComponent(JTable t, Object value,
             boolean isSelected, boolean hasFocus, int row, int column)
 	{
+		if (table == null) table = t;
 		if (table != null && !initListener && box != null) {
 			JTableHeader header = table.getTableHeader();
 			if (header != null) {

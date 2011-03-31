@@ -40,7 +40,6 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.ListSelectionModel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
@@ -259,12 +258,12 @@ class FileSelectionTable
 			tc = tcm.getColumn(FOLDER_AS_CONTAINER_INDEX);
 			tc.setCellRenderer(new FileTableRenderer());
 			tc.setHeaderRenderer(
-					new MultilineHeaderSelectionRenderer(fadBox));
+					new MultilineHeaderSelectionRenderer(table, fadBox));
 			tcm.getColumn(ARCHIVED_INDEX).setHeaderRenderer(
-					new MultilineHeaderSelectionRenderer(archivedBox));
+					new MultilineHeaderSelectionRenderer(table, archivedBox));
 		} else {
 			tcm.getColumn(FOLDER_AS_CONTAINER_INDEX).setHeaderRenderer(
-					new MultilineHeaderSelectionRenderer(archivedBox));
+					new MultilineHeaderSelectionRenderer(table, archivedBox));
 		}
 		String text = CONTAINER_PROJECT_TEXT;
 		if (model.getType() == Importer.SCREEN_TYPE)
