@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
-import picking.Picker;
 import processing.core.PApplet;
 import traer.physics.Attraction;
 import traer.physics.Particle;
@@ -89,7 +88,7 @@ public class NetworkGraph
 	ParticleSystem physics;
 	
 	/** The picker system. */
-	Picker picker;
+	//Picker picker;
 	
 	/** Has an object been picked. */
 	boolean picked;
@@ -137,7 +136,7 @@ public class NetworkGraph
 		pickedId = -1;
 		madeFixed = new HashSet<Integer>();
 		nodeMap = new HashMap<Particle, GraphNode>();
-		picker=new Picker(parent);
+		//picker=new Picker(parent);
 		picked = false;
 		p = null;
 		initPhysics();
@@ -196,7 +195,7 @@ public class NetworkGraph
 	  for ( int i = 0; i < physics.numberOfParticles(); ++i )
 	  {
 	    Particle v = physics.getParticle( i );
-	    picker.start(i);
+	    //picker.start(i);
 	    
 	    if(i==pickedId)
 	    {
@@ -214,7 +213,7 @@ public class NetworkGraph
 	    }
 	    GraphNode node = nodeMap.get(v);
 	    node.render(parent, v.position().x(), v.position().y());
-	    picker.stop();
+	    //picker.stop();
 	  }
 
 	  // draw edges 
@@ -369,7 +368,7 @@ public class NetworkGraph
 	public void mousePressed(float mouseX, float mouseY)
 	{
 			
-		 int id = picker.get((int)mouseX, (int)mouseY);
+		 int id = -1;//picker.get((int)mouseX, (int)mouseY);
 		 System.err.println(id);
 		  if(id<0)
 			  return;

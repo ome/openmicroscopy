@@ -304,3 +304,19 @@
   Project: JavaBeans Activation Framework (JAF).
   Web Site: http://java.sun.com/javase/technologies/desktop/javabeans/jaf/index.jsp
   License: Common Development and Distribution License (CDDL) v1.0
+  
+  Project: TRAER.PHYSICS 3.0
+  Artifacts: The physics.jar file under LIB/
+  License: Use this code for whatever you want, just send me a link jeff@traer.cc
+  License File: Public Domain.
+     
+  Project: giCentreUtils
+  Artifacts: The gicentreUtils.jar file under LIB/
+  License: GNU Lesser GPL
+  License File: lgpl.txt
+  
+  Project: AI Path
+  Artifacts: The ai_path.jar file under LIB/
+  License: GNU Lesser GPL
+  License File: lgpl.txt
+  

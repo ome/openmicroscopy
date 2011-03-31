@@ -30,7 +30,6 @@ import java.util.Set;
 //Third-party libraries
 import traer.physics.*;
 import processing.core.PApplet;
-import picking.Picker;
 
 //Application-internal dependencies
 
@@ -78,7 +77,7 @@ public class RandomGraph
 	ParticleSystem physics;
 	
 	/** The picker. */
-	Picker picker;
+	//Picker picker;
 	
 	/** The scale of the zooming level. */
 	float scale = 1;
@@ -128,7 +127,7 @@ public class RandomGraph
 		ellipseMode( CENTER );       
 	  
 		physics = new ParticleSystem(0, 0.1f );
-		picker = new Picker(this);
+		//picker = new Picker(this);
 		  
 		initialize();
 	}
@@ -175,7 +174,7 @@ public class RandomGraph
 	  for ( int i = 0; i < physics.numberOfParticles(); ++i )
 	  {
 	    Particle v = physics.getParticle( i );
-	    picker.start(i);
+	    //picker.start(i);
 	    
 	    if(i==pickedId)
 	    {
@@ -192,7 +191,7 @@ public class RandomGraph
 	    	fill(otherNodesColour);
 	    }
 	    ellipse( v.position().x(), v.position().y(), NODE_SIZE, NODE_SIZE );
-		 picker.stop();
+		// picker.stop();
 	  }
 
 	  // draw edges 
@@ -202,7 +201,7 @@ public class RandomGraph
 	    Spring e = physics.getSpring( i );
 	    Particle a = e.getOneEnd();
 	    Particle b = e.getTheOtherEnd();
-	    picker.start(physics.numberOfParticles()+i);
+	    //picker.start(physics.numberOfParticles()+i);
 	    //beginShape( LINES );
 	    
 
@@ -212,7 +211,7 @@ public class RandomGraph
 		 //   vertex( a.position().x(), a.position().y() );
 		 //   vertex( b.position().x(), b.position().y() );
 		//endShape();
-		picker.stop();
+		//picker.stop();
 	  }
 	  
 	}
@@ -239,7 +238,7 @@ public class RandomGraph
 	public void mousePressed()
 	{
 			
-		 int id = picker.get(mouseX, mouseY);
+		 int id = -1;//picker.get(mouseX, mouseY);
 		 System.err.println(id);
 		  if(id<0)
 			  return;
