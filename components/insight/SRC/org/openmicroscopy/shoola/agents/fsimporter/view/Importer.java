@@ -181,6 +181,13 @@ public interface Importer
 	 * selected by user.
 	 */
 	public void close();
+
+	/**
+	 * Displays the specified import.
+	 * 
+	 * @param importID The import identifier.
+	 */
+	public void displayImport(int importID);
 	
 
 }

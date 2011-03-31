@@ -54,11 +54,12 @@ import javax.swing.border.LineBorder;
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
+import org.jdesktop.swingx.JXBusyLabel;
 
 //Application-internal dependencies
-import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.agents.events.importer.BrowseContainer;
 import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
+import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
@@ -89,7 +90,7 @@ import pojos.TagAnnotationData;
 class ImporterUIElement 
 	extends ClosableTabbedPaneComponent
 {
-
+	
 	/** Description of the component. */
 	private static final String DESCRIPTION = 
 		"Closing will cancel imports that have not yet started.";
@@ -99,6 +100,14 @@ class ImporterUIElement
 	
 	/** The default size of the icon. */
 	private static final Dimension ICON_SIZE = new Dimension(16, 16);
+	
+	/** Icon used when the import is completed. */
+	private static final Icon IMPORT_COMPLETED;
+	
+	static {
+		IconManager icons = IconManager.getInstance();
+		IMPORT_COMPLETED = icons.getIcon(IconManager.APPLY);
+	}
 	
 	/** The object hosting information about files to import. */
 	private ImportableObject object;
@@ -903,11 +912,15 @@ class ImporterUIElement
 	}
 	
 	/**
-	 * Returns the icon indicating the busy status.
+	 * Returns the icon indicating the status of the import.
 	 * 
 	 * @return See above.
 	 */
-	Icon getBusyIcon() { return busyLabel.getIcon(); }
+	Icon getImportIcon()
+	{ 
+		if (isDone()) return IMPORT_COMPLETED;
+		return busyLabel.getIcon(); 
+	}
 	
 	/** Invokes when the import is finished. */
 	void onImportEnded() { busyLabel.setBusy(false); }

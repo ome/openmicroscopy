@@ -28,6 +28,7 @@ import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -115,11 +116,18 @@ class ImporterControl
 	 */
 	private void createWindowsMenuItems(JMenu menu)
 	{
-		/*
 		menu.removeAll();
-		Importer viewer = ImporterFactory.getImporter();
-		menu.add(new JMenuItem(new ActivateAction(viewer)));
-		*/
+		Collection<ImporterUIElement> elements = view.getImportElements();
+		if (elements == null || elements.size() == 0) return;
+		Iterator<ImporterUIElement> i = elements.iterator();
+		ImporterUIElement e;
+		ActivateAction a;
+		while (i.hasNext()) {
+			e = i.next();
+			a = new ActivateAction(model, e.getName(), e.getImportIcon(),
+					e.getID());
+			menu.add(new JMenuItem(a));
+		}
 	}
 	
 	/** Attaches listener to the window listener. */

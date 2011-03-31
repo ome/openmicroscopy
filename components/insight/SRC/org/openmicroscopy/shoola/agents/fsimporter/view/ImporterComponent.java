@@ -24,6 +24,7 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 
 
 //Java imports
+import java.awt.Frame;
 import java.io.File;
 import java.util.Collection;
 import java.util.Iterator;
@@ -43,7 +44,6 @@ import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.ui.UserNotifier;
 import org.openmicroscopy.shoola.util.ui.MessageBox;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.component.AbstractComponent;
 
 /** 
@@ -337,6 +337,20 @@ class ImporterComponent
 	{
 		cancelImport();
 		view.setVisible(false);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#displayImport(int)
+	 */
+	public void displayImport(int importID)
+	{
+		if (model.getState() == DISCARDED) return;
+		if (!view.isVisible()) view.setVisible(true);
+		if (view.getExtendedState() == Frame.ICONIFIED)
+			view.deIconify();
+		ImporterUIElement element = view.getUIElement(importID);
+		if (element != null) view.setSelectedPane(element);
 	}
 
 }

@@ -30,6 +30,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -46,7 +47,6 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
-import org.jdesktop.swingx.JXBusyLabel;
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
@@ -196,16 +196,19 @@ class ImporterUI
 		buildGUI();
 	}
 
+	/** 
+	 * Adds the chooser to the tab.
+	 * 
+	 * @param chooser The component to add.
+	 */
 	void addComponent(JComponent chooser)
 	{
-		tabs.insertTab("Select Data to Import", null, 
-				chooser, "", 0);
+		if (chooser == null) return;
+		tabs.insertTab("Select Data to Import", null, chooser, "", 0);
 	}
 	
-	void selectChooser()
-	{
-		tabs.setSelectedIndex(0);
-	}
+	/** Indicates to the select the import chooser. */
+	void selectChooser() { tabs.setSelectedIndex(0); }
 	
 	/**
 	 * Returns the collection of files that could not be imported.
@@ -243,7 +246,7 @@ class ImporterUI
 		ImporterUIElement element = new ImporterUIElement(controller,
 				uiElementID, n, title, object);
 		//IconManager icons = IconManager.getInstance();
-		tabs.insertTab(title, element.getBusyIcon(), element, "", total);
+		tabs.insertTab(title, element.getImportIcon(), element, "", total);
 		total++;
 		uiElements.put(uiElementID, element);
 		uiElementID++;
@@ -265,8 +268,7 @@ class ImporterUI
 		if (element == null) return;
 		int index = element.getIndex();
 		element.onImportEnded();
-		IconManager icons = IconManager.getInstance();
-		tabs.setIconAt(index, icons.getIcon(IconManager.APPLY));
+		tabs.setIconAt(index, element.getImportIcon());
 	}
 	
 	/**
@@ -353,6 +355,16 @@ class ImporterUI
 				elements.add(element);
 		}
 		return elements;
+	}
+	
+	/**
+	 * Returns the elements with data to import.
+	 * 
+	 * @return See above.
+	 */
+	Collection<ImporterUIElement> getImportElements()
+	{
+		return uiElements.values();
 	}
 	
 	/**
