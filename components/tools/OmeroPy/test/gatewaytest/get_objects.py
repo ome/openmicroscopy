@@ -312,17 +312,14 @@ class GetObjectTest (lib.GTest):
             groupIds.append(groupExpMap.parent.id.val)
             
         groupGen = self.gateway.getObjects("ExperimenterGroup", groupIds)
-        gGen = self.gateway.getExperimenterGroups(groupIds)  # uses iQuery
+        #gGen = self.gateway.getExperimenterGroups(groupIds)  # removed from blitz gateway
         groups = list(groupGen)
-        gs = list(gGen)
+        #gs = list(gGen)
         self.assertEqual(len(groups), len(groupIds))
         for g in groups:
             self.assertTrue(g.getId() in groupIds)
             for m in g.copyGroupExperimenterMap():  # check exps are loaded
                 ex = m.child
-        for g in gs:
-            self.assertTrue(g.getId() in groupIds)
-
 
     def testGetAnnotations(self):
         
@@ -346,12 +343,12 @@ class GetObjectTest (lib.GTest):
         dataset.linkAnnotation(tag)
         
         # get the Comment 
-        a = self.gateway.getAnnotation(ann.id)
+        # a = self.gateway.getAnnotation(ann.id)   # method removed from blitz gateway
         annotation = self.gateway.getObject("CommentAnnotation", ann.id)
-        self.assertEqual(a.id, annotation.id)
-        self.assertEqual(a.ns, annotation.ns)
+        #self.assertEqual(a.id, annotation.id)
+        #self.assertEqual(a.ns, annotation.ns)
         self.assertEqual("Test Comment", annotation.textValue)
-        self.assertEqual(a.OMERO_TYPE, annotation.OMERO_TYPE)
+        #self.assertEqual(a.OMERO_TYPE, annotation.OMERO_TYPE)
         self.assertEqual(ann.OMERO_TYPE, annotation.OMERO_TYPE)
         
         # get the Comment and Tag
@@ -380,6 +377,10 @@ class GetObjectTest (lib.GTest):
         for al in annLinks:
             self.assertEqual(obj.getId(), al.parent.id.val)
             self.assertTrue(al.getParent().__class__ == omero.model.ImageI)
+
+        # compare with getObjectsByAnnotations
+        annImages = list( self.gateway.getObjectsByAnnotations('Image', [tag.getId()]) )
+        self.assertTrue(obj.getId() in [i.getId() for i in annImages])
             
         # params limit query by owner
         params = omero.sys.Parameters()

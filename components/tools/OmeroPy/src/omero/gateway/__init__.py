@@ -196,7 +196,8 @@ class BlitzObjectWrapper (object):
         """
         Used for building queries in generic methods such as getObjects("Project")
         """
-        return "select obj from %s obj join fetch obj.details.owner as owner join fetch obj.details.group" % self.OMERO_CLASS
+        return "select obj from %s obj join fetch obj.details.owner as owner join fetch obj.details.group "\
+                "join fetch obj.details.creationEvent" % self.OMERO_CLASS
 
     def _getChildWrapper (self):
         """
@@ -3270,7 +3271,8 @@ class AnnotationWrapper (BlitzObjectWrapper):
         """
         Used for building queries in generic methods such as getObjects("Annotation")
         """
-        return "select obj from Annotation obj join fetch obj.details.owner as owner join fetch obj.details.group"
+        return "select obj from Annotation obj join fetch obj.details.owner as owner join fetch obj.details.group "\
+                "join fetch obj.details.creationEvent"
         
     @classmethod
     def _register (klass, regklass):
@@ -3401,7 +3403,8 @@ class FileAnnotationWrapper (AnnotationWrapper):
         """
         Used for building queries in generic methods such as getObjects("FileAnnotation")
         """
-        return "select obj from FileAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group"
+        return "select obj from FileAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group "\
+                "join fetch obj.details.creationEvent"
 
     def getValue (self):
         """ Not implemented """
@@ -3500,7 +3503,8 @@ class TimestampAnnotationWrapper (AnnotationWrapper):
         """
         Used for building queries in generic methods such as getObjects("TimestampAnnotation")
         """
-        return "select obj from TimestampAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group"
+        return "select obj from TimestampAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group "\
+                "join fetch obj.details.creationEvent"
 
     def getValue (self):
         """
@@ -3542,7 +3546,8 @@ class BooleanAnnotationWrapper (AnnotationWrapper):
         """
         Used for building queries in generic methods such as getObjects("BooleanAnnotation")
         """
-        return "select obj from BooleanAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group"
+        return "select obj from BooleanAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group "\
+                "join fetch obj.details.creationEvent"
 
     def getValue (self):
         """
@@ -3578,7 +3583,8 @@ class TagAnnotationWrapper (AnnotationWrapper):
         """
         Used for building queries in generic methods such as getObjects("TagAnnotation")
         """
-        return "select obj from TagAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group"
+        return "select obj from TagAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group "\
+                "join fetch obj.details.creationEvent"
 
     def getValue (self):
         """ 
@@ -3615,7 +3621,8 @@ class CommentAnnotationWrapper (AnnotationWrapper):
         """
         Used for building queries in generic methods such as getObjects("CommentAnnotation")
         """
-        return "select obj from CommentAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group"
+        return "select obj from CommentAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group "\
+            "join fetch obj.details.creationEvent"
 
     def getValue (self):
         """ 
@@ -3651,7 +3658,8 @@ class LongAnnotationWrapper (AnnotationWrapper):
         """
         Used for building queries in generic methods such as getObjects("LongAnnotation")
         """
-        return "select obj from LongAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group"
+        return "select obj from LongAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group "\
+                "join fetch obj.details.creationEvent"
 
     def getValue (self):
         """ 
@@ -3687,7 +3695,8 @@ class DoubleAnnotationWrapper (AnnotationWrapper):
         """
         Used for building queries in generic methods such as getObjects("DoubleAnnotation")
         """
-        return "select obj from DoubleAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group"
+        return "select obj from DoubleAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group "\
+                "join fetch obj.details.creationEvent"
 
     def getValue (self):
         """ 
@@ -3728,7 +3737,8 @@ class TermAnnotationWrapper (AnnotationWrapper):
         """
         Used for building queries in generic methods such as getObjects("TermAnnotation")
         """
-        return "select obj from TermAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group"
+        return "select obj from TermAnnotation obj join fetch obj.details.owner as owner join fetch obj.details.group "\
+                "join fetch obj.details.creationEvent"
 
     def getValue (self):
         """ 
@@ -4138,7 +4148,8 @@ class _PlateWrapper (BlitzObjectWrapper):
         """
         Returns a query string for constructing custom queries, loading the screen for each plate.
         """
-        query = "select obj from Plate obj join fetch obj.details.owner join fetch obj.details.group " \
+        query = "select obj from Plate obj join fetch obj.details.owner join fetch obj.details.group "\
+              "join fetch obj.details.creationEvent "\
               "left outer join fetch obj.screenLinks spl " \
               "left outer join fetch spl.parent sc"
         return query
