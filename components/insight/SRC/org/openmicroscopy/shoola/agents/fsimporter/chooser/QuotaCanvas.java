@@ -108,6 +108,7 @@ class QuotaCanvas
 		setPreferredSize(DIMENSION);
 		setSize(DIMENSION);
 		setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		setBackground(UIUtilities.BACKGROUND);
 	}
 	
 	/**

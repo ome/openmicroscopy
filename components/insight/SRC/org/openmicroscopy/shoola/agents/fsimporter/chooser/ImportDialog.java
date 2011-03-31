@@ -31,7 +31,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-//import java.awt.event.KeyAdapter;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -97,7 +96,6 @@ import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
-import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -249,10 +247,7 @@ public class ImportDialog
 	
 	/** The collection of supported filters. */
 	private FileFilter[]	filters;
-	
-	/** The title panel of the window. */
-	private TitlePanel			titlePane;
-	
+
 	/** Button to bring up the tags wizard. */
 	private JButton						tagButton;
 	
@@ -622,12 +617,15 @@ public class ImportDialog
 				addButton.setEnabled(b);
 			}
 		});
+    	canvas = new QuotaCanvas();
 		sizeImportLabel = new JLabel();
+		sizeImportLabel.setText(UIUtilities.formatFileSize(0));
 		diskSpacePane = new JPanel();
-		diskSpacePane.setLayout(new BoxLayout(diskSpacePane, BoxLayout.Y_AXIS));
-		diskSpacePane.setBackground(UIUtilities.BACKGROUND);
-		diskSpacePane.setVisible(false);
-		canvas = new QuotaCanvas();
+		diskSpacePane.setLayout(new FlowLayout(FlowLayout.LEFT));
+		//diskSpacePane.setBackground(UIUtilities.BACKGROUND);
+		diskSpacePane.add(UIUtilities.setTextFont("Space Usage"));
+		diskSpacePane.add(canvas);
+		
 		showThumbnails = new JCheckBox("Show Thumbnails when imported");
 		showThumbnails.setVisible(false);
 		Boolean b = (Boolean) ImporterAgent.getRegistry().lookup(
@@ -1252,14 +1250,7 @@ public class ImportDialog
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
-		//Container c = getContentPane();
-		//c.setLayout(new BorderLayout(0, 0));
 		setLayout(new BorderLayout(0, 0));
-		IconManager icons = IconManager.getInstance();
-		titlePane = new TitlePanel(TITLE, getContainerText(selectedContainer), 
-				icons.getIcon(IconManager.IMPORT_48));
-		//titlePane.setSubtitle(SUB_MESSAGE);
-		//c.add(titlePane, BorderLayout.NORTH);
 		tabbedPane.add("Files to import", table);
 		tabbedPane.add("Options", buildOptionsPane());
 		
@@ -1269,9 +1260,14 @@ public class ImportDialog
 		p.setLayout(new TableLayout(size));
 		p.add(table.buildControls(), "0, 0, LEFT, CENTER");
 		
+		JPanel row = new JPanel();
+		row.setLayout(new FlowLayout(FlowLayout.LEFT));
+		row.add(UIUtilities.buildComponentPanelRight(diskSpacePane));
+		row.add(UIUtilities.setTextFont(QuotaCanvas.IMPORT_SIZE_TEXT));
+		row.add(UIUtilities.buildComponentPanel(sizeImportLabel));
 		JPanel ptab = new JPanel(); 
 		ptab.setLayout(new BoxLayout(ptab, BoxLayout.Y_AXIS));
-		ptab.add(UIUtilities.buildComponentPanel(sizeImportLabel));
+		ptab.add(row);
 		ptab.add(tabbedPane);
 		p.add(ptab, "2, 0");
 		
@@ -1293,10 +1289,9 @@ public class ImportDialog
 		JPanel header = new JPanel();
 		header.setLayout(new BoxLayout(header, BoxLayout.X_AXIS));
 		header.add(locationPane);
-		JPanel right = UIUtilities.buildComponentPanelRight(diskSpacePane);
-		right.setBackground(UIUtilities.BACKGROUND);
-		header.add(right);
-		body.add(header, "0, 0");
+		
+		//header.add(right);
+		body.add(header, "0, 0, CENTER, CENTER");
 		body.add(pane, "0, 1");
 		//c.add(body, BorderLayout.CENTER);
 		add(body, BorderLayout.CENTER);
@@ -1394,6 +1389,7 @@ public class ImportDialog
     	if (count > 0) object.setPixelsSize(size);	
     	firePropertyChange(IMPORT_PROPERTY, null, object);
     	table.removeAllFiles();
+    	sizeImportLabel.setText(UIUtilities.formatFileSize(0));
     	//setVisible(false);
     	//dispose();
     }
@@ -1472,8 +1468,7 @@ public class ImportDialog
 			canvas.setSizeInQueue(size);
 			String v = (int) Math.round(canvas.getPercentageToImport()*100)
 			+"% of Remaining Space";
-			sizeImportLabel.setText(QuotaCanvas.IMPORT_SIZE_TEXT+
-					UIUtilities.formatFileSize(size));
+			sizeImportLabel.setText(UIUtilities.formatFileSize(size));
 			sizeImportLabel.setToolTipText(v);
 		}
     }
@@ -1546,8 +1541,6 @@ public class ImportDialog
 		this.objects = objects;
 		int oldType = this.type;
 		this.type = type;
-		//titlePane.setTextHeader(getContainerText(containers));
-		titlePane.setSubtitle(SUB_MESSAGE);
 		table.removeAllFiles();
 		if (oldType != this.type) { 
 			//change filters.
@@ -1650,28 +1643,8 @@ public class ImportDialog
 		long free = quota.getAvailableSpace();
 		long used = quota.getUsedSpace();
 		if (free <= 0 || used < 0) return;
-		double percentage = (double) used/free;
 		canvas.setPercentage(quota);
-		//add components
-		diskSpacePane.removeAll();
-		JPanel p = new JPanel();
-		p.setLayout(new FlowLayout(FlowLayout.LEFT));
-		p.setBackground(UIUtilities.BACKGROUND);
-
-		p.add(UIUtilities.setTextFont("Space Usage"));
-		p.add(canvas);
-		JLabel l = new JLabel();
-		l.setText((int) Math.round(percentage*100)+"% Used");
-		//p.add(l);
-		diskSpacePane.add(p);
-		//p = new JPanel();
-		//p.setLayout(new FlowLayout(FlowLayout.LEFT));
-		//p.setBackground(UIUtilities.BACKGROUND);
-		//p.add(sizeImportLabel);
-		diskSpacePane.add(p);
-		diskSpacePane.setVisible(true);
-		sizeImportLabel.setText(QuotaCanvas.IMPORT_SIZE_TEXT+
-				UIUtilities.formatFileSize(0));
+		canvas.setVisible(true);
 	}
 
 	/**
