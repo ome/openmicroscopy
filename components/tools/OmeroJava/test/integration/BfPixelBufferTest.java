@@ -49,7 +49,7 @@ public class BfPixelBufferTest extends AbstractTest {
         File srcFile = ResourceUtils.getFile("classpath:" + fileName); 
 
         // This absolute reference needs to be fixed!
-        String dataDirName = "/OMERO"
+        String dataDirName = "/OMERO";
         String destPathName = UUID.randomUUID().toString();
         File dataDir = new File(dataDirName);
         destPath = new File(dataDir, destPathName);
