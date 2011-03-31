@@ -13,14 +13,14 @@
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
- *  
+ *
  *  You should have received a copy of the GNU General Public License along
  *  with this program; if not, write to the Free Software Foundation, Inc.,
  *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  *------------------------------------------------------------------------------
  *
- * 
+ *
  */
 package ome.services.blitz.repo;
 
@@ -40,7 +40,7 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  *  A helper class used to obtain the import candidates
- * 
+ *
  * @author Colin Blackburn <cblackburn at dundee dot ac dot uk>
  */
 public class ImportableFiles implements IObserver {
@@ -58,23 +58,23 @@ public class ImportableFiles implements IObserver {
         //config.configureDebug(1);
         OMEROWrapper reader = new OMEROWrapper(config);
         candidates = new ImportCandidates(depth, reader, paths, self);
-        containers = candidates.getContainers();  
+        containers = candidates.getContainers();
     }
 
     public List<ImportContainer> getContainers() {
         return containers;
     }
-    
+
     @SuppressWarnings("unchecked")
     /**
      * Report any raised events
-     * 
+     *
      */
     public void update(IObservable observable, ImportEvent event)
     {
         if (event instanceof SCANNING) {
             log.info(event.toLog());
-        }    
+        }
     }
 
 }

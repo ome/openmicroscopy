@@ -62,7 +62,7 @@ import org.apache.commons.logging.LogFactory;
 import Ice.Current;
 
 /**
- * 
+ *
  * @since Beta4.1
  */
 public class BfPixelsStoreI extends _RawPixelsStoreDisp {
@@ -95,9 +95,9 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
     }
 
     public void getHypercube_async(AMD_RawPixelsStore_getHypercube __cb,
-            List<Integer> offset, List<Integer> size, List<Integer> step, 
+            List<Integer> offset, List<Integer> size, List<Integer> step,
             Current __current) throws ServerError {
-        
+
         try {
             byte[] cube = new byte[reader.getCubeSize(offset,size,step)];
             reader.getHypercube(offset,size,step,cube);
@@ -107,7 +107,7 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
             __cb.ice_exception(e);
         }
     }
-    
+
     public void getCol_async(AMD_RawPixelsStore_getCol __cb, int x, int z,
             int c, int t, Current __current) throws ServerError {
         try {
@@ -171,7 +171,7 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
             __cb.ice_exception(e);
         }
     }
-    
+
     public void getRowSize_async(AMD_RawPixelsStore_getRowSize __cb,
             Current __current) throws ServerError {
         try {

@@ -20,7 +20,7 @@ import Ice.ObjectAdapter;
 
 /**
  * Standalone repository service.
- * 
+ *
  * @DEV.TODO Better named "StandaloneRepositoryI"
  * @since Beta4.1
  */

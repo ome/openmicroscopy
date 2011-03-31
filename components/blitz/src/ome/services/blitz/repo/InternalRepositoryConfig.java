@@ -18,7 +18,7 @@ import Ice.ObjectAdapter;
  * Simple configuration class which is created via repository.xml Spring
  * configuration file after the OMERO.repository context is loaded. Used as a
  * factory for creating the InternalRepository, similar to BlitzConfiguration.
- * 
+ *
  * @since Beta4.2
  */
 public class InternalRepositoryConfig {

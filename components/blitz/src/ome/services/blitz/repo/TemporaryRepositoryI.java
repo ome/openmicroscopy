@@ -22,7 +22,7 @@ import Ice.Current;
  * This is primarily for testing (see blitz-config.xml to disable) of the
  * repository infrastructure, and will lead to a number of repository objects
  * being created in the database.
- * 
+ *
  * @since Beta4.1
  */
 public class TemporaryRepositoryI extends AbstractRepositoryI {

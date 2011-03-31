@@ -43,7 +43,7 @@ import Ice.ObjectAdapter;
  * {@link #takeover() takeover} and other lifecycle tasks. Individual instances
  * will be responsible for providing the other service instances which are
  * returned from this service.
- * 
+ *
  * @since Beta4.2
  */
 public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
@@ -355,9 +355,9 @@ public abstract class AbstractRepositoryI extends _InternalRepositoryDisp {
             throw new omero.ValidationException(null, null, "Unknown file: "
                     + file.getId().getValue());
         }
-        
+
         return (String) map.get("repo");
-        
+
     }
 
 }

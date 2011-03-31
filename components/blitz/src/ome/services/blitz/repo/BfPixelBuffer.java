@@ -32,7 +32,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * 
+ *
  * @since Beta4.1
  */
 public class BfPixelBuffer implements PixelBuffer, Serializable {
@@ -43,14 +43,14 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
 
     /**
      * We may want a constructor that takes the id of an imported file
-     * or that takes a File object? 
-     * There should ultimately be some sort of check here that the 
+     * or that takes a File object?
+     * There should ultimately be some sort of check here that the
      * file is in a/the repository.
      */
     public BfPixelBuffer(String path) throws IOException, FormatException {
         reader = new BfPixelsWrapper(path);
     }
-    
+
     public byte[] calculateMessageDigest() throws IOException {
         return reader.getMessageDigest();
     }
@@ -309,17 +309,17 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
     public void setTimepoint(ByteBuffer buffer, Integer t) throws IOException,
             DimensionsOutOfBoundsException, BufferOverflowException {
         throw new UnsupportedOperationException("Cannot write to repository");
-        
+
     }
 
     public void setTimepoint(byte[] buffer, Integer t) throws IOException,
             DimensionsOutOfBoundsException, BufferOverflowException {
         throw new UnsupportedOperationException("Cannot write to repository");
-        
+
     }
 
-    public PixelData getHypercube(List<Integer> offset, List<Integer> size, 
-            List<Integer> step) throws IOException, DimensionsOutOfBoundsException 
+    public PixelData getHypercube(List<Integer> offset, List<Integer> size,
+            List<Integer> step) throws IOException, DimensionsOutOfBoundsException
     {
         PixelData d;
         byte[] buffer = new byte[reader.getCubeSize(offset,size,step)];
@@ -328,8 +328,8 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         return d;
     }
 
-    public byte[] getHypercubeDirect(List<Integer> offset, List<Integer> size, 
-            List<Integer> step, byte[] buffer) 
+    public byte[] getHypercubeDirect(List<Integer> offset, List<Integer> size,
+            List<Integer> step, byte[] buffer)
             throws IOException, DimensionsOutOfBoundsException {
         try {
             reader.getHypercube(offset,size,step,buffer);
@@ -339,7 +339,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         }
         return buffer;
     }
-                
+
     public PixelData getPlaneRegion(Integer x, Integer y, Integer width,
             Integer height, Integer z, Integer c, Integer t, Integer stride)
             throws IOException, DimensionsOutOfBoundsException

@@ -31,7 +31,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
- * 
+ *
  * @since Beta4.3
  */
 public class BfPixelsWrapper {
@@ -42,21 +42,21 @@ public class BfPixelsWrapper {
     private final OMEROWrapper reader;
 
     private final String path;
-    
+
     private final int sizeX;
-    
+
     private final int sizeY;
-    
+
     private final int sizeZ;
-    
+
     private final int sizeC;
-    
+
     private final int sizeT;
-    
+
     private final int rgbChannels;
-    
+
     private final int pixelType;
-    
+
     private final int pixelSize;
 
     private final Integer rowSize;
@@ -66,13 +66,13 @@ public class BfPixelsWrapper {
     private final Integer planeSize;
 
     private final Integer stackSize;
-    
-    private final Integer timepointSize;    
-    
+
+    private final Integer timepointSize;
+
     /**
      * We may want a constructor that takes the id of an imported file
-     * or that takes a File object? 
-     * There should ultimately be some sort of check here that the 
+     * or that takes a File object?
+     * There should ultimately be some sort of check here that the
      * file is in a/the repository.
      */
     public BfPixelsWrapper(String path) throws IOException, FormatException {
@@ -97,7 +97,7 @@ public class BfPixelsWrapper {
         stackSize = sizeZ * planeSize;
         timepointSize = sizeC * stackSize;
     }
-    
+
     public byte[] getMessageDigest() throws IOException {
         MessageDigest md;
         try {
@@ -153,14 +153,14 @@ public class BfPixelsWrapper {
         checkBounds(offset.get(0),offset.get(1),offset.get(2),offset.get(3),offset.get(4));
         checkBounds(offset.get(0)+size.get(0)-1,offset.get(1)+size.get(1)-1,
                 offset.get(2)+size.get(2)-1,offset.get(3)+size.get(3)-1,offset.get(4)+size.get(4)-1);
-        if(step.get(0) < 1 ||  step.get(1) < 1 ||  step.get(2) < 1 
+        if(step.get(0) < 1 ||  step.get(1) < 1 ||  step.get(2) < 1
                 ||  step.get(3) < 1 ||  step.get(4) < 1)
         {
             throw new DimensionsOutOfBoundsException(
                     "Invalid step size: steps sizes must be 1 or greater");
         }
     }
-    
+
     public void close() throws IOException {
         // TODO
     }
@@ -173,7 +173,7 @@ public class BfPixelsWrapper {
     public String getPath() {
         return path;
     }
-    
+
     /*
      * Get dimension sizes
      */
@@ -228,7 +228,7 @@ public class BfPixelsWrapper {
         return sizeT * timepointSize;
     }
 
-    public Integer getCubeSize(List<Integer> offset, List<Integer> size, List<Integer> step) 
+    public Integer getCubeSize(List<Integer> offset, List<Integer> size, List<Integer> step)
             throws IOException, DimensionsOutOfBoundsException {
         // only works for 5d at present
         int tStripes = (size.get(4) + step.get(4) - 1) / step.get(4);
@@ -238,7 +238,7 @@ public class BfPixelsWrapper {
         int xStripes = (size.get(0) + step.get(0) - 1) / step.get(0);
         int tileRowSize = pixelSize * xStripes;
         int cubeSize = tileRowSize * yStripes * zStripes * cStripes * tStripes;
-        
+
         return cubeSize;
     }
 
@@ -275,10 +275,10 @@ public class BfPixelsWrapper {
         try {
             if (buffer.length != colSize)
                 throw new RuntimeException("Buffer size incorrect.");
-            byte[] plane = new byte[planeSize];        
+            byte[] plane = new byte[planeSize];
             getWholePlane(z,c,t,plane);
-            for(int y = 0; y < sizeY; y++) { 
-                System.arraycopy(plane, (y*rowSize)+(x*pixelSize), 
+            for(int y = 0; y < sizeY; y++) {
+                System.arraycopy(plane, (y*rowSize)+(x*pixelSize),
                     buffer, y*pixelSize, pixelSize);
             }
         } catch (FormatException e) {
@@ -332,7 +332,7 @@ public class BfPixelsWrapper {
         try {
             if (buffer.length != stackSize)
                 throw new RuntimeException("Buffer size incorrect.");
-            byte[] plane = new byte[planeSize];        
+            byte[] plane = new byte[planeSize];
             for(int z = 0; z < sizeZ; z++)
             {
                 getWholePlane(z,c,t,plane);
@@ -349,7 +349,7 @@ public class BfPixelsWrapper {
         checkBounds(null, null, null, null, t);
         if (buffer.length != timepointSize)
             throw new RuntimeException("Buffer size incorrect.");
-        byte[] stack = new byte[stackSize];      
+        byte[] stack = new byte[stackSize];
         for(int c = 0; c < sizeC; c++)
         {
             getStack(c, t, stack);
@@ -359,13 +359,13 @@ public class BfPixelsWrapper {
     }
 
 
-    public byte[] getHypercube(List<Integer> offset, List<Integer> size, 
-            List<Integer> step, byte[] buffer) 
-            throws IOException, DimensionsOutOfBoundsException 
+    public byte[] getHypercube(List<Integer> offset, List<Integer> size,
+            List<Integer> step, byte[] buffer)
+            throws IOException, DimensionsOutOfBoundsException
     {
         checkCubeBounds(offset, size, step);
         try {
-            if (buffer.length != getCubeSize(offset, size, step)) 
+            if (buffer.length != getCubeSize(offset, size, step))
                 throw new RuntimeException("Buffer size incorrect.");
             getWholeHypercube(offset,size,step,buffer);
         } catch (FormatException e) {
@@ -373,7 +373,7 @@ public class BfPixelsWrapper {
         }
         return buffer;
     }
-                
+
     /*
      * Helper methods
      */
@@ -381,8 +381,8 @@ public class BfPixelsWrapper {
     /*
      * Get a plane dealing with rgb/interleaving if necessary
      */
-    private byte[] getWholePlane(int z, int c, int t, byte[] plane) 
-            throws IOException, FormatException 
+    private byte[] getWholePlane(int z, int c, int t, byte[] plane)
+            throws IOException, FormatException
     {
         int planeNumber;
         if(rgbChannels == 1) {
@@ -394,7 +394,7 @@ public class BfPixelsWrapper {
             reader.openBytes(planeNumber, fullPlane);
             if(reader.isInterleaved()) {
                 for(int p = 0; p < planeSize; p += pixelSize) {
-                    System.arraycopy(fullPlane, c*pixelSize + p*rgbChannels, 
+                    System.arraycopy(fullPlane, c*pixelSize + p*rgbChannels,
                         plane, p, pixelSize);
                 }
             } else {
@@ -409,31 +409,31 @@ public class BfPixelsWrapper {
      *     - using openPlane2d doesn't seem to work
      */
     /*
-    private byte[] getWholePlane(int z, int c, int t, byte[] plane) 
-            throws IOException, FormatException 
+    private byte[] getWholePlane(int z, int c, int t, byte[] plane)
+            throws IOException, FormatException
     {
         if(rgbChannels == 1) {
             int planeNumber = reader.getIndex(z, c, t);
             Plane2D plane2d = reader.openPlane2D(path, planeNumber, plane);
-            plane = plane2d.getData().array(); 
+            plane = plane2d.getData().array();
         } else {
             // Separate channels as openPlane2D doesn't do this
             byte[] fullPlane = new byte[planeSize*rgbChannels];
             int planeNumber = reader.getIndex(z, 0, t);
             Plane2D plane2d = reader.openPlane2D(path, planeNumber, plane);
-            fullPlane = plane2d.getData().array(); 
+            fullPlane = plane2d.getData().array();
             System.arraycopy(fullPlane, c*planeSize, plane, 0, planeSize);
         }
         return plane;
     }
     */
 
-    private byte[] getWholeHypercube(List<Integer> offset, List<Integer> size, 
+    private byte[] getWholeHypercube(List<Integer> offset, List<Integer> size,
             List<Integer> step, byte[] cube) throws IOException, FormatException {
         int cubeOffset = 0;
         int xStripes = (size.get(0) + step.get(0) - 1) / step.get(0);
         int tileRowSize = pixelSize * xStripes;
-        byte[] plane = new byte[planeSize];      
+        byte[] plane = new byte[planeSize];
         for(int t = offset.get(4); t < size.get(4)+offset.get(4); t += step.get(4))
         {
             for(int c = offset.get(3); c < size.get(3)+offset.get(3); c += step.get(3))
@@ -451,7 +451,7 @@ public class BfPixelsWrapper {
                             cubeOffset += tileRowSize;
                             byteOffset += rowSize*step.get(1);
                         }
-                    } 
+                    }
                     else
                     {
                         for(int y = offset.get(1); y < size.get(1)+offset.get(1); y += step.get(1))
@@ -466,16 +466,16 @@ public class BfPixelsWrapper {
                             rowOffset += rowSize*step.get(1);
                         }
                     }
-                    
+
                 }
             }
         }
         return cube;
     }
-    
+
     /**
      * cgb - stolen from ImportLibrary - is there a better way to do this?
-     * 
+     *
      * Retrieves how many bytes per pixel the current plane or section has.
      * @return the number of bytes per pixel.
      */
@@ -497,10 +497,10 @@ public class BfPixelsWrapper {
         }
         throw new RuntimeException("Unknown type with id: '" + pixelType + "'");
     }
-    
+
     /**
      * cgb - created from the methods below?
-     * 
+     *
      * Retrieves how many bytes per pixel the current plane or section has.
      * @return the number of bytes per pixel.
      */
@@ -518,7 +518,7 @@ public class BfPixelsWrapper {
         }
         throw new RuntimeException("Unknown type with id: '" + pixelType + "'");
     }
-    
+
     public boolean isFloat() {
         switch(pixelType) {
             case 6:
@@ -553,7 +553,7 @@ public class BfPixelsWrapper {
 
     /**
      * cgb - stolen from ImportLibrary - slightly modified
-     * 
+     *
      * Examines a byte array to see if it needs to be byte swapped and modifies
      * the byte array directly.
      * @param bytes The byte array to check and modify if required.
@@ -599,5 +599,5 @@ public class BfPixelsWrapper {
         // We've got a big-endian file with a big-endian byte array.
         bytes = buffer.array();
         return bytes;
-    } 
+    }
 }

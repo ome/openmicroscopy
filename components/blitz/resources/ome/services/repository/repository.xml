@@ -43,7 +43,7 @@
     <constructor-arg ref="simpleSqlAction"/>
     <constructor-arg index="3"><list/></constructor-arg>
   </bean>
-  
+
   <!-- This is used by ome.services.blitz.Entry to call waitForShutdown -->
   <bean id="Ice.Communicator" factory-bean="internalRepositoryConfig" factory-method="getCommunicator"/>
   <bean id="Ice.ObjectAdapter" factory-bean="internalRepositoryConfig" factory-method="getObjectAdapter"/>
