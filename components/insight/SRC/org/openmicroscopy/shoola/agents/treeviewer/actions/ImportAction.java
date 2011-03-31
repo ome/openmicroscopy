@@ -116,9 +116,10 @@ public class ImportAction
     	if (browser == null) {
     		if (TreeViewerAgent.isSPWFirst()) 
     			type = Browser.SCREENS_EXPLORER;
+    	} else {
+    		if (browser.getBrowserType() == Browser.SCREENS_EXPLORER)
+        		type = Browser.SCREENS_EXPLORER;
     	}
-    	if (browser.getBrowserType() == Browser.SCREENS_EXPLORER)
-    		type = Browser.SCREENS_EXPLORER;
     	setActionDescription(type);
     }
     
