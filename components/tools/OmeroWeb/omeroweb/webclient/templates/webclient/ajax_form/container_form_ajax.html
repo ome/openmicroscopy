@@ -3,13 +3,13 @@
 {% load custom_tags %}
 
 {% if form %}
-<div>
-    <table>
+
+<form method="post">
+    <table class="form">
     {% for field in form %}
-        <tr><th colspan="2">{{ field.label_tag }}{% if field.field.required %}*{% endif %}{% if field.errors %}{{ field.errors }}{% endif %}</th></tr>
-        <tr><td>{{ field }}</td><td>{{ field.help_text|safe }}</td></tr>
+        <tr><td>{{ field }}<p class="error">{% if field.errors %}{{ field.errors }}{% endif %}</p></td><td>{{ field.help_text|safe }}</td></tr>
     {% endfor %}
     </table>
-</div>
-{% endif %}
+</form>
 
+{% endif %}

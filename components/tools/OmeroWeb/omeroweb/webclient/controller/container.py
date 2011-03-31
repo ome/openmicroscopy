@@ -784,13 +784,18 @@ class BaseContainer(BaseController):
     ################################################################
     # Update
     
-    def updateDescription(self, description):
-        img = self.image._obj
+    def updateDescription(self, o_type, o_id, description):
+        obj = getattr(self, o_type)._obj
         if description != "" :
-            img.description = rstring(str(description))
+            obj.description = rstring(str(description))
         else:
-            img.description = None
-        self.conn.saveObject(img)
+            obj.description = None
+        self.conn.saveObject(obj)
+    
+    def updateName(self, o_type, o_id, name):
+        obj = getattr(self, o_type)._obj
+        obj.name = rstring(str(name))
+        self.conn.saveObject(obj)
     
     def updateImage(self, name, description):
         img = self.image._obj

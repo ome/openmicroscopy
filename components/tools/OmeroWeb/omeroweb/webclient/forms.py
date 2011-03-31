@@ -117,7 +117,7 @@ class ContainerNameForm(forms.Form):
     
 class ContainerDescriptionForm(forms.Form):
     
-    description = forms.CharField(widget=forms.Textarea(attrs={'rows': 10, 'cols': 39}), required=False, help_text=help_wiki)
+    description = forms.CharField(widget=forms.Textarea(attrs={'rows': 3, 'cols': 39}), required=False)
 
 class CommentAnnotationForm(forms.Form):
     

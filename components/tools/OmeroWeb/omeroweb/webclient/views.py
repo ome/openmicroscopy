@@ -48,7 +48,7 @@ from django.conf import settings
 from django.contrib.sessions.backends.cache import SessionStore
 from django.core import template_loader
 from django.core.cache import cache
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseServerError
 from django.shortcuts import render_to_response
 from django.template import RequestContext as Context
 from django.utils import simplejson
@@ -1227,48 +1227,65 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                                         'experimenters': experimenters}) #'guests': share.guestsInShare,
             context = {'url':url, 'nav':request.session['nav'], 'eContext': manager.eContext, 'share':manager, 'form':form}
     elif action == 'editname':
-        if o_type == "dataset":
+        if hasattr(manager, o_type) and o_id > 0:
+            obj = getattr(manager, o_type)
             template = "webclient/ajax_form/container_form_ajax.html"
-            form = ContainerNameForm(initial={'name': manager.dataset.name})
-            context = {'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager, 'form':form}
-        elif o_type == "project":
-            template = "webclient/ajax_form/container_form_ajax.html"
-            form = ContainerNameForm(initial={'name': manager.project.name})
-            context = {'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager, 'form':form}
-        elif o_type == "screen":
-            template = "webclient/ajax_form/container_form_ajax.html"
-            form = ContainerNameForm(initial={'name': manager.screen.name})
-            context = {'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager, 'form':form}
-        elif o_type == "plate":
-            template = "webclient/ajax_form/container_form_ajax.html"
-            form = ContainerNameForm(initial={'name': manager.plate.name})
-            context = {'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager, 'form':form}
-        elif o_type =="image" and o_id > 0:
-            template = "webclient/ajax_form/container_form_ajax.html"
-            form = ContainerNameForm(initial={'name': manager.image.name})
+            form = ContainerNameForm(initial={'name': obj.name})
             context = {'nav':request.session['nav'], 'manager':manager, 'eContext':manager.eContext, 'form':form}
-        elif o_type =="comment" and o_id > 0:
-            template = "webclient/annotations/annotation_form.html"
-            form = CommentAnnotationForm(initial={'content':manager.comment.textValue})
-            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
-        elif o_type =="tag" and o_id > 0:
-            template = "webclient/annotations/annotation_form.html"
-            form = TagAnnotationForm(initial={'tag':manager.tag.textValue, 'description':manager.tag.description})
-            context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
-        elif o_type == "share" and o_id > 0:
-            template = "webclient/public/share_form.html"
-            manager.getMembers(o_id)
-            manager.getComments(o_id)
-            experimenters = list(conn.getExperimenters())
-            if manager.share.getExpirationDate() is not None:
-                form = ShareForm(initial={'message': manager.share.message, 'expiration': manager.share.getExpirationDate().strftime("%Y-%m-%d"), \
-                                        'shareMembers': manager.membersInShare, 'enable': manager.share.active, \
-                                        'experimenters': experimenters}) #'guests': share.guestsInShare,
+        else:
+            return HttpResponseServerError("Object does not exist")
+    elif action == 'savename':
+        if not request.method == 'POST':
+            return HttpResponseRedirect(reverse("manage_action_containers", args=["edit", o_type, o_id]))
+        elif hasattr(manager, o_type) and o_id > 0:
+            obj = getattr(manager, o_type)
+            form = ContainerNameForm(data=request.REQUEST.copy())
+            if form.is_valid():
+                logger.debug("Update name form:" + str(form.cleaned_data))
+                name = form.cleaned_data['name']
+                manager.updateName(o_type, o_id, name)                
+                rdict = {'bad':'false' }
+                json = simplejson.dumps(rdict, ensure_ascii=False)
+                return HttpResponse( json, mimetype='application/javascript')
             else:
-                form = ShareForm(initial={'message': manager.share.message, 'expiration': "", \
-                                        'shareMembers': manager.membersInShare, 'enable': manager.share.active, \
-                                        'experimenters': experimenters}) #'guests': share.guestsInShare,
-            context = {'url':url, 'nav':request.session['nav'], 'eContext': manager.eContext, 'share':manager, 'form':form}
+                d = dict()
+                for e in form.errors.iteritems():
+                    d.update({e[0]:unicode(e[1])}) 
+                rdict = {'bad':'true','errs': d }
+                json = simplejson.dumps(rdict, ensure_ascii=False)
+                return HttpResponse( json, mimetype='application/javascript')
+        else:
+            return HttpResponseServerError("Object does not exist")
+    elif action == 'editdescription':
+        if hasattr(manager, o_type) and o_id > 0:
+            obj = getattr(manager, o_type)
+            template = "webclient/ajax_form/container_form_ajax.html"
+            form = ContainerDescriptionForm(initial={'description': obj.description})
+            context = {'nav':request.session['nav'], 'manager':manager, 'eContext':manager.eContext, 'form':form}
+        else:
+            return HttpResponseServerError("Object does not exist")
+    elif action == 'savedescription':
+        if not request.method == 'POST':
+            return HttpResponseServerError("Action '%s' on the '%s' id:%s cannot be complited" % (action, o_type, o_id))
+        elif hasattr(manager, o_type) and o_id > 0:
+            obj = getattr(manager, o_type)
+            form = ContainerDescriptionForm(data=request.REQUEST.copy())
+            if form.is_valid():
+                logger.debug("Update name form:" + str(form.cleaned_data))
+                description = form.cleaned_data['description']
+                manager.updateDescription(o_type, o_id, description)                
+                rdict = {'bad':'false' }
+                json = simplejson.dumps(rdict, ensure_ascii=False)
+                return HttpResponse( json, mimetype='application/javascript')
+            else:
+                d = dict()
+                for e in form.errors.iteritems():
+                    d.update({e[0]:unicode(e[1])}) 
+                rdict = {'bad':'true','errs': d }
+                json = simplejson.dumps(rdict, ensure_ascii=False)
+                return HttpResponse( json, mimetype='application/javascript')
+        else:
+            return HttpResponseServerError("Object does not exist")
     elif action == 'move':
         parent = request.REQUEST['parent'].split('-')
         #source = request.REQUEST['source'].split('-')

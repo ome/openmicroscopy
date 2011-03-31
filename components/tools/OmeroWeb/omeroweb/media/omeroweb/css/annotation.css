@@ -74,7 +74,7 @@ div.lnfiles{
 #annotation_tabs ul {
     position:relative;
     float:left;
-    width:350px;
+/*    width:350px;*/
     padding:0;
     margin: 4px 0 ;
     list-style:none;
