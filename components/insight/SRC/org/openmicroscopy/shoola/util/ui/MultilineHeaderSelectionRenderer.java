@@ -141,6 +141,12 @@ public class MultilineHeaderSelectionRenderer
 	    this(null, box);
 	}
 	
+	/** Creates a new instance. */
+	public MultilineHeaderSelectionRenderer()
+	{
+	    this(null, null);
+	}
+	
 	/**
 	 * Adds listener and format the text of the table header.
 	 * @see TableCellRenderer#getTableCellRendererComponent(JTable, Object, 

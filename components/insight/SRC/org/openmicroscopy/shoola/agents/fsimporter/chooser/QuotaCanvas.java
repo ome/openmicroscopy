@@ -94,6 +94,7 @@ class QuotaCanvas
 		long free = quota.getAvailableSpace();
 		long used = quota.getUsedSpace();
 		List<String> tips = new ArrayList<String>();
+		tips.add((int) Math.round(percentage*100)+"% Used");
 		tips.add("Used Space: "+UIUtilities.formatFileSize(used));
 		tips.add("Free Space: "+UIUtilities.formatFileSize(free));
 		setToolTipText(UIUtilities.formatToolTipText(tips));

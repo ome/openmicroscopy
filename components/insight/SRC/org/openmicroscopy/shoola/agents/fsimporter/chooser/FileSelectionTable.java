@@ -258,7 +258,7 @@ class FileSelectionTable
 			tc = tcm.getColumn(FOLDER_AS_CONTAINER_INDEX);
 			tc.setCellRenderer(new FileTableRenderer());
 			tc.setHeaderRenderer(
-					new MultilineHeaderSelectionRenderer(table, fadBox));
+					new MultilineHeaderSelectionRenderer());
 			tcm.getColumn(ARCHIVED_INDEX).setHeaderRenderer(
 					new MultilineHeaderSelectionRenderer(table, archivedBox));
 		} else {
