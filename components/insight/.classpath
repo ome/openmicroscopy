@@ -63,5 +63,10 @@
 	<classpathentry kind="lib" path="LIB/gluegen-rt.jar"/>
 	<classpathentry kind="lib" path="LIB/jogl.jar"/>
 	<classpathentry kind="lib" path="LIB/controlP5.jar"/>
+	<classpathentry kind="lib" path="LIB/gicentreUtils.jar"/>
+	<classpathentry kind="lib" path="LIB/ai_path.jar"/>
+	<classpathentry kind="lib" path="LIB/nanoxml-2.2.3.jar"/>
+	<classpathentry kind="lib" path="LIB/physics.jar"/>
+	<classpathentry kind="lib" path="LIB/Picking.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
