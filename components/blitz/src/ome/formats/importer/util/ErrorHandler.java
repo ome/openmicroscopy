@@ -20,7 +20,6 @@ import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportCandidates;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportEvent;
-import ome.formats.importer.ImportLibrary;
 
 import org.apache.commons.httpclient.methods.multipart.Part;
 import org.apache.commons.httpclient.methods.multipart.StringPart;
@@ -208,7 +207,12 @@ public abstract class ErrorHandler implements IObserver, IObservable {
         else if (event instanceof UNKNOWN_FORMAT) {
             UNKNOWN_FORMAT ev = (UNKNOWN_FORMAT) event;
             String[] usedFiles = {ev.filename};
-            if (ev.source instanceof ImportLibrary)
+            // Here it is important to not report errors which
+            // are coming from ImportCandidates, since that doesn't
+            // count as an error situation. Previously, this checked
+            // for (ev.source instanceof ImportLibrary), but that is
+            // no longer on the compile-time classpath.
+            if (!(ev.source instanceof ImportCandidates))
                 addError(ev.exception, new File(ev.filename), usedFiles, "");
             log.debug(event.toLog());
         }

@@ -36,6 +36,10 @@
     <dependency org="loci" name="jai_imageio" rev="${versions.bio-formats}"/>
     <dependency org="loci" name="bufr" rev="1.1.00"/>
     <dependency org="loci" name="grib" rev="5.1.03"/>
-    <dependency org="loci" name="netcdf" rev="4.0"/>  </dependencies>
+    <dependency org="loci" name="netcdf" rev="4.0"/>
+    <!-- Public -->
+    <dependency org="gui" name="ini4j" rev="0.3.2"/>
+    <dependency org="log4j" name="log4j" rev="${versions.log4j}"/><!-- Required for compile-time importer classes -->
+  </dependencies>
 </ivy-module>
 

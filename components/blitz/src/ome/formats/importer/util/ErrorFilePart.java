@@ -21,7 +21,7 @@
  *------------------------------------------------------------------------------
  */
 
-package ome.formats.importer.gui;
+package ome.formats.importer.util;
 
 import java.io.File;
 import java.io.FileNotFoundException;

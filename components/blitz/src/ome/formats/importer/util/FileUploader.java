@@ -34,7 +34,6 @@ import java.util.ArrayList;
 import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportEvent;
-import ome.formats.importer.gui.ErrorFilePart;
 import ome.formats.importer.util.FileUploadCounter.ProgressListener;
 
 import org.apache.commons.httpclient.HttpClient;

@@ -54,11 +54,7 @@ import loci.formats.ImageWriter;
 import loci.formats.meta.IMetadata;
 import loci.formats.services.OMEXMLService;
 import ome.conditions.InternalException;
-import ome.formats.OMEROMetadataStoreClient;
-import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportContainer;
-import ome.formats.importer.ImportLibrary;
-import ome.formats.importer.OMEROWrapper;
 import ome.parameters.Parameters;
 import ome.services.blitz.util.RegisterServantMessage;
 import ome.services.util.Executor;
@@ -394,31 +390,9 @@ public class PublicRepositoryI extends _RepositoryDisp {
         }
         // End logging
 
-        OMEROMetadataStoreClient store;
-	ImportConfig config = new ImportConfig();
-	// TODO: replace hard-wired host and port
-	config.hostname.set("localhost");
-	config.port.set(new Integer(4064));
-	config.sessionKey.set(clientSessionUuid);
-
-	try {
-		store = config.createStore();
-        } catch (Exception e) {
-            log.error("Failed to create OMEROMetadataStoreClient: ", e);
+        List<Pixels> pix = importFile(file, clientSessionUuid, imageMap);
+        if (pix == null) {
             return null;
-        }
-
-	OMEROWrapper reader = new OMEROWrapper(config);
-	ImportLibrary library = new ImportLibrary(store, reader);
-	library.setMetadataOnly(true);
-	library.prepare(imageMap);
-
-        List<Pixels> pix = new ArrayList<Pixels>();
-        try {
-		 pix = library.importImage(file, 0, 0, 1, null, null, false, false, null, null);
-        } catch (Throwable t) {
-		 log.error("Faled to importImage: ", t);
-		 return null;
         }
 
         List<Image> images = new ArrayList<Image>();
@@ -433,6 +407,37 @@ public class PublicRepositoryI extends _RepositoryDisp {
         return images;
     }
 
+    private List<Pixels> importFile(final File file, final String clientSessionUuid, Map<Integer,Image> imageMap) {
+        return null; // FIXME
+        /* FIXME
+        OMEROMetadataStoreClient store;
+        ImportConfig config = new ImportConfig();
+        // TODO: replace hard-wired host and port
+        config.hostname.set("localhost");
+        config.port.set(new Integer(4064));
+        config.sessionKey.set(clientSessionUuid);
+
+        try {
+            store = config.createStore();
+        } catch (Exception e) {
+            log.error("Failed to create OMEROMetadataStoreClient: ", e);
+            return null;
+        }
+
+        OMEROWrapper reader = new OMEROWrapper(config);
+        ImportLibrary library = new ImportLibrary(store, reader);
+        library.setMetadataOnly(true);
+        library.prepare(imageMap);
+
+        List<Pixels> pix = new ArrayList<Pixels>();
+        try {
+             pix = library.importImage(file, 0, 0, 1, null, null, false, false, null, null);
+        } catch (Throwable t) {
+             log.error("Faled to importImage: ", t);
+             return null;
+        }
+        */
+    }
 
     public void delete(String path, Current __current) throws ServerError {
         File file = checkPath(path);
