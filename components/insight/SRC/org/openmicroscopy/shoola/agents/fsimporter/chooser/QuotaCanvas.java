@@ -159,12 +159,14 @@ class QuotaCanvas
      */
     public void paintComponent(Graphics g)
     {
+    	super.paintComponent(g);
     	Color c = USED_COLOR_DEFAULT;
     	if (percentage >= THRESHOLD) c = USED_COLOR_WARNING;
     	Graphics2D g2D = (Graphics2D) g;
-    	setBackground(UIUtilities.BACKGROUND);
+    	//setBackground(UIUtilities.BACKGROUND);
     	Dimension d = getPreferredSize();
-    	g2D.drawRect(0, 0, d.width, d.height);
+    	g2D.setColor(UIUtilities.BACKGROUND);
+    	g2D.fillRect(0, 0, d.width, d.height);
     	int w =  (int) (d.width*percentage);
     	GradientPaint paint = new GradientPaint(0, 0, c, w, 0, c);
 		g2D.setPaint(paint);

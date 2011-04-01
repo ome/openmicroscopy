@@ -66,13 +66,7 @@ class ImporterModel
 
 	/** Reference to the component that embeds this model. */
 	protected Importer			component;
-	
-	/** 
-	 * Will either be a data loader or
-	 * <code>null</code> depending on the current state. 
-	 */
-	private DataImporterLoader 	currentLoader;
-	
+
 	/** The collection of existing tags. */
 	private Collection			tags;
 	
@@ -134,10 +128,6 @@ class ImporterModel
 	 */
 	void cancel()
 	{
-		if (currentLoader != null) {
-			currentLoader.cancel();
-			currentLoader = null;
-		}
 		state = Importer.READY;
 	}
 

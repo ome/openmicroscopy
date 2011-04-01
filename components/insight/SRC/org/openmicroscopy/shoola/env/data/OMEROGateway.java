@@ -6105,7 +6105,7 @@ class OMEROGateway
 			OMEROWrapper reader = new OMEROWrapper(config);
 			String[] paths = new String[1];
 			paths[0] = file.getAbsolutePath();
-			int depth = object.getScanningDepth();
+			int depth = 4;//object.getScanningDepth();
 			ImportCandidates candidates = new ImportCandidates(depth, reader, 
 					paths, status);
 			return new ArrayList<String>(candidates.getPaths());
