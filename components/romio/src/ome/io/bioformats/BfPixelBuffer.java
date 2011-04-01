@@ -4,34 +4,27 @@
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-package ome.services.blitz.repo;
+package ome.io.bioformats;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
-import java.nio.LongBuffer;
-import java.nio.ShortBuffer;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
 
-import loci.common.DataTools;
 import loci.formats.FormatException;
 import loci.formats.ImageReader;
-import ome.formats.importer.ImportConfig;
-import ome.formats.importer.OMEROWrapper;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
 import ome.util.PixelData;
-import ome.model.enums.PixelsType;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /**
+ * {@link PixelBuffer} implementation which uses Bio-Formats to
+ * read pixels data directly from original files.
  *
  * @since Beta4.1
  */
@@ -47,8 +40,8 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
      * There should ultimately be some sort of check here that the
      * file is in a/the repository.
      */
-    public BfPixelBuffer(String path) throws IOException, FormatException {
-        reader = new BfPixelsWrapper(path);
+    public BfPixelBuffer(String filePath, ImageReader bfReader) throws IOException, FormatException {
+        reader = new BfPixelsWrapper(filePath, bfReader);
     }
 
     public byte[] calculateMessageDigest() throws IOException {
@@ -73,7 +66,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         PixelData d;
         byte[] buffer = new byte[reader.getColSize()];
         reader.getCol(x,z,c,t,buffer);
-        d = new PixelData(reader.getPixelsType().getValue(), ByteBuffer.wrap(buffer));
+        d = new PixelData(reader.getPixelsType(), ByteBuffer.wrap(buffer));
         return d;
     }
 
@@ -105,7 +98,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         PixelData d;
         byte[] buffer = new byte[reader.getPlaneSize()];
         reader.getPlane(z,c,t,buffer);
-        d = new PixelData(reader.getPixelsType().getValue(), ByteBuffer.wrap(buffer));
+        d = new PixelData(reader.getPixelsType(), ByteBuffer.wrap(buffer));
         return d;
     }
 
@@ -152,7 +145,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         PixelData d;
         byte[] buffer = new byte[reader.getRowSize()];
         reader.getRow(y,z,c,t,buffer);
-        d = new PixelData(reader.getPixelsType().getValue(), ByteBuffer.wrap(buffer));
+        d = new PixelData(reader.getPixelsType(), ByteBuffer.wrap(buffer));
         return d;
     }
 
@@ -201,7 +194,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         PixelData d;
         byte[] buffer = new byte[reader.getColSize()];
         reader.getStack(c,t,buffer);
-        d = new PixelData(reader.getPixelsType().getValue(), ByteBuffer.wrap(buffer));
+        d = new PixelData(reader.getPixelsType(), ByteBuffer.wrap(buffer));
         return d;
     }
 
@@ -230,7 +223,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         PixelData d;
         byte[] buffer = new byte[reader.getTimepointSize()];
         reader.getTimepoint(t,buffer);
-        d = new PixelData(reader.getPixelsType().getValue(), ByteBuffer.wrap(buffer));
+        d = new PixelData(reader.getPixelsType(), ByteBuffer.wrap(buffer));
         return d;
     }
 
@@ -324,7 +317,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         PixelData d;
         byte[] buffer = new byte[reader.getCubeSize(offset,size,step)];
         reader.getHypercube(offset,size,step,buffer);
-        d = new PixelData(reader.getPixelsType().getValue(), ByteBuffer.wrap(buffer));
+        d = new PixelData(reader.getPixelsType(), ByteBuffer.wrap(buffer));
         return d;
     }
 

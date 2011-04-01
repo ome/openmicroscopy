@@ -646,7 +646,9 @@ public class PublicRepositoryI extends _RepositoryDisp {
 
         BfPixelsStoreI rps;
         try {
-            rps = new BfPixelsStoreI(path);
+            // FIXME ImportConfig should be injected
+            rps = new BfPixelsStoreI(path,
+                    new OMEROWrapper(new ImportConfig()).getImageReader());
         } catch (Throwable t) {
             if (t instanceof ServerError) {
                 throw (ServerError) t;

@@ -7,17 +7,11 @@
 package ome.services.blitz.repo;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
-import java.nio.LongBuffer;
-import java.nio.ShortBuffer;
 import java.util.List;
 
-import loci.common.DataTools;
 import loci.formats.FormatException;
 import loci.formats.ImageReader;
-import ome.formats.importer.ImportConfig;
-import ome.formats.importer.OMEROWrapper;
+import ome.io.bioformats.BfPixelsWrapper;
 import omero.ServerError;
 import omero.api.AMD_RawPixelsStore_calculateMessageDigest;
 import omero.api.AMD_RawPixelsStore_getByteWidth;
@@ -70,8 +64,8 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
 
     private final BfPixelsWrapper reader;
 
-    public BfPixelsStoreI(String path) throws IOException, FormatException {
-        reader = new BfPixelsWrapper(path);
+    public BfPixelsStoreI(String path, ImageReader bfReader) throws IOException, FormatException {
+        reader = new BfPixelsWrapper(path, bfReader);
     }
 
     public void calculateMessageDigest_async(

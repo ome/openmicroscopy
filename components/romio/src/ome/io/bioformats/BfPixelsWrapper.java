@@ -4,11 +4,9 @@
  *   Copyright 2009 Glencoe Software, Inc. All rights reserved.
  *   Use is subject to license terms supplied in LICENSE.txt
  */
-package ome.services.blitz.repo;
+package ome.io.bioformats;
 
 import java.io.IOException;
-import java.io.Serializable;
-import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
@@ -20,12 +18,7 @@ import java.util.List;
 import loci.common.DataTools;
 import loci.formats.FormatException;
 import loci.formats.ImageReader;
-import ome.formats.importer.ImportConfig;
-import ome.formats.importer.OMEROWrapper;
 import ome.io.nio.DimensionsOutOfBoundsException;
-import ome.io.nio.PixelBuffer;
-import ome.util.PixelData;
-import ome.model.enums.PixelsType;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -38,8 +31,7 @@ public class BfPixelsWrapper {
 
     private final static Log log = LogFactory.getLog(BfPixelsWrapper.class);
 
-    //private final ImageReader reader = new ImageReader();
-    private final OMEROWrapper reader;
+    private final ImageReader reader;
 
     private final String path;
 
@@ -75,9 +67,9 @@ public class BfPixelsWrapper {
      * There should ultimately be some sort of check here that the
      * file is in a/the repository.
      */
-    public BfPixelsWrapper(String path) throws IOException, FormatException {
+    public BfPixelsWrapper(String path, ImageReader reader) throws IOException, FormatException {
         this.path = path;
-        reader = new OMEROWrapper(new ImportConfig());
+        this.reader = reader;
         reader.setId(path);
 
         /* Get some data that is widely used elsewhere.
@@ -406,7 +398,7 @@ public class BfPixelsWrapper {
 
     /*
      * Get a plane dealing with rgb/interleaving if necessary
-     *     - using openPlane2d doesn't seem to work
+     *  using openPlane2d doesn't seem to work
      */
     /*
     private byte[] getWholePlane(int z, int c, int t, byte[] plane)
@@ -504,20 +496,21 @@ public class BfPixelsWrapper {
      * Retrieves how many bytes per pixel the current plane or section has.
      * @return the number of bytes per pixel.
      */
-    public PixelsType getPixelsType()
+    public String getPixelsType()
     {
         switch(pixelType) {
-            case 0: return new PixelsType("int8");
-            case 1: return new PixelsType("uint8");
-            case 2: return new PixelsType("int16");
-            case 3: return new PixelsType("uint16");
-            case 4: return new PixelsType("int32");
-            case 5: return new PixelsType("uint32");
-            case 6: return new PixelsType("float");
-            case 7: return new PixelsType("double");
+            case 0: return "int8";
+            case 1: return "uint8";
+            case 2: return "int16";
+            case 3: return "uint16";
+            case 4: return "int32";
+            case 5: return "uint32";
+            case 6: return "float";
+            case 7: return "double";
         }
         throw new RuntimeException("Unknown type with id: '" + pixelType + "'");
     }
+
 
     public boolean isFloat() {
         switch(pixelType) {
