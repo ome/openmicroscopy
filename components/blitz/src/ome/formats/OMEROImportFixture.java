@@ -17,7 +17,7 @@ import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportEvent;
 import ome.formats.importer.ImportLibrary;
 import ome.formats.importer.OMEROWrapper;
-import ome.formats.importer.cli.ErrorHandler;
+import ome.formats.importer.util.ErrorHandler; // Was previously cli for sending debug text
 import ome.formats.importer.util.ErrorHandler.EXCEPTION_EVENT;
 import omero.model.Pixels;
 
@@ -26,7 +26,7 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * test fixture for importing files without a GUI. Sample usage:
- * 
+ *
  * <pre>
  * OMEROMetadataStoreClient client = new OMEROMetadataStoreClient(sf);
  * OMEROImportFixture fixture = new OMEROImportFixture(client);
@@ -39,9 +39,9 @@ import org.apache.commons.logging.LogFactory;
  * i.setName(name);
  * i = userSave(i);
  * </pre>
- * 
+ *
  * This class is <em>not</em> thread safe.
- * 
+ *
  * @author Josh Moore, josh.moore at gmx.de
  * @see OMEROMetadataStoreClient
  * @since 4.0
@@ -73,7 +73,7 @@ public class OMEROImportFixture {
 
     /**
      * checks for the necessary fields and initializes the {@link ImportLibrary}
-     * 
+     *
      * @throws Exception
      */
     public void setUp() throws Exception {
@@ -129,7 +129,7 @@ public class OMEROImportFixture {
      * {@link ImportLibrary#importData(long, String, ome.formats.testclient.ImportLibrary.Step)}
      * </li>
      * </ul>
-     * 
+     *
      * @param step
      *            an action to take per plane. not null.
      * @throws Exception
@@ -140,7 +140,8 @@ public class OMEROImportFixture {
         ErrorHandler handler = new ErrorHandler(config) {
             @Override
             public void onUpdate(IObservable importLibrary, ImportEvent event) {
-                super.onUpdate(importLibrary, event);
+                // super.onUpdate(importLibrary, event);
+                // Was previously cli.ErrorHandler, which sends feedback.
                 if (event instanceof ImportEvent.IMPORT_DONE) {
                     pixels = ((ImportEvent.IMPORT_DONE) event).pixels;
                 } else if (event instanceof EXCEPTION_EVENT) {
