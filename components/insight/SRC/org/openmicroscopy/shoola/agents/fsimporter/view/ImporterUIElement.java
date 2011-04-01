@@ -101,12 +101,20 @@ class ImporterUIElement
 	/** The default size of the icon. */
 	private static final Dimension ICON_SIZE = new Dimension(16, 16);
 	
+	/** Icon used when the import is completed successfully. */
+	private static final Icon IMPORT_SUCCESS;
+	
+	/** Icon used when the import failed. */
+	private static final Icon IMPORT_FAIL;
+	
 	/** Icon used when the import is completed. */
-	private static final Icon IMPORT_COMPLETED;
+	private static final Icon IMPORT_PARTIAL;
 	
 	static {
 		IconManager icons = IconManager.getInstance();
-		IMPORT_COMPLETED = icons.getIcon(IconManager.APPLY);
+		IMPORT_SUCCESS = icons.getIcon(IconManager.APPLY);
+		IMPORT_FAIL = icons.getIcon(IconManager.DELETE);
+		IMPORT_PARTIAL = icons.getIcon(IconManager.APPLY_CANCEL);
 	}
 	
 	/** The object hosting information about files to import. */
@@ -758,17 +766,8 @@ class ImporterUIElement
 				EventBus bus = ImporterAgent.getRegistry().getEventBus();
 				ImportStatusEvent event;
 				if (toRefresh) {
-					List<DataObject> l = getExistingContainers();
-					/*
-					if (!topContainerToRefresh) {
-						DatasetData d = getData().getDefaultDataset();
-						if (d != null && d.getId() > 0) {
-							l = new ArrayList<DataObject>();
-							l.add(d);
-						}
-					}
-					*/
-					event = new ImportStatusEvent(false, l);
+					event = new ImportStatusEvent(false, 
+							getExistingContainers());
 				} else {
 					event = new ImportStatusEvent(false, null);
 				}
@@ -918,7 +917,24 @@ class ImporterUIElement
 	 */
 	Icon getImportIcon()
 	{ 
-		if (isDone()) return IMPORT_COMPLETED;
+		if (isDone()) {
+			Iterator i = components.entrySet().iterator();
+			FileImportComponent fc;
+			Entry entry;
+			int failure = 0;
+			int v;
+			while (i.hasNext()) {
+				entry = (Entry) i.next();
+				fc = (FileImportComponent) entry.getValue();
+				v = fc.getImportStatus();
+				if (v == FileImportComponent.PARTIAL)
+					return IMPORT_PARTIAL;
+				if (v == FileImportComponent.FAILURE) failure++;
+			}
+			if (failure == totalToImport)
+				return IMPORT_FAIL;
+			return IMPORT_SUCCESS;
+		}
 		return busyLabel.getIcon(); 
 	}
 	

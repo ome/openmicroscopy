@@ -104,6 +104,15 @@ public class FileImportComponent
 	implements ActionListener, ChangeListener, PropertyChangeListener
 {
 
+	/** The value indicating that the import was successful. */
+	public static final int SUCCESS = 0;
+	
+	/** The value indicating that the import was partially successful. */
+	public static final int PARTIAL = 1;
+	
+	/** The value indicating that the import was not successful. */
+	public static final int FAILURE = 2;
+	
 	/** Indicates that the container is of type <code>Project</code>. */
 	public static final int PROJECT_TYPE = 0;
 	
@@ -846,6 +855,32 @@ public class FileImportComponent
 				return true;
 		}
 		return false;
+	}
+	
+	/**
+	 * Returns one of the following constants: {@link #SUCCESS}, 
+	 * {@link #PARTIAL} or {@link #FAILURE}.
+	 * 
+	 * @return See above.
+	 */
+	public int getImportStatus()
+	{
+		if (file.isFile()) {
+			if (errorBox.isVisible()) return FAILURE;
+			return SUCCESS;
+		}
+		if (components == null || components.size() == 0)
+			return SUCCESS;
+		Iterator<FileImportComponent> i = components.values().iterator();
+		int n = components.size();
+		int count = 0;
+		while (i.hasNext()) {
+			if (i.next().getImportStatus() == FAILURE) 
+				count++;
+		}
+		if (count == n) return FAILURE;
+		if (count > 0) return PARTIAL;
+		return SUCCESS;
 	}
 	
 	/**
