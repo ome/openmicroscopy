@@ -99,24 +99,25 @@ public class PixelsService extends AbstractFileSystemService {
 		return pixbuf;
 	}
 
-	/**
-	 * Returns a pixel buffer for a given set of pixels. Either a proprietary
-	 * ROMIO pixel buffer or a file format specific file buffer if available.
-	 * 
-	 * @param pixels Pixels set to retrieve a pixel buffer for.
-	 * @param provider Original file metadata provider.
-	 * @param bypassOriginalFile Do not check for the existence of an original
-	 * file to back this pixel buffer. 
-	 * @return See above.
-	 */
-	public PixelBuffer getPixelBuffer(Pixels pixels,
-			                          OriginalFileMetadataProvider provider,
-			                          boolean bypassOriginalFile)
-	{
-		final String pixelsFilePath = getPixelsPath(pixels.getId());
-		final File pixelsFile = new File(pixelsFilePath);
-		final String pixelsPyramidFilePath = pixelsFilePath + PYRAMID_SUFFIX;
-		final File pixelsPyramidFile = new File(pixelsPyramidFilePath);
+   /**
+     * Returns a pixel buffer for a given set of pixels. Either a proprietary
+     * ROMIO pixel buffer or a specific pixel buffer implementation.
+     * @param pixels Pixels set to retrieve a pixel buffer for.
+     * @param pixelsFilePath Absolute path to the pixels set.
+     * @param provider Original file metadata provider.
+     * @param bypassOriginalFile Do not check for the existence of an original
+     * file to back this pixel buffer.
+     * @return See above.
+     * @since OMERO-Beta4.3
+     */
+    public PixelBuffer getPixelBuffer(Pixels pixels,
+                                      String pixelsFilePath,
+                                      OriginalFileMetadataProvider provider,
+                                      boolean bypassOriginalFile)
+    {
+        final File pixelsFile = new File(pixelsFilePath);
+        final String pixelsPyramidFilePath = pixelsFilePath + PYRAMID_SUFFIX;
+        final File pixelsPyramidFile = new File(pixelsPyramidFilePath);
         if (pyramidPixelBufferProvider != null && pixelsPyramidFile.exists())
         {
             try
@@ -132,35 +133,53 @@ public class PixelsService extends AbstractFileSystemService {
                 throw new ResourceError(msg);
             }
         }
-		if (!pixelsFile.exists())
-		{
-		    if (!bypassOriginalFile)
-		    {
-			OriginalFile originalFile =
-				provider.getOriginalFileWhereFormatStartsWith(pixels, DV_FORMAT);
-			if (originalFile != null)
-			{
-				String originalFilePath =
-					getFilesPath(originalFile.getId());
-				if (new File(originalFilePath).exists())
-				{
-					log.info(
-						"Non-existant pixel buffer file, using DeltaVision " +
-						"original file: " + originalFilePath);
-					return new DeltaVision(originalFilePath, originalFile);
-				}
-			}
-		    }
+        if (!pixelsFile.exists())
+        {
+            if (!bypassOriginalFile)
+            {
+                OriginalFile originalFile =
+                    provider.getOriginalFileWhereFormatStartsWith(
+                            pixels, DV_FORMAT);
+            if (originalFile != null)
+            {
+                String originalFilePath = getFilesPath(originalFile.getId());
+                if (new File(originalFilePath).exists())
+                {
+                    log.info(
+                        "Non-existant pixel buffer file, using DeltaVision " +
+                        "original file: " + originalFilePath);
+                    return new DeltaVision(originalFilePath, originalFile);
+                }
+            }
+        }
 
-		    log.info("Creating Pixel buffer.");
-		    createSubpath(pixelsFilePath);
-		    return new RomioPixelBuffer(pixelsFilePath, pixels, true);
-		}
+            log.info("Creating Pixel buffer.");
+            createSubpath(pixelsFilePath);
+            return new RomioPixelBuffer(pixelsFilePath, pixels, true);
+        }
 
-		log.info("Pixel buffer file exists returning read-only ROMIO pixel buffer.");
+        log.info("Pixel buffer file exists returning read-only " +
+                 "ROMIO pixel buffer.");
         return new RomioPixelBuffer(pixelsFilePath, pixels);
-	}
-	
+    }
+
+    /**
+     * Returns a pixel buffer for a given set of pixels. Either a proprietary
+     * ROMIO pixel buffer or a specific pixel buffer implementation.
+     * @param pixels Pixels set to retrieve a pixel buffer for.
+     * @param provider Original file metadata provider.
+     * @param bypassOriginalFile Do not check for the existence of an original
+     * file to back this pixel buffer.
+     * @return See above.
+     */
+    public PixelBuffer getPixelBuffer(Pixels pixels,
+                                      OriginalFileMetadataProvider provider,
+                                      boolean bypassOriginalFile)
+    {
+        return getPixelBuffer(pixels, getPixelsPath(pixels.getId()),
+                              provider, bypassOriginalFile);
+    }
+
 	/**
 	 * Initializes each plane of a PixelBuffer using a null plane byte array.
 	 * 
