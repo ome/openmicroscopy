@@ -1535,8 +1535,7 @@ public class ImportDialog
 	public void reset(TreeImageDisplay selectedContainer, 
 			Collection<TreeImageDisplay> objects, int type)
 	{
-		diskSpacePane.setVisible(false);
-		diskSpacePane.removeAll();
+		canvas.setVisible(false);
 		this.selectedContainer = selectedContainer;
 		this.objects = objects;
 		int oldType = this.type;
