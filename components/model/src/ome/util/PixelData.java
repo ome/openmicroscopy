@@ -75,6 +75,7 @@ public class PixelData
 	public PixelData(String pixelsType, ByteBuffer data)
 	{
 		this.data = data;
+		this.pixelsType = pixelsType;
 		bytesPerPixel = bytesPerPixel();
 		if (pixelsType.equals("int8")) {
 		    isSigned = true;
