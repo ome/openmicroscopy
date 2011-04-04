@@ -12,10 +12,13 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
+import loci.formats.ImageReader;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import ome.conditions.ResourceError;
+import ome.io.bioformats.BfPixelBuffer;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.util.Utils;
@@ -51,9 +54,6 @@ public class PixelsService extends AbstractFileSystemService {
 			-128, 127, -128, 127, -128, 127, -128, 127, -128, 127, // 60
 			-128, 127, -128, 127 }; // 64
 
-    /** Pyramid pixel buffer provider for this pixels service. */
-    private PyramidPixelBufferProvider pyramidPixelBufferProvider;
-
 	/**
 	 * Constructor.
 	 * 
@@ -63,26 +63,6 @@ public class PixelsService extends AbstractFileSystemService {
 	public PixelsService(String path) {
 		super(path);
 	}
-
-    /**
-     * Retrives the current pyramid pixel buffer provider.
-     * @return See above.
-     */
-    public PyramidPixelBufferProvider getPyramidPixelBufferProvider()
-    {
-        return pyramidPixelBufferProvider;
-    }
-
-    /**
-     * Sets the pyramid pixel buffer provider to be used when a pyramid pixel
-     * buffer file is available.
-     * @param pyramidPixelBufferProvider Provider to use.
-     */
-    public void setPyramidPixelBufferProvider(
-            PyramidPixelBufferProvider pyramidPixelBufferProvider)
-    {
-        this.pyramidPixelBufferProvider = pyramidPixelBufferProvider;
-    }
 
 	/**
 	 * Creates a PixelBuffer for a given pixels set.
@@ -118,15 +98,15 @@ public class PixelsService extends AbstractFileSystemService {
         final File pixelsFile = new File(pixelsFilePath);
         final String pixelsPyramidFilePath = pixelsFilePath + PYRAMID_SUFFIX;
         final File pixelsPyramidFile = new File(pixelsPyramidFilePath);
-        if (pyramidPixelBufferProvider != null && pixelsPyramidFile.exists())
+        if (pixelsPyramidFile.exists())
         {
             try
             {
                 log.info("Using pyramid: " + pixelsPyramidFilePath);
-                return pyramidPixelBufferProvider.getPyramidPixelBuffer(
-                        pixels, pixelsPyramidFilePath);
+                return new BfPixelBuffer(pixelsPyramidFilePath,
+                                         new ImageReader());
             }
-            catch (PyramidPixelBufferException e)
+            catch (Exception e)
             {
                 String msg = "Error instantiating pyramid pixel buffer.";
                 log.error(msg, e);

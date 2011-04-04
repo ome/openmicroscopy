@@ -31,7 +31,6 @@ import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
-import ome.io.nio.PyramidPixelBufferProvider;
 import ome.model.IObject;
 import ome.model.core.Pixels;
 import ome.parameters.Parameters;
@@ -86,9 +85,6 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     /** Pixels set cache. */
     private transient Map<Long, Pixels> pixelsCache;
 
-    /** Pixel buffer provider for image pyramids. */
-    private transient PyramidPixelBufferProvider pyramidPixelBufferProvider;
-
     /**
      * default constructor
      */
@@ -116,13 +112,6 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     public final void setPixelsData(PixelsService dataService) {
         getBeanHelper().throwIfAlreadySet(this.dataService, dataService);
         this.dataService = dataService;
-    }
-
-    public final void setPyramidPixelBufferProvider(
-            PyramidPixelBufferProvider pyramidPixelBufferProvider) {
-        getBeanHelper().throwIfAlreadySet(
-                this.pyramidPixelBufferProvider, pyramidPixelBufferProvider);
-        this.pyramidPixelBufferProvider = pyramidPixelBufferProvider;
     }
 
     /**
@@ -261,8 +250,6 @@ public class RawPixelsBean extends AbstractStatefulBean implements
             closePixelBuffer();
             buffer = null;
             reset = null;
-            dataService.setPyramidPixelBufferProvider(
-                    pyramidPixelBufferProvider);
 
             if (pixelsCache != null && pixelsCache.containsKey(pixelsId))
             {
