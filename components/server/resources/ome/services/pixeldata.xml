@@ -5,7 +5,7 @@
 #
 # $Id$
 #
-# Copyright 2009 Glencoe Software, Inc. All rights reserved.
+# Copyright 2011 Glencoe Software, Inc. All rights reserved.
 # Use is subject to license terms supplied in LICENSE.txt
 #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -19,16 +19,16 @@
 
 <beans>
   <description>
-  Registers the cron job for background indexing.
+  Registers the cron job for background pixeldata handling.
   </description>
 
   <bean id="adapterName" class="java.lang.String">
-    <constructor-arg value="IndexerAdapter"/>
+    <constructor-arg value="PixelDataAdapter"/>
   </bean>
 
-  <bean id="fullTextIndexerTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
-    <property name="jobDetail" ref="fullTextThreadRun" />
-    <property name="cronExpression" value="${omero.search.cron}" />
+  <bean id="pixelDataTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+    <property name="jobDetail" ref="pixelDataThreadRun" />
+    <property name="cronExpression" value="${omero.pixeldata.cron}" />
   </bean>
 
   <!-- used by session factory -->

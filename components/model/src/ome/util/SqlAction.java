@@ -103,6 +103,8 @@ public interface SqlAction {
 
     Map<String, Object> repoFile(long value);
 
+    Long nextPixelsDataLogForRepo(String repo, long lastEventId);
+
     long countFormat(String name);
 
     int insertFormat(String name);
@@ -304,6 +306,23 @@ public interface SqlAction {
         // FILES
         //
 
+        public Long nextPixelsDataLogForRepo(String repo, long lastEventId) {
+            try {
+                if (repo == null) {
+                    return _jdbc().queryForObject(
+                            _lookup("find_next_pixels_data_for_null_repo"), // $NON-NLS-1$
+                            Long.class, lastEventId);
+                } else {
+                    return _jdbc().queryForObject(
+                            _lookup("find_next_pixels_data_for_repo"), // $NON-NLS-1$
+                            Long.class, lastEventId, repo);
+                }
+            } catch (EmptyResultDataAccessException erdae) {
+                return null;
+            }
+        }
+        
+        
         public String fileRepo(long fileId) {
             return _jdbc().queryForObject(
                     _lookup("file_repo"), String.class, //$NON-NLS-1$

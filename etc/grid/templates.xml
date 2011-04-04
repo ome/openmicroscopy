@@ -216,6 +216,31 @@
       </server>
     </server-template>
 
+    <server-template id="PixelDataTemplate">
+      <parameter name="index"/>
+      <parameter name="dir"/>
+      <parameter name="config" default="default"/>
+      <server id="PixelData-${index}" exe="java" activation="always" pwd="${OMERO_HOME}">
+        <option>-Xmx256M</option>
+        <option>-Djava.awt.headless=true</option>
+        <option>-Dlog4j.configuration=${OMERO_ETC}log4j-indexing.xml</option>
+        <option>-Domero.logfile=${OMERO_LOGFILE}</option>
+        <option>-Domero.name=PixelData-${index}</option>
+        <option>-jar</option>
+        <option>${OMERO_JARS}blitz.jar</option>
+        <option>ome.pixeldata</option>
+        <adapter name="PixelDataAdapter" endpoints="tcp"/>
+        <properties>
+          <properties refid="Basics"/>
+          <properties refid="JavaServer"/>
+          <properties refid="Blitz"/>
+          <properties refid="SingleThreaded"/>
+          <properties refid="Profile"/>
+          <property name="omero.repo.dir" value="${dir}"/>
+        </properties>
+      </server>
+    </server-template>
+
     <server-template id="RepositoryTemplate">
       <parameter name="index"/>
       <parameter name="dir"/>

@@ -51,6 +51,7 @@
       <server-instance template="MonitorServerTemplate"/>
       <server-instance template="FileServerTemplate"/>
       <server-instance template="StormTemplate"/>
+      <server-instance template="PixelDataTemplate" index="0" dir=""/><!-- assumes legacy -->
       <server-instance template="ProcessorTemplate" index="0" dir=""/><!-- assumes legacy -->
       <server-instance template="TablesTemplate" index="0" dir=""/><!-- assumes legacy -->
       <server-instance template="TestDropBoxTemplate"/>
