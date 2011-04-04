@@ -70,8 +70,6 @@ module omero {
                 bool isPixelsTypeSigned() throws ServerError;
                 double getPixelsTypeUpperBound(int w) throws ServerError;
                 double getPixelsTypeLowerBound(int w) throws ServerError;
-                void setZoomLevel(double level) throws ServerError;
-                double getZoomLevel() throws ServerError;
 
                /**
                  * Whether or not this raw pixels store has a backing pixels

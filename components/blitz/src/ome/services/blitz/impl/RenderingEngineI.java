@@ -41,7 +41,6 @@ import omero.api.AMD_RenderingEngine_getRGBA;
 import omero.api.AMD_RenderingEngine_getResolutionLevel;
 import omero.api.AMD_RenderingEngine_getResolutionLevels;
 import omero.api.AMD_RenderingEngine_getTileSize;
-import omero.api.AMD_RenderingEngine_getZoomLevel;
 import omero.api.AMD_RenderingEngine_hasPixelsPyramid;
 import omero.api.AMD_RenderingEngine_isActive;
 import omero.api.AMD_RenderingEngine_isPixelsTypeSigned;
@@ -71,7 +70,6 @@ import omero.api.AMD_RenderingEngine_setQuantizationMap;
 import omero.api.AMD_RenderingEngine_setQuantumStrategy;
 import omero.api.AMD_RenderingEngine_setRGBA;
 import omero.api.AMD_RenderingEngine_setResolutionLevel;
-import omero.api.AMD_RenderingEngine_setZoomLevel;
 import omero.api.AMD_RenderingEngine_updateCodomainMap;
 import omero.api.AMD_StatefulServiceInterface_activate;
 import omero.api.AMD_StatefulServiceInterface_close;
@@ -454,17 +452,6 @@ public class RenderingEngineI extends AbstractAmdServant implements
             AMD_RenderingEngine_updateCodomainMap __cb,
             CodomainMapContext mapCtx, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, mapCtx);
-    }
-    
-    public void setZoomLevel_async(AMD_RenderingEngine_setZoomLevel __cb, 
-    		double zoomLevel,
-            Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, zoomLevel);
-    }
-
-    public void getZoomLevel_async(AMD_RenderingEngine_getZoomLevel __cb,
-            Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current);
     }
 
     /* (non-Javadoc)
