@@ -65,9 +65,6 @@ import javax.swing.filechooser.FileFilter;
 
 //Third-party libraries
 import info.clearthought.layout.TableLayout;
-import org.jdesktop.swingx.JXTaskPane;
-import org.jdesktop.swingx.JXTaskPaneContainer;
-import org.jdesktop.swingx.VerticalLayout;
 
 //Application-internal dependencies
 import org.openmicroscopy.shoola.agents.util.ViewerSorter;
@@ -76,14 +73,12 @@ import org.openmicroscopy.shoola.util.filter.file.ExcelFilter;
 import org.openmicroscopy.shoola.util.filter.file.PNGFilter;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
-import org.openmicroscopy.shoola.util.processing.chart.HeatMapAsOverlay;
 import org.openmicroscopy.shoola.util.processing.chart.ImageData;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.colour.GradientUtil;
 import org.openmicroscopy.shoola.util.ui.filechooser.FileChooser;
 import org.openmicroscopy.shoola.util.ui.graphutils.ChartObject;
-import org.openmicroscopy.shoola.util.ui.graphutils.HistogramPlot;
 import org.openmicroscopy.shoola.util.ui.slider.TextualTwoKnobsSlider;
 import org.openmicroscopy.shoola.util.ui.slider.TwoKnobsSlider;
 

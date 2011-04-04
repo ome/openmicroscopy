@@ -66,7 +66,10 @@ class HistogramCanvas
 	
 	/** The number of bins.*/
 	private int bins;
-	
+
+	/** Flag indicating to show or hide the heatmap. */
+	private boolean showHeatMap;
+
 	/**
 	 * Creates a new instance.
 	 * 
@@ -75,6 +78,21 @@ class HistogramCanvas
 	 * @param bins The number of bins.
 	 */
 	HistogramCanvas(List<Double> orderedData, ImageData data, int bins)
+	{
+		this(orderedData, data, bins, true);
+	}
+	
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param orderedData The ordered data.
+	 * @param data The data to display.
+	 * @param bins The number of bins.
+	 * @param showHeatMap 	Pass <code>true</code> to show the heatMap,
+	 * 						<code>false</code> otherwise.
+	 */
+	HistogramCanvas(List<Double> orderedData, ImageData data, int bins, 
+			boolean showHeatMap)
 	{
 		if (data == null)
 			throw new IllegalArgumentException("No data to display.");
@@ -85,6 +103,8 @@ class HistogramCanvas
 		this.orderedData = orderedData;
 		this.data = data;
 		chart = new HistogramChart(this, orderedData, bins);
+		map = new HeatMap(this, data, chart); 
+		this.showHeatMap = showHeatMap;
 		init();
 	}
 	
@@ -113,7 +133,7 @@ class HistogramCanvas
 		chart.showXAxis(true);
 		chart.showYAxis(true);
 		chart.setGradientFill(FillType.GRADIENT);
-		map = new HeatMap(this, data, chart); 
+		
 	}
 	
 	/** Draws the histogram.
@@ -128,13 +148,14 @@ class HistogramCanvas
 		// Draw the bar chart first, then overlay the line chart.
 		chart.draw(1, 1, width-2, height-2);
 
-		if (map == null) return;
+		if (map == null || !showHeatMap) return;
 		Color c = new Color(102, 102, 102);
 		pushMatrix();
 		translate(20, 20);
 		fill(c.getRGB());
 		rect(0, 0, 100, 15);
 		fill(Color.white.getRGB());
+		line (5, 5, 10, 10);
 		text("Heatmap", 40, 12);
 		noFill();
 		strokeWeight(2);

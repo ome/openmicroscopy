@@ -82,7 +82,7 @@ public class HistogramChart
 	
 	/** Gradient step. */
 	private double gradientStep;
-	
+
 	/**
 	 * Returns the bins values for the X axis of the plot.
 	 * 
@@ -95,7 +95,7 @@ public class HistogramChart
 			b[i] = i;
 		return b;
 	}
-	
+
 	/**
 	 * Creates a new instance.
 	 * 
