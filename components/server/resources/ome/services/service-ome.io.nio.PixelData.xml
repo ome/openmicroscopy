@@ -46,9 +46,11 @@
     <property name="concurrent" value="true" />
   </bean>
 
+  <!--
   <bean id="pixelDataTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
     <property name="jobDetail" ref="pixelDataThreadRun" />
     <property name="cronExpression" value="${omero.pixeldata.cron}" />
   </bean>
+  -->
 
 </beans>
