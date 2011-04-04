@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+# $Id$
+#
+# Copyright 2011 Glencoe Software, Inc. All rights reserved.
+# Use is subject to license terms supplied in LICENSE.txt
+#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<!--
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Written by:  Josh Moore, josh at glencoesoftware.com
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-->
+
+<beans>
+
+  <bean id="pixelDataThread" class="ome.services.pixeldata.PixelDataThread"
+    init-method="start" destroy-method="stop">
+    <constructor-arg ref="sessionManager"/>
+    <constructor-arg ref="executor"/>
+    <constructor-arg ref="pixelDataHandler"/>
+  </bean>
+
+  <bean id="pixelDataHandler" class="ome.services.pixeldata.PixelDataHandler">
+    <constructor-arg ref="pixelDataEventLogLoader"/>
+    <property name="repetitions" value="${omero.search.repetitions}"/>
+  </bean>
+
+  <bean id="pixelDataEventLogLoader" class="ome.services.pixeldata.PersistentEventLogLoader">
+    <constructor-arg><null/></constructor-arg><!-- Legacy has repo == null -->
+    <property name="queryService" ref="internal-ome.api.LocalQuery"/>
+    <property name="sqlAction" ref="simpleSqlAction"/>
+    <property name="key" value="pixelDataEventLogLoader.v1.current_id"/>
+    <property name="types" ref="internal-ome.api.ITypes"/>
+    <property name="batchSize" value="${omero.pixeldata.batch}"/>
+  </bean>
+
+  <bean id="pixelDataThreadRun" class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+    <property name="targetObject" ref="pixelDataThread" />
+    <property name="targetMethod" value="run" />
+    <property name="concurrent" value="true" />
+  </bean>
+
+  <bean id="pixelDataTrigger" class="org.springframework.scheduling.quartz.CronTriggerBean">
+    <property name="jobDetail" ref="pixelDataThreadRun" />
+    <property name="cronExpression" value="${omero.pixeldata.cron}" />
+  </bean>
+
+</beans>
