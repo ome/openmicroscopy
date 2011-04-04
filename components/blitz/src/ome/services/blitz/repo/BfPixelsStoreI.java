@@ -23,16 +23,19 @@ import omero.api.AMD_RawPixelsStore_getPlaneOffset;
 import omero.api.AMD_RawPixelsStore_getPlaneRegion;
 import omero.api.AMD_RawPixelsStore_getPlaneSize;
 import omero.api.AMD_RawPixelsStore_getRegion;
+import omero.api.AMD_RawPixelsStore_getResolutionLevels;
 import omero.api.AMD_RawPixelsStore_getRow;
 import omero.api.AMD_RawPixelsStore_getRowOffset;
 import omero.api.AMD_RawPixelsStore_getRowSize;
 import omero.api.AMD_RawPixelsStore_getStack;
 import omero.api.AMD_RawPixelsStore_getStackOffset;
 import omero.api.AMD_RawPixelsStore_getStackSize;
+import omero.api.AMD_RawPixelsStore_getTileSize;
 import omero.api.AMD_RawPixelsStore_getTimepoint;
 import omero.api.AMD_RawPixelsStore_getTimepointOffset;
 import omero.api.AMD_RawPixelsStore_getTimepointSize;
 import omero.api.AMD_RawPixelsStore_getTotalSize;
+import omero.api.AMD_RawPixelsStore_hasPixelsPyramid;
 import omero.api.AMD_RawPixelsStore_isFloat;
 import omero.api.AMD_RawPixelsStore_isSigned;
 import omero.api.AMD_RawPixelsStore_prepare;
@@ -40,6 +43,7 @@ import omero.api.AMD_RawPixelsStore_save;
 import omero.api.AMD_RawPixelsStore_setPixelsId;
 import omero.api.AMD_RawPixelsStore_setPlane;
 import omero.api.AMD_RawPixelsStore_setRegion;
+import omero.api.AMD_RawPixelsStore_setResolutionLevel;
 import omero.api.AMD_RawPixelsStore_setRow;
 import omero.api.AMD_RawPixelsStore_setStack;
 import omero.api.AMD_RawPixelsStore_setTimepoint;
@@ -343,6 +347,44 @@ public class BfPixelsStoreI extends _RawPixelsStoreDisp {
 
     public void passivate_async(AMD_StatefulServiceInterface_passivate __cb,
             Current __current) throws ServerError {
+        throw new UnsupportedOperationException("NYI");
+    }
+
+    /* (non-Javadoc)
+     * @see omero.api._RawPixelsStoreOperations#getResolutionLevels_async(omero.api.AMD_RawPixelsStore_getResolutionLevels, Ice.Current)
+     */
+    public void getResolutionLevels_async(
+            AMD_RawPixelsStore_getResolutionLevels __cb, Current __current)
+            throws ServerError
+    {
+        throw new UnsupportedOperationException("NYI");
+    }
+
+    /* (non-Javadoc)
+     * @see omero.api._RawPixelsStoreOperations#getTileSize_async(omero.api.AMD_RawPixelsStore_getTileSize, Ice.Current)
+     */
+    public void getTileSize_async(AMD_RawPixelsStore_getTileSize __cb,
+            Current __current) throws ServerError
+    {
+        throw new UnsupportedOperationException("NYI");
+    }
+
+    /* (non-Javadoc)
+     * @see omero.api._RawPixelsStoreOperations#hasPixelsPyramid_async(omero.api.AMD_RawPixelsStore_hasPixelsPyramid, Ice.Current)
+     */
+    public void hasPixelsPyramid_async(AMD_RawPixelsStore_hasPixelsPyramid __cb,
+            Current __current) throws ServerError
+    {
+        throw new UnsupportedOperationException("NYI");
+    }
+
+    /* (non-Javadoc)
+     * @see omero.api._RawPixelsStoreOperations#setResolutionLevel_async(omero.api.AMD_RawPixelsStore_setResolutionLevel, int, Ice.Current)
+     */
+    public void setResolutionLevel_async(
+            AMD_RawPixelsStore_setResolutionLevel __cb, int resolutionLevel,
+            Current __current) throws ServerError
+    {
         throw new UnsupportedOperationException("NYI");
     }
 }

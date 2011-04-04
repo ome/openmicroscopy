@@ -309,6 +309,38 @@ module omero {
                  **/
                 idempotent omero::model::Pixels save() throws ServerError;
 
+                /**
+                 * Whether or not this raw pixels store has a backing pixels
+                 * pyramid to provide sub-resolutions of the data.
+                 * @return <code>true</code> if the pixels store has a pixels
+                 * pyramid available and <code>false</code> otherwise.
+                 **/
+                idempotent bool hasPixelsPyramid() throws ServerError;
+
+                /**
+                 * Retrieves the number of resolution levels that the backing
+                 * pixels pyramid contains.
+                 * @return The number of resolution levels. This value does not
+                 * necessarily indicate either the presence or absence of a
+                 * pixels pyramid.
+                 **/
+                idempotent int getResolutionLevels() throws ServerError;
+
+                /**
+                 * Sets the active resolution level.
+                 * @param resolutionLevel The resolution level to be used by
+                 * the pixel buffer.
+                 **/
+                idempotent void setResolutionLevel(int resolutionLevel) throws ServerError;
+
+                /**
+                 * Retrieves the tile size for the pixel store.
+                 * @return An array of <code>length = 2</code> where the first
+                 * value of the array is the tile width and the second value is
+                 * the tile height.
+                 **/
+                idempotent Ice::IntSeq getTileSize() throws ServerError;
+
             };
 
     };
