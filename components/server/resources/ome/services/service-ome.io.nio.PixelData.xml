@@ -28,6 +28,7 @@
 
   <bean id="pixelDataHandler" class="ome.services.pixeldata.PixelDataHandler">
     <constructor-arg ref="pixelDataEventLogLoader"/>
+    <constructor-arg ref="/OMERO/Pixels"/>
     <property name="repetitions" value="${omero.search.repetitions}"/>
   </bean>
 

@@ -88,6 +88,7 @@
         <!-- Primary reason for this context -->
         <value>classpath:ome/services/pixeldata.xml</value>
         <value>classpath:ome/services/service-ome.io.nio.PixelData.xml</value>
+        <value>classpath:ome/services/service-ome.io.nio.PixelsService.xml</value>
         <!--
         Similar to ome.server, but includes as few components as
         possible to keep the memory overhead and startup time to

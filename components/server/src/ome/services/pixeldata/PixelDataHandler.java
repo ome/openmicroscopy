@@ -7,7 +7,12 @@
 
 package ome.services.pixeldata;
 
+import ome.api.IQuery;
+import ome.io.nio.PixelsService;
+import ome.model.core.Pixels;
 import ome.model.meta.EventLog;
+import ome.parameters.Parameters;
+import ome.services.OmeroOriginalFileMetadataProvider;
 import ome.services.eventlogs.EventLogLoader;
 import ome.services.util.Executor.SimpleWork;
 import ome.system.ServiceFactory;
@@ -31,6 +36,8 @@ public class PixelDataHandler extends SimpleWork {
 
     final protected PersistentEventLogLoader loader;
 
+    final protected PixelsService pixelsService;
+
     protected int reps = 5;
 
     /**
@@ -42,9 +49,10 @@ public class PixelDataHandler extends SimpleWork {
         ;
     }
 
-    public PixelDataHandler(PersistentEventLogLoader ll) {
+    public PixelDataHandler(PersistentEventLogLoader ll, PixelsService pixelsService) {
         super("PixelDataHandler", "process");
         this.loader = ll;
+        this.pixelsService = pixelsService;
     }
 
     /**
@@ -64,7 +72,7 @@ public class PixelDataHandler extends SimpleWork {
         int perbatch = 0;
         long start = System.currentTimeMillis();
         do {
-            process();
+            process(sf);
             count++;
         } while (doMore(count));
         if (perbatch > 0) {
@@ -76,7 +84,7 @@ public class PixelDataHandler extends SimpleWork {
         return null;
     }
 
-    public int process() {
+    public int process(ServiceFactory sf) {
 
         int count = 0;
 
@@ -85,9 +93,23 @@ public class PixelDataHandler extends SimpleWork {
                 // Here we assume that our log loader will only return
                 // use the proper types, since we are using the speciifc
                 // type defined in this package.
-                Long id= eventLog.getEntityId();
+                Long id = eventLog.getEntityId();
                 if (id != null) {
-                    log.warn("HANDLING " + id);
+                    final IQuery iQuery = sf.getQueryService();
+                    final Pixels pixels = iQuery.findByQuery(
+                            "select p from Pixels as p " +
+                            "join fetch p.pixelsType where p.id = :id",
+                            new Parameters().addId(id));
+                    
+                    try {
+                        // pixelsService.makePyramid(pixels, null /*Don't know path*/,
+                        //    new OmeroOriginalFileMetadataProvider(iQuery),
+                        //    true);
+                        log.debug("Hanlded pixels " + id);
+                    } catch (Exception t) {
+                        log.error("Failed to handle pixels " + id, t);
+                    }
+
                     count++;
                 }
             }
