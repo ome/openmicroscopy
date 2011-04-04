@@ -24,11 +24,10 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 
 
 //Java imports
-
-//Third-party libraries
 import java.awt.Color;
 import java.awt.Rectangle;
 
+//Third-party libraries
 import processing.core.PApplet;
 import processing.core.PImage;
 
@@ -85,7 +84,7 @@ class BirdEyeView
 	private boolean bover;
 	
 	/** Flag indicating the mouse is locked. */
-	boolean locked = false;
+	private boolean locked = false;
 	
 	/** 
 	 * The difference of <code>bx</code>and the X-coordinate of the mouse 

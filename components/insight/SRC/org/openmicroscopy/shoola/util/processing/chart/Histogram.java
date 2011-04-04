@@ -20,8 +20,8 @@
  *
  *----------------------------------------------------------------------------*/
 package org.openmicroscopy.shoola.util.processing.chart;
+
 //Java imports
-import java.util.ArrayList;
 import java.util.List;
 
 //Third-party libraries
@@ -30,7 +30,7 @@ import java.util.List;
 
 /** 
  * Creates a histogram from a sorted list of numbers, as the list is sorted it
- * means we only need to access each elemeent in the list once to calcuate the 
+ * means we only need to access each element in the list once to calculate the 
  * histogram.
  * 
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
@@ -47,51 +47,35 @@ public class Histogram
 {
 	
 	/** The original data. */
-	List<Double> originalData;
+	private List<Double> originalData;
 	
-	/** The number of bins in the histogram. */
-	double bins;
+	/** The number of bins in the histogram.*/
+	private double bins;
 	
-	/** The frequency count. */
-	float[] freq;
+	/** The frequency count.*/
+	private float[] freq;
 	
-	/** The Range of the data. */
-	Range range;
+	/** The Range of the data.*/
+	private Range range;
 		
-	/** The width of a bin. */
-	double binWidth;
+	/** The width of a bin.*/
+	private double binWidth;
 	
-	/** Has the histogram been reshaped. */
-	boolean reshaped;
+	/** Flag indicating if the histogram has been reshaped.*/
+	private boolean reshaped;
 	
-	/** The bounds of the reshaped histogram. */
-	double lower, upper;
+	/** The bounds of the reshaped histogram.*/
+	private double lower, upper;
 	
-	/**
-	 * Instantiate the Historgram, the histogram expects a sorted list of numbers.
-	 * @param data The raw data. 
-	 * @param bins The number of bins in the histogram.
-	 */
-	public Histogram(List<Double> data, int bins)
-	{
-		this.originalData = data;
-		this.bins = bins;
-		calculateHistogram();
-	}
-	
-	/**
-	 * Calculate the histogram. 
-	 */
+	/** Calculates the histogram.*/
 	private void calculateHistogram()
 	{
-		this.freq = new float[(int)bins];
+		this.freq = new float[(int) bins];
 		calculateRange();
 		populateBins();
 	}
 	
-	/**
-	 * Calculate the range of the values in the originalData.
-	 */
+	/** Calculate the range of the values in the originalData.*/
 	private void calculateRange()
 	{
 		range = new Range(originalData.get(0), 
@@ -104,88 +88,109 @@ public class Histogram
 	 * [0, 1/bins)
 	 * [1/bins, 2/bins)
 	 * ....
-	 * [(n-1)/bins, 1]
-	 * @param value See above.
+	 * [(n-1)/bins, 1].
+	 * 
+	 * @param value The value to handle.
 	 * @return See above.
 	 */
 	private int calculateIndex(double value)
 	{
 		double norm = (value-range.getMin())/range.getRange();
+		if (norm < 0) norm = 0;
 		double dBin = norm*bins;
-		if(dBin > Math.floor(bins-1/bins))
-			return (int)bins-1;
-		else
-			return (int)Math.floor(dBin);
+		if (dBin > Math.floor(bins-1/bins))return (int) bins-1;
+		return (int) Math.floor(dBin);
 	}
-	
-	/**
-	 * Populate the frequency data with the bin information
-	 */
+
+	/** Populates the frequency data with the bin information. */
 	private void populateBins()
 	{
 		int index;
-		for(double dataPt : originalData)
+		for (double dataPt : originalData)
 		{
 			index = calculateIndex(dataPt);
 			freq[index] = freq[index]+1;
 		}
 	}
-	
+
 	/**
-	 * Return the calculated histogram.
+	 * Creates a new instance, the histogram expects a sorted list of numbers.
+	 * 
+	 * @param data The raw data. 
+	 * @param bins The number of bins in the histogram.
+	 */
+	public Histogram(List<Double> data, int bins)
+	{
+		if (data == null || data.size() == 0)
+			throw new IllegalArgumentException("Data not valid.");
+		this.originalData = data;
+		setBinning(bins);
+	}
+
+
+	/**
+	 * Returns the calculated histogram.
 	 * @return See above.
 	 */
-	public float[] getHistogram()
-	{
-		return freq;
-	}
+	public float[] getHistogram() { return freq; }
 	
+	/**
+	 * Sets the number of bins.
+	 * 
+	 * @param bins The value to set.
+	 */
 	public void setBinning(double bins)
 	{
+		if (bins <= 0) bins = 1;
 		this.bins = bins;
 		this.calculateHistogram();
 	}
-	
+
 	/**
-	 * Get the bin for data value.
-	 * @param data See above.
-	 * @return
+	 * Returns the bin for data value.
+	 * 
+	 * @param data The value to handle.
+	 * @return See above.
 	 */
-	public int findBin(double data)
-	{
-		return calculateIndex(data);
-	}
+	public int findBin(double data) { return calculateIndex(data); }
 	
 	/**
-	 * Reshape the histogram on the lower and upper bounds supplied.
-	 * @param lower See above.
-	 * @param upper See above.
+	 * Reshapes the histogram on the lower and upper bounds supplied.
+	 * 
+	 * @param lower The lower bound.
+	 * @param upper The upper bound.
 	 */
 	public float[] reshapeOn(double lower, double upper)
 	{
+		if (lower > upper) {
+			double l = upper;
+			upper = lower;
+			lower = l;
+		}
 		int lowerBin = findBin(lower);
 		int upperBin = findBin(upper);
 		float [] reshaped = new float[upperBin-lowerBin];
-		for(int i = 0 ; i < upperBin-lowerBin; i++)
+		for (int i = 0 ; i < upperBin-lowerBin; i++)
 			reshaped[i] = freq[lowerBin+i];
 		return reshaped;
 	}
 	
 	/**
-	 * Return the mean value of the bin
-	 * @param bin See above.
+	 * Returns the mean value of the bin.
+	 * 
+	 * @param bin The selected bin.
 	 * @return See above.
 	 */
 	public double findValue(int bin)
 	{
+		if (bin < 0) bin = 0;
 		return bin*binWidth+lower+binWidth/2;
 	}
 	
-	/**
-	 * Revert the reshaped histogram. 
-	 */
+	/** Reverts the reshaped histogram.*/
 	public void revert()
 	{
 		
 	}
+	
 }

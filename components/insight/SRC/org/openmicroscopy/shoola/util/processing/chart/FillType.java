@@ -26,8 +26,9 @@ package org.openmicroscopy.shoola.util.processing.chart;
 //Third-party libraries
 
 //Application-internal dependencies
-/** 
- * 
+
+/**
+ * The enumeration of the filling.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>

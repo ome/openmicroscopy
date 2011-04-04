@@ -20,15 +20,16 @@
  *
  *----------------------------------------------------------------------------*/
 package org.openmicroscopy.shoola.util.processing.chart;
+
 //Java imports
-import java.awt.Color;
 
 //Third-party libraries
 import processing.core.PApplet;
+
 //Application-internal dependencies
 
-/** 
- * 
+/**
+ * The class displaying heatmap.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -42,48 +43,53 @@ import processing.core.PApplet;
  */
 public class HeatMap
 {
+	
 	/** The parent applet. */
-	PApplet parent;
+	private PApplet parent;
 	
 	/** The original Image Data. */
-	ImageData imageData;
+	private ImageData imageData;
 	
 	/** The histogram chart. */
-	HistogramChart histogramChart;
+	private HistogramChart histogramChart;
 	
 	/**
 	 * Create an instance of the Heatmap.
-	 * @param parent
+	 * 
+	 * @param parent The parent applet.
+	 * @param data The original Image Data.
+	 * @param chart The chart to use.
 	 */
 	public HeatMap(PApplet parent, ImageData data, HistogramChart chart)
 	{
+		if (parent == null)
+			throw new IllegalArgumentException("No PApplet specified.");
+		if (chart == null)
+			throw new IllegalArgumentException("No Histogram specified.");
+		if (data == null)
+			throw new IllegalArgumentException("No Image data specified.");
 		this.parent = parent;
 		this.imageData = data;
 		this.histogramChart = chart;
 	}
 	
 	/** 
-	 * Render the heatmap from xOrigin, yOrigin, using width and height.
-	 * @param xOrigin See above.
-	 * @param yOrigin See above.
-	 * @param width See above.
-	 * @param height See above.
+	 * Renders the heatmap from xOrigin, yOrigin, using width and height.
 	 */
 	public void draw()
 	{
 		parent.pushStyle();
 		parent.noStroke();
-		for(int x = 0; x < imageData.getWidth() ; x++)
-			for( int y = 0 ; y < imageData.getHeight() ; y++)
-			{
-				double value = imageData.getValue(x,y);
-				int colour = histogramChart.findColour(value);
-				parent.fill(colour);
-				parent.rect(x*imageData.getBinning(), y*imageData.getBinning(), 
-						imageData.getBinning(), imageData.getBinning());
+		double value;
+		int binning;
+		for (int x = 0; x < imageData.getWidth() ; x++)
+			for (int y = 0 ; y < imageData.getHeight() ; y++) {
+				value = imageData.getValue(x,y);
+				parent.fill(histogramChart.findColour(value));
+				binning = imageData.getBinning();
+				parent.rect(x*binning, y*binning, binning, binning);
 			}
 		parent.popStyle();
-
 	}
-	
+
 }

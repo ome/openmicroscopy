@@ -20,14 +20,15 @@
  *
  *----------------------------------------------------------------------------*/
 package org.openmicroscopy.shoola.util.processing.chart;
+
 //Java imports
 
 //Third-party libraries
 
 //Application-internal dependencies
 
-/** 
- * 
+/**
+ * Utility class
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -41,71 +42,71 @@ package org.openmicroscopy.shoola.util.processing.chart;
  */
 public class Range
 {
-	/** The minimum value in the range. */
+	
+	/** The minimum value in the range.*/
 	private double min;
 
-	/** The maximium value in the range. */
+	/** The maximum value in the range.*/
 	private double max;
 	
-	/** is the value set. */
+	/** Flag indicating if the value is set.*/
 	private boolean set;
 	
 	/**
-	 * Instantiate the Range
+	 * Creates a new instance.
+	 * 
 	 * @param min The minimum value.
 	 * @param max The maximum value.
 	 */
 	public Range(double min, double max)
 	{
+		if (min > max) {
+			double v = max;
+			max = min;
+			min = v;
+		}
 		this.min = min;
 		this.max = max;
-		this.set=true;
+		this.set = true;
 	}
 	
-	/**
-	 * Instatiate the range. 
-	 */
+	/** Creates the range.*/
 	public Range()
 	{
-		this(0,0);
-		this.set=false;
+		this(0, 0);
+		this.set = false;
 	}
 	
 	/**
-	 * Add a value to the range.
-	 * @param value See above.
+	 * Adds a value to the range.
+	 * @param value The value to add.
 	 */
 	public void addValue(double value)
 	{
-		set=true;
+		set = true;
 		min = Math.min(value, min);
 		max = Math.max(value, max);	
 	}
 	
 	/**
-	 * Get the range. 
+	 * Returns the range. 
+	 * 
 	 * @return See above.
 	 */
-	public double getRange()
-	{
-		return max-min;
-	}
+	public double getRange() { return max-min; }
 
 	/**
-	 * Get the minimum value.
+	 * Returns the minimum value.
+	 * 
 	 * @return See above.
 	 */
-	public double getMin()
-	{
-		return min;
-	}
+	public double getMin() { return min; }
 	
 	/**
-	 * Get the maximum value.
+	 * Returns the maximum value.
+	 * 
 	 * @return See above.
 	 */
-	public double getMax()
-	{
-		return max;
-	}
+	public double getMax() { return max; }
+	
 }

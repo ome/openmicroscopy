@@ -20,6 +20,7 @@
  *
  *----------------------------------------------------------------------------*/
 package org.openmicroscopy.shoola.util.processing.chart;
+
 //Java imports
 import java.util.List;
 
@@ -28,7 +29,7 @@ import java.util.List;
 //Application-internal dependencies
 
 /** 
- * 
+ * The object holding information about the image.
  *
  * @author  Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -42,20 +43,31 @@ import java.util.List;
  */
 public class ImageData
 {
+	
 	/** Image data, values represent the different matrixes of the FLIM fit. */
-	List<Double> data; 
+	private List<Double> data; 
 	
 	/** The binning on the image. */
-	int binning;
+	private int binning;
 	
 	/** The width of the image. */
-	int width;
+	private int width;
 	
 	/** The height of the image. */
-	int height;
+	private int height;
 	
-	ImageData(List<Double> data, int width, int height, int binning)
+	/**
+	 * Creates a new instance.
+	 * 
+	 * @param data The data to host.
+	 * @param width The width of the image.
+	 * @param height The height of the image.
+	 * @param binning The height of the image.
+	 */
+	public ImageData(List<Double> data, int width, int height, int binning)
 	{
+		if (data == null || data.size() == 0)
+			throw new IllegalArgumentException("No data");
 		this.data = data;
 		this.binning = binning;
 		this.height = height;
@@ -63,41 +75,33 @@ public class ImageData
 	}
 	
 	/**
-	 * Get the width of the image.
+	 * Returns the width of the image.
+	 * 
 	 * @return See above.
 	 */
-	public int getWidth()
-	{
-		return width;
-	}
+	public int getWidth() { return width; }
 	
 	/** 
-	 * Get the height of the image.
+	 * Returns the height of the image.
+	 * 
 	 * @return See above.
 	 */
-	public int getHeight()
-	{
-		return height;
-	}
+	public int getHeight() { return height; }
 	
 	/**
-	 * Get the value for position x,y
+	 * Returns the value for position x,y.
+	 * 
 	 * @param x See above.
 	 * @param y See above.
 	 * @return See above.
 	 */
-	public double getValue(int x, int y)
-	{
-		return data.get(x+y*width);
-	}
+	public double getValue(int x, int y) { return data.get(x+y*width); }
 
 	/**
-	 * Get the binning of the image.
+	 * Returns the binning of the image.
+	 * 
 	 * @return See above.
 	 */
-	public int getBinning()
-	{
-		return binning;
-	}
+	public int getBinning() { return binning; }
 	
 }
