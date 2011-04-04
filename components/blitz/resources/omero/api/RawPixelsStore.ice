@@ -327,6 +327,12 @@ module omero {
                 idempotent int getResolutionLevels() throws ServerError;
 
                 /**
+                 * Retrieves the active resolution level.
+                 * @return The active resolution level.
+                 **/
+                idempotent int getResolutionLevel() throws ServerError;
+
+                /**
                  * Sets the active resolution level.
                  * @param resolutionLevel The resolution level to be used by
                  * the pixel buffer.

@@ -22,6 +22,7 @@ import omero.api.AMD_RawPixelsStore_getPlaneOffset;
 import omero.api.AMD_RawPixelsStore_getPlaneRegion;
 import omero.api.AMD_RawPixelsStore_getPlaneSize;
 import omero.api.AMD_RawPixelsStore_getRegion;
+import omero.api.AMD_RawPixelsStore_getResolutionLevel;
 import omero.api.AMD_RawPixelsStore_getResolutionLevels;
 import omero.api.AMD_RawPixelsStore_getRow;
 import omero.api.AMD_RawPixelsStore_getRowOffset;
@@ -286,5 +287,15 @@ public class RawPixelsStoreI extends AbstractAmdServant implements
             Current __current) throws ServerError
     {
         callInvokerOnRawArgs(__cb, __current, resolutionLevel);
+    }
+
+    /* (non-Javadoc)
+     * @see omero.api._RawPixelsStoreOperations#getResolutionLevel_async(omero.api.AMD_RawPixelsStore_getResolutionLevel, Ice.Current)
+     */
+    public void getResolutionLevel_async(
+            AMD_RawPixelsStore_getResolutionLevel __cb, Current __current)
+            throws ServerError
+    {
+        callInvokerOnRawArgs(__cb, __current);
     }
 }

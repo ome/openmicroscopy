@@ -85,6 +85,9 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     /** Pixels set cache. */
     private transient Map<Long, Pixels> pixelsCache;
 
+    /** Current resolution level. */
+    private transient int resolutionLevel = 0;
+
     /**
      * default constructor
      */
@@ -213,6 +216,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     }
 
     public void clean() {
+        resolutionLevel = 0;
         dataService = null;
         pixelsInstance = null;
         try {
@@ -664,4 +668,45 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     public void setDiskSpaceChecking(boolean diskSpaceChecking) {
         this.diskSpaceChecking = diskSpaceChecking;
     }
+
+    /* (non-Javadoc)
+     * @see ome.api.RawPixelsStore#getResolutionLevels()
+     */
+    public int getResolutionLevels()
+    {
+        return 0;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.api.RawPixelsStore#getTileSize()
+     */
+    public int[] getTileSize()
+    {
+        return new int[] { 256, 256 };
+    }
+
+    /* (non-Javadoc)
+     * @see ome.api.RawPixelsStore#hasPixelsPyramid()
+     */
+    public boolean hasPixelsPyramid()
+    {
+        return false;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.api.RawPixelsStore#getResolutionLevel()
+     */
+    public int getResolutionLevel()
+    {
+        return resolutionLevel;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.api.RawPixelsStore#setResolutionLevel(int)
+     */
+    public void setResolutionLevel(int resolutionLevel)
+    {
+        this.resolutionLevel = resolutionLevel;
+    }
+
 }

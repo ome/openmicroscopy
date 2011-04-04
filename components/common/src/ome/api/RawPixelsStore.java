@@ -110,4 +110,14 @@ public interface RawPixelsStore extends StatefulServiceInterface {
 
     public Pixels save();
 
+    public boolean hasPixelsPyramid();
+
+    public int getResolutionLevels();
+
+    public int getResolutionLevel();
+
+    public void setResolutionLevel(int resolutionLevel);
+
+    public int[] getTileSize();
+
 }

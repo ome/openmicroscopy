@@ -28,6 +28,7 @@ import omero.api.AMD_RenderingEngine_getPixelsTypeLowerBound;
 import omero.api.AMD_RenderingEngine_getPixelsTypeUpperBound;
 import omero.api.AMD_RenderingEngine_getQuantumDef;
 import omero.api.AMD_RenderingEngine_getRGBA;
+import omero.api.AMD_RenderingEngine_getResolutionLevel;
 import omero.api.AMD_RenderingEngine_getResolutionLevels;
 import omero.api.AMD_RenderingEngine_getTileSize;
 import omero.api.AMD_RenderingEngine_getZoomLevel;
@@ -462,6 +463,15 @@ public class BfRenderingEngineI extends _RenderingEngineDisp {
     public void setResolutionLevel_async(
             AMD_RenderingEngine_setResolutionLevel __cb, int resolutionLevel,
             Current __current) throws ServerError
+    {
+    }
+
+    /* (non-Javadoc)
+     * @see omero.api._RenderingEngineOperations#getResolutionLevel_async(omero.api.AMD_RenderingEngine_getResolutionLevel, Ice.Current)
+     */
+    public void getResolutionLevel_async(
+            AMD_RenderingEngine_getResolutionLevel __cb, Current __current)
+            throws ServerError
     {
     }
 }

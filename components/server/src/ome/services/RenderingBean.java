@@ -1336,6 +1336,67 @@ public class RenderingBean implements RenderingEngine, Serializable {
         }
     }
 
+    /* (non-Javadoc)
+     * @see omeis.providers.re.RenderingEngine#getResolutionLevel()
+     */
+    public int getResolutionLevel()
+    {
+        rwl.writeLock().lock();
+
+        try {
+            errorIfInvalidState();
+            return renderer.getResolutionLevel();
+        } finally {
+            rwl.writeLock().unlock();
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see omeis.providers.re.RenderingEngine#getResolutionLevels()
+     */
+    public int getResolutionLevels()
+    {
+        return 1; // TODO
+    }
+
+    /* (non-Javadoc)
+     * @see omeis.providers.re.RenderingEngine#getTileSize()
+     */
+    public int[] getTileSize()
+    {
+        return new int[] { 256, 256 }; // TODO
+    }
+
+    /* (non-Javadoc)
+     * @see omeis.providers.re.RenderingEngine#hasPixelsPyramid()
+     */
+    public boolean hasPixelsPyramid()
+    {
+        rwl.writeLock().lock();
+
+        try {
+            errorIfInvalidState();
+            return false; // TODO
+        } finally {
+            rwl.writeLock().unlock();
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see omeis.providers.re.RenderingEngine#setResolutionLevel(int)
+     */
+    public void setResolutionLevel(int resolutionLevel)
+    {
+        rwl.writeLock().lock();
+
+        try {
+            errorIfInvalidState();
+            renderer.setResolutionLevel(resolutionLevel);
+        } finally {
+            rwl.writeLock().unlock();
+        }
+    }
+
     /**
      * Implemented as specified by the {@link RenderingEngine} interface.
      * 
@@ -1351,42 +1412,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
             rwl.readLock().unlock();
         }
     }
-    
-    /**
-     * Implemented as specified by the {@link RenderingEngine} interface.
-     * 
-     * @see RenderingEngine#setZoomLevel(double)
-     */
-    @RolesAllowed("user")
-    public void setZoomLevel(double zoomLevel) {
-        rwl.writeLock().lock();
 
-        try {
-            errorIfInvalidState();
-            renderer.setZoomLevel(zoomLevel);
-        } finally {
-            rwl.writeLock().unlock();
-        }
-    }
-
-    /**
-     * Implemented as specified by the {@link RenderingEngine} interface.
-     * 
-     * @see RenderingEngine#getZoomLevel()
-     */
-    @RolesAllowed("user")
-    public double getZoomLevel() {
-        rwl.readLock().lock();
-
-        try {
-            errorIfNullRenderingDef();
-            //TODO: modify
-            return 1.0;//rendDefObj.getDefaultT().intValue();
-        } finally {
-            rwl.readLock().unlock();
-        }
-    }
-    
     /**
      * Close the active renderer, cleaning up any potential messes left by the
      * included pixel buffer.
