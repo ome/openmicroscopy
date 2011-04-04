@@ -184,7 +184,11 @@ public class ImportConfig {
         this.ini = ini;
 
         // Various startup requirements
-        isUpgradeRequired();
+        
+        ResourceBundle bundle = ResourceBundle.getBundle("omero");
+        omeroVersion = bundle.getString("omero.version");
+        log.info("OMERO Version: " + omeroVersion);
+        
         if (ini != null) {
             ini.updateFlexReaderServerMaps();
         }
@@ -244,19 +248,6 @@ public class ImportConfig {
                 "userPixels", this, null);
 
         readersPath = new StrValue("readersPath", this);
-    }
-
-    /**
-     * Check online to see if this is the current version
-     */
-    public boolean isUpgradeRequired() {
-        ResourceBundle bundle = ResourceBundle.getBundle("omero");
-        omeroVersion = bundle.getString("omero.version");
-        log.info("OMERO Version: " + omeroVersion);
-        String url = bundle.getString("omero.upgrades.url");
-        UpgradeCheck check = new UpgradeCheck(url, omeroVersion, "importer");
-        check.run();
-        return check.isUpgradeNeeded();
     }
 
     /**
@@ -348,6 +339,10 @@ public class ImportConfig {
         return this.omeroVersion; // + " " + ini.getVersionNote();
     }
 
+    public void setVersionNumber(String s) {
+    	this.omeroVersion = s;
+    }
+    
     /**
      * @return ini version number
      */

@@ -56,6 +56,7 @@ import ome.formats.importer.IObservable;
 import ome.formats.importer.IObserver;
 import ome.formats.importer.ImportConfig;
 import ome.formats.importer.ImportEvent;
+import ome.system.UpgradeCheck;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -205,6 +206,7 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
                             viewer.setVisible(true);
                         }
                         
+                        isUpgradeRequired();
                         viewer.getStatusBar().setProgress(false, 0, "");
                         viewer.appendToOutput("> Login Successful.\n");
                         viewer.getFileQueueHandler().enableImports(true);
@@ -287,6 +289,17 @@ public class LoginHandler implements IObservable, ActionListener, WindowListener
         }.start();
     }
 
+    /**
+     * Check online to see if this is the current version
+     */
+    public boolean isUpgradeRequired() {
+        ResourceBundle bundle = ResourceBundle.getBundle("omero");
+        String url = bundle.getString("omero.upgrades.url");
+        UpgradeCheck check = new UpgradeCheck(url, config.getVersionNumber(), "importer");
+        check.run();
+        return check.isUpgradeNeeded();
+    }
+    
     /**
      *  refresh login
      */
