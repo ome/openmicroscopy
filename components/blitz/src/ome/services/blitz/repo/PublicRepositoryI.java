@@ -75,6 +75,7 @@ import omero.api.RenderingEnginePrx;
 import omero.api.ThumbnailStorePrx;
 import omero.api._RawFileStoreTie;
 import omero.api._RawPixelsStoreTie;
+import omero.constants.data.NONAMESET;
 import omero.grid.FileSet;
 import omero.grid.RepositoryListConfig;
 import omero.grid.RepositoryPrx;
@@ -117,9 +118,6 @@ public class PublicRepositoryI extends _RepositoryDisp {
 
     /* String used as key in params field of db for indexing image series number */
     private final static String IMAGE_NO_KEY = "image_no";
-
-    /* String to use when there is no image name */
-    public final static String NO_NAME_SET = "NO_NAME_SET";
 
     private final long id;
 
@@ -993,10 +991,10 @@ public class PublicRepositoryI extends _RepositoryDisp {
                 pix = createPixels(pix);
                 imageName = iNames.get(i);
                 if (imageName == null) {
-                    imageName = NO_NAME_SET;
+                    imageName = NONAMESET.value;
                 }
                 else if (imageName.equals("")) {
-                    imageName = NO_NAME_SET;
+                    imageName = NONAMESET.value;
                 }
                 image = getImage(set.fileName, i, currentUser);
                 if (image == null) {

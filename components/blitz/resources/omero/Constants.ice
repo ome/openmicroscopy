@@ -126,6 +126,19 @@ module omero {
     };
 
     /**
+     * Constants used for field defaults and similar
+     * in the [omero::model::] classes.
+     **/
+    module data {
+
+        /**
+         * Set as Image.name when no name is provided by the user.
+         **/
+        const string NONAMESET = "NO_NAME_SET";
+
+    };
+
+    /**
      * Namespaces for the [omero::api::IMetadata] interface.
      **/
     module metadata {

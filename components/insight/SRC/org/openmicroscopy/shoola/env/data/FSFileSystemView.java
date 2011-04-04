@@ -38,7 +38,7 @@ import javax.swing.filechooser.FileSystemView;
 //Third-party libraries
 
 //Application-internal dependencies
-import ome.services.blitz.repo.PublicRepositoryI;
+import omero.constants.data.NONAMESET;
 import omero.grid.FileSet;
 import omero.grid.RepositoryListConfig;
 import omero.grid.RepositoryPrx;
@@ -69,7 +69,7 @@ public class FSFileSystemView
 {
 
 	/** Indicates that no name was set. */
-	private static final String NO_NAME = PublicRepositoryI.NO_NAME_SET;
+	private static final String NO_NAME = NONAMESET.value;
 	
 	/** Reference to the repositories. */
 	private Map<FileData, RepositoryPrx> repositories;
