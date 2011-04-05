@@ -651,7 +651,10 @@ class BlitzObjectWrapper (object):
         if not hasattr(self._obj, 'isAnnotationLinksLoaded'): #pragma: no cover
             raise NotImplementedError
         if not self._obj.isAnnotationLinksLoaded():
-            links = self._conn.getQueryService().findAllByQuery("select l from %sAnnotationLink as l join fetch l.child as a where l.parent.id=%i" % (self.OMERO_CLASS, self._oid), None)
+            query = "select l from %sAnnotationLink as l join fetch l.details.owner join fetch l.details.creationEvent "\
+            "join fetch l.child as a join fetch a.details.owner join fetch a.details.creationEvent "\
+            "where l.parent.id=%i" % (self.OMERO_CLASS, self._oid)
+            links = self._conn.getQueryService().findAllByQuery(query, None)
             self._obj._annotationLinksLoaded = True
             self._obj._annotationLinksSeq = links
 
@@ -2336,7 +2339,8 @@ class _BlitzGateway (object):
 
         query = "select annLink from %sAnnotationLink as annLink join fetch annLink.details.owner as owner " \
                 "join fetch annLink.details.creationEvent " \
-                "join fetch annLink.child as ann join fetch annLink.parent as parent" % wrapper().OMERO_CLASS
+                "join fetch annLink.child as ann join fetch ann.details.owner join fetch ann.details.creationEvent "\
+                "join fetch annLink.parent as parent" % wrapper().OMERO_CLASS
 
         q = self.getQueryService()
         if params == None:
