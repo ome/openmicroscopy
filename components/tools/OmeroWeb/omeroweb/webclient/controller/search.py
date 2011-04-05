@@ -90,7 +90,7 @@ class BaseSearch(BaseController):
         pl_list_with_counters = list()
         for ot in onlyTypes:
             if ot == 'images':
-                im_list = list(self.conn.searchImages(query, created))
+                im_list = list(self.conn.searchObjects(["image"], query, created))
                 
                 im_ids = [im.id for im in im_list]
                 im_annotation_counter = self.conn.getCollectionCount("Image", "annotationLinks", im_ids)
