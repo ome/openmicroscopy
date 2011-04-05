@@ -126,21 +126,26 @@ public class PixelsService extends AbstractFileSystemService
         final File pixelsPyramidFile = new File(pixelsPyramidFilePath);
 
         //
-        // 1. If a pyramid is required but does not exist, then we
-        // raise a message allowing other beans the chance to create
-        // the pyramid.
+        // 1. If the pixels file exists, then we know that this isn't
+        // an attempt to write a new ROMIO Pixels file, therefore if
+        // a pyramid is required but does not exist, then we raise a
+        // message allowing other beans the chance to create the pyramid.
+        // If none signal "retry", then all we can do is throw.
         //
-        while (requirePyramid && !pixelsPyramidFile.exists()) {
-            MissingPyramidMessage mpm = new MissingPyramidMessage(
-                    this, pixels.getId());
-            pub.publishEvent(mpm);
-            if (mpm.isRetry()) {
-                log.debug("Retrying pyramid:" + pixelsPyramidFilePath);
-                continue;
+        if (pixelsFile.exists())
+        {
+            while (requirePyramid && !pixelsPyramidFile.exists()) {
+                MissingPyramidMessage mpm = new MissingPyramidMessage(
+                        this, pixels.getId());
+                pub.publishEvent(mpm);
+                if (mpm.isRetry()) {
+                    log.debug("Retrying pyramid:" + pixelsPyramidFilePath);
+                    continue;
+                }
+                String msg = "Missing pyramid:" + pixelsPyramidFilePath;
+                log.warn(msg);
+                throw new MissingPyramidException(msg, pixels.getId());
             }
-            String msg = "Missing pyramid:" + pixelsPyramidFilePath;
-            log.warn(msg);
-            throw new MissingPyramidException(msg, pixels.getId());
         }
 
         //
@@ -154,7 +159,8 @@ public class PixelsService extends AbstractFileSystemService
         }
 
         //
-        // 3. If this is a useRomio scenario, then we simply create the
+        // 3. If this is not a useRomio scenario (i.e. if the file will be
+        // accessed directly from Bio-Formats), then we simply create the
         // buffer and return it.
         //
         if (!useRomio)
@@ -166,7 +172,8 @@ public class PixelsService extends AbstractFileSystemService
         //
         // 4. Finally, this must be a ROMIO situation. If the pixels file is
         // missing, then we attempt a bypass if allowed. Otherwise, we
-        // create a new romio buffer.
+        // create a new romio buffer if none exists, or return the existing
+        // one. The pyramids object will be created later if necessary.
         //
         if (!pixelsFile.exists())
         {
@@ -175,18 +182,18 @@ public class PixelsService extends AbstractFileSystemService
                 OriginalFile originalFile =
                     provider.getOriginalFileWhereFormatStartsWith(
                             pixels, DV_FORMAT);
-            if (originalFile != null)
-            {
-                String originalFilePath = getFilesPath(originalFile.getId());
-                if (new File(originalFilePath).exists())
+                if (originalFile != null)
                 {
-                    log.info(
-                        "Non-existant pixel buffer file, using DeltaVision " +
-                        "original file: " + originalFilePath);
-                    return new DeltaVision(originalFilePath, originalFile);
+                    String originalFilePath = getFilesPath(originalFile.getId());
+                    if (new File(originalFilePath).exists())
+                    {
+                        log.info(
+                            "Non-existant pixel buffer file, using DeltaVision " +
+                            "original file: " + originalFilePath);
+                        return new DeltaVision(originalFilePath, originalFile);
+                    }
                 }
             }
-        }
 
             log.info("Creating Pixel buffer.");
             createSubpath(pixelsFilePath);
