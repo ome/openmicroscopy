@@ -70,7 +70,7 @@ public class PointFigure
 
 	/**
 	 * Draws the crosshairs of the ellipse on the graphics context.
-
+	 * 
 	 * @param g The graphics context.
 	 */
 	private void drawCrossHairs(Graphics2D g)

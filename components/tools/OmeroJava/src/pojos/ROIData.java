@@ -175,7 +175,7 @@ public class ROIData
 			throw new IllegalArgumentException("No Roi specified.");
 		ROICoordinate coord = shape.getROICoordinate();
 		List<ShapeData> shapeList;
-		if(!roiShapes.containsKey(coord))
+		if (!roiShapes.containsKey(coord))
 		{
 			shapeList = new ArrayList<ShapeData>();
 			roiShapes.put(coord, shapeList);

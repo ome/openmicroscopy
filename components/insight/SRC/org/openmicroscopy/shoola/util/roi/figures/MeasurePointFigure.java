@@ -81,6 +81,7 @@ public class MeasurePointFigure
     * This is used to perform faster drawing and hit testing.
     */
 	private	Rectangle2D bounds;
+	
 	/** The ROI containing the ROIFigure which in turn contains this Figure. */
 	protected 	ROI					roi;
 

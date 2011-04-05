@@ -67,6 +67,7 @@ import org.openmicroscopy.shoola.util.roi.model.annotation.AnnotationKeys;
 import org.openmicroscopy.shoola.util.roi.model.annotation.MeasurementAttributes;
 import org.openmicroscopy.shoola.util.roi.model.util.Coord3D;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import org.openmicroscopy.shoola.util.ui.drawingtools.figures.PointFigure;
 
 import pojos.EllipseData;
 import pojos.LineData;
@@ -314,7 +315,7 @@ class InputServerStrategy
 	 */
 	private MeasurePointFigure createPointFigure(PointData data)
 	{
-		double r = 5;
+		double r = PointFigure.FIGURE_SIZE/2;//5;
 		double x = data.getX()-r;
 		double y = data.getY()-r;
 		
