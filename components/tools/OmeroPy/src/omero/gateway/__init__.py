@@ -2777,34 +2777,6 @@ class _BlitzGateway (object):
     ###################
     # Searching stuff #
 
-    def searchDatasets (self, text, created=None):
-        """
-        Fulltext search on Datasets.
-        
-        @param text:        The text to search for
-        @type text:         String
-        @param created:     List or tuple of creation times. (start, stop)
-        @type created:      L{omero.rtime} list or tuple
-        @return:            List of Datasets
-        @rtype:             List of L{DatasetWrapper}
-        """
-        
-        return self.simpleSearch(text=text, created=created, types=(DatasetWrapper,))
-
-    def searchProjects (self, text, created=None):
-        """
-        Fulltext search on Projects.
-        
-        @param text:        The text to search for
-        @type text:         String
-        @param created:     List or tuple of creation times. (start, stop)
-        @type created:      L{omero.rtime} list or tuple
-        @return:            List of Projects
-        @rtype:             List of L{ProjectWrapper}
-        """
-        
-        return self.simpleSearch(text=text, created=created, types=(ProjectWrapper,))
-
     def searchScreens (self, text, created=None):
         """
         Fulltext search on Screens.
