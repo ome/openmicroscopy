@@ -373,8 +373,8 @@ public class HistogramChart
 	 */
 	private int gradientColour(double x)
 	{
-		PVector value = getScreenToData(new PVector((float) x,(bottom-top)/2));
-		
+		PVector value = getScreenToData(new PVector((float) x, (bottom-top)/2));
+		if (value == null) return Color.white.getRGB();
 		switch(fillType)
 		{
 			case GRADIENT:

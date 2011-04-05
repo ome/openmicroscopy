@@ -24,6 +24,8 @@ package org.openmicroscopy.shoola.agents.util.flim;
 
 //Java imports
 import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.util.List;
 
 //Third-party libraries
@@ -67,8 +69,20 @@ class HistogramCanvas
 	/** The number of bins.*/
 	private int bins;
 
-	/** Flag indicating to show or hide the heatmap. */
+	/** Flag indicating to show or hide the heatMap.*/
 	private boolean showHeatMap;
+	
+	/** The button used to open or close the heatMap.*/
+	private Rectangle button;
+	
+	/** Flag indicating that open or close heatMap.*/
+	private boolean displayHeatMap = true;
+	
+	/** The value by which to translate the heatMap along the X-axis.*/
+	private int translateX = 0;
+	
+	/** The value by which to translate the heatMap along the X-axis.*/
+	private int translateY = 0;
 
 	/**
 	 * Creates a new instance.
@@ -102,10 +116,21 @@ class HistogramCanvas
 		this.bins = bins;
 		this.orderedData = orderedData;
 		this.data = data;
+		button = new Rectangle(2, 2, 12, 12);
 		chart = new HistogramChart(this, orderedData, bins);
 		map = new HeatMap(this, data, chart); 
 		this.showHeatMap = showHeatMap;
 		init();
+	}
+	/**
+	 * Returns the colour of the bin containing the value.
+	 * 
+	 * @param value See above.
+	 * @return See above.
+	 */
+	public int findColour(double value)
+	{
+		return chart.findColour(value);
 	}
 	
 	/** 
@@ -115,7 +140,8 @@ class HistogramCanvas
 	 */
 	public void setup()
 	{
-		size(500, 400);
+		Dimension d = new Dimension(500, 400);
+		setSize(d);
 		smooth();
 		textFont(createFont("Helvetica", 10));
 		textSize(10);
@@ -135,7 +161,7 @@ class HistogramCanvas
 		chart.setGradientFill(FillType.GRADIENT);
 		
 	}
-	
+
 	/** Draws the histogram.
 	 *
 	 * @see {@link PApplet#draw()}
@@ -151,19 +177,40 @@ class HistogramCanvas
 		if (map == null || !showHeatMap) return;
 		Color c = new Color(102, 102, 102);
 		pushMatrix();
-		translate(20, 20);
+		translate(translateX, translateY);
 		fill(c.getRGB());
-		rect(0, 0, 100, 15);
+		int h = 15;
+		rect(0, 0, data.getWidth(), h);
+		fill(Color.black.getRGB());
+		rect(button.x, button.y, button.width, button.height);
 		fill(Color.white.getRGB());
-		line (5, 5, 10, 10);
 		text("Heatmap", 40, 12);
+		if (!displayHeatMap) {
+			popMatrix();
+			return;
+		}
 		noFill();
 		strokeWeight(2);
 		stroke(c.getRGB());
-		rect(0, 0, 200, 215);
+		rect(0, 0, data.getWidth(), data.getHeight()+h);
 		translate(0, 15);
 		map.draw();
 		popMatrix();
+	}
+	
+	/**
+	 * Overridden to handle mouse pressed event.
+	 * @see {@link PApplet#mousePressed()}
+	 */
+	public void mousePressed()
+	{
+		int x = mouseX-translateX;
+		int y = mouseY-translateY;
+		if (button.contains(x, y)) {
+			displayHeatMap = !displayHeatMap;
+			draw();
+			return;
+		}
 	}
 	
 }

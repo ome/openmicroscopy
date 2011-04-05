@@ -39,6 +39,9 @@ import javax.swing.tree.DefaultMutableTreeNode;
 //Third-party libraries
 
 //Application-internal dependencies
+import omero.model.Plate;
+import omero.model.PlateAcquisition;
+
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -455,7 +458,7 @@ public abstract class TreeImageDisplay
         	return ((File) obj).getName();
         else if (obj instanceof FileData)
         	return ((FileData) obj).getName();
-        else if (obj instanceof PlateAcquisitionData)
+        else if (obj instanceof PlateAcquisitionData) 
         	return ((PlateAcquisitionData) obj).getLabel();
         else if (obj instanceof MultiImageData) 
         	return ((MultiImageData) obj).getName();
