@@ -2777,35 +2777,6 @@ class _BlitzGateway (object):
     ###################
     # Searching stuff #
 
-    def searchScreens (self, text, created=None):
-        """
-        Fulltext search on Screens.
-        
-        @param text:        The text to search for
-        @type text:         String
-        @param created:     List or tuple of creation times. (start, stop)
-        @type created:      L{omero.rtime} list or tuple
-        @return:            List of Screens
-        @rtype:             List of L{ScreenWrapper}
-        """
-        
-        return self.simpleSearch(text=text, created=created, types=(ScreenWrapper,))
-
-    def searchPlates (self, text, created=None):
-        """
-        Fulltext search on Plates.
-        
-        @param text:        The text to search for
-        @type text:         String
-        @param created:     List or tuple of creation times. (start, stop)
-        @type created:      L{omero.rtime} list or tuple
-        @return:            List of Plates
-        @rtype:             List of L{PlateWrapper}
-        """
-        
-        return self.simpleSearch(text=text, created=created, types=(PlateWrapper,))
-
-
     def searchObjects(self, obj_types, text, created=None):
         """
         Search objects of type "Project", "Dataset", "Image", "Screen", "Plate"
