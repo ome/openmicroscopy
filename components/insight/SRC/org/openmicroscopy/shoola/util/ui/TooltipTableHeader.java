@@ -25,7 +25,7 @@ package org.openmicroscopy.shoola.util.ui;
 
 //Java imports
 import java.awt.event.MouseEvent;
-
+import javax.swing.JTable;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableColumnModel;
 
@@ -74,6 +74,8 @@ public class TooltipTableHeader
 	public String getToolTipText(MouseEvent e)
 	{
 		int col = columnAtPoint(e.getPoint());
+		JTable table = getTable();
+		if (table == null) return "";
 		int modelCol = getTable().convertColumnIndexToModel(col);
 		String retStr;
 		try {
@@ -84,4 +86,5 @@ public class TooltipTableHeader
 		if (retStr.length() < 1) retStr = super.getToolTipText(e);
 		return retStr;
 	}
+	
 }
