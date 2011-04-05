@@ -1251,7 +1251,7 @@ def search_json (request, server_id=None, _conn=None, **kwargs):
     Search for objects in blitz.
     Returns json encoded list of marshalled objects found by the search query
     Request keys include:
-        - search: The text to search for
+        - text: The text to search for
         - ctx: (http request) 'imgs' to search only images
         - text: (http request) the actual text phrase
         - start: starting index (0 based) for result
@@ -1268,7 +1268,7 @@ def search_json (request, server_id=None, _conn=None, **kwargs):
     """
     opts = searchOptFromRequest(request)
     rv = []
-    logger.debug("simpleSearch(%s)" % (opts['search']))
+    logger.debug("searchObjects(%s)" % (opts['search']))
     # search returns blitz_connector wrapper objects
     def urlprefix(iid):
         return reverse('webgateway.views.render_thumbnail', args=(iid,))
@@ -1278,7 +1278,7 @@ def search_json (request, server_id=None, _conn=None, **kwargs):
         if opts['ctx'] == 'imgs':
             sr = _conn.searchObjects(["image"], opts['search'])
         else:
-            sr = _conn.simpleSearch(opts['search'])
+            sr = _conn.searchObjects(None, opts['search'])  # searches P/D/I
     except ApiUsageException:
         return HttpResponseServerError('"parse exception"', mimetype='application/javascript')
     def marshal ():
