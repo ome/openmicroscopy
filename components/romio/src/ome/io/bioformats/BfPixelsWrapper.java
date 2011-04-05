@@ -17,7 +17,7 @@ import java.util.List;
 
 import loci.common.DataTools;
 import loci.formats.FormatException;
-import loci.formats.ImageReader;
+import loci.formats.IFormatReader;
 import ome.io.nio.DimensionsOutOfBoundsException;
 
 import org.apache.commons.logging.Log;
@@ -31,7 +31,7 @@ public class BfPixelsWrapper {
 
     private final static Log log = LogFactory.getLog(BfPixelsWrapper.class);
 
-    private final ImageReader reader;
+    private final IFormatReader reader;
 
     private final String path;
 
@@ -67,7 +67,7 @@ public class BfPixelsWrapper {
      * There should ultimately be some sort of check here that the
      * file is in a/the repository.
      */
-    public BfPixelsWrapper(String path, ImageReader reader) throws IOException, FormatException {
+    public BfPixelsWrapper(String path, IFormatReader reader) throws IOException, FormatException {
         this.path = path;
         this.reader = reader;
         reader.setId(path);
@@ -364,6 +364,11 @@ public class BfPixelsWrapper {
             throw new RuntimeException(e);
         }
         return buffer;
+    }
+
+    public byte[] getTile(int z, int c, int t, int x, int y, int w, int h,
+                          byte[] buffer) throws FormatException, IOException {
+        return reader.openBytes(reader.getIndex(z, c, t), buffer, x, y, w, h);
     }
 
     /*

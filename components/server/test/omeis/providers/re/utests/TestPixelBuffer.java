@@ -302,6 +302,36 @@ public class TestPixelBuffer implements PixelBuffer {
 		// TODO Auto-generated method stub
 		return null;
 	}
-                
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getTile(java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
+     */
+    public PixelData getTile(Integer z, Integer c, Integer t, Integer x,
+            Integer y, Integer w, Integer h) throws IOException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getTileDirect(java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, byte[])
+     */
+    public byte[] getTileDirect(Integer z, Integer c, Integer t, Integer x,
+            Integer y, Integer w, Integer h, byte[] buffer) throws IOException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#setTile(byte[], java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
+     */
+    public void setTile(byte[] buffer, Integer z, Integer c, Integer t, Integer x, Integer y,
+            Integer w, Integer h) throws IOException,
+            BufferOverflowException
+    {
+        // TODO Auto-generated method stub
+
+    }
 
 }

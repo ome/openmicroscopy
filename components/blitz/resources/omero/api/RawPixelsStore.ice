@@ -145,6 +145,19 @@ module omero {
                 idempotent long getTimepointOffset(int t) throws ServerError;
 
                 /**
+                 * Retrieves a tile from this pixel buffer.
+                 * @param z offset across the Z-axis of the pixel buffer.
+                 * @param c offset across the C-axis of the pixel buffer.
+                 * @param t offset across the T-axis of the pixel buffer.
+                 * @param x Top left corner of the tile, X offset.
+                 * @param y Top left corner of the tile, Y offset.
+                 * @param w Width of the tile.
+                 * @param h Height of the tile.
+                 * @return buffer containing the data.
+                 */
+                idempotent Ice::ByteSeq getTile(int z, int c, int t, int x, int y, int w, int h) throws ServerError;
+
+                /**
                  * Retrieves a n-dimensional block from this pixel store.
                  * @param start offset for each dimension within pixel store.
                  * @param size of each dimension (dependent on dimension).
@@ -218,6 +231,24 @@ module omero {
                  * @param t offset across the T-axis of the pixel store.
                  **/
                 idempotent Ice::ByteSeq getTimepoint(int t) throws ServerError;
+
+                /**
+                 * Sets a tile in this pixel buffer.
+                 * @param buf A byte array of the data.
+                 * @param z offset across the Z-axis of the pixel buffer.
+                 * @param c offset across the C-axis of the pixel buffer.
+                 * @param t offset across the T-axis of the pixel buffer.
+                 * @param x Top left corner of the tile, X offset.
+                 * @param y Top left corner of the tile, Y offset.
+                 * @param w Width of the tile.
+                 * @param h Height of the tile.
+                 * @throws IOException if there is a problem writing to the pixel buffer.
+                 * @throws BufferOverflowException if an attempt is made to write off the
+                 * end of the file.
+                 *
+                 * See "read-only caveat" under [RawPixelsStore]
+                 */
+                idempotent void setTile(Ice::ByteSeq buf, int z, int c, int t, int x, int y, int w, int h) throws ServerError;
 
                 /**
                  * Sets a region in this pixel buffer.

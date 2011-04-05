@@ -823,4 +823,32 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
     public String getSha1() {
         return pixels.getSha1();
     }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getTile(java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
+     */
+    public PixelData getTile(Integer z, Integer c, Integer t, Integer x,
+            Integer y, Integer w, Integer h) throws IOException
+    {
+        throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getTileDirect(java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, byte[])
+     */
+    public byte[] getTileDirect(Integer z, Integer c, Integer t, Integer x,
+            Integer y, Integer w, Integer h, byte[] buffer) throws IOException
+    {
+        throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#setTile(byte[], java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
+     */
+    public void setTile(byte[] buffer, Integer z, Integer c, Integer t, Integer x, Integer y,
+            Integer w, Integer h) throws IOException,
+            BufferOverflowException
+    {
+        throw new UnsupportedOperationException("Not implemented.");
+    }
 }

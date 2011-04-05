@@ -7,10 +7,13 @@
 
 package ome.api;
 
+import java.io.IOException;
+import java.nio.BufferOverflowException;
 import java.util.Set;
 
 import ome.annotations.Validate;
 import ome.model.core.Pixels;
+import ome.util.PixelData;
 
 /**
  * Binary data provider. Initialized with the id of a
@@ -76,6 +79,8 @@ public interface RawPixelsStore extends StatefulServiceInterface {
 
     public long getTimepointOffset(int t);
 
+    public byte[] getTile(int z, int c, int t, int x, int y, int w, int h);
+
     public byte[] getRegion(int size, long offset);
     
     public byte[] getRow(int y, int z, int c, int t);
@@ -89,6 +94,8 @@ public interface RawPixelsStore extends StatefulServiceInterface {
     public byte[] getStack(int c, int t);
 
     public byte[] getTimepoint(int t);
+
+    public void setTile(byte[] buffer, int z, int c, int t, int x, int y, int w, int h);
 
     public void setRegion(int size, long offset, byte[] buffer);
 

@@ -14,7 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import loci.formats.FormatException;
-import loci.formats.ImageReader;
+import loci.formats.IFormatReader;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
 import ome.util.PixelData;
@@ -32,7 +32,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
 
     private final static Log log = LogFactory.getLog(BfPixelBuffer.class);
 
-    private final BfPixelsWrapper reader;
+    protected final BfPixelsWrapper reader;
 
     /**
      * We may want a constructor that takes the id of an imported file
@@ -40,7 +40,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
      * There should ultimately be some sort of check here that the
      * file is in a/the repository.
      */
-    public BfPixelBuffer(String filePath, ImageReader bfReader) throws IOException, FormatException {
+    public BfPixelBuffer(String filePath, IFormatReader bfReader) throws IOException, FormatException {
         reader = new BfPixelsWrapper(filePath, bfReader);
     }
 
@@ -342,4 +342,42 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         List<Integer> step = Arrays.asList(new Integer[]{stride+1,stride+1,1,1,1});
         return getHypercube(offset, size, step);
     }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getTile(java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
+     */
+    public PixelData getTile(Integer z, Integer c, Integer t, Integer x,
+            Integer y, Integer w, Integer h) throws IOException
+    {
+        byte[] buffer = new byte[w * h * reader.getByteWidth()];
+        getTileDirect(z, c,t ,x ,y, w, h, buffer);
+        return new PixelData(reader.getPixelsType(), ByteBuffer.wrap(buffer));
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getTileDirect(java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, byte[])
+     */
+    public byte[] getTileDirect(Integer z, Integer c, Integer t, Integer x,
+            Integer y, Integer w, Integer h, byte[] buffer) throws IOException
+    {
+        try
+        {
+            return reader.getTile(z, c, t, x, y, w, h, buffer);
+        }
+        catch (FormatException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#setTile(byte[], java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
+     */
+    public void setTile(byte[] buffer, Integer z, Integer c, Integer t, Integer x, Integer y,
+            Integer w, Integer h) throws IOException,
+            BufferOverflowException
+    {
+        throw new UnsupportedOperationException("Cannot write to repository");
+    }
+
 }

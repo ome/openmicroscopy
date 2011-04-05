@@ -709,4 +709,43 @@ public class RawPixelsBean extends AbstractStatefulBean implements
         this.resolutionLevel = resolutionLevel;
     }
 
+    /* (non-Javadoc)
+     * @see ome.api.RawPixelsStore#getTile(int, int, int, int, int, int, int)
+     */
+    public byte[] getTile(int z, int c, int t, int x, int y, int w, int h)
+    {
+        errorIfNotLoaded();
+
+        int size = w * h * buffer.getByteWidth();
+        if (readBuffer == null || readBuffer.length != size) {
+            readBuffer = new byte[size];
+        }
+        try {
+            readBuffer = buffer.getTileDirect(z, c, t, x, y, w, h, readBuffer);
+        } catch (Exception e) {
+            handleException(e);
+        }
+        return readBuffer;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.api.RawPixelsStore#setTile(byte[], int, int, int, int, int, int, int)
+     */
+    public void setTile(byte[] data, int z, int c, int t, int x, int y,
+            int w, int h)
+    {
+        errorIfNotLoaded();
+
+        if (diskSpaceChecking) {
+            iRepositoryInfo.sanityCheckRepository();
+        }
+
+        try {
+            buffer.setTile(data, z, c, t, x, y, w, h);
+            modified();
+        } catch (Exception e) {
+            handleException(e);
+        }
+    }
+
 }
