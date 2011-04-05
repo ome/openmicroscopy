@@ -12,6 +12,7 @@ import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 import loci.formats.FormatException;
 import loci.formats.IFormatReader;
@@ -32,7 +33,11 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
 
     private final static Log log = LogFactory.getLog(BfPixelBuffer.class);
 
-    protected final BfPixelsWrapper reader;
+    protected final String filePath;
+
+    protected final IFormatReader bfReader;
+
+    protected final AtomicReference<BfPixelsWrapper> reader = new AtomicReference<BfPixelsWrapper>();
 
     /**
      * We may want a constructor that takes the id of an imported file
@@ -41,28 +46,45 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
      * file is in a/the repository.
      */
     public BfPixelBuffer(String filePath, IFormatReader bfReader) throws IOException, FormatException {
-        reader = new BfPixelsWrapper(filePath, bfReader);
+        this.filePath = filePath;
+        this.bfReader = bfReader;
+    }
+
+    protected BfPixelsWrapper reader() {
+        BfPixelsWrapper wrapper = reader.get();
+        if (wrapper == null) {
+            try {
+                if (reader.compareAndSet(null, new BfPixelsWrapper(filePath, bfReader))) {
+                    wrapper = reader.get();
+                }
+            } catch (Exception e) {
+                log.error("Failed to instantiate BfPixelsWrapper with " + filePath);
+                throw new RuntimeException(e);
+            }
+        }
+        return wrapper;
     }
 
     public byte[] calculateMessageDigest() throws IOException {
-        return reader.getMessageDigest();
+        return reader().getMessageDigest();
     }
 
     public void checkBounds(Integer x, Integer y, Integer z, Integer c, Integer t)
             throws DimensionsOutOfBoundsException {
-        reader.checkBounds(x, y, z, c, t);
+        reader().checkBounds(x, y, z, c, t);
     }
 
     public void close() throws IOException {
-        reader.close();
+        reader().close();
     }
 
     public int getByteWidth() {
-        return reader.getByteWidth();
+        return reader().getByteWidth();
     }
 
     public PixelData getCol(Integer x, Integer z, Integer c, Integer t)
             throws IOException, DimensionsOutOfBoundsException {
+        final BfPixelsWrapper reader = reader();
         PixelData d;
         byte[] buffer = new byte[reader.getColSize()];
         reader.getCol(x,z,c,t,buffer);
@@ -73,6 +95,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
     public byte[] getColDirect(Integer x, Integer z, Integer c, Integer t,
             byte[] buffer) throws IOException, DimensionsOutOfBoundsException {
         try {
+            final BfPixelsWrapper reader = reader();
             reader.getCol(x,z,c,t,buffer);
             reader.swapIfRequired(buffer);
         } catch (FormatException e) {
@@ -82,19 +105,20 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
     }
 
     public Integer getColSize() {
-        return reader.getColSize();
+        return reader().getColSize();
     }
 
     public long getId() {
-        return reader.getId();
+        return reader().getId();
     }
 
     public String getPath() {
-        return reader.getPath();
+        return reader().getPath();
     }
 
     public PixelData getPlane(Integer z, Integer c, Integer t)
             throws IOException, DimensionsOutOfBoundsException {
+        final BfPixelsWrapper reader = reader();
         PixelData d;
         byte[] buffer = new byte[reader.getPlaneSize()];
         reader.getPlane(z,c,t,buffer);
@@ -105,6 +129,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
     public byte[] getPlaneDirect(Integer z, Integer c, Integer t, byte[] buffer)
             throws IOException, DimensionsOutOfBoundsException {
         try {
+            final BfPixelsWrapper reader = reader();
             reader.getPlane(z,c,t,buffer);
             reader.swapIfRequired(buffer);
         } catch (FormatException e) {
@@ -115,7 +140,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
 
     public Long getPlaneOffset(Integer z, Integer c, Integer t)
             throws DimensionsOutOfBoundsException {
-        return reader.getPlaneOffset(z,c,t);
+        return reader().getPlaneOffset(z,c,t);
     }
 
     public byte[] getPlaneRegionDirect(Integer z, Integer c, Integer t,
@@ -126,7 +151,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
     }
 
     public Integer getPlaneSize() {
-        return reader.getPlaneSize();
+        return reader().getPlaneSize();
     }
 
     public PixelData getRegion(Integer size, Long offset) throws IOException {
@@ -142,6 +167,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
 
     public PixelData getRow(Integer y, Integer z, Integer c, Integer t)
             throws IOException, DimensionsOutOfBoundsException {
+        final BfPixelsWrapper reader = reader();
         PixelData d;
         byte[] buffer = new byte[reader.getRowSize()];
         reader.getRow(y,z,c,t,buffer);
@@ -152,6 +178,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
     public byte[] getRowDirect(Integer y, Integer z, Integer c, Integer t,
             byte[] buffer) throws IOException, DimensionsOutOfBoundsException {
         try {
+            final BfPixelsWrapper reader = reader();
             reader.getRow(y,z,c,t,buffer);
             reader.swapIfRequired(buffer);
         } catch (FormatException e) {
@@ -162,35 +189,36 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
 
     public Long getRowOffset(Integer y, Integer z, Integer c, Integer t)
             throws DimensionsOutOfBoundsException {
-        return reader.getRowOffset(y,z,c,t);
+        return reader().getRowOffset(y,z,c,t);
     }
 
     public Integer getRowSize() {
-        return reader.getRowSize();
+        return reader().getRowSize();
     }
 
     public int getSizeC() {
-        return reader.getSizeC();
+        return reader().getSizeC();
     }
 
     public int getSizeT() {
-        return reader.getSizeT();
+        return reader().getSizeT();
     }
 
     public int getSizeX() {
-        return reader.getSizeX();
+        return reader().getSizeX();
     }
 
     public int getSizeY() {
-        return reader.getSizeY();
+        return reader().getSizeY();
     }
 
     public int getSizeZ() {
-        return reader.getSizeZ();
+        return reader().getSizeZ();
     }
 
     public PixelData getStack(Integer c, Integer t) throws IOException,
             DimensionsOutOfBoundsException {
+        final BfPixelsWrapper reader = reader();
         PixelData d;
         byte[] buffer = new byte[reader.getColSize()];
         reader.getStack(c,t,buffer);
@@ -201,6 +229,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
     public byte[] getStackDirect(Integer c, Integer t, byte[] buffer)
             throws IOException, DimensionsOutOfBoundsException {
         try {
+            final BfPixelsWrapper reader = reader();
             reader.getStack(c,t,buffer);
             reader.swapIfRequired(buffer);
         } catch (FormatException e) {
@@ -211,15 +240,16 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
 
     public Long getStackOffset(Integer c, Integer t)
             throws DimensionsOutOfBoundsException {
-        return reader.getStackOffset(c,t);
+        return reader().getStackOffset(c,t);
     }
 
     public Integer getStackSize() {
-        return reader.getStackSize();
+        return reader().getStackSize();
     }
 
     public PixelData getTimepoint(Integer t) throws IOException,
             DimensionsOutOfBoundsException {
+        final BfPixelsWrapper reader = reader();
         PixelData d;
         byte[] buffer = new byte[reader.getTimepointSize()];
         reader.getTimepoint(t,buffer);
@@ -230,6 +260,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
     public byte[] getTimepointDirect(Integer t, byte[] buffer)
             throws IOException, DimensionsOutOfBoundsException {
         try {
+            BfPixelsWrapper reader = reader();
             reader.getTimepoint(t,buffer);
             reader.swapIfRequired(buffer);
         } catch (FormatException e) {
@@ -240,23 +271,23 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
 
     public Long getTimepointOffset(Integer t)
             throws DimensionsOutOfBoundsException {
-        return reader.getTimepointOffset(t);
+        return reader().getTimepointOffset(t);
     }
 
     public Integer getTimepointSize() {
-        return reader.getTimepointSize();
+        return reader().getTimepointSize();
     }
 
     public Integer getTotalSize() {
-        return reader.getTotalSize();
+        return reader().getTotalSize();
     }
 
     public boolean isFloat() {
-        return reader.isFloat();
+        return reader().isFloat();
     }
 
     public boolean isSigned() {
-        return reader.isSigned();
+        return reader().isSigned();
     }
 
     public void setPlane(ByteBuffer buffer, Integer z, Integer c, Integer t)
@@ -314,6 +345,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
     public PixelData getHypercube(List<Integer> offset, List<Integer> size,
             List<Integer> step) throws IOException, DimensionsOutOfBoundsException
     {
+        final BfPixelsWrapper reader = reader();
         PixelData d;
         byte[] buffer = new byte[reader.getCubeSize(offset,size,step)];
         reader.getHypercube(offset,size,step,buffer);
@@ -325,6 +357,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
             List<Integer> step, byte[] buffer)
             throws IOException, DimensionsOutOfBoundsException {
         try {
+            final BfPixelsWrapper reader = reader();
             reader.getHypercube(offset,size,step,buffer);
             reader.swapIfRequired(buffer);
         } catch (FormatException e) {
@@ -349,6 +382,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
     public PixelData getTile(Integer z, Integer c, Integer t, Integer x,
             Integer y, Integer w, Integer h) throws IOException
     {
+        final BfPixelsWrapper reader = reader();
         byte[] buffer = new byte[w * h * reader.getByteWidth()];
         getTileDirect(z, c,t ,x ,y, w, h, buffer);
         return new PixelData(reader.getPixelsType(), ByteBuffer.wrap(buffer));
@@ -362,7 +396,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
     {
         try
         {
-            return reader.getTile(z, c, t, x, y, w, h, buffer);
+            return reader().getTile(z, c, t, x, y, w, h, buffer);
         }
         catch (FormatException e)
         {
