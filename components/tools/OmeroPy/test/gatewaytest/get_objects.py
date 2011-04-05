@@ -222,12 +222,12 @@ class GetObjectTest (lib.GTest):
         self.loginAsAuthor()
 
         # search for Projects
-        projects = list( self.gateway.searchProjects("weblitz") )
+        #projects = list( self.gateway.searchProjects("weblitz") )   # method removed from blitz gateway
         pros = list( self.gateway.searchObjects(["Project"], "weblitz") )
-        self.assertEqual(len(pros), len(projects))  # check unordered lists are the same length & ids
-        projectIds = [p.getId() for p in projects]
+        #self.assertEqual(len(pros), len(projects))  # check unordered lists are the same length & ids
+        #projectIds = [p.getId() for p in projects]
         for p in pros:
-            self.assertTrue(p.getId() in projectIds)
+            #self.assertTrue(p.getId() in projectIds)
             self.assertEqual(p.OMERO_CLASS, "Project", "Should only return Projects")
 
         # P/D/I is default objects to search
