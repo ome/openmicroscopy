@@ -160,7 +160,7 @@ public class ImportDialog
 	/** Action id indicating to create a new dataset. */
 	private static final int	CREATE_DATASET = 6;
 	
-	/** Action id indicating to create a new dataset. */
+	/** Action id indicating to create a new project. */
 	private static final int	CREATE_PROJECT = 7;
 	
 	/** The title of the dialog. */
@@ -1118,7 +1118,9 @@ public class ImportDialog
 			if (datasetsList.size() > 0) { //orphaned datasets.
 				n = new DataNode(datasetsList);
 			} else {
-				n = new DataNode(new ArrayList<DataNode>());
+				List<DataNode> list = new ArrayList<DataNode>();
+				list.add(new DataNode(DataNode.createDefaultDataset()));
+				n = new DataNode(list);
 			}
 			sortedList.add(n);
 			
