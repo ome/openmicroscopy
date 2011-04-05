@@ -1251,6 +1251,7 @@ def search_json (request, server_id=None, _conn=None, **kwargs):
     Search for objects in blitz.
     Returns json encoded list of marshalled objects found by the search query
     Request keys include:
+        - search: The text to search for
         - ctx: (http request) 'imgs' to search only images
         - text: (http request) the actual text phrase
         - start: starting index (0 based) for result
@@ -1275,7 +1276,7 @@ def search_json (request, server_id=None, _conn=None, **kwargs):
     pks = None
     try:
         if opts['ctx'] == 'imgs':
-            sr = _conn.searchImages(opts['search'])
+            sr = _conn.searchObjects(["image"], opts['search'])
         else:
             sr = _conn.simpleSearch(opts['search'])
     except ApiUsageException:
