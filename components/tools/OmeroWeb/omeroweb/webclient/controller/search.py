@@ -100,7 +100,7 @@ class BaseSearch(BaseController):
                     im.annotation_counter = im_annotation_counter.get(im.id)
                     im_list_with_counters.append(im)
             elif ot == 'datasets':
-                ds_list = list(self.conn.searchDatasets(query, created))
+                ds_list = list(self.conn.searchObjects(["Dataset"], query, created))
                 
                 ds_ids = [ds.id for ds in ds_list]
                 ds_annotation_counter = self.conn.getCollectionCount("Dataset", "annotationLinks", ds_ids)
@@ -110,7 +110,7 @@ class BaseSearch(BaseController):
                     ds.annotation_counter = ds_annotation_counter.get(ds.id)
                     ds_list_with_counters.append(ds)
             elif ot == 'projects':
-                pr_list = list(self.conn.searchProjects(query, created))
+                pr_list = list(self.conn.searchObjects(["Project"], query, created))
                 
                 pr_ids = [pr.id for pr in pr_list]
                 pr_annotation_counter = self.conn.getCollectionCount("Project", "annotationLinks", pr_ids)
