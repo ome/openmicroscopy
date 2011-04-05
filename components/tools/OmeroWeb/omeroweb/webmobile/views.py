@@ -151,7 +151,7 @@ def viewer(request, imageId):
     if conn is None or not conn.isConnected():
         return HttpResponseRedirect(reverse('webmobile_login'))
         
-    image = conn.getImage(imageId)
+    image = conn.getObject("Image", imageId)
     w = image.getWidth()
     h = image.getHeight()
     
@@ -203,7 +203,7 @@ def project(request, id, **kwargs):
         logger.error(traceback.format_exc())
         return HttpResponse(traceback.format_exc())
         
-    prj = conn.getProject(id)
+    prj = conn.getObject("Project", id)
     return render_to_response('webmobile/browse/project.html', {'client':conn, 'project':prj})
 
 
@@ -219,10 +219,10 @@ def object_details(request, obj_type, id, **kwargs):
         return HttpResponse(traceback.format_exc())
         
     if obj_type == 'project':
-        obj = conn.getProject(id)
+        obj = conn.getObject("Project", id)
         title = 'Project'
     elif obj_type == 'dataset':
-        obj = conn.getDataset(id)
+        obj = conn.getObject("Dataset", id)
         title = 'Dataset'
     anns = getAnnotations(obj)
     
@@ -244,7 +244,7 @@ def dataset(request, id, **kwargs):
         logger.error(traceback.format_exc())
         return HttpResponse(traceback.format_exc())
         
-    ds = conn.getDataset(id)
+    ds = conn.getObject("Dataset", id)
     return render_to_response('webmobile/browse/dataset.html', {'client': conn, 'dataset': ds})
     
         
@@ -259,7 +259,7 @@ def image(request, imageId, **kwargs):
         logger.error(traceback.format_exc())
         return HttpResponse(traceback.format_exc())
         
-    img = conn.getImage(imageId)
+    img = conn.getObject("Image", imageId)
     anns = getAnnotations(img)
     
     return render_to_response('webmobile/browse/image.html', {'client': conn, 'object':img, 'obj_type':'image',
@@ -323,7 +323,7 @@ def screen(request, id, **kwargs):
         logger.error(traceback.format_exc())
         return HttpResponse(traceback.format_exc())
         
-    scrn = conn.getScreen(id)
+    scrn = conn.getObject("Screen", id)
     return render_to_response('webmobile/browse/screen.html', {'client': conn, 'screen': scrn})   
 
 
@@ -338,7 +338,7 @@ def plate(request, id, **kwargs):
         logger.error(traceback.format_exc())
         return HttpResponse(traceback.format_exc())
         
-    scrn = conn.getScreen(id)
+    scrn = conn.getObject("Screen", id)
     return render_to_response('webmobile/browse/screen.html', {'client': conn, 'screen': scrn})
 
 
@@ -383,15 +383,15 @@ def edit_object(request, obj_type, obj_id, **kwargs):
         return HttpResponse(traceback.format_exc())
     
     if obj_type == 'image': 
-        obj = conn.getImage(obj_id)
+        obj = conn.getObject("Image", obj_id)
         title = 'Image'
         redirect = reverse('webmobile_image', kwargs={'imageId':obj_id})
     elif obj_type == 'dataset':
-        obj = conn.getDataset(obj_id)
+        obj = conn.getObject("Dataset", obj_id)
         title = 'Dataset'
         redirect = reverse('webmobile_dataset_details', kwargs={'id':obj_id})
     elif obj_type == 'project':
-        obj = conn.getProject(obj_id)
+        obj = conn.getObject("Project", obj_id)
         title = 'Project'
         redirect = reverse('webmobile_project_details', kwargs={'id':obj_id})
         

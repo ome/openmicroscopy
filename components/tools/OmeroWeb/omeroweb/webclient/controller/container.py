@@ -55,43 +55,43 @@ class BaseContainer(BaseController):
     def __init__(self, conn, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, tag=None, index=None, **kwargs):
         BaseController.__init__(self, conn)
         if o1_type == "project":
-            self.project = self.conn.getProject(o1_id)
+            self.project = self.conn.getObject("Project", o1_id)
             if self.project is None:
                 raise AttributeError("We are sorry, but that project (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
             if self.project._obj is None:
                 raise AttributeError("We are sorry, but that project (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
             if o2_type == "dataset":
-                self.dataset = self.conn.getDataset(o2_id)
+                self.dataset = self.conn.getObject("Dataset", o2_id)
                 if self.dataset is None:
                     raise AttributeError("We are sorry, but that dataset (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o2_id))
                 if self.dataset._obj is None:
                     raise AttributeError("We are sorry, but that dataset (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o2_id))
         elif o1_type == "screen":
-            self.screen = self.conn.getScreen(o1_id)
+            self.screen = self.conn.getObject("Screen", o1_id)
             if self.screen is None:
                 raise AttributeError("We are sorry, but that screen (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
             if self.screen._obj is None:
                 raise AttributeError("We are sorry, but that screen (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
             if o2_type == "plate":
-                self.plate = self.conn.getPlate(o2_id)
+                self.plate = self.conn.getObject("Plate", o2_id)
                 if self.plate is None:
                     raise AttributeError("We are sorry, but that plate (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o2_id))
                 if self.plate._obj is None:
                     raise AttributeError("We are sorry, but that plate (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o2_id)) 
         elif o1_type == "plate":
-            self.plate = self.conn.getPlate(o1_id)
+            self.plate = self.conn.getObject("Plate", o1_id)
             if self.plate is None:
                 raise AttributeError("We are sorry, but that plate (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
             if self.plate._obj is None:
                 raise AttributeError("We are sorry, but that plate (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))  
         elif o1_type == "dataset":
-            self.dataset = self.conn.getDataset(o1_id)
+            self.dataset = self.conn.getObject("Dataset", o1_id)
             if self.dataset is None:
                 raise AttributeError("We are sorry, but that dataset (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
             if self.dataset._obj is None:
                 raise AttributeError("We are sorry, but that dataset (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
         elif o1_type == "image":
-            self.image = self.conn.getImage(o1_id)
+            self.image = self.conn.getObject("Image", o1_id)
             if self.image is None:
                 raise AttributeError("We are sorry, but that image (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
             if self.image._obj is None:
@@ -103,7 +103,7 @@ class BaseContainer(BaseController):
             if self.well._obj is None:
                 raise AttributeError("We are sorry, but that well (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
         elif o1_type == "tag" and o1_id is not None:
-            self.tag = self.conn.getAnnotation(o1_id)
+            self.tag = self.conn.getObject("Annotation", o1_id)
         elif o1_type == "orphaned":
             self.orphaned = True
     
@@ -143,7 +143,10 @@ class BaseContainer(BaseController):
             self.experimenter = self.conn.getExperimenter(eid)
         else:            
             eid = self.conn.getEventContext().userId
-        self.tags = list(self.conn.listAnnotations(eid, 'tag'))
+        params = omero.sys.Parameters()
+        params.theFilter = omero.sys.Filter()
+        params.theFilter.ownerId = omero.rtypes.rlong(eid)
+        self.tags = list(self.conn.getObjects("TagAnnotation", params=params))
         self.t_size = len(self.tags)
     
     def loadDataByTag(self):
@@ -350,12 +353,12 @@ class BaseContainer(BaseController):
             for pl in pl_list:
                 pl.annotation_counter = pl_annotation_counter.get(pl.id)
                 pl_list_with_counters.append(pl)
-                
-        pr_list_with_counters = self.sortByAttr(pr_list_with_counters, 'name')
-        ds_list_with_counters = self.sortByAttr(ds_list_with_counters, 'name')
-        sc_list_with_counters = self.sortByAttr(sc_list_with_counters, "name")
-        pl_list_with_counters = self.sortByAttr(pl_list_with_counters, "name")
-        
+
+        pr_list_with_counters.sort(key=lambda x: x.getName() and x.getName().lower())
+        ds_list_with_counters.sort(key=lambda x: x.getName() and x.getName().lower())
+        sc_list_with_counters.sort(key=lambda x: x.getName() and x.getName().lower())
+        pl_list_with_counters.sort(key=lambda x: x.getName() and x.getName().lower())
+
         self.containers={'projects': pr_list_with_counters, 'datasets': ds_list_with_counters, 'screens': sc_list_with_counters, 'plates': pl_list_with_counters}
         self.c_size = len(pr_list_with_counters)+len(ds_list_with_counters)+len(sc_list_with_counters)+len(pl_list_with_counters)
     
@@ -459,7 +462,12 @@ class BaseContainer(BaseController):
             return list(self.screen.listOrphanedAnnotations(eid=eid, anntype='Tag'))
         else:
             eid = self.conn.getGroupFromContext().isReadOnly() and self.conn.getEventContext().userId or None
-            return list(self.conn.listAnnotations(eid, 'tag'))
+            if eid is not None:
+                params = omero.sys.Parameters()
+                params.theFilter = omero.sys.Filter()
+                params.theFilter.ownerId = omero.rtypes.rlong(eid)
+                return list(self.conn.getObjects("TagAnnotation", params=params))
+            return list(self.conn.getObjects("TagAnnotation"))
     
     def getFilesByObject(self):
         eid = self.conn.getGroupFromContext().isReadOnly() and self.conn.getEventContext().userId or None
@@ -479,7 +487,12 @@ class BaseContainer(BaseController):
             return list(self.screen.listOrphanedAnnotations(eid=eid, ns=ns, anntype='File'))
         else:
             eid = self.conn.getGroupFromContext().isReadOnly() and self.conn.getEventContext().userId or None
-            return list(self.conn.listAnnotations(eid, 'file'))
+            if eid is not None:
+                params = omero.sys.Parameters()
+                params.theFilter = omero.sys.Filter()
+                params.theFilter.ownerId = omero.rtypes.rlong(eid)
+                return list(self.conn.getObjects("FileAnnotation", params=params))
+            return list(self.conn.getObjects("FileAnnotation"))
     ####################################################################
     # Creation
     
@@ -653,7 +666,7 @@ class BaseContainer(BaseController):
         new_links = list()
         for k in oids:
             if len(oids[k]) > 0:
-                for ob in self.conn.getAnnotations(oids[k]):
+                for ob in self.conn.getObjects("Annotation", oids[k]):
                     if isinstance(ob._obj, omero.model.WellI):
                         t = 'Image'
                         obj = ob.selectedWellSample().image()
@@ -690,7 +703,7 @@ class BaseContainer(BaseController):
         new_links = list()
         for k in oids:
             if len(oids[k]) > 0:
-                for ob in self.conn.getAnnotations(oids[k]):                    
+                for ob in self.conn.getObjects("Annotation", oids[k]):
                     if isinstance(ob._obj, omero.model.WellI):
                         t = 'Image'
                         obj = ob.selectedWellSample().image()
@@ -719,7 +732,7 @@ class BaseContainer(BaseController):
             selfobject = getattr(self, otype)
         
         new_links = list()
-        for a in self.conn.getAnnotations(ids):
+        for a in self.conn.getObjects("Annotation", ids):
             ann = getattr(omero.model, otype.title()+"AnnotationLinkI")()
             ann.setParent(selfobject._obj)
             ann.setChild(a._obj)
@@ -746,7 +759,7 @@ class BaseContainer(BaseController):
         for k in oids:
             if len(oids[k]) > 0:
                 for ob in self.conn.getObjects(k.lower().title(), oids[k]):
-                    for a in self.conn.getAnnotations(tids):
+                    for a in self.conn.getObjects("Annotation", tids):
                         if isinstance(ob._obj, omero.model.WellI):
                             t = 'Image'
                             obj = ob.selectedWellSample().image()
@@ -844,7 +857,7 @@ class BaseContainer(BaseController):
                     if long(parent[1]) != long(destination[1]):
                         self.conn.deleteObject(up_pdl._obj)
                 else:
-                    new_pr = self.conn.getProject(destination[1])
+                    new_pr = self.conn.getObject("Project", destination[1])
                     if len(parent) > 1:
                         up_pdl.setParent(new_pr._obj)
                         self.conn.saveObject(up_pdl._obj)
@@ -888,7 +901,7 @@ class BaseContainer(BaseController):
                         self.conn.deleteObject(up_dsl._obj)
                 else:
                     # update link to new destination
-                    new_ds = self.conn.getDataset(destination[1])
+                    new_ds = self.conn.getObject("Dataset", destination[1])
                     if len(parent) > 1:
                         up_dsl.setParent(new_ds._obj)
                         self.conn.saveObject(up_dsl._obj)
@@ -931,7 +944,7 @@ class BaseContainer(BaseController):
                     if long(parent[1]) != long(destination[1]):
                         self.conn.deleteObject(up_spl._obj)
                 else:
-                    new_sc = self.conn.getScreen(destination[1])
+                    new_sc = self.conn.getObject("Screen", destination[1])
                     if len(parent) > 1:
                         up_spl.setParent(new_sc._obj)
                         self.conn.saveObject(up_spl._obj)
@@ -993,8 +1006,8 @@ class BaseContainer(BaseController):
             for dsl in dsls:
                 self.conn.deleteObject(dsl._obj)
         else:
-            im = self.conn.getImage(source[1])
-            ds = self.conn.getDataset(destination[1])
+            im = self.conn.getObject("Image", source[1])
+            ds = self.conn.getObject("Dataset", destination[1])
             new_dsl = omero.model.DatasetImageLinkI()
             new_dsl.setChild(im._obj)
             new_dsl.setParent(ds._obj)
@@ -1006,7 +1019,7 @@ class BaseContainer(BaseController):
                pass
            else:
                ims = self.conn.getObjects("Image", images)
-               ds = self.conn.getDataset(dataset[1])
+               ds = self.conn.getObject("Dataset", dataset[1])
                link_array = list()
                for im in ims:
                    new_dsl = omero.model.DatasetImageLinkI()
@@ -1020,8 +1033,8 @@ class BaseContainer(BaseController):
         if destination is None:
             pass
         else:
-            ds = self.conn.getDataset(source[1])
-            pr = self.conn.getProject(destination[1])
+            ds = self.conn.getObject("Dataset", source[1])
+            pr = self.conn.getObject("Project", destination[1])
             new_pdl = omero.model.ProjectDatasetLinkI()
             new_pdl.setChild(ds._obj)
             new_pdl.setParent(pr._obj)
@@ -1033,7 +1046,7 @@ class BaseContainer(BaseController):
             pass
         else:
             dss = self.conn.getObjects("Dataset", datasets)
-            pr = self.conn.getProject(project[1])
+            pr = self.conn.getObject("Project", project[1])
             link_array = list()
             for ds in dss:
                 new_pdl = omero.model.ProjectDatasetLinkI()
@@ -1047,8 +1060,8 @@ class BaseContainer(BaseController):
         if destination is None:
             pass
         else:
-            pl = self.conn.getPlate(source[1])
-            sc = self.conn.getScreen(destination[1])
+            pl = self.conn.getObject("Plate", source[1])
+            sc = self.conn.getObject("Screen", destination[1])
             new_spl = omero.model.ScreenPlateLinkI()
             new_spl.setChild(pl._obj)
             new_spl.setParent(sc._obj)
@@ -1060,7 +1073,7 @@ class BaseContainer(BaseController):
             pass
         else:
             pls = self.conn.getObjects("Plate", plates)
-            sc = self.conn.getScreen(screen[1])
+            sc = self.conn.getObject("Screen", screen[1])
             link_array = list()
             for pl in pls:
                 new_spl = omero.model.ScreenPlateLinkI()

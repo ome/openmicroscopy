@@ -285,6 +285,23 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
         admin_serv = self.getAdminService()
         return admin_serv.lookupLdapAuthExperimenter(long(eid))
 
+    def getExperimenters(self):
+        """
+        Return all experimenters apart from current user.
+
+        @return:        Generator yielding experimetners list
+        @rtype:         L{ExperimenterWrapper} generator
+
+        """
+
+        q = self.getQueryService()
+        p = omero.sys.Parameters()
+        p.map = {}
+        p.map["id"] = rlong(self.getEventContext().userId)
+        sql = "select e from Experimenter as e where e.id != :id "
+        for e in q.findAllByQuery(sql, p):
+            yield ExperimenterWrapper(self, e)
+
     #def getCurrentSupervisor(self):
     #    """
     #    Gets the owner of a group for current user.
@@ -351,41 +368,6 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
     ##   Container Queries                                                           ###
     ####################################################################################
 
-    def listProjects (self, eid=None, page=None):
-        """
-        List all available Projects, ordered by Name.
-        Optionally filter by experimenter 'eid'
-        
-        @param eid:         experimenter id
-        @type eid:          Long
-        @param page:        page number
-        @type page:         Long
-        @return:            Generator yielding Projects
-        @rtype:             L{ProjectWrapper} generator
-        """
-        
-        """ 
-        TODO: omero.gateway.BlitzGateway.listProjects(self, only_owned=False)  
-        TODO: page ignored. 
-        """
-        
-        q = self.getQueryService()
-        p = omero.sys.Parameters()
-        p.map = {}
-        sql = "select pr from Project pr " \
-                "join fetch pr.details.creationEvent "\
-                "join fetch pr.details.owner join fetch pr.details.group"
-        
-        # experimenter filter
-        if eid is not None:
-            p.map["eid"] = rlong(long(eid))
-            sql += " where pr.details.owner.id=:eid"
-            
-        sql += " order by pr.name"
-        for e in q.findAllByQuery(sql, p):
-            yield ProjectWrapper(self, e)
-    
-    
     def listOrphans (self, obj_type, eid=None, page=None):
         """
         List orphaned Datasets, Images, Plates controlled by the security system, 
@@ -1391,7 +1373,7 @@ class OmeroWebGateway (omero.gateway.BlitzGateway):
                 
     def removeImage(self, share_id, image_id):
         sh = self.getShareService()
-        img = self.getImage(image_id)
+        img = self.getObject("Image", image_id)
         sh.removeObject(long(share_id), img._obj)
             
     def createShare(self, host, blitz_id, image, message, members, enable, expiration=None):
@@ -1883,6 +1865,9 @@ class ScreenWrapper (OmeroWebObjectWrapper, omero.gateway.ScreenWrapper):
             self.annotation_counter = kwargs['annotation_counter']
 
 omero.gateway.ScreenWrapper = ScreenWrapper
+
+# IMPORTANT to update the map of wrappers 'project', 'dataset', 'image' etc. returned by getObjects()
+omero.gateway.refreshWrappers()
 
 class ShareWrapper (OmeroWebObjectWrapper):
     """

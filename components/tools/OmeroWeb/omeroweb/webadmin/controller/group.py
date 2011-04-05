@@ -34,7 +34,7 @@ class BaseGroups(BaseController):
     
     def __init__(self, conn):
         BaseController.__init__(self, conn)
-        groupsList = list(self.conn.listGroups())
+        groupsList = list(self.conn.getObjects("ExperimenterGroup"))
         self.groups = list()
         for gr in groupsList:
             self.groups.append({'group': gr, 'locked': self.isLocked(gr.name), 'permissions': self.getPermissions(gr)})
@@ -58,7 +58,7 @@ class BaseGroup(BaseController):
     def __init__(self, conn, gid=None):
         BaseController.__init__(self, conn)
         if gid is not None:
-            self.group = self.conn.getGroup(gid)
+            self.group = self.conn.getObject("ExperimenterGroup", gid)
         
             self.owners = list()
             for gem in self.group.copyGroupExperimenterMap():
@@ -68,7 +68,7 @@ class BaseGroup(BaseController):
     
     def getOwnersNames(self):
         owners = list()
-        for e in self.conn.getExperimenters(self.owners):
+        for e in self.conn.getObjects("Experimenter", self.owners):
             owners.append(e.getFullName())
         return ", ".join(owners)
     

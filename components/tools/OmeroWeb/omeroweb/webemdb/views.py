@@ -302,7 +302,7 @@ def dataset_stack(request, datasetId):
         plane2D = scriptUtil.downloadPlane(rawPixelStore, pixels, theZ, theC, theT)
         return plane2D
         
-    dataset = conn.getDataset(datasetId)
+    dataset = conn.getObject("Dataset", datasetId)
     
     em = None
     for z, i in enumerate(dataset.listChildren()):
@@ -473,7 +473,7 @@ def mapmodelemdb(request, entryId):
     conn = getConnection(request)
     
     entryName = str(entryId)
-    project = conn.findProject(entryName)
+    project = conn.getObject("Project", attributes={'name':entryName})
     
     if project == None:
         raise Http404
@@ -503,7 +503,7 @@ def mapmodel(request, imageId, entryId=None):
     
     conn = getConnection(request)
     
-    image = conn.getImage(imageId)
+    image = conn.getObject("Image", imageId)
     
     z = image.z_count()/2
     
@@ -516,7 +516,7 @@ def image(request, imageId):
     """
     conn = getConnection(request)
     
-    image = conn.getImage(imageId)
+    image = conn.getObject("Image", imageId)
     
     scriptService = conn.getScriptService()
     scripts = []
@@ -548,7 +548,7 @@ def dataset(request, datasetId):
     """
     conn = getConnection(request)
 
-    dataset = conn.getDataset(datasetId)
+    dataset = conn.getObject("Dataset", datasetId)
     
     entryId = None
     
@@ -587,7 +587,7 @@ def data(request, entryId):
     conn = getConnection(request)
 
     entryName = str(entryId)
-    project = conn.findProject(entryName)
+    project = conn.getObject("Project", attributes={'name':entryName})
     
     # only want the first few images from each dataset
     p = omero.sys.Parameters()
@@ -621,7 +621,7 @@ def entry (request, entryId):
     conn = getConnection(request)
         
     entryName = str(entryId)
-    project = conn.findProject(entryName)
+    project = conn.getObject("Project", attributes={'name':entryName})
     
     if project == None:
         # project not found (None) handled by template
@@ -685,7 +685,7 @@ def oa_viewer(request, fileId):
         
     conn = getConnection(request)
     
-    ann = conn.getAnnotation(long(fileId))
+    ann = conn.getObject("Annotation", long(fileId))
     # determine mapType by name
     mapType = "map"
     if ann:
@@ -710,7 +710,7 @@ def gif (request, entryId):
     conn = getConnection(request)
         
     entryName = str(entryId)
-    project = conn.findProject(entryName)
+    project = conn.getObject("Project", attributes={'name':entryName})
     
     if project == None: return HttpResponse()
         
@@ -738,7 +738,7 @@ def getFile (request, fileId):
         
     # get the file by ID
     ann = None
-    ann = conn.getAnnotation(long(fileId))
+    ann = conn.getObject("Annotation", long(fileId))
 
     # determine mime type to assign
     if ann:
@@ -819,7 +819,7 @@ def index (request):
     
     projects = []
     for entryName in lastIds:
-        p = conn.findProject(entryName)
+        p = conn.getObject("Project", attributes={'name':entryName})
         rows = p.getDescription().split("\n")
         title = rows[0]
         if len(rows) > 1: sample = rows[1]

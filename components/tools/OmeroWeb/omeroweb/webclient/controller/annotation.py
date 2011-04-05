@@ -36,7 +36,7 @@ class BaseAnnotation(BaseController):
     def __init__(self, conn, o_type=None, oid=None, **kw):
         BaseController.__init__(self, conn)
         if oid is not None:
-            self.annotation = self.conn.getAnnotation(long(oid))
+            self.annotation = self.conn.getObject("Annotation", long(oid))
             if self.annotation is None:
                 raise AttributeError("We are sorry, but that annotation does not exist, or if it does, you have no permission to see it.")
     

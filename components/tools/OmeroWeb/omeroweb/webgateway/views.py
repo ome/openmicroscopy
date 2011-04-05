@@ -489,7 +489,7 @@ def render_thumbnail (request, iid, server_id=None, w=None, h=None, **kwargs):
         if blitzcon is None or not blitzcon.isConnected():
             logger.debug("failed connect, HTTP404")
             raise Http404
-        img = blitzcon.getImage(iid)
+        img = blitzcon.getObject("Image", iid)
         if img is None:
             logger.debug("(b)Image %s not found..." % (str(iid)))
             raise Http404
@@ -536,7 +536,7 @@ def _get_prepared_image (request, iid, server_id=None, _conn=None, with_session=
         _conn = getBlitzConnection(request, server_id=server_id, with_session=with_session, useragent="OMERO.webgateway")
     if _conn is None or not _conn.isConnected():
         return HttpResponseServerError('""', mimetype='application/javascript')
-    img = _conn.getImage(iid)
+    img = _conn.getObject("Image", iid)
     if r.has_key('c'):
         logger.debug("c="+r['c'])
         channels, windows, colors =  _split_channel_info(r['c'])
@@ -700,14 +700,14 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
         return HttpResponseServerError('""', mimetype='application/javascript')
     imgs = []
     if ctx == 'p':
-        obj = _conn.getProject(cid)
+        obj = _conn.getObject("Project", cid)
         if obj is None:
             raise Http404
         for d in obj.listChildren():
             imgs.extend(list(d.listChildren()))
         name = obj.getName()
     elif ctx == 'd':
-        obj = _conn.getDataset(cid)
+        obj = _conn.getObject("Dataset", cid)
         if obj is None:
             raise Http404
         imgs.extend(list(obj.listChildren()))
@@ -721,7 +721,7 @@ def render_ome_tiff (request, ctx, cid, server_id=None, _conn=None, **kwargs):
                 raise Http404
         name = '%s-%s' % (obj.listParents().getName(), obj.getName())
     else:
-        obj = _conn.getImage(cid)
+        obj = _conn.getObject("Image", cid)
         if obj is None:
             raise Http404
         imgs.append(obj)
@@ -1113,7 +1113,7 @@ def imageData_json (request, server_id=None, _conn=None, _internal=False, **kwar
     iid = kwargs['iid']
     key = kwargs.get('key', None)
     blitzcon = _conn
-    image = blitzcon.getImage(iid)
+    image = blitzcon.getObject("Image", iid)
     if image is None:
         return HttpResponseServerError('""', mimetype='application/javascript')
     rv = imageMarshal(image, key)
@@ -1133,7 +1133,7 @@ def listImages_json (request, did, server_id=None, _conn=None, **kwargs):
     """
     
     blitzcon = _conn
-    dataset = blitzcon.getDataset(did)
+    dataset = blitzcon.getObject("Dataset", did)
     if dataset is None:
         return HttpResponseServerError('""', mimetype='application/javascript')
     prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
@@ -1156,7 +1156,7 @@ def listDatasets_json (request, pid, server_id=None, _conn=None, **kwargs):
     """
     
     blitzcon = _conn
-    project = blitzcon.getProject(pid)
+    project = blitzcon.getObject("Project", pid)
     rv = []
     if project is None:
         return HttpResponse('[]', mimetype='application/javascript')
@@ -1169,7 +1169,7 @@ def datasetDetail_json (request, did, server_id=None, _conn=None, **kwargs):
     TODO: cache
     """
     blitzcon = _conn
-    ds = blitzcon.getDataset(did)
+    ds = blitzcon.getObject("Dataset", did)
     return ds.simpleMarshal()
 
 @jsonp
@@ -1204,7 +1204,7 @@ def projectDetail_json (request, pid, server_id=None, _conn=None, **kwargs):
     """
     
     blitzcon = _conn
-    pr = blitzcon.getProject(pid)
+    pr = blitzcon.getObject("Project", pid)
     rv = pr.simpleMarshal()
     return rv
 
@@ -1251,6 +1251,7 @@ def search_json (request, server_id=None, _conn=None, **kwargs):
     Search for objects in blitz.
     Returns json encoded list of marshalled objects found by the search query
     Request keys include:
+        - text: The text to search for
         - ctx: (http request) 'imgs' to search only images
         - text: (http request) the actual text phrase
         - start: starting index (0 based) for result
@@ -1267,7 +1268,7 @@ def search_json (request, server_id=None, _conn=None, **kwargs):
     """
     opts = searchOptFromRequest(request)
     rv = []
-    logger.debug("simpleSearch(%s)" % (opts['search']))
+    logger.debug("searchObjects(%s)" % (opts['search']))
     # search returns blitz_connector wrapper objects
     def urlprefix(iid):
         return reverse('webgateway.views.render_thumbnail', args=(iid,))
@@ -1275,9 +1276,9 @@ def search_json (request, server_id=None, _conn=None, **kwargs):
     pks = None
     try:
         if opts['ctx'] == 'imgs':
-            sr = _conn.searchImages(opts['search'])
+            sr = _conn.searchObjects(["image"], opts['search'])
         else:
-            sr = _conn.simpleSearch(opts['search'])
+            sr = _conn.searchObjects(None, opts['search'])  # searches P/D/I
     except ApiUsageException:
         return HttpResponseServerError('"parse exception"', mimetype='application/javascript')
     def marshal ():
@@ -1351,7 +1352,7 @@ def list_compatible_imgs_json (request, server_id, iid, _conn=None, **kwargs):
     if blitzcon is None or not blitzcon.isConnected():
         img = None
     else:
-        img = blitzcon.getImage(iid)
+        img = blitzcon.getObject("Image", iid)
 
     if img is not None:
         # List all images in project
@@ -1412,7 +1413,7 @@ def copy_image_rdef_json (request, server_id, _conn=None, **kwargs):
             blitzcon = _conn
 
             
-        fromimg = blitzcon.getImage(fromid)
+        fromimg = blitzcon.getObject("Image", fromid)
         details = fromimg.getDetails()
         frompid = fromimg.getPixelsId()
         newConn = None
@@ -1430,13 +1431,13 @@ def copy_image_rdef_json (request, server_id, _conn=None, **kwargs):
             newConn.setGroupForSession(details.getGroup().getId())
 
         if newConn is not None and newConn.isConnected():
-            frompid = newConn.getImage(fromid).getPixelsId()
+            frompid = newConn.getObject("Image", fromid).getPixelsId()
             rsettings = newConn.getRenderingSettingsService()
             json_data = rsettings.applySettingsToImages(frompid, list(toids))
             if fromid in json_data[True]:
                 del json_data[True][json_data[True].index(fromid)]
             for iid in json_data[True]:
-                img = newConn.getImage(iid)
+                img = newConn.getObject("Image", iid)
                 img is not None and webgateway_cache.invalidateObject(server_id, img)
             json_data = simplejson.dumps(json_data)
 
@@ -1464,7 +1465,7 @@ def reset_image_rdef_json (request, iid, server_id=None, _conn=None, **kwargs):
     if blitzcon is None or not blitzcon.isConnected():
         img = None
     else:
-        img = blitzcon.getImage(iid)
+        img = blitzcon.getObject("Image", iid)
 
     if img is not None and img.resetRDefs():
         webgateway_cache.invalidateObject(server_id, img)
@@ -1503,7 +1504,7 @@ def full_viewer (request, iid, server_id=None, _conn=None, **kwargs):
             _conn = getBlitzConnection(request, server_id=server_id, useragent="OMERO.webgateway")
         if _conn is None or not _conn.isConnected():
             raise Http404
-        image = _conn.getImage(iid)
+        image = _conn.getObject("Image", iid)
         if image is None:
             logger.debug("(a)Image %s not found..." % (str(iid)))
             raise Http404

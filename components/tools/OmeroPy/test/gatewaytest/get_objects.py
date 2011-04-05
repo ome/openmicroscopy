@@ -134,7 +134,79 @@ class FindObjectTest (lib.GTest):
         self.assertTrue(find_tag != None)
         self.assertEqual(find_tag.getNs(), find_ns)
 
-        self.gateway.deleteObject(tag._obj)  # direct delete
+        # create some other annotations... (not linked!)
+        longAnn = omero.gateway.LongAnnotationWrapper(self.gateway)
+        longAnn.setValue(12345)
+        longAnn.save()
+        longId = longAnn.getId()
+        boolAnn = omero.gateway.BooleanAnnotationWrapper(self.gateway)
+        boolAnn.setValue(True)
+        boolAnn.save()
+        boolId = boolAnn.getId()
+        commAnn = omero.gateway.CommentAnnotationWrapper(self.gateway)
+        commAnn.setValue("This is a blitz gatewaytest Comment.")
+        commAnn.save()
+        commId = commAnn.getId()
+        fileAnn = omero.gateway.FileAnnotationWrapper(self.gateway)
+        fileAnn.save()
+        fileId = fileAnn.getId()
+        doubleAnn = omero.gateway.DoubleAnnotationWrapper(self.gateway)
+        doubleAnn.setValue(1.23456)
+        doubleAnn.save()
+        doubleId = doubleAnn.getId()
+        termAnn = omero.gateway.TermAnnotationWrapper(self.gateway)
+        termAnn.setValue("Metaphase")
+        termAnn.save()
+        termId = termAnn.getId()
+        timeAnn = omero.gateway.TimestampAnnotationWrapper(self.gateway)
+        timeAnn.setValue(1000)
+        timeAnn.save()
+        timeId = timeAnn.getId()
+
+        # list annotations of various types - check they include ones from above
+        tags =  list( self.gateway.getObjects("TagAnnotation") )
+        for t in tags:
+            self.assertEqual(t.OMERO_TYPE, tag.OMERO_TYPE)
+        self.assertTrue(tagId in [t.getId() for t in tags])
+        longs =  list( self.gateway.getObjects("LongAnnotation") )
+        for l in longs:
+            self.assertEqual(l.OMERO_TYPE, longAnn.OMERO_TYPE)
+        self.assertTrue(longId in [l.getId() for l in longs])
+        bools =  list( self.gateway.getObjects("BooleanAnnotation") )
+        for b in bools:
+            self.assertEqual(b.OMERO_TYPE, boolAnn.OMERO_TYPE)
+        self.assertTrue(boolId in [b.getId() for b in bools])
+        comms =  list( self.gateway.getObjects("CommentAnnotation") )
+        for c in comms:
+            self.assertEqual(c.OMERO_TYPE, commAnn.OMERO_TYPE)
+        self.assertTrue(commId in [c.getId() for c in comms])
+        files =  list( self.gateway.getObjects("FileAnnotation") )
+        for f in files:
+            self.assertEqual(f.OMERO_TYPE, fileAnn.OMERO_TYPE)
+        self.assertTrue(fileId in [f.getId() for f in files])
+        doubles =  list( self.gateway.getObjects("DoubleAnnotation") )
+        for d in doubles:
+            self.assertEqual(d.OMERO_TYPE, doubleAnn.OMERO_TYPE)
+        self.assertTrue(doubleId in [d.getId() for d in doubles])
+        terms =  list( self.gateway.getObjects("TermAnnotation") )
+        for t in terms:
+            self.assertEqual(t.OMERO_TYPE, termAnn.OMERO_TYPE)
+        self.assertTrue(termId in [t.getId() for t in terms])
+        times =  list( self.gateway.getObjects("TimestampAnnotation") )
+        for t in times:
+            self.assertEqual(t.OMERO_TYPE, timeAnn.OMERO_TYPE)
+        self.assertTrue(timeId in [t.getId() for t in times])
+
+        # delete what we created
+        self.gateway.deleteObject(longAnn._obj)  # direct delete
+        self.assertTrue( self.gateway.getObject("Annotation", longId) == None)
+        self.gateway.deleteObject(boolAnn._obj)
+        self.assertTrue( self.gateway.getObject("Annotation", boolId) == None)
+        self.gateway.deleteObject(fileAnn._obj)
+        self.assertTrue( self.gateway.getObject("Annotation", fileId) == None)
+        self.gateway.deleteObject(commAnn._obj)
+        self.assertTrue( self.gateway.getObject("Annotation", commId) == None)
+        self.gateway.deleteObject(tag._obj)
         self.assertTrue( self.gateway.getObject("Annotation", tagId) == None)
 
 
@@ -150,23 +222,23 @@ class GetObjectTest (lib.GTest):
         self.loginAsAuthor()
 
         # search for Projects
-        projects = list( self.gateway.searchProjects("weblitz") )
+        #projects = list( self.gateway.searchProjects("weblitz") )   # method removed from blitz gateway
         pros = list( self.gateway.searchObjects(["Project"], "weblitz") )
-        self.assertEqual(len(pros), len(projects))  # check unordered lists are the same length & ids
-        projectIds = [p.getId() for p in projects]
+        #self.assertEqual(len(pros), len(projects))  # check unordered lists are the same length & ids
+        #projectIds = [p.getId() for p in projects]
         for p in pros:
-            self.assertTrue(p.getId() in projectIds)
+            #self.assertTrue(p.getId() in projectIds)
             self.assertEqual(p.OMERO_CLASS, "Project", "Should only return Projects")
 
         # P/D/I is default objects to search
-        pdis = list( self.gateway.simpleSearch("weblitz") )
-        pdis.sort(key=lambda r: "%s%s"%(r.OMERO_CLASS, r.getId()) )
+        # pdis = list( self.gateway.simpleSearch("weblitz") )   # method removed from blitz gateway
+        #pdis.sort(key=lambda r: "%s%s"%(r.OMERO_CLASS, r.getId()) )
         pdiResult = list( self.gateway.searchObjects(None, "weblitz") )
         pdiResult.sort(key=lambda r: "%s%s"%(r.OMERO_CLASS, r.getId()) )
         # can directly check that sorted lists are the same
-        for r1, r2 in zip(pdis, pdiResult):
-            self.assertEqual(r1.OMERO_CLASS, r2.OMERO_CLASS)
-            self.assertEqual(r1.getId(), r2.getId())
+        #for r1, r2 in zip(pdis, pdiResult):
+        #    self.assertEqual(r1.OMERO_CLASS, r2.OMERO_CLASS)
+        #    self.assertEqual(r1.getId(), r2.getId())
 
 
     def testListProjects(self):
@@ -196,23 +268,33 @@ class GetObjectTest (lib.GTest):
         
         # experimenters
         experimenters = list( self.gateway.listExperimenters() )
-        exps = list( self.gateway.getObjects("Experimenter", None) )
+        exps = list( self.gateway.getObjects("Experimenter") )  # all experimenters
         
         self.assertEqual(len(exps), len(experimenters))  # check unordered lists are the same length & ids
         eIds = [e.getId() for e in experimenters]
         for e in exps:
             self.assertTrue(e.getId() in eIds)
+
+        # returns all experimenters except current user - now moved to webclient_gateway
+        #allBarOne = list( self.gateway.getExperimenters() )
+        #self.assertEqual(len(allBarOne)+1, len(exps))
+        #for e in allBarOne:
+        #    self.assertTrue(e.getId() in eIds)
             
         # groups
-        groups = list( self.gateway.listGroups() )
-        gps = list( self.gateway.getObjects("ExperimenterGroup", None) )
+        #groups = list( self.gateway.listGroups() )     # now removed from blitz gateway.
+        gps = list( self.gateway.getObjects("ExperimenterGroup") )
         
-        self.assertEqual(len(gps), len(groups))  # check unordered lists are the same length & ids
-        gIds = [g.getId() for g in gps]
-        for g in groups:
-            self.assertTrue(g.getId() in gIds)
+        #self.assertEqual(len(gps), len(groups))  # check unordered lists are the same length & ids
+        #gIds = [g.getId() for g in gps]
+        #for g in groups:
+        #    self.assertTrue(g.getId() in gIds)
+        
+        # uses gateway.getObjects("ExperimenterGroup") - check this doesn't throw
+        colleagues = self.gateway.listColleagues()
+        for e in colleagues:
+            cName = e.getOmeName()
 
-        
     def testGetExperimenter(self):
         self.loginAsAdmin()
         e = self.gateway.findExperimenter(self.USER.name)
@@ -230,17 +312,14 @@ class GetObjectTest (lib.GTest):
             groupIds.append(groupExpMap.parent.id.val)
             
         groupGen = self.gateway.getObjects("ExperimenterGroup", groupIds)
-        gGen = self.gateway.getExperimenterGroups(groupIds)  # uses iQuery
+        #gGen = self.gateway.getExperimenterGroups(groupIds)  # removed from blitz gateway
         groups = list(groupGen)
-        gs = list(gGen)
+        #gs = list(gGen)
         self.assertEqual(len(groups), len(groupIds))
         for g in groups:
             self.assertTrue(g.getId() in groupIds)
             for m in g.copyGroupExperimenterMap():  # check exps are loaded
                 ex = m.child
-        for g in gs:
-            self.assertTrue(g.getId() in groupIds)
-
 
     def testGetAnnotations(self):
         
@@ -264,12 +343,12 @@ class GetObjectTest (lib.GTest):
         dataset.linkAnnotation(tag)
         
         # get the Comment 
-        a = self.gateway.getAnnotation(ann.id)
+        # a = self.gateway.getAnnotation(ann.id)   # method removed from blitz gateway
         annotation = self.gateway.getObject("CommentAnnotation", ann.id)
-        self.assertEqual(a.id, annotation.id)
-        self.assertEqual(a.ns, annotation.ns)
+        #self.assertEqual(a.id, annotation.id)
+        #self.assertEqual(a.ns, annotation.ns)
         self.assertEqual("Test Comment", annotation.textValue)
-        self.assertEqual(a.OMERO_TYPE, annotation.OMERO_TYPE)
+        #self.assertEqual(a.OMERO_TYPE, annotation.OMERO_TYPE)
         self.assertEqual(ann.OMERO_TYPE, annotation.OMERO_TYPE)
         
         # get the Comment and Tag
@@ -298,6 +377,10 @@ class GetObjectTest (lib.GTest):
         for al in annLinks:
             self.assertEqual(obj.getId(), al.parent.id.val)
             self.assertTrue(al.getParent().__class__ == omero.model.ImageI)
+
+        # compare with getObjectsByAnnotations
+        annImages = list( self.gateway.getObjectsByAnnotations('Image', [tag.getId()]) )
+        self.assertTrue(obj.getId() in [i.getId() for i in annImages])
             
         # params limit query by owner
         params = omero.sys.Parameters()

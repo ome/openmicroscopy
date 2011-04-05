@@ -101,7 +101,7 @@ class BaseExperimenter(BaseController):
                     self.otherGroups.append(gem.parent.id.val)
                     self.others.append(gem.parent)
                     self.default.append((gem.parent.id.val, gem.parent.name.val))
-        self.groups = list(self.conn.listGroups())
+        self.groups = list(self.conn.getObjects("ExperimenterGroup"))
     
     def otherGroupsInitialList(self, exclude=list()):
         formGroups = list()
@@ -121,7 +121,7 @@ class BaseExperimenter(BaseController):
     
     def getSelectedGroups(self, ids):
         if len(ids)>0:
-            return list(self.conn.getExperimenterGroups(ids))
+            return list(self.conn.getObjects("ExperimenterGroup", ids))
         return list()
     
     def getMyDetails(self):
@@ -153,7 +153,7 @@ class BaseExperimenter(BaseController):
         up_exp.email = rstring(str(email))
         up_exp.institution = (institution!="" and institution is not None) and rstring(str(institution)) or None
         
-        defaultGroup = self.conn.getGroup(long(dGroup))._obj
+        defaultGroup = self.conn.getObject("ExperimenterGroup", long(dGroup))._obj
         self.conn.updateMyAccount(up_exp, defaultGroup)
     
     def createExperimenter(self, omeName, firstName, lastName, email, admin, active, dGroup, otherGroups, password, middleName=None, institution=None):

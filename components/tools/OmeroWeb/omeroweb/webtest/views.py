@@ -76,7 +76,7 @@ def metadata (request, iid):
     form_channels = list()
     form_lasers = list()
     
-    image = conn.getImage(iid)
+    image = conn.getObject("Image", iid)
     om = image.loadOriginalMetadata()
     global_metadata = sorted(om[1])
     series_metadata = sorted(om[2])
@@ -187,7 +187,7 @@ def roi_viewer(request, roi_library, imageId):
     if conn is None or not conn.isConnected():
         return HttpResponseRedirect(reverse('webfigure_login'))
     
-    image = conn.getImage(imageId)
+    image = conn.getObject("Image", imageId)
     default_z = image.z_count()/2
     
     templates = {"processing":'webtest/roi_viewers/processing_viewer.html',
@@ -230,7 +230,7 @@ def add_annotations (request):
     
     images = []
     for iId in imageIds:
-        image = conn.getImage(iId)
+        image = conn.getObject("Image", iId)
         if image == None: continue
         l = omero.model.ImageAnnotationLinkI()
         parent = omero.model.ImageI(iId, False)     # use unloaded object to avoid update conflicts
@@ -308,7 +308,7 @@ def split_view_figure (request):
     channels = None
     images = []
     for iId in imageIds:
-        image = conn.getImage(iId)
+        image = conn.getObject("Image", iId)
         if image == None: continue
         default_z = image.z_count()/2   # image.getZ() returns 0 - should return default Z? 
         # need z for render_image even if we're projecting
@@ -371,7 +371,7 @@ def dataset_split_view (request, datasetId):
         loginUrl = "%s?url=%s" % (reverse('weblogin'), url)
         return HttpResponseRedirect(loginUrl)
         
-    dataset = conn.getDataset(datasetId)
+    dataset = conn.getObject("Dataset", datasetId)
     
     try:
         w = request.REQUEST.get('width', 100)
@@ -453,7 +453,7 @@ def image_dimensions (request, imageId):
     if conn is None or not conn.isConnected():
         return HttpResponseRedirect(reverse('webtest_login'))
     
-    image = conn.getImage(imageId)
+    image = conn.getObject("Image", imageId)
     if image is None:
         return render_to_response('webtest/demo_viewers/image_dimensions.html', {}) 
     
