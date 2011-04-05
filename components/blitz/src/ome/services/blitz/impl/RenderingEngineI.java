@@ -11,9 +11,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.perf4j.StopWatch;
-import org.perf4j.commonslog.CommonsLogStopWatch;
-
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.ServiceFactoryAware;
 import omeis.providers.re.RenderingEngine;
@@ -38,13 +35,8 @@ import omero.api.AMD_RenderingEngine_getPixelsTypeLowerBound;
 import omero.api.AMD_RenderingEngine_getPixelsTypeUpperBound;
 import omero.api.AMD_RenderingEngine_getQuantumDef;
 import omero.api.AMD_RenderingEngine_getRGBA;
-import omero.api.AMD_RenderingEngine_getResolutionLevel;
-import omero.api.AMD_RenderingEngine_getResolutionLevels;
-import omero.api.AMD_RenderingEngine_getTileSize;
-import omero.api.AMD_RenderingEngine_hasPixelsPyramid;
 import omero.api.AMD_RenderingEngine_isActive;
 import omero.api.AMD_RenderingEngine_isPixelsTypeSigned;
-import omero.api.AMD_RenderingEngine_setOverlays;
 import omero.api.AMD_RenderingEngine_load;
 import omero.api.AMD_RenderingEngine_loadRenderingDef;
 import omero.api.AMD_RenderingEngine_lookupPixels;
@@ -66,15 +58,11 @@ import omero.api.AMD_RenderingEngine_setCompressionLevel;
 import omero.api.AMD_RenderingEngine_setDefaultT;
 import omero.api.AMD_RenderingEngine_setDefaultZ;
 import omero.api.AMD_RenderingEngine_setModel;
+import omero.api.AMD_RenderingEngine_setOverlays;
 import omero.api.AMD_RenderingEngine_setQuantizationMap;
 import omero.api.AMD_RenderingEngine_setQuantumStrategy;
 import omero.api.AMD_RenderingEngine_setRGBA;
-import omero.api.AMD_RenderingEngine_setResolutionLevel;
 import omero.api.AMD_RenderingEngine_updateCodomainMap;
-import omero.api.AMD_StatefulServiceInterface_activate;
-import omero.api.AMD_StatefulServiceInterface_close;
-import omero.api.AMD_StatefulServiceInterface_passivate;
-import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
 import omero.api.IRoiPrx;
 import omero.api._RenderingEngineOperations;
 import omero.constants.projection.ProjectionType;
@@ -87,6 +75,10 @@ import omero.model.RenderingModel;
 import omero.romio.CodomainMapContext;
 import omero.romio.PlaneDef;
 import omero.util.IceMapper;
+
+import org.perf4j.StopWatch;
+import org.perf4j.commonslog.CommonsLogStopWatch;
+
 import Ice.Current;
 
 /**
@@ -96,7 +88,7 @@ import Ice.Current;
  * @since 3.0-Beta4
  * @see omeis.providers.re.RenderingEngine
  */
-public class RenderingEngineI extends AbstractAmdServant implements
+public class RenderingEngineI extends AbstractPyramidServant implements
         _RenderingEngineOperations, ServiceFactoryAware {
 	
 	private ServiceFactoryI sf;
@@ -454,52 +446,5 @@ public class RenderingEngineI extends AbstractAmdServant implements
         callInvokerOnRawArgs(__cb, __current, mapCtx);
     }
 
-    /* (non-Javadoc)
-     * @see omero.api._RenderingEngineOperations#getResolutionLevels_async(omero.api.AMD_RenderingEngine_getResolutionLevels, Ice.Current)
-     */
-    public void getResolutionLevels_async(
-            AMD_RenderingEngine_getResolutionLevels __cb, Current __current)
-            throws ServerError
-    {
-        callInvokerOnRawArgs(__cb, __current);
-    }
-
-    /* (non-Javadoc)
-     * @see omero.api._RenderingEngineOperations#getTileSize_async(omero.api.AMD_RenderingEngine_getTileSize, Ice.Current)
-     */
-    public void getTileSize_async(AMD_RenderingEngine_getTileSize __cb,
-            Current __current) throws ServerError
-    {
-        callInvokerOnRawArgs(__cb, __current);
-    }
-
-    /* (non-Javadoc)
-     * @see omero.api._RenderingEngineOperations#hasPixelsPyramid_async(omero.api.AMD_RenderingEngine_hasPixelsPyramid, Ice.Current)
-     */
-    public void hasPixelsPyramid_async(AMD_RenderingEngine_hasPixelsPyramid __cb,
-            Current __current) throws ServerError
-    {
-        callInvokerOnRawArgs(__cb, __current);
-    }
-
-    /* (non-Javadoc)
-     * @see omero.api._RenderingEngineOperations#setResolutionLevel_async(omero.api.AMD_RenderingEngine_setResolutionLevel, int, Ice.Current)
-     */
-    public void setResolutionLevel_async(
-            AMD_RenderingEngine_setResolutionLevel __cb, int resolutionLevel,
-            Current __current) throws ServerError
-    {
-        callInvokerOnRawArgs(__cb, __current, resolutionLevel);
-    }
-
-    /* (non-Javadoc)
-     * @see omero.api._RenderingEngineOperations#getResolutionLevel_async(omero.api.AMD_RenderingEngine_getResolutionLevel, Ice.Current)
-     */
-    public void getResolutionLevel_async(
-            AMD_RenderingEngine_getResolutionLevel __cb, Current __current)
-            throws ServerError
-    {
-        callInvokerOnRawArgs(__cb, __current);
-    }
 
 }

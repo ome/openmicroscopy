@@ -10,8 +10,8 @@
 #define OMERO_API_RAWPIXELSSTORE_ICE
 
 #include <omero/ModelF.ice>
-#include <omero/ServicesF.ice>
 #include <omero/Collections.ice>
+#include <omero/api/PyramidService.ice>
 
 module omero {
 
@@ -36,7 +36,7 @@ module omero {
          * delete the Pixels object, and create a new one. Any partially written
          * data will be removed.
          **/
-        ["ami", "amd"] interface RawPixelsStore extends StatefulServiceInterface
+        ["ami", "amd"] interface RawPixelsStore extends PyramidService
             {
 
                 /**
@@ -339,44 +339,6 @@ module omero {
                  *
                  **/
                 idempotent omero::model::Pixels save() throws ServerError;
-
-                /**
-                 * Whether or not this raw pixels store has a backing pixels
-                 * pyramid to provide sub-resolutions of the data.
-                 * @return <code>true</code> if the pixels store has a pixels
-                 * pyramid available and <code>false</code> otherwise.
-                 **/
-                idempotent bool hasPixelsPyramid() throws ServerError;
-
-                /**
-                 * Retrieves the number of resolution levels that the backing
-                 * pixels pyramid contains.
-                 * @return The number of resolution levels. This value does not
-                 * necessarily indicate either the presence or absence of a
-                 * pixels pyramid.
-                 **/
-                idempotent int getResolutionLevels() throws ServerError;
-
-                /**
-                 * Retrieves the active resolution level.
-                 * @return The active resolution level.
-                 **/
-                idempotent int getResolutionLevel() throws ServerError;
-
-                /**
-                 * Sets the active resolution level.
-                 * @param resolutionLevel The resolution level to be used by
-                 * the pixel buffer.
-                 **/
-                idempotent void setResolutionLevel(int resolutionLevel) throws ServerError;
-
-                /**
-                 * Retrieves the tile size for the pixel store.
-                 * @return An array of <code>length = 2</code> where the first
-                 * value of the array is the tile width and the second value is
-                 * the tile height.
-                 **/
-                idempotent Ice::IntSeq getTileSize() throws ServerError;
 
             };
 

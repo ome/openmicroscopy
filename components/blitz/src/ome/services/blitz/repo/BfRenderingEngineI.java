@@ -10,6 +10,11 @@ import java.util.Map;
 
 import omero.RLong;
 import omero.ServerError;
+import omero.api.AMD_PyramidService_getResolutionLevel;
+import omero.api.AMD_PyramidService_getResolutionLevels;
+import omero.api.AMD_PyramidService_getTileSize;
+import omero.api.AMD_PyramidService_hasPixelsPyramid;
+import omero.api.AMD_PyramidService_setResolutionLevel;
 import omero.api.AMD_RenderingEngine_addCodomainMap;
 import omero.api.AMD_RenderingEngine_getAvailableFamilies;
 import omero.api.AMD_RenderingEngine_getAvailableModels;
@@ -28,10 +33,6 @@ import omero.api.AMD_RenderingEngine_getPixelsTypeLowerBound;
 import omero.api.AMD_RenderingEngine_getPixelsTypeUpperBound;
 import omero.api.AMD_RenderingEngine_getQuantumDef;
 import omero.api.AMD_RenderingEngine_getRGBA;
-import omero.api.AMD_RenderingEngine_getResolutionLevel;
-import omero.api.AMD_RenderingEngine_getResolutionLevels;
-import omero.api.AMD_RenderingEngine_getTileSize;
-import omero.api.AMD_RenderingEngine_hasPixelsPyramid;
 import omero.api.AMD_RenderingEngine_isActive;
 import omero.api.AMD_RenderingEngine_isPixelsTypeSigned;
 import omero.api.AMD_RenderingEngine_load;
@@ -59,7 +60,6 @@ import omero.api.AMD_RenderingEngine_setOverlays;
 import omero.api.AMD_RenderingEngine_setQuantizationMap;
 import omero.api.AMD_RenderingEngine_setQuantumStrategy;
 import omero.api.AMD_RenderingEngine_setRGBA;
-import omero.api.AMD_RenderingEngine_setResolutionLevel;
 import omero.api.AMD_RenderingEngine_updateCodomainMap;
 import omero.api.AMD_StatefulServiceInterface_activate;
 import omero.api.AMD_StatefulServiceInterface_close;
@@ -423,44 +423,44 @@ public class BfRenderingEngineI extends _RenderingEngineDisp {
     }
 
     /* (non-Javadoc)
-     * @see omero.api._RenderingEngineOperations#getResolutionLevels_async(omero.api.AMD_RenderingEngine_getResolutionLevels, Ice.Current)
+     * @see omero.api._PyramidServiceOperations#getResolutionLevels_async(omero.api.AMD_PyramidService_getResolutionLevels, Ice.Current)
      */
     public void getResolutionLevels_async(
-            AMD_RenderingEngine_getResolutionLevels __cb, Current __current)
+            AMD_PyramidService_getResolutionLevels __cb, Current __current)
             throws ServerError
     {
     }
 
     /* (non-Javadoc)
-     * @see omero.api._RenderingEngineOperations#getTileSize_async(omero.api.AMD_RenderingEngine_getTileSize, Ice.Current)
+     * @see omero.api._PyramidServiceOperations#getTileSize_async(omero.api.AMD_PyramidService_getTileSize, Ice.Current)
      */
-    public void getTileSize_async(AMD_RenderingEngine_getTileSize __cb,
+    public void getTileSize_async(AMD_PyramidService_getTileSize __cb,
             Current __current) throws ServerError
     {
     }
 
     /* (non-Javadoc)
-     * @see omero.api._RenderingEngineOperations#hasPixelsPyramid_async(omero.api.AMD_RenderingEngine_hasPixelsPyramid, Ice.Current)
+     * @see omero.api._PyramidServiceOperations#hasPixelsPyramid_async(omero.api.AMD_PyramidService_hasPixelsPyramid, Ice.Current)
      */
-    public void hasPixelsPyramid_async(AMD_RenderingEngine_hasPixelsPyramid __cb,
+    public void hasPixelsPyramid_async(AMD_PyramidService_hasPixelsPyramid __cb,
             Current __current) throws ServerError
     {
     }
 
     /* (non-Javadoc)
-     * @see omero.api._RenderingEngineOperations#setResolutionLevel_async(omero.api.AMD_RenderingEngine_setResolutionLevel, int, Ice.Current)
+     * @see omero.api._PyramidServiceOperations#setResolutionLevel_async(omero.api.AMD_PyramidService_setResolutionLevel, int, Ice.Current)
      */
     public void setResolutionLevel_async(
-            AMD_RenderingEngine_setResolutionLevel __cb, int resolutionLevel,
+            AMD_PyramidService_setResolutionLevel __cb, int resolutionLevel,
             Current __current) throws ServerError
     {
     }
 
     /* (non-Javadoc)
-     * @see omero.api._RenderingEngineOperations#getResolutionLevel_async(omero.api.AMD_RenderingEngine_getResolutionLevel, Ice.Current)
+     * @see omero.api._PyramidServiceOperations#getResolutionLevel_async(omero.api.AMD_PyramidService_getResolutionLevel, Ice.Current)
      */
     public void getResolutionLevel_async(
-            AMD_RenderingEngine_getResolutionLevel __cb, Current __current)
+            AMD_PyramidService_getResolutionLevel __cb, Current __current)
             throws ServerError
     {
     }
