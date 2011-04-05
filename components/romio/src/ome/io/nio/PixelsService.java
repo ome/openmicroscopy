@@ -113,9 +113,7 @@ public class PixelsService extends AbstractFileSystemService
                                       OriginalFileMetadataProvider provider,
                                       boolean bypassOriginalFile)
     {
-        final int sizeX = pixels.getSizeX();
-        final int sizeY = pixels.getSizeY();
-        final boolean requirePyramid = (sizeX * sizeY) > (1024*1024); // FIXME
+        final boolean requirePyramid = isRequirePyramid(pixels);
         final boolean useRomio = (pixelsFilePath == null);
         if (useRomio) {
             pixelsFilePath = getPixelsPath(pixels.getId());
@@ -132,19 +130,15 @@ public class PixelsService extends AbstractFileSystemService
         // message allowing other beans the chance to create the pyramid.
         // If none signal "retry", then all we can do is throw.
         //
-        if (pixelsFile.exists())
+        // Note: since big pixels stored with 4.3+ will generate only
+        // a pyramid, the existence of the ROMIO Pixels file implies
+        // that this is legacy data.
+        //
+        if (pixelsFile.exists() && requirePyramid)
         {
-            while (requirePyramid && !pixelsPyramidFile.exists()) {
-                MissingPyramidMessage mpm = new MissingPyramidMessage(
-                        this, pixels.getId());
-                pub.publishEvent(mpm);
-                if (mpm.isRetry()) {
-                    log.debug("Retrying pyramid:" + pixelsPyramidFilePath);
-                    continue;
-                }
-                String msg = "Missing pyramid:" + pixelsPyramidFilePath;
-                log.warn(msg);
-                throw new MissingPyramidException(msg, pixels.getId());
+            while (!pixelsPyramidFile.exists()) {
+                // throws if loop should exit!
+                handleMissingPyramid(pixels, pixelsPyramidFilePath);
             }
         }
 
@@ -155,7 +149,7 @@ public class PixelsService extends AbstractFileSystemService
         if (pixelsPyramidFile.exists())
         {
             log.info("Using Pyramid BfPixelBuffer: " + pixelsPyramidFilePath);
-            return createBfPixelBuffer(pixelsPyramidFilePath, new ImageReader());
+            return createPyramidPixelBuffer(pixelsPyramidFilePath);
         }
 
         //
@@ -166,43 +160,54 @@ public class PixelsService extends AbstractFileSystemService
         if (!useRomio)
         {
             log.info("Using BfPixelBuffer: " + pixelsFilePath);
-            return createBfPixelBuffer(pixelsFilePath, new ImageReader());
+            return createBfPixelBuffer(pixelsFilePath);
         }
 
         //
         // 4. Finally, this must be a ROMIO situation. If the pixels file is
         // missing, then we attempt a bypass if allowed. Otherwise, we
-        // create a new romio buffer if none exists, or return the existing
-        // one. The pyramids object will be created later if necessary.
+        // create a new buffer if none exists including a pyramid if necessary,
+        // or return the existing one.
         //
         if (!pixelsFile.exists())
         {
             if (!bypassOriginalFile)
             {
-                OriginalFile originalFile =
-                    provider.getOriginalFileWhereFormatStartsWith(
-                            pixels, DV_FORMAT);
-                if (originalFile != null)
-                {
-                    String originalFilePath = getFilesPath(originalFile.getId());
-                    if (new File(originalFilePath).exists())
-                    {
-                        log.info(
-                            "Non-existant pixel buffer file, using DeltaVision " +
-                            "original file: " + originalFilePath);
-                        return new DeltaVision(originalFilePath, originalFile);
-                    }
+                PixelBuffer pb = handleOriginalFile(pixels, provider);
+                if (pb != null) {
+                    return pb;
                 }
             }
 
-            log.info("Creating Pixel buffer.");
-            createSubpath(pixelsFilePath);
-            return new RomioPixelBuffer(pixelsFilePath, pixels, true);
+            if (requirePyramid) {
+                log.info("Creating Pyramid BfPixelBuffer: " + pixelsPyramidFilePath);
+                createSubpath(pixelsPyramidFilePath);
+                return createPyramidPixelBuffer(pixelsPyramidFilePath);
+            } else {
+                log.info("Creating ROMIO Pixel buffer.");
+                createSubpath(pixelsFilePath);
+                return createRomioPixelBuffer(pixelsFilePath, pixels, true);
+            }
         }
 
         log.info("Pixel buffer file exists returning read-only " +
                  "ROMIO pixel buffer.");
-        return new RomioPixelBuffer(pixelsFilePath, pixels);
+        return createRomioPixelBuffer(pixelsFilePath, pixels, false);
+    }
+
+    /**
+     * Returns true if a pyramid should be used for the given {@link Pixels}.
+     * This usually implies that this is a "Big image" and therefore will
+     * need tiling.
+     *
+     * @param pixels
+     * @return
+     */
+    protected boolean isRequirePyramid(Pixels pixels) {
+        final int sizeX = pixels.getSizeX();
+        final int sizeY = pixels.getSizeY();
+        final boolean requirePyramid = (sizeX * sizeY) > (1024*1024); // FIXME
+        return requirePyramid;
     }
 
     /**
@@ -249,25 +254,104 @@ public class PixelsService extends AbstractFileSystemService
 
 
 	/**
-	 * Helper method to properly log any exceptions raised by Bio-Formats.
-	 * @param filePath Non-null.
-	 * @param reader passed to {@link BfPixelBuffer}
+	 * If the outer loop should continue, this method returns successfully;
+	 * otherwise it throws a MissingPyramidException.
+	 *
+	 * @param pixels
+	 * @param pixelsPyramidFilePath
 	 * @return
+	 * @throws MissingPyramidException
 	 */
-	private PixelBuffer createBfPixelBuffer(final String filePath, ImageReader reader) {
-	    try
-	    {
-	        return new BfPixelBuffer(filePath, reader);
-	    }
-	    catch (Exception e)
-	    {
-	        String msg = "Error instantiating pixel buffer: " + filePath;
-	        log.error(msg, e);
-	        throw new ResourceError(msg);
-	    }
-	}
+    protected void handleMissingPyramid(Pixels pixels,
+            final String pixelsPyramidFilePath) {
+        MissingPyramidMessage mpm = new MissingPyramidMessage(this,
+                pixels.getId());
+        pub.publishEvent(mpm);
+        if (mpm.isRetry()) {
+            log.debug("Retrying pyramid:" + pixelsPyramidFilePath);
+            return;
+        }
+        String msg = "Missing pyramid:" + pixelsPyramidFilePath;
+        log.warn(msg);
+        throw new MissingPyramidException(msg, pixels.getId());
+    }
 
 	/**
+	 * Helper for bypassing pixel data and using original files directly.
+	 *
+	 * @param pixels
+	 * @param provider
+	 * @return
+	 */
+    protected PixelBuffer handleOriginalFile(Pixels pixels,
+            OriginalFileMetadataProvider provider) {
+
+        OriginalFile originalFile = provider
+                .getOriginalFileWhereFormatStartsWith(pixels, DV_FORMAT);
+
+        if (originalFile != null) {
+            String originalFilePath = getFilesPath(originalFile.getId());
+            if (new File(originalFilePath).exists()) {
+                log.info("Non-existant pixel buffer file, using DeltaVision "
+                        + "original file: " + originalFilePath);
+                return new DeltaVision(originalFilePath, originalFile);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Helper method to properly log any exceptions raised by Bio-Formats.
+     * @param filePath Non-null.
+     * @param reader passed to {@link BfPixelBuffer}
+     * @return
+     */
+    protected PixelBuffer createBfPixelBuffer(final String filePath) {
+        try
+        {
+            return new BfPixelBuffer(filePath, new ImageReader());
+        }
+        catch (Exception e)
+        {
+            String msg = "Error instantiating pixel buffer: " + filePath;
+            log.error(msg, e);
+            throw new ResourceError(msg);
+        }
+    }
+
+    /**
+     * Helper method to properly log any exceptions raised by Bio-Formats.
+     * @param filePath Non-null.
+     * @param reader passed to {@link BfPixelBuffer}
+     * @return
+     */
+    protected PixelBuffer createPyramidPixelBuffer(final String filePath) {
+        try
+        {
+            return null; // FIXME
+        }
+        catch (Exception e)
+        {
+            String msg = "Error instantiating pixel buffer: " + filePath;
+            log.error(msg, e);
+            throw new ResourceError(msg);
+        }
+    }
+
+    /**
+     * Helper method to properlty create a RomioPixelBuffer.
+     *
+     * @param pixelsFilePath
+     * @param pixels
+     * @param allowModification
+     * @return
+     */
+    protected PixelBuffer createRomioPixelBuffer(String pixelsFilePath,
+        Pixels pixels, boolean allowModification) {
+        return new RomioPixelBuffer(pixelsFilePath, pixels, allowModification);
+    }
+
+    /**
 	 * Removes files from data repository based on a parameterized List of Long
 	 * pixels ids
 	 * 
