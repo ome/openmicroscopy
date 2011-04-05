@@ -1159,6 +1159,13 @@ public class IceMapper extends ome.util.ModelMapper implements
 
         // API USAGE
 
+        else if (ome.conditions.MissingPyramidException.class
+                .isAssignableFrom(c)) {
+            omero.MissingPyramidException mpe = new omero.MissingPyramidException();
+            mpe.pixelsID = ((ome.conditions.MissingPyramidException) t).getPixelsId();
+            return IceMapper.fillServerError(mpe, t);
+        }
+
         else if (ome.conditions.OptimisticLockException.class
                 .isAssignableFrom(c)) {
             omero.OptimisticLockException ole = new omero.OptimisticLockException();

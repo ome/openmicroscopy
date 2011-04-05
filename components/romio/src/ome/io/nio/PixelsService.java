@@ -16,9 +16,14 @@ import loci.formats.ImageReader;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.FatalBeanException;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
 
+import ome.conditions.MissingPyramidException;
 import ome.conditions.ResourceError;
 import ome.io.bioformats.BfPixelBuffer;
+import ome.io.messages.MissingPyramidMessage;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
 import ome.util.Utils;
@@ -30,11 +35,16 @@ import ome.util.Utils;
  * @version 3.0 <small> (<b>Internal version:</b> $Revision$ $Date$) </small>
  * @since OMERO-Beta1.0
  */
-public class PixelsService extends AbstractFileSystemService {
+public class PixelsService extends AbstractFileSystemService
+    implements ApplicationEventPublisherAware {
 
 	/** The logger for this class. */
 	private transient static Log log = LogFactory.getLog(PixelsService.class);
 	
+	/** Publisher interface used to publish messages concerning missing
+	 * data and similar. */
+	private transient ApplicationEventPublisher pub;
+
 	/** The DeltaVision file format enumeration value */
 	public static final String DV_FORMAT = "DV";
 
@@ -64,6 +74,13 @@ public class PixelsService extends AbstractFileSystemService {
 		super(path);
 	}
 
+	public void setApplicationEventPublisher(ApplicationEventPublisher pub) {
+	    if (this.pub != null) {
+	        throw new FatalBeanException("Publisher already set.");
+	    }
+	    this.pub = pub;
+	}
+
 	/**
 	 * Creates a PixelBuffer for a given pixels set.
 	 * 
@@ -83,7 +100,8 @@ public class PixelsService extends AbstractFileSystemService {
      * Returns a pixel buffer for a given set of pixels. Either a proprietary
      * ROMIO pixel buffer or a specific pixel buffer implementation.
      * @param pixels Pixels set to retrieve a pixel buffer for.
-     * @param pixelsFilePath Absolute path to the pixels set.
+     * @param pixelsFilePath Absolute path to the pixels set. If null, this
+     *      represents a {@link RomioPixelBuffer}
      * @param provider Original file metadata provider.
      * @param bypassOriginalFile Do not check for the existence of an original
      * file to back this pixel buffer.
@@ -95,24 +113,61 @@ public class PixelsService extends AbstractFileSystemService {
                                       OriginalFileMetadataProvider provider,
                                       boolean bypassOriginalFile)
     {
+        final int sizeX = pixels.getSizeX();
+        final int sizeY = pixels.getSizeY();
+        final boolean requirePyramid = (sizeX * sizeY) > (1024*1024); // FIXME
+        final boolean useRomio = (pixelsFilePath == null);
+        if (useRomio) {
+            pixelsFilePath = getPixelsPath(pixels.getId());
+        }
+
         final File pixelsFile = new File(pixelsFilePath);
         final String pixelsPyramidFilePath = pixelsFilePath + PYRAMID_SUFFIX;
         final File pixelsPyramidFile = new File(pixelsPyramidFilePath);
+
+        //
+        // 1. If a pyramid is required but does not exist, then we
+        // raise a message allowing other beans the chance to create
+        // the pyramid.
+        //
+        while (requirePyramid && !pixelsPyramidFile.exists()) {
+            MissingPyramidMessage mpm = new MissingPyramidMessage(
+                    this, pixels.getId());
+            pub.publishEvent(mpm);
+            if (mpm.isRetry()) {
+                log.debug("Retrying pyramid:" + pixelsPyramidFilePath);
+                continue;
+            }
+            String msg = "Missing pyramid:" + pixelsPyramidFilePath;
+            log.warn(msg);
+            throw new MissingPyramidException(msg, pixels.getId());
+        }
+
+        //
+        // 2. If the pyramid exists, regardless of whether or not it
+        // is required, we should use it.
+        //
         if (pixelsPyramidFile.exists())
         {
-            try
-            {
-                log.info("Using pyramid: " + pixelsPyramidFilePath);
-                return new BfPixelBuffer(pixelsPyramidFilePath,
-                                         new ImageReader());
-            }
-            catch (Exception e)
-            {
-                String msg = "Error instantiating pyramid pixel buffer.";
-                log.error(msg, e);
-                throw new ResourceError(msg);
-            }
+            log.info("Using Pyramid BfPixelBuffer: " + pixelsPyramidFilePath);
+            return createBfPixelBuffer(pixelsPyramidFilePath, new ImageReader());
         }
+
+        //
+        // 3. If this is a useRomio scenario, then we simply create the
+        // buffer and return it.
+        //
+        if (!useRomio)
+        {
+            log.info("Using BfPixelBuffer: " + pixelsFilePath);
+            return createBfPixelBuffer(pixelsFilePath, new ImageReader());
+        }
+
+        //
+        // 4. Finally, this must be a ROMIO situation. If the pixels file is
+        // missing, then we attempt a bypass if allowed. Otherwise, we
+        // create a new romio buffer.
+        //
         if (!pixelsFile.exists())
         {
             if (!bypassOriginalFile)
@@ -156,7 +211,7 @@ public class PixelsService extends AbstractFileSystemService {
                                       OriginalFileMetadataProvider provider,
                                       boolean bypassOriginalFile)
     {
-        return getPixelBuffer(pixels, getPixelsPath(pixels.getId()),
+        return getPixelBuffer(pixels, null,
                               provider, bypassOriginalFile);
     }
 
@@ -183,6 +238,26 @@ public class PixelsService extends AbstractFileSystemService {
 		} finally {
 			Utils.closeQuietly(stream);
 		}
+	}
+
+
+	/**
+	 * Helper method to properly log any exceptions raised by Bio-Formats.
+	 * @param filePath Non-null.
+	 * @param reader passed to {@link BfPixelBuffer}
+	 * @return
+	 */
+	private PixelBuffer createBfPixelBuffer(final String filePath, ImageReader reader) {
+	    try
+	    {
+	        return new BfPixelBuffer(filePath, reader);
+	    }
+	    catch (Exception e)
+	    {
+	        String msg = "Error instantiating pixel buffer: " + filePath;
+	        log.error(msg, e);
+	        throw new ResourceError(msg);
+	    }
 	}
 
 	/**
