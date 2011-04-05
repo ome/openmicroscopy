@@ -315,7 +315,7 @@ class InputServerStrategy
 	 */
 	private MeasurePointFigure createPointFigure(PointData data)
 	{
-		double r = PointFigure.FIGURE_SIZE/2;//5;
+		double r = PointFigure.FIGURE_SIZE/2;
 		double x = data.getX()-r;
 		double y = data.getY()-r;
 		
