@@ -2818,46 +2818,6 @@ class _BlitzGateway (object):
         return rv
 
 
-    def simpleSearch (self, text, created=None, types=None):
-        """
-        Fulltext search on Projects, Datasets and Images. Used by other search methods above.
-        
-        @param text:        The text to search for
-        @type text:         String
-        @param created:     List or tuple of creation times. (start, stop)
-        @type created:      L{omero.rtime} list or tuple
-        @param types:       List or tuple of types to search for - E.g. Project, Dataset
-        @type types:        E.g. (L{ProjectWrapper}, L{DatasetWrapper})
-        @return:            List of search result wrapped objects
-        @rtype:             List of Object wrappers as specified in 'types'
-        
-        TODO: search other object types?
-        TODO: batch support.
-        """
-        if not text:
-            return []
-        if isinstance(text, UnicodeType):
-            text = text.encode('utf8')
-        if types is None:
-            types = (ProjectWrapper, DatasetWrapper, ImageWrapper)
-        search = self.createSearchService()
-        if created:
-            search.onlyCreatedBetween(created[0], created[1]);
-        if text[0] in ('?','*'):
-            search.setAllowLeadingWildcard(True)
-        rv = []
-        for t in types:
-            def actualSearch ():
-                search.onlyType(t().OMERO_CLASS)
-                search.byFullText(text)
-            timeit(actualSearch)()
-            if search.hasNext():
-                def searchProcessing ():
-                    rv.extend(map(lambda x: t(self, x), search.results()))
-                timeit(searchProcessing)()
-        search.close()
-        return rv
-
 def safeCallWrap (self, attr, f): #pragma: no cover
     """
     Wraps a function call. Does not call the function. Throws an exception.
