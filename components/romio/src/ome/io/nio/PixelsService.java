@@ -23,6 +23,7 @@ import org.springframework.context.ApplicationEventPublisherAware;
 import ome.conditions.MissingPyramidException;
 import ome.conditions.ResourceError;
 import ome.io.bioformats.BfPixelBuffer;
+import ome.io.bioformats.BfPyramidPixelBuffer;
 import ome.io.messages.MissingPyramidMessage;
 import ome.model.core.OriginalFile;
 import ome.model.core.Pixels;
@@ -149,7 +150,7 @@ public class PixelsService extends AbstractFileSystemService
         if (pixelsPyramidFile.exists())
         {
             log.info("Using Pyramid BfPixelBuffer: " + pixelsPyramidFilePath);
-            return createPyramidPixelBuffer(pixelsPyramidFilePath);
+            return createPyramidPixelBuffer(pixels, pixelsPyramidFilePath);
         }
 
         //
@@ -182,7 +183,7 @@ public class PixelsService extends AbstractFileSystemService
             if (requirePyramid) {
                 log.info("Creating Pyramid BfPixelBuffer: " + pixelsPyramidFilePath);
                 createSubpath(pixelsPyramidFilePath);
-                return createPyramidPixelBuffer(pixelsPyramidFilePath);
+                return createPyramidPixelBuffer(pixels, pixelsPyramidFilePath);
             } else {
                 log.info("Creating ROMIO Pixel buffer.");
                 createSubpath(pixelsFilePath);
@@ -325,10 +326,12 @@ public class PixelsService extends AbstractFileSystemService
      * @param reader passed to {@link BfPixelBuffer}
      * @return
      */
-    protected PixelBuffer createPyramidPixelBuffer(final String filePath) {
+    protected PixelBuffer createPyramidPixelBuffer(final Pixels pixels,
+            final String filePath) {
+
         try
         {
-            return null; // FIXME
+            return new BfPyramidPixelBuffer(pixels, filePath);
         }
         catch (Exception e)
         {

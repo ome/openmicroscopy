@@ -292,7 +292,7 @@ public class GetPixelBufferUnitTest {
         }
 
         @Override
-        protected PixelBuffer createPyramidPixelBuffer(String filePath) {
+        protected PixelBuffer createPyramidPixelBuffer(Pixels pixels, String filePath) {
             if (!allowCreatePyramid) {
                 fail("createPyramid should not be called");
             }
