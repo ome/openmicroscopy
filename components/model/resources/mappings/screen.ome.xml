@@ -54,6 +54,7 @@
 	</type>
 	<type id="ome.model.screen.Well" annotated="true">
 		<properties>
+			<optional name="status" type="string"/>
 			<optional name="column" type="int"/>
 			<optional name="row" type="int"/>
 			<!-- Note: the following are not (yet) in model -->
