@@ -664,6 +664,7 @@
 		<entry name="double"/>
 		<entry name="complex"/>
 		<entry name="double-complex"/>
+		<optional name="bitSize" type="int"/>
 	</enum>
 <!-- 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

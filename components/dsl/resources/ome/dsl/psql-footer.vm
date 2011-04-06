@@ -307,6 +307,21 @@ insert into $table (id,permissions,value)
 #end
 #end
 
+-- Adding bit depth to pixelstype (#2724)
+update pixelstype set bitsize = 1 where value = 'bit';
+update pixelstype set bitsize = 8 where value = 'int8';
+update pixelstype set bitsize = 8 where value = 'uint8';
+update pixelstype set bitsize = 16 where value = 'int16';
+update pixelstype set bitsize = 16 where value = 'uint16';
+update pixelstype set bitsize = 32 where value = 'int32';
+update pixelstype set bitsize = 32 where value = 'uint16';
+update pixelstype set bitsize = 32 where value = 'uint32';
+update pixelstype set bitsize = 32 where value = 'float';
+update pixelstype set bitsize = 64 where value = 'double';
+update pixelstype set bitsize = 64 where value = 'complex';
+update pixelstype set bitsize = 128 where value = 'double-complex';
+alter table pixelstype alter column bitsize set not null;
+
 --
 -- Cryptographic functions for specifying UUID
 --
