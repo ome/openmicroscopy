@@ -82,7 +82,7 @@
 			<optional name="timepoint" type="timestamp"/>
 			<optional name="plateAcquisition" type="ome.model.screen.PlateAcquisition"/>
 			<manyone name="well" type="ome.model.screen.Well" inverse="wellSamples" ordered="true"/>
-			<manyone name="image" type="ome.model.core.Image" inverse="wellSamples"/>
+			<manyone name="image" type="ome.model.core.Image" inverse="wellSamples" unique="true"/>
 		</properties>
 	</type>
 	<type id="ome.model.screen.Reagent" annotated="true" described="true">
