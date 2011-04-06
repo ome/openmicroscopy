@@ -1226,7 +1226,18 @@ def plateGrid_json (request, pid, field=0, server_id=None, _conn=None, **kwargs)
     xtra = {'thumbUrlPrefix': urlprefix}
     plate.setGridSizeConstraints(8,12)
     for row in plate.getWellGrid(field):
-        grid.append(map(lambda x: x is not None and x.simpleMarshal(xtra=xtra) or None, [( x and x.getImage() ) for x in row]))
+        tr = []
+        for e in row:
+            if e:
+                i = e.getImage()
+                if i:
+                    t = i.simpleMarshal(xtra=xtra)
+                    t['wellId'] = e.getId()
+                    tr.append(t)
+                    continue
+            tr.append(None)
+        grid.append(tr)
+        #grid.append(map(lambda x: x is not None and x.simpleMarshal(xtra=xtra) or None, [( x and x.getImage() ) for x in row]))
     return {'grid': grid,
             'collabels': plate.getColumnLabels(),
             'rowlabels': plate.getRowLabels()}
@@ -1253,6 +1264,29 @@ def listImages_json (request, did, server_id=None, _conn=None, **kwargs):
         return reverse(prefix, args=(iid,))
     xtra = {'thumbUrlPrefix': urlprefix}
     return map(lambda x: x.simpleMarshal(xtra=xtra), dataset.listChildren())
+
+@jsonp
+def listWellImages_json (request, did, server_id=None, _conn=None, **kwargs):
+    """
+    lists all Images in a Well, as json
+    TODO: cache
+    
+    @param request:     http request
+    @param did:         Well ID
+    @param server_id:   
+    @param _conn:       L{omero.gateway.BlitzGateway}
+    @return:            list of image json. 
+    """
+    
+    blitzcon = _conn
+    well = blitzcon.getWell(did)
+    if well is None:
+        return HttpResponseServerError('""', mimetype='application/javascript')
+    prefix = kwargs.get('thumbprefix', 'webgateway.views.render_thumbnail')
+    def urlprefix(iid):
+        return reverse(prefix, args=(iid,))
+    xtra = {'thumbUrlPrefix': urlprefix}
+    return map(lambda x: x.getImage() and x.getImage().simpleMarshal(xtra=xtra), well.listChildren())
 
 @jsonp
 def listDatasets_json (request, pid, server_id=None, _conn=None, **kwargs):

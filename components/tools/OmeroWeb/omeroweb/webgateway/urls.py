@@ -160,6 +160,14 @@ json method: returns list of Images belonging to specified Dataset. See L{views.
     - did:  Dataset ID
 """
 
+webgateway_listwellimages_json = url(r'^well/(?P<did>[^/]+)/children/$', 'webgateway.views.listWellImages_json', name="webgateway_listwellimages_json")
+"""
+json method: returns list of Images belonging to specified Well. See L{views.listWellImages_json}. Returns E.g list of 
+{"description": "", "author": "Will Moore", "date": 1291325060.0, "thumb_url": "/webgateway/render_thumbnail/4701/", "type": "Image", "id": 4701, "name": "spim.png"}
+    - webgateway/well/<did>/children params are:
+    - did:  Well ID
+"""
+
 webgateway_plategrid_json = url(r'^plate/(?P<pid>[^/]+)/(?:(?P<field>[^/]+)/)?$', 'webgateway.views.plateGrid_json', name="webgateway_plategrid_json")
 """
 """
@@ -249,6 +257,7 @@ urlpatterns = patterns('',
     listDatasets_json,
     datasetDetail_json,
     webgateway_listimages_json,
+    webgateway_listwellimages_json,
     webgateway_plategrid_json,
     imageData_json,
     webgateway_search_json,

@@ -82,11 +82,13 @@ jQuery._WeblitzPlateview = function (container, options) {
   }
 
   this.load = function (pid,field) {
+      $('table img', _this.self).remove();
       if (field === undefined) {
 	  field = 0;
       }
-      gs_modalJson(opts.baseurl+'/plate/'+pid+'/'+field+'/?callback=?', {}, _reset);
-//    jQuery.getJSON(opts.baseurl+'/plate/'+pid+'/?callback=?', _reset);
+      gs_json(opts.baseurl+'/plate/'+pid+'/'+field+'/?callback=?', {}, _reset);
+      //gs_modalJson(opts.baseurl+'/plate/'+pid+'/'+field+'/?callback=?', {}, _reset);
+      //jQuery.getJSON(opts.baseurl+'/plate/'+pid+'/'+field+'/?callback=?', _reset);
   }
 
   this.setFocus = function (elm, evt) {
