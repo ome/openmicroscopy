@@ -381,9 +381,9 @@ public class PlateData extends DataObject {
     public Set<PlateAcquisitionData> getPlateAcquisitions()
     {
         if (plateAcquisitions == null &&
-        		asPlate().sizeOfPlateAcquisition() >= 0) {
+        		asPlate().sizeOfPlateAcquisitions() >= 0) {
 		plateAcquisitions = new HashSet<PlateAcquisitionData>();
-            List<PlateAcquisition> links = asPlate().copyPlateAcquisition();
+            List<PlateAcquisition> links = asPlate().copyPlateAcquisitions();
             for (PlateAcquisition link : links) {
             	plateAcquisitions.add(new PlateAcquisitionData(link));
             }

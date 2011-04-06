@@ -20,7 +20,7 @@
 			<optional name="reagentSetIdentifier" type="string"/>
 			<optional name="reagentSetDescription" type="string"/>
 			<child name="plateLinks" type="ome.model.screen.ScreenPlateLink" target="ome.model.screen.Plate"/>
-			<zeromany name="reagent" type="ome.model.screen.Reagent" inverse="screen"/>
+			<zeromany name="reagents" type="ome.model.screen.Reagent" inverse="screen"/>
 		</properties>
 	</type>
 	<type id="ome.model.screen.PlateAcquisition" named="true" described="true" annotated="true">
@@ -48,7 +48,7 @@
 			<optional name="externalIdentifier" type="string"/>
 			<parent name="screenLinks" type="ome.model.screen.ScreenPlateLink" target="ome.model.screen.Screen"/>
 			<zeromany name="wells" type="ome.model.screen.Well" inverse="plate"/>
-			<zeromany name="plateAcquisition" type="ome.model.screen.PlateAcquisition" inverse="plate"/>
+			<zeromany name="plateAcquisitions" type="ome.model.screen.PlateAcquisition" inverse="plate"/>
 		</properties>
 	</type>
 	<type id="ome.model.screen.Well" annotated="true">
