@@ -168,8 +168,8 @@
 		<properties>
 			<optional name="temperature" type="double"/>
 			<optional name="airPressure" type="double"/>
-			<optional name="humidity" type="double"/>
-			<optional name="co2percent" type="double"/>
+			<optional name="humidity" type="PercentFraction"/>
+			<optional name="co2percent" type="PercentFraction"/>
 		</properties>
 	</type>
 <!-- 
@@ -256,7 +256,7 @@
 	<type id="ome.model.acquisition.LightSettings">
 		<!-- Note: LightSettings are stored in LightSourceRef in model-->
 		<properties>
-			<optional name="attenuation" type="double"/>
+			<optional name="attenuation" type="PercentFraction"/>
 			<optional name="wavelength" type="PositiveInteger"/>
 			<required name="lightSource" type="ome.model.acquisition.LightSource"/>
 			<!-- Note: lightSource is ID in model-->
@@ -401,7 +401,7 @@
 			<optional name="cutOut" type="PositiveInteger"/>
 			<optional name="cutInTolerance" type="NonNegativeInteger"/>
 			<optional name="cutOutTolerance" type="NonNegativeInteger"/>
-			<optional name="transmittance" type="double"/>
+			<optional name="transmittance" type="PercentFraction"/>
 		</properties>
 	</type>
 	<type id="ome.model.acquisition.LightPath">

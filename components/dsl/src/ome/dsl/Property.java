@@ -116,6 +116,8 @@ public abstract class Property { // TODO need to define equality so that two
     
     public final static String NONNEGATIVEINTEGER = "NonNegativeInteger";
 
+    public final static String PERCENTFRACTION = "PercentFraction";
+
     public final static Map<String, String> JAVATYPES = new HashMap<String, String>();
     static {
         JAVATYPES.put(STRING, String.class.getName());
@@ -124,6 +126,7 @@ public abstract class Property { // TODO need to define equality so that two
         JAVATYPES.put(POSITIVEINTEGER, Integer.class.getName());
         JAVATYPES.put(NONNEGATIVEINTEGER, Integer.class.getName());
         JAVATYPES.put(FLOAT, Float.class.getName());
+        JAVATYPES.put(PERCENTFRACTION, Double.class.getName());
         JAVATYPES.put(DOUBLE, Double.class.getName());
         JAVATYPES.put(LONG, Long.class.getName());
         JAVATYPES.put(TIMESTAMP, Timestamp.class.getName());
