@@ -125,14 +125,19 @@ class FindObjectTest (lib.GTest):
         tagId = tag.getId()
 
         # findObject by name
-        find_tag = self.gateway.getObject("Annotation", None, attributes={"textValue":tag_value})
+        find_tag = self.gateway.getObject("Annotation", attributes={"textValue":tag_value})
         self.assertTrue(find_tag != None)
         self.assertEqual(find_tag.getValue(), tag_value)
 
         # find by namespace
-        find_tag = self.gateway.getObject("Annotation", None, attributes={"ns":find_ns})
+        find_tag = self.gateway.getObject("Annotation", attributes={"ns":find_ns})
         self.assertTrue(find_tag != None)
         self.assertEqual(find_tag.getNs(), find_ns)
+
+        # find by text value
+        find_tag = self.gateway.getObject("TagAnnotation", attributes={"textValue":tag_value})
+        self.assertTrue(find_tag != None)
+        self.assertEqual(find_tag.getValue(), tag_value)
 
         # create some other annotations... (not linked!)
         longAnn = omero.gateway.LongAnnotationWrapper(self.gateway)
