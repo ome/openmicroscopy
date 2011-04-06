@@ -23,8 +23,9 @@
 			<zeromany name="reagents" type="ome.model.screen.Reagent" inverse="screen"/>
 		</properties>
 	</type>
-	<type id="ome.model.screen.PlateAcquisition" named="true" described="true" annotated="true">
+	<type id="ome.model.screen.PlateAcquisition" described="true" annotated="true">
 		<properties>
+			<optional name="name" type="string"/>
 			<optional name="startTime" type="timestamp"/>
 			<optional name="endTime" type="timestamp"/>
 			<optional name="maximumFieldCount" type="int"/>
@@ -83,9 +84,10 @@
 			<manyone name="image" type="ome.model.core.Image" inverse="wellSamples"/>
 		</properties>
 	</type>
-	<type id="ome.model.screen.Reagent" annotated="true" named="true" described="true">
+	<type id="ome.model.screen.Reagent" annotated="true" described="true">
 		<!-- Note: Name is optional in model-->
 		<properties>
+			<optional name="name" type="string"/>
 			<optional name="reagentIdentifier" type="string"/>
 			<manyone name="screen" type="ome.model.screen.Screen" inverse="reagent"/>
 			<parent name="wellLinks" type="ome.model.screen.WellReagentLink" target="ome.model.screen.Well"/>
