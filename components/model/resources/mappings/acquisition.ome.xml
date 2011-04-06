@@ -116,9 +116,9 @@
 		<!-- Note: PlaneInfo is called Plane in model-->
 		<properties>
 			<manyone name="pixels" type="ome.model.core.Pixels"/>
-			<required name="theZ" type="int"/>
-			<required name="theC" type="int"/>
-			<required name="theT" type="int"/>
+			<required name="theZ" type="NonNegativeInteger"/>
+			<required name="theC" type="NonNegativeInteger"/>
+			<required name="theT" type="NonNegativeInteger"/>
 			<optional name="deltaT" type="double"/>
 			<!-- Note: deltaT is stored in PlaneTiming in model-->
 			<optional name="positionX" type="double"/>
@@ -399,8 +399,8 @@
 		<properties>
 			<optional name="cutIn" type="PositiveInteger"/>
 			<optional name="cutOut" type="PositiveInteger"/>
-			<optional name="cutInTolerance" type="int"/>
-			<optional name="cutOutTolerance" type="int"/>
+			<optional name="cutInTolerance" type="NonNegativeInteger"/>
+			<optional name="cutOutTolerance" type="NonNegativeInteger"/>
 			<optional name="transmittance" type="double"/>
 		</properties>
 	</type>

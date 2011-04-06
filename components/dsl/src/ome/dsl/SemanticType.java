@@ -509,6 +509,10 @@ public abstract class SemanticType {
                 check = p.getName() + " > 0";
             }
 
+            else if (Property.NONNEGATIVEINTEGER.equals(p._getType())) {
+                check = p.getName() + " >= 0";
+            }
+
             if (check != null) {
                 if (sb.length() > 0) {
                     sb.append(" and ");
