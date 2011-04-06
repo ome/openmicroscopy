@@ -58,11 +58,11 @@
 			<!-- Note: relatedTo is not used in model-->
 			<required name="pixelsType" type="ome.model.enums.PixelsType"/>
 			<!-- Note: pixelsType is called PixelType in model and uses enum PixelTypes -->
-			<required name="sizeX" type="int"/>
-			<required name="sizeY" type="int"/>
-			<required name="sizeZ" type="int"/>
-			<required name="sizeC" type="int"/>
-			<required name="sizeT" type="int"/>
+			<required name="sizeX" type="PositiveInteger"/>
+			<required name="sizeY" type="PositiveInteger"/>
+			<required name="sizeZ" type="PositiveInteger"/>
+			<required name="sizeC" type="PositiveInteger"/>
+			<required name="sizeT" type="PositiveInteger"/>
 			<required name="sha1" type="string"/>
 			<required name="dimensionOrder" type="ome.model.enums.DimensionOrder"/>
 			<optional name="physicalSizeX" type="double"/>
@@ -196,9 +196,9 @@
 			<optional name="illumination" type="ome.model.enums.Illumination"/>
 			<!-- Note: illumination is called IlluminationType in model-->
 			<optional name="contrastMethod" type="ome.model.enums.ContrastMethod"/>
-			<optional name="excitationWave" type="int"/>
+			<optional name="excitationWave" type="PositiveInteger"/>
 			<!-- Note: excitationWave is called exWave in model-->
-			<optional name="emissionWave" type="int"/>
+			<optional name="emissionWave" type="PositiveInteger"/>
 			<!-- Note: emissionWave is called emWave in model-->
 			<optional name="fluor" type="string"/>
 			<optional name="ndFilter" type="double"/>
@@ -210,7 +210,7 @@
 			<!-- Note: lightSourceSettings is called LightSourceRef (ID and values) in model-->
 			<optional name="filterSet" type="ome.model.acquisition.FilterSet"/>
 			<!-- Note: filterSet is called FilterSetRef (ID only Ref) in model-->
-			<optional name="samplesPerPixel" type="int"/>
+			<optional name="samplesPerPixel" type="PositiveInteger"/>
 			<optional name="photometricInterpretation" type="ome.model.enums.PhotometricInterpretation"/>
 			<optional name="mode" type="ome.model.enums.AcquisitionMode"/>
 			<optional name="pockelCellSetting" type="int"/>
@@ -240,8 +240,8 @@
 	</type>
 	<type id="ome.model.acquisition.OTF">
 		<properties>
-			<required name="sizeX" type="int"/>
-			<required name="sizeY" type="int"/>
+			<required name="sizeX" type="PositiveInteger"/>
+			<required name="sizeY" type="PositiveInteger"/>
 			<required name="opticalAxisAveraged" type="boolean"/>
 			<required name="pixelsType" type="ome.model.enums.PixelsType"/>
 			<!-- Note: pixelsType is called PixelType and using ExtendedPixelTypes in model-->
@@ -257,7 +257,7 @@
 		<!-- Note: LightSettings are stored in LightSourceRef in model-->
 		<properties>
 			<optional name="attenuation" type="double"/>
-			<optional name="wavelength" type="int"/>
+			<optional name="wavelength" type="PositiveInteger"/>
 			<required name="lightSource" type="ome.model.acquisition.LightSource"/>
 			<!-- Note: lightSource is ID in model-->
 			<manyzero name="microbeamManipulation" type="ome.model.experiment.MicrobeamManipulation"/>
@@ -290,10 +290,10 @@
 			<required name="type" type="ome.model.enums.LaserType"/>
 			<required name="laserMedium" type="ome.model.enums.LaserMedium"/>
 			<!-- Note: laserMedium uses enum LaserMedia in model-->
-			<optional name="frequencyMultiplication" type="int"/>
+			<optional name="frequencyMultiplication" type="PositiveInteger"/>
 			<optional name="tuneable" type="boolean"/>
 			<optional name="pulse" type="ome.model.enums.Pulse"/>
-			<optional name="wavelength" type="int"/>
+			<optional name="wavelength" type="PositiveInteger"/>
 			<optional name="pockelCell" type="boolean"/>
 			<optional name="pump" type="ome.model.acquisition.LightSource"/>
 			<optional name="repetitionRate" type="double"/>
@@ -336,7 +336,7 @@
 			<optional name="manufacturer" type="string"/>
 			<optional name="model" type="string"/>
 			<optional name="serialNumber" type="string"/>
-			<optional name="nominalMagnification" type="int"/>
+			<optional name="nominalMagnification" type="PositiveInteger"/>
 			<optional name="calibratedMagnification" type="double"/>
 			<optional name="lensNA" type="double"/>
 			<required name="immersion" type="ome.model.enums.Immersion"/>
@@ -397,8 +397,8 @@
 	</type>
 	<type id="ome.model.acquisition.TransmittanceRange">
 		<properties>
-			<optional name="cutIn" type="int"/>
-			<optional name="cutOut" type="int"/>
+			<optional name="cutIn" type="PositiveInteger"/>
+			<optional name="cutOut" type="PositiveInteger"/>
 			<optional name="cutInTolerance" type="int"/>
 			<optional name="cutOutTolerance" type="int"/>
 			<optional name="transmittance" type="double"/>

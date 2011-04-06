@@ -499,6 +499,28 @@ public abstract class SemanticType {
         }
         return rv;
     }
+    
+    public String getCheck() {
+        StringBuilder sb = new StringBuilder();
+        for (Property p : getClassProperties()) {
+            String check = null;
+            
+            if (Property.POSITIVEINTEGER.equals(p._getType())) {
+                check = p.getName() + " > 0";
+            }
+
+            if (check != null) {
+                if (sb.length() > 0) {
+                    sb.append(" and ");
+                }
+                sb.append(check);
+            }
+
+        }
+
+        return sb.toString();
+
+    }
 
     public void setGlobal(Boolean global) {
         this.global = global;

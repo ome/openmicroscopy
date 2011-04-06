@@ -9,8 +9,6 @@ package ome.dsl;
 
 // Java imports
 import java.sql.Timestamp;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -113,12 +111,15 @@ public abstract class Property { // TODO need to define equality so that two
     public final static String STRINGS2 = "string[][]";
 
     public final static String INTEGERS = "int[]";
+    
+    public final static String POSITIVEINTEGER = "PositiveInteger";
 
     public final static Map<String, String> JAVATYPES = new HashMap<String, String>();
     static {
         JAVATYPES.put(STRING, String.class.getName());
         JAVATYPES.put(BOOLEAN, Boolean.class.getName());
         JAVATYPES.put(INTEGER, Integer.class.getName());
+        JAVATYPES.put(POSITIVEINTEGER, Integer.class.getName());
         JAVATYPES.put(FLOAT, Float.class.getName());
         JAVATYPES.put(DOUBLE, Double.class.getName());
         JAVATYPES.put(LONG, Long.class.getName());
@@ -268,6 +269,15 @@ public abstract class Property { // TODO need to define equality so that two
             return type;
         }
         return t;
+    }
+    
+    /**
+     * Returns the actual type with no modification. {@link #getType()} is
+     * probably poorly named, but changing it would require changing all the
+     * templates extensively.
+     */
+    public String _getType() {
+        return type;
     }
 
     public void setActualType(SemanticType type) {

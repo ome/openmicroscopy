@@ -136,6 +136,9 @@ import ome.model.*;
     index=org.hibernate.search.annotations.Index.UN_TOKENIZED,
     store=org.hibernate.search.annotations.Store.NO
 )
+#if("" != $type.check)
+@org.hibernate.annotations.Check(constraints="${type.check}")
+#end
 public #if($type.abstract)abstract#end class ${type.shortname}
 #if($type.superclass)extends $type.superclass #end
 implements java.io.Serializable, IObject
