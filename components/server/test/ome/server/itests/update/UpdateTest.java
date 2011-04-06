@@ -642,4 +642,10 @@ public class UpdateTest extends AbstractUpdateTest {
         */
 
     }
+    
+    @Test(groups = "ticket:2710")
+    public void testRoiWithoutImage() {
+        Roi r = new Roi();
+        iUpdate.saveAndReturnObject(r);
+    }
 }
