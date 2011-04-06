@@ -6252,7 +6252,7 @@ public class OMEROMetadataStoreClient
     public void setPlateColumns(PositiveInteger columns, int plateIndex)
     {
         Plate o = getPlate(plateIndex);
-        o.setCols(toRType(columns));
+        o.setColumns(toRType(columns));
     }
 
     /* (non-Javadoc)

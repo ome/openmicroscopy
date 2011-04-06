@@ -451,7 +451,7 @@ public class ImporterTest
 				xml.getColumnNamingConvention().getValue());
 		assertEquals(plate.getRows().getValue(), 
 				xml.getRows().getValue().intValue());
-		assertEquals(plate.getCols().getValue(), 
+		assertEquals(plate.getColumns().getValue(), 
 				xml.getColumns().getValue().intValue());
 		assertEquals(plate.getExternalIdentifier().getValue(),
 				xml.getExternalIdentifier());

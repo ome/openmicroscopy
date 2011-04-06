@@ -154,7 +154,7 @@ public class AttributeEditArea
 		buildUI();
 	}
 	
-	public void setCols(int cols) 
+	public void setColumns(int cols) 
 	{
 		textBox.setColumns(cols);
 	}

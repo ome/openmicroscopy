@@ -800,7 +800,7 @@ public class DeleteITest extends AbstractServantTest {
     Plate createPlate(long imageId) throws Exception {
         Plate p = new PlateI();
         p.setRows(omero.rtypes.rint(1));
-        p.setCols(omero.rtypes.rint(1));
+        p.setColumns(omero.rtypes.rint(1));
         p.setName(omero.rtypes.rstring("plate"));
         // now make wells
         Well well = new WellI();

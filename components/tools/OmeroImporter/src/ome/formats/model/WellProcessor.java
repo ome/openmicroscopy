@@ -74,9 +74,9 @@ public class WellProcessor implements ModelProcessor
             Plate plate = validatePlate(plateIndex);
             Well well = (Well) container.sourceObject;
             if (well.getColumn() != null
-                && well.getColumn().getValue() >= plate.getCols().getValue())
+                && well.getColumn().getValue() >= plate.getColumns().getValue())
             {
-                plate.setCols(rint(well.getColumn().getValue() + 1));
+                plate.setColumns(rint(well.getColumn().getValue() + 1));
             }
             if (well.getRow() != null
                 && well.getRow().getValue() >= plate.getRows().getValue())
@@ -126,9 +126,9 @@ public class WellProcessor implements ModelProcessor
         {
             plate.setRows(rint(1));
         }
-        if (plate.getCols() == null)
+        if (plate.getColumns() == null)
         {
-            plate.setCols(rint(1));
+            plate.setColumns(rint(1));
         }
         return plate;
     }

@@ -340,7 +340,7 @@ public class PlateData extends DataObject {
     	Plate plate = asPlate();
     	int c = 0;
     	int r = 0;
-    	omero.RInt v = plate.getCols();
+    	omero.RInt v = plate.getColumns();
     	if (v != null) c = v.getValue();
     	v = plate.getRows();
     	if (v != null) r = v.getValue();

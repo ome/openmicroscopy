@@ -43,7 +43,7 @@
                         <optional name="wellOriginX" type="double"/><!-- percent width offset from top left-->
                         <optional name="wellOriginY" type="double"/><!-- percent height offset from top left-->
 			<optional name="rows" type="int"/>
-			<optional name="cols" type="int"/>
+			<optional name="columns" type="int"/>
                         <!-- end not in model -->
 			<optional name="status" type="string"/>
 			<optional name="externalIdentifier" type="string"/>
