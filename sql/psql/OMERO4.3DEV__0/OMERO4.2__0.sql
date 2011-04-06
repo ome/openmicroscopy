@@ -38,6 +38,13 @@ DROP FUNCTION omero_assert_db_version(varchar, int);
 INSERT into dbpatch (currentVersion, currentPatch,   previousVersion,     previousPatch)
              values ('OMERO4.3',     0,              'OMERO4.2',          0);
 
+
+--
+-- #2694 Remove pg_geom
+--
+
+ALTER TABLE shape DROP COLUMN pg_geom;
+
 --
 -- FINISHED
 --
