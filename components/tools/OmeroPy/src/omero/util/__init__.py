@@ -386,7 +386,8 @@ class Server(Ice.Application):
                 self.adapter = self.communicator().createObjectAdapter(self.adapter_name)
                 self.adapter.activate()
                 ctx.add_servant(self.adapter, self.impl, self.identity) # calls setProxy
-                add_grid_object(self.communicator(), self.impl.prx)     # This must happen _after_ activation
+                prx = self.adapter.createDirectProxy(self.identity) # ticket:1978 for non-collocated registries
+                add_grid_object(self.communicator(), prx)     # This must happen _after_ activation
             except:
                 self.logger.error("Failed activation", exc_info=1)
                 sys.exit(200)
