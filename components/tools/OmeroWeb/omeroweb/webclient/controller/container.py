@@ -1168,5 +1168,5 @@ class BaseContainer(BaseController):
         return handle
     
     def deleteImages(self, ids, anns=False):
-        return self.conn.deleteImages(ids, anns)
+        return self.conn.deleteObjects("Image", ids, deleteAnns=anns)
         
