@@ -2575,45 +2575,8 @@ class _BlitzGateway (object):
         """
         
         return self.simpleDelete('Annotation', [oid])
-    
-    def deleteImage(self, oid, anns=False):
-        """
-        Adds a 'Delete Image' command to the delete queue, keeping annotations by default
-        
-        @param oid:     Image ID
-        @type oid:      Long
-        @param anns:    If True, delete Tag, Term and File Annotations
-        @type anns:     Boolean
-        @return:        Delete handle
-        @rtype:         L{omero.api.delete.DeleteHandle}
-        """
-        
-        op = dict()
-        if not anns:
-            op["/TagAnnotation"] = "KEEP"
-            op["/TermAnnotation"] = "KEEP"
-            op["/FileAnnotation"] = "KEEP"
-        return self.simpleDelete('Image', [oid], op)
-        
-    def deleteImages(self, ids, anns=False):
-        """
-        Adds a 'Delete Images' command to the delete queue, keeping annotations by default
-        
-        @param ids:     Image ID
-        @type ids:      Long list
-        @param anns:    If True, delete Tag, Term and File Annotations
-        @type anns:     Boolean
-        @return:        Delete handle
-        @rtype:         L{omero.api.delete.DeleteHandle}
-        """
-        
-        op = dict()
-        if not anns:
-            op["/TagAnnotation"] = "KEEP"
-            op["/TermAnnotation"] = "KEEP"
-            op["/FileAnnotation"] = "KEEP"
-        return self.simpleDelete('Image', ids, op)
-    
+
+
     def deletePlate(self, oid, anns=False):
         """
         Adds a 'Delete Plate' command to the delete queue, keeping annotations by default
