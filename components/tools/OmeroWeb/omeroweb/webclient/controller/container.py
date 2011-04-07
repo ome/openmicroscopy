@@ -1150,7 +1150,7 @@ class BaseContainer(BaseController):
     def deleteItem(self, child=False, anns=False):
         handle = None
         if self.image:
-            handle = self.conn.deleteImage(self.image.id, anns)
+            handle = self.conn.deleteObjects("Image", [self.image.id], deleteAnns=anns)
         elif self.dataset:
             handle = self.conn.deleteDataset(self.dataset.id, child, anns)
         elif self.project:
