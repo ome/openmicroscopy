@@ -19,7 +19,19 @@ class WrapperTest (lib.GTest):
         super(WrapperTest, self).setUp()
         self.loginAsAuthor()
         self.TESTIMG = self.getTestImage()
+
+    def testAllObjectsWrapped (self):
         
+        # Blitz object wrapper should ensure that all values returned are also wrapped (or are primative values)
+        image = self.TESTIMG
+        pixels = image.getPrimaryPixels()
+        instrument = image.getInstrument()
+        self.assertTrue(isinstance(instrument, omero.gateway.BlitzObjectWrapper))
+        self.assertFalse(hasattr(image.getArchived(), 'val', "Shouldn't return rtype"))
+        self.assertFalse(hasattr(image.getAcquisitionDate(), 'val', "Shouldn't return rtype"))
+        self.assertTrue(isinstance(pixels, omero.gateway.BlitzObjectWrapper), "Should return a BlitzObjectWrapper")
+
+
     def testProjectWrapper (self):
         self.loginAsAuthor()
         p = self.getTestProject()
