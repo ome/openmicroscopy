@@ -49,6 +49,24 @@
 #end
 
 --
+-- Indexes
+--
+#foreach($type in $types)
+#if(!$type.superclass && !$type.global)
+#set( $tbl_name = $type.tableName() )
+  CREATE INDEX i_${tbl_name}_owner ON $tbl_name(owner_id);
+  CREATE INDEX i_${tbl_name}_group ON $tbl_name(group_id);
+#end
+#foreach($prop in $type.classProperties)
+#if( $prop.foreignKey && ! $prop.name.equals("details")  && ! $prop.one2Many )
+#set( $tbl_name = $prop.actualType.tableName() )
+#set( $col_name = $prop.actualType.columnName($prop, '"') )
+  CREATE INDEX $type.indexName($prop) ON $tbl_name($col_name);
+#end
+#end
+#end
+
+--
 -- Finally, a function for showing our permissions
 -- select id, ome_perms(permissions) FROM sometable...
 --
