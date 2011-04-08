@@ -271,6 +271,7 @@
 			<optional name="manufacturer" type="string"/>
 			<optional name="model" type="string"/>
 			<optional name="power" type="double"/>
+			<optional name="lotNumber" type="string"/>
 			<optional name="serialNumber" type="string"/>
 			<manyone name="instrument" type="ome.model.acquisition.Instrument"/>
 		</properties>
@@ -312,6 +313,7 @@
 		<properties>
 			<optional name="manufacturer" type="string"/>
 			<optional name="model" type="string"/>
+			<optional name="lotNumber" type="string"/>
 			<optional name="serialNumber" type="string"/>
 			<optional name="voltage" type="double"/>
 			<optional name="gain" type="double"/>
@@ -327,6 +329,7 @@
 		<properties>
 			<optional name="manufacturer" type="string"/>
 			<optional name="model" type="string"/>
+			<optional name="lotNumber" type="string"/>
 			<optional name="serialNumber" type="string"/>
 			<required name="type" type="ome.model.enums.MicroscopeType"/>
 		</properties>
@@ -335,6 +338,7 @@
 		<properties>
 			<optional name="manufacturer" type="string"/>
 			<optional name="model" type="string"/>
+			<optional name="lotNumber" type="string"/>
 			<optional name="serialNumber" type="string"/>
 			<optional name="nominalMagnification" type="PositiveInteger"/>
 			<optional name="calibratedMagnification" type="double"/>
@@ -368,6 +372,7 @@
 			<optional name="manufacturer" type="string"/>
 			<optional name="model" type="string"/>
 			<optional name="lotNumber" type="string"/>
+			<optional name="serialNumber" type="string"/>
 			<optional name="filterWheel" type="string"/>
 			<optional name="type" type="ome.model.enums.FilterType"/>
 			<optional name="transmittanceRange" type="ome.model.acquisition.TransmittanceRange"/>
@@ -381,6 +386,7 @@
 			<optional name="manufacturer" type="string"/>
 			<optional name="model" type="string"/>
 			<optional name="lotNumber" type="string"/>
+			<optional name="serialNumber" type="string"/>
 			<manyone name="instrument" type="ome.model.acquisition.Instrument"/>
 			<child name="excitationFilterLink" type="ome.model.acquisition.FilterSetExcitationFilterLink" target="ome.model.acquisition.Filter"/>
 			<optional name="dichroic" type="ome.model.acquisition.Dichroic"/>
@@ -392,6 +398,7 @@
 			<optional name="manufacturer" type="string"/>
 			<optional name="model" type="string"/>
 			<optional name="lotNumber" type="string"/>
+			<optional name="serialNumber" type="string"/>
 			<manyone name="instrument" type="ome.model.acquisition.Instrument"/>
 		</properties>
 	</type>
