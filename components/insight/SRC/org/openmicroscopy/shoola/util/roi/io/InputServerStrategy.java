@@ -316,8 +316,8 @@ class InputServerStrategy
 	private MeasurePointFigure createPointFigure(PointData data)
 	{
 		double r = PointFigure.FIGURE_SIZE/2;
-		double x = data.getX()-r;
-		double y = data.getY()-r;
+		double x = Math.abs(data.getX()-r);
+		double y = Math.abs(data.getY()-r);
 		
 		MeasurePointFigure fig = new MeasurePointFigure(data.getText(), x, y, 
 				2*r, 2*r, data.isReadOnly(), data.isClientObject());
@@ -327,8 +327,7 @@ class InputServerStrategy
 		try {
 			transform = SVGTransform.toTransform(data.getTransform());
 			TRANSFORM.set(fig, transform);
-		} catch (IOException e) {}
-		
+		} catch (IOException e) {}	
 		return fig;
 	}
 	
@@ -392,7 +391,6 @@ class InputServerStrategy
 	 */
 	private MeasureMaskFigure createMaskFigure(MaskData data)
 	{
-		
 		double x = data.getX();
 		double y = data.getY();
 		double width = data.getWidth();
@@ -421,7 +419,6 @@ class InputServerStrategy
 	 */
 	private MeasureLineFigure createLineFigure(LineData data)
 	{
-		
 		double x1 = data.getX1();
 		double y1 = data.getY1();
 		double x2 = data.getX2();
@@ -454,7 +451,6 @@ class InputServerStrategy
 	 */
 	private MeasureBezierFigure createPolygonFigure(PolygonData data)
 	{
-		
 		MeasureBezierFigure fig = new MeasureBezierFigure(false, 
 				data.isReadOnly(), data.isClientObject());
 		fig.setVisible(data.isVisible());
