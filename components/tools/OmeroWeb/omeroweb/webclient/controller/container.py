@@ -1152,19 +1152,19 @@ class BaseContainer(BaseController):
         if self.image:
             handle = self.conn.deleteObjects("Image", [self.image.id], deleteAnns=anns)
         elif self.dataset:
-            handle = self.conn.deleteDataset(self.dataset.id, child, anns)
+            handle = self.conn.deleteObjects("Dataset", [self.dataset.id], deleteChildren=child, deleteAnns=anns)
         elif self.project:
-            handle = self.conn.deleteProject(self.project.id, child, anns)
+            handle = self.conn.deleteObjects("Project", [self.project.id], deleteChildren=child, deleteAnns=anns)
         elif self.screen:
-            handle = self.conn.deleteScreen(self.screen.id, child, anns)
+            handle = self.conn.deleteObjects("Screen", [self.screen.id], deleteChildren=child, deleteAnns=anns)
         elif self.plate:
-            handle = self.conn.deletePlate(self.plate.id, anns)
+            handle = self.conn.deleteObjects("Plate", [self.plate.id], deleteAnns=anns)
         elif self.comment:
-            handle = self.conn.deleteAnnotation(self.comment.id)
+            handle = self.conn.deleteObjects("Annotation", [self.comment.id], deleteAnns=anns)
         elif self.tag:
-            handle = self.conn.deleteAnnotation(self.tag.id)
+            handle = self.conn.deleteObjects("Annotation", [self.tag.id], deleteAnns=anns)
         elif self.file:
-            handle = self.conn.deleteAnnotation(self.file.id)
+            handle = self.conn.deleteObjects("Annotation", [self.file.id], deleteAnns=anns)
         return handle
     
     def deleteImages(self, ids, anns=False):
