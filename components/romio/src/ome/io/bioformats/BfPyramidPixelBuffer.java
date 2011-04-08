@@ -22,6 +22,9 @@ import loci.formats.tiff.TiffCompression;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
 import ome.model.core.Pixels;
+import ome.xml.model.enums.DimensionOrder;
+import ome.xml.model.enums.EnumerationException;
+import ome.xml.model.primitives.PositiveInteger;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,7 +46,7 @@ public class BfPyramidPixelBuffer extends BfPixelBuffer {
     private OMEXMLService service;
 
     /** The OMERO pixels set we're backing. */
-    private Pixels pixels;
+    private final Pixels pixels;
 
     /**
      * We may want a constructor that takes the id of an imported file
@@ -55,6 +58,7 @@ public class BfPyramidPixelBuffer extends BfPixelBuffer {
         throws IOException, FormatException
     {
         super(filePath, new TiffReader());
+        this.pixels = pixels;
         try
         {
             loci.common.services.ServiceFactory lociServiceFactory =
@@ -79,11 +83,26 @@ public class BfPyramidPixelBuffer extends BfPixelBuffer {
      */
     private void initializeWriter(String output, String compression,
                                         boolean bigTiff)
-        throws ServiceException, IOException, FormatException
+        throws ServiceException, IOException, FormatException, EnumerationException
     {
         IMetadata metadata = service.createOMEXMLMetadata();
+        metadata.setImageID("Image:0", 0);
+        metadata.setPixelsID("Pixels:0", 0);
+        metadata.setPixelsBinDataBigEndian(true, 0, 0);
+        metadata.setPixelsDimensionOrder(DimensionOrder.XYZCT, 0);
+        metadata.setPixelsType(ome.xml.model.enums.PixelType.fromString(
+                pixels.getPixelsType().getValue()), 0);
+        metadata.setPixelsSizeX(new PositiveInteger(pixels.getSizeX()), 0);
+        metadata.setPixelsSizeY(new PositiveInteger(pixels.getSizeY()), 0);
+        metadata.setPixelsSizeZ(new PositiveInteger(pixels.getSizeZ()), 0);
+        metadata.setPixelsSizeC(new PositiveInteger(pixels.getSizeC()), 0);
+        metadata.setPixelsSizeT(new PositiveInteger(pixels.getSizeT()), 0);
+        for (int c = 0; c < pixels.getSizeC(); c++)
+        {
+            metadata.setChannelID("Channel:" + c, 0, c);
+            metadata.setChannelSamplesPerPixel(new PositiveInteger(1), 0, c);
+        }
         writer = new TiffWriter();
-        TiffWriter writer = new TiffWriter();
         writer.setMetadataRetrieve(metadata);
         writer.setCompression(compression);
         writer.setWriteSequentially(true);
