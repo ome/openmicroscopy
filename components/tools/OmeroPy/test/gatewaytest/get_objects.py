@@ -18,6 +18,24 @@ class DeleteObjectTest (lib.GTest):
         self.loginAsAuthor()
         self.TESTIMG = self.getTestImage()
 
+    def testDeleteAnnotation(self):
+
+        self.loginAsAuthor()
+        image = self.TESTIMG
+
+        # create Tag on Image and try to delete Tag
+        tag = omero.gateway.TagAnnotationWrapper(self.gateway)
+        ns_tag = "omero.gateway.test.get_objects.test_delete_annotation_tag"
+        tag.setNs(ns_tag)
+        tag.setValue("Test Delete Tag")
+        tag = image.linkAnnotation(tag)
+        tagId = tag.getId()
+
+
+        self.gateway.deleteObjects("Annotation", [tagId])
+        time.sleep(5)   # time enough for delete queue
+
+        self.assertEqual(None, self.gateway.getObject("Annotation", tagId))
 
     def testDeleteImage(self):
         
@@ -27,8 +45,8 @@ class DeleteObjectTest (lib.GTest):
         imageId = image.getId()
         project = self.getTestProject()
         projectId = project.getId()
-        ns = "omero.gateway.test.get_objects.test_delete_annotations_comment"
-        ns_tag = "omero.gateway.test.get_objects.test_delete_annotations_tag"
+        ns = "omero.gateway.test.get_objects.test_delete_image_comment"
+        ns_tag = "omero.gateway.test.get_objects.test_delete_image_tag"
         
         # create Comment
         ann = omero.gateway.CommentAnnotationWrapper(self.gateway)
