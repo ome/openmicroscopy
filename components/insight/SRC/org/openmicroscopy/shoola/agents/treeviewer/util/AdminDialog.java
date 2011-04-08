@@ -271,7 +271,7 @@ public class AdminDialog
 		TitlePanel tp = null;
 		if (GroupData.class.equals(type)) {
 			tp = new TitlePanel(getTitle(), TEXT_GROUP, 
-					icons.getIcon(IconManager.PERSONAL_48));
+					icons.getIcon(IconManager.OWNER_GROUP_48));
 		} else if (ExperimenterData.class.equals(type)) {
 			String text = TEXT_EXPERIMENTER;
 			if (parent instanceof GroupData) {

@@ -512,11 +512,14 @@ public class IconManager
     /** The <code>Owner</code> Group icon. */
     public static final int           OWNER_GROUP = 152;
     
+    /** The 48x48<code>Group</code> icon. */
+    public static final int           OWNER_GROUP_48 = 153;
+    
     /** 
      * The maximum ID used for the icon IDs.
      * Allows to correctly build arrays for direct indexing. 
      */
-    private static final int          MAX_ID = 152;
+    private static final int          MAX_ID = 153;
     
     /** Paths of the icon files. */
     private static String[]     relPaths = new String[MAX_ID+1];
@@ -686,6 +689,7 @@ public class IconManager
         relPaths[DATASET_ANNOTATED_TO_REFRESH] = "tagged_dataset_reload16.png";//"tagged_dataset_ledgreen16.png";
         relPaths[OWNER_TO_REFRESH] = "nuvola_kdmconfig_reload16.png";//"nuvola_kdmconfig_modified_ledgreen16.png";
         relPaths[OWNER_GROUP] = "nuvola_kdmconfig16.png";
+        relPaths[OWNER_GROUP_48] = "nuvola_kdmconfig48.png";
     }
     
     /** The sole instance. */
