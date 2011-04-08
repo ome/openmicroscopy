@@ -26,7 +26,9 @@ import org.apache.commons.io.FileUtils;
 import org.jmock.Mock;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -46,7 +48,7 @@ public class PyramidPixelBufferUnitTest {
 
     private PixelsService service;
 
-    @BeforeMethod
+    @BeforeClass
     private void setup() {
         root = PathUtil.getInstance().getTemporaryDataFilePath();
         provider = new TestingOriginalFileMetadataProvider();
@@ -55,9 +57,9 @@ public class PyramidPixelBufferUnitTest {
         pixels.setId(1L);
         pixels.setSizeX(1024);
         pixels.setSizeY(1024);
-        pixels.setSizeZ(1);
-        pixels.setSizeC(1);
-        pixels.setSizeT(1);
+        pixels.setSizeZ(4);
+        pixels.setSizeC(2);
+        pixels.setSizeT(6);
 
         PixelsType type = new PixelsType();
         type.setValue("uint16");
@@ -70,16 +72,43 @@ public class PyramidPixelBufferUnitTest {
         };
     }
 
-    @AfterMethod
+    @AfterClass
     public void tearDown() throws IOException {
         FileUtils.deleteDirectory(new File(root));
     }
 
     @Test
     public void testTruePyramidCreation() {
-        PixelBuffer pb = service.getPixelBuffer(pixels, null, null, true);
-
+        pixelBuffer = service.getPixelBuffer(pixels, null, null, true);
     }
 
+    @Test(dependsOnMethods={"testTruePyramidCreation"})
+    public void testPyramidWritePlanes() throws Exception {
+        byte[] tile = new byte[256 * 256 * 2];
+        int tileWidth = 256, tileHeight = 256, x, y;
+        for (int t = 0; t < pixels.getSizeT(); t++)
+        {
+            for (int c = 0; c < pixels.getSizeC(); c++)
+            {
+                for (int z = 0; z < pixels.getSizeZ(); z++)
+                {
+                    for (int tileOffsetX = 0;
+                         tileOffsetX < pixels.getSizeX() / tileWidth;
+                         tileOffsetX++)
+                    {
+                        for (int tileOffsetY = 0;
+                             tileOffsetY < pixels.getSizeY() / tileHeight;
+                             tileOffsetY++)
+                        {
+                            x = tileOffsetX * tileWidth;
+                            y = tileOffsetY * tileHeight;
+                            pixelBuffer.setTile(
+                                    tile, z, c, t, x, y, tileWidth, tileHeight);
+                        }
+                    }
+                }
+            }
+        }
+    }
 
 }
