@@ -2563,28 +2563,13 @@ class _BlitzGateway (object):
         
         u = self.getUpdateService() 
         u.deleteObject(obj)
-     	
-    def deleteAnnotation(self, oid):
-        """
-        Adds a 'Delete Annotation' command to the delete queue. 
-        
-        @param oid:     Annotation ID
-        @type oid:      Long
-        @return:        Delete handle
-        @rtype:         L{omero.api.delete.DeleteHandle}
-        """
-        
-        return self.simpleDelete('Annotation', [oid])
 
     def deleteObjects(self, obj_type, obj_ids, deleteAnns=False, deleteChildren=False):
         """
-        TODO: - deleteObjects should be the only delete method. simpleDelete should be removed and the code
-        ported to the deleteObjects method.
-        
         Generic method for deleting using the delete queue. 
         Supports deletion of 'Project', 'Dataset', 'Image', 'Screen', 'Plate', 'Well', 'Annotation'.
         Options allow to delete 'independent' Annotations (Tag, Term, File) and to delete child objects.
-        
+
         @param obj_type:        String to indicate 'Project', 'Image' etc. 
         @param obj_ids:         List of IDs for the objects to delete
         @param deleteAnns:      If true, delete linked Tag, Term and File annotations
@@ -2593,13 +2578,16 @@ class _BlitzGateway (object):
         @rtype:                 L{omero.api.delete.DeleteHandle}
         """
 
+        if not isinstance(obj_ids, list) and len(obj_ids) < 1:
+            raise AttributeError('Must be a list of object IDs')
+
         op = dict()
-        if not deleteAnns:            
+        if not deleteAnns and obj_type not in ["Annotation", "TagAnnotation"]:
             op["/TagAnnotation"] = "KEEP"
             op["/TermAnnotation"] = "KEEP"
             op["/FileAnnotation"] = "KEEP"
 
-        childTypes = {'Project':['/Dataset', '/Image'], 
+        childTypes = {'Project':['/Dataset', '/Image'],
                 'Dataset':['/Image'],
                 'Image':[],
                 'Screen':['/Plate'],
@@ -2607,45 +2595,20 @@ class _BlitzGateway (object):
                 'Well':[],
                 'Annotation':[] }
         if obj_type not in childTypes:
-            raise AttributeError("""%s is not an object type. Must be: Project, Dataset, 
-                                Image, Screen, Plate, Well, Annotation""" % obj_type)
+            m = """%s is not an object type. Must be: Project, Dataset, Image, Screen, Plate, Well, Annotation""" % obj_type
+            raise AttributeError(m)
         if not deleteChildren:
             for c in childTypes[obj_type]:
                 op[c] = "KEEP"
 
-        return self.simpleDelete(obj_type, obj_ids, op)
-
-        
-    def simpleDelete(self, otype, oids, op=dict()):
-        """
-        TODO: - deleteObjects should be the only delete method. simpleDelete should be removed and the code
-        ported to the deleteObjects method. 
-        
-        @param otype:   Type of object to delete. Can be Project, Dataset, 
-                        Image, Screen, Plate, Well, Annotation
-        @type otype:    String
-        @param ids:     List of objects ID
-        @type ids:      Long list
-        @param op:      Dictionary of linked objects to keep
-        @type op:       Dict
-        @return:        Delete handle
-        @rtype:         L{omero.api.delete.DeleteHandle}
-        """
-        
-        if not str(otype) in ('Project', 'Dataset', 'Image', 'Screen', 'Plate', 'Well', 'Annotation'):
-            raise AttributeError("""%s is not an object type. Must be: Project, Dataset, 
-                                Image, Screen, Plate, Well, Annotation""" % otype.title())
-        otype = "/%s" % otype.title()
-        
-        if not isinstance(oids, list) and len(oids) < 1:
-            raise AttributeError('Must be a list of object IDs')
-        
+        #return self.simpleDelete(obj_type, obj_ids, op)
         dcs = list()
-        for oid in oids:            
-            dcs.append(omero.api.delete.DeleteCommand(otype, long(oid), op))
+        for oid in obj_ids:
+            dcs.append(omero.api.delete.DeleteCommand("/%s" % obj_type.title(), long(oid), op))
         handle = self.getDeleteService().queueDelete(dcs)
         return handle
-     
+
+
     ###################
     # Searching stuff #
 
