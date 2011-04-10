@@ -94,14 +94,12 @@ public class BfPyramidPixelBuffer extends BfPixelBuffer {
                 pixels.getPixelsType().getValue()), 0);
         metadata.setPixelsSizeX(new PositiveInteger(pixels.getSizeX()), 0);
         metadata.setPixelsSizeY(new PositiveInteger(pixels.getSizeY()), 0);
-        metadata.setPixelsSizeZ(new PositiveInteger(pixels.getSizeZ()), 0);
-        metadata.setPixelsSizeC(new PositiveInteger(pixels.getSizeC()), 0);
-        metadata.setPixelsSizeT(new PositiveInteger(pixels.getSizeT()), 0);
-        for (int c = 0; c < pixels.getSizeC(); c++)
-        {
-            metadata.setChannelID("Channel:" + c, 0, c);
-            metadata.setChannelSamplesPerPixel(new PositiveInteger(1), 0, c);
-        }
+        metadata.setPixelsSizeZ(new PositiveInteger(1), 0);
+        metadata.setPixelsSizeC(new PositiveInteger(1), 0);
+        metadata.setPixelsSizeT(new PositiveInteger(
+                pixels.getSizeZ() * pixels.getSizeC() * pixels.getSizeT()), 0);
+        metadata.setChannelID("Channel:0", 0, 0);
+        metadata.setChannelSamplesPerPixel(new PositiveInteger(1), 0, 0);
         writer = new TiffWriter();
         writer.setMetadataRetrieve(metadata);
         writer.setCompression(compression);
