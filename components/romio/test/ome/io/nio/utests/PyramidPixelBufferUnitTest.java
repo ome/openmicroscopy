@@ -11,6 +11,7 @@ import static org.testng.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +22,7 @@ import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
 import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
+import ome.util.PixelData;
 
 import org.apache.commons.io.FileUtils;
 import org.jmock.Mock;
@@ -62,7 +64,7 @@ public class PyramidPixelBufferUnitTest {
         pixels.setSizeT(6);
 
         PixelsType type = new PixelsType();
-        type.setValue("uint16");
+        type.setValue("uint8");
         pixels.setPixelsType(type);
 
         service = new PixelsService(root) {
@@ -83,9 +85,10 @@ public class PyramidPixelBufferUnitTest {
     }
 
     @Test(dependsOnMethods={"testTruePyramidCreation"})
-    public void testPyramidWritePlanes() throws Exception {
+    public void testPyramidWriteTiles() throws Exception {
         byte[] tile = new byte[256 * 256 * 2];
         int tileWidth = 256, tileHeight = 256, x, y;
+        short tileCount = 0;
         for (int t = 0; t < pixels.getSizeT(); t++)
         {
             for (int c = 0; c < pixels.getSizeC(); c++)
@@ -102,13 +105,49 @@ public class PyramidPixelBufferUnitTest {
                         {
                             x = tileOffsetX * tileWidth;
                             y = tileOffsetY * tileHeight;
+                            ByteBuffer.wrap(tile).asShortBuffer().put(0, tileCount);
                             pixelBuffer.setTile(
                                     tile, z, c, t, x, y, tileWidth, tileHeight);
+                            tileCount++;
                         }
                     }
                 }
             }
         }
+        assertEquals(768, tileCount);
+        //pixelBuffer.close();
+    }
+
+    @Test(dependsOnMethods={"testPyramidWriteTiles"})
+    public void testPyramidReadTiles() throws Exception {
+        PixelData tile;
+        int tileWidth = 256, tileHeight = 256, x, y;
+        short tileCount = 0;
+        for (int t = 0; t < pixels.getSizeT(); t++)
+        {
+            for (int c = 0; c < pixels.getSizeC(); c++)
+            {
+                for (int z = 0; z < pixels.getSizeZ(); z++)
+                {
+                    for (int tileOffsetX = 0;
+                         tileOffsetX < pixels.getSizeX() / tileWidth;
+                         tileOffsetX++)
+                    {
+                        for (int tileOffsetY = 0;
+                             tileOffsetY < pixels.getSizeY() / tileHeight;
+                             tileOffsetY++)
+                        {
+                            x = tileOffsetX * tileWidth;
+                            y = tileOffsetY * tileHeight;
+                            tile = pixelBuffer.getTile(
+                                    z, c, t, x, y, tileWidth, tileHeight);
+                            tileCount++;
+                        }
+                    }
+                }
+            }
+        }
+        assertEquals(768, tileCount);
     }
 
 }
