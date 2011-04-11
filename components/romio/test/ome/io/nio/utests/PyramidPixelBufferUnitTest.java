@@ -15,6 +15,8 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import loci.formats.FormatTools;
+
 import ome.conditions.MissingPyramidException;
 import ome.io.messages.MissingPyramidMessage;
 import ome.io.nio.OriginalFileMetadataProvider;
@@ -64,7 +66,7 @@ public class PyramidPixelBufferUnitTest {
         pixels.setSizeT(6);
 
         PixelsType type = new PixelsType();
-        type.setValue("uint8");
+        type.setValue("uint16");
         pixels.setPixelsType(type);
 
         service = new PixelsService(root) {
@@ -123,24 +125,32 @@ public class PyramidPixelBufferUnitTest {
         PixelData tile;
         int tileWidth = 256, tileHeight = 256, x, y;
         short tileCount = 0;
-        for (int t = 0; t < pixels.getSizeT(); t++)
+        int sizeX = pixels.getSizeX();
+        int sizeY = pixels.getSizeY();
+        int sizeZ = pixels.getSizeZ();
+        int sizeC = pixels.getSizeC();
+        int sizeT = pixels.getSizeT();
+        for (int t = 0; t < sizeT; t++)
         {
-            for (int c = 0; c < pixels.getSizeC(); c++)
+            for (int c = 0; c < sizeC; c++)
             {
-                for (int z = 0; z < pixels.getSizeZ(); z++)
+                for (int z = 0; z < sizeZ; z++)
                 {
                     for (int tileOffsetX = 0;
-                         tileOffsetX < pixels.getSizeX() / tileWidth;
+                         tileOffsetX < sizeX / tileWidth;
                          tileOffsetX++)
                     {
                         for (int tileOffsetY = 0;
-                             tileOffsetY < pixels.getSizeY() / tileHeight;
+                             tileOffsetY < sizeY / tileHeight;
                              tileOffsetY++)
                         {
                             x = tileOffsetX * tileWidth;
                             y = tileOffsetY * tileHeight;
-                            tile = pixelBuffer.getTile(
-                                    z, c, t, x, y, tileWidth, tileHeight);
+                            int rasterizedT = FormatTools.getIndex(
+                                    "XYZCT", sizeZ, sizeC, sizeT,
+                                    sizeZ * sizeC * sizeT, z, c, t);
+                            tile = pixelBuffer.getTile(0, 0, rasterizedT, x, y,
+                                                       tileWidth, tileHeight);
                             tileCount++;
                         }
                     }
