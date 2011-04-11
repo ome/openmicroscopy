@@ -79,8 +79,30 @@ def channel_overlay_viewer(request, imageId):
 
     image = conn.getObject("Image", imageId)
     default_z = image.z_count()/2
+    
+    # try to work out which channels should be 'red', 'green', 'blue' based on rendering settings
+    red = None
+    green = None
+    blue = None
+    notAssigned = []
+    for i, c in enumerate(image.getChannels()):
+        if c.getColor().getRGB() == (255, 0, 0) and red == None:
+            red = i
+        elif c.getColor().getRGB() == (0, 255, 0) and green == None:
+            green = i
+        elif c.getColor().getRGB() == (0, 0, 255) and blue == None:
+            blue = i
+        else: 
+            notAssigned.append(i)
+    # any not assigned - try assigning
+    for i in notAssigned:
+        if red == None: red = i
+        elif green == None: green = i
+        elif blue == None: blue = i
 
-    return render_to_response('webtest/demo_viewers/channel_overlay_viewer.html', {'image': image, 'default_z':default_z})
+    print "red", red, "green", green, "blue", blue
+    return render_to_response('webtest/demo_viewers/channel_overlay_viewer.html', {
+        'image': image, 'default_z':default_z, 'red': red, 'green': green, 'blue': blue})
 
 def render_channel_overlay (request):
     """

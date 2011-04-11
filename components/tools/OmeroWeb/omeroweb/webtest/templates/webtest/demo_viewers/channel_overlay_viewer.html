@@ -61,8 +61,8 @@ $(document).ready(function() {
         refreshImage();
     });
     
-    // increment values
-    $(".inc").click(function() {
+    // increment X/Y shift values
+    $(".incShift").click(function() {
         
         var incValue = 0;
         var incType = $(this).attr('class').split(" ")[1];
@@ -75,6 +75,34 @@ $(document).ready(function() {
         var oldVal = parseInt($input.attr('value'));
         var newVal = oldVal + incValue;
         $input.attr('value', newVal);
+        refreshImage();
+    });
+    // increment Z indexes
+    $(".incZ").click(function() {
+        var incValue = 0;
+        var incType = $(this).attr('class').split(" ")[1];
+        if (incType == "minus") incValue = -1;
+        else if (incType == "plus") incValue = 1;
+        // increment all Z indexes
+        $('.zIndex').each(function() {
+            var $input = $(this);
+            var oldVal = parseInt($input.attr('value'));
+            $input.attr('value', oldVal + incValue);
+        });
+        refreshImage();
+    });
+    // increment T indexes
+    $(".incT").click(function() {
+        var incValue = 0;
+        var incType = $(this).attr('class').split(" ")[1];
+        if (incType == "minus") incValue = -1;
+        else if (incType == "plus") incValue = 1;
+        // increment all Z indexes
+        $('.tIndex').each(function() {
+            var $input = $(this);
+            var oldVal = parseInt($input.attr('value'));
+            $input.attr('value', oldVal + incValue);
+        });
         refreshImage();
     });
     
@@ -147,31 +175,44 @@ $(document).ready(function() {
         <table>
             <tr>
                 <td>Red</td><td>Green</td><td>Blue</td> 
-                <td>Image-ID</td><td>Z</td><td>C</td><td>T</td>
+                <td>Image-ID</td>
+                <td>Z 
+                    <img class='incZ minus' src="/webtest/statictest/img/channel_overlay/minus12.png" width='12'/>
+                    <img class='incZ plus' src="/webtest/statictest/img/channel_overlay/plus12.png" width='12'/>
+                </td>
+                <td>C</td>
+                <td>T
+                    <img class='incT minus' src="/webtest/statictest/img/channel_overlay/minus12.png" width='12'/>
+                    <img class='incT plus' src="/webtest/statictest/img/channel_overlay/plus12.png" width='12'/>
+                </td>
                 <td>Channel Name</td><td>x-shift</td><td>y-shift</td>
             </tr>
         {% for c in image.getChannels %}
             <tr class='planeRow'>
-                <td><input class='cSelect' type="radio" name="red" value="{{ forloop.counter0 }}" /></td>
-                <td><input class='cSelect' type="radio" name="green" value="{{ forloop.counter0 }}" /></td>
-                <td><input class='cSelect' type="radio" name="blue" value="{{ forloop.counter0 }}" /></td>
+                <td><input class='cSelect' type="radio" name="red" value="{{ forloop.counter0 }}"
+                    {% ifequal red forloop.counter0 %} checked="True" {% endifequal %}/></td>
+                <td><input class='cSelect' type="radio" name="green" value="{{ forloop.counter0 }}"
+                    {% ifequal green forloop.counter0 %} checked="True" {% endifequal %}/></td>
+                <td><input class='cSelect' type="radio" name="blue" value="{{ forloop.counter0 }}"
+                    {% ifequal blue forloop.counter0 %} checked="True" {% endifequal %}/></td>
+
                 <td><input type="text" size="10" name="imageId" value='{{ image.id }}'/></td>
-                <td><input type="text" size="2" name="z" value='{{ default_z }}'/></td>
+                <td><input class='zIndex' type="text" size="2" name="z" value='{{ default_z }}'/></td>
                 <td><input type="text" size="2" name="c" value='{{ forloop.counter0 }}'/></td>
-                <td><input type="text" size="2" name="t" value='0'/></td>
+                <td><input class='tIndex' type="text" size="2" name="t" value='0'/></td>
                 <td>{{ c.getName }}</td>
                 <td>
-                    <img class='inc minusBig' src="/webtest/statictest/img/channel_overlay/minus12.png" width='16' />
-                    <img class='inc minusSmall' src="/webtest/statictest/img/channel_overlay/minus12.png" width='12' />
-                    <img class='inc plusSmall' src="/webtest/statictest/img/channel_overlay/plus12.png" width='12'/>
-                    <img class='inc plusBig' src="/webtest/statictest/img/channel_overlay/plus12.png" width='16'/>
+                    <img class='incShift minusBig' src="/webtest/statictest/img/channel_overlay/minus12.png" width='16' />
+                    <img class='incShift minusSmall' src="/webtest/statictest/img/channel_overlay/minus12.png" width='12' />
+                    <img class='incShift plusSmall' src="/webtest/statictest/img/channel_overlay/plus12.png" width='12'/>
+                    <img class='incShift plusBig' src="/webtest/statictest/img/channel_overlay/plus12.png" width='16'/>
                     <input type="text" size="5" name="x" value='0'/>
                 </td>
                 <td>
-                    <img class='inc minusBig' src="/webtest/statictest/img/channel_overlay/minus12.png" width='16' />
-                    <img class='inc minusSmall' src="/webtest/statictest/img/channel_overlay/minus12.png" width='12' />
-                    <img class='inc plusSmall' src="/webtest/statictest/img/channel_overlay/plus12.png" width='12'/>
-                    <img class='inc plusBig' src="/webtest/statictest/img/channel_overlay/plus12.png" width='16'/>
+                    <img class='incShift minusBig' src="/webtest/statictest/img/channel_overlay/minus12.png" width='16' />
+                    <img class='incShift minusSmall' src="/webtest/statictest/img/channel_overlay/minus12.png" width='12' />
+                    <img class='incShift plusSmall' src="/webtest/statictest/img/channel_overlay/plus12.png" width='12'/>
+                    <img class='incShift plusBig' src="/webtest/statictest/img/channel_overlay/plus12.png" width='16'/>
                     <input type="text" size="5" name="y" value='0'/>
                 </td>
             </tr>
