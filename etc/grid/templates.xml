@@ -148,6 +148,8 @@
     <server-template id="BlitzTemplate">
       <parameter name="index"/>
       <parameter name="config" default="default"/>
+      <parameter name="jmxhost" default=""/>
+      <parameter name="jmxport" default="3001"/>
       <server id="Blitz-${index}" exe="java" activation="always" pwd="${OMERO_HOME}">
         <target name="debug">
             <option>-Xdebug</option>
@@ -180,6 +182,14 @@
         <option>-Dlog4j.configuration=${OMERO_ETC}log4j.xml</option>
         <option>-Domero.logfile=${OMERO_LOGFILE}</option>
         <option>-Domero.name=Blitz-${index}</option>
+        <target name="jmx">
+            <!-- Be sure to understand the consequences of enabling JMX.
+                 It allows calling remote methods on your JVM -->
+            <option>-Dcom.sun.management.jmxremote=${jmxhost}</option>
+            <option>-Dcom.sun.management.jmxremote.port=${jmxport}</option>
+            <option>-Dcom.sun.management.jmxremote.authenticate=false</option>
+            <option>-Dcom.sun.management.jmxremote.ssl=false</option>
+        </target>
         <option>-jar</option>
         <option>${OMERO_JARS}blitz.jar</option>
         <adapter name="BlitzAdapter" replica-group="BlitzAdapters" endpoints="tcp"/>
