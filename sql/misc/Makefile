@@ -19,9 +19,9 @@
 #
 
 # Versions
-PREVDBVERS ?= OMERO4.1
+PREVDBVERS ?= OMERO4.2
 PREVDBPATCH ?= 0
-CURRDBVERS ?= OMERO4.2
+CURRDBVERS ?= OMERO4.3DEV
 CURRDBPATCH ?= 0
 PREV ?= $(PREVDBVERS)__$(PREVDBPATCH)
 CURR ?= $(CURRDBVERS)__$(CURRDBPATCH)
@@ -30,7 +30,7 @@ CURR ?= $(CURRDBVERS)__$(CURRDBPATCH)
 OMERO_SOURCE ?= ../..
 OMERO_HOME ?= $(OMERO_SOURCE)/dist
 OMERO_EXE ?= $(OMERO_HOME)/bin/omero
-DIFF_JAR ?= "apgdiff-1.4.jar"
+DIFF_JAR ?= "apgdiff-2.3.jar"
 DIFF_CMD ?= java -jar $(DIFF_JAR) --ignore-start-with
 PSQL_CMD ?= env PGOPTIONS=--client-min-messages=warning psql -q -v ON_ERROR_STOP=1 --pset pager=off
 
