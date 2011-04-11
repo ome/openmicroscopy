@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
 import loci.formats.FormatException;
+import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
@@ -383,7 +384,8 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
             Integer y, Integer w, Integer h) throws IOException
     {
         final BfPixelsWrapper reader = reader();
-        byte[] buffer = new byte[w * h * reader.getByteWidth()];
+        byte[] buffer = new byte[
+                w * h * FormatTools.getBytesPerPixel(reader.getPixelsType())];
         getTileDirect(z, c,t ,x ,y, w, h, buffer);
         return new PixelData(reader.getPixelsType(), ByteBuffer.wrap(buffer));
     }
