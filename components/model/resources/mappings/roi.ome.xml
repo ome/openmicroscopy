@@ -14,7 +14,7 @@
                 <properties>
                         <!--optional name="union" type="boolean"/-->
                         <onemany name="shapes" type="ome.model.roi.Shape" inverse="roi" ordered="true"/>
-                        <manyone name="image" type="ome.model.core.Image" inverse="rois"/>
+                        <optional name="image" type="ome.model.core.Image" inverse="rois"/>
                         <optional name="source" type="ome.model.core.OriginalFile"/>
                         <optional name="namespaces" type="string[]"/>
                         <optional name="keywords" type="string[][]"/>

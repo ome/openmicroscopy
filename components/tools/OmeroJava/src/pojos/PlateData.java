@@ -340,7 +340,7 @@ public class PlateData extends DataObject {
     	Plate plate = asPlate();
     	int c = 0;
     	int r = 0;
-    	omero.RInt v = plate.getCols();
+    	omero.RInt v = plate.getColumns();
     	if (v != null) c = v.getValue();
     	v = plate.getRows();
     	if (v != null) r = v.getValue();
@@ -381,9 +381,9 @@ public class PlateData extends DataObject {
     public Set<PlateAcquisitionData> getPlateAcquisitions()
     {
         if (plateAcquisitions == null &&
-        		asPlate().sizeOfPlateAcquisition() >= 0) {
+        		asPlate().sizeOfPlateAcquisitions() >= 0) {
 		plateAcquisitions = new HashSet<PlateAcquisitionData>();
-            List<PlateAcquisition> links = asPlate().copyPlateAcquisition();
+            List<PlateAcquisition> links = asPlate().copyPlateAcquisitions();
             for (PlateAcquisition link : links) {
             	plateAcquisitions.add(new PlateAcquisitionData(link));
             }

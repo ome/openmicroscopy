@@ -62,6 +62,16 @@ public interface SqlAction {
         }
 
     }
+    
+    /**
+     * Stores the current event context information in a temporary table
+     * so that triggers can make use of them.
+     *
+     * @param eventId
+     * @param userId
+     * @param groupId
+     */
+    void prepareSession(long eventId, long userId, long groupId);
 
     /**
      * Returns true if the given string is the UUID of a session that is

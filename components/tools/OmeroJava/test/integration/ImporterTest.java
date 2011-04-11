@@ -451,7 +451,7 @@ public class ImporterTest
 				xml.getColumnNamingConvention().getValue());
 		assertEquals(plate.getRows().getValue(), 
 				xml.getRows().getValue().intValue());
-		assertEquals(plate.getCols().getValue(), 
+		assertEquals(plate.getColumns().getValue(), 
 				xml.getColumns().getValue().intValue());
 		assertEquals(plate.getExternalIdentifier().getValue(),
 				xml.getExternalIdentifier());
@@ -1323,9 +1323,9 @@ public class ImporterTest
 		omero.model.Screen screen = 
 			(omero.model.Screen) iQuery.findByQuery(sql, param);
 		assertNotNull(screen);
-		assertEquals(1, screen.sizeOfReagent());
+		assertEquals(1, screen.sizeOfReagents());
 		assertEquals(wr.getChild().getId().getValue(),
-				screen.copyReagent().get(0).getId().getValue());
+				screen.copyReagents().get(0).getId().getValue());
 	}
 	
 }

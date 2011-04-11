@@ -910,7 +910,7 @@ public class ModelMockFactory
     		numberOfPlateAcquisition = 0;
         Plate p = new PlateI();
         p.setRows(omero.rtypes.rint(rows));
-        p.setCols(omero.rtypes.rint(columns));
+        p.setColumns(omero.rtypes.rint(columns));
         p.setName(omero.rtypes.rstring("plate name"));
         p.setDescription(omero.rtypes.rstring("plate description"));
         p.setStatus(omero.rtypes.rstring("plate status"));
@@ -972,7 +972,7 @@ public class ModelMockFactory
     {
     	Plate p = new PlateI();
         p.setRows(omero.rtypes.rint(rows));
-        p.setCols(omero.rtypes.rint(columns));
+        p.setColumns(omero.rtypes.rint(columns));
         p.setName(omero.rtypes.rstring("plate"));
         //now make wells
         Well well;

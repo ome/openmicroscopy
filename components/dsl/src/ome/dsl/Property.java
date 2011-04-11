@@ -9,8 +9,6 @@ package ome.dsl;
 
 // Java imports
 import java.sql.Timestamp;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -113,13 +111,22 @@ public abstract class Property { // TODO need to define equality so that two
     public final static String STRINGS2 = "string[][]";
 
     public final static String INTEGERS = "int[]";
+    
+    public final static String POSITIVEINTEGER = "PositiveInteger";
+    
+    public final static String NONNEGATIVEINTEGER = "NonNegativeInteger";
+
+    public final static String PERCENTFRACTION = "PercentFraction";
 
     public final static Map<String, String> JAVATYPES = new HashMap<String, String>();
     static {
         JAVATYPES.put(STRING, String.class.getName());
         JAVATYPES.put(BOOLEAN, Boolean.class.getName());
         JAVATYPES.put(INTEGER, Integer.class.getName());
+        JAVATYPES.put(POSITIVEINTEGER, Integer.class.getName());
+        JAVATYPES.put(NONNEGATIVEINTEGER, Integer.class.getName());
         JAVATYPES.put(FLOAT, Float.class.getName());
+        JAVATYPES.put(PERCENTFRACTION, Double.class.getName());
         JAVATYPES.put(DOUBLE, Double.class.getName());
         JAVATYPES.put(LONG, Long.class.getName());
         JAVATYPES.put(TIMESTAMP, Timestamp.class.getName());
@@ -146,6 +153,8 @@ public abstract class Property { // TODO need to define equality so that two
      * The {@link SemanticType} instance which this property points at
      */
     private SemanticType actualType;
+    
+    private final String profile;
 
     /**
      * The {@link SemanticType} instance which is the target of this property
@@ -266,6 +275,15 @@ public abstract class Property { // TODO need to define equality so that two
             return type;
         }
         return t;
+    }
+    
+    /**
+     * Returns the actual type with no modification. {@link #getType()} is
+     * probably poorly named, but changing it would require changing all the
+     * templates extensively.
+     */
+    public String _getType() {
+        return type;
     }
 
     public void setActualType(SemanticType type) {
@@ -543,6 +561,7 @@ public abstract class Property { // TODO need to define equality so that two
      * VALUES. Subclassees may override these values
      */
     public Property(SemanticType st, Properties attrs) {
+        this.profile = st.profile;
         setSt(st);
         setName(attrs.getProperty("name", null));
         setType(attrs.getProperty("type", null));
