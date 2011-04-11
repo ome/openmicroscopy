@@ -1,10 +1,11 @@
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 from omeroweb.webgateway.views import getBlitzConnection, _session_logout
 from omeroweb.webgateway import views as webgateway_views
 
 from webtest_utils import getSpimData
+from cStringIO import StringIO
 
 import settings
 import logging
@@ -12,6 +13,14 @@ import traceback
 import omero
 from omero.rtypes import rint, rstring
 import omero.gateway
+
+try:
+    import Image
+except: #pragma: nocover
+    try:
+        from PIL import Image
+    except:
+        logger.error('No PIL installed, line plots and split channel will fail!')
 
 logger = logging.getLogger('webtest')    
     
@@ -57,6 +66,129 @@ def index (request):
         return HttpResponseRedirect(reverse('webtest_login'))
 
     return render_to_response('webtest/index.html', {'client': conn})
+
+def channel_overlay_viewer(request, imageId):
+    """
+    Viewer for overlaying separate channels from the same image or different images
+    and adjusting horizontal and vertical alignment of each
+    """
+
+    conn = getBlitzConnection(request, useragent="OMERO.webtest")
+    if conn is None or not conn.isConnected():
+        return HttpResponseRedirect(reverse('webtest_login'))
+
+    image = conn.getObject("Image", imageId)
+    default_z = image.z_count()/2
+
+    return render_to_response('webtest/demo_viewers/channel_overlay_viewer.html', {'image': image, 'default_z':default_z})
+
+def render_channel_overlay (request):
+    """
+    Overlays separate channels (red, green, blue) from the same image or different images
+    manipulating each indepdently (translate, scale, rotate etc? )
+    """
+    conn = getBlitzConnection(request, useragent="OMERO.webtest")
+    if conn is None or not conn.isConnected():
+        return HttpResponseRedirect(reverse('webtest_login'))
+
+    # request holds info on all the planes we are working on and offset (may not all be visible)
+    # planes=0|imageId:z:c:t$x:shift_y:shift_rot:etc,1|imageId...
+    # E.g. planes=0|2305:7:0:0$x:-50_y:10,1|2305:7:1:0,2|2305:7:2:0&red=2&blue=0&green=1
+    planes = {}
+    p = request.REQUEST.get('planes', None)
+    for plane in p.split(','):
+        infoMap = {}
+        plane_info = plane.split('|')
+        key = plane_info[0].strip()
+        info = plane_info[1].strip()
+        shift = None
+        if info.find('$')>=0:
+            info,shift = info.split('$')
+        imageId,z,c,t = [int(i) for i in info.split(':')]
+        infoMap['imageId'] = imageId
+        infoMap['z'] = z
+        infoMap['c'] = c
+        infoMap['t'] = t
+        if shift != None:
+            for kv in shift.split("_"):
+                k, v = kv.split(":")
+                infoMap[k] = v
+        planes[key] = infoMap
+
+    # from the request we need to know which plane is blue, green, red (if any) by index
+    # E.g. red=0&green=2
+    red = request.REQUEST.get('red', None)
+    green = request.REQUEST.get('green', None)
+    blue = request.REQUEST.get('blue', None)
+
+    # kinda like split-view: we want to get single-channel images...
+    # red...
+    redImg = None
+
+    def translate(image, deltaX, deltaY):
+
+        xsize, ysize = image.size
+        mode = image.mode
+        bg = Image.new(mode, image.size)
+        x = abs(min(deltaX, 0))
+        pasteX = max(0, deltaX)
+        y = abs(min(deltaY, 0))
+        pasteY = max(0, deltaY)
+
+        part = image.crop((x, y, xsize-deltaX, ysize-deltaY))
+        bg.paste(part, (pasteX, pasteY))
+        return bg
+
+    def getPlane(planeInfo):
+        """ Returns the rendered plane split into a single channel (ready for merging) """
+        img = conn.getObject("Image", planeInfo['imageId'])
+        img.setActiveChannels((planeInfo['c']+1,))
+        img.setGreyscaleRenderingModel()
+        rgb = img.renderImage(planeInfo['z'], planeInfo['t'])
+        r,g,b = rgb.split()  # go from RGB to L
+
+        x,y = 0,0
+        if 'x' in planeInfo:
+            x = int(planeInfo['x'])
+        if 'y' in planeInfo:
+            y = int(planeInfo['y'])
+
+        if x or y:
+            print 'translating ', x, y
+            r = translate(r, x, y)
+        return r
+
+    redChannel = None
+    greenChannel = None
+    blueChannel = None
+    if red != None and red in planes:
+        redChannel = getPlane(planes[red])
+    if green != None and green in planes:
+        greenChannel = getPlane(planes[green])
+    if blue != None and blue in planes:
+        blueChannel = getPlane(planes[blue])
+
+    if redChannel != None:
+        size = redChannel.size
+    elif greenChannel != None:
+        size = greenChannel.size
+    elif blueChannel != None:
+        size = blueChannel.size
+
+    black = Image.new('L', size)
+    redChannel = redChannel and redChannel or black
+    greenChannel = greenChannel and greenChannel or black
+    blueChannel = blueChannel and blueChannel or black
+
+    merge = Image.merge("RGB", (redChannel, greenChannel, blueChannel))
+    # convert from PIL back to string image data
+    rv = StringIO()
+    compression = 0.9
+    merge.save(rv, 'jpeg', quality=int(compression*100))
+    jpeg_data = rv.getvalue()
+
+    rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
+    return rsp
 
 def metadata (request, iid):    
     from omeroweb.webclient.forms import MetadataFilterForm, MetadataDetectorForm, MetadataChannelForm, \

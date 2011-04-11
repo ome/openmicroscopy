@@ -29,7 +29,13 @@ urlpatterns = patterns('django.views.generic.simple',
     # view an image in grid with the Z, C, T dimensions split over the x or y axes as chosen by user. 
     # Also displays SPIM data if available in the http://www.ome-xml.org/wiki/SPIM/InitialSupport format.
     url( r'^image_dimensions/(?P<imageId>[0-9]+)/', views.image_dimensions, name='webtest_image_dimensions' ),
-    
+
+    # overlay individual channels from the same image (or different images) and manipulate them separately..
+    # translate, scale etc relative to one-another.
+    url( r'^render_channel_overlay/', views.render_channel_overlay, name='webtest_render_channel_overlay' ),
+
+    url( r'^channel_overlay_viewer/(?P<imageId>[0-9]+)/', views.channel_overlay_viewer, name='webtest_channel_overlay_viewer' ),
+
     # post a comment annotation to images. parameters are in request: imageIds=123,234  comment=blah
     url( r'^add_annotations/$', views.add_annotations, name="webtest_add_annotations"),
 )
