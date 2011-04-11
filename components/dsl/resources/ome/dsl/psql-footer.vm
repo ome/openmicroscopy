@@ -92,26 +92,27 @@ BEGIN
     RETURN ur || uw || gr || gw || wr || ww;
 END;' LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION omero_43_check_pg_advisory_lock() RETURNS text AS '
+CREATE OR REPLACE FUNCTION omero_43_check_pg_advisory_lock() RETURNS void AS '
 DECLARE
     txt text;
 BEGIN
       BEGIN
         PERFORM pg_advisory_lock(1, 1);
         PERFORM pg_advisory_unlock(1, 1);
-        RETURN ''ok'';
       EXCEPTION
         WHEN undefined_function THEN
          txt := chr(10) ||
             ''====================================================================================='' || chr(10) ||
             ''pg_advisory_lock does not exist!'' || chr(10) || chr(10) ||
-            ''You should consider upgrading to PostgreSQL 8.2 or above'' || chr(10) ||
-            ''Until then, you may experience infrequent key constraint issues on insert.'' || chr(10) ||
+            ''You must upgrade to PostgreSQL 8.2 or above'' || chr(10) ||
             ''====================================================================================='' || chr(10) || chr(10);
-          RAISE WARNING ''%%'', txt;
-          RETURN txt;
+         -- 8.1 is unsupported starting with OMERO4.3 (See #4902)
+         RAISE EXCEPTION ''%%'', txt;
       END;
 END;' LANGUAGE plpgsql;
+SELECT omero_43_check_pg_advisory_lock();
+DROP FUNCTION omero_43_check_pg_advisory_lock();
+
 
 
 set constraints all deferred;
@@ -462,9 +463,6 @@ update dbpatch set message = 'Database ready.', finished = now()
         currentPatch = @DBPATCH@ and
         previousVersion = '@DBVERSION@' and
         previousPatch = 0;
-
-SELECT omero_43_check_pg_advisory_lock();
-DROP FUNCTION omero_43_check_pg_advisory_lock();
 
 COMMIT;
 
