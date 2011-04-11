@@ -378,9 +378,9 @@ class HdfStorage(object):
     @stamped
     def update(self, stamp, data):
         if data:
-            for rn in data.rowNumbers:
+            for i, rn in enumerate(data.rowNumbers):
                 for col in data.columns:
-                    getattr(self.__mea.cols, col.name)[rn] = col.values[rn]
+                    getattr(self.__mea.cols, col.name)[rn] = col.values[i]
         self.__mea.flush()
 
     @stamped
