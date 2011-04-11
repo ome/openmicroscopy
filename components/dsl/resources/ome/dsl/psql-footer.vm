@@ -184,20 +184,81 @@ CREATE SEQUENCE seq_${table}; INSERT INTO _lock_ids (name, id) SELECT 'seq_${tab
 --
 -- #1390 : Triggering the addition of an "REINDEX" event on annotation events.
 --
+
+CREATE OR REPLACE FUNCTION _prepare_session(_event_id int8, _user_id int8, _group_id int8) RETURNS void
+    AS '
+    BEGIN
+
+        IF NOT EXISTS(SELECT table_name FROM information_schema.tables where table_name = ''_current_session'') THEN
+            CREATE TEMP TABLE _current_session ("event_id" int8, "user_id" int8, "group_id" int8) ON COMMIT DELETE ROWS;
+            INSERT INTO _current_session VALUES (_event_id, _user_id, _group_id);
+        ELSE
+            DELETE FROM _current_session;
+            INSERT INTO _current_session VALUES (_event_id, _user_id, _group_id);
+        END IF;
+    END;'
+LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION _current_event() RETURNS int8
+    AS '
+    DECLARE
+        eid int8;
+    BEGIN
+        IF NOT EXISTS(SELECT table_name FROM information_schema.tables where table_name = ''_current_session'') THEN
+            RETURN 0;
+        END IF;
+        SELECT INTO eid event_id FROM _current_session;
+        RETURN eid;
+
+    END;'
+LANGUAGE plpgsql;
+
+
+CREATE OR REPLACE FUNCTION _current_or_new_event() RETURNS int8
+    AS '
+    DECLARE
+        eid int8;
+    BEGIN
+        SELECT INTO eid _current_event();
+        IF eid = 0 OR eid IS NULL THEN
+            SELECT INTO eid ome_nextval(''seq_event'');
+            INSERT INTO event (id, permissions, status, time, experimenter, experimentergroup, session, type)
+                SELECT eid, -35, ''TRIGGERED'', now(), 0, 0, 0, 0;
+        END IF;
+        RETURN eid;
+    END;'
+LANGUAGE plpgsql;
+
+
 CREATE OR REPLACE FUNCTION annotation_update_event_trigger() RETURNS "trigger"
     AS '
     DECLARE
         rec RECORD;
         eid int8;
+        cnt int8;
     BEGIN
 
-        FOR rec IN SELECT id, parent FROM imageannotationlink WHERE child = new.id LOOP
-            SELECT into eid ome_nextval(''seq_event'');
-            INSERT INTO event (id, permissions, status, time, experimenter, experimentergroup, session, type)
-                 SELECT eid, -35, ''TRIGGERED'', now(), 0, 0, 0, 0;
-            INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
-                 SELECT ome_nextval(''seq_eventlog''), ''REINDEX'', -35, rec.parent, ''ome.model.core.Image'', eid;
+        IF NOT EXISTS(SELECT table_name FROM information_schema.tables where table_name = ''_updated_annotations'') THEN
+            CREATE TEMP TABLE _updated_annotations (entitytype varchar, entityid int8) ON COMMIT DELETE ROWS;
+        END IF;
+
+#foreach($type in $types)
+#if( ${type.annotated} && !${type.superclass})
+
+        FOR rec IN SELECT id, parent FROM ${type.tableName()}annotationlink WHERE child = new.id LOOP
+            INSERT INTO _updated_annotations (entityid, entitytype) values (rec.parent, ''${type.id}'');
         END LOOP;
+#end
+#end
+
+        SELECT INTO cnt count(*) FROM _updated_annotations;
+        IF cnt <> 0 THEN
+            SELECT INTO eid _current_or_new_event();
+            INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
+                 SELECT ome_nextval(''seq_eventlog''), ''REINDEX'', -35, entityid, entitytype, eid
+                   FROM _updated_annotations;
+        END IF;
 
         RETURN new;
 
@@ -216,21 +277,23 @@ CREATE OR REPLACE FUNCTION annotation_link_event_trigger() RETURNS "trigger"
         eid int8;
     BEGIN
 
-        SELECT into eid ome_nextval(''seq_event'');
-        INSERT INTO event (id, permissions, status, time, experimenter, experimentergroup, session, type)
-                SELECT eid, -35, ''TRIGGERED'', now(), 0, 0, 0, 0;
+        SELECT INTO eid _current_or_new_event();
         INSERT INTO eventlog (id, action, permissions, entityid, entitytype, event)
-                SELECT ome_nextval(''seq_eventlog''), ''REINDEX'', -35, new.parent, ''ome.model.core.Image'', eid;
+                SELECT ome_nextval(''seq_eventlog''), ''REINDEX'', -35, new.parent, TG_ARGV[0], eid;
 
         RETURN new;
 
     END;'
 LANGUAGE plpgsql;
 
-CREATE TRIGGER image_annotation_link_event_trigger
-        AFTER UPDATE ON imageannotationlink
+#foreach($type in $types)
+#if( ${type.annotated} && !${type.superclass})
+CREATE TRIGGER ${type.tableName()}_annotation_link_event_trigger
+        AFTER UPDATE ON ${type.tableName()}annotationlink
         FOR EACH ROW
-        EXECUTE PROCEDURE annotation_link_event_trigger();
+        EXECUTE PROCEDURE annotation_link_event_trigger('${type.id}');
+#end
+#end
 
 
 --

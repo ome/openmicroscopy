@@ -21,14 +21,15 @@ import java.util.Set;
 
 import ome.conditions.InternalException;
 import ome.util.SqlAction;
-import ome.util.SqlAction.IdRowMapper;
 
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.core.ConnectionCallback;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.jdbc.core.simple.SimpleJdbcOperations;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 
 public class PostgresSqlAction extends SqlAction.Impl {
 
@@ -55,6 +56,16 @@ public class PostgresSqlAction extends SqlAction.Impl {
     //
     // Interface methods
     //
+
+    public void prepareSession(final long eventId, final long userId, final long groupId) {
+        JdbcTemplate jt = (JdbcTemplate) _jdbc().getJdbcOperations(); // FIXME
+        SimpleJdbcCall call = new SimpleJdbcCall(jt).withFunctionName("_prepare_session");
+        MapSqlParameterSource in = new MapSqlParameterSource();
+        in.addValue("_event_id", eventId);
+        in.addValue("_user_id", userId);
+        in.addValue("_group_id", groupId);
+        call.executeFunction(void.class, in);
+    }
 
     public boolean activeSession(String sessionUUID) {
         int count = _jdbc().queryForInt(_lookup("active_session"), //$NON-NLS-1$
