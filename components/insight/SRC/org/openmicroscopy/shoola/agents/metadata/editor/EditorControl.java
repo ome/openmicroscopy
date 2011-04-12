@@ -176,6 +176,9 @@ class EditorControl
 	/** Action id indicating to remove documents. */
 	static final int	REMOVE_DOCS = 20;
 	
+	/** Action ID to save the images as full size <code>JPEG</code>.*/
+	static final int	SAVE_AS = 21;
+	
     /** Reference to the Model. */
     private Editor		model;
     
@@ -187,6 +190,9 @@ class EditorControl
 	
 	/** Collection of supported export formats. */
 	private List<FileFilter>	exportFilters;
+	
+	/** Collection of supported formats. */
+	private List<FileFilter>	saveAsFilters;
 	
 	/** Reference to the figure dialog. */
 	private FigureDialog		figureDialog;
@@ -216,6 +222,8 @@ class EditorControl
 		filters.add(new TEXTFilter());
 		exportFilters = new ArrayList<FileFilter>();
 		exportFilters.add(new OMETIFFFilter());
+		saveAsFilters  = new ArrayList<FileFilter>();
+		saveAsFilters.add(new JPEGFilter());
 	}
 
 	/** 
@@ -292,6 +300,40 @@ class EditorControl
 					if (!path.endsWith(File.separator))
 						path += File.separator;
 					model.download(new File(path));
+				}
+			}
+		});
+		chooser.centerDialog();
+	}
+	
+	/** Brings up the folder chooser to select where to save the files. */
+	private void saveAsJPEG()
+	{
+		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
+		FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
+				"Save As", "Select where to export the images.",
+				saveAsFilters);
+		String s = UIUtilities.removeFileExtension(view.getRefObjectName());
+		if (s != null && s.trim().length() > 0) chooser.setSelectedFile(s);
+		chooser.setApproveButtonText("Save");
+		IconManager icons = IconManager.getInstance();
+		chooser.setTitleIcon(icons.getIcon(IconManager.SAVE_AS_48));
+		chooser.addPropertyChangeListener(new PropertyChangeListener() {
+		
+			public void propertyChange(PropertyChangeEvent evt) {
+				String name = evt.getPropertyName();
+				if (FileChooser.APPROVE_SELECTION_PROPERTY.equals(name)) {
+					File[] files = (File[]) evt.getNewValue();
+					File folder = files[0];
+					if (folder == null)
+						folder = UIUtilities.getDefaultFolder();
+					Object src = evt.getSource();
+					if (src instanceof FileChooser) {
+						((FileChooser) src).setVisible(false);
+						((FileChooser) src).dispose();
+					}
+				
+					model.saveAs(folder);
 				}
 			}
 		});
@@ -663,6 +705,9 @@ class EditorControl
 				break;
 			case REMOVE_DOCS:
 				view.removeAttachedFiles();
+				break;
+			case SAVE_AS:
+				saveAsJPEG();
 		}
 	}
 	

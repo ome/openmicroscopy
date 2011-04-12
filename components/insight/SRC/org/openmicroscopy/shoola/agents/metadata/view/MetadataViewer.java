@@ -194,8 +194,11 @@ public interface MetadataViewer
 	/** Indicates to launch the analysis option. */
 	public static final int		ANALYSIS_OPTION = 101;
 	
-	/** Indicates to launch the analysis option. */
+	/** Indicates to launch the scripts option. */
 	public static final int		SCRIPTS_OPTION = 102;
+	
+	/** Indicates to launch the analysis option. */
+	public static final int		SAVE_OPTION = 103;
 	
 	/**
 	 * Starts the data loading process when the current state is {@link #NEW} 

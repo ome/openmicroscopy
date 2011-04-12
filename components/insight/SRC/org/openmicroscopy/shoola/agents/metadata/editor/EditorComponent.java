@@ -1010,4 +1010,13 @@ class EditorComponent
 		}
 	}
 
+	/** 
+	 * Implemented as specified by the {@link Editor} interface.
+	 * @see Editor#saveAs(File)
+	 */
+	public void saveAs(File folder)
+	{
+		
+	}
+
 }

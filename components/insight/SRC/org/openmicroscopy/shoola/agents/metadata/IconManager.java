@@ -403,14 +403,20 @@ public class IconManager
     /** The 22x22 <code>Apply</code> icon. */
     public static final int         APPLY_22 = 115;
     
-    /** The 48x48 <code>Apply</code> icon. */
+    /** The 48x48 <code>FLIM</code> icon. */
     public static final int         FLIM_48 = 116;
+    
+    /** The <code>Save As</code> icon. */
+    public static final int         SAVE_AS = 117;
+    
+    /** The 48x48 <code>Save As</code> icon. */
+    public static final int         SAVE_AS_48 = 118;
     
     /** 
 	 * The maximum ID used for the icon IDs.
 	 * Allows to correctly build arrays for direct indexing. 
 	 */
-	private static final int          MAX_ID = 116;
+	private static final int          MAX_ID = 118;
 
 	/** Paths of the icon files. */
 	private static String[]     relPaths = new String[MAX_ID+1];
@@ -533,6 +539,8 @@ public class IconManager
         relPaths[APPLY_22] = "nuvola_apply22.png";
         relPaths[DELETE_22] = "nuvola_cancel22.png";
         relPaths[FLIM_48] = "nuvola_messagebox_info48.png";
+        relPaths[SAVE_AS] = "nuvola_undo16.png";
+        relPaths[SAVE_AS_48] = "nuvola_messagebox_info48.png";
 	}
    
 	/** The sole instance. */

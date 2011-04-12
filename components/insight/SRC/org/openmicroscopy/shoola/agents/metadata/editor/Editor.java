@@ -449,5 +449,12 @@ public interface Editor
 	 * @param analysis Object hosting information about the results.
 	 */
 	void analysisResultsLoaded(AnalysisResultsItem analysis);
+
+	/**
+	 * Saves the selected images as <code>JPEG</code>.
+	 * 
+	 * @param folder The folder to save.
+	 */
+	public void saveAs(File folder);
     
 }
