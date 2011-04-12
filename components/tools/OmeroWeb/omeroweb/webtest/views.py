@@ -3,6 +3,7 @@ from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 from omeroweb.webgateway.views import getBlitzConnection, _session_logout
 from omeroweb.webgateway import views as webgateway_views
+from omeroweb.webclient.views import isUserConnected
 
 from webtest_utils import getSpimData
 from cStringIO import StringIO
@@ -60,22 +61,20 @@ def logout (request):
     #request.session.set_expiry(1)
     return HttpResponseRedirect(reverse('webtest_login'))
 
-def index (request):
-    conn = getBlitzConnection (request, useragent="OMERO.webtest")
-    if conn is None or not conn.isConnected():
-        return HttpResponseRedirect(reverse('webtest_login'))
 
+@isUserConnected    # wrapper handles login (or redirects to webclient login). Connection passed in **kwargs
+def index(request, **kwargs):
+    conn = kwargs['conn']
     return render_to_response('webtest/index.html', {'client': conn})
 
-def channel_overlay_viewer(request, imageId):
+
+@isUserConnected
+def channel_overlay_viewer(request, imageId, **kwargs):
     """
     Viewer for overlaying separate channels from the same image or different images
     and adjusting horizontal and vertical alignment of each
     """
-
-    conn = getBlitzConnection(request, useragent="OMERO.webtest")
-    if conn is None or not conn.isConnected():
-        return HttpResponseRedirect(reverse('webtest_login'))
+    conn = kwargs['conn']
 
     image = conn.getObject("Image", imageId)
     default_z = image.z_count()/2
@@ -104,14 +103,14 @@ def channel_overlay_viewer(request, imageId):
     return render_to_response('webtest/demo_viewers/channel_overlay_viewer.html', {
         'image': image, 'default_z':default_z, 'red': red, 'green': green, 'blue': blue})
 
-def render_channel_overlay (request):
+
+@isUserConnected
+def render_channel_overlay (request, **kwargs):
     """
     Overlays separate channels (red, green, blue) from the same image or different images
     manipulating each indepdently (translate, scale, rotate etc? )
     """
-    conn = getBlitzConnection(request, useragent="OMERO.webtest")
-    if conn is None or not conn.isConnected():
-        return HttpResponseRedirect(reverse('webtest_login'))
+    conn = kwargs['conn']
 
     # request holds info on all the planes we are working on and offset (may not all be visible)
     # planes=0|imageId:z:c:t$x:shift_y:shift_rot:etc,1|imageId...
@@ -212,14 +211,13 @@ def render_channel_overlay (request):
     rsp = HttpResponse(jpeg_data, mimetype='image/jpeg')
     return rsp
 
-def metadata (request, iid):    
+@isUserConnected
+def metadata (request, iid, **kwargs):
     from omeroweb.webclient.forms import MetadataFilterForm, MetadataDetectorForm, MetadataChannelForm, \
                         MetadataEnvironmentForm, MetadataObjectiveForm, MetadataStageLabelForm, \
                         MetadataLightSourceForm, MetadataDichroicForm, MetadataMicroscopeForm
                         
-    conn = getBlitzConnection(request, useragent="OMERO.webtest")
-    if conn is None or not conn.isConnected():
-        return HttpResponseRedirect(reverse('webtest_login'))
+    conn = kwargs['conn']
     
     form_environment = None
     form_objective = None
@@ -332,14 +330,12 @@ def metadata (request, iid):
     
     return render_to_response('webtest/metadata.html', {'image': image, 'text_annotations': text_annotations, 'txannSize':txannSize, 'long_annotations': long_annotations, 'url_annotations': url_annotations, 'urlannSize':urlannSize, 'file_annotations': file_annotations, 'fileannSize':fileannSize, 'tag_annotations': tag_annotations, 'tgannSize':tgannSize, 'global_metadata':global_metadata, 'serial_metadata':series_metadata, 'form_channels':form_channels, 'form_environment':form_environment, 'form_objective':form_objective, 'form_microscope':form_microscope, 'form_filters':form_filters, 'form_detectors':form_detectors, 'form_lasers':form_lasers, 'form_stageLabel':form_stageLabel})
     
-
-def roi_viewer(request, roi_library, imageId):
+@isUserConnected
+def roi_viewer(request, roi_library, imageId, **kwargs):
     """
     Displays an image, using 'jquery.drawinglibrary.js' to draw ROIs on the image. 
     """
-    conn = getBlitzConnection (request, useragent="OMERO.webroi")
-    if conn is None or not conn.isConnected():
-        return HttpResponseRedirect(reverse('webfigure_login'))
+    conn = kwargs['conn']
     
     image = conn.getObject("Image", imageId)
     default_z = image.z_count()/2
@@ -353,7 +349,8 @@ def roi_viewer(request, roi_library, imageId):
     return render_to_response(template, {'image':image, 'default_z':default_z})
 
 
-def add_annotations (request):
+@isUserConnected
+def add_annotations (request, **kwargs):
     """
     Creates a L{omero.gateway.CommentAnnotationWrapper} and adds it to the images according 
     to variables in the http request. 
@@ -365,9 +362,7 @@ def add_annotations (request):
     @return:            A simple html page with a success message 
     """
     
-    conn = getBlitzConnection (request, useragent="OMERO.webfigure")
-    if conn is None or not conn.isConnected():
-        return HttpResponseRedirect(reverse('webfigure_login'))
+    conn = kwargs['conn']
     
     idList = request.REQUEST.get('imageIds', None)    # comma - delimited list
     if idList:
@@ -395,8 +390,9 @@ def add_annotations (request):
         
     return render_to_response('webtest/util/add_annotations.html', {'images':images, 'comment':comment})
     
-    
-def split_view_figure (request):
+
+@isUserConnected
+def split_view_figure (request, **kwargs):
     """
     Generates an html page displaying a number of images in a grid with channels split into different columns. 
     The page also includes a form for modifying various display parameters and re-submitting
@@ -410,10 +406,7 @@ def split_view_figure (request):
     @return:            The http response - html page displaying split view figure.  
     """
     
-    print type(request)
-    conn = getBlitzConnection (request, useragent="OMERO.webtest")
-    if conn is None or not conn.isConnected():
-        return HttpResponseRedirect(reverse('webtest_login'))
+    conn = kwargs['conn']
     
     query_string = request.META["QUERY_STRING"]
     
@@ -499,7 +492,8 @@ def split_view_figure (request):
         'channels': channels, 'split_grey':split_grey, 'merged_names': merged_names, 'proj': proj, 'size': size, 'query_string':query_string})
 
 
-def dataset_split_view (request, datasetId):
+@isUserConnected
+def dataset_split_view (request, datasetId, **kwargs):
     """
     Generates a web page that displays a dataset in two panels, with the option to choose different
     rendering settings (channels on/off) for each panel. It uses the render_image url for each
@@ -515,15 +509,7 @@ def dataset_split_view (request, datasetId):
     @return:            The http response - html page displaying split view figure.
     """
     
-    conn = getBlitzConnection (request, useragent="OMERO.webtest")
-    if conn is None or not conn.isConnected():
-        # get the url that directed us here:
-        # reverse(viewname, urlconf=None, args=None, kwargs=None, prefix=None, current_app=None)
-        # url = reverse(dataset_split_view, kwargs={'datasetId':datasetId})
-        url = request.META.get("PATH_INFO")
-        # log in with the webclient login, redirecting back here:
-        loginUrl = "%s?url=%s" % (reverse('weblogin'), url)
-        return HttpResponseRedirect(loginUrl)
+    conn = kwargs['conn']
         
     dataset = conn.getObject("Dataset", datasetId)
     
@@ -595,7 +581,8 @@ def dataset_split_view (request, datasetId):
         'channels':channels, 'size': size, 'c_left': c_left, 'c_right': c_right})
 
 
-def image_dimensions (request, imageId):
+@isUserConnected
+def image_dimensions (request, imageId, **kwargs):
     """
     Prepare data to display various dimensions of a multi-dim image as axes of a grid of image planes. 
     E.g. x-axis = Time, y-axis = Channel. 
@@ -603,9 +590,7 @@ def image_dimensions (request, imageId):
     dimension. Also get the SPIM data from various XML annotations and display on page. 
     """
         
-    conn = getBlitzConnection (request, useragent="OMERO.webtest")
-    if conn is None or not conn.isConnected():
-        return HttpResponseRedirect(reverse('webtest_login'))
+    conn = kwargs['conn']
     
     image = conn.getObject("Image", imageId)
     if image is None:
@@ -675,12 +660,11 @@ def image_dimensions (request, imageId):
         'xFrames':xFrames, 'yFrames':yFrames})
 
 
+@isUserConnected
 def image_viewer (request, iid, **kwargs):
     """ This view is responsible for showing pixel data as images """
     
-    conn = getBlitzConnection (request, useragent="OMERO.webtest")
-    if conn is None or not conn.isConnected():
-        return HttpResponseRedirect(reverse('webtest_login'))
+    conn = kwargs['conn']
     
     kwargs['viewport_server'] = '/webclient'
     
