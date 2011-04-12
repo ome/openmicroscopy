@@ -14,6 +14,7 @@
     <!-- Internal -->
     <dependency org="omero" name="omero_client" rev="${omero.version}" changing="true" conf="build->build;client->client" transitive="false"/>
     <dependency org="omero" name="blitz" rev="${omero.version}" changing="true" conf="build->build"/>
+    <dependency org="omero" name="romio" rev="${omero.version}" changing="true" conf="build->build;client->client"/><!-- For bioformats -->
     <!-- Basics (as in DSL) -->
     <dependency org="slf4j" name="slf4j-api" rev="${versions.slf4j}" conf="client->default"/>
     <dependency org="slf4j" name="slf4j-log4j12" rev="${versions.slf4j}"/>
