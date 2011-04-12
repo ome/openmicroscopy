@@ -48,6 +48,18 @@ public class BfPyramidPixelBuffer extends BfPixelBuffer {
     /** The OMERO pixels set we're backing. */
     private final Pixels pixels;
 
+    /** Last IFD we used during a tile write operation. */
+    private IFD lastIFD;
+
+    /** Last z-section offset we used during a tile write operation. */
+    private int lastZ = -1;
+
+    /** Last channel offset we used during a tile write operation. */
+    private int lastC = -1;
+
+    /** Last timepoint offset  we used during a tile write operation. */
+    private int lastT = -1;
+
     /**
      * We may want a constructor that takes the id of an imported file
      * or that takes a File object?
@@ -185,19 +197,6 @@ public class BfPyramidPixelBuffer extends BfPixelBuffer {
             Integer w, Integer h) throws IOException,
             BufferOverflowException
     {
-        long[] rowPerStrip;
-        IFD ifd;
-        if (w != 256 || h != 256)
-        {
-            throw new UnsupportedOperationException(
-                    "Only 256x256 tiles are supported.");
-        }
-        rowPerStrip = new long[1];
-        rowPerStrip[0] = h;
-        ifd = new IFD();
-        ifd.put(IFD.TILE_WIDTH, w);
-        ifd.put(IFD.TILE_LENGTH, h);
-        ifd.put(IFD.ROWS_PER_STRIP, rowPerStrip);
         try
         {
             int sizeZ = pixels.getSizeZ();
@@ -206,11 +205,41 @@ public class BfPyramidPixelBuffer extends BfPixelBuffer {
             int planeCount = sizeZ * sizeC * sizeT;
             int planeNumber = FormatTools.getIndex(
                     "XYZCT", sizeZ, sizeC, sizeT, planeCount, z, c, t);
-            writer.saveBytes(planeNumber, buffer, ifd, x, y, w, h);
+            writer.saveBytes(planeNumber, buffer, getIFD(z, c, t, w, h),
+                             x, y, w, h);
         }
         catch (FormatException e)
         {
             throw new RuntimeException(e);
         }
+    }
+
+    /**
+     * Retrieves the IFD that should be used for a given planar offset.
+     * @param z Z-section offset requested.
+     * @param c Channel offset requested.
+     * @param t Timepoint offset requested.
+     * @param w Tile width requested.
+     * @param h Tile height requested.
+     * @return A new or already allocated IFD for use when writing tiles.
+     */
+    private IFD getIFD(int z, int c, int t, int w, int h)
+    {
+        if (lastT != t || lastC != c || lastZ != z)
+        {
+            lastIFD = new IFD();
+            lastIFD.put(IFD.TILE_WIDTH, w);
+            lastIFD.put(IFD.TILE_LENGTH, h);
+            if (log.isDebugEnabled())
+            {
+                log.debug(String.format(
+                        "Creating new IFD z:%d c:%d t:%d w:%d: h:%d -- %s",
+                        z, c, t, w, h, lastIFD));
+            }
+        }
+        lastT = t;
+        lastC = c;
+        lastZ = z;
+        return lastIFD;
     }
 }
