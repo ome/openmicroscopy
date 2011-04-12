@@ -28,9 +28,6 @@ import org.springframework.dao.EmptyResultDataAccessException;
  */
 public abstract class PersistentEventLogLoader extends EventLogLoader {
 
-    private final static Log log = LogFactory
-            .getLog(PersistentEventLogLoader.class);
-
     /**
      * Key used to look configuration value; 'name'
      */

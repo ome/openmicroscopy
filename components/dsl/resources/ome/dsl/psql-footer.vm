@@ -449,7 +449,9 @@ create unique index originalfile_repo_path_index on originalfile (repo, path, na
 -- Indices. See #1640, #2573, etc.
 create unique index namespace_name on namespace (name);
 create unique index well_col_row on well (plate, "column", "row");
-create index planeinfo_pixels on planeinfo (pixels);
+create index eventlog_entitytype on eventlog(entitytype);
+create index eventlog_entityid on eventlog(entityid);
+create index eventlog_action on eventlog(action);
 
 create table password ( experimenter_id bigint primary key REFERENCES experimenter (id), hash char(24), dn text );
 insert into password values (0,'@ROOTPASS@');

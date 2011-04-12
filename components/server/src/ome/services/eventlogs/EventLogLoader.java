@@ -40,7 +40,7 @@ import org.springframework.context.ApplicationListener;
 public abstract class EventLogLoader implements Iterator<EventLog>,
         Iterable<EventLog>, ApplicationListener {
 
-    private final static Log log = LogFactory.getLog(EventLogLoader.class);
+    protected final Log log = LogFactory.getLog(getClass());
 
     /**
      * Currently 100.
