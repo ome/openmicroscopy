@@ -374,6 +374,15 @@ class GetObjectTest (lib.GTest):
         #self.assertEqual(a.OMERO_TYPE, annotation.OMERO_TYPE)
         self.assertEqual(ann.OMERO_TYPE, annotation.OMERO_TYPE)
         
+        # test getObject throws exception if more than 1 returned
+        threw = True
+        try:
+            self.gateway.getObject("Annotation")
+            threw = False
+        except:
+            threw = True
+        self.assertTrue(threw, "getObject() didn't throw exception with >1 result")
+
         # get the Comment and Tag
         annGen = self.gateway.getObjects("Annotation", [ann.id, tag.id])
         anns = list(annGen)
