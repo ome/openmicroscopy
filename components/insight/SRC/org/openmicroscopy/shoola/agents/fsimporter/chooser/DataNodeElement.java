@@ -24,12 +24,12 @@ package org.openmicroscopy.shoola.agents.fsimporter.chooser;
 
 
 //Java imports
-import pojos.DataObject;
-import pojos.DatasetData;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import pojos.DataObject;
+import pojos.DatasetData;
 
 /** 
  * Hosts location information displayed in queue.

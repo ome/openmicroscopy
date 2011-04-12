@@ -27,9 +27,7 @@ package org.openmicroscopy.shoola.agents.fsimporter.view;
 import java.awt.Frame;
 import java.io.File;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-
 import javax.swing.JFrame;
 
 //Third-party libraries
@@ -38,6 +36,7 @@ import javax.swing.JFrame;
 import org.openmicroscopy.shoola.agents.events.importer.ImportStatusEvent;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
+import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
 import org.openmicroscopy.shoola.agents.util.browser.TreeImageDisplay;
 import org.openmicroscopy.shoola.env.data.model.DiskQuota;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
@@ -93,8 +92,7 @@ class ImporterComponent
 	private void importData(ImporterUIElement element)
 	{
 		if (element == null) return;
-		view.setSelectedPane(element);
-		element.startImport();
+		view.setSelectedPane(element, true);
 		model.fireImportData(element.getData(), element.getID());
 		EventBus bus = ImporterAgent.getRegistry().getEventBus();
 		bus.post(new ImportStatusEvent(true, element.getExistingContainers()));
@@ -287,6 +285,7 @@ class ImporterComponent
 	{
 		if (model.getState() != DISCARDED) {
 			//cancel all the on-going import.
+			/*
 			List<ImporterUIElement> list = view.getElementsWithDataToImport();
 			if (list.size() > 0) {
 				MessageBox box = new MessageBox(view, "Cancel Import",
@@ -301,6 +300,17 @@ class ImporterComponent
 					element.cancelLoading();
 					model.cancel(element.getID());
 				}
+			}
+			*/
+			ImporterUIElement element = view.getSelectedPane();
+			if (element != null && !element.isDone()) {
+				MessageBox box = new MessageBox(view, "Cancel Import",
+						"Are you sure you want to cancel all imports " +
+						"from queue?");
+				if (box.centerMsgBox() == MessageBox.NO_OPTION)
+					return;
+				element.cancelLoading();
+				model.cancel(element.getID());
 			}
 			model.setState(READY);
 		}
@@ -350,7 +360,20 @@ class ImporterComponent
 		if (view.getExtendedState() == Frame.ICONIFIED)
 			view.deIconify();
 		ImporterUIElement element = view.getUIElement(importID);
-		if (element != null) view.setSelectedPane(element);
+		if (element != null) view.setSelectedPane(element, false);
+	}
+
+	/** 
+	 * Implemented as specified by the {@link Importer} interface.
+	 * @see Importer#retryImport()
+	 */
+	public void retryImport()
+	{
+		if (model.getState() == DISCARDED) return;
+		ImporterUIElement element = view.getSelectedPane();
+		if (element == null) return;
+		List<FileImportComponent> l = element.getMarkedFiles();
+		if (l == null || l.size() == 0) return;
 	}
 
 }

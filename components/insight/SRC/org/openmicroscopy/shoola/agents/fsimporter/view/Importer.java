@@ -188,6 +188,9 @@ public interface Importer
 	 * @param importID The import identifier.
 	 */
 	public void displayImport(int importID);
+
+	/** Tries to re-import failed import. */
+	public void retryImport();
 	
 
 }

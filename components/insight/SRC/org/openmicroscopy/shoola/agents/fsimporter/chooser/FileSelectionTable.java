@@ -257,8 +257,7 @@ class FileSelectionTable
 		if (n == COLUMNS.size()) {
 			tc = tcm.getColumn(FOLDER_AS_CONTAINER_INDEX);
 			tc.setCellRenderer(new FileTableRenderer());
-			tc.setHeaderRenderer(
-					new MultilineHeaderSelectionRenderer());
+			tc.setHeaderRenderer(new MultilineHeaderSelectionRenderer());
 			tcm.getColumn(ARCHIVED_INDEX).setHeaderRenderer(
 					new MultilineHeaderSelectionRenderer(table, archivedBox));
 		} else {
@@ -570,6 +569,7 @@ class FileSelectionTable
 						if (model.isParentFolderAsDataset()) {
 							value = f.getParentFile().getName();
 							v = true;
+							element.setToggleContainer(v);
 						}
 					}
 					dtm.addRow(new Object[] {element, 
@@ -724,6 +724,8 @@ class FileSelectionTable
 						COLUMNS_NO_FOLDER_AS_CONTAINER.size())
 						return archivedTunable;
 					FileElement f = (FileElement) getValueAt(row, FILE_INDEX);
+					if (f.isToggleContainer() && !f.isDirectory())
+						return true;
 					return f.isDirectory();
 				case ARCHIVED_INDEX: return archivedTunable;
 			}
@@ -741,7 +743,8 @@ class FileSelectionTable
 					DataNodeElement element = (DataNodeElement) getValueAt(row, 
 							CONTAINER_INDEX);
 					FileElement f = (FileElement) getValueAt(row, FILE_INDEX);
-					if (f.isDirectory()) {
+					if (f.isDirectory() || (!f.isDirectory() && 
+							f.isToggleContainer())) {
 						boolean b = ((Boolean) value).booleanValue();
 						if (b) element.setName(f.getName());
 						else element.setName(null);

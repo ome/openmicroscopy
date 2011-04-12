@@ -237,6 +237,7 @@ class ImporterUIElement
 	private void initialize()
 	{
 		busyLabel = new JXBusyLabel(ICON_SIZE);
+		
 		numberOfImportLabel = UIUtilities.createComponent(null);
 		containerComponents = new LinkedHashMap<JLabel, Object>();
 		topContainerComponents = new LinkedHashMap<JLabel, Object>();

@@ -94,9 +94,9 @@ public class FileTableRenderer
 							table, value, isSelected, hasFocus, row, column);
 
 			if (element.getFile().isFile()) {
-				c.setVisible(false);
-				((JCheckBox) c).setOpaque(true);
-				c.setEnabled(false);
+				//c.setVisible(false);
+				//((JCheckBox) c).setOpaque(true);
+				c.setEnabled(element.isToggleContainer());
 			}
 			return c;
 		}

@@ -60,6 +60,12 @@ class FileElement
 	private double length;
 	
 	/** 
+	 * Flag indicating that it is allowed to modify the container location.
+	 * The value will only be taken into account if the object is a file.
+	 */
+	private boolean toggleContainer;
+	
+	/** 
 	 * Creates a new instance. 
 	 * 
 	 * @param file The file to import.
@@ -71,6 +77,27 @@ class FileElement
 		this.file = file;
 		length = -1;
 	}
+	
+	/**
+	 * Sets to <code>true</code> if the container can be modified, 
+	 * <code>false</code> otherwise. The value will only be taken into account
+	 * if the object is a file.
+	 * 
+	 * @param toggleContainer The value to set.
+	 */
+	void setToggleContainer(boolean toggleContainer)
+	{
+		this.toggleContainer = toggleContainer;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the container can be modified, 
+	 * <code>false</code> otherwise. The value will only be taken into account
+	 * if the object is a file.
+	 * 
+	 * @return See above.
+	 */
+	boolean isToggleContainer() { return toggleContainer; }
 	
 	/**
 	 * Determines the length of the directory depending on the actual

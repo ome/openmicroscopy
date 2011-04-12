@@ -49,6 +49,7 @@ import org.openmicroscopy.shoola.agents.fsimporter.actions.ActivateAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.CancelAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.CloseAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.ImporterAction;
+import org.openmicroscopy.shoola.agents.fsimporter.actions.RetryImportAction;
 import org.openmicroscopy.shoola.agents.fsimporter.actions.SubmitFilesAction;
 import org.openmicroscopy.shoola.agents.fsimporter.chooser.ImportDialog;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
@@ -85,6 +86,9 @@ class ImporterControl
 	/** Action ID indicating to cancel. */
 	static final Integer CANCEL_BUTTON = 2;
 	
+	/** Action ID indicating to retry failed import. */
+	static final Integer RETRY_BUTTON = 3;
+	
 	/** 
 	 * Reference to the {@link Importer} component, which, in this context,
 	 * is regarded as the Model.
@@ -107,6 +111,7 @@ class ImporterControl
 		actionsMap.put(SEND_BUTTON, new SubmitFilesAction(model));
 		actionsMap.put(CLOSE_BUTTON, new CloseAction(model));
 		actionsMap.put(CANCEL_BUTTON, new CancelAction(model));
+		actionsMap.put(RETRY_BUTTON, new RetryImportAction(model));
 	}
 	
 	/** 

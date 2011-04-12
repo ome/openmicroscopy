@@ -99,6 +99,7 @@ class ImporterUI
 	
 	/** The controls bar. */
 	private JComponent controlsBar;
+
 	
 	/**
 	 * Builds and lays out the controls.
@@ -112,6 +113,8 @@ class ImporterUI
 		p.add(Box.createHorizontalStrut(5));
 		p.add(new JButton(controller.getAction(ImporterControl.CLOSE_BUTTON)));
 		p.add(Box.createHorizontalStrut(5));
+		//p.add(new JButton(controller.getAction(ImporterControl.RETRY_BUTTON)));
+		//p.add(Box.createHorizontalStrut(5));
 		p.add(new JButton(controller.getAction(ImporterControl.SEND_BUTTON)));
 		return UIUtilities.buildComponentPanelRight(p);
 	}
@@ -219,7 +222,11 @@ class ImporterUI
 		if (comps == null || comps.length == 0) return null;
 		List<FileImportComponent> list = new ArrayList<FileImportComponent>();
 		List<FileImportComponent> l;
-		ImporterUIElement element;
+		ImporterUIElement element = getSelectedPane();
+		l = element.getMarkedFiles();
+		if (l != null && l.size() > 0)
+			list.addAll(l);
+		/*
 		for (int i = 0; i < comps.length; i++) {
 			if (comps[i] instanceof ImporterUIElement) {
 				element = (ImporterUIElement) comps[i];
@@ -228,6 +235,7 @@ class ImporterUI
 					list.addAll(l);
 			}
 		}
+		*/
 		return list;
 	}
 	
@@ -273,17 +281,38 @@ class ImporterUI
 	 * Sets the selected pane when the import start.
 	 * 
 	 * @param element The element to select.
+	 * @param startImport Pass <code>true</code> to start the import, 
+	 * 					  <code>false</code> otherwise.
 	 */
-	void setSelectedPane(ImporterUIElement element)
+	void setSelectedPane(ImporterUIElement element, boolean startImport)
 	{
 		int n = tabs.getComponentCount();
 		if (n == 0 || element == null) return;
 		if (tabs.getSelectedComponent() == element) return;
 		Component[] components = tabs.getComponents();
+		int index = -1;
 		for (int i = 0; i < components.length; i++) {
-			if (components[i] == element)
+			if (components[i] == element) {
+				index = i;
 				tabs.setSelectedComponent(element);
+			}
 		}
+		if (startImport) {
+			//tabs.setIconAt(index, busyIcon);
+			element.startImport();
+		}
+	}
+	
+	/**
+	 * Returns the selected pane.
+	 * 
+	 * @return See above.
+	 */
+	ImporterUIElement getSelectedPane()
+	{
+		if (tabs.getSelectedIndex() > 0)
+			return (ImporterUIElement) tabs.getSelectedComponent();
+		return null;
 	}
 	
 	/**

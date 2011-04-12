@@ -36,7 +36,6 @@ import java.util.Set;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
-
 //Third-party libraries
 
 //Application-internal dependencies

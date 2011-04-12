@@ -91,16 +91,19 @@ public class UploadScriptAction
     	dialog.addPropertyChangeListener(new PropertyChangeListener() {
 			
 			public void propertyChange(PropertyChangeEvent evt) {
-				ScriptObject script = (ScriptObject) evt.getNewValue();
-				UserNotifier un = 
-					TreeViewerAgent.getRegistry().getUserNotifier();
-				if (script == null) {
-					un.notifyInfo("Upload Script", "No script to upload");
-					return;
+				Object o = evt.getNewValue();
+				if (o instanceof ScriptObject) {
+					ScriptObject script = (ScriptObject) o;
+					UserNotifier un = 
+						TreeViewerAgent.getRegistry().getUserNotifier();
+					if (script == null) {
+						un.notifyInfo("Upload Script", "No script to upload");
+						return;
+					}
+					ScriptActivityParam p = new ScriptActivityParam(script, 
+							ScriptActivityParam.UPLOAD);
+					un.notifyActivity(p);
 				}
-				ScriptActivityParam p = new ScriptActivityParam(script, 
-						ScriptActivityParam.UPLOAD);
-				un.notifyActivity(p);
 			}
 		});
     	UIUtilities.centerAndShow(dialog);

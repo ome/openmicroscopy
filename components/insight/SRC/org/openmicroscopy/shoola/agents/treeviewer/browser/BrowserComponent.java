@@ -1857,5 +1857,5 @@ class BrowserComponent
 		if (userID < 0) return null;
 		return view.getNodesForUser(userID);
 	}
-	
+
 }
