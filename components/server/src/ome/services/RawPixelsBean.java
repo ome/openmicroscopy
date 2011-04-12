@@ -59,6 +59,9 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     /** The logger for this particular class */
     private static Log log = LogFactory.getLog(RawPixelsBean.class);
 
+    /** Default maximum buffer size for planar data transfer. (1MB) */
+    public static final int MAXIMUM_BUFFER_SIZE = 1048576;
+
     private static final long serialVersionUID = -6640632220587930165L;
 
     private Long id;
@@ -680,22 +683,31 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     /* (non-Javadoc)
      * @see ome.api.RawPixelsStore#getTileSize()
      */
+    @RolesAllowed("user")
     public int[] getTileSize()
     {
-        return new int[] { 256, 256 };
+        if (hasPixelsPyramid())
+        {
+            return new int[] { 256, 256 };
+        }
+        return new int[] { pixelsInstance.getSizeX(),
+                (MAXIMUM_BUFFER_SIZE / getByteWidth())
+                / pixelsInstance.getSizeX() };
     }
 
     /* (non-Javadoc)
      * @see ome.api.RawPixelsStore#hasPixelsPyramid()
      */
+    @RolesAllowed("user")
     public boolean hasPixelsPyramid()
     {
-        return false;
+        return dataService.isRequirePyramid(pixelsInstance);
     }
 
     /* (non-Javadoc)
      * @see ome.api.RawPixelsStore#getResolutionLevel()
      */
+    @RolesAllowed("user")
     public int getResolutionLevel()
     {
         return resolutionLevel;
@@ -704,6 +716,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     /* (non-Javadoc)
      * @see ome.api.RawPixelsStore#setResolutionLevel(int)
      */
+    @RolesAllowed("user")
     public void setResolutionLevel(int resolutionLevel)
     {
         this.resolutionLevel = resolutionLevel;
@@ -712,6 +725,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     /* (non-Javadoc)
      * @see ome.api.RawPixelsStore#getTile(int, int, int, int, int, int, int)
      */
+    @RolesAllowed("user")
     public byte[] getTile(int z, int c, int t, int x, int y, int w, int h)
     {
         errorIfNotLoaded();
@@ -731,6 +745,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     /* (non-Javadoc)
      * @see ome.api.RawPixelsStore#setTile(byte[], int, int, int, int, int, int, int)
      */
+    @RolesAllowed("user")
     public void setTile(byte[] data, int z, int c, int t, int x, int y,
             int w, int h)
     {

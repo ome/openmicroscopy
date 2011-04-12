@@ -2323,16 +2323,13 @@ public class OMEROMetadataStoreClient
     }
 
     /**
-     * Writes a region of pixels to the server.
+     * Retrieves the suggested tile size for a pixels set.
      * @param pixId Pixels set to write to.
-     * @param arrayBuf Byte array containing the pixels.
-     * @param size Size of the bytes within <code>arrayBuf</code> to write.
-     * @param offset Offset within the plane Pixels set to write at.
-     * @throws ServerError If there is an error writing this plane to the
+     * @return Width and height of the tile as an array.
+     * @throws ServerError If there is an error writing this tile to the
      * server.
-     * @see #setPlane(Long, byte[], int, int, int)
      */
-    public void setRegion(Long pixId, byte[] arrayBuf, int size, long offset)
+    public int[] getTileSize(Long pixId)
         throws ServerError
     {
         if (currentPixId != pixId)
@@ -2340,7 +2337,34 @@ public class OMEROMetadataStoreClient
             rawPixelStore.setPixelsId(pixId, true);
             currentPixId = pixId;
         }
-        rawPixelStore.setRegion(size, offset, arrayBuf);
+        return rawPixelStore.getTileSize();
+    }
+
+    /**
+     * Writes a tile of pixels to the server.
+     * @param pixId Pixels set to write to.
+     * @param arrayBuf Byte array containing all pixels for this plane.
+     * @param z Z offset within the Pixels set.
+     * @param c Channel offset within the Pixels set.
+     * @param t Timepoint offset within the Pixels set.
+     * @param x X offset of the tile.
+     * @param y Y offset of the tile.
+     * @param w Width of the tile.
+     * @param h Height of the tile.
+     * @throws ServerError If there is an error writing this tile to the
+     * server.
+     * @see #setPlane(Long, byte[], int, int, int)
+     */
+    public void setTile(Long pixId, byte[] arrayBuf, int z, int c, int t,
+                        int x, int y, int w, int h)
+        throws ServerError
+    {
+        if (currentPixId != pixId)
+        {
+            rawPixelStore.setPixelsId(pixId, true);
+            currentPixId = pixId;
+        }
+        rawPixelStore.setTile(arrayBuf, z, c, t, x, y, w, h);
     }
 
     /**

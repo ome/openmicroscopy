@@ -287,7 +287,7 @@ public class GetPixelBufferUnitTest {
             });
         }
 
-        protected boolean isRequirePyramid(Pixels pixels) {
+        public boolean isRequirePyramid(Pixels pixels) {
             return isRequirePyramid;
         }
 

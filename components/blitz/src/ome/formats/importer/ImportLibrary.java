@@ -725,19 +725,16 @@ public class ImportLibrary implements IObservable
         }
 
         int planeNo = 1;
-        long offset = 0;
+        int[] tileSize = store.getTileSize(pixId);
         for (int t = 0; t < size.sizeT; t++)
         {
             for (int c = 0; c < size.sizeC; c++)
             {
                 for (int z = 0; z < size.sizeZ; z++)
                 {
-                    // XXX: Disabling for now.
-                    offset = writeDataBlockBased(
-                            pixId, size, z, c, t, offset, maximumRowCount,
-                            maximumPixelCount, bytesPerPixel, fileName, md);
-                    //writeDataPlanarBased(pixId, size, z, c, t, bytesPerPixel,
-                    //                     fileName, md);
+                    writeDataTileBased(
+                            pixId, size, z, c, t, tileSize[0], tileSize[1],
+                            bytesPerPixel, fileName, md);
                     notifyObservers(new ImportEvent.IMPORT_STEP(
                             planeNo, series, reader.getSeriesCount()));
                     planeNo++;
@@ -751,17 +748,14 @@ public class ImportLibrary implements IObservable
     // =========================================================================
 
     /**
-     * Writes data to the server for a given plane in a block based manner.
+     * Writes data to the server for a given plane in a tile based manner.
      * @param pixId Pixels ID to write to.
      * @param size Sizes of the Pixels set.
      * @param z The Z-section offset to write to.
      * @param c The channel offset to write to.
      * @param t The timepoint offset to write to.
-     * @param offset Offset within the Pixel buffer to write at.
-     * @param maximumRowCount Maximum number of rows for this Pixels set that
-     * can fit in the array buffer.
-     * @param maximumPixelCount Maximum number of total pixels that can fit in
-     * the array buffer.
+     * @param tileWidth Width of the tiles to write.
+     * @param tileHeight Height of the tiles to write.
      * @param bytesPerPixel Number of bytes per pixel.
      * @param fileName Name of the file.
      * @param md Current Pixels set message digest.
@@ -773,59 +767,53 @@ public class ImportLibrary implements IObservable
      * @throws ServerError If there is an error writing the data to the
      * OMERO.server instance.
      */
-    private long writeDataBlockBased(long pixId, ImportSize size,
-                                     int z, int c, int t, long offset,
-                                     int maximumRowCount, int maximumPixelCount,
-                                     int bytesPerPixel, String fileName,
-                                     MessageDigest md)
+    private void writeDataTileBased(long pixId, ImportSize size,
+                                    int z, int c, int t, int tileWidth,
+                                    int tileHeight, int bytesPerPixel,
+                                    String fileName, MessageDigest md)
         throws FormatException, IOException, ServerError
     {
-        int planeNumber;
-        int width = size.sizeX;
-        int height;
-        int arrayBufSize;
-        int posY = 0;
-        int pixelsToRead = size.sizeX * size.sizeY;
-        while (pixelsToRead > 0)
+        int planeNumber, x, y;
+        for (int tileOffsetY = 0; tileOffsetY < size.sizeY / tileHeight;
+             tileOffsetY++)
         {
-            planeNumber = reader.getIndex(z, c, t);
-            height = maximumRowCount;
-            if ((posY + height) > size.sizeY)
+            for (int tileOffsetX = 0; tileOffsetX < size.sizeX / tileWidth;
+                 tileOffsetX++)
             {
-                height = size.sizeY - posY;
+                x = tileOffsetX * tileWidth;
+                y = tileOffsetY * tileHeight;
+                if ((x + tileWidth) > size.sizeX)
+                {
+                    tileWidth = size.sizeX - x;
+                }
+                if ((y + tileHeight) > size.sizeY)
+                {
+                    tileHeight = size.sizeY - y;
+                }
+                planeNumber = reader.getIndex(z, c, t);
+                if (log.isTraceEnabled())
+                {
+                    log.trace(String.format(
+                            "Plane:%d X:%d Y:%d TileWidth:%d TileHeight:%d",
+                            planeNumber, x, y, tileWidth, tileHeight));
+                }
+                byte[] tile = reader.openBytes(
+                        planeNumber, x, y, tileWidth, tileHeight);
+                ByteBuffer buf = ByteBuffer.wrap(tile);
+                tile = swapIfRequired(buf, fileName);
+                try
+                {
+                    md.update(arrayBuf, 0, tile.length);
+                }
+                catch (Exception e)
+                {
+                    // This better not happen. :)
+                    throw new RuntimeException(e);
+                }
+                store.setTile(
+                        pixId, tile, z, c, t, x, y, tileWidth, tileHeight);
             }
-            arrayBufSize = bytesPerPixel * height * width;
-            if (log.isTraceEnabled())
-            {
-                log.trace(String.format(
-                        "Plane:%d PixelsToRead:%d Size:%d Offset:%d " +
-                        "Width:%d Height:%d PosY:%d",
-                        planeNumber, pixelsToRead, arrayBufSize, offset,
-                        width, height, posY));
-            }
-            PixelData data = reader.openPlane2D(
-                    fileName, planeNumber, arrayBuf, 0, posY,
-                    width, height);
-            ByteBuffer buf = data.getData();
-            buf.limit(arrayBufSize);
-            arrayBuf = swapIfRequired(buf, fileName);
-            try
-            {
-                md.update(arrayBuf, 0, arrayBufSize);
-            }
-            catch (Exception e)
-            {
-                // This better not happen. :)
-                throw new RuntimeException(e);
-            }
-            store.setRegion(pixId, arrayBuf, arrayBufSize, offset);
-
-            // Update offsets, etc.
-            posY += height;
-            pixelsToRead -= height * width;
-            offset += arrayBufSize;
         }
-        return offset;
     }
 
     /**

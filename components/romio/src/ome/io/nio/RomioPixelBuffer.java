@@ -849,6 +849,25 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
             Integer w, Integer h) throws IOException,
             BufferOverflowException
     {
-        throw new UnsupportedOperationException("Not implemented.");
+        if (x != 0)
+        {
+            throw new UnsupportedOperationException(
+                    "ROMIO pixel buffer only supports 0 offseted tile writes.");
+        }
+        if (w != getSizeX())
+        {
+            throw new UnsupportedOperationException(
+                    "ROMIO pixel buffer only supports full row writes.");
+        }
+        try
+        {
+            long offset = getPlaneOffset(z, c, t);
+            offset += getByteWidth() * getSizeX() * y;
+            setRegion(buffer.length, offset, buffer);
+        }
+        catch (DimensionsOutOfBoundsException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 }

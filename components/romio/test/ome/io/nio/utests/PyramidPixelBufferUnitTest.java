@@ -91,7 +91,7 @@ public class PyramidPixelBufferUnitTest {
         pixels.setPixelsType(type);
 
         service = new PixelsService(root) {
-            protected boolean isRequirePyramid(Pixels pixels) {
+            public boolean isRequirePyramid(Pixels pixels) {
               return true;
             }
         };
