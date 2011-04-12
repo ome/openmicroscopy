@@ -2259,11 +2259,12 @@ class _BlitzGateway (object):
         Convenience method for L{getObjects}. Returns a single wrapped object or None. 
         """
         oids = (oid!=None) and [oid] or None
-        result = self.getObjects(obj_type, oids, params=params, attributes=attributes)
-        try:
-            return result.next()
-        except StopIteration:
+        result = list(self.getObjects(obj_type, oids, params=params, attributes=attributes))
+        if len(result) == 0:
             return None
+        elif len(result) > 1:
+            raise RuntimeError("More than one result returned for getObject('%s', %s, %s)" % (obj_type, oid, attributes))
+        return result[0]
 
 
     def getObjects (self, obj_type, ids=None, params=None, attributes=None):
