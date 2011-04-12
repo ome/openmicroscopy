@@ -165,10 +165,7 @@ public class PyramidPixelBufferUnitTest {
                         {
                             x = tileOffsetX * tileWidth;
                             y = tileOffsetY * tileHeight;
-                            int rasterizedT = FormatTools.getIndex(
-                                    "XYZCT", sizeZ, sizeC, sizeT,
-                                    sizeZ * sizeC * sizeT, z, c, t);
-                            tile = pixelBuffer.getTile(0, 0, rasterizedT, x, y,
+                            tile = pixelBuffer.getTile(z, c, t, x, y,
                                                        tileWidth, tileHeight);
                             String readDigest = Utils.bytesToHex(
                                     Utils.calculateMessageDigest(
@@ -178,7 +175,7 @@ public class PyramidPixelBufferUnitTest {
                             {
                                 fail(String.format(
                                         "Hash digest mismatch z:%d c:%d t:%d " +
-                                        "x:%d: y:%d -- %s != %s",
+                                        "x:%d y:%d -- %s != %s",
                                         z, c, t, x, y,
                                         writtenDigest, readDigest));
                             }

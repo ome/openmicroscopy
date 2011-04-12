@@ -386,7 +386,7 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
         final BfPixelsWrapper reader = reader();
         byte[] buffer = new byte[
                 w * h * FormatTools.getBytesPerPixel(reader.getPixelsType())];
-        getTileDirect(z, c,t ,x ,y, w, h, buffer);
+        getTileDirect(z, c, t, x, y, w, h, buffer);
         return new PixelData(reader.getPixelsType(), ByteBuffer.wrap(buffer));
     }
 
