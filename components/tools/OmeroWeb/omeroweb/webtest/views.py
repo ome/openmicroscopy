@@ -27,7 +27,7 @@ logger = logging.getLogger('webtest')
 def login (request):
     """
     Attempts to get a connection to the server by calling L{omeroweb.webgateway.views.getBlitzConnection} with the 'request'
-    object. If a connection is created, the user is directed to the 'webfigure_index' page. 
+    object. If a connection is created, the user is directed to the 'webtest_index' page. 
     If a connection is not created, this method returns a login page.
     
     @param request:     The django http request
