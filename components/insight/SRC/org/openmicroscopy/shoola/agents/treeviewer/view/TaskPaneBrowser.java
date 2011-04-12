@@ -24,12 +24,12 @@ package org.openmicroscopy.shoola.agents.treeviewer.view;
 
 
 //Java imports
-import java.awt.BorderLayout;
 import java.awt.Container;
 import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 
 //Third-party libraries
+import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
@@ -63,23 +63,25 @@ class TaskPaneBrowser
 	private void initialize()
 	{
 		Container container = getContentPane();
-        setAnimated(false);
-        container.setBackground(UIUtilities.BACKGROUND_COLOR);
+		setAnimated(false);
 		if (container instanceof JComponent) 
 			((JComponent) container).setBorder(BorderFactory.createEmptyBorder(
 					1, 1, 1, 1));
 		setBackground(UIUtilities.BACKGROUND_COLOR);
 		setCollapsed(true);
+		double[][] size = {{TableLayout.FILL}, {TableLayout.FILL}};
+		TableLayout layout = new TableLayout(size);
+		container.setLayout(layout);
 		if (browser instanceof Browser) {
 			Browser b = (Browser) browser;
 			setTitle(b.getTitle());
 			setIcon(b.getIcon());
-			add(b.getUI(), BorderLayout.CENTER);
+			container.add(b.getUI(), "0, 0");
 		} else {
 			setTitle(SearchAction.NAME);
 			IconManager icons = IconManager.getInstance();
 			setIcon(icons.getIcon(IconManager.SEARCH));
-			add((JComponent) browser, BorderLayout.CENTER);
+			container.add((JComponent) browser, "0, 0");
 		}
 	}
 	
