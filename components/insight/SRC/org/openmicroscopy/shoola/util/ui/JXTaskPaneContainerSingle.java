@@ -36,6 +36,7 @@ import java.util.Map;
 import javax.swing.BorderFactory;
 
 //Third-party libraries
+import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXTaskPane;
 import org.jdesktop.swingx.JXTaskPaneContainer;
 import org.jdesktop.swingx.VerticalLayout;
@@ -70,6 +71,11 @@ public class JXTaskPaneContainerSingle
 	/** Flag indicating that a tab pane can or cannot be expanded. */
 	private boolean	expandable;
 	
+	/** The height of a <code>JXTaskPane</code> when collapsed.*/
+	private int minimumHeight;
+	
+	private TableLayout layout;
+	
 	/** Initializes the component. */
 	private void initialize()
 	{
@@ -79,6 +85,11 @@ public class JXTaskPaneContainerSingle
 			VerticalLayout vl = (VerticalLayout) getLayout();
 			vl.setGap(1);
 		}
+		layout = new TableLayout();
+		double[] columns = {TableLayout.FILL};
+		
+		layout.setColumn(columns);
+		setLayout(layout);
 		setBorder(BorderFactory.createEmptyBorder(1, 1, 1, 1));
 		setBackground(UIUtilities.BACKGROUND);
 	}
@@ -141,8 +152,12 @@ public class JXTaskPaneContainerSingle
 	public void add(JXTaskPane component)
 	{
 		int index = panes.size();
-		super.add(component);
+		//super.add(component);
 		panes.put(component, index);
+		if (component.isCollapsed())
+			minimumHeight = component.getPreferredSize().height;
+		layout.insertRow(index, TableLayout.PREFERRED);
+		super.add(component, "0, "+index);
 		component.addPropertyChangeListener(
 				UIUtilities.COLLAPSED_PROPERTY_JXTASKPANE, this);
 	}
@@ -156,28 +171,41 @@ public class JXTaskPaneContainerSingle
 		JXTaskPane src = (JXTaskPane) evt.getSource();
 		if (!expandable) {
 			src.setCollapsed(true);
-			return;
-		}
-		if (src.isCollapsed()) {
-			if (hasTaskPaneExpanded()) return;
-			firePropertyChange(SELECTED_TASKPANE_PROPERTY, null, src);
+			src.setSpecial(false);
 			return;
 		}
 		Container parent = src.getParent();
 		Component[] comp = parent.getComponents();
 		Component c;
+		JXTaskPane p;
+		if (src.isCollapsed()) {
+			if (hasTaskPaneExpanded()) return;
+			for (int i = 0; i < comp.length; i++) {
+				c = comp[i];
+				if (c instanceof JXTaskPane) {
+					p = (JXTaskPane) c;
+					if (p == src) {
+						layout.setRow(i, minimumHeight);
+					}
+				}
+			}
+			firePropertyChange(SELECTED_TASKPANE_PROPERTY, null, src);
+			return;
+		}
+		
 		for (int i = 0; i < comp.length; i++) {
 			c = comp[i];
 			if (c instanceof JXTaskPane) {
-				JXTaskPane p = (JXTaskPane) c;
+				p = (JXTaskPane) c;
 				if (p != src) {
 					p.setCollapsed(true);
 					p.setSpecial(false);
-				}
+					layout.setRow(i, minimumHeight);
+				} else layout.setRow(i, TableLayout.FILL);
 			}
 		}
 		src.setSpecial(true);
 		firePropertyChange(SELECTED_TASKPANE_PROPERTY, null, src);
 	}
-	
+
 }
