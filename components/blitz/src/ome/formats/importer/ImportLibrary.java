@@ -23,6 +23,7 @@ import java.nio.ShortBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -724,6 +725,10 @@ public class ImportLibrary implements IObservable
 
         int planeNo = 1;
         int[] tileSize = store.getTileSize(pixId);
+        if (log.isDebugEnabled())
+        {
+            log.debug("Server tile size: " + Arrays.toString(tileSize));
+        }
         for (int t = 0; t < size.sizeT; t++)
         {
             for (int c = 0; c < size.sizeC; c++)
@@ -771,22 +776,26 @@ public class ImportLibrary implements IObservable
                                     String fileName, MessageDigest md)
         throws FormatException, IOException, ServerError
     {
-        int planeNumber, x, y;
-        for (int tileOffsetY = 0; tileOffsetY < size.sizeY / tileHeight;
+        int planeNumber, x, y, w, h;
+        for (int tileOffsetY = 0;
+             tileOffsetY < (size.sizeY + tileHeight - 1) / tileHeight;
              tileOffsetY++)
         {
-            for (int tileOffsetX = 0; tileOffsetX < size.sizeX / tileWidth;
+            for (int tileOffsetX = 0;
+                 tileOffsetX < (size.sizeX + tileWidth - 1) / tileWidth;
                  tileOffsetX++)
             {
                 x = tileOffsetX * tileWidth;
                 y = tileOffsetY * tileHeight;
+                w = tileWidth;
+                h = tileHeight;
                 if ((x + tileWidth) > size.sizeX)
                 {
-                    tileWidth = size.sizeX - x;
+                    w = size.sizeX - x;
                 }
                 if ((y + tileHeight) > size.sizeY)
                 {
-                    tileHeight = size.sizeY - y;
+                    h = size.sizeY - y;
                 }
                 int bytesToRead = tileWidth * tileHeight * bytesPerPixel;
                 if (arrayBuf.length != bytesToRead)
@@ -798,10 +807,10 @@ public class ImportLibrary implements IObservable
                 {
                     log.trace(String.format(
                             "Plane:%d X:%d Y:%d TileWidth:%d TileHeight:%d",
-                            planeNumber, x, y, tileWidth, tileHeight));
+                            planeNumber, x, y, w, h));
                 }
                 arrayBuf = reader.openBytes(
-                        planeNumber, arrayBuf, x, y, tileWidth, tileHeight);
+                        planeNumber, arrayBuf, x, y, w, h);
                 ByteBuffer buf = ByteBuffer.wrap(arrayBuf);
                 arrayBuf = swapIfRequired(buf, fileName);
                 try
@@ -814,7 +823,7 @@ public class ImportLibrary implements IObservable
                     throw new RuntimeException(e);
                 }
                 store.setTile(
-                        pixId, arrayBuf, z, c, t, x, y, tileWidth, tileHeight);
+                        pixId, arrayBuf, z, c, t, x, y, w, h);
             }
         }
     }
