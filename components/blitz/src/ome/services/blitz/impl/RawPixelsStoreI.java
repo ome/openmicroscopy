@@ -265,6 +265,6 @@ public class RawPixelsStoreI extends AbstractPyramidServant implements
             int t, int x, int y, int w, int h, Current __current)
             throws ServerError
     {
-        callInvokerOnRawArgs(__cb, __current, z, c, t, x, y, w, h, buf);
+        callInvokerOnRawArgs(__cb, __current, buf, z, c, t, x, y, w, h);
     }
 }
