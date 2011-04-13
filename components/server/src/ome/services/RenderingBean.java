@@ -1339,6 +1339,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
     /* (non-Javadoc)
      * @see omeis.providers.re.RenderingEngine#getResolutionLevel()
      */
+    @RolesAllowed("user")
     public int getResolutionLevel()
     {
         rwl.writeLock().lock();
@@ -1354,6 +1355,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
     /* (non-Javadoc)
      * @see omeis.providers.re.RenderingEngine#getResolutionLevels()
      */
+    @RolesAllowed("user")
     public int getResolutionLevels()
     {
         return 1; // TODO
@@ -1362,6 +1364,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
     /* (non-Javadoc)
      * @see omeis.providers.re.RenderingEngine#getTileSize()
      */
+    @RolesAllowed("user")
     public int[] getTileSize()
     {
         return new int[] { 256, 256 }; // TODO
@@ -1370,6 +1373,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
     /* (non-Javadoc)
      * @see omeis.providers.re.RenderingEngine#hasPixelsPyramid()
      */
+    @RolesAllowed("user")
     public boolean hasPixelsPyramid()
     {
         rwl.writeLock().lock();
@@ -1385,6 +1389,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
     /* (non-Javadoc)
      * @see omeis.providers.re.RenderingEngine#setResolutionLevel(int)
      */
+    @RolesAllowed("user")
     public void setResolutionLevel(int resolutionLevel)
     {
         rwl.writeLock().lock();

@@ -675,6 +675,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     /* (non-Javadoc)
      * @see ome.api.RawPixelsStore#getResolutionLevels()
      */
+    @RolesAllowed("user")
     public int getResolutionLevels()
     {
         return 0;
