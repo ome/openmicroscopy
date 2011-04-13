@@ -32,6 +32,7 @@
 #
 #
 import glob, os
+_ = os.path.sep.join
 
 #
 # Reusable code
@@ -173,14 +174,14 @@ def get_targets(env, subdir, name):
     targets.append(javac)
     if env["run"] or env["run_java"]:
         env['ENV']['CLASSPATH'] = os.path.pathsep.join([ env['ENV']['CLASSPATH'], subdir ])
-        run = env.Alias("%s/%s.class" % (subdir,name), [], "java -ea %s " % name)
+        run = env.Alias(_(["%s"%subdir, "%s.class"%name]), [], "java -ea %s " % name)
         Depends(run, javac)
         env.AlwaysBuild(run)
         targets.append(run)
 
     # Python
     if env["run"] or env["run_py"]:
-        run = env.Alias("%s/%s.py" % (subdir,name), [], "python %s/%s.py " % (subdir, name))
+        run = env.Alias(_(["%s"%subdir, "%s.py"%name]), [], "python " + _(["%s"%subdir, "%s.py "%name]))
         env.AlwaysBuild(run)
         targets.append(run)
 
@@ -189,7 +190,7 @@ def get_targets(env, subdir, name):
         make = env.Program("%s.exe" % subdir, "%s.cpp" % name, LIBS = libs)
         targets.append(make)
         if env["run"] or env["run_cpp"]:
-            run = env.Command("%s/%s.out" % (subdir,name), "%s.exe" % subdir, "./$SOURCE ")
+            run = env.Command(_(["%s"%subdir, "%s.out"%name]), "%s.exe" % subdir, _([".","$SOURCE "]))
             env.Depends(run, make)
             env.AlwaysBuild(run)
             targets.append(run)
@@ -265,7 +266,7 @@ for src_dir in glob.glob("*"):
                 make = env.Program(base+".exe", file, LIBS=libs)
                 targets.append(make)
                 if env["run"] or env["run_cpp"]:
-                    run = env.Command(base+".out", base+".exe",  os.path.sep.join([".","$SOURCE"]))
+                    run = env.Command(base+".out", base+".exe",  _([".","$SOURCE"]))
                     env.Depends(run, make)
                     env.AlwaysBuild(run)
                     targets.append(run)
