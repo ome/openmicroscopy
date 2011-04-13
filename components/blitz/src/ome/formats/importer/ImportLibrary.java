@@ -788,6 +788,11 @@ public class ImportLibrary implements IObservable
                 {
                     tileHeight = size.sizeY - y;
                 }
+                int bytesToRead = tileWidth * tileHeight * bytesPerPixel;
+                if (arrayBuf.length != bytesToRead)
+                {
+                    arrayBuf = new byte[bytesToRead];
+                }
                 planeNumber = reader.getIndex(z, c, t);
                 if (log.isTraceEnabled())
                 {
@@ -795,13 +800,13 @@ public class ImportLibrary implements IObservable
                             "Plane:%d X:%d Y:%d TileWidth:%d TileHeight:%d",
                             planeNumber, x, y, tileWidth, tileHeight));
                 }
-                byte[] tile = reader.openBytes(
-                        planeNumber, x, y, tileWidth, tileHeight);
-                ByteBuffer buf = ByteBuffer.wrap(tile);
-                tile = swapIfRequired(buf, fileName);
+                arrayBuf = reader.openBytes(
+                        planeNumber, arrayBuf, x, y, tileWidth, tileHeight);
+                ByteBuffer buf = ByteBuffer.wrap(arrayBuf);
+                arrayBuf = swapIfRequired(buf, fileName);
                 try
                 {
-                    md.update(arrayBuf, 0, tile.length);
+                    md.update(arrayBuf, 0, arrayBuf.length);
                 }
                 catch (Exception e)
                 {
@@ -809,7 +814,7 @@ public class ImportLibrary implements IObservable
                     throw new RuntimeException(e);
                 }
                 store.setTile(
-                        pixId, tile, z, c, t, x, y, tileWidth, tileHeight);
+                        pixId, arrayBuf, z, c, t, x, y, tileWidth, tileHeight);
             }
         }
     }
