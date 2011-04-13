@@ -797,17 +797,18 @@ public class ImportLibrary implements IObservable
                 {
                     h = size.sizeY - y;
                 }
-                int bytesToRead = tileWidth * tileHeight * bytesPerPixel;
+                int bytesToRead = w * h * bytesPerPixel;
                 if (arrayBuf.length != bytesToRead)
                 {
                     arrayBuf = new byte[bytesToRead];
                 }
                 planeNumber = reader.getIndex(z, c, t);
-                if (log.isTraceEnabled())
+                if (log.isDebugEnabled())
                 {
-                    log.trace(String.format(
-                            "Plane:%d X:%d Y:%d TileWidth:%d TileHeight:%d",
-                            planeNumber, x, y, w, h));
+                    log.debug(String.format(
+                            "Plane:%d X:%d Y:%d TileWidth:%d TileHeight:%d " +
+                            "arrayBuf.length:%d", planeNumber, x, y, w, h,
+                            arrayBuf.length));
                 }
                 arrayBuf = reader.openBytes(
                         planeNumber, arrayBuf, x, y, w, h);
