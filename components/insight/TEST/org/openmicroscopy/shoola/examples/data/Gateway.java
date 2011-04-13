@@ -469,6 +469,8 @@ public class Gateway
 		 } catch (Throwable e) {
 			 throw new Exception("Cannot retrieve the plane " +
 					 "(z="+z+", t="+t+", c="+c+") for pixelsID:  "+pixelsID, e);
+		 } finally {
+			 service.close();
 		 }
 	}
 	 
