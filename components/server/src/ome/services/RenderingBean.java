@@ -1367,7 +1367,13 @@ public class RenderingBean implements RenderingEngine, Serializable {
     @RolesAllowed("user")
     public int[] getTileSize()
     {
-        return new int[] { 256, 256 }; // TODO
+        if (hasPixelsPyramid())
+        {
+            // FIXME: This should be configuration or service driven
+            // FIXME: Also implemented in RawPixelsBean.getTileSize()
+            return new int[] { 256, 256 };
+        }
+        return new int[] { pixelsObj.getSizeX(), pixelsObj.getSizeY() };
     }
 
     /* (non-Javadoc)
@@ -1380,7 +1386,7 @@ public class RenderingBean implements RenderingEngine, Serializable {
 
         try {
             errorIfInvalidState();
-            return false; // TODO
+            return pixDataSrv.isRequirePyramid(pixelsObj);
         } finally {
             rwl.writeLock().unlock();
         }

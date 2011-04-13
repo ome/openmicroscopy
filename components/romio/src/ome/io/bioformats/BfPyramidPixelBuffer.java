@@ -19,6 +19,7 @@ import loci.formats.meta.IMetadata;
 import loci.formats.out.TiffWriter;
 import loci.formats.services.OMEXMLService;
 import loci.formats.tiff.IFD;
+import loci.formats.tiff.IFDList;
 import loci.formats.tiff.TiffCompression;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
@@ -45,6 +46,11 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
 
     /** Bio-Formats implementation used to write to the backing TIFF. */
     protected TiffWriter writer;
+
+    /**
+     * Bio-Formats implementation the delegate uses to read the backing TIFF.
+     */
+    protected TiffReader reader;
 
     /** Service to create the metadata store. */
     private OMEXMLService service;
@@ -73,7 +79,8 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     public BfPyramidPixelBuffer(Pixels pixels, String filePath)
         throws IOException, FormatException
     {
-        delegate = new BfPixelBuffer(filePath, new TiffReader());
+        reader = new TiffReader();
+        delegate = new BfPixelBuffer(filePath, reader);
         this.pixels = pixels;
         try
         {
@@ -195,6 +202,65 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
                     z, c, t, rasterizedT));
         }
         return rasterizedT;
+    }
+
+    /**
+     * Checks that the tile parameters are not weirdly offset and do not have
+     * odd sizes.
+     * @param x X offset to the tile request.
+     * @param y Y offset to the tile request.
+     * @param w Width of the tile request.
+     * @param h Height of the tile request.
+     * @throws IOException If there is a problem with the parameters or a
+     * problem checking them.
+     */
+    private void checkTileParameters(int x, int y, int w, int h)
+        throws IOException
+    {
+        // Ensure the reader has been initialized
+        delegate.reader();
+        IFDList ifds = reader.getIFDs();
+        if (ifds.size() == 0)
+        {
+            throw new IOException("Backing reader has no IFDs!");
+        }
+        IFD firstIFD = ifds.get(0);
+        int tileWidth, tileHeight;
+        try
+        {
+            tileWidth = (int) firstIFD.getTileWidth();
+            tileHeight = (int) firstIFD.getTileLength();
+        }
+        catch (FormatException e)
+        {
+            String message = "Error retrieving tile width and height!";
+            log.error(message, e);
+            throw new IOException(message);
+        }
+        if (x % tileWidth != 0)
+        {
+            throw new IOException(String.format(
+                    "Tile X offset %d not a multiple of tile width %d",
+                    x, tileWidth));
+        }
+        if (y % tileHeight != 0)
+        {
+            throw new IOException(String.format(
+                    "Tile Y offset %d not a multiple of tile width %d",
+                    x, tileWidth));
+        }
+        if (w > tileWidth)
+        {
+            throw new IOException(String.format(
+                    "Requested tile width %d larger than tile width %d",
+                    w, tileWidth));
+        }
+        if (h > tileHeight)
+        {
+            throw new IOException(String.format(
+                    "Requested tile height %d larger than tile height %d",
+                    w, tileHeight));
+        }
     }
 
     /* (non-Javadoc)
@@ -520,6 +586,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     public PixelData getTile(Integer z, Integer c, Integer t, Integer x,
             Integer y, Integer w, Integer h) throws IOException
     {
+        checkTileParameters(x, y, w, h);
         t = getRasterizedT(z, c, t);
         c = 0;
         z = 0;
@@ -532,6 +599,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     public byte[] getTileDirect(Integer z, Integer c, Integer t, Integer x,
             Integer y, Integer w, Integer h, byte[] buffer) throws IOException
     {
+        checkTileParameters(x, y, w, h);
         t = getRasterizedT(z, c, t);
         c = 0;
         z = 0;

@@ -689,6 +689,8 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     {
         if (hasPixelsPyramid())
         {
+            // FIXME: This should be configuration or service driven
+            // FIXME: Also implemented in RenderingBean.getTileSize()
             return new int[] { 256, 256 };
         }
         return new int[] { pixelsInstance.getSizeX(),

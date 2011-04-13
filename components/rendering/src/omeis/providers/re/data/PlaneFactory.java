@@ -213,10 +213,9 @@ public class PlaneFactory {
         	if (region != null) {
         		switch (planeDef.getSlice()) {
 	                case PlaneDef.XY:
-	                    return new Plane2D(planeDef, pixels, 
-	                    		buffer.getPlaneRegion(region.getX(), 
-	                    				region.getY(), region.getWidth(), 
-	                    				region.getHeight(), z, c, t, stride));
+                        return new Plane2D(planeDef, pixels, buffer.getTile(
+                                z, c, t, region.getX(), region.getY(),
+                                region.getWidth(), region.getHeight()));
 	                case PlaneDef.XZ: //TODO
 	                    return new Plane2D(planeDef, pixels, 
 	                    		buffer.getStack(c, t));
