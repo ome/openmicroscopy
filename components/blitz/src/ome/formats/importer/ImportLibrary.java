@@ -710,8 +710,6 @@ public class ImportLibrary implements IObservable
     {
         reader.setSeries(series);
         int bytesPerPixel = getBytesPerPixel(reader.getPixelType());
-        int maximumPixelCount = arrayBuf.length / bytesPerPixel;
-        int maximumRowCount = maximumPixelCount / size.sizeX;
 
         MessageDigest md;
         try
