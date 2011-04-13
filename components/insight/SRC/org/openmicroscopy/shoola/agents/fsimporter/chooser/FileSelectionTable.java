@@ -223,6 +223,12 @@ class FileSelectionTable
 	/** Indicates to turn the folder as dataset. */
 	private JCheckBox			fadBox;
 	
+	/** The key listener added to the queue. */
+	private KeyAdapter			keyListener;
+	
+	/** The columns selected for the display.*/
+	private Vector<String>		selectedColumns;
+	
 	/** Formats the table model. */
 	private void formatTableModel()
 	{
@@ -299,13 +305,13 @@ class FileSelectionTable
 		b = (Boolean) ImporterAgent.getRegistry().lookup(ARCHIVED_AVAILABLE);
 		if (b != null) archivedTunable = b.booleanValue();
 		if (model.useFolderAsContainer()) {
-			table = new JXTable(new FileTableModel(COLUMNS));
+			selectedColumns = COLUMNS;
 		} else {
-			table = new JXTable(new FileTableModel(
-					COLUMNS_NO_FOLDER_AS_CONTAINER));
+			selectedColumns = COLUMNS_NO_FOLDER_AS_CONTAINER;
 		}
+		table = new JXTable(new FileTableModel(selectedColumns));
 		table.getTableHeader().setReorderingAllowed(false);
-		table.addKeyListener(new KeyAdapter() {
+		keyListener = new KeyAdapter() {
 			
 			/**
 			 * Adds the files to the import queue.
@@ -318,7 +324,8 @@ class FileSelectionTable
 						removeSelectedFiles();
 				}
 			}
-		});
+		};
+		table.addKeyListener(keyListener);
 		
 		Highlighter h = HighlighterFactory.createAlternateStriping(
 				UIUtilities.BACKGROUND_COLOUR_EVEN, 
@@ -378,15 +385,22 @@ class FileSelectionTable
 	/** Removes the selected files from the queue. */
 	private void removeSelectedFiles()
 	{
+		table.removeKeyListener(keyListener);
 		int[] rows = table.getSelectedRows();
 		if (rows == null || rows.length == 0) return;
 		DefaultTableModel dtm = (DefaultTableModel) table.getModel();
-		for (int row : rows) {
-			dtm.removeRow(table.convertRowIndexToModel(row));
+		int rowCount = dtm.getRowCount();
+		Vector v = dtm.getDataVector();
+		List<Object> indexes = new ArrayList<Object>();
+		for (int i = 0; i < table.getRowCount(); i++) {
+			if (table.isRowSelected(i))
+				indexes.add(v.get(i));
 		}
+		v.removeAll(indexes);
+		dtm.setDataVector(v, selectedColumns);
 		table.clearSelection();
-
 		table.repaint();
+		table.addKeyListener(keyListener);
 		int n = table.getRowCount();
 		firePropertyChange(REMOVE_PROPERTY, n-1, n);
 		enabledControl(table.getRowCount() > 0);
@@ -497,10 +511,9 @@ class FileSelectionTable
 	void reset(boolean value)
 	{ 
 		allowAddition(value); 
-		if (model.useFolderAsContainer())
-			table.setModel(new FileTableModel(COLUMNS));
-		else 
-			table.setModel(new FileTableModel(COLUMNS_NO_FOLDER_AS_CONTAINER));
+		if (model.useFolderAsContainer()) selectedColumns = COLUMNS;
+		else selectedColumns = COLUMNS_NO_FOLDER_AS_CONTAINER;
+		table.setModel(new FileTableModel(selectedColumns));
 		formatTableModel();
 	}
 	
