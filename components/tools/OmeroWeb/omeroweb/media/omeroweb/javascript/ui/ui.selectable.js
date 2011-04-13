@@ -115,9 +115,7 @@ $.widget("ui.selectable", $.extend({}, $.ui.mouse, {
 			if (selectee) {
 			    selIndex = self.selectees.index(selectee.$element);
     			if ((!event.shiftKey) && (!event.metaKey)) {
-    			    //selectee.primarySelect = true;
     			    selectee.$element.addClass("primarySelect");
-    			    console.log("primarySelect " + selIndex);
     			}
 				selectee.$element.removeClass("ui-unselecting").addClass('ui-selecting');
 				selectee.unselecting = false;
@@ -135,16 +133,15 @@ $.widget("ui.selectable", $.extend({}, $.ui.mouse, {
 		if (event.shiftKey) { 
 		    var inRange = false;
 		    this.selectees.each(function() {
-    		    // go through all items, if selIndex or primarySelect 
+    		    // go through all items, if in range between selIndex and primarySelect... 
     			var selectee = $.data(this, "selectable-item");
     			selectee.startselected = true;
     			var i = self.selectees.index(selectee.$element);
     			var primarySelect = selectee.$element.hasClass("primarySelect");
-    			console.log(primarySelect + " i " + i);
     			if (primarySelect || (i == selIndex)) {
     			    inRange = !inRange;
     			} else {
-    			    if (inRange) {
+    			    if (inRange) { //...select the item
     			        selectee.$element.removeClass("ui-unselecting").addClass('ui-selecting');
         				selectee.unselecting = false;
         				selectee.selecting = true;
