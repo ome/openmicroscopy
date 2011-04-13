@@ -1,0 +1,15 @@
+{% load i18n %}
+{% load markup %}
+{% load custom_tags %}
+
+{% if form %}
+
+<form method="post">
+    <table class="form">
+    {% for field in form %}
+        <tr><td>{{ field }}<p class="error">{% if field.errors %}{{ field.errors }}{% endif %}</p></td><td>{{ field.help_text|safe }}</td></tr>
+    {% endfor %}
+    </table>
+</form>
+
+{% endif %}

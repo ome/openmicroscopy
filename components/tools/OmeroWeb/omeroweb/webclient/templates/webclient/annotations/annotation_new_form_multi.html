@@ -43,6 +43,11 @@
 
 {% block content %}
 
+{% comment %}
+    <!-- Example toolbar of links to webtest pages. Remove comments to activate -->
+    {% include "webtest/webtest-toolbar-include.html" %}
+{% endcomment %}
+
 <p>You have selected: {% if count.images %}{{ count.images }} {% plural count.images 'image' 'images' %}, {% endif %}{% if count.datasets %}{{ count.datasets }} {% plural count.datasets 'dataset' 'datasets' %}, {% endif %}{% if count.projects %}{{ count.projects }} {% plural count.projects 'project' 'projects' %}, {% endif %}{% if count.screens %}{{ count.screens }} {% plural count.screens 'screen' 'screens' %}, {% endif %}{% if count.plates %}{{ count.plates }} {% plural count.plates 'plate' 'plates' %}, {% endif %}{% if count.wells %}{{ count.wells }} {% plural count.wells 'well' 'wells' %}, {% endif %} now you can annotate them using forms below.</p>
 
 <div id="annotation_form">

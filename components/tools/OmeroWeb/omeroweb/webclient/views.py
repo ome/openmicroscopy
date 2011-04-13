@@ -48,7 +48,7 @@ from django.conf import settings
 from django.contrib.sessions.backends.cache import SessionStore
 from django.core import template_loader
 from django.core.cache import cache
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseServerError
 from django.shortcuts import render_to_response
 from django.template import RequestContext as Context
 from django.utils import simplejson
@@ -61,7 +61,8 @@ from webclient_http import HttpJavascriptRedirect, HttpJavascriptResponse, HttpL
 
 from webclient_utils import _formatReport, _purgeCallback
 from forms import ShareForm, BasketShareForm, ShareCommentForm, \
-                    ContainerForm, CommentAnnotationForm, TagAnnotationForm, \
+                    ContainerForm, ContainerNameForm, ContainerDescriptionForm, \
+                    CommentAnnotationForm, TagAnnotationForm, \
                     UploadFileForm, UsersForm, ActiveGroupForm, HistoryTypeForm, \
                     MetadataFilterForm, MetadataDetectorForm, MetadataChannelForm, \
                     MetadataEnvironmentForm, MetadataObjectiveForm, MetadataStageLabelForm, \
@@ -1063,7 +1064,9 @@ def manage_annotation_multi(request, action=None, **kwargs):
     except AttributeError, x:
         logger.error(traceback.format_exc())
         return handlerInternalError(x)
-    
+
+    oids = {'image':request.REQUEST.getlist('image'), 'dataset':request.REQUEST.getlist('dataset'), 'project':request.REQUEST.getlist('project'), 'screen':request.REQUEST.getlist('screen'), 'plate':request.REQUEST.getlist('plate'), 'well':request.REQUEST.getlist('well')}
+
     images = len(request.REQUEST.getlist('image')) > 0 and list(conn.getObjects("Image", request.REQUEST.getlist('image'))) or list()
     datasets = len(request.REQUEST.getlist('dataset')) > 0 and list(conn.getObjects("Dataset", request.REQUEST.getlist('dataset'))) or list()
     projects = len(request.REQUEST.getlist('project')) > 0 and list(conn.getObjects("Project", request.REQUEST.getlist('project'))) or list()
@@ -1081,7 +1084,6 @@ def manage_annotation_multi(request, action=None, **kwargs):
         if request.method == 'POST':
             form_multi = MultiAnnotationForm(initial={'tags':manager.getTagsByObject(), 'files':manager.getFilesByObject(), 'images':images, 'datasets':datasets, 'projects':projects, 'screens':screens, 'plates':plates, 'wells':wells}, data=request.REQUEST.copy(), files=request.FILES)
             if form_multi.is_valid():
-                oids = {'image':request.REQUEST.getlist('image'), 'dataset':request.REQUEST.getlist('dataset'), 'project':request.REQUEST.getlist('project'), 'screen':request.REQUEST.getlist('screen'), 'plate':request.REQUEST.getlist('plate'), 'well':request.REQUEST.getlist('well')}
                 
                 content = request.REQUEST.get('content')
                 if content is not None and content != "":
@@ -1106,7 +1108,7 @@ def manage_annotation_multi(request, action=None, **kwargs):
 
                 return HttpJavascriptRedirect(reverse(viewname="load_template", args=[menu]))
             
-    context = {'url':url, 'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager, 'form_multi':form_multi, 'count':count}
+    context = {'url':url, 'nav':request.session['nav'], 'eContext':manager.eContext, 'manager':manager, 'form_multi':form_multi, 'count':count, 'oids':oids}
             
     t = template_loader.get_template(template)
     c = Context(request,context)
@@ -1224,6 +1226,66 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
                                         'shareMembers': manager.membersInShare, 'enable': manager.share.active, \
                                         'experimenters': experimenters}) #'guests': share.guestsInShare,
             context = {'url':url, 'nav':request.session['nav'], 'eContext': manager.eContext, 'share':manager, 'form':form}
+    elif action == 'editname':
+        if hasattr(manager, o_type) and o_id > 0:
+            obj = getattr(manager, o_type)
+            template = "webclient/ajax_form/container_form_ajax.html"
+            form = ContainerNameForm(initial={'name': obj.name})
+            context = {'nav':request.session['nav'], 'manager':manager, 'eContext':manager.eContext, 'form':form}
+        else:
+            return HttpResponseServerError("Object does not exist")
+    elif action == 'savename':
+        if not request.method == 'POST':
+            return HttpResponseRedirect(reverse("manage_action_containers", args=["edit", o_type, o_id]))
+        elif hasattr(manager, o_type) and o_id > 0:
+            obj = getattr(manager, o_type)
+            form = ContainerNameForm(data=request.REQUEST.copy())
+            if form.is_valid():
+                logger.debug("Update name form:" + str(form.cleaned_data))
+                name = form.cleaned_data['name']
+                manager.updateName(o_type, o_id, name)                
+                rdict = {'bad':'false' }
+                json = simplejson.dumps(rdict, ensure_ascii=False)
+                return HttpResponse( json, mimetype='application/javascript')
+            else:
+                d = dict()
+                for e in form.errors.iteritems():
+                    d.update({e[0]:unicode(e[1])}) 
+                rdict = {'bad':'true','errs': d }
+                json = simplejson.dumps(rdict, ensure_ascii=False)
+                return HttpResponse( json, mimetype='application/javascript')
+        else:
+            return HttpResponseServerError("Object does not exist")
+    elif action == 'editdescription':
+        if hasattr(manager, o_type) and o_id > 0:
+            obj = getattr(manager, o_type)
+            template = "webclient/ajax_form/container_form_ajax.html"
+            form = ContainerDescriptionForm(initial={'description': obj.description})
+            context = {'nav':request.session['nav'], 'manager':manager, 'eContext':manager.eContext, 'form':form}
+        else:
+            return HttpResponseServerError("Object does not exist")
+    elif action == 'savedescription':
+        if not request.method == 'POST':
+            return HttpResponseServerError("Action '%s' on the '%s' id:%s cannot be complited" % (action, o_type, o_id))
+        elif hasattr(manager, o_type) and o_id > 0:
+            obj = getattr(manager, o_type)
+            form = ContainerDescriptionForm(data=request.REQUEST.copy())
+            if form.is_valid():
+                logger.debug("Update name form:" + str(form.cleaned_data))
+                description = form.cleaned_data['description']
+                manager.updateDescription(o_type, o_id, description)                
+                rdict = {'bad':'false' }
+                json = simplejson.dumps(rdict, ensure_ascii=False)
+                return HttpResponse( json, mimetype='application/javascript')
+            else:
+                d = dict()
+                for e in form.errors.iteritems():
+                    d.update({e[0]:unicode(e[1])}) 
+                rdict = {'bad':'true','errs': d }
+                json = simplejson.dumps(rdict, ensure_ascii=False)
+                return HttpResponse( json, mimetype='application/javascript')
+        else:
+            return HttpResponseServerError("Object does not exist")
     elif action == 'move':
         parent = request.REQUEST['parent'].split('-')
         #source = request.REQUEST['source'].split('-')

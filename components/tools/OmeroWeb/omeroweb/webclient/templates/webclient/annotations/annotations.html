@@ -20,6 +20,8 @@
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.autocomplete.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.quicksearch.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/jquery.tooltip.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.editinplace.js" %}"></script>
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.form.js" %}"></script>
   
     <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.core.js" %}"></script>
     <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.tabs.js" %}"></script>
@@ -45,6 +47,36 @@
     <script type="text/javascript">
         $(document).ready(function() 
             {
+                {% if manager.image.isOwned %}
+                $( "#imagename-{{ manager.image.id }} img" ).editable('{% url manage_action_containers "editname" "image" manager.image.id %}', '{% url manage_action_containers "savename" "image" manager.image.id %}', "imagename-{{ manager.image.id }}" );
+                $( "#imagedescription-{{ manager.image.id }} img" ).editable('{% url manage_action_containers "editdescription" "image" manager.image.id %}', '{% url manage_action_containers "savedescription" "image" manager.image.id %}', "imagedescription-{{ manager.image.id }}" );                
+                {% endif %}
+                
+                {% if manager.dataset.isOwned %}
+                $( "#datasetname-{{ manager.dataset.id }} img" ).editable('{% url manage_action_containers "editname" "dataset" manager.dataset.id %}', '{% url manage_action_containers "savename" "dataset" manager.dataset.id %}', "datasetname-{{ manager.dataset.id }}" );
+                $( "#datasetdescription-{{ manager.dataset.id }} img" ).editable('{% url manage_action_containers "editdescription" "dataset" manager.dataset.id %}', '{% url manage_action_containers "savedescription" "dataset" manager.dataset.id %}', "datasetdescription-{{ manager.dataset.id }}" );                
+                {% endif %}
+                
+                {% if manager.project.isOwned %}
+                $( "#projectname-{{ manager.project.id }} img" ).editable('{% url manage_action_containers "editname" "project" manager.project.id %}', '{% url manage_action_containers "savename" "project" manager.project.id %}', "projectname-{{ manager.project.id }}" );
+                $( "#projectdescription-{{ manager.project.id }} img" ).editable('{% url manage_action_containers "editdescription" "project" manager.project.id %}', '{% url manage_action_containers "savedescription" "project" manager.project.id %}', "projectdescription-{{ manager.project.id }}" );                
+                {% endif %}
+                
+                {% if manager.well.isOwned %}
+                $( "#wellname-{{ manager.well.selectedWellSample.image.id }} img" ).editable('{% url manage_action_containers "editname" "image" manager.well.selectedWellSample.image.id %}', '{% url manage_action_containers "savename" "image" manager.well.selectedWellSample.image.id %}', "wellname-{{ manager.well.selectedWellSample.image.id }}" );
+                $( "#welldescription-{{ manager.well.selectedWellSample.image.id }} img" ).editable('{% url manage_action_containers "editdescription" "image" manager.well.selectedWellSample.image.id %}', '{% url manage_action_containers "savedescription" "image" manager.well.selectedWellSample.image.id %}', "welldescription-{{ manager.well.selectedWellSample.image.id }}" );                
+                {% endif %}
+                
+                {% if manager.plate.isOwned %}
+                $( "#platename-{{ manager.plate.id }} img" ).editable('{% url manage_action_containers "editname" "plate" manager.plate.id %}', '{% url manage_action_containers "savename" "plate" manager.plate.id %}', "platename-{{ manager.plate.id }}" );
+                $( "#platedescription-{{ manager.plate.id }} img" ).editable('{% url manage_action_containers "editdescription" "plate" manager.plate.id %}', '{% url manage_action_containers "savedescription" "plate" manager.plate.id %}', "platedescription-{{ manager.plate.id }}" );                
+                {% endif %}
+                
+                {% if manager.screen.isOwned %}
+                $( "#screenname-{{ manager.screen.id }} img" ).editable('{% url manage_action_containers "editname" "screen" manager.screen.id %}', '{% url manage_action_containers "savename" "screen" manager.screen.id %}', "screenname-{{ manager.screen.id }}" );
+                $( "#screendescription-{{ manager.screen.id }} img" ).editable('{% url manage_action_containers "editdescription" "screen" manager.screen.id %}', '{% url manage_action_containers "savedescription" "screen" manager.screen.id %}', "screendescription-{{ manager.screen.id }}" );                
+                {% endif %}
+
                 // hide any unset fields. 
                 var invalidRows = $(".metadata_details input:not([value])").parent().parent();
                 invalidRows.hide();
@@ -73,8 +105,7 @@
                     };
                 };
                 $(".metadata_details").click(toggleInvalidRows);
-                
-                
+                                
                 $('input#search_global').quicksearch('table#global_metadata tbody tr', {
                 	'delay': 300,
                     'loader': 'span.loading_global'
@@ -171,6 +202,13 @@
 {% endblock %}
 
 {% block content %}
+
+{% comment %}
+    <!-- Example toolbar of links to webtest pages. Remove comments to activate -->
+    {% include "webtest/webtest-toolbar-include.html" %}
+{% endcomment %}
+
+
 <div id="annotation_form" >
     <div id="annotation_tabs" class="ui-tabs">
         <ul>
@@ -403,19 +441,16 @@
         {% if not manager.tag %}
         <!-- ANNOTATIONS "General" -->
         <div id="annotation_tab">
-            {% if manager.image %}
-            <h1>
-                {{ manager.image.name|warphtml:"30" }}
-                {% if manager.image.isOwned %} <a href="{% url manage_action_containers "edit" "image" manager.image.id %}?url={{url}}"><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/></a>{% endif %}
-            </h1>            
+            {% if manager.image %}            
+            {% if manager.image.isOwned %}<div id="imagename-{{ manager.image.id }}"><h1><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/> <span id="imagename-{{ manager.image.id }}-name">{{ manager.image.name|warphtml:"30" }}</span></h1></div>{% else %}{{ manager.image.name|warphtml:"30" }}{% endif %}
+            
             <h2 id='image_id'>Image ID: {{ manager.image.id }}</h2>    
             <!-- open-image link -->
             <p>{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% url web_image_viewer manager.image.id %}')"><img id="{{ manager.image.id }}" src="{% url webstatic "images/kview16.png" %}" alt="View" title="Open full viewer"/></a></p>
                     
             <div class="description">
-                {% if manager.image.isOwned %} <a href="{% url manage_action_containers "edit" "image" manager.image.id %}?url={{url}}" class="align_left"><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit" /></a>{% endif %}
-                {{ manager.image.description|default_if_none:"Description:"|linebreaks }}
-            </div>            
+                {% if manager.image.isOwned %}<div id="imagedescription-{{ manager.image.id }}"><p><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/> <span id="imagedescription-{{ manager.image.id }}-description">{{ manager.image.description|default_if_none:""}}</span><p></div>{% else %}<span id='image_desc'>{{ manager.image.description|default_if_none:""|linebreaks }}</span>{% endif %}
+            </div>
             <table>                    
                 {% if not manager.image.isOwned %}
                 <tr>
@@ -456,15 +491,16 @@
             </table>
             {% else %}
                 {% if manager.dataset %}
-                <h1>
-                    {{ manager.dataset.name|warphtml:"30" }}
-                    {% if manager.dataset.isOwned %} <a href="{% url manage_action_containers "edit" "dataset" manager.dataset.id %}?url={{url}}"><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/></a>{% endif %}
-                </h1>                
-                <h2 id='dataset_id'>Dataset ID: {{ manager.dataset.id }}</h2>
+                {% if manager.dataset.isOwned %}<div id="datasetname-{{ manager.dataset.id }}"><h1><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/> <span id="datasetname-{{ manager.dataset.id }}-name">{{ manager.dataset.name|warphtml:"30" }}</span></h1></div>{% else %}{{ manager.dataset.name|warphtml:"30" }}{% endif %}
+
+                <h2 id='dataset_id'>Dataset ID: {{ manager.dataset.id }}</h2>    
+                <!-- open-dataset link -->
+                <p>{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% url web_image_viewer manager.dataset.id %}')"><img id="{{ manager.dataset.id }}" src="{% url webstatic "images/kview16.png" %}" alt="View" title="Open full viewer"/></a></p>
+
                 <div class="description">
-                    {% if manager.dataset.isOwned %} <a href="{% url manage_action_containers "edit" "dataset" manager.dataset.id %}?url={{url}}" class="align_left"><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit" /></a>{% endif %}
-                    {{ manager.dataset.description|default_if_none:"Description:"|linebreaks }}
+                    {% if manager.dataset.isOwned %}<div id="datasetdescription-{{ manager.dataset.id }}"><p><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/> <span id="datasetdescription-{{ manager.dataset.id }}-description">{{ manager.dataset.description|default_if_none:""}}</span><p></div>{% else %}<span id='dataset_desc'>{{ manager.dataset.description|default_if_none:""|linebreaks }}</span>{% endif %}
                 </div>
+                
                 <table>
                     {% if not manager.dataset.isOwned %}
                     <tr>
@@ -483,14 +519,11 @@
                 </table>
                 {% else %}
                     {% if manager.project %}
-                    <h1>
-                        {{ manager.project.name|warphtml:"30" }}
-                        {% if manager.project.isOwned %} <a href="{% url manage_action_containers "edit" "project" manager.project.id %}?url={{url}}"><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/></a>{% endif %}
-                    </h1>
+                    {% if manager.project.isOwned %}<div id="projectname-{{ manager.project.id }}"><h1><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/> <span id="projectname-{{ manager.project.id }}-name">{{ manager.project.name|warphtml:"30" }}</span></h1></div>{% else %}{{ manager.project.name|warphtml:"30" }}{% endif %}
+                    
                     <h2 id='project_id'>Project ID: {{ manager.project.id }}</h2>
                     <div class="description">
-                        {% if manager.project.isOwned %} <a href="{% url manage_action_containers "edit" "project" manager.project.id %}?url={{url}}" class="align_left"><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit" /></a>{% endif %}
-                        {{ manager.project.description|default_if_none:"Description:"|linebreaks }}
+                        {% if manager.project.isOwned %}<div id="projectdescription-{{ manager.project.id }}"><p><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/> <span id="projectdescription-{{ manager.project.id }}-description">{{ manager.project.description|default_if_none:""}}</span><p></div>{% else %}<span id='project_desc'>{{ manager.project.description|default_if_none:""|linebreaks }}</span>{% endif %}
                     </div>
                     <table>
                         {% if not manager.project.isOwned %}
@@ -513,16 +546,13 @@
             {% endif %}
             
             {% if manager.well %}            
-            <h1>
-                {{ manager.well.selectedWellSample.image.name|warphtml:"30" }}
-                {% if manager.well.selectedWellSample.image.isOwned %} <a href="{% url manage_action_containers "edit" "image" manager.well.selectedWellSample.image.id %}?url={{url}}"><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/></a>{% endif %}
-            </h1>            
+            {% if manager.well.selectedWellSample.image.isOwned %}<div id="wellname-{{ manager.well.selectedWellSample.image.id }}"><h1><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/> <span id="wellname-{{ manager.well.selectedWellSample.image.id }}-name">{{ manager.well.selectedWellSample.image.name|warphtml:"30" }}</span></h1></div>{% else %}{{ manager.well.selectedWellSample.image.name|warphtml:"30" }}{% endif %}
+                   
             <h2 id='well_id'>Well ID: {{ manager.well.selectedWellSample.image.id }}</h2>
             <p>{% trans "Launch full viewer" %} <a href="#" onclick="return openPopup('{% url web_image_viewer manager.well.selectedWellSample.image.id %}')"><img id="{{ manager.image.id }}" src="{% url webstatic "images/kview16.png" %}" alt="View" title="Open full viewer"/></a></p>
             <div class="description">
-                {% if manager.well.selectedWellSample.image.isOwned %} <a href="{% url manage_action_containers "edit" "image" manager.well.selectedWellSample.image.id %}?url={{url}}" class="align_left"><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit" /></a>{% endif %}
-                {{ manager.well.selectedWellSample.image.description|default_if_none:"Description:"|linebreaks }}
-            </div>            
+                {% if manager.well.selectedWellSample.image.isOwned %}<div id="welldescription-{{ manager.well.selectedWellSample.image.id }}"><p><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/> <span id="welldescription-{{ manager.well.selectedWellSample.image.id }}-description">{{ manager.well.selectedWellSample.image.description|default_if_none:""}}</span><p></div>{% else %}<span id='well_desc'>{{ manager.well.selectedWellSample.image.description|default_if_none:""|linebreaks }}</span>{% endif %}
+            </div>
             <table>                    
                 {% if not manager.well.selectedWellSample.image.isOwned %}
                 <tr>
@@ -563,14 +593,11 @@
             </table>
             {% else %}
                 {% if manager.plate %}
-                <h1>
-                    {{ manager.plate.name|warphtml:"30" }}
-                    {% if manager.plate.isOwned %} <a href="{% url manage_action_containers "edit" "plate" manager.plate.id %}?url={{url}}"><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/></a>{% endif %}
-                </h1>                
+                {% if manager.plate.isOwned %}<div id="platename-{{ manager.plate.id }}"><h1><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/> <span id="platename-{{ manager.plate.id }}-name">{{ manager.plate.name|warphtml:"30" }}</span></h1></div>{% else %}{{ manager.plate.name|warphtml:"30" }}{% endif %}
+              
                 <h2 id='plate_id'>Plate ID: {{ manager.plate.id }}</h2>
                 <div class="description">
-                    {% if manager.plate.isOwned %} <a href="{% url manage_action_containers "edit" "plate" manager.plate.id %}?url={{url}}" class="align_left"><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit" /></a>{% endif %}
-                    {{ manager.plate.description|default_if_none:"Description:"|linebreaks }}
+                    {% if manager.plate.isOwned %}<div id="platedescription-{{ manager.plate.id }}"><p><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/> <span id="platedescription-{{ manager.plate.id }}-description">{{ manager.plate.description|default_if_none:""}}</span><p></div>{% else %}<span id='plate_desc'>{{ manager.plate.description|default_if_none:""|linebreaks }}</span>{% endif %}
                 </div>
                 <table>
                     {% if not manager.plate.isOwned %}
@@ -592,14 +619,11 @@
                 </table>
                 {% else %}
                     {% if manager.screen %}
-                    <h1>
-                        {{ manager.screen.name|warphtml:"30" }}
-                        {% if manager.screen.isOwned %} <a href="{% url manage_action_containers "edit" "screen" manager.screen.id %}?url={{url}}"><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/></a>{% endif %}
-                    </h1>                
+                    {% if manager.screen.isOwned %}<div id="screenname-{{ manager.screen.id }}"><h1><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/> <span id="screenname-{{ manager.screen.id }}-name">{{ manager.screen.name|warphtml:"30" }}</span></h1></div>{% else %}{{ manager.screen.name|warphtml:"30" }}{% endif %}
+            
                     <h2 id='screen_id'>Screen ID: {{ manager.screen.id }}</h2>
                     <div class="description">
-                        {% if manager.screen.isOwned %} <a href="{% url manage_action_containers "edit" "screen" manager.screen.id %}?url={{url}}" class="align_left"><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit" /></a>{% endif %}
-                        {{ manager.screen.description|default_if_none:"Description:"|linebreaks }}
+                        {% if manager.screen.isOwned %}<div id="screendescription-{{ manager.screen.id }}"><p><img src="{% url webstatic "images/color_line12.png" %}" alt="e" title="edit"/> <span id="screendescription-{{ manager.screen.id }}-description">{{ manager.screen.description|default_if_none:""}}</span><p></div>{% else %}<span id='screen_desc'>{{ manager.screen.description|default_if_none:""|linebreaks }}</span>{% endif %}
                     </div>
                     <table>
                         {% if not manager.screen.isOwned %}
