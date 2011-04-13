@@ -89,25 +89,36 @@ $.widget("ui.selectable", $.extend({}, $.ui.mouse, {
 		if (options.autoRefresh) {
 			this.refresh();
 		}
-
+		
+		// go through all items...
 		this.selectees.filter('.ui-selected').each(function() {
 			var selectee = $.data(this, "selectable-item");
 			selectee.startselected = true;
-			if (!event.metaKey) {
-				selectee.$element.removeClass('ui-selected');
+			if ((!event.metaKey) && (!event.shiftKey)) {
+			    selectee.$element.removeClass("primarySelect");
+			    selectee.$element.removeClass('ui-selected');
 				selectee.selected = false;
 				selectee.$element.addClass('ui-unselecting');
 				selectee.unselecting = true;
 				// selectable UNSELECTING callback
 				self._trigger("unselecting", event, {
-					unselecting: selectee.element
+				    unselecting: selectee.element
 				});
 			}
 		});
 
+        var selIndex = -1
+        // handle the item we just clicked on...
 		$(event.target).parents().andSelf().each(function() {
 			var selectee = $.data(this, "selectable-item");
+			
 			if (selectee) {
+			    selIndex = self.selectees.index(selectee.$element);
+    			if ((!event.shiftKey) && (!event.metaKey)) {
+    			    //selectee.primarySelect = true;
+    			    selectee.$element.addClass("primarySelect");
+    			    console.log("primarySelect " + selIndex);
+    			}
 				selectee.$element.removeClass("ui-unselecting").addClass('ui-selecting');
 				selectee.unselecting = false;
 				selectee.selecting = true;
@@ -119,6 +130,35 @@ $.widget("ui.selectable", $.extend({}, $.ui.mouse, {
 				return false;
 			}
 		});
+		
+		// if shift key,
+		if (event.shiftKey) { 
+		    var inRange = false;
+		    this.selectees.each(function() {
+    		    // go through all items, if selIndex or primarySelect 
+    			var selectee = $.data(this, "selectable-item");
+    			selectee.startselected = true;
+    			var i = self.selectees.index(selectee.$element);
+    			var primarySelect = selectee.$element.hasClass("primarySelect");
+    			console.log(primarySelect + " i " + i);
+    			if (primarySelect || (i == selIndex)) {
+    			    inRange = !inRange;
+    			} else {
+    			    if (inRange) {
+    			        selectee.$element.removeClass("ui-unselecting").addClass('ui-selecting');
+        				selectee.unselecting = false;
+        				selectee.selecting = true;
+        				selectee.selected = true;
+        				// selectable SELECTING callback
+        				self._trigger("selecting", event, {
+        					selecting: selectee.element
+        				});
+    			    }
+    			}
+    			
+    		});
+    	}
+        
 
 	},
 
