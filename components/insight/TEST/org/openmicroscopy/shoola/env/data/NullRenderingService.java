@@ -48,6 +48,7 @@ import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
+import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
@@ -526,4 +527,11 @@ public class NullRenderingService
 	{
 		return null;
 	}
+
+	public ScriptCallback saveAs(SaveAsParam param) throws DSAccessException,
+			DSOutOfServiceException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

@@ -1016,7 +1016,8 @@ class EditorComponent
 	 */
 	public void saveAs(File folder)
 	{
-		
+		if (folder == null) folder = UIUtilities.getDefaultFolder();
+		model.saveAs(folder);
 	}
 
 }

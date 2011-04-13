@@ -43,6 +43,7 @@ import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
+import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
@@ -694,7 +695,12 @@ public interface OmeroImageService
 	 * @param maxLength The maximum length of a thumbnail.
 	 * @param userID	The id of the user.
 	 * @return See above.
-	 * @throws RenderingServiceException  If the server is out of service.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 *@throws FSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data using OMERO.fs.
 	 */
 	public Map<DataObject, BufferedImage> getFSThumbnailSet(
 			List<DataObject> files, int maxLength, long userID)
@@ -704,8 +710,10 @@ public interface OmeroImageService
 	 * Get all the available workflows from the server for the user.
 	 * @param userID The users id.
 	 * @return See above.
-	 * @throws DSAccessException
-	 * @throws DSOutOfServiceException
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
 	 */
 	public List<WorkflowData> retrieveWorkflows(long userID) 
 		throws DSAccessException, DSOutOfServiceException;
@@ -715,8 +723,11 @@ public interface OmeroImageService
 	 * 
 	 * @param workflows See above.
 	 * @param userID The id of the user.
-	 * @throws DSAccessException
-	 * @throws DSOutOfServiceException
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
 	 */
 	public  Object storeWorkflows(List<WorkflowData> workflows, long userID) 
 	throws DSAccessException, DSOutOfServiceException;
@@ -728,10 +739,27 @@ public interface OmeroImageService
 	 * @param experimenters	The experimenters to handle.
 	 * @param maxLength The maximum length of a thumbnail.
 	 * @return See above.
-	 * @throws RenderingServiceException  If the server is out of service.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
 	 */
 	public Map<DataObject, BufferedImage> getExperimenterThumbnailSet(
 			List<DataObject> experimenters, int maxLength)
+		throws DSAccessException, DSOutOfServiceException;
+
+	/**
+	 * Saves locally the images as <code>JPEG</code>.
+	 * 
+	 * @param param Hosts the information about the objects to save,
+	 * 				where to save etc.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	public ScriptCallback saveAs(SaveAsParam param)
 		throws DSAccessException, DSOutOfServiceException;
 	
 }

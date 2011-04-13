@@ -418,6 +418,7 @@ public class ScriptObject
 	public String getVersion()
 	{ 
 		if (parameters != null) return parameters.version;
+		version = "1.0";
 		return version; 
 	}
 

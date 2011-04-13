@@ -161,14 +161,14 @@ class ToolBar
     		IconManager icons = IconManager.getInstance();
     		JMenuItem item = new JMenuItem(icons.getIcon(IconManager.DOWNLOAD));
     		item.setToolTipText("Download the Archived File(s).");
-    		item.setName("Download...");
+    		item.setText("Download...");
     		item.addActionListener(controller);
     		item.setActionCommand(""+EditorControl.DOWNLOAD);
     		item.setBackground(UIUtilities.BACKGROUND_COLOR);
     		saveAsMenu.add(item);
     		item = new JMenuItem(icons.getIcon(
     				IconManager.EXPORT_AS_OMETIFF));
-    		item.setName("Export as OME-TIFF...");
+    		item.setText("Export as OME-TIFF...");
     		item.setToolTipText(EXPORT_AS_OME_TIFF_TOOLTIP);
     		item.addActionListener(controller);
     		item.setActionCommand(
@@ -176,8 +176,8 @@ class ToolBar
     		saveAsMenu.add(item);
     		item = new JMenuItem(icons.getIcon(
     				IconManager.SAVE_AS));
-    		item.setName("Save as JPEG...");
-    		item.setToolTipText("Save the images as full size JPEG");
+    		item.setText("Save as JPEG...");
+    		item.setToolTipText("Save the images at full size as JPEG.");
     		item.addActionListener(controller);
     		item.setActionCommand(""+EditorControl.SAVE_AS);
     		saveAsMenu.add(item);
@@ -314,6 +314,7 @@ class ToolBar
 		UIUtilities.unifiedButtonLookAndFeel(refreshButton);
 		UIUtilities.unifiedButtonLookAndFeel(exportAsOmeTiffButton);
 		UIUtilities.unifiedButtonLookAndFeel(publishingButton);
+		UIUtilities.unifiedButtonLookAndFeel(uploadScriptButton);
 		UIUtilities.unifiedButtonLookAndFeel(analysisButton);
 		UIUtilities.unifiedButtonLookAndFeel(scriptsButton);
 		

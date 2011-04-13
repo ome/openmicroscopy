@@ -39,6 +39,7 @@ import org.openmicroscopy.shoola.env.data.model.ImportContext;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
+import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
@@ -284,8 +285,8 @@ public interface ImageDataView
 	 * 
 	 * @param imageID 	The id of the image.
 	 * @param pixelsID 	The id of the pixels set.	
-     * @param channels 	The channels to map.
-     * @param param 	The parameters to create the movie.
+	 * @param channels 	The channels to map.
+	 * @param param 	The parameters to create the movie.
 	 * @param observer	Call-back handler.
 	 * @return See above.
 	 */
@@ -418,7 +419,7 @@ public interface ImageDataView
 	public CallHandle retrieveWorkflows(long userID, AgentEventListener observer);
 	
 	/**
-	 * Store the newly created  workflows.
+	 * Stores the newly created  workflows.
 	 * 
 	 * @param workflows The new workflows.
 	 * @param userID id of the user whose workflows are to be retrieved.
@@ -426,6 +427,17 @@ public interface ImageDataView
 	 * @return See above.
 	 */
 	public CallHandle storeWorkflows(List<WorkflowData> workflows, long userID, 
+			AgentEventListener observer);
+	
+	/**
+	 * Saves the images in the specified folder as JPEG by default.
+	 * 
+	 * @param parameters The parameters used to save locally the images.
+	 *.
+	 * @param observer	Call-back handler.
+	 * @return See above.
+	 */
+	public CallHandle saveAs(SaveAsParam parameters,
 			AgentEventListener observer);
 	
 }

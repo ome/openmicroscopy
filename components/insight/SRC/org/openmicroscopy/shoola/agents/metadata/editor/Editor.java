@@ -456,5 +456,5 @@ public interface Editor
 	 * @param folder The folder to save.
 	 */
 	public void saveAs(File folder);
-    
+
 }

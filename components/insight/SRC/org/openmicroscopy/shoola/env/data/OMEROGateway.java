@@ -55,6 +55,7 @@ import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
+import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.TableParameters;
 import org.openmicroscopy.shoola.env.data.model.TableResult;
@@ -5585,6 +5586,52 @@ class OMEROGateway
 			handleException(e, "Cannot delete the image: "+object.getId());
 		}
 		return new ArrayList<IObject>();
+	}
+	
+	/**
+	 * Creates a movie. Returns the id of the annotation hosting the movie.
+	 * 
+	 * @param imageID 	The id of the image.	
+	 * @param pixelsID	The id of the pixels.
+	 * @param userID	The id of the user.
+     * @param channels 	The channels to map.
+     * @param param 	The parameters to create the movie.
+	 * @return See above.
+	 * @throws DSOutOfServiceException  If the connection is broken, or logged
+	 *                                  in.
+	 * @throws DSAccessException        If an error occurred while trying to 
+	 *                                  retrieve data from OMEDS service.
+	 */
+	ScriptCallback saveAs(long userID, SaveAsParam param)
+		throws DSOutOfServiceException, DSAccessException
+	{
+		isSessionAlive();
+		try {
+			IScriptPrx svc = getScriptService();
+			long id = svc.getScriptID(SaveAsParam.SAVE_AS_SCRIPT);
+			if (id <= 0) return null;
+			List<DataObject> objects = param.getObjects();
+			List<RType> ids = new ArrayList<RType>();
+			Iterator<DataObject> i = objects.iterator();
+			String type = "Image";
+			DataObject data;
+			while (i.hasNext()) {
+				data = i.next();
+				if (data instanceof DatasetData) {
+					type = "Dataset";
+				}
+				ids.add(omero.rtypes.rlong(data.getId()));
+			}
+			Map<String, RType> map = new HashMap<String, RType>();
+			map.put("IDs", omero.rtypes.rlist(ids));
+			map.put("Data_Type", omero.rtypes.rstring(type));
+			map.put("Format", omero.rtypes.rstring(param.getIndexAsString()));
+			return runScript(id, map);
+		} catch (Exception e) {
+			handleException(e, "Cannot saves the mage in: "+
+					param.getFolder().getName());
+		}
+		return null;
 	}
 	
 	/**

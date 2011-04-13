@@ -311,7 +311,7 @@ class EditorControl
 	{
 		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
 		FileChooser chooser = new FileChooser(f, FileChooser.SAVE, 
-				"Save As", "Select where to export the images.",
+				"Save As", "Select where to save locally the images as JPEG.",
 				saveAsFilters);
 		String s = UIUtilities.removeFileExtension(view.getRefObjectName());
 		if (s != null && s.trim().length() > 0) chooser.setSelectedFile(s);

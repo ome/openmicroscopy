@@ -79,6 +79,7 @@ import org.openmicroscopy.shoola.env.data.model.AdminObject;
 import org.openmicroscopy.shoola.env.data.model.DownloadActivityParam;
 import org.openmicroscopy.shoola.env.data.model.DownloadArchivedActivityParam;
 import org.openmicroscopy.shoola.env.data.model.EnumerationObject;
+import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.util.StructuredDataResults;
 import org.openmicroscopy.shoola.env.log.LogMessage;
@@ -2716,6 +2717,40 @@ class EditorModel
 			}
 		}
 		return l; 
+	}
+	
+	/** 
+	 * Saves locally the images as JPEG.
+	 * 
+	 * @param folder The folder where to save the images.
+	 */
+	void saveAs(File folder)
+	{
+		Collection l = parent.getRelatedNodes();
+		List<DataObject> objects = new ArrayList<DataObject>();
+		Object o;
+		if (l != null) {
+			Iterator i = l.iterator();
+			while (i.hasNext()) {
+				o = (Object) i.next();
+				if (o instanceof ImageData || o instanceof DatasetData) {
+					objects.add((DataObject) o);
+				}
+			}
+		}
+		o = getRefObject();
+		if (o instanceof ImageData || o instanceof DatasetData) {
+			objects.add((DataObject) o);
+		}
+		
+		if (objects.size() > 0) {
+			IconManager icons = IconManager.getInstance();
+			SaveAsParam p = new SaveAsParam(folder, objects);
+			p.setIcon(icons.getIcon(IconManager.SAVE_AS_48));
+			UserNotifier un =
+				MetadataViewerAgent.getRegistry().getUserNotifier();
+			un.notifyActivity(p);
+		}
 	}
 	
 }

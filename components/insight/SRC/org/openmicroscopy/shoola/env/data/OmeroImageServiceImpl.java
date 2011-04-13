@@ -65,6 +65,7 @@ import org.openmicroscopy.shoola.env.data.model.MovieExportParam;
 import org.openmicroscopy.shoola.env.data.model.ProjectionParam;
 import org.openmicroscopy.shoola.env.data.model.ROIResult;
 import org.openmicroscopy.shoola.env.data.model.FigureParam;
+import org.openmicroscopy.shoola.env.data.model.SaveAsParam;
 import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.data.model.ThumbnailData;
 import org.openmicroscopy.shoola.env.data.util.ModelMapper;
@@ -1504,6 +1505,24 @@ class OmeroImageServiceImpl
 			}
 		}
 		return m;
+	}
+	
+	/**
+	 * Implemented as specified by {@link OmeroDataService}.
+	 * @see OmeroImageService#saveAs(SaveAsParam)
+	 */
+	public ScriptCallback saveAs(SaveAsParam param)
+		throws DSAccessException, DSOutOfServiceException
+	{
+		if (param == null)
+			throw new IllegalArgumentException("No parameters specified.");
+		List<DataObject> objects = param.getObjects();
+		if (objects == null || objects.size() == 0)
+			throw new IllegalArgumentException("No objects specified.");
+		ExperimenterData exp = (ExperimenterData) context.lookup(
+				LookupNames.CURRENT_USER_DETAILS);
+
+		return gateway.saveAs(exp.getId(), param);
 	}
 	
 }

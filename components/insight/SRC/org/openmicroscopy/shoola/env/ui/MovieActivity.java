@@ -118,4 +118,5 @@ public class MovieActivity
 	 * @see ActivityComponent#notifyActivityError()
 	 */
 	protected void notifyActivityError() {}
+	
 }

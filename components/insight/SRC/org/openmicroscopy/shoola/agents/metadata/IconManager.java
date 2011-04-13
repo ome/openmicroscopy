@@ -539,8 +539,8 @@ public class IconManager
         relPaths[APPLY_22] = "nuvola_apply22.png";
         relPaths[DELETE_22] = "nuvola_cancel22.png";
         relPaths[FLIM_48] = "nuvola_messagebox_info48.png";
-        relPaths[SAVE_AS] = "nuvola_undo16.png";
-        relPaths[SAVE_AS_48] = "nuvola_messagebox_info48.png";
+        relPaths[SAVE_AS] = "download_image16.png";
+        relPaths[SAVE_AS_48] = "download_image48.png";
 	}
    
 	/** The sole instance. */
