@@ -691,8 +691,9 @@ public class RawPixelsBean extends AbstractStatefulBean implements
             return new int[] { 256, 256 };
         }
         return new int[] { pixelsInstance.getSizeX(),
-                (MAXIMUM_BUFFER_SIZE / getByteWidth())
-                / pixelsInstance.getSizeX() };
+                Math.min(pixelsInstance.getSizeY(),
+                         (MAXIMUM_BUFFER_SIZE / getByteWidth())
+                          / pixelsInstance.getSizeX()) };
     }
 
     /* (non-Javadoc)
