@@ -37,7 +37,11 @@
         resources from other builds and jars to be packaged into
         the super jar -->
         <copy todir="${target.dir}/generated-classes">
+            <fileset dir="${nio.comp}/target/classes">
+                <include name="ome/formats/**/*.class"/>
+            </fileset>
             <fileset dir="${blitz.comp}/target/classes">
+                <include name="ome/formats/**/*.class"/>
                 <include name="omero/**/*.class"/>
                 <exclude name="omero/**/_*Tie.class"/>
                 <exclude name="omero/_*Del*.class"/>

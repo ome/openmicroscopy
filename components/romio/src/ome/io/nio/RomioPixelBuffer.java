@@ -21,6 +21,7 @@ import java.util.List;
 
 import ome.conditions.ApiUsageException;
 import ome.model.core.Pixels;
+import ome.util.PixelData;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -314,7 +315,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
          */
 
         MappedByteBuffer b = fileChannel.map(MapMode.READ_ONLY, offset, size);
-        return new PixelData(pixels.getPixelsType(), b);
+        return new PixelData(pixels.getPixelsType().getValue(), b);
     }
     
     /**
@@ -356,7 +357,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
         Integer sizeX = getSizeX();
         Integer colSize = getColSize();
         ByteBuffer buf = ByteBuffer.wrap(new byte[colSize]);
-        PixelData column = new PixelData(pixels.getPixelsType(), buf);
+        PixelData column = new PixelData(pixels.getPixelsType().getValue(), buf);
         int offset;
         double value;
         for (int i = 0; i < sizeY; i++) {
@@ -393,7 +394,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
         Integer sizeY = getSizeY();
         Integer sizeX = getSizeX();
         ByteBuffer buf = ByteBuffer.wrap(buffer);
-        PixelData column = new PixelData(pixels.getPixelsType(), buf);
+        PixelData column = new PixelData(pixels.getPixelsType().getValue(), buf);
         int offset;
         double value;
         for (int i = 0; i < sizeY; i++) {
@@ -487,7 +488,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
     	if (stride == 0) {
     		size =  width*height*getByteWidth();
             buf = ByteBuffer.wrap(new byte[size]);
-            region = new PixelData(pixels.getPixelsType(), buf);
+            region = new PixelData(pixels.getPixelsType().getValue(), buf);
             for (int i = 0; i < height; i++) {
             	for (int j = 0; j < width; j++) {
             		offset = (i+y)*getSizeX()+x+j;
@@ -500,7 +501,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
     	int w = width/stride;
     	size = width*height*getByteWidth()/(stride*stride);
         buf = ByteBuffer.wrap(new byte[size]);
-        region = new PixelData(pixels.getPixelsType(), buf);
+        region = new PixelData(pixels.getPixelsType().getValue(), buf);
     	int k = 0;
     	int l = 0;
     	for (int i = 0; i < height; i = i+stride) {
@@ -744,7 +745,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
      * @see PixelBuffer#getByteWidth()
      */
     public int getByteWidth() {
-        return PixelsService.getBitDepth(pixels.getPixelsType()) / 8;
+        return PixelData.getBitDepth(pixels.getPixelsType().getValue()) / 8;
     }
     
     /**
@@ -753,7 +754,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
 	 */
 	public boolean isSigned()
 	{
-		PixelData d = new PixelData(pixels.getPixelsType(), null);
+		PixelData d = new PixelData(pixels.getPixelsType().getValue(), null);
 		return d.isSigned();
 	}
 	
@@ -763,7 +764,7 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
 	 */
 	public boolean isFloat()
 	{
-		PixelData d = new PixelData(pixels.getPixelsType(), null);
+		PixelData d = new PixelData(pixels.getPixelsType().getValue(), null);
 		return d.isFloat();
 	}
     
@@ -821,5 +822,52 @@ public class RomioPixelBuffer extends AbstractBuffer implements PixelBuffer {
 
     public String getSha1() {
         return pixels.getSha1();
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getTile(java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
+     */
+    public PixelData getTile(Integer z, Integer c, Integer t, Integer x,
+            Integer y, Integer w, Integer h) throws IOException
+    {
+        throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getTileDirect(java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, byte[])
+     */
+    public byte[] getTileDirect(Integer z, Integer c, Integer t, Integer x,
+            Integer y, Integer w, Integer h, byte[] buffer) throws IOException
+    {
+        throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#setTile(byte[], java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
+     */
+    public void setTile(byte[] buffer, Integer z, Integer c, Integer t, Integer x, Integer y,
+            Integer w, Integer h) throws IOException,
+            BufferOverflowException
+    {
+        if (x != 0)
+        {
+            throw new UnsupportedOperationException(
+                    "ROMIO pixel buffer only supports 0 offseted tile writes.");
+        }
+        if (w != getSizeX())
+        {
+            throw new UnsupportedOperationException(
+                    "ROMIO pixel buffer only supports full row writes.");
+        }
+        try
+        {
+            long offset = getPlaneOffset(z, c, t);
+            offset += getByteWidth() * getSizeX() * y;
+            setRegion(buffer.length, offset, buffer);
+        }
+        catch (DimensionsOutOfBoundsException e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 }

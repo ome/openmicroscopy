@@ -42,7 +42,7 @@ public class PixelData {
         PixelBuffer buf = data.getPixelBuffer(meta.retrievePixDescription(pix),
                 null, true);
         try {
-            ome.io.nio.PixelData pd = buf.getRow(y, z, c, t);
+            ome.util.PixelData pd = buf.getRow(y, z, c, t);
             return pd.getPixelValue(x);
         } catch (IOException e) {
             throw new ResourceError("IOException: " + e);

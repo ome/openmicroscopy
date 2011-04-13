@@ -113,7 +113,14 @@ public interface SqlAction {
 
     Map<String, Object> repoFile(long value);
 
-    Long nextPixelsDataLogForRepo(String repo, long lastEventId);
+    /**
+     * Returns an array of longs for the following SQL return values:
+     * <code>experimenter, eventlog, entityid as pixels</code>
+     *
+     * The oldest eventlog with action = "PIXELDATA" and entitytype = "ome.model.core.Pixels"
+     * is found <em>per user</em> and returned.
+     */
+    List<long[]> nextPixelsDataLogForRepo(String repo, long lastEventId);
 
     long countFormat(String name);
 
@@ -316,16 +323,25 @@ public interface SqlAction {
         // FILES
         //
 
-        public Long nextPixelsDataLogForRepo(String repo, long lastEventId) {
+        public List<long[]> nextPixelsDataLogForRepo(String repo, long lastEventId) {
+            final RowMapper<long[]> rm = new RowMapper<long[]>() {
+                public long[] mapRow(ResultSet arg0, int arg1)
+                        throws SQLException {
+                    long[] rv = new long[3];
+                    rv[0] = arg0.getLong(1);
+                    rv[1] = arg0.getLong(2);
+                    rv[2] = arg0.getLong(3);
+                    return rv;
+                }};
             try {
                 if (repo == null) {
-                    return _jdbc().queryForObject(
-                            _lookup("find_next_pixels_data_for_null_repo"), // $NON-NLS-1$
-                            Long.class, lastEventId);
+                    return _jdbc().query(
+                            _lookup("find_next_pixels_data_per_user_for_null_repo"), // $NON-NLS-1$
+                            rm, lastEventId);
                 } else {
-                    return _jdbc().queryForObject(
-                            _lookup("find_next_pixels_data_for_repo"), // $NON-NLS-1$
-                            Long.class, lastEventId, repo);
+                    return _jdbc().query(
+                            _lookup("find_next_pixels_data__per_user_for_repo"), // $NON-NLS-1$
+                            rm, lastEventId, repo);
                 }
             } catch (EmptyResultDataAccessException erdae) {
                 return null;

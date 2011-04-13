@@ -14,7 +14,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 // Application-internal dependencies
-import ome.io.nio.PixelData;
+import ome.util.PixelData;
 import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
 import omeis.providers.re.Renderer;

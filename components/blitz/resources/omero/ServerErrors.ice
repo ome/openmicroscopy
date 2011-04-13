@@ -271,6 +271,11 @@ module omero
     {
     };
 
+  exception MissingPyramidException extends ApiUsageException
+   {
+        long pixelsID;
+   };
+
   exception OverUsageException extends ApiUsageException
     {
     };

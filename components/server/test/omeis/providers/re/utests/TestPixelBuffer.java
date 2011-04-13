@@ -7,7 +7,7 @@ import java.util.List;
 
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
-import ome.io.nio.PixelData;
+import ome.util.PixelData;
 import ome.model.enums.PixelsType;
 
 public class TestPixelBuffer implements PixelBuffer {
@@ -68,7 +68,7 @@ public class TestPixelBuffer implements PixelBuffer {
 	public PixelData getPlane(Integer arg0, Integer arg1, Integer arg2)
 			throws IOException, DimensionsOutOfBoundsException
 	{
-		return new PixelData(pixelsType, ByteBuffer.wrap(dummyPlane));
+		return new PixelData(pixelsType.getValue(), ByteBuffer.wrap(dummyPlane));
 	}
 
 	public byte[] getPlaneDirect(Integer arg0, Integer arg1, Integer arg2,
@@ -302,6 +302,36 @@ public class TestPixelBuffer implements PixelBuffer {
 		// TODO Auto-generated method stub
 		return null;
 	}
-                
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getTile(java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
+     */
+    public PixelData getTile(Integer z, Integer c, Integer t, Integer x,
+            Integer y, Integer w, Integer h) throws IOException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getTileDirect(java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, byte[])
+     */
+    public byte[] getTileDirect(Integer z, Integer c, Integer t, Integer x,
+            Integer y, Integer w, Integer h, byte[] buffer) throws IOException
+    {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#setTile(byte[], java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
+     */
+    public void setTile(byte[] buffer, Integer z, Integer c, Integer t, Integer x, Integer y,
+            Integer w, Integer h) throws IOException,
+            BufferOverflowException
+    {
+        // TODO Auto-generated method stub
+
+    }
 
 }

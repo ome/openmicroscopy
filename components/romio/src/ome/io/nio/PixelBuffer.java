@@ -12,6 +12,8 @@ import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.util.List;
 
+import ome.util.PixelData;
+
 /**
  * 
  * This interface declares the I/O responsibilities of a buffer, file or
@@ -184,6 +186,45 @@ public interface PixelBuffer
     public byte[] getPlaneRegionDirect(Integer z, Integer c, Integer t, 
     		Integer count, Integer offset, byte[] buffer)
     	throws IOException, DimensionsOutOfBoundsException;
+
+    /**
+     * Retrieves a tile from this pixel buffer.
+     * @param z offset across the Z-axis of the pixel buffer.
+     * @param c offset across the C-axis of the pixel buffer.
+     * @param t offset across the T-axis of the pixel buffer.
+     * @param x Top left corner of the tile, X offset.
+     * @param y Top left corner of the tile, Y offset.
+     * @param w Width of the tile.
+     * @param h Height of the tile.
+     * @return buffer containing the data which comprises the region of the
+     * given 2D image plane. It is guaranteed that this buffer will have been
+     * byte swapped.
+     * @throws IOException if there is a problem reading from the pixel buffer.
+     * @see getTileDirect()
+     */
+    public PixelData getTile(Integer z, Integer c, Integer t, Integer x,
+                             Integer y, Integer w, Integer h)
+            throws IOException;
+
+    /**
+     * Retrieves a tile from this pixel buffer.
+     * @param z offset across the Z-axis of the pixel buffer.
+     * @param c offset across the C-axis of the pixel buffer.
+     * @param t offset across the T-axis of the pixel buffer.
+     * @param x Top left corner of the tile, X offset.
+     * @param y Top left corner of the tile, Y offset.
+     * @param w Width of the tile.
+     * @param h Height of the tile.
+     * @param buffer Pre-allocated buffer of the tile's size.
+     * @return <code>buffer</code> containing the data which comprises this
+     * region. It is guaranteed that this buffer will have been byte
+     * swapped. <b>The buffer is essentially directly from disk.</b>
+     * @throws IOException if there is a problem reading from the pixel buffer.
+     * @see getTile()
+     */
+    public byte[] getTileDirect(Integer z, Integer c, Integer t, Integer x,
+                                Integer y, Integer w, Integer h, byte[] buffer)
+            throws IOException;
 
     /**
      * Retrieves a region from this pixel buffer.
@@ -399,6 +440,24 @@ public interface PixelBuffer
      */
     public byte[] getTimepointDirect(Integer t, byte[] buffer) 
     	throws IOException, DimensionsOutOfBoundsException;
+
+    /**
+     * Sets a tile in this pixel buffer.
+     * @param buffer A byte array of the data.
+     * @param z offset across the Z-axis of the pixel buffer.
+     * @param c offset across the C-axis of the pixel buffer.
+     * @param t offset across the T-axis of the pixel buffer.
+     * @param x Top left corner of the tile, X offset.
+     * @param y Top left corner of the tile, Y offset.
+     * @param w Width of the tile.
+     * @param h Height of the tile.
+     * @throws IOException if there is a problem writing to the pixel buffer.
+     * @throws BufferOverflowException if an attempt is made to write off the
+     * end of the file.
+     */
+    public void setTile(byte[] buffer, Integer z, Integer c, Integer t,
+                        Integer x, Integer y, Integer w, Integer h)
+            throws IOException, BufferOverflowException;
 
     /**
      * Sets a region in this pixel buffer.

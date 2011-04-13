@@ -31,7 +31,6 @@ import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
-import ome.io.nio.PyramidPixelBufferProvider;
 import ome.model.IObject;
 import ome.model.core.Pixels;
 import ome.parameters.Parameters;
@@ -60,6 +59,9 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     /** The logger for this particular class */
     private static Log log = LogFactory.getLog(RawPixelsBean.class);
 
+    /** Default maximum buffer size for planar data transfer. (1MB) */
+    public static final int MAXIMUM_BUFFER_SIZE = 1048576;
+
     private static final long serialVersionUID = -6640632220587930165L;
 
     private Long id;
@@ -86,8 +88,8 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     /** Pixels set cache. */
     private transient Map<Long, Pixels> pixelsCache;
 
-    /** Pixel buffer provider for image pyramids. */
-    private transient PyramidPixelBufferProvider pyramidPixelBufferProvider;
+    /** Current resolution level. */
+    private transient int resolutionLevel = 0;
 
     /**
      * default constructor
@@ -116,13 +118,6 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     public final void setPixelsData(PixelsService dataService) {
         getBeanHelper().throwIfAlreadySet(this.dataService, dataService);
         this.dataService = dataService;
-    }
-
-    public final void setPyramidPixelBufferProvider(
-            PyramidPixelBufferProvider pyramidPixelBufferProvider) {
-        getBeanHelper().throwIfAlreadySet(
-                this.pyramidPixelBufferProvider, pyramidPixelBufferProvider);
-        this.pyramidPixelBufferProvider = pyramidPixelBufferProvider;
     }
 
     /**
@@ -224,6 +219,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     }
 
     public void clean() {
+        resolutionLevel = 0;
         dataService = null;
         pixelsInstance = null;
         try {
@@ -261,8 +257,6 @@ public class RawPixelsBean extends AbstractStatefulBean implements
             closePixelBuffer();
             buffer = null;
             reset = null;
-            dataService.setPyramidPixelBufferProvider(
-                    pyramidPixelBufferProvider);
 
             if (pixelsCache != null && pixelsCache.containsKey(pixelsId))
             {
@@ -677,4 +671,98 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     public void setDiskSpaceChecking(boolean diskSpaceChecking) {
         this.diskSpaceChecking = diskSpaceChecking;
     }
+
+    /* (non-Javadoc)
+     * @see ome.api.RawPixelsStore#getResolutionLevels()
+     */
+    @RolesAllowed("user")
+    public int getResolutionLevels()
+    {
+        return 0;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.api.RawPixelsStore#getTileSize()
+     */
+    @RolesAllowed("user")
+    public int[] getTileSize()
+    {
+        if (hasPixelsPyramid())
+        {
+            return new int[] { 256, 256 };
+        }
+        return new int[] { pixelsInstance.getSizeX(),
+                Math.min(pixelsInstance.getSizeY(),
+                         (MAXIMUM_BUFFER_SIZE / getByteWidth())
+                          / pixelsInstance.getSizeX()) };
+    }
+
+    /* (non-Javadoc)
+     * @see ome.api.RawPixelsStore#hasPixelsPyramid()
+     */
+    @RolesAllowed("user")
+    public boolean hasPixelsPyramid()
+    {
+        return dataService.isRequirePyramid(pixelsInstance);
+    }
+
+    /* (non-Javadoc)
+     * @see ome.api.RawPixelsStore#getResolutionLevel()
+     */
+    @RolesAllowed("user")
+    public int getResolutionLevel()
+    {
+        return resolutionLevel;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.api.RawPixelsStore#setResolutionLevel(int)
+     */
+    @RolesAllowed("user")
+    public void setResolutionLevel(int resolutionLevel)
+    {
+        this.resolutionLevel = resolutionLevel;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.api.RawPixelsStore#getTile(int, int, int, int, int, int, int)
+     */
+    @RolesAllowed("user")
+    public byte[] getTile(int z, int c, int t, int x, int y, int w, int h)
+    {
+        errorIfNotLoaded();
+
+        int size = w * h * buffer.getByteWidth();
+        if (readBuffer == null || readBuffer.length != size) {
+            readBuffer = new byte[size];
+        }
+        try {
+            readBuffer = buffer.getTileDirect(z, c, t, x, y, w, h, readBuffer);
+        } catch (Exception e) {
+            handleException(e);
+        }
+        return readBuffer;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.api.RawPixelsStore#setTile(byte[], int, int, int, int, int, int, int)
+     */
+    @RolesAllowed("user")
+    public void setTile(byte[] data, int z, int c, int t, int x, int y,
+            int w, int h)
+    {
+        errorIfNotLoaded();
+
+        if (diskSpaceChecking) {
+            iRepositoryInfo.sanityCheckRepository();
+        }
+
+        try {
+            buffer.setTile(data, z, c, t, x, y, w, h);
+            modified();
+        } catch (Exception e) {
+            handleException(e);
+        }
+    }
+
 }

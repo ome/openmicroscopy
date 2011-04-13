@@ -136,6 +136,9 @@ public class Renderer {
     /** Map of overlays we've currently been told to render. */
     private Map<byte[], Integer> overlays;
 
+    /** Current resolution level. */
+    private int resolutionLevel = 0;
+
     /**
      * Returns a copy of a list of channel bindings with one element removed;
      * the so called "other" channel bindings for the image.
@@ -897,14 +900,22 @@ public class Renderer {
 		QuantumStrategy qs = getQuantumManager().getStrategyFor(w);
 		return qs.getPixelsTypeMax();
 	}
-	
-	/**
-	 * Sets the magnification level.
-	 * 
-	 * @param zoomLevel The value to set.
-	 */
-	public void setZoomLevel(double zoomLevel)
-	{
-		
-	}
+
+    /**
+     * Sets the active resolution level.
+     * @param resolutionLevel The resolution level to be used by the renderer.
+     **/
+    public void setResolutionLevel(int resolutionLevel)
+    {
+        this.resolutionLevel = resolutionLevel;
+    }
+
+    /**
+     * Retrieves the active resolution level.
+     * @return The active resolution level.
+     **/
+    public int getResolutionLevel()
+    {
+        return resolutionLevel;
+    }
 }

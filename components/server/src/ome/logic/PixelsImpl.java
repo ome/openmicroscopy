@@ -31,6 +31,7 @@ import ome.model.enums.PixelsType;
 import ome.model.meta.Session;
 import ome.model.stats.StatsInfo;
 import ome.parameters.Parameters;
+import ome.util.PixelData;
 
 /**
  * implementation of the Pixels service interface.
@@ -321,7 +322,7 @@ public class PixelsImpl extends AbstractLevel2Service implements IPixels {
 
 	@RolesAllowed("user")
 	public int getBitDepth(PixelsType pixelsType) {
-		return PixelsService.getBitDepth(pixelsType);
+		return PixelData.getBitDepth(pixelsType.getValue());
 	}
 
 	@RolesAllowed("user")

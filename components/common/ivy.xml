@@ -11,9 +11,8 @@
   <publications>
     <artifact name="common" type="jar"/>
   </publications>
-  <dependencies>
+  <dependencies defaultconfmapping="build,client,server->default">
     <!-- Internal -->
     <dependency name="model-${omero.db.profile}" rev="${omero.version}" changing="true" conf="build->build;client->client;server->server"/>
-    <!-- Public -->
   </dependencies>
 </ivy-module>

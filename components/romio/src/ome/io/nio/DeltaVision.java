@@ -10,6 +10,7 @@ package ome.io.nio;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
@@ -23,6 +24,7 @@ import java.util.List;
 import ome.conditions.ApiUsageException;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.model.core.OriginalFile;
+import ome.util.PixelData;
 
 /**
  * Class implementation of the PixelBuffer interface for a DeltaVision specific
@@ -216,7 +218,7 @@ public class DeltaVision implements PixelBuffer {
 		ByteBuffer buf = fileChannel.map(MapMode.READ_ONLY, offset, size);
 		if (!header.isNative())
 			buf.order(ByteOrder.LITTLE_ENDIAN);
-		return new PixelData(header.getOmeroPixelType(), buf);
+		return new PixelData(header.getOmeroPixelType().getValue(), buf);
 	}
 	
 	/* (non-Javadoc)
@@ -822,6 +824,34 @@ public class DeltaVision implements PixelBuffer {
     		Integer height, Integer z, Integer c, Integer t, Integer stride)
             throws IOException, DimensionsOutOfBoundsException {
     	return null;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getTile(java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
+     */
+    public PixelData getTile(Integer z, Integer c, Integer t, Integer x,
+            Integer y, Integer w, Integer h) throws IOException
+    {
+        throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getTileDirect(java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, byte[])
+     */
+    public byte[] getTileDirect(Integer z, Integer c, Integer t, Integer x,
+            Integer y, Integer w, Integer h, byte[] buffer) throws IOException
+    {
+        throw new UnsupportedOperationException("Not implemented.");
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#setTile(byte[], java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
+     */
+    public void setTile(byte[] buffer, Integer z, Integer c, Integer t, Integer x, Integer y,
+            Integer w, Integer h) throws IOException,
+            BufferOverflowException
+    {
+        throw new UnsupportedOperationException("Not implemented.");
     }
 	
 }

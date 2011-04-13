@@ -10,10 +10,10 @@
 #define OMERO_API_RENDERINGENGINE_ICE
 
 #include <omero/ModelF.ice>
-#include <omero/ServicesF.ice>
 #include <omero/Collections.ice>
 #include <omero/ROMIO.ice>
 #include <omero/Constants.ice>
+#include <omero/api/PyramidService.ice>
 
 module omero {
 
@@ -22,7 +22,7 @@ module omero {
         /**
          * See <a href="http://hudson.openmicroscopy.org.uk/job/OMERO/javadoc/omeis/re/providers/RenderingEngine.html">RenderingEngine.html</a>
          **/
-        ["ami", "amd"] interface RenderingEngine extends StatefulServiceInterface
+        ["ami", "amd"] interface RenderingEngine extends PyramidService
             {
                 omero::romio::RGBBuffer render(omero::romio::PlaneDef def) throws ServerError;
                 Ice::IntSeq renderAsPackedInt(omero::romio::PlaneDef def) throws ServerError;
@@ -70,8 +70,7 @@ module omero {
                 bool isPixelsTypeSigned() throws ServerError;
                 double getPixelsTypeUpperBound(int w) throws ServerError;
                 double getPixelsTypeLowerBound(int w) throws ServerError;
-                void setZoomLevel(double level) throws ServerError;
-                double getZoomLevel() throws ServerError;
+
             };
 
     };

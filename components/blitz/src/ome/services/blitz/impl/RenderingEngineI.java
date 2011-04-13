@@ -11,9 +11,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.perf4j.StopWatch;
-import org.perf4j.commonslog.CommonsLogStopWatch;
-
 import ome.services.blitz.util.BlitzExecutor;
 import ome.services.blitz.util.ServiceFactoryAware;
 import omeis.providers.re.RenderingEngine;
@@ -38,10 +35,8 @@ import omero.api.AMD_RenderingEngine_getPixelsTypeLowerBound;
 import omero.api.AMD_RenderingEngine_getPixelsTypeUpperBound;
 import omero.api.AMD_RenderingEngine_getQuantumDef;
 import omero.api.AMD_RenderingEngine_getRGBA;
-import omero.api.AMD_RenderingEngine_getZoomLevel;
 import omero.api.AMD_RenderingEngine_isActive;
 import omero.api.AMD_RenderingEngine_isPixelsTypeSigned;
-import omero.api.AMD_RenderingEngine_setOverlays;
 import omero.api.AMD_RenderingEngine_load;
 import omero.api.AMD_RenderingEngine_loadRenderingDef;
 import omero.api.AMD_RenderingEngine_lookupPixels;
@@ -63,15 +58,11 @@ import omero.api.AMD_RenderingEngine_setCompressionLevel;
 import omero.api.AMD_RenderingEngine_setDefaultT;
 import omero.api.AMD_RenderingEngine_setDefaultZ;
 import omero.api.AMD_RenderingEngine_setModel;
+import omero.api.AMD_RenderingEngine_setOverlays;
 import omero.api.AMD_RenderingEngine_setQuantizationMap;
 import omero.api.AMD_RenderingEngine_setQuantumStrategy;
 import omero.api.AMD_RenderingEngine_setRGBA;
-import omero.api.AMD_RenderingEngine_setZoomLevel;
 import omero.api.AMD_RenderingEngine_updateCodomainMap;
-import omero.api.AMD_StatefulServiceInterface_activate;
-import omero.api.AMD_StatefulServiceInterface_close;
-import omero.api.AMD_StatefulServiceInterface_passivate;
-import omero.api.AMD_StatefulServiceInterface_getCurrentEventContext;
 import omero.api.IRoiPrx;
 import omero.api._RenderingEngineOperations;
 import omero.constants.projection.ProjectionType;
@@ -84,6 +75,10 @@ import omero.model.RenderingModel;
 import omero.romio.CodomainMapContext;
 import omero.romio.PlaneDef;
 import omero.util.IceMapper;
+
+import org.perf4j.StopWatch;
+import org.perf4j.commonslog.CommonsLogStopWatch;
+
 import Ice.Current;
 
 /**
@@ -93,7 +88,7 @@ import Ice.Current;
  * @since 3.0-Beta4
  * @see omeis.providers.re.RenderingEngine
  */
-public class RenderingEngineI extends AbstractAmdServant implements
+public class RenderingEngineI extends AbstractPyramidServant implements
         _RenderingEngineOperations, ServiceFactoryAware {
 	
 	private ServiceFactoryI sf;
@@ -450,16 +445,6 @@ public class RenderingEngineI extends AbstractAmdServant implements
             CodomainMapContext mapCtx, Current __current) throws ServerError {
         callInvokerOnRawArgs(__cb, __current, mapCtx);
     }
-    
-    public void setZoomLevel_async(AMD_RenderingEngine_setZoomLevel __cb, 
-    		double zoomLevel,
-            Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current, zoomLevel);
-    }
 
-    public void getZoomLevel_async(AMD_RenderingEngine_getZoomLevel __cb,
-            Current __current) throws ServerError {
-        callInvokerOnRawArgs(__cb, __current);
-    }
 
 }
