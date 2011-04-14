@@ -7,6 +7,7 @@
 
 package ome.io.nio;
 
+import java.awt.Dimension;
 import java.io.IOException;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
@@ -436,5 +437,38 @@ public class InMemoryPlanarPixelBuffer implements PixelBuffer
     {
         throw new UnsupportedOperationException(
             "Not supported with in memory planar buffers.");
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getResolutionLevel()
+     */
+    public int getResolutionLevel()
+    {
+        return 0;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getResolutionLevels()
+     */
+    public int getResolutionLevels()
+    {
+        return 1;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getTileSize()
+     */
+    public Dimension getTileSize()
+    {
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#setResolutionLevel(int)
+     */
+    public void setResolutionLevel(int resolutionLevel)
+    {
+        throw new UnsupportedOperationException(
+                "Cannot set resolution levels on an in memory pixel buffer.");
     }
 }

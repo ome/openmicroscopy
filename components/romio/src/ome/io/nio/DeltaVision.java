@@ -7,6 +7,7 @@
 
 package ome.io.nio;
 
+import java.awt.Dimension;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -853,5 +854,38 @@ public class DeltaVision implements PixelBuffer {
     {
         throw new UnsupportedOperationException("Not implemented.");
     }
-	
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getResolutionLevel()
+     */
+    public int getResolutionLevel()
+    {
+        return 0;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getResolutionLevels()
+     */
+    public int getResolutionLevels()
+    {
+        return 1;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getTileSize()
+     */
+    public Dimension getTileSize()
+    {
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#setResolutionLevel(int)
+     */
+    public void setResolutionLevel(int resolutionLevel)
+    {
+        throw new UnsupportedOperationException(
+                "Cannot set resolution levels on a DeltaVision pixel buffer.");
+    }
+
 }

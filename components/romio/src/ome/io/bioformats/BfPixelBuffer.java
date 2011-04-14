@@ -6,6 +6,7 @@
  */
 package ome.io.bioformats;
 
+import java.awt.Dimension;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.BufferOverflowException;
@@ -17,8 +18,12 @@ import java.util.concurrent.atomic.AtomicReference;
 import loci.formats.FormatException;
 import loci.formats.FormatTools;
 import loci.formats.IFormatReader;
+import loci.formats.in.TiffReader;
+import loci.formats.tiff.IFD;
+import loci.formats.tiff.IFDList;
 import ome.io.nio.DimensionsOutOfBoundsException;
 import ome.io.nio.PixelBuffer;
+import ome.io.nio.PixelBufferException;
 import ome.util.PixelData;
 
 import org.apache.commons.logging.Log;
@@ -62,6 +67,9 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
                 log.error("Failed to instantiate BfPixelsWrapper with " + filePath);
                 throw new RuntimeException(e);
             }
+            // Ensure that we're using the highest resolution level (100%) by
+            // default.
+            setResolutionLevel(getResolutionLevels() - 1);
         }
         return wrapper;
     }
@@ -414,6 +422,70 @@ public class BfPixelBuffer implements PixelBuffer, Serializable {
             BufferOverflowException
     {
         throw new UnsupportedOperationException("Cannot write to repository");
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getResolutionLevel()
+     */
+    public int getResolutionLevel()
+    {
+        // Ensure the reader has been initialized
+        reader();
+        // The highest resolution level (100%) is actually the first series
+        return Math.abs(bfReader.getSeries() - (getResolutionLevels() - 1));
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getResolutionLevels()
+     */
+    public int getResolutionLevels()
+    {
+        // Ensure the reader has been initialized
+        reader();
+        return bfReader.getSeriesCount();
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getTileSize()
+     */
+    public Dimension getTileSize()
+    {
+        // Ensure the reader has been initialized
+        reader();
+        if (bfReader instanceof TiffReader)
+        {
+            TiffReader tiffReader = (TiffReader) bfReader;
+            IFDList ifds = tiffReader.getIFDs();
+            if (ifds.size() == 0)
+            {
+                throw new PixelBufferException("Backing reader has no IFDs!");
+            }
+            IFD firstIFD = ifds.get(0);
+            try
+            {
+                return new Dimension((int) firstIFD.getTileWidth(),
+                                     (int) firstIFD.getTileLength());
+            }
+            catch (FormatException e)
+            {
+                String message = "Error retrieving tile width and height!";
+                log.error(message, e);
+                throw new PixelBufferException(message);
+            }
+        }
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#setResolutionLevel(int)
+     */
+    public void setResolutionLevel(int resolutionLevel)
+    {
+        // Ensure the reader has been initialized
+        reader();
+        // The highest resolution level (100%) is actually the first series
+        bfReader.setSeries(Math.abs(
+                resolutionLevel - (getResolutionLevels() - 1)));
     }
 
 }
