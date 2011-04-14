@@ -7,6 +7,7 @@
 
 package ome.io.nio;
 
+import java.awt.Dimension;
 import java.io.IOException;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
@@ -651,4 +652,33 @@ public interface PixelBuffer
 	 * Delegates to {@link Pixels.getSizeT()}.
 	 */
 	public int getSizeT();
+
+    /**
+     * Retrieves the number of resolution levels that the backing
+     * pixels pyramid contains.
+     * @return The number of resolution levels. This value does not
+     * necessarily indicate either the presence or absence of a
+     * pixels pyramid.
+     **/
+    public int getResolutionLevels();
+
+    /**
+     * Retrieves the active resolution level.
+     * @return The active resolution level.
+     **/
+    public int getResolutionLevel();
+
+    /**
+     * Sets the active resolution level.
+     * @param resolutionLevel The resolution level to be used by
+     * the pixel buffer.
+     **/
+    public void setResolutionLevel(int resolutionLevel);
+
+    /**
+     * Retrieves the tile size for the pixel store.
+     * @return The dimension of the tile or <code>null</code> if the pixel
+     * buffer is not tiled.
+     **/
+    public Dimension getTileSize();
 }

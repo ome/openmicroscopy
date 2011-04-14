@@ -35,10 +35,6 @@ public class BfPixelsWrapper {
 
     private final String path;
 
-    private final int sizeX;
-
-    private final int sizeY;
-
     private final int sizeZ;
 
     private final int sizeC;
@@ -74,9 +70,11 @@ public class BfPixelsWrapper {
 
         /* Get some data that is widely used elsewhere.
          * As there are no setters this is reasonable here.
+         * We are not copying sizeX and sizeY due to the possible change in
+         * resolution level within the Bio-Formats reader.
          */
-        sizeX = reader.getSizeX();
-        sizeY = reader.getSizeY();
+        int sizeX = reader.getSizeX();
+        int sizeY = reader.getSizeY();
         sizeZ = reader.getSizeZ();
         sizeC = reader.getSizeC();
         sizeT = reader.getSizeT();
@@ -112,6 +110,8 @@ public class BfPixelsWrapper {
 
     public void checkBounds(Integer x, Integer y, Integer z, Integer c, Integer t)
             throws DimensionsOutOfBoundsException {
+        int sizeX = reader.getSizeX();
+        int sizeY = reader.getSizeY();
         if (x != null && (x > sizeX - 1 || x < 0)) {
             throw new DimensionsOutOfBoundsException("X '" + x
                     + "' greater than sizeX '" + getSizeX() + "'.");
@@ -178,11 +178,11 @@ public class BfPixelsWrapper {
     }
 
     public int getSizeX() {
-        return sizeX;
+        return reader.getSizeX();
     }
 
     public int getSizeY() {
-        return sizeY;
+        return reader.getSizeY();
     }
 
     public int getSizeZ() {
@@ -269,7 +269,7 @@ public class BfPixelsWrapper {
                 throw new RuntimeException("Buffer size incorrect.");
             byte[] plane = new byte[planeSize];
             getWholePlane(z,c,t,plane);
-            for(int y = 0; y < sizeY; y++) {
+            for(int y = 0; y < reader.getSizeY(); y++) {
                 System.arraycopy(plane, (y*rowSize)+(x*pixelSize),
                     buffer, y*pixelSize, pixelSize);
             }

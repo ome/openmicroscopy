@@ -1358,7 +1358,14 @@ public class RenderingBean implements RenderingEngine, Serializable {
     @RolesAllowed("user")
     public int getResolutionLevels()
     {
-        return 1; // TODO
+        rwl.writeLock().lock();
+
+        try {
+            errorIfInvalidState();
+            return renderer.getResolutionLevels();
+        } finally {
+            rwl.writeLock().unlock();
+        }
     }
 
     /* (non-Javadoc)

@@ -136,9 +136,6 @@ public class Renderer {
     /** Map of overlays we've currently been told to render. */
     private Map<byte[], Integer> overlays;
 
-    /** Current resolution level. */
-    private int resolutionLevel = 0;
-
     /**
      * Returns a copy of a list of channel bindings with one element removed;
      * the so called "other" channel bindings for the image.
@@ -907,7 +904,7 @@ public class Renderer {
      **/
     public void setResolutionLevel(int resolutionLevel)
     {
-        this.resolutionLevel = resolutionLevel;
+        buffer.setResolutionLevel(resolutionLevel);
     }
 
     /**
@@ -916,6 +913,18 @@ public class Renderer {
      **/
     public int getResolutionLevel()
     {
-        return resolutionLevel;
+        return buffer.getResolutionLevel();
+    }
+
+    /**
+     * Retrieves the number of resolution levels that the backing
+     * pixels pyramid contains.
+     * @return The number of resolution levels. This value does not
+     * necessarily indicate either the presence or absence of a
+     * pixels pyramid.
+     **/
+    public int getResolutionLevels()
+    {
+        return buffer.getResolutionLevels();
     }
 }

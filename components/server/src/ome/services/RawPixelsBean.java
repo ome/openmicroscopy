@@ -88,9 +88,6 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     /** Pixels set cache. */
     private transient Map<Long, Pixels> pixelsCache;
 
-    /** Current resolution level. */
-    private transient int resolutionLevel = 0;
-
     /**
      * default constructor
      */
@@ -219,7 +216,6 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     }
 
     public void clean() {
-        resolutionLevel = 0;
         dataService = null;
         pixelsInstance = null;
         try {
@@ -678,7 +674,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     @RolesAllowed("user")
     public int getResolutionLevels()
     {
-        return 0;
+        return buffer.getResolutionLevels();
     }
 
     /* (non-Javadoc)
@@ -714,7 +710,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     @RolesAllowed("user")
     public int getResolutionLevel()
     {
-        return resolutionLevel;
+        return buffer.getResolutionLevel();
     }
 
     /* (non-Javadoc)
@@ -723,7 +719,7 @@ public class RawPixelsBean extends AbstractStatefulBean implements
     @RolesAllowed("user")
     public void setResolutionLevel(int resolutionLevel)
     {
-        this.resolutionLevel = resolutionLevel;
+        buffer.setResolutionLevel(resolutionLevel);
     }
 
     /* (non-Javadoc)

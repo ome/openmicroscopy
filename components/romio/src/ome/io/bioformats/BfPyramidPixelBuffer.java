@@ -6,6 +6,7 @@
  */
 package ome.io.bioformats;
 
+import java.awt.Dimension;
 import java.io.IOException;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
@@ -510,6 +511,8 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      */
     public int getSizeC()
     {
+        // Not delegating due to the timepoint rasterization of dimensions
+        // that's happening below us.
         return pixels.getSizeC();
     }
 
@@ -518,6 +521,8 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      */
     public int getSizeT()
     {
+        // Not delegating due to the timepoint rasterization of dimensions
+        // that's happening below us.
         return pixels.getSizeT();
     }
 
@@ -526,7 +531,14 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      */
     public int getSizeX()
     {
-        return pixels.getSizeX();
+        if (delegate.reader.get() == null)
+        {
+            // The downstream reader has not been initialized, we don't need to
+            // delegate and can't even if we wanted to because no data has
+            // actually been written yet.
+            return pixels.getSizeX();
+        }
+        return delegate.getSizeX();
     }
 
     /* (non-Javadoc)
@@ -534,7 +546,14 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      */
     public int getSizeY()
     {
-        return pixels.getSizeY();
+        if (delegate.reader.get() == null)
+        {
+            // The downstream reader has not been initialized, we don't need to
+            // delegate and can't even if we wanted to because no data has
+            // actually been written yet.
+            return pixels.getSizeY();
+        }
+        return delegate.getSizeY();
     }
 
     /* (non-Javadoc)
@@ -542,6 +561,8 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      */
     public int getSizeZ()
     {
+        // Not delegating due to the timepoint rasterization of dimensions
+        // that's happening below us.
         return pixels.getSizeZ();
     }
 
@@ -758,5 +779,37 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     {
         throw new UnsupportedOperationException(
                 "Non-tile based writing unsupported.");
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getResolutionLevel()
+     */
+    public int getResolutionLevel()
+    {
+        return delegate.getResolutionLevel();
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getResolutionLevels()
+     */
+    public int getResolutionLevels()
+    {
+        return delegate.getResolutionLevels();
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#getTileSize()
+     */
+    public Dimension getTileSize()
+    {
+        return delegate.getTileSize();
+    }
+
+    /* (non-Javadoc)
+     * @see ome.io.nio.PixelBuffer#setResolutionLevel(int)
+     */
+    public void setResolutionLevel(int resolutionLevel)
+    {
+        delegate.setResolutionLevel(resolutionLevel);
     }
 }
