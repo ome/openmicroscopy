@@ -4277,6 +4277,39 @@ class _LightPathWrapper (BlitzObjectWrapper):
         
 LightPathWrapper = _LightPathWrapper
 
+class _PixelsWrapper (BlitzObjectWrapper):
+    """
+    omero_model_PixelsI class wrapper extends BlitzObjectWrapper.
+    """
+    
+    def __bstrap__ (self):
+        self.OMERO_CLASS = 'Pixels'
+    
+    def copyPlaneInfo(self, theC=None, theT=None, theZ=None):
+        """ Loads plane info and returns sequence of omero.model.PlaneInfo objects wrapped in BlitzObjectWrappers """
+        
+        params = omero.sys.Parameters()
+        params.map = {}
+        params.map["pid"] = rlong(self._obj.id)
+        query = "select info from PlaneInfo as info where pixels.id=:pid"
+        if theC != None:
+            params.map["theC"] = rint(theC)
+            query += " and info.theC=:theC"
+        if theT != None:
+            params.map["theT"] = rint(theT)
+            query += " and info.theT=:theT"
+        if theZ != None:
+            params.map["theZ"] = rint(theZ)
+            query += " and info.theZ=:theZ"
+        query += " order by info.deltaT"
+        queryService = self._conn.getQueryService()
+        result = queryService.findAllByQuery(query, params)
+        for pi in result:
+            yield BlitzObjectWrapper(self._conn, pi)
+
+PixelsWrapper = _PixelsWrapper
+
+
 class _ChannelWrapper (BlitzObjectWrapper):
     """
     omero_model_ChannelI class wrapper extends BlitzObjectWrapper.
@@ -5037,6 +5070,13 @@ class _ImageWrapper (BlitzObjectWrapper):
         else:
             return (0, pmax-1)
 
+    @assert_pixels
+    def getPrimaryPixels (self):
+        """
+        Loads pixels and returns object in a L{PixelsWrapper}
+        """
+        return PixelsWrapper(self._conn, self._obj.getPrimaryPixels())
+
     @assert_re
     def getChannels (self):
         """
@@ -5502,7 +5542,7 @@ class _ImageWrapper (BlitzObjectWrapper):
         ca['font'] = font
         logger.debug(ca)
         try:
-            fn = os.path.abspath(makemovie.buildMovie(ca, self._conn.c.getSession(), self, self.getPrimaryPixels(), recb))
+            fn = os.path.abspath(makemovie.buildMovie(ca, self._conn.c.getSession(), self, self.getPrimaryPixels()._obj, recb))
         except:
             logger.error(traceback.format_exc())
             raise
