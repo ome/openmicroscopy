@@ -59,12 +59,19 @@ class PixelsTest (lib.GTest):
         # get 70 planes, new RawPixelsStore created and closed each plane = 5.9151828289 secs
         # get 70 planes, one RawPixelsStore created and closed = 3.99837493896 secs
 
+        # test getPlanes()
         planes = pixels.getPlanes(zStop=sizeZ, cStop=sizeC, tStop=sizeT)  # get all planes
         planeList = list(planes)
         self.assertEqual(len(planeList), sizeZ*sizeC*sizeT)
 
         planeList = list(pixels.getPlanes())
         self.assertEqual(len(planeList), 1)
+
+        # test getPlane() which returns a single plane
+        lastPlane = pixels.getPlane(sizeZ-1, sizeC-1, sizeT-1)
+        plane = pixels.getPlane()   # default is (0,0,0)
+        firstPlane = pixels.getPlane(0,0,0)
+        self.assertEqual(plane[0][0], firstPlane[0][0])
 
 if __name__ == '__main__':
     unittest.main()
