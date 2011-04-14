@@ -199,7 +199,9 @@ class ImporterUIElement
 			bus.post(new BrowseContainer(data, node));
 		} else if (data instanceof FileImportComponent) {
 			FileImportComponent fc = (FileImportComponent) data;
-			bus.post(new BrowseContainer(fc.getContainerFromFolder(), node));
+			if (fc.getContainerFromFolder() != null)
+				bus.post(new BrowseContainer(fc.getContainerFromFolder(), 
+						node));
 		}
 	}
 	
