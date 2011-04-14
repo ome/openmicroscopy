@@ -2,91 +2,95 @@
 {% load markup %}
 {% load custom_tags %}
 {% load wikitags %}
-	
+    
     <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.selectable.js" %}"></script>
     
     <script type="text/javascript">
         $(document).ready(function(){
             $("ul#dataIcons").selectable({
                 filter: 'li',
-            	stop: function(){
-            		var l = $('li.ui-selected img', this).length;
-            		var ro = 0;
-            		var eo = 0;
-            		$("li.ui-selected input", this).each(function(){
-            		    if($(this).parents('li:first').attr('class').indexOf("readonly") == 0) {
-                            ro++;
-                		} else if($(this).parents('li:first').attr('class').indexOf("editonly") == 0) {
-                            eo++;
-                   		}
-                   		this.checked = true;
-            		});
-            		if (l == 1) { 
-            		    var rel = $("div#content_details").attr('rel');
-            		    if(ro > 0) {
-            		        $("#toolbar").html('<input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">');
-            		    } else if(eo > 0) {
-                            $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/block.png" %}" alt="Delete" title="Delete" onclick="manyDelete();" /> <input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">');
-                		} else {
-            		        if(rel=='orphaned') {
-                                $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" onclick="manyCopyToClipboard();"> <input class="button" type="image" src="{% url webstatic "images/block.png" %}" alt="Delete" title="Delete" onclick="manyDelete();" /> <input class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket" title="Add to basket" onclick="manyAddToBasket();"> <input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">');
-                            } else {
-                                $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" onclick="manyCopyToClipboard();"> <input class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Unlink" title="Unlink" onclick="manyUnlink(\'dataset-{{ manager.dataset.id }}\');"> <input class="button" type="image" src="{% url webstatic "images/block.png" %}" alt="Delete" title="Delete" onclick="manyDelete();" /> <input class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket" title="Add to basket" onclick="manyAddToBasket();"> <input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">');
-                		    }
-            		    }
-            		    
-            		    $("#right_panel").show();
-                        $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
-            		    $('li.ui-selected img', this).each(function(){  
-            		        var h = $(window).height()-169;
-                		    $("div#metadata_details").html('<iframe width="370" height="'+h+'" src="/webclient/metadata_details/image/'+this.id+'/" id="metadata_details" name="metadata_details"></iframe>');
-                            $('iframe#metadata_details').load();
-                        });
-            		} else {
-            		    var rel = $("div#content_details").attr('rel');
-            		    
-            		    if(ro > 0) {
-                            $("#toolbar").html('<input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">');
-                            $("#right_panel").show();
+                stop: function(){
+                    // check all the input check-boxes
+                    $("li.ui-selected input", this).each(function(){
+                           this.checked = true;
+                    });
+                    var rel = $("div#content_details").attr('rel');
+                    
+                    // update toolbars (same regardless of whether 1 or more items selected)
+                    var readOnly = $('li.ui-selected.readonly').length;
+                    var editOnly = $('li.ui-selected.editonly').length
+                    
+                    // hide all buttons, only show correct ones
+                    $(".toolBtn").hide();
+                    $('#tableBtn').show();  // always show table btn. 
+                    if (readOnly > 0) {}
+                    else if (editOnly > 0) {
+                        $('#deleteBtn').show();
+                    }
+                    else {
+                        if(rel!='orphaned') {
+                            $('#unlinkBtn').show();
+                        }
+                        $('#deleteBtn').show();
+                        $('#copyBtn').show();
+                        $('#basketBtn').show();
+                    }
+
+                    // update metadata panel
+                    $("#right_panel").show();
+                    
+                    // if one image selected...
+                    var l = $('li.ui-selected img', this).length;
+                    if (l == 1) {
+                        var h = $(window).height()-169;
+                        var imageId = parseInt( $('li.ui-selected img').attr('id') );
+                        $("div#metadata_details").html('<iframe width="370" height="'+h+'" src="/webclient/metadata_details/image/'+imageId+'/" id="metadata_details" name="metadata_details"></iframe>');
+                        $('iframe#metadata_details').load();
+                    }
+                    // if multi-selected...
+                    else if (l > 1) {
+                        if ((readOnly > 0) || (editOnly > 0)) {
                             {% if not eContext.isReadOnly %}
                                 manyToAnnotation();
                             {% else %}
                                 $("div#metadata_details").html('<p>{% trans "This is read-only group." %}</p>');
                             {% endif %}
-                        } else if (eo > 0){
-                            $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/block.png" %}" alt="Delete" title="Delete" onclick="manyDelete();" /> <input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">');
-                            $("#right_panel").show();
-                            {% if not eContext.isReadOnly %}
-                                manyToAnnotation();
-                            {% else %}
-                                $("div#metadata_details").html('<p>{% trans "This is read-only group." %}</p>');
-                            {% endif %}
-                        } else {
-                            if(rel=='orphaned') {
-                                $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" onclick="manyCopyToClipboard();"> <input class="button" type="image" src="{% url webstatic "images/block.png" %}" alt="Delete" title="Delete" onclick="manyDelete();" /> <input class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket" title="Add to basket" onclick="manyAddToBasket();"> <input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">');
-                            } else {
-                                $("#toolbar").html('<input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" onclick="manyCopyToClipboard();"> <input class="button" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Unlink" title="Unlink" onclick="manyUnlink(\'dataset-{{ manager.dataset.id }}\');"> <input class="button" type="image" src="{% url webstatic "images/block.png" %}" alt="Delete" title="Delete" onclick="manyDelete();" /> <input class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket" title="Add to basket" onclick="manyAddToBasket();"> <input onclick="changeView(\'table\');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">');
-                            }
-                            $("#right_panel").show();
+                        }
+                        else {
                             manyToAnnotation();
                         }
-            		}
-            	},
-            	start: function(){
-            		$("li input", this).each(function(){
-            			this.checked = false;
-            		});
-            	}
+                    }
+                },
+                start: function(){
+                    $("li input", this).each(function(){
+                        this.checked = false;
+                    });
+                }
             });            
         });
         
     </script>
 
+    <style type="text/css">
+        
+        .toolBtn {
+            display: none;
+            border: 0 none;
+        }
+        #tableBtn {
+            display: inline;
+        }
+    </style>
+    
 {% if manager.containers.images %}
 
     <div id="toolbar" class="toolbar_noborder">
-        <input onclick="changeView('table');" class="button align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table">
-    </div>
+        <!-- toolbar buttons hidden initially - shown depending on selection -->
+        <input id='copyBtn' class="toolBtn" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" onclick="manyCopyToClipboard();">
+        <input id='unlinkBtn' class="toolBtn" type="image" src="{% url webstatic "images/cut16.png" %}" alt="Unlink" title="Unlink" onclick="manyUnlink('dataset-{{ manager.dataset.id }}');">
+        <input id='deleteBtn' class="toolBtn" type="image" src="{% url webstatic "images/block.png" %}" alt="Delete" title="Delete" onclick="manyDelete();" />
+        <input id='basketBtn' class="toolBtn" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket" title="Add to basket" onclick="manyAddToBasket();">
+        <input id='tableBtn' onclick="changeView('table');" class="toolBtn align_right" type="image" src="{% url webstatic "images/view_detailed16.png" %}" alt="Change view to table" title="Change view to table"></div>
     <div class="clear"> </div>
         
     <ul id="dataIcons">
