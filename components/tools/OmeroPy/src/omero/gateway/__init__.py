@@ -4284,8 +4284,23 @@ class _PixelsWrapper (BlitzObjectWrapper):
     
     def __bstrap__ (self):
         self.OMERO_CLASS = 'Pixels'
-    
-    def copyPlaneInfo(self, theC=None, theT=None, theZ=None):
+
+    def _prepareRawPixelsStore(self):
+        """
+        Creates RawPixelsStore and sets the id etc
+        """
+        ps = self._conn.createRawPixelsStore()
+        ps.setPixelsId(self._obj.id.val, True)
+        return ps
+
+    def getPixelsType (self):
+        """
+        This simply wraps the PixelsType object in a BlitzObjectWrapper.
+        Shouldn't be needed when this is done automatically
+        """
+        return BlitzObjectWrapper(self._conn, self._obj.getPixelsType())
+
+    def copyPlaneInfo (self, theC=None, theT=None, theZ=None):
         """ Loads plane info and returns sequence of omero.model.PlaneInfo objects wrapped in BlitzObjectWrappers """
         
         params = omero.sys.Parameters()
@@ -4306,6 +4321,51 @@ class _PixelsWrapper (BlitzObjectWrapper):
         result = queryService.findAllByQuery(query, params)
         for pi in result:
             yield BlitzObjectWrapper(self._conn, pi)
+
+    def getPlanes (self, zStart=0, zStop=None, cStart=0, cStop=None, tStart=0, tStop=None):
+        """
+        Returns numpy 2D planes for the Z, C, T indexes in the ranges zStart -> zStop, cStart -> cStop, tStart -> tStop etc.
+        If you don't need a range of indexes in any particular dimension, use the Start index only.
+        E.g. to get a range of Z planes for a single channel (at t=0) do getPlanes(zStart=0, zEnd=sizeZ, cStart=1)
+        getPlanes() will give you a single plane a 0, 0, 0.
+        Returns a generator of numpy 2D planes, iterating through Z, then T, then C
+        """
+
+        from numpy import array, int8, uint8, int16, uint16, int32, uint32, float, double
+        from struct import unpack
+
+        zStop = zStop != None and zStop or zStart+1
+        cStop = cStop != None and cStop or cStart+1
+        tStop = tStop != None and tStop or tStart+1
+
+        pixelTypes = {"int8":['b',int8],
+                "uint8":['B',uint8],
+                "int16":['h',int16],
+                "uint16":['H',uint16],
+                "int32":['i',int32],
+                "uint32":['I',uint32],
+                "float":['f',float],
+                "double":['d', double]}
+
+        rawPixelsStore = self._prepareRawPixelsStore()
+        sizeX = self.sizeX
+        sizeY = self.sizeY
+        pixelType = self.getPixelsType().value
+        convertType ='>%d%s' % ((sizeX*sizeY), pixelTypes[pixelType][0])  #+str(sizeX*sizeY)+pythonTypes[pixelType]
+        numpyType = pixelTypes[pixelType][1]
+        try:
+            for z in range(zStart, zStop):
+                 for c in range(cStart, cStop):
+                     for t in range(tStart, tStop):
+                        rawPlane = rawPixelsStore.getPlane(z, c, t)
+                        convertedPlane = unpack(convertType, rawPlane)
+                        remappedPlane = array(convertedPlane, numpyType)
+                        remappedPlane.resize(sizeY, sizeX)
+                        yield remappedPlane
+        except:
+            raise RuntimeError("Cannot retrieve the plane z: %s, c: %s, t: %s for pixels ID: %s" % (z, c, t, self._obj.id.val))
+        finally:
+            rawPixelsStore.close()
 
 PixelsWrapper = _PixelsWrapper
 
