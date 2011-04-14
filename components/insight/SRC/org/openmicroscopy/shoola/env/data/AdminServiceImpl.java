@@ -530,9 +530,10 @@ class AdminServiceImpl
 		l = new HashMap<ExperimenterData, Exception>();
 		List<Experimenter> ownersToAdd = new ArrayList<Experimenter>();
 		List<Experimenter> ownersToRemove = new ArrayList<Experimenter>();
-		List<Experimenter> administratorsToAdd = new ArrayList<Experimenter>();
-		List<Experimenter> 
-		administratorsToRemove = new ArrayList<Experimenter>();
+		List<ExperimenterData> administratorsToAdd = 
+			new ArrayList<ExperimenterData>();
+		List<ExperimenterData> 
+		administratorsToRemove = new ArrayList<ExperimenterData>();
 		List<ExperimenterData> toActivate = new ArrayList<ExperimenterData>();
 		List<ExperimenterData> toDeactivate = new ArrayList<ExperimenterData>();
 		
@@ -556,8 +557,8 @@ class AdminServiceImpl
 				b = uc.isAdministrator();
 				if (b != null) {
 					if (b.booleanValue()) 
-						administratorsToAdd.add(exp.asExperimenter());
-					else administratorsToRemove.add(exp.asExperimenter());
+						administratorsToAdd.add(exp);
+					else administratorsToRemove.add(exp);
 				}
 				b = uc.isActive();
 				if (b != null) {
@@ -590,6 +591,13 @@ class AdminServiceImpl
 		if (toDeactivate.size() > 0)
 			gateway.modifyExperimentersRoles(false, toDeactivate, 
 					GroupData.USER);
+		if (administratorsToAdd.size() > 0)
+			gateway.modifyExperimentersRoles(true, administratorsToAdd, 
+					GroupData.SYSTEM);
+		if (administratorsToRemove.size() > 0)
+			gateway.modifyExperimentersRoles(false, administratorsToRemove, 
+					GroupData.SYSTEM);
+
 		return l;
 	}
 

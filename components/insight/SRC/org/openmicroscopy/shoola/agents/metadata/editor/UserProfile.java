@@ -358,7 +358,10 @@ class UserProfile
 			active = user.isActive();
 			activeBox.setSelected(active);
 			activeBox.addChangeListener(this);
-			admin = false;
+			//indicate if the user is an administrator.a
+			admin = isUserAdministrator();
+			adminBox.setSelected(admin);
+			//admin = false;
 		} else {
 			passwordConfirm.getDocument().addDocumentListener(
 					new DocumentListener() {
@@ -437,6 +440,28 @@ class UserProfile
 		}
     }
     
+    /**
+     * Returns <code>true</code> if the user is an administrator, 
+     * <code>false</code> otherwise.
+     * 
+     * @return See above.
+     */
+    private boolean isUserAdministrator()
+    {
+    	ExperimenterData user = (ExperimenterData) model.getRefObject();
+    	ExperimenterData loggedInUser = MetadataViewerAgent.getUserDetails();
+    	if (user.getId() == loggedInUser.getId())
+    		return MetadataViewerAgent.isAdministrator();
+    	List<GroupData> groups = user.getGroups();
+    	Iterator<GroupData> i = groups.iterator();
+    	GroupData g;
+    	while (i.hasNext()) {
+			g = i.next();
+			if (GroupData.SYSTEM.equals(g.getName()))
+				return true;
+		}
+    	return false;
+    }
     /**
      * Sets the enabled flag of some password controls depending on the
      * text entered.

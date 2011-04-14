@@ -3912,7 +3912,6 @@ class OMEROGateway
 				while (i.hasNext()) {
 					exp = i.next();
 					list = exp.getGroups();
-					
 					j = list.iterator();
 					while (j.hasNext()) {
 						group = j.next();
