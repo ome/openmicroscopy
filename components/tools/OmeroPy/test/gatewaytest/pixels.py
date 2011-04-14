@@ -40,6 +40,31 @@ class PixelsTest (lib.GTest):
             self.assertEqual(p.theZ, 1)
             self.assertEqual(p.theT, 0)
 
+    def testPixelsType(self):
+        image = self.TESTIMG
+        pixels = image.getPrimaryPixels()
+
+        pixelsType = pixels.getPixelsType()
+        self.assertEqual(pixelsType.value, 'int16')
+        self.assertEqual(pixelsType.bitSize, 16)
+
+    def testGetPlane(self):
+        image = self.TESTIMG
+        pixels = image.getPrimaryPixels()
+
+        sizeZ = image.z_count()
+        sizeC = image.c_count()
+        sizeT = image.t_count()
+
+        # get 70 planes, new RawPixelsStore created and closed each plane = 5.9151828289 secs
+        # get 70 planes, one RawPixelsStore created and closed = 3.99837493896 secs
+
+        planes = pixels.getPlanes(zStop=sizeZ, cStop=sizeC, tStop=sizeT)  # get all planes
+        planeList = list(planes)
+        self.assertEqual(len(planeList), sizeZ*sizeC*sizeT)
+
+        planeList = list(pixels.getPlanes())
+        self.assertEqual(len(planeList), 1)
 
 if __name__ == '__main__':
     unittest.main()
