@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.env.ui;
 //Java imports
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Iterator;
@@ -98,6 +99,24 @@ public class UserNotifierImpl
     /** The dialog displaying the progress of the save. */
     private ChangesDialog			dialog;
     
+	/**
+	 * Returns <code>true</code> if it is possible to write in the folder,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param folder The folder to handle.
+	 * @return See above.
+	 */
+	private boolean canWriteInFolder(File folder)
+	{
+		if (!folder.canWrite()) {
+			notifyInfo("Download file", 
+					"The selected folder is write protected.\nPlease" +
+					" select a different one.");
+			return false;
+		}
+		return true;
+	}
+	
     /**
 	 * Utility method to print the error message
 	 * 
@@ -321,7 +340,7 @@ public class UserNotifierImpl
 		d.setComment(comment);
 		UIUtilities.centerAndShow(d);
 	}
-
+	
 	/** 
 	 * Implemented as specified by {@link UserNotifier}. 
 	 * @see UserNotifier#notifyActivity(Object)
@@ -340,6 +359,10 @@ public class UserNotifierImpl
 		} else if (activity instanceof DownloadActivityParam) {
 			DownloadActivityParam p = (DownloadActivityParam) activity;
 			register = (p.getApplicationData() == null);
+			if (register) {
+				if (!canWriteInFolder(p.getFolder()))
+					return;
+			}
 			comp = new DownloadActivity(this, manager.getRegistry(), p);
 		} else if (activity instanceof FigureActivityParam) {
 			FigureActivityParam p = (FigureActivityParam) activity;
@@ -365,9 +388,13 @@ public class UserNotifierImpl
 			comp = new OpenObjectActivity(this, manager.getRegistry(), p);
 		} else if (activity instanceof DownloadAndZipParam) {
 			DownloadAndZipParam p = (DownloadAndZipParam) activity;
+			if (!canWriteInFolder(p.getFolder()))
+				return;
 			comp = new DownloadAndZipActivity(this, manager.getRegistry(), p);
 		} else if (activity instanceof SaveAsParam) {
 			SaveAsParam p = (SaveAsParam) activity;
+			if (!canWriteInFolder(p.getFolder()))
+				return;
 			comp = new SaveAsActivity(this, manager.getRegistry(), p);
 		}
 		if (comp != null) {
