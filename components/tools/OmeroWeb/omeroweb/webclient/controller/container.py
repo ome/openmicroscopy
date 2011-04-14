@@ -37,6 +37,7 @@ class BaseContainer(BaseController):
     well = None
     image = None
     tag = None
+    file = None
     comment = None
     tags = None
     
@@ -52,59 +53,81 @@ class BaseContainer(BaseController):
     
     orphaned = False
     
-    def __init__(self, conn, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, tag=None, index=None, **kwargs):
+    def __init__(self, conn, project=None, dataset=None, image=None, screen=None, plate=None, well=None, tag=None, file=None, comment=None, annotation=None, index=None, orphaned=None, **kw):
         BaseController.__init__(self, conn)
-        if o1_type == "project":
-            self.project = self.conn.getObject("Project", o1_id)
+        if project is not None:
+            self.project = self.conn.getObject("Project", project)
             if self.project is None:
-                raise AttributeError("We are sorry, but that project (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
+                raise AttributeError("We are sorry, but that project (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(project))
             if self.project._obj is None:
-                raise AttributeError("We are sorry, but that project (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
-            if o2_type == "dataset":
-                self.dataset = self.conn.getObject("Dataset", o2_id)
+                raise AttributeError("We are sorry, but that project (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(project))
+            if dataset is not None:
+                self.dataset = self.conn.getObject("Dataset", dataset)
                 if self.dataset is None:
-                    raise AttributeError("We are sorry, but that dataset (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o2_id))
+                    raise AttributeError("We are sorry, but that dataset (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(dataset))
                 if self.dataset._obj is None:
-                    raise AttributeError("We are sorry, but that dataset (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o2_id))
-        elif o1_type == "screen":
-            self.screen = self.conn.getObject("Screen", o1_id)
+                    raise AttributeError("We are sorry, but that dataset (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(dataset))
+        elif screen is not None:
+            self.screen = self.conn.getObject("Screen", screen)
             if self.screen is None:
-                raise AttributeError("We are sorry, but that screen (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
+                raise AttributeError("We are sorry, but that screen (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(screen))
             if self.screen._obj is None:
-                raise AttributeError("We are sorry, but that screen (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
-            if o2_type == "plate":
-                self.plate = self.conn.getObject("Plate", o2_id)
+                raise AttributeError("We are sorry, but that screen (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(screen))
+            if plate is not None:
+                self.plate = self.conn.getObject("Plate", plate)
                 if self.plate is None:
-                    raise AttributeError("We are sorry, but that plate (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o2_id))
+                    raise AttributeError("We are sorry, but that plate (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(plate))
                 if self.plate._obj is None:
-                    raise AttributeError("We are sorry, but that plate (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o2_id)) 
-        elif o1_type == "plate":
-            self.plate = self.conn.getObject("Plate", o1_id)
+                    raise AttributeError("We are sorry, but that plate (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(plate)) 
+        elif plate is not None:
+            self.plate = self.conn.getObject("Plate", plate)
             if self.plate is None:
-                raise AttributeError("We are sorry, but that plate (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
+                raise AttributeError("We are sorry, but that plate (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(plate))
             if self.plate._obj is None:
-                raise AttributeError("We are sorry, but that plate (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))  
-        elif o1_type == "dataset":
-            self.dataset = self.conn.getObject("Dataset", o1_id)
+                raise AttributeError("We are sorry, but that plate (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(plate))  
+        elif dataset is not None:
+            self.dataset = self.conn.getObject("Dataset", dataset)
             if self.dataset is None:
-                raise AttributeError("We are sorry, but that dataset (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
+                raise AttributeError("We are sorry, but that dataset (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(dataset))
             if self.dataset._obj is None:
-                raise AttributeError("We are sorry, but that dataset (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
-        elif o1_type == "image":
-            self.image = self.conn.getObject("Image", o1_id)
+                raise AttributeError("We are sorry, but that dataset (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(dataset))
+        elif image is not None:
+            self.image = self.conn.getObject("Image", image)
             if self.image is None:
-                raise AttributeError("We are sorry, but that image (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
+                raise AttributeError("We are sorry, but that image (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(image))
             if self.image._obj is None:
-                raise AttributeError("We are sorry, but that image (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
-        elif o1_type == "well":
-            self.well = self.conn.getWell(o1_id, index)
+                raise AttributeError("We are sorry, but that image (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(image))
+        elif well is not None:
+            self.well = self.conn.getWell(well, index)
             if self.well is None:
-                raise AttributeError("We are sorry, but that well (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
+                raise AttributeError("We are sorry, but that well (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(well))
             if self.well._obj is None:
-                raise AttributeError("We are sorry, but that well (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(o1_id))
-        elif o1_type == "tag" and o1_id is not None:
-            self.tag = self.conn.getObject("Annotation", o1_id)
-        elif o1_type == "orphaned":
+                raise AttributeError("We are sorry, but that well (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(well))
+        elif tag is not None:
+            self.tag = self.conn.getObject("Annotation", tag)
+            if self.tag is None:
+                raise AttributeError("We are sorry, but that tag (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(tag))
+            if self.tag._obj is None:
+                raise AttributeError("We are sorry, but that tag (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(tag))
+        elif comment is not None:
+            self.comment = self.conn.getObject("Annotation", comment)
+            if self.comment is None:
+                raise AttributeError("We are sorry, but that comment (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(comment))
+            if self.comment._obj is None:
+                raise AttributeError("We are sorry, but that comment (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(comment))
+        elif file is not None:
+            self.file = self.conn.getObject("Annotation", file)
+            if self.file is None:
+                raise AttributeError("We are sorry, but that file (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(file))
+            if self.file._obj is None:
+                raise AttributeError("We are sorry, but that file (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(file))
+        elif annotation is not None:
+            self.annotation = self.conn.getObject("Annotation", annotation)
+            if self.annotation is None:
+                raise AttributeError("We are sorry, but that annotation (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(annotation))
+            if self.annotation._obj is None:
+                raise AttributeError("We are sorry, but that annotation (id:%s) does not exist, or if it does, you have no permission to see it.  Contact the user you think might share that data with you." % str(annotation))
+        elif orphaned:
             self.orphaned = True
     
     def formatMetadataLine(self, l):
@@ -635,7 +658,6 @@ class BaseContainer(BaseController):
         new_links = list() 
         for k in oids.keys():                
             if len(oids[k]) > 0:
-                #listing = getattr(self.conn, "get"+k.lower().title()+"sById")
                 for ob in self.conn.getObjects(k.lower().title(), oids[k]):
                     if isinstance(ob._obj, omero.model.WellI):
                         t = 'Image'
@@ -666,7 +688,7 @@ class BaseContainer(BaseController):
         new_links = list()
         for k in oids:
             if len(oids[k]) > 0:
-                for ob in self.conn.getObjects("Annotation", oids[k]):
+                for ob in self.conn.getObjects(k.lower().title(), oids[k]):
                     if isinstance(ob._obj, omero.model.WellI):
                         t = 'Image'
                         obj = ob.selectedWellSample().image()
@@ -703,7 +725,7 @@ class BaseContainer(BaseController):
         new_links = list()
         for k in oids:
             if len(oids[k]) > 0:
-                for ob in self.conn.getObjects("Annotation", oids[k]):
+                for ob in self.conn.getObjects(k.lower().title(), oids[k]):
                     if isinstance(ob._obj, omero.model.WellI):
                         t = 'Image'
                         obj = ob.selectedWellSample().image()
@@ -842,6 +864,20 @@ class BaseContainer(BaseController):
             container.description = None
         self.conn.saveObject(container)
     
+    def saveCommentAnnotation(self, content):
+        ann = self.comment._obj
+        ann.textValue = rstring(str(content))
+        self.conn.saveObject(ann)
+    
+    def saveTagAnnotation(self, tag, description):
+        ann = self.tag._obj
+        ann.textValue = rstring(str(tag))
+        if description != "" :
+            ann.description = rstring(str(description))
+        else:
+            ann.description = None
+        self.conn.saveObject(ann)
+    
     def move(self, parent, destination):
         if self.project is not None:
             return 'Cannot move project.'
@@ -976,7 +1012,20 @@ class BaseContainer(BaseController):
         return 
     
     def remove(self, parent):
-        if self.dataset is not None:
+        if self.tag:
+            for al in self.tag.getParentLinks(str(parent[0]), [long(parent[1])]):
+                if al is not None:
+                    self.conn.deleteObject(al._obj)
+        elif self.file:
+            for al in self.file.getParentLinks(str(parent[0]), [long(parent[1])]):
+                if al is not None:
+                    self.conn.deleteObject(al._obj)
+        elif self.comment:
+            for al in self.comment.getParentLinks(str(parent[0]), [long(parent[1])]):
+                if al is not None:
+                    self.conn.deleteObject(al._obj)
+        
+        elif self.dataset is not None:
             if parent[0] == 'pr':
                 for pdl in self.dataset.getParentLinks([parent[1]]):
                     if pdl is not None:
@@ -1104,6 +1153,12 @@ class BaseContainer(BaseController):
             handle = self.conn.deleteScreen(self.screen.id, child, anns)
         elif self.plate:
             handle = self.conn.deletePlate(self.plate.id, anns)
+        elif self.comment:
+            handle = self.conn.deleteAnnotation(self.comment.id)
+        elif self.tag:
+            handle = self.conn.deleteAnnotation(self.tag.id)
+        elif self.file:
+            handle = self.conn.deleteAnnotation(self.file.id)
         return handle
     
     def deleteImages(self, ids, anns=False):

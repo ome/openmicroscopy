@@ -78,9 +78,10 @@ class ShareForm(forms.Form):
     #guests = MultiEmailField(required=False, widget=forms.TextInput(attrs={'size':75}))
 
     def clean_expiration(self):
-        da = self.cleaned_data['expiration'].encode('utf-8')
-        if da is not None and da != "":
-            d = da.rsplit("-")
+        if self.cleaned_data['expiration'] is not None and len(self.cleaned_data['expiration']) < 1:
+            return None
+        if self.cleaned_data['expiration'] is not None:
+            d = str(self.cleaned_data['expiration']).rsplit("-")
             # only for python 2.5
             # date = datetime.datetime.strptime(("%s-%s-%s" % (d[0],d[1],d[2])), "%Y-%m-%d")
             try:
@@ -89,7 +90,8 @@ class ShareForm(forms.Form):
                 raise forms.ValidationError('Date is in the wrong format. YY-MM-DD')
             if time.mktime(date.timetuple()) <= time.time():
                 raise forms.ValidationError('Expire date must be in the future.')
-
+        return self.cleaned_data['expiration']
+    
 class BasketShareForm(ShareForm):
     
     def __init__(self, *args, **kwargs):
