@@ -235,7 +235,6 @@ class OmeroImageServiceImpl
 	 * @param userID  The identifier of the user.
 	 * @param image   The image to handle.
 	 * @return See above.
-	 * @throws ImportException
 	 */
 	private Object createImportedImage(long userID, ImageData image)
 	{
@@ -822,6 +821,17 @@ class OmeroImageServiceImpl
 		return ARBITRARY_FILES_EXTENSION.contains(ext);
 	}
 	
+	/**
+	 * Recycles or creates the container.
+	 * 
+	 * @param dataset The dataset to create or recycle.
+	 * @param container The container to create and link the dataset to.
+	 * @param object The object hosting the import option.
+	 * @return See above.
+	 * @throws DSOutOfServiceException If the connection is broken, or logged in
+	 * @throws DSAccessException If an error occurred while trying to 
+	 * retrieve data from OMERO service. 
+	 */
 	private IObject determineContainer(DatasetData dataset,
 		DataObject container, ImportableObject object)
 		throws DSOutOfServiceException, DSAccessException

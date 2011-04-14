@@ -105,7 +105,7 @@ class DataNodeElement
 		if (location == null) return null;
 		DataNode parent = location.getParent();
 		if (parent == null || parent.isDefaultNode()) 
-			return location.getDataObject();
+			return null;//location.getDataObject();
 		return parent.getDataObject();
 	}
 	
