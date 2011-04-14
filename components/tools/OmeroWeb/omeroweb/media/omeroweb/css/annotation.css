@@ -185,6 +185,12 @@ table.metadata_details td{
     border-bottom: 1px dotted #bbb;
 }
 
+#exposure_times div{
+    border-bottom: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    padding: 1px 4px
+}
+
 .can-collapse {
     background:transparent url(/appmedia/omeroweb/images/table/desc-big.gif) no-repeat scroll bottom right;
     border: 1px solid #bbb;
