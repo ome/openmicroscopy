@@ -4327,7 +4327,7 @@ class _PixelsWrapper (BlitzObjectWrapper):
         Returns numpy 2D planes for the Z, C, T indexes in the ranges zStart -> zStop, cStart -> cStop, tStart -> tStop etc.
         If you don't need a range of indexes in any particular dimension, use the Start index only.
         E.g. to get a range of Z planes for a single channel (at t=0) do getPlanes(zStart=0, zEnd=sizeZ, cStart=1)
-        getPlanes() will give you a single plane a 0, 0, 0.
+        getPlanes() will give you a single plane at 0, 0, 0.
         Returns a generator of numpy 2D planes, iterating through Z, then T, then C
         """
 
@@ -4366,6 +4366,14 @@ class _PixelsWrapper (BlitzObjectWrapper):
             raise RuntimeError("Cannot retrieve the plane z: %s, c: %s, t: %s for pixels ID: %s" % (z, c, t, self._obj.id.val))
         finally:
             rawPixelsStore.close()
+
+    def getPlane (self, theZ=0, theC=0, theT=0):
+        """
+        Gets the specified plane as a 2D numpy array by calling L{getPlanes}
+        If a range of planes are required, L{getPlanes} should be used for performance reasons.
+        """
+        planeList = list( self.getPlanes(zStart=theZ, cStart=theC, tStart=theT))
+        return planeList[0]
 
 PixelsWrapper = _PixelsWrapper
 
