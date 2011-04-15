@@ -31,6 +31,7 @@ import ome.model.enums.RenderingModel;
 import omeis.providers.re.codomain.CodomainChain;
 import omeis.providers.re.data.PlaneDef;
 import omeis.providers.re.data.PlaneFactory;
+import omeis.providers.re.data.RegionDef;
 import omeis.providers.re.quantum.QuantizationException;
 import omeis.providers.re.quantum.QuantumFactory;
 import omeis.providers.re.quantum.QuantumStrategy;
@@ -289,6 +290,34 @@ public class Renderer {
     }
 
     /**
+     * Checks the region definition to ensure that the requested tile width
+     * and height are valid with respect to the current resolution level.
+     * @param rd Requested region definition.
+     */
+    private void checkRegionDef(RegionDef rd)
+    {
+        if (rd == null)
+        {
+            return;
+        }
+        // We're using the buffer X and Y size because of the
+        // possibility that we're on a resolution level where
+        // Pixels.Size[X,Y] != PixelBuffer.Size[X,Y].
+        int sizeX = buffer.getSizeX();
+        int sizeY = buffer.getSizeY();
+        int x = rd.getX();
+        int y = rd.getY();
+        if ((rd.getWidth() + x) > sizeX)
+        {
+            rd.setWidth(sizeX - x);
+        }
+        if ((rd.getHeight() + y) > sizeY)
+        {
+            rd.setHeight(sizeY - y);
+        }
+    }
+
+    /**
      * Creates a new instance to render the specified pixels set and get this
      * new instance ready for rendering.
      * 
@@ -426,6 +455,7 @@ public class Renderer {
         if (pd == null) {
             throw new NullPointerException("No plane definition.");
         }
+        checkRegionDef(pd.getRegion());
         stats = new RenderingStats(this, pd);
         log.info("Using: '" + renderingStrategy.getClass().getName()
                 + "' rendering strategy.");
@@ -466,6 +496,7 @@ public class Renderer {
         if (pd == null) {
             throw new NullPointerException("No plane definition.");
         }
+        checkRegionDef(pd.getRegion());
         stats = new RenderingStats(this, pd);
         log.info("Using: '" + renderingStrategy.getClass().getName()
                 + "' rendering strategy.");
@@ -519,6 +550,7 @@ public class Renderer {
         if (pd == null) {
             throw new NullPointerException("No plane definition.");
         }
+        checkRegionDef(pd.getRegion());
         stats = new RenderingStats(this, pd);
         log.info("Using: '" + renderingStrategy.getClass().getName()
                 + "' rendering strategy.");
