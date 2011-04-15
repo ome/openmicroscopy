@@ -4322,30 +4322,25 @@ class _PixelsWrapper (BlitzObjectWrapper):
         for pi in result:
             yield BlitzObjectWrapper(self._conn, pi)
 
-    def getPlanes (self, zStart=0, zStop=None, cStart=0, cStop=None, tStart=0, tStop=None):
+
+    def getPlanes (self, zctList):
         """
-        Returns numpy 2D planes for the Z, C, T indexes in the ranges zStart -> zStop, cStart -> cStop, tStart -> tStop etc.
-        If you don't need a range of indexes in any particular dimension, use the Start index only.
-        E.g. to get a range of Z planes for a single channel (at t=0) do getPlanes(zStart=0, zEnd=sizeZ, cStart=1)
-        getPlanes() will give you a single plane at 0, 0, 0.
-        Returns a generator of numpy 2D planes, iterating through Z, then T, then C
+        Returns generator of numpy 2D planes from this set of pixels for a list of Z, C, T indexes.
+
+        @param zctList:     A list of indexes: [(z,c,t), ]
         """
 
-        from numpy import array, int8, uint8, int16, uint16, int32, uint32, float, double
+        import numpy
         from struct import unpack
 
-        zStop = zStop != None and zStop or zStart+1
-        cStop = cStop != None and cStop or cStart+1
-        tStop = tStop != None and tStop or tStart+1
-
-        pixelTypes = {"int8":['b',int8],
-                "uint8":['B',uint8],
-                "int16":['h',int16],
-                "uint16":['H',uint16],
-                "int32":['i',int32],
-                "uint32":['I',uint32],
-                "float":['f',float],
-                "double":['d', double]}
+        pixelTypes = {"int8":['b',numpy.int8],
+                "uint8":['B',numpy.uint8],
+                "int16":['h',numpy.int16],
+                "uint16":['H',numpy.uint16],
+                "int32":['i',numpy.int32],
+                "uint32":['I',numpy.uint32],
+                "float":['f',numpy.float],
+                "double":['d', numpy.double]}
 
         rawPixelsStore = self._prepareRawPixelsStore()
         sizeX = self.sizeX
@@ -4354,25 +4349,22 @@ class _PixelsWrapper (BlitzObjectWrapper):
         convertType ='>%d%s' % ((sizeX*sizeY), pixelTypes[pixelType][0])  #+str(sizeX*sizeY)+pythonTypes[pixelType]
         numpyType = pixelTypes[pixelType][1]
         try:
-            for z in range(zStart, zStop):
-                 for c in range(cStart, cStop):
-                     for t in range(tStart, tStop):
-                        rawPlane = rawPixelsStore.getPlane(z, c, t)
-                        convertedPlane = unpack(convertType, rawPlane)
-                        remappedPlane = array(convertedPlane, numpyType)
-                        remappedPlane.resize(sizeY, sizeX)
-                        yield remappedPlane
-        except:
-            raise RuntimeError("Cannot retrieve the plane z: %s, c: %s, t: %s for pixels ID: %s" % (z, c, t, self._obj.id.val))
+            for zct in zctList:
+                z,c,t = zct
+                rawPlane = rawPixelsStore.getPlane(z, c, t)
+                convertedPlane = unpack(convertType, rawPlane)
+                remappedPlane = numpy.array(convertedPlane, numpyType)
+                remappedPlane.resize(sizeY, sizeX)
+                yield remappedPlane
         finally:
             rawPixelsStore.close()
 
     def getPlane (self, theZ=0, theC=0, theT=0):
         """
         Gets the specified plane as a 2D numpy array by calling L{getPlanes}
-        If a range of planes are required, L{getPlanes} should be used for performance reasons.
+        If a range of planes are required, L{getPlanes} is approximately 30% faster.
         """
-        planeList = list( self.getPlanes(zStart=theZ, cStart=theC, tStart=theT))
+        planeList = list( self.getPlanes([(theZ, theC, theT)]) )
         return planeList[0]
 
 PixelsWrapper = _PixelsWrapper
