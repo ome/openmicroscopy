@@ -73,7 +73,8 @@ jQuery._WeblitzPlateview = function (container, options) {
 		  var td = $('<td><div class="waiting"></div><img class="loading" src="'+ data.grid[i][j].thumb_url+'"></td>');
 		  $('img', td)
 		      .click(tclick(data.grid[i][j]))
-		      .load(function() { $(this).removeClass('loading').siblings().remove(); });
+		      .load(function() { $(this).removeClass('loading').siblings().remove(); })
+		      .data('wellpos', data.rowlabels[i] + data.collabels[j]);
 		  tr.append(td);
 		  _this.self.trigger('thumbNew', [data.grid[i][j], $('img', td)]);
 	      }
