@@ -56,18 +56,34 @@ class PixelsTest (lib.GTest):
         sizeC = image.c_count()
         sizeT = image.t_count()
 
-        # get 70 planes, new RawPixelsStore created and closed each plane = 5.9151828289 secs
-        # get 70 planes, one RawPixelsStore created and closed = 3.99837493896 secs
+        zctList = []
+        for z in range(sizeZ):
+            for c in range(sizeC):
+                for t in range(sizeT):
+                    zctList.append((z,c,t))
+
+        # timing commented out below - typical times:
+        # get 70 planes, using getPlanes() t1 = 3.99837493896 secs, getPlane() t2 = 5.9151828289 secs. t1/t2 = 0.7
+        # get 210 planes, using getPlanes() t1 = 12.3150248528 secs, getPlane() t2 = 17.2735779285 secs t1/t2 = 0.7
 
         # test getPlanes()
-        planes = pixels.getPlanes(zStop=sizeZ, cStop=sizeC, tStop=sizeT)  # get all planes
-        planeList = list(planes)
-        self.assertEqual(len(planeList), sizeZ*sizeC*sizeT)
-
-        planeList = list(pixels.getPlanes())
-        self.assertEqual(len(planeList), 1)
+        #import time
+        #startTime = time.time()
+        planes = pixels.getPlanes(zctList)  # get all planes
+        for plane in planes:
+            p = plane
+        #t1 = time.time() - startTime
+        #print "Getplanes = %s secs" % t1
 
         # test getPlane() which returns a single plane
+        #startTime = time.time()
+        for zct in zctList:
+            z,c,t = zct
+            p = pixels.getPlane(z,c,t)
+        #t2 = time.time() - startTime
+        #print "Get individual planes = %s secs" % t2
+        #print "t1/t2", t1/t2
+
         lastPlane = pixels.getPlane(sizeZ-1, sizeC-1, sizeT-1)
         plane = pixels.getPlane()   # default is (0,0,0)
         firstPlane = pixels.getPlane(0,0,0)
