@@ -7,72 +7,138 @@
     
     <script type="text/javascript">
         $(document).ready(function(){
-            $("ul#dataIcons").selectable({
-                filter: 'li',
-                stop: function(){
-                    // check all the input check-boxes
-                    $("li.ui-selected input", this).each(function(){
-                           this.checked = true;
+
+            // double-click handler on image - launches image viewer
+            $("#dataIcons img").dblclick(function(event) {
+                var imgId = parseInt( $(this).attr('id') );
+                var url0 = "{% url web_image_viewer 0 %}";  // django-formatted url
+                var url = url0.replace('0', imgId);
+                openPopup(url);
+            });
+
+            // single click handler on image (container). Selection then update toolbar & metadata pane
+            $("#dataIcons li").click(function(event) {
+                handleClickSelection(event);
+                handleSelectionEnd();
+            });
+
+
+            // handles selection for 'clicks' (not drags) including multi-select for shift and meta keys
+            var primaryIndex = -1;  // index of first selected image
+            var handleClickSelection = function(event) {
+
+                var $clickedImage = $(event.target);
+
+                var thumbs = $("#dataIcons img");
+                var selIndex = thumbs.index(event.target);
+
+                if ( event.shiftKey ) {
+                    // user tried to select a range, but we don't have a first selection yet...
+                    if ( primaryIndex == -1 ) {
+                        primaryIndex = selIndex;
+                        $clickedImage.parent().addClass("ui-selected");
+                        return;
+                    }
+                    // select range
+                    var start = Math.min(primaryIndex,selIndex);
+                    var end = Math.max(primaryIndex,selIndex);
+                    thumbs.slice(start, end+1).parent().addClass("ui-selected");
+                }
+                else if (event.metaKey) {
+                    // user wants to add a single image to selection
+                    if ( primaryIndex == -1 ) {
+                        primaryIndex = selIndex;
+                    }
+                    $clickedImage.parent().addClass("ui-selected");
+                }
+                else {
+                    // regular click - remove selection
+                    thumbs.parent().removeClass("ui-selected");
+                    $("#dataIcons li input").each(function(){
+                        this.checked = false;
                     });
-                    var rel = $("div#content_details").attr('rel');
-                    
-                    // update toolbars (same regardless of whether 1 or more items selected)
-                    var readOnly = $('li.ui-selected.readonly').length;
-                    var editOnly = $('li.ui-selected.editonly').length
-                    
-                    // hide all buttons, only show correct ones
-                    $(".toolBtn").hide();
-                    $('#tableBtn').show();  // always show table btn. 
-                    if (readOnly > 0) {}
-                    else if (editOnly > 0) {
-                        $('#deleteBtn').show();
+                    // and select a single image
+                    $clickedImage.parent().addClass("ui-selected");
+                    primaryIndex = selIndex;
+                }
+            }
+
+            var handleSelectionEnd = function() {
+                console.log("handleSelectionEnd");
+                // check all the input check-boxes
+                $("li.ui-selected input").each(function(){
+                    console.log(" checking selected checkbox...");
+                    this.checked = true;
+                });
+                var rel = $("div#content_details").attr('rel');
+
+                // update toolbars (same regardless of whether 1 or more items selected)
+                var readOnly = $('li.ui-selected.readonly').length;
+                var editOnly = $('li.ui-selected.editonly').length
+
+                // hide all buttons, only show correct ones
+                $(".toolBtn").hide();
+                $('#tableBtn').show();  // always show table btn. 
+                if (readOnly > 0) {}
+                else if (editOnly > 0) {
+                    $('#deleteBtn').show();
+                }
+                else {
+                    if(rel!='orphaned') {
+                        $('#unlinkBtn').show();
+                    }
+                    $('#deleteBtn').show();
+                    $('#copyBtn').show();
+                    $('#basketBtn').show();
+                }
+
+                // update metadata panel
+                $("#right_panel").show();
+
+                // if one image selected...
+                var l = $('li.ui-selected img').length;
+                if (l == 1) {
+                    var h = $(window).height()-169;
+                    var imageId = parseInt( $('li.ui-selected img').attr('id') );
+                    $("div#metadata_details").html('<iframe width="370" height="'+h+'" src="/webclient/metadata_details/image/'+imageId+'/" id="metadata_details" name="metadata_details"></iframe>');
+                    $('iframe#metadata_details').load();
+                }
+                // if multi-selected...
+                else if (l > 1) {
+                    if ((readOnly > 0) || (editOnly > 0)) {
+                        {% if not eContext.isReadOnly %}
+                            manyToAnnotation();
+                        {% else %}
+                            $("div#metadata_details").html('<p>{% trans "This is read-only group." %}</p>');
+                        {% endif %}
                     }
                     else {
-                        if(rel!='orphaned') {
-                            $('#unlinkBtn').show();
-                        }
-                        $('#deleteBtn').show();
-                        $('#copyBtn').show();
-                        $('#basketBtn').show();
+                        manyToAnnotation();
                     }
+                }
+            }
 
-                    // update metadata panel
-                    $("#right_panel").show();
-                    
-                    // if one image selected...
-                    var l = $('li.ui-selected img', this).length;
-                    if (l == 1) {
-                        var h = $(window).height()-169;
-                        var imageId = parseInt( $('li.ui-selected img').attr('id') );
-                        $("div#metadata_details").html('<iframe width="370" height="'+h+'" src="/webclient/metadata_details/image/'+imageId+'/" id="metadata_details" name="metadata_details"></iframe>');
-                        $('iframe#metadata_details').load();
-                    }
-                    // if multi-selected...
-                    else if (l > 1) {
-                        if ((readOnly > 0) || (editOnly > 0)) {
-                            {% if not eContext.isReadOnly %}
-                                manyToAnnotation();
-                            {% else %}
-                                $("div#metadata_details").html('<p>{% trans "This is read-only group." %}</p>');
-                            {% endif %}
-                        }
-                        else {
-                            manyToAnnotation();
-                        }
-                    }
+            // plugin to handle drag-select of images
+            $("ul#dataIcons").selectable({
+                filter: 'li',
+                distance: 2,
+                stop: function(){
+                    console.log("stop...");
+                    handleSelectionEnd();
                 },
                 start: function(){
                     $("li input", this).each(function(){
                         this.checked = false;
                     });
                 }
-            });            
+            });
+
         });
-        
+
     </script>
 
     <style type="text/css">
-        
+
         .toolBtn {
             display: none;
             border: 0 none;
@@ -81,7 +147,7 @@
             display: inline;
         }
     </style>
-    
+
 {% if manager.containers.images %}
 
     <div id="toolbar" class="toolbar_noborder">
