@@ -20,10 +20,11 @@ import loci.formats.FormatTools;
 import ome.io.nio.OriginalFileMetadataProvider;
 import ome.io.nio.PixelBuffer;
 import ome.io.nio.PixelsService;
+import ome.io.nio.Utils;
+import ome.io.nio.TileLoopIteration;
 import ome.model.core.Pixels;
 import ome.model.enums.PixelsType;
 import ome.util.PixelData;
-import ome.util.Utils;
 
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.AfterClass;
@@ -104,18 +105,25 @@ public class PyramidPixelBufferUnitTest {
 
     @Test(dependsOnMethods={"testTruePyramidCreation"}, enabled=true)
     public void testPyramidWriteTiles() throws Exception {
-        short tileCount = tileLoop(new TileLoopRunnable() {
-            void run(int z, int c, int t, int x, int y, int tileWidth,
-                     int tileHeight, short tileCount) throws Exception {
+        short tileCount = (short) Utils.forEachTile(new TileLoopIteration() {
+            public void run(int z, int c, int t, int x, int y, int tileWidth,
+                            int tileHeight, int tileCount) {
                 byte[] tile = new byte[tileWidth * tileHeight * bytesPerPixel];
-                ByteBuffer.wrap(tile).asShortBuffer().put(0, tileCount);
-                hashDigests.add(Utils.bytesToHex(
-                        Utils.calculateMessageDigest(tile)));
-                pixelBuffer.setTile(
-                        tile, z, c, t, x, y, tileWidth, tileHeight);
+                ByteBuffer.wrap(tile).asShortBuffer().put(0, (short) tileCount);
+                hashDigests.add(ome.util.Utils.bytesToHex(
+                        ome.util.Utils.calculateMessageDigest(tile)));
+                try
+                {
+                    pixelBuffer.setTile(
+                            tile, z, c, t, x, y, tileWidth, tileHeight);
+                }
+                catch (IOException e)
+                {
+                    throw new RuntimeException(e);
+                }
                 tileCount++;
             }
-        });
+        }, pixelBuffer, tileWidth, tileHeight);
         assertEquals(tileCount, 768);
         pixelBuffer.close();
     }
@@ -123,25 +131,32 @@ public class PyramidPixelBufferUnitTest {
     @Test(dependsOnMethods={"testPyramidWriteTiles"}, enabled=false)
     public void testPyramidReadTiles() throws Exception {
         pixelBuffer.setResolutionLevel(pixelBuffer.getResolutionLevels() - 1);
-        short tileCount = tileLoop(new TileLoopRunnable() {
-            void run(int z, int c, int t, int x, int y, int tileWidth,
-                     int tileHeight, short tileCount) throws Exception {
-                final PixelData tile = pixelBuffer.getTile(z, c, t, x, y,
-                        tileWidth, tileHeight);
-                String readDigest = Utils.bytesToHex(
-                        Utils.calculateMessageDigest(
-                                tile.getData()));
-                String writtenDigest = hashDigests.get(tileCount);
-                if (!writtenDigest.equals(readDigest))
+        short tileCount = (short) Utils.forEachTile(new TileLoopIteration() {
+            public void run(int z, int c, int t, int x, int y, int tileWidth,
+                            int tileHeight, int tileCount) {
+                try
                 {
-                    fail(String.format(
-                            "Hash digest mismatch z:%d c:%d t:%d " +
-                            "x:%d y:%d -- %s != %s",
-                            z, c, t, x, y,
-                            writtenDigest, readDigest));
+                    final PixelData tile = pixelBuffer.getTile(z, c, t, x, y,
+                            tileWidth, tileHeight);
+                    String readDigest = ome.util.Utils.bytesToHex(
+                            ome.util.Utils.calculateMessageDigest(
+                                    tile.getData()));
+                    String writtenDigest = hashDigests.get(tileCount);
+                    if (!writtenDigest.equals(readDigest))
+                    {
+                        fail(String.format(
+                                "Hash digest mismatch z:%d c:%d t:%d " +
+                                "x:%d y:%d -- %s != %s",
+                                z, c, t, x, y,
+                                writtenDigest, readDigest));
+                    }
+                }
+                catch (IOException e)
+                {
+                    throw new RuntimeException(e);
                 }
             }
-        });
+        }, pixelBuffer, tileWidth, tileHeight);
         assertEquals(tileCount, 768);
     }
 
@@ -171,59 +186,22 @@ public class PyramidPixelBufferUnitTest {
     @Test(dependsOnMethods={"testPyramidWriteTiles"}, enabled=true)
     public void testPyramidReadTilesFirstResolutionLevel() throws Exception {
         pixelBuffer.setResolutionLevel(pixelBuffer.getResolutionLevels() - 2);
-        short tileCount = tileLoop(new TileLoopRunnable() {
-            void run(int z, int c, int t, int x, int y, int tileWidth,
-                     int tileHeight, short tileCount) throws Exception {
-                final PixelData tile = pixelBuffer.getTile(z, c, t, x, y,
-                        tileWidth, tileHeight);
-                assertEquals(tile.size(), tileWidth * tileHeight);
+        short tileCount = (short) Utils.forEachTile(new TileLoopIteration() {
+            public void run(int z, int c, int t, int x, int y, int tileWidth,
+                            int tileHeight, int tileCount) {
+                try
+                {
+                    final PixelData tile = pixelBuffer.getTile(z, c, t, x, y,
+                            tileWidth, tileHeight);
+                    assertEquals(tile.size(), tileWidth * tileHeight);
+                }
+                catch (IOException e)
+                {
+                    throw new RuntimeException(e);
+                }
             }
-        });
+        }, pixelBuffer, tileWidth, tileHeight);
         assertEquals(tileCount, 192);
     }
 
-    class TileLoopRunnable {
-        void run(int z, int c, int t, int x, int y, int tileWidth,
-                int tileHeight, short tileCount) throws Exception {
-        }
-    }
-
-    private short tileLoop(TileLoopRunnable runnable) throws Exception {
-        short tileCount = 0;
-        int x, y, w, h;
-        for (int t = 0; t < sizeT; t++)
-        {
-            for (int c = 0; c < sizeC; c++)
-            {
-                for (int z = 0; z < sizeZ; z++)
-                {
-                    for (int tileOffsetY = 0;
-                         tileOffsetY < (pixelBuffer.getSizeY() + tileHeight - 1) / tileHeight;
-                         tileOffsetY++)
-                    {
-                        for (int tileOffsetX = 0;
-                             tileOffsetX < (pixelBuffer.getSizeX() + tileWidth - 1) / tileWidth;
-                             tileOffsetX++)
-                        {
-                            x = tileOffsetX * tileWidth;
-                            y = tileOffsetY * tileHeight;
-                            w = tileWidth;
-                            if (w + x > pixelBuffer.getSizeX())
-                            {
-                                w = pixelBuffer.getSizeX() - x;
-                            }
-                            h = tileHeight;
-                            if (h + y > pixelBuffer.getSizeY())
-                            {
-                                h = pixelBuffer.getSizeY() - y;
-                            }
-                            runnable.run(z, c, t, x, y, w, h, tileCount);
-                            tileCount++;
-                        }
-                    }
-                }
-            }
-        }
-        return tileCount;
-    }
 }
