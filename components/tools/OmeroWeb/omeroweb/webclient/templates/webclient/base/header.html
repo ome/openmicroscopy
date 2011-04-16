@@ -21,6 +21,12 @@
                 $("#jobstatus").html(data.inprogress + ' job(s) in progress');
             });
         }, 2000);
+
+        // if we only have one experimenter (yourself) then disable select (and make it look disabled)
+        if ($('select#id_experimenter option').length == 1) {
+            $('#id_experimenter').attr('disabled', 'True').css('background', '#dcdcdc').css('color', '#777');
+
+        }
     });
 </script>
 {% endifnotequal %}
@@ -30,16 +36,23 @@
     
     <div id="actionWrapper">
         {% ifnotequal nav.menu "basket" %}
-        <div id="baskets"><a href="{% url basket_action %}">{% trans "BASKET" %}</a> {% trans "contains" %} <span id="cartTotal">{{ nav.basket }}</span> {% plural nav.basket 'item' 'items' %}</div>
+        <div id="baskets"><a href="{% url basket_action %}">{% trans "BASKET:" %}</a> <span id="cartTotal">{{ nav.basket }}</span> {% plural nav.basket 'item' 'items' %}</div>
         {% endifnotequal %}
         {% ifnotequal nav.menu "status" %}
-        <div id="queue"><a href="{% url status %}" class="align_left">STATUS:</a><div id="jobstatus"></div><img src="{% url webstatic "images/spinner.gif" %}" id="progress" style="display: none;"/></div>
+        <div id="queue"><a href="{% url status %}" class="align_left">STATUS:</a><div id="jobstatus">0 job(s)</div><img src="{% url webstatic "images/spinner.gif" %}" id="progress" style="display: none;"/></div>
         {% endifnotequal %}
+        {% if form_users %}
+        <div style="float:left">
+            {% for field in form_users %}{{ field }}{% endfor %}&nbsp;&nbsp;&nbsp;
+        </div>
+        {% endif %}
+        <div style="float:left">
+            {% for field in form_active_group %} {% trans "group" %}: {{ field }} {% if field.errors %}{{ field.errors }}{% endif %}{% endfor %}
+        </div>
     </div>
     
     <div id="logout">
-        | {% for field in form_active_group %} {% trans "current group" %}: {{ field }} {% if field.errors %}{{ field.errors }}{% endif %}{% endfor %}
-        | <a href="{% url weblogout %}">{% trans "logout" %}</a> |
+        <a href="{% url weblogout %}">{% trans "logout" %}</a>
     </div>
     
 </div>

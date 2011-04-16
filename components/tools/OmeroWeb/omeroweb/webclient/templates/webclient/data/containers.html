@@ -228,11 +228,6 @@
         <div id="buttons" class="align_left">
             <input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href='{% url load_template nav.menu %}'"> <input class="button" type="image" src="{% url webstatic "images/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href='{% url load_template "usertags" %}'"> {% if not nav.experimenter  %}| <input class="button" type="image" src="{% url webstatic "images/window_new16.png" %}" alt="New container" title="New container" onclick="createNewContainer(null);"/> {% endif %}
         </div>
-        {% if form_users %}
-        <div class="align_right">
-            {% for field in form_users %}{{ field }}{% endfor %}&nbsp;&nbsp;&nbsp;
-        </div>
-        {% endif %}
     </div>
 
 <div class="clear"> </div>

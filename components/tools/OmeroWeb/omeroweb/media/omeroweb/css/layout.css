@@ -65,7 +65,7 @@ table.contentWrapper {
 }
 
 #left_panel {
-    width:400px;
+    width:350px;
     background-color: #ffffff;
     vertical-align: top;
 }
@@ -130,14 +130,13 @@ table.contentWrapper {
     padding: 4px 0;
     top: 0;
     left: 0;
-    width: 400px;
 }
 #baskets {
-    margin: 0 10px;
+    margin: 0 5px;
     float:left;
 }
 #queue, #jobstatus {
-    margin: 0 10px;
+    margin: 0 5px;
     float:left;
 }
 #logo {

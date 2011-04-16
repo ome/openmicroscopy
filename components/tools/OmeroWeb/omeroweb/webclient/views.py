@@ -527,6 +527,8 @@ def load_template(request, menu, **kwargs):
                 form_users = UsersForm(initial={'user':filter_user_id, 'users': users, 'empty_label':empty_label, 'menu':menu})
             else:
                 form_users = UsersForm(initial={'users': users, 'empty_label':empty_label, 'menu':menu})
+    else:
+        form_users = UsersForm(initial={'users': users, 'empty_label':empty_label, 'menu':menu})
             
     form_active_group = ActiveGroupForm(initial={'activeGroup':manager.eContext['context'].groupId, 'mygroups': manager.eContext['allGroups'], 'url':url})
     
