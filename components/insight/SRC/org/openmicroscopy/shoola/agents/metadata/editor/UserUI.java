@@ -161,6 +161,12 @@ class UserUI
 		profile.setUserPhoto(photo);
 	}
 	
+	/** Sets the parent of the node. */
+	void setParentRootObject()
+	{
+		profile.setParentRootObject();
+	}
+	
 	/**
 	 * Overridden to lay out the UI.
 	 * @see AnnotationUI#buildUI()

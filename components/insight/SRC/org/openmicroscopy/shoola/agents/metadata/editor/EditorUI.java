@@ -274,6 +274,7 @@ class EditorUI
     void setParentRootObject()
     {
     	generalPane.setParentRootObject();
+    	userUI.setParentRootObject();
     }
     
     /** Updates display when the new root node is set. */

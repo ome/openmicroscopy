@@ -303,13 +303,19 @@ class UserProfile
     	
 		long groupID = defaultGroup.getId();
 		boolean owner = false;
-		
+		/*
 		if (defaultGroup.getLeaders() != null)
 			owner = setGroupOwner(defaultGroup);
 		else {
 			GroupData g = model.loadGroup(groupID);
 			if (g != null)
 				owner = setGroupOwner(g);
+		}
+		*/
+		Object parentRootObject = model.getParentRootObject();
+		if (parentRootObject instanceof GroupData) {
+			System.err.println("parentRoot");
+			owner = setGroupOwner((GroupData) parentRootObject);
 		}
 		//Build the array for box.
 		/*
@@ -361,8 +367,11 @@ class UserProfile
 			//indicate if the user is an administrator.a
 			admin = isUserAdministrator();
 			adminBox.setSelected(admin);
+			ownerBox.setEnabled(true);
+			ownerBox.addChangeListener(this);
 			//admin = false;
 		} else {
+			ownerBox.setEnabled(false);
 			passwordConfirm.getDocument().addDocumentListener(
 					new DocumentListener() {
 				
@@ -424,8 +433,6 @@ class UserProfile
 			 */
 			public void changedUpdate(DocumentEvent e) {}
 		});
-		ownerBox.setEnabled(owner);
-		ownerBox.addChangeListener(this);
 		ExperimenterData logUser = MetadataViewerAgent.getUserDetails();
 		if (user.getId() == logUser.getId()) {
 			userPicture.addMouseListener(new MouseAdapter() {
@@ -926,11 +933,17 @@ class UserProfile
     	String value = loginArea.getText().trim();
     	UserCredentials uc = new UserCredentials(value, "");
     	Boolean b = ownerBox.isSelected();
-    	if (g == null) g = original.getDefaultGroup();
+    	//if (g == null) g = original.getDefaultGroup();
     	boolean a = false;
     	if (b.compareTo(groupOwner) != 0) {
     		a = true;
     		uc.setOwner(b);
+    		Object parent = model.getParentRootObject();
+    		if (parent instanceof GroupData) {
+    			Map<GroupData, Boolean> map = new HashMap<GroupData, Boolean>();
+    			map.put((GroupData) parent, b);
+    			uc.setGroupsOwner(map);
+    		}
     	}
     	if (adminBox.isVisible()) {
     		b = adminBox.isSelected();
@@ -967,12 +980,19 @@ class UserProfile
 	 */
 	void setUserPhoto(BufferedImage image)
 	{
-		if (image == null) {
-			return;
-		}
+		if (image == null) return;
 		BufferedImage img = Factory.scaleBufferedImage(image, 
 				UserProfileCanvas.WIDTH);
 		userPicture.setImage(img);
+	}
+	
+	/** Sets the parent of the node. */
+	void setParentRootObject()
+	{
+		Object parentRootObject = model.getParentRootObject();
+		if (parentRootObject instanceof GroupData) {
+			setGroupOwner((GroupData) parentRootObject);
+		}
 	}
 	
 	/** 

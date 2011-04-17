@@ -549,7 +549,9 @@ class AdminServiceImpl
 			//		omero.rtypes.rstring(uc.getUserName()));
 			try {
 				updateExperimenter(exp, group, true);
-				b = uc.isOwner();
+				//b = uc.isOwner();
+				group = uc.getGroupToHandle();
+				b = uc.isGroupOwner(group);
 				if (b != null) {
 					if (b.booleanValue()) ownersToAdd.add(exp.asExperimenter());
 					else ownersToRemove.add(exp.asExperimenter());

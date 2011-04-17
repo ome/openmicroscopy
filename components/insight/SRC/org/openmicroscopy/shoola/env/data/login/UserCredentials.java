@@ -23,6 +23,12 @@
 
 package org.openmicroscopy.shoola.env.data.login;
 
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+
+import pojos.GroupData;
+
 
 //Java imports
 
@@ -93,6 +99,12 @@ public class UserCredentials
 	
 	/** Indicates to active or not the user. */ 
 	private Boolean active;
+	
+	/** 
+	 * Map indicating if the user is the owner of the group or not.
+	 * This map should only be used to change ownership status.
+	 */
+	private Map<GroupData, Boolean> groupsOwner;
 	
     /** 
      * Controls if the passed speed index is supported.
@@ -311,6 +323,55 @@ public class UserCredentials
 	 * @return See above.
 	 */
 	public Boolean isActive() { return active; }
+	
+	/**
+	 * Sets the map indicating the ownership status of the groups i.e.
+	 * indicate if the user is owner or not of the groups.
+	 * 
+	 * @param map The map indicating the ownership status of the groups.
+	 */
+	public void setGroupsOwner(Map<GroupData, Boolean> map)
+	{
+		groupsOwner = map;
+	}
+	
+	/**
+	 * Returns the map indicating the ownership status of the groups i.e.
+	 * indicate if the user is owner or not of the groups.
+	 * 
+	 * @return See above.
+	 */
+	public Map<GroupData, Boolean> getGroupsOwner() { return groupsOwner; }
+	
+	/**
+	 * Returns <code>true</code> if the user is the owner of the group,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @param group The group to handle.
+	 * @return See above.
+	 */
+	public Boolean isGroupOwner(GroupData group)
+	{
+		if (groupsOwner == null) return null;
+		return groupsOwner.get(group);
+	}
+	
+	/**
+	 * Returns the first group to handle or <code>null</code>.
+	 * 
+	 * @return See above.
+	 */
+	public GroupData getGroupToHandle()
+	{
+		if (groupsOwner == null || groupsOwner.size() == 0)
+			return null;
+		Set<GroupData> groups = groupsOwner.keySet();
+		Iterator<GroupData> i = groups.iterator();
+		while (i.hasNext()) {
+			return i.next();
+		}
+		return null;
+	}
 	
     /**
      * Formats user name and password.
