@@ -131,7 +131,7 @@ def uploadImageToDataset(session, services, pixelsType, localImage, dataset=None
 
     
     namespace = omero.constants.namespaces.NSCOMPANIONFILE 
-    fileName = "original_metadata.txt"
+    fileName = omero.constants.annotation.file.ORIGINALMETADATA
     
     if imageName == None:  imageName = localImage
     print "Importing image: %s" % imageName

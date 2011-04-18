@@ -94,7 +94,7 @@ def uploadBdbsAsDataset(services, bdbContainer, imageIds, project = None, info =
     plane2D = EMNumPy.em2numpy(d)
     
     namespace = omero.constants.namespaces.NSCOMPANIONFILE 
-    fileName = "original_metadata.txt"
+    fileName = omero.constants.annotation.file.ORIGINALMETADATA
     
     # loop through all the images. 
     datasets = []

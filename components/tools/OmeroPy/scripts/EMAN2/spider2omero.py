@@ -114,7 +114,7 @@ def uploadImageToDataset(services, pixelsType, imageArray, imageName, dataset=No
     rawFileStore = services["rawFileStore"]
     
     namespace = omero.constants.namespaces.NSCOMPANIONFILE 
-    fileName = "original_metadata.txt"
+    fileName = omero.constants.annotation.file.ORIGINALMETADATA
     
     print "Importing image: %s" % imageName
     description = ""
