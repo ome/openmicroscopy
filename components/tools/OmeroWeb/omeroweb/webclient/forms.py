@@ -1087,10 +1087,10 @@ class MetadataDetectorForm(forms.Form):
             
         # Binning
         try:
-            if kwargs['initial']['detectorSettings'].getBinning() is not None:
-                self.fields['binning'] = MetadataModelChoiceField(queryset=kwargs['initial']['binnings'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'binning\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['binning'], required=False) 
+            if kwargs['initial']['detectorSettings'] is not None:
+                self.fields['binning'] = MetadataModelChoiceField(queryset=kwargs['initial']['binnings'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'type\', this.options[this.selectedIndex].value);'}), initial=kwargs['initial']['detectorSettings'].getBinning().value, required=False) 
             else:
-                self.fields['binning'] = MetadataModelChoiceField(queryset=kwargs['initial']['binnings'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'binning\', this.options[this.selectedIndex].value);'}), required=False) 
+                self.fields['binning'] = MetadataModelChoiceField(queryset=kwargs['initial']['binnings'], empty_label=u"---------", widget=forms.Select(attrs={'onchange':'saveMetadata('+str(kwargs['initial']['detectorSettings'].id)+', \'type\', this.options[this.selectedIndex].value);'}), required=False) 
             self.fields['binning'].widget.attrs['disabled'] = True 
             self.fields['binning'].widget.attrs['class'] = 'disable'
         except:
@@ -1098,6 +1098,7 @@ class MetadataDetectorForm(forms.Form):
             self.fields['binning'] = forms.CharField(max_length=10, widget=forms.TextInput(attrs={'size':25}), initial="N/A", required=False)
             self.fields['binning'].widget.attrs['disabled'] = True 
             self.fields['binning'].widget.attrs['class'] = 'disabled'
+            
         
         self.fields.keyOrder = ['manufacturer', 'model', 'serialNumber', 'lotNumber', 'type', 'gain', 'voltage', 'offsetValue', 'zoom', 'amplificationGain', 'readOutRate', 'binning']
 

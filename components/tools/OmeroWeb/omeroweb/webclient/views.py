@@ -940,13 +940,10 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
                         for f in ch.getLogicalChannel().getLightPath().copyExcitationFilters():
                             channel['form_excitation_filters'].append(MetadataFilterForm(initial={'filter': f,
                                             'types':list(conn.getEnumerationEntries("FilterTypeI"))}))
-
                 if ch.getLogicalChannel().getDetectorSettings()._obj is not None and ch.getLogicalChannel().getDetectorSettings().getDetector():
-                    binning = ch.getLogicalChannel().getDetectorSettings().getBinning()
                     channel['form_detector_settings'] = MetadataDetectorForm(initial={'detectorSettings':ch.getLogicalChannel().getDetectorSettings(),
                         'detector': ch.getLogicalChannel().getDetectorSettings().getDetector(),
                         'types':list(conn.getEnumerationEntries("DetectorTypeI")),
-                        'binning':binning and binning.value or None,
                         'binnings':list(conn.getEnumerationEntries("Binning"))})
 
                 if ch.getLogicalChannel().getLightSourceSettings()._obj is not None and ch.getLogicalChannel().getLightSourceSettings().getLightSource() is not None:      
