@@ -8,7 +8,6 @@ from django.core.cache import cache
 
 from omeroweb.webgateway.views import getBlitzConnection, _session_logout
 from omeroweb.webgateway import views as webgateway_views
-from webclient.controller.annotation import BaseAnnotation
 import settings
 import logging
 import traceback

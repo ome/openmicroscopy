@@ -73,7 +73,6 @@ from forms import ShareForm, BasketShareForm, ShareCommentForm, \
 
 from controller import sortByAttr, BaseController
 from controller.index import BaseIndex
-from controller.annotation import BaseAnnotation
 from controller.basket import BaseBasket
 from controller.container import BaseContainer
 from controller.help import BaseHelp
