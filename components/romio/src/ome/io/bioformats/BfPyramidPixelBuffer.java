@@ -310,7 +310,8 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#getCol(java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
      */
-    public PixelData getCol(Integer x, Integer z, Integer c, Integer t)
+    public synchronized PixelData getCol(Integer x, Integer z, Integer c,
+                                         Integer t)
             throws IOException, DimensionsOutOfBoundsException
     {
         t = getRasterizedT(z, c, t);
@@ -322,8 +323,9 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#getColDirect(java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, byte[])
      */
-    public byte[] getColDirect(Integer x, Integer z, Integer c, Integer t,
-            byte[] buffer) throws IOException, DimensionsOutOfBoundsException
+    public synchronized byte[] getColDirect(Integer x, Integer z, Integer c,
+            Integer t, byte[] buffer)
+        throws IOException, DimensionsOutOfBoundsException
     {
         t = getRasterizedT(z, c, t);
         c = 0;
@@ -378,7 +380,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#getPlane(java.lang.Integer, java.lang.Integer, java.lang.Integer)
      */
-    public PixelData getPlane(Integer z, Integer c, Integer t)
+    public synchronized PixelData getPlane(Integer z, Integer c, Integer t)
             throws IOException, DimensionsOutOfBoundsException
     {
         t = getRasterizedT(z, c, t);
@@ -390,7 +392,8 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#getPlaneDirect(java.lang.Integer, java.lang.Integer, java.lang.Integer, byte[])
      */
-    public byte[] getPlaneDirect(Integer z, Integer c, Integer t, byte[] buffer)
+    public synchronized byte[] getPlaneDirect(Integer z, Integer c, Integer t,
+                                              byte[] buffer)
             throws IOException, DimensionsOutOfBoundsException
     {
         t = getRasterizedT(z, c, t);
@@ -402,7 +405,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#getPlaneOffset(java.lang.Integer, java.lang.Integer, java.lang.Integer)
      */
-    public Long getPlaneOffset(Integer z, Integer c, Integer t)
+    public synchronized Long getPlaneOffset(Integer z, Integer c, Integer t)
             throws DimensionsOutOfBoundsException
     {
         t = getRasterizedT(z, c, t);
@@ -414,8 +417,9 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#getPlaneRegion(java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
      */
-    public PixelData getPlaneRegion(Integer x, Integer y, Integer width,
-            Integer height, Integer z, Integer c, Integer t, Integer stride)
+    public synchronized PixelData getPlaneRegion(Integer x, Integer y,
+            Integer width, Integer height, Integer z, Integer c, Integer t,
+            Integer stride)
             throws IOException, DimensionsOutOfBoundsException
     {
         t = getRasterizedT(z, c, t);
@@ -427,9 +431,9 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#getPlaneRegionDirect(java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, byte[])
      */
-    public byte[] getPlaneRegionDirect(Integer z, Integer c, Integer t,
-            Integer count, Integer offset, byte[] buffer) throws IOException,
-            DimensionsOutOfBoundsException
+    public synchronized byte[] getPlaneRegionDirect(Integer z, Integer c,
+            Integer t, Integer count, Integer offset, byte[] buffer)
+        throws IOException, DimensionsOutOfBoundsException
     {
         t = getRasterizedT(z, c, t);
         c = 0;
@@ -465,7 +469,8 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#getRow(java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
      */
-    public PixelData getRow(Integer y, Integer z, Integer c, Integer t)
+    public synchronized PixelData getRow(Integer y, Integer z, Integer c,
+                                         Integer t)
             throws IOException, DimensionsOutOfBoundsException
     {
         t = getRasterizedT(z, c, t);
@@ -477,8 +482,9 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#getRowDirect(java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, byte[])
      */
-    public byte[] getRowDirect(Integer y, Integer z, Integer c, Integer t,
-            byte[] buffer) throws IOException, DimensionsOutOfBoundsException
+    public synchronized byte[] getRowDirect(Integer y, Integer z, Integer c,
+            Integer t, byte[] buffer)
+        throws IOException, DimensionsOutOfBoundsException
     {
         t = getRasterizedT(z, c, t);
         c = 0;
@@ -604,8 +610,8 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#getTile(java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
      */
-    public PixelData getTile(Integer z, Integer c, Integer t, Integer x,
-            Integer y, Integer w, Integer h) throws IOException
+    public synchronized PixelData getTile(Integer z, Integer c, Integer t,
+            Integer x, Integer y, Integer w, Integer h) throws IOException
     {
         checkTileParameters(x, y, w, h);
         t = getRasterizedT(z, c, t);
@@ -617,8 +623,9 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#getTileDirect(java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, byte[])
      */
-    public byte[] getTileDirect(Integer z, Integer c, Integer t, Integer x,
-            Integer y, Integer w, Integer h, byte[] buffer) throws IOException
+    public synchronized byte[] getTileDirect(Integer z, Integer c, Integer t,
+            Integer x, Integer y, Integer w, Integer h, byte[] buffer)
+        throws IOException
     {
         checkTileParameters(x, y, w, h);
         t = getRasterizedT(z, c, t);
