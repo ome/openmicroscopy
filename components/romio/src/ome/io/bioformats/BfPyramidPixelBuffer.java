@@ -105,7 +105,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      * flag, <code>false</code> otherwise.
      * @throws Exception Thrown if an error occurred.
      */
-    private void initializeWriter(String output, String compression,
+    private synchronized void initializeWriter(String output, String compression,
                                         boolean bigTiff)
         throws ServiceException, IOException, FormatException, EnumerationException
     {
@@ -136,9 +136,9 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.bioformats.BfPixelBuffer#setTile(byte[], java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
      */
-    public void setTile(byte[] buffer, Integer z, Integer c, Integer t, Integer x, Integer y,
-            Integer w, Integer h) throws IOException,
-            BufferOverflowException
+    public synchronized void setTile(byte[] buffer, Integer z, Integer c,
+            Integer t, Integer x, Integer y, Integer w, Integer h)
+        throws IOException, BufferOverflowException
     {
         try
         {
@@ -164,7 +164,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      * @param h Tile height requested.
      * @return A new or already allocated IFD for use when writing tiles.
      */
-    private IFD getIFD(int z, int c, int t, int w, int h)
+    private synchronized IFD getIFD(int z, int c, int t, int w, int h)
     {
         if (lastT != t || lastC != c || lastZ != z)
         {
@@ -215,7 +215,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
      * @throws IOException If there is a problem with the parameters or a
      * problem checking them.
      */
-    private void checkTileParameters(int x, int y, int w, int h)
+    private synchronized void checkTileParameters(int x, int y, int w, int h)
         throws IOException
     {
         // Ensure the reader has been initialized
@@ -267,7 +267,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#calculateMessageDigest()
      */
-    public byte[] calculateMessageDigest() throws IOException
+    public synchronized byte[] calculateMessageDigest() throws IOException
     {
         return delegate.calculateMessageDigest();
     }
@@ -275,8 +275,8 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#checkBounds(java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
      */
-    public void checkBounds(Integer x, Integer y, Integer z, Integer c,
-            Integer t) throws DimensionsOutOfBoundsException
+    public synchronized void checkBounds(Integer x, Integer y, Integer z,
+            Integer c, Integer t) throws DimensionsOutOfBoundsException
     {
         t = getRasterizedT(z, c, t);
         c = 0;
@@ -287,7 +287,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#close()
      */
-    public void close() throws IOException
+    public synchronized void close() throws IOException
     {
         try
         {
@@ -302,7 +302,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#getByteWidth()
      */
-    public int getByteWidth()
+    public synchronized int getByteWidth()
     {
         return delegate.getByteWidth();
     }
@@ -336,7 +336,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#getColSize()
      */
-    public Integer getColSize()
+    public synchronized Integer getColSize()
     {
         return delegate.getColSize();
     }
@@ -344,9 +344,9 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#getHypercube(java.util.List, java.util.List, java.util.List)
      */
-    public PixelData getHypercube(List<Integer> offset, List<Integer> size,
-            List<Integer> step) throws IOException,
-            DimensionsOutOfBoundsException
+    public synchronized PixelData getHypercube(List<Integer> offset,
+            List<Integer> size, List<Integer> step)
+        throws IOException, DimensionsOutOfBoundsException
     {
         throw new UnsupportedOperationException("Not yet implemented.");
     }
@@ -354,9 +354,9 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#getHypercubeDirect(java.util.List, java.util.List, java.util.List, byte[])
      */
-    public byte[] getHypercubeDirect(List<Integer> offset, List<Integer> size,
-            List<Integer> step, byte[] buffer) throws IOException,
-            DimensionsOutOfBoundsException
+    public synchronized byte[] getHypercubeDirect(List<Integer> offset,
+            List<Integer> size, List<Integer> step, byte[] buffer)
+        throws IOException, DimensionsOutOfBoundsException
     {
         throw new UnsupportedOperationException("Not yet implemented.");
     }
@@ -364,7 +364,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#getId()
      */
-    public long getId()
+    public synchronized long getId()
     {
         return delegate.getId();
     }
@@ -372,7 +372,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#getPath()
      */
-    public String getPath()
+    public synchronized String getPath()
     {
         return delegate.getPath();
     }
@@ -444,7 +444,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#getPlaneSize()
      */
-    public Integer getPlaneSize()
+    public synchronized Integer getPlaneSize()
     {
         return delegate.getPlaneSize();
     }
@@ -495,7 +495,8 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#getRowOffset(java.lang.Integer, java.lang.Integer, java.lang.Integer, java.lang.Integer)
      */
-    public Long getRowOffset(Integer y, Integer z, Integer c, Integer t)
+    public synchronized Long getRowOffset(Integer y, Integer z, Integer c,
+                                          Integer t)
             throws DimensionsOutOfBoundsException
     {
         t = getRasterizedT(z, c, t);
@@ -507,7 +508,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#getRowSize()
      */
-    public Integer getRowSize()
+    public synchronized Integer getRowSize()
     {
         return delegate.getRowSize();
     }
@@ -535,7 +536,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#getSizeX()
      */
-    public int getSizeX()
+    public synchronized int getSizeX()
     {
         if (delegate.reader.get() == null)
         {
@@ -550,7 +551,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#getSizeY()
      */
-    public int getSizeY()
+    public synchronized int getSizeY()
     {
         if (delegate.reader.get() == null)
         {
@@ -602,7 +603,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#getStackSize()
      */
-    public Integer getStackSize()
+    public synchronized Integer getStackSize()
     {
         return delegate.getStackSize();
     }
@@ -637,7 +638,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#getTimepoint(java.lang.Integer)
      */
-    public PixelData getTimepoint(Integer t) throws IOException,
+    public synchronized PixelData getTimepoint(Integer t) throws IOException,
             DimensionsOutOfBoundsException
     {
         throw new UnsupportedOperationException("Not supported.");
@@ -646,7 +647,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#getTimepointDirect(java.lang.Integer, byte[])
      */
-    public byte[] getTimepointDirect(Integer t, byte[] buffer)
+    public synchronized byte[] getTimepointDirect(Integer t, byte[] buffer)
             throws IOException, DimensionsOutOfBoundsException
     {
         throw new UnsupportedOperationException("Not supported.");
@@ -664,7 +665,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#getTimepointSize()
      */
-    public Integer getTimepointSize()
+    public synchronized Integer getTimepointSize()
     {
         return delegate.getTimepointSize();
     }
@@ -672,7 +673,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#getTotalSize()
      */
-    public Integer getTotalSize()
+    public synchronized Integer getTotalSize()
     {
         return delegate.getTotalSize();
     }
@@ -680,7 +681,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#isFloat()
      */
-    public boolean isFloat()
+    public synchronized boolean isFloat()
     {
         return delegate.isFloat();
     }
@@ -688,7 +689,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#isSigned()
      */
-    public boolean isSigned()
+    public synchronized boolean isSigned()
     {
         return delegate.isSigned();
     }
@@ -791,7 +792,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#getResolutionLevel()
      */
-    public int getResolutionLevel()
+    public synchronized int getResolutionLevel()
     {
         return delegate.getResolutionLevel();
     }
@@ -799,7 +800,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#getResolutionLevels()
      */
-    public int getResolutionLevels()
+    public synchronized int getResolutionLevels()
     {
         return delegate.getResolutionLevels();
     }
@@ -807,7 +808,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#getTileSize()
      */
-    public Dimension getTileSize()
+    public synchronized Dimension getTileSize()
     {
         return delegate.getTileSize();
     }
@@ -815,7 +816,7 @@ public class BfPyramidPixelBuffer implements PixelBuffer {
     /* (non-Javadoc)
      * @see ome.io.nio.PixelBuffer#setResolutionLevel(int)
      */
-    public void setResolutionLevel(int resolutionLevel)
+    public synchronized void setResolutionLevel(int resolutionLevel)
     {
         delegate.setResolutionLevel(resolutionLevel);
     }
