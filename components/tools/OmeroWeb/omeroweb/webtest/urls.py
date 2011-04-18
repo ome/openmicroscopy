@@ -36,6 +36,7 @@ urlpatterns = patterns('django.views.generic.simple',
 
     url( r'^channel_overlay_viewer/(?P<imageId>[0-9]+)/', views.channel_overlay_viewer, name='webtest_channel_overlay_viewer' ),
 
-    # post a comment annotation to images. parameters are in request: imageIds=123,234  comment=blah
+    # post a comment annotation to images. parameters are in request: imageIds=123,234  comment=blah 
+    # ns=Namespace replace=true (replaces existing comment with same ns if found)
     url( r'^add_annotations/$', views.add_annotations, name="webtest_add_annotations"),
 )
