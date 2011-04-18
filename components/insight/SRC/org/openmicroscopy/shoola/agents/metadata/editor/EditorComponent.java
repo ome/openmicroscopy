@@ -915,7 +915,8 @@ class EditorComponent
 		setStatus(false);
 		JFrame f = MetadataViewerAgent.getRegistry().getTaskBar().getFrame();
 		ScriptingDialog dialog = new ScriptingDialog(f, 
-				model.getScript(script.getScriptID()));
+				model.getScript(script.getScriptID()), 
+				model.getSelectedObjects());
 		dialog.addPropertyChangeListener(controller);
 		UIUtilities.centerAndShow(dialog);
 	}

@@ -77,6 +77,8 @@ import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
 
+import pojos.DataObject;
+
 /** 
  * Dialog to run the selected script. The UI is created on the fly.
  *
@@ -159,6 +161,28 @@ public class ScriptingDialog
 	
 	/** The menu offering various options to manipulate the script. */
 	private JPopupMenu optionMenu;
+	
+	/** The objects of reference.*/
+	private List<DataObject> refObjects;
+	
+	/** The component displaying the data types.*/
+	private JComboBox dataTypes;
+	
+	/** The component related to the identifier.*/
+	private IdentifierParamPane identifier;
+	
+	/** Populates the changes of data types.*/
+	private void handleDataTypeChanges()
+	{
+		Object o = dataTypes.getSelectedItem();
+		Class c = script.convertDataType(o.toString());
+		if (c != null && refObjects != null) {
+			DataObject object = refObjects.get(0);
+			if (object.getClass().equals(c))
+				identifier.setValues(refObjects);
+			else identifier.setValues(null);
+		}
+	}
 	
 	/** 
 	 * Creates the option menu.
@@ -401,10 +425,17 @@ public class ScriptingDialog
 					comp = new ComplexParamPane(param.getKeyType(), 
 							(JComboBox) comp);
 			} else if (List.class.equals(type)) {
-				if (comp == null)
-					comp = new ComplexParamPane(param.getKeyType());
-				else 
-					comp = new ComplexParamPane((JComboBox) comp);
+				if (script.isIdentifier(name)) {
+					identifier = new IdentifierParamPane(Long.class);
+					identifier.setValues(refObjects);
+					comp = identifier;
+				} else {
+					if (comp == null)
+						comp = new ComplexParamPane(param.getKeyType());
+					else 
+						comp = new ComplexParamPane((JComboBox) comp);
+				}
+				
 			}
 			if (comp != null) {
 				if (comp instanceof JTextField) {
@@ -420,7 +451,15 @@ public class ScriptingDialog
 					c.setRequired(!param.isOptional());
 				if (details != null && details.trim().length() > 0)
 					c.setInfo(details);
-
+				if (comp instanceof JComboBox && script.isDataType(name)) {
+					dataTypes = (JComboBox) comp;
+					dataTypes.addActionListener(new ActionListener() {
+						
+						public void actionPerformed(ActionEvent e) {
+							handleDataTypeChanges();
+						}
+					});
+				}
 				grouping = param.getGrouping();
 				parent = param.getParent();
 				c.setParentIndex(parent);
@@ -643,13 +682,16 @@ public class ScriptingDialog
 	 * 
 	 * @param parent The parent of the frame.
 	 * @param script The script to run. Mustn't be <code>null</code>.
+	 * @param refObjects The objects of reference.
 	 */
-	public ScriptingDialog(JFrame parent, ScriptObject script)
+	public ScriptingDialog(JFrame parent, ScriptObject script, 
+			List<DataObject> refObjects)
 	{
 		super(parent);
 		if (script == null)
 			throw new IllegalArgumentException("No script specified");
 		this.script = script;
+		this.refObjects = refObjects;
 		initComponents();
 		buildGUI();
 		pack();

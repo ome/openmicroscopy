@@ -2753,5 +2753,28 @@ class EditorModel
 		}
 	}
 	
+	/**
+	 * Returns the collection of selected objects.
+	 * 
+	 * @return See above.
+	 */
+	List<DataObject> getSelectedObjects()
+	{
+		List<DataObject> objects = new ArrayList<DataObject>();
+		if (getRefObject() instanceof DataObject)
+			objects.add((DataObject) getRefObject());
+		Collection l = parent.getRelatedNodes();
+		if (l == null) return objects;
+		Iterator i = l.iterator();
+		Object o;
+		while (i.hasNext()) {
+			o = i.next();
+			if (o instanceof DataObject)
+				objects.add((DataObject) o);
+		}
+		
+		return objects;
+	}
+
 }
 	
