@@ -64,10 +64,8 @@
             }
 
             var handleSelectionEnd = function() {
-                console.log("handleSelectionEnd");
                 // check all the input check-boxes
                 $("li.ui-selected input").each(function(){
-                    console.log(" checking selected checkbox...");
                     this.checked = true;
                 });
                 var rel = $("div#content_details").attr('rel');
@@ -123,7 +121,6 @@
                 filter: 'li',
                 distance: 2,
                 stop: function(){
-                    console.log("stop...");
                     handleSelectionEnd();
                 },
                 start: function(){
