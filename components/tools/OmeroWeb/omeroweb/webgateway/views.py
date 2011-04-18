@@ -599,6 +599,7 @@ def render_image_region(request, iid, z, t, server_id=None, _conn=None, **kwargs
     
     tile = request.REQUEST.get('tile', None)
     region = request.REQUEST.get('region', None)
+    level = None
     
     if tile:
         try:
