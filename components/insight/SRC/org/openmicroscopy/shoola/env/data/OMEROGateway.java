@@ -7439,8 +7439,8 @@ class OMEROGateway
 	{
 		isSessionAlive();
 		IUpdatePrx updateService = getUpdateService();
-		for(WorkflowData workflow : workflows)
-			if(workflow.isDirty())
+		for (WorkflowData workflow : workflows)
+			if (workflow.isDirty())
 			{
 				try
 				{

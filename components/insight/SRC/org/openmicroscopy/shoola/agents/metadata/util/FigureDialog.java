@@ -687,11 +687,16 @@ public class FigureDialog
 		if (renderer.isChannelActive(index)) {
 			if (renderer.isMappedImageRGB(renderer.getActiveChannels())) {
 				//if red
-				DataBuffer buf;
+				DataBuffer buf = null;
 				if (!scale) buf = mergeUnscaled.getRaster().getDataBuffer();
-				else 
-					buf = mergedComponent.getDisplayedImage().getRaster().
-						getDataBuffer();
+				else {
+					BufferedImage image = mergedComponent.getDisplayedImage();
+					if (image != null)
+						buf = image.getRaster().getDataBuffer();
+				}
+				if (buf == null) 
+					return scaleImage(renderer.createSingleChannelImage(true, 
+							index, pDef));
 				if (renderer.isColorComponent(Renderer.RED_BAND, index)) {
 					if (!scale) 
 						return Factory.createBandImage(buf,
