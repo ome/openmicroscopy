@@ -152,7 +152,47 @@ $(document).ready(function() {
         $("#lens").attr('src', imgSrc);
     }
     
+    $('#update').click(function() {
+        refreshImage();
+    });
+    
     refreshImage();
+    
+    // when the "Save" button is clicked, we want to compile a 'comment' of z, x, y offsets for each channel 
+    // and post it to save it on the image (with particular namespace)
+    // E.g. comment=0|z:1_x:0_y:0,1|z:0_x:10_y:0,2|z:0_x:0_y:0 &imageIds=1234
+    $('#save').click(function() {
+        var query = "ns=omero.web.channel_overlay.offsets&replace=true&comment=";
+        var zOffsets = [];
+        var xOffsets = [];
+        var yOffsets = [];
+        var imageId = null;
+        $(".planeRow").each(function() {
+            var $row = $(this);
+            imageId = $row.find('[name="imageId"]').attr('value');
+            var z = $row.find('[name="z"]').attr('value');
+            zOffsets.push(z);
+            var x = $row.find('[name="x"]').attr('value');
+            xOffsets.push(x);
+            var y = $row.find('[name="y"]').attr('value');
+            yOffsets.push(y);
+        });
+        // normalise z-offsets to 0
+        var minZ = Math.min.apply( Math, zOffsets );
+        for (var i=0; i<zOffsets.length; i+=1) {
+            if (i>0){
+                query += ",";
+            }
+            query += i + "|";
+            query += "z:" + (zOffsets[i]-minZ) + "_x:" + xOffsets[i] + "_y:" + yOffsets[i];
+        }
+        query += "&imageIds="+imageId
+        console.log(query);
+        
+        // bit of a hack - should really POST properly.
+        var url = "/webtest/add_annotations/" + "?" + query;
+        window.location = url;
+    });
 });
 </script>
 
@@ -187,7 +227,7 @@ $(document).ready(function() {
                 </td>
                 <td>Channel Name</td><td>x-shift</td><td>y-shift</td>
             </tr>
-        {% for c in image.getChannels %}
+        {% for c in channels %}
             <tr class='planeRow'>
                 <td><input class='cSelect' type="radio" name="red" value="{{ forloop.counter0 }}"
                     {% ifequal red forloop.counter0 %} checked="True" {% endifequal %}/></td>
@@ -197,23 +237,23 @@ $(document).ready(function() {
                     {% ifequal blue forloop.counter0 %} checked="True" {% endifequal %}/></td>
 
                 <td><input type="text" size="10" name="imageId" value='{{ image.id }}'/></td>
-                <td><input class='zIndex' type="text" size="2" name="z" value='{{ default_z }}'/></td>
+                <td><input class='zIndex' type="text" size="2" name="z" value='{% if c.z %}{{c.z}}{% else %}{{ default_z }}{% endif %}'/></td>
                 <td><input type="text" size="2" name="c" value='{{ forloop.counter0 }}'/></td>
                 <td><input class='tIndex' type="text" size="2" name="t" value='0'/></td>
-                <td>{{ c.getName }}</td>
+                <td>{{ c.name }}</td>
                 <td>
                     <img class='incShift minusBig' src="/webtest/statictest/img/channel_overlay/minus12.png" width='16' />
                     <img class='incShift minusSmall' src="/webtest/statictest/img/channel_overlay/minus12.png" width='12' />
                     <img class='incShift plusSmall' src="/webtest/statictest/img/channel_overlay/plus12.png" width='12'/>
                     <img class='incShift plusBig' src="/webtest/statictest/img/channel_overlay/plus12.png" width='16'/>
-                    <input type="text" size="5" name="x" value='0'/>
+                    <input type="text" size="5" name="x" value='{% if c.x %}{{c.x}}{% else %}0{% endif %}'/>
                 </td>
                 <td>
                     <img class='incShift minusBig' src="/webtest/statictest/img/channel_overlay/minus12.png" width='16' />
                     <img class='incShift minusSmall' src="/webtest/statictest/img/channel_overlay/minus12.png" width='12' />
                     <img class='incShift plusSmall' src="/webtest/statictest/img/channel_overlay/plus12.png" width='12'/>
                     <img class='incShift plusBig' src="/webtest/statictest/img/channel_overlay/plus12.png" width='16'/>
-                    <input type="text" size="5" name="y" value='0'/>
+                    <input type="text" size="5" name="y" value='{% if c.y %}{{c.y}}{% else %}0{% endif %}'/>
                 </td>
             </tr>
         {% endfor %}
@@ -221,6 +261,9 @@ $(document).ready(function() {
                 <td><input class='cSelect' type="radio" name="red" value="off" />off</td>
                 <td><input class='cSelect' type="radio" name="green" value="off" />off</td>
                 <td><input class='cSelect' type="radio" name="blue" value="off" />off</td>
+                <td colspan='5'></td>
+                <td><input id='update' type="button" value="update" /></td>
+                <td><input id='save' type="button" value="save" /></td>
             </tr>
         </table>
         <hr />

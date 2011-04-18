@@ -84,7 +84,9 @@ def channel_overlay_viewer(request, imageId, **kwargs):
     green = None
     blue = None
     notAssigned = []
+    channels = []
     for i, c in enumerate(image.getChannels()):
+        channels.append( {'name':c.getName()} )
         if c.getColor().getRGB() == (255, 0, 0) and red == None:
             red = i
         elif c.getColor().getRGB() == (0, 255, 0) and green == None:
@@ -98,10 +100,30 @@ def channel_overlay_viewer(request, imageId, **kwargs):
         if red == None: red = i
         elif green == None: green = i
         elif blue == None: blue = i
+        
+    # see if we have z, x, y offsets already annotated on this image
+    # added by javascript in viewer. E.g. 0|z:1_x:0_y:0,1|z:0_x:10_y:0,2|z:0_x:0_y:0
+    ns = "omero.web.channel_overlay.offsets"
+    comment = image.getAnnotation(ns)
+    if comment == None:     # maybe offset comment has been added manually (no ns)
+        for ann in image.listAnnotations():
+            if isinstance(ann, omero.gateway.CommentAnnotationWrapper):
+                if ann.getValue().startswith("0|z:"):
+                    comment = ann
+                    break
+    if comment != None:
+        offsets = comment.getValue()
+        for o in offsets.split(","):
+            index,zxy = o.split("|",1)
+            if int(index) < len(channels):
+                keyVals = zxy.split("_")
+                for kv in keyVals:
+                    key, val = kv.split(":")
+                    if key == "z": val = int(val) + default_z
+                    channels[int(index)][key] = int(val)
 
-    print "red", red, "green", green, "blue", blue
     return render_to_response('webtest/demo_viewers/channel_overlay_viewer.html', {
-        'image': image, 'default_z':default_z, 'red': red, 'green': green, 'blue': blue})
+        'image': image, 'channels':channels, 'default_z':default_z, 'red': red, 'green': green, 'blue': blue})
 
 
 @isUserConnected
@@ -358,6 +380,8 @@ def add_annotations (request, **kwargs):
     @param request:     The django L{django.core.handlers.wsgi.WSGIRequest}
                             - imageIds:     A comma-delimited list of image IDs
                             - comment:      The text to add as a comment to the images
+                            - ns:           Namespace for the annotation
+                            - replace:      If "true", try to replace existing annotation with same ns
                             
     @return:            A simple html page with a success message 
     """
@@ -370,10 +394,14 @@ def add_annotations (request, **kwargs):
     else: imageIds = []
     
     comment = request.REQUEST.get('comment', None)
+    ns = request.REQUEST.get('ns', None)
+    replace = request.REQUEST.get('replace', False) in ('true', 'True')
     
     updateService = conn.getUpdateService()
     ann = omero.model.CommentAnnotationI()
     ann.setTextValue(rstring( str(comment) ))
+    if ns != None:
+        ann.setNs(rstring( str(ns) ))
     ann = updateService.saveAndReturnObject(ann)
     annId = ann.getId().getValue()
     
@@ -381,6 +409,12 @@ def add_annotations (request, **kwargs):
     for iId in imageIds:
         image = conn.getObject("Image", iId)
         if image == None: continue
+        if replace and ns != None:
+            oldComment = image.getAnnotation(ns)
+            if oldComment != None:
+                oldComment.setTextValue(rstring( str(comment) ))
+                updateService.saveObject(oldComment)
+                continue
         l = omero.model.ImageAnnotationLinkI()
         parent = omero.model.ImageI(iId, False)     # use unloaded object to avoid update conflicts
         l.setParent(parent)
