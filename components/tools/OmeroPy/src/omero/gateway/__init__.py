@@ -5355,9 +5355,9 @@ class _ImageWrapper (BlitzObjectWrapper):
         """
         return self.getRenderingModel().value.lower() == 'greyscale'
 
-
+    
     @assert_re
-    def renderJpegRegion (self, z, t, x, y, width, height, compression=0.9):
+    def renderJpegRegion (self, z, t, x, y, width, height, level=None, compression=0.9):
         """
         Return the data from rendering a region of an image plane.
         NB. Projection not supported by the API currently. 
@@ -5382,6 +5382,9 @@ class _ImageWrapper (BlitzObjectWrapper):
         regionDef.height = height
         self._pd.region = regionDef
         try:
+            if level is not None:
+                self._re.setResolutionLevel(level)
+                print self._re.getResolutionLevel()
             if compression is not None:
                 try:
                     self._re.setCompressionLevel(float(compression))
