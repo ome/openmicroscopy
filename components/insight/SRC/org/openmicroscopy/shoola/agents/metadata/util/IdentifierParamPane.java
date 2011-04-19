@@ -25,27 +25,28 @@ package org.openmicroscopy.shoola.agents.metadata.util;
 
 //Java imports
 import java.awt.FlowLayout;
+import java.awt.Point;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent;
+import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentListener;
-
-import org.openmicroscopy.shoola.agents.metadata.IconManager;
-import org.openmicroscopy.shoola.util.ui.UIUtilities;
-
-import pojos.DataObject;
 
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.metadata.IconManager;
+import org.openmicroscopy.shoola.util.ui.UIUtilities;
+import pojos.DataObject;
 
 /** 
- * 
+ * Component used to enter the identifiers.
  *
  * @author Jean-Marie Burel &nbsp;&nbsp;&nbsp;&nbsp;
  * <a href="mailto:j.burel@dundee.ac.uk">j.burel@dundee.ac.uk</a>
@@ -61,8 +62,11 @@ class IdentifierParamPane
 	extends JPanel
 {
 	
+	/** Displays the information.*/
+	static final String DISPLAY_INFO_PROPERTY = "displayInfo";
+	
 	/** The text indicating how to enter the values.*/
-	private static final String INFO_TEXT = "Use ',' to separate values.";
+	static final String INFO_TEXT = "Use ',' to separate values.";
 	
 	/** The type of values to return after parsing e.g. number.*/
 	private Class type;
@@ -73,6 +77,9 @@ class IdentifierParamPane
 	/** The button displaying how to fill the text field.*/
 	private JButton		infoButton;
 	
+	/** Flag indicating that a value is required. */
+	private boolean required;
+	
 	/** Initializes the components.*/
 	private void initializeComponents()
 	{
@@ -81,6 +88,17 @@ class IdentifierParamPane
 		infoButton = new JButton(icons.getIcon(IconManager.INFO));
 		infoButton.setToolTipText(INFO_TEXT);
 		UIUtilities.unifiedButtonLookAndFeel(infoButton);
+		infoButton.addMouseListener(new MouseAdapter() {
+
+			/** Fires a property indicating to display the information.
+			 * @see MouseListener#mousePressed(MouseEvent)
+			 */
+			public void mousePressed(MouseEvent e){
+				Point p = e.getPoint();
+				SwingUtilities.convertPointToScreen(p, infoButton);
+				firePropertyChange(DISPLAY_INFO_PROPERTY, null, p);
+			}
+		});
 	}
 	
 	/** Builds and lays out the UI. */
@@ -98,7 +116,20 @@ class IdentifierParamPane
 	 */
 	IdentifierParamPane(Class type)
 	{
+		this(type, true);
+	}
+	
+	/**
+	 * Creates a new instance with a requested field.
+	 * 
+	 * @param type		The type of values to return after parsing e.g. number.
+	 * @param required 	Passed <code>true</code> to indicate that a value is
+	 * 					required, <code>false</code> otherwise.
+	 */
+	IdentifierParamPane(Class type, boolean required)
+	{
 		this.type = type;
+		this.required = required;
 		initializeComponents();
 		buildGUI();
 	}
@@ -122,6 +153,7 @@ class IdentifierParamPane
 			buffer.append(i.next().getId());
 			if (index < n)
 				buffer.append(", ");
+			index++;
 		}
 		field.setText(buffer.toString());
 	}
@@ -173,6 +205,34 @@ class IdentifierParamPane
 			}
 		}
 		return l;
+	}
+	
+	/**
+	 * Returns <code>true</code> if the value entered is valid,
+	 * <code>false</code> otherwise.
+	 * 
+	 * @return See above.
+	 */
+	boolean isReady()
+	{
+		if (!required) return true;
+		if (Long.class.equals(type)) {
+			List<Long> values = getValuesAsLong();
+			return (values != null && values.size() > 0);
+		}
+		List<String> l = getValuesAsString();
+		return (l != null && l.size() > 0);
+	}
+	
+	/**
+	 * Adds the listener to the text field.
+	 * 
+	 * @param listener The listener to handle.
+	 */
+	void addDocumentListener(DocumentListener listener)
+	{
+		if (listener == null) return;
+		field.getDocument().addDocumentListener(listener);
 	}
 	
 }

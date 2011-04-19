@@ -22,7 +22,6 @@
  */
 package org.openmicroscopy.shoola.agents.metadata.util;
 
-
 //Java imports
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -30,6 +29,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -76,6 +76,7 @@ import org.openmicroscopy.shoola.util.ui.NumericalTextField;
 import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import org.openmicroscopy.shoola.util.ui.omeeditpane.OMEWikiComponent;
+import org.openmicroscopy.shoola.util.ui.tdialog.TinyDialog;
 
 import pojos.DataObject;
 
@@ -174,14 +175,35 @@ public class ScriptingDialog
 	/** Populates the changes of data types.*/
 	private void handleDataTypeChanges()
 	{
+		if (identifier == null || dataTypes == null) return;
 		Object o = dataTypes.getSelectedItem();
 		Class c = script.convertDataType(o.toString());
-		if (c != null && refObjects != null) {
+		if (c != null && refObjects != null && refObjects.size() > 0) {
 			DataObject object = refObjects.get(0);
 			if (object.getClass().equals(c))
 				identifier.setValues(refObjects);
 			else identifier.setValues(null);
 		}
+	}
+	
+	/** Sets the type according to the selected objects.*/
+	private void setSelectedDataType()
+	{
+		if (identifier == null || dataTypes == null || refObjects == null ||
+			refObjects.size() == 0)
+			return;
+		DataObject object = refObjects.get(0);
+		Class klass = object.getClass();
+		Class c;
+		int selected = 0;
+		for (int i = 0; i < dataTypes.getItemCount(); i++) {
+			c = script.convertDataType(dataTypes.getItemAt(i).toString());
+			if (klass.equals(c)) {
+				selected = i;
+				break;
+			}
+		}
+		dataTypes.setSelectedIndex(selected);
 	}
 	
 	/** 
@@ -222,6 +244,21 @@ public class ScriptingDialog
 	{
 		setVisible(false);
 		dispose();
+	}
+	
+	/**
+	 * Displays information of the identifier. 
+	 * 
+	 * @param location Indicates where to display the component.
+	 */
+	private void displayIdentifierInformation(Point location)
+	{
+		JLabel l = new JLabel(IdentifierParamPane.INFO_TEXT);
+		TinyDialog d = new TinyDialog((Frame) getOwner(), l, 
+				TinyDialog.CLOSE_ONLY);
+		d.pack();
+		d.setLocation(location);
+		d.setVisible(true);
 	}
 	
 	/**
@@ -428,6 +465,7 @@ public class ScriptingDialog
 				if (script.isIdentifier(name)) {
 					identifier = new IdentifierParamPane(Long.class);
 					identifier.setValues(refObjects);
+					identifier.addDocumentListener(this);
 					comp = identifier;
 				} else {
 					if (comp == null)
@@ -496,6 +534,9 @@ public class ScriptingDialog
 			key = k.next();
 			components.put(key.getParameterName(), key);
 		}
+		setSelectedDataType();
+		if (identifier != null) 
+			identifier.addPropertyChangeListener(this);
 		canRunScript();
 	}
 	
@@ -729,6 +770,9 @@ public class ScriptingDialog
 		String name = evt.getPropertyName();
 		if (RowPane.MODIFIED_CONTENT_PROPERTY.equals(name))
 			canRunScript();
+		else if (IdentifierParamPane.DISPLAY_INFO_PROPERTY.equals(name)) {
+			displayIdentifierInformation((Point) evt.getNewValue());
+		}
 	}
 	
 	/**

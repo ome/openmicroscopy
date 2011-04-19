@@ -126,7 +126,7 @@ public class TinyDialog
     /** 
      * Returns the original image to display.
      * 
-     * @return Se above
+     * @return See above.
      */
     BufferedImage getOriginalImage() { return originalImage; }
     

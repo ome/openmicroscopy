@@ -313,8 +313,13 @@ class ScriptComponent
 		} else if (c instanceof JComboBox) {
 			JComboBox box = (JComboBox) c;
 			return box.getSelectedItem();
-		} else if (c instanceof ComplexParamPane)
-			return ((ComplexParamPane) c).getValue();
+		} else if (c instanceof ComplexParamPane) {
+			return ((ComplexParamPane) c).getValue(); 
+		} else if (c instanceof IdentifierParamPane) {
+			boolean b = ((IdentifierParamPane) c).isReady(); 
+			if (!b) return null;
+			return b;
+		}
 			
 		return null;
 	}
