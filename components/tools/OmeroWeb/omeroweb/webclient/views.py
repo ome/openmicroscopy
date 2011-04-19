@@ -863,32 +863,95 @@ def open_astex_viewer(request, fileAnnId, **kwargs):
     
     
 @isUserConnected
-def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):  
+def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
     conn = None
     try:
         conn = kwargs["conn"]        
     except:
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
+
     conn_share = None
     try:
         conn_share = kwargs["conn_share"]
     except:
         logger.error(traceback.format_exc())
         return handlerInternalError("Connection is not available. Please contact your administrator.")
-    
+
     url = None
     try:
         url = kwargs["url"]
     except:
         logger.error(traceback.format_exc())
-    
+
     try:
         index = int(request.REQUEST['index'])
     except:
         index = 0
-    
+
+    try:
+        if c_type in ("share", "discussion"):
+            template = "webclient/annotations/annotations_share.html"
+            manager = BaseShare(conn, conn_share, c_id)
+            manager.getAllUsers(c_id)
+            manager.getComments(c_id)
+        else:
+            if conn_share is not None:
+                template = "webclient/annotations/annotations_share.html"
+                manager = BaseContainer(conn_share, index=index, **{str(c_type): long(c_id)})
+            else:
+                #template = "webclient/annotations/annotations.html"
+                template = "webclient/annotations/metadata_general.html"
+                manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
+                manager.annotationList()
+    except AttributeError, x:
+        logger.error(traceback.format_exc())
+        return handlerInternalError(x)
+
+    form_comment = CommentAnnotationForm()
+
+    if c_type in ("share", "discussion", "tag"):
+        context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager}
+    else:
+        context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form_comment':form_comment}
+
+    t = template_loader.get_template(template)
+    c = Context(request,context)
+    logger.debug('TEMPLATE: '+template)
+    return HttpResponse(t.render(c))
+
+@isUserConnected
+def load_metadata_preview(request, imageId, **kwargs):
+
+    return render_to_response("webclient/annotations/metadata_preview.html", {"imageId": imageId})
+
+@isUserConnected
+def load_metadata_acquisition(request, c_type, c_id, share_id=None, **kwargs):  
+    conn = None
+    try:
+        conn = kwargs["conn"]        
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+
+    conn_share = None
+    try:
+        conn_share = kwargs["conn_share"]
+    except:
+        logger.error(traceback.format_exc())
+        return handlerInternalError("Connection is not available. Please contact your administrator.")
+
+    url = None
+    try:
+        url = kwargs["url"]
+    except:
+        logger.error(traceback.format_exc())
+
+    try:
+        index = int(request.REQUEST['index'])
+    except:
+        index = 0
+
     try:
         if c_type in ("share", "discussion"):
             template = "webclient/annotations/annotations_share.html"
@@ -900,13 +963,12 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
                 template = "webclient/annotations/annotations_share.html"                
                 manager = BaseContainer(conn_share, index=index, **{str(c_type): long(c_id)})
             else:
-                template = "webclient/annotations/annotations.html"                
+                template = "webclient/annotations/metadata_acquisition.html"
                 manager = BaseContainer(conn, index=index, **{str(c_type): long(c_id)})
-                manager.annotationList()
     except AttributeError, x:
         logger.error(traceback.format_exc())
         return handlerInternalError(x)
-    
+
     form_environment = None
     form_objective = None
     form_microscope = None
@@ -915,8 +977,7 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
     form_detectors = list()
     form_channels = list()
     form_lasers = list()
-    form_comment = CommentAnnotationForm()
-    
+
     if c_type == 'well' or c_type == 'image':
         if conn_share is None:
             manager.originalMetadata()
@@ -956,14 +1017,14 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
                 channel['name'] = ch.getName()
                 channel['color'] = ch.getColor().getHtml()
                 form_channels.append(channel)
-                
+
         try:
             image = manager.well.selectedWellSample().image()
         except:
             image = manager.image
-        
+
         if image.getObjectiveSettings() is not None:
-            form_objective = MetadataObjectiveForm(initial={'objectiveSettings': image.getObjectiveSettings(), 
+            form_objective = MetadataObjectiveForm(initial={'objectiveSettings': image.getObjectiveSettings(),
                                     'mediums': list(conn.getEnumerationEntries("MediumI")), 
                                     'immersions': list(conn.getEnumerationEntries("ImmersionI")), 
                                     'corrections': list(conn.getEnumerationEntries("CorrectionI")) })
@@ -977,18 +1038,18 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
             if instrument.getMicroscope() is not None:
                 form_microscope = MetadataMicroscopeForm(initial={'microscopeTypes':list(conn.getEnumerationEntries("MicroscopeTypeI")), 'microscope': instrument.getMicroscope()})
 
-            filters = list(instrument.getFilters())            
+            filters = list(instrument.getFilters())
             if len(filters) > 0:
                 for f in filters:
                     form_filter = MetadataFilterForm(initial={'filter': f, 'types':list(conn.getEnumerationEntries("FilterTypeI"))})
                     form_filters.append(form_filter)
-            
+
             detectors = list(instrument.getDetectors())
             if len(detectors) > 0:
                 for d in detectors:
                     form_detector = MetadataDetectorForm(initial={'detectorSettings':None, 'detector': d, 'types':list(conn.getEnumerationEntries("DetectorTypeI"))})
                     form_detectors.append(form_detector)
-        
+
             lasers = list(instrument.getLightSources())
             if len(lasers) > 0:
                 for l in lasers:
@@ -997,14 +1058,14 @@ def load_metadata_details(request, c_type, c_id, share_id=None, **kwargs):
                                     'mediums': list(conn.getEnumerationEntries("LaserMediumI")),
                                     'pulses': list(conn.getEnumerationEntries("PulseI"))})
                     form_lasers.append(form_laser)
-    
+
     if c_type in ("share", "discussion", "tag"):
         context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager}
     else:
         context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 
         'form_channels':form_channels, 'form_environment':form_environment, 'form_objective':form_objective, 
         'form_microscope':form_microscope, 'form_filters':form_filters, 'form_detectors':form_detectors, 
-        'form_lasers':form_lasers, 'form_stageLabel':form_stageLabel, 'form_comment':form_comment}
+        'form_lasers':form_lasers, 'form_stageLabel':form_stageLabel}
 
     t = template_loader.get_template(template)
     c = Context(request,context)
