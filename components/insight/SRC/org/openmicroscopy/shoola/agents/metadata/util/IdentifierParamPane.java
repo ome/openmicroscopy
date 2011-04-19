@@ -208,20 +208,43 @@ class IdentifierParamPane
 	}
 	
 	/**
+	 * Returns the values entered in the text field.
+	 * 
+	 * @return See above
+	 */
+	List<Object> getValues()
+	{
+		String text = field.getText();
+		if (text == null) return null;
+		String[] values = text.split(",");
+		if (values == null || values.length == 0)
+			return null;
+		List<Object> l = new ArrayList<Object>();
+		String v;
+		for (int i = 0; i < values.length; i++) {
+			v = values[i];
+			v = v.trim();
+			if (Long.class.equals(type)) {
+				try {
+					l.add(Long.parseLong(v));
+				} catch (Exception e) {}
+			} else {
+				l.add(v);
+			}
+		}
+		return l;
+	}
+	
+	/**
 	 * Returns <code>true</code> if the value entered is valid,
 	 * <code>false</code> otherwise.
 	 * 
 	 * @return See above.
 	 */
-	boolean isReady()
+	List<Object> isReady()
 	{
-		if (!required) return true;
-		if (Long.class.equals(type)) {
-			List<Long> values = getValuesAsLong();
-			return (values != null && values.size() > 0);
-		}
-		List<String> l = getValuesAsString();
-		return (l != null && l.size() > 0);
+		if (!required) return null;
+		return getValues();
 	}
 	
 	/**
