@@ -39,7 +39,8 @@ from omero.rtypes import *
 import os
 import StringIO
 
-from zipfile import ZipFile
+import glob
+import zipfile
 
 try:
     from PIL import Image, ImageDraw # see ticket:2597
@@ -59,14 +60,18 @@ def log(text):
     
 
 def compress(target, base):
-    """Creates a ZIP recursively from a given base directory."""
-    zip_file = ZipFile(target, 'w')
+    """
+    Creates a ZIP recursively from a given base directory.
+    
+    @param target:      Name of the zip file we want to write E.g. "folder.zip"
+    @param base:        Name of folder that we want to zip up E.g. "folder"
+    """
+    zip_file = zipfile.ZipFile(target, 'w')
     try:
-        for root, dirs, names in os.walk(base):
-            for name in names:
-                path = os.path.join(root, name)
-                print "Compressing: %s" % path
-                zip_file.write(path)
+        files = os.path.join(base, "*")
+        for name in glob.glob(files):
+            zip_file.write(name, os.path.basename(name), zipfile.ZIP_DEFLATED)
+
     finally:
         zip_file.close()
         
@@ -106,7 +111,7 @@ def renderImage(renderingEngine, zRange, t=0, channel=None, greyscale=False):
     return pilImage
     
 
-def savePlane(renderingEngine, originalName, format, cName, zRange, t=0, channel=None, greyscale=False, imgWidth=None):
+def savePlane(renderingEngine, originalName, format, cName, zRange, t=0, channel=None, greyscale=False, imgWidth=None, folder_name=None):
     """
     Renders and saves an image to disk.
     
@@ -130,7 +135,6 @@ def savePlane(renderingEngine, originalName, format, cName, zRange, t=0, channel
     print "greyscale", greyscale
     print "imgWidth", imgWidth
     
-    
     image = renderImage(renderingEngine, zRange, t, channel, greyscale)
     if imgWidth:
         w, h = image.size()
@@ -138,31 +142,34 @@ def savePlane(renderingEngine, originalName, format, cName, zRange, t=0, channel
         image = image.resize((imgWidth, newH))
         
     if format == "PNG":
-        imgName = makeImageName(originalName, cName, zRange, t, "png")
+        imgName = makeImageName(originalName, cName, zRange, t, "png", folder_name)
+        print "Saving image:", imgName
         image.save(imgName, "PNG")
     else:
-        imgName = makeImageName(originalName, cName, zRange, t, "jpg")
+        imgName = makeImageName(originalName, cName, zRange, t, "jpg", folder_name)
+        print "Saving image:", imgName
         image.save(imgName)
         
         
-def makeImageName(originalName, cName, zRange, t, extension):
+def makeImageName(originalName, cName, zRange, t, extension, folder_name):
     """ 
     Produces the name for the saved image.
     E.g. imported/myImage.dv -> myImage_DAPI_z13_t01.png
     """
-    name = originalName.split("/")[-1]
+    name = os.path.basename(originalName)
     #name = name.rsplit(".",1)[0]  # remove extension
     if len(zRange) == 2:
         z = "%02d-%02d" % (zRange[0], zRange[1])
     else:
         z = "%02d" % zRange[0]
-    imgName = "images/%s_%s_z%s_t%02d.%s" % (name, cName, z, t, extension)
-    print imgName
+    imgName = "%s_%s_z%s_t%02d.%s" % (name, cName, z, t, extension)
+    if folder_name != None:
+        imgName = os.path.join(folder_name, imgName)
     return imgName
     
     
 def savePlanesForImage(renderingEngine, originalName, pixelsId, sizeC, splitCs, mergedCs, channelNames=None,
-        zRange=None, tRange=None, greyscale=False, imgWidth=None, projectZ=False, format="PNG"):
+        zRange=None, tRange=None, greyscale=False, imgWidth=None, projectZ=False, format="PNG", folder_name=None):
     """
     Saves all the required planes for a single image, either as individual planes or projection.
     
@@ -210,15 +217,15 @@ def savePlanesForImage(renderingEngine, originalName, pixelsId, sizeC, splitCs, 
         for t in tIndexes:
             if zRange == None:
                 defaultZ = renderingEngine.getDefaultZ()
-                savePlane(renderingEngine, originalName, format, cName, (defaultZ,), t, c, greyscale, imgWidth)
+                savePlane(renderingEngine, originalName, format, cName, (defaultZ,), t, c, greyscale, imgWidth, folder_name)
             elif projectZ:
-                savePlane(renderingEngine, originalName, format, cName, zRange, t, c, greyscale, imgWidth)
+                savePlane(renderingEngine, originalName, format, cName, zRange, t, c, greyscale, imgWidth, folder_name)
             else:
                 if len(zRange) > 1:
                     for z in range(zRange[0], zRange[1]):
-                        savePlane(renderingEngine, originalName, format, cName, (z,), t, c, greyscale, imgWidth)
+                        savePlane(renderingEngine, originalName, format, cName, (z,), t, c, greyscale, imgWidth, folder_name)
                 else:
-                    savePlane(renderingEngine, originalName, format, cName, zRange, t, c, greyscale, imgWidth)
+                    savePlane(renderingEngine, originalName, format, cName, zRange, t, c, greyscale, imgWidth, folder_name)
 
 
 def batchImageExport(session, scriptParams):
@@ -229,6 +236,7 @@ def batchImageExport(session, scriptParams):
     greyscale = scriptParams["Individual_Channels_Grey"]
     dataType = scriptParams["Data_Type"]
     ids = scriptParams["IDs"]
+    folder_name = scriptParams["Folder_Name"]
     
     if (not splitCs) and (not mergedCs):
         print "Not chosen to save Individual Channels OR Merged Image"
@@ -286,7 +294,7 @@ def batchImageExport(session, scriptParams):
     
     # somewhere to put images
     curr_dir = os.getcwd()
-    exp_dir = os.path.join(curr_dir, "images")
+    exp_dir = os.path.join(curr_dir, folder_name)
     os.mkdir(exp_dir)
     
     # do the saving to disk
@@ -302,14 +310,13 @@ def batchImageExport(session, scriptParams):
         print "zRange", zRange
         print "tRange", tRange
         savePlanesForImage(renderingEngine, originalName, pixelsId, sizeC, splitCs, mergedCs, channelNames,
-            zRange, tRange, greyscale, imgWidth, projectZ=False, format="PNG")
+            zRange, tRange, greyscale, imgWidth, projectZ=False, format="PNG", folder_name=folder_name)
     
     renderingEngine.close() 
 
     # zip up image folder
-    zip_file_name = "exported_images.zip"
-    zip_file = os.path.join(curr_dir, zip_file_name)
-    compress(zip_file, exp_dir)
+    zip_file_name = "%s.zip" % folder_name
+    compress(zip_file_name, folder_name)
     
     queryService = session.getQueryService()
     updateService = session.getUpdateService()
@@ -338,7 +345,7 @@ def runScript():
         rstring('ALL T planes'),
         rstring('Other (see below)')]
      
-    client = scripts.client('Batch_Image_Export.py', """Save multiple images as jpegs, pngs etc in a zip
+    client = scripts.client('Batch_Image_Export.py', """Save multiple images as jpegs or pngs in a zip
 file available for download as a batch export. 
 See http://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/running-util-scripts""", 
 
@@ -390,6 +397,9 @@ See http://www.openmicroscopy.org/site/support/omero4/getting-started/tutorial/r
     scripts.String("Format", grouping="8", 
         description="Format to save image", values=formats, default='JPEG'),
     
+    scripts.String("Folder_Name", grouping="9",
+        description="Name of folder (and zip file) to store images", default='Batch_Image_Export'),
+
     version = "4.3.0",
     authors = ["William Moore", "OME Team"],
     institutions = ["University of Dundee"],
