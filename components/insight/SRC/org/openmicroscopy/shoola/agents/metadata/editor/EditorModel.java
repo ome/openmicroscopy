@@ -138,10 +138,7 @@ class EditorModel
 	
 	/** The index of the default channel. */
 	static final int	DEFAULT_CHANNEL = 0;
-	
-	/** The default name for the original metadata file. */
-	static final String ORIGINAL_METADATA_NAME = "original_metadata.txt";
-	
+
 	/** The parent of this editor. */
 	private  MetadataViewer			parent;
 	
@@ -960,7 +957,7 @@ class EditorModel
 			if (FileAnnotationData.COMPANION_FILE_NS.equals(ns)) {
 				//tmp
 				String name = f.getFileName();
-				if (name.contains(ORIGINAL_METADATA_NAME))
+				if (name.contains(FileAnnotationData.ORIGINAL_METADATA_NAME))
 					originalMetadata = f;
 			} else if (!FileAnnotationData.FLIM_NS.equals(ns)) {
 				l.add(f);

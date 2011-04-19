@@ -98,6 +98,10 @@ public class FileAnnotationData extends AnnotationData {
     public static final String FLIM_NS = 
     	omero.constants.analysis.flim.NSFLIM.value;
     
+    /** The default name for the original metadata file.*/
+    public static final String ORIGINAL_METADATA_NAME = 
+    	omero.constants.annotation.file.ORIGINALMETADATA.value;
+    	
     /** Identifies the <code>PDF</code> file formats. */
     public static final String PDF = "pdf";
 

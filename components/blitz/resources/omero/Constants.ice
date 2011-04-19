@@ -115,11 +115,11 @@ module omero {
     };
 
     /**
-     * General constatnts used for annotations.
+     * General constants used for annotations.
      **/
     module annotation {
 
-        /** Constatnts used for file annotations. **/
+        /** Constants used for file annotations. **/
         module file {
             const string ORIGINALMETADATA = "original_metadata.txt";
         };
