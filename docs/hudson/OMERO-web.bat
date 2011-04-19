@@ -30,6 +30,13 @@ if errorlevel 1 goto ERROR
 python dist\bin\omero web unittest --config=%ICE_CONFIG% --test=webadmin
 if errorlevel 1 goto ERROR
 
+python dist\bin\omero web start
+if errorlevel 1 goto ERROR
+python dist\bin\omero web seleniumtest webadmin "hudson.openmicroscopy.org.uk" "http://%OMERO_HOST%:%webport%" firefox --config=$ICE_CONFIG
+if errorlevel 1 goto ERROR
+python dist\bin\omero web stop
+if errorlevel 1 goto ERROR
+
 REM
 REM Write test file for OMERO-web jobs
 REM
