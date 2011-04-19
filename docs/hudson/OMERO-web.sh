@@ -38,7 +38,7 @@ python dist/bin/omero web unittest --config=$ICE_CONFIG --test=webadmin
 
 python dist/bin/omero web start
 
-python dist/bin/omero web seleniumtest webadmin localhost 'http://'$OMERO_HOST':'$WEBPORT firefox --config=$ICE_CONFIG
+python dist/bin/omero web seleniumtest webadmin hudson.openmicroscopy.org.uk 'http://'$OMERO_HOST':'$WEBPORT firefox --config=$ICE_CONFIG
 
 python dist/bin/omero web stop
 
