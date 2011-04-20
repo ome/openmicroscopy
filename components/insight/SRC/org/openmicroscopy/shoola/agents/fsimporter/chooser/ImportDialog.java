@@ -68,7 +68,6 @@ import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -80,7 +79,6 @@ import info.clearthought.layout.TableLayout;
 import org.jdesktop.swingx.JXTaskPane;
 
 //Application-internal dependencies
-
 import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.view.Importer;
@@ -96,6 +94,7 @@ import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
+import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -168,14 +167,14 @@ public class ImportDialog
 	
 	/** The message to display in the header. */
 	private static final String MESSAGE_LOCATION = "Select where to import " +
-			"the data:";
+			"the data";
 	
 	/** The message to display in the header. */
 	private static final String MESSAGE = "Select the files or directories " +
-			"to import:";
+			"to import";
 	
 	/** The message to display in the header. */
-	private static final String MESSAGE_PLATE = "Select the plates to import:";
+	private static final String MESSAGE_PLATE = "Select the plates to import";
 	
 	/** The message to display in the header. */
 	private static final String END = ".";
@@ -273,10 +272,7 @@ public class ImportDialog
 	
 	/** The component displaying the table, options etc. */
 	private JTabbedPane 				tabbedPane;
-	
-	/** The text field, displaying the default name of the container. */
-	private JTextField 					defaultContainerField;
-	
+
 	/** The collection of datasets to use by default. */
 	private List<DataNode>				datasets;
 	
@@ -621,7 +617,7 @@ public class ImportDialog
 		sizeImportLabel = new JLabel();
 		sizeImportLabel.setText(UIUtilities.formatFileSize(0));
 		diskSpacePane = new JPanel();
-		diskSpacePane.setLayout(new FlowLayout(FlowLayout.LEFT));
+		diskSpacePane.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
 		//diskSpacePane.setBackground(UIUtilities.BACKGROUND);
 		diskSpacePane.add(UIUtilities.setTextFont("Space Usage"));
 		diskSpacePane.add(canvas);
@@ -681,10 +677,7 @@ public class ImportDialog
 		};
 		locationPane = new JPanel();
 		locationPane.setLayout(new BoxLayout(locationPane, BoxLayout.Y_AXIS));
-		defaultContainerField = new JTextField();
-		defaultContainerField.setColumns(10);
-		defaultContainerField.setText(UIUtilities.formatDate(null, 
-				UIUtilities.D_M_Y_FORMAT));
+		locationPane.setBorder(null);
 		
 		tabbedPane = new JTabbedPane();
 		numberOfFolders = new NumericalTextField();
@@ -1075,8 +1068,9 @@ public class ImportDialog
 	private JPanel createRow()
 	{
 		JPanel row = new JPanel();
-		row.setLayout(new FlowLayout(FlowLayout.LEFT));
-		row.setBackground(UIUtilities.BACKGROUND);
+		row.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
+		//row.setBackground(UIUtilities.BACKGROUND);
+		row.setBorder(null);
 		return row;
 	}
 	
@@ -1213,6 +1207,8 @@ public class ImportDialog
 	private void buildLocationPane()
 	{
 		locationPane.removeAll();
+		locationPane.setBorder(
+				BorderFactory.createTitledBorder(MESSAGE_LOCATION));
 		JPanel row = createRow();
 		String message = PROJECT_TXT;
 		IconManager icons = IconManager.getInstance();
@@ -1221,7 +1217,7 @@ public class ImportDialog
 			message = SCREEN_TXT;
 			icon = icons.getIcon(IconManager.SCREEN);
 		}
-		row.add(UIUtilities.setTextFont(MESSAGE_LOCATION));
+		//row.add(UIUtilities.setTextFont(MESSAGE_LOCATION));
 		locationPane.add(row);
 		row = createRow();
 		row.add(new JLabel(icon));
@@ -1239,7 +1235,7 @@ public class ImportDialog
 			datasetPane.setLayout(new TableLayout(size));
 			datasetPane.add(row, "0, 0, 0, 1");
 			JPanel p = UIUtilities.buildComponentPanel(folderAsDatasetBox);
-			p.setBackground(UIUtilities.BACKGROUND);
+			//p.setBackground(UIUtilities.BACKGROUND);
 			datasetPane.add(p, "1, 0");
 			row = createRow();
 			row.add(datasetsBox);
@@ -1249,53 +1245,81 @@ public class ImportDialog
 		}
 	}
 
+	/** 
+	 * Lays out the quota.
+	 * 
+	 * @return See above.
+	 */
+	private JPanel buildQuotaPane()
+	{
+		JPanel row = new JPanel();
+		row.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		row.add(UIUtilities.buildComponentPanelRight(diskSpacePane, 0, 0, true));
+		row.add(UIUtilities.setTextFont(QuotaCanvas.IMPORT_SIZE_TEXT));
+		row.add(UIUtilities.buildComponentPanel(sizeImportLabel, 0, 0, true));
+		row.setBorder(null);
+		return row;
+	}
+	
 	/** Builds and lays out the UI. */
 	private void buildGUI()
 	{
 		setLayout(new BorderLayout(0, 0));
-		tabbedPane.add("Files to import", table);
+		JPanel p = new JPanel();
+		p.setBorder(null);
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
+		p.add(buildQuotaPane());
+		p.add(table);
+		tabbedPane.add("Files to import", p);
 		tabbedPane.add("Options", buildOptionsPane());
 		
-		JPanel p = new JPanel();
+		p = new JPanel();
 		double[][] size = {{TableLayout.PREFERRED, 10, TableLayout.FILL}, 
 				{TableLayout.FILL}};
 		p.setLayout(new TableLayout(size));
 		p.add(table.buildControls(), "0, 0, LEFT, CENTER");
 		
-		JPanel row = new JPanel();
-		row.setLayout(new FlowLayout(FlowLayout.LEFT));
-		row.add(UIUtilities.buildComponentPanelRight(diskSpacePane));
-		row.add(UIUtilities.setTextFont(QuotaCanvas.IMPORT_SIZE_TEXT));
-		row.add(UIUtilities.buildComponentPanel(sizeImportLabel));
+		buildLocationPane();
 		JPanel ptab = new JPanel(); 
 		ptab.setLayout(new BoxLayout(ptab, BoxLayout.Y_AXIS));
-		ptab.add(row);
+		//ptab.add(row);
+		ptab.add(locationPane);
 		ptab.add(tabbedPane);
-		p.add(ptab, "2, 0");
 		
-		JPanel cp = new JPanel();
+		p.add(ptab, "2, 0");
 		String text = MESSAGE;
 		if (type == Importer.SCREEN_TYPE) text = MESSAGE_PLATE;
+		
+		/*
+		JPanel cp = new JPanel();
+		
 		cp.setLayout(new BoxLayout(cp, BoxLayout.Y_AXIS));
 		cp.add(UIUtilities.buildComponentPanel(UIUtilities.setTextFont(text)));
 		cp.add(chooser);
+		*/
 		
-		JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, cp, 
+		JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, chooser, 
 				p);
 		JPanel body = new JPanel();
 		double[][] ss = {{TableLayout.FILL}, 
 				{TableLayout.PREFERRED, TableLayout.FILL}};
 		body.setLayout(new TableLayout(ss));
-		buildLocationPane();
+		
 		body.setBackground(UIUtilities.BACKGROUND);
+		/*
 		JPanel header = new JPanel();
 		header.setLayout(new BoxLayout(header, BoxLayout.X_AXIS));
 		header.add(locationPane);
 		
 		//header.add(right);
-		body.add(header, "0, 0, CENTER, CENTER");
+		//body.add(header, "0, 0, CENTER, CENTER");
+		 * */
 		body.add(pane, "0, 1");
 		//c.add(body, BorderLayout.CENTER);
+		IconManager icons = IconManager.getInstance();
+		TitlePanel tp = new TitlePanel("Import", text, 
+				icons.getIcon(IconManager.IMPORT_48));
+		//add(tp, BorderLayout.NORTH);
 		add(body, BorderLayout.CENTER);
 		JPanel controls = new JPanel();
 		controls.setLayout(new BoxLayout(controls, BoxLayout.Y_AXIS));

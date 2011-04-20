@@ -64,7 +64,7 @@ class QuotaCanvas
 	private static final double		THRESHOLD = 0.8;
 	
 	/** The dimension of the canvas.*/
-	private static final Dimension	DIMENSION = new Dimension(80, 15);
+	private static final Dimension	DIMENSION = new Dimension(80, 12);
 	
 	/** The color indicating the used space.*/
 	private static final Color		USED_COLOR_DEFAULT = Color.BLUE;
