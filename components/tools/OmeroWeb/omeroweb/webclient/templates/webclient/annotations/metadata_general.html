@@ -144,6 +144,15 @@
                     newWindow.document.close();
                     return false;
                 });
+                
+                $(".commentText").each(function() {
+                    var $comment = $(this);
+                    var html = $comment.html();
+                    console.log(html);
+                    var regexp = /(www\.[\S]+)[\s]/g;   // regex recognises www
+                    var edit = html.replace(regexp,"<a target='new' href='$1'>$1</a> ");
+                    $comment.html(edit);
+                });
 
             });
 
@@ -172,6 +181,7 @@
                     }
                 } 
             }
+            
     </script>
     
 {% endblock %}
@@ -223,7 +233,7 @@
             <img src="{% url webstatic "images/spinner.gif" %}" />
         </div>
         {% endif %}
-        {% if manager.will %}
+        {% if manager.well %}
         <div id="metadata_tab">
             <!-- content is loaded by ajax when this tab is first displayed -->
             <a id="acquisition-link" href="{% url load_metadata_acquisition 'image' manager.well.selectedWellSample.image.id %}" style='display:none' >Acquisition</a>
@@ -572,7 +582,6 @@
                                 <b>Owner:</b> {{ fileann.getOwner.getFullName }}<br />
                                 <b>Linked by:</b> {{ fileann.link.getDetails.getOwner.getFullName }}<br />
                                 <b>On:</b> {{ fileann.link.creationEventDate|date:"Y-m-d H:i:s" }}<br />
-                                <b>Size:</b> {{ fileann.getFileSize }}<br />
                                 <b>Description:</b> {{ fileann.description|default_if_none:""|truncatewords:10  }}
                             </span>
                             ({{ fileann.getFileSize|default_if_none:0|filesizeformat }})
@@ -695,8 +704,14 @@
                         {% for tann in manager.text_annotations %}
                         <div class="ann_comment_wrapper">
                             <div class="avatar"><img src="{% url load_photo tann.details.owner.id.val %}" alt="{{ tann.getOwner.getFullName }}" title="{{ tann.getOwner.getFullName }}" width="20" height="20" /></div>
-                            <div><span class="ann_comment_header">{{ tann.getOwner.getFullName }} {% trans "at" %} {{ tann.creationEventDate|date:"Y-m-d H:i:s" }}</span>{% if tann.canDelete %} <input class="button" type="image" src="{% url webstatic "images/cancel12.png" %}" alt="Delete" title="Delete" onclick="deleteItem('comment', '{{ tann.id }}');" />{% endif %}<br/>
+                            <div>
+                                <span class="ann_comment_header">{{ tann.getOwner.getFullName }} {% trans "at" %} {{ tann.creationEventDate|date:"Y-m-d H:i:s" }}</span>
+                                {% if tann.canDelete %}
+                                    <input class="button" type="image" src="{% url webstatic "images/cancel12.png" %}" alt="Delete" title="Delete" onclick="deleteItem('comment', '{{ tann.id }}');" />
+                                {% endif %}
+                                <div class='commentText'>
                                 {{ tann.textValue|safe|linebreaks }}
+                                </div>
                             </div>
                         </div>
                         {% endfor %}
