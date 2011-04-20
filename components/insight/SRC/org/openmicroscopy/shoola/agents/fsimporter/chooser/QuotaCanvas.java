@@ -94,7 +94,7 @@ class QuotaCanvas
 		long free = quota.getAvailableSpace();
 		long used = quota.getUsedSpace();
 		List<String> tips = new ArrayList<String>();
-		tips.add((int) Math.round(percentage*100)+"% Used");
+		tips.add((double) UIUtilities.round(percentage*100, 3)+"% Used");
 		tips.add("Used Space: "+UIUtilities.formatFileSize(used));
 		tips.add("Free Space: "+UIUtilities.formatFileSize(free));
 		setToolTipText(UIUtilities.formatToolTipText(tips));
@@ -123,7 +123,7 @@ class QuotaCanvas
 		long free = quota.getAvailableSpace();
 		long used = quota.getUsedSpace();
 		if (free <= 0 || used < 0) return;
-		double percentage = (double) used/free;
+		double percentage = (double) used/(free+used);
 		if (percentage < 0) percentage = 0;
 		this.percentage = percentage; 
 		formatToolTip(0);
@@ -132,17 +132,15 @@ class QuotaCanvas
 	
 	/**
 	 * Sets the size of the file to add to the queue.
-	 * @param size
+	 * 
+	 * @param size The size of the file.
 	 */
 	void setSizeInQueue(long size)
 	{
 		formatToolTip(size);
 		long free = quota.getAvailableSpace();
 		long used = quota.getUsedSpace();
-		long diff = free-used;
-		if (diff != 0) {
-			percentageToImport = (double) size/diff;
-		}
+		percentageToImport = (double) size/(free+used);
 		repaint();
 	}
 	
