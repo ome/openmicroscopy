@@ -6,6 +6,7 @@
  */
 package ome.io.nio;
 
+import java.awt.Dimension;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -136,6 +137,7 @@ public class PixelsService extends AbstractFileSystemService
                 pixels, pixelsPyramidFilePath);
         final PixelBuffer romio = createRomioPixelBuffer(
                 pixelsFilePath, pixels, true);
+        Dimension tileSize = pixelsPyramid.getTileSize();
         Utils.forEachTile(new TileLoopIteration() {
             public void run(int z, int c, int t, int x, int y, int w,
                             int h, int tileCount)
@@ -161,7 +163,7 @@ public class PixelsService extends AbstractFileSystemService
                     return;
                 }
             }
-        }, romio, 256, 256);
+        }, romio, (int) tileSize.getWidth(), (int) tileSize.getHeight());
         log.info("SUCCESS -- Pyramid created for pixels id:" + pixels.getId());
     }
 
