@@ -45,6 +45,7 @@ import omero.model.Objective;
 import omero.model.ObjectiveSettings;
 import omero.model.PermissionsI;
 import omero.model.Plate;
+import omero.model.PlateAcquisition;
 import omero.model.Project;
 import omero.model.ProjectDatasetLink;
 import omero.model.ProjectDatasetLinkI;
@@ -209,7 +210,55 @@ public class PojosServiceTest
     }
     
     /**
-     * Test to load container hierarchy with project specified, no orphan
+     * Test to load container hierarchy with screen specified.
+     * @throws Exception Thrown if an error occurred.
+     */
+    @Test
+    public void testLoadContainerHierarchyScreenWithPlateAndPlateAcquisitionSpecified() 
+    	throws Exception 
+    {
+    	//first create a project
+    	Screen p = (Screen) iUpdate.saveAndReturnObject(
+    			mmFactory.simpleScreenData().asIObject());
+    	Plate d = (Plate) iUpdate.saveAndReturnObject(
+    			mmFactory.simplePlateData().asIObject());
+    	PlateAcquisition pa = (PlateAcquisition) 
+    		mmFactory.simplePlateAcquisitionData().asIObject();
+    	pa.setPlate(d);
+    	pa = (PlateAcquisition) iUpdate.saveAndReturnObject(pa);
+    	
+    	//link the 2
+    	ScreenPlateLink link = new ScreenPlateLinkI();
+    	link.setParent(p);
+    	link.setChild(d);
+    	iUpdate.saveAndReturnObject(link);
+    	
+    	Parameters param = new ParametersI();
+        List<Long> ids = new ArrayList<Long>();
+        ids.add(p.getId().getValue());
+        List results = iContainer.loadContainerHierarchy(
+        		Screen.class.getName(), ids, param);
+        assertTrue(results.size() == 1);
+        Iterator i = results.iterator();
+        ScreenData screen;
+        Set<PlateData> plates;
+        Iterator<PlateData> j;
+        PlateData plate;
+        while (i.hasNext()) {
+			screen = new  ScreenData((Screen) i.next());
+			assertTrue(screen.getId() == p.getId().getValue());
+			plates = screen.getPlates();
+			assertTrue(plates.size() == 1);
+			j = plates.iterator();
+			while (j.hasNext()) {
+				plate = j.next();
+				assertTrue(plate.getId() == d.getId().getValue());
+			}
+		}
+    }
+    
+    /**
+     * Test to load container hierarchy with no project specified, no orphan
      * loaded
      * @throws Exception Thrown if an error occurred.
      */
@@ -242,7 +291,7 @@ public class PojosServiceTest
     }
 
     /**
-     * Test to load container hierarchy with screen specified, no orphan
+     * Test to load container hierarchy with no screen specified, no orphan
      * loaded
      * @throws Exception Thrown if an error occurred.
      */
@@ -250,7 +299,7 @@ public class PojosServiceTest
     public void testLoadContainerHierarchyNoScreenSpecified() 
     	throws Exception 
     {
-    	//first create a project
+    	//first create a screen
     	long self = factory.getAdminService().getEventContext().userId;
     	Screen p = (Screen) iUpdate.saveAndReturnObject(
     			mmFactory.simpleScreenData().asIObject());

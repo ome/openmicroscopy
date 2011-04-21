@@ -200,9 +200,8 @@ class OmeroDataServiceImpl
 					ScreenData.class.equals(rootNodeType))
 				param.orphan();
 		}
-		Set parents = gateway.loadContainerHierarchy(rootNodeType, rootNodeIDs,
+		return gateway.loadContainerHierarchy(rootNodeType, rootNodeIDs,
 				param); 
-		return parents;                            
 	}
 
 	/** 

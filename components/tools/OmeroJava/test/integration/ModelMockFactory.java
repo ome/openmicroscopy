@@ -115,6 +115,7 @@ import omero.model.WellI;
 import omero.model.WellSample;
 import omero.model.WellSampleI;
 import pojos.DatasetData;
+import pojos.PlateAcquisitionData;
 import pojos.PlateData;
 import pojos.ProjectData;
 import pojos.ScreenData;
@@ -255,6 +256,19 @@ public class ModelMockFactory
         return data;
     }
 
+    /**
+     * Creates a default project and returns it.
+     * 
+     * @return See above.
+     */
+    public PlateAcquisitionData simplePlateAcquisitionData()
+    {
+    	PlateAcquisitionData data = new PlateAcquisitionData();
+        data.setName("plate acquisition name");
+        data.setDescription("plate acquisition name");
+        return data;
+    }
+    
     /**
      * Creates a default image and returns it.
      *
