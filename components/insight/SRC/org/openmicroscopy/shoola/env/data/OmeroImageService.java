@@ -48,6 +48,8 @@ import org.openmicroscopy.shoola.env.data.model.ScriptObject;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import org.openmicroscopy.shoola.env.rnd.data.Tile;
+
 import pojos.DataObject;
 import pojos.ImageData;
 import pojos.PixelsData;
@@ -132,14 +134,14 @@ public interface OmeroImageService
 	 * @param pd        The plane to render.
 	 * @param asTexture	Pass <code>true</code> to return a texture,
 	 * 					<code>false</code> to return a buffered image.
-	 * @param largeImae Pass <code>true</code> to render a large image,
+	 * @param largeImage Pass <code>true</code> to render a large image,
 	 * 					<code>false</code> otherwise.
 	 * @return The image representing the plane.
 	 * @throws RenderingServiceException If the server cannot render the image.
 	 */
 	public Object renderImage(long pixelsID, PlaneDef pd, boolean asTexture,
 			boolean largeImage)
-		throws RenderingServiceException;    
+		throws RenderingServiceException;
 
 	/**
 	 * Shuts downs the rendering service attached to the specified 

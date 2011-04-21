@@ -32,8 +32,11 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -58,6 +61,7 @@ import org.openmicroscopy.shoola.agents.imviewer.PlaneInfoLoader;
 import org.openmicroscopy.shoola.agents.imviewer.ProjectionSaver;
 import org.openmicroscopy.shoola.agents.imviewer.RenderingSettingsCreator;
 import org.openmicroscopy.shoola.agents.imviewer.RenderingSettingsLoader;
+import org.openmicroscopy.shoola.agents.imviewer.TileLoader;
 import org.openmicroscopy.shoola.agents.imviewer.actions.ZoomAction;
 import org.openmicroscopy.shoola.agents.imviewer.browser.Browser;
 import org.openmicroscopy.shoola.agents.imviewer.browser.BrowserFactory;
@@ -79,8 +83,12 @@ import org.openmicroscopy.shoola.env.event.EventBus;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import org.openmicroscopy.shoola.env.rnd.data.Region;
+import org.openmicroscopy.shoola.env.rnd.data.Tile;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
+
+import pojos.AnnotationData;
 import pojos.ChannelData;
 import pojos.DataObject;
 import pojos.ExperimenterData;
@@ -267,6 +275,36 @@ class ImViewerModel
     /** The size of the object if it is a big image. */
     private Dimension					computedSize;
     
+    /** The tiles to display. */
+    private Map<Integer, Tile>			tiles;
+    
+    /** The number of rows, default is <code>1</code>.*/
+    private int numberOfRows;
+    
+    /** The number of columns, default is <code>1</code>.*/
+    private int numberOfColumns;
+    
+    /**
+     * Sorts the tiles by index.
+     * 
+     * @param tiles The tiles to sort.
+     */
+    private void sortTilesByIndex(List<Tile> tiles)
+    {
+    	 if (tiles == null || tiles.size() == 0) return;
+         Comparator c = new Comparator() {
+             public int compare(Object o1, Object o2)
+             {
+                 int n1 = ((Tile) o1).getIndex(), n2 = ((Tile) o2).getIndex();
+                 int v = 0;
+                 if (n1 < n2) v = -1;
+                 else if (n1 > n2) v = 1;
+                 return v;
+             }
+         };
+         Collections.sort(tiles, c);
+    }
+    
     /**
 	 * Transforms 3D coordinates into linear coordinates.
 	 * The returned value <code>L</code> is calculated as follows: 
@@ -406,6 +444,9 @@ class ImViewerModel
 	{
 		this.image = image;
 		initialize(bounds, separateWindow);
+		tiles = new HashMap<Integer, Tile>();
+		numberOfRows = 1;
+		numberOfColumns = 1;
 		initializeMetadataViewer();
 		if (getImage().getDefaultPixels() != null) {
 			currentPixelsID = getImage().getDefaultPixels().getId();
@@ -768,6 +809,34 @@ class ImViewerModel
 	void onRndLoaded()
 	{
 		state = ImViewer.READY;
+		//tiles stuff
+		Dimension d = getTileSize();
+		int size = getMaxX();
+		int n = size/d.width;
+		if (n*d.width < size) n++;
+		numberOfColumns = n;
+		size = getMaxY();
+		n = size/d.height;
+		if (n*d.height < size) n++;
+		numberOfRows = n;
+		int index = 0;
+		Tile tile;
+		Region region;
+		int x = 0;
+		int y = 0;
+		for (int i = 0; i < numberOfRows; i++) {
+			for (int j = 0; j < numberOfColumns; j++) {
+				index = i*numberOfColumns+j;
+				tile = new Tile(index, i, j);
+				region = new Region(x, y, d.width, d.height);
+				tile.setRegion(region);
+				x += d.width;
+				tiles.put(index, tile);
+			}
+			y += d.height;
+			x = 0;
+		}
+		//
 		double f = initZoomFactor();
 		if (f > 0)
 			browser.initializeMagnificationFactor(f);
@@ -972,7 +1041,7 @@ class ImViewerModel
 	 */
 	boolean isBigImage()
 	{
-		return false;
+		return tiles.size() > 1;
 		/*
 		return (getMaxX() > RenderingControl.MAX_SIZE_THREE ||
 				getMaxY() > RenderingControl.MAX_SIZE_THREE);
@@ -2253,6 +2322,9 @@ class ImViewerModel
 	 */
 	Dimension computeSize()
 	{
+		computedSize = new Dimension(getMaxX(), getMaxY());
+		return computedSize;
+		/*
 		if (!isBigImage()) {
 			computedSize = new Dimension(getMaxX(), getMaxY());
 			return computedSize;
@@ -2266,6 +2338,7 @@ class ImViewerModel
 			computedSize = new Dimension(RenderingControl.MAX_SIZE,
 					RenderingControl.MAX_SIZE);
 		return computedSize;
+		*/
 	}
 	
 	/** Refreshes the renderer. */
@@ -2348,4 +2421,58 @@ class ImViewerModel
 		loader.load();
 	}
 	
+	/**
+	 * Returns the size of the tile.
+	 * 
+	 * @return See above.
+	 */
+	Dimension getTileSize()
+	{
+		Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return null;
+		return rnd.getTileSize(); 
+	}
+
+    /**
+     * Returns the number of rows, default is <code>1</code>.
+     * 
+     * @return See above.
+     */
+    int getRows() { return numberOfRows; }
+    
+    /**
+     * Returns the number of columns, default is <code>1</code>.
+     * 
+     * @return See above.
+     */
+    int getColumns() { return numberOfColumns; }
+    
+    /**
+     * Returns the tiles to display.
+     * 
+     * @return See above.
+     */
+    Map<Integer, Tile> getTiles() { return tiles; }
+
+    /** Fires an asynchronous call to load the tiles. */
+    void fireTileLoading()
+    {
+    	Renderer rnd = metadataViewer.getRenderer();
+		if (rnd == null) return;
+		PlaneDef pDef = new PlaneDef();
+		pDef.t = getDefaultT();
+		pDef.z = getDefaultZ();
+		pDef.slice = omero.romio.XY.value;
+		state = ImViewer.LOADING_IMAGE;
+		Iterator<Tile> i = tiles.values().iterator();
+		List<Tile> list = new ArrayList<Tile>();
+		while (i.hasNext()) {
+			list.add(i.next());
+		}
+		sortTilesByIndex(list);
+		TileLoader loader = new TileLoader(component, currentPixelsID, pDef, 
+				list);
+		loader.load();
+    }
+    
 }

@@ -26,6 +26,7 @@ package org.openmicroscopy.shoola.agents.metadata.rnd;
 //Java imports
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.util.List;
@@ -647,4 +648,10 @@ public interface Renderer
 	 */
 	void loadRndSettings(boolean loading, List results);
 	
+	/**
+	 * Returns the size of a tile.
+	 * 
+	 * @return See above.
+	 */
+	Dimension getTileSize();
 }

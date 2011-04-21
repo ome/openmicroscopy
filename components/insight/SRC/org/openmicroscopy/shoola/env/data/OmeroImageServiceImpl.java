@@ -75,6 +75,7 @@ import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.env.rnd.RenderingServiceException;
 import org.openmicroscopy.shoola.env.rnd.PixelsServicesFactory;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import org.openmicroscopy.shoola.env.rnd.data.Tile;
 import org.openmicroscopy.shoola.util.image.geom.Factory;
 import org.openmicroscopy.shoola.util.image.io.WriterImage;
 import pojos.ChannelData;
@@ -403,10 +404,11 @@ class OmeroImageServiceImpl
 				return createImage(values);
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new RenderingServiceException("RenderImage", e);
 		}
 	}
-
+	
 	/** 
 	 * Implemented as specified by {@link OmeroImageService}. 
 	 * @see OmeroImageService#shutDown(long)

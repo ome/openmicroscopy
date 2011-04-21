@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.env.data.views;
 
 //Java imports
 import java.io.File;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -64,9 +65,12 @@ import org.openmicroscopy.shoola.env.data.views.calls.ROISaver;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingControlLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.RenderingSettingsSaver;
+import org.openmicroscopy.shoola.env.data.views.calls.TileLoader;
 import org.openmicroscopy.shoola.env.data.views.calls.WorkflowHandler;
 import org.openmicroscopy.shoola.env.event.AgentEventListener;
 import org.openmicroscopy.shoola.env.rnd.RndProxyDef;
+import org.openmicroscopy.shoola.env.rnd.data.Tile;
+
 import pojos.DataObject;
 import pojos.PixelsData;
 import pojos.ROIData;
@@ -458,5 +462,18 @@ class ImageDataViewImpl
 		BatchCallTree cmd = new SaveAsLoader(parameters);
 		return cmd.exec(observer);
 	}
-	
+
+	/**
+     * Implemented as specified by the view interface.
+     * @see ImageDataView#loadTiles(long, PlaneDef, List, boolean,
+     * AgentEventListener)
+     */
+	public CallHandle loadTiles(long pixelsID, PlaneDef pDef,
+			Collection<Tile> tiles, boolean asTexture,
+			AgentEventListener observer)
+	{
+		BatchCallTree cmd = new TileLoader(pixelsID, pDef, tiles, asTexture);
+		return cmd.exec(observer);
+	}
+
 }

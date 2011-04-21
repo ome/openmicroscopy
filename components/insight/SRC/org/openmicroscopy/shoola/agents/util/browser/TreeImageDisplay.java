@@ -39,9 +39,6 @@ import javax.swing.tree.DefaultMutableTreeNode;
 //Third-party libraries
 
 //Application-internal dependencies
-import omero.model.Plate;
-import omero.model.PlateAcquisition;
-
 import org.openmicroscopy.shoola.agents.util.EditorUtil;
 import pojos.DataObject;
 import pojos.DatasetData;
