@@ -73,7 +73,7 @@ class BirdEyeViewComponent
 	private static final Color STROKE_COLOR = Color.BLACK;
 	
 	/** The default selection color. */
-	private static final Color SELECTION_COLOR = Color.RED;
+	private static final Color SELECTION_COLOR = new Color(255, 0, 0, 100);
 	
 	/** The processing image. */
 	private BufferedImage pImage;
@@ -309,7 +309,7 @@ class BirdEyeViewComponent
 		// Test if the cursor is over the box 
 		bover = (mouseX > bx-w && mouseX < bx+w && 
 				mouseY > by-h && mouseY < by+h);
-		g2D.drawRect((int) bx, (int) by, (int) w, (int) h);
+		g2D.fillRect((int) bx, (int) by, (int) w, (int) h);
 		//noFill();
 	}
 

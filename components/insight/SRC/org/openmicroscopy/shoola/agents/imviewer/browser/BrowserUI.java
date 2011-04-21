@@ -131,6 +131,7 @@ class BrowserUI
     	int w = (int) (vx*region.width);
     	int h = (int) (vy*region.height);
     	Rectangle r = new Rectangle(x, y, w, h);
+    	//To we need to load the files.
     	scrollTo(r, false);
     }
     
@@ -497,6 +498,7 @@ class BrowserUI
 	public void setBounds(int x, int y, int width, int height)
 	{
 		super.setBounds(x, y, width, height);
+		if (model.isBigImage()) return;
 		if (!scrollbarsVisible() && adjusting) adjusting = false;
 		if (adjusting) return;
 		Rectangle r = getViewport().getViewRect();
