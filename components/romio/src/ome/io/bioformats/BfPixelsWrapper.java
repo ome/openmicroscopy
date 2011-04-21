@@ -47,16 +47,6 @@ public class BfPixelsWrapper {
 
     private final int pixelSize;
 
-    private final Integer rowSize;
-
-    private final Integer colSize;
-
-    private final Integer planeSize;
-
-    private final Integer stackSize;
-
-    private final Integer timepointSize;
-
     /**
      * We may want a constructor that takes the id of an imported file
      * or that takes a File object?
@@ -73,19 +63,12 @@ public class BfPixelsWrapper {
          * We are not copying sizeX and sizeY due to the possible change in
          * resolution level within the Bio-Formats reader.
          */
-        int sizeX = reader.getSizeX();
-        int sizeY = reader.getSizeY();
         sizeZ = reader.getSizeZ();
         sizeC = reader.getSizeC();
         sizeT = reader.getSizeT();
         rgbChannels = reader.getRGBChannelCount();
         pixelType = reader.getPixelType();
         pixelSize = getBytesPerPixel();
-        rowSize = sizeX * pixelSize;
-        colSize = sizeY * pixelSize;
-        planeSize = sizeY * rowSize;
-        stackSize = sizeZ * planeSize;
-        timepointSize = sizeC * stackSize;
     }
 
     public byte[] getMessageDigest() throws IOException {
@@ -98,7 +81,7 @@ public class BfPixelsWrapper {
         }
         for (int t = 0; t < sizeT; t++) {
             try {
-                byte[] buffer = new byte[timepointSize];
+                byte[] buffer = new byte[getTimepointSize()];
                 getTimepoint(t,buffer);
                 md.update(ByteBuffer.wrap(buffer));
             } catch (DimensionsOutOfBoundsException e) {
@@ -197,27 +180,27 @@ public class BfPixelsWrapper {
     }
 
     public Integer getRowSize() {
-        return rowSize;
+        return getSizeX() * pixelSize;
     }
 
     public Integer getColSize() {
-        return colSize;
+        return getSizeY() * pixelSize;
     }
 
     public Integer getPlaneSize() {
-        return planeSize;
+        return getSizeY() * getRowSize();
     }
 
     public Integer getStackSize() {
-        return stackSize;
+        return getSizeZ() * getPlaneSize();
     }
 
     public Integer getTimepointSize() {
-        return timepointSize;
+        return getSizeC() * getStackSize();
     }
 
     public Integer getTotalSize() {
-        return sizeT * timepointSize;
+        return getSizeT() * getTimepointSize();
     }
 
     public Integer getCubeSize(List<Integer> offset, List<Integer> size, List<Integer> step)
@@ -240,37 +223,37 @@ public class BfPixelsWrapper {
     public Long getRowOffset(Integer y, Integer z, Integer c, Integer t)
             throws DimensionsOutOfBoundsException {
         checkBounds(null, y, z, c, t);
-        return (long) getPlaneOffset(z,c,t) + y * rowSize;
+        return (long) getPlaneOffset(z,c,t) + y * getRowSize();
     }
 
     public Long getPlaneOffset(Integer z, Integer c, Integer t)
             throws DimensionsOutOfBoundsException {
         checkBounds(null, null, z, c, t);
-        return (long) getStackOffset(c,t) + z * planeSize;
+        return (long) getStackOffset(c,t) + z * getPlaneSize();
     }
 
     public Long getStackOffset(Integer c, Integer t)
             throws DimensionsOutOfBoundsException {
         checkBounds(null, null, null, c, t);
-        return (long) getTimepointOffset(t) + c * stackSize;
+        return (long) getTimepointOffset(t) + c * getStackSize();
     }
 
     public Long getTimepointOffset(Integer t)
             throws DimensionsOutOfBoundsException {
         checkBounds(null, null, null, null, t);
-        return (long) t * timepointSize;
+        return (long) t * getTimepointSize();
     }
 
     public byte[] getCol(Integer x, Integer z, Integer c, Integer t,
             byte[] buffer) throws IOException, DimensionsOutOfBoundsException {
         checkBounds(x, null, z, c, t);
         try {
-            if (buffer.length != colSize)
+            if (buffer.length != getColSize())
                 throw new RuntimeException("Buffer size incorrect.");
-            byte[] plane = new byte[planeSize];
+            byte[] plane = new byte[getPlaneSize()];
             getWholePlane(z,c,t,plane);
             for(int y = 0; y < reader.getSizeY(); y++) {
-                System.arraycopy(plane, (y*rowSize)+(x*pixelSize),
+                System.arraycopy(plane, (y*getRowSize())+(x*pixelSize),
                     buffer, y*pixelSize, pixelSize);
             }
         } catch (FormatException e) {
@@ -283,7 +266,7 @@ public class BfPixelsWrapper {
             throws IOException, DimensionsOutOfBoundsException {
         checkBounds(null, null, z, c, t);
         try {
-            if (buffer.length != planeSize)
+            if (buffer.length != getPlaneSize())
                 throw new RuntimeException("Buffer size incorrect.");
             getWholePlane(z,c,t,buffer);
         } catch (FormatException e) {
@@ -307,11 +290,11 @@ public class BfPixelsWrapper {
             byte[] buffer) throws IOException, DimensionsOutOfBoundsException {
         checkBounds(null, y, z, c, t);
         try {
-            if (buffer.length != rowSize)
+            if (buffer.length != getRowSize())
                 throw new RuntimeException("Buffer size incorrect.");
-            byte[] plane = new byte[planeSize];
+            byte[] plane = new byte[getPlaneSize()];
             getWholePlane(z,c,t,plane);
-            System.arraycopy(plane, y*rowSize, buffer, 0, rowSize);
+            System.arraycopy(plane, y*getRowSize(), buffer, 0, getRowSize());
         } catch (FormatException e) {
             throw new RuntimeException(e);
         }
@@ -322,13 +305,13 @@ public class BfPixelsWrapper {
             throws IOException, DimensionsOutOfBoundsException {
         checkBounds(null, null, null, c, t);
         try {
-            if (buffer.length != stackSize)
+            if (buffer.length != getStackSize())
                 throw new RuntimeException("Buffer size incorrect.");
-            byte[] plane = new byte[planeSize];
+            byte[] plane = new byte[getPlaneSize()];
             for(int z = 0; z < sizeZ; z++)
             {
                 getWholePlane(z,c,t,plane);
-                System.arraycopy(plane, 0, buffer, z*planeSize, planeSize);
+                System.arraycopy(plane, 0, buffer, z*getPlaneSize(), getPlaneSize());
             }
         } catch (FormatException e) {
             throw new RuntimeException(e);
@@ -339,13 +322,13 @@ public class BfPixelsWrapper {
     public byte[] getTimepoint(Integer t, byte[] buffer)
             throws IOException, DimensionsOutOfBoundsException {
         checkBounds(null, null, null, null, t);
-        if (buffer.length != timepointSize)
+        if (buffer.length != getTimepointSize())
             throw new RuntimeException("Buffer size incorrect.");
-        byte[] stack = new byte[stackSize];
+        byte[] stack = new byte[getStackSize()];
         for(int c = 0; c < sizeC; c++)
         {
             getStack(c, t, stack);
-            System.arraycopy(stack, 0, buffer, c*stackSize, stackSize);
+            System.arraycopy(stack, 0, buffer, c*getStackSize(), getStackSize());
         }
         return buffer;
     }
@@ -386,16 +369,16 @@ public class BfPixelsWrapper {
             planeNumber = reader.getIndex(z, c, t);
             reader.openBytes(planeNumber, plane);
         } else {
-            byte[] fullPlane = new byte[planeSize*rgbChannels];
+            byte[] fullPlane = new byte[getPlaneSize()*rgbChannels];
             planeNumber = reader.getIndex(z, 0, t);
             reader.openBytes(planeNumber, fullPlane);
             if(reader.isInterleaved()) {
-                for(int p = 0; p < planeSize; p += pixelSize) {
+                for(int p = 0; p < getPlaneSize(); p += pixelSize) {
                     System.arraycopy(fullPlane, c*pixelSize + p*rgbChannels,
                         plane, p, pixelSize);
                 }
             } else {
-                System.arraycopy(fullPlane, c*planeSize, plane, 0, planeSize);
+                System.arraycopy(fullPlane, c*getPlaneSize(), plane, 0, getPlaneSize());
             }
         }
         return plane;
@@ -415,11 +398,11 @@ public class BfPixelsWrapper {
             plane = plane2d.getData().array();
         } else {
             // Separate channels as openPlane2D doesn't do this
-            byte[] fullPlane = new byte[planeSize*rgbChannels];
+            byte[] fullPlane = new byte[getPlaneSize()*rgbChannels];
             int planeNumber = reader.getIndex(z, 0, t);
             Plane2D plane2d = reader.openPlane2D(path, planeNumber, plane);
             fullPlane = plane2d.getData().array();
-            System.arraycopy(fullPlane, c*planeSize, plane, 0, planeSize);
+            System.arraycopy(fullPlane, c*getPlaneSize(), plane, 0, getPlaneSize());
         }
         return plane;
     }
@@ -430,7 +413,7 @@ public class BfPixelsWrapper {
         int cubeOffset = 0;
         int xStripes = (size.get(0) + step.get(0) - 1) / step.get(0);
         int tileRowSize = pixelSize * xStripes;
-        byte[] plane = new byte[planeSize];
+        byte[] plane = new byte[getPlaneSize()];
         for(int t = offset.get(4); t < size.get(4)+offset.get(4); t += step.get(4))
         {
             for(int c = offset.get(3); c < size.get(3)+offset.get(3); c += step.get(3))
@@ -438,7 +421,7 @@ public class BfPixelsWrapper {
                 for(int z = offset.get(2); z < size.get(2)+offset.get(2); z += step.get(2))
                 {
                     getWholePlane(z,c,t,plane);
-                    int rowOffset = offset.get(1)*rowSize;
+                    int rowOffset = offset.get(1)*getRowSize();
                     if(step.get(0)==1)
                     {
                         int byteOffset = rowOffset + offset.get(0)*pixelSize;
@@ -446,7 +429,7 @@ public class BfPixelsWrapper {
                         {
                             System.arraycopy(plane, byteOffset, cube, cubeOffset, tileRowSize);
                             cubeOffset += tileRowSize;
-                            byteOffset += rowSize*step.get(1);
+                            byteOffset += getRowSize()*step.get(1);
                         }
                     }
                     else
@@ -460,7 +443,7 @@ public class BfPixelsWrapper {
                                 cubeOffset += pixelSize;
                                 byteOffset += step.get(0)*pixelSize;
                             }
-                            rowOffset += rowSize*step.get(1);
+                            rowOffset += getRowSize()*step.get(1);
                         }
                     }
 

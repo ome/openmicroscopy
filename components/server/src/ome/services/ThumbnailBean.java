@@ -50,6 +50,7 @@ import ome.system.SimpleEventContext;
 import ome.util.ImageUtil;
 import omeis.providers.re.Renderer;
 import omeis.providers.re.data.PlaneDef;
+import omeis.providers.re.data.RegionDef;
 import omeis.providers.re.quantum.QuantizationException;
 import omeis.providers.re.quantum.QuantumFactory;
 
@@ -491,10 +492,6 @@ public class ThumbnailBean extends AbstractLevel2Service
         // Ensure that we have a valid state for rendering
         errorIfInvalidState();
 
-        // Original sizes and thumbnail metadata
-        int origSizeX = pixels.getSizeX();
-        int origSizeY = pixels.getSizeY();
-
         // Retrieve our rendered data
         if (theZ == null)
             theZ = settings.getDefaultZ();
@@ -502,13 +499,39 @@ public class ThumbnailBean extends AbstractLevel2Service
             theT = settings.getDefaultT();
         PlaneDef pd = new PlaneDef(PlaneDef.XY, theT);
         pd.setZ(theZ);
+        // Use a resolution level that matches our requested size if we can
+        PixelBuffer pixelBuffer = renderer.getPixels();
+        if (pixelBuffer.getResolutionLevels() > 1)
+        {
+            int resolutionLevel = pixelBuffer.getResolutionLevels();
+            int pixelBufferSizeX = pixelBuffer.getSizeX();
+            int pixelBufferSizeY = pixelBuffer.getSizeY();
+            while (resolutionLevel > 0)
+            {
+                resolutionLevel--;
+                pixelBuffer.setResolutionLevel(resolutionLevel);
+                pixelBufferSizeX = pixelBuffer.getSizeX();
+                pixelBufferSizeY = pixelBuffer.getSizeY();
+                if (pixelBufferSizeX <= thumbnailMetadata.getSizeX()
+                    || pixelBufferSizeY <= thumbnailMetadata.getSizeY())
+                {
+                    break;
+                }
+            }
+            log.info(String.format("Using resolution level %d -- %dx%d",
+                    resolutionLevel, pixelBufferSizeX, pixelBufferSizeY));
+            renderer.setResolutionLevel(resolutionLevel);
+            pixels.setSizeX(pixelBufferSizeX);
+            pixels.setSizeY(pixelBufferSizeY);
+        }
 
         // Render the planes and translate to a buffered image
         BufferedImage image;
         try
         {
             int[] buf = renderer.renderAsPackedInt(pd, null);
-            image = ImageUtil.createBufferedImage(buf, origSizeX, origSizeY);
+            image = ImageUtil.createBufferedImage(
+                    buf, pixels.getSizeX(), pixels.getSizeY());
         } 
         catch (IOException e)
         {
@@ -526,8 +549,8 @@ public class ThumbnailBean extends AbstractLevel2Service
         }
 
         // Finally, scale our image using scaling factors (percentage).
-        float xScale = (float) thumbnailMetadata.getSizeX() / origSizeX;
-        float yScale = (float) thumbnailMetadata.getSizeY() / origSizeY;
+        float xScale = (float) thumbnailMetadata.getSizeX() / pixels.getSizeX();
+        float yScale = (float) thumbnailMetadata.getSizeY() / pixels.getSizeY();
         return iScale.scaleBufferedImage(image, xScale, yScale);
     }
 
