@@ -94,7 +94,6 @@ import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.rnd.RenderingControl;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPaneComponent;
 import org.openmicroscopy.shoola.util.ui.NumericalTextField;
-import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 import pojos.DataObject;
 import pojos.DatasetData;
@@ -677,7 +676,7 @@ public class ImportDialog
 		};
 		locationPane = new JPanel();
 		locationPane.setLayout(new BoxLayout(locationPane, BoxLayout.Y_AXIS));
-		locationPane.setBorder(null);
+		locationPane.setBackground(UIUtilities.BACKGROUND);
 		
 		tabbedPane = new JTabbedPane();
 		numberOfFolders = new NumericalTextField();
@@ -1069,7 +1068,7 @@ public class ImportDialog
 	{
 		JPanel row = new JPanel();
 		row.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
-		//row.setBackground(UIUtilities.BACKGROUND);
+		row.setBackground(UIUtilities.BACKGROUND);
 		row.setBorder(null);
 		return row;
 	}
@@ -1207,8 +1206,8 @@ public class ImportDialog
 	private void buildLocationPane()
 	{
 		locationPane.removeAll();
-		locationPane.setBorder(
-				BorderFactory.createTitledBorder(MESSAGE_LOCATION));
+		//locationPane.setBorder(
+		//		BorderFactory.createTitledBorder(MESSAGE_LOCATION));
 		JPanel row = createRow();
 		String message = PROJECT_TXT;
 		IconManager icons = IconManager.getInstance();
@@ -1217,31 +1216,31 @@ public class ImportDialog
 			message = SCREEN_TXT;
 			icon = icons.getIcon(IconManager.SCREEN);
 		}
-		//row.add(UIUtilities.setTextFont(MESSAGE_LOCATION));
+		row.add(UIUtilities.setTextFont(MESSAGE_LOCATION));
 		locationPane.add(row);
+		locationPane.add(Box.createVerticalStrut(2));
 		row = createRow();
-		row.add(new JLabel(icon));
+		//row.add(new JLabel(icon));
 		row.add(UIUtilities.setTextFont(message));
 		row.add(parentsBox);
 		row.add(addProjectButton);
 		locationPane.add(row);
 		if (type == Importer.PROJECT_TYPE) {
-			row = createRow();
-			row.add(new JLabel(icons.getIcon(IconManager.DATASET)));
-			row.add(UIUtilities.setTextFont(DATASET_TXT));
-			JPanel datasetPane = new JPanel();
-			double[][] size = {{TableLayout.PREFERRED, TableLayout.FILL}, 
-					{TableLayout.PREFERRED, TableLayout.PREFERRED}};
-			datasetPane.setLayout(new TableLayout(size));
-			datasetPane.add(row, "0, 0, 0, 1");
-			JPanel p = UIUtilities.buildComponentPanel(folderAsDatasetBox);
-			//p.setBackground(UIUtilities.BACKGROUND);
-			datasetPane.add(p, "1, 0");
+			locationPane.add(Box.createVerticalStrut(8));
+			JPanel p = UIUtilities.buildComponentPanel(folderAsDatasetBox, 0, 0);
+			p.setBackground(UIUtilities.BACKGROUND);
+			JPanel right = new JPanel();
+			right.setBackground(UIUtilities.BACKGROUND);
+			right.setLayout(new BoxLayout(right, BoxLayout.Y_AXIS));
+			right.add(p);
 			row = createRow();
 			row.add(datasetsBox);
 			row.add(addButton);
-			datasetPane.add(row, "1, 1");
-			locationPane.add(datasetPane);
+			right.add(row);
+			row = createRow();
+			row.add(UIUtilities.setTextFont(DATASET_TXT));
+			row.add(right);
+			locationPane.add(row);
 		}
 	}
 
@@ -1274,52 +1273,23 @@ public class ImportDialog
 		tabbedPane.add("Options", buildOptionsPane());
 		
 		p = new JPanel();
-		double[][] size = {{TableLayout.PREFERRED, 10, TableLayout.FILL}, 
-				{TableLayout.FILL}};
+		double[][] size = {{TableLayout.PREFERRED, 10, 5, TableLayout.FILL}, 
+				{TableLayout.PREFERRED, TableLayout.FILL}};
 		p.setLayout(new TableLayout(size));
-		p.add(table.buildControls(), "0, 0, LEFT, CENTER");
+		p.add(table.buildControls(), "0, 1, LEFT, CENTER");
 		
 		buildLocationPane();
-		JPanel ptab = new JPanel(); 
-		ptab.setLayout(new BoxLayout(ptab, BoxLayout.Y_AXIS));
-		//ptab.add(row);
-		ptab.add(locationPane);
-		ptab.add(tabbedPane);
-		
-		p.add(ptab, "2, 0");
-		String text = MESSAGE;
-		if (type == Importer.SCREEN_TYPE) text = MESSAGE_PLATE;
-		
-		/*
-		JPanel cp = new JPanel();
-		
-		cp.setLayout(new BoxLayout(cp, BoxLayout.Y_AXIS));
-		cp.add(UIUtilities.buildComponentPanel(UIUtilities.setTextFont(text)));
-		cp.add(chooser);
-		*/
-		
+		p.add(locationPane, "3, 0");
+		p.add(tabbedPane, "2, 1, 3, 1");
 		JSplitPane pane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, chooser, 
 				p);
 		JPanel body = new JPanel();
 		double[][] ss = {{TableLayout.FILL}, 
 				{TableLayout.PREFERRED, TableLayout.FILL}};
 		body.setLayout(new TableLayout(ss));
-		
 		body.setBackground(UIUtilities.BACKGROUND);
-		/*
-		JPanel header = new JPanel();
-		header.setLayout(new BoxLayout(header, BoxLayout.X_AXIS));
-		header.add(locationPane);
-		
-		//header.add(right);
-		//body.add(header, "0, 0, CENTER, CENTER");
-		 * */
+
 		body.add(pane, "0, 1");
-		//c.add(body, BorderLayout.CENTER);
-		IconManager icons = IconManager.getInstance();
-		TitlePanel tp = new TitlePanel("Import", text, 
-				icons.getIcon(IconManager.IMPORT_48));
-		//add(tp, BorderLayout.NORTH);
 		add(body, BorderLayout.CENTER);
 		JPanel controls = new JPanel();
 		controls.setLayout(new BoxLayout(controls, BoxLayout.Y_AXIS));

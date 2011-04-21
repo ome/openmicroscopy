@@ -440,7 +440,7 @@ class FileSelectionTable
 	JPanel buildControls()
 	{
 		JPanel p = new JPanel();
-		p.setLayout(new BoxLayout(p, BoxLayout.PAGE_AXIS));
+		p.setLayout(new BoxLayout(p, BoxLayout.Y_AXIS));
 		p.add(addButton);
 		p.add(Box.createVerticalStrut(5));
 		p.add(removeButton);

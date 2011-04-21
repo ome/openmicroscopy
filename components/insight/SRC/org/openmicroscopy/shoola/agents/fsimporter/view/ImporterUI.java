@@ -47,12 +47,14 @@ import javax.swing.event.ChangeListener;
 //Third-party libraries
 
 //Application-internal dependencies
+import org.openmicroscopy.shoola.agents.fsimporter.IconManager;
 import org.openmicroscopy.shoola.agents.fsimporter.ImporterAgent;
 import org.openmicroscopy.shoola.agents.fsimporter.util.FileImportComponent;
 import org.openmicroscopy.shoola.env.data.model.ImportableObject;
 import org.openmicroscopy.shoola.env.ui.TaskBar;
 import org.openmicroscopy.shoola.env.ui.TopWindow;
 import org.openmicroscopy.shoola.util.ui.ClosableTabbedPane;
+import org.openmicroscopy.shoola.util.ui.TitlePanel;
 import org.openmicroscopy.shoola.util.ui.UIUtilities;
 
 /** 
@@ -74,7 +76,7 @@ class ImporterUI
 {
 
 	/** The window's title. */
-	private static final String TITLE = "Imports";
+	private static final String TITLE = "Import Data";
 	
 	/** Reference to the model. */
 	private ImporterModel	model;
@@ -124,13 +126,12 @@ class ImporterUI
 	{
 		Container container = getContentPane();
 		container.setLayout(new BorderLayout(0, 0));
-		/*
+		
 		IconManager icons = IconManager.getInstance();
-		TitlePanel tp = new TitlePanel(TITLE, "", "Displays " +
-				"the ongoing and done imports.", 
+		TitlePanel tp = new TitlePanel(TITLE, "", "Select data to import " +
+				"and monitor ongoing/done imports.", 
 				icons.getIcon(IconManager.IMPORT_48));
 		container.add(tp, BorderLayout.NORTH);
-		*/
 		container.add(tabs, BorderLayout.CENTER);
 		container.add(controlsBar, BorderLayout.SOUTH);
 	}
