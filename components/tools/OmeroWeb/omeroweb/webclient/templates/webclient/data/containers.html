@@ -6,216 +6,231 @@
 
 {% block link %}
     <link rel="stylesheet" href="{% url webstatic "css/container.css" %}" type="text/css" media="screen"/>
-    <link rel="stylesheet" href="{% url webstatic "css/tree.css" %}" type="text/css" media="screen"/>
     <link rel="stylesheet" href="{% url webstatic "css/table.css" %}" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block jscript %}
 
-    <script type="text/javascript" src="{% url webstatic "javascript/jquery.simple.tree.js" %}"></script>    
+    <script type="text/javascript" src="{% url webstatic "javascript/jquery.cookie.js" %}"></script>
+	<script type="text/javascript" src="{% url webstatic "javascript/jquery.hotkeys.js" %}"></script>
+	<script type="text/javascript" src="{% url webstatic "javascript/jquery.jstree.js" %}"></script>   
     
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.core.js" %}"></script>
-    <script type="text/javascript" src="{% url webstatic "javascript/ui/ui.draggable.js" %}"></script>
-
 {% endblock %}
 
 {% block script %}
     
     <script type="text/javascript">
-        var simpleTreeCollection = null;
-        $(document).ready(function() 
+        $(function() 
             {
+
                 var h = $(window).height()-200;
                 $("div#tree_details").css('height', h);
                 $("div#metadata_details").css('height', h+31);
                 $("div#metadata_details iframe").attr('height', h+31);
                 $("div#content_details").css('height', h+31);
                 
-                $("div#tree_details").html('<p>Loading imported images... please wait <img src="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
-                $("div#tree_details").load("{% url load_data %}?view=tree", function () {
-                    simpleTreeCollection = $('.simpleTree').simpleTree({
-                        autoclose: false,
-                        afterRootClick:function(node){
-                	        $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" type="image" src="{% url webstatic "images/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href=\'{% url load_template "usertags" %}\'"> {% if not nav.experimenter  %}| <input class="button" type="image" src="{% url webstatic "images/window_new16.png" %}" alt="New container" title="New container" onclick="createNewContainer(null);"/>{% endif %}'); 
+                $("#dataTree")
+            		.jstree({ 
+            			// the list of plugins to include
+            			"plugins" : [ "themes", "html_data", "ui", "crrm", "dnd", "types", "hotkeys", "contextmenu" ],
+            			// Plugin configuration
 
-                            $("#right_panel").hide();
-                            $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="expanded-right" id="lhid_trayhandle_icon_right">');
-                            $("div#metadata_details").empty();
-                            $("div#content_details").removeAttr('rel').children().remove();
-                        },
-                        afterClick:function(node){
-                            if($(node).attr('id') == "orphaned") {                      
-                                $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" type="image" src="{% url webstatic "images/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href=\'{% url load_template "usertags" %}\'">'); 
-                                $("#right_panel").show();
-                                $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
-                                $("div#metadata_details").html('<p>{% trans "This is virtual container with orphaned images. These images are not linked anywhere. Just drag them to the selected container." %}</p>'); 
-                                                           
-                                $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
-                                $("div#content_details").load('/webclient/load_data/orphaned/?view=icon');
-                                $("div#content_details").attr('rel', 'orphaned');
-                            } else {
-                                var obj = $(node).attr('id').split("-");
-                                var par = $(node).parents('li:first').attr('id')
-                                if (obj[0] == 'pr') {
-                                    var ro = $(node).children().filter('span').attr('id');
-                                    if (ro=='readonly') {
-                                        $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" type="image" src="{% url webstatic "images/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href=\'{% url load_template "usertags" %}\'">');
-                                    } else if (ro=='editonly') {
-                                        $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" type="image" src="{% url webstatic "images/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href=\'{% url load_template "usertags" %}\'"> | <input class="button" type="image" src="{% url webstatic "images/nuvola_cancel16.png" %}" alt="Delete" title="Delete" onclick="deleteItem(\'project\', \''+obj[1]+'\');" />');
-                                    } else {
-                                        $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" type="image" src="{% url webstatic "images/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href=\'{% url load_template "usertags" %}\'"> | <input class="button" type="image" src="{% url webstatic "images/window_new16.png" %}" alt="New container" title="New container" onclick="createNewContainer('+obj[1]+');"/> <input class="button" type="image" src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="Paste" title="Paste" onclick="pasteFromClipboard(\'project\', \''+obj[1]+'\', \'{{ url }}\');" /> <input class="button" type="image" src="{% url webstatic "images/nuvola_cancel16.png" %}" alt="Delete" title="Delete" onclick="deleteItem(\'project\', \''+obj[1]+'\');" />');
-                                    }
-                                    
-                                    $("#right_panel").show();
-                                    $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
-                                    $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="/webclient/metadata_details/project/'+obj[1]+'/" id="metadata_details" name="metadata_details"></iframe>');
-                                    $('iframe#metadata_details').load();
-                                    $("div#content_details").removeAttr('rel').children().remove();
-                                } else if (obj[0] == 'ds') {                                     
-                                    var ro = $(node).children().filter('span').attr('id');
-                                    if (ro=='readonly') {
-                                        $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" type="image" src="{% url webstatic "images/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href=\'{% url load_template "usertags" %}\'">'); 
-                                    } else if (ro=='editonly') {
-                                        if (par != 0) {
-                                            $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" type="image" src="{% url webstatic "images/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href=\'{% url load_template "usertags" %}\'"> | <a href="{% url manage_action_containers "remove" %}dataset/'+obj[1]+'/?parent='+par+'&url={{ url }}" alt="Cut" title="Cut" onClick="return confirm(\'Unlink dataset?\');"><img src="{% url webstatic "images/cut16.png" %}" alt="Cut" title="Cut"/></a> <input class="button" type="image" src="{% url webstatic "images/nuvola_cancel16.png" %}" alt="Delete" title="Delete" onclick="deleteItem(\'dataset\', \''+obj[1]+'\');" title="Delete"/>');
-                                        } else {
-                                            $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" type="image" src="{% url webstatic "images/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href=\'{% url load_template "usertags" %}\'"> | <input class="button" type="image" src="{% url webstatic "images/nuvola_cancel16.png" %}" alt="Delete" title="Delete" onclick="deleteItem(\'dataset\', \''+obj[1]+'\');" title="Delete"/>');
-                                        }
-                                    } else {
-                                        if (par != 0) {
-                                            $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" type="image" src="{% url webstatic "images/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href=\'{% url load_template "usertags" %}\'"> | <input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" onclick="treeCopyToClipboard(\'dataset\', \''+obj[1]+'\');"/> <input id="pasteFromClipboard"  class="button" type="image" src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="Paste" title="Paste" onclick="pasteFromClipboard(\'dataset\', \''+obj[1]+'\', \'{{ url }}\');"> <a href="{% url manage_action_containers "remove" %}dataset/'+obj[1]+'/?parent='+par+'&url={{ url }}" alt="Cut" title="Cut" onClick="return confirm(\'Unlink dataset?\');"><img src="{% url webstatic "images/cut16.png" %}" alt="Cut" title="Cut"/></a> <input class="button" type="image" src="{% url webstatic "images/nuvola_cancel16.png" %}" alt="Delete" title="Delete" onclick="deleteItem(\'dataset\', \''+obj[1]+'\');" title="Delete"/>');
-                                        } else {
-                                            $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" type="image" src="{% url webstatic "images/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href=\'{% url load_template "usertags" %}\'"> | <input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" onclick="treeCopyToClipboard(\'dataset\', \''+obj[1]+'\');"/> <input id="pasteFromClipboard"  class="button" type="image" src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="Paste" title="Paste" onclick="pasteFromClipboard(\'dataset\', \''+obj[1]+'\', \'{{ url }}\');"> <input class="button" type="image" src="{% url webstatic "images/nuvola_cancel16.png" %}" alt="Delete" title="Delete" onclick="deleteItem(\'dataset\', \''+obj[1]+'\');" title="Delete"/>');
-                                        }
-                                    }
-                                    
-                                    $("#right_panel").show();
-                                    $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
-                                    $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="/webclient/metadata_details/dataset/'+obj[1]+'/" id="metadata_details" name="metadata_details"></iframe>');
-                                    $('iframe#metadata_details').load();
+            			// I usually configure the plugin that handles the data first - in this case JSON as it is most common
+            			"html_data" : { 
+            				// I chose an ajax enabled tree - again - as this is most common, and maybe a bit more complex
+            				// All the options are the same as jQuery's except for `data` which CAN (not should) be a function
+            				"ajax" : {
+            					// the URL to fetch the data
+            					"url" : "{% url load_data %}",
+            					// this function is executed in the instance's scope (this refers to the tree instance)
+            					// the parameter is the node being loaded (may be -1, 0, or undefined when loading the root nodes)
+            					"data" : function (n) {
+                                    return { 
+                                        "view" : "tree", 
+            							"o_type" : n.attr ? n.attr("rel") : "",
+            							"o_id" : n.attr ? n.attr("id").split("-")[1] : 0
+            						};
+                                }
+            				}
+            			},
+            			// Using types - most of the time this is an overkill
+            			// Still meny people use them - here is how
+            			"types" : {
+            				// I want only `drive` nodes to be root nodes 
+            				// This will prevent moving or creating any other type as a root node
+            				"select_limit" : -1,
+            				"max_depth" : -1,
+            				"max_children" : -1,
+            				"valid_children" : [ "experimenter" ],
+            				"types" : {
+            					"experimenter" : {
+            						"valid_children" : [ "project", "dataset", "image" ],
+            						"icon" : {
+            							"image" : '{% url webstatic "images/tree/personal16.png" %}'
+            						},
+            						"create_node" : true,
+            						"start_drag" : false,
+            						"move_node" : false,
+            						"delete_node" : false,
+            						"remove" : false
+            					},
+            					"project" : {
+            						"valid_children" : [ "dataset" ],
+            						"icon" : {
+            							"image" : '{% url webstatic "images/tree/folder16.png" %}'
+            						},
+            						"create_node" : true,
+                                    "start_drag" : false,
+            						"move_node" : true,
+            						"delete_node" : true,
+            						"remove" : true
+            					},
+            					"dataset" : {
+            						"valid_children" : [ "image" ],
+            						"icon" : {
+            							"image" : '{% url webstatic "images/tree/folder_image16.png" %}'
+            						},
+            						"create_node" : false,
+            						"start_drag" : true,
+            						"move_node" : true,
+            						"delete_node" : true,
+            						"remove" : true
+            					},
+            					"image" : {
+            						"valid_children" : "none",
+            						"icon" : {
+            							"image" : '{% url webstatic "images/tree/image16.png" %}'
+            						},
+            						"create_node" : false,
+            						"start_drag" : true,
+            						"move_node" : true,
+            						"delete_node" : true,
+            						"remove" : true
+            					},
+            					"orphaned" : {
+            						"valid_children" : [ "image" ],
+            						"icon" : {
+            							"image" : '{% url webstatic "images/tree/folder_yellow16.png" %}'
+            						},
+            						"create_node" : false,
+            						"start_drag" : false,
+            						"move_node" : false,
+            						"delete_node" : false,
+            						"remove" : false
+            					}          					
+            				}
+            			},
+            			// For UI & core - the nodes to initially select and open will be overwritten by the cookie plugin
 
-                                    if ($("div#content_details").attr('rel') != obj.join("-")) {
-                                        if (par != 0) {
-                                            var parobj = par.split("-");
-                                            $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
-                                            $("div#content_details").load('/webclient/load_data/project/'+parobj[1]+'/dataset/'+obj[1]+'/?view=icon');
-                                        } else {
-                                            $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
-                                            $("div#content_details").load('/webclient/load_data/dataset/'+obj[1]+'/?view=icon');
+            			// the UI plugin - it handles selecting/deselecting/hovering nodes
+            			"ui" : {
+            				// this makes the node with ID node_4 selected onload
+            				"initially_select" : [ "experimenter-0" ]
+            			},
+            			// the core plugin - not many options here
+            			"core" : { 
+            				// just open those two nodes up
+            				// as this is an AJAX enabled tree, both will be downloaded from the server
+            				"initially_open" : [ "experimenter-0" ] 
+            			},
+            			"contextmenu" : {
+                            "items": {
+                                "create" : {
+                                    "label" : "Create new",
+                                    "icon" : '{% url webstatic "images/window_new16.png" %}',
+                                    "submenu": {
+                                        "Project":{
+                                            "label" : "Project",
+                                                "action": function (obj) { 
+                                                    console.log(obj)
+                                                }
+                                        },
+                                        "Dataset":{
+                                            "label" : "Dataset",
+                                                "action": function (obj) { 
+                                                    console.log(obj)
+                                                }
+                                        },
+                                        "Screen":{
+                                            "label" : "Screen",
+                                                "action": function (obj) { 
+                                                    console.log(obj)
+                                                }
                                         }
-                                        $("div#content_details").attr('rel', obj.join("-"));
-                                    }
-                                } else if (obj[0] == 'img') {
-                                    var parobj = par.split("-");
-                                    var ro = $(node).children().filter('span').attr('id');                                    
-                                    if(parobj[0] == "orphaned") {
-                                        parobj[1] = "orphaned";
-                                        
-                                        if (ro=='readonly') {
-                                            $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" type="image" src="{% url webstatic "images/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href=\'{% url load_template "usertags" %}\'"> | <input class="button" type="image" src="{% url webstatic "images/tree/kview.png" %}" alt="View" title="View" onclick="openPopup(\'/webclient/img_detail/'+obj[1]+'/\');"/>');
-                                        } else if (ro=='editonly') {
-                                            $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" type="image" src="{% url webstatic "images/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href=\'{% url load_template "usertags" %}\'"> | <input class="button" type="image" src="{% url webstatic "images/tree/kview.png" %}" alt="View" title="View" onclick="openPopup(\'/webclient/img_detail/'+obj[1]+'/\');"/> <input class="button" type="image" src="{% url webstatic "images/nuvola_cancel16.png" %}" alt="Delete" title="Delete" onclick="deleteItem(\'image\', \''+obj[1]+'\');" />');
-                                        } else {
-                                            $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" type="image" src="{% url webstatic "images/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href=\'{% url load_template "usertags" %}\'"> | <input class="button" type="image" src="{% url webstatic "images/tree/kview.png" %}" alt="View" title="View" onclick="openPopup(\'/webclient/img_detail/'+obj[1]+'/\');"/> <input class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket" title="Add to basket" onclick="toBasket(\'image\', \''+obj[1]+'\');"/> <input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" onclick="treeCopyToClipboard(\'image\', \''+obj[1]+'\');" /> <input class="button" type="image" src="{% url webstatic "images/nuvola_cancel16.png" %}" alt="Delete" title="Delete" onclick="deleteItem(\'image\', \''+obj[1]+'\');" />');
-                                        }
-                                    } else if (ro=='readonly') {
-                                        $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" type="image" src="{% url webstatic "images/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href=\'{% url load_template "usertags" %}\'"> | <input class="button" type="image" src="{% url webstatic "images/tree/kview.png" %}" alt="View" title="View" onclick="openPopup(\'/webclient/img_detail/'+obj[1]+'/\');"/>');
-                                    } else if (ro=='editonly') {
-                                        $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" type="image" src="{% url webstatic "images/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href=\'{% url load_template "usertags" %}\'"> | <input class="button" type="image" src="{% url webstatic "images/tree/kview.png" %}" alt="View" title="View" onclick="openPopup(\'/webclient/img_detail/'+obj[1]+'/\');"/>  <a href="{% url manage_action_containers "remove" %}image/'+obj[1]+'/?parent='+par+'&url={{ url }}" alt="Cut" title="Cut" onClick="return confirm(\'Unlink image?\');"><img src="{% url webstatic "images/cut16.png" %}" alt="Cut" title="Cut"/></a> <input class="button" type="image" src="{% url webstatic "images/nuvola_cancel16.png" %}" alt="Delete" title="Delete" onclick="deleteItem(\'image\', \''+obj[1]+'\');" />');
-                                    } else {
-                                        $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" type="image" src="{% url webstatic "images/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href=\'{% url load_template "usertags" %}\'"> | <input class="button" type="image" src="{% url webstatic "images/tree/kview.png" %}" alt="View" title="View" onclick="openPopup(\'/webclient/img_detail/'+obj[1]+'/\');"/> <input class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket" title="Add to basket" onclick="toBasket(\'image\', \''+obj[1]+'\');"/> <input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" onclick="treeCopyToClipboard(\'image\', \''+obj[1]+'\');" /> <a href="{% url manage_action_containers "remove" %}image/'+obj[1]+'/?parent='+par+'&url={{ url }}" alt="Cut" title="Cut" onClick="return confirm(\'Unlink image?\');"><img src="{% url webstatic "images/cut16.png" %}" alt="Cut" title="Cut"/></a> <input class="button" type="image" src="{% url webstatic "images/nuvola_cancel16.png" %}" alt="Delete" title="Delete" onclick="deleteItem(\'image\', \''+obj[1]+'\');" />');
-                                    }
-                                   
-                                    
-                                    $("#right_panel").show();
-                                    $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
-                                    $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="/webclient/metadata_details/image/'+obj[1]+'/" id="metadata_details" name="metadata_details"></iframe>');
-                                    $('iframe#metadata_details').load();
-
-                                    if ($("div#content_details").attr('rel') != par) {
-                                        $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
-                                        if(parobj[0] == "orphaned") {
-                                            $("div#content_details").load('/webclient/load_data/orphaned/?view=icon');
-                                        } else {
-                                            $("div#content_details").load('/webclient/load_data/dataset/'+parobj[1]+'/?view=icon');
-                                        }
-                                        $("div#content_details").attr('rel', par);
-                                    }                                                              
-                                } else if (obj[0] == 'sc') {
-                                    var ro = $(node).children().filter('span').attr('id');
-                                    if (ro=='readonly') {
-                                        $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" type="image" src="{% url webstatic "images/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href=\'{% url load_template "usertags" %}\'">');
-                                    } else if (ro=='editonly') {
-                                        $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" type="image" src="{% url webstatic "images/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href=\'{% url load_template "usertags" %}\'"> | <input class="button" type="image" src="{% url webstatic "images/nuvola_cancel16.png" %}" alt="Delete" title="Delete" onclick="deleteItem(\'screen\', \''+obj[1]+'\');" />');
-                                        
-                                    } else {
-                                        $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" type="image" src="{% url webstatic "images/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href=\'{% url load_template "usertags" %}\'"> | <input class="button" type="image" src="{% url webstatic "images/window_new16.png" %}" onclick="createNewContainer('+obj[1]+');"/> <input class="button" type="image" src="{% url webstatic "images/eclipse_paste_edit16.png" %}" alt="Paste" title="Paste" onclick="pasteFromClipboard(\'screen\', \''+obj[1]+'\', \'{{ url }}\');" /> <input class="button" type="image" src="{% url webstatic "images/nuvola_cancel16.png" %}" alt="Delete" title="Delete" onclick="deleteItem(\'screen\', \''+obj[1]+'\');" />');
-                                        
-                                    }
-                                    
-                                    $("#right_panel").show();
-                                    $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
-                                    $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="/webclient/metadata_details/screen/'+obj[1]+'/" id="metadata_details" name="metadata_details"></iframe>');
-                                    $('iframe#metadata_details').load();
-                                    $("div#content_details").removeAttr('rel').children().remove();
-                                } else if (obj[0] == 'pl') {
-                                    var ro = $(node).children().filter('span').attr('id');
-                                    var parobj = par.split("-");
-                                    if (ro=='readonly') {
-                                        $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" type="image" src="{% url webstatic "images/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href=\'{% url load_template "usertags" %}\'"> ');
-                                    } else if (ro=='editonly') {
-                                        $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" type="image" src="{% url webstatic "images/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href=\'{% url load_template "usertags" %}\'"> | <a href="{% url manage_action_containers "remove" %}image/'+obj[1]+'/?parent='+par+'&url={{ url }}" alt="Cut" title="Cut" onClick="return confirm(\'Unlink image?\');"><img src="{% url webstatic "images/cut16.png" %}" alt="Cut" title="Cut"/></a> <input class="button" type="image" src="{% url webstatic "images/nuvola_cancel16.png" %}" alt="Delete" title="Delete" onclick="deleteItem(\'plate\', \''+obj[1]+'\');" />');
-
-                                    } else {
-                                        $("div#buttons").html('<input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href=\'{% url load_template nav.menu %}\'"/> <input class="button" type="image" src="{% url webstatic "images/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href=\'{% url load_template "usertags" %}\'"> | <input class="button" type="image" src="{% url webstatic "images/basket16.png" %}" alt="Add to basket" title="Add to basket" onclick="toBasket(\'plate\', \''+obj[1]+'\');"/> <input class="button" type="image" src="{% url webstatic "images/eclipse_copy_edit16.png" %}" alt="Copy" title="Copy" onclick="treeCopyToClipboard(\'plate\', \''+obj[1]+'\');" /> <a href="{% url manage_action_containers "remove" %}image/'+obj[1]+'/?parent='+par+'&url={{ url }}" alt="Cut" title="Cut" onClick="return confirm(\'Unlink image?\');"><img src="{% url webstatic "images/cut16.png" %}" alt="Cut" title="Cut"/></a> <input class="button" type="image" src="{% url webstatic "images/nuvola_cancel16.png" %}" alt="Delete" title="Delete" onclick="deleteItem(\'plate\', \''+obj[1]+'\');" />');
-                                        
-                                    }
-                                                                        
-                                    $("#right_panel").show();
-                                    $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">'); 
-                                    $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" src="/webclient/metadata_details/plate/'+obj[1]+'/" id="metadata_details" name="metadata_details"></iframe>');
-                                    $('iframe#metadata_details').load();
-                                    
-                                    if ($("div#content_details").attr('rel') != obj.join("-")) {
-                                        if (par != 0) {
-                                            var parobj = par.split("-");
-                                            $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
-                                            $("div#content_details").load('/webclient/load_data/screen/'+parobj[1]+'/plate/'+obj[1]+'/?view=icon');
-                                        } else {
-                                            $("div#content_details").html('<p>Loading data... please wait <img src ="{% url webstatic "images/tree/spinner.gif" %}"/></p>');
-                                            $("div#content_details").load('/webclient/load_data/plate/'+obj[1]+'/?view=icon');
-                                        }
-                                        $("div#content_details").attr('rel', obj.join("-"));
                                     }
                                 }
-                            }                
+                            }
+                        }
+            			
+            	})
+            	.bind("create.jstree", function (e, data) {
+            	    if(data.rslt.parent.attr("rel") == "project") {
+                        url = '{% url manage_action_containers "addnewcontainer" %}project/'+data.rslt.parent.attr("id").split("-")[1]+'/';
+                    } else {
+                        url = '{% url manage_action_containers "addnewcontainer" %}';
+                    }
+                    
+                    $.ajax({
+                      url: url,
+                      data: { 
+      			          "name" : data.rslt.name,
+      					  "folder_type" : data.rslt.obj.attr("rel")
+      				  },
+                      dataType: "json",
+                      type: "POST",
+                      success: function(r){
+                          if(eval(r.bad)) {
+      						$.jstree.rollback(data.rlbk);
+      				      } else {
+      				        $(data.rslt.obj).attr("id", data.rslt.obj.attr("rel")+"-"+r.id);
+      				      }
+                      }
+                    });
+        		})
+        		.bind("rename.jstree", function (e, data) {
+        		    url = '{% url manage_action_containers "savename" %}'+data.rslt.obj.attr("rel")+'/'+data.rslt.obj.attr("id").split("-")[1]+'/';
+        		    $.ajax({
+                        url: url,
+                        data: { 
+      			            "name" : data.rslt.new_name
                         },
-                        afterDblClick:function(node){                    
-                        },
-                        afterMove:function(destination, source, pos){
-                        },
-                        afterAjax:function(){
-                        },
-                        afterContextMenu:function(node){
-                        },
-                        animate:true
+                        dataType: "json",
+                        type: "POST",
+                        success: function(r){
+                            if(eval(r.bad)) {
+                                $.jstree.rollback(data.rlbk);
+                            }
+                        }
+                    });
+        		})
+        		.bind("move_node.jstree", function (e, data) {
+                    data.rslt.o.each(function (i) {
+                        url = '{% url manage_action_containers "move" %}'+$(this).attr("rel")+'/'+$(this).attr("id").split("-")[1]+'/'
+                        $.ajax({
+            		        async : false,
+                            url: url,
+                            data : { 
+          					    "parent" : data.rslt.op.attr("rel")+'-'+data.rslt.op.attr("id").split("-")[1], 
+          						"destination" : data.rslt.np.attr("rel")+'-'+data.rslt.np.attr("id").split("-")[1]
+          					},
+                            dataType: "json",
+                            type: "POST",
+                            success: function(r){
+                                if(eval(r.bad)) {
+          							$.jstree.rollback(data.rlbk);
+          						}
+          						else {
+          							$(data.rslt.oc).attr("id", $(this).attr("rel")+"-"+r.id);
+          							if(data.rslt.cy && $(data.rslt.oc).children("UL").length) {
+          								data.inst.refresh(data.inst._get_parent(data.rslt.oc));
+          							}
+          						}
+          						$("#analyze").click();
+                            }
                         });
-                });               
-        }) 
-        function createNewContainer(pid) {
-            if(pid!=null) {
-                url = '{% url manage_action_containers "new" %}project/'+pid+'/';
-            } else {
-                url = '{% url manage_action_containers "new" %}';
-            }
-            var h = $(window).height()-200;
-            
-            $("#right_panel").show();
-            $("#swapMeta").html('<img tabindex="0" src="{% url webstatic "images/tree/spacer.gif" %}" class="collapsed-right" id="lhid_trayhandle_icon_right">');
-            $("div#metadata_details").html('<iframe width="370" height="'+(h+31)+'" id="metadata_details" src="'+url+'"name="metadata_details"></iframe>');
-            $('iframe#metadata_details').load();
-            
-        }     
+                    }); 
+        		});            		           
+        });       
         
     </script>
     <script type="text/javascript" src="{% url webstatic "javascript/actions.js" %}"></script>
@@ -235,13 +250,15 @@
 
     <div class="toolbar">
         <div id="buttons" class="align_left">
-            <input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href='{% url load_template nav.menu %}'"> <input class="button" type="image" src="{% url webstatic "images/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href='{% url load_template "usertags" %}'"> {% if not nav.experimenter  %}| <input class="button" type="image" src="{% url webstatic "images/window_new16.png" %}" alt="New container" title="New container" onclick="createNewContainer(null);"/> {% endif %}
+            <input class="button" type="image" src="{% url webstatic "images/reload16.png" %}" alt="Refresh" title="Refresh" onclick="document.location.href='{% url load_template nav.menu %}'"> <input class="button" type="image" src="{% url webstatic "images/view_tag16.png" %}" alt="Tags" title="Tags" onclick="document.location.href='{% url load_template "usertags" %}'">
         </div>
     </div>
 
 <div class="clear"> </div>
 
-<div id="tree_details"> </div>
+<div id="tree_details">
+    <div class="dataTree" id="dataTree"></div>
+</div>
 
 {% endblock %}
 

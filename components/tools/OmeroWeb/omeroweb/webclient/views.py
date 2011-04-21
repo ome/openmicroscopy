@@ -136,7 +136,7 @@ def isUserConnected (f):
             # http://docs.djangoproject.com/en/dev/ref/request-response/
             # Thu  6 Jan 2011 09:57:27 GMT -- callan at blackcat dot ca
             if request.is_ajax():
-                return HttpLoginRedirect(reverse("weblogin"))
+                return HttpResponseServerError(reverse("weblogin"))
             return HttpLoginRedirect(reverse("weblogin")+(("?url=%s") % (url)))
             
         conn_share = None       
@@ -542,6 +542,15 @@ def load_template(request, menu, **kwargs):
 def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_type=None, o3_id=None, **kwargs):
     request.session.modified = True
     
+    # SUBTREE TODO:
+    if request.REQUEST.get("o_type") is not None and len(request.REQUEST.get("o_type")) > 0:
+        o1_type = request.REQUEST.get("o_type")
+        try:
+            o1_id = long(request.REQUEST.get("o_id"))
+        except:
+            pass
+        
+
     # check menu
     menu = request.REQUEST.get("menu")
     if menu is not None:
@@ -588,11 +597,14 @@ def load_data(request, o1_type=None, o1_id=None, o2_type=None, o2_id=None, o3_ty
         index = int(request.REQUEST['index'])
     except:
         index = 0
-
+        
     # prepare data
     kw = dict()
-    if o1_type is not None and o1_id > 0:
+    if o1_type is not None and o1_id is not None and o1_id > 0:
         kw[str(o1_type)] = long(o1_id)
+    else:
+        kw[str(o1_type)] = bool(o1_id)
+    
     if o2_type is not None and o2_id > 0:
         kw[str(o2_type)] = long(o2_id)
     if o3_type is not None and o3_id > 0:
@@ -1259,6 +1271,89 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
         else:
             form_sharecomments = ShareCommentForm()
         context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager, 'form_sharecomments':form_sharecomments}  
+    elif action == 'addnewcontainer':
+        if not request.method == 'POST':
+            return HttpResponseRedirect(reverse("manage_action_containers", args=["edit", o_type, o_id]))        
+        if o_type is not None and hasattr(manager, o_type) and o_id > 0:        
+            form = ContainerForm(data=request.REQUEST.copy())
+            if form.is_valid():
+                logger.debug("Create new in %s: %s" % (o_type, str(form.cleaned_data)))
+                name = form.cleaned_data['name']
+                description = form.cleaned_data['description']                
+                manager.createDataset(name, description)
+                rdict = {'bad':'false' }
+                json = simplejson.dumps(rdict, ensure_ascii=False)
+                return HttpResponse( json, mimetype='application/javascript')
+            else:
+                d = dict()
+                for e in form.errors.iteritems():
+                    d.update({e[0]:unicode(e[1])}) 
+                rdict = {'bad':'true','errs': d }
+                json = simplejson.dumps(rdict, ensure_ascii=False)
+                return HttpResponse( json, mimetype='application/javascript')
+        elif request.REQUEST.get('folder_type') in ("project", "screen", "dataset"):
+            form = ContainerForm(data=request.REQUEST.copy())
+            if form.is_valid():
+                logger.debug("Create new: %s" % (str(form.cleaned_data)))
+                name = form.cleaned_data['name']                
+                description = form.cleaned_data['description']
+                getattr(manager, "create"+request.REQUEST.get('folder_type').capitalize())(name, description)                
+                rdict = {'bad':'false' }
+                json = simplejson.dumps(rdict, ensure_ascii=False)
+                return HttpResponse( json, mimetype='application/javascript')
+            else:
+                d = dict()
+                for e in form.errors.iteritems():
+                    d.update({e[0]:unicode(e[1])}) 
+                rdict = {'bad':'true','errs': d }
+                json = simplejson.dumps(rdict, ensure_ascii=False)
+                return HttpResponse( json, mimetype='application/javascript')
+        else:
+            return HttpResponseServerError("Object does not exist")
+    elif action == 'addnew':
+        if not request.method == 'POST':
+            return HttpResponseRedirect(reverse("manage_action_containers", args=["action", "new"]))
+        if o_type == "project" and o_id > 0:
+            form = ContainerForm(data=request.REQUEST.copy())
+            if form.is_valid():
+                name = form.cleaned_data['name']
+                description = form.cleaned_data['description']
+                manager.createDataset(name, description)
+                return HttpJavascriptRedirect(reverse(viewname="load_template", args=[menu])) 
+            else:
+                template = "webclient/data/container_new.html"
+                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form}
+        else:
+            if request.REQUEST.get('folder_type') == "dataset":
+                form = ContainerForm(data=request.REQUEST.copy())
+                if form.is_valid():
+                    name = form.cleaned_data['name']
+                    description = form.cleaned_data['description']
+                    manager.createDataset(name, description)
+                    return HttpJavascriptRedirect(reverse(viewname="load_template", args=[menu])) 
+                else:
+                    template = "webclient/data/container_new.html"
+                    context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form}
+            elif request.REQUEST.get('folder_type') == "project":
+                form = ContainerForm(data=request.REQUEST.copy())
+                if form.is_valid():
+                    name = form.cleaned_data['name']
+                    description = form.cleaned_data['description']
+                    manager.createProject(name, description)
+                    return HttpJavascriptRedirect(reverse(viewname="load_template", args=[menu])) 
+                else:
+                    template = "webclient/data/container_new.html"
+                    context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form}
+            elif request.REQUEST.get('folder_type') == "screen":
+                form = ContainerForm(data=request.REQUEST.copy())
+                if form.is_valid():
+                    name = form.cleaned_data['name']
+                    description = form.cleaned_data['description']
+                    manager.createScreen(name, description)
+                    return HttpJavascriptRedirect(reverse(viewname="load_template", args=[menu])) 
+                else:
+                    template = "webclient/data/container_new.html"
+                    context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form}
     elif action == 'edit':
         if o_type == "share" and o_id > 0:
             template = "webclient/public/share_form.html"
@@ -1279,6 +1374,70 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             template = "webclient/data/container_form.html"
             form = ContainerForm(initial={'name': obj.name, 'description':obj.description})
             context = {'nav':request.session['nav'], 'url':url, 'eContext':manager.eContext, 'manager':manager, 'form':form}
+    elif action == 'save':
+        if not request.method == 'POST':
+            return HttpResponseRedirect(reverse("manage_action_containers", args=["edit", o_type, o_id]))        
+        if o_type in ("project", "dataset", "image", "screen", "plate", "well"):
+            if hasattr(manager, o_type) and o_id > 0:
+                form = ContainerForm(data=request.REQUEST.copy())
+                if form.is_valid():
+                    name = form.cleaned_data['name']
+                    description = form.cleaned_data['description']               
+                    getattr(manager, "update"+o_type.capitalize())(name, description)
+                    return HttpResponseRedirect(url)
+                else:
+                    template = "webclient/data/container_form.html"
+                    context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
+        elif o_type == 'comment':
+            form = CommentAnnotationForm(data=request.REQUEST.copy())
+            if form.is_valid():
+                content = form.cleaned_data['content']
+                manager.saveCommentAnnotation(content)
+                return HttpResponseRedirect(url)
+            else:
+                template = "webclient/data/container_form.html"
+                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
+        elif o_type == 'tag':
+            form = TagAnnotationForm(data=request.REQUEST.copy())
+            if form.is_valid():
+                tag = form.cleaned_data['tag']
+                description = form.cleaned_data['description']
+                manager.saveTagAnnotation(tag, description)
+                return HttpResponseRedirect(url)
+            else:
+                template = "webclient/data/container_form.html"
+                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
+        elif o_type == "share":
+            experimenters = list(conn.getExperimenters())            
+            form = ShareForm(initial={'experimenters':experimenters}, data=request.REQUEST.copy())
+            if form.is_valid():
+                message = form.cleaned_data['message']
+                expiration = form.cleaned_data['expiration']
+                members = form.cleaned_data['members']
+                #guests = request.REQUEST['guests']
+                enable = toBoolean(form.cleaned_data['enable'])
+                try:
+                    host = '%s%s' % (settings.APPLICATION_HOST, reverse("webindex"))
+                except:
+                    host = '%s://%s:%s%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], reverse("webindex"))
+                manager.updateShareOrDiscussion(host, request.session['server'], message, members, enable, expiration)
+                return HttpResponseRedirect(url)
+            else:
+                template = "webclient/public/share_form.html"
+                context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'share':manager, 'form':form}
+        elif o_type == "sharecomment":
+            form_sharecomments = ShareCommentForm(data=request.REQUEST.copy())
+            if form_sharecomments.is_valid():
+                comment = form_sharecomments.cleaned_data['comment']
+                try:
+                    host = '%s%s' % (settings.APPLICATION_HOST, reverse("webindex"))
+                except:
+                    host = '%s://%s:%s%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], reverse("webindex"))
+                manager.addComment(host, request.session['server'], comment)
+                return HttpResponseRedirect(url)
+            else:
+                template = "webclient/annotations/annotation_new_form.html"
+                context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager, 'form_sharecomments':form_sharecomments}
     elif action == 'editname':
         if hasattr(manager, o_type) and o_id > 0:
             obj = getattr(manager, o_type)
@@ -1348,7 +1507,14 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             pass
         rv = manager.move(parent,destination)
         if rv:
-            rv = "Error: %s" % rv
+            rdict = {'bad':'true','errs': rv }
+            json = simplejson.dumps(rdict, ensure_ascii=False)
+            return HttpResponse( json, mimetype='application/javascript')
+            
+        else:
+            rdict = {'bad':'false' }
+            json = simplejson.dumps(rdict, ensure_ascii=False)
+            return HttpResponse( json, mimetype='application/javascript')
         return HttpResponse(rv)
     elif action == 'remove':
         parent = request.REQUEST['parent'].split('-')
@@ -1384,115 +1550,7 @@ def manage_action_containers(request, action, o_type=None, o_id=None, **kwargs):
             logger.error(traceback.format_exc())
             rv = "Error: %s" % x
             return HttpResponse(rv)
-        return HttpResponseRedirect(url)    
-    elif action == 'save':
-        if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("manage_action_containers", args=["edit", o_type, o_id]))        
-        if o_type in ("project", "dataset", "image", "screen", "plate", "well"):
-            if hasattr(manager, o_type) and o_id > 0:
-                form = ContainerForm(data=request.REQUEST.copy())
-                if form.is_valid():
-                    name = form.cleaned_data['name']
-                    description = form.cleaned_data['description']               
-                    getattr(manager, "update"+o_type.capitalize())(name, description)
-                    return HttpResponseRedirect(url)
-                else:
-                    template = "webclient/data/container_form.html"
-                    context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
-        elif o_type == 'comment':
-            form = CommentAnnotationForm(data=request.REQUEST.copy())
-            if form.is_valid():
-                content = form.cleaned_data['content']
-                manager.saveCommentAnnotation(content)
-                return HttpResponseRedirect(url)
-            else:
-                template = "webclient/data/container_form.html"
-                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
-        elif o_type == 'tag':
-            form = TagAnnotationForm(data=request.REQUEST.copy())
-            if form.is_valid():
-                tag = form.cleaned_data['tag']
-                description = form.cleaned_data['description']
-                manager.saveTagAnnotation(tag, description)
-                return HttpResponseRedirect(url)
-            else:
-                template = "webclient/data/container_form.html"
-                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'eContext':manager.eContext, 'form':form}
-        elif o_type == "share":
-            experimenters = list(conn.getExperimenters())            
-            form = ShareForm(initial={'experimenters':experimenters}, data=request.REQUEST.copy())
-            if form.is_valid():
-                message = form.cleaned_data['message']
-                expiration = form.cleaned_data['expiration']
-                members = form.cleaned_data['members']
-                #guests = request.REQUEST['guests']
-                enable = toBoolean(form.cleaned_data['enable'])
-                try:
-                    host = '%s%s' % (settings.APPLICATION_HOST, reverse("webindex"))
-                except:
-                    host = '%s://%s:%s%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], reverse("webindex"))
-                manager.updateShareOrDiscussion(host, request.session['server'], message, members, enable, expiration)
-                return HttpResponseRedirect(url)
-            else:
-                template = "webclient/public/share_form.html"
-                context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'share':manager, 'form':form}
-        elif o_type == "sharecomment":
-            form_sharecomments = ShareCommentForm(data=request.REQUEST.copy())
-            if form_sharecomments.is_valid():
-                comment = form_sharecomments.cleaned_data['comment']
-                try:
-                    host = '%s%s' % (settings.APPLICATION_HOST, reverse("webindex"))
-                except:
-                    host = '%s://%s:%s%s' % (request.META['wsgi.url_scheme'], request.META['SERVER_NAME'], request.META['SERVER_PORT'], reverse("webindex"))
-                manager.addComment(host, request.session['server'], comment)
-                return HttpResponseRedirect(url)
-            else:
-                template = "webclient/annotations/annotation_new_form.html"
-                context = {'nav':request.session['nav'], 'url':url, 'eContext': manager.eContext, 'manager':manager, 'form_sharecomments':form_sharecomments}      
-    elif action == 'addnew':
-        if not request.method == 'POST':
-            return HttpResponseRedirect(reverse("manage_action_containers", args=["action", "new"]))
-        if o_type == "project" and o_id > 0:
-            form = ContainerForm(data=request.REQUEST.copy())
-            if form.is_valid():
-                name = form.cleaned_data['name']
-                description = form.cleaned_data['description']
-                manager.createDataset(name, description)
-                return HttpJavascriptRedirect(reverse(viewname="load_template", args=[menu])) 
-            else:
-                template = "webclient/data/container_new.html"
-                context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form}
-        else:
-            if request.REQUEST.get('folder_type') == "dataset":
-                form = ContainerForm(data=request.REQUEST.copy())
-                if form.is_valid():
-                    name = form.cleaned_data['name']
-                    description = form.cleaned_data['description']
-                    manager.createDataset(name, description)
-                    return HttpJavascriptRedirect(reverse(viewname="load_template", args=[menu])) 
-                else:
-                    template = "webclient/data/container_new.html"
-                    context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form}
-            elif request.REQUEST.get('folder_type') == "project":
-                form = ContainerForm(data=request.REQUEST.copy())
-                if form.is_valid():
-                    name = form.cleaned_data['name']
-                    description = form.cleaned_data['description']
-                    manager.createProject(name, description)
-                    return HttpJavascriptRedirect(reverse(viewname="load_template", args=[menu])) 
-                else:
-                    template = "webclient/data/container_new.html"
-                    context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form}
-            elif request.REQUEST.get('folder_type') == "screen":
-                form = ContainerForm(data=request.REQUEST.copy())
-                if form.is_valid():
-                    name = form.cleaned_data['name']
-                    description = form.cleaned_data['description']
-                    manager.createScreen(name, description)
-                    return HttpJavascriptRedirect(reverse(viewname="load_template", args=[menu])) 
-                else:
-                    template = "webclient/data/container_new.html"
-                    context = {'nav':request.session['nav'], 'url':url, 'manager':manager, 'form':form}
+        return HttpResponseRedirect(url)
     elif action == 'addcomment':
         if not request.method == 'POST':
             return HttpResponseRedirect(reverse("manage_action_containers", args=["newcomment", o_type, oid]))

@@ -888,9 +888,9 @@ class BaseContainer(BaseController):
         if self.project is not None:
             return 'Cannot move project.'
         elif self.dataset is not None:
-            if destination[0] == 'ds':
+            if destination[0] == 'dataset':
                 return 'Cannot move dataset to dataset'
-            elif destination[0] == 'pr':
+            elif destination[0] == 'project':
                 up_pdl = None
                 pdls = self.dataset.getParentLinks()
                 already_there = None
@@ -913,7 +913,7 @@ class BaseContainer(BaseController):
                         up_pdl.setChild(self.dataset._obj)
                         up_pdl.setParent(new_pr._obj)
                         self.conn.saveObject(up_pdl)
-            elif destination[0] == '0':
+            elif destination[0] == 'experimenter':
                 up_pdl = None
                 pdls = list(self.dataset.getParentLinks())
                 
@@ -924,12 +924,12 @@ class BaseContainer(BaseController):
                         self.conn.deleteObjectDirect(up_pdl._obj)
                 else:
                     return 'This dataset is linked in multiple places. Please unlink the dataset first.'
-            elif destination[0] == 'orphan':
+            elif destination[0] == 'orphaned':
                 return 'Cannot move dataset to orphaned images.'
             else:
                 return 'Destination not supported.'
         elif self.image is not None:
-            if destination[0] == 'ds':
+            if destination[0] == 'dataset':
                 up_dsl = None
                 dsls = self.image.getParentLinks() #gets every links for child
                 already_there = None
@@ -957,9 +957,9 @@ class BaseContainer(BaseController):
                         up_dsl.setChild(self.image._obj)
                         up_dsl.setParent(new_ds._obj)
                         self.conn.saveObject(up_dsl)
-            elif destination[0] == 'pr':
+            elif destination[0] == 'project':
                 return 'Cannot move image to project.'
-            elif destination[0] == '0' or destination[0] == 'orphaned':
+            elif destination[0] == 'experimenter' or destination[0] == 'orphaned':
                 if parent[0] != destination[0]:
                     up_dsl = None
                     dsls = list(self.image.getParentLinks()) #gets every links for child
@@ -975,9 +975,9 @@ class BaseContainer(BaseController):
         elif self.screen is not None:
             return 'Cannot move screen.'
         elif self.plate is not None:
-            if destination[0] == 'pl':
+            if destination[0] == 'plate':
                 return 'Cannot move plate to plate'
-            elif destination[0] == 'sc':
+            elif destination[0] == 'screen':
                 up_spl = None
                 spls = self.plate.getParentLinks()
                 already_there = None
@@ -1000,7 +1000,7 @@ class BaseContainer(BaseController):
                         up_spl.setChild(self.plate._obj)
                         up_spl.setParent(new_sc._obj)
                         self.conn.saveObject(up_spl)
-            elif destination[0] == '0' or destination[0] == 'orphan':
+            elif destination[0] == 'experimenter' or destination[0] == 'orphaned':
                 if parent[0] != destination[0]:
                     up_spl = None
                     spls = list(self.plate.getParentLinks()) #gets every links for child
@@ -1032,17 +1032,17 @@ class BaseContainer(BaseController):
                     self.conn.deleteObjectDirect(al._obj)
         
         elif self.dataset is not None:
-            if parent[0] == 'pr':
+            if parent[0] == 'project':
                 for pdl in self.dataset.getParentLinks([parent[1]]):
                     if pdl is not None:
                         self.conn.deleteObjectDirect(pdl._obj)
         elif self.plate is not None:
-            if parent[0] == 'sc':
+            if parent[0] == 'screen':
                 for spl in self.plate.getParentLinks([parent[1]]):
                     if spl is not None:
                         self.conn.deleteObjectDirect(spl._obj)
         elif self.image is not None:
-            if parent[0] == 'ds':
+            if parent[0] == 'dataset':
                 for dil in self.image.getParentLinks([parent[1]]):
                     if dil is not None:
                         self.conn.deleteObjectDirect(dil._obj)
