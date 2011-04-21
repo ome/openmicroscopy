@@ -2752,7 +2752,7 @@ class ImViewerComponent
 		
 		if (model.isBigImage()) { //bird eye loaded.
 			model.fireBirdEyeViewRetrieval();
-			model.fireTileLoading();
+			model.fireTileLoading(null);
 		} else renderXYPlane();
 		fireStateChange();
 	}
@@ -3193,12 +3193,25 @@ class ImViewerComponent
 	 */
 	public void setTile(Tile tile, boolean done)
 	{
+		if (model.getState() == DISCARDED) return;
 		model.getBrowser().getUI().repaint();
 		if (done) {
 			model.setState(READY);
 			fireStateChange();
 		}
 	}
+	
+	/** 
+	 * Implemented as specified by the {@link ImViewer} interface.
+	 * @see ImViewer#loadTiles(List)
+	 */
+	public void loadTiles(List<Tile> tiles)
+	{
+		if (model.getState() == DISCARDED) return;
+		if (tiles == null || tiles.size() == 0) return;
+		model.fireTileLoading(tiles);
+	}
+	
 	
 	/** 
 	 * Overridden to return the name of the instance to save. 

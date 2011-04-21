@@ -131,7 +131,7 @@ class BrowserUI
     	int w = (int) (vx*region.width);
     	int h = (int) (vy*region.height);
     	Rectangle r = new Rectangle(x, y, w, h);
-    	//To we need to load the files.
+    	model.checkTilesToLoad(r);
     	scrollTo(r, false);
     }
     
@@ -152,7 +152,7 @@ class BrowserUI
         canvasListener.setHandleKeyDown(true);
         //getVerticalScrollBar().addMouseMotionListener(this);
         //getHorizontalScrollBar().addMouseMotionListener(this);
-        installScrollbarListener(true);
+        //installScrollbarListener(true);
     }
     
     /** Builds and lays out the GUI. */
@@ -269,7 +269,8 @@ class BrowserUI
     		birdEyeView.setup();
     		addComponentToLayer(birdEyeView);
     		setBirdEyeViewLocation();
-    		displaySelectedRegion(birdEyeView.getSelectionRegion());
+    		model.checkTilesToLoad(getViewport().getViewRect());
+    		installScrollbarListener(true);
     	}
     	birdEyeView.setImage(image);
 	}
@@ -479,7 +480,9 @@ class BrowserUI
         if (e.getValueIsAdjusting()) {
         	adjusting = true;
         	setBirdEyeViewLocation();
+        	return;
         }
+        model.checkTilesToLoad(getViewport().getViewRect());
 	}
 	
 	/**
@@ -498,7 +501,10 @@ class BrowserUI
 	public void setBounds(int x, int y, int width, int height)
 	{
 		super.setBounds(x, y, width, height);
-		if (model.isBigImage()) return;
+		if (model.isBigImage()) {
+			setBirdEyeViewLocation();
+			return;
+		}
 		if (!scrollbarsVisible() && adjusting) adjusting = false;
 		if (adjusting) return;
 		Rectangle r = getViewport().getViewRect();
@@ -509,7 +515,6 @@ class BrowserUI
 		if (sibling != null) 
 			sibling.setBounds(sibling.getBounds());
 		layeredPane.setBounds(xLoc, yLoc, d.width, d.height);
-		setBirdEyeViewLocation();
 	}
 	
 	/**

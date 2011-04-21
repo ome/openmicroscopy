@@ -1210,4 +1210,11 @@ public interface ImViewer
      */
 	public void setTile(Tile tile, boolean done);
     
+	/**
+	 * Loads the passed tiles.
+	 * 
+	 * @param tiles The tiles to handle.
+	 */
+	public void loadTiles(List<Tile> tiles);
+	
 }

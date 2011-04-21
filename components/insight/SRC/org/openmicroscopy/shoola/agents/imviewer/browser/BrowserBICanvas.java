@@ -73,6 +73,8 @@ class BrowserBICanvas
     	Graphics2D g2D = (Graphics2D) g;
         ImagePaintingFactory.setGraphicRenderingSettings(g2D);
         if (model.isBigImage()) {
+        	g2D.setColor(BACKGROUND);
+        	g2D.drawRect(0, 0, getWidth(), getHeight());
         	Map<Integer, Tile> tiles = model.getTiles();
         	int rows = model.getRows();
         	int columns = model.getColumns();
@@ -90,7 +92,6 @@ class BrowserBICanvas
     					 g2D.drawImage((BufferedImage) img, null, 
     							 region.getX(), region.getY()); 
     				else {
-    					g2D.setColor(Color.black);
     					g2D.drawRect(region.getX(), region.getY(), 
     							region.getWidth(), region.getHeight());
     				}

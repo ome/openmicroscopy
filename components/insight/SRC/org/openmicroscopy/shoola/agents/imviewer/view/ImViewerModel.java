@@ -32,7 +32,6 @@ import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -2445,8 +2444,12 @@ class ImViewerModel
      */
     Map<Integer, Tile> getTiles() { return tiles; }
 
-    /** Fires an asynchronous call to load the tiles. */
-    void fireTileLoading()
+    /** 
+     * Fires an asynchronous call to load the tiles.
+     * 
+     * @param selection The collection of tiles to load.
+     */
+    void fireTileLoading(List<Tile> selection)
     {
     	Renderer rnd = metadataViewer.getRenderer();
 		if (rnd == null) return;
@@ -2455,15 +2458,23 @@ class ImViewerModel
 		pDef.z = getDefaultZ();
 		pDef.slice = omero.romio.XY.value;
 		state = ImViewer.LOADING_IMAGE;
-		Iterator<Tile> i = tiles.values().iterator();
-		List<Tile> list = new ArrayList<Tile>();
-		while (i.hasNext()) {
-			list.add(i.next());
+		List<Tile> list;
+		if (selection == null) { //initialize
+			list = new ArrayList<Tile>();
+			Iterator<Tile> i = tiles.values().iterator();
+			while (i.hasNext()) {
+				list.add(i.next());
+			}
+			sortTilesByIndex(list);
+		} else {
+			list = selection;
+			sortTilesByIndex(list);
+			TileLoader loader = new TileLoader(component, currentPixelsID, pDef, 
+					list);
+			loader.load();
 		}
-		sortTilesByIndex(list);
-		TileLoader loader = new TileLoader(component, currentPixelsID, pDef, 
-				list);
-		loader.load();
+		
+		
     }
     
 }

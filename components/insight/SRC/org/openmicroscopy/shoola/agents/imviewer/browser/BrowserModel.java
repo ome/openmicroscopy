@@ -27,6 +27,7 @@ package org.openmicroscopy.shoola.agents.imviewer.browser;
 //Java imports
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
 import java.util.ArrayList;
@@ -1231,4 +1232,39 @@ class BrowserModel
     	return false;
     }
 
+    /**
+     * Checks if the tiles have to be loaded.
+     * 
+     * @param r The selected rectangle.
+     */
+    void checkTilesToLoad(Rectangle r)
+    {
+    	if (r == null) return;
+    	Map<Integer, Tile> tiles = getTiles();
+    	if (tiles == null) return;
+    	Dimension d = getTileSize();
+    	int cs = r.x/d.width-1;
+    	int rs = r.y/d.height-1;
+    	int ih = r.width/d.width;
+    	int iv = r.height/d.height;
+    	int columns = getColumns();
+    	int index;
+    	Tile t;
+    	if (cs < 0) cs = 0;
+    	if (rs < 0) rs = 0;
+    	int h = rs+iv+2;
+    	int w = cs+ih+2;
+    	List<Tile> l = new ArrayList<Tile>();
+    	for (int i = rs; i <= h; i++) {
+			for (int j = cs; j <= w; j++) {
+				index = i*columns+j;
+				t = tiles.get(index);
+				if (t != null && !t.isImageLoaded()) {
+					l.add(t);
+				}
+			}
+    	}
+    	parent.loadTiles(l);
+    }
+    
 }
